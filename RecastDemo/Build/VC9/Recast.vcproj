@@ -18,7 +18,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\..\Examples"
+			OutputDirectory="..\..\Bin"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\Contrib\SDL\include;..\..\Include;..\..\Examples;$(NOINHERIT)"
+				AdditionalIncludeDirectories="..\..\Contrib\SDL\include;..\..\Include;..\..\..\Recast\Include;$(NOINHERIT)"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -92,7 +92,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\..\Examples"
+			OutputDirectory="..\..\Bin"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
@@ -117,7 +117,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\Contrib\SDL\include;..\..\Include;..\..\Examples;$(NOINHERIT)"
+				AdditionalIncludeDirectories="..\..\Contrib\SDL\include;..\..\Include;..\..\..\Recast\Include;$(NOINHERIT)"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -177,55 +177,55 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\Examples\demo.cpp"
+				RelativePath="..\..\Source\demo.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Examples\glfont.cpp"
+				RelativePath="..\..\Source\glfont.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Examples\imgui.cpp"
+				RelativePath="..\..\Source\imgui.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Examples\MeshLoaderObj.cpp"
+				RelativePath="..\..\Source\MeshLoaderObj.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Source\Recast.cpp"
+				RelativePath="..\..\..\Recast\Source\Recast.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Source\RecastContour.cpp"
+				RelativePath="..\..\..\Recast\Source\RecastContour.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Source\RecastDebugDraw.cpp"
+				RelativePath="..\..\..\Recast\Source\RecastDebugDraw.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Source\RecastFilter.cpp"
+				RelativePath="..\..\..\Recast\Source\RecastFilter.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Source\RecastLog.cpp"
+				RelativePath="..\..\..\Recast\Source\RecastLog.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Source\RecastMesh.cpp"
+				RelativePath="..\..\..\Recast\Source\RecastMesh.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Source\RecastRasterization.cpp"
+				RelativePath="..\..\..\Recast\Source\RecastRasterization.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Source\RecastRegion.cpp"
+				RelativePath="..\..\..\Recast\Source\RecastRegion.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Source\RecastTimer.cpp"
+				RelativePath="..\..\..\Recast\Source\RecastTimer.cpp"
 				>
 			</File>
 		</Filter>
@@ -235,31 +235,35 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\..\Examples\glfont.h"
+				RelativePath="..\..\Include\glfont.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Examples\imgui.h"
+				RelativePath="..\..\Include\imgui.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Examples\MeshLoaderObj.h"
+				RelativePath="..\..\Include\MeshLoaderObj.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Include\Recast.h"
+				RelativePath="..\..\..\Recast\Include\Recast.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Include\RecastDebugDraw.h"
+				RelativePath="..\..\..\Recast\Include\RecastDebugDraw.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Include\RecastLog.h"
+				RelativePath="..\..\..\Recast\Include\RecastLog.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Include\RecastTimer.h"
+				RelativePath="..\..\..\Recast\Include\RecastTimer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Include\SDLMain.h"
 				>
 			</File>
 		</Filter>
