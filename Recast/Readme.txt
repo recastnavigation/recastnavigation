@@ -25,9 +25,26 @@ the regions as simple polygons.
       finally converted to convex polygons which makes them perfect for 
       pathfinding and spatial reasoning about the level. 
 
-The project files with this distribution can be compiled with Microsoft Visual C++ 2008 (you can download it for free) and XCode 3.1.
+The project files with this distribution can be compiled with Microsoft Visual C++ 2008
+(you can download it for free) and XCode 3.1.
 
 You can find examples how to use the library on the Examples directory.
+
+--
+
+Recast 1.0 Release Notes
+Released March 29th, 2009
+
+This is the first release of Recast.
+
+The process is not always as robust as I would wish. The watershed phase sometimes swallows tiny islands
+which are close to edges. These droppings are handled in rcBuildContours, but the code is not
+particularly robust either.
+
+Another non-robust case is when portal contours (contours shared between two regions) are always
+assumed to be straight. That can lead to overlapping contours specially when the level has
+large open areas.
+
 
 
 Mikko Mononen
