@@ -25,15 +25,19 @@ the regions as simple polygons.
       finally converted to convex polygons which makes them perfect for 
       pathfinding and spatial reasoning about the level. 
 
+The toolset code is located in the Recast folder and demo application using the Recast
+toolset is located in the RecastDemo folder.
+
 The project files with this distribution can be compiled with Microsoft Visual C++ 2008
 (you can download it for free) and XCode 3.1.
 
-You can find examples how to use the library on the Examples directory.
-
 --
 
-Recast 1.0 Release Notes
-Released March 29th, 2009
+Release Notes
+
+----------------
+* Recast 1.0
+  Released March 29th, 2009
 
 This is the first release of Recast.
 
