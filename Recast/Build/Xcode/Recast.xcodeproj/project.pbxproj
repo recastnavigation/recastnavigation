@@ -38,6 +38,7 @@
 		32CA4F630368D1EE00C91783 /* Recast_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Recast_Prefix.pch; sourceTree = "<group>"; };
 		6B68D7620F78196F007E6D78 /* RecastDebugDraw.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RecastDebugDraw.h; path = ../../Include/RecastDebugDraw.h; sourceTree = SOURCE_ROOT; };
 		6B68D7630F78196F007E6D78 /* RecastTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RecastTimer.h; path = ../../Include/RecastTimer.h; sourceTree = SOURCE_ROOT; };
+		6B803CE90F7F8A6D00255AE5 /* RecastLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RecastLog.h; path = ../../Include/RecastLog.h; sourceTree = SOURCE_ROOT; };
 		6B8632B90F78119A00E2684A /* SDLMain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SDLMain.h; path = ../../Examples/SDLMain.h; sourceTree = SOURCE_ROOT; };
 		6B8632BA0F78119A00E2684A /* SDLMain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SDLMain.m; path = ../../Examples/SDLMain.m; sourceTree = SOURCE_ROOT; };
 		6B8632BC0F7811CB00E2684A /* demo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = demo.cpp; path = ../../Examples/demo.cpp; sourceTree = SOURCE_ROOT; };
@@ -55,7 +56,6 @@
 		6B8633600F7816FA00E2684A /* RecastDebugDraw.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RecastDebugDraw.cpp; path = ../../Source/RecastDebugDraw.cpp; sourceTree = SOURCE_ROOT; };
 		6B8633620F7816FA00E2684A /* RecastFilter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RecastFilter.cpp; path = ../../Source/RecastFilter.cpp; sourceTree = SOURCE_ROOT; };
 		6B8633630F7816FA00E2684A /* RecastLog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RecastLog.cpp; path = ../../Source/RecastLog.cpp; sourceTree = SOURCE_ROOT; };
-		6B8633640F7816FA00E2684A /* RecastLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RecastLog.h; path = ../../Source/RecastLog.h; sourceTree = SOURCE_ROOT; };
 		6B8633650F7816FA00E2684A /* RecastMesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RecastMesh.cpp; path = ../../Source/RecastMesh.cpp; sourceTree = SOURCE_ROOT; };
 		6B8633660F7816FA00E2684A /* RecastRasterization.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RecastRasterization.cpp; path = ../../Source/RecastRasterization.cpp; sourceTree = SOURCE_ROOT; };
 		6B8633670F7816FA00E2684A /* RecastRegion.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RecastRegion.cpp; path = ../../Source/RecastRegion.cpp; sourceTree = SOURCE_ROOT; };
@@ -165,6 +165,7 @@
 		6B8633730F7816FE00E2684A /* Recast */ = {
 			isa = PBXGroup;
 			children = (
+				6B803CE90F7F8A6D00255AE5 /* RecastLog.h */,
 				6B68D7620F78196F007E6D78 /* RecastDebugDraw.h */,
 				6B68D7630F78196F007E6D78 /* RecastTimer.h */,
 				6B86335E0F7816FA00E2684A /* Recast.cpp */,
@@ -172,7 +173,6 @@
 				6B8633600F7816FA00E2684A /* RecastDebugDraw.cpp */,
 				6B8633620F7816FA00E2684A /* RecastFilter.cpp */,
 				6B8633630F7816FA00E2684A /* RecastLog.cpp */,
-				6B8633640F7816FA00E2684A /* RecastLog.h */,
 				6B8633650F7816FA00E2684A /* RecastMesh.cpp */,
 				6B8633660F7816FA00E2684A /* RecastRasterization.cpp */,
 				6B8633670F7816FA00E2684A /* RecastRegion.cpp */,
