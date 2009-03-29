@@ -1,0 +1,364 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 45;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		1DDD58160DA1D0A300B32029 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1DDD58140DA1D0A300B32029 /* MainMenu.xib */; };
+		6B137C6F0F7FCBBB00459200 /* demo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B137C6A0F7FCBBB00459200 /* demo.cpp */; };
+		6B137C700F7FCBBB00459200 /* glfont.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B137C6B0F7FCBBB00459200 /* glfont.cpp */; };
+		6B137C710F7FCBBB00459200 /* imgui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B137C6C0F7FCBBB00459200 /* imgui.cpp */; };
+		6B137C720F7FCBBB00459200 /* MeshLoaderObj.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B137C6D0F7FCBBB00459200 /* MeshLoaderObj.cpp */; };
+		6B137C730F7FCBBB00459200 /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 6B137C6E0F7FCBBB00459200 /* SDLMain.m */; };
+		6B137C8B0F7FCC1100459200 /* Recast.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B137C820F7FCC1100459200 /* Recast.cpp */; };
+		6B137C8C0F7FCC1100459200 /* RecastContour.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B137C830F7FCC1100459200 /* RecastContour.cpp */; };
+		6B137C8D0F7FCC1100459200 /* RecastDebugDraw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B137C840F7FCC1100459200 /* RecastDebugDraw.cpp */; };
+		6B137C8E0F7FCC1100459200 /* RecastFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B137C850F7FCC1100459200 /* RecastFilter.cpp */; };
+		6B137C8F0F7FCC1100459200 /* RecastLog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B137C860F7FCC1100459200 /* RecastLog.cpp */; };
+		6B137C900F7FCC1100459200 /* RecastMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B137C870F7FCC1100459200 /* RecastMesh.cpp */; };
+		6B137C910F7FCC1100459200 /* RecastRasterization.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B137C880F7FCC1100459200 /* RecastRasterization.cpp */; };
+		6B137C920F7FCC1100459200 /* RecastRegion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B137C890F7FCC1100459200 /* RecastRegion.cpp */; };
+		6B137C930F7FCC1100459200 /* RecastTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B137C8A0F7FCC1100459200 /* RecastTimer.cpp */; };
+		6B8632DA0F78122C00E2684A /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6B8632D90F78122C00E2684A /* SDL.framework */; };
+		6B8632DC0F78123E00E2684A /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6B8632DB0F78123E00E2684A /* OpenGL.framework */; };
+		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
+		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		089C165DFE840E0CC02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
+		13E42FB307B3F0F600E4EEF1 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = /System/Library/Frameworks/CoreData.framework; sourceTree = "<absolute>"; };
+		1DDD58150DA1D0A300B32029 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
+		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
+		32CA4F630368D1EE00C91783 /* Recast_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Recast_Prefix.pch; sourceTree = "<group>"; };
+		6B137C6A0F7FCBBB00459200 /* demo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = demo.cpp; path = ../../Source/demo.cpp; sourceTree = SOURCE_ROOT; };
+		6B137C6B0F7FCBBB00459200 /* glfont.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = glfont.cpp; path = ../../Source/glfont.cpp; sourceTree = SOURCE_ROOT; };
+		6B137C6C0F7FCBBB00459200 /* imgui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = imgui.cpp; path = ../../Source/imgui.cpp; sourceTree = SOURCE_ROOT; };
+		6B137C6D0F7FCBBB00459200 /* MeshLoaderObj.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MeshLoaderObj.cpp; path = ../../Source/MeshLoaderObj.cpp; sourceTree = SOURCE_ROOT; };
+		6B137C6E0F7FCBBB00459200 /* SDLMain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SDLMain.m; path = ../../Source/SDLMain.m; sourceTree = SOURCE_ROOT; };
+		6B137C790F7FCBE400459200 /* glfont.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glfont.h; path = ../../Include/glfont.h; sourceTree = SOURCE_ROOT; };
+		6B137C7A0F7FCBE400459200 /* imgui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = imgui.h; path = ../../Include/imgui.h; sourceTree = SOURCE_ROOT; };
+		6B137C7B0F7FCBE400459200 /* MeshLoaderObj.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MeshLoaderObj.h; path = ../../Include/MeshLoaderObj.h; sourceTree = SOURCE_ROOT; };
+		6B137C7C0F7FCBE400459200 /* SDLMain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SDLMain.h; path = ../../Include/SDLMain.h; sourceTree = SOURCE_ROOT; };
+		6B137C7E0F7FCBFE00459200 /* Recast.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Recast.h; path = ../../../Recast/Include/Recast.h; sourceTree = SOURCE_ROOT; };
+		6B137C7F0F7FCBFE00459200 /* RecastDebugDraw.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RecastDebugDraw.h; path = ../../../Recast/Include/RecastDebugDraw.h; sourceTree = SOURCE_ROOT; };
+		6B137C800F7FCBFE00459200 /* RecastLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RecastLog.h; path = ../../../Recast/Include/RecastLog.h; sourceTree = SOURCE_ROOT; };
+		6B137C810F7FCBFE00459200 /* RecastTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RecastTimer.h; path = ../../../Recast/Include/RecastTimer.h; sourceTree = SOURCE_ROOT; };
+		6B137C820F7FCC1100459200 /* Recast.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Recast.cpp; path = ../../../Recast/Source/Recast.cpp; sourceTree = SOURCE_ROOT; };
+		6B137C830F7FCC1100459200 /* RecastContour.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RecastContour.cpp; path = ../../../Recast/Source/RecastContour.cpp; sourceTree = SOURCE_ROOT; };
+		6B137C840F7FCC1100459200 /* RecastDebugDraw.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RecastDebugDraw.cpp; path = ../../../Recast/Source/RecastDebugDraw.cpp; sourceTree = SOURCE_ROOT; };
+		6B137C850F7FCC1100459200 /* RecastFilter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RecastFilter.cpp; path = ../../../Recast/Source/RecastFilter.cpp; sourceTree = SOURCE_ROOT; };
+		6B137C860F7FCC1100459200 /* RecastLog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RecastLog.cpp; path = ../../../Recast/Source/RecastLog.cpp; sourceTree = SOURCE_ROOT; };
+		6B137C870F7FCC1100459200 /* RecastMesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RecastMesh.cpp; path = ../../../Recast/Source/RecastMesh.cpp; sourceTree = SOURCE_ROOT; };
+		6B137C880F7FCC1100459200 /* RecastRasterization.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RecastRasterization.cpp; path = ../../../Recast/Source/RecastRasterization.cpp; sourceTree = SOURCE_ROOT; };
+		6B137C890F7FCC1100459200 /* RecastRegion.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RecastRegion.cpp; path = ../../../Recast/Source/RecastRegion.cpp; sourceTree = SOURCE_ROOT; };
+		6B137C8A0F7FCC1100459200 /* RecastTimer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RecastTimer.cpp; path = ../../../Recast/Source/RecastTimer.cpp; sourceTree = SOURCE_ROOT; };
+		6B8632D90F78122C00E2684A /* SDL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL.framework; path = Library/Frameworks/SDL.framework; sourceTree = SDKROOT; };
+		6B8632DB0F78123E00E2684A /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		8D1107320486CEB800E47090 /* Recast.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Recast.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		8D11072E0486CEB800E47090 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */,
+				6B8632DA0F78122C00E2684A /* SDL.framework in Frameworks */,
+				6B8632DC0F78123E00E2684A /* OpenGL.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		080E96DDFE201D6D7F000001 /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+				6B137C7D0F7FCBE800459200 /* Recast */,
+				6B137C790F7FCBE400459200 /* glfont.h */,
+				6B137C7A0F7FCBE400459200 /* imgui.h */,
+				6B137C7B0F7FCBE400459200 /* MeshLoaderObj.h */,
+				6B137C7C0F7FCBE400459200 /* SDLMain.h */,
+				6B137C6A0F7FCBBB00459200 /* demo.cpp */,
+				6B137C6B0F7FCBBB00459200 /* glfont.cpp */,
+				6B137C6C0F7FCBBB00459200 /* imgui.cpp */,
+				6B137C6D0F7FCBBB00459200 /* MeshLoaderObj.cpp */,
+				6B137C6E0F7FCBBB00459200 /* SDLMain.m */,
+			);
+			name = Classes;
+			sourceTree = "<group>";
+		};
+		1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				6B8632D90F78122C00E2684A /* SDL.framework */,
+				6B8632DB0F78123E00E2684A /* OpenGL.framework */,
+				1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */,
+			);
+			name = "Linked Frameworks";
+			sourceTree = "<group>";
+		};
+		1058C7A2FEA54F0111CA2CBB /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				29B97324FDCFA39411CA2CEA /* AppKit.framework */,
+				13E42FB307B3F0F600E4EEF1 /* CoreData.framework */,
+				29B97325FDCFA39411CA2CEA /* Foundation.framework */,
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		19C28FACFE9D520D11CA2CBB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8D1107320486CEB800E47090 /* Recast.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		29B97314FDCFA39411CA2CEA /* Recast */ = {
+			isa = PBXGroup;
+			children = (
+				080E96DDFE201D6D7F000001 /* Classes */,
+				29B97315FDCFA39411CA2CEA /* Other Sources */,
+				29B97317FDCFA39411CA2CEA /* Resources */,
+				29B97323FDCFA39411CA2CEA /* Frameworks */,
+				19C28FACFE9D520D11CA2CBB /* Products */,
+			);
+			name = Recast;
+			sourceTree = "<group>";
+		};
+		29B97315FDCFA39411CA2CEA /* Other Sources */ = {
+			isa = PBXGroup;
+			children = (
+				32CA4F630368D1EE00C91783 /* Recast_Prefix.pch */,
+			);
+			name = "Other Sources";
+			sourceTree = "<group>";
+		};
+		29B97317FDCFA39411CA2CEA /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				8D1107310486CEB800E47090 /* Info.plist */,
+				089C165CFE840E0CC02AAC07 /* InfoPlist.strings */,
+				1DDD58140DA1D0A300B32029 /* MainMenu.xib */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */,
+				1058C7A2FEA54F0111CA2CBB /* Other Frameworks */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		6B137C7D0F7FCBE800459200 /* Recast */ = {
+			isa = PBXGroup;
+			children = (
+				6B137C820F7FCC1100459200 /* Recast.cpp */,
+				6B137C830F7FCC1100459200 /* RecastContour.cpp */,
+				6B137C840F7FCC1100459200 /* RecastDebugDraw.cpp */,
+				6B137C850F7FCC1100459200 /* RecastFilter.cpp */,
+				6B137C860F7FCC1100459200 /* RecastLog.cpp */,
+				6B137C870F7FCC1100459200 /* RecastMesh.cpp */,
+				6B137C880F7FCC1100459200 /* RecastRasterization.cpp */,
+				6B137C890F7FCC1100459200 /* RecastRegion.cpp */,
+				6B137C8A0F7FCC1100459200 /* RecastTimer.cpp */,
+				6B137C7E0F7FCBFE00459200 /* Recast.h */,
+				6B137C7F0F7FCBFE00459200 /* RecastDebugDraw.h */,
+				6B137C800F7FCBFE00459200 /* RecastLog.h */,
+				6B137C810F7FCBFE00459200 /* RecastTimer.h */,
+			);
+			name = Recast;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		8D1107260486CEB800E47090 /* Recast */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C01FCF4A08A954540054247B /* Build configuration list for PBXNativeTarget "Recast" */;
+			buildPhases = (
+				8D1107290486CEB800E47090 /* Resources */,
+				8D11072C0486CEB800E47090 /* Sources */,
+				8D11072E0486CEB800E47090 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Recast;
+			productInstallPath = "$(HOME)/Applications";
+			productName = Recast;
+			productReference = 8D1107320486CEB800E47090 /* Recast.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		29B97313FDCFA39411CA2CEA /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "Recast" */;
+			compatibilityVersion = "Xcode 3.1";
+			hasScannedForEncodings = 1;
+			mainGroup = 29B97314FDCFA39411CA2CEA /* Recast */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				8D1107260486CEB800E47090 /* Recast */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		8D1107290486CEB800E47090 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */,
+				1DDD58160DA1D0A300B32029 /* MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		8D11072C0486CEB800E47090 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6B137C6F0F7FCBBB00459200 /* demo.cpp in Sources */,
+				6B137C700F7FCBBB00459200 /* glfont.cpp in Sources */,
+				6B137C710F7FCBBB00459200 /* imgui.cpp in Sources */,
+				6B137C720F7FCBBB00459200 /* MeshLoaderObj.cpp in Sources */,
+				6B137C730F7FCBBB00459200 /* SDLMain.m in Sources */,
+				6B137C8B0F7FCC1100459200 /* Recast.cpp in Sources */,
+				6B137C8C0F7FCC1100459200 /* RecastContour.cpp in Sources */,
+				6B137C8D0F7FCC1100459200 /* RecastDebugDraw.cpp in Sources */,
+				6B137C8E0F7FCC1100459200 /* RecastFilter.cpp in Sources */,
+				6B137C8F0F7FCC1100459200 /* RecastLog.cpp in Sources */,
+				6B137C900F7FCC1100459200 /* RecastMesh.cpp in Sources */,
+				6B137C910F7FCC1100459200 /* RecastRasterization.cpp in Sources */,
+				6B137C920F7FCC1100459200 /* RecastRegion.cpp in Sources */,
+				6B137C930F7FCC1100459200 /* RecastTimer.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		089C165CFE840E0CC02AAC07 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				089C165DFE840E0CC02AAC07 /* English */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		1DDD58140DA1D0A300B32029 /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				1DDD58150DA1D0A300B32029 /* English */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		C01FCF4B08A954540054247B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CONFIGURATION_BUILD_DIR = ../../Bin;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = Recast_Prefix.pch;
+				HEADER_SEARCH_PATHS = "/Library/Frameworks/SDL.framework/Headers/**";
+				INFOPLIST_FILE = Info.plist;
+				INSTALL_PATH = "$(HOME)/Applications";
+				PRODUCT_NAME = Recast;
+			};
+			name = Debug;
+		};
+		C01FCF4C08A954540054247B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CONFIGURATION_BUILD_DIR = ../../Bin;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = Recast_Prefix.pch;
+				HEADER_SEARCH_PATHS = "/Library/Frameworks/SDL.framework/Headers/**";
+				INFOPLIST_FILE = Info.plist;
+				INSTALL_PATH = "$(HOME)/Applications";
+				PRODUCT_NAME = Recast;
+			};
+			name = Release;
+		};
+		C01FCF4F08A954540054247B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PREBINDING = NO;
+				SDKROOT = macosx10.5;
+			};
+			name = Debug;
+		};
+		C01FCF5008A954540054247B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				PREBINDING = NO;
+				SDKROOT = macosx10.5;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		C01FCF4A08A954540054247B /* Build configuration list for PBXNativeTarget "Recast" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C01FCF4B08A954540054247B /* Debug */,
+				C01FCF4C08A954540054247B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C01FCF4E08A954540054247B /* Build configuration list for PBXProject "Recast" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C01FCF4F08A954540054247B /* Debug */,
+				C01FCF5008A954540054247B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 29B97313FDCFA39411CA2CEA /* Project object */;
+}
