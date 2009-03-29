@@ -888,12 +888,8 @@ bool rcBuildDistanceField(rcCompactHeightfield& chf)
 	rcTimeVal blurStartTime = rcGetPerformanceTimer();
 	
 	// Blur
-	int blurThr[4] = { 2, 4, 8, 16 };
-	for (int i = 0; i < 4; ++i)
-	{
-		if (boxBlur(chf, blurThr[i], src, dst) != src)
-			rcSwap(src, dst);
-	}
+	if (boxBlur(chf, 2, src, dst) != src)
+		rcSwap(src, dst);
 	
 	// Store distance.
 	for (int i = 0; i < chf.spanCount; ++i)

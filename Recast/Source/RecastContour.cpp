@@ -602,7 +602,7 @@ bool rcBuildContours(rcCompactHeightfield& chf,
 		}
 	}
 	
-	// Check and merge droplings.
+	// Check and merge droppings.
 	// Sometimes the previous algorithms can fail and create several countours
 	// per area. This pass will try to merge the holes into the main region.
 	for (int i = 0; i < cset.nconts; ++i)
