@@ -1,1 +1,0 @@
-Download SDL Developer Libraries from http://www.libsdl.org and unzip them here.
