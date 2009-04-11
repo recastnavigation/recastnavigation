@@ -467,7 +467,7 @@ public:
 	
 	inline void modify(dtNode* node)
 	{
-		for (unsigned i = 0; i < m_size; ++i)
+		for (int i = 0; i < m_size; ++i)
 		{
 			if (m_heap[i] == node)
 			{
@@ -1101,7 +1101,7 @@ int dtStatNavMesh::findPolysAround(dtPolyRef centerRef, const float* centerPos, 
 	startNode->flags = dtNode::OPEN;
 	m_openList->push(startNode);
 
-	unsigned n = 0;
+	int n = 0;
 	if (n < maxResult)
 	{
 		if (resultRef)
@@ -1224,7 +1224,7 @@ int dtStatNavMesh::queryPolygons(const float* center, const float* extents,
 	bmax[2] = (unsigned short)(ics * maxz + 1) | 1;
 	
 	// Traverse tree
-	unsigned n = 0;
+	int n = 0;
 	while (node < end)
 	{
 		bool overlap = checkOverlapBox(bmin, bmax, node->bmin, node->bmax);

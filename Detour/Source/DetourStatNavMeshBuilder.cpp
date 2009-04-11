@@ -72,7 +72,7 @@ void calcExtends(BVItem* items, int nitems, int imin, int imax,
 	bmax[1] = items[imin].bmax[1];
 	bmax[2] = items[imin].bmax[2];
 	
-	for (unsigned i = imin+1; i < imax; ++i)
+	for (int i = imin+1; i < imax; ++i)
 	{
 		const BVItem& it = items[i];
 		if (it.bmin[0] < bmin[0]) bmin[0] = it.bmin[0];

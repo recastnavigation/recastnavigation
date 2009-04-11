@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\Contrib\SDL\include;..\..\Include;..\..\..\Recast\Include;$(NOINHERIT)"
+				AdditionalIncludeDirectories="..\..\Contrib\SDL\include;..\..\Include;..\..\..\Detour\Include;..\..\..\Recast\Include;$(NOINHERIT)"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -117,7 +117,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\Contrib\SDL\include;..\..\Include;..\..\..\Recast\Include;$(NOINHERIT)"
+				AdditionalIncludeDirectories="..\..\Contrib\SDL\include;..\..\Include;..\..\..\Detour\Include;..\..\..\Recast\Include;$(NOINHERIT)"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -181,6 +181,18 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\Detour\Source\DetourDebugDraw.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\Detour\Source\DetourStatNavMesh.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\Detour\Source\DetourStatNavMeshBuilder.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\Source\glfont.cpp"
 				>
 			</File>
@@ -234,6 +246,18 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath="..\..\..\Detour\Include\DetourDebugDraw.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\Detour\Include\DetourStatNavMesh.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\Detour\Include\DetourStatNavMeshBuilder.h"
+				>
+			</File>
 			<File
 				RelativePath="..\..\Include\glfont.h"
 				>
