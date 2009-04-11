@@ -280,8 +280,8 @@
 							<key>PBXSmartGroupTreeModuleOutlineStateSelectionKey</key>
 							<array>
 								<array>
-									<integer>13</integer>
-									<integer>12</integer>
+									<integer>2</integer>
+									<integer>1</integer>
 									<integer>0</integer>
 								</array>
 							</array>
@@ -373,7 +373,9 @@
 									<key>GeometryConfiguration</key>
 									<dict>
 										<key>Frame</key>
-										<string>{{10, 27}, {864, 0}}</string>
+										<string>{{10, 27}, {864, 176}}</string>
+										<key>RubberWindowFrame</key>
+										<string>55 112 1071 654 0 0 1280 778 </string>
 									</dict>
 									<key>Module</key>
 									<string>XCDetailModule</string>
@@ -428,8 +430,6 @@
 									<dict>
 										<key>Frame</key>
 										<string>{{10, 27}, {864, 176}}</string>
-										<key>RubberWindowFrame</key>
-										<string>55 112 1071 654 0 0 1280 778 </string>
 									</dict>
 									<key>Module</key>
 									<string>PBXBuildResultsModule</string>
@@ -457,11 +457,11 @@
 			</array>
 			<key>TableOfContents</key>
 			<array>
-				<string>6B137C980F7FCC4700459200</string>
+				<string>6BDD9E120F91114E00904EEF</string>
 				<string>1CA23ED40692098700951B8B</string>
-				<string>6B137C990F7FCC4700459200</string>
+				<string>6BDD9E130F91114E00904EEF</string>
 				<string>6B8632A30F78115100E2684A</string>
-				<string>6B137C9A0F7FCC4700459200</string>
+				<string>6BDD9E140F91114E00904EEF</string>
 				<string>1CA23EDF0692099D00951B8B</string>
 				<string>1CA23EE00692099D00951B8B</string>
 				<string>1CA23EE10692099D00951B8B</string>
@@ -608,14 +608,14 @@
 			</array>
 			<key>TableOfContents</key>
 			<array>
-				<string>6B137C9B0F7FCC4700459200</string>
+				<string>6BDD9E150F91114E00904EEF</string>
 				<string>1CCC7628064C1048000F2A68</string>
 				<string>1CCC7629064C1048000F2A68</string>
-				<string>6B137C9C0F7FCC4700459200</string>
-				<string>6B137C9D0F7FCC4700459200</string>
-				<string>6B137C9E0F7FCC4700459200</string>
-				<string>6B137C9F0F7FCC4700459200</string>
-				<string>6B137CA00F7FCC4700459200</string>
+				<string>6BDD9E160F91114E00904EEF</string>
+				<string>6BDD9E170F91114E00904EEF</string>
+				<string>6BDD9E180F91114E00904EEF</string>
+				<string>6BDD9E190F91114E00904EEF</string>
+				<string>6BDD9E1A0F91114E00904EEF</string>
 			</array>
 			<key>ToolbarConfiguration</key>
 			<string>xcode.toolbar.config.debugV3</string>

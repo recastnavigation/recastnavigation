@@ -35,6 +35,10 @@
 #include "RecastLog.h"
 #include "RecastDebugDraw.h"
 #include "imgui.h"
+#include "DetourStatNavMesh.h"
+#include "DetourStatNavMeshBuilder.h"
+#include "DetourDebugDraw.h"
+
 
 #ifdef WIN32
 #	define snprintf _snprintf
@@ -184,8 +188,9 @@ void scanDirectory(const char* path, const char* ext, FileList& list)
 
 enum DrawMode
 {
-	DRAWMODE_POLYMESH,
-	DRAWMODE_POLYMESH_TRANS,
+	DRAWMODE_NAVMESH,
+	DRAWMODE_NAVMESH_TRANS,
+	DRAWMODE_NAVMESH_BVTREE,
 	DRAWMODE_MESH,
 	DRAWMODE_VOXELS,
 	DRAWMODE_VOXELS_WALKABLE,
@@ -194,7 +199,14 @@ enum DrawMode
 	DRAWMODE_COMPACT_REGIONS,
 	DRAWMODE_RAW_CONTOURS,
 	DRAWMODE_CONTOURS,
-	MAX_DRAWMODE,
+};
+
+enum ToolMode
+{
+	TOOLMODE_PATHFIND,
+	TOOLMODE_RAYCAST,
+	TOOLMODE_DISTANCE_TO_WALL,
+	TOOLMODE_FIND_POLYS_AROUND,
 };
 
 
@@ -215,8 +227,10 @@ rcHeightfield* g_solid = 0;
 rcCompactHeightfield* g_chf = 0;
 rcContourSet* g_cset = 0;
 rcPolyMesh* g_polyMesh = 0;
+dtStatNavMesh* g_navMesh = 0;
 rcConfig g_cfg;
 rcLog g_log;
+
 
 static bool buildNavigation()
 {
@@ -225,11 +239,13 @@ static bool buildNavigation()
 	delete g_cset;
 	delete g_polyMesh;
 	delete [] g_triangleFlags;
+	delete g_navMesh;
 	g_solid = 0;
 	g_chf = 0;
 	g_cset = 0;
 	g_polyMesh = 0;
 	g_triangleFlags = 0;
+	g_navMesh = 0;
 	
 	g_log.clear();
 	rcSetLog(&g_log);
@@ -239,6 +255,10 @@ static bool buildNavigation()
 		g_log.log(RC_LOG_ERROR, "Input mesh is not valid.");
 		return false;
 	}
+	
+	
+	// TODO: Handle better.
+	g_cfg.maxVertsPerPoly = DT_VERTS_PER_POLYGON;
 	
 	
 	rcTimeVal startTime = rcGetPerformanceTimer();
@@ -276,6 +296,29 @@ static bool buildNavigation()
 	const int navMeshDataSize = g_polyMesh->nverts*3*sizeof(unsigned short) +
 	g_polyMesh->npolys*g_polyMesh->nvp*2*sizeof(unsigned short);
 	g_log.log(RC_LOG_PROGRESS, " - Approx data size %.1f kB", (float)navMeshDataSize/1024.f);	
+	
+	unsigned char* navData = 0;
+	int navDataSize = 0;
+	if (!dtCreateNavMeshData(g_polyMesh->verts, g_polyMesh->nverts,
+							 g_polyMesh->polys, g_polyMesh->npolys, g_polyMesh->nvp,
+							 g_cfg.bmin, g_cfg.bmax, g_cfg.cs, g_cfg.ch, &navData, &navDataSize))
+	{
+		g_log.log(RC_LOG_ERROR, "Could not build Detour navmesh.");
+		return false;
+	}
+	g_navMesh = new dtStatNavMesh;
+	if (!g_navMesh)
+	{
+		g_log.log(RC_LOG_ERROR, "Out of memory 'g_navMesh'");
+		return false;
+	}
+
+	if (!g_navMesh->init(navData, navDataSize, true))
+	{
+		g_log.log(RC_LOG_ERROR, "Could not init Detour navmesh");
+		return false;
+	}
+	
 	
 	for (int i = 0; i < g_log.getMessageCount(); ++i)
 	{
@@ -316,7 +359,7 @@ int main(int argc, char *argv[])
 	
 	if(!g_font.create("font.cfnt"))
 	{
-		printf("Could not load font\n");
+		printf("Could not load font.\n");
 		SDL_Quit();
 		return -1;
 	}
@@ -332,12 +375,23 @@ int main(int argc, char *argv[])
 	float edgeMaxLen = 12.0f;
 	float edgeMaxError = 1.5f;
 	float vertsPerPoly = 6.0f;
-	int drawMode = DRAWMODE_POLYMESH;
+	int drawMode = DRAWMODE_NAVMESH;
+	int toolMode = TOOLMODE_PATHFIND;
 	bool showLevels = false;
 	bool showLog = false;
 	char curLevel[256] = "Choose Level...";
 	bool mouseOverMenu = false;
 	FileList fileList;
+	
+	dtPolyRef startRef = 0, endRef = 0;
+
+	const float polyPickExt[3] = {2,4,2};
+	
+	static const int MAX_POLYS = 256;
+	dtPolyRef polys[MAX_POLYS];
+	int npolys = 0;
+	float straightPath[MAX_POLYS*3];
+	int nstraightPath = 0;
 	
 	float t = 0.0f;
 	Uint32 lastTime = SDL_GetTicks();
@@ -351,6 +405,14 @@ int main(int argc, char *argv[])
 	bool rotate = false;
 	float rays[3], raye[3]; 
 	float spos[3] = {0,0,0};
+	float epos[3] = {0,0,0};
+	float hitPos[3] = {0,0,0};
+	float hitNormal[3] = {0,0,0};
+	float distanceToWall = 0;
+	bool sposSet = false, eposSet = false;
+	static const float startCol[4] = { 0.6f, 0.1f, 0.1f, 0.75f };
+	static const float endCol[4] = { 0.1f, 0.6f, 0.1f, 0.75f };
+	bool recalcTool = false;
 	
 	glEnable(GL_CULL_FACE);
 	
@@ -382,7 +444,7 @@ int main(int argc, char *argv[])
 					// Handle mouse clicks here.
 					if (!mouseOverMenu)
 					{
-						if (event.button.button == SDL_BUTTON_LEFT)
+						if (event.button.button == SDL_BUTTON_RIGHT)
 						{
 							// Rotate view
 							rotate = true;
@@ -391,7 +453,7 @@ int main(int argc, char *argv[])
 							origrx = rx;
 							origry = ry;
 						}
-						else if (event.button.button == SDL_BUTTON_RIGHT)
+						else if (event.button.button == SDL_BUTTON_LEFT)
 						{
 							// Hit test mesh.
 							if (g_mesh)
@@ -399,9 +461,24 @@ int main(int argc, char *argv[])
 								float t;
 								if (raycast(*g_mesh, rays, raye, t))
 								{
-									spos[0] = rays[0] + (raye[0] - rays[0])*t;
-									spos[1] = rays[1] + (raye[1] - rays[1])*t;
-									spos[2] = rays[2] + (raye[2] - rays[2])*t;
+									if (SDL_GetModState() & KMOD_SHIFT)
+									{
+										sposSet = true;
+										spos[0] = rays[0] + (raye[0] - rays[0])*t;
+										spos[1] = rays[1] + (raye[1] - rays[1])*t;
+										spos[2] = rays[2] + (raye[2] - rays[2])*t;
+										startRef = g_navMesh->findNearestPoly(spos, polyPickExt);
+										recalcTool = true;
+									}
+									else
+									{
+										eposSet = true;
+										epos[0] = rays[0] + (raye[0] - rays[0])*t;
+										epos[1] = rays[1] + (raye[1] - rays[1])*t;
+										epos[2] = rays[2] + (raye[2] - rays[2])*t;
+										endRef = g_navMesh->findNearestPoly(epos, polyPickExt);
+										recalcTool = true;
+									}
 								}
 							}
 						}
@@ -410,7 +487,7 @@ int main(int argc, char *argv[])
 					
 				case SDL_MOUSEBUTTONUP:
 					// Handle mouse clicks here.
-					if(event.button.button == SDL_BUTTON_LEFT)
+					if(event.button.button == SDL_BUTTON_RIGHT)
 					{
 						rotate = false;
 					}
@@ -505,18 +582,152 @@ int main(int argc, char *argv[])
 			if (g_mesh)
 				rcDebugDrawMesh(*g_mesh, g_triangleFlags);
 		}
-		else if (drawMode != DRAWMODE_POLYMESH_TRANS)
+		else if (drawMode != DRAWMODE_NAVMESH_TRANS)
 		{
 			if (g_mesh)
 				rcDebugDrawMesh(*g_mesh, 0);
 		}
 		
+		
+		if (g_mesh)
+		{
+			// Agent dimensions.
+			const float r = agentRadius;
+			const float h = agentHeight;
+			
+			float col[4];
+			
+			for (int i = 0; i < 2; ++i)
+			{
+				const float* pos = 0;
+				const float* c = 0;
+				if (i == 0 && sposSet)
+				{
+					pos = spos;
+					c = startCol;
+				}
+				else if (i == 1 && eposSet)
+				{
+					pos = epos;
+					c = endCol;
+				}
+				if (!pos)
+					continue;
+				glLineWidth(2.0f);
+				rcDebugDrawCylinderWire(pos[0]-r, pos[1]+0.02f, pos[2]-r, pos[0]+r, pos[1]+h, pos[2]+r, c);
+				glLineWidth(1.0f);
+				
+				glColor4ub(0,0,0,196);
+				glBegin(GL_LINES);
+				glVertex3f(pos[0], pos[1]-agentMaxClimb, pos[2]);
+				glVertex3f(pos[0], pos[1]+agentMaxClimb, pos[2]);
+				glVertex3f(pos[0]-r/2, pos[1]+0.02f, pos[2]);
+				glVertex3f(pos[0]+r/2, pos[1]+0.02f, pos[2]);
+				glVertex3f(pos[0], pos[1]+0.02f, pos[2]-r/2);
+				glVertex3f(pos[0], pos[1]+0.02f, pos[2]+r/2);
+				glEnd();
+			}
+			
+			
+			// Mesh bbox.
+			col[0] = 1.0f; col[1] = 1.0f; col[2] = 1.0f; col[3] = 0.25f;
+			rcDebugDrawBoxWire(g_cfg.bmin[0], g_cfg.bmin[1], g_cfg.bmin[2],
+							   g_cfg.bmax[0], g_cfg.bmax[1], g_cfg.bmax[2], col);
+		}
+		
 		glDepthMask(GL_FALSE);
 		
-		if (drawMode == DRAWMODE_POLYMESH || drawMode == DRAWMODE_POLYMESH_TRANS)
+		if (drawMode == DRAWMODE_NAVMESH || drawMode == DRAWMODE_NAVMESH_TRANS || drawMode == DRAWMODE_NAVMESH_BVTREE)
 		{
-			if (g_polyMesh)
-				rcDebugDrawPolyMesh(*g_polyMesh, g_cfg.bmin, g_cfg.cs, g_cfg.ch);
+			if (g_navMesh)
+			{
+				dtDebugDrawStatNavMesh(g_navMesh);
+
+				if (toolMode == TOOLMODE_PATHFIND)
+				{
+					dtDebugDrawStatNavMeshPoly(g_navMesh, startRef, startCol);
+					dtDebugDrawStatNavMeshPoly(g_navMesh, endRef, endCol);
+					
+					if (npolys)
+					{
+						const float pathCol[4] = {1,0.75f,0,0.25f};
+						for (int i = 1; i < npolys-1; ++i)
+							dtDebugDrawStatNavMeshPoly(g_navMesh, polys[i], pathCol);
+					}
+					if (nstraightPath)
+					{
+						glColor4ub(220,16,0,220);
+						glLineWidth(3.0f);
+						glBegin(GL_LINE_STRIP);
+						for (int i = 0; i < nstraightPath; ++i)
+							glVertex3f(straightPath[i*3], straightPath[i*3+1]+0.4f, straightPath[i*3+2]);
+						glEnd();
+						glLineWidth(1.0f);
+						glPointSize(4.0f);
+						glBegin(GL_POINTS);
+						for (int i = 0; i < nstraightPath; ++i)
+							glVertex3f(straightPath[i*3], straightPath[i*3+1]+0.4f, straightPath[i*3+2]);
+						glEnd();
+						glPointSize(1.0f);
+					}
+				}
+				else if (toolMode == TOOLMODE_RAYCAST)
+				{
+					dtDebugDrawStatNavMeshPoly(g_navMesh, startRef, startCol);
+
+					if (nstraightPath)
+					{
+						const float pathCol[4] = {1,0.75f,0,0.25f};
+						dtDebugDrawStatNavMeshPoly(g_navMesh, polys[0], pathCol);
+						
+						glColor4ub(220,16,0,220);
+						glLineWidth(3.0f);
+						glBegin(GL_LINE_STRIP);
+						for (int i = 0; i < nstraightPath; ++i)
+							glVertex3f(straightPath[i*3], straightPath[i*3+1]+0.4f, straightPath[i*3+2]);
+						glEnd();
+						glLineWidth(1.0f);
+						glPointSize(4.0f);
+						glBegin(GL_POINTS);
+						for (int i = 0; i < nstraightPath; ++i)
+							glVertex3f(straightPath[i*3], straightPath[i*3+1]+0.4f, straightPath[i*3+2]);
+						glEnd();
+						glPointSize(1.0f);
+					}
+				}
+				else if (toolMode == TOOLMODE_DISTANCE_TO_WALL)
+				{
+					dtDebugDrawStatNavMeshPoly(g_navMesh, startRef, startCol);
+					const float col[4] = {1,1,1,0.5f};
+					rcDebugDrawCylinderWire(spos[0]-distanceToWall, spos[1]+0.02f, spos[2]-distanceToWall,
+											spos[0]+distanceToWall, spos[1]+agentHeight, spos[2]+distanceToWall, col);
+					glLineWidth(3.0f);
+					glColor4fv(col);
+					glBegin(GL_LINES);
+					glVertex3f(hitPos[0], hitPos[1] + 0.02f, hitPos[2]);
+					glVertex3f(hitPos[0], hitPos[1] + agentHeight, hitPos[2]);
+					glEnd();
+					glLineWidth(1.0f);
+				}
+				else if (toolMode == TOOLMODE_FIND_POLYS_AROUND)
+				{
+					const float pathCol[4] = {1,0.75f,0,0.25f};
+					for (int i = 0; i < npolys; ++i)
+						dtDebugDrawStatNavMeshPoly(g_navMesh, polys[i], pathCol);
+					
+					const float dx = epos[0] - spos[0];
+					const float dz = epos[2] - spos[2];
+					float dist = sqrtf(dx*dx + dz*dz);
+					const float col[4] = {1,1,1,0.5f};
+					rcDebugDrawCylinderWire(spos[0]-dist, spos[1]+0.02f, spos[2]-dist,
+											spos[0]+dist, spos[1]+agentHeight, spos[2]+dist, col);					
+				}
+			}
+		}
+		if (drawMode == DRAWMODE_NAVMESH_BVTREE)
+		{
+			if (g_navMesh)
+				dtDebugDrawStatNavMeshBVTree(g_navMesh);
 		}
 		
 		glDepthMask(GL_TRUE);
@@ -559,30 +770,6 @@ int main(int argc, char *argv[])
 		
 		glDisable(GL_FOG);
 		
-		if (g_mesh)
-		{
-			// Agent dimensions.
-			const float r = agentRadius;
-			const float h = agentHeight;
-			float col[4];
-			col[0] = 0.6f; col[1] = 0.1f; col[2] = 0.1f; col[3] = 0.75f;
-			rcDebugDrawCylinderWire(spos[0]-r, spos[1]+0.02f, spos[2]-r, spos[0]+r, spos[1]+h, spos[2]+r, col);
-			
-			glColor4ub(0,0,0,196);
-			glBegin(GL_LINES);
-			glVertex3f(spos[0], spos[1]-agentMaxClimb, spos[2]);
-			glVertex3f(spos[0], spos[1]+agentMaxClimb, spos[2]);
-			glVertex3f(spos[0]-r/2, spos[1]+0.02f, spos[2]);
-			glVertex3f(spos[0]+r/2, spos[1]+0.02f, spos[2]);
-			glVertex3f(spos[0], spos[1]+0.02f, spos[2]-r/2);
-			glVertex3f(spos[0], spos[1]+0.02f, spos[2]+r/2);
-			glEnd();
-			
-			// Mesh bbox.
-			col[0] = 1.0f; col[1] = 1.0f; col[2] = 1.0f; col[3] = 0.25f;
-			rcDebugDrawBoxWire(g_cfg.bmin[0], g_cfg.bmin[1], g_cfg.bmin[2],
-							   g_cfg.bmax[0], g_cfg.bmax[1], g_cfg.bmax[2], col);
-		}
 		
 		// Render GUI
 		glDisable(GL_DEPTH_TEST);
@@ -671,10 +858,12 @@ int main(int argc, char *argv[])
 		imguiLabel(GENID, "Draw");
 		if (imguiCheck(GENID, "Input Mesh", drawMode == DRAWMODE_MESH))
 			drawMode = DRAWMODE_MESH;
-		if (imguiCheck(GENID, "Navmesh", drawMode == DRAWMODE_POLYMESH))
-			drawMode = DRAWMODE_POLYMESH;
-		if (imguiCheck(GENID, "Navmesh Trans", drawMode == DRAWMODE_POLYMESH_TRANS))
-			drawMode = DRAWMODE_POLYMESH_TRANS;
+		if (imguiCheck(GENID, "Navmesh", drawMode == DRAWMODE_NAVMESH))
+			drawMode = DRAWMODE_NAVMESH;
+		if (imguiCheck(GENID, "Navmesh BVTree", drawMode == DRAWMODE_NAVMESH_BVTREE))
+			drawMode = DRAWMODE_NAVMESH_BVTREE;
+		if (imguiCheck(GENID, "Navmesh Trans", drawMode == DRAWMODE_NAVMESH_TRANS))
+			drawMode = DRAWMODE_NAVMESH_TRANS;
 		if (imguiCheck(GENID, "Voxels", drawMode == DRAWMODE_VOXELS))
 			drawMode = DRAWMODE_VOXELS;
 		if (imguiCheck(GENID, "Walkable Voxels", drawMode == DRAWMODE_VOXELS_WALKABLE))
@@ -691,6 +880,101 @@ int main(int argc, char *argv[])
 			drawMode = DRAWMODE_CONTOURS;
 		
 		imguiEndScrollArea();
+
+		// Tools
+		bool showTools = true; 
+		if (showTools)
+		{
+			static int toolsScroll = 0;
+			if (imguiBeginScrollArea(GENID, "Tools", 10, 450, 150, 200, &toolsScroll))
+				mouseOverMenu = true;
+
+			if (imguiCheck(GENID, "Pathfind", toolMode == TOOLMODE_PATHFIND))
+			{
+				toolMode = TOOLMODE_PATHFIND;
+				recalcTool = true;
+			}
+			if (imguiCheck(GENID, "Distance to Wall", toolMode == TOOLMODE_DISTANCE_TO_WALL))
+			{
+				toolMode = TOOLMODE_DISTANCE_TO_WALL;
+				recalcTool = true;
+			}
+			if (imguiCheck(GENID, "Raycast", toolMode == TOOLMODE_RAYCAST))
+			{
+				toolMode = TOOLMODE_RAYCAST;
+				recalcTool = true;
+			}
+			if (imguiCheck(GENID, "Find Polys Around", toolMode == TOOLMODE_FIND_POLYS_AROUND))
+			{
+				toolMode = TOOLMODE_FIND_POLYS_AROUND;
+				recalcTool = true;
+			}
+			
+			imguiEndScrollArea();
+		}
+		
+		if (g_navMesh && recalcTool)
+		{
+			recalcTool = false;
+			if (toolMode == TOOLMODE_PATHFIND)
+			{
+				if (!startRef || !endRef)
+				{
+					npolys = 0;
+					nstraightPath = 0;
+				}
+				else
+				{
+					npolys = g_navMesh->findPath(startRef, endRef, polys, MAX_POLYS);
+					if (npolys)
+						nstraightPath = g_navMesh->findStraightPath(spos, epos, polys, npolys, straightPath, MAX_POLYS);
+				}
+			}
+			else if (toolMode == TOOLMODE_RAYCAST)
+			{
+				nstraightPath = 0;
+				if (sposSet && eposSet && startRef)
+				{
+					float t = 0;
+					npolys = 0;
+					nstraightPath = 2;
+					straightPath[0] = spos[0];
+					straightPath[1] = spos[1];
+					straightPath[2] = spos[2];
+					if (g_navMesh->raycast(startRef, spos, epos, t, polys[0]))
+					{
+						npolys = 1;
+						straightPath[3] = spos[0] + (epos[0] - spos[0]) * t;
+						straightPath[4] = spos[1] + (epos[1] - spos[1]) * t;
+						straightPath[5] = spos[2] + (epos[2] - spos[2]) * t;
+					}
+					else
+					{
+						straightPath[3] = epos[0];
+						straightPath[4] = epos[1];
+						straightPath[5] = epos[2];
+					}
+				}
+			}
+			else if (toolMode == TOOLMODE_DISTANCE_TO_WALL)
+			{
+				distanceToWall = 0;
+				if (sposSet && startRef)
+					distanceToWall = g_navMesh->findDistanceToWall(startRef, spos, 100.0f, hitPos, hitNormal);
+			}
+			else if (toolMode == TOOLMODE_FIND_POLYS_AROUND)
+			{
+				distanceToWall = 0;
+				if (sposSet && startRef && eposSet)
+				{
+					const float dx = epos[0] - spos[0];
+					const float dz = epos[2] - spos[2];
+					float dist = sqrtf(dx*dx + dz*dz);
+					npolys = g_navMesh->findPolysAround(startRef, spos, dist, polys, 0, 0, 0, MAX_POLYS);
+				}
+			}
+		}
+		
 		
 		// Log
 		if (showLog)
@@ -729,13 +1013,23 @@ int main(int argc, char *argv[])
 				delete g_cset;
 				delete g_polyMesh;
 				delete [] g_triangleFlags;
+				delete g_navMesh;
 				g_mesh = 0;
 				g_solid = 0;
 				g_chf = 0;
 				g_cset = 0;
 				g_polyMesh = 0;
 				g_triangleFlags = 0;
+				g_navMesh = 0;
 
+				npolys = 0;
+				nstraightPath = 0;
+				sposSet = false;
+				eposSet = false;
+				startRef = 0;
+				endRef = 0;
+				distanceToWall = 0;
+				
 				g_mesh = new rcMeshLoaderObj;
 				
 				char path[256];
@@ -777,7 +1071,22 @@ int main(int argc, char *argv[])
 		imguiEndFrame();
 		imguiRender(&drawText);
 		
-		g_font.drawText(10.0f, (float)height-20.0f, "W/S/A/D: Move  LMB: Rotate  RMB: Place character", GLFont::RGBA(255,255,255,128));
+		g_font.drawText(10.0f, (float)height-20.0f, "W/S/A/D: Move  RMB: Rotate   LMB: Place Start   LMB+SHIFT: Place End", GLFont::RGBA(255,255,255,128));
+		
+		// Draw start and end point labels
+		if (sposSet && gluProject((GLdouble)spos[0], (GLdouble)spos[1], (GLdouble)spos[2],
+					   model, proj, view, &x, &y, &z))
+		{
+			const float len = g_font.getTextLength("Start");
+			g_font.drawText((float)x - len/2, (float)y-g_font.getLineHeight(), "Start", GLFont::RGBA(0,0,0,220));
+		}
+		if (eposSet && gluProject((GLdouble)epos[0], (GLdouble)epos[1], (GLdouble)epos[2],
+					   model, proj, view, &x, &y, &z))
+		{
+			const float len = g_font.getTextLength("End");
+			g_font.drawText((float)x-len/2, (float)y-g_font.getLineHeight(), "End", GLFont::RGBA(0,0,0,220));
+		}
+		
 		
 		glEnable(GL_DEPTH_TEST);
 		SDL_GL_SwapBuffers();
@@ -791,6 +1100,7 @@ int main(int argc, char *argv[])
 	delete g_cset;
 	delete g_polyMesh;
 	delete [] g_triangleFlags;
+	delete g_navMesh;
 	
 	return 0;
 }
