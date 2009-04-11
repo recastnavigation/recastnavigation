@@ -36,6 +36,12 @@ The project files with this distribution can be compiled with Microsoft Visual C
 Release Notes
 
 ----------------
+* Recast 1.1
+  Released April 11th, 2009
+
+This is the first release of Detour.
+
+----------------
 * Recast 1.0
   Released March 29th, 2009
 
