@@ -47,7 +47,32 @@ private:
 	int m_textPoolSize;
 };
 
+struct rcBuildTimes
+{
+	int rasterizeTriangles;
+	int buildCompact;
+	int buildContours;
+	int buildContoursTrace;
+	int buildContoursSimplify;
+	int filterBorder;
+	int filterWalkable;
+	int filterMarkReachable;
+	int buildPolymesh;
+	int buildDistanceField;
+	int buildDistanceFieldDist;
+	int buildDistanceFieldBlur;
+	int buildRegions;
+	int buildRegionsReg;
+	int buildRegionsExp;
+	int buildRegionsFlood;
+	int buildRegionsFilter;
+	int fixupContours;
+};
+
 void rcSetLog(rcLog* log);
 rcLog* rcGetLog();
+
+void rcSetBuildTimes(rcBuildTimes* btimes);
+rcBuildTimes* rcGetBuildTimes();
 
 #endif // RECAST_LOG_H

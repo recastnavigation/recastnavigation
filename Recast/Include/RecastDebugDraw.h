@@ -48,7 +48,7 @@ void rcDebugDrawCompactHeightfieldDistance(const struct rcCompactHeightfield& ch
 
 void rcDebugDrawRawContours(const struct rcContourSet& cset, const float* orig, float cs, float ch);
 void rcDebugDrawContours(const struct rcContourSet& cset, const float* orig, float cs, float ch);
-void rcDebugDrawPolyMesh(const struct rcPolyMesh& mesh, const float* orig, float cs, float ch);
+void rcDebugDrawPolyMesh(const struct rcPolyMesh& mesh);
 
 void rcDebugDrawCylinderWire(float minx, float miny, float minz, float maxx, float maxy, float maxz, const float* col);
 void rcDebugDrawBoxWire(float minx, float miny, float minz, float maxx, float maxy, float maxz, const float* col);

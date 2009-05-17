@@ -32,11 +32,12 @@ public:
 	inline const int* getTris() const { return m_tris; }
 	inline int getVertCount() const { return m_vertCount; }
 	inline int getTriCount() const { return m_triCount; }
-	
+
 private:
 	
 	void addVertex(float x, float y, float z, int& cap);
 	void addTriangle(int a, int b, int c, int& cap);
+	
 	
 	float* m_verts;
 	int* m_tris;

@@ -240,14 +240,14 @@ void rcDebugDrawCompactHeightfieldSolid(const rcCompactHeightfield& chf)
 	{
 		for (int x = 0; x < chf.width; ++x)
 		{
-			const float fx = chf.minx + x*cs;
-			const float fz = chf.minz + y*cs;
+			const float fx = chf.bmin[0] + x*cs;
+			const float fz = chf.bmin[2] + y*cs;
 			const rcCompactCell& c = chf.cells[x+y*chf.width];
 
 			for (unsigned i = c.index, ni = c.index+c.count; i < ni; ++i)
 			{
 				const rcCompactSpan& s = chf.spans[i];
-				const float fy = chf.miny + (s.y+1)*ch;
+				const float fy = chf.bmin[1] + (s.y+1)*ch;
 				glVertex3f(fx, fy, fz);
 				glVertex3f(fx, fy, fz+cs);
 				glVertex3f(fx+cs, fy, fz+cs);
@@ -270,8 +270,8 @@ void rcDebugDrawCompactHeightfieldRegions(const rcCompactHeightfield& chf)
 	{
 		for (int x = 0; x < chf.width; ++x)
 		{
-			const float fx = chf.minx + x*cs;
-			const float fz = chf.minz + y*cs;
+			const float fx = chf.bmin[0] + x*cs;
+			const float fz = chf.bmin[2] + y*cs;
 			const rcCompactCell& c = chf.cells[x+y*chf.width];
 			
 			for (unsigned i = c.index, ni = c.index+c.count; i < ni; ++i)
@@ -284,7 +284,7 @@ void rcDebugDrawCompactHeightfieldRegions(const rcCompactHeightfield& chf)
 				}
 				else
 					glColor4ub(0,0,0,128);
-				const float fy = chf.miny + (s.y+1)*ch;
+				const float fy = chf.bmin[1] + (s.y+1)*ch;
 				glVertex3f(fx, fy, fz);
 				glVertex3f(fx, fy, fz+cs);
 				glVertex3f(fx+cs, fy, fz+cs);
@@ -310,14 +310,14 @@ void rcDebugDrawCompactHeightfieldDistance(const rcCompactHeightfield& chf)
 	{
 		for (int x = 0; x < chf.width; ++x)
 		{
-			const float fx = chf.minx + x*cs;
-			const float fz = chf.minz + y*cs;
+			const float fx = chf.bmin[0] + x*cs;
+			const float fz = chf.bmin[2] + y*cs;
 			const rcCompactCell& c = chf.cells[x+y*chf.width];
 			
 			for (unsigned i = c.index, ni = c.index+c.count; i < ni; ++i)
 			{
 				const rcCompactSpan& s = chf.spans[i];
-				const float fy = chf.miny + (s.y+1)*ch;
+				const float fy = chf.bmin[1] + (s.y+1)*ch;
 				float cd = (float)s.dist * dscale;
 				glColor3f(cd, cd, cd);
 				glVertex3f(fx, fy, fz);
@@ -363,6 +363,7 @@ void rcDebugDrawContours(const rcContourSet& cset, const float* orig, float cs, 
 		const rcContour& c = cset.conts[i];
 		intToCol(c.reg, col);
 		glColor4fv(col);
+
 		glBegin(GL_LINE_LOOP);
 		for (int j = 0; j < c.nverts; ++j)
 		{
@@ -373,6 +374,7 @@ void rcDebugDrawContours(const rcContourSet& cset, const float* orig, float cs, 
 			glVertex3f(fx,fy,fz);
 		}
 		glEnd();
+		
 		glColor4ub(0,0,0,128);
 		glBegin(GL_POINTS);
 		for (int j = 0; j < c.nverts; ++j)
@@ -389,9 +391,12 @@ void rcDebugDrawContours(const rcContourSet& cset, const float* orig, float cs, 
 	glPointSize(1.0f);
 }
 
-void rcDebugDrawPolyMesh(const struct rcPolyMesh& mesh, const float* orig, float cs, float ch)
+void rcDebugDrawPolyMesh(const struct rcPolyMesh& mesh)
 {
 	const int nvp = mesh.nvp;
+	const float cs = mesh.cs;
+	const float ch = mesh.ch;
+	const float* orig = mesh.bmin;
 	glColor4ub(0,196,255,64);
 	glBegin(GL_TRIANGLES);
 	for (int i = 0; i < mesh.npolys; ++i)

@@ -16,62 +16,34 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "RecastLog.h"
-#include <stdio.h>
-#include <stdarg.h>
+#ifndef CHUNKYTRIMESH_H
+#define CHUNKYTRIMESH_H
 
-static rcLog* g_log = 0;
-static rcBuildTimes* g_btimes = 0;
-
-rcLog::rcLog() :
-	m_messageCount(0),
-	m_textPoolSize(0)
+struct rcChunkyTriMeshNode
 {
-}
+	float bmin[2], bmax[2];
+	int i, n;
+};
 
-rcLog::~rcLog()
+struct rcChunkyTriMesh
 {
-	if (g_log == this)
-		g_log = 0;
-}
+	inline rcChunkyTriMesh() : nodes(0), tris(0) {};
+	inline ~rcChunkyTriMesh() { delete [] nodes; delete [] tris; }
 
-void rcLog::log(rcLogCategory category, const char* format, ...)
-{
-	if (m_messageCount >= MAX_MESSAGES)
-		return;
-	char* dst = &m_textPool[m_textPoolSize];
-	int n = TEXT_POOL_SIZE - m_textPoolSize;
-	if (n < 2)
-		return;
-	// Store category
-	*dst = (char)category;
-	n--;
-	// Store message
-	va_list ap;
-	va_start(ap, format);
-	int ret = vsnprintf(dst+1, n-1, format, ap);
-	va_end(ap);
-	if (ret > 0)
-		m_textPoolSize += ret+2;
-	m_messages[m_messageCount++] = dst;
-}
+	rcChunkyTriMeshNode* nodes;
+	int nnodes;
+	int* tris;
+	int ntris;
+	int maxTrisPerChunk;
+};
 
-void rcSetLog(rcLog* log)
-{
-	g_log = log;
-}
+// Creates partitioned triangle mesh (AABB tree),
+// where each node contains at max trisPerChunk triangles.
+bool rcCreateChunkyTriMesh(const float* verts, const int* tris, int ntris,
+						   int trisPerChunk, rcChunkyTriMesh* cm);
 
-rcLog* rcGetLog()
-{
-	return g_log;
-}
+// Returns the chunk indices which touch the input rectable.
+int rcGetChunksInRect(const rcChunkyTriMesh* cm, float bmin[2], float bmax[2], int* ids, const int maxIds);
 
-void rcSetBuildTimes(rcBuildTimes* btimes)
-{
-	g_btimes = btimes;
-}
 
-rcBuildTimes* rcGetBuildTimes()
-{
-	return g_btimes;
-}
+#endif // CHUNKYTRIMESH_H

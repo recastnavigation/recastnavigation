@@ -22,6 +22,8 @@
 struct rcConfig
 {
 	int width, height;				// Dimensions of the rasterized heighfield
+	int tileSize;					// Size if a tile.
+	int borderSize;					// Non-navigable Border around the heightfield.
 	float cs, ch;					// Grid cell size and height.
 	float bmin[3], bmax[3];			// Grid bounds.
 	float walkableSlopeAngle;		// Maximum walkble slope angle in degrees.
@@ -42,6 +44,8 @@ struct rcSpan
 	unsigned int flags : 2;			// Span flags.
 	rcSpan* next;
 };
+
+static const int RC_SPANS_PER_POOL = 2048; 
 
 struct rcSpanPool
 {
@@ -93,8 +97,7 @@ struct rcCompactHeightfield
 	int walkableHeight, walkableClimb;
 	unsigned short maxDistance; 
 	unsigned short maxRegions;
-	float minx, miny, minz;
-	float maxx, maxy, maxz;
+	float bmin[3], bmax[3];
 	float cs, ch;
 	rcCompactCell* cells;
 	rcCompactSpan* spans;
@@ -102,13 +105,12 @@ struct rcCompactHeightfield
 
 struct rcContour
 {
-	inline rcContour() : verts(0), nverts(0), rverts(0), nrverts(0), cx(0), cy(0), cz(0) { }
+	inline rcContour() : verts(0), nverts(0), rverts(0), nrverts(0) { }
 	inline ~rcContour() { delete [] verts; delete [] rverts; }
 	int* verts;
 	int nverts;
 	int* rverts;
 	int nrverts;
-	int cx,cy,cz;
 	unsigned short reg;
 };
 
@@ -129,6 +131,8 @@ struct rcPolyMesh
 	int nverts;
 	int npolys;
 	int nvp;
+	float bmin[3], bmax[3];
+	float cs, ch;
 };
 
 class rcIntArray
@@ -257,7 +261,7 @@ void rcCalcBounds(const float* verts, int nv, float* bmin, float* bmax);
 //	cs - (in) grid cell size
 //	w - (out) grid width
 //	h - (out) grid height
-void rcCalcGridSize(float* bmin, float* bmax, float cs, int* w, int* h);
+void rcCalcGridSize(const float* bmin, const float* bmax, float cs, int* w, int* h);
 
 // Creates and initializes new heightfield.
 // Params:
@@ -270,12 +274,14 @@ bool rcCreateHeightfield(rcHeightfield& hf, int width, int height);
 // the maximun walkable slope angle.
 // Params:
 //	walkableSlopeAngle - (in) maximun slope angle in degrees.
+//	verts - (in) array of vertices
+//	nv - (in) vertex count
 //	tris - (in) array of triangle vertex indices
-//	norms - (in) array of triangle normals
 //	nt - (in) triangle count
 //	flags - (out) array of triangle flags
 void rcMarkWalkableTriangles(const float walkableSlopeAngle,
-							 const int* tris, const float* norms, int nt,
+							 const float* verts, int nv,
+							 const int* tris, int nt,
 							 unsigned char* flags); 
 
 // Rasterizes the triangles into heightfield spans.
@@ -356,7 +362,7 @@ bool rcBuildDistanceField(rcCompactHeightfield& chf);
 //	maxMergeRegionSize - (in) the largest allowed regions size which can be merged.
 // Returns false if operation ran out of memory.
 bool rcBuildRegions(rcCompactHeightfield& chf,
-					int walkableRadius, int minRegionSize, int mergeRegionSize);
+					int walkableRadius, int borderSize, int minRegionSize, int mergeRegionSize);
 
 // Builds simplified contours from the regions outlines.
 // Params:
@@ -369,14 +375,36 @@ bool rcBuildContours(rcCompactHeightfield& chf,
 					 float maxError, int maxEdgeLen,
 					 rcContourSet& cset);
 
+// Ensures that connected contour sets A and B share the same vertices at the shared edges.
+// Params:
+//  cseta - (in) contour set A.
+//  csetb - (in) contour set B.
+//  edge - (in) which edge to conform: 1) B is left of A  2) B is top of A
+//  borderSize - (in) the border which was used when the contours were generated.
+//  tileSize - (in) the tile size which was used when the contours were generated.
+//	orig - (in) origin of the contour set A.
+//	cs - (in) grid cell size
+//	ch - (in) grid cell height
+bool rcFixupAdjacentContours(rcContourSet* cseta, rcContourSet* csetb, int edge, int edgePos);
+
+// Translates the cordinates of the contour set.
+// Params:
+//  cset - (in) contour set to translate.
+//  dx - (in) delta X.
+//  dy - (in) delta Y.
+//  dz - (in) delta Z.
+void rcTranslateContours(rcContourSet* cset, int dx, int dy, int dz);
+
 // Builds connected convex polygon mesh from contour polygons.
 // Params:
 //	cset - (in) contour set.
 //	mesh - (out) poly mesh.
 //	nvp - (int) maximum number of vertices per polygon.
 // Returns false if operation ran out of memory.
-bool rcBuildPolyMesh(rcContourSet& cset, rcPolyMesh& mesh, int nvp);
-
+bool rcBuildPolyMesh(rcContourSet& cset,
+					 const float* bmin, const float* bmax,
+					 const float cs, const float ch, int nvp,
+					 rcPolyMesh& mesh);
 
 bool rcBuildNavMesh(const rcConfig& cfg,
 					const float* verts, const int nverts,

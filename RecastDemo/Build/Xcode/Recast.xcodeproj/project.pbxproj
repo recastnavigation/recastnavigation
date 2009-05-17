@@ -24,6 +24,7 @@
 		6B137C930F7FCC1100459200 /* RecastTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B137C8A0F7FCC1100459200 /* RecastTimer.cpp */; };
 		6B8632DA0F78122C00E2684A /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6B8632D90F78122C00E2684A /* SDL.framework */; };
 		6B8632DC0F78123E00E2684A /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6B8632DB0F78123E00E2684A /* OpenGL.framework */; };
+		6BB788170FC0472B003C24DB /* ChunkyTriMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BB788160FC0472B003C24DB /* ChunkyTriMesh.cpp */; };
 		6BDD9E0A0F91113800904EEF /* DetourDebugDraw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BDD9E070F91113800904EEF /* DetourDebugDraw.cpp */; };
 		6BDD9E0B0F91113800904EEF /* DetourStatNavMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BDD9E080F91113800904EEF /* DetourStatNavMesh.cpp */; };
 		6BDD9E0C0F91113800904EEF /* DetourStatNavMeshBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BDD9E090F91113800904EEF /* DetourStatNavMeshBuilder.cpp */; };
@@ -63,6 +64,8 @@
 		6B137C8A0F7FCC1100459200 /* RecastTimer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RecastTimer.cpp; path = ../../../Recast/Source/RecastTimer.cpp; sourceTree = SOURCE_ROOT; };
 		6B8632D90F78122C00E2684A /* SDL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL.framework; path = Library/Frameworks/SDL.framework; sourceTree = SDKROOT; };
 		6B8632DB0F78123E00E2684A /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		6BB788160FC0472B003C24DB /* ChunkyTriMesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ChunkyTriMesh.cpp; path = ../../Source/ChunkyTriMesh.cpp; sourceTree = SOURCE_ROOT; };
+		6BB788180FC04753003C24DB /* ChunkyTriMesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ChunkyTriMesh.h; path = ../../Include/ChunkyTriMesh.h; sourceTree = SOURCE_ROOT; };
 		6BDD9E040F91112200904EEF /* DetourDebugDraw.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DetourDebugDraw.h; path = ../../../Detour/Include/DetourDebugDraw.h; sourceTree = SOURCE_ROOT; };
 		6BDD9E050F91112200904EEF /* DetourStatNavMesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DetourStatNavMesh.h; path = ../../../Detour/Include/DetourStatNavMesh.h; sourceTree = SOURCE_ROOT; };
 		6BDD9E060F91112200904EEF /* DetourStatNavMeshBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DetourStatNavMeshBuilder.h; path = ../../../Detour/Include/DetourStatNavMeshBuilder.h; sourceTree = SOURCE_ROOT; };
@@ -93,13 +96,15 @@
 				6BDD9E030F91110C00904EEF /* Detour */,
 				6B137C7D0F7FCBE800459200 /* Recast */,
 				6B137C790F7FCBE400459200 /* glfont.h */,
-				6B137C7A0F7FCBE400459200 /* imgui.h */,
-				6B137C7B0F7FCBE400459200 /* MeshLoaderObj.h */,
-				6B137C7C0F7FCBE400459200 /* SDLMain.h */,
-				6B137C6A0F7FCBBB00459200 /* demo.cpp */,
 				6B137C6B0F7FCBBB00459200 /* glfont.cpp */,
+				6B137C7A0F7FCBE400459200 /* imgui.h */,
 				6B137C6C0F7FCBBB00459200 /* imgui.cpp */,
+				6B137C7B0F7FCBE400459200 /* MeshLoaderObj.h */,
 				6B137C6D0F7FCBBB00459200 /* MeshLoaderObj.cpp */,
+				6BB788160FC0472B003C24DB /* ChunkyTriMesh.cpp */,
+				6BB788180FC04753003C24DB /* ChunkyTriMesh.h */,
+				6B137C6A0F7FCBBB00459200 /* demo.cpp */,
+				6B137C7C0F7FCBE400459200 /* SDLMain.h */,
 				6B137C6E0F7FCBBB00459200 /* SDLMain.m */,
 			);
 			name = Classes;
@@ -277,6 +282,7 @@
 				6BDD9E0A0F91113800904EEF /* DetourDebugDraw.cpp in Sources */,
 				6BDD9E0B0F91113800904EEF /* DetourStatNavMesh.cpp in Sources */,
 				6BDD9E0C0F91113800904EEF /* DetourStatNavMeshBuilder.cpp in Sources */,
+				6BB788170FC0472B003C24DB /* ChunkyTriMesh.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -379,7 +379,7 @@ static unsigned short* expandRegions(int maxIter, unsigned short level,
 				const int ax = x + rcGetDirOffsetX(dir);
 				const int ay = y + rcGetDirOffsetY(dir);
 				const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(s, dir);
-				if (src[ai*2])
+				if (src[ai*2] > 0 && (src[ai*2] & 0x8000) == 0)
 				{
 					if ((int)src[ai*2+1]+2 < (int)d2)
 					{
@@ -420,10 +420,11 @@ static unsigned short* expandRegions(int maxIter, unsigned short level,
 
 struct rcRegion
 {
-	inline rcRegion() : count(0), id(0) {}
+	inline rcRegion() : count(0), id(0), remap(false) {}
 	
 	int count;
 	unsigned short id;
+	bool remap;
 	rcIntArray connections;
 	rcIntArray floors;
 };
@@ -741,7 +742,7 @@ static bool filterSmallRegions(int minRegionSize, int mergeRegionSize,
 	for (int i = 0; i < nreg; ++i)
 	{
 		rcRegion& reg = regions[i];
-		if (reg.id == 0)
+		if (reg.id == 0 || (reg.id & 0x8000))
 			continue;			
 		if (reg.count == 0)
 			continue;
@@ -766,7 +767,7 @@ static bool filterSmallRegions(int minRegionSize, int mergeRegionSize,
 		for (int i = 0; i < nreg; ++i)
 		{
 			rcRegion& reg = regions[i];
-			if (reg.id == 0)
+			if (reg.id == 0 || (reg.id & 0x8000))
 				continue;			
 			if (reg.count == 0)
 				continue;
@@ -782,8 +783,9 @@ static bool filterSmallRegions(int minRegionSize, int mergeRegionSize,
 			unsigned short mergeId = reg.id;
 			for (int j = 0; j < reg.connections.size(); ++j)
 			{
+				if (reg.connections[j] & 0x8000) continue;
 				rcRegion& mreg = regions[reg.connections[j]];
-				if (mreg.id == 0) continue;
+				if (mreg.id == 0 || (mreg.id & 0x8000)) continue;
 				if (mreg.count < smallest &&
 					canMergeWithRegion(reg, mreg.id) &&
 					canMergeWithRegion(mreg, reg.id))
@@ -804,7 +806,7 @@ static bool filterSmallRegions(int minRegionSize, int mergeRegionSize,
 					// Fixup regions pointing to current region.
 					for (int j = 0; j < nreg; ++j)
 					{
-						if (regions[j].id == 0) continue;
+						if (regions[j].id == 0 || (regions[j].id & 0x8000)) continue;
 						// If another region was already merged into current region
 						// change the nid of the previous region too.
 						if (regions[j].id == oldId)
@@ -823,28 +825,36 @@ static bool filterSmallRegions(int minRegionSize, int mergeRegionSize,
 	// Compress region Ids.
 	for (int i = 0; i < nreg; ++i)
 	{
-		if (regions[i].id == 0) continue;
-		regions[i].id |= 0x8000;
+		regions[i].remap = false;
+		if (regions[i].id == 0) continue;	// Skip nil regions.
+		if (regions[i].id & 0x8000) continue;	// Skip external regions.
+		regions[i].remap = true;
 	}
 
 	unsigned short regIdGen = 0;
 	for (int i = 0; i < nreg; ++i)
 	{
-		if ((regions[i].id & 0x8000) == 0)
+		if (!regions[i].remap)
 			continue;
 		unsigned short oldId = regions[i].id;
 		unsigned short newId = ++regIdGen;
 		for (int j = i; j < nreg; ++j)
 		{
 			if (regions[j].id == oldId)
+			{
 				regions[j].id = newId;
+				regions[j].remap = false;
+			}
 		}
 	}
 	maxRegionId = regIdGen;
 		
 	// Remap regions.
 	for (int i = 0; i < chf.spanCount; ++i)
-		src[i*2] = regions[src[i*2]].id;
+	{
+		if ((src[i*2] & 0x8000) == 0)
+			src[i*2] = regions[src[i*2]].id;
+	}
 	
 	delete [] regions;
 	
@@ -902,18 +912,44 @@ bool rcBuildDistanceField(rcCompactHeightfield& chf)
 	
 	rcTimeVal endTime = rcGetPerformanceTimer();
 	
-	if (rcGetLog())
+/*	if (rcGetLog())
 	{
 		rcGetLog()->log(RC_LOG_PROGRESS, "Build distance field: %.3f ms", rcGetDeltaTimeUsec(startTime, endTime)/1000.0f);
 		rcGetLog()->log(RC_LOG_PROGRESS, " - dist: %.3f ms", rcGetDeltaTimeUsec(distStartTime, distEndTime)/1000.0f);
 		rcGetLog()->log(RC_LOG_PROGRESS, " - blur: %.3f ms", rcGetDeltaTimeUsec(blurStartTime, blurEndTime)/1000.0f);
+	}*/
+	if (rcGetBuildTimes())
+	{
+		rcGetBuildTimes()->buildDistanceField += rcGetDeltaTimeUsec(startTime, endTime);
+		rcGetBuildTimes()->buildDistanceFieldDist += rcGetDeltaTimeUsec(distStartTime, distEndTime);
+		rcGetBuildTimes()->buildDistanceFieldBlur += rcGetDeltaTimeUsec(blurStartTime, blurEndTime);
 	}
 	
 	return true;
 }
 
+static void paintRectRegion(int minx, int maxx, int miny, int maxy,
+							unsigned short regId, unsigned short minLevel,
+							rcCompactHeightfield& chf, unsigned short* src)
+{
+	const int w = chf.width;
+	for (int y = miny; y < maxy; ++y)
+	{
+		for (int x = minx; x < maxx; ++x)
+		{
+			const rcCompactCell& c = chf.cells[x+y*w];
+			for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
+			{
+				if (chf.spans[i].dist >= minLevel)
+					src[i*2] = regId;
+			}
+		}
+	}
+}
+
 bool rcBuildRegions(rcCompactHeightfield& chf,
-					int walkableRadius, int minRegionSize, int mergeRegionSize)
+					int walkableRadius, int borderSize,
+					int minRegionSize, int mergeRegionSize)
 {
 	rcTimeVal startTime = rcGetPerformanceTimer();
 	
@@ -952,9 +988,13 @@ bool rcBuildRegions(rcCompactHeightfield& chf,
 	unsigned short minLevel = (unsigned short)walkableRadius * 2;
 	
 	const int expandIters = 4 + walkableRadius * 2;
-	
+
+	paintRectRegion(0, borderSize, 0, h, regionId|0x8000, minLevel, chf, src); regionId++;
+	paintRectRegion(w-borderSize, w, 0, h, regionId|0x8000, minLevel, chf, src); regionId++;
+	paintRectRegion(0, w, 0, borderSize, regionId|0x8000, minLevel, chf, src); regionId++;
+	paintRectRegion(0, w, h-borderSize, h, regionId|0x8000, minLevel, chf, src); regionId++;
+
 	rcTimeVal expTime = 0;
-	rcTimeVal marknewTime = 0;
 	rcTimeVal floodTime = 0;
 	
 	while (level > minLevel)
@@ -1017,16 +1057,24 @@ bool rcBuildRegions(rcCompactHeightfield& chf,
 	
 	rcTimeVal endTime = rcGetPerformanceTimer();
 	
-	if (rcGetLog())
+/*	if (rcGetLog())
 	{
 		rcGetLog()->log(RC_LOG_PROGRESS, "Build regions: %.3f ms", rcGetDeltaTimeUsec(startTime, endTime)/1000.0f);
 		rcGetLog()->log(RC_LOG_PROGRESS, " - reg: %.3f ms", rcGetDeltaTimeUsec(regStartTime, regEndTime)/1000.0f);
 		rcGetLog()->log(RC_LOG_PROGRESS, " - exp: %.3f ms", rcGetDeltaTimeUsec(0, expTime)/1000.0f);
-		rcGetLog()->log(RC_LOG_PROGRESS, " - new: %.3f ms", rcGetDeltaTimeUsec(0, marknewTime)/1000.0f);
 		rcGetLog()->log(RC_LOG_PROGRESS, " - flood: %.3f ms", rcGetDeltaTimeUsec(0, floodTime)/1000.0f);
 		rcGetLog()->log(RC_LOG_PROGRESS, " - filter: %.3f ms", rcGetDeltaTimeUsec(filterStartTime, filterEndTime)/1000.0f);
 	}
-	
+*/
+	if (rcGetBuildTimes())
+	{
+		rcGetBuildTimes()->buildRegions += rcGetDeltaTimeUsec(startTime, endTime);
+		rcGetBuildTimes()->buildRegionsReg += rcGetDeltaTimeUsec(regStartTime, regEndTime);
+		rcGetBuildTimes()->buildRegionsExp += rcGetDeltaTimeUsec(0, expTime);
+		rcGetBuildTimes()->buildRegionsFlood += rcGetDeltaTimeUsec(0, floodTime);
+		rcGetBuildTimes()->buildRegionsFilter += rcGetDeltaTimeUsec(filterStartTime, filterEndTime);
+	}
+		
 	return true;
 }
 

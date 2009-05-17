@@ -501,7 +501,7 @@ bool rcBuildContours(rcCompactHeightfield& chf,
 		return false;
 	}
 	
-	rcTimeVal boundaryStartTime = rcGetPerformanceTimer();
+	rcTimeVal traceStartTime = rcGetPerformanceTimer();
 	
 	// Mark boundaries.
 	for (int y = 0; y < h; ++y)
@@ -513,7 +513,7 @@ bool rcBuildContours(rcCompactHeightfield& chf,
 			{
 				unsigned char res = 0;
 				const rcCompactSpan& s = chf.spans[i];
-				if (s.reg == 0)
+				if (!s.reg || (s.reg & 0x8000))
 				{
 					flags[i] = 0;
 					continue;
@@ -537,9 +537,9 @@ bool rcBuildContours(rcCompactHeightfield& chf,
 		}
 	}
 	
-	rcTimeVal boundaryEndTime = rcGetPerformanceTimer();
+	rcTimeVal traceEndTime = rcGetPerformanceTimer();
 	
-	rcTimeVal contourStartTime = rcGetPerformanceTimer();
+	rcTimeVal simplifyStartTime = rcGetPerformanceTimer();
 	
 	rcIntArray verts(256);
 	rcIntArray simplified(64);
@@ -556,6 +556,9 @@ bool rcBuildContours(rcCompactHeightfield& chf,
 					flags[i] = 0;
 					continue;
 				}
+				unsigned short reg = chf.spans[i].reg;
+				if (!reg || (reg & 0x8000))
+					continue;
 				
 				verts.resize(0);
 				simplified.resize(0);
@@ -564,7 +567,6 @@ bool rcBuildContours(rcCompactHeightfield& chf,
 				removeDegenerateSegments(simplified);
 				
 				// Store region->contour remap info.
-				unsigned short reg = chf.spans[i].reg;
 				// Create contour.
 				if (simplified.size()/4 >= 3)
 				{
@@ -585,7 +587,7 @@ bool rcBuildContours(rcCompactHeightfield& chf,
 					cont->rverts = new int[cont->nrverts*4];
 					memcpy(cont->rverts, &verts[0], sizeof(int)*cont->nrverts*4);
 					
-					cont->cx = cont->cy = cont->cz = 0;
+/*					cont->cx = cont->cy = cont->cz = 0;
 					for (int i = 0; i < cont->nverts; ++i)
 					{
 						cont->cx += cont->verts[i*4+0];
@@ -594,7 +596,7 @@ bool rcBuildContours(rcCompactHeightfield& chf,
 					}
 					cont->cx /= cont->nverts;
 					cont->cy /= cont->nverts;
-					cont->cz /= cont->nverts;
+					cont->cz /= cont->nverts;*/
 					
 					cont->reg = reg;
 				}
@@ -647,19 +649,305 @@ bool rcBuildContours(rcCompactHeightfield& chf,
 	}
 	
 		
-	rcTimeVal contourEndTime = rcGetPerformanceTimer();
-	
-	// Delete vertices.
 	delete [] flags;
+	
+	rcTimeVal simplifyEndTime = rcGetPerformanceTimer();
 	
 	rcTimeVal endTime = rcGetPerformanceTimer();
 	
-	if (rcGetLog())
+//	if (rcGetLog())
+//	{
+//		rcGetLog()->log(RC_LOG_PROGRESS, "Create contours: %.3f ms", rcGetDeltaTimeUsec(startTime, endTime)/1000.0f);
+//		rcGetLog()->log(RC_LOG_PROGRESS, " - boundary: %.3f ms", rcGetDeltaTimeUsec(boundaryStartTime, boundaryEndTime)/1000.0f);
+//		rcGetLog()->log(RC_LOG_PROGRESS, " - contour: %.3f ms", rcGetDeltaTimeUsec(contourStartTime, contourEndTime)/1000.0f);
+//	}
+
+	if (rcGetBuildTimes())
 	{
-		rcGetLog()->log(RC_LOG_PROGRESS, "Create contours: %.3f ms", rcGetDeltaTimeUsec(startTime, endTime)/1000.0f);
-		rcGetLog()->log(RC_LOG_PROGRESS, " - boundary: %.3f ms", rcGetDeltaTimeUsec(boundaryStartTime, boundaryEndTime)/1000.0f);
-		rcGetLog()->log(RC_LOG_PROGRESS, " - contour: %.3f ms", rcGetDeltaTimeUsec(contourStartTime, contourEndTime)/1000.0f);
+		rcGetBuildTimes()->buildContours += rcGetDeltaTimeUsec(startTime, endTime);
+		rcGetBuildTimes()->buildContoursTrace += rcGetDeltaTimeUsec(traceStartTime, traceEndTime);
+		rcGetBuildTimes()->buildContoursSimplify += rcGetDeltaTimeUsec(simplifyStartTime, simplifyEndTime);
 	}
 	
 	return true;
 }
+
+struct EdgeSegment
+{
+	int i0, i1;
+	int v0[3], v1[3];
+};
+
+static int findEdgeSegments(rcContourSet* cset, int x, int z, EdgeSegment* segs, const int maxSegs)
+{
+	int n = 0;
+	
+	for (int i = 0; i < cset->nconts; ++i)
+	{
+		const rcContour* c = &cset->conts[i];
+		const int nc = n;
+		for (int j = 0, k = c->nverts-1; j < c->nverts; k=j++)
+		{
+			const int* v0 = &c->verts[k*4];
+			const int* v1 = &c->verts[j*4];
+			if ((v0[0] == x && v1[0] == x) || (v0[2] == z && v1[2] == z))
+			{
+				if (n && segs[n-1].i1 == k)
+				{
+					// Merge with previous
+					segs[n-1].i1 = j;
+				}
+				else
+				{
+					// Add new
+					if (n >= maxSegs)
+						return n;
+					segs[n].i0 = k;
+					segs[n].i1 = j;
+					n++;
+				}
+			}
+		}
+		// Check if first and last should be merged.
+		if (n && n && segs[n-1].v1 == segs[nc].v0)
+		{
+			segs[nc].i0 = segs[n-1].i0;
+			n--;
+		}
+		// Copy vertices
+		for (int j = nc; j < n; ++j)
+		{
+			segs[j].v0[0] = c->verts[segs[j].i0*4+0];
+			segs[j].v0[1] = c->verts[segs[j].i0*4+1];
+			segs[j].v0[2] = c->verts[segs[j].i0*4+2];
+			segs[j].v1[0] = c->verts[segs[j].i1*4+0];
+			segs[j].v1[1] = c->verts[segs[j].i1*4+1];
+			segs[j].v1[2] = c->verts[segs[j].i1*4+2];
+		}
+	}
+	return n;
+}
+
+static bool pointOnEdgeSegment(const int* v0, const int* v1, int x, int z)
+{
+	const int dx = v1[0] - v0[0];
+	const int dz = v1[2] - v0[2];
+	if (rcAbs(dx) > rcAbs(dz))
+	{
+		const int d = x - v0[0];
+		if (dx < 0)
+			return d < 0 && d > dx;
+		else
+			return d > 0 && d < dx;
+	}
+	else
+	{
+		const int d = z - v0[2];
+		if (dz < 0)
+			return d < 0 && d > dz;
+		else
+			return d > 0 && d < dz;
+	}
+}
+
+static bool insertPoint(rcContour* c, int idx, const int* v)
+{
+	int* newVerts = new int[(c->nverts+1)*4];
+	if (!newVerts)
+	{
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_ERROR, "insertPoint: Out of memory 'newVerts'.");
+		return false;
+	}
+	
+	if (idx > 0)
+		memcpy(newVerts, c->verts, sizeof(int)*4*idx);
+	
+	newVerts[idx*4+0] = v[0];
+	newVerts[idx*4+1] = v[1];
+	newVerts[idx*4+2] = v[2];
+	newVerts[idx*4+3] = 0;
+	
+	if (c->nverts - idx > 0)
+		memcpy(&newVerts[(idx+1)*4], &c->verts[idx*4], sizeof(int)*4*(c->nverts - idx));
+	
+	delete [] c->verts;
+	
+	c->verts = newVerts;
+	c->nverts++;
+	
+	return true;
+}
+
+inline bool ptsEqual(const int* a, const int* b)
+{
+	return a[0] == b[0] && a[1] == b[1] && a[2] == b[2];
+}
+
+static bool conformEdge(rcContourSet* cset, int ex, int ez, const int* v0, const int* v1)
+{
+	for (int i = 0; i < cset->nconts; ++i)
+	{
+		rcContour* c = &cset->conts[i];
+		const int nv = c->nverts;
+		for (int j = 0; j < nv; ++j)
+		{
+			const int* v = &c->verts[j*4];
+			if (ptsEqual(v, v0))
+			{
+				const int jn = (j+1) % nv;
+				const int* vn = &c->verts[jn*4];
+				
+				// Check if the segment is edge segment.
+				if ((v[0] == ex && vn[0] == ex) || (v[2] == ez && vn[2] == ez))
+				{
+					if (ptsEqual(vn, v1))
+					{
+						// Valid!
+						return true;
+					}
+					else
+					{
+						// Add new vertex
+						if (pointOnEdgeSegment(v, vn, v1[0], v1[2]))
+						{
+							if (!insertPoint(c, jn, v1))
+								return false;
+						}
+						return true;
+					}
+				}
+			}
+			else if (ptsEqual(v, v1))
+			{
+				const int jp = (j+nv-1) % nv;
+				const int* vp = &c->verts[jp*4];
+				// Check if the segment is edge segment.
+				if ((v[0] == ex && vp[0] == ex) || (v[2] == ez && vp[2] == ez))
+				{
+					if (ptsEqual(vp, v0))
+					{
+						// Valid!
+						return true;
+					}
+					else
+					{
+						// Add new vertex
+						if (pointOnEdgeSegment(vp, v, v0[0], v0[2]))
+						{
+							if (!insertPoint(c, j, v0))
+								return false;
+						}
+						return true;
+					}
+				}
+			}
+		}
+	}
+	
+	return true;
+}
+
+
+bool rcFixupAdjacentContours(rcContourSet* cseta, rcContourSet* csetb,
+							 int edge, int edgePos)
+{
+	if (!cseta || !csetb)
+		return true;
+
+	rcTimeVal startTime = rcGetPerformanceTimer();
+
+	if (edge == 1)
+	{
+		// x+1
+		// Find edge segment
+		static const int MAX_SEGS = 512;	// TODO: Do not hardcode.
+		EdgeSegment sa[MAX_SEGS], sb[MAX_SEGS];
+		int nsa = findEdgeSegments(cseta, edgePos, -1, sa, MAX_SEGS);
+		int nsb = findEdgeSegments(csetb, edgePos, -1, sb, MAX_SEGS);
+		
+		// Conform set A to set B
+		for (int i = 0; i < nsb; ++i)
+		{
+			const int* v0 = sb[i].v0;
+			const int* v1 = sb[i].v1;
+			if (!conformEdge(cseta, edgePos, -1, v1, v0))
+			{
+				return false;
+			}
+		}
+		
+		// Conform set B to set A
+		for (int i = 0; i < nsa; ++i)
+		{
+			const int* v0 = sa[i].v0;
+			const int* v1 = sa[i].v1;
+			if (!conformEdge(csetb, edgePos, -1, v1, v0))
+			{
+				return false;
+			}
+		}
+	}
+	else if (edge == 2)
+	{
+		// y+1
+		// Find edge segment
+		static const int MAX_SEGS = 512;	// TODO: Do not hardcode.
+		EdgeSegment sa[MAX_SEGS], sb[MAX_SEGS];
+		int nsa = findEdgeSegments(cseta, -1, edgePos, sa, MAX_SEGS);
+		int nsb = findEdgeSegments(csetb, -1, edgePos, sb, MAX_SEGS);
+		
+		// Conform set A to set B
+		for (int i = 0; i < nsb; ++i)
+		{
+			const int* v0 = sb[i].v0;
+			const int* v1 = sb[i].v1;
+			if (!conformEdge(cseta, -1, edgePos, v1, v0))
+			{
+				return false;
+			}
+		}
+		
+		// Conform set B to set A
+		for (int i = 0; i < nsa; ++i)
+		{
+			const int* v0 = sa[i].v0;
+			const int* v1 = sa[i].v1;
+			if (!conformEdge(csetb, -1, edgePos, v1, v0))
+			{
+				return false;
+			}
+		}
+	}
+	
+	rcTimeVal endTime = rcGetPerformanceTimer();
+	if (rcGetBuildTimes())
+		rcGetBuildTimes()->fixupContours += rcGetDeltaTimeUsec(startTime, endTime);
+		
+	return true;
+}
+
+void rcTranslateContours(rcContourSet* cset, int dx, int dy, int dz)
+{
+	if (!cset) return;
+	
+	for (int i = 0; i < cset->nconts; ++i)
+	{
+		rcContour& cont = cset->conts[i];
+		for (int i = 0; i < cont.nverts; ++i)
+		{
+			int* v = &cont.verts[i*4];
+			v[0] += dx;
+			v[1] += dy;
+			v[2] += dz;
+		}
+		for (int i = 0; i < cont.nrverts; ++i)
+		{
+			int* v = &cont.rverts[i*4];
+			v[0] += dx;
+			v[1] += dy;
+			v[2] += dz;
+		}
+	}
+}
+

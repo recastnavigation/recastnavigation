@@ -61,8 +61,8 @@ static int compareItemZ(const void* va, const void* vb)
 	return 0;
 }
 
-void calcExtends(BVItem* items, int nitems, int imin, int imax,
-				 unsigned short* bmin, unsigned short* bmax)
+static void calcExtends(BVItem* items, int nitems, int imin, int imax,
+						unsigned short* bmin, unsigned short* bmax)
 {
 	bmin[0] = items[imin].bmin[0];
 	bmin[1] = items[imin].bmin[1];
@@ -160,21 +160,10 @@ void subdivide(BVItem* items, int nitems, int imin, int imax, int& curNode, dtBV
 	}
 }
 
-/*struct rcPolyMesh
-{
-	inline rcPolyMesh() : verts(0), polys(0), nverts(0), npolys(0), nvp(3) {}
-	inline ~rcPolyMesh() { delete [] verts; delete [] polys; }
-	unsigned short* verts;
-	unsigned short* polys;
-	int nverts;
-	int npolys;
-	int nvp;
-};*/
-
-int createBVTree(const unsigned short* verts, const int nverts,
-				 const unsigned short* polys, const int npolys, const int nvp,
-				 float cs, float ch,
-				 int nnodes, dtBVNode* nodes)
+static int createBVTree(const unsigned short* verts, const int nverts,
+						const unsigned short* polys, const int npolys, const int nvp,
+						float cs, float ch,
+						int nnodes, dtBVNode* nodes)
 {
 	// Build tree
 	BVItem* items = new BVItem[npolys];
@@ -223,6 +212,11 @@ bool dtCreateNavMeshData(const unsigned short* verts, const int nverts,
 						 unsigned char** outData, int* outDataSize)
 {
 	if (nvp != DT_VERTS_PER_POLYGON)
+		return false;
+		
+	if (!nverts)
+		return false;
+	if (!npolys)
 		return false;
 	
 	// Calculate data size

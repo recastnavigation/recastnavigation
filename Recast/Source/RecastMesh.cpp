@@ -474,9 +474,17 @@ static void mergePolys(unsigned short* pa, unsigned short* pb,
 	memcpy(pa, tmp, sizeof(unsigned short)*nvp);
 }
 
-bool rcBuildPolyMesh(rcContourSet& cset, rcPolyMesh& mesh, const int nvp)
+bool rcBuildPolyMesh(rcContourSet& cset,
+					 const float* bmin, const float* bmax,
+					 const float cs, const float ch, int nvp,
+					 rcPolyMesh& mesh)
 {
 	rcTimeVal startTime = rcGetPerformanceTimer();
+
+	vcopy(mesh.bmin, bmin);
+	vcopy(mesh.bmax, bmax);
+	mesh.cs = cs;
+	mesh.ch = ch;
 	
 	int maxVertices = 0;
 	int maxTris = 0;
@@ -692,8 +700,10 @@ bool rcBuildPolyMesh(rcContourSet& cset, rcPolyMesh& mesh, const int nvp)
 	
 	rcTimeVal endTime = rcGetPerformanceTimer();
 	
-	if (rcGetLog())
-		rcGetLog()->log(RC_LOG_ERROR, "Build polymesh: %.3f ms", rcGetDeltaTimeUsec(startTime, endTime)/1000.0f);
+//	if (rcGetLog())
+//		rcGetLog()->log(RC_LOG_PROGRESS, "Build polymesh: %.3f ms", rcGetDeltaTimeUsec(startTime, endTime)/1000.0f);
+	if (rcGetBuildTimes())
+		rcGetBuildTimes()->buildPolymesh += rcGetDeltaTimeUsec(startTime, endTime);
 	
 	return true;
 }

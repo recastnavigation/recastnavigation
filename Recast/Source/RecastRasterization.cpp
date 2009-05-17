@@ -43,13 +43,12 @@ inline bool overlapInterval(unsigned short amin, unsigned short amax,
 
 static rcSpan* allocSpan(rcHeightfield& hf)
 {
-	static const int SPANS_PER_POOL = 2048; 
 	// If running out of memory, allocate new page and update the freelist.
 	if (!hf.freelist || !hf.freelist->next)
 	{
 		// Create new page.
 		// Allocate memory for the new pool.
-		const int size = (sizeof(rcSpanPool)-sizeof(rcSpan)) + sizeof(rcSpan)*SPANS_PER_POOL;
+		const int size = (sizeof(rcSpanPool)-sizeof(rcSpan)) + sizeof(rcSpan)*RC_SPANS_PER_POOL;
 		rcSpanPool* pool = reinterpret_cast<rcSpanPool*>(new unsigned char[size]);
 		if (!pool) return 0;
 		pool->next = 0;
@@ -59,7 +58,7 @@ static rcSpan* allocSpan(rcHeightfield& hf)
 		// Add new items to the free list.
 		rcSpan* freelist = hf.freelist;
 		rcSpan* head = &pool->items[0];
-		rcSpan* it = &pool->items[SPANS_PER_POOL];
+		rcSpan* it = &pool->items[RC_SPANS_PER_POOL];
 		do
 		{
 			--it;
@@ -290,6 +289,9 @@ void rcRasterizeTriangles(const float* bmin, const float* bmax, const float cs, 
 	
 	rcTimeVal endTime = rcGetPerformanceTimer();
 	
-	if (rcGetLog())
-		rcGetLog()->log(RC_LOG_PROGRESS, "Rasterize: %.3f ms", rcGetDeltaTimeUsec(startTime, endTime)/1000.0f);
+//	if (rcGetLog())
+//		rcGetLog()->log(RC_LOG_PROGRESS, "Rasterize: %.3f ms", rcGetDeltaTimeUsec(startTime, endTime)/1000.0f);
+
+	if (rcGetBuildTimes())
+		rcGetBuildTimes()->rasterizeTriangles += rcGetDeltaTimeUsec(startTime, endTime);
 }

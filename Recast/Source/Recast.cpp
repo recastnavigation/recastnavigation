@@ -54,7 +54,7 @@ void rcCalcBounds(const float* verts, int nv, float* bmin, float* bmax)
 	}
 }
 
-void rcCalcGridSize(float* bmin, float* bmax, float cs, int* w, int* h)
+void rcCalcGridSize(const float* bmin, const float* bmax, float cs, int* w, int* h)
 {
 	*w = (int)((bmax[0] - bmin[0])/cs+0.5f);
 	*h = (int)((bmax[2] - bmin[2])/cs+0.5f);
@@ -71,7 +71,7 @@ bool rcCreateHeightfield(rcHeightfield& hf, int width, int height)
 	return true;
 }
 
-void rcMarkWalkableTriangles(const float walkableSlopeAngle,
+/*void rcMarkWalkableTriangles(const float walkableSlopeAngle,
 							 const int* tris, const float* norms, int nt,
 							 unsigned char* flags)
 {
@@ -81,6 +81,34 @@ void rcMarkWalkableTriangles(const float walkableSlopeAngle,
 	{
 		// Check if the face is walkable.
 		if (norms[i*3+1] > walkableThr)
+			flags[i] |= RC_WALKABLE;
+	}
+}*/
+
+static void calcTriNormal(const float* v0, const float* v1, const float* v2, float* norm)
+{
+	float e0[3], e1[3];
+	vsub(e0, v1, v0);
+	vsub(e1, v2, v0);
+	vcross(norm, e0, e1);
+	vnormalize(norm);
+}
+
+void rcMarkWalkableTriangles(const float walkableSlopeAngle,
+							 const float* verts, int nv,
+							 const int* tris, int nt,
+							 unsigned char* flags)
+{
+	const float walkableThr = cosf(walkableSlopeAngle/180.0f*(float)M_PI);
+
+	float norm[3];
+	
+	for (int i = 0; i < nt; ++i)
+	{
+		const int* tri = &tris[i*3];
+		calcTriNormal(&verts[tri[0]*3], &verts[tri[1]*3], &verts[tri[2]*3], norm);
+		// Check if the face is walkable.
+		if (norm[1] > walkableThr)
 			flags[i] |= RC_WALKABLE;
 	}
 }
@@ -129,12 +157,9 @@ bool rcBuildCompactHeightfield(const float* bmin, const float* bmax,
 	chf.walkableHeight = walkableHeight;
 	chf.walkableClimb = walkableClimb;
 	chf.maxRegions = 0;
-	chf.minx = bmin[0];
-	chf.miny = bmin[1];
-	chf.minz = bmin[2];
-	chf.maxx = bmax[0];
-	chf.maxy = bmax[1] + walkableHeight*ch;
-	chf.maxz = bmax[2];
+	vcopy(chf.bmin, bmin);
+	vcopy(chf.bmax, bmax);
+	chf.bmax[1] += walkableHeight*ch;
 	chf.cs = cs;
 	chf.ch = ch;
 	chf.cells = new rcCompactCell[w*h];
@@ -226,10 +251,36 @@ bool rcBuildCompactHeightfield(const float* bmin, const float* bmax,
 	
 	rcTimeVal endTime = rcGetPerformanceTimer();
 	
-	if (rcGetLog())
-		rcGetLog()->log(RC_LOG_PROGRESS, "Build compact: %.3f ms", rcGetDeltaTimeUsec(startTime, endTime)/1000.0f);
+//	if (rcGetLog())
+//		rcGetLog()->log(RC_LOG_PROGRESS, "Build compact: %.3f ms", rcGetDeltaTimeUsec(startTime, endTime)/1000.0f);
+	if (rcGetBuildTimes())
+		rcGetBuildTimes()->buildCompact += rcGetDeltaTimeUsec(startTime, endTime);
 	
 	return true;
+}
+
+static int getHeightfieldMemoryUsage(const rcHeightfield& hf)
+{
+	int size = 0;
+	size += sizeof(hf);
+	size += hf.width * hf.height * sizeof(rcSpan*);
+	
+	rcSpanPool* pool = hf.pools;
+	while (pool)
+	{
+		size += (sizeof(rcSpanPool) - sizeof(rcSpan)) + sizeof(rcSpan)*RC_SPANS_PER_POOL;
+		pool = pool->next;
+	}
+	return size;
+}
+
+static int getCompactHeightFieldMemoryusage(const rcCompactHeightfield& chf)
+{
+	int size = 0;
+	size += sizeof(rcCompactHeightfield);
+	size += sizeof(rcCompactSpan) * chf.spanCount;
+	size += sizeof(rcCompactCell) * chf.width * chf.height;
+	return size;
 }
 
 bool rcBuildNavMesh(const rcConfig& cfg,
@@ -253,23 +304,23 @@ bool rcBuildNavMesh(const rcConfig& cfg,
 	rcFilterWalkableBorderSpans(cfg.walkableHeight, cfg.walkableClimb, solid);
 	
 	rcFilterWalkableLowHeightSpans(cfg.walkableHeight, solid);
-	
-	if (!rcMarkReachableSpans(cfg.walkableHeight, cfg.walkableClimb, solid))
+
+/*	if (!rcMarkReachableSpans(cfg.walkableHeight, cfg.walkableClimb, solid))
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_ERROR, "rcBuildNavMesh: Could not build navigable heightfield.");
 		return false;
-	}
+	}*/
 	
 	if (!rcBuildCompactHeightfield(cfg.bmin, cfg.bmax, cfg.cs, cfg.ch,
 								   cfg.walkableHeight, cfg.walkableClimb,
-								   RC_WALKABLE|RC_REACHABLE, solid, chf))
+								   RC_WALKABLE/*|RC_REACHABLE*/, solid, chf))
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_ERROR, "rcBuildNavMesh: Could not build compact data.");
 		return false;
 	}
-	
+
 	if (!rcBuildDistanceField(chf))
 	{
 		if (rcGetLog())
@@ -277,7 +328,7 @@ bool rcBuildNavMesh(const rcConfig& cfg,
 		return false;
 	}
 	
-	if (!rcBuildRegions(chf, cfg.walkableRadius, cfg.minRegionSize, cfg.mergeRegionSize))
+	if (!rcBuildRegions(chf, cfg.walkableRadius, cfg.borderSize, cfg.minRegionSize, cfg.mergeRegionSize))
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_ERROR, "rcBuildNavMesh: Could not build regions.");
@@ -291,7 +342,8 @@ bool rcBuildNavMesh(const rcConfig& cfg,
 		return false;
 	}
 	
-	if (!rcBuildPolyMesh(cset, polyMesh, cfg.maxVertsPerPoly))
+	if (!rcBuildPolyMesh(cset, cfg.bmin, cfg.bmax, cfg.cs, cfg.ch,
+						 cfg.maxVertsPerPoly, polyMesh))
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_ERROR, "rcBuildNavMesh: Could not triangulate contours.");

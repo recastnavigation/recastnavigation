@@ -81,8 +81,10 @@ void rcFilterWalkableBorderSpans(const int walkableHeight,
 	}
 	
 	rcTimeVal endTime = rcGetPerformanceTimer();
-	if (rcGetLog())
-		rcGetLog()->log(RC_LOG_PROGRESS, "Filter border: %.3f ms", rcGetDeltaTimeUsec(startTime, endTime)/1000.0f);
+//	if (rcGetLog())
+//		rcGetLog()->log(RC_LOG_PROGRESS, "Filter border: %.3f ms", rcGetDeltaTimeUsec(startTime, endTime)/1000.0f);
+	if (rcGetBuildTimes())
+		rcGetBuildTimes()->filterBorder += rcGetDeltaTimeUsec(startTime, endTime);
 }	
 
 void rcFilterWalkableLowHeightSpans(int walkableHeight,
@@ -112,9 +114,12 @@ void rcFilterWalkableLowHeightSpans(int walkableHeight,
 	
 	rcTimeVal endTime = rcGetPerformanceTimer();
 
-	if (rcGetLog())
-		rcGetLog()->log(RC_LOG_PROGRESS, "Filter walkable: %.3f ms", rcGetDeltaTimeUsec(startTime, endTime)/1000.0f);
+//	if (rcGetLog())
+//		rcGetLog()->log(RC_LOG_PROGRESS, "Filter walkable: %.3f ms", rcGetDeltaTimeUsec(startTime, endTime)/1000.0f);
+	if (rcGetBuildTimes())
+		rcGetBuildTimes()->filterWalkable += rcGetDeltaTimeUsec(startTime, endTime);
 }
+
 
 struct rcReachableSeed
 {
@@ -225,8 +230,10 @@ bool rcMarkReachableSpans(const int walkableHeight,
 	
 	rcTimeVal endTime = rcGetPerformanceTimer();
 	
-	if (rcGetLog())
-		rcGetLog()->log(RC_LOG_PROGRESS, "Mark reachable: %.3f ms", rcGetDeltaTimeUsec(startTime, endTime)/1000.0f);
+//	if (rcGetLog())
+//		rcGetLog()->log(RC_LOG_PROGRESS, "Mark reachable: %.3f ms", rcGetDeltaTimeUsec(startTime, endTime)/1000.0f);
+	if (rcGetBuildTimes())
+		rcGetBuildTimes()->filterMarkReachable += rcGetDeltaTimeUsec(startTime, endTime);
 	
 	return true;
 }
