@@ -45,6 +45,31 @@ void rcDebugDrawMesh(const rcMeshLoaderObj& mesh, const unsigned char* flags)
 	glEnd();
 }
 
+void rcDebugDrawMeshSlope(const rcMeshLoaderObj& mesh, const float walkableSlopeAngle)
+{
+	const float walkableThr = cosf(walkableSlopeAngle/180.0f*(float)M_PI);
+	
+	const int nt = mesh.getTriCount();
+	const float* verts = mesh.getVerts();
+	const float* normals = mesh.getNormals();
+	const int* tris = mesh.getTris();
+
+	glBegin(GL_TRIANGLES);
+	for (int i = 0; i < nt*3; i += 3)
+	{
+		const float* norm = &normals[i];
+		float a = (2+norm[0]+norm[1])/4;
+		if (norm[1] > walkableThr)
+			glColor3f(a,a,a);
+		else
+			glColor3f(a,a*0.3f,a*0.1f);
+		glVertex3fv(&verts[tris[i]*3]);
+		glVertex3fv(&verts[tris[i+1]*3]);
+		glVertex3fv(&verts[tris[i+2]*3]);
+	}
+	glEnd();
+}
+
 void drawBoxWire(float minx, float miny, float minz, float maxx, float maxy, float maxz, const float* col)
 {
 	glColor4fv(col);
@@ -480,8 +505,8 @@ void rcDebugDrawPolyMesh(const struct rcPolyMesh& mesh)
 	glEnd();
 	glLineWidth(1.0f);
 	
-	glPointSize(4.0f);
-	glColor4ub(0,0,0,128);
+	glPointSize(3.0f);
+	glColor4ub(0,0,0,64);
 	glBegin(GL_POINTS);
 	for (int i = 0; i < mesh.nverts; ++i)
 	{

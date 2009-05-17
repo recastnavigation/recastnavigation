@@ -41,6 +41,7 @@ void rcDebugDrawHeightfieldWalkable(const struct rcHeightfield& hf,
 									const float* orig, float cs, float ch);
 
 void rcDebugDrawMesh(const class rcMeshLoaderObj& mesh, const unsigned char* flags);
+void rcDebugDrawMeshSlope(const class rcMeshLoaderObj& mesh, const float walkableSlopeAngle);
 
 void rcDebugDrawCompactHeightfieldSolid(const struct rcCompactHeightfield& chf);
 void rcDebugDrawCompactHeightfieldRegions(const struct rcCompactHeightfield& chf);

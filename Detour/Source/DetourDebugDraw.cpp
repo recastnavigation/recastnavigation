@@ -170,8 +170,8 @@ void dtDebugDrawStatNavMesh(const dtStatNavMesh* mesh)
 	glEnd();
 	glLineWidth(1.0f);
 	
-	glPointSize(4.0f);
-	glColor4ub(0,0,0,128);
+	glPointSize(3.0f);
+	glColor4ub(0,0,0,196);
 	glBegin(GL_POINTS);
 	for (int i = 0; i < mesh->getVertexCount(); ++i)
 	{

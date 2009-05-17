@@ -451,7 +451,7 @@ bool buildTiledNavigation(const rcConfig& cfg,
 			{
 				if (rcGetLog())
 					rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: [%d,%d] Could not create contours.", x, y);
-				return false;
+				continue;
 			}
 			
 			if (keepInterResults)
@@ -552,20 +552,22 @@ bool buildTiledNavigation(const rcConfig& cfg,
 		}
 	}
 
-	if (!rcBuildPolyMesh(combSet, cfg.bmin, cfg.bmax, cfg.cs, cfg.ch,
-						 cfg.maxVertsPerPoly, *polyMesh))
-	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: Could not triangulate contours.");
-		return false;
-	}
-	
+	bool polyRes = rcBuildPolyMesh(combSet, cfg.bmin, cfg.bmax, cfg.cs, cfg.ch, cfg.maxVertsPerPoly, *polyMesh);
+
 	// Remove vertex binding to avoid double deletion.
 	for (int i = 0; i < combSet.nconts; ++i)
 	{
 		combSet.conts[i].verts = 0;
 		combSet.conts[i].nverts = 0;
 	}
+	
+	if (!polyRes)
+	{	
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: Could not triangulate contours.");
+		return false;
+	}
+	
 
 	unsigned char* navData = 0;
 	int navDataSize = 0;
@@ -1110,7 +1112,7 @@ int main(int argc, char *argv[])
 		if (drawMode == DRAWMODE_MESH)
 		{
 			if (g_mesh)
-				rcDebugDrawMesh(*g_mesh, 0); //g_triangleFlags);
+				rcDebugDrawMeshSlope(*g_mesh, agentMaxSlope);
 		}
 		else if (drawMode != DRAWMODE_NAVMESH_TRANS)
 		{
@@ -1443,7 +1445,7 @@ int main(int argc, char *argv[])
 
 				g_log.clear();
 				rcSetLog(&g_log);
-
+				
 				if ((int)tileSize > 0)
 				{
 					cfg.borderSize = cfg.walkableRadius*2 + 2;
@@ -1766,7 +1768,6 @@ int main(int argc, char *argv[])
 	delete g_navMesh;
 	delete g_tileSet;
 	delete g_polyMesh;
-	
 
 	
 	return 0;
