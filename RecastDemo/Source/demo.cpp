@@ -192,6 +192,7 @@ enum DrawMode
 	DRAWMODE_NAVMESH,
 	DRAWMODE_NAVMESH_TRANS,
 	DRAWMODE_NAVMESH_BVTREE,
+	DRAWMODE_NAVMESH_INVIS,
 	DRAWMODE_MESH,
 	DRAWMODE_VOXELS,
 	DRAWMODE_VOXELS_WALKABLE,
@@ -199,6 +200,7 @@ enum DrawMode
 	DRAWMODE_COMPACT_DISTANCE,
 	DRAWMODE_COMPACT_REGIONS,
 	DRAWMODE_RAW_CONTOURS,
+	DRAWMODE_BOTH_CONTOURS,
 	DRAWMODE_CONTOURS,
 	DRAWMODE_POLYMESH,
 };
@@ -254,6 +256,123 @@ TileSet* g_tileSet = 0;
 rcLog g_log;
 rcBuildTimes g_buildTimes; 
 
+
+struct Portal
+{
+	float bmin[3], bmax[3];
+};
+static const int MAX_PORTALS = 2000;
+
+Portal g_portals[MAX_PORTALS];
+int g_portalCount = 0;
+
+Portal g_cportals[MAX_PORTALS];
+int g_cportalCount = 0;
+
+void findContourPortals(const rcContour* cont, const int tx, const int tz, const int tileSize,
+						const int climb, const float* bmin, const float cs, const float ch)
+{
+	if (!cont) return;
+	if (!cont->nverts) return;
+	for (int i = 0, j = cont->nverts-1; i < cont->nverts; j=i++)
+	{
+		const int* vj = &cont->verts[j*4];
+		const int* vi = &cont->verts[i*4];
+		int edge = 0;
+		if (vj[0] == tx && vi[0] == tx)
+			edge = 1;
+		else if (vj[0] == tx+tileSize && vi[0] == tx+tileSize)
+			edge = 2;
+		else if (vj[2] == tz && vi[2] == tz)
+			edge = 3;
+		else if (vj[2] == tz+tileSize && vi[2] == tz+tileSize)
+			edge = 4;
+			
+		if (edge != 0)
+		{
+			if (g_portalCount >= MAX_PORTALS)
+				return;
+			Portal& p = g_portals[g_portalCount];
+			g_portalCount++;
+
+			float v0[3], v1[3];
+			v0[0] = bmin[0] + vj[0]*cs;
+			v0[1] = bmin[1] + vj[1]*ch;
+			v0[2] = bmin[2] + vj[2]*cs;
+			v1[0] = bmin[0] + vi[0]*cs;
+			v1[1] = bmin[1] + vi[1]*ch;
+			v1[2] = bmin[2] + vi[2]*cs;
+			vcopy(p.bmin, v0);
+			vcopy(p.bmax, v0);
+			vmin(p.bmin, v1);
+			vmax(p.bmax, v1);
+			
+			if (edge == 1)
+			{
+				p.bmin[2] += cs/4;
+				p.bmax[2] -= cs/4;
+				p.bmax[1] += climb*ch;
+				p.bmin[0] -= cs/4;
+				p.bmax[0] += cs/4;
+			}
+			else if (edge == 2)
+			{
+				p.bmin[2] += cs/4;
+				p.bmax[2] -= cs/4;
+				p.bmax[1] += climb*ch;
+				p.bmin[0] -= cs/4;
+				p.bmax[0] += cs/4;
+			}
+			else if (edge == 3)
+			{
+				p.bmin[0] += cs/4;
+				p.bmax[0] -= cs/4;
+				p.bmax[1] += climb*ch;
+				p.bmin[2] -= cs/4;
+				p.bmax[2] += cs/4;
+			}
+			else if (edge == 4)
+			{
+				p.bmin[0] += cs/4;
+				p.bmax[0] -= cs/4;
+				p.bmax[1] += climb*ch;
+				p.bmin[2] -= cs/4;
+				p.bmax[2] += cs/4;
+			}
+		}
+	}
+}
+
+void findPortals(const rcContourSet* cset, const int tx, const int ty, const int tileSize,
+				 const int climb, const float* bmin, const float cs, const float ch)
+{
+	if (!cset) return;
+	if (!cset->nconts) return;
+	for (int i = 0; i < cset->nconts; ++i)
+		findContourPortals(&cset->conts[i], tx, ty, tileSize, climb, bmin, cs, ch);
+}
+
+void connectPortals()
+{
+	for (int i = 0; i < g_portalCount-1; ++i)
+	{
+		for (int j = i+1; j < g_portalCount; ++j)
+		{
+			if (g_portalCount >= MAX_PORTALS)
+				return;
+			Portal& pi = g_portals[i];
+			Portal& pj = g_portals[j];
+			Portal& p = g_cportals[g_cportalCount];
+			vcopy(p.bmin, pi.bmin);
+			vcopy(p.bmax, pi.bmax);
+			vmax(p.bmin, pj.bmin);
+			vmin(p.bmax, pj.bmax);
+			if (p.bmin[0] >= p.bmax[0] || p.bmin[1] >= p.bmax[1] || p.bmin[2] >= p.bmax[2])
+				continue;
+			g_cportalCount++;
+		}
+	}
+}
 
 bool buildTiledNavigation(const rcConfig& cfg,
 						  const rcMeshLoaderObj* mesh,
@@ -482,6 +601,19 @@ bool buildTiledNavigation(const rcConfig& cfg,
 	delete solid;
 	delete chf;
 	
+	g_portalCount = 0;
+	g_cportalCount = 0;	
+/*	for (int y = 0; y < tileSet->height; ++y)
+	{
+		for (int x = 0; x < tileSet->width; ++x)
+		{
+			findPortals(tileSet->tiles[x + y*tileSet->width].cset,
+						x*tileCfg.tileSize, y*tileCfg.tileSize, tileCfg.tileSize,
+						cfg.walkableClimb, cfg.bmin, cfg.cs, cfg.ch);
+		}
+	}
+	connectPortals();*/
+	
 	for (int y = 0; y < tileSet->height; ++y)
 	{
 		for (int x = 0; x < tileSet->width; ++x)
@@ -491,7 +623,7 @@ bool buildTiledNavigation(const rcConfig& cfg,
 			{
 				if (!rcFixupAdjacentContours(tileSet->tiles[x + y*tileSet->width].cset,
 											 tileSet->tiles[x+1 + y*tileSet->width].cset,
-											 1, (x+1)*cfg.tileSize))
+											 cfg.walkableClimb, (x+1)*cfg.tileSize, -1))
 				{
 					if (rcGetLog())
 						rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: [%d,%d] Could not fixup x+1.", x, y);
@@ -503,7 +635,7 @@ bool buildTiledNavigation(const rcConfig& cfg,
 			{
 				if (!rcFixupAdjacentContours(tileSet->tiles[x + y*tileSet->width].cset,
 											 tileSet->tiles[x + (y+1)*tileSet->width].cset,
-											 2, (y+1)*cfg.tileSize))
+											 cfg.walkableClimb, -1, (y+1)*cfg.tileSize))
 				{
 					if (rcGetLog())
 						rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: [%d,%d] Could not fixup y+1.", x, y);
@@ -514,7 +646,8 @@ bool buildTiledNavigation(const rcConfig& cfg,
 			tileSet->tiles[x+y*tileSet->width].buildTime += rcGetDeltaTimeUsec(startTime, endTime);
 		}
 	}
-	
+
+	 
 	// Combine contours.
 	rcContourSet combSet;
 
@@ -569,22 +702,25 @@ bool buildTiledNavigation(const rcConfig& cfg,
 	}
 	
 
-	unsigned char* navData = 0;
-	int navDataSize = 0;
-	if (!dtCreateNavMeshData(polyMesh->verts, polyMesh->nverts,
-							 polyMesh->polys, polyMesh->npolys, polyMesh->nvp,
-							 cfg.bmin, cfg.bmax, cfg.cs, cfg.ch, &navData, &navDataSize))
+	if (cfg.maxVertsPerPoly == DT_VERTS_PER_POLYGON)
 	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "Could not build Detour navmesh.");
-		return false;
-	}
-	
-	if (!navMesh->init(navData, navDataSize, true))
-	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "Could not init Detour navmesh");
-		return false;
+		unsigned char* navData = 0;
+		int navDataSize = 0;
+		if (!dtCreateNavMeshData(polyMesh->verts, polyMesh->nverts,
+								 polyMesh->polys, polyMesh->npolys, polyMesh->nvp,
+								 cfg.bmin, cfg.bmax, cfg.cs, cfg.ch, &navData, &navDataSize))
+		{
+			if (rcGetLog())
+				rcGetLog()->log(RC_LOG_ERROR, "Could not build Detour navmesh.");
+			return false;
+		}
+		
+		if (!navMesh->init(navData, navDataSize, true))
+		{
+			if (rcGetLog())
+				rcGetLog()->log(RC_LOG_ERROR, "Could not init Detour navmesh");
+			return false;
+		}
 	}
 	
 	rcTimeVal totEndTime = rcGetPerformanceTimer();
@@ -802,22 +938,25 @@ bool buildNavigation(const rcConfig& cfg,
 		return false;
 	}
 	
-	unsigned char* navData = 0;
-	int navDataSize = 0;
-	if (!dtCreateNavMeshData(polyMesh->verts, polyMesh->nverts,
-							 polyMesh->polys, polyMesh->npolys, polyMesh->nvp,
-							 cfg.bmin, cfg.bmax, cfg.cs, cfg.ch, &navData, &navDataSize))
+	if (cfg.maxVertsPerPoly == DT_VERTS_PER_POLYGON)
 	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "Could not build Detour navmesh.");
-		return false;
-	}
+		unsigned char* navData = 0;
+		int navDataSize = 0;
+		if (!dtCreateNavMeshData(polyMesh->verts, polyMesh->nverts,
+								 polyMesh->polys, polyMesh->npolys, polyMesh->nvp,
+								 cfg.bmin, cfg.bmax, cfg.cs, cfg.ch, &navData, &navDataSize))
+		{
+			if (rcGetLog())
+				rcGetLog()->log(RC_LOG_ERROR, "Could not build Detour navmesh.");
+			return false;
+		}
 
-	if (!navMesh->init(navData, navDataSize, true))
-	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "Could not init Detour navmesh");
-		return false;
+		if (!navMesh->init(navData, navDataSize, true))
+		{
+			if (rcGetLog())
+				rcGetLog()->log(RC_LOG_ERROR, "Could not init Detour navmesh");
+			return false;
+		}
 	}
 	
 	rcTimeVal totEndTime = rcGetPerformanceTimer();
@@ -874,9 +1013,9 @@ int main(int argc, char *argv[])
 	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
 	
-	int width = 1200;
-	int height = 700;
-	SDL_Surface* screen = SDL_SetVideoMode(width, height, 0, SDL_OPENGL);
+	int width = 1024; //1200;
+	int height = 768; //700;
+	SDL_Surface* screen = SDL_SetVideoMode(width, height, 0, SDL_OPENGL /*| SDL_FULLSCREEN*/);
 	if (!screen)
 	{
 		printf("Could not initialise SDL opengl\n");
@@ -901,13 +1040,14 @@ int main(int argc, char *argv[])
 	float regionMinSize = 50;
 	float regionMergeSize = 20;
 	float edgeMaxLen = 12.0f;
-	float edgeMaxError = 1.5f;
+	float edgeMaxError = 1.3f;
 	float vertsPerPoly = 6.0f;
 	float tileSize = 0.0f;
-	int drawMode = DRAWMODE_CONTOURS;
+	int drawMode = DRAWMODE_NAVMESH;
 	int toolMode = TOOLMODE_PATHFIND;
 	bool showLevels = false;
 	bool showLog = false;
+	bool showTools = true;
 	char curLevel[256] = "Choose Level...";
 	bool mouseOverMenu = false;
 	bool keepInterResults = false;
@@ -936,22 +1076,28 @@ int main(int argc, char *argv[])
 	float rays[3], raye[3]; 
 	float spos[3] = {0,0,0};
 	float epos[3] = {0,0,0};
+	float mpos[3] = {0,0,0};
 	float hitPos[3] = {0,0,0};
 	float hitNormal[3] = {0,0,0};
 	float distanceToWall = 0;
 	bool sposSet = false, eposSet = false;
+	bool mposSet = false;
 	static const float startCol[4] = { 0.6f, 0.1f, 0.1f, 0.75f };
 	static const float endCol[4] = { 0.1f, 0.6f, 0.1f, 0.75f };
 	bool recalcTool = false;
 	
 	glEnable(GL_CULL_FACE);
-	
-	float fogCol[4] = { 0.1f,0.12f,0.14f,1 };
+
+//	float fogCol[4] = { 0.1f,0.12f,0.14f,1 };
+	float fogCol[4] = { 0.32f,0.25f,0.07f,1 };
 	glEnable(GL_FOG);
 	glFogi(GL_FOG_MODE, GL_LINEAR);
 	glFogf(GL_FOG_START, 0);
 	glFogf(GL_FOG_END, 10);
 	glFogfv(GL_FOG_COLOR, fogCol);
+	
+	glEnable(GL_POINT_SMOOTH);
+	glEnable(GL_LINE_SMOOTH);
 	
 	bool done = false;
 	while(!done)
@@ -991,7 +1137,14 @@ int main(int argc, char *argv[])
 								float t;
 								if (raycast(*g_mesh, rays, raye, t))
 								{
-									if (SDL_GetModState() & KMOD_SHIFT)
+									if (SDL_GetModState() & KMOD_CTRL)
+									{
+										mposSet = true;
+										mpos[0] = rays[0] + (raye[0] - rays[0])*t;
+										mpos[1] = rays[1] + (raye[1] - rays[1])*t;
+										mpos[2] = rays[2] + (raye[2] - rays[2])*t;
+									}
+									else if (SDL_GetModState() & KMOD_SHIFT)
 									{
 										sposSet = true;
 										spos[0] = rays[0] + (raye[0] - rays[0])*t;
@@ -1010,6 +1163,13 @@ int main(int argc, char *argv[])
 										if (g_navMesh)
 											endRef = g_navMesh->findNearestPoly(epos, polyPickExt);
 										recalcTool = true;
+									}
+								}
+								else
+								{
+									if (SDL_GetModState() & KMOD_CTRL)
+									{
+										mposSet = false;
 									}
 								}
 							}
@@ -1120,106 +1280,19 @@ int main(int argc, char *argv[])
 				rcDebugDrawMesh(*g_mesh, 0);
 		}
 		
-		
-		if (g_mesh)
-		{
-			glDepthMask(GL_FALSE);
-		
-			// Agent dimensions.
-			const float r = agentRadius;
-			const float h = agentHeight;
-			
-			float col[4];
-			
-			for (int i = 0; i < 2; ++i)
-			{
-				const float* pos = 0;
-				const float* c = 0;
-				if (i == 0 && sposSet)
-				{
-					pos = spos;
-					c = startCol;
-				}
-				else if (i == 1 && eposSet)
-				{
-					pos = epos;
-					c = endCol;
-				}
-				if (!pos)
-					continue;
-				glLineWidth(2.0f);
-				rcDebugDrawCylinderWire(pos[0]-r, pos[1]+0.02f, pos[2]-r, pos[0]+r, pos[1]+h, pos[2]+r, c);
-				glLineWidth(1.0f);
-				
-				glColor4ub(0,0,0,196);
-				glBegin(GL_LINES);
-				glVertex3f(pos[0], pos[1]-agentMaxClimb, pos[2]);
-				glVertex3f(pos[0], pos[1]+agentMaxClimb, pos[2]);
-				glVertex3f(pos[0]-r/2, pos[1]+0.02f, pos[2]);
-				glVertex3f(pos[0]+r/2, pos[1]+0.02f, pos[2]);
-				glVertex3f(pos[0], pos[1]+0.02f, pos[2]-r/2);
-				glVertex3f(pos[0], pos[1]+0.02f, pos[2]+r/2);
-				glEnd();
-			}
-			
-			// Tile bboxes
-			if ((int)tileSize > 0)
-			{
-				const int ts = (int)tileSize;
-				col[0] = 0.5f; col[1] = 0.1f; col[2] = 0.1f; col[3] = 0.15f;
-				int gw = 0, gh = 0;
-				rcCalcGridSize(g_meshBMin, g_meshBMax, cellSize, &gw, &gh);
-				int tx = (gw + ts-1) / ts;
-				int ty = (gh + ts-1) / ts;
-
-				const float s = ts*cellSize;
-
-				glBegin(GL_LINES);
-				glColor4ub(0,0,0,64);
-				for (int y = 0; y < ty; ++y)
-				{
-					for (int x = 0; x < tx; ++x)
-					{
-						float fx, fy, fz;
-						fx = g_meshBMin[0] + x*s;
-						fy = g_meshBMin[1];
-						fz = g_meshBMin[2] + y*s;
-						
-						glVertex3f(fx,fy,fz);
-						glVertex3f(fx+s,fy,fz);
-						glVertex3f(fx,fy,fz);
-						glVertex3f(fx,fy,fz+s);
-						
-						if (x+1 >= tx)
-						{
-							glVertex3f(fx+s,fy,fz);
-							glVertex3f(fx+s,fy,fz+s);
-						}
-						if (y+1 >= ty)
-						{
-							glVertex3f(fx,fy,fz+s);
-							glVertex3f(fx+s,fy,fz+s);
-						}
-					}
-				}
-				glEnd();
-			}
-
-			// Mesh bbox.
-			col[0] = 1.0f; col[1] = 1.0f; col[2] = 1.0f; col[3] = 0.25f;
-			rcDebugDrawBoxWire(g_meshBMin[0], g_meshBMin[1], g_meshBMin[2],
-							   g_meshBMax[0], g_meshBMax[1], g_meshBMax[2], col);
-
-			glDepthMask(GL_TRUE);
-		}
+		glDisable(GL_FOG);
 		
 		glDepthMask(GL_FALSE);
 		
-		if (drawMode == DRAWMODE_NAVMESH || drawMode == DRAWMODE_NAVMESH_TRANS || drawMode == DRAWMODE_NAVMESH_BVTREE)
+		if (drawMode == DRAWMODE_NAVMESH ||
+			drawMode == DRAWMODE_NAVMESH_TRANS ||
+			drawMode == DRAWMODE_NAVMESH_BVTREE ||
+			drawMode == DRAWMODE_NAVMESH_INVIS)
 		{
 			if (g_navMesh)
 			{
-				dtDebugDrawStatNavMesh(g_navMesh);
+				if (drawMode != DRAWMODE_NAVMESH_INVIS)
+					dtDebugDrawStatNavMesh(g_navMesh);
 
 				if (toolMode == TOOLMODE_PATHFIND)
 				{
@@ -1307,7 +1380,7 @@ int main(int argc, char *argv[])
 			if (g_navMesh)
 				dtDebugDrawStatNavMeshBVTree(g_navMesh);
 		}
-		
+
 		glDepthMask(GL_TRUE);
 		
 		if (drawMode == DRAWMODE_COMPACT)
@@ -1345,6 +1418,7 @@ int main(int argc, char *argv[])
 		}
 		if (drawMode == DRAWMODE_VOXELS)
 		{
+			glEnable(GL_FOG);
 			if (g_tileSet)
 			{
 				for (int i = 0; i < g_tileSet->width*g_tileSet->height; ++i)
@@ -1353,9 +1427,11 @@ int main(int argc, char *argv[])
 						rcDebugDrawHeightfieldSolid(*g_tileSet->tiles[i].solid, g_tileSet->bmin, g_tileSet->cs, g_tileSet->ch);
 				}
 			}
+			glDisable(GL_FOG);
 		}
 		if (drawMode == DRAWMODE_VOXELS_WALKABLE)
 		{
+			glEnable(GL_FOG);
 			if (g_tileSet)
 			{
 				for (int i = 0; i < g_tileSet->width*g_tileSet->height; ++i)
@@ -1364,9 +1440,11 @@ int main(int argc, char *argv[])
 						rcDebugDrawHeightfieldWalkable(*g_tileSet->tiles[i].solid, g_tileSet->bmin, g_tileSet->cs, g_tileSet->ch);
 				}
 			}
+			glDisable(GL_FOG);
 		}
 		if (drawMode == DRAWMODE_RAW_CONTOURS)
 		{
+			glDepthMask(GL_FALSE);
 			if (g_tileSet)
 			{
 				for (int i = 0; i < g_tileSet->width*g_tileSet->height; ++i)
@@ -1375,9 +1453,27 @@ int main(int argc, char *argv[])
 						rcDebugDrawRawContours(*(g_tileSet->tiles[i].cset), g_tileSet->bmin, g_tileSet->cs, g_tileSet->ch);
 				}
 			}
+			glDepthMask(GL_TRUE);
+		}
+		if (drawMode == DRAWMODE_BOTH_CONTOURS)
+		{
+			glDepthMask(GL_FALSE);
+			if (g_tileSet)
+			{
+				for (int i = 0; i < g_tileSet->width*g_tileSet->height; ++i)
+				{
+					if (g_tileSet->tiles[i].cset)
+					{
+						rcDebugDrawRawContours(*(g_tileSet->tiles[i].cset), g_tileSet->bmin, g_tileSet->cs, g_tileSet->ch, 0.5f);
+						rcDebugDrawContours(*(g_tileSet->tiles[i].cset), g_tileSet->bmin, g_tileSet->cs, g_tileSet->ch);
+					}
+				}
+			}
+			glDepthMask(GL_TRUE);
 		}
 		if (drawMode == DRAWMODE_CONTOURS)
 		{
+			glDepthMask(GL_FALSE);
 			if (g_tileSet)
 			{
 				for (int i = 0; i < g_tileSet->width*g_tileSet->height; ++i)
@@ -1386,16 +1482,120 @@ int main(int argc, char *argv[])
 						rcDebugDrawContours(*(g_tileSet->tiles[i].cset), g_tileSet->bmin, g_tileSet->cs, g_tileSet->ch);
 				}
 			}
-						
+			glDepthMask(GL_TRUE);
 		}
 		if (drawMode == DRAWMODE_POLYMESH)
 		{
+			glDepthMask(GL_FALSE);
 			if (g_polyMesh)
 				rcDebugDrawPolyMesh(*g_polyMesh);
+			glDepthMask(GL_TRUE);
 		}
 		
-		
-		glDisable(GL_FOG);
+		if (g_mesh)
+		{
+			glDepthMask(GL_FALSE);
+			
+			// Agent dimensions.
+			const float r = agentRadius;
+			const float h = agentHeight;
+			
+			float col[4];
+			
+			for (int i = 0; i < 2; ++i)
+			{
+				const float* pos = 0;
+				const float* c = 0;
+				if (i == 0 && sposSet)
+				{
+					pos = spos;
+					c = startCol;
+				}
+				else if (i == 1 && eposSet)
+				{
+					pos = epos;
+					c = endCol;
+				}
+				if (!pos)
+					continue;
+				glLineWidth(2.0f);
+				rcDebugDrawCylinderWire(pos[0]-r, pos[1]+0.02f, pos[2]-r, pos[0]+r, pos[1]+h, pos[2]+r, c);
+				glLineWidth(1.0f);
+				
+				glColor4ub(0,0,0,196);
+				glBegin(GL_LINES);
+				glVertex3f(pos[0], pos[1]-agentMaxClimb, pos[2]);
+				glVertex3f(pos[0], pos[1]+agentMaxClimb, pos[2]);
+				glVertex3f(pos[0]-r/2, pos[1]+0.02f, pos[2]);
+				glVertex3f(pos[0]+r/2, pos[1]+0.02f, pos[2]);
+				glVertex3f(pos[0], pos[1]+0.02f, pos[2]-r/2);
+				glVertex3f(pos[0], pos[1]+0.02f, pos[2]+r/2);
+				glEnd();
+			}
+			
+			// Tile bboxes
+			if ((int)tileSize > 0)
+			{
+				const int ts = (int)tileSize;
+				col[0] = 0.5f; col[1] = 0.1f; col[2] = 0.1f; col[3] = 0.15f;
+				int gw = 0, gh = 0;
+				rcCalcGridSize(g_meshBMin, g_meshBMax, cellSize, &gw, &gh);
+				int tx = (gw + ts-1) / ts;
+				int ty = (gh + ts-1) / ts;
+				
+				const float s = ts*cellSize;
+				
+				glBegin(GL_LINES);
+				glColor4ub(0,0,0,64);
+				for (int y = 0; y < ty; ++y)
+				{
+					for (int x = 0; x < tx; ++x)
+					{
+						float fx, fy, fz;
+						fx = g_meshBMin[0] + x*s;
+						fy = g_meshBMin[1];
+						fz = g_meshBMin[2] + y*s;
+						
+						glVertex3f(fx,fy,fz);
+						glVertex3f(fx+s,fy,fz);
+						glVertex3f(fx,fy,fz);
+						glVertex3f(fx,fy,fz+s);
+						
+						if (x+1 >= tx)
+						{
+							glVertex3f(fx+s,fy,fz);
+							glVertex3f(fx+s,fy,fz+s);
+						}
+						if (y+1 >= ty)
+						{
+							glVertex3f(fx,fy,fz+s);
+							glVertex3f(fx+s,fy,fz+s);
+						}
+					}
+				}
+				glEnd();
+			}
+			
+			// Mesh bbox.
+			col[0] = 1.0f; col[1] = 1.0f; col[2] = 1.0f; col[3] = 0.25f;
+			rcDebugDrawBoxWire(g_meshBMin[0], g_meshBMin[1], g_meshBMin[2],
+							   g_meshBMax[0], g_meshBMax[1], g_meshBMax[2], col);
+			
+			
+			col[0] = 0.1f; col[1] = 0.5f; col[2] = 0.75f; col[3] = 0.5f;
+			/*			for (int i = 0; i < g_portalCount; ++i)
+			 {
+			 rcDebugDrawBoxWire(g_portals[i].bmin[0], g_portals[i].bmin[1], g_portals[i].bmin[2],
+			 g_portals[i].bmax[0], g_portals[i].bmax[1], g_portals[i].bmax[2], col);
+			 }*/
+			for (int i = 0; i < g_cportalCount; ++i)
+			{
+				rcDebugDrawBoxWire(g_cportals[i].bmin[0], g_cportals[i].bmin[1], g_cportals[i].bmin[2],
+								   g_cportals[i].bmax[0], g_cportals[i].bmax[1], g_cportals[i].bmax[2], col);
+			}
+			
+			glDepthMask(GL_TRUE);
+		}
 		
 		
 		// Render GUI
@@ -1417,8 +1617,15 @@ int main(int argc, char *argv[])
 		
 		if (imguiButton(GENID, curLevel))
 		{
-			showLevels = true;
-			scanDirectory("meshes", ".obj", fileList);
+			if (showLevels)
+			{
+				showLevels = false;
+			}
+			else
+			{
+				showLevels = true;
+				scanDirectory("meshes", ".obj", fileList);
+			}
 		}
 		
 		imguiSeparator();
@@ -1427,6 +1634,14 @@ int main(int argc, char *argv[])
 		{
 			if (imguiButton(GENID, "Build"))
 			{
+				npolys = 0;
+				nstraightPath = 0;
+				sposSet = false;
+				eposSet = false;
+				startRef = 0;
+				endRef = 0;
+				distanceToWall = 0;
+				
 				rcConfig cfg;
 				memset(&cfg, 0, sizeof(cfg));
 				cfg.cs = cellSize;
@@ -1439,7 +1654,7 @@ int main(int argc, char *argv[])
 				cfg.maxSimplificationError = edgeMaxError;
 				cfg.minRegionSize = (int)rcSqr(regionMinSize);
 				cfg.mergeRegionSize = (int)rcSqr(regionMergeSize);
-				cfg.maxVertsPerPoly = DT_VERTS_PER_POLYGON; // TODO: Handle better. (int)vertsPerPoly;
+				cfg.maxVertsPerPoly = /*DT_VERTS_PER_POLYGON; // TODO: Handle better.*/ (int)vertsPerPoly;
 				rcCalcBounds(g_mesh->getVerts(), g_mesh->getVertCount(), cfg.bmin, cfg.bmax);
 				rcCalcGridSize(cfg.bmin, cfg.bmax, cfg.cs, &cfg.width, &cfg.height);
 
@@ -1482,6 +1697,9 @@ int main(int argc, char *argv[])
 		
 		if (imguiCheck(GENID, "Show Log", showLog))
 			showLog = !showLog;
+
+		if (imguiCheck(GENID, "Show Tools", showTools))
+			showTools = !showTools;
 
 		if (imguiCheck(GENID, "Keep Itermediate Results", keepInterResults))
 			keepInterResults = !keepInterResults;
@@ -1527,6 +1745,8 @@ int main(int argc, char *argv[])
 			drawMode = DRAWMODE_NAVMESH;
 		if (imguiCheck(GENID, "Navmesh BVTree", drawMode == DRAWMODE_NAVMESH_BVTREE))
 			drawMode = DRAWMODE_NAVMESH_BVTREE;
+		if (imguiCheck(GENID, "Navmesh Invis", drawMode == DRAWMODE_NAVMESH_INVIS))
+			drawMode = DRAWMODE_NAVMESH_INVIS;
 		if (imguiCheck(GENID, "Navmesh Trans", drawMode == DRAWMODE_NAVMESH_TRANS))
 			drawMode = DRAWMODE_NAVMESH_TRANS;
 		if (imguiCheck(GENID, "Voxels", drawMode == DRAWMODE_VOXELS))
@@ -1541,6 +1761,8 @@ int main(int argc, char *argv[])
 			drawMode = DRAWMODE_COMPACT_REGIONS;
 		if (imguiCheck(GENID, "Raw Contours", drawMode == DRAWMODE_RAW_CONTOURS))
 			drawMode = DRAWMODE_RAW_CONTOURS;
+		if (imguiCheck(GENID, "Both Contours", drawMode == DRAWMODE_BOTH_CONTOURS))
+			drawMode = DRAWMODE_BOTH_CONTOURS;
 		if (imguiCheck(GENID, "Contours", drawMode == DRAWMODE_CONTOURS))
 			drawMode = DRAWMODE_CONTOURS;
 		if (imguiCheck(GENID, "Poly Mesh", drawMode == DRAWMODE_POLYMESH))
@@ -1549,7 +1771,6 @@ int main(int argc, char *argv[])
 		imguiEndScrollArea();
 
 		// Tools
-		bool showTools = true; 
 		if (showTools)
 		{
 			static int toolsScroll = 0;
@@ -1728,8 +1949,8 @@ int main(int argc, char *argv[])
 					rx = 45;
 					ry = -45;
 					
-					glFogf(GL_FOG_START, camr*0.5f);
-					glFogf(GL_FOG_END, camr*2.5f);
+					glFogf(GL_FOG_START, camr*0.2f);
+					glFogf(GL_FOG_END, camr*1.25f);
 				}
 				
 			}
@@ -1737,26 +1958,49 @@ int main(int argc, char *argv[])
 			imguiEndScrollArea();
 			
 		}
-		
-		imguiEndFrame();
-		imguiRender(&drawText);
-		
+
 		g_font.drawText(10.0f, (float)height-20.0f, "W/S/A/D: Move  RMB: Rotate   LMB: Place Start   LMB+SHIFT: Place End", GLFont::RGBA(255,255,255,128));
 		
 		// Draw start and end point labels
 		if (sposSet && gluProject((GLdouble)spos[0], (GLdouble)spos[1], (GLdouble)spos[2],
-					   model, proj, view, &x, &y, &z))
+								  model, proj, view, &x, &y, &z))
 		{
 			const float len = g_font.getTextLength("Start");
 			g_font.drawText((float)x - len/2, (float)y-g_font.getLineHeight(), "Start", GLFont::RGBA(0,0,0,220));
 		}
 		if (eposSet && gluProject((GLdouble)epos[0], (GLdouble)epos[1], (GLdouble)epos[2],
-					   model, proj, view, &x, &y, &z))
+								  model, proj, view, &x, &y, &z))
 		{
 			const float len = g_font.getTextLength("End");
 			g_font.drawText((float)x-len/2, (float)y-g_font.getLineHeight(), "End", GLFont::RGBA(0,0,0,220));
 		}
 		
+		glDisable(GL_TEXTURE_2D);
+		
+		// Marker
+		if (mposSet && gluProject((GLdouble)mpos[0], (GLdouble)mpos[1], (GLdouble)mpos[2],
+								  model, proj, view, &x, &y, &z))
+		{
+			// Draw marker circle
+			glLineWidth(5.0f);
+			glColor4ub(240,16,0,196);
+			glBegin(GL_LINE_LOOP);
+			const float r = 25.0f;
+			for (int i = 0; i < 20; ++i)
+			{
+				const float a = (float)i / 20.0f * M_PI*2;
+				const float fx = (float)x + cosf(a)*r;
+				const float fy = (float)y + sinf(a)*r;
+				glVertex2f(fx,fy);
+			}
+			glEnd();
+			glLineWidth(1.0f);
+		}
+		
+		imguiEndFrame();
+		imguiRender(&drawText);
+		
+			
 		glEnable(GL_DEPTH_TEST);
 		SDL_GL_SwapBuffers();
 	}

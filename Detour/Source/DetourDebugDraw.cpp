@@ -126,8 +126,8 @@ void dtDebugDrawStatNavMesh(const dtStatNavMesh* mesh)
 	glEnd();
 	
 	// Draw tri boundaries
-	glColor4ub(0,0,0,64);
-	glLineWidth(1.0f);
+	glColor4ub(0,48,64,32);
+	glLineWidth(1.5f);
 	glBegin(GL_LINES);
 	for (int i = 0; i < mesh->getPolyCount(); ++i)
 	{
@@ -148,8 +148,8 @@ void dtDebugDrawStatNavMesh(const dtStatNavMesh* mesh)
 	glEnd();
 	
 	// Draw boundaries
-	glLineWidth(3.0f);
-	glColor4ub(0,0,0,128);
+	glLineWidth(2.5f);
+	glColor4ub(0,48,64,220);
 	glBegin(GL_LINES);
 	for (int i = 0; i < mesh->getPolyCount(); ++i)
 	{

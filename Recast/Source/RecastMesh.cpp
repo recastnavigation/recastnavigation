@@ -136,13 +136,14 @@ inline int computeVertexHash(int x, int y, int z)
 static int addVertex(unsigned short x, unsigned short y, unsigned short z,
 					 unsigned short* verts, int* firstVert, int* nextVert, int& nv)
 {
-	int bucket = computeVertexHash(x, y, z);
+	int bucket = computeVertexHash(x, 0/*y*/, z);
 	int i = firstVert[bucket];
 	
 	while (i != -1)
 	{
 		const unsigned short* v = &verts[i*3];
-		if (v[0] == x && v[1] == y && v[2] == z)
+//		if (v[0] == x && v[1] == y && v[2] == z)
+		if (v[0] == x && (rcAbs(v[1] - y) <= 2) && v[2] == z)
 			return i;
 		i = nextVert[i]; // next
 	}

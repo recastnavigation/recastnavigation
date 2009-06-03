@@ -146,7 +146,7 @@ static float distancePtSeg(int x, int y, int z,
 						   int px, int py, int pz,
 						   int qx, int qy, int qz)
 {
-	float pqx = (float)(qx - px);
+/*	float pqx = (float)(qx - px);
 	float pqy = (float)(qy - py);
 	float pqz = (float)(qz - pz);
 	float dx = (float)(x - px);
@@ -165,7 +165,25 @@ static float distancePtSeg(int x, int y, int z,
 	dy = py + t*pqy - y;
 	dz = pz + t*pqz - z;
 	
-	return dx*dx + dy*dy + dz*dz;
+	return dx*dx + dy*dy + dz*dz;*/
+
+	float pqx = (float)(qx - px);
+	float pqz = (float)(qz - pz);
+	float dx = (float)(x - px);
+	float dz = (float)(z - pz);
+	float d = pqx*pqx + pqz*pqz;
+	float t = pqx*dx + pqz*dz;
+	if (d > 0)
+		t /= d;
+	if (t < 0)
+		t = 0;
+	else if (t > 1)
+		t = 1;
+	
+	dx = px + t*pqx - x;
+	dz = pz + t*pqz - z;
+	
+	return dx*dx + dz*dz;
 }
 
 static void simplifyContour(rcIntArray& points, rcIntArray& simplified, float maxError, int maxEdgeLen)
@@ -672,84 +690,6 @@ bool rcBuildContours(rcCompactHeightfield& chf,
 	return true;
 }
 
-struct EdgeSegment
-{
-	int i0, i1;
-	int v0[3], v1[3];
-};
-
-static int findEdgeSegments(rcContourSet* cset, int x, int z, EdgeSegment* segs, const int maxSegs)
-{
-	int n = 0;
-	
-	for (int i = 0; i < cset->nconts; ++i)
-	{
-		const rcContour* c = &cset->conts[i];
-		const int nc = n;
-		for (int j = 0, k = c->nverts-1; j < c->nverts; k=j++)
-		{
-			const int* v0 = &c->verts[k*4];
-			const int* v1 = &c->verts[j*4];
-			if ((v0[0] == x && v1[0] == x) || (v0[2] == z && v1[2] == z))
-			{
-				if (n && segs[n-1].i1 == k)
-				{
-					// Merge with previous
-					segs[n-1].i1 = j;
-				}
-				else
-				{
-					// Add new
-					if (n >= maxSegs)
-						return n;
-					segs[n].i0 = k;
-					segs[n].i1 = j;
-					n++;
-				}
-			}
-		}
-		// Check if first and last should be merged.
-		if (n && n && segs[n-1].v1 == segs[nc].v0)
-		{
-			segs[nc].i0 = segs[n-1].i0;
-			n--;
-		}
-		// Copy vertices
-		for (int j = nc; j < n; ++j)
-		{
-			segs[j].v0[0] = c->verts[segs[j].i0*4+0];
-			segs[j].v0[1] = c->verts[segs[j].i0*4+1];
-			segs[j].v0[2] = c->verts[segs[j].i0*4+2];
-			segs[j].v1[0] = c->verts[segs[j].i1*4+0];
-			segs[j].v1[1] = c->verts[segs[j].i1*4+1];
-			segs[j].v1[2] = c->verts[segs[j].i1*4+2];
-		}
-	}
-	return n;
-}
-
-static bool pointOnEdgeSegment(const int* v0, const int* v1, int x, int z)
-{
-	const int dx = v1[0] - v0[0];
-	const int dz = v1[2] - v0[2];
-	if (rcAbs(dx) > rcAbs(dz))
-	{
-		const int d = x - v0[0];
-		if (dx < 0)
-			return d < 0 && d > dx;
-		else
-			return d > 0 && d < dx;
-	}
-	else
-	{
-		const int d = z - v0[2];
-		if (dz < 0)
-			return d < 0 && d > dz;
-		else
-			return d > 0 && d < dz;
-	}
-}
-
 static bool insertPoint(rcContour* c, int idx, const int* v)
 {
 	int* newVerts = new int[(c->nverts+1)*4];
@@ -779,143 +719,131 @@ static bool insertPoint(rcContour* c, int idx, const int* v)
 	return true;
 }
 
-inline bool ptsEqual(const int* a, const int* b)
+static void calcBox(const int* v0, const int* v1, int* bounds)
 {
-	return a[0] == b[0] && a[1] == b[1] && a[2] == b[2];
+	bounds[0] = rcMin(v0[0], v1[0]);
+	bounds[1] = rcMin(v0[1], v1[1]);
+	bounds[2] = rcMin(v0[2], v1[2]);
+	bounds[3] = rcMax(v0[0], v1[0]);
+	bounds[4] = rcMax(v0[1], v1[1]);
+	bounds[5] = rcMax(v0[2], v1[2]);
 }
 
-static bool conformEdge(rcContourSet* cset, int ex, int ez, const int* v0, const int* v1)
+/*inline bool checkOverlapBoxY(const int* a, const int* b)
+{
+	bool overlap = true;
+	overlap = (a[0] >= b[3+0] || a[3+0] <= b[0]) ? false : overlap;
+	overlap = (a[1] >= b[3+1] || a[3+1] <= b[1]) ? false : overlap;
+	overlap = (a[2] >= b[3+2] || a[3+2] <= b[2]) ? false : overlap;
+	return overlap;
+}*/
+
+inline bool checkOverlapBoxY(const int* a, const int* b)
+{
+	bool overlap = true;
+	overlap = (a[1] > b[3+1] || a[3+1] < b[1]) ? false : overlap;
+	return overlap;
+}
+
+static bool conformVertex(rcContourSet* cset, const int* v,
+						  const int pminy, const int pmaxy,
+						  const int nminy, const int nmaxy,
+						  const int walkableClimb)
 {
 	for (int i = 0; i < cset->nconts; ++i)
 	{
 		rcContour* c = &cset->conts[i];
-		const int nv = c->nverts;
-		for (int j = 0; j < nv; ++j)
+		for (int j = 0; j < c->nverts; ++j)
 		{
-			const int* v = &c->verts[j*4];
-			if (ptsEqual(v, v0))
+			const int k = (j+1) % c->nverts;
+			const int* vj = &c->verts[j*4];
+			const int* vk = &c->verts[k*4];
+
+			const int miny = rcMin(vj[1], vk[1]); // - (walkableClimb-1);
+			const int maxy = rcMax(vj[1], vk[1]); // + (walkableClimb-1);
+
+			// Is edge within y-range.
+			if ((miny > pmaxy || maxy < pminy) &&
+				(miny > nmaxy || maxy < nminy))
+				continue;
+
+			if (vj[0] == vk[0] && vj[0] == v[0])
 			{
-				const int jn = (j+1) % nv;
-				const int* vn = &c->verts[jn*4];
-				
-				// Check if the segment is edge segment.
-				if ((v[0] == ex && vn[0] == ex) || (v[2] == ez && vn[2] == ez))
+				// The segment is x edge.
+				const int minz = rcMin(vj[2], vk[2]);
+				const int maxz = rcMax(vj[2], vk[2]);
+				if (v[2] > minz && v[2] < maxz)
 				{
-					if (ptsEqual(vn, v1))
-					{
-						// Valid!
-						return true;
-					}
-					else
-					{
-						// Add new vertex
-						if (pointOnEdgeSegment(v, vn, v1[0], v1[2]))
-						{
-							if (!insertPoint(c, jn, v1))
-								return false;
-						}
-						return true;
-					}
+					return insertPoint(c, j+1, v);
 				}
 			}
-			else if (ptsEqual(v, v1))
+			else if (vj[2] == vk[2] && vj[2] == v[2])
 			{
-				const int jp = (j+nv-1) % nv;
-				const int* vp = &c->verts[jp*4];
-				// Check if the segment is edge segment.
-				if ((v[0] == ex && vp[0] == ex) || (v[2] == ez && vp[2] == ez))
+				// The segment is z edge.
+				const int minx = rcMin(vj[0], vk[0]);
+				const int maxx = rcMax(vj[0], vk[0]);
+				if (v[0] > minx && v[0] < maxx)
 				{
-					if (ptsEqual(vp, v0))
-					{
-						// Valid!
-						return true;
-					}
-					else
-					{
-						// Add new vertex
-						if (pointOnEdgeSegment(vp, v, v0[0], v0[2]))
-						{
-							if (!insertPoint(c, j, v0))
-								return false;
-						}
-						return true;
-					}
+					return insertPoint(c, j+1, v);
 				}
 			}
 		}
 	}
-	
 	return true;
-}
-
+}		
 
 bool rcFixupAdjacentContours(rcContourSet* cseta, rcContourSet* csetb,
-							 int edge, int edgePos)
+							 const int walkableClimb, const int edgex, const int edgez)
 {
 	if (!cseta || !csetb)
 		return true;
 
 	rcTimeVal startTime = rcGetPerformanceTimer();
 
-	if (edge == 1)
+//	int nbox[6], pbox[6];
+
+	for (int i = 0; i < cseta->nconts; ++i)
 	{
-		// x+1
-		// Find edge segment
-		static const int MAX_SEGS = 512;	// TODO: Do not hardcode.
-		EdgeSegment sa[MAX_SEGS], sb[MAX_SEGS];
-		int nsa = findEdgeSegments(cseta, edgePos, -1, sa, MAX_SEGS);
-		int nsb = findEdgeSegments(csetb, edgePos, -1, sb, MAX_SEGS);
-		
-		// Conform set A to set B
-		for (int i = 0; i < nsb; ++i)
+		const rcContour& c = cseta->conts[i];
+		for (int j = 0; j < c.nverts; ++j)
 		{
-			const int* v0 = sb[i].v0;
-			const int* v1 = sb[i].v1;
-			if (!conformEdge(cseta, edgePos, -1, v1, v0))
-			{
-				return false;
-			}
-		}
-		
-		// Conform set B to set A
-		for (int i = 0; i < nsa; ++i)
-		{
-			const int* v0 = sa[i].v0;
-			const int* v1 = sa[i].v1;
-			if (!conformEdge(csetb, edgePos, -1, v1, v0))
-			{
-				return false;
+			const int* v = &c.verts[j*4];
+			const int* pv = &c.verts[((j+c.nverts-1)%c.nverts)*4];
+			const int* nv = &c.verts[((j+1)%c.nverts)*4];
+
+//			if (v[0] == edgex || v[2] == edgez)
+			{				
+				const int pminy = rcMin(v[1], pv[1]);
+				const int pmaxy = rcMax(v[1], pv[1]);
+				const int nminy = rcMin(v[1], nv[1]);
+				const int nmaxy = rcMax(v[1], nv[1]);
+				
+				if (!conformVertex(csetb, v, pminy, pmaxy, nminy, nmaxy, walkableClimb))
+					return false;
 			}
 		}
 	}
-	else if (edge == 2)
+
+	for (int i = 0; i < csetb->nconts; ++i)
 	{
-		// y+1
-		// Find edge segment
-		static const int MAX_SEGS = 512;	// TODO: Do not hardcode.
-		EdgeSegment sa[MAX_SEGS], sb[MAX_SEGS];
-		int nsa = findEdgeSegments(cseta, -1, edgePos, sa, MAX_SEGS);
-		int nsb = findEdgeSegments(csetb, -1, edgePos, sb, MAX_SEGS);
-		
-		// Conform set A to set B
-		for (int i = 0; i < nsb; ++i)
+		const rcContour& c = csetb->conts[i];
+		for (int j = 0; j < c.nverts; ++j)
 		{
-			const int* v0 = sb[i].v0;
-			const int* v1 = sb[i].v1;
-			if (!conformEdge(cseta, -1, edgePos, v1, v0))
+			const int* v = &c.verts[j*4];
+			const int* pv = &c.verts[((j+c.nverts-1)%c.nverts)*4];
+			const int* nv = &c.verts[((j+1)%c.nverts)*4];
+			
+			// If the vertex is at the tile edge, make sure it also exists in
+			// the neighbour contour set.
+//			if (v[0] == edgex || v[2] == edgez)
 			{
-				return false;
-			}
-		}
-		
-		// Conform set B to set A
-		for (int i = 0; i < nsa; ++i)
-		{
-			const int* v0 = sa[i].v0;
-			const int* v1 = sa[i].v1;
-			if (!conformEdge(csetb, -1, edgePos, v1, v0))
-			{
-				return false;
+				const int pminy = rcMin(v[1], pv[1]);
+				const int pmaxy = rcMax(v[1], pv[1]);
+				const int nminy = rcMin(v[1], nv[1]);
+				const int nmaxy = rcMax(v[1], nv[1]);
+				
+				if (!conformVertex(cseta, v, pminy, pmaxy, nminy, nmaxy, walkableClimb))
+					return false;
 			}
 		}
 	}

@@ -121,6 +121,16 @@ inline float triArea2D(const float* a, const float* b, const float* c)
 	return ((b[0]*a[2] - a[0]*b[2]) + (c[0]*b[2] - b[0]*c[2]) + (a[0]*c[2] - c[0]*a[2])) * 0.5f;
 }
 
+inline bool checkOverlapBox(const unsigned short amin[3], const unsigned short amax[3],
+							const unsigned short bmin[3], const unsigned short bmax[3])
+{
+	bool overlap = true;
+	overlap = (amin[0] > bmax[0] || amax[0] < bmin[0]) ? false : overlap;
+	overlap = (amin[1] > bmax[1] || amax[1] < bmin[1]) ? false : overlap;
+	overlap = (amin[2] > bmax[2] || amax[2] < bmin[2]) ? false : overlap;
+	return overlap;
+}
+
 static void closestPtPointTriangle(float* closest, const float* p,
 								   const float* a, const float* b, const float* c)
 {
@@ -604,7 +614,7 @@ unsigned short dtStatNavMesh::getCost(dtPolyRef from, dtPolyRef to) const
 	float fromPc[3], toPc[3];
 	calcPolyCenter(fromPc, fromPoly, m_verts);
 	calcPolyCenter(toPc, toPoly, m_verts);
-	int cost = (int)sqrtf(sqr(fromPc[0]-toPc[0]) + sqr(fromPc[2]-toPc[2]));
+	int cost = (int)(sqrtf(sqr(fromPc[0]-toPc[0]) + sqr(fromPc[2]-toPc[2])) * 4.0f);
 	if (cost < 1) cost = 1;
 	if (cost > 0xffff) cost = 0xffff;
 	return cost;
@@ -1186,16 +1196,6 @@ int dtStatNavMesh::findPolysAround(dtPolyRef centerRef, const float* centerPos, 
 	}
 
 	return n;
-}
-
-inline bool checkOverlapBox(const unsigned short amin[3], const unsigned short amax[3],
-							const unsigned short bmin[3], const unsigned short bmax[3])
-{
-	bool overlap = true;
-	overlap = (amin[0] > bmax[0] || amax[0] < bmin[0]) ? false : overlap;
-	overlap = (amin[1] > bmax[1] || amax[1] < bmin[1]) ? false : overlap;
-	overlap = (amin[2] > bmax[2] || amax[2] < bmin[2]) ? false : overlap;
-	return overlap;
 }
 
 // Returns polygons which are withing certain radius from the query location.

@@ -47,7 +47,7 @@ void rcDebugDrawCompactHeightfieldSolid(const struct rcCompactHeightfield& chf);
 void rcDebugDrawCompactHeightfieldRegions(const struct rcCompactHeightfield& chf);
 void rcDebugDrawCompactHeightfieldDistance(const struct rcCompactHeightfield& chf);
 
-void rcDebugDrawRawContours(const struct rcContourSet& cset, const float* orig, float cs, float ch);
+void rcDebugDrawRawContours(const struct rcContourSet& cset, const float* orig, float cs, float ch, const float alpha = 1.0f);
 void rcDebugDrawContours(const struct rcContourSet& cset, const float* orig, float cs, float ch);
 void rcDebugDrawPolyMesh(const struct rcPolyMesh& mesh);
 
@@ -55,6 +55,5 @@ void rcDebugDrawCylinderWire(float minx, float miny, float minz, float maxx, flo
 void rcDebugDrawBoxWire(float minx, float miny, float minz, float maxx, float maxy, float maxz, const float* col);
 void rcDebugDrawBox(float minx, float miny, float minz, float maxx, float maxy, float maxz,
 					const float* col1, const float* col2);
-
 
 #endif // RECAST_DEBUGDRAW_H

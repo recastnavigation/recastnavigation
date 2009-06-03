@@ -244,7 +244,7 @@ void rcDebugDrawHeightfieldWalkable(const rcHeightfield& hf,
 			const rcSpan* s = hf.spans[x + y*w];
 			while (s)
 			{
-				bool csel = (s->flags & 0x2) == 0;
+				bool csel = (s->flags & 0x1) == 0;
 				drawBox(fx, orig[1]+s->smin*ch, fz, fx+cs, orig[1] + s->smax*ch, fz+cs, col0, csel ? col0 : col1);
 				s = s->next;
 			}
@@ -355,10 +355,11 @@ void rcDebugDrawCompactHeightfieldDistance(const rcCompactHeightfield& chf)
 	glEnd();
 }
 
-void rcDebugDrawRawContours(const rcContourSet& cset, const float* orig, float cs, float ch)
+void rcDebugDrawRawContours(const rcContourSet& cset, const float* orig, float cs, float ch, const float alpha)
 {
-	float col[4] = { 1,1,1,1 };
-	glLineWidth(3.0f);
+	float col[4] = { 1,1,1,alpha };
+	glLineWidth(2.0f);
+	glPointSize(2.0f);
 	for (int i = 0; i < cset.nconts; ++i)
 	{
 		const rcContour& c = cset.conts[i];
@@ -374,15 +375,32 @@ void rcDebugDrawRawContours(const rcContourSet& cset, const float* orig, float c
 			glVertex3f(fx,fy,fz);
 		}
 		glEnd();
+
+		col[0] *= 0.5f;
+		col[1] *= 0.5f;
+		col[2] *= 0.5f;
+		glColor4fv(col);		
+
+		glBegin(GL_POINTS);
+		for (int j = 0; j < c.nrverts; ++j)
+		{
+			const int* v = &c.rverts[j*4];
+			float fx = orig[0] + v[0]*cs;
+			float fy = orig[1] + (v[1]+1+(i&1))*ch;
+			float fz = orig[2] + v[2]*cs;
+			glVertex3f(fx,fy,fz);
+		}
+		glEnd();
 	}
 	glLineWidth(1.0f);
+	glPointSize(1.0f);
 }
 
 void rcDebugDrawContours(const rcContourSet& cset, const float* orig, float cs, float ch)
 {
 	float col[4] = { 1,1,1,1 };
-	glLineWidth(3.0f);
-	glPointSize(4.0f);
+	glLineWidth(2.5f);
+	glPointSize(3.0f);
 	for (int i = 0; i < cset.nconts; ++i)
 	{
 		const rcContour& c = cset.conts[i];
@@ -399,8 +417,11 @@ void rcDebugDrawContours(const rcContourSet& cset, const float* orig, float cs, 
 			glVertex3f(fx,fy,fz);
 		}
 		glEnd();
-		
-		glColor4ub(0,0,0,128);
+
+		col[0] *= 0.5f;
+		col[1] *= 0.5f;
+		col[2] *= 0.5f;
+		glColor4fv(col);		
 		glBegin(GL_POINTS);
 		for (int j = 0; j < c.nverts; ++j)
 		{
@@ -447,8 +468,8 @@ void rcDebugDrawPolyMesh(const struct rcPolyMesh& mesh)
 	glEnd();
 
 	// Draw tri boundaries
-	glColor4ub(0,0,0,64);
-	glLineWidth(1.0f);
+	glColor4ub(0,48,64,32);
+	glLineWidth(1.5f);
 	glBegin(GL_LINES);
 	for (int i = 0; i < mesh.npolys; ++i)
 	{
@@ -476,8 +497,8 @@ void rcDebugDrawPolyMesh(const struct rcPolyMesh& mesh)
 	glEnd();
 	
 	// Draw boundaries
-	glLineWidth(3.0f);
-	glColor4ub(0,0,0,128);
+	glLineWidth(2.5f);
+	glColor4ub(0,48,64,220);
 	glBegin(GL_LINES);
 	for (int i = 0; i < mesh.npolys; ++i)
 	{
@@ -506,7 +527,7 @@ void rcDebugDrawPolyMesh(const struct rcPolyMesh& mesh)
 	glLineWidth(1.0f);
 	
 	glPointSize(3.0f);
-	glColor4ub(0,0,0,64);
+	glColor4ub(0,0,0,220);
 	glBegin(GL_POINTS);
 	for (int i = 0; i < mesh.nverts; ++i)
 	{

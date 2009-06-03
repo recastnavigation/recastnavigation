@@ -379,13 +379,13 @@ bool rcBuildContours(rcCompactHeightfield& chf,
 // Params:
 //  cseta - (in) contour set A.
 //  csetb - (in) contour set B.
-//  edge - (in) which edge to conform: 1) B is left of A  2) B is top of A
-//  borderSize - (in) the border which was used when the contours were generated.
-//  tileSize - (in) the tile size which was used when the contours were generated.
+//	walkableHeight - (in) minimum height where the agent can still walk
+//  edgex, edgey - (in) defines the planes where the edges can be merged
 //	orig - (in) origin of the contour set A.
 //	cs - (in) grid cell size
 //	ch - (in) grid cell height
-bool rcFixupAdjacentContours(rcContourSet* cseta, rcContourSet* csetb, int edge, int edgePos);
+bool rcFixupAdjacentContours(rcContourSet* cseta, rcContourSet* csetb,
+							 const int walkableClimb, const int edgex, const int edgez);
 
 // Translates the cordinates of the contour set.
 // Params:

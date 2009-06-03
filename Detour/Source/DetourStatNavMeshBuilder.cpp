@@ -213,6 +213,8 @@ bool dtCreateNavMeshData(const unsigned short* verts, const int nverts,
 {
 	if (nvp != DT_VERTS_PER_POLYGON)
 		return false;
+	if (nverts >= 0xffff)
+		return false;
 		
 	if (!nverts)
 		return false;

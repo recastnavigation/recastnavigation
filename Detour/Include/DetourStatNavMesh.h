@@ -73,6 +73,7 @@ public:
 	// Params:
 	//	center - (in) The center of the search box.
 	//	extents - (in) The extents of the search box.
+	// Returns: Reference identifier for the polygon, or 0 if no polygons found.
 	dtPolyRef findNearestPoly(const float* center, const float* extents);
 
 	// Returns polygons which touch the query box.
@@ -107,6 +108,7 @@ public:
 	//	pathSize - (in) Number of polygons in path array.
 	//	straightPath - (out) Points describing the straight path.
 	//	maxStraightPathSize - (in) The max number of points the straight path array can hold.
+	// Returns: Number of points in the path.
 	int findStraightPath(const float* startPos, const float* endPos,
 						 const dtPolyRef* path, const int pathSize,
 						 float* straightPath, const int maxStraightPathSize);
@@ -154,6 +156,7 @@ public:
 	//	ref - (in) ref to the polygon.
 	//	pos - (in) the point to check.
 	//	closest - (out) closest point.
+	// Returns: true if closest point found.
 	bool closestPointToPoly(dtPolyRef ref, const float* pos, float* closest) const;
 
 	// Returns cost between two polygons.
