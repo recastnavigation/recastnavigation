@@ -40,13 +40,14 @@ void rcDebugDrawHeightfieldSolid(const struct rcHeightfield& hf,
 void rcDebugDrawHeightfieldWalkable(const struct rcHeightfield& hf,
 									const float* orig, float cs, float ch);
 
-void rcDebugDrawMesh(const class rcMeshLoaderObj& mesh, const unsigned char* flags);
-void rcDebugDrawMeshSlope(const class rcMeshLoaderObj& mesh, const float walkableSlopeAngle);
+void rcDebugDrawMesh(const class rcMeshLoaderObj& mesh, const unsigned char* flags, const float miny, const float maxy);
+void rcDebugDrawMeshSlope(const class rcMeshLoaderObj& mesh, const float walkableSlopeAngle, const float miny, const float maxy);
 
 void rcDebugDrawCompactHeightfieldSolid(const struct rcCompactHeightfield& chf);
 void rcDebugDrawCompactHeightfieldRegions(const struct rcCompactHeightfield& chf);
 void rcDebugDrawCompactHeightfieldDistance(const struct rcCompactHeightfield& chf);
 
+void rcDebugDrawRegionConnections(const struct rcContourSet& cset, const float* orig, float cs, float ch, const float alpha = 1.0f);
 void rcDebugDrawRawContours(const struct rcContourSet& cset, const float* orig, float cs, float ch, const float alpha = 1.0f);
 void rcDebugDrawContours(const struct rcContourSet& cset, const float* orig, float cs, float ch);
 void rcDebugDrawPolyMesh(const struct rcPolyMesh& mesh);

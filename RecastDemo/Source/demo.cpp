@@ -29,6 +29,7 @@
 #include "SDL.h"
 #include "SDL_Opengl.h"
 #include "GLFont.h"
+#include "GLImage.h"
 #include "RecastTimer.h"
 #include "MeshLoaderObj.h"
 #include "ChunkyTriMesh.h"
@@ -144,6 +145,17 @@ struct FileList
 		size++;
 	}
 	
+	static int cmp(const void* a, const void* b)
+	{
+		return strcmp(*(const char**)a, *(const char**)b);
+	}
+	
+	void sort()
+	{
+		if (size > 1)
+			qsort(files, size, sizeof(char*), cmp);
+	}
+	
 	char* files[MAX_FILES];
 	int size;
 };
@@ -184,6 +196,7 @@ void scanDirectory(const char* path, const char* ext, FileList& list)
 	}
 	closedir(dp);
 #endif
+	list.sort();
 }
 
 
@@ -199,6 +212,7 @@ enum DrawMode
 	DRAWMODE_COMPACT,
 	DRAWMODE_COMPACT_DISTANCE,
 	DRAWMODE_COMPACT_REGIONS,
+	DRAWMODE_REGION_CONNECTIONS,
 	DRAWMODE_RAW_CONTOURS,
 	DRAWMODE_BOTH_CONTOURS,
 	DRAWMODE_CONTOURS,
@@ -256,123 +270,6 @@ TileSet* g_tileSet = 0;
 rcLog g_log;
 rcBuildTimes g_buildTimes; 
 
-
-struct Portal
-{
-	float bmin[3], bmax[3];
-};
-static const int MAX_PORTALS = 2000;
-
-Portal g_portals[MAX_PORTALS];
-int g_portalCount = 0;
-
-Portal g_cportals[MAX_PORTALS];
-int g_cportalCount = 0;
-
-void findContourPortals(const rcContour* cont, const int tx, const int tz, const int tileSize,
-						const int climb, const float* bmin, const float cs, const float ch)
-{
-	if (!cont) return;
-	if (!cont->nverts) return;
-	for (int i = 0, j = cont->nverts-1; i < cont->nverts; j=i++)
-	{
-		const int* vj = &cont->verts[j*4];
-		const int* vi = &cont->verts[i*4];
-		int edge = 0;
-		if (vj[0] == tx && vi[0] == tx)
-			edge = 1;
-		else if (vj[0] == tx+tileSize && vi[0] == tx+tileSize)
-			edge = 2;
-		else if (vj[2] == tz && vi[2] == tz)
-			edge = 3;
-		else if (vj[2] == tz+tileSize && vi[2] == tz+tileSize)
-			edge = 4;
-			
-		if (edge != 0)
-		{
-			if (g_portalCount >= MAX_PORTALS)
-				return;
-			Portal& p = g_portals[g_portalCount];
-			g_portalCount++;
-
-			float v0[3], v1[3];
-			v0[0] = bmin[0] + vj[0]*cs;
-			v0[1] = bmin[1] + vj[1]*ch;
-			v0[2] = bmin[2] + vj[2]*cs;
-			v1[0] = bmin[0] + vi[0]*cs;
-			v1[1] = bmin[1] + vi[1]*ch;
-			v1[2] = bmin[2] + vi[2]*cs;
-			vcopy(p.bmin, v0);
-			vcopy(p.bmax, v0);
-			vmin(p.bmin, v1);
-			vmax(p.bmax, v1);
-			
-			if (edge == 1)
-			{
-				p.bmin[2] += cs/4;
-				p.bmax[2] -= cs/4;
-				p.bmax[1] += climb*ch;
-				p.bmin[0] -= cs/4;
-				p.bmax[0] += cs/4;
-			}
-			else if (edge == 2)
-			{
-				p.bmin[2] += cs/4;
-				p.bmax[2] -= cs/4;
-				p.bmax[1] += climb*ch;
-				p.bmin[0] -= cs/4;
-				p.bmax[0] += cs/4;
-			}
-			else if (edge == 3)
-			{
-				p.bmin[0] += cs/4;
-				p.bmax[0] -= cs/4;
-				p.bmax[1] += climb*ch;
-				p.bmin[2] -= cs/4;
-				p.bmax[2] += cs/4;
-			}
-			else if (edge == 4)
-			{
-				p.bmin[0] += cs/4;
-				p.bmax[0] -= cs/4;
-				p.bmax[1] += climb*ch;
-				p.bmin[2] -= cs/4;
-				p.bmax[2] += cs/4;
-			}
-		}
-	}
-}
-
-void findPortals(const rcContourSet* cset, const int tx, const int ty, const int tileSize,
-				 const int climb, const float* bmin, const float cs, const float ch)
-{
-	if (!cset) return;
-	if (!cset->nconts) return;
-	for (int i = 0; i < cset->nconts; ++i)
-		findContourPortals(&cset->conts[i], tx, ty, tileSize, climb, bmin, cs, ch);
-}
-
-void connectPortals()
-{
-	for (int i = 0; i < g_portalCount-1; ++i)
-	{
-		for (int j = i+1; j < g_portalCount; ++j)
-		{
-			if (g_portalCount >= MAX_PORTALS)
-				return;
-			Portal& pi = g_portals[i];
-			Portal& pj = g_portals[j];
-			Portal& p = g_cportals[g_cportalCount];
-			vcopy(p.bmin, pi.bmin);
-			vcopy(p.bmax, pi.bmax);
-			vmax(p.bmin, pj.bmin);
-			vmin(p.bmax, pj.bmax);
-			if (p.bmin[0] >= p.bmax[0] || p.bmin[1] >= p.bmax[1] || p.bmin[2] >= p.bmax[2])
-				continue;
-			g_cportalCount++;
-		}
-	}
-}
 
 bool buildTiledNavigation(const rcConfig& cfg,
 						  const rcMeshLoaderObj* mesh,
@@ -601,18 +498,6 @@ bool buildTiledNavigation(const rcConfig& cfg,
 	delete solid;
 	delete chf;
 	
-	g_portalCount = 0;
-	g_cportalCount = 0;	
-/*	for (int y = 0; y < tileSet->height; ++y)
-	{
-		for (int x = 0; x < tileSet->width; ++x)
-		{
-			findPortals(tileSet->tiles[x + y*tileSet->width].cset,
-						x*tileCfg.tileSize, y*tileCfg.tileSize, tileCfg.tileSize,
-						cfg.walkableClimb, cfg.bmin, cfg.cs, cfg.ch);
-		}
-	}
-	connectPortals();*/
 	
 	for (int y = 0; y < tileSet->height; ++y)
 	{
@@ -1013,8 +898,8 @@ int main(int argc, char *argv[])
 	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
 	
-	int width = 1024; //1200;
-	int height = 768; //700;
+	int width = 1280; //1024; //1200;
+	int height = 800; //768; //700;
 	SDL_Surface* screen = SDL_SetVideoMode(width, height, 0, SDL_OPENGL /*| SDL_FULLSCREEN*/);
 	if (!screen)
 	{
@@ -1045,13 +930,29 @@ int main(int argc, char *argv[])
 	float tileSize = 0.0f;
 	int drawMode = DRAWMODE_NAVMESH;
 	int toolMode = TOOLMODE_PATHFIND;
+	bool showMenu = false;
 	bool showLevels = false;
 	bool showLog = false;
-	bool showTools = true;
+	bool showTools = false;
 	char curLevel[256] = "Choose Level...";
 	bool mouseOverMenu = false;
 	bool keepInterResults = false;
 	FileList fileList;
+
+	FileList slidesList;
+	bool showSlides = false;
+	bool showCurSlide = true;
+	float slideAlpha = 1.0f;
+	int curSlide = 0;
+	int nextSlide = 0;
+	scanDirectory("slides", ".png", slidesList);
+	GLImage slideTex;
+	
+	char path[256];
+	strcpy(path, "slides/");
+	strcat(path, slidesList.files[curSlide]);
+	slideTex.create(path);
+	
 	
 	dtPolyRef startRef = 0, endRef = 0;
 
@@ -1082,8 +983,8 @@ int main(int argc, char *argv[])
 	float distanceToWall = 0;
 	bool sposSet = false, eposSet = false;
 	bool mposSet = false;
-	static const float startCol[4] = { 0.6f, 0.1f, 0.1f, 0.75f };
-	static const float endCol[4] = { 0.1f, 0.6f, 0.1f, 0.75f };
+	static const float startCol[4] = { 0.5f, 0.1f, 0.0f, 0.75f };
+	static const float endCol[4] = { 0.2f, 0.4f, 0.0f, 0.75f };
 	bool recalcTool = false;
 	
 	glEnable(GL_CULL_FACE);
@@ -1110,9 +1011,33 @@ int main(int argc, char *argv[])
 			{
 				case SDL_KEYDOWN:
 					// Handle any key presses here.
-					if(event.key.keysym.sym == SDLK_ESCAPE)
+					if (event.key.keysym.sym == SDLK_ESCAPE)
 					{
 						done = true;
+					}
+					else if (event.key.keysym.sym == SDLK_TAB)
+					{
+						showCurSlide = !showCurSlide;
+					}
+					else if (event.key.keysym.sym == SDLK_2)
+					{
+						showSlides = !showSlides;
+					}
+					else if (event.key.keysym.sym == SDLK_1)
+					{
+						showMenu = !showMenu;
+					}
+					else if (event.key.keysym.sym == SDLK_LEFT)
+					{
+						nextSlide--;
+						if (nextSlide < 0)
+							nextSlide = 0;
+					}
+					else if (event.key.keysym.sym == SDLK_RIGHT)
+					{
+						nextSlide++;
+						if (nextSlide >= slidesList.size)
+							nextSlide = slidesList.size-1;
 					}
 					break;
 
@@ -1212,6 +1137,23 @@ int main(int argc, char *argv[])
 		
 		t += dt;
 		
+		float slideAlphaTarget = showCurSlide ? 1 : 0;
+		if (curSlide != nextSlide)
+			slideAlphaTarget = 0;
+		
+		if (slideAlphaTarget > slideAlpha)
+			slideAlpha = rcMin(slideAlpha+dt*4,1.0f);
+		else if (slideAlphaTarget < slideAlpha)
+			slideAlpha = rcMax(slideAlpha-dt*4,0.0f);
+			
+		if (curSlide != nextSlide && slideAlpha < 0.01f)
+		{
+			curSlide = nextSlide;
+			char path[256];
+			strcpy(path, "slides/");
+			strcat(path, slidesList.files[curSlide]);
+			slideTex.create(path);
+		}
 		
 		// Update and render
 		glViewport(0, 0, width, height);
@@ -1272,12 +1214,12 @@ int main(int argc, char *argv[])
 		if (drawMode == DRAWMODE_MESH)
 		{
 			if (g_mesh)
-				rcDebugDrawMeshSlope(*g_mesh, agentMaxSlope);
+				rcDebugDrawMeshSlope(*g_mesh, agentMaxSlope, g_meshBMin[1], g_meshBMax[1]);
 		}
 		else if (drawMode != DRAWMODE_NAVMESH_TRANS)
 		{
 			if (g_mesh)
-				rcDebugDrawMesh(*g_mesh, 0);
+				rcDebugDrawMesh(*g_mesh, 0, g_meshBMin[1], g_meshBMax[1]);
 		}
 		
 		glDisable(GL_FOG);
@@ -1301,13 +1243,13 @@ int main(int argc, char *argv[])
 					
 					if (npolys)
 					{
-						const float pathCol[4] = {1,0.75f,0,0.25f};
+						const float pathCol[4] = {0,0,0,0.25f}; //{1,0.75f,0,0.25f};
 						for (int i = 1; i < npolys-1; ++i)
 							dtDebugDrawStatNavMeshPoly(g_navMesh, polys[i], pathCol);
 					}
 					if (nstraightPath)
 					{
-						glColor4ub(220,16,0,220);
+						glColor4ub(128,16,0,220);
 						glLineWidth(3.0f);
 						glBegin(GL_LINE_STRIP);
 						for (int i = 0; i < nstraightPath; ++i)
@@ -1331,7 +1273,7 @@ int main(int argc, char *argv[])
 						const float pathCol[4] = {1,0.75f,0,0.25f};
 						dtDebugDrawStatNavMeshPoly(g_navMesh, polys[0], pathCol);
 						
-						glColor4ub(220,16,0,220);
+						glColor4ub(128,16,0,220);
 						glLineWidth(3.0f);
 						glBegin(GL_LINE_STRIP);
 						for (int i = 0; i < nstraightPath; ++i)
@@ -1362,7 +1304,7 @@ int main(int argc, char *argv[])
 				}
 				else if (toolMode == TOOLMODE_FIND_POLYS_AROUND)
 				{
-					const float pathCol[4] = {1,0.75f,0,0.25f};
+					const float pathCol[4] = {0,0,0,0.25f}; //{1,0.75f,0,0.25f};
 					for (int i = 0; i < npolys; ++i)
 						dtDebugDrawStatNavMeshPoly(g_navMesh, polys[i], pathCol);
 					
@@ -1484,6 +1426,29 @@ int main(int argc, char *argv[])
 			}
 			glDepthMask(GL_TRUE);
 		}
+		if (drawMode == DRAWMODE_REGION_CONNECTIONS)
+		{
+			if (g_tileSet)
+			{
+				for (int i = 0; i < g_tileSet->width*g_tileSet->height; ++i)
+				{
+					if (g_tileSet->tiles[i].chf)
+						rcDebugDrawCompactHeightfieldRegions(*(g_tileSet->tiles[i].chf));
+				}
+				glDepthMask(GL_TRUE);
+				
+				glDepthMask(GL_FALSE);
+				for (int i = 0; i < g_tileSet->width*g_tileSet->height; ++i)
+				{
+					if (g_tileSet->tiles[i].cset)
+					{
+						//						rcDebugDrawRawContours(*(g_tileSet->tiles[i].cset), g_tileSet->bmin, g_tileSet->cs, g_tileSet->ch);
+						rcDebugDrawRegionConnections(*(g_tileSet->tiles[i].cset), g_tileSet->bmin, g_tileSet->cs, g_tileSet->ch);
+					}
+				}
+				glDepthMask(GL_TRUE);
+			}
+		}
 		if (drawMode == DRAWMODE_POLYMESH)
 		{
 			glDepthMask(GL_FALSE);
@@ -1581,19 +1546,7 @@ int main(int argc, char *argv[])
 			rcDebugDrawBoxWire(g_meshBMin[0], g_meshBMin[1], g_meshBMin[2],
 							   g_meshBMax[0], g_meshBMax[1], g_meshBMax[2], col);
 			
-			
-			col[0] = 0.1f; col[1] = 0.5f; col[2] = 0.75f; col[3] = 0.5f;
-			/*			for (int i = 0; i < g_portalCount; ++i)
-			 {
-			 rcDebugDrawBoxWire(g_portals[i].bmin[0], g_portals[i].bmin[1], g_portals[i].bmin[2],
-			 g_portals[i].bmax[0], g_portals[i].bmax[1], g_portals[i].bmax[2], col);
-			 }*/
-			for (int i = 0; i < g_cportalCount; ++i)
-			{
-				rcDebugDrawBoxWire(g_cportals[i].bmin[0], g_cportals[i].bmin[1], g_cportals[i].bmin[2],
-								   g_cportals[i].bmax[0], g_cportals[i].bmax[1], g_cportals[i].bmax[2], col);
-			}
-			
+
 			glDepthMask(GL_TRUE);
 		}
 		
@@ -1611,6 +1564,9 @@ int main(int argc, char *argv[])
 		
 		mouseOverMenu = false;
 		
+		if (showMenu)
+		{
+		
 		static int propScroll = 0;
 		if (imguiBeginScrollArea(GENID, "Properties", width - 250 - 10, 10, 250, height-20, &propScroll))
 			mouseOverMenu = true;
@@ -1627,6 +1583,7 @@ int main(int argc, char *argv[])
 				scanDirectory("meshes", ".obj", fileList);
 			}
 		}
+		
 		
 		imguiSeparator();
 		
@@ -1743,12 +1700,12 @@ int main(int argc, char *argv[])
 			drawMode = DRAWMODE_MESH;
 		if (imguiCheck(GENID, "Navmesh", drawMode == DRAWMODE_NAVMESH))
 			drawMode = DRAWMODE_NAVMESH;
-		if (imguiCheck(GENID, "Navmesh BVTree", drawMode == DRAWMODE_NAVMESH_BVTREE))
-			drawMode = DRAWMODE_NAVMESH_BVTREE;
 		if (imguiCheck(GENID, "Navmesh Invis", drawMode == DRAWMODE_NAVMESH_INVIS))
 			drawMode = DRAWMODE_NAVMESH_INVIS;
 		if (imguiCheck(GENID, "Navmesh Trans", drawMode == DRAWMODE_NAVMESH_TRANS))
 			drawMode = DRAWMODE_NAVMESH_TRANS;
+		if (imguiCheck(GENID, "Navmesh BVTree", drawMode == DRAWMODE_NAVMESH_BVTREE))
+			drawMode = DRAWMODE_NAVMESH_BVTREE;
 		if (imguiCheck(GENID, "Voxels", drawMode == DRAWMODE_VOXELS))
 			drawMode = DRAWMODE_VOXELS;
 		if (imguiCheck(GENID, "Walkable Voxels", drawMode == DRAWMODE_VOXELS_WALKABLE))
@@ -1759,6 +1716,8 @@ int main(int argc, char *argv[])
 			drawMode = DRAWMODE_COMPACT_DISTANCE;
 		if (imguiCheck(GENID, "Compact Regions", drawMode == DRAWMODE_COMPACT_REGIONS))
 			drawMode = DRAWMODE_COMPACT_REGIONS;
+		if (imguiCheck(GENID, "Region Conections", drawMode == DRAWMODE_REGION_CONNECTIONS))
+			drawMode = DRAWMODE_REGION_CONNECTIONS;
 		if (imguiCheck(GENID, "Raw Contours", drawMode == DRAWMODE_RAW_CONTOURS))
 			drawMode = DRAWMODE_RAW_CONTOURS;
 		if (imguiCheck(GENID, "Both Contours", drawMode == DRAWMODE_BOTH_CONTOURS))
@@ -1769,12 +1728,14 @@ int main(int argc, char *argv[])
 			drawMode = DRAWMODE_POLYMESH;
 		
 		imguiEndScrollArea();
+		
+		}
 
 		// Tools
 		if (showTools)
 		{
 			static int toolsScroll = 0;
-			if (imguiBeginScrollArea(GENID, "Tools", 10, 450, 150, 200, &toolsScroll))
+			if (imguiBeginScrollArea(GENID, "Tools", 10, height - 10 - 200, 150, 200, &toolsScroll))
 				mouseOverMenu = true;
 
 			if (imguiCheck(GENID, "Pathfind", toolMode == TOOLMODE_PATHFIND))
@@ -1800,7 +1761,7 @@ int main(int argc, char *argv[])
 			
 			imguiEndScrollArea();
 		}
-		
+
 		if (g_navMesh && recalcTool)
 		{
 			recalcTool = false;
@@ -1959,7 +1920,65 @@ int main(int argc, char *argv[])
 			
 		}
 
-		g_font.drawText(10.0f, (float)height-20.0f, "W/S/A/D: Move  RMB: Rotate   LMB: Place Start   LMB+SHIFT: Place End", GLFont::RGBA(255,255,255,128));
+		if (showSlides)
+		{
+			static int slidesScroll = 0;
+			if (imguiBeginScrollArea(GENID, "Slides", 10, height - 10 - 200 - 20 - 250, 150, 250, &slidesScroll))
+				mouseOverMenu = true;
+
+			int slideToLoad = -1;
+			for (int i = 0; i < slidesList.size; ++i)
+			{
+				char msg[256];
+				snprintf(msg,256,"%s%s", i == curSlide ? ">> " : (i == nextSlide ? ">" : ""), slidesList.files[i]);
+				if (imguiItem(GENID1(i), msg))
+					slideToLoad = i;
+			}
+			if (slideToLoad >= 0)
+			{
+				nextSlide = slideToLoad;
+				showSlides = false;
+			}
+			
+			imguiEndScrollArea();
+		}
+		
+		if (slideAlpha > 0.01f && curSlide >= 0 && curSlide < slidesList.size)
+		{
+			unsigned char alpha = (unsigned char)(slideAlpha*255.0f);
+/*			const char* file = slidesList.files[curSlide];
+			const float len = g_font.getTextLength(file);
+			g_font.drawText(width/2-len/2, (float)height/2, file, GLFont::RGBA(255,255,255,alpha));*/
+			
+			glEnable(GL_TEXTURE_RECTANGLE_ARB);
+			slideTex.bind();			
+			
+			const float tw = slideTex.getWidth();
+			const float th = slideTex.getHeight();
+			const float hw = tw/2; //width*0.5f;
+			const float hh = th/2; //height*0.5f;
+
+			glColor4ub(255,255,255,alpha);
+			glBegin(GL_QUADS);
+			glTexCoord2f(0,th);
+			glVertex2f(hw-tw/2,hh-th/2);
+			glTexCoord2f(tw,th);
+			glVertex2f(hw+tw/2,hh-th/2);
+			glTexCoord2f(tw,0);
+			glVertex2f(hw+tw/2,hh+th/2);
+			glTexCoord2f(0,0);
+			glVertex2f(hw-tw/2,hh+th/2);
+			glEnd();
+			
+			glDisable(GL_TEXTURE_RECTANGLE_ARB);
+		}
+		
+		
+/*		{
+			const char msg[] = "W/S/A/D: Move  RMB: Rotate   LMB: Place Start   LMB+SHIFT: Place End";
+			const float len = g_font.getTextLength(msg);
+			g_font.drawText(width/2-len/2, (float)height-20.0f, msg, GLFont::RGBA(255,255,255,128));
+		}*/
 		
 		// Draw start and end point labels
 		if (sposSet && gluProject((GLdouble)spos[0], (GLdouble)spos[1], (GLdouble)spos[2],

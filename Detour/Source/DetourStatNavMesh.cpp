@@ -572,19 +572,16 @@ dtStatNavMesh::~dtStatNavMesh()
 
 bool dtStatNavMesh::init(unsigned char* data, int dataSize, bool ownsData)
 {
-	m_header = (dtStatNavMeshHeader*)data;
-	if (m_header->magic != DT_NAVMESH_MAGIC)
-	{
+	dtStatNavMeshHeader* header = (dtStatNavMeshHeader*)data;
+	
+	if (header->magic != DT_NAVMESH_MAGIC)
 		return false;
-	}
-	if (m_header->version != DT_NAVMESH_VERSION)
-	{
+	if (header->version != DT_NAVMESH_VERSION)
 		return false;
-	}
 
 	const int headerSize = sizeof(dtStatNavMeshHeader);
-	const int vertsSize = sizeof(float)*3*m_header->nverts;
-	const int polysSize = sizeof(dtPoly)*m_header->npolys;
+	const int vertsSize = sizeof(float)*3*header->nverts;
+	const int polysSize = sizeof(dtPoly)*header->npolys;
 	
 	m_verts = (float*)(data + headerSize);
 	m_polys = (dtPoly*)(data + headerSize + vertsSize);
@@ -603,6 +600,8 @@ bool dtStatNavMesh::init(unsigned char* data, int dataSize, bool ownsData)
 		m_data = data;
 		m_dataSize = dataSize;
 	}
+
+	m_header = header;
 
 	return true;
 }
@@ -629,6 +628,8 @@ const dtPoly* dtStatNavMesh::getPolyByRef(dtPolyRef ref) const
 int dtStatNavMesh::findPath(dtPolyRef startRef, dtPolyRef endRef,
 							dtPolyRef* path, const int maxPathSize)
 {
+	if (!m_header) return 0;
+	
 	if (!startRef || !endRef)
 		return 0;
 
@@ -769,6 +770,8 @@ int dtStatNavMesh::findStraightPath(const float* startPos, const float* endPos,
 									const dtPolyRef* path, const int pathSize,
 									float* straightPath, const int maxStraightPathSize)
 {
+	if (!m_header) return 0;
+	
 	if (!maxStraightPathSize)
 		return 0;
 
@@ -910,9 +913,9 @@ int dtStatNavMesh::findStraightPath(const float* startPos, const float* endPos,
 
 int dtStatNavMesh::getPolyVerts(dtPolyRef ref, float* verts)
 {
+	if (!m_header) return 0;
 	const dtPoly* poly = getPolyByRef(ref);
-	if (!poly)
-		return 0;
+	if (!poly) return 0;
 	float* v = verts;
 	for (int i = 0; i < (int)poly->nv; ++i)
 	{
@@ -927,10 +930,10 @@ int dtStatNavMesh::getPolyVerts(dtPolyRef ref, float* verts)
 bool dtStatNavMesh::raycast(dtPolyRef centerRef, const float* startPos, const float* endPos,
 					  float& t, dtPolyRef& endRef)
 {
-	endRef = centerRef;
+	if (!m_header) return 0;
+	if (!centerRef) return 0;
 	
-	if (!centerRef)
-		return 0;
+	endRef = centerRef;
 
 	dtPolyRef prevRef = centerRef;
 	dtPolyRef curRef = centerRef;
@@ -982,8 +985,8 @@ bool dtStatNavMesh::raycast(dtPolyRef centerRef, const float* startPos, const fl
 float dtStatNavMesh::findDistanceToWall(dtPolyRef centerRef, const float* centerPos, float maxRadius,
 								  float* hitPos, float* hitNormal)
 {
-	if (!centerRef)
-		return 0;
+	if (!m_header) return 0;
+	if (!centerRef) return 0;
 	
 	m_nodePool->clear();
 	m_openList->clear();
@@ -1097,8 +1100,8 @@ int dtStatNavMesh::findPolysAround(dtPolyRef centerRef, const float* centerPos, 
 								   unsigned short* resultCost, unsigned short* resultDepth,
 								   const int maxResult)
 {
-	if (!centerRef)
-		return 0;
+	if (!m_header) return 0;
+	if (!centerRef) return 0;
 
 	m_nodePool->clear();
 	m_openList->clear();
@@ -1202,6 +1205,8 @@ int dtStatNavMesh::findPolysAround(dtPolyRef centerRef, const float* centerPos, 
 int dtStatNavMesh::queryPolygons(const float* center, const float* extents,
 								 unsigned short* ids, const int maxIds)
 {
+	if (!m_header) return 0;
+	
 	const dtBVNode* node = &m_bvtree[0];
 	const dtBVNode* end = &m_bvtree[m_header->nnodes];
 
@@ -1253,6 +1258,8 @@ int dtStatNavMesh::queryPolygons(const float* center, const float* extents,
 
 dtPolyRef dtStatNavMesh::findNearestPoly(const float* center, const float* extents)
 {
+	if (!m_header) return 0;
+	
 	// Get nearby polygons from proximity grid.
 	unsigned short polys[128];
 	int npolys = queryPolygons(center, extents, polys, 128);

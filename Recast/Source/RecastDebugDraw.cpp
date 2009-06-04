@@ -24,16 +24,20 @@
 #include "MeshLoaderObj.h"
 #include "Recast.h"
 
-void rcDebugDrawMesh(const rcMeshLoaderObj& mesh, const unsigned char* flags)
+void rcDebugDrawMesh(const rcMeshLoaderObj& mesh, const unsigned char* flags, const float miny, const float maxy)
 {
 	int nt = mesh.getTriCount();
 	const float* verts = mesh.getVerts();
 	const float* normals = mesh.getNormals();
 	const int* tris = mesh.getTris();
+	
+	const float s = 0.5f / (maxy - miny); 
+	
 	glBegin(GL_TRIANGLES);
 	for (int i = 0; i < nt*3; i += 3)
 	{
 		float a = (2+normals[i+0]+normals[i+1])/4;
+		a *= 0.5f + (verts[tris[i]*3+1]-miny)*s;
 		if (flags && !flags[i/3])
 			glColor3f(a,a*0.3f,a*0.1f);
 		else
@@ -45,7 +49,7 @@ void rcDebugDrawMesh(const rcMeshLoaderObj& mesh, const unsigned char* flags)
 	glEnd();
 }
 
-void rcDebugDrawMeshSlope(const rcMeshLoaderObj& mesh, const float walkableSlopeAngle)
+void rcDebugDrawMeshSlope(const rcMeshLoaderObj& mesh, const float walkableSlopeAngle, const float miny, const float maxy)
 {
 	const float walkableThr = cosf(walkableSlopeAngle/180.0f*(float)M_PI);
 	
@@ -54,11 +58,14 @@ void rcDebugDrawMeshSlope(const rcMeshLoaderObj& mesh, const float walkableSlope
 	const float* normals = mesh.getNormals();
 	const int* tris = mesh.getTris();
 
+	const float s = 0.5f / (maxy - miny); 
+
 	glBegin(GL_TRIANGLES);
 	for (int i = 0; i < nt*3; i += 3)
 	{
 		const float* norm = &normals[i];
 		float a = (2+norm[0]+norm[1])/4;
+		a *= 0.5f+(verts[tris[i]*3+1]-miny)*s;
 		if (norm[1] > walkableThr)
 			glColor3f(a,a,a);
 		else
@@ -147,6 +154,41 @@ void drawBox(float minx, float miny, float minz, float maxx, float maxy, float m
 		glVertex3fv(&verts[*in*3]); in++;
 	}
 }
+
+
+void drawBox2(float minx, float miny, float minz, float maxx, float maxy, float maxz)
+{
+	float verts[8*3] =
+	{
+		minx, miny, minz,
+		maxx, miny, minz,
+		maxx, miny, maxz,
+		minx, miny, maxz,
+		minx, maxy, minz,
+		maxx, maxy, minz,
+		maxx, maxy, maxz,
+		minx, maxy, maxz,
+	};
+	static const unsigned char inds[5*4] =
+	{
+		7, 6, 5, 4,
+//		0, 1, 2, 3,
+		1, 5, 6, 2,
+		3, 7, 4, 0,
+		2, 6, 7, 3,
+		0, 4, 5, 1,
+	};
+	
+	const unsigned char* in = inds;
+	for (int i = 0; i < 5; ++i)
+	{
+		glVertex3fv(&verts[*in*3]); in++;
+		glVertex3fv(&verts[*in*3]); in++;
+		glVertex3fv(&verts[*in*3]); in++;
+		glVertex3fv(&verts[*in*3]); in++;
+	}
+}
+
 
 void rcDebugDrawCylinderWire(float minx, float miny, float minz, float maxx, float maxy, float maxz, const float* col)
 {
@@ -273,10 +315,11 @@ void rcDebugDrawCompactHeightfieldSolid(const rcCompactHeightfield& chf)
 			{
 				const rcCompactSpan& s = chf.spans[i];
 				const float fy = chf.bmin[1] + (s.y+1)*ch;
-				glVertex3f(fx, fy, fz);
+				drawBox2(fx, fy-ch*2, fz, fx+cs, fy, fz+cs);
+/*				glVertex3f(fx, fy, fz);
 				glVertex3f(fx, fy, fz+cs);
 				glVertex3f(fx+cs, fy, fz+cs);
-				glVertex3f(fx+cs, fy, fz);
+				glVertex3f(fx+cs, fy, fz);*/
 			}
 		}
 	}
@@ -308,12 +351,16 @@ void rcDebugDrawCompactHeightfieldRegions(const rcCompactHeightfield& chf)
 					glColor4fv(col);
 				}
 				else
-					glColor4ub(0,0,0,128);
+				{
+//					glColor4ub(0,0,0,128);
+					glColor3ub(128,128,128);
+				}
 				const float fy = chf.bmin[1] + (s.y+1)*ch;
-				glVertex3f(fx, fy, fz);
+				drawBox2(fx, fy-ch*2, fz, fx+cs, fy, fz+cs);
+/*				glVertex3f(fx, fy, fz);
 				glVertex3f(fx, fy, fz+cs);
 				glVertex3f(fx+cs, fy, fz+cs);
-				glVertex3f(fx+cs, fy, fz);
+				glVertex3f(fx+cs, fy, fz);*/
 			}
 		}
 	}
@@ -345,14 +392,121 @@ void rcDebugDrawCompactHeightfieldDistance(const rcCompactHeightfield& chf)
 				const float fy = chf.bmin[1] + (s.y+1)*ch;
 				float cd = (float)s.dist * dscale;
 				glColor3f(cd, cd, cd);
-				glVertex3f(fx, fy, fz);
+				drawBox2(fx, fy-ch*2, fz, fx+cs, fy, fz+cs);
+/*				glVertex3f(fx, fy, fz);
 				glVertex3f(fx, fy, fz+cs);
 				glVertex3f(fx+cs, fy, fz+cs);
-				glVertex3f(fx+cs, fy, fz);
+				glVertex3f(fx+cs, fy, fz);*/
 			}
 		}
 	}
 	glEnd();
+}
+
+static void getContourCenter(const rcContour* cont, const float* orig, float cs, float ch, float* center)
+{
+	center[0] = 0;
+	center[1] = 0;
+	center[2] = 0;
+	if (!cont->nverts)
+		return;
+	for (int i = 0; i < cont->nverts; ++i)
+	{
+		const int* v = &cont->verts[i*4];
+		center[0] += (float)v[0];
+		center[1] += (float)v[1];
+		center[2] += (float)v[2];
+	}
+	const float s = 1.0f / cont->nverts;
+	center[0] *= s * cs;
+	center[1] *= s * ch;
+	center[2] *= s * cs;
+	center[0] += orig[0];
+	center[1] += orig[1] + 4*ch;
+	center[2] += orig[2];
+}
+
+static const rcContour* findContourFromSet(const rcContourSet& cset, unsigned short reg)
+{
+	for (int i = 0; i < cset.nconts; ++i)
+	{
+		if (cset.conts[i].reg == reg)
+			return &cset.conts[i];
+	}
+	return 0;
+}
+
+static void drawArc(const float* p0, const float* p1)
+{
+	static const int NPTS = 8;
+	float pts[NPTS*3];
+	float dir[3];
+	vsub(dir, p1, p0);
+	const float len = sqrtf(vdistSqr(p0, p1));
+	for (int i = 0; i < NPTS; ++i)
+	{
+		float u = (float)i / (float)(NPTS-1);
+		float* p = &pts[i*3];
+		p[0] = p0[0] + dir[0] * u;
+		p[1] = p0[1] + dir[1] * u + (len/4) * (1-rcSqr(u*2-1));
+		p[2] = p0[2] + dir[2] * u;
+	}
+	for (int i = 0; i < NPTS-1; ++i)
+	{
+		glVertex3fv(&pts[i*3]);
+		glVertex3fv(&pts[(i+1)*3]);
+	}
+}
+
+void rcDebugDrawRegionConnections(const rcContourSet& cset, const float* orig, float cs, float ch, const float alpha)
+{
+	// Draw centers
+	float pos[3], pos2[3];
+
+	glColor4ub(0,0,0,196);
+
+	glLineWidth(2.0f);
+	glBegin(GL_LINES);
+	for (int i = 0; i < cset.nconts; ++i)
+	{
+		const rcContour* cont = &cset.conts[i];
+		getContourCenter(cont, orig, cs, ch, pos);
+		for (int j = 0; j < cont->nverts; ++j)
+		{
+			const int* v = &cont->verts[j*4];
+			if (v[3] == 0 || (unsigned short)v[3] < cont->reg) continue;
+			const rcContour* cont2 = findContourFromSet(cset, (unsigned short)v[3]);
+			if (cont2)
+			{
+				getContourCenter(cont2, orig, cs, ch, pos2);
+				drawArc(pos, pos2);
+//				glVertex3fv(pos);
+//				glVertex3fv(pos2);
+			}
+		}
+	}
+	glEnd();
+
+	float col[4] = { 1,1,1,alpha };
+	
+	glPointSize(7.0f);
+	glBegin(GL_POINTS);
+	for (int i = 0; i < cset.nconts; ++i)
+	{
+		const rcContour* cont = &cset.conts[i];
+		intToCol(cont->reg, col);
+		col[0] *= 0.5f;
+		col[1] *= 0.5f;
+		col[2] *= 0.5f;
+		glColor4fv(col);
+		getContourCenter(cont, orig, cs, ch, pos);
+		glVertex3fv(pos);
+	}
+	glEnd();
+	
+	
+	glLineWidth(1.0f);
+	glPointSize(1.0f);
 }
 
 void rcDebugDrawRawContours(const rcContourSet& cset, const float* orig, float cs, float ch, const float alpha)

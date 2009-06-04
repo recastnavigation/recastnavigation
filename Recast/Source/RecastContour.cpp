@@ -719,32 +719,6 @@ static bool insertPoint(rcContour* c, int idx, const int* v)
 	return true;
 }
 
-static void calcBox(const int* v0, const int* v1, int* bounds)
-{
-	bounds[0] = rcMin(v0[0], v1[0]);
-	bounds[1] = rcMin(v0[1], v1[1]);
-	bounds[2] = rcMin(v0[2], v1[2]);
-	bounds[3] = rcMax(v0[0], v1[0]);
-	bounds[4] = rcMax(v0[1], v1[1]);
-	bounds[5] = rcMax(v0[2], v1[2]);
-}
-
-/*inline bool checkOverlapBoxY(const int* a, const int* b)
-{
-	bool overlap = true;
-	overlap = (a[0] >= b[3+0] || a[3+0] <= b[0]) ? false : overlap;
-	overlap = (a[1] >= b[3+1] || a[3+1] <= b[1]) ? false : overlap;
-	overlap = (a[2] >= b[3+2] || a[3+2] <= b[2]) ? false : overlap;
-	return overlap;
-}*/
-
-inline bool checkOverlapBoxY(const int* a, const int* b)
-{
-	bool overlap = true;
-	overlap = (a[1] > b[3+1] || a[3+1] < b[1]) ? false : overlap;
-	return overlap;
-}
-
 static bool conformVertex(rcContourSet* cset, const int* v,
 						  const int pminy, const int pmaxy,
 						  const int nminy, const int nmaxy,
@@ -799,8 +773,6 @@ bool rcFixupAdjacentContours(rcContourSet* cseta, rcContourSet* csetb,
 		return true;
 
 	rcTimeVal startTime = rcGetPerformanceTimer();
-
-//	int nbox[6], pbox[6];
 
 	for (int i = 0; i < cseta->nconts; ++i)
 	{
