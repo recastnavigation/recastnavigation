@@ -71,14 +71,7 @@ static void calcExtends(BoundsItem* items, int nitems, int imin, int imax,
 
 inline int longestAxis(float x, float y)
 {
-	int	axis = 0;
-	unsigned short maxVal = x;
-	if (y > maxVal)
-	{
-		axis = 1;
-		maxVal = y;
-	}
-	return axis;
+	return y > x ? 1 : 0;
 }
 
 static void subdivide(BoundsItem* items, int nitems, int imin, int imax, int trisPerChunk,

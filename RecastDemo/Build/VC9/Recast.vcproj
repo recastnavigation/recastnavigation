@@ -177,6 +177,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath="..\..\Source\ChunkyTriMesh.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\Source\demo.cpp"
 				>
 			</File>
@@ -246,6 +250,10 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath="..\..\Include\ChunkyTriMesh.h"
+				>
+			</File>
 			<File
 				RelativePath="..\..\..\Detour\Include\DetourDebugDraw.h"
 				>

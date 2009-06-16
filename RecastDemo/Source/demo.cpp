@@ -1556,7 +1556,7 @@ int main(int argc, char *argv[])
 				if ((int)tileSize > 0)
 				{
 					cfg.borderSize = cfg.walkableRadius*2 + 2;
-					cfg.tileSize = tileSize;
+					cfg.tileSize = (int)tileSize;
 					
 					delete g_tileSet;
 					g_tileSet = new TileSet;
