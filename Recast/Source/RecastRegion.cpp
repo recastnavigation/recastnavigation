@@ -898,7 +898,7 @@ bool rcBuildDistanceField(rcCompactHeightfield& chf)
 	rcTimeVal blurStartTime = rcGetPerformanceTimer();
 	
 	// Blur
-	if (boxBlur(chf, 2, src, dst) != src)
+	if (boxBlur(chf, 1, src, dst) != src)
 		rcSwap(src, dst);
 	
 	// Store distance.
@@ -985,7 +985,7 @@ bool rcBuildRegions(rcCompactHeightfield& chf,
 	unsigned short regionId = 1;
 	unsigned short level = (chf.maxDistance+1) & ~1;
 	
-	unsigned short minLevel = (unsigned short)walkableRadius * 2;
+	unsigned short minLevel = (unsigned short)(walkableRadius*2);
 	
 	const int expandIters = 4 + walkableRadius * 2;
 
@@ -1033,9 +1033,8 @@ bool rcBuildRegions(rcCompactHeightfield& chf,
 	}
 	
 	// Expand current regions until no empty connected cells found.
-	if (expandRegions(expandIters, minLevel, chf, src, dst, stack) != src)
+	if (expandRegions(expandIters*8, minLevel, chf, src, dst, stack) != src)
 		rcSwap(src, dst);
-	
 	
 	rcTimeVal regEndTime = rcGetPerformanceTimer();
 	

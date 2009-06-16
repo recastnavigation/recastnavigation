@@ -34,14 +34,11 @@ inline void intToCol(int i, float* col)
 	col[2] = 1 - b*63.0f/255.0f;
 }
 
-void rcDebugDrawHeightfieldSolid(const struct rcHeightfield& hf,
-								 const float* orig, float cs, float ch);
+void rcDebugDrawHeightfieldSolid(const struct rcHeightfield& hf);
+void rcDebugDrawHeightfieldWalkable(const struct rcHeightfield& hf);
 
-void rcDebugDrawHeightfieldWalkable(const struct rcHeightfield& hf,
-									const float* orig, float cs, float ch);
-
-void rcDebugDrawMesh(const class rcMeshLoaderObj& mesh, const unsigned char* flags, const float miny, const float maxy);
-void rcDebugDrawMeshSlope(const class rcMeshLoaderObj& mesh, const float walkableSlopeAngle, const float miny, const float maxy);
+void rcDebugDrawMesh(const class rcMeshLoaderObj& mesh, const unsigned char* flags);
+void rcDebugDrawMeshSlope(const class rcMeshLoaderObj& mesh, const float walkableSlopeAngle);
 
 void rcDebugDrawCompactHeightfieldSolid(const struct rcCompactHeightfield& chf);
 void rcDebugDrawCompactHeightfieldRegions(const struct rcCompactHeightfield& chf);

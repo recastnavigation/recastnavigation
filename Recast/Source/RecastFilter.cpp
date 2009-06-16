@@ -24,9 +24,9 @@
 #include "RecastTimer.h"
 
 
-void rcFilterWalkableBorderSpans(const int walkableHeight,
-								 const int walkableClimb,
-								 rcHeightfield& solid)
+void rcFilterLedgeSpans(const int walkableHeight,
+						const int walkableClimb,
+						rcHeightfield& solid)
 {
 	rcTimeVal startTime = rcGetPerformanceTimer();
 
@@ -45,37 +45,47 @@ void rcFilterWalkableBorderSpans(const int walkableHeight,
 				if ((s->flags & RC_WALKABLE) == 0)
 					continue;
 				
-				// The span is valid only if it has four neighbours.
-				int neighbourCount = 0;
-				
 				const int bot = (int)s->smax;
 				const int top = (int)s->next ? (int)s->next->smin : MAX_HEIGHT;
 				
-				// Visit neighbours in all 4 directions.
+				// Find neighbours minimum height.
+				int minh = MAX_HEIGHT;
+
 				for (int dir = 0; dir < 4; ++dir)
 				{
 					int dx = x + rcGetDirOffsetX(dir);
 					int dy = y + rcGetDirOffsetY(dir);
 					// Skip neighbours which are out of bounds.
 					if (dx < 0 || dy < 0 || dx >= w || dy >= h)
-						continue;
-					for (rcSpan* ns = solid.spans[dx + dy*w]; ns; ns = ns->next)
 					{
-						const int nbot = (int)ns->smax;
-						const int ntop = (int)ns->next ? (int)ns->next->smin : MAX_HEIGHT;
+						minh = rcMin(minh, -walkableClimb - bot);
+						continue;
+					}
+
+					// From minus infinity to the first span.
+					rcSpan* ns = solid.spans[dx + dy*w];
+					int nbot = -walkableClimb;
+					int ntop = ns ? (int)ns->smin : MAX_HEIGHT;
+					// Skip neightbour if the gap between the spans is too small.
+					if (rcMin(top,ntop) - rcMax(bot,nbot) > walkableHeight)
+						minh = rcMin(minh, nbot - bot);
+					
+					// Rest of the spans.
+					for (ns = solid.spans[dx + dy*w]; ns; ns = ns->next)
+					{
+						nbot = (int)ns->smax;
+						ntop = (int)ns->next ? (int)ns->next->smin : MAX_HEIGHT;
 						// Skip neightbour if the gap between the spans is too small.
-						if (rcMin(top,ntop) - rcMax(bot,nbot) <= walkableHeight)
-							continue;
-						// Skip neightbour if the climb height to the neighbour is too high.
-						if (rcAbs(nbot - bot) >= walkableClimb)
-							continue;
-						// This neighbour is reachable.
-						neighbourCount++;
+						if (rcMin(top,ntop) - rcMax(bot,nbot) > walkableHeight)
+							minh = rcMin(minh, nbot - bot);
 					}
 				}
-				// Remove walkable flag.
-				if (neighbourCount != 4)
+				
+				// The current span is close to a ledge if the drop to any
+				// neighbour span is less than the walkableClimb.
+				if (minh < -walkableClimb)
 					s->flags &= ~RC_WALKABLE;
+				
 			}
 		}
 	}

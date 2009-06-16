@@ -22,8 +22,6 @@
 		6B137C910F7FCC1100459200 /* RecastRasterization.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B137C880F7FCC1100459200 /* RecastRasterization.cpp */; };
 		6B137C920F7FCC1100459200 /* RecastRegion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B137C890F7FCC1100459200 /* RecastRegion.cpp */; };
 		6B137C930F7FCC1100459200 /* RecastTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B137C8A0F7FCC1100459200 /* RecastTimer.cpp */; };
-		6B164AFE0FD6687600D2F919 /* glimage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B164AFD0FD6687600D2F919 /* glimage.cpp */; };
-		6B164B010FD668B700D2F919 /* stb_image.c in Sources */ = {isa = PBXBuildFile; fileRef = 6B164B000FD668B700D2F919 /* stb_image.c */; };
 		6B8632DA0F78122C00E2684A /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6B8632D90F78122C00E2684A /* SDL.framework */; };
 		6B8632DC0F78123E00E2684A /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6B8632DB0F78123E00E2684A /* OpenGL.framework */; };
 		6BB788170FC0472B003C24DB /* ChunkyTriMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BB788160FC0472B003C24DB /* ChunkyTriMesh.cpp */; };
@@ -64,9 +62,6 @@
 		6B137C880F7FCC1100459200 /* RecastRasterization.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RecastRasterization.cpp; path = ../../../Recast/Source/RecastRasterization.cpp; sourceTree = SOURCE_ROOT; };
 		6B137C890F7FCC1100459200 /* RecastRegion.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RecastRegion.cpp; path = ../../../Recast/Source/RecastRegion.cpp; sourceTree = SOURCE_ROOT; };
 		6B137C8A0F7FCC1100459200 /* RecastTimer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RecastTimer.cpp; path = ../../../Recast/Source/RecastTimer.cpp; sourceTree = SOURCE_ROOT; };
-		6B164AFD0FD6687600D2F919 /* glimage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = glimage.cpp; path = ../../Source/glimage.cpp; sourceTree = SOURCE_ROOT; };
-		6B164AFF0FD6688000D2F919 /* glimage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glimage.h; path = ../../Include/glimage.h; sourceTree = SOURCE_ROOT; };
-		6B164B000FD668B700D2F919 /* stb_image.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = stb_image.c; path = ../../Source/stb_image.c; sourceTree = SOURCE_ROOT; };
 		6B8632D90F78122C00E2684A /* SDL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL.framework; path = Library/Frameworks/SDL.framework; sourceTree = SDKROOT; };
 		6B8632DB0F78123E00E2684A /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		6BB788160FC0472B003C24DB /* ChunkyTriMesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ChunkyTriMesh.cpp; path = ../../Source/ChunkyTriMesh.cpp; sourceTree = SOURCE_ROOT; };
@@ -98,9 +93,6 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				6B164B000FD668B700D2F919 /* stb_image.c */,
-				6B164AFF0FD6688000D2F919 /* glimage.h */,
-				6B164AFD0FD6687600D2F919 /* glimage.cpp */,
 				6BDD9E030F91110C00904EEF /* Detour */,
 				6B137C7D0F7FCBE800459200 /* Recast */,
 				6B137C790F7FCBE400459200 /* glfont.h */,
@@ -291,8 +283,6 @@
 				6BDD9E0B0F91113800904EEF /* DetourStatNavMesh.cpp in Sources */,
 				6BDD9E0C0F91113800904EEF /* DetourStatNavMeshBuilder.cpp in Sources */,
 				6BB788170FC0472B003C24DB /* ChunkyTriMesh.cpp in Sources */,
-				6B164AFE0FD6687600D2F919 /* glimage.cpp in Sources */,
-				6B164B010FD668B700D2F919 /* stb_image.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

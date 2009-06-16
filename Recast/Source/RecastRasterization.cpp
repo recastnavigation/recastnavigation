@@ -268,15 +268,14 @@ static void rasterizeTri(const float* v0, const float* v1, const float* v2,
 	}
 }
 
-void rcRasterizeTriangles(const float* bmin, const float* bmax, const float cs, const float ch,
-						  const float* verts, int nv,
+void rcRasterizeTriangles(const float* verts, int nv,
 						  const int* tris, const unsigned char* flags, int nt,
 						  rcHeightfield& solid)
 {
 	rcTimeVal startTime = rcGetPerformanceTimer();
 	
-	const float ics = 1.0f/cs;
-	const float ich = 1.0f/ch;
+	const float ics = 1.0f/solid.cs;
+	const float ich = 1.0f/solid.ch;
 	// Rasterize triangles.
 	for (int i = 0; i < nt; ++i)
 	{
@@ -284,7 +283,7 @@ void rcRasterizeTriangles(const float* bmin, const float* bmax, const float cs, 
 		const float* v1 = &verts[tris[i*3+1]*3];
 		const float* v2 = &verts[tris[i*3+2]*3];
 		// Rasterize.
-		rasterizeTri(v0, v1, v2, flags[i], solid, bmin, bmax, cs, ics, ich);
+		rasterizeTri(v0, v1, v2, flags[i], solid, solid.bmin, solid.bmax, solid.cs, ics, ich);
 	}
 	
 	rcTimeVal endTime = rcGetPerformanceTimer();

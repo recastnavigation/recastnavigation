@@ -1,4 +1,4 @@
-Recast Version 1.0
+Recast Version 1.2
 
 Recast is state of the art navigation mesh construction toolset for games.
 
@@ -34,6 +34,22 @@ The project files with this distribution can be compiled with Microsoft Visual C
 --
 
 Release Notes
+
+----------------
+* Recast 1.2
+  Released June 17th, 2009
+
+- Added tiled mesh generation. The tiled generation allows to generate navigation for
+  much larger worlds, it removes some of the artifacts that comes from distance fields
+  in open areas, and allows later streaming and dynamic runtime generation
+- Improved and added some debug draw modes
+- API change: The helper function rcBuildNavMesh does not exists anymore,
+  had to change few internal things to cope with the tiled processing,
+  similar API functionality will be added later once the tiled process matures
+- The demo is getting way too complicated, need to split demos
+- Fixed several filtering functions so that the mesh is tighter to the geometry,
+  sometimes there could be up error up to tow voxel units close to walls,
+  now it should be just one.
 
 ----------------
 * Recast 1.1

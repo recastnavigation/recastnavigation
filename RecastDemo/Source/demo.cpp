@@ -29,7 +29,6 @@
 #include "SDL.h"
 #include "SDL_Opengl.h"
 #include "GLFont.h"
-#include "GLImage.h"
 #include "RecastTimer.h"
 #include "MeshLoaderObj.h"
 #include "ChunkyTriMesh.h"
@@ -391,6 +390,7 @@ bool buildTiledNavigation(const rcConfig& cfg,
 			const int ncid = rcGetChunksInRect(chunkyMesh, tbmin, tbmax, cid, 256);
 			if (!ncid)
 			{
+				printf("Skipping empty %d,%d\n", x, y);
 				continue;
 			}
 									
@@ -401,7 +401,7 @@ bool buildTiledNavigation(const rcConfig& cfg,
 					rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: [%d,%d] Out of memory 'solid'.", x, y);
 				continue;
 			}
-			if (!rcCreateHeightfield(*solid, tileCfg.width, tileCfg.height))
+			if (!rcCreateHeightfield(*solid, tileCfg.width, tileCfg.height, tileCfg.bmin, tileCfg.bmax, tileCfg.cs, tileCfg.ch))
 			{
 				if (rcGetLog())
 					rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: [%d,%d] Could not create solid heightfield.", x, y);
@@ -418,11 +418,10 @@ bool buildTiledNavigation(const rcConfig& cfg,
 				rcMarkWalkableTriangles(tileCfg.walkableSlopeAngle,
 										verts, nverts, tris, ntris, triangleFlags);
 				
-				rcRasterizeTriangles(tileCfg.bmin, tileCfg.bmax, tileCfg.cs, tileCfg.ch,
-									 verts, nverts, tris, triangleFlags, ntris, *solid);
+				rcRasterizeTriangles(verts, nverts, tris, triangleFlags, ntris, *solid);
 			}	
 			
-			rcFilterWalkableBorderSpans(tileCfg.walkableHeight, tileCfg.walkableClimb, *solid);
+			rcFilterLedgeSpans(tileCfg.walkableHeight, tileCfg.walkableClimb, *solid);
 			
 			rcFilterWalkableLowHeightSpans(tileCfg.walkableHeight, *solid);
 			
@@ -433,8 +432,7 @@ bool buildTiledNavigation(const rcConfig& cfg,
 					rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: [%d,%d] Out of memory 'chf'.", x, y);
 				continue;
 			}
-			if (!rcBuildCompactHeightfield(tileCfg.bmin, tileCfg.bmax, tileCfg.cs, tileCfg.ch,
-										   tileCfg.walkableHeight, tileCfg.walkableClimb,
+			if (!rcBuildCompactHeightfield(tileCfg.walkableHeight, tileCfg.walkableClimb,
 										   RC_WALKABLE/*|RC_REACHABLE*/, *solid, *chf))
 			{
 				if (rcGetLog())
@@ -612,33 +610,38 @@ bool buildTiledNavigation(const rcConfig& cfg,
 
 	if (rcGetLog())
 	{
-		rcGetLog()->log(RC_LOG_PROGRESS, "Rasterize: %.1fms\n", g_buildTimes.rasterizeTriangles/1000.0f);
+		const float pc = 100.0f / rcGetDeltaTimeUsec(totStartTime, totEndTime);
 		
-		rcGetLog()->log(RC_LOG_PROGRESS, "Build Compact: %.1fms\n", g_buildTimes.buildCompact/1000.0f);
-
-		rcGetLog()->log(RC_LOG_PROGRESS, "Filter Border: %.1fms\n", g_buildTimes.filterBorder/1000.0f);
-		rcGetLog()->log(RC_LOG_PROGRESS, "Filter Walkable: %.1fms\n", g_buildTimes.filterWalkable/1000.0f);
-		rcGetLog()->log(RC_LOG_PROGRESS, "Filter Reachable: %.1fms\n", g_buildTimes.filterMarkReachable/1000.0f);
-
-		rcGetLog()->log(RC_LOG_PROGRESS, "Build Distancefield: %.1fms\n", g_buildTimes.buildDistanceField/1000.0f);
-		rcGetLog()->log(RC_LOG_PROGRESS, "  - distance: %.1fms\n", g_buildTimes.buildDistanceFieldDist/1000.0f);
-		rcGetLog()->log(RC_LOG_PROGRESS, "  - blur: %.1fms\n", g_buildTimes.buildDistanceFieldBlur/1000.0f);
-
-		rcGetLog()->log(RC_LOG_PROGRESS, "Build Regions: %.1fms\n", g_buildTimes.buildRegions/1000.0f);
-		rcGetLog()->log(RC_LOG_PROGRESS, "  - watershed: %.1fms\n", g_buildTimes.buildRegionsReg/1000.0f);
-		rcGetLog()->log(RC_LOG_PROGRESS, "    - expand: %.1fms\n", g_buildTimes.buildRegionsExp/1000.0f);
-		rcGetLog()->log(RC_LOG_PROGRESS, "    - find catchment basins: %.1fms\n", g_buildTimes.buildRegionsFlood/1000.0f);
-		rcGetLog()->log(RC_LOG_PROGRESS, "  - filter: %.1fms\n", g_buildTimes.buildRegionsFilter/1000.0f);
-
-		rcGetLog()->log(RC_LOG_PROGRESS, "Build Contours: %.1fms\n", g_buildTimes.buildContours/1000.0f);
-		rcGetLog()->log(RC_LOG_PROGRESS, "  - trace: %.1fms\n", g_buildTimes.buildContoursTrace/1000.0f);
-		rcGetLog()->log(RC_LOG_PROGRESS, "  - simplify: %.1fms\n", g_buildTimes.buildContoursSimplify/1000.0f);
-
-		rcGetLog()->log(RC_LOG_PROGRESS, "Fixup contours: %.1fms\n", g_buildTimes.fixupContours/1000.0f);
+		rcGetLog()->log(RC_LOG_PROGRESS, "Rasterize: %.1fms (%.1f%%)", g_buildTimes.rasterizeTriangles/1000.0f, g_buildTimes.rasterizeTriangles*pc);
 		
-		rcGetLog()->log(RC_LOG_PROGRESS, "Build Polymesh: %.1fms\n", g_buildTimes.buildPolymesh/1000.0f);
+		rcGetLog()->log(RC_LOG_PROGRESS, "Build Compact: %.1fms (%.1f%%)", g_buildTimes.buildCompact/1000.0f, g_buildTimes.buildCompact*pc);
 
-		rcGetLog()->log(RC_LOG_PROGRESS, "TOTAL: %.1fms\n", rcGetDeltaTimeUsec(totStartTime, totEndTime)/1000.0f);
+		rcGetLog()->log(RC_LOG_PROGRESS, "Filter Border: %.1fms (%.1f%%)", g_buildTimes.filterBorder/1000.0f, g_buildTimes.filterBorder*pc);
+		rcGetLog()->log(RC_LOG_PROGRESS, "Filter Walkable: %.1fms (%.1f%%)", g_buildTimes.filterWalkable/1000.0f, g_buildTimes.filterWalkable*pc);
+		rcGetLog()->log(RC_LOG_PROGRESS, "Filter Reachable: %.1fms (%.1f%%)", g_buildTimes.filterMarkReachable/1000.0f, g_buildTimes.filterMarkReachable*pc);
+
+		rcGetLog()->log(RC_LOG_PROGRESS, "Build Distancefield: %.1fms (%.1f%%)", g_buildTimes.buildDistanceField/1000.0f, g_buildTimes.buildDistanceField*pc);
+		rcGetLog()->log(RC_LOG_PROGRESS, "  - distance: %.1fms (%.1f%%)", g_buildTimes.buildDistanceFieldDist/1000.0f, g_buildTimes.buildDistanceFieldDist*pc);
+		rcGetLog()->log(RC_LOG_PROGRESS, "  - blur: %.1fms (%.1f%%)", g_buildTimes.buildDistanceFieldBlur/1000.0f, g_buildTimes.buildDistanceFieldBlur*pc);
+
+		rcGetLog()->log(RC_LOG_PROGRESS, "Build Regions: %.1fms (%.1f%%)", g_buildTimes.buildRegions/1000.0f, g_buildTimes.buildRegions*pc);
+		rcGetLog()->log(RC_LOG_PROGRESS, "  - watershed: %.1fms (%.1f%%)", g_buildTimes.buildRegionsReg/1000.0f, g_buildTimes.buildRegionsReg*pc);
+		rcGetLog()->log(RC_LOG_PROGRESS, "    - expand: %.1fms (%.1f%%)", g_buildTimes.buildRegionsExp/1000.0f, g_buildTimes.buildRegionsExp*pc);
+		rcGetLog()->log(RC_LOG_PROGRESS, "    - find catchment basins: %.1fms (%.1f%%)", g_buildTimes.buildRegionsFlood/1000.0f, g_buildTimes.buildRegionsFlood*pc);
+		rcGetLog()->log(RC_LOG_PROGRESS, "  - filter: %.1fms (%.1f%%)", g_buildTimes.buildRegionsFilter/1000.0f, g_buildTimes.buildRegionsFilter*pc);
+
+		rcGetLog()->log(RC_LOG_PROGRESS, "Build Contours: %.1fms (%.1f%%)", g_buildTimes.buildContours/1000.0f, g_buildTimes.buildContours*pc);
+		rcGetLog()->log(RC_LOG_PROGRESS, "  - trace: %.1fms (%.1f%%)", g_buildTimes.buildContoursTrace/1000.0f, g_buildTimes.buildContoursTrace*pc);
+		rcGetLog()->log(RC_LOG_PROGRESS, "  - simplify: %.1fms (%.1f%%)", g_buildTimes.buildContoursSimplify/1000.0f, g_buildTimes.buildContoursSimplify*pc);
+
+		rcGetLog()->log(RC_LOG_PROGRESS, "Fixup contours: %.1fms (%.1f%%)", g_buildTimes.fixupContours/1000.0f, g_buildTimes.fixupContours*pc);
+		
+		rcGetLog()->log(RC_LOG_PROGRESS, "Build Polymesh: %.1fms (%.1f%%)", g_buildTimes.buildPolymesh/1000.0f, g_buildTimes.buildPolymesh*pc);
+
+		if (polyMesh)
+			rcGetLog()->log(RC_LOG_PROGRESS, "Polymesh: Verts:%d  Polys:%d", polyMesh->nverts, polyMesh->npolys);
+
+		rcGetLog()->log(RC_LOG_PROGRESS, "TOTAL: %.1fms", rcGetDeltaTimeUsec(totStartTime, totEndTime)/1000.0f);
 	}
 	
 	return true;
@@ -690,7 +693,7 @@ bool buildNavigation(const rcConfig& cfg,
 	
 	rcTimeVal totStartTime = rcGetPerformanceTimer();
 	
-	// Calculate the number of tiles in the output and initialize tiles.
+	// Create one tile so that we can use the same debug output as with the tiled generation.
 	vcopy(tileSet->bmin, cfg.bmin);
 	vcopy(tileSet->bmax, cfg.bmax);
 	tileSet->cs = cfg.cs;
@@ -734,7 +737,7 @@ bool buildNavigation(const rcConfig& cfg,
 			rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'solid'.");
 		return false;
 	}
-	if (!rcCreateHeightfield(*solid, cfg.width, cfg.height))
+	if (!rcCreateHeightfield(*solid, cfg.width, cfg.height, cfg.bmin, cfg.bmax, cfg.cs, cfg.ch))
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Could not create solid heightfield.");
@@ -742,15 +745,14 @@ bool buildNavigation(const rcConfig& cfg,
 	}
 	
 	rcTimeVal startTime = rcGetPerformanceTimer();
-		
+
 	memset(triangleFlags, 0, mesh->getTriCount()*sizeof(unsigned char));
 	rcMarkWalkableTriangles(cfg.walkableSlopeAngle,
 							mesh->getVerts(), mesh->getVertCount(), mesh->getTris(), mesh->getTriCount(), triangleFlags);
 	
-	rcRasterizeTriangles(cfg.bmin, cfg.bmax, cfg.cs, cfg.ch,
-						 mesh->getVerts(), mesh->getVertCount(), mesh->getTris(), triangleFlags, mesh->getTriCount(), *solid);
+	rcRasterizeTriangles(mesh->getVerts(), mesh->getVertCount(), mesh->getTris(), triangleFlags, mesh->getTriCount(), *solid);
 	
-	rcFilterWalkableBorderSpans(cfg.walkableHeight, cfg.walkableClimb, *solid);
+	rcFilterLedgeSpans(cfg.walkableHeight, cfg.walkableClimb, *solid);
 	
 	rcFilterWalkableLowHeightSpans(cfg.walkableHeight, *solid);
 	
@@ -761,8 +763,7 @@ bool buildNavigation(const rcConfig& cfg,
 			rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'chf'.");
 		return false;
 	}
-	if (!rcBuildCompactHeightfield(cfg.bmin, cfg.bmax, cfg.cs, cfg.ch,
-								   cfg.walkableHeight, cfg.walkableClimb,
+	if (!rcBuildCompactHeightfield(cfg.walkableHeight, cfg.walkableClimb,
 								   RC_WALKABLE/*|RC_REACHABLE*/, *solid, *chf))
 	{
 		if (rcGetLog())
@@ -848,33 +849,38 @@ bool buildNavigation(const rcConfig& cfg,
 	
 	if (rcGetLog())
 	{
-		rcGetLog()->log(RC_LOG_PROGRESS, "Rasterize: %.1fms\n", g_buildTimes.rasterizeTriangles/1000.0f);
+		const float pc = 100.0f / rcGetDeltaTimeUsec(totStartTime, totEndTime);
 		
-		rcGetLog()->log(RC_LOG_PROGRESS, "Build Compact: %.1fms\n", g_buildTimes.buildCompact/1000.0f);
+		rcGetLog()->log(RC_LOG_PROGRESS, "Rasterize: %.1fms (%.1f%%)", g_buildTimes.rasterizeTriangles/1000.0f, g_buildTimes.rasterizeTriangles*pc);
 		
-		rcGetLog()->log(RC_LOG_PROGRESS, "Filter Border: %.1fms\n", g_buildTimes.filterBorder/1000.0f);
-		rcGetLog()->log(RC_LOG_PROGRESS, "Filter Walkable: %.1fms\n", g_buildTimes.filterWalkable/1000.0f);
-		rcGetLog()->log(RC_LOG_PROGRESS, "Filter Reachable: %.1fms\n", g_buildTimes.filterMarkReachable/1000.0f);
+		rcGetLog()->log(RC_LOG_PROGRESS, "Build Compact: %.1fms (%.1f%%)", g_buildTimes.buildCompact/1000.0f, g_buildTimes.buildCompact*pc);
 		
-		rcGetLog()->log(RC_LOG_PROGRESS, "Build Distancefield: %.1fms\n", g_buildTimes.buildDistanceField/1000.0f);
-		rcGetLog()->log(RC_LOG_PROGRESS, "  - distance: %.1fms\n", g_buildTimes.buildDistanceFieldDist/1000.0f);
-		rcGetLog()->log(RC_LOG_PROGRESS, "  - blur: %.1fms\n", g_buildTimes.buildDistanceFieldBlur/1000.0f);
+		rcGetLog()->log(RC_LOG_PROGRESS, "Filter Border: %.1fms (%.1f%%)", g_buildTimes.filterBorder/1000.0f, g_buildTimes.filterBorder*pc);
+		rcGetLog()->log(RC_LOG_PROGRESS, "Filter Walkable: %.1fms (%.1f%%)", g_buildTimes.filterWalkable/1000.0f, g_buildTimes.filterWalkable*pc);
+		rcGetLog()->log(RC_LOG_PROGRESS, "Filter Reachable: %.1fms (%.1f%%)", g_buildTimes.filterMarkReachable/1000.0f, g_buildTimes.filterMarkReachable*pc);
 		
-		rcGetLog()->log(RC_LOG_PROGRESS, "Build Regions: %.1fms\n", g_buildTimes.buildRegions/1000.0f);
-		rcGetLog()->log(RC_LOG_PROGRESS, "  - watershed: %.1fms\n", g_buildTimes.buildRegionsReg/1000.0f);
-		rcGetLog()->log(RC_LOG_PROGRESS, "    - expand: %.1fms\n", g_buildTimes.buildRegionsExp/1000.0f);
-		rcGetLog()->log(RC_LOG_PROGRESS, "    - find catchment basins: %.1fms\n", g_buildTimes.buildRegionsFlood/1000.0f);
-		rcGetLog()->log(RC_LOG_PROGRESS, "  - filter: %.1fms\n", g_buildTimes.buildRegionsFilter/1000.0f);
+		rcGetLog()->log(RC_LOG_PROGRESS, "Build Distancefield: %.1fms (%.1f%%)", g_buildTimes.buildDistanceField/1000.0f, g_buildTimes.buildDistanceField*pc);
+		rcGetLog()->log(RC_LOG_PROGRESS, "  - distance: %.1fms (%.1f%%)", g_buildTimes.buildDistanceFieldDist/1000.0f, g_buildTimes.buildDistanceFieldDist*pc);
+		rcGetLog()->log(RC_LOG_PROGRESS, "  - blur: %.1fms (%.1f%%)", g_buildTimes.buildDistanceFieldBlur/1000.0f, g_buildTimes.buildDistanceFieldBlur*pc);
 		
-		rcGetLog()->log(RC_LOG_PROGRESS, "Build Contours: %.1fms\n", g_buildTimes.buildContours/1000.0f);
-		rcGetLog()->log(RC_LOG_PROGRESS, "  - trace: %.1fms\n", g_buildTimes.buildContoursTrace/1000.0f);
-		rcGetLog()->log(RC_LOG_PROGRESS, "  - simplify: %.1fms\n", g_buildTimes.buildContoursSimplify/1000.0f);
+		rcGetLog()->log(RC_LOG_PROGRESS, "Build Regions: %.1fms (%.1f%%)", g_buildTimes.buildRegions/1000.0f, g_buildTimes.buildRegions*pc);
+		rcGetLog()->log(RC_LOG_PROGRESS, "  - watershed: %.1fms (%.1f%%)", g_buildTimes.buildRegionsReg/1000.0f, g_buildTimes.buildRegionsReg*pc);
+		rcGetLog()->log(RC_LOG_PROGRESS, "    - expand: %.1fms (%.1f%%)", g_buildTimes.buildRegionsExp/1000.0f, g_buildTimes.buildRegionsExp*pc);
+		rcGetLog()->log(RC_LOG_PROGRESS, "    - find catchment basins: %.1fms (%.1f%%)", g_buildTimes.buildRegionsFlood/1000.0f, g_buildTimes.buildRegionsFlood*pc);
+		rcGetLog()->log(RC_LOG_PROGRESS, "  - filter: %.1fms (%.1f%%)", g_buildTimes.buildRegionsFilter/1000.0f, g_buildTimes.buildRegionsFilter*pc);
 		
-		rcGetLog()->log(RC_LOG_PROGRESS, "Fixup contours: %.1fms\n", g_buildTimes.fixupContours/1000.0f);
+		rcGetLog()->log(RC_LOG_PROGRESS, "Build Contours: %.1fms (%.1f%%)", g_buildTimes.buildContours/1000.0f, g_buildTimes.buildContours*pc);
+		rcGetLog()->log(RC_LOG_PROGRESS, "  - trace: %.1fms (%.1f%%)", g_buildTimes.buildContoursTrace/1000.0f, g_buildTimes.buildContoursTrace*pc);
+		rcGetLog()->log(RC_LOG_PROGRESS, "  - simplify: %.1fms (%.1f%%)", g_buildTimes.buildContoursSimplify/1000.0f, g_buildTimes.buildContoursSimplify*pc);
 		
-		rcGetLog()->log(RC_LOG_PROGRESS, "Build Polymesh: %.1fms\n", g_buildTimes.buildPolymesh/1000.0f);
+		rcGetLog()->log(RC_LOG_PROGRESS, "Fixup contours: %.1fms (%.1f%%)", g_buildTimes.fixupContours/1000.0f, g_buildTimes.fixupContours*pc);
 		
-		rcGetLog()->log(RC_LOG_PROGRESS, "TOTAL: %.1fms\n", rcGetDeltaTimeUsec(totStartTime, totEndTime)/1000.0f);
+		rcGetLog()->log(RC_LOG_PROGRESS, "Build Polymesh: %.1fms (%.1f%%)", g_buildTimes.buildPolymesh/1000.0f, g_buildTimes.buildPolymesh*pc);
+		
+		if (polyMesh)
+			rcGetLog()->log(RC_LOG_PROGRESS, "Polymesh: Verts:%d  Polys:%d", polyMesh->nverts, polyMesh->npolys);
+		
+		rcGetLog()->log(RC_LOG_PROGRESS, "TOTAL: %.1fms", rcGetDeltaTimeUsec(totStartTime, totEndTime)/1000.0f);
 	}
 	
 	return true;
@@ -897,10 +903,12 @@ int main(int argc, char *argv[])
 	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
+
+	int menuOffset = 0;
 	
-	int width = 1280; //1024; //1200;
-	int height = 800; //768; //700;
-	SDL_Surface* screen = SDL_SetVideoMode(width, height, 0, SDL_OPENGL /*| SDL_FULLSCREEN*/);
+	int width = 1200;
+	int height = 700;
+	SDL_Surface* screen = SDL_SetVideoMode(width, height, 0, SDL_OPENGL);
 	if (!screen)
 	{
 		printf("Could not initialise SDL opengl\n");
@@ -930,29 +938,14 @@ int main(int argc, char *argv[])
 	float tileSize = 0.0f;
 	int drawMode = DRAWMODE_NAVMESH;
 	int toolMode = TOOLMODE_PATHFIND;
-	bool showMenu = false;
+	bool showMenu = true;
 	bool showLevels = false;
 	bool showLog = false;
-	bool showTools = false;
+	bool showTools = true;
 	char curLevel[256] = "Choose Level...";
 	bool mouseOverMenu = false;
 	bool keepInterResults = false;
-	FileList fileList;
-
-	FileList slidesList;
-	bool showSlides = false;
-	bool showCurSlide = true;
-	float slideAlpha = 1.0f;
-	int curSlide = 0;
-	int nextSlide = 0;
-	scanDirectory("slides", ".png", slidesList);
-	GLImage slideTex;
-	
-	char path[256];
-	strcpy(path, "slides/");
-	strcat(path, slidesList.files[curSlide]);
-	slideTex.create(path);
-	
+	FileList fileList;	
 	
 	dtPolyRef startRef = 0, endRef = 0;
 
@@ -977,12 +970,10 @@ int main(int argc, char *argv[])
 	float rays[3], raye[3]; 
 	float spos[3] = {0,0,0};
 	float epos[3] = {0,0,0};
-	float mpos[3] = {0,0,0};
 	float hitPos[3] = {0,0,0};
 	float hitNormal[3] = {0,0,0};
 	float distanceToWall = 0;
 	bool sposSet = false, eposSet = false;
-	bool mposSet = false;
 	static const float startCol[4] = { 0.5f, 0.1f, 0.0f, 0.75f };
 	static const float endCol[4] = { 0.2f, 0.4f, 0.0f, 0.75f };
 	bool recalcTool = false;
@@ -990,7 +981,7 @@ int main(int argc, char *argv[])
 	glEnable(GL_CULL_FACE);
 
 //	float fogCol[4] = { 0.1f,0.12f,0.14f,1 };
-	float fogCol[4] = { 0.32f,0.25f,0.07f,1 };
+	float fogCol[4] = { 0.32f,0.25f,0.25f,1 };
 	glEnable(GL_FOG);
 	glFogi(GL_FOG_MODE, GL_LINEAR);
 	glFogf(GL_FOG_START, 0);
@@ -1015,30 +1006,6 @@ int main(int argc, char *argv[])
 					{
 						done = true;
 					}
-					else if (event.key.keysym.sym == SDLK_TAB)
-					{
-						showCurSlide = !showCurSlide;
-					}
-					else if (event.key.keysym.sym == SDLK_2)
-					{
-						showSlides = !showSlides;
-					}
-					else if (event.key.keysym.sym == SDLK_1)
-					{
-						showMenu = !showMenu;
-					}
-					else if (event.key.keysym.sym == SDLK_LEFT)
-					{
-						nextSlide--;
-						if (nextSlide < 0)
-							nextSlide = 0;
-					}
-					else if (event.key.keysym.sym == SDLK_RIGHT)
-					{
-						nextSlide++;
-						if (nextSlide >= slidesList.size)
-							nextSlide = slidesList.size-1;
-					}
 					break;
 
 				case SDL_MOUSEBUTTONDOWN:
@@ -1062,14 +1029,7 @@ int main(int argc, char *argv[])
 								float t;
 								if (raycast(*g_mesh, rays, raye, t))
 								{
-									if (SDL_GetModState() & KMOD_CTRL)
-									{
-										mposSet = true;
-										mpos[0] = rays[0] + (raye[0] - rays[0])*t;
-										mpos[1] = rays[1] + (raye[1] - rays[1])*t;
-										mpos[2] = rays[2] + (raye[2] - rays[2])*t;
-									}
-									else if (SDL_GetModState() & KMOD_SHIFT)
+									if (SDL_GetModState() & KMOD_SHIFT)
 									{
 										sposSet = true;
 										spos[0] = rays[0] + (raye[0] - rays[0])*t;
@@ -1088,13 +1048,6 @@ int main(int argc, char *argv[])
 										if (g_navMesh)
 											endRef = g_navMesh->findNearestPoly(epos, polyPickExt);
 										recalcTool = true;
-									}
-								}
-								else
-								{
-									if (SDL_GetModState() & KMOD_CTRL)
-									{
-										mposSet = false;
 									}
 								}
 							}
@@ -1136,25 +1089,7 @@ int main(int argc, char *argv[])
 		lastTime = time;
 		
 		t += dt;
-		
-		float slideAlphaTarget = showCurSlide ? 1 : 0;
-		if (curSlide != nextSlide)
-			slideAlphaTarget = 0;
-		
-		if (slideAlphaTarget > slideAlpha)
-			slideAlpha = rcMin(slideAlpha+dt*4,1.0f);
-		else if (slideAlphaTarget < slideAlpha)
-			slideAlpha = rcMax(slideAlpha-dt*4,0.0f);
-			
-		if (curSlide != nextSlide && slideAlpha < 0.01f)
-		{
-			curSlide = nextSlide;
-			char path[256];
-			strcpy(path, "slides/");
-			strcat(path, slidesList.files[curSlide]);
-			slideTex.create(path);
-		}
-		
+				
 		// Update and render
 		glViewport(0, 0, width, height);
 		glClearColor(0.3f, 0.3f, 0.32f, 1.0f);
@@ -1214,12 +1149,12 @@ int main(int argc, char *argv[])
 		if (drawMode == DRAWMODE_MESH)
 		{
 			if (g_mesh)
-				rcDebugDrawMeshSlope(*g_mesh, agentMaxSlope, g_meshBMin[1], g_meshBMax[1]);
+				rcDebugDrawMeshSlope(*g_mesh, agentMaxSlope);
 		}
 		else if (drawMode != DRAWMODE_NAVMESH_TRANS)
 		{
 			if (g_mesh)
-				rcDebugDrawMesh(*g_mesh, 0, g_meshBMin[1], g_meshBMax[1]);
+				rcDebugDrawMesh(*g_mesh, 0);
 		}
 		
 		glDisable(GL_FOG);
@@ -1366,7 +1301,7 @@ int main(int argc, char *argv[])
 				for (int i = 0; i < g_tileSet->width*g_tileSet->height; ++i)
 				{
 					if (g_tileSet->tiles[i].solid)
-						rcDebugDrawHeightfieldSolid(*g_tileSet->tiles[i].solid, g_tileSet->bmin, g_tileSet->cs, g_tileSet->ch);
+						rcDebugDrawHeightfieldSolid(*g_tileSet->tiles[i].solid);
 				}
 			}
 			glDisable(GL_FOG);
@@ -1379,7 +1314,7 @@ int main(int argc, char *argv[])
 				for (int i = 0; i < g_tileSet->width*g_tileSet->height; ++i)
 				{
 					if (g_tileSet->tiles[i].solid)
-						rcDebugDrawHeightfieldWalkable(*g_tileSet->tiles[i].solid, g_tileSet->bmin, g_tileSet->cs, g_tileSet->ch);
+						rcDebugDrawHeightfieldWalkable(*g_tileSet->tiles[i].solid);
 				}
 			}
 			glDisable(GL_FOG);
@@ -1568,7 +1503,7 @@ int main(int argc, char *argv[])
 		{
 		
 		static int propScroll = 0;
-		if (imguiBeginScrollArea(GENID, "Properties", width - 250 - 10, 10, 250, height-20, &propScroll))
+		if (imguiBeginScrollArea(GENID, "Properties", width - (250+menuOffset) - 10, 10, 250, height-20, &propScroll))
 			mouseOverMenu = true;
 		
 		if (imguiButton(GENID, curLevel))
@@ -1672,6 +1607,8 @@ int main(int argc, char *argv[])
 			int gw = 0, gh = 0;
 			rcCalcGridSize(g_meshBMin, g_meshBMax, cellSize, &gw, &gh);
 			char text[64];
+			snprintf(text, 64, "Verts: %.1fk  Tris: %.1fk", g_mesh->getVertCount()/1000.0f, g_mesh->getTriCount()/1000.0f);
+			imguiValue(GENID, text);
 			snprintf(text, 64, "Grid %d x %d", gw, gh);
 			imguiValue(GENID, text);
 		}
@@ -1679,7 +1616,7 @@ int main(int argc, char *argv[])
 		imguiSeparator();
 		imguiLabel(GENID, "Agent");
 		imguiSlider(GENID, "Height", &agentHeight, 0.1f, 5.0f, 0.1f);
-		imguiSlider(GENID, "Ragius", &agentRadius, 0.1f, 5.0f, 0.1f);
+		imguiSlider(GENID, "Radius", &agentRadius, 0.0f, 5.0f, 0.1f);
 		imguiSlider(GENID, "Max Climb", &agentMaxClimb, 0.1f, 5.0f, 0.1f);
 		imguiSlider(GENID, "Max Slope", &agentMaxSlope, 0.0f, 90.0f, 1.0f);
 		
@@ -1716,7 +1653,7 @@ int main(int argc, char *argv[])
 			drawMode = DRAWMODE_COMPACT_DISTANCE;
 		if (imguiCheck(GENID, "Compact Regions", drawMode == DRAWMODE_COMPACT_REGIONS))
 			drawMode = DRAWMODE_COMPACT_REGIONS;
-		if (imguiCheck(GENID, "Region Conections", drawMode == DRAWMODE_REGION_CONNECTIONS))
+		if (imguiCheck(GENID, "Region Connections", drawMode == DRAWMODE_REGION_CONNECTIONS))
 			drawMode = DRAWMODE_REGION_CONNECTIONS;
 		if (imguiCheck(GENID, "Raw Contours", drawMode == DRAWMODE_RAW_CONTOURS))
 			drawMode = DRAWMODE_RAW_CONTOURS;
@@ -1920,65 +1857,12 @@ int main(int argc, char *argv[])
 			
 		}
 
-		if (showSlides)
+		
 		{
-			static int slidesScroll = 0;
-			if (imguiBeginScrollArea(GENID, "Slides", 10, height - 10 - 200 - 20 - 250, 150, 250, &slidesScroll))
-				mouseOverMenu = true;
-
-			int slideToLoad = -1;
-			for (int i = 0; i < slidesList.size; ++i)
-			{
-				char msg[256];
-				snprintf(msg,256,"%s%s", i == curSlide ? ">> " : (i == nextSlide ? ">" : ""), slidesList.files[i]);
-				if (imguiItem(GENID1(i), msg))
-					slideToLoad = i;
-			}
-			if (slideToLoad >= 0)
-			{
-				nextSlide = slideToLoad;
-				showSlides = false;
-			}
-			
-			imguiEndScrollArea();
-		}
-		
-		if (slideAlpha > 0.01f && curSlide >= 0 && curSlide < slidesList.size)
-		{
-			unsigned char alpha = (unsigned char)(slideAlpha*255.0f);
-/*			const char* file = slidesList.files[curSlide];
-			const float len = g_font.getTextLength(file);
-			g_font.drawText(width/2-len/2, (float)height/2, file, GLFont::RGBA(255,255,255,alpha));*/
-			
-			glEnable(GL_TEXTURE_RECTANGLE_ARB);
-			slideTex.bind();			
-			
-			const float tw = slideTex.getWidth();
-			const float th = slideTex.getHeight();
-			const float hw = tw/2; //width*0.5f;
-			const float hh = th/2; //height*0.5f;
-
-			glColor4ub(255,255,255,alpha);
-			glBegin(GL_QUADS);
-			glTexCoord2f(0,th);
-			glVertex2f(hw-tw/2,hh-th/2);
-			glTexCoord2f(tw,th);
-			glVertex2f(hw+tw/2,hh-th/2);
-			glTexCoord2f(tw,0);
-			glVertex2f(hw+tw/2,hh+th/2);
-			glTexCoord2f(0,0);
-			glVertex2f(hw-tw/2,hh+th/2);
-			glEnd();
-			
-			glDisable(GL_TEXTURE_RECTANGLE_ARB);
-		}
-		
-		
-/*		{
 			const char msg[] = "W/S/A/D: Move  RMB: Rotate   LMB: Place Start   LMB+SHIFT: Place End";
 			const float len = g_font.getTextLength(msg);
 			g_font.drawText(width/2-len/2, (float)height-20.0f, msg, GLFont::RGBA(255,255,255,128));
-		}*/
+		}
 		
 		// Draw start and end point labels
 		if (sposSet && gluProject((GLdouble)spos[0], (GLdouble)spos[1], (GLdouble)spos[2],
@@ -1996,25 +1880,6 @@ int main(int argc, char *argv[])
 		
 		glDisable(GL_TEXTURE_2D);
 		
-		// Marker
-		if (mposSet && gluProject((GLdouble)mpos[0], (GLdouble)mpos[1], (GLdouble)mpos[2],
-								  model, proj, view, &x, &y, &z))
-		{
-			// Draw marker circle
-			glLineWidth(5.0f);
-			glColor4ub(240,16,0,196);
-			glBegin(GL_LINE_LOOP);
-			const float r = 25.0f;
-			for (int i = 0; i < 20; ++i)
-			{
-				const float a = (float)i / 20.0f * M_PI*2;
-				const float fx = (float)x + cosf(a)*r;
-				const float fy = (float)y + sinf(a)*r;
-				glVertex2f(fx,fy);
-			}
-			glEnd();
-			glLineWidth(1.0f);
-		}
 		
 		imguiEndFrame();
 		imguiRender(&drawText);

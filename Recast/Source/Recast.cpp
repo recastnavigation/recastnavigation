@@ -60,11 +60,17 @@ void rcCalcGridSize(const float* bmin, const float* bmax, float cs, int* w, int*
 	*h = (int)((bmax[2] - bmin[2])/cs+0.5f);
 }
 
-bool rcCreateHeightfield(rcHeightfield& hf, int width, int height)
+bool rcCreateHeightfield(rcHeightfield& hf, int width, int height,
+						 const float* bmin, const float* bmax,
+						 float cs, float ch)
 {
 	hf.width = width;
 	hf.height = height;
 	hf.spans = new rcSpan*[hf.width*hf.height];
+	vcopy(hf.bmin, bmin);
+	vcopy(hf.bmax, bmax);
+	hf.cs = cs;
+	hf.ch = ch;
 	if (!hf.spans)
 		return false;
 	memset(hf.spans, 0, sizeof(rcSpan*)*hf.width*hf.height);
@@ -138,9 +144,7 @@ inline void setCon(rcCompactSpan& s, int dir, int i)
 	s.con |= (i&0xf) << (dir*4);
 }
 
-bool rcBuildCompactHeightfield(const float* bmin, const float* bmax,
-							   const float cs, const float ch,
-							   const int walkableHeight, const int walkableClimb,
+bool rcBuildCompactHeightfield(const int walkableHeight, const int walkableClimb,
 							   unsigned char flags, rcHeightfield& hf,
 							   rcCompactHeightfield& chf)
 {
@@ -157,11 +161,11 @@ bool rcBuildCompactHeightfield(const float* bmin, const float* bmax,
 	chf.walkableHeight = walkableHeight;
 	chf.walkableClimb = walkableClimb;
 	chf.maxRegions = 0;
-	vcopy(chf.bmin, bmin);
-	vcopy(chf.bmax, bmax);
-	chf.bmax[1] += walkableHeight*ch;
-	chf.cs = cs;
-	chf.ch = ch;
+	vcopy(chf.bmin, hf.bmin);
+	vcopy(chf.bmax, hf.bmax);
+	chf.bmax[1] += walkableHeight*hf.ch;
+	chf.cs = hf.cs;
+	chf.ch = hf.ch;
 	chf.cells = new rcCompactCell[w*h];
 	if (!chf.cells)
 	{
@@ -251,8 +255,6 @@ bool rcBuildCompactHeightfield(const float* bmin, const float* bmax,
 	
 	rcTimeVal endTime = rcGetPerformanceTimer();
 	
-//	if (rcGetLog())
-//		rcGetLog()->log(RC_LOG_PROGRESS, "Build compact: %.3f ms", rcGetDeltaTimeUsec(startTime, endTime)/1000.0f);
 	if (rcGetBuildTimes())
 		rcGetBuildTimes()->buildCompact += rcGetDeltaTimeUsec(startTime, endTime);
 	
@@ -283,72 +285,3 @@ static int getCompactHeightFieldMemoryusage(const rcCompactHeightfield& chf)
 	return size;
 }
 
-bool rcBuildNavMesh(const rcConfig& cfg,
-					const float* verts, const int nverts,
-					const int* tris, const unsigned char* tflags, const int ntris,
-					rcHeightfield& solid,
-					rcCompactHeightfield& chf,
-					rcContourSet& cset,
-					rcPolyMesh& polyMesh)
-{
-	if (!rcCreateHeightfield(solid, cfg.width, cfg.height))
-	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "rcBuildNavMesh: Could not create solid heightfield.");
-		return false;
-	}
-	
-	rcRasterizeTriangles(cfg.bmin, cfg.bmax, cfg.cs, cfg.ch,
-						 verts, nverts, tris, tflags, ntris, solid);
-	
-	rcFilterWalkableBorderSpans(cfg.walkableHeight, cfg.walkableClimb, solid);
-	
-	rcFilterWalkableLowHeightSpans(cfg.walkableHeight, solid);
-
-/*	if (!rcMarkReachableSpans(cfg.walkableHeight, cfg.walkableClimb, solid))
-	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "rcBuildNavMesh: Could not build navigable heightfield.");
-		return false;
-	}*/
-	
-	if (!rcBuildCompactHeightfield(cfg.bmin, cfg.bmax, cfg.cs, cfg.ch,
-								   cfg.walkableHeight, cfg.walkableClimb,
-								   RC_WALKABLE/*|RC_REACHABLE*/, solid, chf))
-	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "rcBuildNavMesh: Could not build compact data.");
-		return false;
-	}
-
-	if (!rcBuildDistanceField(chf))
-	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "rcBuildNavMesh: Could not build distance fields.");
-		return false;
-	}
-	
-	if (!rcBuildRegions(chf, cfg.walkableRadius, cfg.borderSize, cfg.minRegionSize, cfg.mergeRegionSize))
-	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "rcBuildNavMesh: Could not build regions.");
-		return false;
-	}
-	
-	if (!rcBuildContours(chf, cfg.maxSimplificationError, cfg.maxEdgeLen, cset))
-	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "rcBuildNavMesh: Could not create contours.");
-		return false;
-	}
-	
-	if (!rcBuildPolyMesh(cset, cfg.bmin, cfg.bmax, cfg.cs, cfg.ch,
-						 cfg.maxVertsPerPoly, polyMesh))
-	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "rcBuildNavMesh: Could not triangulate contours.");
-		return false;
-	}
-
-	return true;
-}

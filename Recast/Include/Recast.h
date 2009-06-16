@@ -67,6 +67,8 @@ struct rcHeightfield
 		}
 	}
 	int width, height;
+	float bmin[3], bmax[3];
+	float cs, ch;
 	rcSpan** spans;
 	rcSpanPool* pools;
 	rcSpan* freelist;
@@ -268,7 +270,12 @@ void rcCalcGridSize(const float* bmin, const float* bmax, float cs, int* w, int*
 //	hf - (in/out) heightfield to initialize.
 //	width - (in) width of the heightfield.
 //	height - (in) height of the heightfield.
-bool rcCreateHeightfield(rcHeightfield& hf, int width, int height);
+//	bmin, bmax - (in) bounding box of the heightfield
+//	cs - (in) grid cell size
+//	ch - (in) grid cell height
+bool rcCreateHeightfield(rcHeightfield& hf, int width, int height,
+						 const float* bmin, const float* bmax,
+						 float cs, float ch);
 
 // Sets the WALKABLE flag for every triangle whose slope is below
 // the maximun walkable slope angle.
@@ -286,9 +293,6 @@ void rcMarkWalkableTriangles(const float walkableSlopeAngle,
 
 // Rasterizes the triangles into heightfield spans.
 // Params:
-//	bmin, bmax - (in) bounding box of the heightfield
-//	cs - (in) grid cell size
-//	ch - (in) grid cell height
 //	verts - (in) array of vertices
 //	nv - (in) vertex count
 //	tris - (in) array of triangle vertex indices
@@ -296,15 +300,20 @@ void rcMarkWalkableTriangles(const float walkableSlopeAngle,
 //	flags - (in) array of triangle flags (uses WALKABLE)
 //	nt - (in) triangle count
 //	solid - (in) heighfield where the triangles are rasterized
-void rcRasterizeTriangles(const float* bmin, const float* bmax,
-						  float cs, float ch,
-						  const float* verts, int nv,
+void rcRasterizeTriangles(const float* verts, int nv,
 						  const int* tris, const unsigned char* flags, int nt,
 						  rcHeightfield& solid);
 
-void rcFilterWalkableBorderSpans(const int walkableHeight,
-								 const int walkableClimb,
-								 rcHeightfield& solid);
+// Removes WALKABLE flag from all spans that are at ledges. This filtering
+// removes possible overestimation of the conservative voxelization so that
+// the resulting mesh will not have regions hanging in air over ledges.
+// Params:
+//	walkableHeight - (in) minimum height where the agent can still walk
+//	walkableClimb - (in) maximum height between grid cells the agent can climb
+//	solid - (in/out) heightfield describing the solid space
+void rcFilterLedgeSpans(const int walkableHeight,
+						const int walkableClimb,
+						rcHeightfield& solid);
 
 // Removes WALKABLE flag from all spans which have smaller than
 // 'walkableHeight' clearane above them.
@@ -326,17 +335,12 @@ bool rcMarkReachableSpans(const int walkableHeight,
 
 // Builds compact representation of the heightfield.
 // Params:
-//	bmin, bmax - (in) bounding box of the heightfield
-//	cs - (in) grid cell size
-//	ch - (in) grid cell height
 //	walkableHeight - (in) minimum height where the agent can still walk
 //	walkableClimb - (in) maximum height between grid cells the agent can climb
 //	hf - (in) heightfield to be compacted
 //	chf - (out) compact heightfield representing the open space.
 // Returns false if operation ran out of memory.
-bool rcBuildCompactHeightfield(const float* bmin, const float* bmax,
-							   const float cs, const float ch,
-							   const int walkableHeight, const int walkableClimb,
+bool rcBuildCompactHeightfield(const int walkableHeight, const int walkableClimb,
 							   unsigned char flags,
 							   rcHeightfield& hf,
 							   rcCompactHeightfield& chf);
@@ -362,7 +366,8 @@ bool rcBuildDistanceField(rcCompactHeightfield& chf);
 //	maxMergeRegionSize - (in) the largest allowed regions size which can be merged.
 // Returns false if operation ran out of memory.
 bool rcBuildRegions(rcCompactHeightfield& chf,
-					int walkableRadius, int borderSize, int minRegionSize, int mergeRegionSize);
+					int walkableRadius, int borderSize,
+					int minRegionSize, int mergeRegionSize);
 
 // Builds simplified contours from the regions outlines.
 // Params:
@@ -380,7 +385,7 @@ bool rcBuildContours(rcCompactHeightfield& chf,
 //  cseta - (in) contour set A.
 //  csetb - (in) contour set B.
 //	walkableHeight - (in) minimum height where the agent can still walk
-//  edgex, edgey - (in) defines the planes where the edges can be merged
+//  edgex, edgez - (in) defines the planes where the edges can be merged
 //	orig - (in) origin of the contour set A.
 //	cs - (in) grid cell size
 //	ch - (in) grid cell height
@@ -405,14 +410,6 @@ bool rcBuildPolyMesh(rcContourSet& cset,
 					 const float* bmin, const float* bmax,
 					 const float cs, const float ch, int nvp,
 					 rcPolyMesh& mesh);
-
-bool rcBuildNavMesh(const rcConfig& cfg,
-					const float* verts, const int nverts,
-					const int* tris, const unsigned char* tflags, const int ntris,
-					rcHeightfield& solid,
-					rcCompactHeightfield& chf,
-					rcContourSet& cset,
-					rcPolyMesh& polyMesh);
 
 
 #endif // RECAST_H

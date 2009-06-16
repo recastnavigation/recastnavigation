@@ -24,20 +24,17 @@
 #include "MeshLoaderObj.h"
 #include "Recast.h"
 
-void rcDebugDrawMesh(const rcMeshLoaderObj& mesh, const unsigned char* flags, const float miny, const float maxy)
+void rcDebugDrawMesh(const rcMeshLoaderObj& mesh, const unsigned char* flags)
 {
 	int nt = mesh.getTriCount();
 	const float* verts = mesh.getVerts();
 	const float* normals = mesh.getNormals();
 	const int* tris = mesh.getTris();
 	
-	const float s = 0.5f / (maxy - miny); 
-	
 	glBegin(GL_TRIANGLES);
 	for (int i = 0; i < nt*3; i += 3)
 	{
 		float a = (2+normals[i+0]+normals[i+1])/4;
-		a *= 0.5f + (verts[tris[i]*3+1]-miny)*s;
 		if (flags && !flags[i/3])
 			glColor3f(a,a*0.3f,a*0.1f);
 		else
@@ -49,7 +46,7 @@ void rcDebugDrawMesh(const rcMeshLoaderObj& mesh, const unsigned char* flags, co
 	glEnd();
 }
 
-void rcDebugDrawMeshSlope(const rcMeshLoaderObj& mesh, const float walkableSlopeAngle, const float miny, const float maxy)
+void rcDebugDrawMeshSlope(const rcMeshLoaderObj& mesh, const float walkableSlopeAngle)
 {
 	const float walkableThr = cosf(walkableSlopeAngle/180.0f*(float)M_PI);
 	
@@ -58,14 +55,11 @@ void rcDebugDrawMeshSlope(const rcMeshLoaderObj& mesh, const float walkableSlope
 	const float* normals = mesh.getNormals();
 	const int* tris = mesh.getTris();
 
-	const float s = 0.5f / (maxy - miny); 
-
 	glBegin(GL_TRIANGLES);
 	for (int i = 0; i < nt*3; i += 3)
 	{
 		const float* norm = &normals[i];
 		float a = (2+norm[0]+norm[1])/4;
-		a *= 0.5f+(verts[tris[i]*3+1]-miny)*s;
 		if (norm[1] > walkableThr)
 			glColor3f(a,a,a);
 		else
@@ -155,41 +149,6 @@ void drawBox(float minx, float miny, float minz, float maxx, float maxy, float m
 	}
 }
 
-
-void drawBox2(float minx, float miny, float minz, float maxx, float maxy, float maxz)
-{
-	float verts[8*3] =
-	{
-		minx, miny, minz,
-		maxx, miny, minz,
-		maxx, miny, maxz,
-		minx, miny, maxz,
-		minx, maxy, minz,
-		maxx, maxy, minz,
-		maxx, maxy, maxz,
-		minx, maxy, maxz,
-	};
-	static const unsigned char inds[5*4] =
-	{
-		7, 6, 5, 4,
-//		0, 1, 2, 3,
-		1, 5, 6, 2,
-		3, 7, 4, 0,
-		2, 6, 7, 3,
-		0, 4, 5, 1,
-	};
-	
-	const unsigned char* in = inds;
-	for (int i = 0; i < 5; ++i)
-	{
-		glVertex3fv(&verts[*in*3]); in++;
-		glVertex3fv(&verts[*in*3]); in++;
-		glVertex3fv(&verts[*in*3]); in++;
-		glVertex3fv(&verts[*in*3]); in++;
-	}
-}
-
-
 void rcDebugDrawCylinderWire(float minx, float miny, float minz, float maxx, float maxy, float maxz, const float* col)
 {
 	static const int NUM_SEG = 16;
@@ -239,10 +198,13 @@ void rcDebugDrawBox(float minx, float miny, float minz, float maxx, float maxy, 
 }
 
 
-void rcDebugDrawHeightfieldSolid(const rcHeightfield& hf,
-								 const float* orig, float cs, float ch)
+void rcDebugDrawHeightfieldSolid(const rcHeightfield& hf)
 {
 	static const float col0[4] = { 1,1,1,1 };
+	
+	const float* orig = hf.bmin;
+	const float cs = hf.cs;
+	const float ch = hf.ch;
 	
 	const int w = hf.width;
 	const int h = hf.height;
@@ -266,11 +228,14 @@ void rcDebugDrawHeightfieldSolid(const rcHeightfield& hf,
 	glEnd();
 }
 
-void rcDebugDrawHeightfieldWalkable(const rcHeightfield& hf,
-									const float* orig, float cs, float ch)
+void rcDebugDrawHeightfieldWalkable(const rcHeightfield& hf)
 {
 	static const float col0[4] = { 1,1,1,1 };
 	static const float col1[4] = { 0.25f,0.44f,0.5f,1 };
+	
+	const float* orig = hf.bmin;
+	const float cs = hf.cs;
+	const float ch = hf.ch;
 	
 	const int w = hf.width;
 	const int h = hf.height;
@@ -315,11 +280,10 @@ void rcDebugDrawCompactHeightfieldSolid(const rcCompactHeightfield& chf)
 			{
 				const rcCompactSpan& s = chf.spans[i];
 				const float fy = chf.bmin[1] + (s.y+1)*ch;
-				drawBox2(fx, fy-ch*2, fz, fx+cs, fy, fz+cs);
-/*				glVertex3f(fx, fy, fz);
+				glVertex3f(fx, fy, fz);
 				glVertex3f(fx, fy, fz+cs);
 				glVertex3f(fx+cs, fy, fz+cs);
-				glVertex3f(fx+cs, fy, fz);*/
+				glVertex3f(fx+cs, fy, fz);
 			}
 		}
 	}
@@ -352,15 +316,13 @@ void rcDebugDrawCompactHeightfieldRegions(const rcCompactHeightfield& chf)
 				}
 				else
 				{
-//					glColor4ub(0,0,0,128);
-					glColor3ub(128,128,128);
+					glColor4ub(0,0,0,128);
 				}
 				const float fy = chf.bmin[1] + (s.y+1)*ch;
-				drawBox2(fx, fy-ch*2, fz, fx+cs, fy, fz+cs);
-/*				glVertex3f(fx, fy, fz);
+				glVertex3f(fx, fy, fz);
 				glVertex3f(fx, fy, fz+cs);
 				glVertex3f(fx+cs, fy, fz+cs);
-				glVertex3f(fx+cs, fy, fz);*/
+				glVertex3f(fx+cs, fy, fz);
 			}
 		}
 	}
@@ -392,11 +354,10 @@ void rcDebugDrawCompactHeightfieldDistance(const rcCompactHeightfield& chf)
 				const float fy = chf.bmin[1] + (s.y+1)*ch;
 				float cd = (float)s.dist * dscale;
 				glColor3f(cd, cd, cd);
-				drawBox2(fx, fy-ch*2, fz, fx+cs, fy, fz+cs);
-/*				glVertex3f(fx, fy, fz);
+				glVertex3f(fx, fy, fz);
 				glVertex3f(fx, fy, fz+cs);
 				glVertex3f(fx+cs, fy, fz+cs);
-				glVertex3f(fx+cs, fy, fz);*/
+				glVertex3f(fx+cs, fy, fz);
 			}
 		}
 	}

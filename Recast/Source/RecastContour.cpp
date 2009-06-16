@@ -733,8 +733,8 @@ static bool conformVertex(rcContourSet* cset, const int* v,
 			const int* vj = &c->verts[j*4];
 			const int* vk = &c->verts[k*4];
 
-			const int miny = rcMin(vj[1], vk[1]); // - (walkableClimb-1);
-			const int maxy = rcMax(vj[1], vk[1]); // + (walkableClimb-1);
+			const int miny = rcMin(vj[1], vk[1]);
+			const int maxy = rcMax(vj[1], vk[1]);
 
 			// Is edge within y-range.
 			if ((miny > pmaxy || maxy < pminy) &&
@@ -783,7 +783,9 @@ bool rcFixupAdjacentContours(rcContourSet* cseta, rcContourSet* csetb,
 			const int* pv = &c.verts[((j+c.nverts-1)%c.nverts)*4];
 			const int* nv = &c.verts[((j+1)%c.nverts)*4];
 
-//			if (v[0] == edgex || v[2] == edgez)
+			// If the vertex is at the tile edge, make sure it also exists in
+			// the neighbour contour set.
+			if (v[0] == edgex || v[2] == edgez)
 			{				
 				const int pminy = rcMin(v[1], pv[1]);
 				const int pmaxy = rcMax(v[1], pv[1]);
@@ -807,7 +809,7 @@ bool rcFixupAdjacentContours(rcContourSet* cseta, rcContourSet* csetb,
 			
 			// If the vertex is at the tile edge, make sure it also exists in
 			// the neighbour contour set.
-//			if (v[0] == edgex || v[2] == edgez)
+			if (v[0] == edgex || v[2] == edgez)
 			{
 				const int pminy = rcMin(v[1], pv[1]);
 				const int pmaxy = rcMax(v[1], pv[1]);
