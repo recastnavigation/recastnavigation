@@ -177,11 +177,23 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\Source\ChunkyTriMesh.cpp"
+				RelativePath="..\..\Source\Builder.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Source\demo.cpp"
+				RelativePath="..\..\Source\BuilderStatMesh.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\BuilderStatMeshSimple.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\BuilderStatMeshTiling.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\ChunkyTriMesh.cpp"
 				>
 			</File>
 			<File
@@ -202,6 +214,10 @@
 			</File>
 			<File
 				RelativePath="..\..\Source\imgui.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\main.cpp"
 				>
 			</File>
 			<File
@@ -250,6 +266,22 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath="..\..\Include\Builder.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Include\BuilderStatMesh.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Include\BuilderStatMeshSimple.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Include\BuilderStatMeshTiling.h"
+				>
+			</File>
 			<File
 				RelativePath="..\..\Include\ChunkyTriMesh.h"
 				>

@@ -18,6 +18,10 @@
 #include "BuilderStatMeshSimple.h"
 #include "BuilderStatMeshTiling.h"
 
+#ifdef WIN32
+#	define snprintf _snprintf
+#endif
+
 GLFont g_font;
 
 void drawText(int x, int y, int dir, const char* text, unsigned int col)
@@ -437,7 +441,7 @@ int main(int argc, char *argv[])
 		
 		mouseOverMenu = false;
 		
-		int propDiv = showDebugMode ? height*0.6f : height;
+		int propDiv = showDebugMode ? (int)(height*0.6f) : height;
 		
 		if (imguiBeginScrollArea(GENID, "Properties",
 								 width-250-10, 10+height-propDiv, 250, propDiv-20, &propScroll))
