@@ -24,15 +24,12 @@
 #include "MeshLoaderObj.h"
 #include "Recast.h"
 
-void rcDebugDrawMesh(const rcMeshLoaderObj& mesh, const unsigned char* flags)
-{
-	int nt = mesh.getTriCount();
-	const float* verts = mesh.getVerts();
-	const float* normals = mesh.getNormals();
-	const int* tris = mesh.getTris();
-	
+void rcDebugDrawMesh(const float* verts, int nverts,
+					 const int* tris, const float* normals, int ntris,
+					 const unsigned char* flags)
+{	
 	glBegin(GL_TRIANGLES);
-	for (int i = 0; i < nt*3; i += 3)
+	for (int i = 0; i < ntris*3; i += 3)
 	{
 		float a = (2+normals[i+0]+normals[i+1])/4;
 		if (flags && !flags[i/3])
@@ -46,17 +43,14 @@ void rcDebugDrawMesh(const rcMeshLoaderObj& mesh, const unsigned char* flags)
 	glEnd();
 }
 
-void rcDebugDrawMeshSlope(const rcMeshLoaderObj& mesh, const float walkableSlopeAngle)
+void rcDebugDrawMeshSlope(const float* verts, int nverts,
+						  const int* tris, const float* normals, int ntris,
+						  const float walkableSlopeAngle)
 {
 	const float walkableThr = cosf(walkableSlopeAngle/180.0f*(float)M_PI);
 	
-	const int nt = mesh.getTriCount();
-	const float* verts = mesh.getVerts();
-	const float* normals = mesh.getNormals();
-	const int* tris = mesh.getTris();
-
 	glBegin(GL_TRIANGLES);
-	for (int i = 0; i < nt*3; i += 3)
+	for (int i = 0; i < ntris*3; i += 3)
 	{
 		const float* norm = &normals[i];
 		float a = (2+norm[0]+norm[1])/4;

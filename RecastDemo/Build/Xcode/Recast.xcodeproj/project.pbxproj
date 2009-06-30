@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		1DDD58160DA1D0A300B32029 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1DDD58140DA1D0A300B32029 /* MainMenu.xib */; };
-		6B137C6F0F7FCBBB00459200 /* demo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B137C6A0F7FCBBB00459200 /* demo.cpp */; };
 		6B137C700F7FCBBB00459200 /* glfont.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B137C6B0F7FCBBB00459200 /* glfont.cpp */; };
 		6B137C710F7FCBBB00459200 /* imgui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B137C6C0F7FCBBB00459200 /* imgui.cpp */; };
 		6B137C720F7FCBBB00459200 /* MeshLoaderObj.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B137C6D0F7FCBBB00459200 /* MeshLoaderObj.cpp */; };
@@ -22,6 +21,11 @@
 		6B137C910F7FCC1100459200 /* RecastRasterization.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B137C880F7FCC1100459200 /* RecastRasterization.cpp */; };
 		6B137C920F7FCC1100459200 /* RecastRegion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B137C890F7FCC1100459200 /* RecastRegion.cpp */; };
 		6B137C930F7FCC1100459200 /* RecastTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B137C8A0F7FCC1100459200 /* RecastTimer.cpp */; };
+		6B25B6190FFA62BE004F1BC4 /* Builder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B25B6140FFA62BE004F1BC4 /* Builder.cpp */; };
+		6B25B61A0FFA62BE004F1BC4 /* BuilderStatMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B25B6150FFA62BE004F1BC4 /* BuilderStatMesh.cpp */; };
+		6B25B61B0FFA62BE004F1BC4 /* BuilderStatMeshSimple.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B25B6160FFA62BE004F1BC4 /* BuilderStatMeshSimple.cpp */; };
+		6B25B61C0FFA62BE004F1BC4 /* BuilderStatMeshTiling.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B25B6170FFA62BE004F1BC4 /* BuilderStatMeshTiling.cpp */; };
+		6B25B61D0FFA62BE004F1BC4 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B25B6180FFA62BE004F1BC4 /* main.cpp */; };
 		6B8632DA0F78122C00E2684A /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6B8632D90F78122C00E2684A /* SDL.framework */; };
 		6B8632DC0F78123E00E2684A /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6B8632DB0F78123E00E2684A /* OpenGL.framework */; };
 		6BB788170FC0472B003C24DB /* ChunkyTriMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BB788160FC0472B003C24DB /* ChunkyTriMesh.cpp */; };
@@ -40,7 +44,6 @@
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		32CA4F630368D1EE00C91783 /* Recast_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Recast_Prefix.pch; sourceTree = "<group>"; };
-		6B137C6A0F7FCBBB00459200 /* demo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = demo.cpp; path = ../../Source/demo.cpp; sourceTree = SOURCE_ROOT; };
 		6B137C6B0F7FCBBB00459200 /* glfont.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = glfont.cpp; path = ../../Source/glfont.cpp; sourceTree = SOURCE_ROOT; };
 		6B137C6C0F7FCBBB00459200 /* imgui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = imgui.cpp; path = ../../Source/imgui.cpp; sourceTree = SOURCE_ROOT; };
 		6B137C6D0F7FCBBB00459200 /* MeshLoaderObj.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MeshLoaderObj.cpp; path = ../../Source/MeshLoaderObj.cpp; sourceTree = SOURCE_ROOT; };
@@ -62,6 +65,15 @@
 		6B137C880F7FCC1100459200 /* RecastRasterization.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RecastRasterization.cpp; path = ../../../Recast/Source/RecastRasterization.cpp; sourceTree = SOURCE_ROOT; };
 		6B137C890F7FCC1100459200 /* RecastRegion.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RecastRegion.cpp; path = ../../../Recast/Source/RecastRegion.cpp; sourceTree = SOURCE_ROOT; };
 		6B137C8A0F7FCC1100459200 /* RecastTimer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RecastTimer.cpp; path = ../../../Recast/Source/RecastTimer.cpp; sourceTree = SOURCE_ROOT; };
+		6B25B6100FFA62AD004F1BC4 /* Builder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Builder.h; path = ../../Include/Builder.h; sourceTree = SOURCE_ROOT; };
+		6B25B6110FFA62AD004F1BC4 /* BuilderStatMesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BuilderStatMesh.h; path = ../../Include/BuilderStatMesh.h; sourceTree = SOURCE_ROOT; };
+		6B25B6120FFA62AD004F1BC4 /* BuilderStatMeshSimple.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BuilderStatMeshSimple.h; path = ../../Include/BuilderStatMeshSimple.h; sourceTree = SOURCE_ROOT; };
+		6B25B6130FFA62AD004F1BC4 /* BuilderStatMeshTiling.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BuilderStatMeshTiling.h; path = ../../Include/BuilderStatMeshTiling.h; sourceTree = SOURCE_ROOT; };
+		6B25B6140FFA62BE004F1BC4 /* Builder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Builder.cpp; path = ../../Source/Builder.cpp; sourceTree = SOURCE_ROOT; };
+		6B25B6150FFA62BE004F1BC4 /* BuilderStatMesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BuilderStatMesh.cpp; path = ../../Source/BuilderStatMesh.cpp; sourceTree = SOURCE_ROOT; };
+		6B25B6160FFA62BE004F1BC4 /* BuilderStatMeshSimple.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BuilderStatMeshSimple.cpp; path = ../../Source/BuilderStatMeshSimple.cpp; sourceTree = SOURCE_ROOT; };
+		6B25B6170FFA62BE004F1BC4 /* BuilderStatMeshTiling.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BuilderStatMeshTiling.cpp; path = ../../Source/BuilderStatMeshTiling.cpp; sourceTree = SOURCE_ROOT; };
+		6B25B6180FFA62BE004F1BC4 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../../Source/main.cpp; sourceTree = SOURCE_ROOT; };
 		6B8632D90F78122C00E2684A /* SDL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL.framework; path = Library/Frameworks/SDL.framework; sourceTree = SDKROOT; };
 		6B8632DB0F78123E00E2684A /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		6BB788160FC0472B003C24DB /* ChunkyTriMesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ChunkyTriMesh.cpp; path = ../../Source/ChunkyTriMesh.cpp; sourceTree = SOURCE_ROOT; };
@@ -93,6 +105,15 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				6B25B6140FFA62BE004F1BC4 /* Builder.cpp */,
+				6B25B6150FFA62BE004F1BC4 /* BuilderStatMesh.cpp */,
+				6B25B6160FFA62BE004F1BC4 /* BuilderStatMeshSimple.cpp */,
+				6B25B6170FFA62BE004F1BC4 /* BuilderStatMeshTiling.cpp */,
+				6B25B6180FFA62BE004F1BC4 /* main.cpp */,
+				6B25B6100FFA62AD004F1BC4 /* Builder.h */,
+				6B25B6110FFA62AD004F1BC4 /* BuilderStatMesh.h */,
+				6B25B6120FFA62AD004F1BC4 /* BuilderStatMeshSimple.h */,
+				6B25B6130FFA62AD004F1BC4 /* BuilderStatMeshTiling.h */,
 				6BDD9E030F91110C00904EEF /* Detour */,
 				6B137C7D0F7FCBE800459200 /* Recast */,
 				6B137C790F7FCBE400459200 /* glfont.h */,
@@ -103,7 +124,6 @@
 				6B137C6D0F7FCBBB00459200 /* MeshLoaderObj.cpp */,
 				6BB788160FC0472B003C24DB /* ChunkyTriMesh.cpp */,
 				6BB788180FC04753003C24DB /* ChunkyTriMesh.h */,
-				6B137C6A0F7FCBBB00459200 /* demo.cpp */,
 				6B137C7C0F7FCBE400459200 /* SDLMain.h */,
 				6B137C6E0F7FCBBB00459200 /* SDLMain.m */,
 			);
@@ -265,7 +285,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6B137C6F0F7FCBBB00459200 /* demo.cpp in Sources */,
 				6B137C700F7FCBBB00459200 /* glfont.cpp in Sources */,
 				6B137C710F7FCBBB00459200 /* imgui.cpp in Sources */,
 				6B137C720F7FCBBB00459200 /* MeshLoaderObj.cpp in Sources */,
@@ -283,6 +302,11 @@
 				6BDD9E0B0F91113800904EEF /* DetourStatNavMesh.cpp in Sources */,
 				6BDD9E0C0F91113800904EEF /* DetourStatNavMeshBuilder.cpp in Sources */,
 				6BB788170FC0472B003C24DB /* ChunkyTriMesh.cpp in Sources */,
+				6B25B6190FFA62BE004F1BC4 /* Builder.cpp in Sources */,
+				6B25B61A0FFA62BE004F1BC4 /* BuilderStatMesh.cpp in Sources */,
+				6B25B61B0FFA62BE004F1BC4 /* BuilderStatMeshSimple.cpp in Sources */,
+				6B25B61C0FFA62BE004F1BC4 /* BuilderStatMeshTiling.cpp in Sources */,
+				6B25B61D0FFA62BE004F1BC4 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

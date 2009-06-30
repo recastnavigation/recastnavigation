@@ -37,8 +37,8 @@ inline void intToCol(int i, float* col)
 void rcDebugDrawHeightfieldSolid(const struct rcHeightfield& hf);
 void rcDebugDrawHeightfieldWalkable(const struct rcHeightfield& hf);
 
-void rcDebugDrawMesh(const class rcMeshLoaderObj& mesh, const unsigned char* flags);
-void rcDebugDrawMeshSlope(const class rcMeshLoaderObj& mesh, const float walkableSlopeAngle);
+void rcDebugDrawMesh(const float* verts, int nverts, const int* tris, const float* normals, int ntris, const unsigned char* flags);
+void rcDebugDrawMeshSlope(const float* verts, int nverts, const int* tris, const float* normals, int ntris, const float walkableSlopeAngle);
 
 void rcDebugDrawCompactHeightfieldSolid(const struct rcCompactHeightfield& chf);
 void rcDebugDrawCompactHeightfieldRegions(const struct rcCompactHeightfield& chf);

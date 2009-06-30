@@ -425,7 +425,8 @@ void addGfxCmdText(int x, int y, int dir, const char* text, unsigned int color)
 struct GuiState
 {
 	GuiState() :
-		mbutPressed(false), mbutReleased(false), mbut(false), mx(-1), my(-1),
+		leftPressed(false), leftReleased(false), left(false), mx(-1), my(-1),
+		upPressed(false), downPressed(false), up(false), down(false),
 		isHot(false), isActive(false), wentActive(false),
 		dragX(0), dragY(0), dragOrig(0),
 		widgetX(0), widgetY(0), widgetW(100),
@@ -433,8 +434,9 @@ struct GuiState
 	{
 	}
 
-	bool mbutPressed, mbutReleased;
-	bool mbut;
+	bool left, up, down;
+	bool upPressed, downPressed;
+	bool leftPressed, leftReleased;
 	int mx,my;
 	unsigned int active;
 	unsigned int hot;
@@ -471,8 +473,10 @@ inline bool inRect(int x, int y, int w, int h)
 
 void clearInput()
 {
-	g_state.mbutPressed = false;
-	g_state.mbutReleased = false;
+	g_state.leftPressed = false;
+	g_state.leftReleased = false;
+	g_state.upPressed = false;
+	g_state.downPressed = false;
 }
 
 void clearActive(void)
@@ -502,7 +506,7 @@ bool buttonLogic(unsigned int id, bool over)
 	{
 		if (over)
 			setHot(id);
-		if (isHot(id) && g_state.mbutPressed)
+		if (isHot(id) && g_state.leftPressed)
 			setActive(id);
 	}
 
@@ -512,7 +516,7 @@ bool buttonLogic(unsigned int id, bool over)
 		g_state.isActive = true;
 		if (over)
 			setHot(id);
-		if (g_state.mbutReleased)
+		if (g_state.leftReleased)
 		{
 			if (isHot(id))
 				res = true;
@@ -526,24 +530,27 @@ bool buttonLogic(unsigned int id, bool over)
 	return res;
 }
 
-static void updateInput()
+static void updateInput(int mx, int my, unsigned char mbut)
 {
-	int mx, my;
-	Uint8 state = SDL_GetMouseState(&mx, &my);
-	bool mbut = (state & SDL_BUTTON_LMASK) != 0;
-	SDL_Surface* screen = SDL_GetVideoSurface();
-	my = screen->h-1 - my;
+	bool left = (mbut & IMGUI_MBUT_LEFT) != 0;
+	bool up = (mbut & IMGUI_MBUT_UP) != 0;
+	bool down = (mbut & IMGUI_MBUT_DOWN) != 0;
 
 	g_state.mx = mx;
 	g_state.my = my;
-	g_state.mbutPressed = !g_state.mbut && mbut;
-	g_state.mbutReleased = g_state.mbut && !mbut;
-	g_state.mbut = mbut;
+	g_state.leftPressed = !g_state.left && left;
+	g_state.leftReleased = g_state.left && !left;
+	g_state.left = left;
+
+	g_state.upPressed = !g_state.up && up;
+	g_state.downPressed = !g_state.down && down;
+	g_state.up = up;
+	g_state.down = down;
 }
 
-void imguiBeginFrame()
+void imguiBeginFrame(int mx, int my, unsigned char mbut)
 {
-	updateInput();
+	updateInput(mx,my,mbut);
 
 	g_state.hot = g_state.hotToBe;
 	g_state.hotToBe = 0;
@@ -588,7 +595,8 @@ static int g_scrollAreaTop = 0;
 static int* g_scrollVal = 0;
 static int g_focusTop = 0;
 static int g_focusBottom = 0;
-static unsigned int g_scrollId = 0; 
+static unsigned int g_scrollId = 0;
+static bool g_insideScrollArea = false;
 
 bool imguiBeginScrollArea(unsigned int id, const char* name, int x, int y, int w, int h, int* scroll)
 {
@@ -613,7 +621,9 @@ bool imguiBeginScrollArea(unsigned int id, const char* name, int x, int y, int w
 
 	addGfxCmdScissor(x+SCROLL_AREA_PADDING, y+SCROLL_AREA_PADDING, w-SCROLL_AREA_PADDING*4, h-AREA_HEADER-SCROLL_AREA_PADDING);
 
-	return inRect(x, y, w, h);
+	g_insideScrollArea = inRect(x, y, w, h);
+	
+	return g_insideScrollArea;
 }
 
 void imguiEndScrollArea()
@@ -673,6 +683,22 @@ void imguiEndScrollArea()
 			addGfxCmdRoundedRect(hx, hy, hw, hh, w/2-1, RGBA(255,196,0,196));
 		else
 			addGfxCmdRoundedRect(hx, hy, hw, hh, w/2-1, isHot(hid) ? RGBA(255,196,0,96) : RGBA(255,255,255,64));
+
+		// Handle mouse scrolling.
+		if (g_insideScrollArea) // && !anyActive())
+		{
+			if (g_state.upPressed)
+			{
+				*g_scrollVal -= 20;
+				if (*g_scrollVal < 0) *g_scrollVal = 0;
+			}
+			else if (g_state.downPressed)
+			{
+				*g_scrollVal += 20;
+				if (*g_scrollVal > (sh - h)) *g_scrollVal = (sh - h);
+			}
+		}
+		
 	}
 }
 

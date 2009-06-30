@@ -19,10 +19,18 @@
 #ifndef IMGUI_H
 #define IMGUI_H
 
-#define GENID ((__LINE__) << 16)
-#define GENID1(x) ((__LINE__) << 16 | (x))
+#define GENID ((__LINE__ ^ (int)__FILE__) << 16)
+#define GENID1(x) ((__LINE__ ^ (int)__FILE__) << 16 | (x))
 
-void imguiBeginFrame();
+enum imguiMouseButton
+{
+	IMGUI_MBUT_LEFT = 0x01, 
+	IMGUI_MBUT_RIGHT = 0x02, 
+	IMGUI_MBUT_UP = 0x04, 
+	IMGUI_MBUT_DOWN = 0x08, 
+};
+
+void imguiBeginFrame(int mx, int my, unsigned char mbut);
 void imguiEndFrame();
 void imguiRender(void (*drawText)(int x, int y, int dir, const char* text, unsigned int col));
 
