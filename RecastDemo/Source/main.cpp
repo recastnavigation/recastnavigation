@@ -437,6 +437,12 @@ int main(int argc, char *argv[])
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 		
+		if (builder)
+		{
+			builder->handleRenderOverlay(&g_font, (double*)proj, (double*)model, (int*)view);
+			glDisable(GL_TEXTURE_2D);
+		}
+		
 		imguiBeginFrame(mx,my,mbut);
 		
 		mouseOverMenu = false;

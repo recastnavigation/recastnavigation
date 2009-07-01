@@ -4,6 +4,7 @@
 #include <string.h>
 #include "SDL.h"
 #include "SDL_Opengl.h"
+#include "glfont.h"
 #include "imgui.h"
 #include "Builder.h"
 #include "BuilderStatMesh.h"
@@ -261,6 +262,25 @@ void BuilderStatMesh::toolRender(int flags)
 	}
 	
 	glDepthMask(GL_TRUE);
+}
+
+void BuilderStatMesh::toolRenderOverlay(class GLFont* font, double* proj, double* model, int* view)
+{
+	GLdouble x, y, z;
+	
+	// Draw start and end point labels
+	if (m_sposSet && gluProject((GLdouble)m_spos[0], (GLdouble)m_spos[1], (GLdouble)m_spos[2],
+							  model, proj, view, &x, &y, &z))
+	{
+		const float len = font->getTextLength("Start");
+		font->drawText((float)x - len/2, (float)y-font->getLineHeight(), "Start", GLFont::RGBA(0,0,0,220));
+	}
+	if (m_eposSet && gluProject((GLdouble)m_epos[0], (GLdouble)m_epos[1], (GLdouble)m_epos[2],
+							  model, proj, view, &x, &y, &z))
+	{
+		const float len = font->getTextLength("End");
+		font->drawText((float)x-len/2, (float)y-font->getLineHeight(), "End", GLFont::RGBA(0,0,0,220));
+	}
 }
 
 void BuilderStatMesh::drawAgent(const float* pos, float r, float h, float c, const float* col)

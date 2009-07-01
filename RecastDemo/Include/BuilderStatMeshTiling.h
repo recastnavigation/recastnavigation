@@ -73,6 +73,7 @@ public:
 	virtual void handleDebugMode();
 	
 	virtual void handleRender();
+	virtual void handleRenderOverlay(class GLFont* font, double* proj, double* model, int* view);
 	virtual void handleMeshChanged(const float* verts, int nverts,
 								   const int* tris, const float* trinorms, int ntris,
 								   const float* bmin, const float* bmax);

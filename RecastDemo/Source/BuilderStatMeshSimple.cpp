@@ -5,6 +5,7 @@
 #include "SDL.h"
 #include "SDL_Opengl.h"
 #include "imgui.h"
+#include "glfont.h"
 #include "Builder.h"
 #include "BuilderStatMeshSimple.h"
 #include "Recast.h"
@@ -238,6 +239,11 @@ void BuilderStatMeshSimple::handleRender()
 	if (m_eposSet)
 		drawAgent(m_epos, m_agentRadius, m_agentHeight, m_agentMaxClimb, endCol);
 
+}
+
+void BuilderStatMeshSimple::handleRenderOverlay(class GLFont* font, double* proj, double* model, int* view)
+{
+	toolRenderOverlay(font, proj, model, view);
 }
 
 void BuilderStatMeshSimple::handleMeshChanged(const float* verts, int nverts,

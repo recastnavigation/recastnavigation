@@ -51,8 +51,10 @@ protected:
 	void toolReset();
 	void toolRecalc();
 	void toolRender(int flags);
+	void toolRenderOverlay(class GLFont* font, double* proj, double* model, int* view);
 	
 	void drawAgent(const float* pos, float r, float h, float c, const float* col);
+
 
 public:
 	BuilderStatMesh();

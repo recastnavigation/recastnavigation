@@ -44,6 +44,10 @@ void Builder::handleRender()
 	rcDebugDrawBoxWire(m_bmin[0],m_bmin[1],m_bmin[2], m_bmax[0],m_bmax[1],m_bmax[2], col);
 }
 
+void Builder::handleRenderOverlay(class GLFont* font, double* proj, double* model, int* view)
+{
+}
+
 void Builder::handleMeshChanged(const float* verts, int nverts,
 								const int* tris, const float* trinorms, int ntris,
 								const float* bmin, const float* bmax)
