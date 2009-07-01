@@ -53,5 +53,6 @@ void rcDebugDrawCylinderWire(float minx, float miny, float minz, float maxx, flo
 void rcDebugDrawBoxWire(float minx, float miny, float minz, float maxx, float maxy, float maxz, const float* col);
 void rcDebugDrawBox(float minx, float miny, float minz, float maxx, float maxy, float maxz,
 					const float* col1, const float* col2);
+void rcDrawArc(const float* p0, const float* p1);
 
 #endif // RECAST_DEBUGDRAW_H

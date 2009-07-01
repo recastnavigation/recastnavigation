@@ -105,11 +105,16 @@ void dtDebugDrawStatNavMeshBVTree(const dtStatNavMesh* mesh)
 
 void dtDebugDrawStatNavMesh(const dtStatNavMesh* mesh)
 {
-	glColor4ub(0,196,255,64);
 	glBegin(GL_TRIANGLES);
 	for (int i = 0; i < mesh->getPolyCount(); ++i)
 	{
 		const dtPoly* p = mesh->getPoly(i);
+		
+		if (mesh->isInOpenList(i+1))
+			glColor4ub(255,196,0,64);
+		else
+			glColor4ub(0,196,255,64);
+		
 		unsigned short vi[3];
 		for (int j = 2; j < (int)p->nv; ++j)
 		{

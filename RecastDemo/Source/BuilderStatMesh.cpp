@@ -159,9 +159,29 @@ void BuilderStatMesh::toolRecalc()
 			const float dx = m_epos[0] - m_spos[0];
 			const float dz = m_epos[2] - m_spos[2];
 			float dist = sqrtf(dx*dx + dz*dz);
-			m_npolys = m_navMesh->findPolysAround(m_startRef, m_spos, dist, m_polys, 0, 0, 0, MAX_POLYS);
+			m_npolys = m_navMesh->findPolysAround(m_startRef, m_spos, dist, m_polys, m_parent, 0, 0, MAX_POLYS);
 		}
 	}
+}
+
+static void getPolyCenter(dtStatNavMesh* navMesh, dtPolyRef ref, float* center)
+{
+	const dtPoly* p = navMesh->getPolyByRef(ref);
+	if (!p) return;
+	center[0] = 0;
+	center[1] = 0;
+	center[2] = 0;
+	for (int i = 0; i < (int)p->nv; ++i)
+	{
+		const float* v = navMesh->getVertex(p->v[i]);
+		center[0] += v[0];
+		center[1] += v[1];
+		center[2] += v[2];
+	}
+	const float s = 1.0f / p->nv;
+	center[0] *= s;
+	center[1] *= s;
+	center[2] *= s;
 }
 
 void BuilderStatMesh::toolRender(int flags)
@@ -249,8 +269,20 @@ void BuilderStatMesh::toolRender(int flags)
 		}
 		else if (m_toolMode == TOOLMODE_FIND_POLYS_AROUND)
 		{
+			glLineWidth(2.0f);
 			for (int i = 0; i < m_npolys; ++i)
+			{
 				dtDebugDrawStatNavMeshPoly(m_navMesh, m_polys[i], pathCol);
+				if (m_parent[i])
+				{
+					float p0[3], p1[3];
+					getPolyCenter(m_navMesh, m_polys[i], p0);
+					getPolyCenter(m_navMesh, m_parent[i], p1);
+					glColor4ub(0,0,0,128);
+					rcDrawArc(p0, p1);
+				}
+			}
+			glLineWidth(1.0f);
 			
 			const float dx = m_epos[0] - m_spos[0];
 			const float dz = m_epos[2] - m_spos[2];

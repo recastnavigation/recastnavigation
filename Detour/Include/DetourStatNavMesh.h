@@ -148,7 +148,7 @@ public:
 	// Returns: Number of results.
 	int	findPolysAround(dtPolyRef centerRef, const float* centerPos, float radius,
 						dtPolyRef* resultRef, dtPolyRef* resultParent,
-						unsigned short* resultCost, unsigned short* resultDepth,
+						float* resultCost, unsigned short* resultDepth,
 						const int maxResult);
 
 	// Returns closest point on navigation polygon.
@@ -158,9 +158,6 @@ public:
 	//	closest - (out) closest point.
 	// Returns: true if closest point found.
 	bool closestPointToPoly(dtPolyRef ref, const float* pos, float* closest) const;
-
-	// Returns cost between two polygons.
-	unsigned short getCost(dtPolyRef from, dtPolyRef to) const;
 
 	// Returns pointer to a polygon based on ref.
 	const dtPoly* getPolyByRef(dtPolyRef ref) const;
@@ -184,10 +181,15 @@ public:
 	
 private:
 
+	float getCost(dtPolyRef prev, dtPolyRef from, dtPolyRef to) const;
+	float getHeuristic(dtPolyRef from, dtPolyRef to) const;
+
+	bool getEdgeMidPoint(dtPolyRef from, dtPolyRef to, float* mid) const;
+	
 	// Copies the locations of vertices of a polygon to an array.
-	int getPolyVerts(dtPolyRef ref, float* verts);
+	int getPolyVerts(dtPolyRef ref, float* verts) const;
 	// Returns portal points between two polygons.
-	bool getPortalPoints(dtPolyRef from, dtPolyRef to, float* left, float* right);
+	bool getPortalPoints(dtPolyRef from, dtPolyRef to, float* left, float* right) const;
 
 	unsigned char* m_data;
 	int m_dataSize;

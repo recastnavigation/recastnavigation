@@ -413,6 +413,13 @@ static void drawArc(const float* p0, const float* p1)
 	}
 }
 
+void rcDrawArc(const float* p0, const float* p1)
+{
+	glBegin(GL_LINES);
+	drawArc(p0, p1);
+	glEnd();
+}
+
 void rcDebugDrawRegionConnections(const rcContourSet& cset, const float* orig, float cs, float ch, const float alpha)
 {
 	// Draw centers
@@ -435,8 +442,6 @@ void rcDebugDrawRegionConnections(const rcContourSet& cset, const float* orig, f
 			{
 				getContourCenter(cont2, orig, cs, ch, pos2);
 				drawArc(pos, pos2);
-//				glVertex3fv(pos);
-//				glVertex3fv(pos2);
 			}
 		}
 	}

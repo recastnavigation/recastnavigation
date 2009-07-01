@@ -326,8 +326,8 @@ struct dtNode
 		CLOSED = 0x02,
 	};
 	dtNode* parent;
-	unsigned short cost;
-	unsigned short total;
+	float cost;
+	float total;
 	unsigned short id;
 	unsigned short flags;
 };
@@ -606,17 +606,34 @@ bool dtStatNavMesh::init(unsigned char* data, int dataSize, bool ownsData)
 	return true;
 }
 
-unsigned short dtStatNavMesh::getCost(dtPolyRef from, dtPolyRef to) const
+float dtStatNavMesh::getCost(dtPolyRef prev, dtPolyRef from, dtPolyRef to) const
+{
+	const dtPoly* fromPoly = getPoly(prev ? prev-1 : from-1);
+	const dtPoly* toPoly = getPoly(to-1);
+	float fromPc[3], toPc[3];
+	calcPolyCenter(fromPc, fromPoly, m_verts);
+	calcPolyCenter(toPc, toPoly, m_verts);
+	
+	float dx = fromPc[0]-toPc[0];
+	float dy = fromPc[1]-toPc[1];
+	float dz = fromPc[2]-toPc[2];
+	
+	return sqrtf(dx*dx + dy*dy + dz*dz);
+}
+
+float dtStatNavMesh::getHeuristic(dtPolyRef from, dtPolyRef to) const
 {
 	const dtPoly* fromPoly = getPoly(from-1);
 	const dtPoly* toPoly = getPoly(to-1);
 	float fromPc[3], toPc[3];
 	calcPolyCenter(fromPc, fromPoly, m_verts);
 	calcPolyCenter(toPc, toPoly, m_verts);
-	int cost = (int)(sqrtf(sqr(fromPc[0]-toPc[0]) + sqr(fromPc[2]-toPc[2])) * 4.0f);
-	if (cost < 1) cost = 1;
-	if (cost > 0xffff) cost = 0xffff;
-	return cost;
+	
+	float dx = fromPc[0]-toPc[0];
+	float dy = fromPc[1]-toPc[1];
+	float dz = fromPc[2]-toPc[2];
+	
+	return sqrtf(dx*dx + dy*dy + dz*dz) * 2.0f;
 }
 
 const dtPoly* dtStatNavMesh::getPolyByRef(dtPolyRef ref) const
@@ -648,7 +665,7 @@ int dtStatNavMesh::findPath(dtPolyRef startRef, dtPolyRef endRef,
 	dtNode* startNode = m_nodePool->getNode(startRef);
 	startNode->parent = 0;
 	startNode->cost = 0;
-	startNode->total = getCost(startRef, endRef);
+	startNode->total = getHeuristic(startRef, endRef);
 	startNode->id = startRef;
 	startNode->flags = dtNode::OPEN;
 	m_openList->push(startNode);
@@ -678,9 +695,9 @@ int dtStatNavMesh::findPath(dtPolyRef startRef, dtPolyRef endRef,
 				dtNode newNode;
 				newNode.parent = bestNode;
 				newNode.id = neighbour;
-				newNode.cost = bestNode->cost + getCost(newNode.parent->id, newNode.id);
-				unsigned short costToGoal = getCost(newNode.id, endRef);
-				newNode.total = newNode.cost + costToGoal;
+				newNode.cost = bestNode->cost + getCost(newNode.parent->parent ? newNode.parent->parent->id : 0, newNode.parent->id, newNode.id);
+				float h = getHeuristic(newNode.id, endRef);
+				newNode.total = newNode.cost + h;
 
 				dtNode* actualNode = m_nodePool->getNode(newNode.id);
 				if (!actualNode)
@@ -694,9 +711,9 @@ int dtStatNavMesh::findPath(dtPolyRef startRef, dtPolyRef endRef,
 					actualNode->cost = newNode.cost;
 					actualNode->total = newNode.total;
 
-					if (costToGoal < lastBestNodeCost)
+					if (h < lastBestNodeCost)
 					{
-						lastBestNodeCost = costToGoal;
+						lastBestNodeCost = h;
 						lastBestNode = actualNode;
 					}
 
@@ -911,7 +928,7 @@ int dtStatNavMesh::findStraightPath(const float* startPos, const float* endPos,
 	return straightPathSize;
 }
 
-int dtStatNavMesh::getPolyVerts(dtPolyRef ref, float* verts)
+int dtStatNavMesh::getPolyVerts(dtPolyRef ref, float* verts) const
 {
 	if (!m_header) return 0;
 	const dtPoly* poly = getPolyByRef(ref);
@@ -1061,7 +1078,7 @@ float dtStatNavMesh::findDistanceToWall(dtPolyRef centerRef, const float* center
 			newNode.parent = bestNode;
 			newNode.id = neighbour;
 			newNode.cost = bestNode->cost + 1; // Depth
-			newNode.total = bestNode->total + getCost(newNode.parent->id, newNode.id);
+			newNode.total = bestNode->total + getCost(newNode.parent->parent ? newNode.parent->parent->id : 0, newNode.parent->id, newNode.id);
 			
 			dtNode* actualNode = m_nodePool->getNode(newNode.id);
 			if (!actualNode)
@@ -1097,7 +1114,7 @@ float dtStatNavMesh::findDistanceToWall(dtPolyRef centerRef, const float* center
 
 int dtStatNavMesh::findPolysAround(dtPolyRef centerRef, const float* centerPos, float radius,
 								   dtPolyRef* resultRef, dtPolyRef* resultParent,
-								   unsigned short* resultCost, unsigned short* resultDepth,
+								   float* resultCost, unsigned short* resultDepth,
 								   const int maxResult)
 {
 	if (!m_header) return 0;
@@ -1158,7 +1175,7 @@ int dtStatNavMesh::findPolysAround(dtPolyRef centerRef, const float* centerPos, 
 				newNode.parent = bestNode;
 				newNode.id = neighbour;
 				newNode.cost = bestNode->cost + 1; // Depth
-				newNode.total = bestNode->total + getCost(newNode.parent->id, newNode.id);
+				newNode.total = bestNode->total + getCost(newNode.parent->parent ? newNode.parent->parent->id : 0, newNode.parent->id, newNode.id);
 
 				dtNode* actualNode = m_nodePool->getNode(newNode.id);
 				if (!actualNode)
@@ -1187,7 +1204,7 @@ int dtStatNavMesh::findPolysAround(dtPolyRef centerRef, const float* centerPos, 
 							if (resultCost)
 								resultCost[n] = actualNode->total;
 							if (resultDepth)
-								resultDepth[n] = actualNode->cost;
+								resultDepth[n] = (unsigned short)actualNode->cost;
 							++n;
 						}
 						actualNode->flags = dtNode::OPEN;
@@ -1284,7 +1301,31 @@ dtPolyRef dtStatNavMesh::findNearestPoly(const float* center, const float* exten
 	return nearest;
 }
 
-bool dtStatNavMesh::getPortalPoints(dtPolyRef from, dtPolyRef to, float* left, float* right)
+bool dtStatNavMesh::getEdgeMidPoint(dtPolyRef from, dtPolyRef to, float* mid) const
+{
+	const dtPoly* fromPoly = getPolyByRef(from);
+	if (!fromPoly)
+		return false;
+	
+	// Find common edge between the polygons and returns the segment end points.
+	for (unsigned i = 0, j = (int)fromPoly->nv - 1; i < (int)fromPoly->nv; j = i++)
+	{
+		unsigned short neighbour = fromPoly->n[j];
+		if (neighbour == to)
+		{
+			const float* left = getVertex(fromPoly->v[j]);
+			const float* right = getVertex(fromPoly->v[i]);
+			mid[0] = (left[0]+right[0])*0.5f;
+			mid[1] = (left[1]+right[1])*0.5f;
+			mid[2] = (left[2]+right[2])*0.5f;
+			return true;
+		}
+	}
+	
+	return false;
+}
+
+bool dtStatNavMesh::getPortalPoints(dtPolyRef from, dtPolyRef to, float* left, float* right) const
 {
 	const dtPoly* fromPoly = getPolyByRef(from);
 	if (!fromPoly)
