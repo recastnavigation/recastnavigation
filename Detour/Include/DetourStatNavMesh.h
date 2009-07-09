@@ -84,7 +84,7 @@ public:
 	//	maxPolys - (in) The max number of polygons the polys array can hold.
 	// Returns: Number of polygons in search result array.
 	int queryPolygons(const float* center, const float* extents,
-					  unsigned short* polys, const int maxPolys);
+					  dtPolyRef* polys, const int maxPolys);
 	
 	// Finds path from start polygon to end polygon.
 	// If target polygon canno be reached through the navigation graph,
@@ -184,8 +184,6 @@ private:
 	float getCost(dtPolyRef prev, dtPolyRef from, dtPolyRef to) const;
 	float getHeuristic(dtPolyRef from, dtPolyRef to) const;
 
-	bool getEdgeMidPoint(dtPolyRef from, dtPolyRef to, float* mid) const;
-	
 	// Copies the locations of vertices of a polygon to an array.
 	int getPolyVerts(dtPolyRef ref, float* verts) const;
 	// Returns portal points between two polygons.

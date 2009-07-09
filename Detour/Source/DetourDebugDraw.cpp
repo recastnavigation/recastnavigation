@@ -186,3 +186,244 @@ void dtDebugDrawStatNavMesh(const dtStatNavMesh* mesh)
 	glEnd();
 	glPointSize(1.0f);	
 }
+
+
+static void drawTile(const dtTileHeader* header)
+{
+	const float col[4] = {0,0,0,0.25f};
+	glBegin(GL_LINES);
+	drawBoxWire(header->bmin[0],header->bmin[1],header->bmin[2],
+				header->bmax[0],header->bmax[1],header->bmax[2], col);
+	glEnd();
+
+	glBegin(GL_TRIANGLES);
+	for (int i = 0; i < header->npolys; ++i)
+	{
+		const dtTilePoly* p = &header->polys[i];
+		
+		glColor4ub(0,196,255,64);
+		
+		unsigned short vi[3];
+		for (int j = 2; j < (int)p->nv; ++j)
+		{
+			vi[0] = p->v[0];
+			vi[1] = p->v[j-1];
+			vi[2] = p->v[j];
+			for (int k = 0; k < 3; ++k)
+			{
+				const float* v = &header->verts[vi[k]*3];
+				glVertex3f(v[0], v[1]+0.2f, v[2]);
+			}
+		}
+	}
+	glEnd();
+	
+	// Draw tri boundaries
+	glLineWidth(1.5f);
+	glBegin(GL_LINES);
+	for (int i = 0; i < header->npolys; ++i)
+	{
+		const dtTilePoly* p = &header->polys[i];
+		for (int j = 0, nj = (int)p->nv; j < nj; ++j)
+		{
+			if (p->n[j] == 0) continue;
+			if (p->n[j] & 0x8000)
+			{
+				bool con = false;
+				for (int k = 0; k < p->nlinks; ++k)
+				{
+					if (header->links[p->links+k].e == j)
+					{
+						con = true;
+						break;
+					}
+				}
+				if (con)
+					glColor4ub(255,255,255,128);
+				else
+					glColor4ub(0,0,0,128);
+			}
+			else
+				glColor4ub(0,48,64,32);
+			/*
+			{
+				// Portal
+				int side = (p->n[j] >> 13) & 3;
+				int i = p->n[j] & 0x1fff;
+				if (!header->portals[side][i].ncon) continue;
+			}*/
+			
+			int vi[2];
+			vi[0] = p->v[j];
+			vi[1] = p->v[(j+1) % nj];
+			for (int k = 0; k < 2; ++k)
+			{
+				const float* v = &header->verts[vi[k]*3];
+				glVertex3f(v[0], v[1]+0.21f, v[2]);
+			}
+		}
+	}
+	glEnd();
+	
+	// Draw boundaries
+	glLineWidth(2.5f);
+	glColor4ub(0,48,64,220);
+	glBegin(GL_LINES);
+	for (int i = 0; i < header->npolys; ++i)
+	{
+		const dtTilePoly* p = &header->polys[i];
+		for (int j = 0, nj = (int)p->nv; j < nj; ++j)
+		{
+			if (p->n[j] != 0)
+			{
+/*				if (p->n[j] & 0x8000)
+				{
+					// Portal
+					int side = (p->n[j] >> 13) & 3;
+					int i = p->n[j] & 0x1fff;
+					if (header->portals[side][i].ncon) continue;
+				}
+				else*/
+					continue;
+			}
+			int vi[2];
+			vi[0] = p->v[j];
+			vi[1] = p->v[(j+1) % nj];
+			for (int k = 0; k < 2; ++k)
+			{
+				const float* v = &header->verts[vi[k]*3];
+				glVertex3f(v[0], v[1]+0.21f, v[2]);
+			}
+		}
+	}
+	glEnd();
+	glLineWidth(1.0f);
+	
+	glPointSize(3.0f);
+	glColor4ub(0,0,0,196);
+	glBegin(GL_POINTS);
+	for (int i = 0; i < header->nverts; ++i)
+	{
+		const float* v = &header->verts[i*3];
+		glVertex3f(v[0], v[1]+0.21f, v[2]);
+	}
+	glEnd();
+	glPointSize(1.0f);
+	
+	// Draw portals
+/*	glBegin(GL_LINES);
+
+	for (int i = 0; i < header->nportals[0]; ++i)
+	{
+		const dtTilePortal* p = &header->portals[0][i];		
+		if (p->ncon)
+			glColor4ub(255,255,255,192);
+		else
+			glColor4ub(255,0,0,64);
+		glVertex3f(header->bmax[0]-0.1f, p->bmin[1], p->bmin[0]);
+		glVertex3f(header->bmax[0]-0.1f, p->bmax[1], p->bmin[0]);
+
+		glVertex3f(header->bmax[0]-0.1f, p->bmax[1], p->bmin[0]);
+		glVertex3f(header->bmax[0]-0.1f, p->bmax[1], p->bmax[0]);
+
+		glVertex3f(header->bmax[0]-0.1f, p->bmax[1], p->bmax[0]);
+		glVertex3f(header->bmax[0]-0.1f, p->bmin[1], p->bmax[0]);
+
+		glVertex3f(header->bmax[0]-0.1f, p->bmin[1], p->bmax[0]);
+		glVertex3f(header->bmax[0]-0.1f, p->bmin[1], p->bmin[0]);
+	}
+	for (int i = 0; i < header->nportals[1]; ++i)
+	{
+		const dtTilePortal* p = &header->portals[1][i];
+		if (p->ncon)
+			glColor4ub(255,255,255,192);
+		else
+			glColor4ub(255,0,0,64);
+		glVertex3f(p->bmin[0], p->bmin[1], header->bmax[2]-0.1f);
+		glVertex3f(p->bmin[0], p->bmax[1], header->bmax[2]-0.1f);
+		
+		glVertex3f(p->bmin[0], p->bmax[1], header->bmax[2]-0.1f);
+		glVertex3f(p->bmax[0], p->bmax[1], header->bmax[2]-0.1f);
+		
+		glVertex3f(p->bmax[0], p->bmax[1], header->bmax[2]-0.1f);
+		glVertex3f(p->bmax[0], p->bmin[1], header->bmax[2]-0.1f);
+		
+		glVertex3f(p->bmax[0], p->bmin[1], header->bmax[2]-0.1f);
+		glVertex3f(p->bmin[0], p->bmin[1], header->bmax[2]-0.1f);
+	}
+	for (int i = 0; i < header->nportals[2]; ++i)
+	{
+		const dtTilePortal* p = &header->portals[2][i];
+		if (p->ncon)
+			glColor4ub(255,255,255,192);
+		else
+			glColor4ub(255,0,0,64);
+		glVertex3f(header->bmin[0]+0.1f, p->bmin[1], p->bmin[0]);
+		glVertex3f(header->bmin[0]+0.1f, p->bmax[1], p->bmin[0]);
+		
+		glVertex3f(header->bmin[0]+0.1f, p->bmax[1], p->bmin[0]);
+		glVertex3f(header->bmin[0]+0.1f, p->bmax[1], p->bmax[0]);
+		
+		glVertex3f(header->bmin[0]+0.1f, p->bmax[1], p->bmax[0]);
+		glVertex3f(header->bmin[0]+0.1f, p->bmin[1], p->bmax[0]);
+		
+		glVertex3f(header->bmin[0]+0.1f, p->bmin[1], p->bmax[0]);
+		glVertex3f(header->bmin[0]+0.1f, p->bmin[1], p->bmin[0]);
+	}
+	for (int i = 0; i < header->nportals[3]; ++i)
+	{
+		const dtTilePortal* p = &header->portals[3][i];
+		if (p->ncon)
+			glColor4ub(255,255,255,192);
+		else
+			glColor4ub(255,0,0,64);
+		glVertex3f(p->bmin[0], p->bmin[1], header->bmin[2]+0.1f);
+		glVertex3f(p->bmin[0], p->bmax[1], header->bmin[2]+0.1f);
+		
+		glVertex3f(p->bmin[0], p->bmax[1], header->bmin[2]+0.1f);
+		glVertex3f(p->bmax[0], p->bmax[1], header->bmin[2]+0.1f);
+		
+		glVertex3f(p->bmax[0], p->bmax[1], header->bmin[2]+0.1f);
+		glVertex3f(p->bmax[0], p->bmin[1], header->bmin[2]+0.1f);
+		
+		glVertex3f(p->bmax[0], p->bmin[1], header->bmin[2]+0.1f);
+		glVertex3f(p->bmin[0], p->bmin[1], header->bmin[2]+0.1f);
+	}
+	glEnd();*/
+}
+
+void dtDebugDrawTiledNavMesh(const dtTiledNavMesh* mesh)
+{
+	if (!mesh) return;
+	
+	for (int i = 0; i < DT_MAX_TILES; ++i)
+	{
+		const dtTile* tile = mesh->getTile(i);
+		if (!tile->header) continue;
+
+		drawTile(tile->header);
+	}
+}
+
+void dtDebugDrawTiledNavMeshPoly(const dtTiledNavMesh* mesh, dtTilePolyRef ref, const float* col)
+{
+	const dtTilePoly* p = mesh->getPolyByRef(ref);
+	if (!p) return;
+	const float* verts = mesh->getPolyVertsByRef(ref);
+	glColor4f(col[0],col[1],col[2],0.25f);
+	glBegin(GL_TRIANGLES);
+	unsigned short vi[3];
+	for (int j = 2; j < (int)p->nv; ++j)
+	{
+		vi[0] = p->v[0];
+		vi[1] = p->v[j-1];
+		vi[2] = p->v[j];
+		for (int k = 0; k < 3; ++k)
+		{
+			const float* v = &verts[vi[k]*3];
+			glVertex3f(v[0], v[1]+0.2f, v[2]);
+		}
+	}
+	glEnd();
+}
+

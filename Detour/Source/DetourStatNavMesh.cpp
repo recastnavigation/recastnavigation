@@ -1204,7 +1204,7 @@ int dtStatNavMesh::findPolysAround(dtPolyRef centerRef, const float* centerPos, 
 							if (resultCost)
 								resultCost[n] = actualNode->total;
 							if (resultDepth)
-								resultDepth[n] = (unsigned short)actualNode->cost;
+								resultDepth[n] = actualNode->cost;
 							++n;
 						}
 						actualNode->flags = dtNode::OPEN;
@@ -1220,7 +1220,7 @@ int dtStatNavMesh::findPolysAround(dtPolyRef centerRef, const float* centerPos, 
 
 // Returns polygons which are withing certain radius from the query location.
 int dtStatNavMesh::queryPolygons(const float* center, const float* extents,
-								 unsigned short* ids, const int maxIds)
+								 dtPolyRef* polys, const int maxIds)
 {
 	if (!m_header) return 0;
 	
@@ -1256,7 +1256,7 @@ int dtStatNavMesh::queryPolygons(const float* center, const float* extents,
 		{
 			if (n < maxIds)
 			{
-				ids[n] = (unsigned short)node->i;
+				polys[n] = (dtPolyRef)node->i;
 				n++;
 			}
 		}
@@ -1278,7 +1278,7 @@ dtPolyRef dtStatNavMesh::findNearestPoly(const float* center, const float* exten
 	if (!m_header) return 0;
 	
 	// Get nearby polygons from proximity grid.
-	unsigned short polys[128];
+	dtPolyRef polys[128];
 	int npolys = queryPolygons(center, extents, polys, 128);
 
 	// Find nearest polygon amongst the nearby polygons.
@@ -1286,7 +1286,7 @@ dtPolyRef dtStatNavMesh::findNearestPoly(const float* center, const float* exten
 	float nearestDistanceSqr = FLT_MAX;
 	for (int i = 0; i < npolys; ++i)
 	{
-		dtPolyRef ref = (dtPolyRef)polys[i];
+		dtPolyRef ref = polys[i];
 		float closest[3];
 		if (!closestPointToPoly(ref, center, closest))
 			continue;
@@ -1299,30 +1299,6 @@ dtPolyRef dtStatNavMesh::findNearestPoly(const float* center, const float* exten
 	}
 
 	return nearest;
-}
-
-bool dtStatNavMesh::getEdgeMidPoint(dtPolyRef from, dtPolyRef to, float* mid) const
-{
-	const dtPoly* fromPoly = getPolyByRef(from);
-	if (!fromPoly)
-		return false;
-	
-	// Find common edge between the polygons and returns the segment end points.
-	for (unsigned i = 0, j = (int)fromPoly->nv - 1; i < (int)fromPoly->nv; j = i++)
-	{
-		unsigned short neighbour = fromPoly->n[j];
-		if (neighbour == to)
-		{
-			const float* left = getVertex(fromPoly->v[j]);
-			const float* right = getVertex(fromPoly->v[i]);
-			mid[0] = (left[0]+right[0])*0.5f;
-			mid[1] = (left[1]+right[1])*0.5f;
-			mid[2] = (left[2]+right[2])*0.5f;
-			return true;
-		}
-	}
-	
-	return false;
 }
 
 bool dtStatNavMesh::getPortalPoints(dtPolyRef from, dtPolyRef to, float* left, float* right) const

@@ -20,9 +20,13 @@
 #define DETOURDEBUGDRAW_H
 
 #include "DetourStatNavMesh.h"
+#include "DetourTiledNavMesh.h"
 
 void dtDebugDrawStatNavMeshPoly(const dtStatNavMesh* mesh, dtPolyRef ref, const float* col);
 void dtDebugDrawStatNavMeshBVTree(const dtStatNavMesh* mesh);
 void dtDebugDrawStatNavMesh(const dtStatNavMesh* mesh);
+
+void dtDebugDrawTiledNavMesh(const dtTiledNavMesh* mesh);
+void dtDebugDrawTiledNavMeshPoly(const dtTiledNavMesh* mesh, dtTilePolyRef ref, const float* col);
 
 #endif // DETOURDEBUGDRAW_H
