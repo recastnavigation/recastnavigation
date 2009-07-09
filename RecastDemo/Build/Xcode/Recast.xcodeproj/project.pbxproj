@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		1DDD58160DA1D0A300B32029 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1DDD58140DA1D0A300B32029 /* MainMenu.xib */; };
+		6B024C0D10060AC600CF7107 /* Icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 6B024C0C10060AC600CF7107 /* Icon.icns */; };
 		6B092B940FFCC2BD0088D3A5 /* DetourTiledNavMeshBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B092B930FFCC2BD0088D3A5 /* DetourTiledNavMeshBuilder.cpp */; };
 		6B137C700F7FCBBB00459200 /* glfont.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B137C6B0F7FCBBB00459200 /* glfont.cpp */; };
 		6B137C710F7FCBBB00459200 /* imgui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B137C6C0F7FCBBB00459200 /* imgui.cpp */; };
@@ -47,6 +48,7 @@
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		32CA4F630368D1EE00C91783 /* Recast_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Recast_Prefix.pch; sourceTree = "<group>"; };
+		6B024C0C10060AC600CF7107 /* Icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Icon.icns; sourceTree = "<group>"; };
 		6B092B920FFCC2AC0088D3A5 /* DetourTiledNavMeshBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DetourTiledNavMeshBuilder.h; path = ../../../Detour/Include/DetourTiledNavMeshBuilder.h; sourceTree = SOURCE_ROOT; };
 		6B092B930FFCC2BD0088D3A5 /* DetourTiledNavMeshBuilder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DetourTiledNavMeshBuilder.cpp; path = ../../../Detour/Source/DetourTiledNavMeshBuilder.cpp; sourceTree = SOURCE_ROOT; };
 		6B137C6B0F7FCBBB00459200 /* glfont.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = glfont.cpp; path = ../../Source/glfont.cpp; sourceTree = SOURCE_ROOT; };
@@ -192,6 +194,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				6B024C0C10060AC600CF7107 /* Icon.icns */,
 				8D1107310486CEB800E47090 /* Info.plist */,
 				089C165CFE840E0CC02AAC07 /* InfoPlist.strings */,
 				1DDD58140DA1D0A300B32029 /* MainMenu.xib */,
@@ -290,6 +293,7 @@
 			files = (
 				8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */,
 				1DDD58160DA1D0A300B32029 /* MainMenu.xib in Resources */,
+				6B024C0D10060AC600CF7107 /* Icon.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

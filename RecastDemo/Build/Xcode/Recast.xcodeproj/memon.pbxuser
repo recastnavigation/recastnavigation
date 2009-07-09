@@ -1,5 +1,13 @@
 // !$*UTF8*$!
 {
+	089C165DFE840E0CC02AAC07 /* English */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {915, 499}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 45}";
+			sepNavWindowFrame = "{{15, 78}, {1011, 695}}";
+		};
+	};
 	29B97313FDCFA39411CA2CEA /* Project object */ = {
 		activeBuildConfigurationName = Release;
 		activeExecutable = 6B8632970F78114600E2684A /* Recast */;
@@ -754,6 +762,12 @@
 			6B024BF31006073700CF7107 /* PBXTextBookmark */ = 6B024BF31006073700CF7107 /* PBXTextBookmark */;
 			6B024BF41006073700CF7107 /* PBXTextBookmark */ = 6B024BF41006073700CF7107 /* PBXTextBookmark */;
 			6B024BF61006079300CF7107 /* PBXTextBookmark */ = 6B024BF61006079300CF7107 /* PBXTextBookmark */;
+			6B024C001006098300CF7107 /* PBXTextBookmark */ = 6B024C001006098300CF7107 /* PBXTextBookmark */;
+			6B024C011006098300CF7107 /* PBXTextBookmark */ = 6B024C011006098300CF7107 /* PBXTextBookmark */;
+			6B024C021006098300CF7107 /* PBXBookmark */ = 6B024C021006098300CF7107 /* PBXBookmark */;
+			6B024C031006098300CF7107 /* PBXTextBookmark */ = 6B024C031006098300CF7107 /* PBXTextBookmark */;
+			6B024C041006098300CF7107 /* PBXTextBookmark */ = 6B024C041006098300CF7107 /* PBXTextBookmark */;
+			6B024C051006098300CF7107 /* PlistBookmark */ = 6B024C051006098300CF7107 /* PlistBookmark */;
 			6B092B1A0FFC98FF0088D3A5 = 6B092B1A0FFC98FF0088D3A5 /* PBXTextBookmark */;
 			6B092B1C0FFC98FF0088D3A5 = 6B092B1C0FFC98FF0088D3A5 /* PBXTextBookmark */;
 			6B092B1E0FFC98FF0088D3A5 = 6B092B1E0FFC98FF0088D3A5 /* PBXTextBookmark */;
@@ -7448,6 +7462,61 @@
 		vrLen = 636;
 		vrLoc = 14753;
 	};
+	6B024C001006098300CF7107 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
+		name = "BuilderTiledMesh.cpp: 575";
+		rLen = 0;
+		rLoc = 15174;
+		rType = 0;
+		vrLen = 744;
+		vrLoc = 14753;
+	};
+	6B024C011006098300CF7107 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 089C165DFE840E0CC02AAC07 /* English */;
+		name = "InfoPlist.strings: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 45;
+		vrLoc = 0;
+	};
+	6B024C021006098300CF7107 /* PBXBookmark */ = {
+		isa = PBXBookmark;
+		fRef = 8D1107310486CEB800E47090 /* Info.plist */;
+	};
+	6B024C031006098300CF7107 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
+		name = "BuilderTiledMesh.cpp: 575";
+		rLen = 0;
+		rLoc = 15174;
+		rType = 0;
+		vrLen = 744;
+		vrLoc = 14753;
+	};
+	6B024C041006098300CF7107 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 089C165DFE840E0CC02AAC07 /* English */;
+		name = "InfoPlist.strings: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 45;
+		vrLoc = 0;
+	};
+	6B024C051006098300CF7107 /* PlistBookmark */ = {
+		isa = PlistBookmark;
+		fRef = 8D1107310486CEB800E47090 /* Info.plist */;
+		fallbackIsa = PBXBookmark;
+		isK = 0;
+		kPath = (
+		);
+		name = /Users/memon/Code/recastnavigation/RecastDemo/Build/Xcode/Info.plist;
+		rLen = 0;
+		rLoc = 2147483647;
+	};
 	6B092B1A0FFC98FF0088D3A5 /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
 		fRef = 6B2AEC570FFB89F4005BE9CC /* BuilderStatMeshTiled.h */;
@@ -8754,9 +8823,9 @@
 	};
 	6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1223, 14592}}";
-			sepNavSelRange = "{15046, 1}";
-			sepNavVisRange = "{14753, 636}";
+			sepNavIntBoundsRect = "{{0, 0}, {1223, 13904}}";
+			sepNavSelRange = "{13451, 0}";
+			sepNavVisRange = "{13067, 717}";
 		};
 	};
 	6B2AEC550FFB89E7005BE9CC /* BuilderStatMeshTiled.cpp */ = {
@@ -9489,5 +9558,10 @@
 		executables = (
 			6B8632970F78114600E2684A /* Recast */,
 		);
+	};
+	8D1107310486CEB800E47090 /* Info.plist */ = {
+		uiCtxt = {
+			sepNavWindowFrame = "{{38, 57}, {1011, 695}}";
+		};
 	};
 }
