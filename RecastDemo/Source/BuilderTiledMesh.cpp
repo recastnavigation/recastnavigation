@@ -1,3 +1,21 @@
+//
+// Copyright (c) 2009 Mikko Mononen memon@inside.org
+//
+// This software is provided 'as-is', without any express or implied
+// warranty.  In no event will the authors be held liable for any damages
+// arising from the use of this software.
+// Permission is granted to anyone to use this software for any purpose,
+// including commercial applications, and to alter it and redistribute it
+// freely, subject to the following restrictions:
+// 1. The origin of this software must not be misrepresented; you must not
+//    claim that you wrote the original software. If you use this software
+//    in a product, an acknowledgment in the product documentation would be
+//    appreciated but is not required.
+// 2. Altered source versions must be plainly marked as such, and must not be
+//    misrepresented as being the original software.
+// 3. This notice may not be removed or altered from any source distribution.
+//
+
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <stdio.h>
@@ -26,6 +44,7 @@ BuilderTiledMesh::BuilderTiledMesh() :
 	m_chunkyMesh(0),
 	m_keepInterResults(true),
 	m_tileBuildTime(0),
+	m_tileMemUsage(0),
 	m_triflags(0),
 	m_solid(0),
 	m_chf(0),
@@ -470,7 +489,7 @@ void BuilderTiledMesh::handleRenderOverlay(class GLFont* font, double* proj, dou
 								model, proj, view, &x, &y, &z))
 	{
 		char text[32];
-		snprintf(text,32,"%.3f ms  %d Tris", m_tileBuildTime, m_tileTriCount);
+		snprintf(text,32,"%.3fms / %dTris / %.1fkB", m_tileBuildTime, m_tileTriCount, m_tileMemUsage);
 		const float len = font->getTextLength(text);
 		font->drawText((float)x - len/2, (float)y-font->getLineHeight(), text, GLFont::RGBA(0,0,0,220));
 	}
@@ -523,16 +542,26 @@ void BuilderTiledMesh::setToolEndPos(const float* p)
 bool BuilderTiledMesh::handleBuild()
 {
 	if (!m_verts || !m_tris)
+	{
+		printf("No verts or tris\n");
 		return false;
+	}
 
 	delete m_navMesh;
 	m_navMesh = new dtTiledNavMesh;
 	if (!m_navMesh)
+	{
+		printf("Could not allocate navmehs\n");
 		return false;
+	}
 	if (!m_navMesh->init(m_bmin, m_tileSize*m_cellSize, m_agentMaxClimb*m_cellHeight))
+	{
+		printf("Could not init navmesh\n");
 		return false;
+	}
 		
 	// Build chunky mesh.
+	delete m_chunkyMesh;
 	m_chunkyMesh = new rcChunkyTriMesh;
 	if (!m_chunkyMesh)
 	{
@@ -546,7 +575,6 @@ bool BuilderTiledMesh::handleBuild()
 			rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: Could not build chunky mesh.");
 		return false;
 	}
-	
 
 	return true;
 }
@@ -805,7 +833,6 @@ unsigned char* BuilderTiledMesh::buildTileMesh(const float* bmin, const float* b
 	
 	unsigned char* navData = 0;
 	int navDataSize = 0;
-	
 	if (m_cfg.maxVertsPerPoly == DT_TILE_VERTS_PER_POLYGON)
 	{
 		// Remove padding from the polymesh data.
@@ -825,6 +852,7 @@ unsigned char* BuilderTiledMesh::buildTileMesh(const float* bmin, const float* b
 			return 0;
 		}
 	}
+	m_tileMemUsage = navDataSize/1024.0f;
 	
 	rcTimeVal totEndTime = rcGetPerformanceTimer();
 	

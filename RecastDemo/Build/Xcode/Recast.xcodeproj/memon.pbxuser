@@ -1,17 +1,17 @@
 // !$*UTF8*$!
 {
 	29B97313FDCFA39411CA2CEA /* Project object */ = {
-		activeBuildConfigurationName = Debug;
+		activeBuildConfigurationName = Release;
 		activeExecutable = 6B8632970F78114600E2684A /* Recast */;
 		activeTarget = 8D1107260486CEB800E47090 /* Recast */;
 		addToTargets = (
 			8D1107260486CEB800E47090 /* Recast */,
 		);
 		breakpoints = (
-			6B0249B11003783F00CF7107 /* BuilderTiledMesh.cpp:89 */,
-			6B0249ED10037C0A00CF7107 /* DetourTiledNavMesh.cpp:1023 */,
-			6B0249EF10037C0C00CF7107 /* DetourTiledNavMesh.cpp:1027 */,
-			6B024AC01004AB3900CF7107 /* DetourTiledNavMesh.cpp:859 */,
+			6B0249B11003783F00CF7107 /* BuilderTiledMesh.cpp:836 */,
+			6B0249ED10037C0A00CF7107 /* DetourTiledNavMesh.cpp:1 */,
+			6B0249EF10037C0C00CF7107 /* DetourTiledNavMesh.cpp:1 */,
+			6B024AC01004AB3900CF7107 /* DetourTiledNavMesh.cpp:1 */,
 		);
 		codeSenseManager = 6B8632AA0F78115100E2684A /* Code sense */;
 		executables = (
@@ -728,6 +728,32 @@
 			6B024BCE1005DFAB00CF7107 /* PBXTextBookmark */ = 6B024BCE1005DFAB00CF7107 /* PBXTextBookmark */;
 			6B024BCF1005DFAB00CF7107 /* PBXTextBookmark */ = 6B024BCF1005DFAB00CF7107 /* PBXTextBookmark */;
 			6B024BD01005DFAB00CF7107 /* PBXTextBookmark */ = 6B024BD01005DFAB00CF7107 /* PBXTextBookmark */;
+			6B024BD31006059C00CF7107 /* PBXTextBookmark */ = 6B024BD31006059C00CF7107 /* PBXTextBookmark */;
+			6B024BD41006059C00CF7107 /* PBXTextBookmark */ = 6B024BD41006059C00CF7107 /* PBXTextBookmark */;
+			6B024BD51006059C00CF7107 /* PBXTextBookmark */ = 6B024BD51006059C00CF7107 /* PBXTextBookmark */;
+			6B024BD61006059C00CF7107 /* PBXTextBookmark */ = 6B024BD61006059C00CF7107 /* PBXTextBookmark */;
+			6B024BD71006059C00CF7107 /* PBXTextBookmark */ = 6B024BD71006059C00CF7107 /* PBXTextBookmark */;
+			6B024BD81006059C00CF7107 /* PBXTextBookmark */ = 6B024BD81006059C00CF7107 /* PBXTextBookmark */;
+			6B024BD91006059C00CF7107 /* PBXTextBookmark */ = 6B024BD91006059C00CF7107 /* PBXTextBookmark */;
+			6B024BDA1006059C00CF7107 /* PBXTextBookmark */ = 6B024BDA1006059C00CF7107 /* PBXTextBookmark */;
+			6B024BDB1006059C00CF7107 /* PBXTextBookmark */ = 6B024BDB1006059C00CF7107 /* PBXTextBookmark */;
+			6B024BDC1006059C00CF7107 /* PBXTextBookmark */ = 6B024BDC1006059C00CF7107 /* PBXTextBookmark */;
+			6B024BDD1006059C00CF7107 /* PBXTextBookmark */ = 6B024BDD1006059C00CF7107 /* PBXTextBookmark */;
+			6B024BDE1006059C00CF7107 /* PBXTextBookmark */ = 6B024BDE1006059C00CF7107 /* PBXTextBookmark */;
+			6B024BDF1006059C00CF7107 /* PBXTextBookmark */ = 6B024BDF1006059C00CF7107 /* PBXTextBookmark */;
+			6B024BE01006059C00CF7107 /* PBXTextBookmark */ = 6B024BE01006059C00CF7107 /* PBXTextBookmark */;
+			6B024BE11006059C00CF7107 /* PBXTextBookmark */ = 6B024BE11006059C00CF7107 /* PBXTextBookmark */;
+			6B024BE8100605CB00CF7107 /* PBXTextBookmark */ = 6B024BE8100605CB00CF7107 /* PBXTextBookmark */;
+			6B024BEB1006064C00CF7107 /* PBXTextBookmark */ = 6B024BEB1006064C00CF7107 /* PBXTextBookmark */;
+			6B024BEC1006064C00CF7107 /* PBXTextBookmark */ = 6B024BEC1006064C00CF7107 /* PBXTextBookmark */;
+			6B024BED1006064C00CF7107 /* PBXTextBookmark */ = 6B024BED1006064C00CF7107 /* PBXTextBookmark */;
+			6B024BEE1006064C00CF7107 /* PBXTextBookmark */ = 6B024BEE1006064C00CF7107 /* PBXTextBookmark */;
+			6B024BEF1006064C00CF7107 /* PBXTextBookmark */ = 6B024BEF1006064C00CF7107 /* PBXTextBookmark */;
+			6B024BF0100606CD00CF7107 /* PBXTextBookmark */ = 6B024BF0100606CD00CF7107 /* PBXTextBookmark */;
+			6B024BF1100606CF00CF7107 /* PBXTextBookmark */ = 6B024BF1100606CF00CF7107 /* PBXTextBookmark */;
+			6B024BF31006073700CF7107 /* PBXTextBookmark */ = 6B024BF31006073700CF7107 /* PBXTextBookmark */;
+			6B024BF41006073700CF7107 /* PBXTextBookmark */ = 6B024BF41006073700CF7107 /* PBXTextBookmark */;
+			6B024BF61006079300CF7107 /* PBXTextBookmark */ = 6B024BF61006079300CF7107 /* PBXTextBookmark */;
 			6B092B1A0FFC98FF0088D3A5 = 6B092B1A0FFC98FF0088D3A5 /* PBXTextBookmark */;
 			6B092B1C0FFC98FF0088D3A5 = 6B092B1C0FFC98FF0088D3A5 /* PBXTextBookmark */;
 			6B092B1E0FFC98FF0088D3A5 = 6B092B1E0FFC98FF0088D3A5 /* PBXTextBookmark */;
@@ -907,7 +933,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 501";
 		rLen = 0;
-		rLoc = 21896;
+		rLoc = 23007;
 		rType = 0;
 		vrLen = 919;
 		vrLoc = 12495;
@@ -947,7 +973,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 162";
 		rLen = 0;
-		rLoc = 13411;
+		rLoc = 14330;
 		rType = 0;
 		vrLen = 644;
 		vrLoc = 3517;
@@ -957,7 +983,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 501";
 		rLen = 0;
-		rLoc = 21896;
+		rLoc = 23007;
 		rType = 0;
 		vrLen = 919;
 		vrLoc = 12495;
@@ -967,7 +993,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 210";
 		rLen = 0;
-		rLoc = 20341;
+		rLoc = 21260;
 		rType = 0;
 		vrLen = 592;
 		vrLoc = 4447;
@@ -987,7 +1013,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 200";
 		rLen = 0;
-		rLoc = 20114;
+		rLoc = 21033;
 		rType = 0;
 		vrLen = 593;
 		vrLoc = 4445;
@@ -1007,7 +1033,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 121";
 		rLen = 0;
-		rLoc = 13411;
+		rLoc = 14330;
 		rType = 0;
 		vrLen = 834;
 		vrLoc = 2396;
@@ -1027,7 +1053,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 133";
 		rLen = 0;
-		rLoc = 13411;
+		rLoc = 14330;
 		rType = 0;
 		vrLen = 784;
 		vrLoc = 2487;
@@ -1047,7 +1073,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 133";
 		rLen = 0;
-		rLoc = 13411;
+		rLoc = 14330;
 		rType = 0;
 		vrLen = 722;
 		vrLoc = 2549;
@@ -1067,7 +1093,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 123";
 		rLen = 0;
-		rLoc = 12907;
+		rLoc = 13826;
 		rType = 0;
 		vrLen = 696;
 		vrLoc = 2549;
@@ -1087,7 +1113,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 134";
 		rLen = 0;
-		rLoc = 12907;
+		rLoc = 13826;
 		rType = 0;
 		vrLen = 816;
 		vrLoc = 2612;
@@ -1107,7 +1133,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 137";
 		rLen = 0;
-		rLoc = 12907;
+		rLoc = 13826;
 		rType = 0;
 		vrLen = 864;
 		vrLoc = 2675;
@@ -1127,7 +1153,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 131";
 		rLen = 0;
-		rLoc = 12907;
+		rLoc = 13826;
 		rType = 0;
 		vrLen = 927;
 		vrLoc = 2676;
@@ -1147,7 +1173,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 139";
 		rLen = 0;
-		rLoc = 12907;
+		rLoc = 13826;
 		rType = 0;
 		vrLen = 932;
 		vrLoc = 3329;
@@ -1167,7 +1193,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 142";
 		rLen = 0;
-		rLoc = 13411;
+		rLoc = 14330;
 		rType = 0;
 		vrLen = 656;
 		vrLoc = 3201;
@@ -1187,7 +1213,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 142";
 		rLen = 0;
-		rLoc = 13411;
+		rLoc = 14330;
 		rType = 0;
 		vrLen = 656;
 		vrLoc = 3201;
@@ -1207,7 +1233,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 144";
 		rLen = 0;
-		rLoc = 13411;
+		rLoc = 14330;
 		rType = 0;
 		vrLen = 682;
 		vrLoc = 3201;
@@ -1227,7 +1253,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 162";
 		rLen = 0;
-		rLoc = 13411;
+		rLoc = 14330;
 		rType = 0;
 		vrLen = 644;
 		vrLoc = 3517;
@@ -1247,7 +1273,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 136";
 		rLen = 0;
-		rLoc = 12907;
+		rLoc = 13826;
 		rType = 0;
 		vrLen = 955;
 		vrLoc = 2802;
@@ -1257,7 +1283,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 136";
 		rLen = 0;
-		rLoc = 12907;
+		rLoc = 13826;
 		rType = 0;
 		vrLen = 963;
 		vrLoc = 2802;
@@ -1267,7 +1293,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 155";
 		rLen = 0;
-		rLoc = 13411;
+		rLoc = 14330;
 		rType = 0;
 		vrLen = 475;
 		vrLoc = 3414;
@@ -1287,7 +1313,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 140";
 		rLen = 0;
-		rLoc = 12907;
+		rLoc = 13826;
 		rType = 0;
 		vrLen = 897;
 		vrLoc = 3201;
@@ -1297,7 +1323,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 140";
 		rLen = 0;
-		rLoc = 12907;
+		rLoc = 13826;
 		rType = 0;
 		vrLen = 897;
 		vrLoc = 3201;
@@ -1317,7 +1343,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 145";
 		rLen = 0;
-		rLoc = 13411;
+		rLoc = 14330;
 		rType = 0;
 		vrLen = 908;
 		vrLoc = 2985;
@@ -1327,7 +1353,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 146";
 		rLen = 0;
-		rLoc = 13411;
+		rLoc = 14330;
 		rType = 0;
 		vrLen = 909;
 		vrLoc = 2985;
@@ -1357,7 +1383,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 146";
 		rLen = 0;
-		rLoc = 13411;
+		rLoc = 14330;
 		rType = 0;
 		vrLen = 909;
 		vrLoc = 2985;
@@ -1417,7 +1443,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 136";
 		rLen = 0;
-		rLoc = 12907;
+		rLoc = 13826;
 		rType = 0;
 		vrLen = 912;
 		vrLoc = 2985;
@@ -1437,7 +1463,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 146";
 		rLen = 0;
-		rLoc = 13411;
+		rLoc = 14330;
 		rType = 0;
 		vrLen = 908;
 		vrLoc = 2985;
@@ -1457,7 +1483,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 136";
 		rLen = 0;
-		rLoc = 12907;
+		rLoc = 13826;
 		rType = 0;
 		vrLen = 912;
 		vrLoc = 2985;
@@ -1477,7 +1503,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 233";
 		rLen = 0;
-		rLoc = 19726;
+		rLoc = 20645;
 		rType = 0;
 		vrLen = 698;
 		vrLoc = 5516;
@@ -1497,7 +1523,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 229";
 		rLen = 0;
-		rLoc = 19726;
+		rLoc = 20645;
 		rType = 0;
 		vrLen = 682;
 		vrLoc = 5516;
@@ -1507,7 +1533,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 229";
 		rLen = 0;
-		rLoc = 19726;
+		rLoc = 20645;
 		rType = 0;
 		vrLen = 682;
 		vrLoc = 5516;
@@ -1527,7 +1553,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 229";
 		rLen = 0;
-		rLoc = 19726;
+		rLoc = 20645;
 		rType = 0;
 		vrLen = 682;
 		vrLoc = 5516;
@@ -1547,7 +1573,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 229";
 		rLen = 0;
-		rLoc = 19726;
+		rLoc = 20645;
 		rType = 0;
 		vrLen = 760;
 		vrLoc = 5452;
@@ -1557,7 +1583,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 149";
 		rLen = 0;
-		rLoc = 13411;
+		rLoc = 14330;
 		rType = 0;
 		vrLen = 878;
 		vrLoc = 3204;
@@ -1567,7 +1593,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 149";
 		rLen = 0;
-		rLoc = 13411;
+		rLoc = 14330;
 		rType = 0;
 		vrLen = 881;
 		vrLoc = 3204;
@@ -1587,7 +1613,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 149";
 		rLen = 0;
-		rLoc = 13411;
+		rLoc = 14330;
 		rType = 0;
 		vrLen = 881;
 		vrLoc = 3204;
@@ -1647,7 +1673,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* BuilderTiledMesh.h */;
 		name = "BuilderTiledMesh.h: 50";
 		rLen = 20;
-		rLoc = 1222;
+		rLoc = 2164;
 		rType = 0;
 		vrLen = 628;
 		vrLoc = 673;
@@ -1657,7 +1683,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 85";
 		rLen = 12;
-		rLoc = 4139;
+		rLoc = 5078;
 		rType = 0;
 		vrLen = 942;
 		vrLoc = 1191;
@@ -1677,7 +1703,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* BuilderTiledMesh.h */;
 		name = "BuilderTiledMesh.h: 55";
 		rLen = 0;
-		rLoc = 2052;
+		rLoc = 2994;
 		rType = 0;
 		vrLen = 910;
 		vrLoc = 608;
@@ -1697,7 +1723,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* BuilderTiledMesh.h */;
 		name = "BuilderTiledMesh.h: 48";
 		rLen = 10;
-		rLoc = 1208;
+		rLoc = 2150;
 		rType = 0;
 		vrLen = 679;
 		vrLoc = 673;
@@ -1707,7 +1733,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 35";
 		rLen = 0;
-		rLoc = 699;
+		rLoc = 1638;
 		rType = 0;
 		vrLen = 631;
 		vrLoc = 259;
@@ -1717,7 +1743,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* BuilderTiledMesh.h */;
 		name = "BuilderTiledMesh.h: 41";
 		rLen = 21;
-		rLoc = 740;
+		rLoc = 1682;
 		rType = 0;
 		vrLen = 643;
 		vrLoc = 673;
@@ -1727,7 +1753,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 35";
 		rLen = 0;
-		rLoc = 664;
+		rLoc = 1603;
 		rType = 0;
 		vrLen = 713;
 		vrLoc = 1154;
@@ -1747,7 +1773,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 85";
 		rLen = 12;
-		rLoc = 4139;
+		rLoc = 5078;
 		rType = 0;
 		vrLen = 942;
 		vrLoc = 1191;
@@ -1757,7 +1783,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* BuilderTiledMesh.h */;
 		name = "BuilderTiledMesh.h: 50";
 		rLen = 20;
-		rLoc = 1222;
+		rLoc = 2164;
 		rType = 0;
 		vrLen = 628;
 		vrLoc = 673;
@@ -1767,7 +1793,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 89";
 		rLen = 0;
-		rLoc = 4139;
+		rLoc = 5078;
 		rType = 0;
 		vrLen = 898;
 		vrLoc = 1221;
@@ -1777,7 +1803,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* BuilderTiledMesh.h */;
 		name = "BuilderTiledMesh.h: 41";
 		rLen = 21;
-		rLoc = 740;
+		rLoc = 1682;
 		rType = 0;
 		vrLen = 576;
 		vrLoc = 536;
@@ -1787,7 +1813,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 223";
 		rLen = 0;
-		rLoc = 13111;
+		rLoc = 14074;
 		rType = 0;
 		vrLen = 468;
 		vrLoc = 4792;
@@ -1797,7 +1823,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 73";
 		rLen = 0;
-		rLoc = 1550;
+		rLoc = 2489;
 		rType = 0;
 		vrLen = 898;
 		vrLoc = 1221;
@@ -1807,7 +1833,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* BuilderTiledMesh.h */;
 		name = "BuilderTiledMesh.h: 86";
 		rLen = 15;
-		rLoc = 1980;
+		rLoc = 2922;
 		rType = 0;
 		vrLen = 884;
 		vrLoc = 1217;
@@ -1817,7 +1843,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 223";
 		rLen = 0;
-		rLoc = 13111;
+		rLoc = 14074;
 		rType = 0;
 		vrLen = 468;
 		vrLoc = 4792;
@@ -1827,7 +1853,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* BuilderTiledMesh.h */;
 		name = "BuilderTiledMesh.h: 41";
 		rLen = 21;
-		rLoc = 740;
+		rLoc = 1682;
 		rType = 0;
 		vrLen = 576;
 		vrLoc = 536;
@@ -1837,7 +1863,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 240";
 		rLen = 0;
-		rLoc = 13433;
+		rLoc = 14396;
 		rType = 0;
 		vrLen = 484;
 		vrLoc = 4931;
@@ -1847,7 +1873,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 227";
 		rLen = 0;
-		rLoc = 13192;
+		rLoc = 14155;
 		rType = 0;
 		vrLen = 517;
 		vrLoc = 4931;
@@ -1865,7 +1891,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 227";
 		rLen = 0;
-		rLoc = 13192;
+		rLoc = 14155;
 		rType = 0;
 		vrLen = 517;
 		vrLoc = 4931;
@@ -1953,7 +1979,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 157";
 		rLen = 0;
-		rLoc = 13411;
+		rLoc = 14330;
 		rType = 0;
 		vrLen = 475;
 		vrLoc = 3488;
@@ -2081,7 +2107,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 311";
 		rLen = 0;
-		rLoc = 23815;
+		rLoc = 24734;
 		rType = 0;
 		vrLen = 707;
 		vrLoc = 6921;
@@ -2111,7 +2137,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 292";
 		rLen = 15;
-		rLoc = 21583;
+		rLoc = 22502;
 		rType = 0;
 		vrLen = 604;
 		vrLoc = 6413;
@@ -2131,7 +2157,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 299";
 		rLen = 0;
-		rLoc = 23989;
+		rLoc = 24908;
 		rType = 0;
 		vrLen = 630;
 		vrLoc = 6520;
@@ -2171,7 +2197,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 301";
 		rLen = 0;
-		rLoc = 23431;
+		rLoc = 24350;
 		rType = 0;
 		vrLen = 507;
 		vrLoc = 6694;
@@ -2191,7 +2217,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 311";
 		rLen = 0;
-		rLoc = 23815;
+		rLoc = 24734;
 		rType = 0;
 		vrLen = 707;
 		vrLoc = 6921;
@@ -2211,7 +2237,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 301";
 		rLen = 0;
-		rLoc = 23057;
+		rLoc = 23976;
 		rType = 0;
 		vrLen = 748;
 		vrLoc = 6919;
@@ -2251,7 +2277,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 315";
 		rLen = 0;
-		rLoc = 22348;
+		rLoc = 23267;
 		rType = 0;
 		vrLen = 777;
 		vrLoc = 7381;
@@ -2261,7 +2287,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 306";
 		rLen = 0;
-		rLoc = 22735;
+		rLoc = 23654;
 		rType = 0;
 		vrLen = 608;
 		vrLoc = 6919;
@@ -2281,7 +2307,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 314";
 		rLen = 13;
-		rLoc = 22590;
+		rLoc = 23509;
 		rType = 0;
 		vrLen = 694;
 		vrLoc = 7392;
@@ -2301,7 +2327,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 309";
 		rLen = 0;
-		rLoc = 22349;
+		rLoc = 23268;
 		rType = 0;
 		vrLen = 741;
 		vrLoc = 7381;
@@ -2321,7 +2347,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 313";
 		rLen = 0;
-		rLoc = 22248;
+		rLoc = 23167;
 		rType = 0;
 		vrLen = 795;
 		vrLoc = 7381;
@@ -2371,7 +2397,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 315";
 		rLen = 0;
-		rLoc = 22348;
+		rLoc = 23267;
 		rType = 0;
 		vrLen = 777;
 		vrLoc = 7381;
@@ -2391,7 +2417,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 316";
 		rLen = 0;
-		rLoc = 22349;
+		rLoc = 23268;
 		rType = 0;
 		vrLen = 888;
 		vrLoc = 7381;
@@ -2401,7 +2427,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 314";
 		rLen = 0;
-		rLoc = 22351;
+		rLoc = 23270;
 		rType = 0;
 		vrLen = 1007;
 		vrLoc = 7272;
@@ -2421,7 +2447,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 327";
 		rLen = 0;
-		rLoc = 22628;
+		rLoc = 23547;
 		rType = 0;
 		vrLen = 888;
 		vrLoc = 7381;
@@ -2441,7 +2467,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 307";
 		rLen = 0;
-		rLoc = 22193;
+		rLoc = 23112;
 		rType = 0;
 		vrLen = 799;
 		vrLoc = 7270;
@@ -2461,7 +2487,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 316";
 		rLen = 0;
-		rLoc = 22351;
+		rLoc = 23270;
 		rType = 0;
 		vrLen = 715;
 		vrLoc = 7272;
@@ -2481,7 +2507,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 316";
 		rLen = 0;
-		rLoc = 22351;
+		rLoc = 23270;
 		rType = 0;
 		vrLen = 715;
 		vrLoc = 7272;
@@ -2501,7 +2527,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 316";
 		rLen = 0;
-		rLoc = 22351;
+		rLoc = 23270;
 		rType = 0;
 		vrLen = 782;
 		vrLoc = 7272;
@@ -2521,7 +2547,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 318";
 		rLen = 0;
-		rLoc = 22351;
+		rLoc = 23270;
 		rType = 0;
 		vrLen = 830;
 		vrLoc = 7272;
@@ -2541,7 +2567,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 318";
 		rLen = 0;
-		rLoc = 22351;
+		rLoc = 23270;
 		rType = 0;
 		vrLen = 862;
 		vrLoc = 7272;
@@ -2561,7 +2587,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 325";
 		rLen = 154;
-		rLoc = 22352;
+		rLoc = 23271;
 		rType = 0;
 		vrLen = 1075;
 		vrLoc = 7622;
@@ -2581,7 +2607,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 314";
 		rLen = 0;
-		rLoc = 22351;
+		rLoc = 23270;
 		rType = 0;
 		vrLen = 1007;
 		vrLoc = 7272;
@@ -2631,7 +2657,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 422";
 		rLen = 0;
-		rLoc = 21677;
+		rLoc = 22596;
 		rType = 0;
 		vrLen = 735;
 		vrLoc = 10293;
@@ -2651,7 +2677,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* BuilderTiledMesh.h */;
 		name = "BuilderTiledMesh.h: 48";
 		rLen = 0;
-		rLoc = 869;
+		rLoc = 1811;
 		rType = 0;
 		vrLen = 541;
 		vrLoc = 536;
@@ -2671,7 +2697,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 42";
 		rLen = 13;
-		rLoc = 879;
+		rLoc = 1818;
 		rType = 0;
 		vrLen = 605;
 		vrLoc = 439;
@@ -2711,7 +2737,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 422";
 		rLen = 0;
-		rLoc = 21677;
+		rLoc = 22596;
 		rType = 0;
 		vrLen = 735;
 		vrLoc = 10293;
@@ -2761,7 +2787,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* BuilderTiledMesh.h */;
 		name = "BuilderTiledMesh.h: 48";
 		rLen = 0;
-		rLoc = 869;
+		rLoc = 1811;
 		rType = 0;
 		vrLen = 541;
 		vrLoc = 536;
@@ -2771,7 +2797,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 42";
 		rLen = 0;
-		rLoc = 878;
+		rLoc = 1817;
 		rType = 0;
 		vrLen = 586;
 		vrLoc = 439;
@@ -2811,7 +2837,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 42";
 		rLen = 13;
-		rLoc = 879;
+		rLoc = 1818;
 		rType = 0;
 		vrLen = 605;
 		vrLoc = 439;
@@ -2861,7 +2887,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 42";
 		rLen = 13;
-		rLoc = 879;
+		rLoc = 1818;
 		rType = 0;
 		vrLen = 605;
 		vrLoc = 439;
@@ -2901,7 +2927,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 89";
 		rLen = 0;
-		rLoc = 1811;
+		rLoc = 2750;
 		rType = 0;
 		vrLen = 816;
 		vrLoc = 1253;
@@ -2921,7 +2947,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 89";
 		rLen = 10;
-		rLoc = 1768;
+		rLoc = 2707;
 		rType = 0;
 		vrLen = 799;
 		vrLoc = 1255;
@@ -2931,7 +2957,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 89";
 		rLen = 10;
-		rLoc = 1768;
+		rLoc = 2707;
 		rType = 0;
 		vrLen = 801;
 		vrLoc = 1253;
@@ -2951,7 +2977,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 198";
 		rLen = 0;
-		rLoc = 7922;
+		rLoc = 8861;
 		rType = 0;
 		vrLen = 761;
 		vrLoc = 3643;
@@ -2961,7 +2987,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 198";
 		rLen = 0;
-		rLoc = 7922;
+		rLoc = 8861;
 		rType = 0;
 		vrLen = 761;
 		vrLoc = 3643;
@@ -2981,7 +3007,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 198";
 		rLen = 0;
-		rLoc = 7922;
+		rLoc = 8861;
 		rType = 0;
 		vrLen = 761;
 		vrLoc = 3643;
@@ -3030,8 +3056,8 @@
 		isa = PBXTextBookmark;
 		comments = "error: redeclaration of 'float col [4]'";
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
-		rLen = 1;
-		rLoc = 324;
+		rLen = 0;
+		rLoc = 835;
 		rType = 1;
 	};
 	6B0249AA1003774A00CF7107 /* PBXTextBookmark */ = {
@@ -3059,7 +3085,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 200";
 		rLen = 0;
-		rLoc = 8055;
+		rLoc = 8994;
 		rType = 0;
 		vrLen = 826;
 		vrLoc = 3701;
@@ -3069,12 +3095,12 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 213";
 		rLen = 0;
-		rLoc = 7204;
+		rLoc = 8143;
 		rType = 0;
 		vrLen = 849;
 		vrLoc = 4127;
 	};
-	6B0249B11003783F00CF7107 /* BuilderTiledMesh.cpp:89 */ = {
+	6B0249B11003783F00CF7107 /* BuilderTiledMesh.cpp:836 */ = {
 		isa = PBXFileBreakpoint;
 		actions = (
 		);
@@ -3086,7 +3112,7 @@
 		functionName = "BuilderTiledMesh::toolRecalc()";
 		hitCount = 0;
 		ignoreCount = 0;
-		lineNumber = 89;
+		lineNumber = 836;
 		location = Recast;
 		modificationTime = 268741438.169822;
 		state = 1;
@@ -3096,7 +3122,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 85";
 		rLen = 6;
-		rLoc = 1718;
+		rLoc = 2657;
 		rType = 0;
 		vrLen = 723;
 		vrLoc = 1213;
@@ -3113,7 +3139,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 85";
 		rLen = 6;
-		rLoc = 1718;
+		rLoc = 2657;
 		rType = 0;
 		vrLen = 723;
 		vrLoc = 1213;
@@ -3123,7 +3149,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 85";
 		rLen = 6;
-		rLoc = 1718;
+		rLoc = 2657;
 		rType = 0;
 		vrLen = 723;
 		vrLoc = 1213;
@@ -3153,7 +3179,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 87";
 		rLen = 0;
-		rLoc = 1733;
+		rLoc = 2672;
 		rType = 0;
 		vrLen = 576;
 		vrLoc = 1320;
@@ -3162,7 +3188,7 @@
 		isa = PBXTextBookmark;
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		rLen = 0;
-		rLoc = 970;
+		rLoc = 0;
 		rType = 1;
 	};
 	6B0249C11003793900CF7107 /* PBXTextBookmark */ = {
@@ -3180,7 +3206,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 87";
 		rLen = 0;
-		rLoc = 1733;
+		rLoc = 2672;
 		rType = 0;
 		vrLen = 576;
 		vrLoc = 1320;
@@ -3190,7 +3216,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 505";
 		rLen = 0;
-		rLoc = 23847;
+		rLoc = 24766;
 		rType = 0;
 		vrLen = 678;
 		vrLoc = 12063;
@@ -3200,7 +3226,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 497";
 		rLen = 0;
-		rLoc = 23717;
+		rLoc = 24636;
 		rType = 0;
 		vrLen = 682;
 		vrLoc = 12063;
@@ -3220,7 +3246,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 281";
 		rLen = 7;
-		rLoc = 18087;
+		rLoc = 19006;
 		rType = 0;
 		vrLen = 524;
 		vrLoc = 6952;
@@ -3230,7 +3256,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 334";
 		rLen = 0;
-		rLoc = 14275;
+		rLoc = 15388;
 		rType = 0;
 		vrLen = 498;
 		vrLoc = 7324;
@@ -3240,7 +3266,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 281";
 		rLen = 7;
-		rLoc = 18087;
+		rLoc = 19006;
 		rType = 0;
 		vrLen = 722;
 		vrLoc = 6846;
@@ -3250,7 +3276,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 281";
 		rLen = 7;
-		rLoc = 18087;
+		rLoc = 19006;
 		rType = 0;
 		vrLen = 722;
 		vrLoc = 6846;
@@ -3260,7 +3286,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 334";
 		rLen = 0;
-		rLoc = 14275;
+		rLoc = 15388;
 		rType = 0;
 		vrLen = 498;
 		vrLoc = 7324;
@@ -3270,7 +3296,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 498";
 		rLen = 0;
-		rLoc = 23704;
+		rLoc = 24623;
 		rType = 0;
 		vrLen = 761;
 		vrLoc = 11860;
@@ -3280,7 +3306,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 491";
 		rLen = 0;
-		rLoc = 23358;
+		rLoc = 24277;
 		rType = 0;
 		vrLen = 761;
 		vrLoc = 11860;
@@ -3290,7 +3316,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 491";
 		rLen = 0;
-		rLoc = 23358;
+		rLoc = 24277;
 		rType = 0;
 		vrLen = 727;
 		vrLoc = 11857;
@@ -3300,7 +3326,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 491";
 		rLen = 0;
-		rLoc = 23358;
+		rLoc = 24277;
 		rType = 0;
 		vrLen = 608;
 		vrLoc = 11860;
@@ -3310,7 +3336,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 503";
 		rLen = 0;
-		rLoc = 23774;
+		rLoc = 24693;
 		rType = 0;
 		vrLen = 747;
 		vrLoc = 12100;
@@ -3320,7 +3346,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 502";
 		rLen = 0;
-		rLoc = 23771;
+		rLoc = 24690;
 		rType = 0;
 		vrLen = 747;
 		vrLoc = 12100;
@@ -3330,7 +3356,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 502";
 		rLen = 0;
-		rLoc = 23771;
+		rLoc = 24690;
 		rType = 0;
 		vrLen = 575;
 		vrLoc = 12100;
@@ -3340,7 +3366,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 494";
 		rLen = 0;
-		rLoc = 23464;
+		rLoc = 24383;
 		rType = 0;
 		vrLen = 803;
 		vrLoc = 12005;
@@ -3350,7 +3376,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* BuilderTiledMesh.h */;
 		name = "BuilderTiledMesh.h: 50";
 		rLen = 13;
-		rLoc = 928;
+		rLoc = 1870;
 		rType = 0;
 		vrLen = 382;
 		vrLoc = 651;
@@ -3360,7 +3386,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 222";
 		rLen = 0;
-		rLoc = 7622;
+		rLoc = 8561;
 		rType = 0;
 		vrLen = 685;
 		vrLoc = 4570;
@@ -3370,7 +3396,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 494";
 		rLen = 0;
-		rLoc = 23464;
+		rLoc = 24383;
 		rType = 0;
 		vrLen = 803;
 		vrLoc = 12005;
@@ -3380,7 +3406,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 222";
 		rLen = 0;
-		rLoc = 7622;
+		rLoc = 8561;
 		rType = 0;
 		vrLen = 685;
 		vrLoc = 4570;
@@ -3390,7 +3416,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* BuilderTiledMesh.h */;
 		name = "BuilderTiledMesh.h: 50";
 		rLen = 13;
-		rLoc = 928;
+		rLoc = 1870;
 		rType = 0;
 		vrLen = 382;
 		vrLoc = 651;
@@ -3400,7 +3426,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 222";
 		rLen = 0;
-		rLoc = 7525;
+		rLoc = 8464;
 		rType = 0;
 		vrLen = 774;
 		vrLoc = 4586;
@@ -3410,7 +3436,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 222";
 		rLen = 0;
-		rLoc = 7525;
+		rLoc = 8464;
 		rType = 0;
 		vrLen = 824;
 		vrLoc = 4586;
@@ -3420,7 +3446,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 494";
 		rLen = 0;
-		rLoc = 23464;
+		rLoc = 24383;
 		rType = 0;
 		vrLen = 837;
 		vrLoc = 12003;
@@ -3430,7 +3456,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 222";
 		rLen = 0;
-		rLoc = 7525;
+		rLoc = 8464;
 		rType = 0;
 		vrLen = 824;
 		vrLoc = 4586;
@@ -3440,7 +3466,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 497";
 		rLen = 0;
-		rLoc = 23465;
+		rLoc = 24384;
 		rType = 0;
 		vrLen = 691;
 		vrLoc = 11951;
@@ -3450,7 +3476,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 494";
 		rLen = 0;
-		rLoc = 23428;
+		rLoc = 24347;
 		rType = 0;
 		vrLen = 691;
 		vrLoc = 11951;
@@ -3460,7 +3486,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 494";
 		rLen = 0;
-		rLoc = 23428;
+		rLoc = 24347;
 		rType = 0;
 		vrLen = 730;
 		vrLoc = 11873;
@@ -3470,7 +3496,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 494";
 		rLen = 0;
-		rLoc = 23428;
+		rLoc = 24347;
 		rType = 0;
 		vrLen = 507;
 		vrLoc = 12135;
@@ -3480,12 +3506,12 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 511";
 		rLen = 0;
-		rLoc = 23870;
+		rLoc = 24789;
 		rType = 0;
 		vrLen = 586;
 		vrLoc = 12278;
 	};
-	6B0249ED10037C0A00CF7107 /* DetourTiledNavMesh.cpp:1023 */ = {
+	6B0249ED10037C0A00CF7107 /* DetourTiledNavMesh.cpp:1 */ = {
 		isa = PBXFileBreakpoint;
 		actions = (
 		);
@@ -3497,12 +3523,12 @@
 		functionName = "dtTiledNavMesh::queryTilePolygons(dtTile* tile, const float* qmin, const float* qmax, dtTilePolyRef* polys, const int maxPolys)";
 		hitCount = 0;
 		ignoreCount = 0;
-		lineNumber = 1023;
+		lineNumber = 1;
 		location = Recast;
 		modificationTime = 268741438.170399;
 		state = 1;
 	};
-	6B0249EF10037C0C00CF7107 /* DetourTiledNavMesh.cpp:1027 */ = {
+	6B0249EF10037C0C00CF7107 /* DetourTiledNavMesh.cpp:1 */ = {
 		isa = PBXFileBreakpoint;
 		actions = (
 		);
@@ -3514,7 +3540,7 @@
 		functionName = "dtTiledNavMesh::queryTilePolygons(dtTile* tile, const float* qmin, const float* qmax, dtTilePolyRef* polys, const int maxPolys)";
 		hitCount = 0;
 		ignoreCount = 0;
-		lineNumber = 1027;
+		lineNumber = 1;
 		location = Recast;
 		modificationTime = 268741438.170594;
 		state = 1;
@@ -3524,7 +3550,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 87";
 		rLen = 0;
-		rLoc = 1733;
+		rLoc = 2672;
 		rType = 0;
 		vrLen = 529;
 		vrLoc = 1407;
@@ -3534,7 +3560,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 444";
 		rLen = 0;
-		rLoc = 22173;
+		rLoc = 23092;
 		rType = 0;
 		vrLen = 475;
 		vrLoc = 10568;
@@ -3551,7 +3577,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 503";
 		rLen = 0;
-		rLoc = 23725;
+		rLoc = 24644;
 		rType = 0;
 		vrLen = 620;
 		vrLoc = 12244;
@@ -3561,7 +3587,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 87";
 		rLen = 0;
-		rLoc = 1733;
+		rLoc = 2672;
 		rType = 0;
 		vrLen = 529;
 		vrLoc = 1407;
@@ -3571,7 +3597,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 430";
 		rLen = 0;
-		rLoc = 21928;
+		rLoc = 22847;
 		rType = 0;
 		vrLen = 475;
 		vrLoc = 10568;
@@ -3591,7 +3617,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 444";
 		rLen = 0;
-		rLoc = 22173;
+		rLoc = 23092;
 		rType = 0;
 		vrLen = 475;
 		vrLoc = 10568;
@@ -3641,7 +3667,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* BuilderTiledMesh.h */;
 		name = "BuilderTiledMesh.h: 54";
 		rLen = 0;
-		rLoc = 984;
+		rLoc = 1926;
 		rType = 0;
 		vrLen = 409;
 		vrLoc = 651;
@@ -3651,7 +3677,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 97";
 		rLen = 0;
-		rLoc = 1949;
+		rLoc = 2888;
 		rType = 0;
 		vrLen = 540;
 		vrLoc = 1645;
@@ -3721,7 +3747,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 84";
 		rLen = 0;
-		rLoc = 1694;
+		rLoc = 2633;
 		rType = 0;
 		vrLen = 622;
 		vrLoc = 1391;
@@ -3731,7 +3757,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* BuilderTiledMesh.h */;
 		name = "BuilderTiledMesh.h: 53";
 		rLen = 8;
-		rLoc = 1060;
+		rLoc = 2002;
 		rType = 0;
 		vrLen = 416;
 		vrLoc = 629;
@@ -3741,7 +3767,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 96";
 		rLen = 0;
-		rLoc = 1949;
+		rLoc = 2888;
 		rType = 0;
 		vrLen = 574;
 		vrLoc = 1645;
@@ -3751,7 +3777,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* BuilderTiledMesh.h */;
 		name = "BuilderTiledMesh.h: 52";
 		rLen = 0;
-		rLoc = 989;
+		rLoc = 1931;
 		rType = 0;
 		vrLen = 394;
 		vrLoc = 651;
@@ -3771,7 +3797,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 95";
 		rLen = 0;
-		rLoc = 1928;
+		rLoc = 2867;
 		rType = 0;
 		vrLen = 571;
 		vrLoc = 1645;
@@ -3781,7 +3807,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* BuilderTiledMesh.h */;
 		name = "BuilderTiledMesh.h: 54";
 		rLen = 0;
-		rLoc = 984;
+		rLoc = 1926;
 		rType = 0;
 		vrLen = 409;
 		vrLoc = 651;
@@ -3801,7 +3827,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 97";
 		rLen = 0;
-		rLoc = 1949;
+		rLoc = 2888;
 		rType = 0;
 		vrLen = 540;
 		vrLoc = 1645;
@@ -3831,7 +3857,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 97";
 		rLen = 0;
-		rLoc = 1949;
+		rLoc = 2888;
 		rType = 0;
 		vrLen = 540;
 		vrLoc = 1645;
@@ -3851,7 +3877,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 244";
 		rLen = 0;
-		rLoc = 8533;
+		rLoc = 9472;
 		rType = 0;
 		vrLen = 597;
 		vrLoc = 5220;
@@ -3861,7 +3887,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 244";
 		rLen = 0;
-		rLoc = 8533;
+		rLoc = 9472;
 		rType = 0;
 		vrLen = 597;
 		vrLoc = 5220;
@@ -3871,7 +3897,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 244";
 		rLen = 0;
-		rLoc = 8533;
+		rLoc = 9472;
 		rType = 0;
 		vrLen = 575;
 		vrLoc = 5405;
@@ -3881,7 +3907,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 494";
 		rLen = 0;
-		rLoc = 23428;
+		rLoc = 24347;
 		rType = 0;
 		vrLen = 535;
 		vrLoc = 12003;
@@ -3891,7 +3917,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 241";
 		rLen = 0;
-		rLoc = 8393;
+		rLoc = 9332;
 		rType = 0;
 		vrLen = 412;
 		vrLoc = 5405;
@@ -3901,7 +3927,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 235";
 		rLen = 0;
-		rLoc = 7943;
+		rLoc = 8882;
 		rType = 0;
 		vrLen = 601;
 		vrLoc = 5322;
@@ -3911,7 +3937,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* BuilderTiledMesh.h */;
 		name = "BuilderTiledMesh.h: 54";
 		rLen = 0;
-		rLoc = 984;
+		rLoc = 1926;
 		rType = 0;
 		vrLen = 387;
 		vrLoc = 673;
@@ -3931,7 +3957,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 235";
 		rLen = 0;
-		rLoc = 7943;
+		rLoc = 8882;
 		rType = 0;
 		vrLen = 601;
 		vrLoc = 5322;
@@ -3941,7 +3967,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* BuilderTiledMesh.h */;
 		name = "BuilderTiledMesh.h: 54";
 		rLen = 0;
-		rLoc = 984;
+		rLoc = 1926;
 		rType = 0;
 		vrLen = 387;
 		vrLoc = 673;
@@ -3961,7 +3987,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 450";
 		rLen = 0;
-		rLoc = 22310;
+		rLoc = 23229;
 		rType = 0;
 		vrLen = 633;
 		vrLoc = 10984;
@@ -3981,7 +4007,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 434";
 		rLen = 18;
-		rLoc = 21991;
+		rLoc = 22910;
 		rType = 0;
 		vrLen = 638;
 		vrLoc = 10346;
@@ -3991,7 +4017,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 434";
 		rLen = 18;
-		rLoc = 21991;
+		rLoc = 22910;
 		rType = 0;
 		vrLen = 638;
 		vrLoc = 10346;
@@ -4011,7 +4037,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 398";
 		rLen = 0;
-		rLoc = 21134;
+		rLoc = 22053;
 		rType = 0;
 		vrLen = 633;
 		vrLoc = 9539;
@@ -4041,7 +4067,7 @@
 		comments = "error: expected ',' or ';' before 'if'";
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		rLen = 0;
-		rLoc = 609;
+		rLoc = 0;
 		rType = 1;
 	};
 	6B024A3210047FFD00CF7107 /* PBXTextBookmark */ = {
@@ -4109,7 +4135,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 258";
 		rLen = 0;
-		rLoc = 13411;
+		rLoc = 14330;
 		rType = 0;
 		vrLen = 870;
 		vrLoc = 5819;
@@ -4129,7 +4155,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 247";
 		rLen = 0;
-		rLoc = 13396;
+		rLoc = 14315;
 		rType = 0;
 		vrLen = 855;
 		vrLoc = 5850;
@@ -4149,7 +4175,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 247";
 		rLen = 0;
-		rLoc = 13396;
+		rLoc = 14315;
 		rType = 0;
 		vrLen = 862;
 		vrLoc = 5850;
@@ -4169,7 +4195,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 247";
 		rLen = 0;
-		rLoc = 13396;
+		rLoc = 14315;
 		rType = 0;
 		vrLen = 862;
 		vrLoc = 5850;
@@ -4189,7 +4215,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 264";
 		rLen = 0;
-		rLoc = 13396;
+		rLoc = 14315;
 		rType = 0;
 		vrLen = 540;
 		vrLoc = 6210;
@@ -4209,7 +4235,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 282";
 		rLen = 0;
-		rLoc = 13396;
+		rLoc = 14315;
 		rType = 0;
 		vrLen = 868;
 		vrLoc = 6277;
@@ -4219,7 +4245,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 282";
 		rLen = 0;
-		rLoc = 13396;
+		rLoc = 14315;
 		rType = 0;
 		vrLen = 868;
 		vrLoc = 6277;
@@ -4239,7 +4265,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* BuilderTiledMesh.h */;
 		name = "BuilderTiledMesh.h: 49";
 		rLen = 13;
-		rLoc = 897;
+		rLoc = 1839;
 		rType = 0;
 		vrLen = 650;
 		vrLoc = 651;
@@ -4259,7 +4285,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 239";
 		rLen = 0;
-		rLoc = 8094;
+		rLoc = 9033;
 		rType = 0;
 		vrLen = 983;
 		vrLoc = 5008;
@@ -4269,7 +4295,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 282";
 		rLen = 0;
-		rLoc = 13396;
+		rLoc = 14315;
 		rType = 0;
 		vrLen = 868;
 		vrLoc = 6277;
@@ -4289,7 +4315,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 239";
 		rLen = 0;
-		rLoc = 8115;
+		rLoc = 9054;
 		rType = 0;
 		vrLen = 1002;
 		vrLoc = 4961;
@@ -4299,7 +4325,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* BuilderTiledMesh.h */;
 		name = "BuilderTiledMesh.h: 49";
 		rLen = 13;
-		rLoc = 897;
+		rLoc = 1839;
 		rType = 0;
 		vrLen = 650;
 		vrLoc = 651;
@@ -4309,7 +4335,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 239";
 		rLen = 0;
-		rLoc = 8094;
+		rLoc = 9033;
 		rType = 0;
 		vrLen = 983;
 		vrLoc = 5008;
@@ -4329,7 +4355,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 242";
 		rLen = 0;
-		rLoc = 8211;
+		rLoc = 9150;
 		rType = 0;
 		vrLen = 1102;
 		vrLoc = 5008;
@@ -4339,7 +4365,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 242";
 		rLen = 0;
-		rLoc = 8211;
+		rLoc = 9150;
 		rType = 0;
 		vrLen = 1102;
 		vrLoc = 5008;
@@ -4348,7 +4374,7 @@
 		isa = PBXTextBookmark;
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		rLen = 0;
-		rLoc = 624;
+		rLoc = 0;
 		rType = 1;
 	};
 	6B024A54100480B800CF7107 /* PBXTextBookmark */ = {
@@ -4356,7 +4382,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 242";
 		rLen = 0;
-		rLoc = 8211;
+		rLoc = 9150;
 		rType = 0;
 		vrLen = 1102;
 		vrLoc = 5008;
@@ -4366,7 +4392,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 255";
 		rLen = 0;
-		rLoc = 12907;
+		rLoc = 13826;
 		rType = 0;
 		vrLen = 755;
 		vrLoc = 5914;
@@ -4376,7 +4402,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 273";
 		rLen = 0;
-		rLoc = 13396;
+		rLoc = 14315;
 		rType = 0;
 		vrLen = 753;
 		vrLoc = 6276;
@@ -4386,7 +4412,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 282";
 		rLen = 0;
-		rLoc = 13396;
+		rLoc = 14315;
 		rType = 0;
 		vrLen = 842;
 		vrLoc = 6276;
@@ -4406,7 +4432,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 228";
 		rLen = 0;
-		rLoc = 12907;
+		rLoc = 13826;
 		rType = 0;
 		vrLen = 915;
 		vrLoc = 5316;
@@ -4416,7 +4442,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 228";
 		rLen = 0;
-		rLoc = 12907;
+		rLoc = 13826;
 		rType = 0;
 		vrLen = 915;
 		vrLoc = 5316;
@@ -4436,7 +4462,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 312";
 		rLen = 0;
-		rLoc = 13411;
+		rLoc = 14330;
 		rType = 0;
 		vrLen = 846;
 		vrLoc = 7026;
@@ -4446,7 +4472,7 @@
 		comments = "error: expected `;' before ')' token";
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		rLen = 0;
-		rLoc = 627;
+		rLoc = 0;
 		rType = 1;
 	};
 	6B024A64100484C600CF7107 /* PBXTextBookmark */ = {
@@ -4454,7 +4480,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 310";
 		rLen = 0;
-		rLoc = 13411;
+		rLoc = 14330;
 		rType = 0;
 		vrLen = 794;
 		vrLoc = 7225;
@@ -4464,7 +4490,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 280";
 		rLen = 0;
-		rLoc = 13396;
+		rLoc = 14315;
 		rType = 0;
 		vrLen = 861;
 		vrLoc = 6292;
@@ -4494,7 +4520,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 281";
 		rLen = 0;
-		rLoc = 13396;
+		rLoc = 14315;
 		rType = 0;
 		vrLen = 832;
 		vrLoc = 6290;
@@ -4514,7 +4540,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 281";
 		rLen = 0;
-		rLoc = 13396;
+		rLoc = 14315;
 		rType = 0;
 		vrLen = 832;
 		vrLoc = 6290;
@@ -4534,7 +4560,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 280";
 		rLen = 0;
-		rLoc = 13396;
+		rLoc = 14315;
 		rType = 0;
 		vrLen = 861;
 		vrLoc = 6292;
@@ -4584,7 +4610,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 482";
 		rLen = 0;
-		rLoc = 16357;
+		rLoc = 17276;
 		rType = 0;
 		vrLen = 902;
 		vrLoc = 11574;
@@ -4604,7 +4630,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 396";
 		rLen = 0;
-		rLoc = 13411;
+		rLoc = 14330;
 		rType = 0;
 		vrLen = 767;
 		vrLoc = 9584;
@@ -4624,7 +4650,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 397";
 		rLen = 0;
-		rLoc = 13411;
+		rLoc = 14330;
 		rType = 0;
 		vrLen = 840;
 		vrLoc = 9602;
@@ -4644,7 +4670,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 397";
 		rLen = 0;
-		rLoc = 13411;
+		rLoc = 14330;
 		rType = 0;
 		vrLen = 840;
 		vrLoc = 9602;
@@ -4664,7 +4690,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 423";
 		rLen = 0;
-		rLoc = 17430;
+		rLoc = 18349;
 		rType = 0;
 		vrLen = 795;
 		vrLoc = 10054;
@@ -4684,7 +4710,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 429";
 		rLen = 0;
-		rLoc = 17531;
+		rLoc = 18450;
 		rType = 0;
 		vrLen = 735;
 		vrLoc = 10145;
@@ -4704,7 +4730,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 429";
 		rLen = 0;
-		rLoc = 17531;
+		rLoc = 18450;
 		rType = 0;
 		vrLen = 768;
 		vrLoc = 10145;
@@ -4724,7 +4750,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 429";
 		rLen = 0;
-		rLoc = 17531;
+		rLoc = 18450;
 		rType = 0;
 		vrLen = 768;
 		vrLoc = 10145;
@@ -4744,7 +4770,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 482";
 		rLen = 0;
-		rLoc = 16357;
+		rLoc = 17276;
 		rType = 0;
 		vrLen = 902;
 		vrLoc = 11574;
@@ -4764,7 +4790,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 549";
 		rLen = 0;
-		rLoc = 16685;
+		rLoc = 17604;
 		rType = 0;
 		vrLen = 838;
 		vrLoc = 13241;
@@ -4784,7 +4810,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 432";
 		rLen = 166;
-		rLoc = 13412;
+		rLoc = 14331;
 		rType = 0;
 		vrLen = 1036;
 		vrLoc = 10746;
@@ -4794,7 +4820,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 535";
 		rLen = 0;
-		rLoc = 16195;
+		rLoc = 17114;
 		rType = 0;
 		vrLen = 838;
 		vrLoc = 13241;
@@ -4814,7 +4840,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 535";
 		rLen = 0;
-		rLoc = 16195;
+		rLoc = 17114;
 		rType = 0;
 		vrLen = 838;
 		vrLoc = 13241;
@@ -4834,7 +4860,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 651";
 		rLen = 0;
-		rLoc = 19434;
+		rLoc = 20353;
 		rType = 0;
 		vrLen = 791;
 		vrLoc = 16080;
@@ -4854,7 +4880,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 471";
 		rLen = 0;
-		rLoc = 14666;
+		rLoc = 15585;
 		rType = 0;
 		vrLen = 965;
 		vrLoc = 14647;
@@ -4874,7 +4900,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 577";
 		rLen = 0;
-		rLoc = 17349;
+		rLoc = 18268;
 		rType = 0;
 		vrLen = 812;
 		vrLoc = 14054;
@@ -4894,7 +4920,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 503";
 		rLen = 75;
-		rLoc = 15390;
+		rLoc = 16309;
 		rType = 0;
 		vrLen = 883;
 		vrLoc = 12418;
@@ -4914,7 +4940,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 432";
 		rLen = 166;
-		rLoc = 13412;
+		rLoc = 14331;
 		rType = 0;
 		vrLen = 1036;
 		vrLoc = 10746;
@@ -4934,7 +4960,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 264";
 		rLen = 0;
-		rLoc = 13338;
+		rLoc = 14257;
 		rType = 0;
 		vrLen = 712;
 		vrLoc = 6266;
@@ -4954,7 +4980,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 328";
 		rLen = 0;
-		rLoc = 14687;
+		rLoc = 15606;
 		rType = 0;
 		vrLen = 787;
 		vrLoc = 7774;
@@ -4964,7 +4990,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 327";
 		rLen = 0;
-		rLoc = 13701;
+		rLoc = 14750;
 		rType = 0;
 		vrLen = 607;
 		vrLoc = 7412;
@@ -4982,7 +5008,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 516";
 		rLen = 0;
-		rLoc = 19607;
+		rLoc = 20526;
 		rType = 0;
 		vrLen = 549;
 		vrLoc = 12742;
@@ -5012,7 +5038,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 328";
 		rLen = 0;
-		rLoc = 14687;
+		rLoc = 15606;
 		rType = 0;
 		vrLen = 787;
 		vrLoc = 7774;
@@ -5022,7 +5048,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 327";
 		rLen = 0;
-		rLoc = 13701;
+		rLoc = 14750;
 		rType = 0;
 		vrLen = 607;
 		vrLoc = 7412;
@@ -5082,7 +5108,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 328";
 		rLen = 0;
-		rLoc = 14687;
+		rLoc = 15606;
 		rType = 0;
 		vrLen = 741;
 		vrLoc = 7820;
@@ -5112,7 +5138,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 201";
 		rLen = 0;
-		rLoc = 7403;
+		rLoc = 8322;
 		rType = 0;
 		vrLen = 727;
 		vrLoc = 4522;
@@ -5122,12 +5148,12 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 573";
 		rLen = 0;
-		rLoc = 20649;
+		rLoc = 21568;
 		rType = 0;
 		vrLen = 490;
 		vrLoc = 13015;
 	};
-	6B024AC01004AB3900CF7107 /* DetourTiledNavMesh.cpp:859 */ = {
+	6B024AC01004AB3900CF7107 /* DetourTiledNavMesh.cpp:1 */ = {
 		isa = PBXFileBreakpoint;
 		actions = (
 		);
@@ -5139,7 +5165,7 @@
 		functionName = "dtTiledNavMesh::addTile(int x, int y, unsigned char* data, int dataSize)";
 		hitCount = 1;
 		ignoreCount = 0;
-		lineNumber = 859;
+		lineNumber = 1;
 		location = Recast;
 		modificationTime = 268741455.406971;
 		state = 1;
@@ -5149,7 +5175,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 562";
 		rLen = 0;
-		rLoc = 20416;
+		rLoc = 21335;
 		rType = 0;
 		vrLen = 690;
 		vrLoc = 12459;
@@ -5159,7 +5185,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 454";
 		rLen = 0;
-		rLoc = 17774;
+		rLoc = 18693;
 		rType = 0;
 		vrLen = 608;
 		vrLoc = 10324;
@@ -5169,7 +5195,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 425";
 		rLen = 0;
-		rLoc = 17144;
+		rLoc = 18063;
 		rType = 0;
 		vrLen = 608;
 		vrLoc = 10324;
@@ -5179,7 +5205,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 425";
 		rLen = 0;
-		rLoc = 17144;
+		rLoc = 18063;
 		rType = 0;
 		vrLen = 572;
 		vrLoc = 10297;
@@ -5189,7 +5215,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 249";
 		rLen = 0;
-		rLoc = 8393;
+		rLoc = 9332;
 		rType = 0;
 		vrLen = 374;
 		vrLoc = 5740;
@@ -5199,7 +5225,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 425";
 		rLen = 0;
-		rLoc = 17144;
+		rLoc = 18063;
 		rType = 0;
 		vrLen = 356;
 		vrLoc = 10350;
@@ -5229,7 +5255,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 395";
 		rLen = 0;
-		rLoc = 16357;
+		rLoc = 17276;
 		rType = 0;
 		vrLen = 864;
 		vrLoc = 9585;
@@ -5259,7 +5285,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 398";
 		rLen = 0;
-		rLoc = 16530;
+		rLoc = 17449;
 		rType = 0;
 		vrLen = 816;
 		vrLoc = 9514;
@@ -5269,7 +5295,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 185";
 		rLen = 0;
-		rLoc = 6998;
+		rLoc = 7917;
 		rType = 0;
 		vrLen = 965;
 		vrLoc = 4224;
@@ -5289,7 +5315,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 445";
 		rLen = 0;
-		rLoc = 18146;
+		rLoc = 19065;
 		rType = 0;
 		vrLen = 852;
 		vrLoc = 16217;
@@ -5299,7 +5325,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 445";
 		rLen = 0;
-		rLoc = 18146;
+		rLoc = 19065;
 		rType = 0;
 		vrLen = 852;
 		vrLoc = 16217;
@@ -5319,7 +5345,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 684";
 		rLen = 0;
-		rLoc = 23800;
+		rLoc = 24719;
 		rType = 0;
 		vrLen = 929;
 		vrLoc = 16140;
@@ -5358,8 +5384,8 @@
 		isa = PBXTextBookmark;
 		comments = "error: 'dtNode' was not declared in this scope";
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
-		rLen = 1;
-		rLoc = 1144;
+		rLen = 0;
+		rLoc = 0;
 		rType = 1;
 	};
 	6B024AE81004B12B00CF7107 /* PBXTextBookmark */ = {
@@ -5397,7 +5423,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 491";
 		rLen = 0;
-		rLoc = 12814;
+		rLoc = 13733;
 		rType = 0;
 		vrLen = 655;
 		vrLoc = 10068;
@@ -5417,7 +5443,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 942";
 		rLen = 0;
-		rLoc = 23991;
+		rLoc = 24910;
 		rType = 0;
 		vrLen = 882;
 		vrLoc = 20764;
@@ -5437,7 +5463,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 978";
 		rLen = 0;
-		rLoc = 25632;
+		rLoc = 26551;
 		rType = 0;
 		vrLen = 659;
 		vrLoc = 22394;
@@ -5457,7 +5483,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 942";
 		rLen = 94;
-		rLoc = 23991;
+		rLoc = 24910;
 		rType = 0;
 		vrLen = 733;
 		vrLoc = 21298;
@@ -5477,7 +5503,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 958";
 		rLen = 79;
-		rLoc = 24750;
+		rLoc = 25669;
 		rType = 0;
 		vrLen = 830;
 		vrLoc = 21564;
@@ -5497,7 +5523,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 958";
 		rLen = 79;
-		rLoc = 24750;
+		rLoc = 25669;
 		rType = 0;
 		vrLen = 829;
 		vrLoc = 21565;
@@ -5517,7 +5543,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 975";
 		rLen = 127;
-		rLoc = 25477;
+		rLoc = 26396;
 		rType = 0;
 		vrLen = 691;
 		vrLoc = 22102;
@@ -5537,7 +5563,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 1001";
 		rLen = 0;
-		rLoc = 26011;
+		rLoc = 26930;
 		rType = 0;
 		vrLen = 611;
 		vrLoc = 22798;
@@ -5547,7 +5573,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 999";
 		rLen = 0;
-		rLoc = 25965;
+		rLoc = 26884;
 		rType = 0;
 		vrLen = 756;
 		vrLoc = 22746;
@@ -5567,7 +5593,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 323";
 		rLen = 0;
-		rLoc = 13553;
+		rLoc = 14554;
 		rType = 0;
 		vrLen = 766;
 		vrLoc = 7330;
@@ -5577,7 +5603,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 999";
 		rLen = 0;
-		rLoc = 25965;
+		rLoc = 26884;
 		rType = 0;
 		vrLen = 756;
 		vrLoc = 22746;
@@ -5587,7 +5613,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 323";
 		rLen = 0;
-		rLoc = 13553;
+		rLoc = 14554;
 		rType = 0;
 		vrLen = 766;
 		vrLoc = 7330;
@@ -5607,7 +5633,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 260";
 		rLen = 0;
-		rLoc = 8541;
+		rLoc = 9480;
 		rType = 0;
 		vrLen = 916;
 		vrLoc = 5437;
@@ -5617,7 +5643,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 257";
 		rLen = 0;
-		rLoc = 8430;
+		rLoc = 9369;
 		rType = 0;
 		vrLen = 954;
 		vrLoc = 5437;
@@ -5637,7 +5663,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* BuilderTiledMesh.h */;
 		name = "BuilderTiledMesh.h: 57";
 		rLen = 15;
-		rLoc = 1111;
+		rLoc = 2053;
 		rType = 0;
 		vrLen = 650;
 		vrLoc = 651;
@@ -5657,7 +5683,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 106";
 		rLen = 0;
-		rLoc = 3976;
+		rLoc = 4915;
 		rType = 0;
 		vrLen = 952;
 		vrLoc = 1442;
@@ -5697,7 +5723,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 1256";
 		rLen = 0;
-		rLoc = 32151;
+		rLoc = 33070;
 		rType = 0;
 		vrLen = 850;
 		vrLoc = 28536;
@@ -5707,7 +5733,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 255";
 		rLen = 0;
-		rLoc = 8390;
+		rLoc = 9329;
 		rType = 0;
 		vrLen = 954;
 		vrLoc = 5437;
@@ -5727,7 +5753,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 256";
 		rLen = 0;
-		rLoc = 8393;
+		rLoc = 9332;
 		rType = 0;
 		vrLen = 952;
 		vrLoc = 5439;
@@ -5737,7 +5763,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* BuilderTiledMesh.h */;
 		name = "BuilderTiledMesh.h: 57";
 		rLen = 15;
-		rLoc = 1111;
+		rLoc = 2053;
 		rType = 0;
 		vrLen = 650;
 		vrLoc = 651;
@@ -5747,7 +5773,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 103";
 		rLen = 0;
-		rLoc = 2157;
+		rLoc = 3096;
 		rType = 0;
 		vrLen = 878;
 		vrLoc = 1442;
@@ -5767,7 +5793,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 106";
 		rLen = 0;
-		rLoc = 3976;
+		rLoc = 4915;
 		rType = 0;
 		vrLen = 952;
 		vrLoc = 1442;
@@ -5827,7 +5853,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 1250";
 		rLen = 0;
-		rLoc = 32181;
+		rLoc = 33100;
 		rType = 0;
 		vrLen = 836;
 		vrLoc = 28536;
@@ -5847,7 +5873,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 1256";
 		rLen = 0;
-		rLoc = 32151;
+		rLoc = 33070;
 		rType = 0;
 		vrLen = 850;
 		vrLoc = 28536;
@@ -5867,7 +5893,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 1270";
 		rLen = 0;
-		rLoc = 32413;
+		rLoc = 33332;
 		rType = 0;
 		vrLen = 1064;
 		vrLoc = 28622;
@@ -5887,7 +5913,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 523";
 		rLen = 16;
-		rLoc = 13550;
+		rLoc = 14469;
 		rType = 0;
 		vrLen = 1090;
 		vrLoc = 11291;
@@ -5897,7 +5923,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 1276";
 		rLen = 0;
-		rLoc = 33072;
+		rLoc = 33991;
 		rType = 0;
 		vrLen = 1068;
 		vrLoc = 28929;
@@ -5917,7 +5943,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 1293";
 		rLen = 0;
-		rLoc = 33072;
+		rLoc = 33991;
 		rType = 0;
 		vrLen = 840;
 		vrLoc = 29299;
@@ -5937,7 +5963,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 523";
 		rLen = 16;
-		rLoc = 13550;
+		rLoc = 14469;
 		rType = 0;
 		vrLen = 1090;
 		vrLoc = 11291;
@@ -5957,7 +5983,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 1272";
 		rLen = 0;
-		rLoc = 32346;
+		rLoc = 33265;
 		rType = 0;
 		vrLen = 880;
 		vrLoc = 29349;
@@ -5967,7 +5993,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 1272";
 		rLen = 0;
-		rLoc = 32346;
+		rLoc = 33265;
 		rType = 0;
 		vrLen = 880;
 		vrLoc = 29349;
@@ -5987,7 +6013,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 106";
 		rLen = 0;
-		rLoc = 3976;
+		rLoc = 4915;
 		rType = 0;
 		vrLen = 952;
 		vrLoc = 1442;
@@ -5997,7 +6023,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 1272";
 		rLen = 0;
-		rLoc = 32346;
+		rLoc = 33265;
 		rType = 0;
 		vrLen = 880;
 		vrLoc = 29349;
@@ -6017,7 +6043,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 283";
 		rLen = 0;
-		rLoc = 9025;
+		rLoc = 9964;
 		rType = 0;
 		vrLen = 860;
 		vrLoc = 6218;
@@ -6027,7 +6053,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 283";
 		rLen = 0;
-		rLoc = 9025;
+		rLoc = 9964;
 		rType = 0;
 		vrLen = 1200;
 		vrLoc = 6466;
@@ -6047,7 +6073,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 1272";
 		rLen = 0;
-		rLoc = 32346;
+		rLoc = 33265;
 		rType = 0;
 		vrLen = 986;
 		vrLoc = 29242;
@@ -6057,7 +6083,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 283";
 		rLen = 0;
-		rLoc = 9025;
+		rLoc = 9964;
 		rType = 0;
 		vrLen = 1200;
 		vrLoc = 6466;
@@ -6077,7 +6103,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 1278";
 		rLen = 0;
-		rLoc = 32641;
+		rLoc = 33560;
 		rType = 0;
 		vrLen = 988;
 		vrLoc = 29242;
@@ -6087,7 +6113,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 1160";
 		rLen = 0;
-		rLoc = 29599;
+		rLoc = 30518;
 		rType = 0;
 		vrLen = 850;
 		vrLoc = 26335;
@@ -6117,7 +6143,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 86";
 		rLen = 0;
-		rLoc = 3745;
+		rLoc = 4664;
 		rType = 0;
 		vrLen = 822;
 		vrLoc = 1643;
@@ -6127,7 +6153,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 957";
 		rLen = 0;
-		rLoc = 24267;
+		rLoc = 25186;
 		rType = 0;
 		vrLen = 879;
 		vrLoc = 21653;
@@ -6147,7 +6173,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 961";
 		rLen = 0;
-		rLoc = 24267;
+		rLoc = 25186;
 		rType = 0;
 		vrLen = 877;
 		vrLoc = 21653;
@@ -6167,7 +6193,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 961";
 		rLen = 0;
-		rLoc = 24267;
+		rLoc = 25186;
 		rType = 0;
 		vrLen = 877;
 		vrLoc = 21653;
@@ -6187,7 +6213,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 86";
 		rLen = 0;
-		rLoc = 3745;
+		rLoc = 4664;
 		rType = 0;
 		vrLen = 822;
 		vrLoc = 1643;
@@ -6207,7 +6233,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 989";
 		rLen = 0;
-		rLoc = 24612;
+		rLoc = 25531;
 		rType = 0;
 		vrLen = 1043;
 		vrLoc = 22298;
@@ -6217,7 +6243,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 985";
 		rLen = 0;
-		rLoc = 24482;
+		rLoc = 25401;
 		rType = 0;
 		vrLen = 1126;
 		vrLoc = 22298;
@@ -6257,7 +6283,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 985";
 		rLen = 0;
-		rLoc = 24482;
+		rLoc = 25401;
 		rType = 0;
 		vrLen = 1126;
 		vrLoc = 22298;
@@ -6347,7 +6373,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 106";
 		rLen = 7;
-		rLoc = 3130;
+		rLoc = 4049;
 		rType = 0;
 		vrLen = 669;
 		vrLoc = 2139;
@@ -6367,7 +6393,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 1363";
 		rLen = 0;
-		rLoc = 33374;
+		rLoc = 34293;
 		rType = 0;
 		vrLen = 757;
 		vrLoc = 31724;
@@ -6387,7 +6413,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 1382";
 		rLen = 22;
-		rLoc = 33987;
+		rLoc = 34906;
 		rType = 0;
 		vrLen = 785;
 		vrLoc = 32204;
@@ -6407,7 +6433,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 1417";
 		rLen = 0;
-		rLoc = 33717;
+		rLoc = 34636;
 		rType = 0;
 		vrLen = 820;
 		vrLoc = 32724;
@@ -6427,7 +6453,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 1412";
 		rLen = 0;
-		rLoc = 33717;
+		rLoc = 34636;
 		rType = 0;
 		vrLen = 820;
 		vrLoc = 32724;
@@ -6447,7 +6473,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 1475";
 		rLen = 0;
-		rLoc = 35095;
+		rLoc = 36014;
 		rType = 0;
 		vrLen = 865;
 		vrLoc = 33746;
@@ -6467,7 +6493,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 106";
 		rLen = 7;
-		rLoc = 3130;
+		rLoc = 4049;
 		rType = 0;
 		vrLen = 669;
 		vrLoc = 2139;
@@ -6487,7 +6513,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 89";
 		rLen = 0;
-		rLoc = 2075;
+		rLoc = 2994;
 		rType = 0;
 		vrLen = 788;
 		vrLoc = 1607;
@@ -6497,7 +6523,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 77";
 		rLen = 0;
-		rLoc = 1879;
+		rLoc = 2798;
 		rType = 0;
 		vrLen = 825;
 		vrLoc = 1607;
@@ -6517,7 +6543,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 283";
 		rLen = 0;
-		rLoc = 9025;
+		rLoc = 9964;
 		rType = 0;
 		vrLen = 1141;
 		vrLoc = 6466;
@@ -6527,7 +6553,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 77";
 		rLen = 0;
-		rLoc = 1879;
+		rLoc = 2798;
 		rType = 0;
 		vrLen = 825;
 		vrLoc = 1607;
@@ -6547,7 +6573,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 167";
 		rLen = 0;
-		rLoc = 3971;
+		rLoc = 4910;
 		rType = 0;
 		vrLen = 1005;
 		vrLoc = 3133;
@@ -6567,7 +6593,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 348";
 		rLen = 0;
-		rLoc = 9207;
+		rLoc = 10146;
 		rType = 0;
 		vrLen = 1219;
 		vrLoc = 8128;
@@ -6577,7 +6603,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 342";
 		rLen = 0;
-		rLoc = 9030;
+		rLoc = 9969;
 		rType = 0;
 		vrLen = 860;
 		vrLoc = 7698;
@@ -6597,7 +6623,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 348";
 		rLen = 0;
-		rLoc = 9207;
+		rLoc = 10146;
 		rType = 0;
 		vrLen = 1219;
 		vrLoc = 8128;
@@ -6617,7 +6643,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 418";
 		rLen = 0;
-		rLoc = 11429;
+		rLoc = 12368;
 		rType = 0;
 		vrLen = 897;
 		vrLoc = 10718;
@@ -6647,7 +6673,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 1502";
 		rLen = 0;
-		rLoc = 35340;
+		rLoc = 36259;
 		rType = 0;
 		vrLen = 521;
 		vrLoc = 34419;
@@ -6657,7 +6683,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 141";
 		rLen = 0;
-		rLoc = 3091;
+		rLoc = 4030;
 		rType = 0;
 		vrLen = 815;
 		vrLoc = 2648;
@@ -6667,7 +6693,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 423";
 		rLen = 0;
-		rLoc = 11601;
+		rLoc = 12540;
 		rType = 0;
 		vrLen = 899;
 		vrLoc = 10718;
@@ -6697,7 +6723,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 1406";
 		rLen = 0;
-		rLoc = 33266;
+		rLoc = 34185;
 		rType = 0;
 		vrLen = 841;
 		vrLoc = 32404;
@@ -6717,7 +6743,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 1406";
 		rLen = 0;
-		rLoc = 33227;
+		rLoc = 34146;
 		rType = 0;
 		vrLen = 786;
 		vrLoc = 32708;
@@ -6737,7 +6763,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 1500";
 		rLen = 0;
-		rLoc = 35306;
+		rLoc = 36225;
 		rType = 0;
 		vrLen = 524;
 		vrLoc = 34423;
@@ -6747,7 +6773,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 141";
 		rLen = 0;
-		rLoc = 3091;
+		rLoc = 4030;
 		rType = 0;
 		vrLen = 757;
 		vrLoc = 2652;
@@ -6767,7 +6793,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 1502";
 		rLen = 0;
-		rLoc = 35340;
+		rLoc = 36259;
 		rType = 0;
 		vrLen = 521;
 		vrLoc = 34419;
@@ -6777,7 +6803,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 134";
 		rLen = 0;
-		rLoc = 2872;
+		rLoc = 3811;
 		rType = 0;
 		vrLen = 808;
 		vrLoc = 2693;
@@ -6817,7 +6843,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 1626";
 		rLen = 0;
-		rLoc = 38331;
+		rLoc = 39250;
 		rType = 0;
 		vrLen = 809;
 		vrLoc = 37665;
@@ -6827,7 +6853,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* BuilderTiledMesh.h */;
 		name = "BuilderTiledMesh.h: 54";
 		rLen = 0;
-		rLoc = 984;
+		rLoc = 1926;
 		rType = 0;
 		vrLen = 604;
 		vrLoc = 718;
@@ -6847,7 +6873,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 423";
 		rLen = 13;
-		rLoc = 11516;
+		rLoc = 12455;
 		rType = 0;
 		vrLen = 938;
 		vrLoc = 10574;
@@ -6897,7 +6923,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 1626";
 		rLen = 0;
-		rLoc = 38331;
+		rLoc = 39250;
 		rType = 0;
 		vrLen = 809;
 		vrLoc = 37665;
@@ -6907,7 +6933,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* BuilderTiledMesh.h */;
 		name = "BuilderTiledMesh.h: 54";
 		rLen = 0;
-		rLoc = 984;
+		rLoc = 1926;
 		rType = 0;
 		vrLen = 604;
 		vrLoc = 718;
@@ -6927,7 +6953,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 215";
 		rLen = 0;
-		rLoc = 5088;
+		rLoc = 6027;
 		rType = 0;
 		vrLen = 596;
 		vrLoc = 4689;
@@ -6937,7 +6963,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 210";
 		rLen = 0;
-		rLoc = 4978;
+		rLoc = 5917;
 		rType = 0;
 		vrLen = 637;
 		vrLoc = 4689;
@@ -6977,7 +7003,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 1766";
 		rLen = 0;
-		rLoc = 42085;
+		rLoc = 43004;
 		rType = 0;
 		vrLen = 851;
 		vrLoc = 41154;
@@ -6987,7 +7013,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 210";
 		rLen = 0;
-		rLoc = 4978;
+		rLoc = 5917;
 		rType = 0;
 		vrLen = 637;
 		vrLoc = 4689;
@@ -7017,7 +7043,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 1689";
 		rLen = 0;
-		rLoc = 41017;
+		rLoc = 41936;
 		rType = 0;
 		vrLen = 1042;
 		vrLoc = 39354;
@@ -7057,7 +7083,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 1766";
 		rLen = 0;
-		rLoc = 42085;
+		rLoc = 43004;
 		rType = 0;
 		vrLen = 711;
 		vrLoc = 41295;
@@ -7077,7 +7103,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 1770";
 		rLen = 0;
-		rLoc = 42086;
+		rLoc = 43005;
 		rType = 0;
 		vrLen = 712;
 		vrLoc = 41378;
@@ -7087,7 +7113,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 1764";
 		rLen = 0;
-		rLoc = 41974;
+		rLoc = 42893;
 		rType = 0;
 		vrLen = 712;
 		vrLoc = 41378;
@@ -7107,7 +7133,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* BuilderTiledMesh.h */;
 		name = "BuilderTiledMesh.h: 61";
 		rLen = 16;
-		rLoc = 1178;
+		rLoc = 2120;
 		rType = 0;
 		vrLen = 588;
 		vrLoc = 718;
@@ -7117,7 +7143,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 155";
 		rLen = 0;
-		rLoc = 3498;
+		rLoc = 4437;
 		rType = 0;
 		vrLen = 889;
 		vrLoc = 2975;
@@ -7127,7 +7153,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 1764";
 		rLen = 0;
-		rLoc = 41974;
+		rLoc = 42893;
 		rType = 0;
 		vrLen = 712;
 		vrLoc = 41378;
@@ -7137,7 +7163,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 155";
 		rLen = 0;
-		rLoc = 3498;
+		rLoc = 4437;
 		rType = 0;
 		vrLen = 889;
 		vrLoc = 2975;
@@ -7147,7 +7173,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* BuilderTiledMesh.h */;
 		name = "BuilderTiledMesh.h: 61";
 		rLen = 16;
-		rLoc = 1178;
+		rLoc = 2120;
 		rType = 0;
 		vrLen = 588;
 		vrLoc = 718;
@@ -7157,10 +7183,270 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 156";
 		rLen = 0;
-		rLoc = 3522;
+		rLoc = 4461;
 		rType = 0;
 		vrLen = 1000;
 		vrLoc = 2975;
+	};
+	6B024BD31006059C00CF7107 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BDD9E060F91112200904EEF /* DetourStatNavMeshBuilder.h */;
+		name = "DetourStatNavMeshBuilder.h: 1";
+		rLen = 918;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 1284;
+		vrLoc = 0;
+	};
+	6B024BD41006059C00CF7107 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B2AEC580FFB8A68005BE9CC /* DetourTiledNavMesh.h */;
+		name = "DetourTiledNavMesh.h: 136";
+		rLen = 0;
+		rLoc = 4493;
+		rType = 0;
+		vrLen = 1453;
+		vrLoc = 0;
+	};
+	6B024BD51006059C00CF7107 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
+		name = "DetourTiledNavMesh.cpp: 19";
+		rLen = 0;
+		rLoc = 919;
+		rType = 0;
+		vrLen = 1444;
+		vrLoc = 0;
+	};
+	6B024BD61006059C00CF7107 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B092B920FFCC2AC0088D3A5 /* DetourTiledNavMeshBuilder.h */;
+		name = "DetourTiledNavMeshBuilder.h: 19";
+		rLen = 0;
+		rLoc = 919;
+		rType = 0;
+		vrLen = 1327;
+		vrLoc = 0;
+	};
+	6B024BD71006059C00CF7107 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B092B930FFCC2BD0088D3A5 /* DetourTiledNavMeshBuilder.cpp */;
+		name = "DetourTiledNavMeshBuilder.cpp: 1";
+		rLen = 0;
+		rLoc = 2;
+		rType = 0;
+		vrLen = 1523;
+		vrLoc = 0;
+	};
+	6B024BD81006059C00CF7107 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B2AEC510FFB8946005BE9CC /* BuilderTiledMesh.h */;
+		name = "BuilderTiledMesh.h: 19";
+		rLen = 0;
+		rLoc = 919;
+		rType = 0;
+		vrLen = 1191;
+		vrLoc = 0;
+	};
+	6B024BD91006059C00CF7107 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
+		name = "BuilderTiledMesh.cpp: 127";
+		rLen = 0;
+		rLoc = 3649;
+		rType = 0;
+		vrLen = 781;
+		vrLoc = 2637;
+	};
+	6B024BDA1006059C00CF7107 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
+		name = "BuilderTiledMesh.cpp: 127";
+		rLen = 0;
+		rLoc = 3649;
+		rType = 0;
+		vrLen = 781;
+		vrLoc = 2637;
+	};
+	6B024BDB1006059C00CF7107 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BDD9E060F91112200904EEF /* DetourStatNavMeshBuilder.h */;
+		name = "DetourStatNavMeshBuilder.h: 1";
+		rLen = 918;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 1284;
+		vrLoc = 0;
+	};
+	6B024BDC1006059C00CF7107 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B2AEC580FFB8A68005BE9CC /* DetourTiledNavMesh.h */;
+		name = "DetourTiledNavMesh.h: 136";
+		rLen = 0;
+		rLoc = 4493;
+		rType = 0;
+		vrLen = 1453;
+		vrLoc = 0;
+	};
+	6B024BDD1006059C00CF7107 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
+		name = "DetourTiledNavMesh.cpp: 19";
+		rLen = 0;
+		rLoc = 919;
+		rType = 0;
+		vrLen = 1444;
+		vrLoc = 0;
+	};
+	6B024BDE1006059C00CF7107 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B092B920FFCC2AC0088D3A5 /* DetourTiledNavMeshBuilder.h */;
+		name = "DetourTiledNavMeshBuilder.h: 19";
+		rLen = 0;
+		rLoc = 919;
+		rType = 0;
+		vrLen = 1327;
+		vrLoc = 0;
+	};
+	6B024BDF1006059C00CF7107 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B092B930FFCC2BD0088D3A5 /* DetourTiledNavMeshBuilder.cpp */;
+		name = "DetourTiledNavMeshBuilder.cpp: 1";
+		rLen = 0;
+		rLoc = 2;
+		rType = 0;
+		vrLen = 1523;
+		vrLoc = 0;
+	};
+	6B024BE01006059C00CF7107 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B2AEC510FFB8946005BE9CC /* BuilderTiledMesh.h */;
+		name = "BuilderTiledMesh.h: 19";
+		rLen = 0;
+		rLoc = 919;
+		rType = 0;
+		vrLen = 1191;
+		vrLoc = 0;
+	};
+	6B024BE11006059C00CF7107 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
+		name = "BuilderTiledMesh.cpp: 24";
+		rLen = 0;
+		rLoc = 1042;
+		rType = 0;
+		vrLen = 967;
+		vrLoc = 391;
+	};
+	6B024BE8100605CB00CF7107 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
+		name = "BuilderTiledMesh.cpp: 21";
+		rLen = 0;
+		rLoc = 981;
+		rType = 0;
+		vrLen = 967;
+		vrLoc = 391;
+	};
+	6B024BEB1006064C00CF7107 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B2AEC510FFB8946005BE9CC /* BuilderTiledMesh.h */;
+		name = "BuilderTiledMesh.h: 55";
+		rLen = 14;
+		rLoc = 1623;
+		rType = 0;
+		vrLen = 591;
+		vrLoc = 1220;
+	};
+	6B024BEC1006064C00CF7107 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
+		name = "BuilderTiledMesh.cpp: 491";
+		rLen = 15;
+		rLoc = 13404;
+		rType = 0;
+		vrLen = 1029;
+		vrLoc = 12944;
+	};
+	6B024BED1006064C00CF7107 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
+		name = "BuilderTiledMesh.cpp: 491";
+		rLen = 15;
+		rLoc = 13404;
+		rType = 0;
+		vrLen = 1029;
+		vrLoc = 12944;
+	};
+	6B024BEE1006064C00CF7107 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B2AEC510FFB8946005BE9CC /* BuilderTiledMesh.h */;
+		name = "BuilderTiledMesh.h: 55";
+		rLen = 14;
+		rLoc = 1623;
+		rType = 0;
+		vrLen = 591;
+		vrLoc = 1220;
+	};
+	6B024BEF1006064C00CF7107 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
+		name = "BuilderTiledMesh.cpp: 492";
+		rLen = 0;
+		rLoc = 13451;
+		rType = 0;
+		vrLen = 1159;
+		vrLoc = 12627;
+	};
+	6B024BF0100606CD00CF7107 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
+		name = "BuilderTiledMesh.cpp: 492";
+		rLen = 0;
+		rLoc = 13451;
+		rType = 0;
+		vrLen = 1159;
+		vrLoc = 12627;
+	};
+	6B024BF1100606CF00CF7107 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
+		name = "BuilderTiledMesh.cpp: 492";
+		rLen = 0;
+		rLoc = 13451;
+		rType = 0;
+		vrLen = 973;
+		vrLoc = 12931;
+	};
+	6B024BF31006073700CF7107 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
+		name = "DetourTiledNavMesh.cpp: 792";
+		rLen = 0;
+		rLoc = 18063;
+		rType = 0;
+		vrLen = 259;
+		vrLoc = 10642;
+	};
+	6B024BF41006073700CF7107 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
+		name = "BuilderTiledMesh.cpp: 492";
+		rLen = 0;
+		rLoc = 13451;
+		rType = 0;
+		vrLen = 717;
+		vrLoc = 13069;
+	};
+	6B024BF61006079300CF7107 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
+		name = "BuilderTiledMesh.cpp: 571";
+		rLen = 1;
+		rLoc = 15046;
+		rType = 0;
+		vrLen = 636;
+		vrLoc = 14753;
 	};
 	6B092B1A0FFC98FF0088D3A5 /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
@@ -7344,7 +7630,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* BuilderTiledMesh.h */;
 		name = "BuilderTiledMesh.h: 37";
 		rLen = 14;
-		rLoc = 702;
+		rLoc = 1644;
 		rType = 0;
 		vrLen = 561;
 		vrLoc = 231;
@@ -7354,23 +7640,23 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* BuilderTiledMesh.h */;
 		name = "BuilderTiledMesh.h: 37";
 		rLen = 14;
-		rLoc = 702;
+		rLoc = 1644;
 		rType = 0;
 		vrLen = 560;
 		vrLoc = 231;
 	};
 	6B092B920FFCC2AC0088D3A5 /* DetourTiledNavMeshBuilder.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {915, 543}}";
-			sepNavSelRange = "{408, 0}";
-			sepNavVisRange = "{0, 408}";
+			sepNavIntBoundsRect = "{{0, 0}, {915, 499}}";
+			sepNavSelRange = "{919, 0}";
+			sepNavVisRange = "{0, 1327}";
 		};
 	};
 	6B092B930FFCC2BD0088D3A5 /* DetourTiledNavMeshBuilder.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {915, 2896}}";
-			sepNavSelRange = "{5471, 0}";
-			sepNavVisRange = "{4973, 716}";
+			sepNavIntBoundsRect = "{{0, 0}, {915, 3056}}";
+			sepNavSelRange = "{2, 0}";
+			sepNavVisRange = "{0, 1523}";
 		};
 	};
 	6B092BAB0FFCEC1A0088D3A5 /* PBXTextBookmark */ = {
@@ -7442,7 +7728,7 @@
 		fRef = 6B092B920FFCC2AC0088D3A5 /* DetourTiledNavMeshBuilder.h */;
 		name = "DetourTiledNavMeshBuilder.h: 1";
 		rLen = 0;
-		rLoc = 408;
+		rLoc = 1327;
 		rType = 0;
 		vrLen = 0;
 		vrLoc = 0;
@@ -7462,7 +7748,7 @@
 		fRef = 6B092B920FFCC2AC0088D3A5 /* DetourTiledNavMeshBuilder.h */;
 		name = "DetourTiledNavMeshBuilder.h: 5";
 		rLen = 0;
-		rLoc = 157;
+		rLoc = 1076;
 		rType = 0;
 		vrLen = 375;
 		vrLoc = 0;
@@ -7482,7 +7768,7 @@
 		fRef = 6B092B920FFCC2AC0088D3A5 /* DetourTiledNavMeshBuilder.h */;
 		name = "DetourTiledNavMeshBuilder.h: 3";
 		rLen = 0;
-		rLoc = 72;
+		rLoc = 991;
 		rType = 0;
 		vrLen = 375;
 		vrLoc = 0;
@@ -7492,7 +7778,7 @@
 		fRef = 6B092B920FFCC2AC0088D3A5 /* DetourTiledNavMeshBuilder.h */;
 		name = "DetourTiledNavMeshBuilder.h: 9";
 		rLen = 0;
-		rLoc = 408;
+		rLoc = 1327;
 		rType = 0;
 		vrLen = 375;
 		vrLoc = 0;
@@ -7502,7 +7788,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 141";
 		rLen = 0;
-		rLoc = 19160;
+		rLoc = 20079;
 		rType = 0;
 		vrLen = 683;
 		vrLoc = 2824;
@@ -7512,7 +7798,7 @@
 		fRef = 6B092B920FFCC2AC0088D3A5 /* DetourTiledNavMeshBuilder.h */;
 		name = "DetourTiledNavMeshBuilder.h: 4";
 		rLen = 297;
-		rLoc = 73;
+		rLoc = 992;
 		rType = 0;
 		vrLen = 375;
 		vrLoc = 0;
@@ -7522,7 +7808,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* BuilderTiledMesh.h */;
 		name = "BuilderTiledMesh.h: 28";
 		rLen = 0;
-		rLoc = 553;
+		rLoc = 1472;
 		rType = 0;
 		vrLen = 560;
 		vrLoc = 231;
@@ -7532,7 +7818,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* BuilderTiledMesh.h */;
 		name = "BuilderTiledMesh.h: 42";
 		rLen = 0;
-		rLoc = 1705;
+		rLoc = 2647;
 		rType = 0;
 		vrLen = 810;
 		vrLoc = 673;
@@ -7542,7 +7828,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* BuilderTiledMesh.h */;
 		name = "BuilderTiledMesh.h: 42";
 		rLen = 0;
-		rLoc = 1705;
+		rLoc = 2647;
 		rType = 0;
 		vrLen = 832;
 		vrLoc = 651;
@@ -7552,7 +7838,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 165";
 		rLen = 0;
-		rLoc = 19991;
+		rLoc = 20910;
 		rType = 0;
 		vrLen = 458;
 		vrLoc = 3470;
@@ -7572,7 +7858,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 92";
 		rLen = 0;
-		rLoc = 12241;
+		rLoc = 13160;
 		rType = 0;
 		vrLen = 578;
 		vrLoc = 1643;
@@ -7582,7 +7868,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 91";
 		rLen = 0;
-		rLoc = 12092;
+		rLoc = 13011;
 		rType = 0;
 		vrLen = 589;
 		vrLoc = 1899;
@@ -7592,7 +7878,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 191";
 		rLen = 0;
-		rLoc = 20704;
+		rLoc = 21623;
 		rType = 0;
 		vrLen = 481;
 		vrLoc = 3720;
@@ -7622,7 +7908,7 @@
 		fRef = 6B092B920FFCC2AC0088D3A5 /* DetourTiledNavMeshBuilder.h */;
 		name = "DetourTiledNavMeshBuilder.h: 9";
 		rLen = 0;
-		rLoc = 408;
+		rLoc = 1327;
 		rType = 0;
 		vrLen = 375;
 		vrLoc = 0;
@@ -7632,7 +7918,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 123";
 		rLen = 0;
-		rLoc = 18887;
+		rLoc = 19806;
 		rType = 0;
 		vrLen = 683;
 		vrLoc = 2604;
@@ -7676,7 +7962,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 109";
 		rLen = 0;
-		rLoc = 12731;
+		rLoc = 13650;
 		rType = 0;
 		vrLen = 522;
 		vrLoc = 2043;
@@ -7686,7 +7972,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 110";
 		rLen = 0;
-		rLoc = 12606;
+		rLoc = 13525;
 		rType = 0;
 		vrLen = 538;
 		vrLoc = 2058;
@@ -7696,7 +7982,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 112";
 		rLen = 0;
-		rLoc = 12623;
+		rLoc = 13542;
 		rType = 0;
 		vrLen = 699;
 		vrLoc = 2153;
@@ -7706,7 +7992,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 111";
 		rLen = 0;
-		rLoc = 12606;
+		rLoc = 13525;
 		rType = 0;
 		vrLen = 705;
 		vrLoc = 2221;
@@ -7716,7 +8002,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 138";
 		rLen = 0;
-		rLoc = 18887;
+		rLoc = 19806;
 		rType = 0;
 		vrLen = 683;
 		vrLoc = 2686;
@@ -7726,7 +8012,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 129";
 		rLen = 1;
-		rLoc = 18255;
+		rLoc = 19174;
 		rType = 0;
 		vrLen = 693;
 		vrLoc = 2636;
@@ -7736,7 +8022,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 165";
 		rLen = 0;
-		rLoc = 19980;
+		rLoc = 20899;
 		rType = 0;
 		vrLen = 679;
 		vrLoc = 3297;
@@ -7746,7 +8032,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 106";
 		rLen = 0;
-		rLoc = 12478;
+		rLoc = 13397;
 		rType = 0;
 		vrLen = 642;
 		vrLoc = 2299;
@@ -7756,7 +8042,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 124";
 		rLen = 0;
-		rLoc = 18018;
+		rLoc = 18937;
 		rType = 0;
 		vrLen = 541;
 		vrLoc = 2604;
@@ -7766,7 +8052,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 158";
 		rLen = 0;
-		rLoc = 19359;
+		rLoc = 20278;
 		rType = 0;
 		vrLen = 774;
 		vrLoc = 3169;
@@ -7816,9 +8102,9 @@
 		fRef = 6B092B920FFCC2AC0088D3A5 /* DetourTiledNavMeshBuilder.h */;
 		name = "DetourTiledNavMeshBuilder.h: 7";
 		rLen = 0;
-		rLoc = 318;
+		rLoc = 1237;
 		rType = 0;
-		vrLen = 455;
+		vrLen = 408;
 		vrLoc = 0;
 	};
 	6B092C310FFCF7DD0088D3A5 /* PBXTextBookmark */ = {
@@ -7836,7 +8122,7 @@
 		fRef = 6B092B920FFCC2AC0088D3A5 /* DetourTiledNavMeshBuilder.h */;
 		name = "DetourTiledNavMeshBuilder.h: 7";
 		rLen = 0;
-		rLoc = 318;
+		rLoc = 1237;
 		rType = 0;
 		vrLen = 375;
 		vrLoc = 0;
@@ -7846,7 +8132,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* BuilderTiledMesh.h */;
 		name = "BuilderTiledMesh.h: 42";
 		rLen = 0;
-		rLoc = 1705;
+		rLoc = 2647;
 		rType = 0;
 		vrLen = 910;
 		vrLoc = 608;
@@ -7856,7 +8142,7 @@
 		fRef = 6B092B920FFCC2AC0088D3A5 /* DetourTiledNavMeshBuilder.h */;
 		name = "DetourTiledNavMeshBuilder.h: 6";
 		rLen = 0;
-		rLoc = 227;
+		rLoc = 1146;
 		rType = 0;
 		vrLen = 394;
 		vrLoc = 0;
@@ -7866,7 +8152,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* BuilderTiledMesh.h */;
 		name = "BuilderTiledMesh.h: 42";
 		rLen = 0;
-		rLoc = 1705;
+		rLoc = 2647;
 		rType = 0;
 		vrLen = 910;
 		vrLoc = 608;
@@ -7876,7 +8162,7 @@
 		fRef = 6B092B920FFCC2AC0088D3A5 /* DetourTiledNavMeshBuilder.h */;
 		name = "DetourTiledNavMeshBuilder.h: 6";
 		rLen = 0;
-		rLoc = 227;
+		rLoc = 1146;
 		rType = 0;
 		vrLen = 394;
 		vrLoc = 0;
@@ -7896,7 +8182,7 @@
 		fRef = 6B092B920FFCC2AC0088D3A5 /* DetourTiledNavMeshBuilder.h */;
 		name = "DetourTiledNavMeshBuilder.h: 6";
 		rLen = 0;
-		rLoc = 317;
+		rLoc = 1236;
 		rType = 0;
 		vrLen = 389;
 		vrLoc = 0;
@@ -7906,7 +8192,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 501";
 		rLen = 0;
-		rLoc = 21923;
+		rLoc = 23034;
 		rType = 0;
 		vrLen = 898;
 		vrLoc = 12495;
@@ -7916,7 +8202,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 158";
 		rLen = 0;
-		rLoc = 19344;
+		rLoc = 20263;
 		rType = 0;
 		vrLen = 917;
 		vrLoc = 3169;
@@ -7926,7 +8212,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 167";
 		rLen = 0;
-		rLoc = 19730;
+		rLoc = 20649;
 		rType = 0;
 		vrLen = 1017;
 		vrLoc = 3399;
@@ -7936,7 +8222,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 11";
 		rLen = 134;
-		rLoc = 276;
+		rLoc = 1195;
 		rType = 0;
 		vrLen = 1071;
 		vrLoc = 0;
@@ -8046,7 +8332,7 @@
 		fRef = 6B092B920FFCC2AC0088D3A5 /* DetourTiledNavMeshBuilder.h */;
 		name = "DetourTiledNavMeshBuilder.h: 9";
 		rLen = 0;
-		rLoc = 408;
+		rLoc = 1327;
 		rType = 0;
 		vrLen = 408;
 		vrLoc = 0;
@@ -8056,7 +8342,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 501";
 		rLen = 0;
-		rLoc = 21923;
+		rLoc = 23034;
 		rType = 0;
 		vrLen = 898;
 		vrLoc = 12495;
@@ -8096,7 +8382,7 @@
 		fRef = 6B092B920FFCC2AC0088D3A5 /* DetourTiledNavMeshBuilder.h */;
 		name = "DetourTiledNavMeshBuilder.h: 9";
 		rLen = 0;
-		rLoc = 408;
+		rLoc = 1327;
 		rType = 0;
 		vrLen = 408;
 		vrLoc = 0;
@@ -8106,7 +8392,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 499";
 		rLen = 0;
-		rLoc = 21820;
+		rLoc = 22931;
 		rType = 0;
 		vrLen = 919;
 		vrLoc = 12495;
@@ -8460,17 +8746,17 @@
 	};
 	6B2AEC510FFB8946005BE9CC /* BuilderTiledMesh.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {915, 1984}}";
-			sepNavSelRange = "{1178, 16}";
-			sepNavVisRange = "{718, 588}";
+			sepNavIntBoundsRect = "{{0, 0}, {915, 2080}}";
+			sepNavSelRange = "{1623, 14}";
+			sepNavVisRange = "{1220, 591}";
 			sepNavWindowFrame = "{{15, 78}, {1011, 695}}";
 		};
 	};
 	6B2AEC520FFB8958005BE9CC /* BuilderTiledMesh.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {915, 14368}}";
-			sepNavSelRange = "{3522, 0}";
-			sepNavVisRange = "{2975, 1000}";
+			sepNavIntBoundsRect = "{{0, 0}, {1223, 14592}}";
+			sepNavSelRange = "{15046, 1}";
+			sepNavVisRange = "{14753, 636}";
 		};
 	};
 	6B2AEC550FFB89E7005BE9CC /* BuilderStatMeshTiled.cpp */ = {
@@ -8489,16 +8775,16 @@
 	};
 	6B2AEC580FFB8A68005BE9CC /* DetourTiledNavMesh.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {915, 3168}}";
-			sepNavSelRange = "{5162, 0}";
-			sepNavVisRange = "{4283, 1270}";
+			sepNavIntBoundsRect = "{{0, 0}, {915, 3328}}";
+			sepNavSelRange = "{4493, 0}";
+			sepNavVisRange = "{0, 1453}";
 		};
 	};
 	6B2AEC590FFB8A7A005BE9CC /* DetourTiledNavMesh.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1041, 27712}}";
-			sepNavSelRange = "{41974, 0}";
-			sepNavVisRange = "{41378, 712}";
+			sepNavIntBoundsRect = "{{0, 0}, {1219, 28944}}";
+			sepNavSelRange = "{18063, 0}";
+			sepNavVisRange = "{10642, 259}";
 		};
 	};
 	6B2AEC5B0FFB8AB0005BE9CC /* PBXTextBookmark */ = {
@@ -8736,7 +9022,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* BuilderTiledMesh.h */;
 		name = "BuilderTiledMesh.h: 24";
 		rLen = 0;
-		rLoc = 532;
+		rLoc = 1451;
 		rType = 0;
 		vrLen = 537;
 		vrLoc = 233;
@@ -9172,8 +9458,8 @@
 	};
 	6BDD9E060F91112200904EEF /* DetourStatNavMeshBuilder.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {915, 480}}";
-			sepNavSelRange = "{919, 365}";
+			sepNavIntBoundsRect = "{{0, 0}, {915, 499}}";
+			sepNavSelRange = "{0, 918}";
 			sepNavVisRange = "{0, 1284}";
 		};
 	};
