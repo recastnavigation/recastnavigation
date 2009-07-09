@@ -390,20 +390,20 @@ static void drawLabels(int x, int y, int w, int h,
 	float d = nicenum(range/(float)(nticks-1), 1);
 	float graphmin = floorf(vmin/d)*d;
 	float graphmax = ceilf(vmax/d)*d;
-	int nfrac = -floorf(log10f(d));
+	int nfrac = (int)-floorf(log10f(d));
 	if (nfrac < 0) nfrac = 0;
 	snprintf(str, 6, "%%.%df %%s", nfrac);
 
 	for (float v = graphmin; v < graphmax+d/2; v += d)
 	{
-		int lx = x + (int)((v-vmin) / (vmax-vmin) * w);
+		float lx = x + (v-vmin)/(vmax-vmin)*w;
 		if (lx < 0 || lx > w) continue;
 		snprintf(temp, 20, str, v, unit);
-		font->drawText(lx+2, y+2, temp, GLFont::RGBA(255,255,255));
+		font->drawText(lx+2, (float)y+2, temp, GLFont::RGBA(255,255,255));
 		glColor4ub(0,0,0,64);
 		glBegin(GL_LINES);
-		glVertex2f(lx,y);
-		glVertex2f(lx,y+h);
+		glVertex2f(lx,(float)y);
+		glVertex2f(lx,(float)(y+h));
 		glEnd();
 	}
 }
@@ -459,9 +459,9 @@ static void drawGraph(const char* name, int x, int y, int w, int h, float sd,
 	glEnd();
 
 	snprintf(text,64,"%d", maxval);
-	font->drawText(x+w-20+2,y+h-2-font->getLineHeight(),text,GLFont::RGBA(0,0,0));
+	font->drawText((float)x+w-20+2,(float)y+h-2-font->getLineHeight(),text,GLFont::RGBA(0,0,0));
 
-	font->drawText(x+2,y+h-2-font->getLineHeight(),name,GLFont::RGBA(255,255,255));
+	font->drawText((float)x+2,(float)y+h-2-font->getLineHeight(),name,GLFont::RGBA(255,255,255));
 	
 	drawLabels(x, y, w, h, 10, first*sd, last*sd, unit, font);
 }

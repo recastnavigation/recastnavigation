@@ -83,16 +83,16 @@ struct dtTile
 	dtTile* next;
 };
 
-inline dtTilePolyRef encodeId(unsigned int salt, unsigned int it, unsigned int ip)
+inline dtTilePolyRef encodeId(int salt, int it, int ip)
 {
-	return (salt << (DT_TILE_REF_POLY_BITS+DT_TILE_REF_TILE_BITS)) | ((it+1) << DT_TILE_REF_POLY_BITS) | ip;
+	return ((unsigned int)salt << (DT_TILE_REF_POLY_BITS+DT_TILE_REF_TILE_BITS)) | ((unsigned int)(it+1) << DT_TILE_REF_POLY_BITS) | (unsigned int)ip;
 }
 
-inline void decodeId(dtTilePolyRef ref, unsigned int& salt, unsigned int& it, unsigned int& ip)
+inline void decodeId(dtTilePolyRef ref, int& salt, int& it, int& ip)
 {
-	salt = (ref >> (DT_TILE_REF_POLY_BITS+DT_TILE_REF_TILE_BITS)) & DT_TILE_REF_SALT_MASK;
-	it = ((ref >> DT_TILE_REF_POLY_BITS) & DT_TILE_REF_TILE_MASK) - 1;
-	ip = ref & DT_TILE_REF_POLY_MASK;
+	salt = (int)((ref >> (DT_TILE_REF_POLY_BITS+DT_TILE_REF_TILE_BITS)) & DT_TILE_REF_SALT_MASK);
+	it = (int)(((ref >> DT_TILE_REF_POLY_BITS) & DT_TILE_REF_TILE_MASK) - 1);
+	ip = (int)(ref & DT_TILE_REF_POLY_MASK);
 }
 
 static const int DT_TILE_LOOKUP_SIZE = DT_MAX_TILES/4;
@@ -150,7 +150,7 @@ public:
 	
 	inline const dtTilePoly* getPolyByRef(dtTilePolyRef ref) const
 	{
-		unsigned int salt, it, ip;
+		int salt, it, ip;
 		decodeId(ref, salt, it, ip);
 		if (it >= DT_MAX_TILES) return 0;
 		if (m_tiles[it].salt != salt || m_tiles[it].header == 0) return 0;
@@ -160,7 +160,7 @@ public:
 
 	inline const float* getPolyVertsByRef(dtTilePolyRef ref) const
 	{
-		unsigned int salt, it, ip;
+		int salt, it, ip;
 		decodeId(ref, salt, it, ip);
 		if (it >= DT_MAX_TILES) return 0;
 		if (m_tiles[it].salt != salt || m_tiles[it].header == 0) return 0;

@@ -610,7 +610,7 @@ bool dtTiledNavMesh::init(const float* orig, float tileSize, float portalHeight)
 
 int dtTiledNavMesh::getPolyNeighbours(dtTilePolyRef ref, dtTilePolyRef* nei, int maxNei) const
 {
-	unsigned int salt, it, ip;
+	int salt, it, ip;
 	decodeId(ref, salt, it, ip);
 	if (it >= DT_MAX_TILES) return 0;
 	if (m_tiles[it].salt != salt || m_tiles[it].header == 0) return 0;
@@ -934,7 +934,7 @@ bool dtTiledNavMesh::removeTile(int x, int y)
 
 bool dtTiledNavMesh::closestPointToPoly(dtTilePolyRef ref, const float* pos, float* closest) const
 {
-	unsigned int salt, it, ip;
+	int salt, it, ip;
 	decodeId(ref, salt, it, ip);
 	if (it >= DT_MAX_TILES) return false;
 	if (m_tiles[it].salt != salt || m_tiles[it].header == 0) return false;
@@ -1063,7 +1063,7 @@ int dtTiledNavMesh::queryPolygons(const float* center, const float* extents,
 
 float dtTiledNavMesh::getCost(dtTilePolyRef prev, dtTilePolyRef from, dtTilePolyRef to) const
 {
-	unsigned int salt, it, ip;
+	int salt, it, ip;
 	if (prev) from = prev;
 	// The API input has been cheked already, skip checking internal data.
 	decodeId(from, salt, it, ip);
@@ -1086,7 +1086,7 @@ float dtTiledNavMesh::getCost(dtTilePolyRef prev, dtTilePolyRef from, dtTilePoly
 
 float dtTiledNavMesh::getHeuristic(dtTilePolyRef from, dtTilePolyRef to) const
 {
-	unsigned int salt, it, ip;
+	int salt, it, ip;
 	// The API input has been cheked already, skip checking internal data.
 	decodeId(from, salt, it, ip);
 	const dtTileHeader* fromHeader = m_tiles[it].header;
@@ -1139,7 +1139,7 @@ int dtTiledNavMesh::findPath(dtTilePolyRef startRef, dtTilePolyRef endRef,
 	m_openList->push(startNode);
 	
 	dtTileNode* lastBestNode = startNode;
-	unsigned short lastBestNodeCost = startNode->total;
+	float lastBestNodeCost = startNode->total;
 	while (!m_openList->empty())
 	{
 		dtTileNode* bestNode = m_openList->pop();
@@ -1151,7 +1151,7 @@ int dtTiledNavMesh::findPath(dtTilePolyRef startRef, dtTilePolyRef endRef,
 		}
 
 		// Get poly and tile.
-		unsigned int salt, it, ip;
+		int salt, it, ip;
 		decodeId(bestNode->id, salt, it, ip);
 		// The API input has been cheked already, skip checking internal data.
 		const dtTileHeader* h = m_tiles[it].header;
@@ -1383,7 +1383,7 @@ int dtTiledNavMesh::findStraightPath(const float* startPos, const float* endPos,
 // Returns portal points between two polygons.
 bool dtTiledNavMesh::getPortalPoints(dtTilePolyRef from, dtTilePolyRef to, float* left, float* right) const
 {
-	unsigned int salt, it, ip;
+	int salt, it, ip;
 	decodeId(from, salt, it, ip);
 	if (it >= DT_MAX_TILES) return false;
 	if (m_tiles[it].salt != salt || m_tiles[it].header == 0) return false;
@@ -1440,7 +1440,7 @@ int dtTiledNavMesh::raycast(dtTilePolyRef centerRef, const float* startPos, cons
 		// Cast ray against current polygon.
 		
 		// The API input has been cheked already, skip checking internal data.
-		unsigned int salt, it, ip;
+		int salt, it, ip;
 		decodeId(curRef, salt, it, ip);
 		const dtTileHeader* h = m_tiles[it].header;
 		const dtTilePoly* poly = &h->polys[ip];
@@ -1564,7 +1564,7 @@ int dtTiledNavMesh::findPolysAround(dtTilePolyRef centerRef, const float* center
 		dtTileNode* bestNode = m_openList->pop();
 
 		// Get poly and tile.
-		unsigned int salt, it, ip;
+		int salt, it, ip;
 		decodeId(bestNode->id, salt, it, ip);
 		// The API input has been cheked already, skip checking internal data.
 		const dtTileHeader* h = m_tiles[it].header;
@@ -1623,7 +1623,7 @@ int dtTiledNavMesh::findPolysAround(dtTilePolyRef centerRef, const float* center
 							if (resultCost)
 								resultCost[n] = actualNode->total;
 							if (resultDepth)
-								resultDepth[n] = actualNode->cost;
+								resultDepth[n] = (unsigned short)actualNode->cost;
 							++n;
 						}
 						actualNode->flags = dtTileNode::OPEN;
@@ -1662,7 +1662,7 @@ float dtTiledNavMesh::findDistanceToWall(dtTilePolyRef centerRef, const float* c
 		dtTileNode* bestNode = m_openList->pop();
 		
 		// Get poly and tile.
-		unsigned int salt, it, ip;
+		int salt, it, ip;
 		decodeId(bestNode->id, salt, it, ip);
 		// The API input has been cheked already, skip checking internal data.
 		const dtTileHeader* h = m_tiles[it].header;

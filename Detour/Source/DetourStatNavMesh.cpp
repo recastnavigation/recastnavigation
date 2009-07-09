@@ -671,7 +671,7 @@ int dtStatNavMesh::findPath(dtPolyRef startRef, dtPolyRef endRef,
 	m_openList->push(startNode);
 
 	dtNode* lastBestNode = startNode;
-	unsigned short lastBestNodeCost = startNode->total;
+	float lastBestNodeCost = startNode->total;
 	while (!m_openList->empty())
 	{
 		dtNode* bestNode = m_openList->pop();
@@ -1204,7 +1204,7 @@ int dtStatNavMesh::findPolysAround(dtPolyRef centerRef, const float* centerPos, 
 							if (resultCost)
 								resultCost[n] = actualNode->total;
 							if (resultDepth)
-								resultDepth[n] = actualNode->cost;
+								resultDepth[n] = (unsigned short)actualNode->cost;
 							++n;
 						}
 						actualNode->flags = dtNode::OPEN;

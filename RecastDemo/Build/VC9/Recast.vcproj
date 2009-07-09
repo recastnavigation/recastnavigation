@@ -189,7 +189,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\Source\BuilderStatMeshTiling.cpp"
+				RelativePath="..\..\Source\BuilderStatMeshTiled.cpp"
 				>
 			</File>
 			<File
@@ -206,6 +206,14 @@
 			</File>
 			<File
 				RelativePath="..\..\..\Detour\Source\DetourStatNavMeshBuilder.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\Detour\Source\DetourTiledNavMesh.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\Detour\Source\DetourTiledNavMeshBuilder.cpp"
 				>
 			</File>
 			<File
@@ -279,7 +287,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\Include\BuilderStatMeshTiling.h"
+				RelativePath="..\..\Include\BuilderStatMeshTiled.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\BuilderTiledMesh.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Include\BuilderTiledMesh.h"
 				>
 			</File>
 			<File
@@ -296,6 +312,14 @@
 			</File>
 			<File
 				RelativePath="..\..\..\Detour\Include\DetourStatNavMeshBuilder.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\Detour\Include\DetourTiledNavMesh.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\Detour\Include\DetourTiledNavMeshBuilder.h"
 				>
 			</File>
 			<File
