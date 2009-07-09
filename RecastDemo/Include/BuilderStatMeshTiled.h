@@ -7,7 +7,7 @@
 #include "RecastLog.h"
 #include "ChunkyTriMesh.h"
 
-class BuilderStatMeshTiling : public BuilderStatMesh
+class BuilderStatMeshTiled : public BuilderStatMesh
 {
 protected:
 
@@ -31,6 +31,7 @@ protected:
 		Tile* tiles;
 	};
 	
+	bool m_measurePerTileTimings;
 	bool m_keepInterResults;
 	float m_tileSize;
 	rcBuildTimes m_buildTimes; 
@@ -39,6 +40,12 @@ protected:
 	rcPolyMesh* m_polyMesh;
 	rcConfig m_cfg;	
 	TileSet* m_tileSet;
+
+	static const int MAX_STAT_BUCKETS = 1000;
+	int m_statPolysPerTile[MAX_STAT_BUCKETS];
+	int m_statPolysPerTileSamples;
+	int m_statTimePerTile[MAX_STAT_BUCKETS];
+	int m_statTimePerTileSamples;
 	
 	
 	enum DrawMode
@@ -66,8 +73,8 @@ protected:
 	void cleanup();
 	
 public:
-	BuilderStatMeshTiling();
-	virtual ~BuilderStatMeshTiling();
+	BuilderStatMeshTiled();
+	virtual ~BuilderStatMeshTiled();
 	
 	virtual void handleSettings();
 	virtual void handleDebugMode();

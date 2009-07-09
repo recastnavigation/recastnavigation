@@ -16,7 +16,8 @@
 #include "RecastDebugDraw.h"
 #include "MeshLoaderObj.h"
 #include "BuilderStatMeshSimple.h"
-#include "BuilderStatMeshTiling.h"
+#include "BuilderStatMeshTiled.h"
+#include "BuilderTiledMesh.h"
 
 #ifdef WIN32
 #	define snprintf _snprintf
@@ -547,10 +548,15 @@ int main(int argc, char *argv[])
 				newBuilder = new BuilderStatMeshSimple();
 				if (newBuilder) strcpy(builderName, "Simple Static Mesh");
 			}
-			if (imguiItem(GENID, "Tiling Static Mesh"))
+			if (imguiItem(GENID, "Tiled Static Mesh"))
 			{
-				newBuilder = new BuilderStatMeshTiling();
-				if (newBuilder) strcpy(builderName, "Tiling Static Mesh");
+				newBuilder = new BuilderStatMeshTiled();
+				if (newBuilder) strcpy(builderName, "Tiled Static Mesh");
+			}
+			if (imguiItem(GENID, "Tiled Mesh"))
+			{
+				newBuilder = new BuilderTiledMesh();
+				if (newBuilder) strcpy(builderName, "Tiled Mesh");
 			}
 			
 			if (newBuilder)

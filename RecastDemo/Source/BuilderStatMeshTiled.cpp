@@ -7,7 +7,7 @@
 #include "imgui.h"
 #include "glfont.h"
 #include "Builder.h"
-#include "BuilderStatMeshTiling.h"
+#include "BuilderStatMeshTiled.h"
 #include "Recast.h"
 #include "RecastTimer.h"
 #include "RecastDebugDraw.h"
@@ -19,22 +19,25 @@
 #	define snprintf _snprintf
 #endif
 
-BuilderStatMeshTiling::BuilderStatMeshTiling() :
+BuilderStatMeshTiled::BuilderStatMeshTiled() :
 	m_keepInterResults(false),
+	m_measurePerTileTimings(false),
 	m_tileSize(64),
 	m_chunkyMesh(0),
 	m_tileSet(0),
 	m_polyMesh(0),
-	m_drawMode(DRAWMODE_NAVMESH)
+	m_drawMode(DRAWMODE_NAVMESH),
+	m_statTimePerTileSamples(0),
+	m_statPolysPerTileSamples(0)
 {
 }
 
-BuilderStatMeshTiling::~BuilderStatMeshTiling()
+BuilderStatMeshTiled::~BuilderStatMeshTiled()
 {
 	cleanup();
 }
 
-void BuilderStatMeshTiling::cleanup()
+void BuilderStatMeshTiled::cleanup()
 {
 	delete m_chunkyMesh;
 	m_chunkyMesh = 0;
@@ -43,9 +46,11 @@ void BuilderStatMeshTiling::cleanup()
 	delete m_polyMesh;
 	m_polyMesh = 0;
 	toolCleanup();
+	m_statTimePerTileSamples = 0;
+	m_statPolysPerTileSamples = 0;
 }
 
-void BuilderStatMeshTiling::handleSettings()
+void BuilderStatMeshTiled::handleSettings()
 {
 	Builder::handleCommonSettings();
 	
@@ -64,11 +69,13 @@ void BuilderStatMeshTiling::handleSettings()
 	imguiSeparator();
 	if (imguiCheck(GENID, "Keep Itermediate Results", m_keepInterResults))
 		m_keepInterResults = !m_keepInterResults;
+	if (imguiCheck(GENID, "Measure Per Tile Timings", m_measurePerTileTimings))
+		m_measurePerTileTimings = !m_measurePerTileTimings;
 	
 	imguiSeparator();
 }
 
-void BuilderStatMeshTiling::handleDebugMode()
+void BuilderStatMeshTiled::handleDebugMode()
 {
 	// Check which modes are valid.
 	bool valid[MAX_DRAWMODE];
@@ -156,7 +163,7 @@ void BuilderStatMeshTiling::handleDebugMode()
 	}
 }
 
-void BuilderStatMeshTiling::handleRender()
+void BuilderStatMeshTiled::handleRender()
 {
 	if (!m_verts || !m_tris || !m_trinorms)
 		return;
@@ -352,27 +359,166 @@ void BuilderStatMeshTiling::handleRender()
 	
 }
 
-void BuilderStatMeshTiling::handleRenderOverlay(class GLFont* font, double* proj, double* model, int* view)
+static float nicenum(float x, int round)
 {
-	toolRenderOverlay(font, proj, model, view);
+	float expv = floorf(log10f(x));
+	float f = x / powf(10.0f, expv);
+	float nf;
+	if (round)
+	{
+		if (f < 1.5f) nf = 1.0f;
+		else if (f < 3.0f) nf = 2.0f;
+		else if (f < 7.0f) nf = 5.0f;
+		else nf = 10.0f;
+	}
+	else
+	{
+		if (f <= 1.0f) nf = 1.0f;
+		else if (f <= 2.0f) nf = 2.0f;
+		else if (f <= 5.0f) nf = 5.0f;
+		else nf = 10.0f;
+	}
+	return nf*powf(10.0f, expv);
 }
 
-void BuilderStatMeshTiling::handleMeshChanged(const float* verts, int nverts,
+static void drawLabels(int x, int y, int w, int h,
+					   int nticks, float vmin, float vmax, const char* unit, GLFont* font)
+{
+	char str[8], temp[32];
+	
+	float range = nicenum(vmax-vmin, 0);
+	float d = nicenum(range/(float)(nticks-1), 1);
+	float graphmin = floorf(vmin/d)*d;
+	float graphmax = ceilf(vmax/d)*d;
+	int nfrac = -floorf(log10f(d));
+	if (nfrac < 0) nfrac = 0;
+	snprintf(str, 6, "%%.%df %%s", nfrac);
+
+	for (float v = graphmin; v < graphmax+d/2; v += d)
+	{
+		int lx = x + (int)((v-vmin) / (vmax-vmin) * w);
+		if (lx < 0 || lx > w) continue;
+		snprintf(temp, 20, str, v, unit);
+		font->drawText(lx+2, y+2, temp, GLFont::RGBA(255,255,255));
+		glColor4ub(0,0,0,64);
+		glBegin(GL_LINES);
+		glVertex2f(lx,y);
+		glVertex2f(lx,y+h);
+		glEnd();
+	}
+}
+
+static void drawGraph(const char* name, int x, int y, int w, int h, float sd,
+					  const int* samples, int n, int nsamples, const char* unit, GLFont* font)
+{
+	char text[64];
+	int first, last, maxval;
+	first = 0;
+	last = n-1;
+	while (first < n && samples[first] == 0)
+		first++;
+	while (last >= 0 && samples[last] == 0)
+		last--;
+	if (first == last)
+		return;
+	maxval = 1;
+	for (int i = first; i <= last; ++i)
+	{
+		if (samples[i] > maxval)
+			maxval = samples[i];
+	}
+	const float sx = (float)w / (float)(last-first);
+	const float sy = (float)h / (float)maxval;
+	
+	glBegin(GL_QUADS);
+	glColor4ub(32,32,32,64);
+	glVertex2i(x,y);
+	glVertex2i(x+w,y);
+	glVertex2i(x+w,y+h);
+	glVertex2i(x,y+h);
+	glEnd();
+	
+	glColor4ub(255,255,255,64);
+	glBegin(GL_LINES);
+	for (int i = 0; i <= 4; ++i)
+	{
+		int yy = y+i*h/4;
+		glVertex2i(x,yy);
+		glVertex2i(x+w,yy);
+	}
+	glEnd();
+
+	glColor4ub(0,196,255,255);
+	glBegin(GL_LINE_STRIP);
+	for (int i = first; i <= last; ++i)
+	{
+		float fx = x + (i-first)*sx;
+		float fy = y + samples[i]*sy;
+		glVertex2f(fx,fy);
+	}
+	glEnd();
+
+	snprintf(text,64,"%d", maxval);
+	font->drawText(x+w-20+2,y+h-2-font->getLineHeight(),text,GLFont::RGBA(0,0,0));
+
+	font->drawText(x+2,y+h-2-font->getLineHeight(),name,GLFont::RGBA(255,255,255));
+	
+	drawLabels(x, y, w, h, 10, first*sd, last*sd, unit, font);
+}
+
+void BuilderStatMeshTiled::handleRenderOverlay(class GLFont* font, double* proj, double* model, int* view)
+{
+	toolRenderOverlay(font, proj, model, view);
+
+	if (m_measurePerTileTimings)
+	{
+		if (m_statTimePerTileSamples)
+			drawGraph("Build Time/Tile", 10, 10, 500, 100, 1.0f, m_statTimePerTile, MAX_STAT_BUCKETS, m_statTimePerTileSamples, "ms", font);
+
+		if (m_statPolysPerTileSamples)
+			drawGraph("Polygons/Tile", 10, 120, 500, 100, 1.0f, m_statPolysPerTile, MAX_STAT_BUCKETS, m_statPolysPerTileSamples, "", font);
+
+		int validTiles = 0;
+		if (m_tileSet)
+		{
+			for (int i = 0; i < m_tileSet->width*m_tileSet->height; ++i)
+			{
+				if (m_tileSet->tiles[i].buildTime > 0)
+					validTiles++;
+			}
+		}
+		char text[64];
+		snprintf(text,64,"Tiles %d\n", validTiles);
+		font->drawText(10, 240, text, GLFont::RGBA(255,255,255));
+	}
+}
+
+void BuilderStatMeshTiled::handleMeshChanged(const float* verts, int nverts,
 											  const int* tris, const float* trinorms, int ntris,
 											  const float* bmin, const float* bmax)
 {
 	Builder::handleMeshChanged(verts, nverts, tris, trinorms, ntris, bmin, bmax);
 	toolCleanup();
 	toolReset();
+	m_statTimePerTileSamples = 0;
+	m_statPolysPerTileSamples = 0;
 }
 
-bool BuilderStatMeshTiling::handleBuild()
+bool BuilderStatMeshTiled::handleBuild()
 {
 	if (!m_verts || ! m_tris)
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Input mesh is not specified.");
 		return false;
+	}
+
+	if (m_measurePerTileTimings)
+	{
+		memset(m_statPolysPerTile, 0, sizeof(m_statPolysPerTile));
+		memset(m_statTimePerTile, 0, sizeof(m_statTimePerTile));
+		m_statPolysPerTileSamples = 0;
+		m_statTimePerTileSamples = 0;
 	}
 	
 	cleanup();
@@ -610,6 +756,47 @@ bool BuilderStatMeshTiling::handleBuild()
 	delete [] triangleFlags;
 	delete solid;
 	delete chf;
+	
+	
+	// Some extra code to measure some per tile statistics,
+	// such as build time and how many polygons there are per tile.
+	if (m_measurePerTileTimings)
+	{
+		for (int y = 0; y < m_tileSet->height; ++y)
+		{
+			for (int x = 0; x < m_tileSet->width; ++x)
+			{
+				Tile& tile = m_tileSet->tiles[x + y*m_tileSet->width]; 
+
+				if (!tile.cset)
+					continue;
+
+				rcTimeVal startTime = rcGetPerformanceTimer();
+				rcPolyMesh* polyMesh = new rcPolyMesh;
+				if (!polyMesh)
+					continue;
+				if (rcBuildPolyMesh(*tile.cset, m_cfg.bmin, m_cfg.bmax,
+									m_cfg.cs, m_cfg.ch, m_cfg.maxVertsPerPoly, *polyMesh))
+				{
+					int bucket = polyMesh->npolys;
+					if (bucket < 0) bucket = 0;
+					if (bucket >= MAX_STAT_BUCKETS) bucket = MAX_STAT_BUCKETS-1;
+					m_statPolysPerTile[bucket]++;
+					m_statPolysPerTileSamples++;
+				}
+				delete polyMesh;
+
+				rcTimeVal endTime = rcGetPerformanceTimer();
+				int time = tile.buildTime += rcGetDeltaTimeUsec(startTime, endTime);
+				
+				int bucket = (time+500)/1000;
+				if (bucket < 0) bucket = 0;
+				if (bucket >= MAX_STAT_BUCKETS) bucket = MAX_STAT_BUCKETS-1;
+				m_statTimePerTile[bucket]++;
+				m_statTimePerTileSamples++;
+			}
+		}
+	}	
 		
 	// Make sure that the vertices along the tile edges match,
 	// so that they can be later properly stitched together.
