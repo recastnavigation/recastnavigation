@@ -190,12 +190,6 @@ void dtDebugDrawStatNavMesh(const dtStatNavMesh* mesh)
 
 static void drawTile(const dtTileHeader* header)
 {
-	const float col[4] = {0,0,0,0.25f};
-/*	glBegin(GL_LINES);
-	drawBoxWire(header->bmin[0],header->bmin[1],header->bmin[2],
-				header->bmax[0],header->bmax[1],header->bmax[2], col);
-	glEnd();*/
-
 	glBegin(GL_TRIANGLES);
 	for (int i = 0; i < header->npolys; ++i)
 	{

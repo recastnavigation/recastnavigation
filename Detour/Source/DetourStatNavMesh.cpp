@@ -28,9 +28,6 @@
 //////////////////////////////////////////////////////////////////////////////////////////
 dtStatNavMesh::dtStatNavMesh() :
 	m_header(0),
-	m_polys(0),
-	m_verts(0),
-	m_bvtree(0),
 	m_nodePool(0),
 	m_openList(0),
 	m_data(0),
@@ -59,9 +56,9 @@ bool dtStatNavMesh::init(unsigned char* data, int dataSize, bool ownsData)
 	const int vertsSize = sizeof(float)*3*header->nverts;
 	const int polysSize = sizeof(dtStatPoly)*header->npolys;
 	
-	m_verts = (float*)(data + headerSize);
-	m_polys = (dtStatPoly*)(data + headerSize + vertsSize);
-	m_bvtree = (dtStatBVNode*)(data + headerSize + vertsSize + polysSize);
+	header->verts = (float*)(data + headerSize);
+	header->polys = (dtStatPoly*)(data + headerSize + vertsSize);
+	header->bvtree = (dtStatBVNode*)(data + headerSize + vertsSize + polysSize);
 	
 	m_nodePool = new dtNodePool(2048, 256);
 	if (!m_nodePool)
@@ -87,8 +84,8 @@ float dtStatNavMesh::getCost(dtStatPolyRef prev, dtStatPolyRef from, dtStatPolyR
 	const dtStatPoly* fromPoly = getPoly(prev ? prev-1 : from-1);
 	const dtStatPoly* toPoly = getPoly(to-1);
 	float fromPc[3], toPc[3];
-	calcPolyCenter(fromPc, fromPoly->v, fromPoly->nv, m_verts);
-	calcPolyCenter(toPc, toPoly->v, toPoly->nv, m_verts);
+	calcPolyCenter(fromPc, fromPoly->v, fromPoly->nv, m_header->verts);
+	calcPolyCenter(toPc, toPoly->v, toPoly->nv, m_header->verts);
 	
 	float dx = fromPc[0]-toPc[0];
 	float dy = fromPc[1]-toPc[1];
@@ -102,8 +99,8 @@ float dtStatNavMesh::getHeuristic(dtStatPolyRef from, dtStatPolyRef to) const
 	const dtStatPoly* fromPoly = getPoly(from-1);
 	const dtStatPoly* toPoly = getPoly(to-1);
 	float fromPc[3], toPc[3];
-	calcPolyCenter(fromPc, fromPoly->v, fromPoly->nv, m_verts);
-	calcPolyCenter(toPc, toPoly->v, toPoly->nv, m_verts);
+	calcPolyCenter(fromPc, fromPoly->v, fromPoly->nv, m_header->verts);
+	calcPolyCenter(toPc, toPoly->v, toPoly->nv, m_header->verts);
 	
 	float dx = fromPc[0]-toPc[0];
 	float dy = fromPc[1]-toPc[1];
@@ -115,7 +112,7 @@ float dtStatNavMesh::getHeuristic(dtStatPolyRef from, dtStatPolyRef to) const
 const dtStatPoly* dtStatNavMesh::getPolyByRef(dtStatPolyRef ref) const
 {
 	if (!m_header || ref == 0 || (int)ref > m_header->npolys) return 0;
-	return &m_polys[ref-1];
+	return &m_header->polys[ref-1];
 }
 
 int dtStatNavMesh::findPath(dtStatPolyRef startRef, dtStatPolyRef endRef,
@@ -415,7 +412,7 @@ int dtStatNavMesh::getPolyVerts(dtStatPolyRef ref, float* verts) const
 	float* v = verts;
 	for (int i = 0; i < (int)poly->nv; ++i)
 	{
-		const float* cv = &m_verts[poly->v[i]*3];
+		const float* cv = &m_header->verts[poly->v[i]*3];
 		*v++ = cv[0];
 		*v++ = cv[1];
 		*v++ = cv[2];
@@ -702,8 +699,8 @@ int dtStatNavMesh::queryPolygons(const float* center, const float* extents,
 {
 	if (!m_header) return 0;
 	
-	const dtStatBVNode* node = &m_bvtree[0];
-	const dtStatBVNode* end = &m_bvtree[m_header->nnodes];
+	const dtStatBVNode* node = &m_header->bvtree[0];
+	const dtStatBVNode* end = &m_header->bvtree[m_header->nnodes];
 
 	// Calculate quantized box
 	const float ics = 1.0f / m_header->cs;

@@ -16,7 +16,7 @@
 			8D1107260486CEB800E47090 /* Recast */,
 		);
 		breakpoints = (
-			6B0249B11003783F00CF7107 /* Sample_TileMesh.cpp:834 */,
+			6B0249B11003783F00CF7107 /* Sample_TileMesh.cpp:833 */,
 			6B0249ED10037C0A00CF7107 /* DetourTileNavMesh.cpp:1 */,
 			6B0249EF10037C0C00CF7107 /* DetourTileNavMesh.cpp:1 */,
 			6B024AC01004AB3900CF7107 /* DetourTileNavMesh.cpp:1 */,
@@ -552,6 +552,64 @@
 			6B555EFC100B42E600247EA3 /* PBXTextBookmark */ = 6B555EFC100B42E600247EA3 /* PBXTextBookmark */;
 			6B555EFF100B430000247EA3 /* PBXTextBookmark */ = 6B555EFF100B430000247EA3 /* PBXTextBookmark */;
 			6B555F02100B431000247EA3 /* PBXTextBookmark */ = 6B555F02100B431000247EA3 /* PBXTextBookmark */;
+			6B555F0C100B473F00247EA3 /* PBXTextBookmark */ = 6B555F0C100B473F00247EA3 /* PBXTextBookmark */;
+			6B555F0D100B473F00247EA3 /* PBXTextBookmark */ = 6B555F0D100B473F00247EA3 /* PBXTextBookmark */;
+			6B555F0E100B473F00247EA3 /* PBXTextBookmark */ = 6B555F0E100B473F00247EA3 /* PBXTextBookmark */;
+			6B555F0F100B473F00247EA3 /* PBXTextBookmark */ = 6B555F0F100B473F00247EA3 /* PBXTextBookmark */;
+			6B555F10100B473F00247EA3 /* PBXTextBookmark */ = 6B555F10100B473F00247EA3 /* PBXTextBookmark */;
+			6B555F11100B473F00247EA3 /* PBXTextBookmark */ = 6B555F11100B473F00247EA3 /* PBXTextBookmark */;
+			6B555F12100B473F00247EA3 /* PBXTextBookmark */ = 6B555F12100B473F00247EA3 /* PBXTextBookmark */;
+			6B555F13100B473F00247EA3 /* PBXTextBookmark */ = 6B555F13100B473F00247EA3 /* PBXTextBookmark */;
+			6B555F14100B473F00247EA3 /* PBXTextBookmark */ = 6B555F14100B473F00247EA3 /* PBXTextBookmark */;
+			6B555F15100B473F00247EA3 /* PBXTextBookmark */ = 6B555F15100B473F00247EA3 /* PBXTextBookmark */;
+			6B555F16100B473F00247EA3 /* PBXTextBookmark */ = 6B555F16100B473F00247EA3 /* PBXTextBookmark */;
+			6B555F17100B473F00247EA3 /* PBXTextBookmark */ = 6B555F17100B473F00247EA3 /* PBXTextBookmark */;
+			6B555F18100B473F00247EA3 /* PBXTextBookmark */ = 6B555F18100B473F00247EA3 /* PBXTextBookmark */;
+			6B555F19100B473F00247EA3 /* PBXTextBookmark */ = 6B555F19100B473F00247EA3 /* PBXTextBookmark */;
+			6B555F1A100B473F00247EA3 /* PBXTextBookmark */ = 6B555F1A100B473F00247EA3 /* PBXTextBookmark */;
+			6B555F1B100B473F00247EA3 /* PBXTextBookmark */ = 6B555F1B100B473F00247EA3 /* PBXTextBookmark */;
+			6B555F1C100B473F00247EA3 /* PBXTextBookmark */ = 6B555F1C100B473F00247EA3 /* PBXTextBookmark */;
+			6B555F1D100B473F00247EA3 /* PBXTextBookmark */ = 6B555F1D100B473F00247EA3 /* PBXTextBookmark */;
+			6B555F1E100B473F00247EA3 /* PBXTextBookmark */ = 6B555F1E100B473F00247EA3 /* PBXTextBookmark */;
+			6B555F1F100B473F00247EA3 /* PBXTextBookmark */ = 6B555F1F100B473F00247EA3 /* PBXTextBookmark */;
+			6B555F20100B473F00247EA3 /* PBXTextBookmark */ = 6B555F20100B473F00247EA3 /* PBXTextBookmark */;
+			6B555F21100B473F00247EA3 /* PBXTextBookmark */ = 6B555F21100B473F00247EA3 /* PBXTextBookmark */;
+			6B555F22100B473F00247EA3 /* PBXTextBookmark */ = 6B555F22100B473F00247EA3 /* PBXTextBookmark */;
+			6B555F23100B473F00247EA3 /* PBXTextBookmark */ = 6B555F23100B473F00247EA3 /* PBXTextBookmark */;
+			6B555F24100B473F00247EA3 /* PBXTextBookmark */ = 6B555F24100B473F00247EA3 /* PBXTextBookmark */;
+			6B555F2A100B499000247EA3 /* PBXTextBookmark */ = 6B555F2A100B499000247EA3 /* PBXTextBookmark */;
+			6B555F2B100B499000247EA3 /* PBXTextBookmark */ = 6B555F2B100B499000247EA3 /* PBXTextBookmark */;
+			6B555F2C100B499000247EA3 /* PBXTextBookmark */ = 6B555F2C100B499000247EA3 /* PBXTextBookmark */;
+			6B555F2D100B499000247EA3 /* PBXTextBookmark */ = 6B555F2D100B499000247EA3 /* PBXTextBookmark */;
+			6B555F2E100B499000247EA3 /* PBXTextBookmark */ = 6B555F2E100B499000247EA3 /* PBXTextBookmark */;
+			6B555F2F100B499000247EA3 /* PBXTextBookmark */ = 6B555F2F100B499000247EA3 /* PBXTextBookmark */;
+			6B555F30100B499000247EA3 /* PBXTextBookmark */ = 6B555F30100B499000247EA3 /* PBXTextBookmark */;
+			6B555F31100B499000247EA3 /* PBXTextBookmark */ = 6B555F31100B499000247EA3 /* PBXTextBookmark */;
+			6B555F32100B499000247EA3 /* PBXTextBookmark */ = 6B555F32100B499000247EA3 /* PBXTextBookmark */;
+			6B555F33100B499000247EA3 /* PBXTextBookmark */ = 6B555F33100B499000247EA3 /* PBXTextBookmark */;
+			6B555F34100B499000247EA3 /* PBXTextBookmark */ = 6B555F34100B499000247EA3 /* PBXTextBookmark */;
+			6B555F35100B499000247EA3 /* PBXTextBookmark */ = 6B555F35100B499000247EA3 /* PBXTextBookmark */;
+			6B555F36100B499000247EA3 /* PBXTextBookmark */ = 6B555F36100B499000247EA3 /* PBXTextBookmark */;
+			6B555F37100B499000247EA3 /* PBXTextBookmark */ = 6B555F37100B499000247EA3 /* PBXTextBookmark */;
+			6B555F38100B499000247EA3 /* PBXTextBookmark */ = 6B555F38100B499000247EA3 /* PBXTextBookmark */;
+			6B555F39100B499000247EA3 /* PBXTextBookmark */ = 6B555F39100B499000247EA3 /* PBXTextBookmark */;
+			6B555F40100B4C5800247EA3 /* PBXTextBookmark */ = 6B555F40100B4C5800247EA3 /* PBXTextBookmark */;
+			6B555F41100B4C5800247EA3 /* PBXTextBookmark */ = 6B555F41100B4C5800247EA3 /* PBXTextBookmark */;
+			6B555F42100B4C5800247EA3 /* PBXTextBookmark */ = 6B555F42100B4C5800247EA3 /* PBXTextBookmark */;
+			6B555F43100B4C5800247EA3 /* PBXTextBookmark */ = 6B555F43100B4C5800247EA3 /* PBXTextBookmark */;
+			6B555F44100B4C5800247EA3 /* PBXTextBookmark */ = 6B555F44100B4C5800247EA3 /* PBXTextBookmark */;
+			6B555F45100B4C5800247EA3 /* PBXTextBookmark */ = 6B555F45100B4C5800247EA3 /* PBXTextBookmark */;
+			6B555F46100B4C5800247EA3 /* PBXTextBookmark */ = 6B555F46100B4C5800247EA3 /* PBXTextBookmark */;
+			6B555F47100B4C5800247EA3 /* PBXTextBookmark */ = 6B555F47100B4C5800247EA3 /* PBXTextBookmark */;
+			6B555F48100B4C5800247EA3 /* PBXTextBookmark */ = 6B555F48100B4C5800247EA3 /* PBXTextBookmark */;
+			6B555F49100B4C5800247EA3 /* PBXTextBookmark */ = 6B555F49100B4C5800247EA3 /* PBXTextBookmark */;
+			6B555F4A100B4C5800247EA3 /* PBXTextBookmark */ = 6B555F4A100B4C5800247EA3 /* PBXTextBookmark */;
+			6B555F4B100B4C5800247EA3 /* PBXTextBookmark */ = 6B555F4B100B4C5800247EA3 /* PBXTextBookmark */;
+			6B555F4C100B4C5800247EA3 /* PBXTextBookmark */ = 6B555F4C100B4C5800247EA3 /* PBXTextBookmark */;
+			6B555F4D100B4C5800247EA3 /* PBXTextBookmark */ = 6B555F4D100B4C5800247EA3 /* PBXTextBookmark */;
+			6B555F4E100B4C5800247EA3 /* PBXTextBookmark */ = 6B555F4E100B4C5800247EA3 /* PBXTextBookmark */;
+			6B555F4F100B4C5800247EA3 /* PBXTextBookmark */ = 6B555F4F100B4C5800247EA3 /* PBXTextBookmark */;
+			6B555F52100B4CE300247EA3 /* PBXTextBookmark */ = 6B555F52100B4CE300247EA3 /* PBXTextBookmark */;
 			6B7707B90FBD66CF00D21BAE = 6B7707B90FBD66CF00D21BAE /* PBXTextBookmark */;
 			6B7707F00FBD90F100D21BAE = 6B7707F00FBD90F100D21BAE /* PBXTextBookmark */;
 			6B7707F70FBD90F100D21BAE = 6B7707F70FBD90F100D21BAE /* PBXTextBookmark */;
@@ -606,7 +664,7 @@
 		fRef = 6B2AEC550FFB89E7005BE9CC /* Sample_StatMeshTiled.cpp */;
 		name = "BuilderStatMeshTiled.cpp: 828";
 		rLen = 0;
-		rLoc = 23976;
+		rLoc = 23956;
 		rType = 0;
 		vrLen = 2856;
 		vrLoc = 27512;
@@ -631,7 +689,7 @@
 		vrLen = 558;
 		vrLoc = 362;
 	};
-	6B0249B11003783F00CF7107 /* Sample_TileMesh.cpp:834 */ = {
+	6B0249B11003783F00CF7107 /* Sample_TileMesh.cpp:833 */ = {
 		isa = PBXFileBreakpoint;
 		actions = (
 		);
@@ -643,7 +701,7 @@
 		functionName = "BuilderTiledMesh::toolRecalc()";
 		hitCount = 0;
 		ignoreCount = 0;
-		lineNumber = 834;
+		lineNumber = 833;
 		location = Recast;
 		modificationTime = 268741438.169822;
 		state = 1;
@@ -697,9 +755,9 @@
 		fRef = 6B092B930FFCC2BD0088D3A5 /* DetourTileNavMeshBuilder.cpp */;
 		name = "DetourTiledNavMeshBuilder.cpp: 192";
 		rLen = 0;
-		rLoc = 5270;
+		rLoc = 4117;
 		rType = 0;
-		vrLen = 489;
+		vrLen = 316;
 		vrLoc = 5200;
 	};
 	6B024AC01004AB3900CF7107 /* DetourTileNavMesh.cpp:1 */ = {
@@ -724,7 +782,7 @@
 		fRef = 6B2AEC580FFB8A68005BE9CC /* DetourTileNavMesh.h */;
 		name = "DetourTiledNavMesh.h: 137";
 		rLen = 0;
-		rLoc = 4656;
+		rLoc = 5005;
 		rType = 0;
 		vrLen = 1459;
 		vrLoc = 3572;
@@ -734,7 +792,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* Sample_TileMesh.cpp */;
 		name = "BuilderTiledMesh.cpp: 210";
 		rLen = 0;
-		rLoc = 1353;
+		rLoc = 1333;
 		rType = 0;
 		vrLen = 637;
 		vrLoc = 4689;
@@ -857,9 +915,9 @@
 	};
 	6B092B930FFCC2BD0088D3A5 /* DetourTileNavMeshBuilder.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {915, 2848}}";
-			sepNavSelRange = "{975, 0}";
-			sepNavVisRange = "{391, 1071}";
+			sepNavIntBoundsRect = "{{0, 0}, {915, 2416}}";
+			sepNavSelRange = "{4218, 0}";
+			sepNavVisRange = "{3397, 579}";
 		};
 	};
 	6B092BBC0FFCEC1A0088D3A5 /* PBXTextBookmark */ = {
@@ -894,30 +952,30 @@
 	};
 	6B1185F41006895B0018F96F /* DetourNode.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {915, 1920}}";
-			sepNavSelRange = "{1317, 0}";
-			sepNavVisRange = "{1215, 451}";
+			sepNavIntBoundsRect = "{{0, 0}, {915, 2224}}";
+			sepNavSelRange = "{943, 0}";
+			sepNavVisRange = "{2688, 561}";
 		};
 	};
 	6B1185F61006896B0018F96F /* DetourNode.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {915, 2064}}";
-			sepNavSelRange = "{1489, 0}";
-			sepNavVisRange = "{1214, 572}";
+			sepNavIntBoundsRect = "{{0, 0}, {915, 2032}}";
+			sepNavSelRange = "{1380, 0}";
+			sepNavVisRange = "{0, 1074}";
 		};
 	};
 	6B1185FC10068B040018F96F /* DetourCommon.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {915, 1888}}";
-			sepNavSelRange = "{3139, 0}";
-			sepNavVisRange = "{2190, 997}";
+			sepNavIntBoundsRect = "{{0, 0}, {915, 1936}}";
+			sepNavSelRange = "{919, 0}";
+			sepNavVisRange = "{0, 1542}";
 		};
 	};
 	6B1185FD10068B150018F96F /* DetourCommon.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {915, 3280}}";
-			sepNavSelRange = "{3981, 0}";
-			sepNavVisRange = "{3612, 444}";
+			sepNavIntBoundsRect = "{{0, 0}, {915, 3296}}";
+			sepNavSelRange = "{918, 0}";
+			sepNavVisRange = "{0, 1254}";
 		};
 	};
 	6B1186211006945C0018F96F /* PBXBookmark */ = {
@@ -939,7 +997,7 @@
 		fRef = 6B1185FC10068B040018F96F /* DetourCommon.h */;
 		name = "DetourCommon.h: 123";
 		rLen = 0;
-		rLoc = 3139;
+		rLoc = 4058;
 		rType = 0;
 		vrLen = 997;
 		vrLoc = 2190;
@@ -949,7 +1007,7 @@
 		fRef = 6B1185FD10068B150018F96F /* DetourCommon.cpp */;
 		name = "DetourCommon.cpp: 182";
 		rLen = 0;
-		rLoc = 3981;
+		rLoc = 4899;
 		rType = 0;
 		vrLen = 444;
 		vrLoc = 3612;
@@ -959,7 +1017,7 @@
 		fRef = 6B1185F41006895B0018F96F /* DetourNode.cpp */;
 		name = "DetourNode.cpp: 63";
 		rLen = 0;
-		rLoc = 1317;
+		rLoc = 2235;
 		rType = 0;
 		vrLen = 451;
 		vrLoc = 1215;
@@ -973,7 +1031,7 @@
 		fRef = 6B1185F41006895B0018F96F /* DetourNode.cpp */;
 		name = "DetourNode.cpp: 1";
 		rLen = 0;
-		rLoc = 2331;
+		rLoc = 3249;
 		rType = 0;
 		vrLen = 0;
 		vrLoc = 0;
@@ -993,7 +1051,7 @@
 		fRef = 6B1185FC10068B040018F96F /* DetourCommon.h */;
 		name = "DetourCommon.h: 1";
 		rLen = 0;
-		rLoc = 3187;
+		rLoc = 4106;
 		rType = 0;
 		vrLen = 0;
 		vrLoc = 0;
@@ -1003,7 +1061,7 @@
 		fRef = 6B1185FD10068B150018F96F /* DetourCommon.cpp */;
 		name = "DetourCommon.cpp: 1";
 		rLen = 0;
-		rLoc = 4056;
+		rLoc = 4974;
 		rType = 0;
 		vrLen = 0;
 		vrLoc = 0;
@@ -1023,7 +1081,7 @@
 		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTileNavMesh.cpp */;
 		name = "DetourTiledNavMesh.cpp: 1073";
 		rLen = 0;
-		rLoc = 26775;
+		rLoc = 27719;
 		rType = 0;
 		vrLen = 526;
 		vrLoc = 26309;
@@ -1033,7 +1091,7 @@
 		fRef = 6BDD9E080F91113800904EEF /* DetourStatNavMesh.cpp */;
 		name = "DetourStatNavMesh.cpp: 213";
 		rLen = 0;
-		rLoc = 1835;
+		rLoc = 1795;
 		rType = 0;
 		vrLen = 407;
 		vrLoc = 5549;
@@ -1053,7 +1111,7 @@
 		fRef = 6BDD9E080F91113800904EEF /* DetourStatNavMesh.cpp */;
 		name = "DetourStatNavMesh.cpp: 49";
 		rLen = 0;
-		rLoc = 1481;
+		rLoc = 1441;
 		rType = 0;
 		vrLen = 758;
 		vrLoc = 1317;
@@ -1073,7 +1131,7 @@
 		fRef = 6B25B6160FFA62BE004F1BC4 /* Sample_StatMeshSimple.cpp */;
 		name = "BuilderStatMeshSimple.cpp: 283";
 		rLen = 1;
-		rLoc = 8521;
+		rLoc = 8501;
 		rType = 0;
 		vrLen = 1096;
 		vrLoc = 8325;
@@ -1083,7 +1141,7 @@
 		fRef = 6B2AEC550FFB89E7005BE9CC /* Sample_StatMeshTiled.cpp */;
 		name = "BuilderStatMeshTiled.cpp: 911";
 		rLen = 0;
-		rLoc = 26037;
+		rLoc = 26017;
 		rType = 0;
 		vrLen = 772;
 		vrLoc = 26084;
@@ -1093,7 +1151,7 @@
 		fRef = 6B25B6150FFA62BE004F1BC4 /* Sample_StatMesh.cpp */;
 		name = "BuilderStatMesh.cpp: 240";
 		rLen = 0;
-		rLoc = 434;
+		rLoc = 414;
 		rType = 0;
 		vrLen = 861;
 		vrLoc = 5406;
@@ -1103,7 +1161,7 @@
 		fRef = 6BDD9E050F91112200904EEF /* DetourStatNavMesh.h */;
 		name = "DetourStatNavMesh.h: 176";
 		rLen = 0;
-		rLoc = 7109;
+		rLoc = 7183;
 		rType = 0;
 		vrLen = 1247;
 		vrLoc = 59;
@@ -1241,9 +1299,9 @@
 	};
 	6B137C7E0F7FCBFE00459200 /* Recast.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {915, 6576}}";
-			sepNavSelRange = "{8272, 0}";
-			sepNavVisRange = "{7805, 1281}";
+			sepNavIntBoundsRect = "{{0, 0}, {915, 7360}}";
+			sepNavSelRange = "{2648, 0}";
+			sepNavVisRange = "{2431, 578}";
 		};
 	};
 	6B137C7F0F7FCBFE00459200 /* RecastDebugDraw.h */ = {
@@ -1488,23 +1546,23 @@
 	};
 	6B25B6150FFA62BE004F1BC4 /* Sample_StatMesh.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {915, 5296}}";
-			sepNavSelRange = "{7810, 0}";
-			sepNavVisRange = "{7475, 882}";
+			sepNavIntBoundsRect = "{{0, 0}, {915, 5568}}";
+			sepNavSelRange = "{162, 0}";
+			sepNavVisRange = "{0, 498}";
 		};
 	};
 	6B25B6160FFA62BE004F1BC4 /* Sample_StatMeshSimple.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {915, 8672}}";
-			sepNavSelRange = "{7297, 0}";
-			sepNavVisRange = "{7248, 659}";
+			sepNavIntBoundsRect = "{{0, 0}, {915, 8588}}";
+			sepNavSelRange = "{143, 0}";
+			sepNavVisRange = "{0, 513}";
 		};
 	};
 	6B25B6180FFA62BE004F1BC4 /* main.cpp */ = {
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {915, 11776}}";
-			sepNavSelRange = "{11141, 0}";
-			sepNavVisRange = "{10913, 580}";
+			sepNavSelRange = "{11140, 0}";
+			sepNavVisRange = "{10891, 688}";
 		};
 	};
 	6B25B6250FFA63C8004F1BC4 /* PBXTextBookmark */ = {
@@ -1527,16 +1585,16 @@
 	};
 	6B2AEC520FFB8958005BE9CC /* Sample_TileMesh.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1223, 14368}}";
-			sepNavSelRange = "{13444, 0}";
-			sepNavVisRange = "{12888, 879}";
+			sepNavIntBoundsRect = "{{0, 0}, {1223, 14524}}";
+			sepNavSelRange = "{1062, 0}";
+			sepNavVisRange = "{784, 548}";
 		};
 	};
 	6B2AEC550FFB89E7005BE9CC /* Sample_StatMeshTiled.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {950, 16128}}";
-			sepNavSelRange = "{12364, 0}";
-			sepNavVisRange = "{12265, 866}";
+			sepNavIntBoundsRect = "{{0, 0}, {950, 15932}}";
+			sepNavSelRange = "{143, 0}";
+			sepNavVisRange = "{0, 527}";
 		};
 	};
 	6B2AEC570FFB89F4005BE9CC /* Sample_StatMeshTiled.h */ = {
@@ -1548,16 +1606,16 @@
 	};
 	6B2AEC580FFB8A68005BE9CC /* DetourTileNavMesh.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {915, 3200}}";
-			sepNavSelRange = "{938, 0}";
-			sepNavVisRange = "{784, 1075}";
+			sepNavIntBoundsRect = "{{0, 0}, {915, 3296}}";
+			sepNavSelRange = "{2613, 0}";
+			sepNavVisRange = "{6136, 1040}";
 		};
 	};
 	6B2AEC590FFB8A7A005BE9CC /* DetourTileNavMesh.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {915, 20896}}";
-			sepNavSelRange = "{1076, 0}";
-			sepNavVisRange = "{391, 1107}";
+			sepNavIntBoundsRect = "{{0, 0}, {915, 20864}}";
+			sepNavSelRange = "{24104, 0}";
+			sepNavVisRange = "{23722, 893}";
 		};
 	};
 	6B2AEC5C0FFB8AB0005BE9CC /* PBXTextBookmark */ = {
@@ -1645,7 +1703,7 @@
 		fRef = 6B25B6150FFA62BE004F1BC4 /* Sample_StatMesh.cpp */;
 		name = "BuilderStatMesh.cpp: 256";
 		rLen = 0;
-		rLoc = 434;
+		rLoc = 414;
 		rType = 0;
 		vrLen = 948;
 		vrLoc = 5713;
@@ -1725,7 +1783,7 @@
 		fRef = 6B25B6160FFA62BE004F1BC4 /* Sample_StatMeshSimple.cpp */;
 		name = "BuilderStatMeshSimple.cpp: 233";
 		rLen = 0;
-		rLoc = 440;
+		rLoc = 420;
 		rType = 0;
 		vrLen = 951;
 		vrLoc = 6674;
@@ -1973,7 +2031,7 @@
 		fRef = 6B25B6160FFA62BE004F1BC4 /* Sample_StatMeshSimple.cpp */;
 		name = "BuilderStatMeshSimple.cpp: 134";
 		rLen = 0;
-		rLoc = 440;
+		rLoc = 420;
 		rType = 0;
 		vrLen = 418;
 		vrLoc = 4037;
@@ -1983,7 +2041,7 @@
 		fRef = 6B25B6150FFA62BE004F1BC4 /* Sample_StatMesh.cpp */;
 		name = "BuilderStatMesh.cpp: 60";
 		rLen = 0;
-		rLoc = 434;
+		rLoc = 414;
 		rType = 0;
 		vrLen = 369;
 		vrLoc = 1059;
@@ -1993,7 +2051,7 @@
 		fRef = 6B2AEC550FFB89E7005BE9CC /* Sample_StatMeshTiled.cpp */;
 		name = "BuilderStatMeshTiled.cpp: 162";
 		rLen = 0;
-		rLoc = 439;
+		rLoc = 419;
 		rType = 0;
 		vrLen = 345;
 		vrLoc = 5020;
@@ -2003,7 +2061,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* Sample_TileMesh.cpp */;
 		name = "BuilderTileMesh.cpp: 213";
 		rLen = 0;
-		rLoc = 1353;
+		rLoc = 1333;
 		rType = 0;
 		vrLen = 366;
 		vrLoc = 5252;
@@ -2140,7 +2198,7 @@
 		fRef = 6B25B6160FFA62BE004F1BC4 /* Sample_StatMeshSimple.cpp */;
 		name = "BuilderStatMeshSimple.cpp: 134";
 		rLen = 0;
-		rLoc = 440;
+		rLoc = 420;
 		rType = 0;
 		vrLen = 418;
 		vrLoc = 4037;
@@ -2150,7 +2208,7 @@
 		fRef = 6B25B6150FFA62BE004F1BC4 /* Sample_StatMesh.cpp */;
 		name = "BuilderStatMesh.cpp: 60";
 		rLen = 0;
-		rLoc = 434;
+		rLoc = 414;
 		rType = 0;
 		vrLen = 369;
 		vrLoc = 1059;
@@ -2160,7 +2218,7 @@
 		fRef = 6B2AEC550FFB89E7005BE9CC /* Sample_StatMeshTiled.cpp */;
 		name = "BuilderStatMeshTiled.cpp: 162";
 		rLen = 0;
-		rLoc = 439;
+		rLoc = 419;
 		rType = 0;
 		vrLen = 345;
 		vrLoc = 5020;
@@ -2170,7 +2228,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* Sample_TileMesh.cpp */;
 		name = "BuilderTileMesh.cpp: 213";
 		rLen = 0;
-		rLoc = 1353;
+		rLoc = 1333;
 		rType = 0;
 		vrLen = 366;
 		vrLoc = 5252;
@@ -2200,7 +2258,7 @@
 		fRef = 6B25B6150FFA62BE004F1BC4 /* Sample_StatMesh.cpp */;
 		name = "BuilderStatMesh.cpp: 66";
 		rLen = 0;
-		rLoc = 434;
+		rLoc = 414;
 		rType = 0;
 		vrLen = 824;
 		vrLoc = 435;
@@ -2210,7 +2268,7 @@
 		fRef = 6B2AEC550FFB89E7005BE9CC /* Sample_StatMeshTiled.cpp */;
 		name = "BuilderStatMeshTiled.cpp: 170";
 		rLen = 0;
-		rLoc = 439;
+		rLoc = 419;
 		rType = 0;
 		vrLen = 2175;
 		vrLoc = 2989;
@@ -2240,7 +2298,7 @@
 		fRef = 6B25B6150FFA62BE004F1BC4 /* Sample_StatMesh.cpp */;
 		name = "BuilderStatMesh.cpp: 66";
 		rLen = 0;
-		rLoc = 434;
+		rLoc = 414;
 		rType = 0;
 		vrLen = 824;
 		vrLoc = 435;
@@ -2250,7 +2308,7 @@
 		fRef = 6B2AEC550FFB89E7005BE9CC /* Sample_StatMeshTiled.cpp */;
 		name = "BuilderStatMeshTiled.cpp: 170";
 		rLen = 0;
-		rLoc = 439;
+		rLoc = 419;
 		rType = 0;
 		vrLen = 2175;
 		vrLoc = 2989;
@@ -2510,7 +2568,7 @@
 		fRef = 6B25B6160FFA62BE004F1BC4 /* Sample_StatMeshSimple.cpp */;
 		name = "BuilderStatMeshSimple.cpp: 281";
 		rLen = 0;
-		rLoc = 8522;
+		rLoc = 8502;
 		rType = 0;
 		vrLen = 1261;
 		vrLoc = 7709;
@@ -2520,7 +2578,7 @@
 		fRef = 6B2AEC550FFB89E7005BE9CC /* Sample_StatMeshTiled.cpp */;
 		name = "BuilderStatMeshTiled.cpp: 117";
 		rLen = 0;
-		rLoc = 439;
+		rLoc = 419;
 		rType = 0;
 		vrLen = 2054;
 		vrLoc = 3222;
@@ -2560,7 +2618,7 @@
 		fRef = 6B2AEC550FFB89E7005BE9CC /* Sample_StatMeshTiled.cpp */;
 		name = "BuilderStatMeshTiled.cpp: 117";
 		rLen = 0;
-		rLoc = 439;
+		rLoc = 419;
 		rType = 0;
 		vrLen = 2054;
 		vrLoc = 3222;
@@ -2570,7 +2628,7 @@
 		fRef = 6B25B6160FFA62BE004F1BC4 /* Sample_StatMeshSimple.cpp */;
 		name = "BuilderStatMeshSimple.cpp: 281";
 		rLen = 0;
-		rLoc = 8522;
+		rLoc = 8502;
 		rType = 0;
 		vrLen = 1261;
 		vrLoc = 7709;
@@ -2580,7 +2638,7 @@
 		fRef = 6B2AEC550FFB89E7005BE9CC /* Sample_StatMeshTiled.cpp */;
 		name = "BuilderStatMeshTiled.cpp: 540";
 		rLen = 0;
-		rLoc = 14986;
+		rLoc = 14966;
 		rType = 0;
 		vrLen = 1340;
 		vrLoc = 14213;
@@ -2590,7 +2648,7 @@
 		fRef = 6B2AEC550FFB89E7005BE9CC /* Sample_StatMeshTiled.cpp */;
 		name = "BuilderStatMeshTiled.cpp: 540";
 		rLen = 0;
-		rLoc = 14986;
+		rLoc = 14966;
 		rType = 0;
 		vrLen = 1411;
 		vrLoc = 14213;
@@ -2628,7 +2686,7 @@
 		fRef = 6B2AEC550FFB89E7005BE9CC /* Sample_StatMeshTiled.cpp */;
 		name = "BuilderStatMeshTiled.cpp: 540";
 		rLen = 0;
-		rLoc = 14986;
+		rLoc = 14966;
 		rType = 0;
 		vrLen = 1411;
 		vrLoc = 14213;
@@ -2778,7 +2836,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* Sample_TileMesh.cpp */;
 		name = "BuilderTileMesh.cpp: 40";
 		rLen = 0;
-		rLoc = 1353;
+		rLoc = 1333;
 		rType = 0;
 		vrLen = 542;
 		vrLoc = 1019;
@@ -2808,7 +2866,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* Sample_TileMesh.cpp */;
 		name = "BuilderTileMesh.cpp: 40";
 		rLen = 0;
-		rLoc = 1353;
+		rLoc = 1333;
 		rType = 0;
 		vrLen = 542;
 		vrLoc = 1019;
@@ -2835,16 +2893,16 @@
 	};
 	6B555DAE100B211D00247EA3 /* imguiRenderGL.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {915, 411}}";
-			sepNavSelRange = "{182, 0}";
-			sepNavVisRange = "{0, 182}";
+			sepNavIntBoundsRect = "{{0, 0}, {915, 492}}";
+			sepNavSelRange = "{919, 0}";
+			sepNavVisRange = "{0, 1101}";
 		};
 	};
 	6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {915, 6656}}";
-			sepNavSelRange = "{5500, 0}";
-			sepNavVisRange = "{5401, 572}";
+			sepNavIntBoundsRect = "{{0, 0}, {915, 7024}}";
+			sepNavSelRange = "{919, 0}";
+			sepNavVisRange = "{0, 1274}";
 		};
 	};
 	6B555DBD100B236A00247EA3 /* PBXTextBookmark */ = {
@@ -2852,7 +2910,7 @@
 		fRef = 6B555DAE100B211D00247EA3 /* imguiRenderGL.h */;
 		name = "imguiRenderGL.h: 4";
 		rLen = 13;
-		rLoc = 133;
+		rLoc = 1052;
 		rType = 0;
 		vrLen = 178;
 		vrLoc = 0;
@@ -2892,7 +2950,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 206";
 		rLen = 0;
-		rLoc = 7511;
+		rLoc = 8430;
 		rType = 0;
 		vrLen = 496;
 		vrLoc = 4108;
@@ -2972,7 +3030,7 @@
 		fRef = 6B555DAE100B211D00247EA3 /* imguiRenderGL.h */;
 		name = "imguiRenderGL.h: 1";
 		rLen = 0;
-		rLoc = 182;
+		rLoc = 1101;
 		rType = 0;
 		vrLen = 0;
 		vrLoc = 0;
@@ -2982,7 +3040,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 1";
 		rLen = 0;
-		rLoc = 9225;
+		rLoc = 10144;
 		rType = 0;
 		vrLen = 0;
 		vrLoc = 0;
@@ -2992,7 +3050,7 @@
 		fRef = 6B555DAE100B211D00247EA3 /* imguiRenderGL.h */;
 		name = "imguiRenderGL.h: 1";
 		rLen = 0;
-		rLoc = 182;
+		rLoc = 1101;
 		rType = 0;
 		vrLen = 0;
 		vrLoc = 0;
@@ -3022,7 +3080,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 1";
 		rLen = 0;
-		rLoc = 37;
+		rLoc = 956;
 		rType = 0;
 		vrLen = 41;
 		vrLoc = 0;
@@ -3042,7 +3100,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 4";
 		rLen = 0;
-		rLoc = 676;
+		rLoc = 1595;
 		rType = 0;
 		vrLen = 1035;
 		vrLoc = 0;
@@ -3062,7 +3120,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 197";
 		rLen = 0;
-		rLoc = 7484;
+		rLoc = 8403;
 		rType = 0;
 		vrLen = 834;
 		vrLoc = 3959;
@@ -3102,7 +3160,7 @@
 		fRef = 6B555DAE100B211D00247EA3 /* imguiRenderGL.h */;
 		name = "imguiRenderGL.h: 1";
 		rLen = 0;
-		rLoc = 128;
+		rLoc = 1047;
 		rType = 0;
 		vrLen = 95;
 		vrLoc = 0;
@@ -3152,7 +3210,7 @@
 		fRef = 6B555DAE100B211D00247EA3 /* imguiRenderGL.h */;
 		name = "imguiRenderGL.h: 4";
 		rLen = 0;
-		rLoc = 128;
+		rLoc = 1047;
 		rType = 0;
 		vrLen = 178;
 		vrLoc = 0;
@@ -3162,7 +3220,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 198";
 		rLen = 0;
-		rLoc = 7490;
+		rLoc = 8409;
 		rType = 0;
 		vrLen = 834;
 		vrLoc = 3959;
@@ -3172,7 +3230,7 @@
 		fRef = 6B555DAE100B211D00247EA3 /* imguiRenderGL.h */;
 		name = "imguiRenderGL.h: 4";
 		rLen = 13;
-		rLoc = 133;
+		rLoc = 1052;
 		rType = 0;
 		vrLen = 178;
 		vrLoc = 0;
@@ -3182,7 +3240,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 25";
 		rLen = 0;
-		rLoc = 1112;
+		rLoc = 2031;
 		rType = 0;
 		vrLen = 941;
 		vrLoc = 662;
@@ -3212,7 +3270,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 207";
 		rLen = 0;
-		rLoc = 7530;
+		rLoc = 8449;
 		rType = 0;
 		vrLen = 726;
 		vrLoc = 4157;
@@ -3232,7 +3290,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 207";
 		rLen = 0;
-		rLoc = 7553;
+		rLoc = 8472;
 		rType = 0;
 		vrLen = 848;
 		vrLoc = 4176;
@@ -3252,7 +3310,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 207";
 		rLen = 0;
-		rLoc = 7558;
+		rLoc = 8477;
 		rType = 0;
 		vrLen = 952;
 		vrLoc = 4277;
@@ -3272,7 +3330,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 206";
 		rLen = 0;
-		rLoc = 7511;
+		rLoc = 8430;
 		rType = 0;
 		vrLen = 458;
 		vrLoc = 4108;
@@ -3342,7 +3400,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 6";
 		rLen = 0;
-		rLoc = 537;
+		rLoc = 1456;
 		rType = 0;
 		vrLen = 748;
 		vrLoc = 0;
@@ -3352,7 +3410,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 251";
 		rLen = 0;
-		rLoc = 8834;
+		rLoc = 9753;
 		rType = 0;
 		vrLen = 791;
 		vrLoc = 5467;
@@ -3372,7 +3430,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 251";
 		rLen = 0;
-		rLoc = 8834;
+		rLoc = 9753;
 		rType = 0;
 		vrLen = 791;
 		vrLoc = 5467;
@@ -3449,7 +3507,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* Sample_TileMesh.cpp */;
 		name = "Sample_TileMesh.cpp: 40";
 		rLen = 0;
-		rLoc = 1353;
+		rLoc = 1333;
 		rType = 0;
 		vrLen = 670;
 		vrLoc = 963;
@@ -3469,7 +3527,7 @@
 		fRef = 6B2AEC550FFB89E7005BE9CC /* Sample_StatMeshTiled.cpp */;
 		name = "Sample_StatMeshTiled.cpp: 540";
 		rLen = 0;
-		rLoc = 14986;
+		rLoc = 14966;
 		rType = 0;
 		vrLen = 1313;
 		vrLoc = 14311;
@@ -3489,7 +3547,7 @@
 		fRef = 6B25B6150FFA62BE004F1BC4 /* Sample_StatMesh.cpp */;
 		name = "Sample_StatMesh.cpp: 66";
 		rLen = 0;
-		rLoc = 434;
+		rLoc = 414;
 		rType = 0;
 		vrLen = 701;
 		vrLoc = 558;
@@ -3525,7 +3583,7 @@
 		fRef = 6B25B6160FFA62BE004F1BC4 /* Sample_StatMeshSimple.cpp */;
 		name = "Sample_StatMeshSimple.cpp: 278";
 		rLen = 0;
-		rLoc = 8472;
+		rLoc = 8452;
 		rType = 0;
 		vrLen = 1186;
 		vrLoc = 7783;
@@ -3555,7 +3613,7 @@
 		fRef = 6B555DAE100B211D00247EA3 /* imguiRenderGL.h */;
 		name = "imguiRenderGL.h: 4";
 		rLen = 0;
-		rLoc = 53;
+		rLoc = 972;
 		rType = 0;
 		vrLen = 162;
 		vrLoc = 0;
@@ -3565,7 +3623,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 210";
 		rLen = 0;
-		rLoc = 5403;
+		rLoc = 6322;
 		rType = 0;
 		vrLen = 733;
 		vrLoc = 4418;
@@ -3615,7 +3673,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* Sample_TileMesh.cpp */;
 		name = "Sample_TileMesh.cpp: 40";
 		rLen = 0;
-		rLoc = 1353;
+		rLoc = 1333;
 		rType = 0;
 		vrLen = 670;
 		vrLoc = 963;
@@ -3635,7 +3693,7 @@
 		fRef = 6B2AEC550FFB89E7005BE9CC /* Sample_StatMeshTiled.cpp */;
 		name = "Sample_StatMeshTiled.cpp: 540";
 		rLen = 0;
-		rLoc = 14986;
+		rLoc = 14966;
 		rType = 0;
 		vrLen = 1313;
 		vrLoc = 14311;
@@ -3655,7 +3713,7 @@
 		fRef = 6B25B6150FFA62BE004F1BC4 /* Sample_StatMesh.cpp */;
 		name = "Sample_StatMesh.cpp: 66";
 		rLen = 0;
-		rLoc = 434;
+		rLoc = 414;
 		rType = 0;
 		vrLen = 701;
 		vrLoc = 558;
@@ -3675,7 +3733,7 @@
 		fRef = 6B25B6160FFA62BE004F1BC4 /* Sample_StatMeshSimple.cpp */;
 		name = "Sample_StatMeshSimple.cpp: 278";
 		rLen = 0;
-		rLoc = 8472;
+		rLoc = 8452;
 		rType = 0;
 		vrLen = 1186;
 		vrLoc = 7783;
@@ -3695,7 +3753,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 213";
 		rLen = 0;
-		rLoc = 5501;
+		rLoc = 6420;
 		rType = 0;
 		vrLen = 723;
 		vrLoc = 4418;
@@ -3705,7 +3763,7 @@
 		fRef = 6B555DAE100B211D00247EA3 /* imguiRenderGL.h */;
 		name = "imguiRenderGL.h: 4";
 		rLen = 75;
-		rLoc = 53;
+		rLoc = 972;
 		rType = 0;
 		vrLen = 233;
 		vrLoc = 0;
@@ -3715,7 +3773,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 212";
 		rLen = 0;
-		rLoc = 5501;
+		rLoc = 6420;
 		rType = 0;
 		vrLen = 733;
 		vrLoc = 4418;
@@ -3735,7 +3793,7 @@
 		fRef = 6B555DAE100B211D00247EA3 /* imguiRenderGL.h */;
 		name = "imguiRenderGL.h: 4";
 		rLen = 0;
-		rLoc = 53;
+		rLoc = 972;
 		rType = 0;
 		vrLen = 162;
 		vrLoc = 0;
@@ -3755,7 +3813,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 210";
 		rLen = 0;
-		rLoc = 5403;
+		rLoc = 6322;
 		rType = 0;
 		vrLen = 733;
 		vrLoc = 4418;
@@ -3765,7 +3823,7 @@
 		fRef = 6B555DAE100B211D00247EA3 /* imguiRenderGL.h */;
 		name = "imguiRenderGL.h: 4";
 		rLen = 0;
-		rLoc = 53;
+		rLoc = 972;
 		rType = 0;
 		vrLen = 162;
 		vrLoc = 0;
@@ -3775,7 +3833,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 17";
 		rLen = 0;
-		rLoc = 530;
+		rLoc = 1449;
 		rType = 0;
 		vrLen = 1021;
 		vrLoc = 0;
@@ -3785,7 +3843,7 @@
 		fRef = 6B555DAE100B211D00247EA3 /* imguiRenderGL.h */;
 		name = "imguiRenderGL.h: 4";
 		rLen = 0;
-		rLoc = 57;
+		rLoc = 976;
 		rType = 0;
 		vrLen = 182;
 		vrLoc = 0;
@@ -3795,7 +3853,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 206";
 		rLen = 0;
-		rLoc = 4226;
+		rLoc = 5145;
 		rType = 0;
 		vrLen = 786;
 		vrLoc = 4508;
@@ -3805,7 +3863,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 206";
 		rLen = 20;
-		rLoc = 4245;
+		rLoc = 5164;
 		rType = 0;
 		vrLen = 786;
 		vrLoc = 4508;
@@ -3815,7 +3873,7 @@
 		fRef = 6B555DAE100B211D00247EA3 /* imguiRenderGL.h */;
 		name = "imguiRenderGL.h: 4";
 		rLen = 0;
-		rLoc = 53;
+		rLoc = 972;
 		rType = 0;
 		vrLen = 182;
 		vrLoc = 0;
@@ -3825,7 +3883,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 206";
 		rLen = 0;
-		rLoc = 4226;
+		rLoc = 5145;
 		rType = 0;
 		vrLen = 786;
 		vrLoc = 4508;
@@ -3835,7 +3893,7 @@
 		fRef = 6B555DAE100B211D00247EA3 /* imguiRenderGL.h */;
 		name = "imguiRenderGL.h: 4";
 		rLen = 0;
-		rLoc = 57;
+		rLoc = 976;
 		rType = 0;
 		vrLen = 182;
 		vrLoc = 0;
@@ -3845,7 +3903,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 218";
 		rLen = 5;
-		rLoc = 4607;
+		rLoc = 5526;
 		rType = 0;
 		vrLen = 816;
 		vrLoc = 4732;
@@ -3855,7 +3913,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 408";
 		rLen = 0;
-		rLoc = 8838;
+		rLoc = 9757;
 		rType = 0;
 		vrLen = 431;
 		vrLoc = 6550;
@@ -3895,7 +3953,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* Sample_TileMesh.cpp */;
 		name = "Sample_TileMesh.cpp: 88";
 		rLen = 0;
-		rLoc = 2215;
+		rLoc = 2195;
 		rType = 0;
 		vrLen = 628;
 		vrLoc = 2008;
@@ -3925,7 +3983,7 @@
 		fRef = 6B25B6150FFA62BE004F1BC4 /* Sample_StatMesh.cpp */;
 		name = "Sample_StatMesh.cpp: 32";
 		rLen = 0;
-		rLoc = 641;
+		rLoc = 621;
 		rType = 0;
 		vrLen = 572;
 		vrLoc = 426;
@@ -3945,7 +4003,7 @@
 		fRef = 6B25B6160FFA62BE004F1BC4 /* Sample_StatMeshSimple.cpp */;
 		name = "Sample_StatMeshSimple.cpp: 252";
 		rLen = 0;
-		rLoc = 7679;
+		rLoc = 7659;
 		rType = 0;
 		vrLen = 687;
 		vrLoc = 7246;
@@ -3955,7 +4013,7 @@
 		fRef = 6B2AEC550FFB89E7005BE9CC /* Sample_StatMeshTiled.cpp */;
 		name = "Sample_StatMeshTiled.cpp: 35";
 		rLen = 0;
-		rLoc = 732;
+		rLoc = 712;
 		rType = 0;
 		vrLen = 468;
 		vrLoc = 439;
@@ -3973,7 +4031,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 408";
 		rLen = 0;
-		rLoc = 8838;
+		rLoc = 9757;
 		rType = 0;
 		vrLen = 431;
 		vrLoc = 6550;
@@ -4033,7 +4091,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* Sample_TileMesh.cpp */;
 		name = "Sample_TileMesh.cpp: 88";
 		rLen = 0;
-		rLoc = 2215;
+		rLoc = 2195;
 		rType = 0;
 		vrLen = 628;
 		vrLoc = 2008;
@@ -4053,7 +4111,7 @@
 		fRef = 6B2AEC550FFB89E7005BE9CC /* Sample_StatMeshTiled.cpp */;
 		name = "Sample_StatMeshTiled.cpp: 35";
 		rLen = 0;
-		rLoc = 754;
+		rLoc = 734;
 		rType = 0;
 		vrLen = 484;
 		vrLoc = 486;
@@ -4093,7 +4151,7 @@
 		fRef = 6B25B6150FFA62BE004F1BC4 /* Sample_StatMesh.cpp */;
 		name = "Sample_StatMesh.cpp: 32";
 		rLen = 0;
-		rLoc = 641;
+		rLoc = 621;
 		rType = 0;
 		vrLen = 572;
 		vrLoc = 426;
@@ -4113,7 +4171,7 @@
 		fRef = 6B25B6160FFA62BE004F1BC4 /* Sample_StatMeshSimple.cpp */;
 		name = "Sample_StatMeshSimple.cpp: 9";
 		rLen = 0;
-		rLoc = 182;
+		rLoc = 162;
 		rType = 0;
 		vrLen = 557;
 		vrLoc = 0;
@@ -4133,7 +4191,7 @@
 		fRef = 6B25B6160FFA62BE004F1BC4 /* Sample_StatMeshSimple.cpp */;
 		name = "Sample_StatMeshSimple.cpp: 18";
 		rLen = 1;
-		rLoc = 403;
+		rLoc = 383;
 		rType = 0;
 		vrLen = 617;
 		vrLoc = 0;
@@ -4153,7 +4211,7 @@
 		fRef = 6B25B6160FFA62BE004F1BC4 /* Sample_StatMeshSimple.cpp */;
 		name = "Sample_StatMeshSimple.cpp: 252";
 		rLen = 0;
-		rLoc = 7679;
+		rLoc = 7659;
 		rType = 0;
 		vrLen = 687;
 		vrLoc = 7246;
@@ -4163,7 +4221,7 @@
 		fRef = 6B2AEC550FFB89E7005BE9CC /* Sample_StatMeshTiled.cpp */;
 		name = "Sample_StatMeshTiled.cpp: 35";
 		rLen = 0;
-		rLoc = 732;
+		rLoc = 712;
 		rType = 0;
 		vrLen = 468;
 		vrLoc = 439;
@@ -4233,7 +4291,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* Sample_TileMesh.cpp */;
 		name = "Sample_TileMesh.cpp: 492";
 		rLen = 0;
-		rLoc = 13358;
+		rLoc = 13338;
 		rType = 0;
 		vrLen = 921;
 		vrLoc = 12886;
@@ -4253,7 +4311,7 @@
 		fRef = 6B555DAE100B211D00247EA3 /* imguiRenderGL.h */;
 		name = "imguiRenderGL.h: 7";
 		rLen = 0;
-		rLoc = 154;
+		rLoc = 1073;
 		rType = 0;
 		vrLen = 182;
 		vrLoc = 0;
@@ -4313,7 +4371,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* Sample_TileMesh.cpp */;
 		name = "Sample_TileMesh.cpp: 492";
 		rLen = 0;
-		rLoc = 13358;
+		rLoc = 13338;
 		rType = 0;
 		vrLen = 921;
 		vrLoc = 12886;
@@ -4413,7 +4471,7 @@
 		fRef = 6B555DAE100B211D00247EA3 /* imguiRenderGL.h */;
 		name = "imguiRenderGL.h: 8";
 		rLen = 0;
-		rLoc = 154;
+		rLoc = 1073;
 		rType = 0;
 		vrLen = 265;
 		vrLoc = 0;
@@ -4433,7 +4491,7 @@
 		fRef = 6B555DAE100B211D00247EA3 /* imguiRenderGL.h */;
 		name = "imguiRenderGL.h: 7";
 		rLen = 0;
-		rLoc = 154;
+		rLoc = 1073;
 		rType = 0;
 		vrLen = 182;
 		vrLoc = 0;
@@ -4503,7 +4561,7 @@
 		fRef = 6B25B6160FFA62BE004F1BC4 /* Sample_StatMeshSimple.cpp */;
 		name = "Sample_StatMeshSimple.cpp: 243";
 		rLen = 0;
-		rLoc = 7358;
+		rLoc = 7338;
 		rType = 0;
 		vrLen = 679;
 		vrLoc = 7248;
@@ -4513,7 +4571,7 @@
 		fRef = 6B25B6150FFA62BE004F1BC4 /* Sample_StatMesh.cpp */;
 		name = "Sample_StatMesh.cpp: 32";
 		rLen = 0;
-		rLoc = 641;
+		rLoc = 621;
 		rType = 0;
 		vrLen = 430;
 		vrLoc = 426;
@@ -4563,7 +4621,7 @@
 		fRef = 6B25B6160FFA62BE004F1BC4 /* Sample_StatMeshSimple.cpp */;
 		name = "Sample_StatMeshSimple.cpp: 252";
 		rLen = 0;
-		rLoc = 7679;
+		rLoc = 7659;
 		rType = 0;
 		vrLen = 685;
 		vrLoc = 7248;
@@ -4583,7 +4641,7 @@
 		fRef = 6B25B6160FFA62BE004F1BC4 /* Sample_StatMeshSimple.cpp */;
 		name = "Sample_StatMeshSimple.cpp: 243";
 		rLen = 0;
-		rLoc = 7358;
+		rLoc = 7338;
 		rType = 0;
 		vrLen = 679;
 		vrLoc = 7248;
@@ -4593,7 +4651,7 @@
 		fRef = 6B25B6150FFA62BE004F1BC4 /* Sample_StatMesh.cpp */;
 		name = "Sample_StatMesh.cpp: 309";
 		rLen = 0;
-		rLoc = 7775;
+		rLoc = 7755;
 		rType = 0;
 		vrLen = 884;
 		vrLoc = 7475;
@@ -4603,7 +4661,7 @@
 		fRef = 6B25B6150FFA62BE004F1BC4 /* Sample_StatMesh.cpp */;
 		name = "Sample_StatMesh.cpp: 313";
 		rLen = 0;
-		rLoc = 7981;
+		rLoc = 7961;
 		rType = 0;
 		vrLen = 767;
 		vrLoc = 7475;
@@ -4613,7 +4671,7 @@
 		fRef = 6B25B6150FFA62BE004F1BC4 /* Sample_StatMesh.cpp */;
 		name = "Sample_StatMesh.cpp: 308";
 		rLen = 0;
-		rLoc = 7810;
+		rLoc = 7790;
 		rType = 0;
 		vrLen = 882;
 		vrLoc = 7475;
@@ -4623,7 +4681,7 @@
 		fRef = 6B2AEC550FFB89E7005BE9CC /* Sample_StatMeshTiled.cpp */;
 		name = "Sample_StatMeshTiled.cpp: 35";
 		rLen = 0;
-		rLoc = 732;
+		rLoc = 712;
 		rType = 0;
 		vrLen = 486;
 		vrLoc = 438;
@@ -4633,7 +4691,7 @@
 		fRef = 6B25B6150FFA62BE004F1BC4 /* Sample_StatMesh.cpp */;
 		name = "Sample_StatMesh.cpp: 308";
 		rLen = 0;
-		rLoc = 7810;
+		rLoc = 7790;
 		rType = 0;
 		vrLen = 882;
 		vrLoc = 7475;
@@ -4643,7 +4701,7 @@
 		fRef = 6B2AEC550FFB89E7005BE9CC /* Sample_StatMeshTiled.cpp */;
 		name = "Sample_StatMeshTiled.cpp: 457";
 		rLen = 0;
-		rLoc = 12365;
+		rLoc = 12345;
 		rType = 0;
 		vrLen = 710;
 		vrLoc = 12161;
@@ -4653,7 +4711,7 @@
 		fRef = 6B2AEC550FFB89E7005BE9CC /* Sample_StatMeshTiled.cpp */;
 		name = "Sample_StatMeshTiled.cpp: 461";
 		rLen = 0;
-		rLoc = 12490;
+		rLoc = 12470;
 		rType = 0;
 		vrLen = 708;
 		vrLoc = 12161;
@@ -4663,7 +4721,7 @@
 		fRef = 6B2AEC550FFB89E7005BE9CC /* Sample_StatMeshTiled.cpp */;
 		name = "Sample_StatMeshTiled.cpp: 400";
 		rLen = 0;
-		rLoc = 11232;
+		rLoc = 11212;
 		rType = 0;
 		vrLen = 727;
 		vrLoc = 10851;
@@ -4683,7 +4741,7 @@
 		fRef = 6B2AEC550FFB89E7005BE9CC /* Sample_StatMeshTiled.cpp */;
 		name = "Sample_StatMeshTiled.cpp: 456";
 		rLen = 0;
-		rLoc = 12364;
+		rLoc = 12344;
 		rType = 0;
 		vrLen = 866;
 		vrLoc = 12265;
@@ -4693,7 +4751,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* Sample_TileMesh.cpp */;
 		name = "Sample_TileMesh.cpp: 493";
 		rLen = 0;
-		rLoc = 13444;
+		rLoc = 13424;
 		rType = 0;
 		vrLen = 879;
 		vrLoc = 12888;
@@ -4733,7 +4791,7 @@
 		fRef = 6B25B6160FFA62BE004F1BC4 /* Sample_StatMeshSimple.cpp */;
 		name = "Sample_StatMeshSimple.cpp: 241";
 		rLen = 0;
-		rLoc = 7297;
+		rLoc = 7277;
 		rType = 0;
 		vrLen = 659;
 		vrLoc = 7248;
@@ -4743,7 +4801,7 @@
 		fRef = 6B555DAE100B211D00247EA3 /* imguiRenderGL.h */;
 		name = "imguiRenderGL.h: 8";
 		rLen = 0;
-		rLoc = 182;
+		rLoc = 1101;
 		rType = 0;
 		vrLen = 182;
 		vrLoc = 0;
@@ -4753,7 +4811,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 404";
 		rLen = 0;
-		rLoc = 8950;
+		rLoc = 9869;
 		rType = 0;
 		vrLen = 692;
 		vrLoc = 8832;
@@ -4763,7 +4821,7 @@
 		fRef = 6B2AEC550FFB89E7005BE9CC /* Sample_StatMeshTiled.cpp */;
 		name = "Sample_StatMeshTiled.cpp: 478";
 		rLen = 0;
-		rLoc = 13147;
+		rLoc = 13127;
 		rType = 0;
 		vrLen = 884;
 		vrLoc = 12849;
@@ -4793,7 +4851,7 @@
 		fRef = 6B2AEC550FFB89E7005BE9CC /* Sample_StatMeshTiled.cpp */;
 		name = "Sample_StatMeshTiled.cpp: 399";
 		rLen = 86;
-		rLoc = 11123;
+		rLoc = 11103;
 		rType = 0;
 		vrLen = 781;
 		vrLoc = 10694;
@@ -4813,7 +4871,7 @@
 		fRef = 6B2AEC550FFB89E7005BE9CC /* Sample_StatMeshTiled.cpp */;
 		name = "Sample_StatMeshTiled.cpp: 456";
 		rLen = 0;
-		rLoc = 12364;
+		rLoc = 12344;
 		rType = 0;
 		vrLen = 866;
 		vrLoc = 12265;
@@ -4823,7 +4881,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* Sample_TileMesh.cpp */;
 		name = "Sample_TileMesh.cpp: 493";
 		rLen = 0;
-		rLoc = 13444;
+		rLoc = 13424;
 		rType = 0;
 		vrLen = 879;
 		vrLoc = 12888;
@@ -4843,7 +4901,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 305";
 		rLen = 0;
-		rLoc = 6408;
+		rLoc = 7327;
 		rType = 0;
 		vrLen = 693;
 		vrLoc = 6520;
@@ -4863,7 +4921,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 404";
 		rLen = 0;
-		rLoc = 8950;
+		rLoc = 9869;
 		rType = 0;
 		vrLen = 692;
 		vrLoc = 8832;
@@ -4893,7 +4951,7 @@
 		fRef = 6B25B6160FFA62BE004F1BC4 /* Sample_StatMeshSimple.cpp */;
 		name = "Sample_StatMeshSimple.cpp: 241";
 		rLen = 0;
-		rLoc = 7297;
+		rLoc = 7277;
 		rType = 0;
 		vrLen = 659;
 		vrLoc = 7248;
@@ -4903,7 +4961,7 @@
 		fRef = 6B555DAE100B211D00247EA3 /* imguiRenderGL.h */;
 		name = "imguiRenderGL.h: 8";
 		rLen = 0;
-		rLoc = 182;
+		rLoc = 1101;
 		rType = 0;
 		vrLen = 182;
 		vrLoc = 0;
@@ -4913,7 +4971,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 355";
 		rLen = 0;
-		rLoc = 7507;
+		rLoc = 8426;
 		rType = 0;
 		vrLen = 477;
 		vrLoc = 7775;
@@ -4923,7 +4981,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 357";
 		rLen = 0;
-		rLoc = 7546;
+		rLoc = 8465;
 		rType = 0;
 		vrLen = 595;
 		vrLoc = 7775;
@@ -4933,7 +4991,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 352";
 		rLen = 0;
-		rLoc = 7482;
+		rLoc = 8401;
 		rType = 0;
 		vrLen = 297;
 		vrLoc = 7775;
@@ -4943,7 +5001,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 351";
 		rLen = 0;
-		rLoc = 7480;
+		rLoc = 8399;
 		rType = 0;
 		vrLen = 532;
 		vrLoc = 7702;
@@ -4963,7 +5021,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 351";
 		rLen = 0;
-		rLoc = 7480;
+		rLoc = 8399;
 		rType = 0;
 		vrLen = 532;
 		vrLoc = 7702;
@@ -5003,7 +5061,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 351";
 		rLen = 0;
-		rLoc = 7480;
+		rLoc = 8399;
 		rType = 0;
 		vrLen = 509;
 		vrLoc = 7702;
@@ -5023,7 +5081,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 323";
 		rLen = 0;
-		rLoc = 6895;
+		rLoc = 7814;
 		rType = 0;
 		vrLen = 608;
 		vrLoc = 7006;
@@ -5033,7 +5091,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 346";
 		rLen = 0;
-		rLoc = 7424;
+		rLoc = 8343;
 		rType = 0;
 		vrLen = 574;
 		vrLoc = 7188;
@@ -5043,7 +5101,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 236";
 		rLen = 0;
-		rLoc = 4916;
+		rLoc = 5835;
 		rType = 0;
 		vrLen = 631;
 		vrLoc = 5038;
@@ -5053,7 +5111,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 236";
 		rLen = 0;
-		rLoc = 4916;
+		rLoc = 5835;
 		rType = 0;
 		vrLen = 631;
 		vrLoc = 5038;
@@ -5063,7 +5121,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 275";
 		rLen = 0;
-		rLoc = 5781;
+		rLoc = 6700;
 		rType = 0;
 		vrLen = 710;
 		vrLoc = 5732;
@@ -5073,7 +5131,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 273";
 		rLen = 0;
-		rLoc = 5778;
+		rLoc = 6697;
 		rType = 0;
 		vrLen = 700;
 		vrLoc = 5732;
@@ -5083,7 +5141,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 283";
 		rLen = 0;
-		rLoc = 5931;
+		rLoc = 6850;
 		rType = 0;
 		vrLen = 732;
 		vrLoc = 5732;
@@ -5093,7 +5151,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 282";
 		rLen = 0;
-		rLoc = 5889;
+		rLoc = 6808;
 		rType = 0;
 		vrLen = 685;
 		vrLoc = 5764;
@@ -5113,7 +5171,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 236";
 		rLen = 20;
-		rLoc = 4880;
+		rLoc = 5799;
 		rType = 0;
 		vrLen = 664;
 		vrLoc = 5006;
@@ -5133,7 +5191,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 284";
 		rLen = 0;
-		rLoc = 5959;
+		rLoc = 6878;
 		rType = 0;
 		vrLen = 784;
 		vrLoc = 5781;
@@ -5163,7 +5221,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 274";
 		rLen = 0;
-		rLoc = 5781;
+		rLoc = 6700;
 		rType = 0;
 		vrLen = 739;
 		vrLoc = 5781;
@@ -5193,7 +5251,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 280";
 		rLen = 0;
-		rLoc = 5903;
+		rLoc = 6822;
 		rType = 0;
 		vrLen = 703;
 		vrLoc = 5781;
@@ -5203,7 +5261,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 280";
 		rLen = 0;
-		rLoc = 5889;
+		rLoc = 6808;
 		rType = 0;
 		vrLen = 579;
 		vrLoc = 5732;
@@ -5213,7 +5271,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 237";
 		rLen = 0;
-		rLoc = 4952;
+		rLoc = 5871;
 		rType = 0;
 		vrLen = 682;
 		vrLoc = 4904;
@@ -5223,7 +5281,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 237";
 		rLen = 0;
-		rLoc = 4952;
+		rLoc = 5871;
 		rType = 0;
 		vrLen = 682;
 		vrLoc = 4904;
@@ -5233,7 +5291,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 195";
 		rLen = 0;
-		rLoc = 4221;
+		rLoc = 5140;
 		rType = 0;
 		vrLen = 445;
 		vrLoc = 4063;
@@ -5243,7 +5301,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 227";
 		rLen = 0;
-		rLoc = 4916;
+		rLoc = 5835;
 		rType = 0;
 		vrLen = 681;
 		vrLoc = 4534;
@@ -5253,7 +5311,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 263";
 		rLen = 0;
-		rLoc = 5778;
+		rLoc = 6697;
 		rType = 0;
 		vrLen = 558;
 		vrLoc = 5401;
@@ -5263,7 +5321,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 262";
 		rLen = 0;
-		rLoc = 5732;
+		rLoc = 6651;
 		rType = 0;
 		vrLen = 572;
 		vrLoc = 5401;
@@ -5273,7 +5331,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 256";
 		rLen = 0;
-		rLoc = 5500;
+		rLoc = 6419;
 		rType = 0;
 		vrLen = 572;
 		vrLoc = 5401;
@@ -5283,7 +5341,7 @@
 		fRef = 6BDD9E080F91113800904EEF /* DetourStatNavMesh.cpp */;
 		name = "DetourStatNavMesh.cpp: 680";
 		rLen = 0;
-		rLoc = 16689;
+		rLoc = 16715;
 		rType = 0;
 		vrLen = 615;
 		vrLoc = 16618;
@@ -5303,7 +5361,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 256";
 		rLen = 0;
-		rLoc = 5500;
+		rLoc = 6419;
 		rType = 0;
 		vrLen = 572;
 		vrLoc = 5401;
@@ -5313,7 +5371,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 256";
 		rLen = 0;
-		rLoc = 5500;
+		rLoc = 6419;
 		rType = 0;
 		vrLen = 572;
 		vrLoc = 5401;
@@ -5323,7 +5381,7 @@
 		fRef = 6BDD9E080F91113800904EEF /* DetourStatNavMesh.cpp */;
 		name = "DetourStatNavMesh.cpp: 680";
 		rLen = 0;
-		rLoc = 16689;
+		rLoc = 16715;
 		rType = 0;
 		vrLen = 615;
 		vrLoc = 16618;
@@ -5357,6 +5415,580 @@
 		rType = 0;
 		vrLen = 580;
 		vrLoc = 10913;
+	};
+	6B555F0C100B473F00247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B25B6180FFA62BE004F1BC4 /* main.cpp */;
+		name = "main.cpp: 493";
+		rLen = 0;
+		rLoc = 11140;
+		rType = 0;
+		vrLen = 688;
+		vrLoc = 10891;
+	};
+	6B555F0D100B473F00247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B555DAE100B211D00247EA3 /* imguiRenderGL.h */;
+		name = "imguiRenderGL.h: 19";
+		rLen = 0;
+		rLoc = 919;
+		rType = 0;
+		vrLen = 1101;
+		vrLoc = 0;
+	};
+	6B555F0E100B473F00247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
+		name = "imguiRenderGL.cpp: 19";
+		rLen = 0;
+		rLoc = 919;
+		rType = 0;
+		vrLen = 1274;
+		vrLoc = 0;
+	};
+	6B555F0F100B473F00247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B1185FD10068B150018F96F /* DetourCommon.cpp */;
+		name = "DetourCommon.cpp: 18";
+		rLen = 0;
+		rLoc = 918;
+		rType = 0;
+		vrLen = 1254;
+		vrLoc = 0;
+	};
+	6B555F10100B473F00247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B1185FC10068B040018F96F /* DetourCommon.h */;
+		name = "DetourCommon.h: 19";
+		rLen = 0;
+		rLoc = 919;
+		rType = 0;
+		vrLen = 1542;
+		vrLoc = 0;
+	};
+	6B555F11100B473F00247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B1185F61006896B0018F96F /* DetourNode.h */;
+		name = "DetourNode.h: 47";
+		rLen = 0;
+		rLoc = 1380;
+		rType = 0;
+		vrLen = 1074;
+		vrLoc = 0;
+	};
+	6B555F12100B473F00247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B1185F41006895B0018F96F /* DetourNode.cpp */;
+		name = "DetourNode.cpp: 20";
+		rLen = 0;
+		rLoc = 943;
+		rType = 0;
+		vrLen = 561;
+		vrLoc = 2688;
+	};
+	6B555F13100B473F00247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B137C7E0F7FCBFE00459200 /* Recast.h */;
+		name = "Recast.h: 80";
+		rLen = 0;
+		rLoc = 2648;
+		rType = 0;
+		vrLen = 578;
+		vrLoc = 2431;
+	};
+	6B555F14100B473F00247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B2AEC580FFB8A68005BE9CC /* DetourTileNavMesh.h */;
+		name = "DetourTileNavMesh.h: 70";
+		rLen = 0;
+		rLoc = 2716;
+		rType = 0;
+		vrLen = 620;
+		vrLoc = 2419;
+	};
+	6B555F15100B473F00247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BDD9E050F91112200904EEF /* DetourStatNavMesh.h */;
+		name = "DetourStatNavMesh.h: 179";
+		rLen = 95;
+		rLoc = 7147;
+		rType = 0;
+		vrLen = 1013;
+		vrLoc = 6323;
+	};
+	6B555F16100B473F00247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		comments = "error: 'm_bvtree' was not declared in this scope";
+		fRef = 6BDD9E080F91113800904EEF /* DetourStatNavMesh.cpp */;
+		rLen = 1;
+		rLoc = 701;
+		rType = 1;
+	};
+	6B555F17100B473F00247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B25B6180FFA62BE004F1BC4 /* main.cpp */;
+		name = "main.cpp: 493";
+		rLen = 0;
+		rLoc = 11140;
+		rType = 0;
+		vrLen = 688;
+		vrLoc = 10891;
+	};
+	6B555F18100B473F00247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BDD9E050F91112200904EEF /* DetourStatNavMesh.h */;
+		name = "DetourStatNavMesh.h: 1";
+		rLen = 918;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 1306;
+		vrLoc = 0;
+	};
+	6B555F19100B473F00247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B555DAE100B211D00247EA3 /* imguiRenderGL.h */;
+		name = "imguiRenderGL.h: 19";
+		rLen = 0;
+		rLoc = 919;
+		rType = 0;
+		vrLen = 1101;
+		vrLoc = 0;
+	};
+	6B555F1A100B473F00247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
+		name = "imguiRenderGL.cpp: 19";
+		rLen = 0;
+		rLoc = 919;
+		rType = 0;
+		vrLen = 1274;
+		vrLoc = 0;
+	};
+	6B555F1B100B473F00247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B1185FC10068B040018F96F /* DetourCommon.h */;
+		name = "DetourCommon.h: 1";
+		rLen = 919;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 1542;
+		vrLoc = 0;
+	};
+	6B555F1C100B473F00247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B1185FD10068B150018F96F /* DetourCommon.cpp */;
+		name = "DetourCommon.cpp: 18";
+		rLen = 0;
+		rLoc = 918;
+		rType = 0;
+		vrLen = 1254;
+		vrLoc = 0;
+	};
+	6B555F1D100B473F00247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B1185FC10068B040018F96F /* DetourCommon.h */;
+		name = "DetourCommon.h: 19";
+		rLen = 0;
+		rLoc = 919;
+		rType = 0;
+		vrLen = 1542;
+		vrLoc = 0;
+	};
+	6B555F1E100B473F00247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B1185F61006896B0018F96F /* DetourNode.h */;
+		name = "DetourNode.h: 47";
+		rLen = 0;
+		rLoc = 1380;
+		rType = 0;
+		vrLen = 1074;
+		vrLoc = 0;
+	};
+	6B555F1F100B473F00247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B1185F41006895B0018F96F /* DetourNode.cpp */;
+		name = "DetourNode.cpp: 20";
+		rLen = 0;
+		rLoc = 943;
+		rType = 0;
+		vrLen = 561;
+		vrLoc = 2688;
+	};
+	6B555F20100B473F00247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B2AEC580FFB8A68005BE9CC /* DetourTileNavMesh.h */;
+		name = "DetourTileNavMesh.h: 70";
+		rLen = 0;
+		rLoc = 2716;
+		rType = 0;
+		vrLen = 620;
+		vrLoc = 2419;
+	};
+	6B555F21100B473F00247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BDD9E050F91112200904EEF /* DetourStatNavMesh.h */;
+		name = "DetourStatNavMesh.h: 56";
+		rLen = 0;
+		rLoc = 1789;
+		rType = 0;
+		vrLen = 626;
+		vrLoc = 1638;
+	};
+	6B555F22100B473F00247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BDD9E080F91113800904EEF /* DetourStatNavMesh.cpp */;
+		name = "DetourStatNavMesh.cpp: 75";
+		rLen = 1;
+		rLoc = 2180;
+		rType = 0;
+		vrLen = 428;
+		vrLoc = 1972;
+	};
+	6B555F23100B473F00247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BDD9E050F91112200904EEF /* DetourStatNavMesh.h */;
+		name = "DetourStatNavMesh.h: 179";
+		rLen = 95;
+		rLoc = 7147;
+		rType = 0;
+		vrLen = 1013;
+		vrLoc = 6323;
+	};
+	6B555F24100B473F00247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BDD9E080F91113800904EEF /* DetourStatNavMesh.cpp */;
+		name = "DetourStatNavMesh.cpp: 706";
+		rLen = 0;
+		rLoc = 17471;
+		rType = 0;
+		vrLen = 1201;
+		vrLoc = 17287;
+	};
+	6B555F2A100B499000247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BDD9E080F91113800904EEF /* DetourStatNavMesh.cpp */;
+		name = "DetourStatNavMesh.cpp: 708";
+		rLen = 0;
+		rLoc = 17533;
+		rType = 0;
+		vrLen = 1201;
+		vrLoc = 17287;
+	};
+	6B555F2B100B499000247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B25B6160FFA62BE004F1BC4 /* Sample_StatMeshSimple.cpp */;
+		name = "Sample_StatMeshSimple.cpp: 8";
+		rLen = 0;
+		rLoc = 143;
+		rType = 0;
+		vrLen = 469;
+		vrLoc = 0;
+	};
+	6B555F2C100B499000247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B2AEC520FFB8958005BE9CC /* Sample_TileMesh.cpp */;
+		name = "Sample_TileMesh.cpp: 26";
+		rLen = 0;
+		rLoc = 1062;
+		rType = 0;
+		vrLen = 541;
+		vrLoc = 784;
+	};
+	6B555F2D100B499000247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B2AEC550FFB89E7005BE9CC /* Sample_StatMeshTiled.cpp */;
+		name = "Sample_StatMeshTiled.cpp: 8";
+		rLen = 0;
+		rLoc = 143;
+		rType = 0;
+		vrLen = 466;
+		vrLoc = 0;
+	};
+	6B555F2E100B499000247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTileNavMesh.cpp */;
+		name = "DetourTileNavMesh.cpp: 381";
+		rLen = 0;
+		rLoc = 10668;
+		rType = 0;
+		vrLen = 402;
+		vrLoc = 9892;
+	};
+	6B555F2F100B499000247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		comments = "error: 'imguiCheck' was not declared in this scope";
+		fRef = 6B25B6150FFA62BE004F1BC4 /* Sample_StatMesh.cpp */;
+		rLen = 1;
+		rLoc = 39;
+		rType = 1;
+	};
+	6B555F30100B499000247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BDD9E080F91113800904EEF /* DetourStatNavMesh.cpp */;
+		name = "DetourStatNavMesh.cpp: 708";
+		rLen = 0;
+		rLoc = 17533;
+		rType = 0;
+		vrLen = 1201;
+		vrLoc = 17287;
+	};
+	6B555F31100B499000247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B25B6160FFA62BE004F1BC4 /* Sample_StatMeshSimple.cpp */;
+		name = "Sample_StatMeshSimple.cpp: 8";
+		rLen = 0;
+		rLoc = 143;
+		rType = 0;
+		vrLen = 469;
+		vrLoc = 0;
+	};
+	6B555F32100B499000247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B2AEC520FFB8958005BE9CC /* Sample_TileMesh.cpp */;
+		name = "Sample_TileMesh.cpp: 26";
+		rLen = 0;
+		rLoc = 1062;
+		rType = 0;
+		vrLen = 541;
+		vrLoc = 784;
+	};
+	6B555F33100B499000247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B2AEC550FFB89E7005BE9CC /* Sample_StatMeshTiled.cpp */;
+		name = "Sample_StatMeshTiled.cpp: 8";
+		rLen = 0;
+		rLoc = 143;
+		rType = 0;
+		vrLen = 466;
+		vrLoc = 0;
+	};
+	6B555F34100B499000247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTileNavMesh.cpp */;
+		name = "DetourTileNavMesh.cpp: 426";
+		rLen = 0;
+		rLoc = 11437;
+		rType = 0;
+		vrLen = 444;
+		vrLoc = 10615;
+	};
+	6B555F35100B499000247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B25B6150FFA62BE004F1BC4 /* Sample_StatMesh.cpp */;
+		name = "Sample_StatMesh.cpp: 7";
+		rLen = 0;
+		rLoc = 143;
+		rType = 0;
+		vrLen = 451;
+		vrLoc = 0;
+	};
+	6B555F36100B499000247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTileNavMesh.cpp */;
+		name = "DetourTileNavMesh.cpp: 382";
+		rLen = 0;
+		rLoc = 10669;
+		rType = 0;
+		vrLen = 370;
+		vrLoc = 9892;
+	};
+	6B555F37100B499000247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B25B6150FFA62BE004F1BC4 /* Sample_StatMesh.cpp */;
+		name = "Sample_StatMesh.cpp: 7";
+		rLen = 0;
+		rLoc = 143;
+		rType = 0;
+		vrLen = 447;
+		vrLoc = 0;
+	};
+	6B555F38100B499000247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTileNavMesh.cpp */;
+		name = "DetourTileNavMesh.cpp: 381";
+		rLen = 0;
+		rLoc = 10668;
+		rType = 0;
+		vrLen = 402;
+		vrLoc = 9892;
+	};
+	6B555F39100B499000247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B25B6150FFA62BE004F1BC4 /* Sample_StatMesh.cpp */;
+		name = "Sample_StatMesh.cpp: 8";
+		rLen = 0;
+		rLoc = 162;
+		rType = 0;
+		vrLen = 466;
+		vrLoc = 0;
+	};
+	6B555F40100B4C5800247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B25B6150FFA62BE004F1BC4 /* Sample_StatMesh.cpp */;
+		name = "Sample_StatMesh.cpp: 8";
+		rLen = 0;
+		rLoc = 162;
+		rType = 0;
+		vrLen = 498;
+		vrLoc = 0;
+	};
+	6B555F41100B4C5800247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BDD9E070F91113800904EEF /* DetourDebugDraw.cpp */;
+		name = "DetourDebugDraw.cpp: 192";
+		rLen = 0;
+		rLoc = 4897;
+		rType = 0;
+		vrLen = 519;
+		vrLoc = 4634;
+	};
+	6B555F42100B4C5800247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B092B930FFCC2BD0088D3A5 /* DetourTileNavMeshBuilder.cpp */;
+		name = "DetourTileNavMeshBuilder.cpp: 140";
+		rLen = 0;
+		rLoc = 4218;
+		rType = 0;
+		vrLen = 579;
+		vrLoc = 3397;
+	};
+	6B555F43100B4C5800247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B2AEC580FFB8A68005BE9CC /* DetourTileNavMesh.h */;
+		name = "DetourTileNavMesh.h: 61";
+		rLen = 0;
+		rLoc = 2613;
+		rType = 0;
+		vrLen = 1040;
+		vrLoc = 6136;
+	};
+	6B555F44100B4C5800247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		comments = "error: expected `;' before ')' token";
+		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTileNavMesh.cpp */;
+		rLen = 1;
+		rLoc = 283;
+		rType = 1;
+	};
+	6B555F45100B4C5800247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B25B6150FFA62BE004F1BC4 /* Sample_StatMesh.cpp */;
+		name = "Sample_StatMesh.cpp: 8";
+		rLen = 0;
+		rLoc = 162;
+		rType = 0;
+		vrLen = 498;
+		vrLoc = 0;
+	};
+	6B555F46100B4C5800247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B2AEC580FFB8A68005BE9CC /* DetourTileNavMesh.h */;
+		name = "DetourTileNavMesh.h: 61";
+		rLen = 0;
+		rLoc = 2613;
+		rType = 0;
+		vrLen = 576;
+		vrLoc = 2212;
+	};
+	6B555F47100B4C5800247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTileNavMesh.cpp */;
+		name = "DetourTileNavMesh.cpp: 376";
+		rLen = 0;
+		rLoc = 10580;
+		rType = 0;
+		vrLen = 693;
+		vrLoc = 9654;
+	};
+	6B555F48100B4C5800247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B2AEC580FFB8A68005BE9CC /* DetourTileNavMesh.h */;
+		name = "DetourTileNavMesh.h: 61";
+		rLen = 0;
+		rLoc = 2613;
+		rType = 0;
+		vrLen = 781;
+		vrLoc = 2058;
+	};
+	6B555F49100B4C5800247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTileNavMesh.cpp */;
+		name = "DetourTileNavMesh.cpp: 378";
+		rLen = 0;
+		rLoc = 10610;
+		rType = 0;
+		vrLen = 548;
+		vrLoc = 9654;
+	};
+	6B555F4A100B4C5800247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BDD9E070F91113800904EEF /* DetourDebugDraw.cpp */;
+		name = "DetourDebugDraw.cpp: 192";
+		rLen = 0;
+		rLoc = 4897;
+		rType = 0;
+		vrLen = 519;
+		vrLoc = 4634;
+	};
+	6B555F4B100B4C5800247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTileNavMesh.cpp */;
+		name = "DetourTileNavMesh.cpp: 923";
+		rLen = 222;
+		rLoc = 23882;
+		rType = 0;
+		vrLen = 926;
+		vrLoc = 22891;
+	};
+	6B555F4C100B4C5800247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B092B930FFCC2BD0088D3A5 /* DetourTileNavMeshBuilder.cpp */;
+		name = "DetourTileNavMeshBuilder.cpp: 140";
+		rLen = 0;
+		rLoc = 4218;
+		rType = 0;
+		vrLen = 579;
+		vrLoc = 3397;
+	};
+	6B555F4D100B4C5800247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTileNavMesh.cpp */;
+		name = "DetourTileNavMesh.cpp: 922";
+		rLen = 0;
+		rLoc = 23848;
+		rType = 0;
+		vrLen = 926;
+		vrLoc = 22891;
+	};
+	6B555F4E100B4C5800247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B2AEC580FFB8A68005BE9CC /* DetourTileNavMesh.h */;
+		name = "DetourTileNavMesh.h: 61";
+		rLen = 0;
+		rLoc = 2613;
+		rType = 0;
+		vrLen = 1040;
+		vrLoc = 6136;
+	};
+	6B555F4F100B4C5800247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTileNavMesh.cpp */;
+		name = "DetourTileNavMesh.cpp: 275";
+		rLen = 0;
+		rLoc = 7462;
+		rType = 0;
+		vrLen = 803;
+		vrLoc = 7247;
+	};
+	6B555F52100B4CE300247EA3 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTileNavMesh.cpp */;
+		name = "DetourTileNavMesh.cpp: 943";
+		rLen = 0;
+		rLoc = 24104;
+		rType = 0;
+		vrLen = 893;
+		vrLoc = 23722;
 	};
 	6B7707B90FBD66CF00D21BAE /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
@@ -5603,7 +6235,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* Sample_TileMesh.cpp */;
 		name = "BuilderTileMesh.cpp: 259";
 		rLen = 0;
-		rLoc = 1353;
+		rLoc = 1333;
 		rType = 0;
 		vrLen = 973;
 		vrLoc = 10082;
@@ -5847,9 +6479,9 @@
 	};
 	6BDD9E050F91112200904EEF /* DetourStatNavMesh.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {915, 3216}}";
-			sepNavSelRange = "{7109, 0}";
-			sepNavVisRange = "{59, 1247}";
+			sepNavIntBoundsRect = "{{0, 0}, {915, 3424}}";
+			sepNavSelRange = "{7147, 95}";
+			sepNavVisRange = "{6323, 1013}";
 		};
 	};
 	6BDD9E060F91112200904EEF /* DetourStatNavMeshBuilder.h */ = {
@@ -5861,16 +6493,16 @@
 	};
 	6BDD9E070F91113800904EEF /* DetourDebugDraw.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {915, 6864}}";
-			sepNavSelRange = "{4846, 0}";
-			sepNavVisRange = "{4634, 690}";
+			sepNavIntBoundsRect = "{{0, 0}, {915, 6752}}";
+			sepNavSelRange = "{4897, 0}";
+			sepNavVisRange = "{4634, 519}";
 		};
 	};
 	6BDD9E080F91113800904EEF /* DetourStatNavMesh.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {915, 12768}}";
-			sepNavSelRange = "{16689, 0}";
-			sepNavVisRange = "{16618, 615}";
+			sepNavIntBoundsRect = "{{0, 0}, {915, 12688}}";
+			sepNavSelRange = "{17533, 0}";
+			sepNavVisRange = "{17287, 1201}";
 		};
 	};
 	6BDD9E090F91113800904EEF /* DetourStatNavMeshBuilder.cpp */ = {

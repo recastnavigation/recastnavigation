@@ -52,6 +52,9 @@ struct dtStatNavMeshHeader
 	int nnodes;
 	float cs;
 	float bmin[3], bmax[3];
+	dtStatPoly* polys;
+	float* verts;
+	dtStatBVNode* bvtree;
 };
 
 class dtStatNavMesh
@@ -161,11 +164,11 @@ public:
 	// Returns number of navigation polygons.
 	inline int getPolyCount() const { return m_header ? m_header->npolys : 0; }
 	// Rerturns pointer to specified navigation polygon.
-	inline const dtStatPoly* getPoly(int i) const { return &m_polys[i]; }
+	inline const dtStatPoly* getPoly(int i) const { return &m_header->polys[i]; }
 	// Returns number of vertices.
 	inline int getVertexCount() const { return m_header ? m_header->nverts : 0; }
 	// Returns pointer to specified vertex.
-	inline const float* getVertex(int i) const { return &m_verts[i*3]; }
+	inline const float* getVertex(int i) const { return &m_header->verts[i*3]; }
 
 	bool isInOpenList(dtStatPolyRef ref) const;
 	
@@ -173,8 +176,8 @@ public:
 
 	inline const dtStatNavMeshHeader* getHeader() const { return m_header; }
 	
-	inline const dtStatBVNode* getBvTreeNodes() const { return m_bvtree; }
-	inline int getBvTreeNodeCount() const { return m_header->nnodes; }
+	inline const dtStatBVNode* getBvTreeNodes() const { return m_header ? m_header->bvtree : 0; }
+	inline int getBvTreeNodeCount() const { return m_header ? m_header->nnodes : 0; }
 	
 private:
 
@@ -190,9 +193,6 @@ private:
 	int m_dataSize;
 	
 	dtStatNavMeshHeader* m_header;
-	dtStatPoly* m_polys;
-	float* m_verts;
-	dtStatBVNode* m_bvtree;
 
 	class dtNodePool* m_nodePool;
 	class dtNodeQueue* m_openList;
