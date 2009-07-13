@@ -64,11 +64,11 @@ public:
 	dtStatNavMesh();
 	~dtStatNavMesh();
 
-	// Initializes the path finder with path data.
+	// Initializes the navmesh with data.
 	// Params:
-	//	data - (in) Pointer to path data.
-	//	dataSize - (in) size of the path data.
-	//	ownsData - (in) Flag indicating if the pathfinder should delete the data.
+	//	data - (in) Pointer to navmesh data.
+	//	dataSize - (in) size of the navmesh data.
+	//	ownsData - (in) Flag indicating if the navmesh should own and delete the data.
 	bool init(unsigned char* data, int dataSize, bool ownsData);
 
 	// Finds the nearest navigation polygon around the center location.
