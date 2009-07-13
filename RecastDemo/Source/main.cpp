@@ -9,30 +9,27 @@
 
 #include "SDL.h"
 #include "SDL_Opengl.h"
-
-#include "GLFont.h"
 #include "imgui.h"
+#include "imguiRenderGL.h"
 #include "Recast.h"
 #include "RecastDebugDraw.h"
 #include "MeshLoaderObj.h"
-#include "BuilderStatMeshSimple.h"
-#include "BuilderStatMeshTiled.h"
-#include "BuilderTiledMesh.h"
+#include "Sample_StatMeshSimple.h"
+#include "Sample_StatMeshTiled.h"
+#include "Sample_TileMesh.h"
 
 #ifdef WIN32
 #	define snprintf _snprintf
 #endif
 
-GLFont g_font;
-
+/*GLFont g_font;
 void drawText(int x, int y, int dir, const char* text, unsigned int col)
 {
 	if (dir < 0)
 		g_font.drawText((float)x - g_font.getTextLength(text), (float)y, text, col);
 	else
 		g_font.drawText((float)x, (float)y, text, col);
-}
-
+}*/
 
 struct FileList
 {
@@ -187,6 +184,26 @@ static bool raycast(rcMeshLoaderObj& mesh, float* src, float* dst, float& tmin)
 	return hit;
 }
 
+
+struct SampleItem
+{
+	Sample* (*create)();
+	const char* name;
+};
+
+Sample* createStatSimple() { return new Sample_StatMeshSimple(); }
+Sample* createStatTiled() { return new Sample_StatMeshTiled(); }
+Sample* createTile() { return new Sample_TileMesh(); }
+
+static SampleItem g_samples[] =
+{
+{ createStatSimple, "Static Mesh (Simple)" },
+{ createStatTiled, "Static Mesh (Tiled)" },
+{ createTile, "Tile Mesh" },
+};
+static const int g_nsamples = sizeof(g_samples)/sizeof(SampleItem); 
+
+
 int main(int argc, char *argv[])
 {
 	// Init SDL
@@ -204,8 +221,10 @@ int main(int argc, char *argv[])
 	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
 	
-	int width = 1200;
-	int height = 700;
+	const SDL_VideoInfo* vi = SDL_GetVideoInfo();
+
+	int width = vi->current_w - 20;
+	int height = vi->current_h - 50;
 	SDL_Surface* screen = SDL_SetVideoMode(width, height, 0, SDL_OPENGL);
 	if (!screen)
 	{
@@ -215,12 +234,19 @@ int main(int argc, char *argv[])
 	
 	SDL_WM_SetCaption("Recast Demo", 0);
 	
-	if(!g_font.create("font.cfnt"))
+	if (!imguiRenderGLInit("DroidSans.ttf"))
+	{
+		printf("Could not init GUI renderer.\n");
+		SDL_Quit();
+		return -1;
+	}
+	
+/*	if(!g_font.create("font.cfnt"))
 	{
 		printf("Could not load font.\n");
 		SDL_Quit();
 		return -1;
-	}
+	}*/
 	
 	float t = 0.0f;
 	Uint32 lastTime = SDL_GetTicks();
@@ -234,18 +260,19 @@ int main(int argc, char *argv[])
 	bool rotate = false;
 	float rays[3], raye[3]; 
 	bool mouseOverMenu = false;
+	bool showMenu = true;
 	bool showLog = false;
 	bool showDebugMode = true;
 	bool showTools = true;
 	bool showLevels = false;
-	bool showBuilder = false;
+	bool showSample = false;
 
 	int propScroll = 0;
 	int logScroll = 0;
 	int toolsScroll = 0;
 	int debugScroll = 0;
 	
-	char builderName[64] = "Choose Builder..."; 
+	char sampleName[64] = "Choose Builder..."; 
 	
 	FileList meshFiles;
 	char meshName[128] = "Choose Mesh...";
@@ -253,7 +280,11 @@ int main(int argc, char *argv[])
 	rcMeshLoaderObj* mesh = 0;
 	float meshBMin[3], meshBMax[3];
 	
-	Builder* builder = 0;
+	float mpos[3];
+	bool mposSet = false;
+	
+	
+	Sample* sample = 0;
 
 	rcLog log;
 	log.clear();
@@ -275,7 +306,7 @@ int main(int argc, char *argv[])
 	while(!done)
 	{
 		// Handle input events.
-		unsigned char mbut = 0;
+		int mscroll = 0;
 		SDL_Event event;
 		while(SDL_PollEvent(&event))
 		{
@@ -305,28 +336,46 @@ int main(int argc, char *argv[])
 						else if (event.button.button == SDL_BUTTON_LEFT)
 						{
 							// Hit test mesh.
-							if (mesh && builder)
+							if (mesh && sample)
 							{
 								// Hit test mesh.
 								float t;
 								if (raycast(*mesh, rays, raye, t))
 								{
-									float pos[3];
-									pos[0] = rays[0] + (raye[0] - rays[0])*t;
-									pos[1] = rays[1] + (raye[1] - rays[1])*t;
-									pos[2] = rays[2] + (raye[2] - rays[2])*t;
-									if (SDL_GetModState() & KMOD_SHIFT)
-										builder->setToolStartPos(pos);
+									if (SDL_GetModState() & KMOD_CTRL)
+									{
+										mposSet = true;
+										mpos[0] = rays[0] + (raye[0] - rays[0])*t;
+										mpos[1] = rays[1] + (raye[1] - rays[1])*t;
+										mpos[2] = rays[2] + (raye[2] - rays[2])*t;
+									}
 									else
-										builder->setToolEndPos(pos);
+									{
+										float pos[3];
+										pos[0] = rays[0] + (raye[0] - rays[0])*t;
+										pos[1] = rays[1] + (raye[1] - rays[1])*t;
+										pos[2] = rays[2] + (raye[2] - rays[2])*t;
+																			
+										if (SDL_GetModState() & KMOD_SHIFT)
+											sample->setToolStartPos(pos);
+										else
+											sample->setToolEndPos(pos);
+									}
+								}
+								else
+								{
+									if (SDL_GetModState() & KMOD_CTRL)
+									{
+										mposSet = false;
+									}
 								}
 							}
 						}
 					}	
 					if (event.button.button == SDL_BUTTON_WHEELUP)
-						mbut |= IMGUI_MBUT_UP;
+						mscroll--;
 					if (event.button.button == SDL_BUTTON_WHEELDOWN)
-						mbut |= IMGUI_MBUT_DOWN;
+						mscroll++;
 					break;
 					
 				case SDL_MOUSEBUTTONUP:
@@ -358,6 +407,7 @@ int main(int argc, char *argv[])
 			}
 		}
 
+		unsigned char mbut = 0;
 		if (SDL_GetMouseState(0,0) & SDL_BUTTON_LMASK)
 			mbut |= IMGUI_MBUT_LEFT;
 		if (SDL_GetMouseState(0,0) & SDL_BUTTON_RMASK)
@@ -368,6 +418,7 @@ int main(int argc, char *argv[])
 		lastTime = time;
 		
 		t += dt;
+
 		
 		// Update and render
 		glViewport(0, 0, width, height);
@@ -425,8 +476,8 @@ int main(int argc, char *argv[])
 
 		glEnable(GL_FOG);
 
-		if (builder)
-			builder->handleRender();
+		if (sample)
+			sample->handleRender();
 
 		glDisable(GL_FOG);
 		
@@ -438,138 +489,139 @@ int main(int argc, char *argv[])
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 		
-		if (builder)
-		{
-			builder->handleRenderOverlay(&g_font, (double*)proj, (double*)model, (int*)view);
-			glDisable(GL_TEXTURE_2D);
-		}
+		imguiBeginFrame(mx,my,mbut,mscroll);
 		
-		imguiBeginFrame(mx,my,mbut);
+		if (sample)
+		{
+			sample->handleRenderOverlay((double*)proj, (double*)model, (int*)view);
+		}
+
+		// Help text.
+		if (showMenu)
+		{
+			const char msg[] = "W/S/A/D: Move  RMB: Rotate   LMB: Place Start   LMB+SHIFT: Place End";
+			imguiDrawText(width/2, height-20, IMGUI_ALIGN_CENTER, msg, imguiRGBA(255,255,255,128));
+		}
 		
 		mouseOverMenu = false;
-		
-		int propDiv = showDebugMode ? (int)(height*0.6f) : height;
-		
-		if (imguiBeginScrollArea(GENID, "Properties",
-								 width-250-10, 10+height-propDiv, 250, propDiv-20, &propScroll))
-			mouseOverMenu = true;
 
-		if (imguiCheck(GENID, "Show Log", showLog))
-			showLog = !showLog;
-		if (imguiCheck(GENID, "Show Tools", showTools))
-			showTools = !showTools;
-		if (imguiCheck(GENID, "Show Debug Mode", showDebugMode))
-			showDebugMode = !showDebugMode;
+		if (showMenu)
+		{
+			int propDiv = showDebugMode ? (int)(height*0.6f) : height;
+			
+			if (imguiBeginScrollArea("Properties",
+									 width-250-10, 10+height-propDiv, 250, propDiv-20, &propScroll))
+				mouseOverMenu = true;
 
-		imguiSeparator();
-		imguiLabel(GENID, "Builder");
-		if (imguiButton(GENID, builderName))
-		{
-			if (showBuilder)
-			{
-				showBuilder = false;
-			}
-			else
-			{
-				showBuilder = true;
-				showLevels = false;
-			}
-		}
-		
-		if (builder)
-		{
+			if (imguiCheck("Show Log", showLog))
+				showLog = !showLog;
+			if (imguiCheck("Show Tools", showTools))
+				showTools = !showTools;
+			if (imguiCheck("Show Debug Mode", showDebugMode))
+				showDebugMode = !showDebugMode;
+
 			imguiSeparator();
-			imguiLabel(GENID, "Input Mesh");
-			if (imguiButton(GENID, meshName))
+			imguiLabel("Sample");
+			if (imguiButton(sampleName))
 			{
-				if (showLevels)
+				if (showSample)
 				{
-					showLevels = false;
+					showSample = false;
 				}
 				else
 				{
-					showBuilder = false;
-					showLevels = true;
-					scanDirectory("meshes", ".obj", meshFiles);
+					showSample = true;
+					showLevels = false;
 				}
 			}
-			if (mesh)
+			
+			if (sample)
 			{
-				char text[64];
-				snprintf(text, 64, "Verts: %.1fk  Tris: %.1fk", mesh->getVertCount()/1000.0f, mesh->getTriCount()/1000.0f);
-				imguiValue(GENID, text);
-			}
-			imguiSeparator();
-		}
-				
-		if (mesh && builder)
-		{
-			builder->handleSettings();
-
-			if (imguiButton(GENID, "Build"))
-			{
-				log.clear();
-				if (!builder->handleBuild())
+				imguiSeparator();
+				imguiLabel("Input Mesh");
+				if (imguiButton(meshName))
 				{
-					showLog = true;
-					logScroll = 0;
+					if (showLevels)
+					{
+						showLevels = false;
+					}
+					else
+					{
+						showSample = false;
+						showLevels = true;
+						scanDirectory("meshes", ".obj", meshFiles);
+					}
 				}
+				if (mesh)
+				{
+					char text[64];
+					snprintf(text, 64, "Verts: %.1fk  Tris: %.1fk", mesh->getVertCount()/1000.0f, mesh->getTriCount()/1000.0f);
+					imguiValue(text);
+				}
+				imguiSeparator();
+			}
+					
+			if (mesh && sample)
+			{
+				sample->handleSettings();
+
+				if (imguiButton("Build"))
+				{
+					log.clear();
+					if (!sample->handleBuild())
+					{
+						showLog = true;
+						logScroll = 0;
+					}
+				}
+
+				imguiSeparator();
 			}
 
-			imguiSeparator();
-		}
-
-		
-		imguiEndScrollArea();
-		
-		if (showDebugMode)
-		{
-			if (imguiBeginScrollArea(GENID, "Debug Mode",
-									 width-250-10, 10,
-									 250, height-propDiv-10, &debugScroll))
-				mouseOverMenu = true;
-
-			if (builder)
-				builder->handleDebugMode();
-
+			
 			imguiEndScrollArea();
+			
+			if (showDebugMode)
+			{
+				if (imguiBeginScrollArea("Debug Mode",
+										 width-250-10, 10,
+										 250, height-propDiv-10, &debugScroll))
+					mouseOverMenu = true;
+
+				if (sample)
+					sample->handleDebugMode();
+
+				imguiEndScrollArea();
+			}
 		}
 		
 		// Builder selection dialog.
-		if (showBuilder)
+		if (showSample)
 		{
 			static int levelScroll = 0;
-			if (imguiBeginScrollArea(GENID, "Choose Level", width-10-250-10-200, height-10-250, 200, 250, &levelScroll))
+			if (imguiBeginScrollArea("Choose Level", width-10-250-10-200, height-10-250, 200, 250, &levelScroll))
 				mouseOverMenu = true;
 
-			Builder* newBuilder = 0;
-			if (imguiItem(GENID, "Simple Static Mesh"))
+			Sample* newSample = 0;
+			for (int i = 0; i < g_nsamples; ++i)
 			{
-				newBuilder = new BuilderStatMeshSimple();
-				if (newBuilder) strcpy(builderName, "Simple Static Mesh");
-			}
-			if (imguiItem(GENID, "Tiled Static Mesh"))
-			{
-				newBuilder = new BuilderStatMeshTiled();
-				if (newBuilder) strcpy(builderName, "Tiled Static Mesh");
-			}
-			if (imguiItem(GENID, "Tiled Mesh"))
-			{
-				newBuilder = new BuilderTiledMesh();
-				if (newBuilder) strcpy(builderName, "Tiled Mesh");
-			}
-			
-			if (newBuilder)
-			{
-				delete builder;
-				builder = newBuilder;
-				if (mesh && builder)
+				if (imguiItem(g_samples[i].name))
 				{
-					builder->handleMeshChanged(mesh->getVerts(), mesh->getVertCount(),
-											   mesh->getTris(), mesh->getNormals(), mesh->getTriCount(),
-											   meshBMin, meshBMax);
+					newSample = g_samples[i].create();
+					if (newSample) strcpy(sampleName, g_samples[i].name);
 				}
-				showBuilder = false;
+			}
+			if (newSample)
+			{
+				delete sample;
+				sample = newSample;
+				if (mesh && sample)
+				{
+					sample->handleMeshChanged(mesh->getVerts(), mesh->getVertCount(),
+											  mesh->getTris(), mesh->getNormals(), mesh->getTriCount(),
+											  meshBMin, meshBMax);
+				}
+				showSample = false;
 			}
 
 			imguiEndScrollArea();
@@ -579,13 +631,13 @@ int main(int argc, char *argv[])
 		if (showLevels)
 		{
 			static int levelScroll = 0;
-			if (imguiBeginScrollArea(GENID, "Choose Level", width-10-250-10-200, height-10-250, 200, 250, &levelScroll))
+			if (imguiBeginScrollArea("Choose Level", width-10-250-10-200, height-10-250, 200, 250, &levelScroll))
 				mouseOverMenu = true;
 			
 			int levelToLoad = -1;
 			for (int i = 0; i < meshFiles.size; ++i)
 			{
-				if (imguiItem(GENID1(i), meshFiles.files[i]))
+				if (imguiItem(meshFiles.files[i]))
 					levelToLoad = i;
 			}
 			
@@ -612,11 +664,11 @@ int main(int argc, char *argv[])
 				if (mesh)
 					rcCalcBounds(mesh->getVerts(), mesh->getVertCount(), meshBMin, meshBMax);
 				
-				if (builder)
+				if (sample)
 				{
-					builder->handleMeshChanged(mesh->getVerts(), mesh->getVertCount(),
-											   mesh->getTris(), mesh->getNormals(), mesh->getTriCount(),
-											   meshBMin, meshBMax);
+					sample->handleMeshChanged(mesh->getVerts(), mesh->getVertCount(),
+											  mesh->getTris(), mesh->getNormals(), mesh->getTriCount(),
+											  meshBMin, meshBMax);
 				}
 								
 				// Reset camera and fog to match the mesh bounds.
@@ -638,43 +690,58 @@ int main(int argc, char *argv[])
 		}
 		
 		// Log
-		if (showLog)
+		if (showLog && showMenu)
 		{
-			if (imguiBeginScrollArea(GENID, "Log", 10, 10, width - 300, 200, &logScroll))
+			if (imguiBeginScrollArea("Log", 10, 10, width - 300, 200, &logScroll))
 				mouseOverMenu = true;
 			for (int i = 0; i < log.getMessageCount(); ++i)
-				imguiLabel(GENID1(i), log.getMessageText(i));
+				imguiLabel(log.getMessageText(i));
 			imguiEndScrollArea();
 		}
 		
 		// Tools
-		if (showTools && mesh && builder)
+		if (showTools && showMenu && mesh && sample)
 		{
-			if (imguiBeginScrollArea(GENID, "Tools", 10, height - 10 - 200, 150, 200, &toolsScroll))
+			if (imguiBeginScrollArea("Tools", 10, height - 10 - 200, 150, 200, &toolsScroll))
 				mouseOverMenu = true;
 
-			builder->handleTools();
+			sample->handleTools();
 			
 			imguiEndScrollArea();
 		}
 		
-		// Help text.
-		const char msg[] = "W/S/A/D: Move  RMB: Rotate   LMB: Place Start   LMB+SHIFT: Place End";
-		const float len = g_font.getTextLength(msg);
-		g_font.drawText(width/2-len/2, (float)height-20.0f, msg, GLFont::RGBA(255,255,255,128));
-				
-		glDisable(GL_TEXTURE_2D);
+		// Marker
+		if (mposSet && gluProject((GLdouble)mpos[0], (GLdouble)mpos[1], (GLdouble)mpos[2],
+								  model, proj, view, &x, &y, &z))
+		{
+			// Draw marker circle
+			glLineWidth(5.0f);
+			glColor4ub(240,220,0,196);
+			glBegin(GL_LINE_LOOP);
+			const float r = 25.0f;
+			for (int i = 0; i < 20; ++i)
+			{
+				const float a = (float)i / 20.0f * M_PI*2;
+				const float fx = (float)x + cosf(a)*r;
+				const float fy = (float)y + sinf(a)*r;
+				glVertex2f(fx,fy);
+			}
+			glEnd();
+			glLineWidth(1.0f);
+		}
 		
 		imguiEndFrame();
-		imguiRender(&drawText);		
+		imguiRenderGLDraw();		
 		
 		glEnable(GL_DEPTH_TEST);
 		SDL_GL_SwapBuffers();
 	}
 	
+	imguiRenderGLDestroy();
+	
 	SDL_Quit();
 	
-	delete builder;
+	delete sample;
 	delete mesh;
 	
 	return 0;

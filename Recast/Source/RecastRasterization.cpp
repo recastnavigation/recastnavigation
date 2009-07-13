@@ -268,6 +268,21 @@ static void rasterizeTri(const float* v0, const float* v1, const float* v2,
 	}
 }
 
+void rcRasterizeTriangle(const float* v0, const float* v1, const float* v2,
+						 unsigned char flags, rcHeightfield& solid)
+{
+	rcTimeVal startTime = rcGetPerformanceTimer();
+
+	const float ics = 1.0f/solid.cs;
+	const float ich = 1.0f/solid.ch;
+	rasterizeTri(v0, v1, v2, flags, solid, solid.bmin, solid.bmax, solid.cs, ics, ich);
+
+	rcTimeVal endTime = rcGetPerformanceTimer();
+	
+	if (rcGetBuildTimes())
+		rcGetBuildTimes()->rasterizeTriangles += rcGetDeltaTimeUsec(startTime, endTime);
+}
+						 
 void rcRasterizeTriangles(const float* verts, int nv,
 						  const int* tris, const unsigned char* flags, int nt,
 						  rcHeightfield& solid)
@@ -287,9 +302,6 @@ void rcRasterizeTriangles(const float* verts, int nv,
 	}
 	
 	rcTimeVal endTime = rcGetPerformanceTimer();
-	
-//	if (rcGetLog())
-//		rcGetLog()->log(RC_LOG_PROGRESS, "Rasterize: %.3f ms", rcGetDeltaTimeUsec(startTime, endTime)/1000.0f);
 
 	if (rcGetBuildTimes())
 		rcGetBuildTimes()->rasterizeTriangles += rcGetDeltaTimeUsec(startTime, endTime);

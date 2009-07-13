@@ -20,25 +20,24 @@
 #define DETOURSTATNAVMESH_H
 
 // Reference to navigation polygon.
-typedef unsigned short dtPolyRef;
+typedef unsigned short dtStatPolyRef;
 
 // Maximum number of vertices per navigation polygon.
-static const int DT_VERTS_PER_POLYGON = 6;
+static const int DT_STAT_VERTS_PER_POLYGON = 6;
 
 // Structure holding the navigation polygon data.
-struct dtPoly
+struct dtStatPoly
 {
-	unsigned short v[DT_VERTS_PER_POLYGON];	// Indices to vertices of the poly.
-	dtPolyRef n[DT_VERTS_PER_POLYGON];		// Refs to neighbours of the poly.
-	unsigned char nv;							// Number of vertices.
-	unsigned char flags;						// Flags (not used).
-	unsigned char pad[2];
+	unsigned short v[DT_STAT_VERTS_PER_POLYGON];	// Indices to vertices of the poly.
+	dtStatPolyRef n[DT_STAT_VERTS_PER_POLYGON];		// Refs to neighbours of the poly.
+	unsigned char nv;								// Number of vertices.
+	unsigned char flags;							// Flags (not used).
 };
 
-const int DT_NAVMESH_MAGIC = 'NAVM';
-const int DT_NAVMESH_VERSION = 2;
+const int DT_STAT_NAVMESH_MAGIC = 'NAVM';
+const int DT_STAT_NAVMESH_VERSION = 2;
 
-struct dtBVNode
+struct dtStatBVNode
 {
 	unsigned short bmin[3], bmax[3];
 	int i;
@@ -74,7 +73,7 @@ public:
 	//	center - (in) The center of the search box.
 	//	extents - (in) The extents of the search box.
 	// Returns: Reference identifier for the polygon, or 0 if no polygons found.
-	dtPolyRef findNearestPoly(const float* center, const float* extents);
+	dtStatPolyRef findNearestPoly(const float* center, const float* extents);
 
 	// Returns polygons which touch the query box.
 	// Params:
@@ -84,7 +83,7 @@ public:
 	//	maxPolys - (in) The max number of polygons the polys array can hold.
 	// Returns: Number of polygons in search result array.
 	int queryPolygons(const float* center, const float* extents,
-					  dtPolyRef* polys, const int maxPolys);
+					  dtStatPolyRef* polys, const int maxPolys);
 	
 	// Finds path from start polygon to end polygon.
 	// If target polygon canno be reached through the navigation graph,
@@ -95,8 +94,8 @@ public:
 	//	path - (out) array holding the search result.
 	//	maxPathSize - (in) The max number of polygons the path array can hold.
 	// Returns: Number of polygons in search result array.
-	int findPath(dtPolyRef startRef, dtPolyRef endRef,
-				 dtPolyRef* path, const int maxPathSize);
+	int findPath(dtStatPolyRef startRef, dtStatPolyRef endRef,
+				 dtStatPolyRef* path, const int maxPathSize);
 
 	// Finds a straight path from start to end locations within the corridor
 	// described by the path polygons.
@@ -110,7 +109,7 @@ public:
 	//	maxStraightPathSize - (in) The max number of points the straight path array can hold.
 	// Returns: Number of points in the path.
 	int findStraightPath(const float* startPos, const float* endPos,
-						 const dtPolyRef* path, const int pathSize,
+						 const dtStatPolyRef* path, const int pathSize,
 						 float* straightPath, const int maxStraightPathSize);
 
 	// Finds intersection againts walls starting from start pos.
@@ -118,11 +117,11 @@ public:
 	//	startRef - (in) ref to the polygon where the start lies.
 	//	startPos - (in) start position of the query.
 	//	endPos - (in) end position of the query.
-	//	t - (out) hit parameter along the segment, valid only if hit.
+	//	t - (out) hit parameter along the segment, 0 if no hit.
 	//	endRef - (out) ref to the last polygon which was processed.
-	// Returns: True if hit wall.
-	// TODO: Return the whole corridor!!
-	bool raycast(dtPolyRef startRef, const float* startPos, const float* endPos, float& t, dtPolyRef& endRef);
+	// Returns: Number of polygons in path or 0 if failed.
+	int raycast(dtStatPolyRef startRef, const float* startPos, const float* endPos,
+				 float& t, dtStatPolyRef* path, const int pathSize);
 	
 	// Returns distance to nearest wall from the specified location.
 	// Params:
@@ -132,7 +131,7 @@ public:
 	//	hitPos - (out) location of the nearest hit.
 	//	hitNormal - (out) normal of the nearest hit.
 	// Returns: Distance to nearest wall from the test location.
-	float findDistanceToWall(dtPolyRef centerRef, const float* centerPos, float maxRadius,
+	float findDistanceToWall(dtStatPolyRef centerRef, const float* centerPos, float maxRadius,
 							 float* hitPos, float* hitNormal);
 	
 	// Finds polygons found along the navigation graph which touch the specified circle.
@@ -143,12 +142,10 @@ public:
 	//	resultRef - (out, opt) refs to the polygons touched by the circle.
 	//	resultParent - (out, opt) parent of each result polygon.
 	//	resultCost - (out, opt) search cost at each result polygon.
-	//	resultDepth - (out, opt) search depth at each result polygon.
 	//	maxResult - (int) maximum capacity of search results.
 	// Returns: Number of results.
-	int	findPolysAround(dtPolyRef centerRef, const float* centerPos, float radius,
-						dtPolyRef* resultRef, dtPolyRef* resultParent,
-						float* resultCost, unsigned short* resultDepth,
+	int	findPolysAround(dtStatPolyRef centerRef, const float* centerPos, float radius,
+						dtStatPolyRef* resultRef, dtStatPolyRef* resultParent, float* resultCost,
 						const int maxResult);
 
 	// Returns closest point on navigation polygon.
@@ -157,45 +154,45 @@ public:
 	//	pos - (in) the point to check.
 	//	closest - (out) closest point.
 	// Returns: true if closest point found.
-	bool closestPointToPoly(dtPolyRef ref, const float* pos, float* closest) const;
+	bool closestPointToPoly(dtStatPolyRef ref, const float* pos, float* closest) const;
 
 	// Returns pointer to a polygon based on ref.
-	const dtPoly* getPolyByRef(dtPolyRef ref) const;
+	const dtStatPoly* getPolyByRef(dtStatPolyRef ref) const;
 	// Returns number of navigation polygons.
 	inline int getPolyCount() const { return m_header ? m_header->npolys : 0; }
 	// Rerturns pointer to specified navigation polygon.
-	inline const dtPoly* getPoly(int i) const { return &m_polys[i]; }
+	inline const dtStatPoly* getPoly(int i) const { return &m_polys[i]; }
 	// Returns number of vertices.
 	inline int getVertexCount() const { return m_header ? m_header->nverts : 0; }
 	// Returns pointer to specified vertex.
 	inline const float* getVertex(int i) const { return &m_verts[i*3]; }
 
-	bool isInOpenList(dtPolyRef ref) const;
+	bool isInOpenList(dtStatPolyRef ref) const;
 	
 	int getMemUsed() const;
 
 	inline const dtStatNavMeshHeader* getHeader() const { return m_header; }
 	
-	inline const dtBVNode* getBvTreeNodes() const { return m_bvtree; }
+	inline const dtStatBVNode* getBvTreeNodes() const { return m_bvtree; }
 	inline int getBvTreeNodeCount() const { return m_header->nnodes; }
 	
 private:
 
-	float getCost(dtPolyRef prev, dtPolyRef from, dtPolyRef to) const;
-	float getHeuristic(dtPolyRef from, dtPolyRef to) const;
+	float getCost(dtStatPolyRef prev, dtStatPolyRef from, dtStatPolyRef to) const;
+	float getHeuristic(dtStatPolyRef from, dtStatPolyRef to) const;
 
 	// Copies the locations of vertices of a polygon to an array.
-	int getPolyVerts(dtPolyRef ref, float* verts) const;
+	int getPolyVerts(dtStatPolyRef ref, float* verts) const;
 	// Returns portal points between two polygons.
-	bool getPortalPoints(dtPolyRef from, dtPolyRef to, float* left, float* right) const;
+	bool getPortalPoints(dtStatPolyRef from, dtStatPolyRef to, float* left, float* right) const;
 
 	unsigned char* m_data;
 	int m_dataSize;
 	
 	dtStatNavMeshHeader* m_header;
-	dtPoly* m_polys;
+	dtStatPoly* m_polys;
 	float* m_verts;
-	dtBVNode* m_bvtree;
+	dtStatBVNode* m_bvtree;
 
 	class dtNodePool* m_nodePool;
 	class dtNodeQueue* m_openList;

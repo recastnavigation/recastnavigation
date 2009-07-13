@@ -102,12 +102,12 @@ inline int longestAxis(unsigned short x, unsigned short y, unsigned short z)
 	return axis;
 }
 
-void subdivide(BVItem* items, int nitems, int imin, int imax, int& curNode, dtBVNode* nodes)
+static void subdivide(BVItem* items, int nitems, int imin, int imax, int& curNode, dtStatBVNode* nodes)
 {
 	int inum = imax - imin;
 	int icur = curNode;
 	
-	dtBVNode& node = nodes[curNode++];
+	dtStatBVNode& node = nodes[curNode++];
 	
 	if (inum == 1)
 	{
@@ -163,7 +163,7 @@ void subdivide(BVItem* items, int nitems, int imin, int imax, int& curNode, dtBV
 static int createBVTree(const unsigned short* verts, const int nverts,
 						const unsigned short* polys, const int npolys, const int nvp,
 						float cs, float ch,
-						int nnodes, dtBVNode* nodes)
+						int nnodes, dtStatBVNode* nodes)
 {
 	// Build tree
 	BVItem* items = new BVItem[npolys];
@@ -211,7 +211,7 @@ bool dtCreateNavMeshData(const unsigned short* verts, const int nverts,
 						 const float* bmin, const float* bmax, float cs, float ch,
 						 unsigned char** outData, int* outDataSize)
 {
-	if (nvp != DT_VERTS_PER_POLYGON)
+	if (nvp != DT_STAT_VERTS_PER_POLYGON)
 		return false;
 	if (nverts >= 0xffff)
 		return false;
@@ -224,8 +224,8 @@ bool dtCreateNavMeshData(const unsigned short* verts, const int nverts,
 	// Calculate data size
 	const int headerSize = sizeof(dtStatNavMeshHeader);
 	const int vertsSize = sizeof(float)*3*nverts;
-	const int polysSize = sizeof(dtPoly)*npolys;
-	const int nodesSize = sizeof(dtBVNode)*npolys*2;
+	const int polysSize = sizeof(dtStatPoly)*npolys;
+	const int nodesSize = sizeof(dtStatBVNode)*npolys*2;
 	
 	const int dataSize = headerSize + vertsSize + polysSize + nodesSize;
 	unsigned char* data = new unsigned char[dataSize];
@@ -235,12 +235,12 @@ bool dtCreateNavMeshData(const unsigned short* verts, const int nverts,
 	
 	dtStatNavMeshHeader* header = (dtStatNavMeshHeader*)(data);
 	float* navVerts = (float*)(data + headerSize);
-	dtPoly* navPolys = (dtPoly*)(data + headerSize + vertsSize);
-	dtBVNode* nodes = (dtBVNode*)(data + headerSize + vertsSize + polysSize);
+	dtStatPoly* navPolys = (dtStatPoly*)(data + headerSize + vertsSize);
+	dtStatBVNode* nodes = (dtStatBVNode*)(data + headerSize + vertsSize + polysSize);
 	
 	// Store header
-	header->magic = DT_NAVMESH_MAGIC;
-	header->version = DT_NAVMESH_VERSION;
+	header->magic = DT_STAT_NAVMESH_MAGIC;
+	header->version = DT_STAT_NAVMESH_VERSION;
 	header->npolys = npolys;
 	header->nverts = nverts;
 	header->cs = cs;
@@ -265,7 +265,7 @@ bool dtCreateNavMeshData(const unsigned short* verts, const int nverts,
 	const unsigned short* src = polys;
 	for (int i = 0; i < npolys; ++i)
 	{
-		dtPoly* p = &navPolys[i];
+		dtStatPoly* p = &navPolys[i];
 		p->nv = 0;
 		for (int j = 0; j < nvp; ++j)
 		{

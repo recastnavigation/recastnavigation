@@ -21,9 +21,9 @@
 #include "SDL.h"
 #include "SDL_Opengl.h"
 
-void dtDebugDrawStatNavMeshPoly(const dtStatNavMesh* mesh, dtPolyRef ref, const float* col)
+void dtDebugDrawStatNavMeshPoly(const dtStatNavMesh* mesh, dtStatPolyRef ref, const float* col)
 {
-	const dtPoly* p = mesh->getPolyByRef(ref);
+	const dtStatPoly* p = mesh->getPolyByRef(ref);
 	if (!p)
 		return;
 	glColor4f(col[0],col[1],col[2],0.25f);
@@ -83,14 +83,14 @@ void dtDebugDrawStatNavMeshBVTree(const dtStatNavMesh* mesh)
 	const float col[] = { 1,1,1,0.5f };
 	const dtStatNavMeshHeader* hdr = mesh->getHeader();
 	
-	const dtBVNode* nodes = mesh->getBvTreeNodes();
+	const dtStatBVNode* nodes = mesh->getBvTreeNodes();
 	int nnodes = mesh->getBvTreeNodeCount();
 	
 	glBegin(GL_LINES);
 
 	for (int i = 0; i < nnodes; ++i)
 	{
-		const dtBVNode* n = &nodes[i];
+		const dtStatBVNode* n = &nodes[i];
 		if (n->i < 0) // Leaf indices are positive.
 			continue;
 		drawBoxWire(hdr->bmin[0] + n->bmin[0]*hdr->cs,
@@ -108,7 +108,7 @@ void dtDebugDrawStatNavMesh(const dtStatNavMesh* mesh)
 	glBegin(GL_TRIANGLES);
 	for (int i = 0; i < mesh->getPolyCount(); ++i)
 	{
-		const dtPoly* p = mesh->getPoly(i);
+		const dtStatPoly* p = mesh->getPoly(i);
 		
 		if (mesh->isInOpenList(i+1))
 			glColor4ub(255,196,0,64);
@@ -136,7 +136,7 @@ void dtDebugDrawStatNavMesh(const dtStatNavMesh* mesh)
 	glBegin(GL_LINES);
 	for (int i = 0; i < mesh->getPolyCount(); ++i)
 	{
-		const dtPoly* p = mesh->getPoly(i);
+		const dtStatPoly* p = mesh->getPoly(i);
 		for (int j = 0, nj = (int)p->nv; j < nj; ++j)
 		{
 			if (p->n[j] == 0) continue;
@@ -158,7 +158,7 @@ void dtDebugDrawStatNavMesh(const dtStatNavMesh* mesh)
 	glBegin(GL_LINES);
 	for (int i = 0; i < mesh->getPolyCount(); ++i)
 	{
-		const dtPoly* p = mesh->getPoly(i);
+		const dtStatPoly* p = mesh->getPoly(i);
 		for (int j = 0, nj = (int)p->nv; j < nj; ++j)
 		{
 			if (p->n[j] != 0) continue;
@@ -191,10 +191,10 @@ void dtDebugDrawStatNavMesh(const dtStatNavMesh* mesh)
 static void drawTile(const dtTileHeader* header)
 {
 	const float col[4] = {0,0,0,0.25f};
-	glBegin(GL_LINES);
+/*	glBegin(GL_LINES);
 	drawBoxWire(header->bmin[0],header->bmin[1],header->bmin[2],
 				header->bmax[0],header->bmax[1],header->bmax[2], col);
-	glEnd();
+	glEnd();*/
 
 	glBegin(GL_TRIANGLES);
 	for (int i = 0; i < header->npolys; ++i)

@@ -291,6 +291,14 @@ void rcMarkWalkableTriangles(const float walkableSlopeAngle,
 							 const int* tris, int nt,
 							 unsigned char* flags); 
 
+// Rasterizes a triangle into heightfield spans.
+// Params:
+//	v0,v1,v2 - (in) the vertices of the triangle.
+//	flags - (in) triangle flags (uses WALKABLE)
+//	solid - (in) heighfield where the triangle is rasterized
+void rcRasterizeTriangle(const float* v0, const float* v1, const float* v2,
+						 unsigned char flags, rcHeightfield& solid);
+
 // Rasterizes the triangles into heightfield spans.
 // Params:
 //	verts - (in) array of vertices

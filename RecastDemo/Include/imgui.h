@@ -19,35 +19,79 @@
 #ifndef IMGUI_H
 #define IMGUI_H
 
-#define GENID ((__LINE__ ^ (int)__FILE__) << 16)
-#define GENID1(x) ((__LINE__ ^ (int)__FILE__) << 16 | (x))
-
 enum imguiMouseButton
 {
 	IMGUI_MBUT_LEFT = 0x01, 
 	IMGUI_MBUT_RIGHT = 0x02, 
-	IMGUI_MBUT_UP = 0x04, 
-	IMGUI_MBUT_DOWN = 0x08, 
 };
 
-void imguiBeginFrame(int mx, int my, unsigned char mbut);
-void imguiEndFrame();
-void imguiRender(void (*drawText)(int x, int y, int dir, const char* text, unsigned int col));
+enum imguiTextAlign
+{
+	IMGUI_ALIGN_LEFT,
+	IMGUI_ALIGN_CENTER,
+	IMGUI_ALIGN_RIGHT,
+};
 
-bool imguiBeginScrollArea(unsigned int id, const char* name, int x, int y, int w, int h, int* scroll);
+inline unsigned int imguiRGBA(unsigned char r, unsigned char g, unsigned char b, unsigned char a=255)
+{
+	return (r) | (g << 8) | (b << 16) | (a << 24);
+}
+
+void imguiBeginFrame(int mx, int my, unsigned char mbut, int scroll);
+void imguiEndFrame();
+
+bool imguiBeginScrollArea(const char* name, int x, int y, int w, int h, int* scroll);
 void imguiEndScrollArea();
 
 void imguiIndent();
 void imguiUnindent();
 void imguiSeparator();
 
-bool imguiButton(unsigned int id, const char* text);
-bool imguiItem(unsigned int id, const char* text);
-bool imguiCheck(unsigned int id, const char* text, bool checked);
-bool imguiCollapse(unsigned int id, const char* text, bool checked);
-void imguiLabel(unsigned int id, const char* text);
-void imguiValue(unsigned int id, const char* text);
-bool imguiSlider(unsigned int id, const char* text, float* val, float vmin, float vmax, float vinc);
+bool imguiButton(const char* text, bool enabled = true);
+bool imguiItem(const char* text, bool enabled = true);
+bool imguiCheck(const char* text, bool checked, bool enabled = true);
+bool imguiCollapse(const char* text, bool checked, bool enabled = true);
+void imguiLabel(const char* text);
+void imguiValue(const char* text);
+bool imguiSlider(const char* text, float* val, float vmin, float vmax, float vinc, bool enabled = true);
+
+void imguiDrawText(int x, int y, int align, const char* text, unsigned int color);
+
+// Pull render interface.
+enum imguiGfxCmdType
+{
+	IMGUI_GFXCMD_RECT,
+	IMGUI_GFXCMD_TRIANGLE,
+	IMGUI_GFXCMD_TEXT,
+	IMGUI_GFXCMD_SCISSOR,
+};
+
+struct imguiGfxRect
+{
+	short x,y,w,h,r;
+};
+
+struct imguiGfxText
+{
+	short x,y,align;
+	const char* text;
+};
+
+struct imguiGfxCmd
+{
+	char type;
+	char flags;
+	char pad[2];
+	unsigned int col;
+	union
+	{
+		imguiGfxRect rect;
+		imguiGfxText text;
+	};
+};
+
+const imguiGfxCmd* imguiGetRenderQueue();
+int imguiGetRenderQueueSize();
 
 
 #endif // IMGUI_H
