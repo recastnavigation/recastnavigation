@@ -20,11 +20,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "DetourTiledNavMesh.h"
-
-template<class T> inline T abs(T a) { return a < 0 ? -a : a; }
-template<class T> inline T min(T a, T b) { return a < b ? a : b; }
-template<class T> inline T max(T a, T b) { return a > b ? a : b; }
+#include "DetourTileNavMesh.h"
+#include "DetourCommon.h"
 
 bool dtCreateNavMeshTileData(const unsigned short* verts, const int nverts,
 							 const unsigned short* polys, const int npolys, const int nvp,
@@ -41,33 +38,7 @@ bool dtCreateNavMeshTileData(const unsigned short* verts, const int nverts,
 	if (!npolys)
 		return false;
 	
-/*	int nportals[4] = {0,0,0,0};
-	
-	// Find portals.
-	for (int i = 0; i < npolys; ++i)
-	{
-		const unsigned short* p = &polys[i*2*nvp];
-		for (int j = 0; j < nvp; ++j)
-		{
-			if (p[j] == 0xffff) break;
-			int nj = j+1;
-			if (nj >= nvp || p[nj] == 0xffff) nj = 0;
-			const unsigned short* va = &verts[p[j]*3];
-			const unsigned short* vb = &verts[p[nj]*3];
-
-			if (va[0] == tileSize && vb[0] == tileSize)
-				nportals[0]++; // x+
-			else if (va[2] == tileSize && vb[2]  == tileSize)
-				nportals[1]++; // z+
-			else if (va[0] == 0 && vb[0] == 0)
-				nportals[2]++; // x-
-			else if (va[2] == 0 && vb[2] == 0)
-				nportals[3]++; // z-
-		}
-	}
-*/
-
-	// Find portals.
+	// Find portal edges which are at tile borders.
 	int nedges = 0;
 	int nportals = 0;
 	for (int i = 0; i < npolys; ++i)
@@ -98,8 +69,6 @@ bool dtCreateNavMeshTileData(const unsigned short* verts, const int nverts,
 	const int headerSize = sizeof(dtTileHeader);
 	const int vertsSize = sizeof(float)*3*nverts;
 	const int polysSize = sizeof(dtTilePoly)*npolys;
-//	const int portalsSize = sizeof(dtTilePortal)*(nportals[0]+nportals[1]+nportals[2]+nportals[3]);
-//	const int dataSize = headerSize + vertsSize + polysSize + portalsSize;
 	const int linksSize = sizeof(dtTileLink)*(nedges + nportals*2);
 	const int dataSize = headerSize + vertsSize + polysSize + linksSize;
 	unsigned char* data = new unsigned char[dataSize];
@@ -110,11 +79,6 @@ bool dtCreateNavMeshTileData(const unsigned short* verts, const int nverts,
 	dtTileHeader* header = (dtTileHeader*)(data);
 	float* navVerts = (float*)(data + headerSize);
 	dtTilePoly* navPolys = (dtTilePoly*)(data + headerSize + vertsSize);
-/*	dtTilePortal* portals[4];
-	portals[0] = (dtTilePortal*)(data + headerSize + vertsSize + polysSize);
-	portals[1] = portals[0] + nportals[0];
-	portals[2] = portals[1] + nportals[1];
-	portals[3] = portals[2] + nportals[2];*/
 	
 	// Store header
 	header->magic = DT_TILE_NAVMESH_MAGIC;
@@ -122,10 +86,6 @@ bool dtCreateNavMeshTileData(const unsigned short* verts, const int nverts,
 	header->npolys = npolys;
 	header->nverts = nverts;
 	header->maxlinks = nedges + nportals*2;
-/*	header->nportals[0] = nportals[0];
-	header->nportals[1] = nportals[1];
-	header->nportals[2] = nportals[2];
-	header->nportals[3] = nportals[3];*/
 	header->cs = cs;
 	header->bmin[0] = bmin[0];
 	header->bmin[1] = bmin[1];
@@ -160,7 +120,7 @@ bool dtCreateNavMeshTileData(const unsigned short* verts, const int nverts,
 		src += nvp*2;
 	}
 
-	// Store portals.
+	// Store portal edges.
 	for (int i = 0; i < npolys; ++i)
 	{
 		dtTilePoly* poly = &navPolys[i];
