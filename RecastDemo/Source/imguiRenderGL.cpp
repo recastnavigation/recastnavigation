@@ -16,6 +16,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
+#define _USE_MATH_DEFINES
 #include <math.h>
 #include "imgui.h"
 #include "SDL.h"
@@ -280,10 +281,10 @@ static void getBakedQuad(stbtt_bakedchar *chardata, int pw, int ph, int char_ind
 	int round_x = STBTT_ifloor(*xpos + b->xoff);
 	int round_y = STBTT_ifloor(*ypos - b->yoff);
 	
-	q->x0 = round_x;
-	q->y0 = round_y;
-	q->x1 = round_x + b->x1 - b->x0;
-	q->y1 = round_y - b->y1 + b->y0;
+	q->x0 = (float)round_x;
+	q->y0 = (float)round_y;
+	q->x1 = (float)round_x + b->x1 - b->x0;
+	q->y1 = (float)round_y - b->y1 + b->y0;
 	
 	q->s0 = b->x0 / (float)pw;
 	q->t0 = b->y0 / (float)pw;
@@ -366,7 +367,7 @@ void imguiRenderGLDraw()
 	int nq = imguiGetRenderQueueSize();
 
 	glDisable(GL_SCISSOR_TEST);
-	for (unsigned i = 0; i < nq; ++i)
+	for (int i = 0; i < nq; ++i)
 	{
 		const imguiGfxCmd& cmd = q[i];
 		if (cmd.type == IMGUI_GFXCMD_RECT)

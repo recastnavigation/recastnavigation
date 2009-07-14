@@ -309,7 +309,7 @@ void Sample_StatMesh::toolRenderOverlay(double* proj, double* model, int* view)
 	if (m_eposSet && gluProject((GLdouble)m_epos[0], (GLdouble)m_epos[1], (GLdouble)m_epos[2],
 							  model, proj, view, &x, &y, &z))
 	{
-		imguiDrawText((int)x, (float)(y-25), IMGUI_ALIGN_CENTER, "End", imguiRGBA(0,0,0,220));
+		imguiDrawText((int)x, (int)(y-25), IMGUI_ALIGN_CENTER, "End", imguiRGBA(0,0,0,220));
 	}
 }
 

@@ -567,7 +567,6 @@ float dtStatNavMesh::findDistanceToWall(dtStatPolyRef centerRef, const float* ce
 			{
 				actualNode->flags &= ~DT_NODE_CLOSED;
 				actualNode->pidx = newNode.pidx;
-				actualNode->cost = newNode.cost;
 				actualNode->total = newNode.total;
 				
 				if (actualNode->flags & DT_NODE_OPEN)
@@ -663,7 +662,6 @@ int dtStatNavMesh::findPolysAround(dtStatPolyRef centerRef, const float* centerP
 				{
 					actualNode->flags &= ~DT_NODE_CLOSED;
 					actualNode->pidx = newNode.pidx;
-					actualNode->cost = newNode.cost;
 					actualNode->total = newNode.total;
 
 					if (actualNode->flags & DT_NODE_OPEN)

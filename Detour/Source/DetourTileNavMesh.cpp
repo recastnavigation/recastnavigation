@@ -493,7 +493,7 @@ bool dtTiledNavMesh::closestPointToPoly(dtTilePolyRef ref, const float* pos, flo
 	if (m_tiles[it].salt != salt || m_tiles[it].header == 0) return false;
 	const dtTileHeader* h = m_tiles[it].header;
 
-	if (ip >= h->npolys) return false;
+	if (ip >= (unsigned int)h->npolys) return false;
 	const dtTilePoly* poly = &h->polys[ip];
 	
 	float closestDistSqr = FLT_MAX;
@@ -692,7 +692,7 @@ int dtTiledNavMesh::findPath(dtTilePolyRef startRef, dtTilePolyRef endRef,
 	m_openList->push(startNode);
 	
 	dtNode* lastBestNode = startNode;
-	unsigned short lastBestNodeCost = startNode->total;
+	float lastBestNodeCost = startNode->total;
 	while (!m_openList->empty())
 	{
 		dtNode* bestNode = m_openList->pop();
@@ -943,7 +943,7 @@ bool dtTiledNavMesh::getPortalPoints(dtTilePolyRef from, dtTilePolyRef to, float
 	dtDecodeTileId(from, salt, it, ip);
 	if (it >= DT_MAX_TILES) return false;
 	if (m_tiles[it].salt != salt || m_tiles[it].header == 0) return false;
-	if (ip >= m_tiles[it].header->npolys) return false;
+	if (ip >= (unsigned int)m_tiles[it].header->npolys) return false;
 	const dtTileHeader* fromHeader = m_tiles[it].header;
 	const dtTilePoly* fromPoly = &fromHeader->polys[ip];
 
@@ -1172,7 +1172,6 @@ int dtTiledNavMesh::findPolysAround(dtTilePolyRef centerRef, const float* center
 				{
 					actualNode->flags &= ~DT_NODE_CLOSED;
 					actualNode->pidx = newNode.pidx;
-					actualNode->cost = newNode.cost;
 					actualNode->total = newNode.total;
 					
 					if (actualNode->flags & DT_NODE_OPEN)
@@ -1313,7 +1312,6 @@ float dtTiledNavMesh::findDistanceToWall(dtTilePolyRef centerRef, const float* c
 				{
 					actualNode->flags &= ~DT_NODE_CLOSED;
 					actualNode->pidx = newNode.pidx;
-					actualNode->cost = newNode.cost;
 					actualNode->total = newNode.total;
 					
 					if (actualNode->flags & DT_NODE_OPEN)
@@ -1343,7 +1341,7 @@ const dtTilePoly* dtTiledNavMesh::getPolyByRef(dtTilePolyRef ref) const
 	dtDecodeTileId(ref, salt, it, ip);
 	if (it >= DT_MAX_TILES) return 0;
 	if (m_tiles[it].salt != salt || m_tiles[it].header == 0) return 0;
-	if (ip >= m_tiles[it].header->npolys) return 0;
+	if (ip >= (unsigned int)m_tiles[it].header->npolys) return 0;
 	return &m_tiles[it].header->polys[ip];
 }
 
@@ -1353,7 +1351,7 @@ const float* dtTiledNavMesh::getPolyVertsByRef(dtTilePolyRef ref) const
 	dtDecodeTileId(ref, salt, it, ip);
 	if (it >= DT_MAX_TILES) return 0;
 	if (m_tiles[it].salt != salt || m_tiles[it].header == 0) return 0;
-	if (ip >= m_tiles[it].header->npolys) return 0;
+	if (ip >= (unsigned int)m_tiles[it].header->npolys) return 0;
 	return m_tiles[it].header->verts;
 }
 
@@ -1363,6 +1361,6 @@ const dtTileLink* dtTiledNavMesh::getPolyLinksByRef(dtTilePolyRef ref) const
 	dtDecodeTileId(ref, salt, it, ip);
 	if (it >= DT_MAX_TILES) return 0;
 	if (m_tiles[it].salt != salt || m_tiles[it].header == 0) return 0;
-	if (ip >= m_tiles[it].header->npolys) return 0;
+	if (ip >= (unsigned int)m_tiles[it].header->npolys) return 0;
 	return m_tiles[it].header->links;
 }

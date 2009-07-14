@@ -224,7 +224,7 @@ int main(int argc, char *argv[])
 	const SDL_VideoInfo* vi = SDL_GetVideoInfo();
 
 	int width = vi->current_w - 20;
-	int height = vi->current_h - 50;
+	int height = vi->current_h - 80;
 	SDL_Surface* screen = SDL_SetVideoMode(width, height, 0, SDL_OPENGL);
 	if (!screen)
 	{
@@ -240,13 +240,6 @@ int main(int argc, char *argv[])
 		SDL_Quit();
 		return -1;
 	}
-	
-/*	if(!g_font.create("font.cfnt"))
-	{
-		printf("Could not load font.\n");
-		SDL_Quit();
-		return -1;
-	}*/
 	
 	float t = 0.0f;
 	Uint32 lastTime = SDL_GetTicks();
@@ -721,7 +714,7 @@ int main(int argc, char *argv[])
 			const float r = 25.0f;
 			for (int i = 0; i < 20; ++i)
 			{
-				const float a = (float)i / 20.0f * M_PI*2;
+				const float a = (float)i / 20.0f * (float)M_PI*2;
 				const float fx = (float)x + cosf(a)*r;
 				const float fy = (float)y + sinf(a)*r;
 				glVertex2f(fx,fy);
