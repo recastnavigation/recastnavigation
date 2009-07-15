@@ -18,21 +18,14 @@
 #ifndef RECAST_TIMER_H
 #define RECAST_TIMER_H
 
-#ifdef WIN32
-
-//#include <stdint.h>
-typedef __int64 rcTimeVal;
-rcTimeVal rcGetPerformanceTimer();
-int rcGetDeltaTimeUsec(rcTimeVal start, rcTimeVal end);
-
-#else
-
-// OSX
+#ifdef __GNUC__
 #include <stdint.h>
-typedef uint64_t rcTimeVal;
+typedef int64_t rcTimeVal;
+#else
+typedef __int64 rcTimeVal;
+#endif
+
 rcTimeVal rcGetPerformanceTimer();
 int rcGetDeltaTimeUsec(rcTimeVal start, rcTimeVal end);
-
-#endif
 
 #endif // RECAST_TIMER_H

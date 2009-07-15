@@ -92,7 +92,7 @@ struct rcCompactSpan
 
 struct rcCompactHeightfield
 {
-	inline rcCompactHeightfield() : cells(0), spans(0), maxDistance(0), maxRegions(0) {}
+	inline rcCompactHeightfield() : maxDistance(0), maxRegions(0), cells(0), spans(0) {}
 	inline ~rcCompactHeightfield() { delete [] cells; delete [] spans; }
 	int width, height;
 	int spanCount;

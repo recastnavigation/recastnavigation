@@ -21,11 +21,13 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////
 dtNodePool::dtNodePool(int maxNodes, int hashSize) :
-	m_maxNodes(maxNodes),
-	m_hashSize(hashSize),
+
 	m_nodes(0),
 	m_first(0),
-	m_next(0)
+	m_next(0),
+	m_maxNodes(maxNodes),
+	m_hashSize(hashSize),
+	m_nodeCount(0)
 {
 	m_nodes = new dtNode[m_maxNodes];
 	m_next = new unsigned short[m_maxNodes];
@@ -95,9 +97,9 @@ dtNode* dtNodePool::getNode(unsigned int id)
 
 //////////////////////////////////////////////////////////////////////////////////////////
 dtNodeQueue::dtNodeQueue(int n) :
+	m_heap(0),
 	m_capacity(n),
-	m_size(0),
-	m_heap(0)
+	m_size(0)
 {
 	m_heap = new dtNode*[m_capacity+1];
 }

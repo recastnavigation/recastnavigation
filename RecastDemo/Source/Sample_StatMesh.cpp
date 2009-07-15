@@ -21,6 +21,11 @@
 Sample_StatMesh::Sample_StatMesh() :
 	m_navMesh(0),
 	m_toolMode(TOOLMODE_PATHFIND),
+	m_startRef(0),
+	m_endRef(0),
+	m_npolys(0),
+	m_nstraightPath(0),
+	m_distanceToWall(0),
 	m_sposSet(false),
 	m_eposSet(false)
 {

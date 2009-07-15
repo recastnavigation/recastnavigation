@@ -128,11 +128,10 @@ static void addGfxCmdText(int x, int y, int align, const char* text, unsigned in
 struct GuiState
 {
 	GuiState() :
-		leftPressed(false), leftReleased(false), left(false), mx(-1), my(-1), scroll(0),
-		isHot(false), isActive(false), wentActive(false),
-		dragX(0), dragY(0), dragOrig(0),
-		widgetX(0), widgetY(0), widgetW(100),
-		active(0), hot(0), hotToBe(0),
+		left(false), leftPressed(false), leftReleased(false),
+		mx(-1), my(-1), scroll(0),
+		active(0), hot(0), hotToBe(0), isHot(false), isActive(false), wentActive(false),
+		dragX(0), dragY(0), dragOrig(0), widgetX(0), widgetY(0), widgetW(100),
 		areaId(0), widgetId(0)
 	{
 	}

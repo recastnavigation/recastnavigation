@@ -1,7 +1,8 @@
 #include "RecastTimer.h"
 
-#ifdef WIN32
+#if defined(WIN32)
 
+// Win32
 #include <windows.h>
 
 rcTimeVal rcGetPerformanceTimer()
@@ -20,10 +21,10 @@ int rcGetDeltaTimeUsec(rcTimeVal start, rcTimeVal end)
 	return (int)(elapsed*1000000 / freq);
 }
 
-#else
+#elif defined(__MACH__)
 
+// OSX
 #include <mach/mach_time.h>
-
 
 rcTimeVal rcGetPerformanceTimer()
 {
@@ -38,6 +39,20 @@ int rcGetDeltaTimeUsec(rcTimeVal start, rcTimeVal end)
 	uint64_t elapsed = end - start;
 	uint64_t nanosec = elapsed * timebaseInfo.numer / timebaseInfo.denom;
 	return (int)(nanosec / 1000);
+}
+
+#else
+
+// TODO: Linux, etc
+
+rcTimeVal rcGetPerformanceTimer()
+{
+	return 0;
+}
+
+int rcGetDeltaTimeUsec(rcTimeVal start, rcTimeVal end)
+{
+	return 0;
 }
 
 #endif

@@ -174,8 +174,9 @@ public:
 	
 	int getMemUsed() const;
 
+	inline unsigned char* getData() const { return m_data; }
+	inline int getDataSize() const { return m_dataSize; }
 	inline const dtStatNavMeshHeader* getHeader() const { return m_header; }
-	
 	inline const dtStatBVNode* getBvTreeNodes() const { return m_header ? m_header->bvtree : 0; }
 	inline int getBvTreeNodeCount() const { return m_header ? m_header->nnodes : 0; }
 	

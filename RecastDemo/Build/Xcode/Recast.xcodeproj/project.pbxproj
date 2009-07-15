@@ -407,6 +407,11 @@
 				HEADER_SEARCH_PATHS = "/Library/Frameworks/SDL.framework/Headers/**";
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
+				OTHER_CFLAGS = "";
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-Wreorder",
+				);
 				PRODUCT_NAME = Recast;
 			};
 			name = Release;

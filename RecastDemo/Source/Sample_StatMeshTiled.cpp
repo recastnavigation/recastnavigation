@@ -19,15 +19,15 @@
 #endif
 
 Sample_StatMeshTiled::Sample_StatMeshTiled() :
-	m_keepInterResults(false),
 	m_measurePerTileTimings(false),
+	m_keepInterResults(false),
 	m_tileSize(64),
 	m_chunkyMesh(0),
-	m_tileSet(0),
 	m_polyMesh(0),
-	m_drawMode(DRAWMODE_NAVMESH),
+	m_tileSet(0),
+	m_statPolysPerTileSamples(0),
 	m_statTimePerTileSamples(0),
-	m_statPolysPerTileSamples(0)
+	m_drawMode(DRAWMODE_NAVMESH)
 {
 }
 

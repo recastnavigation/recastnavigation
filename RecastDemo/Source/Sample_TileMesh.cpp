@@ -36,26 +36,28 @@
 #	define snprintf _snprintf
 #endif
 
+
 Sample_TileMesh::Sample_TileMesh() :
-	m_tileSize(32),
+	m_keepInterResults(false),
 	m_navMesh(0),
 	m_chunkyMesh(0),
-	m_keepInterResults(true),
-	m_tileBuildTime(0),
-	m_tileMemUsage(0),
 	m_triflags(0),
 	m_solid(0),
 	m_chf(0),
 	m_cset(0),
 	m_polyMesh(0),
+	m_tileSize(32),
+	m_sposSet(false),
+	m_eposSet(false),
+	m_tileBuildTime(0),
+	m_tileMemUsage(0),
 	m_tileTriCount(0),
-	m_toolMode(TOOLMODE_CREATE_TILES),
 	m_startRef(0),
 	m_endRef(0),
 	m_npolys(0),
 	m_nstraightPath(0),
-	m_sposSet(false),
-	m_eposSet(false)
+	m_distanceToWall(0),
+	m_toolMode(TOOLMODE_CREATE_TILES)
 {
 	resetCommonSettings();
 	memset(m_tileBmin, 0, sizeof(m_tileBmin));

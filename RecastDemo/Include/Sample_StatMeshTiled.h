@@ -13,7 +13,7 @@ protected:
 
 	struct Tile
 	{
-		inline Tile() : chf(0), cset(0), solid(0), buildTime(0) {}
+		inline Tile() : chf(0), solid(0), cset(0), buildTime(0) {}
 		inline ~Tile() { delete chf; delete cset; delete solid; }
 		rcCompactHeightfield* chf;
 		rcHeightfield* solid;

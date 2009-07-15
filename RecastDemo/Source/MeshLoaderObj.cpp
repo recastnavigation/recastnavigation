@@ -25,8 +25,8 @@
 
 rcMeshLoaderObj::rcMeshLoaderObj() :
 	m_verts(0),
-	m_normals(0),
 	m_tris(0),
+	m_normals(0),
 	m_vertCount(0),
 	m_triCount(0)
 {

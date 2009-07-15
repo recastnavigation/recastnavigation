@@ -27,11 +27,11 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////
 dtStatNavMesh::dtStatNavMesh() :
+	m_data(0),
+	m_dataSize(0),
 	m_header(0),
 	m_nodePool(0),
-	m_openList(0),
-	m_data(0),
-	m_dataSize(0)
+	m_openList(0)
 {
 }
 
