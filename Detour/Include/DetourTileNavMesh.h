@@ -175,6 +175,7 @@ public:
 	//	maxPathSize - (in) The max number of polygons the path array can hold.
 	// Returns: Number of polygons in search result array.
 	int findPath(dtTilePolyRef startRef, dtTilePolyRef endRef,
+				 const float* startPos, const float* endPos,
 				 dtTilePolyRef* path, const int maxPathSize);
 
 	// Finds a straight path from start to end locations within the corridor
@@ -264,12 +265,16 @@ private:
 	// Queries polygons within a tile.
 	int queryTilePolygons(dtTile* tile, const float* qmin, const float* qmax,
 						  dtTilePolyRef* polys, const int maxPolys);
-	// Returns travel cost between two polygons.
+						  
 	float getCost(dtTilePolyRef prev, dtTilePolyRef from, dtTilePolyRef to) const;
-	// returns A* heuristics between two polygons.
-	float getHeuristic(dtTilePolyRef from, dtTilePolyRef to) const;
+	float getFirstCost(const float* pos, dtTilePolyRef from, dtTilePolyRef to) const;
+	float getLastCost(dtTilePolyRef from, dtTilePolyRef to, const float* pos) const;
+	float getHeuristic(const float* from, const float* to) const;
+	
 	// Returns portal points between two polygons.
 	bool getPortalPoints(dtTilePolyRef from, dtTilePolyRef to, float* left, float* right) const;
+	// Returns edge mid point between two polygons.
+	bool getEdgeMidPoint(dtTilePolyRef from, dtTilePolyRef to, float* mid) const;
 
 	float m_orig[3];
 	float m_tileSize;

@@ -98,6 +98,7 @@ public:
 	//	maxPathSize - (in) The max number of polygons the path array can hold.
 	// Returns: Number of polygons in search result array.
 	int findPath(dtStatPolyRef startRef, dtStatPolyRef endRef,
+				 const float* startPos, const float* endPos,
 				 dtStatPolyRef* path, const int maxPathSize);
 
 	// Finds a straight path from start to end locations within the corridor
@@ -183,12 +184,16 @@ public:
 private:
 
 	float getCost(dtStatPolyRef prev, dtStatPolyRef from, dtStatPolyRef to) const;
-	float getHeuristic(dtStatPolyRef from, dtStatPolyRef to) const;
+	float getFirstCost(const float* pos, dtStatPolyRef from, dtStatPolyRef to) const;
+	float getLastCost(dtStatPolyRef from, dtStatPolyRef to, const float* pos) const;
+	float getHeuristic(const float* from, const float* to) const;
 
 	// Copies the locations of vertices of a polygon to an array.
 	int getPolyVerts(dtStatPolyRef ref, float* verts) const;
 	// Returns portal points between two polygons.
 	bool getPortalPoints(dtStatPolyRef from, dtStatPolyRef to, float* left, float* right) const;
+	// Returns edge mid point between two polygons.
+	bool getEdgeMidPoint(dtStatPolyRef from, dtStatPolyRef to, float* mid) const;
 
 	unsigned char* m_data;
 	int m_dataSize;

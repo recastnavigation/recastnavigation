@@ -119,7 +119,7 @@ void Sample_TileMesh::toolRecalc()
 	{
 		if (m_sposSet && m_eposSet && m_startRef && m_endRef)
 		{
-			m_npolys = m_navMesh->findPath(m_startRef, m_endRef, m_polys, MAX_POLYS);
+			m_npolys = m_navMesh->findPath(m_startRef, m_endRef, m_spos, m_epos, m_polys, MAX_POLYS);
 			if (m_npolys)
 				m_nstraightPath = m_navMesh->findStraightPath(m_spos, m_epos, m_polys, m_npolys, m_straightPath, MAX_POLYS);
 		}
