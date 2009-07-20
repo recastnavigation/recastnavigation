@@ -40,6 +40,20 @@ inline float vdot(const float* v1, const float* v2)
 	return v1[0]*v2[0] + v1[1]*v2[1] + v1[2]*v2[2];
 }
 
+inline void vmad(float* dest, const float* v1, const float* v2, const float s)
+{
+	dest[0] = v1[0]+v2[0]*s;
+	dest[1] = v1[1]+v2[1]*s;
+	dest[2] = v1[2]+v2[2]*s;
+}
+
+inline void vadd(float* dest, const float* v1, const float* v2)
+{
+	dest[0] = v1[0]+v2[0];
+	dest[1] = v1[1]+v2[1];
+	dest[2] = v1[2]+v2[2];
+}
+
 inline void vsub(float* dest, const float* v1, const float* v2)
 {
 	dest[0] = v1[0]-v2[0];
@@ -66,6 +80,14 @@ inline void vcopy(float* dest, const float* a)
 	dest[0] = a[0];
 	dest[1] = a[1];
 	dest[2] = a[2];
+}
+
+inline float vdist(const float* v1, const float* v2)
+{
+	float dx = v2[0] - v1[0];
+	float dy = v2[1] - v1[1];
+	float dz = v2[2] - v1[2];
+	return sqrtf(dx*dx + dy*dy + dz*dz);
 }
 
 inline float vdistSqr(const float* v1, const float* v2)

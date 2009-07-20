@@ -898,7 +898,7 @@ bool Sample_StatMeshTiled::handleBuild()
 		}
 	}
 	
-	if (m_cfg.maxVertsPerPoly == DT_STAT_VERTS_PER_POLYGON)
+	if (m_cfg.maxVertsPerPoly <= DT_STAT_VERTS_PER_POLYGON)
 	{
 		unsigned char* navData = 0;
 		int navDataSize = 0;

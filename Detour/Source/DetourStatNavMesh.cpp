@@ -85,36 +85,6 @@ const dtStatPoly* dtStatNavMesh::getPolyByRef(dtStatPolyRef ref) const
 	return &m_header->polys[ref-1];
 }
 
-float dtStatNavMesh::getCost(dtStatPolyRef prev, dtStatPolyRef from, dtStatPolyRef to) const
-{
-	float midFrom[3], midTo[3];
-	if (!getEdgeMidPoint(prev,from,midFrom) || !getEdgeMidPoint(from,to,midTo))
-		return FLT_MAX;
-	return sqrtf(vdistSqr(midFrom,midTo));
-}
-
-float dtStatNavMesh::getFirstCost(const float* pos, dtStatPolyRef from, dtStatPolyRef to) const
-{
-	float mid[3];
-	if (!getEdgeMidPoint(from,to,mid))
-		return FLT_MAX;
-	return sqrtf(vdistSqr(pos,mid));
-}
-
-float dtStatNavMesh::getLastCost(dtStatPolyRef from, dtStatPolyRef to, const float* pos) const
-{
-	float mid[3];
-	if (!getEdgeMidPoint(from,to,mid))
-		return FLT_MAX;
-	return sqrtf(vdistSqr(mid,pos));
-}
-
-float dtStatNavMesh::getHeuristic(const float* from, const float* to) const
-{
-	return sqrtf(vdistSqr(from,to)) * 1.1f;
-}
-
-
 int dtStatNavMesh::findPath(dtStatPolyRef startRef, dtStatPolyRef endRef,
 							const float* startPos, const float* endPos,
 							dtStatPolyRef* path, const int maxPathSize)
@@ -136,10 +106,12 @@ int dtStatNavMesh::findPath(dtStatPolyRef startRef, dtStatPolyRef endRef,
 	m_nodePool->clear();
 	m_openList->clear();
 
+	static const float H_SCALE = 1.1f;	// Heuristic scale.
+	
 	dtNode* startNode = m_nodePool->getNode(startRef);
 	startNode->pidx = 0;
 	startNode->cost = 0;
-	startNode->total = getHeuristic(startPos, endPos);
+	startNode->total = vdist(startPos, endPos) * H_SCALE;
 	startNode->id = startRef;
 	startNode->flags = DT_NODE_OPEN;
 	m_openList->push(startNode);
@@ -171,22 +143,22 @@ int dtStatNavMesh::findPath(dtStatPolyRef startRef, dtStatPolyRef endRef,
 				newNode.pidx = m_nodePool->getNodeIdx(parent);
 				newNode.id = neighbour;
 
-				newNode.cost = parent->cost;
+				// Calculate cost.
+				float p0[3], p1[3];
 				if (!parent->pidx)
-					newNode.cost += getFirstCost(startPos,parent->id,newNode.id);
+					vcopy(p0, startPos);
 				else
-					newNode.cost += getCost(m_nodePool->getNodeAtIdx(parent->pidx)->id, parent->id, newNode.id);
+					getEdgeMidPoint(m_nodePool->getNodeAtIdx(parent->pidx)->id, parent->id, p0);
+				getEdgeMidPoint(parent->id, newNode.id, p1);
+				newNode.cost = parent->cost + vdist(p0,p1);
 				// Special case for last node.
 				if (newNode.id == endRef)
-					newNode.cost += getLastCost(parent->id,newNode.id,endPos);
-
-				float ec[3];
-				if (!getEdgeMidPoint(parent->id,newNode.id,ec))
-					continue;
-				const float h = getHeuristic(ec, endPos);
-
+					newNode.cost += vdist(p1, endPos);
+				
+				// Heuristic
+				const float h = vdist(p1,endPos)*H_SCALE;
 				newNode.total = newNode.cost + h;
-
+				
 				dtNode* actualNode = m_nodePool->getNode(newNode.id);
 				if (!actualNode)
 					continue;
@@ -568,11 +540,14 @@ float dtStatNavMesh::findDistanceToWall(dtStatPolyRef centerRef, const float* ce
 			newNode.pidx = m_nodePool->getNodeIdx(parent);
 			newNode.id = neighbour;
 			
-			newNode.cost = parent->total;
+			// Cost
+			float p0[3], p1[3];
 			if (!parent->pidx)
-				newNode.cost += getFirstCost(centerPos,parent->id,newNode.id);
+				vcopy(p0, centerPos);
 			else
-				newNode.cost += getCost(m_nodePool->getNodeAtIdx(parent->pidx)->id, parent->id, newNode.id);
+				getEdgeMidPoint(m_nodePool->getNodeAtIdx(parent->pidx)->id, parent->id, p0);
+			getEdgeMidPoint(parent->id, newNode.id, p1);
+			newNode.total = parent->total + vdist(p0,p1);
 			
 			dtNode* actualNode = m_nodePool->getNode(newNode.id);
 			if (!actualNode)
@@ -667,11 +642,14 @@ int dtStatNavMesh::findPolysAround(dtStatPolyRef centerRef, const float* centerP
 				newNode.pidx = m_nodePool->getNodeIdx(parent);
 				newNode.id = neighbour;
 
-				newNode.cost = parent->total;
+				// Cost
+				float p0[3], p1[3];
 				if (!parent->pidx)
-					newNode.cost += getFirstCost(centerPos,parent->id,newNode.id);
+					vcopy(p0, centerPos);
 				else
-					newNode.cost += getCost(m_nodePool->getNodeAtIdx(parent->pidx)->id, parent->id, newNode.id);
+					getEdgeMidPoint(m_nodePool->getNodeAtIdx(parent->pidx)->id, parent->id, p0);
+				getEdgeMidPoint(parent->id, newNode.id, p1);
+				newNode.total = parent->total + vdist(p0,p1);
 				
 				dtNode* actualNode = m_nodePool->getNode(newNode.id);
 				if (!actualNode)
@@ -817,7 +795,6 @@ bool dtStatNavMesh::getPortalPoints(dtStatPolyRef from, dtStatPolyRef to, float*
 	return false;
 }
 
-// Returns edge mid point between two polygons.
 bool dtStatNavMesh::getEdgeMidPoint(dtStatPolyRef from, dtStatPolyRef to, float* mid) const
 {
 	float left[3], right[3];
@@ -828,10 +805,11 @@ bool dtStatNavMesh::getEdgeMidPoint(dtStatPolyRef from, dtStatPolyRef to, float*
 	return true;
 }
 
-bool dtStatNavMesh::isInOpenList(dtStatPolyRef ref) const
+bool dtStatNavMesh::isInClosedList(dtStatPolyRef ref) const
 {
 	if (!m_nodePool) return false;
-	return m_nodePool->findNode(ref) != 0;
+	const dtNode* node = m_nodePool->findNode(ref);
+	return node && node->flags & DT_NODE_CLOSED;
 }
 
 int dtStatNavMesh::getMemUsed() const

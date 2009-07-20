@@ -86,7 +86,6 @@ bool dtCreateNavMeshTileData(const unsigned short* verts, const int nverts,
 	header->npolys = npolys;
 	header->nverts = nverts;
 	header->maxlinks = nedges + nportals*2;
-	header->cs = cs;
 	header->bmin[0] = bmin[0];
 	header->bmin[1] = bmin[1];
 	header->bmin[2] = bmin[2];

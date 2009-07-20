@@ -103,14 +103,14 @@ void dtDebugDrawStatNavMeshBVTree(const dtStatNavMesh* mesh)
 	glEnd();
 }
 
-void dtDebugDrawStatNavMesh(const dtStatNavMesh* mesh)
+void dtDebugDrawStatNavMesh(const dtStatNavMesh* mesh, bool drawClosedList)
 {
 	glBegin(GL_TRIANGLES);
 	for (int i = 0; i < mesh->getPolyCount(); ++i)
 	{
 		const dtStatPoly* p = mesh->getPoly(i);
 		
-		if (mesh->isInOpenList(i+1))
+		if (drawClosedList && mesh->isInClosedList(i+1))
 			glColor4ub(255,196,0,64);
 		else
 			glColor4ub(0,196,255,64);

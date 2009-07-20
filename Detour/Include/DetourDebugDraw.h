@@ -24,7 +24,7 @@
 
 void dtDebugDrawStatNavMeshPoly(const dtStatNavMesh* mesh, dtStatPolyRef ref, const float* col);
 void dtDebugDrawStatNavMeshBVTree(const dtStatNavMesh* mesh);
-void dtDebugDrawStatNavMesh(const dtStatNavMesh* mesh);
+void dtDebugDrawStatNavMesh(const dtStatNavMesh* mesh, bool drawClosedList = false);
 
 void dtDebugDrawTiledNavMesh(const dtTiledNavMesh* mesh);
 void dtDebugDrawTiledNavMeshPoly(const dtTiledNavMesh* mesh, dtTilePolyRef ref, const float* col);

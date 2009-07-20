@@ -200,7 +200,7 @@ void Sample_StatMesh::toolRender(int flags)
 	glDepthMask(GL_FALSE);
 
 	if (flags & NAVMESH_POLYS)
-		dtDebugDrawStatNavMesh(m_navMesh);
+		dtDebugDrawStatNavMesh(m_navMesh, m_toolMode == TOOLMODE_PATHFIND);
 	
 	if (flags & NAVMESH_BVTREE)
 		dtDebugDrawStatNavMeshBVTree(m_navMesh);

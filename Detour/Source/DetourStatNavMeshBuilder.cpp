@@ -211,7 +211,7 @@ bool dtCreateNavMeshData(const unsigned short* verts, const int nverts,
 						 const float* bmin, const float* bmax, float cs, float ch,
 						 unsigned char** outData, int* outDataSize)
 {
-	if (nvp != DT_STAT_VERTS_PER_POLYGON)
+	if (nvp > DT_STAT_VERTS_PER_POLYGON)
 		return false;
 	if (nverts >= 0xffff)
 		return false;

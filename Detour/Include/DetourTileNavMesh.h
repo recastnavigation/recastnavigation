@@ -62,28 +62,27 @@ struct dtTileLink
 
 struct dtTileHeader
 {
-	int magic;
-	int version;
-	int npolys;
-	int nverts;
-	int nlinks;
-	int maxlinks;
-	float cs;
-	float bmin[3], bmax[3];
-	dtTilePoly* polys;
-	float* verts;
-	dtTileLink* links;
+	int magic;					// Magic number, used to identify the data.
+	int version;				// Data version number.
+	int npolys;					// Number of polygons in the tile.
+	int nverts;					// Number of vertices in the tile.
+	int nlinks;					// Number of links in the tile (will be updated when tile is added).
+	int maxlinks;				// Number of allocated links.
+	float bmin[3], bmax[3];		// Bounding box of the tile.
+	dtTilePoly* polys;			// Pointer to the polygons (will be updated when tile is added).
+	float* verts;				// Pointer to the vertices (will be updated when tile added).
+	dtTileLink* links;			// Pointer to the links (will be updated when tile added).
 };
 
 struct dtTile
 {
-	int salt;
-	int x,y;
-	dtTileHeader* header;
-	unsigned char* data;
-	int dataSize;
-	bool ownsData;
-	dtTile* next;
+	int salt;				// Counter describing modifications to the tile.
+	int x,y;				// Grid location of the tile.
+	dtTileHeader* header;	// Pointer to tile header.
+	unsigned char* data;	// Pointer to tile data.
+	int dataSize;			// Size of the tile data.
+	bool ownsData;			// Flag indicating of the navmesh should release the data.
+	dtTile* next;			// Next free tile or, next tile in spatial grid.
 };
 
 // Encodes a tile id.

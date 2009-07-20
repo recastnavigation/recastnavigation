@@ -171,7 +171,7 @@ public:
 	// Returns pointer to specified vertex.
 	inline const float* getVertex(int i) const { return &m_header->verts[i*3]; }
 
-	bool isInOpenList(dtStatPolyRef ref) const;
+	bool isInClosedList(dtStatPolyRef ref) const;
 	
 	int getMemUsed() const;
 
@@ -182,11 +182,6 @@ public:
 	inline int getBvTreeNodeCount() const { return m_header ? m_header->nnodes : 0; }
 	
 private:
-
-	float getCost(dtStatPolyRef prev, dtStatPolyRef from, dtStatPolyRef to) const;
-	float getFirstCost(const float* pos, dtStatPolyRef from, dtStatPolyRef to) const;
-	float getLastCost(dtStatPolyRef from, dtStatPolyRef to, const float* pos) const;
-	float getHeuristic(const float* from, const float* to) const;
 
 	// Copies the locations of vertices of a polygon to an array.
 	int getPolyVerts(dtStatPolyRef ref, float* verts) const;

@@ -18,6 +18,7 @@
 #	define snprintf _snprintf
 #endif
 
+
 Sample_StatMeshSimple::Sample_StatMeshSimple() :
 	m_keepInterResults(false),
 	m_triflags(0),
@@ -263,6 +264,10 @@ bool Sample_StatMeshSimple::handleBuild()
 	cleanup();
 	toolCleanup();
 	
+	//
+	// Step 1. Initialize build config.
+	//
+	
 	// Init build configuration from GUI
 	memset(&m_cfg, 0, sizeof(m_cfg));
 	m_cfg.cs = m_cellSize;
@@ -298,6 +303,10 @@ bool Sample_StatMeshSimple::handleBuild()
 		rcGetLog()->log(RC_LOG_PROGRESS, " - %.1fK verts, %.1fK tris", m_nverts/1000.0f, m_ntris/1000.0f);
 	}
 	
+	//
+	// Step 2. Rasterize input polygon soup.
+	//
+	
 	// Allocate voxel heighfield where we rasterize our input data to.
 	m_solid = new rcHeightfield;
 	if (!m_solid)
@@ -324,7 +333,6 @@ bool Sample_StatMeshSimple::handleBuild()
 		return false;
 	}
 	
-	
 	// Find triangles which are walkable based on their slope and rasterize them.
 	// If your input data is multiple meshes, you can transform them here, calculate
 	// the flags for each of the meshes and rasterize them.
@@ -338,11 +346,19 @@ bool Sample_StatMeshSimple::handleBuild()
 		m_triflags = 0;
 	}
 	
+	//
+	// Step 3. Filter walkables surfaces.
+	//
+	
 	// Once all geoemtry is rasterized, we do initial pass of filtering to
 	// remove unwanted overhangs caused by the conservative rasterization
 	// as well as filter spans where the character cannot possibly stand.
 	rcFilterLedgeSpans(m_cfg.walkableHeight, m_cfg.walkableClimb, *m_solid);
 	rcFilterWalkableLowHeightSpans(m_cfg.walkableHeight, *m_solid);
+
+	//
+	// Step 4. Partition walkable surface to simple regions.
+	//
 
 	// Compact the heightfield so that it is faster to handle from now on.
 	// This will result more cache coherent data as well as the neighbours
@@ -382,6 +398,10 @@ bool Sample_StatMeshSimple::handleBuild()
 			rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Could not build regions.");
 	}
 	
+	//
+	// Step 5. Trace and simplify region contours.
+	//
+	
 	// Create contours.
 	m_cset = new rcContourSet;
 	if (!m_cset)
@@ -403,6 +423,10 @@ bool Sample_StatMeshSimple::handleBuild()
 		m_chf = 0;
 	}
 	
+	//
+	// Step 6. Build polygons mesh from contours.
+	//
+	
 	// Build polygon navmesh from the contours.
 	m_polyMesh = new rcPolyMesh;
 	if (!m_polyMesh)
@@ -423,8 +447,17 @@ bool Sample_StatMeshSimple::handleBuild()
 		delete m_cset;
 		m_cset = 0;
 	}
+
+	// At this point the navigation mesh data is ready, you can access it from m_polyMesh.
+	// See rcDebugDrawPolyMesh or dtCreateNavMeshData as examples how to access the data.
 	
-	if (m_cfg.maxVertsPerPoly == DT_STAT_VERTS_PER_POLYGON)
+	//
+	// (Optional) Step 7. Create Detour data from detour poly mesh.
+	//
+	
+	// The GUI may allow more max points per polygon than Detour can handle.
+	// Only build the detour navmesh if we do not exceed the limit.
+	if (m_cfg.maxVertsPerPoly <= DT_STAT_VERTS_PER_POLYGON)
 	{
 		unsigned char* navData = 0;
 		int navDataSize = 0;

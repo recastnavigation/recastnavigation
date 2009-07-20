@@ -372,7 +372,8 @@ bool dtTiledNavMesh::addTileAt(int x, int y, unsigned char* data, int dataSize, 
 	tile->x = x;
 	tile->y = y;
 	tile->data = data;
-	tile->dataSize = ownsData ? -dataSize : dataSize;
+	tile->dataSize = dataSize;
+	tile->ownsData = ownsData;
 
 	buildIntLinks(tile);
 
@@ -458,7 +459,7 @@ bool dtTiledNavMesh::removeTileAt(int x, int y, unsigned char** data, int* dataS
 	
 	
 	// Reset tile.
-	if (tile->dataSize < 0)
+	if (tile->ownsData)
 	{
 		// Owns data
 		delete [] tile->data;
@@ -614,35 +615,6 @@ int dtTiledNavMesh::queryPolygons(const float* center, const float* extents,
 	return n;
 }
 
-float dtTiledNavMesh::getCost(dtTilePolyRef prev, dtTilePolyRef from, dtTilePolyRef to) const
-{
-	float midFrom[3], midTo[3];
-	if (!getEdgeMidPoint(prev,from,midFrom) || !getEdgeMidPoint(from,to,midTo))
-		return FLT_MAX;
-	return sqrtf(vdistSqr(midFrom,midTo));
-}
-
-float dtTiledNavMesh::getFirstCost(const float* pos, dtTilePolyRef from, dtTilePolyRef to) const
-{
-	float mid[3];
-	if (!getEdgeMidPoint(from,to,mid))
-		return FLT_MAX;
-	return sqrtf(vdistSqr(pos,mid));
-}
-
-float dtTiledNavMesh::getLastCost(dtTilePolyRef from, dtTilePolyRef to, const float* pos) const
-{
-	float mid[3];
-	if (!getEdgeMidPoint(from,to,mid))
-		return FLT_MAX;
-	return sqrtf(vdistSqr(mid,pos));
-}
-
-float dtTiledNavMesh::getHeuristic(const float* from, const float* to) const
-{
-	return sqrtf(vdistSqr(from,to)) * 1.1f;
-}
-
 int dtTiledNavMesh::findPath(dtTilePolyRef startRef, dtTilePolyRef endRef,
 							 const float* startPos, const float* endPos,
 							 dtTilePolyRef* path, const int maxPathSize)
@@ -668,10 +640,12 @@ int dtTiledNavMesh::findPath(dtTilePolyRef startRef, dtTilePolyRef endRef,
 	m_nodePool->clear();
 	m_openList->clear();
 	
+	static const float H_SCALE = 1.1f;	// Heuristic scale.
+	
 	dtNode* startNode = m_nodePool->getNode(startRef);
 	startNode->pidx = 0;
 	startNode->cost = 0;
-	startNode->total = getHeuristic(startPos, endPos);
+	startNode->total = vdist(startPos, endPos) * H_SCALE;
 	startNode->id = startRef;
 	startNode->flags = DT_NODE_OPEN;
 	m_openList->push(startNode);
@@ -708,21 +682,21 @@ int dtTiledNavMesh::findPath(dtTilePolyRef startRef, dtTilePolyRef endRef,
 				dtNode newNode;
 				newNode.pidx = m_nodePool->getNodeIdx(parent);
 				newNode.id = neighbour;
-				
-				newNode.cost = parent->cost;
+
+				// Calculate cost.
+				float p0[3], p1[3];
 				if (!parent->pidx)
-					newNode.cost += getFirstCost(startPos,parent->id,newNode.id);
+					vcopy(p0, startPos);
 				else
-					newNode.cost += getCost(m_nodePool->getNodeAtIdx(parent->pidx)->id, parent->id, newNode.id);
+					getEdgeMidPoint(m_nodePool->getNodeAtIdx(parent->pidx)->id, parent->id, p0);
+				getEdgeMidPoint(parent->id, newNode.id, p1);
+				newNode.cost = parent->cost + vdist(p0,p1);
 				// Special case for last node.
 				if (newNode.id == endRef)
-					newNode.cost += getLastCost(parent->id,newNode.id,endPos);
-				
-				float ec[3];
-				if (!getEdgeMidPoint(parent->id,newNode.id,ec))
-					continue;
-				const float h = getHeuristic(ec, endPos);
-				
+					newNode.cost += vdist(p1, endPos);
+
+				// Heuristic
+				const float h = vdist(p1,endPos)*H_SCALE;
 				newNode.total = newNode.cost + h;
 				
 				dtNode* actualNode = m_nodePool->getNode(newNode.id);
@@ -1061,13 +1035,25 @@ int dtTiledNavMesh::raycast(dtTilePolyRef centerRef, const float* startPos, cons
 					nextRef = link->ref;
 					break;
 				}
+				
 				// If the link is at tile boundary,
-				// Check that the intersection lies inside the portal.
+				const int v0 = poly->v[link->e];
+				const int v1 = poly->v[(link->e+1) % poly->nv];
+				const float* left = &h->verts[v0*3];
+				const float* right = &h->verts[v1*3];
+				
+				// Check that the intersection lies inside the link portal.
 				if (link->side == 0 || link->side == 2)
 				{
+					// Calculate link size.
+					const float smin = min(left[2],right[2]);
+					const float smax = max(left[2],right[2]);
+					const float s = (smax-smin) / 255.0f;
+					const float lmin = smin + link->bmin*s;
+					const float lmax = smin + link->bmax*s;
 					// Find Z intersection.
 					float z = startPos[2] + (endPos[2]-startPos[2])*tmax;
-					if (z >= link->bmin && z <= link->bmax)
+					if (z >= lmin && z <= lmax)
 					{
 						nextRef = link->ref;
 						break;
@@ -1075,9 +1061,15 @@ int dtTiledNavMesh::raycast(dtTilePolyRef centerRef, const float* startPos, cons
 				}
 				else if (link->side == 1 || link->side == 3)
 				{
+					// Calculate link size.
+					const float smin = min(left[0],right[0]);
+					const float smax = max(left[0],right[0]);
+					const float s = (smax-smin) / 255.0f;
+					const float lmin = smin + link->bmin*s;
+					const float lmax = smin + link->bmax*s;
 					// Find X intersection.
 					float x = startPos[0] + (endPos[0]-startPos[0])*tmax;
-					if (x >= link->bmin && x <= link->bmax)
+					if (x >= lmin && x <= lmax)
 					{
 						nextRef = link->ref;
 						break;
@@ -1167,12 +1159,15 @@ int dtTiledNavMesh::findPolysAround(dtTilePolyRef centerRef, const float* center
 				dtNode newNode;
 				newNode.pidx = m_nodePool->getNodeIdx(parent);
 				newNode.id = neighbour;
-				
-				newNode.cost = parent->total;
+
+				// Cost
+				float p0[3], p1[3];
 				if (!parent->pidx)
-					newNode.cost += getFirstCost(centerPos,parent->id,newNode.id);
+					vcopy(p0, centerPos);
 				else
-					newNode.cost += getCost(m_nodePool->getNodeAtIdx(parent->pidx)->id, parent->id, newNode.id);
+					getEdgeMidPoint(m_nodePool->getNodeAtIdx(parent->pidx)->id, parent->id, p0);
+				getEdgeMidPoint(parent->id, newNode.id, p1);
+				newNode.total = parent->total + vdist(p0,p1);
 				
 				dtNode* actualNode = m_nodePool->getNode(newNode.id);
 				if (!actualNode)
@@ -1310,12 +1305,14 @@ float dtTiledNavMesh::findDistanceToWall(dtTilePolyRef centerRef, const float* c
 				dtNode newNode;
 				newNode.pidx = m_nodePool->getNodeIdx(parent);
 				newNode.id = neighbour;
-				
-				newNode.cost = parent->total;
+
+				float p0[3], p1[3];
 				if (!parent->pidx)
-					newNode.cost += getFirstCost(centerPos,parent->id,newNode.id);
+					vcopy(p0, centerPos);
 				else
-					newNode.cost += getCost(m_nodePool->getNodeAtIdx(parent->pidx)->id, parent->id, newNode.id);
+					getEdgeMidPoint(m_nodePool->getNodeAtIdx(parent->pidx)->id, parent->id, p0);
+				getEdgeMidPoint(parent->id, newNode.id, p1);
+				newNode.total = parent->total + vdist(p0,p1);
 				
 				dtNode* actualNode = m_nodePool->getNode(newNode.id);
 				if (!actualNode)

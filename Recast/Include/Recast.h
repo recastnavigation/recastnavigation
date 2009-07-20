@@ -37,28 +37,33 @@ struct rcConfig
 	int maxVertsPerPoly;			// Max number of vertices per polygon.
 };
 
+// Heightfield span.
 struct rcSpan
 {
 	unsigned int smin : 15;			// Span min height.
 	unsigned int smax : 15;			// Span max height.
 	unsigned int flags : 2;			// Span flags.
-	rcSpan* next;
+	rcSpan* next;					// Next span in column.
 };
 
 static const int RC_SPANS_PER_POOL = 2048; 
 
+// Memory pool used for quick span allocation.
 struct rcSpanPool
 {
-	rcSpanPool* next;
-	rcSpan items[1];
+	rcSpanPool* next;	// Pointer to next pool.
+	rcSpan items[1];	// Array of spans (size RC_SPANS_PER_POOL).
 };
 
+// Dynamic span-heightfield.
 struct rcHeightfield
 {
 	inline rcHeightfield() : width(0), height(0), spans(0), pools(0), freelist(0) {}
 	inline ~rcHeightfield()
 	{
+		// Delete span array.
 		delete [] spans;
+		// Delete span pools.
 		while (pools)
 		{
 			rcSpanPool* next = pools->next;
@@ -66,77 +71,90 @@ struct rcHeightfield
 			pools = next;
 		}
 	}
-	int width, height;
-	float bmin[3], bmax[3];
-	float cs, ch;
-	rcSpan** spans;
-	rcSpanPool* pools;
-	rcSpan* freelist;
+	int width, height;			// Dimension of the heightfield.
+	float bmin[3], bmax[3];		// Bounding box of the heightfield
+	float cs, ch;				// Cell size and height.
+	rcSpan** spans;				// Heightfield of spans (width*height).
+	rcSpanPool* pools;			// Linked list of span pools.
+	rcSpan* freelist;			// Pointer to next free span.
 };
 
 struct rcCompactCell
 {
-	unsigned int index : 24;
-	unsigned int count : 8;
+	unsigned int index : 24;	// Index to first span in column.
+	unsigned int count : 8;		// Number of spans in this column.
 };
 
 struct rcCompactSpan
 {
-	unsigned short y;
-	unsigned short reg;
-	unsigned short dist;
-	unsigned short con;
-	unsigned char h;
-	unsigned char flags;
+	unsigned short y;			// Bottom coordinate of the span.
+	unsigned short reg;			// Region ID
+	unsigned short dist;		// Distance to border
+	unsigned short con;			// Connections to neighbour cells.
+	unsigned char h;			// Height of the span.
+	unsigned char flags;		// Flags.
 };
 
+// Compact static heightfield. 
 struct rcCompactHeightfield
 {
 	inline rcCompactHeightfield() : maxDistance(0), maxRegions(0), cells(0), spans(0) {}
 	inline ~rcCompactHeightfield() { delete [] cells; delete [] spans; }
-	int width, height;
-	int spanCount;
-	int walkableHeight, walkableClimb;
-	unsigned short maxDistance; 
-	unsigned short maxRegions;
-	float bmin[3], bmax[3];
-	float cs, ch;
-	rcCompactCell* cells;
-	rcCompactSpan* spans;
+	int width, height;					// Width and height of the heighfield.
+	int spanCount;						// Number of spans in the heightfield.
+	int walkableHeight, walkableClimb;	// Agent properties.
+	unsigned short maxDistance;			// Maximum distance value stored in heightfield.
+	unsigned short maxRegions;			// Maximum Region Id stored in heightfield.
+	float bmin[3], bmax[3];				// Bounding box of the heightfield.
+	float cs, ch;						// Cell size and height.
+	rcCompactCell* cells;				// Pointer to width*height cells.
+	rcCompactSpan* spans;				// Pointer to spans.
 };
 
 struct rcContour
 {
 	inline rcContour() : verts(0), nverts(0), rverts(0), nrverts(0) { }
 	inline ~rcContour() { delete [] verts; delete [] rverts; }
-	int* verts;
-	int nverts;
-	int* rverts;
-	int nrverts;
-	unsigned short reg;
+	int* verts;			// Vertex coordinates, each vertex contains 4 components.
+	int nverts;			// Number of vertices.
+	int* rverts;		// Raw vertex coordinates, each vertex contains 4 components.
+	int nrverts;		// Number of raw vertices.
+	unsigned short reg;	// Region ID of the contour.
 };
 
 struct rcContourSet
 {
 	inline rcContourSet() : conts(0), nconts(0) {}
 	inline ~rcContourSet() { delete [] conts; }
-	rcContour* conts;
-	int nconts;
+	rcContour* conts;	// Pointer to all contours.
+	int nconts;			// Number of contours.
 };
 
+// Polymesh store a connected mesh of polygons.
+// The polygons are store in an array where each polygons takes
+// 'nvp*2' elements. The first 'nvp' elements are indices to vertices
+// and the second 'nvp' elements are indices to neighbour polygons.
+// If a polygona has less than 'bvp' vertices, the remaining indices
+// are set os 0xffff. If an polygon edge does not have a neighbour
+// the neighbour index is set to 0xffff.
+// Vertices can be transformed into world space as follows:
+// x = bmin[0] + verts[i*3+0]*cs;
+// y = bmin[1] + verts[i*3+1]*ch;
+// z = bmin[2] + verts[i*3+2]*cs;
 struct rcPolyMesh
 {
 	inline rcPolyMesh() : verts(0), polys(0), nverts(0), npolys(0), nvp(3) {}
 	inline ~rcPolyMesh() { delete [] verts; delete [] polys; }
-	unsigned short* verts;
-	unsigned short* polys;
-	int nverts;
-	int npolys;
-	int nvp;
-	float bmin[3], bmax[3];
-	float cs, ch;
+	unsigned short* verts;	// Vertices of the mesh, 3 elements per vertex.
+	unsigned short* polys;	// Polygons of the mesh, nvp*2 elements per polygon.
+	int nverts;				// Number of vertices.
+	int npolys;				// Number of polygons.
+	int nvp;				// Max number of vertices per polygon.
+	float bmin[3], bmax[3];	// Bounding box of the mesh.
+	float cs, ch;			// Cell size and height.
 };
 
+// Simple dynamic array ints.
 class rcIntArray
 {
 	int* m_data;
@@ -159,7 +177,7 @@ enum rcSpanFlags
 	RC_REACHABLE = 0x02,
 };
 
-// Comppact span neighbour helpers.
+// Compact span neighbour helpers.
 inline int rcGetCon(const rcCompactSpan& s, int dir)
 {
 	return (s.con >> (dir*4)) & 0xf;
@@ -198,6 +216,20 @@ inline float vdot(const float* v1, const float* v2)
 	return v1[0]*v2[0] + v1[1]*v2[1] + v1[2]*v2[2];
 }
 
+inline void vmad(float* dest, const float* v1, const float* v2, const float s)
+{
+	dest[0] = v1[0]+v2[0]*s;
+	dest[1] = v1[1]+v2[1]*s;
+	dest[2] = v1[2]+v2[2]*s;
+}
+
+inline void vadd(float* dest, const float* v1, const float* v2)
+{
+	dest[0] = v1[0]+v2[0];
+	dest[1] = v1[1]+v2[1];
+	dest[2] = v1[2]+v2[2];
+}
+
 inline void vsub(float* dest, const float* v1, const float* v2)
 {
 	dest[0] = v1[0]-v2[0];
@@ -224,6 +256,14 @@ inline void vcopy(float* dest, const float* v)
 	dest[0] = v[0];
 	dest[1] = v[1];
 	dest[2] = v[2];
+}
+
+inline float vdist(const float* v1, const float* v2)
+{
+	float dx = v2[0] - v1[0];
+	float dy = v2[1] - v1[1];
+	float dz = v2[2] - v1[2];
+	return sqrtf(dx*dx + dy*dy + dz*dz);
 }
 
 inline float vdistSqr(const float* v1, const float* v2)
