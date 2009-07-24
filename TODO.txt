@@ -1,13 +1,18 @@
 TODO/Roadmap
 
-Version 1.0 - Spring 2009
-- Initial release
+Summer/Autumn 2009
 
-Version 1.1 - Spring/Summer 2009
-- Include first version of Detour, runtime library for static navigation meshes
+- Off mesh links (jump links)
+- Area annotations
+- Embed extra data per polygon
+- Height conforming navmesh
 
-Version 1.2 - Summer 2009
-- Add tile based processing
 
-Version 1.3 Summer/Autumn 2009
-- Add dynamic navigation mesh for Detour
+Autumn/Winter 2009/2010
+
+- Detour path following
+- More dynamic example with tile navmesh
+- Faster small tile process
+
+
+More info at http://digestingduck.blogspot.com/2009/07/recast-and-detour-roadmap.html

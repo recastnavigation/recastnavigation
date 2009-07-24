@@ -1,4 +1,8 @@
-Recast Version 1.2
+
+Recast & Detour Version 1.31
+
+
+Recast
 
 Recast is state of the art navigation mesh construction toolset for games.
 
@@ -31,9 +35,36 @@ toolset is located in the RecastDemo folder.
 The project files with this distribution can be compiled with Microsoft Visual C++ 2008
 (you can download it for free) and XCode 3.1.
 
+
+Detour
+
+Recast is accompanied with Detour, path-finding and spatial reasoning toolkit. You can use any navigation mesh with Detour, but of course the data generated with Recast fits perfectly.
+
+Detour offers simple static navigation mesh which is suitable for many simple cases, as well as tiled navigation mesh which allows you to plug in and out pieces of the mesh. The tiled mesh allows to create systems where you stream new navigation data in and out as the player progresses the level, or you may regenerate tiles as the world changes. 
+
+
+Latest code available at http://code.google.com/p/recastnavigation/
+
+
 --
 
 Release Notes
+
+----------------
+* Recast 1.31
+  Released July 24th, 2009
+
+- Better cost and heuristic functions.
+- Fixed tile navmesh raycast on tile borders.
+
+----------------
+* Recast 1.3
+  Released July 14th, 2009
+
+- Added dtTileNavMesh which allows to dynamically add and remove navmesh pieces at runtime.
+- Renamed stat navmesh types to dtStat* (i.e. dtPoly is now dtStatPoly).
+- Moved common code used by tile and stat navmesh to DetourNode.h/cpp and DetourCommon.h/cpp.
+- Refactores the demo code.
 
 ----------------
 * Recast 1.2
