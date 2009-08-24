@@ -1,5 +1,5 @@
 
-Recast & Detour Version 1.31
+Recast & Detour Version 1.4
 
 
 Recast
@@ -49,6 +49,18 @@ Latest code available at http://code.google.com/p/recastnavigation/
 --
 
 Release Notes
+
+----------------
+* Recast 1.4
+  Released August 24th, 2009
+
+- Added detail height mesh generation (RecastDetailMesh.cpp) for single,
+  tiled statmeshes as well as tilemesh.
+- Added feature to contour tracing which detects extra vertices along
+  tile edges which should be removed later.
+- Changed the tiled stat mesh preprocess, so that it first generated
+  polymeshes per tile and finally combines them.
+- Fixed bug in the GUI code where invisible buttons could be pressed.
 
 ----------------
 * Recast 1.31
