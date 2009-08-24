@@ -34,8 +34,16 @@ struct dtStatPoly
 	unsigned char flags;							// Flags (not used).
 };
 
+struct dtStatPolyDetail
+{
+	unsigned short vbase;	// Offset to detail vertex array.
+	unsigned short nverts;	// Number of vertices in the detail mesh.
+	unsigned short tbase;	// Offset to detail triangle array.
+	unsigned short ntris;	// Number of triangles.
+};
+
 const int DT_STAT_NAVMESH_MAGIC = 'NAVM';
-const int DT_STAT_NAVMESH_VERSION = 2;
+const int DT_STAT_NAVMESH_VERSION = 3;
 
 struct dtStatBVNode
 {
@@ -50,11 +58,17 @@ struct dtStatNavMeshHeader
 	int npolys;
 	int nverts;
 	int nnodes;
+	int ndmeshes;
+	int ndverts;
+	int ndtris;
 	float cs;
 	float bmin[3], bmax[3];
 	dtStatPoly* polys;
 	float* verts;
 	dtStatBVNode* bvtree;
+	dtStatPolyDetail* dmeshes;
+	float* dverts;
+	unsigned char* dtris;
 };
 
 class dtStatNavMesh
@@ -160,8 +174,18 @@ public:
 	// Returns: true if closest point found.
 	bool closestPointToPoly(dtStatPolyRef ref, const float* pos, float* closest) const;
 
+	// Returns height of the polygon at specified location.
+	// Params:
+	//	ref - (in) ref to the polygon.
+	//	pos - (in) the point where to locate the height.
+	//	height - (out) height at the location.
+	// Returns: true if oer polygon.
+	bool getPolyHeight(dtStatPolyRef ref, const float* pos, float* height) const;
+
 	// Returns pointer to a polygon based on ref.
 	const dtStatPoly* getPolyByRef(dtStatPolyRef ref) const;
+	// Returns polygon index based on ref, or -1 if failed.
+	int getPolyIndexByRef(dtStatPolyRef ref) const;
 	// Returns number of navigation polygons.
 	inline int getPolyCount() const { return m_header ? m_header->npolys : 0; }
 	// Rerturns pointer to specified navigation polygon.
@@ -170,6 +194,14 @@ public:
 	inline int getVertexCount() const { return m_header ? m_header->nverts : 0; }
 	// Returns pointer to specified vertex.
 	inline const float* getVertex(int i) const { return &m_header->verts[i*3]; }
+	// Returns number of navigation polygons details.
+	inline int getPolyDetailCount() const { return m_header ? m_header->ndmeshes : 0; }
+	// Rerturns pointer to specified navigation polygon detail.
+	const dtStatPolyDetail* getPolyDetail(int i) const { return &m_header->dmeshes[i]; }
+	// Returns pointer to specified vertex.
+	inline const float* getDetailVertex(int i) const { return &m_header->dverts[i*3]; }
+	// Returns pointer to specified vertex.
+	inline const unsigned char* getDetailTri(int i) const { return &m_header->dtris[i*4]; }
 
 	bool isInClosedList(dtStatPolyRef ref) const;
 	

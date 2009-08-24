@@ -136,13 +136,12 @@ inline int computeVertexHash(int x, int y, int z)
 static int addVertex(unsigned short x, unsigned short y, unsigned short z,
 					 unsigned short* verts, int* firstVert, int* nextVert, int& nv)
 {
-	int bucket = computeVertexHash(x, 0/*y*/, z);
+	int bucket = computeVertexHash(x, 0, z);
 	int i = firstVert[bucket];
 	
 	while (i != -1)
 	{
 		const unsigned short* v = &verts[i*3];
-//		if (v[0] == x && v[1] == y && v[2] == z)
 		if (v[0] == x && (rcAbs(v[1] - y) <= 2) && v[2] == z)
 			return i;
 		i = nextVert[i]; // next
@@ -475,17 +474,331 @@ static void mergePolys(unsigned short* pa, unsigned short* pb,
 	memcpy(pa, tmp, sizeof(unsigned short)*nvp);
 }
 
-bool rcBuildPolyMesh(rcContourSet& cset,
-					 const float* bmin, const float* bmax,
-					 const float cs, const float ch, int nvp,
-					 rcPolyMesh& mesh)
+static void pushFront(int v, int* arr, int& an)
+{
+	an++;
+	for (int i = an-1; i > 0; --i) arr[i] = arr[i-1];
+	arr[0] = v;
+}
+
+static void pushBack(int v, int* arr, int& an)
+{
+	arr[an] = v;
+	an++;
+}
+
+static bool removeVertex(rcPolyMesh& mesh, const unsigned short rem, const int maxTris)
+{
+	static const int nvp = mesh.nvp;
+
+	int* edges = 0;
+	int nedges = 0;
+	int* hole = 0;
+	int nhole = 0;
+	int* hreg = 0;
+	int nhreg = 0;
+	int* tris = 0;
+	int* tverts = 0;
+	int* thole = 0;
+	unsigned short* polys = 0;
+	unsigned short* pregs = 0;
+	int npolys = 0;
+
+	// Count number of polygons to remove.
+	int nrem = 0;
+	for (int i = 0; i < mesh.npolys; ++i)
+	{
+		unsigned short* p = &mesh.polys[i*nvp*2];
+		for (int j = 0; j < nvp; ++j)
+			if (p[j] == rem) { nrem++; break; }
+	}
+
+	edges = new int[nrem*nvp*3];
+	if (!edges)
+	{
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_WARNING, "removeVertex: Out of memory 'edges' (%d).", nrem*nvp*3);
+		goto failure;
+	}
+
+	hole = new int[nrem*nvp];
+	if (!hole)
+	{
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_WARNING, "removeVertex: Out of memory 'hole' (%d).", nrem*nvp);
+		goto failure;
+	}
+	hreg = new int[nrem*nvp];
+	if (!hreg)
+	{
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_WARNING, "removeVertex: Out of memory 'hreg' (%d).", nrem*nvp);
+		goto failure;
+	}
+	
+		
+	for (int i = 0; i < mesh.npolys; ++i)
+	{
+		unsigned short* p = &mesh.polys[i*nvp*2];
+		const int nv = countPolyVerts(p, nvp);
+		bool hasRem = false;
+		for (int j = 0; j < nv; ++j)
+			if (p[j] == rem) hasRem = true;
+		if (hasRem)
+		{
+			// Collect edges which does not touch the removed vertex.
+			for (int j = 0, k = nv-1; j < nv; k = j++)
+			{
+				if (p[j] != rem && p[k] != rem)
+				{
+					int* e = &edges[nedges*3];
+					e[0] = p[k];
+					e[1] = p[j];
+					e[2] = mesh.regs[i];
+					nedges++;
+				}
+			}
+			// Remove the polygon.
+			unsigned short* p2 = &mesh.polys[(mesh.npolys-1)*nvp*2];
+			memcpy(p,p2,sizeof(unsigned short)*nvp);
+			mesh.regs[i] = mesh.regs[mesh.npolys-1];
+			mesh.npolys--;
+			--i;
+		}
+	}
+	
+	// Remove vertex.
+	for (int i = (int)rem; i < mesh.nverts; ++i)
+	{
+		mesh.verts[i*3+0] = mesh.verts[(i+1)*3+0];
+		mesh.verts[i*3+1] = mesh.verts[(i+1)*3+1];
+		mesh.verts[i*3+2] = mesh.verts[(i+1)*3+2];
+	}
+	mesh.nverts--;
+
+	// Adjust indices to match the removed vertex layout.
+	for (int i = 0; i < mesh.npolys; ++i)
+	{
+		unsigned short* p = &mesh.polys[i*nvp*2];
+		const int nv = countPolyVerts(p, nvp);
+		for (int j = 0; j < nv; ++j)
+			if (p[j] > rem) p[j]--;
+	}
+	for (int i = 0; i < nedges; ++i)
+	{
+		if (edges[i*3+0] > rem) edges[i*3+0]--;
+		if (edges[i*3+1] > rem) edges[i*3+1]--;
+	}
+
+	if (nedges == 0)
+		return true;
+
+	hole[nhole] = edges[0];
+	hreg[nhole] = edges[2];
+	nhole++;
+	
+	while (nedges)
+	{
+		bool match = false;
+		
+		for (int i = 0; i < nedges; ++i)
+		{
+			const int ea = edges[i*3+0];
+			const int eb = edges[i*3+1];
+			const int r = edges[i*3+2];
+			bool add = false;
+			if (hole[0] == eb)
+			{
+				pushFront(ea, hole, nhole);
+				pushFront(r, hreg, nhreg);
+				add = true;
+			}
+			else if (hole[nhole-1] == ea)
+			{
+				pushBack(eb, hole, nhole);
+				pushBack(r, hreg, nhreg);
+				add = true;
+			}
+			if (add)
+			{
+				// Remove edge.
+				edges[i*3+0] = edges[(nedges-1)*3+0];
+				edges[i*3+1] = edges[(nedges-1)*3+1];
+				edges[i*3+2] = edges[(nedges-1)*3+2];
+				--nedges;
+				match = true;
+				--i;
+			}
+		}
+		
+		if (!match)
+			break;
+	}
+
+	tris = new int[nhole*3];
+	if (!tris)
+	{
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_WARNING, "removeVertex: Out of memory 'tris' (%d).", nhole*3);
+		goto failure;
+	}
+
+	tverts = new int[nhole*4];
+	if (!tverts)
+	{
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_WARNING, "removeVertex: Out of memory 'tverts' (%d).", nhole*4);
+		goto failure;
+	}
+
+	thole = new int[nhole];
+	if (!tverts)
+	{
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_WARNING, "removeVertex: Out of memory 'thole' (%d).", nhole);
+		goto failure;
+	}
+
+	// Generate temp vertex array for triangulation.
+	for (int i = 0; i < nhole; ++i)
+	{
+		const int pi = hole[i];
+		tverts[i*4+0] = mesh.verts[pi*3+0];
+		tverts[i*4+1] = mesh.verts[pi*3+1];
+		tverts[i*4+2] = mesh.verts[pi*3+2];
+		tverts[i*4+3] = 0;
+		thole[i] = i;
+	}
+
+	// Triangulate the hole.
+	int ntris = triangulate(nhole, &tverts[0], &thole[0], tris);
+
+	// Merge the hole triangles back to polygons.
+	polys = new unsigned short[(ntris+1)*nvp];
+	if (!polys)
+	{
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_WARNING, "removeVertex: Out of memory 'polys' (%d).", (ntris+1)*nvp);
+		goto failure;
+	}
+	pregs = new unsigned short[ntris];
+	if (!pregs)
+	{
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_WARNING, "removeVertex: Out of memory 'pregs' (%d).", ntris);
+		goto failure;
+	}
+	
+	unsigned short* tmpPoly = &polys[ntris*nvp];
+			
+	// Build initial polygons.
+	memset(polys, 0xff, ntris*nvp*sizeof(unsigned short));
+	for (int j = 0; j < ntris; ++j)
+	{
+		int* t = &tris[j*3];
+		if (t[0] != t[1] && t[0] != t[2] && t[1] != t[2])
+		{
+			polys[npolys*nvp+0] = (unsigned short)hole[t[0]];
+			polys[npolys*nvp+1] = (unsigned short)hole[t[1]];
+			polys[npolys*nvp+2] = (unsigned short)hole[t[2]];
+			pregs[npolys] = hreg[t[0]];
+			npolys++;
+		}
+	}
+	if (!npolys)
+		return true;
+	
+	// Merge polygons.
+	if (nvp > 3)
+	{
+		while (true)
+		{
+			// Find best polygons to merge.
+			int bestMergeVal = 0;
+			int bestPa, bestPb, bestEa, bestEb;
+			
+			for (int j = 0; j < npolys-1; ++j)
+			{
+				unsigned short* pj = &polys[j*nvp];
+				for (int k = j+1; k < npolys; ++k)
+				{
+					unsigned short* pk = &polys[k*nvp];
+					int ea, eb;
+					int v = getPolyMergeValue(pj, pk, mesh.verts, ea, eb, nvp);
+					if (v > bestMergeVal)
+					{
+						bestMergeVal = v;
+						bestPa = j;
+						bestPb = k;
+						bestEa = ea;
+						bestEb = eb;
+					}
+				}
+			}
+			
+			if (bestMergeVal > 0)
+			{
+				// Found best, merge.
+				unsigned short* pa = &polys[bestPa*nvp];
+				unsigned short* pb = &polys[bestPb*nvp];
+				mergePolys(pa, pb, mesh.verts, bestEa, bestEb, tmpPoly, nvp);
+				memcpy(pb, &polys[(npolys-1)*nvp], sizeof(unsigned short)*nvp);
+				pregs[bestPb] = pregs[npolys-1];
+				npolys--;
+			}
+			else
+			{
+				// Could not merge any polygons, stop.
+				break;
+			}
+		}
+	}
+	
+	// Store polygons.
+	for (int i = 0; i < npolys; ++i)
+	{
+		if (mesh.npolys >= maxTris) break;
+		unsigned short* p = &mesh.polys[mesh.npolys*nvp*2];
+		memset(p,0xff,sizeof(unsigned short)*nvp*2);
+		for (int j = 0; j < nvp; ++j)
+			p[j] = polys[i*nvp+j];
+		mesh.regs[mesh.npolys] = pregs[i];
+		mesh.npolys++;
+	}
+	
+	delete [] edges;
+	delete [] hole;
+	delete [] hreg;
+	delete [] tris;
+	delete [] thole;
+	delete [] tverts;
+	delete [] polys;
+	delete [] pregs;
+	
+	return true;
+
+failure:
+	delete [] edges;
+	delete [] hole;
+	delete [] hreg;
+	delete [] tris;
+	delete [] thole;
+	delete [] tverts;
+	delete [] polys;
+	delete [] pregs;
+	
+	return false;
+}
+
+
+bool rcBuildPolyMesh(rcContourSet& cset, int nvp, rcPolyMesh& mesh)
 {
 	rcTimeVal startTime = rcGetPerformanceTimer();
 
-	vcopy(mesh.bmin, bmin);
-	vcopy(mesh.bmax, bmax);
-	mesh.cs = cs;
-	mesh.ch = ch;
+	vcopy(mesh.bmin, cset.bmin);
+	vcopy(mesh.bmax, cset.bmax);
+	mesh.cs = cset.cs;
+	mesh.ch = cset.ch;
 	
 	int maxVertices = 0;
 	int maxTris = 0;
@@ -504,19 +817,42 @@ bool rcBuildPolyMesh(rcContourSet& cset,
 		return false;
 	}
 	
+	unsigned char* vflags = 0;
+	int* nextVert = 0;
+	int* firstVert = 0;
+	int* indices = 0;
+	int* tris = 0;
+	unsigned short* polys = 0;
+	
+	vflags = new unsigned char[maxVertices];
+	if (!vflags)
+	{
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'mesh.verts' (%d).", maxVertices);
+		goto failure;
+	}
+	memset(vflags, 0, maxVertices);
+	
 	mesh.verts = new unsigned short[maxVertices*3];
 	if (!mesh.verts)
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'mesh.verts' (%d).", maxVertices);
-		return false;
+		goto failure;
 	}
 	mesh.polys = new unsigned short[maxTris*nvp*2];
 	if (!mesh.polys)
 	{
 		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'mesh.verts' (%d).", maxTris*nvp);
-		return false;
+			rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'mesh.polys' (%d).", maxTris*nvp*2);
+		goto failure;
+	}
+	mesh.regs = new unsigned short[maxTris];
+	if (!mesh.regs)
+	{
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'mesh.regs' (%d).", maxTris);
+		goto failure;
 	}
 	mesh.nverts = 0;
 	mesh.npolys = 0;
@@ -524,54 +860,49 @@ bool rcBuildPolyMesh(rcContourSet& cset,
 	
 	memset(mesh.verts, 0, sizeof(unsigned short)*maxVertices*3);
 	memset(mesh.polys, 0xff, sizeof(unsigned short)*maxTris*nvp*2);
+	memset(mesh.regs, 0, sizeof(unsigned short)*maxTris);
 	
-	int* nextVert = new int[maxVertices];
+	nextVert = new int[maxVertices];
 	if (!nextVert)
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'nextVert' (%d).", maxVertices);
-		return false;
+		goto failure;
 	}
 	memset(nextVert, 0, sizeof(int)*maxVertices);
 	
-	int* firstVert = new int[VERTEX_BUCKET_COUNT];
+	firstVert = new int[VERTEX_BUCKET_COUNT];
 	if (!firstVert)
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'firstVert' (%d).", VERTEX_BUCKET_COUNT);
-		return false;
+		goto failure;
 	}
 	for (int i = 0; i < VERTEX_BUCKET_COUNT; ++i)
 		firstVert[i] = -1;
 	
-	int* indices = new int[maxVertsPerCont];
+	indices = new int[maxVertsPerCont];
 	if (!indices)
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'indices' (%d).", maxVertsPerCont);
-		return false;
+		goto failure;
 	}
-	int* tris = new int[maxVertsPerCont*3];
+	tris = new int[maxVertsPerCont*3];
 	if (!tris)
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'tris' (%d).", maxVertsPerCont*3);
-		return false;
+		goto failure;
 	}
-	unsigned short* polys = new unsigned short[maxVertsPerCont*nvp];
+	polys = new unsigned short[(maxVertsPerCont+1)*nvp];
 	if (!polys)
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'polys' (%d).", maxVertsPerCont*nvp);
-		return false;
+		goto failure;
 	}
-	unsigned short* tmpPoly = new unsigned short[nvp];
-	if (!tmpPoly)
-	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'tmpPoly' (%d).", nvp);
-		return false;
-	}
+	unsigned short* tmpPoly = &polys[maxVertsPerCont*nvp];
 
 	for (int i = 0; i < cset.nconts; ++i)
 	{
@@ -609,6 +940,11 @@ bool rcBuildPolyMesh(rcContourSet& cset,
 			const int* v = &cont.verts[j*4];
 			indices[j] = addVertex((unsigned short)v[0], (unsigned short)v[1], (unsigned short)v[2],
 								   mesh.verts, firstVert, nextVert, mesh.nverts);
+			if (v[3] & 0x10000)
+			{
+				// This vertex should be removed.
+				vflags[indices[j]] = 1;
+			}
 		}
 		
 		// Build initial polygons.
@@ -681,11 +1017,26 @@ bool rcBuildPolyMesh(rcContourSet& cset,
 			unsigned short* q = &polys[j*nvp];
 			for (int k = 0; k < nvp; ++k)
 				p[k] = q[k];
+			mesh.regs[mesh.npolys] = cont.reg;
 			mesh.npolys++;
 		}
 	}
 	
-	delete [] tmpPoly;
+	
+	// Remove edge vertices.
+	for (int i = 0; i < mesh.nverts; ++i)
+	{
+		if (vflags[i])
+		{
+			if (!removeVertex(mesh, i, maxTris))
+				goto failure;
+			for (int j = i; j < mesh.nverts-1; ++j)
+				vflags[j] = vflags[j+1];
+			--i;
+		}
+	}
+
+	delete [] vflags;
 	delete [] firstVert;
 	delete [] nextVert;
 	delete [] indices;
@@ -707,4 +1058,155 @@ bool rcBuildPolyMesh(rcContourSet& cset,
 		rcGetBuildTimes()->buildPolymesh += rcGetDeltaTimeUsec(startTime, endTime);
 	
 	return true;
+
+failure:
+	delete [] vflags;
+	delete [] tmpPoly;
+	delete [] firstVert;
+	delete [] nextVert;
+	delete [] indices;
+	delete [] tris;
+
+	return false;
+}
+
+bool rcMergePolyMeshes(rcPolyMesh** meshes, const int nmeshes, rcPolyMesh& mesh)
+{
+	if (!nmeshes || !meshes)
+		return true;
+
+	rcTimeVal startTime = rcGetPerformanceTimer();
+
+	int* nextVert = 0;
+	int* firstVert = 0;
+	unsigned short* vremap = 0;
+
+	mesh.nvp = meshes[0]->nvp;
+	mesh.cs = meshes[0]->cs;
+	mesh.ch = meshes[0]->ch;
+	vcopy(mesh.bmin, meshes[0]->bmin);
+	vcopy(mesh.bmax, meshes[0]->bmax);
+
+	int maxVerts = 0;
+	int maxPolys = 0;
+	int maxVertsPerMesh = 0;
+	for (int i = 0; i < nmeshes; ++i)
+	{
+		vmin(mesh.bmin, meshes[i]->bmin);
+		vmax(mesh.bmax, meshes[i]->bmax);
+		maxVertsPerMesh = rcMax(maxVertsPerMesh, meshes[i]->nverts);
+		maxVerts += meshes[i]->nverts;
+		maxPolys += meshes[i]->npolys;
+	}
+	
+	mesh.nverts = 0;
+	mesh.verts = new unsigned short[maxVerts*3];
+	if (!mesh.verts)
+	{
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_ERROR, "rcMergePolyMeshes: Out of memory 'mesh.verts' (%d).", maxVerts*3);
+		return false;
+	}
+
+	mesh.npolys = 0;
+	mesh.polys = new unsigned short[maxPolys*2*mesh.nvp];
+	if (!mesh.polys)
+	{
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_ERROR, "rcMergePolyMeshes: Out of memory 'mesh.polys' (%d).", maxPolys*2*mesh.nvp);
+		return false;
+	}
+	memset(mesh.polys, 0xff, sizeof(unsigned short)*maxPolys*2*mesh.nvp);
+
+	mesh.regs = new unsigned short[maxPolys];
+	if (!mesh.regs)
+	{
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_ERROR, "rcMergePolyMeshes: Out of memory 'mesh.regs' (%d).", maxPolys);
+		return false;
+	}
+	memset(mesh.regs, 0, sizeof(unsigned short)*maxPolys);
+	
+	nextVert = new int[maxVerts];
+	if (!nextVert)
+	{
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_ERROR, "rcMergePolyMeshes: Out of memory 'nextVert' (%d).", maxVerts);
+		goto failure;
+	}
+	memset(nextVert, 0, sizeof(int)*maxVerts);
+	
+	firstVert = new int[VERTEX_BUCKET_COUNT];
+	if (!firstVert)
+	{
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_ERROR, "rcMergePolyMeshes: Out of memory 'firstVert' (%d).", VERTEX_BUCKET_COUNT);
+		goto failure;
+	}
+	for (int i = 0; i < VERTEX_BUCKET_COUNT; ++i)
+		firstVert[i] = -1;
+
+	vremap = new unsigned short[maxVertsPerMesh];
+	if (!vremap)
+	{
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_ERROR, "rcMergePolyMeshes: Out of memory 'vremap' (%d).", maxVertsPerMesh);
+		goto failure;
+	}
+	memset(nextVert, 0, sizeof(int)*maxVerts);
+	
+	for (int i = 0; i < nmeshes; ++i)
+	{
+		const rcPolyMesh* pmesh = meshes[i];
+		
+		const unsigned short ox = (unsigned short)floorf((pmesh->bmin[0]-mesh.bmin[0])/mesh.cs+0.5f);
+		const unsigned short oz = (unsigned short)floorf((pmesh->bmin[2]-mesh.bmin[2])/mesh.cs+0.5f);
+		
+		for (int j = 0; j < pmesh->nverts; ++j)
+		{
+			unsigned short* v = &pmesh->verts[j*3];
+			vremap[j] = addVertex(v[0]+ox, v[1], v[2]+oz,
+						   mesh.verts, firstVert, nextVert, mesh.nverts);
+		}
+		
+		for (int j = 0; j < pmesh->npolys; ++j)
+		{
+			unsigned short* tgt = &mesh.polys[mesh.npolys*2*mesh.nvp];
+			unsigned short* src = &pmesh->polys[j*2*mesh.nvp];
+			mesh.regs[mesh.npolys] = pmesh->regs[j];
+			mesh.npolys++;
+			for (int k = 0; k < mesh.nvp; ++k)
+			{
+				if (src[k] == 0xffff) break;
+				tgt[k] = vremap[src[k]];
+			}
+		}
+	}
+
+	// Calculate adjacency.
+	if (!buildMeshAdjacency(mesh.polys, mesh.npolys, mesh.nverts, mesh.nvp))
+	{
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_ERROR, "rcMergePolyMeshes: Adjacency failed.");
+		return false;
+	}
+		
+
+	delete [] firstVert;
+	delete [] nextVert;
+	delete [] vremap;
+	
+	rcTimeVal endTime = rcGetPerformanceTimer();
+	
+	if (rcGetBuildTimes())
+		rcGetBuildTimes()->mergePolyMesh += rcGetDeltaTimeUsec(startTime, endTime);
+	
+	return true;
+	
+failure:
+	delete [] firstVert;
+	delete [] nextVert;
+	delete [] vremap;
+	
+	return false;
 }

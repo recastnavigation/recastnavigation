@@ -26,11 +26,17 @@
 
 
 static int getCornerHeight(int x, int y, int i, int dir,
-						   const rcCompactHeightfield& chf)
+						   const rcCompactHeightfield& chf,
+						   bool& isBorderVertex)
 {
 	const rcCompactSpan& s = chf.spans[i];
 	int ch = (int)s.y;
 	int dirp = (dir+1) & 0x3;
+	
+	unsigned short regs[4] = {0,0,0,0};
+	
+	regs[0] = s.reg;
+	
 	if (rcGetCon(s, dir) != 0xf)
 	{
 		const int ax = x + rcGetDirOffsetX(dir);
@@ -38,6 +44,7 @@ static int getCornerHeight(int x, int y, int i, int dir,
 		const int ai = (int)chf.cells[ax+ay*chf.width].index + rcGetCon(s, dir);
 		const rcCompactSpan& as = chf.spans[ai];
 		ch = rcMax(ch, (int)as.y);
+		regs[1] = as.reg;
 		if (rcGetCon(as, dirp) != 0xf)
 		{
 			const int ax2 = ax + rcGetDirOffsetX(dirp);
@@ -45,6 +52,7 @@ static int getCornerHeight(int x, int y, int i, int dir,
 			const int ai2 = (int)chf.cells[ax2+ay2*chf.width].index + rcGetCon(as, dirp);
 			const rcCompactSpan& as2 = chf.spans[ai2];
 			ch = rcMax(ch, (int)as2.y);
+			regs[2] = as2.reg;
 		}
 	}
 	if (rcGetCon(s, dirp) != 0xf)
@@ -54,6 +62,7 @@ static int getCornerHeight(int x, int y, int i, int dir,
 		const int ai = (int)chf.cells[ax+ay*chf.width].index + rcGetCon(s, dirp);
 		const rcCompactSpan& as = chf.spans[ai];
 		ch = rcMax(ch, (int)as.y);
+		regs[3] = as.reg;
 		if (rcGetCon(as, dir) != 0xf)
 		{
 			const int ax2 = ax + rcGetDirOffsetX(dir);
@@ -61,6 +70,27 @@ static int getCornerHeight(int x, int y, int i, int dir,
 			const int ai2 = (int)chf.cells[ax2+ay2*chf.width].index + rcGetCon(as, dir);
 			const rcCompactSpan& as2 = chf.spans[ai2];
 			ch = rcMax(ch, (int)as2.y);
+			regs[2] = as2.reg;
+		}
+	}
+
+	// Check if the vertex is special edge vertex, these vertices will be removed later.
+	for (int j = 0; j < 4; ++j)
+	{
+		const int a = j;
+		const int b = (j+1) & 0x3;
+		const int c = (j+2) & 0x3;
+		const int d = (j+3) & 0x3;
+		
+		// The vertex is a border vertex there are two same exterior cells in a row,
+		// followed by two interior cells and none of the regions are out of bounds.
+		const bool twoSameExts = (regs[a] & regs[b] & 0x8000) != 0 && regs[a] == regs[b];
+		const bool twoInts = ((regs[c] | regs[d]) & 0x8000) == 0;
+		const bool noZeros = regs[a] != 0 && regs[b] != 0 && regs[c] != 0 && regs[d] != 0;
+		if (twoSameExts && twoInts && noZeros)
+		{
+			isBorderVertex = true;
+			break;
 		}
 	}
 	
@@ -85,8 +115,9 @@ static void walkContour(int x, int y, int i,
 		if (flags[i] & (1 << dir))
 		{
 			// Choose the edge corner
+			bool isBorderVertex = false;
 			int px = x;
-			int py = getCornerHeight(x, y, i, dir, chf);
+			int py = getCornerHeight(x, y, i, dir, chf, isBorderVertex);
 			int pz = y;
 			switch(dir)
 			{
@@ -104,6 +135,12 @@ static void walkContour(int x, int y, int i,
 				const rcCompactSpan& as = chf.spans[ai];
 				r = (int)as.reg;
 			}
+			
+/*			if (r & 0x8000)
+				printf("0x8000\n");*/
+			
+			if (isBorderVertex)
+				r |= 0x10000;
 			
 			points.push(px);
 			points.push(py);
@@ -192,7 +229,7 @@ static void simplifyContour(rcIntArray& points, rcIntArray& simplified, float ma
 	bool noConnections = true;
 	for (int i = 0; i < points.size(); i += 4)
 	{
-		if (points[i+3] != 0)
+		if ((points[i+3] & 0xffff) != 0)
 		{
 			noConnections = false;
 			break;
@@ -249,7 +286,7 @@ static void simplifyContour(rcIntArray& points, rcIntArray& simplified, float ma
 		for (int i = 0, ni = points.size()/4; i < ni; ++i)
 		{
 			int ii = (i+1) % ni;
-			if (points[i*4+3] != points[ii*4+3])
+			if ((points[i*4+3] & 0xffff) != (points[ii*4+3] & 0xffff))
 			{
 				simplified.push(points[i*4+0]);
 				simplified.push(points[i*4+1]);
@@ -282,7 +319,7 @@ static void simplifyContour(rcIntArray& points, rcIntArray& simplified, float ma
 		int ci = (ai+1) % pn;
 		
 		// Tesselate only outer edges.
-		if (points[ci*4+3] == 0)
+		if ((points[ci*4+3] & 0xffff) == 0)
 		{
 			while (ci != bi)
 			{
@@ -344,7 +381,7 @@ static void simplifyContour(rcIntArray& points, rcIntArray& simplified, float ma
 			int ci = (ai+1) % pn;
 			
 			// Tesselate only outer edges.
-			if (points[ci*4+3] == 0)
+			if ((points[ci*4+3] & 0xffff) == 0)
 			{
 				int dx = bx - ax;
 				int dz = bz - az;
@@ -384,8 +421,11 @@ static void simplifyContour(rcIntArray& points, rcIntArray& simplified, float ma
 	
 	for (int i = 0; i < simplified.size()/4; ++i)
 	{
-		int ai = (simplified[i*4+3]+1) % pn;
-		simplified[i*4+3] = points[ai*4+3];
+		// The edge vertex flag is take from the current raw point,
+		// and the neighbour region is take from the next raw point.
+		const int ai = (simplified[i*4+3]+1) % pn;
+		const int bi = simplified[i*4+3];
+		simplified[i*4+3] = (points[ai*4+3] & 0xffff) | (points[bi*4+3] & 0x10000);
 	}
 	
 }
@@ -497,13 +537,18 @@ static bool mergeContours(rcContour& ca, rcContour& cb, int ia, int ib)
 }
 
 bool rcBuildContours(rcCompactHeightfield& chf,
-					 float maxError, int maxEdgeLen,
+					 const float maxError, const int maxEdgeLen,
 					 rcContourSet& cset)
 {
 	const int w = chf.width;
 	const int h = chf.height;
 	
 	rcTimeVal startTime = rcGetPerformanceTimer();
+	
+	vcopy(cset.bmin, chf.bmin);
+	vcopy(cset.bmax, chf.bmax);
+	cset.cs = chf.cs;
+	cset.ch = chf.ch;
 	
 	const int maxContours = chf.maxRegions*2;
 	cset.conts = new rcContour[maxContours];
@@ -520,6 +565,7 @@ bool rcBuildContours(rcCompactHeightfield& chf,
 	}
 	
 	rcTimeVal traceStartTime = rcGetPerformanceTimer();
+					
 	
 	// Mark boundaries.
 	for (int y = 0; y < h; ++y)
@@ -689,167 +735,3 @@ bool rcBuildContours(rcCompactHeightfield& chf,
 	
 	return true;
 }
-
-static bool insertPoint(rcContour* c, int idx, const int* v)
-{
-	int* newVerts = new int[(c->nverts+1)*4];
-	if (!newVerts)
-	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "insertPoint: Out of memory 'newVerts'.");
-		return false;
-	}
-	
-	if (idx > 0)
-		memcpy(newVerts, c->verts, sizeof(int)*4*idx);
-	
-	newVerts[idx*4+0] = v[0];
-	newVerts[idx*4+1] = v[1];
-	newVerts[idx*4+2] = v[2];
-	newVerts[idx*4+3] = 0;
-	
-	if (c->nverts - idx > 0)
-		memcpy(&newVerts[(idx+1)*4], &c->verts[idx*4], sizeof(int)*4*(c->nverts - idx));
-	
-	delete [] c->verts;
-	
-	c->verts = newVerts;
-	c->nverts++;
-	
-	return true;
-}
-
-static bool conformVertex(rcContourSet* cset, const int* v,
-						  const int pminy, const int pmaxy,
-						  const int nminy, const int nmaxy,
-						  const int walkableClimb)
-{
-	for (int i = 0; i < cset->nconts; ++i)
-	{
-		rcContour* c = &cset->conts[i];
-		for (int j = 0; j < c->nverts; ++j)
-		{
-			const int k = (j+1) % c->nverts;
-			const int* vj = &c->verts[j*4];
-			const int* vk = &c->verts[k*4];
-
-			const int miny = rcMin(vj[1], vk[1]);
-			const int maxy = rcMax(vj[1], vk[1]);
-
-			// Is edge within y-range.
-			if ((miny > pmaxy || maxy < pminy) &&
-				(miny > nmaxy || maxy < nminy))
-				continue;
-
-			if (vj[0] == vk[0] && vj[0] == v[0])
-			{
-				// The segment is x edge.
-				const int minz = rcMin(vj[2], vk[2]);
-				const int maxz = rcMax(vj[2], vk[2]);
-				if (v[2] > minz && v[2] < maxz)
-				{
-					return insertPoint(c, j+1, v);
-				}
-			}
-			else if (vj[2] == vk[2] && vj[2] == v[2])
-			{
-				// The segment is z edge.
-				const int minx = rcMin(vj[0], vk[0]);
-				const int maxx = rcMax(vj[0], vk[0]);
-				if (v[0] > minx && v[0] < maxx)
-				{
-					return insertPoint(c, j+1, v);
-				}
-			}
-		}
-	}
-	return true;
-}		
-
-bool rcFixupAdjacentContours(rcContourSet* cseta, rcContourSet* csetb,
-							 const int walkableClimb, const int edgex, const int edgez)
-{
-	if (!cseta || !csetb)
-		return true;
-
-	rcTimeVal startTime = rcGetPerformanceTimer();
-
-	for (int i = 0; i < cseta->nconts; ++i)
-	{
-		const rcContour& c = cseta->conts[i];
-		for (int j = 0; j < c.nverts; ++j)
-		{
-			const int* v = &c.verts[j*4];
-			const int* pv = &c.verts[((j+c.nverts-1)%c.nverts)*4];
-			const int* nv = &c.verts[((j+1)%c.nverts)*4];
-
-			// If the vertex is at the tile edge, make sure it also exists in
-			// the neighbour contour set.
-			if (v[0] == edgex || v[2] == edgez)
-			{				
-				const int pminy = rcMin(v[1], pv[1]);
-				const int pmaxy = rcMax(v[1], pv[1]);
-				const int nminy = rcMin(v[1], nv[1]);
-				const int nmaxy = rcMax(v[1], nv[1]);
-				
-				if (!conformVertex(csetb, v, pminy, pmaxy, nminy, nmaxy, walkableClimb))
-					return false;
-			}
-		}
-	}
-
-	for (int i = 0; i < csetb->nconts; ++i)
-	{
-		const rcContour& c = csetb->conts[i];
-		for (int j = 0; j < c.nverts; ++j)
-		{
-			const int* v = &c.verts[j*4];
-			const int* pv = &c.verts[((j+c.nverts-1)%c.nverts)*4];
-			const int* nv = &c.verts[((j+1)%c.nverts)*4];
-			
-			// If the vertex is at the tile edge, make sure it also exists in
-			// the neighbour contour set.
-			if (v[0] == edgex || v[2] == edgez)
-			{
-				const int pminy = rcMin(v[1], pv[1]);
-				const int pmaxy = rcMax(v[1], pv[1]);
-				const int nminy = rcMin(v[1], nv[1]);
-				const int nmaxy = rcMax(v[1], nv[1]);
-				
-				if (!conformVertex(cseta, v, pminy, pmaxy, nminy, nmaxy, walkableClimb))
-					return false;
-			}
-		}
-	}
-	
-	rcTimeVal endTime = rcGetPerformanceTimer();
-	if (rcGetBuildTimes())
-		rcGetBuildTimes()->fixupContours += rcGetDeltaTimeUsec(startTime, endTime);
-		
-	return true;
-}
-
-void rcTranslateContours(rcContourSet* cset, int dx, int dy, int dz)
-{
-	if (!cset) return;
-	
-	for (int i = 0; i < cset->nconts; ++i)
-	{
-		rcContour& cont = cset->conts[i];
-		for (int i = 0; i < cont.nverts; ++i)
-		{
-			int* v = &cont.verts[i*4];
-			v[0] += dx;
-			v[1] += dy;
-			v[2] += dz;
-		}
-		for (int i = 0; i < cont.nrverts; ++i)
-		{
-			int* v = &cont.rverts[i*4];
-			v[0] += dx;
-			v[1] += dy;
-			v[2] += dz;
-		}
-	}
-}
-

@@ -17,8 +17,9 @@ protected:
 	rcHeightfield* m_solid;
 	rcCompactHeightfield* m_chf;
 	rcContourSet* m_cset;
-	rcPolyMesh* m_polyMesh;
+	rcPolyMesh* m_pmesh;
 	rcConfig m_cfg;	
+	rcPolyMeshDetail* m_dmesh;
 	
 	enum DrawMode
 	{
@@ -37,6 +38,7 @@ protected:
 		DRAWMODE_BOTH_CONTOURS,
 		DRAWMODE_CONTOURS,
 		DRAWMODE_POLYMESH,
+		DRAWMODE_POLYMESH_DETAIL,
 		MAX_DRAWMODE
 	};
 	

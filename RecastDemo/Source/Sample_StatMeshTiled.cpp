@@ -23,7 +23,8 @@ Sample_StatMeshTiled::Sample_StatMeshTiled() :
 	m_keepInterResults(false),
 	m_tileSize(64),
 	m_chunkyMesh(0),
-	m_polyMesh(0),
+	m_pmesh(0),
+	m_dmesh(0),
 	m_tileSet(0),
 	m_statPolysPerTileSamples(0),
 	m_statTimePerTileSamples(0),
@@ -42,8 +43,10 @@ void Sample_StatMeshTiled::cleanup()
 	m_chunkyMesh = 0;
 	delete m_tileSet;
 	m_tileSet = 0;
-	delete m_polyMesh;
-	m_polyMesh = 0;
+	delete m_pmesh;
+	m_pmesh = 0;
+	delete m_dmesh;
+	m_dmesh = 0;
 	toolCleanup();
 	m_statTimePerTileSamples = 0;
 	m_statPolysPerTileSamples = 0;
@@ -84,6 +87,8 @@ void Sample_StatMeshTiled::handleDebugMode()
 	bool hasChf = false;
 	bool hasSolid = false;
 	bool hasCset = false;
+	bool hasPmesh = false;
+	bool hasDmesh = false;
 	if (m_tileSet)
 	{
 		for (int i = 0; i < m_tileSet->width*m_tileSet->height; ++i)
@@ -91,8 +96,12 @@ void Sample_StatMeshTiled::handleDebugMode()
 			if (m_tileSet->tiles[i].solid) hasSolid = true;
 			if (m_tileSet->tiles[i].chf) hasChf = true;
 			if (m_tileSet->tiles[i].cset) hasCset = true;
+			if (m_tileSet->tiles[i].pmesh) hasPmesh = true;
+			if (m_tileSet->tiles[i].dmesh) hasDmesh = true;
 		}
 	}
+	if (m_pmesh) hasPmesh = true;
+	if (m_dmesh) hasDmesh = true;
 	
 	if (m_verts && m_tris)
 	{
@@ -110,7 +119,8 @@ void Sample_StatMeshTiled::handleDebugMode()
 		valid[DRAWMODE_RAW_CONTOURS] = hasCset;
 		valid[DRAWMODE_BOTH_CONTOURS] = hasCset;
 		valid[DRAWMODE_CONTOURS] = hasCset;
-		valid[DRAWMODE_POLYMESH] = m_polyMesh != 0;
+		valid[DRAWMODE_POLYMESH] = hasPmesh;
+		valid[DRAWMODE_POLYMESH_DETAIL] = hasDmesh;
 	}
 	
 	int unavail = 0;
@@ -151,6 +161,8 @@ void Sample_StatMeshTiled::handleDebugMode()
 		m_drawMode = DRAWMODE_CONTOURS;
 	if (imguiCheck("Poly Mesh", m_drawMode == DRAWMODE_POLYMESH, valid[DRAWMODE_POLYMESH]))
 		m_drawMode = DRAWMODE_POLYMESH;
+	if (imguiCheck("Poly Mesh Detail", m_drawMode == DRAWMODE_POLYMESH_DETAIL, valid[DRAWMODE_POLYMESH_DETAIL]))
+		m_drawMode = DRAWMODE_POLYMESH_DETAIL;
 	
 	if (unavail)
 	{
@@ -295,7 +307,7 @@ void Sample_StatMeshTiled::handleRender()
 			for (int i = 0; i < m_tileSet->width*m_tileSet->height; ++i)
 			{
 				if (m_tileSet->tiles[i].cset)
-					rcDebugDrawRawContours(*m_tileSet->tiles[i].cset, m_cfg.bmin, m_cfg.cs, m_cfg.ch);
+					rcDebugDrawRawContours(*m_tileSet->tiles[i].cset);
 			}
 			glDepthMask(GL_TRUE);
 		}
@@ -306,8 +318,8 @@ void Sample_StatMeshTiled::handleRender()
 			{
 				if (m_tileSet->tiles[i].cset)
 				{
-					rcDebugDrawRawContours(*m_tileSet->tiles[i].cset, m_cfg.bmin, m_cfg.cs, m_cfg.ch, 0.5f);
-					rcDebugDrawContours(*m_tileSet->tiles[i].cset, m_cfg.bmin, m_cfg.cs, m_cfg.ch);
+					rcDebugDrawRawContours(*m_tileSet->tiles[i].cset, 0.5f);
+					rcDebugDrawContours(*m_tileSet->tiles[i].cset);
 				}
 			}
 			glDepthMask(GL_TRUE);
@@ -318,7 +330,7 @@ void Sample_StatMeshTiled::handleRender()
 			for (int i = 0; i < m_tileSet->width*m_tileSet->height; ++i)
 			{
 				if (m_tileSet->tiles[i].cset)
-					rcDebugDrawContours(*m_tileSet->tiles[i].cset, m_cfg.bmin, m_cfg.cs, m_cfg.ch);
+					rcDebugDrawContours(*m_tileSet->tiles[i].cset);
 			}
 			glDepthMask(GL_TRUE);
 		}
@@ -334,14 +346,43 @@ void Sample_StatMeshTiled::handleRender()
 			for (int i = 0; i < m_tileSet->width*m_tileSet->height; ++i)
 			{
 				if (m_tileSet->tiles[i].cset)
-					rcDebugDrawRegionConnections(*m_tileSet->tiles[i].cset, m_cfg.bmin, m_cfg.cs, m_cfg.ch);
+					rcDebugDrawRegionConnections(*m_tileSet->tiles[i].cset);
 			}
 			glDepthMask(GL_TRUE);
 		}
-		if (m_polyMesh && m_drawMode == DRAWMODE_POLYMESH)
+		if (/*m_pmesh &&*/ m_drawMode == DRAWMODE_POLYMESH)
 		{
 			glDepthMask(GL_FALSE);
-			rcDebugDrawPolyMesh(*m_polyMesh);
+			if (m_pmesh)
+			{
+				rcDebugDrawPolyMesh(*m_pmesh);
+			}
+			else
+			{
+				for (int i = 0; i < m_tileSet->width*m_tileSet->height; ++i)
+				{
+					if (m_tileSet->tiles[i].pmesh)
+						rcDebugDrawPolyMesh(*m_tileSet->tiles[i].pmesh);
+				}
+			}
+			
+			glDepthMask(GL_TRUE);
+		}
+		if (/*m_dmesh &&*/ m_drawMode == DRAWMODE_POLYMESH_DETAIL)
+		{
+			glDepthMask(GL_FALSE);
+			if (m_dmesh)
+			{
+				rcDebugDrawPolyMeshDetail(*m_dmesh);
+			}
+			else
+			{
+				for (int i = 0; i < m_tileSet->width*m_tileSet->height; ++i)
+				{
+					if (m_tileSet->tiles[i].dmesh)
+						rcDebugDrawPolyMeshDetail(*m_tileSet->tiles[i].dmesh);
+				}
+			}
 			glDepthMask(GL_TRUE);
 		}
 	}
@@ -535,6 +576,8 @@ bool Sample_StatMeshTiled::handleBuild()
 	m_cfg.maxVertsPerPoly = (int)m_vertsPerPoly;
 	m_cfg.tileSize = (int)m_tileSize;
 	m_cfg.borderSize = m_cfg.walkableRadius*2 + 2; // Reserve enough padding.
+	m_cfg.detailSampleDist = m_detailSampleDist < 0.9f ? 0 : m_cellSize * m_detailSampleDist;
+	m_cfg.detailSampleMaxError = m_cellHeight * m_detailSampleMaxError;
 		
 	// Set the area where the navigation will be build.
 	// Here the bounds of the input mesh are used, but the
@@ -719,14 +762,6 @@ bool Sample_StatMeshTiled::handleBuild()
 				continue;
 			}
 			
-			if (m_keepInterResults)
-			{
-				tile.solid = solid;
-				solid = 0;
-				tile.chf = chf;
-				chf = 0;
-			}
-			
 			if (!cset->nconts)
 			{
 				delete cset;
@@ -734,12 +769,63 @@ bool Sample_StatMeshTiled::handleBuild()
 				continue;
 			}
 			
-			tile.cset = cset;
-			// Offset the vertices in the cset.
-			rcTranslateContours(tile.cset, x*tileCfg.tileSize - tileCfg.borderSize, 0, y*tileCfg.tileSize - tileCfg.borderSize);
+			tile.pmesh = new rcPolyMesh;
+			if (!tile.pmesh)
+			{
+				if (rcGetLog())
+					rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: [%d,%d] Out of memory 'pmesh'.", x, y);
+				continue;
+			}
+			if (!rcBuildPolyMesh(*cset, tileCfg.maxVertsPerPoly, *tile.pmesh))
+			{
+				if (rcGetLog())
+					rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: [%d,%d] Could not create poly mesh.", x, y);
+				continue;
+			}
+
+			tile.dmesh = new rcPolyMeshDetail;
+			if (!tile.dmesh)
+			{
+				if (rcGetLog())
+					rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: [%d,%d] Out of memory 'dmesh'.", x, y);
+				continue;
+			}
+			
+			if (!rcBuildPolyMeshDetail(*tile.pmesh, *chf, tileCfg.detailSampleDist, tileCfg	.detailSampleMaxError, *tile.dmesh))
+			{
+				if (rcGetLog())
+					rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: [%d,%d] Could not build detail mesh.", x, y);
+				continue;
+			}
+
+			if (m_keepInterResults)
+			{
+				tile.solid = solid;
+				solid = 0;
+				tile.chf = chf;
+				chf = 0;
+				tile.cset = cset;
+				cset = 0;
+			}
 			
 			rcTimeVal endTime = rcGetPerformanceTimer();
 			tile.buildTime += rcGetDeltaTimeUsec(startTime, endTime);
+			
+			// Some extra code to measure some per tile statistics,
+			// such as build time and how many polygons there are per tile.
+			if (tile.pmesh)
+			{
+				int bucket = tile.pmesh->npolys;
+				if (bucket < 0) bucket = 0;
+				if (bucket >= MAX_STAT_BUCKETS) bucket = MAX_STAT_BUCKETS-1;
+				m_statPolysPerTile[bucket]++;
+				m_statPolysPerTileSamples++;
+			}
+			int bucket = (tile.buildTime+500)/1000;
+			if (bucket < 0) bucket = 0;
+			if (bucket >= MAX_STAT_BUCKETS) bucket = MAX_STAT_BUCKETS-1;
+			m_statTimePerTile[bucket]++;
+			m_statTimePerTileSamples++;
 		}
 	}
 	
@@ -747,143 +833,58 @@ bool Sample_StatMeshTiled::handleBuild()
 	delete solid;
 	delete chf;
 	
-	
-	// Some extra code to measure some per tile statistics,
-	// such as build time and how many polygons there are per tile.
-	if (m_measurePerTileTimings)
+	// Merge per tile poly and detail meshes.
+	rcPolyMesh** pmmerge = new rcPolyMesh*[m_tileSet->width*m_tileSet->height];
+	if (!pmmerge)
 	{
-		for (int y = 0; y < m_tileSet->height; ++y)
-		{
-			for (int x = 0; x < m_tileSet->width; ++x)
-			{
-				Tile& tile = m_tileSet->tiles[x + y*m_tileSet->width]; 
-
-				if (!tile.cset)
-					continue;
-
-				rcTimeVal startTime = rcGetPerformanceTimer();
-				rcPolyMesh* polyMesh = new rcPolyMesh;
-				if (!polyMesh)
-					continue;
-				if (rcBuildPolyMesh(*tile.cset, m_cfg.bmin, m_cfg.bmax,
-									m_cfg.cs, m_cfg.ch, m_cfg.maxVertsPerPoly, *polyMesh))
-				{
-					int bucket = polyMesh->npolys;
-					if (bucket < 0) bucket = 0;
-					if (bucket >= MAX_STAT_BUCKETS) bucket = MAX_STAT_BUCKETS-1;
-					m_statPolysPerTile[bucket]++;
-					m_statPolysPerTileSamples++;
-				}
-				delete polyMesh;
-
-				rcTimeVal endTime = rcGetPerformanceTimer();
-				int time = tile.buildTime += rcGetDeltaTimeUsec(startTime, endTime);
-				
-				int bucket = (time+500)/1000;
-				if (bucket < 0) bucket = 0;
-				if (bucket >= MAX_STAT_BUCKETS) bucket = MAX_STAT_BUCKETS-1;
-				m_statTimePerTile[bucket]++;
-				m_statTimePerTileSamples++;
-			}
-		}
-	}	
-		
-	// Make sure that the vertices along the tile edges match,
-	// so that they can be later properly stitched together.
-	for (int y = 0; y < m_tileSet->height; ++y)
-	{
-		for (int x = 0; x < m_tileSet->width; ++x)
-		{
-			rcTimeVal startTime = rcGetPerformanceTimer();
-			if ((x+1) < m_tileSet->width)
-			{
-				if (!rcFixupAdjacentContours(m_tileSet->tiles[x + y*m_tileSet->width].cset,
-											 m_tileSet->tiles[x+1 + y*m_tileSet->width].cset,
-											 m_cfg.walkableClimb, (x+1)*m_cfg.tileSize, -1))
-				{
-					if (rcGetLog())
-						rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: [%d,%d] Could not fixup x+1.", x, y);
-					return false;
-				}
-			}
-			
-			if ((y+1) < m_tileSet->height)
-			{
-				if (!rcFixupAdjacentContours(m_tileSet->tiles[x + y*m_tileSet->width].cset,
-											 m_tileSet->tiles[x + (y+1)*m_tileSet->width].cset,
-											 m_cfg.walkableClimb, -1, (y+1)*m_cfg.tileSize))
-				{
-					if (rcGetLog())
-						rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: [%d,%d] Could not fixup y+1.", x, y);
-					return false;
-				}
-			}
-			rcTimeVal endTime = rcGetPerformanceTimer();
-			m_tileSet->tiles[x+y*m_tileSet->width].buildTime += rcGetDeltaTimeUsec(startTime, endTime);
-		}
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: Out of memory 'pmmerge' (%d).", m_tileSet->width*m_tileSet->height);
+		return false;
 	}
-		
-		
-	// Combine contours.
-	rcContourSet combSet;
 	
-	combSet.nconts = 0;
+	rcPolyMeshDetail** dmmerge = new rcPolyMeshDetail*[m_tileSet->width*m_tileSet->height];
+	if (!dmmerge)
+	{
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: Out of memory 'dmmerge' (%d).", m_tileSet->width*m_tileSet->height);
+		return false;
+	}
+	
+	int nmerge = 0;
 	for (int y = 0; y < m_tileSet->height; ++y)
 	{
 		for (int x = 0; x < m_tileSet->width; ++x)
 		{
 			Tile& tile = m_tileSet->tiles[x + y*m_tileSet->width]; 
-			if (!tile.cset) continue;
-			combSet.nconts += tile.cset->nconts;
-		}
-	}
-	combSet.conts = new rcContour[combSet.nconts];
-	if (!combSet.conts)
-	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: Out of memory 'combSet.conts' (%d).", combSet.nconts);
-		return false;
-	}
-	int n = 0;
-	for (int y = 0; y < m_tileSet->height; ++y)
-	{
-		for (int x = 0; x < m_tileSet->width; ++x)
-		{
-			Tile& tile = m_tileSet->tiles[x + y*m_tileSet->width]; 
-			if (!tile.cset) continue;
-			for (int i = 0; i < tile.cset->nconts; ++i)
+			if (tile.pmesh)
 			{
-				combSet.conts[n].verts = tile.cset->conts[i].verts;
-				combSet.conts[n].nverts = tile.cset->conts[i].nverts;
-				combSet.conts[n].reg = tile.cset->conts[i].reg;
-				n++;
+				pmmerge[nmerge] = tile.pmesh;
+				dmmerge[nmerge] = tile.dmesh;
+				nmerge++;
 			}
 		}
 	}
 	
-	m_polyMesh = new rcPolyMesh;
-	if (!m_polyMesh)
+	m_pmesh = new rcPolyMesh;
+	if (!m_pmesh)
 	{
 		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'polyMesh'.");
+			rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'pmesh'.");
 		return false;
 	}
+	rcMergePolyMeshes(pmmerge, nmerge, *m_pmesh);
 
-	bool polyRes = rcBuildPolyMesh(combSet, m_cfg.bmin, m_cfg.bmax, m_cfg.cs, m_cfg.ch, m_cfg.maxVertsPerPoly, *m_polyMesh);
-	
-	// Remove vertex binding to avoid double deletion.
-	for (int i = 0; i < combSet.nconts; ++i)
+	m_dmesh = new rcPolyMeshDetail;
+	if (!m_dmesh)
 	{
-		combSet.conts[i].verts = 0;
-		combSet.conts[i].nverts = 0;
-	}
-	
-	if (!polyRes)
-	{	
 		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: Could not triangulate contours.");
+			rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'dmesh'.");
 		return false;
 	}
+	rcMergePolyMeshDetails(dmmerge, nmerge, *m_dmesh);
+	
+	delete [] pmmerge;
+	delete [] dmmerge;
 	
 	if (!m_keepInterResults)
 	{
@@ -894,17 +895,23 @@ bool Sample_StatMeshTiled::handleBuild()
 				Tile& tile = m_tileSet->tiles[x + y*m_tileSet->width]; 
 				delete tile.cset;
 				tile.cset = 0;
+				delete tile.pmesh;
+				tile.pmesh = 0;
+				delete tile.dmesh;
+				tile.dmesh = 0;
 			}
 		}
 	}
 	
-	if (m_cfg.maxVertsPerPoly <= DT_STAT_VERTS_PER_POLYGON)
+	if (m_pmesh && m_cfg.maxVertsPerPoly <= DT_STAT_VERTS_PER_POLYGON)
 	{
 		unsigned char* navData = 0;
 		int navDataSize = 0;
-		if (!dtCreateNavMeshData(m_polyMesh->verts, m_polyMesh->nverts,
-								 m_polyMesh->polys, m_polyMesh->npolys, m_polyMesh->nvp,
-								 m_cfg.bmin, m_cfg.bmax, m_cfg.cs, m_cfg.ch, &navData, &navDataSize))
+		if (!dtCreateNavMeshData(m_pmesh->verts, m_pmesh->nverts,
+								 m_pmesh->polys, m_pmesh->npolys, m_pmesh->nvp,
+								 m_pmesh->bmin, m_pmesh->bmax, m_pmesh->cs, m_pmesh->ch,
+								 m_dmesh->meshes, m_dmesh->verts, m_dmesh->nverts, m_dmesh->tris, m_dmesh->ntris, 
+								 &navData, &navDataSize))
 		{
 			if (rcGetLog())
 				rcGetLog()->log(RC_LOG_ERROR, "Could not build Detour navmesh.");
@@ -958,11 +965,13 @@ bool Sample_StatMeshTiled::handleBuild()
 		rcGetLog()->log(RC_LOG_PROGRESS, "  - trace: %.1fms (%.1f%%)", m_buildTimes.buildContoursTrace/1000.0f, m_buildTimes.buildContoursTrace*pc);
 		rcGetLog()->log(RC_LOG_PROGRESS, "  - simplify: %.1fms (%.1f%%)", m_buildTimes.buildContoursSimplify/1000.0f, m_buildTimes.buildContoursSimplify*pc);
 		
-		rcGetLog()->log(RC_LOG_PROGRESS, "Fixup contours: %.1fms (%.1f%%)", m_buildTimes.fixupContours/1000.0f, m_buildTimes.fixupContours*pc);
-		
 		rcGetLog()->log(RC_LOG_PROGRESS, "Build Polymesh: %.1fms (%.1f%%)", m_buildTimes.buildPolymesh/1000.0f, m_buildTimes.buildPolymesh*pc);
+		rcGetLog()->log(RC_LOG_PROGRESS, "Build Polymesh Detail: %.1fms (%.1f%%)", m_buildTimes.buildDetailMesh/1000.0f, m_buildTimes.buildDetailMesh*pc);
+		rcGetLog()->log(RC_LOG_PROGRESS, "Merge Polymeshes: %.1fms (%.1f%%)", m_buildTimes.mergePolyMesh/1000.0f, m_buildTimes.mergePolyMesh*pc);
+		rcGetLog()->log(RC_LOG_PROGRESS, "Merge Polymesh Details: %.1fms (%.1f%%)", m_buildTimes.mergePolyMeshDetail/1000.0f, m_buildTimes.mergePolyMeshDetail*pc);
 		
-		rcGetLog()->log(RC_LOG_PROGRESS, "Polymesh: Verts:%d  Polys:%d", m_polyMesh->nverts, m_polyMesh->npolys);
+		if (m_pmesh)
+			rcGetLog()->log(RC_LOG_PROGRESS, "Polymesh: Verts:%d  Polys:%d", m_pmesh->nverts, m_pmesh->npolys);
 		
 		rcGetLog()->log(RC_LOG_PROGRESS, "TOTAL: %.1fms", rcGetDeltaTimeUsec(totStartTime, totEndTime)/1000.0f);
 	}

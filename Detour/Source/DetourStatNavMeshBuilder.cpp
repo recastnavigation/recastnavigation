@@ -209,6 +209,8 @@ static int createBVTree(const unsigned short* verts, const int nverts,
 bool dtCreateNavMeshData(const unsigned short* verts, const int nverts,
 						 const unsigned short* polys, const int npolys, const int nvp,
 						 const float* bmin, const float* bmax, float cs, float ch,
+						 const unsigned short* dmeshes, const float* dverts, const int ndverts,
+						 const unsigned char* dtris, const int ndtris, 
 						 unsigned char** outData, int* outDataSize)
 {
 	if (nvp > DT_STAT_VERTS_PER_POLYGON)
@@ -220,23 +222,52 @@ bool dtCreateNavMeshData(const unsigned short* verts, const int nverts,
 		return false;
 	if (!npolys)
 		return false;
+	if (!dmeshes || !dverts || ! dtris)
+		return false;
+	
+	// Find unique detail vertices.
+	int uniqueDetailVerts = 0;
+	if (dmeshes)
+	{
+		for (int i = 0; i < npolys; ++i)
+		{
+			const unsigned short* p = &polys[i*nvp*2];
+			int ndv = dmeshes[i*4+1];
+			int nv = 0;
+			for (int j = 0; j < nvp; ++j)
+			{
+				if (p[j] == 0xffff) break;
+				nv++;
+			}
+			ndv -= nv;
+			uniqueDetailVerts += ndv;
+		}
+	}
 	
 	// Calculate data size
 	const int headerSize = sizeof(dtStatNavMeshHeader);
 	const int vertsSize = sizeof(float)*3*nverts;
 	const int polysSize = sizeof(dtStatPoly)*npolys;
 	const int nodesSize = sizeof(dtStatBVNode)*npolys*2;
+	const int detailMeshesSize = sizeof(dtStatPolyDetail)*npolys;
+	const int detailVertsSize = sizeof(float)*3*uniqueDetailVerts;
+	const int detailTrisSize = sizeof(unsigned char)*4*ndtris;
 	
-	const int dataSize = headerSize + vertsSize + polysSize + nodesSize;
+	const int dataSize = headerSize + vertsSize + polysSize + nodesSize +
+						 detailMeshesSize + detailVertsSize + detailTrisSize;
 	unsigned char* data = new unsigned char[dataSize];
 	if (!data)
 		return false;
 	memset(data, 0, dataSize);
-	
-	dtStatNavMeshHeader* header = (dtStatNavMeshHeader*)(data);
-	float* navVerts = (float*)(data + headerSize);
-	dtStatPoly* navPolys = (dtStatPoly*)(data + headerSize + vertsSize);
-	dtStatBVNode* nodes = (dtStatBVNode*)(data + headerSize + vertsSize + polysSize);
+
+	unsigned char* d = data;
+	dtStatNavMeshHeader* header = (dtStatNavMeshHeader*)d; d += headerSize;
+	float* navVerts = (float*)d; d += vertsSize;
+	dtStatPoly* navPolys = (dtStatPoly*)d; d += polysSize;
+	dtStatBVNode* navNodes = (dtStatBVNode*)d; d += nodesSize;
+	dtStatPolyDetail* navDMeshes = (dtStatPolyDetail*)d; d += detailMeshesSize;
+	float* navDVerts = (float*)d; d += detailVertsSize;
+	unsigned char* navDTris = (unsigned char*)d; d += detailTrisSize;
 	
 	// Store header
 	header->magic = DT_STAT_NAVMESH_MAGIC;
@@ -250,6 +281,9 @@ bool dtCreateNavMeshData(const unsigned short* verts, const int nverts,
 	header->bmax[0] = bmax[0];
 	header->bmax[1] = bmax[1];
 	header->bmax[2] = bmax[2];
+	header->ndmeshes = dmeshes ? npolys : 0;
+	header->ndverts = dmeshes ? uniqueDetailVerts : 0;
+	header->ndtris = dmeshes ? ndtris : 0;
 	
 	// Store vertices
 	for (int i = 0; i < nverts; ++i)
@@ -278,7 +312,32 @@ bool dtCreateNavMeshData(const unsigned short* verts, const int nverts,
 	}
 	
 	header->nnodes = createBVTree(verts, nverts, polys, npolys, nvp,
-					 cs, ch, npolys*2, nodes);
+					 cs, ch, npolys*2, navNodes);
+	
+
+	// Store detail meshes and vertices.
+	// The nav polygon vertices are stored as the first vertices on each mesh.
+	// We compress the mesh data by skipping them and using the navmesh coordinates.
+	unsigned short vbase = 0;
+	for (int i = 0; i < npolys; ++i)
+	{
+		dtStatPolyDetail& dtl = navDMeshes[i];
+		const int vb = dmeshes[i*4+0];
+		const int ndv = dmeshes[i*4+1];
+		const int nv = navPolys[i].nv;
+		dtl.vbase = vbase;
+		dtl.nverts = ndv-nv;
+		dtl.tbase = dmeshes[i*4+2];
+		dtl.ntris = dmeshes[i*4+3];
+		// Copy vertices except the first 'nv' verts which are equal to nav poly verts.
+		if (ndv-nv)
+		{
+			memcpy(&navDVerts[vbase*3], &dverts[(vb+nv)*3], sizeof(float)*3*(ndv-nv));
+			vbase += ndv-nv;
+		}
+	}
+	// Store triangles.
+	memcpy(navDTris, dtris, sizeof(unsigned char)*4*ndtris);
 	
 	*outData = data;
 	*outDataSize = dataSize;

@@ -31,7 +31,7 @@ void rcDebugDrawMesh(const float* verts, int nverts,
 	glBegin(GL_TRIANGLES);
 	for (int i = 0; i < ntris*3; i += 3)
 	{
-		float a = (2+normals[i+0]+normals[i+1])/4;
+		float a = (2+normals[i+0]+normals[i+1])/4 * 0.5f;
 		if (flags && !flags[i/3])
 			glColor3f(a,a*0.3f,a*0.1f);
 		else
@@ -420,8 +420,12 @@ void rcDrawArc(const float* p0, const float* p1)
 	glEnd();
 }
 
-void rcDebugDrawRegionConnections(const rcContourSet& cset, const float* orig, float cs, float ch, const float alpha)
+void rcDebugDrawRegionConnections(const rcContourSet& cset, const float alpha)
 {
+	const float* orig = cset.bmin;
+	const float cs = cset.cs;
+	const float ch = cset.ch;
+	
 	// Draw centers
 	float pos[3], pos2[3];
 
@@ -469,8 +473,11 @@ void rcDebugDrawRegionConnections(const rcContourSet& cset, const float* orig, f
 	glPointSize(1.0f);
 }
 
-void rcDebugDrawRawContours(const rcContourSet& cset, const float* orig, float cs, float ch, const float alpha)
+void rcDebugDrawRawContours(const rcContourSet& cset, const float alpha)
 {
+	const float* orig = cset.bmin;
+	const float cs = cset.cs;
+	const float ch = cset.ch;
 	float col[4] = { 1,1,1,alpha };
 	glLineWidth(2.0f);
 	glPointSize(2.0f);
@@ -499,8 +506,20 @@ void rcDebugDrawRawContours(const rcContourSet& cset, const float* orig, float c
 		for (int j = 0; j < c.nrverts; ++j)
 		{
 			const int* v = &c.rverts[j*4];
+			
+			float off = 0;
+			if (v[3] & 0x10000)
+			{
+				glColor4ub(255,255,255,255);
+				off = ch*2;
+			}
+			else
+			{
+				glColor4fv(col);
+			}
+			
 			float fx = orig[0] + v[0]*cs;
-			float fy = orig[1] + (v[1]+1+(i&1))*ch;
+			float fy = orig[1] + (v[1]+1+(i&1))*ch + off;
 			float fz = orig[2] + v[2]*cs;
 			glVertex3f(fx,fy,fz);
 		}
@@ -510,8 +529,11 @@ void rcDebugDrawRawContours(const rcContourSet& cset, const float* orig, float c
 	glPointSize(1.0f);
 }
 
-void rcDebugDrawContours(const rcContourSet& cset, const float* orig, float cs, float ch)
+void rcDebugDrawContours(const rcContourSet& cset, const float alpha)
 {
+	const float* orig = cset.bmin;
+	const float cs = cset.cs;
+	const float ch = cset.ch;
 	float col[4] = { 1,1,1,1 };
 	glLineWidth(2.5f);
 	glPointSize(3.0f);
@@ -540,8 +562,19 @@ void rcDebugDrawContours(const rcContourSet& cset, const float* orig, float cs, 
 		for (int j = 0; j < c.nverts; ++j)
 		{
 			const int* v = &c.verts[j*4];
+			float off = 0;
+			if (v[3] & 0x10000)
+			{
+				glColor4ub(255,255,255,255);
+				off = ch*2;
+			}
+			else
+			{
+				glColor4fv(col);
+			}
+
 			float fx = orig[0] + v[0]*cs;
-			float fy = orig[1] + (v[1]+1+(i&1))*ch;
+			float fy = orig[1] + (v[1]+1+(i&1))*ch + off;
 			float fz = orig[2] + v[2]*cs;
 			glVertex3f(fx,fy,fz);
 		}
@@ -557,11 +590,13 @@ void rcDebugDrawPolyMesh(const struct rcPolyMesh& mesh)
 	const float cs = mesh.cs;
 	const float ch = mesh.ch;
 	const float* orig = mesh.bmin;
-	glColor4ub(0,196,255,64);
+	float col[4] = {1,1,1,0.5f};
 	glBegin(GL_TRIANGLES);
 	for (int i = 0; i < mesh.npolys; ++i)
 	{
 		const unsigned short* p = &mesh.polys[i*nvp*2];
+		intToCol(i, col);
+		glColor4fv(col);
 		unsigned short vi[3];
 		for (int j = 2; j < nvp; ++j)
 		{
@@ -652,5 +687,73 @@ void rcDebugDrawPolyMesh(const struct rcPolyMesh& mesh)
 		glVertex3f(x, y, z);
 	}
 	glEnd();
-	glPointSize(1.0f);	
+	glPointSize(1.0f);
+}
+
+void rcDebugDrawPolyMeshDetail(const struct rcPolyMeshDetail& dmesh)
+{
+	float col[4] = {1,1,1,0.75f};
+	
+	for (int i = 0; i < dmesh.nmeshes; ++i)
+	{
+		const unsigned short* m = &dmesh.meshes[i*4];
+		const unsigned short bverts = m[0];
+		const unsigned short nverts = m[1];
+		const unsigned short btris = m[2];
+		const unsigned short ntris = m[3];
+	 
+		intToCol(i, col);
+		
+		const float* verts = &dmesh.verts[bverts*3];
+		const unsigned char* tris = &dmesh.tris[btris*4];
+
+		glPointSize(3.0f);
+		glBegin(GL_POINTS);
+		for (int j = 0; j < nverts; ++j)
+		{
+			glColor4ub(0,0,0,64);
+			glVertex3fv(&verts[j*3]);
+		}
+		glEnd();
+		glPointSize(1.0f);
+		
+		glBegin(GL_TRIANGLES);
+		glColor4fv(col);
+		for (int j = 0; j < ntris; ++j)
+		{
+			glVertex3fv(&verts[tris[j*4+0]*3]);
+			glVertex3fv(&verts[tris[j*4+1]*3]);
+			glVertex3fv(&verts[tris[j*4+2]*3]);
+		}
+		glEnd();
+		
+		for (int j = 0; j < ntris; ++j)
+		{
+			glBegin(GL_LINES);
+			const unsigned char* t = &tris[j*4];
+			for (int k = 0, kp = 2; k < 3; kp=k++)
+			{
+				unsigned char ef = (t[3] >> (kp*2)) & 0x3;
+				if (ef == 0)
+				{
+					// Internal edge
+					if (t[kp] < t[k])
+					{
+						glColor4ub(255,255,255,32);
+						glVertex3fv(&verts[t[kp]*3]);
+						glVertex3fv(&verts[t[k]*3]);
+					}
+				}
+				else
+				{
+					// Ext edge
+					glColor4ub(0,0,0,128);
+					glVertex3fv(&verts[t[kp]*3]);
+					glVertex3fv(&verts[t[k]*3]);
+				}
+			}
+			glEnd();
+		}
+	}
+
 }

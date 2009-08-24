@@ -219,14 +219,14 @@ void Sample_StatMesh::toolRender(int flags)
 			}
 			if (m_nstraightPath)
 			{
-				glColor4ub(128,16,0,220);
+				glColor4ub(64,16,0,220);
 				glLineWidth(3.0f);
 				glBegin(GL_LINE_STRIP);
 				for (int i = 0; i < m_nstraightPath; ++i)
 					glVertex3f(m_straightPath[i*3], m_straightPath[i*3+1]+0.4f, m_straightPath[i*3+2]);
 				glEnd();
 				glLineWidth(1.0f);
-				glPointSize(4.0f);
+				glPointSize(6.0f);
 				glBegin(GL_POINTS);
 				for (int i = 0; i < m_nstraightPath; ++i)
 					glVertex3f(m_straightPath[i*3], m_straightPath[i*3+1]+0.4f, m_straightPath[i*3+2]);
@@ -243,7 +243,7 @@ void Sample_StatMesh::toolRender(int flags)
 				for (int i = 1; i < m_npolys; ++i)
 					dtDebugDrawStatNavMeshPoly(m_navMesh, m_polys[i], pathCol);
 				
-				glColor4ub(128,16,0,220);
+				glColor4ub(64,16,0,220);
 				glLineWidth(3.0f);
 				glBegin(GL_LINE_STRIP);
 				for (int i = 0; i < m_nstraightPath; ++i)

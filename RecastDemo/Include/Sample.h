@@ -23,6 +23,8 @@ protected:
 	float m_edgeMaxLen;
 	float m_edgeMaxError;
 	float m_vertsPerPoly;
+	float m_detailSampleDist;
+	float m_detailSampleMaxError;
 	
 public:
 	Sample();

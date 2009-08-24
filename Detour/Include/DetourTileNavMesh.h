@@ -37,7 +37,7 @@ static const int DT_MAX_TILES = 1 << DT_TILE_REF_TILE_BITS;
 static const int DT_MAX_POLYGONS = 1 << DT_TILE_REF_POLY_BITS;
 
 static const int DT_TILE_NAVMESH_MAGIC = 'NAVT';
-static const int DT_TILE_NAVMESH_VERSION = 1;
+static const int DT_TILE_NAVMESH_VERSION = 2;
 
 // Structure holding the navigation polygon data.
 struct dtTilePoly
@@ -48,6 +48,14 @@ struct dtTilePoly
 	unsigned char nlinks;							// Number of links for 
 	unsigned char nv;								// Number of vertices.
 	unsigned char flags;							// Flags (not used).
+};
+
+struct dtTilePolyDetail
+{
+	unsigned short vbase;	// Offset to detail vertex array.
+	unsigned short nverts;	// Number of vertices in the detail mesh.
+	unsigned short tbase;	// Offset to detail triangle array.
+	unsigned short ntris;	// Number of triangles.
 };
 
 // Stucture holding a link to another polygon.
@@ -68,10 +76,16 @@ struct dtTileHeader
 	int nverts;					// Number of vertices in the tile.
 	int nlinks;					// Number of links in the tile (will be updated when tile is added).
 	int maxlinks;				// Number of allocated links.
+	int ndmeshes;
+	int ndverts;
+	int ndtris;
 	float bmin[3], bmax[3];		// Bounding box of the tile.
 	dtTilePoly* polys;			// Pointer to the polygons (will be updated when tile is added).
 	float* verts;				// Pointer to the vertices (will be updated when tile added).
 	dtTileLink* links;			// Pointer to the links (will be updated when tile added).
+	dtTilePolyDetail* dmeshes;
+	float* dverts;
+	unsigned char* dtris;
 };
 
 struct dtTile
@@ -236,6 +250,14 @@ public:
 	// Returns: true if closest point found.
 	bool closestPointToPoly(dtTilePolyRef ref, const float* pos, float* closest) const;
 
+	// Returns height of the polygon at specified location.
+	// Params:
+	//	ref - (in) ref to the polygon.
+	//	pos - (in) the point where to locate the height.
+	//	height - (out) height at the location.
+	// Returns: true if over polygon.
+	bool getPolyHeight(dtTilePolyRef ref, const float* pos, float* height) const;
+	
 	// Returns pointer to a polygon based on ref.
 	const dtTilePoly* getPolyByRef(dtTilePolyRef ref) const;
 

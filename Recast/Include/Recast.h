@@ -19,22 +19,26 @@
 #ifndef RECAST_H
 #define RECAST_H
 
+// The units of the parameters are specified in parenthesis as follows:
+// (vx) voxels, (wu) world units
 struct rcConfig
 {
-	int width, height;				// Dimensions of the rasterized heighfield
-	int tileSize;					// Size if a tile.
-	int borderSize;					// Non-navigable Border around the heightfield.
-	float cs, ch;					// Grid cell size and height.
-	float bmin[3], bmax[3];			// Grid bounds.
+	int width, height;				// Dimensions of the rasterized heighfield (vx)
+	int tileSize;					// Width and Height of a tile (vx)
+	int borderSize;					// Non-navigable Border around the heightfield (vx)
+	float cs, ch;					// Grid cell size and height (wu)
+	float bmin[3], bmax[3];			// Grid bounds (wu)
 	float walkableSlopeAngle;		// Maximum walkble slope angle in degrees.
-	int walkableHeight;				// Minimum height where the agent can still walk.
-	int walkableClimb;				// Maximum height between grid cells the agent can climb. 
-	int walkableRadius;				// Radius of the agent in cells.
-	int maxEdgeLen;					// Maximum contour edge length in cells.
-	float maxSimplificationError;	// Maximum distance error from contour to cells.
-	int minRegionSize;				// Minimum regions size. Smaller regions will be deleted.
-	int mergeRegionSize;			// Minimum regions size. Smaller regions will be merged.
-	int maxVertsPerPoly;			// Max number of vertices per polygon.
+	int walkableHeight;				// Minimum height where the agent can still walk (vx)
+	int walkableClimb;				// Maximum height between grid cells the agent can climb (vx)
+	int walkableRadius;				// Radius of the agent in cells (vx)
+	int maxEdgeLen;					// Maximum contour edge length (vx)
+	float maxSimplificationError;	// Maximum distance error from contour to cells (vx)
+	int minRegionSize;				// Minimum regions size. Smaller regions will be deleted (vx)
+	int mergeRegionSize;			// Minimum regions size. Smaller regions will be merged (vx)
+	int maxVertsPerPoly;			// Max number of vertices per polygon
+	float detailSampleDist;			// Detail mesh sample spacing.
+	float detailSampleMaxError;		// Detail mesh simplification max sample error.
 };
 
 // Heightfield span.
@@ -126,8 +130,10 @@ struct rcContourSet
 {
 	inline rcContourSet() : conts(0), nconts(0) {}
 	inline ~rcContourSet() { delete [] conts; }
-	rcContour* conts;	// Pointer to all contours.
-	int nconts;			// Number of contours.
+	rcContour* conts;		// Pointer to all contours.
+	int nconts;				// Number of contours.
+	float bmin[3], bmax[3];	// Bounding box of the heightfield.
+	float cs, ch;			// Cell size and height.
 };
 
 // Polymesh store a connected mesh of polygons.
@@ -138,21 +144,51 @@ struct rcContourSet
 // are set os 0xffff. If an polygon edge does not have a neighbour
 // the neighbour index is set to 0xffff.
 // Vertices can be transformed into world space as follows:
-// x = bmin[0] + verts[i*3+0]*cs;
-// y = bmin[1] + verts[i*3+1]*ch;
-// z = bmin[2] + verts[i*3+2]*cs;
+//   x = bmin[0] + verts[i*3+0]*cs;
+//   y = bmin[1] + verts[i*3+1]*ch;
+//   z = bmin[2] + verts[i*3+2]*cs;
 struct rcPolyMesh
 {
-	inline rcPolyMesh() : verts(0), polys(0), nverts(0), npolys(0), nvp(3) {}
-	inline ~rcPolyMesh() { delete [] verts; delete [] polys; }
+	inline rcPolyMesh() : verts(0), polys(0), regs(0), nverts(0), npolys(0), nvp(3) {}
+	inline ~rcPolyMesh() { delete [] verts; delete [] polys; delete [] regs; }
 	unsigned short* verts;	// Vertices of the mesh, 3 elements per vertex.
 	unsigned short* polys;	// Polygons of the mesh, nvp*2 elements per polygon.
+	unsigned short* regs;	// Regions of the polygons.
 	int nverts;				// Number of vertices.
 	int npolys;				// Number of polygons.
 	int nvp;				// Max number of vertices per polygon.
 	float bmin[3], bmax[3];	// Bounding box of the mesh.
 	float cs, ch;			// Cell size and height.
 };
+
+// Detail mesh generated from a rcPolyMesh.
+// Each submesh represents a polygon in the polymesh and they are stored in
+// excatly same order. Each submesh is described as 4 values:
+// base vertex, vertex count, base triangle, triangle count. That is,
+//   const unsigned char* t = &dtl.tris[(tbase+i)*3]; and
+//   const float* v = &dtl.verts[(vbase+t[j])*3];
+// If the input polygon has 'n' vertices, those vertices are first in the
+// submesh vertex list. This allows to compres the mesh by not storing the
+// first vertices and using the polymesh vertices instead.
+
+struct rcPolyMeshDetail
+{
+	inline rcPolyMeshDetail() :
+		meshes(0), verts(0), tris(0),
+		nmeshes(0), nverts(0), ntris(0) {}
+	inline ~rcPolyMeshDetail()
+	{
+		delete [] meshes; delete [] verts; delete [] tris;
+	}
+	
+	unsigned short* meshes;	// Pointer to all mesh data.
+	float* verts;			// Pointer to all vertex data.
+	unsigned char* tris;	// Pointer to all triangle data.
+	int nmeshes;			// Number of meshes.
+	int nverts;				// Number of total vertices.
+	int ntris;				// Number of triangles.
+};
+
 
 // Simple dynamic array ints.
 class rcIntArray
@@ -425,39 +461,32 @@ bool rcBuildRegions(rcCompactHeightfield& chf,
 //	cset - (out) Resulting contour set.
 // Returns false if operation ran out of memory.
 bool rcBuildContours(rcCompactHeightfield& chf,
-					 float maxError, int maxEdgeLen,
+					 const float maxError, const int maxEdgeLen,
 					 rcContourSet& cset);
-
-// Ensures that connected contour sets A and B share the same vertices at the shared edges.
-// Params:
-//  cseta - (in) contour set A.
-//  csetb - (in) contour set B.
-//	walkableHeight - (in) minimum height where the agent can still walk
-//  edgex, edgez - (in) defines the planes where the edges can be merged
-//	orig - (in) origin of the contour set A.
-//	cs - (in) grid cell size
-//	ch - (in) grid cell height
-bool rcFixupAdjacentContours(rcContourSet* cseta, rcContourSet* csetb,
-							 const int walkableClimb, const int edgex, const int edgez);
-
-// Translates the cordinates of the contour set.
-// Params:
-//  cset - (in) contour set to translate.
-//  dx - (in) delta X.
-//  dy - (in) delta Y.
-//  dz - (in) delta Z.
-void rcTranslateContours(rcContourSet* cset, int dx, int dy, int dz);
 
 // Builds connected convex polygon mesh from contour polygons.
 // Params:
 //	cset - (in) contour set.
+//	nvp - (in) maximum number of vertices per polygon.
 //	mesh - (out) poly mesh.
-//	nvp - (int) maximum number of vertices per polygon.
 // Returns false if operation ran out of memory.
-bool rcBuildPolyMesh(rcContourSet& cset,
-					 const float* bmin, const float* bmax,
-					 const float cs, const float ch, int nvp,
-					 rcPolyMesh& mesh);
+bool rcBuildPolyMesh(rcContourSet& cset, int nvp, rcPolyMesh& mesh);
+
+bool rcMergePolyMeshes(rcPolyMesh** meshes, const int nmeshes, rcPolyMesh& mesh);
+
+// Builds detail triangle mesh for each polygon in the poly mesh.
+// Params:
+//	mesh - (in) poly mesh to detail.
+//	chf - (in) compacy height field, used to query height for new vertices.
+//  sampleDist - (in) spacing between height samples used to generate more detail into mesh.
+//  sampleMaxError - (in) maximum allowed distance between simplified detail mesh and height sample.
+//	pmdtl - (out) detail mesh.
+// Returns false if operation ran out of memory.
+bool rcBuildPolyMeshDetail(const rcPolyMesh& mesh, const rcCompactHeightfield& chf,
+						   const float sampleDist, const float sampleMaxError,
+						   rcPolyMeshDetail& dmesh);
+
+bool rcMergePolyMeshDetails(rcPolyMeshDetail** meshes, const int nmeshes, rcPolyMeshDetail& mesh);
 
 
 #endif // RECAST_H

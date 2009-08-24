@@ -32,6 +32,7 @@
 		6B2AEC560FFB89E7005BE9CC /* Sample_StatMeshTiled.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B2AEC550FFB89E7005BE9CC /* Sample_StatMeshTiled.cpp */; };
 		6B2AEC5A0FFB8A7A005BE9CC /* DetourTileNavMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTileNavMesh.cpp */; };
 		6B555DB1100B212E00247EA3 /* imguiRenderGL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */; };
+		6B62416A103434880002E346 /* RecastMeshDetail.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B624169103434880002E346 /* RecastMeshDetail.cpp */; };
 		6B8632DA0F78122C00E2684A /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6B8632D90F78122C00E2684A /* SDL.framework */; };
 		6B8632DC0F78123E00E2684A /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6B8632DB0F78123E00E2684A /* OpenGL.framework */; };
 		6BB788170FC0472B003C24DB /* ChunkyTriMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BB788160FC0472B003C24DB /* ChunkyTriMesh.cpp */; };
@@ -92,6 +93,7 @@
 		6B555DAE100B211D00247EA3 /* imguiRenderGL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = imguiRenderGL.h; path = ../../Include/imguiRenderGL.h; sourceTree = SOURCE_ROOT; };
 		6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = imguiRenderGL.cpp; path = ../../Source/imguiRenderGL.cpp; sourceTree = SOURCE_ROOT; };
 		6B555DF6100B273500247EA3 /* stb_truetype.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stb_truetype.h; path = ../../Contrib/stb_truetype.h; sourceTree = SOURCE_ROOT; };
+		6B624169103434880002E346 /* RecastMeshDetail.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RecastMeshDetail.cpp; path = ../../../Recast/Source/RecastMeshDetail.cpp; sourceTree = SOURCE_ROOT; };
 		6B8632D90F78122C00E2684A /* SDL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL.framework; path = Library/Frameworks/SDL.framework; sourceTree = SDKROOT; };
 		6B8632DB0F78123E00E2684A /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		6BB788160FC0472B003C24DB /* ChunkyTriMesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ChunkyTriMesh.cpp; path = ../../Source/ChunkyTriMesh.cpp; sourceTree = SOURCE_ROOT; };
@@ -226,6 +228,7 @@
 				6B137C7F0F7FCBFE00459200 /* RecastDebugDraw.h */,
 				6B137C800F7FCBFE00459200 /* RecastLog.h */,
 				6B137C810F7FCBFE00459200 /* RecastTimer.h */,
+				6B624169103434880002E346 /* RecastMeshDetail.cpp */,
 			);
 			name = Recast;
 			sourceTree = "<group>";
@@ -351,6 +354,7 @@
 				6B1185F51006895B0018F96F /* DetourNode.cpp in Sources */,
 				6B1185FE10068B150018F96F /* DetourCommon.cpp in Sources */,
 				6B555DB1100B212E00247EA3 /* imguiRenderGL.cpp in Sources */,
+				6B62416A103434880002E346 /* RecastMeshDetail.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

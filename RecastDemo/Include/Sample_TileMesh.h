@@ -38,7 +38,8 @@ protected:
 	rcHeightfield* m_solid;
 	rcCompactHeightfield* m_chf;
 	rcContourSet* m_cset;
-	rcPolyMesh* m_polyMesh;
+	rcPolyMesh* m_pmesh;
+	rcPolyMeshDetail* m_dmesh;
 	rcConfig m_cfg;	
 	
 	float m_tileSize;

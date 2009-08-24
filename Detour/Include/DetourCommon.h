@@ -153,6 +153,8 @@ inline bool checkOverlapBox(const unsigned short amin[3], const unsigned short a
 void closestPtPointTriangle(float* closest, const float* p,
 							const float* a, const float* b, const float* c);
 
+bool closestHeightPointTriangle(const float* p, const float* a, const float* b, const float* c, float& h);
+
 bool intersectSegmentPoly2D(const float* p0, const float* p1,
 							const float* verts, int nverts,
 							float& tmin, float& tmax,

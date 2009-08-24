@@ -25,7 +25,8 @@ Sample_StatMeshSimple::Sample_StatMeshSimple() :
 	m_solid(0),
 	m_chf(0),
 	m_cset(0),
-	m_polyMesh(0),
+	m_pmesh(0),
+	m_dmesh(0),
 	m_drawMode(DRAWMODE_NAVMESH)
 {
 }
@@ -45,8 +46,10 @@ void Sample_StatMeshSimple::cleanup()
 	m_chf = 0;
 	delete m_cset;
 	m_cset = 0;
-	delete m_polyMesh;
-	m_polyMesh = 0;
+	delete m_pmesh;
+	m_pmesh = 0;
+	delete m_dmesh;
+	m_dmesh = 0;
 	toolCleanup();
 }
 			
@@ -83,7 +86,8 @@ void Sample_StatMeshSimple::handleDebugMode()
 		valid[DRAWMODE_RAW_CONTOURS] = m_cset != 0;
 		valid[DRAWMODE_BOTH_CONTOURS] = m_cset != 0;
 		valid[DRAWMODE_CONTOURS] = m_cset != 0;
-		valid[DRAWMODE_POLYMESH] = m_polyMesh != 0;
+		valid[DRAWMODE_POLYMESH] = m_pmesh != 0;
+		valid[DRAWMODE_POLYMESH_DETAIL] = m_dmesh != 0;
 	}
 	
 	int unavail = 0;
@@ -124,6 +128,8 @@ void Sample_StatMeshSimple::handleDebugMode()
 		m_drawMode = DRAWMODE_CONTOURS;
 	if (imguiCheck("Poly Mesh", m_drawMode == DRAWMODE_POLYMESH, valid[DRAWMODE_POLYMESH]))
 		m_drawMode = DRAWMODE_POLYMESH;
+	if (imguiCheck("Poly Mesh Detail", m_drawMode == DRAWMODE_POLYMESH_DETAIL, valid[DRAWMODE_POLYMESH_DETAIL]))
+		m_drawMode = DRAWMODE_POLYMESH_DETAIL;
 		
 	if (unavail)
 	{
@@ -198,20 +204,20 @@ void Sample_StatMeshSimple::handleRender()
 	if (m_cset && m_drawMode == DRAWMODE_RAW_CONTOURS)
 	{
 		glDepthMask(GL_FALSE);
-		rcDebugDrawRawContours(*m_cset, m_cfg.bmin, m_cfg.cs, m_cfg.ch);
+		rcDebugDrawRawContours(*m_cset);
 		glDepthMask(GL_TRUE);
 	}
 	if (m_cset && m_drawMode == DRAWMODE_BOTH_CONTOURS)
 	{
 		glDepthMask(GL_FALSE);
-		rcDebugDrawRawContours(*m_cset, m_cfg.bmin, m_cfg.cs, m_cfg.ch, 0.5f);
-		rcDebugDrawContours(*m_cset, m_cfg.bmin, m_cfg.cs, m_cfg.ch);
+		rcDebugDrawRawContours(*m_cset, 0.5f);
+		rcDebugDrawContours(*m_cset);
 		glDepthMask(GL_TRUE);
 	}
 	if (m_cset && m_drawMode == DRAWMODE_CONTOURS)
 	{
 		glDepthMask(GL_FALSE);
-		rcDebugDrawContours(*m_cset, m_cfg.bmin, m_cfg.cs, m_cfg.ch);
+		rcDebugDrawContours(*m_cset);
 		glDepthMask(GL_TRUE);
 	}
 	if (m_chf && m_cset && m_drawMode == DRAWMODE_REGION_CONNECTIONS)
@@ -219,16 +225,22 @@ void Sample_StatMeshSimple::handleRender()
 		rcDebugDrawCompactHeightfieldRegions(*m_chf);
 			
 		glDepthMask(GL_FALSE);
-		rcDebugDrawRegionConnections(*m_cset, m_cfg.bmin, m_cfg.cs, m_cfg.ch);
+		rcDebugDrawRegionConnections(*m_cset);
 		glDepthMask(GL_TRUE);
 	}
-	if (m_polyMesh && m_drawMode == DRAWMODE_POLYMESH)
+	if (m_pmesh && m_drawMode == DRAWMODE_POLYMESH)
 	{
 		glDepthMask(GL_FALSE);
-		rcDebugDrawPolyMesh(*m_polyMesh);
+		rcDebugDrawPolyMesh(*m_pmesh);
 		glDepthMask(GL_TRUE);
 	}
-
+	if (m_dmesh && m_drawMode == DRAWMODE_POLYMESH_DETAIL)
+	{
+		glDepthMask(GL_FALSE);
+		rcDebugDrawPolyMeshDetail(*m_dmesh);
+		glDepthMask(GL_TRUE);
+	}
+	
 	static const float startCol[4] = { 0.5f, 0.1f, 0.0f, 0.75f };
 	static const float endCol[4] = { 0.2f, 0.4f, 0.0f, 0.75f };
 	if (m_sposSet)
@@ -236,6 +248,7 @@ void Sample_StatMeshSimple::handleRender()
 	if (m_eposSet)
 		drawAgent(m_epos, m_agentRadius, m_agentHeight, m_agentMaxClimb, endCol);
 
+	glDepthMask(GL_TRUE);
 }
 
 void Sample_StatMeshSimple::handleRenderOverlay(double* proj, double* model, int* view)
@@ -281,6 +294,8 @@ bool Sample_StatMeshSimple::handleBuild()
 	m_cfg.minRegionSize = (int)rcSqr(m_regionMinSize);
 	m_cfg.mergeRegionSize = (int)rcSqr(m_regionMergeSize);
 	m_cfg.maxVertsPerPoly = (int)m_vertsPerPoly;
+	m_cfg.detailSampleDist = m_detailSampleDist < 0.9f ? 0 : m_cellSize * m_detailSampleDist;
+	m_cfg.detailSampleMaxError = m_cellHeight * m_detailSampleMaxError;
 	
 	// Set the area where the navigation will be build.
 	// Here the bounds of the input mesh are used, but the
@@ -417,42 +432,56 @@ bool Sample_StatMeshSimple::handleBuild()
 		return false;
 	}
 	
-	if (!m_keepInterResults)
-	{
-		delete m_chf;
-		m_chf = 0;
-	}
-	
 	//
 	// Step 6. Build polygons mesh from contours.
 	//
 	
 	// Build polygon navmesh from the contours.
-	m_polyMesh = new rcPolyMesh;
-	if (!m_polyMesh)
+	m_pmesh = new rcPolyMesh;
+	if (!m_pmesh)
 	{
 		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'polyMesh'.");
+			rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'pmesh'.");
 		return false;
 	}
-	if (!rcBuildPolyMesh(*m_cset, m_cfg.bmin, m_cfg.bmax, m_cfg.cs, m_cfg.ch, m_cfg.maxVertsPerPoly, *m_polyMesh))
+	if (!rcBuildPolyMesh(*m_cset, m_cfg.maxVertsPerPoly, *m_pmesh))
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Could not triangulate contours.");
 		return false;
 	}
 	
+	//
+	// Step 7. Create detail mesh which allows to access approximate height on each polygon.
+	//
+	
+	m_dmesh = new rcPolyMeshDetail;
+	if (!m_dmesh)
+	{
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'pmdtl'.");
+		return false;
+	}
+
+	if (!rcBuildPolyMeshDetail(*m_pmesh, *m_chf, m_cfg.detailSampleDist, m_cfg.detailSampleMaxError, *m_dmesh))
+	{
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Could not build detail mesh.");
+	}
+
 	if (!m_keepInterResults)
 	{
+		delete m_chf;
+		m_chf = 0;
 		delete m_cset;
 		m_cset = 0;
 	}
 
-	// At this point the navigation mesh data is ready, you can access it from m_polyMesh.
+	// At this point the navigation mesh data is ready, you can access it from m_pmesh.
 	// See rcDebugDrawPolyMesh or dtCreateNavMeshData as examples how to access the data.
 	
 	//
-	// (Optional) Step 7. Create Detour data from detour poly mesh.
+	// (Optional) Step 8. Create Detour data from Recast poly mesh.
 	//
 	
 	// The GUI may allow more max points per polygon than Detour can handle.
@@ -461,9 +490,11 @@ bool Sample_StatMeshSimple::handleBuild()
 	{
 		unsigned char* navData = 0;
 		int navDataSize = 0;
-		if (!dtCreateNavMeshData(m_polyMesh->verts, m_polyMesh->nverts,
-								 m_polyMesh->polys, m_polyMesh->npolys, m_polyMesh->nvp,
-								 m_cfg.bmin, m_cfg.bmax, m_cfg.cs, m_cfg.ch, &navData, &navDataSize))
+		if (!dtCreateNavMeshData(m_pmesh->verts, m_pmesh->nverts,
+								 m_pmesh->polys, m_pmesh->npolys, m_pmesh->nvp,
+								 m_cfg.bmin, m_cfg.bmax, m_cfg.cs, m_cfg.ch,
+								 m_dmesh->meshes, m_dmesh->verts, m_dmesh->nverts, m_dmesh->tris, m_dmesh->ntris, 
+								 &navData, &navDataSize))
 		{
 			if (rcGetLog())
 				rcGetLog()->log(RC_LOG_ERROR, "Could not build Detour navmesh.");
@@ -517,11 +548,10 @@ bool Sample_StatMeshSimple::handleBuild()
 		rcGetLog()->log(RC_LOG_PROGRESS, "  - trace: %.1fms (%.1f%%)", m_buildTimes.buildContoursTrace/1000.0f, m_buildTimes.buildContoursTrace*pc);
 		rcGetLog()->log(RC_LOG_PROGRESS, "  - simplify: %.1fms (%.1f%%)", m_buildTimes.buildContoursSimplify/1000.0f, m_buildTimes.buildContoursSimplify*pc);
 		
-		rcGetLog()->log(RC_LOG_PROGRESS, "Fixup contours: %.1fms (%.1f%%)", m_buildTimes.fixupContours/1000.0f, m_buildTimes.fixupContours*pc);
-		
 		rcGetLog()->log(RC_LOG_PROGRESS, "Build Polymesh: %.1fms (%.1f%%)", m_buildTimes.buildPolymesh/1000.0f, m_buildTimes.buildPolymesh*pc);
+		rcGetLog()->log(RC_LOG_PROGRESS, "Build Polymesh Detail: %.1fms (%.1f%%)", m_buildTimes.buildDetailMesh/1000.0f, m_buildTimes.buildDetailMesh*pc);
 		
-		rcGetLog()->log(RC_LOG_PROGRESS, "Polymesh: Verts:%d  Polys:%d", m_polyMesh->nverts, m_polyMesh->npolys);
+		rcGetLog()->log(RC_LOG_PROGRESS, "Polymesh: Verts:%d  Polys:%d", m_pmesh->nverts, m_pmesh->npolys);
 		
 		rcGetLog()->log(RC_LOG_PROGRESS, "TOTAL: %.1fms", rcGetDeltaTimeUsec(totStartTime, totEndTime)/1000.0f);
 	}

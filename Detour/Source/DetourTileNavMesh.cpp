@@ -363,9 +363,18 @@ bool dtTiledNavMesh::addTileAt(int x, int y, unsigned char* data, int dataSize, 
 	const int headerSize = sizeof(dtTileHeader);
 	const int vertsSize = sizeof(float)*3*header->nverts;
 	const int polysSize = sizeof(dtTilePoly)*header->npolys;
-	header->verts = (float*)(data + headerSize);
-	header->polys = (dtTilePoly*)(data + headerSize + vertsSize);
-	header->links = (dtTileLink*)(data + headerSize + vertsSize + polysSize);
+	const int linksSize = sizeof(dtTileLink)*(header->maxlinks);
+	const int detailMeshesSize = sizeof(dtTilePolyDetail)*header->ndmeshes;
+	const int detailVertsSize = sizeof(float)*3*header->ndverts;
+	const int detailTrisSize = sizeof(unsigned char)*4*header->ndtris;
+	
+	unsigned char* d = data + headerSize;
+	header->verts = (float*)d; d += vertsSize;
+	header->polys = (dtTilePoly*)d; d += polysSize;
+	header->links = (dtTileLink*)d; d += linksSize;
+	header->dmeshes = (dtTilePolyDetail*)d; d += detailMeshesSize;
+	header->dverts = (float*)d; d += detailVertsSize;
+	header->dtris = (unsigned char*)d; d += detailTrisSize;
 
 	// Init tile.
 	tile->header = header;
@@ -492,21 +501,27 @@ bool dtTiledNavMesh::closestPointToPoly(dtTilePolyRef ref, const float* pos, flo
 	dtDecodeTileId(ref, salt, it, ip);
 	if (it >= DT_MAX_TILES) return false;
 	if (m_tiles[it].salt != salt || m_tiles[it].header == 0) return false;
-	const dtTileHeader* h = m_tiles[it].header;
+	const dtTileHeader* header = m_tiles[it].header;
 
-	if (ip >= (unsigned int)h->npolys) return false;
-	const dtTilePoly* poly = &h->polys[ip];
+	if (ip >= (unsigned int)header->npolys) return false;
+	const dtTilePoly* poly = &header->polys[ip];
 	
 	float closestDistSqr = FLT_MAX;
+	const dtTilePolyDetail* pd = &header->dmeshes[ip];
 	
-	for (int i = 2; i < (int)poly->nv; ++i)
+	for (int j = 0; j < pd->ntris; ++j)
 	{
-		const float* v0 = &h->verts[poly->v[0]*3];
-		const float* v1 = &h->verts[poly->v[i-1]*3];
-		const float* v2 = &h->verts[poly->v[i]*3];
-		
+		const unsigned char* t = &header->dtris[(pd->tbase+j)*4];
+		const float* v[3];
+		for (int k = 0; k < 3; ++k)
+		{
+			if (t[k] < poly->nv)
+				v[k] = &header->verts[poly->v[t[k]]*3];
+			else
+				v[k] = &header->dverts[(pd->vbase+(t[k]-poly->nv))*3];
+		}
 		float pt[3];
-		closestPtPointTriangle(pt, pos, v0, v1, v2);
+		closestPtPointTriangle(pt, pos, v[0], v[1], v[2]);
 		float d = vdistSqr(pos, pt);
 		if (d < closestDistSqr)
 		{
@@ -517,6 +532,42 @@ bool dtTiledNavMesh::closestPointToPoly(dtTilePolyRef ref, const float* pos, flo
 	
 	return true;
 }
+
+bool dtTiledNavMesh::getPolyHeight(dtTilePolyRef ref, const float* pos, float* height) const
+{
+	unsigned int salt, it, ip;
+	dtDecodeTileId(ref, salt, it, ip);
+	if (it >= DT_MAX_TILES) return false;
+	if (m_tiles[it].salt != salt || m_tiles[it].header == 0) return false;
+	const dtTileHeader* header = m_tiles[it].header;
+	
+	if (ip >= (unsigned int)header->npolys) return false;
+	const dtTilePoly* poly = &header->polys[ip];
+	
+	const dtTilePolyDetail* pd = &header->dmeshes[ip];
+	for (int j = 0; j < pd->ntris; ++j)
+	{
+		const unsigned char* t = &header->dtris[(pd->tbase+j)*4];
+		const float* v[3];
+		for (int k = 0; k < 3; ++k)
+		{
+			if (t[k] < poly->nv)
+				v[k] = &header->verts[poly->v[t[k]]*3];
+			else
+				v[k] = &header->dverts[(pd->vbase+(t[k]-poly->nv))*3];
+		}
+		float h;
+		if (closestHeightPointTriangle(pos, v[0], v[1], v[2], h))
+		{
+			if (height)
+				*height = h;
+			return true;
+		}
+	}
+	
+	return false;
+}
+
 
 dtTilePolyRef dtTiledNavMesh::findNearestPoly(const float* center, const float* extents)
 {
@@ -666,12 +717,12 @@ int dtTiledNavMesh::findPath(dtTilePolyRef startRef, dtTilePolyRef endRef,
 		unsigned int salt, it, ip;
 		dtDecodeTileId(bestNode->id, salt, it, ip);
 		// The API input has been cheked already, skip checking internal data.
-		const dtTileHeader* h = m_tiles[it].header;
-		const dtTilePoly* poly = &h->polys[ip];
+		const dtTileHeader* header = m_tiles[it].header;
+		const dtTilePoly* poly = &header->polys[ip];
 		
 		for (int i = 0; i < poly->nlinks; ++i)
 		{
-			dtTilePolyRef neighbour = h->links[poly->links+i].ref;
+			dtTilePolyRef neighbour = header->links[poly->links+i].ref;
 			if (neighbour)
 			{
 				// Skip parent node.
@@ -992,14 +1043,14 @@ int dtTiledNavMesh::raycast(dtTilePolyRef centerRef, const float* startPos, cons
 		// The API input has been cheked already, skip checking internal data.
 		unsigned int salt, it, ip;
 		dtDecodeTileId(curRef, salt, it, ip);
-		const dtTileHeader* h = m_tiles[it].header;
-		const dtTilePoly* poly = &h->polys[ip];
+		const dtTileHeader* header = m_tiles[it].header;
+		const dtTilePoly* poly = &header->polys[ip];
 
 		// Collect vertices.
 		int nv = 0;
 		for (int i = 0; i < (int)poly->nv; ++i)
 		{
-			vcopy(&verts[nv*3], &h->verts[poly->v[i]*3]);
+			vcopy(&verts[nv*3], &header->verts[poly->v[i]*3]);
 			nv++;
 		}		
 		if (nv < 3)
@@ -1026,7 +1077,7 @@ int dtTiledNavMesh::raycast(dtTilePolyRef centerRef, const float* startPos, cons
 		dtTilePolyRef nextRef = 0;
 		for (int i = 0; i < poly->nlinks; ++i)
 		{
-			const dtTileLink* link = &h->links[poly->links+i];
+			const dtTileLink* link = &header->links[poly->links+i];
 			if ((int)link->e == segMax)
 			{
 				// If the link is internal, just return the ref.
@@ -1039,8 +1090,8 @@ int dtTiledNavMesh::raycast(dtTilePolyRef centerRef, const float* startPos, cons
 				// If the link is at tile boundary,
 				const int v0 = poly->v[link->e];
 				const int v1 = poly->v[(link->e+1) % poly->nv];
-				const float* left = &h->verts[v0*3];
-				const float* right = &h->verts[v1*3];
+				const float* left = &header->verts[v0*3];
+				const float* right = &header->verts[v1*3];
 				
 				// Check that the intersection lies inside the link portal.
 				if (link->side == 0 || link->side == 2)
@@ -1132,12 +1183,12 @@ int dtTiledNavMesh::findPolysAround(dtTilePolyRef centerRef, const float* center
 		unsigned int salt, it, ip;
 		dtDecodeTileId(bestNode->id, salt, it, ip);
 		// The API input has been cheked already, skip checking internal data.
-		const dtTileHeader* h = m_tiles[it].header;
-		const dtTilePoly* poly = &h->polys[ip];
+		const dtTileHeader* header = m_tiles[it].header;
+		const dtTilePoly* poly = &header->polys[ip];
 		
 		for (int i = 0; i < poly->nlinks; ++i)
 		{
-			const dtTileLink* link = &h->links[poly->links+i];
+			const dtTileLink* link = &header->links[poly->links+i];
 			dtTilePolyRef neighbour = link->ref;
 			if (neighbour)
 			{
@@ -1146,8 +1197,8 @@ int dtTiledNavMesh::findPolysAround(dtTilePolyRef centerRef, const float* center
 					continue;
 				
 				// Calc distance to the edge.
-				const float* va = &h->verts[poly->v[link->e]*3];
-				const float* vb = &h->verts[poly->v[(link->e+1)%poly->nv]*3];
+				const float* va = &header->verts[poly->v[link->e]*3];
+				const float* vb = &header->verts[poly->v[(link->e+1)%poly->nv]*3];
 				float tseg;
 				float distSqr = distancePtSegSqr2D(centerPos, va, vb, tseg);
 				
@@ -1235,8 +1286,8 @@ float dtTiledNavMesh::findDistanceToWall(dtTilePolyRef centerRef, const float* c
 		unsigned int salt, it, ip;
 		dtDecodeTileId(bestNode->id, salt, it, ip);
 		// The API input has been cheked already, skip checking internal data.
-		const dtTileHeader* h = m_tiles[it].header;
-		const dtTilePoly* poly = &h->polys[ip];
+		const dtTileHeader* header = m_tiles[it].header;
+		const dtTilePoly* poly = &header->polys[ip];
 		
 		// Hit test walls.
 		for (int i = 0, j = (int)poly->nv-1; i < (int)poly->nv; j = i++)
@@ -1248,7 +1299,7 @@ float dtTiledNavMesh::findDistanceToWall(dtTilePolyRef centerRef, const float* c
 				bool solid = true;
 				for (int i = 0; i < poly->nlinks; ++i)
 				{
-					const dtTileLink* link = &h->links[poly->links+i];
+					const dtTileLink* link = &header->links[poly->links+i];
 					if (link->e == j && link->ref != 0)
 					{
 						solid = false;
@@ -1264,8 +1315,8 @@ float dtTiledNavMesh::findDistanceToWall(dtTilePolyRef centerRef, const float* c
 			}
 			
 			// Calc distance to the edge.
-			const float* vj = &h->verts[poly->v[j]*3];
-			const float* vi = &h->verts[poly->v[i]*3];
+			const float* vj = &header->verts[poly->v[j]*3];
+			const float* vi = &header->verts[poly->v[i]*3];
 			float tseg;
 			float distSqr = distancePtSegSqr2D(centerPos, vj, vi, tseg);
 			
@@ -1283,7 +1334,7 @@ float dtTiledNavMesh::findDistanceToWall(dtTilePolyRef centerRef, const float* c
 		
 		for (int i = 0; i < poly->nlinks; ++i)
 		{
-			const dtTileLink* link = &h->links[poly->links+i];
+			const dtTileLink* link = &header->links[poly->links+i];
 			dtTilePolyRef neighbour = link->ref;
 			if (neighbour)
 			{
@@ -1292,8 +1343,8 @@ float dtTiledNavMesh::findDistanceToWall(dtTilePolyRef centerRef, const float* c
 					continue;
 				
 				// Calc distance to the edge.
-				const float* va = &h->verts[poly->v[link->e]*3];
-				const float* vb = &h->verts[poly->v[(link->e+1)%poly->nv]*3];
+				const float* va = &header->verts[poly->v[link->e]*3];
+				const float* vb = &header->verts[poly->v[(link->e+1)%poly->nv]*3];
 				float tseg;
 				float distSqr = distancePtSegSqr2D(centerPos, va, vb, tseg);
 				

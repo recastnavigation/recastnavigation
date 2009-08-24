@@ -203,3 +203,42 @@ void calcPolyCenter(float* tc, const unsigned short* idx, int nidx, const float*
 	tc[1] *= s;
 	tc[2] *= s;
 }
+
+inline float vdot2(const float* a, const float* b)
+{
+	return a[0]*b[0] + a[2]*b[2];
+}
+
+#include <stdio.h>
+
+bool closestHeightPointTriangle(const float* p, const float* a, const float* b, const float* c, float& h)
+{
+	float v0[3], v1[3], v2[3];
+	vsub(v0, c,a);
+	vsub(v1, b,a);
+	vsub(v2, p,a);
+	
+	const float dot00 = vdot2(v0, v0);
+	const float dot01 = vdot2(v0, v1);
+	const float dot02 = vdot2(v0, v2);
+	const float dot11 = vdot2(v1, v1);
+	const float dot12 = vdot2(v1, v2);
+	
+	// Compute barycentric coordinates
+	float invDenom = 1.0f / (dot00 * dot11 - dot01 * dot01);
+	float u = (dot11 * dot02 - dot01 * dot12) * invDenom;
+	float v = (dot00 * dot12 - dot01 * dot02) * invDenom;
+
+	// The (sloppy) epsilon is needed to allow to get height of points which
+	// are interpolated along the edges of the triangles.
+	static const float EPS = 1e-4f;
+	
+	// If point lies inside the triangle, return interpolated ycoord.
+	if (u >= -EPS && v >= -EPS && (u+v) <= 1+EPS)
+	{
+		h = a[1] + v0[1]*u + v1[1]*v;
+		return true;
+	}
+	
+	return false;
+}

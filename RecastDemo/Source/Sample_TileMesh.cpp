@@ -45,7 +45,8 @@ Sample_TileMesh::Sample_TileMesh() :
 	m_solid(0),
 	m_chf(0),
 	m_cset(0),
-	m_polyMesh(0),
+	m_pmesh(0),
+	m_dmesh(0),
 	m_tileSize(32),
 	m_sposSet(false),
 	m_eposSet(false),
@@ -84,8 +85,10 @@ void Sample_TileMesh::cleanup()
 	m_chf = 0;
 	delete m_cset;
 	m_cset = 0;
-	delete m_polyMesh;
-	m_polyMesh = 0;
+	delete m_pmesh;
+	m_pmesh = 0;
+	delete m_dmesh;
+	m_dmesh = 0;
 }
 
 void Sample_TileMesh::handleSettings()
@@ -299,28 +302,32 @@ void Sample_TileMesh::handleRender()
 	if (m_sposSet)
 	{
 		const float s = 0.5f;
-		glColor4ub(128,0,0,255);
+		glColor4ub(64,16,0,255);
+		glLineWidth(3.0f);
 		glBegin(GL_LINES);
-		glVertex3f(m_spos[0]-s,m_spos[1],m_spos[2]);
-		glVertex3f(m_spos[0]+s,m_spos[1],m_spos[2]);
-		glVertex3f(m_spos[0],m_spos[1]-s,m_spos[2]);
-		glVertex3f(m_spos[0],m_spos[1]+s,m_spos[2]);
-		glVertex3f(m_spos[0],m_spos[1],m_spos[2]-s);
-		glVertex3f(m_spos[0],m_spos[1],m_spos[2]+s);
+		glVertex3f(m_spos[0]-s,m_spos[1]+m_cellHeight,m_spos[2]);
+		glVertex3f(m_spos[0]+s,m_spos[1]+m_cellHeight,m_spos[2]);
+		glVertex3f(m_spos[0],m_spos[1]-s+m_cellHeight,m_spos[2]);
+		glVertex3f(m_spos[0],m_spos[1]+s+m_cellHeight,m_spos[2]);
+		glVertex3f(m_spos[0],m_spos[1]+m_cellHeight,m_spos[2]-s);
+		glVertex3f(m_spos[0],m_spos[1]+m_cellHeight,m_spos[2]+s);
 		glEnd();
+		glLineWidth(1.0f);
 	}
 	if (m_eposSet)
 	{
 		const float s = 0.5f;
-		glColor4ub(0,128,0,255);
+		glColor4ub(16,64,0,255);
+		glLineWidth(3.0f);
 		glBegin(GL_LINES);
-		glVertex3f(m_epos[0]-s,m_epos[1],m_epos[2]);
-		glVertex3f(m_epos[0]+s,m_epos[1],m_epos[2]);
-		glVertex3f(m_epos[0],m_epos[1]-s,m_epos[2]);
-		glVertex3f(m_epos[0],m_epos[1]+s,m_epos[2]);
-		glVertex3f(m_epos[0],m_epos[1],m_epos[2]-s);
-		glVertex3f(m_epos[0],m_epos[1],m_epos[2]+s);
+		glVertex3f(m_epos[0]-s,m_epos[1]+m_cellHeight,m_epos[2]);
+		glVertex3f(m_epos[0]+s,m_epos[1]+m_cellHeight,m_epos[2]);
+		glVertex3f(m_epos[0],m_epos[1]-s+m_cellHeight,m_epos[2]);
+		glVertex3f(m_epos[0],m_epos[1]+s+m_cellHeight,m_epos[2]);
+		glVertex3f(m_epos[0],m_epos[1]+m_cellHeight,m_epos[2]-s);
+		glVertex3f(m_epos[0],m_epos[1]+m_cellHeight,m_epos[2]+s);
 		glEnd();
+		glLineWidth(1.0f);
 	}
 	
 	static const float startCol[4] = { 0.5f, 0.1f, 0.0f, 0.75f };
@@ -339,7 +346,7 @@ void Sample_TileMesh::handleRender()
 		}
 		if (m_nstraightPath)
 		{
-			glColor4ub(128,16,0,220);
+			glColor4ub(64,16,0,220);
 			glLineWidth(3.0f);
 			glBegin(GL_LINE_STRIP);
 			for (int i = 0; i < m_nstraightPath; ++i)
@@ -363,7 +370,7 @@ void Sample_TileMesh::handleRender()
 			for (int i = 1; i < m_npolys; ++i)
 				dtDebugDrawTiledNavMeshPoly(m_navMesh, m_polys[i], pathCol);
 			
-			glColor4ub(128,16,0,220);
+			glColor4ub(64,16,0,220);
 			glLineWidth(3.0f);
 			glBegin(GL_LINE_STRIP);
 			for (int i = 0; i < m_nstraightPath; ++i)
@@ -607,11 +614,8 @@ unsigned char* Sample_TileMesh::buildTileMesh(const float* bmin, const float* bm
 	m_cfg.borderSize = m_cfg.walkableRadius*2 + 2; // Reserve enough padding.
 	m_cfg.width = m_cfg.tileSize + m_cfg.borderSize*2;
 	m_cfg.height = m_cfg.tileSize + m_cfg.borderSize*2;
-	
-/*	if (m_cfg.maxVertsPerPoly == DT_VERTS_PER_POLYGON)
-		m_drawMode = DRAWMODE_NAVMESH;
-	else
-		m_drawMode = DRAWMODE_POLYMESH;*/
+	m_cfg.detailSampleDist = m_detailSampleDist < 0.9f ? 0 : m_cellSize * m_detailSampleDist;
+	m_cfg.detailSampleMaxError = m_cellHeight * m_detailSampleMaxError;
 	
 	vcopy(m_cfg.bmin, bmin);
 	vcopy(m_cfg.bmax, bmax);
@@ -754,29 +758,43 @@ unsigned char* Sample_TileMesh::buildTileMesh(const float* bmin, const float* bm
 		return 0;
 	}
 	
-	if (!m_keepInterResults)
-	{
-		delete m_chf;
-		m_chf = 0;
-	}
-	
 	// Build polygon navmesh from the contours.
-	m_polyMesh = new rcPolyMesh;
-	if (!m_polyMesh)
+	m_pmesh = new rcPolyMesh;
+	if (!m_pmesh)
 	{
 		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'polyMesh'.");
+			rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'pmesh'.");
 		return 0;
 	}
-	if (!rcBuildPolyMesh(*m_cset, m_cfg.bmin, m_cfg.bmax, m_cfg.cs, m_cfg.ch, m_cfg.maxVertsPerPoly, *m_polyMesh))
+	if (!rcBuildPolyMesh(*m_cset, m_cfg.maxVertsPerPoly, *m_pmesh))
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Could not triangulate contours.");
 		return 0;
 	}
+
+	// Build detail mesh.
+	m_dmesh = new rcPolyMeshDetail;
+	if (!m_dmesh)
+	{
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'dmesh'.");
+		return 0;
+	}
+	
+	if (!rcBuildPolyMeshDetail(*m_pmesh, *m_chf,
+							   m_cfg.detailSampleDist, m_cfg.detailSampleMaxError,
+							   *m_dmesh))
+	{
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Could build polymesh detail.");
+		return 0;
+	}
 	
 	if (!m_keepInterResults)
 	{
+		delete m_chf;
+		m_chf = 0;
 		delete m_cset;
 		m_cset = 0;
 	}
@@ -785,16 +803,17 @@ unsigned char* Sample_TileMesh::buildTileMesh(const float* bmin, const float* bm
 	int navDataSize = 0;
 	if (m_cfg.maxVertsPerPoly == DT_TILE_VERTS_PER_POLYGON)
 	{
-		// Remove padding from the polymesh data.
-		for (int i = 0; i < m_polyMesh->nverts; ++i)
+		// Remove padding from the polymesh data. TODO: Remove this odditity.
+		for (int i = 0; i < m_pmesh->nverts; ++i)
 		{
-			unsigned short* v = &m_polyMesh->verts[i*3];
+			unsigned short* v = &m_pmesh->verts[i*3];
 			v[0] -= (unsigned short)m_cfg.borderSize;
 			v[2] -= (unsigned short)m_cfg.borderSize;
 		}
 	
-		if (!dtCreateNavMeshTileData(m_polyMesh->verts, m_polyMesh->nverts,
-									 m_polyMesh->polys, m_polyMesh->npolys, m_polyMesh->nvp,
+		if (!dtCreateNavMeshTileData(m_pmesh->verts, m_pmesh->nverts,
+									 m_pmesh->polys, m_pmesh->npolys, m_pmesh->nvp,
+									 m_dmesh->meshes, m_dmesh->verts, m_dmesh->nverts, m_dmesh->tris, m_dmesh->ntris, 
 									 bmin, bmax, m_cfg.cs, m_cfg.ch, m_cfg.tileSize, m_cfg.walkableClimb, &navData, &navDataSize))
 		{
 			if (rcGetLog())
@@ -833,11 +852,15 @@ unsigned char* Sample_TileMesh::buildTileMesh(const float* bmin, const float* bm
 		rcGetLog()->log(RC_LOG_PROGRESS, "  - trace: %.1fms (%.1f%%)", m_buildTimes.buildContoursTrace/1000.0f, m_buildTimes.buildContoursTrace*pc);
 		rcGetLog()->log(RC_LOG_PROGRESS, "  - simplify: %.1fms (%.1f%%)", m_buildTimes.buildContoursSimplify/1000.0f, m_buildTimes.buildContoursSimplify*pc);
 		
-		rcGetLog()->log(RC_LOG_PROGRESS, "Fixup contours: %.1fms (%.1f%%)", m_buildTimes.fixupContours/1000.0f, m_buildTimes.fixupContours*pc);
+		rcGetLog()->log(RC_LOG_PROGRESS, "Build Polymesh: %.1fms (%.1f%%)", m_buildTimes.buildPolymesh/1000.0f, m_buildTimes.buildPolymesh*pc);
+		rcGetLog()->log(RC_LOG_PROGRESS, "Build Polymesh Detail: %.1fms (%.1f%%)", m_buildTimes.buildDetailMesh/1000.0f, m_buildTimes.buildDetailMesh*pc);
+		rcGetLog()->log(RC_LOG_PROGRESS, "Merge Polymeshes: %.1fms (%.1f%%)", m_buildTimes.mergePolyMesh/1000.0f, m_buildTimes.mergePolyMesh*pc);
+		rcGetLog()->log(RC_LOG_PROGRESS, "Merge Polymesh Details: %.1fms (%.1f%%)", m_buildTimes.mergePolyMeshDetail/1000.0f, m_buildTimes.mergePolyMeshDetail*pc);
+		
 		
 		rcGetLog()->log(RC_LOG_PROGRESS, "Build Polymesh: %.1fms (%.1f%%)", m_buildTimes.buildPolymesh/1000.0f, m_buildTimes.buildPolymesh*pc);
 		
-		rcGetLog()->log(RC_LOG_PROGRESS, "Polymesh: Verts:%d  Polys:%d", m_polyMesh->nverts, m_polyMesh->npolys);
+		rcGetLog()->log(RC_LOG_PROGRESS, "Polymesh: Verts:%d  Polys:%d", m_pmesh->nverts, m_pmesh->npolys);
 		
 		rcGetLog()->log(RC_LOG_PROGRESS, "TOTAL: %.1fms", rcGetDeltaTimeUsec(totStartTime, totEndTime)/1000.0f);
 	}

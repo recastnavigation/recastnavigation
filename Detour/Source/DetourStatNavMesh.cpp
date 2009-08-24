@@ -55,10 +55,19 @@ bool dtStatNavMesh::init(unsigned char* data, int dataSize, bool ownsData)
 	const int headerSize = sizeof(dtStatNavMeshHeader);
 	const int vertsSize = sizeof(float)*3*header->nverts;
 	const int polysSize = sizeof(dtStatPoly)*header->npolys;
+	const int nodesSize = sizeof(dtStatBVNode)*header->npolys*2;
+	const int detailMeshesSize = sizeof(dtStatPolyDetail)*header->ndmeshes;
+	const int detailVertsSize = sizeof(float)*3*header->ndverts;
+	const int detailTrisSize = sizeof(unsigned char)*4*header->ndtris;
 	
-	header->verts = (float*)(data + headerSize);
-	header->polys = (dtStatPoly*)(data + headerSize + vertsSize);
-	header->bvtree = (dtStatBVNode*)(data + headerSize + vertsSize + polysSize);
+
+	unsigned char* d = data + headerSize;
+	header->verts = (float*)d; d += vertsSize;
+	header->polys = (dtStatPoly*)d; d += polysSize;
+	header->bvtree = (dtStatBVNode*)d; d += nodesSize;
+	header->dmeshes = (dtStatPolyDetail*)d; d += detailMeshesSize;
+	header->dverts = (float*)d; d += detailVertsSize;
+	header->dtris = (unsigned char*)d; d += detailTrisSize;
 	
 	m_nodePool = new dtNodePool(2048, 256);
 	if (!m_nodePool)
@@ -83,6 +92,12 @@ const dtStatPoly* dtStatNavMesh::getPolyByRef(dtStatPolyRef ref) const
 {
 	if (!m_header || ref == 0 || (int)ref > m_header->npolys) return 0;
 	return &m_header->polys[ref-1];
+}
+
+int dtStatNavMesh::getPolyIndexByRef(dtStatPolyRef ref) const
+{
+	if (!m_header || ref == 0 || (int)ref > m_header->npolys) return -1;
+	return (int)ref-1;
 }
 
 int dtStatNavMesh::findPath(dtStatPolyRef startRef, dtStatPolyRef endRef,
@@ -219,20 +234,27 @@ int dtStatNavMesh::findPath(dtStatPolyRef startRef, dtStatPolyRef endRef,
 
 bool dtStatNavMesh::closestPointToPoly(dtStatPolyRef ref, const float* pos, float* closest) const
 {
-	const dtStatPoly* poly = getPolyByRef(ref);
-	if (!poly)
+	int idx = getPolyIndexByRef(ref);
+	if (idx == -1)
 		return false;
 
 	float closestDistSqr = FLT_MAX;
+	const dtStatPoly* p = getPoly(idx);
+	const dtStatPolyDetail* pd = getPolyDetail(idx);
 
-	for (int i = 2; i < (int)poly->nv; ++i)
+	for (int j = 0; j < pd->ntris; ++j)
 	{
-		const float* v0 = getVertex(poly->v[0]);
-		const float* v1 = getVertex(poly->v[i-1]);
-		const float* v2 = getVertex(poly->v[i]);
-		
+		const unsigned char* t = getDetailTri(pd->tbase+j);
+		const float* v[3];
+		for (int k = 0; k < 3; ++k)
+		{
+			if (t[k] < p->nv)
+				v[k] = getVertex(p->v[t[k]]);
+			else
+				v[k] = getDetailVertex(pd->vbase+(t[k]-p->nv));
+		}
 		float pt[3];
-		closestPtPointTriangle(pt, pos, v0, v1, v2);
+		closestPtPointTriangle(pt, pos, v[0], v[1], v[2]);
 		float d = vdistSqr(pos, pt);
 		if (d < closestDistSqr)
 		{
@@ -242,6 +264,38 @@ bool dtStatNavMesh::closestPointToPoly(dtStatPolyRef ref, const float* pos, floa
 	}
 	
 	return true;
+}
+
+bool dtStatNavMesh::getPolyHeight(dtStatPolyRef ref, const float* pos, float* height) const
+{
+	int idx = getPolyIndexByRef(ref);
+	if (idx == -1)
+		return false;
+	
+	const dtStatPoly* p = getPoly(idx);
+	const dtStatPolyDetail* pd = getPolyDetail(idx);
+
+	for (int i = 0; i < pd->ntris; ++i)
+	{
+		const unsigned char* t = getDetailTri(pd->tbase+i);
+		const float* v[3];
+		for (int j = 0; j < 3; ++j)
+		{
+			if (t[j] < p->nv)
+				v[j] = getVertex(p->v[t[j]]);
+			else
+				v[j] = getDetailVertex(pd->vbase+(t[j]-p->nv));
+		}
+		float h;
+		if (closestHeightPointTriangle(pos, v[0], v[1], v[2], h))
+		{
+			if (height)
+				*height = h;
+			return true;
+		}
+	}
+	
+	return false;
 }
 
 int dtStatNavMesh::findStraightPath(const float* startPos, const float* endPos,

@@ -132,7 +132,7 @@ struct GuiState
 		mx(-1), my(-1), scroll(0),
 		active(0), hot(0), hotToBe(0), isHot(false), isActive(false), wentActive(false),
 		dragX(0), dragY(0), dragOrig(0), widgetX(0), widgetY(0), widgetW(100),
-		areaId(0), widgetId(0)
+		insideCurrentScroll(false),  areaId(0), widgetId(0)
 	{
 	}
 
@@ -149,6 +149,7 @@ struct GuiState
 	int dragX, dragY;
 	float dragOrig;
 	int widgetX, widgetY, widgetW;
+	bool insideCurrentScroll;
 	
 	unsigned int areaId;
 	unsigned int widgetId;
@@ -171,9 +172,9 @@ inline bool isHot(unsigned int id)
 	return g_state.hot == id;
 }
 
-inline bool inRect(int x, int y, int w, int h)
+inline bool inRect(int x, int y, int w, int h, bool checkScroll = true)
 {
-   return g_state.mx >= x && g_state.mx <= x+w && g_state.my >= y && g_state.my <= y+h;
+   return (!checkScroll || g_state.insideCurrentScroll) && g_state.mx >= x && g_state.mx <= x+w && g_state.my >= y && g_state.my <= y+h;
 }
 
 inline void clearInput()
@@ -324,14 +325,15 @@ bool imguiBeginScrollArea(const char* name, int x, int y, int w, int h, int* scr
 	g_focusTop = y-AREA_HEADER;
 	g_focusBottom = y-AREA_HEADER+h;
 
+	g_insideScrollArea = inRect(x, y, w, h, false);
+	g_state.insideCurrentScroll = g_insideScrollArea;
+
 	addGfxCmdRoundedRect(x, y, w, h, 6, imguiRGBA(0,0,0,192));
 
 	addGfxCmdText(x+AREA_HEADER/2, y+h-AREA_HEADER/2-TEXT_HEIGHT/2, IMGUI_ALIGN_LEFT, name, imguiRGBA(255,255,255,128));
 
 	addGfxCmdScissor(x+SCROLL_AREA_PADDING, y+SCROLL_AREA_PADDING, w-SCROLL_AREA_PADDING*4, h-AREA_HEADER-SCROLL_AREA_PADDING);
 
-	g_insideScrollArea = inRect(x, y, w, h);
-	
 	return g_insideScrollArea;
 }
 
@@ -403,8 +405,8 @@ void imguiEndScrollArea()
 				if (*g_scrollVal > (sh - h)) *g_scrollVal = (sh - h);
 			}
 		}
-		
 	}
+	g_state.insideCurrentScroll = false;
 }
 
 bool imguiButton(const char* text, bool enabled)

@@ -74,6 +74,8 @@ void Sample::resetCommonSettings()
 	m_edgeMaxLen = 12.0f;
 	m_edgeMaxError = 1.3f;
 	m_vertsPerPoly = 6.0f;
+	m_detailSampleDist = 6.0f;
+	m_detailSampleMaxError = 1.0f;
 }
 
 void Sample::handleCommonSettings()
@@ -106,6 +108,11 @@ void Sample::handleCommonSettings()
 	imguiSlider("Max Edge Error", &m_edgeMaxError, 0.1f, 3.0f, 0.1f);
 	imguiSlider("Verts Per Poly", &m_vertsPerPoly, 3.0f, 12.0f, 1.0f);		
 
+	imguiSeparator();
+	imguiLabel("Detail Mesh");
+	imguiSlider("Sample Distance", &m_detailSampleDist, 0.0f, 16.0f, 1.0f);
+	imguiSlider("Max Sample Error", &m_detailSampleMaxError, 0.0f, 16.0f, 1.0f);
+	
 	imguiSeparator();
 }
 

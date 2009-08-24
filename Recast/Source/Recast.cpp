@@ -40,7 +40,7 @@ void rcIntArray::resize(int n)
 	}
 	m_size = n;
 }
-		
+
 void rcCalcBounds(const float* verts, int nv, float* bmin, float* bmax)
 {
 	// Calculate bounding box.
@@ -76,20 +76,6 @@ bool rcCreateHeightfield(rcHeightfield& hf, int width, int height,
 	memset(hf.spans, 0, sizeof(rcSpan*)*hf.width*hf.height);
 	return true;
 }
-
-/*void rcMarkWalkableTriangles(const float walkableSlopeAngle,
-							 const int* tris, const float* norms, int nt,
-							 unsigned char* flags)
-{
-	const float walkableThr = cosf(walkableSlopeAngle/180.0f*(float)M_PI);
-	
-	for (int i = 0; i < nt; ++i)
-	{
-		// Check if the face is walkable.
-		if (norms[i*3+1] > walkableThr)
-			flags[i] |= RC_WALKABLE;
-	}
-}*/
 
 static void calcTriNormal(const float* v0, const float* v1, const float* v2, float* norm)
 {
@@ -284,4 +270,3 @@ static int getCompactHeightFieldMemoryusage(const rcCompactHeightfield& chf)
 	size += sizeof(rcCompactCell) * chf.width * chf.height;
 	return size;
 }
-

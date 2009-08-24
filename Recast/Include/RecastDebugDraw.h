@@ -44,10 +44,11 @@ void rcDebugDrawCompactHeightfieldSolid(const struct rcCompactHeightfield& chf);
 void rcDebugDrawCompactHeightfieldRegions(const struct rcCompactHeightfield& chf);
 void rcDebugDrawCompactHeightfieldDistance(const struct rcCompactHeightfield& chf);
 
-void rcDebugDrawRegionConnections(const struct rcContourSet& cset, const float* orig, float cs, float ch, const float alpha = 1.0f);
-void rcDebugDrawRawContours(const struct rcContourSet& cset, const float* orig, float cs, float ch, const float alpha = 1.0f);
-void rcDebugDrawContours(const struct rcContourSet& cset, const float* orig, float cs, float ch);
+void rcDebugDrawRegionConnections(const struct rcContourSet& cset, const float alpha = 1.0f);
+void rcDebugDrawRawContours(const struct rcContourSet& cset, const float alpha = 1.0f);
+void rcDebugDrawContours(const struct rcContourSet& cset, const float alpha = 1.0f);
 void rcDebugDrawPolyMesh(const struct rcPolyMesh& mesh);
+void rcDebugDrawPolyMeshDetail(const struct rcPolyMeshDetail& dmesh);
 
 void rcDebugDrawCylinderWire(float minx, float miny, float minz, float maxx, float maxy, float maxz, const float* col);
 void rcDebugDrawBoxWire(float minx, float miny, float minz, float maxx, float maxy, float maxz, const float* col);

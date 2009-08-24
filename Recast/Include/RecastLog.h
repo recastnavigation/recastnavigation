@@ -66,7 +66,9 @@ struct rcBuildTimes
 	int buildRegionsExp;
 	int buildRegionsFlood;
 	int buildRegionsFilter;
-	int fixupContours;
+	int buildDetailMesh;
+	int mergePolyMesh;
+	int mergePolyMeshDetail;
 };
 
 void rcSetLog(rcLog* log);

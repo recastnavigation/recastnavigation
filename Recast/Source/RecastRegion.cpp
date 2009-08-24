@@ -447,7 +447,7 @@ static void removeAdjacentNeighbours(rcRegion& reg)
 	}
 }
 
-void replaceNeighbour(rcRegion& reg, unsigned short oldId, unsigned short newId)
+static void replaceNeighbour(rcRegion& reg, unsigned short oldId, unsigned short newId)
 {
 	bool neiChanged = false;
 	for (int i = 0; i < reg.connections.size(); ++i)
@@ -467,7 +467,7 @@ void replaceNeighbour(rcRegion& reg, unsigned short oldId, unsigned short newId)
 		removeAdjacentNeighbours(reg);
 }
 
-bool canMergeWithRegion(rcRegion& reg, unsigned short id)
+static bool canMergeWithRegion(rcRegion& reg, unsigned short id)
 {
 	int n = 0;
 	for (int i = 0; i < reg.connections.size(); ++i)

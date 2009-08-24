@@ -25,6 +25,8 @@
 
 bool dtCreateNavMeshTileData(const unsigned short* verts, const int nverts,
 							 const unsigned short* polys, const int npolys, const int nvp,
+							 const unsigned short* dmeshes, const float* dverts, const int ndverts,
+							 const unsigned char* dtris, const int ndtris, 
 							 const float* bmin, const float* bmax, float cs, float ch, int tileSize, int walkableClimb,
 							 unsigned char** outData, int* outDataSize)
 {
@@ -36,6 +38,8 @@ bool dtCreateNavMeshTileData(const unsigned short* verts, const int nverts,
 	if (!nverts)
 		return false;
 	if (!npolys)
+		return false;
+	if (!dmeshes || !dverts || ! dtris)
 		return false;
 	
 	// Find portal edges which are at tile borders.
@@ -64,34 +68,70 @@ bool dtCreateNavMeshTileData(const unsigned short* verts, const int nverts,
 				nportals++; // z-
 		}
 	}
+
+	const int maxLinks = nedges + nportals*2;
+	
+	
+	// Find unique detail vertices.
+	int uniqueDetailVerts = 0;
+	if (dmeshes)
+	{
+		for (int i = 0; i < npolys; ++i)
+		{
+			const unsigned short* p = &polys[i*nvp*2];
+			int ndv = dmeshes[i*4+1];
+			int nv = 0;
+			for (int j = 0; j < nvp; ++j)
+			{
+				if (p[j] == 0xffff) break;
+				nv++;
+			}
+			ndv -= nv;
+			uniqueDetailVerts += ndv;
+		}
+	}
 	
 	// Calculate data size
 	const int headerSize = sizeof(dtTileHeader);
 	const int vertsSize = sizeof(float)*3*nverts;
 	const int polysSize = sizeof(dtTilePoly)*npolys;
-	const int linksSize = sizeof(dtTileLink)*(nedges + nportals*2);
-	const int dataSize = headerSize + vertsSize + polysSize + linksSize;
+	const int linksSize = sizeof(dtTileLink)*maxLinks;
+	const int detailMeshesSize = sizeof(dtTilePolyDetail)*npolys;
+	const int detailVertsSize = sizeof(float)*3*uniqueDetailVerts;
+	const int detailTrisSize = sizeof(unsigned char)*4*ndtris;
+	
+	const int dataSize = headerSize + vertsSize + polysSize + linksSize +
+						 detailMeshesSize + detailVertsSize + detailTrisSize;
 	unsigned char* data = new unsigned char[dataSize];
 	if (!data)
 		return false;
 	memset(data, 0, dataSize);
 	
-	dtTileHeader* header = (dtTileHeader*)(data);
-	float* navVerts = (float*)(data + headerSize);
-	dtTilePoly* navPolys = (dtTilePoly*)(data + headerSize + vertsSize);
+	unsigned char* d = data;
+	dtTileHeader* header = (dtTileHeader*)d; d += headerSize;
+	float* navVerts = (float*)d; d += vertsSize;
+	dtTilePoly* navPolys = (dtTilePoly*)d; d += polysSize;
+	d += linksSize;
+	dtTilePolyDetail* navDMeshes = (dtTilePolyDetail*)d; d += detailMeshesSize;
+	float* navDVerts = (float*)d; d += detailVertsSize;
+	unsigned char* navDTris = (unsigned char*)d; d += detailTrisSize;
+	
 	
 	// Store header
 	header->magic = DT_TILE_NAVMESH_MAGIC;
 	header->version = DT_TILE_NAVMESH_VERSION;
 	header->npolys = npolys;
 	header->nverts = nverts;
-	header->maxlinks = nedges + nportals*2;
+	header->maxlinks = maxLinks;
 	header->bmin[0] = bmin[0];
 	header->bmin[1] = bmin[1];
 	header->bmin[2] = bmin[2];
 	header->bmax[0] = bmax[0];
 	header->bmax[1] = bmax[1];
 	header->bmax[2] = bmax[2];
+	header->ndmeshes = npolys;
+	header->ndverts = uniqueDetailVerts;
+	header->ndtris = ndtris;
 	
 	// Store vertices
 	for (int i = 0; i < nverts; ++i)
@@ -141,6 +181,30 @@ bool dtCreateNavMeshTileData(const unsigned short* verts, const int nverts,
 				poly->n[j] = 0x8000 | 3;
 		}
 	}
+
+	// Store detail meshes and vertices.
+	// The nav polygon vertices are stored as the first vertices on each mesh.
+	// We compress the mesh data by skipping them and using the navmesh coordinates.
+	unsigned short vbase = 0;
+	for (int i = 0; i < npolys; ++i)
+	{
+		dtTilePolyDetail& dtl = navDMeshes[i];
+		const int vb = dmeshes[i*4+0];
+		const int ndv = dmeshes[i*4+1];
+		const int nv = navPolys[i].nv;
+		dtl.vbase = vbase;
+		dtl.nverts = ndv-nv;
+		dtl.tbase = dmeshes[i*4+2];
+		dtl.ntris = dmeshes[i*4+3];
+		// Copy vertices except the first 'nv' verts which are equal to nav poly verts.
+		if (ndv-nv)
+		{
+			memcpy(&navDVerts[vbase*3], &dverts[(vb+nv)*3], sizeof(float)*3*(ndv-nv));
+			vbase += ndv-nv;
+		}
+	}
+	// Store triangles.
+	memcpy(navDTris, dtris, sizeof(unsigned char)*4*ndtris);
 	
 	*outData = data;
 	*outDataSize = dataSize;
