@@ -267,6 +267,10 @@
 			6B3315791042C6A000E98B50 /* PBXTextBookmark */ = 6B3315791042C6A000E98B50 /* PBXTextBookmark */;
 			6B33157A1042C6A000E98B50 /* PBXTextBookmark */ = 6B33157A1042C6A000E98B50 /* PBXTextBookmark */;
 			6B33157B1042C6A000E98B50 /* PBXTextBookmark */ = 6B33157B1042C6A000E98B50 /* PBXTextBookmark */;
+			6B3315821042CB6F00E98B50 /* PBXTextBookmark */ = 6B3315821042CB6F00E98B50 /* PBXTextBookmark */;
+			6B3315831042CB6F00E98B50 /* PBXTextBookmark */ = 6B3315831042CB6F00E98B50 /* PBXTextBookmark */;
+			6B3315841042CB6F00E98B50 /* PBXTextBookmark */ = 6B3315841042CB6F00E98B50 /* PBXTextBookmark */;
+			6B3315851042CB6F00E98B50 /* PBXTextBookmark */ = 6B3315851042CB6F00E98B50 /* PBXTextBookmark */;
 			6B41875F10397C9F00FBF4A5 = 6B41875F10397C9F00FBF4A5 /* PBXTextBookmark */;
 			6B41876A1039827000FBF4A5 = 6B41876A1039827000FBF4A5 /* PBXTextBookmark */;
 			6B41878E1039854600FBF4A5 = 6B41878E1039854600FBF4A5 /* PBXTextBookmark */;
@@ -848,8 +852,8 @@
 	6B137C840F7FCC1100459200 /* RecastDebugDraw.cpp */ = {
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {915, 12608}}";
-			sepNavSelRange = "{1335, 0}";
-			sepNavVisRange = "{706, 1070}";
+			sepNavSelRange = "{1059, 0}";
+			sepNavVisRange = "{706, 1096}";
 		};
 	};
 	6B137C850F7FCC1100459200 /* RecastFilter.cpp */ = {
@@ -2248,6 +2252,46 @@
 		vrLen = 1070;
 		vrLoc = 706;
 	};
+	6B3315821042CB6F00E98B50 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B137C840F7FCC1100459200 /* RecastDebugDraw.cpp */;
+		name = "RecastDebugDraw.cpp: 24";
+		rLen = 0;
+		rLoc = 1059;
+		rType = 0;
+		vrLen = 1096;
+		vrLoc = 706;
+	};
+	6B3315831042CB6F00E98B50 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B624169103434880002E346 /* RecastMeshDetail.cpp */;
+		name = "RecastMeshDetail.cpp: 527";
+		rLen = 0;
+		rLoc = 13635;
+		rType = 0;
+		vrLen = 1143;
+		vrLoc = 13102;
+	};
+	6B3315841042CB6F00E98B50 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B137C840F7FCC1100459200 /* RecastDebugDraw.cpp */;
+		name = "RecastDebugDraw.cpp: 24";
+		rLen = 0;
+		rLoc = 1059;
+		rType = 0;
+		vrLen = 1096;
+		vrLoc = 706;
+	};
+	6B3315851042CB6F00E98B50 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B624169103434880002E346 /* RecastMeshDetail.cpp */;
+		name = "RecastMeshDetail.cpp: 119";
+		rLen = 0;
+		rLoc = 3282;
+		rType = 0;
+		vrLen = 1029;
+		vrLoc = 2783;
+	};
 	6B41875F10397C9F00FBF4A5 /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
 		fRef = 6BDD9E050F91112200904EEF /* DetourStatNavMesh.h */;
@@ -2438,9 +2482,9 @@
 	};
 	6B624169103434880002E346 /* RecastMeshDetail.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {915, 15520}}";
-			sepNavSelRange = "{13635, 0}";
-			sepNavVisRange = "{13208, 868}";
+			sepNavIntBoundsRect = "{{0, 0}, {915, 15808}}";
+			sepNavSelRange = "{3282, 0}";
+			sepNavVisRange = "{2783, 1029}";
 		};
 	};
 	6B6241E91034B2FA0002E346 /* PBXTextBookmark */ = {
