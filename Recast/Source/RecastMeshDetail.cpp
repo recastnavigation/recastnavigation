@@ -116,8 +116,12 @@ static void delaunay(const int nv, float *verts, rcIntArray& idx, rcIntArray& tr
 	idx.resize(nv);
 	for (int i = 0; i < nv; ++i)
 		idx[i] = i;
+#ifdef WIN32
+	qsort_s(&idx[0], idx.size(), sizeof(int), ptcmp, verts);
+#else
 	qsort_r(&idx[0], idx.size(), sizeof(int), verts, ptcmp);
-	
+#endif
+
 	// Find the maximum and minimum vertex bounds.
 	// This is to allow calculation of the bounding triangle
 	float xmin = verts[0];
@@ -134,8 +138,8 @@ static void delaunay(const int nv, float *verts, rcIntArray& idx, rcIntArray& tr
 	float dx = xmax - xmin;
 	float dy = ymax - ymin;
 	float dmax = (dx > dy) ? dx : dy;
-	float xmid = (xmax + xmin) / 2.0;
-	float ymid = (ymax + ymin) / 2.0;
+	float xmid = (xmax + xmin) / 2.0f;
+	float ymid = (ymax + ymin) / 2.0f;
 	
 	// Set up the supertriangle
 	// This is a triangle which encompasses all the sample points.
@@ -685,18 +689,24 @@ bool rcBuildPolyMeshDetail(const rcPolyMesh& mesh, const rcCompactHeightfield& c
 	rcIntArray stack(512);
 	rcIntArray samples(512);
 	float verts[256*3];
-	float poly[nvp*3];
+	float* poly = 0;
 	int* bounds = 0;
 	rcHeightPatch hp;
 	int nPolyVerts = 0;
 	int maxhw = 0, maxhh = 0;
 	
 	bounds = new int[mesh.npolys*4];
-	
 	if (!bounds)
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMeshDetail: Out of memory 'bounds' (%d).", mesh.npolys*4);
+		goto failure;
+	}
+	poly = new float[nvp*3];
+	if (!bounds)
+	{
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMeshDetail: Out of memory 'poly' (%d).", nvp*3);
 		goto failure;
 	}
 	
@@ -870,6 +880,7 @@ bool rcBuildPolyMeshDetail(const rcPolyMesh& mesh, const rcCompactHeightfield& c
 	}
 	
 	delete [] bounds;
+	delete [] poly;
 	
 	rcTimeVal endTime = rcGetPerformanceTimer();
 	
@@ -881,6 +892,7 @@ bool rcBuildPolyMeshDetail(const rcPolyMesh& mesh, const rcCompactHeightfield& c
 failure:
 
 	delete [] bounds;
+	delete [] poly;
 
 	return false;
 }

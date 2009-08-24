@@ -228,6 +228,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\..\Recast\Source\RecastMeshDetail.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\..\Recast\Source\RecastRasterization.cpp"
 					>
 				</File>
