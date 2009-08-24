@@ -84,8 +84,8 @@ static int getCornerHeight(int x, int y, int i, int dir,
 		
 		// The vertex is a border vertex there are two same exterior cells in a row,
 		// followed by two interior cells and none of the regions are out of bounds.
-		const bool twoSameExts = (regs[a] & regs[b] & 0x8000) != 0 && regs[a] == regs[b];
-		const bool twoInts = ((regs[c] | regs[d]) & 0x8000) == 0;
+		const bool twoSameExts = (regs[a] & regs[b] & RC_BORDER_REG) != 0 && regs[a] == regs[b];
+		const bool twoInts = ((regs[c] | regs[d]) & RC_BORDER_REG) == 0;
 		const bool noZeros = regs[a] != 0 && regs[b] != 0 && regs[c] != 0 && regs[d] != 0;
 		if (twoSameExts && twoInts && noZeros)
 		{
@@ -135,13 +135,8 @@ static void walkContour(int x, int y, int i,
 				const rcCompactSpan& as = chf.spans[ai];
 				r = (int)as.reg;
 			}
-			
-/*			if (r & 0x8000)
-				printf("0x8000\n");*/
-			
 			if (isBorderVertex)
-				r |= 0x10000;
-			
+				r |= RC_BORDER_VERTEX;
 			points.push(px);
 			points.push(py);
 			points.push(pz);
@@ -425,7 +420,7 @@ static void simplifyContour(rcIntArray& points, rcIntArray& simplified, float ma
 		// and the neighbour region is take from the next raw point.
 		const int ai = (simplified[i*4+3]+1) % pn;
 		const int bi = simplified[i*4+3];
-		simplified[i*4+3] = (points[ai*4+3] & 0xffff) | (points[bi*4+3] & 0x10000);
+		simplified[i*4+3] = (points[ai*4+3] & 0xffff) | (points[bi*4+3] & RC_BORDER_VERTEX);
 	}
 	
 }
@@ -577,7 +572,7 @@ bool rcBuildContours(rcCompactHeightfield& chf,
 			{
 				unsigned char res = 0;
 				const rcCompactSpan& s = chf.spans[i];
-				if (!s.reg || (s.reg & 0x8000))
+				if (!s.reg || (s.reg & RC_BORDER_REG))
 				{
 					flags[i] = 0;
 					continue;
@@ -621,7 +616,7 @@ bool rcBuildContours(rcCompactHeightfield& chf,
 					continue;
 				}
 				unsigned short reg = chf.spans[i].reg;
-				if (!reg || (reg & 0x8000))
+				if (!reg || (reg & RC_BORDER_REG))
 					continue;
 				
 				verts.resize(0);

@@ -31,7 +31,7 @@ void rcDebugDrawMesh(const float* verts, int nverts,
 	glBegin(GL_TRIANGLES);
 	for (int i = 0; i < ntris*3; i += 3)
 	{
-		float a = (2+normals[i+0]+normals[i+1])/4 * 0.5f;
+		float a = (2+normals[i+0]+normals[i+1])/4;
 		if (flags && !flags[i/3])
 			glColor3f(a,a*0.3f,a*0.1f);
 		else
@@ -508,7 +508,7 @@ void rcDebugDrawRawContours(const rcContourSet& cset, const float alpha)
 			const int* v = &c.rverts[j*4];
 			
 			float off = 0;
-			if (v[3] & 0x10000)
+			if (v[3] & RC_BORDER_VERTEX)
 			{
 				glColor4ub(255,255,255,255);
 				off = ch*2;
@@ -563,7 +563,7 @@ void rcDebugDrawContours(const rcContourSet& cset, const float alpha)
 		{
 			const int* v = &c.verts[j*4];
 			float off = 0;
-			if (v[3] & 0x10000)
+			if (v[3] & RC_BORDER_VERTEX)
 			{
 				glColor4ub(255,255,255,255);
 				off = ch*2;
@@ -590,7 +590,7 @@ void rcDebugDrawPolyMesh(const struct rcPolyMesh& mesh)
 	const float cs = mesh.cs;
 	const float ch = mesh.ch;
 	const float* orig = mesh.bmin;
-	float col[4] = {1,1,1,0.5f};
+	float col[4] = {1,1,1,0.75f};
 	glBegin(GL_TRIANGLES);
 	for (int i = 0; i < mesh.npolys; ++i)
 	{
@@ -608,7 +608,7 @@ void rcDebugDrawPolyMesh(const struct rcPolyMesh& mesh)
 			{
 				const unsigned short* v = &mesh.verts[vi[k]*3];
 				const float x = orig[0] + v[0]*cs;
-				const float y = orig[1] + (v[1]+2)*ch;
+				const float y = orig[1] + (v[1]+1)*ch;
 				const float z = orig[2] + v[2]*cs;
 				glVertex3f(x, y, z);
 			}
@@ -637,7 +637,7 @@ void rcDebugDrawPolyMesh(const struct rcPolyMesh& mesh)
 			{
 				const unsigned short* v = &mesh.verts[vi[k]*3];
 				const float x = orig[0] + v[0]*cs;
-				const float y = orig[1] + (v[1]+2)*ch + 0.1f;
+				const float y = orig[1] + (v[1]+1)*ch + 0.1f;
 				const float z = orig[2] + v[2]*cs;
 				glVertex3f(x, y, z);
 			}
@@ -666,7 +666,7 @@ void rcDebugDrawPolyMesh(const struct rcPolyMesh& mesh)
 			{
 				const unsigned short* v = &mesh.verts[vi[k]*3];
 				const float x = orig[0] + v[0]*cs;
-				const float y = orig[1] + (v[1]+2)*ch + 0.1f;
+				const float y = orig[1] + (v[1]+1)*ch + 0.1f;
 				const float z = orig[2] + v[2]*cs;
 				glVertex3f(x, y, z);
 			}
@@ -682,7 +682,7 @@ void rcDebugDrawPolyMesh(const struct rcPolyMesh& mesh)
 	{
 		const unsigned short* v = &mesh.verts[i*3];
 		const float x = orig[0] + v[0]*cs;
-		const float y = orig[1] + (v[1]+2)*ch + 0.1f;
+		const float y = orig[1] + (v[1]+1)*ch + 0.1f;
 		const float z = orig[2] + v[2]*cs;
 		glVertex3f(x, y, z);
 	}
@@ -694,30 +694,17 @@ void rcDebugDrawPolyMeshDetail(const struct rcPolyMeshDetail& dmesh)
 {
 	float col[4] = {1,1,1,0.75f};
 	
+	glBegin(GL_TRIANGLES);
 	for (int i = 0; i < dmesh.nmeshes; ++i)
 	{
 		const unsigned short* m = &dmesh.meshes[i*4];
 		const unsigned short bverts = m[0];
-		const unsigned short nverts = m[1];
 		const unsigned short btris = m[2];
 		const unsigned short ntris = m[3];
-	 
-		intToCol(i, col);
-		
 		const float* verts = &dmesh.verts[bverts*3];
 		const unsigned char* tris = &dmesh.tris[btris*4];
 
-		glPointSize(3.0f);
-		glBegin(GL_POINTS);
-		for (int j = 0; j < nverts; ++j)
-		{
-			glColor4ub(0,0,0,64);
-			glVertex3fv(&verts[j*3]);
-		}
-		glEnd();
-		glPointSize(1.0f);
-		
-		glBegin(GL_TRIANGLES);
+		intToCol(i, col);
 		glColor4fv(col);
 		for (int j = 0; j < ntris; ++j)
 		{
@@ -725,11 +712,24 @@ void rcDebugDrawPolyMeshDetail(const struct rcPolyMeshDetail& dmesh)
 			glVertex3fv(&verts[tris[j*4+1]*3]);
 			glVertex3fv(&verts[tris[j*4+2]*3]);
 		}
-		glEnd();
+	}
+	glEnd();
+
+	// Internal edges.
+	glLineWidth(1.0f);
+	glColor4ub(0,0,0,64);
+	glBegin(GL_LINES);
+	for (int i = 0; i < dmesh.nmeshes; ++i)
+	{
+		const unsigned short* m = &dmesh.meshes[i*4];
+		const unsigned short bverts = m[0];
+		const unsigned short btris = m[2];
+		const unsigned short ntris = m[3];
+		const float* verts = &dmesh.verts[bverts*3];
+		const unsigned char* tris = &dmesh.tris[btris*4];
 		
 		for (int j = 0; j < ntris; ++j)
 		{
-			glBegin(GL_LINES);
 			const unsigned char* t = &tris[j*4];
 			for (int k = 0, kp = 2; k < 3; kp=k++)
 			{
@@ -739,21 +739,61 @@ void rcDebugDrawPolyMeshDetail(const struct rcPolyMeshDetail& dmesh)
 					// Internal edge
 					if (t[kp] < t[k])
 					{
-						glColor4ub(255,255,255,32);
 						glVertex3fv(&verts[t[kp]*3]);
 						glVertex3fv(&verts[t[k]*3]);
 					}
 				}
-				else
+			}
+		}
+	}
+	glEnd();
+	
+	// External edges.
+	glLineWidth(2.0f);
+	glColor4ub(0,0,0,64);
+	glBegin(GL_LINES);
+	for (int i = 0; i < dmesh.nmeshes; ++i)
+	{
+		const unsigned short* m = &dmesh.meshes[i*4];
+		const unsigned short bverts = m[0];
+		const unsigned short btris = m[2];
+		const unsigned short ntris = m[3];
+		const float* verts = &dmesh.verts[bverts*3];
+		const unsigned char* tris = &dmesh.tris[btris*4];
+		
+		for (int j = 0; j < ntris; ++j)
+		{
+			const unsigned char* t = &tris[j*4];
+			for (int k = 0, kp = 2; k < 3; kp=k++)
+			{
+				unsigned char ef = (t[3] >> (kp*2)) & 0x3;
+				if (ef != 0)
 				{
 					// Ext edge
-					glColor4ub(0,0,0,128);
 					glVertex3fv(&verts[t[kp]*3]);
 					glVertex3fv(&verts[t[k]*3]);
 				}
 			}
-			glEnd();
 		}
 	}
+	glEnd();
+	
+	glLineWidth(1.0f);
 
+	glPointSize(3.0f);
+	glBegin(GL_POINTS);
+	for (int i = 0; i < dmesh.nmeshes; ++i)
+	{
+		const unsigned short* m = &dmesh.meshes[i*4];
+		const unsigned short bverts = m[0];
+		const unsigned short nverts = m[1];
+		const float* verts = &dmesh.verts[bverts*3];
+		for (int j = 0; j < nverts; ++j)
+		{
+			glColor4ub(0,0,0,64);
+			glVertex3fv(&verts[j*3]);
+		}
+	}
+	glEnd();
+	glPointSize(1.0f);
 }

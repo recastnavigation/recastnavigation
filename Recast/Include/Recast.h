@@ -50,7 +50,7 @@ struct rcSpan
 	rcSpan* next;					// Next span in column.
 };
 
-static const int RC_SPANS_PER_POOL = 2048; 
+static const int RC_SPANS_PER_POOL = 2048;
 
 // Memory pool used for quick span allocation.
 struct rcSpanPool
@@ -212,6 +212,14 @@ enum rcSpanFlags
 	RC_WALKABLE = 0x01,
 	RC_REACHABLE = 0x02,
 };
+
+// If heightfield region ID has the following bit set, the region is on border area
+// and excluded from many calculations.
+static const unsigned short RC_BORDER_REG = 0x8000;
+
+// If contour region ID has the following bit set, the vertex will be later
+// removed in order to match the segments and vertices at tile boundaries.
+static const int RC_BORDER_VERTEX = 0x10000;
 
 // Compact span neighbour helpers.
 inline int rcGetCon(const rcCompactSpan& s, int dir)

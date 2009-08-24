@@ -379,7 +379,7 @@ static unsigned short* expandRegions(int maxIter, unsigned short level,
 				const int ax = x + rcGetDirOffsetX(dir);
 				const int ay = y + rcGetDirOffsetY(dir);
 				const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(s, dir);
-				if (src[ai*2] > 0 && (src[ai*2] & 0x8000) == 0)
+				if (src[ai*2] > 0 && (src[ai*2] & RC_BORDER_REG) == 0)
 				{
 					if ((int)src[ai*2+1]+2 < (int)d2)
 					{
@@ -742,7 +742,7 @@ static bool filterSmallRegions(int minRegionSize, int mergeRegionSize,
 	for (int i = 0; i < nreg; ++i)
 	{
 		rcRegion& reg = regions[i];
-		if (reg.id == 0 || (reg.id & 0x8000))
+		if (reg.id == 0 || (reg.id & RC_BORDER_REG))
 			continue;			
 		if (reg.count == 0)
 			continue;
@@ -767,7 +767,7 @@ static bool filterSmallRegions(int minRegionSize, int mergeRegionSize,
 		for (int i = 0; i < nreg; ++i)
 		{
 			rcRegion& reg = regions[i];
-			if (reg.id == 0 || (reg.id & 0x8000))
+			if (reg.id == 0 || (reg.id & RC_BORDER_REG))
 				continue;			
 			if (reg.count == 0)
 				continue;
@@ -783,9 +783,9 @@ static bool filterSmallRegions(int minRegionSize, int mergeRegionSize,
 			unsigned short mergeId = reg.id;
 			for (int j = 0; j < reg.connections.size(); ++j)
 			{
-				if (reg.connections[j] & 0x8000) continue;
+				if (reg.connections[j] & RC_BORDER_REG) continue;
 				rcRegion& mreg = regions[reg.connections[j]];
-				if (mreg.id == 0 || (mreg.id & 0x8000)) continue;
+				if (mreg.id == 0 || (mreg.id & RC_BORDER_REG)) continue;
 				if (mreg.count < smallest &&
 					canMergeWithRegion(reg, mreg.id) &&
 					canMergeWithRegion(mreg, reg.id))
@@ -806,7 +806,7 @@ static bool filterSmallRegions(int minRegionSize, int mergeRegionSize,
 					// Fixup regions pointing to current region.
 					for (int j = 0; j < nreg; ++j)
 					{
-						if (regions[j].id == 0 || (regions[j].id & 0x8000)) continue;
+						if (regions[j].id == 0 || (regions[j].id & RC_BORDER_REG)) continue;
 						// If another region was already merged into current region
 						// change the nid of the previous region too.
 						if (regions[j].id == oldId)
@@ -827,7 +827,7 @@ static bool filterSmallRegions(int minRegionSize, int mergeRegionSize,
 	{
 		regions[i].remap = false;
 		if (regions[i].id == 0) continue;	// Skip nil regions.
-		if (regions[i].id & 0x8000) continue;	// Skip external regions.
+		if (regions[i].id & RC_BORDER_REG) continue;	// Skip external regions.
 		regions[i].remap = true;
 	}
 
@@ -852,7 +852,7 @@ static bool filterSmallRegions(int minRegionSize, int mergeRegionSize,
 	// Remap regions.
 	for (int i = 0; i < chf.spanCount; ++i)
 	{
-		if ((src[i*2] & 0x8000) == 0)
+		if ((src[i*2] & RC_BORDER_REG) == 0)
 			src[i*2] = regions[src[i*2]].id;
 	}
 	
@@ -989,10 +989,11 @@ bool rcBuildRegions(rcCompactHeightfield& chf,
 	
 	const int expandIters = 4 + walkableRadius * 2;
 
-	paintRectRegion(0, borderSize, 0, h, regionId|0x8000, minLevel, chf, src); regionId++;
-	paintRectRegion(w-borderSize, w, 0, h, regionId|0x8000, minLevel, chf, src); regionId++;
-	paintRectRegion(0, w, 0, borderSize, regionId|0x8000, minLevel, chf, src); regionId++;
-	paintRectRegion(0, w, h-borderSize, h, regionId|0x8000, minLevel, chf, src); regionId++;
+	// Mark border regions.
+	paintRectRegion(0, borderSize, 0, h, regionId|RC_BORDER_REG, minLevel, chf, src); regionId++;
+	paintRectRegion(w-borderSize, w, 0, h, regionId|RC_BORDER_REG, minLevel, chf, src); regionId++;
+	paintRectRegion(0, w, 0, borderSize, regionId|RC_BORDER_REG, minLevel, chf, src); regionId++;
+	paintRectRegion(0, w, h-borderSize, h, regionId|RC_BORDER_REG, minLevel, chf, src); regionId++;
 
 	rcTimeVal expTime = 0;
 	rcTimeVal floodTime = 0;

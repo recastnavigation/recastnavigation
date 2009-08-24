@@ -279,14 +279,14 @@
 							<key>PBXSmartGroupTreeModuleOutlineStateSelectionKey</key>
 							<array>
 								<array>
-									<integer>32</integer>
+									<integer>21</integer>
 									<integer>18</integer>
 									<integer>1</integer>
 									<integer>0</integer>
 								</array>
 							</array>
 							<key>PBXSmartGroupTreeModuleOutlineStateVisibleRectKey</key>
-							<string>{{0, 229}, {282, 628}}</string>
+							<string>{{0, 25}, {282, 628}}</string>
 						</dict>
 						<key>PBXTopSmartGroupGIDs</key>
 						<array/>
@@ -321,7 +321,7 @@
 								<key>PBXProjectModuleGUID</key>
 								<string>6B8632A30F78115100E2684A</string>
 								<key>PBXProjectModuleLabel</key>
-								<string>RecastMeshDetail.cpp</string>
+								<string>RecastDebugDraw.cpp</string>
 								<key>PBXSplitModuleInNavigatorKey</key>
 								<dict>
 									<key>Split0</key>
@@ -329,11 +329,11 @@
 										<key>PBXProjectModuleGUID</key>
 										<string>6B8632A40F78115100E2684A</string>
 										<key>PBXProjectModuleLabel</key>
-										<string>RecastMeshDetail.cpp</string>
+										<string>RecastDebugDraw.cpp</string>
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>6B33154A1042C0A500E98B50</string>
+										<string>6B33157B1042C6A000E98B50</string>
 										<key>history</key>
 										<array>
 											<string>6B7707F00FBD90F100D21BAE</string>
@@ -375,32 +375,32 @@
 											<string>6B05B01010405F0A004A71D1</string>
 											<string>6BF26BC5104158E90099C14A</string>
 											<string>6BF26BC9104158E90099C14A</string>
-											<string>6B3314EA1042BC8200E98B50</string>
 											<string>6B3314EC1042BC8200E98B50</string>
 											<string>6B3314ED1042BC8200E98B50</string>
 											<string>6B3314EE1042BC8200E98B50</string>
 											<string>6B3314EF1042BC8200E98B50</string>
-											<string>6B3314F01042BC8200E98B50</string>
 											<string>6B3314F11042BC8200E98B50</string>
 											<string>6B3314F21042BC8200E98B50</string>
-											<string>6B3314F31042BC8200E98B50</string>
 											<string>6B3314F41042BC8200E98B50</string>
-											<string>6B3314F51042BC8200E98B50</string>
 											<string>6B3314F61042BC8200E98B50</string>
 											<string>6B3314F71042BC8200E98B50</string>
-											<string>6B3314F81042BC8200E98B50</string>
 											<string>6B3314F91042BC8200E98B50</string>
-											<string>6B3314FB1042BC8200E98B50</string>
 											<string>6B33152E1042BD3500E98B50</string>
 											<string>6B3315321042BE1600E98B50</string>
 											<string>6B3315331042BE1600E98B50</string>
-											<string>6B3315341042BE1600E98B50</string>
 											<string>6B3315351042BE1600E98B50</string>
 											<string>6B3315361042BE1600E98B50</string>
-											<string>6B3315371042BE1600E98B50</string>
 											<string>6B3315381042BE1600E98B50</string>
-											<string>6B3315391042BE1600E98B50</string>
-											<string>6B3315481042C02C00E98B50</string>
+											<string>6B33154C1042C42500E98B50</string>
+											<string>6B33154D1042C42500E98B50</string>
+											<string>6B33154E1042C42500E98B50</string>
+											<string>6B33154F1042C42500E98B50</string>
+											<string>6B3315501042C42500E98B50</string>
+											<string>6B3315521042C42500E98B50</string>
+											<string>6B3315531042C42500E98B50</string>
+											<string>6B33156B1042C54200E98B50</string>
+											<string>6B3315771042C6A000E98B50</string>
+											<string>6B3315781042C6A000E98B50</string>
 										</array>
 										<key>prevStack</key>
 										<array>
@@ -495,6 +495,22 @@
 											<string>6B3315401042BE1600E98B50</string>
 											<string>6B3315411042BE1600E98B50</string>
 											<string>6B3315421042BE1600E98B50</string>
+											<string>6B3315561042C42500E98B50</string>
+											<string>6B3315571042C42500E98B50</string>
+											<string>6B3315581042C42500E98B50</string>
+											<string>6B3315591042C42500E98B50</string>
+											<string>6B33155A1042C42500E98B50</string>
+											<string>6B33155B1042C42500E98B50</string>
+											<string>6B33155C1042C42500E98B50</string>
+											<string>6B33155D1042C42500E98B50</string>
+											<string>6B33155E1042C42500E98B50</string>
+											<string>6B33155F1042C42500E98B50</string>
+											<string>6B3315601042C42500E98B50</string>
+											<string>6B3315611042C42500E98B50</string>
+											<string>6B3315621042C42500E98B50</string>
+											<string>6B33156D1042C54200E98B50</string>
+											<string>6B3315791042C6A000E98B50</string>
+											<string>6B33157A1042C6A000E98B50</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>
@@ -508,18 +524,18 @@
 							<key>GeometryConfiguration</key>
 							<dict>
 								<key>Frame</key>
-								<string>{{0, 0}, {976, 490}}</string>
+								<string>{{0, 0}, {976, 641}}</string>
 								<key>RubberWindowFrame</key>
 								<string>0 91 1280 687 0 0 1280 778 </string>
 							</dict>
 							<key>Module</key>
 							<string>PBXNavigatorGroup</string>
 							<key>Proportion</key>
-							<string>490pt</string>
+							<string>641pt</string>
 						</dict>
 						<dict>
 							<key>Proportion</key>
-							<string>151pt</string>
+							<string>0pt</string>
 							<key>Tabs</key>
 							<array>
 								<dict>
@@ -549,7 +565,9 @@
 									<key>GeometryConfiguration</key>
 									<dict>
 										<key>Frame</key>
-										<string>{{10, 27}, {976, 172}}</string>
+										<string>{{10, 27}, {976, -27}}</string>
+										<key>RubberWindowFrame</key>
+										<string>0 91 1280 687 0 0 1280 778 </string>
 									</dict>
 									<key>Module</key>
 									<string>PBXProjectFindModule</string>
@@ -587,9 +605,7 @@
 									<key>GeometryConfiguration</key>
 									<dict>
 										<key>Frame</key>
-										<string>{{10, 27}, {976, 124}}</string>
-										<key>RubberWindowFrame</key>
-										<string>0 91 1280 687 0 0 1280 778 </string>
+										<string>{{10, 27}, {976, 86}}</string>
 									</dict>
 									<key>Module</key>
 									<string>PBXBuildResultsModule</string>
