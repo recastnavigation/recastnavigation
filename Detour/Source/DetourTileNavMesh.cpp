@@ -90,7 +90,7 @@ dtTiledNavMesh::~dtTiledNavMesh()
 {
 	for (int i = 0; i < DT_MAX_TILES; ++i)
 	{
-		if (m_tiles[i].data && m_tiles[i].dataSize < 0)
+		if (m_tiles[i].data && m_tiles[i].ownsData)
 		{
 			delete [] m_tiles[i].data;
 			m_tiles[i].data = 0;

@@ -22,6 +22,8 @@
 #	define snprintf _snprintf
 #endif
 
+
+
 /*GLFont g_font;
 void drawText(int x, int y, int dir, const char* text, unsigned int col)
 {
@@ -566,6 +568,9 @@ int main(int argc, char *argv[])
 						showLog = true;
 						logScroll = 0;
 					}
+					printf("Build log:\n");
+					for (int i = 0; i < log.getMessageCount(); ++i)
+						printf("%s\n", log.getMessageText(i));
 				}
 
 				imguiSeparator();

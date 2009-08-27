@@ -947,6 +947,179 @@ static void paintRectRegion(int minx, int maxx, int miny, int maxy,
 	}
 }
 
+struct rcSweepSpan
+{
+	unsigned short rid;	// row id
+	unsigned short id;	// region id
+	unsigned short ns;	// number samples
+	unsigned short nei;	// neighbour id
+};
+
+bool rcBuildRegionsMonotone(rcCompactHeightfield& chf,
+							int walkableRadius, int borderSize,
+							int minRegionSize, int mergeRegionSize)
+{
+	rcTimeVal startTime = rcGetPerformanceTimer();
+	
+	unsigned short* src = 0;
+	rcSweepSpan* sweeps = 0;
+	rcIntArray prev(256);
+	
+	const int w = chf.width;
+	const int h = chf.height;
+	unsigned short minLevel = (unsigned short)(walkableRadius*2);
+	unsigned short id = 1;
+	
+	src = new unsigned short[chf.spanCount*2];
+	if (!src)
+	{
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_ERROR, "rcBuildRegionsMonotone: Out of memory 'src' (%d).", chf.spanCount*2);
+		goto failure;
+	}
+	memset(src,0,sizeof(unsigned short)*2*chf.spanCount);
+
+	sweeps = new rcSweepSpan[chf.width];
+	if (!sweeps)
+	{
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_ERROR, "rcBuildDistanceField: Out of memory 'sweeps' (%d).", chf.width);
+		goto failure;
+	}
+	
+	
+	// Mark border regions.
+	paintRectRegion(0, borderSize, 0, h, id|RC_BORDER_REG, minLevel, chf, src); id++;
+	paintRectRegion(w-borderSize, w, 0, h, id|RC_BORDER_REG, minLevel, chf, src); id++;
+	paintRectRegion(0, w, 0, borderSize, id|RC_BORDER_REG, minLevel, chf, src); id++;
+	paintRectRegion(0, w, h-borderSize, h, id|RC_BORDER_REG, minLevel, chf, src); id++;
+	
+	// Sweep one line at a time.
+	for (int y = borderSize; y < h-borderSize; ++y)
+	{
+		// Collect spans from this row.
+		prev.resize(id+1);
+		memset(&prev[0],0,sizeof(int)*id);
+		unsigned short rid = 1;
+		
+		for (int x = borderSize; x < w-borderSize; ++x)
+		{
+			const rcCompactCell& c = chf.cells[x+y*w];
+			
+			for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
+			{
+				const rcCompactSpan& s = chf.spans[i];
+				if (s.dist < minLevel) continue;
+				
+				// -x
+				unsigned short previd = 0;
+				if (rcGetCon(s, 0) != 0xf)
+				{
+					const int ax = x + rcGetDirOffsetX(0);
+					const int ay = y + rcGetDirOffsetY(0);
+					const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(s, 0);
+					if ((src[ai*2] & RC_BORDER_REG) == 0)
+						previd = src[ai*2];
+				}
+				
+				if (!previd)
+				{
+					previd = rid++;
+					sweeps[previd].rid = previd;
+					sweeps[previd].ns = 0;
+					sweeps[previd].nei = 0;
+				}
+
+				if (previd != 0)
+				{
+					// -y
+					if (rcGetCon(s,3) != 0xf)
+					{
+						const int ax = x + rcGetDirOffsetX(3);
+						const int ay = y + rcGetDirOffsetY(3);
+						const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(s, 3);
+						if (src[ai*2] && (src[ai*2] & RC_BORDER_REG) == 0)
+						{
+							unsigned char nr = src[ai*2];
+							if (!sweeps[previd].nei || sweeps[previd].nei == nr)
+							{
+								sweeps[previd].nei = nr;
+								sweeps[previd].ns++;
+								prev[nr]++;
+							}
+							else
+							{
+								sweeps[previd].nei = 0xffff;
+							}
+						}
+					}
+				}
+				src[i*2] = previd;
+			}
+		}
+		
+		// Create unique ID.
+		for (int i = 1; i < rid; ++i)
+		{
+			if (sweeps[i].nei != 0xffff && sweeps[i].nei != 0 &&
+				prev[sweeps[i].nei] == (int)sweeps[i].ns)
+			{
+				sweeps[i].id = sweeps[i].nei;
+			}
+			else
+			{
+				sweeps[i].id = id++;
+			}
+		}
+		
+		// Remap IDs
+		for (int x = borderSize; x < w-borderSize; ++x)
+		{
+			const rcCompactCell& c = chf.cells[x+y*w];
+			
+			for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
+			{
+				if (src[i*2] > 0 && src[i*2] < rid)
+					src[i*2] = sweeps[src[i*2]].id;
+			}
+		}
+	}
+				
+
+	rcTimeVal filterStartTime = rcGetPerformanceTimer();
+
+	// Filter out small regions.
+	chf.maxRegions = id;
+	if (!filterSmallRegions(minRegionSize, mergeRegionSize, chf.maxRegions, chf, src))
+		goto failure;
+
+	rcTimeVal filterEndTime = rcGetPerformanceTimer();
+	
+	
+	// Write the result out.
+	for (int i = 0; i < chf.spanCount; ++i)
+		chf.spans[i].reg = src[i*2];
+	
+	delete [] src;
+	delete [] sweeps;
+	
+	rcTimeVal endTime = rcGetPerformanceTimer();
+
+	if (rcGetBuildTimes())
+	{
+		rcGetBuildTimes()->buildRegions += rcGetDeltaTimeUsec(startTime, endTime);
+		rcGetBuildTimes()->buildRegionsFilter += rcGetDeltaTimeUsec(filterStartTime, filterEndTime);
+	}
+
+	return true;
+	
+failure:
+	delete [] src;
+	delete [] sweeps;
+
+	return false;
+}
+
 bool rcBuildRegions(rcCompactHeightfield& chf,
 					int walkableRadius, int borderSize,
 					int minRegionSize, int mergeRegionSize)

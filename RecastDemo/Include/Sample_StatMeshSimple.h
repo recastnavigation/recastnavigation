@@ -6,6 +6,7 @@
 #include "Recast.h"
 #include "RecastLog.h"
 
+
 class Sample_StatMeshSimple : public Sample_StatMesh
 {
 protected:

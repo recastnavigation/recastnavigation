@@ -31,6 +31,7 @@
 		6B2AEC530FFB8958005BE9CC /* Sample_TileMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B2AEC520FFB8958005BE9CC /* Sample_TileMesh.cpp */; };
 		6B2AEC560FFB89E7005BE9CC /* Sample_StatMeshTiled.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B2AEC550FFB89E7005BE9CC /* Sample_StatMeshTiled.cpp */; };
 		6B2AEC5A0FFB8A7A005BE9CC /* DetourTileNavMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B2AEC590FFB8A7A005BE9CC /* DetourTileNavMesh.cpp */; };
+		6B3317081045682A00E98B50 /* transGizmo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B3317071045682A00E98B50 /* transGizmo.cpp */; };
 		6B555DB1100B212E00247EA3 /* imguiRenderGL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */; };
 		6B62416A103434880002E346 /* RecastMeshDetail.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B624169103434880002E346 /* RecastMeshDetail.cpp */; };
 		6B8632DA0F78122C00E2684A /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6B8632D90F78122C00E2684A /* SDL.framework */; };
@@ -90,6 +91,7 @@
 		6B2AEC570FFB89F4005BE9CC /* Sample_StatMeshTiled.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Sample_StatMeshTiled.h; path = ../../Include/Sample_StatMeshTiled.h; sourceTree = SOURCE_ROOT; };
 		6B2AEC580FFB8A68005BE9CC /* DetourTileNavMesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DetourTileNavMesh.h; path = ../../../Detour/Include/DetourTileNavMesh.h; sourceTree = SOURCE_ROOT; };
 		6B2AEC590FFB8A7A005BE9CC /* DetourTileNavMesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DetourTileNavMesh.cpp; path = ../../../Detour/Source/DetourTileNavMesh.cpp; sourceTree = SOURCE_ROOT; };
+		6B3317071045682A00E98B50 /* transGizmo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = transGizmo.cpp; path = ../../Source/transGizmo.cpp; sourceTree = SOURCE_ROOT; };
 		6B555DAE100B211D00247EA3 /* imguiRenderGL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = imguiRenderGL.h; path = ../../Include/imguiRenderGL.h; sourceTree = SOURCE_ROOT; };
 		6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = imguiRenderGL.cpp; path = ../../Source/imguiRenderGL.cpp; sourceTree = SOURCE_ROOT; };
 		6B555DF6100B273500247EA3 /* stb_truetype.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stb_truetype.h; path = ../../Contrib/stb_truetype.h; sourceTree = SOURCE_ROOT; };
@@ -130,6 +132,7 @@
 				6B137C7D0F7FCBE800459200 /* Recast */,
 				6B555DF5100B25FC00247EA3 /* Samples */,
 				6B25B6180FFA62BE004F1BC4 /* main.cpp */,
+				6B3317071045682A00E98B50 /* transGizmo.cpp */,
 				6B137C7A0F7FCBE400459200 /* imgui.h */,
 				6B137C6C0F7FCBBB00459200 /* imgui.cpp */,
 				6B555DAE100B211D00247EA3 /* imguiRenderGL.h */,
@@ -355,6 +358,7 @@
 				6B1185FE10068B150018F96F /* DetourCommon.cpp in Sources */,
 				6B555DB1100B212E00247EA3 /* imguiRenderGL.cpp in Sources */,
 				6B62416A103434880002E346 /* RecastMeshDetail.cpp in Sources */,
+				6B3317081045682A00E98B50 /* transGizmo.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

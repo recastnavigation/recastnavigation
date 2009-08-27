@@ -443,7 +443,7 @@ bool rcBuildCompactHeightfield(const int walkableHeight, const int walkableClimb
 // Returns false if operation ran out of memory.
 bool rcBuildDistanceField(rcCompactHeightfield& chf);
 
-// Divides the walkable heighfied into simple regions.
+// Divides the walkable heighfied into simple regions using watershed partitioning.
 // Each region has only one contour and no overlaps.
 // The regions are stored in the compact heightfield 'reg' field.
 // The regions will be shrinked by the radius of the agent.
@@ -460,6 +460,24 @@ bool rcBuildDistanceField(rcCompactHeightfield& chf);
 bool rcBuildRegions(rcCompactHeightfield& chf,
 					int walkableRadius, int borderSize,
 					int minRegionSize, int mergeRegionSize);
+
+// Divides the walkable heighfied into simple regions using simple monotone partitioning.
+// Each region has only one contour and no overlaps.
+// The regions are stored in the compact heightfield 'reg' field.
+// The regions will be shrinked by the radius of the agent.
+// The process sometimes creates small regions. The parameter
+// 'minRegionSize' specifies the smallest allowed regions size.
+// If the area of a regions is smaller than allowed, the regions is
+// removed or merged to neighbour region. 
+// Params:
+//	chf - (in/out) compact heightfield representing the open space.
+//	walkableRadius - (in) the radius of the agent.
+//	minRegionSize - (in) the smallest allowed regions size.
+//	maxMergeRegionSize - (in) the largest allowed regions size which can be merged.
+// Returns false if operation ran out of memory.
+bool rcBuildRegionsMonotone(rcCompactHeightfield& chf,
+							int walkableRadius, int borderSize,
+							int minRegionSize, int mergeRegionSize);
 
 // Builds simplified contours from the regions outlines.
 // Params:
