@@ -256,8 +256,8 @@ static void rasterizeTri(const float* v0, const float* v1, const float* v2,
 			if (smax < 0.0f) continue;
 			if (smin > by) continue;
 			// Clamp the span to the heightfield bbox.
-			if (smin < 0.0f) smin = bmin[1];
-			if (smax > by) smax = bmax[1];
+			if (smin < 0.0f) smin = 0;
+			if (smax > by) smax = by;
 			
 			// Snap the span to the heightfield height grid.
 			unsigned short ismin = (unsigned short)rcClamp((int)floorf(smin * ich), 0, 0x7fff);
