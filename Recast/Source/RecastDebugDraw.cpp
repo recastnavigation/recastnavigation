@@ -31,7 +31,7 @@ void rcDebugDrawMesh(const float* verts, int nverts,
 	glBegin(GL_TRIANGLES);
 	for (int i = 0; i < ntris*3; i += 3)
 	{
-		float a = (2+normals[i+0]+normals[i+1])/4;
+		float a = (2+normals[i+0]+normals[i+1])/4 * 0.6f;
 		if (flags && !flags[i/3])
 			glColor3f(a,a*0.3f,a*0.1f);
 		else
@@ -291,6 +291,8 @@ void rcDebugDrawCompactHeightfieldRegions(const rcCompactHeightfield& chf)
 
 	float col[4] = { 1,1,1,1 };
 	
+	glDepthMask(GL_TRUE);
+	
 	glBegin(GL_QUADS);
 	for (int y = 0; y < chf.height; ++y)
 	{
@@ -303,16 +305,19 @@ void rcDebugDrawCompactHeightfieldRegions(const rcCompactHeightfield& chf)
 			for (unsigned i = c.index, ni = c.index+c.count; i < ni; ++i)
 			{
 				const rcCompactSpan& s = chf.spans[i];
-				if (s.reg)
+
+				if (chf.reg[i])
 				{
-					intToCol(s.reg, col);
+					intToCol(chf.reg[i], col);
 					glColor4fv(col);
 				}
 				else
 				{
-					glColor4ub(0,0,0,128);
+					glColor4ub(0,0,0,64);
 				}
-				const float fy = chf.bmin[1] + (s.y+1)*ch;
+
+				const float fy = chf.bmin[1] + (s.y)*ch;
+
 				glVertex3f(fx, fy, fz);
 				glVertex3f(fx, fy, fz+cs);
 				glVertex3f(fx+cs, fy, fz+cs);
@@ -346,7 +351,7 @@ void rcDebugDrawCompactHeightfieldDistance(const rcCompactHeightfield& chf)
 			{
 				const rcCompactSpan& s = chf.spans[i];
 				const float fy = chf.bmin[1] + (s.y+1)*ch;
-				float cd = (float)s.dist * dscale;
+				float cd = (float)chf.dist[i] * dscale;
 				glColor3f(cd, cd, cd);
 				glVertex3f(fx, fy, fz);
 				glVertex3f(fx, fy, fz+cs);

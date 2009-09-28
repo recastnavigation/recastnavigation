@@ -92,18 +92,23 @@ struct rcCompactCell
 struct rcCompactSpan
 {
 	unsigned short y;			// Bottom coordinate of the span.
-	unsigned short reg;			// Region ID
-	unsigned short dist;		// Distance to border
 	unsigned short con;			// Connections to neighbour cells.
 	unsigned char h;			// Height of the span.
-	unsigned char flags;		// Flags.
 };
 
 // Compact static heightfield. 
 struct rcCompactHeightfield
 {
-	inline rcCompactHeightfield() : maxDistance(0), maxRegions(0), cells(0), spans(0) {}
-	inline ~rcCompactHeightfield() { delete [] cells; delete [] spans; }
+	inline rcCompactHeightfield() :
+		maxDistance(0), maxRegions(0), cells(0),
+		spans(0), dist(0), reg(0) {}
+	inline ~rcCompactHeightfield()
+	{
+		delete [] cells;
+		delete [] spans;
+		delete [] dist;
+		delete [] reg;
+	}
 	int width, height;					// Width and height of the heighfield.
 	int spanCount;						// Number of spans in the heightfield.
 	int walkableHeight, walkableClimb;	// Agent properties.
@@ -113,6 +118,8 @@ struct rcCompactHeightfield
 	float cs, ch;						// Cell size and height.
 	rcCompactCell* cells;				// Pointer to width*height cells.
 	rcCompactSpan* spans;				// Pointer to spans.
+	unsigned short* dist;				// Pointer to per span distance to border.
+	unsigned short* reg;				// Pointer to per span region ID.
 };
 
 struct rcContour
@@ -205,6 +212,18 @@ public:
 	inline const int& operator[](int i) const { return m_data[i]; }
 	inline int& operator[](int i) { return m_data[i]; }
 	inline int size() const { return m_size; }
+};
+
+// Simple helper class to delete array in scope
+template<class T> class rcScopedDelete
+{
+	T* ptr;
+public:
+	inline rcScopedDelete() : ptr(0) {}
+	inline rcScopedDelete(T* p) : ptr(p) {}
+	inline ~rcScopedDelete() { delete [] ptr; }
+	inline operator T*() { return ptr; }
+	inline T* operator=(T* p) { ptr = p; return ptr; }
 };
 
 enum rcSpanFlags

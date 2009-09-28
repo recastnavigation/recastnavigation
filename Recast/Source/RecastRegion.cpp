@@ -238,7 +238,7 @@ static unsigned short* boxBlur(rcCompactHeightfield& chf, int thr,
 static bool floodRegion(int x, int y, int i,
 						unsigned short level, unsigned short minLevel, unsigned short r,
 						rcCompactHeightfield& chf,
-						unsigned short* src,
+						unsigned short* srcReg, unsigned short* srcDist,
 						rcIntArray& stack)
 {
 	const int w = chf.width;
@@ -248,8 +248,8 @@ static bool floodRegion(int x, int y, int i,
 	stack.push((int)x);
 	stack.push((int)y);
 	stack.push((int)i);
-	src[i*2] = r;
-	src[i*2+1] = 0;
+	srcReg[i] = r;
+	srcDist[i] = 0;
 	
 	unsigned short lev = level >= minLevel+2 ? level-2 : minLevel;
 	int count = 0;
@@ -272,7 +272,7 @@ static bool floodRegion(int x, int y, int i,
 				const int ax = cx + rcGetDirOffsetX(dir);
 				const int ay = cy + rcGetDirOffsetY(dir);
 				const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(cs, dir);
-				unsigned short nr = src[ai*2];
+				unsigned short nr = srcReg[ai];
 				if (nr != 0 && nr != r)
 					ar = nr;
 				
@@ -285,7 +285,7 @@ static bool floodRegion(int x, int y, int i,
 					const int ay2 = ay + rcGetDirOffsetY(dir2);
 					const int ai2 = (int)chf.cells[ax2+ay2*w].index + rcGetCon(as, dir2);
 					
-					unsigned short nr = src[ai2*2];
+					unsigned short nr = srcReg[ai2];
 					if (nr != 0 && nr != r)
 						ar = nr;
 				}				
@@ -293,7 +293,7 @@ static bool floodRegion(int x, int y, int i,
 		}
 		if (ar != 0)
 		{
-			src[ci*2] = 0;
+			srcReg[ci] = 0;
 			continue;
 		}
 		count++;
@@ -306,12 +306,12 @@ static bool floodRegion(int x, int y, int i,
 				const int ax = cx + rcGetDirOffsetX(dir);
 				const int ay = cy + rcGetDirOffsetY(dir);
 				const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(cs, dir);
-				if (chf.spans[ai].dist >= lev)
+				if (chf.dist[ai] >= lev)
 				{
-					if (src[ai*2] == 0)
+					if (srcReg[ai] == 0)
 					{
-						src[ai*2] = r;
-						src[ai*2+1] = 0;
+						srcReg[ai] = r;
+						srcDist[ai] = 0;
 						stack.push(ax);
 						stack.push(ay);
 						stack.push(ai);
@@ -326,8 +326,8 @@ static bool floodRegion(int x, int y, int i,
 
 static unsigned short* expandRegions(int maxIter, unsigned short level,
 									 rcCompactHeightfield& chf,
-									 unsigned short* src,
-									 unsigned short* dst,
+									 unsigned short* srcReg, unsigned short* srcDist,
+									 unsigned short* dstReg, unsigned short* dstDist, 
 									 rcIntArray& stack)
 {
 	const int w = chf.width;
@@ -342,7 +342,7 @@ static unsigned short* expandRegions(int maxIter, unsigned short level,
 			const rcCompactCell& c = chf.cells[x+y*w];
 			for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
 			{
-				if (chf.spans[i].dist >= level && src[i*2] == 0)
+				if (chf.dist[i] >= level && srcReg[i] == 0)
 				{
 					stack.push(x);
 					stack.push(y);
@@ -357,7 +357,8 @@ static unsigned short* expandRegions(int maxIter, unsigned short level,
 	{
 		int failed = 0;
 		
-		memcpy(dst, src, sizeof(unsigned short)*chf.spanCount*2);
+		memcpy(dstReg, srcReg, sizeof(unsigned short)*chf.spanCount);
+		memcpy(dstDist, srcDist, sizeof(unsigned short)*chf.spanCount);
 		
 		for (int j = 0; j < stack.size(); j += 3)
 		{
@@ -370,7 +371,7 @@ static unsigned short* expandRegions(int maxIter, unsigned short level,
 				continue;
 			}
 			
-			unsigned short r = src[i*2];
+			unsigned short r = srcReg[i];
 			unsigned short d2 = 0xffff;
 			const rcCompactSpan& s = chf.spans[i];
 			for (int dir = 0; dir < 4; ++dir)
@@ -379,20 +380,20 @@ static unsigned short* expandRegions(int maxIter, unsigned short level,
 				const int ax = x + rcGetDirOffsetX(dir);
 				const int ay = y + rcGetDirOffsetY(dir);
 				const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(s, dir);
-				if (src[ai*2] > 0 && (src[ai*2] & RC_BORDER_REG) == 0)
+				if (srcReg[ai] > 0 && (srcReg[ai] & RC_BORDER_REG) == 0)
 				{
-					if ((int)src[ai*2+1]+2 < (int)d2)
+					if ((int)srcDist[ai]+2 < (int)d2)
 					{
-						r = src[ai*2];
-						d2 = src[ai*2+1]+2;
+						r = srcReg[ai];
+						d2 = srcDist[ai]+2;
 					}
 				}
 			}
 			if (r)
 			{
 				stack[j+2] = -1; // mark as used
-				dst[i*2] = r;
-				dst[i*2+1] = d2;
+				dstReg[i] = r;
+				dstDist[i] = d2;
 			}
 			else
 			{
@@ -401,7 +402,8 @@ static unsigned short* expandRegions(int maxIter, unsigned short level,
 		}
 		
 		// rcSwap source and dest.
-		rcSwap(src, dst);
+		rcSwap(srcReg, dstReg);
+		rcSwap(srcDist, dstDist);
 		
 		if (failed*3 == stack.size())
 			break;
@@ -414,7 +416,7 @@ static unsigned short* expandRegions(int maxIter, unsigned short level,
 		}
 	}
 	
-	return src;
+	return srcReg;
 }
 
 
@@ -467,19 +469,19 @@ static void replaceNeighbour(rcRegion& reg, unsigned short oldId, unsigned short
 		removeAdjacentNeighbours(reg);
 }
 
-static bool canMergeWithRegion(rcRegion& reg, unsigned short id)
+static bool canMergeWithRegion(const rcRegion& rega, const rcRegion& regb)
 {
 	int n = 0;
-	for (int i = 0; i < reg.connections.size(); ++i)
+	for (int i = 0; i < rega.connections.size(); ++i)
 	{
-		if (reg.connections[i] == id)
+		if (rega.connections[i] == regb.id)
 			n++;
 	}
 	if (n > 1)
 		return false;
-	for (int i = 0; i < reg.floors.size(); ++i)
+	for (int i = 0; i < rega.floors.size(); ++i)
 	{
-		if (reg.floors[i] == id)
+		if (rega.floors[i] == regb.id)
 			return false;
 	}
 	return true;
@@ -562,7 +564,7 @@ static bool isRegionConnectedToBorder(const rcRegion& reg)
 	return false;
 }
 
-static bool isSolidEdge(rcCompactHeightfield& chf, unsigned short* src,
+static bool isSolidEdge(rcCompactHeightfield& chf, unsigned short* srcReg,
 						int x, int y, int i, int dir)
 {
 	const rcCompactSpan& s = chf.spans[i];
@@ -572,16 +574,16 @@ static bool isSolidEdge(rcCompactHeightfield& chf, unsigned short* src,
 		const int ax = x + rcGetDirOffsetX(dir);
 		const int ay = y + rcGetDirOffsetY(dir);
 		const int ai = (int)chf.cells[ax+ay*chf.width].index + rcGetCon(s, dir);
-		r = src[ai*2];
+		r = srcReg[ai];
 	}
-	if (r == src[i*2])
+	if (r == srcReg[i])
 		return false;
 	return true;
 }
 
 static void walkContour(int x, int y, int i, int dir,
 						rcCompactHeightfield& chf,
-						unsigned short* src,
+						unsigned short* srcReg,
 						rcIntArray& cont)
 {
 	int startDir = dir;
@@ -594,7 +596,7 @@ static void walkContour(int x, int y, int i, int dir,
 		const int ax = x + rcGetDirOffsetX(dir);
 		const int ay = y + rcGetDirOffsetY(dir);
 		const int ai = (int)chf.cells[ax+ay*chf.width].index + rcGetCon(ss, dir);
-		curReg = src[ai*2];
+		curReg = srcReg[ai];
 	}
 	cont.push(curReg);
 			
@@ -603,7 +605,7 @@ static void walkContour(int x, int y, int i, int dir,
 	{
 		const rcCompactSpan& s = chf.spans[i];
 		
-		if (isSolidEdge(chf, src, x, y, i, dir))
+		if (isSolidEdge(chf, srcReg, x, y, i, dir))
 		{
 			// Choose the edge corner
 			unsigned short r = 0;
@@ -612,7 +614,7 @@ static void walkContour(int x, int y, int i, int dir,
 				const int ax = x + rcGetDirOffsetX(dir);
 				const int ay = y + rcGetDirOffsetY(dir);
 				const int ai = (int)chf.cells[ax+ay*chf.width].index + rcGetCon(s, dir);
-				r = src[ai*2];
+				r = srcReg[ai];
 			}
 			if (r != curReg)
 			{
@@ -670,11 +672,11 @@ static void walkContour(int x, int y, int i, int dir,
 static bool filterSmallRegions(int minRegionSize, int mergeRegionSize,
 							   unsigned short& maxRegionId,
 							   rcCompactHeightfield& chf,
-							   unsigned short* src)
+							   unsigned short* srcReg)
 {
 	const int w = chf.width;
 	const int h = chf.height;
-
+	
 	int nreg = maxRegionId+1;
 	rcRegion* regions = new rcRegion[nreg];
 	if (!regions)
@@ -686,7 +688,7 @@ static bool filterSmallRegions(int minRegionSize, int mergeRegionSize,
 	
 	for (int i = 0; i < nreg; ++i)
 		regions[i].id = (unsigned short)i;
-
+	
 	// Find edge of a region and find connections around the contour.
 	for (int y = 0; y < h; ++y)
 	{
@@ -695,19 +697,19 @@ static bool filterSmallRegions(int minRegionSize, int mergeRegionSize,
 			const rcCompactCell& c = chf.cells[x+y*w];
 			for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
 			{
-				unsigned short r = src[i*2];
+				unsigned short r = srcReg[i];
 				if (r == 0 || r >= nreg)
 					continue;
 				
 				rcRegion& reg = regions[r];
 				reg.count++;
 				
-
+				
 				// Update floors.
 				for (int j = (int)c.index; j < ni; ++j)
 				{
 					if (i == j) continue;
-					unsigned short floorId = src[j*2];
+					unsigned short floorId = srcReg[j];
 					if (floorId == 0 || floorId >= nreg)
 						continue;
 					addUniqueFloorRegion(reg, floorId);
@@ -721,7 +723,7 @@ static bool filterSmallRegions(int minRegionSize, int mergeRegionSize,
 				int ndir = -1;
 				for (int dir = 0; dir < 4; ++dir)
 				{
-					if (isSolidEdge(chf, src, x, y, i, dir))
+					if (isSolidEdge(chf, srcReg, x, y, i, dir))
 					{
 						ndir = dir;
 						break;
@@ -732,7 +734,7 @@ static bool filterSmallRegions(int minRegionSize, int mergeRegionSize,
 				{
 					// The cell is at border.
 					// Walk around the contour to find all the neighbours.
-					walkContour(x, y, i, ndir, chf, src, reg.connections);
+					walkContour(x, y, i, ndir, chf, srcReg, reg.connections);
 				}
 			}
 		}
@@ -743,7 +745,7 @@ static bool filterSmallRegions(int minRegionSize, int mergeRegionSize,
 	{
 		rcRegion& reg = regions[i];
 		if (reg.id == 0 || (reg.id & RC_BORDER_REG))
-			continue;			
+			continue;                       
 		if (reg.count == 0)
 			continue;
 		
@@ -757,8 +759,8 @@ static bool filterSmallRegions(int minRegionSize, int mergeRegionSize,
 			}
 		}
 	}
-		
-		
+	
+	
 	// Merge too small regions to neighbour regions.
 	int mergeCount = 0 ;
 	do
@@ -768,14 +770,14 @@ static bool filterSmallRegions(int minRegionSize, int mergeRegionSize,
 		{
 			rcRegion& reg = regions[i];
 			if (reg.id == 0 || (reg.id & RC_BORDER_REG))
-				continue;			
+				continue;                       
 			if (reg.count == 0)
 				continue;
-				
+			
 			// Check to see if the region should be merged.
 			if (reg.count > mergeRegionSize && isRegionConnectedToBorder(reg))
 				continue;
-				
+			
 			// Small region with more than 1 connection.
 			// Or region which is not connected to a border at all.
 			// Find smallest neighbour region that connects to this one.
@@ -787,8 +789,8 @@ static bool filterSmallRegions(int minRegionSize, int mergeRegionSize,
 				rcRegion& mreg = regions[reg.connections[j]];
 				if (mreg.id == 0 || (mreg.id & RC_BORDER_REG)) continue;
 				if (mreg.count < smallest &&
-					canMergeWithRegion(reg, mreg.id) &&
-					canMergeWithRegion(mreg, reg.id))
+					canMergeWithRegion(reg, mreg) &&
+					canMergeWithRegion(mreg, reg))
 				{
 					smallest = mreg.count;
 					mergeId = mreg.id;
@@ -821,16 +823,16 @@ static bool filterSmallRegions(int minRegionSize, int mergeRegionSize,
 		}
 	}
 	while (mergeCount > 0);
-
+	
 	// Compress region Ids.
 	for (int i = 0; i < nreg; ++i)
 	{
 		regions[i].remap = false;
-		if (regions[i].id == 0) continue;	// Skip nil regions.
-		if (regions[i].id & RC_BORDER_REG) continue;	// Skip external regions.
+		if (regions[i].id == 0) continue;       // Skip nil regions.
+		if (regions[i].id & RC_BORDER_REG) continue;    // Skip external regions.
 		regions[i].remap = true;
 	}
-
+	
 	unsigned short regIdGen = 0;
 	for (int i = 0; i < nreg; ++i)
 	{
@@ -848,12 +850,12 @@ static bool filterSmallRegions(int minRegionSize, int mergeRegionSize,
 		}
 	}
 	maxRegionId = regIdGen;
-		
+	
 	// Remap regions.
 	for (int i = 0; i < chf.spanCount; ++i)
 	{
-		if ((src[i*2] & RC_BORDER_REG) == 0)
-			src[i*2] = regions[src[i*2]].id;
+		if ((srcReg[i] & RC_BORDER_REG) == 0)
+			srcReg[i] = regions[srcReg[i]].id;
 	}
 	
 	delete [] regions;
@@ -861,9 +863,16 @@ static bool filterSmallRegions(int minRegionSize, int mergeRegionSize,
 	return true;
 }
 
+
 bool rcBuildDistanceField(rcCompactHeightfield& chf)
 {
 	rcTimeVal startTime = rcGetPerformanceTimer();
+	
+	if (chf.dist)
+	{
+		delete [] chf.dist;
+		chf.dist = 0;
+	}
 	
 	unsigned short* dist0 = new unsigned short[chf.spanCount];
 	if (!dist0)
@@ -902,13 +911,11 @@ bool rcBuildDistanceField(rcCompactHeightfield& chf)
 		rcSwap(src, dst);
 	
 	// Store distance.
-	for (int i = 0; i < chf.spanCount; ++i)
-		chf.spans[i].dist = src[i];
+	chf.dist = src;
 	
 	rcTimeVal blurEndTime = rcGetPerformanceTimer();
 	
-	delete [] dist0;
-	delete [] dist1;
+	delete [] dst;
 	
 	rcTimeVal endTime = rcGetPerformanceTimer();
 	
@@ -930,7 +937,7 @@ bool rcBuildDistanceField(rcCompactHeightfield& chf)
 
 static void paintRectRegion(int minx, int maxx, int miny, int maxy,
 							unsigned short regId, unsigned short minLevel,
-							rcCompactHeightfield& chf, unsigned short* src)
+							rcCompactHeightfield& chf, unsigned short* srcReg)
 {
 	const int w = chf.width;
 	for (int y = miny; y < maxy; ++y)
@@ -940,8 +947,8 @@ static void paintRectRegion(int minx, int maxx, int miny, int maxy,
 			const rcCompactCell& c = chf.cells[x+y*w];
 			for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
 			{
-				if (chf.spans[i].dist >= minLevel)
-					src[i*2] = regId;
+				if (chf.dist[i] >= minLevel)
+					srcReg[i] = regId;
 			}
 		}
 	}
@@ -961,39 +968,46 @@ bool rcBuildRegionsMonotone(rcCompactHeightfield& chf,
 {
 	rcTimeVal startTime = rcGetPerformanceTimer();
 	
-	unsigned short* src = 0;
-	rcSweepSpan* sweeps = 0;
-	rcIntArray prev(256);
-	
 	const int w = chf.width;
 	const int h = chf.height;
 	unsigned short minLevel = (unsigned short)(walkableRadius*2);
 	unsigned short id = 1;
 	
-	src = new unsigned short[chf.spanCount*2];
-	if (!src)
+	if (chf.reg)
+	{
+		delete [] chf.reg;
+		chf.reg = 0;
+	}
+	
+	rcScopedDelete<unsigned short> srcReg = new unsigned short[chf.spanCount];
+	if (!srcReg)
 	{
 		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "rcBuildRegionsMonotone: Out of memory 'src' (%d).", chf.spanCount*2);
-		goto failure;
+			rcGetLog()->log(RC_LOG_ERROR, "rcBuildRegionsMonotone: Out of memory 'src' (%d).", chf.spanCount);
+		return false;
 	}
-	memset(src,0,sizeof(unsigned short)*2*chf.spanCount);
+	memset(srcReg,0,sizeof(unsigned short)*chf.spanCount);
 
-	sweeps = new rcSweepSpan[chf.width];
+	rcScopedDelete<rcSweepSpan> sweeps = new rcSweepSpan[rcMax(chf.width,chf.height)];
 	if (!sweeps)
 	{
 		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "rcBuildDistanceField: Out of memory 'sweeps' (%d).", chf.width);
-		goto failure;
+			rcGetLog()->log(RC_LOG_ERROR, "rcBuildRegionsMonotone: Out of memory 'sweeps' (%d).", chf.width);
+		return false;
 	}
 	
 	
 	// Mark border regions.
-	paintRectRegion(0, borderSize, 0, h, id|RC_BORDER_REG, minLevel, chf, src); id++;
-	paintRectRegion(w-borderSize, w, 0, h, id|RC_BORDER_REG, minLevel, chf, src); id++;
-	paintRectRegion(0, w, 0, borderSize, id|RC_BORDER_REG, minLevel, chf, src); id++;
-	paintRectRegion(0, w, h-borderSize, h, id|RC_BORDER_REG, minLevel, chf, src); id++;
+	if (borderSize)
+	{
+		paintRectRegion(0, borderSize, 0, h, id|RC_BORDER_REG, minLevel, chf, srcReg); id++;
+		paintRectRegion(w-borderSize, w, 0, h, id|RC_BORDER_REG, minLevel, chf, srcReg); id++;
+		paintRectRegion(0, w, 0, borderSize, id|RC_BORDER_REG, minLevel, chf, srcReg); id++;
+		paintRectRegion(0, w, h-borderSize, h, id|RC_BORDER_REG, minLevel, chf, srcReg); id++;
+	}
 	
+	rcIntArray prev(256);
+
 	// Sweep one line at a time.
 	for (int y = borderSize; y < h-borderSize; ++y)
 	{
@@ -1009,7 +1023,7 @@ bool rcBuildRegionsMonotone(rcCompactHeightfield& chf,
 			for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
 			{
 				const rcCompactSpan& s = chf.spans[i];
-				if (s.dist < minLevel) continue;
+				if (chf.dist[i] < minLevel) continue;
 				
 				// -x
 				unsigned short previd = 0;
@@ -1018,8 +1032,8 @@ bool rcBuildRegionsMonotone(rcCompactHeightfield& chf,
 					const int ax = x + rcGetDirOffsetX(0);
 					const int ay = y + rcGetDirOffsetY(0);
 					const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(s, 0);
-					if ((src[ai*2] & RC_BORDER_REG) == 0)
-						previd = src[ai*2];
+					if ((srcReg[ai] & RC_BORDER_REG) == 0)
+						previd = srcReg[ai];
 				}
 				
 				if (!previd)
@@ -1030,31 +1044,29 @@ bool rcBuildRegionsMonotone(rcCompactHeightfield& chf,
 					sweeps[previd].nei = 0;
 				}
 
-				if (previd != 0)
+				// -y
+				if (rcGetCon(s,3) != 0xf)
 				{
-					// -y
-					if (rcGetCon(s,3) != 0xf)
+					const int ax = x + rcGetDirOffsetX(3);
+					const int ay = y + rcGetDirOffsetY(3);
+					const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(s, 3);
+					if (srcReg[ai] && (srcReg[ai] & RC_BORDER_REG) == 0)
 					{
-						const int ax = x + rcGetDirOffsetX(3);
-						const int ay = y + rcGetDirOffsetY(3);
-						const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(s, 3);
-						if (src[ai*2] && (src[ai*2] & RC_BORDER_REG) == 0)
+						unsigned char nr = srcReg[ai];
+						if (!sweeps[previd].nei || sweeps[previd].nei == nr)
 						{
-							unsigned char nr = src[ai*2];
-							if (!sweeps[previd].nei || sweeps[previd].nei == nr)
-							{
-								sweeps[previd].nei = nr;
-								sweeps[previd].ns++;
-								prev[nr]++;
-							}
-							else
-							{
-								sweeps[previd].nei = 0xffff;
-							}
+							sweeps[previd].nei = nr;
+							sweeps[previd].ns++;
+							prev[nr]++;
+						}
+						else
+						{
+							sweeps[previd].nei = 0xffff;
 						}
 					}
 				}
-				src[i*2] = previd;
+
+				srcReg[i] = previd;
 			}
 		}
 		
@@ -1079,29 +1091,24 @@ bool rcBuildRegionsMonotone(rcCompactHeightfield& chf,
 			
 			for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
 			{
-				if (src[i*2] > 0 && src[i*2] < rid)
-					src[i*2] = sweeps[src[i*2]].id;
+				if (srcReg[i] > 0 && srcReg[i] < rid)
+					srcReg[i] = sweeps[srcReg[i]].id;
 			}
 		}
 	}
-				
 
 	rcTimeVal filterStartTime = rcGetPerformanceTimer();
 
 	// Filter out small regions.
 	chf.maxRegions = id;
-	if (!filterSmallRegions(minRegionSize, mergeRegionSize, chf.maxRegions, chf, src))
-		goto failure;
+	if (!filterSmallRegions(minRegionSize, mergeRegionSize, chf.maxRegions, chf, srcReg))
+		return false;
 
 	rcTimeVal filterEndTime = rcGetPerformanceTimer();
 	
-	
-	// Write the result out.
-	for (int i = 0; i < chf.spanCount; ++i)
-		chf.spans[i].reg = src[i*2];
-	
-	delete [] src;
-	delete [] sweeps;
+	// Store the result out.
+	chf.reg = srcReg;
+	srcReg = 0;
 	
 	rcTimeVal endTime = rcGetPerformanceTimer();
 
@@ -1112,12 +1119,6 @@ bool rcBuildRegionsMonotone(rcCompactHeightfield& chf,
 	}
 
 	return true;
-	
-failure:
-	delete [] src;
-	delete [] sweeps;
-
-	return false;
 }
 
 bool rcBuildRegions(rcCompactHeightfield& chf,
@@ -1128,20 +1129,23 @@ bool rcBuildRegions(rcCompactHeightfield& chf,
 	
 	const int w = chf.width;
 	const int h = chf.height;
-	
-	unsigned short* tmp1 = new unsigned short[chf.spanCount*2];
-	if (!tmp1)
+
+	if (!chf.reg)
 	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "rcBuildDistanceField: Out of memory 'tmp1' (%d).", chf.spanCount*2);
-		return false;
+		chf.reg = new unsigned short[chf.spanCount];
+		if (!chf.reg)
+		{
+			if (rcGetLog())
+				rcGetLog()->log(RC_LOG_ERROR, "rcBuildRegions: Out of memory 'chf.reg' (%d).", chf.spanCount);
+			return false;
+		}
 	}
-	unsigned short* tmp2 = new unsigned short[chf.spanCount*2];
-	if (!tmp2)
+	
+	rcScopedDelete<unsigned short> tmp = new unsigned short[chf.spanCount*4];
+	if (!tmp)
 	{
 		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "rcBuildDistanceField: Out of memory 'tmp2' (%d).", chf.spanCount*2);
-		delete [] tmp1;
+			rcGetLog()->log(RC_LOG_ERROR, "rcBuildRegions: Out of memory 'tmp' (%d).", chf.spanCount*4);
 		return false;
 	}
 	
@@ -1150,10 +1154,13 @@ bool rcBuildRegions(rcCompactHeightfield& chf,
 	rcIntArray stack(1024);
 	rcIntArray visited(1024);
 	
-	unsigned short* src = tmp1;
-	unsigned short* dst = tmp2;
+	unsigned short* srcReg = tmp;
+	unsigned short* srcDist = tmp+chf.spanCount;
+	unsigned short* dstReg = tmp+chf.spanCount*2;
+	unsigned short* dstDist = tmp+chf.spanCount*3;
 	
-	memset(src, 0, sizeof(unsigned short) * chf.spanCount*2);
+	memset(srcReg, 0, sizeof(unsigned short)*chf.spanCount);
+	memset(srcDist, 0, sizeof(unsigned short)*chf.spanCount);
 	
 	unsigned short regionId = 1;
 	unsigned short level = (chf.maxDistance+1) & ~1;
@@ -1163,10 +1170,10 @@ bool rcBuildRegions(rcCompactHeightfield& chf,
 	const int expandIters = 4 + walkableRadius * 2;
 
 	// Mark border regions.
-	paintRectRegion(0, borderSize, 0, h, regionId|RC_BORDER_REG, minLevel, chf, src); regionId++;
-	paintRectRegion(w-borderSize, w, 0, h, regionId|RC_BORDER_REG, minLevel, chf, src); regionId++;
-	paintRectRegion(0, w, 0, borderSize, regionId|RC_BORDER_REG, minLevel, chf, src); regionId++;
-	paintRectRegion(0, w, h-borderSize, h, regionId|RC_BORDER_REG, minLevel, chf, src); regionId++;
+	paintRectRegion(0, borderSize, 0, h, regionId|RC_BORDER_REG, minLevel, chf, srcReg); regionId++;
+	paintRectRegion(w-borderSize, w, 0, h, regionId|RC_BORDER_REG, minLevel, chf, srcReg); regionId++;
+	paintRectRegion(0, w, 0, borderSize, regionId|RC_BORDER_REG, minLevel, chf, srcReg); regionId++;
+	paintRectRegion(0, w, h-borderSize, h, regionId|RC_BORDER_REG, minLevel, chf, srcReg); regionId++;
 
 	rcTimeVal expTime = 0;
 	rcTimeVal floodTime = 0;
@@ -1178,8 +1185,11 @@ bool rcBuildRegions(rcCompactHeightfield& chf,
 		rcTimeVal expStartTime = rcGetPerformanceTimer();
 		
 		// Expand current regions until no empty connected cells found.
-		if (expandRegions(expandIters, level, chf, src, dst, stack) != src)
-			rcSwap(src, dst);
+		if (expandRegions(expandIters, level, chf, srcReg, srcDist, dstReg, dstDist, stack) != srcReg)
+		{
+			rcSwap(srcReg, dstReg);
+			rcSwap(srcDist, dstDist);
+		}
 		
 		expTime += rcGetPerformanceTimer() - expStartTime;
 		
@@ -1193,10 +1203,10 @@ bool rcBuildRegions(rcCompactHeightfield& chf,
 				const rcCompactCell& c = chf.cells[x+y*w];
 				for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
 				{
-					if (chf.spans[i].dist < level || src[i*2] != 0)
+					if (chf.dist[i] < level || srcReg[i] != 0)
 						continue;
 					
-					if (floodRegion(x, y, i, minLevel, level, regionId, chf, src, stack))
+					if (floodRegion(x, y, i, minLevel, level, regionId, chf, srcReg, srcDist, stack))
 						regionId++;
 				}
 			}
@@ -1207,8 +1217,11 @@ bool rcBuildRegions(rcCompactHeightfield& chf,
 	}
 	
 	// Expand current regions until no empty connected cells found.
-	if (expandRegions(expandIters*8, minLevel, chf, src, dst, stack) != src)
-		rcSwap(src, dst);
+	if (expandRegions(expandIters*8, minLevel, chf, srcReg, srcDist, dstReg, dstDist, stack) != srcReg)
+	{
+		rcSwap(srcReg, dstReg);
+		rcSwap(srcDist, dstDist);
+	}
 	
 	rcTimeVal regEndTime = rcGetPerformanceTimer();
 	
@@ -1216,17 +1229,14 @@ bool rcBuildRegions(rcCompactHeightfield& chf,
 	
 	// Filter out small regions.
 	chf.maxRegions = regionId;
-	if (!filterSmallRegions(minRegionSize, mergeRegionSize, chf.maxRegions, chf, src))
+	if (!filterSmallRegions(minRegionSize, mergeRegionSize, chf.maxRegions, chf, srcReg))
 		return false;
 	
 	rcTimeVal filterEndTime = rcGetPerformanceTimer();
 	
 	// Write the result out.
 	for (int i = 0; i < chf.spanCount; ++i)
-		chf.spans[i].reg = src[i*2];
-	
-	delete [] tmp1;
-	delete [] tmp2;
+		chf.reg[i] = srcReg[i];
 	
 	rcTimeVal endTime = rcGetPerformanceTimer();
 	

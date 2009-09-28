@@ -108,6 +108,32 @@ static int ptcmp(void* up, const void *v1, const void *v2)
 		return 0;
 }
 
+// Naive qsort implementation, since qsort_r is not standard.
+
+inline void iqswap(unsigned char* a, unsigned char* b, const int size)
+{
+	for (int i = 0; i < size; ++i) rcSwap(a[i], b[i]);
+}
+
+void qsortr(void* data, int n, int stride, void* thunk, int (*cmp)(void *, const void *, const void *))
+{
+	if (n <= 1) return;
+	unsigned char* d = (unsigned char*)data;
+	unsigned char* v = &d[0];
+	int i = 0, j = n;
+	for (;;)
+	{
+		do { ++i; } while (i < n && cmp(thunk, &d[i*stride], v) < 0);
+		do { --j; } while (cmp(thunk, &d[j*stride], v) > 0);
+		if (i >= j) break;
+		iqswap(&d[i*stride], &d[j*stride], stride);
+	}
+	iqswap(&d[(i-1)*stride], &d[0], stride);
+	qsortr(d, i-1, stride, thunk, cmp);
+	qsortr(d+i*stride, n-i, stride, thunk, cmp);
+}
+
+
 // Based on Paul Bourke's triangulate.c
 //  http://astronomy.swin.edu.au/~pbourke/terrain/triangulate/triangulate.c
 static void delaunay(const int nv, float *verts, rcIntArray& idx, rcIntArray& tris, rcIntArray& edges)
@@ -116,11 +142,8 @@ static void delaunay(const int nv, float *verts, rcIntArray& idx, rcIntArray& tr
 	idx.resize(nv);
 	for (int i = 0; i < nv; ++i)
 		idx[i] = i;
-#ifdef WIN32
-	qsort_s(&idx[0], idx.size(), sizeof(int), ptcmp, verts);
-#else
-	qsort_r(&idx[0], idx.size(), sizeof(int), verts, ptcmp);
-#endif
+
+	qsortr(&idx[0], idx.size(), sizeof(int), verts, ptcmp);
 
 	// Find the maximum and minimum vertex bounds.
 	// This is to allow calculation of the bounding triangle
@@ -164,6 +187,7 @@ static void delaunay(const int nv, float *verts, rcIntArray& idx, rcIntArray& tr
 	tris.push(-2);
 	tris.push(-1);
 	tris.push(0); // not completed
+
 	
 	for (int i = 0; i < nv; ++i)
 	{
@@ -485,6 +509,13 @@ static bool buildPolyDetail(const float* in, const int nin, unsigned short reg,
 	tris.resize(0);
 	idx.resize(0);
 	delaunay(nverts, verts, idx, tris, edges);
+	
+	if (tris.size() == 0)
+	{
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_ERROR, "buildPolyDetail: Could not triangulate polygon.");
+		return false;
+	}
 
 	if (sampleDist > 0)
 	{
@@ -689,25 +720,23 @@ bool rcBuildPolyMeshDetail(const rcPolyMesh& mesh, const rcCompactHeightfield& c
 	rcIntArray stack(512);
 	rcIntArray samples(512);
 	float verts[256*3];
-	float* poly = 0;
-	int* bounds = 0;
 	rcHeightPatch hp;
 	int nPolyVerts = 0;
 	int maxhw = 0, maxhh = 0;
 	
-	bounds = new int[mesh.npolys*4];
+	rcScopedDelete<int> bounds = new int[mesh.npolys*4];
 	if (!bounds)
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMeshDetail: Out of memory 'bounds' (%d).", mesh.npolys*4);
-		goto failure;
+		return false;
 	}
-	poly = new float[nvp*3];
+	rcScopedDelete<float> poly = new float[nvp*3];
 	if (!bounds)
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMeshDetail: Out of memory 'poly' (%d).", nvp*3);
-		goto failure;
+		return false;
 	}
 	
 	// Find max size for a polygon area.
@@ -746,7 +775,7 @@ bool rcBuildPolyMeshDetail(const rcPolyMesh& mesh, const rcCompactHeightfield& c
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMeshDetail: Out of memory 'hp.data' (%d).", maxhw*maxhh);
-		goto failure;
+		return false;
 	}
 		
 	dmesh.nmeshes = mesh.npolys;
@@ -757,7 +786,7 @@ bool rcBuildPolyMeshDetail(const rcPolyMesh& mesh, const rcCompactHeightfield& c
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMeshDetail: Out of memory 'dmesh.meshes' (%d).", dmesh.nmeshes*4);
-		goto failure;
+		return false;
 	}
 
 	int vcap = nPolyVerts+nPolyVerts/2;
@@ -769,7 +798,7 @@ bool rcBuildPolyMeshDetail(const rcPolyMesh& mesh, const rcCompactHeightfield& c
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMeshDetail: Out of memory 'dmesh.verts' (%d).", vcap*3);
-		goto failure;
+		return false;
 	}
 	dmesh.ntris = 0;
 	dmesh.tris = new unsigned char[tcap*4];
@@ -777,7 +806,7 @@ bool rcBuildPolyMeshDetail(const rcPolyMesh& mesh, const rcCompactHeightfield& c
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMeshDetail: Out of memory 'dmesh.tris' (%d).", tcap*4);
-		goto failure;
+		return false;
 	}
 	
 	for (int i = 0; i < mesh.npolys; ++i)
@@ -810,7 +839,7 @@ bool rcBuildPolyMeshDetail(const rcPolyMesh& mesh, const rcCompactHeightfield& c
 							 chf, hp, verts, nverts, tris,
 							 edges, idx, samples))
 		{
-			goto failure;
+			return false;
 		}
 
 		// Offset detail vertices, unnecassary?
@@ -836,7 +865,7 @@ bool rcBuildPolyMeshDetail(const rcPolyMesh& mesh, const rcCompactHeightfield& c
 			{
 				if (rcGetLog())
 					rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMeshDetail: Out of memory 'newv' (%d).", vcap*3);
-				goto failure;
+				return false;
 			}
 			if (dmesh.nverts)
 				memcpy(newv, dmesh.verts, sizeof(float)*3*dmesh.nverts);
@@ -861,7 +890,7 @@ bool rcBuildPolyMeshDetail(const rcPolyMesh& mesh, const rcCompactHeightfield& c
 			{
 				if (rcGetLog())
 					rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMeshDetail: Out of memory 'newt' (%d).", tcap*4);
-				goto failure;
+				return false;
 			}
 			if (dmesh.ntris)
 				memcpy(newt, dmesh.tris, sizeof(unsigned char)*4*dmesh.ntris);
@@ -879,22 +908,12 @@ bool rcBuildPolyMeshDetail(const rcPolyMesh& mesh, const rcCompactHeightfield& c
 		}
 	}
 	
-	delete [] bounds;
-	delete [] poly;
-	
 	rcTimeVal endTime = rcGetPerformanceTimer();
 	
 	if (rcGetBuildTimes())
 		rcGetBuildTimes()->buildDetailMesh += rcGetDeltaTimeUsec(startTime, endTime);
 
 	return true;
-
-failure:
-
-	delete [] bounds;
-	delete [] poly;
-
-	return false;
 }
 
 bool rcMergePolyMeshDetails(rcPolyMeshDetail** meshes, const int nmeshes, rcPolyMeshDetail& mesh)

@@ -34,6 +34,8 @@ bool dtCreateNavMeshTileData(const unsigned short* verts, const int nverts,
 		return false;
 	if (nverts >= 0xffff)
 		return false;
+	if (npolys > DT_MAX_TILES)
+		return false;
 	
 	if (!nverts)
 		return false;

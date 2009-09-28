@@ -188,7 +188,7 @@ bool rcBuildCompactHeightfield(const int walkableHeight, const int walkableClimb
 				if (s->flags == flags)
 				{
 					const int bot = (int)s->smax;
-					const int top = (int)s->next ? (int)s->next->smin : MAX_HEIGHT;
+					const int top = s->next ? (int)s->next->smin : MAX_HEIGHT;
 					chf.spans[idx].y = (unsigned short)rcClamp(bot, 0, 0xffff);
 					chf.spans[idx].h = (unsigned char)rcClamp(top - bot, 0, 0xff);
 					idx++;
@@ -208,6 +208,7 @@ bool rcBuildCompactHeightfield(const int walkableHeight, const int walkableClimb
 			for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
 			{
 				rcCompactSpan& s = chf.spans[i];
+				
 				for (int dir = 0; dir < 4; ++dir)
 				{
 					setCon(s, dir, 0xf);
@@ -216,6 +217,7 @@ bool rcBuildCompactHeightfield(const int walkableHeight, const int walkableClimb
 					// First check that the neighbour cell is in bounds.
 					if (nx < 0 || ny < 0 || nx >= w || ny >= h)
 						continue;
+						
 					// Iterate over all neighbour spans and check if any of the is
 					// accessible from current cell.
 					const rcCompactCell& nc = chf.cells[nx+ny*w];

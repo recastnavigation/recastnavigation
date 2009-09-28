@@ -21,38 +21,22 @@ int rcGetDeltaTimeUsec(rcTimeVal start, rcTimeVal end)
 	return (int)(elapsed*1000000 / freq);
 }
 
-#elif defined(__MACH__)
-
-// OSX
-#include <mach/mach_time.h>
-
-rcTimeVal rcGetPerformanceTimer()
-{
-	return mach_absolute_time();
-}
-
-int rcGetDeltaTimeUsec(rcTimeVal start, rcTimeVal end)
-{
-	static mach_timebase_info_data_t timebaseInfo;
-	if (timebaseInfo.denom == 0)
-		mach_timebase_info(&timebaseInfo);
-	uint64_t elapsed = end - start;
-	uint64_t nanosec = elapsed * timebaseInfo.numer / timebaseInfo.denom;
-	return (int)(nanosec / 1000);
-}
-
 #else
 
-// TODO: Linux, etc
+// Linux, BSD, OSX
+
+#include <sys/time.h>
 
 rcTimeVal rcGetPerformanceTimer()
 {
-	return 0;
+	timeval now;
+	gettimeofday(&now, NULL);
+	return (rcTimeVal)now.tv_sec*1000000L + (rcTimeVal)now.tv_usec;
 }
 
 int rcGetDeltaTimeUsec(rcTimeVal start, rcTimeVal end)
 {
-	return 0;
+	return (int)(end - start);
 }
 
 #endif

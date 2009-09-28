@@ -810,6 +810,23 @@ unsigned char* Sample_TileMesh::buildTileMesh(const float* bmin, const float* bm
 			v[0] -= (unsigned short)m_cfg.borderSize;
 			v[2] -= (unsigned short)m_cfg.borderSize;
 		}
+		
+		if (m_pmesh->nverts >= 0xffff)
+		{
+			// The vertex indices are ushorts, and cannot point to more than 0xffff vertices.
+			if (rcGetLog())
+				rcGetLog()->log(RC_LOG_ERROR, "Too many vertices per tile %d (max: %d).", m_pmesh->nverts, 0xffff);
+			return false;
+		}
+		if (m_pmesh->npolys > DT_MAX_TILES)
+		{
+			// If you hit this error, you have too many polygons per tile.
+			// You can trade off tile count to poly count by adjusting DT_TILE_REF_TILE_BITS and DT_TILE_REF_POLY_BITS.
+			// The current setup is optimized for large number of tiles and small number of polys per tile.
+			if (rcGetLog())
+				rcGetLog()->log(RC_LOG_ERROR, "Too many polygons per tile %d (max: %d).", m_pmesh->npolys, DT_MAX_TILES);
+			return false;
+		}
 	
 		if (!dtCreateNavMeshTileData(m_pmesh->verts, m_pmesh->nverts,
 									 m_pmesh->polys, m_pmesh->npolys, m_pmesh->nvp,

@@ -14,6 +14,7 @@
 #include "Recast.h"
 #include "RecastDebugDraw.h"
 #include "MeshLoaderObj.h"
+
 #include "Sample_StatMeshSimple.h"
 #include "Sample_StatMeshTiled.h"
 #include "Sample_TileMesh.h"
@@ -267,7 +268,7 @@ int main(int argc, char *argv[])
 	int toolsScroll = 0;
 	int debugScroll = 0;
 	
-	char sampleName[64] = "Choose Builder..."; 
+	char sampleName[64] = "Choose Sample..."; 
 	
 	FileList meshFiles;
 	char meshName[128] = "Choose Mesh...";
@@ -544,7 +545,7 @@ int main(int argc, char *argv[])
 					{
 						showSample = false;
 						showLevels = true;
-						scanDirectory("meshes", ".obj", meshFiles);
+						scanDirectory("Meshes", ".obj", meshFiles);
 					}
 				}
 				if (mesh)
@@ -568,7 +569,7 @@ int main(int argc, char *argv[])
 						showLog = true;
 						logScroll = 0;
 					}
-					printf("Build log:\n");
+					printf("Build log %s:\n", meshName);
 					for (int i = 0; i < log.getMessageCount(); ++i)
 						printf("%s\n", log.getMessageText(i));
 				}
@@ -593,7 +594,7 @@ int main(int argc, char *argv[])
 			}
 		}
 		
-		// Builder selection dialog.
+		// Sample selection dialog.
 		if (showSample)
 		{
 			static int levelScroll = 0;
@@ -649,7 +650,7 @@ int main(int argc, char *argv[])
 				mesh = 0;
 				
 				char path[256];
-				strcpy(path, "meshes/");
+				strcpy(path, "Meshes/");
 				strcat(path, meshName);
 				
 				mesh = new rcMeshLoaderObj;

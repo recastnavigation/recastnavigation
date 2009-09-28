@@ -35,7 +35,7 @@ static int getCornerHeight(int x, int y, int i, int dir,
 	
 	unsigned short regs[4] = {0,0,0,0};
 	
-	regs[0] = s.reg;
+	regs[0] = chf.reg[i];
 	
 	if (rcGetCon(s, dir) != 0xf)
 	{
@@ -44,7 +44,7 @@ static int getCornerHeight(int x, int y, int i, int dir,
 		const int ai = (int)chf.cells[ax+ay*chf.width].index + rcGetCon(s, dir);
 		const rcCompactSpan& as = chf.spans[ai];
 		ch = rcMax(ch, (int)as.y);
-		regs[1] = as.reg;
+		regs[1] = chf.reg[ai];
 		if (rcGetCon(as, dirp) != 0xf)
 		{
 			const int ax2 = ax + rcGetDirOffsetX(dirp);
@@ -52,7 +52,7 @@ static int getCornerHeight(int x, int y, int i, int dir,
 			const int ai2 = (int)chf.cells[ax2+ay2*chf.width].index + rcGetCon(as, dirp);
 			const rcCompactSpan& as2 = chf.spans[ai2];
 			ch = rcMax(ch, (int)as2.y);
-			regs[2] = as2.reg;
+			regs[2] = chf.reg[ai2];
 		}
 	}
 	if (rcGetCon(s, dirp) != 0xf)
@@ -62,7 +62,7 @@ static int getCornerHeight(int x, int y, int i, int dir,
 		const int ai = (int)chf.cells[ax+ay*chf.width].index + rcGetCon(s, dirp);
 		const rcCompactSpan& as = chf.spans[ai];
 		ch = rcMax(ch, (int)as.y);
-		regs[3] = as.reg;
+		regs[3] = chf.reg[ai];
 		if (rcGetCon(as, dir) != 0xf)
 		{
 			const int ax2 = ax + rcGetDirOffsetX(dir);
@@ -70,7 +70,7 @@ static int getCornerHeight(int x, int y, int i, int dir,
 			const int ai2 = (int)chf.cells[ax2+ay2*chf.width].index + rcGetCon(as, dir);
 			const rcCompactSpan& as2 = chf.spans[ai2];
 			ch = rcMax(ch, (int)as2.y);
-			regs[2] = as2.reg;
+			regs[2] = chf.reg[ai2];
 		}
 	}
 
@@ -132,8 +132,7 @@ static void walkContour(int x, int y, int i,
 				const int ax = x + rcGetDirOffsetX(dir);
 				const int ay = y + rcGetDirOffsetY(dir);
 				const int ai = (int)chf.cells[ax+ay*chf.width].index + rcGetCon(s, dir);
-				const rcCompactSpan& as = chf.spans[ai];
-				r = (int)as.reg;
+				r = (int)chf.reg[ai];
 			}
 			if (isBorderVertex)
 				r |= RC_BORDER_VERTEX;
@@ -288,7 +287,7 @@ static void simplifyContour(rcIntArray& points, rcIntArray& simplified, float ma
 				simplified.push(points[i*4+2]);
 				simplified.push(i);
 			}
-		}	
+		}       
 	}
 	
 	// Add points until all raw points are within
@@ -551,7 +550,7 @@ bool rcBuildContours(rcCompactHeightfield& chf,
 		return false;
 	cset.nconts = 0;
 	
-	unsigned char* flags = new unsigned char[chf.spanCount];
+	rcScopedDelete<unsigned char> flags = new unsigned char[chf.spanCount];
 	if (!flags)
 	{
 		if (rcGetLog())
@@ -572,7 +571,7 @@ bool rcBuildContours(rcCompactHeightfield& chf,
 			{
 				unsigned char res = 0;
 				const rcCompactSpan& s = chf.spans[i];
-				if (!s.reg || (s.reg & RC_BORDER_REG))
+				if (!chf.reg[i] || (chf.reg[i] & RC_BORDER_REG))
 				{
 					flags[i] = 0;
 					continue;
@@ -585,10 +584,9 @@ bool rcBuildContours(rcCompactHeightfield& chf,
 						const int ax = x + rcGetDirOffsetX(dir);
 						const int ay = y + rcGetDirOffsetY(dir);
 						const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(s, dir);
-						const rcCompactSpan& as = chf.spans[ai];
-						r = as.reg;
+						r = chf.reg[ai];
 					}
-					if (r == s.reg)
+					if (r == chf.reg[i])
 						res |= (1 << dir);
 				}
 				flags[i] = res ^ 0xf; // Inverse, mark non connected edges.
@@ -615,7 +613,7 @@ bool rcBuildContours(rcCompactHeightfield& chf,
 					flags[i] = 0;
 					continue;
 				}
-				unsigned short reg = chf.spans[i].reg;
+				unsigned short reg = chf.reg[i];
 				if (!reg || (reg & RC_BORDER_REG))
 					continue;
 				
@@ -629,7 +627,7 @@ bool rcBuildContours(rcCompactHeightfield& chf,
 				// Create contour.
 				if (simplified.size()/4 >= 3)
 				{
-					if (cset.nconts >= maxContours)
+					if (cset.nconts > maxContours)
 					{
 						if (rcGetLog())
 							rcGetLog()->log(RC_LOG_ERROR, "rcBuildContours: Too many contours %d, max %d.", cset.nconts, maxContours);
@@ -706,9 +704,6 @@ bool rcBuildContours(rcCompactHeightfield& chf,
 			}
 		}
 	}
-	
-		
-	delete [] flags;
 	
 	rcTimeVal simplifyEndTime = rcGetPerformanceTimer();
 	

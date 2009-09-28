@@ -222,26 +222,29 @@ bool imguiRenderGLInit(const char* fontpath)
 	}
 
 	// Load font.
-	FILE* fp = 0;
-	unsigned char* ttfBuffer = 0;
-	unsigned char* bmap = 0;
-	bool res = false;
-	
-	fp = fopen(fontpath, "rb");
-	if (!fp) goto error;
+	FILE* fp = fopen(fontpath, "rb");
+	if (!fp) return false;
 	fseek(fp, 0, SEEK_END);
 	int size = ftell(fp);
 	fseek(fp, 0, SEEK_SET);
 	
-	ttfBuffer = (unsigned char*)malloc(size); 
-	if (!ttfBuffer) goto error;
+	unsigned char* ttfBuffer = (unsigned char*)malloc(size); 
+	if (!ttfBuffer)
+	{
+		fclose(fp);
+		return false;
+	}
 	
 	fread(ttfBuffer, 1, size, fp);
 	fclose(fp);
 	fp = 0;
 	
-	bmap = (unsigned char*)malloc(512*512);
-	if (!bmap) goto error;
+	unsigned char* bmap = (unsigned char*)malloc(512*512);
+	if (!bmap)
+	{
+		free(ttfBuffer);
+		return false;
+	}
 	
 	stbtt_BakeFontBitmap(ttfBuffer,0, 15.0f, bmap,512,512, 32,96, g_cdata);
 	
@@ -252,17 +255,12 @@ bool imguiRenderGLInit(const char* fontpath)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	res = true;
-
-error:
 	if (ttfBuffer)
 		free(ttfBuffer);
 	if (bmap)
 		free(bmap);
-	if (fp)
-		fclose(fp);
 
-	return res;
+	return true;
 }
 
 void imguiRenderGLDestroy()
