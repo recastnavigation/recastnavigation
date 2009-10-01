@@ -757,7 +757,7 @@ int dtTiledNavMesh::findPath(dtTilePolyRef startRef, dtTilePolyRef endRef,
 				if (!((actualNode->flags & DT_NODE_OPEN) && newNode.total > actualNode->total) &&
 					!((actualNode->flags & DT_NODE_CLOSED) && newNode.total > actualNode->total))
 				{
-					actualNode->flags &= DT_NODE_CLOSED;
+					actualNode->flags &= ~DT_NODE_CLOSED;
 					actualNode->pidx = newNode.pidx;
 					actualNode->cost = newNode.cost;
 					actualNode->total = newNode.total;
