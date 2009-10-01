@@ -20,7 +20,7 @@
 #include <math.h>
 #include "imgui.h"
 #include "SDL.h"
-#include "SDL_opengl.h"
+#include "SDL_Opengl.h"
 #define STBTT_malloc(x)    malloc(x)
 #define STBTT_free(x)      free(x)
 #define STB_TRUETYPE_IMPLEMENTATION
