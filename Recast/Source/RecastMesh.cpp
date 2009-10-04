@@ -997,7 +997,8 @@ bool rcBuildPolyMesh(rcContourSet& cset, int nvp, rcPolyMesh& mesh)
 					rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMesh: Failed to remove edge vertex %d.", i);
 				return false;
 			}
-			for (int j = i; j < mesh.nverts-1; ++j)
+			// Note: mesh.nverts is already decremented inside removeVertex()!
+			for (int j = i; j < mesh.nverts; ++j)
 				vflags[j] = vflags[j+1];
 			--i;
 		}
