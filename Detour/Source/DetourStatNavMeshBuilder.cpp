@@ -330,7 +330,7 @@ bool dtCreateNavMeshData(const unsigned short* verts, const int nverts,
 		dtl.tbase = dmeshes[i*4+2];
 		dtl.ntris = dmeshes[i*4+3];
 		// Copy vertices except the first 'nv' verts which are equal to nav poly verts.
-		if (ndv-nv)
+		if (ndv-nv > 0)
 		{
 			memcpy(&navDVerts[vbase*3], &dverts[(vb+nv)*3], sizeof(float)*3*(ndv-nv));
 			vbase += ndv-nv;
