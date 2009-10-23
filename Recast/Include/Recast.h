@@ -407,12 +407,32 @@ void rcRasterizeTriangle(const float* v0, const float* v1, const float* v2,
 //	verts - (in) array of vertices
 //	nv - (in) vertex count
 //	tris - (in) array of triangle vertex indices
-//	norms - (in) array of triangle normals
 //	flags - (in) array of triangle flags (uses WALKABLE)
 //	nt - (in) triangle count
 //	solid - (in) heighfield where the triangles are rasterized
 void rcRasterizeTriangles(const float* verts, int nv,
 						  const int* tris, const unsigned char* flags, int nt,
+						  rcHeightfield& solid);
+
+// Rasterizes the triangles into heightfield spans.
+// Params:
+//	verts - (in) array of vertices
+//	nv - (in) vertex count
+//	tris - (in) array of triangle vertex indices
+//	flags - (in) array of triangle flags (uses WALKABLE)
+//	nt - (in) triangle count
+//	solid - (in) heighfield where the triangles are rasterized
+void rcRasterizeTriangles(const float* verts, int nv,
+						  const unsigned short* tris, const unsigned char* flags, int nt,
+						  rcHeightfield& solid);
+
+// Rasterizes the triangles into heightfield spans.
+// Params:
+//	verts - (in) array of vertices
+//	flags - (in) array of triangle flags (uses WALKABLE)
+//	nt - (in) triangle count
+//	solid - (in) heighfield where the triangles are rasterized
+void rcRasterizeTriangles(const float* verts, const unsigned char* flags, int nt,
 						  rcHeightfield& solid);
 
 // Removes WALKABLE flag from all spans that are at ledges. This filtering

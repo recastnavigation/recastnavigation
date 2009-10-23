@@ -282,7 +282,7 @@ void rcRasterizeTriangle(const float* v0, const float* v1, const float* v2,
 	if (rcGetBuildTimes())
 		rcGetBuildTimes()->rasterizeTriangles += rcGetDeltaTimeUsec(startTime, endTime);
 }
-						 
+
 void rcRasterizeTriangles(const float* verts, int nv,
 						  const int* tris, const unsigned char* flags, int nt,
 						  rcHeightfield& solid)
@@ -303,6 +303,53 @@ void rcRasterizeTriangles(const float* verts, int nv,
 	
 	rcTimeVal endTime = rcGetPerformanceTimer();
 
+	if (rcGetBuildTimes())
+		rcGetBuildTimes()->rasterizeTriangles += rcGetDeltaTimeUsec(startTime, endTime);
+}
+
+void rcRasterizeTriangles(const float* verts, int nv,
+						  const unsigned short* tris, const unsigned char* flags, int nt,
+						  rcHeightfield& solid)
+{
+	rcTimeVal startTime = rcGetPerformanceTimer();
+	
+	const float ics = 1.0f/solid.cs;
+	const float ich = 1.0f/solid.ch;
+	// Rasterize triangles.
+	for (int i = 0; i < nt; ++i)
+	{
+		const float* v0 = &verts[tris[i*3+0]*3];
+		const float* v1 = &verts[tris[i*3+1]*3];
+		const float* v2 = &verts[tris[i*3+2]*3];
+		// Rasterize.
+		rasterizeTri(v0, v1, v2, flags[i], solid, solid.bmin, solid.bmax, solid.cs, ics, ich);
+	}
+	
+	rcTimeVal endTime = rcGetPerformanceTimer();
+	
+	if (rcGetBuildTimes())
+		rcGetBuildTimes()->rasterizeTriangles += rcGetDeltaTimeUsec(startTime, endTime);
+}
+
+void rcRasterizeTriangles(const float* verts, const unsigned char* flags, int nt,
+						  rcHeightfield& solid)
+{
+	rcTimeVal startTime = rcGetPerformanceTimer();
+	
+	const float ics = 1.0f/solid.cs;
+	const float ich = 1.0f/solid.ch;
+	// Rasterize triangles.
+	for (int i = 0; i < nt; ++i)
+	{
+		const float* v0 = &verts[(i*3+0)*3];
+		const float* v1 = &verts[(i*3+1)*3];
+		const float* v2 = &verts[(i*3+2)*3];
+		// Rasterize.
+		rasterizeTri(v0, v1, v2, flags[i], solid, solid.bmin, solid.bmax, solid.cs, ics, ich);
+	}
+	
+	rcTimeVal endTime = rcGetPerformanceTimer();
+	
 	if (rcGetBuildTimes())
 		rcGetBuildTimes()->rasterizeTriangles += rcGetDeltaTimeUsec(startTime, endTime);
 }
