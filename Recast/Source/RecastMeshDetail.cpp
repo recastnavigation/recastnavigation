@@ -36,254 +36,53 @@ struct rcHeightPatch
 };
 
 
-static int circumCircle(const float xp, const float yp,
-						const float x1, const float y1,
-						const float x2, const float y2,
-						const float x3, const float y3,
-						float& xc, float& yc, float& rsqr)
-{
-	static const float EPSILON = 1e-6f;
-	
-	const float fabsy1y2 = rcAbs(y1-y2);
-	const float fabsy2y3 = rcAbs(y2-y3);
-	
-	/* Check for coincident points */
-	if (fabsy1y2 < EPSILON && fabsy2y3 < EPSILON)
-		return 0;
-	
-	if (fabsy1y2 < EPSILON)
-	{
-		const float m2 = - (x3-x2) / (y3-y2);
-		const float mx2 = (x2 + x3) / 2.0f;
-		const float my2 = (y2 + y3) / 2.0f;
-		xc = (x2 + x1) / 2.0f;
-		yc = m2 * (xc - mx2) + my2;
-	}
-	else if (fabsy2y3 < EPSILON)
-	{
-		const float m1 = - (x2-x1) / (y2-y1);
-		const float mx1 = (x1 + x2) / 2.0f;
-		const float my1 = (y1 + y2) / 2.0f;
-		xc = (x3 + x2) / 2.0f;
-		yc = m1 * (xc - mx1) + my1;
-	}
-	else
-	{
-		const float m1 = - (x2-x1) / (y2-y1);
-		const float m2 = - (x3-x2) / (y3-y2);
-		const float mx1 = (x1 + x2) / 2.0f;
-		const float mx2 = (x2 + x3) / 2.0f;
-		const float my1 = (y1 + y2) / 2.0f;
-		const float my2 = (y2 + y3) / 2.0f;
-		xc = (m1 * mx1 - m2 * mx2 + my2 - my1) / (m1 - m2);
-		if (fabsy1y2 > fabsy2y3)
-			yc = m1 * (xc - mx1) + my1;
-		else
-			yc = m2 * (xc - mx2) + my2;
-	}
-	
-	float dx,dy;
-	
-	dx = x2 - xc;
-	dy = y2 - yc;
-	rsqr = dx*dx + dy*dy;
-	
-	dx = xp - xc;
-	dy = yp - yc;
-	const float drsqr = dx*dx + dy*dy;
-	
-	return (drsqr <= rsqr) ? 1 : 0;
-}
-
-static int ptcmp(void* up, const void *v1, const void *v2)
-{
-	const float* verts = (const float*)up;
-	const float* p1 = &verts[(*(const int*)v1)*3];
-	const float* p2 = &verts[(*(const int*)v2)*3];
-	if (p1[0] < p2[0])
-		return -1;
-	else if (p1[0] > p2[0])
-		return 1;
-	else
-		return 0;
-}
-
-// Naive qsort implementation, since qsort_r is not standard.
-
-inline void iqswap(unsigned char* a, unsigned char* b, const int size)
-{
-	for (int i = 0; i < size; ++i) rcSwap(a[i], b[i]);
-}
-
-void qsortr(void* data, int n, int stride, void* thunk, int (*cmp)(void *, const void *, const void *))
-{
-	if (n <= 1) return;
-	unsigned char* d = (unsigned char*)data;
-	unsigned char* v = &d[0];
-	int i = 0, j = n;
-	for (;;)
-	{
-		do { ++i; } while (i < n && cmp(thunk, &d[i*stride], v) < 0);
-		do { --j; } while (cmp(thunk, &d[j*stride], v) > 0);
-		if (i >= j) break;
-		iqswap(&d[i*stride], &d[j*stride], stride);
-	}
-	iqswap(&d[(i-1)*stride], &d[0], stride);
-	qsortr(d, i-1, stride, thunk, cmp);
-	qsortr(d+i*stride, n-i, stride, thunk, cmp);
-}
-
-
-// Based on Paul Bourke's triangulate.c
-//  http://astronomy.swin.edu.au/~pbourke/terrain/triangulate/triangulate.c
-static void delaunay(const int nv, float *verts, rcIntArray& idx, rcIntArray& tris, rcIntArray& edges)
-{
-	// Sort vertices
-	idx.resize(nv);
-	for (int i = 0; i < nv; ++i)
-		idx[i] = i;
-
-	qsortr(&idx[0], idx.size(), sizeof(int), verts, ptcmp);
-
-	// Find the maximum and minimum vertex bounds.
-	// This is to allow calculation of the bounding triangle
-	float xmin = verts[0];
-	float ymin = verts[2];
-	float xmax = xmin;
-	float ymax = ymin;
-	for (int i = 1; i < nv; ++i)
-	{
-		xmin = rcMin(xmin, verts[i*3+0]);
-		xmax = rcMax(xmax, verts[i*3+0]);
-		ymin = rcMin(ymin, verts[i*3+2]);
-		ymax = rcMax(ymax, verts[i*3+2]);
-	}
-	float dx = xmax - xmin;
-	float dy = ymax - ymin;
-	float dmax = (dx > dy) ? dx : dy;
-	float xmid = (xmax + xmin) / 2.0f;
-	float ymid = (ymax + ymin) / 2.0f;
-	
-	// Set up the supertriangle
-	// This is a triangle which encompasses all the sample points.
-	// The supertriangle coordinates are added to the end of the
-	// vertex list. The supertriangle is the first triangle in
-	// the triangle list.
-	float sv[3*3];
-	
-	sv[0] = xmid - 20 * dmax;
-	sv[1] = 0;
-	sv[2] = ymid - dmax;
-	
-	sv[3] = xmid;
-	sv[4] = 0;
-	sv[5] = ymid + 20 * dmax;
-	
-	sv[6] = xmid + 20 * dmax;
-	sv[7] = 0;
-	sv[8] = ymid - dmax;
-	
-	tris.push(-3);
-	tris.push(-2);
-	tris.push(-1);
-	tris.push(0); // not completed
-
-	
-	for (int i = 0; i < nv; ++i)
-	{
-		const float xp = verts[idx[i]*3+0];
-		const float yp = verts[idx[i]*3+2];
-		
-		edges.resize(0);
-		
-		// Set up the edge buffer.
-		// If the point (xp,yp) lies inside the circumcircle then the
-		// three edges of that triangle are added to the edge buffer
-		// and that triangle is removed.
-		for (int j = 0; j < tris.size()/4; ++j)
-		{
-			int* t = &tris[j*4];
-			if (t[3]) // completed?
-				continue;
-			const float* v1 = t[0] < 0 ? &sv[(t[0]+3)*3] : &verts[idx[t[0]]*3];
-			const float* v2 = t[1] < 0 ? &sv[(t[1]+3)*3] : &verts[idx[t[1]]*3];
-			const float* v3 = t[2] < 0 ? &sv[(t[2]+3)*3] : &verts[idx[t[2]]*3];
-			float xc,yc,rsqr;
-			int inside = circumCircle(xp,yp, v1[0],v1[2], v2[0],v2[2], v3[0],v3[2], xc,yc,rsqr);
-			if (xc < xp && rcSqr(xp-xc) > rsqr)
-				t[3] = 1;
-			if (inside)
-			{
-				// Collect triangle edges.
-				edges.push(t[0]);
-				edges.push(t[1]);
-				edges.push(t[1]);
-				edges.push(t[2]);
-				edges.push(t[2]);
-				edges.push(t[0]);
-				// Remove triangle j.
-				t[0] = tris[tris.size()-4];
-				t[1] = tris[tris.size()-3];
-				t[2] = tris[tris.size()-2];
-				t[3] = tris[tris.size()-1];
-				tris.resize(tris.size()-4);
-				j--;
-			}
-		}
-		
-		// Remove duplicate edges.
-		const int ne = edges.size()/2;
-		for (int j = 0; j < ne-1; ++j)
-		{
-			for (int k = j+1; k < ne; ++k)
-			{
-				// Dupe?, make null.
-				if ((edges[j*2+0] == edges[k*2+1]) && (edges[j*2+1] == edges[k*2+0]))
-				{
-					edges[j*2+0] = 0;
-					edges[j*2+1] = 0;
-					edges[k*2+0] = 0;
-					edges[k*2+1] = 0;
-				}
-			}
-		}
-		
-		// Form new triangles for the current point
-		// Skipping over any null.
-		// All edges are arranged in clockwise order.
-		for (int j = 0; j < ne; ++j)
-		{
-			if (edges[j*2+0] == edges[j*2+1]) continue;
-			tris.push(edges[j*2+0]);
-			tris.push(edges[j*2+1]);
-			tris.push(i);
-			tris.push(0); // not completed
-		}
-	}
-	
-	// Remove triangles with supertriangle vertices
-	// These are triangles which have a vertex number greater than nv
-	for (int i = 0; i < tris.size()/4; ++i)
-	{
-		int* t = &tris[i*4];
-		if (t[0] < 0 || t[1] < 0 || t[2] < 0)
-		{
-			t[0] = tris[tris.size()-4];
-			t[1] = tris[tris.size()-3];
-			t[2] = tris[tris.size()-2];
-			t[3] = tris[tris.size()-1];
-			tris.resize(tris.size()-4);
-			i--;
-		}
-	}
-	// Triangle vertices are pointing to sorted vertices, remap indices.
-	for (int i = 0; i < tris.size(); ++i)
-		tris[i] = idx[tris[i]];
-}
-
 inline float vdot2(const float* a, const float* b)
 {
 	return a[0]*b[0] + a[2]*b[2];
+}
+
+inline float vdistSq2(const float* p, const float* q)
+{
+	const float dx = q[0] - p[0];
+	const float dy = q[2] - p[2];
+	return dx*dx + dy*dy;
+}
+
+inline float vdist2(const float* p, const float* q)
+{
+	return sqrtf(vdistSq2(p,q));
+}
+
+inline float vcross2(const float* p1, const float* p2, const float* p3)
+{ 
+	const float u1 = p2[0] - p1[0];
+	const float v1 = p2[2] - p1[2];
+	const float u2 = p3[0] - p1[0];
+	const float v2 = p3[2] - p1[2];
+	return u1 * v2 - v1 * u2;
+}
+
+static bool circumCircle(const float* p1, const float* p2, const float* p3,
+						 float* c, float& r)
+{
+	static const float EPS = 1e-6f;
+	
+	const float cp = vcross2(p1, p2, p3);
+	if (fabsf(cp) > EPS)
+	{
+		const float p1Sq = vdot2(p1,p1);
+		const float p2Sq = vdot2(p2,p2);
+		const float p3Sq = vdot2(p3,p3);
+		c[0] = (p1Sq*(p2[2]-p3[2]) + p2Sq*(p3[2]-p1[2]) + p3Sq*(p1[2]-p2[2])) / (2*cp);
+		c[2] = (p1Sq*(p3[0]-p2[0]) + p2Sq*(p1[0]-p3[0]) + p3Sq*(p2[0]-p1[0])) / (2*cp);
+		r = vdist2(c, p1);
+		return true;
+	}
+
+	c[0] = p1[0];
+	c[2] = p1[2];
+	r = 0;
+	return false;
 }
 
 static float distPtTri(const float* p, const float* a, const float* b, const float* c)
@@ -393,25 +192,306 @@ static float distToPoly(int nvert, const float* verts, const float* p)
 }
 
 
-static unsigned short getHeight(const float* pos, const float* bmin, const float ics, const rcHeightPatch& hp)
+static unsigned short getHeight(const float* pos, const float* bmin, const float cs, const float ics, const rcHeightPatch& hp)
 {
 	int ix = (int)floorf((pos[0]-bmin[0])*ics + 0.01f);
 	int iz = (int)floorf((pos[2]-bmin[2])*ics + 0.01f);
 	ix = rcClamp(ix-hp.xmin, 0, hp.width);
 	iz = rcClamp(iz-hp.ymin, 0, hp.height);
 	unsigned short h = hp.data[ix+iz*hp.width];
+	if (h == 0xffff)
+	{
+		// Special case when data might be bad.
+		// Find nearest neighbour pixel which has valid height.
+		const int off[8*2] = { -1,0, -1,-1, 0,-1, 1,-1, 1,0, 1,1, 0,1, -1,1};
+		float dmin = FLT_MAX;
+		for (int i = 0; i < 8; ++i)
+		{
+			const int nx = ix+off[i*2+0];
+			const int nz = iz+off[i*2+1];
+			if (nx < 0 || nz < 0 || nx >= hp.width || nz >= hp.height) continue;
+			const unsigned short nh = hp.data[nx+nz*hp.width];
+			if (nh == 0xffff) continue;
+			const float dx = (nx+0.5f)*cs-pos[0]; 
+			const float dz = (nz+0.5f)*cs-pos[2];
+			const float d = dx*dx+dz*dz;
+			if (d < dmin)
+			{
+				h = nh;
+				dmin = d;
+			} 
+		}
+	}
 	return h;
 }
+
+
+enum EdgeValues
+{
+	UNDEF = -1,
+	HULL = -2,
+};
+
+static int findEdge(const int* edges, int nedges, int s, int t)
+{
+	for (int i = 0; i < nedges; i++)
+	{
+		const int* e = &edges[i*4];
+		if ((e[0] == s && e[1] == t) || (e[0] == t && e[1] == s))
+			return i;
+	}
+	return UNDEF;
+}
+
+static int addEdge(int* edges, int& nedges, const int maxEdges, int s, int t, int l, int r)
+{
+	if (nedges >= maxEdges)
+	{
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_ERROR, "addEdge: Too many edges (%d/%d).", nedges, maxEdges);
+		return UNDEF;
+	}
+	
+	// Add edge if not already in the triangulation. 
+	int e = findEdge(edges, nedges, s, t);
+	if (e == UNDEF)
+	{
+		int* e = &edges[nedges*4];
+		e[0] = s;
+		e[1] = t;
+		e[2] = l;
+		e[3] = r;
+		return nedges++;
+	}
+	else
+	{
+		return UNDEF;
+	}
+}
+
+static void updateLeftFace(int* e, int s, int t, int f)
+{
+	if (e[0] == s && e[2] == UNDEF)
+		e[2] = f;
+	else if (e[1] == s && e[3] == UNDEF)
+		e[3] = f;
+}	
+
+static int overlapSegSeg2d(const float* a, const float* b, const float* c, const float* d)
+{
+	const float a1 = vcross2(a, b, d);
+	const float a2 = vcross2(a, b, c);
+	if (a1*a2 < 0.0f)
+	{
+		float a3 = vcross2(c, d, a);
+		float a4 = a3 + a2 - a1;
+		if (a3 * a4 < 0.0f)
+			return 1;
+	}	
+	return 0;
+}
+
+static bool overlapEdges(const float* pts, const int* edges, int nedges, int s1, int t1)
+{
+	for (int i = 0; i < nedges; ++i)
+	{
+		const int s0 = edges[i*4+0];
+		const int t0 = edges[i*4+1];
+		// Same or connected edges do not overlap.
+		if (s0 == s1 || s0 == t1 || t0 == s1 || t0 == t1)
+			continue;
+		if (overlapSegSeg2d(&pts[s0*3],&pts[t0*3], &pts[s1*3],&pts[t1*3]))
+			return true;
+	}
+	return false;
+}
+
+static void completeFacet(const float* pts, int npts, int* edges, int& nedges, const int maxEdges, int& nfaces, int e)
+{
+	static const float EPS = 1e-5f;
+
+	int* edge = &edges[e*4];
+	
+	// Cache s and t.
+	int s,t;
+	if (edge[2] == UNDEF)
+	{
+		s = edge[0];
+		t = edge[1];
+	}
+	else if (edge[3] == UNDEF)
+	{
+		s = edge[1];
+		t = edge[0];
+	}
+	else
+	{
+	    // Edge already completed. 
+	    return;
+	}
+    
+	// Find best point on left of edge. 
+	int pt = npts;
+	float c[3] = {0,0,0};
+	float r = -1;
+	for (int u = 0; u < npts; ++u)
+	{
+		if (u == s || u == t) continue;
+		if (vcross2(&pts[s*3], &pts[t*3], &pts[u*3]) > EPS)
+		{
+			if (r < 0)
+			{
+				// The circle is not updated yet, do it now.
+				pt = u;
+				circumCircle(&pts[s*3], &pts[t*3], &pts[u*3], c, r);
+				continue;
+			}
+			const float d = vdist2(c, &pts[u*3]);
+			const float tol = 0.001f;
+			if (d > r*(1+tol))
+			{
+				// Outside current circumcircle, skip.
+				continue;
+			}
+			else if (d < r*(1-tol))
+			{
+				// Inside safe circumcircle, update circle.
+				pt = u;
+				circumCircle(&pts[s*3], &pts[t*3], &pts[u*3], c, r);
+			}
+			else
+			{
+				// Inside epsilon circum circle, do extra tests to make sure the edge is valid.
+				// s-u and t-u cannot overlap with s-pt nor t-pt if they exists.
+				if (overlapEdges(pts, edges, nedges, s,u))
+					continue;
+				if (overlapEdges(pts, edges, nedges, t,u))
+					continue;
+				// Edge is valid.
+				pt = u;
+				circumCircle(&pts[s*3], &pts[t*3], &pts[u*3], c, r);
+			}
+		}
+	}
+	
+	// Add new triangle or update edge info if s-t is on hull. 
+	if (pt < npts)
+	{
+		// Update face information of edge being completed. 
+		updateLeftFace(&edges[e*4], s, t, nfaces);
+		
+		// Add new edge or update face info of old edge. 
+		e = findEdge(edges, nedges, pt, s);
+		if (e == UNDEF)
+		    addEdge(edges, nedges, maxEdges, pt, s, nfaces, UNDEF);
+		else
+		    updateLeftFace(&edges[e*4], pt, s, nfaces);
+		
+		// Add new edge or update face info of old edge. 
+		e = findEdge(edges, nedges, t, pt);
+		if (e == UNDEF)
+		    addEdge(edges, nedges, maxEdges, t, pt, nfaces, UNDEF);
+		else
+		    updateLeftFace(&edges[e*4], t, pt, nfaces);
+		
+		nfaces++;
+	}
+	else
+	{
+		updateLeftFace(&edges[e*4], s, t, HULL);
+	}
+}
+
+static void delaunayHull(const int npts, const float* pts,
+						 const int nhull, const int* hull,
+						 rcIntArray& tris, rcIntArray& edges)
+{
+	int nfaces = 0;
+	int nedges = 0;
+	const int maxEdges = npts*10;
+	edges.resize(maxEdges*4);
+	
+	for (int i = 0, j = nhull-1; i < nhull; j=i++)
+		addEdge(&edges[0], nedges, maxEdges, hull[j],hull[i], HULL, UNDEF);
+	
+	int currentEdge = 0;
+	while (currentEdge < nedges)
+	{
+		if (edges[currentEdge*4+2] == UNDEF)
+			completeFacet(pts, npts, &edges[0], nedges, maxEdges, nfaces, currentEdge);
+		if (edges[currentEdge*4+3] == UNDEF)
+			completeFacet(pts, npts, &edges[0], nedges, maxEdges, nfaces, currentEdge);
+		currentEdge++;
+	}
+
+	// Create tris
+	tris.resize(nfaces*4);
+	for (int i = 0; i < nfaces*4; ++i)
+		tris[i] = -1;
+	
+	for (int i = 0; i < nedges; ++i)
+	{
+		const int* e = &edges[i*4];
+		if (e[3] >= 0)
+		{
+			// Left face
+			int* t = &tris[e[3]*4];
+			if (t[0] == -1)
+			{
+				t[0] = e[0];
+				t[1] = e[1];
+			}
+			else if (t[0] == e[1])
+				t[2] = e[0];
+			else if (t[1] == e[0])
+				t[2] = e[1];
+		}
+		if (e[2] >= 0)
+		{
+			// Right
+			int* t = &tris[e[2]*4];
+			if (t[0] == -1)
+			{
+				t[0] = e[1];
+				t[1] = e[0];
+			}
+			else if (t[0] == e[0])
+				t[2] = e[1];
+			else if (t[1] == e[1])
+				t[2] = e[0];
+		}
+	}
+	
+	for (int i = 0; i < tris.size()/4; ++i)
+	{
+		int* t = &tris[i*4];
+		if (t[0] == -1 || t[1] == -1 || t[2] == -1)
+		{
+			if (rcGetLog())
+				rcGetLog()->log(RC_LOG_WARNING, "delaunayHull: Removing dangling face %d [%d,%d,%d].", i, t[0],t[1],t[2]);
+			t[0] = tris[tris.size()-4];
+			t[1] = tris[tris.size()-3];
+			t[2] = tris[tris.size()-2];
+			t[3] = tris[tris.size()-1];
+			tris.resize(tris.size()-4);
+		}
+	}
+
+}
+
+
 
 static bool buildPolyDetail(const float* in, const int nin, unsigned short reg,
 							const float sampleDist, const float sampleMaxError,
 							const rcCompactHeightfield& chf, const rcHeightPatch& hp,
 							float* verts, int& nverts, rcIntArray& tris,
-							rcIntArray& edges, rcIntArray& idx, rcIntArray& samples)
+							rcIntArray& edges, rcIntArray& samples)
 {
 	static const int MAX_VERTS = 256;
 	static const int MAX_EDGE = 64;
 	float edge[(MAX_EDGE+1)*3];
+	int hull[MAX_VERTS];
+	int nhull = 0;
 
 	nverts = 0;
 
@@ -419,7 +499,8 @@ static bool buildPolyDetail(const float* in, const int nin, unsigned short reg,
 		vcopy(&verts[i*3], &in[i*3]);
 	nverts = nin;
 	
-	const float ics = 1.0f/chf.cs;
+	const float cs = chf.cs;
+	const float ics = 1.0f/cs;
 	
 	// Tesselate outlines.
 	// This is done in separate pass in order to ensure
@@ -430,17 +511,24 @@ static bool buildPolyDetail(const float* in, const int nin, unsigned short reg,
 		{
 			const float* vj = &in[j*3];
 			const float* vi = &in[i*3];
+			bool swapped = false;
 			// Make sure the segments are always handled in same order
 			// using lexological sort or else there will be seams.
 			if (fabsf(vj[0]-vi[0]) < 1e-6f)
 			{
 				if (vj[2] > vi[2])
+				{
 					rcSwap(vj,vi);
+					swapped = true;
+				}
 			}
 			else
 			{
 				if (vj[0] > vi[0])
+				{
 					rcSwap(vj,vi);
+					swapped = true;
+				}
 			}
 			// Create samples along the edge.
 			float dx = vi[0] - vj[0];
@@ -458,7 +546,7 @@ static bool buildPolyDetail(const float* in, const int nin, unsigned short reg,
 				pos[0] = vj[0] + dx*u;
 				pos[1] = vj[1] + dy*u;
 				pos[2] = vj[2] + dz*u;
-				pos[1] = chf.bmin[1] + getHeight(pos, chf.bmin, ics, hp)*chf.ch;
+				pos[1] = chf.bmin[1] + getHeight(pos, chf.bmin, cs, ics, hp)*chf.ch;
 			}
 			// Simplify samples.
 			int idx[MAX_EDGE] = {0,nn};
@@ -495,26 +583,50 @@ static bool buildPolyDetail(const float* in, const int nin, unsigned short reg,
 					++k;
 				}
 			}
+			
+			hull[nhull++] = j;
 			// Add new vertices.
-			for (int k = 1; k < nidx-1; ++k)
+			if (swapped)
 			{
-				vcopy(&verts[nverts*3], &edge[idx[k]*3]);
-				nverts++;
+				for (int k = nidx-2; k > 0; --k)
+				{
+					vcopy(&verts[nverts*3], &edge[idx[k]*3]);
+					hull[nhull++] = nverts;
+					nverts++;
+				}
+			}
+			else
+			{
+				for (int k = 1; k < nidx-1; ++k)
+				{
+					vcopy(&verts[nverts*3], &edge[idx[k]*3]);
+					hull[nhull++] = nverts;
+					nverts++;
+				}
 			}
 		}
 	}
 	
+
 	// Tesselate the base mesh.
 	edges.resize(0);
 	tris.resize(0);
-	idx.resize(0);
-	delaunay(nverts, verts, idx, tris, edges);
+
+	delaunayHull(nverts, verts, nhull, hull, tris, edges);
 	
 	if (tris.size() == 0)
 	{
+		// Could not triangulate the poly, make sure there is some valid data there.
 		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "buildPolyDetail: Could not triangulate polygon.");
-		return false;
+			rcGetLog()->log(RC_LOG_WARNING, "buildPolyDetail: Could not triangulate polygon, adding default data.");
+		for (int i = 2; i < nverts; ++i)
+		{
+			tris.push(0);
+			tris.push(i-1);
+			tris.push(i);
+			tris.push(0);
+		}
+		return true;
 	}
 
 	if (sampleDist > 0)
@@ -543,7 +655,7 @@ static bool buildPolyDetail(const float* in, const int nin, unsigned short reg,
 				// Make sure the samples are not too close to the edges.
 				if (distToPoly(nin,in,pt) > -sampleDist/2) continue;
 				samples.push(x);
-				samples.push(getHeight(pt, chf.bmin, ics, hp));
+				samples.push(getHeight(pt, chf.bmin, cs, ics, hp));
 				samples.push(z);
 			}
 		}
@@ -583,8 +695,7 @@ static bool buildPolyDetail(const float* in, const int nin, unsigned short reg,
 			// TODO: Incremental add instead of full rebuild.
 			edges.resize(0);
 			tris.resize(0);
-			idx.resize(0);
-			delaunay(nverts, verts, idx, tris, edges);
+			delaunayHull(nverts, verts, nhull, hull, tris, edges);
 
 			if (nverts >= MAX_VERTS)
 				break;
@@ -597,7 +708,7 @@ static bool buildPolyDetail(const float* in, const int nin, unsigned short reg,
 static void getHeightData(const rcCompactHeightfield& chf,
 						  const unsigned short* poly, const int npoly,
 						  const unsigned short* verts,
-						  rcHeightPatch& hp, rcIntArray& stack)
+						  rcHeightPatch& hp, rcIntArray& stack, unsigned short* tmpData)
 {
 	// Floodfill the heightfield to get 2D height data,
 	// starting at vertex locations as seeds.
@@ -636,6 +747,45 @@ static void getHeightData(const rcCompactHeightfield& chf,
 			stack.push(ai);
 		}
 	}
+	
+	// Not no match, try polygon center.
+	if (stack.size() == 0)
+	{
+		int cx = 0, cy = 0, cz = 0;
+		for (int j = 0; j < npoly; ++j)
+		{
+			cx += (int)verts[poly[j]*3+0];
+			cy += (int)verts[poly[j]*3+1];
+			cz += (int)verts[poly[j]*3+2];
+		}
+		cx /= npoly;
+		cy /= npoly;
+		cz /= npoly;
+		
+		if (cx >= hp.xmin || cx < hp.xmin+hp.width ||
+			cz >= hp.ymin || cz < hp.ymin+hp.height)
+		{
+			const rcCompactCell& c = chf.cells[cx+cz*chf.width];
+			int dmin = 0xffff;
+			int ci = -1;
+			for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
+			{
+				const rcCompactSpan& s = chf.spans[i];
+				int d = rcAbs(cy - (int)s.y);
+				if (d < dmin)
+				{
+					ci = i;
+					dmin = d;
+				}
+			}
+			if (ci != -1)
+			{
+				stack.push(cx);
+				stack.push(cz);
+				stack.push(ci);
+			}
+		}
+	}
 
 	while (stack.size() > 0)
 	{
@@ -671,7 +821,54 @@ static void getHeightData(const rcCompactHeightfield& chf,
 			stack.push(ay);
 			stack.push(ai);
 		}
-	}	
+	}
+	
+/*	unsigned short* src = hp.data;
+	unsigned short* dst = tmpData;
+
+	for (int y = 0; y < hp.height-1; ++y)
+	{
+		for (int x = 0; x < hp.width-1; ++x)
+		{
+			const int idx = x+y*hp.width;
+			if (src[idx] != 0xffff)
+			{
+				dst[idx] = src[idx];
+				continue;
+			}
+			
+			unsigned short h = 0xffff;
+			h = rcMin(h,src[idx+1]);
+			h = rcMin(h,src[idx+hp.width]);
+			h = rcMin(h,src[idx+1+hp.width]);
+			
+			dst[idx] = h;
+		}
+	}
+	
+	rcSwap(src,dst);
+
+	for (int y = 1; y < hp.height; ++y)
+	{
+		for (int x = 1; x < hp.width; ++x)
+		{
+			const int idx = x+y*hp.width;
+			if (src[idx] != 0xffff)
+			{
+				dst[idx] = src[idx];
+				continue;
+			}
+			
+			unsigned short h = 0xffff;
+			h = rcMin(h,src[idx-1]);
+			h = rcMin(h,src[idx-hp.width]);
+			h = rcMin(h,src[idx-1-hp.width]);
+			
+			dst[idx] = h;
+		}
+	}
+	
+	memcpy(src, dst, sizeof(unsigned short)*hp.width*hp.height);*/
 }
 
 static unsigned char getEdgeFlags(const float* va, const float* vb,
@@ -716,7 +913,6 @@ bool rcBuildPolyMeshDetail(const rcPolyMesh& mesh, const rcCompactHeightfield& c
 	
 	rcIntArray edges(64);
 	rcIntArray tris(512);
-	rcIntArray idx(512);
 	rcIntArray stack(512);
 	rcIntArray samples(512);
 	float verts[256*3];
@@ -777,7 +973,15 @@ bool rcBuildPolyMeshDetail(const rcPolyMesh& mesh, const rcCompactHeightfield& c
 			rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMeshDetail: Out of memory 'hp.data' (%d).", maxhw*maxhh);
 		return false;
 	}
-		
+	
+	rcScopedDelete<unsigned short> tmpData = new unsigned short[maxhw*maxhh];
+	if (!tmpData)
+	{
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMeshDetail: Out of memory 'tmpData' (%d).", maxhw*maxhh);
+		return false;
+	}
+	
 	dmesh.nmeshes = mesh.npolys;
 	dmesh.nverts = 0;
 	dmesh.ntris = 0;
@@ -830,14 +1034,14 @@ bool rcBuildPolyMeshDetail(const rcPolyMesh& mesh, const rcCompactHeightfield& c
 		hp.ymin = bounds[i*4+2];
 		hp.width = bounds[i*4+1]-bounds[i*4+0];
 		hp.height = bounds[i*4+3]-bounds[i*4+2];
-		getHeightData(chf, p, npoly, mesh.verts, hp, stack);
+		getHeightData(chf, p, npoly, mesh.verts, hp, stack, tmpData);
 		
 		// Build detail mesh.
 		int nverts = 0;
 		if (!buildPolyDetail(poly, npoly, mesh.regs[i],
 							 sampleDist, sampleMaxError,
 							 chf, hp, verts, nverts, tris,
-							 edges, idx, samples))
+							 edges, samples))
 		{
 			return false;
 		}
