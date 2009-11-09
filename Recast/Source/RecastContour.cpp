@@ -445,7 +445,7 @@ static void removeDegenerateSegments(rcIntArray& simplified)
 				simplified[j*4+2] = simplified[(j+1)*4+2];
 				simplified[j*4+3] = simplified[(j+1)*4+3];
 			}
-			simplified.pop();
+			simplified.resize(simplified.size()-4);
 		}
 	}
 }
