@@ -231,7 +231,7 @@ public:
 enum rcSpanFlags
 {
 	RC_WALKABLE = 0x01,
-	RC_REACHABLE = 0x02,
+	RC_LEDGE = 0x02,
 };
 
 // If heightfield region ID has the following bit set, the region is on border area
@@ -465,16 +465,6 @@ void rcFilterLedgeSpans(const int walkableHeight,
 //	solid - (in/out) heightfield describing the solid space
 void rcFilterWalkableLowHeightSpans(int walkableHeight,
 									rcHeightfield& solid);
-
-// Marks spans which are reachable from any of the topmost spans.
-// Params:
-//	walkableHeight - (in) minimum height where the agent can still walk
-//	walkableClimb - (in) maximum height between grid cells the agent can climb
-//	solid - (in/out) heightfield describing the solid space
-// Returns false if operation ran out of memory.
-bool rcMarkReachableSpans(const int walkableHeight,
-						  const int walkableClimb,
-						  rcHeightfield& solid);
 
 // Builds compact representation of the heightfield.
 // Params:

@@ -19,91 +19,107 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include "RecastDebugDraw.h"
-#include "SDL.h"
-#include "SDL_opengl.h"
 #include "MeshLoaderObj.h"
 #include "Recast.h"
 
-void rcDebugDrawMesh(const float* verts, int nverts,
-					 const int* tris, const float* normals, int ntris,
-					 const unsigned char* flags)
-{	
-	glBegin(GL_TRIANGLES);
-	for (int i = 0; i < ntris*3; i += 3)
-	{
-		float a = (2+normals[i+0]+normals[i+1])/4 * 0.6f;
-		if (flags && !flags[i/3])
-			glColor3f(a,a*0.3f,a*0.1f);
-		else
-			glColor3f(a,a,a);
-		glVertex3fv(&verts[tris[i]*3]);
-		glVertex3fv(&verts[tris[i+1]*3]);
-		glVertex3fv(&verts[tris[i+2]*3]);
-	}
-	glEnd();
+inline unsigned int dark(unsigned int col)
+{
+	return ((col >> 1) & 0x007f7f7f) | (col & 0xff000000);
 }
 
-void rcDebugDrawMeshSlope(const float* verts, int nverts,
+void rcDebugDrawMesh(rcDebugDraw* dd, const float* verts, int nverts,
+					 const int* tris, const float* normals, int ntris,
+					 const unsigned char* flags)
+{
+	dd->begin(RC_DRAW_TRIS, ntris);
+	for (int i = 0; i < ntris*3; i += 3)
+	{
+		unsigned int color;
+		unsigned char a = (unsigned char)(150*(2+normals[i+0]+normals[i+1])/4);
+		if (flags && !flags[i/3])
+			color = RGBA(a,a/4,a/16,255);
+		else
+			color = RGBA(a,a,a,255);
+			
+		dd->vertex(&verts[tris[i+0]*3], color);
+		dd->vertex(&verts[tris[i+1]*3], color);
+		dd->vertex(&verts[tris[i+2]*3], color);
+	}
+	dd->end();
+}
+
+void rcDebugDrawMeshSlope(rcDebugDraw* dd, const float* verts, int nverts,
 						  const int* tris, const float* normals, int ntris,
 						  const float walkableSlopeAngle)
 {
 	const float walkableThr = cosf(walkableSlopeAngle/180.0f*(float)M_PI);
-	
-	glBegin(GL_TRIANGLES);
+
+	dd->begin(RC_DRAW_TRIS, ntris);
 	for (int i = 0; i < ntris*3; i += 3)
 	{
 		const float* norm = &normals[i];
-		float a = (2+norm[0]+norm[1])/4;
-		if (norm[1] > walkableThr)
-			glColor3f(a,a,a);
+		unsigned int color;
+		unsigned char a = (unsigned char)(255*(2+normals[i+0]+normals[i+1])/4);
+		if (norm[1] < walkableThr)
+			color = RGBA(a,a/4,a/16,255);
 		else
-			glColor3f(a,a*0.3f,a*0.1f);
-		glVertex3fv(&verts[tris[i]*3]);
-		glVertex3fv(&verts[tris[i+1]*3]);
-		glVertex3fv(&verts[tris[i+2]*3]);
+			color = RGBA(a,a,a,255);
+		
+		dd->vertex(&verts[tris[i+0]*3], color);
+		dd->vertex(&verts[tris[i+1]*3], color);
+		dd->vertex(&verts[tris[i+2]*3], color);
 	}
-	glEnd();
+	dd->end();
 }
 
-void drawBoxWire(float minx, float miny, float minz, float maxx, float maxy, float maxz, const float* col)
+static void drawBoxWire(rcDebugDraw* dd,
+						float minx, float miny, float minz,
+						float maxx, float maxy, float maxz,
+						const float* col)
 {
-	glColor4fv(col);
+	// Submits 24 vertices.
+
+	unsigned int color = RGBAf(col[0],col[1],col[2],col[3]);
 	
 	// Top
-	glVertex3f(minx, miny, minz);
-	glVertex3f(maxx, miny, minz);
-	glVertex3f(maxx, miny, minz);
-	glVertex3f(maxx, miny, maxz);
-	glVertex3f(maxx, miny, maxz);
-	glVertex3f(minx, miny, maxz);
-	glVertex3f(minx, miny, maxz);
-	glVertex3f(minx, miny, minz);
+	dd->vertex(minx, miny, minz, color);
+	dd->vertex(maxx, miny, minz, color);
+	dd->vertex(maxx, miny, minz, color);
+	dd->vertex(maxx, miny, maxz, color);
+	dd->vertex(maxx, miny, maxz, color);
+	dd->vertex(minx, miny, maxz, color);
+	dd->vertex(minx, miny, maxz, color);
+	dd->vertex(minx, miny, minz, color);
 	
 	// bottom
-	glVertex3f(minx, maxy, minz);
-	glVertex3f(maxx, maxy, minz);
-	glVertex3f(maxx, maxy, minz);
-	glVertex3f(maxx, maxy, maxz);
-	glVertex3f(maxx, maxy, maxz);
-	glVertex3f(minx, maxy, maxz);
-	glVertex3f(minx, maxy, maxz);
-	glVertex3f(minx, maxy, minz);
+	dd->vertex(minx, maxy, minz, color);
+	dd->vertex(maxx, maxy, minz, color);
+	dd->vertex(maxx, maxy, minz, color);
+	dd->vertex(maxx, maxy, maxz, color);
+	dd->vertex(maxx, maxy, maxz, color);
+	dd->vertex(minx, maxy, maxz, color);
+	dd->vertex(minx, maxy, maxz, color);
+	dd->vertex(minx, maxy, minz, color);
 	
 	// Sides
-	glVertex3f(minx, miny, minz);
-	glVertex3f(minx, maxy, minz);
-	glVertex3f(maxx, miny, minz);
-	glVertex3f(maxx, maxy, minz);
-	glVertex3f(maxx, miny, maxz);
-	glVertex3f(maxx, maxy, maxz);
-	glVertex3f(minx, miny, maxz);
-	glVertex3f(minx, maxy, maxz);
+	dd->vertex(minx, miny, minz, color);
+	dd->vertex(minx, maxy, minz, color);
+	dd->vertex(maxx, miny, minz, color);
+	dd->vertex(maxx, maxy, minz, color);
+	dd->vertex(maxx, miny, maxz, color);
+	dd->vertex(maxx, maxy, maxz, color);
+	dd->vertex(minx, miny, maxz, color);
+	dd->vertex(minx, maxy, maxz, color);
 }
 
-void drawBox(float minx, float miny, float minz, float maxx, float maxy, float maxz,
-			 const float* col1, const float* col2)
+static void drawBox(rcDebugDraw* dd,
+					float minx, float miny, float minz,
+					float maxx, float maxy, float maxz,
+					const float* col1, const float* col2)
 {
-	float verts[8*3] =
+	// Submits 24 vertices.
+	
+	const float verts[8*3] =
 	{
 		minx, miny, minz,
 		maxx, miny, minz,
@@ -132,18 +148,21 @@ void drawBox(float minx, float miny, float minz, float maxx, float maxy, float m
 	for (int i = 0; i < 6; ++i)
 	{
 		float d = dim[*in]; in++;
+		unsigned int color;
 		if (i == 0)
-			glColor4f(d*col2[0],d*col2[1],d*col2[2], col2[3]);
+			color = RGBAf(d*col2[0],d*col2[1],d*col2[2], col2[3]);
 		else
-			glColor4f(d*col1[0],d*col1[1],d*col1[2], col1[3]);
-		glVertex3fv(&verts[*in*3]); in++;
-		glVertex3fv(&verts[*in*3]); in++;
-		glVertex3fv(&verts[*in*3]); in++;
-		glVertex3fv(&verts[*in*3]); in++;
+			color = RGBAf(d*col1[0],d*col1[1],d*col1[2], col1[3]);
+		dd->vertex(&verts[*in*3], color); in++;
+		dd->vertex(&verts[*in*3], color); in++;
+		dd->vertex(&verts[*in*3], color); in++;
+		dd->vertex(&verts[*in*3], color); in++;
 	}
 }
 
-void rcDebugDrawCylinderWire(float minx, float miny, float minz, float maxx, float maxy, float maxz, const float* col)
+void rcDebugDrawCylinderWire(rcDebugDraw* dd, float minx, float miny, float minz,
+							 float maxx, float maxy, float maxz,
+							 const float* col)
 {
 	static const int NUM_SEG = 16;
 	float dir[NUM_SEG*2];
@@ -159,40 +178,56 @@ void rcDebugDrawCylinderWire(float minx, float miny, float minz, float maxx, flo
 	const float rx = (maxx - minx)/2;
 	const float rz = (maxz - minz)/2;
 	
-	glColor4fv(col);
-	glBegin(GL_LINES);
+	unsigned int color = RGBAf(col[0],col[1],col[2],col[3]);
+	
+	const int nv = NUM_SEG*4 + 4*2;
+	
+	dd->begin(RC_DRAW_LINES, nv);
+	
 	for (int i = 0, j=NUM_SEG-1; i < NUM_SEG; j=i++)
 	{
-		glVertex3f(cx+dir[j*2+0]*rx, miny, cz+dir[j*2+1]*rz);
-		glVertex3f(cx+dir[i*2+0]*rx, miny, cz+dir[i*2+1]*rz);
-		glVertex3f(cx+dir[j*2+0]*rx, maxy, cz+dir[j*2+1]*rz);
-		glVertex3f(cx+dir[i*2+0]*rx, maxy, cz+dir[i*2+1]*rz);
+		dd->vertex(cx+dir[j*2+0]*rx, miny, cz+dir[j*2+1]*rz, color);
+		dd->vertex(cx+dir[i*2+0]*rx, miny, cz+dir[i*2+1]*rz, color);
+		dd->vertex(cx+dir[j*2+0]*rx, maxy, cz+dir[j*2+1]*rz, color);
+		dd->vertex(cx+dir[i*2+0]*rx, maxy, cz+dir[i*2+1]*rz, color);
 	}
 	for (int i = 0; i < NUM_SEG; i += NUM_SEG/4)
 	{
-		glVertex3f(cx+dir[i*2+0]*rx, miny, cz+dir[i*2+1]*rz);
-		glVertex3f(cx+dir[i*2+0]*rx, maxy, cz+dir[i*2+1]*rz);
+		dd->vertex(cx+dir[i*2+0]*rx, miny, cz+dir[i*2+1]*rz, color);
+		dd->vertex(cx+dir[i*2+0]*rx, maxy, cz+dir[i*2+1]*rz, color);
 	}
-	glEnd();
+	
+	dd->end();
 }
 
-void rcDebugDrawBoxWire(float minx, float miny, float minz, float maxx, float maxy, float maxz, const float* col)
+void rcDebugDrawBoxWire(rcDebugDraw* dd, float minx, float miny, float minz, float maxx, float maxy, float maxz, const float* col)
 {
-	glBegin(GL_LINES);
-	drawBoxWire(minx, miny, minz, maxx, maxy, maxz, col);
-	glEnd();
+	dd->begin(RC_DRAW_LINES, 24, 1.0f);
+	drawBoxWire(dd, minx, miny, minz, maxx, maxy, maxz, col);
+	dd->end();
 }
 
-void rcDebugDrawBox(float minx, float miny, float minz, float maxx, float maxy, float maxz,
+void rcDebugDrawBox(rcDebugDraw* dd, float minx, float miny, float minz, float maxx, float maxy, float maxz,
 					const float* col1, const float* col2)
 {
-	glBegin(GL_QUADS);
-	drawBox(minx, miny, minz, maxx, maxy, maxz, col1, col2);
-	glEnd();
+	dd->begin(RC_DRAW_QUADS,24);
+	drawBox(dd, minx, miny, minz, maxx, maxy, maxz, col1, col2);
+	dd->end();
 }
 
+static int getSpanCount(const rcHeightfield& hf)
+{
+	const int w = hf.width;
+	const int h = hf.height;
+	int spanCount = 0;
+	for (int y = 0; y < h; ++y)
+		for (int x = 0; x < w; ++x)
+			for (rcSpan* s = hf.spans[x + y*w]; s; s = s->next)
+					spanCount++;
+	return spanCount;
+}
 
-void rcDebugDrawHeightfieldSolid(const rcHeightfield& hf)
+void rcDebugDrawHeightfieldSolid(rcDebugDraw* dd, const rcHeightfield& hf)
 {
 	static const float col0[4] = { 1,1,1,1 };
 	
@@ -203,7 +238,10 @@ void rcDebugDrawHeightfieldSolid(const rcHeightfield& hf)
 	const int w = hf.width;
 	const int h = hf.height;
 	
-	glBegin(GL_QUADS);
+	const int spanCount = getSpanCount(hf);
+	const int nv = spanCount*24;
+	
+	dd->begin(RC_DRAW_QUADS, nv);
 	
 	for (int y = 0; y < h; ++y)
 	{
@@ -214,18 +252,20 @@ void rcDebugDrawHeightfieldSolid(const rcHeightfield& hf)
 			const rcSpan* s = hf.spans[x + y*w];
 			while (s)
 			{
-				drawBox(fx, orig[1]+s->smin*ch, fz, fx+cs, orig[1] + s->smax*ch, fz+cs, col0, col0);
+				drawBox(dd, fx, orig[1]+s->smin*ch, fz, fx+cs, orig[1] + s->smax*ch, fz+cs, col0, col0);
 				s = s->next;
 			}
 		}
 	}
-	glEnd();
+	dd->end();
 }
 
-void rcDebugDrawHeightfieldWalkable(const rcHeightfield& hf)
+void rcDebugDrawHeightfieldWalkable(rcDebugDraw* dd, const rcHeightfield& hf)
 {
-	static const float col0[4] = { 1,1,1,1 };
-	static const float col1[4] = { 0.25f,0.44f,0.5f,1 };
+	static const float colb[4] = {0.85f,0.85f,0.85f,1 }; // Base
+	static const float col0[4] = {0.5f, 0.75f, 0.85f,1}; // Culled
+	static const float col1[4] = {0.3f, 0.55f, 0.65f, 1}; // Walkable
+	static const float col2[4] = {0.15f, 0.4f, 0.5f,1}; // Ledge
 	
 	const float* orig = hf.bmin;
 	const float cs = hf.cs;
@@ -234,7 +274,10 @@ void rcDebugDrawHeightfieldWalkable(const rcHeightfield& hf)
 	const int w = hf.width;
 	const int h = hf.height;
 	
-	glBegin(GL_QUADS);
+	const int spanCount = getSpanCount(hf);
+	const int nv = spanCount*24;
+	
+	dd->begin(RC_DRAW_QUADS, nv);
 	
 	for (int y = 0; y < h; ++y)
 	{
@@ -245,23 +288,29 @@ void rcDebugDrawHeightfieldWalkable(const rcHeightfield& hf)
 			const rcSpan* s = hf.spans[x + y*w];
 			while (s)
 			{
-				bool csel = (s->flags & 0x1) == 0;
-				drawBox(fx, orig[1]+s->smin*ch, fz, fx+cs, orig[1] + s->smax*ch, fz+cs, col0, csel ? col0 : col1);
+				const float* c = col0;
+				if (s->flags & RC_LEDGE)
+					c = col2;
+				else if (s->flags & RC_WALKABLE)
+					c = col1;
+				drawBox(dd, fx, orig[1]+s->smin*ch, fz, fx+cs, orig[1] + s->smax*ch, fz+cs, colb, c);
 				s = s->next;
 			}
 		}
 	}
-	glEnd();
+	
+	dd->end();
 }
 
-void rcDebugDrawCompactHeightfieldSolid(const rcCompactHeightfield& chf)
+void rcDebugDrawCompactHeightfieldSolid(rcDebugDraw* dd, const rcCompactHeightfield& chf)
 {
 	const float cs = chf.cs;
 	const float ch = chf.ch;
 
-	glColor3ub(64,112,128);
-
-	glBegin(GL_QUADS);
+	unsigned int color = RGBA(0,192,255,64);
+	
+	dd->begin(RC_DRAW_QUADS, chf.spanCount*4);
+	
 	for (int y = 0; y < chf.height; ++y)
 	{
 		for (int x = 0; x < chf.width; ++x)
@@ -274,26 +323,23 @@ void rcDebugDrawCompactHeightfieldSolid(const rcCompactHeightfield& chf)
 			{
 				const rcCompactSpan& s = chf.spans[i];
 				const float fy = chf.bmin[1] + (s.y+1)*ch;
-				glVertex3f(fx, fy, fz);
-				glVertex3f(fx, fy, fz+cs);
-				glVertex3f(fx+cs, fy, fz+cs);
-				glVertex3f(fx+cs, fy, fz);
+				dd->vertex(fx, fy, fz, color);
+				dd->vertex(fx, fy, fz+cs, color);
+				dd->vertex(fx+cs, fy, fz+cs, color);
+				dd->vertex(fx+cs, fy, fz, color);
 			}
 		}
 	}
-	glEnd();
+	dd->end();
 }
 
-void rcDebugDrawCompactHeightfieldRegions(const rcCompactHeightfield& chf)
+void rcDebugDrawCompactHeightfieldRegions(rcDebugDraw* dd, const rcCompactHeightfield& chf)
 {
 	const float cs = chf.cs;
 	const float ch = chf.ch;
 
-	float col[4] = { 1,1,1,1 };
-	
-	glDepthMask(GL_TRUE);
-	
-	glBegin(GL_QUADS);
+	dd->begin(RC_DRAW_QUADS, chf.spanCount*4);
+
 	for (int y = 0; y < chf.height; ++y)
 	{
 		for (int x = 0; x < chf.width; ++x)
@@ -305,40 +351,36 @@ void rcDebugDrawCompactHeightfieldRegions(const rcCompactHeightfield& chf)
 			for (unsigned i = c.index, ni = c.index+c.count; i < ni; ++i)
 			{
 				const rcCompactSpan& s = chf.spans[i];
-
-				if (chf.reg[i])
-				{
-					intToCol(chf.reg[i], col);
-					glColor4fv(col);
-				}
-				else
-				{
-					glColor4ub(0,0,0,64);
-				}
-
 				const float fy = chf.bmin[1] + (s.y)*ch;
+				unsigned int color;
+				if (chf.reg[i])
+					color = intToCol(chf.reg[i], 192);
+				else
+					color = RGBA(0,0,0,64);
 
-				glVertex3f(fx, fy, fz);
-				glVertex3f(fx, fy, fz+cs);
-				glVertex3f(fx+cs, fy, fz+cs);
-				glVertex3f(fx+cs, fy, fz);
+				dd->vertex(fx, fy, fz, color);
+				dd->vertex(fx, fy, fz+cs, color);
+				dd->vertex(fx+cs, fy, fz+cs, color);
+				dd->vertex(fx+cs, fy, fz, color);
 			}
 		}
 	}
-	glEnd();
+	
+	dd->end();
 }
 
 
-void rcDebugDrawCompactHeightfieldDistance(const rcCompactHeightfield& chf)
+void rcDebugDrawCompactHeightfieldDistance(rcDebugDraw* dd, const rcCompactHeightfield& chf)
 {
 	const float cs = chf.cs;
 	const float ch = chf.ch;
-		
+			
 	float maxd = chf.maxDistance;
 	if (maxd < 1.0f) maxd = 1;
-	float dscale = 1.0f / maxd;
+	const float dscale = 255.0f / maxd;
 	
-	glBegin(GL_QUADS);
+	dd->begin(RC_DRAW_QUADS, chf.spanCount*4);
+	
 	for (int y = 0; y < chf.height; ++y)
 	{
 		for (int x = 0; x < chf.width; ++x)
@@ -351,16 +393,16 @@ void rcDebugDrawCompactHeightfieldDistance(const rcCompactHeightfield& chf)
 			{
 				const rcCompactSpan& s = chf.spans[i];
 				const float fy = chf.bmin[1] + (s.y+1)*ch;
-				float cd = (float)chf.dist[i] * dscale;
-				glColor3f(cd, cd, cd);
-				glVertex3f(fx, fy, fz);
-				glVertex3f(fx, fy, fz+cs);
-				glVertex3f(fx+cs, fy, fz+cs);
-				glVertex3f(fx+cs, fy, fz);
+				const unsigned char cd = (unsigned char)(chf.dist[i] * dscale);
+				const unsigned int color = RGBA(cd,cd,cd,255);
+				dd->vertex(fx, fy, fz, color);
+				dd->vertex(fx, fy, fz+cs, color);
+				dd->vertex(fx+cs, fy, fz+cs, color);
+				dd->vertex(fx+cs, fy, fz, color);
 			}
 		}
 	}
-	glEnd();
+	dd->end();
 }
 
 static void getContourCenter(const rcContour* cont, const float* orig, float cs, float ch, float* center)
@@ -396,36 +438,39 @@ static const rcContour* findContourFromSet(const rcContourSet& cset, unsigned sh
 	return 0;
 }
 
-static void drawArc(const float* p0, const float* p1)
+static const int NUM_ARC_PTS = 8;
+
+static void drawArc(rcDebugDraw* dd, const float* p0, const float* p1, unsigned int color)
 {
-	static const int NPTS = 8;
-	float pts[NPTS*3];
+	// Submits NPTS*2 vertices.
+	float pts[NUM_ARC_PTS*3];
 	float dir[3];
 	vsub(dir, p1, p0);
 	const float len = sqrtf(vdistSqr(p0, p1));
-	for (int i = 0; i < NPTS; ++i)
+	for (int i = 0; i < NUM_ARC_PTS; ++i)
 	{
-		float u = (float)i / (float)(NPTS-1);
+		float u = (float)i / (float)(NUM_ARC_PTS-1);
 		float* p = &pts[i*3];
 		p[0] = p0[0] + dir[0] * u;
 		p[1] = p0[1] + dir[1] * u + (len/4) * (1-rcSqr(u*2-1));
 		p[2] = p0[2] + dir[2] * u;
 	}
-	for (int i = 0; i < NPTS-1; ++i)
+	for (int i = 0; i < NUM_ARC_PTS-1; ++i)
 	{
-		glVertex3fv(&pts[i*3]);
-		glVertex3fv(&pts[(i+1)*3]);
+		dd->vertex(&pts[i*3], color);
+		dd->vertex(&pts[(i+1)*3], color);
 	}
 }
 
-void rcDrawArc(const float* p0, const float* p1)
+void rcDrawArc(rcDebugDraw* dd, const float* p0, const float* p1, const float* col, float lineWidth)
 {
-	glBegin(GL_LINES);
-	drawArc(p0, p1);
-	glEnd();
+	const unsigned int color = RGBAf(col[0],col[1],col[2],col[3]);
+	dd->begin(RC_DRAW_LINES, NUM_ARC_PTS*2, lineWidth);
+	drawArc(dd, p0, p1, color);
+	dd->end();
 }
 
-void rcDebugDrawRegionConnections(const rcContourSet& cset, const float alpha)
+void rcDebugDrawRegionConnections(rcDebugDraw* dd, const rcContourSet& cset, const float alpha)
 {
 	const float* orig = cset.bmin;
 	const float cs = cset.cs;
@@ -434,10 +479,23 @@ void rcDebugDrawRegionConnections(const rcContourSet& cset, const float alpha)
 	// Draw centers
 	float pos[3], pos2[3];
 
-	glColor4ub(0,0,0,196);
+	unsigned int color = RGBA(0,0,0,196);
 
-	glLineWidth(2.0f);
-	glBegin(GL_LINES);
+	int nv = 0;
+	for (int i = 0; i < cset.nconts; ++i)
+	{
+		const rcContour* cont = &cset.conts[i];
+		for (int j = 0; j < cont->nverts; ++j)
+		{
+			const int* v = &cont->verts[j*4];
+			if (v[3] == 0 || (unsigned short)v[3] < cont->reg) continue;
+			if (findContourFromSet(cset, (unsigned short)v[3]))
+				nv += NUM_ARC_PTS;
+		}
+	}
+	
+	dd->begin(RC_DRAW_LINES, nv, 2.0f);
+
 	for (int i = 0; i < cset.nconts; ++i)
 	{
 		const rcContour* cont = &cset.conts[i];
@@ -450,158 +508,203 @@ void rcDebugDrawRegionConnections(const rcContourSet& cset, const float alpha)
 			if (cont2)
 			{
 				getContourCenter(cont2, orig, cs, ch, pos2);
-				drawArc(pos, pos2);
+				drawArc(dd, pos, pos2, color);
 			}
 		}
 	}
-	glEnd();
-
-	float col[4] = { 1,1,1,alpha };
 	
-	glPointSize(7.0f);
-	glBegin(GL_POINTS);
+	dd->end();
+
+	unsigned char a = (unsigned char)(alpha * 255.0f);
+
+	dd->begin(RC_DRAW_POINTS, nv, 7.0f);
+
 	for (int i = 0; i < cset.nconts; ++i)
 	{
 		const rcContour* cont = &cset.conts[i];
-		intToCol(cont->reg, col);
-		col[0] *= 0.5f;
-		col[1] *= 0.5f;
-		col[2] *= 0.5f;
-		glColor4fv(col);
+		unsigned int color = dark(intToCol(cont->reg,a));
 		getContourCenter(cont, orig, cs, ch, pos);
-		glVertex3fv(pos);
+		dd->vertex(pos, color);
 	}
-	glEnd();
-	
-	
-	glLineWidth(1.0f);
-	glPointSize(1.0f);
+	dd->end();
 }
 
-void rcDebugDrawRawContours(const rcContourSet& cset, const float alpha)
+void rcDebugDrawRawContours(rcDebugDraw* dd, const rcContourSet& cset, const float alpha)
 {
 	const float* orig = cset.bmin;
 	const float cs = cset.cs;
 	const float ch = cset.ch;
-	float col[4] = { 1,1,1,alpha };
-	glLineWidth(2.0f);
-	glPointSize(2.0f);
+	
+	const unsigned char a = (unsigned char)(alpha*255.0f);
+	
+	int nv = 0;
 	for (int i = 0; i < cset.nconts; ++i)
 	{
 		const rcContour& c = cset.conts[i];
-		intToCol(c.reg, col);
-		glColor4fv(col);
-		glBegin(GL_LINE_LOOP);
+		nv += c.nrverts;
+	}
+	
+	dd->begin(RC_DRAW_LINES, nv*2, 2.0f);
+			
+	for (int i = 0; i < cset.nconts; ++i)
+	{
+		const rcContour& c = cset.conts[i];
+		unsigned int color = intToCol(c.reg, a);
+
 		for (int j = 0; j < c.nrverts; ++j)
 		{
 			const int* v = &c.rverts[j*4];
 			float fx = orig[0] + v[0]*cs;
 			float fy = orig[1] + (v[1]+1+(i&1))*ch;
 			float fz = orig[2] + v[2]*cs;
-			glVertex3f(fx,fy,fz);
+			dd->vertex(fx,fy,fz,color);
+			if (j > 0)
+				dd->vertex(fx,fy,fz,color);
 		}
-		glEnd();
+		// Loop last segment.
+		const int* v = &c.rverts[0];
+		float fx = orig[0] + v[0]*cs;
+		float fy = orig[1] + (v[1]+1+(i&1))*ch;
+		float fz = orig[2] + v[2]*cs;
+		dd->vertex(fx,fy,fz,color);
+	}
+	dd->end();
 
-		col[0] *= 0.5f;
-		col[1] *= 0.5f;
-		col[2] *= 0.5f;
-		glColor4fv(col);		
+	dd->begin(RC_DRAW_POINTS, nv, 2.0f);	
 
-		glBegin(GL_POINTS);
+	for (int i = 0; i < cset.nconts; ++i)
+	{
+		const rcContour& c = cset.conts[i];
+		unsigned int color = dark(intToCol(c.reg, a));
+		
 		for (int j = 0; j < c.nrverts; ++j)
 		{
 			const int* v = &c.rverts[j*4];
-			
 			float off = 0;
+			unsigned int colv = color;
 			if (v[3] & RC_BORDER_VERTEX)
 			{
-				glColor4ub(255,255,255,255);
+				colv = RGBA(255,255,255,a);
 				off = ch*2;
-			}
-			else
-			{
-				glColor4fv(col);
 			}
 			
 			float fx = orig[0] + v[0]*cs;
 			float fy = orig[1] + (v[1]+1+(i&1))*ch + off;
 			float fz = orig[2] + v[2]*cs;
-			glVertex3f(fx,fy,fz);
+			dd->vertex(fx,fy,fz, colv);
 		}
-		glEnd();
 	}
-	glLineWidth(1.0f);
-	glPointSize(1.0f);
+	dd->end();
 }
 
-void rcDebugDrawContours(const rcContourSet& cset, const float alpha)
+void rcDebugDrawContours(rcDebugDraw* dd, const rcContourSet& cset, const float alpha)
 {
 	const float* orig = cset.bmin;
 	const float cs = cset.cs;
 	const float ch = cset.ch;
-	float col[4] = { 1,1,1,1 };
-	glLineWidth(2.5f);
-	glPointSize(3.0f);
+	
+	const unsigned char a = (unsigned char)(alpha*255.0f);
+	
+	int nv = 0;
 	for (int i = 0; i < cset.nconts; ++i)
 	{
 		const rcContour& c = cset.conts[i];
-		intToCol(c.reg, col);
-		glColor4fv(col);
+		nv += c.nverts;
+	}
+	
+	dd->begin(RC_DRAW_LINES, nv*2, 2.5f);
+	
+	for (int i = 0; i < cset.nconts; ++i)
+	{
+		const rcContour& c = cset.conts[i];
+		unsigned int color = intToCol(c.reg, a);
 
-		glBegin(GL_LINE_LOOP);
 		for (int j = 0; j < c.nverts; ++j)
 		{
 			const int* v = &c.verts[j*4];
 			float fx = orig[0] + v[0]*cs;
 			float fy = orig[1] + (v[1]+1+(i&1))*ch;
 			float fz = orig[2] + v[2]*cs;
-			glVertex3f(fx,fy,fz);
+			dd->vertex(fx,fy,fz, color);
+			if (j > 0)
+				dd->vertex(fx,fy,fz, color);
 		}
-		glEnd();
+		// Loop last segment
+		const int* v = &c.verts[0];
+		float fx = orig[0] + v[0]*cs;
+		float fy = orig[1] + (v[1]+1+(i&1))*ch;
+		float fz = orig[2] + v[2]*cs;
+		dd->vertex(fx,fy,fz, color);
+	}
+	dd->end();
 
-		col[0] *= 0.5f;
-		col[1] *= 0.5f;
-		col[2] *= 0.5f;
-		glColor4fv(col);		
-		glBegin(GL_POINTS);
+	dd->begin(RC_DRAW_POINTS, nv, 3.0f);
+	
+	for (int i = 0; i < cset.nconts; ++i)
+	{
+		const rcContour& c = cset.conts[i];
+		unsigned int color = dark(intToCol(c.reg, a));
 		for (int j = 0; j < c.nverts; ++j)
 		{
 			const int* v = &c.verts[j*4];
 			float off = 0;
+			unsigned int colv = color;
 			if (v[3] & RC_BORDER_VERTEX)
 			{
-				glColor4ub(255,255,255,255);
+				colv = RGBA(255,255,255,a);
 				off = ch*2;
-			}
-			else
-			{
-				glColor4fv(col);
 			}
 
 			float fx = orig[0] + v[0]*cs;
 			float fy = orig[1] + (v[1]+1+(i&1))*ch + off;
 			float fz = orig[2] + v[2]*cs;
-			glVertex3f(fx,fy,fz);
+			dd->vertex(fx,fy,fz, colv);
 		}
-		glEnd();
 	}
-	glLineWidth(1.0f);
-	glPointSize(1.0f);
+	dd->end();
 }
 
-void rcDebugDrawPolyMesh(const struct rcPolyMesh& mesh)
+void rcDebugDrawPolyMesh(rcDebugDraw* dd, const struct rcPolyMesh& mesh)
 {
 	const int nvp = mesh.nvp;
 	const float cs = mesh.cs;
 	const float ch = mesh.ch;
 	const float* orig = mesh.bmin;
-	float col[4] = {1,1,1,0.75f};
-	glBegin(GL_TRIANGLES);
+	
+	int nvt = 0; // triangle verts
+	int nvb = 0; // boundary edge verts
+	int nvn = 0; // neighbour edge verts
 	for (int i = 0; i < mesh.npolys; ++i)
 	{
 		const unsigned short* p = &mesh.polys[i*nvp*2];
-		intToCol(i, col);
-		glColor4fv(col);
+		// Tris
+		for (int j = 2; j < nvp; ++j)
+		{
+			if (p[j] == 0xffff) break;
+			nvt += 3;
+		}
+		// boundary edges
+		for (int j = 0; j < nvp; ++j)
+		{
+			if (p[j] == 0xffff) break;
+			if (p[nvp+j] == 0xffff) continue;
+			nvb += 2;
+		}
+		// neighbour edges
+		for (int j = 0; j < nvp; ++j)
+		{
+			if (p[j] == 0xffff) break;
+			if (p[nvp+j] != 0xffff) continue;
+			nvb += 2;
+		}
+	}
+
+	dd->begin(RC_DRAW_TRIS, nvt);
+	
+	for (int i = 0; i < mesh.npolys; ++i)
+	{
+		const unsigned short* p = &mesh.polys[i*nvp*2];
+		unsigned int color = intToCol(i, 192);
 		unsigned short vi[3];
 		for (int j = 2; j < nvp; ++j)
 		{
@@ -615,91 +718,121 @@ void rcDebugDrawPolyMesh(const struct rcPolyMesh& mesh)
 				const float x = orig[0] + v[0]*cs;
 				const float y = orig[1] + (v[1]+1)*ch;
 				const float z = orig[2] + v[2]*cs;
-				glVertex3f(x, y, z);
+				dd->vertex(x,y,z, color);
 			}
 		}
 	}
-	glEnd();
+	dd->end();
 
-	// Draw tri boundaries
-	glColor4ub(0,48,64,32);
-	glLineWidth(1.5f);
-	glBegin(GL_LINES);
+	// Draw neighbours edges
+	const unsigned int coln = RGBA(0,48,64,32);
+	dd->begin(RC_DRAW_LINES, nvn, 1.5f);
 	for (int i = 0; i < mesh.npolys; ++i)
 	{
-		const unsigned short* poly = &mesh.polys[i*nvp*2];
+		const unsigned short* p = &mesh.polys[i*nvp*2];
 		for (int j = 0; j < nvp; ++j)
 		{
-			if (poly[j] == 0xffff) break;
-			if (poly[nvp+j] == 0xffff) continue;
+			if (p[j] == 0xffff) break;
+			if (p[nvp+j] == 0xffff) continue;
 			int vi[2];
-			vi[0] = poly[j];
-			if (j+1 >= nvp || poly[j+1] == 0xffff)
-				vi[1] = poly[0];
+			vi[0] = p[j];
+			if (j+1 >= nvp || p[j+1] == 0xffff)
+				vi[1] = p[0];
 			else
-				vi[1] = poly[j+1];
+				vi[1] = p[j+1];
 			for (int k = 0; k < 2; ++k)
 			{
 				const unsigned short* v = &mesh.verts[vi[k]*3];
 				const float x = orig[0] + v[0]*cs;
 				const float y = orig[1] + (v[1]+1)*ch + 0.1f;
 				const float z = orig[2] + v[2]*cs;
-				glVertex3f(x, y, z);
+				dd->vertex(x, y, z, coln);
 			}
 		}
 	}
-	glEnd();
+	dd->end();
 	
-	// Draw boundaries
-	glLineWidth(2.5f);
-	glColor4ub(0,48,64,220);
-	glBegin(GL_LINES);
+	// Draw boundary edges
+	const unsigned int colb = RGBA(0,48,64,220);
+	dd->begin(RC_DRAW_LINES, nvb, 2.5f);
 	for (int i = 0; i < mesh.npolys; ++i)
 	{
-		const unsigned short* poly = &mesh.polys[i*nvp*2];
+		const unsigned short* p = &mesh.polys[i*nvp*2];
 		for (int j = 0; j < nvp; ++j)
 		{
-			if (poly[j] == 0xffff) break;
-			if (poly[nvp+j] != 0xffff) continue;
+			if (p[j] == 0xffff) break;
+			if (p[nvp+j] != 0xffff) continue;
 			int vi[2];
-			vi[0] = poly[j];
-			if (j+1 >= nvp || poly[j+1] == 0xffff)
-				vi[1] = poly[0];
+			vi[0] = p[j];
+			if (j+1 >= nvp || p[j+1] == 0xffff)
+				vi[1] = p[0];
 			else
-				vi[1] = poly[j+1];
+				vi[1] = p[j+1];
 			for (int k = 0; k < 2; ++k)
 			{
 				const unsigned short* v = &mesh.verts[vi[k]*3];
 				const float x = orig[0] + v[0]*cs;
 				const float y = orig[1] + (v[1]+1)*ch + 0.1f;
 				const float z = orig[2] + v[2]*cs;
-				glVertex3f(x, y, z);
+				dd->vertex(x, y, z, colb);
 			}
 		}
 	}
-	glEnd();
-	glLineWidth(1.0f);
+	dd->end();
 	
-	glPointSize(3.0f);
-	glColor4ub(0,0,0,220);
-	glBegin(GL_POINTS);
+	dd->begin(RC_DRAW_POINTS, mesh.nverts, 3.0f);
+	const unsigned int colv = RGBA(0,0,0,220);
 	for (int i = 0; i < mesh.nverts; ++i)
 	{
 		const unsigned short* v = &mesh.verts[i*3];
 		const float x = orig[0] + v[0]*cs;
 		const float y = orig[1] + (v[1]+1)*ch + 0.1f;
 		const float z = orig[2] + v[2]*cs;
-		glVertex3f(x, y, z);
+		dd->vertex(x,y,z, colv);
 	}
-	glEnd();
-	glPointSize(1.0f);
+	dd->end();
 }
 
-void rcDebugDrawPolyMeshDetail(const struct rcPolyMeshDetail& dmesh)
+void rcDebugDrawPolyMeshDetail(rcDebugDraw* dd, const struct rcPolyMeshDetail& dmesh)
 {
-	float col[4] = {1,1,1,0.75f};
+	int nvt = 0;
+	int nvi = 0;
+	int nve = 0;
+	int nvv = 0;
+
+	for (int i = 0; i < dmesh.nmeshes; ++i)
+	{
+		const unsigned short* m = &dmesh.meshes[i*4];
+		const unsigned short nverts = m[1];
+		const unsigned short btris = m[2];
+		const unsigned short ntris = m[3];
+		const unsigned char* tris = &dmesh.tris[btris*4];
+		
+		nvt += (int)ntris*3;
+		nvv += (int)nverts;
+		
+		for (int j = 0; j < ntris; ++j)
+		{
+			const unsigned char* t = &tris[j*4];
+			for (int k = 0, kp = 2; k < 3; kp=k++)
+			{
+				unsigned char ef = (t[3] >> (kp*2)) & 0x3;
+				if (ef == 0)
+				{
+					if (t[kp] < t[k])
+						nvi += 2;
+				}
+				else
+				{
+					nve += 2;
+				}
+			}
+		}
+		
+	}
+		
+	dd->begin(RC_DRAW_TRIS, nvt);
 	
-	glBegin(GL_TRIANGLES);
 	for (int i = 0; i < dmesh.nmeshes; ++i)
 	{
 		const unsigned short* m = &dmesh.meshes[i*4];
@@ -709,21 +842,20 @@ void rcDebugDrawPolyMeshDetail(const struct rcPolyMeshDetail& dmesh)
 		const float* verts = &dmesh.verts[bverts*3];
 		const unsigned char* tris = &dmesh.tris[btris*4];
 
-		intToCol(i, col);
-		glColor4fv(col);
+		unsigned int color = intToCol(i, 192);
+
 		for (int j = 0; j < ntris; ++j)
 		{
-			glVertex3fv(&verts[tris[j*4+0]*3]);
-			glVertex3fv(&verts[tris[j*4+1]*3]);
-			glVertex3fv(&verts[tris[j*4+2]*3]);
+			dd->vertex(&verts[tris[j*4+0]*3], color);
+			dd->vertex(&verts[tris[j*4+1]*3], color);
+			dd->vertex(&verts[tris[j*4+2]*3], color);
 		}
 	}
-	glEnd();
+	dd->end();
 
 	// Internal edges.
-	glLineWidth(1.0f);
-	glColor4ub(0,0,0,64);
-	glBegin(GL_LINES);
+	dd->begin(RC_DRAW_LINES, nvi, 1.0f);
+	const unsigned int coli = RGBA(0,0,0,64);
 	for (int i = 0; i < dmesh.nmeshes; ++i)
 	{
 		const unsigned short* m = &dmesh.meshes[i*4];
@@ -744,19 +876,18 @@ void rcDebugDrawPolyMeshDetail(const struct rcPolyMeshDetail& dmesh)
 					// Internal edge
 					if (t[kp] < t[k])
 					{
-						glVertex3fv(&verts[t[kp]*3]);
-						glVertex3fv(&verts[t[k]*3]);
+						dd->vertex(&verts[t[kp]*3], coli);
+						dd->vertex(&verts[t[k]*3], coli);
 					}
 				}
 			}
 		}
 	}
-	glEnd();
+	dd->end();
 	
 	// External edges.
-	glLineWidth(2.0f);
-	glColor4ub(0,0,0,64);
-	glBegin(GL_LINES);
+	dd->begin(RC_DRAW_LINES, 2.0f);
+	const unsigned int cole = RGBA(0,0,0,64);
 	for (int i = 0; i < dmesh.nmeshes; ++i)
 	{
 		const unsigned short* m = &dmesh.meshes[i*4];
@@ -775,18 +906,16 @@ void rcDebugDrawPolyMeshDetail(const struct rcPolyMeshDetail& dmesh)
 				if (ef != 0)
 				{
 					// Ext edge
-					glVertex3fv(&verts[t[kp]*3]);
-					glVertex3fv(&verts[t[k]*3]);
+					dd->vertex(&verts[t[kp]*3], cole);
+					dd->vertex(&verts[t[k]*3], cole);
 				}
 			}
 		}
 	}
-	glEnd();
+	dd->end();
 	
-	glLineWidth(1.0f);
-
-	glPointSize(3.0f);
-	glBegin(GL_POINTS);
+	dd->begin(RC_DRAW_POINTS, nvv, 3.0f);
+	const unsigned int colv = RGBA(0,0,0,64);
 	for (int i = 0; i < dmesh.nmeshes; ++i)
 	{
 		const unsigned short* m = &dmesh.meshes[i*4];
@@ -794,11 +923,7 @@ void rcDebugDrawPolyMeshDetail(const struct rcPolyMeshDetail& dmesh)
 		const unsigned short nverts = m[1];
 		const float* verts = &dmesh.verts[bverts*3];
 		for (int j = 0; j < nverts; ++j)
-		{
-			glColor4ub(0,0,0,64);
-			glVertex3fv(&verts[j*3]);
-		}
+			dd->vertex(&verts[j*3], colv);
 	}
-	glEnd();
-	glPointSize(1.0f);
+	dd->end();
 }

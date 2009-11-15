@@ -193,6 +193,8 @@ void Sample_StatMesh::toolRender(int flags)
 	if (!m_navMesh)
 		return;
 	
+	DebugDrawGL dd;
+
 	static const float startCol[4] = { 0.5f, 0.1f, 0.0f, 0.75f };
 	static const float endCol[4] = { 0.2f, 0.4f, 0.0f, 0.75f };
 	static const float pathCol[4] = {0,0,0,0.25f};
@@ -262,7 +264,7 @@ void Sample_StatMesh::toolRender(int flags)
 		{
 			dtDebugDrawStatNavMeshPoly(m_navMesh, m_startRef, startCol);
 			const float col[4] = {1,1,1,0.5f};
-			rcDebugDrawCylinderWire(m_spos[0]-m_distanceToWall, m_spos[1]+0.02f, m_spos[2]-m_distanceToWall,
+			rcDebugDrawCylinderWire(&dd, m_spos[0]-m_distanceToWall, m_spos[1]+0.02f, m_spos[2]-m_distanceToWall,
 									m_spos[0]+m_distanceToWall, m_spos[1]+m_agentHeight, m_spos[2]+m_distanceToWall, col);
 			glLineWidth(3.0f);
 			glColor4fv(col);
@@ -274,7 +276,7 @@ void Sample_StatMesh::toolRender(int flags)
 		}
 		else if (m_toolMode == TOOLMODE_FIND_POLYS_AROUND)
 		{
-			glLineWidth(2.0f);
+			const float cola[4] = {0,0,0,0.5f};
 			for (int i = 0; i < m_npolys; ++i)
 			{
 				dtDebugDrawStatNavMeshPoly(m_navMesh, m_polys[i], pathCol);
@@ -283,17 +285,15 @@ void Sample_StatMesh::toolRender(int flags)
 					float p0[3], p1[3];
 					getPolyCenter(m_navMesh, m_polys[i], p0);
 					getPolyCenter(m_navMesh, m_parent[i], p1);
-					glColor4ub(0,0,0,128);
-					rcDrawArc(p0, p1);
+					rcDrawArc(&dd, p0, p1, cola, 2.0f);
 				}
 			}
-			glLineWidth(1.0f);
 			
 			const float dx = m_epos[0] - m_spos[0];
 			const float dz = m_epos[2] - m_spos[2];
 			float dist = sqrtf(dx*dx + dz*dz);
 			const float col[4] = {1,1,1,0.5f};
-			rcDebugDrawCylinderWire(m_spos[0]-dist, m_spos[1]+0.02f, m_spos[2]-dist,
+			rcDebugDrawCylinderWire(&dd, m_spos[0]-dist, m_spos[1]+0.02f, m_spos[2]-dist,
 									m_spos[0]+dist, m_spos[1]+m_agentHeight, m_spos[2]+dist, col);					
 		}
 	}
@@ -320,11 +320,13 @@ void Sample_StatMesh::toolRenderOverlay(double* proj, double* model, int* view)
 
 void Sample_StatMesh::drawAgent(const float* pos, float r, float h, float c, const float* col)
 {
+	DebugDrawGL dd;
+	
 	glDepthMask(GL_FALSE);
 	
 	// Agent dimensions.	
 	glLineWidth(2.0f);
-	rcDebugDrawCylinderWire(pos[0]-r, pos[1]+0.02f, pos[2]-r, pos[0]+r, pos[1]+h, pos[2]+r, col);
+	rcDebugDrawCylinderWire(&dd, pos[0]-r, pos[1]+0.02f, pos[2]-r, pos[0]+r, pos[1]+h, pos[2]+r, col);
 	glLineWidth(1.0f);
 		
 	glColor4ub(0,0,0,196);

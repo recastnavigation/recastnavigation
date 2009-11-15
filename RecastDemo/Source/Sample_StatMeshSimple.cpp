@@ -144,6 +144,8 @@ void Sample_StatMeshSimple::handleRender()
 		return;
 	
 	float col[4];
+
+	DebugDrawGL dd;
 	
 	glEnable(GL_FOG);
 	glDepthMask(GL_TRUE);
@@ -151,12 +153,12 @@ void Sample_StatMeshSimple::handleRender()
 	if (m_drawMode == DRAWMODE_MESH)
 	{
 		// Draw mesh
-		rcDebugDrawMeshSlope(m_verts, m_nverts, m_tris, m_trinorms, m_ntris, m_agentMaxSlope);
+		rcDebugDrawMeshSlope(&dd, m_verts, m_nverts, m_tris, m_trinorms, m_ntris, m_agentMaxSlope);
 	}
 	else if (m_drawMode != DRAWMODE_NAVMESH_TRANS)
 	{
 		// Draw mesh
-		rcDebugDrawMesh(m_verts, m_nverts, m_tris, m_trinorms, m_ntris, 0);
+		rcDebugDrawMesh(&dd, m_verts, m_nverts, m_tris, m_trinorms, m_ntris, 0);
 	}
 	
 	glDisable(GL_FOG);
@@ -164,7 +166,7 @@ void Sample_StatMeshSimple::handleRender()
 
 	// Draw bounds
 	col[0] = 1; col[1] = 1; col[2] = 1; col[3] = 0.5f;
-	rcDebugDrawBoxWire(m_bmin[0],m_bmin[1],m_bmin[2], m_bmax[0],m_bmax[1],m_bmax[2], col);
+	rcDebugDrawBoxWire(&dd, m_bmin[0],m_bmin[1],m_bmin[2], m_bmax[0],m_bmax[1],m_bmax[2], col);
 	
 	if (m_navMesh &&
 		(m_drawMode == DRAWMODE_NAVMESH ||
@@ -183,61 +185,61 @@ void Sample_StatMeshSimple::handleRender()
 	glDepthMask(GL_TRUE);
 	
 	if (m_chf && m_drawMode == DRAWMODE_COMPACT)
-		rcDebugDrawCompactHeightfieldSolid(*m_chf);
+		rcDebugDrawCompactHeightfieldSolid(&dd, *m_chf);
 
 	if (m_chf && m_drawMode == DRAWMODE_COMPACT_DISTANCE)
-		rcDebugDrawCompactHeightfieldDistance(*m_chf);
+		rcDebugDrawCompactHeightfieldDistance(&dd, *m_chf);
 	if (m_chf && m_drawMode == DRAWMODE_COMPACT_REGIONS)
-		rcDebugDrawCompactHeightfieldRegions(*m_chf);
+		rcDebugDrawCompactHeightfieldRegions(&dd, *m_chf);
 	if (m_solid && m_drawMode == DRAWMODE_VOXELS)
 	{
 		glEnable(GL_FOG);
-		rcDebugDrawHeightfieldSolid(*m_solid);
+		rcDebugDrawHeightfieldSolid(&dd, *m_solid);
 		glDisable(GL_FOG);
 	}
 	if (m_solid && m_drawMode == DRAWMODE_VOXELS_WALKABLE)
 	{
 		glEnable(GL_FOG);
-		rcDebugDrawHeightfieldWalkable(*m_solid);
+		rcDebugDrawHeightfieldWalkable(&dd, *m_solid);
 		glDisable(GL_FOG);
 	}
 	if (m_cset && m_drawMode == DRAWMODE_RAW_CONTOURS)
 	{
 		glDepthMask(GL_FALSE);
-		rcDebugDrawRawContours(*m_cset);
+		rcDebugDrawRawContours(&dd, *m_cset);
 		glDepthMask(GL_TRUE);
 	}
 	if (m_cset && m_drawMode == DRAWMODE_BOTH_CONTOURS)
 	{
 		glDepthMask(GL_FALSE);
-		rcDebugDrawRawContours(*m_cset, 0.5f);
-		rcDebugDrawContours(*m_cset);
+		rcDebugDrawRawContours(&dd, *m_cset, 0.5f);
+		rcDebugDrawContours(&dd, *m_cset);
 		glDepthMask(GL_TRUE);
 	}
 	if (m_cset && m_drawMode == DRAWMODE_CONTOURS)
 	{
 		glDepthMask(GL_FALSE);
-		rcDebugDrawContours(*m_cset);
+		rcDebugDrawContours(&dd, *m_cset);
 		glDepthMask(GL_TRUE);
 	}
 	if (m_chf && m_cset && m_drawMode == DRAWMODE_REGION_CONNECTIONS)
 	{
-		rcDebugDrawCompactHeightfieldRegions(*m_chf);
+		rcDebugDrawCompactHeightfieldRegions(&dd, *m_chf);
 			
 		glDepthMask(GL_FALSE);
-		rcDebugDrawRegionConnections(*m_cset);
+		rcDebugDrawRegionConnections(&dd, *m_cset);
 		glDepthMask(GL_TRUE);
 	}
 	if (m_pmesh && m_drawMode == DRAWMODE_POLYMESH)
 	{
 		glDepthMask(GL_FALSE);
-		rcDebugDrawPolyMesh(*m_pmesh);
+		rcDebugDrawPolyMesh(&dd, *m_pmesh);
 		glDepthMask(GL_TRUE);
 	}
 	if (m_dmesh && m_drawMode == DRAWMODE_POLYMESH_DETAIL)
 	{
 		glDepthMask(GL_FALSE);
-		rcDebugDrawPolyMeshDetail(*m_dmesh);
+		rcDebugDrawPolyMeshDetail(&dd, *m_dmesh);
 		glDepthMask(GL_TRUE);
 	}
 	

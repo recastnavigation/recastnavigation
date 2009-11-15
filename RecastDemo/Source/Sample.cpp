@@ -5,10 +5,53 @@
 #include "Recast.h"
 #include "RecastDebugDraw.h"
 #include "imgui.h"
+#include "SDL.h"
+#include "SDL_opengl.h"
 
 #ifdef WIN32
 #	define snprintf _snprintf
 #endif
+
+
+void DebugDrawGL::begin(rcDebugDrawPrimitives prim, int nverts, float size)
+{
+	switch (prim)
+	{
+		case RC_DRAW_POINTS:
+			glPointSize(size);
+			glBegin(GL_POINTS);
+			break;
+		case RC_DRAW_LINES:
+			glLineWidth(size);
+			glBegin(GL_LINES);
+			break;
+		case RC_DRAW_TRIS:
+			glBegin(GL_TRIANGLES);
+			break;
+		case RC_DRAW_QUADS:
+			glBegin(GL_QUADS);
+			break;
+	};
+}
+	
+void DebugDrawGL::vertex(const float* pos, unsigned int color)
+{
+	glColor4ubv((GLubyte*)&color);
+	glVertex3fv(pos);
+}
+	
+void DebugDrawGL::vertex(const float x, const float y, const float z, unsigned int color)
+{
+	glColor4ubv((GLubyte*)&color);
+	glVertex3f(x,y,z);
+}
+	
+void DebugDrawGL::end()
+{
+	glEnd();
+	glLineWidth(1.0f);
+	glPointSize(1.0f);
+}
 
 
 Sample::Sample() :
@@ -37,11 +80,14 @@ void Sample::handleRender()
 {
 	if (!m_verts || !m_tris || !m_trinorms)
 		return;
+	
+	DebugDrawGL dd;
+		
 	// Draw mesh
-	rcDebugDrawMesh(m_verts, m_nverts, m_tris, m_trinorms, m_ntris, 0);
+	rcDebugDrawMesh(&dd, m_verts, m_nverts, m_tris, m_trinorms, m_ntris, 0);
 	// Draw bounds
 	float col[4] = {1,1,1,0.5f};
-	rcDebugDrawBoxWire(m_bmin[0],m_bmin[1],m_bmin[2], m_bmax[0],m_bmax[1],m_bmax[2], col);
+	rcDebugDrawBoxWire(&dd, m_bmin[0],m_bmin[1],m_bmin[2], m_bmax[0],m_bmax[1],m_bmax[2], col);
 }
 
 void Sample::handleRenderOverlay(double* proj, double* model, int* view)
