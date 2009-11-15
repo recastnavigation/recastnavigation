@@ -21,7 +21,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "SDL.h"
-#include "SDL_Opengl.h"
+#include "SDL_opengl.h"
 #include "imgui.h"
 #include "Sample.h"
 #include "Sample_TileMesh.h"

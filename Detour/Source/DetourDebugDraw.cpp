@@ -19,7 +19,7 @@
 #include "DetourDebugDraw.h"
 #include "DetourStatNavMesh.h"
 #include "SDL.h"
-#include "SDL_Opengl.h"
+#include "SDL_opengl.h"
 
 void dtDebugDrawStatNavMeshPoly(const dtStatNavMesh* mesh, dtStatPolyRef ref, const float* col)
 {

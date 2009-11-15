@@ -20,7 +20,7 @@
 #include <math.h>
 #include "RecastDebugDraw.h"
 #include "SDL.h"
-#include "SDL_Opengl.h"
+#include "SDL_opengl.h"
 #include "MeshLoaderObj.h"
 #include "Recast.h"
 
