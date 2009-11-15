@@ -50,7 +50,7 @@ static unsigned short* calculateDistanceField(rcCompactHeightfield& chf,
 				int nc = 0;
 				for (int dir = 0; dir < 4; ++dir)
 				{
-					if (rcGetCon(s, dir) != 0xf)
+					if (rcGetCon(s, dir) != RC_NOT_CONNECTED)
 						nc++;
 				}
 				if (nc != 4)
@@ -69,7 +69,7 @@ static unsigned short* calculateDistanceField(rcCompactHeightfield& chf,
 			{
 				const rcCompactSpan& s = chf.spans[i];
 				
-				if (rcGetCon(s, 0) != 0xf)
+				if (rcGetCon(s, 0) != RC_NOT_CONNECTED)
 				{
 					// (-1,0)
 					const int ax = x + rcGetDirOffsetX(0);
@@ -80,7 +80,7 @@ static unsigned short* calculateDistanceField(rcCompactHeightfield& chf,
 						src[i] = src[ai]+2;
 					
 					// (-1,-1)
-					if (rcGetCon(as, 3) != 0xf)
+					if (rcGetCon(as, 3) != RC_NOT_CONNECTED)
 					{
 						const int aax = ax + rcGetDirOffsetX(3);
 						const int aay = ay + rcGetDirOffsetY(3);
@@ -89,7 +89,7 @@ static unsigned short* calculateDistanceField(rcCompactHeightfield& chf,
 							src[i] = src[aai]+3;
 					}
 				}
-				if (rcGetCon(s, 3) != 0xf)
+				if (rcGetCon(s, 3) != RC_NOT_CONNECTED)
 				{
 					// (0,-1)
 					const int ax = x + rcGetDirOffsetX(3);
@@ -100,7 +100,7 @@ static unsigned short* calculateDistanceField(rcCompactHeightfield& chf,
 						src[i] = src[ai]+2;
 					
 					// (1,-1)
-					if (rcGetCon(as, 2) != 0xf)
+					if (rcGetCon(as, 2) != RC_NOT_CONNECTED)
 					{
 						const int aax = ax + rcGetDirOffsetX(2);
 						const int aay = ay + rcGetDirOffsetY(2);
@@ -123,7 +123,7 @@ static unsigned short* calculateDistanceField(rcCompactHeightfield& chf,
 			{
 				const rcCompactSpan& s = chf.spans[i];
 				
-				if (rcGetCon(s, 2) != 0xf)
+				if (rcGetCon(s, 2) != RC_NOT_CONNECTED)
 				{
 					// (1,0)
 					const int ax = x + rcGetDirOffsetX(2);
@@ -134,7 +134,7 @@ static unsigned short* calculateDistanceField(rcCompactHeightfield& chf,
 						src[i] = src[ai]+2;
 					
 					// (1,1)
-					if (rcGetCon(as, 1) != 0xf)
+					if (rcGetCon(as, 1) != RC_NOT_CONNECTED)
 					{
 						const int aax = ax + rcGetDirOffsetX(1);
 						const int aay = ay + rcGetDirOffsetY(1);
@@ -143,7 +143,7 @@ static unsigned short* calculateDistanceField(rcCompactHeightfield& chf,
 							src[i] = src[aai]+3;
 					}
 				}
-				if (rcGetCon(s, 1) != 0xf)
+				if (rcGetCon(s, 1) != RC_NOT_CONNECTED)
 				{
 					// (0,1)
 					const int ax = x + rcGetDirOffsetX(1);
@@ -154,7 +154,7 @@ static unsigned short* calculateDistanceField(rcCompactHeightfield& chf,
 						src[i] = src[ai]+2;
 					
 					// (-1,1)
-					if (rcGetCon(as, 0) != 0xf)
+					if (rcGetCon(as, 0) != RC_NOT_CONNECTED)
 					{
 						const int aax = ax + rcGetDirOffsetX(0);
 						const int aay = ay + rcGetDirOffsetY(0);
@@ -201,7 +201,7 @@ static unsigned short* boxBlur(rcCompactHeightfield& chf, int thr,
 				int d = cd;
 				for (int dir = 0; dir < 4; ++dir)
 				{
-					if (rcGetCon(s, dir) != 0xf)
+					if (rcGetCon(s, dir) != RC_NOT_CONNECTED)
 					{
 						const int ax = x + rcGetDirOffsetX(dir);
 						const int ay = y + rcGetDirOffsetY(dir);
@@ -210,7 +210,7 @@ static unsigned short* boxBlur(rcCompactHeightfield& chf, int thr,
 						
 						const rcCompactSpan& as = chf.spans[ai];
 						const int dir2 = (dir+1) & 0x3;
-						if (rcGetCon(as, dir2) != 0xf)
+						if (rcGetCon(as, dir2) != RC_NOT_CONNECTED)
 						{
 							const int ax2 = ax + rcGetDirOffsetX(dir2);
 							const int ay2 = ay + rcGetDirOffsetY(dir2);
@@ -267,7 +267,7 @@ static bool floodRegion(int x, int y, int i,
 		for (int dir = 0; dir < 4; ++dir)
 		{
 			// 8 connected
-			if (rcGetCon(cs, dir) != 0xf)
+			if (rcGetCon(cs, dir) != RC_NOT_CONNECTED)
 			{
 				const int ax = cx + rcGetDirOffsetX(dir);
 				const int ay = cy + rcGetDirOffsetY(dir);
@@ -279,7 +279,7 @@ static bool floodRegion(int x, int y, int i,
 				const rcCompactSpan& as = chf.spans[ai];
 				
 				const int dir2 = (dir+1) & 0x3;
-				if (rcGetCon(as, dir2) != 0xf)
+				if (rcGetCon(as, dir2) != RC_NOT_CONNECTED)
 				{
 					const int ax2 = ax + rcGetDirOffsetX(dir2);
 					const int ay2 = ay + rcGetDirOffsetY(dir2);
@@ -301,7 +301,7 @@ static bool floodRegion(int x, int y, int i,
 		// Expand neighbours.
 		for (int dir = 0; dir < 4; ++dir)
 		{
-			if (rcGetCon(cs, dir) != 0xf)
+			if (rcGetCon(cs, dir) != RC_NOT_CONNECTED)
 			{
 				const int ax = cx + rcGetDirOffsetX(dir);
 				const int ay = cy + rcGetDirOffsetY(dir);
@@ -376,7 +376,7 @@ static unsigned short* expandRegions(int maxIter, unsigned short level,
 			const rcCompactSpan& s = chf.spans[i];
 			for (int dir = 0; dir < 4; ++dir)
 			{
-				if (rcGetCon(s, dir) == 0xf) continue;
+				if (rcGetCon(s, dir) == RC_NOT_CONNECTED) continue;
 				const int ax = x + rcGetDirOffsetX(dir);
 				const int ay = y + rcGetDirOffsetY(dir);
 				const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(s, dir);
@@ -569,7 +569,7 @@ static bool isSolidEdge(rcCompactHeightfield& chf, unsigned short* srcReg,
 {
 	const rcCompactSpan& s = chf.spans[i];
 	unsigned short r = 0;
-	if (rcGetCon(s, dir) != 0xf)
+	if (rcGetCon(s, dir) != RC_NOT_CONNECTED)
 	{
 		const int ax = x + rcGetDirOffsetX(dir);
 		const int ay = y + rcGetDirOffsetY(dir);
@@ -591,7 +591,7 @@ static void walkContour(int x, int y, int i, int dir,
 
 	const rcCompactSpan& ss = chf.spans[i];
 	unsigned short curReg = 0;
-	if (rcGetCon(ss, dir) != 0xf)
+	if (rcGetCon(ss, dir) != RC_NOT_CONNECTED)
 	{
 		const int ax = x + rcGetDirOffsetX(dir);
 		const int ay = y + rcGetDirOffsetY(dir);
@@ -609,7 +609,7 @@ static void walkContour(int x, int y, int i, int dir,
 		{
 			// Choose the edge corner
 			unsigned short r = 0;
-			if (rcGetCon(s, dir) != 0xf)
+			if (rcGetCon(s, dir) != RC_NOT_CONNECTED)
 			{
 				const int ax = x + rcGetDirOffsetX(dir);
 				const int ay = y + rcGetDirOffsetY(dir);
@@ -629,7 +629,7 @@ static void walkContour(int x, int y, int i, int dir,
 			int ni = -1;
 			const int nx = x + rcGetDirOffsetX(dir);
 			const int ny = y + rcGetDirOffsetY(dir);
-			if (rcGetCon(s, dir) != 0xf)
+			if (rcGetCon(s, dir) != RC_NOT_CONNECTED)
 			{
 				const rcCompactCell& nc = chf.cells[nx+ny*chf.width];
 				ni = (int)nc.index + rcGetCon(s, dir);
@@ -1027,7 +1027,7 @@ bool rcBuildRegionsMonotone(rcCompactHeightfield& chf,
 				
 				// -x
 				unsigned short previd = 0;
-				if (rcGetCon(s, 0) != 0xf)
+				if (rcGetCon(s, 0) != RC_NOT_CONNECTED)
 				{
 					const int ax = x + rcGetDirOffsetX(0);
 					const int ay = y + rcGetDirOffsetY(0);
@@ -1045,7 +1045,7 @@ bool rcBuildRegionsMonotone(rcCompactHeightfield& chf,
 				}
 
 				// -y
-				if (rcGetCon(s,3) != 0xf)
+				if (rcGetCon(s,3) != RC_NOT_CONNECTED)
 				{
 					const int ax = x + rcGetDirOffsetX(3);
 					const int ay = y + rcGetDirOffsetY(3);

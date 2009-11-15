@@ -803,7 +803,7 @@ static void getHeightData(const rcCompactHeightfield& chf,
 		
 		for (int dir = 0; dir < 4; ++dir)
 		{
-			if (rcGetCon(cs, dir) == 0xf) continue;
+			if (rcGetCon(cs, dir) == RC_NOT_CONNECTED) continue;
 			
 			const int ax = cx + rcGetDirOffsetX(dir);
 			const int ay = cy + rcGetDirOffsetY(dir);

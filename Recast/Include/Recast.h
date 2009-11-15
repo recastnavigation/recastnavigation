@@ -108,6 +108,7 @@ struct rcCompactHeightfield
 		delete [] spans;
 		delete [] dist;
 		delete [] reg;
+		delete [] flags;
 	}
 	int width, height;					// Width and height of the heighfield.
 	int spanCount;						// Number of spans in the heightfield.
@@ -120,6 +121,7 @@ struct rcCompactHeightfield
 	rcCompactSpan* spans;				// Pointer to spans.
 	unsigned short* dist;				// Pointer to per span distance to border.
 	unsigned short* reg;				// Pointer to per span region ID.
+	unsigned short* flags;				// Pointer to per span flags.
 };
 
 struct rcContour
@@ -240,7 +242,17 @@ static const unsigned short RC_BORDER_REG = 0x8000;
 // removed in order to match the segments and vertices at tile boundaries.
 static const int RC_BORDER_VERTEX = 0x10000;
 
+
+// Value returned by rcGetCon() if the direction is not connected.
+static const int RC_NOT_CONNECTED = 0xf;
+
 // Compact span neighbour helpers.
+inline void rcSetCon(rcCompactSpan& s, int dir, int i)
+{
+	s.con &= ~(0xf << (dir*4));
+	s.con |= (i&0xf) << (dir*4);
+}
+
 inline int rcGetCon(const rcCompactSpan& s, int dir)
 {
 	return (s.con >> (dir*4)) & 0xf;

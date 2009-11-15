@@ -37,7 +37,7 @@ static int getCornerHeight(int x, int y, int i, int dir,
 	
 	regs[0] = chf.reg[i];
 	
-	if (rcGetCon(s, dir) != 0xf)
+	if (rcGetCon(s, dir) != RC_NOT_CONNECTED)
 	{
 		const int ax = x + rcGetDirOffsetX(dir);
 		const int ay = y + rcGetDirOffsetY(dir);
@@ -45,7 +45,7 @@ static int getCornerHeight(int x, int y, int i, int dir,
 		const rcCompactSpan& as = chf.spans[ai];
 		ch = rcMax(ch, (int)as.y);
 		regs[1] = chf.reg[ai];
-		if (rcGetCon(as, dirp) != 0xf)
+		if (rcGetCon(as, dirp) != RC_NOT_CONNECTED)
 		{
 			const int ax2 = ax + rcGetDirOffsetX(dirp);
 			const int ay2 = ay + rcGetDirOffsetY(dirp);
@@ -55,7 +55,7 @@ static int getCornerHeight(int x, int y, int i, int dir,
 			regs[2] = chf.reg[ai2];
 		}
 	}
-	if (rcGetCon(s, dirp) != 0xf)
+	if (rcGetCon(s, dirp) != RC_NOT_CONNECTED)
 	{
 		const int ax = x + rcGetDirOffsetX(dirp);
 		const int ay = y + rcGetDirOffsetY(dirp);
@@ -63,7 +63,7 @@ static int getCornerHeight(int x, int y, int i, int dir,
 		const rcCompactSpan& as = chf.spans[ai];
 		ch = rcMax(ch, (int)as.y);
 		regs[3] = chf.reg[ai];
-		if (rcGetCon(as, dir) != 0xf)
+		if (rcGetCon(as, dir) != RC_NOT_CONNECTED)
 		{
 			const int ax2 = ax + rcGetDirOffsetX(dir);
 			const int ay2 = ay + rcGetDirOffsetY(dir);
@@ -127,7 +127,7 @@ static void walkContour(int x, int y, int i,
 			}
 			int r = 0;
 			const rcCompactSpan& s = chf.spans[i];
-			if (rcGetCon(s, dir) != 0xf)
+			if (rcGetCon(s, dir) != RC_NOT_CONNECTED)
 			{
 				const int ax = x + rcGetDirOffsetX(dir);
 				const int ay = y + rcGetDirOffsetY(dir);
@@ -150,7 +150,7 @@ static void walkContour(int x, int y, int i,
 			const int nx = x + rcGetDirOffsetX(dir);
 			const int ny = y + rcGetDirOffsetY(dir);
 			const rcCompactSpan& s = chf.spans[i];
-			if (rcGetCon(s, dir) != 0xf)
+			if (rcGetCon(s, dir) != RC_NOT_CONNECTED)
 			{
 				const rcCompactCell& nc = chf.cells[nx+ny*chf.width];
 				ni = (int)nc.index + rcGetCon(s, dir);
@@ -579,7 +579,7 @@ bool rcBuildContours(rcCompactHeightfield& chf,
 				for (int dir = 0; dir < 4; ++dir)
 				{
 					unsigned short r = 0;
-					if (rcGetCon(s, dir) != 0xf)
+					if (rcGetCon(s, dir) != RC_NOT_CONNECTED)
 					{
 						const int ax = x + rcGetDirOffsetX(dir);
 						const int ay = y + rcGetDirOffsetY(dir);

@@ -124,12 +124,6 @@ static int getSpanCount(unsigned char flags, rcHeightfield& hf)
 	return spanCount;
 }
 
-inline void setCon(rcCompactSpan& s, int dir, int i)
-{
-	s.con &= ~(0xf << (dir*4));
-	s.con |= (i&0xf) << (dir*4);
-}
-
 bool rcBuildCompactHeightfield(const int walkableHeight, const int walkableClimb,
 							   unsigned char flags, rcHeightfield& hf,
 							   rcCompactHeightfield& chf)
@@ -168,6 +162,14 @@ bool rcBuildCompactHeightfield(const int walkableHeight, const int walkableClimb
 		return false;
 	}
 	memset(chf.spans, 0, sizeof(rcCompactSpan)*spanCount);
+	chf.flags = new unsigned short[spanCount];
+	if (!chf.flags)
+	{
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_ERROR, "rcBuildCompactHeightfield: Out of memory 'chf.flags' (%d)", spanCount);
+		return false;
+	}
+	memset(chf.flags, 0, sizeof(unsigned short)*spanCount);
 	
 	const int MAX_HEIGHT = 0xffff;
 	
@@ -211,7 +213,7 @@ bool rcBuildCompactHeightfield(const int walkableHeight, const int walkableClimb
 				
 				for (int dir = 0; dir < 4; ++dir)
 				{
-					setCon(s, dir, 0xf);
+					rcSetCon(s, dir, RC_NOT_CONNECTED);
 					const int nx = x + rcGetDirOffsetX(dir);
 					const int ny = y + rcGetDirOffsetY(dir);
 					// First check that the neighbour cell is in bounds.
@@ -232,10 +234,13 @@ bool rcBuildCompactHeightfield(const int walkableHeight, const int walkableClimb
 						if ((top - bot) >= walkableHeight && rcAbs((int)ns.y - (int)s.y) <= walkableClimb)
 						{
 							// Mark direction as walkable.
-							setCon(s, dir, k - (int)nc.index);
+							rcSetCon(s, dir, k - (int)nc.index);
 							break;
 						}
 					}
+					
+					
+					
 				}
 			}
 		}
