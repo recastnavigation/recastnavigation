@@ -279,7 +279,7 @@
 							<key>PBXSmartGroupTreeModuleOutlineStateSelectionKey</key>
 							<array>
 								<array>
-									<integer>21</integer>
+									<integer>29</integer>
 									<integer>18</integer>
 									<integer>1</integer>
 									<integer>0</integer>
@@ -321,7 +321,7 @@
 								<key>PBXProjectModuleGUID</key>
 								<string>6B8632A30F78115100E2684A</string>
 								<key>PBXProjectModuleLabel</key>
-								<string>RecastDebugDraw.cpp</string>
+								<string>RecastDebugDraw.h</string>
 								<key>PBXSplitModuleInNavigatorKey</key>
 								<dict>
 									<key>Split0</key>
@@ -329,11 +329,11 @@
 										<key>PBXProjectModuleGUID</key>
 										<string>6B8632A40F78115100E2684A</string>
 										<key>PBXProjectModuleLabel</key>
-										<string>RecastDebugDraw.cpp</string>
+										<string>RecastDebugDraw.h</string>
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>6B8DE84710B055DA00DF20FB</string>
+										<string>6B8DE85010B0584400DF20FB</string>
 										<key>history</key>
 										<array>
 											<string>6B3BFADD107A80E1006284CD</string>
@@ -355,7 +355,6 @@
 											<string>6B8DE70B10B01BBF00DF20FB</string>
 											<string>6B8DE70D10B01BBF00DF20FB</string>
 											<string>6B8DE76D10B0243500DF20FB</string>
-											<string>6B8DE76E10B0243500DF20FB</string>
 											<string>6B8DE7F110B0517A00DF20FB</string>
 											<string>6B8DE7F310B0517A00DF20FB</string>
 											<string>6B8DE7F410B0517A00DF20FB</string>
@@ -363,10 +362,12 @@
 											<string>6B8DE7F610B0517A00DF20FB</string>
 											<string>6B8DE7F710B0517A00DF20FB</string>
 											<string>6B8DE7F810B0517A00DF20FB</string>
-											<string>6B8DE81E10B0528100DF20FB</string>
 											<string>6B8DE81F10B0528100DF20FB</string>
 											<string>6B8DE82010B0528100DF20FB</string>
-											<string>6B8DE82110B0528100DF20FB</string>
+											<string>6B8DE84810B0584400DF20FB</string>
+											<string>6B8DE84910B0584400DF20FB</string>
+											<string>6B8DE84A10B0584400DF20FB</string>
+											<string>6B8DE84B10B0584400DF20FB</string>
 										</array>
 										<key>prevStack</key>
 										<array>
@@ -481,6 +482,10 @@
 											<string>6B8DE82210B0528100DF20FB</string>
 											<string>6B8DE82310B0528100DF20FB</string>
 											<string>6B8DE82410B0528100DF20FB</string>
+											<string>6B8DE84C10B0584400DF20FB</string>
+											<string>6B8DE84D10B0584400DF20FB</string>
+											<string>6B8DE84E10B0584400DF20FB</string>
+											<string>6B8DE84F10B0584400DF20FB</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>

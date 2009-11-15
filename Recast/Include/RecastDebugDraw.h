@@ -27,11 +27,29 @@ enum rcDebugDrawPrimitives
 	RC_DRAW_QUADS,	
 };
 
+// Abstrace debug draw interface.
 struct rcDebugDraw
 {
+	// Begin drawing primitives.
+	// Params:
+	//  prim - (in) primitive type to draw, one of rcDebugDrawPrimitives.
+	//  nverts - (in) number of vertices to be submitted.
+	//  size - (in) size of a primitive, applies to point size and line width only.
 	virtual void begin(rcDebugDrawPrimitives prim, int nverts, float size = 1.0f) = 0;
+
+	// Submit a vertex
+	// Params:
+	//  pos - (in) position of the verts.
+	//  color - (in) color of the verts.
 	virtual void vertex(const float* pos, unsigned int color) = 0;
+
+	// Submit a vertex
+	// Params:
+	//  x,y,z - (in) position of the verts.
+	//  color - (in) color of the verts.
 	virtual void vertex(const float x, const float y, const float z, unsigned int color) = 0;
+
+	// End drawing primitives.
 	virtual void end() = 0;
 };
 
