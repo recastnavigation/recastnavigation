@@ -16,21 +16,14 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#ifndef DETOURDEBUGDRAW_H
-#define DETOURDEBUGDRAW_H
+#ifndef DETOURNAVMESHBUILDER_H
+#define DETOURNAVMESHBUILDER_H
 
-#include "DetourStatNavMesh.h"
-#include "DetourTileNavMesh.h"
-#include "DetourNavMesh.h"
+bool dtCreateNavMeshData(const unsigned short* verts, const int nverts,
+						 const unsigned short* polys, const int npolys, const int nvp,
+						 const unsigned short* dmeshes, const float* dverts, const int ndverts,
+						 const unsigned char* dtris, const int ndtris, 
+						 const float* bmin, const float* bmax, float cs, float ch, int tileSize, int walkableClimb,
+						 unsigned char** outData, int* outDataSize);
 
-void dtDebugDrawStatNavMeshPoly(const dtStatNavMesh* mesh, dtStatPolyRef ref, const float* col);
-void dtDebugDrawStatNavMeshBVTree(const dtStatNavMesh* mesh);
-void dtDebugDrawStatNavMesh(const dtStatNavMesh* mesh, bool drawClosedList = false);
-
-void dtDebugDrawTiledNavMesh(const dtTiledNavMesh* mesh);
-void dtDebugDrawTiledNavMeshPoly(const dtTiledNavMesh* mesh, dtTilePolyRef ref, const float* col);
-
-void dtDebugDrawNavMesh(const dtNavMesh* mesh);
-void dtDebugDrawNavMeshPoly(const dtNavMesh* mesh, dtPolyRef ref, const float* col);
-
-#endif // DETOURDEBUGDRAW_H
+#endif // DETOURNAVMESHBUILDER_H

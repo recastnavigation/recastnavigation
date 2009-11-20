@@ -18,6 +18,7 @@
 #include "Sample_StatMeshSimple.h"
 #include "Sample_StatMeshTiled.h"
 #include "Sample_TileMesh.h"
+#include "Sample_DynMesh.h"
 
 #ifdef WIN32
 #	define snprintf _snprintf
@@ -197,15 +198,16 @@ struct SampleItem
 Sample* createStatSimple() { return new Sample_StatMeshSimple(); }
 Sample* createStatTiled() { return new Sample_StatMeshTiled(); }
 Sample* createTile() { return new Sample_TileMesh(); }
+Sample* createDyn() { return new Sample_DynMesh(); }
 
 static SampleItem g_samples[] =
 {
 { createStatSimple, "Static Mesh (Simple)" },
 { createStatTiled, "Static Mesh (Tiled)" },
 { createTile, "Tile Mesh" },
+{ createDyn, "Dyn Mesh" },
 };
 static const int g_nsamples = sizeof(g_samples)/sizeof(SampleItem); 
-
 
 int main(int argc, char *argv[])
 {

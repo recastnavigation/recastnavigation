@@ -113,7 +113,7 @@ inline bool vequal(const float* p0, const float* p1)
 	return d < thr;
 }
 
-inline int nextPow2(int v)
+inline unsigned int nextPow2(unsigned int v)
 {
 	v--;
 	v |= v >> 1;
@@ -123,6 +123,18 @@ inline int nextPow2(int v)
 	v |= v >> 16;
 	v++;
 	return v;
+}
+
+inline unsigned int ilog2(unsigned int v)
+{
+	unsigned int r;
+	unsigned int shift;
+	r = (v > 0xffff) << 4; v >>= r;
+	shift = (v > 0xff) << 3; v >>= shift; r |= shift;
+	shift = (v > 0xf) << 2; v >>= shift; r |= shift;
+	shift = (v > 0x3) << 1; v >>= shift; r |= shift;
+	r |= (v >> 1);
+	return r;
 }
 
 inline int align4(int x) { return (x+3) & ~3; }

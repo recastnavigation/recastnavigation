@@ -18,6 +18,8 @@
 
 #include "DetourDebugDraw.h"
 #include "DetourStatNavMesh.h"
+#include "DetourTileNavMesh.h"
+#include "DetourNavMesh.h"
 #include "SDL.h"
 #include "SDL_opengl.h"
 
@@ -478,6 +480,273 @@ void dtDebugDrawTiledNavMeshPoly(const dtTiledNavMesh* mesh, dtTilePolyRef ref, 
 
 	const dtTilePoly* p = &header->polys[ip];
 	const dtTilePolyDetail* pd = &header->dmeshes[ip];
+	
+	glBegin(GL_TRIANGLES);
+	for (int i = 0; i < pd->ntris; ++i)
+	{
+		const unsigned char* t = &header->dtris[(pd->tbase+i)*4];
+		for (int j = 0; j < 3; ++j)
+		{
+			if (t[j] < p->nv)
+				glVertex3fv(&header->verts[p->v[t[j]]*3]);
+			else
+				glVertex3fv(&header->dverts[(pd->vbase+t[j]-p->nv)*3]);
+		}
+	}
+	glEnd();
+}
+
+
+
+
+
+static void drawPolyBoundaries(const dtMeshHeader* header, bool inner)
+{
+	static const float thr = 0.01f*0.01f;
+	
+	glBegin(GL_LINES);
+	for (int i = 0; i < header->npolys; ++i)
+	{
+		const dtPoly* p = &header->polys[i];
+		const dtPolyDetail* pd = &header->dmeshes[i];
+		
+		for (int j = 0, nj = (int)p->nv; j < nj; ++j)
+		{
+			if (inner)
+			{
+				if (p->n[j] == 0) continue;
+				if (p->n[j] & 0x8000)
+				{
+					bool con = false;
+					for (int k = 0; k < p->nlinks; ++k)
+					{
+						if (header->links[p->links+k].e == j)
+						{
+							con = true;
+							break;
+						}
+					}
+					if (con)
+						glColor4ub(255,255,255,128);
+					else
+						glColor4ub(0,0,0,128);
+				}
+				else
+					glColor4ub(0,48,64,32);
+			}
+			else
+			{
+				if (p->n[j] != 0) continue;
+			}
+			
+			const float* v0 = &header->verts[p->v[j]*3];
+			const float* v1 = &header->verts[p->v[(j+1)%nj]*3];
+			
+			// Draw detail mesh edges which align with the actual poly edge.
+			// This is really slow.
+			for (int k = 0; k < pd->ntris; ++k)
+			{
+				const unsigned char* t = &header->dtris[(pd->tbase+k)*4];
+				const float* tv[3];
+				for (int m = 0; m < 3; ++m)
+				{
+					if (t[m] < p->nv)
+						tv[m] = &header->verts[p->v[t[m]]*3];
+					else
+						tv[m] = &header->dverts[(pd->vbase+(t[m]-p->nv))*3];
+				}
+				for (int m = 0, n = 2; m < 3; n=m++)
+				{
+					if (((t[3] >> (n*2)) & 0x3) == 0) continue;	// Skip inner detail edges.
+					if (distancePtLine2d(tv[n],v0,v1) < thr &&
+						distancePtLine2d(tv[m],v0,v1) < thr)
+					{
+						glVertex3fv(tv[n]);
+						glVertex3fv(tv[m]);
+					}
+				}
+			}
+		}
+	}
+	glEnd();
+}
+
+static void drawMeshTile(const dtMeshHeader* header)
+{
+	glBegin(GL_TRIANGLES);
+	for (int i = 0; i < header->npolys; ++i)
+	{
+		const dtPoly* p = &header->polys[i];
+		const dtPolyDetail* pd = &header->dmeshes[i];
+		
+		glColor4ub(0,196,255,64);
+		
+		for (int j = 0; j < pd->ntris; ++j)
+		{
+			const unsigned char* t = &header->dtris[(pd->tbase+j)*4];
+			for (int k = 0; k < 3; ++k)
+			{
+				if (t[k] < p->nv)
+					glVertex3fv(&header->verts[p->v[t[k]]*3]);
+				else
+					glVertex3fv(&header->dverts[(pd->vbase+t[k]-p->nv)*3]);
+			}
+		}
+	}
+	glEnd();
+	
+	// Draw inter poly boundaries
+	glColor4ub(0,48,64,32);
+	glLineWidth(1.5f);
+	
+	drawPolyBoundaries(header, true);
+	
+	// Draw outer poly boundaries
+	glLineWidth(2.5f);
+	glColor4ub(0,48,64,220);
+	
+	drawPolyBoundaries(header, false);
+	
+	glLineWidth(1.0f);
+	
+	glPointSize(3.0f);
+	glColor4ub(0,0,0,196);
+	glBegin(GL_POINTS);
+	for (int i = 0; i < header->nverts; ++i)
+	{
+		const float* v = &header->verts[i*3];
+		glVertex3f(v[0], v[1], v[2]);
+	}
+	glEnd();
+	glPointSize(1.0f);	
+	
+/*	
+	// Draw BV nodes.
+	const float col[] = { 1,1,1,0.5f };
+	const float cs = 1.0f / header->bvquant;
+	glBegin(GL_LINES);
+	for (int i = 0; i < header->nbvtree; ++i)
+	{
+		const dtBVNode* n = &header->bvtree[i];
+		if (n->i < 0) // Leaf indices are positive.
+			continue;
+		drawBoxWire(header->bmin[0] + n->bmin[0]*cs,
+					header->bmin[1] + n->bmin[1]*cs,
+					header->bmin[2] + n->bmin[2]*cs,
+					header->bmin[0] + n->bmax[0]*cs,
+					header->bmin[1] + n->bmax[1]*cs,
+					header->bmin[2] + n->bmax[2]*cs, col);
+	}
+	glEnd();
+*/
+	
+	// Draw portals
+	/*	glBegin(GL_LINES);
+	 
+	 for (int i = 0; i < header->nportals[0]; ++i)
+	 {
+	 const dtTilePortal* p = &header->portals[0][i];		
+	 if (p->ncon)
+	 glColor4ub(255,255,255,192);
+	 else
+	 glColor4ub(255,0,0,64);
+	 glVertex3f(header->bmax[0]-0.1f, p->bmin[1], p->bmin[0]);
+	 glVertex3f(header->bmax[0]-0.1f, p->bmax[1], p->bmin[0]);
+	 
+	 glVertex3f(header->bmax[0]-0.1f, p->bmax[1], p->bmin[0]);
+	 glVertex3f(header->bmax[0]-0.1f, p->bmax[1], p->bmax[0]);
+	 
+	 glVertex3f(header->bmax[0]-0.1f, p->bmax[1], p->bmax[0]);
+	 glVertex3f(header->bmax[0]-0.1f, p->bmin[1], p->bmax[0]);
+	 
+	 glVertex3f(header->bmax[0]-0.1f, p->bmin[1], p->bmax[0]);
+	 glVertex3f(header->bmax[0]-0.1f, p->bmin[1], p->bmin[0]);
+	 }
+	 for (int i = 0; i < header->nportals[1]; ++i)
+	 {
+	 const dtTilePortal* p = &header->portals[1][i];
+	 if (p->ncon)
+	 glColor4ub(255,255,255,192);
+	 else
+	 glColor4ub(255,0,0,64);
+	 glVertex3f(p->bmin[0], p->bmin[1], header->bmax[2]-0.1f);
+	 glVertex3f(p->bmin[0], p->bmax[1], header->bmax[2]-0.1f);
+	 
+	 glVertex3f(p->bmin[0], p->bmax[1], header->bmax[2]-0.1f);
+	 glVertex3f(p->bmax[0], p->bmax[1], header->bmax[2]-0.1f);
+	 
+	 glVertex3f(p->bmax[0], p->bmax[1], header->bmax[2]-0.1f);
+	 glVertex3f(p->bmax[0], p->bmin[1], header->bmax[2]-0.1f);
+	 
+	 glVertex3f(p->bmax[0], p->bmin[1], header->bmax[2]-0.1f);
+	 glVertex3f(p->bmin[0], p->bmin[1], header->bmax[2]-0.1f);
+	 }
+	 for (int i = 0; i < header->nportals[2]; ++i)
+	 {
+	 const dtTilePortal* p = &header->portals[2][i];
+	 if (p->ncon)
+	 glColor4ub(255,255,255,192);
+	 else
+	 glColor4ub(255,0,0,64);
+	 glVertex3f(header->bmin[0]+0.1f, p->bmin[1], p->bmin[0]);
+	 glVertex3f(header->bmin[0]+0.1f, p->bmax[1], p->bmin[0]);
+	 
+	 glVertex3f(header->bmin[0]+0.1f, p->bmax[1], p->bmin[0]);
+	 glVertex3f(header->bmin[0]+0.1f, p->bmax[1], p->bmax[0]);
+	 
+	 glVertex3f(header->bmin[0]+0.1f, p->bmax[1], p->bmax[0]);
+	 glVertex3f(header->bmin[0]+0.1f, p->bmin[1], p->bmax[0]);
+	 
+	 glVertex3f(header->bmin[0]+0.1f, p->bmin[1], p->bmax[0]);
+	 glVertex3f(header->bmin[0]+0.1f, p->bmin[1], p->bmin[0]);
+	 }
+	 for (int i = 0; i < header->nportals[3]; ++i)
+	 {
+	 const dtTilePortal* p = &header->portals[3][i];
+	 if (p->ncon)
+	 glColor4ub(255,255,255,192);
+	 else
+	 glColor4ub(255,0,0,64);
+	 glVertex3f(p->bmin[0], p->bmin[1], header->bmin[2]+0.1f);
+	 glVertex3f(p->bmin[0], p->bmax[1], header->bmin[2]+0.1f);
+	 
+	 glVertex3f(p->bmin[0], p->bmax[1], header->bmin[2]+0.1f);
+	 glVertex3f(p->bmax[0], p->bmax[1], header->bmin[2]+0.1f);
+	 
+	 glVertex3f(p->bmax[0], p->bmax[1], header->bmin[2]+0.1f);
+	 glVertex3f(p->bmax[0], p->bmin[1], header->bmin[2]+0.1f);
+	 
+	 glVertex3f(p->bmax[0], p->bmin[1], header->bmin[2]+0.1f);
+	 glVertex3f(p->bmin[0], p->bmin[1], header->bmin[2]+0.1f);
+	 }
+	 glEnd();*/
+}
+
+void dtDebugDrawNavMesh(const dtNavMesh* mesh)
+{
+	if (!mesh) return;
+	
+	for (int i = 0; i < mesh->getMaxTiles(); ++i)
+	{
+		const dtMeshTile* tile = mesh->getTile(i);
+		if (!tile->header) continue;
+		drawMeshTile(tile->header);
+	}
+}
+
+
+
+void dtDebugDrawNavMeshPoly(const dtNavMesh* mesh, dtPolyRef ref, const float* col)
+{
+	int ip = 0;
+	const dtMeshTile* tile = mesh->getTileByRef(ref, &ip);
+	if (!tile)
+		return;
+	const dtMeshHeader* header = tile->header;
+	const dtPoly* p = &header->polys[ip];
+	const dtPolyDetail* pd = &header->dmeshes[ip];
+	
+	glColor4f(col[0],col[1],col[2],0.25f);
 	
 	glBegin(GL_TRIANGLES);
 	for (int i = 0; i < pd->ntris; ++i)
