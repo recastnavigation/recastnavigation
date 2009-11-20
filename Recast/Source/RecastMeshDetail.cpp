@@ -762,8 +762,8 @@ static void getHeightData(const rcCompactHeightfield& chf,
 		cy /= npoly;
 		cz /= npoly;
 		
-		if (cx >= hp.xmin || cx < hp.xmin+hp.width ||
-			cz >= hp.ymin || cz < hp.ymin+hp.height)
+		if (cx >= hp.xmin && cx < hp.xmin+hp.width &&
+			cz >= hp.ymin && cz < hp.ymin+hp.height)
 		{
 			const rcCompactCell& c = chf.cells[cx+cz*chf.width];
 			int dmin = 0xffff;
@@ -928,7 +928,7 @@ bool rcBuildPolyMeshDetail(const rcPolyMesh& mesh, const rcCompactHeightfield& c
 		return false;
 	}
 	rcScopedDelete<float> poly = new float[nvp*3];
-	if (!bounds)
+	if (!poly)
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMeshDetail: Out of memory 'poly' (%d).", nvp*3);
@@ -1017,7 +1017,7 @@ bool rcBuildPolyMeshDetail(const rcPolyMesh& mesh, const rcCompactHeightfield& c
 	{
 		const unsigned short* p = &mesh.polys[i*nvp*2];
 		
-		// Find polygon bounding box.
+		// Store polygon vertices for processing.
 		int npoly = 0;
 		for (int j = 0; j < nvp; ++j)
 		{
