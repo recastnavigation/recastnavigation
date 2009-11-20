@@ -454,8 +454,7 @@ static int getPolyMergeValue(unsigned short* pa, unsigned short* pb,
 	return dx*dx + dy*dy;
 }
 
-static void mergePolys(unsigned short* pa, unsigned short* pb,
-					   const unsigned short* verts, int ea, int eb,
+static void mergePolys(unsigned short* pa, unsigned short* pb, int ea, int eb,
 					   unsigned short* tmp, const int nvp)
 {
 	const int na = countPolyVerts(pa, nvp);
@@ -732,7 +731,7 @@ static bool removeVertex(rcPolyMesh& mesh, const unsigned short rem, const int m
 				// Found best, merge.
 				unsigned short* pa = &polys[bestPa*nvp];
 				unsigned short* pb = &polys[bestPb*nvp];
-				mergePolys(pa, pb, mesh.verts, bestEa, bestEb, tmpPoly, nvp);
+				mergePolys(pa, pb, bestEa, bestEb, tmpPoly, nvp);
 				memcpy(pb, &polys[(npolys-1)*nvp], sizeof(unsigned short)*nvp);
 				pregs[bestPb] = pregs[npolys-1];
 				npolys--;
@@ -960,7 +959,7 @@ bool rcBuildPolyMesh(rcContourSet& cset, int nvp, rcPolyMesh& mesh)
 					// Found best, merge.
 					unsigned short* pa = &polys[bestPa*nvp];
 					unsigned short* pb = &polys[bestPb*nvp];
-					mergePolys(pa, pb, mesh.verts, bestEa, bestEb, tmpPoly, nvp);
+					mergePolys(pa, pb, bestEa, bestEb, tmpPoly, nvp);
 					memcpy(pb, &polys[(npolys-1)*nvp], sizeof(unsigned short)*nvp);
 					npolys--;
 				}
