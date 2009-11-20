@@ -52,13 +52,13 @@ bool dtStatNavMesh::init(unsigned char* data, int dataSize, bool ownsData)
 	if (header->version != DT_STAT_NAVMESH_VERSION)
 		return false;
 
-	const int headerSize = sizeof(dtStatNavMeshHeader);
-	const int vertsSize = sizeof(float)*3*header->nverts;
-	const int polysSize = sizeof(dtStatPoly)*header->npolys;
-	const int nodesSize = sizeof(dtStatBVNode)*header->npolys*2;
-	const int detailMeshesSize = sizeof(dtStatPolyDetail)*header->ndmeshes;
-	const int detailVertsSize = sizeof(float)*3*header->ndverts;
-	const int detailTrisSize = sizeof(unsigned char)*4*header->ndtris;
+	const int headerSize = align4(sizeof(dtStatNavMeshHeader));
+	const int vertsSize = align4(sizeof(float)*3*header->nverts);
+	const int polysSize = align4(sizeof(dtStatPoly)*header->npolys);
+	const int nodesSize = align4(sizeof(dtStatBVNode)*header->npolys*2);
+	const int detailMeshesSize = align4(sizeof(dtStatPolyDetail)*header->ndmeshes);
+	const int detailVertsSize = align4(sizeof(float)*3*header->ndverts);
+	const int detailTrisSize = align4(sizeof(unsigned char)*4*header->ndtris);
 	
 
 	unsigned char* d = data + headerSize;

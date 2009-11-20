@@ -94,13 +94,13 @@ bool dtCreateNavMeshTileData(const unsigned short* verts, const int nverts,
 	}
 	
 	// Calculate data size
-	const int headerSize = sizeof(dtTileHeader);
-	const int vertsSize = sizeof(float)*3*nverts;
-	const int polysSize = sizeof(dtTilePoly)*npolys;
-	const int linksSize = sizeof(dtTileLink)*maxLinks;
-	const int detailMeshesSize = sizeof(dtTilePolyDetail)*npolys;
-	const int detailVertsSize = sizeof(float)*3*uniqueDetailVerts;
-	const int detailTrisSize = sizeof(unsigned char)*4*ndtris;
+	const int headerSize = align4(sizeof(dtTileHeader));
+	const int vertsSize = align4(sizeof(float)*3*nverts);
+	const int polysSize = align4(sizeof(dtTilePoly)*npolys);
+	const int linksSize = align4(sizeof(dtTileLink)*maxLinks);
+	const int detailMeshesSize = align4(sizeof(dtTilePolyDetail)*npolys);
+	const int detailVertsSize = align4(sizeof(float)*3*uniqueDetailVerts);
+	const int detailTrisSize = align4(sizeof(unsigned char)*4*ndtris);
 	
 	const int dataSize = headerSize + vertsSize + polysSize + linksSize +
 						 detailMeshesSize + detailVertsSize + detailTrisSize;

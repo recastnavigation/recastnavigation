@@ -360,13 +360,13 @@ bool dtTiledNavMesh::addTileAt(int x, int y, unsigned char* data, int dataSize, 
 	m_posLookup[h] = tile;
 	
 	// Patch header pointers.
-	const int headerSize = sizeof(dtTileHeader);
-	const int vertsSize = sizeof(float)*3*header->nverts;
-	const int polysSize = sizeof(dtTilePoly)*header->npolys;
-	const int linksSize = sizeof(dtTileLink)*(header->maxlinks);
-	const int detailMeshesSize = sizeof(dtTilePolyDetail)*header->ndmeshes;
-	const int detailVertsSize = sizeof(float)*3*header->ndverts;
-	const int detailTrisSize = sizeof(unsigned char)*4*header->ndtris;
+	const int headerSize = align4(sizeof(dtTileHeader));
+	const int vertsSize = align4(sizeof(float)*3*header->nverts);
+	const int polysSize = align4(sizeof(dtTilePoly)*header->npolys);
+	const int linksSize = align4(sizeof(dtTileLink)*(header->maxlinks));
+	const int detailMeshesSize = align4(sizeof(dtTilePolyDetail)*header->ndmeshes);
+	const int detailVertsSize = align4(sizeof(float)*3*header->ndverts);
+	const int detailTrisSize = align4(sizeof(unsigned char)*4*header->ndtris);
 	
 	unsigned char* d = data + headerSize;
 	header->verts = (float*)d; d += vertsSize;

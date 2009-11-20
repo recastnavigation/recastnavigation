@@ -125,6 +125,8 @@ inline int nextPow2(int v)
 	return v;
 }
 
+inline int align4(int x) { return (x+3) & ~3; }
+
 inline float vdot2D(const float* u, const float* v)
 {
 	return u[0]*v[0] + u[2]*v[2];

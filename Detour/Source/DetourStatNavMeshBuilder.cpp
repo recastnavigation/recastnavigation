@@ -19,6 +19,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
+#include "DetourCommon.h"
 #include "DetourStatNavMesh.h"
 
 struct BVItem
@@ -245,13 +246,13 @@ bool dtCreateNavMeshData(const unsigned short* verts, const int nverts,
 	}
 	
 	// Calculate data size
-	const int headerSize = sizeof(dtStatNavMeshHeader);
-	const int vertsSize = sizeof(float)*3*nverts;
-	const int polysSize = sizeof(dtStatPoly)*npolys;
-	const int nodesSize = sizeof(dtStatBVNode)*npolys*2;
-	const int detailMeshesSize = sizeof(dtStatPolyDetail)*npolys;
-	const int detailVertsSize = sizeof(float)*3*uniqueDetailVerts;
-	const int detailTrisSize = sizeof(unsigned char)*4*ndtris;
+	const int headerSize = align4(sizeof(dtStatNavMeshHeader));
+	const int vertsSize = align4(sizeof(float)*3*nverts);
+	const int polysSize = align4(sizeof(dtStatPoly)*npolys);
+	const int nodesSize = align4(sizeof(dtStatBVNode)*npolys*2);
+	const int detailMeshesSize = align4(sizeof(dtStatPolyDetail)*npolys);
+	const int detailVertsSize = align4(sizeof(float)*3*uniqueDetailVerts);
+	const int detailTrisSize = align4(sizeof(unsigned char)*4*ndtris);
 	
 	const int dataSize = headerSize + vertsSize + polysSize + nodesSize +
 						 detailMeshesSize + detailVertsSize + detailTrisSize;
