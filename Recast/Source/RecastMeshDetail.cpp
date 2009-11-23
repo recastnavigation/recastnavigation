@@ -192,10 +192,10 @@ static float distToPoly(int nvert, const float* verts, const float* p)
 }
 
 
-static unsigned short getHeight(const float* pos, const float* bmin, const float cs, const float ics, const rcHeightPatch& hp)
+static unsigned short getHeight(const float* pos, const float cs, const float ics, const rcHeightPatch& hp)
 {
-	int ix = (int)floorf((pos[0]-bmin[0])*ics + 0.01f);
-	int iz = (int)floorf((pos[2]-bmin[2])*ics + 0.01f);
+	int ix = (int)floorf(pos[0]*ics + 0.01f);
+	int iz = (int)floorf(pos[2]*ics + 0.01f);
 	ix = rcClamp(ix-hp.xmin, 0, hp.width);
 	iz = rcClamp(iz-hp.ymin, 0, hp.height);
 	unsigned short h = hp.data[ix+iz*hp.width];
@@ -546,7 +546,7 @@ static bool buildPolyDetail(const float* in, const int nin, unsigned short reg,
 				pos[0] = vj[0] + dx*u;
 				pos[1] = vj[1] + dy*u;
 				pos[2] = vj[2] + dz*u;
-				pos[1] = chf.bmin[1] + getHeight(pos, chf.bmin, cs, ics, hp)*chf.ch;
+				pos[1] = getHeight(pos, cs, ics, hp)*chf.ch;
 			}
 			// Simplify samples.
 			int idx[MAX_EDGE] = {0,nn};
@@ -655,7 +655,7 @@ static bool buildPolyDetail(const float* in, const int nin, unsigned short reg,
 				// Make sure the samples are not too close to the edges.
 				if (distToPoly(nin,in,pt) > -sampleDist/2) continue;
 				samples.push(x);
-				samples.push(getHeight(pt, chf.bmin, cs, ics, hp));
+				samples.push(getHeight(pt, cs, ics, hp));
 				samples.push(z);
 			}
 		}
@@ -673,7 +673,7 @@ static bool buildPolyDetail(const float* in, const int nin, unsigned short reg,
 			{
 				float pt[3];
 				pt[0] = samples[i*3+0]*sampleDist;
-				pt[1] = chf.bmin[1] + samples[i*3+1]*chf.ch;
+				pt[1] = samples[i*3+1]*chf.ch;
 				pt[2] = samples[i*3+2]*sampleDist;
 				float d = distToTriMesh(pt, verts, nverts, &tris[0], tris.size()/4);
 				if (d < 0) continue; // did not hit the mesh.
@@ -968,9 +968,9 @@ bool rcBuildPolyMeshDetail(const rcPolyMesh& mesh, const rcCompactHeightfield& c
 		{
 			if(p[j] == 0xffff) break;
 			const unsigned short* v = &mesh.verts[p[j]*3];
-			poly[j*3+0] = orig[0] + v[0]*cs;
-			poly[j*3+1] = orig[1] + v[1]*ch;
-			poly[j*3+2] = orig[2] + v[2]*cs;
+			poly[j*3+0] = v[0]*cs;
+			poly[j*3+1] = v[1]*ch;
+			poly[j*3+2] = v[2]*cs;
 			npoly++;
 		}
 		
@@ -991,9 +991,20 @@ bool rcBuildPolyMeshDetail(const rcPolyMesh& mesh, const rcCompactHeightfield& c
 			return false;
 		}
 
-		// Offset detail vertices, unnecassary?
+		// Move detail verts to world space.
 		for (int j = 0; j < nverts; ++j)
-			verts[j*3+1] += chf.ch;
+		{
+			verts[j*3+0] += orig[0];
+			verts[j*3+1] += orig[1] + chf.ch; // Is this offset necessary?
+			verts[j*3+2] += orig[2];
+		}
+		// Offset poly too, will be used to flag checking.
+		for (int j = 0; j < npoly; ++j)
+		{
+			poly[j*3+0] += orig[0];
+			poly[j*3+1] += orig[1];
+			poly[j*3+2] += orig[2];
+		}
 	
 		// Store detail submesh.
 		const int ntris = tris.size()/4;
