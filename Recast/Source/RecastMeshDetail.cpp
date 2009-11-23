@@ -708,7 +708,7 @@ static bool buildPolyDetail(const float* in, const int nin, unsigned short reg,
 static void getHeightData(const rcCompactHeightfield& chf,
 						  const unsigned short* poly, const int npoly,
 						  const unsigned short* verts,
-						  rcHeightPatch& hp, rcIntArray& stack, unsigned short* tmpData)
+						  rcHeightPatch& hp, rcIntArray& stack)
 {
 	// Floodfill the heightfield to get 2D height data,
 	// starting at vertex locations as seeds.
@@ -821,54 +821,7 @@ static void getHeightData(const rcCompactHeightfield& chf,
 			stack.push(ay);
 			stack.push(ai);
 		}
-	}
-	
-/*	unsigned short* src = hp.data;
-	unsigned short* dst = tmpData;
-
-	for (int y = 0; y < hp.height-1; ++y)
-	{
-		for (int x = 0; x < hp.width-1; ++x)
-		{
-			const int idx = x+y*hp.width;
-			if (src[idx] != 0xffff)
-			{
-				dst[idx] = src[idx];
-				continue;
-			}
-			
-			unsigned short h = 0xffff;
-			h = rcMin(h,src[idx+1]);
-			h = rcMin(h,src[idx+hp.width]);
-			h = rcMin(h,src[idx+1+hp.width]);
-			
-			dst[idx] = h;
-		}
-	}
-	
-	rcSwap(src,dst);
-
-	for (int y = 1; y < hp.height; ++y)
-	{
-		for (int x = 1; x < hp.width; ++x)
-		{
-			const int idx = x+y*hp.width;
-			if (src[idx] != 0xffff)
-			{
-				dst[idx] = src[idx];
-				continue;
-			}
-			
-			unsigned short h = 0xffff;
-			h = rcMin(h,src[idx-1]);
-			h = rcMin(h,src[idx-hp.width]);
-			h = rcMin(h,src[idx-1-hp.width]);
-			
-			dst[idx] = h;
-		}
-	}
-	
-	memcpy(src, dst, sizeof(unsigned short)*hp.width*hp.height);*/
+	}	
 }
 
 static unsigned char getEdgeFlags(const float* va, const float* vb,
@@ -974,14 +927,6 @@ bool rcBuildPolyMeshDetail(const rcPolyMesh& mesh, const rcCompactHeightfield& c
 		return false;
 	}
 	
-	rcScopedDelete<unsigned short> tmpData = new unsigned short[maxhw*maxhh];
-	if (!tmpData)
-	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMeshDetail: Out of memory 'tmpData' (%d).", maxhw*maxhh);
-		return false;
-	}
-	
 	dmesh.nmeshes = mesh.npolys;
 	dmesh.nverts = 0;
 	dmesh.ntris = 0;
@@ -1034,7 +979,7 @@ bool rcBuildPolyMeshDetail(const rcPolyMesh& mesh, const rcCompactHeightfield& c
 		hp.ymin = bounds[i*4+2];
 		hp.width = bounds[i*4+1]-bounds[i*4+0];
 		hp.height = bounds[i*4+3]-bounds[i*4+2];
-		getHeightData(chf, p, npoly, mesh.verts, hp, stack, tmpData);
+		getHeightData(chf, p, npoly, mesh.verts, hp, stack);
 		
 		// Build detail mesh.
 		int nverts = 0;
