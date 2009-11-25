@@ -617,6 +617,8 @@ void rcDebugDrawContours(rcDebugDraw* dd, const rcContourSet& cset, const float 
 	for (int i = 0; i < cset.nconts; ++i)
 	{
 		const rcContour& c = cset.conts[i];
+		if (!c.nverts)
+			continue;
 		unsigned int color = intToCol(c.reg, a);
 
 		for (int j = 0; j < c.nverts; ++j)

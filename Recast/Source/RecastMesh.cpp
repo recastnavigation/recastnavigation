@@ -661,20 +661,26 @@ static bool removeVertex(rcPolyMesh& mesh, const unsigned short rem, const int m
 
 	// Triangulate the hole.
 	int ntris = triangulate(nhole, &tverts[0], &thole[0], tris);
-
+	if (ntris < 0)
+	{
+		ntris = -ntris;
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_WARNING, "removeVertex: triangulate() returned bad results.");
+	}
+	
 	// Merge the hole triangles back to polygons.
 	rcScopedDelete<unsigned short> polys = new unsigned short[(ntris+1)*nvp];
 	if (!polys)
 	{
 		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_WARNING, "removeVertex: Out of memory 'polys' (%d).", (ntris+1)*nvp);
+			rcGetLog()->log(RC_LOG_ERROR, "removeVertex: Out of memory 'polys' (%d).", (ntris+1)*nvp);
 		return false;
 	}
 	rcScopedDelete<unsigned short> pregs = new unsigned short[ntris];
 	if (!pregs)
 	{
 		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_WARNING, "removeVertex: Out of memory 'pregs' (%d).", ntris);
+			rcGetLog()->log(RC_LOG_ERROR, "removeVertex: Out of memory 'pregs' (%d).", ntris);
 		return false;
 	}
 	
@@ -754,6 +760,12 @@ static bool removeVertex(rcPolyMesh& mesh, const unsigned short rem, const int m
 			p[j] = polys[i*nvp+j];
 		mesh.regs[mesh.npolys] = pregs[i];
 		mesh.npolys++;
+		if (mesh.npolys > maxTris)
+		{
+			if (rcGetLog())
+				rcGetLog()->log(RC_LOG_ERROR, "removeVertex: Too many polygons %d (max:%d).", mesh.npolys, maxTris);
+			return false;
+		}
 	}
 	
 	return true;
@@ -774,6 +786,8 @@ bool rcBuildPolyMesh(rcContourSet& cset, int nvp, rcPolyMesh& mesh)
 	int maxVertsPerCont = 0;
 	for (int i = 0; i < cset.nconts; ++i)
 	{
+		// Skip null contours.
+		if (cset.conts[i].nverts < 3) continue;
 		maxVertices += cset.conts[i].nverts;
 		maxTris += cset.conts[i].nverts - 2;
 		maxVertsPerCont = rcMax(maxVertsPerCont, cset.conts[i].nverts);
@@ -802,14 +816,14 @@ bool rcBuildPolyMesh(rcContourSet& cset, int nvp, rcPolyMesh& mesh)
 			rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'mesh.verts' (%d).", maxVertices);
 		return false;
 	}
-	mesh.polys = new unsigned short[maxTris*nvp*2];
+	mesh.polys = new unsigned short[maxTris*nvp*2*2];
 	if (!mesh.polys)
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'mesh.polys' (%d).", maxTris*nvp*2);
 		return false;
 	}
-	mesh.regs = new unsigned short[maxTris];
+	mesh.regs = new unsigned short[maxTris*2];
 	if (!mesh.regs)
 	{
 		if (rcGetLog())
@@ -870,7 +884,7 @@ bool rcBuildPolyMesh(rcContourSet& cset, int nvp, rcPolyMesh& mesh)
 	{
 		rcContour& cont = cset.conts[i];
 		
-		// Skip empty contours.
+		// Skip null contours.
 		if (cont.nverts < 3)
 			continue;
 		
@@ -896,6 +910,7 @@ bool rcBuildPolyMesh(rcContourSet& cset, int nvp, rcPolyMesh& mesh)
 			}*/
 			ntris = -ntris;
 		}
+				
 		// Add and merge vertices.
 		for (int j = 0; j < cont.nverts; ++j)
 		{
@@ -971,7 +986,6 @@ bool rcBuildPolyMesh(rcContourSet& cset, int nvp, rcPolyMesh& mesh)
 			}
 		}
 		
-		
 		// Store polygons.
 		for (int j = 0; j < npolys; ++j)
 		{
@@ -981,6 +995,12 @@ bool rcBuildPolyMesh(rcContourSet& cset, int nvp, rcPolyMesh& mesh)
 				p[k] = q[k];
 			mesh.regs[mesh.npolys] = cont.reg;
 			mesh.npolys++;
+			if (mesh.npolys > maxTris)
+			{
+				if (rcGetLog())
+					rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMesh: Too many polygons %d (max:%d).", mesh.npolys, maxTris);
+				return false;
+			}
 		}
 	}
 	
