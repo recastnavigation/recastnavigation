@@ -888,7 +888,7 @@ void rcDebugDrawPolyMeshDetail(rcDebugDraw* dd, const struct rcPolyMeshDetail& d
 	dd->end();
 	
 	// External edges.
-	dd->begin(RC_DRAW_LINES, 2.0f);
+	dd->begin(RC_DRAW_LINES, nve, 2.0f);
 	const unsigned int cole = RGBA(0,0,0,64);
 	for (int i = 0; i < dmesh.nmeshes; ++i)
 	{

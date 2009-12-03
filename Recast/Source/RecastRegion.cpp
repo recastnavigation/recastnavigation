@@ -1052,7 +1052,7 @@ bool rcBuildRegionsMonotone(rcCompactHeightfield& chf,
 					const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(s, 3);
 					if (srcReg[ai] && (srcReg[ai] & RC_BORDER_REG) == 0)
 					{
-						unsigned char nr = srcReg[ai];
+						unsigned short nr = srcReg[ai];
 						if (!sweeps[previd].nei || sweeps[previd].nei == nr)
 						{
 							sweeps[previd].nei = nr;

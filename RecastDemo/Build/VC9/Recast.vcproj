@@ -260,6 +260,14 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\..\Detour\Include\DetourNavMesh.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Detour\Include\DetourNavMeshBuilder.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\..\Detour\Include\DetourNode.h"
 					>
 				</File>
@@ -289,6 +297,14 @@
 				</File>
 				<File
 					RelativePath="..\..\..\Detour\Source\DetourDebugDraw.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Detour\Source\DetourNavMesh.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Detour\Source\DetourNavMeshBuilder.cpp"
 					>
 				</File>
 				<File
@@ -340,15 +356,19 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\Include\Sample_StatMesh.h"
+					RelativePath="..\..\Include\Sample_DynMesh.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\Include\Sample_StatMeshSimple.h"
+					RelativePath="..\..\Include\Sample_SoloMesh.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\Include\Sample_StatMeshTiled.h"
+					RelativePath="..\..\Include\Sample_SoloMeshSimple.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Include\Sample_SoloMeshTiled.h"
 					>
 				</File>
 				<File
@@ -388,15 +408,19 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\Source\Sample_StatMesh.cpp"
+					RelativePath="..\..\Source\Sample_DynMesh.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\Source\Sample_StatMeshSimple.cpp"
+					RelativePath="..\..\Source\Sample_SoloMesh.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\Source\Sample_StatMeshTiled.cpp"
+					RelativePath="..\..\Source\Sample_SoloMeshSimple.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\Sample_SoloMeshTiled.cpp"
 					>
 				</File>
 				<File

@@ -567,7 +567,7 @@ bool dtNavMesh::closestPointOnPoly(dtPolyRef ref, const float* pos, float* close
 {
 	unsigned int salt, it, ip;
 	dtDecodePolyId(ref, salt, it, ip);
-	if (it >= m_maxTiles) return false;
+	if (it >= (unsigned int)m_maxTiles) return false;
 	if (m_tiles[it].salt != salt || m_tiles[it].header == 0) return false;
 	const dtMeshHeader* header = m_tiles[it].header;
 
@@ -605,7 +605,7 @@ bool dtNavMesh::closestPointOnPolyBoundary(dtPolyRef ref, const float* pos, floa
 {
 	unsigned int salt, it, ip;
 	dtDecodePolyId(ref, salt, it, ip);
-	if (it >= m_maxTiles) return false;
+	if (it >= (unsigned int)m_maxTiles) return false;
 	if (m_tiles[it].salt != salt || m_tiles[it].header == 0) return false;
 	const dtMeshHeader* header = m_tiles[it].header;
 	
