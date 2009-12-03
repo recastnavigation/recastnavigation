@@ -6,19 +6,19 @@
 #include "SDL_opengl.h"
 #include "imgui.h"
 #include "Sample.h"
-#include "Sample_StatMeshTiled.h"
+#include "Sample_SoloMeshTiled.h"
 #include "Recast.h"
 #include "RecastTimer.h"
 #include "RecastDebugDraw.h"
-#include "DetourStatNavMesh.h"
-#include "DetourStatNavMeshBuilder.h"
+#include "DetourNavMesh.h"
+#include "DetourNavMeshBuilder.h"
 #include "DetourDebugDraw.h"
 
 #ifdef WIN32
 #	define snprintf _snprintf
 #endif
 
-Sample_StatMeshTiled::Sample_StatMeshTiled() :
+Sample_SoloMeshTiled::Sample_SoloMeshTiled() :
 	m_measurePerTileTimings(false),
 	m_keepInterResults(false),
 	m_tileSize(64),
@@ -32,12 +32,12 @@ Sample_StatMeshTiled::Sample_StatMeshTiled() :
 {
 }
 
-Sample_StatMeshTiled::~Sample_StatMeshTiled()
+Sample_SoloMeshTiled::~Sample_SoloMeshTiled()
 {
 	cleanup();
 }
 
-void Sample_StatMeshTiled::cleanup()
+void Sample_SoloMeshTiled::cleanup()
 {
 	delete m_chunkyMesh;
 	m_chunkyMesh = 0;
@@ -52,7 +52,7 @@ void Sample_StatMeshTiled::cleanup()
 	m_statPolysPerTileSamples = 0;
 }
 
-void Sample_StatMeshTiled::handleSettings()
+void Sample_SoloMeshTiled::handleSettings()
 {
 	Sample::handleCommonSettings();
 	
@@ -77,7 +77,7 @@ void Sample_StatMeshTiled::handleSettings()
 	imguiSeparator();
 }
 
-void Sample_StatMeshTiled::handleDebugMode()
+void Sample_SoloMeshTiled::handleDebugMode()
 {
 	// Check which modes are valid.
 	bool valid[MAX_DRAWMODE];
@@ -171,7 +171,7 @@ void Sample_StatMeshTiled::handleDebugMode()
 	}
 }
 
-void Sample_StatMeshTiled::handleRender()
+void Sample_SoloMeshTiled::handleRender()
 {
 	if (!m_verts || !m_tris || !m_trinorms)
 		return;
@@ -504,7 +504,7 @@ static void drawGraph(const char* name, int x, int y, int w, int h, float sd,
 	drawLabels(x, y, w, h, 10, first*sd, last*sd, unit);
 }
 
-void Sample_StatMeshTiled::handleRenderOverlay(double* proj, double* model, int* view)
+void Sample_SoloMeshTiled::handleRenderOverlay(double* proj, double* model, int* view)
 {
 	toolRenderOverlay(proj, model, view);
 
@@ -531,7 +531,7 @@ void Sample_StatMeshTiled::handleRenderOverlay(double* proj, double* model, int*
 	}
 }
 
-void Sample_StatMeshTiled::handleMeshChanged(const float* verts, int nverts,
+void Sample_SoloMeshTiled::handleMeshChanged(const float* verts, int nverts,
 											  const int* tris, const float* trinorms, int ntris,
 											  const float* bmin, const float* bmax)
 {
@@ -542,7 +542,7 @@ void Sample_StatMeshTiled::handleMeshChanged(const float* verts, int nverts,
 	m_statPolysPerTileSamples = 0;
 }
 
-bool Sample_StatMeshTiled::handleBuild()
+bool Sample_SoloMeshTiled::handleBuild()
 {
 	if (!m_verts || ! m_tris)
 	{
@@ -911,8 +911,9 @@ bool Sample_StatMeshTiled::handleBuild()
 		int navDataSize = 0;
 		if (!dtCreateNavMeshData(m_pmesh->verts, m_pmesh->nverts,
 								 m_pmesh->polys, m_pmesh->npolys, m_pmesh->nvp,
-								 m_pmesh->bmin, m_pmesh->bmax, m_pmesh->cs, m_pmesh->ch,
-								 m_dmesh->meshes, m_dmesh->verts, m_dmesh->nverts, m_dmesh->tris, m_dmesh->ntris, 
+								 m_dmesh->meshes, m_dmesh->verts, m_dmesh->nverts,
+								 m_dmesh->tris, m_dmesh->ntris, 
+								 m_pmesh->bmin, m_pmesh->bmax, m_cfg.cs, m_cfg.ch, 0, m_cfg.walkableClimb,
 								 &navData, &navDataSize))
 		{
 			if (rcGetLog())
@@ -920,7 +921,7 @@ bool Sample_StatMeshTiled::handleBuild()
 			return false;
 		}
 		
-		m_navMesh = new dtStatNavMesh;
+		m_navMesh = new dtNavMesh;
 		if (!m_navMesh)
 		{
 			delete [] navData;
@@ -929,8 +930,9 @@ bool Sample_StatMeshTiled::handleBuild()
 			return false;
 		}
 		
-		if (!m_navMesh->init(navData, navDataSize, true))
+		if (!m_navMesh->init(navData, navDataSize, true, 2048))
 		{
+			delete [] navData;
 			if (rcGetLog())
 				rcGetLog()->log(RC_LOG_ERROR, "Could not init Detour navmesh");
 			return false;

@@ -443,6 +443,83 @@ int dtStatNavMesh::findStraightPath(const float* startPos, const float* endPos,
 	return straightPathSize;
 }
 
+static bool pointInPoly(int nvert, const float* verts, const float* p)
+{
+	
+	int i, j, c = 0;
+	for (i = 0, j = nvert-1; i < nvert; j = i++)
+	{
+		const float* vi = &verts[i*3];
+		const float* vj = &verts[j*3];
+		if (((vi[2] > p[2]) != (vj[2] > p[2])) &&
+			(p[0] < (vj[0]-vi[0]) * (p[2]-vi[2]) / (vj[2]-vi[2]) + vi[0]) )
+			c = !c;
+	}
+	return c != 0;
+}
+
+int dtStatNavMesh::moveAlongPath(const float* startPos, const float* endPos, float* resultPos,
+								 const dtStatPolyRef* path, const int pathSize)
+{
+	static const float SLOP = 0.01f;
+	float verts[DT_STAT_VERTS_PER_POLYGON*3];
+	int n = 0, prevn = 0;
+
+	vcopy(resultPos, startPos);
+	
+	while (n < pathSize)
+	{
+		// Cast ray against current polygon.
+		int nv = getPolyVerts(path[n], verts);
+		if (nv < 3)
+		{
+			return prevn;
+		}
+
+		if (pointInPoly(nv, verts, endPos))
+		{
+			vcopy(resultPos, endPos);
+			return n;
+		}
+		
+		float tmin, tmax;
+		int segMin, segMax;
+		if (!intersectSegmentPoly2D(startPos, endPos, verts, nv, tmin, tmax, segMin, segMax))
+		{
+			// Could not a polygon
+			return prevn;
+		}
+		
+		resultPos[0] = startPos[0] + (endPos[0] - startPos[0])*tmax;
+		resultPos[1] = startPos[1] + (endPos[1] - startPos[1])*tmax;
+		resultPos[2] = startPos[2] + (endPos[2] - startPos[2])*tmax;
+		
+		// Check if the hitpos is on the exit segment.
+		float p0[3], p1[3];
+		if (!getPortalPoints(path[n], path[n+1], p0, p1))
+			return 0;
+		float segt;
+		float distToPortalSqr = distancePtSegSqr2D(resultPos, p0, p1, segt);
+		if (distToPortalSqr > SLOP*SLOP)
+		{
+			// Hit wall, return pos so far.
+			return n;
+		}
+
+		prevn = n;
+		n++;
+	}
+	
+	return n;
+	
+/*	// Check the neighbour of this polygon.
+	const dtStatPoly* poly = getPolyByRef(curRef);
+	dtStatPolyRef nextRef = poly->n[segMax];
+	if (!nextRef)*/
+		
+
+}
+
 int dtStatNavMesh::getPolyVerts(dtStatPolyRef ref, float* verts) const
 {
 	if (!m_header) return 0;

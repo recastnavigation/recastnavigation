@@ -1,13 +1,13 @@
-#ifndef RECASTSAMPLESTATMESHSIMPLE_H
-#define RECASTSAMPLESTATMESHSIMPLE_H
+#ifndef RECASTSAMPLESOLOMESHSIMPLE_H
+#define RECASTSAMPLESOLOMESHSIMPLE_H
 
-#include "Sample_StatMesh.h"
+#include "Sample_SoloMesh.h"
 #include "DetourStatNavMesh.h"
 #include "Recast.h"
 #include "RecastLog.h"
 
 
-class Sample_StatMeshSimple : public Sample_StatMesh
+class Sample_SoloMeshSimple : public Sample_SoloMesh
 {
 protected:
 
@@ -48,8 +48,8 @@ protected:
 	void cleanup();
 		
 public:
-	Sample_StatMeshSimple();
-	virtual ~Sample_StatMeshSimple();
+	Sample_SoloMeshSimple();
+	virtual ~Sample_SoloMeshSimple();
 	
 	virtual void handleSettings();
 	virtual void handleDebugMode();
@@ -63,4 +63,4 @@ public:
 };
 
 
-#endif // RECASTSAMPLESTATMESHSIMPLE_H
+#endif // RECASTSAMPLESOLOMESHSIMPLE_H

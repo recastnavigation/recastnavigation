@@ -15,8 +15,8 @@
 #include "RecastDebugDraw.h"
 #include "MeshLoaderObj.h"
 
-#include "Sample_StatMeshSimple.h"
-#include "Sample_StatMeshTiled.h"
+#include "Sample_SoloMeshSimple.h"
+#include "Sample_SoloMeshTiled.h"
 #include "Sample_TileMesh.h"
 #include "Sample_DynMesh.h"
 
@@ -195,15 +195,15 @@ struct SampleItem
 	const char* name;
 };
 
-Sample* createStatSimple() { return new Sample_StatMeshSimple(); }
-Sample* createStatTiled() { return new Sample_StatMeshTiled(); }
+Sample* createSoloSimple() { return new Sample_SoloMeshSimple(); }
+Sample* createSoloTiled() { return new Sample_SoloMeshTiled(); }
 Sample* createTile() { return new Sample_TileMesh(); }
 Sample* createDyn() { return new Sample_DynMesh(); }
 
 static SampleItem g_samples[] =
 {
-{ createStatSimple, "Static Mesh (Simple)" },
-{ createStatTiled, "Static Mesh (Tiled)" },
+{ createSoloSimple, "Solo Mesh Simple" },
+{ createSoloTiled, "Solo Mesh Tiled" },
 { createTile, "Tile Mesh" },
 { createDyn, "Dyn Mesh" },
 };

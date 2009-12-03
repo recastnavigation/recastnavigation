@@ -78,7 +78,8 @@ inline int computeTileHash(int x, int y, const int mask)
 
 //////////////////////////////////////////////////////////////////////////////////////////
 dtNavMesh::dtNavMesh() :
-	m_tileSize(0),
+	m_tileWidth(0),
+	m_tileHeight(0),
 	m_portalHeight(0),
 	m_nextFree(0),
 	m_tmpLinks(0),
@@ -108,11 +109,12 @@ dtNavMesh::~dtNavMesh()
 	delete [] m_tiles;
 }
 		
-bool dtNavMesh::init(const float* orig, float tileSize, float portalHeight,
+bool dtNavMesh::init(const float* orig, float tileWidth, float tileHeight, float portalHeight,
 					 int maxTiles, int maxPolys, int maxNodes)
 {
 	vcopy(m_orig, orig);
-	m_tileSize = tileSize;
+	m_tileWidth = tileWidth;
+	m_tileHeight = tileHeight;
 	m_portalHeight = portalHeight;
 	
 	// Init tiles
@@ -158,6 +160,23 @@ bool dtNavMesh::init(const float* orig, float tileSize, float portalHeight,
 		return false;
 	
 	return true;
+}
+
+bool dtNavMesh::init(unsigned char* data, int dataSize, bool ownsData, int maxNodes)
+{
+	// Make sure the data is in right format.
+	dtMeshHeader* header = (dtMeshHeader*)data;
+	if (header->magic != DT_NAVMESH_MAGIC)
+		return false;
+	if (header->version != DT_NAVMESH_VERSION)
+		return false;
+
+	const float w = header->bmax[0] - header->bmin[0];
+	const float h = header->bmax[2] - header->bmin[2];
+	if (!init(header->bmin, w, h, 0, 1, header->npolys, maxNodes))
+		return false;
+
+	return addTileAt(0,0, data, dataSize, ownsData);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -536,9 +555,15 @@ bool dtNavMesh::removeTileAt(int x, int y, unsigned char** data, int* dataSize)
 	return true;
 }
 
+dtPolyRef dtNavMesh::getTileId(const dtMeshTile* tile) const
+{
+	if (!tile) return 0;
+	const unsigned int it = tile - m_tiles;
+	return dtEncodePolyId(tile->salt, it, 0);
+}
 
-
-bool dtNavMesh::closestPointToPoly(dtPolyRef ref, const float* pos, float* closest) const
+//////////////////////////////////////////////////////////////////////////////////////////
+bool dtNavMesh::closestPointOnPoly(dtPolyRef ref, const float* pos, float* closest) const
 {
 	unsigned int salt, it, ip;
 	dtDecodePolyId(ref, salt, it, ip);
@@ -575,6 +600,56 @@ bool dtNavMesh::closestPointToPoly(dtPolyRef ref, const float* pos, float* close
 	
 	return true;
 }
+
+bool dtNavMesh::closestPointOnPolyBoundary(dtPolyRef ref, const float* pos, float* closest) const
+{
+	unsigned int salt, it, ip;
+	dtDecodePolyId(ref, salt, it, ip);
+	if (it >= m_maxTiles) return false;
+	if (m_tiles[it].salt != salt || m_tiles[it].header == 0) return false;
+	const dtMeshHeader* header = m_tiles[it].header;
+	
+	if (ip >= (unsigned int)header->npolys) return false;
+	const dtPoly* poly = &header->polys[ip];
+
+	// Collect vertices.
+	float verts[DT_VERTS_PER_POLYGON*3];	
+	float edged[DT_VERTS_PER_POLYGON];
+	float edget[DT_VERTS_PER_POLYGON];
+	int nv = 0;
+	for (int i = 0; i < (int)poly->nv; ++i)
+	{
+		vcopy(&verts[nv*3], &header->verts[poly->v[i]*3]);
+		nv++;
+	}		
+	
+	bool inside = distancePtPolyEdgesSqr(pos, verts, nv, edged, edget);
+	if (inside)
+	{
+		// Point is inside the polygon, return the point.
+		vcopy(closest, pos);
+	}
+	else
+	{
+		// Point is outside the polygon, clamp to nearest edge.
+		float dmin = FLT_MAX;
+		int imin = -1;
+		for (int i = 0; i < nv; ++i)
+		{
+			if (edged[i] < dmin)
+			{
+				dmin = edged[i];
+				imin = i;
+			}
+		}
+		const float* va = &verts[imin*3];
+		const float* vb = &verts[((imin+1)%nv)*3];
+		vlerp(closest, va, vb, edget[imin]);
+	}
+
+	return true;
+}
+
 
 bool dtNavMesh::getPolyHeight(dtPolyRef ref, const float* pos, float* height) const
 {
@@ -625,7 +700,7 @@ dtPolyRef dtNavMesh::findNearestPoly(const float* center, const float* extents)
 	{
 		dtPolyRef ref = polys[i];
 		float closest[3];
-		if (!closestPointToPoly(ref, center, closest))
+		if (!closestPointOnPoly(ref, center, closest))
 			continue;
 		float d = vdistSqr(center, closest);
 		if (d < nearestDistanceSqr)
@@ -636,13 +711,6 @@ dtPolyRef dtNavMesh::findNearestPoly(const float* center, const float* extents)
 	}
 	
 	return nearest;
-}
-
-dtPolyRef dtNavMesh::getTileId(dtMeshTile* tile)
-{
-	if (!tile) return 0;
-	const unsigned int it = tile - m_tiles;
-	return dtEncodePolyId(tile->salt, it, 0);
 }
 
 int dtNavMesh::queryTilePolygons(dtMeshTile* tile,
@@ -739,11 +807,11 @@ int dtNavMesh::queryPolygons(const float* center, const float* extents,
 	bmax[2] = center[2] + extents[2];
 	
 	// Find tiles the query touches.
-	const int minx = (int)floorf((bmin[0]-m_orig[0]) / m_tileSize);
-	const int maxx = (int)ceilf((bmax[0]-m_orig[0]) / m_tileSize);
+	const int minx = (int)floorf((bmin[0]-m_orig[0]) / m_tileWidth);
+	const int maxx = (int)ceilf((bmax[0]-m_orig[0]) / m_tileWidth);
 
-	const int miny = (int)floorf((bmin[2]-m_orig[2]) / m_tileSize);
-	const int maxy = (int)ceilf((bmax[2]-m_orig[2]) / m_tileSize);
+	const int miny = (int)floorf((bmin[2]-m_orig[2]) / m_tileHeight);
+	const int maxy = (int)ceilf((bmax[2]-m_orig[2]) / m_tileHeight);
 
 	int n = 0;
 	for (int y = miny; y < maxy; ++y)
@@ -755,14 +823,6 @@ int dtNavMesh::queryPolygons(const float* center, const float* extents,
 			n += queryTilePolygons(tile, bmin, bmax, polys+n, maxPolys-n);
 			if (n >= maxPolys) return n;
 		}
-	}
-
-	printf("---\n");
-	for (int i = 0; i < n; ++i)
-	{
-		unsigned int salt, it, ip;
-		dtDecodePolyId(polys[i], salt, it, ip);
-		printf("0x%08x s:%d t:%d p:%d\n", (unsigned int)polys[i], salt, it, ip);
 	}
 
 	return n;
@@ -911,8 +971,8 @@ int dtNavMesh::findPath(dtPolyRef startRef, dtPolyRef endRef,
 }
 
 int dtNavMesh::findStraightPath(const float* startPos, const float* endPos,
-									 const dtPolyRef* path, const int pathSize,
-									 float* straightPath, const int maxStraightPathSize)
+								const dtPolyRef* path, const int pathSize,
+								float* straightPath, const int maxStraightPathSize)
 {
 	if (!maxStraightPathSize)
 		return 0;
@@ -922,8 +982,9 @@ int dtNavMesh::findStraightPath(const float* startPos, const float* endPos,
 	
 	int straightPathSize = 0;
 	
+	// TODO: Should this be callers responsibility?
 	float closestStartPos[3];
-	if (!closestPointToPoly(path[0], startPos, closestStartPos))
+	if (!closestPointOnPolyBoundary(path[0], startPos, closestStartPos))
 		return 0;
 	
 	// Add start point.
@@ -933,7 +994,7 @@ int dtNavMesh::findStraightPath(const float* startPos, const float* endPos,
 		return straightPathSize;
 	
 	float closestEndPos[3];
-	if (!closestPointToPoly(path[pathSize-1], endPos, closestEndPos))
+	if (!closestPointOnPolyBoundary(path[pathSize-1], endPos, closestEndPos))
 		return 0;
 	
 	float portalApex[3], portalLeft[3], portalRight[3];
@@ -955,7 +1016,7 @@ int dtNavMesh::findStraightPath(const float* startPos, const float* endPos,
 				// Next portal.
 				if (!getPortalPoints(path[i], path[i+1], left, right))
 				{
-					if (!closestPointToPoly(path[i], endPos, closestEndPos))
+					if (!closestPointOnPolyBoundary(path[i], endPos, closestEndPos))
 						return 0;
 					vcopy(&straightPath[straightPathSize*3], closestEndPos);
 					straightPathSize++;
@@ -1060,6 +1121,84 @@ int dtNavMesh::findStraightPath(const float* startPos, const float* endPos,
 	return straightPathSize;
 }
 
+// Moves towards end position a long the path corridor.
+// Returns: Index to the result path polygon.
+int dtNavMesh::moveAlongPathCorridor(const float* startPos, const float* endPos, float* resultPos,
+									 const dtPolyRef* path, const int pathSize)
+{
+	if (!pathSize)
+		return 0;
+	
+	float verts[DT_VERTS_PER_POLYGON*3];	
+	float edged[DT_VERTS_PER_POLYGON];
+	float edget[DT_VERTS_PER_POLYGON];
+	int n = 0;
+	
+	static const float SLOP = 0.01f;
+
+	vcopy(resultPos, startPos);
+	
+	while (n < pathSize)
+	{
+		// Get current polygon and poly vertices.
+		unsigned int salt, it, ip;
+		dtDecodePolyId(path[n], salt, it, ip);
+		if (it >= (unsigned int)m_maxTiles) return n;
+		if (m_tiles[it].salt != salt || m_tiles[it].header == 0) return n;
+		if (ip >= (unsigned int)m_tiles[it].header->npolys) return n;
+		const dtMeshHeader* header = m_tiles[it].header;
+		const dtPoly* poly = &header->polys[ip];
+		
+		// Collect vertices.
+		int nv = 0;
+		for (int i = 0; i < (int)poly->nv; ++i)
+		{
+			vcopy(&verts[nv*3], &header->verts[poly->v[i]*3]);
+			nv++;
+		}
+
+		bool inside = distancePtPolyEdgesSqr(endPos, verts, nv, edged, edget);
+		if (inside)
+		{
+			// The end point is inside the current polygon.
+			vcopy(resultPos, endPos);
+			return n;
+		}
+
+		// Constraint the point on the polygon boundary.
+		// This results sliding movement.
+		float dmin = FLT_MAX;
+		int imin = -1;
+		for (int i = 0; i < nv; ++i)
+		{
+			if (edged[i] < dmin)
+			{
+				dmin = edged[i];
+				imin = i;
+			}
+		}
+		const float* va = &verts[imin*3];
+		const float* vb = &verts[((imin+1)%nv)*3];
+		vlerp(resultPos, va, vb, edget[imin]);
+		
+		// Check to see if the point is on the portal edge to the next polygon.
+		if (n+1 >= pathSize)
+			return n;
+		float left[3], right[3];
+		if (!getPortalPoints(path[n], path[n+1], left, right))
+			return n;
+		// If the clamped point is close to the next portal edge, advance to next poly.
+		float t;
+		float d = distancePtSegSqr2D(resultPos, left, right, t);
+		if (d > SLOP*SLOP)
+			return n;
+		// Advance to next polygon.
+		n++;
+	}
+	
+	return n;
+}
+
 // Returns portal points between two polygons.
 bool dtNavMesh::getPortalPoints(dtPolyRef from, dtPolyRef to, float* left, float* right) const
 {
@@ -1155,11 +1294,6 @@ int dtNavMesh::raycast(dtPolyRef centerRef, const float* startPos, const float* 
 			vcopy(&verts[nv*3], &header->verts[poly->v[i]*3]);
 			nv++;
 		}		
-		if (nv < 3)
-		{
-			// Hit bad polygon, report hit.
-			return n;
-		}
 		
 		float tmin, tmax;
 		int segMin, segMax;
@@ -1528,3 +1662,11 @@ const dtLink* dtNavMesh::getPolyLinksByRef(dtPolyRef ref) const
 	if (ip >= (unsigned int)m_tiles[it].header->npolys) return 0;
 	return m_tiles[it].header->links;
 }
+
+bool dtNavMesh::isInClosedList(dtPolyRef ref) const
+{
+	if (!m_nodePool) return false;
+	const dtNode* node = m_nodePool->findNode(ref);
+	return node && node->flags & DT_NODE_CLOSED;
+}
+

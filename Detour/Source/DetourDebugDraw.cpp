@@ -571,15 +571,21 @@ static void drawPolyBoundaries(const dtMeshHeader* header, bool inner)
 	glEnd();
 }
 
-static void drawMeshTile(const dtMeshHeader* header)
+static void drawMeshTile(const dtNavMesh* mesh, const dtMeshTile* tile, bool drawClosedList)
 {
+	const dtMeshHeader* header = tile->header;
+	dtPolyRef base = mesh->getTileId(tile);
+
 	glBegin(GL_TRIANGLES);
 	for (int i = 0; i < header->npolys; ++i)
 	{
 		const dtPoly* p = &header->polys[i];
 		const dtPolyDetail* pd = &header->dmeshes[i];
 		
-		glColor4ub(0,196,255,64);
+		if (drawClosedList && mesh->isInClosedList(base | (dtPolyRef)i))
+			glColor4ub(255,196,0,64);
+		else
+			glColor4ub(0,196,255,64);
 		
 		for (int j = 0; j < pd->ntris; ++j)
 		{
@@ -722,7 +728,7 @@ static void drawMeshTile(const dtMeshHeader* header)
 	 glEnd();*/
 }
 
-void dtDebugDrawNavMesh(const dtNavMesh* mesh)
+void dtDebugDrawNavMesh(const dtNavMesh* mesh, bool drawClosedList)
 {
 	if (!mesh) return;
 	
@@ -730,7 +736,7 @@ void dtDebugDrawNavMesh(const dtNavMesh* mesh)
 	{
 		const dtMeshTile* tile = mesh->getTile(i);
 		if (!tile->header) continue;
-		drawMeshTile(tile->header);
+		drawMeshTile(mesh, tile, drawClosedList);
 	}
 }
 

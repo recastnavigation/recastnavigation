@@ -538,7 +538,7 @@ bool Sample_DynMesh::handleBuild()
 		printf("Could not allocate navmehs\n");
 		return false;
 	}
-	if (!m_navMesh->init(m_bmin, m_tileSize*m_cellSize, m_agentMaxClimb*m_cellHeight, 512, 512, 2048))
+	if (!m_navMesh->init(m_bmin, m_tileSize*m_cellSize, m_tileSize*m_cellSize, m_agentMaxClimb*m_cellHeight, 512, 512, 2048))
 	{
 		printf("Could not init navmesh\n");
 		return false;

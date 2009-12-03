@@ -30,7 +30,7 @@ void dtDebugDrawStatNavMesh(const dtStatNavMesh* mesh, bool drawClosedList = fal
 void dtDebugDrawTiledNavMesh(const dtTiledNavMesh* mesh);
 void dtDebugDrawTiledNavMeshPoly(const dtTiledNavMesh* mesh, dtTilePolyRef ref, const float* col);
 
-void dtDebugDrawNavMesh(const dtNavMesh* mesh);
+void dtDebugDrawNavMesh(const dtNavMesh* mesh, bool drawClosedList = false);
 void dtDebugDrawNavMeshPoly(const dtNavMesh* mesh, dtPolyRef ref, const float* col);
 
 #endif // DETOURDEBUGDRAW_H

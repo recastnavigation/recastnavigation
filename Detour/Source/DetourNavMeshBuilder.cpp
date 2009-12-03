@@ -245,14 +245,17 @@ bool dtCreateNavMeshData(const unsigned short* verts, const int nverts,
 			
 			nedges++;
 			
-			if (va[0] == tileSize && vb[0] == tileSize)
-				nportals++; // x+
-			else if (va[2] == tileSize && vb[2]  == tileSize)
-				nportals++; // z+
-			else if (va[0] == 0 && vb[0] == 0)
-				nportals++; // x-
-			else if (va[2] == 0 && vb[2] == 0)
-				nportals++; // z-
+			if (tileSize > 0)
+			{
+				if (va[0] == tileSize && vb[0] == tileSize)
+					nportals++; // x+
+				else if (va[2] == tileSize && vb[2]  == tileSize)
+					nportals++; // z+
+				else if (va[0] == 0 && vb[0] == 0)
+					nportals++; // x-
+				else if (va[2] == 0 && vb[2] == 0)
+					nportals++; // z-
+			}
 		}
 	}
 
@@ -350,25 +353,28 @@ bool dtCreateNavMeshData(const unsigned short* verts, const int nverts,
 	}
 
 	// Store portal edges.
-	for (int i = 0; i < npolys; ++i)
+	if (tileSize > 0)
 	{
-		dtPoly* poly = &navPolys[i];
-		for (int j = 0; j < poly->nv; ++j)
+		for (int i = 0; i < npolys; ++i)
 		{
-			int nj = j+1;
-			if (nj >= poly->nv) nj = 0;
+			dtPoly* poly = &navPolys[i];
+			for (int j = 0; j < poly->nv; ++j)
+			{
+				int nj = j+1;
+				if (nj >= poly->nv) nj = 0;
 
-			const unsigned short* va = &verts[poly->v[j]*3];
-			const unsigned short* vb = &verts[poly->v[nj]*3];
-						
-			if (va[0] == tileSize && vb[0] == tileSize) // x+
-				poly->n[j] = 0x8000 | 0;
-			else if (va[2] == tileSize && vb[2]  == tileSize) // z+
-				poly->n[j] = 0x8000 | 1;
-			else if (va[0] == 0 && vb[0] == 0) // x-
-				poly->n[j] = 0x8000 | 2;
-			else if (va[2] == 0 && vb[2] == 0) // z-
-				poly->n[j] = 0x8000 | 3;
+				const unsigned short* va = &verts[poly->v[j]*3];
+				const unsigned short* vb = &verts[poly->v[nj]*3];
+							
+				if (va[0] == tileSize && vb[0] == tileSize) // x+
+					poly->n[j] = 0x8000 | 0;
+				else if (va[2] == tileSize && vb[2]  == tileSize) // z+
+					poly->n[j] = 0x8000 | 1;
+				else if (va[0] == 0 && vb[0] == 0) // x-
+					poly->n[j] = 0x8000 | 2;
+				else if (va[2] == 0 && vb[2] == 0) // z-
+					poly->n[j] = 0x8000 | 3;
+			}
 		}
 	}
 

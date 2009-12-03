@@ -1,16 +1,16 @@
-#ifndef RECASTSAMPLESTATMESH_H
-#define RECASTSAMPLESTATMESH_H
+#ifndef RECASTSAMPLESOLOMESH_H
+#define RECASTSAMPLESOLOMESH_H
 
 #include "Sample.h"
-#include "DetourStatNavMesh.h"
+#include "DetourNavMesh.h"
 #include "Recast.h"
 #include "RecastLog.h"
 
-class Sample_StatMesh : public Sample
+class Sample_SoloMesh : public Sample
 {
 protected:
 	
-	dtStatNavMesh* m_navMesh;
+	dtNavMesh* m_navMesh;
 	
 	enum ToolMode
 	{
@@ -23,15 +23,18 @@ protected:
 	ToolMode m_toolMode;
 	
 	static const int MAX_POLYS = 256;
+	static const int MAX_SMOOTH = 2048;
 	
-	dtStatPolyRef m_startRef;
-	dtStatPolyRef m_endRef;
-	dtStatPolyRef m_polys[MAX_POLYS];
-	dtStatPolyRef m_parent[MAX_POLYS];
+	dtPolyRef m_startRef;
+	dtPolyRef m_endRef;
+	dtPolyRef m_polys[MAX_POLYS];
+	dtPolyRef m_parent[MAX_POLYS];
 	int m_npolys;
 	float m_straightPath[MAX_POLYS*3];
 	int m_nstraightPath;
 	float m_polyPickExt[3];
+	float m_smoothPath[MAX_SMOOTH*3];
+	int m_nsmoothPath;
 	
 	float m_spos[3];
 	float m_epos[3];
@@ -58,8 +61,8 @@ protected:
 
 
 public:
-	Sample_StatMesh();
-	virtual ~Sample_StatMesh();
+	Sample_SoloMesh();
+	virtual ~Sample_SoloMesh();
 	
 	virtual void handleTools();
 	virtual void setToolStartPos(const float* p);
@@ -67,4 +70,4 @@ public:
 };
 
 
-#endif // RECASTSAMPLESTATMESH_H
+#endif // RECASTSAMPLESOLOMESH_H

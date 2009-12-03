@@ -182,6 +182,9 @@ public:
 	// Returns: true if oer polygon.
 	bool getPolyHeight(dtStatPolyRef ref, const float* pos, float* height) const;
 
+	int moveAlongPath(const float* startPos, const float* endPos, float* resultPos,
+					   const dtStatPolyRef* path, const int pathSize);
+
 	// Returns pointer to a polygon based on ref.
 	const dtStatPoly* getPolyByRef(dtStatPolyRef ref) const;
 	// Returns polygon index based on ref, or -1 if failed.

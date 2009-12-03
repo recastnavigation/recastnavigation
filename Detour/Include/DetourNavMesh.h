@@ -116,15 +116,30 @@ public:
 	dtNavMesh();
 	~dtNavMesh();
 
-	// Initializes the nav mesh.
+	// Initializes the nav mesh for tiled use.
 	// Params:
 	//  orig - (in) origin of the nav mesh tile space.
-	//  tileSiz - (in) size of a tile.
+	//  tileWidth - (in) width of each tile.
+	//  tileHeight - (in) height of each tile.
 	//  portalheight - (in) height of the portal region between tiles.
+	//  maxTiles - (in) maximum number of tiles the navmesh can contain*.
+	//  maxPolys - (in) maximum number of polygons each tile can contain*.
+	//  maxNodes - (in) maximum number of A* nodes to use*.
+	// *) Will be rounded to next power of two.
 	// Returns: True if succeed, else false.
-	bool init(const float* orig, float tileSize, float portalHeight,
+	bool init(const float* orig, float tileWidth, float tileHeight, float portalHeight,
 			  int maxTiles, int maxPolys, int maxNodes);
 
+	// Initializes the nav mesh for single tile use.
+	// Params:
+	//  data - (in) Data of the new tile mesh.
+	//  dataSize - (in) Data size of the new tile mesh.
+	//	ownsData - (in) Flag indicating if the navmesh should own and delete the data.
+	//  maxNodes - (in) maximum number of A* nodes to use*.
+	// *) Will be rounded to next power of two.
+	// Returns: True if succeed, else false.
+	bool init(unsigned char* data, int dataSize, bool ownsData, int maxNodes);
+	
 	// Adds new tile into the navmesh.
 	// The add will fail if the data is in wrong format,
 	// there is not enough tiles left, or if there is a tile already at the location.
@@ -166,6 +181,9 @@ public:
 	//  plyIndex - (out,optional) pointer to value where polygon index within the tile is stored.
 	// Returns: Pointer to specified tile.
 	const dtMeshTile* getTileByRef(dtPolyRef ref, int* polyIndex) const;
+	
+	// Returns base id for the tile.
+	dtPolyRef getTileId(const dtMeshTile* tile) const;	
 	
 	// Finds the nearest navigation polygon around the center location.
 	// Params:
@@ -212,6 +230,11 @@ public:
 						 const dtPolyRef* path, const int pathSize,
 						 float* straightPath, const int maxStraightPathSize);
 
+	// Moves towards end position a long the path corridor.
+	// Returns: Index to the result path polygon.
+	int moveAlongPathCorridor(const float* startPos, const float* endPos, float* resultPos,
+							  const dtPolyRef* path, const int pathSize);
+	
 	// Finds intersection againts walls starting from start pos.
 	// Params:
 	//	startRef - (in) ref to the polygon where the start lies.
@@ -249,13 +272,24 @@ public:
 						const int maxResult);
 	
 	// Returns closest point on navigation polygon.
+	// Uses detail polygons to find the closest point to the navigation polygon. 
 	// Params:
 	//	ref - (in) ref to the polygon.
 	//	pos - (in) the point to check.
 	//	closest - (out) closest point.
 	// Returns: true if closest point found.
-	bool closestPointToPoly(dtPolyRef ref, const float* pos, float* closest) const;
+	bool closestPointOnPoly(dtPolyRef ref, const float* pos, float* closest) const;
 
+	// Returns closest point on navigation polygon boundary.
+	// Uses the navigation polygon boundary to snap the point to poly boundary
+	// if it is outside the polygon. Much faster than closestPointToPoly. Does not affect height.
+	// Params:
+	//	ref - (in) ref to the polygon.
+	//	pos - (in) the point to check.
+	//	closest - (out) closest point.
+	// Returns: true if closest point found.
+	bool closestPointOnPolyBoundary(dtPolyRef ref, const float* pos, float* closest) const;
+	
 	// Returns height of the polygon at specified location.
 	// Params:
 	//	ref - (in) ref to the polygon.
@@ -263,7 +297,7 @@ public:
 	//	height - (out) height at the location.
 	// Returns: true if over polygon.
 	bool getPolyHeight(dtPolyRef ref, const float* pos, float* height) const;
-	
+		
 	// Returns pointer to a polygon based on ref.
 	const dtPoly* getPolyByRef(dtPolyRef ref) const;
 
@@ -272,8 +306,9 @@ public:
 
 	// Returns pointer to a polygon link based on ref.
 	const dtLink* getPolyLinksByRef(dtPolyRef ref) const;
-	
-private:
+
+	// Returns true if poly reference ins in closed list.
+	bool isInClosedList(dtPolyRef ref) const;
 
 	// Encodes a tile id.
 	inline dtPolyRef dtEncodePolyId(unsigned int salt, unsigned int it, unsigned int ip) const
@@ -288,9 +323,9 @@ private:
 		it = ((ref >> m_polyBits) - 1) & ((1<<m_tileBits)-1);
 		ip = ref & ((1<<m_polyBits)-1);
 	}
-	
-	// Returns base id for the tile.
-	dtPolyRef getTileId(dtMeshTile* tile);
+
+private:
+
 	// Returns neighbour tile based on side. 
 	dtMeshTile* getNeighbourTileAt(int x, int y, int side);
 	// Returns all polygons in neighbour tile based on portal defined by the segment.
@@ -318,7 +353,7 @@ private:
 	bool getEdgeMidPoint(dtPolyRef from, dtPolyRef to, float* mid) const;
 
 	float m_orig[3];
-	float m_tileSize;
+	float m_tileWidth, m_tileHeight;
 	float m_portalHeight;
 	int m_maxTiles;
 	int m_tileLutSize;

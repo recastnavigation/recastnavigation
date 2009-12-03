@@ -173,16 +173,11 @@ float distancePtSegSqr2D(const float* pt, const float* p, const float* q, float&
 	float dz = pt[2] - p[2];
 	float d = pqx*pqx + pqz*pqz;
 	t = pqx*dx + pqz*dz;
-	if (d > 0)
-		t /= d;
-	if (t < 0)
-		t = 0;
-	else if (t > 1)
-		t = 1;
-	
+	if (d > 0) t /= d;
+	if (t < 0) t = 0;
+	else if (t > 1) t = 1;
 	dx = p[0] + t*pqx - pt[0];
 	dz = p[2] + t*pqz - pt[2];
-	
 	return dx*dx + dz*dz;
 }
 
@@ -204,13 +199,6 @@ void calcPolyCenter(float* tc, const unsigned short* idx, int nidx, const float*
 	tc[2] *= s;
 }
 
-inline float vdot2(const float* a, const float* b)
-{
-	return a[0]*b[0] + a[2]*b[2];
-}
-
-#include <stdio.h>
-
 bool closestHeightPointTriangle(const float* p, const float* a, const float* b, const float* c, float& h)
 {
 	float v0[3], v1[3], v2[3];
@@ -218,11 +206,11 @@ bool closestHeightPointTriangle(const float* p, const float* a, const float* b, 
 	vsub(v1, b,a);
 	vsub(v2, p,a);
 	
-	const float dot00 = vdot2(v0, v0);
-	const float dot01 = vdot2(v0, v1);
-	const float dot02 = vdot2(v0, v2);
-	const float dot11 = vdot2(v1, v1);
-	const float dot12 = vdot2(v1, v2);
+	const float dot00 = vdot2D(v0, v0);
+	const float dot01 = vdot2D(v0, v1);
+	const float dot02 = vdot2D(v0, v2);
+	const float dot11 = vdot2D(v1, v1);
+	const float dot12 = vdot2D(v1, v2);
 	
 	// Compute barycentric coordinates
 	float invDenom = 1.0f / (dot00 * dot11 - dot01 * dot01);
@@ -241,4 +229,22 @@ bool closestHeightPointTriangle(const float* p, const float* a, const float* b, 
 	}
 	
 	return false;
+}
+
+bool distancePtPolyEdgesSqr(const float* pt, const float* verts, const int nverts,
+							float* ed, float* et)
+{
+	// TODO: Replace pnpoly with triArea2D tests?
+	int i, j;
+	bool c = false;
+	for (i = 0, j = nverts-1; i < nverts; j = i++)
+	{
+		const float* vi = &verts[i*3];
+		const float* vj = &verts[j*3];
+		if (((vi[2] > pt[2]) != (vj[2] > pt[2])) &&
+			(pt[0] < (vj[0]-vi[0]) * (pt[2]-vi[2]) / (vj[2]-vi[2]) + vi[0]) )
+			c = !c;
+		ed[j] = distancePtSegSqr2D(pt, vj, vi, et[j]);
+	}
+	return c;
 }
