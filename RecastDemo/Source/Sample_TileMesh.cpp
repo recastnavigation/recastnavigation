@@ -28,13 +28,38 @@
 #include "Recast.h"
 #include "RecastTimer.h"
 #include "RecastDebugDraw.h"
-#include "DetourTileNavMesh.h"
-#include "DetourTileNavMeshBuilder.h"
+#include "DetourNavMesh.h"
+#include "DetourNavMeshBuilder.h"
 #include "DetourDebugDraw.h"
 
 #ifdef WIN32
 #	define snprintf _snprintf
 #endif
+
+
+inline unsigned int nextPow2(unsigned int v)
+{
+	v--;
+	v |= v >> 1;
+	v |= v >> 2;
+	v |= v >> 4;
+	v |= v >> 8;
+	v |= v >> 16;
+	v++;
+	return v;
+}
+
+inline unsigned int ilog2(unsigned int v)
+{
+	unsigned int r;
+	unsigned int shift;
+	r = (v > 0xffff) << 4; v >>= r;
+	shift = (v > 0xff) << 3; v >>= shift; r |= shift;
+	shift = (v > 0xf) << 2; v >>= shift; r |= shift;
+	shift = (v > 0x3) << 1; v >>= shift; r |= shift;
+	r |= (v >> 1);
+	return r;
+}
 
 
 Sample_TileMesh::Sample_TileMesh() :
@@ -47,6 +72,8 @@ Sample_TileMesh::Sample_TileMesh() :
 	m_cset(0),
 	m_pmesh(0),
 	m_dmesh(0),
+	m_maxTiles(0),
+	m_maxPolysPerTile(0),
 	m_tileSize(32),
 	m_sposSet(false),
 	m_eposSet(false),
@@ -94,7 +121,7 @@ void Sample_TileMesh::cleanup()
 void Sample_TileMesh::handleSettings()
 {
 	Sample::handleCommonSettings();
-
+	
 	imguiLabel("Tiling");
 	imguiSlider("TileSize", &m_tileSize, 16.0f, 1024.0f, 16.0f);
 	
@@ -106,6 +133,18 @@ void Sample_TileMesh::handleSettings()
 	const int th = (gh + ts-1) / ts;
 	snprintf(text, 64, "Tiles  %d x %d", tw, th);
 	imguiValue(text);
+
+	// Max tiles and max polys affect how the tile IDs are caculated.
+	// There are 22 bits available for identifying a tile and a polygon.
+	int tileBits = rcMin((int)ilog2(nextPow2(tw*th)), 14);
+	if (tileBits > 14) tileBits = 14;
+	int polyBits = 22 - tileBits;
+	m_maxTiles = 1 << tileBits;
+	m_maxPolysPerTile = 1 << polyBits;
+	snprintf(text, 64, "Max Tiles  %d", m_maxTiles);
+	imguiValue(text);
+	snprintf(text, 64, "Max Polys  %d", m_maxPolysPerTile);
+	imguiValue(text);
 }
 
 void Sample_TileMesh::toolRecalc()
@@ -113,7 +152,7 @@ void Sample_TileMesh::toolRecalc()
 	m_startRef = 0;
 	if (m_sposSet)
 		m_startRef = m_navMesh->findNearestPoly(m_spos, m_polyPickExt);
-
+	
 	m_endRef = 0;
 	if (m_eposSet)
 		m_endRef = m_navMesh->findNearestPoly(m_epos, m_polyPickExt);
@@ -184,6 +223,49 @@ void Sample_TileMesh::handleTools()
 		m_toolMode = TOOLMODE_CREATE_TILES;
 		toolRecalc();
 	}
+
+	imguiIndent();
+	
+	if (imguiButton("Create All"))
+	{
+		int gw = 0, gh = 0;
+		rcCalcGridSize(m_bmin, m_bmax, m_cellSize, &gw, &gh);
+		const int ts = (int)m_tileSize;
+		const int tw = (gw + ts-1) / ts;
+		const int th = (gh + ts-1) / ts;
+		const float tcs = m_tileSize*m_cellSize;
+		
+		for (int y = 0; y < th; ++y)
+		{
+			for (int x = 0; x < tw; ++x)
+			{
+				m_tileBmin[0] = m_bmin[0] + x*tcs;
+				m_tileBmin[1] = m_bmin[1];
+				m_tileBmin[2] = m_bmin[2] + y*tcs;
+				
+				m_tileBmax[0] = m_bmin[0] + (x+1)*tcs;
+				m_tileBmax[1] = m_bmax[1];
+				m_tileBmax[2] = m_bmin[2] + (y+1)*tcs;
+				
+				int dataSize = 0;
+				unsigned char* data = buildTileMesh(m_tileBmin, m_tileBmax, dataSize);
+				if (data)
+				{
+					// Remove any previous data (navmesh owns and deletes the data).
+					m_navMesh->removeTileAt(x,y,0,0);
+					// Let the navmesh own the data.
+					if (!m_navMesh->addTileAt(x,y,data,dataSize,true))
+						delete [] data;
+				}
+			}
+		}
+		
+		toolRecalc();
+	}
+	imguiUnindent();
+	
+	imguiSeparator();
+	
 	if (imguiCheck("Pathfind", m_toolMode == TOOLMODE_PATHFIND))
 	{
 		m_toolMode = TOOLMODE_PATHFIND;
@@ -203,7 +285,7 @@ void Sample_TileMesh::handleTools()
 	{
 		m_toolMode = TOOLMODE_FIND_POLYS_AROUND;
 		toolRecalc();
-	}
+	}	
 }
 
 void Sample_TileMesh::handleDebugMode()
@@ -215,12 +297,16 @@ void Sample_TileMesh::handleDebugMode()
 		imguiValue("LMB: (Re)Create tiles.");
 		imguiValue("LMB+SHIFT: Remove tiles.");
 	}
-	
+	else
+	{
+		imguiValue("Press [Build] to create tile mesh");
+		imguiValue("with specified parameters.");
+	}
 }
 
-static void getPolyCenter(dtTiledNavMesh* navMesh, dtTilePolyRef ref, float* center)
+static void getPolyCenter(dtNavMesh* navMesh, dtPolyRef ref, float* center)
 {
-	const dtTilePoly* p = navMesh->getPolyByRef(ref);
+	const dtPoly* p = navMesh->getPolyByRef(ref);
 	if (!p) return;
 	const float* verts = navMesh->getPolyVertsByRef(ref);
 	center[0] = 0;
@@ -243,21 +329,21 @@ void Sample_TileMesh::handleRender()
 {
 	if (!m_verts || !m_tris || !m_trinorms)
 		return;
-
+	
 	DebugDrawGL dd;
-
+	
 	// Draw mesh
 	if (m_navMesh)
 		rcDebugDrawMesh(&dd, m_verts, m_nverts, m_tris, m_trinorms, m_ntris, 0);
 	else
 		rcDebugDrawMeshSlope(&dd, m_verts, m_nverts, m_tris, m_trinorms, m_ntris, m_agentMaxSlope);
-
+	
 	glDepthMask(GL_FALSE);
 	
 	// Draw bounds
 	float col[4] = {1,1,1,0.5f};
 	rcDebugDrawBoxWire(&dd, m_bmin[0],m_bmin[1],m_bmin[2], m_bmax[0],m_bmax[1],m_bmax[2], col);
-
+	
 	// Tiling grid.
 	const int ts = (int)m_tileSize;
 	int gw = 0, gh = 0;
@@ -297,9 +383,9 @@ void Sample_TileMesh::handleRender()
 	
 	// Draw active tile
 	rcDebugDrawBoxWire(&dd, m_tileBmin[0],m_tileBmin[1],m_tileBmin[2], m_tileBmax[0],m_tileBmax[1],m_tileBmax[2], m_tileCol);
-		
+	
 	if (m_navMesh)
-		dtDebugDrawTiledNavMesh(m_navMesh);
+		dtDebugDrawNavMesh(m_navMesh);
 	
 	if (m_sposSet)
 	{
@@ -338,13 +424,13 @@ void Sample_TileMesh::handleRender()
 	
 	if (m_toolMode == TOOLMODE_PATHFIND)
 	{
-		dtDebugDrawTiledNavMeshPoly(m_navMesh, m_startRef, startCol);
-		dtDebugDrawTiledNavMeshPoly(m_navMesh, m_endRef, endCol);
+		dtDebugDrawNavMeshPoly(m_navMesh, m_startRef, startCol);
+		dtDebugDrawNavMeshPoly(m_navMesh, m_endRef, endCol);
 		
 		if (m_npolys)
 		{
 			for (int i = 1; i < m_npolys-1; ++i)
-				dtDebugDrawTiledNavMeshPoly(m_navMesh, m_polys[i], pathCol);
+				dtDebugDrawNavMeshPoly(m_navMesh, m_polys[i], pathCol);
 		}
 		if (m_nstraightPath)
 		{
@@ -365,12 +451,12 @@ void Sample_TileMesh::handleRender()
 	}
 	else if (m_toolMode == TOOLMODE_RAYCAST)
 	{
-		dtDebugDrawTiledNavMeshPoly(m_navMesh, m_startRef, startCol);
+		dtDebugDrawNavMeshPoly(m_navMesh, m_startRef, startCol);
 		
 		if (m_nstraightPath)
 		{
 			for (int i = 1; i < m_npolys; ++i)
-				dtDebugDrawTiledNavMeshPoly(m_navMesh, m_polys[i], pathCol);
+				dtDebugDrawNavMeshPoly(m_navMesh, m_polys[i], pathCol);
 			
 			glColor4ub(64,16,0,220);
 			glLineWidth(3.0f);
@@ -389,7 +475,7 @@ void Sample_TileMesh::handleRender()
 	}
 	else if (m_toolMode == TOOLMODE_DISTANCE_TO_WALL)
 	{
-		dtDebugDrawTiledNavMeshPoly(m_navMesh, m_startRef, startCol);
+		dtDebugDrawNavMeshPoly(m_navMesh, m_startRef, startCol);
 		const float col[4] = {1,1,1,0.5f};
 		rcDebugDrawCylinderWire(&dd, m_spos[0]-m_distanceToWall, m_spos[1]+0.02f, m_spos[2]-m_distanceToWall,
 								m_spos[0]+m_distanceToWall, m_spos[1]+m_agentHeight, m_spos[2]+m_distanceToWall, col);
@@ -406,7 +492,7 @@ void Sample_TileMesh::handleRender()
 		const float cola[4] = {0,0,0,0.5f};
 		for (int i = 0; i < m_npolys; ++i)
 		{
-			dtDebugDrawTiledNavMeshPoly(m_navMesh, m_polys[i], pathCol);
+			dtDebugDrawNavMeshPoly(m_navMesh, m_polys[i], pathCol);
 			if (m_parent[i])
 			{
 				float p0[3], p1[3];
@@ -435,7 +521,7 @@ void Sample_TileMesh::handleRenderOverlay(double* proj, double* model, int* view
 	
 	// Draw start and end point labels
 	if (m_tileBuildTime > 0.0f && gluProject((GLdouble)(m_tileBmin[0]+m_tileBmax[0])/2, (GLdouble)(m_tileBmin[1]+m_tileBmax[1])/2, (GLdouble)(m_tileBmin[2]+m_tileBmax[2])/2,
-								model, proj, view, &x, &y, &z))
+											 model, proj, view, &x, &y, &z))
 	{
 		char text[32];
 		snprintf(text,32,"%.3fms / %dTris / %.1fkB", m_tileBuildTime, m_tileTriCount, m_tileMemUsage);
@@ -444,8 +530,8 @@ void Sample_TileMesh::handleRenderOverlay(double* proj, double* model, int* view
 }
 
 void Sample_TileMesh::handleMeshChanged(const float* verts, int nverts,
-								const int* tris, const float* trinorms, int ntris,
-								const float* bmin, const float* bmax)
+									   const int* tris, const float* trinorms, int ntris,
+									   const float* bmin, const float* bmax)
 {
 	m_verts = verts;
 	m_nverts = nverts;
@@ -454,7 +540,7 @@ void Sample_TileMesh::handleMeshChanged(const float* verts, int nverts,
 	m_ntris = ntris;
 	vcopy(m_bmin, bmin);
 	vcopy(m_bmax, bmax);
-
+	
 	delete m_chunkyMesh;
 	m_chunkyMesh = 0;
 	delete m_navMesh;
@@ -466,7 +552,7 @@ void Sample_TileMesh::setToolStartPos(const float* p)
 {
 	m_sposSet = true;
 	vcopy(m_spos, p);
-
+	
 	if (m_toolMode == TOOLMODE_CREATE_TILES)
 		removeTile(m_spos);
 	else
@@ -477,7 +563,7 @@ void Sample_TileMesh::setToolEndPos(const float* p)
 {
 	if (!m_navMesh)
 		return;
-		
+	
 	m_eposSet = true;
 	vcopy(m_epos, p);
 	
@@ -491,23 +577,26 @@ bool Sample_TileMesh::handleBuild()
 {
 	if (!m_verts || !m_tris)
 	{
-		printf("No verts or tris\n");
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: No vertices and triangles.");
 		return false;
 	}
-
+	
 	delete m_navMesh;
-	m_navMesh = new dtTiledNavMesh;
+	m_navMesh = new dtNavMesh;
 	if (!m_navMesh)
 	{
-		printf("Could not allocate navmehs\n");
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: Could not allocate navmesh.");
 		return false;
 	}
-	if (!m_navMesh->init(m_bmin, m_tileSize*m_cellSize, m_agentMaxClimb*m_cellHeight))
+	if (!m_navMesh->init(m_bmin, m_tileSize*m_cellSize, m_tileSize*m_cellSize, m_agentMaxClimb*m_cellHeight, m_maxTiles, m_maxPolysPerTile, 2048))
 	{
-		printf("Could not init navmesh\n");
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: Could not init navmesh.");
 		return false;
 	}
-		
+	
 	// Build chunky mesh.
 	delete m_chunkyMesh;
 	m_chunkyMesh = new rcChunkyTriMesh;
@@ -523,7 +612,7 @@ bool Sample_TileMesh::handleBuild()
 			rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: Could not build chunky mesh.");
 		return false;
 	}
-
+	
 	return true;
 }
 
@@ -531,17 +620,17 @@ void Sample_TileMesh::buildTile(const float* pos)
 {
 	if (!m_navMesh)
 		return;
-
+	
 	const float ts = m_tileSize*m_cellSize;
 	const int tx = (int)floorf((pos[0]-m_bmin[0]) / ts);
 	const int ty = (int)floorf((pos[2]-m_bmin[2]) / ts);
 	if (tx < 0 || ty < 0)
 		return;
-
+	
 	m_tileBmin[0] = m_bmin[0] + tx*ts;
 	m_tileBmin[1] = m_bmin[1];
 	m_tileBmin[2] = m_bmin[2] + ty*ts;
-
+	
 	m_tileBmax[0] = m_bmin[0] + (tx+1)*ts;
 	m_tileBmax[1] = m_bmax[1];
 	m_tileBmax[2] = m_bmin[2] + (ty+1)*ts;
@@ -665,7 +754,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const float* bmin, const float* bm
 		return 0;
 	}
 	
-
+	
 	float tbmin[2], tbmax[2];
 	tbmin[0] = m_cfg.bmin[0];
 	tbmin[1] = m_cfg.bmin[2];
@@ -675,15 +764,15 @@ unsigned char* Sample_TileMesh::buildTileMesh(const float* bmin, const float* bm
 	const int ncid = rcGetChunksInRect(m_chunkyMesh, tbmin, tbmax, cid, 256);
 	if (!ncid)
 		return 0;
-
+	
 	m_tileTriCount = 0;
-
+	
 	for (int i = 0; i < ncid; ++i)
 	{
 		const rcChunkyTriMeshNode& node = m_chunkyMesh->nodes[cid[i]];
 		const int* tris = &m_chunkyMesh->tris[node.i*3];
 		const int ntris = node.n;
-
+		
 		m_tileTriCount += ntris;
 		
 		memset(m_triflags, 0, ntris*sizeof(unsigned char));
@@ -759,6 +848,11 @@ unsigned char* Sample_TileMesh::buildTileMesh(const float* bmin, const float* bm
 		return 0;
 	}
 	
+	if (m_cset->nconts == 0)
+	{
+		return 0;
+	}
+	
 	// Build polygon navmesh from the contours.
 	m_pmesh = new rcPolyMesh;
 	if (!m_pmesh)
@@ -773,7 +867,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const float* bmin, const float* bm
 			rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Could not triangulate contours.");
 		return 0;
 	}
-
+	
 	// Build detail mesh.
 	m_dmesh = new rcPolyMeshDetail;
 	if (!m_dmesh)
@@ -802,7 +896,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const float* bmin, const float* bm
 	
 	unsigned char* navData = 0;
 	int navDataSize = 0;
-	if (m_cfg.maxVertsPerPoly == DT_TILE_VERTS_PER_POLYGON)
+	if (m_cfg.maxVertsPerPoly <= DT_VERTS_PER_POLYGON)
 	{
 		// Remove padding from the polymesh data. TODO: Remove this odditity.
 		for (int i = 0; i < m_pmesh->nverts; ++i)
@@ -819,20 +913,20 @@ unsigned char* Sample_TileMesh::buildTileMesh(const float* bmin, const float* bm
 				rcGetLog()->log(RC_LOG_ERROR, "Too many vertices per tile %d (max: %d).", m_pmesh->nverts, 0xffff);
 			return false;
 		}
-		if (m_pmesh->npolys > DT_MAX_TILES)
-		{
-			// If you hit this error, you have too many polygons per tile.
-			// You can trade off tile count to poly count by adjusting DT_TILE_REF_TILE_BITS and DT_TILE_REF_POLY_BITS.
-			// The current setup is optimized for large number of tiles and small number of polys per tile.
-			if (rcGetLog())
-				rcGetLog()->log(RC_LOG_ERROR, "Too many polygons per tile %d (max: %d).", m_pmesh->npolys, DT_MAX_TILES);
-			return false;
-		}
-	
-		if (!dtCreateNavMeshTileData(m_pmesh->verts, m_pmesh->nverts,
-									 m_pmesh->polys, m_pmesh->npolys, m_pmesh->nvp,
-									 m_dmesh->meshes, m_dmesh->verts, m_dmesh->nverts, m_dmesh->tris, m_dmesh->ntris, 
-									 bmin, bmax, m_cfg.cs, m_cfg.ch, m_cfg.tileSize, m_cfg.walkableClimb, &navData, &navDataSize))
+		/*		if (m_pmesh->npolys > DT_MAX_TILES)
+		 {
+		 // If you hit this error, you have too many polygons per tile.
+		 // You can trade off tile count to poly count by adjusting DT_TILE_REF_TILE_BITS and DT_TILE_REF_POLY_BITS.
+		 // The current setup is optimized for large number of tiles and small number of polys per tile.
+		 if (rcGetLog())
+		 rcGetLog()->log(RC_LOG_ERROR, "Too many polygons per tile %d (max: %d).", m_pmesh->npolys, DT_MAX_TILES);
+		 return false;
+		 }*/
+		
+		if (!dtCreateNavMeshData(m_pmesh->verts, m_pmesh->nverts,
+								 m_pmesh->polys, m_pmesh->npolys, m_pmesh->nvp,
+								 m_dmesh->meshes, m_dmesh->verts, m_dmesh->nverts, m_dmesh->tris, m_dmesh->ntris, 
+								 bmin, bmax, m_cfg.cs, m_cfg.ch, m_cfg.tileSize, m_cfg.walkableClimb, &navData, &navDataSize))
 		{
 			if (rcGetLog())
 				rcGetLog()->log(RC_LOG_ERROR, "Could not build Detour navmesh.");
@@ -882,7 +976,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const float* bmin, const float* bm
 		
 		rcGetLog()->log(RC_LOG_PROGRESS, "TOTAL: %.1fms", rcGetDeltaTimeUsec(totStartTime, totEndTime)/1000.0f);
 	}
-		
+	
 	m_tileBuildTime = rcGetDeltaTimeUsec(totStartTime, totEndTime)/1000.0f;
 	
 	dataSize = navDataSize;

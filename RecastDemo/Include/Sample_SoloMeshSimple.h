@@ -2,7 +2,7 @@
 #define RECASTSAMPLESOLOMESHSIMPLE_H
 
 #include "Sample_SoloMesh.h"
-#include "DetourStatNavMesh.h"
+#include "DetourNavMesh.h"
 #include "Recast.h"
 #include "RecastLog.h"
 

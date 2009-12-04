@@ -16,11 +16,11 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#ifndef RECASTSAMPLETILEDMESH_H
-#define RECASTSAMPLETILEDMESH_H
+#ifndef RECASTSAMPLETILEMESH_H
+#define RECASTSAMPLETILEMESH_H
 
 #include "Sample.h"
-#include "DetourTileNavMesh.h"
+#include "DetourNavMesh.h"
 #include "Recast.h"
 #include "RecastLog.h"
 #include "ChunkyTriMesh.h"
@@ -31,8 +31,8 @@ protected:
 	
 	bool m_keepInterResults;
 	rcBuildTimes m_buildTimes; 
-
-	dtTiledNavMesh* m_navMesh;
+	
+	dtNavMesh* m_navMesh;
 	rcChunkyTriMesh* m_chunkyMesh;
 	unsigned char* m_triflags;
 	rcHeightfield* m_solid;
@@ -42,8 +42,11 @@ protected:
 	rcPolyMeshDetail* m_dmesh;
 	rcConfig m_cfg;	
 	
+	int m_maxTiles;
+	int m_maxPolysPerTile;
+	
 	float m_tileSize;
-			
+	
 	float m_spos[3];
 	float m_epos[3];
 	bool m_sposSet;
@@ -65,14 +68,14 @@ protected:
 		TOOLMODE_FIND_POLYS_AROUND,
 	};
 	
-	dtTilePolyRef m_startRef;
-	dtTilePolyRef m_endRef;
+	dtPolyRef m_startRef;
+	dtPolyRef m_endRef;
 	float m_polyPickExt[3];
-
+	
 	static const int MAX_POLYS = 256;
 	
-	dtTilePolyRef m_polys[MAX_POLYS];
-	dtTilePolyRef m_parent[MAX_POLYS];
+	dtPolyRef m_polys[MAX_POLYS];
+	dtPolyRef m_parent[MAX_POLYS];
 	int m_npolys;
 	float m_straightPath[MAX_POLYS*3];
 	int m_nstraightPath;
@@ -88,7 +91,7 @@ protected:
 	void removeTile(const float* pos);
 	
 	unsigned char* buildTileMesh(const float* bmin, const float* bmax, int& dataSize);
-
+	
 	void cleanup();
 	
 public:
@@ -111,4 +114,4 @@ public:
 };
 
 
-#endif // RECASTBUILDERTILEDMESH_H
+#endif // RECASTSAMPLETILEMESH_H

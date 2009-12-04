@@ -23,7 +23,7 @@ inline bool inRange(const float* v1, const float* v2, const float r, const float
 	const float dx = v2[0] - v1[0];
 	const float dy = v2[1] - v1[1];
 	const float dz = v2[2] - v1[2];
-	return (dx*dx + dz*dz) < r*r; // && fabsf(dy) < h;
+	return (dx*dx + dz*dz) < r*r && fabsf(dy) < h;
 }
 						
 
@@ -293,8 +293,8 @@ void Sample_SoloMesh::toolRender(int flags)
 	if (flags & NAVMESH_POLYS)
 		dtDebugDrawNavMesh(m_navMesh, m_toolMode == TOOLMODE_PATHFIND);
 	
-/*	if (flags & NAVMESH_BVTREE)
-		dtDebugDrawNavMeshBVTree(m_navMesh);*/
+	if (flags & NAVMESH_BVTREE)
+		dtDebugDrawNavMeshBVTree(m_navMesh);
 	
 	if (flags & NAVMESH_TOOLS)
 	{

@@ -19,18 +19,10 @@
 #ifndef DETOURDEBUGDRAW_H
 #define DETOURDEBUGDRAW_H
 
-#include "DetourStatNavMesh.h"
-#include "DetourTileNavMesh.h"
 #include "DetourNavMesh.h"
 
-void dtDebugDrawStatNavMeshPoly(const dtStatNavMesh* mesh, dtStatPolyRef ref, const float* col);
-void dtDebugDrawStatNavMeshBVTree(const dtStatNavMesh* mesh);
-void dtDebugDrawStatNavMesh(const dtStatNavMesh* mesh, bool drawClosedList = false);
-
-void dtDebugDrawTiledNavMesh(const dtTiledNavMesh* mesh);
-void dtDebugDrawTiledNavMeshPoly(const dtTiledNavMesh* mesh, dtTilePolyRef ref, const float* col);
-
 void dtDebugDrawNavMesh(const dtNavMesh* mesh, bool drawClosedList = false);
+void dtDebugDrawNavMeshBVTree(const dtNavMesh* mesh);
 void dtDebugDrawNavMeshPoly(const dtNavMesh* mesh, dtPolyRef ref, const float* col);
 
 #endif // DETOURDEBUGDRAW_H

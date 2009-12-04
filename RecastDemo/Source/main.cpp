@@ -18,7 +18,6 @@
 #include "Sample_SoloMeshSimple.h"
 #include "Sample_SoloMeshTiled.h"
 #include "Sample_TileMesh.h"
-#include "Sample_DynMesh.h"
 
 #ifdef WIN32
 #	define snprintf _snprintf
@@ -198,14 +197,12 @@ struct SampleItem
 Sample* createSoloSimple() { return new Sample_SoloMeshSimple(); }
 Sample* createSoloTiled() { return new Sample_SoloMeshTiled(); }
 Sample* createTile() { return new Sample_TileMesh(); }
-Sample* createDyn() { return new Sample_DynMesh(); }
 
 static SampleItem g_samples[] =
 {
-{ createSoloSimple, "Solo Mesh Simple" },
-{ createSoloTiled, "Solo Mesh Tiled" },
-{ createTile, "Tile Mesh" },
-{ createDyn, "Dyn Mesh" },
+	{ createSoloSimple, "Solo Mesh Simple" },
+	{ createSoloTiled, "Solo Mesh Tiled" },
+	{ createTile, "Tile Mesh" },
 };
 static const int g_nsamples = sizeof(g_samples)/sizeof(SampleItem); 
 

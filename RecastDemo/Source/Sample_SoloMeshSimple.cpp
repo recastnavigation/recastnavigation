@@ -488,7 +488,7 @@ bool Sample_SoloMeshSimple::handleBuild()
 	
 	// The GUI may allow more max points per polygon than Detour can handle.
 	// Only build the detour navmesh if we do not exceed the limit.
-	if (m_cfg.maxVertsPerPoly <= DT_STAT_VERTS_PER_POLYGON)
+	if (m_cfg.maxVertsPerPoly <= DT_VERTS_PER_POLYGON)
 	{
 		unsigned char* navData = 0;
 		int navDataSize = 0;

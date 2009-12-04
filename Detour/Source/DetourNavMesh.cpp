@@ -76,19 +76,30 @@ inline int computeTileHash(int x, int y, const int mask)
 	return (int)(n & mask);
 }
 
+
+
 //////////////////////////////////////////////////////////////////////////////////////////
 dtNavMesh::dtNavMesh() :
 	m_tileWidth(0),
 	m_tileHeight(0),
 	m_portalHeight(0),
+	m_maxTiles(0),
+	m_tileLutSize(0),
+	m_tileLutMask(0),
+	m_posLookup(0),
 	m_nextFree(0),
+	m_tiles(0),
 	m_tmpLinks(0),
 	m_ntmpLinks(0),
+	m_saltBits(0),
+	m_tileBits(0),
+	m_polyBits(0),
 	m_nodePool(0),
-	m_openList(0),
-	m_posLookup(0),
-	m_tiles(0)
+	m_openList(0)
 {
+	m_orig[0] = 0;
+	m_orig[1] = 0;
+	m_orig[2] = 0;
 }
 
 dtNavMesh::~dtNavMesh()
