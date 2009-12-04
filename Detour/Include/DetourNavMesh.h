@@ -22,93 +22,82 @@
 // Reference to navigation polygon.
 typedef unsigned int dtPolyRef;
 
-// The bits used in the poly ref.
-/*static const int DT_REF_SALT_BITS = 12;
-static const int DT_REF_TILE_BITS = 12;
-static const int DT_REF_POLY_BITS = 8;
-static const int DT_REF_SALT_MASK = (1<<DT_REF_SALT_BITS)-1;
-static const int DT_REF_TILE_MASK = (1<<DT_REF_TILE_BITS)-1;
-static const int DT_REF_POLY_MASK = (1<<DT_REF_POLY_BITS)-1;*/
-
 // Maximum number of vertices per navigation polygon.
 static const int DT_VERTS_PER_POLYGON = 6;
 
-/*
-static const int DT_MAX_TILES = 1 << DT_REF_TILE_BITS;
-static const int DT_MAX_POLYGONS = 1 << DT_REF_POLY_BITS;
-*/
-
 static const int DT_NAVMESH_MAGIC = 'DNAV';
-static const int DT_NAVMESH_VERSION = 1;
+static const int DT_NAVMESH_VERSION = 2;
 
-// Structure holding the navigation polygon data.
+// Structure describing the navigation polygon data.
 struct dtPoly
 {
 	unsigned short v[DT_VERTS_PER_POLYGON];	// Indices to vertices of the poly.
 	unsigned short n[DT_VERTS_PER_POLYGON];	// Refs to neighbours of the poly.
-	unsigned short links;							// Base index to header 'links' array. 
-	unsigned char nlinks;							// Number of links for 
-	unsigned char nv;								// Number of vertices.
-	unsigned char flags;							// Flags (not used).
+	unsigned short links;					// Base index to header 'links' array. 
+	unsigned char nlinks;					// Number of links for 
+	unsigned char nv;						// Number of vertices.
+	unsigned char flags;					// Flags (not used).
 };
 
+// Stucture describing polygon detail triangles.
 struct dtPolyDetail
 {
-	unsigned short vbase;	// Offset to detail vertex array.
-	unsigned short nverts;	// Number of vertices in the detail mesh.
-	unsigned short tbase;	// Offset to detail triangle array.
-	unsigned short ntris;	// Number of triangles.
+	unsigned short vbase;					// Offset to detail vertex array.
+	unsigned short nverts;					// Number of vertices in the detail mesh.
+	unsigned short tbase;					// Offset to detail triangle array.
+	unsigned short ntris;					// Number of triangles.
 };
 
-// Stucture holding a link to another polygon.
+// Stucture describing a link to another polygon.
 struct dtLink
 {
-	dtPolyRef ref;				// Neighbour reference.
-	unsigned short p;			// Index to polygon which owns this link.
-	unsigned char e;			// Index to polygon edge which owns this link. 
-	unsigned char side;			// If boundary link, defines on which side the link is.
-	unsigned char bmin, bmax;	// If boundary link, defines the sub edge area.
+	dtPolyRef ref;							// Neighbour reference.
+	unsigned short p;						// Index to polygon which owns this link.
+	unsigned char e;						// Index to polygon edge which owns this link. 
+	unsigned char side;						// If boundary link, defines on which side the link is.
+	unsigned char bmin, bmax;				// If boundary link, defines the sub edge area.
 };
 
 struct dtBVNode
 {
-	unsigned short bmin[3], bmax[3];
-	int i;
+	unsigned short bmin[3], bmax[3];		// BVnode bounds
+	int i;									// Index to item or if negative, escape index.
 };
 
 struct dtMeshHeader
 {
-	int magic;					// Magic number, used to identify the data.
-	int version;				// Data version number.
-	int npolys;					// Number of polygons in the tile.
-	int nverts;					// Number of vertices in the tile.
-	int nlinks;					// Number of links in the tile (will be updated when tile is added).
-	int maxlinks;				// Number of allocated links.
-	int ndmeshes;
-	int ndverts;
-	int ndtris;
-	int nbvtree;
-	float bmin[3], bmax[3];		// Bounding box of the tile.
-	float bvquant;
-	dtPoly* polys;				// Pointer to the polygons (will be updated when tile is added).
-	float* verts;				// Pointer to the vertices (will be updated when tile added).
-	dtLink* links;				// Pointer to the links (will be updated when tile added).
-	dtPolyDetail* dmeshes;
-	float* dverts;
-	unsigned char* dtris;
-	dtBVNode* bvtree;
+	int magic;								// Magic number, used to identify the data.
+	int version;							// Data version number.
+	int npolys;								// Number of polygons in the tile.
+	int nverts;								// Number of vertices in the tile.
+	int nlinks;								// Number of links in the tile (will be updated when tile is added).
+	int maxlinks;							// Number of allocated links.
+	int ndmeshes;							// Number of detail meshes.
+	int ndverts;							// Number of detail vertices.
+	int ndtris;								// Number of detail triangles.
+	int nbvtree;							// Number of BVtree nodes.
+	float bmin[3], bmax[3];					// Bounding box of the tile.
+	float bvquant;							// BVtree quantization factor (world to bvnode coords)
+	dtPoly* polys;							// Pointer to the polygons (will be updated when tile is added).
+	float* verts;							// Pointer to the vertices (will be updated when tile added).
+	dtLink* links;							// Pointer to the links (will be updated when tile added).
+	dtPolyDetail* dmeshes;					// Pointer to detail meshes (will be updated when tile added).
+	float* dverts;							// Pointer to detail vertices (will be updated when tile added).
+	unsigned char* dtris;					// Pointer to detail triangles (will be updated when tile added).
+	dtBVNode* bvtree;						// Pointer to BVtree nodes (will be updated when tile added).
 };
 
 struct dtMeshTile
 {
-	int salt;				// Counter describing modifications to the tile.
-	int x,y;				// Grid location of the tile.
-	dtMeshHeader* header;	// Pointer to tile header.
-	unsigned char* data;	// Pointer to tile data.
-	int dataSize;			// Size of the tile data.
-	bool ownsData;			// Flag indicating of the navmesh should release the data.
-	dtMeshTile* next;		// Next free tile or, next tile in spatial grid.
+	int salt;								// Counter describing modifications to the tile.
+	int x,y;								// Grid location of the tile.
+	dtMeshHeader* header;					// Pointer to tile header.
+	unsigned char* data;					// Pointer to tile data.
+	int dataSize;							// Size of the tile data.
+	bool ownsData;							// Flag indicating of the navmesh should release the data.
+	dtMeshTile* next;						// Next free tile or, next tile in spatial grid.
 };
+
 
 class dtNavMesh
 {
@@ -352,27 +341,27 @@ private:
 	// Returns edge mid point between two polygons.
 	bool getEdgeMidPoint(dtPolyRef from, dtPolyRef to, float* mid) const;
 
-	float m_orig[3];
-	float m_tileWidth, m_tileHeight;
-	float m_portalHeight;
-	int m_maxTiles;
-	int m_tileLutSize;
-	int m_tileLutMask;
+	float m_orig[3];					// Origin of the tile (0,0)
+	float m_tileWidth, m_tileHeight;	// Dimensions of each tile.
+	float m_portalHeight;				// Extra height value used to connect portals.
+	int m_maxTiles;						// Max number of tiles.
+	int m_tileLutSize;					// Tile hash lookup size (must be pot).
+	int m_tileLutMask;					// Tile hash lookup mask.
 
-	dtMeshTile** m_posLookup; //[DT_TILE_LOOKUP_SIZE];
-	dtMeshTile* m_nextFree;
-	dtMeshTile* m_tiles; //[DT_MAX_TILES];
+	dtMeshTile** m_posLookup;			// Tile hash lookup.
+	dtMeshTile* m_nextFree;				// Freelist of tiles.
+	dtMeshTile* m_tiles;				// List of tiles.
 	
 	// TODO: dont grow!
-	dtLink* m_tmpLinks;
-	int m_ntmpLinks;
+	dtLink* m_tmpLinks;					// Temp array used to build links between tiles.
+	int m_ntmpLinks;					// Size of the temp link array.
 	
-	unsigned int m_saltBits;
-	unsigned int m_tileBits;
-	unsigned int m_polyBits;
+	unsigned int m_saltBits;			// Number of salt bits in the tile ID.
+	unsigned int m_tileBits;			// Number of tile bits in the tile ID.
+	unsigned int m_polyBits;			// Number of poly bits in the tile ID.
 
-	class dtNodePool* m_nodePool;
-	class dtNodeQueue* m_openList;
+	class dtNodePool* m_nodePool;		// Pointer to node pool.
+	class dtNodeQueue* m_openList;		// Pointer to open list queue.
 };
 
 #endif // DETOURNAVMESH_H
