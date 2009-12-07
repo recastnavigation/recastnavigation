@@ -192,10 +192,10 @@ static float distToPoly(int nvert, const float* verts, const float* p)
 }
 
 
-static unsigned short getHeight(const float* pos, const float cs, const float ics, const rcHeightPatch& hp)
+static unsigned short getHeight(const float fx, const float fz, const float cs, const float ics, const rcHeightPatch& hp)
 {
-	int ix = (int)floorf(pos[0]*ics + 0.01f);
-	int iz = (int)floorf(pos[2]*ics + 0.01f);
+	int ix = (int)floorf(fx*ics + 0.01f);
+	int iz = (int)floorf(fz*ics + 0.01f);
 	ix = rcClamp(ix-hp.xmin, 0, hp.width);
 	iz = rcClamp(iz-hp.ymin, 0, hp.height);
 	unsigned short h = hp.data[ix+iz*hp.width];
@@ -212,8 +212,8 @@ static unsigned short getHeight(const float* pos, const float cs, const float ic
 			if (nx < 0 || nz < 0 || nx >= hp.width || nz >= hp.height) continue;
 			const unsigned short nh = hp.data[nx+nz*hp.width];
 			if (nh == 0xffff) continue;
-			const float dx = (nx+0.5f)*cs-pos[0]; 
-			const float dz = (nz+0.5f)*cs-pos[2];
+			const float dx = (nx+0.5f)*cs - fx; 
+			const float dz = (nz+0.5f)*cs - fz;
 			const float d = dx*dx+dz*dz;
 			if (d < dmin)
 			{
@@ -532,7 +532,6 @@ static bool buildPolyDetail(const float* in, const int nin, unsigned short reg,
 			}
 			// Create samples along the edge.
 			float dx = vi[0] - vj[0];
-			float dy = vi[1] - vj[1];
 			float dz = vi[2] - vj[2];
 			float d = sqrtf(dx*dx + dz*dz);
 			int nn = 1 + (int)floorf(d/sampleDist);
@@ -544,9 +543,8 @@ static bool buildPolyDetail(const float* in, const int nin, unsigned short reg,
 				float u = (float)k/(float)nn;
 				float* pos = &edge[k*3];
 				pos[0] = vj[0] + dx*u;
-				pos[1] = vj[1] + dy*u;
 				pos[2] = vj[2] + dz*u;
-				pos[1] = getHeight(pos, cs, ics, hp)*chf.ch;
+				pos[1] = getHeight(pos[0], pos[2], cs, ics, hp)*chf.ch;
 			}
 			// Simplify samples.
 			int idx[MAX_EDGE] = {0,nn};
@@ -655,7 +653,7 @@ static bool buildPolyDetail(const float* in, const int nin, unsigned short reg,
 				// Make sure the samples are not too close to the edges.
 				if (distToPoly(nin,in,pt) > -sampleDist/2) continue;
 				samples.push(x);
-				samples.push(getHeight(pt, cs, ics, hp));
+				samples.push(getHeight(pt[0], pt[2], cs, ics, hp));
 				samples.push(z);
 			}
 		}
