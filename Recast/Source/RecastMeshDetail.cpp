@@ -271,9 +271,9 @@ static int addEdge(int* edges, int& nedges, const int maxEdges, int s, int t, in
 
 static void updateLeftFace(int* e, int s, int t, int f)
 {
-	if (e[0] == s && e[2] == UNDEF)
+	if (e[0] == s && e[1] == t && e[2] == UNDEF)
 		e[2] = f;
-	else if (e[1] == s && e[3] == UNDEF)
+	else if (e[1] == s && e[0] == t && e[3] == UNDEF)
 		e[3] = f;
 }	
 
