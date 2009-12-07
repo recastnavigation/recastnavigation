@@ -481,7 +481,7 @@ static void delaunayHull(const int npts, const float* pts,
 
 
 
-static bool buildPolyDetail(const float* in, const int nin, unsigned short reg,
+static bool buildPolyDetail(const float* in, const int nin,
 							const float sampleDist, const float sampleMaxError,
 							const rcCompactHeightfield& chf, const rcHeightPatch& hp,
 							float* verts, int& nverts, rcIntArray& tris,
@@ -981,7 +981,7 @@ bool rcBuildPolyMeshDetail(const rcPolyMesh& mesh, const rcCompactHeightfield& c
 		
 		// Build detail mesh.
 		int nverts = 0;
-		if (!buildPolyDetail(poly, npoly, mesh.regs[i],
+		if (!buildPolyDetail(poly, npoly,
 							 sampleDist, sampleMaxError,
 							 chf, hp, verts, nverts, tris,
 							 edges, samples))
