@@ -1,0 +1,73 @@
+//
+// Copyright (c) 2009 Mikko Mononen memon@inside.org
+//
+// This software is provided 'as-is', without any express or implied
+// warranty.  In no event will the authors be held liable for any damages
+// arising from the use of this software.
+// Permission is granted to anyone to use this software for any purpose,
+// including commercial applications, and to alter it and redistribute it
+// freely, subject to the following restrictions:
+// 1. The origin of this software must not be misrepresented; you must not
+//    claim that you wrote the original software. If you use this software
+//    in a product, an acknowledgment in the product documentation would be
+//    appreciated but is not required.
+// 2. Altered source versions must be plainly marked as such, and must not be
+//    misrepresented as being the original software.
+// 3. This notice may not be removed or altered from any source distribution.
+//
+
+#ifndef DEBUGDRAW_H
+#define DEBUGDRAW_H
+
+enum duDebugDrawPrimitives
+{
+	DU_DRAW_POINTS,
+	DU_DRAW_LINES,
+	DU_DRAW_TRIS,
+	DU_DRAW_QUADS,	
+};
+
+// Abstrace debug draw interface.
+struct duDebugDraw
+{
+	// Begin drawing primitives.
+	// Params:
+	//  prim - (in) primitive type to draw, one of rcDebugDrawPrimitives.
+	//  nverts - (in) number of vertices to be submitted.
+	//  size - (in) size of a primitive, applies to point size and line width only.
+	virtual void begin(duDebugDrawPrimitives prim, float size = 1.0f) = 0;
+
+	// Submit a vertex
+	// Params:
+	//  pos - (in) position of the verts.
+	//  color - (in) color of the verts.
+	virtual void vertex(const float* pos, unsigned int color) = 0;
+
+	// Submit a vertex
+	// Params:
+	//  x,y,z - (in) position of the verts.
+	//  color - (in) color of the verts.
+	virtual void vertex(const float x, const float y, const float z, unsigned int color) = 0;
+
+	// End drawing primitives.
+	virtual void end() = 0;
+};
+
+inline unsigned int duRGBA(unsigned char r, unsigned char g, unsigned char b, unsigned char a)
+{
+	return (r) | (g << 8) | (b << 16) | (a << 24);
+}
+
+inline unsigned int duRGBAf(float fr, float fg, float fb, float fa)
+{
+	unsigned char r = (unsigned char)(fr*255.0f);
+	unsigned char g = (unsigned char)(fg*255.0f);
+	unsigned char b = (unsigned char)(fb*255.0f);
+	unsigned char a = (unsigned char)(fa*255.0f);
+	return duRGBA(r,g,b,a);
+}
+
+unsigned int duIntToCol(int i, int a);
+void duIntToCol(int i, float* col);
+
+#endif // DEBUGDRAW_H
