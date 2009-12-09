@@ -291,22 +291,22 @@ void Sample_SoloMesh::toolRender(int flags)
 	glDepthMask(GL_FALSE);
 
 	if (flags & NAVMESH_POLYS)
-		dtDebugDrawNavMesh(m_navMesh, m_toolMode == TOOLMODE_PATHFIND);
+		duDebugDrawNavMesh(&dd, m_navMesh, m_toolMode == TOOLMODE_PATHFIND);
 	
 	if (flags & NAVMESH_BVTREE)
-		dtDebugDrawNavMeshBVTree(m_navMesh);
+		duDebugDrawNavMeshBVTree(&dd, m_navMesh);
 	
 	if (flags & NAVMESH_TOOLS)
 	{
 		if (m_toolMode == TOOLMODE_PATHFIND)
 		{
-			dtDebugDrawNavMeshPoly(m_navMesh, m_startRef, startCol);
-			dtDebugDrawNavMeshPoly(m_navMesh, m_endRef, endCol);
+			duDebugDrawNavMeshPoly(&dd, m_navMesh, m_startRef, startCol);
+			duDebugDrawNavMeshPoly(&dd, m_navMesh, m_endRef, endCol);
 				
 			if (m_npolys)
 			{
 				for (int i = 1; i < m_npolys-1; ++i)
-					dtDebugDrawNavMeshPoly(m_navMesh, m_polys[i], pathCol);
+					duDebugDrawNavMeshPoly(&dd, m_navMesh, m_polys[i], pathCol);
 			}
 			if (m_nstraightPath)
 			{
@@ -338,12 +338,12 @@ void Sample_SoloMesh::toolRender(int flags)
 		}
 		else if (m_toolMode == TOOLMODE_RAYCAST)
 		{
-			dtDebugDrawNavMeshPoly(m_navMesh, m_startRef, startCol);
+			duDebugDrawNavMeshPoly(&dd, m_navMesh, m_startRef, startCol);
 			
 			if (m_nstraightPath)
 			{
 				for (int i = 1; i < m_npolys; ++i)
-					dtDebugDrawNavMeshPoly(m_navMesh, m_polys[i], pathCol);
+					duDebugDrawNavMeshPoly(&dd, m_navMesh, m_polys[i], pathCol);
 				
 				glColor4ub(64,16,0,220);
 				glLineWidth(3.0f);
@@ -362,9 +362,9 @@ void Sample_SoloMesh::toolRender(int flags)
 		}
 		else if (m_toolMode == TOOLMODE_DISTANCE_TO_WALL)
 		{
-			dtDebugDrawNavMeshPoly(m_navMesh, m_startRef, startCol);
+			duDebugDrawNavMeshPoly(&dd, m_navMesh, m_startRef, startCol);
 			const float col[4] = {1,1,1,0.5f};
-			rcDebugDrawCylinderWire(&dd, m_spos[0]-m_distanceToWall, m_spos[1]+0.02f, m_spos[2]-m_distanceToWall,
+			duDebugDrawCylinderWire(&dd, m_spos[0]-m_distanceToWall, m_spos[1]+0.02f, m_spos[2]-m_distanceToWall,
 									m_spos[0]+m_distanceToWall, m_spos[1]+m_agentHeight, m_spos[2]+m_distanceToWall, col);
 			glLineWidth(3.0f);
 			glColor4fv(col);
@@ -379,13 +379,13 @@ void Sample_SoloMesh::toolRender(int flags)
 			const float cola[4] = {0,0,0,0.5f};
 			for (int i = 0; i < m_npolys; ++i)
 			{
-				dtDebugDrawNavMeshPoly(m_navMesh, m_polys[i], pathCol);
+				duDebugDrawNavMeshPoly(&dd, m_navMesh, m_polys[i], pathCol);
 				if (m_parent[i])
 				{
 					float p0[3], p1[3];
 					getPolyCenter(m_navMesh, m_polys[i], p0);
 					getPolyCenter(m_navMesh, m_parent[i], p1);
-					rcDrawArc(&dd, p0, p1, cola, 2.0f);
+					duDebugDrawArc(&dd, p0, p1, cola, 2.0f);
 				}
 			}
 			
@@ -393,7 +393,7 @@ void Sample_SoloMesh::toolRender(int flags)
 			const float dz = m_epos[2] - m_spos[2];
 			float dist = sqrtf(dx*dx + dz*dz);
 			const float col[4] = {1,1,1,0.5f};
-			rcDebugDrawCylinderWire(&dd, m_spos[0]-dist, m_spos[1]+0.02f, m_spos[2]-dist,
+			duDebugDrawCylinderWire(&dd, m_spos[0]-dist, m_spos[1]+0.02f, m_spos[2]-dist,
 									m_spos[0]+dist, m_spos[1]+m_agentHeight, m_spos[2]+dist, col);					
 		}
 	}
@@ -426,7 +426,7 @@ void Sample_SoloMesh::drawAgent(const float* pos, float r, float h, float c, con
 	
 	// Agent dimensions.	
 	glLineWidth(2.0f);
-	rcDebugDrawCylinderWire(&dd, pos[0]-r, pos[1]+0.02f, pos[2]-r, pos[0]+r, pos[1]+h, pos[2]+r, col);
+	duDebugDrawCylinderWire(&dd, pos[0]-r, pos[1]+0.02f, pos[2]-r, pos[0]+r, pos[1]+h, pos[2]+r, col);
 	glLineWidth(1.0f);
 		
 	glColor4ub(0,0,0,196);

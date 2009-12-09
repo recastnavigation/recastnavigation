@@ -10,6 +10,7 @@
 #include "Recast.h"
 #include "RecastTimer.h"
 #include "RecastDebugDraw.h"
+#include "RecastDump.h"
 #include "DetourNavMesh.h"
 #include "DetourNavMeshBuilder.h"
 #include "DetourDebugDraw.h"
@@ -153,12 +154,12 @@ void Sample_SoloMeshSimple::handleRender()
 	if (m_drawMode == DRAWMODE_MESH)
 	{
 		// Draw mesh
-		rcDebugDrawMeshSlope(&dd, m_verts, m_nverts, m_tris, m_trinorms, m_ntris, m_agentMaxSlope);
+		duDebugDrawTriMeshSlope(&dd, m_verts, m_nverts, m_tris, m_trinorms, m_ntris, m_agentMaxSlope);
 	}
 	else if (m_drawMode != DRAWMODE_NAVMESH_TRANS)
 	{
 		// Draw mesh
-		rcDebugDrawMesh(&dd, m_verts, m_nverts, m_tris, m_trinorms, m_ntris, 0);
+		duDebugDrawTriMesh(&dd, m_verts, m_nverts, m_tris, m_trinorms, m_ntris, 0);
 	}
 	
 	glDisable(GL_FOG);
@@ -166,7 +167,7 @@ void Sample_SoloMeshSimple::handleRender()
 
 	// Draw bounds
 	col[0] = 1; col[1] = 1; col[2] = 1; col[3] = 0.5f;
-	rcDebugDrawBoxWire(&dd, m_bmin[0],m_bmin[1],m_bmin[2], m_bmax[0],m_bmax[1],m_bmax[2], col);
+	duDebugDrawBoxWire(&dd, m_bmin[0],m_bmin[1],m_bmin[2], m_bmax[0],m_bmax[1],m_bmax[2], col);
 	
 	if (m_navMesh &&
 		(m_drawMode == DRAWMODE_NAVMESH ||
@@ -185,61 +186,61 @@ void Sample_SoloMeshSimple::handleRender()
 	glDepthMask(GL_TRUE);
 	
 	if (m_chf && m_drawMode == DRAWMODE_COMPACT)
-		rcDebugDrawCompactHeightfieldSolid(&dd, *m_chf);
+		duDebugDrawCompactHeightfieldSolid(&dd, *m_chf);
 
 	if (m_chf && m_drawMode == DRAWMODE_COMPACT_DISTANCE)
-		rcDebugDrawCompactHeightfieldDistance(&dd, *m_chf);
+		duDebugDrawCompactHeightfieldDistance(&dd, *m_chf);
 	if (m_chf && m_drawMode == DRAWMODE_COMPACT_REGIONS)
-		rcDebugDrawCompactHeightfieldRegions(&dd, *m_chf);
+		duDebugDrawCompactHeightfieldRegions(&dd, *m_chf);
 	if (m_solid && m_drawMode == DRAWMODE_VOXELS)
 	{
 		glEnable(GL_FOG);
-		rcDebugDrawHeightfieldSolid(&dd, *m_solid);
+		duDebugDrawHeightfieldSolid(&dd, *m_solid);
 		glDisable(GL_FOG);
 	}
 	if (m_solid && m_drawMode == DRAWMODE_VOXELS_WALKABLE)
 	{
 		glEnable(GL_FOG);
-		rcDebugDrawHeightfieldWalkable(&dd, *m_solid);
+		duDebugDrawHeightfieldWalkable(&dd, *m_solid);
 		glDisable(GL_FOG);
 	}
 	if (m_cset && m_drawMode == DRAWMODE_RAW_CONTOURS)
 	{
 		glDepthMask(GL_FALSE);
-		rcDebugDrawRawContours(&dd, *m_cset);
+		duDebugDrawRawContours(&dd, *m_cset);
 		glDepthMask(GL_TRUE);
 	}
 	if (m_cset && m_drawMode == DRAWMODE_BOTH_CONTOURS)
 	{
 		glDepthMask(GL_FALSE);
-		rcDebugDrawRawContours(&dd, *m_cset, 0.5f);
-		rcDebugDrawContours(&dd, *m_cset);
+		duDebugDrawRawContours(&dd, *m_cset, 0.5f);
+		duDebugDrawContours(&dd, *m_cset);
 		glDepthMask(GL_TRUE);
 	}
 	if (m_cset && m_drawMode == DRAWMODE_CONTOURS)
 	{
 		glDepthMask(GL_FALSE);
-		rcDebugDrawContours(&dd, *m_cset);
+		duDebugDrawContours(&dd, *m_cset);
 		glDepthMask(GL_TRUE);
 	}
 	if (m_chf && m_cset && m_drawMode == DRAWMODE_REGION_CONNECTIONS)
 	{
-		rcDebugDrawCompactHeightfieldRegions(&dd, *m_chf);
+		duDebugDrawCompactHeightfieldRegions(&dd, *m_chf);
 			
 		glDepthMask(GL_FALSE);
-		rcDebugDrawRegionConnections(&dd, *m_cset);
+		duDebugDrawRegionConnections(&dd, *m_cset);
 		glDepthMask(GL_TRUE);
 	}
 	if (m_pmesh && m_drawMode == DRAWMODE_POLYMESH)
 	{
 		glDepthMask(GL_FALSE);
-		rcDebugDrawPolyMesh(&dd, *m_pmesh);
+		duDebugDrawPolyMesh(&dd, *m_pmesh);
 		glDepthMask(GL_TRUE);
 	}
 	if (m_dmesh && m_drawMode == DRAWMODE_POLYMESH_DETAIL)
 	{
 		glDepthMask(GL_FALSE);
-		rcDebugDrawPolyMeshDetail(&dd, *m_dmesh);
+		duDebugDrawPolyMeshDetail(&dd, *m_dmesh);
 		glDepthMask(GL_TRUE);
 	}
 	
@@ -480,7 +481,7 @@ bool Sample_SoloMeshSimple::handleBuild()
 	}
 
 	// At this point the navigation mesh data is ready, you can access it from m_pmesh.
-	// See rcDebugDrawPolyMesh or dtCreateNavMeshData as examples how to access the data.
+	// See duDebugDrawPolyMesh or dtCreateNavMeshData as examples how to access the data.
 	
 	//
 	// (Optional) Step 8. Create Detour data from Recast poly mesh.

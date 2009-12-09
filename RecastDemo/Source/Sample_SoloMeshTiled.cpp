@@ -186,12 +186,12 @@ void Sample_SoloMeshTiled::handleRender()
 	if (m_drawMode == DRAWMODE_MESH)
 	{
 		// Draw mesh
-		rcDebugDrawMeshSlope(&dd, m_verts, m_nverts, m_tris, m_trinorms, m_ntris, m_agentMaxSlope);
+		duDebugDrawTriMeshSlope(&dd, m_verts, m_nverts, m_tris, m_trinorms, m_ntris, m_agentMaxSlope);
 	}
 	else if (m_drawMode != DRAWMODE_NAVMESH_TRANS)
 	{
 		// Draw mesh
-		rcDebugDrawMesh(&dd, m_verts, m_nverts, m_tris, m_trinorms, m_ntris, 0);
+		duDebugDrawTriMesh(&dd, m_verts, m_nverts, m_tris, m_trinorms, m_ntris, 0);
 	}
 	
 	glDisable(GL_FOG);
@@ -199,7 +199,7 @@ void Sample_SoloMeshTiled::handleRender()
 	
 	// Draw bounds
 	col[0] = 1; col[1] = 1; col[2] = 1; col[3] = 0.5f;
-	rcDebugDrawBoxWire(&dd, m_bmin[0],m_bmin[1],m_bmin[2], m_bmax[0],m_bmax[1],m_bmax[2], col);
+	duDebugDrawBoxWire(&dd, m_bmin[0],m_bmin[1],m_bmin[2], m_bmax[0],m_bmax[1],m_bmax[2], col);
 	
 	// Tiling grid.
 	const int ts = (int)m_tileSize;
@@ -262,7 +262,7 @@ void Sample_SoloMeshTiled::handleRender()
 			for (int i = 0; i < m_tileSet->width*m_tileSet->height; ++i)
 			{
 				if (m_tileSet->tiles[i].chf)
-					rcDebugDrawCompactHeightfieldSolid(&dd, *m_tileSet->tiles[i].chf);
+					duDebugDrawCompactHeightfieldSolid(&dd, *m_tileSet->tiles[i].chf);
 			}
 		}
 		
@@ -271,7 +271,7 @@ void Sample_SoloMeshTiled::handleRender()
 			for (int i = 0; i < m_tileSet->width*m_tileSet->height; ++i)
 			{
 				if (m_tileSet->tiles[i].chf)
-					rcDebugDrawCompactHeightfieldDistance(&dd, *m_tileSet->tiles[i].chf);
+					duDebugDrawCompactHeightfieldDistance(&dd, *m_tileSet->tiles[i].chf);
 			}
 		}
 		if (m_drawMode == DRAWMODE_COMPACT_REGIONS)
@@ -279,7 +279,7 @@ void Sample_SoloMeshTiled::handleRender()
 			for (int i = 0; i < m_tileSet->width*m_tileSet->height; ++i)
 			{
 				if (m_tileSet->tiles[i].chf)
-					rcDebugDrawCompactHeightfieldRegions(&dd, *m_tileSet->tiles[i].chf);
+					duDebugDrawCompactHeightfieldRegions(&dd, *m_tileSet->tiles[i].chf);
 			}
 		}
 			
@@ -289,7 +289,7 @@ void Sample_SoloMeshTiled::handleRender()
 			for (int i = 0; i < m_tileSet->width*m_tileSet->height; ++i)
 			{
 				if (m_tileSet->tiles[i].solid)
-					rcDebugDrawHeightfieldSolid(&dd, *m_tileSet->tiles[i].solid);
+					duDebugDrawHeightfieldSolid(&dd, *m_tileSet->tiles[i].solid);
 			}
 			glDisable(GL_FOG);
 		}
@@ -299,7 +299,7 @@ void Sample_SoloMeshTiled::handleRender()
 			for (int i = 0; i < m_tileSet->width*m_tileSet->height; ++i)
 			{
 				if (m_tileSet->tiles[i].solid)
-					rcDebugDrawHeightfieldWalkable(&dd, *m_tileSet->tiles[i].solid);
+					duDebugDrawHeightfieldWalkable(&dd, *m_tileSet->tiles[i].solid);
 			}
 			glDisable(GL_FOG);
 		}
@@ -309,7 +309,7 @@ void Sample_SoloMeshTiled::handleRender()
 			for (int i = 0; i < m_tileSet->width*m_tileSet->height; ++i)
 			{
 				if (m_tileSet->tiles[i].cset)
-					rcDebugDrawRawContours(&dd, *m_tileSet->tiles[i].cset);
+					duDebugDrawRawContours(&dd, *m_tileSet->tiles[i].cset);
 			}
 			glDepthMask(GL_TRUE);
 		}
@@ -320,8 +320,8 @@ void Sample_SoloMeshTiled::handleRender()
 			{
 				if (m_tileSet->tiles[i].cset)
 				{
-					rcDebugDrawRawContours(&dd, *m_tileSet->tiles[i].cset, 0.5f);
-					rcDebugDrawContours(&dd, *m_tileSet->tiles[i].cset);
+					duDebugDrawRawContours(&dd, *m_tileSet->tiles[i].cset, 0.5f);
+					duDebugDrawContours(&dd, *m_tileSet->tiles[i].cset);
 				}
 			}
 			glDepthMask(GL_TRUE);
@@ -332,7 +332,7 @@ void Sample_SoloMeshTiled::handleRender()
 			for (int i = 0; i < m_tileSet->width*m_tileSet->height; ++i)
 			{
 				if (m_tileSet->tiles[i].cset)
-					rcDebugDrawContours(&dd, *m_tileSet->tiles[i].cset);
+					duDebugDrawContours(&dd, *m_tileSet->tiles[i].cset);
 			}
 			glDepthMask(GL_TRUE);
 		}
@@ -341,14 +341,14 @@ void Sample_SoloMeshTiled::handleRender()
 			for (int i = 0; i < m_tileSet->width*m_tileSet->height; ++i)
 			{
 				if (m_tileSet->tiles[i].chf)
-					rcDebugDrawCompactHeightfieldRegions(&dd, *m_tileSet->tiles[i].chf);
+					duDebugDrawCompactHeightfieldRegions(&dd, *m_tileSet->tiles[i].chf);
 			}
 			
 			glDepthMask(GL_FALSE);
 			for (int i = 0; i < m_tileSet->width*m_tileSet->height; ++i)
 			{
 				if (m_tileSet->tiles[i].cset)
-					rcDebugDrawRegionConnections(&dd, *m_tileSet->tiles[i].cset);
+					duDebugDrawRegionConnections(&dd, *m_tileSet->tiles[i].cset);
 			}
 			glDepthMask(GL_TRUE);
 		}
@@ -357,14 +357,14 @@ void Sample_SoloMeshTiled::handleRender()
 			glDepthMask(GL_FALSE);
 			if (m_pmesh)
 			{
-				rcDebugDrawPolyMesh(&dd, *m_pmesh);
+				duDebugDrawPolyMesh(&dd, *m_pmesh);
 			}
 			else
 			{
 				for (int i = 0; i < m_tileSet->width*m_tileSet->height; ++i)
 				{
 					if (m_tileSet->tiles[i].pmesh)
-						rcDebugDrawPolyMesh(&dd, *m_tileSet->tiles[i].pmesh);
+						duDebugDrawPolyMesh(&dd, *m_tileSet->tiles[i].pmesh);
 				}
 			}
 			
@@ -375,14 +375,14 @@ void Sample_SoloMeshTiled::handleRender()
 			glDepthMask(GL_FALSE);
 			if (m_dmesh)
 			{
-				rcDebugDrawPolyMeshDetail(&dd, *m_dmesh);
+				duDebugDrawPolyMeshDetail(&dd, *m_dmesh);
 			}
 			else
 			{
 				for (int i = 0; i < m_tileSet->width*m_tileSet->height; ++i)
 				{
 					if (m_tileSet->tiles[i].dmesh)
-						rcDebugDrawPolyMeshDetail(&dd, *m_tileSet->tiles[i].dmesh);
+						duDebugDrawPolyMeshDetail(&dd, *m_tileSet->tiles[i].dmesh);
 				}
 			}
 			glDepthMask(GL_TRUE);

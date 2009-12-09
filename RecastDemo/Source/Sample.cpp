@@ -13,22 +13,22 @@
 #endif
 
 
-void DebugDrawGL::begin(rcDebugDrawPrimitives prim, int nverts, float size)
+void DebugDrawGL::begin(duDebugDrawPrimitives prim, float size)
 {
 	switch (prim)
 	{
-		case RC_DRAW_POINTS:
+		case DU_DRAW_POINTS:
 			glPointSize(size);
 			glBegin(GL_POINTS);
 			break;
-		case RC_DRAW_LINES:
+		case DU_DRAW_LINES:
 			glLineWidth(size);
 			glBegin(GL_LINES);
 			break;
-		case RC_DRAW_TRIS:
+		case DU_DRAW_TRIS:
 			glBegin(GL_TRIANGLES);
 			break;
-		case RC_DRAW_QUADS:
+		case DU_DRAW_QUADS:
 			glBegin(GL_QUADS);
 			break;
 	};
@@ -84,10 +84,10 @@ void Sample::handleRender()
 	DebugDrawGL dd;
 		
 	// Draw mesh
-	rcDebugDrawMesh(&dd, m_verts, m_nverts, m_tris, m_trinorms, m_ntris, 0);
+	duDebugDrawTriMesh(&dd, m_verts, m_nverts, m_tris, m_trinorms, m_ntris, 0);
 	// Draw bounds
 	float col[4] = {1,1,1,0.5f};
-	rcDebugDrawBoxWire(&dd, m_bmin[0],m_bmin[1],m_bmin[2], m_bmax[0],m_bmax[1],m_bmax[2], col);
+	duDebugDrawBoxWire(&dd, m_bmin[0],m_bmin[1],m_bmin[2], m_bmax[0],m_bmax[1],m_bmax[2], col);
 }
 
 void Sample::handleRenderOverlay(double* proj, double* model, int* view)

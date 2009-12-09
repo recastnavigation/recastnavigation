@@ -334,15 +334,15 @@ void Sample_TileMesh::handleRender()
 	
 	// Draw mesh
 	if (m_navMesh)
-		rcDebugDrawMesh(&dd, m_verts, m_nverts, m_tris, m_trinorms, m_ntris, 0);
+		duDebugDrawTriMesh(&dd, m_verts, m_nverts, m_tris, m_trinorms, m_ntris, 0);
 	else
-		rcDebugDrawMeshSlope(&dd, m_verts, m_nverts, m_tris, m_trinorms, m_ntris, m_agentMaxSlope);
+		duDebugDrawTriMeshSlope(&dd, m_verts, m_nverts, m_tris, m_trinorms, m_ntris, m_agentMaxSlope);
 	
 	glDepthMask(GL_FALSE);
 	
 	// Draw bounds
 	float col[4] = {1,1,1,0.5f};
-	rcDebugDrawBoxWire(&dd, m_bmin[0],m_bmin[1],m_bmin[2], m_bmax[0],m_bmax[1],m_bmax[2], col);
+	duDebugDrawBoxWire(&dd, m_bmin[0],m_bmin[1],m_bmin[2], m_bmax[0],m_bmax[1],m_bmax[2], col);
 	
 	// Tiling grid.
 	const int ts = (int)m_tileSize;
@@ -382,10 +382,10 @@ void Sample_TileMesh::handleRender()
 	glEnd();
 	
 	// Draw active tile
-	rcDebugDrawBoxWire(&dd, m_tileBmin[0],m_tileBmin[1],m_tileBmin[2], m_tileBmax[0],m_tileBmax[1],m_tileBmax[2], m_tileCol);
+	duDebugDrawBoxWire(&dd, m_tileBmin[0],m_tileBmin[1],m_tileBmin[2], m_tileBmax[0],m_tileBmax[1],m_tileBmax[2], m_tileCol);
 	
 	if (m_navMesh)
-		dtDebugDrawNavMesh(m_navMesh);
+		duDebugDrawNavMesh(&dd, m_navMesh);
 	
 	if (m_sposSet)
 	{
@@ -424,13 +424,13 @@ void Sample_TileMesh::handleRender()
 	
 	if (m_toolMode == TOOLMODE_PATHFIND)
 	{
-		dtDebugDrawNavMeshPoly(m_navMesh, m_startRef, startCol);
-		dtDebugDrawNavMeshPoly(m_navMesh, m_endRef, endCol);
+		duDebugDrawNavMeshPoly(&dd, m_navMesh, m_startRef, startCol);
+		duDebugDrawNavMeshPoly(&dd, m_navMesh, m_endRef, endCol);
 		
 		if (m_npolys)
 		{
 			for (int i = 1; i < m_npolys-1; ++i)
-				dtDebugDrawNavMeshPoly(m_navMesh, m_polys[i], pathCol);
+				duDebugDrawNavMeshPoly(&dd, m_navMesh, m_polys[i], pathCol);
 		}
 		if (m_nstraightPath)
 		{
@@ -451,12 +451,12 @@ void Sample_TileMesh::handleRender()
 	}
 	else if (m_toolMode == TOOLMODE_RAYCAST)
 	{
-		dtDebugDrawNavMeshPoly(m_navMesh, m_startRef, startCol);
+		duDebugDrawNavMeshPoly(&dd, m_navMesh, m_startRef, startCol);
 		
 		if (m_nstraightPath)
 		{
 			for (int i = 1; i < m_npolys; ++i)
-				dtDebugDrawNavMeshPoly(m_navMesh, m_polys[i], pathCol);
+				duDebugDrawNavMeshPoly(&dd, m_navMesh, m_polys[i], pathCol);
 			
 			glColor4ub(64,16,0,220);
 			glLineWidth(3.0f);
@@ -475,9 +475,9 @@ void Sample_TileMesh::handleRender()
 	}
 	else if (m_toolMode == TOOLMODE_DISTANCE_TO_WALL)
 	{
-		dtDebugDrawNavMeshPoly(m_navMesh, m_startRef, startCol);
+		duDebugDrawNavMeshPoly(&dd, m_navMesh, m_startRef, startCol);
 		const float col[4] = {1,1,1,0.5f};
-		rcDebugDrawCylinderWire(&dd, m_spos[0]-m_distanceToWall, m_spos[1]+0.02f, m_spos[2]-m_distanceToWall,
+		duDebugDrawCylinderWire(&dd, m_spos[0]-m_distanceToWall, m_spos[1]+0.02f, m_spos[2]-m_distanceToWall,
 								m_spos[0]+m_distanceToWall, m_spos[1]+m_agentHeight, m_spos[2]+m_distanceToWall, col);
 		glLineWidth(3.0f);
 		glColor4fv(col);
@@ -492,14 +492,14 @@ void Sample_TileMesh::handleRender()
 		const float cola[4] = {0,0,0,0.5f};
 		for (int i = 0; i < m_npolys; ++i)
 		{
-			dtDebugDrawNavMeshPoly(m_navMesh, m_polys[i], pathCol);
+			duDebugDrawNavMeshPoly(&dd, m_navMesh, m_polys[i], pathCol);
 			if (m_parent[i])
 			{
 				float p0[3], p1[3];
 				getPolyCenter(m_navMesh, m_polys[i], p0);
 				getPolyCenter(m_navMesh, m_parent[i], p1);
 				glColor4ub(0,0,0,128);
-				rcDrawArc(&dd, p0, p1, cola, 2.0f);
+				duDebugDrawArc(&dd, p0, p1, cola, 2.0f);
 			}
 		}
 		
@@ -507,7 +507,7 @@ void Sample_TileMesh::handleRender()
 		const float dz = m_epos[2] - m_spos[2];
 		float dist = sqrtf(dx*dx + dz*dz);
 		const float col[4] = {1,1,1,0.5f};
-		rcDebugDrawCylinderWire(&dd, m_spos[0]-dist, m_spos[1]+0.02f, m_spos[2]-dist,
+		duDebugDrawCylinderWire(&dd, m_spos[0]-dist, m_spos[1]+0.02f, m_spos[2]-dist,
 								m_spos[0]+dist, m_spos[1]+m_agentHeight, m_spos[2]+dist, col);
 	}
 	
