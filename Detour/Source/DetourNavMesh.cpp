@@ -1277,7 +1277,7 @@ bool dtNavMesh::getEdgeMidPoint(dtPolyRef from, dtPolyRef to, float* mid) const
 }
 
 int dtNavMesh::raycast(dtPolyRef centerRef, const float* startPos, const float* endPos,
-					   float& t, dtPolyRef* path, const int pathSize)
+					   float& t, float* hitNormal, dtPolyRef* path, const int pathSize)
 {
 	t = 0;
 	
@@ -1287,6 +1287,10 @@ int dtNavMesh::raycast(dtPolyRef centerRef, const float* startPos, const float* 
 	dtPolyRef curRef = centerRef;
 	float verts[DT_VERTS_PER_POLYGON*3];	
 	int n = 0;
+	
+	hitNormal[0] = 0;
+	hitNormal[1] = 0;
+	hitNormal[2] = 0;
 	
 	while (curRef)
 	{
@@ -1379,6 +1383,19 @@ int dtNavMesh::raycast(dtPolyRef centerRef, const float* startPos, const float* 
 		if (!nextRef)
 		{
 			// No neighbour, we hit a wall.
+
+			// Calculate hit normal.
+			const int a = segMax;
+			const int b = segMax+1 < nv ? segMax+1 : 0;
+			const float* va = &verts[a*3];
+			const float* vb = &verts[b*3];
+			const float dx = vb[0] - va[0];
+			const float dz = vb[2] - va[2];
+			hitNormal[0] = dz;
+			hitNormal[1] = 0;
+			hitNormal[2] = -dx;
+			vnormalize(hitNormal);
+			
 			return n;
 		}
 		

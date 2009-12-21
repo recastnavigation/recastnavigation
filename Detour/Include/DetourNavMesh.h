@@ -230,10 +230,11 @@ public:
 	//	startPos - (in) start position of the query.
 	//	endPos - (in) end position of the query.
 	//	t - (out) hit parameter along the segment, 0 if no hit.
+	//	hitNormal - (out) normal of the nearest hit.
 	//	endRef - (out) ref to the last polygon which was processed.
 	// Returns: Number of polygons in path or 0 if failed.
 	int raycast(dtPolyRef startRef, const float* startPos, const float* endPos,
-				float& t, dtPolyRef* path, const int pathSize);
+				float& t, float* hitNormal, dtPolyRef* path, const int pathSize);
 
 	// Returns distance to nearest wall from the specified location.
 	// Params:

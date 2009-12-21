@@ -100,7 +100,7 @@ static void drawPolyBoundaries(duDebugDraw* dd, const dtMeshHeader* header,
 						}
 					}
 					if (con)
-						c = duRGBA(255,255,255,128);
+						c = duRGBA(255,255,255,64);
 					else
 						c = duRGBA(0,0,0,128);
 				}

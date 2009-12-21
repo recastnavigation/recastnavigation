@@ -235,9 +235,7 @@ void duDebugDrawHeightfieldSolid(duDebugDraw* dd, const rcHeightfield& hf)
 	
 	const int w = hf.width;
 	const int h = hf.height;
-	
-	const int spanCount = getSpanCount(hf);
-	
+		
 	dd->begin(DU_DRAW_QUADS);
 	
 	for (int y = 0; y < h; ++y)
@@ -270,8 +268,6 @@ void duDebugDrawHeightfieldWalkable(duDebugDraw* dd, const rcHeightfield& hf)
 	
 	const int w = hf.width;
 	const int h = hf.height;
-	
-	const int spanCount = getSpanCount(hf);
 	
 	dd->begin(DU_DRAW_QUADS);
 	

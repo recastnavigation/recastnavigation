@@ -223,19 +223,15 @@ void Sample_SoloMesh::toolRecalc()
 			m_straightPath[0] = m_spos[0];
 			m_straightPath[1] = m_spos[1];
 			m_straightPath[2] = m_spos[2];
-			m_npolys = m_navMesh->raycast(m_startRef, m_spos, m_epos, t, m_polys, MAX_POLYS);
-			if (t < 1)
+			vcopy(m_hitPos, m_epos);
+			m_npolys = m_navMesh->raycast(m_startRef, m_spos, m_epos, t, m_hitNormal, m_polys, MAX_POLYS);
+			if (m_npolys && t < 1)
 			{
-				m_straightPath[3] = m_spos[0] + (m_epos[0] - m_spos[0]) * t;
-				m_straightPath[4] = m_spos[1] + (m_epos[1] - m_spos[1]) * t;
-				m_straightPath[5] = m_spos[2] + (m_epos[2] - m_spos[2]) * t;
+				m_hitPos[0] = m_spos[0] + (m_epos[0] - m_spos[0]) * t;
+				m_hitPos[1] = m_spos[1] + (m_epos[1] - m_spos[1]) * t;
+				m_hitPos[2] = m_spos[2] + (m_epos[2] - m_spos[2]) * t;
 			}
-			else
-			{
-				m_straightPath[3] = m_epos[0];
-				m_straightPath[4] = m_epos[1];
-				m_straightPath[5] = m_epos[2];
-			}
+			vcopy(&m_straightPath[3], m_hitPos);
 		}
 	}
 	else if (m_toolMode == TOOLMODE_DISTANCE_TO_WALL)
@@ -358,6 +354,12 @@ void Sample_SoloMesh::toolRender(int flags)
 					glVertex3f(m_straightPath[i*3], m_straightPath[i*3+1]+0.4f, m_straightPath[i*3+2]);
 				glEnd();
 				glPointSize(1.0f);
+				
+				glColor4ub(255,255,255,128);
+				glBegin(GL_LINES);
+				glVertex3f(m_hitPos[0], m_hitPos[1] + 0.4f, m_hitPos[2]);
+				glVertex3f(m_hitPos[0] + m_hitNormal[0]*m_agentRadius, m_hitPos[1] + 0.4f + m_hitNormal[1]*m_agentRadius, m_hitPos[2] + m_hitNormal[2]*m_agentRadius);
+				glEnd();
 			}
 		}
 		else if (m_toolMode == TOOLMODE_DISTANCE_TO_WALL)

@@ -195,32 +195,7 @@
 	<key>Name</key>
 	<string>All-In-One</string>
 	<key>Notifications</key>
-	<array>
-		<dict>
-			<key>XCObserverAutoDisconnectKey</key>
-			<true/>
-			<key>XCObserverDefintionKey</key>
-			<dict>
-				<key>PBXStatusErrorsKey</key>
-				<integer>0</integer>
-			</dict>
-			<key>XCObserverFactoryKey</key>
-			<string>XCPerspectivesSpecificationIdentifier</string>
-			<key>XCObserverGUIDKey</key>
-			<string>XCObserverProjectIdentifier</string>
-			<key>XCObserverNotificationKey</key>
-			<string>PBXStatusBuildStateMessageNotification</string>
-			<key>XCObserverTargetKey</key>
-			<string>XCMainBuildResultsModuleGUID</string>
-			<key>XCObserverTriggerKey</key>
-			<string>awakenModuleWithObserver:</string>
-			<key>XCObserverValidationKey</key>
-			<dict>
-				<key>PBXStatusErrorsKey</key>
-				<integer>2</integer>
-			</dict>
-		</dict>
-	</array>
+	<array/>
 	<key>OpenEditors</key>
 	<array/>
 	<key>PerspectiveWidths</key>
@@ -238,11 +213,10 @@
 				<string>active-combo-popup</string>
 				<string>action</string>
 				<string>NSToolbarFlexibleSpaceItem</string>
-				<string>debugger-enable-breakpoints</string>
 				<string>build-and-go</string>
 				<string>com.apple.ide.PBXToolbarStopButton</string>
-				<string>get-info</string>
 				<string>NSToolbarFlexibleSpaceItem</string>
+				<string>get-info</string>
 				<string>com.apple.pbx.toolbar.searchfield</string>
 			</array>
 			<key>ControllerClassBaseName</key>
@@ -294,6 +268,7 @@
 								<string>29B97314FDCFA39411CA2CEA</string>
 								<string>080E96DDFE201D6D7F000001</string>
 								<string>6BB93C7610CFE1BD00F74F2B</string>
+								<string>6BDD9E030F91110C00904EEF</string>
 								<string>6B137C7D0F7FCBE800459200</string>
 								<string>6B555DF5100B25FC00247EA3</string>
 								<string>29B97315FDCFA39411CA2CEA</string>
@@ -305,14 +280,14 @@
 							<key>PBXSmartGroupTreeModuleOutlineStateSelectionKey</key>
 							<array>
 								<array>
-									<integer>31</integer>
-									<integer>26</integer>
+									<integer>38</integer>
+									<integer>34</integer>
 									<integer>1</integer>
 									<integer>0</integer>
 								</array>
 							</array>
 							<key>PBXSmartGroupTreeModuleOutlineStateVisibleRectKey</key>
-							<string>{{0, 11}, {282, 660}}</string>
+							<string>{{0, 192}, {282, 660}}</string>
 						</dict>
 						<key>PBXTopSmartGroupGIDs</key>
 						<array/>
@@ -347,7 +322,7 @@
 								<key>PBXProjectModuleGUID</key>
 								<string>6B8632A30F78115100E2684A</string>
 								<key>PBXProjectModuleLabel</key>
-								<string>Sample_SoloMeshSimple.cpp</string>
+								<string>Sample_SoloMesh.cpp</string>
 								<key>PBXSplitModuleInNavigatorKey</key>
 								<dict>
 									<key>Split0</key>
@@ -355,11 +330,11 @@
 										<key>PBXProjectModuleGUID</key>
 										<string>6B8632A40F78115100E2684A</string>
 										<key>PBXProjectModuleLabel</key>
-										<string>Sample_SoloMeshSimple.cpp</string>
+										<string>Sample_SoloMesh.cpp</string>
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>6BB93D1E10D001BA00F74F2B</string>
+										<string>6B98694A10DF8982007D8D84</string>
 										<key>history</key>
 										<array>
 											<string>6B57D358108C66B200DDD053</string>
@@ -384,24 +359,36 @@
 											<string>6BB4966110C8F2AE00BC0805</string>
 											<string>6BB4966510C8F2AE00BC0805</string>
 											<string>6BB4966810C8F2AE00BC0805</string>
-											<string>6BB4966A10C8F2AE00BC0805</string>
 											<string>6BB4967C10C8F8F500BC0805</string>
-											<string>6BB93C8210CFE3B100F74F2B</string>
 											<string>6BB93CCF10CFEA7A00F74F2B</string>
 											<string>6BB93CD010CFEA7A00F74F2B</string>
 											<string>6BB93CD210CFEA7A00F74F2B</string>
-											<string>6BB93CD710CFEA7A00F74F2B</string>
-											<string>6BB93CD810CFEA7A00F74F2B</string>
 											<string>6BB93CE710CFEB5D00F74F2B</string>
 											<string>6BB93CEB10CFEB5D00F74F2B</string>
 											<string>6BB93D0510CFFC1300F74F2B</string>
 											<string>6BB93D0710CFFC1300F74F2B</string>
-											<string>6BB93D0810CFFC1300F74F2B</string>
-											<string>6BB93D0910CFFC1300F74F2B</string>
 											<string>6BB93D0A10CFFC1300F74F2B</string>
 											<string>6BB93D1510CFFC6D00F74F2B</string>
 											<string>6BB93D1B10CFFD7600F74F2B</string>
-											<string>6BB93D1C10CFFD7600F74F2B</string>
+											<string>6B98692510DF824E007D8D84</string>
+											<string>6B98693110DF8929007D8D84</string>
+											<string>6B98693210DF8929007D8D84</string>
+											<string>6B98693310DF8929007D8D84</string>
+											<string>6B98693410DF8929007D8D84</string>
+											<string>6B98694710DF8982007D8D84</string>
+											<string>6B98694810DF8982007D8D84</string>
+										</array>
+										<key>prevStack</key>
+										<array>
+											<string>6B98692710DF824E007D8D84</string>
+											<string>6B98693710DF8929007D8D84</string>
+											<string>6B98693810DF8929007D8D84</string>
+											<string>6B98693910DF8929007D8D84</string>
+											<string>6B98693A10DF8929007D8D84</string>
+											<string>6B98693B10DF8929007D8D84</string>
+											<string>6B98693C10DF8929007D8D84</string>
+											<string>6B98693D10DF8929007D8D84</string>
+											<string>6B98694910DF8982007D8D84</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>
@@ -440,7 +427,7 @@
 									<key>GeometryConfiguration</key>
 									<dict>
 										<key>Frame</key>
-										<string>{{10, 27}, {976, 220}}</string>
+										<string>{{10, 27}, {976, 122}}</string>
 									</dict>
 									<key>Module</key>
 									<string>XCDetailModule</string>
@@ -485,11 +472,11 @@
 										<key>PBXProjectModuleGUID</key>
 										<string>XCMainBuildResultsModuleGUID</string>
 										<key>PBXProjectModuleLabel</key>
-										<string>Build Results</string>
+										<string>Build</string>
 										<key>XCBuildResultsTrigger_Collapse</key>
 										<integer>1021</integer>
 										<key>XCBuildResultsTrigger_Open</key>
-										<integer>1012</integer>
+										<integer>1011</integer>
 									</dict>
 									<key>GeometryConfiguration</key>
 									<dict>
@@ -524,11 +511,11 @@
 			</array>
 			<key>TableOfContents</key>
 			<array>
-				<string>6BB93CDB10CFEA7A00F74F2B</string>
+				<string>6B98692910DF824E007D8D84</string>
 				<string>1CA23ED40692098700951B8B</string>
-				<string>6BB93CDC10CFEA7A00F74F2B</string>
+				<string>6B98692A10DF824E007D8D84</string>
 				<string>6B8632A30F78115100E2684A</string>
-				<string>6BB93CDD10CFEA7A00F74F2B</string>
+				<string>6B98692B10DF824E007D8D84</string>
 				<string>1CA23EDF0692099D00951B8B</string>
 				<string>1CA23EE00692099D00951B8B</string>
 				<string>1CA23EE10692099D00951B8B</string>
@@ -546,7 +533,6 @@
 				<string>NSToolbarSeparatorItem</string>
 				<string>active-combo-popup</string>
 				<string>NSToolbarFlexibleSpaceItem</string>
-				<string>debugger-enable-breakpoints</string>
 				<string>build-and-go</string>
 				<string>com.apple.ide.PBXToolbarStopButton</string>
 				<string>debugger-restart-executable</string>
@@ -554,9 +540,10 @@
 				<string>debugger-step-over</string>
 				<string>debugger-step-into</string>
 				<string>debugger-step-out</string>
+				<string>debugger-enable-breakpoints</string>
 				<string>NSToolbarFlexibleSpaceItem</string>
-				<string>servicesModulebreakpoints</string>
-				<string>debugger-show-console-window</string>
+				<string>com.apple.ide.XCBreakpointsToolbarItem</string>
+				<string>clear-log</string>
 			</array>
 			<key>ControllerClassBaseName</key>
 			<string>PBXDebugSessionModule</string>
@@ -677,14 +664,14 @@
 			</array>
 			<key>TableOfContents</key>
 			<array>
-				<string>6BB93CDE10CFEA7A00F74F2B</string>
+				<string>6B98693F10DF8929007D8D84</string>
 				<string>1CCC7628064C1048000F2A68</string>
 				<string>1CCC7629064C1048000F2A68</string>
-				<string>6BB93CDF10CFEA7A00F74F2B</string>
-				<string>6BB93CE010CFEA7A00F74F2B</string>
-				<string>6BB93CE110CFEA7A00F74F2B</string>
-				<string>6BB93CE210CFEA7A00F74F2B</string>
-				<string>6BB93CE310CFEA7A00F74F2B</string>
+				<string>6B98694010DF8929007D8D84</string>
+				<string>6B98694110DF8929007D8D84</string>
+				<string>6B98694210DF8929007D8D84</string>
+				<string>6B98694310DF8929007D8D84</string>
+				<string>6B98694410DF8929007D8D84</string>
 			</array>
 			<key>ToolbarConfigUserDefaultsMinorVersion</key>
 			<string>2</string>
@@ -701,7 +688,7 @@
 	<key>StatusbarIsVisible</key>
 	<true/>
 	<key>TimeStamp</key>
-	<real>282067386.65052402</real>
+	<real>0.0</real>
 	<key>ToolbarDisplayMode</key>
 	<integer>1</integer>
 	<key>ToolbarIsVisible</key>
@@ -716,8 +703,6 @@
 	<integer>5</integer>
 	<key>WindowOrderList</key>
 	<array>
-		<string>6BB93CE510CFEA7A00F74F2B</string>
-		<string>6BB93CE610CFEA7A00F74F2B</string>
 		<string>/Users/memon/Code/recastnavigation/RecastDemo/Build/Xcode/Recast.xcodeproj</string>
 	</array>
 	<key>WindowString</key>
