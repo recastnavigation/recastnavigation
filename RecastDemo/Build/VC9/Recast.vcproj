@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\Contrib\SDL\include;..\..\Include;..\..\..\Detour\Include;..\..\..\Recast\Include;..\..\Contrib;$(NOINHERIT)"
+				AdditionalIncludeDirectories="..\..\Contrib\SDL\include;..\..\Include;..\..\..\Detour\Include;..\..\..\DebugUtils\Include;..\..\..\Recast\Include;..\..\Contrib;$(NOINHERIT)"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -117,7 +117,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\Contrib\SDL\include;..\..\Include;..\..\..\Detour\Include;..\..\..\Recast\Include;..\..\Contrib"
+				AdditionalIncludeDirectories="..\..\..\DebugUtils\Include;..\..\Contrib\SDL\include;..\..\Include;..\..\..\Detour\Include;..\..\..\Recast\Include;..\..\Contrib"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -188,10 +188,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\Recast\Include\RecastDebugDraw.h"
-					>
-				</File>
-				<File
 					RelativePath="..\..\..\Recast\Include\RecastLog.h"
 					>
 				</File>
@@ -209,10 +205,6 @@
 				</File>
 				<File
 					RelativePath="..\..\..\Recast\Source\RecastContour.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\Recast\Source\RecastDebugDraw.cpp"
 					>
 				</File>
 				<File
@@ -256,10 +248,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\Detour\Include\DetourDebugDraw.h"
-					>
-				</File>
-				<File
 					RelativePath="..\..\..\Detour\Include\DetourNavMesh.h"
 					>
 				</File>
@@ -271,32 +259,12 @@
 					RelativePath="..\..\..\Detour\Include\DetourNode.h"
 					>
 				</File>
-				<File
-					RelativePath="..\..\..\Detour\Include\DetourStatNavMesh.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\Detour\Include\DetourStatNavMeshBuilder.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\Detour\Include\DetourTileNavMesh.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\Detour\Include\DetourTileNavMeshBuilder.h"
-					>
-				</File>
 			</Filter>
 			<Filter
 				Name="Source"
 				>
 				<File
 					RelativePath="..\..\..\Detour\Source\DetourCommon.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\Detour\Source\DetourDebugDraw.cpp"
 					>
 				</File>
 				<File
@@ -309,22 +277,6 @@
 				</File>
 				<File
 					RelativePath="..\..\..\Detour\Source\DetourNode.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\Detour\Source\DetourStatNavMesh.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\Detour\Source\DetourStatNavMeshBuilder.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\Detour\Source\DetourTileNavMesh.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\Detour\Source\DetourTileNavMeshBuilder.cpp"
 					>
 				</File>
 			</Filter>
@@ -353,10 +305,6 @@
 				</File>
 				<File
 					RelativePath="..\..\Include\Sample.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\Include\Sample_DynMesh.h"
 					>
 				</File>
 				<File
@@ -408,10 +356,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\Source\Sample_DynMesh.cpp"
-					>
-				</File>
-				<File
 					RelativePath="..\..\Source\Sample_SoloMesh.cpp"
 					>
 				</File>
@@ -425,6 +369,50 @@
 				</File>
 				<File
 					RelativePath="..\..\Source\Sample_TileMesh.cpp"
+					>
+				</File>
+			</Filter>
+		</Filter>
+		<Filter
+			Name="DebugUtils"
+			>
+			<Filter
+				Name="Include"
+				>
+				<File
+					RelativePath="..\..\..\DebugUtils\Include\DebugDraw.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\DebugUtils\Include\DetourDebugDraw.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\DebugUtils\Include\RecastDebugDraw.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\DebugUtils\Include\RecastDump.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Source"
+				>
+				<File
+					RelativePath="..\..\..\DebugUtils\Source\DebugDraw.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\DebugUtils\Source\DetourDebugDraw.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\DebugUtils\Source\RecastDebugDraw.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\DebugUtils\Source\RecastDump.cpp"
 					>
 				</File>
 			</Filter>

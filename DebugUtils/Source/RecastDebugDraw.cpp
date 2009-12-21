@@ -31,7 +31,7 @@ void duDebugDrawTriMesh(duDebugDraw* dd, const float* verts, int nverts,
 						const int* tris, const float* normals, int ntris,
 						const unsigned char* flags)
 {
-	dd->begin(DU_DRAW_TRIS, ntris);
+	dd->begin(DU_DRAW_TRIS);
 	for (int i = 0; i < ntris*3; i += 3)
 	{
 		unsigned int color;
@@ -54,7 +54,7 @@ void duDebugDrawTriMeshSlope(duDebugDraw* dd, const float* verts, int nverts,
 {
 	const float walkableThr = cosf(walkableSlopeAngle/180.0f*(float)M_PI);
 
-	dd->begin(DU_DRAW_TRIS, ntris);
+	dd->begin(DU_DRAW_TRIS);
 	for (int i = 0; i < ntris*3; i += 3)
 	{
 		const float* norm = &normals[i];
@@ -305,7 +305,7 @@ void duDebugDrawCompactHeightfieldSolid(duDebugDraw* dd, const rcCompactHeightfi
 
 	unsigned int color = duRGBA(0,192,255,64);
 	
-	dd->begin(DU_DRAW_QUADS, chf.spanCount*4);
+	dd->begin(DU_DRAW_QUADS);
 	
 	for (int y = 0; y < chf.height; ++y)
 	{
@@ -334,7 +334,7 @@ void duDebugDrawCompactHeightfieldRegions(duDebugDraw* dd, const rcCompactHeight
 	const float cs = chf.cs;
 	const float ch = chf.ch;
 
-	dd->begin(DU_DRAW_QUADS, chf.spanCount*4);
+	dd->begin(DU_DRAW_QUADS);
 
 	for (int y = 0; y < chf.height; ++y)
 	{
@@ -375,7 +375,7 @@ void duDebugDrawCompactHeightfieldDistance(duDebugDraw* dd, const rcCompactHeigh
 	if (maxd < 1.0f) maxd = 1;
 	const float dscale = 255.0f / maxd;
 	
-	dd->begin(DU_DRAW_QUADS, chf.spanCount*4);
+	dd->begin(DU_DRAW_QUADS);
 	
 	for (int y = 0; y < chf.height; ++y)
 	{
