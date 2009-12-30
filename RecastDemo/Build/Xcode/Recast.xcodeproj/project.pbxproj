@@ -31,7 +31,6 @@
 		6B8632DC0F78123E00E2684A /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6B8632DB0F78123E00E2684A /* OpenGL.framework */; };
 		6B8DE88910B69E3E00DF20FB /* DetourNavMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B8DE88710B69E3E00DF20FB /* DetourNavMesh.cpp */; };
 		6B8DE88A10B69E3E00DF20FB /* DetourNavMeshBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B8DE88810B69E3E00DF20FB /* DetourNavMeshBuilder.cpp */; };
-		6BA1E88A10C7BFC9008007F6 /* Sample_SoloMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BA1E88710C7BFC9008007F6 /* Sample_SoloMesh.cpp */; };
 		6BA1E88B10C7BFC9008007F6 /* Sample_SoloMeshSimple.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BA1E88810C7BFC9008007F6 /* Sample_SoloMeshSimple.cpp */; };
 		6BA1E88C10C7BFC9008007F6 /* Sample_SoloMeshTiled.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BA1E88910C7BFC9008007F6 /* Sample_SoloMeshTiled.cpp */; };
 		6BB788170FC0472B003C24DB /* ChunkyTriMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BB788160FC0472B003C24DB /* ChunkyTriMesh.cpp */; };
@@ -39,6 +38,7 @@
 		6BB93C7E10CFE1D500F74F2B /* DetourDebugDraw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BB93C7B10CFE1D500F74F2B /* DetourDebugDraw.cpp */; };
 		6BB93C7F10CFE1D500F74F2B /* RecastDebugDraw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BB93C7C10CFE1D500F74F2B /* RecastDebugDraw.cpp */; };
 		6BB93CF610CFEC4500F74F2B /* RecastDump.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BB93CF510CFEC4500F74F2B /* RecastDump.cpp */; };
+		6BBB87D010EA8EFA008FEA1F /* NavMeshTesterTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BBB87CF10EA8EFA008FEA1F /* NavMeshTesterTool.cpp */; };
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 /* End PBXBuildFile section */
@@ -88,10 +88,8 @@
 		6B8DE88810B69E3E00DF20FB /* DetourNavMeshBuilder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DetourNavMeshBuilder.cpp; path = ../../../Detour/Source/DetourNavMeshBuilder.cpp; sourceTree = SOURCE_ROOT; };
 		6B8DE88B10B69E4C00DF20FB /* DetourNavMesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DetourNavMesh.h; path = ../../../Detour/Include/DetourNavMesh.h; sourceTree = SOURCE_ROOT; };
 		6B8DE88C10B69E4C00DF20FB /* DetourNavMeshBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DetourNavMeshBuilder.h; path = ../../../Detour/Include/DetourNavMeshBuilder.h; sourceTree = SOURCE_ROOT; };
-		6BA1E88710C7BFC9008007F6 /* Sample_SoloMesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Sample_SoloMesh.cpp; path = ../../Source/Sample_SoloMesh.cpp; sourceTree = SOURCE_ROOT; };
 		6BA1E88810C7BFC9008007F6 /* Sample_SoloMeshSimple.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Sample_SoloMeshSimple.cpp; path = ../../Source/Sample_SoloMeshSimple.cpp; sourceTree = SOURCE_ROOT; };
 		6BA1E88910C7BFC9008007F6 /* Sample_SoloMeshTiled.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Sample_SoloMeshTiled.cpp; path = ../../Source/Sample_SoloMeshTiled.cpp; sourceTree = SOURCE_ROOT; };
-		6BA1E88D10C7BFD3008007F6 /* Sample_SoloMesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Sample_SoloMesh.h; path = ../../Include/Sample_SoloMesh.h; sourceTree = SOURCE_ROOT; };
 		6BA1E88E10C7BFD3008007F6 /* Sample_SoloMeshSimple.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Sample_SoloMeshSimple.h; path = ../../Include/Sample_SoloMeshSimple.h; sourceTree = SOURCE_ROOT; };
 		6BA1E88F10C7BFD3008007F6 /* Sample_SoloMeshTiled.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Sample_SoloMeshTiled.h; path = ../../Include/Sample_SoloMeshTiled.h; sourceTree = SOURCE_ROOT; };
 		6BB788160FC0472B003C24DB /* ChunkyTriMesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ChunkyTriMesh.cpp; path = ../../Source/ChunkyTriMesh.cpp; sourceTree = SOURCE_ROOT; };
@@ -104,6 +102,8 @@
 		6BB93C7C10CFE1D500F74F2B /* RecastDebugDraw.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RecastDebugDraw.cpp; path = ../../../DebugUtils/Source/RecastDebugDraw.cpp; sourceTree = SOURCE_ROOT; };
 		6BB93CF410CFEC4500F74F2B /* RecastDump.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RecastDump.h; path = ../../../DebugUtils/Include/RecastDump.h; sourceTree = SOURCE_ROOT; };
 		6BB93CF510CFEC4500F74F2B /* RecastDump.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RecastDump.cpp; path = ../../../DebugUtils/Source/RecastDump.cpp; sourceTree = SOURCE_ROOT; };
+		6BBB87CE10EA8EF2008FEA1F /* NavMeshTesterTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NavMeshTesterTool.h; sourceTree = "<group>"; };
+		6BBB87CF10EA8EFA008FEA1F /* NavMeshTesterTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NavMeshTesterTool.cpp; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* Recast.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Recast.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -235,16 +235,16 @@
 		6B555DF5100B25FC00247EA3 /* Samples */ = {
 			isa = PBXGroup;
 			children = (
-				6BA1E88D10C7BFD3008007F6 /* Sample_SoloMesh.h */,
-				6BA1E88E10C7BFD3008007F6 /* Sample_SoloMeshSimple.h */,
-				6BA1E88F10C7BFD3008007F6 /* Sample_SoloMeshTiled.h */,
-				6BA1E88710C7BFC9008007F6 /* Sample_SoloMesh.cpp */,
-				6BA1E88810C7BFC9008007F6 /* Sample_SoloMeshSimple.cpp */,
-				6BA1E88910C7BFC9008007F6 /* Sample_SoloMeshTiled.cpp */,
 				6B25B6100FFA62AD004F1BC4 /* Sample.h */,
 				6B25B6140FFA62BE004F1BC4 /* Sample.cpp */,
+				6BA1E88E10C7BFD3008007F6 /* Sample_SoloMeshSimple.h */,
+				6BA1E88810C7BFC9008007F6 /* Sample_SoloMeshSimple.cpp */,
+				6BA1E88F10C7BFD3008007F6 /* Sample_SoloMeshTiled.h */,
+				6BA1E88910C7BFC9008007F6 /* Sample_SoloMeshTiled.cpp */,
 				6B2AEC510FFB8946005BE9CC /* Sample_TileMesh.h */,
 				6B2AEC520FFB8958005BE9CC /* Sample_TileMesh.cpp */,
+				6BBB87CE10EA8EF2008FEA1F /* NavMeshTesterTool.h */,
+				6BBB87CF10EA8EFA008FEA1F /* NavMeshTesterTool.cpp */,
 			);
 			name = Samples;
 			sourceTree = "<group>";
@@ -356,13 +356,13 @@
 				6B62416A103434880002E346 /* RecastMeshDetail.cpp in Sources */,
 				6B8DE88910B69E3E00DF20FB /* DetourNavMesh.cpp in Sources */,
 				6B8DE88A10B69E3E00DF20FB /* DetourNavMeshBuilder.cpp in Sources */,
-				6BA1E88A10C7BFC9008007F6 /* Sample_SoloMesh.cpp in Sources */,
 				6BA1E88B10C7BFC9008007F6 /* Sample_SoloMeshSimple.cpp in Sources */,
 				6BA1E88C10C7BFC9008007F6 /* Sample_SoloMeshTiled.cpp in Sources */,
 				6BB93C7D10CFE1D500F74F2B /* DebugDraw.cpp in Sources */,
 				6BB93C7E10CFE1D500F74F2B /* DetourDebugDraw.cpp in Sources */,
 				6BB93C7F10CFE1D500F74F2B /* RecastDebugDraw.cpp in Sources */,
 				6BB93CF610CFEC4500F74F2B /* RecastDump.cpp in Sources */,
+				6BBB87D010EA8EFA008FEA1F /* NavMeshTesterTool.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

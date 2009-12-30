@@ -61,9 +61,95 @@ inline unsigned int ilog2(unsigned int v)
 	return r;
 }
 
+class NavMeshTileTool : public SampleTool
+{
+	Sample_TileMesh* m_sample;
+	float m_hitPos[3];
+	bool m_hitPosSet;
+	float m_agentRadius;
+	
+public:
+
+	NavMeshTileTool() :
+		m_sample(0),
+		m_hitPosSet(false),
+		m_agentRadius(0)
+	{
+	}
+
+	virtual ~NavMeshTileTool()
+	{
+	}
+
+	virtual int type() { return TOOL_TILE_EDIT; }
+
+	virtual void init(Sample* sample)
+	{
+		m_sample = (Sample_TileMesh*)sample; 
+	}
+	
+	virtual void reset() {}
+
+	virtual void handleMenu()
+	{
+		imguiLabel("Create Tiles");
+		if (imguiButton("Create All"))
+		{
+			if (m_sample)
+				m_sample->buildAllTiles();
+		}
+		if (imguiButton("Remove All"))
+		{
+			if (m_sample)
+				m_sample->removeAllTiles();
+		}
+		imguiValue("Click LMB to create a tile.");
+		imguiValue("Shift+LMB to remove a tile.");
+	}
+
+	virtual void handleClick(const float* p, bool shift)
+	{
+		m_hitPosSet = true;
+		vcopy(m_hitPos,p);
+		if (m_sample)
+		{
+			if (shift)
+				m_sample->removeTile(m_hitPos);
+			else
+				m_sample->buildTile(m_hitPos);
+		}
+	}
+	
+	virtual void handleRender()
+	{
+		if (m_hitPosSet)
+		{
+			const float s = m_sample->getAgentRadius();
+			glColor4ub(0,0,0,128);
+			glLineWidth(2.0f);
+			glBegin(GL_LINES);
+			glVertex3f(m_hitPos[0]-s,m_hitPos[1]+0.1f,m_hitPos[2]);
+			glVertex3f(m_hitPos[0]+s,m_hitPos[1]+0.1f,m_hitPos[2]);
+			glVertex3f(m_hitPos[0],m_hitPos[1]-s+0.1f,m_hitPos[2]);
+			glVertex3f(m_hitPos[0],m_hitPos[1]+s+0.1f,m_hitPos[2]);
+			glVertex3f(m_hitPos[0],m_hitPos[1]+0.1f,m_hitPos[2]-s);
+			glVertex3f(m_hitPos[0],m_hitPos[1]+0.1f,m_hitPos[2]+s);
+			glEnd();
+			glLineWidth(1.0f);
+		}
+	}
+	
+	virtual void handleRenderOverlay(double* proj, double* model, int* view)
+	{
+	}
+};
+
+
+
 
 Sample_TileMesh::Sample_TileMesh() :
 	m_keepInterResults(false),
+	m_buildAll(true),
 	m_navMesh(0),
 	m_chunkyMesh(0),
 	m_triflags(0),
@@ -75,24 +161,15 @@ Sample_TileMesh::Sample_TileMesh() :
 	m_maxTiles(0),
 	m_maxPolysPerTile(0),
 	m_tileSize(32),
-	m_sposSet(false),
-	m_eposSet(false),
 	m_tileBuildTime(0),
 	m_tileMemUsage(0),
-	m_tileTriCount(0),
-	m_startRef(0),
-	m_endRef(0),
-	m_npolys(0),
-	m_nstraightPath(0),
-	m_distanceToWall(0),
-	m_toolMode(TOOLMODE_CREATE_TILES)
+	m_tileTriCount(0)
 {
 	resetCommonSettings();
 	memset(m_tileBmin, 0, sizeof(m_tileBmin));
 	memset(m_tileBmax, 0, sizeof(m_tileBmax));
-	m_polyPickExt[0] = 2;
-	m_polyPickExt[1] = 4;
-	m_polyPickExt[2] = 2;
+	
+	setTool(new NavMeshTileTool);
 }
 
 Sample_TileMesh::~Sample_TileMesh()
@@ -121,6 +198,12 @@ void Sample_TileMesh::cleanup()
 void Sample_TileMesh::handleSettings()
 {
 	Sample::handleCommonSettings();
+
+	if (imguiCheck("Keep Itermediate Results", m_keepInterResults))
+		m_keepInterResults = !m_keepInterResults;
+
+	if (imguiCheck("Build All Tiles", m_buildAll))
+		m_buildAll = !m_buildAll;
 	
 	imguiLabel("Tiling");
 	imguiSlider("TileSize", &m_tileSize, 16.0f, 1024.0f, 16.0f);
@@ -147,141 +230,23 @@ void Sample_TileMesh::handleSettings()
 	imguiValue(text);
 }
 
-void Sample_TileMesh::toolRecalc()
-{
-	m_startRef = 0;
-	if (m_sposSet)
-		m_startRef = m_navMesh->findNearestPoly(m_spos, m_polyPickExt);
-	
-	m_endRef = 0;
-	if (m_eposSet)
-		m_endRef = m_navMesh->findNearestPoly(m_epos, m_polyPickExt);
-	
-	if (m_toolMode == TOOLMODE_PATHFIND)
-	{
-		if (m_sposSet && m_eposSet && m_startRef && m_endRef)
-		{
-			m_npolys = m_navMesh->findPath(m_startRef, m_endRef, m_spos, m_epos, m_polys, MAX_POLYS);
-			if (m_npolys)
-				m_nstraightPath = m_navMesh->findStraightPath(m_spos, m_epos, m_polys, m_npolys, m_straightPath, MAX_POLYS);
-		}
-		else
-		{
-			m_npolys = 0;
-			m_nstraightPath = 0;
-		}
-	}
-	else if (m_toolMode == TOOLMODE_RAYCAST)
-	{
-		m_nstraightPath = 0;
-		if (m_sposSet && m_eposSet && m_startRef)
-		{
-			float t = 0;
-			m_npolys = 0;
-			m_nstraightPath = 2;
-			m_straightPath[0] = m_spos[0];
-			m_straightPath[1] = m_spos[1];
-			m_straightPath[2] = m_spos[2];
-			vcopy(m_hitPos, m_epos);
-			m_npolys = m_navMesh->raycast(m_startRef, m_spos, m_epos, t, m_hitNormal, m_polys, MAX_POLYS);
-			if (m_npolys && t < 1)
-			{
-				m_hitPos[0] = m_spos[0] + (m_epos[0] - m_spos[0]) * t;
-				m_hitPos[1] = m_spos[1] + (m_epos[1] - m_spos[1]) * t;
-				m_hitPos[2] = m_spos[2] + (m_epos[2] - m_spos[2]) * t;
-			}
-			vcopy(&m_straightPath[3], m_hitPos);
-		}
-	}
-	else if (m_toolMode == TOOLMODE_DISTANCE_TO_WALL)
-	{
-		m_distanceToWall = 0;
-		if (m_sposSet && m_startRef)
-			m_distanceToWall = m_navMesh->findDistanceToWall(m_startRef, m_spos, 100.0f, m_hitPos, m_hitNormal);
-	}
-	else if (m_toolMode == TOOLMODE_FIND_POLYS_AROUND)
-	{
-		if (m_sposSet && m_startRef && m_eposSet)
-		{
-			const float dx = m_epos[0] - m_spos[0];
-			const float dz = m_epos[2] - m_spos[2];
-			float dist = sqrtf(dx*dx + dz*dz);
-			m_npolys = m_navMesh->findPolysAround(m_startRef, m_spos, dist, m_polys, m_parent, 0, MAX_POLYS);
-		}
-	}
-	
-}
-
 void Sample_TileMesh::handleTools()
 {
-	if (imguiCheck("Create Tiles", m_toolMode == TOOLMODE_CREATE_TILES))
-	{
-		m_toolMode = TOOLMODE_CREATE_TILES;
-		toolRecalc();
-	}
+	int type = !m_tool ? TOOL_NONE : m_tool->type();
 
-	imguiIndent();
-	
-	if (imguiButton("Create All"))
+	if (imguiCheck("Create Tiles", type == TOOL_TILE_EDIT))
 	{
-		int gw = 0, gh = 0;
-		rcCalcGridSize(m_bmin, m_bmax, m_cellSize, &gw, &gh);
-		const int ts = (int)m_tileSize;
-		const int tw = (gw + ts-1) / ts;
-		const int th = (gh + ts-1) / ts;
-		const float tcs = m_tileSize*m_cellSize;
-		
-		for (int y = 0; y < th; ++y)
-		{
-			for (int x = 0; x < tw; ++x)
-			{
-				m_tileBmin[0] = m_bmin[0] + x*tcs;
-				m_tileBmin[1] = m_bmin[1];
-				m_tileBmin[2] = m_bmin[2] + y*tcs;
-				
-				m_tileBmax[0] = m_bmin[0] + (x+1)*tcs;
-				m_tileBmax[1] = m_bmax[1];
-				m_tileBmax[2] = m_bmin[2] + (y+1)*tcs;
-				
-				int dataSize = 0;
-				unsigned char* data = buildTileMesh(m_tileBmin, m_tileBmax, dataSize);
-				if (data)
-				{
-					// Remove any previous data (navmesh owns and deletes the data).
-					m_navMesh->removeTileAt(x,y,0,0);
-					// Let the navmesh own the data.
-					if (!m_navMesh->addTileAt(x,y,data,dataSize,true))
-						delete [] data;
-				}
-			}
-		}
-		
-		toolRecalc();
+		setTool(new NavMeshTileTool);
 	}
-	imguiUnindent();
+	if (imguiCheck("Test Navmesh", type == TOOL_NAVMESH_TESTER))
+	{
+		setTool(new NavMeshTesterTool);
+	}
 	
 	imguiSeparator();
 	
-	if (imguiCheck("Pathfind", m_toolMode == TOOLMODE_PATHFIND))
-	{
-		m_toolMode = TOOLMODE_PATHFIND;
-		toolRecalc();
-	}
-	if (imguiCheck("Distance to Wall", m_toolMode == TOOLMODE_DISTANCE_TO_WALL))
-	{
-		m_toolMode = TOOLMODE_DISTANCE_TO_WALL;
-		toolRecalc();
-	}
-	if (imguiCheck("Raycast", m_toolMode == TOOLMODE_RAYCAST))
-	{
-		m_toolMode = TOOLMODE_RAYCAST;
-		toolRecalc();
-	}
-	if (imguiCheck("Find Polys Around", m_toolMode == TOOLMODE_FIND_POLYS_AROUND))
-	{
-		m_toolMode = TOOLMODE_FIND_POLYS_AROUND;
-		toolRecalc();
-	}	
+	if (m_tool)
+		m_tool->handleMenu();
 }
 
 void Sample_TileMesh::handleDebugMode()
@@ -329,10 +294,7 @@ void Sample_TileMesh::handleRender()
 	DebugDrawGL dd;
 	
 	// Draw mesh
-	if (m_navMesh)
-		duDebugDrawTriMesh(&dd, m_verts, m_nverts, m_tris, m_trinorms, m_ntris, 0);
-	else
-		duDebugDrawTriMeshSlope(&dd, m_verts, m_nverts, m_tris, m_trinorms, m_ntris, m_agentMaxSlope);
+	duDebugDrawTriMesh(&dd, m_verts, m_nverts, m_tris, m_trinorms, m_ntris, 0);
 	
 	glDepthMask(GL_FALSE);
 	
@@ -383,138 +345,10 @@ void Sample_TileMesh::handleRender()
 	if (m_navMesh)
 		duDebugDrawNavMesh(&dd, m_navMesh);
 	
-	if (m_sposSet)
-	{
-		const float s = 0.5f;
-		glColor4ub(64,16,0,255);
-		glLineWidth(3.0f);
-		glBegin(GL_LINES);
-		glVertex3f(m_spos[0]-s,m_spos[1]+m_cellHeight,m_spos[2]);
-		glVertex3f(m_spos[0]+s,m_spos[1]+m_cellHeight,m_spos[2]);
-		glVertex3f(m_spos[0],m_spos[1]-s+m_cellHeight,m_spos[2]);
-		glVertex3f(m_spos[0],m_spos[1]+s+m_cellHeight,m_spos[2]);
-		glVertex3f(m_spos[0],m_spos[1]+m_cellHeight,m_spos[2]-s);
-		glVertex3f(m_spos[0],m_spos[1]+m_cellHeight,m_spos[2]+s);
-		glEnd();
-		glLineWidth(1.0f);
-	}
-	if (m_eposSet)
-	{
-		const float s = 0.5f;
-		glColor4ub(16,64,0,255);
-		glLineWidth(3.0f);
-		glBegin(GL_LINES);
-		glVertex3f(m_epos[0]-s,m_epos[1]+m_cellHeight,m_epos[2]);
-		glVertex3f(m_epos[0]+s,m_epos[1]+m_cellHeight,m_epos[2]);
-		glVertex3f(m_epos[0],m_epos[1]-s+m_cellHeight,m_epos[2]);
-		glVertex3f(m_epos[0],m_epos[1]+s+m_cellHeight,m_epos[2]);
-		glVertex3f(m_epos[0],m_epos[1]+m_cellHeight,m_epos[2]-s);
-		glVertex3f(m_epos[0],m_epos[1]+m_cellHeight,m_epos[2]+s);
-		glEnd();
-		glLineWidth(1.0f);
-	}
+	if (m_tool)
+		m_tool->handleRender();
 	
-	static const float startCol[4] = { 0.5f, 0.1f, 0.0f, 0.75f };
-	static const float endCol[4] = { 0.2f, 0.4f, 0.0f, 0.75f };
-	static const float pathCol[4] = {0,0,0,0.25f};
-	
-	if (m_toolMode == TOOLMODE_PATHFIND)
-	{
-		duDebugDrawNavMeshPoly(&dd, m_navMesh, m_startRef, startCol);
-		duDebugDrawNavMeshPoly(&dd, m_navMesh, m_endRef, endCol);
-		
-		if (m_npolys)
-		{
-			for (int i = 1; i < m_npolys-1; ++i)
-				duDebugDrawNavMeshPoly(&dd, m_navMesh, m_polys[i], pathCol);
-		}
-		if (m_nstraightPath)
-		{
-			glColor4ub(64,16,0,220);
-			glLineWidth(3.0f);
-			glBegin(GL_LINE_STRIP);
-			for (int i = 0; i < m_nstraightPath; ++i)
-				glVertex3f(m_straightPath[i*3], m_straightPath[i*3+1]+0.4f, m_straightPath[i*3+2]);
-			glEnd();
-			glLineWidth(1.0f);
-			glPointSize(4.0f);
-			glBegin(GL_POINTS);
-			for (int i = 0; i < m_nstraightPath; ++i)
-				glVertex3f(m_straightPath[i*3], m_straightPath[i*3+1]+0.4f, m_straightPath[i*3+2]);
-			glEnd();
-			glPointSize(1.0f);
-		}
-	}
-	else if (m_toolMode == TOOLMODE_RAYCAST)
-	{
-		duDebugDrawNavMeshPoly(&dd, m_navMesh, m_startRef, startCol);
-		
-		if (m_nstraightPath)
-		{
-			for (int i = 1; i < m_npolys; ++i)
-				duDebugDrawNavMeshPoly(&dd, m_navMesh, m_polys[i], pathCol);
-			
-			glColor4ub(64,16,0,220);
-			glLineWidth(3.0f);
-			glBegin(GL_LINE_STRIP);
-			for (int i = 0; i < m_nstraightPath; ++i)
-				glVertex3f(m_straightPath[i*3], m_straightPath[i*3+1]+0.4f, m_straightPath[i*3+2]);
-			glEnd();
-			glLineWidth(1.0f);
-			glPointSize(4.0f);
-			glBegin(GL_POINTS);
-			for (int i = 0; i < m_nstraightPath; ++i)
-				glVertex3f(m_straightPath[i*3], m_straightPath[i*3+1]+0.4f, m_straightPath[i*3+2]);
-			glEnd();
-			glPointSize(1.0f);
-
-			glColor4ub(255,255,255,128);
-			glBegin(GL_LINES);
-			glVertex3f(m_hitPos[0], m_hitPos[1] + 0.4f, m_hitPos[2]);
-			glVertex3f(m_hitPos[0] + m_hitNormal[0]*m_agentRadius, m_hitPos[1] + 0.4f + m_hitNormal[1]*m_agentRadius, m_hitPos[2] + m_hitNormal[2]*m_agentRadius);
-			glEnd();
-		}
-	}
-	else if (m_toolMode == TOOLMODE_DISTANCE_TO_WALL)
-	{
-		duDebugDrawNavMeshPoly(&dd, m_navMesh, m_startRef, startCol);
-		const float col[4] = {1,1,1,0.5f};
-		duDebugDrawCylinderWire(&dd, m_spos[0]-m_distanceToWall, m_spos[1]+0.02f, m_spos[2]-m_distanceToWall,
-								m_spos[0]+m_distanceToWall, m_spos[1]+m_agentHeight, m_spos[2]+m_distanceToWall, col);
-		glLineWidth(3.0f);
-		glColor4fv(col);
-		glBegin(GL_LINES);
-		glVertex3f(m_hitPos[0], m_hitPos[1] + 0.02f, m_hitPos[2]);
-		glVertex3f(m_hitPos[0], m_hitPos[1] + m_agentHeight, m_hitPos[2]);
-		glEnd();
-		glLineWidth(1.0f);
-	}
-	else if (m_toolMode == TOOLMODE_FIND_POLYS_AROUND)
-	{
-		const float cola[4] = {0,0,0,0.5f};
-		for (int i = 0; i < m_npolys; ++i)
-		{
-			duDebugDrawNavMeshPoly(&dd, m_navMesh, m_polys[i], pathCol);
-			if (m_parent[i])
-			{
-				float p0[3], p1[3];
-				getPolyCenter(m_navMesh, m_polys[i], p0);
-				getPolyCenter(m_navMesh, m_parent[i], p1);
-				glColor4ub(0,0,0,128);
-				duDebugDrawArc(&dd, p0, p1, cola, 2.0f);
-			}
-		}
-		
-		const float dx = m_epos[0] - m_spos[0];
-		const float dz = m_epos[2] - m_spos[2];
-		float dist = sqrtf(dx*dx + dz*dz);
-		const float col[4] = {1,1,1,0.5f};
-		duDebugDrawCylinderWire(&dd, m_spos[0]-dist, m_spos[1]+0.02f, m_spos[2]-dist,
-								m_spos[0]+dist, m_spos[1]+m_agentHeight, m_spos[2]+dist, col);
-	}
-	
-	glDepthMask(GL_TRUE);
-	
+	glDepthMask(GL_TRUE);	
 }
 
 void Sample_TileMesh::handleRenderOverlay(double* proj, double* model, int* view)
@@ -529,6 +363,9 @@ void Sample_TileMesh::handleRenderOverlay(double* proj, double* model, int* view
 		snprintf(text,32,"%.3fms / %dTris / %.1fkB", m_tileBuildTime, m_tileTriCount, m_tileMemUsage);
 		imguiDrawText((int)x, (int)y-25, IMGUI_ALIGN_CENTER, text, imguiRGBA(0,0,0,220));
 	}
+	
+	if (m_tool)
+		m_tool->handleRenderOverlay(proj, model, view);
 }
 
 void Sample_TileMesh::handleMeshChanged(const float* verts, int nverts,
@@ -548,31 +385,12 @@ void Sample_TileMesh::handleMeshChanged(const float* verts, int nverts,
 	delete m_navMesh;
 	m_navMesh = 0;
 	cleanup();
-}
-
-void Sample_TileMesh::setToolStartPos(const float* p)
-{
-	m_sposSet = true;
-	vcopy(m_spos, p);
 	
-	if (m_toolMode == TOOLMODE_CREATE_TILES)
-		removeTile(m_spos);
-	else
-		toolRecalc();
-}
-
-void Sample_TileMesh::setToolEndPos(const float* p)
-{
-	if (!m_navMesh)
-		return;
-	
-	m_eposSet = true;
-	vcopy(m_epos, p);
-	
-	if (m_toolMode == TOOLMODE_CREATE_TILES)
-		buildTile(m_epos);
-	else
-		toolRecalc();
+	if (m_tool)
+	{
+		m_tool->reset();
+		m_tool->init(this);
+	}
 }
 
 bool Sample_TileMesh::handleBuild()
@@ -614,7 +432,13 @@ bool Sample_TileMesh::handleBuild()
 			rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: Could not build chunky mesh.");
 		return false;
 	}
+
+	if (m_buildAll)
+		buildAllTiles();
 	
+	if (m_tool)
+		m_tool->init(this);
+
 	return true;
 }
 
@@ -676,6 +500,54 @@ void Sample_TileMesh::removeTile(const float* pos)
 	int rdataSize = 0;
 	if (m_navMesh->removeTileAt(tx,ty,&rdata,&rdataSize))
 		delete [] rdata;
+}
+
+void Sample_TileMesh::buildAllTiles()
+{
+	int gw = 0, gh = 0;
+	rcCalcGridSize(m_bmin, m_bmax, m_cellSize, &gw, &gh);
+	const int ts = (int)m_tileSize;
+	const int tw = (gw + ts-1) / ts;
+	const int th = (gh + ts-1) / ts;
+	const float tcs = m_tileSize*m_cellSize;
+
+	for (int y = 0; y < th; ++y)
+	{
+		for (int x = 0; x < tw; ++x)
+		{
+			m_tileBmin[0] = m_bmin[0] + x*tcs;
+			m_tileBmin[1] = m_bmin[1];
+			m_tileBmin[2] = m_bmin[2] + y*tcs;
+			
+			m_tileBmax[0] = m_bmin[0] + (x+1)*tcs;
+			m_tileBmax[1] = m_bmax[1];
+			m_tileBmax[2] = m_bmin[2] + (y+1)*tcs;
+			
+			int dataSize = 0;
+			unsigned char* data = buildTileMesh(m_tileBmin, m_tileBmax, dataSize);
+			if (data)
+			{
+				// Remove any previous data (navmesh owns and deletes the data).
+				m_navMesh->removeTileAt(x,y,0,0);
+				// Let the navmesh own the data.
+				if (!m_navMesh->addTileAt(x,y,data,dataSize,true))
+					delete [] data;
+			}
+		}
+	}
+}
+
+void Sample_TileMesh::removeAllTiles()
+{
+	int gw = 0, gh = 0;
+	rcCalcGridSize(m_bmin, m_bmax, m_cellSize, &gw, &gh);
+	const int ts = (int)m_tileSize;
+	const int tw = (gw + ts-1) / ts;
+	const int th = (gh + ts-1) / ts;
+	
+	for (int y = 0; y < th; ++y)
+		for (int x = 0; x < tw; ++x)
+			m_navMesh->removeTileAt(x,y,0,0);
 }
 
 unsigned char* Sample_TileMesh::buildTileMesh(const float* bmin, const float* bmax, int& dataSize)

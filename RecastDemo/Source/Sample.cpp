@@ -55,13 +55,27 @@ void DebugDrawGL::end()
 
 
 Sample::Sample() :
-	m_verts(0), m_nverts(0), m_tris(0), m_trinorms(0), m_ntris(0)
+	m_verts(0),
+	m_nverts(0),
+	m_tris(0),
+	m_trinorms(0),
+	m_ntris(0),
+	m_tool(0)
 {
 	resetCommonSettings();
 }
 
 Sample::~Sample()
 {
+	delete m_tool;
+}
+
+void Sample::setTool(SampleTool* tool)
+{
+	delete m_tool;
+	m_tool = tool;
+	if (tool)
+		m_tool->init(this);
 }
 
 void Sample::handleSettings()
@@ -162,12 +176,10 @@ void Sample::handleCommonSettings()
 	imguiSeparator();
 }
 
-void Sample::setToolStartPos(const float* p)
+void Sample::handleClick(const float* p, bool shift)
 {
-}
-
-void Sample::setToolEndPos(const float* p)
-{
+	if (m_tool)
+		m_tool->handleClick(p, shift);
 }
 
 bool Sample::handleBuild()

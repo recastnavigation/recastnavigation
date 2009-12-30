@@ -11,6 +11,25 @@ struct DebugDrawGL : public duDebugDraw
 	virtual void end();
 };
 
+enum SampleToolType
+{
+	TOOL_NONE = 0,
+	TOOL_TILE_EDIT,
+	TOOL_NAVMESH_TESTER,
+};
+
+struct SampleTool
+{
+	virtual ~SampleTool() {}
+	virtual int type() = 0;
+	virtual void init(class Sample* sample) = 0;
+	virtual void reset() = 0;
+	virtual void handleMenu() = 0;
+	virtual void handleClick(const float* p, bool shift) = 0;
+	virtual void handleRender() = 0;
+	virtual void handleRenderOverlay(double* proj, double* model, int* view) = 0;
+};
+
 
 class Sample
 {
@@ -36,23 +55,28 @@ protected:
 	float m_detailSampleDist;
 	float m_detailSampleMaxError;
 	
+	SampleTool* m_tool;
+	
 public:
 	Sample();
 	virtual ~Sample();
 	
+	void setTool(SampleTool* tool);
+	
 	virtual void handleSettings();
 	virtual void handleTools();
 	virtual void handleDebugMode();
-
-	virtual void setToolStartPos(const float* p);
-	virtual void setToolEndPos(const float* p);
-	
+	virtual void handleClick(const float* p, bool shift);
 	virtual void handleRender();
 	virtual void handleRenderOverlay(double* proj, double* model, int* view);
 	virtual void handleMeshChanged(const float* verts, int nverts,
 								   const int* tris, const float* trinorms, int ntris,
 								   const float* bmin, const float* bmax);
 	virtual bool handleBuild();
+
+	virtual class dtNavMesh* getNavMesh() { return 0; }
+	virtual float getAgentRadius() { return m_agentRadius; }
+	virtual float getAgentHeight() { return m_agentHeight; }
 
 	void resetCommonSettings();
 	void handleCommonSettings();

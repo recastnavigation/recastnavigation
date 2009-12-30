@@ -14,6 +14,7 @@
 #include "DetourNavMesh.h"
 #include "DetourNavMeshBuilder.h"
 #include "DetourDebugDraw.h"
+#include "NavMeshTesterTool.h"
 
 #ifdef WIN32
 #	define snprintf _snprintf
@@ -21,6 +22,7 @@
 
 
 Sample_SoloMeshSimple::Sample_SoloMeshSimple() :
+	m_navMesh(0),
 	m_keepInterResults(false),
 	m_triflags(0),
 	m_solid(0),
@@ -30,6 +32,7 @@ Sample_SoloMeshSimple::Sample_SoloMeshSimple() :
 	m_dmesh(0),
 	m_drawMode(DRAWMODE_NAVMESH)
 {
+	setTool(new NavMeshTesterTool);
 }
 		
 Sample_SoloMeshSimple::~Sample_SoloMeshSimple()
@@ -51,7 +54,8 @@ void Sample_SoloMeshSimple::cleanup()
 	m_pmesh = 0;
 	delete m_dmesh;
 	m_dmesh = 0;
-	toolCleanup();
+	delete m_navMesh;
+	m_navMesh = 0;
 }
 			
 void Sample_SoloMeshSimple::handleSettings()
@@ -62,6 +66,12 @@ void Sample_SoloMeshSimple::handleSettings()
 		m_keepInterResults = !m_keepInterResults;
 
 	imguiSeparator();
+}
+
+void Sample_SoloMeshSimple::handleTools()
+{
+	if (m_tool)
+		m_tool->handleMenu();
 }
 
 void Sample_SoloMeshSimple::handleDebugMode()
@@ -175,12 +185,10 @@ void Sample_SoloMeshSimple::handleRender()
 		m_drawMode == DRAWMODE_NAVMESH_BVTREE ||
 		m_drawMode == DRAWMODE_NAVMESH_INVIS))
 	{
-		int flags = NAVMESH_TOOLS;
 		if (m_drawMode != DRAWMODE_NAVMESH_INVIS)
-			flags |= NAVMESH_POLYS;
+			duDebugDrawNavMesh(&dd, m_navMesh); //, m_toolMode == TOOLMODE_PATHFIND);
 		if (m_drawMode == DRAWMODE_NAVMESH_BVTREE)
-			flags |= NAVMESH_BVTREE;
-		toolRender(flags);
+			duDebugDrawNavMeshBVTree(&dd, m_navMesh);
 	}
 		
 	glDepthMask(GL_TRUE);
@@ -244,19 +252,23 @@ void Sample_SoloMeshSimple::handleRender()
 		glDepthMask(GL_TRUE);
 	}
 	
-	static const float startCol[4] = { 0.5f, 0.1f, 0.0f, 0.75f };
+/*	static const float startCol[4] = { 0.5f, 0.1f, 0.0f, 0.75f };
 	static const float endCol[4] = { 0.2f, 0.4f, 0.0f, 0.75f };
 	if (m_sposSet)
 		drawAgent(m_spos, m_agentRadius, m_agentHeight, m_agentMaxClimb, startCol);
 	if (m_eposSet)
-		drawAgent(m_epos, m_agentRadius, m_agentHeight, m_agentMaxClimb, endCol);
+		drawAgent(m_epos, m_agentRadius, m_agentHeight, m_agentMaxClimb, endCol);*/
+
+	if (m_tool)
+		m_tool->handleRender();
 
 	glDepthMask(GL_TRUE);
 }
 
 void Sample_SoloMeshSimple::handleRenderOverlay(double* proj, double* model, int* view)
 {
-	toolRenderOverlay(proj, model, view);
+	if (m_tool)
+		m_tool->handleRenderOverlay(proj, model, view);
 }
 
 void Sample_SoloMeshSimple::handleMeshChanged(const float* verts, int nverts,
@@ -264,8 +276,13 @@ void Sample_SoloMeshSimple::handleMeshChanged(const float* verts, int nverts,
 									  const float* bmin, const float* bmax)
 {
 	Sample::handleMeshChanged(verts, nverts, tris, trinorms, ntris, bmin, bmax);
-	toolCleanup();
-	toolReset();
+	delete m_navMesh;
+	m_navMesh = 0;
+	if (m_tool)
+	{
+		m_tool->reset();
+		m_tool->init(this);
+	}
 }
 
 bool Sample_SoloMeshSimple::handleBuild()
@@ -278,7 +295,6 @@ bool Sample_SoloMeshSimple::handleBuild()
 	}
 	
 	cleanup();
-	toolCleanup();
 	
 	//
 	// Step 1. Initialize build config.
@@ -560,7 +576,8 @@ bool Sample_SoloMeshSimple::handleBuild()
 		rcGetLog()->log(RC_LOG_PROGRESS, "TOTAL: %.1fms", rcGetDeltaTimeUsec(totStartTime, totEndTime)/1000.0f);
 	}
 	
-	toolRecalc();
+	if (m_tool)
+		m_tool->init(this);
 
 	return true;
 }

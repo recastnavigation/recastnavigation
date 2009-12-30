@@ -1,15 +1,15 @@
 #ifndef RECASTSAMPLESOLOMESHSIMPLE_H
 #define RECASTSAMPLESOLOMESHSIMPLE_H
 
-#include "Sample_SoloMesh.h"
+#include "Sample.h"
 #include "DetourNavMesh.h"
 #include "Recast.h"
 #include "RecastLog.h"
 
-
-class Sample_SoloMeshSimple : public Sample_SoloMesh
+class Sample_SoloMeshSimple : public Sample //Sample_SoloMesh
 {
 protected:
+	dtNavMesh* m_navMesh;
 
 	bool m_keepInterResults;
 	rcBuildTimes m_buildTimes; 
@@ -52,6 +52,7 @@ public:
 	virtual ~Sample_SoloMeshSimple();
 	
 	virtual void handleSettings();
+	virtual void handleTools();
 	virtual void handleDebugMode();
 	
 	virtual void handleRender();
@@ -60,6 +61,8 @@ public:
 								   const int* tris, const float* trinorms, int ntris,
 								   const float* bmin, const float* bmax);
 	virtual bool handleBuild();
+
+	virtual class dtNavMesh* getNavMesh() { return m_navMesh; }
 };
 
 

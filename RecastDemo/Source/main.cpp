@@ -350,11 +350,8 @@ int main(int argc, char *argv[])
 										pos[0] = rays[0] + (raye[0] - rays[0])*t;
 										pos[1] = rays[1] + (raye[1] - rays[1])*t;
 										pos[2] = rays[2] + (raye[2] - rays[2])*t;
-																			
-										if (SDL_GetModState() & KMOD_SHIFT)
-											sample->setToolStartPos(pos);
-										else
-											sample->setToolEndPos(pos);
+										bool shift = (SDL_GetModState() & KMOD_SHIFT) ? true : false;
+										sample->handleClick(pos, shift);
 									}
 								}
 								else
@@ -700,7 +697,7 @@ int main(int argc, char *argv[])
 		// Tools
 		if (showTools && showMenu && mesh && sample)
 		{
-			if (imguiBeginScrollArea("Tools", 10, height - 10 - 200, 150, 200, &toolsScroll))
+			if (imguiBeginScrollArea("Tools", 10, height - 10 - 250, 200, 250, &toolsScroll))
 				mouseOverMenu = true;
 
 			sample->handleTools();

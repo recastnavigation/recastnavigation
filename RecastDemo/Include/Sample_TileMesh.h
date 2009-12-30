@@ -24,12 +24,14 @@
 #include "Recast.h"
 #include "RecastLog.h"
 #include "ChunkyTriMesh.h"
+#include "NavMeshTesterTool.h"
 
 class Sample_TileMesh : public Sample
 {
 protected:
 	
 	bool m_keepInterResults;
+	bool m_buildAll;
 	rcBuildTimes m_buildTimes; 
 	
 	dtNavMesh* m_navMesh;
@@ -44,13 +46,7 @@ protected:
 	
 	int m_maxTiles;
 	int m_maxPolysPerTile;
-	
 	float m_tileSize;
-	
-	float m_spos[3];
-	float m_epos[3];
-	bool m_sposSet;
-	bool m_eposSet;
 	
 	float m_tileCol[4];
 	float m_tileBmin[3];
@@ -58,38 +54,7 @@ protected:
 	float m_tileBuildTime;
 	float m_tileMemUsage;
 	int m_tileTriCount;
-	
-	enum ToolMode
-	{
-		TOOLMODE_CREATE_TILES,
-		TOOLMODE_PATHFIND,
-		TOOLMODE_RAYCAST,
-		TOOLMODE_DISTANCE_TO_WALL,
-		TOOLMODE_FIND_POLYS_AROUND,
-	};
-	
-	dtPolyRef m_startRef;
-	dtPolyRef m_endRef;
-	float m_polyPickExt[3];
-	
-	static const int MAX_POLYS = 256;
-	
-	dtPolyRef m_polys[MAX_POLYS];
-	dtPolyRef m_parent[MAX_POLYS];
-	int m_npolys;
-	float m_straightPath[MAX_POLYS*3];
-	int m_nstraightPath;
-	float m_hitPos[3];
-	float m_hitNormal[3];
-	float m_distanceToWall;
-	
-	ToolMode m_toolMode;
-	
-	void toolRecalc();
-	
-	void buildTile(const float* pos);
-	void removeTile(const float* pos);
-	
+
 	unsigned char* buildTileMesh(const float* bmin, const float* bmax, int& dataSize);
 	
 	void cleanup();
@@ -101,16 +66,19 @@ public:
 	virtual void handleSettings();
 	virtual void handleTools();
 	virtual void handleDebugMode();
-	
-	virtual void setToolStartPos(const float* p);
-	virtual void setToolEndPos(const float* p);
-	
 	virtual void handleRender();
 	virtual void handleRenderOverlay(double* proj, double* model, int* view);
 	virtual void handleMeshChanged(const float* verts, int nverts,
 								   const int* tris, const float* trinorms, int ntris,
 								   const float* bmin, const float* bmax);
 	virtual bool handleBuild();
+
+	virtual class dtNavMesh* getNavMesh() { return m_navMesh; }
+	
+	void buildTile(const float* pos);
+	void removeTile(const float* pos);
+	void buildAllTiles();
+	void removeAllTiles();
 };
 
 

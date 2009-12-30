@@ -1,15 +1,16 @@
 #ifndef RECASTSAMPLESOLOMESHTILED_H
 #define RECASTSAMPLESOLOMESHTILED_H
 
-#include "Sample_SoloMesh.h"
+#include "Sample.h"
 #include "DetourNavMesh.h"
 #include "Recast.h"
 #include "RecastLog.h"
 #include "ChunkyTriMesh.h"
 
-class Sample_SoloMeshTiled : public Sample_SoloMesh
+class Sample_SoloMeshTiled : public Sample
 {
 protected:
+	dtNavMesh* m_navMesh;
 
 	struct Tile
 	{
@@ -81,6 +82,7 @@ public:
 	virtual ~Sample_SoloMeshTiled();
 	
 	virtual void handleSettings();
+	virtual void handleTools();
 	virtual void handleDebugMode();
 	
 	virtual void handleRender();
@@ -89,6 +91,8 @@ public:
 								   const int* tris, const float* trinorms, int ntris,
 								   const float* bmin, const float* bmax);
 	virtual bool handleBuild();
+
+	virtual class dtNavMesh* getNavMesh() { return m_navMesh; }
 };
 
 

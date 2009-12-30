@@ -13,12 +13,14 @@
 #include "DetourNavMesh.h"
 #include "DetourNavMeshBuilder.h"
 #include "DetourDebugDraw.h"
+#include "NavMeshTesterTool.h"
 
 #ifdef WIN32
 #	define snprintf _snprintf
 #endif
 
 Sample_SoloMeshTiled::Sample_SoloMeshTiled() :
+	m_navMesh(0),
 	m_measurePerTileTimings(false),
 	m_keepInterResults(false),
 	m_tileSize(64),
@@ -30,6 +32,7 @@ Sample_SoloMeshTiled::Sample_SoloMeshTiled() :
 	m_statTimePerTileSamples(0),
 	m_drawMode(DRAWMODE_NAVMESH)
 {
+	setTool(new NavMeshTesterTool);
 }
 
 Sample_SoloMeshTiled::~Sample_SoloMeshTiled()
@@ -47,7 +50,8 @@ void Sample_SoloMeshTiled::cleanup()
 	m_pmesh = 0;
 	delete m_dmesh;
 	m_dmesh = 0;
-	toolCleanup();
+	delete m_navMesh;
+	m_navMesh = 0;
 	m_statTimePerTileSamples = 0;
 	m_statPolysPerTileSamples = 0;
 }
@@ -75,6 +79,12 @@ void Sample_SoloMeshTiled::handleSettings()
 		m_measurePerTileTimings = !m_measurePerTileTimings;
 	
 	imguiSeparator();
+}
+
+void Sample_SoloMeshTiled::handleTools()
+{
+	if (m_tool)
+		m_tool->handleMenu();
 }
 
 void Sample_SoloMeshTiled::handleDebugMode()
@@ -245,12 +255,10 @@ void Sample_SoloMeshTiled::handleRender()
 		 m_drawMode == DRAWMODE_NAVMESH_BVTREE ||
 		 m_drawMode == DRAWMODE_NAVMESH_INVIS))
 	{
-		int flags = NAVMESH_TOOLS;
 		if (m_drawMode != DRAWMODE_NAVMESH_INVIS)
-			flags |= NAVMESH_POLYS;
+			duDebugDrawNavMesh(&dd, m_navMesh); //, m_toolMode == TOOLMODE_PATHFIND);
 		if (m_drawMode == DRAWMODE_NAVMESH_BVTREE)
-			flags |= NAVMESH_BVTREE;
-		toolRender(flags);
+			duDebugDrawNavMeshBVTree(&dd, m_navMesh);
 	}
 	
 	glDepthMask(GL_TRUE);
@@ -389,13 +397,16 @@ void Sample_SoloMeshTiled::handleRender()
 		}
 	}
 		
-	static const float startCol[4] = { 0.5f, 0.1f, 0.0f, 0.75f };
+/*	static const float startCol[4] = { 0.5f, 0.1f, 0.0f, 0.75f };
 	static const float endCol[4] = { 0.2f, 0.4f, 0.0f, 0.75f };
 	if (m_sposSet)
 		drawAgent(m_spos, m_agentRadius, m_agentHeight, m_agentMaxClimb, startCol);
 	if (m_eposSet)
 		drawAgent(m_epos, m_agentRadius, m_agentHeight, m_agentMaxClimb, endCol);
-	
+	*/
+
+	if (m_tool)
+		m_tool->handleRender();
 }
 
 static float nicenum(float x, int round)
@@ -506,8 +517,6 @@ static void drawGraph(const char* name, int x, int y, int w, int h, float sd,
 
 void Sample_SoloMeshTiled::handleRenderOverlay(double* proj, double* model, int* view)
 {
-	toolRenderOverlay(proj, model, view);
-
 	if (m_measurePerTileTimings)
 	{
 		if (m_statTimePerTileSamples)
@@ -529,6 +538,9 @@ void Sample_SoloMeshTiled::handleRenderOverlay(double* proj, double* model, int*
 		snprintf(text,64,"Tiles %d\n", validTiles);
 		imguiDrawText(10, 240, IMGUI_ALIGN_LEFT, text, imguiRGBA(255,255,255));
 	}
+
+	if (m_tool)
+		m_tool->handleRenderOverlay(proj, model, view);
 }
 
 void Sample_SoloMeshTiled::handleMeshChanged(const float* verts, int nverts,
@@ -536,10 +548,13 @@ void Sample_SoloMeshTiled::handleMeshChanged(const float* verts, int nverts,
 											  const float* bmin, const float* bmax)
 {
 	Sample::handleMeshChanged(verts, nverts, tris, trinorms, ntris, bmin, bmax);
-	toolCleanup();
-	toolReset();
 	m_statTimePerTileSamples = 0;
 	m_statPolysPerTileSamples = 0;
+	if (m_tool)
+	{
+		m_tool->reset();
+		m_tool->init(this);
+	}
 }
 
 bool Sample_SoloMeshTiled::handleBuild()
@@ -560,8 +575,6 @@ bool Sample_SoloMeshTiled::handleBuild()
 	}
 	
 	cleanup();
-	toolCleanup();
-	toolReset();
 	
 	// Init build configuration from GUI
 	memset(&m_cfg, 0, sizeof(m_cfg));
@@ -980,7 +993,8 @@ bool Sample_SoloMeshTiled::handleBuild()
 		rcGetLog()->log(RC_LOG_PROGRESS, "TOTAL: %.1fms", rcGetDeltaTimeUsec(totStartTime, totEndTime)/1000.0f);
 	}
 
-	toolRecalc();
+	if (m_tool)
+		m_tool->init(this);
 
 	return true;
 }
