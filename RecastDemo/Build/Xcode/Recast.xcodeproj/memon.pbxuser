@@ -540,17 +540,17 @@
 	};
 	6B2AEC510FFB8946005BE9CC /* Sample_TileMesh.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {915, 1344}}";
-			sepNavSelRange = "{1772, 0}";
-			sepNavVisRange = "{1599, 833}";
+			sepNavIntBoundsRect = "{{0, 0}, {915, 1376}}";
+			sepNavSelRange = "{2395, 13}";
+			sepNavVisRange = "{1664, 810}";
 			sepNavWindowFrame = "{{15, 78}, {1011, 695}}";
 		};
 	};
 	6B2AEC520FFB8958005BE9CC /* Sample_TileMesh.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1034, 14096}}";
-			sepNavSelRange = "{9782, 10}";
-			sepNavVisRange = "{9366, 678}";
+			sepNavIntBoundsRect = "{{0, 0}, {1034, 14320}}";
+			sepNavSelRange = "{12554, 0}";
+			sepNavVisRange = "{12501, 672}";
 		};
 	};
 	6B555DAE100B211D00247EA3 /* imguiRenderGL.h */ = {
@@ -838,9 +838,9 @@
 	};
 	6BA1E88810C7BFC9008007F6 /* Sample_SoloMeshSimple.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {915, 9728}}";
-			sepNavSelRange = "{386, 31}";
-			sepNavVisRange = "{0, 625}";
+			sepNavIntBoundsRect = "{{0, 0}, {915, 9904}}";
+			sepNavSelRange = "{1126, 109}";
+			sepNavVisRange = "{814, 527}";
 		};
 	};
 	6BA1E88910C7BFC9008007F6 /* Sample_SoloMeshTiled.cpp */ = {
@@ -1066,13 +1066,25 @@
 		vrLoc = 1343;
 	};
 	6BBB87CE10EA8EF2008FEA1F /* NavMeshTesterTool.h */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.c.h;
+		name = NavMeshTesterTool.h;
+		path = /Users/memon/Code/recastnavigation/RecastDemo/Build/Xcode/NavMeshTesterTool.h;
+		sourceTree = "<absolute>";
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {915, 1008}}";
+			sepNavIntBoundsRect = "{{0, 0}, {915, 1104}}";
 			sepNavSelRange = "{362, 0}";
-			sepNavVisRange = "{329, 590}";
+			sepNavVisRange = "{300, 618}";
 		};
 	};
 	6BBB87CF10EA8EFA008FEA1F /* NavMeshTesterTool.cpp */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.cpp.cpp;
+		name = NavMeshTesterTool.cpp;
+		path = /Users/memon/Code/recastnavigation/RecastDemo/Build/Xcode/NavMeshTesterTool.cpp;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {1174, 7280}}";
 			sepNavSelRange = "{1511, 0}";
@@ -1414,7 +1426,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* Sample_TileMesh.h */;
 		name = "Sample_TileMesh.h: 74";
 		rLen = 0;
-		rLoc = 1668;
+		rLoc = 1686;
 		rType = 0;
 		vrLen = 557;
 		vrLoc = 1701;
@@ -1434,7 +1446,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* Sample_TileMesh.h */;
 		name = "Sample_TileMesh.h: 63";
 		rLen = 0;
-		rLoc = 1667;
+		rLoc = 1685;
 		rType = 0;
 		vrLen = 566;
 		vrLoc = 1556;
@@ -1444,7 +1456,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* Sample_TileMesh.h */;
 		name = "Sample_TileMesh.h: 65";
 		rLen = 0;
-		rLoc = 1668;
+		rLoc = 1686;
 		rType = 0;
 		vrLen = 537;
 		vrLoc = 1556;
@@ -1504,7 +1516,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* Sample_TileMesh.h */;
 		name = "Sample_TileMesh.h: 63";
 		rLen = 0;
-		rLoc = 1667;
+		rLoc = 1685;
 		rType = 0;
 		vrLen = 524;
 		vrLoc = 1556;
@@ -1534,7 +1546,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* Sample_TileMesh.h */;
 		name = "Sample_TileMesh.h: 64";
 		rLen = 0;
-		rLoc = 1667;
+		rLoc = 1685;
 		rType = 0;
 		vrLen = 524;
 		vrLoc = 1556;
@@ -1584,7 +1596,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* Sample_TileMesh.cpp */;
 		name = "Sample_TileMesh.cpp: 303";
 		rLen = 0;
-		rLoc = 5340;
+		rLoc = 5546;
 		rType = 0;
 		vrLen = 716;
 		vrLoc = 6712;
@@ -1614,7 +1626,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* Sample_TileMesh.h */;
 		name = "Sample_TileMesh.h: 119";
 		rLen = 0;
-		rLoc = 2394;
+		rLoc = 2436;
 		rType = 0;
 		vrLen = 179;
 		vrLoc = 2253;
@@ -1624,7 +1636,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* Sample_TileMesh.cpp */;
 		name = "Sample_TileMesh.cpp: 308";
 		rLen = 0;
-		rLoc = 5340;
+		rLoc = 5546;
 		rType = 0;
 		vrLen = 719;
 		vrLoc = 6799;
@@ -1634,7 +1646,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* Sample_TileMesh.h */;
 		name = "Sample_TileMesh.h: 119";
 		rLen = 23;
-		rLoc = 2371;
+		rLoc = 2389;
 		rType = 0;
 		vrLen = 131;
 		vrLoc = 2301;
@@ -1654,7 +1666,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* Sample_TileMesh.cpp */;
 		name = "Sample_TileMesh.cpp: 424";
 		rLen = 0;
-		rLoc = 7331;
+		rLoc = 7537;
 		rType = 0;
 		vrLen = 597;
 		vrLoc = 9490;
@@ -1704,7 +1716,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* Sample_TileMesh.cpp */;
 		name = "Sample_TileMesh.cpp: 306";
 		rLen = 0;
-		rLoc = 5143;
+		rLoc = 5349;
 		rType = 0;
 		vrLen = 701;
 		vrLoc = 7092;
@@ -1714,7 +1726,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* Sample_TileMesh.h */;
 		name = "Sample_TileMesh.h: 119";
 		rLen = 23;
-		rLoc = 2371;
+		rLoc = 2389;
 		rType = 0;
 		vrLen = 151;
 		vrLoc = 2281;
@@ -1854,7 +1866,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* Sample_TileMesh.h */;
 		name = "Sample_TileMesh.h: 63";
 		rLen = 0;
-		rLoc = 1667;
+		rLoc = 1685;
 		rType = 0;
 		vrLen = 496;
 		vrLoc = 1513;
@@ -1864,7 +1876,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* Sample_TileMesh.cpp */;
 		name = "Sample_TileMesh.cpp: 306";
 		rLen = 0;
-		rLoc = 5183;
+		rLoc = 5389;
 		rType = 0;
 		vrLen = 514;
 		vrLoc = 6951;
@@ -1884,7 +1896,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* Sample_TileMesh.cpp */;
 		name = "Sample_TileMesh.cpp: 312";
 		rLen = 19;
-		rLoc = 5278;
+		rLoc = 5484;
 		rType = 0;
 		vrLen = 543;
 		vrLoc = 7057;
@@ -1926,7 +1938,7 @@
 		rLen = 0;
 		rLoc = 919;
 		rType = 0;
-		vrLen = 643;
+		vrLen = 626;
 		vrLoc = 722;
 	};
 	6BBB886E10EA9ECC008FEA1F /* PBXTextBookmark */ = {
@@ -1934,7 +1946,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* Sample_TileMesh.cpp */;
 		name = "Sample_TileMesh.cpp: 310";
 		rLen = 0;
-		rLoc = 5235;
+		rLoc = 5441;
 		rType = 0;
 		vrLen = 509;
 		vrLoc = 7055;
@@ -1946,7 +1958,7 @@
 		rLen = 0;
 		rLoc = 1140;
 		rType = 0;
-		vrLen = 634;
+		vrLen = 626;
 		vrLoc = 722;
 	};
 	6BBB887010EA9ECC008FEA1F /* PBXTextBookmark */ = {
@@ -2056,7 +2068,7 @@
 		rLen = 0;
 		rLoc = 1164;
 		rType = 0;
-		vrLen = 646;
+		vrLen = 625;
 		vrLoc = 723;
 	};
 	6BBB888410EA9FE6008FEA1F /* PBXTextBookmark */ = {
@@ -2174,7 +2186,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* Sample_TileMesh.h */;
 		name = "Sample_TileMesh.h: 109";
 		rLen = 0;
-		rLoc = 2207;
+		rLoc = 2225;
 		rType = 0;
 		vrLen = 154;
 		vrLoc = 2278;
@@ -2184,7 +2196,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* Sample_TileMesh.cpp */;
 		name = "Sample_TileMesh.cpp: 159";
 		rLen = 0;
-		rLoc = 3649;
+		rLoc = 3668;
 		rType = 0;
 		vrLen = 500;
 		vrLoc = 3320;
@@ -2331,7 +2343,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* Sample_TileMesh.cpp */;
 		name = "Sample_TileMesh.cpp: 573";
 		rLen = 0;
-		rLoc = 8662;
+		rLoc = 8868;
 		rType = 0;
 		vrLen = 407;
 		vrLoc = 14553;
@@ -2361,7 +2373,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* Sample_TileMesh.cpp */;
 		name = "Sample_TileMesh.cpp: 632";
 		rLen = 0;
-		rLoc = 10073;
+		rLoc = 10279;
 		rType = 0;
 		vrLen = 565;
 		vrLoc = 15643;
@@ -2371,7 +2383,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* Sample_TileMesh.h */;
 		name = "Sample_TileMesh.h: 111";
 		rLen = 0;
-		rLoc = 2237;
+		rLoc = 2255;
 		rType = 0;
 		vrLen = 174;
 		vrLoc = 2258;
@@ -2381,7 +2393,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* Sample_TileMesh.cpp */;
 		name = "Sample_TileMesh.cpp: 622";
 		rLen = 0;
-		rLoc = 9864;
+		rLoc = 10070;
 		rType = 0;
 		vrLen = 723;
 		vrLoc = 2508;
@@ -2421,7 +2433,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* Sample_TileMesh.cpp */;
 		name = "Sample_TileMesh.cpp: 289";
 		rLen = 0;
-		rLoc = 5235;
+		rLoc = 5441;
 		rType = 0;
 		vrLen = 641;
 		vrLoc = 6480;
@@ -2501,7 +2513,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* Sample_TileMesh.cpp */;
 		name = "Sample_TileMesh.cpp: 216";
 		rLen = 0;
-		rLoc = 5053;
+		rLoc = 5259;
 		rType = 0;
 		vrLen = 809;
 		vrLoc = 4384;
@@ -2511,7 +2523,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* Sample_TileMesh.h */;
 		name = "Sample_TileMesh.h: 35";
 		rLen = 0;
-		rLoc = 1240;
+		rLoc = 1258;
 		rType = 0;
 		vrLen = 785;
 		vrLoc = 1452;
@@ -2521,7 +2533,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* Sample_TileMesh.cpp */;
 		name = "Sample_TileMesh.cpp: 165";
 		rLen = 0;
-		rLoc = 3836;
+		rLoc = 3855;
 		rType = 0;
 		vrLen = 875;
 		vrLoc = 3936;
@@ -2551,7 +2563,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* Sample_TileMesh.cpp */;
 		name = "Sample_TileMesh.cpp: 229";
 		rLen = 34;
-		rLoc = 5303;
+		rLoc = 5509;
 		rType = 0;
 		vrLen = 749;
 		vrLoc = 4504;
@@ -2631,7 +2643,7 @@
 		fRef = 6B2AEC520FFB8958005BE9CC /* Sample_TileMesh.cpp */;
 		name = "Sample_TileMesh.cpp: 377";
 		rLen = 60;
-		rLoc = 8628;
+		rLoc = 8834;
 		rType = 0;
 		vrLen = 516;
 		vrLoc = 8290;
@@ -2761,7 +2773,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* Sample_TileMesh.h */;
 		name = "Sample_TileMesh.h: 75";
 		rLen = 61;
-		rLoc = 2237;
+		rLoc = 2255;
 		rType = 0;
 		vrLen = 809;
 		vrLoc = 1623;
@@ -2941,7 +2953,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* Sample_TileMesh.h */;
 		name = "Sample_TileMesh.h: 60";
 		rLen = 0;
-		rLoc = 1772;
+		rLoc = 1790;
 		rType = 0;
 		vrLen = 833;
 		vrLoc = 1599;
@@ -2981,7 +2993,7 @@
 		fRef = 6B2AEC510FFB8946005BE9CC /* Sample_TileMesh.h */;
 		name = "Sample_TileMesh.h: 60";
 		rLen = 0;
-		rLoc = 1772;
+		rLoc = 1790;
 		rType = 0;
 		vrLen = 833;
 		vrLoc = 1599;
