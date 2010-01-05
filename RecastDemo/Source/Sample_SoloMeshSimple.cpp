@@ -1,3 +1,21 @@
+//
+// Copyright (c) 2009 Mikko Mononen memon@inside.org
+//
+// This software is provided 'as-is', without any express or implied
+// warranty.  In no event will the authors be held liable for any damages
+// arising from the use of this software.
+// Permission is granted to anyone to use this software for any purpose,
+// including commercial applications, and to alter it and redistribute it
+// freely, subject to the following restrictions:
+// 1. The origin of this software must not be misrepresented; you must not
+//    claim that you wrote the original software. If you use this software
+//    in a product, an acknowledgment in the product documentation would be
+//    appreciated but is not required.
+// 2. Altered source versions must be plainly marked as such, and must not be
+//    misrepresented as being the original software.
+// 3. This notice may not be removed or altered from any source distribution.
+//
+
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <stdio.h>
@@ -5,6 +23,7 @@
 #include "SDL.h"
 #include "SDL_opengl.h"
 #include "imgui.h"
+#include "InputGeom.h"
 #include "Sample.h"
 #include "Sample_SoloMeshSimple.h"
 #include "Recast.h"
@@ -15,6 +34,7 @@
 #include "DetourNavMeshBuilder.h"
 #include "DetourDebugDraw.h"
 #include "NavMeshTesterTool.h"
+#include "ExtraLinkTool.h"
 
 #ifdef WIN32
 #	define snprintf _snprintf
@@ -22,7 +42,6 @@
 
 
 Sample_SoloMeshSimple::Sample_SoloMeshSimple() :
-	m_navMesh(0),
 	m_keepInterResults(false),
 	m_triflags(0),
 	m_solid(0),
@@ -70,6 +89,19 @@ void Sample_SoloMeshSimple::handleSettings()
 
 void Sample_SoloMeshSimple::handleTools()
 {
+	int type = !m_tool ? TOOL_NONE : m_tool->type();
+	
+	if (imguiCheck("Test Navmesh", type == TOOL_NAVMESH_TESTER))
+	{
+		setTool(new NavMeshTesterTool);
+	}
+	if (imguiCheck("Create Extra Links", type == TOOL_EXTRA_LINK))
+	{
+		setTool(new ExtraLinkTool);
+	}
+	
+	imguiSeparator();
+
 	if (m_tool)
 		m_tool->handleMenu();
 }
@@ -81,7 +113,7 @@ void Sample_SoloMeshSimple::handleDebugMode()
 	for (int i = 0; i < MAX_DRAWMODE; ++i)
 		valid[i] = false;
 
-	if (m_verts && m_tris)
+	if (m_geom)
 	{
 		valid[DRAWMODE_NAVMESH] = m_navMesh != 0;
 		valid[DRAWMODE_NAVMESH_TRANS] = m_navMesh != 0;
@@ -151,7 +183,7 @@ void Sample_SoloMeshSimple::handleDebugMode()
 
 void Sample_SoloMeshSimple::handleRender()
 {
-	if (!m_verts || !m_tris || !m_trinorms)
+	if (!m_geom || !m_geom->getMesh())
 		return;
 	
 	float col[4];
@@ -164,20 +196,25 @@ void Sample_SoloMeshSimple::handleRender()
 	if (m_drawMode == DRAWMODE_MESH)
 	{
 		// Draw mesh
-		duDebugDrawTriMeshSlope(&dd, m_verts, m_nverts, m_tris, m_trinorms, m_ntris, m_agentMaxSlope);
+		duDebugDrawTriMeshSlope(&dd, m_geom->getMesh()->getVerts(), m_geom->getMesh()->getVertCount(),
+								m_geom->getMesh()->getTris(), m_geom->getMesh()->getNormals(), m_geom->getMesh()->getTriCount(),
+								m_agentMaxSlope);
 	}
 	else if (m_drawMode != DRAWMODE_NAVMESH_TRANS)
 	{
 		// Draw mesh
-		duDebugDrawTriMesh(&dd, m_verts, m_nverts, m_tris, m_trinorms, m_ntris, 0);
+		duDebugDrawTriMesh(&dd, m_geom->getMesh()->getVerts(), m_geom->getMesh()->getVertCount(),
+						   m_geom->getMesh()->getTris(), m_geom->getMesh()->getNormals(), m_geom->getMesh()->getTriCount(), 0);
 	}
 	
 	glDisable(GL_FOG);
 	glDepthMask(GL_FALSE);
 
 	// Draw bounds
+	const float* bmin = m_geom->getMeshBoundsMin();
+	const float* bmax = m_geom->getMeshBoundsMax();
 	col[0] = 1; col[1] = 1; col[2] = 1; col[3] = 0.5f;
-	duDebugDrawBoxWire(&dd, m_bmin[0],m_bmin[1],m_bmin[2], m_bmax[0],m_bmax[1],m_bmax[2], col);
+	duDebugDrawBoxWire(&dd, bmin[0],bmin[1],bmin[2], bmax[0],bmax[1],bmax[2], col);
 	
 	if (m_navMesh &&
 		(m_drawMode == DRAWMODE_NAVMESH ||
@@ -271,11 +308,9 @@ void Sample_SoloMeshSimple::handleRenderOverlay(double* proj, double* model, int
 		m_tool->handleRenderOverlay(proj, model, view);
 }
 
-void Sample_SoloMeshSimple::handleMeshChanged(const float* verts, int nverts,
-									  const int* tris, const float* trinorms, int ntris,
-									  const float* bmin, const float* bmax)
+void Sample_SoloMeshSimple::handleMeshChanged(class InputGeom* geom)
 {
-	Sample::handleMeshChanged(verts, nverts, tris, trinorms, ntris, bmin, bmax);
+	Sample::handleMeshChanged(geom);
 	delete m_navMesh;
 	m_navMesh = 0;
 	if (m_tool)
@@ -287,7 +322,7 @@ void Sample_SoloMeshSimple::handleMeshChanged(const float* verts, int nverts,
 
 bool Sample_SoloMeshSimple::handleBuild()
 {
-	if (!m_verts || ! m_tris)
+	if (!m_geom || !m_geom->getMesh())
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Input mesh is not specified.");
@@ -295,6 +330,13 @@ bool Sample_SoloMeshSimple::handleBuild()
 	}
 	
 	cleanup();
+	
+	const float* bmin = m_geom->getMeshBoundsMin();
+	const float* bmax = m_geom->getMeshBoundsMin();
+	const float* verts = m_geom->getMesh()->getVerts();
+	const int nverts = m_geom->getMesh()->getVertCount();
+	const int* tris = m_geom->getMesh()->getTris();
+	const int ntris = m_geom->getMesh()->getTriCount();
 	
 	//
 	// Step 1. Initialize build config.
@@ -319,8 +361,8 @@ bool Sample_SoloMeshSimple::handleBuild()
 	// Set the area where the navigation will be build.
 	// Here the bounds of the input mesh are used, but the
 	// area could be specified by an user defined box, etc.
-	vcopy(m_cfg.bmin, m_bmin);
-	vcopy(m_cfg.bmax, m_bmax);
+	vcopy(m_cfg.bmin, bmin);
+	vcopy(m_cfg.bmax, bmax);
 	rcCalcGridSize(m_cfg.bmin, m_cfg.bmax, m_cfg.cs, &m_cfg.width, &m_cfg.height);
 
 	// Reset build times gathering.
@@ -334,7 +376,7 @@ bool Sample_SoloMeshSimple::handleBuild()
 	{
 		rcGetLog()->log(RC_LOG_PROGRESS, "Building navigation:");
 		rcGetLog()->log(RC_LOG_PROGRESS, " - %d x %d cells", m_cfg.width, m_cfg.height);
-		rcGetLog()->log(RC_LOG_PROGRESS, " - %.1fK verts, %.1fK tris", m_nverts/1000.0f, m_ntris/1000.0f);
+		rcGetLog()->log(RC_LOG_PROGRESS, " - %.1fK verts, %.1fK tris", nverts/1000.0f, ntris/1000.0f);
 	}
 	
 	//
@@ -359,20 +401,20 @@ bool Sample_SoloMeshSimple::handleBuild()
 	// Allocate array that can hold triangle flags.
 	// If you have multiple meshes you need to process, allocate
 	// and array which can hold the max number of triangles you need to process.
-	m_triflags = new unsigned char[m_ntris];
+	m_triflags = new unsigned char[ntris];
 	if (!m_triflags)
 	{
 		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'triangleFlags' (%d).", m_ntris);
+			rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'triangleFlags' (%d).", ntris);
 		return false;
 	}
 	
 	// Find triangles which are walkable based on their slope and rasterize them.
 	// If your input data is multiple meshes, you can transform them here, calculate
 	// the flags for each of the meshes and rasterize them.
-	memset(m_triflags, 0, m_ntris*sizeof(unsigned char));
-	rcMarkWalkableTriangles(m_cfg.walkableSlopeAngle, m_verts, m_nverts, m_tris, m_ntris, m_triflags);
-	rcRasterizeTriangles(m_verts, m_nverts, m_tris, m_triflags, m_ntris, *m_solid);
+	memset(m_triflags, 0, ntris*sizeof(unsigned char));
+	rcMarkWalkableTriangles(m_cfg.walkableSlopeAngle, verts, nverts, tris, ntris, m_triflags);
+	rcRasterizeTriangles(verts, nverts, tris, m_triflags, ntris, *m_solid);
 
 	if (!m_keepInterResults)
 	{

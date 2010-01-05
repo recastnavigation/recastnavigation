@@ -24,18 +24,14 @@
 #include "Recast.h"
 #include "RecastLog.h"
 #include "ChunkyTriMesh.h"
-#include "NavMeshTesterTool.h"
 
 class Sample_TileMesh : public Sample
 {
 protected:
-	
 	bool m_keepInterResults;
 	bool m_buildAll;
 	rcBuildTimes m_buildTimes; 
 	
-	dtNavMesh* m_navMesh;
-	rcChunkyTriMesh* m_chunkyMesh;
 	unsigned char* m_triflags;
 	rcHeightfield* m_solid;
 	rcCompactHeightfield* m_chf;
@@ -68,12 +64,8 @@ public:
 	virtual void handleDebugMode();
 	virtual void handleRender();
 	virtual void handleRenderOverlay(double* proj, double* model, int* view);
-	virtual void handleMeshChanged(const float* verts, int nverts,
-								   const int* tris, const float* trinorms, int ntris,
-								   const float* bmin, const float* bmax);
+	virtual void handleMeshChanged(class InputGeom* geom);
 	virtual bool handleBuild();
-
-	virtual class dtNavMesh* getNavMesh() { return m_navMesh; }
 	
 	void buildTile(const float* pos);
 	void removeTile(const float* pos);

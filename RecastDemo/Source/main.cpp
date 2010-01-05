@@ -1,3 +1,21 @@
+//
+// Copyright (c) 2009 Mikko Mononen memon@inside.org
+//
+// This software is provided 'as-is', without any express or implied
+// warranty.  In no event will the authors be held liable for any damages
+// arising from the use of this software.
+// Permission is granted to anyone to use this software for any purpose,
+// including commercial applications, and to alter it and redistribute it
+// freely, subject to the following restrictions:
+// 1. The origin of this software must not be misrepresented; you must not
+//    claim that you wrote the original software. If you use this software
+//    in a product, an acknowledgment in the product documentation would be
+//    appreciated but is not required.
+// 2. Altered source versions must be plainly marked as such, and must not be
+//    misrepresented as being the original software.
+// 3. This notice may not be removed or altered from any source distribution.
+//
+
 #include <stdio.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -13,7 +31,7 @@
 #include "imguiRenderGL.h"
 #include "Recast.h"
 #include "RecastDebugDraw.h"
-#include "MeshLoaderObj.h"
+#include "InputGeom.h"
 
 #include "Sample_SoloMeshSimple.h"
 #include "Sample_SoloMeshTiled.h"
@@ -23,16 +41,6 @@
 #	define snprintf _snprintf
 #endif
 
-
-
-/*GLFont g_font;
-void drawText(int x, int y, int dir, const char* text, unsigned int col)
-{
-	if (dir < 0)
-		g_font.drawText((float)x - g_font.getTextLength(text), (float)y, text, col);
-	else
-		g_font.drawText((float)x, (float)y, text, col);
-}*/
 
 struct FileList
 {
@@ -113,80 +121,6 @@ static void scanDirectory(const char* path, const char* ext, FileList& list)
 #endif
 	list.sort();
 }
-
-bool intersectSegmentTriangle(const float* sp, const float* sq,
-							  const float* a, const float* b, const float* c,
-							  float &t)
-{
-	float v, w;
-	float ab[3], ac[3], qp[3], ap[3], norm[3], e[3];
-	vsub(ab, b, a);
-	vsub(ac, c, a);
-	vsub(qp, sp, sq);
-	
-	// Compute triangle normal. Can be precalculated or cached if
-	// intersecting multiple segments against the same triangle
-	vcross(norm, ab, ac);
-	
-	// Compute denominator d. If d <= 0, segment is parallel to or points
-	// away from triangle, so exit early
-	float d = vdot(qp, norm);
-	if (d <= 0.0f) return false;
-	
-	// Compute intersection t value of pq with plane of triangle. A ray
-	// intersects iff 0 <= t. Segment intersects iff 0 <= t <= 1. Delay
-	// dividing by d until intersection has been found to pierce triangle
-	vsub(ap, sp, a);
-	t = vdot(ap, norm);
-	if (t < 0.0f) return false;
-	if (t > d) return false; // For segment; exclude this code line for a ray test
-	
-	// Compute barycentric coordinate components and test if within bounds
-	vcross(e, qp, ap);
-	v = vdot(ac, e);
-	if (v < 0.0f || v > d) return false;
-	w = -vdot(ab, e);
-	if (w < 0.0f || v + w > d) return false;
-	
-	// Segment/ray intersects triangle. Perform delayed division
-	t /= d;
-	
-	return true;
-}
-
-static bool raycast(rcMeshLoaderObj& mesh, float* src, float* dst, float& tmin)
-{
-	float dir[3];
-	vsub(dir, dst, src);
-	
-	int nt = mesh.getTriCount();
-	const float* verts = mesh.getVerts();
-	const float* normals = mesh.getNormals();
-	const int* tris = mesh.getTris();
-	tmin = 1.0f;
-	bool hit = false;
-	
-	for (int i = 0; i < nt*3; i += 3)
-	{
-		const float* n = &normals[i];
-		if (vdot(dir, n) > 0)
-			continue;
-		
-		float t = 1;
-		if (intersectSegmentTriangle(src, dst,
-									 &verts[tris[i]*3],
-									 &verts[tris[i+1]*3],
-									 &verts[tris[i+2]*3], t))
-		{
-			if (t < tmin)
-				tmin = t;
-			hit = true;
-		}
-	}
-	
-	return hit;
-}
-
 
 struct SampleItem
 {
@@ -272,12 +206,10 @@ int main(int argc, char *argv[])
 	FileList meshFiles;
 	char meshName[128] = "Choose Mesh...";
 	
-	rcMeshLoaderObj* mesh = 0;
-	float meshBMin[3], meshBMax[3];
+	InputGeom* geom = 0;
 	
 	float mpos[3];
 	bool mposSet = false;
-	
 	
 	Sample* sample = 0;
 
@@ -331,11 +263,11 @@ int main(int argc, char *argv[])
 						else if (event.button.button == SDL_BUTTON_LEFT)
 						{
 							// Hit test mesh.
-							if (mesh && sample)
+							if (geom && sample)
 							{
 								// Hit test mesh.
 								float t;
-								if (raycast(*mesh, rays, raye, t))
+								if (geom->raycastMesh(rays, raye, t))
 								{
 									if (SDL_GetModState() & KMOD_CTRL)
 									{
@@ -544,16 +476,18 @@ int main(int argc, char *argv[])
 						scanDirectory("Meshes", ".obj", meshFiles);
 					}
 				}
-				if (mesh)
+				if (geom)
 				{
 					char text[64];
-					snprintf(text, 64, "Verts: %.1fk  Tris: %.1fk", mesh->getVertCount()/1000.0f, mesh->getTriCount()/1000.0f);
+					snprintf(text, 64, "Verts: %.1fk  Tris: %.1fk",
+							 geom->getMesh()->getVertCount()/1000.0f,
+							 geom->getMesh()->getTriCount()/1000.0f);
 					imguiValue(text);
 				}
 				imguiSeparator();
 			}
 					
-			if (mesh && sample)
+			if (geom && sample)
 			{
 				sample->handleSettings();
 
@@ -610,11 +544,9 @@ int main(int argc, char *argv[])
 			{
 				delete sample;
 				sample = newSample;
-				if (mesh && sample)
+				if (geom && sample)
 				{
-					sample->handleMeshChanged(mesh->getVerts(), mesh->getVertCount(),
-											  mesh->getTris(), mesh->getNormals(), mesh->getTriCount(),
-											  meshBMin, meshBMax);
+					sample->handleMeshChanged(geom);
 				}
 				showSample = false;
 			}
@@ -642,42 +574,47 @@ int main(int argc, char *argv[])
 				meshName[sizeof(meshName)-1] = '\0';
 				showLevels = false;
 				
-				delete mesh;
-				mesh = 0;
+				delete geom;
+				geom = 0;
 				
 				char path[256];
 				strcpy(path, "Meshes/");
 				strcat(path, meshName);
 				
-				mesh = new rcMeshLoaderObj;
-				if (!mesh || !mesh->load(path))
+				geom = new InputGeom;
+				if (!geom || !geom->loadMesh(path))
 				{
-					delete mesh;
-					mesh = 0;
+					delete geom;
+					geom = 0;
+					
+					showLog = true;
+					logScroll = 0;
+					printf("Build log %s:\n", meshName);
+					for (int i = 0; i < log.getMessageCount(); ++i)
+						printf("%s\n", log.getMessageText(i));
 				}
-				
-				if (mesh)
-					rcCalcBounds(mesh->getVerts(), mesh->getVertCount(), meshBMin, meshBMax);
-				
-				if (sample)
+				if (sample && geom)
 				{
-					sample->handleMeshChanged(mesh->getVerts(), mesh->getVertCount(),
-											  mesh->getTris(), mesh->getNormals(), mesh->getTriCount(),
-											  meshBMin, meshBMax);
+					sample->handleMeshChanged(geom);
 				}
-								
-				// Reset camera and fog to match the mesh bounds.
-				camr = sqrtf(rcSqr(meshBMax[0]-meshBMin[0]) +
-				rcSqr(meshBMax[1]-meshBMin[1]) +
-				rcSqr(meshBMax[2]-meshBMin[2])) / 2;
-				camx = (meshBMax[0] + meshBMin[0]) / 2 + camr;
-				camy = (meshBMax[1] + meshBMin[1]) / 2 + camr;
-				camz = (meshBMax[2] + meshBMin[2]) / 2 + camr;
-				camr *= 3;
-				rx = 45;
-				ry = -45;
-				glFogf(GL_FOG_START, camr*0.2f);
-				glFogf(GL_FOG_END, camr*1.25f);
+
+				if (geom)
+				{
+					const float* bmin = geom->getMeshBoundsMin();
+					const float* bmax = geom->getMeshBoundsMax();
+					// Reset camera and fog to match the mesh bounds.
+					camr = sqrtf(rcSqr(bmax[0]-bmin[0]) +
+								 rcSqr(bmax[1]-bmin[1]) +
+								 rcSqr(bmax[2]-bmin[2])) / 2;
+					camx = (bmax[0] + bmin[0]) / 2 + camr;
+					camy = (bmax[1] + bmin[1]) / 2 + camr;
+					camz = (bmax[2] + bmin[2]) / 2 + camr;
+					camr *= 3;
+					rx = 45;
+					ry = -45;
+					glFogf(GL_FOG_START, camr*0.2f);
+					glFogf(GL_FOG_END, camr*1.25f);
+				}
 			}
 			
 			imguiEndScrollArea();
@@ -695,7 +632,7 @@ int main(int argc, char *argv[])
 		}
 		
 		// Tools
-		if (showTools && showMenu && mesh && sample)
+		if (showTools && showMenu && geom && sample)
 		{
 			if (imguiBeginScrollArea("Tools", 10, height - 10 - 250, 200, 250, &toolsScroll))
 				mouseOverMenu = true;
@@ -737,7 +674,7 @@ int main(int argc, char *argv[])
 	SDL_Quit();
 	
 	delete sample;
-	delete mesh;
+	delete geom;
 	
 	return 0;
 }

@@ -1,3 +1,21 @@
+//
+// Copyright (c) 2009 Mikko Mononen memon@inside.org
+//
+// This software is provided 'as-is', without any express or implied
+// warranty.  In no event will the authors be held liable for any damages
+// arising from the use of this software.
+// Permission is granted to anyone to use this software for any purpose,
+// including commercial applications, and to alter it and redistribute it
+// freely, subject to the following restrictions:
+// 1. The origin of this software must not be misrepresented; you must not
+//    claim that you wrote the original software. If you use this software
+//    in a product, an acknowledgment in the product documentation would be
+//    appreciated but is not required.
+// 2. Altered source versions must be plainly marked as such, and must not be
+//    misrepresented as being the original software.
+// 3. This notice may not be removed or altered from any source distribution.
+//
+
 #ifndef RECASTSAMPLESOLOMESHTILED_H
 #define RECASTSAMPLESOLOMESHTILED_H
 
@@ -10,8 +28,6 @@
 class Sample_SoloMeshTiled : public Sample
 {
 protected:
-	dtNavMesh* m_navMesh;
-
 	struct Tile
 	{
 		inline Tile() : chf(0), solid(0), cset(0), pmesh(0), dmesh(0), buildTime(0) {}
@@ -39,7 +55,6 @@ protected:
 	float m_tileSize;
 	rcBuildTimes m_buildTimes; 
 	
-	rcChunkyTriMesh* m_chunkyMesh;
 	rcPolyMesh* m_pmesh;
 	rcPolyMeshDetail* m_dmesh;
 	rcConfig m_cfg;	
@@ -87,12 +102,8 @@ public:
 	
 	virtual void handleRender();
 	virtual void handleRenderOverlay(double* proj, double* model, int* view);
-	virtual void handleMeshChanged(const float* verts, int nverts,
-								   const int* tris, const float* trinorms, int ntris,
-								   const float* bmin, const float* bmax);
+	virtual void handleMeshChanged(class InputGeom* geom);
 	virtual bool handleBuild();
-
-	virtual class dtNavMesh* getNavMesh() { return m_navMesh; }
 };
 
 

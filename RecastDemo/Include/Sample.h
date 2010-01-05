@@ -1,7 +1,26 @@
+//
+// Copyright (c) 2009 Mikko Mononen memon@inside.org
+//
+// This software is provided 'as-is', without any express or implied
+// warranty.  In no event will the authors be held liable for any damages
+// arising from the use of this software.
+// Permission is granted to anyone to use this software for any purpose,
+// including commercial applications, and to alter it and redistribute it
+// freely, subject to the following restrictions:
+// 1. The origin of this software must not be misrepresented; you must not
+//    claim that you wrote the original software. If you use this software
+//    in a product, an acknowledgment in the product documentation would be
+//    appreciated but is not required.
+// 2. Altered source versions must be plainly marked as such, and must not be
+//    misrepresented as being the original software.
+// 3. This notice may not be removed or altered from any source distribution.
+//
+
 #ifndef RECASTSAMPLE_H
 #define RECASTSAMPLE_H
 
 #include "DebugDraw.h"
+#include "DetourNavMesh.h"
 
 struct DebugDrawGL : public duDebugDraw
 {
@@ -16,6 +35,7 @@ enum SampleToolType
 	TOOL_NONE = 0,
 	TOOL_TILE_EDIT,
 	TOOL_NAVMESH_TESTER,
+	TOOL_EXTRA_LINK,
 };
 
 struct SampleTool
@@ -34,12 +54,8 @@ struct SampleTool
 class Sample
 {
 protected:
-	const float* m_verts;
-	int m_nverts;
-	const int* m_tris;
-	const float* m_trinorms;
-	int m_ntris;
-	float m_bmin[3], m_bmax[3];
+	class InputGeom* m_geom;
+	dtNavMesh* m_navMesh;
 
 	float m_cellSize;
 	float m_cellHeight;
@@ -69,12 +85,11 @@ public:
 	virtual void handleClick(const float* p, bool shift);
 	virtual void handleRender();
 	virtual void handleRenderOverlay(double* proj, double* model, int* view);
-	virtual void handleMeshChanged(const float* verts, int nverts,
-								   const int* tris, const float* trinorms, int ntris,
-								   const float* bmin, const float* bmax);
+	virtual void handleMeshChanged(class InputGeom* geom);
 	virtual bool handleBuild();
 
-	virtual class dtNavMesh* getNavMesh() { return 0; }
+	virtual class InputGeom* getInputGeom() { return m_geom; }
+	virtual class dtNavMesh* getNavMesh() { return m_navMesh; }
 	virtual float getAgentRadius() { return m_agentRadius; }
 	virtual float getAgentHeight() { return m_agentHeight; }
 

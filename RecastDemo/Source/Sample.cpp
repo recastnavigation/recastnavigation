@@ -1,7 +1,26 @@
+//
+// Copyright (c) 2009 Mikko Mononen memon@inside.org
+//
+// This software is provided 'as-is', without any express or implied
+// warranty.  In no event will the authors be held liable for any damages
+// arising from the use of this software.
+// Permission is granted to anyone to use this software for any purpose,
+// including commercial applications, and to alter it and redistribute it
+// freely, subject to the following restrictions:
+// 1. The origin of this software must not be misrepresented; you must not
+//    claim that you wrote the original software. If you use this software
+//    in a product, an acknowledgment in the product documentation would be
+//    appreciated but is not required.
+// 2. Altered source versions must be plainly marked as such, and must not be
+//    misrepresented as being the original software.
+// 3. This notice may not be removed or altered from any source distribution.
+//
+
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <stdio.h>
 #include "Sample.h"
+#include "InputGeom.h"
 #include "Recast.h"
 #include "RecastDebugDraw.h"
 #include "imgui.h"
@@ -55,11 +74,8 @@ void DebugDrawGL::end()
 
 
 Sample::Sample() :
-	m_verts(0),
-	m_nverts(0),
-	m_tris(0),
-	m_trinorms(0),
-	m_ntris(0),
+	m_geom(0),
+	m_navMesh(0),
 	m_tool(0)
 {
 	resetCommonSettings();
@@ -67,6 +83,7 @@ Sample::Sample() :
 
 Sample::~Sample()
 {
+	delete m_navMesh;
 	delete m_tool;
 }
 
@@ -92,33 +109,28 @@ void Sample::handleDebugMode()
 
 void Sample::handleRender()
 {
-	if (!m_verts || !m_tris || !m_trinorms)
+	if (!m_geom)
 		return;
 	
 	DebugDrawGL dd;
 		
 	// Draw mesh
-	duDebugDrawTriMesh(&dd, m_verts, m_nverts, m_tris, m_trinorms, m_ntris, 0);
+	duDebugDrawTriMesh(&dd, m_geom->getMesh()->getVerts(), m_geom->getMesh()->getVertCount(),
+					   m_geom->getMesh()->getTris(), m_geom->getMesh()->getNormals(), m_geom->getMesh()->getTriCount(), 0);
 	// Draw bounds
+	const float* bmin = m_geom->getMeshBoundsMin();
+	const float* bmax = m_geom->getMeshBoundsMax();
 	float col[4] = {1,1,1,0.5f};
-	duDebugDrawBoxWire(&dd, m_bmin[0],m_bmin[1],m_bmin[2], m_bmax[0],m_bmax[1],m_bmax[2], col);
+	duDebugDrawBoxWire(&dd, bmin[0],bmin[1],bmin[2], bmax[0],bmax[1],bmax[2], col);
 }
 
 void Sample::handleRenderOverlay(double* proj, double* model, int* view)
 {
 }
 
-void Sample::handleMeshChanged(const float* verts, int nverts,
-								const int* tris, const float* trinorms, int ntris,
-								const float* bmin, const float* bmax)
+void Sample::handleMeshChanged(InputGeom* geom)
 {
-	m_verts = verts;
-	m_nverts = nverts;
-	m_tris = tris;
-	m_trinorms = trinorms;
-	m_ntris = ntris;
-	vcopy(m_bmin, bmin);
-	vcopy(m_bmax, bmax);
+	m_geom = geom;
 }
 
 void Sample::resetCommonSettings()
@@ -144,11 +156,16 @@ void Sample::handleCommonSettings()
 	imguiSlider("Cell Size", &m_cellSize, 0.1f, 1.0f, 0.01f);
 	imguiSlider("Cell Height", &m_cellHeight, 0.1f, 1.0f, 0.01f);
 	
-	int gw = 0, gh = 0;
-	rcCalcGridSize(m_bmin, m_bmax, m_cellSize, &gw, &gh);
-	char text[64];
-	snprintf(text, 64, "Voxels  %d x %d", gw, gh);
-	imguiValue(text);
+	if (m_geom)
+	{
+		const float* bmin = m_geom->getMeshBoundsMin();
+		const float* bmax = m_geom->getMeshBoundsMax();
+		int gw = 0, gh = 0;
+		rcCalcGridSize(bmin, bmax, m_cellSize, &gw, &gh);
+		char text[64];
+		snprintf(text, 64, "Voxels  %d x %d", gw, gh);
+		imguiValue(text);
+	}
 	
 	imguiSeparator();
 	imguiLabel("Agent");

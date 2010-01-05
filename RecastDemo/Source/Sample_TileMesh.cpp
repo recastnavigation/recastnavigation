@@ -23,6 +23,7 @@
 #include "SDL.h"
 #include "SDL_opengl.h"
 #include "imgui.h"
+#include "InputGeom.h"
 #include "Sample.h"
 #include "Sample_TileMesh.h"
 #include "Recast.h"
@@ -31,6 +32,8 @@
 #include "DetourNavMesh.h"
 #include "DetourNavMeshBuilder.h"
 #include "DetourDebugDraw.h"
+#include "NavMeshTesterTool.h"
+#include "ExtraLinkTool.h"
 
 #ifdef WIN32
 #	define snprintf _snprintf
@@ -150,8 +153,6 @@ public:
 Sample_TileMesh::Sample_TileMesh() :
 	m_keepInterResults(false),
 	m_buildAll(true),
-	m_navMesh(0),
-	m_chunkyMesh(0),
 	m_triflags(0),
 	m_solid(0),
 	m_chf(0),
@@ -175,8 +176,6 @@ Sample_TileMesh::Sample_TileMesh() :
 Sample_TileMesh::~Sample_TileMesh()
 {
 	cleanup();
-	delete m_navMesh;
-	delete m_chunkyMesh;
 }
 
 void Sample_TileMesh::cleanup()
@@ -193,6 +192,8 @@ void Sample_TileMesh::cleanup()
 	m_pmesh = 0;
 	delete m_dmesh;
 	m_dmesh = 0;
+	delete m_navMesh;
+	m_navMesh = 0;
 }
 
 void Sample_TileMesh::handleSettings()
@@ -208,39 +209,53 @@ void Sample_TileMesh::handleSettings()
 	imguiLabel("Tiling");
 	imguiSlider("TileSize", &m_tileSize, 16.0f, 1024.0f, 16.0f);
 	
-	char text[64];
-	int gw = 0, gh = 0;
-	rcCalcGridSize(m_bmin, m_bmax, m_cellSize, &gw, &gh);
-	const int ts = (int)m_tileSize;
-	const int tw = (gw + ts-1) / ts;
-	const int th = (gh + ts-1) / ts;
-	snprintf(text, 64, "Tiles  %d x %d", tw, th);
-	imguiValue(text);
+	if (m_geom)
+	{
+		const float* bmin = m_geom->getMeshBoundsMin();
+		const float* bmax = m_geom->getMeshBoundsMax();
+		char text[64];
+		int gw = 0, gh = 0;
+		rcCalcGridSize(bmin, bmax, m_cellSize, &gw, &gh);
+		const int ts = (int)m_tileSize;
+		const int tw = (gw + ts-1) / ts;
+		const int th = (gh + ts-1) / ts;
+		snprintf(text, 64, "Tiles  %d x %d", tw, th);
+		imguiValue(text);
 
-	// Max tiles and max polys affect how the tile IDs are caculated.
-	// There are 22 bits available for identifying a tile and a polygon.
-	int tileBits = rcMin((int)ilog2(nextPow2(tw*th)), 14);
-	if (tileBits > 14) tileBits = 14;
-	int polyBits = 22 - tileBits;
-	m_maxTiles = 1 << tileBits;
-	m_maxPolysPerTile = 1 << polyBits;
-	snprintf(text, 64, "Max Tiles  %d", m_maxTiles);
-	imguiValue(text);
-	snprintf(text, 64, "Max Polys  %d", m_maxPolysPerTile);
-	imguiValue(text);
+		// Max tiles and max polys affect how the tile IDs are caculated.
+		// There are 22 bits available for identifying a tile and a polygon.
+		int tileBits = rcMin((int)ilog2(nextPow2(tw*th)), 14);
+		if (tileBits > 14) tileBits = 14;
+		int polyBits = 22 - tileBits;
+		m_maxTiles = 1 << tileBits;
+		m_maxPolysPerTile = 1 << polyBits;
+		snprintf(text, 64, "Max Tiles  %d", m_maxTiles);
+		imguiValue(text);
+		snprintf(text, 64, "Max Polys  %d", m_maxPolysPerTile);
+		imguiValue(text);
+	}
+	else
+	{
+		m_maxTiles = 0;
+		m_maxPolysPerTile = 0;
+	}
 }
 
 void Sample_TileMesh::handleTools()
 {
 	int type = !m_tool ? TOOL_NONE : m_tool->type();
 
+	if (imguiCheck("Test Navmesh", type == TOOL_NAVMESH_TESTER))
+	{
+		setTool(new NavMeshTesterTool);
+	}
 	if (imguiCheck("Create Tiles", type == TOOL_TILE_EDIT))
 	{
 		setTool(new NavMeshTileTool);
 	}
-	if (imguiCheck("Test Navmesh", type == TOOL_NAVMESH_TESTER))
+	if (imguiCheck("Create Extra Links", type == TOOL_EXTRA_LINK))
 	{
-		setTool(new NavMeshTesterTool);
+		setTool(new ExtraLinkTool);
 	}
 	
 	imguiSeparator();
@@ -288,24 +303,27 @@ static void getPolyCenter(dtNavMesh* navMesh, dtPolyRef ref, float* center)
 
 void Sample_TileMesh::handleRender()
 {
-	if (!m_verts || !m_tris || !m_trinorms)
+	if (!m_geom || !m_geom->getMesh())
 		return;
 	
 	DebugDrawGL dd;
 	
 	// Draw mesh
-	duDebugDrawTriMesh(&dd, m_verts, m_nverts, m_tris, m_trinorms, m_ntris, 0);
+	duDebugDrawTriMesh(&dd, m_geom->getMesh()->getVerts(), m_geom->getMesh()->getVertCount(),
+					   m_geom->getMesh()->getTris(), m_geom->getMesh()->getNormals(), m_geom->getMesh()->getTriCount(), 0);
 	
 	glDepthMask(GL_FALSE);
 	
 	// Draw bounds
-	float col[4] = {1,1,1,0.5f};
-	duDebugDrawBoxWire(&dd, m_bmin[0],m_bmin[1],m_bmin[2], m_bmax[0],m_bmax[1],m_bmax[2], col);
+	const float* bmin = m_geom->getMeshBoundsMin();
+	const float* bmax = m_geom->getMeshBoundsMax();
+	const float col[4] = {1,1,1,0.5f};
+	duDebugDrawBoxWire(&dd, bmin[0],bmin[1],bmin[2], bmax[0],bmax[1],bmax[2], col);
 	
 	// Tiling grid.
 	const int ts = (int)m_tileSize;
 	int gw = 0, gh = 0;
-	rcCalcGridSize(m_bmin, m_bmax, m_cellSize, &gw, &gh);
+	rcCalcGridSize(bmin, bmax, m_cellSize, &gw, &gh);
 	int tw = (gw + ts-1) / ts;
 	int th = (gh + ts-1) / ts;
 	const float s = ts*m_cellSize;
@@ -316,9 +334,9 @@ void Sample_TileMesh::handleRender()
 		for (int x = 0; x < tw; ++x)
 		{
 			float fx, fy, fz;
-			fx = m_bmin[0] + x*s;
-			fy = m_bmin[1];
-			fz = m_bmin[2] + y*s;
+			fx = bmin[0] + x*s;
+			fy = bmin[1];
+			fz = bmin[2] + y*s;
 			
 			glVertex3f(fx,fy,fz);
 			glVertex3f(fx+s,fy,fz);
@@ -368,22 +386,10 @@ void Sample_TileMesh::handleRenderOverlay(double* proj, double* model, int* view
 		m_tool->handleRenderOverlay(proj, model, view);
 }
 
-void Sample_TileMesh::handleMeshChanged(const float* verts, int nverts,
-									   const int* tris, const float* trinorms, int ntris,
-									   const float* bmin, const float* bmax)
+void Sample_TileMesh::handleMeshChanged(class InputGeom* geom)
 {
-	m_verts = verts;
-	m_nverts = nverts;
-	m_tris = tris;
-	m_trinorms = trinorms;
-	m_ntris = ntris;
-	vcopy(m_bmin, bmin);
-	vcopy(m_bmax, bmax);
-	
-	delete m_chunkyMesh;
-	m_chunkyMesh = 0;
-	delete m_navMesh;
-	m_navMesh = 0;
+	Sample::handleMeshChanged(geom);
+
 	cleanup();
 	
 	if (m_tool)
@@ -395,7 +401,7 @@ void Sample_TileMesh::handleMeshChanged(const float* verts, int nverts,
 
 bool Sample_TileMesh::handleBuild()
 {
-	if (!m_verts || !m_tris)
+	if (!m_geom || !m_geom->getMesh())
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: No vertices and triangles.");
@@ -410,29 +416,18 @@ bool Sample_TileMesh::handleBuild()
 			rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: Could not allocate navmesh.");
 		return false;
 	}
-	if (!m_navMesh->init(m_bmin, m_tileSize*m_cellSize, m_tileSize*m_cellSize, m_agentMaxClimb*m_cellHeight, m_maxTiles, m_maxPolysPerTile, 2048))
+	const float* bmin = m_geom->getMeshBoundsMin();
+	const float tileWorldWidth = m_tileSize*m_cellSize;
+	const float tileWorldHeight = m_tileSize*m_cellSize;
+	const float portalHeight = m_agentMaxClimb*m_cellHeight;
+	
+	if (!m_navMesh->init(bmin, tileWorldWidth, tileWorldHeight, portalHeight, m_maxTiles, m_maxPolysPerTile, 2048))
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: Could not init navmesh.");
 		return false;
 	}
 	
-	// Build chunky mesh.
-	delete m_chunkyMesh;
-	m_chunkyMesh = new rcChunkyTriMesh;
-	if (!m_chunkyMesh)
-	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: Out of memory 'm_chunkyMesh'.");
-		return false;
-	}
-	if (!rcCreateChunkyTriMesh(m_verts, m_tris, m_ntris, 256, m_chunkyMesh))
-	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: Could not build chunky mesh.");
-		return false;
-	}
-
 	if (m_buildAll)
 		buildAllTiles();
 	
@@ -447,19 +442,22 @@ void Sample_TileMesh::buildTile(const float* pos)
 	if (!m_navMesh)
 		return;
 	
+	const float* bmin = m_geom->getMeshBoundsMin();
+	const float* bmax = m_geom->getMeshBoundsMax();
+	
 	const float ts = m_tileSize*m_cellSize;
-	const int tx = (int)floorf((pos[0]-m_bmin[0]) / ts);
-	const int ty = (int)floorf((pos[2]-m_bmin[2]) / ts);
+	const int tx = (int)floorf((pos[0] - bmin[0]) / ts);
+	const int ty = (int)floorf((pos[2] - bmin[2]) / ts);
 	if (tx < 0 || ty < 0)
 		return;
 	
-	m_tileBmin[0] = m_bmin[0] + tx*ts;
-	m_tileBmin[1] = m_bmin[1];
-	m_tileBmin[2] = m_bmin[2] + ty*ts;
+	m_tileBmin[0] = bmin[0] + tx*ts;
+	m_tileBmin[1] = bmin[1];
+	m_tileBmin[2] = bmin[2] + ty*ts;
 	
-	m_tileBmax[0] = m_bmin[0] + (tx+1)*ts;
-	m_tileBmax[1] = m_bmax[1];
-	m_tileBmax[2] = m_bmin[2] + (ty+1)*ts;
+	m_tileBmax[0] = bmin[0] + (tx+1)*ts;
+	m_tileBmax[1] = bmax[1];
+	m_tileBmax[2] = bmin[2] + (ty+1)*ts;
 	
 	m_tileCol[0] = 0.3f; m_tileCol[1] = 0.8f; m_tileCol[2] = 0; m_tileCol[3] = 1;
 	
@@ -482,17 +480,22 @@ void Sample_TileMesh::removeTile(const float* pos)
 	if (!m_navMesh)
 		return;
 	
+	const float* bmin = m_geom->getMeshBoundsMin();
+	const float* bmax = m_geom->getMeshBoundsMax();
+
 	const float ts = m_tileSize*m_cellSize;
-	const int tx = (int)floorf((pos[0]-m_bmin[0]) / ts);
-	const int ty = (int)floorf((pos[2]-m_bmin[2]) / ts);
+	const int tx = (int)floorf((pos[0] - bmin[0]) / ts);
+	const int ty = (int)floorf((pos[2] - bmin[2]) / ts);
+	if (tx < 0 || ty < 0)
+		return;
 	
-	m_tileBmin[0] = m_bmin[0] + tx*ts;
-	m_tileBmin[1] = m_bmin[1];
-	m_tileBmin[2] = m_bmin[2] + ty*ts;
+	m_tileBmin[0] = bmin[0] + tx*ts;
+	m_tileBmin[1] = bmin[1];
+	m_tileBmin[2] = bmin[2] + ty*ts;
 	
-	m_tileBmax[0] = m_bmin[0] + (tx+1)*ts;
-	m_tileBmax[1] = m_bmax[1];
-	m_tileBmax[2] = m_bmin[2] + (ty+1)*ts;
+	m_tileBmax[0] = bmin[0] + (tx+1)*ts;
+	m_tileBmax[1] = bmax[1];
+	m_tileBmax[2] = bmin[2] + (ty+1)*ts;
 	
 	m_tileCol[0] = 0.8f; m_tileCol[1] = 0.1f; m_tileCol[2] = 0; m_tileCol[3] = 1;
 	
@@ -504,8 +507,10 @@ void Sample_TileMesh::removeTile(const float* pos)
 
 void Sample_TileMesh::buildAllTiles()
 {
+	const float* bmin = m_geom->getMeshBoundsMin();
+	const float* bmax = m_geom->getMeshBoundsMax();
 	int gw = 0, gh = 0;
-	rcCalcGridSize(m_bmin, m_bmax, m_cellSize, &gw, &gh);
+	rcCalcGridSize(bmin, bmax, m_cellSize, &gw, &gh);
 	const int ts = (int)m_tileSize;
 	const int tw = (gw + ts-1) / ts;
 	const int th = (gh + ts-1) / ts;
@@ -515,13 +520,13 @@ void Sample_TileMesh::buildAllTiles()
 	{
 		for (int x = 0; x < tw; ++x)
 		{
-			m_tileBmin[0] = m_bmin[0] + x*tcs;
-			m_tileBmin[1] = m_bmin[1];
-			m_tileBmin[2] = m_bmin[2] + y*tcs;
+			m_tileBmin[0] = bmin[0] + x*tcs;
+			m_tileBmin[1] = bmin[1];
+			m_tileBmin[2] = bmin[2] + y*tcs;
 			
-			m_tileBmax[0] = m_bmin[0] + (x+1)*tcs;
-			m_tileBmax[1] = m_bmax[1];
-			m_tileBmax[2] = m_bmin[2] + (y+1)*tcs;
+			m_tileBmax[0] = bmin[0] + (x+1)*tcs;
+			m_tileBmax[1] = bmax[1];
+			m_tileBmax[2] = bmin[2] + (y+1)*tcs;
 			
 			int dataSize = 0;
 			unsigned char* data = buildTileMesh(m_tileBmin, m_tileBmax, dataSize);
@@ -539,8 +544,10 @@ void Sample_TileMesh::buildAllTiles()
 
 void Sample_TileMesh::removeAllTiles()
 {
+	const float* bmin = m_geom->getMeshBoundsMin();
+	const float* bmax = m_geom->getMeshBoundsMax();
 	int gw = 0, gh = 0;
-	rcCalcGridSize(m_bmin, m_bmax, m_cellSize, &gw, &gh);
+	rcCalcGridSize(bmin, bmax, m_cellSize, &gw, &gh);
 	const int ts = (int)m_tileSize;
 	const int tw = (gw + ts-1) / ts;
 	const int th = (gh + ts-1) / ts;
@@ -552,7 +559,7 @@ void Sample_TileMesh::removeAllTiles()
 
 unsigned char* Sample_TileMesh::buildTileMesh(const float* bmin, const float* bmax, int& dataSize)
 {
-	if (!m_verts || ! m_tris)
+	if (!m_geom || !m_geom->getMesh() || !m_geom->getChunkyMesh())
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Input mesh is not specified.");
@@ -561,6 +568,11 @@ unsigned char* Sample_TileMesh::buildTileMesh(const float* bmin, const float* bm
 	
 	cleanup();
 	
+	const float* verts = m_geom->getMesh()->getVerts();
+	const int nverts = m_geom->getMesh()->getVertCount();
+	const int ntris = m_geom->getMesh()->getTriCount();
+	const rcChunkyTriMesh* chunkyMesh = m_geom->getChunkyMesh();
+		
 	// Init build configuration from GUI
 	memset(&m_cfg, 0, sizeof(m_cfg));
 	m_cfg.cs = m_cellSize;
@@ -599,7 +611,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const float* bmin, const float* bm
 	{
 		rcGetLog()->log(RC_LOG_PROGRESS, "Building navigation:");
 		rcGetLog()->log(RC_LOG_PROGRESS, " - %d x %d cells", m_cfg.width, m_cfg.height);
-		rcGetLog()->log(RC_LOG_PROGRESS, " - %.1fK verts, %.1fK tris", m_nverts/1000.0f, m_ntris/1000.0f);
+		rcGetLog()->log(RC_LOG_PROGRESS, " - %.1fK verts, %.1fK tris", nverts/1000.0f, ntris/1000.0f);
 	}
 	
 	// Allocate voxel heighfield where we rasterize our input data to.
@@ -620,11 +632,11 @@ unsigned char* Sample_TileMesh::buildTileMesh(const float* bmin, const float* bm
 	// Allocate array that can hold triangle flags.
 	// If you have multiple meshes you need to process, allocate
 	// and array which can hold the max number of triangles you need to process.
-	m_triflags = new unsigned char[m_chunkyMesh->maxTrisPerChunk];
+	m_triflags = new unsigned char[chunkyMesh->maxTrisPerChunk];
 	if (!m_triflags)
 	{
 		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'triangleFlags' (%d).", m_chunkyMesh->maxTrisPerChunk);
+			rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'triangleFlags' (%d).", chunkyMesh->maxTrisPerChunk);
 		return 0;
 	}
 	
@@ -635,7 +647,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const float* bmin, const float* bm
 	tbmax[0] = m_cfg.bmax[0];
 	tbmax[1] = m_cfg.bmax[2];
 	int cid[256];// TODO: Make grow when returning too many items.
-	const int ncid = rcGetChunksInRect(m_chunkyMesh, tbmin, tbmax, cid, 256);
+	const int ncid = rcGetChunksInRect(chunkyMesh, tbmin, tbmax, cid, 256);
 	if (!ncid)
 		return 0;
 	
@@ -643,17 +655,17 @@ unsigned char* Sample_TileMesh::buildTileMesh(const float* bmin, const float* bm
 	
 	for (int i = 0; i < ncid; ++i)
 	{
-		const rcChunkyTriMeshNode& node = m_chunkyMesh->nodes[cid[i]];
-		const int* tris = &m_chunkyMesh->tris[node.i*3];
+		const rcChunkyTriMeshNode& node = chunkyMesh->nodes[cid[i]];
+		const int* tris = &chunkyMesh->tris[node.i*3];
 		const int ntris = node.n;
 		
 		m_tileTriCount += ntris;
 		
 		memset(m_triflags, 0, ntris*sizeof(unsigned char));
 		rcMarkWalkableTriangles(m_cfg.walkableSlopeAngle,
-								m_verts, m_nverts, tris, ntris, m_triflags);
+								verts, nverts, tris, ntris, m_triflags);
 		
-		rcRasterizeTriangles(m_verts, m_nverts, tris, m_triflags, ntris, *m_solid);
+		rcRasterizeTriangles(verts, nverts, tris, m_triflags, ntris, *m_solid);
 	}
 	
 	if (!m_keepInterResults)

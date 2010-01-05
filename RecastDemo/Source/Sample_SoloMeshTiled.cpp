@@ -1,3 +1,21 @@
+//
+// Copyright (c) 2009 Mikko Mononen memon@inside.org
+//
+// This software is provided 'as-is', without any express or implied
+// warranty.  In no event will the authors be held liable for any damages
+// arising from the use of this software.
+// Permission is granted to anyone to use this software for any purpose,
+// including commercial applications, and to alter it and redistribute it
+// freely, subject to the following restrictions:
+// 1. The origin of this software must not be misrepresented; you must not
+//    claim that you wrote the original software. If you use this software
+//    in a product, an acknowledgment in the product documentation would be
+//    appreciated but is not required.
+// 2. Altered source versions must be plainly marked as such, and must not be
+//    misrepresented as being the original software.
+// 3. This notice may not be removed or altered from any source distribution.
+//
+
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <stdio.h>
@@ -5,6 +23,7 @@
 #include "SDL.h"
 #include "SDL_opengl.h"
 #include "imgui.h"
+#include "InputGeom.h"
 #include "Sample.h"
 #include "Sample_SoloMeshTiled.h"
 #include "Recast.h"
@@ -14,17 +33,16 @@
 #include "DetourNavMeshBuilder.h"
 #include "DetourDebugDraw.h"
 #include "NavMeshTesterTool.h"
+#include "ExtraLinkTool.h"
 
 #ifdef WIN32
 #	define snprintf _snprintf
 #endif
 
 Sample_SoloMeshTiled::Sample_SoloMeshTiled() :
-	m_navMesh(0),
 	m_measurePerTileTimings(false),
 	m_keepInterResults(false),
 	m_tileSize(64),
-	m_chunkyMesh(0),
 	m_pmesh(0),
 	m_dmesh(0),
 	m_tileSet(0),
@@ -42,8 +60,6 @@ Sample_SoloMeshTiled::~Sample_SoloMeshTiled()
 
 void Sample_SoloMeshTiled::cleanup()
 {
-	delete m_chunkyMesh;
-	m_chunkyMesh = 0;
 	delete m_tileSet;
 	m_tileSet = 0;
 	delete m_pmesh;
@@ -63,14 +79,19 @@ void Sample_SoloMeshTiled::handleSettings()
 	imguiLabel("Tiling");
 	imguiSlider("TileSize", &m_tileSize, 16.0f, 1024.0f, 16.0f);
 
-	char text[64];
-	int gw = 0, gh = 0;
-	rcCalcGridSize(m_bmin, m_bmax, m_cellSize, &gw, &gh);
-	const int ts = (int)m_tileSize;
-	const int tw = (gw + ts-1) / ts;
-	const int th = (gh + ts-1) / ts;
-	snprintf(text, 64, "Tiles  %d x %d", tw, th);
-	imguiValue(text);
+	if (m_geom)
+	{
+		const float* bmin = m_geom->getMeshBoundsMin();
+		const float* bmax = m_geom->getMeshBoundsMax();
+		char text[64];
+		int gw = 0, gh = 0;
+		rcCalcGridSize(bmin, bmax, m_cellSize, &gw, &gh);
+		const int ts = (int)m_tileSize;
+		const int tw = (gw + ts-1) / ts;
+		const int th = (gh + ts-1) / ts;
+		snprintf(text, 64, "Tiles  %d x %d", tw, th);
+		imguiValue(text);
+	}
 	
 	imguiSeparator();
 	if (imguiCheck("Keep Itermediate Results", m_keepInterResults))
@@ -83,6 +104,19 @@ void Sample_SoloMeshTiled::handleSettings()
 
 void Sample_SoloMeshTiled::handleTools()
 {
+	int type = !m_tool ? TOOL_NONE : m_tool->type();
+	
+	if (imguiCheck("Test Navmesh", type == TOOL_NAVMESH_TESTER))
+	{
+		setTool(new NavMeshTesterTool);
+	}
+	if (imguiCheck("Create Extra Links", type == TOOL_EXTRA_LINK))
+	{
+		setTool(new ExtraLinkTool);
+	}
+	
+	imguiSeparator();
+	
 	if (m_tool)
 		m_tool->handleMenu();
 }
@@ -113,7 +147,7 @@ void Sample_SoloMeshTiled::handleDebugMode()
 	if (m_pmesh) hasPmesh = true;
 	if (m_dmesh) hasDmesh = true;
 	
-	if (m_verts && m_tris)
+	if (m_geom)
 	{
 		valid[DRAWMODE_NAVMESH] = m_navMesh != 0;
 		valid[DRAWMODE_NAVMESH_TRANS] = m_navMesh != 0;
@@ -183,7 +217,7 @@ void Sample_SoloMeshTiled::handleDebugMode()
 
 void Sample_SoloMeshTiled::handleRender()
 {
-	if (!m_verts || !m_tris || !m_trinorms)
+	if (!m_geom || !m_geom->getMesh())
 		return;
 	
 	float col[4];
@@ -196,25 +230,30 @@ void Sample_SoloMeshTiled::handleRender()
 	if (m_drawMode == DRAWMODE_MESH)
 	{
 		// Draw mesh
-		duDebugDrawTriMeshSlope(&dd, m_verts, m_nverts, m_tris, m_trinorms, m_ntris, m_agentMaxSlope);
+		duDebugDrawTriMeshSlope(&dd, m_geom->getMesh()->getVerts(), m_geom->getMesh()->getVertCount(),
+								m_geom->getMesh()->getTris(), m_geom->getMesh()->getNormals(), m_geom->getMesh()->getTriCount(),
+								m_agentMaxSlope);
 	}
 	else if (m_drawMode != DRAWMODE_NAVMESH_TRANS)
 	{
 		// Draw mesh
-		duDebugDrawTriMesh(&dd, m_verts, m_nverts, m_tris, m_trinorms, m_ntris, 0);
+		duDebugDrawTriMesh(&dd, m_geom->getMesh()->getVerts(), m_geom->getMesh()->getVertCount(),
+						   m_geom->getMesh()->getTris(), m_geom->getMesh()->getNormals(), m_geom->getMesh()->getTriCount(), 0);
 	}
 	
 	glDisable(GL_FOG);
 	glDepthMask(GL_FALSE);
 	
 	// Draw bounds
+	const float* bmin = m_geom->getMeshBoundsMin();
+	const float* bmax = m_geom->getMeshBoundsMax();
 	col[0] = 1; col[1] = 1; col[2] = 1; col[3] = 0.5f;
-	duDebugDrawBoxWire(&dd, m_bmin[0],m_bmin[1],m_bmin[2], m_bmax[0],m_bmax[1],m_bmax[2], col);
+	duDebugDrawBoxWire(&dd, bmin[0],bmin[1],bmin[2], bmax[0],bmax[1],bmax[2], col);
 	
 	// Tiling grid.
 	const int ts = (int)m_tileSize;
 	int gw = 0, gh = 0;
-	rcCalcGridSize(m_bmin, m_bmax, m_cellSize, &gw, &gh);
+	rcCalcGridSize(bmin, bmax, m_cellSize, &gw, &gh);
 	int tw = (gw + ts-1) / ts;
 	int th = (gh + ts-1) / ts;
 	const float s = ts*m_cellSize;
@@ -225,9 +264,9 @@ void Sample_SoloMeshTiled::handleRender()
 		for (int x = 0; x < tw; ++x)
 		{
 			float fx, fy, fz;
-			fx = m_bmin[0] + x*s;
-			fy = m_bmin[1];
-			fz = m_bmin[2] + y*s;
+			fx = bmin[0] + x*s;
+			fy = bmin[1];
+			fz = bmin[2] + y*s;
 			
 			glVertex3f(fx,fy,fz);
 			glVertex3f(fx+s,fy,fz);
@@ -543,11 +582,9 @@ void Sample_SoloMeshTiled::handleRenderOverlay(double* proj, double* model, int*
 		m_tool->handleRenderOverlay(proj, model, view);
 }
 
-void Sample_SoloMeshTiled::handleMeshChanged(const float* verts, int nverts,
-											  const int* tris, const float* trinorms, int ntris,
-											  const float* bmin, const float* bmax)
+void Sample_SoloMeshTiled::handleMeshChanged(class InputGeom* geom)
 {
-	Sample::handleMeshChanged(verts, nverts, tris, trinorms, ntris, bmin, bmax);
+	Sample::handleMeshChanged(geom);
 	m_statTimePerTileSamples = 0;
 	m_statPolysPerTileSamples = 0;
 	if (m_tool)
@@ -559,7 +596,7 @@ void Sample_SoloMeshTiled::handleMeshChanged(const float* verts, int nverts,
 
 bool Sample_SoloMeshTiled::handleBuild()
 {
-	if (!m_verts || ! m_tris)
+	if (!m_geom || !m_geom->getMesh() || !m_geom->getChunkyMesh())
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Input mesh is not specified.");
@@ -575,6 +612,13 @@ bool Sample_SoloMeshTiled::handleBuild()
 	}
 	
 	cleanup();
+	
+	const float* bmin = m_geom->getMeshBoundsMin();
+	const float* bmax = m_geom->getMeshBoundsMin();
+	const float* verts = m_geom->getMesh()->getVerts();
+	const int nverts = m_geom->getMesh()->getVertCount();
+	const int ntris = m_geom->getMesh()->getTriCount();
+	const rcChunkyTriMesh* chunkyMesh = m_geom->getChunkyMesh();
 	
 	// Init build configuration from GUI
 	memset(&m_cfg, 0, sizeof(m_cfg));
@@ -597,8 +641,8 @@ bool Sample_SoloMeshTiled::handleBuild()
 	// Set the area where the navigation will be build.
 	// Here the bounds of the input mesh are used, but the
 	// area could be specified by an user defined box, etc.
-	vcopy(m_cfg.bmin, m_bmin);
-	vcopy(m_cfg.bmax, m_bmax);
+	vcopy(m_cfg.bmin, bmin);
+	vcopy(m_cfg.bmax, bmax);
 	rcCalcGridSize(m_cfg.bmin, m_cfg.bmax, m_cfg.cs, &m_cfg.width, &m_cfg.height);
 	
 	// Reset build times gathering.
@@ -629,30 +673,13 @@ bool Sample_SoloMeshTiled::handleBuild()
 			rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: Out of memory 'tileSet->tiles' (%d).", m_tileSet->height * m_tileSet->width);
 		return false;
 	}
-
-	// Build chunky trimesh for local polygon queries.
-	rcTimeVal chunkyStartTime = rcGetPerformanceTimer();
-	m_chunkyMesh = new rcChunkyTriMesh;
-	if (!m_chunkyMesh)
-	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: Out of memory 'm_chunkyMesh'.");
-		return false;
-	}
-	if (!rcCreateChunkyTriMesh(m_verts, m_tris, m_ntris, 256, m_chunkyMesh))
-	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: Could not build chunky mesh.");
-		return false;
-	}
-	rcTimeVal chunkyEndTime = rcGetPerformanceTimer();
 	
 	if (rcGetLog())
 	{
 		rcGetLog()->log(RC_LOG_PROGRESS, "Building navigation:");
 		rcGetLog()->log(RC_LOG_PROGRESS, " - %d x %d cells", m_cfg.width, m_cfg.height);
 		rcGetLog()->log(RC_LOG_PROGRESS, " - %d x %d tiles", m_tileSet->width, m_tileSet->height);
-		rcGetLog()->log(RC_LOG_PROGRESS, " - %.1f verts, %.1f tris", m_nverts/1000.0f, m_ntris/1000.0f);
+		rcGetLog()->log(RC_LOG_PROGRESS, " - %.1f verts, %.1f tris", nverts/1000.0f, ntris/1000.0f);
 	}
 		
 	// Initialize per tile config.
@@ -662,11 +689,14 @@ bool Sample_SoloMeshTiled::handleBuild()
 	tileCfg.height = m_cfg.tileSize + m_cfg.borderSize*2;
 		
 	// Allocate array that can hold triangle flags for all geom chunks.
-	unsigned char* triangleFlags = new unsigned char[m_chunkyMesh->maxTrisPerChunk];
+	unsigned char* triangleFlags = new unsigned char[chunkyMesh->maxTrisPerChunk];
 	if (!triangleFlags)
 	{
 		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: Out of memory 'triangleFlags' (%d).", m_chunkyMesh->maxTrisPerChunk);
+		{
+			rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: Out of memory 'triangleFlags' (%d).",
+							chunkyMesh->maxTrisPerChunk);
+		}
 		return false;
 	}
 		
@@ -699,7 +729,7 @@ bool Sample_SoloMeshTiled::handleBuild()
 			tbmax[0] = tileCfg.bmax[0];
 			tbmax[1] = tileCfg.bmax[2];
 			int cid[256];// TODO: Make grow when returning too many items.
-			const int ncid = rcGetChunksInRect(m_chunkyMesh, tbmin, tbmax, cid, 256);
+			const int ncid = rcGetChunksInRect(chunkyMesh, tbmin, tbmax, cid, 256);
 			if (!ncid)
 				continue;
 			
@@ -719,15 +749,15 @@ bool Sample_SoloMeshTiled::handleBuild()
 			
 			for (int i = 0; i < ncid; ++i)
 			{
-				const rcChunkyTriMeshNode& node = m_chunkyMesh->nodes[cid[i]];
-				const int* tris = &m_chunkyMesh->tris[node.i*3];
+				const rcChunkyTriMeshNode& node = chunkyMesh->nodes[cid[i]];
+				const int* tris = &chunkyMesh->tris[node.i*3];
 				const int ntris = node.n;
 				
 				memset(triangleFlags, 0, ntris*sizeof(unsigned char));
 				rcMarkWalkableTriangles(tileCfg.walkableSlopeAngle,
-										m_verts, m_nverts, tris, ntris, triangleFlags);
+										verts, nverts, tris, ntris, triangleFlags);
 				
-				rcRasterizeTriangles(m_verts, m_nverts, tris, triangleFlags, ntris, *solid);
+				rcRasterizeTriangles(verts, nverts, tris, triangleFlags, ntris, *solid);
 			}	
 			
 			rcFilterLedgeSpans(tileCfg.walkableHeight, tileCfg.walkableClimb, *solid);
@@ -756,7 +786,8 @@ bool Sample_SoloMeshTiled::handleBuild()
 				continue;
 			}
 			
-			if (!rcBuildRegions(*chf, tileCfg.walkableRadius, tileCfg.borderSize, tileCfg.minRegionSize, tileCfg.mergeRegionSize))
+			if (!rcBuildRegions(*chf, tileCfg.walkableRadius, tileCfg.borderSize,
+								tileCfg.minRegionSize, tileCfg.mergeRegionSize))
 			{
 				if (rcGetLog())
 					rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: [%d,%d] Could not build regions.", x, y);
@@ -958,8 +989,6 @@ bool Sample_SoloMeshTiled::handleBuild()
 	{
 		const float pc = 100.0f / rcGetDeltaTimeUsec(totStartTime, totEndTime);
 
-		rcGetLog()->log(RC_LOG_PROGRESS, "Chunky Mesh: %.1fms (%.1f%%)", rcGetDeltaTimeUsec(chunkyStartTime, chunkyEndTime)/1000.0f, rcGetDeltaTimeUsec(chunkyStartTime, chunkyEndTime)*pc);
-		
 		rcGetLog()->log(RC_LOG_PROGRESS, "Rasterize: %.1fms (%.1f%%)", m_buildTimes.rasterizeTriangles/1000.0f, m_buildTimes.rasterizeTriangles*pc);
 		
 		rcGetLog()->log(RC_LOG_PROGRESS, "Build Compact: %.1fms (%.1f%%)", m_buildTimes.buildCompact/1000.0f, m_buildTimes.buildCompact*pc);
