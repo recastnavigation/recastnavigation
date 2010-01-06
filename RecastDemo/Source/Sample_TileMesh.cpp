@@ -176,6 +176,8 @@ Sample_TileMesh::Sample_TileMesh() :
 Sample_TileMesh::~Sample_TileMesh()
 {
 	cleanup();
+	delete m_navMesh;
+	m_navMesh = 0;
 }
 
 void Sample_TileMesh::cleanup()
@@ -192,8 +194,6 @@ void Sample_TileMesh::cleanup()
 	m_pmesh = 0;
 	delete m_dmesh;
 	m_dmesh = 0;
-	delete m_navMesh;
-	m_navMesh = 0;
 }
 
 void Sample_TileMesh::handleSettings()
@@ -391,6 +391,8 @@ void Sample_TileMesh::handleMeshChanged(class InputGeom* geom)
 	Sample::handleMeshChanged(geom);
 
 	cleanup();
+	delete m_navMesh;
+	m_navMesh = 0;
 	
 	if (m_tool)
 	{
