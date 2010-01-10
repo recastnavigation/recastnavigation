@@ -823,13 +823,14 @@ bool rcBuildPolyMesh(rcContourSet& cset, int nvp, rcPolyMesh& mesh)
 			rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'mesh.polys' (%d).", maxTris*nvp*2);
 		return false;
 	}
-	mesh.regs = new unsigned short[maxTris*2];
+	mesh.regs = new unsigned short[maxTris];
 	if (!mesh.regs)
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'mesh.regs' (%d).", maxTris);
 		return false;
 	}
+
 	mesh.nverts = 0;
 	mesh.npolys = 0;
 	mesh.nvp = nvp;
