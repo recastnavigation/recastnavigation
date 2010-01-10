@@ -28,6 +28,8 @@ static const int DT_VERTS_PER_POLYGON = 6;
 static const int DT_NAVMESH_MAGIC = 'DNAV';
 static const int DT_NAVMESH_VERSION = 2;
 
+static const unsigned char DT_POLY_OFFMESH_LINK = 1;
+
 // Structure describing the navigation polygon data.
 struct dtPoly
 {
@@ -36,7 +38,7 @@ struct dtPoly
 	unsigned short links;					// Base index to header 'links' array. 
 	unsigned char nlinks;					// Number of links for 
 	unsigned char nv;						// Number of vertices.
-	unsigned char flags;					// Flags (not used).
+	unsigned char flags;					// Flags.
 };
 
 // Stucture describing polygon detail triangles.
@@ -64,6 +66,13 @@ struct dtBVNode
 	int i;									// Index to item or if negative, escape index.
 };
 
+struct dtOffMeshLink
+{
+	dtPolyRef ref[2];						// Endpoint polys.
+	unsigned short p;						// Poly Id
+	unsigned char side;						// TODO
+};
+
 struct dtMeshHeader
 {
 	int magic;								// Magic number, used to identify the data.
@@ -76,6 +85,7 @@ struct dtMeshHeader
 	int ndverts;							// Number of detail vertices.
 	int ndtris;								// Number of detail triangles.
 	int nbvtree;							// Number of BVtree nodes.
+	int nomlinks;							// Number of Off-Mesh links.
 	float bmin[3], bmax[3];					// Bounding box of the tile.
 	float bvquant;							// BVtree quantization factor (world to bvnode coords)
 	dtPoly* polys;							// Pointer to the polygons (will be updated when tile is added).
@@ -85,6 +95,7 @@ struct dtMeshHeader
 	float* dverts;							// Pointer to detail vertices (will be updated when tile added).
 	unsigned char* dtris;					// Pointer to detail triangles (will be updated when tile added).
 	dtBVNode* bvtree;						// Pointer to BVtree nodes (will be updated when tile added).
+	dtOffMeshLink* omlinks;					// Pointer to Off-Mesh links. (will be updated when tile added).
 };
 
 struct dtMeshTile

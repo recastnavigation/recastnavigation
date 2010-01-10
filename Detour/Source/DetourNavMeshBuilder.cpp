@@ -209,11 +209,139 @@ static int createBVTree(const unsigned short* verts, const int nverts,
 	return curNode;
 }
 
+/*
+static int queryPolygons(dtMeshHeader* header,
+						 const float* qmin, const float* qmax,
+						 unsigned short* polys, const int maxPolys)
+{
+	const dtBVNode* node = &header->bvtree[0];
+	const dtBVNode* end = &header->bvtree[header->nbvtree];
+	
+	// Calculate quantized box
+	unsigned short bmin[3], bmax[3];
+	// Clamp query box to world box.
+	float minx = clamp(qmin[0], header->bmin[0], header->bmax[0]) - header->bmin[0];
+	float miny = clamp(qmin[1], header->bmin[1], header->bmax[1]) - header->bmin[1];
+	float minz = clamp(qmin[2], header->bmin[2], header->bmax[2]) - header->bmin[2];
+	float maxx = clamp(qmax[0], header->bmin[0], header->bmax[0]) - header->bmin[0];
+	float maxy = clamp(qmax[1], header->bmin[1], header->bmax[1]) - header->bmin[1];
+	float maxz = clamp(qmax[2], header->bmin[2], header->bmax[2]) - header->bmin[2];
+	// Quantize
+	bmin[0] = (unsigned short)(header->bvquant * minx) & 0xfffe;
+	bmin[1] = (unsigned short)(header->bvquant * miny) & 0xfffe;
+	bmin[2] = (unsigned short)(header->bvquant * minz) & 0xfffe;
+	bmax[0] = (unsigned short)(header->bvquant * maxx + 1) | 1;
+	bmax[1] = (unsigned short)(header->bvquant * maxy + 1) | 1;
+	bmax[2] = (unsigned short)(header->bvquant * maxz + 1) | 1;
+	
+	// Traverse tree
+	dtPolyRef base = getTileId(tile);
+	int n = 0;
+	while (node < end)
+	{
+		bool overlap = checkOverlapBox(bmin, bmax, node->bmin, node->bmax);
+		bool isLeafNode = node->i >= 0;
+		
+		if (isLeafNode && overlap)
+		{
+			if (n < maxPolys)
+				polys[n++] = base | (dtPolyRef)node->i;
+		}
+		
+		if (overlap || isLeafNode)
+			node++;
+		else
+		{
+			const int escapeIndex = -node->i;
+			node += escapeIndex;
+		}
+	}
+	
+	return n;
+}
 
+dtMeshHeader* header
+{
+	bool dtNavMesh::closestPointOnPoly(dtPolyRef ref, const float* pos, float* closest) const
+	{
+		unsigned int salt, it, ip;
+		dtDecodePolyId(ref, salt, it, ip);
+		if (it >= (unsigned int)m_maxTiles) return false;
+		if (m_tiles[it].salt != salt || m_tiles[it].header == 0) return false;
+		const dtMeshHeader* header = m_tiles[it].header;
+		
+		if (ip >= (unsigned int)header->npolys) return false;
+		const dtPoly* poly = &header->polys[ip];
+		
+		float closestDistSqr = FLT_MAX;
+		const dtPolyDetail* pd = &header->dmeshes[ip];
+		
+		for (int j = 0; j < pd->ntris; ++j)
+		{
+			const unsigned char* t = &header->dtris[(pd->tbase+j)*4];
+			const float* v[3];
+			for (int k = 0; k < 3; ++k)
+			{
+				if (t[k] < poly->nv)
+					v[k] = &header->verts[poly->v[t[k]]*3];
+				else
+					v[k] = &header->dverts[(pd->vbase+(t[k]-poly->nv))*3];
+			}
+			float pt[3];
+			closestPtPointTriangle(pt, pos, v[0], v[1], v[2]);
+			float d = vdistSqr(pos, pt);
+			if (d < closestDistSqr)
+			{
+				vcopy(closest, pt);
+				closestDistSqr = d;
+			}
+		}
+		
+		return true;
+	}
+}
+
+unsigned short findNearestPoly(dtMeshHeader* header, const float* center, const float* extents)
+{
+	// Get nearby polygons from proximity grid.
+	float bmin[3], bmax[3];
+	bmin[0] = center[0] - extents[0];
+	bmin[1] = center[1] - extents[1];
+	bmin[2] = center[2] - extents[2];
+	bmax[0] = center[0] + extents[0];
+	bmax[1] = center[1] + extents[1];
+	bmax[2] = center[2] + extents[2];
+	unsigned short polys[128];
+	int npolys = queryPolygons(header, bmin, bmax, polys, 128);
+	
+	// Find nearest polygon amongst the nearby polygons.
+	unsigned short nearest = 0xffff;
+	float nearestDistanceSqr = FLT_MAX;
+	for (int i = 0; i < npolys; ++i)
+	{
+		dtPolyRef ref = polys[i];
+		float closest[3];
+
+		if (!closestPointOnPoly(ref, center, closest))
+			continue;
+			
+		float d = vdistSqr(center, closest);
+		if (d < nearestDistanceSqr)
+		{
+			nearestDistanceSqr = d;
+			nearest = ref;
+		}
+	}
+	
+	return nearest;
+}
+*/
+	
 bool dtCreateNavMeshData(const unsigned short* verts, const int nverts,
 						 const unsigned short* polys, const int npolys, const int nvp,
 						 const unsigned short* dmeshes, const float* dverts, const int ndverts,
 						 const unsigned char* dtris, const int ndtris, 
+						 const float* omverts, const int nomlinks,
 						 const float* bmin, const float* bmax, float cs, float ch, int tileSize, int walkableClimb,
 						 unsigned char** outData, int* outDataSize)
 {
@@ -228,6 +356,10 @@ bool dtCreateNavMeshData(const unsigned short* verts, const int nverts,
 		return false;
 	if (!dmeshes || !dverts || ! dtris)
 		return false;
+	
+	// Off-mesh links are stored as polygons, adjust values.
+	const int totpolys = npolys + nomlinks;
+	const int totverts = nverts + nomlinks*2;
 	
 	// Find portal edges which are at tile borders.
 	int nedges = 0;
@@ -259,7 +391,7 @@ bool dtCreateNavMeshData(const unsigned short* verts, const int nverts,
 		}
 	}
 
-	const int maxLinks = nedges + nportals*2;
+	const int maxLinks = nedges + nportals*2 + nomlinks*4;
 	
 	
 	// Find unique detail vertices.
@@ -283,16 +415,19 @@ bool dtCreateNavMeshData(const unsigned short* verts, const int nverts,
 	
 	// Calculate data size
 	const int headerSize = align4(sizeof(dtMeshHeader));
-	const int vertsSize = align4(sizeof(float)*3*nverts);
-	const int polysSize = align4(sizeof(dtPoly)*npolys);
+	const int vertsSize = align4(sizeof(float)*3*totverts);
+	const int polysSize = align4(sizeof(dtPoly)*totpolys);
 	const int linksSize = align4(sizeof(dtLink)*maxLinks);
 	const int detailMeshesSize = align4(sizeof(dtPolyDetail)*npolys);
 	const int detailVertsSize = align4(sizeof(float)*3*uniqueDetailVerts);
 	const int detailTrisSize = align4(sizeof(unsigned char)*4*ndtris);
 	const int bvtreeSize = align4(sizeof(dtBVNode)*npolys*2);
+	const int offMeshLinksSize = align4(sizeof(dtOffMeshLink)*nomlinks);
 	
 	const int dataSize = headerSize + vertsSize + polysSize + linksSize +
-						 detailMeshesSize + detailVertsSize + detailTrisSize + bvtreeSize;
+						 detailMeshesSize + detailVertsSize + detailTrisSize +
+						 bvtreeSize + offMeshLinksSize;
+						 
 	unsigned char* data = new unsigned char[dataSize];
 	if (!data)
 		return false;
@@ -306,14 +441,15 @@ bool dtCreateNavMeshData(const unsigned short* verts, const int nverts,
 	dtPolyDetail* navDMeshes = (dtPolyDetail*)d; d += detailMeshesSize;
 	float* navDVerts = (float*)d; d += detailVertsSize;
 	unsigned char* navDTris = (unsigned char*)d; d += detailTrisSize;
+	dtOffMeshLink* offMeshLinks = (dtOffMeshLink*)d; d += offMeshLinksSize;
 	dtBVNode* navBvtree = (dtBVNode*)d; d += bvtreeSize;
 	
 	
 	// Store header
 	header->magic = DT_NAVMESH_MAGIC;
 	header->version = DT_NAVMESH_VERSION;
-	header->npolys = npolys;
-	header->nverts = nverts;
+	header->npolys = totpolys;
+	header->nverts = totverts;
 	header->maxlinks = maxLinks;
 	header->bmin[0] = bmin[0];
 	header->bmin[1] = bmin[1];
@@ -325,8 +461,11 @@ bool dtCreateNavMeshData(const unsigned short* verts, const int nverts,
 	header->ndverts = uniqueDetailVerts;
 	header->ndtris = ndtris;
 	header->bvquant = 1.0f/cs;
+	header->nomlinks = nomlinks;
+	header->nbvtree = npolys*2;
 	
 	// Store vertices
+	// Mesh vertices
 	for (int i = 0; i < nverts; ++i)
 	{
 		const unsigned short* iv = &verts[i*3];
@@ -335,8 +474,17 @@ bool dtCreateNavMeshData(const unsigned short* verts, const int nverts,
 		v[1] = bmin[1] + iv[1] * ch;
 		v[2] = bmin[2] + iv[2] * cs;
 	}
+	// Off-mesh link vertices.
+	for (int i = 0; i < nomlinks; ++i)
+	{
+		const float* linkv = &omverts[i*2*3];
+		float* v = &navVerts[(nverts+i*2)*3];
+		vcopy(&v[0], &linkv[0]);
+		vcopy(&v[3], &linkv[3]);
+	}
 	
 	// Store polygons
+	// Mesh polys
 	const unsigned short* src = polys;
 	for (int i = 0; i < npolys; ++i)
 	{
@@ -351,7 +499,17 @@ bool dtCreateNavMeshData(const unsigned short* verts, const int nverts,
 		}
 		src += nvp*2;
 	}
-
+	// Off-mesh link vertices.
+	const int omvbase = nverts; // first off-mesh link vertex.
+	for (int i = 0; i < nomlinks; ++i)
+	{
+		dtPoly* p = &navPolys[npolys+i];
+		p->nv = 2;
+		p->v[0] = (unsigned short)(omvbase + i*2+0);
+		p->v[1] = (unsigned short)(omvbase + i*2+1);
+		p->flags = DT_POLY_OFFMESH_LINK; // Off-mesh link poly.
+	}
+	
 	// Store portal edges.
 	if (tileSize > 0)
 	{
@@ -404,8 +562,14 @@ bool dtCreateNavMeshData(const unsigned short* verts, const int nverts,
 
 	// Store and create BVtree.
 	// TODO: take detail mesh into account! use byte per bbox extent?
-	header->nbvtree = createBVTree(verts, nverts, polys, npolys, nvp,
-								   cs, ch, npolys*2, navBvtree);
+	createBVTree(verts, nverts, polys, npolys, nvp, cs, ch, npolys*2, navBvtree);
+	
+	// Store Off-Mesh links.
+	for (int i = 0; i < nomlinks; ++i)
+	{
+		dtOffMeshLink* link = &offMeshLinks[i];
+		link->p = npolys + i;
+	}
 	
 	*outData = data;
 	*outDataSize = dataSize;

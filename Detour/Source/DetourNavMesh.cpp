@@ -354,28 +354,113 @@ void dtNavMesh::buildIntLinks(dtMeshTile* tile)
 	dtPolyRef base = getTileId(tile);
 	dtLink* pool = h->links;
 	int nlinks = 0;
+
+	unsigned int salt, it, ip, tileIdx;
+	dtDecodePolyId(base, salt, tileIdx, ip);
+
+	// Find Off-mesh link end points.
+	for (int i = 0; i < h->nomlinks; ++i)
+	{
+		dtOffMeshLink* link = &h->omlinks[i];
+		dtPoly* poly = &h->polys[link->p];
+		
+		link->ref[0] = 0;
+		link->ref[1] = 0;
+		
+		const float ext[3] = { 0.1f, 0.3f, 0.1f }; //m_portalHeight }; // TODO: save agent size with mesh.
+		for (int j = 0; j < 2; ++j)
+		{
+			const float* v = &h->verts[poly->v[j]*3];
+			dtPolyRef ref = findNearestPoly(v, ext);			
+			// Make sure the location is on current mesh.
+			// TODO: Handle cross tile links.
+			dtDecodePolyId(ref, salt, it, ip);
+			if (it != tileIdx)
+				continue;
+				
+			link->ref[j] = ref;
+		}
+	}	
+
 	for (int i = 0; i < h->npolys; ++i)
 	{
 		dtPoly* poly = &h->polys[i];
 		poly->links = nlinks;
 		poly->nlinks = 0;
-		for (int j = 0; j < poly->nv; ++j)
+
+		if (poly->flags & DT_POLY_OFFMESH_LINK)
 		{
-			// Skip hard and non-internal edges.
-			if (poly->n[j] == 0 || (poly->n[j] & EXT_LINK)) continue;
-			
-			if (nlinks < h->maxlinks)
+			// Find Off-Mesh link and fill in information.
+			dtOffMeshLink* omlink = 0;
+			for (int j = 0; j < h->nomlinks; ++j)
 			{
-				dtLink* link = &pool[nlinks++];
-				link->ref = base | (unsigned int)(poly->n[j]-1);
-				link->p = (unsigned short)i;
-				link->e = (unsigned char)j;
-				link->side = 0xff;
-				link->bmin = link->bmax = 0;
-				poly->nlinks++;
+				if ((int)h->omlinks[j].p == i)
+				{
+					omlink = &h->omlinks[j];
+					break;
+				}
+			}
+			if (!omlink)
+				continue;
+			for (int j = 0; j < 2; ++j)
+			{
+				if (nlinks < h->maxlinks)
+				{
+					dtLink* link = &pool[nlinks++];
+					link->ref = omlink->ref[j];
+					link->p = (unsigned short)i;
+					link->e = (unsigned char)j;
+					link->side = 0xff;
+					link->bmin = link->bmax = 0;
+					poly->nlinks++;
+				}
+			}
+		}
+		else
+		{
+			// Polygon edges.
+			for (int j = 0; j < poly->nv; ++j)
+			{
+				// Skip hard and non-internal edges.
+				if (poly->n[j] == 0 || (poly->n[j] & EXT_LINK)) continue;
+				
+				if (nlinks < h->maxlinks)
+				{
+					dtLink* link = &pool[nlinks++];
+					link->ref = base | (unsigned int)(poly->n[j]-1);
+					link->p = (unsigned short)i;
+					link->e = (unsigned char)j;
+					link->side = 0xff;
+					link->bmin = link->bmax = 0;
+					poly->nlinks++;
+				}
+			}
+			
+			// Off-Mesh link targets.
+			dtPolyRef curRef = base | (unsigned int)i;
+			for (int j = 0; j < h->nomlinks; ++j)
+			{
+				const dtOffMeshLink* omlink = &h->omlinks[j];
+				for (int k = 0; k < 2; ++k)
+				{
+					if (omlink->ref[k] == curRef)
+					{
+						if (nlinks < h->maxlinks)
+						{
+							dtLink* link = &pool[nlinks++];
+							link->ref = base | (dtPolyRef)omlink->p;
+							link->p = (unsigned short)i;
+							link->e = 0;
+							link->side = 0xff;
+							link->bmin = link->bmax = 0;
+							poly->nlinks++;
+						}
+					}
+				}
 			}
 		}
 	}
+
 	h->nlinks = nlinks;
 }
 
@@ -423,6 +508,7 @@ bool dtNavMesh::addTileAt(int x, int y, unsigned char* data, int dataSize, bool 
 	const int detailVertsSize = align4(sizeof(float)*3*header->ndverts);
 	const int detailTrisSize = align4(sizeof(unsigned char)*4*header->ndtris);
 	const int bvtreeSize = header->nbvtree ? align4(sizeof(dtBVNode)*header->npolys*2) : 0;
+	const int offMeshLinksSize = align4(sizeof(dtOffMeshLink)*header->nomlinks);
 	
 	unsigned char* d = data + headerSize;
 	header->verts = (float*)d; d += vertsSize;
@@ -431,6 +517,7 @@ bool dtNavMesh::addTileAt(int x, int y, unsigned char* data, int dataSize, bool 
 	header->dmeshes = (dtPolyDetail*)d; d += detailMeshesSize;
 	header->dverts = (float*)d; d += detailVertsSize;
 	header->dtris = (unsigned char*)d; d += detailTrisSize;
+	header->omlinks = (dtOffMeshLink*)d; d += offMeshLinksSize;
 	header->bvtree = header->nbvtree ? (dtBVNode*)d : 0; d += bvtreeSize;
 
 	// Init tile.
@@ -1224,43 +1311,69 @@ bool dtNavMesh::getPortalPoints(dtPolyRef from, dtPolyRef to, float* left, float
 	for (int i = 0; i < fromPoly->nlinks; ++i)
 	{
 		const dtLink* link = &fromHeader->links[fromPoly->links+i];
-		if (link->ref == to)
+		if (link->ref != to)
+			continue;
+		
+		if (fromPoly->flags & DT_POLY_OFFMESH_LINK)
 		{
-			// Find portal vertices.
-			const int v0 = fromPoly->v[link->e];
-			const int v1 = fromPoly->v[(link->e+1) % fromPoly->nv];
-			vcopy(left, &fromHeader->verts[v0*3]);
-			vcopy(right, &fromHeader->verts[v1*3]);
-			// If the link is at tile boundary, clamp the vertices to
-			// the link width.
-			if (link->side == 0 || link->side == 2)
-			{
-				// Unpack portal limits.
-				const float smin = min(left[2],right[2]);
-				const float smax = max(left[2],right[2]);
-				const float s = (smax-smin) / 255.0f;
-				const float lmin = smin + link->bmin*s;
-				const float lmax = smin + link->bmax*s;
-				left[2] = max(left[2],lmin);
-				left[2] = min(left[2],lmax);
-				right[2] = max(right[2],lmin);
-				right[2] = min(right[2],lmax);
-			}
-			else if (link->side == 1 || link->side == 3)
-			{
-				// Unpack portal limits.
-				const float smin = min(left[0],right[0]);
-				const float smax = max(left[0],right[0]);
-				const float s = (smax-smin) / 255.0f;
-				const float lmin = smin + link->bmin*s;
-				const float lmax = smin + link->bmax*s;
-				left[0] = max(left[0],lmin);
-				left[0] = min(left[0],lmax);
-				right[0] = max(right[0],lmin);
-				right[0] = min(right[0],lmax);
-			}
+//			const int v = fromPoly->v[link->e];
+			const int v = fromHeader->links[fromPoly->links+0].ref == to ? 0 : 1;
+			vcopy(left, &fromHeader->verts[fromPoly->v[v]*3]);
+			vcopy(right, &fromHeader->verts[fromPoly->v[v]*3]);
 			return true;
 		}
+		else
+		{
+			dtDecodePolyId(to, salt, it, ip);
+			if (it >= (unsigned int)m_maxTiles) return false;
+			if (m_tiles[it].salt != salt || m_tiles[it].header == 0) return false;
+			if (ip >= (unsigned int)m_tiles[it].header->npolys) return false;
+			const dtMeshHeader* toHeader = m_tiles[it].header;
+			const dtPoly* toPoly = &toHeader->polys[ip];
+
+			if (toPoly->flags & DT_POLY_OFFMESH_LINK)
+			{
+				const int v = toHeader->links[toPoly->links+0].ref == from ? 0 : 1;
+				vcopy(left, &toHeader->verts[toPoly->v[v]*3]);
+				vcopy(right, &toHeader->verts[toPoly->v[v]*3]);
+				return true;
+			}
+		}
+		
+		// Find portal vertices.
+		const int v0 = fromPoly->v[link->e];
+		const int v1 = fromPoly->v[(link->e+1) % fromPoly->nv];
+		vcopy(left, &fromHeader->verts[v0*3]);
+		vcopy(right, &fromHeader->verts[v1*3]);
+		// If the link is at tile boundary, clamp the vertices to
+		// the link width.
+		if (link->side == 0 || link->side == 2)
+		{
+			// Unpack portal limits.
+			const float smin = min(left[2],right[2]);
+			const float smax = max(left[2],right[2]);
+			const float s = (smax-smin) / 255.0f;
+			const float lmin = smin + link->bmin*s;
+			const float lmax = smin + link->bmax*s;
+			left[2] = max(left[2],lmin);
+			left[2] = min(left[2],lmax);
+			right[2] = max(right[2],lmin);
+			right[2] = min(right[2],lmax);
+		}
+		else if (link->side == 1 || link->side == 3)
+		{
+			// Unpack portal limits.
+			const float smin = min(left[0],right[0]);
+			const float smax = max(left[0],right[0]);
+			const float s = (smax-smin) / 255.0f;
+			const float lmin = smin + link->bmin*s;
+			const float lmax = smin + link->bmax*s;
+			left[0] = max(left[0],lmin);
+			left[0] = min(left[0],lmax);
+			right[0] = max(right[0],lmin);
+			right[0] = min(right[0],lmax);
+		}
+		return true;
 	}
 	return false;
 }

@@ -23,6 +23,7 @@ bool dtCreateNavMeshData(const unsigned short* verts, const int nverts,
 						 const unsigned short* polys, const int npolys, const int nvp,
 						 const unsigned short* dmeshes, const float* dverts, const int ndverts,
 						 const unsigned char* dtris, const int ndtris, 
+						 const float* omverts, const int nomlinks,
 						 const float* bmin, const float* bmax, float cs, float ch, int tileSize, int walkableClimb,
 						 unsigned char** outData, int* outDataSize);
 
