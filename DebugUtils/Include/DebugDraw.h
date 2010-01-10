@@ -70,4 +70,50 @@ inline unsigned int duRGBAf(float fr, float fg, float fb, float fa)
 unsigned int duIntToCol(int i, int a);
 void duIntToCol(int i, float* col);
 
+void duCalcBoxColors(unsigned int* colors, unsigned int colTop, unsigned int colSide);
+
+void duDebugDrawCylinderWire(struct duDebugDraw* dd, float minx, float miny, float minz,
+							 float maxx, float maxy, float maxz, unsigned int col, const float lineWidth);
+
+void duDebugDrawBoxWire(struct duDebugDraw* dd, float minx, float miny, float minz,
+						float maxx, float maxy, float maxz, unsigned int col, const float lineWidth);
+
+void duDebugDrawArc(struct duDebugDraw* dd, const float x0, const float y0, const float z0,
+					const float x1, const float y1, const float z1, const float h, unsigned int col, const float lineWidth);
+
+void duDebugDrawCircle(struct duDebugDraw* dd, const float x, const float y, const float z,
+					   const float r, unsigned int col, const float lineWidth);
+
+void duDebugDrawCross(struct duDebugDraw* dd, const float x, const float y, const float z,
+					  const float size, unsigned int col, const float lineWidth);
+
+void duDebugDrawBox(struct duDebugDraw* dd, float minx, float miny, float minz,
+					float maxx, float maxy, float maxz, const unsigned int* fcol);
+
+void duDebugDrawGridXZ(struct duDebugDraw* dd, const float ox, const float oy, const float oz,
+					   const int w, const int h, const float size,
+					   const unsigned int col, const float lineWidth);
+
+
+// Versions without begin/end, can be used to draw multiple primitives.
+void duAppendCylinderWire(struct duDebugDraw* dd, float minx, float miny, float minz,
+						  float maxx, float maxy, float maxz, unsigned int col);
+
+void duAppendBoxWire(struct duDebugDraw* dd, float minx, float miny, float minz,
+					 float maxx, float maxy, float maxz, unsigned int col);
+
+void duAppendArc(struct duDebugDraw* dd, const float x0, const float y0, const float z0,
+				 const float x1, const float y1, const float z1, const float h, unsigned int col);
+
+void duAppendCircle(struct duDebugDraw* dd, const float x, const float y, const float z,
+					const float r, unsigned int col);
+
+void duAppendCross(struct duDebugDraw* dd, const float x, const float y, const float z,
+				   const float size, unsigned int col);
+
+void duAppendBox(struct duDebugDraw* dd, float minx, float miny, float minz,
+				 float maxx, float maxy, float maxz, const unsigned int* fcol);
+
+
+
 #endif // DEBUGDRAW_H

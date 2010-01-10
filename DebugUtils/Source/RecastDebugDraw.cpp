@@ -72,6 +72,7 @@ void duDebugDrawTriMeshSlope(duDebugDraw* dd, const float* verts, int nverts,
 	dd->end();
 }
 
+/*
 static void drawBoxWire(duDebugDraw* dd,
 						float minx, float miny, float minz,
 						float maxx, float maxy, float maxz,
@@ -111,8 +112,8 @@ static void drawBoxWire(duDebugDraw* dd,
 	dd->vertex(minx, miny, maxz, color);
 	dd->vertex(minx, maxy, maxz, color);
 }
-
-static void drawBox(duDebugDraw* dd,
+*/
+/*static void drawBox(duDebugDraw* dd,
 					float minx, float miny, float minz,
 					float maxx, float maxy, float maxz,
 					const float* col1, const float* col2)
@@ -211,7 +212,7 @@ void duDebugDrawBox(duDebugDraw* dd, float minx, float miny, float minz, float m
 	dd->begin(DU_DRAW_QUADS,24);
 	drawBox(dd, minx, miny, minz, maxx, maxy, maxz, col1, col2);
 	dd->end();
-}
+}*/
 
 static int getSpanCount(const rcHeightfield& hf)
 {
@@ -227,7 +228,6 @@ static int getSpanCount(const rcHeightfield& hf)
 
 void duDebugDrawHeightfieldSolid(duDebugDraw* dd, const rcHeightfield& hf)
 {
-	static const float col0[4] = { 1,1,1,1 };
 	
 	const float* orig = hf.bmin;
 	const float cs = hf.cs;
@@ -236,6 +236,9 @@ void duDebugDrawHeightfieldSolid(duDebugDraw* dd, const rcHeightfield& hf)
 	const int w = hf.width;
 	const int h = hf.height;
 		
+	unsigned int fcol[6];
+	duCalcBoxColors(fcol, duRGBA(255,255,255,255), duRGBA(255,255,255,255));
+	
 	dd->begin(DU_DRAW_QUADS);
 	
 	for (int y = 0; y < h; ++y)
@@ -247,7 +250,7 @@ void duDebugDrawHeightfieldSolid(duDebugDraw* dd, const rcHeightfield& hf)
 			const rcSpan* s = hf.spans[x + y*w];
 			while (s)
 			{
-				drawBox(dd, fx, orig[1]+s->smin*ch, fz, fx+cs, orig[1] + s->smax*ch, fz+cs, col0, col0);
+				duAppendBox(dd, fx, orig[1]+s->smin*ch, fz, fx+cs, orig[1] + s->smax*ch, fz+cs, fcol);
 				s = s->next;
 			}
 		}
@@ -257,11 +260,6 @@ void duDebugDrawHeightfieldSolid(duDebugDraw* dd, const rcHeightfield& hf)
 
 void duDebugDrawHeightfieldWalkable(duDebugDraw* dd, const rcHeightfield& hf)
 {
-	static const float colb[4] = {0.85f,0.85f,0.85f,1 }; // Base
-	static const float col0[4] = {0.5f, 0.75f, 0.85f,1}; // Culled
-	static const float col1[4] = {0.3f, 0.55f, 0.65f, 1}; // Walkable
-	static const float col2[4] = {0.15f, 0.4f, 0.5f,1}; // Ledge
-	
 	const float* orig = hf.bmin;
 	const float cs = hf.cs;
 	const float ch = hf.ch;
@@ -269,6 +267,11 @@ void duDebugDrawHeightfieldWalkable(duDebugDraw* dd, const rcHeightfield& hf)
 	const int w = hf.width;
 	const int h = hf.height;
 	
+	unsigned int fcol0[6], fcol1[6], fcol2[6];
+	duCalcBoxColors(fcol0, duRGBA(128,192,217,255), duRGBA(217,217,217,255)); // Culled
+	duCalcBoxColors(fcol1, duRGBA(77,140,165,255), duRGBA(217,217,217,255)); // Walkable
+	duCalcBoxColors(fcol2, duRGBA(38,102,128,255), duRGBA(217,217,217,255)); // Ledge
+
 	dd->begin(DU_DRAW_QUADS);
 	
 	for (int y = 0; y < h; ++y)
@@ -280,12 +283,12 @@ void duDebugDrawHeightfieldWalkable(duDebugDraw* dd, const rcHeightfield& hf)
 			const rcSpan* s = hf.spans[x + y*w];
 			while (s)
 			{
-				const float* c = col0;
+				const unsigned int* c = fcol0;
 				if (s->flags & RC_LEDGE)
-					c = col2;
+					c = fcol2;
 				else if (s->flags & RC_WALKABLE)
-					c = col1;
-				drawBox(dd, fx, orig[1]+s->smin*ch, fz, fx+cs, orig[1] + s->smax*ch, fz+cs, colb, c);
+					c = fcol1;
+				duAppendBox(dd, fx, orig[1]+s->smin*ch, fz, fx+cs, orig[1] + s->smax*ch, fz+cs, c);
 				s = s->next;
 			}
 		}
@@ -432,7 +435,7 @@ static const rcContour* findContourFromSet(const rcContourSet& cset, unsigned sh
 
 static const int NUM_ADU_PTS = 8;
 
-static void drawArc(duDebugDraw* dd, const float* p0, const float* p1, unsigned int color)
+void drawArc(duDebugDraw* dd, const float* p0, const float* p1, unsigned int color)
 {
 	// Submits NPTS*2 vertices.
 	float pts[NUM_ADU_PTS*3];
@@ -459,6 +462,19 @@ void duDebugDrawArc(duDebugDraw* dd, const float* p0, const float* p1, const flo
 	const unsigned int color = duRGBAf(col[0],col[1],col[2],col[3]);
 	dd->begin(DU_DRAW_LINES, lineWidth);
 	drawArc(dd, p0, p1, color);
+	dd->end();
+}
+
+void duDebugDrawCross(struct duDebugDraw* dd, const float* p, const float s, const float dy, const float* col, float lineWidth)
+{
+	const unsigned int color = duRGBAf(col[0],col[1],col[2],col[3]);
+	dd->begin(DU_DRAW_LINES, lineWidth);
+	dd->vertex(p[0]-s,p[1]+dy,p[2], color);
+	dd->vertex(p[0]+s,p[1]+dy,p[2], color);
+	dd->vertex(p[0],p[1]-s+dy,p[2], color);
+	dd->vertex(p[0],p[1]+s+dy,p[2], color);
+	dd->vertex(p[0],p[1]+dy,p[2]-s, color);
+	dd->vertex(p[0],p[1]+dy,p[2]+s, color);
 	dd->end();
 }
 

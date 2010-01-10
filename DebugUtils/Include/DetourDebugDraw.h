@@ -23,6 +23,6 @@
 
 void duDebugDrawNavMesh(struct duDebugDraw* dd, const dtNavMesh* mesh, bool drawClosedList = false);
 void duDebugDrawNavMeshBVTree(struct duDebugDraw* dd, const dtNavMesh* mesh);
-void duDebugDrawNavMeshPoly(struct duDebugDraw* dd, const dtNavMesh* mesh, dtPolyRef ref, const float* col);
+void duDebugDrawNavMeshPoly(struct duDebugDraw* dd, const dtNavMesh* mesh, dtPolyRef ref, const unsigned int col);
 
 #endif // DETOURDEBUGDRAW_H

@@ -35,12 +35,4 @@ void duDebugDrawContours(struct duDebugDraw* dd, const struct rcContourSet& cset
 void duDebugDrawPolyMesh(struct duDebugDraw* dd, const struct rcPolyMesh& mesh);
 void duDebugDrawPolyMeshDetail(struct duDebugDraw* dd, const struct rcPolyMeshDetail& dmesh);
 
-void duDebugDrawCylinderWire(struct duDebugDraw* dd, float minx, float miny, float minz,
-							 float maxx, float maxy, float maxz, const float* col);
-void duDebugDrawBoxWire(struct duDebugDraw* dd, float minx, float miny, float minz,
-						float maxx, float maxy, float maxz, const float* col);
-void duDebugDrawBox(struct duDebugDraw* dd, float minx, float miny, float minz, float maxx, float maxy, float maxz,
-					const float* col1, const float* col2);
-void duDebugDrawArc(struct duDebugDraw* dd, const float* p0, const float* p1, const float* col, float lineWidth);
-
 #endif // RECAST_DEBUGDRAW_H
