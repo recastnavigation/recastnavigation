@@ -120,8 +120,7 @@ void Sample::handleRender()
 	// Draw bounds
 	const float* bmin = m_geom->getMeshBoundsMin();
 	const float* bmax = m_geom->getMeshBoundsMax();
-	float col[4] = {1,1,1,0.5f};
-	duDebugDrawBoxWire(&dd, bmin[0],bmin[1],bmin[2], bmax[0],bmax[1],bmax[2], col);
+	duDebugDrawBoxWire(&dd, bmin[0],bmin[1],bmin[2], bmax[0],bmax[1],bmax[2], duRGBA(255,255,255,128), 1.0f);
 }
 
 void Sample::handleRenderOverlay(double* proj, double* model, int* view)

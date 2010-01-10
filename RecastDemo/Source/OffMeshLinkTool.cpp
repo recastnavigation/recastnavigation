@@ -24,7 +24,7 @@
 #include "SDL.h"
 #include "SDL_opengl.h"
 #include "imgui.h"
-#include "ExtraLinkTool.h"
+#include "OffMeshLinkTool.h"
 #include "InputGeom.h"
 #include "Sample.h"
 #include "Recast.h"
@@ -35,39 +35,27 @@
 #	define snprintf _snprintf
 #endif
 
-static void drawCross(const float* p, const float s, const float dy)
-{
-	glBegin(GL_LINES);
-	glVertex3f(p[0]-s,p[1]+dy,p[2]);
-	glVertex3f(p[0]+s,p[1]+dy,p[2]);
-	glVertex3f(p[0],p[1]-s+dy,p[2]);
-	glVertex3f(p[0],p[1]+s+dy,p[2]);
-	glVertex3f(p[0],p[1]+dy,p[2]-s);
-	glVertex3f(p[0],p[1]+dy,p[2]+s);
-	glEnd();
-} 
-
-ExtraLinkTool::ExtraLinkTool() :
+OffMeshLinkTool::OffMeshLinkTool() :
 	m_sample(0),
 	m_hitPosSet(0)
 {
 }
 
-ExtraLinkTool::~ExtraLinkTool()
+OffMeshLinkTool::~OffMeshLinkTool()
 {
 }
 
-void ExtraLinkTool::init(Sample* sample)
+void OffMeshLinkTool::init(Sample* sample)
 {
 	m_sample = sample;
 }
 
-void ExtraLinkTool::reset()
+void OffMeshLinkTool::reset()
 {
 	m_hitPosSet = false;
 }
 
-void ExtraLinkTool::handleMenu()
+void OffMeshLinkTool::handleMenu()
 {
 	if (m_hitPosSet)
 	{
@@ -79,7 +67,7 @@ void ExtraLinkTool::handleMenu()
 	}
 }
 
-void ExtraLinkTool::handleClick(const float* p, bool shift)
+void OffMeshLinkTool::handleClick(const float* p, bool shift)
 {
 	if (!m_sample) return;
 	InputGeom* geom = m_sample->getInputGeom();
@@ -88,30 +76,25 @@ void ExtraLinkTool::handleClick(const float* p, bool shift)
 	if (shift)
 	{
 		// Delete
+		// Find nearest link end-point
 		float nearestDist = FLT_MAX;
 		int nearestIndex = -1;
-		for (int i = 0; i < geom->getExtraLinkCount(); ++i)
+		const float* verts = geom->getOffMeshLinkVertices();
+		for (int i = 0; i < geom->getOffMeshLinkCount()*2; ++i)
 		{
-			ExtraLink* link = geom->getExtraLink(i);
-			float d;
-			d = vdistSqr(p, link->spos);
+			const float* v = &verts[i*3];
+			float d = vdistSqr(p, v);
 			if (d < nearestDist)
 			{
 				nearestDist = d;
-				nearestIndex = i;
-			}
-			d = vdistSqr(p, link->epos);
-			if (d < nearestDist)
-			{
-				nearestDist = d;
-				nearestIndex = i;
+				nearestIndex = i/2; // Each link has two vertices.
 			}
 		}
-		
+		// If end point close enough, delete it.
 		if (nearestIndex != -1 &&
 			sqrtf(nearestDist) < m_sample->getAgentRadius())
 		{
-			geom->deleteExtraLink(nearestIndex);
+			geom->deleteOffMeshLink(nearestIndex);
 		}
 	}
 	else
@@ -124,46 +107,27 @@ void ExtraLinkTool::handleClick(const float* p, bool shift)
 		}
 		else
 		{
-			geom->addExtraLink(m_hitPos, p);
+			geom->addOffMeshLink(m_hitPos, p);
 			m_hitPosSet = false;
 		}
 	}
 	
 }
 
-void ExtraLinkTool::handleRender()
+void OffMeshLinkTool::handleRender()
 {
-	if (m_hitPosSet)
-	{
-		const float s = m_sample->getAgentRadius();
-		glColor4ub(0,0,0,128);
-		glLineWidth(2.0f);
-		drawCross(m_hitPos, s, 0.1f);
-		glLineWidth(1.0f);
-	}
-
+	DebugDrawGL dd;
 	const float s = m_sample->getAgentRadius();
+	
+	if (m_hitPosSet)
+		duDebugDrawCross(&dd, m_hitPos[0],m_hitPos[1]+0.1f,m_hitPos[2], s, duRGBA(0,0,0,128), 2.0f);
 
 	InputGeom* geom = m_sample->getInputGeom();
-	if (!geom) return;
-	
-	DebugDrawGL dd;
-	const float linkCol[4] = {1,1,1,0.75f};
-	for (int i = 0; i < geom->getExtraLinkCount(); ++i)
-	{
-		ExtraLink* link = geom->getExtraLink(i);
-
-		duDebugDrawArc(&dd, link->spos, link->epos, linkCol, 2.0f);
-
-		glLineWidth(2.0f);
-		glColor4ub(0,0,0,255);
-		drawCross(link->spos, s, 0.1f);
-		drawCross(link->epos, s, 0.1f);
-		glLineWidth(1.0f);		
-	}
+	if (geom)
+		geom->drawLinks(&dd, s);
 }
 
-void ExtraLinkTool::handleRenderOverlay(double* proj, double* model, int* view)
+void OffMeshLinkTool::handleRenderOverlay(double* proj, double* model, int* view)
 {
 	GLdouble x, y, z;
 	

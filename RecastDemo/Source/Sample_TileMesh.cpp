@@ -33,7 +33,7 @@
 #include "DetourNavMeshBuilder.h"
 #include "DetourDebugDraw.h"
 #include "NavMeshTesterTool.h"
-#include "ExtraLinkTool.h"
+#include "OffMeshLinkTool.h"
 
 #ifdef WIN32
 #	define snprintf _snprintf
@@ -253,9 +253,9 @@ void Sample_TileMesh::handleTools()
 	{
 		setTool(new NavMeshTileTool);
 	}
-	if (imguiCheck("Create Extra Links", type == TOOL_EXTRA_LINK))
+	if (imguiCheck("Create Off-Mesh Links", type == TOOL_OFFMESH_LINK))
 	{
-		setTool(new ExtraLinkTool);
+		setTool(new OffMeshLinkTool);
 	}
 	
 	imguiSeparator();
@@ -311,54 +311,25 @@ void Sample_TileMesh::handleRender()
 	// Draw mesh
 	duDebugDrawTriMesh(&dd, m_geom->getMesh()->getVerts(), m_geom->getMesh()->getVertCount(),
 					   m_geom->getMesh()->getTris(), m_geom->getMesh()->getNormals(), m_geom->getMesh()->getTriCount(), 0);
+	m_geom->drawLinks(&dd, m_agentRadius);
 	
 	glDepthMask(GL_FALSE);
 	
 	// Draw bounds
 	const float* bmin = m_geom->getMeshBoundsMin();
 	const float* bmax = m_geom->getMeshBoundsMax();
-	const float col[4] = {1,1,1,0.5f};
-	duDebugDrawBoxWire(&dd, bmin[0],bmin[1],bmin[2], bmax[0],bmax[1],bmax[2], col);
+	duDebugDrawBoxWire(&dd, bmin[0],bmin[1],bmin[2], bmax[0],bmax[1],bmax[2], duRGBA(255,255,255,128), 1.0f);
 	
 	// Tiling grid.
-	const int ts = (int)m_tileSize;
 	int gw = 0, gh = 0;
 	rcCalcGridSize(bmin, bmax, m_cellSize, &gw, &gh);
-	int tw = (gw + ts-1) / ts;
-	int th = (gh + ts-1) / ts;
-	const float s = ts*m_cellSize;
-	glBegin(GL_LINES);
-	glColor4ub(0,0,0,64);
-	for (int y = 0; y < th; ++y)
-	{
-		for (int x = 0; x < tw; ++x)
-		{
-			float fx, fy, fz;
-			fx = bmin[0] + x*s;
-			fy = bmin[1];
-			fz = bmin[2] + y*s;
-			
-			glVertex3f(fx,fy,fz);
-			glVertex3f(fx+s,fy,fz);
-			glVertex3f(fx,fy,fz);
-			glVertex3f(fx,fy,fz+s);
-			
-			if (x+1 >= tw)
-			{
-				glVertex3f(fx+s,fy,fz);
-				glVertex3f(fx+s,fy,fz+s);
-			}
-			if (y+1 >= th)
-			{
-				glVertex3f(fx,fy,fz+s);
-				glVertex3f(fx+s,fy,fz+s);
-			}
-		}
-	}
-	glEnd();
+	const int tw = (gw + (int)m_tileSize-1) / (int)m_tileSize;
+	const int th = (gh + (int)m_tileSize-1) / (int)m_tileSize;
+	const float s = m_tileSize*m_cellSize;
+	duDebugDrawGridXZ(&dd, bmin[0],bmin[1],bmin[2], tw,th, s, duRGBA(0,0,0,64), 1.0f);
 	
 	// Draw active tile
-	duDebugDrawBoxWire(&dd, m_tileBmin[0],m_tileBmin[1],m_tileBmin[2], m_tileBmax[0],m_tileBmax[1],m_tileBmax[2], m_tileCol);
+	duDebugDrawBoxWire(&dd, m_tileBmin[0],m_tileBmin[1],m_tileBmin[2], m_tileBmax[0],m_tileBmax[1],m_tileBmax[2], m_tileCol, 2.0f);
 	
 	if (m_navMesh)
 		duDebugDrawNavMesh(&dd, m_navMesh);
@@ -461,7 +432,7 @@ void Sample_TileMesh::buildTile(const float* pos)
 	m_tileBmax[1] = bmax[1];
 	m_tileBmax[2] = bmin[2] + (ty+1)*ts;
 	
-	m_tileCol[0] = 0.3f; m_tileCol[1] = 0.8f; m_tileCol[2] = 0; m_tileCol[3] = 1;
+	m_tileCol = duRGBA(77,204,0,255);
 	
 	int dataSize = 0;
 	unsigned char* data = buildTileMesh(m_tileBmin, m_tileBmax, dataSize);
@@ -499,7 +470,7 @@ void Sample_TileMesh::removeTile(const float* pos)
 	m_tileBmax[1] = bmax[1];
 	m_tileBmax[2] = bmin[2] + (ty+1)*ts;
 	
-	m_tileCol[0] = 0.8f; m_tileCol[1] = 0.1f; m_tileCol[2] = 0; m_tileCol[3] = 1;
+	m_tileCol = duRGBA(204,25,0,255);
 	
 	unsigned char* rdata = 0;
 	int rdataSize = 0;
@@ -814,7 +785,9 @@ unsigned char* Sample_TileMesh::buildTileMesh(const float* bmin, const float* bm
 		if (!dtCreateNavMeshData(m_pmesh->verts, m_pmesh->nverts,
 								 m_pmesh->polys, m_pmesh->npolys, m_pmesh->nvp,
 								 m_dmesh->meshes, m_dmesh->verts, m_dmesh->nverts, m_dmesh->tris, m_dmesh->ntris, 
-								 bmin, bmax, m_cfg.cs, m_cfg.ch, m_cfg.tileSize, m_cfg.walkableClimb, &navData, &navDataSize))
+								 0, 0,
+								 bmin, bmax, m_cfg.cs, m_cfg.ch, m_cfg.tileSize, m_cfg.walkableClimb,
+								 &navData, &navDataSize))
 		{
 			if (rcGetLog())
 				rcGetLog()->log(RC_LOG_ERROR, "Could not build Detour navmesh.");

@@ -148,11 +148,15 @@ void NavMeshTesterTool::recalc()
 		if (m_sposSet && m_eposSet && m_startRef && m_endRef)
 		{
 			m_npolys = m_navMesh->findPath(m_startRef, m_endRef, m_spos, m_epos, m_polys, MAX_POLYS);
+
+			m_nstraightPath = 0;
+			m_nsmoothPath = 0;
+
 			if (m_npolys)
 			{
 				m_nstraightPath = m_navMesh->findStraightPath(m_spos, m_epos, m_polys, m_npolys, m_straightPath, MAX_POLYS);
 				
-				// Iterate over the path to find smooth path on the detail mesh surface.
+/*				// Iterate over the path to find smooth path on the detail mesh surface.
 				const dtPolyRef* polys = m_polys; 
 				int npolys = m_npolys;
 				
@@ -224,8 +228,7 @@ void NavMeshTesterTool::recalc()
 						vcopy(&m_smoothPath[m_nsmoothPath*3], iterPos);
 						m_nsmoothPath++;
 					}
-				}
-				
+				}*/
 			}
 		}
 		else
@@ -302,9 +305,9 @@ void NavMeshTesterTool::handleRender()
 	
 	DebugDrawGL dd;
 	
-	static const float startCol[4] = { 0.5f, 0.1f, 0.0f, 0.75f };
-	static const float endCol[4] = { 0.2f, 0.4f, 0.0f, 0.75f };
-	static const float pathCol[4] = {0,0,0,0.25f};
+	static const unsigned int startCol = duRGBA(128,25,0,192);
+	static const unsigned int endCol = duRGBA(51,102,0,129);
+	static const unsigned int pathCol = duRGBA(0,0,0,64);
 	
 	glDepthMask(GL_FALSE);
 
@@ -333,30 +336,26 @@ void NavMeshTesterTool::handleRender()
 			}
 			if (m_nstraightPath)
 			{
-				glColor4ub(64,16,0,64);
-				glLineWidth(2.0f);
-				glBegin(GL_LINE_STRIP);
+				const unsigned int pathCol = duRGBA(64,16,0,220);
+				dd.begin(DU_DRAW_LINES, 2.0f);
+				for (int i = 0; i < m_nstraightPath-1; ++i)
+				{
+					dd.vertex(m_straightPath[i*3], m_straightPath[i*3+1]+0.4f, m_straightPath[i*3+2], pathCol);
+					dd.vertex(m_straightPath[(i+1)*3], m_straightPath[(i+1)*3+1]+0.4f, m_straightPath[(i+1)*3+2], pathCol);
+				}
+				dd.end();
+				dd.begin(DU_DRAW_POINTS, 4.0f);
 				for (int i = 0; i < m_nstraightPath; ++i)
-					glVertex3f(m_straightPath[i*3], m_straightPath[i*3+1]+0.4f, m_straightPath[i*3+2]);
-				glEnd();
-				glLineWidth(1.0f);
-				glColor4ub(64,16,0,128);
-				glPointSize(3.0f);
-				glBegin(GL_POINTS);
-				for (int i = 0; i < m_nstraightPath; ++i)
-					glVertex3f(m_straightPath[i*3], m_straightPath[i*3+1]+0.4f, m_straightPath[i*3+2]);
-				glEnd();
-				glPointSize(1.0f);
+					dd.vertex(m_straightPath[i*3], m_straightPath[i*3+1]+0.4f, m_straightPath[i*3+2], pathCol);
+				dd.end();
 			}
 			if (m_nsmoothPath)
 			{
-				glColor4ub(0,0,0,220);
-				glLineWidth(3.0f);
-				glBegin(GL_LINES);
+				const unsigned int pathCol = duRGBA(0,0,0,220);
+				dd.begin(DU_DRAW_LINES, 3.0f);
 				for (int i = 0; i < m_nsmoothPath; ++i)
-					glVertex3f(m_smoothPath[i*3], m_smoothPath[i*3+1]+0.1f, m_smoothPath[i*3+2]);
-				glEnd();
-				glLineWidth(1.0f);
+					dd.vertex(m_smoothPath[i*3], m_smoothPath[i*3+1]+0.1f, m_smoothPath[i*3+2], pathCol);
+				dd.end();
 			}
 		}
 		else if (m_toolMode == TOOLMODE_RAYCAST)
@@ -368,44 +367,39 @@ void NavMeshTesterTool::handleRender()
 				for (int i = 1; i < m_npolys; ++i)
 					duDebugDrawNavMeshPoly(&dd, m_navMesh, m_polys[i], pathCol);
 				
-				glColor4ub(64,16,0,220);
-				glLineWidth(3.0f);
-				glBegin(GL_LINE_STRIP);
+				const unsigned int pathCol = duRGBA(64,16,0,220);
+				dd.begin(DU_DRAW_LINES, 2.0f);
+				for (int i = 0; i < m_nstraightPath-1; ++i)
+				{
+					dd.vertex(m_straightPath[i*3], m_straightPath[i*3+1]+0.4f, m_straightPath[i*3+2], pathCol);
+					dd.vertex(m_straightPath[(i+1)*3], m_straightPath[(i+1)*3+1]+0.4f, m_straightPath[(i+1)*3+2], pathCol);
+				}
+				dd.end();
+				dd.begin(DU_DRAW_POINTS, 4.0f);
 				for (int i = 0; i < m_nstraightPath; ++i)
-					glVertex3f(m_straightPath[i*3], m_straightPath[i*3+1]+0.4f, m_straightPath[i*3+2]);
-				glEnd();
-				glLineWidth(1.0f);
-				glPointSize(4.0f);
-				glBegin(GL_POINTS);
-				for (int i = 0; i < m_nstraightPath; ++i)
-					glVertex3f(m_straightPath[i*3], m_straightPath[i*3+1]+0.4f, m_straightPath[i*3+2]);
-				glEnd();
-				glPointSize(1.0f);
-				
-				glColor4ub(255,255,255,128);
-				glBegin(GL_LINES);
-				glVertex3f(m_hitPos[0], m_hitPos[1] + 0.4f, m_hitPos[2]);
-				glVertex3f(m_hitPos[0] + m_hitNormal[0]*m_agentRadius, m_hitPos[1] + 0.4f + m_hitNormal[1]*m_agentRadius, m_hitPos[2] + m_hitNormal[2]*m_agentRadius);
-				glEnd();
+					dd.vertex(m_straightPath[i*3], m_straightPath[i*3+1]+0.4f, m_straightPath[i*3+2], pathCol);
+				dd.end();
+
+				const unsigned int hitCol = duRGBA(0,0,0,128);
+				dd.begin(DU_DRAW_LINES, 2.0f);
+				dd.vertex(m_hitPos[0], m_hitPos[1] + 0.4f, m_hitPos[2], hitCol);
+				dd.vertex(m_hitPos[0] + m_hitNormal[0]*m_agentRadius,
+						  m_hitPos[1] + 0.4f + m_hitNormal[1]*m_agentRadius,
+						  m_hitPos[2] + m_hitNormal[2]*m_agentRadius, hitCol);
+				dd.end();
 			}
 		}
 		else if (m_toolMode == TOOLMODE_DISTANCE_TO_WALL)
 		{
 			duDebugDrawNavMeshPoly(&dd, m_navMesh, m_startRef, startCol);
-			const float col[4] = {1,1,1,0.5f};
-			duDebugDrawCylinderWire(&dd, m_spos[0]-m_distanceToWall, m_spos[1]+0.02f, m_spos[2]-m_distanceToWall,
-									m_spos[0]+m_distanceToWall, m_spos[1]+m_agentHeight, m_spos[2]+m_distanceToWall, col);
-			glLineWidth(3.0f);
-			glColor4fv(col);
-			glBegin(GL_LINES);
-			glVertex3f(m_hitPos[0], m_hitPos[1] + 0.02f, m_hitPos[2]);
-			glVertex3f(m_hitPos[0], m_hitPos[1] + m_agentHeight, m_hitPos[2]);
-			glEnd();
-			glLineWidth(1.0f);
+			duDebugDrawCircle(&dd, m_spos[0], m_spos[1]+m_agentHeight/2, m_spos[2], m_distanceToWall, duRGBA(64,16,0,220), 2.0f);
+			dd.begin(DU_DRAW_LINES, 3.0f);
+			dd.vertex(m_hitPos[0], m_hitPos[1] + 0.02f, m_hitPos[2], duRGBA(0,0,0,192));
+			dd.vertex(m_hitPos[0], m_hitPos[1] + m_agentHeight, m_hitPos[2], duRGBA(0,0,0,192));
+			dd.end();
 		}
 		else if (m_toolMode == TOOLMODE_FIND_POLYS_AROUND)
 		{
-			const float cola[4] = {0,0,0,0.5f};
 			for (int i = 0; i < m_npolys; ++i)
 			{
 				duDebugDrawNavMeshPoly(&dd, m_navMesh, m_polys[i], pathCol);
@@ -414,16 +408,14 @@ void NavMeshTesterTool::handleRender()
 					float p0[3], p1[3];
 					getPolyCenter(m_navMesh, m_polys[i], p0);
 					getPolyCenter(m_navMesh, m_parent[i], p1);
-					duDebugDrawArc(&dd, p0, p1, cola, 2.0f);
+					duDebugDrawArc(&dd, p0[0],p0[1],p0[2], p1[0],p1[1],p1[2], 0.25f, duRGBA(0,0,0,128), 2.0f);
 				}
 			}
 			
 			const float dx = m_epos[0] - m_spos[0];
 			const float dz = m_epos[2] - m_spos[2];
-			float dist = sqrtf(dx*dx + dz*dz);
-			const float col[4] = {1,1,1,0.5f};
-			duDebugDrawCylinderWire(&dd, m_spos[0]-dist, m_spos[1]+0.02f, m_spos[2]-dist,
-									m_spos[0]+dist, m_spos[1]+m_agentHeight, m_spos[2]+dist, col);					
+			const float dist = sqrtf(dx*dx + dz*dz);
+			duDebugDrawCircle(&dd, m_spos[0], m_spos[1]+m_agentHeight/2, m_spos[2], dist, duRGBA(64,16,0,220), 2.0f);
 		}
 	}
 	
@@ -447,26 +439,24 @@ void NavMeshTesterTool::handleRenderOverlay(double* proj, double* model, int* vi
 	}
 }
 
-void NavMeshTesterTool::drawAgent(const float* pos, float r, float h, float c, const float* col)
+void NavMeshTesterTool::drawAgent(const float* pos, float r, float h, float c, const unsigned int col)
 {
 	DebugDrawGL dd;
 	
 	glDepthMask(GL_FALSE);
 	
 	// Agent dimensions.	
-	glLineWidth(2.0f);
-	duDebugDrawCylinderWire(&dd, pos[0]-r, pos[1]+0.02f, pos[2]-r, pos[0]+r, pos[1]+h, pos[2]+r, col);
-	glLineWidth(1.0f);
-	
-	glColor4ub(0,0,0,196);
-	glBegin(GL_LINES);
-	glVertex3f(pos[0], pos[1]-c, pos[2]);
-	glVertex3f(pos[0], pos[1]+c, pos[2]);
-	glVertex3f(pos[0]-r/2, pos[1]+0.02f, pos[2]);
-	glVertex3f(pos[0]+r/2, pos[1]+0.02f, pos[2]);
-	glVertex3f(pos[0], pos[1]+0.02f, pos[2]-r/2);
-	glVertex3f(pos[0], pos[1]+0.02f, pos[2]+r/2);
-	glEnd();
+	duDebugDrawCylinderWire(&dd, pos[0]-r, pos[1]+0.02f, pos[2]-r, pos[0]+r, pos[1]+h, pos[2]+r, col, 2.0f);
+
+	unsigned int colb = duRGBA(0,0,0,196);
+	dd.begin(DU_DRAW_LINES);
+	dd.vertex(pos[0], pos[1]-c, pos[2], colb);
+	dd.vertex(pos[0], pos[1]+c, pos[2], colb);
+	dd.vertex(pos[0]-r/2, pos[1]+0.02f, pos[2], colb);
+	dd.vertex(pos[0]+r/2, pos[1]+0.02f, pos[2], colb);
+	dd.vertex(pos[0], pos[1]+0.02f, pos[2]-r/2, colb);
+	dd.vertex(pos[0], pos[1]+0.02f, pos[2]+r/2, colb);
+	dd.end();
 	
 	glDepthMask(GL_TRUE);
 }

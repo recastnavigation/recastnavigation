@@ -23,7 +23,8 @@
 #include "InputGeom.h"
 #include "ChunkyTriMesh.h"
 #include "MeshLoaderObj.h"
-
+#include "DebugDraw.h"
+#include "RecastDebugDraw.h"
 
 
 static bool intersectSegmentTriangle(const float* sp, const float* sq,
@@ -158,16 +159,31 @@ bool InputGeom::raycastMesh(float* src, float* dst, float& tmin)
 	return hit;
 }
 
-void InputGeom::addExtraLink(const float* spos, const float* epos)
+void InputGeom::addOffMeshLink(const float* spos, const float* epos)
 {
 	if (m_nlinks >= MAX_LINKS) return;
-	ExtraLink* link = &m_links[m_nlinks++];
-	vcopy(link->spos, spos);
-	vcopy(link->epos, epos);
+	float* v = &m_linkVerts[m_nlinks*3*2];
+	m_nlinks++;
+	vcopy(&v[0], spos);
+	vcopy(&v[3], epos);
 }
 
-void InputGeom::deleteExtraLink(int i)
+void InputGeom::deleteOffMeshLink(int i)
 {
 	m_nlinks--;
-	m_links[i] = m_links[m_nlinks];
+	float* src = &m_linkVerts[(m_nlinks-1)*3*2];
+	float* dst = &m_linkVerts[i*3*2];
+	vcopy(&dst[0], &src[0]);
+	vcopy(&dst[3], &src[3]);
+}
+
+void InputGeom::drawLinks(duDebugDraw* dd, const float s)
+{
+	for (int i = 0; i < m_nlinks; ++i)
+	{
+		float* v = &m_linkVerts[i*3*2];
+		duDebugDrawArc(dd, v[0],v[1],v[2], v[3],v[4],v[5], 0.25f, duRGBA(255,255,255,192), 2.0f);
+		duDebugDrawCross(dd, v[0],v[1]+0.1f,v[2], s, duRGBA(0,0,0,255), 2.0f);
+		duDebugDrawCross(dd, v[3],v[4]+0.1f,v[5], s, duRGBA(0,0,0,255), 2.0f);
+	}	
 }

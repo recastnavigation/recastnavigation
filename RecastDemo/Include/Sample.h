@@ -35,7 +35,7 @@ enum SampleToolType
 	TOOL_NONE = 0,
 	TOOL_TILE_EDIT,
 	TOOL_NAVMESH_TESTER,
-	TOOL_EXTRA_LINK,
+	TOOL_OFFMESH_LINK,
 };
 
 struct SampleTool

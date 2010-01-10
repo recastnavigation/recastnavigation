@@ -34,7 +34,7 @@
 #include "DetourNavMeshBuilder.h"
 #include "DetourDebugDraw.h"
 #include "NavMeshTesterTool.h"
-#include "ExtraLinkTool.h"
+#include "OffMeshLinkTool.h"
 
 #ifdef WIN32
 #	define snprintf _snprintf
@@ -95,9 +95,9 @@ void Sample_SoloMeshSimple::handleTools()
 	{
 		setTool(new NavMeshTesterTool);
 	}
-	if (imguiCheck("Create Extra Links", type == TOOL_EXTRA_LINK))
+	if (imguiCheck("Create Off-Mesh Links", type == TOOL_OFFMESH_LINK))
 	{
-		setTool(new ExtraLinkTool);
+		setTool(new OffMeshLinkTool);
 	}
 	
 	imguiSeparator();
@@ -186,8 +186,6 @@ void Sample_SoloMeshSimple::handleRender()
 	if (!m_geom || !m_geom->getMesh())
 		return;
 	
-	float col[4];
-
 	DebugDrawGL dd;
 	
 	glEnable(GL_FOG);
@@ -199,12 +197,14 @@ void Sample_SoloMeshSimple::handleRender()
 		duDebugDrawTriMeshSlope(&dd, m_geom->getMesh()->getVerts(), m_geom->getMesh()->getVertCount(),
 								m_geom->getMesh()->getTris(), m_geom->getMesh()->getNormals(), m_geom->getMesh()->getTriCount(),
 								m_agentMaxSlope);
+		m_geom->drawLinks(&dd, m_agentRadius);
 	}
 	else if (m_drawMode != DRAWMODE_NAVMESH_TRANS)
 	{
 		// Draw mesh
 		duDebugDrawTriMesh(&dd, m_geom->getMesh()->getVerts(), m_geom->getMesh()->getVertCount(),
 						   m_geom->getMesh()->getTris(), m_geom->getMesh()->getNormals(), m_geom->getMesh()->getTriCount(), 0);
+		m_geom->drawLinks(&dd, m_agentRadius);
 	}
 	
 	glDisable(GL_FOG);
@@ -213,8 +213,7 @@ void Sample_SoloMeshSimple::handleRender()
 	// Draw bounds
 	const float* bmin = m_geom->getMeshBoundsMin();
 	const float* bmax = m_geom->getMeshBoundsMax();
-	col[0] = 1; col[1] = 1; col[2] = 1; col[3] = 0.5f;
-	duDebugDrawBoxWire(&dd, bmin[0],bmin[1],bmin[2], bmax[0],bmax[1],bmax[2], col);
+	duDebugDrawBoxWire(&dd, bmin[0],bmin[1],bmin[2], bmax[0],bmax[1],bmax[2], duRGBA(255,255,255,128), 1.0f);
 	
 	if (m_navMesh &&
 		(m_drawMode == DRAWMODE_NAVMESH ||
@@ -332,7 +331,7 @@ bool Sample_SoloMeshSimple::handleBuild()
 	cleanup();
 	
 	const float* bmin = m_geom->getMeshBoundsMin();
-	const float* bmax = m_geom->getMeshBoundsMin();
+	const float* bmax = m_geom->getMeshBoundsMax();
 	const float* verts = m_geom->getMesh()->getVerts();
 	const int nverts = m_geom->getMesh()->getVertCount();
 	const int* tris = m_geom->getMesh()->getTris();
@@ -554,7 +553,8 @@ bool Sample_SoloMeshSimple::handleBuild()
 		if (!dtCreateNavMeshData(m_pmesh->verts, m_pmesh->nverts,
 								 m_pmesh->polys, m_pmesh->npolys, m_pmesh->nvp,
 								 m_dmesh->meshes, m_dmesh->verts, m_dmesh->nverts,
-								 m_dmesh->tris, m_dmesh->ntris, 
+								 m_dmesh->tris, m_dmesh->ntris,
+								 m_geom->getOffMeshLinkVertices(), m_geom->getOffMeshLinkCount(),
 								 m_pmesh->bmin, m_pmesh->bmax, m_cfg.cs, m_cfg.ch, 0, m_cfg.walkableClimb,
 								 &navData, &navDataSize))
 		{

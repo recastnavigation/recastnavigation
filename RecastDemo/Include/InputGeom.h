@@ -22,12 +22,6 @@
 #include "ChunkyTriMesh.h"
 #include "MeshLoaderObj.h"
 
-struct ExtraLink
-{
-	float spos[3];	// Start position of the link.
-	float epos[3];	// End position of the link.
-};
-
 class InputGeom
 {
 	rcChunkyTriMesh* m_chunkyMesh;
@@ -36,7 +30,7 @@ class InputGeom
 	
 	static const int MAX_LINKS = 256;
 	
-	ExtraLink m_links[MAX_LINKS];
+	float m_linkVerts[MAX_LINKS*3*2];
 	int m_nlinks;
 	
 public:
@@ -53,10 +47,11 @@ public:
 	bool raycastMesh(float* src, float* dst, float& tmin);
 
 	// Extra links
-	int getExtraLinkCount() const { return m_nlinks; }
-	ExtraLink* getExtraLink(int i) { return &m_links[i]; }
-	void addExtraLink(const float* spos, const float* epos);
-	void deleteExtraLink(int i);
+	int getOffMeshLinkCount() const { return m_nlinks; }
+	const float* getOffMeshLinkVertices() const { return m_linkVerts; }
+	void addOffMeshLink(const float* spos, const float* epos);
+	void deleteOffMeshLink(int i);
+	void drawLinks(struct duDebugDraw* dd, const float s);
 };
 
 #endif // INPUTGEOM_H

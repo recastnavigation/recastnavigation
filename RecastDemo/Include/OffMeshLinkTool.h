@@ -16,24 +16,24 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#ifndef EXTRALINKTOOL_H
-#define EXTRALINKTOOL_H
+#ifndef OFFMESHLINKTOOL_H
+#define OFFMESHLINKTOOL_H
 
 #include "Sample.h"
 
 // Tool to create extra links for InputGeom
 
-class ExtraLinkTool : public SampleTool
+class OffMeshLinkTool : public SampleTool
 {
 	Sample* m_sample;
 	float m_hitPos[3];
 	bool m_hitPosSet;
 	
 public:
-	ExtraLinkTool();
-	~ExtraLinkTool();
+	OffMeshLinkTool();
+	~OffMeshLinkTool();
 	
-	virtual int type() { return TOOL_EXTRA_LINK; }
+	virtual int type() { return TOOL_OFFMESH_LINK; }
 	virtual void init(Sample* sample);
 	virtual void reset();
 	virtual void handleMenu();
@@ -42,4 +42,4 @@ public:
 	virtual void handleRenderOverlay(double* proj, double* model, int* view);
 };
 
-#endif // EXTRALINKTOOL_H
+#endif // OFFMESHLINKTOOL_H

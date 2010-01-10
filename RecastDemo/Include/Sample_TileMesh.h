@@ -44,7 +44,7 @@ protected:
 	int m_maxPolysPerTile;
 	float m_tileSize;
 	
-	float m_tileCol[4];
+	unsigned int m_tileCol;
 	float m_tileBmin[3];
 	float m_tileBmax[3];
 	float m_tileBuildTime;
