@@ -226,6 +226,8 @@ int main(int argc, char *argv[])
 	glFogf(GL_FOG_END, 10);
 	glFogfv(GL_FOG_COLOR, fogCol);
 	
+	glDepthFunc(GL_LEQUAL);
+	
 	glEnable(GL_POINT_SMOOTH);
 	glEnable(GL_LINE_SMOOTH);
 	

@@ -109,6 +109,13 @@ struct dtMeshTile
 	dtMeshTile* next;						// Next free tile or, next tile in spatial grid.
 };
 
+// Flags returned by findStraightPath().
+enum dtStraightPathFlags
+{
+	DT_STRAIGHTPATH_START = 0x01,			// The vertex is the start position.
+	DT_STRAIGHTPATH_END = 0x02,				// The vertex is the end position.
+	DT_STRAIGHTPATH_OFFMESH_LINK = 0x04,	// The vertex is start of an off-mesh link.
+};
 
 class dtNavMesh
 {
@@ -218,17 +225,23 @@ public:
 	// Finds a straight path from start to end locations within the corridor
 	// described by the path polygons.
 	// Start and end locations will be clamped on the corridor.
+	// The returned polygon references are point to polygon which was entered when
+	// a path point was added. For the end point, zero will be returned. This allows
+	// to match for example off-mesh link points to their representative polygons.
 	// Params:
 	//	startPos - (in) Path start location.
 	//	endPos - (in) Path end location.
 	//	path - (in) Array of connected polygons describing the corridor.
 	//	pathSize - (in) Number of polygons in path array.
 	//	straightPath - (out) Points describing the straight path.
+	//  straightPathFlags - (out, opt) Flags describing each point type, see dtStraightPathFlags.
+	//  straightPathRefs - (out, opt) References to polygons at point locations.
 	//	maxStraightPathSize - (in) The max number of points the straight path array can hold.
 	// Returns: Number of points in the path.
 	int findStraightPath(const float* startPos, const float* endPos,
 						 const dtPolyRef* path, const int pathSize,
-						 float* straightPath, const int maxStraightPathSize);
+						 float* straightPath, unsigned char* straightPathFlags, dtPolyRef* straightPathRefs,
+						 const int maxStraightPathSize);
 
 	// Moves towards end position a long the path corridor.
 	// Returns: Index to the result path polygon.
@@ -291,6 +304,15 @@ public:
 	// Returns: true if closest point found.
 	bool closestPointOnPolyBoundary(dtPolyRef ref, const float* pos, float* closest) const;
 	
+	// Returns start and end location of an off-mesh link polygon.
+	// Params:
+	//	prevRef - (in) ref to the polygon before the link (used to select direction).
+	//	polyRef - (in) ref to the off-mesh link polygon.
+	//	startPos - (out) start point of the link.
+	//	endPos - (out) end point of the link.
+	// Returns: true if link is found.
+	bool getOffMeshLinkPolyEndPoints(dtPolyRef prevRef, dtPolyRef polyRef, float* startPos, float* endPos) const;
+	
 	// Returns height of the polygon at specified location.
 	// Params:
 	//	ref - (in) ref to the polygon.
@@ -349,7 +371,8 @@ private:
 	float getHeuristic(const float* from, const float* to) const;
 	
 	// Returns portal points between two polygons.
-	bool getPortalPoints(dtPolyRef from, dtPolyRef to, float* left, float* right) const;
+	bool getPortalPoints(dtPolyRef from, dtPolyRef to, float* left, float* right,
+						 unsigned char& fromFlags, unsigned char& toFlags) const;
 	// Returns edge mid point between two polygons.
 	bool getEdgeMidPoint(dtPolyRef from, dtPolyRef to, float* mid) const;
 

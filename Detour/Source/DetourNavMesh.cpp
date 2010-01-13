@@ -748,6 +748,54 @@ bool dtNavMesh::closestPointOnPolyBoundary(dtPolyRef ref, const float* pos, floa
 	return true;
 }
 
+// Returns start and end location of an off-mesh link polygon.
+bool dtNavMesh::getOffMeshLinkPolyEndPoints(dtPolyRef prevRef, dtPolyRef polyRef, float* startPos, float* endPos) const
+{
+	unsigned int salt, it, ip;
+
+	// Get previous poly
+	dtDecodePolyId(prevRef, salt, it, ip);
+	if (it >= (unsigned int)m_maxTiles) return false;
+	if (m_tiles[it].salt != salt || m_tiles[it].header == 0) return false;
+	const dtMeshHeader* prevHeader = m_tiles[it].header;
+	if (ip >= (unsigned int)prevHeader->npolys) return false;
+	const dtPoly* prevPoly = &prevHeader->polys[ip];
+
+	// Get current polygon
+	dtDecodePolyId(polyRef, salt, it, ip);
+	if (it >= (unsigned int)m_maxTiles) return false;
+	if (m_tiles[it].salt != salt || m_tiles[it].header == 0) return false;
+	const dtMeshHeader* header = m_tiles[it].header;
+	if (ip >= (unsigned int)header->npolys) return false;
+	const dtPoly* poly = &header->polys[ip];
+
+	// Make sure that the current poly is indeed off-mesh link.
+	if ((poly->flags & DT_POLY_OFFMESH_LINK) == 0)
+		return false;
+
+	// Figure out which way to hand out the vertices.
+	int idx0 = 0, idx1 = 1;
+	
+	for (int i = 0; i < prevPoly->nlinks; ++i)
+	{
+		const dtLink* link = &prevHeader->links[prevPoly->links+i];
+		if (link->ref != polyRef)
+			continue;
+		// If first link does not point to the prev, then we need to reverse the order.
+		if (header->links[poly->links+0].ref != prevRef)
+		{
+			idx0 = 1;
+			idx1 = 0;
+			break;
+		}
+	}
+		
+	vcopy(startPos, &header->verts[poly->v[idx0]*3]);
+	vcopy(endPos, &header->verts[poly->v[idx1]*3]);
+
+	return true;
+}
+
 
 bool dtNavMesh::getPolyHeight(dtPolyRef ref, const float* pos, float* height) const
 {
@@ -760,24 +808,38 @@ bool dtNavMesh::getPolyHeight(dtPolyRef ref, const float* pos, float* height) co
 	if (ip >= (unsigned int)header->npolys) return false;
 	const dtPoly* poly = &header->polys[ip];
 	
-	const dtPolyDetail* pd = &header->dmeshes[ip];
-	for (int j = 0; j < pd->ntris; ++j)
+	if (poly->flags & DT_POLY_OFFMESH_LINK)
 	{
-		const unsigned char* t = &header->dtris[(pd->tbase+j)*4];
-		const float* v[3];
-		for (int k = 0; k < 3; ++k)
+		const float* v0 = &header->verts[poly->v[0]*3];
+		const float* v1 = &header->verts[poly->v[1]*3];
+		const float d0 = vdist(pos, v0);
+		const float d1 = vdist(pos, v1);
+		const float u = d0 / (d0+d1);
+		if (height)
+			*height = v0[1] + (v1[1] - v0[1]) * u;
+		return true;
+	}
+	else
+	{
+		const dtPolyDetail* pd = &header->dmeshes[ip];
+		for (int j = 0; j < pd->ntris; ++j)
 		{
-			if (t[k] < poly->nv)
-				v[k] = &header->verts[poly->v[t[k]]*3];
-			else
-				v[k] = &header->dverts[(pd->vbase+(t[k]-poly->nv))*3];
-		}
-		float h;
-		if (closestHeightPointTriangle(pos, v[0], v[1], v[2], h))
-		{
-			if (height)
-				*height = h;
-			return true;
+			const unsigned char* t = &header->dtris[(pd->tbase+j)*4];
+			const float* v[3];
+			for (int k = 0; k < 3; ++k)
+			{
+				if (t[k] < poly->nv)
+					v[k] = &header->verts[poly->v[t[k]]*3];
+				else
+					v[k] = &header->dverts[(pd->vbase+(t[k]-poly->nv))*3];
+			}
+			float h;
+			if (closestHeightPointTriangle(pos, v[0], v[1], v[2], h))
+			{
+				if (height)
+					*height = h;
+				return true;
+			}
 		}
 	}
 	
@@ -1070,7 +1132,8 @@ int dtNavMesh::findPath(dtPolyRef startRef, dtPolyRef endRef,
 
 int dtNavMesh::findStraightPath(const float* startPos, const float* endPos,
 								const dtPolyRef* path, const int pathSize,
-								float* straightPath, const int maxStraightPathSize)
+								float* straightPath, unsigned char* straightPathFlags, dtPolyRef* straightPathRefs,
+								const int maxStraightPathSize)
 {
 	if (!maxStraightPathSize)
 		return 0;
@@ -1087,6 +1150,10 @@ int dtNavMesh::findStraightPath(const float* startPos, const float* endPos,
 	
 	// Add start point.
 	vcopy(&straightPath[straightPathSize*3], closestStartPos);
+	if (straightPathFlags)
+		straightPathFlags[straightPathSize] = DT_STRAIGHTPATH_START;
+	if (straightPathRefs)
+		straightPathRefs[straightPathSize] = path[0];
 	straightPathSize++;
 	if (straightPathSize >= maxStraightPathSize)
 		return straightPathSize;
@@ -1095,29 +1162,42 @@ int dtNavMesh::findStraightPath(const float* startPos, const float* endPos,
 	if (!closestPointOnPolyBoundary(path[pathSize-1], endPos, closestEndPos))
 		return 0;
 	
-	float portalApex[3], portalLeft[3], portalRight[3];
-	
 	if (pathSize > 1)
 	{
+		float portalApex[3], portalLeft[3], portalRight[3];
 		vcopy(portalApex, closestStartPos);
 		vcopy(portalLeft, portalApex);
 		vcopy(portalRight, portalApex);
 		int apexIndex = 0;
 		int leftIndex = 0;
 		int rightIndex = 0;
-		
+
+		unsigned char leftPolyFlags = 0;
+		unsigned char rightPolyFlags = 0;
+
+		dtPolyRef leftPolyRef = path[0];
+		dtPolyRef rightPolyRef = path[0];
+
 		for (int i = 0; i < pathSize; ++i)
 		{
 			float left[3], right[3];
-			if (i < pathSize-1)
+			unsigned char fromFlags, toFlags;
+			
+			if (i+1 < pathSize)
 			{
 				// Next portal.
-				if (!getPortalPoints(path[i], path[i+1], left, right))
+				if (!getPortalPoints(path[i], path[i+1], left, right, fromFlags, toFlags))
 				{
 					if (!closestPointOnPolyBoundary(path[i], endPos, closestEndPos))
 						return 0;
+					
 					vcopy(&straightPath[straightPathSize*3], closestEndPos);
+					if (straightPathFlags)
+						straightPathFlags[straightPathSize] = 0;
+					if (straightPathRefs)
+						straightPathRefs[straightPathSize] = path[i];
 					straightPathSize++;
+					
 					return straightPathSize;
 				}
 			}
@@ -1126,12 +1206,16 @@ int dtNavMesh::findStraightPath(const float* startPos, const float* endPos,
 				// End of the path.
 				vcopy(left, closestEndPos);
 				vcopy(right, closestEndPos);
+
+				fromFlags = toFlags = 0;
 			}
 			
 			// Right vertex.
 			if (vequal(portalApex, portalRight))
 			{
 				vcopy(portalRight, right);
+				rightPolyRef = (i+1 < pathSize) ? path[i+1] : 0;
+				rightPolyFlags = toFlags;
 				rightIndex = i;
 			}
 			else
@@ -1141,6 +1225,8 @@ int dtNavMesh::findStraightPath(const float* startPos, const float* endPos,
 					if (triArea2D(portalApex, portalLeft, right) > 0.0f)
 					{
 						vcopy(portalRight, right);
+						rightPolyRef = (i+1 < pathSize) ? path[i+1] : 0;
+						rightPolyFlags = toFlags;
 						rightIndex = i;
 					}
 					else
@@ -1148,12 +1234,28 @@ int dtNavMesh::findStraightPath(const float* startPos, const float* endPos,
 						vcopy(portalApex, portalLeft);
 						apexIndex = leftIndex;
 						
+						unsigned char flags = (leftPolyFlags & DT_POLY_OFFMESH_LINK) ? DT_STRAIGHTPATH_OFFMESH_LINK : 0;
+						dtPolyRef ref = leftPolyRef;
+						
 						if (!vequal(&straightPath[(straightPathSize-1)*3], portalApex))
 						{
 							vcopy(&straightPath[straightPathSize*3], portalApex);
+							if (straightPathFlags)
+								straightPathFlags[straightPathSize] = flags;
+							if (straightPathRefs)
+								straightPathRefs[straightPathSize] = ref;
+								
 							straightPathSize++;
 							if (straightPathSize >= maxStraightPathSize)
 								return straightPathSize;
+						}
+						else
+						{
+							// The vertices are equal, update flags and poly.
+							if (straightPathFlags)
+								straightPathFlags[straightPathSize-1] = flags;
+							if (straightPathRefs)
+								straightPathRefs[straightPathSize-1] = ref;
 						}
 						
 						vcopy(portalLeft, portalApex);
@@ -1173,6 +1275,8 @@ int dtNavMesh::findStraightPath(const float* startPos, const float* endPos,
 			if (vequal(portalApex, portalLeft))
 			{
 				vcopy(portalLeft, left);
+				leftPolyRef = (i+1 < pathSize) ? path[i+1] : 0;
+				leftPolyFlags = toFlags;
 				leftIndex = i;
 			}
 			else
@@ -1182,19 +1286,37 @@ int dtNavMesh::findStraightPath(const float* startPos, const float* endPos,
 					if (triArea2D(portalApex, portalRight, left) < 0.0f)
 					{
 						vcopy(portalLeft, left);
+						leftPolyRef = (i+1 < pathSize) ? path[i+1] : 0;
+						leftPolyFlags = toFlags;
 						leftIndex = i;
 					}
 					else
 					{
 						vcopy(portalApex, portalRight);
 						apexIndex = rightIndex;
+
+						unsigned char flags = (rightPolyFlags & DT_POLY_OFFMESH_LINK) ? DT_STRAIGHTPATH_OFFMESH_LINK : 0;
+						dtPolyRef ref = rightPolyRef;
 						
 						if (!vequal(&straightPath[(straightPathSize-1)*3], portalApex))
 						{
 							vcopy(&straightPath[straightPathSize*3], portalApex);
+							if (straightPathFlags)
+								straightPathFlags[straightPathSize] = flags;
+							if (straightPathRefs)
+								straightPathRefs[straightPathSize] = ref;
+							
 							straightPathSize++;
 							if (straightPathSize >= maxStraightPathSize)
 								return straightPathSize;
+						}
+						else
+						{
+							// The vertices are equal, update flags and poly.
+							if (straightPathFlags)
+								straightPathFlags[straightPathSize-1] = flags;
+							if (straightPathRefs)
+								straightPathRefs[straightPathSize-1] = ref;
 						}
 						
 						vcopy(portalLeft, portalApex);
@@ -1214,6 +1336,11 @@ int dtNavMesh::findStraightPath(const float* startPos, const float* endPos,
 	
 	// Add end point.
 	vcopy(&straightPath[straightPathSize*3], closestEndPos);
+	if (straightPathFlags)
+		straightPathFlags[straightPathSize] = DT_STRAIGHTPATH_END;
+	if (straightPathRefs)
+		straightPathRefs[straightPathSize] = 0;
+	
 	straightPathSize++;
 	
 	return straightPathSize;
@@ -1246,6 +1373,20 @@ int dtNavMesh::moveAlongPathCorridor(const float* startPos, const float* endPos,
 		if (ip >= (unsigned int)m_tiles[it].header->npolys) return n;
 		const dtMeshHeader* header = m_tiles[it].header;
 		const dtPoly* poly = &header->polys[ip];
+		
+		// In case of Off-Mesh link, just snap to the end location and advance over it.
+		if (poly->flags & DT_POLY_OFFMESH_LINK)
+		{
+			if (n+1 < pathSize)
+			{
+				float left[3], right[3];
+				unsigned char fromFlags, toFlags;
+				if (!getPortalPoints(path[n], path[n+1], left, right, fromFlags, toFlags))
+					return n;
+				vcopy(resultPos, endPos);
+			}
+			return n+1;
+		}
 		
 		// Collect vertices.
 		int nv = 0;
@@ -1283,7 +1424,8 @@ int dtNavMesh::moveAlongPathCorridor(const float* startPos, const float* endPos,
 		if (n+1 >= pathSize)
 			return n;
 		float left[3], right[3];
-		if (!getPortalPoints(path[n], path[n+1], left, right))
+		unsigned char fromFlags, toFlags;
+		if (!getPortalPoints(path[n], path[n+1], left, right, fromFlags, toFlags))
 			return n;
 		// If the clamped point is close to the next portal edge, advance to next poly.
 		float t;
@@ -1298,7 +1440,8 @@ int dtNavMesh::moveAlongPathCorridor(const float* startPos, const float* endPos,
 }
 
 // Returns portal points between two polygons.
-bool dtNavMesh::getPortalPoints(dtPolyRef from, dtPolyRef to, float* left, float* right) const
+bool dtNavMesh::getPortalPoints(dtPolyRef from, dtPolyRef to, float* left, float* right,
+								unsigned char& fromFlags, unsigned char& toFlags) const
 {
 	unsigned int salt, it, ip;
 	dtDecodePolyId(from, salt, it, ip);
@@ -1307,37 +1450,36 @@ bool dtNavMesh::getPortalPoints(dtPolyRef from, dtPolyRef to, float* left, float
 	if (ip >= (unsigned int)m_tiles[it].header->npolys) return false;
 	const dtMeshHeader* fromHeader = m_tiles[it].header;
 	const dtPoly* fromPoly = &fromHeader->polys[ip];
+	fromFlags = fromPoly->flags;
 
 	for (int i = 0; i < fromPoly->nlinks; ++i)
 	{
 		const dtLink* link = &fromHeader->links[fromPoly->links+i];
 		if (link->ref != to)
 			continue;
+
+		dtDecodePolyId(to, salt, it, ip);
+		if (it >= (unsigned int)m_maxTiles) return false;
+		if (m_tiles[it].salt != salt || m_tiles[it].header == 0) return false;
+		if (ip >= (unsigned int)m_tiles[it].header->npolys) return false;
+		const dtMeshHeader* toHeader = m_tiles[it].header;
+		const dtPoly* toPoly = &toHeader->polys[ip];
+		toFlags = toPoly->flags;
 		
 		if (fromPoly->flags & DT_POLY_OFFMESH_LINK)
 		{
-//			const int v = fromPoly->v[link->e];
 			const int v = fromHeader->links[fromPoly->links+0].ref == to ? 0 : 1;
 			vcopy(left, &fromHeader->verts[fromPoly->v[v]*3]);
 			vcopy(right, &fromHeader->verts[fromPoly->v[v]*3]);
 			return true;
 		}
-		else
-		{
-			dtDecodePolyId(to, salt, it, ip);
-			if (it >= (unsigned int)m_maxTiles) return false;
-			if (m_tiles[it].salt != salt || m_tiles[it].header == 0) return false;
-			if (ip >= (unsigned int)m_tiles[it].header->npolys) return false;
-			const dtMeshHeader* toHeader = m_tiles[it].header;
-			const dtPoly* toPoly = &toHeader->polys[ip];
 
-			if (toPoly->flags & DT_POLY_OFFMESH_LINK)
-			{
-				const int v = toHeader->links[toPoly->links+0].ref == from ? 0 : 1;
-				vcopy(left, &toHeader->verts[toPoly->v[v]*3]);
-				vcopy(right, &toHeader->verts[toPoly->v[v]*3]);
-				return true;
-			}
+		if (toPoly->flags & DT_POLY_OFFMESH_LINK)
+		{
+			const int v = toHeader->links[toPoly->links+0].ref == from ? 0 : 1;
+			vcopy(left, &toHeader->verts[toPoly->v[v]*3]);
+			vcopy(right, &toHeader->verts[toPoly->v[v]*3]);
+			return true;
 		}
 		
 		// Find portal vertices.
@@ -1382,7 +1524,8 @@ bool dtNavMesh::getPortalPoints(dtPolyRef from, dtPolyRef to, float* left, float
 bool dtNavMesh::getEdgeMidPoint(dtPolyRef from, dtPolyRef to, float* mid) const
 {
 	float left[3], right[3];
-	if (!getPortalPoints(from, to, left,right)) return false;
+	unsigned char fromFlags, toFlags;
+	if (!getPortalPoints(from, to, left,right, fromFlags, toFlags)) return false;
 	mid[0] = (left[0]+right[0])*0.5f;
 	mid[1] = (left[1]+right[1])*0.5f;
 	mid[2] = (left[2]+right[2])*0.5f;

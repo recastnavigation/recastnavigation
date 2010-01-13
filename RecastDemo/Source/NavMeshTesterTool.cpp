@@ -128,6 +128,43 @@ void NavMeshTesterTool::reset()
 	m_distanceToWall = 0;
 }
 
+static bool getSteerTarget(dtNavMesh* navMesh, const float* startPos, const float* endPos,
+						   const float minTargetDist,
+						   const dtPolyRef* path, const int pathSize,
+						   float* steerPos, unsigned char& steerPosFlag, dtPolyRef& steerPosRef)							 
+{
+	// Find steer target.
+	static const int MAX_STEER_POINTS = 3;
+	float steerPath[MAX_STEER_POINTS*3];
+	unsigned char steerPathFlags[MAX_STEER_POINTS];
+	dtPolyRef steerPathPolys[MAX_STEER_POINTS];
+	int nsteerPath = navMesh->findStraightPath(startPos, endPos, path, pathSize,
+												 steerPath, steerPathFlags, steerPathPolys, MAX_STEER_POINTS);
+	if (!nsteerPath)
+		return false;
+	
+	// Find vertex far enough to steer to.
+	int ns = 0;
+	while (ns < nsteerPath)
+	{
+		// Stop at Off-Mesh link or when point is further than slop away.
+		if ((steerPathFlags[ns] & DT_STRAIGHTPATH_OFFMESH_LINK) ||
+			!inRange(&steerPath[ns*3], startPos, minTargetDist, 1000.0f))
+			break;
+		ns++;
+	}
+	// Failed to find good point to steer to.
+	if (ns >= nsteerPath)
+		return false;
+
+	vcopy(steerPos, &steerPath[ns*3]);
+	steerPosFlag = steerPathFlags[ns];
+	steerPosRef = steerPathPolys[ns];
+
+	return true;
+}
+
+
 void NavMeshTesterTool::recalc()
 {
 	if (!m_navMesh)
@@ -154,9 +191,11 @@ void NavMeshTesterTool::recalc()
 
 			if (m_npolys)
 			{
-				m_nstraightPath = m_navMesh->findStraightPath(m_spos, m_epos, m_polys, m_npolys, m_straightPath, MAX_POLYS);
+				m_nstraightPath = m_navMesh->findStraightPath(m_spos, m_epos, m_polys, m_npolys,
+															  m_straightPath, m_straightPathFlags, m_straightPathPolys, MAX_POLYS);
 				
-/*				// Iterate over the path to find smooth path on the detail mesh surface.
+
+				// Iterate over the path to find smooth path on the detail mesh surface.
 				const dtPolyRef* polys = m_polys; 
 				int npolys = m_npolys;
 				
@@ -172,31 +211,28 @@ void NavMeshTesterTool::recalc()
 				vcopy(&m_smoothPath[m_nsmoothPath*3], iterPos);
 				m_nsmoothPath++;
 				
+				// Move towards target a small advancement at a time until target reached or
+				// when ran out of memory to store the path.
 				while (npolys && m_nsmoothPath < MAX_SMOOTH)
 				{
-					// Find steer target.
-					static const int MAX_STEER = 3;
-					float steerPath[MAX_STEER*3];
-					int nsteerPath = m_navMesh->findStraightPath(iterPos, m_epos, polys, npolys, steerPath, MAX_STEER);
-					if (!nsteerPath)
+					// Find location to steer towards.
+					float steerPos[3];
+					unsigned char steerPosFlag;
+					dtPolyRef steerPosRef;
+					
+					if (!getSteerTarget(m_navMesh, iterPos, targetPos, SLOP,
+										polys, npolys, steerPos, steerPosFlag, steerPosRef))
 						break;
-					// Find vertex far enough to steer to.
-					int ns = 0;
-					while (ns < nsteerPath)
-					{
-						if (!inRange(&steerPath[ns*3], iterPos, SLOP, 1000.0f))
-							break;
-						ns++;
-					}
-					if (ns >= nsteerPath)
-						break;
-					bool endOfPath = inRange(&steerPath[ns*3], targetPos, SLOP*SLOP, 1.0f);
+					
+					bool endOfPath = steerPosFlag & DT_STRAIGHTPATH_END;
+					bool offMeshLink = steerPosFlag & DT_STRAIGHTPATH_OFFMESH_LINK;
 					
 					// Find movement delta.
 					float delta[3], len;
-					vsub(delta, &steerPath[ns*3], iterPos);
+					vsub(delta, steerPos, iterPos);
 					len = sqrtf(vdot(delta,delta));
-					if (endOfPath && len < STEP_SIZE)
+					// If the steer target is end of path or off-mesh link, do not move past the location.
+					if ((endOfPath || offMeshLink) && len < STEP_SIZE)
 						len = 1;
 					else
 						len = STEP_SIZE / len;
@@ -209,17 +245,53 @@ void NavMeshTesterTool::recalc()
 					float h = 0;
 					m_navMesh->getPolyHeight(polys[n], result, &h);
 					result[1] = h;
-					// Shrink path corridor of possible.
-					polys += n;
-					npolys -= n;
-					
-					vcopy(iterPos, result);
-					
-					// Close enough to the target.
-					if (inRange(iterPos, targetPos, SLOP, 1.0f))
+					// Shrink path corridor if advanced.
+					if (n)
 					{
+						polys += n;
+						npolys -= n;
+					}
+					// Update position.
+					vcopy(iterPos, result);
+
+					// Handle end of path and off-mesh links when close enough.
+					if (endOfPath && inRange(iterPos, steerPos, SLOP, 1.0f))
+					{
+						// Reached end of path.
 						vcopy(iterPos, targetPos);
-						npolys = 0;
+						if (m_nsmoothPath < MAX_SMOOTH)
+						{
+							vcopy(&m_smoothPath[m_nsmoothPath*3], iterPos);
+							m_nsmoothPath++;
+						}
+						break;
+					}
+					else if (offMeshLink && inRange(iterPos, steerPos, SLOP, 1.0f))
+					{
+						// Reached off-mesh link.
+						float startPos[3], endPos[3];
+						
+						// Advance the path up to and over the off-mesh link.
+						dtPolyRef prevRef = 0, polyRef = polys[0];
+						while (npolys && polyRef != steerPosRef)
+						{
+							prevRef = polyRef;
+							polyRef = polys[0];
+							polys++;
+							npolys--;
+						}
+						
+						// Handle the link.
+						if (m_navMesh->getOffMeshLinkPolyEndPoints(prevRef, polyRef, startPos, endPos))
+						{
+							if (m_nsmoothPath < MAX_SMOOTH)
+							{
+								vcopy(&m_smoothPath[m_nsmoothPath*3], startPos);
+								m_nsmoothPath++;
+							}
+							// Move position at the other side of the off-mesh link.
+							vcopy(iterPos, endPos);
+						}
 					}
 					
 					// Store results.
@@ -228,13 +300,15 @@ void NavMeshTesterTool::recalc()
 						vcopy(&m_smoothPath[m_nsmoothPath*3], iterPos);
 						m_nsmoothPath++;
 					}
-				}*/
+				}
 			}
+			
 		}
 		else
 		{
 			m_npolys = 0;
 			m_nstraightPath = 0;
+			m_nsmoothPath = 0;
 		}
 	}
 	else if (m_toolMode == TOOLMODE_RAYCAST)
@@ -334,20 +408,44 @@ void NavMeshTesterTool::handleRender()
 				for (int i = 1; i < m_npolys-1; ++i)
 					duDebugDrawNavMeshPoly(&dd, m_navMesh, m_polys[i], pathCol);
 			}
+			
 			if (m_nstraightPath)
 			{
 				const unsigned int pathCol = duRGBA(64,16,0,220);
+				const unsigned int offMeshCol = duRGBA(128,96,0,220);
 				dd.begin(DU_DRAW_LINES, 2.0f);
 				for (int i = 0; i < m_nstraightPath-1; ++i)
 				{
-					dd.vertex(m_straightPath[i*3], m_straightPath[i*3+1]+0.4f, m_straightPath[i*3+2], pathCol);
-					dd.vertex(m_straightPath[(i+1)*3], m_straightPath[(i+1)*3+1]+0.4f, m_straightPath[(i+1)*3+2], pathCol);
+					unsigned int col = 0;
+					if (m_straightPathFlags[i] & DT_STRAIGHTPATH_OFFMESH_LINK)
+						col = offMeshCol;
+					else
+						col = pathCol;
+					
+					dd.vertex(m_straightPath[i*3], m_straightPath[i*3+1]+0.4f, m_straightPath[i*3+2], col);
+					dd.vertex(m_straightPath[(i+1)*3], m_straightPath[(i+1)*3+1]+0.4f, m_straightPath[(i+1)*3+2], col);
 				}
 				dd.end();
-				dd.begin(DU_DRAW_POINTS, 4.0f);
+				dd.begin(DU_DRAW_POINTS, 6.0f);
 				for (int i = 0; i < m_nstraightPath; ++i)
+				{
+					unsigned int col = 0;
+					if (m_straightPathFlags[i] & DT_STRAIGHTPATH_START)
+						col = startCol;
+					else if (m_straightPathFlags[i] & DT_STRAIGHTPATH_START)
+						col = endCol;
+					else if (m_straightPathFlags[i] & DT_STRAIGHTPATH_OFFMESH_LINK)
+						col = offMeshCol;
+					else
+						col = pathCol;
 					dd.vertex(m_straightPath[i*3], m_straightPath[i*3+1]+0.4f, m_straightPath[i*3+2], pathCol);
+				}
 				dd.end();
+
+/*				for (int i = 1; i < m_nstraightPath-1; ++i)
+				{
+					duDebugDrawNavMeshPoly(&dd, m_navMesh, m_straightPathPolys[i], duRGBA(255,255,255,64));
+				}*/
 			}
 			if (m_nsmoothPath)
 			{
