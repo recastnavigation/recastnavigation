@@ -86,6 +86,7 @@ struct dtMeshHeader
 	int ndtris;								// Number of detail triangles.
 	int nbvtree;							// Number of BVtree nodes.
 	int nomlinks;							// Number of Off-Mesh links.
+	int nombase;							// Index to first polygon which is Off-Mesh link.
 	float bmin[3], bmax[3];					// Bounding box of the tile.
 	float bvquant;							// BVtree quantization factor (world to bvnode coords)
 	dtPoly* polys;							// Pointer to the polygons (will be updated when tile is added).

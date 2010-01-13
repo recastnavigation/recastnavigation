@@ -461,6 +461,7 @@ bool dtCreateNavMeshData(const unsigned short* verts, const int nverts,
 	header->ndverts = uniqueDetailVerts;
 	header->ndtris = ndtris;
 	header->bvquant = 1.0f/cs;
+	header->nombase  = npolys;
 	header->nomlinks = nomlinks;
 	header->nbvtree = npolys*2;
 	

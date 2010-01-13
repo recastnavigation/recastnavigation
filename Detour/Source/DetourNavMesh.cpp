@@ -391,23 +391,14 @@ void dtNavMesh::buildIntLinks(dtMeshTile* tile)
 		if (poly->flags & DT_POLY_OFFMESH_LINK)
 		{
 			// Find Off-Mesh link and fill in information.
-			dtOffMeshLink* omlink = 0;
-			for (int j = 0; j < h->nomlinks; ++j)
-			{
-				if ((int)h->omlinks[j].p == i)
-				{
-					omlink = &h->omlinks[j];
-					break;
-				}
-			}
-			if (!omlink)
-				continue;
+			dtOffMeshLink& omlink = h->omlinks[i - h->nombase];
+			// Connect both ends.
 			for (int j = 0; j < 2; ++j)
 			{
 				if (nlinks < h->maxlinks)
 				{
 					dtLink* link = &pool[nlinks++];
-					link->ref = omlink->ref[j];
+					link->ref = omlink.ref[j];
 					link->p = (unsigned short)i;
 					link->e = (unsigned char)j;
 					link->side = 0xff;
@@ -436,11 +427,13 @@ void dtNavMesh::buildIntLinks(dtMeshTile* tile)
 				}
 			}
 			
-			// Off-Mesh link targets.
+			// Check this polygon is Off-Mesh link target and connect.
+			// TODO: Speed this up.
 			dtPolyRef curRef = base | (unsigned int)i;
 			for (int j = 0; j < h->nomlinks; ++j)
 			{
 				const dtOffMeshLink* omlink = &h->omlinks[j];
+				// Test both end points.
 				for (int k = 0; k < 2; ++k)
 				{
 					if (omlink->ref[k] == curRef)
@@ -458,6 +451,7 @@ void dtNavMesh::buildIntLinks(dtMeshTile* tile)
 					}
 				}
 			}
+			
 		}
 	}
 
