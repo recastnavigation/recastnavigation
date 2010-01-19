@@ -507,7 +507,7 @@ bool dtNavMesh::addTileAt(int x, int y, unsigned char* data, int dataSize, bool 
 	const int detailMeshesSize = align4(sizeof(dtPolyDetail)*header->detailMeshCount);
 	const int detailVertsSize = align4(sizeof(float)*3*header->detailVertCount);
 	const int detailTrisSize = align4(sizeof(unsigned char)*4*header->detailTriCount);
-	const int bvtreeSize = header->bvNodeCount ? align4(sizeof(dtBVNode)*header->polyCount*2) : 0;
+	const int bvtreeSize = align4(sizeof(dtBVNode)*header->bvNodeCount);
 	const int offMeshLinksSize = align4(sizeof(dtOffMeshConnection)*header->offMeshConCount);
 	
 	unsigned char* d = data + headerSize;
@@ -517,8 +517,8 @@ bool dtNavMesh::addTileAt(int x, int y, unsigned char* data, int dataSize, bool 
 	header->detailMeshes = (dtPolyDetail*)d; d += detailMeshesSize;
 	header->detailVerts = (float*)d; d += detailVertsSize;
 	header->detailTris = (unsigned char*)d; d += detailTrisSize;
+	header->bvTree = (dtBVNode*)d; d += bvtreeSize;
 	header->offMeshCons = (dtOffMeshConnection*)d; d += offMeshLinksSize;
-	header->bvTree = header->bvNodeCount ? (dtBVNode*)d : 0; d += bvtreeSize;
 
 	// Init tile.
 	tile->header = header;

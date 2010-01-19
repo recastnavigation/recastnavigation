@@ -151,6 +151,12 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh* mesh, const dtMeshTil
 	}
 	dd->end();
 	
+	// Draw inter poly boundaries
+	drawPolyBoundaries(dd, header, duRGBA(0,48,64,32), 1.5f, true);
+	
+	// Draw outer poly boundaries
+	drawPolyBoundaries(dd, header, duRGBA(0,48,64,220), 2.5f, false);
+
 	if (flags & DU_DRAWNAVMESH_OFFMESHCONS)
 	{
 		dd->begin(DU_DRAW_LINES, 2.0f);
@@ -159,7 +165,7 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh* mesh, const dtMeshTil
 			const dtPoly* p = &header->polys[i];
 			if ((p->flags & DT_POLY_OFFMESH_CONNECTION) == 0)	// Skip regular polys.
 				continue;
-				
+			
 			unsigned int col;
 			if ((flags & DU_DRAWNAVMESH_CLOSEDLIST) && mesh->isInClosedList(base | (dtPolyRef)i))
 				col = duRGBA(255,196,0,220);
@@ -169,7 +175,7 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh* mesh, const dtMeshTil
 			const dtOffMeshConnection* con = &header->offMeshCons[i - header->offMeshBase];
 			const float* va = &header->verts[p->verts[0]*3];
 			const float* vb = &header->verts[p->verts[1]*3];
-
+			
 			// End points and their on-mesh locations. 
 			if (con->ref[0])
 			{
@@ -183,7 +189,7 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh* mesh, const dtMeshTil
 				dd->vertex(con->pos[3],con->pos[4],con->pos[5], col);
 				duAppendCircle(dd, con->pos[3],con->pos[4]+0.1f,con->pos[5], con->rad, duRGBA(0,48,64,196));
 			}	
-
+			
 			// End point vertices.
 			dd->vertex(con->pos[0],con->pos[1],con->pos[2], duRGBA(0,48,64,196));
 			dd->vertex(con->pos[0],con->pos[1]+0.2f,con->pos[2], duRGBA(0,48,64,196));
@@ -198,12 +204,7 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh* mesh, const dtMeshTil
 		dd->end();
 	}
 	
-	// Draw inter poly boundaries
-	drawPolyBoundaries(dd, header, duRGBA(0,48,64,32), 1.5f, true);
 	
-	// Draw outer poly boundaries
-	drawPolyBoundaries(dd, header, duRGBA(0,48,64,220), 2.5f, false);
-
 	const unsigned int vcol = duRGBA(0,0,0,196);
 	dd->begin(DU_DRAW_POINTS, 3.0f);
 	for (int i = 0; i < header->vertCount; ++i)

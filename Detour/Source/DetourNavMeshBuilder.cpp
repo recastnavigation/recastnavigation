@@ -434,8 +434,8 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	dtPolyDetail* navDMeshes = (dtPolyDetail*)d; d += detailMeshesSize;
 	float* navDVerts = (float*)d; d += detailVertsSize;
 	unsigned char* navDTris = (unsigned char*)d; d += detailTrisSize;
-	dtOffMeshConnection* offMeshCons = (dtOffMeshConnection*)d; d += offMeshConsSize;
 	dtBVNode* navBvtree = (dtBVNode*)d; d += bvTreeSize;
+	dtOffMeshConnection* offMeshCons = (dtOffMeshConnection*)d; d += offMeshConsSize;
 	
 	
 	// Store header
