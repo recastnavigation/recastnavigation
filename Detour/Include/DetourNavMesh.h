@@ -28,9 +28,29 @@ static const int DT_VERTS_PER_POLYGON = 6;
 static const int DT_NAVMESH_MAGIC = 'DNAV';
 static const int DT_NAVMESH_VERSION = 2;
 
-static const unsigned char DT_POLY_OFFMESH_CONNECTION = 1;
-
 static const unsigned short DT_EXT_LINK = 0x8000;
+
+// Flags returned by findStraightPath().
+enum dtStraightPathFlags
+{
+	DT_STRAIGHTPATH_START = 0x01,				// The vertex is the start position.
+	DT_STRAIGHTPATH_END = 0x02,					// The vertex is the end position.
+	DT_STRAIGHTPATH_OFFMESH_CONNECTION = 0x04,	// The vertex is start of an off-mesh link.
+};
+
+// Flags describing polygon properties.
+enum dtPolyFlags
+{
+	DT_POLY_GROUND = 0x01,						// Regular ground polygons.
+	DT_POLY_OFFMESH_CONNECTION = 0x02,			// Off-mesh connections.
+};
+
+struct dtQueryFilter
+{
+	dtQueryFilter() : includeFlags(0xffff), excludeFlags(0) {}
+	unsigned short includeFlags;				// If any of the flags are set, the poly is included.
+	unsigned short excludeFlags;				// If any of the flags are set, the poly is excluded.
+};
 
 // Structure describing the navigation polygon data.
 struct dtPoly
@@ -38,9 +58,9 @@ struct dtPoly
 	unsigned short verts[DT_VERTS_PER_POLYGON];	// Indices to vertices of the poly.
 	unsigned short neis[DT_VERTS_PER_POLYGON];	// Refs to neighbours of the poly.
 	unsigned short linkBase;					// Base index to header 'links' array. 
+	unsigned short flags;						// Flags (see dtPolyFlags).
 	unsigned char linkCount;					// Number of links for 
 	unsigned char vertCount;					// Number of vertices.
-	unsigned char flags;						// Flags.
 };
 
 // Stucture describing polygon detail triangles.
@@ -118,13 +138,6 @@ struct dtMeshTile
 	dtMeshTile* next;						// Next free tile or, next tile in spatial grid.
 };
 
-// Flags returned by findStraightPath().
-enum dtStraightPathFlags
-{
-	DT_STRAIGHTPATH_START = 0x01,			// The vertex is the start position.
-	DT_STRAIGHTPATH_END = 0x02,				// The vertex is the end position.
-	DT_STRAIGHTPATH_OFFMESH_CONNECTION = 0x04,	// The vertex is start of an off-mesh link.
-};
 
 class dtNavMesh
 {
@@ -206,16 +219,17 @@ public:
 	//	extents - (in) The extents of the search box.
 	//  nearestPt - (out, opt) The nearest point on found polygon, null if not needed.
 	// Returns: Reference identifier for the polygon, or 0 if no polygons found.
-	dtPolyRef findNearestPoly(const float* center, const float* extents, float* nearestPt);
+	dtPolyRef findNearestPoly(const float* center, const float* extents, dtQueryFilter* filter, float* nearestPt);
 	
 	// Returns polygons which touch the query box.
 	// Params:
 	//	center - (in) the center of the search box.
 	//	extents - (in) the extents of the search box.
+	//  flags - (int) 
 	//	polys - (out) array holding the search result.
 	//	maxPolys - (in) The max number of polygons the polys array can hold.
 	// Returns: Number of polygons in search result array.
-	int queryPolygons(const float* center, const float* extents,
+	int queryPolygons(const float* center, const float* extents, dtQueryFilter* filter,
 					  dtPolyRef* polys, const int maxPolys);
 	
 	// Finds path from start polygon to end polygon.
@@ -229,6 +243,7 @@ public:
 	// Returns: Number of polygons in search result array.
 	int findPath(dtPolyRef startRef, dtPolyRef endRef,
 				 const float* startPos, const float* endPos,
+				 dtQueryFilter* filter,
 				 dtPolyRef* path, const int maxPathSize);
 
 	// Finds a straight path from start to end locations within the corridor
@@ -266,7 +281,7 @@ public:
 	//	hitNormal - (out) normal of the nearest hit.
 	//	endRef - (out) ref to the last polygon which was processed.
 	// Returns: Number of polygons in path or 0 if failed.
-	int raycast(dtPolyRef startRef, const float* startPos, const float* endPos,
+	int raycast(dtPolyRef startRef, const float* startPos, const float* endPos, dtQueryFilter* filter,
 				float& t, float* hitNormal, dtPolyRef* path, const int pathSize);
 
 	// Returns distance to nearest wall from the specified location.
@@ -278,7 +293,7 @@ public:
 	//	hitNormal - (out) normal of the nearest hit.
 	// Returns: Distance to nearest wall from the test location.
 	float findDistanceToWall(dtPolyRef centerRef, const float* centerPos, float maxRadius,
-							 float* hitPos, float* hitNormal);
+							 dtQueryFilter* filter, float* hitPos, float* hitNormal);
 
 	// Finds polygons found along the navigation graph which touch the specified circle.
 	// Params:
@@ -290,7 +305,7 @@ public:
 	//	resultCost - (out, opt) search cost at each result polygon.
 	//	maxResult - (int) maximum capacity of search results.
 	// Returns: Number of results.
-	int	findPolysAround(dtPolyRef centerRef, const float* centerPos, float radius,
+	int	findPolysAround(dtPolyRef centerRef, const float* centerPos, float radius, dtQueryFilter* filter,
 						dtPolyRef* resultRef, dtPolyRef* resultParent, float* resultCost,
 						const int maxResult);
 	
@@ -371,9 +386,9 @@ private:
 	// Removes external links at specified side.
 	void removeExtLinks(dtMeshTile* tile, int side);
 	// Queries polygons within a tile.
-	int queryTilePolygons(dtMeshTile* tile, const float* qmin, const float* qmax,
+	int queryTilePolygons(dtMeshTile* tile, const float* qmin, const float* qmax, dtQueryFilter* filter,
 						  dtPolyRef* polys, const int maxPolys);
-						  
+	unsigned short getPolyFlags(dtPolyRef ref);
 	float getCost(dtPolyRef prev, dtPolyRef from, dtPolyRef to) const;
 	float getFirstCost(const float* pos, dtPolyRef from, dtPolyRef to) const;
 	float getLastCost(dtPolyRef from, dtPolyRef to, const float* pos) const;
@@ -381,7 +396,7 @@ private:
 	
 	// Returns portal points between two polygons.
 	bool getPortalPoints(dtPolyRef from, dtPolyRef to, float* left, float* right,
-						 unsigned char& fromFlags, unsigned char& toFlags) const;
+						 unsigned short& fromFlags, unsigned short& toFlags) const;
 	// Returns edge mid point between two polygons.
 	bool getEdgeMidPoint(dtPolyRef from, dtPolyRef to, float* mid) const;
 

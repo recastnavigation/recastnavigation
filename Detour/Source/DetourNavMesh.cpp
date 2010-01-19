@@ -74,6 +74,11 @@ inline int computeTileHash(int x, int y, const int mask)
 	return (int)(n & mask);
 }
 
+inline bool passFilter(dtQueryFilter* filter, unsigned short flags)
+{
+	return (flags & filter->includeFlags) != 0 && (flags & filter->excludeFlags) == 0;
+}
+
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -361,6 +366,7 @@ void dtNavMesh::buildIntLinks(dtMeshTile* tile)
 	{
 		dtOffMeshConnection* con = &h->offMeshCons[i];
 		dtPoly* poly = &h->polys[con->poly];
+		dtQueryFilter defaultFilter;
 		
 		con->ref[0] = 0;
 		con->ref[1] = 0;
@@ -371,7 +377,7 @@ void dtNavMesh::buildIntLinks(dtMeshTile* tile)
 			// Find polygon to connect to.
 			const float* p = &con->pos[j*3];
 			float nearestPt[3];
-			dtPolyRef ref = findNearestPoly(p, ext, nearestPt);
+			dtPolyRef ref = findNearestPoly(p, ext, &defaultFilter, nearestPt);
 			// findNearestPoly may return too optimistic results, further check to make sure. 
 			if (sqr(nearestPt[0]-p[0])+sqr(nearestPt[2]-p[2]) > sqr(con->rad))
 				continue;
@@ -847,11 +853,11 @@ bool dtNavMesh::getPolyHeight(dtPolyRef ref, const float* pos, float* height) co
 }
 
 
-dtPolyRef dtNavMesh::findNearestPoly(const float* center, const float* extents, float* nearestPt)
+dtPolyRef dtNavMesh::findNearestPoly(const float* center, const float* extents, dtQueryFilter* filter, float* nearestPt)
 {
 	// Get nearby polygons from proximity grid.
 	dtPolyRef polys[128];
-	int polyCount = queryPolygons(center, extents, polys, 128);
+	int polyCount = queryPolygons(center, extents, filter, polys, 128);
 	
 	// Find nearest polygon amongst the nearby polygons.
 	dtPolyRef nearest = 0;
@@ -875,8 +881,8 @@ dtPolyRef dtNavMesh::findNearestPoly(const float* center, const float* extents, 
 	return nearest;
 }
 
-int dtNavMesh::queryTilePolygons(dtMeshTile* tile,
-								 const float* qmin, const float* qmax,
+int dtNavMesh::queryTilePolygons(dtMeshTile* tile, const float* qmin, const float* qmax,
+								 dtQueryFilter* filter,
 								 dtPolyRef* polys, const int maxPolys)
 {
 	const dtMeshHeader* header = tile->header;
@@ -912,8 +918,11 @@ int dtNavMesh::queryTilePolygons(dtMeshTile* tile,
 			
 			if (isLeafNode && overlap)
 			{
-				if (n < maxPolys)
-					polys[n++] = base | (dtPolyRef)node->i;
+				if (passFilter(filter, header->polys[node->i].flags))
+				{
+					if (n < maxPolys)
+						polys[n++] = base | (dtPolyRef)node->i;
+				}
 			}
 			
 			if (overlap || isLeafNode)
@@ -948,15 +957,18 @@ int dtNavMesh::queryTilePolygons(dtMeshTile* tile,
 			}
 			if (overlapBoxes(qmin,qmax, bmin,bmax))
 			{
-				if (n < maxPolys)
-					polys[n++] = base | (dtPolyRef)i;
+				if (passFilter(filter, p->flags))
+				{
+					if (n < maxPolys)
+						polys[n++] = base | (dtPolyRef)i;
+				}
 			}
 		}
 		return n;
 	}
 }
 
-int dtNavMesh::queryPolygons(const float* center, const float* extents,
+int dtNavMesh::queryPolygons(const float* center, const float* extents, dtQueryFilter* filter,
 							 dtPolyRef* polys, const int maxPolys)
 {
 	float bmin[3], bmax[3];
@@ -982,7 +994,7 @@ int dtNavMesh::queryPolygons(const float* center, const float* extents,
 		{
 			dtMeshTile* tile = getTileAt(x,y);
 			if (!tile) continue;
-			n += queryTilePolygons(tile, bmin, bmax, polys+n, maxPolys-n);
+			n += queryTilePolygons(tile, bmin, bmax, filter, polys+n, maxPolys-n);
 			if (n >= maxPolys) return n;
 		}
 	}
@@ -991,8 +1003,9 @@ int dtNavMesh::queryPolygons(const float* center, const float* extents,
 }
 
 int dtNavMesh::findPath(dtPolyRef startRef, dtPolyRef endRef,
-							 const float* startPos, const float* endPos,
-							 dtPolyRef* path, const int maxPathSize)
+						const float* startPos, const float* endPos,
+						dtQueryFilter* filter,
+						dtPolyRef* path, const int maxPathSize)
 {
 	if (!startRef || !endRef)
 		return 0;
@@ -1053,6 +1066,10 @@ int dtNavMesh::findPath(dtPolyRef startRef, dtPolyRef endRef,
 				if (bestNode->pidx && m_nodePool->getNodeAtIdx(bestNode->pidx)->id == neighbour)
 					continue;
 
+				// TODO: Avoid digging the polygon (done in getEdgeMidPoint too).
+				if (!passFilter(filter, getPolyFlags(neighbour)))
+					continue;
+
 				dtNode* parent = bestNode;
 				dtNode newNode;
 				newNode.pidx = m_nodePool->getNodeIdx(parent);
@@ -1064,7 +1081,9 @@ int dtNavMesh::findPath(dtPolyRef startRef, dtPolyRef endRef,
 					vcopy(p0, startPos);
 				else
 					getEdgeMidPoint(m_nodePool->getNodeAtIdx(parent->pidx)->id, parent->id, p0);
+				
 				getEdgeMidPoint(parent->id, newNode.id, p1);
+				
 				newNode.cost = parent->cost + vdist(p0,p1);
 				// Special case for last node.
 				if (newNode.id == endRef)
@@ -1174,8 +1193,8 @@ int dtNavMesh::findStraightPath(const float* startPos, const float* endPos,
 		int leftIndex = 0;
 		int rightIndex = 0;
 
-		unsigned char leftPolyFlags = 0;
-		unsigned char rightPolyFlags = 0;
+		unsigned short leftPolyFlags = 0;
+		unsigned short rightPolyFlags = 0;
 
 		dtPolyRef leftPolyRef = path[0];
 		dtPolyRef rightPolyRef = path[0];
@@ -1183,7 +1202,7 @@ int dtNavMesh::findStraightPath(const float* startPos, const float* endPos,
 		for (int i = 0; i < pathSize; ++i)
 		{
 			float left[3], right[3];
-			unsigned char fromFlags, toFlags;
+			unsigned short fromFlags, toFlags;
 			
 			if (i+1 < pathSize)
 			{
@@ -1382,7 +1401,7 @@ int dtNavMesh::moveAlongPathCorridor(const float* startPos, const float* endPos,
 			if (n+1 < pathSize)
 			{
 				float left[3], right[3];
-				unsigned char fromFlags, toFlags;
+				unsigned short fromFlags, toFlags;
 				if (!getPortalPoints(path[n], path[n+1], left, right, fromFlags, toFlags))
 					return n;
 				vcopy(resultPos, endPos);
@@ -1426,7 +1445,7 @@ int dtNavMesh::moveAlongPathCorridor(const float* startPos, const float* endPos,
 		if (n+1 >= pathSize)
 			return n;
 		float left[3], right[3];
-		unsigned char fromFlags, toFlags;
+		unsigned short fromFlags, toFlags;
 		if (!getPortalPoints(path[n], path[n+1], left, right, fromFlags, toFlags))
 			return n;
 		// If the clamped point is close to the next portal edge, advance to next poly.
@@ -1443,7 +1462,7 @@ int dtNavMesh::moveAlongPathCorridor(const float* startPos, const float* endPos,
 
 // Returns portal points between two polygons.
 bool dtNavMesh::getPortalPoints(dtPolyRef from, dtPolyRef to, float* left, float* right,
-								unsigned char& fromFlags, unsigned char& toFlags) const
+								unsigned short& fromFlags, unsigned short& toFlags) const
 {
 	unsigned int salt, it, ip;
 	dtDecodePolyId(from, salt, it, ip);
@@ -1526,7 +1545,7 @@ bool dtNavMesh::getPortalPoints(dtPolyRef from, dtPolyRef to, float* left, float
 bool dtNavMesh::getEdgeMidPoint(dtPolyRef from, dtPolyRef to, float* mid) const
 {
 	float left[3], right[3];
-	unsigned char fromFlags, toFlags;
+	unsigned short fromFlags, toFlags;
 	if (!getPortalPoints(from, to, left,right, fromFlags, toFlags)) return false;
 	mid[0] = (left[0]+right[0])*0.5f;
 	mid[1] = (left[1]+right[1])*0.5f;
@@ -1534,7 +1553,19 @@ bool dtNavMesh::getEdgeMidPoint(dtPolyRef from, dtPolyRef to, float* mid) const
 	return true;
 }
 
-int dtNavMesh::raycast(dtPolyRef centerRef, const float* startPos, const float* endPos,
+unsigned short dtNavMesh::getPolyFlags(dtPolyRef ref)
+{
+	unsigned int salt, it, ip;
+	dtDecodePolyId(ref, salt, it, ip);
+	if (it >= (unsigned int)m_maxTiles) return 0;
+	if (m_tiles[it].salt != salt || m_tiles[it].header == 0) return 0;
+	if (ip >= (unsigned int)m_tiles[it].header->polyCount) return 0;
+	const dtMeshHeader* header = m_tiles[it].header;
+	const dtPoly* poly = &header->polys[ip];
+	return poly->flags;
+}
+
+int dtNavMesh::raycast(dtPolyRef centerRef, const float* startPos, const float* endPos, dtQueryFilter* filter,
 					   float& t, float* hitNormal, dtPolyRef* path, const int pathSize)
 {
 	t = 0;
@@ -1638,7 +1669,7 @@ int dtNavMesh::raycast(dtPolyRef centerRef, const float* startPos, const float* 
 			}
 		}
 		
-		if (!nextRef)
+		if (!nextRef || !passFilter(filter, getPolyFlags(nextRef)))
 		{
 			// No neighbour, we hit a wall.
 
@@ -1664,7 +1695,7 @@ int dtNavMesh::raycast(dtPolyRef centerRef, const float* startPos, const float* 
 	return n;
 }
 
-int dtNavMesh::findPolysAround(dtPolyRef centerRef, const float* centerPos, float radius,
+int dtNavMesh::findPolysAround(dtPolyRef centerRef, const float* centerPos, float radius, dtQueryFilter* filter,
 									dtPolyRef* resultRef, dtPolyRef* resultParent, float* resultCost,
 									const int maxResult)
 {
@@ -1727,6 +1758,9 @@ int dtNavMesh::findPolysAround(dtPolyRef centerRef, const float* centerPos, floa
 				// If the circle is not touching the next polygon, skip it.
 				if (distSqr > radiusSqr)
 					continue;
+
+				if (!passFilter(filter, getPolyFlags(neighbour)))
+					continue;
 				
 				dtNode* parent = bestNode;
 				dtNode newNode;
@@ -1780,8 +1814,8 @@ int dtNavMesh::findPolysAround(dtPolyRef centerRef, const float* centerPos, floa
 	return n;
 }
 
-float dtNavMesh::findDistanceToWall(dtPolyRef centerRef, const float* centerPos, float maxRadius,
-						 float* hitPos, float* hitNormal)
+float dtNavMesh::findDistanceToWall(dtPolyRef centerRef, const float* centerPos, float maxRadius, dtQueryFilter* filter,
+									float* hitPos, float* hitNormal)
 {
 	if (!centerRef) return 0;
 	if (!getPolyByRef(centerRef)) return 0;
@@ -1822,7 +1856,7 @@ float dtNavMesh::findDistanceToWall(dtPolyRef centerRef, const float* centerPos,
 				for (int i = 0; i < poly->linkCount; ++i)
 				{
 					const dtLink* link = &header->links[poly->linkBase+i];
-					if (link->edge == j && link->ref != 0)
+					if (link->edge == j && link->ref != 0 && passFilter(filter, getPolyFlags(link->ref)))
 					{
 						solid = false;
 						break;
@@ -1830,7 +1864,7 @@ float dtNavMesh::findDistanceToWall(dtPolyRef centerRef, const float* centerPos,
 				}
 				if (!solid) continue;
 			}
-			else if (poly->neis[j])
+			else if (poly->neis[j] && passFilter(filter, getPolyFlags(poly->neis[j])))
 			{
 				// Internal edge
 				continue;
@@ -1872,6 +1906,9 @@ float dtNavMesh::findDistanceToWall(dtPolyRef centerRef, const float* centerPos,
 				
 				// If the circle is not touching the next polygon, skip it.
 				if (distSqr > radiusSqr)
+					continue;
+				
+				if (!passFilter(filter, getPolyFlags(neighbour)))
 					continue;
 				
 				dtNode* parent = bestNode;

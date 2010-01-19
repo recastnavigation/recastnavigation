@@ -31,6 +31,8 @@ class NavMeshTesterTool : public SampleTool
 	float m_agentHeight;
 	float m_agentClimb;
 
+	dtQueryFilter m_filter;
+
 	enum ToolMode
 	{
 		TOOLMODE_PATHFIND,

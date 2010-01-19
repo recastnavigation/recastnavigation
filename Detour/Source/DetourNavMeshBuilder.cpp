@@ -486,6 +486,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	{
 		dtPoly* p = &navPolys[i];
 		p->vertCount = 0;
+		p->flags = DT_POLY_GROUND;
 		for (int j = 0; j < nvp; ++j)
 		{
 			if (src[j] == 0xffff) break;
