@@ -33,7 +33,7 @@
 #include "DetourNavMeshBuilder.h"
 #include "DetourDebugDraw.h"
 #include "NavMeshTesterTool.h"
-#include "OffMeshLinkTool.h"
+#include "OffMeshConnectionTool.h"
 
 #ifdef WIN32
 #	define snprintf _snprintf
@@ -253,9 +253,9 @@ void Sample_TileMesh::handleTools()
 	{
 		setTool(new NavMeshTileTool);
 	}
-	if (imguiCheck("Create Off-Mesh Links", type == TOOL_OFFMESH_LINK))
+	if (imguiCheck("Create Off-Mesh Links", type == TOOL_OFFMESH_CONNECTION))
 	{
-		setTool(new OffMeshLinkTool);
+		setTool(new OffMeshConnectionTool);
 	}
 	
 	imguiSeparator();
@@ -288,14 +288,14 @@ static void getPolyCenter(dtNavMesh* navMesh, dtPolyRef ref, float* center)
 	center[0] = 0;
 	center[1] = 0;
 	center[2] = 0;
-	for (int i = 0; i < (int)p->nv; ++i)
+	for (int i = 0; i < (int)p->vertCount; ++i)
 	{
-		const float* v = &verts[p->v[i]*3];
+		const float* v = &verts[p->verts[i]*3];
 		center[0] += v[0];
 		center[1] += v[1];
 		center[2] += v[2];
 	}
-	const float s = 1.0f / p->nv;
+	const float s = 1.0f / p->vertCount;
 	center[0] *= s;
 	center[1] *= s;
 	center[2] *= s;
@@ -311,7 +311,8 @@ void Sample_TileMesh::handleRender()
 	// Draw mesh
 	duDebugDrawTriMesh(&dd, m_geom->getMesh()->getVerts(), m_geom->getMesh()->getVertCount(),
 					   m_geom->getMesh()->getTris(), m_geom->getMesh()->getNormals(), m_geom->getMesh()->getTriCount(), 0);
-	m_geom->drawLinks(&dd, m_agentRadius);
+	if ((m_navMeshDrawFlags & DU_DRAWNAVMESH_OFFMESHCONS) == 0)
+		m_geom->drawOffMeshConnections(&dd);
 	
 	glDepthMask(GL_FALSE);
 	
@@ -332,7 +333,7 @@ void Sample_TileMesh::handleRender()
 	duDebugDrawBoxWire(&dd, m_tileBmin[0],m_tileBmin[1],m_tileBmin[2], m_tileBmax[0],m_tileBmax[1],m_tileBmax[2], m_tileCol, 2.0f);
 	
 	if (m_navMesh)
-		duDebugDrawNavMesh(&dd, m_navMesh);
+		duDebugDrawNavMesh(&dd, m_navMesh, m_navMeshDrawFlags);
 	
 	if (m_tool)
 		m_tool->handleRender();
@@ -392,9 +393,8 @@ bool Sample_TileMesh::handleBuild()
 	const float* bmin = m_geom->getMeshBoundsMin();
 	const float tileWorldWidth = m_tileSize*m_cellSize;
 	const float tileWorldHeight = m_tileSize*m_cellSize;
-	const float portalHeight = m_agentMaxClimb*m_cellHeight;
 	
-	if (!m_navMesh->init(bmin, tileWorldWidth, tileWorldHeight, portalHeight, m_maxTiles, m_maxPolysPerTile, 2048))
+	if (!m_navMesh->init(bmin, tileWorldWidth, tileWorldHeight, m_maxTiles, m_maxPolysPerTile, 2048))
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: Could not init navmesh.");
@@ -404,6 +404,8 @@ bool Sample_TileMesh::handleBuild()
 	if (m_buildAll)
 		buildAllTiles();
 	
+	setNavMeshDrawFlags(DU_DRAWNAVMESH_OFFMESHCONS);
+
 	if (m_tool)
 		m_tool->init(this);
 
@@ -782,12 +784,32 @@ unsigned char* Sample_TileMesh::buildTileMesh(const float* bmin, const float* bm
 		 return false;
 		 }*/
 		
-		if (!dtCreateNavMeshData(m_pmesh->verts, m_pmesh->nverts,
-								 m_pmesh->polys, m_pmesh->npolys, m_pmesh->nvp,
-								 m_dmesh->meshes, m_dmesh->verts, m_dmesh->nverts, m_dmesh->tris, m_dmesh->ntris, 
-								 0, 0,
-								 bmin, bmax, m_cfg.cs, m_cfg.ch, m_cfg.tileSize, m_cfg.walkableClimb,
-								 &navData, &navDataSize))
+		dtNavMeshCreateParams params;
+		memset(&params, 0, sizeof(params));
+		params.verts = m_pmesh->verts;
+		params.vertCount = m_pmesh->nverts;
+		params.polys = m_pmesh->polys;
+		params.polyCount = m_pmesh->npolys;
+		params.nvp = m_pmesh->nvp;
+		params.detailMeshes = m_dmesh->meshes;
+		params.detailVerts = m_dmesh->verts;
+		params.detailVertsCount = m_dmesh->nverts;
+		params.detailTris = m_dmesh->tris;
+		params.detailTriCount = m_dmesh->ntris;
+		params.offMeshConVerts = 0;
+		params.offMeshConRad = 0;
+		params.offMeshConDir = 0;
+		params.offMeshConCount = 0;
+		params.walkableHeight = m_agentHeight;
+		params.walkableRadius = m_agentRadius;
+		params.walkableClimb = m_agentMaxClimb;
+		vcopy(params.bmin, bmin);
+		vcopy(params.bmax, bmax);
+		params.cs = m_cfg.cs;
+		params.ch = m_cfg.ch;
+		params.tileSize = m_cfg.tileSize;
+		
+		if (!dtCreateNavMeshData(&params, &navData, &navDataSize))
 		{
 			if (rcGetLog())
 				rcGetLog()->log(RC_LOG_ERROR, "Could not build Detour navmesh.");

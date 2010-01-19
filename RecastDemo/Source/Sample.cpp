@@ -23,6 +23,7 @@
 #include "InputGeom.h"
 #include "Recast.h"
 #include "RecastDebugDraw.h"
+#include "DetourDebugDraw.h"
 #include "imgui.h"
 #include "SDL.h"
 #include "SDL_opengl.h"
@@ -31,6 +32,11 @@
 #	define snprintf _snprintf
 #endif
 
+
+void DebugDrawGL::depthMask(bool state)
+{
+	glDepthMask(state ? GL_TRUE : GL_FALSE);
+}
 
 void DebugDrawGL::begin(duDebugDrawPrimitives prim, float size)
 {
@@ -76,6 +82,7 @@ void DebugDrawGL::end()
 Sample::Sample() :
 	m_geom(0),
 	m_navMesh(0),
+	m_navMeshDrawFlags(DU_DRAWNAVMESH_CLOSEDLIST),
 	m_tool(0)
 {
 	resetCommonSettings();

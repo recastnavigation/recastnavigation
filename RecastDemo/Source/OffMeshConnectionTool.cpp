@@ -24,7 +24,7 @@
 #include "SDL.h"
 #include "SDL_opengl.h"
 #include "imgui.h"
-#include "OffMeshLinkTool.h"
+#include "OffMeshConnectionTool.h"
 #include "InputGeom.h"
 #include "Sample.h"
 #include "Recast.h"
@@ -35,39 +35,47 @@
 #	define snprintf _snprintf
 #endif
 
-OffMeshLinkTool::OffMeshLinkTool() :
+OffMeshConnectionTool::OffMeshConnectionTool() :
 	m_sample(0),
-	m_hitPosSet(0)
+	m_hitPosSet(0),
+	m_bidir(true)
 {
 }
 
-OffMeshLinkTool::~OffMeshLinkTool()
+OffMeshConnectionTool::~OffMeshConnectionTool()
 {
 }
 
-void OffMeshLinkTool::init(Sample* sample)
+void OffMeshConnectionTool::init(Sample* sample)
 {
 	m_sample = sample;
+	if (m_sample)
+		m_sample->setNavMeshDrawFlags(0);
 }
 
-void OffMeshLinkTool::reset()
+void OffMeshConnectionTool::reset()
 {
 	m_hitPosSet = false;
 }
 
-void OffMeshLinkTool::handleMenu()
+void OffMeshConnectionTool::handleMenu()
 {
-	if (m_hitPosSet)
+	if (imguiCheck("One Way", !m_bidir))
+		m_bidir = false;
+	if (imguiCheck("Bidirectional", m_bidir))
+		m_bidir = true;
+
+	if (!m_hitPosSet)
 	{
-		imguiValue("Click to set link start.");
+		imguiValue("Click to set connection start.");
 	}
 	else
 	{
-		imguiValue("Click to set link end.");
+		imguiValue("Click to set connection end.");
 	}
 }
 
-void OffMeshLinkTool::handleClick(const float* p, bool shift)
+void OffMeshConnectionTool::handleClick(const float* p, bool shift)
 {
 	if (!m_sample) return;
 	InputGeom* geom = m_sample->getInputGeom();
@@ -79,8 +87,8 @@ void OffMeshLinkTool::handleClick(const float* p, bool shift)
 		// Find nearest link end-point
 		float nearestDist = FLT_MAX;
 		int nearestIndex = -1;
-		const float* verts = geom->getOffMeshLinkVertices();
-		for (int i = 0; i < geom->getOffMeshLinkCount()*2; ++i)
+		const float* verts = geom->getOffMeshConnectionVerts();
+		for (int i = 0; i < geom->getOffMeshConnectionCount()*2; ++i)
 		{
 			const float* v = &verts[i*3];
 			float d = vdistSqr(p, v);
@@ -94,7 +102,7 @@ void OffMeshLinkTool::handleClick(const float* p, bool shift)
 		if (nearestIndex != -1 &&
 			sqrtf(nearestDist) < m_sample->getAgentRadius())
 		{
-			geom->deleteOffMeshLink(nearestIndex);
+			geom->deleteOffMeshConnection(nearestIndex);
 		}
 	}
 	else
@@ -107,14 +115,14 @@ void OffMeshLinkTool::handleClick(const float* p, bool shift)
 		}
 		else
 		{
-			geom->addOffMeshLink(m_hitPos, p);
+			geom->addOffMeshConnection(m_hitPos, p, m_sample->getAgentRadius(), m_bidir ? 1 : 0);
 			m_hitPosSet = false;
 		}
 	}
 	
 }
 
-void OffMeshLinkTool::handleRender()
+void OffMeshConnectionTool::handleRender()
 {
 	DebugDrawGL dd;
 	const float s = m_sample->getAgentRadius();
@@ -124,10 +132,10 @@ void OffMeshLinkTool::handleRender()
 
 	InputGeom* geom = m_sample->getInputGeom();
 	if (geom)
-		geom->drawLinks(&dd, s);
+		geom->drawOffMeshConnections(&dd, true);
 }
 
-void OffMeshLinkTool::handleRenderOverlay(double* proj, double* model, int* view)
+void OffMeshConnectionTool::handleRenderOverlay(double* proj, double* model, int* view)
 {
 	GLdouble x, y, z;
 	

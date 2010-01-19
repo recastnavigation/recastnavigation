@@ -28,34 +28,36 @@ static const int DT_VERTS_PER_POLYGON = 6;
 static const int DT_NAVMESH_MAGIC = 'DNAV';
 static const int DT_NAVMESH_VERSION = 2;
 
-static const unsigned char DT_POLY_OFFMESH_LINK = 1;
+static const unsigned char DT_POLY_OFFMESH_CONNECTION = 1;
+
+static const unsigned short DT_EXT_LINK = 0x8000;
 
 // Structure describing the navigation polygon data.
 struct dtPoly
 {
-	unsigned short v[DT_VERTS_PER_POLYGON];	// Indices to vertices of the poly.
-	unsigned short n[DT_VERTS_PER_POLYGON];	// Refs to neighbours of the poly.
-	unsigned short links;					// Base index to header 'links' array. 
-	unsigned char nlinks;					// Number of links for 
-	unsigned char nv;						// Number of vertices.
-	unsigned char flags;					// Flags.
+	unsigned short verts[DT_VERTS_PER_POLYGON];	// Indices to vertices of the poly.
+	unsigned short neis[DT_VERTS_PER_POLYGON];	// Refs to neighbours of the poly.
+	unsigned short linkBase;					// Base index to header 'links' array. 
+	unsigned char linkCount;					// Number of links for 
+	unsigned char vertCount;					// Number of vertices.
+	unsigned char flags;						// Flags.
 };
 
 // Stucture describing polygon detail triangles.
 struct dtPolyDetail
 {
-	unsigned short vbase;					// Offset to detail vertex array.
-	unsigned short nverts;					// Number of vertices in the detail mesh.
-	unsigned short tbase;					// Offset to detail triangle array.
-	unsigned short ntris;					// Number of triangles.
+	unsigned short vertBase;					// Offset to detail vertex array.
+	unsigned short vertCount;					// Number of vertices in the detail mesh.
+	unsigned short triBase;						// Offset to detail triangle array.
+	unsigned short triCount;					// Number of triangles.
 };
 
 // Stucture describing a link to another polygon.
 struct dtLink
 {
 	dtPolyRef ref;							// Neighbour reference.
-	unsigned short p;						// Index to polygon which owns this link.
-	unsigned char e;						// Index to polygon edge which owns this link. 
+	unsigned short poly;					// Index to polygon which owns this link.
+	unsigned char edge;						// Index to polygon edge which owns this link. 
 	unsigned char side;						// If boundary link, defines on which side the link is.
 	unsigned char bmin, bmax;				// If boundary link, defines the sub edge area.
 };
@@ -66,37 +68,43 @@ struct dtBVNode
 	int i;									// Index to item or if negative, escape index.
 };
 
-struct dtOffMeshLink
+struct dtOffMeshConnection
 {
-	dtPolyRef ref[2];						// Endpoint polys.
-	unsigned short p;						// Poly Id
-	unsigned char side;						// TODO
+	float pos[6];							// Both end point locations.
+	float rad;								// Link connection radius.
+	dtPolyRef ref[2];						// End point polys.
+	unsigned short poly;					// Poly Id
+	unsigned char flags;					// Link flags
 };
 
 struct dtMeshHeader
 {
 	int magic;								// Magic number, used to identify the data.
 	int version;							// Data version number.
-	int npolys;								// Number of polygons in the tile.
-	int nverts;								// Number of vertices in the tile.
-	int nlinks;								// Number of links in the tile (will be updated when tile is added).
-	int maxlinks;							// Number of allocated links.
-	int ndmeshes;							// Number of detail meshes.
-	int ndverts;							// Number of detail vertices.
-	int ndtris;								// Number of detail triangles.
-	int nbvtree;							// Number of BVtree nodes.
-	int nomlinks;							// Number of Off-Mesh links.
-	int nombase;							// Index to first polygon which is Off-Mesh link.
+	
+	int polyCount;							// Number of polygons in the tile.
+	int vertCount;							// Number of vertices in the tile.
+	int linkCount;							// Number of links in the tile (will be updated when tile is added).
+	int maxLinkCount;						// Number of allocated links.
+	int detailMeshCount;					// Number of detail meshes.
+	int detailVertCount;					// Number of detail vertices.
+	int detailTriCount;						// Number of detail triangles.
+	int bvNodeCount;						// Number of BVtree nodes.
+	int offMeshConCount;					// Number of Off-Mesh links.
+	int offMeshBase;						// Index to first polygon which is Off-Mesh link.
+	float walkableHeight;
+	float walkableRadius;
+	float walkableClimb;
 	float bmin[3], bmax[3];					// Bounding box of the tile.
-	float bvquant;							// BVtree quantization factor (world to bvnode coords)
+	float bvQuantFactor;					// BVtree quantization factor (world to bvnode coords)
 	dtPoly* polys;							// Pointer to the polygons (will be updated when tile is added).
 	float* verts;							// Pointer to the vertices (will be updated when tile added).
 	dtLink* links;							// Pointer to the links (will be updated when tile added).
-	dtPolyDetail* dmeshes;					// Pointer to detail meshes (will be updated when tile added).
-	float* dverts;							// Pointer to detail vertices (will be updated when tile added).
-	unsigned char* dtris;					// Pointer to detail triangles (will be updated when tile added).
-	dtBVNode* bvtree;						// Pointer to BVtree nodes (will be updated when tile added).
-	dtOffMeshLink* omlinks;					// Pointer to Off-Mesh links. (will be updated when tile added).
+	dtPolyDetail* detailMeshes;				// Pointer to detail meshes (will be updated when tile added).
+	float* detailVerts;						// Pointer to detail vertices (will be updated when tile added).
+	unsigned char* detailTris;				// Pointer to detail triangles (will be updated when tile added).
+	dtBVNode* bvTree;						// Pointer to BVtree nodes (will be updated when tile added).
+	dtOffMeshConnection* offMeshCons;		// Pointer to Off-Mesh links. (will be updated when tile added).
 };
 
 struct dtMeshTile
@@ -115,7 +123,7 @@ enum dtStraightPathFlags
 {
 	DT_STRAIGHTPATH_START = 0x01,			// The vertex is the start position.
 	DT_STRAIGHTPATH_END = 0x02,				// The vertex is the end position.
-	DT_STRAIGHTPATH_OFFMESH_LINK = 0x04,	// The vertex is start of an off-mesh link.
+	DT_STRAIGHTPATH_OFFMESH_CONNECTION = 0x04,	// The vertex is start of an off-mesh link.
 };
 
 class dtNavMesh
@@ -129,13 +137,12 @@ public:
 	//  orig - (in) origin of the nav mesh tile space.
 	//  tileWidth - (in) width of each tile.
 	//  tileHeight - (in) height of each tile.
-	//  portalheight - (in) height of the portal region between tiles.
 	//  maxTiles - (in) maximum number of tiles the navmesh can contain*.
 	//  maxPolys - (in) maximum number of polygons each tile can contain*.
 	//  maxNodes - (in) maximum number of A* nodes to use*.
 	// *) Will be rounded to next power of two.
 	// Returns: True if succeed, else false.
-	bool init(const float* orig, float tileWidth, float tileHeight, float portalHeight,
+	bool init(const float* orig, float tileWidth, float tileHeight,
 			  int maxTiles, int maxPolys, int maxNodes);
 
 	// Initializes the nav mesh for single tile use.
@@ -197,8 +204,9 @@ public:
 	// Params:
 	//	center - (in) The center of the search box.
 	//	extents - (in) The extents of the search box.
+	//  nearestPt - (out, opt) The nearest point on found polygon, null if not needed.
 	// Returns: Reference identifier for the polygon, or 0 if no polygons found.
-	dtPolyRef findNearestPoly(const float* center, const float* extents);
+	dtPolyRef findNearestPoly(const float* center, const float* extents, float* nearestPt);
 	
 	// Returns polygons which touch the query box.
 	// Params:
@@ -312,7 +320,7 @@ public:
 	//	startPos - (out) start point of the link.
 	//	endPos - (out) end point of the link.
 	// Returns: true if link is found.
-	bool getOffMeshLinkPolyEndPoints(dtPolyRef prevRef, dtPolyRef polyRef, float* startPos, float* endPos) const;
+	bool getOffMeshConnectionPolyEndPoints(dtPolyRef prevRef, dtPolyRef polyRef, float* startPos, float* endPos) const;
 	
 	// Returns height of the polygon at specified location.
 	// Params:
@@ -379,7 +387,6 @@ private:
 
 	float m_orig[3];					// Origin of the tile (0,0)
 	float m_tileWidth, m_tileHeight;	// Dimensions of each tile.
-	float m_portalHeight;				// Extra height value used to connect portals.
 	int m_maxTiles;						// Max number of tiles.
 	int m_tileLutSize;					// Tile hash lookup size (must be pot).
 	int m_tileLutMask;					// Tile hash lookup mask.

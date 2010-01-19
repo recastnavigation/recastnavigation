@@ -36,11 +36,11 @@
 		6BB788170FC0472B003C24DB /* ChunkyTriMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BB788160FC0472B003C24DB /* ChunkyTriMesh.cpp */; };
 		6BB7FC0B10EBB6AA006DA0A6 /* NavMeshTesterTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BB7FC0A10EBB6AA006DA0A6 /* NavMeshTesterTool.cpp */; };
 		6BB7FDA510F36F0E006DA0A6 /* InputGeom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BB7FDA410F36F0E006DA0A6 /* InputGeom.cpp */; };
-		6BB7FE9110F4A192006DA0A6 /* OffMeshLinkTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BB7FE9010F4A192006DA0A6 /* OffMeshLinkTool.cpp */; };
 		6BB93C7D10CFE1D500F74F2B /* DebugDraw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BB93C7A10CFE1D500F74F2B /* DebugDraw.cpp */; };
 		6BB93C7E10CFE1D500F74F2B /* DetourDebugDraw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BB93C7B10CFE1D500F74F2B /* DetourDebugDraw.cpp */; };
 		6BB93C7F10CFE1D500F74F2B /* RecastDebugDraw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BB93C7C10CFE1D500F74F2B /* RecastDebugDraw.cpp */; };
 		6BB93CF610CFEC4500F74F2B /* RecastDump.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BB93CF510CFEC4500F74F2B /* RecastDump.cpp */; };
+		6BCF32361104CD05009445BF /* OffMeshConnectionTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BCF32351104CD05009445BF /* OffMeshConnectionTool.cpp */; };
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 /* End PBXBuildFile section */
@@ -100,8 +100,6 @@
 		6BB7FC0A10EBB6AA006DA0A6 /* NavMeshTesterTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NavMeshTesterTool.cpp; path = ../../Source/NavMeshTesterTool.cpp; sourceTree = SOURCE_ROOT; };
 		6BB7FDA310F36EFC006DA0A6 /* InputGeom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = InputGeom.h; path = ../../Include/InputGeom.h; sourceTree = SOURCE_ROOT; };
 		6BB7FDA410F36F0E006DA0A6 /* InputGeom.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = InputGeom.cpp; path = ../../Source/InputGeom.cpp; sourceTree = SOURCE_ROOT; };
-		6BB7FE8F10F4A192006DA0A6 /* OffMeshLinkTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OffMeshLinkTool.h; path = ../../Include/OffMeshLinkTool.h; sourceTree = SOURCE_ROOT; };
-		6BB7FE9010F4A192006DA0A6 /* OffMeshLinkTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OffMeshLinkTool.cpp; path = ../../Source/OffMeshLinkTool.cpp; sourceTree = SOURCE_ROOT; };
 		6BB93C7710CFE1D500F74F2B /* DebugDraw.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DebugDraw.h; path = ../../../DebugUtils/Include/DebugDraw.h; sourceTree = SOURCE_ROOT; };
 		6BB93C7810CFE1D500F74F2B /* DetourDebugDraw.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DetourDebugDraw.h; path = ../../../DebugUtils/Include/DetourDebugDraw.h; sourceTree = SOURCE_ROOT; };
 		6BB93C7910CFE1D500F74F2B /* RecastDebugDraw.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RecastDebugDraw.h; path = ../../../DebugUtils/Include/RecastDebugDraw.h; sourceTree = SOURCE_ROOT; };
@@ -110,6 +108,8 @@
 		6BB93C7C10CFE1D500F74F2B /* RecastDebugDraw.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RecastDebugDraw.cpp; path = ../../../DebugUtils/Source/RecastDebugDraw.cpp; sourceTree = SOURCE_ROOT; };
 		6BB93CF410CFEC4500F74F2B /* RecastDump.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RecastDump.h; path = ../../../DebugUtils/Include/RecastDump.h; sourceTree = SOURCE_ROOT; };
 		6BB93CF510CFEC4500F74F2B /* RecastDump.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RecastDump.cpp; path = ../../../DebugUtils/Source/RecastDump.cpp; sourceTree = SOURCE_ROOT; };
+		6BCF32341104CD05009445BF /* OffMeshConnectionTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OffMeshConnectionTool.h; path = ../../Include/OffMeshConnectionTool.h; sourceTree = SOURCE_ROOT; };
+		6BCF32351104CD05009445BF /* OffMeshConnectionTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OffMeshConnectionTool.cpp; path = ../../Source/OffMeshConnectionTool.cpp; sourceTree = SOURCE_ROOT; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* Recast.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Recast.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -259,8 +259,8 @@
 		6BB7FE8E10F4A175006DA0A6 /* Tools */ = {
 			isa = PBXGroup;
 			children = (
-				6BB7FE8F10F4A192006DA0A6 /* OffMeshLinkTool.h */,
-				6BB7FE9010F4A192006DA0A6 /* OffMeshLinkTool.cpp */,
+				6BCF32341104CD05009445BF /* OffMeshConnectionTool.h */,
+				6BCF32351104CD05009445BF /* OffMeshConnectionTool.cpp */,
 				6BB7FC0910EBB6AA006DA0A6 /* NavMeshTesterTool.h */,
 				6BB7FC0A10EBB6AA006DA0A6 /* NavMeshTesterTool.cpp */,
 			);
@@ -382,7 +382,7 @@
 				6BB93CF610CFEC4500F74F2B /* RecastDump.cpp in Sources */,
 				6BB7FC0B10EBB6AA006DA0A6 /* NavMeshTesterTool.cpp in Sources */,
 				6BB7FDA510F36F0E006DA0A6 /* InputGeom.cpp in Sources */,
-				6BB7FE9110F4A192006DA0A6 /* OffMeshLinkTool.cpp in Sources */,
+				6BCF32361104CD05009445BF /* OffMeshConnectionTool.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

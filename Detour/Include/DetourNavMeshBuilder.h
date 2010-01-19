@@ -19,12 +19,36 @@
 #ifndef DETOURNAVMESHBUILDER_H
 #define DETOURNAVMESHBUILDER_H
 
-bool dtCreateNavMeshData(const unsigned short* verts, const int nverts,
-						 const unsigned short* polys, const int npolys, const int nvp,
-						 const unsigned short* dmeshes, const float* dverts, const int ndverts,
-						 const unsigned char* dtris, const int ndtris, 
-						 const float* omverts, const int nomlinks,
-						 const float* bmin, const float* bmax, float cs, float ch, int tileSize, int walkableClimb,
-						 unsigned char** outData, int* outDataSize);
+struct dtNavMeshCreateParams
+{
+	// Navmesh vertices.
+	const unsigned short* verts;
+	int vertCount;
+	// Navmesh polygons
+	const unsigned short* polys;
+	int polyCount;
+	int nvp;
+	// Navmesh Detail
+	const unsigned short* detailMeshes;
+	const float* detailVerts;
+	int detailVertsCount;
+	const unsigned char* detailTris;
+	int detailTriCount; 
+	// Off-Mesh Connections.
+	const float* offMeshConVerts;
+	const float* offMeshConRad;
+	const unsigned char* offMeshConDir;
+	int offMeshConCount;
+	// Settings
+	float walkableHeight;
+	float walkableRadius;
+	float walkableClimb;
+	float bmin[3], bmax[3];
+	float cs;
+	float ch;
+	int tileSize;
+};
+
+bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData, int* outDataSize);
 
 #endif // DETOURNAVMESHBUILDER_H

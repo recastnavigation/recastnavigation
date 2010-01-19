@@ -79,10 +79,11 @@ void duDebugDrawBoxWire(struct duDebugDraw* dd, float minx, float miny, float mi
 }
 
 void duDebugDrawArc(struct duDebugDraw* dd, const float x0, const float y0, const float z0,
-					const float x1, const float y1, const float z1, const float h, unsigned int col, const float lineWidth)
+					const float x1, const float y1, const float z1, const float h,
+					const float as0, const float as1, unsigned int col, const float lineWidth)
 {
 	dd->begin(DU_DRAW_LINES, lineWidth);
-	duAppendArc(dd, x0,y0,z0, x1,y1,z1, h, col);
+	duAppendArc(dd, x0,y0,z0, x1,y1,z1, h, as0, as1, col);
 	dd->end();
 }
 
@@ -234,25 +235,98 @@ void duAppendBox(struct duDebugDraw* dd, float minx, float miny, float minz,
 	}
 }
 
+
+inline void evalArc(const float x0, const float y0, const float z0,
+					const float dx, const float dy, const float dz,
+					const float h, const float u, float* res)
+{
+	res[0] = x0 + dx * u;
+	res[1] = y0 + dy * u + h * (1-(u*2-1)*(u*2-1));
+	res[2] = z0 + dz * u;
+}
+
+
+inline void vcross(float* dest, const float* v1, const float* v2)
+{
+	dest[0] = v1[1]*v2[2] - v1[2]*v2[1];
+	dest[1] = v1[2]*v2[0] - v1[0]*v2[2];
+	dest[2] = v1[0]*v2[1] - v1[1]*v2[0]; 
+}
+
+inline void vnormalize(float* v)
+{
+	float d = 1.0f / sqrtf(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
+	v[0] *= d;
+	v[1] *= d;
+	v[2] *= d;
+}
+
+inline void vsub(float* dest, const float* v1, const float* v2)
+{
+	dest[0] = v1[0]-v2[0];
+	dest[1] = v1[1]-v2[1];
+	dest[2] = v1[2]-v2[2];
+}
+
+
+void appendArrowHead(struct duDebugDraw* dd, const float* p, const float* q,
+					 const float s, unsigned int col)
+{
+	float ax[3], ay[3] = {0,1,0}, az[3];
+	vsub(az, q, p);
+	vnormalize(az);
+	vcross(ax, ay, az);
+	vcross(ay, az, ax);
+	vnormalize(ay);
+
+	dd->vertex(p, col);
+//	dd->vertex(p[0]+az[0]*s+ay[0]*s/2, p[1]+az[1]*s+ay[1]*s/2, p[2]+az[2]*s+ay[2]*s/2, col);
+	dd->vertex(p[0]+az[0]*s+ax[0]*s/3, p[1]+az[1]*s+ax[1]*s/3, p[2]+az[2]*s+ax[2]*s/3, col);
+
+	dd->vertex(p, col);
+//	dd->vertex(p[0]+az[0]*s-ay[0]*s/2, p[1]+az[1]*s-ay[1]*s/2, p[2]+az[2]*s-ay[2]*s/2, col);
+	dd->vertex(p[0]+az[0]*s-ax[0]*s/3, p[1]+az[1]*s-ax[1]*s/3, p[2]+az[2]*s-ax[2]*s/3, col);
+	
+}
+
 void duAppendArc(struct duDebugDraw* dd, const float x0, const float y0, const float z0,
-				 const float x1, const float y1, const float z1, const float h, unsigned int col)
+				 const float x1, const float y1, const float z1, const float h,
+				 const float as0, const float as1, unsigned int col)
 {
 	static const int NUM_ARC_PTS = 8;
-	static const float ARC_PTS_SCALE = 1.0f / (float)NUM_ARC_PTS;
+	static const float PAD = 0.05f;
+	static const float ARC_PTS_SCALE = (1.0f-PAD*2) / (float)NUM_ARC_PTS;
 	const float dx = x1 - x0;
 	const float dy = y1 - y0;
 	const float dz = z1 - z0;
 	const float len = sqrtf(dx*dx + dy*dy + dz*dz);
-	float px = x0, py = y0, pz = z0;
+	float prev[3];
+	evalArc(x0,y0,z0, dx,dy,dz, len*h, PAD, prev);
 	for (int i = 1; i <= NUM_ARC_PTS; ++i)
 	{
-		const float u = i * ARC_PTS_SCALE;
-		const float x = x0 + dx * u;
-		const float y = y0 + dy * u + (len*h) * (1-(u*2-1)*(u*2-1));
-		const float z = z0 + dz * u;
-		dd->vertex(px,py,pz, col);
-		dd->vertex(x,y,z, col);
-		px = x; py = y; pz = z;
+		const float u = PAD + i * ARC_PTS_SCALE;
+		float pt[3];
+		evalArc(x0,y0,z0, dx,dy,dz, len*h, u, pt);
+		dd->vertex(prev[0],prev[1],prev[2], col);
+		dd->vertex(pt[0],pt[1],pt[2], col);
+		prev[0] = pt[0]; prev[1] = pt[1]; prev[2] = pt[2];
+	}
+	
+	// End arrows
+	if (as0 > 0.001f)
+	{
+		float p[3], q[3];
+		evalArc(x0,y0,z0, dx,dy,dz, len*h, PAD, p);
+		evalArc(x0,y0,z0, dx,dy,dz, len*h, PAD+0.05f, q);
+		appendArrowHead(dd, p, q, as0, col);
+	}
+
+	if (as1 > 0.001f)
+	{
+		float p[3], q[3];
+		evalArc(x0,y0,z0, dx,dy,dz, len*h, 1-PAD, p);
+		evalArc(x0,y0,z0, dx,dy,dz, len*h, 1-(PAD+0.05f), q);
+		appendArrowHead(dd, p, q, as1, col);
 	}
 }
 

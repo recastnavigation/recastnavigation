@@ -72,148 +72,6 @@ void duDebugDrawTriMeshSlope(duDebugDraw* dd, const float* verts, int nverts,
 	dd->end();
 }
 
-/*
-static void drawBoxWire(duDebugDraw* dd,
-						float minx, float miny, float minz,
-						float maxx, float maxy, float maxz,
-						const float* col)
-{
-	// Submits 24 vertices.
-
-	unsigned int color = duRGBAf(col[0],col[1],col[2],col[3]);
-	
-	// Top
-	dd->vertex(minx, miny, minz, color);
-	dd->vertex(maxx, miny, minz, color);
-	dd->vertex(maxx, miny, minz, color);
-	dd->vertex(maxx, miny, maxz, color);
-	dd->vertex(maxx, miny, maxz, color);
-	dd->vertex(minx, miny, maxz, color);
-	dd->vertex(minx, miny, maxz, color);
-	dd->vertex(minx, miny, minz, color);
-	
-	// bottom
-	dd->vertex(minx, maxy, minz, color);
-	dd->vertex(maxx, maxy, minz, color);
-	dd->vertex(maxx, maxy, minz, color);
-	dd->vertex(maxx, maxy, maxz, color);
-	dd->vertex(maxx, maxy, maxz, color);
-	dd->vertex(minx, maxy, maxz, color);
-	dd->vertex(minx, maxy, maxz, color);
-	dd->vertex(minx, maxy, minz, color);
-	
-	// Sides
-	dd->vertex(minx, miny, minz, color);
-	dd->vertex(minx, maxy, minz, color);
-	dd->vertex(maxx, miny, minz, color);
-	dd->vertex(maxx, maxy, minz, color);
-	dd->vertex(maxx, miny, maxz, color);
-	dd->vertex(maxx, maxy, maxz, color);
-	dd->vertex(minx, miny, maxz, color);
-	dd->vertex(minx, maxy, maxz, color);
-}
-*/
-/*static void drawBox(duDebugDraw* dd,
-					float minx, float miny, float minz,
-					float maxx, float maxy, float maxz,
-					const float* col1, const float* col2)
-{
-	// Submits 24 vertices.
-	
-	const float verts[8*3] =
-	{
-		minx, miny, minz,
-		maxx, miny, minz,
-		maxx, miny, maxz,
-		minx, miny, maxz,
-		minx, maxy, minz,
-		maxx, maxy, minz,
-		maxx, maxy, maxz,
-		minx, maxy, maxz,
-	};
-	static const float dim[6] =
-	{
-		0.95f, 0.55f, 0.65f, 0.85f, 0.65f, 0.85f, 
-	};
-	static const unsigned char inds[6*5] =
-	{
-		0,  7, 6, 5, 4,
-		1,  0, 1, 2, 3,
-		2,  1, 5, 6, 2,
-		3,  3, 7, 4, 0,
-		4,  2, 6, 7, 3,
-		5,  0, 4, 5, 1,
-	};
-	
-	const unsigned char* in = inds;
-	for (int i = 0; i < 6; ++i)
-	{
-		float d = dim[*in]; in++;
-		unsigned int color;
-		if (i == 0)
-			color = duRGBAf(d*col2[0],d*col2[1],d*col2[2], col2[3]);
-		else
-			color = duRGBAf(d*col1[0],d*col1[1],d*col1[2], col1[3]);
-		dd->vertex(&verts[*in*3], color); in++;
-		dd->vertex(&verts[*in*3], color); in++;
-		dd->vertex(&verts[*in*3], color); in++;
-		dd->vertex(&verts[*in*3], color); in++;
-	}
-}
-
-void duDebugDrawCylinderWire(duDebugDraw* dd, float minx, float miny, float minz,
-							 float maxx, float maxy, float maxz,
-							 const float* col)
-{
-	static const int NUM_SEG = 16;
-	float dir[NUM_SEG*2];
-	for (int i = 0; i < NUM_SEG; ++i)
-	{
-		const float a = (float)i/(float)NUM_SEG*(float)M_PI*2;
-		dir[i*2] = cosf(a);
-		dir[i*2+1] = sinf(a);
-	}
-
-	const float cx = (maxx + minx)/2;
-	const float cz = (maxz + minz)/2;
-	const float rx = (maxx - minx)/2;
-	const float rz = (maxz - minz)/2;
-	
-	unsigned int color = duRGBAf(col[0],col[1],col[2],col[3]);
-	
-	dd->begin(DU_DRAW_LINES);
-	
-	for (int i = 0, j=NUM_SEG-1; i < NUM_SEG; j=i++)
-	{
-		dd->vertex(cx+dir[j*2+0]*rx, miny, cz+dir[j*2+1]*rz, color);
-		dd->vertex(cx+dir[i*2+0]*rx, miny, cz+dir[i*2+1]*rz, color);
-		dd->vertex(cx+dir[j*2+0]*rx, maxy, cz+dir[j*2+1]*rz, color);
-		dd->vertex(cx+dir[i*2+0]*rx, maxy, cz+dir[i*2+1]*rz, color);
-	}
-	for (int i = 0; i < NUM_SEG; i += NUM_SEG/4)
-	{
-		dd->vertex(cx+dir[i*2+0]*rx, miny, cz+dir[i*2+1]*rz, color);
-		dd->vertex(cx+dir[i*2+0]*rx, maxy, cz+dir[i*2+1]*rz, color);
-	}
-	
-	dd->end();
-}
-
-void duDebugDrawBoxWire(duDebugDraw* dd, float minx, float miny, float minz, float maxx, float maxy, float maxz, const float* col)
-{
-	dd->begin(DU_DRAW_LINES, 1.0f);
-	drawBoxWire(dd, minx, miny, minz, maxx, maxy, maxz, col);
-	dd->end();
-}
-
-void duDebugDrawBox(duDebugDraw* dd, float minx, float miny, float minz, float maxx, float maxy, float maxz,
-					const float* col1, const float* col2)
-{
-	dd->begin(DU_DRAW_QUADS,24);
-	drawBox(dd, minx, miny, minz, maxx, maxy, maxz, col1, col2);
-	dd->end();
-}*/
-
 static int getSpanCount(const rcHeightfield& hf)
 {
 	const int w = hf.width;
@@ -433,6 +291,7 @@ static const rcContour* findContourFromSet(const rcContourSet& cset, unsigned sh
 	return 0;
 }
 
+/*
 static const int NUM_ADU_PTS = 8;
 
 void drawArc(duDebugDraw* dd, const float* p0, const float* p1, unsigned int color)
@@ -477,6 +336,7 @@ void duDebugDrawCross(struct duDebugDraw* dd, const float* p, const float s, con
 	dd->vertex(p[0],p[1]+dy,p[2]+s, color);
 	dd->end();
 }
+*/
 
 void duDebugDrawRegionConnections(duDebugDraw* dd, const rcContourSet& cset, const float alpha)
 {
@@ -503,7 +363,7 @@ void duDebugDrawRegionConnections(duDebugDraw* dd, const rcContourSet& cset, con
 			if (cont2)
 			{
 				getContourCenter(cont2, orig, cs, ch, pos2);
-				drawArc(dd, pos, pos2, color);
+				duAppendArc(dd, pos[0],pos[1],pos[2], pos2[0],pos2[1],pos2[2], 0.25f, 0.6f, 0.6f, color);
 			}
 		}
 	}

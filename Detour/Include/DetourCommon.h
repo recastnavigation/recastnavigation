@@ -171,6 +171,15 @@ inline bool checkOverlapBox(const unsigned short amin[3], const unsigned short a
 	return overlap;
 }
 
+inline bool overlapBounds(const float* amin, const float* amax, const float* bmin, const float* bmax)
+{
+	bool overlap = true;
+	overlap = (amin[0] > bmax[0] || amax[0] < bmin[0]) ? false : overlap;
+	overlap = (amin[1] > bmax[1] || amax[1] < bmin[1]) ? false : overlap;
+	overlap = (amin[2] > bmax[2] || amax[2] < bmin[2]) ? false : overlap;
+	return overlap;
+}
+
 void closestPtPointTriangle(float* closest, const float* p,
 							const float* a, const float* b, const float* c);
 

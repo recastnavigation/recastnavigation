@@ -28,10 +28,12 @@ class InputGeom
 	rcMeshLoaderObj* m_mesh;
 	float m_meshBMin[3], m_meshBMax[3];
 	
-	static const int MAX_LINKS = 256;
+	static const int MAX_OFFMESH_CONNECTIONS = 256;
 	
-	float m_linkVerts[MAX_LINKS*3*2];
-	int m_nlinks;
+	float m_offMeshConVerts[MAX_OFFMESH_CONNECTIONS*3*2];
+	float m_offMeshConRads[MAX_OFFMESH_CONNECTIONS];
+	unsigned char m_offMeshConDirs[MAX_OFFMESH_CONNECTIONS];
+	int m_offMeshConCount;
 	
 public:
 	InputGeom();
@@ -47,11 +49,13 @@ public:
 	bool raycastMesh(float* src, float* dst, float& tmin);
 
 	// Extra links
-	int getOffMeshLinkCount() const { return m_nlinks; }
-	const float* getOffMeshLinkVertices() const { return m_linkVerts; }
-	void addOffMeshLink(const float* spos, const float* epos);
-	void deleteOffMeshLink(int i);
-	void drawLinks(struct duDebugDraw* dd, const float s);
+	int getOffMeshConnectionCount() const { return m_offMeshConCount; }
+	const float* getOffMeshConnectionVerts() const { return m_offMeshConVerts; }
+	const float* getOffMeshConnectionRads() const { return m_offMeshConRads; }
+	const unsigned char* getOffMeshConnectionDirs() const { return m_offMeshConDirs; }
+	void addOffMeshConnection(const float* spos, const float* epos, const float rad, unsigned char bidir);
+	void deleteOffMeshConnection(int i);
+	void drawOffMeshConnections(struct duDebugDraw* dd, bool hilight = false);
 };
 
 #endif // INPUTGEOM_H

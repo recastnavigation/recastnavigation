@@ -24,6 +24,7 @@
 
 struct DebugDrawGL : public duDebugDraw
 {
+	virtual void depthMask(bool state);
 	virtual void begin(duDebugDrawPrimitives prim, float size = 1.0f);
 	virtual void vertex(const float* pos, unsigned int color);
 	virtual void vertex(const float x, const float y, const float z, unsigned int color);
@@ -35,7 +36,7 @@ enum SampleToolType
 	TOOL_NONE = 0,
 	TOOL_TILE_EDIT,
 	TOOL_NAVMESH_TESTER,
-	TOOL_OFFMESH_LINK,
+	TOOL_OFFMESH_CONNECTION,
 };
 
 struct SampleTool
@@ -56,6 +57,7 @@ class Sample
 protected:
 	class InputGeom* m_geom;
 	dtNavMesh* m_navMesh;
+	unsigned char m_navMeshDrawFlags;
 
 	float m_cellSize;
 	float m_cellHeight;
@@ -92,6 +94,10 @@ public:
 	virtual class dtNavMesh* getNavMesh() { return m_navMesh; }
 	virtual float getAgentRadius() { return m_agentRadius; }
 	virtual float getAgentHeight() { return m_agentHeight; }
+	virtual float getAgentClimb() { return m_agentMaxClimb; }
+	
+	inline unsigned char getNavMeshDrawFlags() const { return m_navMeshDrawFlags; }
+	inline void setNavMeshDrawFlags(unsigned char flags) { m_navMeshDrawFlags = flags; }
 
 	void resetCommonSettings();
 	void handleCommonSettings();

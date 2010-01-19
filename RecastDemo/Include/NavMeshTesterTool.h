@@ -29,7 +29,8 @@ class NavMeshTesterTool : public SampleTool
 	dtNavMesh* m_navMesh;
 	float m_agentRadius;
 	float m_agentHeight;
-	
+	float m_agentClimb;
+
 	enum ToolMode
 	{
 		TOOLMODE_PATHFIND,

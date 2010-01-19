@@ -25,7 +25,7 @@
 #include "MeshLoaderObj.h"
 #include "DebugDraw.h"
 #include "RecastDebugDraw.h"
-
+#include "DetourNavMesh.h"
 
 static bool intersectSegmentTriangle(const float* sp, const float* sq,
 									 const float* a, const float* b, const float* c,
@@ -72,7 +72,7 @@ static bool intersectSegmentTriangle(const float* sp, const float* sq,
 InputGeom::InputGeom() :
 	m_chunkyMesh(0),
 	m_mesh(0),
-	m_nlinks(0)
+	m_offMeshConCount(0)
 {
 }
 
@@ -90,8 +90,8 @@ bool InputGeom::loadMesh(const char* filepath)
 		m_chunkyMesh = 0;
 		delete m_mesh;
 		m_mesh = 0;
-		m_nlinks = 0;
 	}
+	m_offMeshConCount = 0;
 	
 	m_mesh = new rcMeshLoaderObj;
 	if (!m_mesh)
@@ -159,31 +159,52 @@ bool InputGeom::raycastMesh(float* src, float* dst, float& tmin)
 	return hit;
 }
 
-void InputGeom::addOffMeshLink(const float* spos, const float* epos)
+void InputGeom::addOffMeshConnection(const float* spos, const float* epos, const float rad, unsigned char bidir)
 {
-	if (m_nlinks >= MAX_LINKS) return;
-	float* v = &m_linkVerts[m_nlinks*3*2];
-	m_nlinks++;
+	if (m_offMeshConCount >= MAX_OFFMESH_CONNECTIONS) return;
+	float* v = &m_offMeshConVerts[m_offMeshConCount*3*2];
+	m_offMeshConRads[m_offMeshConCount] = rad;
+	m_offMeshConDirs[m_offMeshConCount] = bidir;
 	vcopy(&v[0], spos);
 	vcopy(&v[3], epos);
+	m_offMeshConCount++;
 }
 
-void InputGeom::deleteOffMeshLink(int i)
+void InputGeom::deleteOffMeshConnection(int i)
 {
-	m_nlinks--;
-	float* src = &m_linkVerts[(m_nlinks-1)*3*2];
-	float* dst = &m_linkVerts[i*3*2];
+	m_offMeshConCount--;
+	float* src = &m_offMeshConVerts[m_offMeshConCount*3*2];
+	float* dst = &m_offMeshConVerts[i*3*2];
 	vcopy(&dst[0], &src[0]);
 	vcopy(&dst[3], &src[3]);
+	m_offMeshConRads[i] = m_offMeshConRads[m_offMeshConCount];
+	m_offMeshConDirs[i] = m_offMeshConDirs[m_offMeshConCount];
 }
 
-void InputGeom::drawLinks(duDebugDraw* dd, const float s)
+void InputGeom::drawOffMeshConnections(duDebugDraw* dd, bool hilight)
 {
-	for (int i = 0; i < m_nlinks; ++i)
+	unsigned int conColor = duRGBA(192,192,192,hilight?192:64);
+	unsigned int baseColor = duRGBA(0,0,0,hilight?192:64);
+	dd->depthMask(false);
+
+	dd->begin(DU_DRAW_LINES, 2.0f);
+	for (int i = 0; i < m_offMeshConCount; ++i)
 	{
-		float* v = &m_linkVerts[i*3*2];
-		duDebugDrawArc(dd, v[0],v[1],v[2], v[3],v[4],v[5], 0.25f, duRGBA(255,255,255,192), 1.0f);
-		duDebugDrawCross(dd, v[0],v[1]+0.1f,v[2], s, duRGBA(0,0,0,255), 2.0f);
-		duDebugDrawCross(dd, v[3],v[4]+0.1f,v[5], s, duRGBA(0,0,0,255), 2.0f);
+		float* v = &m_offMeshConVerts[i*3*2];
+
+		dd->vertex(v[0],v[1],v[2], baseColor);
+		dd->vertex(v[0],v[1]+0.2f,v[2], baseColor);
+		
+		dd->vertex(v[3],v[4],v[5], baseColor);
+		dd->vertex(v[3],v[4]+0.2f,v[5], baseColor);
+		
+		duAppendCircle(dd, v[0],v[1]+0.1f,v[2], m_offMeshConRads[i], baseColor);
+		duAppendCircle(dd, v[3],v[4]+0.1f,v[5], m_offMeshConRads[i], baseColor);
+		
+		duAppendArc(dd, v[0],v[1],v[2], v[3],v[4],v[5], 0.25f,
+					(m_offMeshConDirs[i]&1) ? 0.6f : 0.0f, 0.6f, conColor);
 	}	
+	dd->end();
+
+	dd->depthMask(true);
 }

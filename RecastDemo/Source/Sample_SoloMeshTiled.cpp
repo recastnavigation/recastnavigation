@@ -33,7 +33,7 @@
 #include "DetourNavMeshBuilder.h"
 #include "DetourDebugDraw.h"
 #include "NavMeshTesterTool.h"
-#include "OffMeshLinkTool.h"
+#include "OffMeshConnectionTool.h"
 
 #ifdef WIN32
 #	define snprintf _snprintf
@@ -110,9 +110,9 @@ void Sample_SoloMeshTiled::handleTools()
 	{
 		setTool(new NavMeshTesterTool);
 	}
-	if (imguiCheck("Create Off-Mesh Links", type == TOOL_OFFMESH_LINK))
+	if (imguiCheck("Create Off-Mesh Links", type == TOOL_OFFMESH_CONNECTION))
 	{
-		setTool(new OffMeshLinkTool);
+		setTool(new OffMeshConnectionTool);
 	}
 	
 	imguiSeparator();
@@ -231,14 +231,16 @@ void Sample_SoloMeshTiled::handleRender()
 		duDebugDrawTriMeshSlope(&dd, m_geom->getMesh()->getVerts(), m_geom->getMesh()->getVertCount(),
 								m_geom->getMesh()->getTris(), m_geom->getMesh()->getNormals(), m_geom->getMesh()->getTriCount(),
 								m_agentMaxSlope);
-		m_geom->drawLinks(&dd, m_agentRadius);
+		if ((m_navMeshDrawFlags & DU_DRAWNAVMESH_OFFMESHCONS) == 0)
+			m_geom->drawOffMeshConnections(&dd);
 	}
 	else if (m_drawMode != DRAWMODE_NAVMESH_TRANS)
 	{
 		// Draw mesh
 		duDebugDrawTriMesh(&dd, m_geom->getMesh()->getVerts(), m_geom->getMesh()->getVertCount(),
 						   m_geom->getMesh()->getTris(), m_geom->getMesh()->getNormals(), m_geom->getMesh()->getTriCount(), 0);
-		m_geom->drawLinks(&dd, m_agentRadius);
+		if ((m_navMeshDrawFlags & DU_DRAWNAVMESH_OFFMESHCONS) == 0)
+			m_geom->drawOffMeshConnections(&dd);
 	}
 	
 	glDisable(GL_FOG);
@@ -264,7 +266,7 @@ void Sample_SoloMeshTiled::handleRender()
 		 m_drawMode == DRAWMODE_NAVMESH_INVIS))
 	{
 		if (m_drawMode != DRAWMODE_NAVMESH_INVIS)
-			duDebugDrawNavMesh(&dd, m_navMesh); //, m_toolMode == TOOLMODE_PATHFIND);
+			duDebugDrawNavMesh(&dd, m_navMesh, m_navMeshDrawFlags);
 		if (m_drawMode == DRAWMODE_NAVMESH_BVTREE)
 			duDebugDrawNavMeshBVTree(&dd, m_navMesh);
 	}
@@ -922,13 +924,32 @@ bool Sample_SoloMeshTiled::handleBuild()
 	{
 		unsigned char* navData = 0;
 		int navDataSize = 0;
-		if (!dtCreateNavMeshData(m_pmesh->verts, m_pmesh->nverts,
-								 m_pmesh->polys, m_pmesh->npolys, m_pmesh->nvp,
-								 m_dmesh->meshes, m_dmesh->verts, m_dmesh->nverts,
-								 m_dmesh->tris, m_dmesh->ntris, 
-								 0, 0,
-								 m_pmesh->bmin, m_pmesh->bmax, m_cfg.cs, m_cfg.ch, 0, m_cfg.walkableClimb,
-								 &navData, &navDataSize))
+
+		dtNavMeshCreateParams params;
+		memset(&params, 0, sizeof(params));
+		params.verts = m_pmesh->verts;
+		params.vertCount = m_pmesh->nverts;
+		params.polys = m_pmesh->polys;
+		params.polyCount = m_pmesh->npolys;
+		params.nvp = m_pmesh->nvp;
+		params.detailMeshes = m_dmesh->meshes;
+		params.detailVerts = m_dmesh->verts;
+		params.detailVertsCount = m_dmesh->nverts;
+		params.detailTris = m_dmesh->tris;
+		params.detailTriCount = m_dmesh->ntris;
+		params.offMeshConVerts = 0;
+		params.offMeshConRad = 0;
+		params.offMeshConDir = 0;
+		params.offMeshConCount = 0;
+		params.walkableHeight = m_agentHeight;
+		params.walkableRadius = m_agentRadius;
+		params.walkableClimb = m_agentMaxClimb;
+		vcopy(params.bmin, m_pmesh->bmin);
+		vcopy(params.bmax, m_pmesh->bmax);
+		params.cs = m_cfg.cs;
+		params.ch = m_cfg.ch;
+		
+		if (!dtCreateNavMeshData(&params, &navData, &navDataSize))
 		{
 			if (rcGetLog())
 				rcGetLog()->log(RC_LOG_ERROR, "Could not build Detour navmesh.");
@@ -991,6 +1012,8 @@ bool Sample_SoloMeshTiled::handleBuild()
 		
 		rcGetLog()->log(RC_LOG_PROGRESS, "TOTAL: %.1fms", rcGetDeltaTimeUsec(totStartTime, totEndTime)/1000.0f);
 	}
+
+	setNavMeshDrawFlags(DU_DRAWNAVMESH_OFFMESHCONS);
 
 	if (m_tool)
 		m_tool->init(this);

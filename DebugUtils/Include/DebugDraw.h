@@ -30,6 +30,8 @@ enum duDebugDrawPrimitives
 // Abstrace debug draw interface.
 struct duDebugDraw
 {
+	virtual void depthMask(bool state) = 0;
+
 	// Begin drawing primitives.
 	// Params:
 	//  prim - (in) primitive type to draw, one of rcDebugDrawPrimitives.
@@ -79,7 +81,8 @@ void duDebugDrawBoxWire(struct duDebugDraw* dd, float minx, float miny, float mi
 						float maxx, float maxy, float maxz, unsigned int col, const float lineWidth);
 
 void duDebugDrawArc(struct duDebugDraw* dd, const float x0, const float y0, const float z0,
-					const float x1, const float y1, const float z1, const float h, unsigned int col, const float lineWidth);
+					const float x1, const float y1, const float z1, const float h,
+					const float as0, const float as1, unsigned int col, const float lineWidth);
 
 void duDebugDrawCircle(struct duDebugDraw* dd, const float x, const float y, const float z,
 					   const float r, unsigned int col, const float lineWidth);
@@ -103,7 +106,8 @@ void duAppendBoxWire(struct duDebugDraw* dd, float minx, float miny, float minz,
 					 float maxx, float maxy, float maxz, unsigned int col);
 
 void duAppendArc(struct duDebugDraw* dd, const float x0, const float y0, const float z0,
-				 const float x1, const float y1, const float z1, const float h, unsigned int col);
+				 const float x1, const float y1, const float z1, const float h,
+				 const float as0, const float as1, unsigned int col);
 
 void duAppendCircle(struct duDebugDraw* dd, const float x, const float y, const float z,
 					const float r, unsigned int col);
