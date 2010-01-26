@@ -62,9 +62,9 @@ static void drawPolyBoundaries(duDebugDraw* dd, const dtMeshHeader* header,
 				if (p->neis[j] & DT_EXT_LINK)
 				{
 					bool con = false;
-					for (int k = 0; k < p->linkCount; ++k)
+					for (unsigned int k = p->firstLink; k != DT_NULL_LINK; k = header->links[k].next)
 					{
-						if (header->links[p->linkBase+k].edge == j)
+						if (header->links[k].edge == j)
 						{
 							con = true;
 							break;
@@ -175,15 +175,26 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh* mesh, const dtMeshTil
 			const dtOffMeshConnection* con = &header->offMeshCons[i - header->offMeshBase];
 			const float* va = &header->verts[p->verts[0]*3];
 			const float* vb = &header->verts[p->verts[1]*3];
+
+			// Check to see if start and end end-points have links.
+			bool startSet = false;
+			bool endSet = false;
+			for (unsigned int k = p->firstLink; k != DT_NULL_LINK; k = header->links[k].next)
+			{
+				if (header->links[k].edge == 0)
+					startSet = true;
+				if (header->links[k].edge == 1)
+					endSet = true;
+			}
 			
 			// End points and their on-mesh locations. 
-			if (con->ref[0])
+			if (startSet)
 			{
 				dd->vertex(va[0],va[1],va[2], col);
 				dd->vertex(con->pos[0],con->pos[1],con->pos[2], col);
 				duAppendCircle(dd, con->pos[0],con->pos[1]+0.1f,con->pos[2], con->rad, duRGBA(0,48,64,196));
 			}
-			if (con->ref[1])
+			if (endSet)
 			{
 				dd->vertex(vb[0],vb[1],vb[2], col);
 				dd->vertex(con->pos[3],con->pos[4],con->pos[5], col);

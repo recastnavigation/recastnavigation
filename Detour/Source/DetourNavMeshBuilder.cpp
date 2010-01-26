@@ -210,134 +210,35 @@ static int createBVTree(const unsigned short* verts, const int nverts,
 	return curNode;
 }
 
-/*
-static int queryPolygons(dtMeshHeader* header,
-						 const float* qmin, const float* qmax,
-						 unsigned short* polys, const int maxPolys)
+static unsigned char classifyOffMeshPoint(const float* pt, const float* bmin, const float* bmax)
 {
-	const dtBVNode* node = &header->bvtree[0];
-	const dtBVNode* end = &header->bvtree[header->nbvtree];
-	
-	// Calculate quantized box
-	unsigned short bmin[3], bmax[3];
-	// Clamp query box to world box.
-	float minx = clamp(qmin[0], header->bmin[0], header->bmax[0]) - header->bmin[0];
-	float miny = clamp(qmin[1], header->bmin[1], header->bmax[1]) - header->bmin[1];
-	float minz = clamp(qmin[2], header->bmin[2], header->bmax[2]) - header->bmin[2];
-	float maxx = clamp(qmax[0], header->bmin[0], header->bmax[0]) - header->bmin[0];
-	float maxy = clamp(qmax[1], header->bmin[1], header->bmax[1]) - header->bmin[1];
-	float maxz = clamp(qmax[2], header->bmin[2], header->bmax[2]) - header->bmin[2];
-	// Quantize
-	bmin[0] = (unsigned short)(header->bvquant * minx) & 0xfffe;
-	bmin[1] = (unsigned short)(header->bvquant * miny) & 0xfffe;
-	bmin[2] = (unsigned short)(header->bvquant * minz) & 0xfffe;
-	bmax[0] = (unsigned short)(header->bvquant * maxx + 1) | 1;
-	bmax[1] = (unsigned short)(header->bvquant * maxy + 1) | 1;
-	bmax[2] = (unsigned short)(header->bvquant * maxz + 1) | 1;
-	
-	// Traverse tree
-	dtPolyRef base = getTileId(tile);
-	int n = 0;
-	while (node < end)
+	static const unsigned char XP = 1<<0;
+	static const unsigned char ZP = 1<<1;
+	static const unsigned char XM = 1<<2;
+	static const unsigned char ZM = 1<<3;	
+
+	unsigned char outcode = 0; 
+	outcode |= (pt[0] >= bmax[0]) ? XP : 0;
+	outcode |= (pt[2] >= bmax[2]) ? ZP : 0;
+	outcode |= (pt[0] < bmin[0])  ? XM : 0;
+	outcode |= (pt[2] < bmin[2])  ? ZM : 0;
+
+	switch (outcode)
 	{
-		bool overlap = checkOverlapBox(bmin, bmax, node->bmin, node->bmax);
-		bool isLeafNode = node->i >= 0;
-		
-		if (isLeafNode && overlap)
-		{
-			if (n < maxPolys)
-				polys[n++] = base | (dtPolyRef)node->i;
-		}
-		
-		if (overlap || isLeafNode)
-			node++;
-		else
-		{
-			const int escapeIndex = -node->i;
-			node += escapeIndex;
-		}
-	}
-	
-	return n;
+	case XP: return 0;
+	case XP|ZP: return 1;
+	case ZP: return 2;
+	case XM|ZP: return 3;
+	case XM: return 4;
+	case XM|ZM: return 5;
+	case ZM: return 6;
+	case XP|ZM: return 7;
+	};
+	return 0xff;	
 }
 
-dtMeshHeader* header
-{
-	bool dtNavMesh::closestPointOnPoly(dtPolyRef ref, const float* pos, float* closest) const
-	{
-		unsigned int salt, it, ip;
-		dtDecodePolyId(ref, salt, it, ip);
-		if (it >= (unsigned int)m_maxTiles) return false;
-		if (m_tiles[it].salt != salt || m_tiles[it].header == 0) return false;
-		const dtMeshHeader* header = m_tiles[it].header;
-		
-		if (ip >= (unsigned int)header->npolys) return false;
-		const dtPoly* poly = &header->polys[ip];
-		
-		float closestDistSqr = FLT_MAX;
-		const dtPolyDetail* pd = &header->dmeshes[ip];
-		
-		for (int j = 0; j < pd->ntris; ++j)
-		{
-			const unsigned char* t = &header->dtris[(pd->tbase+j)*4];
-			const float* v[3];
-			for (int k = 0; k < 3; ++k)
-			{
-				if (t[k] < poly->nv)
-					v[k] = &header->verts[poly->v[t[k]]*3];
-				else
-					v[k] = &header->dverts[(pd->vbase+(t[k]-poly->nv))*3];
-			}
-			float pt[3];
-			closestPtPointTriangle(pt, pos, v[0], v[1], v[2]);
-			float d = vdistSqr(pos, pt);
-			if (d < closestDistSqr)
-			{
-				vcopy(closest, pt);
-				closestDistSqr = d;
-			}
-		}
-		
-		return true;
-	}
-}
+// TODO: Better error handling.
 
-unsigned short findNearestPoly(dtMeshHeader* header, const float* center, const float* extents)
-{
-	// Get nearby polygons from proximity grid.
-	float bmin[3], bmax[3];
-	bmin[0] = center[0] - extents[0];
-	bmin[1] = center[1] - extents[1];
-	bmin[2] = center[2] - extents[2];
-	bmax[0] = center[0] + extents[0];
-	bmax[1] = center[1] + extents[1];
-	bmax[2] = center[2] + extents[2];
-	unsigned short polys[128];
-	int npolys = queryPolygons(header, bmin, bmax, polys, 128);
-	
-	// Find nearest polygon amongst the nearby polygons.
-	unsigned short nearest = 0xffff;
-	float nearestDistanceSqr = FLT_MAX;
-	for (int i = 0; i < npolys; ++i)
-	{
-		dtPolyRef ref = polys[i];
-		float closest[3];
-
-		if (!closestPointOnPoly(ref, center, closest))
-			continue;
-			
-		float d = vdistSqr(center, closest);
-		if (d < nearestDistanceSqr)
-		{
-			nearestDistanceSqr = d;
-			nearest = ref;
-		}
-	}
-	
-	return nearest;
-}
-*/
-	
 bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData, int* outDataSize)
 {
 	if (params->nvp > DT_VERTS_PER_POLYGON)
@@ -353,9 +254,36 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 
 	const int nvp = params->nvp;
 	
+	// Classify off-mesh connection points. We store only the connections
+	// whose start point is inside the tile.
+	unsigned char* offMeshConFlags = new unsigned char [params->offMeshConCount*2];
+	if (!offMeshConFlags)
+		return false;
+
+	int storedOffMeshConCount = 0;
+	int offMeshConLinkCount = 0;
+
+	printf("classify\n");
+	for (int i = 0; i < params->offMeshConCount; ++i)
+	{
+		offMeshConFlags[i*2+0] = classifyOffMeshPoint(&params->offMeshConVerts[(i*2+0)*3], params->bmin, params->bmax);
+		offMeshConFlags[i*2+1] = classifyOffMeshPoint(&params->offMeshConVerts[(i*2+1)*3], params->bmin, params->bmax);
+
+		printf("  %d, %d\n", (int)offMeshConFlags[i*2+0], (int)offMeshConFlags[i*2+1]);
+
+		// Cound how many links should be allocated for off-mesh connections.
+		if (offMeshConFlags[i*2+0] == 0xff)
+			offMeshConLinkCount++;
+		if (offMeshConFlags[i*2+1] == 0xff)
+			offMeshConLinkCount++;
+
+		if (offMeshConFlags[i*2+0] == 0xff)
+			storedOffMeshConCount++;
+	}
+	
 	// Off-mesh connectionss are stored as polygons, adjust values.
-	const int totPolyCount = params->polyCount + params->offMeshConCount;
-	const int totVertCount = params->vertCount + params->offMeshConCount*2;
+	const int totPolyCount = params->polyCount + storedOffMeshConCount;
+	const int totVertCount = params->vertCount + storedOffMeshConCount*2;
 	
 	// Find portal edges which are at tile borders.
 	int edgeCount = 0;
@@ -387,8 +315,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 		}
 	}
 
-	const int maxLinkCount = edgeCount + portalCount*2 + params->offMeshConCount*4;
-	
+	const int maxLinkCount = edgeCount + portalCount*2 + offMeshConLinkCount*2;
 	
 	// Find unique detail vertices.
 	int uniqueDetailVertCount = 0;
@@ -415,7 +342,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	const int detailVertsSize = align4(sizeof(float)*3*uniqueDetailVertCount);
 	const int detailTrisSize = align4(sizeof(unsigned char)*4*params->detailTriCount);
 	const int bvTreeSize = align4(sizeof(dtBVNode)*params->polyCount*2);
-	const int offMeshConsSize = align4(sizeof(dtOffMeshConnection)*params->offMeshConCount);
+	const int offMeshConsSize = align4(sizeof(dtOffMeshConnection)*storedOffMeshConCount);
 	
 	const int dataSize = headerSize + vertsSize + polysSize + linksSize +
 						 detailMeshesSize + detailVertsSize + detailTrisSize +
@@ -454,7 +381,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	header->walkableHeight = params->walkableHeight;
 	header->walkableRadius = params->walkableRadius;
 	header->walkableClimb = params->walkableClimb;
-	header->offMeshConCount = params->offMeshConCount;
+	header->offMeshConCount = storedOffMeshConCount;
 	header->bvNodeCount = params->polyCount*2;
 	
 	const int offMeshVertsBase = params->vertCount;
@@ -471,12 +398,18 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 		v[2] = params->bmin[2] + iv[2] * params->cs;
 	}
 	// Off-mesh link vertices.
+	int n = 0;
 	for (int i = 0; i < params->offMeshConCount; ++i)
 	{
-		const float* linkv = &params->offMeshConVerts[i*2*3];
-		float* v = &navVerts[(offMeshVertsBase + i*2)*3];
-		vcopy(&v[0], &linkv[0]);
-		vcopy(&v[3], &linkv[3]);
+		// Only store connections which start from this tile.
+		if (offMeshConFlags[i*2+0] == 0xff)
+		{
+			const float* linkv = &params->offMeshConVerts[i*2*3];
+			float* v = &navVerts[(offMeshVertsBase + n*2)*3];
+			vcopy(&v[0], &linkv[0]);
+			vcopy(&v[3], &linkv[3]);
+			n++;
+		}
 	}
 	
 	// Store polygons
@@ -497,13 +430,19 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 		src += nvp*2;
 	}
 	// Off-mesh connection vertices.
+	n = 0;
 	for (int i = 0; i < params->offMeshConCount; ++i)
 	{
-		dtPoly* p = &navPolys[offMeshPolyBase+i];
-		p->vertCount = 2;
-		p->verts[0] = (unsigned short)(offMeshVertsBase + i*2+0);
-		p->verts[1] = (unsigned short)(offMeshVertsBase + i*2+1);
-		p->flags = DT_POLY_OFFMESH_CONNECTION; // Off-mesh link poly.
+		// Only store connections which start from this tile.
+		if (offMeshConFlags[i*2+0] == 0xff)
+		{
+			dtPoly* p = &navPolys[offMeshPolyBase+n];
+			p->vertCount = 2;
+			p->verts[0] = (unsigned short)(offMeshVertsBase + n*2+0);
+			p->verts[1] = (unsigned short)(offMeshVertsBase + n*2+1);
+			p->flags = DT_POLY_OFFMESH_CONNECTION; // Off-mesh link poly.
+			n++;
+		}
 	}
 	
 	// Store portal edges.
@@ -523,11 +462,11 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 				if (va[0] == params->tileSize && vb[0] == params->tileSize) // x+
 					poly->neis[j] = DT_EXT_LINK | 0;
 				else if (va[2] == params->tileSize && vb[2]  == params->tileSize) // z+
-					poly->neis[j] = DT_EXT_LINK | 1;
-				else if (va[0] == 0 && vb[0] == 0) // x-
 					poly->neis[j] = DT_EXT_LINK | 2;
+				else if (va[0] == 0 && vb[0] == 0) // x-
+					poly->neis[j] = DT_EXT_LINK | 4;
 				else if (va[2] == 0 && vb[2] == 0) // z-
-					poly->neis[j] = DT_EXT_LINK | 3;
+					poly->neis[j] = DT_EXT_LINK | 6;
 			}
 		}
 	}
@@ -562,17 +501,26 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 				 nvp, params->cs, params->ch, params->polyCount*2, navBvtree);
 	
 	// Store Off-Mesh connections.
+	n = 0;
 	for (int i = 0; i < params->offMeshConCount; ++i)
 	{
-		dtOffMeshConnection* con = &offMeshCons[i];
-		con->poly = offMeshPolyBase + i;
-		// Copy connection end-points.
-		const float* endPts = &params->offMeshConVerts[i*2*3];
-		vcopy(&con->pos[0], &endPts[0]);
-		vcopy(&con->pos[3], &endPts[3]);
-		con->rad = params->offMeshConRad[i];
-		con->flags = params->offMeshConDir[i];
+		// Only store connections which start from this tile.
+		if (offMeshConFlags[i*2+0] == 0xff)
+		{
+			dtOffMeshConnection* con = &offMeshCons[n];
+			con->poly = offMeshPolyBase + n;
+			// Copy connection end-points.
+			const float* endPts = &params->offMeshConVerts[i*2*3];
+			vcopy(&con->pos[0], &endPts[0]);
+			vcopy(&con->pos[3], &endPts[3]);
+			con->rad = params->offMeshConRad[i];
+			con->flags = params->offMeshConDir[i];
+			con->side = offMeshConFlags[i*2+1];
+			n++;
+		}
 	}
+	
+	delete [] offMeshConFlags;
 	
 	*outData = data;
 	*outDataSize = dataSize;

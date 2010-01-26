@@ -82,7 +82,7 @@ void DebugDrawGL::end()
 Sample::Sample() :
 	m_geom(0),
 	m_navMesh(0),
-	m_navMeshDrawFlags(DU_DRAWNAVMESH_CLOSEDLIST),
+	m_navMeshDrawFlags(DU_DRAWNAVMESH_CLOSEDLIST|DU_DRAWNAVMESH_OFFMESHCONS),
 	m_tool(0)
 {
 	resetCommonSettings();
@@ -209,3 +209,11 @@ bool Sample::handleBuild()
 {
 	return true;
 }
+
+/*
+void Sample::handleNavMeshChanged()
+{
+	if (m_geom)
+		m_geom->updateOffMeshConnectionVisibility(m_navMesh);
+}
+*/

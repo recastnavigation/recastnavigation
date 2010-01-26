@@ -231,16 +231,14 @@ void Sample_SoloMeshTiled::handleRender()
 		duDebugDrawTriMeshSlope(&dd, m_geom->getMesh()->getVerts(), m_geom->getMesh()->getVertCount(),
 								m_geom->getMesh()->getTris(), m_geom->getMesh()->getNormals(), m_geom->getMesh()->getTriCount(),
 								m_agentMaxSlope);
-		if ((m_navMeshDrawFlags & DU_DRAWNAVMESH_OFFMESHCONS) == 0)
-			m_geom->drawOffMeshConnections(&dd);
+		m_geom->drawOffMeshConnections(&dd);
 	}
 	else if (m_drawMode != DRAWMODE_NAVMESH_TRANS)
 	{
 		// Draw mesh
 		duDebugDrawTriMesh(&dd, m_geom->getMesh()->getVerts(), m_geom->getMesh()->getVertCount(),
 						   m_geom->getMesh()->getTris(), m_geom->getMesh()->getNormals(), m_geom->getMesh()->getTriCount(), 0);
-		if ((m_navMeshDrawFlags & DU_DRAWNAVMESH_OFFMESHCONS) == 0)
-			m_geom->drawOffMeshConnections(&dd);
+		m_geom->drawOffMeshConnections(&dd);
 	}
 	
 	glDisable(GL_FOG);
@@ -556,8 +554,13 @@ void Sample_SoloMeshTiled::handleRenderOverlay(double* proj, double* model, int*
 void Sample_SoloMeshTiled::handleMeshChanged(class InputGeom* geom)
 {
 	Sample::handleMeshChanged(geom);
+
+	delete m_navMesh;
+	m_navMesh = 0;
+	
 	m_statTimePerTileSamples = 0;
 	m_statPolysPerTileSamples = 0;
+
 	if (m_tool)
 	{
 		m_tool->reset();
@@ -937,10 +940,10 @@ bool Sample_SoloMeshTiled::handleBuild()
 		params.detailVertsCount = m_dmesh->nverts;
 		params.detailTris = m_dmesh->tris;
 		params.detailTriCount = m_dmesh->ntris;
-		params.offMeshConVerts = 0;
-		params.offMeshConRad = 0;
-		params.offMeshConDir = 0;
-		params.offMeshConCount = 0;
+		params.offMeshConVerts = m_geom->getOffMeshConnectionVerts();
+		params.offMeshConRad = m_geom->getOffMeshConnectionRads();
+		params.offMeshConDir = m_geom->getOffMeshConnectionDirs();
+		params.offMeshConCount = m_geom->getOffMeshConnectionCount();
 		params.walkableHeight = m_agentHeight;
 		params.walkableRadius = m_agentRadius;
 		params.walkableClimb = m_agentMaxClimb;
@@ -1012,8 +1015,6 @@ bool Sample_SoloMeshTiled::handleBuild()
 		
 		rcGetLog()->log(RC_LOG_PROGRESS, "TOTAL: %.1fms", rcGetDeltaTimeUsec(totStartTime, totEndTime)/1000.0f);
 	}
-
-	setNavMeshDrawFlags(DU_DRAWNAVMESH_OFFMESHCONS);
 
 	if (m_tool)
 		m_tool->init(this);

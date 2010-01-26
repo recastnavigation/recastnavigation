@@ -49,7 +49,7 @@ NavMeshTesterTool::NavMeshTesterTool() :
 	m_navMesh(0),
 	m_agentRadius(0),
 	m_agentHeight(0),
-	m_toolMode(TOOLMODE_PATHFIND),
+	m_toolMode(TOOLMODE_PATHFIND_ITER),
 	m_startRef(0),
 	m_endRef(0),
 	m_npolys(0),
@@ -87,7 +87,7 @@ void NavMeshTesterTool::init(Sample* sample)
 	m_navMesh = sample->getNavMesh();
 	recalc();
 
-	if (m_toolMode == TOOLMODE_PATHFIND)
+	if (m_toolMode == TOOLMODE_PATHFIND_ITER || m_toolMode == TOOLMODE_PATHFIND_STRAIGHT)
 	{
 		unsigned char flags = DU_DRAWNAVMESH_CLOSEDLIST;
 		if (m_navMesh)
@@ -99,9 +99,14 @@ void NavMeshTesterTool::init(Sample* sample)
 
 void NavMeshTesterTool::handleMenu()
 {
-	if (imguiCheck("Pathfind", m_toolMode == TOOLMODE_PATHFIND))
+	if (imguiCheck("Pathfind Iter", m_toolMode == TOOLMODE_PATHFIND_ITER))
 	{
-		m_toolMode = TOOLMODE_PATHFIND;
+		m_toolMode = TOOLMODE_PATHFIND_ITER;
+		recalc();
+	}
+	if (imguiCheck("Pathfind Straight", m_toolMode == TOOLMODE_PATHFIND_STRAIGHT))
+	{
+		m_toolMode = TOOLMODE_PATHFIND_STRAIGHT;
 		recalc();
 	}
 	if (imguiCheck("Distance to Wall", m_toolMode == TOOLMODE_DISTANCE_TO_WALL))
@@ -148,7 +153,7 @@ void NavMeshTesterTool::handleMenu()
 		recalc();
 	}
 	
-	if (m_toolMode == TOOLMODE_PATHFIND)
+	if (m_toolMode == TOOLMODE_PATHFIND_ITER || m_toolMode == TOOLMODE_PATHFIND_STRAIGHT)
 	{
 		unsigned char flags = DU_DRAWNAVMESH_CLOSEDLIST;
 		if (m_navMesh)
@@ -243,22 +248,16 @@ void NavMeshTesterTool::recalc()
 	else
 		m_endRef = 0;
 	
-	if (m_toolMode == TOOLMODE_PATHFIND)
+	if (m_toolMode == TOOLMODE_PATHFIND_ITER)
 	{
 		if (m_sposSet && m_eposSet && m_startRef && m_endRef)
 		{
 			m_npolys = m_navMesh->findPath(m_startRef, m_endRef, m_spos, m_epos, &m_filter, m_polys, MAX_POLYS);
 
-			m_nstraightPath = 0;
 			m_nsmoothPath = 0;
 
 			if (m_npolys)
 			{
-				m_nstraightPath = m_navMesh->findStraightPath(m_spos, m_epos, m_polys, m_npolys,
-															  m_straightPath, m_straightPathFlags,
-															  m_straightPathPolys, MAX_POLYS);
-				
-
 				// Iterate over the path to find smooth path on the detail mesh surface.
 				const dtPolyRef* polys = m_polys; 
 				int npolys = m_npolys;
@@ -380,8 +379,26 @@ void NavMeshTesterTool::recalc()
 		else
 		{
 			m_npolys = 0;
-			m_nstraightPath = 0;
 			m_nsmoothPath = 0;
+		}
+	}
+	else if (m_toolMode == TOOLMODE_PATHFIND_STRAIGHT)
+	{
+		if (m_sposSet && m_eposSet && m_startRef && m_endRef)
+		{
+			m_npolys = m_navMesh->findPath(m_startRef, m_endRef, m_spos, m_epos, &m_filter, m_polys, MAX_POLYS);
+			m_nstraightPath = 0;
+			if (m_npolys)
+			{
+				m_nstraightPath = m_navMesh->findStraightPath(m_spos, m_epos, m_polys, m_npolys,
+															  m_straightPath, m_straightPathFlags,
+															  m_straightPathPolys, MAX_POLYS);
+			}
+		}
+		else
+		{
+			m_npolys = 0;
+			m_nstraightPath = 0;
 		}
 	}
 	else if (m_toolMode == TOOLMODE_RAYCAST)
@@ -463,7 +480,27 @@ void NavMeshTesterTool::handleRender()
 	if (m_eposSet)
 		drawAgent(m_epos, m_agentRadius, m_agentHeight, 0/*m_agentMaxClimb*/, endCol);
 	
-	if (m_toolMode == TOOLMODE_PATHFIND)
+	if (m_toolMode == TOOLMODE_PATHFIND_ITER)
+	{
+		duDebugDrawNavMeshPoly(&dd, m_navMesh, m_startRef, startCol);
+		duDebugDrawNavMeshPoly(&dd, m_navMesh, m_endRef, endCol);
+		
+		if (m_npolys)
+		{
+			for (int i = 1; i < m_npolys-1; ++i)
+				duDebugDrawNavMeshPoly(&dd, m_navMesh, m_polys[i], pathCol);
+		}
+				
+		if (m_nsmoothPath)
+		{
+			const unsigned int pathCol = duRGBA(0,0,0,220);
+			dd.begin(DU_DRAW_LINES, 3.0f);
+			for (int i = 0; i < m_nsmoothPath; ++i)
+				dd.vertex(m_smoothPath[i*3], m_smoothPath[i*3+1]+0.1f, m_smoothPath[i*3+2], pathCol);
+			dd.end();
+		}
+	}
+	else if (m_toolMode == TOOLMODE_PATHFIND_STRAIGHT)
 	{
 		duDebugDrawNavMeshPoly(&dd, m_navMesh, m_startRef, startCol);
 		duDebugDrawNavMeshPoly(&dd, m_navMesh, m_endRef, endCol);
@@ -505,19 +542,6 @@ void NavMeshTesterTool::handleRender()
 					col = pathCol;
 				dd.vertex(m_straightPath[i*3], m_straightPath[i*3+1]+0.4f, m_straightPath[i*3+2], pathCol);
 			}
-			dd.end();
-
-/*				for (int i = 1; i < m_nstraightPath-1; ++i)
-			{
-				duDebugDrawNavMeshPoly(&dd, m_navMesh, m_straightPathPolys[i], duRGBA(255,255,255,64));
-			}*/
-		}
-		if (m_nsmoothPath)
-		{
-			const unsigned int pathCol = duRGBA(0,0,0,220);
-			dd.begin(DU_DRAW_LINES, 3.0f);
-			for (int i = 0; i < m_nsmoothPath; ++i)
-				dd.vertex(m_smoothPath[i*3], m_smoothPath[i*3+1]+0.1f, m_smoothPath[i*3+2], pathCol);
 			dd.end();
 		}
 	}

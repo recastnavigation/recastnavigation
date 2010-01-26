@@ -38,19 +38,27 @@
 OffMeshConnectionTool::OffMeshConnectionTool() :
 	m_sample(0),
 	m_hitPosSet(0),
-	m_bidir(true)
+	m_bidir(true),
+	m_oldFlags(0)
 {
 }
 
 OffMeshConnectionTool::~OffMeshConnectionTool()
 {
+	if (m_sample)
+	{
+		m_sample->setNavMeshDrawFlags(m_oldFlags);
+	}
 }
 
 void OffMeshConnectionTool::init(Sample* sample)
 {
 	m_sample = sample;
 	if (m_sample)
-		m_sample->setNavMeshDrawFlags(0);
+	{
+		m_oldFlags = m_sample->getNavMeshDrawFlags();
+		m_sample->setNavMeshDrawFlags(m_oldFlags & ~DU_DRAWNAVMESH_OFFMESHCONS);
+	}
 }
 
 void OffMeshConnectionTool::reset()
@@ -104,6 +112,8 @@ void OffMeshConnectionTool::handleClick(const float* p, bool shift)
 		{
 			geom->deleteOffMeshConnection(nearestIndex);
 		}
+
+//		geom->updateOffMeshConnectionVisibility(m_sample->getNavMesh());
 	}
 	else
 	{
@@ -117,6 +127,7 @@ void OffMeshConnectionTool::handleClick(const float* p, bool shift)
 		{
 			geom->addOffMeshConnection(m_hitPos, p, m_sample->getAgentRadius(), m_bidir ? 1 : 0);
 			m_hitPosSet = false;
+//			geom->updateOffMeshConnectionVisibility(m_sample->getNavMesh());
 		}
 	}
 	

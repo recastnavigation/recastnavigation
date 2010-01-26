@@ -29,6 +29,7 @@ static const int DT_NAVMESH_MAGIC = 'DNAV';
 static const int DT_NAVMESH_VERSION = 2;
 
 static const unsigned short DT_EXT_LINK = 0x8000;
+static const unsigned int DT_NULL_LINK = 0xffffffff;
 
 // Flags returned by findStraightPath().
 enum dtStraightPathFlags
@@ -55,11 +56,10 @@ struct dtQueryFilter
 // Structure describing the navigation polygon data.
 struct dtPoly
 {
+	unsigned int firstLink;						// Index to first link in linked list. 
 	unsigned short verts[DT_VERTS_PER_POLYGON];	// Indices to vertices of the poly.
 	unsigned short neis[DT_VERTS_PER_POLYGON];	// Refs to neighbours of the poly.
-	unsigned short linkBase;					// Base index to header 'links' array. 
 	unsigned short flags;						// Flags (see dtPolyFlags).
-	unsigned char linkCount;					// Number of links for 
 	unsigned char vertCount;					// Number of vertices.
 };
 
@@ -76,7 +76,7 @@ struct dtPolyDetail
 struct dtLink
 {
 	dtPolyRef ref;							// Neighbour reference.
-	unsigned short poly;					// Index to polygon which owns this link.
+	unsigned int next;						// Index to next link.
 	unsigned char edge;						// Index to polygon edge which owns this link. 
 	unsigned char side;						// If boundary link, defines on which side the link is.
 	unsigned char bmin, bmax;				// If boundary link, defines the sub edge area.
@@ -92,9 +92,9 @@ struct dtOffMeshConnection
 {
 	float pos[6];							// Both end point locations.
 	float rad;								// Link connection radius.
-	dtPolyRef ref[2];						// End point polys.
 	unsigned short poly;					// Poly Id
 	unsigned char flags;					// Link flags
+	unsigned char side;						// End point side.
 };
 
 struct dtMeshHeader
@@ -104,7 +104,6 @@ struct dtMeshHeader
 	
 	int polyCount;							// Number of polygons in the tile.
 	int vertCount;							// Number of vertices in the tile.
-	int linkCount;							// Number of links in the tile (will be updated when tile is added).
 	int maxLinkCount;						// Number of allocated links.
 	int detailMeshCount;					// Number of detail meshes.
 	int detailVertCount;					// Number of detail vertices.
@@ -112,9 +111,10 @@ struct dtMeshHeader
 	int bvNodeCount;						// Number of BVtree nodes.
 	int offMeshConCount;					// Number of Off-Mesh links.
 	int offMeshBase;						// Index to first polygon which is Off-Mesh link.
-	float walkableHeight;
-	float walkableRadius;
-	float walkableClimb;
+	unsigned int linksFreeList;				// Index to next free link.
+	float walkableHeight;					// Height of the agent.
+	float walkableRadius;					// Radius of the agent
+	float walkableClimb;					// Max climb height of the agent.
 	float bmin[3], bmax[3];					// Bounding box of the tile.
 	float bvQuantFactor;					// BVtree quantization factor (world to bvnode coords)
 	dtPoly* polys;							// Pointer to the polygons (will be updated when tile is added).
@@ -358,19 +358,31 @@ public:
 	bool isInClosedList(dtPolyRef ref) const;
 
 	// Encodes a tile id.
-	inline dtPolyRef dtEncodePolyId(unsigned int salt, unsigned int it, unsigned int ip) const
+	inline dtPolyRef encodePolyId(unsigned int salt, unsigned int it, unsigned int ip) const
 	{
 		return (salt << (m_polyBits+m_tileBits)) | ((it+1) << m_polyBits) | ip;
 	}
 	
 	// Decodes a tile id.
-	inline void dtDecodePolyId(dtPolyRef ref, unsigned int& salt, unsigned int& it, unsigned int& ip) const
+	inline void decodePolyId(dtPolyRef ref, unsigned int& salt, unsigned int& it, unsigned int& ip) const
 	{
 		salt = (ref >> (m_polyBits+m_tileBits)) & ((1<<m_saltBits)-1);
 		it = ((ref >> m_polyBits) - 1) & ((1<<m_tileBits)-1);
 		ip = ref & ((1<<m_polyBits)-1);
 	}
 
+	// Decodes a tile id.
+	inline unsigned int decodePolyIdTile(dtPolyRef ref) const
+	{
+		return ((ref >> m_polyBits) - 1) & ((1<<m_tileBits)-1);
+	}
+
+	// Decodes a tile id.
+	inline unsigned int decodePolyIdPoly(dtPolyRef ref) const
+	{
+		return ref & ((1<<m_polyBits)-1);
+	}
+	
 private:
 
 	// Returns neighbour tile based on side. 
@@ -379,15 +391,29 @@ private:
 	int findConnectingPolys(const float* va, const float* vb,
 							dtMeshTile* tile, int side,
 							dtPolyRef* con, float* conarea, int maxcon);
+	
 	// Builds internal polygons links for a tile.
-	void buildIntLinks(dtMeshTile* tile);
+	void connectIntLinks(dtMeshTile* tile);
+	// Builds internal polygons links for a tile.
+	void connectIntOffMeshLinks(dtMeshTile* tile);
+
 	// Builds external polygon links for a tile.
-	void buildExtLinks(dtMeshTile* tile, dtMeshTile* target, int side);
+	void connectExtLinks(dtMeshTile* tile, dtMeshTile* target, int side);
+	// Builds external polygon links for a tile.
+	void connectExtOffMeshLinks(dtMeshTile* tile, dtMeshTile* target, int side);
+	
 	// Removes external links at specified side.
-	void removeExtLinks(dtMeshTile* tile, int side);
+	void unconnectExtLinks(dtMeshTile* tile, int side);
+	
 	// Queries polygons within a tile.
-	int queryTilePolygons(dtMeshTile* tile, const float* qmin, const float* qmax, dtQueryFilter* filter,
-						  dtPolyRef* polys, const int maxPolys);
+	int queryPolygonsInTile(dtMeshTile* tile, const float* qmin, const float* qmax, dtQueryFilter* filter,
+							dtPolyRef* polys, const int maxPolys);
+	// Find nearest polygon within a tile.
+	dtPolyRef findNearestPolyInTile(dtMeshTile* tile, const float* center, const float* extents,
+									dtQueryFilter* filter, float* nearestPt);
+	// Returns closest point on polygon.
+	bool closestPointOnPolyInTile(const dtMeshTile* tile, unsigned int ip, const float* pos, float* closest) const;
+						  
 	unsigned short getPolyFlags(dtPolyRef ref);
 	float getCost(dtPolyRef prev, dtPolyRef from, dtPolyRef to) const;
 	float getFirstCost(const float* pos, dtPolyRef from, dtPolyRef to) const;
@@ -409,11 +435,7 @@ private:
 	dtMeshTile** m_posLookup;			// Tile hash lookup.
 	dtMeshTile* m_nextFree;				// Freelist of tiles.
 	dtMeshTile* m_tiles;				// List of tiles.
-	
-	// TODO: dont grow!
-	dtLink* m_tmpLinks;					// Temp array used to build links between tiles.
-	int m_ntmpLinks;					// Size of the temp link array.
-	
+		
 	unsigned int m_saltBits;			// Number of salt bits in the tile ID.
 	unsigned int m_tileBits;			// Number of tile bits in the tile ID.
 	unsigned int m_polyBits;			// Number of poly bits in the tile ID.

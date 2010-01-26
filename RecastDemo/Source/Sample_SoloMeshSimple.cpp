@@ -197,16 +197,14 @@ void Sample_SoloMeshSimple::handleRender()
 		duDebugDrawTriMeshSlope(&dd, m_geom->getMesh()->getVerts(), m_geom->getMesh()->getVertCount(),
 								m_geom->getMesh()->getTris(), m_geom->getMesh()->getNormals(), m_geom->getMesh()->getTriCount(),
 								m_agentMaxSlope);
-		if ((m_navMeshDrawFlags & DU_DRAWNAVMESH_OFFMESHCONS) == 0)
-			m_geom->drawOffMeshConnections(&dd);
+		m_geom->drawOffMeshConnections(&dd);
 	}
 	else if (m_drawMode != DRAWMODE_NAVMESH_TRANS)
 	{
 		// Draw mesh
 		duDebugDrawTriMesh(&dd, m_geom->getMesh()->getVerts(), m_geom->getMesh()->getVertCount(),
 						   m_geom->getMesh()->getTris(), m_geom->getMesh()->getNormals(), m_geom->getMesh()->getTriCount(), 0);
-		if ((m_navMeshDrawFlags & DU_DRAWNAVMESH_OFFMESHCONS) == 0)
-			m_geom->drawOffMeshConnections(&dd);
+		m_geom->drawOffMeshConnections(&dd);
 	}
 	
 	glDisable(GL_FOG);
@@ -312,8 +310,10 @@ void Sample_SoloMeshSimple::handleRenderOverlay(double* proj, double* model, int
 void Sample_SoloMeshSimple::handleMeshChanged(class InputGeom* geom)
 {
 	Sample::handleMeshChanged(geom);
+
 	delete m_navMesh;
 	m_navMesh = 0;
+
 	if (m_tool)
 	{
 		m_tool->reset();
@@ -638,8 +638,6 @@ bool Sample_SoloMeshSimple::handleBuild()
 		
 		rcGetLog()->log(RC_LOG_PROGRESS, "TOTAL: %.1fms", rcGetDeltaTimeUsec(totStartTime, totEndTime)/1000.0f);
 	}
-
-	setNavMeshDrawFlags(DU_DRAWNAVMESH_OFFMESHCONS);
 	
 	if (m_tool)
 		m_tool->init(this);

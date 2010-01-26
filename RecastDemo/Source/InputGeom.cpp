@@ -183,8 +183,8 @@ void InputGeom::deleteOffMeshConnection(int i)
 
 void InputGeom::drawOffMeshConnections(duDebugDraw* dd, bool hilight)
 {
-	unsigned int conColor = duRGBA(192,192,192,hilight?192:64);
-	unsigned int baseColor = duRGBA(0,0,0,hilight?192:64);
+	unsigned int conColor = duRGBA(192,0,128,192);
+	unsigned int baseColor = duRGBA(0,0,0,64);
 	dd->depthMask(false);
 
 	dd->begin(DU_DRAW_LINES, 2.0f);
@@ -200,9 +200,12 @@ void InputGeom::drawOffMeshConnections(duDebugDraw* dd, bool hilight)
 		
 		duAppendCircle(dd, v[0],v[1]+0.1f,v[2], m_offMeshConRads[i], baseColor);
 		duAppendCircle(dd, v[3],v[4]+0.1f,v[5], m_offMeshConRads[i], baseColor);
-		
-		duAppendArc(dd, v[0],v[1],v[2], v[3],v[4],v[5], 0.25f,
-					(m_offMeshConDirs[i]&1) ? 0.6f : 0.0f, 0.6f, conColor);
+
+		if (hilight)
+		{
+			duAppendArc(dd, v[0],v[1],v[2], v[3],v[4],v[5], 0.25f,
+						(m_offMeshConDirs[i]&1) ? 0.6f : 0.0f, 0.6f, conColor);
+		}
 	}	
 	dd->end();
 
