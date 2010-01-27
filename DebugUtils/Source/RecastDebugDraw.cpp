@@ -523,7 +523,7 @@ void duDebugDrawPolyMesh(duDebugDraw* dd, const struct rcPolyMesh& mesh)
 		unsigned short vi[3];
 		for (int j = 2; j < nvp; ++j)
 		{
-			if (p[j] == 0xffff) break;
+			if (p[j] == RC_MESH_NULL_IDX) break;
 			vi[0] = p[0];
 			vi[1] = p[j-1];
 			vi[2] = p[j];
@@ -547,11 +547,11 @@ void duDebugDrawPolyMesh(duDebugDraw* dd, const struct rcPolyMesh& mesh)
 		const unsigned short* p = &mesh.polys[i*nvp*2];
 		for (int j = 0; j < nvp; ++j)
 		{
-			if (p[j] == 0xffff) break;
-			if (p[nvp+j] == 0xffff) continue;
+			if (p[j] == RC_MESH_NULL_IDX) break;
+			if (p[nvp+j] == RC_MESH_NULL_IDX) continue;
 			int vi[2];
 			vi[0] = p[j];
-			if (j+1 >= nvp || p[j+1] == 0xffff)
+			if (j+1 >= nvp || p[j+1] == RC_MESH_NULL_IDX)
 				vi[1] = p[0];
 			else
 				vi[1] = p[j+1];
@@ -575,11 +575,11 @@ void duDebugDrawPolyMesh(duDebugDraw* dd, const struct rcPolyMesh& mesh)
 		const unsigned short* p = &mesh.polys[i*nvp*2];
 		for (int j = 0; j < nvp; ++j)
 		{
-			if (p[j] == 0xffff) break;
-			if (p[nvp+j] != 0xffff) continue;
+			if (p[j] == RC_MESH_NULL_IDX) break;
+			if (p[nvp+j] != RC_MESH_NULL_IDX) continue;
 			int vi[2];
 			vi[0] = p[j];
-			if (j+1 >= nvp || p[j+1] == 0xffff)
+			if (j+1 >= nvp || p[j+1] == RC_MESH_NULL_IDX)
 				vi[1] = p[0];
 			else
 				vi[1] = p[j+1];

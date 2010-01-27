@@ -55,7 +55,7 @@ bool duDumpPolyMeshToObj(rcPolyMesh& pmesh, const char* filepath)
 		const unsigned short* p = &pmesh.polys[i*nvp*2];
 		for (int j = 2; j < nvp; ++j)
 		{
-			if (p[j] == 0xffff) break;
+			if (p[j] == RC_MESH_NULL_IDX) break;
 			fprintf(fp, "f %d %d %d\n", p[0]+1, p[j-1]+1, p[j]+1); 
 		}
 	}

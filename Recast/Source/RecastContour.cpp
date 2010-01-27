@@ -223,7 +223,7 @@ static void simplifyContour(rcIntArray& points, rcIntArray& simplified, float ma
 	bool noConnections = true;
 	for (int i = 0; i < points.size(); i += 4)
 	{
-		if ((points[i+3] & 0xffff) != 0)
+		if ((points[i+3] & RC_CONTOUR_REG_MASK) != 0)
 		{
 			noConnections = false;
 			break;
@@ -280,7 +280,7 @@ static void simplifyContour(rcIntArray& points, rcIntArray& simplified, float ma
 		for (int i = 0, ni = points.size()/4; i < ni; ++i)
 		{
 			int ii = (i+1) % ni;
-			if ((points[i*4+3] & 0xffff) != (points[ii*4+3] & 0xffff))
+			if ((points[i*4+3] & RC_CONTOUR_REG_MASK) != (points[ii*4+3] & RC_CONTOUR_REG_MASK))
 			{
 				simplified.push(points[i*4+0]);
 				simplified.push(points[i*4+1]);
@@ -313,7 +313,7 @@ static void simplifyContour(rcIntArray& points, rcIntArray& simplified, float ma
 		int ci = (ai+1) % pn;
 		
 		// Tesselate only outer edges.
-		if ((points[ci*4+3] & 0xffff) == 0)
+		if ((points[ci*4+3] & RC_CONTOUR_REG_MASK) == 0)
 		{
 			while (ci != bi)
 			{
@@ -375,7 +375,7 @@ static void simplifyContour(rcIntArray& points, rcIntArray& simplified, float ma
 			int ci = (ai+1) % pn;
 			
 			// Tesselate only outer edges.
-			if ((points[ci*4+3] & 0xffff) == 0)
+			if ((points[ci*4+3] & RC_CONTOUR_REG_MASK) == 0)
 			{
 				int dx = bx - ax;
 				int dz = bz - az;
@@ -419,7 +419,7 @@ static void simplifyContour(rcIntArray& points, rcIntArray& simplified, float ma
 		// and the neighbour region is take from the next raw point.
 		const int ai = (simplified[i*4+3]+1) % pn;
 		const int bi = simplified[i*4+3];
-		simplified[i*4+3] = (points[ai*4+3] & 0xffff) | (points[bi*4+3] & RC_BORDER_VERTEX);
+		simplified[i*4+3] = (points[ai*4+3] & RC_CONTOUR_REG_MASK) | (points[bi*4+3] & RC_BORDER_VERTEX);
 	}
 	
 }

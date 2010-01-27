@@ -954,6 +954,9 @@ static void paintRectRegion(int minx, int maxx, int miny, int maxy,
 	}
 }
 
+
+static const unsigned short RC_NULL_NEI = 0xffff;
+
 struct rcSweepSpan
 {
 	unsigned short rid;	// row id
@@ -1061,7 +1064,7 @@ bool rcBuildRegionsMonotone(rcCompactHeightfield& chf,
 						}
 						else
 						{
-							sweeps[previd].nei = 0xffff;
+							sweeps[previd].nei = RC_NULL_NEI;
 						}
 					}
 				}
@@ -1073,7 +1076,7 @@ bool rcBuildRegionsMonotone(rcCompactHeightfield& chf,
 		// Create unique ID.
 		for (int i = 1; i < rid; ++i)
 		{
-			if (sweeps[i].nei != 0xffff && sweeps[i].nei != 0 &&
+			if (sweeps[i].nei != RC_NULL_NEI && sweeps[i].nei != 0 &&
 				prev[sweeps[i].nei] == (int)sweeps[i].ns)
 			{
 				sweeps[i].id = sweeps[i].nei;

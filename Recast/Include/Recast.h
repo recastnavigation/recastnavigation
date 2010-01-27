@@ -150,8 +150,8 @@ struct rcContourSet
 // 'nvp*2' elements. The first 'nvp' elements are indices to vertices
 // and the second 'nvp' elements are indices to neighbour polygons.
 // If a polygona has less than 'bvp' vertices, the remaining indices
-// are set os 0xffff. If an polygon edge does not have a neighbour
-// the neighbour index is set to 0xffff.
+// are set to RC_MESH_NULL_IDX. If an polygon edge does not have a neighbour
+// the neighbour index is set to RC_MESH_NULL_IDX.
 // Vertices can be transformed into world space as follows:
 //   x = bmin[0] + verts[i*3+0]*cs;
 //   y = bmin[1] + verts[i*3+1]*ch;
@@ -242,6 +242,11 @@ static const unsigned short RC_BORDER_REG = 0x8000;
 // removed in order to match the segments and vertices at tile boundaries.
 static const int RC_BORDER_VERTEX = 0x10000;
 
+// Mask used with contours to extract region id.
+static const int RC_CONTOUR_REG_MASK = 0xffff;
+
+// Null index which is used with meshes to mark unset or invalid indices.
+static const unsigned short RC_MESH_NULL_IDX = 0xffff;
 
 // Value returned by rcGetCon() if the direction is not connected.
 static const int RC_NOT_CONNECTED = 0xf;

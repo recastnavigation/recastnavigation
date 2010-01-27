@@ -27,6 +27,8 @@
 #include "RecastTimer.h"
 
 
+static const unsigned RC_UNSET_HEIGHT = 0xffff;
+
 struct rcHeightPatch
 {
 	inline rcHeightPatch() : data(0) {}
@@ -199,7 +201,7 @@ static unsigned short getHeight(const float fx, const float fz, const float cs, 
 	ix = rcClamp(ix-hp.xmin, 0, hp.width);
 	iz = rcClamp(iz-hp.ymin, 0, hp.height);
 	unsigned short h = hp.data[ix+iz*hp.width];
-	if (h == 0xffff)
+	if (h == RC_UNSET_HEIGHT)
 	{
 		// Special case when data might be bad.
 		// Find nearest neighbour pixel which has valid height.
@@ -211,7 +213,7 @@ static unsigned short getHeight(const float fx, const float fz, const float cs, 
 			const int nz = iz+off[i*2+1];
 			if (nx < 0 || nz < 0 || nx >= hp.width || nz >= hp.height) continue;
 			const unsigned short nh = hp.data[nx+nz*hp.width];
-			if (nh == 0xffff) continue;
+			if (nh == RC_UNSET_HEIGHT) continue;
 			const float dx = (nx+0.5f)*cs - fx; 
 			const float dz = (nz+0.5f)*cs - fz;
 			const float d = dx*dx+dz*dz;
@@ -726,7 +728,7 @@ static void getHeightData(const rcCompactHeightfield& chf,
 			continue;
 			
 		const rcCompactCell& c = chf.cells[ax+az*chf.width];
-		int dmin = 0xffff;
+		int dmin = RC_UNSET_HEIGHT;
 		int ai = -1;
 		for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
 		{
@@ -764,7 +766,7 @@ static void getHeightData(const rcCompactHeightfield& chf,
 			cz >= hp.ymin && cz < hp.ymin+hp.height)
 		{
 			const rcCompactCell& c = chf.cells[cx+cz*chf.width];
-			int dmin = 0xffff;
+			int dmin = RC_UNSET_HEIGHT;
 			int ci = -1;
 			for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
 			{
@@ -793,7 +795,7 @@ static void getHeightData(const rcCompactHeightfield& chf,
 
 		// Skip already visited locations.
 		int idx = cx-hp.xmin+(cy-hp.ymin)*hp.width;
-		if (hp.data[idx] != 0xffff)
+		if (hp.data[idx] != RC_UNSET_HEIGHT)
 			continue;
 		
 		const rcCompactSpan& cs = chf.spans[ci];
@@ -810,7 +812,7 @@ static void getHeightData(const rcCompactHeightfield& chf,
 				ay < hp.ymin || ay >= (hp.ymin+hp.height))
 				continue;
 
-			if (hp.data[ax-hp.xmin+(ay-hp.ymin)*hp.width] != 0xffff)
+			if (hp.data[ax-hp.xmin+(ay-hp.ymin)*hp.width] != RC_UNSET_HEIGHT)
 				continue;
 
 			const int ai = (int)chf.cells[ax+ay*chf.width].index + rcGetCon(cs, dir);
@@ -900,7 +902,7 @@ bool rcBuildPolyMeshDetail(const rcPolyMesh& mesh, const rcCompactHeightfield& c
 		ymax = 0;
 		for (int j = 0; j < nvp; ++j)
 		{
-			if(p[j] == 0xffff) break;
+			if(p[j] == RC_MESH_NULL_IDX) break;
 			const unsigned short* v = &mesh.verts[p[j]*3];
 			xmin = rcMin(xmin, (int)v[0]);
 			xmax = rcMax(xmax, (int)v[0]);
@@ -964,7 +966,7 @@ bool rcBuildPolyMeshDetail(const rcPolyMesh& mesh, const rcCompactHeightfield& c
 		int npoly = 0;
 		for (int j = 0; j < nvp; ++j)
 		{
-			if(p[j] == 0xffff) break;
+			if(p[j] == RC_MESH_NULL_IDX) break;
 			const unsigned short* v = &mesh.verts[p[j]*3];
 			poly[j*3+0] = v[0]*cs;
 			poly[j*3+1] = v[1]*ch;

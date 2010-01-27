@@ -19,6 +19,8 @@
 #include "DetourNode.h"
 #include <string.h>
 
+static const unsigned short DT_NULL_IDX = 0xffff;
+
 //////////////////////////////////////////////////////////////////////////////////////////
 dtNodePool::dtNodePool(int maxNodes, int hashSize) :
 
@@ -53,7 +55,7 @@ const dtNode* dtNodePool::findNode(unsigned int id) const
 {
 	unsigned int bucket = hashint(id) & (m_hashSize-1);
 	unsigned short i = m_first[bucket];
-	while (i != 0xffff)
+	while (i != DT_NULL_IDX)
 	{
 		if (m_nodes[i].id == id)
 			return &m_nodes[i];
@@ -67,7 +69,7 @@ dtNode* dtNodePool::getNode(unsigned int id)
 	unsigned int bucket = hashint(id) & (m_hashSize-1);
 	unsigned short i = m_first[bucket];
 	dtNode* node = 0;
-	while (i != 0xffff)
+	while (i != DT_NULL_IDX)
 	{
 		if (m_nodes[i].id == id)
 			return &m_nodes[i];

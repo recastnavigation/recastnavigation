@@ -24,7 +24,7 @@
 #include "DetourCommon.h"
 #include "DetourNavMeshBuilder.h"
 
-
+static unsigned short MESH_NULL_IDX = 0xffff;
 
 struct BVItem
 {
@@ -184,7 +184,7 @@ static int createBVTree(const unsigned short* verts, const int nverts,
 		
 		for (int j = 1; j < nvp; ++j)
 		{
-			if (p[j] == 0xffff) break;
+			if (p[j] == MESH_NULL_IDX) break;
 			unsigned short x = verts[p[j]*3+0];
 			unsigned short y = verts[p[j]*3+1];
 			unsigned short z = verts[p[j]*3+2];
@@ -293,9 +293,9 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 		const unsigned short* p = &params->polys[i*2*nvp];
 		for (int j = 0; j < nvp; ++j)
 		{
-			if (p[j] == 0xffff) break;
+			if (p[j] == MESH_NULL_IDX) break;
 			int nj = j+1;
-			if (nj >= nvp || p[nj] == 0xffff) nj = 0;
+			if (nj >= nvp || p[nj] == MESH_NULL_IDX) nj = 0;
 			const unsigned short* va = &params->verts[p[j]*3];
 			const unsigned short* vb = &params->verts[p[nj]*3];
 			
@@ -326,7 +326,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 		int nv = 0;
 		for (int j = 0; j < nvp; ++j)
 		{
-			if (p[j] == 0xffff) break;
+			if (p[j] == MESH_NULL_IDX) break;
 			nv++;
 		}
 		ndv -= nv;
@@ -422,7 +422,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 		p->flags = DT_POLY_GROUND;
 		for (int j = 0; j < nvp; ++j)
 		{
-			if (src[j] == 0xffff) break;
+			if (src[j] == MESH_NULL_IDX) break;
 			p->verts[j] = src[j];
 			p->neis[j] = (src[nvp+j]+1) & 0xffff;
 			p->vertCount++;

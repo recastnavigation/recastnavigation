@@ -50,10 +50,7 @@ static bool buildMeshAdjacency(unsigned short* polys, const int npolys,
 		return false;
 	
 	for (int i = 0; i < nverts; i++)
-		firstEdge[i] = 0xffff;
-	
-	// Invalida indices are marked as 0xffff, the following code
-	// handles them just fine.
+		firstEdge[i] = RC_MESH_NULL_IDX;
 	
 	for (int i = 0; i < npolys; ++i)
 	{
@@ -61,7 +58,7 @@ static bool buildMeshAdjacency(unsigned short* polys, const int npolys,
 		for (int j = 0; j < vertsPerPoly; ++j)
 		{
 			unsigned short v0 = t[j];
-			unsigned short v1 = (j+1 >= vertsPerPoly || t[j+1] == 0xffff) ? t[0] : t[j+1];
+			unsigned short v1 = (j+1 >= vertsPerPoly || t[j+1] == RC_MESH_NULL_IDX) ? t[0] : t[j+1];
 			if (v0 < v1)
 			{
 				rcEdge& edge = edges[edgeCount];
@@ -85,10 +82,10 @@ static bool buildMeshAdjacency(unsigned short* polys, const int npolys,
 		for (int j = 0; j < vertsPerPoly; ++j)
 		{
 			unsigned short v0 = t[j];
-			unsigned short v1 = (j+1 >= vertsPerPoly || t[j+1] == 0xffff) ? t[0] : t[j+1];
+			unsigned short v1 = (j+1 >= vertsPerPoly || t[j+1] == RC_MESH_NULL_IDX) ? t[0] : t[j+1];
 			if (v0 > v1)
 			{
-				for (unsigned short e = firstEdge[v1]; e != 0xffff; e = nextEdge[e])
+				for (unsigned short e = firstEdge[v1]; e != RC_MESH_NULL_IDX; e = nextEdge[e])
 				{
 					rcEdge& edge = edges[e];
 					if (edge.vert[1] == v0 && edge.poly[0] == edge.poly[1])
@@ -379,7 +376,7 @@ int triangulate(int n, const int* verts, int* indices, int* tris)
 static int countPolyVerts(const unsigned short* p, const int nvp)
 {
 	for (int i = 0; i < nvp; ++i)
-		if (p[i] == 0xffff)
+		if (p[i] == RC_MESH_NULL_IDX)
 			return i;
 	return nvp;
 }
@@ -1145,7 +1142,7 @@ bool rcMergePolyMeshes(rcPolyMesh** meshes, const int nmeshes, rcPolyMesh& mesh)
 			mesh.npolys++;
 			for (int k = 0; k < mesh.nvp; ++k)
 			{
-				if (src[k] == 0xffff) break;
+				if (src[k] == RC_MESH_NULL_IDX) break;
 				tgt[k] = vremap[src[k]];
 			}
 		}
