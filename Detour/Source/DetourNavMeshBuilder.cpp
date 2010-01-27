@@ -26,6 +26,7 @@
 
 static unsigned short MESH_NULL_IDX = 0xffff;
 
+
 struct BVItem
 {
 	unsigned short bmin[3];
@@ -519,11 +520,182 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 			n++;
 		}
 	}
-	
+		
 	delete [] offMeshConFlags;
 	
 	*outData = data;
 	*outDataSize = dataSize;
+	
+	return true;
+}
+
+
+
+
+inline void swapByte(unsigned char* a, unsigned char* b)
+{
+	unsigned char tmp = *a;
+	*a = *b;
+	*b = tmp;
+}
+
+inline void swapEndian(unsigned short* v)
+{
+	unsigned char* x = (unsigned char*)&v;
+	swapByte(x+0, x+1);
+}
+
+inline void swapEndian(short* v)
+{
+	unsigned char* x = (unsigned char*)&v;
+	swapByte(x+0, x+1);
+}
+
+inline void swapEndian(unsigned int* v)
+{
+	unsigned char* x = (unsigned char*)&v;
+	swapByte(x+0, x+3); swapByte(x+1, x+2);
+}
+
+inline void swapEndian(int* v)
+{
+	unsigned char* x = (unsigned char*)&v;
+	swapByte(x+0, x+3); swapByte(x+1, x+2);
+}
+
+inline void swapEndian(float* v)
+{
+	unsigned char* x = (unsigned char*)&v;
+	swapByte(x+0, x+3); swapByte(x+1, x+2);
+}
+
+bool dtNavMeshHeaderSwapEndian(unsigned char* data, const int dataSize)
+{
+	dtMeshHeader* header = (dtMeshHeader*)data;
+	int magic = header->magic;
+	int version = header->version;
+	swapEndian(&magic);
+	swapEndian(&version);
+	if (magic != DT_NAVMESH_MAGIC)
+		return false;
+	if (version != DT_NAVMESH_VERSION)
+		return false;
+	
+	swapEndian(&header->magic);
+	swapEndian(&header->version);
+	swapEndian(&header->polyCount);
+	swapEndian(&header->vertCount);
+	swapEndian(&header->maxLinkCount);
+	swapEndian(&header->detailMeshCount);
+	swapEndian(&header->detailVertCount);
+	swapEndian(&header->detailTriCount);
+	swapEndian(&header->bvNodeCount);
+	swapEndian(&header->offMeshConCount);
+	swapEndian(&header->offMeshBase);
+	swapEndian(&header->walkableHeight);
+	swapEndian(&header->walkableRadius);
+	swapEndian(&header->walkableClimb);
+	swapEndian(&header->bmin[0]);
+	swapEndian(&header->bmin[1]);
+	swapEndian(&header->bmin[2]);
+	swapEndian(&header->bmax[0]);
+	swapEndian(&header->bmax[1]);
+	swapEndian(&header->bmax[2]);
+	swapEndian(&header->bvQuantFactor);
+
+	// Freelist index and pointers are updated when tile is added, no need to swap.
+
+	return true;
+}
+
+bool dtNavMeshDataSwapEndian(unsigned char* data, const int dataSize)
+{
+	// Make sure the data is in right format.
+	dtMeshHeader* header = (dtMeshHeader*)data;
+	if (header->magic != DT_NAVMESH_MAGIC)
+		return false;
+	if (header->version != DT_NAVMESH_VERSION)
+		return false;
+	
+	// Patch header pointers.
+	const int headerSize = align4(sizeof(dtMeshHeader));
+	const int vertsSize = align4(sizeof(float)*3*header->vertCount);
+	const int polysSize = align4(sizeof(dtPoly)*header->polyCount);
+	const int linksSize = align4(sizeof(dtLink)*(header->maxLinkCount));
+	const int detailMeshesSize = align4(sizeof(dtPolyDetail)*header->detailMeshCount);
+	const int detailVertsSize = align4(sizeof(float)*3*header->detailVertCount);
+	const int detailTrisSize = align4(sizeof(unsigned char)*4*header->detailTriCount);
+	const int bvtreeSize = align4(sizeof(dtBVNode)*header->bvNodeCount);
+	const int offMeshLinksSize = align4(sizeof(dtOffMeshConnection)*header->offMeshConCount);
+	
+	unsigned char* d = data + headerSize;
+	float* verts = (float*)d; d += vertsSize;
+	dtPoly* polys = (dtPoly*)d; d += polysSize;
+	/*dtLink* links = (dtLink*)d;*/ d += linksSize;
+	dtPolyDetail* detailMeshes = (dtPolyDetail*)d; d += detailMeshesSize;
+	float* detailVerts = (float*)d; d += detailVertsSize;
+	/*unsigned char* detailTris = (unsigned char*)d;*/ d += detailTrisSize;
+	dtBVNode* bvTree = (dtBVNode*)d; d += bvtreeSize;
+	dtOffMeshConnection* offMeshCons = (dtOffMeshConnection*)d; d += offMeshLinksSize;
+	
+	// Vertices
+	for (int i = 0; i < header->vertCount*3; ++i)
+	{
+		swapEndian(&verts[i]);
+	}
+
+	// Polys
+	for (int i = 0; i < header->polyCount; ++i)
+	{
+		dtPoly* p = &polys[i];
+		// poly->firstLink is update when tile is added, no need to swap.
+		for (int j = 0; j < DT_VERTS_PER_POLYGON; ++j)
+		{
+			swapEndian(&p->verts[j]);
+			swapEndian(&p->neis[j]);
+		}
+		swapEndian(&p->flags);
+	}
+
+	// Links are rebuild when tile is added, no need to swap.
+
+	// Detail meshes
+	for (int i = 0; i < header->detailMeshCount; ++i)
+	{
+		dtPolyDetail* pd = &detailMeshes[i];
+		swapEndian(&pd->vertBase);
+		swapEndian(&pd->vertCount);
+		swapEndian(&pd->triBase);
+		swapEndian(&pd->triCount);
+	}
+	
+	// Detail verts
+	for (int i = 0; i < header->detailVertCount*3; ++i)
+	{
+		swapEndian(&detailVerts[i]);
+	}
+
+	// BV-tree
+	for (int i = 0; i < header->bvNodeCount; ++i)
+	{
+		dtBVNode* node = &bvTree[i];
+		for (int j = 0; j < 3; ++j)
+		{
+			swapEndian(&node->bmin[j]);
+			swapEndian(&node->bmax[j]);
+		}
+		swapEndian(&node->i);
+	}
+
+	// Off-mesh Connections.
+	for (int i = 0; i < header->offMeshConCount; ++i)
+	{
+		dtOffMeshConnection* con = &offMeshCons[i];
+		for (int j = 0; j < 6; ++j)
+			swapEndian(&con->pos[j]);
+		swapEndian(&con->rad);
+		swapEndian(&con->poly);
+	}
 	
 	return true;
 }

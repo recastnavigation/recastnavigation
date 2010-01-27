@@ -49,6 +49,16 @@ struct dtNavMeshCreateParams
 	int tileSize;
 };
 
+// Build navmesh data from given input data.
 bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData, int* outDataSize);
+
+// Swaps endianess of navmesh header.
+bool dtNavMeshHeaderSwapEndian(unsigned char* data, const int dataSize);
+
+// Swaps endianess of the navmesh data. This function assumes that the header is in correct
+// endianess already. Call dtNavMeshHeaderSwapEndian() first on the data if the data is
+// assumed to be in wrong endianess to start with. If converting from native endianess to foreign,
+// call dtNavMeshHeaderSwapEndian() after the data has been swapped.
+bool dtNavMeshDataSwapEndian(unsigned char* data, const int dataSize);
 
 #endif // DETOURNAVMESHBUILDER_H
