@@ -35,6 +35,9 @@
 #	define snprintf _snprintf
 #endif
 
+// Uncomment this to dump all the requests in stdout.
+#define DUMP_REQS
+
 inline bool inRange(const float* v1, const float* v2, const float r, const float h)
 {
 	const float dx = v2[0] - v1[0];
@@ -252,6 +255,11 @@ void NavMeshTesterTool::recalc()
 	{
 		if (m_sposSet && m_eposSet && m_startRef && m_endRef)
 		{
+#ifdef DUMP_REQS
+			printf("pi  %f %f %f  %f %f %f  0x%x 0x%x\n",
+				   m_spos[0],m_spos[1],m_spos[2], m_epos[0],m_epos[1],m_epos[2],
+				   m_filter.includeFlags, m_filter.excludeFlags); 
+#endif
 			m_npolys = m_navMesh->findPath(m_startRef, m_endRef, m_spos, m_epos, &m_filter, m_polys, MAX_POLYS);
 
 			m_nsmoothPath = 0;
@@ -386,6 +394,11 @@ void NavMeshTesterTool::recalc()
 	{
 		if (m_sposSet && m_eposSet && m_startRef && m_endRef)
 		{
+#ifdef DUMP_REQS
+			printf("ps  %f %f %f  %f %f %f  0x%x 0x%x\n",
+				   m_spos[0],m_spos[1],m_spos[2], m_epos[0],m_epos[1],m_epos[2],
+				   m_filter.includeFlags, m_filter.excludeFlags); 
+#endif
 			m_npolys = m_navMesh->findPath(m_startRef, m_endRef, m_spos, m_epos, &m_filter, m_polys, MAX_POLYS);
 			m_nstraightPath = 0;
 			if (m_npolys)
@@ -406,6 +419,11 @@ void NavMeshTesterTool::recalc()
 		m_nstraightPath = 0;
 		if (m_sposSet && m_eposSet && m_startRef)
 		{
+#ifdef DUMP_REQS
+			printf("rc  %f %f %f  %f %f %f  0x%x 0x%x\n",
+				   m_spos[0],m_spos[1],m_spos[2], m_epos[0],m_epos[1],m_epos[2],
+				   m_filter.includeFlags, m_filter.excludeFlags); 
+#endif
 			float t = 0;
 			m_npolys = 0;
 			m_nstraightPath = 2;
@@ -427,7 +445,14 @@ void NavMeshTesterTool::recalc()
 	{
 		m_distanceToWall = 0;
 		if (m_sposSet && m_startRef)
+		{
+#ifdef DUMP_REQS
+			printf("dw  %f %f %f  %f  0x%x 0x%x\n",
+				   m_spos[0],m_spos[1],m_spos[2], 100.0f,
+				   m_filter.includeFlags, m_filter.excludeFlags); 
+#endif
 			m_distanceToWall = m_navMesh->findDistanceToWall(m_startRef, m_spos, 100.0f, &m_filter, m_hitPos, m_hitNormal);
+		}
 	}
 	else if (m_toolMode == TOOLMODE_FIND_POLYS_AROUND)
 	{
@@ -436,6 +461,11 @@ void NavMeshTesterTool::recalc()
 			const float dx = m_epos[0] - m_spos[0];
 			const float dz = m_epos[2] - m_spos[2];
 			float dist = sqrtf(dx*dx + dz*dz);
+#ifdef DUMP_REQS
+			printf("fp  %f %f %f  %f  0x%x 0x%x\n",
+				   m_spos[0],m_spos[1],m_spos[2], dist,
+				   m_filter.includeFlags, m_filter.excludeFlags); 
+#endif
 			m_npolys = m_navMesh->findPolysAround(m_startRef, m_spos, dist, &m_filter, m_polys, m_parent, 0, MAX_POLYS);
 		}
 	}

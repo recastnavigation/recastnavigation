@@ -32,6 +32,7 @@
 #include "Recast.h"
 #include "RecastDebugDraw.h"
 #include "InputGeom.h"
+#include "TestCase.h"
 
 #include "Sample_SoloMeshSimple.h"
 #include "Sample_SoloMeshTiled.h"
@@ -195,6 +196,7 @@ int main(int argc, char *argv[])
 	bool showTools = true;
 	bool showLevels = false;
 	bool showSample = false;
+	bool showTestCases = false;
 
 	int propScroll = 0;
 	int logScroll = 0;
@@ -203,15 +205,15 @@ int main(int argc, char *argv[])
 	
 	char sampleName[64] = "Choose Sample..."; 
 	
-	FileList meshFiles;
+	FileList files;
 	char meshName[128] = "Choose Mesh...";
-	
-	InputGeom* geom = 0;
 	
 	float mpos[3];
 	bool mposSet = false;
 	
+	InputGeom* geom = 0;
 	Sample* sample = 0;
+	TestCase* test = 0;
 
 	rcLog log;
 	log.clear();
@@ -246,6 +248,13 @@ int main(int argc, char *argv[])
 					if (event.key.keysym.sym == SDLK_ESCAPE)
 					{
 						done = true;
+					}
+					else if (event.key.keysym.sym == SDLK_TAB)
+					{
+						showLevels = false;
+						showSample = false;
+						showTestCases = true;
+						scanDirectory("Tests", ".txt", files);
 					}
 					break;
 					
@@ -404,6 +413,8 @@ int main(int argc, char *argv[])
 
 		if (sample)
 			sample->handleRender();
+		if (test)
+			test->handleRender();
 
 		glDisable(GL_FOG);
 		
@@ -415,11 +426,18 @@ int main(int argc, char *argv[])
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 		
+		mouseOverMenu = false;
+		
 		imguiBeginFrame(mx,my,mbut,mscroll);
 		
 		if (sample)
 		{
 			sample->handleRenderOverlay((double*)proj, (double*)model, (int*)view);
+		}
+		if (test)
+		{
+			if (test->handleRenderOverlay((double*)proj, (double*)model, (int*)view))
+				mouseOverMenu = true;
 		}
 
 		// Help text.
@@ -429,8 +447,6 @@ int main(int argc, char *argv[])
 			imguiDrawText(width/2, height-20, IMGUI_ALIGN_CENTER, msg, imguiRGBA(255,255,255,128));
 		}
 		
-		mouseOverMenu = false;
-
 		if (showMenu)
 		{
 			int propDiv = showDebugMode ? (int)(height*0.6f) : height;
@@ -458,6 +474,7 @@ int main(int argc, char *argv[])
 				{
 					showSample = true;
 					showLevels = false;
+					showTestCases = false;
 				}
 			}
 			
@@ -474,8 +491,9 @@ int main(int argc, char *argv[])
 					else
 					{
 						showSample = false;
+						showTestCases = false;
 						showLevels = true;
-						scanDirectory("Meshes", ".obj", meshFiles);
+						scanDirectory("Meshes", ".obj", files);
 					}
 				}
 				if (geom)
@@ -504,6 +522,10 @@ int main(int argc, char *argv[])
 					printf("Build log %s:\n", meshName);
 					for (int i = 0; i < log.getMessageCount(); ++i)
 						printf("%s\n", log.getMessageText(i));
+					
+					// Clear test.
+					delete test;
+					test = 0;
 				}
 
 				imguiSeparator();
@@ -564,15 +586,15 @@ int main(int argc, char *argv[])
 				mouseOverMenu = true;
 			
 			int levelToLoad = -1;
-			for (int i = 0; i < meshFiles.size; ++i)
+			for (int i = 0; i < files.size; ++i)
 			{
-				if (imguiItem(meshFiles.files[i]))
+				if (imguiItem(files.files[i]))
 					levelToLoad = i;
 			}
 			
 			if (levelToLoad != -1)
 			{
-				strncpy(meshName, meshFiles.files[levelToLoad], sizeof(meshName));
+				strncpy(meshName, files.files[levelToLoad], sizeof(meshName));
 				meshName[sizeof(meshName)-1] = '\0';
 				showLevels = false;
 				
@@ -591,7 +613,7 @@ int main(int argc, char *argv[])
 					
 					showLog = true;
 					logScroll = 0;
-					printf("Build log %s:\n", meshName);
+					printf("Geom load log %s:\n", meshName);
 					for (int i = 0; i < log.getMessageCount(); ++i)
 						printf("%s\n", log.getMessageText(i));
 				}
@@ -623,6 +645,115 @@ int main(int argc, char *argv[])
 			
 		}
 		
+		// Test cases
+		if (showTestCases)
+		{
+			static int testScroll = 0;
+			if (imguiBeginScrollArea("Choose Test To Run", width-10-250-10-200, height-10-450, 200, 450, &testScroll))
+				mouseOverMenu = true;
+
+			int testToLoad = -1;
+			for (int i = 0; i < files.size; ++i)
+			{
+				if (imguiItem(files.files[i]))
+					testToLoad = i;
+			}
+			
+			if (testToLoad != -1)
+			{
+				char path[256];
+				strcpy(path, "Tests/");
+				strcat(path, files.files[testToLoad]);
+				test = new TestCase;
+				if (test)
+				{
+					// Load the test.
+					if (!test->load(path))
+					{
+						delete test;
+						test = 0;
+					}
+
+					// Create sample
+					Sample* newSample = 0;
+					for (int i = 0; i < g_nsamples; ++i)
+					{
+						if (strcmp(g_samples[i].name, test->getSampleName()) == 0)
+						{
+							newSample = g_samples[i].create();
+							if (newSample) strcpy(sampleName, g_samples[i].name);
+						}
+					}
+					if (newSample)
+					{
+						delete sample;
+						sample = newSample;
+						showSample = false;
+					}
+
+					// Load geom.
+					strcpy(meshName, test->getGeomFileName());
+					meshName[sizeof(meshName)-1] = '\0';
+					
+					delete geom;
+					geom = 0;
+					
+					strcpy(path, "Meshes/");
+					strcat(path, meshName);
+					
+					geom = new InputGeom;
+					if (!geom || !geom->loadMesh(path))
+					{
+						delete geom;
+						geom = 0;
+						
+						showLog = true;
+						logScroll = 0;
+						printf("Geom load log %s:\n", meshName);
+						for (int i = 0; i < log.getMessageCount(); ++i)
+							printf("%s\n", log.getMessageText(i));
+					}
+					if (sample && geom)
+					{
+						sample->handleMeshChanged(geom);
+					}
+
+					log.clear();
+					if (sample && !sample->handleBuild())
+					{
+						printf("Build log %s:\n", meshName);
+						for (int i = 0; i < log.getMessageCount(); ++i)
+							printf("%s\n", log.getMessageText(i));
+					}
+					
+					if (geom)
+					{
+						const float* bmin = geom->getMeshBoundsMin();
+						const float* bmax = geom->getMeshBoundsMax();
+						// Reset camera and fog to match the mesh bounds.
+						camr = sqrtf(rcSqr(bmax[0]-bmin[0]) +
+									 rcSqr(bmax[1]-bmin[1]) +
+									 rcSqr(bmax[2]-bmin[2])) / 2;
+						camx = (bmax[0] + bmin[0]) / 2 + camr;
+						camy = (bmax[1] + bmin[1]) / 2 + camr;
+						camz = (bmax[2] + bmin[2]) / 2 + camr;
+						camr *= 3;
+						rx = 45;
+						ry = -45;
+						glFogf(GL_FOG_START, camr*0.2f);
+						glFogf(GL_FOG_END, camr*1.25f);
+					}
+
+					// Do the tests.
+					if (sample)
+						test->doTests(sample->getNavMesh());
+				}
+			}				
+				
+			imguiEndScrollArea();
+		}
+
+		
 		// Log
 		if (showLog && showMenu)
 		{
@@ -634,9 +765,9 @@ int main(int argc, char *argv[])
 		}
 		
 		// Tools
-		if (showTools && showMenu && geom && sample)
+		if (!showTestCases && showTools && showMenu && geom && sample)
 		{
-			if (imguiBeginScrollArea("Tools", 10, height - 10 - 250, 200, 250, &toolsScroll))
+			if (imguiBeginScrollArea("Tools", 10, height - 10 - 350, 200, 350, &toolsScroll))
 				mouseOverMenu = true;
 
 			sample->handleTools();
