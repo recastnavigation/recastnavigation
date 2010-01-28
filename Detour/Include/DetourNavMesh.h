@@ -30,6 +30,7 @@ static const int DT_NAVMESH_VERSION = 2;
 
 static const unsigned short DT_EXT_LINK = 0x8000;
 static const unsigned int DT_NULL_LINK = 0xffffffff;
+static const unsigned int DT_OFFMESH_CON_BIDIR = 1;
 
 // Flags returned by findStraightPath().
 enum dtStraightPathFlags

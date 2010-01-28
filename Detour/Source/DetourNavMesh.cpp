@@ -388,19 +388,22 @@ void dtNavMesh::connectExtOffMeshLinks(dtMeshTile* tile, dtMeshTile* target, int
 		}
 		
 		// Link target poly to off-mesh connection.
-		idx = allocLink(tile);
-		if (idx != DT_NULL_LINK)
+		if (targetCon->flags & DT_OFFMESH_CON_BIDIR)
 		{
-			unsigned short landPolyIdx = decodePolyIdPoly(ref);
-			dtPoly* landPoly = &header->polys[landPolyIdx];
-			dtLink* link = &header->links[idx];
-			link->ref = getTileId(target) | (unsigned int)(targetCon->poly);
-			link->edge = 0;
-			link->side = side;
-			link->bmin = link->bmax = 0;
-			// Add to linked list.
-			link->next = landPoly->firstLink;
-			landPoly->firstLink = idx;
+			unsigned int idx = allocLink(tile);
+			if (idx != DT_NULL_LINK)
+			{
+				unsigned short landPolyIdx = decodePolyIdPoly(ref);
+				dtPoly* landPoly = &header->polys[landPolyIdx];
+				dtLink* link = &header->links[idx];
+				link->ref = getTileId(target) | (unsigned int)(targetCon->poly);
+				link->edge = 0;
+				link->side = side;
+				link->bmin = link->bmax = 0;
+				// Add to linked list.
+				link->next = landPoly->firstLink;
+				landPoly->firstLink = idx;
+			}
 		}
 	}
 
@@ -492,20 +495,25 @@ void dtNavMesh::connectIntOffMeshLinks(dtMeshTile* tile)
 					poly->firstLink = idx;
 				}
 
-				// Link target poly to off-mesh connection.
-				idx = allocLink(tile);
-				if (idx != DT_NULL_LINK)
+				// Start end-point is always connect back to off-mesh connection,
+				// Destination end-point only if it is bidirectional link. 
+				if (j == 0 || (j == 1 && (con->flags & DT_OFFMESH_CON_BIDIR)))
 				{
-					unsigned short landPolyIdx = decodePolyIdPoly(ref);
-					dtPoly* landPoly = &header->polys[landPolyIdx];
-					dtLink* link = &header->links[idx];
-					link->ref = base | (unsigned int)(con->poly);
-					link->edge = 0;
-					link->side = 0xff;
-					link->bmin = link->bmax = 0;
-					// Add to linked list.
-					link->next = landPoly->firstLink;
-					landPoly->firstLink = idx;
+					// Link target poly to off-mesh connection.
+					unsigned int idx = allocLink(tile);
+					if (idx != DT_NULL_LINK)
+					{
+						unsigned short landPolyIdx = decodePolyIdPoly(ref);
+						dtPoly* landPoly = &header->polys[landPolyIdx];
+						dtLink* link = &header->links[idx];
+						link->ref = base | (unsigned int)(con->poly);
+						link->edge = 0;
+						link->side = 0xff;
+						link->bmin = link->bmax = 0;
+						// Add to linked list.
+						link->next = landPoly->firstLink;
+						landPoly->firstLink = idx;
+					}
 				}
 				
 			}
