@@ -264,13 +264,10 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	int storedOffMeshConCount = 0;
 	int offMeshConLinkCount = 0;
 
-	printf("classify\n");
 	for (int i = 0; i < params->offMeshConCount; ++i)
 	{
 		offMeshConFlags[i*2+0] = classifyOffMeshPoint(&params->offMeshConVerts[(i*2+0)*3], params->bmin, params->bmax);
 		offMeshConFlags[i*2+1] = classifyOffMeshPoint(&params->offMeshConVerts[(i*2+1)*3], params->bmin, params->bmax);
-
-		printf("  %d, %d\n", (int)offMeshConFlags[i*2+0], (int)offMeshConFlags[i*2+1]);
 
 		// Cound how many links should be allocated for off-mesh connections.
 		if (offMeshConFlags[i*2+0] == 0xff)
