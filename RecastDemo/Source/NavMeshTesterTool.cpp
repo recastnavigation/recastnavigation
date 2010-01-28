@@ -129,12 +129,12 @@ void NavMeshTesterTool::handleMenu()
 
 	imguiLabel("Include Flags");
 
-	if (imguiCheck("Ground", m_filter.includeFlags & DT_POLY_GROUND))
+	if (imguiCheck("Ground", (m_filter.includeFlags & DT_POLY_GROUND) ? true : false))
 	{
 		m_filter.includeFlags ^= DT_POLY_GROUND;
 		recalc();
 	}
-	if (imguiCheck("Off-Mesh Connections", m_filter.includeFlags & DT_POLY_OFFMESH_CONNECTION))
+	if (imguiCheck("Off-Mesh Connections", (m_filter.includeFlags & DT_POLY_OFFMESH_CONNECTION) ? true : false))
 	{
 		m_filter.includeFlags ^= DT_POLY_OFFMESH_CONNECTION;
 		recalc();
@@ -142,12 +142,12 @@ void NavMeshTesterTool::handleMenu()
 
 	imguiLabel("Exclude Flags");
 	
-	if (imguiCheck("Ground", m_filter.excludeFlags & DT_POLY_GROUND))
+	if (imguiCheck("Ground", (m_filter.excludeFlags & DT_POLY_GROUND) ? true : false))
 	{
 		m_filter.excludeFlags ^= DT_POLY_GROUND;
 		recalc();
 	}
-	if (imguiCheck("Off-Mesh Connections", m_filter.excludeFlags & DT_POLY_OFFMESH_CONNECTION))
+	if (imguiCheck("Off-Mesh Connections", (m_filter.excludeFlags & DT_POLY_OFFMESH_CONNECTION) ? true : false))
 	{
 		m_filter.excludeFlags ^= DT_POLY_OFFMESH_CONNECTION;
 		recalc();
@@ -287,8 +287,8 @@ void NavMeshTesterTool::recalc()
 										polys, npolys, steerPos, steerPosFlag, steerPosRef))
 						break;
 					
-					bool endOfPath = steerPosFlag & DT_STRAIGHTPATH_END;
-					bool offMeshConnection = steerPosFlag & DT_STRAIGHTPATH_OFFMESH_CONNECTION;
+					bool endOfPath = (steerPosFlag & DT_STRAIGHTPATH_END) ? true : false;
+					bool offMeshConnection = (steerPosFlag & DT_STRAIGHTPATH_OFFMESH_CONNECTION) ? true : false;
 					
 					// Find movement delta.
 					float delta[3], len;

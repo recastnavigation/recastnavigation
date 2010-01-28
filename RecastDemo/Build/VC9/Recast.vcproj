@@ -284,6 +284,10 @@
 		<Filter
 			Name="Demo"
 			>
+			<File
+				RelativePath="..\..\Source\InputGeom.cpp"
+				>
+			</File>
 			<Filter
 				Name="Include"
 				>
@@ -304,11 +308,15 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\Include\Sample.h"
+					RelativePath="..\..\Include\NavMeshTesterTool.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\Include\Sample_SoloMesh.h"
+					RelativePath="..\..\Include\OffMeshConnectionTool.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Include\Sample.h"
 					>
 				</File>
 				<File
@@ -344,6 +352,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\Include\InputGeom.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\Source\main.cpp"
 					>
 				</File>
@@ -352,11 +364,15 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\Source\Sample.cpp"
+					RelativePath="..\..\Source\NavMeshTesterTool.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\Source\Sample_SoloMesh.cpp"
+					RelativePath="..\..\Source\OffMeshConnectionTool.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\Sample.cpp"
 					>
 				</File>
 				<File
