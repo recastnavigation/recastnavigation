@@ -126,15 +126,16 @@ void duDebugDrawHeightfieldWalkable(duDebugDraw* dd, const rcHeightfield& hf)
 	const int h = hf.height;
 	
 	unsigned int fcol0[6], fcol1[6], fcol2[6];
-	duCalcBoxColors(fcol0, duRGBA(128,192,217,255), duRGBA(217,217,217,255)); // Culled
+	duCalcBoxColors(fcol0, duRGBA(64,48,32,255), duRGBA(217,217,217,255)); // Culled
 	duCalcBoxColors(fcol1, duRGBA(77,140,165,255), duRGBA(217,217,217,255)); // Walkable
-	duCalcBoxColors(fcol2, duRGBA(38,102,128,255), duRGBA(217,217,217,255)); // Ledge
+	duCalcBoxColors(fcol2, duRGBA(128,38,102,255), duRGBA(217,217,217,255)); // Ledge
 
 	dd->begin(DU_DRAW_QUADS);
 	
 	for (int y = 0; y < h; ++y)
 	{
 		for (int x = 0; x < w; ++x)
+	
 		{
 			float fx = orig[0] + x*cs;
 			float fz = orig[2] + y*cs;

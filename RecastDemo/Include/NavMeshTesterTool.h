@@ -27,9 +27,6 @@ class NavMeshTesterTool : public SampleTool
 	Sample* m_sample;
 	
 	dtNavMesh* m_navMesh;
-	float m_agentRadius;
-	float m_agentHeight;
-	float m_agentClimb;
 
 	dtQueryFilter m_filter;
 

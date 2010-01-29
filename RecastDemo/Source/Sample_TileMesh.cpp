@@ -638,7 +638,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const float* bmin, const float* bm
 		rcMarkWalkableTriangles(m_cfg.walkableSlopeAngle,
 								verts, nverts, tris, ntris, m_triflags);
 		
-		rcRasterizeTriangles(verts, nverts, tris, m_triflags, ntris, *m_solid);
+		rcRasterizeTriangles(verts, nverts, tris, m_triflags, ntris, *m_solid, m_cfg.walkableClimb);
 	}
 	
 	if (!m_keepInterResults)
@@ -650,6 +650,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const float* bmin, const float* bm
 	// Once all geoemtry is rasterized, we do initial pass of filtering to
 	// remove unwanted overhangs caused by the conservative rasterization
 	// as well as filter spans where the character cannot possibly stand.
+	rcFilterLowHangingWalkableObstacles(m_cfg.walkableClimb, *m_solid);
 	rcFilterLedgeSpans(m_cfg.walkableHeight, m_cfg.walkableClimb, *m_solid);
 	rcFilterWalkableLowHeightSpans(m_cfg.walkableHeight, *m_solid);
 	
@@ -772,15 +773,6 @@ unsigned char* Sample_TileMesh::buildTileMesh(const float* bmin, const float* bm
 				rcGetLog()->log(RC_LOG_ERROR, "Too many vertices per tile %d (max: %d).", m_pmesh->nverts, 0xffff);
 			return false;
 		}
-		/*		if (m_pmesh->npolys > DT_MAX_TILES)
-		 {
-		 // If you hit this error, you have too many polygons per tile.
-		 // You can trade off tile count to poly count by adjusting DT_TILE_REF_TILE_BITS and DT_TILE_REF_POLY_BITS.
-		 // The current setup is optimized for large number of tiles and small number of polys per tile.
-		 if (rcGetLog())
-		 rcGetLog()->log(RC_LOG_ERROR, "Too many polygons per tile %d (max: %d).", m_pmesh->npolys, DT_MAX_TILES);
-		 return false;
-		 }*/
 		
 		dtNavMeshCreateParams params;
 		memset(&params, 0, sizeof(params));

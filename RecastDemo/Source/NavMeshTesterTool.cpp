@@ -50,8 +50,6 @@ inline bool inRange(const float* v1, const float* v2, const float r, const float
 NavMeshTesterTool::NavMeshTesterTool() :
 	m_sample(0),
 	m_navMesh(0),
-	m_agentRadius(0),
-	m_agentHeight(0),
 	m_toolMode(TOOLMODE_PATHFIND_ITER),
 	m_startRef(0),
 	m_endRef(0),
@@ -84,9 +82,6 @@ NavMeshTesterTool::~NavMeshTesterTool()
 void NavMeshTesterTool::init(Sample* sample)
 {
 	m_sample = sample;
-	m_agentRadius = sample->getAgentRadius();
-	m_agentHeight = sample->getAgentHeight();
-	m_agentClimb = 	sample->getAgentClimb();
 	m_navMesh = sample->getNavMesh();
 	recalc();
 
@@ -494,9 +489,6 @@ static void getPolyCenter(dtNavMesh* navMesh, dtPolyRef ref, float* center)
 
 void NavMeshTesterTool::handleRender()
 {
-	if (!m_navMesh)
-		return;
-	
 	DebugDrawGL dd;
 	
 	static const unsigned int startCol = duRGBA(128,25,0,192);
@@ -505,11 +497,18 @@ void NavMeshTesterTool::handleRender()
 	
 	glDepthMask(GL_FALSE);
 
-	if (m_sposSet)
-		drawAgent(m_spos, m_agentRadius, m_agentHeight, 0/*m_agentMaxClimb*/, startCol);
-	if (m_eposSet)
-		drawAgent(m_epos, m_agentRadius, m_agentHeight, 0/*m_agentMaxClimb*/, endCol);
+	const float agentRadius = m_sample->getAgentRadius();
+	const float agentHeight = m_sample->getAgentHeight();
+	const float agentClimb = m_sample->getAgentClimb();
 	
+	if (m_sposSet)
+		drawAgent(m_spos, agentRadius, agentHeight, agentClimb, startCol);
+	if (m_eposSet)
+		drawAgent(m_epos, agentRadius, agentHeight, agentClimb, endCol);
+	
+	if (!m_navMesh)
+		return;
+
 	if (m_toolMode == TOOLMODE_PATHFIND_ITER)
 	{
 		duDebugDrawNavMeshPoly(&dd, m_navMesh, m_startRef, startCol);
@@ -600,19 +599,19 @@ void NavMeshTesterTool::handleRender()
 			const unsigned int hitCol = duRGBA(0,0,0,128);
 			dd.begin(DU_DRAW_LINES, 2.0f);
 			dd.vertex(m_hitPos[0], m_hitPos[1] + 0.4f, m_hitPos[2], hitCol);
-			dd.vertex(m_hitPos[0] + m_hitNormal[0]*m_agentRadius,
-					  m_hitPos[1] + 0.4f + m_hitNormal[1]*m_agentRadius,
-					  m_hitPos[2] + m_hitNormal[2]*m_agentRadius, hitCol);
+			dd.vertex(m_hitPos[0] + m_hitNormal[0]*agentRadius,
+					  m_hitPos[1] + 0.4f + m_hitNormal[1]*agentRadius,
+					  m_hitPos[2] + m_hitNormal[2]*agentRadius, hitCol);
 			dd.end();
 		}
 	}
 	else if (m_toolMode == TOOLMODE_DISTANCE_TO_WALL)
 	{
 		duDebugDrawNavMeshPoly(&dd, m_navMesh, m_startRef, startCol);
-		duDebugDrawCircle(&dd, m_spos[0], m_spos[1]+m_agentHeight/2, m_spos[2], m_distanceToWall, duRGBA(64,16,0,220), 2.0f);
+		duDebugDrawCircle(&dd, m_spos[0], m_spos[1]+agentHeight/2, m_spos[2], m_distanceToWall, duRGBA(64,16,0,220), 2.0f);
 		dd.begin(DU_DRAW_LINES, 3.0f);
 		dd.vertex(m_hitPos[0], m_hitPos[1] + 0.02f, m_hitPos[2], duRGBA(0,0,0,192));
-		dd.vertex(m_hitPos[0], m_hitPos[1] + m_agentHeight, m_hitPos[2], duRGBA(0,0,0,192));
+		dd.vertex(m_hitPos[0], m_hitPos[1] + agentHeight, m_hitPos[2], duRGBA(0,0,0,192));
 		dd.end();
 	}
 	else if (m_toolMode == TOOLMODE_FIND_POLYS_AROUND)
@@ -637,7 +636,7 @@ void NavMeshTesterTool::handleRender()
 			const float dx = m_epos[0] - m_spos[0];
 			const float dz = m_epos[2] - m_spos[2];
 			const float dist = sqrtf(dx*dx + dz*dz);
-			duDebugDrawCircle(&dd, m_spos[0], m_spos[1]+m_agentHeight/2, m_spos[2], dist, duRGBA(64,16,0,220), 2.0f);
+			duDebugDrawCircle(&dd, m_spos[0], m_spos[1]+agentHeight/2, m_spos[2], dist, duRGBA(64,16,0,220), 2.0f);
 			dd.depthMask(true);
 		}
 	}
@@ -670,6 +669,8 @@ void NavMeshTesterTool::drawAgent(const float* pos, float r, float h, float c, c
 	
 	// Agent dimensions.	
 	duDebugDrawCylinderWire(&dd, pos[0]-r, pos[1]+0.02f, pos[2]-r, pos[0]+r, pos[1]+h, pos[2]+r, col, 2.0f);
+
+	duDebugDrawCircle(&dd, pos[0],pos[1]+c,pos[2],r,duRGBA(0,0,0,64),1.0f);
 
 	unsigned int colb = duRGBA(0,0,0,196);
 	dd.begin(DU_DRAW_LINES);

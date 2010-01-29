@@ -349,7 +349,7 @@ bool Sample_SoloMeshSimple::handleBuild()
 	m_cfg.ch = m_cellHeight;
 	m_cfg.walkableSlopeAngle = m_agentMaxSlope;
 	m_cfg.walkableHeight = (int)ceilf(m_agentHeight / m_cfg.ch);
-	m_cfg.walkableClimb = (int)ceilf(m_agentMaxClimb / m_cfg.ch);
+	m_cfg.walkableClimb = (int)floorf(m_agentMaxClimb / m_cfg.ch);
 	m_cfg.walkableRadius = (int)ceilf(m_agentRadius / m_cfg.cs);
 	m_cfg.maxEdgeLen = (int)(m_edgeMaxLen / m_cellSize);
 	m_cfg.maxSimplificationError = m_edgeMaxError;
@@ -415,7 +415,7 @@ bool Sample_SoloMeshSimple::handleBuild()
 	// the flags for each of the meshes and rasterize them.
 	memset(m_triflags, 0, ntris*sizeof(unsigned char));
 	rcMarkWalkableTriangles(m_cfg.walkableSlopeAngle, verts, nverts, tris, ntris, m_triflags);
-	rcRasterizeTriangles(verts, nverts, tris, m_triflags, ntris, *m_solid);
+	rcRasterizeTriangles(verts, nverts, tris, m_triflags, ntris, *m_solid, m_cfg.walkableClimb);
 
 	if (!m_keepInterResults)
 	{
@@ -430,6 +430,7 @@ bool Sample_SoloMeshSimple::handleBuild()
 	// Once all geoemtry is rasterized, we do initial pass of filtering to
 	// remove unwanted overhangs caused by the conservative rasterization
 	// as well as filter spans where the character cannot possibly stand.
+	rcFilterLowHangingWalkableObstacles(m_cfg.walkableClimb, *m_solid);
 	rcFilterLedgeSpans(m_cfg.walkableHeight, m_cfg.walkableClimb, *m_solid);
 	rcFilterWalkableLowHeightSpans(m_cfg.walkableHeight, *m_solid);
 

@@ -24,6 +24,42 @@
 #include "RecastTimer.h"
 
 
+// TODO: Missuses ledge flag, must be called before rcFilterLedgeSpans!
+void rcFilterLowHangingWalkableObstacles(const int walkableClimb, rcHeightfield& solid)
+{
+	const int w = solid.width;
+	const int h = solid.height;
+	
+	for (int y = 0; y < h; ++y)
+	{
+		for (int x = 0; x < w; ++x)
+		{
+			rcSpan* ps = 0;
+			for (rcSpan* s = solid.spans[x + y*w]; s; ps = s, s = s->next)
+			{
+				const bool walkable = (s->flags & RC_WALKABLE) != 0;
+				const bool previousWalkable = ps && (ps->flags & RC_WALKABLE) != 0;
+				// If current span is not walkable, but there is walkable
+				// span just below it, mark the span above it walkable too.
+				// Missuse the edge flag so that walkable flag cannot propagate
+				// past multiple non-walkable objects.
+				if (!walkable && previousWalkable)
+				{
+					if (rcAbs((int)s->smax - (int)ps->smax) <= walkableClimb)
+						s->flags |= RC_LEDGE;
+				}
+			}
+			// Transfer "fake ledges" to walkables.
+			for (rcSpan* s = solid.spans[x + y*w]; s; ps = s, s = s->next)
+			{
+				if (s->flags & RC_LEDGE)
+					s->flags |= RC_WALKABLE;
+				s->flags &= ~RC_LEDGE;
+			}
+		}
+	}
+}
+	
 void rcFilterLedgeSpans(const int walkableHeight,
 						const int walkableClimb,
 						rcHeightfield& solid)
@@ -51,6 +87,10 @@ void rcFilterLedgeSpans(const int walkableHeight,
 				// Find neighbours minimum height.
 				int minh = MAX_HEIGHT;
 
+				// Min and max height of accessible neighbours.
+				int asmin = s->smax;
+				int asmax = s->smax;
+
 				for (int dir = 0; dir < 4; ++dir)
 				{
 					int dx = x + rcGetDirOffsetX(dir);
@@ -77,7 +117,17 @@ void rcFilterLedgeSpans(const int walkableHeight,
 						ntop = ns->next ? (int)ns->next->smin : MAX_HEIGHT;
 						// Skip neightbour if the gap between the spans is too small.
 						if (rcMin(top,ntop) - rcMax(bot,nbot) > walkableHeight)
+						{
 							minh = rcMin(minh, nbot - bot);
+						
+							// Find min/max accessible neighbour height. 
+							if (rcAbs(nbot - bot) <= walkableClimb)
+							{
+								if (nbot < asmin) asmin = nbot;
+								if (nbot > asmax) asmax = nbot;
+							}
+							
+						}
 					}
 				}
 				
@@ -85,6 +135,13 @@ void rcFilterLedgeSpans(const int walkableHeight,
 				// neighbour span is less than the walkableClimb.
 				if (minh < -walkableClimb)
 					s->flags |= RC_LEDGE;
+					
+				// If the difference between all neighbours is too large,
+				// we are at steep slope, mark the span as ledge.
+				if ((asmax - asmin) > walkableClimb)
+				{
+					s->flags |= RC_LEDGE;
+				}
 			}
 		}
 	}

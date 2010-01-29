@@ -416,8 +416,10 @@ void rcMarkWalkableTriangles(const float walkableSlopeAngle,
 //	v0,v1,v2 - (in) the vertices of the triangle.
 //	flags - (in) triangle flags (uses WALKABLE)
 //	solid - (in) heighfield where the triangle is rasterized
+//  flagMergeThr - (in) distance in voxel where walkable flag is favored over non-walkable.
 void rcRasterizeTriangle(const float* v0, const float* v1, const float* v2,
-						 unsigned char flags, rcHeightfield& solid);
+						 unsigned char flags, rcHeightfield& solid,
+						 const int flagMergeThr = 1);
 
 // Rasterizes the triangles into heightfield spans.
 // Params:
@@ -427,9 +429,10 @@ void rcRasterizeTriangle(const float* v0, const float* v1, const float* v2,
 //	flags - (in) array of triangle flags (uses WALKABLE)
 //	nt - (in) triangle count
 //	solid - (in) heighfield where the triangles are rasterized
+//  flagMergeThr - (in) distance in voxel where walkable flag is favored over non-walkable.
 void rcRasterizeTriangles(const float* verts, int nv,
 						  const int* tris, const unsigned char* flags, int nt,
-						  rcHeightfield& solid);
+						  rcHeightfield& solid, const int flagMergeThr = 1);
 
 // Rasterizes the triangles into heightfield spans.
 // Params:
@@ -439,9 +442,10 @@ void rcRasterizeTriangles(const float* verts, int nv,
 //	flags - (in) array of triangle flags (uses WALKABLE)
 //	nt - (in) triangle count
 //	solid - (in) heighfield where the triangles are rasterized
+//  flagMergeThr - (in) distance in voxel where walkable flag is favored over non-walkable.
 void rcRasterizeTriangles(const float* verts, int nv,
 						  const unsigned short* tris, const unsigned char* flags, int nt,
-						  rcHeightfield& solid);
+						  rcHeightfield& solid, const int flagMergeThr = 1);
 
 // Rasterizes the triangles into heightfield spans.
 // Params:
@@ -451,6 +455,15 @@ void rcRasterizeTriangles(const float* verts, int nv,
 //	solid - (in) heighfield where the triangles are rasterized
 void rcRasterizeTriangles(const float* verts, const unsigned char* flags, int nt,
 						  rcHeightfield& solid);
+
+// Marks non-walkable low obstacles as walkable if they are closer than walkableClimb
+// from a walkable surface. Applying this filter allows to step over low hanging
+// low obstacles.
+// Params:
+//	walkableHeight - (in) minimum height where the agent can still walk
+//	solid - (in/out) heightfield describing the solid space
+// TODO: Missuses ledge flag, must be called before rcFilterLedgeSpans!
+void rcFilterLowHangingWalkableObstacles(const int walkableClimb, rcHeightfield& solid);
 
 // Removes WALKABLE flag from all spans that are at ledges. This filtering
 // removes possible overestimation of the conservative voxelization so that
