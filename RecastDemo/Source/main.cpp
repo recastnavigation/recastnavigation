@@ -256,6 +256,49 @@ int main(int argc, char *argv[])
 						showTestCases = true;
 						scanDirectory("Tests", ".txt", files);
 					}
+					else if (event.key.keysym.sym == SDLK_1)
+					{
+						if (geom)
+							geom->save("geomset.txt");
+					}
+					else if (event.key.keysym.sym == SDLK_2)
+					{
+						delete geom;
+						geom = new InputGeom;
+						if (!geom || !geom->load("geomset.txt"))
+						{
+							delete geom;
+							geom = 0;
+							
+							showLog = true;
+							logScroll = 0;
+							printf("Geom load log %s:\n", meshName);
+							for (int i = 0; i < log.getMessageCount(); ++i)
+								printf("%s\n", log.getMessageText(i));
+						}
+						if (sample && geom)
+						{
+							sample->handleMeshChanged(geom);
+						}
+							
+						if (geom)
+						{
+							const float* bmin = geom->getMeshBoundsMin();
+							const float* bmax = geom->getMeshBoundsMax();
+							// Reset camera and fog to match the mesh bounds.
+							camr = sqrtf(rcSqr(bmax[0]-bmin[0]) +
+										 rcSqr(bmax[1]-bmin[1]) +
+										 rcSqr(bmax[2]-bmin[2])) / 2;
+							camx = (bmax[0] + bmin[0]) / 2 + camr;
+							camy = (bmax[1] + bmin[1]) / 2 + camr;
+							camz = (bmax[2] + bmin[2]) / 2 + camr;
+							camr *= 3;
+							rx = 45;
+							ry = -45;
+							glFogf(GL_FOG_START, camr*0.2f);
+							glFogf(GL_FOG_END, camr*1.25f);
+						}
+					}
 					break;
 					
 				case SDL_MOUSEBUTTONDOWN:

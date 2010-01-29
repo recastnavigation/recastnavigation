@@ -42,6 +42,7 @@
 		6BB93CF610CFEC4500F74F2B /* RecastDump.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BB93CF510CFEC4500F74F2B /* RecastDump.cpp */; };
 		6BCF32361104CD05009445BF /* OffMeshConnectionTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BCF32351104CD05009445BF /* OffMeshConnectionTool.cpp */; };
 		6BF7C1401111953A002B3F46 /* TestCase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BF7C13F1111953A002B3F46 /* TestCase.cpp */; };
+		6BF7C3C511131B1F002B3F46 /* BoxVolumeTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BF7C3C411131B1F002B3F46 /* BoxVolumeTool.cpp */; };
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 /* End PBXBuildFile section */
@@ -113,6 +114,8 @@
 		6BCF32351104CD05009445BF /* OffMeshConnectionTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OffMeshConnectionTool.cpp; path = ../../Source/OffMeshConnectionTool.cpp; sourceTree = SOURCE_ROOT; };
 		6BF7C13E11119520002B3F46 /* TestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestCase.h; path = ../../Include/TestCase.h; sourceTree = SOURCE_ROOT; };
 		6BF7C13F1111953A002B3F46 /* TestCase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TestCase.cpp; path = ../../Source/TestCase.cpp; sourceTree = SOURCE_ROOT; };
+		6BF7C3C311131B0F002B3F46 /* BoxVolumeTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BoxVolumeTool.h; path = ../../Include/BoxVolumeTool.h; sourceTree = SOURCE_ROOT; };
+		6BF7C3C411131B1F002B3F46 /* BoxVolumeTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BoxVolumeTool.cpp; path = ../../Source/BoxVolumeTool.cpp; sourceTree = SOURCE_ROOT; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* Recast.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Recast.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -268,6 +271,8 @@
 				6BCF32351104CD05009445BF /* OffMeshConnectionTool.cpp */,
 				6BB7FC0910EBB6AA006DA0A6 /* NavMeshTesterTool.h */,
 				6BB7FC0A10EBB6AA006DA0A6 /* NavMeshTesterTool.cpp */,
+				6BF7C3C311131B0F002B3F46 /* BoxVolumeTool.h */,
+				6BF7C3C411131B1F002B3F46 /* BoxVolumeTool.cpp */,
 			);
 			name = Tools;
 			sourceTree = "<group>";
@@ -389,6 +394,7 @@
 				6BB7FDA510F36F0E006DA0A6 /* InputGeom.cpp in Sources */,
 				6BCF32361104CD05009445BF /* OffMeshConnectionTool.cpp in Sources */,
 				6BF7C1401111953A002B3F46 /* TestCase.cpp in Sources */,
+				6BF7C3C511131B1F002B3F46 /* BoxVolumeTool.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

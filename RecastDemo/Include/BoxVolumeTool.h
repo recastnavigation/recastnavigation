@@ -16,36 +16,32 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#ifndef MESHLOADER_OBJ
-#define MESHLOADER_OBJ
+#ifndef BOXVOLUMETOOL_H
+#define BOXVOLUMETOOL_H
 
-class rcMeshLoaderObj
+#include "Sample.h"
+
+// Tool to create box volumess for InputGeom
+
+class BoxVolumeTool : public SampleTool
 {
+	Sample* m_sample;
+	float m_hitPos[3];
+	bool m_hitPosSet;
+	float m_areaType;
+	float m_boxHeight;
+	
 public:
-	rcMeshLoaderObj();
-	~rcMeshLoaderObj();
+	BoxVolumeTool();
+	~BoxVolumeTool();
 	
-	bool load(const char* fileName);
-
-	inline const float* getVerts() const { return m_verts; }
-	inline const float* getNormals() const { return m_normals; }
-	inline const int* getTris() const { return m_tris; }
-	inline int getVertCount() const { return m_vertCount; }
-	inline int getTriCount() const { return m_triCount; }
-	inline const char* getFileName() const { return m_filename; }
-
-private:
-	
-	void addVertex(float x, float y, float z, int& cap);
-	void addTriangle(int a, int b, int c, int& cap);
-	
-	char m_filename[260];
-	
-	float* m_verts;
-	int* m_tris;
-	float* m_normals;
-	int m_vertCount;
-	int m_triCount;
+	virtual int type() { return TOOL_BOX_VOLUME; }
+	virtual void init(Sample* sample);
+	virtual void reset();
+	virtual void handleMenu();
+	virtual void handleClick(const float* p, bool shift);
+	virtual void handleRender();
+	virtual void handleRenderOverlay(double* proj, double* model, int* view);
 };
 
-#endif // MESHLOADER_OBJ
+#endif // BOXVOLUMETOOL_H

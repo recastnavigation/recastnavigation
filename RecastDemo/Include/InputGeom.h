@@ -28,18 +28,27 @@ class InputGeom
 	rcMeshLoaderObj* m_mesh;
 	float m_meshBMin[3], m_meshBMax[3];
 	
+	// Off-Mesh connections.
 	static const int MAX_OFFMESH_CONNECTIONS = 256;
-	
 	float m_offMeshConVerts[MAX_OFFMESH_CONNECTIONS*3*2];
 	float m_offMeshConRads[MAX_OFFMESH_CONNECTIONS];
 	unsigned char m_offMeshConDirs[MAX_OFFMESH_CONNECTIONS];
 	int m_offMeshConCount;
+
+	// Box Volumes.
+	static const int MAX_BOX_VOLUMES = 256;
+	float m_boxVolVerts[MAX_BOX_VOLUMES*3*2];
+	unsigned char m_boxVolTypes[MAX_BOX_VOLUMES];
+	int m_boxVolCount;
 	
 public:
 	InputGeom();
 	~InputGeom();
 	
 	bool loadMesh(const char* filepath);
+	
+	bool load(const char* filepath);
+	bool save(const char* filepath);
 	
 	// Method to return static mesh data.
 	inline const rcMeshLoaderObj* getMesh() const { return m_mesh; }
@@ -48,7 +57,7 @@ public:
 	inline const rcChunkyTriMesh* getChunkyMesh() const { return m_chunkyMesh; }
 	bool raycastMesh(float* src, float* dst, float& tmin);
 
-	// Extra links
+	// Off-Mesh connections.
 	int getOffMeshConnectionCount() const { return m_offMeshConCount; }
 	const float* getOffMeshConnectionVerts() const { return m_offMeshConVerts; }
 	const float* getOffMeshConnectionRads() const { return m_offMeshConRads; }
@@ -56,6 +65,14 @@ public:
 	void addOffMeshConnection(const float* spos, const float* epos, const float rad, unsigned char bidir);
 	void deleteOffMeshConnection(int i);
 	void drawOffMeshConnections(struct duDebugDraw* dd, bool hilight = false);
+
+	// Box Volumes.
+	int getBoxVolumeCount() const { return m_boxVolCount; }
+	const float* getBoxVolumeVerts() const { return m_boxVolVerts; }
+	const unsigned char* getBoxVolumeTypes() const { return m_boxVolTypes; } 
+	void addBoxVolume(const float* bmin, const float* bmax, unsigned char type);
+	void deleteBoxVolume(int i);
+	void drawBoxVolumes(struct duDebugDraw* dd, bool hilight = false);
 };
 
 #endif // INPUTGEOM_H

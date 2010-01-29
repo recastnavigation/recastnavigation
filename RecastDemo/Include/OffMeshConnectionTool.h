@@ -21,7 +21,7 @@
 
 #include "Sample.h"
 
-// Tool to create extra links for InputGeom
+// Tool to create off-mesh connection for InputGeom
 
 class OffMeshConnectionTool : public SampleTool
 {

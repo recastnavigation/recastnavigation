@@ -18,6 +18,8 @@
 
 #define _USE_MATH_DEFINES
 #include <math.h>
+#include <stdio.h>
+#include <ctype.h>
 #include "Recast.h"
 #include "RecastLog.h"
 #include "InputGeom.h"
@@ -67,12 +69,46 @@ static bool intersectSegmentTriangle(const float* sp, const float* sq,
 	return true;
 }
 
+static char* parseRow(char* buf, char* bufEnd, char* row, int len)
+{
+	bool start = true;
+	bool done = false;
+	int n = 0;
+	while (!done && buf < bufEnd)
+	{
+		char c = *buf;
+		buf++;
+		// multirow
+		switch (c)
+		{
+			case '\n':
+				if (start) break;
+				done = true;
+				break;
+			case '\r':
+				break;
+			case '\t':
+			case ' ':
+				if (start) break;
+			default:
+				start = false;
+				row[n++] = c;
+				if (n >= len-1)
+					done = true;
+				break;
+		}
+	}
+	row[n] = '\0';
+	return buf;
+}
+
 
 
 InputGeom::InputGeom() :
 	m_chunkyMesh(0),
 	m_mesh(0),
-	m_offMeshConCount(0)
+	m_offMeshConCount(0),
+	m_boxVolCount(0)
 {
 }
 
@@ -92,6 +128,7 @@ bool InputGeom::loadMesh(const char* filepath)
 		m_mesh = 0;
 	}
 	m_offMeshConCount = 0;
+	m_boxVolCount = 0;
 	
 	m_mesh = new rcMeshLoaderObj;
 	if (!m_mesh)
@@ -125,7 +162,123 @@ bool InputGeom::loadMesh(const char* filepath)
 
 	return true;
 }
-		
+
+bool InputGeom::load(const char* filePath)
+{
+	char* buf = 0;
+	FILE* fp = fopen(filePath, "rb");
+	if (!fp)
+		return false;
+	fseek(fp, 0, SEEK_END);
+	int bufSize = ftell(fp);
+	fseek(fp, 0, SEEK_SET);
+	buf = new char[bufSize];
+	if (!buf)
+	{
+		fclose(fp);
+		return false;
+	}
+	fread(buf, bufSize, 1, fp);
+	fclose(fp);
+	
+	m_offMeshConCount = 0;
+	m_boxVolCount = 0;
+	delete m_mesh;
+	m_mesh = 0;
+
+	char* src = buf;
+	char* srcEnd = buf + bufSize;
+	char row[512];
+	while (src < srcEnd)
+	{
+		// Parse one row
+		row[0] = '\0';
+		src = parseRow(src, srcEnd, row, sizeof(row)/sizeof(char));
+		if (row[0] == 'f')
+		{
+			// File name.
+			const char* name = row+1;
+			// Skip white spaces
+			while (*name && isspace(*name))
+				name++;
+			if (*name)
+			{
+				if (!loadMesh(name))
+				{
+					delete [] buf;
+					return false;
+				}
+			}
+		}
+		else if (row[0] == 'c')
+		{
+			// Off-mesh connection
+			if (m_offMeshConCount < MAX_OFFMESH_CONNECTIONS)
+			{
+				float* v = &m_offMeshConVerts[m_offMeshConCount*3*2];
+				int bidir;
+				float rad;
+				sscanf(row+1, "%f %f %f  %f %f %f %f %d",
+					   &v[0], &v[1], &v[2], &v[3], &v[4], &v[5], &rad, &bidir);
+				m_offMeshConRads[m_offMeshConCount] = rad;
+				m_offMeshConDirs[m_offMeshConCount] = bidir;
+				m_offMeshConCount++;
+			}
+		}
+		else if (row[0] == 'b')
+		{
+			// Box volumes
+			if (m_boxVolCount < MAX_BOX_VOLUMES)
+			{
+				float* v = &m_boxVolVerts[m_boxVolCount*3*2];
+				int type;
+				sscanf(row+1, "%f %f %f  %f %f %f %d",
+					   &v[0], &v[1], &v[2], &v[3], &v[4], &v[5], &type);
+				m_boxVolTypes[m_boxVolCount] = (unsigned char)type;
+				m_boxVolCount++;
+			}
+		}
+	}
+	
+	delete [] buf;
+	
+	return true;
+}
+
+bool InputGeom::save(const char* filepath)
+{
+	if (!m_mesh) return false;
+	
+	FILE* fp = fopen(filepath, "w");
+	if (!fp) return false;
+	
+	// Store mesh filename.
+	fprintf(fp, "f %s\n", m_mesh->getFileName());
+	
+	// Store off-mesh links.
+	for (int i = 0; i < m_offMeshConCount; ++i)
+	{
+		const float* v = &m_offMeshConVerts[i*3*2];
+		const float rad = m_offMeshConRads[i];
+		const int bidir = m_offMeshConDirs[i];
+		fprintf(fp, "c %f %f %f  %f %f %f  %f %d\n",
+				v[0], v[1], v[2], v[3], v[4], v[5], rad, bidir);
+	}
+
+	// Box volumes
+	for (int i = 0; i < m_boxVolCount; ++i)
+	{
+		const float* v = &m_boxVolVerts[i*3*2];
+		const int bidir = m_boxVolTypes[i];
+		fprintf(fp, "b %f %f %f  %f %f %f  %d\n",
+				v[0], v[1], v[2], v[3], v[4], v[5], bidir);
+	}
+	
+	fclose(fp);
+	
+	return true;
+}
+
 bool InputGeom::raycastMesh(float* src, float* dst, float& tmin)
 {
 	float dir[3];
@@ -209,5 +362,41 @@ void InputGeom::drawOffMeshConnections(duDebugDraw* dd, bool hilight)
 	}	
 	dd->end();
 
+	dd->depthMask(true);
+}
+
+void InputGeom::addBoxVolume(const float* bmin, const float* bmax, unsigned char type)
+{
+	if (m_boxVolCount >= MAX_OFFMESH_CONNECTIONS) return;
+	float* v = &m_boxVolVerts[m_boxVolCount*3*2];
+	m_boxVolTypes[m_boxVolCount] = type;
+	vcopy(&v[0], bmin);
+	vcopy(&v[3], bmax);
+	m_boxVolCount++;
+}
+
+void InputGeom::deleteBoxVolume(int i)
+{
+	m_boxVolCount--;
+	float* src = &m_boxVolVerts[m_boxVolCount*3*2];
+	float* dst = &m_boxVolVerts[i*3*2];
+	vcopy(&dst[0], &src[0]);
+	vcopy(&dst[3], &src[3]);
+	m_boxVolTypes[i] = m_boxVolTypes[m_boxVolCount];
+}
+
+void InputGeom::drawBoxVolumes(struct duDebugDraw* dd, bool hilight)
+{
+	dd->depthMask(false);
+	
+	dd->begin(DU_DRAW_LINES, 1.0f);
+	for (int i = 0; i < m_boxVolCount; ++i)
+	{
+		unsigned int col = duIntToCol(m_boxVolTypes[i], 220);
+		const float* bounds = &m_boxVolVerts[i*3*2];
+		duAppendBoxWire(dd, bounds[0],bounds[1],bounds[2],bounds[3],bounds[4],bounds[5], col); 
+	}	
+	dd->end();
+	
 	dd->depthMask(true);
 }

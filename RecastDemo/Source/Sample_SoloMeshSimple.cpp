@@ -35,6 +35,7 @@
 #include "DetourDebugDraw.h"
 #include "NavMeshTesterTool.h"
 #include "OffMeshConnectionTool.h"
+#include "BoxVolumeTool.h"
 
 #ifdef WIN32
 #	define snprintf _snprintf
@@ -98,6 +99,10 @@ void Sample_SoloMeshSimple::handleTools()
 	if (imguiCheck("Create Off-Mesh Connections", type == TOOL_OFFMESH_CONNECTION))
 	{
 		setTool(new OffMeshConnectionTool);
+	}
+	if (imguiCheck("Create Box Volumes", type == TOOL_BOX_VOLUME))
+	{
+		setTool(new BoxVolumeTool);
 	}
 	
 	imguiSeparator();
@@ -198,6 +203,7 @@ void Sample_SoloMeshSimple::handleRender()
 								m_geom->getMesh()->getTris(), m_geom->getMesh()->getNormals(), m_geom->getMesh()->getTriCount(),
 								m_agentMaxSlope);
 		m_geom->drawOffMeshConnections(&dd);
+		m_geom->drawBoxVolumes(&dd);
 	}
 	else if (m_drawMode != DRAWMODE_NAVMESH_TRANS)
 	{
@@ -205,6 +211,7 @@ void Sample_SoloMeshSimple::handleRender()
 		duDebugDrawTriMesh(&dd, m_geom->getMesh()->getVerts(), m_geom->getMesh()->getVertCount(),
 						   m_geom->getMesh()->getTris(), m_geom->getMesh()->getNormals(), m_geom->getMesh()->getTriCount(), 0);
 		m_geom->drawOffMeshConnections(&dd);
+		m_geom->drawBoxVolumes(&dd);
 	}
 	
 	glDisable(GL_FOG);

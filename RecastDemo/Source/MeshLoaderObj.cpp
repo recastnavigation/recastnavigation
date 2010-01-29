@@ -215,5 +215,8 @@ bool rcMeshLoaderObj::load(const char* filename)
 		}
 	}
 	
+	strncpy(m_filename, filename, sizeof(m_filename));
+	m_filename[sizeof(m_filename)-1] = '\0';
+	
 	return true;
 }

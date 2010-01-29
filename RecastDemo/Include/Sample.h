@@ -37,6 +37,7 @@ enum SampleToolType
 	TOOL_TILE_EDIT,
 	TOOL_NAVMESH_TESTER,
 	TOOL_OFFMESH_CONNECTION,
+	TOOL_BOX_VOLUME,
 };
 
 struct SampleTool
@@ -89,7 +90,6 @@ public:
 	virtual void handleRenderOverlay(double* proj, double* model, int* view);
 	virtual void handleMeshChanged(class InputGeom* geom);
 	virtual bool handleBuild();
-//	virtual void handleNavMeshChanged();
 
 	virtual class InputGeom* getInputGeom() { return m_geom; }
 	virtual class dtNavMesh* getNavMesh() { return m_navMesh; }
