@@ -552,7 +552,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const float* bmin, const float* bm
 	m_cfg.ch = m_cellHeight;
 	m_cfg.walkableSlopeAngle = m_agentMaxSlope;
 	m_cfg.walkableHeight = (int)ceilf(m_agentHeight / m_cfg.ch);
-	m_cfg.walkableClimb = (int)ceilf(m_agentMaxClimb / m_cfg.ch);
+	m_cfg.walkableClimb = (int)floorf(m_agentMaxClimb / m_cfg.ch);
 	m_cfg.walkableRadius = (int)ceilf(m_agentRadius / m_cfg.cs);
 	m_cfg.maxEdgeLen = (int)(m_edgeMaxLen / m_cellSize);
 	m_cfg.maxSimplificationError = m_edgeMaxError;
@@ -619,8 +619,8 @@ unsigned char* Sample_TileMesh::buildTileMesh(const float* bmin, const float* bm
 	tbmin[1] = m_cfg.bmin[2];
 	tbmax[0] = m_cfg.bmax[0];
 	tbmax[1] = m_cfg.bmax[2];
-	int cid[256];// TODO: Make grow when returning too many items.
-	const int ncid = rcGetChunksInRect(chunkyMesh, tbmin, tbmax, cid, 256);
+	int cid[512];// TODO: Make grow when returning too many items.
+	const int ncid = rcGetChunksInRect(chunkyMesh, tbmin, tbmax, cid, 512);
 	if (!ncid)
 		return 0;
 	
