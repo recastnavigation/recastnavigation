@@ -538,46 +538,49 @@ inline void swapByte(unsigned char* a, unsigned char* b)
 
 inline void swapEndian(unsigned short* v)
 {
-	unsigned char* x = (unsigned char*)&v;
+	unsigned char* x = (unsigned char*)v;
 	swapByte(x+0, x+1);
 }
 
 inline void swapEndian(short* v)
 {
-	unsigned char* x = (unsigned char*)&v;
+	unsigned char* x = (unsigned char*)v;
 	swapByte(x+0, x+1);
 }
 
 inline void swapEndian(unsigned int* v)
 {
-	unsigned char* x = (unsigned char*)&v;
+	unsigned char* x = (unsigned char*)v;
 	swapByte(x+0, x+3); swapByte(x+1, x+2);
 }
 
 inline void swapEndian(int* v)
 {
-	unsigned char* x = (unsigned char*)&v;
+	unsigned char* x = (unsigned char*)v;
 	swapByte(x+0, x+3); swapByte(x+1, x+2);
 }
 
 inline void swapEndian(float* v)
 {
-	unsigned char* x = (unsigned char*)&v;
+	unsigned char* x = (unsigned char*)v;
 	swapByte(x+0, x+3); swapByte(x+1, x+2);
 }
 
 bool dtNavMeshHeaderSwapEndian(unsigned char* data, const int dataSize)
 {
 	dtMeshHeader* header = (dtMeshHeader*)data;
-	int magic = header->magic;
-	int version = header->version;
-	swapEndian(&magic);
-	swapEndian(&version);
-	if (magic != DT_NAVMESH_MAGIC)
-		return false;
-	if (version != DT_NAVMESH_VERSION)
-		return false;
 	
+	int swappedMagic = DT_NAVMESH_MAGIC;
+	int swappedVersion = DT_NAVMESH_VERSION;
+	swapEndian(&swappedMagic);
+	swapEndian(&swappedVersion);
+	
+	if ((header->magic != DT_NAVMESH_MAGIC || header->version != DT_NAVMESH_VERSION) &&
+		(header->magic != swappedMagic || header->version != swappedVersion))
+	{
+		return false;
+	}
+		
 	swapEndian(&header->magic);
 	swapEndian(&header->version);
 	swapEndian(&header->polyCount);
