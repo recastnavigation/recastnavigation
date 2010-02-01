@@ -34,10 +34,81 @@
 #include "DetourDebugDraw.h"
 #include "NavMeshTesterTool.h"
 #include "OffMeshConnectionTool.h"
+#include "BoxVolumeTool.h"
 
 #ifdef WIN32
 #	define snprintf _snprintf
 #endif
+
+
+class TileHighlightTool : public SampleTool
+{
+	Sample_SoloMeshTiled* m_sample;
+	float m_hitPos[3];
+	bool m_hitPosSet;
+	float m_agentRadius;
+	
+public:
+	
+	TileHighlightTool() :
+		m_sample(0),
+		m_hitPosSet(false),
+		m_agentRadius(0)
+	{
+	}
+	
+	virtual ~TileHighlightTool()
+	{
+		if (m_sample)
+			m_sample->setHighlightedTile(0);
+	}
+	
+	virtual int type() { return TOOL_TILE_HIGHLIGHT; }
+	
+	virtual void init(Sample* sample)
+	{
+		m_sample = (Sample_SoloMeshTiled*)sample; 
+	}
+	
+	virtual void reset() {}
+	
+	virtual void handleMenu()
+	{
+		imguiValue("Click LMB to highlight a tile.");
+	}
+	
+	virtual void handleClick(const float* p, bool shift)
+	{
+		m_hitPosSet = true;
+		vcopy(m_hitPos,p);
+		if (m_sample)
+			m_sample->setHighlightedTile(m_hitPos);
+	}
+	
+	virtual void handleRender()
+	{
+		if (m_hitPosSet)
+		{
+			const float s = m_sample->getAgentRadius();
+			glColor4ub(0,0,0,128);
+			glLineWidth(2.0f);
+			glBegin(GL_LINES);
+			glVertex3f(m_hitPos[0]-s,m_hitPos[1]+0.1f,m_hitPos[2]);
+			glVertex3f(m_hitPos[0]+s,m_hitPos[1]+0.1f,m_hitPos[2]);
+			glVertex3f(m_hitPos[0],m_hitPos[1]-s+0.1f,m_hitPos[2]);
+			glVertex3f(m_hitPos[0],m_hitPos[1]+s+0.1f,m_hitPos[2]);
+			glVertex3f(m_hitPos[0],m_hitPos[1]+0.1f,m_hitPos[2]-s);
+			glVertex3f(m_hitPos[0],m_hitPos[1]+0.1f,m_hitPos[2]+s);
+			glEnd();
+			glLineWidth(1.0f);
+		}
+	}
+	
+	virtual void handleRenderOverlay(double* proj, double* model, int* view)
+	{
+	}
+};
+
 
 Sample_SoloMeshTiled::Sample_SoloMeshTiled() :
 	m_measurePerTileTimings(false),
@@ -48,6 +119,8 @@ Sample_SoloMeshTiled::Sample_SoloMeshTiled() :
 	m_tileSet(0),
 	m_statPolysPerTileSamples(0),
 	m_statTimePerTileSamples(0),
+	m_highLightedTileX(-1),
+	m_highLightedTileY(-1),
 	m_drawMode(DRAWMODE_NAVMESH)
 {
 	setTool(new NavMeshTesterTool);
@@ -113,6 +186,14 @@ void Sample_SoloMeshTiled::handleTools()
 	if (imguiCheck("Create Off-Mesh Links", type == TOOL_OFFMESH_CONNECTION))
 	{
 		setTool(new OffMeshConnectionTool);
+	}
+	if (imguiCheck("Create Box Volumes", type == TOOL_BOX_VOLUME))
+	{
+		setTool(new BoxVolumeTool);
+	}
+	if (imguiCheck("Highlight Tile", type == TOOL_TILE_HIGHLIGHT))
+	{
+		setTool(new TileHighlightTool);
 	}
 	
 	imguiSeparator();
@@ -277,7 +358,7 @@ void Sample_SoloMeshTiled::handleRender()
 		{
 			for (int i = 0; i < m_tileSet->width*m_tileSet->height; ++i)
 			{
-				if (m_tileSet->tiles[i].chf)
+				if (m_tileSet->tiles[i].chf && canDrawTile(m_tileSet->tiles[i].x,m_tileSet->tiles[i].y))
 					duDebugDrawCompactHeightfieldSolid(&dd, *m_tileSet->tiles[i].chf);
 			}
 		}
@@ -286,7 +367,7 @@ void Sample_SoloMeshTiled::handleRender()
 		{
 			for (int i = 0; i < m_tileSet->width*m_tileSet->height; ++i)
 			{
-				if (m_tileSet->tiles[i].chf)
+				if (m_tileSet->tiles[i].chf && canDrawTile(m_tileSet->tiles[i].x,m_tileSet->tiles[i].y))
 					duDebugDrawCompactHeightfieldDistance(&dd, *m_tileSet->tiles[i].chf);
 			}
 		}
@@ -294,7 +375,7 @@ void Sample_SoloMeshTiled::handleRender()
 		{
 			for (int i = 0; i < m_tileSet->width*m_tileSet->height; ++i)
 			{
-				if (m_tileSet->tiles[i].chf)
+				if (m_tileSet->tiles[i].chf && canDrawTile(m_tileSet->tiles[i].x,m_tileSet->tiles[i].y))
 					duDebugDrawCompactHeightfieldRegions(&dd, *m_tileSet->tiles[i].chf);
 			}
 		}
@@ -304,7 +385,7 @@ void Sample_SoloMeshTiled::handleRender()
 			glEnable(GL_FOG);
 			for (int i = 0; i < m_tileSet->width*m_tileSet->height; ++i)
 			{
-				if (m_tileSet->tiles[i].solid)
+				if (m_tileSet->tiles[i].solid && canDrawTile(m_tileSet->tiles[i].x,m_tileSet->tiles[i].y))
 					duDebugDrawHeightfieldSolid(&dd, *m_tileSet->tiles[i].solid);
 			}
 			glDisable(GL_FOG);
@@ -314,7 +395,7 @@ void Sample_SoloMeshTiled::handleRender()
 			glEnable(GL_FOG);
 			for (int i = 0; i < m_tileSet->width*m_tileSet->height; ++i)
 			{
-				if (m_tileSet->tiles[i].solid)
+				if (m_tileSet->tiles[i].solid && canDrawTile(m_tileSet->tiles[i].x,m_tileSet->tiles[i].y))
 					duDebugDrawHeightfieldWalkable(&dd, *m_tileSet->tiles[i].solid);
 			}
 			glDisable(GL_FOG);
@@ -324,7 +405,7 @@ void Sample_SoloMeshTiled::handleRender()
 			glDepthMask(GL_FALSE);
 			for (int i = 0; i < m_tileSet->width*m_tileSet->height; ++i)
 			{
-				if (m_tileSet->tiles[i].cset)
+				if (m_tileSet->tiles[i].cset && canDrawTile(m_tileSet->tiles[i].x,m_tileSet->tiles[i].y))
 					duDebugDrawRawContours(&dd, *m_tileSet->tiles[i].cset);
 			}
 			glDepthMask(GL_TRUE);
@@ -334,7 +415,7 @@ void Sample_SoloMeshTiled::handleRender()
 			glDepthMask(GL_FALSE);
 			for (int i = 0; i < m_tileSet->width*m_tileSet->height; ++i)
 			{
-				if (m_tileSet->tiles[i].cset)
+				if (m_tileSet->tiles[i].cset && canDrawTile(m_tileSet->tiles[i].x,m_tileSet->tiles[i].y))
 				{
 					duDebugDrawRawContours(&dd, *m_tileSet->tiles[i].cset, 0.5f);
 					duDebugDrawContours(&dd, *m_tileSet->tiles[i].cset);
@@ -347,7 +428,7 @@ void Sample_SoloMeshTiled::handleRender()
 			glDepthMask(GL_FALSE);
 			for (int i = 0; i < m_tileSet->width*m_tileSet->height; ++i)
 			{
-				if (m_tileSet->tiles[i].cset)
+				if (m_tileSet->tiles[i].cset && canDrawTile(m_tileSet->tiles[i].x,m_tileSet->tiles[i].y))
 					duDebugDrawContours(&dd, *m_tileSet->tiles[i].cset);
 			}
 			glDepthMask(GL_TRUE);
@@ -356,14 +437,14 @@ void Sample_SoloMeshTiled::handleRender()
 		{
 			for (int i = 0; i < m_tileSet->width*m_tileSet->height; ++i)
 			{
-				if (m_tileSet->tiles[i].chf)
+				if (m_tileSet->tiles[i].chf && canDrawTile(m_tileSet->tiles[i].x,m_tileSet->tiles[i].y))
 					duDebugDrawCompactHeightfieldRegions(&dd, *m_tileSet->tiles[i].chf);
 			}
 			
 			glDepthMask(GL_FALSE);
 			for (int i = 0; i < m_tileSet->width*m_tileSet->height; ++i)
 			{
-				if (m_tileSet->tiles[i].cset)
+				if (m_tileSet->tiles[i].cset && canDrawTile(m_tileSet->tiles[i].x,m_tileSet->tiles[i].y))
 					duDebugDrawRegionConnections(&dd, *m_tileSet->tiles[i].cset);
 			}
 			glDepthMask(GL_TRUE);
@@ -379,7 +460,7 @@ void Sample_SoloMeshTiled::handleRender()
 			{
 				for (int i = 0; i < m_tileSet->width*m_tileSet->height; ++i)
 				{
-					if (m_tileSet->tiles[i].pmesh)
+					if (m_tileSet->tiles[i].pmesh && canDrawTile(m_tileSet->tiles[i].x,m_tileSet->tiles[i].y))
 						duDebugDrawPolyMesh(&dd, *m_tileSet->tiles[i].pmesh);
 				}
 			}
@@ -397,7 +478,7 @@ void Sample_SoloMeshTiled::handleRender()
 			{
 				for (int i = 0; i < m_tileSet->width*m_tileSet->height; ++i)
 				{
-					if (m_tileSet->tiles[i].dmesh)
+					if (m_tileSet->tiles[i].dmesh && canDrawTile(m_tileSet->tiles[i].x,m_tileSet->tiles[i].y))
 						duDebugDrawPolyMeshDetail(&dd, *m_tileSet->tiles[i].dmesh);
 				}
 			}
@@ -405,16 +486,12 @@ void Sample_SoloMeshTiled::handleRender()
 		}
 	}
 		
-/*	static const float startCol[4] = { 0.5f, 0.1f, 0.0f, 0.75f };
-	static const float endCol[4] = { 0.2f, 0.4f, 0.0f, 0.75f };
-	if (m_sposSet)
-		drawAgent(m_spos, m_agentRadius, m_agentHeight, m_agentMaxClimb, startCol);
-	if (m_eposSet)
-		drawAgent(m_epos, m_agentRadius, m_agentHeight, m_agentMaxClimb, endCol);
-	*/
+	m_geom->drawBoxVolumes(&dd);
 
 	if (m_tool)
 		m_tool->handleRender();
+
+	glDepthMask(GL_TRUE);
 }
 
 static float nicenum(float x, int round)
@@ -608,7 +685,7 @@ bool Sample_SoloMeshTiled::handleBuild()
 	m_cfg.mergeRegionSize = (int)rcSqr(m_regionMergeSize);
 	m_cfg.maxVertsPerPoly = (int)m_vertsPerPoly;
 	m_cfg.tileSize = (int)m_tileSize;
-	m_cfg.borderSize = m_cfg.walkableRadius + 3; // Reserve enough padding.
+	m_cfg.borderSize = m_cfg.walkableRadius + 4; // Reserve enough padding.
 	m_cfg.detailSampleDist = m_detailSampleDist < 0.9f ? 0 : m_cellSize * m_detailSampleDist;
 	m_cfg.detailSampleMaxError = m_cellHeight * m_detailSampleMaxError;
 		
@@ -684,7 +761,9 @@ bool Sample_SoloMeshTiled::handleBuild()
 		{
 			rcTimeVal startTime = rcGetPerformanceTimer();
 			
-			Tile& tile = m_tileSet->tiles[x + y*m_tileSet->width]; 
+			Tile& tile = m_tileSet->tiles[x + y*m_tileSet->width];
+			tile.x = x;
+			tile.y = y;
 			
 			// Calculate the per tile bounding box.
 			tileCfg.bmin[0] = m_cfg.bmin[0] + (x*m_cfg.tileSize - m_cfg.borderSize)*m_cfg.cs;
@@ -753,6 +832,22 @@ bool Sample_SoloMeshTiled::handleBuild()
 				continue;
 			}
 			
+			// Erode the walkable area by agent radius.
+			if (!rcErodeArea(RC_WALKABLE_AREA, m_cfg.walkableRadius, *chf))
+			{
+				if (rcGetLog())
+					rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: Could not erode.");
+				continue;
+			}
+			
+			const float* boxVerts = m_geom->getBoxVolumeVerts();
+			const unsigned char* boxTypes = m_geom->getBoxVolumeTypes();
+			for (int i = 0; i < m_geom->getBoxVolumeCount(); ++i)
+			{
+				const float* v = &boxVerts[i*3*2];
+				rcMarkBoxArea(&v[0], &v[3], boxTypes[i], *chf);
+			}
+			
 			if (!rcBuildDistanceField(*chf))
 			{
 				if (rcGetLog())
@@ -760,8 +855,7 @@ bool Sample_SoloMeshTiled::handleBuild()
 				continue;
 			}
 			
-			if (!rcBuildRegions(*chf, tileCfg.walkableRadius, tileCfg.borderSize,
-								tileCfg.minRegionSize, tileCfg.mergeRegionSize))
+			if (!rcBuildRegions(*chf, tileCfg.borderSize, tileCfg.minRegionSize, tileCfg.mergeRegionSize))
 			{
 				if (rcGetLog())
 					rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: [%d,%d] Could not build regions.", x, y);
@@ -991,6 +1085,8 @@ bool Sample_SoloMeshTiled::handleBuild()
 		rcGetLog()->log(RC_LOG_PROGRESS, "Filter Walkable: %.1fms (%.1f%%)", m_buildTimes.filterWalkable/1000.0f, m_buildTimes.filterWalkable*pc);
 		rcGetLog()->log(RC_LOG_PROGRESS, "Filter Reachable: %.1fms (%.1f%%)", m_buildTimes.filterMarkReachable/1000.0f, m_buildTimes.filterMarkReachable*pc);
 		
+		rcGetLog()->log(RC_LOG_PROGRESS, "Erode walkable area: %.1fms (%.1f%%)", m_buildTimes.erodeArea/1000.0f, m_buildTimes.erodeArea*pc);
+
 		rcGetLog()->log(RC_LOG_PROGRESS, "Build Distancefield: %.1fms (%.1f%%)", m_buildTimes.buildDistanceField/1000.0f, m_buildTimes.buildDistanceField*pc);
 		rcGetLog()->log(RC_LOG_PROGRESS, "  - distance: %.1fms (%.1f%%)", m_buildTimes.buildDistanceFieldDist/1000.0f, m_buildTimes.buildDistanceFieldDist*pc);
 		rcGetLog()->log(RC_LOG_PROGRESS, "  - blur: %.1fms (%.1f%%)", m_buildTimes.buildDistanceFieldBlur/1000.0f, m_buildTimes.buildDistanceFieldBlur*pc);
@@ -1020,4 +1116,24 @@ bool Sample_SoloMeshTiled::handleBuild()
 		m_tool->init(this);
 
 	return true;
+}
+
+bool Sample_SoloMeshTiled::canDrawTile(int x, int y)
+{
+	if (m_highLightedTileX == -1) return true;
+	return m_highLightedTileX == x && m_highLightedTileY == y;
+}
+
+void Sample_SoloMeshTiled::setHighlightedTile(const float* pos)
+{
+	if (!pos)
+	{
+		m_highLightedTileX = -1;
+		m_highLightedTileY = -1;
+		return;
+	}
+	const float* bmin = m_geom->getMeshBoundsMin();
+	const float ts = m_tileSize*m_cellSize;
+	m_highLightedTileX = (int)((pos[0] - bmin[0]) / ts);
+	m_highLightedTileY = (int)((pos[2] - bmin[2]) / ts);
 }

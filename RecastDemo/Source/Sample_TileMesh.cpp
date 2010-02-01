@@ -34,6 +34,7 @@
 #include "DetourDebugDraw.h"
 #include "NavMeshTesterTool.h"
 #include "OffMeshConnectionTool.h"
+#include "BoxVolumeTool.h"
 
 #ifdef WIN32
 #	define snprintf _snprintf
@@ -257,6 +258,10 @@ void Sample_TileMesh::handleTools()
 	{
 		setTool(new OffMeshConnectionTool);
 	}
+	if (imguiCheck("Create Box Volumes", type == TOOL_BOX_VOLUME))
+	{
+		setTool(new BoxVolumeTool);
+	}
 	
 	imguiSeparator();
 	
@@ -337,6 +342,8 @@ void Sample_TileMesh::handleRender()
 	if (m_tool)
 		m_tool->handleRender();
 	
+	m_geom->drawBoxVolumes(&dd);
+
 	glDepthMask(GL_TRUE);	
 }
 
@@ -419,10 +426,8 @@ void Sample_TileMesh::buildTile(const float* pos)
 	const float* bmax = m_geom->getMeshBoundsMax();
 	
 	const float ts = m_tileSize*m_cellSize;
-	const int tx = (int)floorf((pos[0] - bmin[0]) / ts);
-	const int ty = (int)floorf((pos[2] - bmin[2]) / ts);
-	if (tx < 0 || ty < 0)
-		return;
+	const int tx = (int)((pos[0] - bmin[0]) / ts);
+	const int ty = (int)((pos[2] - bmin[2]) / ts);
 	
 	m_tileBmin[0] = bmin[0] + tx*ts;
 	m_tileBmin[1] = bmin[1];
@@ -457,10 +462,8 @@ void Sample_TileMesh::removeTile(const float* pos)
 	const float* bmax = m_geom->getMeshBoundsMax();
 
 	const float ts = m_tileSize*m_cellSize;
-	const int tx = (int)floorf((pos[0] - bmin[0]) / ts);
-	const int ty = (int)floorf((pos[2] - bmin[2]) / ts);
-	if (tx < 0 || ty < 0)
-		return;
+	const int tx = (int)((pos[0] - bmin[0]) / ts);
+	const int ty = (int)((pos[2] - bmin[2]) / ts);
 	
 	m_tileBmin[0] = bmin[0] + tx*ts;
 	m_tileBmin[1] = bmin[1];
@@ -676,6 +679,23 @@ unsigned char* Sample_TileMesh::buildTileMesh(const float* bmin, const float* bm
 		delete m_solid;
 		m_solid = 0;
 	}
+
+	// Erode the walkable area by agent radius.
+	if (!rcErodeArea(RC_WALKABLE_AREA, m_cfg.walkableRadius, *m_chf))
+	{
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Could not erode.");
+		return false;
+	}
+
+	const float* boxVerts = m_geom->getBoxVolumeVerts();
+	const unsigned char* boxTypes = m_geom->getBoxVolumeTypes();
+	for (int i = 0; i < m_geom->getBoxVolumeCount(); ++i)
+	{
+		const float* v = &boxVerts[i*3*2];
+		rcMarkBoxArea(&v[0], &v[3], boxTypes[i], *m_chf);
+	}
+	
 	
 	// Prepare for region partitioning, by calculating distance field along the walkable surface.
 	if (!rcBuildDistanceField(*m_chf))
@@ -686,7 +706,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const float* bmin, const float* bm
 	}
 	
 	// Partition the walkable surface into simple regions without holes.
-	if (!rcBuildRegions(*m_chf, m_cfg.walkableRadius, m_cfg.borderSize, m_cfg.minRegionSize, m_cfg.mergeRegionSize))
+	if (!rcBuildRegions(*m_chf, m_cfg.borderSize, m_cfg.minRegionSize, m_cfg.mergeRegionSize))
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Could not build regions.");
@@ -823,6 +843,8 @@ unsigned char* Sample_TileMesh::buildTileMesh(const float* bmin, const float* bm
 		rcGetLog()->log(RC_LOG_PROGRESS, "Filter Walkable: %.1fms (%.1f%%)", m_buildTimes.filterWalkable/1000.0f, m_buildTimes.filterWalkable*pc);
 		rcGetLog()->log(RC_LOG_PROGRESS, "Filter Reachable: %.1fms (%.1f%%)", m_buildTimes.filterMarkReachable/1000.0f, m_buildTimes.filterMarkReachable*pc);
 		
+		rcGetLog()->log(RC_LOG_PROGRESS, "Erode walkable area: %.1fms (%.1f%%)", m_buildTimes.erodeArea/1000.0f, m_buildTimes.erodeArea*pc);
+
 		rcGetLog()->log(RC_LOG_PROGRESS, "Build Distancefield: %.1fms (%.1f%%)", m_buildTimes.buildDistanceField/1000.0f, m_buildTimes.buildDistanceField*pc);
 		rcGetLog()->log(RC_LOG_PROGRESS, "  - distance: %.1fms (%.1f%%)", m_buildTimes.buildDistanceFieldDist/1000.0f, m_buildTimes.buildDistanceFieldDist*pc);
 		rcGetLog()->log(RC_LOG_PROGRESS, "  - blur: %.1fms (%.1f%%)", m_buildTimes.buildDistanceFieldBlur/1000.0f, m_buildTimes.buildDistanceFieldBlur*pc);

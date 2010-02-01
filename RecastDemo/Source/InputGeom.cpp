@@ -389,13 +389,22 @@ void InputGeom::drawBoxVolumes(struct duDebugDraw* dd, bool hilight)
 {
 	dd->depthMask(false);
 	
-	dd->begin(DU_DRAW_LINES, 1.0f);
+	dd->begin(DU_DRAW_LINES, 2.0f);
 	for (int i = 0; i < m_boxVolCount; ++i)
 	{
-		unsigned int col = duIntToCol(m_boxVolTypes[i], 220);
+		unsigned int col = duIntToCol(m_boxVolTypes[i]+1, 220);
 		const float* bounds = &m_boxVolVerts[i*3*2];
 		duAppendBoxWire(dd, bounds[0],bounds[1],bounds[2],bounds[3],bounds[4],bounds[5], col); 
-	}	
+	}
+	dd->end();
+
+	dd->begin(DU_DRAW_POINTS, 4.0f);
+	for (int i = 0; i < m_boxVolCount; ++i)
+	{
+		unsigned int col = duDarkenColor(duIntToCol(m_boxVolTypes[i]+1, 255));
+		const float* bounds = &m_boxVolVerts[i*3*2];
+		duAppendBoxPoints(dd, bounds[0],bounds[1],bounds[2],bounds[3],bounds[4],bounds[5], col); 
+	}
 	dd->end();
 	
 	dd->depthMask(true);

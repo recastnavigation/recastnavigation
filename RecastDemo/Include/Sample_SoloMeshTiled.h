@@ -32,6 +32,7 @@ protected:
 	{
 		inline Tile() : chf(0), solid(0), cset(0), pmesh(0), dmesh(0), buildTime(0) {}
 		inline ~Tile() { delete chf; delete cset; delete solid; delete pmesh; delete dmesh; }
+		int x, y;
 		rcCompactHeightfield* chf;
 		rcHeightfield* solid;
 		rcContourSet* cset;
@@ -66,6 +67,7 @@ protected:
 	int m_statTimePerTile[MAX_STAT_BUCKETS];
 	int m_statTimePerTileSamples;
 	
+	int m_highLightedTileX, m_highLightedTileY;
 	
 	enum DrawMode
 	{
@@ -91,6 +93,7 @@ protected:
 	DrawMode m_drawMode;
 	
 	void cleanup();
+	bool canDrawTile(int x, int y);
 	
 public:
 	Sample_SoloMeshTiled();
@@ -104,6 +107,8 @@ public:
 	virtual void handleRenderOverlay(double* proj, double* model, int* view);
 	virtual void handleMeshChanged(class InputGeom* geom);
 	virtual bool handleBuild();
+	
+	void setHighlightedTile(const float* pos);
 };
 
 

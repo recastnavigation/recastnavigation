@@ -1060,16 +1060,15 @@ int dtNavMesh::queryPolygons(const float* center, const float* extents, dtQueryF
 	vadd(bmax, center, extents);
 	
 	// Find tiles the query touches.
-	const int minx = (int)floorf((bmin[0]-m_orig[0]) / m_tileWidth);
-	const int maxx = (int)ceilf((bmax[0]-m_orig[0]) / m_tileWidth);
-
-	const int miny = (int)floorf((bmin[2]-m_orig[2]) / m_tileHeight);
-	const int maxy = (int)ceilf((bmax[2]-m_orig[2]) / m_tileHeight);
+	const int minx = (int)((bmin[0]-m_orig[0]) / m_tileWidth);
+	const int maxx = (int)((bmax[0]-m_orig[0]) / m_tileWidth);
+	const int miny = (int)((bmin[2]-m_orig[2]) / m_tileHeight);
+	const int maxy = (int)((bmax[2]-m_orig[2]) / m_tileHeight);
 
 	int n = 0;
-	for (int y = miny; y < maxy; ++y)
+	for (int y = miny; y <= maxy; ++y)
 	{
-		for (int x = minx; x < maxx; ++x)
+		for (int x = minx; x <= maxx; ++x)
 		{
 			dtMeshTile* tile = getTileAt(x,y);
 			if (!tile) continue;

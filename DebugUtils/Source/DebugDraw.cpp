@@ -27,9 +27,9 @@ inline int bit(int a, int b)
 
 unsigned int duIntToCol(int i, int a)
 {
-	int	r = bit(i, 0) + bit(i, 3) * 2 + 1;
-	int	g = bit(i, 1) + bit(i, 4) * 2 + 1;
-	int	b = bit(i, 2) + bit(i, 5) * 2 + 1;
+	int	r = bit(i, 1) + bit(i, 3) * 2 + 1;
+	int	g = bit(i, 2) + bit(i, 4) * 2 + 1;
+	int	b = bit(i, 0) + bit(i, 5) * 2 + 1;
 	return duRGBA(r*63,g*63,b*63,a);
 }
 
@@ -200,6 +200,29 @@ void duAppendBoxWire(struct duDebugDraw* dd, float minx, float miny, float minz,
 	dd->vertex(minx, maxy, maxz, col);
 }
 
+void duAppendBoxPoints(struct duDebugDraw* dd, float minx, float miny, float minz,
+					   float maxx, float maxy, float maxz, unsigned int col)
+{
+	// Top
+	dd->vertex(minx, miny, minz, col);
+	dd->vertex(maxx, miny, minz, col);
+	dd->vertex(maxx, miny, minz, col);
+	dd->vertex(maxx, miny, maxz, col);
+	dd->vertex(maxx, miny, maxz, col);
+	dd->vertex(minx, miny, maxz, col);
+	dd->vertex(minx, miny, maxz, col);
+	dd->vertex(minx, miny, minz, col);
+	
+	// bottom
+	dd->vertex(minx, maxy, minz, col);
+	dd->vertex(maxx, maxy, minz, col);
+	dd->vertex(maxx, maxy, minz, col);
+	dd->vertex(maxx, maxy, maxz, col);
+	dd->vertex(maxx, maxy, maxz, col);
+	dd->vertex(minx, maxy, maxz, col);
+	dd->vertex(minx, maxy, maxz, col);
+	dd->vertex(minx, maxy, minz, col);
+}
 
 void duAppendBox(struct duDebugDraw* dd, float minx, float miny, float minz,
 				 float maxx, float maxy, float maxz, const unsigned int* fcol)

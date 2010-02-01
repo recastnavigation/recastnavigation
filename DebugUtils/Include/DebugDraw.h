@@ -72,6 +72,11 @@ inline unsigned int duRGBAf(float fr, float fg, float fb, float fa)
 unsigned int duIntToCol(int i, int a);
 void duIntToCol(int i, float* col);
 
+inline unsigned int duDarkenColor(unsigned int col)
+{
+	return ((col >> 1) & 0x007f7f7f) | (col & 0xff000000);
+}
+
 void duCalcBoxColors(unsigned int* colors, unsigned int colTop, unsigned int colSide);
 
 void duDebugDrawCylinderWire(struct duDebugDraw* dd, float minx, float miny, float minz,
@@ -104,6 +109,9 @@ void duAppendCylinderWire(struct duDebugDraw* dd, float minx, float miny, float 
 
 void duAppendBoxWire(struct duDebugDraw* dd, float minx, float miny, float minz,
 					 float maxx, float maxy, float maxz, unsigned int col);
+
+void duAppendBoxPoints(struct duDebugDraw* dd, float minx, float miny, float minz,
+					   float maxx, float maxy, float maxz, unsigned int col);
 
 void duAppendArc(struct duDebugDraw* dd, const float x0, const float y0, const float z0,
 				 const float x1, const float y1, const float z1, const float h,

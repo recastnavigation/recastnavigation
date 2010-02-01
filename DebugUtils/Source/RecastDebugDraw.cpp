@@ -22,11 +22,6 @@
 #include "RecastDebugDraw.h"
 #include "Recast.h"
 
-inline unsigned int dark(unsigned int col)
-{
-	return ((col >> 1) & 0x007f7f7f) | (col & 0xff000000);
-}
-
 void duDebugDrawTriMesh(duDebugDraw* dd, const float* verts, int nverts,
 						const int* tris, const float* normals, int ntris,
 						const unsigned char* flags)
@@ -161,8 +156,6 @@ void duDebugDrawCompactHeightfieldSolid(duDebugDraw* dd, const rcCompactHeightfi
 	const float cs = chf.cs;
 	const float ch = chf.ch;
 
-	unsigned int color = duRGBA(0,192,255,64);
-	
 	dd->begin(DU_DRAW_QUADS);
 	
 	for (int y = 0; y < chf.height; ++y)
@@ -176,6 +169,15 @@ void duDebugDrawCompactHeightfieldSolid(duDebugDraw* dd, const rcCompactHeightfi
 			for (unsigned i = c.index, ni = c.index+c.count; i < ni; ++i)
 			{
 				const rcCompactSpan& s = chf.spans[i];
+
+				unsigned int color;
+				if (chf.areas[i] == RC_WALKABLE_AREA)
+					color = duRGBA(0,192,255,64);
+				else if (chf.areas[i] == RC_NULL_AREA)
+					color = duRGBA(0,0,0,64);
+				else
+					color = duIntToCol(chf.areas[i], 255);
+				
 				const float fy = chf.bmin[1] + (s.y+1)*ch;
 				dd->vertex(fx, fy, fz, color);
 				dd->vertex(fx, fy, fz+cs, color);
@@ -189,6 +191,9 @@ void duDebugDrawCompactHeightfieldSolid(duDebugDraw* dd, const rcCompactHeightfi
 
 void duDebugDrawCompactHeightfieldRegions(duDebugDraw* dd, const rcCompactHeightfield& chf)
 {
+	if (!chf.regs)
+		return;
+		
 	const float cs = chf.cs;
 	const float ch = chf.ch;
 
@@ -207,8 +212,8 @@ void duDebugDrawCompactHeightfieldRegions(duDebugDraw* dd, const rcCompactHeight
 				const rcCompactSpan& s = chf.spans[i];
 				const float fy = chf.bmin[1] + (s.y)*ch;
 				unsigned int color;
-				if (chf.reg[i])
-					color = duIntToCol(chf.reg[i], 192);
+				if (chf.regs[i])
+					color = duIntToCol(chf.regs[i], 192);
 				else
 					color = duRGBA(0,0,0,64);
 
@@ -226,6 +231,9 @@ void duDebugDrawCompactHeightfieldRegions(duDebugDraw* dd, const rcCompactHeight
 
 void duDebugDrawCompactHeightfieldDistance(duDebugDraw* dd, const rcCompactHeightfield& chf)
 {
+	if (!chf.dist)
+		return;
+		
 	const float cs = chf.cs;
 	const float ch = chf.ch;
 			
@@ -378,7 +386,7 @@ void duDebugDrawRegionConnections(duDebugDraw* dd, const rcContourSet& cset, con
 	for (int i = 0; i < cset.nconts; ++i)
 	{
 		const rcContour* cont = &cset.conts[i];
-		unsigned int color = dark(duIntToCol(cont->reg,a));
+		unsigned int color = duDarkenColor(duIntToCol(cont->reg,a));
 		getContourCenter(cont, orig, cs, ch, pos);
 		dd->vertex(pos, color);
 	}
@@ -424,7 +432,7 @@ void duDebugDrawRawContours(duDebugDraw* dd, const rcContourSet& cset, const flo
 	for (int i = 0; i < cset.nconts; ++i)
 	{
 		const rcContour& c = cset.conts[i];
-		unsigned int color = dark(duIntToCol(c.reg, a));
+		unsigned int color = duDarkenColor(duIntToCol(c.reg, a));
 		
 		for (int j = 0; j < c.nrverts; ++j)
 		{
@@ -487,7 +495,7 @@ void duDebugDrawContours(duDebugDraw* dd, const rcContourSet& cset, const float 
 	for (int i = 0; i < cset.nconts; ++i)
 	{
 		const rcContour& c = cset.conts[i];
-		unsigned int color = dark(duIntToCol(c.reg, a));
+		unsigned int color = duDarkenColor(duIntToCol(c.reg, a));
 		for (int j = 0; j < c.nverts; ++j)
 		{
 			const int* v = &c.verts[j*4];
@@ -520,7 +528,15 @@ void duDebugDrawPolyMesh(duDebugDraw* dd, const struct rcPolyMesh& mesh)
 	for (int i = 0; i < mesh.npolys; ++i)
 	{
 		const unsigned short* p = &mesh.polys[i*nvp*2];
-		unsigned int color = duIntToCol(i, 192);
+		
+		unsigned int color;
+		if (mesh.areas[i] == RC_WALKABLE_AREA)
+			color = duRGBA(0,192,255,64);
+		else if (mesh.areas[i] == RC_NULL_AREA)
+			color = duRGBA(0,0,0,64);
+		else
+			color = duIntToCol(mesh.areas[i], 255);
+		
 		unsigned short vi[3];
 		for (int j = 2; j < nvp; ++j)
 		{

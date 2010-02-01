@@ -43,7 +43,7 @@
 
 
 Sample_SoloMeshSimple::Sample_SoloMeshSimple() :
-	m_keepInterResults(false),
+	m_keepInterResults(true),
 	m_triflags(0),
 	m_solid(0),
 	m_chf(0),
@@ -203,7 +203,6 @@ void Sample_SoloMeshSimple::handleRender()
 								m_geom->getMesh()->getTris(), m_geom->getMesh()->getNormals(), m_geom->getMesh()->getTriCount(),
 								m_agentMaxSlope);
 		m_geom->drawOffMeshConnections(&dd);
-		m_geom->drawBoxVolumes(&dd);
 	}
 	else if (m_drawMode != DRAWMODE_NAVMESH_TRANS)
 	{
@@ -211,7 +210,6 @@ void Sample_SoloMeshSimple::handleRender()
 		duDebugDrawTriMesh(&dd, m_geom->getMesh()->getVerts(), m_geom->getMesh()->getVertCount(),
 						   m_geom->getMesh()->getTris(), m_geom->getMesh()->getNormals(), m_geom->getMesh()->getTriCount(), 0);
 		m_geom->drawOffMeshConnections(&dd);
-		m_geom->drawBoxVolumes(&dd);
 	}
 	
 	glDisable(GL_FOG);
@@ -295,12 +293,7 @@ void Sample_SoloMeshSimple::handleRender()
 		glDepthMask(GL_TRUE);
 	}
 	
-/*	static const float startCol[4] = { 0.5f, 0.1f, 0.0f, 0.75f };
-	static const float endCol[4] = { 0.2f, 0.4f, 0.0f, 0.75f };
-	if (m_sposSet)
-		drawAgent(m_spos, m_agentRadius, m_agentHeight, m_agentMaxClimb, startCol);
-	if (m_eposSet)
-		drawAgent(m_epos, m_agentRadius, m_agentHeight, m_agentMaxClimb, endCol);*/
+	m_geom->drawBoxVolumes(&dd);
 
 	if (m_tool)
 		m_tool->handleRender();
@@ -441,6 +434,7 @@ bool Sample_SoloMeshSimple::handleBuild()
 	rcFilterLedgeSpans(m_cfg.walkableHeight, m_cfg.walkableClimb, *m_solid);
 	rcFilterWalkableLowHeightSpans(m_cfg.walkableHeight, *m_solid);
 
+
 	//
 	// Step 4. Partition walkable surface to simple regions.
 	//
@@ -467,6 +461,23 @@ bool Sample_SoloMeshSimple::handleBuild()
 		delete m_solid;
 		m_solid = 0;
 	}
+		
+	// Erode the walkable area by agent radius.
+	if (!rcErodeArea(RC_WALKABLE_AREA, m_cfg.walkableRadius, *m_chf))
+	{
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Could not erode.");
+		return false;
+	}
+	
+	// (Optional) Mark areas.
+	const float* boxVerts = m_geom->getBoxVolumeVerts();
+	const unsigned char* boxTypes = m_geom->getBoxVolumeTypes();
+	for (int i = 0; i < m_geom->getBoxVolumeCount(); ++i)
+	{
+		const float* v = &boxVerts[i*3*2];
+		rcMarkBoxArea(&v[0], &v[3], boxTypes[i], *m_chf);
+	}
 	
 	// Prepare for region partitioning, by calculating distance field along the walkable surface.
 	if (!rcBuildDistanceField(*m_chf))
@@ -477,12 +488,12 @@ bool Sample_SoloMeshSimple::handleBuild()
 	}
 
 	// Partition the walkable surface into simple regions without holes.
-	if (!rcBuildRegions(*m_chf, m_cfg.walkableRadius, m_cfg.borderSize, m_cfg.minRegionSize, m_cfg.mergeRegionSize))
+	if (!rcBuildRegions(*m_chf, m_cfg.borderSize, m_cfg.minRegionSize, m_cfg.mergeRegionSize))
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Could not build regions.");
 	}
-	
+		
 	//
 	// Step 5. Trace and simplify region contours.
 	//
@@ -624,6 +635,8 @@ bool Sample_SoloMeshSimple::handleBuild()
 		rcGetLog()->log(RC_LOG_PROGRESS, "Filter Border: %.1fms (%.1f%%)", m_buildTimes.filterBorder/1000.0f, m_buildTimes.filterBorder*pc);
 		rcGetLog()->log(RC_LOG_PROGRESS, "Filter Walkable: %.1fms (%.1f%%)", m_buildTimes.filterWalkable/1000.0f, m_buildTimes.filterWalkable*pc);
 		rcGetLog()->log(RC_LOG_PROGRESS, "Filter Reachable: %.1fms (%.1f%%)", m_buildTimes.filterMarkReachable/1000.0f, m_buildTimes.filterMarkReachable*pc);
+
+		rcGetLog()->log(RC_LOG_PROGRESS, "Erode walkable area: %.1fms (%.1f%%)", m_buildTimes.erodeArea/1000.0f, m_buildTimes.erodeArea*pc);
 		
 		rcGetLog()->log(RC_LOG_PROGRESS, "Build Distancefield: %.1fms (%.1f%%)", m_buildTimes.buildDistanceField/1000.0f, m_buildTimes.buildDistanceField*pc);
 		rcGetLog()->log(RC_LOG_PROGRESS, "  - distance: %.1fms (%.1f%%)", m_buildTimes.buildDistanceFieldDist/1000.0f, m_buildTimes.buildDistanceFieldDist*pc);
