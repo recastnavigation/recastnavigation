@@ -101,14 +101,14 @@ struct rcCompactHeightfield
 {
 	inline rcCompactHeightfield() :
 		maxDistance(0), maxRegions(0), cells(0),
-		spans(0), dist(0), reg(0) {}
+		spans(0), dist(0), regs(0), areas(0) {}
 	inline ~rcCompactHeightfield()
 	{
 		delete [] cells;
 		delete [] spans;
 		delete [] dist;
-		delete [] reg;
-		delete [] flags;
+		delete [] regs;
+		delete [] areas;
 	}
 	int width, height;					// Width and height of the heighfield.
 	int spanCount;						// Number of spans in the heightfield.
@@ -120,8 +120,8 @@ struct rcCompactHeightfield
 	rcCompactCell* cells;				// Pointer to width*height cells.
 	rcCompactSpan* spans;				// Pointer to spans.
 	unsigned short* dist;				// Pointer to per span distance to border.
-	unsigned short* reg;				// Pointer to per span region ID.
-	unsigned short* flags;				// Pointer to per span flags.
+	unsigned short* regs;				// Pointer to per span region ID.
+	unsigned char* areas;				// Pointer to per span area ID.
 };
 
 struct rcContour
@@ -133,6 +133,7 @@ struct rcContour
 	int* rverts;		// Raw vertex coordinates, each vertex contains 4 components.
 	int nrverts;		// Number of raw vertices.
 	unsigned short reg;	// Region ID of the contour.
+	unsigned char area;	// Area ID of the contour.
 };
 
 struct rcContourSet
@@ -158,11 +159,14 @@ struct rcContourSet
 //   z = bmin[2] + verts[i*3+2]*cs;
 struct rcPolyMesh
 {
-	inline rcPolyMesh() : verts(0), polys(0), regs(0), nverts(0), npolys(0), nvp(3) {}
-	inline ~rcPolyMesh() { delete [] verts; delete [] polys; delete [] regs; }
+	inline rcPolyMesh() : verts(0), polys(0), regs(0), areas(0), nverts(0), npolys(0), nvp(3) {}
+
+	inline ~rcPolyMesh() { delete [] verts; delete [] polys; delete [] regs; delete [] areas; }
+	
 	unsigned short* verts;	// Vertices of the mesh, 3 elements per vertex.
 	unsigned short* polys;	// Polygons of the mesh, nvp*2 elements per polygon.
-	unsigned short* regs;	// Regions of the polygons.
+	unsigned short* regs;	// Region ID of the polygons.
+	unsigned char* areas;	// Area ID of polygons.
 	int nverts;				// Number of vertices.
 	int npolys;				// Number of polygons.
 	int nvp;				// Max number of vertices per polygon.
@@ -242,11 +246,19 @@ static const unsigned short RC_BORDER_REG = 0x8000;
 // removed in order to match the segments and vertices at tile boundaries.
 static const int RC_BORDER_VERTEX = 0x10000;
 
+static const int RC_AREA_BORDER = 0x20000;
+
 // Mask used with contours to extract region id.
 static const int RC_CONTOUR_REG_MASK = 0xffff;
 
 // Null index which is used with meshes to mark unset or invalid indices.
 static const unsigned short RC_MESH_NULL_IDX = 0xffff;
+
+// Area ID that is considered empty.
+static const unsigned char RC_NULL_AREA = 0;
+
+// Area ID that is considered generally walkable.
+static const unsigned char RC_WALKABLE_AREA = 255;
 
 // Value returned by rcGetCon() if the direction is not connected.
 static const int RC_NOT_CONNECTED = 0xf;
@@ -496,6 +508,13 @@ bool rcBuildCompactHeightfield(const int walkableHeight, const int walkableClimb
 							   rcHeightfield& hf,
 							   rcCompactHeightfield& chf);
 
+bool rcErodeArea(unsigned char areaId, int radius, rcCompactHeightfield& chf);
+
+bool rcMarkBoxArea(const float* bmin, const float* bmax, unsigned char areaId,
+				   rcCompactHeightfield& chf);
+
+
+
 // Builds distance field and stores it into the combat heightfield.
 // Params:
 //	chf - (in/out) compact heightfield representing the open space.
@@ -512,13 +531,11 @@ bool rcBuildDistanceField(rcCompactHeightfield& chf);
 // removed or merged to neighbour region. 
 // Params:
 //	chf - (in/out) compact heightfield representing the open space.
-//	walkableRadius - (in) the radius of the agent.
 //	minRegionSize - (in) the smallest allowed regions size.
 //	maxMergeRegionSize - (in) the largest allowed regions size which can be merged.
 // Returns false if operation ran out of memory.
 bool rcBuildRegions(rcCompactHeightfield& chf,
-					int walkableRadius, int borderSize,
-					int minRegionSize, int mergeRegionSize);
+					int borderSize, int minRegionSize, int mergeRegionSize);
 
 // Divides the walkable heighfied into simple regions using simple monotone partitioning.
 // Each region has only one contour and no overlaps.

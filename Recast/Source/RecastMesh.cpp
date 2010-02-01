@@ -497,11 +497,11 @@ static bool removeVertex(rcPolyMesh& mesh, const unsigned short rem, const int m
 	}
 
 	int nedges = 0;
-	rcScopedDelete<int> edges = new int[nrem*nvp*3];
+	rcScopedDelete<int> edges = new int[nrem*nvp*4];
 	if (!edges)
 	{
 		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_WARNING, "removeVertex: Out of memory 'edges' (%d).", nrem*nvp*3);
+			rcGetLog()->log(RC_LOG_WARNING, "removeVertex: Out of memory 'edges' (%d).", nrem*nvp*4);
 		return false;
 	}
 
@@ -522,6 +522,15 @@ static bool removeVertex(rcPolyMesh& mesh, const unsigned short rem, const int m
 			rcGetLog()->log(RC_LOG_WARNING, "removeVertex: Out of memory 'hreg' (%d).", nrem*nvp);
 		return false;
 	}
+
+	int nharea = 0;
+	rcScopedDelete<int> harea = new int[nrem*nvp];
+	if (!harea)
+	{
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_WARNING, "removeVertex: Out of memory 'harea' (%d).", nrem*nvp);
+		return false;
+	}
 	
 	for (int i = 0; i < mesh.npolys; ++i)
 	{
@@ -537,10 +546,11 @@ static bool removeVertex(rcPolyMesh& mesh, const unsigned short rem, const int m
 			{
 				if (p[j] != rem && p[k] != rem)
 				{
-					int* e = &edges[nedges*3];
+					int* e = &edges[nedges*4];
 					e[0] = p[k];
 					e[1] = p[j];
 					e[2] = mesh.regs[i];
+					e[3] = mesh.areas[i];
 					nedges++;
 				}
 			}
@@ -548,6 +558,7 @@ static bool removeVertex(rcPolyMesh& mesh, const unsigned short rem, const int m
 			unsigned short* p2 = &mesh.polys[(mesh.npolys-1)*nvp*2];
 			memcpy(p,p2,sizeof(unsigned short)*nvp);
 			mesh.regs[i] = mesh.regs[mesh.npolys-1];
+			mesh.areas[i] = mesh.areas[mesh.npolys-1];
 			mesh.npolys--;
 			--i;
 		}
@@ -572,15 +583,18 @@ static bool removeVertex(rcPolyMesh& mesh, const unsigned short rem, const int m
 	}
 	for (int i = 0; i < nedges; ++i)
 	{
-		if (edges[i*3+0] > rem) edges[i*3+0]--;
-		if (edges[i*3+1] > rem) edges[i*3+1]--;
+		if (edges[i*4+0] > rem) edges[i*4+0]--;
+		if (edges[i*4+1] > rem) edges[i*4+1]--;
 	}
 
 	if (nedges == 0)
 		return true;
 
+	// Start with one vertex, keep appending connected
+	// segments to the start and end of the hole.
 	hole[nhole] = edges[0];
 	hreg[nhole] = edges[2];
+	harea[nhole] = edges[3];
 	nhole++;
 	
 	while (nedges)
@@ -589,28 +603,34 @@ static bool removeVertex(rcPolyMesh& mesh, const unsigned short rem, const int m
 		
 		for (int i = 0; i < nedges; ++i)
 		{
-			const int ea = edges[i*3+0];
-			const int eb = edges[i*3+1];
-			const int r = edges[i*3+2];
+			const int ea = edges[i*4+0];
+			const int eb = edges[i*4+1];
+			const int r = edges[i*4+2];
+			const int a = edges[i*4+3];
 			bool add = false;
 			if (hole[0] == eb)
 			{
+				// The segment matches the beginning of the hole boundary.
 				pushFront(ea, hole, nhole);
 				pushFront(r, hreg, nhreg);
+				pushFront(a, harea, nharea);
 				add = true;
 			}
 			else if (hole[nhole-1] == ea)
 			{
+				// The segment matches the end of the hole boundary.
 				pushBack(eb, hole, nhole);
 				pushBack(r, hreg, nhreg);
+				pushBack(a, harea, nharea);
 				add = true;
 			}
 			if (add)
 			{
-				// Remove edge.
-				edges[i*3+0] = edges[(nedges-1)*3+0];
-				edges[i*3+1] = edges[(nedges-1)*3+1];
-				edges[i*3+2] = edges[(nedges-1)*3+2];
+				// The edge segment was added, remove it.
+				edges[i*4+0] = edges[(nedges-1)*4+0];
+				edges[i*4+1] = edges[(nedges-1)*4+1];
+				edges[i*4+2] = edges[(nedges-1)*4+2];
+				edges[i*4+3] = edges[(nedges-1)*4+3];
 				--nedges;
 				match = true;
 				--i;
@@ -680,6 +700,13 @@ static bool removeVertex(rcPolyMesh& mesh, const unsigned short rem, const int m
 			rcGetLog()->log(RC_LOG_ERROR, "removeVertex: Out of memory 'pregs' (%d).", ntris);
 		return false;
 	}
+	rcScopedDelete<unsigned char> pareas = new unsigned char[ntris];
+	if (!pregs)
+	{
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_ERROR, "removeVertex: Out of memory 'pareas' (%d).", ntris);
+		return false;
+	}
 	
 	unsigned short* tmpPoly = &polys[ntris*nvp];
 			
@@ -694,7 +721,8 @@ static bool removeVertex(rcPolyMesh& mesh, const unsigned short rem, const int m
 			polys[npolys*nvp+0] = (unsigned short)hole[t[0]];
 			polys[npolys*nvp+1] = (unsigned short)hole[t[1]];
 			polys[npolys*nvp+2] = (unsigned short)hole[t[2]];
-			pregs[npolys] = hreg[t[0]];
+			pregs[npolys] = (unsigned short)hreg[t[0]];
+			pareas[npolys] = (unsigned char)harea[t[0]];
 			npolys++;
 		}
 	}
@@ -737,6 +765,7 @@ static bool removeVertex(rcPolyMesh& mesh, const unsigned short rem, const int m
 				mergePolys(pa, pb, bestEa, bestEb, tmpPoly, nvp);
 				memcpy(pb, &polys[(npolys-1)*nvp], sizeof(unsigned short)*nvp);
 				pregs[bestPb] = pregs[npolys-1];
+				pareas[bestPb] = pareas[npolys-1];
 				npolys--;
 			}
 			else
@@ -756,6 +785,7 @@ static bool removeVertex(rcPolyMesh& mesh, const unsigned short rem, const int m
 		for (int j = 0; j < nvp; ++j)
 			p[j] = polys[i*nvp+j];
 		mesh.regs[mesh.npolys] = pregs[i];
+		mesh.areas[mesh.npolys] = pareas[i];
 		mesh.npolys++;
 		if (mesh.npolys > maxTris)
 		{
@@ -827,7 +857,14 @@ bool rcBuildPolyMesh(rcContourSet& cset, int nvp, rcPolyMesh& mesh)
 			rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'mesh.regs' (%d).", maxTris);
 		return false;
 	}
-
+	mesh.areas = new unsigned char[maxTris];
+	if (!mesh.areas)
+	{
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'mesh.areas' (%d).", maxTris);
+		return false;
+	}
+	
 	mesh.nverts = 0;
 	mesh.npolys = 0;
 	mesh.nvp = nvp;
@@ -835,6 +872,7 @@ bool rcBuildPolyMesh(rcContourSet& cset, int nvp, rcPolyMesh& mesh)
 	memset(mesh.verts, 0, sizeof(unsigned short)*maxVertices*3);
 	memset(mesh.polys, 0xff, sizeof(unsigned short)*maxTris*nvp*2);
 	memset(mesh.regs, 0, sizeof(unsigned short)*maxTris);
+	memset(mesh.areas, 0, sizeof(unsigned char)*maxTris);
 	
 	rcScopedDelete<int> nextVert = new int[maxVertices];
 	if (!nextVert)
@@ -992,6 +1030,7 @@ bool rcBuildPolyMesh(rcContourSet& cset, int nvp, rcPolyMesh& mesh)
 			for (int k = 0; k < nvp; ++k)
 				p[k] = q[k];
 			mesh.regs[mesh.npolys] = cont.reg;
+			mesh.areas[mesh.npolys] = cont.area;
 			mesh.npolys++;
 			if (mesh.npolys > maxTris)
 			{
@@ -1091,6 +1130,15 @@ bool rcMergePolyMeshes(rcPolyMesh** meshes, const int nmeshes, rcPolyMesh& mesh)
 		return false;
 	}
 	memset(mesh.regs, 0, sizeof(unsigned short)*maxPolys);
+
+	mesh.areas = new unsigned char[maxPolys];
+	if (!mesh.areas)
+	{
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_ERROR, "rcMergePolyMeshes: Out of memory 'mesh.areas' (%d).", maxPolys);
+		return false;
+	}
+	memset(mesh.areas, 0, sizeof(unsigned char)*maxPolys);
 	
 	rcScopedDelete<int> nextVert = new int[maxVerts];
 	if (!nextVert)
@@ -1131,7 +1179,7 @@ bool rcMergePolyMeshes(rcPolyMesh** meshes, const int nmeshes, rcPolyMesh& mesh)
 		{
 			unsigned short* v = &pmesh->verts[j*3];
 			vremap[j] = addVertex(v[0]+ox, v[1], v[2]+oz,
-						   mesh.verts, firstVert, nextVert, mesh.nverts);
+								  mesh.verts, firstVert, nextVert, mesh.nverts);
 		}
 		
 		for (int j = 0; j < pmesh->npolys; ++j)
@@ -1139,6 +1187,7 @@ bool rcMergePolyMeshes(rcPolyMesh** meshes, const int nmeshes, rcPolyMesh& mesh)
 			unsigned short* tgt = &mesh.polys[mesh.npolys*2*mesh.nvp];
 			unsigned short* src = &pmesh->polys[j*2*mesh.nvp];
 			mesh.regs[mesh.npolys] = pmesh->regs[j];
+			mesh.areas[mesh.npolys] = pmesh->areas[j];
 			mesh.npolys++;
 			for (int k = 0; k < mesh.nvp; ++k)
 			{
