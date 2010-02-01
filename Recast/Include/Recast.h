@@ -547,13 +547,11 @@ bool rcBuildRegions(rcCompactHeightfield& chf,
 // removed or merged to neighbour region. 
 // Params:
 //	chf - (in/out) compact heightfield representing the open space.
-//	walkableRadius - (in) the radius of the agent.
 //	minRegionSize - (in) the smallest allowed regions size.
 //	maxMergeRegionSize - (in) the largest allowed regions size which can be merged.
 // Returns false if operation ran out of memory.
 bool rcBuildRegionsMonotone(rcCompactHeightfield& chf,
-							int walkableRadius, int borderSize,
-							int minRegionSize, int mergeRegionSize);
+							int borderSize, int minRegionSize, int mergeRegionSize);
 
 // Builds simplified contours from the regions outlines.
 // Params:

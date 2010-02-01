@@ -991,7 +991,7 @@ struct rcSweepSpan
 bool rcBuildRegionsMonotone(rcCompactHeightfield& chf,
 							int borderSize, int minRegionSize, int mergeRegionSize)
 {
-/*	rcTimeVal startTime = rcGetPerformanceTimer();
+	rcTimeVal startTime = rcGetPerformanceTimer();
 	
 	const int w = chf.width;
 	const int h = chf.height;
@@ -1047,7 +1047,7 @@ bool rcBuildRegionsMonotone(rcCompactHeightfield& chf,
 			for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
 			{
 				const rcCompactSpan& s = chf.spans[i];
-				if (chf.dist[i] < minLevel) continue;
+				if (chf.areas[i] == RC_NULL_AREA) continue;
 				
 				// -x
 				unsigned short previd = 0;
@@ -1056,7 +1056,7 @@ bool rcBuildRegionsMonotone(rcCompactHeightfield& chf,
 					const int ax = x + rcGetDirOffsetX(0);
 					const int ay = y + rcGetDirOffsetY(0);
 					const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(s, 0);
-					if ((srcReg[ai] & RC_BORDER_REG) == 0)
+					if ((srcReg[ai] & RC_BORDER_REG) == 0 && chf.areas[i] == chf.areas[ai])
 						previd = srcReg[ai];
 				}
 				
@@ -1074,7 +1074,7 @@ bool rcBuildRegionsMonotone(rcCompactHeightfield& chf,
 					const int ax = x + rcGetDirOffsetX(3);
 					const int ay = y + rcGetDirOffsetY(3);
 					const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(s, 3);
-					if (srcReg[ai] && (srcReg[ai] & RC_BORDER_REG) == 0)
+					if (srcReg[ai] && (srcReg[ai] & RC_BORDER_REG) == 0 && chf.areas[i] == chf.areas[ai])
 					{
 						unsigned short nr = srcReg[ai];
 						if (!sweeps[previd].nei || sweeps[previd].nei == nr)
@@ -1141,7 +1141,6 @@ bool rcBuildRegionsMonotone(rcCompactHeightfield& chf,
 		rcGetBuildTimes()->buildRegions += rcGetDeltaTimeUsec(startTime, endTime);
 		rcGetBuildTimes()->buildRegionsFilter += rcGetDeltaTimeUsec(filterStartTime, filterEndTime);
 	}
-*/
 
 	return true;
 }
