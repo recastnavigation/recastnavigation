@@ -168,6 +168,16 @@
 			6B324AD6111C00D700EBD2FD /* PBXTextBookmark */ = 6B324AD6111C00D700EBD2FD /* PBXTextBookmark */;
 			6B324AD7111C00D700EBD2FD /* PBXTextBookmark */ = 6B324AD7111C00D700EBD2FD /* PBXTextBookmark */;
 			6B324AD8111C00D700EBD2FD /* PBXTextBookmark */ = 6B324AD8111C00D700EBD2FD /* PBXTextBookmark */;
+			6B324ADA111C012300EBD2FD /* PBXTextBookmark */ = 6B324ADA111C012300EBD2FD /* PBXTextBookmark */;
+			6B324ADB111C012300EBD2FD /* PBXTextBookmark */ = 6B324ADB111C012300EBD2FD /* PBXTextBookmark */;
+			6B324ADD111C014A00EBD2FD /* PBXTextBookmark */ = 6B324ADD111C014A00EBD2FD /* PBXTextBookmark */;
+			6B324ADE111C014A00EBD2FD /* PBXTextBookmark */ = 6B324ADE111C014A00EBD2FD /* PBXTextBookmark */;
+			6B324AE0111C020F00EBD2FD /* PBXTextBookmark */ = 6B324AE0111C020F00EBD2FD /* PBXTextBookmark */;
+			6B324AE1111C020F00EBD2FD /* PBXTextBookmark */ = 6B324AE1111C020F00EBD2FD /* PBXTextBookmark */;
+			6B324AE6111C07AB00EBD2FD /* PBXTextBookmark */ = 6B324AE6111C07AB00EBD2FD /* PBXTextBookmark */;
+			6B324AE7111C07AB00EBD2FD /* PBXTextBookmark */ = 6B324AE7111C07AB00EBD2FD /* PBXTextBookmark */;
+			6B324AE8111C07AB00EBD2FD /* PBXTextBookmark */ = 6B324AE8111C07AB00EBD2FD /* PBXTextBookmark */;
+			6B324AE9111C07AB00EBD2FD /* PBXTextBookmark */ = 6B324AE9111C07AB00EBD2FD /* PBXTextBookmark */;
 			6B69739F10FFCA4500984788 = 6B69739F10FFCA4500984788 /* PBXTextBookmark */;
 			6B6973A210FFCA4500984788 = 6B6973A210FFCA4500984788 /* PBXTextBookmark */;
 			6B8DE70D10B01BBF00DF20FB = 6B8DE70D10B01BBF00DF20FB /* PBXTextBookmark */;
@@ -778,7 +788,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 217";
 		rLen = 0;
-		rLoc = 5230;
+		rLoc = 5234;
 		rType = 0;
 		vrLen = 474;
 		vrLoc = 4904;
@@ -808,7 +818,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 217";
 		rLen = 0;
-		rLoc = 5230;
+		rLoc = 5234;
 		rType = 0;
 		vrLen = 474;
 		vrLoc = 4904;
@@ -848,7 +858,7 @@
 		fRef = 6B555DF6100B273500247EA3 /* stb_truetype.h */;
 		name = "stb_truetype.h: 667";
 		rLen = 0;
-		rLoc = 27261;
+		rLoc = 27273;
 		rType = 0;
 		vrLen = 975;
 		vrLoc = 26909;
@@ -878,7 +888,7 @@
 		fRef = 6B555DF6100B273500247EA3 /* stb_truetype.h */;
 		name = "stb_truetype.h: 667";
 		rLen = 0;
-		rLoc = 27261;
+		rLoc = 27273;
 		rType = 0;
 		vrLen = 975;
 		vrLoc = 26909;
@@ -958,7 +968,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 218";
 		rLen = 0;
-		rLoc = 5173;
+		rLoc = 5177;
 		rType = 0;
 		vrLen = 529;
 		vrLoc = 5014;
@@ -1086,7 +1096,7 @@
 		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
 		name = "imguiRenderGL.cpp: 218";
 		rLen = 0;
-		rLoc = 5173;
+		rLoc = 5177;
 		rType = 0;
 		vrLen = 529;
 		vrLoc = 5014;
@@ -1131,6 +1141,99 @@
 		vrLen = 1033;
 		vrLoc = 2157;
 	};
+	6B324ADA111C012300EBD2FD /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B555DF6100B273500247EA3 /* stb_truetype.h */;
+		rLen = 1;
+		rLoc = 631;
+		rType = 1;
+	};
+	6B324ADB111C012300EBD2FD /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B555DF6100B273500247EA3 /* stb_truetype.h */;
+		name = "stb_truetype.h: 632";
+		rLen = 99;
+		rLoc = 26099;
+		rType = 0;
+		vrLen = 982;
+		vrLoc = 25496;
+	};
+	6B324ADD111C014A00EBD2FD /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		comments = "warning: 'y' may be used uninitialized in this function";
+		fRef = 6B555DF6100B273500247EA3 /* stb_truetype.h */;
+		rLen = 1;
+		rLoc = 1331;
+		rType = 1;
+	};
+	6B324ADE111C014A00EBD2FD /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B555DF6100B273500247EA3 /* stb_truetype.h */;
+		name = "stb_truetype.h: 1332";
+		rLen = 0;
+		rLoc = 50386;
+		rType = 0;
+		vrLen = 705;
+		vrLoc = 50169;
+	};
+	6B324AE0111C020F00EBD2FD /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		comments = "warning: multi-line comment";
+		fRef = 6B555DF6100B273500247EA3 /* stb_truetype.h */;
+		rLen = 1;
+		rLoc = 64;
+		rType = 1;
+	};
+	6B324AE1111C020F00EBD2FD /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B555DF6100B273500247EA3 /* stb_truetype.h */;
+		name = "stb_truetype.h: 65";
+		rLen = 0;
+		rLoc = 2715;
+		rType = 0;
+		vrLen = 984;
+		vrLoc = 2229;
+	};
+	6B324AE6111C07AB00EBD2FD /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B555DF6100B273500247EA3 /* stb_truetype.h */;
+		name = "stb_truetype.h: 641";
+		rLen = 0;
+		rLoc = 26733;
+		rType = 0;
+		vrLen = 909;
+		vrLoc = 26283;
+	};
+	6B324AE7111C07AB00EBD2FD /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
+		name = "imguiRenderGL.cpp: 218";
+		rLen = 0;
+		rLoc = 5177;
+		rType = 0;
+		vrLen = 470;
+		vrLoc = 5073;
+	};
+	6B324AE8111C07AB00EBD2FD /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B555DF6100B273500247EA3 /* stb_truetype.h */;
+		name = "stb_truetype.h: 641";
+		rLen = 0;
+		rLoc = 26733;
+		rType = 0;
+		vrLen = 909;
+		vrLoc = 26283;
+	};
+	6B324AE9111C07AB00EBD2FD /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */;
+		name = "imguiRenderGL.cpp: 24";
+		rLen = 0;
+		rLoc = 1047;
+		rType = 0;
+		vrLen = 735;
+		vrLoc = 837;
+	};
 	6B555DAE100B211D00247EA3 /* imguiRenderGL.h */ = {
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {915, 492}}";
@@ -1140,16 +1243,16 @@
 	};
 	6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {815, 7020}}";
-			sepNavSelRange = "{5173, 0}";
-			sepNavVisRange = "{5073, 597}";
+			sepNavIntBoundsRect = "{{0, 0}, {815, 6992}}";
+			sepNavSelRange = "{1047, 0}";
+			sepNavVisRange = "{837, 735}";
 		};
 	};
 	6B555DF6100B273500247EA3 /* stb_truetype.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {815, 26848}}";
-			sepNavSelRange = "{2449, 0}";
-			sepNavVisRange = "{2157, 1033}";
+			sepNavIntBoundsRect = "{{0, 0}, {1258, 29344}}";
+			sepNavSelRange = "{26733, 0}";
+			sepNavVisRange = "{26283, 909}";
 		};
 	};
 	6B624169103434880002E346 /* RecastMeshDetail.cpp */ = {
@@ -1362,7 +1465,7 @@
 		fRef = 6B555DF6100B273500247EA3 /* stb_truetype.h */;
 		name = "stb_truetype.h: 673";
 		rLen = 0;
-		rLoc = 27352;
+		rLoc = 27364;
 		rType = 0;
 		vrLen = 857;
 		vrLoc = 26962;

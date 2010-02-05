@@ -21,8 +21,8 @@
 #include "imgui.h"
 #include "SDL.h"
 #include "SDL_opengl.h"
-#define STBTT_malloc(x)    malloc(x)
-#define STBTT_free(x)      free(x)
+#define STBTT_malloc(x,y)    malloc(x)
+#define STBTT_free(x,y)      free(x)
 #define STB_TRUETYPE_IMPLEMENTATION
 #include "stb_truetype.h"
 
