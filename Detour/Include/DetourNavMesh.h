@@ -25,7 +25,7 @@ typedef unsigned int dtPolyRef;
 // Maximum number of vertices per navigation polygon.
 static const int DT_VERTS_PER_POLYGON = 6;
 
-static const int DT_NAVMESH_MAGIC = 'DNAV';
+static const int DT_NAVMESH_MAGIC = 'D'<<24 | 'N'<<16 | 'A'<<8 | 'V'; //'DNAV';
 static const int DT_NAVMESH_VERSION = 2;
 
 static const unsigned short DT_EXT_LINK = 0x8000;
@@ -130,7 +130,7 @@ struct dtMeshHeader
 
 struct dtMeshTile
 {
-	int salt;								// Counter describing modifications to the tile.
+	unsigned int salt;						// Counter describing modifications to the tile.
 	int x,y;								// Grid location of the tile.
 	dtMeshHeader* header;					// Pointer to tile header.
 	unsigned char* data;					// Pointer to tile data.

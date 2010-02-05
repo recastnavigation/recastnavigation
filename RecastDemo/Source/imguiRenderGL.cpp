@@ -131,7 +131,7 @@ static void drawEllipse(float x, float y, float w, float h, float fth, unsigned 
 	const float* cverts = g_circleVerts;
 	float* v = verts;
 	
-	for (unsigned i = 0; i < CIRCLE_VERTS; ++i)
+	for (int i = 0; i < CIRCLE_VERTS; ++i)
 	{
 		*v++ = x + cverts[i*2]*w;
 		*v++ = y + cverts[i*2+1]*h;
@@ -214,7 +214,7 @@ static void drawLine(float x0, float y0, float x1, float y1, float r, float fth,
 
 bool imguiRenderGLInit(const char* fontpath)
 {
-	for (unsigned i = 0; i < CIRCLE_VERTS; ++i)
+	for (int i = 0; i < CIRCLE_VERTS; ++i)
 	{
 		float a = (float)i/(float)CIRCLE_VERTS * (float)M_PI*2;
 		g_circleVerts[i*2+0] = cosf(a);

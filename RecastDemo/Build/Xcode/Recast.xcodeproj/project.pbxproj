@@ -436,9 +436,15 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Recast_Prefix.pch;
+				GCC_VERSION = 4.2;
 				HEADER_SEARCH_PATHS = "/Library/Frameworks/SDL.framework/Headers/**";
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-Wreorder",
+					"-Wsign-compare",
+				);
 				PRODUCT_NAME = Recast;
 			};
 			name = Debug;
@@ -453,6 +459,7 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Recast_Prefix.pch;
+				GCC_VERSION = 4.2;
 				HEADER_SEARCH_PATHS = "/Library/Frameworks/SDL.framework/Headers/**";
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
@@ -460,6 +467,7 @@
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
 					"-Wreorder",
+					"-Wsign-compare",
 				);
 				PRODUCT_NAME = Recast;
 			};
