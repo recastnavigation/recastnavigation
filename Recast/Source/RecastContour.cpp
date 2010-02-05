@@ -725,7 +725,7 @@ bool rcBuildContours(rcCompactHeightfield& chf,
 			{
 				rcContour& mcont = cset.conts[mergeIdx];
 				// Merge by closest points.
-				int ia, ib;
+				int ia = 0, ib = 0;
 				getClosestIndices(mcont.verts, mcont.nverts, cont.verts, cont.nverts, ia, ib);
 				if (!mergeContours(mcont, cont, ia, ib))
 				{

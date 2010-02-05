@@ -285,27 +285,6 @@ void Sample_TileMesh::handleDebugMode()
 	}
 }
 
-static void getPolyCenter(dtNavMesh* navMesh, dtPolyRef ref, float* center)
-{
-	const dtPoly* p = navMesh->getPolyByRef(ref);
-	if (!p) return;
-	const float* verts = navMesh->getPolyVertsByRef(ref);
-	center[0] = 0;
-	center[1] = 0;
-	center[2] = 0;
-	for (int i = 0; i < (int)p->vertCount; ++i)
-	{
-		const float* v = &verts[p->verts[i]*3];
-		center[0] += v[0];
-		center[1] += v[1];
-		center[2] += v[2];
-	}
-	const float s = 1.0f / p->vertCount;
-	center[0] *= s;
-	center[1] *= s;
-	center[2] *= s;
-}
-
 void Sample_TileMesh::handleRender()
 {
 	if (!m_geom || !m_geom->getMesh())

@@ -444,6 +444,7 @@
 					"$(OTHER_CFLAGS)",
 					"-Wreorder",
 					"-Wsign-compare",
+					"-Wall",
 				);
 				PRODUCT_NAME = Recast;
 			};
@@ -468,6 +469,7 @@
 					"$(OTHER_CFLAGS)",
 					"-Wreorder",
 					"-Wsign-compare",
+					"-Wall",
 				);
 				PRODUCT_NAME = Recast;
 			};

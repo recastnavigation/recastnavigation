@@ -185,8 +185,8 @@ int main(int argc, char *argv[])
 	float ry = -45;
 	float moveW = 0, moveS = 0, moveA = 0, moveD = 0;
 	float camx = 0, camy = 0, camz = 0, camr=10;
-	float origrx, origry;
-	int origx, origy;
+	float origrx = 0, origry = 0;
+	int origx = 0, origy = 0;
 	bool rotate = false;
 	float rays[3], raye[3]; 
 	bool mouseOverMenu = false;
@@ -208,7 +208,7 @@ int main(int argc, char *argv[])
 	FileList files;
 	char meshName[128] = "Choose Mesh...";
 	
-	float mpos[3];
+	float mpos[3] = {0,0,0};
 	bool mposSet = false;
 	
 	InputGeom* geom = 0;

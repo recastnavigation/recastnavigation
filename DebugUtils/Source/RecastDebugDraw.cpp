@@ -67,18 +67,6 @@ void duDebugDrawTriMeshSlope(duDebugDraw* dd, const float* verts, int nverts,
 	dd->end();
 }
 
-static int getSpanCount(const rcHeightfield& hf)
-{
-	const int w = hf.width;
-	const int h = hf.height;
-	int spanCount = 0;
-	for (int y = 0; y < h; ++y)
-		for (int x = 0; x < w; ++x)
-			for (rcSpan* s = hf.spans[x + y*w]; s; s = s->next)
-					spanCount++;
-	return spanCount;
-}
-
 void duDebugDrawHeightfieldSolid(duDebugDraw* dd, const rcHeightfield& hf)
 {
 	

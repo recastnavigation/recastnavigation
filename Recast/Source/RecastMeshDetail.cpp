@@ -667,7 +667,7 @@ static bool buildPolyDetail(const float* in, const int nin,
 		for (int iter = 0; iter < nsamples; ++iter)
 		{
 			// Find sample with most error.
-			float bestpt[3];
+			float bestpt[3] = {0,0,0};
 			float bestd = 0;
 			for (int i = 0; i < nsamples; ++i)
 			{

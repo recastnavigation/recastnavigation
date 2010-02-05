@@ -735,7 +735,7 @@ static bool removeVertex(rcPolyMesh& mesh, const unsigned short rem, const int m
 		{
 			// Find best polygons to merge.
 			int bestMergeVal = 0;
-			int bestPa, bestPb, bestEa, bestEb;
+			int bestPa = 0, bestPb = 0, bestEa = 0, bestEb = 0;
 			
 			for (int j = 0; j < npolys-1; ++j)
 			{
@@ -983,7 +983,7 @@ bool rcBuildPolyMesh(rcContourSet& cset, int nvp, rcPolyMesh& mesh)
 			{
 				// Find best polygons to merge.
 				int bestMergeVal = 0;
-				int bestPa, bestPb, bestEa, bestEb;
+				int bestPa = 0, bestPb = 0, bestEa = 0, bestEb = 0;
 				
 				for (int j = 0; j < npolys-1; ++j)
 				{

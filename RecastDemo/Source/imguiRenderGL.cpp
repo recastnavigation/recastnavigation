@@ -125,6 +125,7 @@ static void drawRect(float x, float y, float w, float h, float fth, unsigned int
 	drawPolygon(verts, 4, fth, col);
 }
 
+/*
 static void drawEllipse(float x, float y, float w, float h, float fth, unsigned int col)
 {
 	float verts[CIRCLE_VERTS*2];
@@ -139,6 +140,7 @@ static void drawEllipse(float x, float y, float w, float h, float fth, unsigned 
 	
 	drawPolygon(verts, CIRCLE_VERTS, fth, col);
 }
+*/
 
 static void drawRoundedRect(float x, float y, float w, float h, float r, float fth, unsigned int col)
 {
@@ -176,6 +178,7 @@ static void drawRoundedRect(float x, float y, float w, float h, float r, float f
 	drawPolygon(verts, (n+1)*4, fth, col);
 }
 
+/*
 static void drawLine(float x0, float y0, float x1, float y1, float r, float fth, unsigned int col)
 {
 	float dx = x1-x0;
@@ -211,6 +214,7 @@ static void drawLine(float x0, float y0, float x1, float y1, float r, float fth,
 	
 	drawPolygon(verts, 4, fth, col);
 }
+*/
 
 bool imguiRenderGLInit(const char* fontpath)
 {

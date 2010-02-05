@@ -252,6 +252,7 @@ bool rcBuildCompactHeightfield(const int walkableHeight, const int walkableClimb
 	return true;
 }
 
+/*
 static int getHeightfieldMemoryUsage(const rcHeightfield& hf)
 {
 	int size = 0;
@@ -275,3 +276,4 @@ static int getCompactHeightFieldMemoryusage(const rcCompactHeightfield& chf)
 	size += sizeof(rcCompactCell) * chf.width * chf.height;
 	return size;
 }
+*/

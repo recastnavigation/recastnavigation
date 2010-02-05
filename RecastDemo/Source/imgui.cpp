@@ -66,6 +66,7 @@ static void addGfxCmdScissor(int x, int y, int w, int h)
 	cmd.rect.h = (short)h;
 }
 
+/*
 static void addGfxCmdRect(int x, int y, int w, int h, unsigned int color)
 {
 	if (g_gfxCmdQueueSize >= GFXCMD_QUEUE_SIZE)
@@ -80,6 +81,7 @@ static void addGfxCmdRect(int x, int y, int w, int h, unsigned int color)
 	cmd.rect.h = (short)h;
 	cmd.rect.r = 0;
 }
+*/
 
 static void addGfxCmdRoundedRect(int x, int y, int w, int h, int r, unsigned int color)
 {
