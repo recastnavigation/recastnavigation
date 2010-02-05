@@ -20,6 +20,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <string.h>
 #include "Recast.h"
 #include "RecastLog.h"
 #include "InputGeom.h"
@@ -108,7 +109,7 @@ InputGeom::InputGeom() :
 	m_chunkyMesh(0),
 	m_mesh(0),
 	m_offMeshConCount(0),
-	m_boxVolCount(0)
+	m_volumeCount(0)
 {
 }
 
@@ -128,7 +129,7 @@ bool InputGeom::loadMesh(const char* filepath)
 		m_mesh = 0;
 	}
 	m_offMeshConCount = 0;
-	m_boxVolCount = 0;
+	m_volumeCount = 0;
 	
 	m_mesh = new rcMeshLoaderObj;
 	if (!m_mesh)
@@ -182,7 +183,7 @@ bool InputGeom::load(const char* filePath)
 	fclose(fp);
 	
 	m_offMeshConCount = 0;
-	m_boxVolCount = 0;
+	m_volumeCount = 0;
 	delete m_mesh;
 	m_mesh = 0;
 
@@ -216,26 +217,30 @@ bool InputGeom::load(const char* filePath)
 			if (m_offMeshConCount < MAX_OFFMESH_CONNECTIONS)
 			{
 				float* v = &m_offMeshConVerts[m_offMeshConCount*3*2];
-				int bidir;
+				int bidir, area = 0, flags = 0;
 				float rad;
-				sscanf(row+1, "%f %f %f  %f %f %f %f %d",
-					   &v[0], &v[1], &v[2], &v[3], &v[4], &v[5], &rad, &bidir);
+				sscanf(row+1, "%f %f %f  %f %f %f %f %d %d %d",
+					   &v[0], &v[1], &v[2], &v[3], &v[4], &v[5], &rad, &bidir, &area, &flags);
 				m_offMeshConRads[m_offMeshConCount] = rad;
 				m_offMeshConDirs[m_offMeshConCount] = bidir;
+				m_offMeshConAreas[m_offMeshConCount] = area;
+				m_offMeshConFlags[m_offMeshConCount] = flags;
 				m_offMeshConCount++;
 			}
 		}
-		else if (row[0] == 'b')
+		else if (row[0] == 'v')
 		{
-			// Box volumes
-			if (m_boxVolCount < MAX_BOX_VOLUMES)
+			// Convex volumes
+			if (m_volumeCount < MAX_VOLUMES)
 			{
-				float* v = &m_boxVolVerts[m_boxVolCount*3*2];
-				int type;
-				sscanf(row+1, "%f %f %f  %f %f %f %d",
-					   &v[0], &v[1], &v[2], &v[3], &v[4], &v[5], &type);
-				m_boxVolTypes[m_boxVolCount] = (unsigned char)type;
-				m_boxVolCount++;
+				ConvexVolume* vol = &m_volumes[m_volumeCount++];
+				sscanf(row+1, "%d %d %f %f", &vol->nverts, &vol->area, &vol->hmin, &vol->hmax);
+				for (int i = 0; i < vol->nverts; ++i)
+				{
+					row[0] = '\0';
+					src = parseRow(src, srcEnd, row, sizeof(row)/sizeof(char));
+					sscanf(row, "%f %f %f", &vol->verts[i*3+0], &vol->verts[i*3+1], &vol->verts[i*3+2]);
+				}
 			}
 		}
 	}
@@ -261,17 +266,19 @@ bool InputGeom::save(const char* filepath)
 		const float* v = &m_offMeshConVerts[i*3*2];
 		const float rad = m_offMeshConRads[i];
 		const int bidir = m_offMeshConDirs[i];
-		fprintf(fp, "c %f %f %f  %f %f %f  %f %d\n",
-				v[0], v[1], v[2], v[3], v[4], v[5], rad, bidir);
+		const int area = m_offMeshConAreas[i];
+		const int flags = m_offMeshConFlags[i];
+		fprintf(fp, "c %f %f %f  %f %f %f  %f %d %d %d\n",
+				v[0], v[1], v[2], v[3], v[4], v[5], rad, bidir, area, flags);
 	}
 
-	// Box volumes
-	for (int i = 0; i < m_boxVolCount; ++i)
+	// Convex volumes
+	for (int i = 0; i < m_volumeCount; ++i)
 	{
-		const float* v = &m_boxVolVerts[i*3*2];
-		const int bidir = m_boxVolTypes[i];
-		fprintf(fp, "b %f %f %f  %f %f %f  %d\n",
-				v[0], v[1], v[2], v[3], v[4], v[5], bidir);
+		ConvexVolume* vol = &m_volumes[i];
+		fprintf(fp, "v %d %d %f %f\n", vol->nverts, vol->area, vol->hmin, vol->hmax);
+		for (int i = 0; i < vol->nverts; ++i)
+			fprintf(fp, "%f %f %f\n", vol->verts[i*3+0], vol->verts[i*3+1], vol->verts[i*3+2]);
 	}
 	
 	fclose(fp);
@@ -312,12 +319,15 @@ bool InputGeom::raycastMesh(float* src, float* dst, float& tmin)
 	return hit;
 }
 
-void InputGeom::addOffMeshConnection(const float* spos, const float* epos, const float rad, unsigned char bidir)
+void InputGeom::addOffMeshConnection(const float* spos, const float* epos, const float rad,
+									 unsigned char bidir, unsigned char area, unsigned short flags)
 {
 	if (m_offMeshConCount >= MAX_OFFMESH_CONNECTIONS) return;
 	float* v = &m_offMeshConVerts[m_offMeshConCount*3*2];
 	m_offMeshConRads[m_offMeshConCount] = rad;
 	m_offMeshConDirs[m_offMeshConCount] = bidir;
+	m_offMeshConAreas[m_offMeshConCount] = area;
+	m_offMeshConFlags[m_offMeshConCount] = flags;
 	vcopy(&v[0], spos);
 	vcopy(&v[3], epos);
 	m_offMeshConCount++;
@@ -332,6 +342,8 @@ void InputGeom::deleteOffMeshConnection(int i)
 	vcopy(&dst[3], &src[3]);
 	m_offMeshConRads[i] = m_offMeshConRads[m_offMeshConCount];
 	m_offMeshConDirs[i] = m_offMeshConDirs[m_offMeshConCount];
+	m_offMeshConAreas[i] = m_offMeshConAreas[m_offMeshConCount];
+	m_offMeshConFlags[i] = m_offMeshConFlags[m_offMeshConCount];
 }
 
 void InputGeom::drawOffMeshConnections(duDebugDraw* dd, bool hilight)
@@ -365,47 +377,89 @@ void InputGeom::drawOffMeshConnections(duDebugDraw* dd, bool hilight)
 	dd->depthMask(true);
 }
 
-void InputGeom::addBoxVolume(const float* bmin, const float* bmax, unsigned char type)
+void InputGeom::addConvexVolume(const float* verts, const int nverts,
+								const float minh, const float maxh, unsigned char area)
 {
-	if (m_boxVolCount >= MAX_OFFMESH_CONNECTIONS) return;
-	float* v = &m_boxVolVerts[m_boxVolCount*3*2];
-	m_boxVolTypes[m_boxVolCount] = type;
-	vcopy(&v[0], bmin);
-	vcopy(&v[3], bmax);
-	m_boxVolCount++;
+	if (m_volumeCount >= MAX_VOLUMES) return;
+	ConvexVolume* vol = &m_volumes[m_volumeCount++];
+	memset(vol, 0, sizeof(ConvexVolume));
+	memcpy(vol->verts, verts, sizeof(float)*3*nverts);
+	vol->hmin = minh;
+	vol->hmax = maxh;
+	vol->nverts = nverts;
+	vol->area = area;
 }
 
-void InputGeom::deleteBoxVolume(int i)
+void InputGeom::deleteConvexVolume(int i)
 {
-	m_boxVolCount--;
-	float* src = &m_boxVolVerts[m_boxVolCount*3*2];
-	float* dst = &m_boxVolVerts[i*3*2];
-	vcopy(&dst[0], &src[0]);
-	vcopy(&dst[3], &src[3]);
-	m_boxVolTypes[i] = m_boxVolTypes[m_boxVolCount];
+	m_volumeCount--;
+	m_volumes[i] = m_volumes[m_volumeCount];
 }
 
-void InputGeom::drawBoxVolumes(struct duDebugDraw* dd, bool hilight)
+void InputGeom::drawConvexVolumes(struct duDebugDraw* dd, bool hilight)
 {
 	dd->depthMask(false);
+
+	dd->begin(DU_DRAW_TRIS);
 	
-	dd->begin(DU_DRAW_LINES, 2.0f);
-	for (int i = 0; i < m_boxVolCount; ++i)
+	for (int i = 0; i < m_volumeCount; ++i)
 	{
-		unsigned int col = duIntToCol(m_boxVolTypes[i]+1, 220);
-		const float* bounds = &m_boxVolVerts[i*3*2];
-		duAppendBoxWire(dd, bounds[0],bounds[1],bounds[2],bounds[3],bounds[4],bounds[5], col); 
+		const ConvexVolume* vol = &m_volumes[i];
+		unsigned int col = duIntToCol(vol->area, 32);
+		for (int j = 0, k = vol->nverts-1; j < vol->nverts; k = j++)
+		{
+			const float* va = &vol->verts[k*3];
+			const float* vb = &vol->verts[j*3];
+
+			dd->vertex(vol->verts[0],vol->hmax,vol->verts[2], col);
+			dd->vertex(vb[0],vol->hmax,vb[2], col);
+			dd->vertex(va[0],vol->hmax,va[2], col);
+			
+			dd->vertex(va[0],vol->hmin,va[2], duDarkenColor(col));
+			dd->vertex(va[0],vol->hmax,va[2], col);
+			dd->vertex(vb[0],vol->hmax,vb[2], col);
+
+			dd->vertex(va[0],vol->hmin,va[2], duDarkenColor(col));
+			dd->vertex(vb[0],vol->hmax,vb[2], col);
+			dd->vertex(vb[0],vol->hmin,vb[2], duDarkenColor(col));
+		}
+	}
+	
+	dd->end();
+
+	dd->begin(DU_DRAW_LINES, 2.0f);
+	for (int i = 0; i < m_volumeCount; ++i)
+	{
+		const ConvexVolume* vol = &m_volumes[i];
+		unsigned int col = duIntToCol(vol->area, 220);
+		for (int j = 0, k = vol->nverts-1; j < vol->nverts; k = j++)
+		{
+			const float* va = &vol->verts[k*3];
+			const float* vb = &vol->verts[j*3];
+			dd->vertex(va[0],vol->hmin,va[2], duDarkenColor(col));
+			dd->vertex(vb[0],vol->hmin,vb[2], duDarkenColor(col));
+			dd->vertex(va[0],vol->hmax,va[2], col);
+			dd->vertex(vb[0],vol->hmax,vb[2], col);
+			dd->vertex(va[0],vol->hmin,va[2], duDarkenColor(col));
+			dd->vertex(va[0],vol->hmax,va[2], col);
+		}
 	}
 	dd->end();
 
-	dd->begin(DU_DRAW_POINTS, 4.0f);
-	for (int i = 0; i < m_boxVolCount; ++i)
+	dd->begin(DU_DRAW_POINTS, 3.0f);
+	for (int i = 0; i < m_volumeCount; ++i)
 	{
-		unsigned int col = duDarkenColor(duIntToCol(m_boxVolTypes[i]+1, 255));
-		const float* bounds = &m_boxVolVerts[i*3*2];
-		duAppendBoxPoints(dd, bounds[0],bounds[1],bounds[2],bounds[3],bounds[4],bounds[5], col); 
+		const ConvexVolume* vol = &m_volumes[i];
+		unsigned int col = duDarkenColor(duIntToCol(vol->area, 255));
+		for (int j = 0; j < vol->nverts; ++j)
+		{
+			dd->vertex(vol->verts[j*3+0],vol->verts[j*3+1]+0.1f,vol->verts[j*3+2], col);
+			dd->vertex(vol->verts[j*3+0],vol->hmin,vol->verts[j*3+2], col);
+			dd->vertex(vol->verts[j*3+0],vol->hmax,vol->verts[j*3+2], col);
+		}
 	}
 	dd->end();
+	
 	
 	dd->depthMask(true);
 }

@@ -32,6 +32,8 @@ static const unsigned short DT_EXT_LINK = 0x8000;
 static const unsigned int DT_NULL_LINK = 0xffffffff;
 static const unsigned int DT_OFFMESH_CON_BIDIR = 1;
 
+static const int DT_MAX_AREAS = 64;
+
 // Flags returned by findStraightPath().
 enum dtStraightPathFlags
 {
@@ -41,10 +43,10 @@ enum dtStraightPathFlags
 };
 
 // Flags describing polygon properties.
-enum dtPolyFlags
+enum dtPolyTypes
 {
-	DT_POLY_GROUND = 0x01,						// Regular ground polygons.
-	DT_POLY_OFFMESH_CONNECTION = 0x02,			// Off-mesh connections.
+	DT_POLYTYPE_GROUND = 0,						// Regular ground polygons.
+	DT_POLYTYPE_OFFMESH_CONNECTION = 1,			// Off-mesh connections.
 };
 
 struct dtQueryFilter
@@ -62,6 +64,8 @@ struct dtPoly
 	unsigned short neis[DT_VERTS_PER_POLYGON];	// Refs to neighbours of the poly.
 	unsigned short flags;						// Flags (see dtPolyFlags).
 	unsigned char vertCount;					// Number of vertices.
+	unsigned char area : 6;						// Area ID of the polygon.
+	unsigned char type : 2;						// Polygon type, see dtPolyTypes.
 };
 
 // Stucture describing polygon detail triangles.
@@ -363,6 +367,17 @@ public:
 	//	height - (out) height at the location.
 	// Returns: true if over polygon.
 	bool getPolyHeight(dtPolyRef ref, const float* pos, float* height) const;
+
+	// Sets the pathfinding cost of the specified area.
+	// Params:
+	//  area - (in) area ID (0-63).
+	//  cost - (int) travel cost of the area.
+	void setAreaCost(const int area, float cost);
+
+	// Returns the pathfinding cost of the specified area.
+	// Params:
+	//  area - (in) area ID (0-63).
+	float getAreaCost(const int area) const;
 		
 	// Returns pointer to a polygon based on ref.
 	const dtPoly* getPolyByRef(dtPolyRef ref) const;
@@ -432,8 +447,9 @@ private:
 									dtQueryFilter* filter, float* nearestPt);
 	// Returns closest point on polygon.
 	bool closestPointOnPolyInTile(const dtMeshTile* tile, unsigned int ip, const float* pos, float* closest) const;
-						  
+
 	unsigned short getPolyFlags(dtPolyRef ref);
+	unsigned char getPolyType(dtPolyRef ref);
 	float getCost(dtPolyRef prev, dtPolyRef from, dtPolyRef to) const;
 	float getFirstCost(const float* pos, dtPolyRef from, dtPolyRef to) const;
 	float getLastCost(dtPolyRef from, dtPolyRef to, const float* pos) const;
@@ -441,7 +457,7 @@ private:
 	
 	// Returns portal points between two polygons.
 	bool getPortalPoints(dtPolyRef from, dtPolyRef to, float* left, float* right,
-						 unsigned short& fromFlags, unsigned short& toFlags) const;
+						 unsigned char& fromType, unsigned char& toType) const;
 	// Returns edge mid point between two polygons.
 	bool getEdgeMidPoint(dtPolyRef from, dtPolyRef to, float* mid) const;
 
@@ -458,6 +474,8 @@ private:
 	unsigned int m_saltBits;			// Number of salt bits in the tile ID.
 	unsigned int m_tileBits;			// Number of tile bits in the tile ID.
 	unsigned int m_polyBits;			// Number of poly bits in the tile ID.
+
+	float m_areaCost[DT_MAX_AREAS];		// Cost per area.
 
 	class dtNodePool* m_nodePool;		// Pointer to node pool.
 	class dtNodeQueue* m_openList;		// Pointer to open list queue.

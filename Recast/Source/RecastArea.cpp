@@ -207,30 +207,35 @@ bool rcErodeArea(unsigned char areaId, int radius, rcCompactHeightfield& chf)
 	return true;
 }
 
-bool rcMarkBoxArea(const float* bmin, const float* bmax, unsigned char areaId,
+void rcMarkBoxArea(const float* bmin, const float* bmax, unsigned char areaId,
 				   rcCompactHeightfield& chf)
 {
-	int minx = (int)floorf((bmin[0]-chf.bmin[0])/chf.cs);
-	int miny = (int)floorf((bmin[1]-chf.bmin[1])/chf.ch);
-	int minz = (int)floorf((bmin[2]-chf.bmin[2])/chf.cs);
-	int maxx = (int)ceilf((bmax[0]-chf.bmin[0])/chf.cs);
-	int maxy = (int)ceilf((bmax[1]-chf.bmin[1])/chf.ch);
-	int maxz = (int)ceilf((bmax[2]-chf.bmin[2])/chf.cs);
+	int minx = (int)((bmin[0]-chf.bmin[0])/chf.cs);
+	int miny = (int)((bmin[1]-chf.bmin[1])/chf.ch);
+	int minz = (int)((bmin[2]-chf.bmin[2])/chf.cs);
+	int maxx = (int)((bmax[0]-chf.bmin[0])/chf.cs);
+	int maxy = (int)((bmax[1]-chf.bmin[1])/chf.ch);
+	int maxz = (int)((bmax[2]-chf.bmin[2])/chf.cs);
 	
-	minx = rcClamp(minx, 0, chf.width);
-	minz = rcClamp(minz, 0, chf.height);
-	maxx = rcClamp(maxx, 0, chf.width);
-	maxz = rcClamp(maxz, 0, chf.height);
+	if (maxx < 0) return;
+	if (minx >= chf.width) return;
+	if (maxz < 0) return;
+	if (minz >= chf.height) return;
+
+	if (minx < 0) minx = 0;
+	if (maxx >= chf.width) maxx = chf.width-1;
+	if (minz < 0) minz = 0;
+	if (maxz >= chf.height) maxz = chf.height-1;	
 	
-	for (int z = minz; z < maxz; ++z)
+	for (int z = minz; z <= maxz; ++z)
 	{
-		for (int x = minx; x < maxx; ++x)
+		for (int x = minx; x <= maxx; ++x)
 		{
 			const rcCompactCell& c = chf.cells[x+z*chf.width];
 			for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
 			{
 				rcCompactSpan& s = chf.spans[i];
-				if ((int)s.y >= miny && (int)s.y < maxy)
+				if ((int)s.y >= miny && (int)s.y <= maxy)
 				{
 					if (areaId < chf.areas[i])
 						chf.areas[i] = areaId;
@@ -238,5 +243,84 @@ bool rcMarkBoxArea(const float* bmin, const float* bmax, unsigned char areaId,
 			}
 		}
 	}
-	return true;
 }
+
+
+static int pointInPoly(int nvert, const float* verts, const float* p)
+{
+	int i, j, c = 0;
+	for (i = 0, j = nvert-1; i < nvert; j = i++)
+	{
+		const float* vi = &verts[i*3];
+		const float* vj = &verts[j*3];
+		if (((vi[2] > p[2]) != (vj[2] > p[2])) &&
+			(p[0] < (vj[0]-vi[0]) * (p[2]-vi[2]) / (vj[2]-vi[2]) + vi[0]) )
+			c = !c;
+	}
+	return c;
+}
+
+void rcMarkConvexPolyArea(const float* verts, const int nverts,
+						  const float hmin, const float hmax, unsigned char areaId,
+						  rcCompactHeightfield& chf)
+{
+	float bmin[3], bmax[3];
+	vcopy(bmin, verts);
+	vcopy(bmax, verts);
+	for (int i = 1; i < nverts; ++i)
+	{
+		vmin(bmin, &verts[i*3]);
+		vmax(bmax, &verts[i*3]);
+	}
+	bmin[1] = hmin;
+	bmax[1] = hmax;
+
+	int minx = (int)((bmin[0]-chf.bmin[0])/chf.cs);
+	int miny = (int)((bmin[1]-chf.bmin[1])/chf.ch);
+	int minz = (int)((bmin[2]-chf.bmin[2])/chf.cs);
+	int maxx = (int)((bmax[0]-chf.bmin[0])/chf.cs);
+	int maxy = (int)((bmax[1]-chf.bmin[1])/chf.ch);
+	int maxz = (int)((bmax[2]-chf.bmin[2])/chf.cs);
+	
+	if (maxx < 0) return;
+	if (minx >= chf.width) return;
+	if (maxz < 0) return;
+	if (minz >= chf.height) return;
+	
+	if (minx < 0) minx = 0;
+	if (maxx >= chf.width) maxx = chf.width-1;
+	if (minz < 0) minz = 0;
+	if (maxz >= chf.height) maxz = chf.height-1;	
+	
+	
+	// TODO: Optimize.
+	for (int z = minz; z <= maxz; ++z)
+	{
+		for (int x = minx; x <= maxx; ++x)
+		{
+			const rcCompactCell& c = chf.cells[x+z*chf.width];
+			for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
+			{
+				rcCompactSpan& s = chf.spans[i];
+				if ((int)s.y >= miny && (int)s.y <= maxy)
+				{
+					if (areaId < chf.areas[i])
+					{
+						float p[3];
+						p[0] = chf.bmin[0] + (x+0.5f)*chf.cs; 
+						p[1] = 0;
+						p[2] = chf.bmin[2] + (z+0.5f)*chf.cs; 
+
+						if (pointInPoly(nverts, verts, p))
+						{
+							chf.areas[i] = areaId;
+						}
+					}
+				}
+			}
+		}
+	}
+	
+
+}
+

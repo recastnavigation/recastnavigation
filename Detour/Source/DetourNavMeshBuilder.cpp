@@ -257,8 +257,8 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	
 	// Classify off-mesh connection points. We store only the connections
 	// whose start point is inside the tile.
-	unsigned char* offMeshConFlags = new unsigned char [params->offMeshConCount*2];
-	if (!offMeshConFlags)
+	unsigned char* offMeshConClass = new unsigned char [params->offMeshConCount*2];
+	if (!offMeshConClass)
 		return false;
 
 	int storedOffMeshConCount = 0;
@@ -266,16 +266,16 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 
 	for (int i = 0; i < params->offMeshConCount; ++i)
 	{
-		offMeshConFlags[i*2+0] = classifyOffMeshPoint(&params->offMeshConVerts[(i*2+0)*3], params->bmin, params->bmax);
-		offMeshConFlags[i*2+1] = classifyOffMeshPoint(&params->offMeshConVerts[(i*2+1)*3], params->bmin, params->bmax);
+		offMeshConClass[i*2+0] = classifyOffMeshPoint(&params->offMeshConVerts[(i*2+0)*3], params->bmin, params->bmax);
+		offMeshConClass[i*2+1] = classifyOffMeshPoint(&params->offMeshConVerts[(i*2+1)*3], params->bmin, params->bmax);
 
 		// Cound how many links should be allocated for off-mesh connections.
-		if (offMeshConFlags[i*2+0] == 0xff)
+		if (offMeshConClass[i*2+0] == 0xff)
 			offMeshConLinkCount++;
-		if (offMeshConFlags[i*2+1] == 0xff)
+		if (offMeshConClass[i*2+1] == 0xff)
 			offMeshConLinkCount++;
 
-		if (offMeshConFlags[i*2+0] == 0xff)
+		if (offMeshConClass[i*2+0] == 0xff)
 			storedOffMeshConCount++;
 	}
 	
@@ -400,7 +400,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	for (int i = 0; i < params->offMeshConCount; ++i)
 	{
 		// Only store connections which start from this tile.
-		if (offMeshConFlags[i*2+0] == 0xff)
+		if (offMeshConClass[i*2+0] == 0xff)
 		{
 			const float* linkv = &params->offMeshConVerts[i*2*3];
 			float* v = &navVerts[(offMeshVertsBase + n*2)*3];
@@ -417,7 +417,9 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	{
 		dtPoly* p = &navPolys[i];
 		p->vertCount = 0;
-		p->flags = DT_POLY_GROUND;
+		p->flags = params->polyFlags[i];
+		p->area = params->polyAreas[i];
+		p->type = DT_POLYTYPE_GROUND;
 		for (int j = 0; j < nvp; ++j)
 		{
 			if (src[j] == MESH_NULL_IDX) break;
@@ -432,13 +434,15 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	for (int i = 0; i < params->offMeshConCount; ++i)
 	{
 		// Only store connections which start from this tile.
-		if (offMeshConFlags[i*2+0] == 0xff)
+		if (offMeshConClass[i*2+0] == 0xff)
 		{
 			dtPoly* p = &navPolys[offMeshPolyBase+n];
 			p->vertCount = 2;
 			p->verts[0] = (unsigned short)(offMeshVertsBase + n*2+0);
 			p->verts[1] = (unsigned short)(offMeshVertsBase + n*2+1);
-			p->flags = DT_POLY_OFFMESH_CONNECTION; // Off-mesh link poly.
+			p->flags = params->offMeshConFlags[i];
+			p->area = params->offMeshConAreas[i];
+			p->type = DT_POLYTYPE_OFFMESH_CONNECTION;
 			n++;
 		}
 	}
@@ -503,7 +507,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	for (int i = 0; i < params->offMeshConCount; ++i)
 	{
 		// Only store connections which start from this tile.
-		if (offMeshConFlags[i*2+0] == 0xff)
+		if (offMeshConClass[i*2+0] == 0xff)
 		{
 			dtOffMeshConnection* con = &offMeshCons[n];
 			con->poly = offMeshPolyBase + n;
@@ -513,12 +517,12 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 			vcopy(&con->pos[3], &endPts[3]);
 			con->rad = params->offMeshConRad[i];
 			con->flags = params->offMeshConDir[i] ? DT_OFFMESH_CON_BIDIR : 0;
-			con->side = offMeshConFlags[i*2+1];
+			con->side = offMeshConClass[i*2+1];
 			n++;
 		}
 	}
 		
-	delete [] offMeshConFlags;
+	delete [] offMeshConClass;
 	
 	*outData = data;
 	*outDataSize = dataSize;

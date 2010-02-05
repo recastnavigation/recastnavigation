@@ -34,7 +34,7 @@
 #include "DetourDebugDraw.h"
 #include "NavMeshTesterTool.h"
 #include "OffMeshConnectionTool.h"
-#include "BoxVolumeTool.h"
+#include "ConvexVolumeTool.h"
 
 #ifdef WIN32
 #	define snprintf _snprintf
@@ -258,9 +258,9 @@ void Sample_TileMesh::handleTools()
 	{
 		setTool(new OffMeshConnectionTool);
 	}
-	if (imguiCheck("Create Box Volumes", type == TOOL_BOX_VOLUME))
+	if (imguiCheck("Create Convex Volumes", type == TOOL_CONVEX_VOLUME))
 	{
-		setTool(new BoxVolumeTool);
+		setTool(new ConvexVolumeTool);
 	}
 	
 	imguiSeparator();
@@ -321,7 +321,7 @@ void Sample_TileMesh::handleRender()
 	if (m_tool)
 		m_tool->handleRender();
 	
-	m_geom->drawBoxVolumes(&dd);
+	m_geom->drawConvexVolumes(&dd);
 
 	glDepthMask(GL_TRUE);	
 }
@@ -667,14 +667,10 @@ unsigned char* Sample_TileMesh::buildTileMesh(const float* bmin, const float* bm
 		return false;
 	}
 
-	const float* boxVerts = m_geom->getBoxVolumeVerts();
-	const unsigned char* boxTypes = m_geom->getBoxVolumeTypes();
-	for (int i = 0; i < m_geom->getBoxVolumeCount(); ++i)
-	{
-		const float* v = &boxVerts[i*3*2];
-		rcMarkBoxArea(&v[0], &v[3], boxTypes[i], *m_chf);
-	}
-	
+	// (Optional) Mark areas.
+	const ConvexVolume* vols = m_geom->getConvexVolumes();
+	for (int i  = 0; i < m_geom->getConvexVolumeCount(); ++i)
+		rcMarkConvexPolyArea(vols[i].verts, vols[i].nverts, vols[i].hmin, vols[i].hmax, (unsigned char)vols[i].area, *m_chf);
 	
 	// Prepare for region partitioning, by calculating distance field along the walkable surface.
 	if (!rcBuildDistanceField(*m_chf))
@@ -773,11 +769,35 @@ unsigned char* Sample_TileMesh::buildTileMesh(const float* bmin, const float* bm
 			return false;
 		}
 		
+		// Update poly flags from areas.
+		for (int i = 0; i < m_pmesh->npolys; ++i)
+		{
+			if (m_pmesh->areas[i] == RC_WALKABLE_AREA)
+				m_pmesh->areas[i] = SAMPLE_POLYAREA_GROUND;
+			
+			if (m_pmesh->areas[i] == SAMPLE_POLYAREA_GROUND ||
+				m_pmesh->areas[i] == SAMPLE_POLYAREA_GRASS ||
+				m_pmesh->areas[i] == SAMPLE_POLYAREA_ROAD)
+			{
+				m_pmesh->flags[i] = SAMPLE_POLYFLAGS_WALK;
+			}
+			else if (m_pmesh->areas[i] == SAMPLE_POLYAREA_WATER)
+			{
+				m_pmesh->flags[i] = SAMPLE_POLYFLAGS_SWIM;
+			}
+			else if (m_pmesh->areas[i] == SAMPLE_POLYAREA_DOOR)
+			{
+				m_pmesh->flags[i] = SAMPLE_POLYFLAGS_WALK | SAMPLE_POLYFLAGS_DOOR;
+			}
+		}
+		
 		dtNavMeshCreateParams params;
 		memset(&params, 0, sizeof(params));
 		params.verts = m_pmesh->verts;
 		params.vertCount = m_pmesh->nverts;
 		params.polys = m_pmesh->polys;
+		params.polyAreas = m_pmesh->areas;
+		params.polyFlags = m_pmesh->flags;
 		params.polyCount = m_pmesh->npolys;
 		params.nvp = m_pmesh->nvp;
 		params.detailMeshes = m_dmesh->meshes;
@@ -788,6 +808,8 @@ unsigned char* Sample_TileMesh::buildTileMesh(const float* bmin, const float* bm
 		params.offMeshConVerts = m_geom->getOffMeshConnectionVerts();
 		params.offMeshConRad = m_geom->getOffMeshConnectionRads();
 		params.offMeshConDir = m_geom->getOffMeshConnectionDirs();
+		params.offMeshConAreas = m_geom->getOffMeshConnectionAreas();
+		params.offMeshConFlags = m_geom->getOffMeshConnectionFlags();
 		params.offMeshConCount = m_geom->getOffMeshConnectionCount();
 		params.walkableHeight = m_agentHeight;
 		params.walkableRadius = m_agentRadius;

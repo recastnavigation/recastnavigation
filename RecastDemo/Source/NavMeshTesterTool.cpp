@@ -60,7 +60,7 @@ NavMeshTesterTool::NavMeshTesterTool() :
 	m_sposSet(false),
 	m_eposSet(false)
 {
-	m_filter.includeFlags = DT_POLY_GROUND | DT_POLY_OFFMESH_CONNECTION;
+	m_filter.includeFlags = SAMPLE_POLYFLAGS_ALL;
 	m_filter.excludeFlags = 0;
 
 	m_polyPickExt[0] = 2;
@@ -127,29 +127,56 @@ void NavMeshTesterTool::handleMenu()
 
 	imguiLabel("Include Flags");
 
-	if (imguiCheck("Ground", (m_filter.includeFlags & DT_POLY_GROUND) ? true : false))
+	imguiIndent();
+	if (imguiCheck("Walk", (m_filter.includeFlags & SAMPLE_POLYFLAGS_WALK) != 0))
 	{
-		m_filter.includeFlags ^= DT_POLY_GROUND;
+		m_filter.includeFlags ^= SAMPLE_POLYFLAGS_WALK;
 		recalc();
 	}
-	if (imguiCheck("Off-Mesh Connections", (m_filter.includeFlags & DT_POLY_OFFMESH_CONNECTION) ? true : false))
+	if (imguiCheck("Swim", (m_filter.includeFlags & SAMPLE_POLYFLAGS_SWIM) != 0))
 	{
-		m_filter.includeFlags ^= DT_POLY_OFFMESH_CONNECTION;
+		m_filter.includeFlags ^= SAMPLE_POLYFLAGS_SWIM;
 		recalc();
 	}
+	if (imguiCheck("Door", (m_filter.includeFlags & SAMPLE_POLYFLAGS_DOOR) != 0))
+	{
+		m_filter.includeFlags ^= SAMPLE_POLYFLAGS_DOOR;
+		recalc();
+	}
+	if (imguiCheck("Jump", (m_filter.includeFlags & SAMPLE_POLYFLAGS_JUMP) != 0))
+	{
+		m_filter.includeFlags ^= SAMPLE_POLYFLAGS_JUMP;
+		recalc();
+	}
+	imguiUnindent();
 
+	imguiSeparator();
 	imguiLabel("Exclude Flags");
 	
-	if (imguiCheck("Ground", (m_filter.excludeFlags & DT_POLY_GROUND) ? true : false))
+	imguiIndent();
+	if (imguiCheck("Walk", (m_filter.excludeFlags & SAMPLE_POLYFLAGS_WALK) != 0))
 	{
-		m_filter.excludeFlags ^= DT_POLY_GROUND;
+		m_filter.excludeFlags ^= SAMPLE_POLYFLAGS_WALK;
 		recalc();
 	}
-	if (imguiCheck("Off-Mesh Connections", (m_filter.excludeFlags & DT_POLY_OFFMESH_CONNECTION) ? true : false))
+	if (imguiCheck("Swim", (m_filter.excludeFlags & SAMPLE_POLYFLAGS_SWIM) != 0))
 	{
-		m_filter.excludeFlags ^= DT_POLY_OFFMESH_CONNECTION;
+		m_filter.excludeFlags ^= SAMPLE_POLYFLAGS_SWIM;
 		recalc();
 	}
+	if (imguiCheck("Door", (m_filter.excludeFlags & SAMPLE_POLYFLAGS_DOOR) != 0))
+	{
+		m_filter.excludeFlags ^= SAMPLE_POLYFLAGS_DOOR;
+		recalc();
+	}
+	if (imguiCheck("Jump", (m_filter.excludeFlags & SAMPLE_POLYFLAGS_JUMP) != 0))
+	{
+		m_filter.excludeFlags ^= SAMPLE_POLYFLAGS_JUMP;
+		recalc();
+	}
+	imguiUnindent();
+
+	imguiSeparator();
 	
 	if (m_toolMode == TOOLMODE_PATHFIND_ITER || m_toolMode == TOOLMODE_PATHFIND_STRAIGHT)
 	{

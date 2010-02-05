@@ -1066,6 +1066,15 @@ bool rcBuildPolyMesh(rcContourSet& cset, int nvp, rcPolyMesh& mesh)
 			rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMesh: Adjacency failed.");
 		return false;
 	}
+
+	// Just allocate the mesh flags array. The user is resposible to fill it.
+	mesh.flags = new unsigned short[mesh.npolys];
+	if (!mesh.flags)
+	{
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'mesh.flags' (%d).", mesh.npolys);
+		return false;
+	}
 	
 	rcTimeVal endTime = rcGetPerformanceTimer();
 	
@@ -1138,6 +1147,15 @@ bool rcMergePolyMeshes(rcPolyMesh** meshes, const int nmeshes, rcPolyMesh& mesh)
 		return false;
 	}
 	memset(mesh.areas, 0, sizeof(unsigned char)*maxPolys);
+
+	mesh.flags = new unsigned short[maxPolys];
+	if (!mesh.flags)
+	{
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_ERROR, "rcMergePolyMeshes: Out of memory 'mesh.flags' (%d).", maxPolys);
+		return false;
+	}
+	memset(mesh.flags, 0, sizeof(unsigned short)*maxPolys);
 	
 	rcScopedDelete<int> nextVert = new int[maxVerts];
 	if (!nextVert)
@@ -1187,6 +1205,7 @@ bool rcMergePolyMeshes(rcPolyMesh** meshes, const int nmeshes, rcPolyMesh& mesh)
 			unsigned short* src = &pmesh->polys[j*2*mesh.nvp];
 			mesh.regs[mesh.npolys] = pmesh->regs[j];
 			mesh.areas[mesh.npolys] = pmesh->areas[j];
+			mesh.flags[mesh.npolys] = pmesh->flags[j];
 			mesh.npolys++;
 			for (int k = 0; k < mesh.nvp; ++k)
 			{

@@ -159,13 +159,14 @@ struct rcContourSet
 //   z = bmin[2] + verts[i*3+2]*cs;
 struct rcPolyMesh
 {
-	inline rcPolyMesh() : verts(0), polys(0), regs(0), areas(0), nverts(0), npolys(0), nvp(3) {}
+	inline rcPolyMesh() : verts(0), polys(0), regs(0), flags(0), areas(0), nverts(0), npolys(0), nvp(3) {}
 
-	inline ~rcPolyMesh() { delete [] verts; delete [] polys; delete [] regs; delete [] areas; }
+	inline ~rcPolyMesh() { delete [] verts; delete [] polys; delete [] regs; delete [] flags; delete [] areas; }
 	
 	unsigned short* verts;	// Vertices of the mesh, 3 elements per vertex.
 	unsigned short* polys;	// Polygons of the mesh, nvp*2 elements per polygon.
 	unsigned short* regs;	// Region ID of the polygons.
+	unsigned short* flags;	// Per polygon flags.
 	unsigned char* areas;	// Area ID of polygons.
 	int nverts;				// Number of vertices.
 	int npolys;				// Number of polygons.
@@ -508,11 +509,31 @@ bool rcBuildCompactHeightfield(const int walkableHeight, const int walkableClimb
 							   rcHeightfield& hf,
 							   rcCompactHeightfield& chf);
 
+// Erodes specified area id and replaces the are with null.
+// Params:
+//  areaId - (in) area to erode.
+//  radius - (in) radius of erosion (max 255).
+//	chf - (in/out) compact heightfield to erode.
 bool rcErodeArea(unsigned char areaId, int radius, rcCompactHeightfield& chf);
 
-bool rcMarkBoxArea(const float* bmin, const float* bmax, unsigned char areaId,
+// Marks the area of the convex polygon into the area type of the compact heighfield.
+// Params:
+//  bmin/bmax - (in) bounds of the axis aligned box.
+//  areaId - (in) area ID to mark.
+//	chf - (in/out) compact heightfield to mark.
+void rcMarkBoxArea(const float* bmin, const float* bmax, unsigned char areaId,
 				   rcCompactHeightfield& chf);
 
+// Marks the area of the convex polygon into the area type of the compact heighfield.
+// Params:
+//  verts - (in) vertices of the convex polygon.
+//  nverts - (in) number of vertices in the polygon.
+//  hmin/hmax - (in) min and max height of the polygon.
+//  areaId - (in) area ID to mark.
+//	chf - (in/out) compact heightfield to mark.
+void rcMarkConvexPolyArea(const float* verts, const int nverts,
+						  const float hmin, const float hmax, unsigned char areaId,
+						  rcCompactHeightfield& chf);
 
 
 // Builds distance field and stores it into the combat heightfield.

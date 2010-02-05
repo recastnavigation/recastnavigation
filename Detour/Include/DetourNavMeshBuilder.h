@@ -26,6 +26,8 @@ struct dtNavMeshCreateParams
 	int vertCount;
 	// Navmesh polygons
 	const unsigned short* polys;
+	const unsigned short* polyFlags;
+	const unsigned char* polyAreas;
 	int polyCount;
 	int nvp;
 	// Navmesh Detail
@@ -37,6 +39,8 @@ struct dtNavMeshCreateParams
 	// Off-Mesh Connections.
 	const float* offMeshConVerts;
 	const float* offMeshConRad;
+	const unsigned short* offMeshConFlags;
+	const unsigned char* offMeshConAreas;
 	const unsigned char* offMeshConDir;
 	int offMeshConCount;
 	// Settings
