@@ -579,6 +579,11 @@
 			6B324D03111C7B0900EBD2FD /* PBXTextBookmark */ = 6B324D03111C7B0900EBD2FD /* PBXTextBookmark */;
 			6B324D04111C7B0900EBD2FD /* PBXTextBookmark */ = 6B324D04111C7B0900EBD2FD /* PBXTextBookmark */;
 			6B324D05111C7B0900EBD2FD /* PBXTextBookmark */ = 6B324D05111C7B0900EBD2FD /* PBXTextBookmark */;
+			6B324D09111C7C1700EBD2FD /* PBXTextBookmark */ = 6B324D09111C7C1700EBD2FD /* PBXTextBookmark */;
+			6B324D0A111C7C1700EBD2FD /* PBXTextBookmark */ = 6B324D0A111C7C1700EBD2FD /* PBXTextBookmark */;
+			6B324D0B111C7C1700EBD2FD /* PBXTextBookmark */ = 6B324D0B111C7C1700EBD2FD /* PBXTextBookmark */;
+			6B324D0C111C7C1700EBD2FD /* PBXTextBookmark */ = 6B324D0C111C7C1700EBD2FD /* PBXTextBookmark */;
+			6B324D0D111C7C1700EBD2FD /* PBXTextBookmark */ = 6B324D0D111C7C1700EBD2FD /* PBXTextBookmark */;
 			6B69739F10FFCA4500984788 = 6B69739F10FFCA4500984788 /* PBXTextBookmark */;
 			6B6973A210FFCA4500984788 = 6B6973A210FFCA4500984788 /* PBXTextBookmark */;
 			6B8DE70D10B01BBF00DF20FB = 6B8DE70D10B01BBF00DF20FB /* PBXTextBookmark */;
@@ -1098,9 +1103,9 @@
 	};
 	6B2AEC520FFB8958005BE9CC /* Sample_TileMesh.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {887, 13840}}";
-			sepNavSelRange = "{21084, 0}";
-			sepNavVisRange = "{20616, 1051}";
+			sepNavIntBoundsRect = "{{0, 0}, {887, 13824}}";
+			sepNavSelRange = "{20860, 0}";
+			sepNavVisRange = "{20436, 1004}";
 			sepNavWindowFrame = "{{38, 30}, {1214, 722}}";
 		};
 	};
@@ -4580,16 +4585,16 @@
 	};
 	6B324C64111C5D9A00EBD2FD /* ConvexVolumeTool.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {815, 880}}";
-			sepNavSelRange = "{960, 0}";
-			sepNavVisRange = "{0, 1205}";
+			sepNavIntBoundsRect = "{{0, 0}, {815, 864}}";
+			sepNavSelRange = "{1108, 0}";
+			sepNavVisRange = "{391, 936}";
 		};
 	};
 	6B324C65111C5D9A00EBD2FD /* ConvexVolumeTool.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {815, 4688}}";
-			sepNavSelRange = "{2596, 0}";
-			sepNavVisRange = "{2421, 413}";
+			sepNavIntBoundsRect = "{{0, 0}, {815, 4288}}";
+			sepNavSelRange = "{2503, 0}";
+			sepNavVisRange = "{2175, 546}";
 		};
 	};
 	6B324C6D111C5DDC00EBD2FD /* PBXTextBookmark */ = {
@@ -4616,7 +4621,7 @@
 		isa = PBXTextBookmark;
 		fRef = 6B324C65111C5D9A00EBD2FD /* ConvexVolumeTool.cpp */;
 		rLen = 0;
-		rLoc = 2147483830;
+		rLoc = 2147483044;
 		rType = 0;
 	};
 	6B324C70111C5DDC00EBD2FD /* PBXTextBookmark */ = {
@@ -5239,7 +5244,7 @@
 		fRef = 6B324C65111C5D9A00EBD2FD /* ConvexVolumeTool.cpp */;
 		name = "ConvexVolumeTool.cpp: 146";
 		rLen = 0;
-		rLoc = 3581;
+		rLoc = 3569;
 		rType = 0;
 		vrLen = 808;
 		vrLoc = 3127;
@@ -5249,7 +5254,7 @@
 		fRef = 6B324C65111C5D9A00EBD2FD /* ConvexVolumeTool.cpp */;
 		name = "ConvexVolumeTool.cpp: 142";
 		rLen = 0;
-		rLoc = 3529;
+		rLoc = 3517;
 		rType = 0;
 		vrLen = 804;
 		vrLoc = 3127;
@@ -5259,7 +5264,7 @@
 		fRef = 6B324C65111C5D9A00EBD2FD /* ConvexVolumeTool.cpp */;
 		name = "ConvexVolumeTool.cpp: 96";
 		rLen = 0;
-		rLoc = 2570;
+		rLoc = 2553;
 		rType = 0;
 		vrLen = 413;
 		vrLoc = 2421;
@@ -5269,7 +5274,7 @@
 		fRef = 6B324C65111C5D9A00EBD2FD /* ConvexVolumeTool.cpp */;
 		name = "ConvexVolumeTool.cpp: 100";
 		rLen = 0;
-		rLoc = 2622;
+		rLoc = 2605;
 		rType = 0;
 		vrLen = 413;
 		vrLoc = 2421;
@@ -5279,7 +5284,7 @@
 		fRef = 6B324C65111C5D9A00EBD2FD /* ConvexVolumeTool.cpp */;
 		name = "ConvexVolumeTool.cpp: 97";
 		rLen = 0;
-		rLoc = 2596;
+		rLoc = 2579;
 		rType = 0;
 		vrLen = 413;
 		vrLoc = 2421;
@@ -5317,7 +5322,7 @@
 		fRef = 6B324C65111C5D9A00EBD2FD /* ConvexVolumeTool.cpp */;
 		name = "ConvexVolumeTool.cpp: 97";
 		rLen = 0;
-		rLoc = 2596;
+		rLoc = 2579;
 		rType = 0;
 		vrLen = 413;
 		vrLoc = 2421;
@@ -5633,6 +5638,56 @@
 		rType = 0;
 		vrLen = 1051;
 		vrLoc = 20616;
+	};
+	6B324D09111C7C1700EBD2FD /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B2AEC520FFB8958005BE9CC /* Sample_TileMesh.cpp */;
+		name = "Sample_TileMesh.cpp: 784";
+		rLen = 0;
+		rLoc = 20860;
+		rType = 0;
+		vrLen = 1004;
+		vrLoc = 20436;
+	};
+	6B324D0A111C7C1700EBD2FD /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B324C64111C5D9A00EBD2FD /* ConvexVolumeTool.h */;
+		name = "ConvexVolumeTool.h: 29";
+		rLen = 0;
+		rLoc = 1108;
+		rType = 0;
+		vrLen = 936;
+		vrLoc = 391;
+	};
+	6B324D0B111C7C1700EBD2FD /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B2AEC520FFB8958005BE9CC /* Sample_TileMesh.cpp */;
+		name = "Sample_TileMesh.cpp: 784";
+		rLen = 0;
+		rLoc = 20860;
+		rType = 0;
+		vrLen = 1004;
+		vrLoc = 20436;
+	};
+	6B324D0C111C7C1700EBD2FD /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B324C64111C5D9A00EBD2FD /* ConvexVolumeTool.h */;
+		name = "ConvexVolumeTool.h: 29";
+		rLen = 0;
+		rLoc = 1108;
+		rType = 0;
+		vrLen = 936;
+		vrLoc = 391;
+	};
+	6B324D0D111C7C1700EBD2FD /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B324C65111C5D9A00EBD2FD /* ConvexVolumeTool.cpp */;
+		name = "ConvexVolumeTool.cpp: 94";
+		rLen = 0;
+		rLoc = 2503;
+		rType = 0;
+		vrLen = 546;
+		vrLoc = 2175;
 	};
 	6B555DAE100B211D00247EA3 /* imguiRenderGL.h */ = {
 		uiCtxt = {
