@@ -592,10 +592,9 @@ static bool removeVertex(rcPolyMesh& mesh, const unsigned short rem, const int m
 
 	// Start with one vertex, keep appending connected
 	// segments to the start and end of the hole.
-	hole[nhole] = edges[0];
-	hreg[nhole] = edges[2];
-	harea[nhole] = edges[3];
-	nhole++;
+	pushBack(edges[0], hole, nhole);
+	pushBack(edges[2], hreg, nhreg);
+	pushBack(edges[3], harea, nharea);
 	
 	while (nedges)
 	{
