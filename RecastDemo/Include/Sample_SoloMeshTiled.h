@@ -109,6 +109,8 @@ public:
 	virtual bool handleBuild();
 	
 	void setHighlightedTile(const float* pos);
+	inline int getHilightedTileX() const { return m_highLightedTileX; }
+	inline int getHilightedTileY() const { return m_highLightedTileY; }
 };
 
 

@@ -573,7 +573,7 @@ bool rcBuildContours(rcCompactHeightfield& chf,
 	cset.cs = chf.cs;
 	cset.ch = chf.ch;
 	
-	const int maxContours = chf.maxRegions*2;
+	int maxContours = rcMax((int)chf.maxRegions, 8);
 	cset.conts = new rcContour[maxContours];
 	if (!cset.conts)
 		return false;
@@ -657,11 +657,25 @@ bool rcBuildContours(rcCompactHeightfield& chf,
 				// Create contour.
 				if (simplified.size()/4 >= 3)
 				{
-					if (cset.nconts > maxContours)
+					if (cset.nconts >= maxContours)
 					{
+						// Allocate more contours.
+						// This can happen when there are tiny holes in the heighfield.
+						const int oldMax = maxContours;
+						maxContours *= 2;
+						rcContour* newConts = new rcContour[maxContours];
+						for (int j = 0; j < cset.nconts; ++j)
+						{
+							newConts[j] = cset.conts[j];
+							// Reset source pointers to prevent data deletion.
+							cset.conts[j].verts = 0;
+							cset.conts[j].rverts = 0;
+						}
+						delete [] cset.conts;
+						cset.conts = newConts;
+					
 						if (rcGetLog())
-							rcGetLog()->log(RC_LOG_ERROR, "rcBuildContours: Too many contours %d, max %d.", cset.nconts, maxContours);
-						return false;
+							rcGetLog()->log(RC_LOG_WARNING, "rcBuildContours: Expanding max contours from %d to %d.", oldMax, maxContours);
 					}
 						
 					rcContour* cont = &cset.conts[cset.nconts++];

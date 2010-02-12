@@ -106,6 +106,20 @@ public:
 	
 	virtual void handleRenderOverlay(double* proj, double* model, int* view)
 	{
+		GLdouble x, y, z;
+
+		
+		// Draw start and end point labels
+		if (m_hitPosSet && gluProject((GLdouble)m_hitPos[0], (GLdouble)m_hitPos[1], (GLdouble)m_hitPos[2],
+												 model, proj, view, &x, &y, &z))
+		{
+			const int tx = m_sample->getHilightedTileX();
+			const int ty = m_sample->getHilightedTileY();
+			char text[32];
+			snprintf(text,32,"Tile: (%d, %d)", tx, ty);
+			imguiDrawText((int)x, (int)y-25, IMGUI_ALIGN_CENTER, text, imguiRGBA(0,0,0,220));
+		}
+		
 	}
 };
 
@@ -750,10 +764,10 @@ bool Sample_SoloMeshTiled::handleBuild()
 		}
 		return false;
 	}
-		
-	rcHeightfield* solid = 0;
+
+/*	rcHeightfield* solid = 0;
 	rcCompactHeightfield* chf = 0;
-	rcContourSet* cset = 0;
+	rcContourSet* cset = 0;*/
 		
 	for (int y = 0; y < m_tileSet->height; ++y)
 	{
@@ -771,10 +785,10 @@ bool Sample_SoloMeshTiled::handleBuild()
 			tileCfg.bmax[0] = m_cfg.bmin[0] + ((x+1)*m_cfg.tileSize + m_cfg.borderSize)*m_cfg.cs;
 			tileCfg.bmax[2] = m_cfg.bmin[2] + ((y+1)*m_cfg.tileSize + m_cfg.borderSize)*m_cfg.cs;
 			
-			delete solid;
+/*			delete solid;
 			delete chf;
 			solid = 0;
-			chf = 0;
+			chf = 0;*/
 			
 			float tbmin[2], tbmax[2];
 			tbmin[0] = tileCfg.bmin[0];
@@ -786,14 +800,14 @@ bool Sample_SoloMeshTiled::handleBuild()
 			if (!ncid)
 				continue;
 			
-			solid = new rcHeightfield;
-			if (!solid)
+			tile.solid = new rcHeightfield;
+			if (!tile.solid)
 			{
 				if (rcGetLog())
 					rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: [%d,%d] Out of memory 'solid'.", x, y);
 				continue;
 			}
-			if (!rcCreateHeightfield(*solid, tileCfg.width, tileCfg.height, tileCfg.bmin, tileCfg.bmax, tileCfg.cs, tileCfg.ch))
+			if (!rcCreateHeightfield(*tile.solid, tileCfg.width, tileCfg.height, tileCfg.bmin, tileCfg.bmax, tileCfg.cs, tileCfg.ch))
 			{
 				if (rcGetLog())
 					rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: [%d,%d] Could not create solid heightfield.", x, y);
@@ -810,22 +824,22 @@ bool Sample_SoloMeshTiled::handleBuild()
 				rcMarkWalkableTriangles(tileCfg.walkableSlopeAngle,
 										verts, nverts, tris, ntris, triangleFlags);
 				
-				rcRasterizeTriangles(verts, nverts, tris, triangleFlags, ntris, *solid, m_cfg.walkableClimb);
+				rcRasterizeTriangles(verts, nverts, tris, triangleFlags, ntris, *tile.solid, m_cfg.walkableClimb);
 			}	
 			
-			rcFilterLowHangingWalkableObstacles(m_cfg.walkableClimb, *solid);
-			rcFilterLedgeSpans(tileCfg.walkableHeight, tileCfg.walkableClimb, *solid);
-			rcFilterWalkableLowHeightSpans(tileCfg.walkableHeight, *solid);
+			rcFilterLowHangingWalkableObstacles(m_cfg.walkableClimb, *tile.solid);
+			rcFilterLedgeSpans(tileCfg.walkableHeight, tileCfg.walkableClimb, *tile.solid);
+			rcFilterWalkableLowHeightSpans(tileCfg.walkableHeight, *tile.solid);
 			
-			chf = new rcCompactHeightfield;
-			if (!chf)
+			tile.chf = new rcCompactHeightfield;
+			if (!tile.chf)
 			{
 				if (rcGetLog())
 					rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: [%d,%d] Out of memory 'chf'.", x, y);
 				continue;
 			}
 			if (!rcBuildCompactHeightfield(tileCfg.walkableHeight, tileCfg.walkableClimb,
-										   RC_WALKABLE, *solid, *chf))
+										   RC_WALKABLE, *tile.solid, *tile.chf))
 			{
 				if (rcGetLog())
 					rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: [%d,%d] Could not build compact data.", x, y);
@@ -833,7 +847,7 @@ bool Sample_SoloMeshTiled::handleBuild()
 			}
 			
 			// Erode the walkable area by agent radius.
-			if (!rcErodeArea(RC_WALKABLE_AREA, m_cfg.walkableRadius, *chf))
+			if (!rcErodeArea(RC_WALKABLE_AREA, m_cfg.walkableRadius, *tile.chf))
 			{
 				if (rcGetLog())
 					rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: Could not erode.");
@@ -843,40 +857,33 @@ bool Sample_SoloMeshTiled::handleBuild()
 			// (Optional) Mark areas.
 			const ConvexVolume* vols = m_geom->getConvexVolumes();
 			for (int i  = 0; i < m_geom->getConvexVolumeCount(); ++i)
-				rcMarkConvexPolyArea(vols[i].verts, vols[i].nverts, vols[i].hmin, vols[i].hmax, (unsigned char)vols[i].area, *chf);
+				rcMarkConvexPolyArea(vols[i].verts, vols[i].nverts, vols[i].hmin, vols[i].hmax, (unsigned char)vols[i].area, *tile.chf);
 			
-			if (!rcBuildDistanceField(*chf))
+			if (!rcBuildDistanceField(*tile.chf))
 			{
 				if (rcGetLog())
 					rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: [%d,%d] Could not build distance fields.", x, y);
 				continue;
 			}
 			
-			if (!rcBuildRegions(*chf, tileCfg.borderSize, tileCfg.minRegionSize, tileCfg.mergeRegionSize))
+			if (!rcBuildRegions(*tile.chf, tileCfg.borderSize, tileCfg.minRegionSize, tileCfg.mergeRegionSize))
 			{
 				if (rcGetLog())
 					rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: [%d,%d] Could not build regions.", x, y);
 				continue;
 			}
 			
-			cset = new rcContourSet;
-			if (!cset)
+			tile.cset = new rcContourSet;
+			if (!tile.cset)
 			{
 				if (rcGetLog())
 					rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: [%d,%d] Out of memory 'cset'.", x, y);
 				continue;
 			}
-			if (!rcBuildContours(*chf, tileCfg.maxSimplificationError, tileCfg.maxEdgeLen, *cset))
+			if (!rcBuildContours(*tile.chf, tileCfg.maxSimplificationError, tileCfg.maxEdgeLen, *tile.cset))
 			{
 				if (rcGetLog())
 					rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: [%d,%d] Could not create contours.", x, y);
-				continue;
-			}
-			
-			if (!cset->nconts)
-			{
-				delete cset;
-				cset = 0;
 				continue;
 			}
 			
@@ -887,7 +894,7 @@ bool Sample_SoloMeshTiled::handleBuild()
 					rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: [%d,%d] Out of memory 'pmesh'.", x, y);
 				continue;
 			}
-			if (!rcBuildPolyMesh(*cset, tileCfg.maxVertsPerPoly, *tile.pmesh))
+			if (!rcBuildPolyMesh(*tile.cset, tileCfg.maxVertsPerPoly, *tile.pmesh))
 			{
 				if (rcGetLog())
 					rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: [%d,%d] Could not create poly mesh.", x, y);
@@ -902,21 +909,21 @@ bool Sample_SoloMeshTiled::handleBuild()
 				continue;
 			}
 			
-			if (!rcBuildPolyMeshDetail(*tile.pmesh, *chf, tileCfg.detailSampleDist, tileCfg	.detailSampleMaxError, *tile.dmesh))
+			if (!rcBuildPolyMeshDetail(*tile.pmesh, *tile.chf, tileCfg.detailSampleDist, tileCfg	.detailSampleMaxError, *tile.dmesh))
 			{
 				if (rcGetLog())
 					rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: [%d,%d] Could not build detail mesh.", x, y);
 				continue;
 			}
 
-			if (m_keepInterResults)
+			if (!m_keepInterResults)
 			{
-				tile.solid = solid;
-				solid = 0;
-				tile.chf = chf;
-				chf = 0;
-				tile.cset = cset;
-				cset = 0;
+				delete tile.solid;
+				tile.solid = 0;
+				delete tile.chf;
+				tile.chf = 0;
+				delete tile.cset;
+				tile.cset = 0;
 			}
 			
 			rcTimeVal endTime = rcGetPerformanceTimer();
@@ -941,8 +948,8 @@ bool Sample_SoloMeshTiled::handleBuild()
 	}
 	
 	delete [] triangleFlags;
-	delete solid;
-	delete chf;
+//	delete solid;
+//	delete chf;
 	
 	// Merge per tile poly and detail meshes.
 	rcPolyMesh** pmmerge = new rcPolyMesh*[m_tileSet->width*m_tileSet->height];
