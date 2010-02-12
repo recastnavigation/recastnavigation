@@ -256,6 +256,11 @@ int main(int argc, char *argv[])
 						showTestCases = true;
 						scanDirectory("Tests", ".txt", files);
 					}
+					else if (event.key.keysym.sym == SDLK_SPACE)
+					{
+						if (sample)
+							sample->handleStep();
+					}
 					else if (event.key.keysym.sym == SDLK_1)
 					{
 						if (geom)

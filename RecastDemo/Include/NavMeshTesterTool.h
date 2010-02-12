@@ -64,6 +64,15 @@ class NavMeshTesterTool : public SampleTool
 	float m_distanceToWall;
 	bool m_sposSet;
 	bool m_eposSet;
+
+	int m_pathIterNum;
+	const dtPolyRef* m_pathIterPolys; 
+	int m_pathIterPolyCount;
+	float m_prevIterPos[3], m_iterPos[3], m_steerPos[3], m_targetPos[3];
+	
+	static const int MAX_STEER_POINTS = 10;
+	float m_steerPoints[MAX_STEER_POINTS*3];
+	int m_steerPointCount;
 	
 public:
 	NavMeshTesterTool();
@@ -74,6 +83,7 @@ public:
 	virtual void reset();
 	virtual void handleMenu();
 	virtual void handleClick(const float* p, bool shift);
+	virtual void handleStep();
 	virtual void handleRender();
 	virtual void handleRenderOverlay(double* proj, double* model, int* view);
 

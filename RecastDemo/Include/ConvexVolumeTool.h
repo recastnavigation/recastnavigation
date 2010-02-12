@@ -45,6 +45,7 @@ public:
 	virtual void reset();
 	virtual void handleMenu();
 	virtual void handleClick(const float* p, bool shift);
+	virtual void handleStep();
 	virtual void handleRender();
 	virtual void handleRenderOverlay(double* proj, double* model, int* view);
 };

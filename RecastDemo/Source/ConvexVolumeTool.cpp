@@ -39,9 +39,14 @@
 
 // Returns true if 'c' is left of line 'a'-'b'.
 inline bool left(const float* a, const float* b, const float* c)
-{
-	return (b[0] - a[0]) * (c[2] - a[2]) - (c[0] - a[0]) * (b[2] - a[2]) < 0;
+{ 
+	const float u1 = b[0] - a[0];
+	const float v1 = b[2] - a[2];
+	const float u2 = c[0] - a[0];
+	const float v2 = c[2] - a[2];
+	return u1 * v2 - v1 * u2 < 0;
 }
+
 // Returns true if 'a' is more lower-left than 'b'.
 inline bool cmppt(const float* a, const float* b)
 {
@@ -223,6 +228,10 @@ void ConvexVolumeTool::handleClick(const float* p, bool shift)
 		}		
 	}
 	
+}
+
+void ConvexVolumeTool::handleStep()
+{
 }
 
 void ConvexVolumeTool::handleRender()

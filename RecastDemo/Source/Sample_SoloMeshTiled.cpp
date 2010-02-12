@@ -85,6 +85,8 @@ public:
 			m_sample->setHighlightedTile(m_hitPos);
 	}
 	
+	virtual void handleStep() {}
+	
 	virtual void handleRender()
 	{
 		if (m_hitPosSet)

@@ -205,6 +205,12 @@ void Sample::handleClick(const float* p, bool shift)
 		m_tool->handleClick(p, shift);
 }
 
+void Sample::handleStep()
+{
+	if (m_tool)
+		m_tool->handleStep();
+}
+
 bool Sample::handleBuild()
 {
 	return true;

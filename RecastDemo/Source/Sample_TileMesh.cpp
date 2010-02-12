@@ -123,6 +123,8 @@ public:
 				m_sample->buildTile(m_hitPos);
 		}
 	}
+
+	virtual void handleStep() {}
 	
 	virtual void handleRender()
 	{

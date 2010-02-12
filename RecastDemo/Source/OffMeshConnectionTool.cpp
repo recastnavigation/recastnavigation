@@ -132,6 +132,10 @@ void OffMeshConnectionTool::handleClick(const float* p, bool shift)
 	
 }
 
+void OffMeshConnectionTool::handleStep()
+{
+}
+
 void OffMeshConnectionTool::handleRender()
 {
 	DebugDrawGL dd;

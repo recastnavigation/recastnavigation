@@ -1353,6 +1353,14 @@ int dtNavMesh::findStraightPath(const float* startPos, const float* endPos,
 					
 					return straightPathSize;
 				}
+				
+				// If starting really close the portal, advance.
+				if (i == 0)
+				{
+					float t;
+					if (distancePtSegSqr2D(portalApex, left, right, t) < (0.001*0.001f))
+						continue;
+				}
 			}
 			else
 			{

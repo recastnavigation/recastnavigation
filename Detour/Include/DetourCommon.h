@@ -158,7 +158,11 @@ inline float vperp2D(const float* u, const float* v)
 
 inline float triArea2D(const float* a, const float* b, const float* c)
 {
-	return ((b[0]*a[2] - a[0]*b[2]) + (c[0]*b[2] - b[0]*c[2]) + (a[0]*c[2] - c[0]*a[2])) * 0.5f;
+	const float abx = b[0] - a[0];
+	const float abz = b[2] - a[2];
+	const float acx = c[0] - a[0];
+	const float acz = c[2] - a[2];
+	return acx*abz - abx*acz;
 }
 
 inline bool checkOverlapBox(const unsigned short amin[3], const unsigned short amax[3],

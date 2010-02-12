@@ -75,6 +75,7 @@ struct SampleTool
 	virtual void handleClick(const float* p, bool shift) = 0;
 	virtual void handleRender() = 0;
 	virtual void handleRenderOverlay(double* proj, double* model, int* view) = 0;
+	virtual void handleStep() = 0;
 };
 
 
@@ -111,6 +112,7 @@ public:
 	virtual void handleTools();
 	virtual void handleDebugMode();
 	virtual void handleClick(const float* p, bool shift);
+	virtual void handleStep();
 	virtual void handleRender();
 	virtual void handleRenderOverlay(double* proj, double* model, int* view);
 	virtual void handleMeshChanged(class InputGeom* geom);
