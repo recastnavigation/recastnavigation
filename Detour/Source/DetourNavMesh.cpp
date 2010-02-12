@@ -1763,7 +1763,19 @@ unsigned short dtNavMesh::getPolyFlags(dtPolyRef ref)
 	return poly->flags;
 }
 
-unsigned char dtNavMesh::getPolyType(dtPolyRef ref)
+void dtNavMesh::setPolyArea(dtPolyRef ref, unsigned char area)
+{
+	unsigned int salt, it, ip;
+	decodePolyId(ref, salt, it, ip);
+	if (it >= (unsigned int)m_maxTiles) return;
+	if (m_tiles[it].salt != salt || m_tiles[it].header == 0) return;
+	if (ip >= (unsigned int)m_tiles[it].header->polyCount) return;
+	dtMeshHeader* header = m_tiles[it].header;
+	dtPoly* poly = &header->polys[ip];
+	poly->area = area;
+}
+
+unsigned char dtNavMesh::getPolyArea(dtPolyRef ref)
 {
 	unsigned int salt, it, ip;
 	decodePolyId(ref, salt, it, ip);
@@ -1772,7 +1784,7 @@ unsigned char dtNavMesh::getPolyType(dtPolyRef ref)
 	if (ip >= (unsigned int)m_tiles[it].header->polyCount) return 0;
 	const dtMeshHeader* header = m_tiles[it].header;
 	const dtPoly* poly = &header->polys[ip];
-	return poly->type;
+	return poly->area;
 }
 
 int dtNavMesh::raycast(dtPolyRef centerRef, const float* startPos, const float* endPos, dtQueryFilter* filter,

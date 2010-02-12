@@ -1063,6 +1063,14 @@
 			6B324FC811259FFA00EBD2FD /* PBXTextBookmark */ = 6B324FC811259FFA00EBD2FD /* PBXTextBookmark */;
 			6B324FC911259FFA00EBD2FD /* PBXTextBookmark */ = 6B324FC911259FFA00EBD2FD /* PBXTextBookmark */;
 			6B324FCA11259FFA00EBD2FD /* PBXTextBookmark */ = 6B324FCA11259FFA00EBD2FD /* PBXTextBookmark */;
+			6B324FCD1125A7BB00EBD2FD /* PBXTextBookmark */ = 6B324FCD1125A7BB00EBD2FD /* PBXTextBookmark */;
+			6B324FCE1125A7BB00EBD2FD /* PBXTextBookmark */ = 6B324FCE1125A7BB00EBD2FD /* PBXTextBookmark */;
+			6B324FCF1125A7BB00EBD2FD /* PBXTextBookmark */ = 6B324FCF1125A7BB00EBD2FD /* PBXTextBookmark */;
+			6B324FD01125A7BB00EBD2FD /* PBXTextBookmark */ = 6B324FD01125A7BB00EBD2FD /* PBXTextBookmark */;
+			6B324FD11125A7BB00EBD2FD /* PBXTextBookmark */ = 6B324FD11125A7BB00EBD2FD /* PBXTextBookmark */;
+			6B324FD21125A7BB00EBD2FD /* PBXTextBookmark */ = 6B324FD21125A7BB00EBD2FD /* PBXTextBookmark */;
+			6B324FD31125A7BB00EBD2FD /* PBXTextBookmark */ = 6B324FD31125A7BB00EBD2FD /* PBXTextBookmark */;
+			6B324FD41125A7BB00EBD2FD /* PBXTextBookmark */ = 6B324FD41125A7BB00EBD2FD /* PBXTextBookmark */;
 			6B69739F10FFCA4500984788 = 6B69739F10FFCA4500984788 /* PBXTextBookmark */;
 			6B6973A210FFCA4500984788 = 6B6973A210FFCA4500984788 /* PBXTextBookmark */;
 			6B8DE70D10B01BBF00DF20FB = 6B8DE70D10B01BBF00DF20FB /* PBXTextBookmark */;
@@ -2204,7 +2212,7 @@
 		fRef = 6B8DE88B10B69E4C00DF20FB /* DetourNavMesh.h */;
 		name = "DetourNavMesh.h: 446";
 		rLen = 0;
-		rLoc = 19911;
+		rLoc = 19988;
 		rType = 0;
 		vrLen = 1563;
 		vrLoc = 18834;
@@ -2244,7 +2252,7 @@
 		fRef = 6B8DE88B10B69E4C00DF20FB /* DetourNavMesh.h */;
 		name = "DetourNavMesh.h: 446";
 		rLen = 0;
-		rLoc = 19911;
+		rLoc = 19988;
 		rType = 0;
 		vrLen = 1563;
 		vrLoc = 18834;
@@ -2264,7 +2272,7 @@
 		fRef = 6B8DE88710B69E3E00DF20FB /* DetourNavMesh.cpp */;
 		name = "DetourNavMesh.cpp: 1670";
 		rLen = 0;
-		rLoc = 48803;
+		rLoc = 49208;
 		rType = 0;
 		vrLen = 874;
 		vrLoc = 45419;
@@ -2324,7 +2332,7 @@
 		fRef = 6B8DE88B10B69E4C00DF20FB /* DetourNavMesh.h */;
 		name = "DetourNavMesh.h: 439";
 		rLen = 0;
-		rLoc = 19731;
+		rLoc = 19808;
 		rType = 0;
 		vrLen = 1637;
 		vrLoc = 18794;
@@ -2334,7 +2342,7 @@
 		fRef = 6B8DE88710B69E3E00DF20FB /* DetourNavMesh.cpp */;
 		name = "DetourNavMesh.cpp: 1670";
 		rLen = 0;
-		rLoc = 48803;
+		rLoc = 49208;
 		rType = 0;
 		vrLen = 874;
 		vrLoc = 45419;
@@ -3757,7 +3765,7 @@
 		fRef = 6B8DE88B10B69E4C00DF20FB /* DetourNavMesh.h */;
 		name = "DetourNavMesh.h: 460";
 		rLen = 0;
-		rLoc = 19865;
+		rLoc = 19942;
 		rType = 0;
 		vrLen = 1696;
 		vrLoc = 19209;
@@ -3777,7 +3785,7 @@
 		fRef = 6B8DE88B10B69E4C00DF20FB /* DetourNavMesh.h */;
 		name = "DetourNavMesh.h: 460";
 		rLen = 0;
-		rLoc = 19865;
+		rLoc = 19942;
 		rType = 0;
 		vrLen = 1708;
 		vrLoc = 19209;
@@ -3797,7 +3805,7 @@
 		fRef = 6B8DE88B10B69E4C00DF20FB /* DetourNavMesh.h */;
 		name = "DetourNavMesh.h: 463";
 		rLen = 0;
-		rLoc = 20240;
+		rLoc = 20317;
 		rType = 0;
 		vrLen = 1706;
 		vrLoc = 19209;
@@ -6920,7 +6928,7 @@
 		fRef = 6B8DE88B10B69E4C00DF20FB /* DetourNavMesh.h */;
 		name = "DetourNavMesh.h: 469";
 		rLen = 0;
-		rLoc = 20249;
+		rLoc = 20326;
 		rType = 0;
 		vrLen = 1613;
 		vrLoc = 19392;
@@ -7000,7 +7008,7 @@
 		fRef = 6B8DE88B10B69E4C00DF20FB /* DetourNavMesh.h */;
 		name = "DetourNavMesh.h: 409";
 		rLen = 16;
-		rLoc = 18109;
+		rLoc = 18186;
 		rType = 0;
 		vrLen = 1069;
 		vrLoc = 17040;
@@ -7020,7 +7028,7 @@
 		fRef = 6B8DE88B10B69E4C00DF20FB /* DetourNavMesh.h */;
 		name = "DetourNavMesh.h: 465";
 		rLen = 0;
-		rLoc = 20249;
+		rLoc = 20326;
 		rType = 0;
 		vrLen = 1662;
 		vrLoc = 19392;
@@ -7040,7 +7048,7 @@
 		fRef = 6B8DE88B10B69E4C00DF20FB /* DetourNavMesh.h */;
 		name = "DetourNavMesh.h: 465";
 		rLen = 0;
-		rLoc = 20249;
+		rLoc = 20326;
 		rType = 0;
 		vrLen = 1662;
 		vrLoc = 19392;
@@ -7060,7 +7068,7 @@
 		fRef = 6B8DE88B10B69E4C00DF20FB /* DetourNavMesh.h */;
 		name = "DetourNavMesh.h: 465";
 		rLen = 193;
-		rLoc = 20249;
+		rLoc = 20326;
 		rType = 0;
 		vrLen = 1702;
 		vrLoc = 19392;
@@ -7080,7 +7088,7 @@
 		fRef = 6B8DE88B10B69E4C00DF20FB /* DetourNavMesh.h */;
 		name = "DetourNavMesh.h: 467";
 		rLen = 0;
-		rLoc = 20423;
+		rLoc = 20500;
 		rType = 0;
 		vrLen = 1734;
 		vrLoc = 19392;
@@ -7100,7 +7108,7 @@
 		fRef = 6B8DE88B10B69E4C00DF20FB /* DetourNavMesh.h */;
 		name = "DetourNavMesh.h: 465";
 		rLen = 0;
-		rLoc = 20249;
+		rLoc = 20326;
 		rType = 0;
 		vrLen = 1754;
 		vrLoc = 19392;
@@ -7120,7 +7128,7 @@
 		fRef = 6B8DE88B10B69E4C00DF20FB /* DetourNavMesh.h */;
 		name = "DetourNavMesh.h: 469";
 		rLen = 0;
-		rLoc = 20423;
+		rLoc = 20500;
 		rType = 0;
 		vrLen = 1634;
 		vrLoc = 19392;
@@ -7140,7 +7148,7 @@
 		fRef = 6B8DE88B10B69E4C00DF20FB /* DetourNavMesh.h */;
 		name = "DetourNavMesh.h: 465";
 		rLen = 0;
-		rLoc = 20249;
+		rLoc = 20326;
 		rType = 0;
 		vrLen = 1669;
 		vrLoc = 19392;
@@ -7160,7 +7168,7 @@
 		fRef = 6B8DE88B10B69E4C00DF20FB /* DetourNavMesh.h */;
 		name = "DetourNavMesh.h: 469";
 		rLen = 0;
-		rLoc = 20249;
+		rLoc = 20326;
 		rType = 0;
 		vrLen = 1613;
 		vrLoc = 19392;
@@ -7180,7 +7188,7 @@
 		fRef = 6B8DE88B10B69E4C00DF20FB /* DetourNavMesh.h */;
 		name = "DetourNavMesh.h: 468";
 		rLen = 0;
-		rLoc = 20414;
+		rLoc = 20491;
 		rType = 0;
 		vrLen = 1681;
 		vrLoc = 19392;
@@ -7210,7 +7218,7 @@
 		fRef = 6B8DE88B10B69E4C00DF20FB /* DetourNavMesh.h */;
 		name = "DetourNavMesh.h: 468";
 		rLen = 0;
-		rLoc = 20414;
+		rLoc = 20491;
 		rType = 0;
 		vrLen = 1681;
 		vrLoc = 19392;
@@ -7250,7 +7258,7 @@
 		fRef = 6B8DE88B10B69E4C00DF20FB /* DetourNavMesh.h */;
 		name = "DetourNavMesh.h: 461";
 		rLen = 0;
-		rLoc = 20013;
+		rLoc = 20090;
 		rType = 0;
 		vrLen = 1683;
 		vrLoc = 19392;
@@ -7280,7 +7288,7 @@
 		fRef = 6B8DE88B10B69E4C00DF20FB /* DetourNavMesh.h */;
 		name = "DetourNavMesh.h: 467";
 		rLen = 0;
-		rLoc = 20342;
+		rLoc = 20419;
 		rType = 0;
 		vrLen = 1682;
 		vrLoc = 19392;
@@ -7300,7 +7308,7 @@
 		fRef = 6B8DE88B10B69E4C00DF20FB /* DetourNavMesh.h */;
 		name = "DetourNavMesh.h: 461";
 		rLen = 0;
-		rLoc = 20013;
+		rLoc = 20090;
 		rType = 0;
 		vrLen = 1683;
 		vrLoc = 19392;
@@ -7310,7 +7318,7 @@
 		fRef = 6B8DE88710B69E3E00DF20FB /* DetourNavMesh.cpp */;
 		name = "DetourNavMesh.cpp: 1936";
 		rLen = 0;
-		rLoc = 54405;
+		rLoc = 54810;
 		rType = 0;
 		vrLen = 1061;
 		vrLoc = 52347;
@@ -7320,7 +7328,7 @@
 		comments = "error: 'parent' was not declared in this scope";
 		fRef = 6B8DE88710B69E3E00DF20FB /* DetourNavMesh.cpp */;
 		rLen = 1;
-		rLoc = 2190;
+		rLoc = 2202;
 		rType = 1;
 	};
 	6B324DAE112548EF00EBD2FD /* PBXTextBookmark */ = {
@@ -7328,7 +7336,7 @@
 		fRef = 6B8DE88710B69E3E00DF20FB /* DetourNavMesh.cpp */;
 		name = "DetourNavMesh.cpp: 2155";
 		rLen = 0;
-		rLoc = 60411;
+		rLoc = 60816;
 		rType = 0;
 		vrLen = 917;
 		vrLoc = 59111;
@@ -7338,7 +7346,7 @@
 		fRef = 6B8DE88710B69E3E00DF20FB /* DetourNavMesh.cpp */;
 		name = "DetourNavMesh.cpp: 2158";
 		rLen = 0;
-		rLoc = 60552;
+		rLoc = 60957;
 		rType = 0;
 		vrLen = 917;
 		vrLoc = 59111;
@@ -7356,7 +7364,7 @@
 		fRef = 6B8DE88710B69E3E00DF20FB /* DetourNavMesh.cpp */;
 		name = "DetourNavMesh.cpp: 2158";
 		rLen = 0;
-		rLoc = 60552;
+		rLoc = 60957;
 		rType = 0;
 		vrLen = 917;
 		vrLoc = 59111;
@@ -7888,7 +7896,7 @@
 		fRef = 6B8DE88B10B69E4C00DF20FB /* DetourNavMesh.h */;
 		name = "DetourNavMesh.h: 456";
 		rLen = 0;
-		rLoc = 19731;
+		rLoc = 19808;
 		rType = 0;
 		vrLen = 1711;
 		vrLoc = 18685;
@@ -7908,7 +7916,7 @@
 		fRef = 6B8DE88B10B69E4C00DF20FB /* DetourNavMesh.h */;
 		name = "DetourNavMesh.h: 382";
 		rLen = 0;
-		rLoc = 17165;
+		rLoc = 17242;
 		rType = 0;
 		vrLen = 1112;
 		vrLoc = 16362;
@@ -7978,7 +7986,7 @@
 		fRef = 6B8DE88B10B69E4C00DF20FB /* DetourNavMesh.h */;
 		name = "DetourNavMesh.h: 425";
 		rLen = 0;
-		rLoc = 18296;
+		rLoc = 18373;
 		rType = 0;
 		vrLen = 1044;
 		vrLoc = 17581;
@@ -7988,7 +7996,7 @@
 		fRef = 6B8DE88B10B69E4C00DF20FB /* DetourNavMesh.h */;
 		name = "DetourNavMesh.h: 413";
 		rLen = 0;
-		rLoc = 18013;
+		rLoc = 18090;
 		rType = 0;
 		vrLen = 1044;
 		vrLoc = 17581;
@@ -7998,7 +8006,7 @@
 		fRef = 6B8DE88B10B69E4C00DF20FB /* DetourNavMesh.h */;
 		name = "DetourNavMesh.h: 413";
 		rLen = 0;
-		rLoc = 18013;
+		rLoc = 18090;
 		rType = 0;
 		vrLen = 1044;
 		vrLoc = 17581;
@@ -8028,7 +8036,7 @@
 		fRef = 6B8DE88B10B69E4C00DF20FB /* DetourNavMesh.h */;
 		name = "DetourNavMesh.h: 413";
 		rLen = 0;
-		rLoc = 18013;
+		rLoc = 18090;
 		rType = 0;
 		vrLen = 1044;
 		vrLoc = 17581;
@@ -10914,6 +10922,86 @@
 		vrLen = 845;
 		vrLoc = 24842;
 	};
+	6B324FCD1125A7BB00EBD2FD /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B624169103434880002E346 /* RecastMeshDetail.cpp */;
+		name = "RecastMeshDetail.cpp: 1074";
+		rLen = 0;
+		rLoc = 25933;
+		rType = 0;
+		vrLen = 877;
+		vrLoc = 25362;
+	};
+	6B324FCE1125A7BB00EBD2FD /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B8DE88B10B69E4C00DF20FB /* DetourNavMesh.h */;
+		name = "DetourNavMesh.h: 389";
+		rLen = 0;
+		rLoc = 17118;
+		rType = 0;
+		vrLen = 1010;
+		vrLoc = 16672;
+	};
+	6B324FCF1125A7BB00EBD2FD /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B8DE88710B69E3E00DF20FB /* DetourNavMesh.cpp */;
+		name = "DetourNavMesh.cpp: 1768";
+		rLen = 0;
+		rLoc = 48488;
+		rType = 0;
+		vrLen = 905;
+		vrLoc = 47956;
+	};
+	6B324FD01125A7BB00EBD2FD /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B624169103434880002E346 /* RecastMeshDetail.cpp */;
+		name = "RecastMeshDetail.cpp: 1074";
+		rLen = 0;
+		rLoc = 25933;
+		rType = 0;
+		vrLen = 877;
+		vrLoc = 25362;
+	};
+	6B324FD11125A7BB00EBD2FD /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B8DE88B10B69E4C00DF20FB /* DetourNavMesh.h */;
+		name = "DetourNavMesh.h: 391";
+		rLen = 0;
+		rLoc = 17197;
+		rType = 0;
+		vrLen = 1010;
+		vrLoc = 16672;
+	};
+	6B324FD21125A7BB00EBD2FD /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B8DE88710B69E3E00DF20FB /* DetourNavMesh.cpp */;
+		name = "DetourNavMesh.cpp: 1768";
+		rLen = 0;
+		rLoc = 48488;
+		rType = 0;
+		vrLen = 905;
+		vrLoc = 47956;
+	};
+	6B324FD31125A7BB00EBD2FD /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B8DE88B10B69E4C00DF20FB /* DetourNavMesh.h */;
+		name = "DetourNavMesh.h: 389";
+		rLen = 0;
+		rLoc = 17118;
+		rType = 0;
+		vrLen = 1010;
+		vrLoc = 16672;
+	};
+	6B324FD41125A7BB00EBD2FD /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B8DE88710B69E3E00DF20FB /* DetourNavMesh.cpp */;
+		name = "DetourNavMesh.cpp: 1767";
+		rLen = 0;
+		rLoc = 48460;
+		rType = 0;
+		vrLen = 1142;
+		vrLoc = 47956;
+	};
 	6B555DAE100B211D00247EA3 /* imguiRenderGL.h */ = {
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {915, 492}}";
@@ -10937,9 +11025,9 @@
 	};
 	6B624169103434880002E346 /* RecastMeshDetail.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {852, 19296}}";
-			sepNavSelRange = "{25307, 0}";
-			sepNavVisRange = "{24842, 845}";
+			sepNavIntBoundsRect = "{{0, 0}, {852, 19280}}";
+			sepNavSelRange = "{25933, 0}";
+			sepNavVisRange = "{25362, 877}";
 			sepNavWindowFrame = "{{61, 36}, {1011, 695}}";
 		};
 	};
@@ -11065,9 +11153,9 @@
 	};
 	6B8DE88710B69E3E00DF20FB /* DetourNavMesh.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {817, 35824}}";
-			sepNavSelRange = "{37090, 0}";
-			sepNavVisRange = "{36916, 628}";
+			sepNavIntBoundsRect = "{{0, 0}, {815, 35424}}";
+			sepNavSelRange = "{48460, 0}";
+			sepNavVisRange = "{47956, 1142}";
 			sepNavWindowFrame = "{{15, 51}, {1214, 722}}";
 		};
 	};
@@ -11080,9 +11168,9 @@
 	};
 	6B8DE88B10B69E4C00DF20FB /* DetourNavMesh.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {845, 8144}}";
-			sepNavSelRange = "{18013, 0}";
-			sepNavVisRange = "{17581, 1044}";
+			sepNavIntBoundsRect = "{{0, 0}, {845, 8096}}";
+			sepNavSelRange = "{17118, 0}";
+			sepNavVisRange = "{16672, 1010}";
 		};
 	};
 	6B8DE88C10B69E4C00DF20FB /* DetourNavMeshBuilder.h */ = {
@@ -11097,7 +11185,7 @@
 		fRef = 6B8DE88B10B69E4C00DF20FB /* DetourNavMesh.h */;
 		name = detail;
 		rLen = 0;
-		rLoc = 17610;
+		rLoc = 17687;
 		rType = 0;
 		vrLen = 1182;
 		vrLoc = 9676;
@@ -11788,7 +11876,7 @@
 		fRef = 6B8DE88B10B69E4C00DF20FB /* DetourNavMesh.h */;
 		name = "DetourNavMesh.h: 361";
 		rLen = 0;
-		rLoc = 17173;
+		rLoc = 17250;
 		rType = 0;
 		vrLen = 1227;
 		vrLoc = 15736;
@@ -11798,7 +11886,7 @@
 		fRef = 6B8DE88B10B69E4C00DF20FB /* DetourNavMesh.h */;
 		name = "DetourNavMesh.h: 361";
 		rLen = 0;
-		rLoc = 17173;
+		rLoc = 17250;
 		rType = 0;
 		vrLen = 1311;
 		vrLoc = 15654;
@@ -11808,7 +11896,7 @@
 		fRef = 6B8DE88B10B69E4C00DF20FB /* DetourNavMesh.h */;
 		name = "DetourNavMesh.h: 361";
 		rLen = 0;
-		rLoc = 17173;
+		rLoc = 17250;
 		rType = 0;
 		vrLen = 1069;
 		vrLoc = 2551;

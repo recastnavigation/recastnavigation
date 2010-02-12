@@ -281,8 +281,8 @@
 							<key>PBXSmartGroupTreeModuleOutlineStateSelectionKey</key>
 							<array>
 								<array>
-									<integer>11</integer>
-									<integer>3</integer>
+									<integer>13</integer>
+									<integer>12</integer>
 									<integer>1</integer>
 									<integer>0</integer>
 								</array>
@@ -323,7 +323,7 @@
 								<key>PBXProjectModuleGUID</key>
 								<string>6B8632A30F78115100E2684A</string>
 								<key>PBXProjectModuleLabel</key>
-								<string>RecastMeshDetail.cpp</string>
+								<string>DetourNavMesh.cpp</string>
 								<key>PBXSplitModuleInNavigatorKey</key>
 								<dict>
 									<key>Split0</key>
@@ -331,11 +331,11 @@
 										<key>PBXProjectModuleGUID</key>
 										<string>6B8632A40F78115100E2684A</string>
 										<key>PBXProjectModuleLabel</key>
-										<string>RecastMeshDetail.cpp</string>
+										<string>DetourNavMesh.cpp</string>
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>6B324FCA11259FFA00EBD2FD</string>
+										<string>6B324FD41125A7BB00EBD2FD</string>
 										<key>history</key>
 										<array>
 											<string>6B8DE70D10B01BBF00DF20FB</string>
@@ -370,7 +370,6 @@
 											<string>6B324D0F1121C78000EBD2FD</string>
 											<string>6B324D101121C78000EBD2FD</string>
 											<string>6B324D511121D61A00EBD2FD</string>
-											<string>6B324E181125566A00EBD2FD</string>
 											<string>6B324E2C1125598400EBD2FD</string>
 											<string>6B324E3B11255BA700EBD2FD</string>
 											<string>6B324E6D11256D1000EBD2FD</string>
@@ -388,7 +387,6 @@
 											<string>6B324F201125818400EBD2FD</string>
 											<string>6B324F2E112584FB00EBD2FD</string>
 											<string>6B324F3A1125891F00EBD2FD</string>
-											<string>6B324F3B1125891F00EBD2FD</string>
 											<string>6B324F3C1125891F00EBD2FD</string>
 											<string>6B324F3D1125891F00EBD2FD</string>
 											<string>6B324F4A11258C7000EBD2FD</string>
@@ -398,11 +396,9 @@
 											<string>6B324F9A11259A5800EBD2FD</string>
 											<string>6B324F9B11259A5800EBD2FD</string>
 											<string>6B324FC711259FFA00EBD2FD</string>
-											<string>6B324FC811259FFA00EBD2FD</string>
-										</array>
-										<key>nextStack</key>
-										<array>
-											<string>6B324FC911259FFA00EBD2FD</string>
+											<string>6B324FCD1125A7BB00EBD2FD</string>
+											<string>6B324FCE1125A7BB00EBD2FD</string>
+											<string>6B324FCF1125A7BB00EBD2FD</string>
 										</array>
 										<key>prevStack</key>
 										<array>
@@ -579,6 +575,10 @@
 											<string>6B324F581125904E00EBD2FD</string>
 											<string>6BF7C4661115C514002B3F46</string>
 											<string>6B324B5F111C1AC800EBD2FD</string>
+											<string>6B324FD01125A7BB00EBD2FD</string>
+											<string>6B324FD11125A7BB00EBD2FD</string>
+											<string>6B324FD21125A7BB00EBD2FD</string>
+											<string>6B324FD31125A7BB00EBD2FD</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>

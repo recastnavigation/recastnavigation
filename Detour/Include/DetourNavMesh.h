@@ -385,8 +385,11 @@ public:
 	// Return polygon flags.
 	unsigned short getPolyFlags(dtPolyRef ref);
 
+	// Set polygon type.
+	void setPolyArea(dtPolyRef ref, unsigned char area);
+
 	// Return polygon type.
-	unsigned char getPolyType(dtPolyRef ref);
+	unsigned char getPolyArea(dtPolyRef ref);
 	
 	// Returns pointer to a polygon based on ref.
 	const dtPoly* getPolyByRef(dtPolyRef ref) const;
