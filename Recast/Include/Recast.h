@@ -424,6 +424,20 @@ void rcMarkWalkableTriangles(const float walkableSlopeAngle,
 							 const int* tris, int nt,
 							 unsigned char* flags); 
 
+// Adds span to heighfield.
+// The span addition can set to favor flags. If the span is merged to
+// another span and the new smax is within 'flagMergeThr' units away
+// from the existing span the span flags are merged and stored.
+// Params:
+//	solid - (in) heighfield where the spans is added to
+//  x,y - (in) location on the heighfield where the span is added
+//  smin,smax - (in) spans min/max height
+//  flags - (in) span flags (zero or WALKABLE)
+//  flagMergeThr - (in) merge threshold.
+void rcAddSpan(rcHeightfield& solid, const int x, const int y,
+			   const unsigned short smin, const unsigned short smax,
+			   const unsigned short flags, const int flagMergeThr);
+
 // Rasterizes a triangle into heightfield spans.
 // Params:
 //	v0,v1,v2 - (in) the vertices of the triangle.

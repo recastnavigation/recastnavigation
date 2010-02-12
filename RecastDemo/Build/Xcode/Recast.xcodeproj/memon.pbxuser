@@ -983,6 +983,12 @@
 			6B324F441125891F00EBD2FD /* PBXTextBookmark */ = 6B324F441125891F00EBD2FD /* PBXTextBookmark */;
 			6B324F451125891F00EBD2FD /* PBXTextBookmark */ = 6B324F451125891F00EBD2FD /* PBXTextBookmark */;
 			6B324F471125894D00EBD2FD /* PBXTextBookmark */ = 6B324F471125894D00EBD2FD /* PBXTextBookmark */;
+			6B324F4911258C7000EBD2FD /* PBXTextBookmark */ = 6B324F4911258C7000EBD2FD /* PBXTextBookmark */;
+			6B324F4A11258C7000EBD2FD /* PBXTextBookmark */ = 6B324F4A11258C7000EBD2FD /* PBXTextBookmark */;
+			6B324F4B11258C7000EBD2FD /* PBXTextBookmark */ = 6B324F4B11258C7000EBD2FD /* PBXTextBookmark */;
+			6B324F4C11258C7000EBD2FD /* PBXTextBookmark */ = 6B324F4C11258C7000EBD2FD /* PBXTextBookmark */;
+			6B324F4D11258C7000EBD2FD /* PBXTextBookmark */ = 6B324F4D11258C7000EBD2FD /* PBXTextBookmark */;
+			6B324F4E11258C7000EBD2FD /* PBXTextBookmark */ = 6B324F4E11258C7000EBD2FD /* PBXTextBookmark */;
 			6B69739F10FFCA4500984788 = 6B69739F10FFCA4500984788 /* PBXTextBookmark */;
 			6B6973A210FFCA4500984788 = 6B6973A210FFCA4500984788 /* PBXTextBookmark */;
 			6B8DE70D10B01BBF00DF20FB = 6B8DE70D10B01BBF00DF20FB /* PBXTextBookmark */;
@@ -1394,9 +1400,9 @@
 	};
 	6B137C7E0F7FCBFE00459200 /* Recast.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {815, 9760}}";
-			sepNavSelRange = "{4844, 328}";
-			sepNavVisRange = "{4505, 1487}";
+			sepNavIntBoundsRect = "{{0, 0}, {815, 10256}}";
+			sepNavSelRange = "{14702, 0}";
+			sepNavVisRange = "{13926, 1346}";
 		};
 	};
 	6B137C800F7FCBFE00459200 /* RecastLog.h */ = {
@@ -1452,9 +1458,9 @@
 	};
 	6B137C880F7FCC1100459200 /* RecastRasterization.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {815, 5632}}";
-			sepNavSelRange = "{1836, 0}";
-			sepNavVisRange = "{1732, 859}";
+			sepNavIntBoundsRect = "{{0, 0}, {815, 5488}}";
+			sepNavSelRange = "{2684, 178}";
+			sepNavVisRange = "{2394, 676}";
 		};
 	};
 	6B137C890F7FCC1100459200 /* RecastRegion.cpp */ = {
@@ -5286,7 +5292,7 @@
 		fRef = 6B137C7E0F7FCBFE00459200 /* Recast.h */;
 		name = "Recast.h: 518";
 		rLen = 36;
-		rLoc = 18994;
+		rLoc = 19670;
 		rType = 0;
 		vrLen = 1457;
 		vrLoc = 17378;
@@ -5865,7 +5871,7 @@
 		fRef = 6B137C7E0F7FCBFE00459200 /* Recast.h */;
 		name = "Recast.h: 534";
 		rLen = 0;
-		rLoc = 18922;
+		rLoc = 19598;
 		rType = 0;
 		vrLen = 1493;
 		vrLoc = 18110;
@@ -5893,7 +5899,7 @@
 		fRef = 6B137C7E0F7FCBFE00459200 /* Recast.h */;
 		name = "Recast.h: 534";
 		rLen = 0;
-		rLoc = 18922;
+		rLoc = 19598;
 		rType = 0;
 		vrLen = 1493;
 		vrLoc = 18110;
@@ -6243,7 +6249,7 @@
 		fRef = 6B137C7E0F7FCBFE00459200 /* Recast.h */;
 		name = "Recast.h: 534";
 		rLen = 0;
-		rLoc = 18922;
+		rLoc = 19598;
 		rType = 0;
 		vrLen = 1493;
 		vrLoc = 18110;
@@ -10038,6 +10044,66 @@
 		vrLen = 907;
 		vrLoc = 7014;
 	};
+	6B324F4911258C7000EBD2FD /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BB7FC0A10EBB6AA006DA0A6 /* NavMeshTesterTool.cpp */;
+		name = "NavMeshTesterTool.cpp: 272";
+		rLen = 0;
+		rLoc = 7129;
+		rType = 0;
+		vrLen = 907;
+		vrLoc = 7014;
+	};
+	6B324F4A11258C7000EBD2FD /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B137C880F7FCC1100459200 /* RecastRasterization.cpp */;
+		name = "RecastRasterization.cpp: 86";
+		rLen = 178;
+		rLoc = 2684;
+		rType = 0;
+		vrLen = 676;
+		vrLoc = 2394;
+	};
+	6B324F4B11258C7000EBD2FD /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B137C7E0F7FCBFE00459200 /* Recast.h */;
+		name = "Recast.h: 131";
+		rLen = 328;
+		rLoc = 4844;
+		rType = 0;
+		vrLen = 1230;
+		vrLoc = 4505;
+	};
+	6B324F4C11258C7000EBD2FD /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BB7FC0A10EBB6AA006DA0A6 /* NavMeshTesterTool.cpp */;
+		name = "NavMeshTesterTool.cpp: 272";
+		rLen = 0;
+		rLoc = 7129;
+		rType = 0;
+		vrLen = 907;
+		vrLoc = 7014;
+	};
+	6B324F4D11258C7000EBD2FD /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B137C880F7FCC1100459200 /* RecastRasterization.cpp */;
+		name = "RecastRasterization.cpp: 86";
+		rLen = 178;
+		rLoc = 2684;
+		rType = 0;
+		vrLen = 676;
+		vrLoc = 2394;
+	};
+	6B324F4E11258C7000EBD2FD /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B137C7E0F7FCBFE00459200 /* Recast.h */;
+		name = "Recast.h: 439";
+		rLen = 0;
+		rLoc = 14702;
+		rType = 0;
+		vrLen = 1346;
+		vrLoc = 13926;
+	};
 	6B555DAE100B211D00247EA3 /* imguiRenderGL.h */ = {
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {915, 492}}";
@@ -11466,7 +11532,7 @@
 		fRef = 6B137C880F7FCC1100459200 /* RecastRasterization.cpp */;
 		name = "RecastRasterization.cpp: 145";
 		rLen = 0;
-		rLoc = 3893;
+		rLoc = 3890;
 		rType = 0;
 		vrLen = 588;
 		vrLoc = 3412;
@@ -11516,7 +11582,7 @@
 		fRef = 6B137C880F7FCC1100459200 /* RecastRasterization.cpp */;
 		name = "RecastRasterization.cpp: 131";
 		rLen = 12;
-		rLoc = 3614;
+		rLoc = 3611;
 		rType = 0;
 		vrLen = 605;
 		vrLoc = 3228;
@@ -11536,7 +11602,7 @@
 		fRef = 6B137C880F7FCC1100459200 /* RecastRasterization.cpp */;
 		name = "RecastRasterization.cpp: 130";
 		rLen = 0;
-		rLoc = 3567;
+		rLoc = 3564;
 		rType = 0;
 		vrLen = 605;
 		vrLoc = 3228;
@@ -11546,7 +11612,7 @@
 		fRef = 6B137C880F7FCC1100459200 /* RecastRasterization.cpp */;
 		name = "RecastRasterization.cpp: 133";
 		rLen = 0;
-		rLoc = 3686;
+		rLoc = 3683;
 		rType = 0;
 		vrLen = 598;
 		vrLoc = 3228;
@@ -11556,7 +11622,7 @@
 		fRef = 6B137C880F7FCC1100459200 /* RecastRasterization.cpp */;
 		name = "RecastRasterization.cpp: 272";
 		rLen = 0;
-		rLoc = 7212;
+		rLoc = 7211;
 		rType = 0;
 		vrLen = 889;
 		vrLoc = 6644;
@@ -11566,7 +11632,7 @@
 		fRef = 6B137C880F7FCC1100459200 /* RecastRasterization.cpp */;
 		name = "RecastRasterization.cpp: 272";
 		rLen = 22;
-		rLoc = 7202;
+		rLoc = 7201;
 		rType = 0;
 		vrLen = 1012;
 		vrLoc = 6614;
@@ -11576,7 +11642,7 @@
 		fRef = 6B137C880F7FCC1100459200 /* RecastRasterization.cpp */;
 		name = "RecastRasterization.cpp: 325";
 		rLen = 0;
-		rLoc = 8863;
+		rLoc = 8862;
 		rType = 0;
 		vrLen = 992;
 		vrLoc = 8139;
@@ -11596,7 +11662,7 @@
 		fRef = 6B137C880F7FCC1100459200 /* RecastRasterization.cpp */;
 		name = "RecastRasterization.cpp: 318";
 		rLen = 0;
-		rLoc = 8684;
+		rLoc = 8683;
 		rType = 0;
 		vrLen = 977;
 		vrLoc = 7116;
@@ -11646,7 +11712,7 @@
 		fRef = 6B137C880F7FCC1100459200 /* RecastRasterization.cpp */;
 		name = "RecastRasterization.cpp: 339";
 		rLen = 0;
-		rLoc = 9316;
+		rLoc = 9315;
 		rType = 0;
 		vrLen = 995;
 		vrLoc = 8761;
@@ -11756,7 +11822,7 @@
 		fRef = 6B137C880F7FCC1100459200 /* RecastRasterization.cpp */;
 		name = "RecastRasterization.cpp: 273";
 		rLen = 0;
-		rLoc = 7225;
+		rLoc = 7224;
 		rType = 0;
 		vrLen = 991;
 		vrLoc = 8360;
@@ -11766,7 +11832,7 @@
 		fRef = 6B137C880F7FCC1100459200 /* RecastRasterization.cpp */;
 		name = "RecastRasterization.cpp: 273";
 		rLen = 0;
-		rLoc = 7225;
+		rLoc = 7224;
 		rType = 0;
 		vrLen = 991;
 		vrLoc = 8360;
@@ -13533,7 +13599,7 @@
 		fRef = 6B137C7E0F7FCBFE00459200 /* Recast.h */;
 		name = "Recast.h: 550";
 		rLen = 0;
-		rLoc = 20803;
+		rLoc = 21479;
 		rType = 0;
 		vrLen = 1291;
 		vrLoc = 19607;

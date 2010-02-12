@@ -83,9 +83,9 @@ static void freeSpan(rcHeightfield& hf, rcSpan* ptr)
 	hf.freelist = ptr;
 }
 
-static void addSpan(rcHeightfield& hf, const int x, const int y,
-					const unsigned short smin, const unsigned short smax,
-					const unsigned short flags, const int flagMergeThr)
+void rcAddSpan(rcHeightfield& hf, const int x, const int y,
+			   const unsigned short smin, const unsigned short smax,
+			   const unsigned short flags, const int flagMergeThr)
 {
 	int idx = x + y*hf.width;
 	
@@ -263,7 +263,7 @@ static void rasterizeTri(const float* v0, const float* v1, const float* v2,
 			unsigned short ismin = (unsigned short)rcClamp((int)floorf(smin * ich), 0, 0x7fff);
 			unsigned short ismax = (unsigned short)rcClamp((int)ceilf(smax * ich), 0, 0x7fff);
 			
-			addSpan(hf, x, y, ismin, ismax, flags, flagMergeThr);
+			rcAddSpan(hf, x, y, ismin, ismax, flags, flagMergeThr);
 		}
 	}
 }
