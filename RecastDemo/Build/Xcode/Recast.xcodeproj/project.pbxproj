@@ -235,19 +235,19 @@
 		6B137C7D0F7FCBE800459200 /* Recast */ = {
 			isa = PBXGroup;
 			children = (
-				6B137C820F7FCC1100459200 /* Recast.cpp */,
-				6B137C830F7FCC1100459200 /* RecastContour.cpp */,
-				6B137C850F7FCC1100459200 /* RecastFilter.cpp */,
-				6B137C860F7FCC1100459200 /* RecastLog.cpp */,
-				6B137C870F7FCC1100459200 /* RecastMesh.cpp */,
-				6B137C880F7FCC1100459200 /* RecastRasterization.cpp */,
-				6B137C890F7FCC1100459200 /* RecastRegion.cpp */,
-				6B137C8A0F7FCC1100459200 /* RecastTimer.cpp */,
 				6B137C7E0F7FCBFE00459200 /* Recast.h */,
 				6B137C800F7FCBFE00459200 /* RecastLog.h */,
 				6B137C810F7FCBFE00459200 /* RecastTimer.h */,
-				6B624169103434880002E346 /* RecastMeshDetail.cpp */,
+				6B137C820F7FCC1100459200 /* Recast.cpp */,
+				6B137C860F7FCC1100459200 /* RecastLog.cpp */,
+				6B137C8A0F7FCC1100459200 /* RecastTimer.cpp */,
+				6B137C880F7FCC1100459200 /* RecastRasterization.cpp */,
+				6B137C850F7FCC1100459200 /* RecastFilter.cpp */,
 				6BF7C4531115C277002B3F46 /* RecastArea.cpp */,
+				6B137C890F7FCC1100459200 /* RecastRegion.cpp */,
+				6B137C830F7FCC1100459200 /* RecastContour.cpp */,
+				6B137C870F7FCC1100459200 /* RecastMesh.cpp */,
+				6B624169103434880002E346 /* RecastMeshDetail.cpp */,
 			);
 			name = Recast;
 			sourceTree = "<group>";

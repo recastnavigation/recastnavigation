@@ -194,7 +194,7 @@ static float distToPoly(int nvert, const float* verts, const float* p)
 }
 
 
-static unsigned short getHeight(const float fx, const float fz, const float cs, const float ics, const rcHeightPatch& hp)
+static unsigned short getHeight(const float fx, const float fy, const float fz, const float cs, const float ics, const float ch, const rcHeightPatch& hp)
 {
 	int ix = (int)floorf(fx*ics + 0.01f);
 	int iz = (int)floorf(fz*ics + 0.01f);
@@ -214,14 +214,22 @@ static unsigned short getHeight(const float fx, const float fz, const float cs, 
 			if (nx < 0 || nz < 0 || nx >= hp.width || nz >= hp.height) continue;
 			const unsigned short nh = hp.data[nx+nz*hp.width];
 			if (nh == RC_UNSET_HEIGHT) continue;
-			const float dx = (nx+0.5f)*cs - fx; 
+
+			const float d = fabsf(nh*ch - fy);
+			if (d < dmin)
+			{
+				h = nh;
+				dmin = d;
+			}
+			
+/*			const float dx = (nx+0.5f)*cs - fx; 
 			const float dz = (nz+0.5f)*cs - fz;
 			const float d = dx*dx+dz*dz;
 			if (d < dmin)
 			{
 				h = nh;
 				dmin = d;
-			} 
+			} */
 		}
 	}
 	return h;
@@ -534,6 +542,7 @@ static bool buildPolyDetail(const float* in, const int nin,
 			}
 			// Create samples along the edge.
 			float dx = vi[0] - vj[0];
+			float dy = vi[1] - vj[1];
 			float dz = vi[2] - vj[2];
 			float d = sqrtf(dx*dx + dz*dz);
 			int nn = 1 + (int)floorf(d/sampleDist);
@@ -545,8 +554,9 @@ static bool buildPolyDetail(const float* in, const int nin,
 				float u = (float)k/(float)nn;
 				float* pos = &edge[k*3];
 				pos[0] = vj[0] + dx*u;
+				pos[1] = vj[1] + dy*u;
 				pos[2] = vj[2] + dz*u;
-				pos[1] = getHeight(pos[0], pos[2], cs, ics, hp)*chf.ch;
+				pos[1] = getHeight(pos[0],pos[1],pos[2], cs, ics, chf.ch, hp)*chf.ch;
 			}
 			// Simplify samples.
 			int idx[MAX_EDGE] = {0,nn};
@@ -651,11 +661,12 @@ static bool buildPolyDetail(const float* in, const int nin,
 			{
 				float pt[3];
 				pt[0] = x*sampleDist;
+				pt[1] = (bmax[1]+bmin[1])*0.5f;
 				pt[2] = z*sampleDist;
 				// Make sure the samples are not too close to the edges.
 				if (distToPoly(nin,in,pt) > -sampleDist/2) continue;
 				samples.push(x);
-				samples.push(getHeight(pt[0], pt[2], cs, ics, hp));
+				samples.push(getHeight(pt[0], pt[1], pt[2], cs, ics, chf.ch, hp));
 				samples.push(z);
 			}
 		}
@@ -713,93 +724,88 @@ static void getHeightData(const rcCompactHeightfield& chf,
 	// Floodfill the heightfield to get 2D height data,
 	// starting at vertex locations as seeds.
 	
-	memset(hp.data, 0xff, sizeof(unsigned short)*hp.width*hp.height);
-
+	memset(hp.data, 0, sizeof(unsigned short)*hp.width*hp.height);
+	
 	stack.resize(0);
+	
+	static const int offset[9*2] =
+	{
+		0,0, -1,-1, 0,-1, 1,-1, 1,0, 1,1, 0,1, -1,1, -1,0,
+	};
 	
 	// Use poly vertices as seed points for the flood fill.
 	for (int j = 0; j < npoly; ++j)
 	{
-		const int ax = (int)verts[poly[j]*3+0];
-		const int ay = (int)verts[poly[j]*3+1];
-		const int az = (int)verts[poly[j]*3+2];
-		if (ax < hp.xmin || ax >= hp.xmin+hp.width ||
-			az < hp.ymin || az >= hp.ymin+hp.height)
-			continue;
-			
-		const rcCompactCell& c = chf.cells[ax+az*chf.width];
+		int cx = 0, cz = 0, ci =-1;
 		int dmin = RC_UNSET_HEIGHT;
-		int ai = -1;
-		for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
+		for (int k = 0; k < 9; ++k)
 		{
-			const rcCompactSpan& s = chf.spans[i];
-			int d = rcAbs(ay - (int)s.y);
-			if (d < dmin)
-			{
-				ai = i;
-				dmin = d;
-			}
-		}
-		if (ai != -1)
-		{
-			stack.push(ax);
-			stack.push(az);
-			stack.push(ai);
-		}
-	}
-	
-	// Not no match, try polygon center.
-	if (stack.size() == 0)
-	{
-		int cx = 0, cy = 0, cz = 0;
-		for (int j = 0; j < npoly; ++j)
-		{
-			cx += (int)verts[poly[j]*3+0];
-			cy += (int)verts[poly[j]*3+1];
-			cz += (int)verts[poly[j]*3+2];
-		}
-		cx /= npoly;
-		cy /= npoly;
-		cz /= npoly;
-		
-		if (cx >= hp.xmin && cx < hp.xmin+hp.width &&
-			cz >= hp.ymin && cz < hp.ymin+hp.height)
-		{
-			const rcCompactCell& c = chf.cells[cx+cz*chf.width];
-			int dmin = RC_UNSET_HEIGHT;
-			int ci = -1;
+			const int ax = (int)verts[poly[j]*3+0] + offset[k*2+0];
+			const int ay = (int)verts[poly[j]*3+1];
+			const int az = (int)verts[poly[j]*3+2] + offset[k*2+1];
+			if (ax < hp.xmin || ax >= hp.xmin+hp.width ||
+				az < hp.ymin || az >= hp.ymin+hp.height)
+				continue;
+			
+			const rcCompactCell& c = chf.cells[ax+az*chf.width];
 			for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
 			{
 				const rcCompactSpan& s = chf.spans[i];
-				int d = rcAbs(cy - (int)s.y);
+				int d = rcAbs(ay - (int)s.y);
 				if (d < dmin)
 				{
+					cx = ax;
+					cz = az;
 					ci = i;
 					dmin = d;
 				}
 			}
-			if (ci != -1)
-			{
-				stack.push(cx);
-				stack.push(cz);
-				stack.push(ci);
-			}
+		}
+		if (ci != -1)
+		{
+			stack.push(cx);
+			stack.push(cz);
+			stack.push(ci);
 		}
 	}
-
+	
+	// Find center of the polygon using flood fill.
+	int pcx = 0, pcy = 0, pcz = 0;
+	for (int j = 0; j < npoly; ++j)
+	{
+		pcx += (int)verts[poly[j]*3+0];
+		pcy += (int)verts[poly[j]*3+1];
+		pcz += (int)verts[poly[j]*3+2];
+	}
+	pcx /= npoly;
+	pcy /= npoly;
+	pcz /= npoly;
+	
+	for (int i = 0; i < stack.size(); i += 3)
+	{
+		int cx = stack[i+0];
+		int cy = stack[i+1];
+		int idx = cx-hp.xmin+(cy-hp.ymin)*hp.width;
+		hp.data[idx] = 1;
+	}
+	
 	while (stack.size() > 0)
 	{
 		int ci = stack.pop();
 		int cy = stack.pop();
 		int cx = stack.pop();
-
-		// Skip already visited locations.
-		int idx = cx-hp.xmin+(cy-hp.ymin)*hp.width;
-		if (hp.data[idx] != RC_UNSET_HEIGHT)
-			continue;
+		
+		// Check if close to center of the polygon.
+		if (rcAbs(cx-pcx) <= 1 && rcAbs(cy-pcz) <= 1)
+		{
+			stack.resize(0);
+			stack.push(cx);
+			stack.push(cy);
+			stack.push(ci);
+			break;
+		}
 		
 		const rcCompactSpan& cs = chf.spans[ci];
-		hp.data[idx] = cs.y;
 		
 		for (int dir = 0; dir < 4; ++dir)
 		{
@@ -807,21 +813,78 @@ static void getHeightData(const rcCompactHeightfield& chf,
 			
 			const int ax = cx + rcGetDirOffsetX(dir);
 			const int ay = cy + rcGetDirOffsetY(dir);
-		
+			
 			if (ax < hp.xmin || ax >= (hp.xmin+hp.width) ||
 				ay < hp.ymin || ay >= (hp.ymin+hp.height))
 				continue;
-
-			if (hp.data[ax-hp.xmin+(ay-hp.ymin)*hp.width] != RC_UNSET_HEIGHT)
+			
+			if (hp.data[ax-hp.xmin+(ay-hp.ymin)*hp.width] != 0)
 				continue;
-
+			
 			const int ai = (int)chf.cells[ax+ay*chf.width].index + rcGetCon(cs, dir);
+
+			int idx = ax-hp.xmin+(ay-hp.ymin)*hp.width;
+			hp.data[idx] = 1;
 			
 			stack.push(ax);
 			stack.push(ay);
 			stack.push(ai);
 		}
-	}	
+	}
+
+	memset(hp.data, 0xff, sizeof(unsigned short)*hp.width*hp.height);
+
+	// Mark start locations.
+	for (int i = 0; i < stack.size(); i += 3)
+	{
+		int cx = stack[i+0];
+		int cy = stack[i+1];
+		int ci = stack[i+2];
+		int idx = cx-hp.xmin+(cy-hp.ymin)*hp.width;
+		const rcCompactSpan& cs = chf.spans[ci];
+		hp.data[idx] = cs.y;
+	}
+	
+	while (stack.size() > 0)
+	{
+/*		int cx = stack[0];
+		int cy = stack[1];
+		int ci = stack[2];
+		if (stack.size() >= 3)
+			memmove(&stack[0], &stack[3], sizeof(int)*(stack.size()-3));
+		stack.resize(stack.size()-3);*/
+
+		int ci = stack.pop();
+		int cy = stack.pop();
+		int cx = stack.pop();
+
+		const rcCompactSpan& cs = chf.spans[ci];
+		for (int dir = 0; dir < 4; ++dir)
+		{
+			if (rcGetCon(cs, dir) == RC_NOT_CONNECTED) continue;
+			
+			const int ax = cx + rcGetDirOffsetX(dir);
+			const int ay = cy + rcGetDirOffsetY(dir);
+			
+			if (ax < hp.xmin || ax >= (hp.xmin+hp.width) ||
+				ay < hp.ymin || ay >= (hp.ymin+hp.height))
+				continue;
+			
+			if (hp.data[ax-hp.xmin+(ay-hp.ymin)*hp.width] != RC_UNSET_HEIGHT)
+				continue;
+			
+			const int ai = (int)chf.cells[ax+ay*chf.width].index + rcGetCon(cs, dir);
+			
+			const rcCompactSpan& as = chf.spans[ai];
+			int idx = ax-hp.xmin+(ay-hp.ymin)*hp.width;
+			hp.data[idx] = as.y;
+
+			stack.push(ax);
+			stack.push(ay);
+			stack.push(ai);
+		}
+	}
+	
 }
 
 static unsigned char getEdgeFlags(const float* va, const float* vb,
