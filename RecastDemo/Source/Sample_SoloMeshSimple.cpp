@@ -321,6 +321,7 @@ void Sample_SoloMeshSimple::handleMeshChanged(class InputGeom* geom)
 	}
 }
 
+
 bool Sample_SoloMeshSimple::handleBuild()
 {
 	if (!m_geom || !m_geom->getMesh())

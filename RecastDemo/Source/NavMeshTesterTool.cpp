@@ -85,6 +85,17 @@ void NavMeshTesterTool::init(Sample* sample)
 	m_navMesh = sample->getNavMesh();
 	recalc();
 
+	if (m_navMesh)
+	{
+		// Change costs.
+		m_navMesh->setAreaCost(SAMPLE_POLYAREA_GROUND, 1.0f);
+		m_navMesh->setAreaCost(SAMPLE_POLYAREA_WATER, 10.0f);
+		m_navMesh->setAreaCost(SAMPLE_POLYAREA_ROAD, 1.0f);
+		m_navMesh->setAreaCost(SAMPLE_POLYAREA_DOOR, 1.0f);
+		m_navMesh->setAreaCost(SAMPLE_POLYAREA_GRASS, 2.0f);
+		m_navMesh->setAreaCost(SAMPLE_POLYAREA_JUMP, 1.5f);
+	}
+
 	if (m_toolMode == TOOLMODE_PATHFIND_ITER || m_toolMode == TOOLMODE_PATHFIND_STRAIGHT)
 	{
 		unsigned char flags = DU_DRAWNAVMESH_CLOSEDLIST;
@@ -282,6 +293,7 @@ void NavMeshTesterTool::recalc()
 				   m_spos[0],m_spos[1],m_spos[2], m_epos[0],m_epos[1],m_epos[2],
 				   m_filter.includeFlags, m_filter.excludeFlags); 
 #endif
+
 			m_npolys = m_navMesh->findPath(m_startRef, m_endRef, m_spos, m_epos, &m_filter, m_polys, MAX_POLYS);
 
 			m_nsmoothPath = 0;

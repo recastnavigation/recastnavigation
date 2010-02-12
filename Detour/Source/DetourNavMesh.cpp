@@ -116,6 +116,9 @@ dtNavMesh::dtNavMesh() :
 	m_orig[0] = 0;
 	m_orig[1] = 0;
 	m_orig[2] = 0;
+	
+	for (int i = 0; i < DT_MAX_AREAS; ++i)
+		m_areaCost[i] = 1.0f;
 }
 
 dtNavMesh::~dtNavMesh()
@@ -905,13 +908,13 @@ bool dtNavMesh::getPolyHeight(dtPolyRef ref, const float* pos, float* height) co
 
 void dtNavMesh::setAreaCost(const int area, float cost)
 {
-	if (area >= 0 && area > DT_MAX_AREAS)
+	if (area >= 0 && area < DT_MAX_AREAS)
 		m_areaCost[area] = cost;
 }
 
 float dtNavMesh::getAreaCost(const int area) const
 {
-	if (area >= 0 && area > DT_MAX_AREAS)
+	if (area >= 0 && area < DT_MAX_AREAS)
 		return m_areaCost[area];
 	return -1;
 }
@@ -1130,6 +1133,9 @@ int dtNavMesh::findPath(dtPolyRef startRef, dtPolyRef endRef,
 	
 	dtNode* lastBestNode = startNode;
 	float lastBestNodeCost = startNode->total;
+
+	unsigned int it, ip;
+	
 	while (!m_openList->empty())
 	{
 		dtNode* bestNode = m_openList->pop();
@@ -1140,79 +1146,115 @@ int dtNavMesh::findPath(dtPolyRef startRef, dtPolyRef endRef,
 			break;
 		}
 
-		// Get poly and tile.
-		unsigned int salt, it, ip;
-		decodePolyId(bestNode->id, salt, it, ip);
+		float previousEdgeMidPoint[3];
+
+		// Get current poly and tile.
 		// The API input has been cheked already, skip checking internal data.
-		const dtMeshHeader* header = m_tiles[it].header;
-		const dtPoly* poly = &header->polys[ip];
-		
-		for (unsigned int i = poly->firstLink; i != DT_NULL_LINK; i = header->links[i].next)
+		const dtPolyRef bestRef = bestNode->id;
+		it = decodePolyIdTile(bestRef);
+		ip = decodePolyIdPoly(bestRef);
+		const dtMeshHeader* bestHeader = m_tiles[it].header;
+		const dtPoly* bestPoly = &bestHeader->polys[ip];
+
+		// Get parent poly and tile.
+		dtPolyRef parentRef = 0;
+		const dtMeshHeader* parentHeader = 0;
+		const dtPoly* parentPoly = 0;
+		if (bestNode->pidx)
+			parentRef = m_nodePool->getNodeAtIdx(bestNode->pidx)->id;
+		if (parentRef)
 		{
-			dtPolyRef neighbour = header->links[i].ref;
-			if (neighbour)
+			it = decodePolyIdTile(parentRef);
+			ip = decodePolyIdPoly(parentRef);
+			parentHeader = m_tiles[it].header;
+			parentPoly = &parentHeader->polys[ip];
+
+			getEdgeMidPoint(parentRef, parentPoly, parentHeader,
+							bestRef, bestPoly, bestHeader, previousEdgeMidPoint);
+		}
+		else
+		{
+			vcopy(previousEdgeMidPoint, startPos);
+		}
+		
+		for (unsigned int i = bestPoly->firstLink; i != DT_NULL_LINK; i = bestHeader->links[i].next)
+		{
+			dtPolyRef neighbourRef = bestHeader->links[i].ref;
+			// Skip invalid ids and do not expand back to parent node.
+			if (!neighbourRef || parentRef == neighbourRef)
+				continue;
+
+			// Get neighbour poly and tile.
+			// The API input has been cheked already, skip checking internal data.
+			it = decodePolyIdTile(neighbourRef);
+			ip = decodePolyIdPoly(neighbourRef);
+			const dtMeshHeader* neighbourHeader = m_tiles[it].header;
+			const dtPoly* neighbourPoly = &neighbourHeader->polys[ip];
+
+			if (!passFilter(filter, neighbourPoly->flags))
+				continue;
+
+			dtNode newNode;
+			newNode.pidx = m_nodePool->getNodeIdx(bestNode);
+			newNode.id = neighbourRef;
+
+			// Calculate cost.
+			float edgeMidPoint[3];
+			
+			getEdgeMidPoint(bestRef, bestPoly, bestHeader,
+							neighbourRef, neighbourPoly, neighbourHeader, edgeMidPoint);
+			
+			// Special case for last node.
+			float h = 0;
+			if (neighbourRef == endRef)
 			{
-				// Skip parent node.
-				if (bestNode->pidx && m_nodePool->getNodeAtIdx(bestNode->pidx)->id == neighbour)
-					continue;
-
-				// TODO: Avoid digging the polygon (done in getEdgeMidPoint too).
-				if (!passFilter(filter, getPolyFlags(neighbour)))
-					continue;
-
-				dtNode* parent = bestNode;
-				dtNode newNode;
-				newNode.pidx = m_nodePool->getNodeIdx(parent);
-				newNode.id = neighbour;
-
-				// Calculate cost.
-				float p0[3], p1[3];
-				if (!parent->pidx)
-					vcopy(p0, startPos);
-				else
-					getEdgeMidPoint(m_nodePool->getNodeAtIdx(parent->pidx)->id, parent->id, p0);
-				
-				getEdgeMidPoint(parent->id, newNode.id, p1);
-				
-				newNode.cost = parent->cost + vdist(p0,p1);
-				// Special case for last node.
-				if (newNode.id == endRef)
-					newNode.cost += vdist(p1, endPos);
-
+				// Cost
+				newNode.cost = bestNode->cost +
+								vdist(previousEdgeMidPoint,edgeMidPoint) * m_areaCost[bestPoly->area] +
+								vdist(edgeMidPoint, endPos) * m_areaCost[neighbourPoly->area];
 				// Heuristic
-				const float h = vdist(p1,endPos)*H_SCALE;
-				newNode.total = newNode.cost + h;
+				h = 0;
+			}
+			else
+			{
+				// Cost
+				newNode.cost = bestNode->cost +
+								vdist(previousEdgeMidPoint,edgeMidPoint) * m_areaCost[bestPoly->area];
+				// Heuristic
+				h = vdist(edgeMidPoint,endPos)*H_SCALE;
+			}
+			newNode.total = newNode.cost + h;
+			
+			dtNode* actualNode = m_nodePool->getNode(newNode.id);
+			if (!actualNode)
+				continue;
+			
+			if (!((actualNode->flags & DT_NODE_OPEN) && newNode.total > actualNode->total) &&
+				!((actualNode->flags & DT_NODE_CLOSED) && newNode.total > actualNode->total))
+			{
+				actualNode->flags &= ~DT_NODE_CLOSED;
+				actualNode->pidx = newNode.pidx;
+				actualNode->cost = newNode.cost;
+				actualNode->total = newNode.total;
 				
-				dtNode* actualNode = m_nodePool->getNode(newNode.id);
-				if (!actualNode)
-					continue;
-				
-				if (!((actualNode->flags & DT_NODE_OPEN) && newNode.total > actualNode->total) &&
-					!((actualNode->flags & DT_NODE_CLOSED) && newNode.total > actualNode->total))
+				if (h < lastBestNodeCost)
 				{
-					actualNode->flags &= ~DT_NODE_CLOSED;
-					actualNode->pidx = newNode.pidx;
-					actualNode->cost = newNode.cost;
-					actualNode->total = newNode.total;
-					
-					if (h < lastBestNodeCost)
-					{
-						lastBestNodeCost = h;
-						lastBestNode = actualNode;
-					}
-					
-					if (actualNode->flags & DT_NODE_OPEN)
-					{
-						m_openList->modify(actualNode);
-					}
-					else
-					{
-						actualNode->flags |= DT_NODE_OPEN;
-						m_openList->push(actualNode);
-					}
+					lastBestNodeCost = h;
+					lastBestNode = actualNode;
+				}
+				
+				if (actualNode->flags & DT_NODE_OPEN)
+				{
+					m_openList->modify(actualNode);
+				}
+				else
+				{
+					actualNode->flags |= DT_NODE_OPEN;
+					m_openList->push(actualNode);
 				}
 			}
 		}
+
 		bestNode->flags |= DT_NODE_CLOSED;
 	}
 	
@@ -1550,7 +1592,6 @@ int dtNavMesh::moveAlongPathCorridor(const float* startPos, const float* endPos,
 	return n;
 }
 
-// Returns portal points between two polygons.
 bool dtNavMesh::getPortalPoints(dtPolyRef from, dtPolyRef to, float* left, float* right,
 								unsigned char& fromType, unsigned char& toType) const
 {
@@ -1563,87 +1604,105 @@ bool dtNavMesh::getPortalPoints(dtPolyRef from, dtPolyRef to, float* left, float
 	const dtPoly* fromPoly = &fromHeader->polys[ip];
 	fromType = fromPoly->type;
 
+	decodePolyId(to, salt, it, ip);
+	if (it >= (unsigned int)m_maxTiles) return false;
+	if (m_tiles[it].salt != salt || m_tiles[it].header == 0) return false;
+	if (ip >= (unsigned int)m_tiles[it].header->polyCount) return false;
+	const dtMeshHeader* toHeader = m_tiles[it].header;
+	const dtPoly* toPoly = &toHeader->polys[ip];
+	toType = toPoly->type;
+
+	return getPortalPoints(from, fromPoly, fromHeader,
+						   to, toPoly, toHeader,
+						   left, right);
+}
+
+// Returns portal points between two polygons.
+bool dtNavMesh::getPortalPoints(dtPolyRef from, const dtPoly* fromPoly, const dtMeshHeader* fromHeader,
+								dtPolyRef to, const dtPoly* toPoly, const dtMeshHeader* toHeader,
+								float* left, float* right) const
+{
+	// Find the link that points to the 'to' polygon.
+	const dtLink* link = 0;
 	for (unsigned int i = fromPoly->firstLink; i != DT_NULL_LINK; i = fromHeader->links[i].next)
 	{
-		const dtLink* link = &fromHeader->links[i];
-		if (link->ref != to)
-			continue;
-
-		decodePolyId(to, salt, it, ip);
-		if (it >= (unsigned int)m_maxTiles) return false;
-		if (m_tiles[it].salt != salt || m_tiles[it].header == 0) return false;
-		if (ip >= (unsigned int)m_tiles[it].header->polyCount) return false;
-		const dtMeshHeader* toHeader = m_tiles[it].header;
-		const dtPoly* toPoly = &toHeader->polys[ip];
-		toType = toPoly->type;
-		
-		if (fromPoly->type == DT_POLYTYPE_OFFMESH_CONNECTION)
+		if (fromHeader->links[i].ref == to)
 		{
-			// Find link that points to first vertex.
-			for (unsigned int i = fromPoly->firstLink; i != DT_NULL_LINK; i = fromHeader->links[i].next)
-			{
-				if (fromHeader->links[i].ref == to)
-				{
-					const int v = fromHeader->links[i].edge;
-					vcopy(left, &fromHeader->verts[fromPoly->verts[v]*3]);
-					vcopy(right, &fromHeader->verts[fromPoly->verts[v]*3]);
-					return true;
-				}
-			}
-			return false;
+			link = &fromHeader->links[i];
+			break;
 		}
-
-		if (toPoly->type == DT_POLYTYPE_OFFMESH_CONNECTION)
-		{
-			for (unsigned int i = toPoly->firstLink; i != DT_NULL_LINK; i = toHeader->links[i].next)
-			{
-				if (toHeader->links[i].ref == from)
-				{
-					const int v = toHeader->links[i].edge;
-					vcopy(left, &toHeader->verts[toPoly->verts[v]*3]);
-					vcopy(right, &toHeader->verts[toPoly->verts[v]*3]);
-					return true;
-				}
-			}
-			return false;
-		}
-		
-		// Find portal vertices.
-		const int v0 = fromPoly->verts[link->edge];
-		const int v1 = fromPoly->verts[(link->edge+1) % (int)fromPoly->vertCount];
-		vcopy(left, &fromHeader->verts[v0*3]);
-		vcopy(right, &fromHeader->verts[v1*3]);
-		// If the link is at tile boundary, clamp the vertices to
-		// the link width.
-		if (link->side == 0 || link->side == 4)
-		{
-			// Unpack portal limits.
-			const float smin = min(left[2],right[2]);
-			const float smax = max(left[2],right[2]);
-			const float s = (smax-smin) / 255.0f;
-			const float lmin = smin + link->bmin*s;
-			const float lmax = smin + link->bmax*s;
-			left[2] = max(left[2],lmin);
-			left[2] = min(left[2],lmax);
-			right[2] = max(right[2],lmin);
-			right[2] = min(right[2],lmax);
-		}
-		else if (link->side == 2 || link->side == 6)
-		{
-			// Unpack portal limits.
-			const float smin = min(left[0],right[0]);
-			const float smax = max(left[0],right[0]);
-			const float s = (smax-smin) / 255.0f;
-			const float lmin = smin + link->bmin*s;
-			const float lmax = smin + link->bmax*s;
-			left[0] = max(left[0],lmin);
-			left[0] = min(left[0],lmax);
-			right[0] = max(right[0],lmin);
-			right[0] = min(right[0],lmax);
-		}
-		return true;
 	}
-	return false;
+	if (!link)
+		return false;
+	
+	// Handle off-mesh connections.
+	if (fromPoly->type == DT_POLYTYPE_OFFMESH_CONNECTION)
+	{
+		// Find link that points to first vertex.
+		for (unsigned int i = fromPoly->firstLink; i != DT_NULL_LINK; i = fromHeader->links[i].next)
+		{
+			if (fromHeader->links[i].ref == to)
+			{
+				const int v = fromHeader->links[i].edge;
+				vcopy(left, &fromHeader->verts[fromPoly->verts[v]*3]);
+				vcopy(right, &fromHeader->verts[fromPoly->verts[v]*3]);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	if (toPoly->type == DT_POLYTYPE_OFFMESH_CONNECTION)
+	{
+		for (unsigned int i = toPoly->firstLink; i != DT_NULL_LINK; i = toHeader->links[i].next)
+		{
+			if (toHeader->links[i].ref == from)
+			{
+				const int v = toHeader->links[i].edge;
+				vcopy(left, &toHeader->verts[toPoly->verts[v]*3]);
+				vcopy(right, &toHeader->verts[toPoly->verts[v]*3]);
+				return true;
+			}
+		}
+		return false;
+	}
+		
+	// Find portal vertices.
+	const int v0 = fromPoly->verts[link->edge];
+	const int v1 = fromPoly->verts[(link->edge+1) % (int)fromPoly->vertCount];
+	vcopy(left, &fromHeader->verts[v0*3]);
+	vcopy(right, &fromHeader->verts[v1*3]);
+	
+	// If the link is at tile boundary, clamp the vertices to
+	// the link width.
+	if (link->side == 0 || link->side == 4)
+	{
+		// Unpack portal limits.
+		const float smin = min(left[2],right[2]);
+		const float smax = max(left[2],right[2]);
+		const float s = (smax-smin) / 255.0f;
+		const float lmin = smin + link->bmin*s;
+		const float lmax = smin + link->bmax*s;
+		left[2] = max(left[2],lmin);
+		left[2] = min(left[2],lmax);
+		right[2] = max(right[2],lmin);
+		right[2] = min(right[2],lmax);
+	}
+	else if (link->side == 2 || link->side == 6)
+	{
+		// Unpack portal limits.
+		const float smin = min(left[0],right[0]);
+		const float smax = max(left[0],right[0]);
+		const float s = (smax-smin) / 255.0f;
+		const float lmin = smin + link->bmin*s;
+		const float lmax = smin + link->bmax*s;
+		left[0] = max(left[0],lmin);
+		left[0] = min(left[0],lmax);
+		right[0] = max(right[0],lmin);
+		right[0] = min(right[0],lmax);
+	}
+	
+	return true;
 }
 
 // Returns edge mid point between two polygons.
@@ -1656,6 +1715,32 @@ bool dtNavMesh::getEdgeMidPoint(dtPolyRef from, dtPolyRef to, float* mid) const
 	mid[1] = (left[1]+right[1])*0.5f;
 	mid[2] = (left[2]+right[2])*0.5f;
 	return true;
+}
+
+bool dtNavMesh::getEdgeMidPoint(dtPolyRef from, const dtPoly* fromPoly, const dtMeshHeader* fromHeader,
+								dtPolyRef to, const dtPoly* toPoly, const dtMeshHeader* toHeader,
+								float* mid) const
+{
+	float left[3], right[3];
+	if (!getPortalPoints(from, fromPoly, fromHeader, to, toPoly, toHeader, left, right))
+		return false;
+	mid[0] = (left[0]+right[0])*0.5f;
+	mid[1] = (left[1]+right[1])*0.5f;
+	mid[2] = (left[2]+right[2])*0.5f;
+	return true;
+}
+
+void dtNavMesh::setPolyFlags(dtPolyRef ref, unsigned short flags)
+{
+	unsigned int salt, it, ip;
+	decodePolyId(ref, salt, it, ip);
+	if (it >= (unsigned int)m_maxTiles) return;
+	if (m_tiles[it].salt != salt || m_tiles[it].header == 0) return;
+	if (ip >= (unsigned int)m_tiles[it].header->polyCount) return;
+	dtMeshHeader* header = m_tiles[it].header;
+	dtPoly* poly = &header->polys[ip];
+	// Change flags.
+	poly->flags = flags;
 }
 
 unsigned short dtNavMesh::getPolyFlags(dtPolyRef ref)
@@ -1845,85 +1930,111 @@ int dtNavMesh::findPolysAround(dtPolyRef centerRef, const float* centerPos, floa
 	}
 	
 	const float radiusSqr = sqr(radius);
+
+	unsigned int it, ip;
 	
 	while (!m_openList->empty())
 	{
 		dtNode* bestNode = m_openList->pop();
 
+		float previousEdgeMidPoint[3];
+
 		// Get poly and tile.
 		// The API input has been cheked already, skip checking internal data.
-		unsigned int it = decodePolyIdTile(bestNode->id);
-		unsigned int ip = decodePolyIdPoly(bestNode->id);
-		const dtMeshHeader* header = m_tiles[it].header;
-		const dtPoly* poly = &header->polys[ip];
-		
-		for (unsigned int i = poly->firstLink; i != DT_NULL_LINK; i = header->links[i].next)
+		const dtPolyRef bestRef = bestNode->id;
+		it = decodePolyIdTile(bestRef);
+		ip = decodePolyIdPoly(bestRef);
+		const dtMeshHeader* bestHeader = m_tiles[it].header;
+		const dtPoly* bestPoly = &bestHeader->polys[ip];
+
+		// Get parent poly and tile.
+		dtPolyRef parentRef = 0;
+		const dtMeshHeader* parentHeader = 0;
+		const dtPoly* parentPoly = 0;
+		if (bestNode->pidx)
+			parentRef = m_nodePool->getNodeAtIdx(bestNode->pidx)->id;
+		if (parentRef)
 		{
-			const dtLink* link = &header->links[i];
-			dtPolyRef neighbour = link->ref;
-			if (neighbour)
+			it = decodePolyIdTile(parentRef);
+			ip = decodePolyIdPoly(parentRef);
+			parentHeader = m_tiles[it].header;
+			parentPoly = &parentHeader->polys[ip];
+			
+			getEdgeMidPoint(parentRef, parentPoly, parentHeader,
+							bestRef, bestPoly, bestHeader, previousEdgeMidPoint);
+		}
+		else
+		{
+			vcopy(previousEdgeMidPoint, centerPos);
+		}
+		
+		for (unsigned int i = bestPoly->firstLink; i != DT_NULL_LINK; i = bestHeader->links[i].next)
+		{
+			const dtLink* link = &bestHeader->links[i];
+			dtPolyRef neighbourRef = link->ref;
+			// Skip invalid neighbours and do not follow back to parent.
+			if (!neighbourRef || neighbourRef == parentRef)
+				continue;
+
+			// Calc distance to the edge.
+			const float* va = &bestHeader->verts[bestPoly->verts[link->edge]*3];
+			const float* vb = &bestHeader->verts[bestPoly->verts[(link->edge+1) % bestPoly->vertCount]*3];
+			float tseg;
+			float distSqr = distancePtSegSqr2D(centerPos, va, vb, tseg);
+			
+			// If the circle is not touching the next polygon, skip it.
+			if (distSqr > radiusSqr)
+				continue;
+
+			// Expand to neighbour
+			it = decodePolyIdTile(neighbourRef);
+			ip = decodePolyIdPoly(neighbourRef);
+			const dtMeshHeader* neighbourHeader = m_tiles[it].header;
+			const dtPoly* neighbourPoly = &neighbourHeader->polys[ip];
+			
+			if (!passFilter(filter, neighbourPoly->flags))
+				continue;
+			
+			dtNode newNode;
+			newNode.pidx = m_nodePool->getNodeIdx(bestNode);
+			newNode.id = neighbourRef;
+
+			// Cost
+			float edgeMidPoint[3];
+			getEdgeMidPoint(bestRef, bestPoly, bestHeader,
+							neighbourRef, neighbourPoly, neighbourHeader, edgeMidPoint);
+			
+			newNode.total = bestNode->total + vdist(previousEdgeMidPoint, edgeMidPoint);
+			
+			dtNode* actualNode = m_nodePool->getNode(newNode.id);
+			if (!actualNode)
+				continue;
+			
+			if (!((actualNode->flags & DT_NODE_OPEN) && newNode.total > actualNode->total) &&
+				!((actualNode->flags & DT_NODE_CLOSED) && newNode.total > actualNode->total))
 			{
-				// Skip parent node.
-				if (bestNode->pidx && m_nodePool->getNodeAtIdx(bestNode->pidx)->id == neighbour)
-					continue;
+				actualNode->flags &= ~DT_NODE_CLOSED;
+				actualNode->pidx = newNode.pidx;
+				actualNode->total = newNode.total;
 				
-				// Calc distance to the edge.
-				const float* va = &header->verts[poly->verts[link->edge]*3];
-				const float* vb = &header->verts[poly->verts[(link->edge+1) % poly->vertCount]*3];
-				float tseg;
-				float distSqr = distancePtSegSqr2D(centerPos, va, vb, tseg);
-				
-				// If the circle is not touching the next polygon, skip it.
-				if (distSqr > radiusSqr)
-					continue;
-
-				if (!passFilter(filter, getPolyFlags(neighbour)))
-					continue;
-				
-				dtNode* parent = bestNode;
-				dtNode newNode;
-				newNode.pidx = m_nodePool->getNodeIdx(parent);
-				newNode.id = neighbour;
-
-				// Cost
-				float p0[3], p1[3];
-				if (!parent->pidx)
-					vcopy(p0, centerPos);
-				else
-					getEdgeMidPoint(m_nodePool->getNodeAtIdx(parent->pidx)->id, parent->id, p0);
-				getEdgeMidPoint(parent->id, newNode.id, p1);
-				newNode.total = parent->total + vdist(p0,p1);
-				
-				dtNode* actualNode = m_nodePool->getNode(newNode.id);
-				if (!actualNode)
-					continue;
-				
-				if (!((actualNode->flags & DT_NODE_OPEN) && newNode.total > actualNode->total) &&
-					!((actualNode->flags & DT_NODE_CLOSED) && newNode.total > actualNode->total))
+				if (actualNode->flags & DT_NODE_OPEN)
 				{
-					actualNode->flags &= ~DT_NODE_CLOSED;
-					actualNode->pidx = newNode.pidx;
-					actualNode->total = newNode.total;
-					
-					if (actualNode->flags & DT_NODE_OPEN)
+					m_openList->modify(actualNode);
+				}
+				else
+				{
+					if (n < maxResult)
 					{
-						m_openList->modify(actualNode);
+						if (resultRef)
+							resultRef[n] = actualNode->id;
+						if (resultParent)
+							resultParent[n] = m_nodePool->getNodeAtIdx(actualNode->pidx)->id;
+						if (resultCost)
+							resultCost[n] = actualNode->total;
+						++n;
 					}
-					else
-					{
-						if (n < maxResult)
-						{
-							if (resultRef)
-								resultRef[n] = actualNode->id;
-							if (resultParent)
-								resultParent[n] = m_nodePool->getNodeAtIdx(actualNode->pidx)->id;
-							if (resultCost)
-								resultCost[n] = actualNode->total;
-							++n;
-						}
-						actualNode->flags = DT_NODE_OPEN;
-						m_openList->push(actualNode);
-					}
+					actualNode->flags = DT_NODE_OPEN;
+					m_openList->push(actualNode);
 				}
 			}
 		}
@@ -1952,45 +2063,72 @@ float dtNavMesh::findDistanceToWall(dtPolyRef centerRef, const float* centerPos,
 	
 	float radiusSqr = sqr(maxRadius);
 	
+	unsigned int it, ip;
+	
 	while (!m_openList->empty())
 	{
 		dtNode* bestNode = m_openList->pop();
 		
+		float previousEdgeMidPoint[3];
+		
 		// Get poly and tile.
 		// The API input has been cheked already, skip checking internal data.
-		unsigned int it = decodePolyIdTile(bestNode->id);
-		unsigned int ip = decodePolyIdPoly(bestNode->id);
-		const dtMeshHeader* header = m_tiles[it].header;
-		const dtPoly* poly = &header->polys[ip];
+		const dtPolyRef bestRef = bestNode->id;
+		it = decodePolyIdTile(bestRef);
+		ip = decodePolyIdPoly(bestRef);
+		const dtMeshHeader* bestHeader = m_tiles[it].header;
+		const dtPoly* bestPoly = &bestHeader->polys[ip];
+		
+		// Get parent poly and tile.
+		dtPolyRef parentRef = 0;
+		const dtMeshHeader* parentHeader = 0;
+		const dtPoly* parentPoly = 0;
+		if (bestNode->pidx)
+			parentRef = m_nodePool->getNodeAtIdx(bestNode->pidx)->id;
+		if (parentRef)
+		{
+			it = decodePolyIdTile(parentRef);
+			ip = decodePolyIdPoly(parentRef);
+			parentHeader = m_tiles[it].header;
+			parentPoly = &parentHeader->polys[ip];
+			
+			getEdgeMidPoint(parentRef, parentPoly, parentHeader,
+							bestRef, bestPoly, bestHeader, previousEdgeMidPoint);
+		}
+		else
+		{
+			vcopy(previousEdgeMidPoint, centerPos);
+		}
 		
 		// Hit test walls.
-		for (int i = 0, j = (int)poly->vertCount-1; i < (int)poly->vertCount; j = i++)
+		for (int i = 0, j = (int)bestPoly->vertCount-1; i < (int)bestPoly->vertCount; j = i++)
 		{
 			// Skip non-solid edges.
-			if (poly->neis[j] & DT_EXT_LINK)
+			if (bestPoly->neis[j] & DT_EXT_LINK)
 			{
 				// Tile border.
 				bool solid = true;
-				for (unsigned int k = poly->firstLink; k != DT_NULL_LINK; k = header->links[k].next)
+				for (unsigned int k = bestPoly->firstLink; k != DT_NULL_LINK; k = bestHeader->links[k].next)
 				{
-					const dtLink* link = &header->links[k];
-					if (link->edge == j && link->ref != 0 && passFilter(filter, getPolyFlags(link->ref)))
+					const dtLink* link = &bestHeader->links[k];
+					if (link->edge == j)
 					{
-						solid = false;
+						if (link->ref != 0 && passFilter(filter, getPolyFlags(link->ref)))
+							solid = false;
 						break;
 					}
 				}
 				if (!solid) continue;
 			}
-			else if (poly->neis[j] && passFilter(filter, header->polys[poly->neis[j]].flags))
+			else if (bestPoly->neis[j] && passFilter(filter, bestHeader->polys[bestPoly->neis[j]].flags))
 			{
 				// Internal edge
 				continue;
 			}
 			
 			// Calc distance to the edge.
-			const float* vj = &header->verts[poly->verts[j]*3];
-			const float* vi = &header->verts[poly->verts[i]*3];
+			const float* vj = &bestHeader->verts[bestPoly->verts[j]*3];
+			const float* vi = &bestHeader->verts[bestPoly->verts[i]*3];
 			float tseg;
 			float distSqr = distancePtSegSqr2D(centerPos, vj, vi, tseg);
 			
@@ -2006,62 +2144,63 @@ float dtNavMesh::findDistanceToWall(dtPolyRef centerRef, const float* centerPos,
 			hitPos[2] = vj[2] + (vi[2] - vj[2])*tseg;
 		}
 		
-		for (unsigned int i = poly->firstLink; i != DT_NULL_LINK; i = header->links[i].next)
+		for (unsigned int i = bestPoly->firstLink; i != DT_NULL_LINK; i = bestHeader->links[i].next)
 		{
-			const dtLink* link = &header->links[i];
-			dtPolyRef neighbour = link->ref;
-			if (neighbour)
-			{
-				// Skip parent node.
-				if (bestNode->pidx && m_nodePool->getNodeAtIdx(bestNode->pidx)->id == neighbour)
-					continue;
-				
-				// Calc distance to the edge.
-				const float* va = &header->verts[poly->verts[link->edge]*3];
-				const float* vb = &header->verts[poly->verts[(link->edge+1) % poly->vertCount]*3];
-				float tseg;
-				float distSqr = distancePtSegSqr2D(centerPos, va, vb, tseg);
-				
-				// If the circle is not touching the next polygon, skip it.
-				if (distSqr > radiusSqr)
-					continue;
-				
-				if (!passFilter(filter, getPolyFlags(neighbour)))
-					continue;
-				
-				dtNode* parent = bestNode;
-				dtNode newNode;
-				newNode.pidx = m_nodePool->getNodeIdx(parent);
-				newNode.id = neighbour;
+			const dtLink* link = &bestHeader->links[i];
+			dtPolyRef neighbourRef = link->ref;
+			// Skip invalid neighbours and do not follow back to parent.
+			if (!neighbourRef || neighbourRef == parentRef)
+				continue;
+			
+			// Calc distance to the edge.
+			const float* va = &bestHeader->verts[bestPoly->verts[link->edge]*3];
+			const float* vb = &bestHeader->verts[bestPoly->verts[(link->edge+1) % bestPoly->vertCount]*3];
+			float tseg;
+			float distSqr = distancePtSegSqr2D(centerPos, va, vb, tseg);
+			
+			// If the circle is not touching the next polygon, skip it.
+			if (distSqr > radiusSqr)
+				continue;
+			
+			// Expand to neighbour.
+			it = decodePolyIdTile(neighbourRef);
+			ip = decodePolyIdPoly(neighbourRef);
+			const dtMeshHeader* neighbourHeader = m_tiles[it].header;
+			const dtPoly* neighbourPoly = &neighbourHeader->polys[ip];
+			
+			if (!passFilter(filter, neighbourPoly->flags))
+				continue;
+			
+			dtNode newNode;
+			newNode.pidx = m_nodePool->getNodeIdx(bestNode);
+			newNode.id = neighbourRef;
+			
+			// Cost
+			float edgeMidPoint[3];
+			getEdgeMidPoint(bestRef, bestPoly, bestHeader,
+							neighbourRef, neighbourPoly, neighbourHeader, edgeMidPoint);
 
-				float p0[3], p1[3];
-				if (!parent->pidx)
-					vcopy(p0, centerPos);
-				else
-					getEdgeMidPoint(m_nodePool->getNodeAtIdx(parent->pidx)->id, parent->id, p0);
-				getEdgeMidPoint(parent->id, newNode.id, p1);
-				newNode.total = parent->total + vdist(p0,p1);
+			newNode.total = bestNode->total + vdist(previousEdgeMidPoint, edgeMidPoint);
+			
+			dtNode* actualNode = m_nodePool->getNode(newNode.id);
+			if (!actualNode)
+				continue;
+			
+			if (!((actualNode->flags & DT_NODE_OPEN) && newNode.total > actualNode->total) &&
+				!((actualNode->flags & DT_NODE_CLOSED) && newNode.total > actualNode->total))
+			{
+				actualNode->flags &= ~DT_NODE_CLOSED;
+				actualNode->pidx = newNode.pidx;
+				actualNode->total = newNode.total;
 				
-				dtNode* actualNode = m_nodePool->getNode(newNode.id);
-				if (!actualNode)
-					continue;
-				
-				if (!((actualNode->flags & DT_NODE_OPEN) && newNode.total > actualNode->total) &&
-					!((actualNode->flags & DT_NODE_CLOSED) && newNode.total > actualNode->total))
+				if (actualNode->flags & DT_NODE_OPEN)
 				{
-					actualNode->flags &= ~DT_NODE_CLOSED;
-					actualNode->pidx = newNode.pidx;
-					actualNode->total = newNode.total;
-					
-					if (actualNode->flags & DT_NODE_OPEN)
-					{
-						m_openList->modify(actualNode);
-					}
-					else
-					{
-						actualNode->flags = DT_NODE_OPEN;
-						m_openList->push(actualNode);
-					}
+					m_openList->modify(actualNode);
+				}
+				else
+				{
+					actualNode->flags = DT_NODE_OPEN;
+					m_openList->push(actualNode);
 				}
 			}
 		}

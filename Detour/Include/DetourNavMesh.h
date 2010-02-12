@@ -379,6 +379,15 @@ public:
 	//  area - (in) area ID (0-63).
 	float getAreaCost(const int area) const;
 		
+	// Sets polygon flags.
+	void setPolyFlags(dtPolyRef ref, unsigned short flags);
+
+	// Return polygon flags.
+	unsigned short getPolyFlags(dtPolyRef ref);
+
+	// Return polygon type.
+	unsigned char getPolyType(dtPolyRef ref);
+	
 	// Returns pointer to a polygon based on ref.
 	const dtPoly* getPolyByRef(dtPolyRef ref) const;
 
@@ -447,20 +456,20 @@ private:
 									dtQueryFilter* filter, float* nearestPt);
 	// Returns closest point on polygon.
 	bool closestPointOnPolyInTile(const dtMeshTile* tile, unsigned int ip, const float* pos, float* closest) const;
-
-	unsigned short getPolyFlags(dtPolyRef ref);
-	unsigned char getPolyType(dtPolyRef ref);
-	float getCost(dtPolyRef prev, dtPolyRef from, dtPolyRef to) const;
-	float getFirstCost(const float* pos, dtPolyRef from, dtPolyRef to) const;
-	float getLastCost(dtPolyRef from, dtPolyRef to, const float* pos) const;
-	float getHeuristic(const float* from, const float* to) const;
 	
 	// Returns portal points between two polygons.
 	bool getPortalPoints(dtPolyRef from, dtPolyRef to, float* left, float* right,
 						 unsigned char& fromType, unsigned char& toType) const;
+	bool getPortalPoints(dtPolyRef from, const dtPoly* fromPoly, const dtMeshHeader* fromHeader,
+						 dtPolyRef to, const dtPoly* toPoly, const dtMeshHeader* toHeader,
+						 float* left, float* right) const;
+
 	// Returns edge mid point between two polygons.
 	bool getEdgeMidPoint(dtPolyRef from, dtPolyRef to, float* mid) const;
-
+	bool getEdgeMidPoint(dtPolyRef from, const dtPoly* fromPoly, const dtMeshHeader* fromHeader,
+						 dtPolyRef to, const dtPoly* toPoly, const dtMeshHeader* toHeader,
+						 float* mid) const;
+	
 	float m_orig[3];					// Origin of the tile (0,0)
 	float m_tileWidth, m_tileHeight;	// Dimensions of each tile.
 	int m_maxTiles;						// Max number of tiles.

@@ -36,11 +36,13 @@
 #endif
 
 // Quick and dirty convex hull.
+
+// Returns true if 'c' is left of line 'a'-'b'.
 inline bool left(const float* a, const float* b, const float* c)
 {
 	return (b[0] - a[0]) * (c[2] - a[2]) - (c[0] - a[0]) * (b[2] - a[2]) < 0;
 }
-
+// Returns true if 'a' is more lower-left than 'b'.
 inline bool cmppt(const float* a, const float* b)
 {
 	if (a[0] < b[0]) return true;
@@ -49,15 +51,17 @@ inline bool cmppt(const float* a, const float* b)
 	if (a[2] > b[2]) return false;
 	return false;
 }
-
+// Calculates convex hull on xz-plane of points on 'pts',
+// stores the indices of the resulting hull in 'out' and
+// returns number of points on hull.
 static int convexhull(const float* pts, int npts, int* out)
 {
-	// Find leftmost point.
+	// Find lower-leftmost point.
 	int hull = 0;
 	for (int i = 1; i < npts; ++i)
 		if (cmppt(&pts[i*3], &pts[hull*3]))
 			hull = i;
-	// Gif wrap hull.
+	// Gift wrap hull.
 	int endpt = 0;
 	int i = 0;
 	do
@@ -224,7 +228,6 @@ void ConvexVolumeTool::handleClick(const float* p, bool shift)
 void ConvexVolumeTool::handleRender()
 {
 	DebugDrawGL dd;
-	const float s = m_sample->getAgentRadius();
 	
 	// Find height extents of the shape.
 	float minh = FLT_MAX, maxh = 0;
