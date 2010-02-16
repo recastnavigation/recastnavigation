@@ -1121,7 +1121,7 @@ int dtNavMesh::findPath(dtPolyRef startRef, dtPolyRef endRef,
 	m_nodePool->clear();
 	m_openList->clear();
 	
-	static const float H_SCALE = 1.1f;	// Heuristic scale.
+	static const float H_SCALE = 0.999f;	// Heuristic scale.
 	
 	dtNode* startNode = m_nodePool->getNode(startRef);
 	startNode->pidx = 0;
@@ -1139,7 +1139,11 @@ int dtNavMesh::findPath(dtPolyRef startRef, dtPolyRef endRef,
 	while (!m_openList->empty())
 	{
 		dtNode* bestNode = m_openList->pop();
-		
+		// Remove node from open list and put it in closed list.
+		bestNode->flags &= ~DT_NODE_OPEN;
+		bestNode->flags |= DT_NODE_CLOSED;
+
+		// Reached the goal, stop searching.
 		if (bestNode->id == endRef)
 		{
 			lastBestNode = bestNode;
@@ -1180,8 +1184,9 @@ int dtNavMesh::findPath(dtPolyRef startRef, dtPolyRef endRef,
 		for (unsigned int i = bestPoly->firstLink; i != DT_NULL_LINK; i = bestHeader->links[i].next)
 		{
 			dtPolyRef neighbourRef = bestHeader->links[i].ref;
-			// Skip invalid ids and do not expand back to parent node.
-			if (!neighbourRef || parentRef == neighbourRef)
+			
+			// Skip invalid ids and do not expand back to where we came from.
+			if (!neighbourRef || neighbourRef == bestRef)
 				continue;
 
 			// Get neighbour poly and tile.
@@ -1228,34 +1233,39 @@ int dtNavMesh::findPath(dtPolyRef startRef, dtPolyRef endRef,
 			dtNode* actualNode = m_nodePool->getNode(newNode.id);
 			if (!actualNode)
 				continue;
-			
-			if (!((actualNode->flags & DT_NODE_OPEN) && newNode.total > actualNode->total) &&
-				!((actualNode->flags & DT_NODE_CLOSED) && newNode.total > actualNode->total))
+
+			// The node is already in open list and the new result is worse, skip.
+			if ((actualNode->flags & DT_NODE_OPEN) && newNode.total >= actualNode->total)
+				continue;
+			// The node is already visited and process, and the new result is worse, skip.
+			if ((actualNode->flags & DT_NODE_CLOSED) && newNode.total >= actualNode->total)
+				continue;
+
+			// Add or update the node.
+			actualNode->flags &= ~DT_NODE_CLOSED;
+			actualNode->pidx = newNode.pidx;
+			actualNode->cost = newNode.cost;
+			actualNode->total = newNode.total;
+
+			// Update nearest node to target so far.
+			if (h < lastBestNodeCost)
 			{
-				actualNode->flags &= ~DT_NODE_CLOSED;
-				actualNode->pidx = newNode.pidx;
-				actualNode->cost = newNode.cost;
-				actualNode->total = newNode.total;
+				lastBestNodeCost = h;
+				lastBestNode = actualNode;
+			}
 				
-				if (h < lastBestNodeCost)
-				{
-					lastBestNodeCost = h;
-					lastBestNode = actualNode;
-				}
-				
-				if (actualNode->flags & DT_NODE_OPEN)
-				{
-					m_openList->modify(actualNode);
-				}
-				else
-				{
-					actualNode->flags |= DT_NODE_OPEN;
-					m_openList->push(actualNode);
-				}
+			if (actualNode->flags & DT_NODE_OPEN)
+			{
+				// Already in open, update node location.
+				m_openList->modify(actualNode);
+			}
+			else
+			{
+				// Put the node in open list.
+				actualNode->flags |= DT_NODE_OPEN;
+				m_openList->push(actualNode);
 			}
 		}
-
-		bestNode->flags |= DT_NODE_CLOSED;
 	}
 	
 	// Reverse the path.
