@@ -147,7 +147,7 @@ public:
 	virtual void begin(duDebugDrawPrimitives prim, float size = 1.0f);
 	virtual void vertex(const float x, const float y, const float z, unsigned int color);
 	virtual void vertex(const float* pos, unsigned int color);
-	virtual void end() {}
+	virtual void end();
 	void clear();
 	void draw(struct duDebugDraw* dd);
 };

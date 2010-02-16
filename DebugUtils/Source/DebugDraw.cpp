@@ -460,6 +460,10 @@ void duDisplayList::vertex(const float* pos, unsigned int color)
 	vertex(pos[0],pos[1],pos[2],color);
 }
 
+void duDisplayList::end()
+{
+}
+
 void duDisplayList::draw(struct duDebugDraw* dd)
 {
 	if (!m_size)
