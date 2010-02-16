@@ -18,6 +18,7 @@
 
 #define _USE_MATH_DEFINES
 #include <math.h>
+#include <string.h>
 #include "DebugDraw.h"
 
 inline int bit(int a, int b)
@@ -388,4 +389,84 @@ void duAppendCross(struct duDebugDraw* dd, const float x, const float y, const f
 	dd->vertex(x,y,z+s, col);
 }
 
+duDisplayList::duDisplayList(int cap) :
+	m_pos(0),
+	m_color(0),
+	m_size(0),
+	m_cap(0),
+	m_depthMask(true),
+	m_prim(DU_DRAW_LINES),
+	m_primSize(1.0f)
+{
+	if (cap < 8)
+		cap = 8;
+	resize(cap);
+}
 
+duDisplayList::~duDisplayList()
+{
+	delete [] m_pos;
+	delete [] m_color;
+}
+
+void duDisplayList::resize(int cap)
+{
+	float* newPos = new float[cap*3];
+	if (m_size)
+		memcpy(newPos, m_pos, sizeof(float)*3*m_size);
+	delete [] m_pos;
+	m_pos = newPos;
+
+	unsigned int* newColor = new unsigned int[cap];
+	if (m_size)
+		memcpy(newColor, m_color, sizeof(unsigned int)*m_size);
+	delete [] m_color;
+	m_color = newColor;
+	
+	m_cap = cap;
+}
+
+void duDisplayList::clear()
+{
+	m_size = 0;
+}
+
+void duDisplayList::depthMask(bool state)
+{
+	m_depthMask = state;
+}
+
+void duDisplayList::begin(duDebugDrawPrimitives prim, float size)
+{
+	clear();
+	m_prim = prim;
+	m_primSize = size;
+}
+
+void duDisplayList::vertex(const float x, const float y, const float z, unsigned int color)
+{
+	if (m_size+1 >= m_cap)
+		resize(m_cap*2);
+	float* p = &m_pos[m_size*3];
+	p[0] = x;
+	p[1] = y;
+	p[2] = z;
+	m_color[m_size] = color;
+	m_size++;
+}
+
+void duDisplayList::vertex(const float* pos, unsigned int color)
+{
+	vertex(pos[0],pos[1],pos[2],color);
+}
+
+void duDisplayList::draw(struct duDebugDraw* dd)
+{
+	if (!m_size)
+		return;
+	dd->depthMask(m_depthMask);
+	dd->begin(m_prim, m_primSize);
+	for (int i = 0; i < m_size; ++i)
+		dd->vertex(&m_pos[i*3], m_color[i]);
+	dd->end();
+}

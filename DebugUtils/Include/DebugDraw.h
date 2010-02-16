@@ -127,5 +127,30 @@ void duAppendBox(struct duDebugDraw* dd, float minx, float miny, float minz,
 				 float maxx, float maxy, float maxz, const unsigned int* fcol);
 
 
+class duDisplayList : public duDebugDraw
+{
+	float* m_pos;
+	unsigned int* m_color;
+	int m_size;
+	int m_cap;
+
+	bool m_depthMask;
+	duDebugDrawPrimitives m_prim;
+	float m_primSize;
+	
+	void resize(int cap);
+	
+public:
+	duDisplayList(int cap = 512);
+	~duDisplayList();
+	virtual void depthMask(bool state);
+	virtual void begin(duDebugDrawPrimitives prim, float size = 1.0f);
+	virtual void vertex(const float x, const float y, const float z, unsigned int color);
+	virtual void vertex(const float* pos, unsigned int color);
+	virtual void end() {}
+	void clear();
+	void draw(struct duDebugDraw* dd);
+};
+
 
 #endif // DEBUGDRAW_H
