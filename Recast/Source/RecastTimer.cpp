@@ -30,7 +30,7 @@ int rcGetDeltaTimeUsec(rcTimeVal start, rcTimeVal end)
 rcTimeVal rcGetPerformanceTimer()
 {
 	timeval now;
-	gettimeofday(&now, NULL);
+	gettimeofday(&now, 0);
 	return (rcTimeVal)now.tv_sec*1000000L + (rcTimeVal)now.tv_usec;
 }
 
