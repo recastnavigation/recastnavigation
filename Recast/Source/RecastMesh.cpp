@@ -1075,6 +1075,7 @@ bool rcBuildPolyMesh(rcContourSet& cset, int nvp, rcPolyMesh& mesh)
 			rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'mesh.flags' (%d).", mesh.npolys);
 		return false;
 	}
+	memset(mesh.flags, 0, sizeof(unsigned short) * mesh.npolys);
 	
 	rcTimeVal endTime = rcGetPerformanceTimer();
 	

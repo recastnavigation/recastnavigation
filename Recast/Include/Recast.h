@@ -448,7 +448,7 @@ void rcRasterizeTriangle(const float* v0, const float* v1, const float* v2,
 						 unsigned char flags, rcHeightfield& solid,
 						 const int flagMergeThr = 1);
 
-// Rasterizes the triangles into heightfield spans.
+// Rasterizes indexed triangle mesh into heightfield spans.
 // Params:
 //	verts - (in) array of vertices
 //	nv - (in) vertex count
@@ -461,7 +461,7 @@ void rcRasterizeTriangles(const float* verts, int nv,
 						  const int* tris, const unsigned char* flags, int nt,
 						  rcHeightfield& solid, const int flagMergeThr = 1);
 
-// Rasterizes the triangles into heightfield spans.
+// Rasterizes indexed triangle mesh into heightfield spans.
 // Params:
 //	verts - (in) array of vertices
 //	nv - (in) vertex count
@@ -481,7 +481,7 @@ void rcRasterizeTriangles(const float* verts, int nv,
 //	nt - (in) triangle count
 //	solid - (in) heighfield where the triangles are rasterized
 void rcRasterizeTriangles(const float* verts, const unsigned char* flags, int nt,
-						  rcHeightfield& solid);
+						  rcHeightfield& solid, const int flagMergeThr = 1);
 
 // Marks non-walkable low obstacles as walkable if they are closer than walkableClimb
 // from a walkable surface. Applying this filter allows to step over low hanging
