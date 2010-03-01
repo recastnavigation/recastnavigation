@@ -37,6 +37,7 @@
 #include "Sample_SoloMeshSimple.h"
 #include "Sample_SoloMeshTiled.h"
 #include "Sample_TileMesh.h"
+#include "Sample_Debug.h"
 
 #ifdef WIN32
 #	define snprintf _snprintf
@@ -132,14 +133,17 @@ struct SampleItem
 Sample* createSoloSimple() { return new Sample_SoloMeshSimple(); }
 Sample* createSoloTiled() { return new Sample_SoloMeshTiled(); }
 Sample* createTile() { return new Sample_TileMesh(); }
+Sample* createDebug() { return new Sample_Debug(); }
 
 static SampleItem g_samples[] =
 {
 	{ createSoloSimple, "Solo Mesh Simple" },
 	{ createSoloTiled, "Solo Mesh Tiled" },
 	{ createTile, "Tile Mesh" },
+	{ createDebug, "Debug" },
 };
 static const int g_nsamples = sizeof(g_samples)/sizeof(SampleItem); 
+
 
 int main(int argc, char *argv[])
 {
@@ -184,7 +188,7 @@ int main(int argc, char *argv[])
 	float rx = 45;
 	float ry = -45;
 	float moveW = 0, moveS = 0, moveA = 0, moveD = 0;
-	float camx = 0, camy = 0, camz = 0, camr=10;
+	float camx = 0, camy = 0, camz = 0, camr = 1000;
 	float origrx = 0, origry = 0;
 	int origx = 0, origy = 0;
 	bool rotate = false;
@@ -224,8 +228,8 @@ int main(int argc, char *argv[])
 	float fogCol[4] = { 0.32f,0.25f,0.25f,1 };
 	glEnable(GL_FOG);
 	glFogi(GL_FOG_MODE, GL_LINEAR);
-	glFogf(GL_FOG_START, 0);
-	glFogf(GL_FOG_END, 10);
+	glFogf(GL_FOG_START, camr*0.2f);
+	glFogf(GL_FOG_END, camr*1.25f);
 	glFogfv(GL_FOG_COLOR, fogCol);
 	
 	glDepthFunc(GL_LEQUAL);
@@ -286,18 +290,31 @@ int main(int argc, char *argv[])
 							sample->handleMeshChanged(geom);
 						}
 							
-						if (geom)
+						if (geom || sample)
 						{
-							const float* bmin = geom->getMeshBoundsMin();
-							const float* bmax = geom->getMeshBoundsMax();
+							const float* bmin = 0;
+							const float* bmax = 0;
+							if (sample)
+							{
+								bmin = sample->getBoundsMin();
+								bmax = sample->getBoundsMax();
+							}
+							else
+							{
+								bmin = geom->getMeshBoundsMin();
+								bmax = geom->getMeshBoundsMax();
+							}
 							// Reset camera and fog to match the mesh bounds.
-							camr = sqrtf(rcSqr(bmax[0]-bmin[0]) +
-										 rcSqr(bmax[1]-bmin[1]) +
-										 rcSqr(bmax[2]-bmin[2])) / 2;
-							camx = (bmax[0] + bmin[0]) / 2 + camr;
-							camy = (bmax[1] + bmin[1]) / 2 + camr;
-							camz = (bmax[2] + bmin[2]) / 2 + camr;
-							camr *= 3;
+							if (bmin && bmax)
+							{
+								camr = sqrtf(rcSqr(bmax[0]-bmin[0]) +
+											 rcSqr(bmax[1]-bmin[1]) +
+											 rcSqr(bmax[2]-bmin[2])) / 2;
+								camx = (bmax[0] + bmin[0]) / 2 + camr;
+								camy = (bmax[1] + bmin[1]) / 2 + camr;
+								camz = (bmax[2] + bmin[2]) / 2 + camr;
+								camr *= 3;
+							}
 							rx = 45;
 							ry = -45;
 							glFogf(GL_FOG_START, camr*0.2f);
@@ -464,6 +481,7 @@ int main(int argc, char *argv[])
 		if (test)
 			test->handleRender();
 
+
 		glDisable(GL_FOG);
 		
 		// Render GUI
@@ -526,34 +544,31 @@ int main(int argc, char *argv[])
 				}
 			}
 			
-			if (sample)
+			imguiSeparator();
+			imguiLabel("Input Mesh");
+			if (imguiButton(meshName))
 			{
-				imguiSeparator();
-				imguiLabel("Input Mesh");
-				if (imguiButton(meshName))
+				if (showLevels)
 				{
-					if (showLevels)
-					{
-						showLevels = false;
-					}
-					else
-					{
-						showSample = false;
-						showTestCases = false;
-						showLevels = true;
-						scanDirectory("Meshes", ".obj", files);
-					}
+					showLevels = false;
 				}
-				if (geom)
+				else
 				{
-					char text[64];
-					snprintf(text, 64, "Verts: %.1fk  Tris: %.1fk",
-							 geom->getMesh()->getVertCount()/1000.0f,
-							 geom->getMesh()->getTriCount()/1000.0f);
-					imguiValue(text);
+					showSample = false;
+					showTestCases = false;
+					showLevels = true;
+					scanDirectory("Meshes", ".obj", files);
 				}
-				imguiSeparator();
 			}
+			if (geom)
+			{
+				char text[64];
+				snprintf(text, 64, "Verts: %.1fk  Tris: %.1fk",
+						 geom->getMesh()->getVertCount()/1000.0f,
+						 geom->getMesh()->getTriCount()/1000.0f);
+				imguiValue(text);
+			}
+			imguiSeparator();
 					
 			if (geom && sample)
 			{
@@ -670,18 +685,31 @@ int main(int argc, char *argv[])
 					sample->handleMeshChanged(geom);
 				}
 
-				if (geom)
+				if (geom || sample)
 				{
-					const float* bmin = geom->getMeshBoundsMin();
-					const float* bmax = geom->getMeshBoundsMax();
+					const float* bmin = 0;
+					const float* bmax = 0;
+					if (sample)
+					{
+						bmin = sample->getBoundsMin();
+						bmax = sample->getBoundsMax();
+					}
+					else
+					{
+						bmin = geom->getMeshBoundsMin();
+						bmax = geom->getMeshBoundsMax();
+					}
 					// Reset camera and fog to match the mesh bounds.
-					camr = sqrtf(rcSqr(bmax[0]-bmin[0]) +
-								 rcSqr(bmax[1]-bmin[1]) +
-								 rcSqr(bmax[2]-bmin[2])) / 2;
-					camx = (bmax[0] + bmin[0]) / 2 + camr;
-					camy = (bmax[1] + bmin[1]) / 2 + camr;
-					camz = (bmax[2] + bmin[2]) / 2 + camr;
-					camr *= 3;
+					if (bmin && bmax)
+					{
+						camr = sqrtf(rcSqr(bmax[0]-bmin[0]) +
+									 rcSqr(bmax[1]-bmin[1]) +
+									 rcSqr(bmax[2]-bmin[2])) / 2;
+						camx = (bmax[0] + bmin[0]) / 2 + camr;
+						camy = (bmax[1] + bmin[1]) / 2 + camr;
+						camz = (bmax[2] + bmin[2]) / 2 + camr;
+						camr *= 3;
+					}
 					rx = 45;
 					ry = -45;
 					glFogf(GL_FOG_START, camr*0.2f);
@@ -774,24 +802,37 @@ int main(int argc, char *argv[])
 							printf("%s\n", log.getMessageText(i));
 					}
 					
-					if (geom)
+					if (geom || sample)
 					{
-						const float* bmin = geom->getMeshBoundsMin();
-						const float* bmax = geom->getMeshBoundsMax();
+						const float* bmin = 0;
+						const float* bmax = 0;
+						if (sample)
+						{
+							bmin = sample->getBoundsMin();
+							bmax = sample->getBoundsMax();
+						}
+						else
+						{
+							bmin = geom->getMeshBoundsMin();
+							bmax = geom->getMeshBoundsMax();
+						}
 						// Reset camera and fog to match the mesh bounds.
-						camr = sqrtf(rcSqr(bmax[0]-bmin[0]) +
-									 rcSqr(bmax[1]-bmin[1]) +
-									 rcSqr(bmax[2]-bmin[2])) / 2;
-						camx = (bmax[0] + bmin[0]) / 2 + camr;
-						camy = (bmax[1] + bmin[1]) / 2 + camr;
-						camz = (bmax[2] + bmin[2]) / 2 + camr;
-						camr *= 3;
+						if (bmin && bmax)
+						{
+							camr = sqrtf(rcSqr(bmax[0]-bmin[0]) +
+										 rcSqr(bmax[1]-bmin[1]) +
+										 rcSqr(bmax[2]-bmin[2])) / 2;
+							camx = (bmax[0] + bmin[0]) / 2 + camr;
+							camy = (bmax[1] + bmin[1]) / 2 + camr;
+							camz = (bmax[2] + bmin[2]) / 2 + camr;
+							camr *= 3;
+						}
 						rx = 45;
 						ry = -45;
 						glFogf(GL_FOG_START, camr*0.2f);
 						glFogf(GL_FOG_END, camr*1.25f);
 					}
-
+					
 					// Do the tests.
 					if (sample)
 						test->doTests(sample->getNavMesh());

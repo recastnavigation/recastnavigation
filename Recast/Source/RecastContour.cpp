@@ -265,7 +265,7 @@ static void simplifyContour(rcIntArray& points, rcIntArray& simplified, float ma
 				llz = z;
 				lli = i/4;
 			}
-			if (x >= urx || (x == urx && z > urz))
+			if (x > urx || (x == urx && z > urz))
 			{
 				urx = x;
 				ury = y;

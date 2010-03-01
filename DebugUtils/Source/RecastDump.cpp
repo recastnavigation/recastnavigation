@@ -104,3 +104,168 @@ bool duDumpPolyMeshDetailToObj(rcPolyMeshDetail& dmesh, const char* filepath)
 	
 	return true;
 }
+
+
+static const int CHF_MAGIC = ('r' << 24) | ('c' << 16) | ('h' << 8) | 'f';
+static const int CHF_VERSION = 1;
+
+bool duDumpCompactHeightfield(struct rcCompactHeightfield& chf, const char* filepath)
+{
+	FILE* fp = fopen(filepath, "wb");
+	if (!fp)
+	{
+		printf("duDumpCompactHeightfield: Could not open '%s' for writing.\n", filepath);
+		return false;
+	}
+
+	fwrite(&CHF_MAGIC, sizeof(CHF_MAGIC), 1, fp);
+	fwrite(&CHF_VERSION, sizeof(CHF_VERSION), 1, fp);
+	
+	fwrite(&chf.width, sizeof(chf.width), 1, fp);
+	fwrite(&chf.height, sizeof(chf.height), 1, fp);
+	fwrite(&chf.spanCount, sizeof(chf.spanCount), 1, fp);
+
+	fwrite(&chf.walkableHeight, sizeof(chf.walkableHeight), 1, fp);
+	fwrite(&chf.walkableClimb, sizeof(chf.walkableClimb), 1, fp);
+
+	fwrite(&chf.maxDistance, sizeof(chf.maxDistance), 1, fp);
+	fwrite(&chf.maxRegions, sizeof(chf.maxRegions), 1, fp);
+
+	fwrite(chf.bmin, sizeof(chf.bmin), 1, fp);
+	fwrite(chf.bmax, sizeof(chf.bmax), 1, fp);
+
+	fwrite(&chf.cs, sizeof(chf.cs), 1, fp);
+	fwrite(&chf.ch, sizeof(chf.ch), 1, fp);
+
+	int tmp;
+	if (chf.cells) tmp |= 1;
+	if (chf.spans) tmp |= 2;
+	if (chf.dist) tmp |= 4;
+	if (chf.regs) tmp |= 8;
+	if (chf.areas) tmp |= 16;
+
+	fwrite(&tmp, sizeof(tmp), 1, fp);
+
+	if (chf.cells)
+		fwrite(chf.cells, sizeof(rcCompactCell)*chf.width*chf.height, 1, fp);
+	if (chf.spans)
+		fwrite(chf.spans, sizeof(rcCompactSpan)*chf.spanCount, 1, fp);
+	if (chf.dist)
+		fwrite(chf.dist, sizeof(unsigned short)*chf.spanCount, 1, fp);
+	if (chf.regs)
+		fwrite(chf.regs, sizeof(unsigned short)*chf.spanCount, 1, fp);
+	if (chf.areas)
+		fwrite(chf.areas, sizeof(unsigned char)*chf.spanCount, 1, fp);
+
+	fclose(fp);
+
+	return true;
+}
+
+bool duReadCompactHeightfield(struct rcCompactHeightfield& chf, const char* filepath)
+{
+	FILE* fp = fopen(filepath, "rb");
+	if (!fp)
+	{
+		printf("duReadCompactHeightfield: Could not open '%s' for reading.\n", filepath);
+		return false;
+	}
+	int magic = 0;
+	int version = 0;
+	
+	fread(&magic, sizeof(magic), 1, fp);
+	fread(&version, sizeof(version), 1, fp);
+	
+	if (magic != CHF_MAGIC)
+	{
+		printf("duReadCompactHeightfield: Bad voodoo.\n");
+		fclose(fp);
+		return false;
+	}
+	if (version != CHF_VERSION)
+	{
+		printf("duReadCompactHeightfield: Bad version.\n");
+		fclose(fp);
+		return false;
+	}
+	
+	fread(&chf.width, sizeof(chf.width), 1, fp);
+	fread(&chf.height, sizeof(chf.height), 1, fp);
+	fread(&chf.spanCount, sizeof(chf.spanCount), 1, fp);
+	
+	fread(&chf.walkableHeight, sizeof(chf.walkableHeight), 1, fp);
+	fread(&chf.walkableClimb, sizeof(chf.walkableClimb), 1, fp);
+	
+	fread(&chf.maxDistance, sizeof(chf.maxDistance), 1, fp);
+	fread(&chf.maxRegions, sizeof(chf.maxRegions), 1, fp);
+	
+	fread(chf.bmin, sizeof(chf.bmin), 1, fp);
+	fread(chf.bmax, sizeof(chf.bmax), 1, fp);
+	
+	fread(&chf.cs, sizeof(chf.cs), 1, fp);
+	fread(&chf.ch, sizeof(chf.ch), 1, fp);
+	
+	int tmp = 0;
+	fread(&tmp, sizeof(tmp), 1, fp);
+	
+	if (tmp & 1)
+	{
+		chf.cells = new rcCompactCell[chf.width*chf.height];
+		if (!chf.cells)
+		{
+			printf("duReadCompactHeightfield: Could not alloc cells (%d)\n", chf.width*chf.height);
+			fclose(fp);
+			return false;
+		}
+		fread(chf.cells, sizeof(rcCompactCell)*chf.width*chf.height, 1, fp);
+	}
+	if (tmp & 2)
+	{
+		chf.spans = new rcCompactSpan[chf.spanCount];
+		if (!chf.spans)
+		{
+			printf("duReadCompactHeightfield: Could not alloc spans (%d)\n", chf.spanCount);
+			fclose(fp);
+			return false;
+		}
+		fread(chf.spans, sizeof(rcCompactSpan)*chf.spanCount, 1, fp);
+	}
+	if (tmp & 4)
+	{
+		chf.dist = new unsigned short[chf.spanCount];
+		if (!chf.dist)
+		{
+			printf("duReadCompactHeightfield: Could not alloc dist (%d)\n", chf.spanCount);
+			fclose(fp);
+			return false;
+		}
+		fread(chf.dist, sizeof(unsigned short)*chf.spanCount, 1, fp);
+	}
+	if (tmp & 8)
+	{
+		chf.regs = new unsigned short[chf.spanCount];
+		if (!chf.regs)
+		{
+			printf("duReadCompactHeightfield: Could not alloc regs (%d)\n", chf.spanCount);
+			fclose(fp);
+			return false;
+		}
+		fread(chf.regs, sizeof(unsigned short)*chf.spanCount, 1, fp);
+	}
+	if (tmp & 16)
+	{
+		chf.areas = new unsigned char[chf.spanCount];
+		if (!chf.areas)
+		{
+			printf("duReadCompactHeightfield: Could not alloc areas (%d)\n", chf.spanCount);
+			fclose(fp);
+			return false;
+		}
+		fread(chf.areas, sizeof(unsigned char)*chf.spanCount, 1, fp);
+	}
+	
+	fclose(fp);
+	
+	return true;
+}
+

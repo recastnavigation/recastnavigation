@@ -123,6 +123,8 @@ public:
 	virtual float getAgentRadius() { return m_agentRadius; }
 	virtual float getAgentHeight() { return m_agentHeight; }
 	virtual float getAgentClimb() { return m_agentMaxClimb; }
+	virtual const float* getBoundsMin();
+	virtual const float* getBoundsMax();
 	
 	inline unsigned char getNavMeshDrawFlags() const { return m_navMeshDrawFlags; }
 	inline void setNavMeshDrawFlags(unsigned char flags) { m_navMeshDrawFlags = flags; }

@@ -139,6 +139,18 @@ void Sample::handleMeshChanged(InputGeom* geom)
 	m_geom = geom;
 }
 
+const float* Sample::getBoundsMin()
+{
+	if (!m_geom) return 0;
+	return m_geom->getMeshBoundsMin();
+}
+
+const float* Sample::getBoundsMax()
+{
+	if (!m_geom) return 0;
+	return m_geom->getMeshBoundsMax();
+}
+
 void Sample::resetCommonSettings()
 {
 	m_cellSize = 0.3f;
@@ -215,11 +227,3 @@ bool Sample::handleBuild()
 {
 	return true;
 }
-
-/*
-void Sample::handleNavMeshChanged()
-{
-	if (m_geom)
-		m_geom->updateOffMeshConnectionVisibility(m_navMesh);
-}
-*/

@@ -16,13 +16,37 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#ifndef RECAST_DUMP_H
-#define RECAST_DUMP_H
+#ifndef RECASTSAMPLEDEBUG_H
+#define RECASTSAMPLEDEBUG_H
 
-bool duDumpPolyMeshToObj(struct rcPolyMesh& pmesh, const char* filepath);
-bool duDumpPolyMeshDetailToObj(struct rcPolyMeshDetail& dmesh, const char* filepath);
+#include "Sample.h"
+#include "DetourNavMesh.h"
+#include "Recast.h"
+#include "RecastLog.h"
 
-bool duDumpCompactHeightfield(struct rcCompactHeightfield& chf, const char* filepath);
-bool duReadCompactHeightfield(struct rcCompactHeightfield& chf, const char* filepath);
+// Sample used for random debugging.
+class Sample_Debug : public Sample
+{
+protected:
+	rcCompactHeightfield* m_chf;
+	
+public:
+	Sample_Debug();
+	virtual ~Sample_Debug();
+	
+	virtual void handleSettings();
+	virtual void handleTools();
+	virtual void handleDebugMode();
+	virtual void handleClick(const float* p, bool shift);
+	virtual void handleStep();
+	virtual void handleRender();
+	virtual void handleRenderOverlay(double* proj, double* model, int* view);
+	virtual void handleMeshChanged(class InputGeom* geom);
+	virtual bool handleBuild();
 
-#endif // RECAST_DUMP_H
+	virtual const float* getBoundsMin();
+	virtual const float* getBoundsMax();
+};
+
+
+#endif // RECASTSAMPLE_H
