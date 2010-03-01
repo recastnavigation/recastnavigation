@@ -281,7 +281,7 @@
 							<key>PBXSmartGroupTreeModuleOutlineStateSelectionKey</key>
 							<array>
 								<array>
-									<integer>45</integer>
+									<integer>39</integer>
 									<integer>35</integer>
 									<integer>1</integer>
 									<integer>0</integer>
@@ -323,7 +323,7 @@
 								<key>PBXProjectModuleGUID</key>
 								<string>6B8632A30F78115100E2684A</string>
 								<key>PBXProjectModuleLabel</key>
-								<string>RecastDump.cpp</string>
+								<string>Sample_SoloMeshSimple.cpp</string>
 								<key>PBXSplitModuleInNavigatorKey</key>
 								<dict>
 									<key>Split0</key>
@@ -331,11 +331,11 @@
 										<key>PBXProjectModuleGUID</key>
 										<string>6B8632A40F78115100E2684A</string>
 										<key>PBXProjectModuleLabel</key>
-										<string>RecastDump.cpp</string>
+										<string>Sample_SoloMeshSimple.cpp</string>
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>6B8036ED113BB067005ED67B</string>
+										<string>6B8036F1113BB180005ED67B</string>
 										<key>history</key>
 										<array>
 											<string>6B8DE70D10B01BBF00DF20FB</string>
@@ -398,9 +398,9 @@
 											<string>6B8036BE113BAF47005ED67B</string>
 											<string>6B8036CF113BAF79005ED67B</string>
 											<string>6B8036D0113BAF79005ED67B</string>
-											<string>6B8036D1113BAF79005ED67B</string>
 											<string>6B8036EA113BB055005ED67B</string>
-											<string>6B8036E9113BB051005ED67B</string>
+											<string>6B8036EE113BB180005ED67B</string>
+											<string>6B8036EF113BB180005ED67B</string>
 										</array>
 										<key>prevStack</key>
 										<array>
@@ -475,6 +475,7 @@
 											<string>6B8036D3113BAF79005ED67B</string>
 											<string>6B8036D4113BAF79005ED67B</string>
 											<string>6B8036D5113BAF79005ED67B</string>
+											<string>6B8036F0113BB180005ED67B</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>

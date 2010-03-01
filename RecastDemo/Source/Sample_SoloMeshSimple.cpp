@@ -491,11 +491,6 @@ bool Sample_SoloMeshSimple::handleBuild()
 			rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Could not build regions.");
 	}
 
-
-
-	duDumpCompactHeightfield(*m_chf, "test.chf");
-
-
 	//
 	// Step 5. Trace and simplify region contours.
 	//
