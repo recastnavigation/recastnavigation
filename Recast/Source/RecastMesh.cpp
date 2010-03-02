@@ -485,7 +485,7 @@ static void pushBack(int v, int* arr, int& an)
 
 static bool removeVertex(rcPolyMesh& mesh, const unsigned short rem, const int maxTris)
 {
-	static const int nvp = mesh.nvp;
+	const int nvp = mesh.nvp;
 
 	// Count number of polygons to remove.
 	int nrem = 0;
