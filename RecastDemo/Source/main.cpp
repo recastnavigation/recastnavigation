@@ -299,7 +299,7 @@ int main(int argc, char *argv[])
 								bmin = sample->getBoundsMin();
 								bmax = sample->getBoundsMax();
 							}
-							else
+							else if (geom)
 							{
 								bmin = geom->getMeshBoundsMin();
 								bmax = geom->getMeshBoundsMax();
@@ -694,7 +694,7 @@ int main(int argc, char *argv[])
 						bmin = sample->getBoundsMin();
 						bmax = sample->getBoundsMax();
 					}
-					else
+					else if (geom)
 					{
 						bmin = geom->getMeshBoundsMin();
 						bmax = geom->getMeshBoundsMax();
@@ -811,7 +811,7 @@ int main(int argc, char *argv[])
 							bmin = sample->getBoundsMin();
 							bmax = sample->getBoundsMax();
 						}
-						else
+						else if (geom)
 						{
 							bmin = geom->getMeshBoundsMin();
 							bmax = geom->getMeshBoundsMax();

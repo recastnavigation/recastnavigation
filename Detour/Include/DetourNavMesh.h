@@ -26,7 +26,7 @@ typedef unsigned int dtPolyRef;
 static const int DT_VERTS_PER_POLYGON = 6;
 
 static const int DT_NAVMESH_MAGIC = 'D'<<24 | 'N'<<16 | 'A'<<8 | 'V'; //'DNAV';
-static const int DT_NAVMESH_VERSION = 2;
+static const int DT_NAVMESH_VERSION = 3;
 
 static const unsigned short DT_EXT_LINK = 0x8000;
 static const unsigned int DT_NULL_LINK = 0xffffffff;
@@ -106,7 +106,6 @@ struct dtMeshHeader
 {
 	int magic;								// Magic number, used to identify the data.
 	int version;							// Data version number.
-	
 	int polyCount;							// Number of polygons in the tile.
 	int vertCount;							// Number of vertices in the tile.
 	int maxLinkCount;						// Number of allocated links.
@@ -116,12 +115,20 @@ struct dtMeshHeader
 	int bvNodeCount;						// Number of BVtree nodes.
 	int offMeshConCount;					// Number of Off-Mesh links.
 	int offMeshBase;						// Index to first polygon which is Off-Mesh link.
-	unsigned int linksFreeList;				// Index to next free link.
 	float walkableHeight;					// Height of the agent.
 	float walkableRadius;					// Radius of the agent
 	float walkableClimb;					// Max climb height of the agent.
 	float bmin[3], bmax[3];					// Bounding box of the tile.
 	float bvQuantFactor;					// BVtree quantization factor (world to bvnode coords)
+};
+
+struct dtMeshTile
+{
+	unsigned int salt;						// Counter describing modifications to the tile.
+	int x,y;								// Grid location of the tile.
+
+	unsigned int linksFreeList;				// Index to next free link.
+	dtMeshHeader* header;					// Pointer to tile header.
 	dtPoly* polys;							// Pointer to the polygons (will be updated when tile is added).
 	float* verts;							// Pointer to the vertices (will be updated when tile added).
 	dtLink* links;							// Pointer to the links (will be updated when tile added).
@@ -130,13 +137,7 @@ struct dtMeshHeader
 	unsigned char* detailTris;				// Pointer to detail triangles (will be updated when tile added).
 	dtBVNode* bvTree;						// Pointer to BVtree nodes (will be updated when tile added).
 	dtOffMeshConnection* offMeshCons;		// Pointer to Off-Mesh links. (will be updated when tile added).
-};
-
-struct dtMeshTile
-{
-	unsigned int salt;						// Counter describing modifications to the tile.
-	int x,y;								// Grid location of the tile.
-	dtMeshHeader* header;					// Pointer to tile header.
+	
 	unsigned char* data;					// Pointer to tile data.
 	int dataSize;							// Size of the tile data.
 	bool ownsData;							// Flag indicating of the navmesh should release the data.
@@ -383,13 +384,13 @@ public:
 	void setPolyFlags(dtPolyRef ref, unsigned short flags);
 
 	// Return polygon flags.
-	unsigned short getPolyFlags(dtPolyRef ref);
+	unsigned short getPolyFlags(dtPolyRef ref) const;
 
 	// Set polygon type.
 	void setPolyArea(dtPolyRef ref, unsigned char area);
 
 	// Return polygon type.
-	unsigned char getPolyArea(dtPolyRef ref);
+	unsigned char getPolyArea(dtPolyRef ref) const;
 	
 	// Returns pointer to a polygon based on ref.
 	const dtPoly* getPolyByRef(dtPolyRef ref) const;
@@ -463,14 +464,14 @@ private:
 	// Returns portal points between two polygons.
 	bool getPortalPoints(dtPolyRef from, dtPolyRef to, float* left, float* right,
 						 unsigned char& fromType, unsigned char& toType) const;
-	bool getPortalPoints(dtPolyRef from, const dtPoly* fromPoly, const dtMeshHeader* fromHeader,
-						 dtPolyRef to, const dtPoly* toPoly, const dtMeshHeader* toHeader,
+	bool getPortalPoints(dtPolyRef from, const dtPoly* fromPoly, const dtMeshTile* fromTile,
+						 dtPolyRef to, const dtPoly* toPoly, const dtMeshTile* toTile,
 						 float* left, float* right) const;
 
 	// Returns edge mid point between two polygons.
 	bool getEdgeMidPoint(dtPolyRef from, dtPolyRef to, float* mid) const;
-	bool getEdgeMidPoint(dtPolyRef from, const dtPoly* fromPoly, const dtMeshHeader* fromHeader,
-						 dtPolyRef to, const dtPoly* toPoly, const dtMeshHeader* toHeader,
+	bool getEdgeMidPoint(dtPolyRef from, const dtPoly* fromPoly, const dtMeshTile* fromTile,
+						 dtPolyRef to, const dtPoly* toPoly, const dtMeshTile* toTile,
 						 float* mid) const;
 	
 	float m_orig[3];					// Origin of the tile (0,0)
