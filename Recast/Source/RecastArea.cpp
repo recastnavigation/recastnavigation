@@ -55,7 +55,7 @@ bool rcErodeArea(unsigned char areaId, int radius, rcCompactHeightfield& chf)
 					int nc = 0;
 					for (int dir = 0; dir < 4; ++dir)
 					{
-						if (rcGetCon(s, dir) != 0xf)
+						if (rcGetCon(s, dir) != RC_NOT_CONNECTED)
 						{
 							const int ax = x + rcGetDirOffsetX(dir);
 							const int ay = y + rcGetDirOffsetY(dir);
@@ -84,7 +84,7 @@ bool rcErodeArea(unsigned char areaId, int radius, rcCompactHeightfield& chf)
 			{
 				const rcCompactSpan& s = chf.spans[i];
 				
-				if (rcGetCon(s, 0) != 0xf)
+				if (rcGetCon(s, 0) != RC_NOT_CONNECTED)
 				{
 					// (-1,0)
 					const int ax = x + rcGetDirOffsetX(0);
@@ -96,7 +96,7 @@ bool rcErodeArea(unsigned char areaId, int radius, rcCompactHeightfield& chf)
 						dist[i] = nd;
 					
 					// (-1,-1)
-					if (rcGetCon(as, 3) != 0xf)
+					if (rcGetCon(as, 3) != RC_NOT_CONNECTED)
 					{
 						const int aax = ax + rcGetDirOffsetX(3);
 						const int aay = ay + rcGetDirOffsetY(3);
@@ -106,7 +106,7 @@ bool rcErodeArea(unsigned char areaId, int radius, rcCompactHeightfield& chf)
 							dist[i] = nd;
 					}
 				}
-				if (rcGetCon(s, 3) != 0xf)
+				if (rcGetCon(s, 3) != RC_NOT_CONNECTED)
 				{
 					// (0,-1)
 					const int ax = x + rcGetDirOffsetX(3);
@@ -118,7 +118,7 @@ bool rcErodeArea(unsigned char areaId, int radius, rcCompactHeightfield& chf)
 						dist[i] = nd;
 					
 					// (1,-1)
-					if (rcGetCon(as, 2) != 0xf)
+					if (rcGetCon(as, 2) != RC_NOT_CONNECTED)
 					{
 						const int aax = ax + rcGetDirOffsetX(2);
 						const int aay = ay + rcGetDirOffsetY(2);
@@ -142,7 +142,7 @@ bool rcErodeArea(unsigned char areaId, int radius, rcCompactHeightfield& chf)
 			{
 				const rcCompactSpan& s = chf.spans[i];
 				
-				if (rcGetCon(s, 2) != 0xf)
+				if (rcGetCon(s, 2) != RC_NOT_CONNECTED)
 				{
 					// (1,0)
 					const int ax = x + rcGetDirOffsetX(2);
@@ -154,7 +154,7 @@ bool rcErodeArea(unsigned char areaId, int radius, rcCompactHeightfield& chf)
 						dist[i] = nd;
 					
 					// (1,1)
-					if (rcGetCon(as, 1) != 0xf)
+					if (rcGetCon(as, 1) != RC_NOT_CONNECTED)
 					{
 						const int aax = ax + rcGetDirOffsetX(1);
 						const int aay = ay + rcGetDirOffsetY(1);
@@ -164,7 +164,7 @@ bool rcErodeArea(unsigned char areaId, int radius, rcCompactHeightfield& chf)
 							dist[i] = nd;
 					}
 				}
-				if (rcGetCon(s, 1) != 0xf)
+				if (rcGetCon(s, 1) != RC_NOT_CONNECTED)
 				{
 					// (0,1)
 					const int ax = x + rcGetDirOffsetX(1);
@@ -176,7 +176,7 @@ bool rcErodeArea(unsigned char areaId, int radius, rcCompactHeightfield& chf)
 						dist[i] = nd;
 					
 					// (-1,1)
-					if (rcGetCon(as, 0) != 0xf)
+					if (rcGetCon(as, 0) != RC_NOT_CONNECTED)
 					{
 						const int aax = ax + rcGetDirOffsetX(0);
 						const int aay = ay + rcGetDirOffsetY(0);

@@ -997,12 +997,6 @@ bool rcBuildRegionsMonotone(rcCompactHeightfield& chf,
 	const int h = chf.height;
 	unsigned short id = 1;
 	
-	if (chf.regs)
-	{
-		delete [] chf.regs;
-		chf.regs = 0;
-	}
-	
 	rcScopedDelete<unsigned short> srcReg = new unsigned short[chf.spanCount];
 	if (!srcReg)
 	{
@@ -1131,8 +1125,8 @@ bool rcBuildRegionsMonotone(rcCompactHeightfield& chf,
 	rcTimeVal filterEndTime = rcGetPerformanceTimer();
 	
 	// Store the result out.
-	chf.regs = srcReg;
-	srcReg = 0;
+	for (int i = 0; i < chf.spanCount; ++i)
+		chf.spans[i].reg = srcReg[i];
 	
 	rcTimeVal endTime = rcGetPerformanceTimer();
 
@@ -1152,17 +1146,6 @@ bool rcBuildRegions(rcCompactHeightfield& chf,
 	
 	const int w = chf.width;
 	const int h = chf.height;
-
-	if (!chf.regs)
-	{
-		chf.regs = new unsigned short[chf.spanCount];
-		if (!chf.regs)
-		{
-			if (rcGetLog())
-				rcGetLog()->log(RC_LOG_ERROR, "rcBuildRegions: Out of memory 'chf.reg' (%d).", chf.spanCount);
-			return false;
-		}
-	}
 	
 	rcScopedDelete<unsigned short> tmp = new unsigned short[chf.spanCount*4];
 	if (!tmp)
@@ -1260,7 +1243,8 @@ bool rcBuildRegions(rcCompactHeightfield& chf,
 	rcTimeVal filterEndTime = rcGetPerformanceTimer();
 		
 	// Write the result out.
-	memcpy(chf.regs, srcReg, sizeof(unsigned short)*chf.spanCount);
+	for (int i = 0; i < chf.spanCount; ++i)
+		chf.spans[i].reg = srcReg[i];
 	
 	rcTimeVal endTime = rcGetPerformanceTimer();
 	

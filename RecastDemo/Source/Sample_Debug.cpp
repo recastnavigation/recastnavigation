@@ -37,7 +37,8 @@
 
 
 Sample_Debug::Sample_Debug() :
-	m_chf(0)
+	m_chf(0),
+	m_cset(0)
 {
 	resetCommonSettings();
 
@@ -48,11 +49,32 @@ Sample_Debug::Sample_Debug() :
 		delete m_chf;
 		m_chf = 0;
 	}
+	
+	if (m_chf)
+	{
+		unsigned short ymin = 0xffff;
+		unsigned short ymax = 0;
+		for (int i = 0; i < m_chf->spanCount; ++i)
+		{
+			const rcCompactSpan& s = m_chf->spans[i];
+			if (s.y < ymin) ymin = s.y;
+			if (s.y > ymax) ymax = s.y;
+		}
+		printf("ymin=%d ymax=%d\n", (int)ymin, (int)ymax);
+		
+		int maxSpans = 0;
+		for (int i = 0; i < m_chf->width*m_chf->height; ++i)
+		{
+			maxSpans = rcMax(maxSpans, (int)m_chf->cells[i].count);
+		}
+		printf("maxSpans = %d\n", maxSpans);
+	}
 }
 
 Sample_Debug::~Sample_Debug()
 {
 	delete m_chf;
+	delete m_cset;
 }
 
 void Sample_Debug::handleSettings()
@@ -72,7 +94,13 @@ void Sample_Debug::handleRender()
 	DebugDrawGL dd;
 	
 	if (m_chf)
+	{
 		duDebugDrawCompactHeightfieldRegions(&dd, *m_chf);
+//		duDebugDrawCompactHeightfieldSolid(&dd, *m_chf);
+	}
+		
+	if (m_cset)
+		duDebugDrawRawContours(&dd, *m_cset);
 }
 
 void Sample_Debug::handleRenderOverlay(double* proj, double* model, int* view)
@@ -110,5 +138,23 @@ void Sample_Debug::handleStep()
 
 bool Sample_Debug::handleBuild()
 {
+	delete m_cset;
+	m_cset = 0;
+	
+	// Create contours.
+	m_cset = new rcContourSet;
+	if (!m_cset)
+	{
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'cset'.");
+		return false;
+	}
+	if (!rcBuildContours(*m_chf, /*m_cfg.maxSimplificationError*/1.3f, /*m_cfg.maxEdgeLen*/12, *m_cset))
+	{
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Could not create contours.");
+		return false;
+	}
+	
 	return true;
 }

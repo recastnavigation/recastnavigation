@@ -92,8 +92,9 @@ struct rcCompactCell
 struct rcCompactSpan
 {
 	unsigned short y;			// Bottom coordinate of the span.
-	unsigned short con;			// Connections to neighbour cells.
-	unsigned char h;			// Height of the span.
+	unsigned short reg;
+	unsigned int con : 24;		// Connections to neighbour cells.
+	unsigned int h : 8;			// Height of the span.
 };
 
 // Compact static heightfield. 
@@ -101,13 +102,13 @@ struct rcCompactHeightfield
 {
 	inline rcCompactHeightfield() :
 		maxDistance(0), maxRegions(0), cells(0),
-		spans(0), dist(0), regs(0), areas(0) {}
+		spans(0), dist(0), /*regs(0),*/ areas(0) {}
 	inline ~rcCompactHeightfield()
 	{
 		delete [] cells;
 		delete [] spans;
 		delete [] dist;
-		delete [] regs;
+//		delete [] regs;
 		delete [] areas;
 	}
 	int width, height;					// Width and height of the heighfield.
@@ -120,7 +121,7 @@ struct rcCompactHeightfield
 	rcCompactCell* cells;				// Pointer to width*height cells.
 	rcCompactSpan* spans;				// Pointer to spans.
 	unsigned short* dist;				// Pointer to per span distance to border.
-	unsigned short* regs;				// Pointer to per span region ID.
+//	unsigned short* regs;				// Pointer to per span region ID.
 	unsigned char* areas;				// Pointer to per span area ID.
 };
 
@@ -262,18 +263,20 @@ static const unsigned char RC_NULL_AREA = 0;
 static const unsigned char RC_WALKABLE_AREA = 255;
 
 // Value returned by rcGetCon() if the direction is not connected.
-static const int RC_NOT_CONNECTED = 0xf;
+static const int RC_NOT_CONNECTED = 0x3f;
 
 // Compact span neighbour helpers.
 inline void rcSetCon(rcCompactSpan& s, int dir, int i)
 {
-	s.con &= ~(0xf << (dir*4));
-	s.con |= (i&0xf) << (dir*4);
+	const unsigned int shift = (unsigned int)dir*6;
+	unsigned int con = s.con;
+	s.con = (con & ~(0x3f << shift)) | (((unsigned int)i & 0x3f) << shift);
 }
 
 inline int rcGetCon(const rcCompactSpan& s, int dir)
 {
-	return (s.con >> (dir*4)) & 0xf;
+	const unsigned int shift = (unsigned int)dir*6;
+	return (s.con >> shift) & 0x3f;
 }
 
 inline int rcGetDirOffsetX(int dir)

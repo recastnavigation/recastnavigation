@@ -179,9 +179,6 @@ void duDebugDrawCompactHeightfieldSolid(duDebugDraw* dd, const rcCompactHeightfi
 
 void duDebugDrawCompactHeightfieldRegions(duDebugDraw* dd, const rcCompactHeightfield& chf)
 {
-	if (!chf.regs)
-		return;
-		
 	const float cs = chf.cs;
 	const float ch = chf.ch;
 
@@ -200,8 +197,8 @@ void duDebugDrawCompactHeightfieldRegions(duDebugDraw* dd, const rcCompactHeight
 				const rcCompactSpan& s = chf.spans[i];
 				const float fy = chf.bmin[1] + (s.y)*ch;
 				unsigned int color;
-				if (chf.regs[i])
-					color = duIntToCol(chf.regs[i], 192);
+				if (s.reg)
+					color = duIntToCol(s.reg, 192);
 				else
 					color = duRGBA(0,0,0,64);
 

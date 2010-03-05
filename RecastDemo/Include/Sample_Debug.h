@@ -29,6 +29,7 @@ class Sample_Debug : public Sample
 {
 protected:
 	rcCompactHeightfield* m_chf;
+	rcContourSet* m_cset;
 	
 public:
 	Sample_Debug();
