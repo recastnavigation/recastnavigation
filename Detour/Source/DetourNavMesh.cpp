@@ -1078,10 +1078,10 @@ int dtNavMesh::queryPolygons(const float* center, const float* extents, dtQueryF
 	vadd(bmax, center, extents);
 	
 	// Find tiles the query touches.
-	const int minx = (int)((bmin[0]-m_orig[0]) / m_tileWidth);
-	const int maxx = (int)((bmax[0]-m_orig[0]) / m_tileWidth);
-	const int miny = (int)((bmin[2]-m_orig[2]) / m_tileHeight);
-	const int maxy = (int)((bmax[2]-m_orig[2]) / m_tileHeight);
+	const int minx = (int)floorf((bmin[0]-m_orig[0]) / m_tileWidth);
+	const int maxx = (int)floorf((bmax[0]-m_orig[0]) / m_tileWidth);
+	const int miny = (int)floorf((bmin[2]-m_orig[2]) / m_tileHeight);
+	const int maxy = (int)floorf((bmax[2]-m_orig[2]) / m_tileHeight);
 
 	int n = 0;
 	for (int y = miny; y <= maxy; ++y)
@@ -1385,124 +1385,104 @@ int dtNavMesh::findStraightPath(const float* startPos, const float* endPos,
 			}
 			
 			// Right vertex.
-			if (vequal(portalApex, portalRight))
+			if (triArea2D(portalApex, portalRight, right) <= 0.0f)
 			{
-				vcopy(portalRight, right);
-				rightPolyRef = (i+1 < pathSize) ? path[i+1] : 0;
-				rightPolyType = toType;
-				rightIndex = i;
-			}
-			else
-			{
-				if (triArea2D(portalApex, portalRight, right) <= 0.0f)
+				if (vequal(portalApex, portalRight) || triArea2D(portalApex, portalLeft, right) > 0.0f)
 				{
-					if (triArea2D(portalApex, portalLeft, right) > 0.0f)
+					vcopy(portalRight, right);
+					rightPolyRef = (i+1 < pathSize) ? path[i+1] : 0;
+					rightPolyType = toType;
+					rightIndex = i;
+				}
+				else
+				{
+					vcopy(portalApex, portalLeft);
+					apexIndex = leftIndex;
+					
+					unsigned char flags = (leftPolyType == DT_POLYTYPE_OFFMESH_CONNECTION) ? DT_STRAIGHTPATH_OFFMESH_CONNECTION : 0;
+					dtPolyRef ref = leftPolyRef;
+					
+					if (!vequal(&straightPath[(straightPathSize-1)*3], portalApex))
 					{
-						vcopy(portalRight, right);
-						rightPolyRef = (i+1 < pathSize) ? path[i+1] : 0;
-						rightPolyType = toType;
-						rightIndex = i;
+						vcopy(&straightPath[straightPathSize*3], portalApex);
+						if (straightPathFlags)
+							straightPathFlags[straightPathSize] = flags;
+						if (straightPathRefs)
+							straightPathRefs[straightPathSize] = ref;
+							
+						straightPathSize++;
+						if (straightPathSize >= maxStraightPathSize)
+							return straightPathSize;
 					}
 					else
 					{
-						vcopy(portalApex, portalLeft);
-						apexIndex = leftIndex;
-						
-						unsigned char flags = (leftPolyType == DT_POLYTYPE_OFFMESH_CONNECTION) ? DT_STRAIGHTPATH_OFFMESH_CONNECTION : 0;
-						dtPolyRef ref = leftPolyRef;
-						
-						if (!vequal(&straightPath[(straightPathSize-1)*3], portalApex))
-						{
-							vcopy(&straightPath[straightPathSize*3], portalApex);
-							if (straightPathFlags)
-								straightPathFlags[straightPathSize] = flags;
-							if (straightPathRefs)
-								straightPathRefs[straightPathSize] = ref;
-								
-							straightPathSize++;
-							if (straightPathSize >= maxStraightPathSize)
-								return straightPathSize;
-						}
-						else
-						{
-							// The vertices are equal, update flags and poly.
-							if (straightPathFlags)
-								straightPathFlags[straightPathSize-1] = flags;
-							if (straightPathRefs)
-								straightPathRefs[straightPathSize-1] = ref;
-						}
-						
-						vcopy(portalLeft, portalApex);
-						vcopy(portalRight, portalApex);
-						leftIndex = apexIndex;
-						rightIndex = apexIndex;
-						
-						// Restart
-						i = apexIndex;
-						
-						continue;
+						// The vertices are equal, update flags and poly.
+						if (straightPathFlags)
+							straightPathFlags[straightPathSize-1] = flags;
+						if (straightPathRefs)
+							straightPathRefs[straightPathSize-1] = ref;
 					}
+					
+					vcopy(portalLeft, portalApex);
+					vcopy(portalRight, portalApex);
+					leftIndex = apexIndex;
+					rightIndex = apexIndex;
+					
+					// Restart
+					i = apexIndex;
+					
+					continue;
 				}
 			}
 			
 			// Left vertex.
-			if (vequal(portalApex, portalLeft))
+			if (triArea2D(portalApex, portalLeft, left) >= 0.0f)
 			{
-				vcopy(portalLeft, left);
-				leftPolyRef = (i+1 < pathSize) ? path[i+1] : 0;
-				leftPolyType = toType;
-				leftIndex = i;
-			}
-			else
-			{
-				if (triArea2D(portalApex, portalLeft, left) >= 0.0f)
+				if (vequal(portalApex, portalLeft) || triArea2D(portalApex, portalRight, left) < 0.0f)
 				{
-					if (triArea2D(portalApex, portalRight, left) < 0.0f)
+					vcopy(portalLeft, left);
+					leftPolyRef = (i+1 < pathSize) ? path[i+1] : 0;
+					leftPolyType = toType;
+					leftIndex = i;
+				}
+				else
+				{
+					vcopy(portalApex, portalRight);
+					apexIndex = rightIndex;
+
+					unsigned char flags = (rightPolyType == DT_POLYTYPE_OFFMESH_CONNECTION) ? DT_STRAIGHTPATH_OFFMESH_CONNECTION : 0;
+					dtPolyRef ref = rightPolyRef;
+					
+					if (!vequal(&straightPath[(straightPathSize-1)*3], portalApex))
 					{
-						vcopy(portalLeft, left);
-						leftPolyRef = (i+1 < pathSize) ? path[i+1] : 0;
-						leftPolyType = toType;
-						leftIndex = i;
+						vcopy(&straightPath[straightPathSize*3], portalApex);
+						if (straightPathFlags)
+							straightPathFlags[straightPathSize] = flags;
+						if (straightPathRefs)
+							straightPathRefs[straightPathSize] = ref;
+						
+						straightPathSize++;
+						if (straightPathSize >= maxStraightPathSize)
+							return straightPathSize;
 					}
 					else
 					{
-						vcopy(portalApex, portalRight);
-						apexIndex = rightIndex;
-
-						unsigned char flags = (rightPolyType == DT_POLYTYPE_OFFMESH_CONNECTION) ? DT_STRAIGHTPATH_OFFMESH_CONNECTION : 0;
-						dtPolyRef ref = rightPolyRef;
-						
-						if (!vequal(&straightPath[(straightPathSize-1)*3], portalApex))
-						{
-							vcopy(&straightPath[straightPathSize*3], portalApex);
-							if (straightPathFlags)
-								straightPathFlags[straightPathSize] = flags;
-							if (straightPathRefs)
-								straightPathRefs[straightPathSize] = ref;
-							
-							straightPathSize++;
-							if (straightPathSize >= maxStraightPathSize)
-								return straightPathSize;
-						}
-						else
-						{
-							// The vertices are equal, update flags and poly.
-							if (straightPathFlags)
-								straightPathFlags[straightPathSize-1] = flags;
-							if (straightPathRefs)
-								straightPathRefs[straightPathSize-1] = ref;
-						}
-						
-						vcopy(portalLeft, portalApex);
-						vcopy(portalRight, portalApex);
-						leftIndex = apexIndex;
-						rightIndex = apexIndex;
-						
-						// Restart
-						i = apexIndex;
-						
-						continue;
+						// The vertices are equal, update flags and poly.
+						if (straightPathFlags)
+							straightPathFlags[straightPathSize-1] = flags;
+						if (straightPathRefs)
+							straightPathRefs[straightPathSize-1] = ref;
 					}
+					
+					vcopy(portalLeft, portalApex);
+					vcopy(portalRight, portalApex);
+					leftIndex = apexIndex;
+					rightIndex = apexIndex;
+					
+					// Restart
+					i = apexIndex;
+					
+					continue;
 				}
 			}
 		}
