@@ -61,6 +61,7 @@ class NavMeshTesterTool : public SampleTool
 	float m_epos[3];
 	float m_hitPos[3];
 	float m_hitNormal[3];
+	bool m_hitResult;
 	float m_distanceToWall;
 	bool m_sposSet;
 	bool m_eposSet;

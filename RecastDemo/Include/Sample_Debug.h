@@ -30,6 +30,11 @@ class Sample_Debug : public Sample
 protected:
 	rcCompactHeightfield* m_chf;
 	rcContourSet* m_cset;
+
+	float m_ext[3];
+	float m_center[3];
+	float m_bmin[3], m_bmax[3];
+	dtPolyRef m_ref;
 	
 public:
 	Sample_Debug();

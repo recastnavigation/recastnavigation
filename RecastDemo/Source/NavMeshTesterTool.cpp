@@ -105,7 +105,8 @@ NavMeshTesterTool::NavMeshTesterTool() :
 	m_sposSet(false),
 	m_eposSet(false),
 	m_pathIterNum(0),
-	m_steerPointCount(0)
+	m_steerPointCount(0),
+	m_hitResult(false)
 {
 	m_filter.includeFlags = SAMPLE_POLYFLAGS_ALL;
 	m_filter.excludeFlags = 0;
@@ -623,13 +624,26 @@ void NavMeshTesterTool::recalc()
 			m_straightPath[0] = m_spos[0];
 			m_straightPath[1] = m_spos[1];
 			m_straightPath[2] = m_spos[2];
-			vcopy(m_hitPos, m_epos);
 			m_npolys = m_navMesh->raycast(m_startRef, m_spos, m_epos, &m_filter, t, m_hitNormal, m_polys, MAX_POLYS);
-			if (m_npolys && t < 1)
+			if (t > 1)
 			{
+				// No hit
+				vcopy(m_hitPos, m_epos);
+				m_hitResult = false;
+			}
+			else
+			{
+				// Hit
 				m_hitPos[0] = m_spos[0] + (m_epos[0] - m_spos[0]) * t;
 				m_hitPos[1] = m_spos[1] + (m_epos[1] - m_spos[1]) * t;
 				m_hitPos[2] = m_spos[2] + (m_epos[2] - m_spos[2]) * t;
+				if (m_npolys)
+				{
+					float h = 0;
+					m_navMesh->getPolyHeight(m_polys[m_npolys-1], m_hitPos, &h);
+					m_hitPos[1] = h;
+				}
+				m_hitResult = true;
 			}
 			vcopy(&m_straightPath[3], m_hitPos);
 		}
@@ -812,7 +826,7 @@ void NavMeshTesterTool::handleRender()
 			for (int i = 1; i < m_npolys; ++i)
 				duDebugDrawNavMeshPoly(&dd, m_navMesh, m_polys[i], pathCol);
 			
-			const unsigned int pathCol = duRGBA(64,16,0,220);
+			const unsigned int pathCol = m_hitResult ? duRGBA(64,16,0,220) : duRGBA(240,240,240,220);
 			dd.begin(DU_DRAW_LINES, 2.0f);
 			for (int i = 0; i < m_nstraightPath-1; ++i)
 			{
@@ -825,13 +839,16 @@ void NavMeshTesterTool::handleRender()
 				dd.vertex(m_straightPath[i*3], m_straightPath[i*3+1]+0.4f, m_straightPath[i*3+2], pathCol);
 			dd.end();
 
-			const unsigned int hitCol = duRGBA(0,0,0,128);
-			dd.begin(DU_DRAW_LINES, 2.0f);
-			dd.vertex(m_hitPos[0], m_hitPos[1] + 0.4f, m_hitPos[2], hitCol);
-			dd.vertex(m_hitPos[0] + m_hitNormal[0]*agentRadius,
-					  m_hitPos[1] + 0.4f + m_hitNormal[1]*agentRadius,
-					  m_hitPos[2] + m_hitNormal[2]*agentRadius, hitCol);
-			dd.end();
+			if (m_hitResult)
+			{
+				const unsigned int hitCol = duRGBA(0,0,0,128);
+				dd.begin(DU_DRAW_LINES, 2.0f);
+				dd.vertex(m_hitPos[0], m_hitPos[1] + 0.4f, m_hitPos[2], hitCol);
+				dd.vertex(m_hitPos[0] + m_hitNormal[0]*agentRadius,
+						  m_hitPos[1] + 0.4f + m_hitNormal[1]*agentRadius,
+						  m_hitPos[2] + m_hitNormal[2]*agentRadius, hitCol);
+				dd.end();
+			}
 		}
 	}
 	else if (m_toolMode == TOOLMODE_DISTANCE_TO_WALL)
