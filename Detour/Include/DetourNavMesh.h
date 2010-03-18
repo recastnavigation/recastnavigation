@@ -297,7 +297,7 @@ public:
 	//	startRef - (in) ref to the polygon where the start lies.
 	//	startPos[3] - (in) start position of the query.
 	//	endPos[3] - (in) end position of the query.
-	//	t - (out) hit parameter along the segment, 0 if no hit.
+	//	t - (out) hit parameter along the segment, FLT_MAX if no hit.
 	//	hitNormal[3] - (out) normal of the nearest hit.
 	//  filter - (in) path polygon filter.
 	//  path - (out) visited path polygons.

@@ -281,14 +281,14 @@
 							<key>PBXSmartGroupTreeModuleOutlineStateSelectionKey</key>
 							<array>
 								<array>
-									<integer>52</integer>
-									<integer>46</integer>
+									<integer>33</integer>
+									<integer>21</integer>
 									<integer>1</integer>
 									<integer>0</integer>
 								</array>
 							</array>
 							<key>PBXSmartGroupTreeModuleOutlineStateVisibleRectKey</key>
-							<string>{{0, 429}, {358, 643}}</string>
+							<string>{{0, 347}, {358, 643}}</string>
 						</dict>
 						<key>PBXTopSmartGroupGIDs</key>
 						<array/>
@@ -323,7 +323,7 @@
 								<key>PBXProjectModuleGUID</key>
 								<string>6B8632A30F78115100E2684A</string>
 								<key>PBXProjectModuleLabel</key>
-								<string>NavMeshTesterTool.cpp</string>
+								<string>RecastMesh.cpp</string>
 								<key>PBXSplitModuleInNavigatorKey</key>
 								<dict>
 									<key>Split0</key>
@@ -331,11 +331,11 @@
 										<key>PBXProjectModuleGUID</key>
 										<string>6B8632A40F78115100E2684A</string>
 										<key>PBXProjectModuleLabel</key>
-										<string>NavMeshTesterTool.cpp</string>
+										<string>RecastMesh.cpp</string>
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>6B904C6D1152164400A12E63</string>
+										<string>6B904C7611521D4400A12E63</string>
 										<key>history</key>
 										<array>
 											<string>6B8DE70D10B01BBF00DF20FB</string>
@@ -372,7 +372,6 @@
 											<string>6B8036D0113BAF79005ED67B</string>
 											<string>6B8036F7113BB746005ED67B</string>
 											<string>6B803729113D1079005ED67B</string>
-											<string>6BC8BE261140ED5F00555B22</string>
 											<string>6B92D96A1140FBDA00E82EC3</string>
 											<string>6B92D97A1140FE6000E82EC3</string>
 											<string>6B92D97D1140FE6000E82EC3</string>
@@ -401,7 +400,8 @@
 											<string>6B904C591152139200A12E63</string>
 											<string>6B904C631152164400A12E63</string>
 											<string>6B904C641152164400A12E63</string>
-											<string>6B904C651152164400A12E63</string>
+											<string>6B904C6F115218D800A12E63</string>
+											<string>6B904C70115218D800A12E63</string>
 										</array>
 										<key>prevStack</key>
 										<array>
@@ -487,6 +487,7 @@
 											<string>6B904C6A1152164400A12E63</string>
 											<string>6B904C6B1152164400A12E63</string>
 											<string>6B904C6C1152164400A12E63</string>
+											<string>6B904C71115218D800A12E63</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>

@@ -1826,8 +1826,16 @@ int dtNavMesh::raycast(dtPolyRef centerRef, const float* startPos, const float* 
 		if (tmax > t)
 			t = tmax;
 
+		// Store visited polygons.
 		if (n < pathSize)
 			path[n++] = curRef;
+
+		// Ray end is completely inside the polygon.
+		if (segMax == -1)
+		{
+			t = FLT_MAX;
+			return n;
+		}
 		
 		// Follow neighbours.
 		dtPolyRef nextRef = 0;
