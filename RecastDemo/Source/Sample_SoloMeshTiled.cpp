@@ -55,6 +55,7 @@ public:
 		m_hitPosSet(false),
 		m_agentRadius(0)
 	{
+		m_hitPos[0] = m_hitPos[1] = m_hitPos[2] = 0;
 	}
 	
 	virtual ~TileHighlightTool()

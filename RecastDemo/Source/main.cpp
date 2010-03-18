@@ -47,7 +47,11 @@
 struct FileList
 {
 	static const int MAX_FILES = 256;
-	inline FileList() : size(0) {}
+	inline FileList() : size(0)
+	{
+		memset(files, 0, sizeof(char*)*MAX_FILES);
+	}
+	
 	inline ~FileList()
 	{
 		clear();
