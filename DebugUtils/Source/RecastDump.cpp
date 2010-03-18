@@ -137,7 +137,7 @@ bool duDumpCompactHeightfield(struct rcCompactHeightfield& chf, const char* file
 	fwrite(&chf.cs, sizeof(chf.cs), 1, fp);
 	fwrite(&chf.ch, sizeof(chf.ch), 1, fp);
 
-	int tmp;
+	int tmp = 0;
 	if (chf.cells) tmp |= 1;
 	if (chf.spans) tmp |= 2;
 	if (chf.dist) tmp |= 4;

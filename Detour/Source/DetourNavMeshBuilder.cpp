@@ -348,7 +348,10 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 						 
 	unsigned char* data = new unsigned char[dataSize];
 	if (!data)
+	{
+		delete [] offMeshConClass;
 		return false;
+	}
 	memset(data, 0, dataSize);
 	
 	unsigned char* d = data;
