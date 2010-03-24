@@ -27,6 +27,9 @@
 #include "imgui.h"
 #include "Recast.h"
 
+#ifdef WIN32
+#define snprintf _snprintf
+#endif
 
 TestCase::TestCase() :
 	m_tests(0)
