@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2009 Mikko Mononen memon@inside.org
+// Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
 // This software is provided 'as-is', without any express or implied
 // warranty.  In no event will the authors be held liable for any damages
@@ -43,11 +43,14 @@ struct dtNavMeshCreateParams
 	const unsigned char* offMeshConAreas;
 	const unsigned char* offMeshConDir;
 	int offMeshConCount;
+	// Tile location
+	unsigned int userId;
+	int tileX, tileY;
+	float bmin[3], bmax[3];
 	// Settings
 	float walkableHeight;
 	float walkableRadius;
 	float walkableClimb;
-	float bmin[3], bmax[3];
 	float cs;
 	float ch;
 	int tileSize;

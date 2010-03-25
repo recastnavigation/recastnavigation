@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2009 Mikko Mononen memon@inside.org
+// Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
 // This software is provided 'as-is', without any express or implied
 // warranty.  In no event will the authors be held liable for any damages
@@ -369,6 +369,9 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	// Store header
 	header->magic = DT_NAVMESH_MAGIC;
 	header->version = DT_NAVMESH_VERSION;
+	header->x = params->tileX;
+	header->y = params->tileY;
+	header->userId = params->userId;
 	header->polyCount = totPolyCount;
 	header->vertCount = totVertCount;
 	header->maxLinkCount = maxLinkCount;
@@ -590,6 +593,9 @@ bool dtNavMeshHeaderSwapEndian(unsigned char* data, const int dataSize)
 		
 	swapEndian(&header->magic);
 	swapEndian(&header->version);
+	swapEndian(&header->x);
+	swapEndian(&header->y);
+	swapEndian(&header->userId);
 	swapEndian(&header->polyCount);
 	swapEndian(&header->vertCount);
 	swapEndian(&header->maxLinkCount);

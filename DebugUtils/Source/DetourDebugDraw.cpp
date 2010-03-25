@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2009 Mikko Mononen memon@inside.org
+// Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
 // This software is provided 'as-is', without any express or implied
 // warranty.  In no event will the authors be held liable for any damages
@@ -117,7 +117,7 @@ static void drawPolyBoundaries(duDebugDraw* dd, const dtMeshTile* tile,
 
 static void drawMeshTile(duDebugDraw* dd, const dtNavMesh* mesh, const dtMeshTile* tile, unsigned char flags)
 {
-	dtPolyRef base = mesh->getTileId(tile);
+	dtPolyRef base = mesh->getTilePolyRefBase(tile);
 
 	dd->depthMask(false);
 
@@ -444,7 +444,7 @@ void duDebugDrawNavMeshBVTree(duDebugDraw* dd, const dtNavMesh* mesh)
 void duDebugDrawNavMeshPoly(duDebugDraw* dd, const dtNavMesh* mesh, dtPolyRef ref, const unsigned int col)
 {
 	int ip = 0;
-	const dtMeshTile* tile = mesh->getTileByRef(ref, &ip);
+	const dtMeshTile* tile = mesh->getTileByPolyRef(ref, &ip);
 	if (!tile)
 		return;
 	const dtPoly* p = &tile->polys[ip];

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2009 Mikko Mononen memon@inside.org
+// Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
 // This software is provided 'as-is', without any express or implied
 // warranty.  In no event will the authors be held liable for any damages
@@ -1095,7 +1095,7 @@ bool Sample_SoloMeshTiled::handleBuild()
 			return false;
 		}
 		
-		if (!m_navMesh->init(navData, navDataSize, true, 2048))
+		if (!m_navMesh->init(navData, navDataSize, DT_TILE_FREE_DATA, 2048))
 		{
 			delete [] navData;
 			if (rcGetLog())

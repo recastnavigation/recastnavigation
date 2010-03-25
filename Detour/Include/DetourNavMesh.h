@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2009 Mikko Mononen memon@inside.org
+// Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
 // This software is provided 'as-is', without any express or implied
 // warranty.  In no event will the authors be held liable for any damages
@@ -22,17 +22,29 @@
 // Reference to navigation polygon.
 typedef unsigned int dtPolyRef;
 
+// Reference to navigation mesh tile.
+typedef unsigned int dtTileRef;
+
 // Maximum number of vertices per navigation polygon.
 static const int DT_VERTS_PER_POLYGON = 6;
 
 static const int DT_NAVMESH_MAGIC = 'D'<<24 | 'N'<<16 | 'A'<<8 | 'V'; //'DNAV';
-static const int DT_NAVMESH_VERSION = 3;
+static const int DT_NAVMESH_VERSION = 4;
+
+static const int DT_NAVMESH_STATE_MAGIC = 'D'<<24 | 'N'<<16 | 'M'<<8 | 'S'; //'DNMS';
+static const int DT_NAVMESH_STATE_VERSION = 1;
 
 static const unsigned short DT_EXT_LINK = 0x8000;
 static const unsigned int DT_NULL_LINK = 0xffffffff;
 static const unsigned int DT_OFFMESH_CON_BIDIR = 1;
 
 static const int DT_MAX_AREAS = 64;
+
+// Flags for addTile
+enum dtTileFlags
+{
+	DT_TILE_FREE_DATA = 0x01,					// Navmesh owns the tile memory and should free it.
+};
 
 // Flags returned by findStraightPath().
 enum dtStraightPathFlags
@@ -106,6 +118,8 @@ struct dtMeshHeader
 {
 	int magic;								// Magic number, used to identify the data.
 	int version;							// Data version number.
+	int x, y;								// Location of the time on the grid.
+	unsigned int userId;					// User ID of the tile.
 	int polyCount;							// Number of polygons in the tile.
 	int vertCount;							// Number of vertices in the tile.
 	int maxLinkCount;						// Number of allocated links.
@@ -125,7 +139,6 @@ struct dtMeshHeader
 struct dtMeshTile
 {
 	unsigned int salt;						// Counter describing modifications to the tile.
-	int x,y;								// Grid location of the tile.
 
 	unsigned int linksFreeList;				// Index to next free link.
 	dtMeshHeader* header;					// Pointer to tile header.
@@ -137,11 +150,20 @@ struct dtMeshTile
 	unsigned char* detailTris;				// Pointer to detail triangles (will be updated when tile added).
 	dtBVNode* bvTree;						// Pointer to BVtree nodes (will be updated when tile added).
 	dtOffMeshConnection* offMeshCons;		// Pointer to Off-Mesh links. (will be updated when tile added).
-	
+		
 	unsigned char* data;					// Pointer to tile data.
 	int dataSize;							// Size of the tile data.
-	bool ownsData;							// Flag indicating of the navmesh should release the data.
+	int flags;								// Tile flags, see dtTileFlags.
 	dtMeshTile* next;						// Next free tile or, next tile in spatial grid.
+};
+
+struct dtNavMeshParams
+{
+	float orig[3];					// Origin of the nav mesh tile space.
+	float tileWidth, tileHeight;	// Width and height of each tile.
+	int maxTiles;					// Maximum number of tiles the navmesh can contain.
+	int maxPolys;					// Maximum number of polygons each tile can contain.
+	int maxNodes;					// Maximum number of A* nodes to use (max 65536).
 };
 
 
@@ -153,45 +175,43 @@ public:
 
 	// Initializes the nav mesh for tiled use.
 	// Params:
-	//  orig[3] - (in) origin of the nav mesh tile space.
-	//  tileWidth - (in) width of each tile.
-	//  tileHeight - (in) height of each tile.
-	//  maxTiles - (in) maximum number of tiles the navmesh can contain*.
-	//  maxPolys - (in) maximum number of polygons each tile can contain*.
-	//  maxNodes - (in) maximum number of A* nodes to use*.
-	// *) Will be rounded to next power of two.
+	//  params - (in) navmesh initialization params, see dtNavMeshParams.
 	// Returns: True if succeed, else false.
-	bool init(const float* orig, float tileWidth, float tileHeight,
-			  int maxTiles, int maxPolys, int maxNodes);
+	bool init(const dtNavMeshParams* params);
 
 	// Initializes the nav mesh for single tile use.
 	// Params:
 	//  data - (in) Data of the new tile mesh.
 	//  dataSize - (in) Data size of the new tile mesh.
-	//	ownsData - (in) Flag indicating if the navmesh should own and delete the data.
+	//	flags - (in) Tile flags, see dtTileFlags.
 	//  maxNodes - (in) maximum number of A* nodes to use*.
 	// *) Will be rounded to next power of two.
 	// Returns: True if succeed, else false.
-	bool init(unsigned char* data, int dataSize, bool ownsData, int maxNodes);
+	bool init(unsigned char* data, int dataSize, int flags, int maxNodes);
+	
+	// Returns pointer to navmesh initialization params.
+	const dtNavMeshParams* getParams() const;
 	
 	// Adds new tile into the navmesh.
 	// The add will fail if the data is in wrong format,
 	// there is not enough tiles left, or if there is a tile already at the location.
 	// Params:
-	//  x,y - (in) Location of the new tile.
 	//  data - (in) Data of the new tile mesh.
 	//  dataSize - (in) Data size of the new tile mesh.
-	//	ownsData - (in) Flag indicating if the navmesh should own and delete the data.
-	// Returns: True if tile was added, else false. 
-	bool addTileAt(int x, int y, unsigned char* data, int dataSize, bool ownsData);
+	//	flags - (in) Tile flags, see dtTileFlags.
+	//  lastRef - (in,optional) Last tile ref, the tile will be restored so that
+	//            the reference (as well as poly references) will be the same.  
+	// Returns: Reference to the tile, 0 if failed. 
+	dtTileRef addTile(unsigned char* data, int dataSize, int flags, dtTileRef lastRef = 0);
 	
-	// Removes tile at specified location.
+	// Removes specified tile.
 	// Params:
-	//  x,y - (in) Location of the tile to remove.
+	//  ref - (in) Reference to the tile to remove.
 	//  data - (out) Data associated with deleted tile.
 	//  dataSize - (out) Size of the data associated with deleted tile. 
 	// Returns: True if remove suceed, else false.
-	bool removeTileAt(int x, int y, unsigned char** data, int* dataSize);
+	bool removeTile(dtTileRef ref, unsigned char** data, int* dataSize);
+
 
 	// Returns pointer to tile at specified location.
 	// Params:
@@ -199,9 +219,21 @@ public:
 	// Returns: pointer to tile if tile exists or 0 tile does not exists.
 	dtMeshTile* getTileAt(int x, int y);
 
+	// Returns reference to tile at specified location.
+	// Params:
+	//  x,y - (in) Location of the tile to get.
+	// Returns: reference to tile if tile exists or 0 tile does not exists.
+	dtTileRef getTileRefAt(int x, int y) const;
+	
+	// Returns tile references of a tile.
+	dtTileRef getTileRef(const dtMeshTile* tile) const;
+
+	// Returns tile based on references.
+	const dtMeshTile* getTileByRef(dtTileRef ref) const;
+	
 	// Returns max number of tiles.
 	int getMaxTiles() const;
-		
+	
 	// Returns pointer to tile in the tile array.
 	// Params:
 	//  i - (in) Index to the tile to retrieve, max index is getMaxTiles()-1.
@@ -209,15 +241,26 @@ public:
 	dtMeshTile* getTile(int i);
 	const dtMeshTile* getTile(int i) const;
 	
+	
 	// Returns pointer to tile in the tile array.
 	// Params:
 	//  ref - (in) reference to a polygon inside the tile.
 	//  plyIndex - (out,optional) pointer to value where polygon index within the tile is stored.
 	// Returns: Pointer to specified tile.
-	const dtMeshTile* getTileByRef(dtPolyRef ref, int* polyIndex) const;
+	const dtMeshTile* getTileByPolyRef(dtPolyRef ref, int* polyIndex) const;
 	
-	// Returns base id for the tile.
-	dtPolyRef getTileId(const dtMeshTile* tile) const;	
+	// Returns base poly id for the tile.
+	dtPolyRef getTilePolyRefBase(const dtMeshTile* tile) const;
+	
+	// Returns number of bytes required to store tile state.
+	int getTileStateSize(const dtMeshTile* tile) const;
+
+	// Stores tile state to buffer.
+	bool storeTileState(const dtMeshTile* tile, unsigned char* data, const int maxDataSize) const;
+
+	// Restores tile state.
+	bool restoreTileState(dtMeshTile* tile, const unsigned char* data, const int maxDataSize);
+	
 	
 	// Finds the nearest navigation polygon around the center location.
 	// Params:
@@ -292,7 +335,7 @@ public:
 	int moveAlongPathCorridor(const float* startPos, const float* endPos, float* resultPos,
 							  const dtPolyRef* path, const int pathSize);
 	
-	// Finds intersection againts walls starting from start pos.
+	// Castst 'walkability' ray along the navmesh surface from startPos towards the endPos.
 	// Params:
 	//	startRef - (in) ref to the polygon where the start lies.
 	//	startPos[3] - (in) start position of the query.
@@ -389,8 +432,9 @@ public:
 	// Set polygon type.
 	void setPolyArea(dtPolyRef ref, unsigned char area);
 
-	// Return polygon type.
+	// Return polygon area type.
 	unsigned char getPolyArea(dtPolyRef ref) const;
+	
 	
 	// Returns pointer to a polygon based on ref.
 	const dtPoly* getPolyByRef(dtPolyRef ref) const;
@@ -418,13 +462,19 @@ public:
 		ip = ref & ((1<<m_polyBits)-1);
 	}
 
+	// Decodes a tile salt.
+	inline unsigned int decodePolyIdSalt(dtPolyRef ref) const
+	{
+		return (ref >> (m_polyBits+m_tileBits)) & ((1<<m_saltBits)-1);
+	}
+	
 	// Decodes a tile id.
 	inline unsigned int decodePolyIdTile(dtPolyRef ref) const
 	{
 		return ((ref >> m_polyBits) - 1) & ((1<<m_tileBits)-1);
 	}
-
-	// Decodes a tile id.
+	
+	// Decodes a poly id.
 	inline unsigned int decodePolyIdPoly(dtPolyRef ref) const
 	{
 		return ref & ((1<<m_polyBits)-1);
@@ -474,6 +524,7 @@ private:
 						 dtPolyRef to, const dtPoly* toPoly, const dtMeshTile* toTile,
 						 float* mid) const;
 	
+	dtNavMeshParams m_params;			// Current initialization params. TODO: do not store this info twice.
 	float m_orig[3];					// Origin of the tile (0,0)
 	float m_tileWidth, m_tileHeight;	// Dimensions of each tile.
 	int m_maxTiles;						// Max number of tiles.

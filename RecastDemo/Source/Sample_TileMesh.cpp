@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2009 Mikko Mononen memon@inside.org
+// Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
 // This software is provided 'as-is', without any express or implied
 // warranty.  In no event will the authors be held liable for any damages
@@ -201,6 +201,110 @@ void Sample_TileMesh::cleanup()
 	m_dmesh = 0;
 }
 
+
+static const int NAVMESHSET_MAGIC = 'M'<<24 | 'S'<<16 | 'E'<<8 | 'T'; //'MSET';
+static const int NAVMESHSET_VERSION = 1;
+
+struct NavMeshSetHeader
+{
+	int magic;
+	int version;
+	int numTiles;
+	dtNavMeshParams params;
+};
+
+struct NavMeshTileHeader
+{
+	dtTileRef tileRef;
+	int dataSize;
+};
+
+void Sample_TileMesh::saveAll(const char* path, const dtNavMesh* mesh)
+{
+	if (!mesh) return;
+	
+	FILE* fp = fopen(path, "wb");
+	if (!fp)
+		return;
+	
+	// Store header.
+	NavMeshSetHeader header;
+	header.magic = NAVMESHSET_MAGIC;
+	header.version = NAVMESHSET_VERSION;
+	header.numTiles = 0;
+	for (int i = 0; i < mesh->getMaxTiles(); ++i)
+	{
+		const dtMeshTile* tile = mesh->getTile(i);
+		if (!tile || !tile->header || !tile->dataSize) continue;
+		header.numTiles++;
+	}
+	memcpy(&header.params, mesh->getParams(), sizeof(dtNavMeshParams));
+	fwrite(&header, sizeof(NavMeshSetHeader), 1, fp);
+
+	// Store tiles.
+	for (int i = 0; i < mesh->getMaxTiles(); ++i)
+	{
+		const dtMeshTile* tile = mesh->getTile(i);
+		if (!tile || !tile->header || !tile->dataSize) continue;
+
+		NavMeshTileHeader tileHeader;
+		tileHeader.tileRef = mesh->getTileRef(tile);
+		tileHeader.dataSize = tile->dataSize;
+		fwrite(&tileHeader, sizeof(tileHeader), 1, fp);
+
+		fwrite(tile->data, tile->dataSize, 1, fp);
+	}
+
+	fclose(fp);
+}
+
+dtNavMesh* Sample_TileMesh::loadAll(const char* path)
+{
+	FILE* fp = fopen(path, "rb");
+	if (!fp) return 0;
+	
+	// Read header.
+	NavMeshSetHeader header;
+	fread(&header, sizeof(NavMeshSetHeader), 1, fp);
+	if (header.magic != NAVMESHSET_MAGIC)
+	{
+		fclose(fp);
+		return 0;
+	}
+	if (header.version != NAVMESHSET_VERSION)
+	{
+		fclose(fp);
+		return 0;
+	}
+	
+	dtNavMesh* mesh = new dtNavMesh;
+	if (!mesh || !mesh->init(&header.params))
+	{
+		fclose(fp);
+		return 0;
+	}
+		
+	// Read tiles.
+	for (int i = 0; i < header.numTiles; ++i)
+	{
+		NavMeshTileHeader tileHeader;
+		fread(&tileHeader, sizeof(tileHeader), 1, fp);
+		if (!tileHeader.tileRef || !tileHeader.dataSize)
+			break;
+
+		unsigned char* data = new unsigned char[tileHeader.dataSize];
+		if (!data) break;
+		memset(data, 0, tileHeader.dataSize);
+		fread(data, tileHeader.dataSize, 1, fp);
+		
+		mesh->addTile(data, tileHeader.dataSize, DT_TILE_FREE_DATA, tileHeader.tileRef);
+	}
+	
+	fclose(fp);
+	
+	return mesh;
+}
+
 void Sample_TileMesh::handleSettings()
 {
 	Sample::handleCommonSettings();
@@ -244,6 +348,22 @@ void Sample_TileMesh::handleSettings()
 		m_maxTiles = 0;
 		m_maxPolysPerTile = 0;
 	}
+	
+	imguiSeparator();
+	
+	if (imguiButton("Save"))
+	{
+		saveAll("all_tiles_navmesh.bin", m_navMesh);
+	}
+
+	if (imguiButton("Load"))
+	{
+		delete m_navMesh;
+		m_navMesh = loadAll("all_tiles_navmesh.bin");
+	}
+	
+	imguiSeparator();
+	
 }
 
 void Sample_TileMesh::handleTools()
@@ -380,11 +500,15 @@ bool Sample_TileMesh::handleBuild()
 			rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: Could not allocate navmesh.");
 		return false;
 	}
-	const float* bmin = m_geom->getMeshBoundsMin();
-	const float tileWorldWidth = m_tileSize*m_cellSize;
-	const float tileWorldHeight = m_tileSize*m_cellSize;
-	
-	if (!m_navMesh->init(bmin, tileWorldWidth, tileWorldHeight, m_maxTiles, m_maxPolysPerTile, 2048))
+
+	dtNavMeshParams params;
+	vcopy(params.orig, m_geom->getMeshBoundsMin());
+	params.tileWidth = m_tileSize*m_cellSize;
+	params.tileHeight = m_tileSize*m_cellSize;
+	params.maxTiles = m_maxTiles;
+	params.maxPolys = m_maxPolysPerTile;
+	params.maxNodes = 2048;
+	if (!m_navMesh->init(&params))
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: Could not init navmesh.");
@@ -423,15 +547,15 @@ void Sample_TileMesh::buildTile(const float* pos)
 	m_tileCol = duRGBA(77,204,0,255);
 	
 	int dataSize = 0;
-	unsigned char* data = buildTileMesh(m_tileBmin, m_tileBmax, dataSize);
+	unsigned char* data = buildTileMesh(tx, ty, m_tileBmin, m_tileBmax, dataSize);
 	
 	if (data)
 	{
 		// Remove any previous data (navmesh owns and deletes the data).
-		m_navMesh->removeTileAt(tx,ty,0,0);
+		m_navMesh->removeTile(m_navMesh->getTileRefAt(tx,ty),0,0);
 		
 		// Let the navmesh own the data.
-		if (!m_navMesh->addTileAt(tx,ty,data,dataSize,true))
+		if (!m_navMesh->addTile(data,dataSize,DT_TILE_FREE_DATA))
 			delete [] data;
 	}
 }
@@ -458,10 +582,7 @@ void Sample_TileMesh::removeTile(const float* pos)
 	
 	m_tileCol = duRGBA(204,25,0,255);
 	
-	unsigned char* rdata = 0;
-	int rdataSize = 0;
-	if (m_navMesh->removeTileAt(tx,ty,&rdata,&rdataSize))
-		delete [] rdata;
+	m_navMesh->removeTile(m_navMesh->getTileRefAt(tx,ty),0,0);
 }
 
 void Sample_TileMesh::buildAllTiles()
@@ -488,13 +609,13 @@ void Sample_TileMesh::buildAllTiles()
 			m_tileBmax[2] = bmin[2] + (y+1)*tcs;
 			
 			int dataSize = 0;
-			unsigned char* data = buildTileMesh(m_tileBmin, m_tileBmax, dataSize);
+			unsigned char* data = buildTileMesh(x, y, m_tileBmin, m_tileBmax, dataSize);
 			if (data)
 			{
 				// Remove any previous data (navmesh owns and deletes the data).
-				m_navMesh->removeTileAt(x,y,0,0);
+				m_navMesh->removeTile(m_navMesh->getTileRefAt(x,y),0,0);
 				// Let the navmesh own the data.
-				if (!m_navMesh->addTileAt(x,y,data,dataSize,true))
+				if (!m_navMesh->addTile(data,dataSize,true))
 					delete [] data;
 			}
 		}
@@ -513,10 +634,10 @@ void Sample_TileMesh::removeAllTiles()
 	
 	for (int y = 0; y < th; ++y)
 		for (int x = 0; x < tw; ++x)
-			m_navMesh->removeTileAt(x,y,0,0);
+			m_navMesh->removeTile(m_navMesh->getTileRefAt(x,y),0,0);
 }
 
-unsigned char* Sample_TileMesh::buildTileMesh(const float* bmin, const float* bmax, int& dataSize)
+unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const float* bmin, const float* bmax, int& dataSize)
 {
 	if (!m_geom || !m_geom->getMesh() || !m_geom->getChunkyMesh())
 	{
@@ -818,6 +939,8 @@ unsigned char* Sample_TileMesh::buildTileMesh(const float* bmin, const float* bm
 		params.walkableHeight = m_agentHeight;
 		params.walkableRadius = m_agentRadius;
 		params.walkableClimb = m_agentMaxClimb;
+		params.tileX = tx;
+		params.tileY = ty;
 		vcopy(params.bmin, bmin);
 		vcopy(params.bmax, bmax);
 		params.cs = m_cfg.cs;
