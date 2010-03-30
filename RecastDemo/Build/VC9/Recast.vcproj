@@ -204,6 +204,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\..\Recast\Source\RecastArea.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\..\Recast\Source\RecastContour.cpp"
 					>
 				</File>
@@ -284,10 +288,6 @@
 		<Filter
 			Name="Demo"
 			>
-			<File
-				RelativePath="..\..\Source\InputGeom.cpp"
-				>
-			</File>
 			<Filter
 				Name="Include"
 				>
@@ -296,11 +296,19 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\Include\ConvexVolumeTool.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\Include\imgui.h"
 					>
 				</File>
 				<File
 					RelativePath="..\..\Include\imguiRenderGL.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Include\InputGeom.h"
 					>
 				</File>
 				<File
@@ -320,6 +328,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\Include\Sample_Debug.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\Include\Sample_SoloMeshSimple.h"
 					>
 				</File>
@@ -335,12 +347,20 @@
 					RelativePath="..\..\Contrib\stb_truetype.h"
 					>
 				</File>
+				<File
+					RelativePath="..\..\Include\TestCase.h"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="Source"
 				>
 				<File
 					RelativePath="..\..\Source\ChunkyTriMesh.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\ConvexVolumeTool.cpp"
 					>
 				</File>
 				<File
@@ -352,7 +372,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\Include\InputGeom.h"
+					RelativePath="..\..\Source\InputGeom.cpp"
 					>
 				</File>
 				<File
@@ -376,6 +396,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\Source\Sample_Debug.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\Source\Sample_SoloMeshSimple.cpp"
 					>
 				</File>
@@ -385,6 +409,10 @@
 				</File>
 				<File
 					RelativePath="..\..\Source\Sample_TileMesh.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\TestCase.cpp"
 					>
 				</File>
 			</Filter>

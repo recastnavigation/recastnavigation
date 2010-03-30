@@ -209,7 +209,7 @@ bool dtNavMesh::init(unsigned char* data, int dataSize, int flags, int maxNodes)
 	if (!init(&params))
 		return false;
 
-	return addTile(data, dataSize, flags);
+	return addTile(data, dataSize, flags) != 0;
 }
 
 const dtNavMeshParams* dtNavMesh::getParams() const
