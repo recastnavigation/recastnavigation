@@ -146,7 +146,7 @@ public:
 		}
 	}
 	
-	virtual void handleRenderOverlay(double* proj, double* model, int* view)
+	virtual void handleRenderOverlay(double* /*proj*/, double* /*model*/, int* /*view*/)
 	{
 	}
 };

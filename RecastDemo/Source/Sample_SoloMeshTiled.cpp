@@ -78,7 +78,7 @@ public:
 		imguiValue("Click LMB to highlight a tile.");
 	}
 	
-	virtual void handleClick(const float* p, bool shift)
+	virtual void handleClick(const float* p, bool /*shift*/)
 	{
 		m_hitPosSet = true;
 		vcopy(m_hitPos,p);
@@ -561,7 +561,7 @@ static void drawLabels(int x, int y, int w, int h,
 }
 
 static void drawGraph(const char* name, int x, int y, int w, int h, float sd,
-					  const int* samples, int n, int nsamples, const char* unit)
+					  const int* samples, int n, int /*nsamples*/, const char* unit)
 {
 	char text[64];
 	int first, last, maxval;

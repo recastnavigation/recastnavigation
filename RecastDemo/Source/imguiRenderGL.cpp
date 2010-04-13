@@ -21,10 +21,24 @@
 #include "imgui.h"
 #include "SDL.h"
 #include "SDL_opengl.h"
-#define STBTT_malloc(x,y)    malloc(x)
-#define STBTT_free(x,y)      free(x)
+
+void imguifree(void* ptr, void* userptr);
+void* imguimalloc(size_t size, void* userptr);
+
+#define STBTT_malloc(x,y)    imguimalloc(x,y)
+#define STBTT_free(x,y)      imguifree(x,y)
 #define STB_TRUETYPE_IMPLEMENTATION
 #include "stb_truetype.h"
+
+void imguifree(void* ptr, void* /*userptr*/)
+{
+	free(ptr);
+}
+
+void* imguimalloc(size_t size, void* /*userptr*/)
+{
+	return malloc(size);
+}
 
 static const unsigned TEMP_COORD_COUNT = 100;
 static float g_tempCoords[TEMP_COORD_COUNT*2];

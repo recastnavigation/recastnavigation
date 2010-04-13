@@ -222,9 +222,9 @@ bool InputGeom::load(const char* filePath)
 				sscanf(row+1, "%f %f %f  %f %f %f %f %d %d %d",
 					   &v[0], &v[1], &v[2], &v[3], &v[4], &v[5], &rad, &bidir, &area, &flags);
 				m_offMeshConRads[m_offMeshConCount] = rad;
-				m_offMeshConDirs[m_offMeshConCount] = bidir;
-				m_offMeshConAreas[m_offMeshConCount] = area;
-				m_offMeshConFlags[m_offMeshConCount] = flags;
+				m_offMeshConDirs[m_offMeshConCount] = (unsigned char)bidir;
+				m_offMeshConAreas[m_offMeshConCount] = (unsigned char)area;
+				m_offMeshConFlags[m_offMeshConCount] = (unsigned short)flags;
 				m_offMeshConCount++;
 			}
 		}
@@ -396,7 +396,7 @@ void InputGeom::deleteConvexVolume(int i)
 	m_volumes[i] = m_volumes[m_volumeCount];
 }
 
-void InputGeom::drawConvexVolumes(struct duDebugDraw* dd, bool hilight)
+void InputGeom::drawConvexVolumes(struct duDebugDraw* dd, bool /*hilight*/)
 {
 	dd->depthMask(false);
 

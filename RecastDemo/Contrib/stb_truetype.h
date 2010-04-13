@@ -1091,12 +1091,12 @@ void stbtt_GetGlyphHMetrics(const stbtt_fontinfo *info, int glyph_index, int *ad
    }
 }
 
-int  stbtt_GetGlyphKernAdvance(const stbtt_fontinfo *info, int glyph1, int glyph2)
+int  stbtt_GetGlyphKernAdvance(const stbtt_fontinfo * /*info*/, int /*glyph1*/, int /*glyph2*/)
 {
    return 0;
 }
 
-int  stbtt_GetCodepointKernAdvance(const stbtt_fontinfo *info, int ch1, int ch2)
+int  stbtt_GetCodepointKernAdvance(const stbtt_fontinfo * /*info*/, int /*ch1*/, int /*ch2*/)
 {
    return 0;
 }

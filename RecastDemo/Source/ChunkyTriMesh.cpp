@@ -49,7 +49,8 @@ static int compareItemY(const void* va, const void* vb)
 	return 0;
 }
 
-static void calcExtends(BoundsItem* items, int nitems, int imin, int imax,
+static void calcExtends(const BoundsItem* items, const int /*nitems*/,
+						const int imin, const int imax,
 						float* bmin, float* bmax)
 {
 	bmin[0] = items[imin].bmin[0];

@@ -35,6 +35,7 @@
 #	define snprintf _snprintf
 #endif
 
+/*
 static int loadBin(const char* path, unsigned char** data)
 {
 	FILE* fp = fopen(path, "rb");
@@ -47,7 +48,7 @@ static int loadBin(const char* path, unsigned char** data)
 	fclose(fp);
 	return size;
 } 
-
+*/
 
 Sample_Debug::Sample_Debug() :
 	m_chf(0),
@@ -167,7 +168,7 @@ void Sample_Debug::handleRender()
 		duDebugDrawRawContours(&dd, *m_cset);
 }
 
-void Sample_Debug::handleRenderOverlay(double* proj, double* model, int* view)
+void Sample_Debug::handleRenderOverlay(double* /*proj*/, double* /*model*/, int* /*view*/)
 {
 }
 

@@ -270,6 +270,6 @@ void ConvexVolumeTool::handleRender()
 	dd.end();	
 }
 
-void ConvexVolumeTool::handleRenderOverlay(double* proj, double* model, int* view)
+void ConvexVolumeTool::handleRenderOverlay(double* /*proj*/, double* /*model*/, int* /*view*/)
 {
 }
