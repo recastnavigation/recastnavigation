@@ -22,7 +22,7 @@
 #include "RecastDebugDraw.h"
 #include "Recast.h"
 
-void duDebugDrawTriMesh(duDebugDraw* dd, const float* verts, int nverts,
+void duDebugDrawTriMesh(duDebugDraw* dd, const float* verts, int /*nverts*/,
 						const int* tris, const float* normals, int ntris,
 						const unsigned char* flags)
 {
@@ -43,7 +43,7 @@ void duDebugDrawTriMesh(duDebugDraw* dd, const float* verts, int nverts,
 	dd->end();
 }
 
-void duDebugDrawTriMeshSlope(duDebugDraw* dd, const float* verts, int nverts,
+void duDebugDrawTriMeshSlope(duDebugDraw* dd, const float* verts, int /*nverts*/,
 							 const int* tris, const float* normals, int ntris,
 							 const float walkableSlopeAngle)
 {

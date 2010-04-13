@@ -460,8 +460,8 @@ void rcRasterizeTriangle(const float* v0, const float* v1, const float* v2,
 //	nt - (in) triangle count
 //	solid - (in) heighfield where the triangles are rasterized
 //  flagMergeThr - (in) distance in voxel where walkable flag is favored over non-walkable.
-void rcRasterizeTriangles(const float* verts, int nv,
-						  const int* tris, const unsigned char* flags, int nt,
+void rcRasterizeTriangles(const float* verts, const int nv,
+						  const int* tris, const unsigned char* flags, const int nt,
 						  rcHeightfield& solid, const int flagMergeThr = 1);
 
 // Rasterizes indexed triangle mesh into heightfield spans.
@@ -473,8 +473,8 @@ void rcRasterizeTriangles(const float* verts, int nv,
 //	nt - (in) triangle count
 //	solid - (in) heighfield where the triangles are rasterized
 //  flagMergeThr - (in) distance in voxel where walkable flag is favored over non-walkable.
-void rcRasterizeTriangles(const float* verts, int nv,
-						  const unsigned short* tris, const unsigned char* flags, int nt,
+void rcRasterizeTriangles(const float* verts, const int nv,
+						  const unsigned short* tris, const unsigned char* flags, const int nt,
 						  rcHeightfield& solid, const int flagMergeThr = 1);
 
 // Rasterizes the triangles into heightfield spans.
@@ -483,7 +483,7 @@ void rcRasterizeTriangles(const float* verts, int nv,
 //	flags - (in) array of triangle flags (uses WALKABLE)
 //	nt - (in) triangle count
 //	solid - (in) heighfield where the triangles are rasterized
-void rcRasterizeTriangles(const float* verts, const unsigned char* flags, int nt,
+void rcRasterizeTriangles(const float* verts, const unsigned char* flags, const int nt,
 						  rcHeightfield& solid, const int flagMergeThr = 1);
 
 // Marks non-walkable low obstacles as walkable if they are closer than walkableClimb

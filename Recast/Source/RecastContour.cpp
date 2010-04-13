@@ -183,9 +183,9 @@ static void walkContour(int x, int y, int i,
 	}
 }
 
-static float distancePtSeg(int x, int y, int z,
-						   int px, int py, int pz,
-						   int qx, int qy, int qz)
+static float distancePtSeg(const int x, const int z,
+						   const int px, const int pz,
+						   const int qx, const int qz)
 {
 /*	float pqx = (float)(qx - px);
 	float pqy = (float)(qy - py);
@@ -309,15 +309,13 @@ static void simplifyContour(rcIntArray& points, rcIntArray& simplified, float ma
 	{
 		int ii = (i+1) % (simplified.size()/4);
 		
-		int ax = simplified[i*4+0];
-		int ay = simplified[i*4+1];
-		int az = simplified[i*4+2];
-		int ai = simplified[i*4+3];
+		const int ax = simplified[i*4+0];
+		const int az = simplified[i*4+2];
+		const int ai = simplified[i*4+3];
 		
-		int bx = simplified[ii*4+0];
-		int by = simplified[ii*4+1];
-		int bz = simplified[ii*4+2];
-		int bi = simplified[ii*4+3];
+		const int bx = simplified[ii*4+0];
+		const int bz = simplified[ii*4+2];
+		const int bi = simplified[ii*4+3];
 
 		// Find maximum deviation from the segment.
 		float maxd = 0;
@@ -346,8 +344,7 @@ static void simplifyContour(rcIntArray& points, rcIntArray& simplified, float ma
 		{
 			while (ci != endi)
 			{
-				float d = distancePtSeg(points[ci*4+0], points[ci*4+1]/4, points[ci*4+2],
-										ax, ay/4, az, bx, by/4, bz);
+				float d = distancePtSeg(points[ci*4+0], points[ci*4+2], ax, az, bx, bz);
 				if (d > maxd)
 				{
 					maxd = d;
@@ -364,7 +361,7 @@ static void simplifyContour(rcIntArray& points, rcIntArray& simplified, float ma
 		{
 			// Add space for the new point.
 			simplified.resize(simplified.size()+4);
-			int n = simplified.size()/4;
+			const int n = simplified.size()/4;
 			for (int j = n-1; j > i; --j)
 			{
 				simplified[j*4+0] = simplified[(j-1)*4+0];
@@ -389,15 +386,15 @@ static void simplifyContour(rcIntArray& points, rcIntArray& simplified, float ma
 	{
 		for (int i = 0; i < simplified.size()/4; )
 		{
-			int ii = (i+1) % (simplified.size()/4);
+			const int ii = (i+1) % (simplified.size()/4);
 			
-			int ax = simplified[i*4+0];
-			int az = simplified[i*4+2];
-			int ai = simplified[i*4+3];
+			const int ax = simplified[i*4+0];
+			const int az = simplified[i*4+2];
+			const int ai = simplified[i*4+3];
 			
-			int bx = simplified[ii*4+0];
-			int bz = simplified[ii*4+2];
-			int bi = simplified[ii*4+3];
+			const int bx = simplified[ii*4+0];
+			const int bz = simplified[ii*4+2];
+			const int bi = simplified[ii*4+3];
 			
 			// Find maximum deviation from the segment.
 			int maxi = -1;
@@ -421,7 +418,7 @@ static void simplifyContour(rcIntArray& points, rcIntArray& simplified, float ma
 			{
 				// Add space for the new point.
 				simplified.resize(simplified.size()+4);
-				int n = simplified.size()/4;
+				const int n = simplified.size()/4;
 				for (int j = n-1; j > i; --j)
 				{
 					simplified[j*4+0] = simplified[(j-1)*4+0];

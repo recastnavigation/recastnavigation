@@ -160,7 +160,7 @@ static float distancePtSeg2d(const float* pt, const float* p, const float* q)
 	return dx*dx + dz*dz;
 }
 
-static float distToTriMesh(const float* p, const float* verts, int nverts, const int* tris, int ntris)
+static float distToTriMesh(const float* p, const float* verts, const int /*nverts*/, const int* tris, const int ntris)
 {
 	float dmin = FLT_MAX;
 	for (int i = 0; i < ntris; ++i)
@@ -194,7 +194,9 @@ static float distToPoly(int nvert, const float* verts, const float* p)
 }
 
 
-static unsigned short getHeight(const float fx, const float fy, const float fz, const float cs, const float ics, const float ch, const rcHeightPatch& hp)
+static unsigned short getHeight(const float fx, const float fy, const float fz,
+								const float /*cs*/, const float ics, const float ch,
+								const rcHeightPatch& hp)
 {
 	int ix = (int)floorf(fx*ics + 0.01f);
 	int iz = (int)floorf(fz*ics + 0.01f);
@@ -1070,9 +1072,9 @@ bool rcBuildPolyMeshDetail(const rcPolyMesh& mesh, const rcCompactHeightfield& c
 		// Store detail submesh.
 		const int ntris = tris.size()/4;
 		
-		dmesh.meshes[i*4+0] = dmesh.nverts;
+		dmesh.meshes[i*4+0] = (unsigned short)dmesh.nverts;
 		dmesh.meshes[i*4+1] = (unsigned short)nverts;
-		dmesh.meshes[i*4+2] = dmesh.ntris;
+		dmesh.meshes[i*4+2] = (unsigned short)dmesh.ntris;
 		dmesh.meshes[i*4+3] = (unsigned short)ntris;
 		
 		// Store vertices, allocate more memory if necessary.
@@ -1189,9 +1191,9 @@ bool rcMergePolyMeshDetails(rcPolyMeshDetail** meshes, const int nmeshes, rcPoly
 		{
 			unsigned short* dst = &mesh.meshes[mesh.nmeshes*4];
 			unsigned short* src = &dm->meshes[j*4];
-			dst[0] = mesh.nverts+src[0];
+			dst[0] = (unsigned short)mesh.nverts+src[0];
 			dst[1] = src[1];
-			dst[2] = mesh.ntris+src[2];
+			dst[2] = (unsigned short)mesh.ntris+src[2];
 			dst[3] = src[3];
 			mesh.nmeshes++;
 		}

@@ -284,8 +284,8 @@ void rcRasterizeTriangle(const float* v0, const float* v1, const float* v2,
 		rcGetBuildTimes()->rasterizeTriangles += rcGetDeltaTimeUsec(startTime, endTime);
 }
 
-void rcRasterizeTriangles(const float* verts, int nv,
-						  const int* tris, const unsigned char* flags, int nt,
+void rcRasterizeTriangles(const float* verts, const int /*nv*/,
+						  const int* tris, const unsigned char* flags, const int nt,
 						  rcHeightfield& solid, const int flagMergeThr)
 {
 	rcTimeVal startTime = rcGetPerformanceTimer();
@@ -308,8 +308,8 @@ void rcRasterizeTriangles(const float* verts, int nv,
 		rcGetBuildTimes()->rasterizeTriangles += rcGetDeltaTimeUsec(startTime, endTime);
 }
 
-void rcRasterizeTriangles(const float* verts, int nv,
-						  const unsigned short* tris, const unsigned char* flags, int nt,
+void rcRasterizeTriangles(const float* verts, const int /*nv*/,
+						  const unsigned short* tris, const unsigned char* flags, const int nt,
 						  rcHeightfield& solid, const int flagMergeThr)
 {
 	rcTimeVal startTime = rcGetPerformanceTimer();
@@ -332,7 +332,7 @@ void rcRasterizeTriangles(const float* verts, int nv,
 		rcGetBuildTimes()->rasterizeTriangles += rcGetDeltaTimeUsec(startTime, endTime);
 }
 
-void rcRasterizeTriangles(const float* verts, const unsigned char* flags, int nt,
+void rcRasterizeTriangles(const float* verts, const unsigned char* flags, const int nt,
 						  rcHeightfield& solid, const int flagMergeThr)
 {
 	rcTimeVal startTime = rcGetPerformanceTimer();

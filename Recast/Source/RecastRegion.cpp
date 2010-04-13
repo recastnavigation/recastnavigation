@@ -27,9 +27,7 @@
 #include "RecastTimer.h"
 
 
-static unsigned short* calculateDistanceField(rcCompactHeightfield& chf,
-											  unsigned short* src, unsigned short* dst,
-											  unsigned short& maxDist)
+static void calculateDistanceField(rcCompactHeightfield& chf, unsigned short* src, unsigned short& maxDist)
 {
 	const int w = chf.width;
 	const int h = chf.height;
@@ -180,8 +178,6 @@ static unsigned short* calculateDistanceField(rcCompactHeightfield& chf,
 	for (int i = 0; i < chf.spanCount; ++i)
 		maxDist = rcMax(src[i], maxDist);
 	
-	return src;
-	
 }
 
 static unsigned short* boxBlur(rcCompactHeightfield& chf, int thr,
@@ -200,14 +196,14 @@ static unsigned short* boxBlur(rcCompactHeightfield& chf, int thr,
 			for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
 			{
 				const rcCompactSpan& s = chf.spans[i];
-				int cd = (int)src[i];
+				const unsigned short cd = src[i];
 				if (cd <= thr)
 				{
 					dst[i] = cd;
 					continue;
 				}
 
-				int d = cd;
+				int d = (int)cd;
 				for (int dir = 0; dir < 4; ++dir)
 				{
 					if (rcGetCon(s, dir) != RC_NOT_CONNECTED)
@@ -508,7 +504,7 @@ static bool canMergeWithRegion(const rcRegion& rega, const rcRegion& regb)
 	return true;
 }
 
-static void addUniqueFloorRegion(rcRegion& reg, unsigned short n)
+static void addUniqueFloorRegion(rcRegion& reg, int n)
 {
 	for (int i = 0; i < reg.floors.size(); ++i)
 		if (reg.floors[i] == n)
@@ -920,9 +916,7 @@ bool rcBuildDistanceField(rcCompactHeightfield& chf)
 
 	rcTimeVal distStartTime = rcGetPerformanceTimer();
 	
-	if (calculateDistanceField(chf, src, dst, maxDist) != src)
-		rcSwap(src, dst);
-	
+	calculateDistanceField(chf, src, maxDist);
 	chf.maxDistance = maxDist;
 	
 	rcTimeVal distEndTime = rcGetPerformanceTimer();

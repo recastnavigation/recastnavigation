@@ -87,7 +87,7 @@ static void calcTriNormal(const float* v0, const float* v1, const float* v2, flo
 }
 
 void rcMarkWalkableTriangles(const float walkableSlopeAngle,
-							 const float* verts, int nv,
+							 const float* verts, int /*nv*/,
 							 const int* tris, int nt,
 							 unsigned char* flags)
 {

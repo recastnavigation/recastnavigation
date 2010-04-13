@@ -327,7 +327,7 @@ void duDebugDrawNavMesh(duDebugDraw* dd, const dtNavMesh* mesh, unsigned char fl
 }
 
 
-static void drawMeshTileBVTree(duDebugDraw* dd, const dtNavMesh* mesh, const dtMeshTile* tile)
+static void drawMeshTileBVTree(duDebugDraw* dd, const dtMeshTile* tile)
 {
 	// Draw BV nodes.
 	const float cs = 1.0f / tile->header->bvQuantFactor;
@@ -437,7 +437,7 @@ void duDebugDrawNavMeshBVTree(duDebugDraw* dd, const dtNavMesh* mesh)
 	{
 		const dtMeshTile* tile = mesh->getTile(i);
 		if (!tile->header) continue;
-		drawMeshTileBVTree(dd, mesh, tile);
+		drawMeshTileBVTree(dd, tile);
 	}
 }
 

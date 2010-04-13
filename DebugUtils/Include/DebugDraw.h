@@ -55,9 +55,9 @@ struct duDebugDraw
 	virtual void end() = 0;
 };
 
-inline unsigned int duRGBA(unsigned char r, unsigned char g, unsigned char b, unsigned char a)
+inline unsigned int duRGBA(int r, int g, int b, int a)
 {
-	return (r) | (g << 8) | (b << 16) | (a << 24);
+	return ((unsigned int)r) | ((unsigned int)g << 8) | ((unsigned int)b << 16) | ((unsigned int)a << 24);
 }
 
 inline unsigned int duRGBAf(float fr, float fg, float fb, float fa)

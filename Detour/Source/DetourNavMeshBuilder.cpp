@@ -67,7 +67,7 @@ static int compareItemZ(const void* va, const void* vb)
 	return 0;
 }
 
-static void calcExtends(BVItem* items, int nitems, int imin, int imax,
+static void calcExtends(BVItem* items, const int /*nitems*/, const int imin, const int imax,
 						unsigned short* bmin, unsigned short* bmax)
 {
 	bmin[0] = items[imin].bmin[0];
@@ -166,10 +166,10 @@ static void subdivide(BVItem* items, int nitems, int imin, int imax, int& curNod
 	}
 }
 
-static int createBVTree(const unsigned short* verts, const int nverts,
+static int createBVTree(const unsigned short* verts, const int /*nverts*/,
 						const unsigned short* polys, const int npolys, const int nvp,
-						float cs, float ch,
-						int nnodes, dtBVNode* nodes)
+						const float cs, const float ch,
+						const int /*nnodes*/, dtBVNode* nodes)
 {
 	// Build tree
 	BVItem* items = new BVItem[npolys];
@@ -490,14 +490,14 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 		const int ndv = params->detailMeshes[i*4+1];
 		const int nv = navPolys[i].vertCount;
 		dtl.vertBase = vbase;
-		dtl.vertCount = ndv-nv;
+		dtl.vertCount = (unsigned short)(ndv-nv);
 		dtl.triBase = params->detailMeshes[i*4+2];
 		dtl.triCount = params->detailMeshes[i*4+3];
 		// Copy vertices except the first 'nv' verts which are equal to nav poly verts.
 		if (ndv-nv)
 		{
 			memcpy(&navDVerts[vbase*3], &params->detailVerts[(vb+nv)*3], sizeof(float)*3*(ndv-nv));
-			vbase += ndv-nv;
+			vbase += (unsigned short)(ndv-nv);
 		}
 	}
 	// Store triangles.
@@ -516,7 +516,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 		if (offMeshConClass[i*2+0] == 0xff)
 		{
 			dtOffMeshConnection* con = &offMeshCons[n];
-			con->poly = offMeshPolyBase + n;
+			con->poly = (unsigned short)(offMeshPolyBase + n);
 			// Copy connection end-points.
 			const float* endPts = &params->offMeshConVerts[i*2*3];
 			vcopy(&con->pos[0], &endPts[0]);
@@ -576,7 +576,7 @@ inline void swapEndian(float* v)
 	swapByte(x+0, x+3); swapByte(x+1, x+2);
 }
 
-bool dtNavMeshHeaderSwapEndian(unsigned char* data, const int dataSize)
+bool dtNavMeshHeaderSwapEndian(unsigned char* data, const int /*dataSize*/)
 {
 	dtMeshHeader* header = (dtMeshHeader*)data;
 	
@@ -621,7 +621,7 @@ bool dtNavMeshHeaderSwapEndian(unsigned char* data, const int dataSize)
 	return true;
 }
 
-bool dtNavMeshDataSwapEndian(unsigned char* data, const int dataSize)
+bool dtNavMeshDataSwapEndian(unsigned char* data, const int /*dataSize*/)
 {
 	// Make sure the data is in right format.
 	dtMeshHeader* header = (dtMeshHeader*)data;
