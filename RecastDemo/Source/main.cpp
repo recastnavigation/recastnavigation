@@ -19,12 +19,6 @@
 #include <stdio.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
-#ifdef WIN32
-#	include <io.h>
-#else
-#	include <dirent.h>
-#endif
-
 #include "SDL.h"
 #include "SDL_opengl.h"
 #include "imgui.h"
@@ -33,6 +27,8 @@
 #include "RecastDebugDraw.h"
 #include "InputGeom.h"
 #include "TestCase.h"
+#include "Filelist.h"
+#include "SlideShow.h"
 
 #include "Sample_SoloMeshSimple.h"
 #include "Sample_SoloMeshTiled.h"
@@ -42,91 +38,6 @@
 #ifdef WIN32
 #	define snprintf _snprintf
 #endif
-
-
-struct FileList
-{
-	static const int MAX_FILES = 256;
-	inline FileList() : size(0)
-	{
-		memset(files, 0, sizeof(char*)*MAX_FILES);
-	}
-	
-	inline ~FileList()
-	{
-		clear();
-	}
-	
-	void clear()
-	{
-		for (int i = 0; i < size; ++i)
-			delete [] files[i];
-		size = 0;
-	}
-	
-	void add(const char* path)
-	{
-		if (size >= MAX_FILES)
-			return;
-		int n = strlen(path);
-		files[size] = new char[n+1];
-		strcpy(files[size], path);
-		size++;
-	}
-	
-	static int cmp(const void* a, const void* b)
-	{
-		return strcmp(*(const char**)a, *(const char**)b);
-	}
-	
-	void sort()
-	{
-		if (size > 1)
-			qsort(files, size, sizeof(char*), cmp);
-	}
-	
-	char* files[MAX_FILES];
-	int size;
-};
-
-static void scanDirectory(const char* path, const char* ext, FileList& list)
-{
-	list.clear();
-	
-#ifdef WIN32
-	_finddata_t dir;
-	char pathWithExt[MAX_PATH];
-	long fh;
-	strcpy(pathWithExt, path);
-	strcat(pathWithExt, "/*");
-	strcat(pathWithExt, ext);
-	fh = _findfirst(pathWithExt, &dir);
-	if (fh == -1L)
-		return;
-	do
-	{
-		list.add(dir.name);
-	}
-	while (_findnext(fh, &dir) == 0);
-	_findclose(fh);
-#else
-	dirent* current = 0;
-	DIR* dp = opendir(path);
-	if (!dp)
-		return;
-	
-	while ((current = readdir(dp)) != 0)
-	{
-		int len = strlen(current->d_name);
-		if (len > 4 && strncmp(current->d_name+len-4, ext, 4) == 0)
-		{
-			list.add(current->d_name);
-		}
-	}
-	closedir(dp);
-#endif
-	list.sort();
-}
 
 struct SampleItem
 {
@@ -219,6 +130,9 @@ int main(int /*argc*/, char** /*argv*/)
 	float mpos[3] = {0,0,0};
 	bool mposSet = false;
 	
+	SlideShow slideShow;
+	slideShow.init("slides/");
+	
 	InputGeom* geom = 0;
 	Sample* sample = 0;
 	TestCase* test = 0;
@@ -257,12 +171,16 @@ int main(int /*argc*/, char** /*argv*/)
 					{
 						done = true;
 					}
-					else if (event.key.keysym.sym == SDLK_TAB)
+					else if (event.key.keysym.sym == SDLK_t)
 					{
 						showLevels = false;
 						showSample = false;
 						showTestCases = true;
 						scanDirectory("Tests", ".txt", files);
+					}
+					else if (event.key.keysym.sym == SDLK_TAB)
+					{
+						showMenu = !showMenu;
 					}
 					else if (event.key.keysym.sym == SDLK_SPACE)
 					{
@@ -324,6 +242,14 @@ int main(int /*argc*/, char** /*argv*/)
 							glFogf(GL_FOG_START, camr*0.2f);
 							glFogf(GL_FOG_END, camr*1.25f);
 						}
+					}
+					else if (event.key.keysym.sym == SDLK_RIGHT)
+					{
+						slideShow.nextSlide();
+					}
+					else if (event.key.keysym.sym == SDLK_LEFT)
+					{
+						slideShow.prevSlide();
 					}
 					break;
 					
@@ -898,6 +824,8 @@ int main(int /*argc*/, char** /*argv*/)
 			
 			imguiEndScrollArea();
 		}
+		
+		slideShow.updateAndDraw(dt, width, height);
 		
 		// Marker
 		if (mposSet && gluProject((GLdouble)mpos[0], (GLdouble)mpos[1], (GLdouble)mpos[2],

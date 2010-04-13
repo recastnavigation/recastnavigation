@@ -43,6 +43,8 @@
 		6BB93C7F10CFE1D500F74F2B /* RecastDebugDraw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BB93C7C10CFE1D500F74F2B /* RecastDebugDraw.cpp */; };
 		6BB93CF610CFEC4500F74F2B /* RecastDump.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BB93CF510CFEC4500F74F2B /* RecastDump.cpp */; };
 		6BCF32361104CD05009445BF /* OffMeshConnectionTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BCF32351104CD05009445BF /* OffMeshConnectionTool.cpp */; };
+		6BF5F23A11747606000502A6 /* Filelist.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BF5F23911747606000502A6 /* Filelist.cpp */; };
+		6BF5F2401174763B000502A6 /* SlideShow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BF5F23F1174763B000502A6 /* SlideShow.cpp */; };
 		6BF7C1401111953A002B3F46 /* TestCase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BF7C13F1111953A002B3F46 /* TestCase.cpp */; };
 		6BF7C4541115C277002B3F46 /* RecastArea.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BF7C4531115C277002B3F46 /* RecastArea.cpp */; };
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
@@ -118,6 +120,11 @@
 		6BB93CF510CFEC4500F74F2B /* RecastDump.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RecastDump.cpp; path = ../../../DebugUtils/Source/RecastDump.cpp; sourceTree = SOURCE_ROOT; };
 		6BCF32341104CD05009445BF /* OffMeshConnectionTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OffMeshConnectionTool.h; path = ../../Include/OffMeshConnectionTool.h; sourceTree = SOURCE_ROOT; };
 		6BCF32351104CD05009445BF /* OffMeshConnectionTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OffMeshConnectionTool.cpp; path = ../../Source/OffMeshConnectionTool.cpp; sourceTree = SOURCE_ROOT; };
+		6BF5F23911747606000502A6 /* Filelist.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Filelist.cpp; path = ../../Source/Filelist.cpp; sourceTree = SOURCE_ROOT; };
+		6BF5F23C11747614000502A6 /* Filelist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Filelist.h; path = ../../Include/Filelist.h; sourceTree = SOURCE_ROOT; };
+		6BF5F23E1174763B000502A6 /* SlideShow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SlideShow.h; path = ../../Include/SlideShow.h; sourceTree = SOURCE_ROOT; };
+		6BF5F23F1174763B000502A6 /* SlideShow.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SlideShow.cpp; path = ../../Source/SlideShow.cpp; sourceTree = SOURCE_ROOT; };
+		6BF5F2C511747E9F000502A6 /* stb_image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stb_image.h; path = ../../Contrib/stb_image.h; sourceTree = SOURCE_ROOT; };
 		6BF7C13E11119520002B3F46 /* TestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestCase.h; path = ../../Include/TestCase.h; sourceTree = SOURCE_ROOT; };
 		6BF7C13F1111953A002B3F46 /* TestCase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TestCase.cpp; path = ../../Source/TestCase.cpp; sourceTree = SOURCE_ROOT; };
 		6BF7C4531115C277002B3F46 /* RecastArea.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RecastArea.cpp; path = ../../../Recast/Source/RecastArea.cpp; sourceTree = SOURCE_ROOT; };
@@ -142,13 +149,18 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				6B555DF6100B273500247EA3 /* stb_truetype.h */,
 				6BB93C7610CFE1BD00F74F2B /* DebugUtils */,
 				6BDD9E030F91110C00904EEF /* Detour */,
 				6B137C7D0F7FCBE800459200 /* Recast */,
 				6B555DF5100B25FC00247EA3 /* Samples */,
 				6BB7FE8E10F4A175006DA0A6 /* Tools */,
 				6B25B6180FFA62BE004F1BC4 /* main.cpp */,
+				6BF5F2C511747E9F000502A6 /* stb_image.h */,
+				6BF5F23E1174763B000502A6 /* SlideShow.h */,
+				6BF5F23F1174763B000502A6 /* SlideShow.cpp */,
+				6BF5F23C11747614000502A6 /* Filelist.h */,
+				6BF5F23911747606000502A6 /* Filelist.cpp */,
+				6B555DF6100B273500247EA3 /* stb_truetype.h */,
 				6B137C7A0F7FCBE400459200 /* imgui.h */,
 				6B137C6C0F7FCBBB00459200 /* imgui.cpp */,
 				6B555DAE100B211D00247EA3 /* imguiRenderGL.h */,
@@ -405,6 +417,8 @@
 				6BF7C4541115C277002B3F46 /* RecastArea.cpp in Sources */,
 				6B324C66111C5D9A00EBD2FD /* ConvexVolumeTool.cpp in Sources */,
 				6B8036AE113BAABE005ED67B /* Sample_Debug.cpp in Sources */,
+				6BF5F23A11747606000502A6 /* Filelist.cpp in Sources */,
+				6BF5F2401174763B000502A6 /* SlideShow.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -453,6 +467,7 @@
 					"-Wall",
 				);
 				PRODUCT_NAME = Recast;
+				USER_HEADER_SEARCH_PATHS = "";
 			};
 			name = Debug;
 		};
@@ -478,6 +493,7 @@
 					"-Wall",
 				);
 				PRODUCT_NAME = Recast;
+				USER_HEADER_SEARCH_PATHS = "";
 			};
 			name = Release;
 		};
