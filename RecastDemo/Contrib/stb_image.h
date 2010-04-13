@@ -819,13 +819,13 @@ static stbi_uc *hdr_to_ldr(float   *data, int x, int y, int comp)
          float z = (float) pow(data[i*comp+k]*h2l_scale_i, h2l_gamma_i) * 255 + 0.5f;
          if (z < 0) z = 0;
          if (z > 255) z = 255;
-         output[i*comp + k] = float2int(z);
+         output[i*comp + k] = (stbi_uc)float2int(z);
       }
       if (k < comp) {
          float z = data[i*comp+k] * 255 + 0.5f;
          if (z < 0) z = 0;
          if (z > 255) z = 255;
-         output[i*comp + k] = float2int(z);
+         output[i*comp + k] = (stbi_uc)float2int(z);
       }
    }
    free(data);
@@ -1585,12 +1585,12 @@ typedef uint8 *(*resample_row_func)(uint8 *out, uint8 *in0, uint8 *in1,
 
 #define div4(x) ((uint8) ((x) >> 2))
 
-static uint8 *resample_row_1(uint8 *out, uint8 *in_near, uint8 *in_far, int w, int hs)
+static uint8 *resample_row_1(uint8 * /*out*/, uint8 *in_near, uint8 * /*in_far*/, int /*w*/, int /*hs*/)
 {
    return in_near;
 }
 
-static uint8* resample_row_v_2(uint8 *out, uint8 *in_near, uint8 *in_far, int w, int hs)
+static uint8* resample_row_v_2(uint8 *out, uint8 *in_near, uint8 * in_far, int w, int /*hs*/)
 {
    // need to generate two samples vertically for every one in input
    int i;
@@ -1599,7 +1599,7 @@ static uint8* resample_row_v_2(uint8 *out, uint8 *in_near, uint8 *in_far, int w,
    return out;
 }
 
-static uint8*  resample_row_h_2(uint8 *out, uint8 *in_near, uint8 *in_far, int w, int hs)
+static uint8*  resample_row_h_2(uint8 *out, uint8 *in_near, uint8 * /*in_far*/, int w, int /*hs*/)
 {
    // need to generate two samples horizontally for every one in input
    int i;
@@ -1624,7 +1624,7 @@ static uint8*  resample_row_h_2(uint8 *out, uint8 *in_near, uint8 *in_far, int w
 
 #define div16(x) ((uint8) ((x) >> 4))
 
-static uint8 *resample_row_hv_2(uint8 *out, uint8 *in_near, uint8 *in_far, int w, int hs)
+static uint8 *resample_row_hv_2(uint8 *out, uint8 *in_near, uint8 *in_far, int w, int /*hs*/)
 {
    // need to generate 2x2 samples for every one in input
    int i,t0,t1;
@@ -1645,7 +1645,7 @@ static uint8 *resample_row_hv_2(uint8 *out, uint8 *in_near, uint8 *in_far, int w
    return out;
 }
 
-static uint8 *resample_row_generic(uint8 *out, uint8 *in_near, uint8 *in_far, int w, int hs)
+static uint8 *resample_row_generic(uint8 *out, uint8 *in_near, uint8 * /*in_far*/, int w, int hs)
 {
    // resample with nearest-neighbor
    int i,j;
@@ -2498,7 +2498,7 @@ static int compute_transparency(png *z, uint8 tc[3], int out_n)
    return 1;
 }
 
-static int expand_palette(png *a, uint8 *palette, int len, int pal_img_n)
+static int expand_palette(png *a, uint8 *palette, int /*len*/, int pal_img_n)
 {
    uint32 i, pixel_count = a->s.img_x * a->s.img_y;
    uint8 *p, *temp_out, *orig = a->out;
@@ -2903,7 +2903,7 @@ static stbi_uc *bmp_load(stbi *s, int *x, int *y, int *comp, int req_comp)
                   mr = 0xff << 16;
                   mg = 0xff <<  8;
                   mb = 0xff <<  0;
-                  ma = 0xff << 24;
+                  ma = (unsigned int)(0xff << 24);
                   fake_a = 1; // @TODO: check for cases like alpha value is all 0 and switch it to 255
                } else {
                   mr = 31 << 10;
@@ -2946,9 +2946,9 @@ static stbi_uc *bmp_load(stbi *s, int *x, int *y, int *comp, int req_comp)
       int z=0;
       if (psize == 0 || psize > 256) { free(out); return epuc("invalid", "Corrupt BMP"); }
       for (i=0; i < psize; ++i) {
-         pal[i][2] = get8(s);
-         pal[i][1] = get8(s);
-         pal[i][0] = get8(s);
+         pal[i][2] = (stbi_uc)get8(s);
+         pal[i][1] = (stbi_uc)get8(s);
+         pal[i][0] = (stbi_uc)get8(s);
          if (hsz != 12) get8(s);
          pal[i][3] = 255;
       }
@@ -3004,22 +3004,22 @@ static stbi_uc *bmp_load(stbi *s, int *x, int *y, int *comp, int req_comp)
          if (easy) {
             for (i=0; i < (int) s->img_x; ++i) {
                int a;
-               out[z+2] = get8(s);
-               out[z+1] = get8(s);
-               out[z+0] = get8(s);
+               out[z+2] = (uint8)get8(s);
+               out[z+1] = (uint8)get8(s);
+               out[z+0] = (uint8)get8(s);
                z += 3;
                a = (easy == 2 ? get8(s) : 255);
-               if (target == 4) out[z++] = a;
+               if (target == 4) out[z++] = (uint8)a;
             }
          } else {
             for (i=0; i < (int) s->img_x; ++i) {
                uint32 v = (bpp == 16 ? get16le(s) : get32le(s));
                int a;
-               out[z++] = shiftsigned(v & mr, rshift, rcount);
-               out[z++] = shiftsigned(v & mg, gshift, gcount);
-               out[z++] = shiftsigned(v & mb, bshift, bcount);
+               out[z++] = (uint8)shiftsigned(v & mr, rshift, rcount);
+               out[z++] = (uint8)shiftsigned(v & mg, gshift, gcount);
+               out[z++] = (uint8)shiftsigned(v & mb, bshift, bcount);
                a = (ma ? shiftsigned(v & ma, ashift, acount) : 255);
-               if (target == 4) out[z++] = a; 
+               if (target == 4) out[z++] = (uint8)a; 
             }
          }
          skip(s, pad);
@@ -3492,7 +3492,7 @@ static stbi_uc *psd_load(stbi *s, int *x, int *y, int *comp, int req_comp)
 						len++;
 						count += len;
 						while (len) {
-							*p = get8(s);
+							*p = (uint8)get8(s);
                      p += 4;
 							len--;
 						}
@@ -3505,7 +3505,7 @@ static stbi_uc *psd_load(stbi *s, int *x, int *y, int *comp, int req_comp)
                   val = get8(s);
 						count += len;
 						while (len) {
-							*p = val;
+							*p = (uint8)val;
                      p += 4;
 							len--;
 						}
@@ -3530,7 +3530,7 @@ static stbi_uc *psd_load(stbi *s, int *x, int *y, int *comp, int req_comp)
 				// Read the data.
 				count = 0;
 				for (i = 0; i < pixelCount; i++)
-					*p = get8(s), p += 4;
+					*p = (uint8)get8(s), p += 4;
 			}
 		}
 	}
@@ -3613,7 +3613,7 @@ static char *hdr_gettoken(stbi *z, char *buffer)
    int len=0;
    char c = '\0';
 
-   c = get8(z);
+   c = (char)get8(z);
 
 	while (!at_eof(z) && c != '\n') {
 		buffer[len++] = c;
@@ -3623,7 +3623,7 @@ static char *hdr_gettoken(stbi *z, char *buffer)
             ;
          break;
       }
-      c = get8(z);
+      c = (char)get8(z);
 	}
 
    buffer[len] = 0;
@@ -3676,7 +3676,7 @@ static float *hdr_load(stbi *s, int *x, int *y, int *comp, int req_comp)
 		return epf("not HDR", "Corrupt HDR image");
 	
 	// Parse header
-	while(1) {
+	for(;;) {
 		token = hdr_gettoken(s,buffer);
       if (token[0] == 0) break;
 		if (strcmp(token, "FORMAT=32-bit_rle_rgbe") == 0) valid = 1;
@@ -3727,7 +3727,7 @@ static float *hdr_load(stbi *s, int *x, int *y, int *comp, int req_comp)
          if (c1 != 2 || c2 != 2 || (len & 0x80)) {
             // not run-length encoded, so we have to actually use THIS data as a decoded
             // pixel (note this can't be a valid pixel--one of RGB must be >= 128)
-            stbi_uc rgbe[4] = { c1,c2,len, get8(s) };
+            stbi_uc rgbe[4] = { (stbi_uc)c1,(stbi_uc)c2,(stbi_uc)len, (stbi_uc)get8(s) };
             hdr_convert(hdr_data, rgbe, req_comp);
             i = 1;
             j = 0;
@@ -3742,17 +3742,17 @@ static float *hdr_load(stbi *s, int *x, int *y, int *comp, int req_comp)
 			for (k = 0; k < 4; ++k) {
 				i = 0;
 				while (i < width) {
-					count = get8(s);
+					count = (unsigned char)get8(s);
 					if (count > 128) {
 						// Run
-						value = get8(s);
+						value = (unsigned char)get8(s);
                   count -= 128;
 						for (z = 0; z < count; ++z)
 							scanline[i++ * 4 + k] = value;
 					} else {
 						// Dump
 						for (z = 0; z < count; ++z)
-							scanline[i++ * 4 + k] = get8(s);
+							scanline[i++ * 4 + k] = (stbi_uc)get8(s);
 					}
 				}
 			}
@@ -3794,8 +3794,8 @@ static void writefv(FILE *f, const char *fmt, va_list v)
    while (*fmt) {
       switch (*fmt++) {
          case ' ': break;
-         case '1': { uint8 x = va_arg(v, int); write8(f,x); break; }
-         case '2': { int16 x = va_arg(v, int); write8(f,x); write8(f,x>>8); break; }
+         case '1': { uint8 x = (uint8)va_arg(v, int); write8(f,x); break; }
+         case '2': { int16 x = (int16)va_arg(v, int); write8(f,x); write8(f,x>>8); break; }
          case '4': { int32 x = va_arg(v, int); write8(f,x); write8(f,x>>8); write8(f,x>>16); write8(f,x>>24); break; }
          default:
             assert(0);

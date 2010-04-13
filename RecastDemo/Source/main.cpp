@@ -825,7 +825,7 @@ int main(int /*argc*/, char** /*argv*/)
 			imguiEndScrollArea();
 		}
 		
-		slideShow.updateAndDraw(dt, width, height);
+		slideShow.updateAndDraw(dt, (float)width, (float)height);
 		
 		// Marker
 		if (mposSet && gluProject((GLdouble)mpos[0], (GLdouble)mpos[1], (GLdouble)mpos[2],

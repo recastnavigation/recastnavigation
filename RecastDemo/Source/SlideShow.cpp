@@ -104,9 +104,9 @@ void SlideShow::setSlide(int n)
 	if (m_nextSlide > maxIdx) m_nextSlide = maxIdx; 
 }
 
-void SlideShow::updateAndDraw(float dt, const float w, const float h)
+void SlideShow::updateAndDraw(float dt, const float /*w*/, const float /*h*/)
 {
-	float slideAlphaTarget = (m_showCurSlide && m_texId) ? 1 : 0;
+	float slideAlphaTarget = (m_showCurSlide && m_texId) ? 1.0f : 0.0f;
 	if (m_curSlide != m_nextSlide)
 		slideAlphaTarget = 0;
 	
@@ -136,8 +136,8 @@ void SlideShow::updateAndDraw(float dt, const float w, const float h)
 		glEnable(GL_TEXTURE_RECTANGLE_ARB);
 		glBindTexture(GL_TEXTURE_RECTANGLE_ARB, m_texId);
 		
-		const float tw = m_width;
-		const float th = m_height;
+		const float tw = (float)m_width;
+		const float th = (float)m_height;
 		const float hw = tw/2; //w*0.5f;
 		const float hh = th/2; //h*0.5f;
 		

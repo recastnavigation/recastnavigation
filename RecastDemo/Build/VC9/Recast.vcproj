@@ -300,6 +300,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\Include\Filelist.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\Include\imgui.h"
 					>
 				</File>
@@ -344,6 +348,14 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\Include\SlideShow.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Contrib\stb_image.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\Contrib\stb_truetype.h"
 					>
 				</File>
@@ -361,6 +373,10 @@
 				</File>
 				<File
 					RelativePath="..\..\Source\ConvexVolumeTool.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\Filelist.cpp"
 					>
 				</File>
 				<File
@@ -409,6 +425,10 @@
 				</File>
 				<File
 					RelativePath="..\..\Source\Sample_TileMesh.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\SlideShow.cpp"
 					>
 				</File>
 				<File
