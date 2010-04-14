@@ -29,6 +29,7 @@ class Sample_SoloMeshSimple : public Sample //Sample_SoloMesh
 protected:
 	bool m_keepInterResults;
 	rcBuildTimes m_buildTimes; 
+	float m_totalBuildTimeMs;
 
 	unsigned char* m_triflags;
 	rcHeightfield* m_solid;

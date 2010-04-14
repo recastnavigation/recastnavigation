@@ -44,6 +44,7 @@
 
 Sample_SoloMeshSimple::Sample_SoloMeshSimple() :
 	m_keepInterResults(true),
+	m_totalBuildTimeMs(0),
 	m_triflags(0),
 	m_solid(0),
 	m_chf(0),
@@ -85,6 +86,12 @@ void Sample_SoloMeshSimple::handleSettings()
 	if (imguiCheck("Keep Itermediate Results", m_keepInterResults))
 		m_keepInterResults = !m_keepInterResults;
 
+	imguiSeparator();
+	
+	char msg[64];
+	snprintf(msg, 64, "Build Time: %.1fms", m_totalBuildTimeMs);
+	imguiLabel(msg);
+	
 	imguiSeparator();
 }
 
@@ -683,6 +690,8 @@ bool Sample_SoloMeshSimple::handleBuild()
 		
 		rcGetLog()->log(RC_LOG_PROGRESS, "TOTAL: %.1fms", rcGetDeltaTimeUsec(totStartTime, totEndTime)/1000.0f);
 	}
+	
+	m_totalBuildTimeMs = rcGetDeltaTimeUsec(totStartTime, totEndTime)/1000.0f;
 	
 	if (m_tool)
 		m_tool->init(this);

@@ -131,6 +131,7 @@ Sample_SoloMeshTiled::Sample_SoloMeshTiled() :
 	m_measurePerTileTimings(false),
 	m_keepInterResults(false),
 	m_tileSize(64),
+	m_totalBuildTimeMs(0),
 	m_pmesh(0),
 	m_dmesh(0),
 	m_tileSet(0),
@@ -188,6 +189,12 @@ void Sample_SoloMeshTiled::handleSettings()
 		m_keepInterResults = !m_keepInterResults;
 	if (imguiCheck("Measure Per Tile Timings", m_measurePerTileTimings))
 		m_measurePerTileTimings = !m_measurePerTileTimings;
+	
+	imguiSeparator();
+
+	char msg[64];
+	snprintf(msg, 64, "Build Time: %.1fms", m_totalBuildTimeMs);
+	imguiLabel(msg);
 	
 	imguiSeparator();
 }
@@ -1144,6 +1151,8 @@ bool Sample_SoloMeshTiled::handleBuild()
 		
 		rcGetLog()->log(RC_LOG_PROGRESS, "TOTAL: %.1fms", rcGetDeltaTimeUsec(totStartTime, totEndTime)/1000.0f);
 	}
+
+	m_totalBuildTimeMs = rcGetDeltaTimeUsec(totStartTime, totEndTime)/1000.0f;
 
 	if (m_tool)
 		m_tool->init(this);

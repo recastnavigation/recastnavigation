@@ -606,7 +606,7 @@ int main(int /*argc*/, char** /*argv*/)
 		if (showLevels)
 		{
 			static int levelScroll = 0;
-			if (imguiBeginScrollArea("Choose Level", width-10-250-10-200, height-10-250, 200, 250, &levelScroll))
+			if (imguiBeginScrollArea("Choose Level", width-10-250-10-200, height-10-350, 200, 350, &levelScroll))
 				mouseOverMenu = true;
 			
 			int levelToLoad = -1;

@@ -55,6 +55,7 @@ protected:
 	bool m_keepInterResults;
 	float m_tileSize;
 	rcBuildTimes m_buildTimes; 
+	float m_totalBuildTimeMs;
 	
 	rcPolyMesh* m_pmesh;
 	rcPolyMeshDetail* m_dmesh;

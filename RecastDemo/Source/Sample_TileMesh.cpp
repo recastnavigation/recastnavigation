@@ -157,6 +157,7 @@ public:
 Sample_TileMesh::Sample_TileMesh() :
 	m_keepInterResults(false),
 	m_buildAll(true),
+	m_totalBuildTimeMs(0),
 	m_triflags(0),
 	m_solid(0),
 	m_chf(0),
@@ -362,6 +363,12 @@ void Sample_TileMesh::handleSettings()
 		m_navMesh = loadAll("all_tiles_navmesh.bin");
 	}
 	
+	char msg[64];
+	snprintf(msg, 64, "Build Time: %.1fms", m_totalBuildTimeMs);
+	imguiLabel(msg);
+	
+	imguiSeparator();
+	
 	imguiSeparator();
 	
 }
@@ -526,9 +533,9 @@ bool Sample_TileMesh::handleBuild()
 
 void Sample_TileMesh::buildTile(const float* pos)
 {
-	if (!m_navMesh)
-		return;
-	
+	if (!m_geom) return;
+	if (!m_navMesh) return;
+		
 	const float* bmin = m_geom->getMeshBoundsMin();
 	const float* bmax = m_geom->getMeshBoundsMax();
 	
@@ -562,8 +569,8 @@ void Sample_TileMesh::buildTile(const float* pos)
 
 void Sample_TileMesh::removeTile(const float* pos)
 {
-	if (!m_navMesh)
-		return;
+	if (!m_geom) return;
+	if (!m_navMesh) return;
 	
 	const float* bmin = m_geom->getMeshBoundsMin();
 	const float* bmax = m_geom->getMeshBoundsMax();
@@ -587,6 +594,9 @@ void Sample_TileMesh::removeTile(const float* pos)
 
 void Sample_TileMesh::buildAllTiles()
 {
+	if (!m_geom) return;
+	if (!m_navMesh) return;
+	
 	const float* bmin = m_geom->getMeshBoundsMin();
 	const float* bmax = m_geom->getMeshBoundsMax();
 	int gw = 0, gh = 0;
@@ -595,6 +605,10 @@ void Sample_TileMesh::buildAllTiles()
 	const int tw = (gw + ts-1) / ts;
 	const int th = (gh + ts-1) / ts;
 	const float tcs = m_tileSize*m_cellSize;
+
+
+	// Start the build process.	
+	rcTimeVal totStartTime = rcGetPerformanceTimer();
 
 	for (int y = 0; y < th; ++y)
 	{
@@ -620,6 +634,11 @@ void Sample_TileMesh::buildAllTiles()
 			}
 		}
 	}
+	
+	// Start the build process.	
+	rcTimeVal totEndTime = rcGetPerformanceTimer();
+
+	m_totalBuildTimeMs = rcGetDeltaTimeUsec(totStartTime, totEndTime)/1000.0f;
 }
 
 void Sample_TileMesh::removeAllTiles()
