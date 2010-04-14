@@ -265,12 +265,12 @@ void rcMarkConvexPolyArea(const float* verts, const int nverts,
 						  rcCompactHeightfield& chf)
 {
 	float bmin[3], bmax[3];
-	vcopy(bmin, verts);
-	vcopy(bmax, verts);
+	rcVcopy(bmin, verts);
+	rcVcopy(bmax, verts);
 	for (int i = 1; i < nverts; ++i)
 	{
-		vmin(bmin, &verts[i*3]);
-		vmax(bmax, &verts[i*3]);
+		rcVmin(bmin, &verts[i*3]);
+		rcVmax(bmax, &verts[i*3]);
 	}
 	bmin[1] = hmin;
 	bmax[1] = hmax;

@@ -191,14 +191,14 @@ void ConvexVolumeTool::handleClick(const float* p, bool shift)
 		// Create
 
 		// If clicked on that last pt, create the shape.
-		if (m_npts && vdistSqr(p, &m_pts[(m_npts-1)*3]) < rcSqr(0.2f))
+		if (m_npts && rcVdistSqr(p, &m_pts[(m_npts-1)*3]) < rcSqr(0.2f))
 		{
 			if (m_nhull > 2)
 			{
 				// Create shape.
 				float verts[MAX_PTS*3];
 				for (int i = 0; i < m_nhull; ++i)
-					vcopy(&verts[i*3], &m_pts[m_hull[i]*3]);
+					rcVcopy(&verts[i*3], &m_pts[m_hull[i]*3]);
 					
 				float minh = FLT_MAX, maxh = 0;
 				for (int i = 0; i < m_nhull; ++i)
@@ -217,7 +217,7 @@ void ConvexVolumeTool::handleClick(const float* p, bool shift)
 			// Add new point 
 			if (m_npts < MAX_PTS)
 			{
-				vcopy(&m_pts[m_npts*3], p);
+				rcVcopy(&m_pts[m_npts*3], p);
 				m_npts++;
 				// Update hull.
 				if (m_npts > 1)

@@ -115,7 +115,7 @@ public:
 	virtual void handleClick(const float* p, bool shift)
 	{
 		m_hitPosSet = true;
-		vcopy(m_hitPos,p);
+		rcVcopy(m_hitPos,p);
 		if (m_sample)
 		{
 			if (shift)
@@ -509,7 +509,7 @@ bool Sample_TileMesh::handleBuild()
 	}
 
 	dtNavMeshParams params;
-	vcopy(params.orig, m_geom->getMeshBoundsMin());
+	rcVcopy(params.orig, m_geom->getMeshBoundsMin());
 	params.tileWidth = m_tileSize*m_cellSize;
 	params.tileHeight = m_tileSize*m_cellSize;
 	params.maxTiles = m_maxTiles;
@@ -692,8 +692,8 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	m_cfg.detailSampleDist = m_detailSampleDist < 0.9f ? 0 : m_cellSize * m_detailSampleDist;
 	m_cfg.detailSampleMaxError = m_cellHeight * m_detailSampleMaxError;
 	
-	vcopy(m_cfg.bmin, bmin);
-	vcopy(m_cfg.bmax, bmax);
+	rcVcopy(m_cfg.bmin, bmin);
+	rcVcopy(m_cfg.bmax, bmax);
 	m_cfg.bmin[0] -= m_cfg.borderSize*m_cfg.cs;
 	m_cfg.bmin[2] -= m_cfg.borderSize*m_cfg.cs;
 	m_cfg.bmax[0] += m_cfg.borderSize*m_cfg.cs;
@@ -960,8 +960,8 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 		params.walkableClimb = m_agentMaxClimb;
 		params.tileX = tx;
 		params.tileY = ty;
-		vcopy(params.bmin, bmin);
-		vcopy(params.bmax, bmax);
+		rcVcopy(params.bmin, bmin);
+		rcVcopy(params.bmax, bmax);
 		params.cs = m_cfg.cs;
 		params.ch = m_cfg.ch;
 		params.tileSize = m_cfg.tileSize;

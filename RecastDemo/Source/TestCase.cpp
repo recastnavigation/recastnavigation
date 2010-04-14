@@ -234,8 +234,8 @@ void TestCase::handleRender()
 	for (Test* iter = m_tests; iter; iter = iter->next)
 	{
 		float dir[3];
-		vsub(dir, iter->epos, iter->spos);
-		vnormalize(dir);
+		rcVsub(dir, iter->epos, iter->spos);
+		rcVnormalize(dir);
 		glColor4ub(128,25,0,192);
 		glVertex3f(iter->spos[0],iter->spos[1]-0.3f,iter->spos[2]);
 		glVertex3f(iter->spos[0],iter->spos[1]+0.3f,iter->spos[2]);
@@ -273,20 +273,20 @@ bool TestCase::handleRenderOverlay(double* proj, double* model, int* view)
 		float pt[3], dir[3];
 		if (iter->nstraight)
 		{
-			vcopy(pt, &iter->straight[3]);
-			if (vdist(pt, iter->spos) > LABEL_DIST)
+			rcVcopy(pt, &iter->straight[3]);
+			if (rcVdist(pt, iter->spos) > LABEL_DIST)
 			{
-				vsub(dir, pt, iter->spos);
-				vnormalize(dir);
-				vmad(pt, iter->spos, dir, LABEL_DIST);
+				rcVsub(dir, pt, iter->spos);
+				rcVnormalize(dir);
+				rcVmad(pt, iter->spos, dir, LABEL_DIST);
 			}
 			pt[1]+=0.5f;
 		}
 		else
 		{
-			vsub(dir, iter->epos, iter->spos);
-			vnormalize(dir);
-			vmad(pt, iter->spos, dir, LABEL_DIST);
+			rcVsub(dir, iter->epos, iter->spos);
+			rcVnormalize(dir);
+			rcVmad(pt, iter->spos, dir, LABEL_DIST);
 			pt[1]+=0.5f;
 		}
 		

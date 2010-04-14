@@ -36,32 +36,32 @@ static bool intersectSegmentTriangle(const float* sp, const float* sq,
 {
 	float v, w;
 	float ab[3], ac[3], qp[3], ap[3], norm[3], e[3];
-	vsub(ab, b, a);
-	vsub(ac, c, a);
-	vsub(qp, sp, sq);
+	rcVsub(ab, b, a);
+	rcVsub(ac, c, a);
+	rcVsub(qp, sp, sq);
 	
 	// Compute triangle normal. Can be precalculated or cached if
 	// intersecting multiple segments against the same triangle
-	vcross(norm, ab, ac);
+	rcVcross(norm, ab, ac);
 	
 	// Compute denominator d. If d <= 0, segment is parallel to or points
 	// away from triangle, so exit early
-	float d = vdot(qp, norm);
+	float d = rcVdot(qp, norm);
 	if (d <= 0.0f) return false;
 	
 	// Compute intersection t value of pq with plane of triangle. A ray
 	// intersects iff 0 <= t. Segment intersects iff 0 <= t <= 1. Delay
 	// dividing by d until intersection has been found to pierce triangle
-	vsub(ap, sp, a);
-	t = vdot(ap, norm);
+	rcVsub(ap, sp, a);
+	t = rcVdot(ap, norm);
 	if (t < 0.0f) return false;
 	if (t > d) return false; // For segment; exclude this code line for a ray test
 	
 	// Compute barycentric coordinate components and test if within bounds
-	vcross(e, qp, ap);
-	v = vdot(ac, e);
+	rcVcross(e, qp, ap);
+	v = rcVdot(ac, e);
 	if (v < 0.0f || v > d) return false;
-	w = -vdot(ab, e);
+	w = -rcVdot(ab, e);
 	if (w < 0.0f || v + w > d) return false;
 	
 	// Segment/ray intersects triangle. Perform delayed division
@@ -289,7 +289,7 @@ bool InputGeom::save(const char* filepath)
 bool InputGeom::raycastMesh(float* src, float* dst, float& tmin)
 {
 	float dir[3];
-	vsub(dir, dst, src);
+	rcVsub(dir, dst, src);
 	
 	int nt = m_mesh->getTriCount();
 	const float* verts = m_mesh->getVerts();
@@ -301,7 +301,7 @@ bool InputGeom::raycastMesh(float* src, float* dst, float& tmin)
 	for (int i = 0; i < nt*3; i += 3)
 	{
 		const float* n = &normals[i];
-		if (vdot(dir, n) > 0)
+		if (rcVdot(dir, n) > 0)
 			continue;
 		
 		float t = 1;
@@ -328,8 +328,8 @@ void InputGeom::addOffMeshConnection(const float* spos, const float* epos, const
 	m_offMeshConDirs[m_offMeshConCount] = bidir;
 	m_offMeshConAreas[m_offMeshConCount] = area;
 	m_offMeshConFlags[m_offMeshConCount] = flags;
-	vcopy(&v[0], spos);
-	vcopy(&v[3], epos);
+	rcVcopy(&v[0], spos);
+	rcVcopy(&v[3], epos);
 	m_offMeshConCount++;
 }
 
@@ -338,8 +338,8 @@ void InputGeom::deleteOffMeshConnection(int i)
 	m_offMeshConCount--;
 	float* src = &m_offMeshConVerts[m_offMeshConCount*3*2];
 	float* dst = &m_offMeshConVerts[i*3*2];
-	vcopy(&dst[0], &src[0]);
-	vcopy(&dst[3], &src[3]);
+	rcVcopy(&dst[0], &src[0]);
+	rcVcopy(&dst[3], &src[3]);
 	m_offMeshConRads[i] = m_offMeshConRads[m_offMeshConCount];
 	m_offMeshConDirs[i] = m_offMeshConDirs[m_offMeshConCount];
 	m_offMeshConAreas[i] = m_offMeshConAreas[m_offMeshConCount];

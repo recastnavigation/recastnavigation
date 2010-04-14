@@ -44,13 +44,13 @@ void rcIntArray::resize(int n)
 void rcCalcBounds(const float* verts, int nv, float* bmin, float* bmax)
 {
 	// Calculate bounding box.
-	vcopy(bmin, verts);
-	vcopy(bmax, verts);
+	rcVcopy(bmin, verts);
+	rcVcopy(bmax, verts);
 	for (int i = 1; i < nv; ++i)
 	{
 		const float* v = &verts[i*3];
-		vmin(bmin, v);
-		vmax(bmax, v);
+		rcVmin(bmin, v);
+		rcVmax(bmax, v);
 	}
 }
 
@@ -67,8 +67,8 @@ bool rcCreateHeightfield(rcHeightfield& hf, int width, int height,
 	hf.width = width;
 	hf.height = height;
 	hf.spans = new rcSpan*[hf.width*hf.height];
-	vcopy(hf.bmin, bmin);
-	vcopy(hf.bmax, bmax);
+	rcVcopy(hf.bmin, bmin);
+	rcVcopy(hf.bmax, bmax);
 	hf.cs = cs;
 	hf.ch = ch;
 	if (!hf.spans)
@@ -80,10 +80,10 @@ bool rcCreateHeightfield(rcHeightfield& hf, int width, int height,
 static void calcTriNormal(const float* v0, const float* v1, const float* v2, float* norm)
 {
 	float e0[3], e1[3];
-	vsub(e0, v1, v0);
-	vsub(e1, v2, v0);
-	vcross(norm, e0, e1);
-	vnormalize(norm);
+	rcVsub(e0, v1, v0);
+	rcVsub(e1, v2, v0);
+	rcVcross(norm, e0, e1);
+	rcVnormalize(norm);
 }
 
 void rcMarkWalkableTriangles(const float walkableSlopeAngle,
@@ -141,8 +141,8 @@ bool rcBuildCompactHeightfield(const int walkableHeight, const int walkableClimb
 	chf.walkableHeight = walkableHeight;
 	chf.walkableClimb = walkableClimb;
 	chf.maxRegions = 0;
-	vcopy(chf.bmin, hf.bmin);
-	vcopy(chf.bmax, hf.bmax);
+	rcVcopy(chf.bmin, hf.bmin);
+	rcVcopy(chf.bmax, hf.bmax);
 	chf.bmax[1] += walkableHeight*hf.ch;
 	chf.cs = hf.cs;
 	chf.ch = hf.ch;

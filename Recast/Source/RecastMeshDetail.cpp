@@ -90,9 +90,9 @@ static bool circumCircle(const float* p1, const float* p2, const float* p3,
 static float distPtTri(const float* p, const float* a, const float* b, const float* c)
 {
 	float v0[3], v1[3], v2[3];
-	vsub(v0, c,a);
-	vsub(v1, b,a);
-	vsub(v2, p,a);
+	rcVsub(v0, c,a);
+	rcVsub(v1, b,a);
+	rcVsub(v2, p,a);
 
 	const float dot00 = vdot2(v0, v0);
 	const float dot01 = vdot2(v0, v1);
@@ -508,7 +508,7 @@ static bool buildPolyDetail(const float* in, const int nin,
 	nverts = 0;
 
 	for (int i = 0; i < nin; ++i)
-		vcopy(&verts[i*3], &in[i*3]);
+		rcVcopy(&verts[i*3], &in[i*3]);
 	nverts = nin;
 	
 	const float cs = chf.cs;
@@ -602,7 +602,7 @@ static bool buildPolyDetail(const float* in, const int nin,
 			{
 				for (int k = nidx-2; k > 0; --k)
 				{
-					vcopy(&verts[nverts*3], &edge[idx[k]*3]);
+					rcVcopy(&verts[nverts*3], &edge[idx[k]*3]);
 					hull[nhull++] = nverts;
 					nverts++;
 				}
@@ -611,7 +611,7 @@ static bool buildPolyDetail(const float* in, const int nin,
 			{
 				for (int k = 1; k < nidx-1; ++k)
 				{
-					vcopy(&verts[nverts*3], &edge[idx[k]*3]);
+					rcVcopy(&verts[nverts*3], &edge[idx[k]*3]);
 					hull[nhull++] = nverts;
 					nverts++;
 				}
@@ -645,12 +645,12 @@ static bool buildPolyDetail(const float* in, const int nin,
 	{
 		// Create sample locations in a grid.
 		float bmin[3], bmax[3];
-		vcopy(bmin, in);
-		vcopy(bmax, in);
+		rcVcopy(bmin, in);
+		rcVcopy(bmax, in);
 		for (int i = 1; i < nin; ++i)
 		{
-			vmin(bmin, &in[i*3]);
-			vmax(bmax, &in[i*3]);
+			rcVmin(bmin, &in[i*3]);
+			rcVmax(bmax, &in[i*3]);
 		}
 		int x0 = (int)floorf(bmin[0]/sampleDist);
 		int x1 = (int)ceilf(bmax[0]/sampleDist);
@@ -693,7 +693,7 @@ static bool buildPolyDetail(const float* in, const int nin,
 				if (d > bestd)
 				{
 					bestd = d;
-					vcopy(bestpt,pt);
+					rcVcopy(bestpt,pt);
 				}
 			}
 			// If the max error is within accepted threshold, stop tesselating.
@@ -701,7 +701,7 @@ static bool buildPolyDetail(const float* in, const int nin,
 				break;
 
 			// Add the new sample point.
-			vcopy(&verts[nverts*3],bestpt);
+			rcVcopy(&verts[nverts*3],bestpt);
 			nverts++;
 			
 			// Create new triangulation.
@@ -1200,7 +1200,7 @@ bool rcMergePolyMeshDetails(rcPolyMeshDetail** meshes, const int nmeshes, rcPoly
 			
 		for (int k = 0; k < dm->nverts; ++k)
 		{
-			vcopy(&mesh.verts[mesh.nverts*3], &dm->verts[k*3]);
+			rcVcopy(&mesh.verts[mesh.nverts*3], &dm->verts[k*3]);
 			mesh.nverts++;
 		}
 		for (int k = 0; k < dm->ntris; ++k)

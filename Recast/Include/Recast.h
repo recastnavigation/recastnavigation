@@ -300,61 +300,61 @@ template<class T> inline T rcSqr(T a) { return a*a; }
 template<class T> inline T rcClamp(T v, T mn, T mx) { return v < mn ? mn : (v > mx ? mx : v); }
 
 // Common vector helper functions.
-inline void vcross(float* dest, const float* v1, const float* v2)
+inline void rcVcross(float* dest, const float* v1, const float* v2)
 {
 	dest[0] = v1[1]*v2[2] - v1[2]*v2[1];
 	dest[1] = v1[2]*v2[0] - v1[0]*v2[2];
 	dest[2] = v1[0]*v2[1] - v1[1]*v2[0]; 
 }
 
-inline float vdot(const float* v1, const float* v2)
+inline float rcVdot(const float* v1, const float* v2)
 {
 	return v1[0]*v2[0] + v1[1]*v2[1] + v1[2]*v2[2];
 }
 
-inline void vmad(float* dest, const float* v1, const float* v2, const float s)
+inline void rcVmad(float* dest, const float* v1, const float* v2, const float s)
 {
 	dest[0] = v1[0]+v2[0]*s;
 	dest[1] = v1[1]+v2[1]*s;
 	dest[2] = v1[2]+v2[2]*s;
 }
 
-inline void vadd(float* dest, const float* v1, const float* v2)
+inline void rcVadd(float* dest, const float* v1, const float* v2)
 {
 	dest[0] = v1[0]+v2[0];
 	dest[1] = v1[1]+v2[1];
 	dest[2] = v1[2]+v2[2];
 }
 
-inline void vsub(float* dest, const float* v1, const float* v2)
+inline void rcVsub(float* dest, const float* v1, const float* v2)
 {
 	dest[0] = v1[0]-v2[0];
 	dest[1] = v1[1]-v2[1];
 	dest[2] = v1[2]-v2[2];
 }
 
-inline void vmin(float* mn, const float* v)
+inline void rcVmin(float* mn, const float* v)
 {
 	mn[0] = rcMin(mn[0], v[0]);
 	mn[1] = rcMin(mn[1], v[1]);
 	mn[2] = rcMin(mn[2], v[2]);
 }
 
-inline void vmax(float* mx, const float* v)
+inline void rcVmax(float* mx, const float* v)
 {
 	mx[0] = rcMax(mx[0], v[0]);
 	mx[1] = rcMax(mx[1], v[1]);
 	mx[2] = rcMax(mx[2], v[2]);
 }
 
-inline void vcopy(float* dest, const float* v)
+inline void rcVcopy(float* dest, const float* v)
 {
 	dest[0] = v[0];
 	dest[1] = v[1];
 	dest[2] = v[2];
 }
 
-inline float vdist(const float* v1, const float* v2)
+inline float rcVdist(const float* v1, const float* v2)
 {
 	float dx = v2[0] - v1[0];
 	float dy = v2[1] - v1[1];
@@ -362,7 +362,7 @@ inline float vdist(const float* v1, const float* v2)
 	return sqrtf(dx*dx + dy*dy + dz*dz);
 }
 
-inline float vdistSqr(const float* v1, const float* v2)
+inline float rcVdistSqr(const float* v1, const float* v2)
 {
 	float dx = v2[0] - v1[0];
 	float dy = v2[1] - v1[1];
@@ -370,7 +370,7 @@ inline float vdistSqr(const float* v1, const float* v2)
 	return dx*dx + dy*dy + dz*dz;
 }
 
-inline void vnormalize(float* v)
+inline void rcVnormalize(float* v)
 {
 	float d = 1.0f / sqrtf(rcSqr(v[0]) + rcSqr(v[1]) + rcSqr(v[2]));
 	v[0] *= d;
@@ -378,10 +378,10 @@ inline void vnormalize(float* v)
 	v[2] *= d;
 }
 
-inline bool vequal(const float* p0, const float* p1)
+inline bool rcVequal(const float* p0, const float* p1)
 {
 	static const float thr = rcSqr(1.0f/16384.0f);
-	const float d = vdistSqr(p0, p1);
+	const float d = rcVdistSqr(p0, p1);
 	return d < thr;
 }
 

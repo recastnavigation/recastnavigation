@@ -565,8 +565,8 @@ bool rcBuildContours(rcCompactHeightfield& chf,
 	
 	rcTimeVal startTime = rcGetPerformanceTimer();
 	
-	vcopy(cset.bmin, chf.bmin);
-	vcopy(cset.bmax, chf.bmax);
+	rcVcopy(cset.bmin, chf.bmin);
+	rcVcopy(cset.bmax, chf.bmax);
 	cset.cs = chf.cs;
 	cset.ch = chf.ch;
 	

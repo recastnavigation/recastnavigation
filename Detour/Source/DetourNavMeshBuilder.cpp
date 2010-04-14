@@ -375,8 +375,8 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	header->polyCount = totPolyCount;
 	header->vertCount = totVertCount;
 	header->maxLinkCount = maxLinkCount;
-	vcopy(header->bmin, params->bmin);
-	vcopy(header->bmax, params->bmax);
+	dtVcopy(header->bmin, params->bmin);
+	dtVcopy(header->bmax, params->bmax);
 	header->detailMeshCount = params->polyCount;
 	header->detailVertCount = uniqueDetailVertCount;
 	header->detailTriCount = params->detailTriCount;
@@ -410,8 +410,8 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 		{
 			const float* linkv = &params->offMeshConVerts[i*2*3];
 			float* v = &navVerts[(offMeshVertsBase + n*2)*3];
-			vcopy(&v[0], &linkv[0]);
-			vcopy(&v[3], &linkv[3]);
+			dtVcopy(&v[0], &linkv[0]);
+			dtVcopy(&v[3], &linkv[3]);
 			n++;
 		}
 	}
@@ -519,8 +519,8 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 			con->poly = (unsigned short)(offMeshPolyBase + n);
 			// Copy connection end-points.
 			const float* endPts = &params->offMeshConVerts[i*2*3];
-			vcopy(&con->pos[0], &endPts[0]);
-			vcopy(&con->pos[3], &endPts[3]);
+			dtVcopy(&con->pos[0], &endPts[0]);
+			dtVcopy(&con->pos[3], &endPts[3]);
 			con->rad = params->offMeshConRad[i];
 			con->flags = params->offMeshConDir[i] ? DT_OFFMESH_CON_BIDIR : 0;
 			con->side = offMeshConClass[i*2+1];

@@ -196,12 +196,12 @@ static void rasterizeTri(const float* v0, const float* v1, const float* v2,
 	const float by = bmax[1] - bmin[1];
 	
 	// Calculate the bounding box of the triangle.
-	vcopy(tmin, v0);
-	vcopy(tmax, v0);
-	vmin(tmin, v1);
-	vmin(tmin, v2);
-	vmax(tmax, v1);
-	vmax(tmax, v2);
+	rcVcopy(tmin, v0);
+	rcVcopy(tmax, v0);
+	rcVmin(tmin, v1);
+	rcVmin(tmin, v2);
+	rcVmax(tmax, v1);
+	rcVmax(tmax, v2);
 	
 	// If the triangle does not touch the bbox of the heightfield, skip the triagle.
 	if (!overlapBounds(bmin, bmax, tmin, tmax))
@@ -223,9 +223,9 @@ static void rasterizeTri(const float* v0, const float* v1, const float* v2,
 	for (int y = y0; y <= y1; ++y)
 	{
 		// Clip polygon to row.
-		vcopy(&in[0], v0);
-		vcopy(&in[1*3], v1);
-		vcopy(&in[2*3], v2);
+		rcVcopy(&in[0], v0);
+		rcVcopy(&in[1*3], v1);
+		rcVcopy(&in[2*3], v2);
 		int nvrow = 3;
 		const float cz = bmin[2] + y*cs;
 		nvrow = clipPoly(in, nvrow, out, 0, 1, -cz);

@@ -81,7 +81,7 @@ public:
 	virtual void handleClick(const float* p, bool /*shift*/)
 	{
 		m_hitPosSet = true;
-		vcopy(m_hitPos,p);
+		rcVcopy(m_hitPos,p);
 		if (m_sample)
 			m_sample->setHighlightedTile(m_hitPos);
 	}
@@ -716,8 +716,8 @@ bool Sample_SoloMeshTiled::handleBuild()
 	// Set the area where the navigation will be build.
 	// Here the bounds of the input mesh are used, but the
 	// area could be specified by an user defined box, etc.
-	vcopy(m_cfg.bmin, bmin);
-	vcopy(m_cfg.bmax, bmax);
+	rcVcopy(m_cfg.bmin, bmin);
+	rcVcopy(m_cfg.bmax, bmax);
 	rcCalcGridSize(m_cfg.bmin, m_cfg.bmax, m_cfg.cs, &m_cfg.width, &m_cfg.height);
 	
 	// Reset build times gathering.
@@ -735,8 +735,8 @@ bool Sample_SoloMeshTiled::handleBuild()
 			rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: Out of memory 'tileSet'.");
 		return false;
 	}
-	vcopy(m_tileSet->bmin, m_cfg.bmin);
-	vcopy(m_tileSet->bmax, m_cfg.bmax);
+	rcVcopy(m_tileSet->bmin, m_cfg.bmin);
+	rcVcopy(m_tileSet->bmax, m_cfg.bmax);
 	m_tileSet->cs = m_cfg.cs;
 	m_tileSet->ch = m_cfg.ch;
 	m_tileSet->width = (m_cfg.width + m_cfg.tileSize-1) / m_cfg.tileSize;
@@ -1081,8 +1081,8 @@ bool Sample_SoloMeshTiled::handleBuild()
 		params.walkableHeight = m_agentHeight;
 		params.walkableRadius = m_agentRadius;
 		params.walkableClimb = m_agentMaxClimb;
-		vcopy(params.bmin, m_pmesh->bmin);
-		vcopy(params.bmax, m_pmesh->bmax);
+		rcVcopy(params.bmin, m_pmesh->bmin);
+		rcVcopy(params.bmax, m_pmesh->bmax);
 		params.cs = m_cfg.cs;
 		params.ch = m_cfg.ch;
 		
