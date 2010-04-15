@@ -405,7 +405,7 @@ void dtNavMesh::connectExtOffMeshLinks(dtMeshTile* tile, dtMeshTile* target, int
 				dtPoly* landPoly = &tile->polys[landPolyIdx];
 				dtLink* link = &tile->links[idx];
 				link->ref = getTilePolyRefBase(target) | (unsigned int)(targetCon->poly);
-				link->edge = 0;
+				link->edge = 0xff;
 				link->side = (unsigned char)side;
 				link->bmin = link->bmax = 0;
 				// Add to linked list.
@@ -513,7 +513,7 @@ void dtNavMesh::connectIntOffMeshLinks(dtMeshTile* tile)
 						dtPoly* landPoly = &tile->polys[landPolyIdx];
 						dtLink* link = &tile->links[idx];
 						link->ref = base | (unsigned int)(con->poly);
-						link->edge = 0;
+						link->edge = 0xff;
 						link->side = 0xff;
 						link->bmin = link->bmax = 0;
 						// Add to linked list.
@@ -2028,58 +2028,74 @@ int dtNavMesh::raycast(dtPolyRef centerRef, const float* startPos, const float* 
 		for (unsigned int i = poly->firstLink; i != DT_NULL_LINK; i = tile->links[i].next)
 		{
 			const dtLink* link = &tile->links[i];
-			if ((int)link->edge == segMax)
+			
+			// Find link which contains this edge.
+			if ((int)link->edge != segMax)
+				continue;
+				
+			// Get pointer to the next polygon.
+			it = decodePolyIdTile(link->ref);
+			ip = decodePolyIdPoly(link->ref);
+			const dtMeshTile* nextTile = &m_tiles[it];
+			const dtPoly* nextPoly = &nextTile->polys[ip];
+			
+			// Skip off-mesh connections.
+			if (nextPoly->type == DT_POLYTYPE_OFFMESH_CONNECTION)
+				continue;
+				
+			// Skip links based on filter.
+			if (!passFilter(filter, nextPoly->flags))
+				continue;
+		
+			// If the link is internal, just return the ref.
+			if (link->side == 0xff)
 			{
-				// If the link is internal, just return the ref.
-				if (link->side == 0xff)
+				nextRef = link->ref;
+				break;
+			}
+			
+			// If the link is at tile boundary,
+			const int v0 = poly->verts[link->edge];
+			const int v1 = poly->verts[(link->edge+1) % poly->vertCount];
+			const float* left = &tile->verts[v0*3];
+			const float* right = &tile->verts[v1*3];
+			
+			// Check that the intersection lies inside the link portal.
+			if (link->side == 0 || link->side == 4)
+			{
+				// Calculate link size.
+				const float smin = dtMin(left[2],right[2]);
+				const float smax = dtMax(left[2],right[2]);
+				const float s = (smax-smin) / 255.0f;
+				const float lmin = smin + link->bmin*s;
+				const float lmax = smin + link->bmax*s;
+				// Find Z intersection.
+				float z = startPos[2] + (endPos[2]-startPos[2])*tmax;
+				if (z >= lmin && z <= lmax)
 				{
 					nextRef = link->ref;
 					break;
 				}
-				
-				// If the link is at tile boundary,
-				const int v0 = poly->verts[link->edge];
-				const int v1 = poly->verts[(link->edge+1) % poly->vertCount];
-				const float* left = &tile->verts[v0*3];
-				const float* right = &tile->verts[v1*3];
-				
-				// Check that the intersection lies inside the link portal.
-				if (link->side == 0 || link->side == 4)
+			}
+			else if (link->side == 2 || link->side == 6)
+			{
+				// Calculate link size.
+				const float smin = dtMin(left[0],right[0]);
+				const float smax = dtMax(left[0],right[0]);
+				const float s = (smax-smin) / 255.0f;
+				const float lmin = smin + link->bmin*s;
+				const float lmax = smin + link->bmax*s;
+				// Find X intersection.
+				float x = startPos[0] + (endPos[0]-startPos[0])*tmax;
+				if (x >= lmin && x <= lmax)
 				{
-					// Calculate link size.
-					const float smin = dtMin(left[2],right[2]);
-					const float smax = dtMax(left[2],right[2]);
-					const float s = (smax-smin) / 255.0f;
-					const float lmin = smin + link->bmin*s;
-					const float lmax = smin + link->bmax*s;
-					// Find Z intersection.
-					float z = startPos[2] + (endPos[2]-startPos[2])*tmax;
-					if (z >= lmin && z <= lmax)
-					{
-						nextRef = link->ref;
-						break;
-					}
-				}
-				else if (link->side == 2 || link->side == 6)
-				{
-					// Calculate link size.
-					const float smin = dtMin(left[0],right[0]);
-					const float smax = dtMax(left[0],right[0]);
-					const float s = (smax-smin) / 255.0f;
-					const float lmin = smin + link->bmin*s;
-					const float lmax = smin + link->bmax*s;
-					// Find X intersection.
-					float x = startPos[0] + (endPos[0]-startPos[0])*tmax;
-					if (x >= lmin && x <= lmax)
-					{
-						nextRef = link->ref;
-						break;
-					}
+					nextRef = link->ref;
+					break;
 				}
 			}
 		}
 		
-		if (!nextRef || !passFilter(filter, getPolyFlags(nextRef)))
+		if (!nextRef)
 		{
 			// No neighbour, we hit a wall.
 
