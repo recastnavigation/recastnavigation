@@ -106,7 +106,9 @@ int main(int /*argc*/, char** /*argv*/)
 	float camx = 0, camy = 0, camz = 0, camr = 1000;
 	float origrx = 0, origry = 0;
 	int origx = 0, origy = 0;
+	float scrollZoom = 0;
 	bool rotate = false;
+	bool movedDuringRotate = false;
 	float rays[3], raye[3]; 
 	bool mouseOverMenu = false;
 	bool showMenu = true;
@@ -160,10 +162,13 @@ int main(int /*argc*/, char** /*argv*/)
 	{
 		// Handle input events.
 		int mscroll = 0;
+		bool processHitTest = false;
+		bool processHitTestShift = false;
 		SDL_Event event;
-		while(SDL_PollEvent(&event))
+		
+		while (SDL_PollEvent(&event))
 		{
-			switch(event.type)
+			switch (event.type)
 			{
 				case SDL_KEYDOWN:
 					// Handle any key presses here.
@@ -254,66 +259,52 @@ int main(int /*argc*/, char** /*argv*/)
 					break;
 					
 				case SDL_MOUSEBUTTONDOWN:
-					// Handle mouse clicks here.
-					if (!mouseOverMenu)
+					if (event.button.button == SDL_BUTTON_RIGHT)
 					{
-						if (event.button.button == SDL_BUTTON_RIGHT)
+						if (!mouseOverMenu)
 						{
 							// Rotate view
 							rotate = true;
+							movedDuringRotate = false;
 							origx = mx;
 							origy = my;
 							origrx = rx;
 							origry = ry;
 						}
-						else if (event.button.button == SDL_BUTTON_LEFT)
-						{
-							// Hit test mesh.
-							if (geom && sample)
-							{
-								// Hit test mesh.
-								float t;
-								if (geom->raycastMesh(rays, raye, t))
-								{
-									if (SDL_GetModState() & KMOD_CTRL)
-									{
-										mposSet = true;
-										mpos[0] = rays[0] + (raye[0] - rays[0])*t;
-										mpos[1] = rays[1] + (raye[1] - rays[1])*t;
-										mpos[2] = rays[2] + (raye[2] - rays[2])*t;
-									}
-									else
-									{
-										float pos[3];
-										pos[0] = rays[0] + (raye[0] - rays[0])*t;
-										pos[1] = rays[1] + (raye[1] - rays[1])*t;
-										pos[2] = rays[2] + (raye[2] - rays[2])*t;
-										bool shift = (SDL_GetModState() & KMOD_SHIFT) ? true : false;
-										sample->handleClick(pos, shift);
-									}
-								}
-								else
-								{
-									if (SDL_GetModState() & KMOD_CTRL)
-									{
-										mposSet = false;
-									}
-								}
-							}
-						}
 					}	
-					if (event.button.button == SDL_BUTTON_WHEELUP)
-						mscroll--;
-					if (event.button.button == SDL_BUTTON_WHEELDOWN)
-						mscroll++;
+					else if (event.button.button == SDL_BUTTON_WHEELUP)
+					{
+						if (mouseOverMenu)
+							mscroll--;
+						else
+							scrollZoom -= 1.0f;
+					}
+					else if (event.button.button == SDL_BUTTON_WHEELDOWN)
+					{
+						if (mouseOverMenu)
+							mscroll++;
+						else
+							scrollZoom += 1.0f;
+					}
 					break;
 					
 				case SDL_MOUSEBUTTONUP:
 					// Handle mouse clicks here.
-					if(event.button.button == SDL_BUTTON_RIGHT)
+					if (event.button.button == SDL_BUTTON_RIGHT)
 					{
 						rotate = false;
+						if (!movedDuringRotate)
+						{
+							processHitTest = true;
+							processHitTestShift = true;
+						}
 					}
+					else if (event.button.button == SDL_BUTTON_LEFT)
+					{
+						processHitTest = true;
+						processHitTestShift = (SDL_GetModState() & KMOD_SHIFT) ? true : false;
+					}
+					
 					break;
 					
 				case SDL_MOUSEMOTION:
@@ -325,6 +316,8 @@ int main(int /*argc*/, char** /*argv*/)
 						int dy = my - origy;
 						rx = origrx - dy*0.25f;
 						ry = origry + dx*0.25f;
+						if (dx*dx+dy*dy > 3*3)
+							movedDuringRotate = true;
 					}
 					break;
 					
@@ -349,6 +342,39 @@ int main(int /*argc*/, char** /*argv*/)
 		
 		t += dt;
 
+		// Hit test mesh.
+		if (processHitTest && geom && sample)
+		{
+			float t;
+			if (geom->raycastMesh(rays, raye, t))
+			{
+				if (SDL_GetModState() & KMOD_CTRL)
+				{
+					// Marker
+					mposSet = true;
+					mpos[0] = rays[0] + (raye[0] - rays[0])*t;
+					mpos[1] = rays[1] + (raye[1] - rays[1])*t;
+					mpos[2] = rays[2] + (raye[2] - rays[2])*t;
+				}
+				else
+				{
+					float pos[3];
+					pos[0] = rays[0] + (raye[0] - rays[0])*t;
+					pos[1] = rays[1] + (raye[1] - rays[1])*t;
+					pos[2] = rays[2] + (raye[2] - rays[2])*t;
+					sample->handleClick(pos, processHitTestShift);
+				}
+			}
+			else
+			{
+				if (SDL_GetModState() & KMOD_CTRL)
+				{
+					// Marker
+					mposSet = false;
+				}
+			}
+		}
+		
 		
 		// Update and render
 		glViewport(0, 0, width, height);
@@ -396,6 +422,9 @@ int main(int /*argc*/, char** /*argv*/)
 		float movex = (moveD - moveA) * keybSpeed * dt;
 		float movey = (moveS - moveW) * keybSpeed * dt;
 		
+		movey += scrollZoom * 2.0f;
+		scrollZoom = 0;
+		
 		camx += movex * (float)model[0];
 		camy += movex * (float)model[4];
 		camz += movex * (float)model[8];
@@ -439,7 +468,7 @@ int main(int /*argc*/, char** /*argv*/)
 		// Help text.
 		if (showMenu)
 		{
-			const char msg[] = "W/S/A/D: Move  RMB: Rotate   LMB: Place Start   LMB+SHIFT: Place End";
+			const char msg[] = "W/S/A/D: Move  RMB: Rotate   LMB+SHIFT: Place Start   LMB: Place End";
 			imguiDrawText(width/2, height-20, IMGUI_ALIGN_CENTER, msg, imguiRGBA(255,255,255,128));
 		}
 		
