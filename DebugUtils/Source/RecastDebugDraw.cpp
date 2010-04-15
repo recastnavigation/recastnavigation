@@ -26,6 +26,11 @@ void duDebugDrawTriMesh(duDebugDraw* dd, const float* verts, int /*nverts*/,
 						const int* tris, const float* normals, int ntris,
 						const unsigned char* flags)
 {
+	if (!dd) return;
+	if (!verts) return;
+	if (!tris) return;
+	if (!normals) return;
+
 	dd->begin(DU_DRAW_TRIS);
 	for (int i = 0; i < ntris*3; i += 3)
 	{
@@ -47,6 +52,11 @@ void duDebugDrawTriMeshSlope(duDebugDraw* dd, const float* verts, int /*nverts*/
 							 const int* tris, const float* normals, int ntris,
 							 const float walkableSlopeAngle)
 {
+	if (!dd) return;
+	if (!verts) return;
+	if (!tris) return;
+	if (!normals) return;
+	
 	const float walkableThr = cosf(walkableSlopeAngle/180.0f*(float)M_PI);
 
 	dd->begin(DU_DRAW_TRIS);
@@ -69,7 +79,8 @@ void duDebugDrawTriMeshSlope(duDebugDraw* dd, const float* verts, int /*nverts*/
 
 void duDebugDrawHeightfieldSolid(duDebugDraw* dd, const rcHeightfield& hf)
 {
-	
+	if (!dd) return;
+
 	const float* orig = hf.bmin;
 	const float cs = hf.cs;
 	const float ch = hf.ch;
@@ -101,6 +112,8 @@ void duDebugDrawHeightfieldSolid(duDebugDraw* dd, const rcHeightfield& hf)
 
 void duDebugDrawHeightfieldWalkable(duDebugDraw* dd, const rcHeightfield& hf)
 {
+	if (!dd) return;
+
 	const float* orig = hf.bmin;
 	const float cs = hf.cs;
 	const float ch = hf.ch;
@@ -141,6 +154,8 @@ void duDebugDrawHeightfieldWalkable(duDebugDraw* dd, const rcHeightfield& hf)
 
 void duDebugDrawCompactHeightfieldSolid(duDebugDraw* dd, const rcCompactHeightfield& chf)
 {
+	if (!dd) return;
+
 	const float cs = chf.cs;
 	const float ch = chf.ch;
 
@@ -179,6 +194,8 @@ void duDebugDrawCompactHeightfieldSolid(duDebugDraw* dd, const rcCompactHeightfi
 
 void duDebugDrawCompactHeightfieldRegions(duDebugDraw* dd, const rcCompactHeightfield& chf)
 {
+	if (!dd) return;
+
 	const float cs = chf.cs;
 	const float ch = chf.ch;
 
@@ -216,8 +233,8 @@ void duDebugDrawCompactHeightfieldRegions(duDebugDraw* dd, const rcCompactHeight
 
 void duDebugDrawCompactHeightfieldDistance(duDebugDraw* dd, const rcCompactHeightfield& chf)
 {
-	if (!chf.dist)
-		return;
+	if (!dd) return;
+	if (!chf.dist) return;
 		
 	const float cs = chf.cs;
 	const float ch = chf.ch;
@@ -285,55 +302,10 @@ static const rcContour* findContourFromSet(const rcContourSet& cset, unsigned sh
 	return 0;
 }
 
-/*
-static const int NUM_ADU_PTS = 8;
-
-void drawArc(duDebugDraw* dd, const float* p0, const float* p1, unsigned int color)
-{
-	// Submits NPTS*2 vertices.
-	float pts[NUM_ADU_PTS*3];
-	float dir[3];
-	vsub(dir, p1, p0);
-	const float len = sqrtf(vdistSqr(p0, p1));
-	for (int i = 0; i < NUM_ADU_PTS; ++i)
-	{
-		float u = (float)i / (float)(NUM_ADU_PTS-1);
-		float* p = &pts[i*3];
-		p[0] = p0[0] + dir[0] * u;
-		p[1] = p0[1] + dir[1] * u + (len/4) * (1-rcSqr(u*2-1));
-		p[2] = p0[2] + dir[2] * u;
-	}
-	for (int i = 0; i < NUM_ADU_PTS-1; ++i)
-	{
-		dd->vertex(&pts[i*3], color);
-		dd->vertex(&pts[(i+1)*3], color);
-	}
-}
-
-void duDebugDrawArc(duDebugDraw* dd, const float* p0, const float* p1, const float* col, float lineWidth)
-{
-	const unsigned int color = duRGBAf(col[0],col[1],col[2],col[3]);
-	dd->begin(DU_DRAW_LINES, lineWidth);
-	drawArc(dd, p0, p1, color);
-	dd->end();
-}
-
-void duDebugDrawCross(struct duDebugDraw* dd, const float* p, const float s, const float dy, const float* col, float lineWidth)
-{
-	const unsigned int color = duRGBAf(col[0],col[1],col[2],col[3]);
-	dd->begin(DU_DRAW_LINES, lineWidth);
-	dd->vertex(p[0]-s,p[1]+dy,p[2], color);
-	dd->vertex(p[0]+s,p[1]+dy,p[2], color);
-	dd->vertex(p[0],p[1]-s+dy,p[2], color);
-	dd->vertex(p[0],p[1]+s+dy,p[2], color);
-	dd->vertex(p[0],p[1]+dy,p[2]-s, color);
-	dd->vertex(p[0],p[1]+dy,p[2]+s, color);
-	dd->end();
-}
-*/
-
 void duDebugDrawRegionConnections(duDebugDraw* dd, const rcContourSet& cset, const float alpha)
 {
+	if (!dd) return;
+	
 	const float* orig = cset.bmin;
 	const float cs = cset.cs;
 	const float ch = cset.ch;
@@ -380,6 +352,8 @@ void duDebugDrawRegionConnections(duDebugDraw* dd, const rcContourSet& cset, con
 
 void duDebugDrawRawContours(duDebugDraw* dd, const rcContourSet& cset, const float alpha)
 {
+	if (!dd) return;
+
 	const float* orig = cset.bmin;
 	const float cs = cset.cs;
 	const float ch = cset.ch;
@@ -441,6 +415,8 @@ void duDebugDrawRawContours(duDebugDraw* dd, const rcContourSet& cset, const flo
 
 void duDebugDrawContours(duDebugDraw* dd, const rcContourSet& cset, const float alpha)
 {
+	if (!dd) return;
+
 	const float* orig = cset.bmin;
 	const float cs = cset.cs;
 	const float ch = cset.ch;
@@ -503,6 +479,8 @@ void duDebugDrawContours(duDebugDraw* dd, const rcContourSet& cset, const float 
 
 void duDebugDrawPolyMesh(duDebugDraw* dd, const struct rcPolyMesh& mesh)
 {
+	if (!dd) return;
+
 	const int nvp = mesh.nvp;
 	const float cs = mesh.cs;
 	const float ch = mesh.ch;
@@ -612,6 +590,8 @@ void duDebugDrawPolyMesh(duDebugDraw* dd, const struct rcPolyMesh& mesh)
 
 void duDebugDrawPolyMeshDetail(duDebugDraw* dd, const struct rcPolyMeshDetail& dmesh)
 {
+	if (!dd) return;
+
 	dd->begin(DU_DRAW_TRIS);
 	
 	for (int i = 0; i < dmesh.nmeshes; ++i)

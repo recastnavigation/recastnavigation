@@ -27,8 +27,8 @@ enum DrawNavMeshFlags
 	DU_DRAWNAVMESH_OFFMESHCONS = 0x02
 };
 
-void duDebugDrawNavMesh(struct duDebugDraw* dd, const dtNavMesh* mesh, unsigned char flags);
-void duDebugDrawNavMeshBVTree(struct duDebugDraw* dd, const dtNavMesh* mesh);
-void duDebugDrawNavMeshPoly(struct duDebugDraw* dd, const dtNavMesh* mesh, dtPolyRef ref, const unsigned int col);
+void duDebugDrawNavMesh(struct duDebugDraw* dd, const dtNavMesh& mesh, unsigned char flags);
+void duDebugDrawNavMeshBVTree(struct duDebugDraw* dd, const dtNavMesh& mesh);
+void duDebugDrawNavMeshPoly(struct duDebugDraw* dd, const dtNavMesh& mesh, dtPolyRef ref, const unsigned int col);
 
 #endif // DETOURDEBUGDRAW_H

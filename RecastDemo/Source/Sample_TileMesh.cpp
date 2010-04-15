@@ -447,7 +447,7 @@ void Sample_TileMesh::handleRender()
 	duDebugDrawBoxWire(&dd, m_tileBmin[0],m_tileBmin[1],m_tileBmin[2], m_tileBmax[0],m_tileBmax[1],m_tileBmax[2], m_tileCol, 2.0f);
 	
 	if (m_navMesh)
-		duDebugDrawNavMesh(&dd, m_navMesh, m_navMeshDrawFlags);
+		duDebugDrawNavMesh(&dd, *m_navMesh, m_navMeshDrawFlags);
 	
 	if (m_tool)
 		m_tool->handleRender();

@@ -115,9 +115,9 @@ static void drawPolyBoundaries(duDebugDraw* dd, const dtMeshTile* tile,
 	dd->end();
 }
 
-static void drawMeshTile(duDebugDraw* dd, const dtNavMesh* mesh, const dtMeshTile* tile, unsigned char flags)
+static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtMeshTile* tile, unsigned char flags)
 {
-	dtPolyRef base = mesh->getTilePolyRefBase(tile);
+	dtPolyRef base = mesh.getTilePolyRefBase(tile);
 
 	dd->depthMask(false);
 
@@ -131,7 +131,7 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh* mesh, const dtMeshTil
 		const dtPolyDetail* pd = &tile->detailMeshes[i];
 
 		unsigned int col;
-		if ((flags & DU_DRAWNAVMESH_CLOSEDLIST) && mesh->isInClosedList(base | (dtPolyRef)i))
+		if ((flags & DU_DRAWNAVMESH_CLOSEDLIST) && mesh.isInClosedList(base | (dtPolyRef)i))
 			col = duRGBA(255,196,0,64);
 		else
 		{
@@ -171,7 +171,7 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh* mesh, const dtMeshTil
 				continue;
 			
 			unsigned int col;
-			if ((flags & DU_DRAWNAVMESH_CLOSEDLIST) && mesh->isInClosedList(base | (dtPolyRef)i))
+			if ((flags & DU_DRAWNAVMESH_CLOSEDLIST) && mesh.isInClosedList(base | (dtPolyRef)i))
 				col = duRGBA(255,196,0,220);
 			else
 				col = duDarkenColor(duIntToCol(p->area, 220));
@@ -314,13 +314,13 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh* mesh, const dtMeshTil
 
 }
 
-void duDebugDrawNavMesh(duDebugDraw* dd, const dtNavMesh* mesh, unsigned char flags)
+void duDebugDrawNavMesh(duDebugDraw* dd, const dtNavMesh& mesh, unsigned char flags)
 {
-	if (!mesh) return;
+	if (!dd) return;
 	
-	for (int i = 0; i < mesh->getMaxTiles(); ++i)
+	for (int i = 0; i < mesh.getMaxTiles(); ++i)
 	{
-		const dtMeshTile* tile = mesh->getTile(i);
+		const dtMeshTile* tile = mesh.getTile(i);
 		if (!tile->header) continue;
 		drawMeshTile(dd, mesh, tile, flags);
 	}
@@ -429,22 +429,24 @@ static void drawMeshTileBVTree(duDebugDraw* dd, const dtMeshTile* tile)
 	 glEnd();*/
 }
 
-void duDebugDrawNavMeshBVTree(duDebugDraw* dd, const dtNavMesh* mesh)
+void duDebugDrawNavMeshBVTree(duDebugDraw* dd, const dtNavMesh& mesh)
 {
-	if (!mesh) return;
+	if (!dd) return;
 	
-	for (int i = 0; i < mesh->getMaxTiles(); ++i)
+	for (int i = 0; i < mesh.getMaxTiles(); ++i)
 	{
-		const dtMeshTile* tile = mesh->getTile(i);
+		const dtMeshTile* tile = mesh.getTile(i);
 		if (!tile->header) continue;
 		drawMeshTileBVTree(dd, tile);
 	}
 }
 
-void duDebugDrawNavMeshPoly(duDebugDraw* dd, const dtNavMesh* mesh, dtPolyRef ref, const unsigned int col)
+void duDebugDrawNavMeshPoly(duDebugDraw* dd, const dtNavMesh& mesh, dtPolyRef ref, const unsigned int col)
 {
+	if (!dd) return;
+	
 	int ip = 0;
-	const dtMeshTile* tile = mesh->getTileByPolyRef(ref, &ip);
+	const dtMeshTile* tile = mesh.getTileByPolyRef(ref, &ip);
 	if (!tile)
 		return;
 	const dtPoly* p = &tile->polys[ip];

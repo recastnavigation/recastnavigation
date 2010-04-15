@@ -234,9 +234,9 @@ void Sample_SoloMeshSimple::handleRender()
 		m_drawMode == DRAWMODE_NAVMESH_INVIS))
 	{
 		if (m_drawMode != DRAWMODE_NAVMESH_INVIS)
-			duDebugDrawNavMesh(&dd, m_navMesh, m_navMeshDrawFlags);
+			duDebugDrawNavMesh(&dd, *m_navMesh, m_navMeshDrawFlags);
 		if (m_drawMode == DRAWMODE_NAVMESH_BVTREE)
-			duDebugDrawNavMeshBVTree(&dd, m_navMesh);
+			duDebugDrawNavMeshBVTree(&dd, *m_navMesh);
 	}
 		
 	glDepthMask(GL_TRUE);
