@@ -19,8 +19,8 @@
 #include <math.h>
 #include "DetourCommon.h"
 
-void closestPtPointTriangle(float* closest, const float* p,
-							const float* a, const float* b, const float* c)
+void dtClosestPtPointTriangle(float* closest, const float* p,
+							  const float* a, const float* b, const float* c)
 {
 	// Check if P in vertex region outside A
 	float ab[3], ac[3], ap[3];
@@ -105,10 +105,10 @@ void closestPtPointTriangle(float* closest, const float* p,
 	closest[2] = a[2] + ab[2] * v + ac[2] * w;
 }
 
-bool intersectSegmentPoly2D(const float* p0, const float* p1,
-							const float* verts, int nverts,
-							float& tmin, float& tmax,
-							int& segMin, int& segMax)
+bool dtIntersectSegmentPoly2D(const float* p0, const float* p1,
+							  const float* verts, int nverts,
+							  float& tmin, float& tmax,
+							  int& segMin, int& segMax)
 {
 	static const float EPS = 0.00000001f;
 	
@@ -125,8 +125,8 @@ bool intersectSegmentPoly2D(const float* p0, const float* p1,
 		float edge[3], diff[3];
 		dtVsub(edge, &verts[i*3], &verts[j*3]);
 		dtVsub(diff, p0, &verts[j*3]);
-		float n = vperp2D(edge, diff);
-		float d = -vperp2D(edge, dir);
+		float n = dtVperp2D(edge, diff);
+		float d = -dtVperp2D(edge, dir);
 		if (fabsf(d) < EPS)
 		{
 			// S is nearly parallel to this edge
@@ -165,7 +165,7 @@ bool intersectSegmentPoly2D(const float* p0, const float* p1,
 	return true;
 }
 
-float distancePtSegSqr2D(const float* pt, const float* p, const float* q, float& t)
+float dtDistancePtSegSqr2D(const float* pt, const float* p, const float* q, float& t)
 {
 	float pqx = q[0] - p[0];
 	float pqz = q[2] - p[2];
@@ -181,7 +181,7 @@ float distancePtSegSqr2D(const float* pt, const float* p, const float* q, float&
 	return dx*dx + dz*dz;
 }
 
-void calcPolyCenter(float* tc, const unsigned short* idx, int nidx, const float* verts)
+void dtCalcPolyCenter(float* tc, const unsigned short* idx, int nidx, const float* verts)
 {
 	tc[0] = 0.0f;
 	tc[1] = 0.0f;
@@ -199,23 +199,23 @@ void calcPolyCenter(float* tc, const unsigned short* idx, int nidx, const float*
 	tc[2] *= s;
 }
 
-bool closestHeightPointTriangle(const float* p, const float* a, const float* b, const float* c, float& h)
+bool dtClosestHeightPointTriangle(const float* p, const float* a, const float* b, const float* c, float& h)
 {
 	float v0[3], v1[3], v2[3];
 	dtVsub(v0, c,a);
 	dtVsub(v1, b,a);
 	dtVsub(v2, p,a);
 	
-	const float dot00 = vdot2D(v0, v0);
-	const float dot01 = vdot2D(v0, v1);
-	const float dot02 = vdot2D(v0, v2);
-	const float dot11 = vdot2D(v1, v1);
-	const float dot12 = vdot2D(v1, v2);
+	const float dot00 = dtVdot2D(v0, v0);
+	const float dot01 = dtVdot2D(v0, v1);
+	const float dot02 = dtVdot2D(v0, v2);
+	const float dot11 = dtVdot2D(v1, v1);
+	const float dot12 = dtVdot2D(v1, v2);
 	
 	// Compute barycentric coordinates
-	float invDenom = 1.0f / (dot00 * dot11 - dot01 * dot01);
-	float u = (dot11 * dot02 - dot01 * dot12) * invDenom;
-	float v = (dot00 * dot12 - dot01 * dot02) * invDenom;
+	const float invDenom = 1.0f / (dot00 * dot11 - dot01 * dot01);
+	const float u = (dot11 * dot02 - dot01 * dot12) * invDenom;
+	const float v = (dot00 * dot12 - dot01 * dot02) * invDenom;
 
 	// The (sloppy) epsilon is needed to allow to get height of points which
 	// are interpolated along the edges of the triangles.
@@ -231,8 +231,8 @@ bool closestHeightPointTriangle(const float* p, const float* a, const float* b, 
 	return false;
 }
 
-bool distancePtPolyEdgesSqr(const float* pt, const float* verts, const int nverts,
-							float* ed, float* et)
+bool dtDistancePtPolyEdgesSqr(const float* pt, const float* verts, const int nverts,
+							  float* ed, float* et)
 {
 	// TODO: Replace pnpoly with triArea2D tests?
 	int i, j;
@@ -244,7 +244,7 @@ bool distancePtPolyEdgesSqr(const float* pt, const float* verts, const int nvert
 		if (((vi[2] > pt[2]) != (vj[2] > pt[2])) &&
 			(pt[0] < (vj[0]-vi[0]) * (pt[2]-vi[2]) / (vj[2]-vi[2]) + vi[0]) )
 			c = !c;
-		ed[j] = distancePtSegSqr2D(pt, vj, vi, et[j]);
+		ed[j] = dtDistancePtSegSqr2D(pt, vj, vi, et[j]);
 	}
 	return c;
 }

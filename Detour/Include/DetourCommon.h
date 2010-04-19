@@ -120,7 +120,7 @@ inline bool dtVequal(const float* p0, const float* p1)
 	return d < thr;
 }
 
-inline unsigned int nextPow2(unsigned int v)
+inline unsigned int dtNextPow2(unsigned int v)
 {
 	v--;
 	v |= v >> 1;
@@ -132,7 +132,7 @@ inline unsigned int nextPow2(unsigned int v)
 	return v;
 }
 
-inline unsigned int ilog2(unsigned int v)
+inline unsigned int dtIlog2(unsigned int v)
 {
 	unsigned int r;
 	unsigned int shift;
@@ -144,19 +144,19 @@ inline unsigned int ilog2(unsigned int v)
 	return r;
 }
 
-inline int align4(int x) { return (x+3) & ~3; }
+inline int dtAlign4(int x) { return (x+3) & ~3; }
 
-inline float vdot2D(const float* u, const float* v)
+inline float dtVdot2D(const float* u, const float* v)
 {
 	return u[0]*v[0] + u[2]*v[2];
 }
 
-inline float vperp2D(const float* u, const float* v)
+inline float dtVperp2D(const float* u, const float* v)
 {
 	return u[2]*v[0] - u[0]*v[2];
 }
 
-inline float triArea2D(const float* a, const float* b, const float* c)
+inline float dtTriArea2D(const float* a, const float* b, const float* c)
 {
 	const float abx = b[0] - a[0];
 	const float abz = b[2] - a[2];
@@ -165,8 +165,8 @@ inline float triArea2D(const float* a, const float* b, const float* c)
 	return acx*abz - abx*acz;
 }
 
-inline bool checkOverlapBox(const unsigned short amin[3], const unsigned short amax[3],
-							const unsigned short bmin[3], const unsigned short bmax[3])
+inline bool dtCheckOverlapBox(const unsigned short amin[3], const unsigned short amax[3],
+							  const unsigned short bmin[3], const unsigned short bmax[3])
 {
 	bool overlap = true;
 	overlap = (amin[0] > bmax[0] || amax[0] < bmin[0]) ? false : overlap;
@@ -175,7 +175,7 @@ inline bool checkOverlapBox(const unsigned short amin[3], const unsigned short a
 	return overlap;
 }
 
-inline bool overlapBounds(const float* amin, const float* amax, const float* bmin, const float* bmax)
+inline bool dtOverlapBounds(const float* amin, const float* amax, const float* bmin, const float* bmax)
 {
 	bool overlap = true;
 	overlap = (amin[0] > bmax[0] || amax[0] < bmin[0]) ? false : overlap;
@@ -184,21 +184,21 @@ inline bool overlapBounds(const float* amin, const float* amax, const float* bmi
 	return overlap;
 }
 
-void closestPtPointTriangle(float* closest, const float* p,
-							const float* a, const float* b, const float* c);
+void dtClosestPtPointTriangle(float* closest, const float* p,
+							  const float* a, const float* b, const float* c);
 
-bool closestHeightPointTriangle(const float* p, const float* a, const float* b, const float* c, float& h);
+bool dtClosestHeightPointTriangle(const float* p, const float* a, const float* b, const float* c, float& h);
 
-bool intersectSegmentPoly2D(const float* p0, const float* p1,
-							const float* verts, int nverts,
-							float& tmin, float& tmax,
-							int& segMin, int& segMax);
+bool dtIntersectSegmentPoly2D(const float* p0, const float* p1,
+							  const float* verts, int nverts,
+							  float& tmin, float& tmax,
+							  int& segMin, int& segMax);
 
-bool distancePtPolyEdgesSqr(const float* pt, const float* verts, const int nverts,
+bool dtDistancePtPolyEdgesSqr(const float* pt, const float* verts, const int nverts,
 							float* ed, float* et);
 
-float distancePtSegSqr2D(const float* pt, const float* p, const float* q, float& t);
+float dtDistancePtSegSqr2D(const float* pt, const float* p, const float* q, float& t);
 
-void calcPolyCenter(float* tc, const unsigned short* idx, int nidx, const float* verts);
+void dtCalcPolyCenter(float* tc, const unsigned short* idx, int nidx, const float* verts);
 
 #endif // DETOURCOMMON_H

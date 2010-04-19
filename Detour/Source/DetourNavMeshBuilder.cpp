@@ -332,15 +332,15 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	}
 	
 	// Calculate data size
-	const int headerSize = align4(sizeof(dtMeshHeader));
-	const int vertsSize = align4(sizeof(float)*3*totVertCount);
-	const int polysSize = align4(sizeof(dtPoly)*totPolyCount);
-	const int linksSize = align4(sizeof(dtLink)*maxLinkCount);
-	const int detailMeshesSize = align4(sizeof(dtPolyDetail)*params->polyCount);
-	const int detailVertsSize = align4(sizeof(float)*3*uniqueDetailVertCount);
-	const int detailTrisSize = align4(sizeof(unsigned char)*4*params->detailTriCount);
-	const int bvTreeSize = align4(sizeof(dtBVNode)*params->polyCount*2);
-	const int offMeshConsSize = align4(sizeof(dtOffMeshConnection)*storedOffMeshConCount);
+	const int headerSize = dtAlign4(sizeof(dtMeshHeader));
+	const int vertsSize = dtAlign4(sizeof(float)*3*totVertCount);
+	const int polysSize = dtAlign4(sizeof(dtPoly)*totPolyCount);
+	const int linksSize = dtAlign4(sizeof(dtLink)*maxLinkCount);
+	const int detailMeshesSize = dtAlign4(sizeof(dtPolyDetail)*params->polyCount);
+	const int detailVertsSize = dtAlign4(sizeof(float)*3*uniqueDetailVertCount);
+	const int detailTrisSize = dtAlign4(sizeof(unsigned char)*4*params->detailTriCount);
+	const int bvTreeSize = dtAlign4(sizeof(dtBVNode)*params->polyCount*2);
+	const int offMeshConsSize = dtAlign4(sizeof(dtOffMeshConnection)*storedOffMeshConCount);
 	
 	const int dataSize = headerSize + vertsSize + polysSize + linksSize +
 						 detailMeshesSize + detailVertsSize + detailTrisSize +
@@ -631,15 +631,15 @@ bool dtNavMeshDataSwapEndian(unsigned char* data, const int /*dataSize*/)
 		return false;
 	
 	// Patch header pointers.
-	const int headerSize = align4(sizeof(dtMeshHeader));
-	const int vertsSize = align4(sizeof(float)*3*header->vertCount);
-	const int polysSize = align4(sizeof(dtPoly)*header->polyCount);
-	const int linksSize = align4(sizeof(dtLink)*(header->maxLinkCount));
-	const int detailMeshesSize = align4(sizeof(dtPolyDetail)*header->detailMeshCount);
-	const int detailVertsSize = align4(sizeof(float)*3*header->detailVertCount);
-	const int detailTrisSize = align4(sizeof(unsigned char)*4*header->detailTriCount);
-	const int bvtreeSize = align4(sizeof(dtBVNode)*header->bvNodeCount);
-	const int offMeshLinksSize = align4(sizeof(dtOffMeshConnection)*header->offMeshConCount);
+	const int headerSize = dtAlign4(sizeof(dtMeshHeader));
+	const int vertsSize = dtAlign4(sizeof(float)*3*header->vertCount);
+	const int polysSize = dtAlign4(sizeof(dtPoly)*header->polyCount);
+	const int linksSize = dtAlign4(sizeof(dtLink)*(header->maxLinkCount));
+	const int detailMeshesSize = dtAlign4(sizeof(dtPolyDetail)*header->detailMeshCount);
+	const int detailVertsSize = dtAlign4(sizeof(float)*3*header->detailVertCount);
+	const int detailTrisSize = dtAlign4(sizeof(unsigned char)*4*header->detailTriCount);
+	const int bvtreeSize = dtAlign4(sizeof(dtBVNode)*header->bvNodeCount);
+	const int offMeshLinksSize = dtAlign4(sizeof(dtOffMeshConnection)*header->offMeshConCount);
 	
 	unsigned char* d = data + headerSize;
 	float* verts = (float*)d; d += vertsSize;

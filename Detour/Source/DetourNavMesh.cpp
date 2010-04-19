@@ -147,7 +147,7 @@ bool dtNavMesh::init(const dtNavMeshParams* params)
 	
 	// Init tiles
 	m_maxTiles = params->maxTiles;
-	m_tileLutSize = nextPow2(params->maxTiles/4);
+	m_tileLutSize = dtNextPow2(params->maxTiles/4);
 	if (!m_tileLutSize) m_tileLutSize = 1;
 	m_tileLutMask = m_tileLutSize-1;
 	
@@ -168,7 +168,7 @@ bool dtNavMesh::init(const dtNavMeshParams* params)
 
 	if (!m_nodePool)
 	{
-		m_nodePool = new dtNodePool(params->maxNodes, nextPow2(params->maxNodes/4));
+		m_nodePool = new dtNodePool(params->maxNodes, dtNextPow2(params->maxNodes/4));
 		if (!m_nodePool)
 			return false;
 	}
@@ -181,8 +181,8 @@ bool dtNavMesh::init(const dtNavMeshParams* params)
 	}
 	
 	// Init ID generator values.
-	m_tileBits = dtMax((unsigned int)1,ilog2(nextPow2((unsigned int)params->maxTiles)));
-	m_polyBits = dtMax((unsigned int)1,ilog2(nextPow2((unsigned int)params->maxPolys)));
+	m_tileBits = dtMax((unsigned int)1, dtIlog2(dtNextPow2((unsigned int)params->maxTiles)));
+	m_polyBits = dtMax((unsigned int)1, dtIlog2(dtNextPow2((unsigned int)params->maxPolys)));
 	m_saltBits = 32 - m_tileBits - m_polyBits;
 	if (m_saltBits < 10)
 		return false;
@@ -591,15 +591,15 @@ dtTileRef dtNavMesh::addTile(unsigned char* data, int dataSize, int flags, dtTil
 	m_posLookup[h] = tile;
 	
 	// Patch header pointers.
-	const int headerSize = align4(sizeof(dtMeshHeader));
-	const int vertsSize = align4(sizeof(float)*3*header->vertCount);
-	const int polysSize = align4(sizeof(dtPoly)*header->polyCount);
-	const int linksSize = align4(sizeof(dtLink)*(header->maxLinkCount));
-	const int detailMeshesSize = align4(sizeof(dtPolyDetail)*header->detailMeshCount);
-	const int detailVertsSize = align4(sizeof(float)*3*header->detailVertCount);
-	const int detailTrisSize = align4(sizeof(unsigned char)*4*header->detailTriCount);
-	const int bvtreeSize = align4(sizeof(dtBVNode)*header->bvNodeCount);
-	const int offMeshLinksSize = align4(sizeof(dtOffMeshConnection)*header->offMeshConCount);
+	const int headerSize = dtAlign4(sizeof(dtMeshHeader));
+	const int vertsSize = dtAlign4(sizeof(float)*3*header->vertCount);
+	const int polysSize = dtAlign4(sizeof(dtPoly)*header->polyCount);
+	const int linksSize = dtAlign4(sizeof(dtLink)*(header->maxLinkCount));
+	const int detailMeshesSize = dtAlign4(sizeof(dtPolyDetail)*header->detailMeshCount);
+	const int detailVertsSize = dtAlign4(sizeof(float)*3*header->detailVertCount);
+	const int detailTrisSize = dtAlign4(sizeof(unsigned char)*4*header->detailTriCount);
+	const int bvtreeSize = dtAlign4(sizeof(dtBVNode)*header->bvNodeCount);
+	const int offMeshLinksSize = dtAlign4(sizeof(dtOffMeshConnection)*header->offMeshConCount);
 	
 	unsigned char* d = data + headerSize;
 	tile->verts = (float*)d; d += vertsSize;
@@ -831,8 +831,8 @@ struct dtPolyState
 int dtNavMesh::getTileStateSize(const dtMeshTile* tile) const
 {
 	if (!tile) return 0;
-	const int headerSize = align4(sizeof(dtTileState));
-	const int polyStateSize = align4(sizeof(dtPolyState) * tile->header->polyCount);
+	const int headerSize = dtAlign4(sizeof(dtTileState));
+	const int polyStateSize = dtAlign4(sizeof(dtPolyState) * tile->header->polyCount);
 	return headerSize + polyStateSize;
 }
 
@@ -843,8 +843,8 @@ bool dtNavMesh::storeTileState(const dtMeshTile* tile, unsigned char* data, cons
 	if (maxDataSize < sizeReq)
 		return false;
 		
-	dtTileState* tileState = (dtTileState*)data; data += align4(sizeof(dtTileState));
-	dtPolyState* polyStates = (dtPolyState*)data; data += align4(sizeof(dtPolyState) * tile->header->polyCount);
+	dtTileState* tileState = (dtTileState*)data; data += dtAlign4(sizeof(dtTileState));
+	dtPolyState* polyStates = (dtPolyState*)data; data += dtAlign4(sizeof(dtPolyState) * tile->header->polyCount);
 	
 	// Store tile state.
 	tileState->magic = DT_NAVMESH_STATE_MAGIC;
@@ -870,8 +870,8 @@ bool dtNavMesh::restoreTileState(dtMeshTile* tile, const unsigned char* data, co
 	if (maxDataSize < sizeReq)
 		return false;
 	
-	const dtTileState* tileState = (const dtTileState*)data; data += align4(sizeof(dtTileState));
-	const dtPolyState* polyStates = (const dtPolyState*)data; data += align4(sizeof(dtPolyState) * tile->header->polyCount);
+	const dtTileState* tileState = (const dtTileState*)data; data += dtAlign4(sizeof(dtTileState));
+	const dtPolyState* polyStates = (const dtPolyState*)data; data += dtAlign4(sizeof(dtPolyState) * tile->header->polyCount);
 	
 	// Check that the restore is possible.
 	if (tileState->magic != DT_NAVMESH_STATE_MAGIC)
@@ -926,7 +926,7 @@ bool dtNavMesh::closestPointOnPolyInTile(const dtMeshTile* tile, unsigned int ip
 				v[k] = &tile->detailVerts[(pd->vertBase+(t[k]-poly->vertCount))*3];
 		}
 		float pt[3];
-		closestPtPointTriangle(pt, pos, v[0], v[1], v[2]);
+		dtClosestPtPointTriangle(pt, pos, v[0], v[1], v[2]);
 		float d = dtVdistSqr(pos, pt);
 		if (d < closestDistSqr)
 		{
@@ -960,7 +960,7 @@ bool dtNavMesh::closestPointOnPolyBoundary(dtPolyRef ref, const float* pos, floa
 		nv++;
 	}		
 	
-	bool inside = distancePtPolyEdgesSqr(pos, verts, nv, edged, edget);
+	bool inside = dtDistancePtPolyEdgesSqr(pos, verts, nv, edged, edget);
 	if (inside)
 	{
 		// Point is inside the polygon, return the point.
@@ -1065,7 +1065,7 @@ bool dtNavMesh::getPolyHeight(dtPolyRef ref, const float* pos, float* height) co
 					v[k] = &tile->detailVerts[(pd->vertBase+(t[k]-poly->vertCount))*3];
 			}
 			float h;
-			if (closestHeightPointTriangle(pos, v[0], v[1], v[2], h))
+			if (dtClosestHeightPointTriangle(pos, v[0], v[1], v[2], h))
 			{
 				if (height)
 					*height = h;
@@ -1185,8 +1185,8 @@ int dtNavMesh::queryPolygonsInTile(dtMeshTile* tile, const float* qmin, const fl
 		int n = 0;
 		while (node < end)
 		{
-			bool overlap = checkOverlapBox(bmin, bmax, node->bmin, node->bmax);
-			bool isLeafNode = node->i >= 0;
+			const bool overlap = dtCheckOverlapBox(bmin, bmax, node->bmin, node->bmax);
+			const bool isLeafNode = node->i >= 0;
 			
 			if (isLeafNode && overlap)
 			{
@@ -1540,7 +1540,7 @@ int dtNavMesh::findStraightPath(const float* startPos, const float* endPos,
 				if (i == 0)
 				{
 					float t;
-					if (distancePtSegSqr2D(portalApex, left, right, t) < (0.001*0.001f))
+					if (dtDistancePtSegSqr2D(portalApex, left, right, t) < (0.001*0.001f))
 						continue;
 				}
 			}
@@ -1554,9 +1554,9 @@ int dtNavMesh::findStraightPath(const float* startPos, const float* endPos,
 			}
 			
 			// Right vertex.
-			if (triArea2D(portalApex, portalRight, right) <= 0.0f)
+			if (dtTriArea2D(portalApex, portalRight, right) <= 0.0f)
 			{
-				if (dtVequal(portalApex, portalRight) || triArea2D(portalApex, portalLeft, right) > 0.0f)
+				if (dtVequal(portalApex, portalRight) || dtTriArea2D(portalApex, portalLeft, right) > 0.0f)
 				{
 					dtVcopy(portalRight, right);
 					rightPolyRef = (i+1 < pathSize) ? path[i+1] : 0;
@@ -1610,9 +1610,9 @@ int dtNavMesh::findStraightPath(const float* startPos, const float* endPos,
 			}
 			
 			// Left vertex.
-			if (triArea2D(portalApex, portalLeft, left) >= 0.0f)
+			if (dtTriArea2D(portalApex, portalLeft, left) >= 0.0f)
 			{
-				if (dtVequal(portalApex, portalLeft) || triArea2D(portalApex, portalRight, left) < 0.0f)
+				if (dtVequal(portalApex, portalLeft) || dtTriArea2D(portalApex, portalRight, left) < 0.0f)
 				{
 					dtVcopy(portalLeft, left);
 					leftPolyRef = (i+1 < pathSize) ? path[i+1] : 0;
@@ -1735,7 +1735,7 @@ int dtNavMesh::moveAlongPathCorridor(const float* startPos, const float* endPos,
 			nv++;
 		}
 
-		bool inside = distancePtPolyEdgesSqr(endPos, verts, nv, edged, edget);
+		const bool inside = dtDistancePtPolyEdgesSqr(endPos, verts, nv, edged, edget);
 		if (inside)
 		{
 			// The end point is inside the current polygon.
@@ -1769,7 +1769,7 @@ int dtNavMesh::moveAlongPathCorridor(const float* startPos, const float* endPos,
 			return n;
 		// If the dtClamped point is close to the next portal edge, advance to next poly.
 		float t;
-		float d = distancePtSegSqr2D(resultPos, left, right, t);
+		const float d = dtDistancePtSegSqr2D(resultPos, left, right, t);
 		if (d > SLOP*SLOP)
 			return n;
 		// Advance to next polygon.
@@ -2002,7 +2002,7 @@ int dtNavMesh::raycast(dtPolyRef centerRef, const float* startPos, const float* 
 		
 		float tmin, tmax;
 		int segMin, segMax;
-		if (!intersectSegmentPoly2D(startPos, endPos, verts, nv, tmin, tmax, segMin, segMax))
+		if (!dtIntersectSegmentPoly2D(startPos, endPos, verts, nv, tmin, tmax, segMin, segMax))
 		{
 			// Could not hit the polygon, keep the old t and report hit.
 			return n;
@@ -2203,7 +2203,7 @@ int dtNavMesh::findPolysAround(dtPolyRef centerRef, const float* centerPos, floa
 			const float* va = &bestTile->verts[bestPoly->verts[link->edge]*3];
 			const float* vb = &bestTile->verts[bestPoly->verts[(link->edge+1) % bestPoly->vertCount]*3];
 			float tseg;
-			float distSqr = distancePtSegSqr2D(centerPos, va, vb, tseg);
+			float distSqr = dtDistancePtSegSqr2D(centerPos, va, vb, tseg);
 			
 			// If the circle is not touching the next polygon, skip it.
 			if (distSqr > radiusSqr)
@@ -2353,7 +2353,7 @@ float dtNavMesh::findDistanceToWall(dtPolyRef centerRef, const float* centerPos,
 			const float* vj = &bestTile->verts[bestPoly->verts[j]*3];
 			const float* vi = &bestTile->verts[bestPoly->verts[i]*3];
 			float tseg;
-			float distSqr = distancePtSegSqr2D(centerPos, vj, vi, tseg);
+			float distSqr = dtDistancePtSegSqr2D(centerPos, vj, vi, tseg);
 			
 			// Edge is too far, skip.
 			if (distSqr > radiusSqr)
@@ -2379,7 +2379,7 @@ float dtNavMesh::findDistanceToWall(dtPolyRef centerRef, const float* centerPos,
 			const float* va = &bestTile->verts[bestPoly->verts[link->edge]*3];
 			const float* vb = &bestTile->verts[bestPoly->verts[(link->edge+1) % bestPoly->vertCount]*3];
 			float tseg;
-			float distSqr = distancePtSegSqr2D(centerPos, va, vb, tseg);
+			float distSqr = dtDistancePtSegSqr2D(centerPos, va, vb, tseg);
 			
 			// If the circle is not touching the next polygon, skip it.
 			if (distSqr > radiusSqr)
