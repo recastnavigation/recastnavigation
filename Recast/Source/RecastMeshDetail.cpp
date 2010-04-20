@@ -101,15 +101,15 @@ static float distPtTri(const float* p, const float* a, const float* b, const flo
 	const float dot12 = vdot2(v1, v2);
 	
 	// Compute barycentric coordinates
-	float invDenom = 1.0f / (dot00 * dot11 - dot01 * dot01);
-	float u = (dot11 * dot02 - dot01 * dot12) * invDenom;
+	const float invDenom = 1.0f / (dot00 * dot11 - dot01 * dot01);
+	const float u = (dot11 * dot02 - dot01 * dot12) * invDenom;
 	float v = (dot00 * dot12 - dot01 * dot02) * invDenom;
 	
 	// If point lies inside the triangle, return interpolated y-coord.
 	static const float EPS = 1e-4f;
 	if (u >= -EPS && v >= -EPS && (u+v) <= 1+EPS)
 	{
-		float y = a[1] + v0[1]*u + v1[1]*v;
+		const float y = a[1] + v0[1]*u + v1[1]*v;
 		return fabsf(y-p[1]);
 	}
 	return FLT_MAX;

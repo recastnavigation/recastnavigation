@@ -293,16 +293,22 @@ int main(int /*argc*/, char** /*argv*/)
 					if (event.button.button == SDL_BUTTON_RIGHT)
 					{
 						rotate = false;
-						if (!movedDuringRotate)
+						if (!mouseOverMenu)
 						{
-							processHitTest = true;
-							processHitTestShift = true;
+							if (!movedDuringRotate)
+							{
+								processHitTest = true;
+								processHitTestShift = true;
+							}
 						}
 					}
 					else if (event.button.button == SDL_BUTTON_LEFT)
 					{
-						processHitTest = true;
-						processHitTestShift = (SDL_GetModState() & KMOD_SHIFT) ? true : false;
+						if (!mouseOverMenu)
+						{
+							processHitTest = true;
+							processHitTestShift = (SDL_GetModState() & KMOD_SHIFT) ? true : false;
+						}
 					}
 					
 					break;
