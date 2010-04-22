@@ -346,87 +346,6 @@ static void drawMeshTileBVTree(duDebugDraw* dd, const dtMeshTile* tile)
 						duRGBA(255,255,255,128));
 	}
 	dd->end();
-	
-	// Draw portals
-	/*	glBegin(GL_LINES);
-	 
-	 for (int i = 0; i < header->nportals[0]; ++i)
-	 {
-	 const dtTilePortal* p = &header->portals[0][i];		
-	 if (p->ncon)
-	 glColor4ub(255,255,255,192);
-	 else
-	 glColor4ub(255,0,0,64);
-	 glVertex3f(header->bmax[0]-0.1f, p->bmin[1], p->bmin[0]);
-	 glVertex3f(header->bmax[0]-0.1f, p->bmax[1], p->bmin[0]);
-	 
-	 glVertex3f(header->bmax[0]-0.1f, p->bmax[1], p->bmin[0]);
-	 glVertex3f(header->bmax[0]-0.1f, p->bmax[1], p->bmax[0]);
-	 
-	 glVertex3f(header->bmax[0]-0.1f, p->bmax[1], p->bmax[0]);
-	 glVertex3f(header->bmax[0]-0.1f, p->bmin[1], p->bmax[0]);
-	 
-	 glVertex3f(header->bmax[0]-0.1f, p->bmin[1], p->bmax[0]);
-	 glVertex3f(header->bmax[0]-0.1f, p->bmin[1], p->bmin[0]);
-	 }
-	 for (int i = 0; i < header->nportals[1]; ++i)
-	 {
-	 const dtTilePortal* p = &header->portals[1][i];
-	 if (p->ncon)
-	 glColor4ub(255,255,255,192);
-	 else
-	 glColor4ub(255,0,0,64);
-	 glVertex3f(p->bmin[0], p->bmin[1], header->bmax[2]-0.1f);
-	 glVertex3f(p->bmin[0], p->bmax[1], header->bmax[2]-0.1f);
-	 
-	 glVertex3f(p->bmin[0], p->bmax[1], header->bmax[2]-0.1f);
-	 glVertex3f(p->bmax[0], p->bmax[1], header->bmax[2]-0.1f);
-	 
-	 glVertex3f(p->bmax[0], p->bmax[1], header->bmax[2]-0.1f);
-	 glVertex3f(p->bmax[0], p->bmin[1], header->bmax[2]-0.1f);
-	 
-	 glVertex3f(p->bmax[0], p->bmin[1], header->bmax[2]-0.1f);
-	 glVertex3f(p->bmin[0], p->bmin[1], header->bmax[2]-0.1f);
-	 }
-	 for (int i = 0; i < header->nportals[2]; ++i)
-	 {
-	 const dtTilePortal* p = &header->portals[2][i];
-	 if (p->ncon)
-	 glColor4ub(255,255,255,192);
-	 else
-	 glColor4ub(255,0,0,64);
-	 glVertex3f(header->bmin[0]+0.1f, p->bmin[1], p->bmin[0]);
-	 glVertex3f(header->bmin[0]+0.1f, p->bmax[1], p->bmin[0]);
-	 
-	 glVertex3f(header->bmin[0]+0.1f, p->bmax[1], p->bmin[0]);
-	 glVertex3f(header->bmin[0]+0.1f, p->bmax[1], p->bmax[0]);
-	 
-	 glVertex3f(header->bmin[0]+0.1f, p->bmax[1], p->bmax[0]);
-	 glVertex3f(header->bmin[0]+0.1f, p->bmin[1], p->bmax[0]);
-	 
-	 glVertex3f(header->bmin[0]+0.1f, p->bmin[1], p->bmax[0]);
-	 glVertex3f(header->bmin[0]+0.1f, p->bmin[1], p->bmin[0]);
-	 }
-	 for (int i = 0; i < header->nportals[3]; ++i)
-	 {
-	 const dtTilePortal* p = &header->portals[3][i];
-	 if (p->ncon)
-	 glColor4ub(255,255,255,192);
-	 else
-	 glColor4ub(255,0,0,64);
-	 glVertex3f(p->bmin[0], p->bmin[1], header->bmin[2]+0.1f);
-	 glVertex3f(p->bmin[0], p->bmax[1], header->bmin[2]+0.1f);
-	 
-	 glVertex3f(p->bmin[0], p->bmax[1], header->bmin[2]+0.1f);
-	 glVertex3f(p->bmax[0], p->bmax[1], header->bmin[2]+0.1f);
-	 
-	 glVertex3f(p->bmax[0], p->bmax[1], header->bmin[2]+0.1f);
-	 glVertex3f(p->bmax[0], p->bmin[1], header->bmin[2]+0.1f);
-	 
-	 glVertex3f(p->bmax[0], p->bmin[1], header->bmin[2]+0.1f);
-	 glVertex3f(p->bmin[0], p->bmin[1], header->bmin[2]+0.1f);
-	 }
-	 glEnd();*/
 }
 
 void duDebugDrawNavMeshBVTree(duDebugDraw* dd, const dtNavMesh& mesh)
@@ -438,6 +357,149 @@ void duDebugDrawNavMeshBVTree(duDebugDraw* dd, const dtNavMesh& mesh)
 		const dtMeshTile* tile = mesh.getTile(i);
 		if (!tile->header) continue;
 		drawMeshTileBVTree(dd, tile);
+	}
+}
+
+/*
+static void calcRect(const float* va, const float* vb,
+					 float* bmin, float* bmax,
+					 int side, float padx, float pady)
+{
+	if (side == 0 || side == 4)
+	{
+		bmin[0] = dtMin(va[2],vb[2]) + padx;
+		bmin[1] = dtMin(va[1],vb[1]) - pady;
+		bmax[0] = dtMax(va[2],vb[2]) - padx;
+		bmax[1] = dtMax(va[1],vb[1]) + pady;
+	}
+	else if (side == 2 || side == 6)
+	{
+		bmin[0] = dtMin(va[0],vb[0]) + padx;
+		bmin[1] = dtMin(va[1],vb[1]) - pady;
+		bmax[0] = dtMax(va[0],vb[0]) - padx;
+		bmax[1] = dtMax(va[1],vb[1]) + pady;
+	}
+}
+*/
+
+static void drawMeshTilePortal(duDebugDraw* dd, const dtMeshTile* tile)
+{
+	// Draw portals
+	const float padx = 0.01f;
+	const float pady = tile->header->walkableClimb;
+
+	dd->begin(DU_DRAW_LINES, 2.0f);
+
+	for (int side = 0; side < 8; ++side)
+	{
+		unsigned short m = DT_EXT_LINK | (unsigned short)side;
+		
+		for (int i = 0; i < tile->header->polyCount; ++i)
+		{
+			dtPoly* poly = &tile->polys[i];
+			
+			// Create new links.
+			const int nv = poly->vertCount;
+			for (int j = 0; j < nv; ++j)
+			{
+				// Skip edges which do not point to the right side.
+				if (poly->neis[j] != m)
+					continue;
+				
+				// Create new links
+				const float* va = &tile->verts[poly->verts[j]*3];
+				const float* vb = &tile->verts[poly->verts[(j+1) % nv]*3];
+				
+				if (side == 0 || side == 4)
+				{
+					unsigned int col = side == 0 ? duRGBA(128,0,0,128) : duRGBA(128,0,128,128);
+
+					const float x = va[0] + ((side == 0) ? -0.02f : 0.02f);
+					
+					dd->vertex(x,va[1]-pady,va[2], col);
+					dd->vertex(x,va[1]+pady,va[2], col);
+
+					dd->vertex(x,va[1]+pady,va[2], col);
+					dd->vertex(x,vb[1]+pady,vb[2], col);
+
+					dd->vertex(x,vb[1]+pady,vb[2], col);
+					dd->vertex(x,vb[1]-pady,vb[2], col);
+
+					dd->vertex(x,vb[1]-pady,vb[2], col);
+					dd->vertex(x,va[1]-pady,va[2], col);
+					
+/*					const float zmin = dtMin(va[2], vb[2]) - padx;
+					const float zmax = dtMax(va[2], vb[2]) + padx;
+					const float ymin = dtMin(va[1], vb[1]) - pady;
+					const float ymax = dtMax(va[1], vb[1]) + pady;
+					const float x = va[0] + ((side == 0) ? -0.02f : 0.02f);
+					
+					dd->vertex(x,ymin,zmin, col);
+					dd->vertex(x,ymin,zmax, col);
+
+					dd->vertex(x,ymin,zmax, col);
+					dd->vertex(x,ymax,zmax, col);
+
+					dd->vertex(x,ymax,zmax, col);
+					dd->vertex(x,ymax,zmin, col);
+
+					dd->vertex(x,ymax,zmin, col);
+					dd->vertex(x,ymin,zmin, col);*/
+				}
+				else if (side == 2 || side == 6)
+				{
+					unsigned int col = side == 2 ? duRGBA(0,128,0,128) : duRGBA(0,128,128,128);
+
+					const float z = va[2] + ((side == 2) ? -0.02f : 0.02f);
+					
+					dd->vertex(va[0],va[1]-pady,z, col);
+					dd->vertex(va[0],va[1]+pady,z, col);
+					
+					dd->vertex(va[0],va[1]+pady,z, col);
+					dd->vertex(vb[0],vb[1]+pady,z, col);
+					
+					dd->vertex(vb[0],vb[1]+pady,z, col);
+					dd->vertex(vb[0],vb[1]-pady,z, col);
+					
+					dd->vertex(vb[0],vb[1]-pady,z, col);
+					dd->vertex(va[0],va[1]-pady,z, col);
+					
+					
+/*					const float xmin = dtMin(va[0], vb[0]) - padx;
+					const float xmax = dtMax(va[0], vb[0]) + padx;
+					const float ymin = dtMin(va[1], vb[1]) - pady;
+					const float ymax = dtMax(va[1], vb[1]) + pady;
+					const float z = va[2] + ((side == 2) ? -0.02f : 0.02f);
+
+					dd->vertex(xmin,ymin,z, col);
+					dd->vertex(xmax,ymin,z, col);
+					
+					dd->vertex(xmax,ymin,z, col);
+					dd->vertex(xmax,ymax,z, col);
+					
+					dd->vertex(xmax,ymax,z, col);
+					dd->vertex(xmin,ymax,z, col);
+					
+					dd->vertex(xmin,ymax,z, col);
+					dd->vertex(xmin,ymin,z, col);*/
+				}
+
+			}
+		}
+	}
+	
+	dd->end();
+}
+
+void duDebugDrawNavMeshPortals(duDebugDraw* dd, const dtNavMesh& mesh)
+{
+	if (!dd) return;
+	
+	for (int i = 0; i < mesh.getMaxTiles(); ++i)
+	{
+		const dtMeshTile* tile = mesh.getTile(i);
+		if (!tile->header) continue;
+		drawMeshTilePortal(dd, tile);
 	}
 }
 

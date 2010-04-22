@@ -29,6 +29,7 @@ enum DrawNavMeshFlags
 
 void duDebugDrawNavMesh(struct duDebugDraw* dd, const dtNavMesh& mesh, unsigned char flags);
 void duDebugDrawNavMeshBVTree(struct duDebugDraw* dd, const dtNavMesh& mesh);
+void duDebugDrawNavMeshPortals(struct duDebugDraw* dd, const dtNavMesh& mesh);
 void duDebugDrawNavMeshPoly(struct duDebugDraw* dd, const dtNavMesh& mesh, dtPolyRef ref, const unsigned int col);
 
 #endif // DETOURDEBUGDRAW_H
