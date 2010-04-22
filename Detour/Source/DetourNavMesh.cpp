@@ -46,23 +46,75 @@ inline bool overlapRects(const float* amin, const float* amax,
 	return overlap;
 }
 
-static void calcRect(const float* va, const float* vb,
-					 float* bmin, float* bmax,
-					 int side, float padx, float pady)
+inline bool overlapSlabs(const float* amin, const float* amax,
+						 const float* bmin, const float* bmax,
+						 const float px, const float py)
+{
+	// Check for horizontal overlap.
+	const float minx = dtMax(amin[0]-px,bmin[0]-px);
+	const float maxx = dtMin(amax[0]+px,bmax[0]+px);
+	if (minx > maxx)
+		return false;
+	
+	// Check vertical overlap.
+	const float ad = (amax[1]-amin[1]) / (amax[0]-amin[0]);
+	const float ak = amin[1] - ad*amin[0];
+	const float bd = (bmax[1]-bmin[1]) / (bmax[0]-bmin[0]);
+	const float bk = bmin[1] - bd*bmin[0];
+	const float aminy = ad*minx + ak;
+	const float amaxy = ad*maxx + ak;
+	const float bminy = bd*minx + bk;
+	const float bmaxy = bd*maxx + bk;
+	const float dmin = bminy - aminy;
+	const float dmax = bmaxy - amaxy;
+		
+	// Crossing segments always overlap.
+	if (dmin*dmax < 0)
+		return true;
+		
+	// Check for overlap at endpoints.
+	const float thr = dtSqr(py*2);
+	if (dmin*dmin <= thr || dmax*dmax <= thr)
+		return true;
+		
+	return false;
+}
+
+static void calcSlabEndPoints(const float* va, const float* vb, float* bmin, float* bmax, const int side)
 {
 	if (side == 0 || side == 4)
 	{
-		bmin[0] = dtMin(va[2],vb[2]) + padx;
-		bmin[1] = dtMin(va[1],vb[1]) - pady;
-		bmax[0] = dtMax(va[2],vb[2]) - padx;
-		bmax[1] = dtMax(va[1],vb[1]) + pady;
+		if (va[2] < vb[2])
+		{
+			bmin[0] = va[2];
+			bmin[1] = va[1];
+			bmax[0] = vb[2];
+			bmax[1] = vb[1];
+		}
+		else
+		{
+			bmin[0] = vb[2];
+			bmin[1] = vb[1];
+			bmax[0] = va[2];
+			bmax[1] = va[1];
+		}
 	}
 	else if (side == 2 || side == 6)
 	{
-		bmin[0] = dtMin(va[0],vb[0]) + padx;
-		bmin[1] = dtMin(va[1],vb[1]) - pady;
-		bmax[0] = dtMax(va[0],vb[0]) - padx;
-		bmax[1] = dtMax(va[1],vb[1]) + pady;
+		if (va[0] < vb[0])
+		{
+			bmin[0] = va[0];
+			bmin[1] = va[1];
+			bmax[0] = vb[0];
+			bmax[1] = vb[1];
+		}
+		else
+		{
+			bmin[0] = vb[0];
+			bmin[1] = vb[1];
+			bmax[0] = va[0];
+			bmax[1] = va[1];
+		}
 	}
 }
 
@@ -90,7 +142,7 @@ inline void freeLink(dtMeshTile* tile, unsigned int link)
 }
 
 
-inline bool passFilter(dtQueryFilter* filter, unsigned short flags)
+inline bool passFilter(const dtQueryFilter* filter, unsigned short flags)
 {
 	return (flags & filter->includeFlags) != 0 && (flags & filter->excludeFlags) == 0;
 }
@@ -219,13 +271,13 @@ const dtNavMeshParams* dtNavMesh::getParams() const
 
 //////////////////////////////////////////////////////////////////////////////////////////
 int dtNavMesh::findConnectingPolys(const float* va, const float* vb,
-								   dtMeshTile* tile, int side,
-								   dtPolyRef* con, float* conarea, int maxcon)
+								   const dtMeshTile* tile, int side,
+								   dtPolyRef* con, float* conarea, int maxcon) const
 {
 	if (!tile) return 0;
 	
 	float amin[2], amax[2];
-	calcRect(va,vb, amin,amax, side, 0.01f, tile->header->walkableClimb);
+	calcSlabEndPoints(va,vb, amin,amax, side);
 
 	// Remove links pointing to 'side' and compact the links array. 
 	float bmin[2], bmax[2];
@@ -245,8 +297,10 @@ int dtNavMesh::findConnectingPolys(const float* va, const float* vb,
 			// Check if the segments touch.
 			const float* vc = &tile->verts[poly->verts[j]*3];
 			const float* vd = &tile->verts[poly->verts[(j+1) % nv]*3];
-			calcRect(vc,vd, bmin,bmax, side, 0.01f, tile->header->walkableClimb);
-			if (!overlapRects(amin,amax, bmin,bmax)) continue;
+			calcSlabEndPoints(vc,vd, bmin,bmax, side);
+
+			if (!overlapSlabs(amin,amax, bmin,bmax, 0.01f, tile->header->walkableClimb)) continue;
+			
 			// Add return value.
 			if (n < maxcon)
 			{
@@ -642,7 +696,7 @@ dtTileRef dtNavMesh::addTile(unsigned char* data, int dataSize, int flags, dtTil
 	return getTileRef(tile);
 }
 
-dtMeshTile* dtNavMesh::getTileAt(int x, int y)
+dtMeshTile* dtNavMesh::getTileAt(int x, int y) const
 {
 	// Find tile based on hash.
 	int h = computeTileHash(x,y,m_tileLutMask);
@@ -696,7 +750,7 @@ const dtMeshTile* dtNavMesh::getTileByPolyRef(dtPolyRef ref, int* polyIndex) con
 	return &m_tiles[it];
 }
 
-dtMeshTile* dtNavMesh::getNeighbourTileAt(int x, int y, int side)
+dtMeshTile* dtNavMesh::getNeighbourTileAt(int x, int y, int side) const
 {
 	switch (side)
 	{
@@ -1090,7 +1144,8 @@ float dtNavMesh::getAreaCost(const int area) const
 	return -1;
 }
 
-dtPolyRef dtNavMesh::findNearestPoly(const float* center, const float* extents, dtQueryFilter* filter, float* nearestPt)
+dtPolyRef dtNavMesh::findNearestPoly(const float* center, const float* extents,
+									 const dtQueryFilter* filter, float* nearestPt) const
 {
 	// Get nearby polygons from proximity grid.
 	dtPolyRef polys[128];
@@ -1118,8 +1173,8 @@ dtPolyRef dtNavMesh::findNearestPoly(const float* center, const float* extents, 
 	return nearest;
 }
 
-dtPolyRef dtNavMesh::findNearestPolyInTile(dtMeshTile* tile, const float* center, const float* extents,
-										   dtQueryFilter* filter, float* nearestPt)
+dtPolyRef dtNavMesh::findNearestPolyInTile(const dtMeshTile* tile, const float* center, const float* extents,
+										   const dtQueryFilter* filter, float* nearestPt) const
 {
 	float bmin[3], bmax[3];
 	dtVsub(bmin, center, extents);
@@ -1151,9 +1206,9 @@ dtPolyRef dtNavMesh::findNearestPolyInTile(dtMeshTile* tile, const float* center
 	return nearest;
 }
 
-int dtNavMesh::queryPolygonsInTile(dtMeshTile* tile, const float* qmin, const float* qmax,
-								   dtQueryFilter* filter,
-								   dtPolyRef* polys, const int maxPolys)
+int dtNavMesh::queryPolygonsInTile(const dtMeshTile* tile, const float* qmin, const float* qmax,
+								   const dtQueryFilter* filter,
+								   dtPolyRef* polys, const int maxPolys) const
 {
 	if (tile->bvTree)
 	{
@@ -1239,8 +1294,8 @@ int dtNavMesh::queryPolygonsInTile(dtMeshTile* tile, const float* qmin, const fl
 	}
 }
 
-int dtNavMesh::queryPolygons(const float* center, const float* extents, dtQueryFilter* filter,
-							 dtPolyRef* polys, const int maxPolys)
+int dtNavMesh::queryPolygons(const float* center, const float* extents, const dtQueryFilter* filter,
+							 dtPolyRef* polys, const int maxPolys) const
 {
 	float bmin[3], bmax[3];
 	dtVsub(bmin, center, extents);
@@ -1257,7 +1312,7 @@ int dtNavMesh::queryPolygons(const float* center, const float* extents, dtQueryF
 	{
 		for (int x = minx; x <= maxx; ++x)
 		{
-			dtMeshTile* tile = getTileAt(x,y);
+			const dtMeshTile* tile = getTileAt(x,y);
 			if (!tile) continue;
 			n += queryPolygonsInTile(tile, bmin, bmax, filter, polys+n, maxPolys-n);
 			if (n >= maxPolys) return n;
@@ -1269,8 +1324,8 @@ int dtNavMesh::queryPolygons(const float* center, const float* extents, dtQueryF
 
 int dtNavMesh::findPath(dtPolyRef startRef, dtPolyRef endRef,
 						const float* startPos, const float* endPos,
-						dtQueryFilter* filter,
-						dtPolyRef* path, const int maxPathSize)
+						const dtQueryFilter* filter,
+						dtPolyRef* path, const int maxPathSize) const
 {
 	if (!startRef || !endRef)
 		return 0;
@@ -1468,7 +1523,7 @@ int dtNavMesh::findPath(dtPolyRef startRef, dtPolyRef endRef,
 int dtNavMesh::findStraightPath(const float* startPos, const float* endPos,
 								const dtPolyRef* path, const int pathSize,
 								float* straightPath, unsigned char* straightPathFlags, dtPolyRef* straightPathRefs,
-								const int maxStraightPathSize)
+								const int maxStraightPathSize) const
 {
 	if (!maxStraightPathSize)
 		return 0;
@@ -1688,7 +1743,7 @@ int dtNavMesh::findStraightPath(const float* startPos, const float* endPos,
 // Moves towards end position a long the path corridor.
 // Returns: Index to the result path polygon.
 int dtNavMesh::moveAlongPathCorridor(const float* startPos, const float* endPos, float* resultPos,
-									 const dtPolyRef* path, const int pathSize)
+									 const dtPolyRef* path, const int pathSize) const
 {
 	if (!pathSize)
 		return 0;
@@ -1966,8 +2021,8 @@ unsigned char dtNavMesh::getPolyArea(dtPolyRef ref) const
 	return poly->area;
 }
 
-int dtNavMesh::raycast(dtPolyRef centerRef, const float* startPos, const float* endPos, dtQueryFilter* filter,
-					   float& t, float* hitNormal, dtPolyRef* path, const int pathSize)
+int dtNavMesh::raycast(dtPolyRef centerRef, const float* startPos, const float* endPos, const dtQueryFilter* filter,
+					   float& t, float* hitNormal, dtPolyRef* path, const int pathSize) const
 {
 	t = 0;
 	
@@ -2121,9 +2176,9 @@ int dtNavMesh::raycast(dtPolyRef centerRef, const float* startPos, const float* 
 	return n;
 }
 
-int dtNavMesh::findPolysAround(dtPolyRef centerRef, const float* centerPos, float radius, dtQueryFilter* filter,
+int dtNavMesh::findPolysAround(dtPolyRef centerRef, const float* centerPos, float radius, const dtQueryFilter* filter,
 									dtPolyRef* resultRef, dtPolyRef* resultParent, float* resultCost,
-									const int maxResult)
+									const int maxResult) const
 {
 	if (!centerRef) return 0;
 	if (!getPolyByRef(centerRef)) return 0;
@@ -2266,8 +2321,8 @@ int dtNavMesh::findPolysAround(dtPolyRef centerRef, const float* centerPos, floa
 	return n;
 }
 
-float dtNavMesh::findDistanceToWall(dtPolyRef centerRef, const float* centerPos, float maxRadius, dtQueryFilter* filter,
-									float* hitPos, float* hitNormal)
+float dtNavMesh::findDistanceToWall(dtPolyRef centerRef, const float* centerPos, float maxRadius, const dtQueryFilter* filter,
+									float* hitPos, float* hitNormal) const
 {
 	if (!centerRef) return 0;
 	if (!getPolyByRef(centerRef)) return 0;

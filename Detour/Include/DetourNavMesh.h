@@ -217,7 +217,7 @@ public:
 	// Params:
 	//  x,y - (in) Location of the tile to get.
 	// Returns: pointer to tile if tile exists or 0 tile does not exists.
-	dtMeshTile* getTileAt(int x, int y);
+	dtMeshTile* getTileAt(int x, int y) const;
 
 	// Returns reference to tile at specified location.
 	// Params:
@@ -269,7 +269,8 @@ public:
 	//  filter - (in) path polygon filter.
 	//  nearestPt[3] - (out, opt) The nearest point on found polygon, null if not needed.
 	// Returns: Reference identifier for the polygon, or 0 if no polygons found.
-	dtPolyRef findNearestPoly(const float* center, const float* extents, dtQueryFilter* filter, float* nearestPt);
+	dtPolyRef findNearestPoly(const float* center, const float* extents,
+							  const dtQueryFilter* filter, float* nearestPt) const;
 	
 	// Returns polygons which touch the query box.
 	// Params:
@@ -279,8 +280,8 @@ public:
 	//	polys - (out) array holding the search result.
 	//	maxPolys - (in) The max number of polygons the polys array can hold.
 	// Returns: Number of polygons in search result array.
-	int queryPolygons(const float* center, const float* extents, dtQueryFilter* filter,
-					  dtPolyRef* polys, const int maxPolys);
+	int queryPolygons(const float* center, const float* extents, const dtQueryFilter* filter,
+					  dtPolyRef* polys, const int maxPolys) const;
 	
 	// Finds path from start polygon to end polygon.
 	// If target polygon canno be reached through the navigation graph,
@@ -298,8 +299,8 @@ public:
 	// Returns: Number of polygons in search result array.
 	int findPath(dtPolyRef startRef, dtPolyRef endRef,
 				 const float* startPos, const float* endPos,
-				 dtQueryFilter* filter,
-				 dtPolyRef* path, const int maxPathSize);
+				 const dtQueryFilter* filter,
+				 dtPolyRef* path, const int maxPathSize) const;
 
 	// Finds a straight path from start to end locations within the corridor
 	// described by the path polygons.
@@ -320,7 +321,7 @@ public:
 	int findStraightPath(const float* startPos, const float* endPos,
 						 const dtPolyRef* path, const int pathSize,
 						 float* straightPath, unsigned char* straightPathFlags, dtPolyRef* straightPathRefs,
-						 const int maxStraightPathSize);
+						 const int maxStraightPathSize) const;
 
 	// Moves towards end position a long the path corridor.
 	// The start location is assumed to be roughly at inside the first polygon on the path.
@@ -333,7 +334,7 @@ public:
 	// pathSize - (in) number of polygons on the path.
 	// Returns: Index to the path polygon where the result position lies.
 	int moveAlongPathCorridor(const float* startPos, const float* endPos, float* resultPos,
-							  const dtPolyRef* path, const int pathSize);
+							  const dtPolyRef* path, const int pathSize) const;
 	
 	// Castst 'walkability' ray along the navmesh surface from startPos towards the endPos.
 	// Params:
@@ -346,8 +347,8 @@ public:
 	//  path - (out) visited path polygons.
 	//  pathSize - (in) max number of polygons in the path array.
 	// Returns: Number of polygons visited or 0 if failed.
-	int raycast(dtPolyRef startRef, const float* startPos, const float* endPos, dtQueryFilter* filter,
-				float& t, float* hitNormal, dtPolyRef* path, const int pathSize);
+	int raycast(dtPolyRef startRef, const float* startPos, const float* endPos, const dtQueryFilter* filter,
+				float& t, float* hitNormal, dtPolyRef* path, const int pathSize) const;
 
 	// Returns distance to nearest wall from the specified location.
 	// Params:
@@ -359,7 +360,7 @@ public:
 	//	hitNormal[3] - (out) normal of the nearest hit.
 	// Returns: Distance to nearest wall from the test location.
 	float findDistanceToWall(dtPolyRef centerRef, const float* centerPos, float maxRadius,
-							 dtQueryFilter* filter, float* hitPos, float* hitNormal);
+							 const dtQueryFilter* filter, float* hitPos, float* hitNormal) const;
 
 	// Finds polygons found along the navigation graph which touch the specified circle.
 	// Params:
@@ -372,9 +373,9 @@ public:
 	//	resultCost - (out, opt) search cost at each result polygon.
 	//	maxResult - (int) maximum capacity of search results.
 	// Returns: Number of results.
-	int	findPolysAround(dtPolyRef centerRef, const float* centerPos, float radius, dtQueryFilter* filter,
+	int	findPolysAround(dtPolyRef centerRef, const float* centerPos, float radius, const dtQueryFilter* filter,
 						dtPolyRef* resultRef, dtPolyRef* resultParent, float* resultCost,
-						const int maxResult);
+						const int maxResult) const;
 	
 	// Returns closest point on navigation polygon.
 	// Uses detail polygons to find the closest point to the navigation polygon surface. 
@@ -483,11 +484,11 @@ public:
 private:
 
 	// Returns neighbour tile based on side. 
-	dtMeshTile* getNeighbourTileAt(int x, int y, int side);
+	dtMeshTile* getNeighbourTileAt(int x, int y, int side) const;
 	// Returns all polygons in neighbour tile based on portal defined by the segment.
 	int findConnectingPolys(const float* va, const float* vb,
-							dtMeshTile* tile, int side,
-							dtPolyRef* con, float* conarea, int maxcon);
+							const dtMeshTile* tile, int side,
+							dtPolyRef* con, float* conarea, int maxcon) const;
 	
 	// Builds internal polygons links for a tile.
 	void connectIntLinks(dtMeshTile* tile);
@@ -503,11 +504,11 @@ private:
 	void unconnectExtLinks(dtMeshTile* tile, int side);
 	
 	// Queries polygons within a tile.
-	int queryPolygonsInTile(dtMeshTile* tile, const float* qmin, const float* qmax, dtQueryFilter* filter,
-							dtPolyRef* polys, const int maxPolys);
+	int queryPolygonsInTile(const dtMeshTile* tile, const float* qmin, const float* qmax, const dtQueryFilter* filter,
+							dtPolyRef* polys, const int maxPolys) const;
 	// Find nearest polygon within a tile.
-	dtPolyRef findNearestPolyInTile(dtMeshTile* tile, const float* center, const float* extents,
-									dtQueryFilter* filter, float* nearestPt);
+	dtPolyRef findNearestPolyInTile(const dtMeshTile* tile, const float* center, const float* extents,
+									const dtQueryFilter* filter, float* nearestPt) const;
 	// Returns closest point on polygon.
 	bool closestPointOnPolyInTile(const dtMeshTile* tile, unsigned int ip, const float* pos, float* closest) const;
 	

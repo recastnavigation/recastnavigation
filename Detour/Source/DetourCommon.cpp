@@ -135,7 +135,7 @@ bool dtIntersectSegmentPoly2D(const float* p0, const float* p1,
 			else
 				continue;
 		}
-		float t = n / d;
+		const float t = n / d;
 		if (d < 0)
 		{
 			// segment S is entering across this edge
