@@ -104,7 +104,7 @@ void SlideShow::setSlide(int n)
 	if (m_nextSlide > maxIdx) m_nextSlide = maxIdx; 
 }
 
-void SlideShow::updateAndDraw(float dt, const float /*w*/, const float /*h*/)
+void SlideShow::updateAndDraw(float dt, const float w, const float h)
 {
 	float slideAlphaTarget = (m_showCurSlide && m_texId) ? 1.0f : 0.0f;
 	if (m_curSlide != m_nextSlide)
@@ -138,8 +138,8 @@ void SlideShow::updateAndDraw(float dt, const float /*w*/, const float /*h*/)
 		
 		const float tw = (float)m_width;
 		const float th = (float)m_height;
-		const float hw = tw/2; //w*0.5f;
-		const float hh = th/2; //h*0.5f;
+		const float hw = w*0.5f;
+		const float hh = h*0.5f;
 		
 		glColor4ub(255,255,255,alpha);
 		glBegin(GL_QUADS);

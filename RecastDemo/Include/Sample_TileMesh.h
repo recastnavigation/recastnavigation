@@ -32,6 +32,7 @@ protected:
 	bool m_buildAll;
 	rcBuildTimes m_buildTimes; 
 	float m_totalBuildTimeMs;
+	bool m_drawPortals;
 	
 	unsigned char* m_triflags;
 	rcHeightfield* m_solid;

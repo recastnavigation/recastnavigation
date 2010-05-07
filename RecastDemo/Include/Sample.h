@@ -20,6 +20,7 @@
 #define RECASTSAMPLE_H
 
 #include "DebugDraw.h"
+#include "RecastDump.h"
 #include "DetourNavMesh.h"
 
 
@@ -45,13 +46,30 @@ enum SamplePolyFlags
 
 
 // OpenGL debug draw implementation.
-struct DebugDrawGL : public duDebugDraw
+class DebugDrawGL : public duDebugDraw
 {
+public:
 	virtual void depthMask(bool state);
 	virtual void begin(duDebugDrawPrimitives prim, float size = 1.0f);
 	virtual void vertex(const float* pos, unsigned int color);
 	virtual void vertex(const float x, const float y, const float z, unsigned int color);
 	virtual void end();
+};
+
+// stdio file implementation.
+class FileIO : public duFileIO
+{
+	FILE* m_fp;
+	int m_mode;
+public:
+	FileIO();
+	virtual ~FileIO();
+	bool openForWrite(const char* path);
+	bool openForRead(const char* path);
+	virtual bool isWriting() const;
+	virtual bool isReading() const;
+	virtual bool write(const void* ptr, const size_t size);
+	virtual bool read(void* ptr, const size_t size);
 };
 
 // Tool types.

@@ -58,10 +58,19 @@ Sample_Debug::Sample_Debug() :
 
 	// Test
 	m_chf = new rcCompactHeightfield;
-	if (!duReadCompactHeightfield(*m_chf, "Tile_-13_-14_chf.bin"))
+	FileIO io;
+	if (!io.openForRead("test.chf"))
 	{
 		delete m_chf;
 		m_chf = 0;
+	}
+	else
+	{
+		if (!duReadCompactHeightfield(*m_chf, &io))
+		{
+			delete m_chf;
+			m_chf = 0;
+		}
 	}
 	
 /*	if (m_chf)

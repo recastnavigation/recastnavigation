@@ -19,25 +19,49 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <stdio.h>
+#include <stdarg.h>
 #include "Recast.h"
 #include "RecastDump.h"
 
 
-bool duDumpPolyMeshToObj(rcPolyMesh& pmesh, const char* filepath)
+duFileIO::~duFileIO()
 {
-	FILE* fp = fopen(filepath, "w");
-	if (!fp)
+	// Empty
+}
+	
+static void ioprintf(duFileIO* io, const char* format, ...)
+{
+	char line[256];
+	va_list ap;
+	va_start(ap, format);
+	const int n = vsnprintf(line, sizeof(line), format, ap);
+	va_end(ap);
+	if (n > 0)
+		io->write(line, sizeof(char)*n);
+}
+
+bool duDumpPolyMeshToObj(rcPolyMesh& pmesh, duFileIO* io)
+{
+	if (!io)
+	{
+		printf("duDumpPolyMeshToObj: input IO is null.\n"); 
 		return false;
+	}
+	if (!io->isWriting())
+	{
+		printf("duDumpPolyMeshToObj: input IO not writing.\n"); 
+		return false;
+	}
 	
 	const int nvp = pmesh.nvp;
 	const float cs = pmesh.cs;
 	const float ch = pmesh.ch;
 	const float* orig = pmesh.bmin;
 	
-	fprintf(fp, "# Recast Navmesh\n");
-	fprintf(fp, "o NavMesh\n");
+	ioprintf(io, "# Recast Navmesh\n");
+	ioprintf(io, "o NavMesh\n");
 
-	fprintf(fp, "\n");
+	ioprintf(io, "\n");
 	
 	for (int i = 0; i < pmesh.nverts; ++i)
 	{
@@ -45,10 +69,10 @@ bool duDumpPolyMeshToObj(rcPolyMesh& pmesh, const char* filepath)
 		const float x = orig[0] + v[0]*cs;
 		const float y = orig[1] + (v[1]+1)*ch + 0.1f;
 		const float z = orig[2] + v[2]*cs;
-		fprintf(fp, "v %f %f %f\n", x,y,z);
+		ioprintf(io, "v %f %f %f\n", x,y,z);
 	}
 
-	fprintf(fp, "\n");
+	ioprintf(io, "\n");
 
 	for (int i = 0; i < pmesh.npolys; ++i)
 	{
@@ -56,33 +80,38 @@ bool duDumpPolyMeshToObj(rcPolyMesh& pmesh, const char* filepath)
 		for (int j = 2; j < nvp; ++j)
 		{
 			if (p[j] == RC_MESH_NULL_IDX) break;
-			fprintf(fp, "f %d %d %d\n", p[0]+1, p[j-1]+1, p[j]+1); 
+			ioprintf(io, "f %d %d %d\n", p[0]+1, p[j-1]+1, p[j]+1); 
 		}
 	}
-	
-	fclose(fp);
 	
 	return true;
 }
 
-bool duDumpPolyMeshDetailToObj(rcPolyMeshDetail& dmesh, const char* filepath)
+bool duDumpPolyMeshDetailToObj(rcPolyMeshDetail& dmesh, duFileIO* io)
 {
-	FILE* fp = fopen(filepath, "w");
-	if (!fp)
+	if (!io)
+	{
+		printf("duDumpPolyMeshDetailToObj: input IO is null.\n"); 
 		return false;
+	}
+	if (!io->isWriting())
+	{
+		printf("duDumpPolyMeshDetailToObj: input IO not writing.\n"); 
+		return false;
+	}
 	
-	fprintf(fp, "# Recast Navmesh\n");
-	fprintf(fp, "o NavMesh\n");
+	ioprintf(io, "# Recast Navmesh\n");
+	ioprintf(io, "o NavMesh\n");
 	
-	fprintf(fp, "\n");
+	ioprintf(io, "\n");
 
 	for (int i = 0; i < dmesh.nverts; ++i)
 	{
 		const float* v = &dmesh.verts[i*3];
-		fprintf(fp, "v %f %f %f\n", v[0],v[1],v[2]);
+		ioprintf(io, "v %f %f %f\n", v[0],v[1],v[2]);
 	}
 	
-	fprintf(fp, "\n");
+	ioprintf(io, "\n");
 	
 	for (int i = 0; i < dmesh.nmeshes; ++i)
 	{
@@ -93,14 +122,12 @@ bool duDumpPolyMeshDetailToObj(rcPolyMeshDetail& dmesh, const char* filepath)
 		const unsigned char* tris = &dmesh.tris[btris*4];
 		for (int j = 0; j < ntris; ++j)
 		{
-			fprintf(fp, "f %d %d %d\n",
+			ioprintf(io, "f %d %d %d\n",
 					(int)(bverts+tris[j*4+0])+1,
 					(int)(bverts+tris[j*4+1])+1,
 					(int)(bverts+tris[j*4+2])+1);
 		}
 	}
-	
-	fclose(fp);
 	
 	return true;
 }
@@ -109,33 +136,37 @@ bool duDumpPolyMeshDetailToObj(rcPolyMeshDetail& dmesh, const char* filepath)
 static const int CHF_MAGIC = ('r' << 24) | ('c' << 16) | ('h' << 8) | 'f';
 static const int CHF_VERSION = 2;
 
-bool duDumpCompactHeightfield(struct rcCompactHeightfield& chf, const char* filepath)
+bool duDumpCompactHeightfield(struct rcCompactHeightfield& chf, duFileIO* io)
 {
-	FILE* fp = fopen(filepath, "wb");
-	if (!fp)
+	if (!io)
 	{
-		printf("duDumpCompactHeightfield: Could not open '%s' for writing.\n", filepath);
+		printf("duDumpCompactHeightfield: input IO is null.\n"); 
 		return false;
 	}
-
-	fwrite(&CHF_MAGIC, sizeof(CHF_MAGIC), 1, fp);
-	fwrite(&CHF_VERSION, sizeof(CHF_VERSION), 1, fp);
+	if (!io->isWriting())
+	{
+		printf("duDumpCompactHeightfield: input IO not writing.\n"); 
+		return false;
+	}
 	
-	fwrite(&chf.width, sizeof(chf.width), 1, fp);
-	fwrite(&chf.height, sizeof(chf.height), 1, fp);
-	fwrite(&chf.spanCount, sizeof(chf.spanCount), 1, fp);
+	io->write(&CHF_MAGIC, sizeof(CHF_MAGIC));
+	io->write(&CHF_VERSION, sizeof(CHF_VERSION));
+	
+	io->write(&chf.width, sizeof(chf.width));
+	io->write(&chf.height, sizeof(chf.height));
+	io->write(&chf.spanCount, sizeof(chf.spanCount));
 
-	fwrite(&chf.walkableHeight, sizeof(chf.walkableHeight), 1, fp);
-	fwrite(&chf.walkableClimb, sizeof(chf.walkableClimb), 1, fp);
+	io->write(&chf.walkableHeight, sizeof(chf.walkableHeight));
+	io->write(&chf.walkableClimb, sizeof(chf.walkableClimb));
 
-	fwrite(&chf.maxDistance, sizeof(chf.maxDistance), 1, fp);
-	fwrite(&chf.maxRegions, sizeof(chf.maxRegions), 1, fp);
+	io->write(&chf.maxDistance, sizeof(chf.maxDistance));
+	io->write(&chf.maxRegions, sizeof(chf.maxRegions));
 
-	fwrite(chf.bmin, sizeof(chf.bmin), 1, fp);
-	fwrite(chf.bmax, sizeof(chf.bmax), 1, fp);
+	io->write(chf.bmin, sizeof(chf.bmin));
+	io->write(chf.bmax, sizeof(chf.bmax));
 
-	fwrite(&chf.cs, sizeof(chf.cs), 1, fp);
-	fwrite(&chf.ch, sizeof(chf.ch), 1, fp);
+	io->write(&chf.cs, sizeof(chf.cs));
+	io->write(&chf.ch, sizeof(chf.ch));
 
 	int tmp = 0;
 	if (chf.cells) tmp |= 1;
@@ -143,67 +174,68 @@ bool duDumpCompactHeightfield(struct rcCompactHeightfield& chf, const char* file
 	if (chf.dist) tmp |= 4;
 	if (chf.areas) tmp |= 8;
 
-	fwrite(&tmp, sizeof(tmp), 1, fp);
+	io->write(&tmp, sizeof(tmp));
 
 	if (chf.cells)
-		fwrite(chf.cells, sizeof(rcCompactCell)*chf.width*chf.height, 1, fp);
+		io->write(chf.cells, sizeof(rcCompactCell)*chf.width*chf.height);
 	if (chf.spans)
-		fwrite(chf.spans, sizeof(rcCompactSpan)*chf.spanCount, 1, fp);
+		io->write(chf.spans, sizeof(rcCompactSpan)*chf.spanCount);
 	if (chf.dist)
-		fwrite(chf.dist, sizeof(unsigned short)*chf.spanCount, 1, fp);
+		io->write(chf.dist, sizeof(unsigned short)*chf.spanCount);
 	if (chf.areas)
-		fwrite(chf.areas, sizeof(unsigned char)*chf.spanCount, 1, fp);
-
-	fclose(fp);
+		io->write(chf.areas, sizeof(unsigned char)*chf.spanCount);
 
 	return true;
 }
 
-bool duReadCompactHeightfield(struct rcCompactHeightfield& chf, const char* filepath)
+bool duReadCompactHeightfield(struct rcCompactHeightfield& chf, duFileIO* io)
 {
-	FILE* fp = fopen(filepath, "rb");
-	if (!fp)
+	if (!io)
 	{
-		printf("duReadCompactHeightfield: Could not open '%s' for reading.\n", filepath);
+		printf("duReadCompactHeightfield: input IO is null.\n"); 
 		return false;
 	}
+	if (!io->isReading())
+	{
+		printf("duReadCompactHeightfield: input IO not reading.\n"); 
+		return false;
+	}
+
 	int magic = 0;
 	int version = 0;
 	
-	fread(&magic, sizeof(magic), 1, fp);
-	fread(&version, sizeof(version), 1, fp);
+	io->read(&magic, sizeof(magic));
+	io->read(&version, sizeof(version));
 	
 	if (magic != CHF_MAGIC)
 	{
 		printf("duReadCompactHeightfield: Bad voodoo.\n");
-		fclose(fp);
 		return false;
 	}
 	if (version != CHF_VERSION)
 	{
 		printf("duReadCompactHeightfield: Bad version.\n");
-		fclose(fp);
 		return false;
 	}
 	
-	fread(&chf.width, sizeof(chf.width), 1, fp);
-	fread(&chf.height, sizeof(chf.height), 1, fp);
-	fread(&chf.spanCount, sizeof(chf.spanCount), 1, fp);
+	io->read(&chf.width, sizeof(chf.width));
+	io->read(&chf.height, sizeof(chf.height));
+	io->read(&chf.spanCount, sizeof(chf.spanCount));
 	
-	fread(&chf.walkableHeight, sizeof(chf.walkableHeight), 1, fp);
-	fread(&chf.walkableClimb, sizeof(chf.walkableClimb), 1, fp);
+	io->read(&chf.walkableHeight, sizeof(chf.walkableHeight));
+	io->read(&chf.walkableClimb, sizeof(chf.walkableClimb));
 	
-	fread(&chf.maxDistance, sizeof(chf.maxDistance), 1, fp);
-	fread(&chf.maxRegions, sizeof(chf.maxRegions), 1, fp);
+	io->read(&chf.maxDistance, sizeof(chf.maxDistance));
+	io->read(&chf.maxRegions, sizeof(chf.maxRegions));
 	
-	fread(chf.bmin, sizeof(chf.bmin), 1, fp);
-	fread(chf.bmax, sizeof(chf.bmax), 1, fp);
+	io->read(chf.bmin, sizeof(chf.bmin));
+	io->read(chf.bmax, sizeof(chf.bmax));
 	
-	fread(&chf.cs, sizeof(chf.cs), 1, fp);
-	fread(&chf.ch, sizeof(chf.ch), 1, fp);
+	io->read(&chf.cs, sizeof(chf.cs));
+	io->read(&chf.ch, sizeof(chf.ch));
 	
 	int tmp = 0;
-	fread(&tmp, sizeof(tmp), 1, fp);
+	io->read(&tmp, sizeof(tmp));
 	
 	if (tmp & 1)
 	{
@@ -211,10 +243,9 @@ bool duReadCompactHeightfield(struct rcCompactHeightfield& chf, const char* file
 		if (!chf.cells)
 		{
 			printf("duReadCompactHeightfield: Could not alloc cells (%d)\n", chf.width*chf.height);
-			fclose(fp);
 			return false;
 		}
-		fread(chf.cells, sizeof(rcCompactCell)*chf.width*chf.height, 1, fp);
+		io->read(chf.cells, sizeof(rcCompactCell)*chf.width*chf.height);
 	}
 	if (tmp & 2)
 	{
@@ -222,10 +253,9 @@ bool duReadCompactHeightfield(struct rcCompactHeightfield& chf, const char* file
 		if (!chf.spans)
 		{
 			printf("duReadCompactHeightfield: Could not alloc spans (%d)\n", chf.spanCount);
-			fclose(fp);
 			return false;
 		}
-		fread(chf.spans, sizeof(rcCompactSpan)*chf.spanCount, 1, fp);
+		io->read(chf.spans, sizeof(rcCompactSpan)*chf.spanCount);
 	}
 	if (tmp & 4)
 	{
@@ -233,10 +263,9 @@ bool duReadCompactHeightfield(struct rcCompactHeightfield& chf, const char* file
 		if (!chf.dist)
 		{
 			printf("duReadCompactHeightfield: Could not alloc dist (%d)\n", chf.spanCount);
-			fclose(fp);
 			return false;
 		}
-		fread(chf.dist, sizeof(unsigned short)*chf.spanCount, 1, fp);
+		io->read(chf.dist, sizeof(unsigned short)*chf.spanCount);
 	}
 	if (tmp & 8)
 	{
@@ -244,13 +273,10 @@ bool duReadCompactHeightfield(struct rcCompactHeightfield& chf, const char* file
 		if (!chf.areas)
 		{
 			printf("duReadCompactHeightfield: Could not alloc areas (%d)\n", chf.spanCount);
-			fclose(fp);
 			return false;
 		}
-		fread(chf.areas, sizeof(unsigned char)*chf.spanCount, 1, fp);
+		io->read(chf.areas, sizeof(unsigned char)*chf.spanCount);
 	}
-	
-	fclose(fp);
 	
 	return true;
 }

@@ -19,10 +19,19 @@
 #ifndef RECAST_DUMP_H
 #define RECAST_DUMP_H
 
-bool duDumpPolyMeshToObj(struct rcPolyMesh& pmesh, const char* filepath);
-bool duDumpPolyMeshDetailToObj(struct rcPolyMeshDetail& dmesh, const char* filepath);
+struct duFileIO
+{
+	virtual ~duFileIO() = 0;
+	virtual bool isWriting() const = 0;
+	virtual bool isReading() const = 0;
+	virtual bool write(const void* ptr, const size_t size) = 0;
+	virtual bool read(void* ptr, const size_t size) = 0;
+};
 
-bool duDumpCompactHeightfield(struct rcCompactHeightfield& chf, const char* filepath);
-bool duReadCompactHeightfield(struct rcCompactHeightfield& chf, const char* filepath);
+bool duDumpPolyMeshToObj(struct rcPolyMesh& pmesh, duFileIO* io);
+bool duDumpPolyMeshDetailToObj(struct rcPolyMeshDetail& dmesh, duFileIO* io);
+
+bool duDumpCompactHeightfield(struct rcCompactHeightfield& chf, duFileIO* io);
+bool duReadCompactHeightfield(struct rcCompactHeightfield& chf, duFileIO* io);
 
 #endif // RECAST_DUMP_H

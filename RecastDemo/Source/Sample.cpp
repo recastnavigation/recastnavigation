@@ -79,6 +79,61 @@ void DebugDrawGL::end()
 }
 
 
+FileIO::FileIO() :
+	m_fp(0),
+	m_mode(-1)
+{
+}
+		
+FileIO::~FileIO()
+{
+	if (m_fp) fclose(m_fp);
+}
+
+bool FileIO::openForWrite(const char* path)
+{
+	if (m_fp) return false;
+	m_fp = fopen(path, "wb");
+	if (!m_fp) return false;
+	m_mode = 1;
+	return true;
+}
+
+bool FileIO::openForRead(const char* path)
+{
+	if (m_fp) return false;
+	m_fp = fopen(path, "rb");
+	if (!m_fp) return false;
+	m_mode = 2;
+	return true;
+}
+
+bool FileIO::isWriting() const
+{
+	return m_mode == 1;
+}
+
+bool FileIO::isReading() const
+{
+	return m_mode == 2;
+}
+
+bool FileIO::write(const void* ptr, const size_t size)
+{
+	if (!m_fp || m_mode != 1) return false;
+	fwrite(ptr, size, 1, m_fp);
+	return true;
+}
+
+bool FileIO::read(void* ptr, const size_t size)
+{
+	if (!m_fp || m_mode != 2) return false;
+	fread(ptr, size, 1, m_fp);
+	return true;
+}
+		
+
+
 Sample::Sample() :
 	m_geom(0),
 	m_navMesh(0),

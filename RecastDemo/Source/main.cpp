@@ -79,9 +79,24 @@ int main(int /*argc*/, char** /*argv*/)
 	
 	const SDL_VideoInfo* vi = SDL_GetVideoInfo();
 
-	int width = vi->current_w - 20;
-	int height = vi->current_h - 80;
-	SDL_Surface* screen = SDL_SetVideoMode(width, height, 0, SDL_OPENGL);
+	const bool presentationMode = false;
+
+	int width, height;
+	SDL_Surface* screen = 0;
+	
+	if (presentationMode)
+	{
+		width = vi->current_w;
+		height = vi->current_h;
+		screen = SDL_SetVideoMode(width, height, 0, SDL_OPENGL|SDL_FULLSCREEN);
+	}
+	else
+	{	
+		width = vi->current_w - 20;
+		height = vi->current_h - 80;
+		screen = SDL_SetVideoMode(width, height, 0, SDL_OPENGL);
+	}
+	
 	if (!screen)
 	{
 		printf("Could not initialise SDL opengl\n");
@@ -111,7 +126,7 @@ int main(int /*argc*/, char** /*argv*/)
 	bool movedDuringRotate = false;
 	float rays[3], raye[3]; 
 	bool mouseOverMenu = false;
-	bool showMenu = true;
+	bool showMenu = !presentationMode;
 	bool showLog = false;
 	bool showDebugMode = true;
 	bool showTools = true;
@@ -446,7 +461,6 @@ int main(int /*argc*/, char** /*argv*/)
 		if (test)
 			test->handleRender();
 
-
 		glDisable(GL_FOG);
 		
 		// Render GUI
@@ -558,7 +572,6 @@ int main(int /*argc*/, char** /*argv*/)
 
 				imguiSeparator();
 			}
-
 			
 			imguiEndScrollArea();
 			
@@ -580,7 +593,7 @@ int main(int /*argc*/, char** /*argv*/)
 		if (showSample)
 		{
 			static int levelScroll = 0;
-			if (imguiBeginScrollArea("Choose Level", width-10-250-10-200, height-10-250, 200, 250, &levelScroll))
+			if (imguiBeginScrollArea("Choose Sample", width-10-250-10-200, height-10-250, 200, 250, &levelScroll))
 				mouseOverMenu = true;
 
 			Sample* newSample = 0;
@@ -641,7 +654,7 @@ int main(int /*argc*/, char** /*argv*/)
 		if (showLevels)
 		{
 			static int levelScroll = 0;
-			if (imguiBeginScrollArea("Choose Level", width-10-250-10-200, height-10-350, 200, 350, &levelScroll))
+			if (imguiBeginScrollArea("Choose Level", width-10-250-10-200, height-10-450, 200, 450, &levelScroll))
 				mouseOverMenu = true;
 			
 			int levelToLoad = -1;

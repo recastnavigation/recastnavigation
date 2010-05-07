@@ -158,6 +158,7 @@ Sample_TileMesh::Sample_TileMesh() :
 	m_keepInterResults(false),
 	m_buildAll(true),
 	m_totalBuildTimeMs(0),
+	m_drawPortals(false),
 	m_triflags(0),
 	m_solid(0),
 	m_chf(0),
@@ -404,6 +405,11 @@ void Sample_TileMesh::handleDebugMode()
 {
 	if (m_navMesh)
 	{
+		if (imguiCheck("Draw Portals", m_drawPortals))
+			m_drawPortals = !m_drawPortals;
+
+		imguiSeparator();
+	
 		imguiValue("Navmesh ready.");
 		imguiValue("Use 'Create Tiles' tool to experiment.");
 		imguiValue("LMB: (Re)Create tiles.");
@@ -422,7 +428,7 @@ void Sample_TileMesh::handleRender()
 		return;
 	
 	DebugDrawGL dd;
-	
+
 	// Draw mesh
 	duDebugDrawTriMesh(&dd, m_geom->getMesh()->getVerts(), m_geom->getMesh()->getVertCount(),
 					   m_geom->getMesh()->getTris(), m_geom->getMesh()->getNormals(), m_geom->getMesh()->getTriCount(), 0);
@@ -447,7 +453,11 @@ void Sample_TileMesh::handleRender()
 	duDebugDrawBoxWire(&dd, m_tileBmin[0],m_tileBmin[1],m_tileBmin[2], m_tileBmax[0],m_tileBmax[1],m_tileBmax[2], m_tileCol, 2.0f);
 	
 	if (m_navMesh)
+	{
 		duDebugDrawNavMesh(&dd, *m_navMesh, m_navMeshDrawFlags);
+		if (m_drawPortals)
+			duDebugDrawNavMeshPortals(&dd, *m_navMesh);
+	}
 	
 	if (m_tool)
 		m_tool->handleRender();

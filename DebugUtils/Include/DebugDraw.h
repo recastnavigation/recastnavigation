@@ -30,6 +30,8 @@ enum duDebugDrawPrimitives
 // Abstrace debug draw interface.
 struct duDebugDraw
 {
+	virtual ~duDebugDraw() = 0;
+	
 	virtual void depthMask(bool state) = 0;
 
 	// Begin drawing primitives.
