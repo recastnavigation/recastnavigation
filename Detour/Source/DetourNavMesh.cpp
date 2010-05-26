@@ -1413,7 +1413,7 @@ int dtNavMesh::findPath(dtPolyRef startRef, dtPolyRef endRef,
 			dtPolyRef neighbourRef = bestTile->links[i].ref;
 			
 			// Skip invalid ids and do not expand back to where we came from.
-			if (!neighbourRef || neighbourRef == bestRef)
+			if (!neighbourRef || neighbourRef == parentRef)
 				continue;
 
 			// Get neighbour poly and tile.
@@ -2254,9 +2254,16 @@ int dtNavMesh::findPolysAround(dtPolyRef centerRef, const float* centerPos, floa
 			if (!neighbourRef || neighbourRef == parentRef)
 				continue;
 
-			// Calc distance to the edge.
-			const float* va = &bestTile->verts[bestPoly->verts[link->edge]*3];
-			const float* vb = &bestTile->verts[bestPoly->verts[(link->edge+1) % bestPoly->vertCount]*3];
+			// Expand to neighbour
+			it = decodePolyIdTile(neighbourRef);
+			ip = decodePolyIdPoly(neighbourRef);
+			const dtMeshTile* neighbourTile = &m_tiles[it];
+			const dtPoly* neighbourPoly = &neighbourTile->polys[ip];
+			
+			// Find edge and calc distance to the edge.
+			float va[3], vb[3];
+			if (!getPortalPoints(bestRef, bestPoly, bestTile, neighbourRef, neighbourPoly, neighbourTile, va, vb))
+				continue;
 			float tseg;
 			float distSqr = dtDistancePtSegSqr2D(centerPos, va, vb, tseg);
 			
@@ -2264,12 +2271,6 @@ int dtNavMesh::findPolysAround(dtPolyRef centerRef, const float* centerPos, floa
 			if (distSqr > radiusSqr)
 				continue;
 
-			// Expand to neighbour
-			it = decodePolyIdTile(neighbourRef);
-			ip = decodePolyIdPoly(neighbourRef);
-			const dtMeshTile* neighbourTile = &m_tiles[it];
-			const dtPoly* neighbourPoly = &neighbourTile->polys[ip];
-			
 			if (!passFilter(filter, neighbourPoly->flags))
 				continue;
 			
@@ -2279,8 +2280,7 @@ int dtNavMesh::findPolysAround(dtPolyRef centerRef, const float* centerPos, floa
 
 			// Cost
 			float edgeMidPoint[3];
-			getEdgeMidPoint(bestRef, bestPoly, bestTile,
-							neighbourRef, neighbourPoly, neighbourTile, edgeMidPoint);
+			dtVlerp(edgeMidPoint, va, vb, 0.5f);
 			
 			newNode.total = bestNode->total + dtVdist(previousEdgeMidPoint, edgeMidPoint);
 			
@@ -2430,6 +2430,16 @@ float dtNavMesh::findDistanceToWall(dtPolyRef centerRef, const float* centerPos,
 			if (!neighbourRef || neighbourRef == parentRef)
 				continue;
 			
+			// Expand to neighbour.
+			it = decodePolyIdTile(neighbourRef);
+			ip = decodePolyIdPoly(neighbourRef);
+			const dtMeshTile* neighbourTile = &m_tiles[it];
+			const dtPoly* neighbourPoly = &neighbourTile->polys[ip];
+
+			// Skip off-mesh connections.
+			if (neighbourPoly->type == DT_POLYTYPE_OFFMESH_CONNECTION)
+				continue;
+
 			// Calc distance to the edge.
 			const float* va = &bestTile->verts[bestPoly->verts[link->edge]*3];
 			const float* vb = &bestTile->verts[bestPoly->verts[(link->edge+1) % bestPoly->vertCount]*3];
@@ -2439,12 +2449,6 @@ float dtNavMesh::findDistanceToWall(dtPolyRef centerRef, const float* centerPos,
 			// If the circle is not touching the next polygon, skip it.
 			if (distSqr > radiusSqr)
 				continue;
-			
-			// Expand to neighbour.
-			it = decodePolyIdTile(neighbourRef);
-			ip = decodePolyIdPoly(neighbourRef);
-			const dtMeshTile* neighbourTile = &m_tiles[it];
-			const dtPoly* neighbourPoly = &neighbourTile->polys[ip];
 			
 			if (!passFilter(filter, neighbourPoly->flags))
 				continue;
