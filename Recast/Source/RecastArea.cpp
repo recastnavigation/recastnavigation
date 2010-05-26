@@ -321,6 +321,4 @@ void rcMarkConvexPolyArea(const float* verts, const int nverts,
 		}
 	}
 	
-
 }
-

@@ -494,15 +494,19 @@ static int removeVertex(rcPolyMesh& mesh, const unsigned short rem, const int ma
 	for (int i = 0; i < mesh.npolys; ++i)
 	{
 		unsigned short* p = &mesh.polys[i*nvp*2];
-		for (int j = 0; j < nvp; ++j)
+		const int nv = countPolyVerts(p, nvp);
+		int numRemoved = 0;
+		int numVerts = 0;
+		for (int j = 0; j < nv; ++j)
 		{
-			if (p[j] == RC_MESH_NULL_IDX) break;
-			numRemainingEdges++;
 			if (p[j] == rem)
-			{
-				numRemovedVerts++;
-				numRemainingEdges -= 2;
-			}
+				numRemoved++;
+			numVerts++;
+		}
+		if (numRemoved)
+		{
+			numRemovedVerts += numRemoved;
+			numRemainingEdges += numVerts-(numRemoved+1);
 		}
 	}
 	
@@ -574,6 +578,7 @@ static int removeVertex(rcPolyMesh& mesh, const unsigned short rem, const int ma
 			// Remove the polygon.
 			unsigned short* p2 = &mesh.polys[(mesh.npolys-1)*nvp*2];
 			memcpy(p,p2,sizeof(unsigned short)*nvp);
+			memset(p+nvp,0xff,sizeof(unsigned short)*nvp);
 			mesh.regs[i] = mesh.regs[mesh.npolys-1];
 			mesh.areas[i] = mesh.areas[mesh.npolys-1];
 			mesh.npolys--;
@@ -884,6 +889,7 @@ bool rcBuildPolyMesh(rcContourSet& cset, int nvp, rcPolyMesh& mesh)
 	mesh.nverts = 0;
 	mesh.npolys = 0;
 	mesh.nvp = nvp;
+	mesh.maxpolys = maxTris;
 	
 	memset(mesh.verts, 0, sizeof(unsigned short)*maxVertices*3);
 	memset(mesh.polys, 0xff, sizeof(unsigned short)*maxTris*nvp*2);
@@ -948,18 +954,16 @@ bool rcBuildPolyMesh(rcContourSet& cset, int nvp, rcPolyMesh& mesh)
 		if (ntris <= 0)
 		{
 			// Bad triangulation, should not happen.
-/*			for (int k = 0; k < cont.nverts; ++k)
+/*			printf("\tconst float bmin[3] = {%ff,%ff,%ff};\n", cset.bmin[0], cset.bmin[1], cset.bmin[2]);
+			printf("\tconst float cs = %ff;\n", cset.cs);
+			printf("\tconst float ch = %ff;\n", cset.ch);
+			printf("\tconst int verts[] = {\n");
+			for (int k = 0; k < cont.nverts; ++k)
 			{
 				const int* v = &cont.verts[k*4];
 				printf("\t\t%d,%d,%d,%d,\n", v[0], v[1], v[2], v[3]);
-				if (nBadPos < 100)
-				{
-					badPos[nBadPos*3+0] = v[0];
-					badPos[nBadPos*3+1] = v[1];
-					badPos[nBadPos*3+2] = v[2];
-					nBadPos++;
-				}
-			}*/
+			}
+			printf("\t};\n\tconst int nverts = sizeof(verts)/(sizeof(int)*4);\n");*/
 			ntris = -ntris;
 		}
 				

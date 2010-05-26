@@ -160,7 +160,7 @@ struct rcContourSet
 //   z = bmin[2] + verts[i*3+2]*cs;
 struct rcPolyMesh
 {
-	inline rcPolyMesh() : verts(0), polys(0), regs(0), flags(0), areas(0), nverts(0), npolys(0), nvp(3) {}
+	inline rcPolyMesh() : verts(0), polys(0), regs(0), flags(0), areas(0), nverts(0), npolys(0), maxpolys(0), nvp(3) {}
 
 	inline ~rcPolyMesh() { delete [] verts; delete [] polys; delete [] regs; delete [] flags; delete [] areas; }
 	
@@ -171,6 +171,7 @@ struct rcPolyMesh
 	unsigned char* areas;	// Area ID of polygons.
 	int nverts;				// Number of vertices.
 	int npolys;				// Number of polygons.
+	int maxpolys;			// Number of allocated polygons.
 	int nvp;				// Max number of vertices per polygon.
 	float bmin[3], bmax[3];	// Bounding box of the mesh.
 	float cs, ch;			// Cell size and height.
@@ -249,6 +250,12 @@ static const unsigned short RC_BORDER_REG = 0x8000;
 static const int RC_BORDER_VERTEX = 0x10000;
 
 static const int RC_AREA_BORDER = 0x20000;
+
+enum rcBuildContoursFlags
+{
+	RC_CONTOUR_TESS_WALL_EDGES = 0x01,	// Tesselate wall edges
+	RC_CONTOUR_TESS_AREA_EDGES = 0x02,	// Tesselate edges between areas.
+};
 
 // Mask used with contours to extract region id.
 static const int RC_CONTOUR_REG_MASK = 0xffff;
@@ -552,7 +559,6 @@ void rcMarkConvexPolyArea(const float* verts, const int nverts,
 						  const float hmin, const float hmax, unsigned char areaId,
 						  rcCompactHeightfield& chf);
 
-
 // Builds distance field and stores it into the combat heightfield.
 // Params:
 //	chf - (in/out) compact heightfield representing the open space.
@@ -573,7 +579,7 @@ bool rcBuildDistanceField(rcCompactHeightfield& chf);
 //	maxMergeRegionSize - (in) the largest allowed regions size which can be merged.
 // Returns false if operation ran out of memory.
 bool rcBuildRegions(rcCompactHeightfield& chf,
-					int borderSize, int minRegionSize, int mergeRegionSize);
+					const int borderSize, const int minRegionSize, const int mergeRegionSize);
 
 // Divides the walkable heighfied into simple regions using simple monotone partitioning.
 // Each region has only one contour and no overlaps.
@@ -589,7 +595,7 @@ bool rcBuildRegions(rcCompactHeightfield& chf,
 //	maxMergeRegionSize - (in) the largest allowed regions size which can be merged.
 // Returns false if operation ran out of memory.
 bool rcBuildRegionsMonotone(rcCompactHeightfield& chf,
-							int borderSize, int minRegionSize, int mergeRegionSize);
+							const int borderSize, const int minRegionSize, const int mergeRegionSize);
 
 // Builds simplified contours from the regions outlines.
 // Params:
@@ -597,10 +603,11 @@ bool rcBuildRegionsMonotone(rcCompactHeightfield& chf,
 //	maxError - (in) maximum allowed distance between simplified countour and cells.
 //	maxEdgeLen - (in) maximum allowed contour edge length in cells.
 //	cset - (out) Resulting contour set.
+//	flags - (in) build flags, see rcBuildContoursFlags.
 // Returns false if operation ran out of memory.
 bool rcBuildContours(rcCompactHeightfield& chf,
 					 const float maxError, const int maxEdgeLen,
-					 rcContourSet& cset);
+					 rcContourSet& cset, const int flags = RC_CONTOUR_TESS_WALL_EDGES);
 
 // Builds connected convex polygon mesh from contour polygons.
 // Params:

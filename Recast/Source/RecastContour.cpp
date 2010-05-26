@@ -227,7 +227,8 @@ static float distancePtSeg(const int x, const int z,
 	return dx*dx + dz*dz;
 }
 
-static void simplifyContour(rcIntArray& points, rcIntArray& simplified, float maxError, int maxEdgeLen)
+static void simplifyContour(rcIntArray& points, rcIntArray& simplified,
+							const float maxError, const int maxEdgeLen, const int buildFlags)
 {
 	// Add initial points.
 	bool noConnections = true;
@@ -382,7 +383,7 @@ static void simplifyContour(rcIntArray& points, rcIntArray& simplified, float ma
 	}
 	
 	// Split too long edges.
-	if (maxEdgeLen > 0)
+	if (maxEdgeLen > 0 && (buildFlags & (RC_CONTOUR_TESS_WALL_EDGES|RC_CONTOUR_TESS_AREA_EDGES)) != 0)
 	{
 		for (int i = 0; i < simplified.size()/4; )
 		{
@@ -395,20 +396,39 @@ static void simplifyContour(rcIntArray& points, rcIntArray& simplified, float ma
 			const int bx = simplified[ii*4+0];
 			const int bz = simplified[ii*4+2];
 			const int bi = simplified[ii*4+3];
-			
+
 			// Find maximum deviation from the segment.
 			int maxi = -1;
 			int ci = (ai+1) % pn;
+
+			// Tesselate only outer edges or edges between areas.
+			bool tess = false;
+			// Wall edges.
+			if ((buildFlags & RC_CONTOUR_TESS_WALL_EDGES) && (points[ci*4+3] & RC_CONTOUR_REG_MASK) == 0)
+				tess = true;
+			// Edges between areas.
+			if ((buildFlags & RC_CONTOUR_TESS_AREA_EDGES) && (points[ci*4+3] & RC_AREA_BORDER))
+				tess = true;
 			
-			// Tesselate only outer edges.
-			if ((points[ci*4+3] & RC_CONTOUR_REG_MASK) == 0)
+			if (tess)
 			{
 				int dx = bx - ax;
 				int dz = bz - az;
 				if (dx*dx + dz*dz > maxEdgeLen*maxEdgeLen)
 				{
-					int n = bi < ai ? (bi+pn - ai) : (bi - ai);
-					maxi = (ai + n/2) % pn;
+					// Round based on the segments in lexilogical order so that the
+					// max tesselation is consistent regardles in which direction
+					// segments are traversed.
+					if (bx > ax || (bx == ax && bz > az))
+					{
+						const int n = bi < ai ? (bi+pn - ai) : (bi - ai);
+						maxi = (ai + n/2) % pn;
+					}
+					else
+					{
+						const int n = bi < ai ? (bi+pn - ai) : (bi - ai);
+						maxi = (ai + (n+1)/2) % pn;
+					}
 				}
 			}
 			
@@ -488,25 +508,40 @@ static int calcAreaOfPolygon2D(const int* verts, const int nverts)
 	return (area+1) / 2;
 }
 
+inline bool ileft(const int* a, const int* b, const int* c)
+{
+	return (b[0] - a[0]) * (c[2] - a[2]) - (c[0] - a[0]) * (b[2] - a[2]) <= 0;
+}
+
 static void getClosestIndices(const int* vertsa, const int nvertsa,
 							  const int* vertsb, const int nvertsb,
 							  int& ia, int& ib)
 {
 	int closestDist = 0xfffffff;
+	ia = -1, ib = -1;
 	for (int i = 0; i < nvertsa; ++i)
 	{
+		const int in = (i+1) % nvertsa;
+		const int ip = (i+nvertsa-1) % nvertsa;
 		const int* va = &vertsa[i*4];
+		const int* van = &vertsa[in*4];
+		const int* vap = &vertsa[ip*4];
+		
 		for (int j = 0; j < nvertsb; ++j)
 		{
 			const int* vb = &vertsb[j*4];
-			const int dx = vb[0] - va[0];
-			const int dz = vb[2] - va[2];
-			const int d = dx*dx + dz*dz;
-			if (d < closestDist)
+			// vb must be "infront" of va.
+			if (ileft(vap,va,vb) && ileft(va,van,vb))
 			{
-				ia = i;
-				ib = j;
-				closestDist = d;
+				const int dx = vb[0] - va[0];
+				const int dz = vb[2] - va[2];
+				const int d = dx*dx + dz*dz;
+				if (d < closestDist)
+				{
+					ia = i;
+					ib = j;
+					closestDist = d;
+				}
 			}
 		}
 	}
@@ -558,7 +593,7 @@ static bool mergeContours(rcContour& ca, rcContour& cb, int ia, int ib)
 
 bool rcBuildContours(rcCompactHeightfield& chf,
 					 const float maxError, const int maxEdgeLen,
-					 rcContourSet& cset)
+					 rcContourSet& cset, const int buildFlags)
 {
 	const int w = chf.width;
 	const int h = chf.height;
@@ -647,7 +682,7 @@ bool rcBuildContours(rcCompactHeightfield& chf,
 				verts.resize(0);
 				simplified.resize(0);
 				walkContour(x, y, i, chf, flags, verts);
-				simplifyContour(verts, simplified, maxError, maxEdgeLen);
+				simplifyContour(verts, simplified, maxError, maxEdgeLen, buildFlags);
 				removeDegenerateSegments(simplified);
 				
 				// Store region->contour remap info.
@@ -738,10 +773,17 @@ bool rcBuildContours(rcCompactHeightfield& chf,
 				// Merge by closest points.
 				int ia = 0, ib = 0;
 				getClosestIndices(mcont.verts, mcont.nverts, cont.verts, cont.nverts, ia, ib);
+				if (ia == -1 || ib == -1)
+				{
+					if (rcGetLog())
+						rcGetLog()->log(RC_LOG_WARNING, "rcBuildContours: Failed to find merge points for %d and %d.", i, mergeIdx);
+					continue;
+				}
 				if (!mergeContours(mcont, cont, ia, ib))
 				{
 					if (rcGetLog())
 						rcGetLog()->log(RC_LOG_WARNING, "rcBuildContours: Failed to merge contours %d and %d.", i, mergeIdx);
+					continue;
 				}
 			}
 		}

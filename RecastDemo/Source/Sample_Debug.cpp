@@ -57,7 +57,7 @@ Sample_Debug::Sample_Debug() :
 	resetCommonSettings();
 
 	// Test
-	m_chf = new rcCompactHeightfield;
+/*	m_chf = new rcCompactHeightfield;
 	FileIO io;
 	if (!io.openForRead("test.chf"))
 	{
@@ -71,7 +71,7 @@ Sample_Debug::Sample_Debug() :
 			delete m_chf;
 			m_chf = 0;
 		}
-	}
+	}*/
 	
 /*	if (m_chf)
 	{
@@ -131,6 +131,8 @@ Sample_Debug::Sample_Debug() :
 
 	vcopy(m_ext, ext);
 	vcopy(m_center, center);*/
+	
+	
 }
 
 Sample_Debug::~Sample_Debug()
@@ -175,6 +177,102 @@ void Sample_Debug::handleRender()
 
 	if (m_cset)
 		duDebugDrawRawContours(&dd, *m_cset);
+	
+	dd.depthMask(false);
+	{
+		const float bmin[3] = {-32.000004f,-11.488281f,-115.343544f};
+		const float cs = 0.300000f;
+		const float ch = 0.200000f;
+		const int verts[] = {
+			158,46,336,0,
+			157,47,331,0,
+			161,53,330,0,
+			162,52,335,0,
+			158,46,336,0,
+			154,46,339,5,
+			161,46,365,5,
+			171,46,385,5,
+			174,46,400,5,
+			177,46,404,5,
+			177,46,410,5,
+			183,46,416,5,
+			188,49,416,5,
+			193,52,411,6,
+			194,53,382,6,
+			188,52,376,6,
+			188,57,363,6,
+			174,57,349,6,
+			174,60,342,6,
+			168,58,336,6,
+			167,59,328,6,
+			162,55,324,6,
+			159,53,324,5,
+			152,46,328,5,
+			151,46,336,5,
+			154,46,339,5,
+			158,46,336,0,
+			160,46,340,0,
+			164,52,339,0,
+			168,55,343,0,
+			168,50,351,0,
+			182,54,364,0,
+			182,47,378,0,
+			188,50,383,0,
+			188,49,409,0,
+			183,46,409,0,
+			183,46,403,0,
+			180,46,399,0,
+			177,46,384,0,
+			165,46,359,0,
+			160,46,340,0,
+		};
+		const int nverts = sizeof(verts)/(sizeof(int)*4);
+
+		const unsigned int colln = duRGBA(255,255,255,128);
+		dd.begin(DU_DRAW_LINES, 1.0f);
+		for (int i = 0, j = nverts-1; i < nverts; j=i++)
+		{
+			const int* va = &verts[j*4];
+			const int* vb = &verts[i*4];
+			dd.vertex(bmin[0]+va[0]*cs, bmin[1]+va[1]*ch+j*0.01f, bmin[2]+va[2]*cs, colln);
+			dd.vertex(bmin[0]+vb[0]*cs, bmin[1]+vb[1]*ch+i*0.01f, bmin[2]+vb[2]*cs, colln);
+		}
+		dd.end();
+
+		const unsigned int colpt = duRGBA(255,255,255,255);
+		dd.begin(DU_DRAW_POINTS, 3.0f);
+		for (int i = 0, j = nverts-1; i < nverts; j=i++)
+		{
+			const int* va = &verts[j*4];
+			dd.vertex(bmin[0]+va[0]*cs, bmin[1]+va[1]*ch+j*0.01f, bmin[2]+va[2]*cs, colpt);
+		}
+		dd.end();
+
+		extern int triangulate(int n, const int* verts, int* indices, int* tris);
+
+		static int indices[nverts];
+		static int tris[nverts*3];
+		for (int j = 0; j < nverts; ++j)
+			indices[j] = j;
+			
+		static int ntris = 0;
+		if (!ntris)
+		{
+			ntris = triangulate(nverts, verts, &indices[0], &tris[0]);
+			if (ntris < 0) ntris = -ntris;
+		}
+				
+		const unsigned int coltri = duRGBA(255,255,255,64);
+		dd.begin(DU_DRAW_TRIS);
+		for (int i = 0; i < ntris*3; ++i)
+		{
+			const int* va = &verts[indices[tris[i]]*4];
+			dd.vertex(bmin[0]+va[0]*cs, bmin[1]+va[1]*ch, bmin[2]+va[2]*cs, coltri);
+		}
+		dd.end();
+		
+	}
+	dd.depthMask(true);
 }
 
 void Sample_Debug::handleRenderOverlay(double* /*proj*/, double* /*model*/, int* /*view*/)

@@ -983,7 +983,7 @@ struct rcSweepSpan
 };
 
 bool rcBuildRegionsMonotone(rcCompactHeightfield& chf,
-							int borderSize, int minRegionSize, int mergeRegionSize)
+							const int borderSize, const int minRegionSize, const int mergeRegionSize)
 {
 	rcTimeVal startTime = rcGetPerformanceTimer();
 	
@@ -1134,7 +1134,7 @@ bool rcBuildRegionsMonotone(rcCompactHeightfield& chf,
 }
 
 bool rcBuildRegions(rcCompactHeightfield& chf,
-					int borderSize, int minRegionSize, int mergeRegionSize)
+					const int borderSize, const int minRegionSize, const int mergeRegionSize)
 {
 	rcTimeVal startTime = rcGetPerformanceTimer();
 	

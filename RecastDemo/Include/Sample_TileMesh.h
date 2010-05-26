@@ -72,6 +72,8 @@ public:
 	virtual void handleMeshChanged(class InputGeom* geom);
 	virtual bool handleBuild();
 	
+	void getTilePos(const float* pos, int& tx, int& ty);
+	
 	void buildTile(const float* pos);
 	void removeTile(const float* pos);
 	void buildAllTiles();
