@@ -845,18 +845,22 @@ static void getHeightData(const rcCompactHeightfield& chf,
 		hp.data[idx] = cs.y;
 	}
 	
-	while (stack.size() > 0)
+	static const int RETRACT_SIZE = 256;
+	int head = 0;
+	
+	while (head*3 < stack.size())
 	{
-/*		int cx = stack[0];
-		int cy = stack[1];
-		int ci = stack[2];
-		if (stack.size() >= 3)
-			memmove(&stack[0], &stack[3], sizeof(int)*(stack.size()-3));
-		stack.resize(stack.size()-3);*/
-
-		int ci = stack.pop();
-		int cy = stack.pop();
-		int cx = stack.pop();
+		int cx = stack[head*3+0];
+		int cy = stack[head*3+1];
+		int ci = stack[head*3+2];
+		head++;
+		if (head >= RETRACT_SIZE)
+		{
+			head = 0;
+			if (stack.size() > RETRACT_SIZE*3)
+				memmove(&stack[0], &stack[RETRACT_SIZE*3], sizeof(int)*(stack.size()-RETRACT_SIZE*3));
+			stack.resize(stack.size()-RETRACT_SIZE*3);
+		}
 
 		const rcCompactSpan& cs = chf.spans[ci];
 		for (int dir = 0; dir < 4; ++dir)
