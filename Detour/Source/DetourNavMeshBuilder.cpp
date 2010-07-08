@@ -257,26 +257,30 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	
 	// Classify off-mesh connection points. We store only the connections
 	// whose start point is inside the tile.
-	unsigned char* offMeshConClass = new unsigned char [params->offMeshConCount*2];
-	if (!offMeshConClass)
-		return false;
-
+	unsigned char* offMeshConClass = 0;
 	int storedOffMeshConCount = 0;
 	int offMeshConLinkCount = 0;
-
-	for (int i = 0; i < params->offMeshConCount; ++i)
+	
+	if (params->offMeshConCount > 0)
 	{
-		offMeshConClass[i*2+0] = classifyOffMeshPoint(&params->offMeshConVerts[(i*2+0)*3], params->bmin, params->bmax);
-		offMeshConClass[i*2+1] = classifyOffMeshPoint(&params->offMeshConVerts[(i*2+1)*3], params->bmin, params->bmax);
+		offMeshConClass = new unsigned char [params->offMeshConCount*2];
+		if (!offMeshConClass)
+			return false;
 
-		// Cound how many links should be allocated for off-mesh connections.
-		if (offMeshConClass[i*2+0] == 0xff)
-			offMeshConLinkCount++;
-		if (offMeshConClass[i*2+1] == 0xff)
-			offMeshConLinkCount++;
+		for (int i = 0; i < params->offMeshConCount; ++i)
+		{
+			offMeshConClass[i*2+0] = classifyOffMeshPoint(&params->offMeshConVerts[(i*2+0)*3], params->bmin, params->bmax);
+			offMeshConClass[i*2+1] = classifyOffMeshPoint(&params->offMeshConVerts[(i*2+1)*3], params->bmin, params->bmax);
 
-		if (offMeshConClass[i*2+0] == 0xff)
-			storedOffMeshConCount++;
+			// Cound how many links should be allocated for off-mesh connections.
+			if (offMeshConClass[i*2+0] == 0xff)
+				offMeshConLinkCount++;
+			if (offMeshConClass[i*2+1] == 0xff)
+				offMeshConLinkCount++;
+
+			if (offMeshConClass[i*2+0] == 0xff)
+				storedOffMeshConCount++;
+		}
 	}
 	
 	// Off-mesh connectionss are stored as polygons, adjust values.
