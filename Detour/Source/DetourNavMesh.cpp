@@ -214,6 +214,7 @@ bool dtNavMesh::init(const dtNavMeshParams* params)
 	m_nextFree = 0;
 	for (int i = m_maxTiles-1; i >= 0; --i)
 	{
+		m_tiles[i].salt = 1;
 		m_tiles[i].next = m_nextFree;
 		m_nextFree = &m_tiles[i];
 	}
@@ -832,8 +833,11 @@ bool dtNavMesh::removeTile(dtTileRef ref, unsigned char** data, int* dataSize)
 	tile->detailTris = 0;
 	tile->bvTree = 0;
 	tile->offMeshCons = 0;
-		
-	tile->salt++;
+
+	// Update salt, salt should never be zero.
+	tile->salt = (tile->salt+1) & ((1<<m_saltBits)-1);
+	if (tile->salt == 0)
+		tile->salt++;
 
 	// Add to free list.
 	tile->next = m_nextFree;

@@ -452,14 +452,14 @@ public:
 	// Encodes a tile id.
 	inline dtPolyRef encodePolyId(unsigned int salt, unsigned int it, unsigned int ip) const
 	{
-		return (salt << (m_polyBits+m_tileBits)) | ((it+1) << m_polyBits) | ip;
+		return (salt << (m_polyBits+m_tileBits)) | (it << m_polyBits) | ip;
 	}
 	
 	// Decodes a tile id.
 	inline void decodePolyId(dtPolyRef ref, unsigned int& salt, unsigned int& it, unsigned int& ip) const
 	{
 		salt = (ref >> (m_polyBits+m_tileBits)) & ((1<<m_saltBits)-1);
-		it = ((ref >> m_polyBits) - 1) & ((1<<m_tileBits)-1);
+		it = (ref >> m_polyBits) & ((1<<m_tileBits)-1);
 		ip = ref & ((1<<m_polyBits)-1);
 	}
 
@@ -472,7 +472,7 @@ public:
 	// Decodes a tile id.
 	inline unsigned int decodePolyIdTile(dtPolyRef ref) const
 	{
-		return ((ref >> m_polyBits) - 1) & ((1<<m_tileBits)-1);
+		return (ref >> m_polyBits) & ((1<<m_tileBits)-1);
 	}
 	
 	// Decodes a poly id.
