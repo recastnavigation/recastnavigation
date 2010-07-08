@@ -19,41 +19,44 @@
 #ifndef DETOURNAVMESHBUILDER_H
 #define DETOURNAVMESHBUILDER_H
 
+// The units of the parameters are specified in parenthesis as follows:
+// (vx) voxels, (wu) world units
+
 struct dtNavMeshCreateParams
 {
 	// Navmesh vertices.
-	const unsigned short* verts;
-	int vertCount;
+	const unsigned short* verts;			// Array of vertices, each vertex has 3 components. (vx).
+	int vertCount;							// Vertex count
 	// Navmesh polygons
-	const unsigned short* polys;
-	const unsigned short* polyFlags;
-	const unsigned char* polyAreas;
-	int polyCount;
-	int nvp;
+	const unsigned short* polys;			// Array of polygons, uses same format as rcPolyMesh. 
+	const unsigned short* polyFlags;		// Array of flags per polygon.
+	const unsigned char* polyAreas;			// Array of area ids per polygon.
+	int polyCount;							// Number of polygons
+	int nvp;								// Number of verts per polygon.
 	// Navmesh Detail
-	const unsigned short* detailMeshes;
-	const float* detailVerts;
-	int detailVertsCount;
-	const unsigned char* detailTris;
-	int detailTriCount; 
+	const unsigned short* detailMeshes;		// Detail meshes, uses same format as rcPolyMeshDetail.
+	const float* detailVerts;				// Detail mesh vertices, uses same format as rcPolyMeshDetail (wu).
+	int detailVertsCount;					// Total number of detail vertices
+	const unsigned char* detailTris;		// Array of detail tris per detail mesh.
+	int detailTriCount;						// Total number of detail triangles.
 	// Off-Mesh Connections.
-	const float* offMeshConVerts;
-	const float* offMeshConRad;
-	const unsigned short* offMeshConFlags;
-	const unsigned char* offMeshConAreas;
-	const unsigned char* offMeshConDir;
-	int offMeshConCount;
+	const float* offMeshConVerts;			// Off-mesh connection vertices (wu).
+	const float* offMeshConRad;				// Off-mesh connection radii (wu).
+	const unsigned short* offMeshConFlags;	// Off-mesh connection flags.
+	const unsigned char* offMeshConAreas;	// Off-mesh connection area ids.
+	const unsigned char* offMeshConDir;		// Off-mesh connection direction flags (1 = bidir, 0 = oneway).
+	int offMeshConCount;					// Number of off-mesh connections
 	// Tile location
-	unsigned int userId;
-	int tileX, tileY;
-	float bmin[3], bmax[3];
+	unsigned int userId;					// User ID bound to the tile.
+	int tileX, tileY;						// Tile location (tile coords).
+	float bmin[3], bmax[3];					// Tile bounds (wu).
 	// Settings
-	float walkableHeight;
-	float walkableRadius;
-	float walkableClimb;
-	float cs;
-	float ch;
-	int tileSize;
+	float walkableHeight;					// Agent height (wu).
+	float walkableRadius;					// Agent radius (wu).
+	float walkableClimb;					// Agent max climb (wu).
+	float cs;								// Cell size (xz) (wu).
+	float ch;								// Cell height (y) (wu).
+	int tileSize;							// Tile size (width & height) (vx).
 };
 
 // Build navmesh data from given input data.
