@@ -597,7 +597,13 @@ void NavMeshTesterTool::recalc()
 			m_nstraightPath = 0;
 			if (m_npolys)
 			{
-				m_nstraightPath = m_navMesh->findStraightPath(m_spos, m_epos, m_polys, m_npolys,
+				// In case of partial path, make sure the end point is clamped to the last polygon.
+				float epos[3];
+				rcVcopy(epos, m_epos);
+				if (m_polys[m_npolys-1] != m_endRef)
+					m_navMesh->closestPointOnPoly(m_polys[m_npolys-1], m_epos, epos);
+				
+				m_nstraightPath = m_navMesh->findStraightPath(m_spos, epos, m_polys, m_npolys,
 															  m_straightPath, m_straightPathFlags,
 															  m_straightPathPolys, MAX_POLYS);
 			}
