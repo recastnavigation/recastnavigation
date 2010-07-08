@@ -231,17 +231,36 @@ static void simplifyContour(rcIntArray& points, rcIntArray& simplified,
 							const float maxError, const int maxEdgeLen, const int buildFlags)
 {
 	// Add initial points.
-	bool noConnections = true;
+	bool hasConnections = false;
 	for (int i = 0; i < points.size(); i += 4)
 	{
 		if ((points[i+3] & RC_CONTOUR_REG_MASK) != 0)
 		{
-			noConnections = false;
+			hasConnections = true;
 			break;
 		}
 	}
 	
-	if (noConnections)
+	if (hasConnections)
+	{
+		// The contour has some portals to other regions.
+		// Add a new point to every location where the region changes.
+		for (int i = 0, ni = points.size()/4; i < ni; ++i)
+		{
+			int ii = (i+1) % ni;
+			const bool differentRegs = (points[i*4+3] & RC_CONTOUR_REG_MASK) != (points[ii*4+3] & RC_CONTOUR_REG_MASK);
+			const bool areaBorders = (points[i*4+3] & RC_AREA_BORDER) != (points[ii*4+3] & RC_AREA_BORDER);
+			if (differentRegs || areaBorders)
+			{
+				simplified.push(points[i*4+0]);
+				simplified.push(points[i*4+1]);
+				simplified.push(points[i*4+2]);
+				simplified.push(i);
+			}
+		}       
+	}
+	
+	if (simplified.size() == 0)
 	{
 		// If there is no connections at all,
 		// create some initial points for the simplification process. 
@@ -283,24 +302,6 @@ static void simplifyContour(rcIntArray& points, rcIntArray& simplified,
 		simplified.push(ury);
 		simplified.push(urz);
 		simplified.push(uri);
-	}
-	else
-	{
-		// The contour has some portals to other regions.
-		// Add a new point to every location where the region changes.
-		for (int i = 0, ni = points.size()/4; i < ni; ++i)
-		{
-			int ii = (i+1) % ni;
-			const bool differentRegs = (points[i*4+3] & RC_CONTOUR_REG_MASK) != (points[ii*4+3] & RC_CONTOUR_REG_MASK);
-			const bool areaBorders = (points[i*4+3] & RC_AREA_BORDER) != (points[ii*4+3] & RC_AREA_BORDER);
-			if (differentRegs || areaBorders)
-			{
-				simplified.push(points[i*4+0]);
-				simplified.push(points[i*4+1]);
-				simplified.push(points[i*4+2]);
-				simplified.push(i);
-			}
-		}       
 	}
 	
 	// Add points until all raw points are within
