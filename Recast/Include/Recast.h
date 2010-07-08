@@ -102,13 +102,12 @@ struct rcCompactHeightfield
 {
 	inline rcCompactHeightfield() :
 		maxDistance(0), maxRegions(0), cells(0),
-		spans(0), dist(0), /*regs(0),*/ areas(0) {}
+		spans(0), dist(0), areas(0) {}
 	inline ~rcCompactHeightfield()
 	{
 		delete [] cells;
 		delete [] spans;
 		delete [] dist;
-//		delete [] regs;
 		delete [] areas;
 	}
 	int width, height;					// Width and height of the heighfield.
@@ -121,7 +120,6 @@ struct rcCompactHeightfield
 	rcCompactCell* cells;				// Pointer to width*height cells.
 	rcCompactSpan* spans;				// Pointer to spans.
 	unsigned short* dist;				// Pointer to per span distance to border.
-//	unsigned short* regs;				// Pointer to per span region ID.
 	unsigned char* areas;				// Pointer to per span area ID.
 };
 
@@ -521,10 +519,18 @@ void rcFilterLedgeSpans(const int walkableHeight,
 void rcFilterWalkableLowHeightSpans(int walkableHeight,
 									rcHeightfield& solid);
 
+// Returns number of spans contained in a heightfield.
+// Params:
+//  flags - (in) require flags for a cell to be included.
+//	hf - (in) heightfield to be compacted
+// Returns number of spans.
+int rcGetHeightFieldSpanCount(const unsigned char flags, rcHeightfield& hf);
+
 // Builds compact representation of the heightfield.
 // Params:
 //	walkableHeight - (in) minimum height where the agent can still walk
 //	walkableClimb - (in) maximum height between grid cells the agent can climb
+//  flags - (in) require flags for a cell to be included in the compact heightfield.
 //	hf - (in) heightfield to be compacted
 //	chf - (out) compact heightfield representing the open space.
 // Returns false if operation ran out of memory.

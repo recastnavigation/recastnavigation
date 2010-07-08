@@ -105,7 +105,7 @@ void rcMarkWalkableTriangles(const float walkableSlopeAngle,
 	}
 }
 
-static int getSpanCount(unsigned char flags, rcHeightfield& hf)
+int rcGetHeightFieldSpanCount(const unsigned char flags, rcHeightfield& hf)
 {
 	const int w = hf.width;
 	const int h = hf.height;
@@ -132,7 +132,7 @@ bool rcBuildCompactHeightfield(const int walkableHeight, const int walkableClimb
 	
 	const int w = hf.width;
 	const int h = hf.height;
-	const int spanCount = getSpanCount(flags, hf);
+	const int spanCount = rcGetHeightFieldSpanCount(flags, hf);
 
 	// Fill in header.
 	chf.width = w;
