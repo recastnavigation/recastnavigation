@@ -438,7 +438,7 @@ static unsigned short* expandRegions(int maxIter, unsigned short level,
 
 struct rcRegion
 {
-	inline rcRegion() : count(0), id(0), area(0), remap(false) {}
+	inline rcRegion(unsigned short i) : count(0), id(i), area(0), remap(false) {}
 	
 	int count;
 	unsigned short id;
@@ -697,16 +697,17 @@ static bool filterSmallRegions(int minRegionSize, int mergeRegionSize,
 	const int h = chf.height;
 	
 	const int nreg = maxRegionId+1;
-	rcRegion* regions = new(rcAlloc(sizeof(rcRegion)*nreg, RC_ALLOC_TEMP)) rcRegion[nreg];
+	rcRegion* regions = (rcRegion*)rcAlloc(sizeof(rcRegion)*nreg, RC_ALLOC_TEMP);
 	if (!regions)
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_ERROR, "filterSmallRegions: Out of memory 'regions' (%d).", nreg);
 		return false;
 	}
-	
+
+	// Construct regions
 	for (int i = 0; i < nreg; ++i)
-		regions[i].id = (unsigned short)i;
+		new(&regions[i]) rcRegion((unsigned short)i);
 	
 	// Find edge of a region and find connections around the contour.
 	for (int y = 0; y < h; ++y)

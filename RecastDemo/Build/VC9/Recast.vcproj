@@ -188,6 +188,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\..\Recast\Include\RecastAlloc.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\..\Recast\Include\RecastLog.h"
 					>
 				</File>
@@ -201,6 +205,10 @@
 				>
 				<File
 					RelativePath="..\..\..\Recast\Source\Recast.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Recast\Source\RecastAlloc.cpp"
 					>
 				</File>
 				<File
@@ -248,6 +256,10 @@
 				Name="Include"
 				>
 				<File
+					RelativePath="..\..\..\Detour\Include\DetourAlloc.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\..\Detour\Include\DetourCommon.h"
 					>
 				</File>
@@ -267,6 +279,10 @@
 			<Filter
 				Name="Source"
 				>
+				<File
+					RelativePath="..\..\..\Detour\Source\DetourAlloc.cpp"
+					>
+				</File>
 				<File
 					RelativePath="..\..\..\Detour\Source\DetourCommon.cpp"
 					>
