@@ -25,6 +25,8 @@
 #include "Recast.h"
 #include "RecastLog.h"
 #include "RecastTimer.h"
+#include "RecastAlloc.h"
+#include <new>
 
 
 static void calculateDistanceField(rcCompactHeightfield& chf, unsigned short* src, unsigned short& maxDist)
@@ -694,8 +696,8 @@ static bool filterSmallRegions(int minRegionSize, int mergeRegionSize,
 	const int w = chf.width;
 	const int h = chf.height;
 	
-	int nreg = maxRegionId+1;
-	rcRegion* regions = new rcRegion[nreg];
+	const int nreg = maxRegionId+1;
+	rcRegion* regions = new(rcAlloc(sizeof(rcRegion)*nreg, RC_ALLOC_TEMP)) rcRegion[nreg];
 	if (!regions)
 	{
 		if (rcGetLog())
@@ -877,7 +879,9 @@ static bool filterSmallRegions(int minRegionSize, int mergeRegionSize,
 			srcReg[i] = regions[srcReg[i]].id;
 	}
 	
-	delete [] regions;
+	for (int i = 0; i < nreg; ++i)
+		regions[i].~rcRegion();
+	rcFree(regions);
 	
 	return true;
 }
@@ -889,29 +893,26 @@ bool rcBuildDistanceField(rcCompactHeightfield& chf)
 	
 	if (chf.dist)
 	{
-		delete [] chf.dist;
+		rcFree(chf.dist);
 		chf.dist = 0;
 	}
 	
-	unsigned short* dist0 = new unsigned short[chf.spanCount];
-	if (!dist0)
+	unsigned short* src = (unsigned short*)rcAlloc(sizeof(unsigned short)*chf.spanCount, RC_ALLOC_TEMP);
+	if (!src)
 	{
 		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "rcBuildDistanceField: Out of memory 'dist0' (%d).", chf.spanCount);
+			rcGetLog()->log(RC_LOG_ERROR, "rcBuildDistanceField: Out of memory 'src' (%d).", chf.spanCount);
 		return false;
 	}
-	unsigned short* dist1 = new unsigned short[chf.spanCount];
-	if (!dist1)
+	unsigned short* dst = (unsigned short*)rcAlloc(sizeof(unsigned short)*chf.spanCount, RC_ALLOC_TEMP);
+	if (!dst)
 	{
 		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "rcBuildDistanceField: Out of memory 'dist1' (%d).", chf.spanCount);
-		delete [] dist0;
+			rcGetLog()->log(RC_LOG_ERROR, "rcBuildDistanceField: Out of memory 'dst' (%d).", chf.spanCount);
+		rcFree(src);
 		return false;
 	}
 	
-	unsigned short* src = dist0;
-	unsigned short* dst = dist1;
-
 	unsigned short maxDist = 0;
 
 	rcTimeVal distStartTime = rcGetPerformanceTimer();
@@ -932,7 +933,7 @@ bool rcBuildDistanceField(rcCompactHeightfield& chf)
 	
 	rcTimeVal blurEndTime = rcGetPerformanceTimer();
 	
-	delete [] dst;
+	rcFree(dst);
 	
 	rcTimeVal endTime = rcGetPerformanceTimer();
 	
@@ -991,7 +992,7 @@ bool rcBuildRegionsMonotone(rcCompactHeightfield& chf,
 	const int h = chf.height;
 	unsigned short id = 1;
 	
-	rcScopedDelete<unsigned short> srcReg = new unsigned short[chf.spanCount];
+	rcScopedDelete<unsigned short> srcReg = (unsigned short*)rcAlloc(sizeof(unsigned short)*chf.spanCount, RC_ALLOC_TEMP);
 	if (!srcReg)
 	{
 		if (rcGetLog())
@@ -1000,11 +1001,12 @@ bool rcBuildRegionsMonotone(rcCompactHeightfield& chf,
 	}
 	memset(srcReg,0,sizeof(unsigned short)*chf.spanCount);
 
-	rcScopedDelete<rcSweepSpan> sweeps = new rcSweepSpan[rcMax(chf.width,chf.height)];
+	const int nsweeps = rcMax(chf.width,chf.height);
+	rcScopedDelete<rcSweepSpan> sweeps = (rcSweepSpan*)rcAlloc(sizeof(rcSweepSpan)*nsweeps, RC_ALLOC_TEMP);
 	if (!sweeps)
 	{
 		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "rcBuildRegionsMonotone: Out of memory 'sweeps' (%d).", chf.width);
+			rcGetLog()->log(RC_LOG_ERROR, "rcBuildRegionsMonotone: Out of memory 'sweeps' (%d).", nsweeps);
 		return false;
 	}
 	
@@ -1141,8 +1143,8 @@ bool rcBuildRegions(rcCompactHeightfield& chf,
 	const int w = chf.width;
 	const int h = chf.height;
 	
-	rcScopedDelete<unsigned short> tmp = new unsigned short[chf.spanCount*4];
-	if (!tmp)
+	rcScopedDelete<unsigned short> buf = (unsigned short*)rcAlloc(sizeof(unsigned short)*chf.spanCount*4, RC_ALLOC_TEMP);
+	if (!buf)
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_ERROR, "rcBuildRegions: Out of memory 'tmp' (%d).", chf.spanCount*4);
@@ -1154,10 +1156,10 @@ bool rcBuildRegions(rcCompactHeightfield& chf,
 	rcIntArray stack(1024);
 	rcIntArray visited(1024);
 	
-	unsigned short* srcReg = tmp;
-	unsigned short* srcDist = tmp+chf.spanCount;
-	unsigned short* dstReg = tmp+chf.spanCount*2;
-	unsigned short* dstDist = tmp+chf.spanCount*3;
+	unsigned short* srcReg = buf;
+	unsigned short* srcDist = buf+chf.spanCount;
+	unsigned short* dstReg = buf+chf.spanCount*2;
+	unsigned short* dstDist = buf+chf.spanCount*3;
 	
 	memset(srcReg, 0, sizeof(unsigned short)*chf.spanCount);
 	memset(srcDist, 0, sizeof(unsigned short)*chf.spanCount);

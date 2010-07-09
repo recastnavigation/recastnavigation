@@ -202,15 +202,15 @@ void Sample_TileMesh::cleanup()
 {
 	delete [] m_triflags;
 	m_triflags = 0;
-	delete m_solid;
+	rcFreeHeightField(m_solid);
 	m_solid = 0;
-	delete m_chf;
+	rcFreeCompactHeightfield(m_chf);
 	m_chf = 0;
-	delete m_cset;
+	rcFreeContourSet(m_cset);
 	m_cset = 0;
-	delete m_pmesh;
+	rcFreePolyMesh(m_pmesh);
 	m_pmesh = 0;
-	delete m_dmesh;
+	rcFreePolyMeshDetail(m_dmesh);
 	m_dmesh = 0;
 }
 
@@ -750,7 +750,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	}
 	
 	// Allocate voxel heighfield where we rasterize our input data to.
-	m_solid = new rcHeightfield;
+	m_solid = rcAllocHeightfield();
 	if (!m_solid)
 	{
 		if (rcGetLog())
@@ -819,7 +819,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	// Compact the heightfield so that it is faster to handle from now on.
 	// This will result more cache coherent data as well as the neighbours
 	// between walkable cells will be calculated.
-	m_chf = new rcCompactHeightfield;
+	m_chf = rcAllocCompactHeightfield();
 	if (!m_chf)
 	{
 		if (rcGetLog())
@@ -835,7 +835,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	
 	if (!m_keepInterResults)
 	{
-		delete m_solid;
+		rcFreeHeightField(m_solid);
 		m_solid = 0;
 	}
 
@@ -869,7 +869,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	}
 	
 	// Create contours.
-	m_cset = new rcContourSet;
+	m_cset = rcAllocContourSet();
 	if (!m_cset)
 	{
 		if (rcGetLog())
@@ -889,7 +889,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	}
 	
 	// Build polygon navmesh from the contours.
-	m_pmesh = new rcPolyMesh;
+	m_pmesh = rcAllocPolyMesh();
 	if (!m_pmesh)
 	{
 		if (rcGetLog())
@@ -904,7 +904,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	}
 	
 	// Build detail mesh.
-	m_dmesh = new rcPolyMeshDetail;
+	m_dmesh = rcAllocPolyMeshDetail();
 	if (!m_dmesh)
 	{
 		if (rcGetLog())
@@ -923,9 +923,9 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	
 	if (!m_keepInterResults)
 	{
-		delete m_chf;
+		rcFreeCompactHeightfield(m_chf);
 		m_chf = 0;
-		delete m_cset;
+		rcFreeContourSet(m_cset);
 		m_cset = 0;
 	}
 	

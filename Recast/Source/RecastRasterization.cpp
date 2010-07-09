@@ -22,6 +22,7 @@
 #include "Recast.h"
 #include "RecastTimer.h"
 #include "RecastLog.h"
+#include "RecastAlloc.h"
 
 inline bool overlapBounds(const float* amin, const float* amax, const float* bmin, const float* bmax)
 {
@@ -49,7 +50,7 @@ static rcSpan* allocSpan(rcHeightfield& hf)
 		// Create new page.
 		// Allocate memory for the new pool.
 		const int size = (sizeof(rcSpanPool)-sizeof(rcSpan)) + sizeof(rcSpan)*RC_SPANS_PER_POOL;
-		rcSpanPool* pool = reinterpret_cast<rcSpanPool*>(new unsigned char[size]);
+		rcSpanPool* pool = (rcSpanPool*)rcAlloc(size, RC_ALLOC_PERM);
 		if (!pool) return 0;
 		pool->next = 0;
 		// Add the pool into the list of pools.

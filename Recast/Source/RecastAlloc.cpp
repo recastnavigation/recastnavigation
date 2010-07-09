@@ -17,34 +17,51 @@
 //
 
 #include <stdlib.h>
-#include "DetourAlloc.h"
+#include <string.h>
+#include "RecastAlloc.h"
 
-static void *dtAllocDefault(int size, dtAllocHint)
+static void *rcAllocDefault(int size, rcAllocHint)
 {
 	return malloc(size);
 }
 
-static void dtFreeDefault(void *ptr)
+static void rcFreeDefault(void *ptr)
 {
 	free(ptr);
 }
 
-static dtAllocFunc* sAllocFunc = dtAllocDefault;
-static dtFreeFunc* sFreeFunc = dtFreeDefault;
+static rcAllocFunc* sRecastAllocFunc = rcAllocDefault;
+static rcFreeFunc* sRecastFreeFunc = rcFreeDefault;
 
-void dtAllocSetCustom(dtAllocFunc *allocFunc, dtFreeFunc *freeFunc)
+void rcAllocSetCustom(rcAllocFunc *allocFunc, rcFreeFunc *freeFunc)
 {
-	sAllocFunc = allocFunc ? allocFunc : dtAllocDefault;
-	sFreeFunc = freeFunc ? freeFunc : dtFreeDefault;
+	sRecastAllocFunc = allocFunc ? allocFunc : rcAllocDefault;
+	sRecastFreeFunc = freeFunc ? freeFunc : rcFreeDefault;
 }
 
-void* dtAlloc(int size, dtAllocHint hint)
+void* rcAlloc(int size, rcAllocHint hint)
 {
-	return sAllocFunc(size, hint);
+	return sRecastAllocFunc(size, hint);
 }
 
-void dtFree(void* ptr)
+void rcFree(void* ptr)
 {
 	if (ptr)
-		sFreeFunc(ptr);
+		sRecastFreeFunc(ptr);
 }
+
+
+void rcIntArray::resize(int n)
+{
+	if (n > m_cap)
+	{
+		if (!m_cap) m_cap = 8;
+		while (m_cap < n) m_cap *= 2;
+		int* newData = (int*)rcAlloc(m_cap*sizeof(int), RC_ALLOC_TEMP);
+		if (m_size && newData) memcpy(newData, m_data, m_size*sizeof(int));
+		rcFree(m_data);
+		m_data = newData;
+	}
+	m_size = n;
+}
+

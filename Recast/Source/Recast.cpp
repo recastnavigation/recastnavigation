@@ -25,25 +25,105 @@
 #include "Recast.h"
 #include "RecastLog.h"
 #include "RecastTimer.h"
+#include "RecastAlloc.h"
 
 float rcSqrt(float x)
 {
 	return sqrtf(x);
 }
 
-void rcIntArray::resize(int n)
+rcHeightfield* rcAllocHeightfield()
 {
-	if (n > m_cap)
-	{
-		if (!m_cap) m_cap = 8;
-		while (m_cap < n) m_cap *= 2;
-		int* newData = new int[m_cap];
-		if (m_size && newData) memcpy(newData, m_data, m_size*sizeof(int));
-		delete [] m_data;
-		m_data = newData;
-	}
-	m_size = n;
+	rcHeightfield* hf = (rcHeightfield*)rcAlloc(sizeof(rcHeightfield), RC_ALLOC_PERM);
+	memset(hf, 0, sizeof(rcHeightfield));
+	return hf;
 }
+
+void rcFreeHeightField(rcHeightfield* hf)
+{
+	if (!hf) return;
+	// Delete span array.
+	rcFree(hf->spans);
+	// Delete span pools.
+	while (hf->pools)
+	{
+		rcSpanPool* next = hf->pools->next;
+		rcFree(hf->pools);
+		hf->pools = next;
+	}
+	rcFree(hf);
+}
+
+rcCompactHeightfield* rcAllocCompactHeightfield()
+{
+	rcCompactHeightfield* chf = (rcCompactHeightfield*)rcAlloc(sizeof(rcCompactHeightfield), RC_ALLOC_PERM);
+	memset(chf, 0, sizeof(rcCompactHeightfield));
+	return chf;
+}
+
+void rcFreeCompactHeightfield(rcCompactHeightfield* chf)
+{
+	if (!chf) return;
+	rcFree(chf->cells);
+	rcFree(chf->spans);
+	rcFree(chf->dist);
+	rcFree(chf->areas);
+	rcFree(chf);
+}
+
+rcContourSet* rcAllocContourSet()
+{
+	rcContourSet* cset = (rcContourSet*)rcAlloc(sizeof(rcContourSet), RC_ALLOC_PERM);
+	memset(cset, 0, sizeof(rcContourSet));
+	return cset;
+}
+
+void rcFreeContourSet(rcContourSet* cset)
+{
+	if (!cset) return;
+	for (int i = 0; i < cset->nconts; ++i)
+	{
+		rcFree(cset->conts[i].verts);
+		rcFree(cset->conts[i].rverts);
+	}
+	rcFree(cset->conts);
+	rcFree(cset);
+}
+
+rcPolyMesh* rcAllocPolyMesh()
+{
+	rcPolyMesh* pmesh = (rcPolyMesh*)rcAlloc(sizeof(rcPolyMesh), RC_ALLOC_PERM);
+	memset(pmesh, 0, sizeof(rcPolyMesh));
+	return pmesh;
+}
+
+void rcFreePolyMesh(rcPolyMesh* pmesh)
+{
+	if (!pmesh) return;
+	rcFree(pmesh->verts);
+	rcFree(pmesh->polys);
+	rcFree(pmesh->regs);
+	rcFree(pmesh->flags);
+	rcFree(pmesh->areas);
+	rcFree(pmesh);
+}
+
+rcPolyMeshDetail* rcAllocPolyMeshDetail()
+{
+	rcPolyMeshDetail* dmesh = (rcPolyMeshDetail*)rcAlloc(sizeof(rcPolyMeshDetail), RC_ALLOC_PERM);
+	memset(dmesh, 0, sizeof(rcPolyMeshDetail));
+	return dmesh;
+}
+
+void rcFreePolyMeshDetail(rcPolyMeshDetail* dmesh)
+{
+	if (!dmesh) return;
+	rcFree(dmesh->meshes);
+	rcFree(dmesh->verts);
+	rcFree(dmesh->tris);
+	rcFree(dmesh);
+}
+
 
 void rcCalcBounds(const float* verts, int nv, float* bmin, float* bmax)
 {
@@ -70,11 +150,11 @@ bool rcCreateHeightfield(rcHeightfield& hf, int width, int height,
 {
 	hf.width = width;
 	hf.height = height;
-	hf.spans = new rcSpan*[hf.width*hf.height];
 	rcVcopy(hf.bmin, bmin);
 	rcVcopy(hf.bmax, bmax);
 	hf.cs = cs;
 	hf.ch = ch;
+	hf.spans = (rcSpan**)rcAlloc(sizeof(rcSpan*)*hf.width*hf.height, RC_ALLOC_PERM);
 	if (!hf.spans)
 		return false;
 	memset(hf.spans, 0, sizeof(rcSpan*)*hf.width*hf.height);
@@ -150,7 +230,7 @@ bool rcBuildCompactHeightfield(const int walkableHeight, const int walkableClimb
 	chf.bmax[1] += walkableHeight*hf.ch;
 	chf.cs = hf.cs;
 	chf.ch = hf.ch;
-	chf.cells = new rcCompactCell[w*h];
+	chf.cells = (rcCompactCell*)rcAlloc(sizeof(rcCompactCell)*w*h, RC_ALLOC_PERM);
 	if (!chf.cells)
 	{
 		if (rcGetLog())
@@ -158,7 +238,7 @@ bool rcBuildCompactHeightfield(const int walkableHeight, const int walkableClimb
 		return false;
 	}
 	memset(chf.cells, 0, sizeof(rcCompactCell)*w*h);
-	chf.spans = new rcCompactSpan[spanCount];
+	chf.spans = (rcCompactSpan*)rcAlloc(sizeof(rcCompactSpan)*spanCount, RC_ALLOC_PERM);
 	if (!chf.spans)
 	{
 		if (rcGetLog())
@@ -166,7 +246,7 @@ bool rcBuildCompactHeightfield(const int walkableHeight, const int walkableClimb
 		return false;
 	}
 	memset(chf.spans, 0, sizeof(rcCompactSpan)*spanCount);
-	chf.areas = new unsigned char[spanCount];
+	chf.areas = (unsigned char*)rcAlloc(sizeof(unsigned char)*spanCount, RC_ALLOC_PERM);
 	if (!chf.areas)
 	{
 		if (rcGetLog())

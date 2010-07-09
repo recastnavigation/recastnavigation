@@ -25,6 +25,7 @@
 #include "Recast.h"
 #include "RecastLog.h"
 #include "RecastTimer.h"
+#include "RecastAlloc.h"
 
 
 bool rcErodeArea(unsigned char areaId, int radius, rcCompactHeightfield& chf)
@@ -34,7 +35,7 @@ bool rcErodeArea(unsigned char areaId, int radius, rcCompactHeightfield& chf)
 	
 	rcTimeVal startTime = rcGetPerformanceTimer();
 	
-	unsigned char* dist = new unsigned char[chf.spanCount];
+	unsigned char* dist = (unsigned char*)rcAlloc(sizeof(unsigned char)*chf.spanCount, RC_ALLOC_TEMP);
 	if (!dist)
 		return false;
 	
@@ -195,7 +196,7 @@ bool rcErodeArea(unsigned char areaId, int radius, rcCompactHeightfield& chf)
 		if (dist[i] < thr)
 			chf.areas[i] = 0;
 	
-	delete [] dist;
+	rcFree(dist);
 	
 	rcTimeVal endTime = rcGetPerformanceTimer();
 	

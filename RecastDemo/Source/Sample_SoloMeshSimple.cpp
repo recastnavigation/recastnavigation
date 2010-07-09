@@ -65,17 +65,16 @@ void Sample_SoloMeshSimple::cleanup()
 {
 	delete [] m_triflags;
 	m_triflags = 0;
-	delete m_solid;
+	rcFreeHeightField(m_solid);
 	m_solid = 0;
-	delete m_chf;
+	rcFreeCompactHeightfield(m_chf);
 	m_chf = 0;
-	delete m_cset;
+	rcFreeContourSet(m_cset);
 	m_cset = 0;
-	delete m_pmesh;
+	rcFreePolyMesh(m_pmesh);
 	m_pmesh = 0;
-	delete m_dmesh;
+	rcFreePolyMeshDetail(m_dmesh);
 	m_dmesh = 0;
-	
 	dtFreeNavMesh(m_navMesh);
 	m_navMesh = 0;
 }
@@ -394,7 +393,7 @@ bool Sample_SoloMeshSimple::handleBuild()
 	//
 	
 	// Allocate voxel heighfield where we rasterize our input data to.
-	m_solid = new rcHeightfield;
+	m_solid = rcAllocHeightfield();
 	if (!m_solid)
 	{
 		if (rcGetLog())
@@ -451,7 +450,7 @@ bool Sample_SoloMeshSimple::handleBuild()
 	// Compact the heightfield so that it is faster to handle from now on.
 	// This will result more cache coherent data as well as the neighbours
 	// between walkable cells will be calculated.
-	m_chf = new rcCompactHeightfield;
+	m_chf = rcAllocCompactHeightfield();
 	if (!m_chf)
 	{
 		if (rcGetLog())
@@ -467,7 +466,7 @@ bool Sample_SoloMeshSimple::handleBuild()
 	
 	if (!m_keepInterResults)
 	{
-		delete m_solid;
+		rcFreeHeightField(m_solid);
 		m_solid = 0;
 	}
 		
@@ -504,7 +503,7 @@ bool Sample_SoloMeshSimple::handleBuild()
 	//
 	
 	// Create contours.
-	m_cset = new rcContourSet;
+	m_cset = rcAllocContourSet();
 	if (!m_cset)
 	{
 		if (rcGetLog())
@@ -523,7 +522,7 @@ bool Sample_SoloMeshSimple::handleBuild()
 	//
 	
 	// Build polygon navmesh from the contours.
-	m_pmesh = new rcPolyMesh;
+	m_pmesh = rcAllocPolyMesh();
 	if (!m_pmesh)
 	{
 		if (rcGetLog())
@@ -541,7 +540,7 @@ bool Sample_SoloMeshSimple::handleBuild()
 	// Step 7. Create detail mesh which allows to access approximate height on each polygon.
 	//
 	
-	m_dmesh = new rcPolyMeshDetail;
+	m_dmesh = rcAllocPolyMeshDetail();
 	if (!m_dmesh)
 	{
 		if (rcGetLog())
@@ -557,9 +556,9 @@ bool Sample_SoloMeshSimple::handleBuild()
 
 	if (!m_keepInterResults)
 	{
-		delete m_chf;
+		rcFreeCompactHeightfield(m_chf);
 		m_chf = 0;
-		delete m_cset;
+		rcFreeContourSet(m_cset);
 		m_cset = 0;
 	}
 

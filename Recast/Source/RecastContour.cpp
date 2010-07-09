@@ -23,6 +23,7 @@
 #include "Recast.h"
 #include "RecastLog.h"
 #include "RecastTimer.h"
+#include "RecastAlloc.h"
 
 
 static int getCornerHeight(int x, int y, int i, int dir,
@@ -551,7 +552,7 @@ static void getClosestIndices(const int* vertsa, const int nvertsa,
 static bool mergeContours(rcContour& ca, rcContour& cb, int ia, int ib)
 {
 	const int maxVerts = ca.nverts + cb.nverts + 2;
-	int* verts = new int[maxVerts*4];
+	int* verts = (int*)rcAlloc(sizeof(int)*maxVerts*4, RC_ALLOC_PERM);
 	if (!verts)
 		return false;
 
@@ -581,11 +582,11 @@ static bool mergeContours(rcContour& ca, rcContour& cb, int ia, int ib)
 		nv++;
 	}
 	
-	delete [] ca.verts;
+	rcFree(ca.verts);
 	ca.verts = verts;
 	ca.nverts = nv;
 
-	delete [] cb.verts;
+	rcFree(cb.verts);
 	cb.verts = 0;
 	cb.nverts = 0;
 	
@@ -607,16 +608,16 @@ bool rcBuildContours(rcCompactHeightfield& chf,
 	cset.ch = chf.ch;
 	
 	int maxContours = rcMax((int)chf.maxRegions, 8);
-	cset.conts = new rcContour[maxContours];
+	cset.conts = (rcContour*)rcAlloc(sizeof(rcContour)*maxContours, RC_ALLOC_PERM);
 	if (!cset.conts)
 		return false;
 	cset.nconts = 0;
 	
-	rcScopedDelete<unsigned char> flags = new unsigned char[chf.spanCount];
+	rcScopedDelete<unsigned char> flags = (unsigned char*)rcAlloc(sizeof(unsigned char)*chf.spanCount, RC_ALLOC_TEMP);
 	if (!flags)
 	{
 		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "rcBuildContours: Out of memory 'flags'.");
+			rcGetLog()->log(RC_LOG_ERROR, "rcBuildContours: Out of memory 'flags' (%d).", chf.spanCount);
 		return false;
 	}
 	
@@ -696,7 +697,7 @@ bool rcBuildContours(rcCompactHeightfield& chf,
 						// This can happen when there are tiny holes in the heighfield.
 						const int oldMax = maxContours;
 						maxContours *= 2;
-						rcContour* newConts = new rcContour[maxContours];
+						rcContour* newConts = (rcContour*)rcAlloc(sizeof(rcContour)*maxContours, RC_ALLOC_PERM);
 						for (int j = 0; j < cset.nconts; ++j)
 						{
 							newConts[j] = cset.conts[j];
@@ -704,7 +705,7 @@ bool rcBuildContours(rcCompactHeightfield& chf,
 							cset.conts[j].verts = 0;
 							cset.conts[j].rverts = 0;
 						}
-						delete [] cset.conts;
+						rcFree(cset.conts);
 						cset.conts = newConts;
 					
 						if (rcGetLog())
@@ -714,11 +715,23 @@ bool rcBuildContours(rcCompactHeightfield& chf,
 					rcContour* cont = &cset.conts[cset.nconts++];
 					
 					cont->nverts = simplified.size()/4;
-					cont->verts = new int[cont->nverts*4];
+					cont->verts = (int*)rcAlloc(sizeof(int)*cont->nverts*4, RC_ALLOC_PERM);
+					if (!cont->verts)
+					{
+						if (rcGetLog())
+							rcGetLog()->log(RC_LOG_ERROR, "rcBuildContours: Out of memory 'verts' (%d).", cont->nverts);
+						return false;
+					}
 					memcpy(cont->verts, &simplified[0], sizeof(int)*cont->nverts*4);
 					
 					cont->nrverts = verts.size()/4;
-					cont->rverts = new int[cont->nrverts*4];
+					cont->rverts = (int*)rcAlloc(sizeof(int)*cont->nrverts*4, RC_ALLOC_PERM);
+					if (!cont->rverts)
+					{
+						if (rcGetLog())
+							rcGetLog()->log(RC_LOG_ERROR, "rcBuildContours: Out of memory 'rverts' (%d).", cont->nrverts);
+						return false;
+					}
 					memcpy(cont->rverts, &verts[0], sizeof(int)*cont->nrverts*4);
 					
 /*					cont->cx = cont->cy = cont->cz = 0;

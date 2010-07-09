@@ -153,9 +153,9 @@ void Sample_SoloMeshTiled::cleanup()
 {
 	delete m_tileSet;
 	m_tileSet = 0;
-	delete m_pmesh;
+	rcFreePolyMesh(m_pmesh);
 	m_pmesh = 0;
-	delete m_dmesh;
+	rcFreePolyMeshDetail(m_dmesh);
 	m_dmesh = 0;
 	dtFreeNavMesh(m_navMesh);
 	m_navMesh = 0;
@@ -810,7 +810,7 @@ bool Sample_SoloMeshTiled::handleBuild()
 			if (!ncid)
 				continue;
 			
-			tile.solid = new rcHeightfield;
+			tile.solid = rcAllocHeightfield();
 			if (!tile.solid)
 			{
 				if (rcGetLog())
@@ -841,7 +841,7 @@ bool Sample_SoloMeshTiled::handleBuild()
 			rcFilterLedgeSpans(tileCfg.walkableHeight, tileCfg.walkableClimb, *tile.solid);
 			rcFilterWalkableLowHeightSpans(tileCfg.walkableHeight, *tile.solid);
 			
-			tile.chf = new rcCompactHeightfield;
+			tile.chf = rcAllocCompactHeightfield();
 			if (!tile.chf)
 			{
 				if (rcGetLog())
@@ -883,7 +883,7 @@ bool Sample_SoloMeshTiled::handleBuild()
 				continue;
 			}
 			
-			tile.cset = new rcContourSet;
+			tile.cset = rcAllocContourSet();
 			if (!tile.cset)
 			{
 				if (rcGetLog())
@@ -897,7 +897,7 @@ bool Sample_SoloMeshTiled::handleBuild()
 				continue;
 			}
 			
-			tile.pmesh = new rcPolyMesh;
+			tile.pmesh = rcAllocPolyMesh();
 			if (!tile.pmesh)
 			{
 				if (rcGetLog())
@@ -911,7 +911,7 @@ bool Sample_SoloMeshTiled::handleBuild()
 				continue;
 			}
 
-			tile.dmesh = new rcPolyMeshDetail;
+			tile.dmesh = rcAllocPolyMeshDetail();
 			if (!tile.dmesh)
 			{
 				if (rcGetLog())
@@ -928,11 +928,11 @@ bool Sample_SoloMeshTiled::handleBuild()
 
 			if (!m_keepInterResults)
 			{
-				delete tile.solid;
+				rcFreeHeightField(tile.solid);
 				tile.solid = 0;
-				delete tile.chf;
+				rcFreeCompactHeightfield(tile.chf);
 				tile.chf = 0;
-				delete tile.cset;
+				rcFreeContourSet(tile.cset);
 				tile.cset = 0;
 			}
 			
@@ -993,7 +993,7 @@ bool Sample_SoloMeshTiled::handleBuild()
 		}
 	}
 	
-	m_pmesh = new rcPolyMesh;
+	m_pmesh = rcAllocPolyMesh();
 	if (!m_pmesh)
 	{
 		if (rcGetLog())
@@ -1002,7 +1002,7 @@ bool Sample_SoloMeshTiled::handleBuild()
 	}
 	rcMergePolyMeshes(pmmerge, nmerge, *m_pmesh);
 
-	m_dmesh = new rcPolyMeshDetail;
+	m_dmesh = rcAllocPolyMeshDetail();
 	if (!m_dmesh)
 	{
 		if (rcGetLog())
@@ -1021,11 +1021,11 @@ bool Sample_SoloMeshTiled::handleBuild()
 			for (int x = 0; x < m_tileSet->width; ++x)
 			{
 				Tile& tile = m_tileSet->tiles[x + y*m_tileSet->width]; 
-				delete tile.cset;
+				rcFreeContourSet(tile.cset);
 				tile.cset = 0;
-				delete tile.pmesh;
+				rcFreePolyMesh(tile.pmesh);
 				tile.pmesh = 0;
-				delete tile.dmesh;
+				rcFreePolyMeshDetail(tile.dmesh);
 				tile.dmesh = 0;
 			}
 		}

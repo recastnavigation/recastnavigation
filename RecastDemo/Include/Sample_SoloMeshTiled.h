@@ -31,7 +31,14 @@ protected:
 	struct Tile
 	{
 		inline Tile() : chf(0), solid(0), cset(0), pmesh(0), dmesh(0), buildTime(0) {}
-		inline ~Tile() { delete chf; delete cset; delete solid; delete pmesh; delete dmesh; }
+		inline ~Tile()
+		{
+			rcFreeCompactHeightfield(chf);
+			rcFreeContourSet(cset);
+			rcFreeHeightField(solid);
+			rcFreePolyMesh(pmesh);
+			rcFreePolyMeshDetail(dmesh);
+		}
 		int x, y;
 		rcCompactHeightfield* chf;
 		rcHeightfield* solid;

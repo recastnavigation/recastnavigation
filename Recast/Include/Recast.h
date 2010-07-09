@@ -62,19 +62,6 @@ struct rcSpanPool
 // Dynamic span-heightfield.
 struct rcHeightfield
 {
-	inline rcHeightfield() : width(0), height(0), spans(0), pools(0), freelist(0) {}
-	inline ~rcHeightfield()
-	{
-		// Delete span array.
-		delete [] spans;
-		// Delete span pools.
-		while (pools)
-		{
-			rcSpanPool* next = pools->next;
-			delete [] reinterpret_cast<unsigned char*>(pools);
-			pools = next;
-		}
-	}
 	int width, height;			// Dimension of the heightfield.
 	float bmin[3], bmax[3];		// Bounding box of the heightfield
 	float cs, ch;				// Cell size and height.
@@ -100,16 +87,9 @@ struct rcCompactSpan
 // Compact static heightfield. 
 struct rcCompactHeightfield
 {
-	inline rcCompactHeightfield() :
-		maxDistance(0), maxRegions(0), cells(0),
-		spans(0), dist(0), areas(0) {}
-	inline ~rcCompactHeightfield()
-	{
-		delete [] cells;
-		delete [] spans;
-		delete [] dist;
-		delete [] areas;
-	}
+	rcCompactHeightfield();
+	~rcCompactHeightfield();
+	
 	int width, height;					// Width and height of the heighfield.
 	int spanCount;						// Number of spans in the heightfield.
 	int walkableHeight, walkableClimb;	// Agent properties.
@@ -125,8 +105,6 @@ struct rcCompactHeightfield
 
 struct rcContour
 {
-	inline rcContour() : verts(0), nverts(0), rverts(0), nrverts(0) { }
-	inline ~rcContour() { delete [] verts; delete [] rverts; }
 	int* verts;			// Vertex coordinates, each vertex contains 4 components.
 	int nverts;			// Number of vertices.
 	int* rverts;		// Raw vertex coordinates, each vertex contains 4 components.
@@ -137,8 +115,6 @@ struct rcContour
 
 struct rcContourSet
 {
-	inline rcContourSet() : conts(0), nconts(0) {}
-	inline ~rcContourSet() { delete [] conts; }
 	rcContour* conts;		// Pointer to all contours.
 	int nconts;				// Number of contours.
 	float bmin[3], bmax[3];	// Bounding box of the heightfield.
@@ -157,11 +133,7 @@ struct rcContourSet
 //   y = bmin[1] + verts[i*3+1]*ch;
 //   z = bmin[2] + verts[i*3+2]*cs;
 struct rcPolyMesh
-{
-	inline rcPolyMesh() : verts(0), polys(0), regs(0), flags(0), areas(0), nverts(0), npolys(0), maxpolys(0), nvp(3) {}
-
-	inline ~rcPolyMesh() { delete [] verts; delete [] polys; delete [] regs; delete [] flags; delete [] areas; }
-	
+{	
 	unsigned short* verts;	// Vertices of the mesh, 3 elements per vertex.
 	unsigned short* polys;	// Polygons of the mesh, nvp*2 elements per polygon.
 	unsigned short* regs;	// Region ID of the polygons.
@@ -187,14 +159,6 @@ struct rcPolyMesh
 
 struct rcPolyMeshDetail
 {
-	inline rcPolyMeshDetail() :
-		meshes(0), verts(0), tris(0),
-		nmeshes(0), nverts(0), ntris(0) {}
-	inline ~rcPolyMeshDetail()
-	{
-		delete [] meshes; delete [] verts; delete [] tris;
-	}
-	
 	unsigned short* meshes;	// Pointer to all mesh data.
 	float* verts;			// Pointer to all vertex data.
 	unsigned char* tris;	// Pointer to all triangle data.
@@ -203,35 +167,22 @@ struct rcPolyMeshDetail
 	int ntris;				// Number of triangles.
 };
 
+// Allocators and destructors for Recast objects.
+rcHeightfield* rcAllocHeightfield();
+void rcFreeHeightField(rcHeightfield* hf);
 
-// Simple dynamic array ints.
-class rcIntArray
-{
-	int* m_data;
-	int m_size, m_cap;
-public:
-	inline rcIntArray() : m_data(0), m_size(0), m_cap(0) {}
-	inline rcIntArray(int n) : m_data(0), m_size(0), m_cap(n) { m_data = new int[n]; }
-	inline ~rcIntArray() { delete [] m_data; }
-	void resize(int n);
-	inline void push(int item) { resize(m_size+1); m_data[m_size-1] = item; }
-	inline int pop() { if (m_size > 0) m_size--; return m_data[m_size]; }
-	inline const int& operator[](int i) const { return m_data[i]; }
-	inline int& operator[](int i) { return m_data[i]; }
-	inline int size() const { return m_size; }
-};
+rcCompactHeightfield* rcAllocCompactHeightfield();
+void rcFreeCompactHeightfield(rcCompactHeightfield* chf);
 
-// Simple helper class to delete array in scope
-template<class T> class rcScopedDelete
-{
-	T* ptr;
-public:
-	inline rcScopedDelete() : ptr(0) {}
-	inline rcScopedDelete(T* p) : ptr(p) {}
-	inline ~rcScopedDelete() { delete [] ptr; }
-	inline operator T*() { return ptr; }
-	inline T* operator=(T* p) { ptr = p; return ptr; }
-};
+rcContourSet* rcAllocContourSet();
+void rcFreeContourSet(rcContourSet* cset);
+
+rcPolyMesh* rcAllocPolyMesh();
+void rcFreePolyMesh(rcPolyMesh* pmesh);
+
+rcPolyMeshDetail* rcAllocPolyMeshDetail();
+void rcFreePolyMeshDetail(rcPolyMeshDetail* dmesh);
+
 
 enum rcSpanFlags
 {
@@ -390,6 +341,10 @@ inline bool rcVequal(const float* p0, const float* p1)
 	const float d = rcVdistSqr(p0, p1);
 	return d < thr;
 }
+
+// Alloc helpers for different Recast objects.
+rcHeightfield* rcAllocHeightfield();
+void rcFreeHeightField(rcHeightfield* hf);
 
 
 // Calculated bounding box of array of vertices.

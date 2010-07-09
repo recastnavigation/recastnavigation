@@ -57,7 +57,7 @@ Sample_Debug::Sample_Debug() :
 	resetCommonSettings();
 
 	// Test
-/*	m_chf = new rcCompactHeightfield;
+/*	m_chf = rcAllocCompactHeightfield();
 	FileIO io;
 	if (!io.openForRead("test.chf"))
 	{
@@ -137,8 +137,8 @@ Sample_Debug::Sample_Debug() :
 
 Sample_Debug::~Sample_Debug()
 {
-	delete m_chf;
-	delete m_cset;
+	rcFreeCompactHeightfield(m_chf);
+	rcFreeContourSet(m_cset);
 }
 
 void Sample_Debug::handleSettings()
@@ -320,7 +320,7 @@ bool Sample_Debug::handleBuild()
 	m_cset = 0;
 	
 	// Create contours.
-	m_cset = new rcContourSet;
+	m_cset = rcAllocContourSet();
 	if (!m_cset)
 	{
 		if (rcGetLog())
