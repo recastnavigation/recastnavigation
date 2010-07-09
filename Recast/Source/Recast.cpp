@@ -26,6 +26,10 @@
 #include "RecastLog.h"
 #include "RecastTimer.h"
 
+float rcSqrt(float x)
+{
+	return sqrtf(x);
+}
 
 void rcIntArray::resize(int n)
 {
