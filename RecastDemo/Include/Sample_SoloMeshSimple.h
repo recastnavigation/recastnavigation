@@ -24,7 +24,7 @@
 #include "Recast.h"
 #include "RecastLog.h"
 
-class Sample_SoloMeshSimple : public Sample //Sample_SoloMesh
+class Sample_SoloMeshSimple : public Sample
 {
 protected:
 	bool m_keepInterResults;

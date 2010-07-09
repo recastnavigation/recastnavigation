@@ -23,6 +23,7 @@
 #include "DetourNavMesh.h"
 #include "DetourCommon.h"
 #include "DetourNavMeshBuilder.h"
+#include "DetourAlloc.h"
 
 static unsigned short MESH_NULL_IDX = 0xffff;
 
@@ -172,7 +173,7 @@ static int createBVTree(const unsigned short* verts, const int /*nverts*/,
 						const int /*nnodes*/, dtBVNode* nodes)
 {
 	// Build tree
-	BVItem* items = new BVItem[npolys];
+	BVItem* items = (BVItem*)dtAlloc(sizeof(BVItem)*npolys, DT_ALLOC_TEMP);
 	for (int i = 0; i < npolys; i++)
 	{
 		BVItem& it = items[i];
@@ -206,7 +207,7 @@ static int createBVTree(const unsigned short* verts, const int /*nverts*/,
 	int curNode = 0;
 	subdivide(items, npolys, 0, npolys, curNode, nodes);
 	
-	delete [] items;
+	dtFree(items);
 	
 	return curNode;
 }
@@ -263,7 +264,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	
 	if (params->offMeshConCount > 0)
 	{
-		offMeshConClass = new unsigned char [params->offMeshConCount*2];
+		offMeshConClass = (unsigned char*)dtAlloc(sizeof(new unsigned char)*params->offMeshConCount*2, DT_ALLOC_TEMP);
 		if (!offMeshConClass)
 			return false;
 
@@ -350,10 +351,10 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 						 detailMeshesSize + detailVertsSize + detailTrisSize +
 						 bvTreeSize + offMeshConsSize;
 						 
-	unsigned char* data = new unsigned char[dataSize];
+	unsigned char* data = (unsigned char*)dtAlloc(sizeof(unsigned char)*dataSize, DT_ALLOC_PERM);
 	if (!data)
 	{
-		delete [] offMeshConClass;
+		dtFree(offMeshConClass);
 		return false;
 	}
 	memset(data, 0, dataSize);
@@ -532,16 +533,13 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 		}
 	}
 		
-	delete [] offMeshConClass;
+	dtFree(offMeshConClass);
 	
 	*outData = data;
 	*outDataSize = dataSize;
 	
 	return true;
 }
-
-
-
 
 inline void swapByte(unsigned char* a, unsigned char* b)
 {

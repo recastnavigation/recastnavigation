@@ -75,7 +75,8 @@ void Sample_SoloMeshSimple::cleanup()
 	m_pmesh = 0;
 	delete m_dmesh;
 	m_dmesh = 0;
-	delete m_navMesh;
+	
+	dtFreeNavMesh(m_navMesh);
 	m_navMesh = 0;
 }
 			
@@ -318,7 +319,7 @@ void Sample_SoloMeshSimple::handleMeshChanged(class InputGeom* geom)
 {
 	Sample::handleMeshChanged(geom);
 
-	delete m_navMesh;
+	dtFreeNavMesh(m_navMesh);
 	m_navMesh = 0;
 
 	if (m_tool)
@@ -634,10 +635,10 @@ bool Sample_SoloMeshSimple::handleBuild()
 			return false;
 		}
 		
-		m_navMesh = new dtNavMesh;
+		m_navMesh = dtAllocNavMesh();
 		if (!m_navMesh)
 		{
-			delete [] navData;
+			dtFree(navData);
 			if (rcGetLog())
 				rcGetLog()->log(RC_LOG_ERROR, "Could not create Detour navmesh");
 			return false;
@@ -645,7 +646,7 @@ bool Sample_SoloMeshSimple::handleBuild()
 		
 		if (!m_navMesh->init(navData, navDataSize, DT_TILE_FREE_DATA, 2048))
 		{
-			delete [] navData;
+			dtFree(navData);
 			if (rcGetLog())
 				rcGetLog()->log(RC_LOG_ERROR, "Could not init Detour navmesh");
 			return false;

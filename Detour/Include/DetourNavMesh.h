@@ -19,6 +19,8 @@
 #ifndef DETOURNAVMESH_H
 #define DETOURNAVMESH_H
 
+#include "DetourAlloc.h"
+
 // Reference to navigation polygon.
 typedef unsigned int dtPolyRef;
 
@@ -545,5 +547,9 @@ private:
 	class dtNodePool* m_nodePool;		// Pointer to node pool.
 	class dtNodeQueue* m_openList;		// Pointer to open list queue.
 };
+
+// Helper function to allocate navmesh class using Detour allocator.
+dtNavMesh* dtAllocNavMesh();
+void dtFreeNavMesh(dtNavMesh* navmesh);
 
 #endif // DETOURNAVMESH_H

@@ -19,6 +19,13 @@
 #include <math.h>
 #include "DetourCommon.h"
 
+//////////////////////////////////////////////////////////////////////////////////////////
+
+float dtSqrt(float x)
+{
+	return sqrtf(x);
+}
+
 void dtClosestPtPointTriangle(float* closest, const float* p,
 							  const float* a, const float* b, const float* c)
 {

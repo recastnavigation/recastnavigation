@@ -194,7 +194,7 @@ Sample_TileMesh::Sample_TileMesh() :
 Sample_TileMesh::~Sample_TileMesh()
 {
 	cleanup();
-	delete m_navMesh;
+	dtFreeNavMesh(m_navMesh);
 	m_navMesh = 0;
 }
 
@@ -290,7 +290,8 @@ dtNavMesh* Sample_TileMesh::loadAll(const char* path)
 		return 0;
 	}
 	
-	dtNavMesh* mesh = new dtNavMesh;
+	dtNavMesh* mesh = dtAllocNavMesh();
+
 	if (!mesh || !mesh->init(&header.params))
 	{
 		fclose(fp);
@@ -305,7 +306,7 @@ dtNavMesh* Sample_TileMesh::loadAll(const char* path)
 		if (!tileHeader.tileRef || !tileHeader.dataSize)
 			break;
 
-		unsigned char* data = new unsigned char[tileHeader.dataSize];
+		unsigned char* data = (unsigned char*)dtAlloc(tileHeader.dataSize, DT_ALLOC_PERM);
 		if (!data) break;
 		memset(data, 0, tileHeader.dataSize);
 		fread(data, tileHeader.dataSize, 1, fp);
@@ -371,7 +372,7 @@ void Sample_TileMesh::handleSettings()
 
 	if (imguiButton("Load"))
 	{
-		delete m_navMesh;
+		dtFreeNavMesh(m_navMesh);
 		m_navMesh = loadAll("all_tiles_navmesh.bin");
 	}
 	
@@ -501,7 +502,7 @@ void Sample_TileMesh::handleMeshChanged(class InputGeom* geom)
 
 	cleanup();
 
-	delete m_navMesh;
+	dtFreeNavMesh(m_navMesh);
 	m_navMesh = 0;
 
 	if (m_tool)
@@ -520,8 +521,9 @@ bool Sample_TileMesh::handleBuild()
 		return false;
 	}
 	
-	delete m_navMesh;
-	m_navMesh = new dtNavMesh;
+	dtFreeNavMesh(m_navMesh);
+	
+	m_navMesh = dtAllocNavMesh();
 	if (!m_navMesh)
 	{
 		if (rcGetLog())
@@ -584,7 +586,7 @@ void Sample_TileMesh::buildTile(const float* pos)
 		
 		// Let the navmesh own the data.
 		if (!m_navMesh->addTile(data,dataSize,DT_TILE_FREE_DATA))
-			delete [] data;
+			dtFree(data);
 	}
 }
 
@@ -664,7 +666,7 @@ void Sample_TileMesh::buildAllTiles()
 				m_navMesh->removeTile(m_navMesh->getTileRefAt(x,y),0,0);
 				// Let the navmesh own the data.
 				if (!m_navMesh->addTile(data,dataSize,true))
-					delete [] data;
+					dtFree(data);
 			}
 		}
 	}

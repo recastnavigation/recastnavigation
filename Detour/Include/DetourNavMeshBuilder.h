@@ -19,9 +19,11 @@
 #ifndef DETOURNAVMESHBUILDER_H
 #define DETOURNAVMESHBUILDER_H
 
+#include "DetourAlloc.h"
+
+
 // The units of the parameters are specified in parenthesis as follows:
 // (vx) voxels, (wu) world units
-
 struct dtNavMeshCreateParams
 {
 	// Navmesh vertices.

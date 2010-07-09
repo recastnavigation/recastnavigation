@@ -33,8 +33,9 @@
 		6B8632DC0F78123E00E2684A /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6B8632DB0F78123E00E2684A /* OpenGL.framework */; };
 		6B8DE88910B69E3E00DF20FB /* DetourNavMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B8DE88710B69E3E00DF20FB /* DetourNavMesh.cpp */; };
 		6B8DE88A10B69E3E00DF20FB /* DetourNavMeshBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B8DE88810B69E3E00DF20FB /* DetourNavMeshBuilder.cpp */; };
+		6B98463311E6144400FA177B /* Sample_SoloMeshTiled.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B98463211E6144400FA177B /* Sample_SoloMeshTiled.cpp */; };
+		6B9846EF11E718F800FA177B /* DetourAlloc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B9846EE11E718F800FA177B /* DetourAlloc.cpp */; };
 		6BA1E88B10C7BFC9008007F6 /* Sample_SoloMeshSimple.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BA1E88810C7BFC9008007F6 /* Sample_SoloMeshSimple.cpp */; };
-		6BA1E88C10C7BFC9008007F6 /* Sample_SoloMeshTiled.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BA1E88910C7BFC9008007F6 /* Sample_SoloMeshTiled.cpp */; };
 		6BB788170FC0472B003C24DB /* ChunkyTriMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BB788160FC0472B003C24DB /* ChunkyTriMesh.cpp */; };
 		6BB7FC0B10EBB6AA006DA0A6 /* NavMeshTesterTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BB7FC0A10EBB6AA006DA0A6 /* NavMeshTesterTool.cpp */; };
 		6BB7FDA510F36F0E006DA0A6 /* InputGeom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BB7FDA410F36F0E006DA0A6 /* InputGeom.cpp */; };
@@ -100,10 +101,12 @@
 		6B8DE88810B69E3E00DF20FB /* DetourNavMeshBuilder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DetourNavMeshBuilder.cpp; path = ../../../Detour/Source/DetourNavMeshBuilder.cpp; sourceTree = SOURCE_ROOT; };
 		6B8DE88B10B69E4C00DF20FB /* DetourNavMesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DetourNavMesh.h; path = ../../../Detour/Include/DetourNavMesh.h; sourceTree = SOURCE_ROOT; };
 		6B8DE88C10B69E4C00DF20FB /* DetourNavMeshBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DetourNavMeshBuilder.h; path = ../../../Detour/Include/DetourNavMeshBuilder.h; sourceTree = SOURCE_ROOT; };
+		6B98463111E6144400FA177B /* Sample_SoloMeshTiled.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Sample_SoloMeshTiled.h; path = ../../Include/Sample_SoloMeshTiled.h; sourceTree = SOURCE_ROOT; };
+		6B98463211E6144400FA177B /* Sample_SoloMeshTiled.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Sample_SoloMeshTiled.cpp; path = ../../Source/Sample_SoloMeshTiled.cpp; sourceTree = SOURCE_ROOT; };
+		6B9846ED11E718F800FA177B /* DetourAlloc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DetourAlloc.h; path = ../../../Detour/Include/DetourAlloc.h; sourceTree = SOURCE_ROOT; };
+		6B9846EE11E718F800FA177B /* DetourAlloc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DetourAlloc.cpp; path = ../../../Detour/Source/DetourAlloc.cpp; sourceTree = SOURCE_ROOT; };
 		6BA1E88810C7BFC9008007F6 /* Sample_SoloMeshSimple.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Sample_SoloMeshSimple.cpp; path = ../../Source/Sample_SoloMeshSimple.cpp; sourceTree = SOURCE_ROOT; };
-		6BA1E88910C7BFC9008007F6 /* Sample_SoloMeshTiled.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Sample_SoloMeshTiled.cpp; path = ../../Source/Sample_SoloMeshTiled.cpp; sourceTree = SOURCE_ROOT; };
 		6BA1E88E10C7BFD3008007F6 /* Sample_SoloMeshSimple.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Sample_SoloMeshSimple.h; path = ../../Include/Sample_SoloMeshSimple.h; sourceTree = SOURCE_ROOT; };
-		6BA1E88F10C7BFD3008007F6 /* Sample_SoloMeshTiled.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Sample_SoloMeshTiled.h; path = ../../Include/Sample_SoloMeshTiled.h; sourceTree = SOURCE_ROOT; };
 		6BB788160FC0472B003C24DB /* ChunkyTriMesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ChunkyTriMesh.cpp; path = ../../Source/ChunkyTriMesh.cpp; sourceTree = SOURCE_ROOT; };
 		6BB788180FC04753003C24DB /* ChunkyTriMesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ChunkyTriMesh.h; path = ../../Include/ChunkyTriMesh.h; sourceTree = SOURCE_ROOT; };
 		6BB7FC0910EBB6AA006DA0A6 /* NavMeshTesterTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NavMeshTesterTool.h; path = ../../Include/NavMeshTesterTool.h; sourceTree = SOURCE_ROOT; };
@@ -274,8 +277,8 @@
 				6B25B6140FFA62BE004F1BC4 /* Sample.cpp */,
 				6BA1E88E10C7BFD3008007F6 /* Sample_SoloMeshSimple.h */,
 				6BA1E88810C7BFC9008007F6 /* Sample_SoloMeshSimple.cpp */,
-				6BA1E88F10C7BFD3008007F6 /* Sample_SoloMeshTiled.h */,
-				6BA1E88910C7BFC9008007F6 /* Sample_SoloMeshTiled.cpp */,
+				6B98463111E6144400FA177B /* Sample_SoloMeshTiled.h */,
+				6B98463211E6144400FA177B /* Sample_SoloMeshTiled.cpp */,
 				6B2AEC510FFB8946005BE9CC /* Sample_TileMesh.h */,
 				6B2AEC520FFB8958005BE9CC /* Sample_TileMesh.cpp */,
 				6B8036AC113BAABE005ED67B /* Sample_Debug.h */,
@@ -315,6 +318,8 @@
 		6BDD9E030F91110C00904EEF /* Detour */ = {
 			isa = PBXGroup;
 			children = (
+				6B9846ED11E718F800FA177B /* DetourAlloc.h */,
+				6B9846EE11E718F800FA177B /* DetourAlloc.cpp */,
 				6B8DE88B10B69E4C00DF20FB /* DetourNavMesh.h */,
 				6B8DE88710B69E3E00DF20FB /* DetourNavMesh.cpp */,
 				6B8DE88C10B69E4C00DF20FB /* DetourNavMeshBuilder.h */,
@@ -405,7 +410,6 @@
 				6B8DE88910B69E3E00DF20FB /* DetourNavMesh.cpp in Sources */,
 				6B8DE88A10B69E3E00DF20FB /* DetourNavMeshBuilder.cpp in Sources */,
 				6BA1E88B10C7BFC9008007F6 /* Sample_SoloMeshSimple.cpp in Sources */,
-				6BA1E88C10C7BFC9008007F6 /* Sample_SoloMeshTiled.cpp in Sources */,
 				6BB93C7D10CFE1D500F74F2B /* DebugDraw.cpp in Sources */,
 				6BB93C7E10CFE1D500F74F2B /* DetourDebugDraw.cpp in Sources */,
 				6BB93C7F10CFE1D500F74F2B /* RecastDebugDraw.cpp in Sources */,
@@ -419,6 +423,8 @@
 				6B8036AE113BAABE005ED67B /* Sample_Debug.cpp in Sources */,
 				6BF5F23A11747606000502A6 /* Filelist.cpp in Sources */,
 				6BF5F2401174763B000502A6 /* SlideShow.cpp in Sources */,
+				6B98463311E6144400FA177B /* Sample_SoloMeshTiled.cpp in Sources */,
+				6B9846EF11E718F800FA177B /* DetourAlloc.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

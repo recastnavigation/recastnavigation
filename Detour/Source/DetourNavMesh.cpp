@@ -23,6 +23,8 @@
 #include "DetourNavMesh.h"
 #include "DetourNode.h"
 #include "DetourCommon.h"
+#include "DetourAlloc.h"
+#include <new>
 
 
 inline int opposite(int side) { return (side+4) & 0x7; }
@@ -51,8 +53,10 @@ inline bool overlapSlabs(const float* amin, const float* amax,
 						 const float px, const float py)
 {
 	// Check for horizontal overlap.
-	const float minx = dtMax(amin[0]-px,bmin[0]-px);
-	const float maxx = dtMin(amax[0]+px,bmax[0]+px);
+	// The segment is shrunken a little so that slabs which touch
+	// at end points are not connected.
+	const float minx = dtMax(amin[0]+px,bmin[0]+px);
+	const float maxx = dtMin(amax[0]-px,bmax[0]-px);
 	if (minx > maxx)
 		return false;
 	
@@ -147,7 +151,17 @@ inline bool passFilter(const dtQueryFilter* filter, unsigned short flags)
 	return (flags & filter->includeFlags) != 0 && (flags & filter->excludeFlags) == 0;
 }
 
+dtNavMesh* dtAllocNavMesh()
+{
+	return new(dtAlloc(sizeof(dtNavMesh), DT_ALLOC_PERM)) dtNavMesh;
+}
 
+void dtFreeNavMesh(dtNavMesh* navmesh)
+{
+	if (!navmesh) return;
+	navmesh->~dtNavMesh();
+	dtFree(navmesh);
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////
 dtNavMesh::dtNavMesh() :
@@ -179,15 +193,17 @@ dtNavMesh::~dtNavMesh()
 	{
 		if (m_tiles[i].flags & DT_TILE_FREE_DATA)
 		{
-			delete [] m_tiles[i].data;
+			dtFree(m_tiles[i].data);
 			m_tiles[i].data = 0;
 			m_tiles[i].dataSize = 0;
 		}
 	}
-	delete m_nodePool;
-	delete m_openList;
-	delete [] m_posLookup;
-	delete [] m_tiles;
+	m_nodePool->~dtNodePool();
+	m_openList->~dtNodeQueue();
+	dtFree(m_nodePool);
+	dtFree(m_openList);
+	dtFree(m_posLookup);
+	dtFree(m_tiles);
 }
 		
 bool dtNavMesh::init(const dtNavMeshParams* params)
@@ -203,10 +219,10 @@ bool dtNavMesh::init(const dtNavMeshParams* params)
 	if (!m_tileLutSize) m_tileLutSize = 1;
 	m_tileLutMask = m_tileLutSize-1;
 	
-	m_tiles = new dtMeshTile[m_maxTiles];
+	m_tiles = (dtMeshTile*)dtAlloc(sizeof(dtMeshTile)*m_maxTiles, DT_ALLOC_PERM);
 	if (!m_tiles)
 		return false;
-	m_posLookup = new dtMeshTile*[m_tileLutSize];
+	m_posLookup = (dtMeshTile**)dtAlloc(sizeof(dtMeshTile*)*m_tileLutSize, DT_ALLOC_PERM);
 	if (!m_posLookup)
 		return false;
 	memset(m_tiles, 0, sizeof(dtMeshTile)*m_maxTiles);
@@ -219,16 +235,18 @@ bool dtNavMesh::init(const dtNavMeshParams* params)
 		m_nextFree = &m_tiles[i];
 	}
 
+	// TODO: check the node pool size too.
 	if (!m_nodePool)
 	{
-		m_nodePool = new dtNodePool(params->maxNodes, dtNextPow2(params->maxNodes/4));
+		m_nodePool = new (dtAlloc(sizeof(dtNodePool), DT_ALLOC_PERM)) dtNodePool(params->maxNodes, dtNextPow2(params->maxNodes/4));
 		if (!m_nodePool)
 			return false;
 	}
 	
+	// TODO: check the open list size too.
 	if (!m_openList)
 	{
-		m_openList = new dtNodeQueue(params->maxNodes);
+		m_openList = new (dtAlloc(sizeof(dtNodeQueue), DT_ALLOC_PERM)) dtNodeQueue(params->maxNodes);
 		if (!m_openList)
 			return false;
 	}

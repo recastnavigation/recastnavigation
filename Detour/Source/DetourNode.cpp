@@ -16,6 +16,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
+#include "DetourAlloc.h"
 #include "DetourNode.h"
 #include <string.h>
 
@@ -23,7 +24,6 @@ static const unsigned short DT_NULL_IDX = 0xffff;
 
 //////////////////////////////////////////////////////////////////////////////////////////
 dtNodePool::dtNodePool(int maxNodes, int hashSize) :
-
 	m_nodes(0),
 	m_first(0),
 	m_next(0),
@@ -31,18 +31,19 @@ dtNodePool::dtNodePool(int maxNodes, int hashSize) :
 	m_hashSize(hashSize),
 	m_nodeCount(0)
 {
-	m_nodes = new dtNode[m_maxNodes];
-	m_next = new unsigned short[m_maxNodes];
-	m_first = new unsigned short[hashSize];
+	m_nodes = (dtNode*)dtAlloc(sizeof(dtNode)*m_maxNodes, DT_ALLOC_PERM);
+	m_next = (unsigned short*)dtAlloc(sizeof(unsigned short)*m_maxNodes, DT_ALLOC_PERM);
+	m_first = (unsigned short*)dtAlloc(sizeof(unsigned short)*hashSize, DT_ALLOC_PERM);
+
 	memset(m_first, 0xff, sizeof(unsigned short)*m_hashSize);
 	memset(m_next, 0xff, sizeof(unsigned short)*m_maxNodes);
 }
 
 dtNodePool::~dtNodePool()
 {
-	delete [] m_nodes;
-	delete [] m_next;
-	delete [] m_first;
+	dtFree(m_nodes);
+	dtFree(m_next);
+	dtFree(m_first);
 }
 
 void dtNodePool::clear()
@@ -103,12 +104,12 @@ dtNodeQueue::dtNodeQueue(int n) :
 	m_capacity(n),
 	m_size(0)
 {
-	m_heap = new dtNode*[m_capacity+1];
+	m_heap = (dtNode**)dtAlloc(sizeof(dtNode*)*(m_capacity+1), DT_ALLOC_PERM);
 }
 
 dtNodeQueue::~dtNodeQueue()
 {
-	delete [] m_heap;
+	dtFree(m_heap);
 }
 
 void dtNodeQueue::bubbleUp(int i, dtNode* node)
