@@ -40,10 +40,12 @@ class rcIntArray
 {
 	int* m_data;
 	int m_size, m_cap;
+	inline rcIntArray(const rcIntArray&);
+	inline rcIntArray& operator=(const rcIntArray&);
 public:
 	inline rcIntArray() : m_data(0), m_size(0), m_cap(0) {}
-	inline rcIntArray(int n) : m_data(0), m_size(0), m_cap(n) { m_data = new int[n]; }
-	inline ~rcIntArray() { delete [] m_data; }
+	inline rcIntArray(int n) : m_data(0), m_size(0), m_cap(0) { resize(n); }
+	inline ~rcIntArray() { rcFree(m_data); }
 	void resize(int n);
 	inline void push(int item) { resize(m_size+1); m_data[m_size-1] = item; }
 	inline int pop() { if (m_size > 0) m_size--; return m_data[m_size]; }
@@ -56,7 +58,7 @@ public:
 template<class T> class rcScopedDelete
 {
 	T* ptr;
-	inline T* operator=(T* p) { /*ptr = p; return ptr;*/ }
+	inline T* operator=(T* p);
 public:
 	inline rcScopedDelete() : ptr(0) {}
 	inline rcScopedDelete(T* p) : ptr(p) {}

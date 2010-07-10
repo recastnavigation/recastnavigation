@@ -55,7 +55,7 @@ void rcIntArray::resize(int n)
 {
 	if (n > m_cap)
 	{
-		if (!m_cap) m_cap = 8;
+		if (!m_cap) m_cap = n;
 		while (m_cap < n) m_cap *= 2;
 		int* newData = (int*)rcAlloc(m_cap*sizeof(int), RC_ALLOC_TEMP);
 		if (m_size && newData) memcpy(newData, m_data, m_size*sizeof(int));
