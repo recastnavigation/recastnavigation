@@ -828,7 +828,7 @@ bool dtNavMesh::removeTile(dtTileRef ref, unsigned char** data, int* dataSize)
 	if (tile->flags & DT_TILE_FREE_DATA)
 	{
 		// Owns data
-		delete [] tile->data;
+		dtFree(tile->data);
 		tile->data = 0;
 		tile->dataSize = 0;
 		if (data) *data = 0;

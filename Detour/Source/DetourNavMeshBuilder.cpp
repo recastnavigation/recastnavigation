@@ -264,7 +264,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	
 	if (params->offMeshConCount > 0)
 	{
-		offMeshConClass = (unsigned char*)dtAlloc(sizeof(new unsigned char)*params->offMeshConCount*2, DT_ALLOC_TEMP);
+		offMeshConClass = (unsigned char*)dtAlloc(sizeof(unsigned char)*params->offMeshConCount*2, DT_ALLOC_TEMP);
 		if (!offMeshConClass)
 			return false;
 
