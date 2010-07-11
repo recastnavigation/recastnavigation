@@ -240,7 +240,7 @@ bool duReadCompactHeightfield(struct rcCompactHeightfield& chf, duFileIO* io)
 	
 	if (tmp & 1)
 	{
-		chf.cells = (rcCompactCell*)rcAlloc(sizeof(rcCompactCell)*chf.width*chf.height);
+		chf.cells = (rcCompactCell*)rcAlloc(sizeof(rcCompactCell)*chf.width*chf.height, RC_ALLOC_PERM);
 		if (!chf.cells)
 		{
 			printf("duReadCompactHeightfield: Could not alloc cells (%d)\n", chf.width*chf.height);
@@ -250,7 +250,7 @@ bool duReadCompactHeightfield(struct rcCompactHeightfield& chf, duFileIO* io)
 	}
 	if (tmp & 2)
 	{
-		chf.spans = (rcCompactSpan*)rcAlloc(sizeof(rcCompactSpan)*chf.spanCount);
+		chf.spans = (rcCompactSpan*)rcAlloc(sizeof(rcCompactSpan)*chf.spanCount, RC_ALLOC_PERM);
 		if (!chf.spans)
 		{
 			printf("duReadCompactHeightfield: Could not alloc spans (%d)\n", chf.spanCount);
@@ -260,7 +260,7 @@ bool duReadCompactHeightfield(struct rcCompactHeightfield& chf, duFileIO* io)
 	}
 	if (tmp & 4)
 	{
-		chf.dist = (unsigned short*)rcAlloc(sizeof(unsigned short)*chf.spanCount);
+		chf.dist = (unsigned short*)rcAlloc(sizeof(unsigned short)*chf.spanCount, RC_ALLOC_PERM);
 		if (!chf.dist)
 		{
 			printf("duReadCompactHeightfield: Could not alloc dist (%d)\n", chf.spanCount);
@@ -270,7 +270,7 @@ bool duReadCompactHeightfield(struct rcCompactHeightfield& chf, duFileIO* io)
 	}
 	if (tmp & 8)
 	{
-		chf.areas = (unsigned char*)rcAlloc(sizeof(unsigned char)*chf.spanCount);
+		chf.areas = (unsigned char*)rcAlloc(sizeof(unsigned char)*chf.spanCount, RC_ALLOC_PERM);
 		if (!chf.areas)
 		{
 			printf("duReadCompactHeightfield: Could not alloc areas (%d)\n", chf.spanCount);
