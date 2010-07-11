@@ -1088,7 +1088,7 @@ bool rcBuildPolyMeshDetail(const rcPolyMesh& mesh, const rcCompactHeightfield& c
 			while (dmesh.nverts+nverts > vcap)
 				vcap += 256;
 				
-			float* newv = (float*)rcAlloc(vcap*3, RC_ALLOC_PERM);
+			float* newv = (float*)rcAlloc(sizeof(float)*vcap*3, RC_ALLOC_PERM);
 			if (!newv)
 			{
 				if (rcGetLog())
