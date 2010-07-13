@@ -74,6 +74,15 @@ inline unsigned int duRGBAf(float fr, float fg, float fb, float fa)
 unsigned int duIntToCol(int i, int a);
 void duIntToCol(int i, float* col);
 
+inline unsigned int duMultCol(const unsigned int col, const unsigned int d)
+{
+	const unsigned int r = col & 0xff;
+	const unsigned int g = (col >> 8) & 0xff;
+	const unsigned int b = (col >> 16) & 0xff;
+	const unsigned int a = (col >> 24) & 0xff;
+	return duRGBA((r*d) >> 8, (g*d) >> 8, (b*d) >> 8, a);
+}
+
 inline unsigned int duDarkenColor(unsigned int col)
 {
 	return ((col >> 1) & 0x007f7f7f) | (col & 0xff000000);

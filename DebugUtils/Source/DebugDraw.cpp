@@ -51,25 +51,16 @@ void duIntToCol(int i, float* col)
 	col[2] = 1 - b*63.0f/255.0f;
 }
 
-inline unsigned int multCol(const unsigned int col, const unsigned int d)
-{
-	const unsigned int r = col & 0xff;
-	const unsigned int g = (col >> 8) & 0xff;
-	const unsigned int b = (col >> 16) & 0xff;
-	const unsigned int a = (col >> 24) & 0xff;
-	return duRGBA((r*d) >> 8, (g*d) >> 8, (b*d) >> 8, a);
-}
-
 void duCalcBoxColors(unsigned int* colors, unsigned int colTop, unsigned int colSide)
 {
 	if (!colors) return;
 	
-	colors[0] = multCol(colTop, 250);
-	colors[1] = multCol(colSide, 140);
-	colors[2] = multCol(colSide, 165);
-	colors[3] = multCol(colSide, 217);
-	colors[4] = multCol(colSide, 165);
-	colors[5] = multCol(colSide, 217);
+	colors[0] = duMultCol(colTop, 250);
+	colors[1] = duMultCol(colSide, 140);
+	colors[2] = duMultCol(colSide, 165);
+	colors[3] = duMultCol(colSide, 217);
+	colors[4] = duMultCol(colSide, 165);
+	colors[5] = duMultCol(colSide, 217);
 }
 
 void duDebugDrawCylinderWire(struct duDebugDraw* dd, float minx, float miny, float minz,

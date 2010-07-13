@@ -121,29 +121,28 @@ void duDebugDrawHeightfieldWalkable(duDebugDraw* dd, const rcHeightfield& hf)
 	const int w = hf.width;
 	const int h = hf.height;
 	
-	unsigned int fcol0[6], fcol1[6], fcol2[6];
-	duCalcBoxColors(fcol0, duRGBA(64,48,32,255), duRGBA(217,217,217,255)); // Culled
-	duCalcBoxColors(fcol1, duRGBA(77,140,165,255), duRGBA(217,217,217,255)); // Walkable
-	duCalcBoxColors(fcol2, duRGBA(128,38,102,255), duRGBA(217,217,217,255)); // Ledge
+	unsigned int fcol[6];
+	duCalcBoxColors(fcol, duRGBA(255,255,255,255), duRGBA(217,217,217,255));
 
 	dd->begin(DU_DRAW_QUADS);
 	
 	for (int y = 0; y < h; ++y)
 	{
 		for (int x = 0; x < w; ++x)
-	
 		{
 			float fx = orig[0] + x*cs;
 			float fz = orig[2] + y*cs;
 			const rcSpan* s = hf.spans[x + y*w];
 			while (s)
 			{
-				const unsigned int* c = fcol0;
-				if (s->flags & RC_LEDGE)
-					c = fcol2;
-				else if (s->flags & RC_WALKABLE)
-					c = fcol1;
-				duAppendBox(dd, fx, orig[1]+s->smin*ch, fz, fx+cs, orig[1] + s->smax*ch, fz+cs, c);
+				if (s->area == RC_WALKABLE_AREA)
+					fcol[0] = duRGBA(0,130,200,255);
+				else if (s->area == RC_NULL_AREA)
+					fcol[0] = duRGBA(64,64,64,255);
+				else
+					fcol[0] = duMultCol(duIntToCol(s->area, 255), 200);
+				
+				duAppendBox(dd, fx, orig[1]+s->smin*ch, fz, fx+cs, orig[1] + s->smax*ch, fz+cs, fcol);
 				s = s->next;
 			}
 		}
