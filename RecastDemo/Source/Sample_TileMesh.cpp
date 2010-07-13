@@ -170,7 +170,7 @@ Sample_TileMesh::Sample_TileMesh() :
 	m_buildAll(true),
 	m_totalBuildTimeMs(0),
 	m_drawPortals(false),
-	m_triflags(0),
+	m_triareas(0),
 	m_solid(0),
 	m_chf(0),
 	m_cset(0),
@@ -189,6 +189,9 @@ Sample_TileMesh::Sample_TileMesh() :
 	memset(m_tileBmax, 0, sizeof(m_tileBmax));
 	
 	setTool(new NavMeshTileTool);
+	
+	m_smin = 0x0fffffff;
+	m_smax = -0xfffffff;
 }
 
 Sample_TileMesh::~Sample_TileMesh()
@@ -200,8 +203,8 @@ Sample_TileMesh::~Sample_TileMesh()
 
 void Sample_TileMesh::cleanup()
 {
-	delete [] m_triflags;
-	m_triflags = 0;
+	delete [] m_triareas;
+	m_triareas = 0;
 	rcFreeHeightField(m_solid);
 	m_solid = 0;
 	rcFreeCompactHeightfield(m_chf);
@@ -767,11 +770,11 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	// Allocate array that can hold triangle flags.
 	// If you have multiple meshes you need to process, allocate
 	// and array which can hold the max number of triangles you need to process.
-	m_triflags = new unsigned char[chunkyMesh->maxTrisPerChunk];
-	if (!m_triflags)
+	m_triareas = new unsigned char[chunkyMesh->maxTrisPerChunk];
+	if (!m_triareas)
 	{
 		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'triangleFlags' (%d).", chunkyMesh->maxTrisPerChunk);
+			rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'm_triareas' (%d).", chunkyMesh->maxTrisPerChunk);
 		return 0;
 	}
 	
@@ -796,18 +799,37 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 		
 		m_tileTriCount += ntris;
 		
-		memset(m_triflags, 0, ntris*sizeof(unsigned char));
+		memset(m_triareas, 0, ntris*sizeof(unsigned char));
 		rcMarkWalkableTriangles(m_cfg.walkableSlopeAngle,
-								verts, nverts, tris, ntris, m_triflags);
+								verts, nverts, tris, ntris, m_triareas);
 		
-		rcRasterizeTriangles(verts, nverts, tris, m_triflags, ntris, *m_solid, m_cfg.walkableClimb);
+		rcRasterizeTriangles(verts, nverts, tris, m_triareas, ntris, *m_solid, m_cfg.walkableClimb);
 	}
 	
 	if (!m_keepInterResults)
 	{
-		delete [] m_triflags;
-		m_triflags = 0;
+		delete [] m_triareas;
+		m_triareas = 0;
 	}
+	
+	{
+		const int w = m_solid->width;
+		const int h = m_solid->height;
+		int spanCount = 0;
+		for (int y = 0; y < h; ++y)
+		{
+			for (int x = 0; x < w; ++x)
+			{
+				for (rcSpan* s = m_solid->spans[x + y*w]; s; s = s->next)
+				{
+					m_smin = rcMin(m_smin, (int)s->smin);
+					m_smax = rcMax(m_smax, (int)s->smax);
+				}
+			}
+		}
+		printf("smin=%d smax=%d\n", m_smin, m_smax);
+	}
+	
 	
 	// Once all geoemtry is rasterized, we do initial pass of filtering to
 	// remove unwanted overhangs caused by the conservative rasterization
@@ -826,7 +848,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 			rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'chf'.");
 		return 0;
 	}
-	if (!rcBuildCompactHeightfield(m_cfg.walkableHeight, m_cfg.walkableClimb, RC_WALKABLE, *m_solid, *m_chf))
+	if (!rcBuildCompactHeightfield(m_cfg.walkableHeight, m_cfg.walkableClimb, *m_solid, *m_chf))
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Could not build compact data.");
@@ -840,7 +862,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	}
 
 	// Erode the walkable area by agent radius.
-	if (!rcErodeArea(RC_WALKABLE_AREA, m_cfg.walkableRadius, *m_chf))
+	if (!rcErodeWalkableArea(m_cfg.walkableRadius, *m_chf))
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Could not erode.");
@@ -1027,7 +1049,8 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 		rcGetLog()->log(RC_LOG_PROGRESS, "Filter Reachable: %.1fms (%.1f%%)", m_buildTimes.filterMarkReachable/1000.0f, m_buildTimes.filterMarkReachable*pc);
 		
 		rcGetLog()->log(RC_LOG_PROGRESS, "Erode walkable area: %.1fms (%.1f%%)", m_buildTimes.erodeArea/1000.0f, m_buildTimes.erodeArea*pc);
-
+		rcGetLog()->log(RC_LOG_PROGRESS, "Median area: %.1fms (%.1f%%)", m_buildTimes.filterMedian/1000.0f, m_buildTimes.filterMedian*pc);
+		
 		rcGetLog()->log(RC_LOG_PROGRESS, "Build Distancefield: %.1fms (%.1f%%)", m_buildTimes.buildDistanceField/1000.0f, m_buildTimes.buildDistanceField*pc);
 		rcGetLog()->log(RC_LOG_PROGRESS, "  - distance: %.1fms (%.1f%%)", m_buildTimes.buildDistanceFieldDist/1000.0f, m_buildTimes.buildDistanceFieldDist*pc);
 		rcGetLog()->log(RC_LOG_PROGRESS, "  - blur: %.1fms (%.1f%%)", m_buildTimes.buildDistanceFieldBlur/1000.0f, m_buildTimes.buildDistanceFieldBlur*pc);

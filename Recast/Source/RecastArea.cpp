@@ -28,7 +28,7 @@
 #include "RecastAlloc.h"
 
 
-bool rcErodeArea(unsigned char areaId, int radius, rcCompactHeightfield& chf)
+bool rcErodeWalkableArea(int radius, rcCompactHeightfield& chf)
 {
 	const int w = chf.width;
 	const int h = chf.height;
@@ -57,13 +57,7 @@ bool rcErodeArea(unsigned char areaId, int radius, rcCompactHeightfield& chf)
 					for (int dir = 0; dir < 4; ++dir)
 					{
 						if (rcGetCon(s, dir) != RC_NOT_CONNECTED)
-						{
-							const int ax = x + rcGetDirOffsetX(dir);
-							const int ay = y + rcGetDirOffsetY(dir);
-							const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(s, dir);
-							if (chf.areas[ai] == areaId)
-								nc++;
-						}
+							nc++;
 					}
 					// At least one missing neighbour.
 					if (nc != 4)
@@ -194,7 +188,7 @@ bool rcErodeArea(unsigned char areaId, int radius, rcCompactHeightfield& chf)
 	const unsigned char thr = (unsigned char)(radius*2);
 	for (int i = 0; i < chf.spanCount; ++i)
 		if (dist[i] < thr)
-			chf.areas[i] = 0;
+			chf.areas[i] = RC_NULL_AREA;
 	
 	rcFree(dist);
 	
@@ -203,6 +197,93 @@ bool rcErodeArea(unsigned char areaId, int radius, rcCompactHeightfield& chf)
 	if (rcGetBuildTimes())
 	{
 		rcGetBuildTimes()->erodeArea += rcGetDeltaTimeUsec(startTime, endTime);
+	}
+	
+	return true;
+}
+
+static void insertSort(unsigned char* a, const int n)
+{
+	int i, j;
+	for (i = 1; i < n; i++)
+	{
+		const unsigned char value = a[i];
+		for (j = i - 1; j >= 0 && a[j] > value; j--)
+			a[j+1] = a[j];
+		a[j+1] = value;
+	}
+}
+
+
+bool rcMedianFilterWalkableArea(rcCompactHeightfield& chf)
+{
+	const int w = chf.width;
+	const int h = chf.height;
+	
+	rcTimeVal startTime = rcGetPerformanceTimer();
+	
+	unsigned char* areas = (unsigned char*)rcAlloc(sizeof(unsigned char)*chf.spanCount, RC_ALLOC_TEMP);
+	if (!areas)
+		return false;
+	
+	// Init distance.
+	memset(areas, 0xff, sizeof(unsigned char)*chf.spanCount);
+	
+	for (int y = 0; y < h; ++y)
+	{
+		for (int x = 0; x < w; ++x)
+		{
+			const rcCompactCell& c = chf.cells[x+y*w];
+			for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
+			{
+				const rcCompactSpan& s = chf.spans[i];
+				if (chf.areas[i] == RC_NULL_AREA)
+				{
+					areas[i] = chf.areas[i];
+					continue;
+				}
+				
+				unsigned char nei[9];
+				for (int j = 0; j < 9; ++j)
+					nei[j] = chf.areas[i];
+				
+				for (int dir = 0; dir < 4; ++dir)
+				{
+					if (rcGetCon(s, dir) != RC_NOT_CONNECTED)
+					{
+						const int ax = x + rcGetDirOffsetX(dir);
+						const int ay = y + rcGetDirOffsetY(dir);
+						const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(s, dir);
+						if (chf.areas[ai] != RC_NULL_AREA)
+							nei[dir*2+0] = chf.areas[ai];
+						
+						const rcCompactSpan& as = chf.spans[ai];
+						const int dir2 = (dir+1) & 0x3;
+						if (rcGetCon(as, dir2) != RC_NOT_CONNECTED)
+						{
+							const int ax2 = ax + rcGetDirOffsetX(dir2);
+							const int ay2 = ay + rcGetDirOffsetY(dir2);
+							const int ai2 = (int)chf.cells[ax2+ay2*w].index + rcGetCon(as, dir2);
+							if (chf.areas[ai2] != RC_NULL_AREA)
+								nei[dir*2+1] = chf.areas[ai2];
+						}
+					}
+				}
+				insertSort(nei, 9);
+				areas[i] = nei[4];
+			}
+		}
+	}
+	
+	memcpy(chf.areas, areas, sizeof(unsigned char)*chf.spanCount);
+	
+	rcFree(areas);
+
+	rcTimeVal endTime = rcGetPerformanceTimer();
+	
+	if (rcGetBuildTimes())
+	{
+		rcGetBuildTimes()->filterMedian += rcGetDeltaTimeUsec(startTime, endTime);
 	}
 	
 	return true;

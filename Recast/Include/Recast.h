@@ -41,22 +41,28 @@ struct rcConfig
 	float detailSampleMaxError;		// Detail mesh simplification max sample error.
 };
 
+// Define number of bits in the above structure for smin/smax.
+// The max height is used for clamping rasterized values.
+static const int RC_SPAN_HEIGHT_BITS = 13;
+static const int RC_SPAN_MAX_HEIGHT = (1<<RC_SPAN_HEIGHT_BITS)-1;
+
 // Heightfield span.
 struct rcSpan
 {
-	unsigned int smin : 15;			// Span min height.
-	unsigned int smax : 15;			// Span max height.
-	unsigned int flags : 2;			// Span flags.
+	unsigned int smin : 13;			// Span min height.
+	unsigned int smax : 13;			// Span max height.
+	unsigned int area : 6;			// Span area type.
 	rcSpan* next;					// Next span in column.
 };
 
+// Number of spans allocated per pool.
 static const int RC_SPANS_PER_POOL = 2048;
 
 // Memory pool used for quick span allocation.
 struct rcSpanPool
 {
-	rcSpanPool* next;	// Pointer to next pool.
-	rcSpan items[1];	// Array of spans (size RC_SPANS_PER_POOL).
+	rcSpanPool* next;					// Pointer to next pool.
+	rcSpan items[RC_SPANS_PER_POOL];	// Array of spans.
 };
 
 // Dynamic span-heightfield.
@@ -184,11 +190,11 @@ rcPolyMeshDetail* rcAllocPolyMeshDetail();
 void rcFreePolyMeshDetail(rcPolyMeshDetail* dmesh);
 
 
-enum rcSpanFlags
+/*enum rcSpanFlags
 {
 	RC_WALKABLE = 0x01,
 	RC_LEDGE = 0x02,
-};
+};*/
 
 // If heightfield region ID has the following bit set, the region is on border area
 // and excluded from many calculations.
@@ -216,7 +222,7 @@ static const unsigned short RC_MESH_NULL_IDX = 0xffff;
 static const unsigned char RC_NULL_AREA = 0;
 
 // Area ID that is considered generally walkable.
-static const unsigned char RC_WALKABLE_AREA = 255;
+static const unsigned char RC_WALKABLE_AREA = 63;
 
 // Value returned by rcGetCon() if the direction is not connected.
 static const int RC_NOT_CONNECTED = 0x3f;
@@ -374,7 +380,7 @@ bool rcCreateHeightfield(rcHeightfield& hf, int width, int height,
 						 const float* bmin, const float* bmax,
 						 float cs, float ch);
 
-// Sets the WALKABLE flag for every triangle whose slope is below
+// Sets the RC_WALKABLE_AREA for every triangle whose slope is below
 // the maximun walkable slope angle.
 // Params:
 //	walkableSlopeAngle - (in) maximun slope angle in degrees.
@@ -382,11 +388,25 @@ bool rcCreateHeightfield(rcHeightfield& hf, int width, int height,
 //	nv - (in) vertex count
 //	tris - (in) array of triangle vertex indices
 //	nt - (in) triangle count
-//	flags - (out) array of triangle flags
+//	areas - (out) array of triangle area types
 void rcMarkWalkableTriangles(const float walkableSlopeAngle,
 							 const float* verts, int nv,
 							 const int* tris, int nt,
-							 unsigned char* flags); 
+							 unsigned char* areas); 
+
+// Sets the RC_NULL_AREA for every triangle whose slope is steeper than
+// the maximun walkable slope angle.
+// Params:
+//	walkableSlopeAngle - (in) maximun slope angle in degrees.
+//	verts - (in) array of vertices
+//	nv - (in) vertex count
+//	tris - (in) array of triangle vertex indices
+//	nt - (in) triangle count
+//	areas - (out) array of triangle are types
+void rcClearUnwalkableTriangles(const float walkableSlopeAngle,
+								const float* verts, int nv,
+								const int* tris, int nt,
+								unsigned char* areas); 
 
 // Adds span to heighfield.
 // The span addition can set to favor flags. If the span is merged to
@@ -400,16 +420,16 @@ void rcMarkWalkableTriangles(const float walkableSlopeAngle,
 //  flagMergeThr - (in) merge threshold.
 void rcAddSpan(rcHeightfield& solid, const int x, const int y,
 			   const unsigned short smin, const unsigned short smax,
-			   const unsigned short flags, const int flagMergeThr);
+			   const unsigned short area, const int flagMergeThr);
 
 // Rasterizes a triangle into heightfield spans.
 // Params:
 //	v0,v1,v2 - (in) the vertices of the triangle.
-//	flags - (in) triangle flags (uses WALKABLE)
+//	area - (in) area type of the triangle.
 //	solid - (in) heighfield where the triangle is rasterized
 //  flagMergeThr - (in) distance in voxel where walkable flag is favored over non-walkable.
 void rcRasterizeTriangle(const float* v0, const float* v1, const float* v2,
-						 unsigned char flags, rcHeightfield& solid,
+						 const unsigned char area, rcHeightfield& solid,
 						 const int flagMergeThr = 1);
 
 // Rasterizes indexed triangle mesh into heightfield spans.
@@ -417,12 +437,12 @@ void rcRasterizeTriangle(const float* v0, const float* v1, const float* v2,
 //	verts - (in) array of vertices
 //	nv - (in) vertex count
 //	tris - (in) array of triangle vertex indices
-//	flags - (in) array of triangle flags (uses WALKABLE)
+//	area - (in) array of triangle area types.
 //	nt - (in) triangle count
 //	solid - (in) heighfield where the triangles are rasterized
 //  flagMergeThr - (in) distance in voxel where walkable flag is favored over non-walkable.
 void rcRasterizeTriangles(const float* verts, const int nv,
-						  const int* tris, const unsigned char* flags, const int nt,
+						  const int* tris, const unsigned char* areas, const int nt,
 						  rcHeightfield& solid, const int flagMergeThr = 1);
 
 // Rasterizes indexed triangle mesh into heightfield spans.
@@ -430,21 +450,21 @@ void rcRasterizeTriangles(const float* verts, const int nv,
 //	verts - (in) array of vertices
 //	nv - (in) vertex count
 //	tris - (in) array of triangle vertex indices
-//	flags - (in) array of triangle flags (uses WALKABLE)
+//	area - (in) array of triangle area types.
 //	nt - (in) triangle count
 //	solid - (in) heighfield where the triangles are rasterized
 //  flagMergeThr - (in) distance in voxel where walkable flag is favored over non-walkable.
 void rcRasterizeTriangles(const float* verts, const int nv,
-						  const unsigned short* tris, const unsigned char* flags, const int nt,
+						  const unsigned short* tris, const unsigned char* areas, const int nt,
 						  rcHeightfield& solid, const int flagMergeThr = 1);
 
 // Rasterizes the triangles into heightfield spans.
 // Params:
 //	verts - (in) array of vertices
-//	flags - (in) array of triangle flags (uses WALKABLE)
+//	area - (in) array of triangle area types.
 //	nt - (in) triangle count
 //	solid - (in) heighfield where the triangles are rasterized
-void rcRasterizeTriangles(const float* verts, const unsigned char* flags, const int nt,
+void rcRasterizeTriangles(const float* verts, const unsigned char* areas, const int nt,
 						  rcHeightfield& solid, const int flagMergeThr = 1);
 
 // Marks non-walkable low obstacles as walkable if they are closer than walkableClimb
@@ -477,10 +497,9 @@ void rcFilterWalkableLowHeightSpans(int walkableHeight,
 
 // Returns number of spans contained in a heightfield.
 // Params:
-//  flags - (in) require flags for a cell to be included.
 //	hf - (in) heightfield to be compacted
 // Returns number of spans.
-int rcGetHeightFieldSpanCount(const unsigned char flags, rcHeightfield& hf);
+int rcGetHeightFieldSpanCount(rcHeightfield& hf);
 
 // Builds compact representation of the heightfield.
 // Params:
@@ -491,16 +510,20 @@ int rcGetHeightFieldSpanCount(const unsigned char flags, rcHeightfield& hf);
 //	chf - (out) compact heightfield representing the open space.
 // Returns false if operation ran out of memory.
 bool rcBuildCompactHeightfield(const int walkableHeight, const int walkableClimb,
-							   unsigned char flags,
-							   rcHeightfield& hf,
-							   rcCompactHeightfield& chf);
+							   rcHeightfield& hf, rcCompactHeightfield& chf);
 
-// Erodes specified area id and replaces the are with null.
+// Erodes walkable area.
 // Params:
-//  areaId - (in) area to erode.
 //  radius - (in) radius of erosion (max 255).
 //	chf - (in/out) compact heightfield to erode.
-bool rcErodeArea(unsigned char areaId, int radius, rcCompactHeightfield& chf);
+// Returns false if operation ran out of memory.
+bool rcErodeWalkableArea(int radius, rcCompactHeightfield& chf);
+
+// Applies median filter to walkable area types, removing noise.
+// Params:
+//	chf - (in/out) compact heightfield to erode.
+// Returns false if operation ran out of memory.
+bool rcMedianFilterWalkableArea(rcCompactHeightfield& chf);
 
 // Marks the area of the convex polygon into the area type of the compact heighfield.
 // Params:

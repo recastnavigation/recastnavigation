@@ -173,7 +173,7 @@ static void calcTriNormal(const float* v0, const float* v1, const float* v2, flo
 void rcMarkWalkableTriangles(const float walkableSlopeAngle,
 							 const float* verts, int /*nv*/,
 							 const int* tris, int nt,
-							 unsigned char* flags)
+							 unsigned char* areas)
 {
 	const float walkableThr = cosf(walkableSlopeAngle/180.0f*(float)M_PI);
 
@@ -185,11 +185,30 @@ void rcMarkWalkableTriangles(const float walkableSlopeAngle,
 		calcTriNormal(&verts[tri[0]*3], &verts[tri[1]*3], &verts[tri[2]*3], norm);
 		// Check if the face is walkable.
 		if (norm[1] > walkableThr)
-			flags[i] |= RC_WALKABLE;
+			areas[i] = RC_WALKABLE_AREA;
 	}
 }
 
-int rcGetHeightFieldSpanCount(const unsigned char flags, rcHeightfield& hf)
+void rcClearUnwalkableTriangles(const float walkableSlopeAngle,
+								const float* verts, int /*nv*/,
+								const int* tris, int nt,
+								unsigned char* areas)
+{
+	const float walkableThr = cosf(walkableSlopeAngle/180.0f*(float)M_PI);
+	
+	float norm[3];
+	
+	for (int i = 0; i < nt; ++i)
+	{
+		const int* tri = &tris[i*3];
+		calcTriNormal(&verts[tri[0]*3], &verts[tri[1]*3], &verts[tri[2]*3], norm);
+		// Check if the face is walkable.
+		if (norm[1] <= walkableThr)
+			areas[i] = RC_NULL_AREA;
+	}
+}
+
+int rcGetHeightFieldSpanCount(rcHeightfield& hf)
 {
 	const int w = hf.width;
 	const int h = hf.height;
@@ -200,7 +219,7 @@ int rcGetHeightFieldSpanCount(const unsigned char flags, rcHeightfield& hf)
 		{
 			for (rcSpan* s = hf.spans[x + y*w]; s; s = s->next)
 			{
-				if (s->flags == flags)
+				if (s->area != RC_NULL_AREA)
 					spanCount++;
 			}
 		}
@@ -209,14 +228,13 @@ int rcGetHeightFieldSpanCount(const unsigned char flags, rcHeightfield& hf)
 }
 
 bool rcBuildCompactHeightfield(const int walkableHeight, const int walkableClimb,
-							   unsigned char flags, rcHeightfield& hf,
-							   rcCompactHeightfield& chf)
+							   rcHeightfield& hf, rcCompactHeightfield& chf)
 {
 	rcTimeVal startTime = rcGetPerformanceTimer();
 	
 	const int w = hf.width;
 	const int h = hf.height;
-	const int spanCount = rcGetHeightFieldSpanCount(flags, hf);
+	const int spanCount = rcGetHeightFieldSpanCount(hf);
 
 	// Fill in header.
 	chf.width = w;
@@ -253,7 +271,7 @@ bool rcBuildCompactHeightfield(const int walkableHeight, const int walkableClimb
 			rcGetLog()->log(RC_LOG_ERROR, "rcBuildCompactHeightfield: Out of memory 'chf.areas' (%d)", spanCount);
 		return false;
 	}
-	memset(chf.areas, RC_WALKABLE_AREA, sizeof(unsigned char)*spanCount);
+	memset(chf.areas, RC_NULL_AREA, sizeof(unsigned char)*spanCount);
 	
 	const int MAX_HEIGHT = 0xffff;
 	
@@ -271,12 +289,13 @@ bool rcBuildCompactHeightfield(const int walkableHeight, const int walkableClimb
 			c.count = 0;
 			while (s)
 			{
-				if (s->flags == flags)
+				if (s->area != RC_NULL_AREA)
 				{
 					const int bot = (int)s->smax;
 					const int top = s->next ? (int)s->next->smin : MAX_HEIGHT;
 					chf.spans[idx].y = (unsigned short)rcClamp(bot, 0, 0xffff);
 					chf.spans[idx].h = (unsigned char)rcClamp(top - bot, 0, 0xff);
+					chf.areas[idx] = s->area;
 					idx++;
 					c.count++;
 				}
@@ -286,7 +305,7 @@ bool rcBuildCompactHeightfield(const int walkableHeight, const int walkableClimb
 	}
 
 	// Find neighbour connections.
-	const float MAX_LAYERS = RC_NOT_CONNECTED-1;
+	const int MAX_LAYERS = RC_NOT_CONNECTED-1;
 	int tooHighNeighbour = 0;
 	for (int y = 0; y < h; ++y)
 	{

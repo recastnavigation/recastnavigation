@@ -57,6 +57,7 @@ struct rcBuildTimes
 	int filterBorder;
 	int filterWalkable;
 	int filterMarkReachable;
+	int filterMedian;
 	int buildPolymesh;
 	int erodeArea;
 	int buildDistanceField;

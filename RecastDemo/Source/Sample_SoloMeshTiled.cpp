@@ -764,12 +764,12 @@ bool Sample_SoloMeshTiled::handleBuild()
 	tileCfg.height = m_cfg.tileSize + m_cfg.borderSize*2;
 		
 	// Allocate array that can hold triangle flags for all geom chunks.
-	unsigned char* triangleFlags = new unsigned char[chunkyMesh->maxTrisPerChunk];
-	if (!triangleFlags)
+	unsigned char* triangleAreas = new unsigned char[chunkyMesh->maxTrisPerChunk];
+	if (!triangleAreas)
 	{
 		if (rcGetLog())
 		{
-			rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: Out of memory 'triangleFlags' (%d).",
+			rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: Out of memory 'triangleAreas' (%d).",
 							chunkyMesh->maxTrisPerChunk);
 		}
 		return false;
@@ -794,11 +794,6 @@ bool Sample_SoloMeshTiled::handleBuild()
 			tileCfg.bmin[2] = m_cfg.bmin[2] + (y*m_cfg.tileSize - m_cfg.borderSize)*m_cfg.cs;
 			tileCfg.bmax[0] = m_cfg.bmin[0] + ((x+1)*m_cfg.tileSize + m_cfg.borderSize)*m_cfg.cs;
 			tileCfg.bmax[2] = m_cfg.bmin[2] + ((y+1)*m_cfg.tileSize + m_cfg.borderSize)*m_cfg.cs;
-			
-/*			delete solid;
-			delete chf;
-			solid = 0;
-			chf = 0;*/
 			
 			float tbmin[2], tbmax[2];
 			tbmin[0] = tileCfg.bmin[0];
@@ -830,11 +825,11 @@ bool Sample_SoloMeshTiled::handleBuild()
 				const int* tris = &chunkyMesh->tris[node.i*3];
 				const int ntris = node.n;
 				
-				memset(triangleFlags, 0, ntris*sizeof(unsigned char));
+				memset(triangleAreas, 0, ntris*sizeof(unsigned char));
 				rcMarkWalkableTriangles(tileCfg.walkableSlopeAngle,
-										verts, nverts, tris, ntris, triangleFlags);
+										verts, nverts, tris, ntris, triangleAreas);
 				
-				rcRasterizeTriangles(verts, nverts, tris, triangleFlags, ntris, *tile.solid, m_cfg.walkableClimb);
+				rcRasterizeTriangles(verts, nverts, tris, triangleAreas, ntris, *tile.solid, m_cfg.walkableClimb);
 			}	
 			
 			rcFilterLowHangingWalkableObstacles(m_cfg.walkableClimb, *tile.solid);
@@ -849,7 +844,7 @@ bool Sample_SoloMeshTiled::handleBuild()
 				continue;
 			}
 			if (!rcBuildCompactHeightfield(tileCfg.walkableHeight, tileCfg.walkableClimb,
-										   RC_WALKABLE, *tile.solid, *tile.chf))
+										   *tile.solid, *tile.chf))
 			{
 				if (rcGetLog())
 					rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: [%d,%d] Could not build compact data.", x, y);
@@ -857,7 +852,7 @@ bool Sample_SoloMeshTiled::handleBuild()
 			}
 			
 			// Erode the walkable area by agent radius.
-			if (!rcErodeArea(RC_WALKABLE_AREA, m_cfg.walkableRadius, *tile.chf))
+			if (!rcErodeWalkableArea(m_cfg.walkableRadius, *tile.chf))
 			{
 				if (rcGetLog())
 					rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: Could not erode.");
@@ -957,9 +952,7 @@ bool Sample_SoloMeshTiled::handleBuild()
 		}
 	}
 	
-	delete [] triangleFlags;
-//	delete solid;
-//	delete chf;
+	delete [] triangleAreas;
 	
 	// Merge per tile poly and detail meshes.
 	rcPolyMesh** pmmerge = new rcPolyMesh*[m_tileSet->width*m_tileSet->height];
@@ -1126,7 +1119,8 @@ bool Sample_SoloMeshTiled::handleBuild()
 		rcGetLog()->log(RC_LOG_PROGRESS, "Filter Reachable: %.1fms (%.1f%%)", m_buildTimes.filterMarkReachable/1000.0f, m_buildTimes.filterMarkReachable*pc);
 		
 		rcGetLog()->log(RC_LOG_PROGRESS, "Erode walkable area: %.1fms (%.1f%%)", m_buildTimes.erodeArea/1000.0f, m_buildTimes.erodeArea*pc);
-
+		rcGetLog()->log(RC_LOG_PROGRESS, "Median area: %.1fms (%.1f%%)", m_buildTimes.filterMedian/1000.0f, m_buildTimes.filterMedian*pc);
+		
 		rcGetLog()->log(RC_LOG_PROGRESS, "Build Distancefield: %.1fms (%.1f%%)", m_buildTimes.buildDistanceField/1000.0f, m_buildTimes.buildDistanceField*pc);
 		rcGetLog()->log(RC_LOG_PROGRESS, "  - distance: %.1fms (%.1f%%)", m_buildTimes.buildDistanceFieldDist/1000.0f, m_buildTimes.buildDistanceFieldDist*pc);
 		rcGetLog()->log(RC_LOG_PROGRESS, "  - blur: %.1fms (%.1f%%)", m_buildTimes.buildDistanceFieldBlur/1000.0f, m_buildTimes.buildDistanceFieldBlur*pc);

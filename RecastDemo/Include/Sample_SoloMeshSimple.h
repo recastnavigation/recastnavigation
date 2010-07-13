@@ -31,7 +31,7 @@ protected:
 	rcBuildTimes m_buildTimes; 
 	float m_totalBuildTimeMs;
 
-	unsigned char* m_triflags;
+	unsigned char* m_triareas;
 	rcHeightfield* m_solid;
 	rcCompactHeightfield* m_chf;
 	rcContourSet* m_cset;

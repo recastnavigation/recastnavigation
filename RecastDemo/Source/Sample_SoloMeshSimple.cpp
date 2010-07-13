@@ -45,7 +45,7 @@
 Sample_SoloMeshSimple::Sample_SoloMeshSimple() :
 	m_keepInterResults(true),
 	m_totalBuildTimeMs(0),
-	m_triflags(0),
+	m_triareas(0),
 	m_solid(0),
 	m_chf(0),
 	m_cset(0),
@@ -63,8 +63,8 @@ Sample_SoloMeshSimple::~Sample_SoloMeshSimple()
 	
 void Sample_SoloMeshSimple::cleanup()
 {
-	delete [] m_triflags;
-	m_triflags = 0;
+	delete [] m_triareas;
+	m_triareas = 0;
 	rcFreeHeightField(m_solid);
 	m_solid = 0;
 	rcFreeCompactHeightfield(m_chf);
@@ -407,28 +407,28 @@ bool Sample_SoloMeshSimple::handleBuild()
 		return false;
 	}
 	
-	// Allocate array that can hold triangle flags.
+	// Allocate array that can hold triangle area types.
 	// If you have multiple meshes you need to process, allocate
 	// and array which can hold the max number of triangles you need to process.
-	m_triflags = new unsigned char[ntris];
-	if (!m_triflags)
+	m_triareas = new unsigned char[ntris];
+	if (!m_triareas)
 	{
 		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'triangleFlags' (%d).", ntris);
+			rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'm_triareas' (%d).", ntris);
 		return false;
 	}
 	
 	// Find triangles which are walkable based on their slope and rasterize them.
 	// If your input data is multiple meshes, you can transform them here, calculate
-	// the flags for each of the meshes and rasterize them.
-	memset(m_triflags, 0, ntris*sizeof(unsigned char));
-	rcMarkWalkableTriangles(m_cfg.walkableSlopeAngle, verts, nverts, tris, ntris, m_triflags);
-	rcRasterizeTriangles(verts, nverts, tris, m_triflags, ntris, *m_solid, m_cfg.walkableClimb);
+	// the are type for each of the meshes and rasterize them.
+	memset(m_triareas, 0, ntris*sizeof(unsigned char));
+	rcMarkWalkableTriangles(m_cfg.walkableSlopeAngle, verts, nverts, tris, ntris, m_triareas);
+	rcRasterizeTriangles(verts, nverts, tris, m_triareas, ntris, *m_solid, m_cfg.walkableClimb);
 
 	if (!m_keepInterResults)
 	{
-		delete [] m_triflags;
-		m_triflags = 0;
+		delete [] m_triareas;
+		m_triareas = 0;
 	}
 	
 	//
@@ -457,7 +457,7 @@ bool Sample_SoloMeshSimple::handleBuild()
 			rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'chf'.");
 		return false;
 	}
-	if (!rcBuildCompactHeightfield(m_cfg.walkableHeight, m_cfg.walkableClimb, RC_WALKABLE, *m_solid, *m_chf))
+	if (!rcBuildCompactHeightfield(m_cfg.walkableHeight, m_cfg.walkableClimb, *m_solid, *m_chf))
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Could not build compact data.");
@@ -471,13 +471,13 @@ bool Sample_SoloMeshSimple::handleBuild()
 	}
 		
 	// Erode the walkable area by agent radius.
-	if (!rcErodeArea(RC_WALKABLE_AREA, m_cfg.walkableRadius, *m_chf))
+	if (!rcErodeWalkableArea(m_cfg.walkableRadius, *m_chf))
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Could not erode.");
 		return false;
 	}
-	
+
 	// (Optional) Mark areas.
 	const ConvexVolume* vols = m_geom->getConvexVolumes();
 	for (int i  = 0; i < m_geom->getConvexVolumeCount(); ++i)
@@ -668,6 +668,7 @@ bool Sample_SoloMeshSimple::handleBuild()
 		rcGetLog()->log(RC_LOG_PROGRESS, "Filter Reachable: %.1fms (%.1f%%)", m_buildTimes.filterMarkReachable/1000.0f, m_buildTimes.filterMarkReachable*pc);
 
 		rcGetLog()->log(RC_LOG_PROGRESS, "Erode walkable area: %.1fms (%.1f%%)", m_buildTimes.erodeArea/1000.0f, m_buildTimes.erodeArea*pc);
+		rcGetLog()->log(RC_LOG_PROGRESS, "Median area: %.1fms (%.1f%%)", m_buildTimes.filterMedian/1000.0f, m_buildTimes.filterMedian*pc);
 		
 		rcGetLog()->log(RC_LOG_PROGRESS, "Build Distancefield: %.1fms (%.1f%%)", m_buildTimes.buildDistanceField/1000.0f, m_buildTimes.buildDistanceField*pc);
 		rcGetLog()->log(RC_LOG_PROGRESS, "  - distance: %.1fms (%.1f%%)", m_buildTimes.buildDistanceFieldDist/1000.0f, m_buildTimes.buildDistanceFieldDist*pc);
