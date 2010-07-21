@@ -176,12 +176,17 @@ void NavMeshTesterTool::handleMenu()
 		m_toolMode = TOOLMODE_RAYCAST;
 		recalc();
 	}
-	if (imguiCheck("Find Polys Around", m_toolMode == TOOLMODE_FIND_POLYS_AROUND))
+	if (imguiCheck("Find Polys in Circle", m_toolMode == TOOLMODE_FIND_POLYS_IN_CIRCLE))
 	{
-		m_toolMode = TOOLMODE_FIND_POLYS_AROUND;
+		m_toolMode = TOOLMODE_FIND_POLYS_IN_CIRCLE;
 		recalc();
 	}
-
+	if (imguiCheck("Find Polys in Poly", m_toolMode == TOOLMODE_FIND_POLYS_IN_POLY))
+	{
+		m_toolMode = TOOLMODE_FIND_POLYS_IN_POLY;
+		recalc();
+	}
+	
 	imguiSeparator();
 
 	imguiLabel("Include Flags");
@@ -667,7 +672,7 @@ void NavMeshTesterTool::recalc()
 			m_distanceToWall = m_navMesh->findDistanceToWall(m_startRef, m_spos, 100.0f, &m_filter, m_hitPos, m_hitNormal);
 		}
 	}
-	else if (m_toolMode == TOOLMODE_FIND_POLYS_AROUND)
+	else if (m_toolMode == TOOLMODE_FIND_POLYS_IN_CIRCLE)
 	{
 		if (m_sposSet && m_startRef && m_eposSet)
 		{
@@ -675,11 +680,48 @@ void NavMeshTesterTool::recalc()
 			const float dz = m_epos[2] - m_spos[2];
 			float dist = sqrtf(dx*dx + dz*dz);
 #ifdef DUMP_REQS
-			printf("fp  %f %f %f  %f  0x%x 0x%x\n",
+			printf("fpc  %f %f %f  %f  0x%x 0x%x\n",
 				   m_spos[0],m_spos[1],m_spos[2], dist,
-				   m_filter.includeFlags, m_filter.excludeFlags); 
+				   m_filter.includeFlags, m_filter.excludeFlags);
 #endif
-			m_npolys = m_navMesh->findPolysAround(m_startRef, m_spos, dist, &m_filter, m_polys, m_parent, 0, MAX_POLYS);
+			m_npolys = m_navMesh->findPolysAroundCircle(m_startRef, m_spos, dist, &m_filter,
+														m_polys, m_parent, 0, MAX_POLYS);
+		}
+	}
+	else if (m_toolMode == TOOLMODE_FIND_POLYS_IN_POLY)
+	{
+		if (m_sposSet && m_startRef && m_eposSet)
+		{
+			const float nx = (m_epos[2] - m_spos[2])*0.25f;
+			const float nz = -(m_epos[0] - m_spos[0])*0.25f;
+			const float agentHeight = m_sample ? m_sample->getAgentHeight() : 0;
+
+			m_queryPoly[0] = m_spos[0] + nx*1.2f;
+			m_queryPoly[1] = m_spos[1] + agentHeight/2;
+			m_queryPoly[2] = m_spos[2] + nz*1.2f;
+
+			m_queryPoly[3] = m_spos[0] - nx*1.3f;
+			m_queryPoly[4] = m_spos[1] + agentHeight/2;
+			m_queryPoly[5] = m_spos[2] - nz*1.3f;
+
+			m_queryPoly[6] = m_epos[0] - nx*0.8f;
+			m_queryPoly[7] = m_epos[1] + agentHeight/2;
+			m_queryPoly[8] = m_epos[2] - nz*0.8f;
+
+			m_queryPoly[9] = m_epos[0] + nx;
+			m_queryPoly[10] = m_epos[1] + agentHeight/2;
+			m_queryPoly[11] = m_epos[2] + nz;
+			
+#ifdef DUMP_REQS
+			printf("fpp  %f %f %f  %f %f %f  %f %f %f  %f %f %f  0x%x 0x%x\n",
+				   m_queryPoly[0],m_queryPoly[1],m_queryPoly[2],
+				   m_queryPoly[3],m_queryPoly[4],m_queryPoly[5],
+				   m_queryPoly[6],m_queryPoly[7],m_queryPoly[8],
+				   m_queryPoly[9],m_queryPoly[10],m_queryPoly[11],
+				   m_filter.includeFlags, m_filter.excludeFlags);
+#endif
+			m_npolys = m_navMesh->findPolysAroundShape(m_startRef, m_queryPoly, 4, &m_filter,
+													   m_polys, m_parent, 0, MAX_POLYS);
 		}
 	}
 }
@@ -878,7 +920,7 @@ void NavMeshTesterTool::handleRender()
 		dd.end();
 		dd.depthMask(true);
 	}
-	else if (m_toolMode == TOOLMODE_FIND_POLYS_AROUND)
+	else if (m_toolMode == TOOLMODE_FIND_POLYS_IN_CIRCLE)
 	{
 		for (int i = 0; i < m_npolys; ++i)
 		{
@@ -903,6 +945,40 @@ void NavMeshTesterTool::handleRender()
 			const float dz = m_epos[2] - m_spos[2];
 			const float dist = sqrtf(dx*dx + dz*dz);
 			duDebugDrawCircle(&dd, m_spos[0], m_spos[1]+agentHeight/2, m_spos[2], dist, duRGBA(64,16,0,220), 2.0f);
+			dd.depthMask(true);
+		}
+	}	
+	else if (m_toolMode == TOOLMODE_FIND_POLYS_IN_POLY)
+	{
+		for (int i = 0; i < m_npolys; ++i)
+		{
+			duDebugDrawNavMeshPoly(&dd, *m_navMesh, m_polys[i], pathCol);
+			dd.depthMask(false);
+			if (m_parent[i])
+			{
+				float p0[3], p1[3];
+				dd.depthMask(false);
+				getPolyCenter(m_navMesh, m_parent[i], p0);
+				getPolyCenter(m_navMesh, m_polys[i], p1);
+				duDebugDrawArc(&dd, p0[0],p0[1],p0[2], p1[0],p1[1],p1[2], 0.25f, 0.0f, 0.4f, duRGBA(0,0,0,128), 2.0f);
+				dd.depthMask(true);
+			}
+			dd.depthMask(true);
+		}
+		
+		if (m_sposSet && m_eposSet)
+		{
+			dd.depthMask(false);
+			const unsigned int col = duRGBA(64,16,0,220);
+			dd.begin(DU_DRAW_LINES, 2.0f);
+			for (int i = 0, j = 3; i < 4; j=i++)
+			{
+				const float* p0 = &m_queryPoly[j*3];
+				const float* p1 = &m_queryPoly[i*3];
+				dd.vertex(p0, col);
+				dd.vertex(p1, col);
+			}
+			dd.end();
 			dd.depthMask(true);
 		}
 	}	

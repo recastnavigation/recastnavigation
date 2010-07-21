@@ -2198,9 +2198,9 @@ int dtNavMesh::raycast(dtPolyRef centerRef, const float* startPos, const float* 
 	return n;
 }
 
-int dtNavMesh::findPolysAround(dtPolyRef centerRef, const float* centerPos, float radius, const dtQueryFilter* filter,
-									dtPolyRef* resultRef, dtPolyRef* resultParent, float* resultCost,
-									const int maxResult) const
+int dtNavMesh::findPolysAroundCircle(dtPolyRef centerRef, const float* centerPos, float radius, const dtQueryFilter* filter,
+									 dtPolyRef* resultRef, dtPolyRef* resultParent, float* resultCost,
+									 const int maxResult) const
 {
 	if (!centerRef) return 0;
 	if (!getPolyByRef(centerRef)) return 0;
@@ -2282,24 +2282,178 @@ int dtNavMesh::findPolysAround(dtPolyRef centerRef, const float* centerPos, floa
 			const dtMeshTile* neighbourTile = &m_tiles[it];
 			const dtPoly* neighbourPoly = &neighbourTile->polys[ip];
 			
+			// Do not advance if the polygon is excluded by the filter.
+			if (!passFilter(filter, neighbourPoly->flags))
+				continue;
+			
 			// Find edge and calc distance to the edge.
 			float va[3], vb[3];
 			if (!getPortalPoints(bestRef, bestPoly, bestTile, neighbourRef, neighbourPoly, neighbourTile, va, vb))
 				continue;
+
+			// If the circle is not touching the next polygon, skip it.
 			float tseg;
 			float distSqr = dtDistancePtSegSqr2D(centerPos, va, vb, tseg);
-			
-			// If the circle is not touching the next polygon, skip it.
 			if (distSqr > radiusSqr)
 				continue;
 
-			if (!passFilter(filter, neighbourPoly->flags))
-				continue;
-			
 			dtNode newNode;
 			newNode.pidx = m_nodePool->getNodeIdx(bestNode);
 			newNode.id = neighbourRef;
 
+			// Cost
+			float edgeMidPoint[3];
+			dtVlerp(edgeMidPoint, va, vb, 0.5f);
+			
+			newNode.total = bestNode->total + dtVdist(previousEdgeMidPoint, edgeMidPoint);
+			
+			dtNode* actualNode = m_nodePool->getNode(newNode.id);
+			if (!actualNode)
+				continue;
+			
+			if (!((actualNode->flags & DT_NODE_OPEN) && newNode.total > actualNode->total) &&
+				!((actualNode->flags & DT_NODE_CLOSED) && newNode.total > actualNode->total))
+			{
+				actualNode->flags &= ~DT_NODE_CLOSED;
+				actualNode->pidx = newNode.pidx;
+				actualNode->total = newNode.total;
+				
+				if (actualNode->flags & DT_NODE_OPEN)
+				{
+					m_openList->modify(actualNode);
+				}
+				else
+				{
+					if (n < maxResult)
+					{
+						if (resultRef)
+							resultRef[n] = actualNode->id;
+						if (resultParent)
+							resultParent[n] = m_nodePool->getNodeAtIdx(actualNode->pidx)->id;
+						if (resultCost)
+							resultCost[n] = actualNode->total;
+						++n;
+					}
+					actualNode->flags = DT_NODE_OPEN;
+					m_openList->push(actualNode);
+				}
+			}
+		}
+	}
+	
+	return n;
+}
+
+int	dtNavMesh::findPolysAroundShape(dtPolyRef centerRef, const float* verts, const int nverts,
+									const dtQueryFilter* filter,
+									dtPolyRef* resultRef, dtPolyRef* resultParent, float* resultCost,
+									const int maxResult) const
+{
+	if (!centerRef) return 0;
+	if (!getPolyByRef(centerRef)) return 0;
+	if (!m_nodePool || !m_openList) return 0;
+	
+	m_nodePool->clear();
+	m_openList->clear();
+	
+	dtNode* startNode = m_nodePool->getNode(centerRef);
+	startNode->pidx = 0;
+	startNode->cost = 0;
+	startNode->total = 0;
+	startNode->id = centerRef;
+	startNode->flags = DT_NODE_OPEN;
+	m_openList->push(startNode);
+	
+	int n = 0;
+	if (n < maxResult)
+	{
+		if (resultRef)
+			resultRef[n] = startNode->id;
+		if (resultParent)
+			resultParent[n] = 0;
+		if (resultCost)
+			resultCost[n] = 0;
+		++n;
+	}
+
+	float centerPos[3] = {0,0,0};
+	for (int i = 0; i < nverts; ++i)
+		dtVadd(centerPos,centerPos,&verts[i*3]);
+	dtVscale(centerPos,centerPos,1.0f/nverts);
+	
+	unsigned int it, ip;
+	
+	
+	while (!m_openList->empty())
+	{
+		dtNode* bestNode = m_openList->pop();
+		
+		float previousEdgeMidPoint[3];
+		
+		// Get poly and tile.
+		// The API input has been cheked already, skip checking internal data.
+		const dtPolyRef bestRef = bestNode->id;
+		it = decodePolyIdTile(bestRef);
+		ip = decodePolyIdPoly(bestRef);
+		const dtMeshTile* bestTile = &m_tiles[it];
+		const dtPoly* bestPoly = &bestTile->polys[ip];
+		
+		// Get parent poly and tile.
+		dtPolyRef parentRef = 0;
+		const dtMeshTile* parentTile = 0;
+		const dtPoly* parentPoly = 0;
+		if (bestNode->pidx)
+			parentRef = m_nodePool->getNodeAtIdx(bestNode->pidx)->id;
+		if (parentRef)
+		{
+			it = decodePolyIdTile(parentRef);
+			ip = decodePolyIdPoly(parentRef);
+			parentTile = &m_tiles[it];
+			parentPoly = &parentTile->polys[ip];
+			
+			getEdgeMidPoint(parentRef, parentPoly, parentTile,
+							bestRef, bestPoly, bestTile, previousEdgeMidPoint);
+		}
+		else
+		{
+			dtVcopy(previousEdgeMidPoint, centerPos);
+		}
+		
+		for (unsigned int i = bestPoly->firstLink; i != DT_NULL_LINK; i = bestTile->links[i].next)
+		{
+			const dtLink* link = &bestTile->links[i];
+			dtPolyRef neighbourRef = link->ref;
+			// Skip invalid neighbours and do not follow back to parent.
+			if (!neighbourRef || neighbourRef == parentRef)
+				continue;
+			
+			// Expand to neighbour
+			it = decodePolyIdTile(neighbourRef);
+			ip = decodePolyIdPoly(neighbourRef);
+			const dtMeshTile* neighbourTile = &m_tiles[it];
+			const dtPoly* neighbourPoly = &neighbourTile->polys[ip];
+
+			// Do not advance if the polygon is excluded by the filter.
+			if (!passFilter(filter, neighbourPoly->flags))
+				continue;
+			
+			// Find edge and calc distance to the edge.
+			float va[3], vb[3];
+			if (!getPortalPoints(bestRef, bestPoly, bestTile, neighbourRef, neighbourPoly, neighbourTile, va, vb))
+				continue;
+				
+			// If the poly is not touching the edge to the next polygon, skip the connection it.
+			float tmin, tmax;
+			int segMin, segMax;
+			if (!dtIntersectSegmentPoly2D(va, vb, verts, nverts, tmin, tmax, segMin, segMax))
+				continue;
+			if (tmin > 1.0f || tmax < 0.0f)
+				continue;
+
+			dtNode newNode;
+			newNode.pidx = m_nodePool->getNodeIdx(bestNode);
+			newNode.id = neighbourRef;
+			
 			// Cost
 			float edgeMidPoint[3];
 			dtVlerp(edgeMidPoint, va, vb, 0.5f);

@@ -36,7 +36,8 @@ class NavMeshTesterTool : public SampleTool
 		TOOLMODE_PATHFIND_STRAIGHT,
 		TOOLMODE_RAYCAST,
 		TOOLMODE_DISTANCE_TO_WALL,
-		TOOLMODE_FIND_POLYS_AROUND,
+		TOOLMODE_FIND_POLYS_IN_CIRCLE,
+		TOOLMODE_FIND_POLYS_IN_POLY,
 	};
 	
 	ToolMode m_toolMode;
@@ -56,6 +57,7 @@ class NavMeshTesterTool : public SampleTool
 	float m_polyPickExt[3];
 	float m_smoothPath[MAX_SMOOTH*3];
 	int m_nsmoothPath;
+	float m_queryPoly[4*3];
 	
 	float m_spos[3];
 	float m_epos[3];

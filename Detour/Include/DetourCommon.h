@@ -68,6 +68,13 @@ inline void dtVsub(float* dest, const float* v1, const float* v2)
 	dest[2] = v1[2]-v2[2];
 }
 
+inline void dtVscale(float* dest, const float* v, const float t)
+{
+	dest[0] = v[0]*t;
+	dest[1] = v[1]*t;
+	dest[2] = v[2]*t;
+}
+
 inline void dtVmin(float* mn, const float* v)
 {
 	mn[0] = dtMin(mn[0], v[0]);
