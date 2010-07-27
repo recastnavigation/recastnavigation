@@ -175,7 +175,7 @@ void ConvexVolumeTool::handleClick(const float* p, bool shift)
 		for (int i = 0; i < geom->getConvexVolumeCount(); ++i)
 		{
 			if (pointInPoly(vols[i].nverts, vols[i].verts, p) &&
-							p[1] >= vols[i].hmin, p[1] <= vols[i].hmax)
+							p[1] >= vols[i].hmin && p[1] <= vols[i].hmax)
 			{
 				nearestIndex = i;
 			}
