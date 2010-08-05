@@ -20,6 +20,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include <string.h>
 #include "Recast.h"
 #include "RecastAlloc.h"
 #include "RecastDump.h"
@@ -133,6 +134,121 @@ bool duDumpPolyMeshDetailToObj(rcPolyMeshDetail& dmesh, duFileIO* io)
 	return true;
 }
 
+static const int CSET_MAGIC = ('c' << 24) | ('s' << 16) | ('e' << 8) | 't';
+static const int CSET_VERSION = 1;
+
+bool duDumpContourSet(struct rcContourSet& cset, duFileIO* io)
+{
+	if (!io)
+	{
+		printf("duDumpContourSet: input IO is null.\n"); 
+		return false;
+	}
+	if (!io->isWriting())
+	{
+		printf("duDumpContourSet: input IO not writing.\n"); 
+		return false;
+	}
+	
+	io->write(&CSET_MAGIC, sizeof(CSET_MAGIC));
+	io->write(&CSET_VERSION, sizeof(CSET_VERSION));
+
+	io->write(&cset.nconts, sizeof(cset.nconts));
+	
+	io->write(cset.bmin, sizeof(cset.bmin));
+	io->write(cset.bmax, sizeof(cset.bmax));
+	
+	io->write(&cset.cs, sizeof(cset.cs));
+	io->write(&cset.ch, sizeof(cset.ch));
+
+	for (int i = 0; i < cset.nconts; ++i)
+	{
+		const rcContour& cont = cset.conts[i];
+		io->write(&cont.nverts, sizeof(cont.nverts));
+		io->write(&cont.nrverts, sizeof(cont.nrverts));
+		io->write(&cont.reg, sizeof(cont.reg));
+		io->write(&cont.area, sizeof(cont.area));
+		io->write(cont.verts, sizeof(int)*4*cont.nverts);
+		io->write(cont.rverts, sizeof(int)*4*cont.nrverts);
+	}
+
+	return true;
+}
+
+bool duReadContourSet(struct rcContourSet& cset, duFileIO* io)
+{
+	if (!io)
+	{
+		printf("duReadContourSet: input IO is null.\n"); 
+		return false;
+	}
+	if (!io->isReading())
+	{
+		printf("duReadContourSet: input IO not reading.\n"); 
+		return false;
+	}
+	
+	int magic = 0;
+	int version = 0;
+	
+	io->read(&magic, sizeof(magic));
+	io->read(&version, sizeof(version));
+	
+	if (magic != CSET_MAGIC)
+	{
+		printf("duReadContourSet: Bad voodoo.\n");
+		return false;
+	}
+	if (version != CSET_VERSION)
+	{
+		printf("duReadContourSet: Bad version.\n");
+		return false;
+	}
+	
+	io->read(&cset.nconts, sizeof(cset.nconts));
+
+	cset.conts = (rcContour*)rcAlloc(sizeof(rcContour)*cset.nconts, RC_ALLOC_PERM);
+	if (!cset.conts)
+	{
+		printf("duReadContourSet: Could not alloc contours (%d)\n", cset.nconts);
+		return false;
+	}
+	memset(cset.conts, 0, sizeof(rcContour)*cset.nconts);
+	
+	io->read(cset.bmin, sizeof(cset.bmin));
+	io->read(cset.bmax, sizeof(cset.bmax));
+	
+	io->read(&cset.cs, sizeof(cset.cs));
+	io->read(&cset.ch, sizeof(cset.ch));
+	
+	for (int i = 0; i < cset.nconts; ++i)
+	{
+		rcContour& cont = cset.conts[i];
+		io->read(&cont.nverts, sizeof(cont.nverts));
+		io->read(&cont.nrverts, sizeof(cont.nrverts));
+		io->read(&cont.reg, sizeof(cont.reg));
+		io->read(&cont.area, sizeof(cont.area));
+
+		cont.verts = (int*)rcAlloc(sizeof(int)*4*cont.nverts, RC_ALLOC_PERM);
+		if (!cont.verts)
+		{
+			printf("duReadContourSet: Could not alloc contour verts (%d)\n", cont.nverts);
+			return false;
+		}
+		cont.rverts = (int*)rcAlloc(sizeof(int)*4*cont.nrverts, RC_ALLOC_PERM);
+		if (!cont.rverts)
+		{
+			printf("duReadContourSet: Could not alloc contour rverts (%d)\n", cont.nrverts);
+			return false;
+		}
+		
+		io->read(cont.verts, sizeof(int)*4*cont.nverts);
+		io->read(cont.rverts, sizeof(int)*4*cont.nrverts);
+	}
+	
+	return true;
+}
+	
 
 static const int CHF_MAGIC = ('r' << 24) | ('c' << 16) | ('h' << 8) | 'f';
 static const int CHF_VERSION = 2;
