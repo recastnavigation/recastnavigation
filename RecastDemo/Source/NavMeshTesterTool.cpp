@@ -31,6 +31,7 @@
 #include "DetourNavMesh.h"
 #include "DetourNavMeshBuilder.h"
 #include "DetourDebugDraw.h"
+#include "DetourCommon.h"
 
 #ifdef WIN32
 #	define snprintf _snprintf
@@ -161,6 +162,8 @@ NavMeshTesterTool::NavMeshTesterTool() :
 	m_polyPickExt[0] = 2;
 	m_polyPickExt[1] = 4;
 	m_polyPickExt[2] = 2;
+	
+	m_neighbourhoodRadius = 2.5f;
 }
 
 NavMeshTesterTool::~NavMeshTesterTool()
@@ -199,6 +202,7 @@ void NavMeshTesterTool::init(Sample* sample)
 		m_sample->setNavMeshDrawFlags(flags);
 	}
 	
+	m_neighbourhoodRadius = sample->getAgentRadius() * 20.0f;
 }
 
 void NavMeshTesterTool::handleMenu()
@@ -228,9 +232,14 @@ void NavMeshTesterTool::handleMenu()
 		m_toolMode = TOOLMODE_FIND_POLYS_IN_CIRCLE;
 		recalc();
 	}
-	if (imguiCheck("Find Polys in Poly", m_toolMode == TOOLMODE_FIND_POLYS_IN_POLY))
+	if (imguiCheck("Find Polys in Poly", m_toolMode == TOOLMODE_FIND_POLYS_IN_SHAPE))
 	{
-		m_toolMode = TOOLMODE_FIND_POLYS_IN_POLY;
+		m_toolMode = TOOLMODE_FIND_POLYS_IN_SHAPE;
+		recalc();
+	}
+	if (imguiCheck("Find Local Neighbourhood", m_toolMode == TOOLMODE_FIND_LOCAL_NEIGHBOURHOOD))
+	{
+		m_toolMode = TOOLMODE_FIND_LOCAL_NEIGHBOURHOOD;
 		recalc();
 	}
 	
@@ -738,7 +747,7 @@ void NavMeshTesterTool::recalc()
 
 		}
 	}
-	else if (m_toolMode == TOOLMODE_FIND_POLYS_IN_POLY)
+	else if (m_toolMode == TOOLMODE_FIND_POLYS_IN_SHAPE)
 	{
 		if (m_sposSet && m_startRef && m_eposSet)
 		{
@@ -772,6 +781,19 @@ void NavMeshTesterTool::recalc()
 #endif
 			m_npolys = m_navMesh->findPolysAroundShape(m_startRef, m_queryPoly, 4, &m_filter,
 													   m_polys, m_parent, 0, MAX_POLYS);
+		}
+	}
+	else if (m_toolMode == TOOLMODE_FIND_LOCAL_NEIGHBOURHOOD)
+	{
+		if (m_sposSet && m_startRef)
+		{
+#ifdef DUMP_REQS
+			printf("fln  %f %f %f  %f  0x%x 0x%x\n",
+				   m_spos[0],m_spos[1],m_spos[2], m_neighbourhoodRadius,
+				   m_filter.includeFlags, m_filter.excludeFlags);
+#endif
+			m_npolys = m_navMesh->findLocalNeighbourhood(m_startRef, m_spos, m_neighbourhoodRadius, &m_filter,
+														 m_polys, m_parent, MAX_POLYS);
 		}
 	}
 }
@@ -1000,7 +1022,7 @@ void NavMeshTesterTool::handleRender()
 			dd.depthMask(true);
 		}
 	}	
-	else if (m_toolMode == TOOLMODE_FIND_POLYS_IN_POLY)
+	else if (m_toolMode == TOOLMODE_FIND_POLYS_IN_SHAPE)
 	{
 		for (int i = 0; i < m_npolys; ++i)
 		{
@@ -1031,6 +1053,67 @@ void NavMeshTesterTool::handleRender()
 				dd.vertex(p1, col);
 			}
 			dd.end();
+			dd.depthMask(true);
+		}
+	}
+	else if (m_toolMode == TOOLMODE_FIND_LOCAL_NEIGHBOURHOOD)
+	{
+		for (int i = 0; i < m_npolys; ++i)
+		{
+			duDebugDrawNavMeshPoly(&dd, *m_navMesh, m_polys[i], pathCol);
+			dd.depthMask(false);
+			if (m_parent[i])
+			{
+				float p0[3], p1[3];
+				dd.depthMask(false);
+				getPolyCenter(m_navMesh, m_parent[i], p0);
+				getPolyCenter(m_navMesh, m_polys[i], p1);
+				duDebugDrawArc(&dd, p0[0],p0[1],p0[2], p1[0],p1[1],p1[2], 0.25f, 0.0f, 0.4f, duRGBA(0,0,0,128), 2.0f);
+				dd.depthMask(true);
+			}
+
+			float segs[DT_VERTS_PER_POLYGON*3*2];
+			const int nsegs = m_navMesh->getPolyWallSegments(m_polys[i], &m_filter, segs);
+			dd.begin(DU_DRAW_LINES, 2.0f);
+			for (int j = 0; j < nsegs; ++j)
+			{
+				const float* s = &segs[j*6];
+				
+				// Skip too distant segments.
+				float tseg;
+				float distSqr = dtDistancePtSegSqr2D(m_spos, s, s+3, tseg);
+				if (distSqr > dtSqr(m_neighbourhoodRadius))
+					continue;
+				
+				float delta[3], norm[3], p0[3], p1[3];
+				rcVsub(delta, s+3,s);
+				rcVmad(p0, s, delta, 0.5f);
+				norm[0] = delta[2];
+				norm[1] = 0;
+				norm[2] = -delta[0];
+				rcVnormalize(norm);
+				rcVmad(p1, p0, norm, agentRadius*0.5f);
+
+				// Skip backfacing segments.
+				unsigned int col = duRGBA(255,255,255,192);
+				if (dtTriArea2D(m_spos, s, s+3) < 0.0f)
+					col = duRGBA(255,255,255,64);
+					
+				dd.vertex(p0[0],p0[1]+agentClimb,p0[2],duRGBA(0,0,0,128));
+				dd.vertex(p1[0],p1[1]+agentClimb,p1[2],duRGBA(0,0,0,128));
+
+				dd.vertex(s[0],s[1]+agentClimb,s[2],col);
+				dd.vertex(s[3],s[4]+agentClimb,s[5],col);
+			}
+			dd.end();
+			
+			dd.depthMask(true);
+		}
+		
+		if (m_sposSet)
+		{
+			dd.depthMask(false);
+			duDebugDrawCircle(&dd, m_spos[0], m_spos[1]+agentHeight/2, m_spos[2], m_neighbourhoodRadius, duRGBA(64,16,0,220), 2.0f);
 			dd.depthMask(true);
 		}
 	}	

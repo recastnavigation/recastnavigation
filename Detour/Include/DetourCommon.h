@@ -201,11 +201,16 @@ bool dtIntersectSegmentPoly2D(const float* p0, const float* p1,
 							  float& tmin, float& tmax,
 							  int& segMin, int& segMax);
 
+bool dtPointInPolygon(const float* pt, const float* verts, const int nverts);
+
 bool dtDistancePtPolyEdgesSqr(const float* pt, const float* verts, const int nverts,
 							float* ed, float* et);
 
 float dtDistancePtSegSqr2D(const float* pt, const float* p, const float* q, float& t);
 
 void dtCalcPolyCenter(float* tc, const unsigned short* idx, int nidx, const float* verts);
+
+bool dtOverlapPolyPoly2D(const float* polya, const int npolya,
+						 const float* polyb, const int npolyb);
 
 #endif // DETOURCOMMON_H

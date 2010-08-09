@@ -37,7 +37,8 @@ class NavMeshTesterTool : public SampleTool
 		TOOLMODE_RAYCAST,
 		TOOLMODE_DISTANCE_TO_WALL,
 		TOOLMODE_FIND_POLYS_IN_CIRCLE,
-		TOOLMODE_FIND_POLYS_IN_POLY,
+		TOOLMODE_FIND_POLYS_IN_SHAPE,
+		TOOLMODE_FIND_LOCAL_NEIGHBOURHOOD,
 	};
 	
 	ToolMode m_toolMode;
@@ -65,6 +66,7 @@ class NavMeshTesterTool : public SampleTool
 	float m_hitNormal[3];
 	bool m_hitResult;
 	float m_distanceToWall;
+	float m_neighbourhoodRadius;
 	bool m_sposSet;
 	bool m_eposSet;
 

@@ -324,19 +324,24 @@ public:
 						 const dtPolyRef* path, const int pathSize,
 						 float* straightPath, unsigned char* straightPathFlags, dtPolyRef* straightPathRefs,
 						 const int maxStraightPathSize) const;
-
-	// Moves towards end position a long the path corridor.
-	// The start location is assumed to be roughly at inside the first polygon on the path.
-	// The return value can be used to advance the path pointer along the path.
+	
+	// Moves from startPos to endPos constrained to the navmesh.
+	// If the endPos is reachable, the resultPos will be endPos,
+	// or else the resultPos will be the nearest point in navmesh.
+	// Note: The resulting point is not projected to the ground, use getPolyHeight() to get height.
+	// Note: The algorithm is optimized for small delta movement and small number of polygons. 
 	// Params:
-	//  startPos[3] - (in) current position of the agent.
-	//  endPos[3] - (in) new position of the agent.
-	//  resultPos[3] - (out) new positio after the move, constrained to be inside the path polygons.
-	//  path - (in) remainder of the path to follow.
-	// pathSize - (in) number of polygons on the path.
-	// Returns: Index to the path polygon where the result position lies.
-	int moveAlongPathCorridor(const float* startPos, const float* endPos, float* resultPos,
-							  const dtPolyRef* path, const int pathSize) const;
+	//  startRef - (in) ref to the polygon where startPos lies.
+	//  startPos[3] - (in) start position of the mover.
+	//  endPos[3] - (in) desired end position of the mover.
+	//  filter - (in) path polygon filter.
+	//  resultPos[3] - (out) new position of the mover.
+	//  visited - (out) array of visited polygons.
+	//  maxVisitedSize - (in) max number of polygons in the visited array.
+	// Returns: Number of entries in the visited array.
+	int moveAlongSurface(dtPolyRef startRef, const float* startPos, const float* endPos,
+						 const dtQueryFilter* filter,
+						 float* resultPos, dtPolyRef* visited, const int maxVisitedSize) const;
 	
 	// Casts 'walkability' ray along the navmesh surface from startPos towards the endPos.
 	// Params:
@@ -375,7 +380,7 @@ public:
 	//	resultCost - (out, opt) search cost at each result polygon.
 	//	maxResult - (int) maximum capacity of search results.
 	// Returns: Number of results.
-	int	findPolysAroundCircle(dtPolyRef startRef, const float* centerPos, float radius,
+	int	findPolysAroundCircle(dtPolyRef startRef, const float* centerPos, const float radius,
 							  const dtQueryFilter* filter,
 							  dtPolyRef* resultRef, dtPolyRef* resultParent, float* resultCost,
 							  const int maxResult) const;
@@ -395,6 +400,29 @@ public:
 							 const dtQueryFilter* filter,
 							 dtPolyRef* resultRef, dtPolyRef* resultParent, float* resultCost,
 							 const int maxResult) const;
+	
+	// Finds non-overlapping local neighbourhood around center location.
+	// Note: The algorithm is optimized for small query radius and small number of polygons. 
+	// Params:
+	//	startRef - (in) ref to the polygon where the search starts.
+	//	centerPos[3] - (in) center if the query circle.
+	//	radius - (in) radius of the query circle.
+	//  filter - (in) path polygon filter.
+	//	resultRef - (out) refs to the polygons touched by the circle.
+	//	resultParent - (out, opt) parent of each result polygon.
+	//	maxResult - (int) maximum capacity of search results.
+	// Returns: Number of results.
+	int	findLocalNeighbourhood(dtPolyRef startRef, const float* centerPos, const float radius,
+							   const dtQueryFilter* filter,
+							   dtPolyRef* resultRef, dtPolyRef* resultParent, const int maxResult) const;
+	
+	// Returns wall segments of specified polygon.
+	// Params:
+	//  ref - (in) ref to the polygon.
+	//  filter - (in) path polygon filter.
+	//  segments[DT_VERTS_PER_POLYGON*3*2] - (out) wall segments.
+	// Returns: Number of wall segments.
+	int getPolyWallSegments(dtPolyRef ref, const dtQueryFilter* filter, float* segments);
 	
 	// Returns closest point on navigation polygon.
 	// Uses detail polygons to find the closest point to the navigation polygon surface. 
@@ -561,6 +589,7 @@ private:
 
 	float m_areaCost[DT_MAX_AREAS];		// Cost per area.
 
+	class dtNodePool* m_tinyNodePool;		// Pointer to node pool.
 	class dtNodePool* m_nodePool;		// Pointer to node pool.
 	class dtNodeQueue* m_openList;		// Pointer to open list queue.
 };

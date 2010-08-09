@@ -238,6 +238,22 @@ bool dtClosestHeightPointTriangle(const float* p, const float* a, const float* b
 	return false;
 }
 
+bool dtPointInPolygon(const float* pt, const float* verts, const int nverts)
+{
+	// TODO: Replace pnpoly with triArea2D tests?
+	int i, j;
+	bool c = false;
+	for (i = 0, j = nverts-1; i < nverts; j = i++)
+	{
+		const float* vi = &verts[i*3];
+		const float* vj = &verts[j*3];
+		if (((vi[2] > pt[2]) != (vj[2] > pt[2])) &&
+			(pt[0] < (vj[0]-vi[0]) * (pt[2]-vi[2]) / (vj[2]-vi[2]) + vi[0]) )
+			c = !c;
+	}
+	return c;
+}
+
 bool dtDistancePtPolyEdgesSqr(const float* pt, const float* verts, const int nverts,
 							  float* ed, float* et)
 {
@@ -255,3 +271,59 @@ bool dtDistancePtPolyEdgesSqr(const float* pt, const float* verts, const int nve
 	}
 	return c;
 }
+
+static void projectPoly(const float* axis, const float* poly, const int npoly,
+						float& rmin, float& rmax)
+{
+	rmin = rmax = dtVdot2D(axis, &poly[0]);
+	for (int i = 1; i < npoly; ++i)
+	{
+		const float d = dtVdot2D(axis, &poly[i*3]);
+		rmin = dtMin(rmin, d);
+		rmax = dtMax(rmax, d);
+	}
+}
+
+inline bool overlapRange(const float amin, const float amax,
+						 const float bmin, const float bmax,
+						 const float eps)
+{
+	return ((amin+eps) > bmax || (amax-eps) < bmin) ? false : true;
+}
+
+bool dtOverlapPolyPoly2D(const float* polya, const int npolya,
+						 const float* polyb, const int npolyb)
+{
+	const float eps = 1e-4f;
+	
+	for (int i = 0, j = npolya-1; i < npolya; j=i++)
+	{
+		const float* va = &polya[j*3];
+		const float* vb = &polya[i*3];
+		const float n[3] = { vb[2]-va[2], 0, -(vb[0]-va[0]) };
+		float amin,amax,bmin,bmax;
+		projectPoly(n, polya, npolya, amin,amax);
+		projectPoly(n, polyb, npolyb, bmin,bmax);
+		if (!overlapRange(amin,amax, bmin,bmax, eps))
+		{
+			// Found separating axis
+			return false;
+		}
+	}
+	for (int i = 0, j = npolyb-1; i < npolyb; j=i++)
+	{
+		const float* va = &polyb[j*3];
+		const float* vb = &polyb[i*3];
+		const float n[3] = { vb[2]-va[2], 0, -(vb[0]-va[0]) };
+		float amin,amax,bmin,bmax;
+		projectPoly(n, polya, npolya, amin,amax);
+		projectPoly(n, polyb, npolyb, bmin,bmax);
+		if (!overlapRange(amin,amax, bmin,bmax, eps))
+		{
+			// Found separating axis
+			return false;
+		}
+	}
+	return true;
+}
+
