@@ -34,8 +34,6 @@ protected:
 	float m_totalBuildTimeMs;
 	bool m_drawPortals;
 
-	int m_smin, m_smax;
-	
 	unsigned char* m_triareas;
 	rcHeightfield* m_solid;
 	rcCompactHeightfield* m_chf;

@@ -132,6 +132,26 @@ Sample_Debug::Sample_Debug() :
 	vcopy(m_ext, ext);
 	vcopy(m_center, center);*/
 	
+
+	{
+		m_cset = rcAllocContourSet();
+		if (m_cset)
+		{
+			FileIO io;
+			if (io.openForRead("test.cset"))
+			{
+				duReadContourSet(*m_cset, &io);
+			}
+			else
+			{
+				printf("could not open test.cset\n");
+			}
+		}
+		else
+		{
+			printf("Could not alloc cset\n");
+		}
+	}
 	
 }
 
@@ -169,15 +189,15 @@ void Sample_Debug::handleRender()
 	if (m_ref && m_navMesh)
 		duDebugDrawNavMeshPoly(&dd, *m_navMesh, m_ref, duRGBA(255,0,0,128));
 
-	float bmin[3], bmax[3];
+/*	float bmin[3], bmax[3];
 	rcVsub(bmin, m_center, m_ext);
 	rcVadd(bmax, m_center, m_ext);
 	duDebugDrawBoxWire(&dd, bmin[0],bmin[1],bmin[2], bmax[0],bmax[1],bmax[2], duRGBA(255,255,255,128), 1.0f);
-	duDebugDrawCross(&dd, m_center[0], m_center[1], m_center[2], 1.0f, duRGBA(255,255,255,128), 2.0f);
+	duDebugDrawCross(&dd, m_center[0], m_center[1], m_center[2], 1.0f, duRGBA(255,255,255,128), 2.0f);*/
 
 	if (m_cset)
 		duDebugDrawRawContours(&dd, *m_cset);
-	
+	/*
 	dd.depthMask(false);
 	{
 		const float bmin[3] = {-32.000004f,-11.488281f,-115.343544f};
@@ -272,7 +292,7 @@ void Sample_Debug::handleRender()
 		dd.end();
 		
 	}
-	dd.depthMask(true);
+	dd.depthMask(true);*/
 }
 
 void Sample_Debug::handleRenderOverlay(double* /*proj*/, double* /*model*/, int* /*view*/)
@@ -316,22 +336,26 @@ void Sample_Debug::handleStep()
 
 bool Sample_Debug::handleBuild()
 {
-	delete m_cset;
-	m_cset = 0;
-	
-	// Create contours.
-	m_cset = rcAllocContourSet();
-	if (!m_cset)
+
+	if (m_chf)
 	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'cset'.");
-		return false;
-	}
-	if (!rcBuildContours(*m_chf, /*m_cfg.maxSimplificationError*/1.3f, /*m_cfg.maxEdgeLen*/12, *m_cset))
-	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Could not create contours.");
-		return false;
+		rcFreeContourSet(m_cset);
+		m_cset = 0;
+		
+		// Create contours.
+		m_cset = rcAllocContourSet();
+		if (!m_cset)
+		{
+			if (rcGetLog())
+				rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'cset'.");
+			return false;
+		}
+		if (!rcBuildContours(*m_chf, /*m_cfg.maxSimplificationError*/1.3f, /*m_cfg.maxEdgeLen*/12, *m_cset))
+		{
+			if (rcGetLog())
+				rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Could not create contours.");
+			return false;
+		}
 	}
 	
 	return true;

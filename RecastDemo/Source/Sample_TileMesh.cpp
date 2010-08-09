@@ -189,9 +189,6 @@ Sample_TileMesh::Sample_TileMesh() :
 	memset(m_tileBmax, 0, sizeof(m_tileBmax));
 	
 	setTool(new NavMeshTileTool);
-	
-	m_smin = 0x0fffffff;
-	m_smax = -0xfffffff;
 }
 
 Sample_TileMesh::~Sample_TileMesh()
@@ -812,26 +809,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 		m_triareas = 0;
 	}
 	
-	{
-		const int w = m_solid->width;
-		const int h = m_solid->height;
-		int spanCount = 0;
-		for (int y = 0; y < h; ++y)
-		{
-			for (int x = 0; x < w; ++x)
-			{
-				for (rcSpan* s = m_solid->spans[x + y*w]; s; s = s->next)
-				{
-					m_smin = rcMin(m_smin, (int)s->smin);
-					m_smax = rcMax(m_smax, (int)s->smax);
-				}
-			}
-		}
-		printf("smin=%d smax=%d\n", m_smin, m_smax);
-	}
-	
-	
-	// Once all geoemtry is rasterized, we do initial pass of filtering to
+	// Once all geometry is rasterized, we do initial pass of filtering to
 	// remove unwanted overhangs caused by the conservative rasterization
 	// as well as filter spans where the character cannot possibly stand.
 	rcFilterLowHangingWalkableObstacles(m_cfg.walkableClimb, *m_solid);

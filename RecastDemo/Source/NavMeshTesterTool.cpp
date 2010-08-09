@@ -26,6 +26,7 @@
 #include "NavMeshTesterTool.h"
 #include "Sample.h"
 #include "Recast.h"
+#include "RecastTimer.h"
 #include "RecastDebugDraw.h"
 #include "DetourNavMesh.h"
 #include "DetourNavMeshBuilder.h"
@@ -44,6 +45,52 @@ inline bool inRange(const float* v1, const float* v2, const float r, const float
 	const float dy = v2[1] - v1[1];
 	const float dz = v2[2] - v1[2];
 	return (dx*dx + dz*dz) < r*r && fabsf(dy) < h;
+}
+
+
+static int fixupCorridor(dtPolyRef* path, const int npath, const int maxPath,
+						 const dtPolyRef* visited, const int nvisited)
+{
+	int furthestPath = -1;
+	int furthestVisited = -1;
+	
+	// Find furthest common polygon.
+	for (int i = npath-1; i >= 0; --i)
+	{
+		bool found = false;
+		for (int j = nvisited-1; j >= 0; --j)
+		{
+			if (path[i] == visited[j])
+			{
+				furthestPath = i;
+				furthestVisited = j;
+				found = true;
+			}
+		}
+		if (found)
+			break;
+	}
+
+	// If no intersection found just return current path. 
+	if (furthestPath == -1 || furthestVisited == -1)
+		return npath;
+	
+	// Concatenate paths.	
+
+	// Adjust beginning of the buffer to include the visited.
+	const int req = nvisited - furthestVisited;
+	const int orig = rcMin(furthestPath+1, npath);
+	int size = rcMax(0, npath-orig);
+	if (req+size > maxPath)
+		size = maxPath-req;
+	if (size)
+		memmove(path+req, path+orig, size*sizeof(dtPolyRef));
+	
+	// Store visited
+	for (int i = 0; i < req; ++i)
+		path[i] = visited[(nvisited-1)-i];				
+	
+	return req+size;
 }
 
 static bool getSteerTarget(dtNavMesh* navMesh, const float* startPos, const float* endPos,
@@ -290,8 +337,9 @@ void NavMeshTesterTool::handleStep()
 		m_npolys = m_navMesh->findPath(m_startRef, m_endRef, m_spos, m_epos, &m_filter, m_polys, MAX_POLYS);
 		m_nsmoothPath = 0;
 
-		m_pathIterPolys = m_polys; 
 		m_pathIterPolyCount = m_npolys;
+		if (m_pathIterPolyCount)
+			memcpy(m_pathIterPolys, m_polys, sizeof(dtPolyRef)*m_pathIterPolyCount); 
 		
 		if (m_pathIterPolyCount)
 		{
@@ -349,19 +397,15 @@ void NavMeshTesterTool::handleStep()
 		
 	// Move
 	float result[3];
-	int n = m_navMesh->moveAlongPathCorridor(m_iterPos, moveTgt, result, m_pathIterPolys, m_pathIterPolyCount);
+	dtPolyRef visited[16];
+	int nvisited = m_navMesh->moveAlongSurface(m_pathIterPolys[0], m_iterPos, moveTgt, &m_filter,
+											   result, visited, 16);
+	m_pathIterPolyCount = fixupCorridor(m_pathIterPolys, m_pathIterPolyCount, MAX_POLYS, visited, nvisited);
 	float h = 0;
-	m_navMesh->getPolyHeight(m_pathIterPolys[n], result, &h);
+	m_navMesh->getPolyHeight(m_pathIterPolys[0], result, &h);
 	result[1] = h;
-	// Shrink path corridor if advanced.
-	if (n)
-	{
-		m_pathIterPolys += n;
-		m_pathIterPolyCount -= n;
-	}
-	// Update position.
 	rcVcopy(m_iterPos, result);
-		
+	
 	// Handle end of path and off-mesh links when close enough.
 	if (endOfPath && inRange(m_iterPos, steerPos, SLOP, 1.0f))
 	{
@@ -381,14 +425,17 @@ void NavMeshTesterTool::handleStep()
 		
 		// Advance the path up to and over the off-mesh connection.
 		dtPolyRef prevRef = 0, polyRef = m_pathIterPolys[0];
-		while (m_pathIterPolyCount && polyRef != steerPosRef)
+		int npos = 0;
+		while (npos < m_pathIterPolyCount && polyRef != steerPosRef)
 		{
 			prevRef = polyRef;
-			polyRef = m_pathIterPolys[0];
-			m_pathIterPolys++;
-			m_pathIterPolyCount--;
+			polyRef = m_pathIterPolys[npos];
+			npos++;
 		}
-		
+		for (int i = npos; i < m_pathIterPolyCount; ++i)
+			m_pathIterPolys[i-npos] = m_pathIterPolys[i];
+		m_pathIterPolyCount -= npos;
+				
 		// Handle the connection.
 		if (m_navMesh->getOffMeshConnectionPolyEndPoints(prevRef, polyRef, startPos, endPos))
 		{
@@ -466,7 +513,8 @@ void NavMeshTesterTool::recalc()
 			if (m_npolys)
 			{
 				// Iterate over the path to find smooth path on the detail mesh surface.
-				const dtPolyRef* polys = m_polys; 
+				dtPolyRef polys[MAX_POLYS];
+				memcpy(polys, m_polys, sizeof(dtPolyRef)*m_npolys); 
 				int npolys = m_npolys;
 				
 				float iterPos[3], targetPos[3];
@@ -511,17 +559,15 @@ void NavMeshTesterTool::recalc()
 					
 					// Move
 					float result[3];
-					int n = m_navMesh->moveAlongPathCorridor(iterPos, moveTgt, result, polys, npolys);
+					dtPolyRef visited[16];
+
+					int nvisited = m_navMesh->moveAlongSurface(polys[0], iterPos, moveTgt, &m_filter,
+															   result, visited, 16);
+															   
+					npolys = fixupCorridor(polys, npolys, MAX_POLYS, visited, nvisited);
 					float h = 0;
-					m_navMesh->getPolyHeight(polys[n], result, &h);
+					m_navMesh->getPolyHeight(polys[0], result, &h);
 					result[1] = h;
-					// Shrink path corridor if advanced.
-					if (n)
-					{
-						polys += n;
-						npolys -= n;
-					}
-					// Update position.
 					rcVcopy(iterPos, result);
 
 					// Handle end of path and off-mesh links when close enough.
@@ -543,13 +589,16 @@ void NavMeshTesterTool::recalc()
 						
 						// Advance the path up to and over the off-mesh connection.
 						dtPolyRef prevRef = 0, polyRef = polys[0];
-						while (npolys && polyRef != steerPosRef)
+						int npos = 0;
+						while (npos < npolys && polyRef != steerPosRef)
 						{
 							prevRef = polyRef;
-							polyRef = polys[0];
-							polys++;
-							npolys--;
+							polyRef = polys[npos];
+							npos++;
 						}
+						for (int i = npos; i < npolys; ++i)
+							polys[i-npos] = polys[i];
+						npolys -= npos;
 						
 						// Handle the connection.
 						if (m_navMesh->getOffMeshConnectionPolyEndPoints(prevRef, polyRef, startPos, endPos))
@@ -581,7 +630,7 @@ void NavMeshTesterTool::recalc()
 					}
 				}
 			}
-			
+
 		}
 		else
 		{
@@ -686,6 +735,7 @@ void NavMeshTesterTool::recalc()
 #endif
 			m_npolys = m_navMesh->findPolysAroundCircle(m_startRef, m_spos, dist, &m_filter,
 														m_polys, m_parent, 0, MAX_POLYS);
+
 		}
 	}
 	else if (m_toolMode == TOOLMODE_FIND_POLYS_IN_POLY)
@@ -746,6 +796,8 @@ static void getPolyCenter(dtNavMesh* navMesh, dtPolyRef ref, float* center)
 	center[1] *= s;
 	center[2] *= s;
 }
+
+
 
 void NavMeshTesterTool::handleRender()
 {
@@ -1005,7 +1057,7 @@ void NavMeshTesterTool::drawAgent(const float* pos, float r, float h, float c, c
 {
 	DebugDrawGL dd;
 	
-	glDepthMask(GL_FALSE);
+	dd.depthMask(false);
 	
 	// Agent dimensions.	
 	duDebugDrawCylinderWire(&dd, pos[0]-r, pos[1]+0.02f, pos[2]-r, pos[0]+r, pos[1]+h, pos[2]+r, col, 2.0f);
@@ -1022,5 +1074,5 @@ void NavMeshTesterTool::drawAgent(const float* pos, float r, float h, float c, c
 	dd.vertex(pos[0], pos[1]+0.02f, pos[2]+r/2, colb);
 	dd.end();
 	
-	glDepthMask(GL_TRUE);
+	dd.depthMask(true);
 }
