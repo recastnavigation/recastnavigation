@@ -486,13 +486,13 @@ static void pushBack(int v, int* arr, int& an)
 	an++;
 }
 
-
-static int removeVertex(rcPolyMesh& mesh, const unsigned short rem, const int maxTris)
+static bool canRemoveVertex(rcPolyMesh& mesh, const unsigned short rem)
 {
 	const int nvp = mesh.nvp;
-
+	
 	// Count number of polygons to remove.
 	int numRemovedVerts = 0;
+	int numTouchedVerts = 0;
 	int numRemainingEdges = 0;
 	for (int i = 0; i < mesh.npolys; ++i)
 	{
@@ -503,7 +503,10 @@ static int removeVertex(rcPolyMesh& mesh, const unsigned short rem, const int ma
 		for (int j = 0; j < nv; ++j)
 		{
 			if (p[j] == rem)
+			{
+				numTouchedVerts++;
 				numRemoved++;
+			}
 			numVerts++;
 		}
 		if (numRemoved)
@@ -518,7 +521,90 @@ static int removeVertex(rcPolyMesh& mesh, const unsigned short rem, const int ma
 	// as deletion, but there are no other polys that share the vertex.
 	// In this case, the vertex should not be removed.
 	if (numRemainingEdges <= 2)
-		return -1;
+		return false;
+	
+	// Find edges which share the removed vertex.
+	const int maxEdges = numTouchedVerts*2;
+	int nedges = 0;
+	rcScopedDelete<int> edges = (int*)rcAlloc(sizeof(int)*maxEdges*3, RC_ALLOC_TEMP);
+	if (!edges)
+	{
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_WARNING, "canRemoveVertex: Out of memory 'edges' (%d).", maxEdges*3);
+		return false;
+	}
+		
+	for (int i = 0; i < mesh.npolys; ++i)
+	{
+		unsigned short* p = &mesh.polys[i*nvp*2];
+		const int nv = countPolyVerts(p, nvp);
+
+		// Collect edges which touches the removed vertex.
+		for (int j = 0, k = nv-1; j < nv; k = j++)
+		{
+			if (p[j] == rem || p[k] == rem)
+			{
+				// Arrange edge so that a=rem.
+				int a = p[j], b = p[k];
+				if (b == rem)
+					rcSwap(a,b);
+					
+				// Check if the edge exists
+				bool exists = false;
+				for (int k = 0; k < nedges; ++k)
+				{
+					int* e = &edges[k*3];
+					if (e[1] == b)
+					{
+						// Exists, increment vertex share count.
+						e[2]++;
+						exists = true;
+					}
+				}
+				// Add new edge.
+				if (!exists)
+				{
+					int* e = &edges[nedges*3];
+					e[0] = a;
+					e[1] = b;
+					e[2] = 1;
+					nedges++;
+				}
+			}
+		}
+	}
+
+	// There should be no more than 2 open edges.
+	// This catches the case that two non-adjacent polygons
+	// share the removed vertex. In that case, do not remove the vertex.
+	int numOpenEdges = 0;
+	for (int i = 0; i < nedges; ++i)
+	{
+		if (edges[i*3+2] < 2)
+			numOpenEdges++;
+	}
+	if (numOpenEdges > 2)
+		return false;
+	
+	return true;
+}
+
+static bool removeVertex(rcPolyMesh& mesh, const unsigned short rem, const int maxTris)
+{
+	const int nvp = mesh.nvp;
+
+	// Count number of polygons to remove.
+	int numRemovedVerts = 0;
+	for (int i = 0; i < mesh.npolys; ++i)
+	{
+		unsigned short* p = &mesh.polys[i*nvp*2];
+		const int nv = countPolyVerts(p, nvp);
+		for (int j = 0; j < nv; ++j)
+		{
+			if (p[j] == rem)
+				numRemovedVerts++;
+		}
+	}
 	
 	int nedges = 0;
 	rcScopedDelete<int> edges = (int*)rcAlloc(sizeof(int)*numRemovedVerts*nvp*4, RC_ALLOC_TEMP);
@@ -526,7 +612,7 @@ static int removeVertex(rcPolyMesh& mesh, const unsigned short rem, const int ma
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_WARNING, "removeVertex: Out of memory 'edges' (%d).", numRemovedVerts*nvp*4);
-		return 0;
+		return false;
 	}
 
 	int nhole = 0;
@@ -535,7 +621,7 @@ static int removeVertex(rcPolyMesh& mesh, const unsigned short rem, const int ma
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_WARNING, "removeVertex: Out of memory 'hole' (%d).", numRemovedVerts*nvp);
-		return 0;
+		return false;
 	}
 	
 	int nhreg = 0;
@@ -544,7 +630,7 @@ static int removeVertex(rcPolyMesh& mesh, const unsigned short rem, const int ma
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_WARNING, "removeVertex: Out of memory 'hreg' (%d).", numRemovedVerts*nvp);
-		return 0;
+		return false;
 	}
 
 	int nharea = 0;
@@ -553,7 +639,7 @@ static int removeVertex(rcPolyMesh& mesh, const unsigned short rem, const int ma
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_WARNING, "removeVertex: Out of memory 'harea' (%d).", numRemovedVerts*nvp);
-		return 0;
+		return false;
 	}
 	
 	for (int i = 0; i < mesh.npolys; ++i)
@@ -613,7 +699,7 @@ static int removeVertex(rcPolyMesh& mesh, const unsigned short rem, const int ma
 	}
 
 	if (nedges == 0)
-		return 1;
+		return true;
 
 	// Start with one vertex, keep appending connected
 	// segments to the start and end of the hole.
@@ -670,7 +756,7 @@ static int removeVertex(rcPolyMesh& mesh, const unsigned short rem, const int ma
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_WARNING, "removeVertex: Out of memory 'tris' (%d).", nhole*3);
-		return 0;
+		return false;
 	}
 
 	rcScopedDelete<int> tverts = (int*)rcAlloc(sizeof(int)*nhole*4, RC_ALLOC_TEMP);
@@ -678,7 +764,7 @@ static int removeVertex(rcPolyMesh& mesh, const unsigned short rem, const int ma
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_WARNING, "removeVertex: Out of memory 'tverts' (%d).", nhole*4);
-		return 0;
+		return false;
 	}
 
 	rcScopedDelete<int> thole = (int*)rcAlloc(sizeof(int)*nhole, RC_ALLOC_TEMP);
@@ -686,7 +772,7 @@ static int removeVertex(rcPolyMesh& mesh, const unsigned short rem, const int ma
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_WARNING, "removeVertex: Out of memory 'thole' (%d).", nhole);
-		return 0;
+		return false;
 	}
 
 	// Generate temp vertex array for triangulation.
@@ -715,21 +801,21 @@ static int removeVertex(rcPolyMesh& mesh, const unsigned short rem, const int ma
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_ERROR, "removeVertex: Out of memory 'polys' (%d).", (ntris+1)*nvp);
-		return 0;
+		return false;
 	}
 	rcScopedDelete<unsigned short> pregs = (unsigned short*)rcAlloc(sizeof(unsigned short)*ntris, RC_ALLOC_TEMP);
 	if (!pregs)
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_ERROR, "removeVertex: Out of memory 'pregs' (%d).", ntris);
-		return 0;
+		return false;
 	}
 	rcScopedDelete<unsigned char> pareas = (unsigned char*)rcAlloc(sizeof(unsigned char)*ntris, RC_ALLOC_TEMP);
 	if (!pregs)
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_ERROR, "removeVertex: Out of memory 'pareas' (%d).", ntris);
-		return 0;
+		return false;
 	}
 	
 	unsigned short* tmpPoly = &polys[ntris*nvp];
@@ -751,7 +837,7 @@ static int removeVertex(rcPolyMesh& mesh, const unsigned short rem, const int ma
 		}
 	}
 	if (!npolys)
-		return 1;
+		return true;
 	
 	// Merge polygons.
 	if (nvp > 3)
@@ -815,11 +901,11 @@ static int removeVertex(rcPolyMesh& mesh, const unsigned short rem, const int ma
 		{
 			if (rcGetLog())
 				rcGetLog()->log(RC_LOG_ERROR, "removeVertex: Too many polygons %d (max:%d).", mesh.npolys, maxTris);
-			return 0;
+			return false;
 		}
 	}
 	
-	return 1;
+	return true;
 }
 
 
@@ -1072,27 +1158,20 @@ bool rcBuildPolyMesh(rcContourSet& cset, int nvp, rcPolyMesh& mesh)
 	{
 		if (vflags[i])
 		{
-			int res = removeVertex(mesh, (unsigned short)i, maxTris);
-			if (!res)
+			if (!canRemoveVertex(mesh, (unsigned short)i))
+				continue;
+			if (!removeVertex(mesh, (unsigned short)i, maxTris))
 			{
 				// Failed to remove vertex
 				if (rcGetLog())
 					rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMesh: Failed to remove edge vertex %d.", i);
 				return false;
 			}
-			else if (res == -1)
-			{
-				// Vertex should not be removed.
-				continue;
-			}
-			else
-			{
-				// Remove vertex
-				// Note: mesh.nverts is already decremented inside removeVertex()!
-				for (int j = i; j < mesh.nverts; ++j)
-					vflags[j] = vflags[j+1];
-				--i;
-			}
+			// Remove vertex
+			// Note: mesh.nverts is already decremented inside removeVertex()!
+			for (int j = i; j < mesh.nverts; ++j)
+				vflags[j] = vflags[j+1];
+			--i;
 		}
 	}
 	
