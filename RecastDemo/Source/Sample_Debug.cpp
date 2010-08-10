@@ -52,7 +52,8 @@ static int loadBin(const char* path, unsigned char** data)
 
 Sample_Debug::Sample_Debug() :
 	m_chf(0),
-	m_cset(0)
+	m_cset(0),
+	m_pmesh(0)
 {
 	resetCommonSettings();
 
@@ -138,9 +139,14 @@ Sample_Debug::Sample_Debug() :
 		if (m_cset)
 		{
 			FileIO io;
-			if (io.openForRead("test.cset"))
+			if (io.openForRead("remove_vertex_issue_contour_cache.rc"))
 			{
 				duReadContourSet(*m_cset, &io);
+				
+				printf("bmin=(%f,%f,%f) bmax=(%f,%f,%f)\n",
+					   m_cset->bmin[0], m_cset->bmin[1], m_cset->bmin[2],
+					   m_cset->bmax[0], m_cset->bmax[1], m_cset->bmax[2]);
+				printf("cs=%f ch=%f\n", m_cset->cs, m_cset->ch);
 			}
 			else
 			{
@@ -151,6 +157,16 @@ Sample_Debug::Sample_Debug() :
 		{
 			printf("Could not alloc cset\n");
 		}
+
+
+		if (m_cset)
+		{
+			m_pmesh = rcAllocPolyMesh();
+			if (m_pmesh)
+			{
+				rcBuildPolyMesh(*m_cset, 6, *m_pmesh);
+			}
+		}
 	}
 	
 }
@@ -159,6 +175,7 @@ Sample_Debug::~Sample_Debug()
 {
 	rcFreeCompactHeightfield(m_chf);
 	rcFreeContourSet(m_cset);
+	rcFreePolyMesh(m_pmesh);
 }
 
 void Sample_Debug::handleSettings()
@@ -196,7 +213,16 @@ void Sample_Debug::handleRender()
 	duDebugDrawCross(&dd, m_center[0], m_center[1], m_center[2], 1.0f, duRGBA(255,255,255,128), 2.0f);*/
 
 	if (m_cset)
-		duDebugDrawRawContours(&dd, *m_cset);
+	{
+		duDebugDrawRawContours(&dd, *m_cset, 0.25f);
+//		duDebugDrawContours(&dd, *m_cset);
+	}
+	
+	if (m_pmesh)
+	{
+		duDebugDrawPolyMesh(&dd, *m_pmesh);
+	}
+	
 	/*
 	dd.depthMask(false);
 	{
@@ -306,20 +332,24 @@ void Sample_Debug::handleMeshChanged(InputGeom* geom)
 
 const float* Sample_Debug::getBoundsMin()
 {
+	if (m_cset)
+		return m_cset->bmin;
+	if (m_chf)
+		return m_chf->bmin;
 	if (m_navMesh)
 		return m_bmin;
-		
-	if (!m_chf) return 0;
-	return m_chf->bmin;
+	return 0;
 }
 
 const float* Sample_Debug::getBoundsMax()
 {
+	if (m_cset)
+		return m_cset->bmax;
+	if (m_chf)
+		return m_chf->bmax;
 	if (m_navMesh)
 		return m_bmax;
-	
-	if (!m_chf) return 0;
-	return m_chf->bmax;
+	return 0;
 }
 
 void Sample_Debug::handleClick(const float* p, bool shift)
@@ -357,6 +387,6 @@ bool Sample_Debug::handleBuild()
 			return false;
 		}
 	}
-	
+		
 	return true;
 }

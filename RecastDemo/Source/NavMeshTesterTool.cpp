@@ -133,6 +133,7 @@ static bool getSteerTarget(dtNavMesh* navMesh, const float* startPos, const floa
 		return false;
 	
 	rcVcopy(steerPos, &steerPath[ns*3]);
+	steerPos[1] = startPos[1];
 	steerPosFlag = steerPathFlags[ns];
 	steerPosRef = steerPathPolys[ns];
 	

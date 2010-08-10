@@ -415,17 +415,21 @@ void dtNavMesh::connectExtLinks(dtMeshTile* tile, dtMeshTile* target, int side)
 					// Compress portal limits to a byte value.
 					if (side == 0 || side == 4)
 					{
-						const float lmin = dtMin(va[2], vb[2]);
-						const float lmax = dtMax(va[2], vb[2]);
-						link->bmin = (unsigned char)(dtClamp((neia[k*2+0]-lmin)/(lmax-lmin), 0.0f, 1.0f)*255.0f);
-						link->bmax = (unsigned char)(dtClamp((neia[k*2+1]-lmin)/(lmax-lmin), 0.0f, 1.0f)*255.0f);
+						float tmin = (neia[k*2+0]-va[2]) / (vb[2]-va[2]);
+						float tmax = (neia[k*2+1]-va[2]) / (vb[2]-va[2]);
+						if (tmin > tmax)
+							dtSwap(tmin,tmax);
+						link->bmin = (unsigned char)(dtClamp(tmin, 0.0f, 1.0f)*255.0f);
+						link->bmax = (unsigned char)(dtClamp(tmax, 0.0f, 1.0f)*255.0f);
 					}
 					else if (side == 2 || side == 6)
 					{
-						const float lmin = dtMin(va[0], vb[0]);
-						const float lmax = dtMax(va[0], vb[0]);
-						link->bmin = (unsigned char)(dtClamp((neia[k*2+0]-lmin)/(lmax-lmin), 0.0f, 1.0f)*255.0f);
-						link->bmax = (unsigned char)(dtClamp((neia[k*2+1]-lmin)/(lmax-lmin), 0.0f, 1.0f)*255.0f);
+						float tmin = (neia[k*2+0]-va[0]) / (vb[0]-va[0]);
+						float tmax = (neia[k*2+1]-va[0]) / (vb[0]-va[0]);
+						if (tmin > tmax)
+							dtSwap(tmin,tmax);
+						link->bmin = (unsigned char)(dtClamp(tmin, 0.0f, 1.0f)*255.0f);
+						link->bmax = (unsigned char)(dtClamp(tmax, 0.0f, 1.0f)*255.0f);
 					}
 				}
 			}
@@ -1839,8 +1843,11 @@ int dtNavMesh::moveAlongSurface(dtPolyRef startRef, const float* startPos, const
 		// Find wall edges and find nearest point inside the walls.
 		for (int i = 0, j = (int)curPoly->vertCount-1; i < (int)curPoly->vertCount; j = i++)
 		{
-			// Skip non-solid edges.
-			dtPolyRef neighbourRef = 0;
+			// Find links to neighbours.
+			static const int MAX_NEIS = 8;
+			int nneis = 0;
+			dtPolyRef neis[MAX_NEIS];
+			
 			if (curPoly->neis[j] & DT_EXT_LINK)
 			{
 				// Tile border.
@@ -1850,18 +1857,20 @@ int dtNavMesh::moveAlongSurface(dtPolyRef startRef, const float* startPos, const
 					if (link->edge == j)
 					{
 						if (link->ref != 0 && passFilter(filter, getPolyFlags(link->ref)))
-							neighbourRef = link->ref;
-						break;
+						{
+							if (nneis < MAX_NEIS)
+								neis[nneis++] = link->ref;
+						}
 					}
 				}
 			}
 			else if (curPoly->neis[j] && passFilter(filter, curTile->polys[curPoly->neis[j]-1].flags))
 			{
 				// Internal edge, encode id.
-				neighbourRef = getTilePolyRefBase(curTile) | (unsigned int)(curPoly->neis[j]-1);
+				neis[nneis++] = getTilePolyRefBase(curTile) | (unsigned int)(curPoly->neis[j]-1);
 			}
 			
-			if (!neighbourRef)
+			if (!nneis)
 			{
 				// Wall edge, calc distance.
 				const float* vj = &verts[j*3];
@@ -1878,28 +1887,32 @@ int dtNavMesh::moveAlongSurface(dtPolyRef startRef, const float* startPos, const
 			}
 			else
 			{
-				// Skip if no node can be allocated.
-				dtNode* neighbourNode = m_tinyNodePool->getNode(neighbourRef);
-				if (!neighbourNode)
-					continue;
-				// Skip if already visited.
-				if (neighbourNode->flags & DT_NODE_CLOSED)
-					continue;
-				
-				// Skip the link if it is too far from search constraint.
-				const float* vj = &verts[j*3];
-				const float* vi = &verts[i*3];
-				float tseg;
-				float distSqr = dtDistancePtSegSqr2D(searchPos, vj, vi, tseg);
-				if (distSqr > searchRadSqr)
-					continue;
-				
-				// Mark as the node as visited and push to queue.
-				if (nstack < MAX_STACK)
+				for (int k = 0; k < nneis; ++k)
 				{
-					neighbourNode->pidx = m_tinyNodePool->getNodeIdx(curNode);
-					neighbourNode->flags |= DT_NODE_CLOSED;
-					stack[nstack++] = neighbourNode;
+					// Skip if no node can be allocated.
+					dtNode* neighbourNode = m_tinyNodePool->getNode(neis[k]);
+					if (!neighbourNode)
+						continue;
+					// Skip if already visited.
+					if (neighbourNode->flags & DT_NODE_CLOSED)
+						continue;
+					
+					// Skip the link if it is too far from search constraint.
+					// TODO: Maybe should use getPortalPoints(), but this one is way faster.
+					const float* vj = &verts[j*3];
+					const float* vi = &verts[i*3];
+					float tseg;
+					float distSqr = dtDistancePtSegSqr2D(searchPos, vj, vi, tseg);
+					if (distSqr > searchRadSqr)
+						continue;
+					
+					// Mark as the node as visited and push to queue.
+					if (nstack < MAX_STACK)
+					{
+						neighbourNode->pidx = m_tinyNodePool->getNodeIdx(curNode);
+						neighbourNode->flags |= DT_NODE_CLOSED;
+						stack[nstack++] = neighbourNode;
+					}
 				}
 			}
 		}
@@ -2019,31 +2032,17 @@ bool dtNavMesh::getPortalPoints(dtPolyRef from, const dtPoly* fromPoly, const dt
 	
 	// If the link is at tile boundary, dtClamp the vertices to
 	// the link width.
-	if (link->side == 0 || link->side == 4)
+	if (link->side != 0xff)
 	{
 		// Unpack portal limits.
-		const float smin = dtMin(left[2],right[2]);
-		const float smax = dtMax(left[2],right[2]);
-		const float s = (smax-smin) / 255.0f;
-		const float lmin = smin + link->bmin*s;
-		const float lmax = smin + link->bmax*s;
-		left[2] = dtMax(left[2],lmin);
-		left[2] = dtMin(left[2],lmax);
-		right[2] = dtMax(right[2],lmin);
-		right[2] = dtMin(right[2],lmax);
-	}
-	else if (link->side == 2 || link->side == 6)
-	{
-		// Unpack portal limits.
-		const float smin = dtMin(left[0],right[0]);
-		const float smax = dtMax(left[0],right[0]);
-		const float s = (smax-smin) / 255.0f;
-		const float lmin = smin + link->bmin*s;
-		const float lmax = smin + link->bmax*s;
-		left[0] = dtMax(left[0],lmin);
-		left[0] = dtMin(left[0],lmax);
-		right[0] = dtMax(right[0],lmin);
-		right[0] = dtMin(right[0],lmax);
+		if (link->bmin != 0 || link->bmax != 255)
+		{
+			const float s = 1.0f/255.0f;
+			const float tmin = link->bmin*s;
+			const float tmax = link->bmax*s;
+			dtVlerp(left, &fromTile->verts[v0*3], &fromTile->verts[v1*3], tmin);
+			dtVlerp(right, &fromTile->verts[v0*3], &fromTile->verts[v1*3], tmax);
+		}
 	}
 	
 	return true;
@@ -2212,6 +2211,15 @@ int dtNavMesh::raycast(dtPolyRef centerRef, const float* startPos, const float* 
 			}
 			
 			// If the link is at tile boundary,
+			
+			// Check if the link spans the whole edge, and accept.
+			if (link->bmin == 0 && link->bmax == 255)
+			{
+				nextRef = link->ref;
+				break;
+			}
+			
+			// Check for partial edge links.
 			const int v0 = poly->verts[link->edge];
 			const int v1 = poly->verts[(link->edge+1) % poly->vertCount];
 			const float* left = &tile->verts[v0*3];
@@ -2221,11 +2229,11 @@ int dtNavMesh::raycast(dtPolyRef centerRef, const float* startPos, const float* 
 			if (link->side == 0 || link->side == 4)
 			{
 				// Calculate link size.
-				const float smin = dtMin(left[2],right[2]);
-				const float smax = dtMax(left[2],right[2]);
-				const float s = (smax-smin) / 255.0f;
-				const float lmin = smin + link->bmin*s;
-				const float lmax = smin + link->bmax*s;
+				const float s = 1.0f/255.0f;
+				float lmin = left[2] + (right[2] - left[2])*(link->bmin*s);
+				float lmax = left[2] + (right[2] - left[2])*(link->bmax*s);
+				if (lmin > lmax) dtSwap(lmin, lmax);
+
 				// Find Z intersection.
 				float z = startPos[2] + (endPos[2]-startPos[2])*tmax;
 				if (z >= lmin && z <= lmax)
@@ -2237,11 +2245,11 @@ int dtNavMesh::raycast(dtPolyRef centerRef, const float* startPos, const float* 
 			else if (link->side == 2 || link->side == 6)
 			{
 				// Calculate link size.
-				const float smin = dtMin(left[0],right[0]);
-				const float smax = dtMax(left[0],right[0]);
-				const float s = (smax-smin) / 255.0f;
-				const float lmin = smin + link->bmin*s;
-				const float lmax = smin + link->bmax*s;
+				const float s = 1.0f/255.0f;
+				float lmin = left[0] + (right[0] - left[0])*(link->bmin*s);
+				float lmax = left[0] + (right[0] - left[0])*(link->bmax*s);
+				if (lmin > lmax) dtSwap(lmin, lmax);
+				
 				// Find X intersection.
 				float x = startPos[0] + (endPos[0]-startPos[0])*tmax;
 				if (x >= lmin && x <= lmax)
@@ -2740,6 +2748,33 @@ int dtNavMesh::findLocalNeighbourhood(dtPolyRef centerRef, const float* centerPo
 	return n;
 }
 
+
+struct dtSegInterval
+{
+	short tmin, tmax;
+};
+
+static void insertInterval(dtSegInterval* ints, int& nints, const int maxInts,
+						   const short tmin, const short tmax)
+{
+	if (nints+1 > maxInts) return;
+	// Find insertion point.
+	int idx = 0;
+	while (idx < nints)
+	{
+		if (tmax <= ints[idx].tmin)
+			break;
+		idx++;
+	}
+	// Move current results.
+	if (nints-idx)
+		memmove(ints+idx+1, ints+idx, sizeof(dtSegInterval)*(nints-idx));
+	// Store
+	ints[idx].tmin = tmin;
+	ints[idx].tmax = tmax;
+	nints++;
+}
+
 int dtNavMesh::getPolyWallSegments(dtPolyRef ref, const dtQueryFilter* filter, float* segments)
 {
 	unsigned int salt, it, ip;
@@ -2751,25 +2786,28 @@ int dtNavMesh::getPolyWallSegments(dtPolyRef ref, const dtQueryFilter* filter, f
 	const dtPoly* poly = &tile->polys[ip];
 	
 	int n = 0;
+	static const int MAX_INTERVAL = 16;
+	dtSegInterval ints[MAX_INTERVAL];
+	int nints;
 	
 	for (int i = 0, j = (int)poly->vertCount-1; i < (int)poly->vertCount; j = i++)
 	{
 		// Skip non-solid edges.
+		nints = 0;
 		if (poly->neis[j] & DT_EXT_LINK)
 		{
 			// Tile border.
-			bool solid = true;
 			for (unsigned int k = poly->firstLink; k != DT_NULL_LINK; k = tile->links[k].next)
 			{
 				const dtLink* link = &tile->links[k];
 				if (link->edge == j)
 				{
 					if (link->ref != 0 && passFilter(filter, getPolyFlags(link->ref)))
-						solid = false;
-					break;
+					{
+						insertInterval(ints, nints, MAX_INTERVAL, link->bmin, link->bmax);
+					}
 				}
 			}
-			if (!solid) continue;
 		}
 		else if (poly->neis[j] && passFilter(filter, tile->polys[poly->neis[j]-1].flags))
 		{
@@ -2777,13 +2815,42 @@ int dtNavMesh::getPolyWallSegments(dtPolyRef ref, const dtQueryFilter* filter, f
 			continue;
 		}
 		
+		// Add sentinels
+		insertInterval(ints, nints, MAX_INTERVAL, -1, 0);
+		insertInterval(ints, nints, MAX_INTERVAL, 255, 256);
+		
 		// Store segment.
 		const float* vj = &tile->verts[poly->verts[j]*3];
 		const float* vi = &tile->verts[poly->verts[i]*3];
-		float* seg = &segments[n*6];
-		n++;
-		dtVcopy(seg+0, vj);
-		dtVcopy(seg+3, vi);
+		for (int k = 1; k < nints; ++k)
+		{
+			// Find the space inbetween the opening areas.
+			const int imin = ints[k-1].tmax;
+			const int imax = ints[k].tmin;
+			if (imin == imax) continue;
+			if (imin == 0 && imax == 255)
+			{
+				if (n < DT_VERTS_PER_POLYGON)
+				{
+					float* seg = &segments[n*6];
+					n++;
+					dtVcopy(seg+0, vj);
+					dtVcopy(seg+3, vi);
+				}
+			}
+			else
+			{
+				const float tmin = imin/255.0f; 
+				const float tmax = imax/255.0f; 
+				if (n < DT_VERTS_PER_POLYGON)
+				{
+					float* seg = &segments[n*6];
+					n++;
+					dtVlerp(seg+0, vj,vi, tmin);
+					dtVlerp(seg+3, vj,vi, tmax);
+				}
+			}
+		}
 	}
 	
 	return n;

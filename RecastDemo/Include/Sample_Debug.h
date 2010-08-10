@@ -30,6 +30,7 @@ class Sample_Debug : public Sample
 protected:
 	rcCompactHeightfield* m_chf;
 	rcContourSet* m_cset;
+	rcPolyMesh* m_pmesh;
 
 	float m_ext[3];
 	float m_center[3];
