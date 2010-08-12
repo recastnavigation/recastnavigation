@@ -266,10 +266,10 @@ void Sample::handleCommonSettings()
 	imguiSeparator();
 }
 
-void Sample::handleClick(const float* p, bool shift)
+void Sample::handleClick(const float* s, const float* p, bool shift)
 {
 	if (m_tool)
-		m_tool->handleClick(p, shift);
+		m_tool->handleClick(s, p, shift);
 }
 
 void Sample::handleStep()
@@ -282,3 +282,10 @@ bool Sample::handleBuild()
 {
 	return true;
 }
+
+void Sample::handleUpdate(const float dt)
+{
+	if (m_tool)
+		m_tool->handleUpdate(dt);
+}
+

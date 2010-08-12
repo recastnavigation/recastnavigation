@@ -36,6 +36,7 @@
 #include "NavMeshTesterTool.h"
 #include "OffMeshConnectionTool.h"
 #include "ConvexVolumeTool.h"
+#include "CrowdTool.h"
 
 #ifdef WIN32
 #	define snprintf _snprintf
@@ -110,6 +111,10 @@ void Sample_SoloMeshSimple::handleTools()
 	if (imguiCheck("Create Convex Volumes", type == TOOL_CONVEX_VOLUME))
 	{
 		setTool(new ConvexVolumeTool);
+	}
+	if (imguiCheck("Create Crowds", type == TOOL_CROWD))
+	{
+		setTool(new CrowdTool);
 	}
 	
 	imguiSeparator();

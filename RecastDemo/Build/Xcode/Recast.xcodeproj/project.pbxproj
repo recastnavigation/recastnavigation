@@ -37,6 +37,7 @@
 		6B9846EF11E718F800FA177B /* DetourAlloc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B9846EE11E718F800FA177B /* DetourAlloc.cpp */; };
 		6B9847B811E7519A00FA177B /* RecastAlloc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B9847B711E7519A00FA177B /* RecastAlloc.cpp */; };
 		6BA1E88B10C7BFC9008007F6 /* Sample_SoloMeshSimple.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BA1E88810C7BFC9008007F6 /* Sample_SoloMeshSimple.cpp */; };
+		6BAF3C591211663A008CFCDF /* CrowdTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */; };
 		6BB788170FC0472B003C24DB /* ChunkyTriMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BB788160FC0472B003C24DB /* ChunkyTriMesh.cpp */; };
 		6BB7FC0B10EBB6AA006DA0A6 /* NavMeshTesterTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BB7FC0A10EBB6AA006DA0A6 /* NavMeshTesterTool.cpp */; };
 		6BB7FDA510F36F0E006DA0A6 /* InputGeom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BB7FDA410F36F0E006DA0A6 /* InputGeom.cpp */; };
@@ -110,6 +111,8 @@
 		6B9847B711E7519A00FA177B /* RecastAlloc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RecastAlloc.cpp; path = ../../../Recast/Source/RecastAlloc.cpp; sourceTree = SOURCE_ROOT; };
 		6BA1E88810C7BFC9008007F6 /* Sample_SoloMeshSimple.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Sample_SoloMeshSimple.cpp; path = ../../Source/Sample_SoloMeshSimple.cpp; sourceTree = SOURCE_ROOT; };
 		6BA1E88E10C7BFD3008007F6 /* Sample_SoloMeshSimple.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Sample_SoloMeshSimple.h; path = ../../Include/Sample_SoloMeshSimple.h; sourceTree = SOURCE_ROOT; };
+		6BAF3C571211663A008CFCDF /* CrowdTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CrowdTool.h; path = ../../Include/CrowdTool.h; sourceTree = SOURCE_ROOT; };
+		6BAF3C581211663A008CFCDF /* CrowdTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CrowdTool.cpp; path = ../../Source/CrowdTool.cpp; sourceTree = SOURCE_ROOT; };
 		6BB788160FC0472B003C24DB /* ChunkyTriMesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ChunkyTriMesh.cpp; path = ../../Source/ChunkyTriMesh.cpp; sourceTree = SOURCE_ROOT; };
 		6BB788180FC04753003C24DB /* ChunkyTriMesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ChunkyTriMesh.h; path = ../../Include/ChunkyTriMesh.h; sourceTree = SOURCE_ROOT; };
 		6BB7FC0910EBB6AA006DA0A6 /* NavMeshTesterTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NavMeshTesterTool.h; path = ../../Include/NavMeshTesterTool.h; sourceTree = SOURCE_ROOT; };
@@ -295,6 +298,8 @@
 		6BB7FE8E10F4A175006DA0A6 /* Tools */ = {
 			isa = PBXGroup;
 			children = (
+				6BAF3C571211663A008CFCDF /* CrowdTool.h */,
+				6BAF3C581211663A008CFCDF /* CrowdTool.cpp */,
 				6B324C64111C5D9A00EBD2FD /* ConvexVolumeTool.h */,
 				6B324C65111C5D9A00EBD2FD /* ConvexVolumeTool.cpp */,
 				6BCF32341104CD05009445BF /* OffMeshConnectionTool.h */,
@@ -431,6 +436,7 @@
 				6B98463311E6144400FA177B /* Sample_SoloMeshTiled.cpp in Sources */,
 				6B9846EF11E718F800FA177B /* DetourAlloc.cpp in Sources */,
 				6B9847B811E7519A00FA177B /* RecastAlloc.cpp in Sources */,
+				6BAF3C591211663A008CFCDF /* CrowdTool.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

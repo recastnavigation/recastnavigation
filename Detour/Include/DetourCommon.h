@@ -89,6 +89,11 @@ inline void dtVmax(float* mx, const float* v)
 	mx[2] = dtMax(mx[2], v[2]);
 }
 
+inline void dtVset(float* dest, const float x, const float y, const float z)
+{
+	dest[0] = x; dest[1] = y; dest[2] = z;
+}
+
 inline void dtVcopy(float* dest, const float* a)
 {
 	dest[0] = a[0];
@@ -96,20 +101,44 @@ inline void dtVcopy(float* dest, const float* a)
 	dest[2] = a[2];
 }
 
+inline float dtVlen(const float* v)
+{
+	return dtSqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
+}
+
+inline float dtVlenSqr(const float* v)
+{
+	return v[0]*v[0] + v[1]*v[1] + v[2]*v[2];
+}
+
 inline float dtVdist(const float* v1, const float* v2)
 {
-	float dx = v2[0] - v1[0];
-	float dy = v2[1] - v1[1];
-	float dz = v2[2] - v1[2];
+	const float dx = v2[0] - v1[0];
+	const float dy = v2[1] - v1[1];
+	const float dz = v2[2] - v1[2];
 	return dtSqrt(dx*dx + dy*dy + dz*dz);
 }
 
 inline float dtVdistSqr(const float* v1, const float* v2)
 {
-	float dx = v2[0] - v1[0];
-	float dy = v2[1] - v1[1];
-	float dz = v2[2] - v1[2];
+	const float dx = v2[0] - v1[0];
+	const float dy = v2[1] - v1[1];
+	const float dz = v2[2] - v1[2];
 	return dx*dx + dy*dy + dz*dz;
+}
+
+inline float dtVdist2D(const float* v1, const float* v2)
+{
+	const float dx = v2[0] - v1[0];
+	const float dz = v2[2] - v1[2];
+	return dtSqrt(dx*dx + dz*dz);
+}
+
+inline float dtVdist2DSqr(const float* v1, const float* v2)
+{
+	const float dx = v2[0] - v1[0];
+	const float dz = v2[2] - v1[2];
+	return dx*dx + dz*dz;
 }
 
 inline void dtVnormalize(float* v)

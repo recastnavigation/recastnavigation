@@ -352,10 +352,10 @@ const float* Sample_Debug::getBoundsMax()
 	return 0;
 }
 
-void Sample_Debug::handleClick(const float* p, bool shift)
+void Sample_Debug::handleClick(const float* s, const float* p, bool shift)
 {
 	if (m_tool)
-		m_tool->handleClick(p, shift);
+		m_tool->handleClick(s, p, shift);
 }
 
 void Sample_Debug::handleStep()

@@ -415,13 +415,13 @@ void InputGeom::drawConvexVolumes(struct duDebugDraw* dd, bool /*hilight*/)
 			dd->vertex(vb[0],vol->hmax,vb[2], col);
 			dd->vertex(va[0],vol->hmax,va[2], col);
 			
-			dd->vertex(va[0],vol->hmin,va[2], duDarkenColor(col));
+			dd->vertex(va[0],vol->hmin,va[2], duDarkenCol(col));
 			dd->vertex(va[0],vol->hmax,va[2], col);
 			dd->vertex(vb[0],vol->hmax,vb[2], col);
 
-			dd->vertex(va[0],vol->hmin,va[2], duDarkenColor(col));
+			dd->vertex(va[0],vol->hmin,va[2], duDarkenCol(col));
 			dd->vertex(vb[0],vol->hmax,vb[2], col);
-			dd->vertex(vb[0],vol->hmin,vb[2], duDarkenColor(col));
+			dd->vertex(vb[0],vol->hmin,vb[2], duDarkenCol(col));
 		}
 	}
 	
@@ -436,11 +436,11 @@ void InputGeom::drawConvexVolumes(struct duDebugDraw* dd, bool /*hilight*/)
 		{
 			const float* va = &vol->verts[k*3];
 			const float* vb = &vol->verts[j*3];
-			dd->vertex(va[0],vol->hmin,va[2], duDarkenColor(col));
-			dd->vertex(vb[0],vol->hmin,vb[2], duDarkenColor(col));
+			dd->vertex(va[0],vol->hmin,va[2], duDarkenCol(col));
+			dd->vertex(vb[0],vol->hmin,vb[2], duDarkenCol(col));
 			dd->vertex(va[0],vol->hmax,va[2], col);
 			dd->vertex(vb[0],vol->hmax,vb[2], col);
-			dd->vertex(va[0],vol->hmin,va[2], duDarkenColor(col));
+			dd->vertex(va[0],vol->hmin,va[2], duDarkenCol(col));
 			dd->vertex(va[0],vol->hmax,va[2], col);
 		}
 	}
@@ -450,7 +450,7 @@ void InputGeom::drawConvexVolumes(struct duDebugDraw* dd, bool /*hilight*/)
 	for (int i = 0; i < m_volumeCount; ++i)
 	{
 		const ConvexVolume* vol = &m_volumes[i];
-		unsigned int col = duDarkenColor(duIntToCol(vol->area, 255));
+		unsigned int col = duDarkenCol(duIntToCol(vol->area, 255));
 		for (int j = 0; j < vol->nverts; ++j)
 		{
 			dd->vertex(vol->verts[j*3+0],vol->verts[j*3+1]+0.1f,vol->verts[j*3+2], col);

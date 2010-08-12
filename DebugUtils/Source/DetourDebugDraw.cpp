@@ -174,7 +174,7 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtMeshTil
 			if ((flags & DU_DRAWNAVMESH_CLOSEDLIST) && mesh.isInClosedList(base | (dtPolyRef)i))
 				col = duRGBA(255,196,0,220);
 			else
-				col = duDarkenColor(duIntToCol(p->area, 220));
+				col = duDarkenCol(duIntToCol(p->area, 220));
 			
 			const dtOffMeshConnection* con = &tile->offMeshCons[i - tile->header->offMeshBase];
 			const float* va = &tile->verts[p->verts[0]*3];

@@ -161,7 +161,7 @@ void ConvexVolumeTool::handleMenu()
 	imguiSeparator();
 }
 
-void ConvexVolumeTool::handleClick(const float* p, bool shift)
+void ConvexVolumeTool::handleClick(const float* s, const float* p, bool shift)
 {
 	if (!m_sample) return;
 	InputGeom* geom = m_sample->getInputGeom();
@@ -231,6 +231,10 @@ void ConvexVolumeTool::handleClick(const float* p, bool shift)
 }
 
 void ConvexVolumeTool::handleStep()
+{
+}
+
+void ConvexVolumeTool::handleUpdate(const float dt)
 {
 }
 

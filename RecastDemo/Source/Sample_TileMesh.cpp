@@ -35,6 +35,7 @@
 #include "NavMeshTesterTool.h"
 #include "OffMeshConnectionTool.h"
 #include "ConvexVolumeTool.h"
+#include "CrowdTool.h"
 
 #ifdef WIN32
 #	define snprintf _snprintf
@@ -112,7 +113,7 @@ public:
 		imguiValue("Shift+LMB to remove a tile.");
 	}
 
-	virtual void handleClick(const float* p, bool shift)
+	virtual void handleClick(const float* s, const float* p, bool shift)
 	{
 		m_hitPosSet = true;
 		rcVcopy(m_hitPos,p);
@@ -126,6 +127,8 @@ public:
 	}
 
 	virtual void handleStep() {}
+
+	virtual void handleUpdate(const float dt) {}
 	
 	virtual void handleRender()
 	{
@@ -405,6 +408,10 @@ void Sample_TileMesh::handleTools()
 	if (imguiCheck("Create Convex Volumes", type == TOOL_CONVEX_VOLUME))
 	{
 		setTool(new ConvexVolumeTool);
+	}
+	if (imguiCheck("Create Crowds", type == TOOL_CROWD))
+	{
+		setTool(new CrowdTool);
 	}
 	
 	imguiSeparator();

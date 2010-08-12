@@ -342,7 +342,7 @@ void duDebugDrawRegionConnections(duDebugDraw* dd, const rcContourSet& cset, con
 	for (int i = 0; i < cset.nconts; ++i)
 	{
 		const rcContour* cont = &cset.conts[i];
-		unsigned int color = duDarkenColor(duIntToCol(cont->reg,a));
+		unsigned int color = duDarkenCol(duIntToCol(cont->reg,a));
 		getContourCenter(cont, orig, cs, ch, pos);
 		dd->vertex(pos, color);
 	}
@@ -390,7 +390,7 @@ void duDebugDrawRawContours(duDebugDraw* dd, const rcContourSet& cset, const flo
 	for (int i = 0; i < cset.nconts; ++i)
 	{
 		const rcContour& c = cset.conts[i];
-		unsigned int color = duDarkenColor(duIntToCol(c.reg, a));
+		unsigned int color = duDarkenCol(duIntToCol(c.reg, a));
 		
 		for (int j = 0; j < c.nrverts; ++j)
 		{
@@ -455,7 +455,7 @@ void duDebugDrawContours(duDebugDraw* dd, const rcContourSet& cset, const float 
 	for (int i = 0; i < cset.nconts; ++i)
 	{
 		const rcContour& c = cset.conts[i];
-		unsigned int color = duDarkenColor(duIntToCol(c.reg, a));
+		unsigned int color = duDarkenCol(duIntToCol(c.reg, a));
 		for (int j = 0; j < c.nverts; ++j)
 		{
 			const int* v = &c.verts[j*4];

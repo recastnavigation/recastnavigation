@@ -35,6 +35,7 @@
 #include "NavMeshTesterTool.h"
 #include "OffMeshConnectionTool.h"
 #include "ConvexVolumeTool.h"
+#include "CrowdTool.h"
 
 #ifdef WIN32
 #	define snprintf _snprintf
@@ -78,7 +79,7 @@ public:
 		imguiValue("Click LMB to highlight a tile.");
 	}
 	
-	virtual void handleClick(const float* p, bool /*shift*/)
+	virtual void handleClick(const float* /*s*/, const float* p, bool /*shift*/)
 	{
 		m_hitPosSet = true;
 		rcVcopy(m_hitPos,p);
@@ -88,6 +89,8 @@ public:
 	
 	virtual void handleStep() {}
 	
+	virtual void handleUpdate(const float dt) {}
+
 	virtual void handleRender()
 	{
 		if (m_hitPosSet)
@@ -214,6 +217,10 @@ void Sample_SoloMeshTiled::handleTools()
 	if (imguiCheck("Create Convex Volumes", type == TOOL_CONVEX_VOLUME))
 	{
 		setTool(new ConvexVolumeTool);
+	}
+	if (imguiCheck("Create Crowds", type == TOOL_CROWD))
+	{
+		setTool(new CrowdTool);
 	}
 	if (imguiCheck("Highlight Tile", type == TOOL_TILE_HIGHLIGHT))
 	{

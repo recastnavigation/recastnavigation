@@ -94,6 +94,17 @@ void duDebugDrawArc(struct duDebugDraw* dd, const float x0, const float y0, cons
 	dd->end();
 }
 
+void duDebugDrawArrow(struct duDebugDraw* dd, const float x0, const float y0, const float z0,
+					  const float x1, const float y1, const float z1,
+					  const float as0, const float as1, unsigned int col, const float lineWidth)
+{
+	if (!dd) return;
+	
+	dd->begin(DU_DRAW_LINES, lineWidth);
+	duAppendArrow(dd, x0,y0,z0, x1,y1,z1, as0, as1, col);
+	dd->end();
+}
+
 void duDebugDrawCircle(struct duDebugDraw* dd, const float x, const float y, const float z,
 					   const float r, unsigned int col, const float lineWidth)
 {
@@ -373,6 +384,23 @@ void duAppendArc(struct duDebugDraw* dd, const float x0, const float y0, const f
 		evalArc(x0,y0,z0, dx,dy,dz, len*h, 1-(PAD+0.05f), q);
 		appendArrowHead(dd, p, q, as1, col);
 	}
+}
+
+void duAppendArrow(struct duDebugDraw* dd, const float x0, const float y0, const float z0,
+				   const float x1, const float y1, const float z1,
+				   const float as0, const float as1, unsigned int col)
+{
+	if (!dd) return;
+
+	dd->vertex(x0,y0,z0, col);
+	dd->vertex(x1,y1,z1, col);
+	
+	// End arrows
+	const float p[3] = {x0,y0,z0}, q[3] = {x1,y1,z1};
+	if (as0 > 0.001f)
+		appendArrowHead(dd, p, q, as0, col);
+	if (as1 > 0.001f)
+		appendArrowHead(dd, q, p, as1, col);
 }
 
 void duAppendCircle(struct duDebugDraw* dd, const float x, const float y, const float z,

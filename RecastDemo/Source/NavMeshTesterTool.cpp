@@ -315,7 +315,7 @@ void NavMeshTesterTool::handleMenu()
 	}
 }
 
-void NavMeshTesterTool::handleClick(const float* p, bool shift)
+void NavMeshTesterTool::handleClick(const float* s, const float* p, bool shift)
 {
 	if (shift)
 	{
@@ -475,6 +475,10 @@ void NavMeshTesterTool::handleStep()
 		m_nsmoothPath++;
 	}
 
+}
+
+void NavMeshTesterTool::handleUpdate(const float dt)
+{
 }
 
 void NavMeshTesterTool::reset()
@@ -893,8 +897,8 @@ void NavMeshTesterTool::handleRender()
 			
 			for (int i = 0; i < m_steerPointCount-1; ++i)
 			{
-				dd.vertex(m_steerPoints[i*3+0],m_steerPoints[i*3+1]+0.2f,m_steerPoints[i*3+2], duDarkenColor(steerCol));
-				dd.vertex(m_steerPoints[(i+1)*3+0],m_steerPoints[(i+1)*3+1]+0.2f,m_steerPoints[(i+1)*3+2], duDarkenColor(steerCol));
+				dd.vertex(m_steerPoints[i*3+0],m_steerPoints[i*3+1]+0.2f,m_steerPoints[i*3+2], duDarkenCol(steerCol));
+				dd.vertex(m_steerPoints[(i+1)*3+0],m_steerPoints[(i+1)*3+1]+0.2f,m_steerPoints[(i+1)*3+2], duDarkenCol(steerCol));
 			}
 			
 			dd.end();
