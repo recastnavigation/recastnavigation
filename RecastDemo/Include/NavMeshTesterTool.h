@@ -32,10 +32,13 @@ class NavMeshTesterTool : public SampleTool
 
 	dtQueryFilter m_filter;
 
+	dtQueryState m_pathFindState;
+
 	enum ToolMode
 	{
-		TOOLMODE_PATHFIND_ITER,
+		TOOLMODE_PATHFIND_FOLLOW,
 		TOOLMODE_PATHFIND_STRAIGHT,
+		TOOLMODE_PATHFIND_SLICED,
 		TOOLMODE_RAYCAST,
 		TOOLMODE_DISTANCE_TO_WALL,
 		TOOLMODE_FIND_POLYS_IN_CIRCLE,

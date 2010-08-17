@@ -145,7 +145,8 @@ NavMeshTesterTool::NavMeshTesterTool() :
 	m_sample(0),
 	m_navMesh(0),
 	m_navQuery(0),
-	m_toolMode(TOOLMODE_PATHFIND_ITER),
+	m_pathFindState(DT_QUERY_FAILED),
+	m_toolMode(TOOLMODE_PATHFIND_FOLLOW),
 	m_startRef(0),
 	m_endRef(0),
 	m_npolys(0),
@@ -197,7 +198,9 @@ void NavMeshTesterTool::init(Sample* sample)
 		m_navQuery->setAreaCost(SAMPLE_POLYAREA_JUMP, 1.5f);
 	}
 
-	if (m_toolMode == TOOLMODE_PATHFIND_ITER || m_toolMode == TOOLMODE_PATHFIND_STRAIGHT)
+	if (m_toolMode == TOOLMODE_PATHFIND_FOLLOW ||
+		m_toolMode == TOOLMODE_PATHFIND_STRAIGHT ||
+		m_toolMode == TOOLMODE_PATHFIND_SLICED)
 	{
 		unsigned char flags = 0;
 		if (m_navMesh)
@@ -210,14 +213,19 @@ void NavMeshTesterTool::init(Sample* sample)
 
 void NavMeshTesterTool::handleMenu()
 {
-	if (imguiCheck("Pathfind Iter", m_toolMode == TOOLMODE_PATHFIND_ITER))
+	if (imguiCheck("Pathfind Follow", m_toolMode == TOOLMODE_PATHFIND_FOLLOW))
 	{
-		m_toolMode = TOOLMODE_PATHFIND_ITER;
+		m_toolMode = TOOLMODE_PATHFIND_FOLLOW;
 		recalc();
 	}
 	if (imguiCheck("Pathfind Straight", m_toolMode == TOOLMODE_PATHFIND_STRAIGHT))
 	{
 		m_toolMode = TOOLMODE_PATHFIND_STRAIGHT;
+		recalc();
+	}
+	if (imguiCheck("Pathfind Sliced", m_toolMode == TOOLMODE_PATHFIND_SLICED))
+	{
+		m_toolMode = TOOLMODE_PATHFIND_SLICED;
 		recalc();
 	}
 	if (imguiCheck("Distance to Wall", m_toolMode == TOOLMODE_DISTANCE_TO_WALL))
@@ -301,7 +309,7 @@ void NavMeshTesterTool::handleMenu()
 
 	imguiSeparator();
 	
-	if (m_toolMode == TOOLMODE_PATHFIND_ITER || m_toolMode == TOOLMODE_PATHFIND_STRAIGHT)
+	if (m_toolMode == TOOLMODE_PATHFIND_FOLLOW || m_toolMode == TOOLMODE_PATHFIND_STRAIGHT)
 	{
 		unsigned char flags = 0;
 		if (m_navMesh)
@@ -335,7 +343,7 @@ void NavMeshTesterTool::handleClick(const float* s, const float* p, bool shift)
 void NavMeshTesterTool::handleStep()
 {
 	// TODO: merge separate to a path iterator. Use same code in recalc() too.
-	if (m_toolMode != TOOLMODE_PATHFIND_ITER)
+	if (m_toolMode != TOOLMODE_PATHFIND_FOLLOW)
 		return;
 		
 	if (!m_sposSet || !m_eposSet || !m_startRef || !m_endRef)
@@ -481,6 +489,34 @@ void NavMeshTesterTool::handleStep()
 
 void NavMeshTesterTool::handleUpdate(const float dt)
 {
+	if (m_pathFindState == DT_QUERY_RUNNING)
+	{
+		m_pathFindState = m_navQuery->updateSlicedFindPath(1);
+	}
+	
+	if (m_pathFindState == DT_QUERY_READY)
+	{
+		m_npolys = m_navQuery->finalizeSlicedFindPath(m_polys, MAX_POLYS);
+		m_nstraightPath = 0;
+		if (m_npolys)
+		{
+			// In case of partial path, make sure the end point is clamped to the last polygon.
+			float epos[3];
+			dtVcopy(epos, m_epos);
+			if (m_polys[m_npolys-1] != m_endRef)
+			m_navQuery->closestPointOnPoly(m_polys[m_npolys-1], m_epos, epos);
+
+			m_nstraightPath = m_navQuery->findStraightPath(m_spos, epos, m_polys, m_npolys,
+			m_straightPath, m_straightPathFlags,
+			m_straightPathPolys, MAX_POLYS);
+		}
+		 
+		 m_pathFindState = DT_QUERY_FAILED;
+	}
+
+	
+	
+
 }
 
 void NavMeshTesterTool::reset()
@@ -511,7 +547,9 @@ void NavMeshTesterTool::recalc()
 	else
 		m_endRef = 0;
 	
-	if (m_toolMode == TOOLMODE_PATHFIND_ITER)
+	m_pathFindState = DT_QUERY_FAILED;
+	
+	if (m_toolMode == TOOLMODE_PATHFIND_FOLLOW)
 	{
 		m_pathIterNum = 0;
 		if (m_sposSet && m_eposSet && m_startRef && m_endRef)
@@ -677,6 +715,26 @@ void NavMeshTesterTool::recalc()
 															  m_straightPath, m_straightPathFlags,
 															  m_straightPathPolys, MAX_POLYS);
 			}
+		}
+		else
+		{
+			m_npolys = 0;
+			m_nstraightPath = 0;
+		}
+	}
+	else if (m_toolMode == TOOLMODE_PATHFIND_SLICED)
+	{
+		if (m_sposSet && m_eposSet && m_startRef && m_endRef)
+		{
+#ifdef DUMP_REQS
+			printf("ps  %f %f %f  %f %f %f  0x%x 0x%x\n",
+				   m_spos[0],m_spos[1],m_spos[2], m_epos[0],m_epos[1],m_epos[2],
+				   m_filter.includeFlags, m_filter.excludeFlags); 
+#endif
+			m_npolys = 0;
+			m_nstraightPath = 0;
+			
+			m_pathFindState = m_navQuery->initSlicedFindPath(m_startRef, m_endRef, m_spos, m_epos, &m_filter);
 		}
 		else
 		{
@@ -855,7 +913,7 @@ void NavMeshTesterTool::handleRender()
 		return;
 	}
 
-	if (m_toolMode == TOOLMODE_PATHFIND_ITER)
+	if (m_toolMode == TOOLMODE_PATHFIND_FOLLOW)
 	{
 		duDebugDrawNavMeshPoly(&dd, *m_navMesh, m_startRef, startCol);
 		duDebugDrawNavMeshPoly(&dd, *m_navMesh, m_endRef, endCol);
@@ -910,7 +968,7 @@ void NavMeshTesterTool::handleRender()
 			dd.depthMask(true);
 		}
 	}
-	else if (m_toolMode == TOOLMODE_PATHFIND_STRAIGHT)
+	else if (m_toolMode == TOOLMODE_PATHFIND_STRAIGHT || m_toolMode == TOOLMODE_PATHFIND_SLICED)
 	{
 		duDebugDrawNavMeshPoly(&dd, *m_navMesh, m_startRef, startCol);
 		duDebugDrawNavMeshPoly(&dd, *m_navMesh, m_endRef, endCol);
