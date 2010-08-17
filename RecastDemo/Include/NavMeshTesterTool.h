@@ -21,12 +21,14 @@
 
 #include "Sample.h"
 #include "DetourNavMesh.h"
+#include "DetourNavMeshQuery.h"
 
 class NavMeshTesterTool : public SampleTool
 {
 	Sample* m_sample;
 	
 	dtNavMesh* m_navMesh;
+	dtNavMeshQuery* m_navQuery;
 
 	dtQueryFilter m_filter;
 

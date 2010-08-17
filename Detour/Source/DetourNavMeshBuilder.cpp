@@ -24,6 +24,7 @@
 #include "DetourCommon.h"
 #include "DetourNavMeshBuilder.h"
 #include "DetourAlloc.h"
+#include "DetourAssert.h"
 
 static unsigned short MESH_NULL_IDX = 0xffff;
 

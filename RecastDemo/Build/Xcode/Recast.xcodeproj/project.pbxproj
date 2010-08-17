@@ -38,6 +38,7 @@
 		6B9847B811E7519A00FA177B /* RecastAlloc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B9847B711E7519A00FA177B /* RecastAlloc.cpp */; };
 		6BA1E88B10C7BFC9008007F6 /* Sample_SoloMeshSimple.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BA1E88810C7BFC9008007F6 /* Sample_SoloMeshSimple.cpp */; };
 		6BAF3C591211663A008CFCDF /* CrowdTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */; };
+		6BAF40DB12196A3D008CFCDF /* DetourNavMeshQuery.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BAF40DA12196A3D008CFCDF /* DetourNavMeshQuery.cpp */; };
 		6BB788170FC0472B003C24DB /* ChunkyTriMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BB788160FC0472B003C24DB /* ChunkyTriMesh.cpp */; };
 		6BB7FC0B10EBB6AA006DA0A6 /* NavMeshTesterTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BB7FC0A10EBB6AA006DA0A6 /* NavMeshTesterTool.cpp */; };
 		6BB7FDA510F36F0E006DA0A6 /* InputGeom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BB7FDA410F36F0E006DA0A6 /* InputGeom.cpp */; };
@@ -113,6 +114,9 @@
 		6BA1E88E10C7BFD3008007F6 /* Sample_SoloMeshSimple.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Sample_SoloMeshSimple.h; path = ../../Include/Sample_SoloMeshSimple.h; sourceTree = SOURCE_ROOT; };
 		6BAF3C571211663A008CFCDF /* CrowdTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CrowdTool.h; path = ../../Include/CrowdTool.h; sourceTree = SOURCE_ROOT; };
 		6BAF3C581211663A008CFCDF /* CrowdTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CrowdTool.cpp; path = ../../Source/CrowdTool.cpp; sourceTree = SOURCE_ROOT; };
+		6BAF40D912196A25008CFCDF /* DetourNavMeshQuery.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DetourNavMeshQuery.h; path = ../../../Detour/Include/DetourNavMeshQuery.h; sourceTree = SOURCE_ROOT; };
+		6BAF40DA12196A3D008CFCDF /* DetourNavMeshQuery.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DetourNavMeshQuery.cpp; path = ../../../Detour/Source/DetourNavMeshQuery.cpp; sourceTree = SOURCE_ROOT; };
+		6BAF427A121ADCC2008CFCDF /* DetourAssert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DetourAssert.h; path = ../../../Detour/Include/DetourAssert.h; sourceTree = SOURCE_ROOT; };
 		6BB788160FC0472B003C24DB /* ChunkyTriMesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ChunkyTriMesh.cpp; path = ../../Source/ChunkyTriMesh.cpp; sourceTree = SOURCE_ROOT; };
 		6BB788180FC04753003C24DB /* ChunkyTriMesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ChunkyTriMesh.h; path = ../../Include/ChunkyTriMesh.h; sourceTree = SOURCE_ROOT; };
 		6BB7FC0910EBB6AA006DA0A6 /* NavMeshTesterTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NavMeshTesterTool.h; path = ../../Include/NavMeshTesterTool.h; sourceTree = SOURCE_ROOT; };
@@ -328,10 +332,13 @@
 		6BDD9E030F91110C00904EEF /* Detour */ = {
 			isa = PBXGroup;
 			children = (
+				6BAF427A121ADCC2008CFCDF /* DetourAssert.h */,
 				6B9846ED11E718F800FA177B /* DetourAlloc.h */,
 				6B9846EE11E718F800FA177B /* DetourAlloc.cpp */,
 				6B8DE88B10B69E4C00DF20FB /* DetourNavMesh.h */,
 				6B8DE88710B69E3E00DF20FB /* DetourNavMesh.cpp */,
+				6BAF40D912196A25008CFCDF /* DetourNavMeshQuery.h */,
+				6BAF40DA12196A3D008CFCDF /* DetourNavMeshQuery.cpp */,
 				6B8DE88C10B69E4C00DF20FB /* DetourNavMeshBuilder.h */,
 				6B8DE88810B69E3E00DF20FB /* DetourNavMeshBuilder.cpp */,
 				6B1185F61006896B0018F96F /* DetourNode.h */,
@@ -437,6 +444,7 @@
 				6B9846EF11E718F800FA177B /* DetourAlloc.cpp in Sources */,
 				6B9847B811E7519A00FA177B /* RecastAlloc.cpp in Sources */,
 				6BAF3C591211663A008CFCDF /* CrowdTool.cpp in Sources */,
+				6BAF40DB12196A3D008CFCDF /* DetourNavMeshQuery.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

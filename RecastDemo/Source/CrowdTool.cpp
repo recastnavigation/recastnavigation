@@ -615,9 +615,9 @@ static void calcSmoothSteerDirection(const float* pos, const float* corners, con
 	dvel[2] = dir0[2] - dir1[2]*len0*strength;
 }
 
-void CrowdManager::update(const float dt, unsigned int flags, dtNavMesh* nmesh)
+void CrowdManager::update(const float dt, unsigned int flags, dtNavMeshQuery* navquery)
 {
-	if (!nmesh)
+	if (!navquery)
 		return;
 	
 	const float ext[3] = {2,4,2};
@@ -632,7 +632,7 @@ void CrowdManager::update(const float dt, unsigned int flags, dtNavMesh* nmesh)
 		if (!ag->npath)
 		{
 			float nearest[3];
-			ag->path[0] = nmesh->findNearestPoly(ag->pos, ext, &filter, nearest);
+			ag->path[0] = navquery->findNearestPoly(ag->pos, ext, &filter, nearest);
 			if (ag->path[0])
 			{
 				ag->npath = 1;
@@ -643,7 +643,7 @@ void CrowdManager::update(const float dt, unsigned int flags, dtNavMesh* nmesh)
 		if (ag->targetState == AGENT_TARGET_SET)
 		{
 			float nearest[3];
-			ag->targetRef = nmesh->findNearestPoly(ag->target, ext, &filter, nearest);
+			ag->targetRef = navquery->findNearestPoly(ag->target, ext, &filter, nearest);
 			if (ag->targetRef)
 				dtVcopy(ag->target, nearest);
 			ag->targetState = AGENT_TARGET_ACQUIRED;
@@ -651,7 +651,7 @@ void CrowdManager::update(const float dt, unsigned int flags, dtNavMesh* nmesh)
 		
 		if (ag->targetState == AGENT_TARGET_ACQUIRED)
 		{
-			ag->npath = nmesh->findPath(ag->path[0], ag->targetRef, ag->pos, ag->target,
+			ag->npath = navquery->findPath(ag->path[0], ag->targetRef, ag->pos, ag->target,
 										&filter, ag->path, AGENT_MAX_PATH);
 			if (ag->npath)
 			{
@@ -662,7 +662,7 @@ void CrowdManager::update(const float dt, unsigned int flags, dtNavMesh* nmesh)
 					// Partial path, constrain target position inside the last polygon.
 					ag->targetRef = ag->path[ag->npath-1];
 					float nearest[3];
-					if (nmesh->closestPointOnPoly(ag->targetRef, ag->target, nearest))
+					if (navquery->closestPointOnPoly(ag->targetRef, ag->target, nearest))
 						dtVcopy(ag->target, nearest);
 					else
 						ag->targetState = AGENT_TARGET_FAILED;
@@ -678,13 +678,13 @@ void CrowdManager::update(const float dt, unsigned int flags, dtNavMesh* nmesh)
 			
 			static const int MAX_COL_POLYS = 32;
 			dtPolyRef polys[MAX_COL_POLYS];
-			const int npolys = nmesh->findLocalNeighbourhood(ag->path[0], ag->pos, ag->colradius, &filter, polys, 0, MAX_COL_POLYS);
+			const int npolys = navquery->findLocalNeighbourhood(ag->path[0], ag->pos, ag->colradius, &filter, polys, 0, MAX_COL_POLYS);
 
 			ag->ncolsegs = 0;
 			for (int j = 0; j < npolys; ++j)
 			{
 				float segs[DT_VERTS_PER_POLYGON*3*2];
-				const int nsegs = nmesh->getPolyWallSegments(polys[j], &filter, segs);
+				const int nsegs = navquery->getPolyWallSegments(polys[j], &filter, segs);
 				for (int k = 0; k < nsegs; ++k)
 				{
 					const float* s = &segs[k*6];
@@ -728,7 +728,7 @@ void CrowdManager::update(const float dt, unsigned int flags, dtNavMesh* nmesh)
 
 		unsigned char cornerFlags[AGENT_MAX_CORNERS];
 		dtPolyRef cornerPolys[AGENT_MAX_CORNERS];
-		ag->ncorners = nmesh->findStraightPath(ag->pos, ag->target, ag->path, ag->npath,
+		ag->ncorners = navquery->findStraightPath(ag->pos, ag->target, ag->path, ag->npath,
 											   ag->corners, cornerFlags, cornerPolys, AGENT_MAX_CORNERS);
 
 		// Prune points in the beginning of the path which are too close.
@@ -949,12 +949,12 @@ void CrowdManager::update(const float dt, unsigned int flags, dtNavMesh* nmesh)
 		
 		float result[3];
 		dtPolyRef visited[16];
-		int nvisited = nmesh->moveAlongSurface(ag->path[0], ag->pos, ag->npos, &filter,
+		int nvisited = navquery->moveAlongSurface(ag->path[0], ag->pos, ag->npos, &filter,
 												   result, visited, 16);
 		ag->npath = fixupCorridor(ag->path, ag->npath, AGENT_MAX_PATH, visited, nvisited);
 
 		float h = 0;
-		nmesh->getPolyHeight(ag->path[0], result, &h);
+		navquery->getPolyHeight(ag->path[0], result, &h);
 		result[1] = h;
 		dtVcopy(ag->pos, result);
 		
@@ -977,7 +977,7 @@ void CrowdManager::update(const float dt, unsigned int flags, dtNavMesh* nmesh)
 				static const int MAX_RES = 32;
 				dtPolyRef res[MAX_RES];
 				float t, norm[3];
-				const int nres = nmesh->raycast(ag->path[0], ag->pos, tgt, &filter, t, norm, res, MAX_RES);
+				const int nres = navquery->raycast(ag->path[0], ag->pos, tgt, &filter, t, norm, res, MAX_RES);
 				if (nres > 1 && t > 0.99f)
 				{
 					ag->npath = mergeCorridor(ag->path, ag->npath, AGENT_MAX_PATH, res, nres);
@@ -1160,7 +1160,7 @@ void CrowdTool::handleUpdate(const float dt)
 		if (m_drunkMove)
 			flags |= CROWDMAN_DRUNK;
 			
-		m_crowd.update(dt, flags, m_sample->getNavMesh());
+		m_crowd.update(dt, flags, m_sample->getNavMeshQuery());
 	}
 }
 

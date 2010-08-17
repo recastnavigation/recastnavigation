@@ -239,7 +239,7 @@ void Sample_SoloMeshSimple::handleRender()
 		m_drawMode == DRAWMODE_NAVMESH_INVIS))
 	{
 		if (m_drawMode != DRAWMODE_NAVMESH_INVIS)
-			duDebugDrawNavMesh(&dd, *m_navMesh, m_navMeshDrawFlags);
+			duDebugDrawNavMeshWithClosedList(&dd, *m_navMesh, *m_navQuery, m_navMeshDrawFlags);
 		if (m_drawMode == DRAWMODE_NAVMESH_BVTREE)
 			duDebugDrawNavMeshBVTree(&dd, *m_navMesh);
 	}
@@ -648,11 +648,18 @@ bool Sample_SoloMeshSimple::handleBuild()
 			return false;
 		}
 		
-		if (!m_navMesh->init(navData, navDataSize, DT_TILE_FREE_DATA, 2048))
+		if (!m_navMesh->init(navData, navDataSize, DT_TILE_FREE_DATA))
 		{
 			dtFree(navData);
 			if (rcGetLog())
 				rcGetLog()->log(RC_LOG_ERROR, "Could not init Detour navmesh");
+			return false;
+		}
+		
+		if (!m_navQuery->init(m_navMesh, 2048))
+		{
+			if (rcGetLog())
+				rcGetLog()->log(RC_LOG_ERROR, "Could not init Detour navmesh query");
 			return false;
 		}
 	}

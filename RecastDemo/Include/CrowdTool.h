@@ -139,7 +139,7 @@ public:
 	void removeAgent(const int idx);
 	void setMoveTarget(const int idx, const float* pos);
 
-	void update(const float dt, unsigned int flags, dtNavMesh* nmesh);
+	void update(const float dt, unsigned int flags, dtNavMeshQuery* navquery);
 };
 
 class CrowdTool : public SampleTool

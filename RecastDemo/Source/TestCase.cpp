@@ -22,6 +22,7 @@
 #include <math.h>
 #include "TestCase.h"
 #include "DetourNavMesh.h"
+#include "DetourNavMeshQuery.h"
 #include "SDL.h"
 #include "SDL_opengl.h"
 #include "imgui.h"
@@ -156,9 +157,9 @@ void TestCase::resetTimes()
 	}
 }
 
-void TestCase::doTests(dtNavMesh* navmesh)
+void TestCase::doTests(dtNavMesh* navmesh, dtNavMeshQuery* navquery)
 {
-	if (!navmesh)
+	if (!navmesh || !navquery)
 		return;
 	
 	resetTimes();
@@ -184,8 +185,8 @@ void TestCase::doTests(dtNavMesh* navmesh)
 		// Find start points
 		rcTimeVal findNearestPolyStart = rcGetPerformanceTimer();
 		
-		dtPolyRef startRef = navmesh->findNearestPoly(iter->spos, polyPickExt, &filter, 0);
-		dtPolyRef endRef = navmesh->findNearestPoly(iter->epos, polyPickExt, &filter, 0);
+		dtPolyRef startRef = navquery->findNearestPoly(iter->spos, polyPickExt, &filter, 0);
+		dtPolyRef endRef = navquery->findNearestPoly(iter->epos, polyPickExt, &filter, 0);
 
 		rcTimeVal findNearestPolyEnd = rcGetPerformanceTimer();
 		iter->findNearestPolyTime += rcGetDeltaTimeUsec(findNearestPolyStart, findNearestPolyEnd);
@@ -196,7 +197,7 @@ void TestCase::doTests(dtNavMesh* navmesh)
 		// Find path
 		rcTimeVal findPathStart = rcGetPerformanceTimer();
 
-		iter->npolys = navmesh->findPath(startRef, endRef, iter->spos, iter->epos, &filter, polys, MAX_POLYS);
+		iter->npolys = navquery->findPath(startRef, endRef, iter->spos, iter->epos, &filter, polys, MAX_POLYS);
 		
 		rcTimeVal findPathEnd = rcGetPerformanceTimer();
 		iter->findPathTime += rcGetDeltaTimeUsec(findPathStart, findPathEnd);
@@ -206,7 +207,7 @@ void TestCase::doTests(dtNavMesh* navmesh)
 		{
 			rcTimeVal findStraightPathStart = rcGetPerformanceTimer();
 			
-			iter->nstraight = navmesh->findStraightPath(iter->spos, iter->epos, polys, iter->npolys,
+			iter->nstraight = navquery->findStraightPath(iter->spos, iter->epos, polys, iter->npolys,
 														  straight, 0, 0, MAX_POLYS);
 			rcTimeVal findStraightPathEnd = rcGetPerformanceTimer();
 			iter->findStraightPathTime += rcGetDeltaTimeUsec(findStraightPathStart, findStraightPathEnd);

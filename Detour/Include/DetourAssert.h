@@ -16,21 +16,14 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#ifndef DETOURDEBUGDRAW_H
-#define DETOURDEBUGDRAW_H
+#ifndef DETOURASSERT_H
+#define DETOURASSERT_H
 
-#include "DetourNavMesh.h"
-#include "DetourNavMeshQuery.h"
+#ifdef NDEBUG
+#	define dtAssert(x)
+#else
+#	include <assert.h> 
+#	define dtAssert assert
+#endif
 
-enum DrawNavMeshFlags
-{
-	DU_DRAWNAVMESH_OFFMESHCONS = 0x01,
-};
-
-void duDebugDrawNavMesh(struct duDebugDraw* dd, const dtNavMesh& mesh, unsigned char flags);
-void duDebugDrawNavMeshWithClosedList(struct duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMeshQuery& query, unsigned char flags);
-void duDebugDrawNavMeshBVTree(struct duDebugDraw* dd, const dtNavMesh& mesh);
-void duDebugDrawNavMeshPortals(struct duDebugDraw* dd, const dtNavMesh& mesh);
-void duDebugDrawNavMeshPoly(struct duDebugDraw* dd, const dtNavMesh& mesh, dtPolyRef ref, const unsigned int col);
-
-#endif // DETOURDEBUGDRAW_H
+#endif // DETOURASSERT_H

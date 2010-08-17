@@ -21,7 +21,6 @@
 
 #include "DebugDraw.h"
 #include "RecastDump.h"
-#include "DetourNavMesh.h"
 
 
 // These are just sample areas to use consistent values across the samples.
@@ -103,7 +102,8 @@ class Sample
 {
 protected:
 	class InputGeom* m_geom;
-	dtNavMesh* m_navMesh;
+	class dtNavMesh* m_navMesh;
+	class dtNavMeshQuery* m_navQuery;
 	unsigned char m_navMeshDrawFlags;
 
 	float m_cellSize;
@@ -141,6 +141,7 @@ public:
 
 	virtual class InputGeom* getInputGeom() { return m_geom; }
 	virtual class dtNavMesh* getNavMesh() { return m_navMesh; }
+	virtual class dtNavMeshQuery* getNavMeshQuery() { return m_navQuery; }
 	virtual float getAgentRadius() { return m_agentRadius; }
 	virtual float getAgentHeight() { return m_agentHeight; }
 	virtual float getAgentClimb() { return m_agentMaxClimb; }

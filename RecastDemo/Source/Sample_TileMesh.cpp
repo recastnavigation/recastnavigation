@@ -377,6 +377,7 @@ void Sample_TileMesh::handleSettings()
 	{
 		dtFreeNavMesh(m_navMesh);
 		m_navMesh = loadAll("all_tiles_navmesh.bin");
+		m_navQuery->init(m_navMesh, 2048);
 	}
 	
 	char msg[64];
@@ -473,7 +474,7 @@ void Sample_TileMesh::handleRender()
 	
 	if (m_navMesh)
 	{
-		duDebugDrawNavMesh(&dd, *m_navMesh, m_navMeshDrawFlags);
+		duDebugDrawNavMeshWithClosedList(&dd, *m_navMesh, *m_navQuery, m_navMeshDrawFlags);
 		if (m_drawPortals)
 			duDebugDrawNavMeshPortals(&dd, *m_navMesh);
 	}
@@ -544,11 +545,17 @@ bool Sample_TileMesh::handleBuild()
 	params.tileHeight = m_tileSize*m_cellSize;
 	params.maxTiles = m_maxTiles;
 	params.maxPolys = m_maxPolysPerTile;
-	params.maxNodes = 2048;
 	if (!m_navMesh->init(&params))
 	{
 		if (rcGetLog())
 			rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: Could not init navmesh.");
+		return false;
+	}
+	
+	if (!m_navQuery->init(m_navMesh, 2048))
+	{
+		if (rcGetLog())
+			rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: Could not init Detour navmesh query");
 		return false;
 	}
 	

@@ -64,6 +64,8 @@ public:
 		sizeof(unsigned short)*m_hashSize;
 	}
 	
+	inline int getMaxNodes() const { return m_maxNodes; }
+	
 private:
 	inline unsigned int hashint(unsigned int a) const
 	{
@@ -135,6 +137,7 @@ public:
 		sizeof(dtNode*)*(m_capacity+1);
 	}
 	
+	inline int getCapacity() const { return m_capacity; }
 	
 private:
 	void bubbleUp(int i, dtNode* node);
