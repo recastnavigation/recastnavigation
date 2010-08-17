@@ -228,16 +228,25 @@ void NavMeshTesterTool::handleMenu()
 		m_toolMode = TOOLMODE_PATHFIND_SLICED;
 		recalc();
 	}
+
+	imguiSeparator();
+
 	if (imguiCheck("Distance to Wall", m_toolMode == TOOLMODE_DISTANCE_TO_WALL))
 	{
 		m_toolMode = TOOLMODE_DISTANCE_TO_WALL;
 		recalc();
 	}
+
+	imguiSeparator();
+
 	if (imguiCheck("Raycast", m_toolMode == TOOLMODE_RAYCAST))
 	{
 		m_toolMode = TOOLMODE_RAYCAST;
 		recalc();
 	}
+
+	imguiSeparator();
+
 	if (imguiCheck("Find Polys in Circle", m_toolMode == TOOLMODE_FIND_POLYS_IN_CIRCLE))
 	{
 		m_toolMode = TOOLMODE_FIND_POLYS_IN_CIRCLE;
@@ -248,6 +257,9 @@ void NavMeshTesterTool::handleMenu()
 		m_toolMode = TOOLMODE_FIND_POLYS_IN_SHAPE;
 		recalc();
 	}
+
+	imguiSeparator();
+
 	if (imguiCheck("Find Local Neighbourhood", m_toolMode == TOOLMODE_FIND_LOCAL_NEIGHBOURHOOD))
 	{
 		m_toolMode = TOOLMODE_FIND_LOCAL_NEIGHBOURHOOD;
@@ -325,7 +337,7 @@ void NavMeshTesterTool::handleMenu()
 	}
 }
 
-void NavMeshTesterTool::handleClick(const float* s, const float* p, bool shift)
+void NavMeshTesterTool::handleClick(const float* /*s*/, const float* p, bool shift)
 {
 	if (shift)
 	{
@@ -487,7 +499,7 @@ void NavMeshTesterTool::handleStep()
 
 }
 
-void NavMeshTesterTool::handleUpdate(const float dt)
+void NavMeshTesterTool::handleUpdate(const float /*dt*/)
 {
 	if (m_pathFindState == DT_QUERY_RUNNING)
 	{

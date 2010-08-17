@@ -117,10 +117,15 @@ void Sample_SoloMeshSimple::handleTools()
 		setTool(new CrowdTool);
 	}
 	
-	imguiSeparator();
+	imguiSeparatorLine();
+
+	imguiIndent();
 
 	if (m_tool)
 		m_tool->handleMenu();
+
+	imguiUnindent();
+
 }
 
 void Sample_SoloMeshSimple::handleDebugMode()

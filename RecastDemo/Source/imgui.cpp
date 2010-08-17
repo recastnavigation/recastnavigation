@@ -66,7 +66,6 @@ static void addGfxCmdScissor(int x, int y, int w, int h)
 	cmd.rect.h = (short)h;
 }
 
-/*
 static void addGfxCmdRect(int x, int y, int w, int h, unsigned int color)
 {
 	if (g_gfxCmdQueueSize >= GFXCMD_QUEUE_SIZE)
@@ -81,7 +80,6 @@ static void addGfxCmdRect(int x, int y, int w, int h, unsigned int color)
 	cmd.rect.h = (short)h;
 	cmd.rect.r = 0;
 }
-*/
 
 static void addGfxCmdRoundedRect(int x, int y, int w, int h, int r, unsigned int color)
 {
@@ -625,6 +623,17 @@ void imguiUnindent()
 void imguiSeparator()
 {
 	g_state.widgetY -= DEFAULT_SPACING*3;
+}
+
+void imguiSeparatorLine()
+{
+	int x = g_state.widgetX;
+	int y = g_state.widgetY - DEFAULT_SPACING*2;
+	int w = g_state.widgetW;
+	int h = 1;
+	g_state.widgetY -= DEFAULT_SPACING*4;
+
+	addGfxCmdRect(x, y, w, h, imguiRGBA(255,255,255,32));
 }
 
 void imguiDrawText(int x, int y, int align, const char* text, unsigned int color)

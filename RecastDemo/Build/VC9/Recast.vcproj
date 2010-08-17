@@ -260,6 +260,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\..\Detour\Include\DetourAssert.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\..\Detour\Include\DetourCommon.h"
 					>
 				</File>
@@ -269,6 +273,10 @@
 				</File>
 				<File
 					RelativePath="..\..\..\Detour\Include\DetourNavMeshBuilder.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Detour\Include\DetourNavMeshQuery.h"
 					>
 				</File>
 				<File
@@ -296,6 +304,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\..\Detour\Source\DetourNavMeshQuery.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\..\Detour\Source\DetourNode.cpp"
 					>
 				</File>
@@ -313,6 +325,10 @@
 				</File>
 				<File
 					RelativePath="..\..\Include\ConvexVolumeTool.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Include\CrowdTool.h"
 					>
 				</File>
 				<File
@@ -389,6 +405,10 @@
 				</File>
 				<File
 					RelativePath="..\..\Source\ConvexVolumeTool.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\CrowdTool.cpp"
 					>
 				</File>
 				<File

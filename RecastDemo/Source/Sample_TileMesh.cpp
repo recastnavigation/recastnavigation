@@ -113,7 +113,7 @@ public:
 		imguiValue("Shift+LMB to remove a tile.");
 	}
 
-	virtual void handleClick(const float* s, const float* p, bool shift)
+	virtual void handleClick(const float* /*s*/, const float* p, bool shift)
 	{
 		m_hitPosSet = true;
 		rcVcopy(m_hitPos,p);
@@ -128,7 +128,7 @@ public:
 
 	virtual void handleStep() {}
 
-	virtual void handleUpdate(const float dt) {}
+	virtual void handleUpdate(const float /*dt*/) {}
 	
 	virtual void handleRender()
 	{
@@ -415,10 +415,14 @@ void Sample_TileMesh::handleTools()
 		setTool(new CrowdTool);
 	}
 	
-	imguiSeparator();
-	
+	imguiSeparatorLine();
+
+	imguiIndent();
+
 	if (m_tool)
 		m_tool->handleMenu();
+
+	imguiUnindent();
 }
 
 void Sample_TileMesh::handleDebugMode()

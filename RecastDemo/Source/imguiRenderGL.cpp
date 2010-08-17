@@ -131,10 +131,10 @@ static void drawRect(float x, float y, float w, float h, float fth, unsigned int
 {
 	float verts[4*2] =
 	{
-		x, y,
-		x+w, y,
-		x+w, y+h,
-		x, y+h,
+		x+0.5f, y+0.5f,
+		x+w-0.5f, y+0.5f,
+		x+w-0.5f, y+h-0.5f,
+		x+0.5f, y+h-0.5f,
 	};
 	drawPolygon(verts, 4, fth, col);
 }

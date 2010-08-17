@@ -366,7 +366,7 @@ static void processSamples(Body* agent, const float vmax,
 		for (int i = 0; i < nobs; ++i)
 		{
 			const Body* ob = &obs[i];
-			float htmin, htmax;
+			float htmin = 0, htmax = 0;
 			
 			if (ob->type == BODY_CIRCLE)
 			{
@@ -719,7 +719,7 @@ void CrowdManager::update(const float dt, unsigned int flags, dtNavMeshQuery* na
 		if (flags & CROWDMAN_DRUNK)
 		{
 			ag->t += dt * (1.0f - ag->var*0.25f);
-			ag->maxspeed = MAX_SPEED*(1 + dtSqr(cosf(ag->t*2.0))*0.3f);
+			ag->maxspeed = MAX_SPEED*(1 + dtSqr(cosf(ag->t*2.0f))*0.3f);
 		}
 		else
 		{

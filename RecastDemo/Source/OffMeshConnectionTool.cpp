@@ -83,7 +83,7 @@ void OffMeshConnectionTool::handleMenu()
 	}
 }
 
-void OffMeshConnectionTool::handleClick(const float* s, const float* p, bool shift)
+void OffMeshConnectionTool::handleClick(const float* /*s*/, const float* p, bool shift)
 {
 	if (!m_sample) return;
 	InputGeom* geom = m_sample->getInputGeom();
@@ -136,7 +136,7 @@ void OffMeshConnectionTool::handleStep()
 {
 }
 
-void OffMeshConnectionTool::handleUpdate(const float dt)
+void OffMeshConnectionTool::handleUpdate(const float /*dt*/)
 {
 }
 

@@ -89,7 +89,7 @@ public:
 	
 	virtual void handleStep() {}
 	
-	virtual void handleUpdate(const float dt) {}
+	virtual void handleUpdate(const float /*dt*/) {}
 
 	virtual void handleRender()
 	{
@@ -227,10 +227,14 @@ void Sample_SoloMeshTiled::handleTools()
 		setTool(new TileHighlightTool);
 	}
 	
-	imguiSeparator();
-	
+	imguiSeparatorLine();
+
+	imguiIndent();
+
 	if (m_tool)
 		m_tool->handleMenu();
+
+	imguiUnindent();
 }
 
 void Sample_SoloMeshTiled::handleDebugMode()

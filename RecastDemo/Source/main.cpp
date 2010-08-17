@@ -79,7 +79,7 @@ int main(int /*argc*/, char** /*argv*/)
 	
 	const SDL_VideoInfo* vi = SDL_GetVideoInfo();
 
-	const bool presentationMode = false;
+	bool presentationMode = false;
 
 	int width, height;
 	SDL_Surface* screen = 0;
@@ -882,7 +882,7 @@ int main(int /*argc*/, char** /*argv*/)
 		// Tools
 		if (!showTestCases && showTools && showMenu && geom && sample)
 		{
-			if (imguiBeginScrollArea("Tools", 10, height - 10 - 350, 200, 350, &toolsScroll))
+			if (imguiBeginScrollArea("Tools", 10, height - 10 - 350, 250, 350, &toolsScroll))
 				mouseOverMenu = true;
 
 			sample->handleTools();
