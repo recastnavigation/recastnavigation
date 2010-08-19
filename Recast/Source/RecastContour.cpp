@@ -21,9 +21,8 @@
 #include <string.h>
 #include <stdio.h>
 #include "Recast.h"
-#include "RecastLog.h"
-#include "RecastTimer.h"
 #include "RecastAlloc.h"
+#include "RecastAssert.h"
 
 
 static int getCornerHeight(int x, int y, int i, int dir,
@@ -593,14 +592,16 @@ static bool mergeContours(rcContour& ca, rcContour& cb, int ia, int ib)
 	return true;
 }
 
-bool rcBuildContours(rcCompactHeightfield& chf,
+bool rcBuildContours(rcBuildContext* ctx, rcCompactHeightfield& chf,
 					 const float maxError, const int maxEdgeLen,
 					 rcContourSet& cset, const int buildFlags)
 {
+	rcAssert(ctx);
+	
 	const int w = chf.width;
 	const int h = chf.height;
 	
-	rcTimeVal startTime = rcGetPerformanceTimer();
+	rcTimeVal startTime = ctx->getTime();
 	
 	rcVcopy(cset.bmin, chf.bmin);
 	rcVcopy(cset.bmax, chf.bmax);
@@ -616,12 +617,11 @@ bool rcBuildContours(rcCompactHeightfield& chf,
 	rcScopedDelete<unsigned char> flags = (unsigned char*)rcAlloc(sizeof(unsigned char)*chf.spanCount, RC_ALLOC_TEMP);
 	if (!flags)
 	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "rcBuildContours: Out of memory 'flags' (%d).", chf.spanCount);
+		ctx->log(RC_LOG_ERROR, "rcBuildContours: Out of memory 'flags' (%d).", chf.spanCount);
 		return false;
 	}
 	
-	rcTimeVal traceStartTime = rcGetPerformanceTimer();
+	rcTimeVal traceStartTime = ctx->getTime();
 					
 	
 	// Mark boundaries.
@@ -657,9 +657,9 @@ bool rcBuildContours(rcCompactHeightfield& chf,
 		}
 	}
 	
-	rcTimeVal traceEndTime = rcGetPerformanceTimer();
+	rcTimeVal traceEndTime = ctx->getTime();
 	
-	rcTimeVal simplifyStartTime = rcGetPerformanceTimer();
+	rcTimeVal simplifyStartTime = ctx->getTime();
 	
 	rcIntArray verts(256);
 	rcIntArray simplified(64);
@@ -708,8 +708,7 @@ bool rcBuildContours(rcCompactHeightfield& chf,
 						rcFree(cset.conts);
 						cset.conts = newConts;
 					
-						if (rcGetLog())
-							rcGetLog()->log(RC_LOG_WARNING, "rcBuildContours: Expanding max contours from %d to %d.", oldMax, maxContours);
+						ctx->log(RC_LOG_WARNING, "rcBuildContours: Expanding max contours from %d to %d.", oldMax, maxContours);
 					}
 						
 					rcContour* cont = &cset.conts[cset.nconts++];
@@ -718,8 +717,7 @@ bool rcBuildContours(rcCompactHeightfield& chf,
 					cont->verts = (int*)rcAlloc(sizeof(int)*cont->nverts*4, RC_ALLOC_PERM);
 					if (!cont->verts)
 					{
-						if (rcGetLog())
-							rcGetLog()->log(RC_LOG_ERROR, "rcBuildContours: Out of memory 'verts' (%d).", cont->nverts);
+						ctx->log(RC_LOG_ERROR, "rcBuildContours: Out of memory 'verts' (%d).", cont->nverts);
 						return false;
 					}
 					memcpy(cont->verts, &simplified[0], sizeof(int)*cont->nverts*4);
@@ -728,8 +726,7 @@ bool rcBuildContours(rcCompactHeightfield& chf,
 					cont->rverts = (int*)rcAlloc(sizeof(int)*cont->nrverts*4, RC_ALLOC_PERM);
 					if (!cont->rverts)
 					{
-						if (rcGetLog())
-							rcGetLog()->log(RC_LOG_ERROR, "rcBuildContours: Out of memory 'rverts' (%d).", cont->nrverts);
+						ctx->log(RC_LOG_ERROR, "rcBuildContours: Out of memory 'rverts' (%d).", cont->nrverts);
 						return false;
 					}
 					memcpy(cont->rverts, &verts[0], sizeof(int)*cont->nrverts*4);
@@ -778,8 +775,7 @@ bool rcBuildContours(rcCompactHeightfield& chf,
 			}
 			if (mergeIdx == -1)
 			{
-				if (rcGetLog())
-					rcGetLog()->log(RC_LOG_WARNING, "rcBuildContours: Could not find merge target for bad contour %d.", i);
+				ctx->log(RC_LOG_WARNING, "rcBuildContours: Could not find merge target for bad contour %d.", i);
 			}
 			else
 			{
@@ -789,37 +785,25 @@ bool rcBuildContours(rcCompactHeightfield& chf,
 				getClosestIndices(mcont.verts, mcont.nverts, cont.verts, cont.nverts, ia, ib);
 				if (ia == -1 || ib == -1)
 				{
-					if (rcGetLog())
-						rcGetLog()->log(RC_LOG_WARNING, "rcBuildContours: Failed to find merge points for %d and %d.", i, mergeIdx);
+					ctx->log(RC_LOG_WARNING, "rcBuildContours: Failed to find merge points for %d and %d.", i, mergeIdx);
 					continue;
 				}
 				if (!mergeContours(mcont, cont, ia, ib))
 				{
-					if (rcGetLog())
-						rcGetLog()->log(RC_LOG_WARNING, "rcBuildContours: Failed to merge contours %d and %d.", i, mergeIdx);
+					ctx->log(RC_LOG_WARNING, "rcBuildContours: Failed to merge contours %d and %d.", i, mergeIdx);
 					continue;
 				}
 			}
 		}
 	}
 	
-	rcTimeVal simplifyEndTime = rcGetPerformanceTimer();
+	rcTimeVal simplifyEndTime = ctx->getTime();
 	
-	rcTimeVal endTime = rcGetPerformanceTimer();
+	rcTimeVal endTime = ctx->getTime();
 	
-//	if (rcGetLog())
-//	{
-//		rcGetLog()->log(RC_LOG_PROGRESS, "Create contours: %.3f ms", rcGetDeltaTimeUsec(startTime, endTime)/1000.0f);
-//		rcGetLog()->log(RC_LOG_PROGRESS, " - boundary: %.3f ms", rcGetDeltaTimeUsec(boundaryStartTime, boundaryEndTime)/1000.0f);
-//		rcGetLog()->log(RC_LOG_PROGRESS, " - contour: %.3f ms", rcGetDeltaTimeUsec(contourStartTime, contourEndTime)/1000.0f);
-//	}
-
-	if (rcGetBuildTimes())
-	{
-		rcGetBuildTimes()->buildContours += rcGetDeltaTimeUsec(startTime, endTime);
-		rcGetBuildTimes()->buildContoursTrace += rcGetDeltaTimeUsec(traceStartTime, traceEndTime);
-		rcGetBuildTimes()->buildContoursSimplify += rcGetDeltaTimeUsec(simplifyStartTime, simplifyEndTime);
-	}
+	ctx->reportBuildTime(RC_TIME_BUILD_CONTOURS, ctx->getDeltaTimeUsec(startTime, endTime));
+	ctx->reportBuildTime(RC_TIME_BUILD_CONTOURS_TRACE, ctx->getDeltaTimeUsec(traceStartTime, traceEndTime));
+	ctx->reportBuildTime(RC_TIME_BUILD_CONTOURS_SIMPLIFY, ctx->getDeltaTimeUsec(simplifyStartTime, simplifyEndTime));
 	
 	return true;
 }

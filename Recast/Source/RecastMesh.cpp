@@ -21,9 +21,8 @@
 #include <string.h>
 #include <stdio.h>
 #include "Recast.h"
-#include "RecastLog.h"
-#include "RecastTimer.h"
 #include "RecastAlloc.h"
+#include "RecastAssert.h"
 
 struct rcEdge
 {
@@ -287,7 +286,7 @@ static bool diagonal(int i, int j, int n, const int* verts, int* indices)
 	return inCone(i, j, n, verts, indices) && diagonalie(i, j, n, verts, indices);
 }
 
-int triangulate(int n, const int* verts, int* indices, int* tris)
+static int triangulate(int n, const int* verts, int* indices, int* tris)
 {
 	int ntris = 0;
 	int* dst = tris;
@@ -328,8 +327,6 @@ int triangulate(int n, const int* verts, int* indices, int* tris)
 		if (mini == -1)
 		{
 			// Should not happen.
-			if (rcGetLog())
-				rcGetLog()->log(RC_LOG_WARNING, "triangulate: Failed to triangulate polygon.");
 /*			printf("mini == -1 ntris=%d n=%d\n", ntris, n);
 			for (int i = 0; i < n; i++)
 			{
@@ -486,7 +483,7 @@ static void pushBack(int v, int* arr, int& an)
 	an++;
 }
 
-static bool canRemoveVertex(rcPolyMesh& mesh, const unsigned short rem)
+static bool canRemoveVertex(rcBuildContext* ctx, rcPolyMesh& mesh, const unsigned short rem)
 {
 	const int nvp = mesh.nvp;
 	
@@ -529,8 +526,7 @@ static bool canRemoveVertex(rcPolyMesh& mesh, const unsigned short rem)
 	rcScopedDelete<int> edges = (int*)rcAlloc(sizeof(int)*maxEdges*3, RC_ALLOC_TEMP);
 	if (!edges)
 	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_WARNING, "canRemoveVertex: Out of memory 'edges' (%d).", maxEdges*3);
+		ctx->log(RC_LOG_WARNING, "canRemoveVertex: Out of memory 'edges' (%d).", maxEdges*3);
 		return false;
 	}
 		
@@ -589,7 +585,7 @@ static bool canRemoveVertex(rcPolyMesh& mesh, const unsigned short rem)
 	return true;
 }
 
-static bool removeVertex(rcPolyMesh& mesh, const unsigned short rem, const int maxTris)
+static bool removeVertex(rcBuildContext* ctx, rcPolyMesh& mesh, const unsigned short rem, const int maxTris)
 {
 	const int nvp = mesh.nvp;
 
@@ -610,8 +606,7 @@ static bool removeVertex(rcPolyMesh& mesh, const unsigned short rem, const int m
 	rcScopedDelete<int> edges = (int*)rcAlloc(sizeof(int)*numRemovedVerts*nvp*4, RC_ALLOC_TEMP);
 	if (!edges)
 	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_WARNING, "removeVertex: Out of memory 'edges' (%d).", numRemovedVerts*nvp*4);
+		ctx->log(RC_LOG_WARNING, "removeVertex: Out of memory 'edges' (%d).", numRemovedVerts*nvp*4);
 		return false;
 	}
 
@@ -619,8 +614,7 @@ static bool removeVertex(rcPolyMesh& mesh, const unsigned short rem, const int m
 	rcScopedDelete<int> hole = (int*)rcAlloc(sizeof(int)*numRemovedVerts*nvp, RC_ALLOC_TEMP);
 	if (!hole)
 	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_WARNING, "removeVertex: Out of memory 'hole' (%d).", numRemovedVerts*nvp);
+		ctx->log(RC_LOG_WARNING, "removeVertex: Out of memory 'hole' (%d).", numRemovedVerts*nvp);
 		return false;
 	}
 	
@@ -628,8 +622,7 @@ static bool removeVertex(rcPolyMesh& mesh, const unsigned short rem, const int m
 	rcScopedDelete<int> hreg = (int*)rcAlloc(sizeof(int)*numRemovedVerts*nvp, RC_ALLOC_TEMP);
 	if (!hreg)
 	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_WARNING, "removeVertex: Out of memory 'hreg' (%d).", numRemovedVerts*nvp);
+		ctx->log(RC_LOG_WARNING, "removeVertex: Out of memory 'hreg' (%d).", numRemovedVerts*nvp);
 		return false;
 	}
 
@@ -637,8 +630,7 @@ static bool removeVertex(rcPolyMesh& mesh, const unsigned short rem, const int m
 	rcScopedDelete<int> harea = (int*)rcAlloc(sizeof(int)*numRemovedVerts*nvp, RC_ALLOC_TEMP);
 	if (!harea)
 	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_WARNING, "removeVertex: Out of memory 'harea' (%d).", numRemovedVerts*nvp);
+		ctx->log(RC_LOG_WARNING, "removeVertex: Out of memory 'harea' (%d).", numRemovedVerts*nvp);
 		return false;
 	}
 	
@@ -754,24 +746,21 @@ static bool removeVertex(rcPolyMesh& mesh, const unsigned short rem, const int m
 	rcScopedDelete<int> tris = (int*)rcAlloc(sizeof(int)*nhole*3, RC_ALLOC_TEMP);
 	if (!tris)
 	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_WARNING, "removeVertex: Out of memory 'tris' (%d).", nhole*3);
+		ctx->log(RC_LOG_WARNING, "removeVertex: Out of memory 'tris' (%d).", nhole*3);
 		return false;
 	}
 
 	rcScopedDelete<int> tverts = (int*)rcAlloc(sizeof(int)*nhole*4, RC_ALLOC_TEMP);
 	if (!tverts)
 	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_WARNING, "removeVertex: Out of memory 'tverts' (%d).", nhole*4);
+		ctx->log(RC_LOG_WARNING, "removeVertex: Out of memory 'tverts' (%d).", nhole*4);
 		return false;
 	}
 
 	rcScopedDelete<int> thole = (int*)rcAlloc(sizeof(int)*nhole, RC_ALLOC_TEMP);
 	if (!tverts)
 	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_WARNING, "removeVertex: Out of memory 'thole' (%d).", nhole);
+		ctx->log(RC_LOG_WARNING, "removeVertex: Out of memory 'thole' (%d).", nhole);
 		return false;
 	}
 
@@ -791,30 +780,26 @@ static bool removeVertex(rcPolyMesh& mesh, const unsigned short rem, const int m
 	if (ntris < 0)
 	{
 		ntris = -ntris;
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_WARNING, "removeVertex: triangulate() returned bad results.");
+		ctx->log(RC_LOG_WARNING, "removeVertex: triangulate() returned bad results.");
 	}
 	
 	// Merge the hole triangles back to polygons.
 	rcScopedDelete<unsigned short> polys = (unsigned short*)rcAlloc(sizeof(unsigned short)*(ntris+1)*nvp, RC_ALLOC_TEMP);
 	if (!polys)
 	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "removeVertex: Out of memory 'polys' (%d).", (ntris+1)*nvp);
+		ctx->log(RC_LOG_ERROR, "removeVertex: Out of memory 'polys' (%d).", (ntris+1)*nvp);
 		return false;
 	}
 	rcScopedDelete<unsigned short> pregs = (unsigned short*)rcAlloc(sizeof(unsigned short)*ntris, RC_ALLOC_TEMP);
 	if (!pregs)
 	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "removeVertex: Out of memory 'pregs' (%d).", ntris);
+		ctx->log(RC_LOG_ERROR, "removeVertex: Out of memory 'pregs' (%d).", ntris);
 		return false;
 	}
 	rcScopedDelete<unsigned char> pareas = (unsigned char*)rcAlloc(sizeof(unsigned char)*ntris, RC_ALLOC_TEMP);
 	if (!pregs)
 	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "removeVertex: Out of memory 'pareas' (%d).", ntris);
+		ctx->log(RC_LOG_ERROR, "removeVertex: Out of memory 'pareas' (%d).", ntris);
 		return false;
 	}
 	
@@ -899,8 +884,7 @@ static bool removeVertex(rcPolyMesh& mesh, const unsigned short rem, const int m
 		mesh.npolys++;
 		if (mesh.npolys > maxTris)
 		{
-			if (rcGetLog())
-				rcGetLog()->log(RC_LOG_ERROR, "removeVertex: Too many polygons %d (max:%d).", mesh.npolys, maxTris);
+			ctx->log(RC_LOG_ERROR, "removeVertex: Too many polygons %d (max:%d).", mesh.npolys, maxTris);
 			return false;
 		}
 	}
@@ -909,9 +893,11 @@ static bool removeVertex(rcPolyMesh& mesh, const unsigned short rem, const int m
 }
 
 
-bool rcBuildPolyMesh(rcContourSet& cset, int nvp, rcPolyMesh& mesh)
+bool rcBuildPolyMesh(rcBuildContext* ctx, rcContourSet& cset, int nvp, rcPolyMesh& mesh)
 {
-	rcTimeVal startTime = rcGetPerformanceTimer();
+	rcAssert(ctx);
+	
+	rcTimeVal startTime = ctx->getTime();
 
 	rcVcopy(mesh.bmin, cset.bmin);
 	rcVcopy(mesh.bmax, cset.bmax);
@@ -932,16 +918,14 @@ bool rcBuildPolyMesh(rcContourSet& cset, int nvp, rcPolyMesh& mesh)
 	
 	if (maxVertices >= 0xfffe)
 	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMesh: Too many vertices %d.", maxVertices);
+		ctx->log(RC_LOG_ERROR, "rcBuildPolyMesh: Too many vertices %d.", maxVertices);
 		return false;
 	}
 		
 	rcScopedDelete<unsigned char> vflags = (unsigned char*)rcAlloc(sizeof(unsigned char)*maxVertices, RC_ALLOC_TEMP);
 	if (!vflags)
 	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'mesh.verts' (%d).", maxVertices);
+		ctx->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'mesh.verts' (%d).", maxVertices);
 		return false;
 	}
 	memset(vflags, 0, maxVertices);
@@ -949,29 +933,25 @@ bool rcBuildPolyMesh(rcContourSet& cset, int nvp, rcPolyMesh& mesh)
 	mesh.verts = (unsigned short*)rcAlloc(sizeof(unsigned short)*maxVertices*3, RC_ALLOC_PERM);
 	if (!mesh.verts)
 	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'mesh.verts' (%d).", maxVertices);
+		ctx->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'mesh.verts' (%d).", maxVertices);
 		return false;
 	}
 	mesh.polys = (unsigned short*)rcAlloc(sizeof(unsigned short)*maxTris*nvp*2*2, RC_ALLOC_PERM);
 	if (!mesh.polys)
 	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'mesh.polys' (%d).", maxTris*nvp*2);
+		ctx->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'mesh.polys' (%d).", maxTris*nvp*2);
 		return false;
 	}
 	mesh.regs = (unsigned short*)rcAlloc(sizeof(unsigned short)*maxTris, RC_ALLOC_PERM);
 	if (!mesh.regs)
 	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'mesh.regs' (%d).", maxTris);
+		ctx->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'mesh.regs' (%d).", maxTris);
 		return false;
 	}
 	mesh.areas = (unsigned char*)rcAlloc(sizeof(unsigned char)*maxTris, RC_ALLOC_PERM);
 	if (!mesh.areas)
 	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'mesh.areas' (%d).", maxTris);
+		ctx->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'mesh.areas' (%d).", maxTris);
 		return false;
 	}
 	
@@ -988,8 +968,7 @@ bool rcBuildPolyMesh(rcContourSet& cset, int nvp, rcPolyMesh& mesh)
 	rcScopedDelete<int> nextVert = (int*)rcAlloc(sizeof(int)*maxVertices, RC_ALLOC_TEMP);
 	if (!nextVert)
 	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'nextVert' (%d).", maxVertices);
+		ctx->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'nextVert' (%d).", maxVertices);
 		return false;
 	}
 	memset(nextVert, 0, sizeof(int)*maxVertices);
@@ -997,8 +976,7 @@ bool rcBuildPolyMesh(rcContourSet& cset, int nvp, rcPolyMesh& mesh)
 	rcScopedDelete<int> firstVert = (int*)rcAlloc(sizeof(int)*VERTEX_BUCKET_COUNT, RC_ALLOC_TEMP);
 	if (!firstVert)
 	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'firstVert' (%d).", VERTEX_BUCKET_COUNT);
+		ctx->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'firstVert' (%d).", VERTEX_BUCKET_COUNT);
 		return false;
 	}
 	for (int i = 0; i < VERTEX_BUCKET_COUNT; ++i)
@@ -1007,22 +985,19 @@ bool rcBuildPolyMesh(rcContourSet& cset, int nvp, rcPolyMesh& mesh)
 	rcScopedDelete<int> indices = (int*)rcAlloc(sizeof(int)*maxVertsPerCont, RC_ALLOC_TEMP);
 	if (!indices)
 	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'indices' (%d).", maxVertsPerCont);
+		ctx->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'indices' (%d).", maxVertsPerCont);
 		return false;
 	}
 	rcScopedDelete<int> tris = (int*)rcAlloc(sizeof(int)*maxVertsPerCont*3, RC_ALLOC_TEMP);
 	if (!tris)
 	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'tris' (%d).", maxVertsPerCont*3);
+		ctx->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'tris' (%d).", maxVertsPerCont*3);
 		return false;
 	}
 	rcScopedDelete<unsigned short> polys = (unsigned short*)rcAlloc(sizeof(unsigned short)*(maxVertsPerCont+1)*nvp, RC_ALLOC_TEMP);
 	if (!polys)
 	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'polys' (%d).", maxVertsPerCont*nvp);
+		ctx->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'polys' (%d).", maxVertsPerCont*nvp);
 		return false;
 	}
 	unsigned short* tmpPoly = &polys[maxVertsPerCont*nvp];
@@ -1053,8 +1028,7 @@ bool rcBuildPolyMesh(rcContourSet& cset, int nvp, rcPolyMesh& mesh)
 				printf("\t\t%d,%d,%d,%d,\n", v[0], v[1], v[2], v[3]);
 			}
 			printf("\t};\n\tconst int nverts = sizeof(verts)/(sizeof(int)*4);\n");*/
-			if (rcGetLog())
-				rcGetLog()->log(RC_LOG_WARNING, "rcBuildPolyMesh: Bad triangulation Contour %d.", i);
+			ctx->log(RC_LOG_WARNING, "rcBuildPolyMesh: Bad triangulation Contour %d.", i);
 			ntris = -ntris;
 		}
 				
@@ -1145,8 +1119,7 @@ bool rcBuildPolyMesh(rcContourSet& cset, int nvp, rcPolyMesh& mesh)
 			mesh.npolys++;
 			if (mesh.npolys > maxTris)
 			{
-				if (rcGetLog())
-					rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMesh: Too many polygons %d (max:%d).", mesh.npolys, maxTris);
+				ctx->log(RC_LOG_ERROR, "rcBuildPolyMesh: Too many polygons %d (max:%d).", mesh.npolys, maxTris);
 				return false;
 			}
 		}
@@ -1158,13 +1131,12 @@ bool rcBuildPolyMesh(rcContourSet& cset, int nvp, rcPolyMesh& mesh)
 	{
 		if (vflags[i])
 		{
-			if (!canRemoveVertex(mesh, (unsigned short)i))
+			if (!canRemoveVertex(ctx, mesh, (unsigned short)i))
 				continue;
-			if (!removeVertex(mesh, (unsigned short)i, maxTris))
+			if (!removeVertex(ctx, mesh, (unsigned short)i, maxTris))
 			{
 				// Failed to remove vertex
-				if (rcGetLog())
-					rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMesh: Failed to remove edge vertex %d.", i);
+				ctx->log(RC_LOG_ERROR, "rcBuildPolyMesh: Failed to remove edge vertex %d.", i);
 				return false;
 			}
 			// Remove vertex
@@ -1178,8 +1150,7 @@ bool rcBuildPolyMesh(rcContourSet& cset, int nvp, rcPolyMesh& mesh)
 	// Calculate adjacency.
 	if (!buildMeshAdjacency(mesh.polys, mesh.npolys, mesh.nverts, nvp))
 	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMesh: Adjacency failed.");
+		ctx->log(RC_LOG_ERROR, "rcBuildPolyMesh: Adjacency failed.");
 		return false;
 	}
 
@@ -1187,28 +1158,26 @@ bool rcBuildPolyMesh(rcContourSet& cset, int nvp, rcPolyMesh& mesh)
 	mesh.flags = (unsigned short*)rcAlloc(sizeof(unsigned short)*mesh.npolys, RC_ALLOC_PERM);
 	if (!mesh.flags)
 	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'mesh.flags' (%d).", mesh.npolys);
+		ctx->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'mesh.flags' (%d).", mesh.npolys);
 		return false;
 	}
 	memset(mesh.flags, 0, sizeof(unsigned short) * mesh.npolys);
 	
-	rcTimeVal endTime = rcGetPerformanceTimer();
+	rcTimeVal endTime = ctx->getTime();
 	
-//	if (rcGetLog())
-//		rcGetLog()->log(RC_LOG_PROGRESS, "Build polymesh: %.3f ms", rcGetDeltaTimeUsec(startTime, endTime)/1000.0f);
-	if (rcGetBuildTimes())
-		rcGetBuildTimes()->buildPolymesh += rcGetDeltaTimeUsec(startTime, endTime);
+	ctx->reportBuildTime(RC_TIME_BUILD_POLYMESH, ctx->getDeltaTimeUsec(startTime, endTime));
 	
 	return true;
 }
 
-bool rcMergePolyMeshes(rcPolyMesh** meshes, const int nmeshes, rcPolyMesh& mesh)
+bool rcMergePolyMeshes(rcBuildContext* ctx, rcPolyMesh** meshes, const int nmeshes, rcPolyMesh& mesh)
 {
+	rcAssert(ctx);
+	
 	if (!nmeshes || !meshes)
 		return true;
 
-	rcTimeVal startTime = rcGetPerformanceTimer();
+	rcTimeVal startTime = ctx->getTime();
 
 	mesh.nvp = meshes[0]->nvp;
 	mesh.cs = meshes[0]->cs;
@@ -1232,8 +1201,7 @@ bool rcMergePolyMeshes(rcPolyMesh** meshes, const int nmeshes, rcPolyMesh& mesh)
 	mesh.verts = (unsigned short*)rcAlloc(sizeof(unsigned short)*maxVerts*3, RC_ALLOC_PERM);
 	if (!mesh.verts)
 	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "rcMergePolyMeshes: Out of memory 'mesh.verts' (%d).", maxVerts*3);
+		ctx->log(RC_LOG_ERROR, "rcMergePolyMeshes: Out of memory 'mesh.verts' (%d).", maxVerts*3);
 		return false;
 	}
 
@@ -1241,8 +1209,7 @@ bool rcMergePolyMeshes(rcPolyMesh** meshes, const int nmeshes, rcPolyMesh& mesh)
 	mesh.polys = (unsigned short*)rcAlloc(sizeof(unsigned short)*maxPolys*2*mesh.nvp, RC_ALLOC_PERM);
 	if (!mesh.polys)
 	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "rcMergePolyMeshes: Out of memory 'mesh.polys' (%d).", maxPolys*2*mesh.nvp);
+		ctx->log(RC_LOG_ERROR, "rcMergePolyMeshes: Out of memory 'mesh.polys' (%d).", maxPolys*2*mesh.nvp);
 		return false;
 	}
 	memset(mesh.polys, 0xff, sizeof(unsigned short)*maxPolys*2*mesh.nvp);
@@ -1250,8 +1217,7 @@ bool rcMergePolyMeshes(rcPolyMesh** meshes, const int nmeshes, rcPolyMesh& mesh)
 	mesh.regs = (unsigned short*)rcAlloc(sizeof(unsigned short)*maxPolys, RC_ALLOC_PERM);
 	if (!mesh.regs)
 	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "rcMergePolyMeshes: Out of memory 'mesh.regs' (%d).", maxPolys);
+		ctx->log(RC_LOG_ERROR, "rcMergePolyMeshes: Out of memory 'mesh.regs' (%d).", maxPolys);
 		return false;
 	}
 	memset(mesh.regs, 0, sizeof(unsigned short)*maxPolys);
@@ -1259,8 +1225,7 @@ bool rcMergePolyMeshes(rcPolyMesh** meshes, const int nmeshes, rcPolyMesh& mesh)
 	mesh.areas = (unsigned char*)rcAlloc(sizeof(unsigned char)*maxPolys, RC_ALLOC_PERM);
 	if (!mesh.areas)
 	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "rcMergePolyMeshes: Out of memory 'mesh.areas' (%d).", maxPolys);
+		ctx->log(RC_LOG_ERROR, "rcMergePolyMeshes: Out of memory 'mesh.areas' (%d).", maxPolys);
 		return false;
 	}
 	memset(mesh.areas, 0, sizeof(unsigned char)*maxPolys);
@@ -1268,8 +1233,7 @@ bool rcMergePolyMeshes(rcPolyMesh** meshes, const int nmeshes, rcPolyMesh& mesh)
 	mesh.flags = (unsigned short*)rcAlloc(sizeof(unsigned short)*maxPolys, RC_ALLOC_PERM);
 	if (!mesh.flags)
 	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "rcMergePolyMeshes: Out of memory 'mesh.flags' (%d).", maxPolys);
+		ctx->log(RC_LOG_ERROR, "rcMergePolyMeshes: Out of memory 'mesh.flags' (%d).", maxPolys);
 		return false;
 	}
 	memset(mesh.flags, 0, sizeof(unsigned short)*maxPolys);
@@ -1277,8 +1241,7 @@ bool rcMergePolyMeshes(rcPolyMesh** meshes, const int nmeshes, rcPolyMesh& mesh)
 	rcScopedDelete<int> nextVert = (int*)rcAlloc(sizeof(int)*maxVerts, RC_ALLOC_TEMP);
 	if (!nextVert)
 	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "rcMergePolyMeshes: Out of memory 'nextVert' (%d).", maxVerts);
+		ctx->log(RC_LOG_ERROR, "rcMergePolyMeshes: Out of memory 'nextVert' (%d).", maxVerts);
 		return false;
 	}
 	memset(nextVert, 0, sizeof(int)*maxVerts);
@@ -1286,8 +1249,7 @@ bool rcMergePolyMeshes(rcPolyMesh** meshes, const int nmeshes, rcPolyMesh& mesh)
 	rcScopedDelete<int> firstVert = (int*)rcAlloc(sizeof(int)*VERTEX_BUCKET_COUNT, RC_ALLOC_TEMP);
 	if (!firstVert)
 	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "rcMergePolyMeshes: Out of memory 'firstVert' (%d).", VERTEX_BUCKET_COUNT);
+		ctx->log(RC_LOG_ERROR, "rcMergePolyMeshes: Out of memory 'firstVert' (%d).", VERTEX_BUCKET_COUNT);
 		return false;
 	}
 	for (int i = 0; i < VERTEX_BUCKET_COUNT; ++i)
@@ -1296,8 +1258,7 @@ bool rcMergePolyMeshes(rcPolyMesh** meshes, const int nmeshes, rcPolyMesh& mesh)
 	rcScopedDelete<unsigned short> vremap = (unsigned short*)rcAlloc(sizeof(unsigned short)*maxVertsPerMesh, RC_ALLOC_PERM);
 	if (!vremap)
 	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "rcMergePolyMeshes: Out of memory 'vremap' (%d).", maxVertsPerMesh);
+		ctx->log(RC_LOG_ERROR, "rcMergePolyMeshes: Out of memory 'vremap' (%d).", maxVertsPerMesh);
 		return false;
 	}
 	memset(nextVert, 0, sizeof(int)*maxVerts);
@@ -1335,16 +1296,14 @@ bool rcMergePolyMeshes(rcPolyMesh** meshes, const int nmeshes, rcPolyMesh& mesh)
 	// Calculate adjacency.
 	if (!buildMeshAdjacency(mesh.polys, mesh.npolys, mesh.nverts, mesh.nvp))
 	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "rcMergePolyMeshes: Adjacency failed.");
+		ctx->log(RC_LOG_ERROR, "rcMergePolyMeshes: Adjacency failed.");
 		return false;
 	}
 		
 
-	rcTimeVal endTime = rcGetPerformanceTimer();
+	rcTimeVal endTime = ctx->getTime();
 	
-	if (rcGetBuildTimes())
-		rcGetBuildTimes()->mergePolyMesh += rcGetDeltaTimeUsec(startTime, endTime);
+	ctx->reportBuildTime(RC_TIME_MERGE_POLYMESH, ctx->getDeltaTimeUsec(startTime, endTime));
 	
 	return true;
 }
