@@ -308,6 +308,8 @@ static void getBakedQuad(stbtt_bakedchar *chardata, int pw, int ph, int char_ind
 	*xpos += b->xadvance;
 }
 
+static const float g_tabStops[4] = {150, 210, 270, 330};
+
 static float getTextLength(stbtt_bakedchar *chardata, const char* text)
 {
 	float xpos = 0;
@@ -315,7 +317,18 @@ static float getTextLength(stbtt_bakedchar *chardata, const char* text)
 	while (*text)
 	{
 		int c = (unsigned char)*text;
-		if (c >= 32 && c < 128)
+		if (c == '\t')
+		{
+			for (int i = 0; i < 4; ++i)
+			{
+				if (xpos < g_tabStops[i])
+				{
+					xpos = g_tabStops[i];
+					break;
+				}
+			}
+		}
+		else if (c >= 32 && c < 128)
 		{
 			stbtt_bakedchar *b = chardata + c-32;
 			int round_x = STBTT_ifloor((xpos + b->xoff) + 0.5);
@@ -346,10 +359,23 @@ static void drawText(float x, float y, const char *text, int align, unsigned int
 	
 	glBegin(GL_TRIANGLES);
 	
+	const float ox = x;
+	
 	while (*text)
 	{
 		int c = (unsigned char)*text;
-		if (c >= 32 && c < 128)
+		if (c == '\t')
+		{
+			for (int i = 0; i < 4; ++i)
+			{
+				if (x < g_tabStops[i]+ox)
+				{
+					x = g_tabStops[i]+ox;
+					break;
+				}
+			}
+		}
+		else if (c >= 32 && c < 128)
 		{			
 			stbtt_aligned_quad q;
 			getBakedQuad(g_cdata, 512,512, c-32, &x,&y,&q);

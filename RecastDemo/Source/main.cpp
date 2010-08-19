@@ -155,9 +155,7 @@ int main(int /*argc*/, char** /*argv*/)
 	Sample* sample = 0;
 	TestCase* test = 0;
 
-	rcLog log;
-	log.clear();
-	rcSetLog(&log);
+	BuildContext ctx;
 	
 	glEnable(GL_CULL_FACE);
 	
@@ -217,16 +215,14 @@ int main(int /*argc*/, char** /*argv*/)
 					{
 						delete geom;
 						geom = new InputGeom;
-						if (!geom || !geom->load("geomset.txt"))
+						if (!geom || !geom->load(&ctx, "geomset.txt"))
 						{
 							delete geom;
 							geom = 0;
 							
 							showLog = true;
 							logScroll = 0;
-							printf("Geom load log %s:\n", meshName);
-							for (int i = 0; i < log.getMessageCount(); ++i)
-								printf("%s\n", log.getMessageText(i));
+							ctx.dumpLog("Geom load log %s:", meshName);
 						}
 						if (sample && geom)
 						{
@@ -572,15 +568,13 @@ int main(int /*argc*/, char** /*argv*/)
 
 				if (imguiButton("Build"))
 				{
-					log.clear();
+					ctx.resetLog();
 					if (!sample->handleBuild())
 					{
 						showLog = true;
 						logScroll = 0;
 					}
-					printf("Build log %s:\n", meshName);
-					for (int i = 0; i < log.getMessageCount(); ++i)
-						printf("%s\n", log.getMessageText(i));
+					ctx.dumpLog("Build log %s:", meshName);
 					
 					// Clear test.
 					delete test;
@@ -619,13 +613,15 @@ int main(int /*argc*/, char** /*argv*/)
 				if (imguiItem(g_samples[i].name))
 				{
 					newSample = g_samples[i].create();
-					if (newSample) strcpy(sampleName, g_samples[i].name);
+					if (newSample)
+						strcpy(sampleName, g_samples[i].name);
 				}
 			}
 			if (newSample)
 			{
 				delete sample;
 				sample = newSample;
+				sample->setContext(&ctx);
 				if (geom && sample)
 				{
 					sample->handleMeshChanged(geom);
@@ -695,16 +691,14 @@ int main(int /*argc*/, char** /*argv*/)
 				strcat(path, meshName);
 				
 				geom = new InputGeom;
-				if (!geom || !geom->loadMesh(path))
+				if (!geom || !geom->loadMesh(&ctx, path))
 				{
 					delete geom;
 					geom = 0;
 					
 					showLog = true;
 					logScroll = 0;
-					printf("Geom load log %s:\n", meshName);
-					for (int i = 0; i < log.getMessageCount(); ++i)
-						printf("%s\n", log.getMessageText(i));
+					ctx.dumpLog("Geom load log %s:", meshName);
 				}
 				if (sample && geom)
 				{
@@ -790,6 +784,7 @@ int main(int /*argc*/, char** /*argv*/)
 					{
 						delete sample;
 						sample = newSample;
+						sample->setContext(&ctx);
 						showSample = false;
 					}
 
@@ -804,28 +799,24 @@ int main(int /*argc*/, char** /*argv*/)
 					strcat(path, meshName);
 					
 					geom = new InputGeom;
-					if (!geom || !geom->loadMesh(path))
+					if (!geom || !geom->loadMesh(&ctx, path))
 					{
 						delete geom;
 						geom = 0;
 						
 						showLog = true;
 						logScroll = 0;
-						printf("Geom load log %s:\n", meshName);
-						for (int i = 0; i < log.getMessageCount(); ++i)
-							printf("%s\n", log.getMessageText(i));
+						ctx.dumpLog("Geom load log %s:", meshName);
 					}
 					if (sample && geom)
 					{
 						sample->handleMeshChanged(geom);
 					}
 
-					log.clear();
+					ctx.resetLog();
 					if (sample && !sample->handleBuild())
 					{
-						printf("Build log %s:\n", meshName);
-						for (int i = 0; i < log.getMessageCount(); ++i)
-							printf("%s\n", log.getMessageText(i));
+						ctx.dumpLog("Build log %s:", meshName);
 					}
 					
 					if (geom || sample)
@@ -861,7 +852,7 @@ int main(int /*argc*/, char** /*argv*/)
 					
 					// Do the tests.
 					if (sample)
-						test->doTests(sample->getNavMesh(), sample->getNavMeshQuery());
+						test->doTests(&ctx, sample->getNavMesh(), sample->getNavMeshQuery());
 				}
 			}				
 				
@@ -874,8 +865,8 @@ int main(int /*argc*/, char** /*argv*/)
 		{
 			if (imguiBeginScrollArea("Log", 10, 10, width - 300, 200, &logScroll))
 				mouseOverMenu = true;
-			for (int i = 0; i < log.getMessageCount(); ++i)
-				imguiLabel(log.getMessageText(i));
+			for (int i = 0; i < ctx.getLogCount(); ++i)
+				imguiLabel(ctx.getLogText(i));
 			imguiEndScrollArea();
 		}
 		

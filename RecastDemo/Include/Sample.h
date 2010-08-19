@@ -19,9 +19,21 @@
 #ifndef RECASTSAMPLE_H
 #define RECASTSAMPLE_H
 
-#include "DebugDraw.h"
-#include "RecastDump.h"
+#include "Recast.h"
+#include "SampleInterfaces.h"
 
+
+// Tool types.
+enum SampleToolType
+{
+	TOOL_NONE = 0,
+	TOOL_TILE_EDIT,
+	TOOL_TILE_HIGHLIGHT,
+	TOOL_NAVMESH_TESTER,
+	TOOL_OFFMESH_CONNECTION,
+	TOOL_CONVEX_VOLUME,
+	TOOL_CROWD,
+};
 
 // These are just sample areas to use consistent values across the samples.
 // The use should specify these base on his needs.
@@ -41,46 +53,6 @@ enum SamplePolyFlags
 	SAMPLE_POLYFLAGS_DOOR = 0x04,		// Ability to move through doors.
 	SAMPLE_POLYFLAGS_JUMP = 0x08,		// Ability to jump.
 	SAMPLE_POLYFLAGS_ALL = 0xffff		// All abilities.
-};
-
-
-// OpenGL debug draw implementation.
-class DebugDrawGL : public duDebugDraw
-{
-public:
-	virtual void depthMask(bool state);
-	virtual void begin(duDebugDrawPrimitives prim, float size = 1.0f);
-	virtual void vertex(const float* pos, unsigned int color);
-	virtual void vertex(const float x, const float y, const float z, unsigned int color);
-	virtual void end();
-};
-
-// stdio file implementation.
-class FileIO : public duFileIO
-{
-	FILE* m_fp;
-	int m_mode;
-public:
-	FileIO();
-	virtual ~FileIO();
-	bool openForWrite(const char* path);
-	bool openForRead(const char* path);
-	virtual bool isWriting() const;
-	virtual bool isReading() const;
-	virtual bool write(const void* ptr, const size_t size);
-	virtual bool read(void* ptr, const size_t size);
-};
-
-// Tool types.
-enum SampleToolType
-{
-	TOOL_NONE = 0,
-	TOOL_TILE_EDIT,
-	TOOL_TILE_HIGHLIGHT,
-	TOOL_NAVMESH_TESTER,
-	TOOL_OFFMESH_CONNECTION,
-	TOOL_CONVEX_VOLUME,
-	TOOL_CROWD,
 };
 
 struct SampleTool
@@ -122,9 +94,13 @@ protected:
 	
 	SampleTool* m_tool;
 	
+	rcBuildContext* m_ctx;
+	
 public:
 	Sample();
 	virtual ~Sample();
+	
+	void setContext(rcBuildContext* ctx) { m_ctx = ctx; }
 	
 	void setTool(SampleTool* tool);
 	

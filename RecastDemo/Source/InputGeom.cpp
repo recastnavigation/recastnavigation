@@ -22,7 +22,6 @@
 #include <ctype.h>
 #include <string.h>
 #include "Recast.h"
-#include "RecastLog.h"
 #include "InputGeom.h"
 #include "ChunkyTriMesh.h"
 #include "MeshLoaderObj.h"
@@ -119,7 +118,7 @@ InputGeom::~InputGeom()
 	delete m_mesh;
 }
 		
-bool InputGeom::loadMesh(const char* filepath)
+bool InputGeom::loadMesh(rcBuildContext* ctx, const char* filepath)
 {
 	if (m_mesh)
 	{
@@ -134,14 +133,12 @@ bool InputGeom::loadMesh(const char* filepath)
 	m_mesh = new rcMeshLoaderObj;
 	if (!m_mesh)
 	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "loadMesh: Out of memory 'm_mesh'.");
+		ctx->log(RC_LOG_ERROR, "loadMesh: Out of memory 'm_mesh'.");
 		return false;
 	}
 	if (!m_mesh->load(filepath))
 	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: Could not load '%s'", filepath);
+		ctx->log(RC_LOG_ERROR, "buildTiledNavigation: Could not load '%s'", filepath);
 		return false;
 	}
 
@@ -150,21 +147,19 @@ bool InputGeom::loadMesh(const char* filepath)
 	m_chunkyMesh = new rcChunkyTriMesh;
 	if (!m_chunkyMesh)
 	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: Out of memory 'm_chunkyMesh'.");
+		ctx->log(RC_LOG_ERROR, "buildTiledNavigation: Out of memory 'm_chunkyMesh'.");
 		return false;
 	}
 	if (!rcCreateChunkyTriMesh(m_mesh->getVerts(), m_mesh->getTris(), m_mesh->getTriCount(), 256, m_chunkyMesh))
 	{
-		if (rcGetLog())
-			rcGetLog()->log(RC_LOG_ERROR, "buildTiledNavigation: Failed to build chunky mesh.");
+		ctx->log(RC_LOG_ERROR, "buildTiledNavigation: Failed to build chunky mesh.");
 		return false;
 	}		
 
 	return true;
 }
 
-bool InputGeom::load(const char* filePath)
+bool InputGeom::load(rcBuildContext* ctx, const char* filePath)
 {
 	char* buf = 0;
 	FILE* fp = fopen(filePath, "rb");
@@ -204,7 +199,7 @@ bool InputGeom::load(const char* filePath)
 				name++;
 			if (*name)
 			{
-				if (!loadMesh(name))
+				if (!loadMesh(ctx, name))
 				{
 					delete [] buf;
 					return false;

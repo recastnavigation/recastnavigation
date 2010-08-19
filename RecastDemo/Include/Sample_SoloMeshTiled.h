@@ -22,7 +22,6 @@
 #include "Sample.h"
 #include "DetourNavMesh.h"
 #include "Recast.h"
-#include "RecastLog.h"
 #include "ChunkyTriMesh.h"
 
 class Sample_SoloMeshTiled : public Sample
@@ -61,7 +60,6 @@ protected:
 	bool m_measurePerTileTimings;
 	bool m_keepInterResults;
 	float m_tileSize;
-	rcBuildTimes m_buildTimes; 
 	float m_totalBuildTimeMs;
 	
 	rcPolyMesh* m_pmesh;

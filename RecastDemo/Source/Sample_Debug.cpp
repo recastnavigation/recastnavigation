@@ -23,7 +23,6 @@
 #include "InputGeom.h"
 #include "Recast.h"
 #include "DetourNavMesh.h"
-#include "RecastLog.h"
 #include "RecastDebugDraw.h"
 #include "DetourDebugDraw.h"
 #include "RecastDump.h"
@@ -164,7 +163,7 @@ Sample_Debug::Sample_Debug() :
 			m_pmesh = rcAllocPolyMesh();
 			if (m_pmesh)
 			{
-				rcBuildPolyMesh(*m_cset, 6, *m_pmesh);
+				rcBuildPolyMesh(m_ctx, *m_cset, 6, *m_pmesh);
 			}
 		}
 	}
@@ -376,14 +375,12 @@ bool Sample_Debug::handleBuild()
 		m_cset = rcAllocContourSet();
 		if (!m_cset)
 		{
-			if (rcGetLog())
-				rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'cset'.");
+			m_ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'cset'.");
 			return false;
 		}
-		if (!rcBuildContours(*m_chf, /*m_cfg.maxSimplificationError*/1.3f, /*m_cfg.maxEdgeLen*/12, *m_cset))
+		if (!rcBuildContours(m_ctx, *m_chf, /*m_cfg.maxSimplificationError*/1.3f, /*m_cfg.maxEdgeLen*/12, *m_cset))
 		{
-			if (rcGetLog())
-				rcGetLog()->log(RC_LOG_ERROR, "buildNavigation: Could not create contours.");
+			m_ctx->log(RC_LOG_ERROR, "buildNavigation: Could not create contours.");
 			return false;
 		}
 	}

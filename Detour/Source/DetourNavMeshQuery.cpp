@@ -871,6 +871,7 @@ dtQueryState dtNavMeshQuery::updateSlicedFindPath(const int maxIter)
 		}
 	}
 	
+	// Exhausted all nodes, but could not find path.
 	if (m_openList->empty())
 		m_query.state = DT_QUERY_READY;
 
@@ -880,7 +881,11 @@ dtQueryState dtNavMeshQuery::updateSlicedFindPath(const int maxIter)
 int dtNavMeshQuery::finalizeSlicedFindPath(dtPolyRef* path, const int maxPathSize)
 {
 	if (m_query.state != DT_QUERY_READY)
+	{
+		// Reset query.
+		memset(&m_query, 0, sizeof(dtQueryData));
 		return 0;
+	}
 	
 	// Reverse the path.
 	dtAssert(m_query.lastBestNode);

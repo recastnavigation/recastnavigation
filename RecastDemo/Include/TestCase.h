@@ -20,7 +20,7 @@
 #define TESTCASE_H
 
 #include "DetourNavMesh.h"
-#include "RecastTimer.h"
+#include "Recast.h"
 
 class TestCase
 {
@@ -71,7 +71,7 @@ public:
 	inline const char* getSampleName() const { return m_sampleName; }
 	inline const char* getGeomFileName() const { return m_geomFileName; }
 	
-	void doTests(class dtNavMesh* navmesh, class dtNavMeshQuery* navquery);
+	void doTests(rcBuildContext* ctx, class dtNavMesh* navmesh, class dtNavMeshQuery* navquery);
 	
 	void handleRender();
 	bool handleRenderOverlay(double* proj, double* model, int* view);

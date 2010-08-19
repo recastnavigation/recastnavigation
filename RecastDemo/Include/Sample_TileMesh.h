@@ -22,7 +22,6 @@
 #include "Sample.h"
 #include "DetourNavMesh.h"
 #include "Recast.h"
-#include "RecastLog.h"
 #include "ChunkyTriMesh.h"
 
 class Sample_TileMesh : public Sample
@@ -30,7 +29,6 @@ class Sample_TileMesh : public Sample
 protected:
 	bool m_keepInterResults;
 	bool m_buildAll;
-	rcBuildTimes m_buildTimes; 
 	float m_totalBuildTimeMs;
 	bool m_drawPortals;
 
@@ -41,6 +39,30 @@ protected:
 	rcPolyMesh* m_pmesh;
 	rcPolyMeshDetail* m_dmesh;
 	rcConfig m_cfg;	
+	
+	enum DrawMode
+	{
+		DRAWMODE_NAVMESH,
+		DRAWMODE_NAVMESH_TRANS,
+		DRAWMODE_NAVMESH_BVTREE,
+		DRAWMODE_NAVMESH_PORTALS,
+		DRAWMODE_NAVMESH_INVIS,
+		DRAWMODE_MESH,
+		DRAWMODE_VOXELS,
+		DRAWMODE_VOXELS_WALKABLE,
+		DRAWMODE_COMPACT,
+		DRAWMODE_COMPACT_DISTANCE,
+		DRAWMODE_COMPACT_REGIONS,
+		DRAWMODE_REGION_CONNECTIONS,
+		DRAWMODE_RAW_CONTOURS,
+		DRAWMODE_BOTH_CONTOURS,
+		DRAWMODE_CONTOURS,
+		DRAWMODE_POLYMESH,
+		DRAWMODE_POLYMESH_DETAIL,
+		MAX_DRAWMODE
+	};
+	
+	DrawMode m_drawMode;
 	
 	int m_maxTiles;
 	int m_maxPolysPerTile;

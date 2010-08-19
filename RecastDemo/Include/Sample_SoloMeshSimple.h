@@ -22,13 +22,11 @@
 #include "Sample.h"
 #include "DetourNavMesh.h"
 #include "Recast.h"
-#include "RecastLog.h"
 
 class Sample_SoloMeshSimple : public Sample
 {
 protected:
 	bool m_keepInterResults;
-	rcBuildTimes m_buildTimes; 
 	float m_totalBuildTimeMs;
 
 	unsigned char* m_triareas;

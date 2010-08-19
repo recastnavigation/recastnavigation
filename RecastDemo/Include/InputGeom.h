@@ -55,9 +55,9 @@ public:
 	InputGeom();
 	~InputGeom();
 	
-	bool loadMesh(const char* filepath);
+	bool loadMesh(struct rcBuildContext* ctx, const char* filepath);
 	
-	bool load(const char* filepath);
+	bool load(struct rcBuildContext* ctx, const char* filepath);
 	bool save(const char* filepath);
 	
 	// Method to return static mesh data.

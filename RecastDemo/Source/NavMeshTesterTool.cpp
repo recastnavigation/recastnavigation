@@ -26,7 +26,6 @@
 #include "NavMeshTesterTool.h"
 #include "Sample.h"
 #include "Recast.h"
-#include "RecastTimer.h"
 #include "RecastDebugDraw.h"
 #include "DetourNavMesh.h"
 #include "DetourNavMeshBuilder.h"

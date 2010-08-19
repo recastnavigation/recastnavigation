@@ -34,114 +34,13 @@
 #	define snprintf _snprintf
 #endif
 
-
-void DebugDrawGL::depthMask(bool state)
-{
-	glDepthMask(state ? GL_TRUE : GL_FALSE);
-}
-
-void DebugDrawGL::begin(duDebugDrawPrimitives prim, float size)
-{
-	switch (prim)
-	{
-		case DU_DRAW_POINTS:
-			glPointSize(size);
-			glBegin(GL_POINTS);
-			break;
-		case DU_DRAW_LINES:
-			glLineWidth(size);
-			glBegin(GL_LINES);
-			break;
-		case DU_DRAW_TRIS:
-			glBegin(GL_TRIANGLES);
-			break;
-		case DU_DRAW_QUADS:
-			glBegin(GL_QUADS);
-			break;
-	};
-}
-	
-void DebugDrawGL::vertex(const float* pos, unsigned int color)
-{
-	glColor4ubv((GLubyte*)&color);
-	glVertex3fv(pos);
-}
-	
-void DebugDrawGL::vertex(const float x, const float y, const float z, unsigned int color)
-{
-	glColor4ubv((GLubyte*)&color);
-	glVertex3f(x,y,z);
-}
-	
-void DebugDrawGL::end()
-{
-	glEnd();
-	glLineWidth(1.0f);
-	glPointSize(1.0f);
-}
-
-
-FileIO::FileIO() :
-	m_fp(0),
-	m_mode(-1)
-{
-}
-		
-FileIO::~FileIO()
-{
-	if (m_fp) fclose(m_fp);
-}
-
-bool FileIO::openForWrite(const char* path)
-{
-	if (m_fp) return false;
-	m_fp = fopen(path, "wb");
-	if (!m_fp) return false;
-	m_mode = 1;
-	return true;
-}
-
-bool FileIO::openForRead(const char* path)
-{
-	if (m_fp) return false;
-	m_fp = fopen(path, "rb");
-	if (!m_fp) return false;
-	m_mode = 2;
-	return true;
-}
-
-bool FileIO::isWriting() const
-{
-	return m_mode == 1;
-}
-
-bool FileIO::isReading() const
-{
-	return m_mode == 2;
-}
-
-bool FileIO::write(const void* ptr, const size_t size)
-{
-	if (!m_fp || m_mode != 1) return false;
-	fwrite(ptr, size, 1, m_fp);
-	return true;
-}
-
-bool FileIO::read(void* ptr, const size_t size)
-{
-	if (!m_fp || m_mode != 2) return false;
-	fread(ptr, size, 1, m_fp);
-	return true;
-}
-		
-
-
 Sample::Sample() :
 	m_geom(0),
 	m_navMesh(0),
 	m_navQuery(0),
 	m_navMeshDrawFlags(DU_DRAWNAVMESH_OFFMESHCONS),
-	m_tool(0)
+	m_tool(0),
+	m_ctx(0)
 {
 	resetCommonSettings();
 	m_navQuery = dtAllocNavMeshQuery();

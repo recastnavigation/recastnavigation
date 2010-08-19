@@ -157,7 +157,7 @@ void TestCase::resetTimes()
 	}
 }
 
-void TestCase::doTests(dtNavMesh* navmesh, dtNavMeshQuery* navquery)
+void TestCase::doTests(rcBuildContext* ctx, dtNavMesh* navmesh, dtNavMeshQuery* navquery)
 {
 	if (!navmesh || !navquery)
 		return;
@@ -183,34 +183,34 @@ void TestCase::doTests(dtNavMesh* navmesh, dtNavMeshQuery* navquery)
 		filter.excludeFlags = (unsigned short)iter->excludeFlags;
 	
 		// Find start points
-		rcTimeVal findNearestPolyStart = rcGetPerformanceTimer();
+		rcTimeVal findNearestPolyStart = ctx->getTime();
 		
 		dtPolyRef startRef = navquery->findNearestPoly(iter->spos, polyPickExt, &filter, 0);
 		dtPolyRef endRef = navquery->findNearestPoly(iter->epos, polyPickExt, &filter, 0);
 
-		rcTimeVal findNearestPolyEnd = rcGetPerformanceTimer();
-		iter->findNearestPolyTime += rcGetDeltaTimeUsec(findNearestPolyStart, findNearestPolyEnd);
+		rcTimeVal findNearestPolyEnd = ctx->getTime();
+		iter->findNearestPolyTime += ctx->getDeltaTimeUsec(findNearestPolyStart, findNearestPolyEnd);
 
 		if (!startRef || ! endRef)
 			continue;
 	
 		// Find path
-		rcTimeVal findPathStart = rcGetPerformanceTimer();
+		rcTimeVal findPathStart = ctx->getTime();
 
 		iter->npolys = navquery->findPath(startRef, endRef, iter->spos, iter->epos, &filter, polys, MAX_POLYS);
 		
-		rcTimeVal findPathEnd = rcGetPerformanceTimer();
-		iter->findPathTime += rcGetDeltaTimeUsec(findPathStart, findPathEnd);
+		rcTimeVal findPathEnd = ctx->getTime();
+		iter->findPathTime += ctx->getDeltaTimeUsec(findPathStart, findPathEnd);
 		
 		// Find straight path
 		if (iter->npolys)
 		{
-			rcTimeVal findStraightPathStart = rcGetPerformanceTimer();
+			rcTimeVal findStraightPathStart = ctx->getTime();
 			
 			iter->nstraight = navquery->findStraightPath(iter->spos, iter->epos, polys, iter->npolys,
 														  straight, 0, 0, MAX_POLYS);
-			rcTimeVal findStraightPathEnd = rcGetPerformanceTimer();
-			iter->findStraightPathTime += rcGetDeltaTimeUsec(findStraightPathStart, findStraightPathEnd);
+			rcTimeVal findStraightPathEnd = ctx->getTime();
+			iter->findStraightPathTime += ctx->getDeltaTimeUsec(findStraightPathStart, findStraightPathEnd);
 		}
 		
 		// Copy results
