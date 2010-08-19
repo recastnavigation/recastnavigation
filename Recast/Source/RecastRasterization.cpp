@@ -154,11 +154,11 @@ static void addSpan(rcHeightfield& hf, const int x, const int y,
 	}
 }
 
-void rcAddSpan(rcBuildContext* ctx, rcHeightfield& hf, const int x, const int y,
+void rcAddSpan(rcBuildContext* /*ctx*/, rcHeightfield& hf, const int x, const int y,
 			   const unsigned short smin, const unsigned short smax,
 			   const unsigned char area, const int flagMergeThr)
 {
-	rcAssert(ctx);
+//	rcAssert(ctx);
 	addSpan(hf, x,y, smin, smax, area, flagMergeThr);
 }
 

@@ -143,11 +143,12 @@ void rcCalcGridSize(const float* bmin, const float* bmax, float cs, int* w, int*
 	*h = (int)((bmax[2] - bmin[2])/cs+0.5f);
 }
 
-bool rcCreateHeightfield(rcBuildContext* ctx, rcHeightfield& hf, int width, int height,
+bool rcCreateHeightfield(rcBuildContext* /*ctx*/, rcHeightfield& hf, int width, int height,
 						 const float* bmin, const float* bmax,
 						 float cs, float ch)
 {
-	rcAssert(ctx);
+	// TODO: VC complains about unref formal variable, figure out a way to handle this better.
+//	rcAssert(ctx);
 	
 	hf.width = width;
 	hf.height = height;
@@ -171,12 +172,13 @@ static void calcTriNormal(const float* v0, const float* v1, const float* v2, flo
 	rcVnormalize(norm);
 }
 
-void rcMarkWalkableTriangles(rcBuildContext* ctx, const float walkableSlopeAngle,
+void rcMarkWalkableTriangles(rcBuildContext* /*ctx*/, const float walkableSlopeAngle,
 							 const float* verts, int /*nv*/,
 							 const int* tris, int nt,
 							 unsigned char* areas)
 {
-	rcAssert(ctx);
+	// TODO: VC complains about unref formal variable, figure out a way to handle this better.
+//	rcAssert(ctx);
 	
 	const float walkableThr = cosf(walkableSlopeAngle/180.0f*(float)M_PI);
 
@@ -192,12 +194,13 @@ void rcMarkWalkableTriangles(rcBuildContext* ctx, const float walkableSlopeAngle
 	}
 }
 
-void rcClearUnwalkableTriangles(rcBuildContext* ctx, const float walkableSlopeAngle,
+void rcClearUnwalkableTriangles(rcBuildContext* /*ctx*/, const float walkableSlopeAngle,
 								const float* verts, int /*nv*/,
 								const int* tris, int nt,
 								unsigned char* areas)
 {
-	rcAssert(ctx);
+	// TODO: VC complains about unref formal variable, figure out a way to handle this better.
+//	rcAssert(ctx);
 	
 	const float walkableThr = cosf(walkableSlopeAngle/180.0f*(float)M_PI);
 	
@@ -213,9 +216,10 @@ void rcClearUnwalkableTriangles(rcBuildContext* ctx, const float walkableSlopeAn
 	}
 }
 
-int rcGetHeightFieldSpanCount(rcBuildContext* ctx, rcHeightfield& hf)
+int rcGetHeightFieldSpanCount(rcBuildContext* /*ctx*/, rcHeightfield& hf)
 {
-	rcAssert(ctx);
+	// TODO: VC complains about unref formal variable, figure out a way to handle this better.
+//	rcAssert(ctx);
 	
 	const int w = hf.width;
 	const int h = hf.height;

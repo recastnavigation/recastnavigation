@@ -192,11 +192,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\Recast\Include\RecastLog.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\Recast\Include\RecastTimer.h"
+					RelativePath="..\..\..\Recast\Include\RecastAssert.h"
 					>
 				</File>
 			</Filter>
@@ -224,10 +220,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\Recast\Source\RecastLog.cpp"
-					>
-				</File>
-				<File
 					RelativePath="..\..\..\Recast\Source\RecastMesh.cpp"
 					>
 				</File>
@@ -241,10 +233,6 @@
 				</File>
 				<File
 					RelativePath="..\..\..\Recast\Source\RecastRegion.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\Recast\Source\RecastTimer.cpp"
 					>
 				</File>
 			</Filter>
@@ -380,6 +368,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\Include\SampleInterfaces.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\Include\SlideShow.h"
 					>
 				</File>
@@ -461,6 +453,10 @@
 				</File>
 				<File
 					RelativePath="..\..\Source\Sample_TileMesh.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\SampleInterfaces.cpp"
 					>
 				</File>
 				<File
