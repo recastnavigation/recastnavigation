@@ -21,8 +21,6 @@
 #include "DetourAssert.h"
 #include <string.h>
 
-static const unsigned short DT_NULL_IDX = 0xffff;
-
 //////////////////////////////////////////////////////////////////////////////////////////
 dtNodePool::dtNodePool(int maxNodes, int hashSize) :
 	m_nodes(0),

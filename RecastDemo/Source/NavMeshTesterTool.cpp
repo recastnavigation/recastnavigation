@@ -158,8 +158,8 @@ NavMeshTesterTool::NavMeshTesterTool() :
 	m_pathIterNum(0),
 	m_steerPointCount(0)
 {
-	m_filter.includeFlags = SAMPLE_POLYFLAGS_ALL;
-	m_filter.excludeFlags = 0;
+	m_filter.setIncludeFlags(SAMPLE_POLYFLAGS_ALL);
+	m_filter.setExcludeFlags(0);
 
 	m_polyPickExt[0] = 2;
 	m_polyPickExt[1] = 4;
@@ -189,12 +189,19 @@ void NavMeshTesterTool::init(Sample* sample)
 	if (m_navQuery)
 	{
 		// Change costs.
-		m_navQuery->setAreaCost(SAMPLE_POLYAREA_GROUND, 1.0f);
+		m_filter.setAreaCost(SAMPLE_POLYAREA_GROUND, 1.0f);
+		m_filter.setAreaCost(SAMPLE_POLYAREA_WATER, 10.0f);
+		m_filter.setAreaCost(SAMPLE_POLYAREA_ROAD, 1.0f);
+		m_filter.setAreaCost(SAMPLE_POLYAREA_DOOR, 1.0f);
+		m_filter.setAreaCost(SAMPLE_POLYAREA_GRASS, 2.0f);
+		m_filter.setAreaCost(SAMPLE_POLYAREA_JUMP, 1.5f);
+		
+/*		m_navQuery->setAreaCost(SAMPLE_POLYAREA_GROUND, 1.0f);
 		m_navQuery->setAreaCost(SAMPLE_POLYAREA_WATER, 10.0f);
 		m_navQuery->setAreaCost(SAMPLE_POLYAREA_ROAD, 1.0f);
 		m_navQuery->setAreaCost(SAMPLE_POLYAREA_DOOR, 1.0f);
 		m_navQuery->setAreaCost(SAMPLE_POLYAREA_GRASS, 2.0f);
-		m_navQuery->setAreaCost(SAMPLE_POLYAREA_JUMP, 1.5f);
+		m_navQuery->setAreaCost(SAMPLE_POLYAREA_JUMP, 1.5f);*/
 	}
 
 	if (m_toolMode == TOOLMODE_PATHFIND_FOLLOW ||
@@ -270,24 +277,24 @@ void NavMeshTesterTool::handleMenu()
 	imguiLabel("Include Flags");
 
 	imguiIndent();
-	if (imguiCheck("Walk", (m_filter.includeFlags & SAMPLE_POLYFLAGS_WALK) != 0))
+	if (imguiCheck("Walk", (m_filter.getIncludeFlags() & SAMPLE_POLYFLAGS_WALK) != 0))
 	{
-		m_filter.includeFlags ^= SAMPLE_POLYFLAGS_WALK;
+		m_filter.setIncludeFlags(m_filter.getIncludeFlags() ^ SAMPLE_POLYFLAGS_WALK);
 		recalc();
 	}
-	if (imguiCheck("Swim", (m_filter.includeFlags & SAMPLE_POLYFLAGS_SWIM) != 0))
+	if (imguiCheck("Swim", (m_filter.getIncludeFlags() & SAMPLE_POLYFLAGS_SWIM) != 0))
 	{
-		m_filter.includeFlags ^= SAMPLE_POLYFLAGS_SWIM;
+		m_filter.setIncludeFlags(m_filter.getIncludeFlags() ^ SAMPLE_POLYFLAGS_SWIM);
 		recalc();
 	}
-	if (imguiCheck("Door", (m_filter.includeFlags & SAMPLE_POLYFLAGS_DOOR) != 0))
+	if (imguiCheck("Door", (m_filter.getIncludeFlags() & SAMPLE_POLYFLAGS_DOOR) != 0))
 	{
-		m_filter.includeFlags ^= SAMPLE_POLYFLAGS_DOOR;
+		m_filter.setIncludeFlags(m_filter.getIncludeFlags() ^ SAMPLE_POLYFLAGS_DOOR);
 		recalc();
 	}
-	if (imguiCheck("Jump", (m_filter.includeFlags & SAMPLE_POLYFLAGS_JUMP) != 0))
+	if (imguiCheck("Jump", (m_filter.getIncludeFlags() & SAMPLE_POLYFLAGS_JUMP) != 0))
 	{
-		m_filter.includeFlags ^= SAMPLE_POLYFLAGS_JUMP;
+		m_filter.setIncludeFlags(m_filter.getIncludeFlags() ^ SAMPLE_POLYFLAGS_JUMP);
 		recalc();
 	}
 	imguiUnindent();
@@ -296,24 +303,24 @@ void NavMeshTesterTool::handleMenu()
 	imguiLabel("Exclude Flags");
 	
 	imguiIndent();
-	if (imguiCheck("Walk", (m_filter.excludeFlags & SAMPLE_POLYFLAGS_WALK) != 0))
+	if (imguiCheck("Walk", (m_filter.getExcludeFlags() & SAMPLE_POLYFLAGS_WALK) != 0))
 	{
-		m_filter.excludeFlags ^= SAMPLE_POLYFLAGS_WALK;
+		m_filter.setExcludeFlags(m_filter.getExcludeFlags() ^ SAMPLE_POLYFLAGS_WALK);
 		recalc();
 	}
-	if (imguiCheck("Swim", (m_filter.excludeFlags & SAMPLE_POLYFLAGS_SWIM) != 0))
+	if (imguiCheck("Swim", (m_filter.getExcludeFlags() & SAMPLE_POLYFLAGS_SWIM) != 0))
 	{
-		m_filter.excludeFlags ^= SAMPLE_POLYFLAGS_SWIM;
+		m_filter.setExcludeFlags(m_filter.getExcludeFlags() ^ SAMPLE_POLYFLAGS_SWIM);
 		recalc();
 	}
-	if (imguiCheck("Door", (m_filter.excludeFlags & SAMPLE_POLYFLAGS_DOOR) != 0))
+	if (imguiCheck("Door", (m_filter.getExcludeFlags() & SAMPLE_POLYFLAGS_DOOR) != 0))
 	{
-		m_filter.excludeFlags ^= SAMPLE_POLYFLAGS_DOOR;
+		m_filter.setExcludeFlags(m_filter.getExcludeFlags() ^ SAMPLE_POLYFLAGS_DOOR);
 		recalc();
 	}
-	if (imguiCheck("Jump", (m_filter.excludeFlags & SAMPLE_POLYFLAGS_JUMP) != 0))
+	if (imguiCheck("Jump", (m_filter.getExcludeFlags() & SAMPLE_POLYFLAGS_JUMP) != 0))
 	{
-		m_filter.excludeFlags ^= SAMPLE_POLYFLAGS_JUMP;
+		m_filter.setExcludeFlags(m_filter.getExcludeFlags() ^ SAMPLE_POLYFLAGS_JUMP);
 		recalc();
 	}
 	imguiUnindent();
@@ -568,7 +575,7 @@ void NavMeshTesterTool::recalc()
 #ifdef DUMP_REQS
 			printf("pi  %f %f %f  %f %f %f  0x%x 0x%x\n",
 				   m_spos[0],m_spos[1],m_spos[2], m_epos[0],m_epos[1],m_epos[2],
-				   m_filter.includeFlags, m_filter.excludeFlags); 
+				   m_filter.getIncludeFlags(), m_filter.getExcludeFlags()); 
 #endif
 
 			m_npolys = m_navQuery->findPath(m_startRef, m_endRef, m_spos, m_epos, &m_filter, m_polys, MAX_POLYS);
@@ -710,7 +717,7 @@ void NavMeshTesterTool::recalc()
 #ifdef DUMP_REQS
 			printf("ps  %f %f %f  %f %f %f  0x%x 0x%x\n",
 				   m_spos[0],m_spos[1],m_spos[2], m_epos[0],m_epos[1],m_epos[2],
-				   m_filter.includeFlags, m_filter.excludeFlags); 
+				   m_filter.getIncludeFlags(), m_filter.getExcludeFlags()); 
 #endif
 			m_npolys = m_navQuery->findPath(m_startRef, m_endRef, m_spos, m_epos, &m_filter, m_polys, MAX_POLYS);
 			m_nstraightPath = 0;
@@ -740,7 +747,7 @@ void NavMeshTesterTool::recalc()
 #ifdef DUMP_REQS
 			printf("ps  %f %f %f  %f %f %f  0x%x 0x%x\n",
 				   m_spos[0],m_spos[1],m_spos[2], m_epos[0],m_epos[1],m_epos[2],
-				   m_filter.includeFlags, m_filter.excludeFlags); 
+				   m_filter.getIncludeFlags(), m_filter.getExcludeFlags()); 
 #endif
 			m_npolys = 0;
 			m_nstraightPath = 0;
@@ -761,7 +768,7 @@ void NavMeshTesterTool::recalc()
 #ifdef DUMP_REQS
 			printf("rc  %f %f %f  %f %f %f  0x%x 0x%x\n",
 				   m_spos[0],m_spos[1],m_spos[2], m_epos[0],m_epos[1],m_epos[2],
-				   m_filter.includeFlags, m_filter.excludeFlags); 
+				   m_filter.getIncludeFlags(), m_filter.getExcludeFlags()); 
 #endif
 			float t = 0;
 			m_npolys = 0;
@@ -801,7 +808,7 @@ void NavMeshTesterTool::recalc()
 #ifdef DUMP_REQS
 			printf("dw  %f %f %f  %f  0x%x 0x%x\n",
 				   m_spos[0],m_spos[1],m_spos[2], 100.0f,
-				   m_filter.includeFlags, m_filter.excludeFlags); 
+				   m_filter.getIncludeFlags(), m_filter.getExcludeFlags()); 
 #endif
 			m_distanceToWall = m_navQuery->findDistanceToWall(m_startRef, m_spos, 100.0f, &m_filter, m_hitPos, m_hitNormal);
 		}
@@ -816,7 +823,7 @@ void NavMeshTesterTool::recalc()
 #ifdef DUMP_REQS
 			printf("fpc  %f %f %f  %f  0x%x 0x%x\n",
 				   m_spos[0],m_spos[1],m_spos[2], dist,
-				   m_filter.includeFlags, m_filter.excludeFlags);
+				   m_filter.getIncludeFlags(), m_filter.getExcludeFlags());
 #endif
 			m_npolys = m_navQuery->findPolysAroundCircle(m_startRef, m_spos, dist, &m_filter,
 														m_polys, m_parent, 0, MAX_POLYS);
@@ -853,7 +860,7 @@ void NavMeshTesterTool::recalc()
 				   m_queryPoly[3],m_queryPoly[4],m_queryPoly[5],
 				   m_queryPoly[6],m_queryPoly[7],m_queryPoly[8],
 				   m_queryPoly[9],m_queryPoly[10],m_queryPoly[11],
-				   m_filter.includeFlags, m_filter.excludeFlags);
+				   m_filter.getIncludeFlags(), m_filter.getExcludeFlags());
 #endif
 			m_npolys = m_navQuery->findPolysAroundShape(m_startRef, m_queryPoly, 4, &m_filter,
 													   m_polys, m_parent, 0, MAX_POLYS);
@@ -866,7 +873,7 @@ void NavMeshTesterTool::recalc()
 #ifdef DUMP_REQS
 			printf("fln  %f %f %f  %f  0x%x 0x%x\n",
 				   m_spos[0],m_spos[1],m_spos[2], m_neighbourhoodRadius,
-				   m_filter.includeFlags, m_filter.excludeFlags);
+				   m_filter.getIncludeFlags(), m_filter.getExcludeFlags());
 #endif
 			m_npolys = m_navQuery->findLocalNeighbourhood(m_startRef, m_spos, m_neighbourhoodRadius, &m_filter,
 														 m_polys, m_parent, MAX_POLYS);

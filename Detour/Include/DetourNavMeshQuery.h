@@ -19,14 +19,81 @@
 #ifndef DETOURNAVMESHQUERY_H
 #define DETOURNAVMESHQUERY_H
 
-#include "DetourAlloc.h"
 #include "DetourNavMesh.h"
 
-struct dtQueryFilter
+
+// Define DT_VIRTUAL_QUERYFILTER if you wish to derive a custom filter from dtQueryFilter.
+// On certain platforms indirect or virtual function call is expensive. The default
+// setting is to use non-virtual functions, the actualy implementations of the functions
+// are declared as inline for maximum speed. 
+
+//#define DT_VIRTUAL_QUERYFILTER 1
+
+// Class for polygon filtering and cost calculation during query operations.
+// - It is possible to derive a custom query filter from dtQueryFilter by overriding
+//   the virtual functions passFilter() and getCost().
+// - Both functions should be as fast as possible. Use cached local copy of data
+//   instead of accessing your own objects where possible.
+// - You do not need to adhere to the flags and cost logic provided by the default
+//   implementation.
+// - In order for the A* to work properly, the cost should be proportional to
+//   the travel distance. Using cost modifier less than 1.0 is likely to lead
+//   to problems during pathfinding.
+class dtQueryFilter
 {
-	dtQueryFilter() : includeFlags(0xffff), excludeFlags(0) {}
-	unsigned short includeFlags;				// If any of the flags are set, the poly is included.
-	unsigned short excludeFlags;				// If any of the flags are set, the poly is excluded.
+	float m_areaCost[DT_MAX_AREAS];		// Array storing cost per area type, used by default implementation.
+	unsigned short m_includeFlags;		// Include poly flags, used by default implementation.
+	unsigned short m_excludeFlags;		// Exclude poly flags, used by default implementation.
+	
+public:
+	dtQueryFilter();
+	
+	// Returns true if the polygon is can visited.
+	// Params:
+	//  ref - (in) reference to the polygon test.
+	//  tile - (in) pointer to the tile of the polygon test.
+	//  poly - (in) pointer to the polygon test.
+#ifdef DT_VIRTUAL_QUERYFILTER
+	virtual bool passFilter(const dtPolyRef ref,
+							const dtMeshTile* tile,
+							const dtPoly* poly) const;
+#else
+	bool passFilter(const dtPolyRef ref,
+					const dtMeshTile* tile,
+					const dtPoly* poly) const;
+#endif
+
+	// Returns cost to travel from 'pa' to 'pb'.'
+	// The segment is fully contained inside 'cur'.
+	// 'pa' lies on the edge between 'prev' and 'cur', 
+	// 'pb' lies on the edge between 'cur' and 'next'.
+	// Params:
+	//  pa - (in) segment start position.
+	//  pb - (in) segment end position.
+	//  prevRef, prevTile, prevPoly - (in) data describing the previous polygon, can be null.
+	//  curRef, curTile, curPoly - (in) data describing the current polygon.
+	//  nextRef, nextTile, nextPoly - (in) data describing the next polygon, can be null.
+#ifdef DT_VIRTUAL_QUERYFILTER
+	virtual float getCost(const float* pa, const float* pb,
+						  const dtPolyRef prevRef, const dtMeshTile* prevTile, const dtPoly* prevPoly,
+						  const dtPolyRef curRef, const dtMeshTile* curTile, const dtPoly* curPoly,
+						  const dtPolyRef nextRef, const dtMeshTile* nextTile, const dtPoly* nextPoly) const;
+#else
+	float getCost(const float* pa, const float* pb,
+				  const dtPolyRef prevRef, const dtMeshTile* prevTile, const dtPoly* prevPoly,
+				  const dtPolyRef curRef, const dtMeshTile* curTile, const dtPoly* curPoly,
+				  const dtPolyRef nextRef, const dtMeshTile* nextTile, const dtPoly* nextPoly) const;
+#endif
+	
+	// Getters and setters for the default implementation data.
+	inline float getAreaCost(const int i) const { return m_areaCost[i]; }
+	inline void setAreaCost(const int i, const float cost) { m_areaCost[i] = cost; } 
+
+	inline unsigned short getIncludeFlags() const { return m_includeFlags; }
+	inline void setIncludeFlags(const unsigned short flags) { m_includeFlags = flags; }
+
+	inline unsigned short getExcludeFlags() const { return m_excludeFlags; }
+	inline void setExcludeFlags(const unsigned short flags) { m_excludeFlags = flags; }	
 };
 
 enum dtQueryState
@@ -47,18 +114,18 @@ public:
 	//  nav - (in) pointer to navigation mesh data.
 	//  maxNodes - (in) Maximum number of search nodes to use (max 65536).
 	// Returns: True if succeed, else false.
-	bool init(dtNavMesh* nav, const int maxNodes);
+	bool init(class dtNavMesh* nav, const int maxNodes);
 	
 	// Sets the pathfinding cost of the specified area.
 	// Params:
 	//  area - (in) area ID (0-63).
 	//  cost - (int) travel cost of the area.
-	void setAreaCost(const int area, float cost);
+//	void setAreaCost(const int area, float cost);
 	
 	// Returns the pathfinding cost of the specified area.
 	// Params:
 	//  area - (in) area ID (0-63).
-	float getAreaCost(const int area) const;
+//	float getAreaCost(const int area) const;
 	
 	// Finds the nearest navigation polygon around the center location.
 	// Params:
@@ -101,8 +168,10 @@ public:
 				 dtPolyRef* path, const int maxPathSize) const;
 	
 	// Intializes sliced path find query.
-	// Note: calling any other dtNavMeshQuery method before calling findPathEnd()
+	// Note 1: calling any other dtNavMeshQuery method before calling findPathEnd()
 	// may results in corrupted data!
+	// Note 2: The pointer to filter is store, and used in subsequent
+	// calls to updateSlicedFindPath().
 	// Params:
 	//	startRef - (in) ref to path start polygon.
 	//	endRef - (in) ref to path end polygon.
@@ -285,6 +354,8 @@ public:
 	// Returns true if poly reference ins in closed list.
 	bool isInClosedList(dtPolyRef ref) const;
 	
+	class dtNodePool* getNodePool() const { return m_nodePool; }
+	
 private:
 	
 	// Returns neighbour tile based on side. 
@@ -312,7 +383,7 @@ private:
 						 dtPolyRef to, const dtPoly* toPoly, const dtMeshTile* toTile,
 						 float* mid) const;
 	
-	dtNavMesh* m_nav;					// Pointer to navmesh data.
+	class dtNavMesh* m_nav;				// Pointer to navmesh data.
 
 	struct dtQueryData
 	{
@@ -321,11 +392,9 @@ private:
 		float lastBestNodeCost;
 		dtPolyRef startRef, endRef;
 		float startPos[3], endPos[3];
-		dtQueryFilter filter;
+		const dtQueryFilter* filter;
 	};
 	dtQueryData m_query;				// Sliced query state.
-
-	float m_areaCost[DT_MAX_AREAS];		// Cost per area.
 
 	class dtNodePool* m_tinyNodePool;	// Pointer to small node pool.
 	class dtNodePool* m_nodePool;		// Pointer to node pool.

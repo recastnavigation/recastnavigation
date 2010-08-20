@@ -25,8 +25,11 @@ enum dtNodeFlags
 	DT_NODE_CLOSED = 0x02,
 };
 
+static const unsigned short DT_NULL_IDX = 0xffff;
+
 struct dtNode
 {
+	float pos[3];
 	float cost;
 	float total;
 	unsigned int id;
@@ -55,6 +58,12 @@ public:
 		if (!idx) return 0;
 		return &m_nodes[idx-1];
 	}
+
+	inline const dtNode* getNodeAtIdx(unsigned int idx) const
+	{
+		if (!idx) return 0;
+		return &m_nodes[idx-1];
+	}
 	
 	inline int getMemUsed() const
 	{
@@ -65,6 +74,10 @@ public:
 	}
 	
 	inline int getMaxNodes() const { return m_maxNodes; }
+	
+	inline int getHashSize() const { return m_hashSize; }
+	inline unsigned short getFirst(int bucket) const { return m_first[bucket]; }
+	inline unsigned short getNext(int i) const { return m_next[i]; }
 	
 private:
 	inline unsigned int hashint(unsigned int a) const

@@ -21,6 +21,7 @@
 #include "DetourDebugDraw.h"
 #include "DetourNavMesh.h"
 #include "DetourCommon.h"
+#include "DetourNode.h"
 
 
 static float distancePtLine2d(const float* pt, const float* p, const float* q)
@@ -220,7 +221,6 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 		dd->end();
 	}
 	
-	
 	const unsigned int vcol = duRGBA(0,0,0,196);
 	dd->begin(DU_DRAW_POINTS, 3.0f);
 	for (int i = 0; i < tile->header->vertCount; ++i)
@@ -229,7 +229,7 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 		dd->vertex(v[0], v[1], v[2], vcol);
 	}
 	dd->end();
-	
+
 	dd->depthMask(true);
 }
 
@@ -254,6 +254,44 @@ void duDebugDrawNavMeshWithClosedList(struct duDebugDraw* dd, const dtNavMesh& m
 		const dtMeshTile* tile = mesh.getTile(i);
 		if (!tile->header) continue;
 		drawMeshTile(dd, mesh, &query, tile, flags);
+	}
+}
+
+void duDebugDrawNavMeshNodes(struct duDebugDraw* dd, const dtNavMeshQuery& query)
+{
+	if (!dd) return;
+	
+	const dtNodePool* pool = query.getNodePool();
+	if (pool)
+	{
+		const float off = 0.5f;
+		dd->begin(DU_DRAW_POINTS, 4.0f);
+		for (int i = 0; i < pool->getHashSize(); ++i)
+		{
+			for (unsigned short j = pool->getFirst(i); j != DT_NULL_IDX; j = pool->getNext(j))
+			{
+				const dtNode* node = pool->getNodeAtIdx(j+1);
+				if (!node) continue;
+				dd->vertex(node->pos[0],node->pos[1]+off,node->pos[2], duRGBA(255,192,0,255));
+			}
+		}
+		dd->end();
+		
+		dd->begin(DU_DRAW_LINES, 2.0f);
+		for (int i = 0; i < pool->getHashSize(); ++i)
+		{
+			for (unsigned short j = pool->getFirst(i); j != DT_NULL_IDX; j = pool->getNext(j))
+			{
+				const dtNode* node = pool->getNodeAtIdx(j+1);
+				if (!node) continue;
+				if (!node->pidx) continue;
+				const dtNode* parent = pool->getNodeAtIdx(node->pidx);
+				if (!parent) continue;
+				dd->vertex(node->pos[0],node->pos[1]+off,node->pos[2], duRGBA(255,192,0,128));
+				dd->vertex(parent->pos[0],parent->pos[1]+off,parent->pos[2], duRGBA(255,192,0,128));
+			}
+		}
+		dd->end();
 	}
 }
 
@@ -290,28 +328,6 @@ void duDebugDrawNavMeshBVTree(duDebugDraw* dd, const dtNavMesh& mesh)
 		drawMeshTileBVTree(dd, tile);
 	}
 }
-
-/*
-static void calcRect(const float* va, const float* vb,
-					 float* bmin, float* bmax,
-					 int side, float padx, float pady)
-{
-	if (side == 0 || side == 4)
-	{
-		bmin[0] = dtMin(va[2],vb[2]) + padx;
-		bmin[1] = dtMin(va[1],vb[1]) - pady;
-		bmax[0] = dtMax(va[2],vb[2]) - padx;
-		bmax[1] = dtMax(va[1],vb[1]) + pady;
-	}
-	else if (side == 2 || side == 6)
-	{
-		bmin[0] = dtMin(va[0],vb[0]) + padx;
-		bmin[1] = dtMin(va[1],vb[1]) - pady;
-		bmax[0] = dtMax(va[0],vb[0]) - padx;
-		bmax[1] = dtMax(va[1],vb[1]) + pady;
-	}
-}
-*/
 
 static void drawMeshTilePortal(duDebugDraw* dd, const dtMeshTile* tile)
 {
@@ -358,24 +374,6 @@ static void drawMeshTilePortal(duDebugDraw* dd, const dtMeshTile* tile)
 
 					dd->vertex(x,vb[1]-pady,vb[2], col);
 					dd->vertex(x,va[1]-pady,va[2], col);
-					
-/*					const float zmin = dtMin(va[2], vb[2]) - padx;
-					const float zmax = dtMax(va[2], vb[2]) + padx;
-					const float ymin = dtMin(va[1], vb[1]) - pady;
-					const float ymax = dtMax(va[1], vb[1]) + pady;
-					const float x = va[0] + ((side == 0) ? -0.02f : 0.02f);
-					
-					dd->vertex(x,ymin,zmin, col);
-					dd->vertex(x,ymin,zmax, col);
-
-					dd->vertex(x,ymin,zmax, col);
-					dd->vertex(x,ymax,zmax, col);
-
-					dd->vertex(x,ymax,zmax, col);
-					dd->vertex(x,ymax,zmin, col);
-
-					dd->vertex(x,ymax,zmin, col);
-					dd->vertex(x,ymin,zmin, col);*/
 				}
 				else if (side == 2 || side == 6)
 				{
@@ -394,25 +392,6 @@ static void drawMeshTilePortal(duDebugDraw* dd, const dtMeshTile* tile)
 					
 					dd->vertex(vb[0],vb[1]-pady,z, col);
 					dd->vertex(va[0],va[1]-pady,z, col);
-					
-					
-/*					const float xmin = dtMin(va[0], vb[0]) - padx;
-					const float xmax = dtMax(va[0], vb[0]) + padx;
-					const float ymin = dtMin(va[1], vb[1]) - pady;
-					const float ymax = dtMax(va[1], vb[1]) + pady;
-					const float z = va[2] + ((side == 2) ? -0.02f : 0.02f);
-
-					dd->vertex(xmin,ymin,z, col);
-					dd->vertex(xmax,ymin,z, col);
-					
-					dd->vertex(xmax,ymin,z, col);
-					dd->vertex(xmax,ymax,z, col);
-					
-					dd->vertex(xmax,ymax,z, col);
-					dd->vertex(xmin,ymax,z, col);
-					
-					dd->vertex(xmin,ymax,z, col);
-					dd->vertex(xmin,ymin,z, col);*/
 				}
 
 			}

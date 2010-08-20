@@ -490,7 +490,7 @@ bool imguiCheck(const char* text, bool checked, bool enabled)
 	return res;
 }
 
-bool imguiCollapse(const char* text, bool checked, bool enabled)
+bool imguiCollapse(const char* text, const char* subtext, bool checked, bool enabled)
 {
 	g_state.widgetId++;
 	unsigned int id = (g_state.areaId<<16) | g_state.widgetId;
@@ -516,7 +516,10 @@ bool imguiCollapse(const char* text, bool checked, bool enabled)
 		addGfxCmdText(x+BUTTON_HEIGHT, y+BUTTON_HEIGHT/2-TEXT_HEIGHT/2, IMGUI_ALIGN_LEFT, text, isHot(id) ? imguiRGBA(255,196,0,255) : imguiRGBA(255,255,255,200));
 	else
 		addGfxCmdText(x+BUTTON_HEIGHT, y+BUTTON_HEIGHT/2-TEXT_HEIGHT/2, IMGUI_ALIGN_LEFT, text, imguiRGBA(128,128,128,200));
-		
+
+	if (subtext)
+		addGfxCmdText(x+w-BUTTON_HEIGHT/2, y+BUTTON_HEIGHT/2-TEXT_HEIGHT/2, IMGUI_ALIGN_RIGHT, subtext, imguiRGBA(255,255,255,128));
+	
 	return res;
 }
 

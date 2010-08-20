@@ -1046,7 +1046,7 @@ void CrowdTool::handleMenu()
 	imguiSeparator();
 	imguiSeparator();
 	
-	if (imguiCollapse("Options", m_expandOptions))
+	if (imguiCollapse("Options", 0, m_expandOptions))
 		m_expandOptions = !m_expandOptions;
 	
 	if (m_expandOptions)
@@ -1061,7 +1061,7 @@ void CrowdTool::handleMenu()
 		imguiUnindent();
 	}
 
-	if (imguiCollapse("Debug Draw", m_expandDebugDraw))
+	if (imguiCollapse("Debug Draw", 0, m_expandDebugDraw))
 		m_expandDebugDraw = !m_expandDebugDraw;
 		
 	if (m_expandDebugDraw)
