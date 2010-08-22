@@ -16,6 +16,9 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
+#ifndef SAMPLEINTERFACES_H
+#define SAMPLEINTERFACES_H
+
 #include "DebugDraw.h"
 #include "Recast.h"
 #include "RecastDump.h"
@@ -62,6 +65,12 @@ public:
 	virtual int getBuildTime(const rcBuilTimeLabel label);
 };
 
+
+// TODO: Find better solution. This is useful for timing in some cases when the full build interface would be overkill.
+rcTimeVal getPerfTime();
+int getPerfDeltaTimeUsec(const rcTimeVal start, const rcTimeVal end);
+
+
 // OpenGL debug draw implementation.
 class DebugDrawGL : public duDebugDraw
 {
@@ -88,3 +97,6 @@ public:
 	virtual bool write(const void* ptr, const size_t size);
 	virtual bool read(void* ptr, const size_t size);
 };
+
+#endif // SAMPLEINTERFACES_H
+

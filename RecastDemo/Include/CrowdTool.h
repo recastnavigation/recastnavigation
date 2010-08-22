@@ -24,19 +24,20 @@
 
 // Tool to create crowds.
 
-
 enum BodyType
 {
 	BODY_CIRCLE = 0,
-	BODY_CAPSULE = 1,
+	BODY_SEGMENT = 1,
 };
 
-struct Body
+struct ObstacleBody
 {
 	float p[3], q[3];		// Position of the obstacle
 	float vel[3];			// Velocity of the obstacle
 	float dvel[3];			// Velocity of the obstacle
 	float rad;				// Radius of the obstacle
+	float dp[3], np[3];		// Use for side selection during sampling.
+	bool touch;
 	int type;				// Type of the obstacle (see ObstacleType)
 };
 
@@ -44,9 +45,9 @@ struct Body
 static const int RVO_SAMPLE_RAD = 15;
 static const int MAX_RVO_SAMPLES = (RVO_SAMPLE_RAD*2+1)*(RVO_SAMPLE_RAD*2+1) + 100;
 
-struct RVO
+struct RVODebugData
 {
-	inline RVO() : ns(0) {}
+	inline RVODebugData() : ns(0) {}
 	float spos[MAX_RVO_SAMPLES*3];
 	float scs[MAX_RVO_SAMPLES];
 	float spen[MAX_RVO_SAMPLES];
@@ -90,11 +91,13 @@ struct Agent
 	float npos[3];
 	float disp[3];
 
+	float opts[3], opte[3];
+
 	float maxspeed;
 	float t;
 	float var;
 
-	RVO rvo;
+	RVODebugData rvo;
 	
 	float colradius;
 	float colcenter[3];
@@ -116,6 +119,59 @@ struct Agent
 	unsigned char active;
 };
 
+
+class SampleGraph
+{
+	static const int MAX_SAMPLES = 512;
+	float m_samples[MAX_SAMPLES];
+	int m_hsamples;
+public:
+	SampleGraph() :
+		m_hsamples(0)
+	{
+		for (int i = 0; i < MAX_SAMPLES; ++i)
+			m_samples[i] = 0;
+	}
+	
+	~SampleGraph()
+	{
+	}
+	
+	inline void addSample(const float val)
+	{
+		m_hsamples = (m_hsamples+MAX_SAMPLES-1) % MAX_SAMPLES;
+		m_samples[m_hsamples] = val;
+	}
+	
+	inline int getSampleCount() const
+	{
+		return MAX_SAMPLES;
+	}
+	
+	inline float getSample(const int i) const
+	{
+		return m_samples[(m_hsamples+i) % MAX_SAMPLES];
+	}
+	
+	inline float getSampleMin() const
+	{
+		float val = m_samples[0];
+		for (int i = 1; i < MAX_SAMPLES; ++i)
+			if (m_samples[i] < val)
+				val = m_samples[i];
+		return val;
+	} 
+	
+	inline float getSampleMax() const
+	{
+		float val = m_samples[0];
+		for (int i = 1; i < MAX_SAMPLES; ++i)
+			if (m_samples[i] > val)
+				val = m_samples[i];
+		return val;
+	} 
+};
+
 enum UpdateFlags
 {
 	CROWDMAN_ANTICIPATE_TURNS = 1,
@@ -128,6 +184,10 @@ class CrowdManager
 	static const int MAX_AGENTS = 32;
 	Agent m_agents[MAX_AGENTS];
 	int m_shortcutIter;
+
+	SampleGraph m_totalTime;
+	SampleGraph m_rvoTime;
+
 public:
 	CrowdManager();
 	~CrowdManager();
@@ -140,6 +200,9 @@ public:
 	void setMoveTarget(const int idx, const float* pos);
 
 	void update(const float dt, unsigned int flags, dtNavMeshQuery* navquery);
+
+	const SampleGraph* getTotalTimeGraph() const { return &m_totalTime; }
+	const SampleGraph* getRVOTimeGraph() const { return &m_rvoTime; }
 };
 
 class CrowdTool : public SampleTool
@@ -155,6 +218,7 @@ class CrowdTool : public SampleTool
 	bool m_showCollisionSegments;
 	bool m_showPath;
 	bool m_showVO;
+	bool m_showOpt;
 	
 	bool m_expandOptions;
 	bool m_anticipateTurns;
@@ -164,7 +228,7 @@ class CrowdTool : public SampleTool
 	bool m_run;
 	
 	CrowdManager m_crowd;
-	
+		
 	enum ToolMode
 	{
 		TOOLMODE_CREATE,
