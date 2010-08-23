@@ -26,6 +26,7 @@ typedef int64_t rcTimeVal;
 typedef __int64 rcTimeVal;
 #endif
 
+
 enum rcLogCategory
 {
 	RC_LOG_PROGRESS = 1,
