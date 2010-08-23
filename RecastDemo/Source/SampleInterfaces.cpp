@@ -157,7 +157,7 @@ void BuildContext::resetBuildTimes()
 		m_buildTime[i] = -1;
 }
 
-void BuildContext::reportBuildTime(const rcBuilTimeLabel label, const int time)
+void BuildContext::reportBuildTime(const rcBuildTimeLabel label, const int time)
 {
 	const int idx = (int)label;
 	// The build times are initialized to negative to indicate no samples collected.
@@ -167,7 +167,7 @@ void BuildContext::reportBuildTime(const rcBuilTimeLabel label, const int time)
 		m_buildTime[idx] += time;
 }
 
-int BuildContext::getBuildTime(const rcBuilTimeLabel label)
+int BuildContext::getBuildTime(const rcBuildTimeLabel label)
 {
 	return m_buildTime[label];
 }

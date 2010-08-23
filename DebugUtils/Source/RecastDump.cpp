@@ -399,7 +399,7 @@ bool duReadCompactHeightfield(struct rcCompactHeightfield& chf, duFileIO* io)
 }
 
 
-static void logLine(rcBuildContext* ctx, rcBuilTimeLabel label, const char* name, const float pc)
+static void logLine(rcBuildContext* ctx, rcBuildTimeLabel label, const char* name, const float pc)
 {
 	const int t = ctx->getBuildTime(label);
 	if (t < 0) return;

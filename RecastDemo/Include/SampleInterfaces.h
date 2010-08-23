@@ -60,9 +60,9 @@ public:
 	// Resets build time collecting.
 	virtual void resetBuildTimes();
 	// Reports build time of specified label for accumulation.
-	virtual void reportBuildTime(const rcBuilTimeLabel label, const int time);
+	virtual void reportBuildTime(const rcBuildTimeLabel label, const int time);
 	// Returns accumulated build time for specified label, or -1 if no time was reported.
-	virtual int getBuildTime(const rcBuilTimeLabel label);
+	virtual int getBuildTime(const rcBuildTimeLabel label);
 };
 
 
