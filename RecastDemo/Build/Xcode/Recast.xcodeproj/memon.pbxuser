@@ -218,6 +218,14 @@
 			6BA687601222EADA00730711 /* PBXTextBookmark */ = 6BA687601222EADA00730711 /* PBXTextBookmark */;
 			6BA687611222EADB00730711 /* PBXTextBookmark */ = 6BA687611222EADB00730711 /* PBXTextBookmark */;
 			6BA687631222EAE200730711 /* PBXTextBookmark */ = 6BA687631222EAE200730711 /* PBXTextBookmark */;
+			6BA6876C1222F02E00730711 /* PBXTextBookmark */ = 6BA6876C1222F02E00730711 /* PBXTextBookmark */;
+			6BA6876D1222F02E00730711 /* PBXTextBookmark */ = 6BA6876D1222F02E00730711 /* PBXTextBookmark */;
+			6BA6876E1222F02E00730711 /* PBXTextBookmark */ = 6BA6876E1222F02E00730711 /* PBXTextBookmark */;
+			6BA687701222F02E00730711 /* PBXTextBookmark */ = 6BA687701222F02E00730711 /* PBXTextBookmark */;
+			6BA687711222F02E00730711 /* PBXTextBookmark */ = 6BA687711222F02E00730711 /* PBXTextBookmark */;
+			6BA687721222F02E00730711 /* PBXTextBookmark */ = 6BA687721222F02E00730711 /* PBXTextBookmark */;
+			6BA687731222F02E00730711 /* PBXTextBookmark */ = 6BA687731222F02E00730711 /* PBXTextBookmark */;
+			6BA687751222F02E00730711 /* PBXTextBookmark */ = 6BA687751222F02E00730711 /* PBXTextBookmark */;
 			6BAF3860120A8A8E008CFCDF = 6BAF3860120A8A8E008CFCDF /* PBXTextBookmark */;
 			6BAF3861120A8A8E008CFCDF = 6BAF3861120A8A8E008CFCDF /* PBXTextBookmark */;
 			6BAF386B120A8B78008CFCDF = 6BAF386B120A8B78008CFCDF /* PBXTextBookmark */;
@@ -433,9 +441,9 @@
 	};
 	6B137C7E0F7FCBFE00459200 /* Recast.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {933, 10864}}";
-			sepNavSelRange = "{1141, 0}";
-			sepNavVisRange = "{1083, 412}";
+			sepNavIntBoundsRect = "{{0, 0}, {933, 10880}}";
+			sepNavSelRange = "{1064, 0}";
+			sepNavVisRange = "{976, 396}";
 			sepNavWindowFrame = "{{15, 51}, {1214, 722}}";
 		};
 	};
@@ -1041,7 +1049,7 @@
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {1223, 19104}}";
 			sepNavSelRange = "{17324, 0}";
-			sepNavVisRange = "{17172, 477}";
+			sepNavVisRange = "{17172, 545}";
 			sepNavWindowFrame = "{{38, 30}, {1214, 722}}";
 		};
 	};
@@ -1279,8 +1287,8 @@
 	6B98470511E733B600FA177B /* RecastAlloc.h */ = {
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {933, 1120}}";
-			sepNavSelRange = "{1347, 0}";
-			sepNavVisRange = "{946, 639}";
+			sepNavSelRange = "{1658, 0}";
+			sepNavVisRange = "{1347, 785}";
 		};
 	};
 	6B98471011E734A100FA177B /* PBXTextBookmark */ = {
@@ -1429,7 +1437,7 @@
 		fRef = 6B137C7E0F7FCBFE00459200 /* Recast.h */;
 		name = "Recast.h: 34";
 		rLen = 0;
-		rLoc = 1141;
+		rLoc = 1142;
 		rType = 0;
 		vrLen = 412;
 		vrLoc = 1083;
@@ -1609,7 +1617,7 @@
 		fRef = 6B137C7E0F7FCBFE00459200 /* Recast.h */;
 		name = "Recast.h: 34";
 		rLen = 0;
-		rLoc = 1141;
+		rLoc = 1142;
 		rType = 0;
 		vrLen = 412;
 		vrLoc = 1083;
@@ -1683,6 +1691,98 @@
 		rType = 0;
 		vrLen = 477;
 		vrLoc = 17172;
+	};
+	6BA6876C1222F02E00730711 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B2AEC520FFB8958005BE9CC /* Sample_TileMesh.cpp */;
+		name = "Sample_TileMesh.cpp: 631";
+		rLen = 0;
+		rLoc = 17324;
+		rType = 0;
+		vrLen = 545;
+		vrLoc = 17172;
+	};
+	6BA6876D1222F02E00730711 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B98470511E733B600FA177B /* RecastAlloc.h */;
+		name = "RecastAlloc.h: 47";
+		rLen = 0;
+		rLoc = 1658;
+		rType = 0;
+		vrLen = 785;
+		vrLoc = 1347;
+	};
+	6BA6876E1222F02E00730711 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BA6876F1222F02E00730711 /* entries */;
+		name = "entries: 48";
+		rLen = 32;
+		rLoc = 432;
+		rType = 0;
+		vrLen = 237;
+		vrLoc = 272;
+	};
+	6BA6876F1222F02E00730711 /* entries */ = {
+		isa = PBXFileReference;
+		name = entries;
+		path = /Users/memon/Code/recastnavigation/Recast/Include/.svn/entries;
+		sourceTree = "<absolute>";
+	};
+	6BA687701222F02E00730711 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B137C7E0F7FCBFE00459200 /* Recast.h */;
+		name = "Recast.h: 34";
+		rLen = 0;
+		rLoc = 1142;
+		rType = 0;
+		vrLen = 455;
+		vrLoc = 1064;
+	};
+	6BA687711222F02E00730711 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B2AEC520FFB8958005BE9CC /* Sample_TileMesh.cpp */;
+		name = "Sample_TileMesh.cpp: 631";
+		rLen = 0;
+		rLoc = 17324;
+		rType = 0;
+		vrLen = 545;
+		vrLoc = 17172;
+	};
+	6BA687721222F02E00730711 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B98470511E733B600FA177B /* RecastAlloc.h */;
+		name = "RecastAlloc.h: 47";
+		rLen = 0;
+		rLoc = 1658;
+		rType = 0;
+		vrLen = 785;
+		vrLoc = 1347;
+	};
+	6BA687731222F02E00730711 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BA687741222F02E00730711 /* entries */;
+		name = "entries: 48";
+		rLen = 32;
+		rLoc = 432;
+		rType = 0;
+		vrLen = 237;
+		vrLoc = 272;
+	};
+	6BA687741222F02E00730711 /* entries */ = {
+		isa = PBXFileReference;
+		name = entries;
+		path = /Users/memon/Code/recastnavigation/Recast/Include/.svn/entries;
+		sourceTree = "<absolute>";
+	};
+	6BA687751222F02E00730711 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B137C7E0F7FCBFE00459200 /* Recast.h */;
+		name = "Recast.h: 29";
+		rLen = 0;
+		rLoc = 1064;
+		rType = 0;
+		vrLen = 396;
+		vrLoc = 976;
 	};
 	6BAF3860120A8A8E008CFCDF /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
@@ -1894,7 +1994,7 @@
 		fRef = 6B137C7E0F7FCBFE00459200 /* Recast.h */;
 		name = "Recast.h: 47";
 		rLen = 0;
-		rLoc = 1154;
+		rLoc = 1155;
 		rType = 0;
 		vrLen = 1651;
 		vrLoc = 942;
