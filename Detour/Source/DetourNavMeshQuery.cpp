@@ -71,18 +71,6 @@ inline float dtQueryFilter::getCost(const float* pa, const float* pb,
 static const float H_SCALE = 0.999f; // Search heuristic scale.
 
 
-inline int opposite(int side) { return (side+4) & 0x7; }
-
-inline bool overlapBoxes(const float* amin, const float* amax,
-						 const float* bmin, const float* bmax)
-{
-	bool overlap = true;
-	overlap = (amin[0] > bmax[0] || amax[0] < bmin[0]) ? false : overlap;
-	overlap = (amin[1] > bmax[1] || amax[1] < bmin[1]) ? false : overlap;
-	overlap = (amin[2] > bmax[2] || amax[2] < bmin[2]) ? false : overlap;
-	return overlap;
-}
-
 dtNavMeshQuery* dtAllocNavMeshQuery()
 {
 	return new(dtAlloc(sizeof(dtNavMeshQuery), DT_ALLOC_PERM)) dtNavMeshQuery;
@@ -428,7 +416,7 @@ int dtNavMeshQuery::queryPolygonsInTile(const dtMeshTile* tile, const float* qmi
 		int n = 0;
 		while (node < end)
 		{
-			const bool overlap = dtCheckOverlapBox(bmin, bmax, node->bmin, node->bmax);
+			const bool overlap = dtOverlapQuantBounds(bmin, bmax, node->bmin, node->bmax);
 			const bool isLeafNode = node->i >= 0;
 			
 			if (isLeafNode && overlap)
@@ -470,7 +458,7 @@ int dtNavMeshQuery::queryPolygonsInTile(const dtMeshTile* tile, const float* qmi
 				dtVmin(bmin, v);
 				dtVmax(bmax, v);
 			}
-			if (overlapBoxes(qmin,qmax, bmin,bmax))
+			if (dtOverlapBounds(qmin,qmax, bmin,bmax))
 			{
 				const dtPolyRef ref = base | (dtPolyRef)i;
 				if (filter->passFilter(ref, tile, p))

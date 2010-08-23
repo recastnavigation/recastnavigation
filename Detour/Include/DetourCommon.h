@@ -182,6 +182,8 @@ inline unsigned int dtIlog2(unsigned int v)
 
 inline int dtAlign4(int x) { return (x+3) & ~3; }
 
+inline int dtOppositeTile(int side) { return (side+4) & 0x7; }
+
 inline float dtVdot2D(const float* u, const float* v)
 {
 	return u[0]*v[0] + u[2]*v[2];
@@ -201,8 +203,8 @@ inline float dtTriArea2D(const float* a, const float* b, const float* c)
 	return acx*abz - abx*acz;
 }
 
-inline bool dtCheckOverlapBox(const unsigned short amin[3], const unsigned short amax[3],
-							  const unsigned short bmin[3], const unsigned short bmax[3])
+inline bool dtOverlapQuantBounds(const unsigned short amin[3], const unsigned short amax[3],
+								 const unsigned short bmin[3], const unsigned short bmax[3])
 {
 	bool overlap = true;
 	overlap = (amin[0] > bmax[0] || amax[0] < bmin[0]) ? false : overlap;
@@ -211,7 +213,8 @@ inline bool dtCheckOverlapBox(const unsigned short amin[3], const unsigned short
 	return overlap;
 }
 
-inline bool dtOverlapBounds(const float* amin, const float* amax, const float* bmin, const float* bmax)
+inline bool dtOverlapBounds(const float* amin, const float* amax,
+							const float* bmin, const float* bmax)
 {
 	bool overlap = true;
 	overlap = (amin[0] > bmax[0] || amax[0] < bmin[0]) ? false : overlap;
