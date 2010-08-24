@@ -175,8 +175,37 @@ bool dtNavMeshQuery::closestPointOnPolyInTile(const dtMeshTile* tile, const dtPo
 	const unsigned int ip = (unsigned int)(poly - tile->polys);
 	const dtPolyDetail* pd = &tile->detailMeshes[ip];
 
-	float closestDistSqr = FLT_MAX;
+	// TODO: The commented out version finds 'cylinder distance' instead of 'sphere distance' to the navmesh.
+	// Test and enable.
+/*
+	// Clamp point to be inside the polygon.
+	float verts[DT_VERTS_PER_POLYGON*3];	
+	float edged[DT_VERTS_PER_POLYGON];
+	float edget[DT_VERTS_PER_POLYGON];
+	const int nv = poly->vertCount;
+	for (int i = 0; i < nv; ++i)
+		dtVcopy(&verts[i*3], &tile->verts[poly->verts[i]*3]);
 	
+	dtVcopy(closest, pos);
+	if (!dtDistancePtPolyEdgesSqr(pos, verts, nv, edged, edget))
+	{
+		// Point is outside the polygon, dtClamp to nearest edge.
+		float dmin = FLT_MAX;
+		int imin = -1;
+		for (int i = 0; i < nv; ++i)
+		{
+			if (edged[i] < dmin)
+			{
+				dmin = edged[i];
+				imin = i;
+			}
+		}
+		const float* va = &verts[imin*3];
+		const float* vb = &verts[((imin+1)%nv)*3];
+		dtVlerp(closest, va, vb, edget[imin]);
+	}
+
+	// Find height at the location.
 	for (int j = 0; j < pd->triCount; ++j)
 	{
 		const unsigned char* t = &tile->detailTris[(pd->triBase+j)*4];
@@ -188,9 +217,31 @@ bool dtNavMeshQuery::closestPointOnPolyInTile(const dtMeshTile* tile, const dtPo
 			else
 				v[k] = &tile->detailVerts[(pd->vertBase+(t[k]-poly->vertCount))*3];
 		}
+		float h;
+		if (dtClosestHeightPointTriangle(pos, v[0], v[1], v[2], h))
+		{
+			closest[1] = h;
+			break;
+		}
+	}
+*/
+	float closestDistSqr = FLT_MAX;
+	for (int j = 0; j < pd->triCount; ++j)
+	{
+		const unsigned char* t = &tile->detailTris[(pd->triBase+j)*4];
+		const float* v[3];
+		for (int k = 0; k < 3; ++k)
+		{
+			if (t[k] < poly->vertCount)
+				v[k] = &tile->verts[poly->verts[t[k]]*3];
+			else
+				v[k] = &tile->detailVerts[(pd->vertBase+(t[k]-poly->vertCount))*3];
+		}
+
 		float pt[3];
 		dtClosestPtPointTriangle(pt, pos, v[0], v[1], v[2]);
 		float d = dtVdistSqr(pos, pt);
+		
 		if (d < closestDistSqr)
 		{
 			dtVcopy(closest, pt);
@@ -296,21 +347,6 @@ bool dtNavMeshQuery::getPolyHeight(dtPolyRef ref, const float* pos, float* heigh
 	
 	return false;
 }
-
-/*
-void dtNavMeshQuery::setAreaCost(const int area, float cost)
-{
-	if (area >= 0 && area < DT_MAX_AREAS)
-		m_areaCost[area] = cost;
-}
-
-float dtNavMeshQuery::getAreaCost(const int area) const
-{
-	if (area >= 0 && area < DT_MAX_AREAS)
-		return m_areaCost[area];
-	return -1;
-}
-*/
 
 dtPolyRef dtNavMeshQuery::findNearestPoly(const float* center, const float* extents,
 										  const dtQueryFilter* filter, float* nearestPt) const

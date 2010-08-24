@@ -116,17 +116,6 @@ public:
 	// Returns: True if succeed, else false.
 	bool init(const dtNavMesh* nav, const int maxNodes);
 	
-	// Sets the pathfinding cost of the specified area.
-	// Params:
-	//  area - (in) area ID (0-63).
-	//  cost - (int) travel cost of the area.
-//	void setAreaCost(const int area, float cost);
-	
-	// Returns the pathfinding cost of the specified area.
-	// Params:
-	//  area - (in) area ID (0-63).
-//	float getAreaCost(const int area) const;
-	
 	// Finds the nearest navigation polygon around the center location.
 	// Params:
 	//	center[3] - (in) The center of the search box.

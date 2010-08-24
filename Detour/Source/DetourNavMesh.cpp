@@ -202,8 +202,8 @@ bool dtNavMesh::init(const dtNavMeshParams* params)
 	}
 	
 	// Init ID generator values.
-	m_tileBits = dtMax((unsigned int)1, dtIlog2(dtNextPow2((unsigned int)params->maxTiles)));
-	m_polyBits = dtMax((unsigned int)1, dtIlog2(dtNextPow2((unsigned int)params->maxPolys)));
+	m_tileBits = dtIlog2(dtNextPow2((unsigned int)params->maxTiles));
+	m_polyBits = dtIlog2(dtNextPow2((unsigned int)params->maxPolys));
 	m_saltBits = 32 - m_tileBits - m_polyBits;
 	if (m_saltBits < 10)
 		return false;
