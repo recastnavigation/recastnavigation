@@ -818,8 +818,8 @@ void Sample_TileMesh::buildAllTiles()
 	const float tcs = m_tileSize*m_cellSize;
 
 
-	// Start the build process.	
-	rcTimeVal totStartTime = m_ctx->getTime();
+	// Start the build process.
+	m_ctx->startTimer(RC_TIMER_TEMP);
 
 	for (int y = 0; y < th; ++y)
 	{
@@ -847,9 +847,9 @@ void Sample_TileMesh::buildAllTiles()
 	}
 	
 	// Start the build process.	
-	rcTimeVal totEndTime = m_ctx->getTime();
+	m_ctx->startTimer(RC_TIMER_TEMP);
 
-	m_totalBuildTimeMs = m_ctx->getDeltaTimeUsec(totStartTime, totEndTime)/1000.0f;
+	m_totalBuildTimeMs = m_ctx->getAccumulatedTime(RC_TIMER_TEMP)/1000.0f;
 }
 
 void Sample_TileMesh::removeAllTiles()
@@ -913,10 +913,10 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	m_cfg.bmax[2] += m_cfg.borderSize*m_cfg.cs;
 	
 	// Reset build times gathering.
-	m_ctx->resetBuildTimes();
+	m_ctx->resetTimers();
 	
-	// Start the build process.	
-	rcTimeVal totStartTime = m_ctx->getTime();
+	// Start the build process.
+	m_ctx->startTimer(RC_TIMER_TOTAL);
 	
 	m_ctx->log(RC_LOG_PROGRESS, "Building navigation:");
 	m_ctx->log(RC_LOG_PROGRESS, " - %d x %d cells", m_cfg.width, m_cfg.height);
@@ -1176,13 +1176,13 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	}
 	m_tileMemUsage = navDataSize/1024.0f;
 	
-	rcTimeVal totEndTime = m_ctx->getTime();
+	m_ctx->stopTimer(RC_TIMER_TOTAL);
 	
 	// Show performance stats.
-	duLogBuildTimes(m_ctx, m_ctx->getDeltaTimeUsec(totStartTime, totEndTime));
+	duLogBuildTimes(*m_ctx, m_ctx->getAccumulatedTime(RC_TIMER_TOTAL));
 	m_ctx->log(RC_LOG_PROGRESS, ">> Polymesh: %d vertices  %d polygons", m_pmesh->nverts, m_pmesh->npolys);
 	
-	m_tileBuildTime = m_ctx->getDeltaTimeUsec(totStartTime, totEndTime)/1000.0f;
+	m_tileBuildTime = m_ctx->getAccumulatedTime(RC_TIMER_TOTAL)/1000.0f;
 
 	dataSize = navDataSize;
 	return navData;

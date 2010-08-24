@@ -399,41 +399,41 @@ bool duReadCompactHeightfield(struct rcCompactHeightfield& chf, duFileIO* io)
 }
 
 
-static void logLine(rcBuildContext* ctx, rcBuildTimeLabel label, const char* name, const float pc)
+static void logLine(rcContext& ctx, rcTimerLabel label, const char* name, const float pc)
 {
-	const int t = ctx->getBuildTime(label);
+	const int t = ctx.getAccumulatedTime(label);
 	if (t < 0) return;
-	ctx->log(RC_LOG_PROGRESS, "%s:\t%.2fms\t(%.1f%%)", name, t/1000.0f, t*pc);
+	ctx.log(RC_LOG_PROGRESS, "%s:\t%.2fms\t(%.1f%%)", name, t/1000.0f, t*pc);
 }
 
-void duLogBuildTimes(rcBuildContext* ctx, const int totalTimeUsec)
+void duLogBuildTimes(rcContext& ctx, const int totalTimeUsec)
 {
 	const float pc = 100.0f / totalTimeUsec;
  
-	ctx->log(RC_LOG_PROGRESS, "Build Times");
-	logLine(ctx, RC_TIME_RASTERIZE_TRIANGLES,		"- Rasterize", pc);
-	logLine(ctx, RC_TIME_BUILD_COMPACTHEIGHFIELD,	"- Build Compact", pc);
-	logLine(ctx, RC_TIME_FILTER_BORDER,				"- Filter Border", pc);
-	logLine(ctx, RC_TIME_FILTER_WALKABLE,			"- Filter Walkable", pc);
-	logLine(ctx, RC_TIME_ERODE_AREA,				"- Erode Area", pc);
-	logLine(ctx, RC_TIME_MEDIAN_AREA,				"- Median Area", pc);
-	logLine(ctx, RC_TIME_MARK_BOX_AREA,				"- Mark Box Area", pc);
-	logLine(ctx, RC_TIME_MARK_CONVEXPOLY_AREA,		"- Mark Convex Area", pc);
-	logLine(ctx, RC_TIME_BUILD_DISTANCEFIELD,		"- Build Disntace Field", pc);
-	logLine(ctx, RC_TIME_BUILD_DISTANCEFIELD_DIST,	"    - Distance", pc);
-	logLine(ctx, RC_TIME_BUILD_DISTANCEFIELD_BLUR,	"    - Blur", pc);
-	logLine(ctx, RC_TIME_BUILD_REGIONS,				"- Build Regions", pc);
-	logLine(ctx, RC_TIME_BUILD_REGIONS_WATERSHED,	"    - Watershed", pc);
-	logLine(ctx, RC_TIME_BUILD_REGIONS_EXPAND,		"      - Expand", pc);
-	logLine(ctx, RC_TIME_BUILD_REGIONS_FLOOD,		"      - Find Basins", pc);
-	logLine(ctx, RC_TIME_BUILD_REGIONS_FILTER,		"    - Filter", pc);
-	logLine(ctx, RC_TIME_BUILD_CONTOURS,			"- Build Contours", pc);
-	logLine(ctx, RC_TIME_BUILD_CONTOURS_TRACE,		"    - Trace", pc);
-	logLine(ctx, RC_TIME_BUILD_CONTOURS_SIMPLIFY,	"    - Simplify", pc);
-	logLine(ctx, RC_TIME_BUILD_POLYMESH,			"- Build Polymesh", pc);
-	logLine(ctx, RC_TIME_BUILD_POLYMESHDETAIL,		"- Build Polymesh Detail", pc);
-	logLine(ctx, RC_TIME_MERGE_POLYMESH,			"- Merge Polymeshes", pc);
-	logLine(ctx, RC_TIME_MERGE_POLYMESHDETAIL,		"- Merge Polymesh Details", pc);
-	ctx->log(RC_LOG_PROGRESS, "=== TOTAL:\t%.2fms", totalTimeUsec/1000.0f);
+	ctx.log(RC_LOG_PROGRESS, "Build Times");
+	logLine(ctx, RC_TIMER_RASTERIZE_TRIANGLES,		"- Rasterize", pc);
+	logLine(ctx, RC_TIMER_BUILD_COMPACTHEIGHFIELD,	"- Build Compact", pc);
+	logLine(ctx, RC_TIMER_FILTER_BORDER,				"- Filter Border", pc);
+	logLine(ctx, RC_TIMER_FILTER_WALKABLE,			"- Filter Walkable", pc);
+	logLine(ctx, RC_TIMER_ERODE_AREA,				"- Erode Area", pc);
+	logLine(ctx, RC_TIMER_MEDIAN_AREA,				"- Median Area", pc);
+	logLine(ctx, RC_TIMER_MARK_BOX_AREA,				"- Mark Box Area", pc);
+	logLine(ctx, RC_TIMER_MARK_CONVEXPOLY_AREA,		"- Mark Convex Area", pc);
+	logLine(ctx, RC_TIMER_BUILD_DISTANCEFIELD,		"- Build Disntace Field", pc);
+	logLine(ctx, RC_TIMER_BUILD_DISTANCEFIELD_DIST,	"    - Distance", pc);
+	logLine(ctx, RC_TIMER_BUILD_DISTANCEFIELD_BLUR,	"    - Blur", pc);
+	logLine(ctx, RC_TIMER_BUILD_REGIONS,				"- Build Regions", pc);
+	logLine(ctx, RC_TIMER_BUILD_REGIONS_WATERSHED,	"    - Watershed", pc);
+	logLine(ctx, RC_TIMER_BUILD_REGIONS_EXPAND,		"      - Expand", pc);
+	logLine(ctx, RC_TIMER_BUILD_REGIONS_FLOOD,		"      - Find Basins", pc);
+	logLine(ctx, RC_TIMER_BUILD_REGIONS_FILTER,		"    - Filter", pc);
+	logLine(ctx, RC_TIMER_BUILD_CONTOURS,			"- Build Contours", pc);
+	logLine(ctx, RC_TIMER_BUILD_CONTOURS_TRACE,		"    - Trace", pc);
+	logLine(ctx, RC_TIMER_BUILD_CONTOURS_SIMPLIFY,	"    - Simplify", pc);
+	logLine(ctx, RC_TIMER_BUILD_POLYMESH,			"- Build Polymesh", pc);
+	logLine(ctx, RC_TIMER_BUILD_POLYMESHDETAIL,		"- Build Polymesh Detail", pc);
+	logLine(ctx, RC_TIMER_MERGE_POLYMESH,			"- Merge Polymeshes", pc);
+	logLine(ctx, RC_TIMER_MERGE_POLYMESHDETAIL,		"- Merge Polymesh Details", pc);
+	ctx.log(RC_LOG_PROGRESS, "=== TOTAL:\t%.2fms", totalTimeUsec/1000.0f);
 }
 

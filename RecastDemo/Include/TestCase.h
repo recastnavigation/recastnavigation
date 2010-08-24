@@ -20,7 +20,6 @@
 #define TESTCASE_H
 
 #include "DetourNavMesh.h"
-#include "Recast.h"
 
 class TestCase
 {
@@ -49,9 +48,9 @@ class TestCase
 		dtPolyRef* polys;
 		int npolys;
 		
-		rcTimeVal findNearestPolyTime;
-		rcTimeVal findPathTime;
-		rcTimeVal findStraightPathTime;
+		int findNearestPolyTime;
+		int findPathTime;
+		int findStraightPathTime;
 		
 		Test* next;
 	};
@@ -71,7 +70,7 @@ public:
 	inline const char* getSampleName() const { return m_sampleName; }
 	inline const char* getGeomFileName() const { return m_geomFileName; }
 	
-	void doTests(rcBuildContext* ctx, class dtNavMesh* navmesh, class dtNavMeshQuery* navquery);
+	void doTests(class dtNavMesh* navmesh, class dtNavMeshQuery* navquery);
 	
 	void handleRender();
 	bool handleRenderOverlay(double* proj, double* model, int* view);

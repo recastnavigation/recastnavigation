@@ -852,7 +852,7 @@ int main(int /*argc*/, char** /*argv*/)
 					
 					// Do the tests.
 					if (sample)
-						test->doTests(&ctx, sample->getNavMesh(), sample->getNavMeshQuery());
+						test->doTests(sample->getNavMesh(), sample->getNavMeshQuery());
 				}
 			}				
 				

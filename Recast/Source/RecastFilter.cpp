@@ -23,11 +23,11 @@
 #include "RecastAssert.h"
 
 
-void rcFilterLowHangingWalkableObstacles(rcBuildContext* ctx, const int walkableClimb, rcHeightfield& solid)
+void rcFilterLowHangingWalkableObstacles(rcContext* ctx, const int walkableClimb, rcHeightfield& solid)
 {
 	rcAssert(ctx);
 
-	rcTimeVal startTime = ctx->getTime();
+	ctx->startTimer(RC_TIMER_FILTER_LOW_OBSTACLES);
 	
 	const int w = solid.width;
 	const int h = solid.height;
@@ -56,17 +56,15 @@ void rcFilterLowHangingWalkableObstacles(rcBuildContext* ctx, const int walkable
 		}
 	}
 
-	rcTimeVal endTime = ctx->getTime();
-	
-	ctx->reportBuildTime(RC_TIME_FILTER_LOW_OBSTACLES, ctx->getDeltaTimeUsec(startTime, endTime));
+	ctx->stopTimer(RC_TIMER_FILTER_LOW_OBSTACLES);
 }
 	
-void rcFilterLedgeSpans(rcBuildContext* ctx, const int walkableHeight, const int walkableClimb,
+void rcFilterLedgeSpans(rcContext* ctx, const int walkableHeight, const int walkableClimb,
 						rcHeightfield& solid)
 {
 	rcAssert(ctx);
 	
-	rcTimeVal startTime = ctx->getTime();
+	ctx->startTimer(RC_TIMER_FILTER_BORDER);
 
 	const int w = solid.width;
 	const int h = solid.height;
@@ -148,16 +146,14 @@ void rcFilterLedgeSpans(rcBuildContext* ctx, const int walkableHeight, const int
 		}
 	}
 	
-	rcTimeVal endTime = ctx->getTime();
-
-	ctx->reportBuildTime(RC_TIME_FILTER_BORDER, ctx->getDeltaTimeUsec(startTime, endTime));
+	ctx->stopTimer(RC_TIMER_FILTER_BORDER);
 }	
 
-void rcFilterWalkableLowHeightSpans(rcBuildContext* ctx, int walkableHeight, rcHeightfield& solid)
+void rcFilterWalkableLowHeightSpans(rcContext* ctx, int walkableHeight, rcHeightfield& solid)
 {
 	rcAssert(ctx);
 	
-	rcTimeVal startTime = ctx->getTime();
+	ctx->startTimer(RC_TIMER_FILTER_WALKABLE);
 	
 	const int w = solid.width;
 	const int h = solid.height;
@@ -179,7 +175,5 @@ void rcFilterWalkableLowHeightSpans(rcBuildContext* ctx, int walkableHeight, rcH
 		}
 	}
 	
-	rcTimeVal endTime = ctx->getTime();
-
-	ctx->reportBuildTime(RC_TIME_FILTER_WALKABLE, ctx->getDeltaTimeUsec(startTime, endTime));
+	ctx->stopTimer(RC_TIMER_FILTER_WALKABLE);
 }

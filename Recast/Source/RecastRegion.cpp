@@ -687,7 +687,7 @@ static void walkContour(int x, int y, int i, int dir,
 	}
 }
 
-static bool filterSmallRegions(rcBuildContext* ctx, int minRegionSize, int mergeRegionSize,
+static bool filterSmallRegions(rcContext* ctx, int minRegionSize, int mergeRegionSize,
 							   unsigned short& maxRegionId,
 							   rcCompactHeightfield& chf,
 							   unsigned short* srcReg)
@@ -886,11 +886,11 @@ static bool filterSmallRegions(rcBuildContext* ctx, int minRegionSize, int merge
 }
 
 
-bool rcBuildDistanceField(rcBuildContext* ctx, rcCompactHeightfield& chf)
+bool rcBuildDistanceField(rcContext* ctx, rcCompactHeightfield& chf)
 {
 	rcAssert(ctx);
 	
-	rcTimeVal startTime = ctx->getTime();
+	ctx->startTimer(RC_TIMER_BUILD_DISTANCEFIELD);
 	
 	if (chf.dist)
 	{
@@ -914,14 +914,14 @@ bool rcBuildDistanceField(rcBuildContext* ctx, rcCompactHeightfield& chf)
 	
 	unsigned short maxDist = 0;
 
-	rcTimeVal distStartTime = ctx->getTime();
+	ctx->startTimer(RC_TIMER_BUILD_DISTANCEFIELD_DIST);
 	
 	calculateDistanceField(chf, src, maxDist);
 	chf.maxDistance = maxDist;
 	
-	rcTimeVal distEndTime = ctx->getTime();
+	ctx->stopTimer(RC_TIMER_BUILD_DISTANCEFIELD_DIST);
 	
-	rcTimeVal blurStartTime = ctx->getTime();
+	ctx->startTimer(RC_TIMER_BUILD_DISTANCEFIELD_BLUR);
 	
 	// Blur
 	if (boxBlur(chf, 1, src, dst) != src)
@@ -930,15 +930,9 @@ bool rcBuildDistanceField(rcBuildContext* ctx, rcCompactHeightfield& chf)
 	// Store distance.
 	chf.dist = src;
 	
-	rcTimeVal blurEndTime = ctx->getTime();
+	ctx->stopTimer(RC_TIMER_BUILD_DISTANCEFIELD_BLUR);
 	
 	rcFree(dst);
-	
-	rcTimeVal endTime = ctx->getTime();
-	
-	ctx->reportBuildTime(RC_TIME_BUILD_DISTANCEFIELD, ctx->getDeltaTimeUsec(startTime, endTime));
-	ctx->reportBuildTime(RC_TIME_BUILD_DISTANCEFIELD_DIST, ctx->getDeltaTimeUsec(distStartTime, distEndTime));
-	ctx->reportBuildTime(RC_TIME_BUILD_DISTANCEFIELD_BLUR, ctx->getDeltaTimeUsec(blurStartTime, blurEndTime));
 	
 	return true;
 }
@@ -973,12 +967,12 @@ struct rcSweepSpan
 	unsigned short nei;	// neighbour id
 };
 
-bool rcBuildRegionsMonotone(rcBuildContext* ctx, rcCompactHeightfield& chf,
+bool rcBuildRegionsMonotone(rcContext* ctx, rcCompactHeightfield& chf,
 							const int borderSize, const int minRegionSize, const int mergeRegionSize)
 {
 	rcAssert(ctx);
 	
-	rcTimeVal startTime = ctx->getTime();
+	ctx->startTimer(RC_TIMER_BUILD_REGIONS);
 	
 	const int w = chf.width;
 	const int h = chf.height;
@@ -1101,33 +1095,30 @@ bool rcBuildRegionsMonotone(rcBuildContext* ctx, rcCompactHeightfield& chf,
 		}
 	}
 
-	rcTimeVal filterStartTime = ctx->getTime();
+	ctx->startTimer(RC_TIMER_BUILD_REGIONS_FILTER);
 
 	// Filter out small regions.
 	chf.maxRegions = id;
 	if (!filterSmallRegions(ctx, minRegionSize, mergeRegionSize, chf.maxRegions, chf, srcReg))
 		return false;
 
-	rcTimeVal filterEndTime = ctx->getTime();
+	ctx->stopTimer(RC_TIMER_BUILD_REGIONS_FILTER);
 	
 	// Store the result out.
 	for (int i = 0; i < chf.spanCount; ++i)
 		chf.spans[i].reg = srcReg[i];
 	
-	rcTimeVal endTime = ctx->getTime();
-
-	ctx->reportBuildTime(RC_TIME_BUILD_REGIONS, ctx->getDeltaTimeUsec(startTime, endTime));
-	ctx->reportBuildTime(RC_TIME_BUILD_REGIONS_FILTER, ctx->getDeltaTimeUsec(filterStartTime, filterEndTime));
+	ctx->stopTimer(RC_TIMER_BUILD_REGIONS);
 
 	return true;
 }
 
-bool rcBuildRegions(rcBuildContext* ctx, rcCompactHeightfield& chf,
+bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 					const int borderSize, const int minRegionSize, const int mergeRegionSize)
 {
 	rcAssert(ctx);
 	
-	rcTimeVal startTime = ctx->getTime();
+	ctx->startTimer(RC_TIMER_BUILD_REGIONS);
 	
 	const int w = chf.width;
 	const int h = chf.height;
@@ -1139,7 +1130,7 @@ bool rcBuildRegions(rcBuildContext* ctx, rcCompactHeightfield& chf,
 		return false;
 	}
 	
-	rcTimeVal regStartTime = ctx->getTime();
+	ctx->startTimer(RC_TIMER_BUILD_REGIONS_WATERSHED);
 	
 	rcIntArray stack(1024);
 	rcIntArray visited(1024);
@@ -1166,15 +1157,12 @@ bool rcBuildRegions(rcBuildContext* ctx, rcCompactHeightfield& chf,
 	paintRectRegion(w-borderSize, w, 0, h, regionId|RC_BORDER_REG, chf, srcReg); regionId++;
 	paintRectRegion(0, w, 0, borderSize, regionId|RC_BORDER_REG, chf, srcReg); regionId++;
 	paintRectRegion(0, w, h-borderSize, h, regionId|RC_BORDER_REG, chf, srcReg); regionId++;
-
-	rcTimeVal expTime = 0;
-	rcTimeVal floodTime = 0;
 	
 	while (level > 0)
 	{
 		level = level >= 2 ? level-2 : 0;
 		
-		rcTimeVal expStartTime = ctx->getTime();
+		ctx->startTimer(RC_TIMER_BUILD_REGIONS_EXPAND);
 		
 		// Expand current regions until no empty connected cells found.
 		if (expandRegions(expandIters, level, chf, srcReg, srcDist, dstReg, dstDist, stack) != srcReg)
@@ -1183,9 +1171,9 @@ bool rcBuildRegions(rcBuildContext* ctx, rcCompactHeightfield& chf,
 			rcSwap(srcDist, dstDist);
 		}
 		
-		expTime += ctx->getTime() - expStartTime;
+		ctx->stopTimer(RC_TIMER_BUILD_REGIONS_EXPAND);
 		
-		rcTimeVal floodStartTime = ctx->getTime();
+		ctx->startTimer(RC_TIMER_BUILD_REGIONS_FLOOD);
 		
 		// Mark new regions with IDs.
 		for (int y = 0; y < h; ++y)
@@ -1204,7 +1192,7 @@ bool rcBuildRegions(rcBuildContext* ctx, rcCompactHeightfield& chf,
 			}
 		}
 		
-		floodTime += ctx->getTime() - floodStartTime;
+		ctx->stopTimer(RC_TIMER_BUILD_REGIONS_FLOOD);
 		
 	}
 	
@@ -1215,29 +1203,23 @@ bool rcBuildRegions(rcBuildContext* ctx, rcCompactHeightfield& chf,
 		rcSwap(srcDist, dstDist);
 	}
 	
-	rcTimeVal regEndTime = ctx->getTime();
+	ctx->stopTimer(RC_TIMER_BUILD_REGIONS_WATERSHED);
 	
-	rcTimeVal filterStartTime = ctx->getTime();
+	ctx->startTimer(RC_TIMER_BUILD_REGIONS_FILTER);
 	
 	// Filter out small regions.
 	chf.maxRegions = regionId;
 	if (!filterSmallRegions(ctx, minRegionSize, mergeRegionSize, chf.maxRegions, chf, srcReg))
 		return false;
 	
-	rcTimeVal filterEndTime = ctx->getTime();
+	ctx->stopTimer(RC_TIMER_BUILD_REGIONS_FILTER);
 		
 	// Write the result out.
 	for (int i = 0; i < chf.spanCount; ++i)
 		chf.spans[i].reg = srcReg[i];
 	
-	rcTimeVal endTime = ctx->getTime();
+	ctx->stopTimer(RC_TIMER_BUILD_REGIONS);
 	
-	ctx->reportBuildTime(RC_TIME_BUILD_REGIONS, ctx->getDeltaTimeUsec(startTime, endTime));
-	ctx->reportBuildTime(RC_TIME_BUILD_REGIONS_WATERSHED, ctx->getDeltaTimeUsec(regStartTime, regEndTime));
-	ctx->reportBuildTime(RC_TIME_BUILD_REGIONS_EXPAND, ctx->getDeltaTimeUsec(0, expTime));
-	ctx->reportBuildTime(RC_TIME_BUILD_REGIONS_FLOOD, ctx->getDeltaTimeUsec(0, floodTime));
-	ctx->reportBuildTime(RC_TIME_BUILD_REGIONS_FILTER, ctx->getDeltaTimeUsec(filterStartTime, filterEndTime));
-		
 	return true;
 }
 

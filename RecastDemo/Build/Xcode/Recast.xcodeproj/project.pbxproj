@@ -46,6 +46,7 @@
 		6BB93C7F10CFE1D500F74F2B /* RecastDebugDraw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BB93C7C10CFE1D500F74F2B /* RecastDebugDraw.cpp */; };
 		6BB93CF610CFEC4500F74F2B /* RecastDump.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BB93CF510CFEC4500F74F2B /* RecastDump.cpp */; };
 		6BCF32361104CD05009445BF /* OffMeshConnectionTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BCF32351104CD05009445BF /* OffMeshConnectionTool.cpp */; };
+		6BD402011224279400995864 /* PerfTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BD402001224279400995864 /* PerfTimer.cpp */; };
 		6BF5F23A11747606000502A6 /* Filelist.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BF5F23911747606000502A6 /* Filelist.cpp */; };
 		6BF5F2401174763B000502A6 /* SlideShow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BF5F23F1174763B000502A6 /* SlideShow.cpp */; };
 		6BF7C1401111953A002B3F46 /* TestCase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BF7C13F1111953A002B3F46 /* TestCase.cpp */; };
@@ -131,6 +132,8 @@
 		6BB93CF510CFEC4500F74F2B /* RecastDump.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RecastDump.cpp; path = ../../../DebugUtils/Source/RecastDump.cpp; sourceTree = SOURCE_ROOT; };
 		6BCF32341104CD05009445BF /* OffMeshConnectionTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OffMeshConnectionTool.h; path = ../../Include/OffMeshConnectionTool.h; sourceTree = SOURCE_ROOT; };
 		6BCF32351104CD05009445BF /* OffMeshConnectionTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OffMeshConnectionTool.cpp; path = ../../Source/OffMeshConnectionTool.cpp; sourceTree = SOURCE_ROOT; };
+		6BD401FF1224278800995864 /* PerfTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PerfTimer.h; path = ../../Include/PerfTimer.h; sourceTree = SOURCE_ROOT; };
+		6BD402001224279400995864 /* PerfTimer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PerfTimer.cpp; path = ../../Source/PerfTimer.cpp; sourceTree = SOURCE_ROOT; };
 		6BF5F23911747606000502A6 /* Filelist.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Filelist.cpp; path = ../../Source/Filelist.cpp; sourceTree = SOURCE_ROOT; };
 		6BF5F23C11747614000502A6 /* Filelist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Filelist.h; path = ../../Include/Filelist.h; sourceTree = SOURCE_ROOT; };
 		6BF5F23E1174763B000502A6 /* SlideShow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SlideShow.h; path = ../../Include/SlideShow.h; sourceTree = SOURCE_ROOT; };
@@ -188,6 +191,8 @@
 				6BB7FDA410F36F0E006DA0A6 /* InputGeom.cpp */,
 				6BF7C13E11119520002B3F46 /* TestCase.h */,
 				6BF7C13F1111953A002B3F46 /* TestCase.cpp */,
+				6BD401FF1224278800995864 /* PerfTimer.h */,
+				6BD402001224279400995864 /* PerfTimer.cpp */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -441,6 +446,7 @@
 				6BAF3C591211663A008CFCDF /* CrowdTool.cpp in Sources */,
 				6BAF40DB12196A3D008CFCDF /* DetourNavMeshQuery.cpp in Sources */,
 				6BAF4442121C3D26008CFCDF /* SampleInterfaces.cpp in Sources */,
+				6BD402011224279400995864 /* PerfTimer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

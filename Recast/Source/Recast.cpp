@@ -22,6 +22,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdarg.h>
 #include "Recast.h"
 #include "RecastAlloc.h"
 #include "RecastAssert.h"
@@ -29,6 +30,25 @@
 float rcSqrt(float x)
 {
 	return sqrtf(x);
+}
+
+
+void rcContext::log(const rcLogCategory category, const char* format, ...)
+{
+	if (!m_logEnabled)
+		return;
+	static const int MSG_SIZE = 512;
+	char msg[MSG_SIZE];
+	va_list ap;
+	va_start(ap, format);
+	int len = vsnprintf(msg, MSG_SIZE, format, ap);
+	if (len >= MSG_SIZE)
+	{
+		len = MSG_SIZE-1;
+		msg[MSG_SIZE-1] = '\0';
+	}
+	va_end(ap);
+	doLog(category, msg, len);
 }
 
 rcHeightfield* rcAllocHeightfield()
@@ -143,7 +163,7 @@ void rcCalcGridSize(const float* bmin, const float* bmax, float cs, int* w, int*
 	*h = (int)((bmax[2] - bmin[2])/cs+0.5f);
 }
 
-bool rcCreateHeightfield(rcBuildContext* /*ctx*/, rcHeightfield& hf, int width, int height,
+bool rcCreateHeightfield(rcContext* /*ctx*/, rcHeightfield& hf, int width, int height,
 						 const float* bmin, const float* bmax,
 						 float cs, float ch)
 {
@@ -172,7 +192,7 @@ static void calcTriNormal(const float* v0, const float* v1, const float* v2, flo
 	rcVnormalize(norm);
 }
 
-void rcMarkWalkableTriangles(rcBuildContext* /*ctx*/, const float walkableSlopeAngle,
+void rcMarkWalkableTriangles(rcContext* /*ctx*/, const float walkableSlopeAngle,
 							 const float* verts, int /*nv*/,
 							 const int* tris, int nt,
 							 unsigned char* areas)
@@ -194,7 +214,7 @@ void rcMarkWalkableTriangles(rcBuildContext* /*ctx*/, const float walkableSlopeA
 	}
 }
 
-void rcClearUnwalkableTriangles(rcBuildContext* /*ctx*/, const float walkableSlopeAngle,
+void rcClearUnwalkableTriangles(rcContext* /*ctx*/, const float walkableSlopeAngle,
 								const float* verts, int /*nv*/,
 								const int* tris, int nt,
 								unsigned char* areas)
@@ -216,7 +236,7 @@ void rcClearUnwalkableTriangles(rcBuildContext* /*ctx*/, const float walkableSlo
 	}
 }
 
-int rcGetHeightFieldSpanCount(rcBuildContext* /*ctx*/, rcHeightfield& hf)
+int rcGetHeightFieldSpanCount(rcContext* /*ctx*/, rcHeightfield& hf)
 {
 	// TODO: VC complains about unref formal variable, figure out a way to handle this better.
 //	rcAssert(ctx);
@@ -238,12 +258,12 @@ int rcGetHeightFieldSpanCount(rcBuildContext* /*ctx*/, rcHeightfield& hf)
 	return spanCount;
 }
 
-bool rcBuildCompactHeightfield(rcBuildContext* ctx, const int walkableHeight, const int walkableClimb,
+bool rcBuildCompactHeightfield(rcContext* ctx, const int walkableHeight, const int walkableClimb,
 							   rcHeightfield& hf, rcCompactHeightfield& chf)
 {
 	rcAssert(ctx);
 	
-	rcTimeVal startTime = ctx->getTime();
+	ctx->startTimer(RC_TIMER_BUILD_COMPACTHEIGHFIELD);
 	
 	const int w = hf.width;
 	const int h = hf.height;
@@ -371,9 +391,7 @@ bool rcBuildCompactHeightfield(rcBuildContext* ctx, const int walkableHeight, co
 				 tooHighNeighbour, MAX_LAYERS);
 	}
 		
-	rcTimeVal endTime = ctx->getTime();
-
-	ctx->reportBuildTime(RC_TIME_BUILD_COMPACTHEIGHFIELD, ctx->getDeltaTimeUsec(startTime, endTime));
+	ctx->stopTimer(RC_TIMER_BUILD_COMPACTHEIGHFIELD);
 	
 	return true;
 }

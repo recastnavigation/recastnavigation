@@ -592,7 +592,7 @@ static bool mergeContours(rcContour& ca, rcContour& cb, int ia, int ib)
 	return true;
 }
 
-bool rcBuildContours(rcBuildContext* ctx, rcCompactHeightfield& chf,
+bool rcBuildContours(rcContext* ctx, rcCompactHeightfield& chf,
 					 const float maxError, const int maxEdgeLen,
 					 rcContourSet& cset, const int buildFlags)
 {
@@ -601,7 +601,7 @@ bool rcBuildContours(rcBuildContext* ctx, rcCompactHeightfield& chf,
 	const int w = chf.width;
 	const int h = chf.height;
 	
-	rcTimeVal startTime = ctx->getTime();
+	ctx->startTimer(RC_TIMER_BUILD_CONTOURS);
 	
 	rcVcopy(cset.bmin, chf.bmin);
 	rcVcopy(cset.bmax, chf.bmax);
@@ -621,8 +621,7 @@ bool rcBuildContours(rcBuildContext* ctx, rcCompactHeightfield& chf,
 		return false;
 	}
 	
-	rcTimeVal traceStartTime = ctx->getTime();
-					
+	ctx->startTimer(RC_TIMER_BUILD_CONTOURS_TRACE);
 	
 	// Mark boundaries.
 	for (int y = 0; y < h; ++y)
@@ -657,9 +656,9 @@ bool rcBuildContours(rcBuildContext* ctx, rcCompactHeightfield& chf,
 		}
 	}
 	
-	rcTimeVal traceEndTime = ctx->getTime();
+	ctx->stopTimer(RC_TIMER_BUILD_CONTOURS_TRACE);
 	
-	rcTimeVal simplifyStartTime = ctx->getTime();
+	ctx->startTimer(RC_TIMER_BUILD_CONTOURS_SIMPLIFY);
 	
 	rcIntArray verts(256);
 	rcIntArray simplified(64);
@@ -797,13 +796,9 @@ bool rcBuildContours(rcBuildContext* ctx, rcCompactHeightfield& chf,
 		}
 	}
 	
-	rcTimeVal simplifyEndTime = ctx->getTime();
+	ctx->stopTimer(RC_TIMER_BUILD_CONTOURS_SIMPLIFY);
 	
-	rcTimeVal endTime = ctx->getTime();
-	
-	ctx->reportBuildTime(RC_TIME_BUILD_CONTOURS, ctx->getDeltaTimeUsec(startTime, endTime));
-	ctx->reportBuildTime(RC_TIME_BUILD_CONTOURS_TRACE, ctx->getDeltaTimeUsec(traceStartTime, traceEndTime));
-	ctx->reportBuildTime(RC_TIME_BUILD_CONTOURS_SIMPLIFY, ctx->getDeltaTimeUsec(simplifyStartTime, simplifyEndTime));
+	ctx->stopTimer(RC_TIMER_BUILD_CONTOURS);
 	
 	return true;
 }

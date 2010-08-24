@@ -389,10 +389,10 @@ bool Sample_SoloMeshSimple::handleBuild()
 	rcCalcGridSize(m_cfg.bmin, m_cfg.bmax, m_cfg.cs, &m_cfg.width, &m_cfg.height);
 
 	// Reset build times gathering.
-	m_ctx->resetBuildTimes();
+	m_ctx->resetTimers();
 
 	// Start the build process.	
-	rcTimeVal totStartTime = m_ctx->getTime();
+	m_ctx->startTimer(RC_TIMER_TOTAL);
 	
 	m_ctx->log(RC_LOG_PROGRESS, "Building navigation:");
 	m_ctx->log(RC_LOG_PROGRESS, " - %d x %d cells", m_cfg.width, m_cfg.height);
@@ -653,13 +653,13 @@ bool Sample_SoloMeshSimple::handleBuild()
 		}
 	}
 	
-	rcTimeVal totEndTime = m_ctx->getTime();
+	m_ctx->stopTimer(RC_TIMER_TOTAL);
 
 	// Show performance stats.
-	duLogBuildTimes(m_ctx, m_ctx->getDeltaTimeUsec(totStartTime, totEndTime));
+	duLogBuildTimes(*m_ctx, m_ctx->getAccumulatedTime(RC_TIMER_TOTAL));
 	m_ctx->log(RC_LOG_PROGRESS, ">> Polymesh: %d vertices  %d polygons", m_pmesh->nverts, m_pmesh->npolys);
 	
-	m_totalBuildTimeMs = m_ctx->getDeltaTimeUsec(totStartTime, totEndTime)/1000.0f;
+	m_totalBuildTimeMs = m_ctx->getAccumulatedTime(RC_TIMER_TOTAL)/1000.0f;
 	
 	if (m_tool)
 		m_tool->init(this);

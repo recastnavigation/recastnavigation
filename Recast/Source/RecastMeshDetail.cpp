@@ -255,7 +255,7 @@ static int findEdge(const int* edges, int nedges, int s, int t)
 	return UNDEF;
 }
 
-static int addEdge(rcBuildContext* ctx, int* edges, int& nedges, const int maxEdges, int s, int t, int l, int r)
+static int addEdge(rcContext* ctx, int* edges, int& nedges, const int maxEdges, int s, int t, int l, int r)
 {
 	if (nedges >= maxEdges)
 	{
@@ -317,7 +317,7 @@ static bool overlapEdges(const float* pts, const int* edges, int nedges, int s1,
 	return false;
 }
 
-static void completeFacet(rcBuildContext* ctx, const float* pts, int npts, int* edges, int& nedges, const int maxEdges, int& nfaces, int e)
+static void completeFacet(rcContext* ctx, const float* pts, int npts, int* edges, int& nedges, const int maxEdges, int& nfaces, int e)
 {
 	static const float EPS = 1e-5f;
 
@@ -413,7 +413,7 @@ static void completeFacet(rcBuildContext* ctx, const float* pts, int npts, int* 
 	}
 }
 
-static void delaunayHull(rcBuildContext* ctx, const int npts, const float* pts,
+static void delaunayHull(rcContext* ctx, const int npts, const float* pts,
 						 const int nhull, const int* hull,
 						 rcIntArray& tris, rcIntArray& edges)
 {
@@ -491,7 +491,7 @@ static void delaunayHull(rcBuildContext* ctx, const int npts, const float* pts,
 
 
 
-static bool buildPolyDetail(rcBuildContext* ctx, const float* in, const int nin,
+static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 							const float sampleDist, const float sampleMaxError,
 							const rcCompactHeightfield& chf, const rcHeightPatch& hp,
 							float* verts, int& nverts, rcIntArray& tris,
@@ -914,14 +914,14 @@ static unsigned char getTriFlags(const float* va, const float* vb, const float* 
 
 
 
-bool rcBuildPolyMeshDetail(rcBuildContext* ctx, const rcPolyMesh& mesh, const rcCompactHeightfield& chf,
+bool rcBuildPolyMeshDetail(rcContext* ctx, const rcPolyMesh& mesh, const rcCompactHeightfield& chf,
 						   const float sampleDist, const float sampleMaxError,
 						   rcPolyMeshDetail& dmesh)
 {
 	rcAssert(ctx);
 	
-	rcTimeVal startTime = ctx->getTime();
-	
+	ctx->startTimer(RC_TIMER_BUILD_POLYMESHDETAIL);
+
 	if (mesh.nverts == 0 || mesh.npolys == 0)
 		return true;
 	
@@ -1126,19 +1126,17 @@ bool rcBuildPolyMeshDetail(rcBuildContext* ctx, const rcPolyMesh& mesh, const rc
 		}
 	}
 	
-	rcTimeVal endTime = ctx->getTime();
-	
-	ctx->reportBuildTime(RC_TIME_BUILD_POLYMESHDETAIL, ctx->getDeltaTimeUsec(startTime, endTime));
+	ctx->stopTimer(RC_TIMER_BUILD_POLYMESHDETAIL);
 
 	return true;
 }
 
-bool rcMergePolyMeshDetails(rcBuildContext* ctx, rcPolyMeshDetail** meshes, const int nmeshes, rcPolyMeshDetail& mesh)
+bool rcMergePolyMeshDetails(rcContext* ctx, rcPolyMeshDetail** meshes, const int nmeshes, rcPolyMeshDetail& mesh)
 {
 	rcAssert(ctx);
 	
-	rcTimeVal startTime = ctx->getTime();
-	
+	ctx->startTimer(RC_TIMER_MERGE_POLYMESHDETAIL);
+
 	int maxVerts = 0;
 	int maxTris = 0;
 	int maxMeshes = 0;
@@ -1206,9 +1204,7 @@ bool rcMergePolyMeshDetails(rcBuildContext* ctx, rcPolyMeshDetail** meshes, cons
 		}
 	}
 
-	rcTimeVal endTime = ctx->getTime();
-	
-	ctx->reportBuildTime(RC_TIME_MERGE_POLYMESHDETAIL, ctx->getDeltaTimeUsec(startTime, endTime));
+	ctx->stopTimer(RC_TIMER_MERGE_POLYMESHDETAIL);
 	
 	return true;
 }

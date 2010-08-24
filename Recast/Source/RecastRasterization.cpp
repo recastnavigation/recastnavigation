@@ -154,7 +154,7 @@ static void addSpan(rcHeightfield& hf, const int x, const int y,
 	}
 }
 
-void rcAddSpan(rcBuildContext* /*ctx*/, rcHeightfield& hf, const int x, const int y,
+void rcAddSpan(rcContext* /*ctx*/, rcHeightfield& hf, const int x, const int y,
 			   const unsigned short smin, const unsigned short smax,
 			   const unsigned char area, const int flagMergeThr)
 {
@@ -276,30 +276,28 @@ static void rasterizeTri(const float* v0, const float* v1, const float* v2,
 	}
 }
 
-void rcRasterizeTriangle(rcBuildContext* ctx, const float* v0, const float* v1, const float* v2,
+void rcRasterizeTriangle(rcContext* ctx, const float* v0, const float* v1, const float* v2,
 						 const unsigned char area, rcHeightfield& solid,
 						 const int flagMergeThr)
 {
 	rcAssert(ctx);
 
-	rcTimeVal startTime = ctx->getTime();
+	ctx->startTimer(RC_TIMER_RASTERIZE_TRIANGLES);
 
 	const float ics = 1.0f/solid.cs;
 	const float ich = 1.0f/solid.ch;
 	rasterizeTri(v0, v1, v2, area, solid, solid.bmin, solid.bmax, solid.cs, ics, ich, flagMergeThr);
 
-	rcTimeVal endTime = ctx->getTime();
-	
-	ctx->reportBuildTime(RC_TIME_RASTERIZE_TRIANGLES, ctx->getDeltaTimeUsec(startTime, endTime));
+	ctx->stopTimer(RC_TIMER_RASTERIZE_TRIANGLES);
 }
 
-void rcRasterizeTriangles(rcBuildContext* ctx, const float* verts, const int /*nv*/,
+void rcRasterizeTriangles(rcContext* ctx, const float* verts, const int /*nv*/,
 						  const int* tris, const unsigned char* areas, const int nt,
 						  rcHeightfield& solid, const int flagMergeThr)
 {
 	rcAssert(ctx);
 
-	rcTimeVal startTime = ctx->getTime();
+	ctx->startTimer(RC_TIMER_RASTERIZE_TRIANGLES);
 	
 	const float ics = 1.0f/solid.cs;
 	const float ich = 1.0f/solid.ch;
@@ -313,18 +311,16 @@ void rcRasterizeTriangles(rcBuildContext* ctx, const float* verts, const int /*n
 		rasterizeTri(v0, v1, v2, areas[i], solid, solid.bmin, solid.bmax, solid.cs, ics, ich, flagMergeThr);
 	}
 	
-	rcTimeVal endTime = ctx->getTime();
-
-	ctx->reportBuildTime(RC_TIME_RASTERIZE_TRIANGLES, ctx->getDeltaTimeUsec(startTime, endTime));
+	ctx->stopTimer(RC_TIMER_RASTERIZE_TRIANGLES);
 }
 
-void rcRasterizeTriangles(rcBuildContext* ctx, const float* verts, const int /*nv*/,
+void rcRasterizeTriangles(rcContext* ctx, const float* verts, const int /*nv*/,
 						  const unsigned short* tris, const unsigned char* areas, const int nt,
 						  rcHeightfield& solid, const int flagMergeThr)
 {
 	rcAssert(ctx);
 
-	rcTimeVal startTime = ctx->getTime();
+	ctx->startTimer(RC_TIMER_RASTERIZE_TRIANGLES);
 	
 	const float ics = 1.0f/solid.cs;
 	const float ich = 1.0f/solid.ch;
@@ -338,17 +334,15 @@ void rcRasterizeTriangles(rcBuildContext* ctx, const float* verts, const int /*n
 		rasterizeTri(v0, v1, v2, areas[i], solid, solid.bmin, solid.bmax, solid.cs, ics, ich, flagMergeThr);
 	}
 	
-	rcTimeVal endTime = ctx->getTime();
-	
-	ctx->reportBuildTime(RC_TIME_RASTERIZE_TRIANGLES, ctx->getDeltaTimeUsec(startTime, endTime));
+	ctx->stopTimer(RC_TIMER_RASTERIZE_TRIANGLES);
 }
 
-void rcRasterizeTriangles(rcBuildContext* ctx, const float* verts, const unsigned char* areas, const int nt,
+void rcRasterizeTriangles(rcContext* ctx, const float* verts, const unsigned char* areas, const int nt,
 						  rcHeightfield& solid, const int flagMergeThr)
 {
 	rcAssert(ctx);
 	
-	rcTimeVal startTime = ctx->getTime();
+	ctx->startTimer(RC_TIMER_RASTERIZE_TRIANGLES);
 	
 	const float ics = 1.0f/solid.cs;
 	const float ich = 1.0f/solid.ch;
@@ -362,7 +356,5 @@ void rcRasterizeTriangles(rcBuildContext* ctx, const float* verts, const unsigne
 		rasterizeTri(v0, v1, v2, areas[i], solid, solid.bmin, solid.bmax, solid.cs, ics, ich, flagMergeThr);
 	}
 	
-	rcTimeVal endTime = ctx->getTime();
-	
-	ctx->reportBuildTime(RC_TIME_RASTERIZE_TRIANGLES, ctx->getDeltaTimeUsec(startTime, endTime));
+	ctx->stopTimer(RC_TIMER_RASTERIZE_TRIANGLES);
 }

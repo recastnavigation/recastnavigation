@@ -736,10 +736,10 @@ bool Sample_SoloMeshTiled::handleBuild()
 	rcCalcGridSize(m_cfg.bmin, m_cfg.bmax, m_cfg.cs, &m_cfg.width, &m_cfg.height);
 	
 	// Reset build times gathering.
-	m_ctx->resetBuildTimes();
+	m_ctx->resetTimers();
 	
 	// Start the build process.	
-	rcTimeVal totStartTime = m_ctx->getTime();
+	m_ctx->startTimer(RC_TIMER_TOTAL);
 
 	// Calculate the number of tiles in the output and initialize tiles.
 	m_tileSet = new TileSet;
@@ -785,7 +785,7 @@ bool Sample_SoloMeshTiled::handleBuild()
 	{
 		for (int x = 0; x < m_tileSet->width; ++x)
 		{
-			rcTimeVal startTime = m_ctx->getTime();
+			m_ctx->startTimer(RC_TIMER_TEMP);
 			
 			Tile& tile = m_tileSet->tiles[x + y*m_tileSet->width];
 			tile.x = x;
@@ -920,8 +920,9 @@ bool Sample_SoloMeshTiled::handleBuild()
 				tile.cset = 0;
 			}
 			
-			rcTimeVal endTime = m_ctx->getTime();
-			tile.buildTime += m_ctx->getDeltaTimeUsec(startTime, endTime);
+			m_ctx->stopTimer(RC_TIMER_TOTAL);
+
+			tile.buildTime += m_ctx->getAccumulatedTime(RC_TIMER_TOTAL);
 			
 			// Some extra code to measure some per tile statistics,
 			// such as build time and how many polygons there are per tile.
@@ -1092,12 +1093,12 @@ bool Sample_SoloMeshTiled::handleBuild()
 		}
 	}
 		
-	rcTimeVal totEndTime = m_ctx->getTime();
+	m_ctx->stopTimer(RC_TIMER_TOTAL);
 	
-	duLogBuildTimes(m_ctx, m_ctx->getDeltaTimeUsec(totStartTime, totEndTime));
+	duLogBuildTimes(*m_ctx, m_ctx->getAccumulatedTime(RC_TIMER_TOTAL));
 	m_ctx->log(RC_LOG_PROGRESS, ">> Polymesh: %d vertices  %d polygons", m_pmesh->nverts, m_pmesh->npolys);
 
-	m_totalBuildTimeMs = m_ctx->getDeltaTimeUsec(totStartTime, totEndTime)/1000.0f;
+	m_totalBuildTimeMs = m_ctx->getAccumulatedTime(RC_TIMER_TOTAL)/1000.0f;
 
 	if (m_tool)
 		m_tool->init(this);

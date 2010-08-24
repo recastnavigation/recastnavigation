@@ -6,6 +6,7 @@
 #include "Recast.h"
 #include "RecastDebugDraw.h"
 #include "DetourDebugDraw.h"
+#include "PerfTimer.h"
 #include "SDL.h"
 #include "SDL_opengl.h"
 
@@ -19,64 +20,23 @@ BuildContext::BuildContext() :
 	m_messageCount(0),
 	m_textPoolSize(0)
 {
-	resetBuildTimes();
+	resetTimers();
 }
 
 BuildContext::~BuildContext()
 {
 }
 
-
-#if defined(WIN32)
-
-// Win32
-#include <windows.h>
-
-rcTimeVal BuildContext::getTime()
-{
-	__int64 count;
-	QueryPerformanceCounter((LARGE_INTEGER*)&count);
-	return count;
-}
-
-int BuildContext::getDeltaTimeUsec(const rcTimeVal start, const rcTimeVal end)
-{
-	static __int64 freq = 0;
-	if (freq == 0)
-		QueryPerformanceFrequency((LARGE_INTEGER*)&freq);
-	__int64 elapsed = end - start;
-	return (int)(elapsed*1000000 / freq);
-}
-
-#else
-
-// Linux, BSD, OSX
-
-#include <sys/time.h>
-
-rcTimeVal BuildContext::getTime()
-{
-	timeval now;
-	gettimeofday(&now, 0);
-	return (rcTimeVal)now.tv_sec*1000000L + (rcTimeVal)now.tv_usec;
-}
-
-int BuildContext::getDeltaTimeUsec(const rcTimeVal start, const rcTimeVal end)
-{
-	return (int)(end - start);
-}
-
-#endif
-
-		
-void BuildContext::resetLog()
+// Virtual functions for custom implementations.
+void BuildContext::doResetLog()
 {
 	m_messageCount = 0;
 	m_textPoolSize = 0;
 }
 
-void BuildContext::log(const rcLogCategory category, const char* format, ...)
+void BuildContext::doLog(const rcLogCategory category, const char* msg, const int len)
 {
+	if (!len) return;
 	if (m_messageCount >= MAX_MESSAGES)
 		return;
 	char* dst = &m_textPool[m_textPoolSize];
@@ -87,13 +47,37 @@ void BuildContext::log(const rcLogCategory category, const char* format, ...)
 	*dst = (char)category;
 	n--;
 	// Store message
-	va_list ap;
-	va_start(ap, format);
-	int ret = vsnprintf(dst+1, n-1, format, ap);
-	va_end(ap);
-	if (ret > 0)
-		m_textPoolSize += ret+2;
+	const int count = rcMin(len+1, n);
+	memcpy(dst+1, msg, count);
+	dst[count+1] = '\0';
+	m_textPoolSize += count+1;
 	m_messages[m_messageCount++] = dst;
+}
+
+void BuildContext::doResetTimers()
+{
+	for (int i = 0; i < RC_MAX_TIMERS; ++i)
+		m_accTime[i] = -1;
+}
+
+void BuildContext::doStartTimer(const rcTimerLabel label)
+{
+	m_startTime[label] = getPerfTime();
+}
+
+void BuildContext::doStopTimer(const rcTimerLabel label)
+{
+	const TimeVal endTime = getPerfTime();
+	const int deltaTime = endTime - m_startTime[label];
+	if (m_accTime[label] == -1)
+		m_accTime[label] = deltaTime;
+	else
+		m_accTime[label] += deltaTime;
+}
+
+int BuildContext::doGetAccumulatedTime(const rcTimerLabel label) const
+{
+	return m_accTime[label];
 }
 
 void BuildContext::dumpLog(const char* format, ...)
@@ -150,70 +134,6 @@ const char* BuildContext::getLogText(const int i) const
 {
 	return m_messages[i]+1;
 }
-		
-void BuildContext::resetBuildTimes()
-{
-	for (int i = 0; i < RC_MAX_TIMES; ++i)
-		m_buildTime[i] = -1;
-}
-
-void BuildContext::reportBuildTime(const rcBuildTimeLabel label, const int time)
-{
-	const int idx = (int)label;
-	// The build times are initialized to negative to indicate no samples collected.
-	if (m_buildTime[idx] < 0)
-		m_buildTime[idx] = time;
-	else
-		m_buildTime[idx] += time;
-}
-
-int BuildContext::getBuildTime(const rcBuildTimeLabel label)
-{
-	return m_buildTime[label];
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#if defined(WIN32)
-
-// Win32
-#include <windows.h>
-
-rcTimeVal getPerfTime()
-{
-	__int64 count;
-	QueryPerformanceCounter((LARGE_INTEGER*)&count);
-	return count;
-}
-
-int getPerfDeltaTimeUsec(const rcTimeVal start, const rcTimeVal end)
-{
-	static __int64 freq = 0;
-	if (freq == 0)
-		QueryPerformanceFrequency((LARGE_INTEGER*)&freq);
-	__int64 elapsed = end - start;
-	return (int)(elapsed*1000000 / freq);
-}
-
-#else
-
-// Linux, BSD, OSX
-
-#include <sys/time.h>
-
-rcTimeVal getPerfTime()
-{
-	timeval now;
-	gettimeofday(&now, 0);
-	return (rcTimeVal)now.tv_sec*1000000L + (rcTimeVal)now.tv_usec;
-}
-
-int getPerfDeltaTimeUsec(const rcTimeVal start, const rcTimeVal end)
-{
-	return (int)(end - start);
-}
-
-#endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

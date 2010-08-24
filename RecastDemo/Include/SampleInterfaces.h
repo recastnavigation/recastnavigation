@@ -22,13 +22,15 @@
 #include "DebugDraw.h"
 #include "Recast.h"
 #include "RecastDump.h"
+#include "PerfTimer.h"
 
 // These are example implementations of various interfaces used in Recast and Detour.
 
 // Recast build context.
-class BuildContext : public rcBuildContext
+class BuildContext : public rcContext
 {
-	int m_buildTime[RC_MAX_TIMES];
+	TimeVal m_startTime[RC_MAX_TIMERS];
+	int m_accTime[RC_MAX_TIMERS];
 
 	static const int MAX_MESSAGES = 1000;
 	const char* m_messages[MAX_MESSAGES];
@@ -39,17 +41,8 @@ class BuildContext : public rcBuildContext
 	
 public:
 	BuildContext();
-	~BuildContext();
+	virtual ~BuildContext();
 	
-	// Get current time in platform specific units.
-	virtual rcTimeVal getTime();
-	// Returns time passed from 'start' to 'end' in microseconds.
-	virtual int getDeltaTimeUsec(const rcTimeVal start, const rcTimeVal end);
-	
-	// Resets log.
-	virtual void resetLog();
-	// Logs a message.
-	virtual void log(const rcLogCategory category, const char* format, ...);
 	// Dumps the log to stdout.
 	void dumpLog(const char* format, ...);
 	// Returns number of log messages.
@@ -57,19 +50,15 @@ public:
 	// Returns log message text.
 	const char* getLogText(const int i) const;
 	
-	// Resets build time collecting.
-	virtual void resetBuildTimes();
-	// Reports build time of specified label for accumulation.
-	virtual void reportBuildTime(const rcBuildTimeLabel label, const int time);
-	// Returns accumulated build time for specified label, or -1 if no time was reported.
-	virtual int getBuildTime(const rcBuildTimeLabel label);
+protected:	
+	// Virtual functions for custom implementations.
+	virtual void doResetLog();
+	virtual void doLog(const rcLogCategory /*category*/, const char* /*msg*/, const int /*len*/);
+	virtual void doResetTimers();
+	virtual void doStartTimer(const rcTimerLabel /*label*/);
+	virtual void doStopTimer(const rcTimerLabel /*label*/);
+	virtual int doGetAccumulatedTime(const rcTimerLabel /*label*/) const;
 };
-
-
-// TODO: Find better solution. This is useful for timing in some cases when the full build interface would be overkill.
-rcTimeVal getPerfTime();
-int getPerfDeltaTimeUsec(const rcTimeVal start, const rcTimeVal end);
-
 
 // OpenGL debug draw implementation.
 class DebugDrawGL : public duDebugDraw

@@ -39,6 +39,8 @@ struct ObstacleBody
 	float dp[3], np[3];		// Use for side selection during sampling.
 	bool touch;
 	int type;				// Type of the obstacle (see ObstacleType)
+	float dist;
+	int idx;
 };
 
 
@@ -118,6 +120,34 @@ struct Agent
 
 	unsigned char active;
 };
+
+
+
+struct Isect
+{
+	float u;
+	int inside;
+};
+
+static const int FORM_MAX_ISECT = 32;
+static const int FORM_MAX_SEGS = 16;
+static const int FORM_MAX_POLYS = 32;
+
+struct FormationSeg
+{
+	float p[3], q[3];
+	Isect ints[FORM_MAX_ISECT];
+	int nints;
+};
+
+struct Formation
+{
+	FormationSeg segs[FORM_MAX_SEGS];
+	int nsegs;
+	dtPolyRef polys[FORM_MAX_POLYS];
+	int npolys;
+};
+
 
 
 class SampleGraph
@@ -210,6 +240,8 @@ class CrowdTool : public SampleTool
 	Sample* m_sample;
 	float m_targetPos[3];
 	bool m_targetPosSet;
+	
+	Formation m_form;
 	
 	bool m_expandDebugDraw;
 	bool m_showLabels;

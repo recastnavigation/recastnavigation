@@ -138,7 +138,7 @@ Sample_Debug::Sample_Debug() :
 		if (m_cset)
 		{
 			FileIO io;
-			if (io.openForRead("remove_vertex_issue_contour_cache.rc"))
+			if (io.openForRead("PathSet_TMP_NA_PathingTestAReg1_1_2_CS.rc"))
 			{
 				duReadContourSet(*m_cset, &io);
 				
@@ -158,14 +158,14 @@ Sample_Debug::Sample_Debug() :
 		}
 
 
-		if (m_cset)
+/*		if (m_cset)
 		{
 			m_pmesh = rcAllocPolyMesh();
 			if (m_pmesh)
 			{
 				rcBuildPolyMesh(m_ctx, *m_cset, 6, *m_pmesh);
 			}
-		}
+		}*/
 	}
 	
 }
@@ -214,7 +214,7 @@ void Sample_Debug::handleRender()
 	if (m_cset)
 	{
 		duDebugDrawRawContours(&dd, *m_cset, 0.25f);
-//		duDebugDrawContours(&dd, *m_cset);
+		duDebugDrawContours(&dd, *m_cset);
 	}
 	
 	if (m_pmesh)

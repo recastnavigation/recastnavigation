@@ -118,7 +118,7 @@ InputGeom::~InputGeom()
 	delete m_mesh;
 }
 		
-bool InputGeom::loadMesh(rcBuildContext* ctx, const char* filepath)
+bool InputGeom::loadMesh(rcContext* ctx, const char* filepath)
 {
 	if (m_mesh)
 	{
@@ -159,7 +159,7 @@ bool InputGeom::loadMesh(rcBuildContext* ctx, const char* filepath)
 	return true;
 }
 
-bool InputGeom::load(rcBuildContext* ctx, const char* filePath)
+bool InputGeom::load(rcContext* ctx, const char* filePath)
 {
 	char* buf = 0;
 	FILE* fp = fopen(filePath, "rb");

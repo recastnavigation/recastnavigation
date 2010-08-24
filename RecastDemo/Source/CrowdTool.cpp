@@ -208,25 +208,31 @@ void normalizeSamples(RVODebugData* rvo)
 }
 
 
-void setDynCircleBody(ObstacleBody* b, const float* pos, const float rad, const float* vel, const float* dvel)
+static void setDynCircleBody(ObstacleBody* b, const float* pos, const float rad, const float* vel, const float* dvel,
+							 const float dist, const int idx)
 {
 	b->type = BODY_CIRCLE;
 	dtVcopy(b->p, pos);
 	dtVcopy(b->vel, vel);
 	dtVcopy(b->dvel, dvel);
 	b->rad = rad;
+	b->dist = dist;
+	b->idx = idx;
 }
 
-void setStatCircleBody(ObstacleBody* b, const float* pos, const float rad)
+/*
+static void setStatCircleBody(ObstacleBody* b, const float* pos, const float rad)
 {
 	b->type = BODY_CIRCLE;
 	dtVcopy(b->p, pos);
 	dtVset(b->vel, 0,0,0);
 	dtVset(b->dvel, 0,0,0);
 	b->rad = rad;
+	b->idx = -1;
 }
+*/
 
-void setStatSegmentBody(ObstacleBody* b, const float* p, const float* q)
+static void setStatSegmentBody(ObstacleBody* b, const float* p, const float* q)
 {
 	b->type = BODY_SEGMENT;
 	dtVcopy(b->p, p);
@@ -234,6 +240,7 @@ void setStatSegmentBody(ObstacleBody* b, const float* p, const float* q)
 	dtVset(b->vel, 0,0,0);
 	dtVset(b->dvel, 0,0,0);
 	b->rad = 0;
+	b->idx = -1;
 }
 
 static const float VEL_WEIGHT = 2.0f;
@@ -473,6 +480,53 @@ void sampleRVO(ObstacleBody* agent, const float vmax, const ObstacleBody* obs,
 	processSamples(agent, vmax, obs, nobs, rvo, spos, cs/2, nspos, nvel);
 }
 
+static void sampleRVOAdaptive(ObstacleBody* agent, const float vmax, const ObstacleBody* obs,
+							  const int nobs, RVODebugData* rvo, const float bias, float* nvel)
+{
+	dtVset(nvel, 0,0,0);
+	
+	float spos[MAX_RVO_SAMPLES*3];
+	int nspos = 0;
+	
+	rvo->ns = 0;
+	
+	int rad;
+	float res[3];
+	float cs;
+	
+	// First sample location.
+	rad = 4;
+	res[0] = agent->dvel[0]*bias;
+	res[1] = 0;
+	res[2] = agent->dvel[2]*bias;
+	cs = vmax*(2-bias*2) / (float)(rad-1);
+	
+	for (int k = 0; k < 5; ++k)
+	{
+		const float half = (rad-1)*cs*0.5f;
+		
+		nspos = 0;
+		for (int y = 0; y < rad; ++y)
+		{
+			for (int x = 0; x < rad; ++x)
+			{
+				const float vx = res[0] + x*cs - half;
+				const float vz = res[2] + y*cs - half;
+				if (dtSqr(vx)+dtSqr(vz) > dtSqr(vmax+cs/2)) continue;
+				spos[nspos*3+0] = vx;
+				spos[nspos*3+1] = 0;
+				spos[nspos*3+2] = vz;
+				nspos++;
+			}
+		}
+		
+		processSamples(agent, vmax, obs, nobs, rvo, spos, cs/2, nspos, res);
+		
+		cs *= 0.5f;
+	}
+	
+	dtVcopy(nvel, res);
+}
 
 
 CrowdManager::CrowdManager() :
@@ -571,12 +625,48 @@ static void calcSmoothSteerDirection(const float* pos, const float* corners, con
 	dvel[2] = dir0[2] - dir1[2]*len0*strength;
 }
 
+/*static void sortBodies(ObstacleBody* arr, const int n)
+{
+	int i, j;
+	for (i = 1; i < n; i++)
+	{
+		const ObstacleBody& v = arr[i];
+		for (j = i - 1; j >= 0 && arr[j].dist > v.dist; j--)
+			memcpy(&arr[j+1], &arr[j], sizeof(ObstacleBody));
+		memcpy(&arr[j+1], &v, sizeof(ObstacleBody));
+	}
+}*/
+
+static ObstacleBody* insertBody(const float dist, ObstacleBody* obs, int& nobs)
+{
+	ObstacleBody* ob = 0;
+	if (!nobs || dist >= obs[nobs-1].dist)
+	{
+		ob = &obs[nobs];
+	}
+	else
+	{
+		int i;
+		for (i = 0; i < nobs; ++i)
+			if (dist <= obs[i].dist)
+				break;
+		if (nobs-i > 0)
+			memmove(obs+i+1, obs+i, sizeof(ObstacleBody)*(nobs-i));
+		ob = &obs[i];
+	}
+	
+	nobs++;
+	
+	return ob;
+}
+
+
 void CrowdManager::update(const float dt, unsigned int flags, dtNavMeshQuery* navquery)
 {
 	if (!navquery)
 		return;
 	
-	rcTimeVal startTime = getPerfTime();
+	TimeVal startTime = getPerfTime();
 	
 	const float ext[3] = {2,4,2};
 	dtQueryFilter filter;
@@ -716,7 +806,7 @@ void CrowdManager::update(const float dt, unsigned int flags, dtNavMeshQuery* na
 
 		if (!ag->ncorners)
 		{
-			// No corner to steer to, 
+			// No corner to steer to, stop.
 			dtVset(ag->dvel, 0,0,0);
 		}
 		else
@@ -760,7 +850,7 @@ void CrowdManager::update(const float dt, unsigned int flags, dtNavMeshQuery* na
 	}
 	
 	// Velocity planning.
-	rcTimeVal rvoStartTime = getPerfTime();
+	TimeVal rvoStartTime = getPerfTime();
 	static const int MAX_BODIES = 32;
 	ObstacleBody bodies[MAX_BODIES];
 	for (int i = 0; i < MAX_AGENTS; ++i)
@@ -792,10 +882,13 @@ void CrowdManager::update(const float dt, unsigned int flags, dtNavMeshQuery* na
 				
 				if (nbodies < MAX_BODIES)
 				{
-					setDynCircleBody(&bodies[nbodies], nei->pos, nei->radius, nei->vel, nei->dvel);
-					nbodies++;
+					ObstacleBody* body = insertBody(dist, bodies, nbodies);
+					setDynCircleBody(body, nei->pos, nei->radius, nei->vel, nei->dvel, dist, j);
 				}
 			}
+			
+			// Prune mas number of neighbours.
+			nbodies = dtMin(nbodies, 6);
 			
 			// Add static obstacles.
 			for (int j = 0; j < ag->ncolsegs; ++j)
@@ -812,20 +905,16 @@ void CrowdManager::update(const float dt, unsigned int flags, dtNavMeshQuery* na
 			}
 				
 			ObstacleBody agent;
-			setDynCircleBody(&agent, ag->pos, ag->radius, ag->vel, ag->dvel);
+			setDynCircleBody(&agent, ag->pos, ag->radius, ag->vel, ag->dvel, 0, -1);
 			prepareBodies(&agent, bodies, nbodies);
-			sampleRVO(&agent, ag->maxspeed, bodies, nbodies, &ag->rvo, 0.4f, ag->nvel);
-			
-			// Normalize samples for debug draw
-			normalizeSamples(&ag->rvo);
+			sampleRVOAdaptive(&agent, ag->maxspeed, bodies, nbodies, &ag->rvo, 0.4f, ag->nvel);
 		}
 		else
 		{
 			dtVcopy(ag->nvel, ag->dvel);
 		}
 	}
-	rcTimeVal rvoEndTime = getPerfTime();
-	m_rvoTime.addSample(getPerfDeltaTimeUsec(rvoStartTime, rvoEndTime) / 1000.0f);
+	TimeVal rvoEndTime = getPerfTime();
 	
 	// Integrate and update perceived velocity.
 	for (int i = 0; i < MAX_AGENTS; ++i)
@@ -964,12 +1053,117 @@ void CrowdManager::update(const float dt, unsigned int flags, dtNavMeshQuery* na
 		}
 	}
 
-	rcTimeVal endTime = getPerfTime();
+	TimeVal endTime = getPerfTime();
 
+	for (int i = 0; i < MAX_AGENTS; ++i)
+	{
+		if (!m_agents[i].active) continue;
+		if (m_agents[i].targetState != AGENT_TARGET_PATH) continue;
+		Agent* ag = &m_agents[i];
+		if (flags & CROWDMAN_USE_VO)
+		{
+			// Normalize samples for debug draw
+			normalizeSamples(&ag->rvo);
+		}
+	}
+	
 	m_totalTime.addSample(getPerfDeltaTimeUsec(startTime, endTime) / 1000.0f);
+	m_rvoTime.addSample(getPerfDeltaTimeUsec(rvoStartTime, rvoEndTime) / 1000.0f);
 }
 
+static int insertIsect(float u, int inside, Isect* ints, int nints)
+{
+	int i;
+	if (nints >= FORM_MAX_ISECT) return nints;
+	if (!nints || u >= ints[nints-1].u)
+	{
+		ints[nints].u = u;
+		ints[nints].inside = inside;
+		return nints+1;
+	}
+	for (i = 0; i < nints; ++i)
+		if (u <= ints[i].u) break;
+	if (nints-i > 0) memmove(ints+i+1,ints+i,sizeof(Isect)*(nints-i));
+	ints[i].u = u;
+	ints[i].inside = inside;
+	return nints+1;
+}
 
+static int removeAdjacent(Isect* ints, int nints)
+{
+	const float eps = 0.0001f;
+	if (nints < 2)
+		return nints;
+	for (int i = 0; i < nints-1; ++i)
+	{
+		if (fabsf(ints[i].u - ints[i+1].u) < eps) // && ints[i].inside != ints[i+1].inside)
+		{
+			nints -= 2;
+			for (int j = i; j < nints; ++j)
+				ints[j] = ints[j+2];
+//			if (nints-i > 0) memmove(ints+i,ints+i+2,sizeof(Isect)*(nints-i));
+			i--;
+		}
+	}
+	return nints;
+}
+
+static int getPolyVerts(const dtNavMesh* navMesh, dtPolyRef ref, float* verts)
+{
+	const dtMeshTile* tile = 0;
+	const dtPoly* poly = 0;
+	if (!navMesh->getTileAndPolyByRef(ref, &tile, &poly))
+		return 0;
+	for (int i = 0; i < (int)poly->vertCount; ++i)
+		dtVcopy(&verts[i*3], &tile->verts[poly->verts[i]*3]);
+	return poly->vertCount;
+}
+
+static void createFormation(Formation* form, const dtNavMesh* navmesh)
+{
+	float verts[DT_VERTS_PER_POLYGON*3];
+	for (int i = 0; i < form->nsegs; i++)
+	{
+		FormationSeg* seg = &form->segs[i];
+		seg->nints = 0;
+		
+		int startInside = 0;
+
+		for (int j = 0; j < form->npolys; ++j)
+		{
+			const int nverts = getPolyVerts(navmesh, form->polys[j], verts);
+			if (!nverts) continue;
+			
+			float tmin, tmax;
+			int smin, smax;
+			bool res = dtIntersectSegmentPoly2D(seg->p, seg->q, verts, nverts, tmin, tmax, smin, smax);
+
+			if (!res)
+				continue;
+			
+			if (tmin >= 0.0f && tmin <= 1.0f)
+				seg->nints = insertIsect(tmin, 1, seg->ints, seg->nints);
+			if (tmax >= 0.0f && tmax <= 1.0f)
+				seg->nints = insertIsect(tmax, -1, seg->ints, seg->nints);
+			if (tmin < 0.0f && tmax > 0.0f)
+				startInside++;
+		}
+		
+		seg->nints = removeAdjacent(seg->ints, seg->nints);
+	}
+	
+	// Calc winding
+	for (int i = 0; i < form->nsegs; ++i)
+	{
+		FormationSeg* seg = &form->segs[i];
+		int inside = 0;
+		for (int j = 0; j < seg->nints; ++j)
+		{
+			inside += seg->ints[j].inside;
+			seg->ints[j].inside = inside;
+		}
+	}
+}
 
 CrowdTool::CrowdTool() :
 	m_sample(0),
@@ -989,6 +1183,7 @@ CrowdTool::CrowdTool() :
 	m_run(true),
 	m_mode(TOOLMODE_CREATE)
 {
+	memset(&m_form, 0, sizeof(Formation));
 }
 
 CrowdTool::~CrowdTool()
@@ -1105,9 +1300,77 @@ void CrowdTool::handleClick(const float* s, const float* p, bool shift)
 		else
 		{
 			// Add
-			int idx = m_crowd.addAgent(p, m_sample->getAgentRadius(), m_sample->getAgentHeight());
+/*			int idx = m_crowd.addAgent(p, m_sample->getAgentRadius(), m_sample->getAgentHeight());
 			if (idx != -1 && m_targetPosSet)
-				m_crowd.setMoveTarget(idx, m_targetPos);
+				m_crowd.setMoveTarget(idx, m_targetPos);*/
+
+			const dtNavMesh* navmesh = m_sample->getNavMesh();
+			const dtNavMeshQuery* navquery = m_sample->getNavMeshQuery();
+
+			memset(&m_form, 0, sizeof(Formation));
+
+			const float ext[3] = {2,4,2};
+			dtQueryFilter filter;
+
+			const float r = m_sample->getAgentRadius();
+
+			float nearest[3];
+			dtPolyRef centerRef = navquery->findNearestPoly(p, ext, &filter, nearest);
+			if (centerRef)
+			{
+				const int rows = 6;
+				for (int i = 0; i < rows; ++i)
+				{
+					const float x0 = -r*2.5f*rows/2 + (i&1)*r;
+					const float x1 = r*2.5f*rows/2 + (i&1)*r;
+					const float z = (i-rows*0.5f)*r*2.5f;
+					dtVset(m_form.segs[m_form.nsegs].p, p[0]+x0, p[1]+2.0f, p[2]+z);
+					dtVset(m_form.segs[m_form.nsegs].q, p[0]+x1, p[1]+2.0f, p[2]+z);
+					m_form.nsegs++;
+				}
+				
+				m_form.npolys = navquery->findLocalNeighbourhood(centerRef, p, r*rows*2.5f, &filter, m_form.polys, 0, FORM_MAX_POLYS);
+				
+				createFormation(&m_form, navmesh);
+				
+				const int createCount = 25;
+				int num = 0;
+				
+				const float r = m_sample->getAgentRadius();
+				for (int i = 0; i < m_form.nsegs; ++i)
+				{
+					const FormationSeg* seg = &m_form.segs[i];
+					for (int j = 0; j < seg->nints-1; ++j)
+					{
+						if (seg->ints[j].inside == 0) continue;
+						const float u0 = seg->ints[j].u;
+						const float u1 = seg->ints[j+1].u;
+						float ia[3], ib[3];
+						dtVlerp(ia, seg->p,seg->q, u0);
+						dtVlerp(ib, seg->p,seg->q, u1);
+						
+						const float spacing = r*2.5f;
+						float delta[3];
+						dtVsub(delta, ib,ia);
+						float d = dtVlen(delta);
+						int np = (int)floorf(d/spacing);
+						for (int k = 0; k < np; ++k)
+						{
+							float pos[3];
+							dtVmad(pos, ia, delta, (float)(k+0.5f)/(float)np);
+
+							if (num < createCount)
+							{
+								num++;
+								int idx = m_crowd.addAgent(pos, m_sample->getAgentRadius(), m_sample->getAgentHeight());
+								if (idx != -1 && m_targetPosSet)
+									m_crowd.setMoveTarget(idx, m_targetPos);
+							}
+						}
+					}
+				}
+				
+			}
 		}
 	}
 	else if (m_mode == TOOLMODE_MOVE)
@@ -1306,6 +1569,91 @@ void CrowdTool::handleRender()
 		
 		dd.depthMask(true);
 	}
+	
+	
+/*
+	for (int i = 0; i < m_form.npolys; ++i)
+	{
+		duDebugDrawNavMeshPoly(&dd, *nmesh, m_form.polys[i], duRGBA(255,255,255,32));
+	}
+	
+	dd.depthMask(false);
+
+	dd.begin(DU_DRAW_POINTS, 4.0f);
+	for (int i = 0; i < m_form.nsegs; ++i)
+	{
+		const FormationSeg* seg = &m_form.segs[i];
+		for (int j = 0; j < seg->nints-1; ++j)
+		{
+			if (seg->ints[j].inside == 0) continue;
+			const float u0 = seg->ints[j].u;
+			const float u1 = seg->ints[j+1].u;
+			float ia[3], ib[3];
+			dtVlerp(ia, seg->p,seg->q, u0);
+			dtVlerp(ib, seg->p,seg->q, u1);
+			dd.vertex(ia,duRGBA(128,0,0,192));
+			dd.vertex(ib,duRGBA(128,0,0,192));
+		}
+	}
+	dd.end();
+	
+	dd.begin(DU_DRAW_LINES, 2.0f);
+	for (int i = 0; i < m_form.nsegs; ++i)
+	{
+		const FormationSeg* seg = &m_form.segs[i];
+		dd.vertex(seg->p,duRGBA(255,255,255,128));
+		dd.vertex(seg->q,duRGBA(255,255,255,128));
+		for (int j = 0; j < seg->nints-1; ++j)
+		{
+			if (seg->ints[j].inside == 0) continue;
+			const float u0 = seg->ints[j].u;
+			const float u1 = seg->ints[j+1].u;
+			float ia[3], ib[3];
+			dtVlerp(ia, seg->p,seg->q, u0);
+			dtVlerp(ib, seg->p,seg->q, u1);
+			dd.vertex(ia,duRGBA(128,0,0,192));
+			dd.vertex(ib,duRGBA(128,0,0,192));
+		}
+	}
+	dd.end();
+
+	{
+		const float r = m_sample->getAgentRadius();
+		dd.begin(DU_DRAW_LINES, 2.0f);
+		for (int i = 0; i < m_form.nsegs; ++i)
+		{
+			const FormationSeg* seg = &m_form.segs[i];
+			dd.vertex(seg->p,duRGBA(255,255,255,128));
+			dd.vertex(seg->q,duRGBA(255,255,255,128));
+			for (int j = 0; j < seg->nints-1; ++j)
+			{
+				if (seg->ints[j].inside == 0) continue;
+				const float u0 = seg->ints[j].u;
+				const float u1 = seg->ints[j+1].u;
+				float ia[3], ib[3];
+				dtVlerp(ia, seg->p,seg->q, u0);
+				dtVlerp(ib, seg->p,seg->q, u1);
+
+				const float spacing = r*2.5f;
+				float delta[3];
+				dtVsub(delta, ib,ia);
+				float d = dtVlen(delta);
+				int np = (int)floorf(d/spacing);
+				for (int k = 0; k < np; ++k)
+				{
+					float pos[3];
+					dtVmad(pos, ia, delta, (float)(k+0.5f)/(float)np);
+					dd.vertex(pos[0],pos[1]-1,pos[2],duRGBA(128,0,0,192));
+					dd.vertex(pos[0],pos[1]+2,pos[2],duRGBA(128,0,0,192));
+				}
+			}
+		}
+		dd.end();
+	}
+	
+	dd.depthMask(true);
+*/
+	
 }
 
 
@@ -1401,7 +1749,7 @@ void CrowdTool::handleRenderOverlay(double* proj, double* model, int* view)
 	}
 	
 	const int gx = 300, gy = 10, gw = 500, gh = 200;
-	const float vmin = 0.0f, vmax = 10.0f;
+	const float vmin = 0.0f, vmax = 2.0f;
 
 	drawGraphBackground(gx,gy,gw,gh, vmin,vmax, 4, "ms");
 	drawGraph(m_crowd.getRVOTimeGraph(), gx,gy,gw,gh, vmin,vmax, duRGBA(255,0,0,128));
