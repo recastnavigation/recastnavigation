@@ -105,7 +105,7 @@ dtNavMeshQuery::~dtNavMeshQuery()
 	dtFree(m_openList);
 }
 
-bool dtNavMeshQuery::init(dtNavMesh* nav, const int maxNodes)
+bool dtNavMeshQuery::init(const dtNavMesh* nav, const int maxNodes)
 {
 	m_nav = nav;
 	

@@ -882,7 +882,7 @@ const dtMeshTile* dtNavMesh::getTile(int i) const
 	return &m_tiles[i];
 }
 
-void dtNavMesh::calcTileLoc(const float* pos, int* tx, int* ty)
+void dtNavMesh::calcTileLoc(const float* pos, int* tx, int* ty) const
 {
 	*tx = (int)floorf((pos[0]-m_orig[0]) / m_tileWidth);
 	*ty = (int)floorf((pos[2]-m_orig[2]) / m_tileHeight);

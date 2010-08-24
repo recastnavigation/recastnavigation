@@ -209,7 +209,7 @@ public:
 	//  pos - (in) world position of the query.
 	//  tx - (out) tile x location.
 	//  ty - (out) tile y location.
-	void calcTileLoc(const float* pos, int* tx, int* ty);
+	void calcTileLoc(const float* pos, int* tx, int* ty) const;
 
 	// Returns pointer to tile at specified location.
 	// Params:

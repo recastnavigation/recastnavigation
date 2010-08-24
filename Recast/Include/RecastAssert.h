@@ -19,6 +19,9 @@
 #ifndef RECASTASSERT_H
 #define RECASTASSERT_H
 
+// Note: This header file's only purpose is to include define assert.
+// Feel free to change the file and include your own implementation instead.
+
 #ifdef NDEBUG
 #	define rcAssert(x)
 #else

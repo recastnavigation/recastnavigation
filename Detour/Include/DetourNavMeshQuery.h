@@ -114,7 +114,7 @@ public:
 	//  nav - (in) pointer to navigation mesh data.
 	//  maxNodes - (in) Maximum number of search nodes to use (max 65536).
 	// Returns: True if succeed, else false.
-	bool init(class dtNavMesh* nav, const int maxNodes);
+	bool init(const dtNavMesh* nav, const int maxNodes);
 	
 	// Sets the pathfinding cost of the specified area.
 	// Params:
@@ -383,7 +383,7 @@ private:
 						 dtPolyRef to, const dtPoly* toPoly, const dtMeshTile* toTile,
 						 float* mid) const;
 	
-	class dtNavMesh* m_nav;				// Pointer to navmesh data.
+	const dtNavMesh* m_nav;				// Pointer to navmesh data.
 
 	struct dtQueryData
 	{

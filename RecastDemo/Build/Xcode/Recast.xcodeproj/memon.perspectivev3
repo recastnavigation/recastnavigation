@@ -283,8 +283,8 @@
 							<key>PBXSmartGroupTreeModuleOutlineStateSelectionKey</key>
 							<array>
 								<array>
-									<integer>27</integer>
-									<integer>25</integer>
+									<integer>17</integer>
+									<integer>11</integer>
 									<integer>1</integer>
 									<integer>0</integer>
 								</array>
@@ -325,7 +325,7 @@
 								<key>PBXProjectModuleGUID</key>
 								<string>6B8632A30F78115100E2684A</string>
 								<key>PBXProjectModuleLabel</key>
-								<string>Recast.h</string>
+								<string>DetourNavMesh.h</string>
 								<key>PBXSplitModuleInNavigatorKey</key>
 								<dict>
 									<key>Split0</key>
@@ -333,11 +333,11 @@
 										<key>PBXProjectModuleGUID</key>
 										<string>6B8632A40F78115100E2684A</string>
 										<key>PBXProjectModuleLabel</key>
-										<string>Recast.h</string>
+										<string>DetourNavMesh.h</string>
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>6BD402B112243CEA00995864</string>
+										<string>6BD402C6122441CB00995864</string>
 										<key>history</key>
 										<array>
 											<string>6BBB4AA5115B4F3400CF791D</string>
@@ -360,27 +360,21 @@
 											<string>6BAF4321121AF998008CFCDF</string>
 											<string>6BAF43FB121C241D008CFCDF</string>
 											<string>6BAF4421121C25E3008CFCDF</string>
-											<string>6BAF4422121C25E3008CFCDF</string>
 											<string>6BAF4446121C40AC008CFCDF</string>
 											<string>6BAF44DE121C54D4008CFCDF</string>
-											<string>6BAF4524121D1723008CFCDF</string>
 											<string>6BAF4525121D1723008CFCDF</string>
-											<string>6BAF4562121D1849008CFCDF</string>
-											<string>6BAF45E4121D7277008CFCDF</string>
 											<string>6BAF4637121D74D3008CFCDF</string>
 											<string>6BAF46D3121D8FF1008CFCDF</string>
 											<string>6BAF4739121D9FBE008CFCDF</string>
 											<string>6BAF4747121D9FED008CFCDF</string>
 											<string>6BAF475A121DA31D008CFCDF</string>
 											<string>6BAF475B121DA31D008CFCDF</string>
-											<string>6B1C8DB3121E8D970048697F</string>
 											<string>6B1C8DC5121E902F0048697F</string>
 											<string>6B1C8E08121EB4FF0048697F</string>
 											<string>6B1C8E0A121EB4FF0048697F</string>
 											<string>6B1C8E24121EB6D30048697F</string>
 											<string>6B1C8E27121EB6D30048697F</string>
 											<string>6BA687451222EADA00730711</string>
-											<string>6BA687481222EADA00730711</string>
 											<string>6BA6876E1222F02E00730711</string>
 											<string>6BA687831222F42100730711</string>
 											<string>6BA687881222F4DB00730711</string>
@@ -392,8 +386,6 @@
 											<string>6BA6887B1223122200730711</string>
 											<string>6BA688D1122321D800730711</string>
 											<string>6BD4020A1224336600995864</string>
-											<string>6BD4020B1224336600995864</string>
-											<string>6BD4020C1224336600995864</string>
 											<string>6BD4020D1224336600995864</string>
 											<string>6BD4020E1224336600995864</string>
 											<string>6BD4020F1224336600995864</string>
@@ -420,7 +412,15 @@
 											<string>6BD402A612243C8100995864</string>
 											<string>6BD402AB12243CEA00995864</string>
 											<string>6BD402AC12243CEA00995864</string>
-											<string>6BD402AD12243CEA00995864</string>
+											<string>6BD402B4122441CB00995864</string>
+											<string>6BD402B5122441CB00995864</string>
+											<string>6BD402B6122441CB00995864</string>
+											<string>6BD402B7122441CB00995864</string>
+											<string>6BD402B8122441CB00995864</string>
+											<string>6BD402B9122441CB00995864</string>
+											<string>6BD402BA122441CB00995864</string>
+											<string>6BD402BB122441CB00995864</string>
+											<string>6BD4020B1224336600995864</string>
 										</array>
 										<key>prevStack</key>
 										<array>
@@ -568,6 +568,16 @@
 											<string>6BD402AE12243CEA00995864</string>
 											<string>6BD402AF12243CEA00995864</string>
 											<string>6BD402B012243CEA00995864</string>
+											<string>6BD402BC122441CB00995864</string>
+											<string>6BD402BD122441CB00995864</string>
+											<string>6BD402BE122441CB00995864</string>
+											<string>6BD402BF122441CB00995864</string>
+											<string>6BD402C0122441CB00995864</string>
+											<string>6BD402C1122441CB00995864</string>
+											<string>6BD402C2122441CB00995864</string>
+											<string>6BD402C3122441CB00995864</string>
+											<string>6BD402C4122441CB00995864</string>
+											<string>6BD402C5122441CB00995864</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>
@@ -581,18 +591,18 @@
 							<key>GeometryConfiguration</key>
 							<dict>
 								<key>Frame</key>
-								<string>{{0, 0}, {994, 493}}</string>
+								<string>{{0, 0}, {994, 434}}</string>
 								<key>RubberWindowFrame</key>
 								<string>0 59 1280 719 0 0 1280 778 </string>
 							</dict>
 							<key>Module</key>
 							<string>PBXNavigatorGroup</string>
 							<key>Proportion</key>
-							<string>493pt</string>
+							<string>434pt</string>
 						</dict>
 						<dict>
 							<key>Proportion</key>
-							<string>180pt</string>
+							<string>239pt</string>
 							<key>Tabs</key>
 							<array>
 								<dict>
@@ -622,9 +632,7 @@
 									<key>GeometryConfiguration</key>
 									<dict>
 										<key>Frame</key>
-										<string>{{10, 27}, {994, 153}}</string>
-										<key>RubberWindowFrame</key>
-										<string>0 59 1280 719 0 0 1280 778 </string>
+										<string>{{10, 27}, {994, 212}}</string>
 									</dict>
 									<key>Module</key>
 									<string>PBXProjectFindModule</string>
@@ -662,7 +670,9 @@
 									<key>GeometryConfiguration</key>
 									<dict>
 										<key>Frame</key>
-										<string>{{10, 27}, {994, 83}}</string>
+										<string>{{10, 27}, {994, 212}}</string>
+										<key>RubberWindowFrame</key>
+										<string>0 59 1280 719 0 0 1280 778 </string>
 									</dict>
 									<key>Module</key>
 									<string>PBXBuildResultsModule</string>
