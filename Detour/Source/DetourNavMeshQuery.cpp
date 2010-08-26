@@ -41,7 +41,7 @@ bool dtQueryFilter::passFilter(const dtPolyRef /*ref*/,
 							   const dtMeshTile* /*tile*/,
 							   const dtPoly* poly) const
 {
-	return (poly->flags & includeFlags) != 0 && (poly->flags & excludeFlags) == 0;
+	return (poly->flags & m_includeFlags) != 0 && (poly->flags & m_excludeFlags) == 0;
 }
 
 float dtQueryFilter::getCost(const float* pa, const float* pb,
@@ -49,7 +49,7 @@ float dtQueryFilter::getCost(const float* pa, const float* pb,
 							 const dtPolyRef /*curRef*/, const dtMeshTile* /*curTile*/, const dtPoly* curPoly,
 							 const dtPolyRef /*nextRef*/, const dtMeshTile* /*nextTile*/, const dtPoly* /*nextPoly*/) const
 {
-	return dtVdist(pa, pb) * areaCost[curPoly->area];
+	return dtVdist(pa, pb) * m_areaCost[curPoly->area];
 }
 #else
 inline bool dtQueryFilter::passFilter(const dtPolyRef /*ref*/,
@@ -1088,7 +1088,7 @@ int dtNavMeshQuery::findStraightPath(const float* startPos, const float* endPos,
 					unsigned char flags = 0;
 					if (!leftPolyRef)
 						flags = DT_STRAIGHTPATH_END;
-					else if (rightPolyType == DT_POLYTYPE_OFFMESH_CONNECTION)
+					else if (leftPolyType == DT_POLYTYPE_OFFMESH_CONNECTION)
 						flags = DT_STRAIGHTPATH_OFFMESH_CONNECTION;
 					dtPolyRef ref = leftPolyRef;
 					

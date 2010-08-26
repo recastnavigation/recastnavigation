@@ -512,7 +512,7 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 	const float cs = chf.cs;
 	const float ics = 1.0f/cs;
 	
-	// Tesselate outlines.
+	// Tessellate outlines.
 	// This is done in separate pass in order to ensure
 	// seamless height values across the ply boundaries.
 	if (sampleDist > 0)
@@ -618,7 +618,7 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 	}
 	
 
-	// Tesselate the base mesh.
+	// Tessellate the base mesh.
 	edges.resize(0);
 	tris.resize(0);
 

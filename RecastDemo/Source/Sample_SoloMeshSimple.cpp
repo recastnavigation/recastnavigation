@@ -402,7 +402,7 @@ bool Sample_SoloMeshSimple::handleBuild()
 	// Step 2. Rasterize input polygon soup.
 	//
 	
-	// Allocate voxel heighfield where we rasterize our input data to.
+	// Allocate voxel heightfield where we rasterize our input data to.
 	m_solid = rcAllocHeightfield();
 	if (!m_solid)
 	{

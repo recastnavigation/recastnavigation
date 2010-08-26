@@ -340,7 +340,7 @@ static void simplifyContour(rcIntArray& points, rcIntArray& simplified,
 			endi = ai;
 		}
 		
-		// Tesselate only outer edges oredges between areas.
+		// Tessellate only outer edges oredges between areas.
 		if ((points[ci*4+3] & RC_CONTOUR_REG_MASK) == 0 ||
 			(points[ci*4+3] & RC_AREA_BORDER))
 		{
@@ -402,7 +402,7 @@ static void simplifyContour(rcIntArray& points, rcIntArray& simplified,
 			int maxi = -1;
 			int ci = (ai+1) % pn;
 
-			// Tesselate only outer edges or edges between areas.
+			// Tessellate only outer edges or edges between areas.
 			bool tess = false;
 			// Wall edges.
 			if ((buildFlags & RC_CONTOUR_TESS_WALL_EDGES) && (points[ci*4+3] & RC_CONTOUR_REG_MASK) == 0)
@@ -693,7 +693,7 @@ bool rcBuildContours(rcContext* ctx, rcCompactHeightfield& chf,
 					if (cset.nconts >= maxContours)
 					{
 						// Allocate more contours.
-						// This can happen when there are tiny holes in the heighfield.
+						// This can happen when there are tiny holes in the heightfield.
 						const int oldMax = maxContours;
 						maxContours *= 2;
 						rcContour* newConts = (rcContour*)rcAlloc(sizeof(rcContour)*maxContours, RC_ALLOC_PERM);
@@ -749,7 +749,7 @@ bool rcBuildContours(rcContext* ctx, rcCompactHeightfield& chf,
 	}
 	
 	// Check and merge droppings.
-	// Sometimes the previous algorithms can fail and create several countours
+	// Sometimes the previous algorithms can fail and create several contours
 	// per area. This pass will try to merge the holes into the main region.
 	for (int i = 0; i < cset.nconts; ++i)
 	{

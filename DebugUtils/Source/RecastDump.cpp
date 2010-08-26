@@ -412,7 +412,7 @@ void duLogBuildTimes(rcContext& ctx, const int totalTimeUsec)
  
 	ctx.log(RC_LOG_PROGRESS, "Build Times");
 	logLine(ctx, RC_TIMER_RASTERIZE_TRIANGLES,		"- Rasterize", pc);
-	logLine(ctx, RC_TIMER_BUILD_COMPACTHEIGHFIELD,	"- Build Compact", pc);
+	logLine(ctx, RC_TIMER_BUILD_COMPACTHEIGHTFIELD,	"- Build Compact", pc);
 	logLine(ctx, RC_TIMER_FILTER_BORDER,				"- Filter Border", pc);
 	logLine(ctx, RC_TIMER_FILTER_WALKABLE,			"- Filter Walkable", pc);
 	logLine(ctx, RC_TIMER_ERODE_AREA,				"- Erode Area", pc);
