@@ -931,6 +931,8 @@ bool rcBuildDistanceField(rcContext* ctx, rcCompactHeightfield& chf)
 	chf.dist = src;
 	
 	ctx->stopTimer(RC_TIMER_BUILD_DISTANCEFIELD_BLUR);
+
+	ctx->stopTimer(RC_TIMER_BUILD_DISTANCEFIELD);
 	
 	rcFree(dst);
 	
