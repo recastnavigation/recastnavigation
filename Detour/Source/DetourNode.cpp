@@ -19,6 +19,7 @@
 #include "DetourNode.h"
 #include "DetourAlloc.h"
 #include "DetourAssert.h"
+#include "DetourCommon.h"
 #include <string.h>
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -30,6 +31,9 @@ dtNodePool::dtNodePool(int maxNodes, int hashSize) :
 	m_hashSize(hashSize),
 	m_nodeCount(0)
 {
+	dtAssert(dtNextPow2(m_hashSize) == (unsigned int)m_hashSize);
+	dtAssert(m_maxNodes > 0);
+
 	m_nodes = (dtNode*)dtAlloc(sizeof(dtNode)*m_maxNodes, DT_ALLOC_PERM);
 	m_next = (unsigned short*)dtAlloc(sizeof(unsigned short)*m_maxNodes, DT_ALLOC_PERM);
 	m_first = (unsigned short*)dtAlloc(sizeof(unsigned short)*hashSize, DT_ALLOC_PERM);
@@ -57,7 +61,7 @@ void dtNodePool::clear()
 
 const dtNode* dtNodePool::findNode(unsigned int id) const
 {
-	unsigned int bucket = hashint(id) & (m_hashSize-1);
+	unsigned int bucket = dtHashInt(id) & (m_hashSize-1);
 	unsigned short i = m_first[bucket];
 	while (i != DT_NULL_IDX)
 	{
@@ -70,7 +74,7 @@ const dtNode* dtNodePool::findNode(unsigned int id) const
 
 dtNode* dtNodePool::getNode(unsigned int id)
 {
-	unsigned int bucket = hashint(id) & (m_hashSize-1);
+	unsigned int bucket = dtHashInt(id) & (m_hashSize-1);
 	unsigned short i = m_first[bucket];
 	dtNode* node = 0;
 	while (i != DT_NULL_IDX)
@@ -107,6 +111,8 @@ dtNodeQueue::dtNodeQueue(int n) :
 	m_capacity(n),
 	m_size(0)
 {
+	dtAssert(m_capacity > 0);
+	
 	m_heap = (dtNode**)dtAlloc(sizeof(dtNode*)*(m_capacity+1), DT_ALLOC_PERM);
 	dtAssert(m_heap);
 }
