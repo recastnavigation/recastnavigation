@@ -94,13 +94,13 @@ protected:
 	
 	SampleTool* m_tool;
 	
-	rcContext* m_ctx;
+	BuildContext* m_ctx;
 	
 public:
 	Sample();
 	virtual ~Sample();
 	
-	void setContext(rcContext* ctx) { m_ctx = ctx; }
+	void setContext(BuildContext* ctx) { m_ctx = ctx; }
 	
 	void setTool(SampleTool* tool);
 	

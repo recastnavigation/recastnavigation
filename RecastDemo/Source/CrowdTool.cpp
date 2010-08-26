@@ -264,8 +264,10 @@ static int sweepCircleCircle(const float* c0, const float r0, const float* v,
 	float b = dtVdot2D(v,s);
 	float d = b*b - a*c;
 	if (d < 0.0f) return 0; // no intersection.
-	tmin = (b - dtSqrt(d)) / a;
-	tmax = (b + dtSqrt(d)) / a;
+	a = 1.0f / a;
+	const float rd = dtSqrt(d);
+	tmin = (b - rd) * a;
+	tmax = (b + rd) * a;
 	return 1;
 }
 
@@ -625,18 +627,6 @@ static void calcSmoothSteerDirection(const float* pos, const float* corners, con
 	dvel[2] = dir0[2] - dir1[2]*len0*strength;
 }
 
-/*static void sortBodies(ObstacleBody* arr, const int n)
-{
-	int i, j;
-	for (i = 1; i < n; i++)
-	{
-		const ObstacleBody& v = arr[i];
-		for (j = i - 1; j >= 0 && arr[j].dist > v.dist; j--)
-			memcpy(&arr[j+1], &arr[j], sizeof(ObstacleBody));
-		memcpy(&arr[j+1], &v, sizeof(ObstacleBody));
-	}
-}*/
-
 static ObstacleBody* insertBody(const float dist, ObstacleBody* obs, int& nobs)
 {
 	ObstacleBody* ob = 0;
@@ -660,7 +650,6 @@ static ObstacleBody* insertBody(const float dist, ObstacleBody* obs, int& nobs)
 	return ob;
 }
 
-
 void CrowdManager::update(const float dt, unsigned int flags, dtNavMeshQuery* navquery)
 {
 	if (!navquery)
@@ -670,7 +659,7 @@ void CrowdManager::update(const float dt, unsigned int flags, dtNavMeshQuery* na
 	
 	const float ext[3] = {2,4,2};
 	dtQueryFilter filter;
-	
+		
 	// Update target and agent navigation state.
 	for (int i = 0; i < MAX_AGENTS; ++i)
 	{
@@ -723,16 +712,16 @@ void CrowdManager::update(const float dt, unsigned int flags, dtNavMeshQuery* na
 		if (ag->npath && dtVdist2DSqr(ag->pos, ag->colcenter) > dtSqr(ag->colradius*0.25f))
 		{
 			dtVcopy(ag->colcenter, ag->pos);
-			
-			static const int MAX_COL_POLYS = 32;
-			dtPolyRef polys[MAX_COL_POLYS];
-			const int npolys = navquery->findLocalNeighbourhood(ag->path[0], ag->pos, ag->colradius, &filter, polys, 0, MAX_COL_POLYS);
+			static const int MAX_LOCALS = 32;
+			dtPolyRef locals[MAX_LOCALS];
+
+			const int nlocals = navquery->findLocalNeighbourhood(ag->path[0], ag->pos, ag->colradius, &filter, locals, 0, MAX_LOCALS);
 
 			ag->ncolsegs = 0;
-			for (int j = 0; j < npolys; ++j)
+			for (int j = 0; j < nlocals; ++j)
 			{
 				float segs[DT_VERTS_PER_POLYGON*3*2];
-				const int nsegs = navquery->getPolyWallSegments(polys[j], &filter, segs);
+				const int nsegs = navquery->getPolyWallSegments(locals[j], &filter, segs);
 				for (int k = 0; k < nsegs; ++k)
 				{
 					const float* s = &segs[k*6];
@@ -749,7 +738,6 @@ void CrowdManager::update(const float dt, unsigned int flags, dtNavMeshQuery* na
 				}
 			}
 		}
-		
 	}
 	
 	static const float MAX_ACC = 8.0f;
@@ -858,18 +846,20 @@ void CrowdManager::update(const float dt, unsigned int flags, dtNavMeshQuery* na
 		if (!m_agents[i].active) continue;
 		if (m_agents[i].targetState != AGENT_TARGET_PATH) continue;
 		Agent* ag = &m_agents[i];
-
+		
 		if (flags & CROWDMAN_USE_VO)
 		{
 			int nbodies = 0;
-
+			
 			// Add dynamic obstacles.
 			for (int j = 0; j < MAX_AGENTS; ++j)
 			{
 				if (i == j) continue;
-				if (!m_agents[j].active) continue;
-				Agent* nei = &m_agents[j];
-
+				const int idx = j;
+				
+				if (!m_agents[idx].active) continue;
+				Agent* nei = &m_agents[idx];
+				
 				float diff[3];
 				dtVsub(diff, ag->npos, nei->npos);
 				if (fabsf(diff[1]) >= (ag->height+nei->height)/2.0f)
@@ -883,7 +873,7 @@ void CrowdManager::update(const float dt, unsigned int flags, dtNavMeshQuery* na
 				if (nbodies < MAX_BODIES)
 				{
 					ObstacleBody* body = insertBody(dist, bodies, nbodies);
-					setDynCircleBody(body, nei->pos, nei->radius, nei->vel, nei->dvel, dist, j);
+					setDynCircleBody(body, nei->pos, nei->radius, nei->vel, nei->dvel, dist, idx);
 				}
 			}
 			
@@ -946,9 +936,10 @@ void CrowdManager::update(const float dt, unsigned int flags, dtNavMeshQuery* na
 			if (!m_agents[i].active) continue;
 			Agent* ag = &m_agents[i];
 
-			ag->disp[0] = ag->disp[1] = ag->disp[2] = 0;
+			dtVset(ag->disp, 0,0,0);
 
 			float w = 0;
+
 			for (int j = 0; j < MAX_AGENTS; ++j)
 			{
 				if (i == j) continue;
@@ -1052,9 +1043,12 @@ void CrowdManager::update(const float dt, unsigned int flags, dtNavMeshQuery* na
 			}
 		}
 	}
+	
+
 
 	TimeVal endTime = getPerfTime();
 
+	int ns = 0;
 	for (int i = 0; i < MAX_AGENTS; ++i)
 	{
 		if (!m_agents[i].active) continue;
@@ -1064,9 +1058,11 @@ void CrowdManager::update(const float dt, unsigned int flags, dtNavMeshQuery* na
 		{
 			// Normalize samples for debug draw
 			normalizeSamples(&ag->rvo);
+			ns += ag->rvo.ns;
 		}
 	}
-	
+
+	m_sampleCount.addSample(ns);
 	m_totalTime.addSample(getPerfDeltaTimeUsec(startTime, endTime) / 1000.0f);
 	m_rvoTime.addSample(getPerfDeltaTimeUsec(rvoStartTime, rvoEndTime) / 1000.0f);
 }
@@ -1302,7 +1298,9 @@ void CrowdTool::handleClick(const float* s, const float* p, bool shift)
 			// Add
 /*			int idx = m_crowd.addAgent(p, m_sample->getAgentRadius(), m_sample->getAgentHeight());
 			if (idx != -1 && m_targetPosSet)
-				m_crowd.setMoveTarget(idx, m_targetPos);*/
+				m_crowd.setMoveTarget(idx, m_targetPos);
+*/
+
 
 			const dtNavMesh* navmesh = m_sample->getNavMesh();
 			const dtNavMeshQuery* navquery = m_sample->getNavMeshQuery();
@@ -1369,8 +1367,8 @@ void CrowdTool::handleClick(const float* s, const float* p, bool shift)
 						}
 					}
 				}
-				
 			}
+			
 		}
 	}
 	else if (m_mode == TOOLMODE_MOVE)
@@ -1657,20 +1655,19 @@ void CrowdTool::handleRender()
 }
 
 
-static void drawGraphBackground(const int x, const int y, const int w, const int h,
+static void drawGraphBackground(duDebugDraw* dd, const int x, const int y, const int w, const int h,
 								const float vmin, const float vmax, const int ndiv,
 								const char* units)
 {
 	// BG
-	DebugDrawGL dd;
-	dd.begin(DU_DRAW_QUADS);
-	dd.vertex(x,y,0, duRGBA(0,0,0,64));
-	dd.vertex(x+w,y,0, duRGBA(0,0,0,96));
-	dd.vertex(x+w,y+h,0, duRGBA(128,128,128,64));
-	dd.vertex(x,y+h,0, duRGBA(128,128,128,64));
-	dd.end();
+	dd->begin(DU_DRAW_QUADS);
+	dd->vertex(x,y,0, duRGBA(0,0,0,96));
+	dd->vertex(x+w,y,0, duRGBA(0,0,0,96));
+	dd->vertex(x+w,y+h,0, duRGBA(128,128,128,64));
+	dd->vertex(x,y+h,0, duRGBA(128,128,128,64));
+	dd->end();
 	
-	const int pad = 10;
+	const int pad = 8;
 	
 	const float sy = (h-pad*2) / (vmax-vmin);
 	const float oy = y+pad-vmin*sy;
@@ -1678,25 +1675,25 @@ static void drawGraphBackground(const int x, const int y, const int w, const int
 	char text[64];
 	
 	// Divider Lines
-	for (int i = 0; i < ndiv; ++i)
+	for (int i = 0; i <= ndiv; ++i)
 	{
 		const float u = (float)i/(float)ndiv;
 		const float v = vmin + (vmax-vmin)*u;
 		snprintf(text, 64, "%.2f %s", v, units);
 		const float fy = oy + v*sy;
 		imguiDrawText(x+w-pad, (int)fy-4, IMGUI_ALIGN_RIGHT, text, imguiRGBA(0,0,0,255));
-		dd.begin(DU_DRAW_LINES, 1.0f);
-		dd.vertex(x,fy,0,duRGBA(0,0,0,64));
-		dd.vertex(x+w-pad-60,fy,0,duRGBA(0,0,0,64));
-		dd.end();
+		dd->begin(DU_DRAW_LINES, 1.0f);
+		dd->vertex(x+pad,fy,0,duRGBA(0,0,0,64));
+		dd->vertex(x+w-pad-60,fy,0,duRGBA(0,0,0,64));
+		dd->end();
 	}
 }
 
-static void drawGraph(const SampleGraph* graph,
+static void drawGraph(duDebugDraw* dd, const SampleGraph* graph,
 					  const int x, const int y, const int w, const int h,
-					  const float vmin, const float vmax, const unsigned int col)
+					  const float vmin, const float vmax,
+					  int idx, const char* label, const char* units, const unsigned int col)
 {
-	DebugDrawGL dd;
 
 	const int pad = 10;
 	
@@ -1706,17 +1703,35 @@ static void drawGraph(const SampleGraph* graph,
 	const float oy = y+pad-vmin*sy;
 	
 	// Values
-	dd.begin(DU_DRAW_LINES, 2.0f);
+	dd->begin(DU_DRAW_LINES, 2.0f);
 	for (int i = 0; i < graph->getSampleCount()-1; ++i)
 	{
 		const float fx0 = ox + i*sx;
 		const float fy0 = oy + graph->getSample(i)*sy;
 		const float fx1 = ox + (i+1)*sx;
 		const float fy1 = oy + graph->getSample(i+1)*sy;
-		dd.vertex(fx0,fy0,0,col);
-		dd.vertex(fx1,fy1,0,col);
+		dd->vertex(fx0,fy0,0,col);
+		dd->vertex(fx1,fy1,0,col);
 	}
-	dd.end();
+	dd->end();
+
+	// Label
+	const int size = 15;
+	const int spacing = 10;
+	int ix = x + w + 5;
+	int iy = y + h - (idx+1)*(size+spacing);
+
+	dd->begin(DU_DRAW_QUADS);
+	dd->vertex(ix,iy,0, col);
+	dd->vertex(ix+size,iy,0, col);
+	dd->vertex(ix+size,iy+size,0, col);
+	dd->vertex(ix,iy+size,0, col);
+	dd->end();
+	
+	char text[64];
+	snprintf(text, 64, "%.2f %s", graph->getAverage(), units);
+	imguiDrawText(ix+size+5, iy+3, IMGUI_ALIGN_LEFT, label, imguiRGBA(255,255,255,192));
+	imguiDrawText(ix+size+150, iy+3, IMGUI_ALIGN_RIGHT, text, imguiRGBA(255,255,255,128));
 }
 
 void CrowdTool::handleRenderOverlay(double* proj, double* model, int* view)
@@ -1751,7 +1766,11 @@ void CrowdTool::handleRenderOverlay(double* proj, double* model, int* view)
 	const int gx = 300, gy = 10, gw = 500, gh = 200;
 	const float vmin = 0.0f, vmax = 2.0f;
 
-	drawGraphBackground(gx,gy,gw,gh, vmin,vmax, 4, "ms");
-	drawGraph(m_crowd.getRVOTimeGraph(), gx,gy,gw,gh, vmin,vmax, duRGBA(255,0,0,128));
-	drawGraph(m_crowd.getTotalTimeGraph(), gx,gy,gw,gh, vmin,vmax, duRGBA(192,255,0,192));
+	DebugDrawGL dd;
+
+	drawGraphBackground(&dd, gx,gy,gw,gh, vmin,vmax, 4, "ms");
+	drawGraph(&dd, m_crowd.getRVOTimeGraph(), gx,gy,gw,gh, vmin,vmax, 0, "RVO Sampling", "ms", duRGBA(255,0,128,128));
+	drawGraph(&dd, m_crowd.getTotalTimeGraph(), gx,gy,gw,gh, vmin,vmax, 1, "Total", "ms", duRGBA(128,255,0,128));
+
+	drawGraph(&dd, m_crowd.getSampleCountGraph(), gx,gy,gw,50, 0,2000, 0, "Sample Count", "", duRGBA(255,255,255,128));
 }

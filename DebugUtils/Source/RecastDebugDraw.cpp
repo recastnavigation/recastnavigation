@@ -136,7 +136,7 @@ void duDebugDrawHeightfieldWalkable(duDebugDraw* dd, const rcHeightfield& hf)
 			while (s)
 			{
 				if (s->area == RC_WALKABLE_AREA)
-					fcol[0] = duRGBA(0,130,200,255);
+					fcol[0] = duRGBA(64,128,160,255);
 				else if (s->area == RC_NULL_AREA)
 					fcol[0] = duRGBA(64,64,64,255);
 				else

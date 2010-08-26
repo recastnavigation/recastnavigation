@@ -753,6 +753,8 @@ void Sample_TileMesh::buildTile(const float* pos)
 	
 	m_tileCol = duRGBA(77,204,0,255);
 	
+	m_ctx->resetLog();
+	
 	int dataSize = 0;
 	unsigned char* data = buildTileMesh(tx, ty, m_tileBmin, m_tileBmax, dataSize);
 	
@@ -765,6 +767,8 @@ void Sample_TileMesh::buildTile(const float* pos)
 		if (!m_navMesh->addTile(data,dataSize,DT_TILE_FREE_DATA))
 			dtFree(data);
 	}
+	
+	m_ctx->dumpLog("Build Tile (%d,%d):", tx,ty);
 }
 
 void Sample_TileMesh::getTilePos(const float* pos, int& tx, int& ty)
@@ -1031,7 +1035,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Could not build regions.");
 		return 0;
 	}
-	
+ 
 	// Create contours.
 	m_cset = rcAllocContourSet();
 	if (!m_cset)

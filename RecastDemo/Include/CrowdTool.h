@@ -74,6 +74,7 @@ static const int AGENT_MAX_PATH = 256;
 static const int AGENT_MAX_CORNERS = 4;
 static const int AGENT_MAX_TRAIL = 64;
 static const int AGENT_MAX_COLSEGS = 32;
+static const int AGENT_MAX_NEIS = 8;
 
 enum AgentApproach
 {
@@ -152,7 +153,7 @@ struct Formation
 
 class SampleGraph
 {
-	static const int MAX_SAMPLES = 512;
+	static const int MAX_SAMPLES = 256;
 	float m_samples[MAX_SAMPLES];
 	int m_hsamples;
 public:
@@ -199,7 +200,15 @@ public:
 			if (m_samples[i] > val)
 				val = m_samples[i];
 		return val;
-	} 
+	}
+	
+	inline float getAverage() const
+	{
+		float val = 0;
+		for (int i = 0; i < MAX_SAMPLES; ++i)
+			val += m_samples[i];
+		return val/(float)MAX_SAMPLES;
+	}
 };
 
 enum UpdateFlags
@@ -217,6 +226,9 @@ class CrowdManager
 
 	SampleGraph m_totalTime;
 	SampleGraph m_rvoTime;
+	SampleGraph m_sampleCount;
+
+	void registerAgentNeighbour(Agent* ag);
 
 public:
 	CrowdManager();
@@ -233,6 +245,7 @@ public:
 
 	const SampleGraph* getTotalTimeGraph() const { return &m_totalTime; }
 	const SampleGraph* getRVOTimeGraph() const { return &m_rvoTime; }
+	const SampleGraph* getSampleCountGraph() const { return &m_sampleCount; }
 };
 
 class CrowdTool : public SampleTool
