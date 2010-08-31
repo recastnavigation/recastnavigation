@@ -73,7 +73,9 @@ static const float H_SCALE = 0.999f; // Search heuristic scale.
 
 dtNavMeshQuery* dtAllocNavMeshQuery()
 {
-	return new(dtAlloc(sizeof(dtNavMeshQuery), DT_ALLOC_PERM)) dtNavMeshQuery;
+	void* mem = dtAlloc(sizeof(dtNavMeshQuery), DT_ALLOC_PERM);
+	if (!mem) return 0;
+	return new(mem) dtNavMeshQuery;
 }
 
 void dtFreeNavMeshQuery(dtNavMeshQuery* navmesh)

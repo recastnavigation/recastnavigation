@@ -27,6 +27,7 @@
 		6B555DB1100B212E00247EA3 /* imguiRenderGL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */; };
 		6B62416A103434880002E346 /* RecastMeshDetail.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B624169103434880002E346 /* RecastMeshDetail.cpp */; };
 		6B8036AE113BAABE005ED67B /* Sample_Debug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B8036AD113BAABE005ED67B /* Sample_Debug.cpp */; };
+		6B847777122D221D00ADF63D /* ValueHistory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B847776122D221C00ADF63D /* ValueHistory.cpp */; };
 		6B8632DA0F78122C00E2684A /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6B8632D90F78122C00E2684A /* SDL.framework */; };
 		6B8632DC0F78123E00E2684A /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6B8632DB0F78123E00E2684A /* OpenGL.framework */; };
 		6B8DE88910B69E3E00DF20FB /* DetourNavMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B8DE88710B69E3E00DF20FB /* DetourNavMesh.cpp */; };
@@ -34,6 +35,7 @@
 		6B98463311E6144400FA177B /* Sample_SoloMeshTiled.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B98463211E6144400FA177B /* Sample_SoloMeshTiled.cpp */; };
 		6B9846EF11E718F800FA177B /* DetourAlloc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B9846EE11E718F800FA177B /* DetourAlloc.cpp */; };
 		6B9847B811E7519A00FA177B /* RecastAlloc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B9847B711E7519A00FA177B /* RecastAlloc.cpp */; };
+		6B9EFF0912281C3E00535FF1 /* DetourObstacleAvoidance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B9EFF0812281C3E00535FF1 /* DetourObstacleAvoidance.cpp */; };
 		6BA1E88B10C7BFC9008007F6 /* Sample_SoloMeshSimple.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BA1E88810C7BFC9008007F6 /* Sample_SoloMeshSimple.cpp */; };
 		6BAF3C591211663A008CFCDF /* CrowdTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */; };
 		6BAF40DB12196A3D008CFCDF /* DetourNavMeshQuery.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BAF40DA12196A3D008CFCDF /* DetourNavMeshQuery.cpp */; };
@@ -94,6 +96,8 @@
 		6B624169103434880002E346 /* RecastMeshDetail.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RecastMeshDetail.cpp; path = ../../../Recast/Source/RecastMeshDetail.cpp; sourceTree = SOURCE_ROOT; };
 		6B8036AC113BAABE005ED67B /* Sample_Debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Sample_Debug.h; path = ../../Include/Sample_Debug.h; sourceTree = SOURCE_ROOT; };
 		6B8036AD113BAABE005ED67B /* Sample_Debug.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Sample_Debug.cpp; path = ../../Source/Sample_Debug.cpp; sourceTree = SOURCE_ROOT; };
+		6B847774122D220D00ADF63D /* ValueHistory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ValueHistory.h; path = ../../Include/ValueHistory.h; sourceTree = SOURCE_ROOT; };
+		6B847776122D221C00ADF63D /* ValueHistory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ValueHistory.cpp; path = ../../Source/ValueHistory.cpp; sourceTree = SOURCE_ROOT; };
 		6B8632D90F78122C00E2684A /* SDL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL.framework; path = Library/Frameworks/SDL.framework; sourceTree = SDKROOT; };
 		6B8632DB0F78123E00E2684A /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		6B8DE88710B69E3E00DF20FB /* DetourNavMesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DetourNavMesh.cpp; path = ../../../Detour/Source/DetourNavMesh.cpp; sourceTree = SOURCE_ROOT; };
@@ -106,6 +110,8 @@
 		6B9846EE11E718F800FA177B /* DetourAlloc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DetourAlloc.cpp; path = ../../../Detour/Source/DetourAlloc.cpp; sourceTree = SOURCE_ROOT; };
 		6B98470511E733B600FA177B /* RecastAlloc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RecastAlloc.h; path = ../../../Recast/Include/RecastAlloc.h; sourceTree = SOURCE_ROOT; };
 		6B9847B711E7519A00FA177B /* RecastAlloc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RecastAlloc.cpp; path = ../../../Recast/Source/RecastAlloc.cpp; sourceTree = SOURCE_ROOT; };
+		6B9EFF02122819E200535FF1 /* DetourObstacleAvoidance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DetourObstacleAvoidance.h; path = ../../../Detour/Include/DetourObstacleAvoidance.h; sourceTree = SOURCE_ROOT; };
+		6B9EFF0812281C3E00535FF1 /* DetourObstacleAvoidance.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DetourObstacleAvoidance.cpp; path = ../../../Detour/Source/DetourObstacleAvoidance.cpp; sourceTree = SOURCE_ROOT; };
 		6BA1E88810C7BFC9008007F6 /* Sample_SoloMeshSimple.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Sample_SoloMeshSimple.cpp; path = ../../Source/Sample_SoloMeshSimple.cpp; sourceTree = SOURCE_ROOT; };
 		6BA1E88E10C7BFD3008007F6 /* Sample_SoloMeshSimple.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Sample_SoloMeshSimple.h; path = ../../Include/Sample_SoloMeshSimple.h; sourceTree = SOURCE_ROOT; };
 		6BAF3C571211663A008CFCDF /* CrowdTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CrowdTool.h; path = ../../Include/CrowdTool.h; sourceTree = SOURCE_ROOT; };
@@ -193,6 +199,8 @@
 				6BF7C13F1111953A002B3F46 /* TestCase.cpp */,
 				6BD401FF1224278800995864 /* PerfTimer.h */,
 				6BD402001224279400995864 /* PerfTimer.cpp */,
+				6B847774122D220D00ADF63D /* ValueHistory.h */,
+				6B847776122D221C00ADF63D /* ValueHistory.cpp */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -347,6 +355,8 @@
 				6B1185F41006895B0018F96F /* DetourNode.cpp */,
 				6B1185FC10068B040018F96F /* DetourCommon.h */,
 				6B1185FD10068B150018F96F /* DetourCommon.cpp */,
+				6B9EFF02122819E200535FF1 /* DetourObstacleAvoidance.h */,
+				6B9EFF0812281C3E00535FF1 /* DetourObstacleAvoidance.cpp */,
 			);
 			name = Detour;
 			sourceTree = "<group>";
@@ -447,6 +457,8 @@
 				6BAF40DB12196A3D008CFCDF /* DetourNavMeshQuery.cpp in Sources */,
 				6BAF4442121C3D26008CFCDF /* SampleInterfaces.cpp in Sources */,
 				6BD402011224279400995864 /* PerfTimer.cpp in Sources */,
+				6B9EFF0912281C3E00535FF1 /* DetourObstacleAvoidance.cpp in Sources */,
+				6B847777122D221D00ADF63D /* ValueHistory.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

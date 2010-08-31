@@ -192,7 +192,7 @@ static void drawRoundedRect(float x, float y, float w, float h, float r, float f
 	drawPolygon(verts, (n+1)*4, fth, col);
 }
 
-/*
+
 static void drawLine(float x0, float y0, float x1, float y1, float r, float fth, unsigned int col)
 {
 	float dx = x1-x0;
@@ -204,31 +204,32 @@ static void drawLine(float x0, float y0, float x1, float y1, float r, float fth,
 		dx *= d;
 		dy *= d;
 	}
-	float t = dx;
-	dx = dy;
-	dy = -t;
+	float nx = dy;
+	float ny = -dx;
 	float verts[4*2];
 	r -= fth;
 	r *= 0.5f;
 	if (r < 0.01f) r = 0.01f;
 	dx *= r;
 	dy *= r;
+	nx *= r;
+	ny *= r;
 	
-	verts[0] = x0-dx;
-	verts[1] = y0-dy;
+	verts[0] = x0-dx-nx;
+	verts[1] = y0-dy-ny;
 	
-	verts[2] = x0+dx;
-	verts[3] = y0+dy;
+	verts[2] = x0-dx+nx;
+	verts[3] = y0-dy+ny;
 	
-	verts[4] = x1+dx;
-	verts[5] = y1+dy;
+	verts[4] = x1+dx+nx;
+	verts[5] = y1+dy+ny;
 	
-	verts[6] = x1-dx;
-	verts[7] = y1-dy;
+	verts[6] = x1+dx-nx;
+	verts[7] = y1+dy-ny;
 	
 	drawPolygon(verts, 4, fth, col);
 }
-*/
+
 
 bool imguiRenderGLInit(const char* fontpath)
 {
@@ -407,6 +408,8 @@ void imguiRenderGLDraw()
 	const imguiGfxCmd* q = imguiGetRenderQueue();
 	int nq = imguiGetRenderQueueSize();
 
+	const float s = 1.0f/8.0f;
+
 	glDisable(GL_SCISSOR_TEST);
 	for (int i = 0; i < nq; ++i)
 	{
@@ -415,16 +418,20 @@ void imguiRenderGLDraw()
 		{
 			if (cmd.rect.r == 0)
 			{
-				drawRect((float)cmd.rect.x+0.5f, (float)cmd.rect.y+0.5f,
-						 (float)cmd.rect.w-1, (float)cmd.rect.h-1,
+				drawRect((float)cmd.rect.x*s+0.5f, (float)cmd.rect.y*s+0.5f,
+						 (float)cmd.rect.w*s-1, (float)cmd.rect.h*s-1,
 						 1.0f, cmd.col);
 			}
 			else
 			{
-				drawRoundedRect((float)cmd.rect.x+0.5f, (float)cmd.rect.y+0.5f,
-								(float)cmd.rect.w-1, (float)cmd.rect.h-1,
-								(float)cmd.rect.r, 1.0f, cmd.col);
+				drawRoundedRect((float)cmd.rect.x*s+0.5f, (float)cmd.rect.y*s+0.5f,
+								(float)cmd.rect.w*s-1, (float)cmd.rect.h*s-1,
+								(float)cmd.rect.r*s, 1.0f, cmd.col);
 			}
+		}
+		else if (cmd.type == IMGUI_GFXCMD_LINE)
+		{
+			drawLine(cmd.line.x0*s, cmd.line.y0*s, cmd.line.x1*s, cmd.line.y1*s, cmd.line.r*s, 1.0f, cmd.col);
 		}
 		else if (cmd.type == IMGUI_GFXCMD_TRIANGLE)
 		{
@@ -432,9 +439,9 @@ void imguiRenderGLDraw()
 			{
 				const float verts[3*2] =
 				{
-					(float)cmd.rect.x+0.5f, (float)cmd.rect.y+0.5f,
-					(float)cmd.rect.x+0.5f+(float)cmd.rect.w-1, (float)cmd.rect.y+0.5f+(float)cmd.rect.h/2-0.5f,
-					(float)cmd.rect.x+0.5f, (float)cmd.rect.y+0.5f+(float)cmd.rect.h-1,
+					(float)cmd.rect.x*s+0.5f, (float)cmd.rect.y*s+0.5f,
+					(float)cmd.rect.x*s+0.5f+(float)cmd.rect.w*s-1, (float)cmd.rect.y*s+0.5f+(float)cmd.rect.h*s/2-0.5f,
+					(float)cmd.rect.x*s+0.5f, (float)cmd.rect.y*s+0.5f+(float)cmd.rect.h*s-1,
 				};
 				drawPolygon(verts, 3, 1.0f, cmd.col);
 			}
@@ -442,9 +449,9 @@ void imguiRenderGLDraw()
 			{
 				const float verts[3*2] =
 				{
-					(float)cmd.rect.x+0.5f, (float)cmd.rect.y+(float)cmd.rect.h-1,
-					(float)cmd.rect.x+0.5f+(float)cmd.rect.w/2-0.5f, (float)cmd.rect.y+0.5f,
-					(float)cmd.rect.x+0.5f+(float)cmd.rect.w-1, (float)cmd.rect.y+0.5f+(float)cmd.rect.h-1,
+					(float)cmd.rect.x*s+0.5f, (float)cmd.rect.y*s+(float)cmd.rect.h*s-1,
+					(float)cmd.rect.x*s+0.5f+(float)cmd.rect.w*s/2-0.5f, (float)cmd.rect.y*s+0.5f,
+					(float)cmd.rect.x*s+0.5f+(float)cmd.rect.w*s-1, (float)cmd.rect.y*s+0.5f+(float)cmd.rect.h*s-1,
 				};
 				drawPolygon(verts, 3, 1.0f, cmd.col);
 			}

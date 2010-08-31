@@ -128,7 +128,9 @@ inline void freeLink(dtMeshTile* tile, unsigned int link)
 
 dtNavMesh* dtAllocNavMesh()
 {
-	return new(dtAlloc(sizeof(dtNavMesh), DT_ALLOC_PERM)) dtNavMesh;
+	void* mem = dtAlloc(sizeof(dtNavMesh), DT_ALLOC_PERM);
+	if (!mem) return 0;
+	return new(mem) dtNavMesh;
 }
 
 void dtFreeNavMesh(dtNavMesh* navmesh)

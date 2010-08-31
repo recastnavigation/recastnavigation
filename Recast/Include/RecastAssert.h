@@ -23,7 +23,8 @@
 // Feel free to change the file and include your own implementation instead.
 
 #ifdef NDEBUG
-#	define rcAssert(x)
+// From http://cnicholson.net/2009/02/stupid-c-tricks-adventures-in-assert/
+#	define rcAssert(x) do { (void)sizeof(x); } while(0)  
 #else
 #	include <assert.h> 
 #	define rcAssert assert

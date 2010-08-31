@@ -546,7 +546,8 @@ void rcFilterLowHangingWalkableObstacles(rcContext* ctx, const int walkableClimb
 //	walkableHeight - (in) minimum height where the agent can still walk
 //	walkableClimb - (in) maximum height between grid cells the agent can climb
 //	solid - (in/out) heightfield describing the solid space
-void rcFilterLedgeSpans(rcContext* ctx, const int walkableHeight, const int walkableClimb, rcHeightfield& solid);
+void rcFilterLedgeSpans(rcContext* ctx, const int walkableHeight,
+						const int walkableClimb, rcHeightfield& solid);
 
 // Removes WALKABLE flag from all spans which have smaller than
 // 'walkableHeight' clearance above them.

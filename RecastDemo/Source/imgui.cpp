@@ -42,7 +42,7 @@ static const char* allocText(const char* text)
 	return dst;
 }
 
-static const unsigned GFXCMD_QUEUE_SIZE = 1024;
+static const unsigned GFXCMD_QUEUE_SIZE = 5000;
 static imguiGfxCmd g_gfxCmdQueue[GFXCMD_QUEUE_SIZE];
 static unsigned g_gfxCmdQueueSize = 0;
 
@@ -66,7 +66,7 @@ static void addGfxCmdScissor(int x, int y, int w, int h)
 	cmd.rect.h = (short)h;
 }
 
-static void addGfxCmdRect(int x, int y, int w, int h, unsigned int color)
+static void addGfxCmdRect(float x, float y, float w, float h, unsigned int color)
 {
 	if (g_gfxCmdQueueSize >= GFXCMD_QUEUE_SIZE)
 		return;
@@ -74,14 +74,29 @@ static void addGfxCmdRect(int x, int y, int w, int h, unsigned int color)
 	cmd.type = IMGUI_GFXCMD_RECT;
 	cmd.flags = 0;
 	cmd.col = color;
-	cmd.rect.x = (short)x;
-	cmd.rect.y = (short)y;
-	cmd.rect.w = (short)w;
-	cmd.rect.h = (short)h;
+	cmd.rect.x = (short)(x*8.0f);
+	cmd.rect.y = (short)(y*8.0f);
+	cmd.rect.w = (short)(w*8.0f);
+	cmd.rect.h = (short)(h*8.0f);
 	cmd.rect.r = 0;
 }
 
-static void addGfxCmdRoundedRect(int x, int y, int w, int h, int r, unsigned int color)
+static void addGfxCmdLine(float x0, float y0, float x1, float y1, float r, unsigned int color)
+{
+	if (g_gfxCmdQueueSize >= GFXCMD_QUEUE_SIZE)
+		return;
+	imguiGfxCmd& cmd = g_gfxCmdQueue[g_gfxCmdQueueSize++];
+	cmd.type = IMGUI_GFXCMD_LINE;
+	cmd.flags = 0;
+	cmd.col = color;
+	cmd.line.x0 = (short)(x0*8.0f);
+	cmd.line.y0 = (short)(y0*8.0f);
+	cmd.line.x1 = (short)(x1*8.0f);
+	cmd.line.y1 = (short)(y1*8.0f);
+	cmd.line.r = (short)(r*8.0f);
+}
+
+static void addGfxCmdRoundedRect(float x, float y, float w, float h, float r, unsigned int color)
 {
 	if (g_gfxCmdQueueSize >= GFXCMD_QUEUE_SIZE)
 		return;
@@ -89,11 +104,11 @@ static void addGfxCmdRoundedRect(int x, int y, int w, int h, int r, unsigned int
 	cmd.type = IMGUI_GFXCMD_RECT;
 	cmd.flags = 0;
 	cmd.col = color;
-	cmd.rect.x = (short)x;
-	cmd.rect.y = (short)y;
-	cmd.rect.w = (short)w;
-	cmd.rect.h = (short)h;
-	cmd.rect.r = (short)r;
+	cmd.rect.x = (short)(x*8.0f);
+	cmd.rect.y = (short)(y*8.0f);
+	cmd.rect.w = (short)(w*8.0f);
+	cmd.rect.h = (short)(h*8.0f);
+	cmd.rect.r = (short)(r*8.0f);
 }
 
 static void addGfxCmdTriangle(int x, int y, int w, int h, int flags, unsigned int color)
@@ -104,10 +119,10 @@ static void addGfxCmdTriangle(int x, int y, int w, int h, int flags, unsigned in
 	cmd.type = IMGUI_GFXCMD_TRIANGLE;
 	cmd.flags = (char)flags;
 	cmd.col = color;
-	cmd.rect.x = (short)x;
-	cmd.rect.y = (short)y;
-	cmd.rect.w = (short)w;
-	cmd.rect.h = (short)h;
+	cmd.rect.x = (short)(x*8.0f);
+	cmd.rect.y = (short)(y*8.0f);
+	cmd.rect.w = (short)(w*8.0f);
+	cmd.rect.h = (short)(h*8.0f);
 }
 
 static void addGfxCmdText(int x, int y, int align, const char* text, unsigned int color)
@@ -643,3 +658,19 @@ void imguiDrawText(int x, int y, int align, const char* text, unsigned int color
 {
 	addGfxCmdText(x, y, align, text, color);
 }
+
+void imguiDrawLine(float x0, float y0, float x1, float y1, float r, unsigned int color)
+{
+	addGfxCmdLine(x0, y0, x1, y1, r, color);
+}
+
+void imguiDrawRect(float x, float y, float w, float h, unsigned int color)
+{
+	addGfxCmdRect(x, y, w, h, color);
+}
+
+void imguiDrawRoundedRect(float x, float y, float w, float h, float r, unsigned int color)
+{
+	addGfxCmdRoundedRect(x, y, w, h, r, color);
+}
+

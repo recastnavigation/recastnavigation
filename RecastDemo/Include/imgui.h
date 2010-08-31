@@ -57,12 +57,16 @@ void imguiValue(const char* text);
 bool imguiSlider(const char* text, float* val, float vmin, float vmax, float vinc, bool enabled = true);
 
 void imguiDrawText(int x, int y, int align, const char* text, unsigned int color);
+void imguiDrawLine(float x0, float y0, float x1, float y1, float r, unsigned int color);
+void imguiDrawRoundedRect(float x, float y, float w, float h, float r, unsigned int color);
+void imguiDrawRect(float x, float y, float w, float h, unsigned int color);
 
 // Pull render interface.
 enum imguiGfxCmdType
 {
 	IMGUI_GFXCMD_RECT,
 	IMGUI_GFXCMD_TRIANGLE,
+	IMGUI_GFXCMD_LINE,
 	IMGUI_GFXCMD_TEXT,
 	IMGUI_GFXCMD_SCISSOR,
 };
@@ -78,6 +82,11 @@ struct imguiGfxText
 	const char* text;
 };
 
+struct imguiGfxLine
+{
+	short x0,y0,x1,y1,r;
+};
+
 struct imguiGfxCmd
 {
 	char type;
@@ -86,6 +95,7 @@ struct imguiGfxCmd
 	unsigned int col;
 	union
 	{
+		imguiGfxLine line;
 		imguiGfxRect rect;
 		imguiGfxText text;
 	};

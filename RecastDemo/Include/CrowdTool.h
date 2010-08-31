@@ -21,45 +21,10 @@
 
 #include "Sample.h"
 #include "DetourNavMesh.h"
+#include "DetourObstacleAvoidance.h"
+#include "ValueHistory.h"
 
 // Tool to create crowds.
-
-enum BodyType
-{
-	BODY_CIRCLE = 0,
-	BODY_SEGMENT = 1,
-};
-
-struct ObstacleBody
-{
-	float p[3], q[3];		// Position of the obstacle
-	float vel[3];			// Velocity of the obstacle
-	float dvel[3];			// Velocity of the obstacle
-	float rad;				// Radius of the obstacle
-	float dp[3], np[3];		// Use for side selection during sampling.
-	bool touch;
-	int type;				// Type of the obstacle (see ObstacleType)
-	float dist;
-	int idx;
-};
-
-
-static const int RVO_SAMPLE_RAD = 15;
-static const int MAX_RVO_SAMPLES = (RVO_SAMPLE_RAD*2+1)*(RVO_SAMPLE_RAD*2+1) + 100;
-
-struct RVODebugData
-{
-	inline RVODebugData() : ns(0) {}
-	float spos[MAX_RVO_SAMPLES*3];
-	float scs[MAX_RVO_SAMPLES];
-	float spen[MAX_RVO_SAMPLES];
-	float svpen[MAX_RVO_SAMPLES];
-	float svcpen[MAX_RVO_SAMPLES];
-	float sspen[MAX_RVO_SAMPLES];
-	float stpen[MAX_RVO_SAMPLES];
-	
-	int ns;
-};
 
 enum AgentTargetState
 {
@@ -100,8 +65,6 @@ struct Agent
 	float t;
 	float var;
 
-	RVODebugData rvo;
-	
 	float colradius;
 	float colcenter[3];
 	float colsegs[AGENT_MAX_COLSEGS*6];
@@ -150,67 +113,6 @@ struct Formation
 };
 
 
-
-class SampleGraph
-{
-	static const int MAX_SAMPLES = 256;
-	float m_samples[MAX_SAMPLES];
-	int m_hsamples;
-public:
-	SampleGraph() :
-		m_hsamples(0)
-	{
-		for (int i = 0; i < MAX_SAMPLES; ++i)
-			m_samples[i] = 0;
-	}
-	
-	~SampleGraph()
-	{
-	}
-	
-	inline void addSample(const float val)
-	{
-		m_hsamples = (m_hsamples+MAX_SAMPLES-1) % MAX_SAMPLES;
-		m_samples[m_hsamples] = val;
-	}
-	
-	inline int getSampleCount() const
-	{
-		return MAX_SAMPLES;
-	}
-	
-	inline float getSample(const int i) const
-	{
-		return m_samples[(m_hsamples+i) % MAX_SAMPLES];
-	}
-	
-	inline float getSampleMin() const
-	{
-		float val = m_samples[0];
-		for (int i = 1; i < MAX_SAMPLES; ++i)
-			if (m_samples[i] < val)
-				val = m_samples[i];
-		return val;
-	} 
-	
-	inline float getSampleMax() const
-	{
-		float val = m_samples[0];
-		for (int i = 1; i < MAX_SAMPLES; ++i)
-			if (m_samples[i] > val)
-				val = m_samples[i];
-		return val;
-	}
-	
-	inline float getAverage() const
-	{
-		float val = 0;
-		for (int i = 0; i < MAX_SAMPLES; ++i)
-			val += m_samples[i];
-		return val/(float)MAX_SAMPLES;
-	}
-};
-
 enum UpdateFlags
 {
 	CROWDMAN_ANTICIPATE_TURNS = 1,
@@ -222,13 +124,13 @@ class CrowdManager
 {
 	static const int MAX_AGENTS = 32;
 	Agent m_agents[MAX_AGENTS];
-	int m_shortcutIter;
+	dtObstacleAvoidanceDebugData* m_vodebug[MAX_AGENTS];
 
-	SampleGraph m_totalTime;
-	SampleGraph m_rvoTime;
-	SampleGraph m_sampleCount;
-
-	void registerAgentNeighbour(Agent* ag);
+	ValueHistory m_totalTime;
+	ValueHistory m_rvoTime;
+	ValueHistory m_sampleCount;
+	
+	dtObstacleAvoidanceQuery* m_obstacleQuery;
 
 public:
 	CrowdManager();
@@ -243,9 +145,11 @@ public:
 
 	void update(const float dt, unsigned int flags, dtNavMeshQuery* navquery);
 
-	const SampleGraph* getTotalTimeGraph() const { return &m_totalTime; }
-	const SampleGraph* getRVOTimeGraph() const { return &m_rvoTime; }
-	const SampleGraph* getSampleCountGraph() const { return &m_sampleCount; }
+	const dtObstacleAvoidanceDebugData* getVODebugData(const int idx) const { return m_vodebug[idx]; }
+
+	const ValueHistory* getTotalTimeGraph() const { return &m_totalTime; }
+	const ValueHistory* getRVOTimeGraph() const { return &m_rvoTime; }
+	const ValueHistory* getSampleCountGraph() const { return &m_sampleCount; }
 };
 
 class CrowdTool : public SampleTool
