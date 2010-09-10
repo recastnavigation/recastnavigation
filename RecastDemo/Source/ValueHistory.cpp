@@ -3,6 +3,9 @@
 #include <string.h>
 #include <stdio.h>
 
+#ifdef WIN32
+#	define snprintf _snprintf
+#endif
 
 ValueHistory::ValueHistory() :
 	m_hsamples(0)
@@ -61,7 +64,7 @@ void GraphParams::setValueRange(float ivmin, float ivmax, int indiv, const char*
 void drawGraphBackground(const GraphParams* p)
 {
 	// BG
-	imguiDrawRoundedRect(p->x, p->y, p->w, p->h, p->pad, imguiRGBA(64,64,64,128));
+	imguiDrawRoundedRect((float)p->x, (float)p->y, (float)p->w, (float)p->h, (float)p->pad, imguiRGBA(64,64,64,128));
 	
 	const float sy = (p->h-p->pad*2) / (p->vmax-p->vmin);
 	const float oy = p->y+p->pad-p->vmin*sy;
@@ -76,7 +79,7 @@ void drawGraphBackground(const GraphParams* p)
 		snprintf(text, 64, "%.2f %s", v, p->units);
 		const float fy = oy + v*sy;
 		imguiDrawText(p->x + p->w - p->pad, (int)fy-4, IMGUI_ALIGN_RIGHT, text, imguiRGBA(0,0,0,255));
-		imguiDrawLine(p->x + p->pad, fy, p->x + p->w - p->pad - 50, fy, 1.0f, imguiRGBA(0,0,0,64)); 
+		imguiDrawLine((float)p->x + (float)p->pad, fy, (float)p->x + (float)p->w - (float)p->pad - 50, fy, 1.0f, imguiRGBA(0,0,0,64)); 
 	}
 }
 
@@ -85,11 +88,11 @@ void drawGraph(const GraphParams* p, const ValueHistory* graph,
 {
 	const float sx = (p->w - p->pad*2) / (float)graph->getSampleCount();
 	const float sy = (p->h - p->pad*2) / (p->vmax - p->vmin);
-	const float ox = p->x + p->pad;
-	const float oy = p->y + p->pad - p->vmin*sy;
+	const float ox = (float)p->x + (float)p->pad;
+	const float oy = (float)p->y + (float)p->pad - p->vmin*sy;
 	
 	// Values
-	float px, py;
+	float px=0, py=0;
 	for (int i = 0; i < graph->getSampleCount()-1; ++i)
 	{
 		const float x = ox + i*sx;
@@ -106,7 +109,7 @@ void drawGraph(const GraphParams* p, const ValueHistory* graph,
 	int ix = p->x + p->w + 5;
 	int iy = p->y + p->h - (idx+1)*(size+spacing);
 	
-	imguiDrawRoundedRect(ix, iy, size, size, 2.0f, col);
+	imguiDrawRoundedRect((float)ix, (float)iy, (float)size, (float)size, 2.0f, col);
 	
 	char text[64];
 	snprintf(text, 64, "%.2f %s", graph->getAverage(), p->units);

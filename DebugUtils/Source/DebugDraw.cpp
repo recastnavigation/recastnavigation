@@ -322,11 +322,21 @@ inline void vsub(float* dest, const float* v1, const float* v2)
 	dest[2] = v1[2]-v2[2];
 }
 
+inline float vdistSqr(const float* v1, const float* v2)
+{
+	const float x = v1[0]-v2[0];
+	const float y = v1[1]-v2[1];
+	const float z = v1[2]-v2[2];
+	return x*x + y*y + z*z;
+}
+
 
 void appendArrowHead(struct duDebugDraw* dd, const float* p, const float* q,
 					 const float s, unsigned int col)
 {
+	const float eps = 0.001f;
 	if (!dd) return;
+	if (vdistSqr(p,q) < eps*eps) return;
 	float ax[3], ay[3] = {0,1,0}, az[3];
 	vsub(az, q, p);
 	vnormalize(az);

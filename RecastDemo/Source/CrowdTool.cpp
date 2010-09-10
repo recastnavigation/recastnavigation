@@ -717,7 +717,7 @@ void CrowdManager::update(const float dt, unsigned int flags, dtNavMeshQuery* na
 		}
 	}
 
-	m_sampleCount.addSample(ns);
+	m_sampleCount.addSample((float)ns);
 	m_totalTime.addSample(getPerfDeltaTimeUsec(startTime, endTime) / 1000.0f);
 	m_rvoTime.addSample(getPerfDeltaTimeUsec(rvoStartTime, rvoEndTime) / 1000.0f);
 }
