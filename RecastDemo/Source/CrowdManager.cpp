@@ -304,7 +304,7 @@ static void calcSmoothSteerDirection(const float* pos, const float* corners, con
 	dtVnormalize(dvel);
 }
 
-static void calcStraightSteerDirection(const float* pos, const float* corners, const int ncorners, float* dvel)
+static void calcStraightSteerDirection(const float* pos, const float* corners, const int /*ncorners*/, float* dvel)
 {
 	dtVsub(dvel, &corners[0], pos);
 	dvel[1] = 0;

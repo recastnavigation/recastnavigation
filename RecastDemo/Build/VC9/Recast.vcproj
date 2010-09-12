@@ -324,6 +324,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\Include\CrowdManager.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\Include\CrowdTool.h"
 					>
 				</File>
@@ -413,6 +417,10 @@
 				</File>
 				<File
 					RelativePath="..\..\Source\ConvexVolumeTool.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\CrowdManager.cpp"
 					>
 				</File>
 				<File
