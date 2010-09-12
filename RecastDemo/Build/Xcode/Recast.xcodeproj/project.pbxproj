@@ -49,6 +49,7 @@
 		6BB93CF610CFEC4500F74F2B /* RecastDump.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BB93CF510CFEC4500F74F2B /* RecastDump.cpp */; };
 		6BCF32361104CD05009445BF /* OffMeshConnectionTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BCF32351104CD05009445BF /* OffMeshConnectionTool.cpp */; };
 		6BD402011224279400995864 /* PerfTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BD402001224279400995864 /* PerfTimer.cpp */; };
+		6BD667DA123D28100021A7A4 /* CrowdManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */; };
 		6BF5F23A11747606000502A6 /* Filelist.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BF5F23911747606000502A6 /* Filelist.cpp */; };
 		6BF5F2401174763B000502A6 /* SlideShow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BF5F23F1174763B000502A6 /* SlideShow.cpp */; };
 		6BF7C1401111953A002B3F46 /* TestCase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BF7C13F1111953A002B3F46 /* TestCase.cpp */; };
@@ -140,6 +141,8 @@
 		6BCF32351104CD05009445BF /* OffMeshConnectionTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OffMeshConnectionTool.cpp; path = ../../Source/OffMeshConnectionTool.cpp; sourceTree = SOURCE_ROOT; };
 		6BD401FF1224278800995864 /* PerfTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PerfTimer.h; path = ../../Include/PerfTimer.h; sourceTree = SOURCE_ROOT; };
 		6BD402001224279400995864 /* PerfTimer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PerfTimer.cpp; path = ../../Source/PerfTimer.cpp; sourceTree = SOURCE_ROOT; };
+		6BD667D8123D27EC0021A7A4 /* CrowdManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CrowdManager.h; path = ../../Include/CrowdManager.h; sourceTree = SOURCE_ROOT; };
+		6BD667D9123D28100021A7A4 /* CrowdManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CrowdManager.cpp; path = ../../Source/CrowdManager.cpp; sourceTree = SOURCE_ROOT; };
 		6BF5F23911747606000502A6 /* Filelist.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Filelist.cpp; path = ../../Source/Filelist.cpp; sourceTree = SOURCE_ROOT; };
 		6BF5F23C11747614000502A6 /* Filelist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Filelist.h; path = ../../Include/Filelist.h; sourceTree = SOURCE_ROOT; };
 		6BF5F23E1174763B000502A6 /* SlideShow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SlideShow.h; path = ../../Include/SlideShow.h; sourceTree = SOURCE_ROOT; };
@@ -201,6 +204,8 @@
 				6BD402001224279400995864 /* PerfTimer.cpp */,
 				6B847774122D220D00ADF63D /* ValueHistory.h */,
 				6B847776122D221C00ADF63D /* ValueHistory.cpp */,
+				6BD667D8123D27EC0021A7A4 /* CrowdManager.h */,
+				6BD667D9123D28100021A7A4 /* CrowdManager.cpp */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -459,6 +464,7 @@
 				6BD402011224279400995864 /* PerfTimer.cpp in Sources */,
 				6B9EFF0912281C3E00535FF1 /* DetourObstacleAvoidance.cpp in Sources */,
 				6B847777122D221D00ADF63D /* ValueHistory.cpp in Sources */,
+				6BD667DA123D28100021A7A4 /* CrowdManager.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
