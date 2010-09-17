@@ -455,7 +455,7 @@ void dtNavMesh::connectIntLinks(dtMeshTile* tile)
 		dtPoly* poly = &tile->polys[i];
 		poly->firstLink = DT_NULL_LINK;
 
-		if (poly->type == DT_POLYTYPE_OFFMESH_CONNECTION)
+		if (poly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
 			continue;
 			
 		// Build edge links backwards so that the links will be
@@ -1065,7 +1065,7 @@ bool dtNavMesh::storeTileState(const dtMeshTile* tile, unsigned char* data, cons
 		const dtPoly* p = &tile->polys[i];
 		dtPolyState* s = &polyStates[i];
 		s->flags = p->flags;
-		s->area = p->area;
+		s->area = p->getArea();
 	}
 	
 	return true;
@@ -1095,7 +1095,7 @@ bool dtNavMesh::restoreTileState(dtMeshTile* tile, const unsigned char* data, co
 		dtPoly* p = &tile->polys[i];
 		const dtPolyState* s = &polyStates[i];
 		p->flags = s->flags;
-		p->area = s->area;
+		p->setArea(s->area);
 	}
 	
 	return true;
@@ -1115,7 +1115,7 @@ bool dtNavMesh::getOffMeshConnectionPolyEndPoints(dtPolyRef prevRef, dtPolyRef p
 	const dtPoly* poly = &tile->polys[ip];
 
 	// Make sure that the current poly is indeed off-mesh link.
-	if (poly->type != DT_POLYTYPE_OFFMESH_CONNECTION)
+	if (poly->getType() != DT_POLYTYPE_OFFMESH_CONNECTION)
 		return false;
 
 	// Figure out which way to hand out the vertices.
@@ -1177,7 +1177,7 @@ void dtNavMesh::setPolyArea(dtPolyRef ref, unsigned char area)
 	dtMeshTile* tile = &m_tiles[it];
 	if (ip >= (unsigned int)tile->header->polyCount) return;
 	dtPoly* poly = &tile->polys[ip];
-	poly->area = area;
+	poly->setArea(area);
 }
 
 unsigned char dtNavMesh::getPolyArea(dtPolyRef ref) const
@@ -1189,6 +1189,6 @@ unsigned char dtNavMesh::getPolyArea(dtPolyRef ref) const
 	const dtMeshTile* tile = &m_tiles[it];
 	if (ip >= (unsigned int)tile->header->polyCount) return 0;
 	const dtPoly* poly = &tile->polys[ip];
-	return poly->area;
+	return poly->getArea();
 }
 

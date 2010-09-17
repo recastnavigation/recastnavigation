@@ -71,8 +71,11 @@ struct dtPoly
 	unsigned short neis[DT_VERTS_PER_POLYGON];	// Refs to neighbours of the poly.
 	unsigned short flags;						// Flags (see dtPolyFlags).
 	unsigned char vertCount;					// Number of vertices.
-	unsigned char area : 6;						// Area ID of the polygon.
-	unsigned char type : 2;						// Polygon type, see dtPolyTypes.
+	unsigned char areaAndtype;					// Bit packed: Area ID of the polygon, and Polygon type, see dtPolyTypes..
+	inline void setArea(unsigned char a) { areaAndtype = (areaAndtype & 0xc0) | (a & 0x3f); }
+	inline void setType(unsigned char t) { areaAndtype = (areaAndtype & 0x3f) | (t << 6); }
+	inline unsigned char getArea() const { return areaAndtype & 0x3f; }
+	inline unsigned char getType() const { return areaAndtype >> 6; }
 };
 
 // Stucture describing polygon detail triangles.

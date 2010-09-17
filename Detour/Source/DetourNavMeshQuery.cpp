@@ -64,7 +64,7 @@ inline float dtQueryFilter::getCost(const float* pa, const float* pb,
 									const dtPolyRef /*curRef*/, const dtMeshTile* /*curTile*/, const dtPoly* curPoly,
 									const dtPolyRef /*nextRef*/, const dtMeshTile* /*nextTile*/, const dtPoly* /*nextPoly*/) const
 {
-	return dtVdist(pa, pb) * m_areaCost[curPoly->area];
+	return dtVdist(pa, pb) * m_areaCost[curPoly->getArea()];
 }
 #endif	
 	
@@ -311,7 +311,7 @@ bool dtNavMeshQuery::getPolyHeight(dtPolyRef ref, const float* pos, float* heigh
 	if (!m_nav->getTileAndPolyByRef(ref, &tile, &poly))
 		return false;
 	
-	if (poly->type == DT_POLYTYPE_OFFMESH_CONNECTION)
+	if (poly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
 	{
 		const float* v0 = &tile->verts[poly->verts[0]*3];
 		const float* v1 = &tile->verts[poly->verts[1]*3];
@@ -1398,13 +1398,13 @@ bool dtNavMeshQuery::getPortalPoints(dtPolyRef from, dtPolyRef to, float* left, 
 	const dtPoly* fromPoly = 0;
 	if (!m_nav->getTileAndPolyByRef(from, &fromTile, &fromPoly))
 		return false;
-	fromType = fromPoly->type;
+	fromType = fromPoly->getType();
 
 	const dtMeshTile* toTile = 0;
 	const dtPoly* toPoly = 0;
 	if (!m_nav->getTileAndPolyByRef(to, &toTile, &toPoly))
 		return false;
-	toType = toPoly->type;
+	toType = toPoly->getType();
 		
 	return getPortalPoints(from, fromPoly, fromTile, to, toPoly, toTile, left, right);
 }
@@ -1428,7 +1428,7 @@ bool dtNavMeshQuery::getPortalPoints(dtPolyRef from, const dtPoly* fromPoly, con
 		return false;
 	
 	// Handle off-mesh connections.
-	if (fromPoly->type == DT_POLYTYPE_OFFMESH_CONNECTION)
+	if (fromPoly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
 	{
 		// Find link that points to first vertex.
 		for (unsigned int i = fromPoly->firstLink; i != DT_NULL_LINK; i = fromTile->links[i].next)
@@ -1444,7 +1444,7 @@ bool dtNavMeshQuery::getPortalPoints(dtPolyRef from, const dtPoly* fromPoly, con
 		return false;
 	}
 	
-	if (toPoly->type == DT_POLYTYPE_OFFMESH_CONNECTION)
+	if (toPoly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
 	{
 		for (unsigned int i = toPoly->firstLink; i != DT_NULL_LINK; i = toTile->links[i].next)
 		{
@@ -1583,7 +1583,7 @@ int dtNavMeshQuery::raycast(dtPolyRef centerRef, const float* startPos, const fl
 			m_nav->getTileAndPolyByRefUnsafe(link->ref, &nextTile, &nextPoly);
 			
 			// Skip off-mesh connections.
-			if (nextPoly->type == DT_POLYTYPE_OFFMESH_CONNECTION)
+			if (nextPoly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
 				continue;
 			
 			// Skip links based on filter.
@@ -2025,7 +2025,7 @@ int dtNavMeshQuery::findLocalNeighbourhood(dtPolyRef centerRef, const float* cen
 			m_nav->getTileAndPolyByRefUnsafe(neighbourRef, &neighbourTile, &neighbourPoly);
 			
 			// Skip off-mesh connections.
-			if (neighbourPoly->type == DT_POLYTYPE_OFFMESH_CONNECTION)
+			if (neighbourPoly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
 				continue;
 			
 			// Do not advance if the polygon is excluded by the filter.
@@ -2341,7 +2341,7 @@ float dtNavMeshQuery::findDistanceToWall(dtPolyRef centerRef, const float* cente
 			m_nav->getTileAndPolyByRefUnsafe(neighbourRef, &neighbourTile, &neighbourPoly);
 			
 			// Skip off-mesh connections.
-			if (neighbourPoly->type == DT_POLYTYPE_OFFMESH_CONNECTION)
+			if (neighbourPoly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
 				continue;
 			
 			// Calc distance to the edge.

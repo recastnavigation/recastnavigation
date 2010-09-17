@@ -61,7 +61,7 @@ static const int g_nsamples = sizeof(g_samples)/sizeof(SampleItem);
 
 
 int main(int /*argc*/, char** /*argv*/)
-{
+{	
 	// Init SDL
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
 	{

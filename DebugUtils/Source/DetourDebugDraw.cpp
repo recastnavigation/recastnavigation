@@ -50,7 +50,7 @@ static void drawPolyBoundaries(duDebugDraw* dd, const dtMeshTile* tile,
 	{
 		const dtPoly* p = &tile->polys[i];
 		
-		if (p->type == DT_POLYTYPE_OFFMESH_CONNECTION) continue;
+		if (p->getType() == DT_POLYTYPE_OFFMESH_CONNECTION) continue;
 		
 		const dtPolyDetail* pd = &tile->detailMeshes[i];
 		
@@ -127,7 +127,7 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 	for (int i = 0; i < tile->header->polyCount; ++i)
 	{
 		const dtPoly* p = &tile->polys[i];
-		if (p->type == DT_POLYTYPE_OFFMESH_CONNECTION)	// Skip off-mesh links.
+		if (p->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)	// Skip off-mesh links.
 			continue;
 			
 		const dtPolyDetail* pd = &tile->detailMeshes[i];
@@ -137,10 +137,10 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 			col = duRGBA(255,196,0,64);
 		else
 		{
-			if (p->area == 0) // Treat zero area type as default.
+			if (p->getArea() == 0) // Treat zero area type as default.
 				col = duRGBA(0,192,255,64);
 			else
-				col = duIntToCol(p->area, 64);
+				col = duIntToCol(p->getArea(), 64);
 		}
 		
 		for (int j = 0; j < pd->triCount; ++j)
@@ -169,14 +169,14 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 		for (int i = 0; i < tile->header->polyCount; ++i)
 		{
 			const dtPoly* p = &tile->polys[i];
-			if (p->type != DT_POLYTYPE_OFFMESH_CONNECTION)	// Skip regular polys.
+			if (p->getType() != DT_POLYTYPE_OFFMESH_CONNECTION)	// Skip regular polys.
 				continue;
 			
 			unsigned int col;
 			if (query && query->isInClosedList(base | (dtPolyRef)i))
 				col = duRGBA(255,196,0,220);
 			else
-				col = duDarkenCol(duIntToCol(p->area, 220));
+				col = duDarkenCol(duIntToCol(p->getArea(), 220));
 			
 			const dtOffMeshConnection* con = &tile->offMeshCons[i - tile->header->offMeshBase];
 			const float* va = &tile->verts[p->verts[0]*3];
@@ -427,7 +427,7 @@ void duDebugDrawNavMeshPoly(duDebugDraw* dd, const dtNavMesh& mesh, dtPolyRef re
 	const unsigned int c = (col & 0x00ffffff) | (64 << 24);
 	const unsigned int ip = (unsigned int)(poly - tile->polys);
 
-	if (poly->type == DT_POLYTYPE_OFFMESH_CONNECTION)
+	if (poly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
 	{
 		dtOffMeshConnection* con = &tile->offMeshCons[ip - tile->header->offMeshBase];
 

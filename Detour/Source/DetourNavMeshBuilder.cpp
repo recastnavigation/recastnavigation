@@ -430,8 +430,8 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 		dtPoly* p = &navPolys[i];
 		p->vertCount = 0;
 		p->flags = params->polyFlags[i];
-		p->area = params->polyAreas[i];
-		p->type = DT_POLYTYPE_GROUND;
+		p->setArea(params->polyAreas[i]);
+		p->setType(DT_POLYTYPE_GROUND);
 		for (int j = 0; j < nvp; ++j)
 		{
 			if (src[j] == MESH_NULL_IDX) break;
@@ -453,8 +453,8 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 			p->verts[0] = (unsigned short)(offMeshVertsBase + n*2+0);
 			p->verts[1] = (unsigned short)(offMeshVertsBase + n*2+1);
 			p->flags = params->offMeshConFlags[i];
-			p->area = params->offMeshConAreas[i];
-			p->type = DT_POLYTYPE_OFFMESH_CONNECTION;
+			p->setArea(params->offMeshConAreas[i]);
+			p->setType(DT_POLYTYPE_OFFMESH_CONNECTION);
 			n++;
 		}
 	}
