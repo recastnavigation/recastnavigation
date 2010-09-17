@@ -595,10 +595,10 @@ void duDebugDrawPolyMeshDetail(duDebugDraw* dd, const struct rcPolyMeshDetail& d
 	
 	for (int i = 0; i < dmesh.nmeshes; ++i)
 	{
-		const unsigned short* m = &dmesh.meshes[i*4];
-		const unsigned short bverts = m[0];
-		const unsigned short btris = m[2];
-		const unsigned short ntris = m[3];
+		const unsigned int* m = &dmesh.meshes[i*4];
+		const unsigned int bverts = m[0];
+		const unsigned int btris = m[2];
+		const int ntris = (int)m[3];
 		const float* verts = &dmesh.verts[bverts*3];
 		const unsigned char* tris = &dmesh.tris[btris*4];
 
@@ -618,10 +618,10 @@ void duDebugDrawPolyMeshDetail(duDebugDraw* dd, const struct rcPolyMeshDetail& d
 	const unsigned int coli = duRGBA(0,0,0,64);
 	for (int i = 0; i < dmesh.nmeshes; ++i)
 	{
-		const unsigned short* m = &dmesh.meshes[i*4];
-		const unsigned short bverts = m[0];
-		const unsigned short btris = m[2];
-		const unsigned short ntris = m[3];
+		const unsigned int* m = &dmesh.meshes[i*4];
+		const unsigned int bverts = m[0];
+		const unsigned int btris = m[2];
+		const int ntris = (int)m[3];
 		const float* verts = &dmesh.verts[bverts*3];
 		const unsigned char* tris = &dmesh.tris[btris*4];
 		
@@ -650,10 +650,10 @@ void duDebugDrawPolyMeshDetail(duDebugDraw* dd, const struct rcPolyMeshDetail& d
 	const unsigned int cole = duRGBA(0,0,0,64);
 	for (int i = 0; i < dmesh.nmeshes; ++i)
 	{
-		const unsigned short* m = &dmesh.meshes[i*4];
-		const unsigned short bverts = m[0];
-		const unsigned short btris = m[2];
-		const unsigned short ntris = m[3];
+		const unsigned int* m = &dmesh.meshes[i*4];
+		const unsigned int bverts = m[0];
+		const unsigned int btris = m[2];
+		const int ntris = (int)m[3];
 		const float* verts = &dmesh.verts[bverts*3];
 		const unsigned char* tris = &dmesh.tris[btris*4];
 		
@@ -678,9 +678,9 @@ void duDebugDrawPolyMeshDetail(duDebugDraw* dd, const struct rcPolyMeshDetail& d
 	const unsigned int colv = duRGBA(0,0,0,64);
 	for (int i = 0; i < dmesh.nmeshes; ++i)
 	{
-		const unsigned short* m = &dmesh.meshes[i*4];
-		const unsigned short bverts = m[0];
-		const unsigned short nverts = m[1];
+		const unsigned int* m = &dmesh.meshes[i*4];
+		const unsigned int bverts = m[0];
+		const int nverts = (int)m[1];
 		const float* verts = &dmesh.verts[bverts*3];
 		for (int j = 0; j < nverts; ++j)
 			dd->vertex(&verts[j*3], colv);

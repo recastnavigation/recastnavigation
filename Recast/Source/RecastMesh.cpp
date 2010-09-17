@@ -1163,6 +1163,15 @@ bool rcBuildPolyMesh(rcContext* ctx, rcContourSet& cset, int nvp, rcPolyMesh& me
 	}
 	memset(mesh.flags, 0, sizeof(unsigned short) * mesh.npolys);
 	
+	if (mesh.nverts > 0xffff)
+	{
+		ctx->log(RC_LOG_ERROR, "rcMergePolyMeshes: The resulting mesh has too many vertices %d (max %d). Data can be corrupted.", mesh.nverts, 0xffff);
+	}
+	if (mesh.npolys > 0xffff)
+	{
+		ctx->log(RC_LOG_ERROR, "rcMergePolyMeshes: The resulting mesh has too many polygons %d (max %d). Data can be corrupted.", mesh.npolys, 0xffff);
+	}
+	
 	ctx->stopTimer(RC_TIMER_BUILD_POLYMESH);
 	
 	return true;
@@ -1297,7 +1306,16 @@ bool rcMergePolyMeshes(rcContext* ctx, rcPolyMesh** meshes, const int nmeshes, r
 		ctx->log(RC_LOG_ERROR, "rcMergePolyMeshes: Adjacency failed.");
 		return false;
 	}
-		
+
+	if (mesh.nverts > 0xffff)
+	{
+		ctx->log(RC_LOG_ERROR, "rcMergePolyMeshes: The resulting mesh has too many vertices %d (max %d). Data can be corrupted.", mesh.nverts, 0xffff);
+	}
+	if (mesh.npolys > 0xffff)
+	{
+		ctx->log(RC_LOG_ERROR, "rcMergePolyMeshes: The resulting mesh has too many polygons %d (max %d). Data can be corrupted.", mesh.npolys, 0xffff);
+	}
+	
 	ctx->stopTimer(RC_TIMER_MERGE_POLYMESH);
 	
 	return true;

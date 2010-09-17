@@ -248,15 +248,17 @@ void rcFreePolyMesh(rcPolyMesh* pmesh);
 // Each submesh represents a polygon in the polymesh and they are stored in
 // exactly same order. Each submesh is described as 4 values:
 // base vertex, vertex count, base triangle, triangle count. That is,
-//   const unsigned char* t = &dtl.tris[(tbase+i)*3]; and
-//   const float* v = &dtl.verts[(vbase+t[j])*3];
+//   const unsigned char* t = &dmesh.tris[(tbase+i)*3]; and
+//   const float* v = &dmesh.verts[(vbase+t[j])*3];
 // If the input polygon has 'n' vertices, those vertices are first in the
 // submesh vertex list. This allows to compres the mesh by not storing the
 // first vertices and using the polymesh vertices instead.
+// Max number of vertices per submesh is 127 and
+// max number of triangles per submesh is 255.
 
 struct rcPolyMeshDetail
 {
-	unsigned short* meshes;	// Pointer to all mesh data.
+	unsigned int* meshes;	// Pointer to all mesh data.
 	float* verts;			// Pointer to all vertex data.
 	unsigned char* tris;	// Pointer to all triangle data.
 	int nmeshes;			// Number of meshes.

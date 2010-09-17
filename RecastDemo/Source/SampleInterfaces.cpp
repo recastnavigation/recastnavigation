@@ -43,14 +43,16 @@ void BuildContext::doLog(const rcLogCategory category, const char* msg, const in
 	int n = TEXT_POOL_SIZE - m_textPoolSize;
 	if (n < 2)
 		return;
+	char* cat = dst;
+	char* text = dst+1;
+	const int maxtext = n-1;
 	// Store category
-	*dst = (char)category;
-	n--;
+	*cat = (char)category;
 	// Store message
-	const int count = rcMin(len+1, n);
-	memcpy(dst+1, msg, count);
-	dst[count+1] = '\0';
-	m_textPoolSize += count+1;
+	const int count = rcMin(len+1, maxtext);
+	memcpy(text, msg, count);
+	text[count-1] = '\0';
+	m_textPoolSize += 1 + count;
 	m_messages[m_messageCount++] = dst;
 }
 

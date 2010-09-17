@@ -81,10 +81,10 @@ struct dtPoly
 // Stucture describing polygon detail triangles.
 struct dtPolyDetail
 {
-	unsigned short vertBase;					// Offset to detail vertex array.
-	unsigned short vertCount;					// Number of vertices in the detail mesh.
-	unsigned short triBase;						// Offset to detail triangle array.
-	unsigned short triCount;					// Number of triangles.
+	unsigned int vertBase;						// Offset to detail vertex array.
+	unsigned int triBase;						// Offset to detail triangle array.
+	unsigned char vertCount;					// Number of vertices in the detail mesh.
+	unsigned char triCount;						// Number of triangles.
 };
 
 // Stucture describing a link to another polygon.

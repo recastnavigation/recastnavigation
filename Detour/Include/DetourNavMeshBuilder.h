@@ -36,7 +36,7 @@ struct dtNavMeshCreateParams
 	int polyCount;							// Number of polygons
 	int nvp;								// Number of verts per polygon.
 	// Navmesh Detail
-	const unsigned short* detailMeshes;		// Detail meshes, uses same format as rcPolyMeshDetail.
+	const unsigned int* detailMeshes;		// Detail meshes, uses same format as rcPolyMeshDetail.
 	const float* detailVerts;				// Detail mesh vertices, uses same format as rcPolyMeshDetail (wu).
 	int detailVertsCount;					// Total number of detail vertices
 	const unsigned char* detailTris;		// Array of detail tris per detail mesh.

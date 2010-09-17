@@ -484,12 +484,21 @@ static void delaunayHull(rcContext* ctx, const int npts, const float* pts,
 			t[2] = tris[tris.size()-2];
 			t[3] = tris[tris.size()-1];
 			tris.resize(tris.size()-4);
+			--i;
 		}
 	}
-
 }
 
 
+inline float getJitterX(const int i)
+{
+	return (((i * 0x8da6b343) & 0xffff) / 65535.0f * 2.0f) - 1.0f;
+}
+
+inline float getJitterY(const int i)
+{
+	return (((i * 0xd8163841) & 0xffff) / 65535.0f * 2.0f) - 1.0f;
+}
 
 static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 							const float sampleDist, const float sampleMaxError,
@@ -497,9 +506,10 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 							float* verts, int& nverts, rcIntArray& tris,
 							rcIntArray& edges, rcIntArray& samples)
 {
-	static const int MAX_VERTS = 256;
-	static const int MAX_EDGE = 64;
-	float edge[(MAX_EDGE+1)*3];
+	static const int MAX_VERTS = 127;
+	static const int MAX_TRIS = 255;	// Max tris for delaunay is 2n-2-k (n=num verts, k=num hull verts).
+	static const int MAX_VERTS_PER_EDGE = 32;
+	float edge[(MAX_VERTS_PER_EDGE+1)*3];
 	int hull[MAX_VERTS];
 	int nhull = 0;
 
@@ -546,9 +556,10 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 			float dz = vi[2] - vj[2];
 			float d = sqrtf(dx*dx + dz*dz);
 			int nn = 1 + (int)floorf(d/sampleDist);
-			if (nn > MAX_EDGE) nn = MAX_EDGE;
+			if (nn >= MAX_VERTS_PER_EDGE) nn = MAX_VERTS_PER_EDGE-1;
 			if (nverts+nn >= MAX_VERTS)
 				nn = MAX_VERTS-1-nverts;
+			
 			for (int k = 0; k <= nn; ++k)
 			{
 				float u = (float)k/(float)nn;
@@ -559,7 +570,7 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 				pos[1] = getHeight(pos[0],pos[1],pos[2], cs, ics, chf.ch, hp)*chf.ch;
 			}
 			// Simplify samples.
-			int idx[MAX_EDGE] = {0,nn};
+			int idx[MAX_VERTS_PER_EDGE] = {0,nn};
 			int nidx = 2;
 			for (int k = 0; k < nidx-1; )
 			{
@@ -667,36 +678,47 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 				samples.push(x);
 				samples.push(getHeight(pt[0], pt[1], pt[2], cs, ics, chf.ch, hp));
 				samples.push(z);
+				samples.push(0); // Not added
 			}
 		}
 				
 		// Add the samples starting from the one that has the most
 		// error. The procedure stops when all samples are added
 		// or when the max error is within treshold.
-		const int nsamples = samples.size()/3;
+		const int nsamples = samples.size()/4;
 		for (int iter = 0; iter < nsamples; ++iter)
 		{
+			if (nverts >= MAX_VERTS)
+				break;
+
 			// Find sample with most error.
 			float bestpt[3] = {0,0,0};
 			float bestd = 0;
+			int besti = -1;
 			for (int i = 0; i < nsamples; ++i)
 			{
+				const int* s = &samples[i*4];
+				if (s[3]) continue; // skip added.
 				float pt[3];
-				pt[0] = samples[i*3+0]*sampleDist;
-				pt[1] = samples[i*3+1]*chf.ch;
-				pt[2] = samples[i*3+2]*sampleDist;
+				// The sample location is jittered to get rid of some bad triangulations
+				// which are cause by symmetrical data from the grid structure.
+				pt[0] = s[0]*sampleDist + getJitterX(i)*cs*0.1f;
+				pt[1] = s[1]*chf.ch;
+				pt[2] = s[2]*sampleDist + getJitterY(i)*cs*0.1f;
 				float d = distToTriMesh(pt, verts, nverts, &tris[0], tris.size()/4);
 				if (d < 0) continue; // did not hit the mesh.
 				if (d > bestd)
 				{
 					bestd = d;
+					besti = i;
 					rcVcopy(bestpt,pt);
 				}
 			}
 			// If the max error is within accepted threshold, stop tesselating.
-			if (bestd <= sampleMaxError)
+			if (bestd <= sampleMaxError || besti == -1)
 				break;
-
+			// Mark sample as added.
+			samples[besti*4+3] = 1;
 			// Add the new sample point.
 			rcVcopy(&verts[nverts*3],bestpt);
 			nverts++;
@@ -706,10 +728,14 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 			edges.resize(0);
 			tris.resize(0);
 			delaunayHull(ctx, nverts, verts, nhull, hull, tris, edges);
+		}		
+	}
 
-			if (nverts >= MAX_VERTS)
-				break;
-		}
+	const int ntris = tris.size()/4;
+	if (ntris > MAX_TRIS)
+	{
+		tris.resize(MAX_TRIS*4);
+		ctx->log(RC_LOG_ERROR, "rcBuildPolyMeshDetail: Shrinking triangle count from %d to max %d.", ntris, MAX_TRIS);
 	}
 
 	return true;
@@ -993,7 +1019,7 @@ bool rcBuildPolyMeshDetail(rcContext* ctx, const rcPolyMesh& mesh, const rcCompa
 	dmesh.nmeshes = mesh.npolys;
 	dmesh.nverts = 0;
 	dmesh.ntris = 0;
-	dmesh.meshes = (unsigned short*)rcAlloc(sizeof(unsigned short)*dmesh.nmeshes*4, RC_ALLOC_PERM);
+	dmesh.meshes = (unsigned int*)rcAlloc(sizeof(unsigned int)*dmesh.nmeshes*4, RC_ALLOC_PERM);
 	if (!dmesh.meshes)
 	{
 		ctx->log(RC_LOG_ERROR, "rcBuildPolyMeshDetail: Out of memory 'dmesh.meshes' (%d).", dmesh.nmeshes*4);
@@ -1068,11 +1094,11 @@ bool rcBuildPolyMeshDetail(rcContext* ctx, const rcPolyMesh& mesh, const rcCompa
 	
 		// Store detail submesh.
 		const int ntris = tris.size()/4;
-		
-		dmesh.meshes[i*4+0] = (unsigned short)dmesh.nverts;
-		dmesh.meshes[i*4+1] = (unsigned short)nverts;
-		dmesh.meshes[i*4+2] = (unsigned short)dmesh.ntris;
-		dmesh.meshes[i*4+3] = (unsigned short)ntris;
+
+		dmesh.meshes[i*4+0] = (unsigned int)dmesh.nverts;
+		dmesh.meshes[i*4+1] = (unsigned int)nverts;
+		dmesh.meshes[i*4+2] = (unsigned int)dmesh.ntris;
+		dmesh.meshes[i*4+3] = (unsigned int)ntris;		
 		
 		// Store vertices, allocate more memory if necessary.
 		if (dmesh.nverts+nverts > vcap)
@@ -1125,7 +1151,7 @@ bool rcBuildPolyMeshDetail(rcContext* ctx, const rcPolyMesh& mesh, const rcCompa
 			dmesh.ntris++;
 		}
 	}
-	
+		
 	ctx->stopTimer(RC_TIMER_BUILD_POLYMESHDETAIL);
 
 	return true;
@@ -1150,7 +1176,7 @@ bool rcMergePolyMeshDetails(rcContext* ctx, rcPolyMeshDetail** meshes, const int
 	}
 
 	mesh.nmeshes = 0;
-	mesh.meshes = (unsigned short*)rcAlloc(sizeof(unsigned short)*maxMeshes*4, RC_ALLOC_PERM);
+	mesh.meshes = (unsigned int*)rcAlloc(sizeof(unsigned int)*maxMeshes*4, RC_ALLOC_PERM);
 	if (!mesh.meshes)
 	{
 		ctx->log(RC_LOG_ERROR, "rcBuildPolyMeshDetail: Out of memory 'pmdtl.meshes' (%d).", maxMeshes*4);
@@ -1180,11 +1206,11 @@ bool rcMergePolyMeshDetails(rcContext* ctx, rcPolyMeshDetail** meshes, const int
 		if (!dm) continue;
 		for (int j = 0; j < dm->nmeshes; ++j)
 		{
-			unsigned short* dst = &mesh.meshes[mesh.nmeshes*4];
-			unsigned short* src = &dm->meshes[j*4];
-			dst[0] = (unsigned short)mesh.nverts+src[0];
+			unsigned int* dst = &mesh.meshes[mesh.nmeshes*4];
+			unsigned int* src = &dm->meshes[j*4];
+			dst[0] = (unsigned int)mesh.nverts+src[0];
 			dst[1] = src[1];
-			dst[2] = (unsigned short)mesh.ntris+src[2];
+			dst[2] = (unsigned int)mesh.ntris+src[2];
 			dst[3] = src[3];
 			mesh.nmeshes++;
 		}
