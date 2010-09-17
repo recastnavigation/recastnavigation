@@ -951,28 +951,37 @@ int dtNavMeshQuery::finalizeSlicedFindPath(dtPolyRef* path, const int maxPathSiz
 		return 0;
 	}
 	
-	// Reverse the path.
-	dtAssert(m_query.lastBestNode);
-	dtNode* prev = 0;
-	dtNode* node = m_query.lastBestNode;
-	do
-	{
-		dtNode* next = m_nodePool->getNodeAtIdx(node->pidx);
-		node->pidx = m_nodePool->getNodeIdx(prev);
-		prev = node;
-		node = next;
-	}
-	while (node);
-	
-	// Store path
-	node = prev;
 	int n = 0;
-	do
+
+	if (m_query.startRef == m_query.endRef)
 	{
-		path[n++] = node->id;
-		node = m_nodePool->getNodeAtIdx(node->pidx);
+		// Special case: the search starts and ends at same poly.
+		path[n++] = m_query.startRef;
 	}
-	while (node && n < maxPathSize);
+	else
+	{
+		// Reverse the path.
+		dtAssert(m_query.lastBestNode);
+		dtNode* prev = 0;
+		dtNode* node = m_query.lastBestNode;
+		do
+		{
+			dtNode* next = m_nodePool->getNodeAtIdx(node->pidx);
+			node->pidx = m_nodePool->getNodeIdx(prev);
+			prev = node;
+			node = next;
+		}
+		while (node);
+		
+		// Store path
+		node = prev;
+		do
+		{
+			path[n++] = node->id;
+			node = m_nodePool->getNodeAtIdx(node->pidx);
+		}
+		while (node && n < maxPathSize);
+	}
 	
 	// Reset query.
 	memset(&m_query, 0, sizeof(dtQueryData));

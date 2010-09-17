@@ -149,7 +149,7 @@ public:
 	//	endPos[3] - (in) Path end location.
 	//  filter - (in) path polygon filter.
 	//	path - (out) array holding the search result.
-	//	maxPathSize - (in) The max number of polygons the path array can hold.
+	//	maxPathSize - (in) The max number of polygons the path array can hold. Must be at least 1.
 	// Returns: Number of polygons in search result array.
 	int findPath(dtPolyRef startRef, dtPolyRef endRef,
 				 const float* startPos, const float* endPos,
@@ -198,7 +198,7 @@ public:
 	//	straightPath - (out) Points describing the straight path.
 	//  straightPathFlags - (out, opt) Flags describing each point type, see dtStraightPathFlags.
 	//  straightPathRefs - (out, opt) References to polygons at point locations.
-	//	maxStraightPathSize - (in) The max number of points the straight path array can hold.
+	//	maxStraightPathSize - (in) The max number of points the straight path array can hold. Must be at least 1.
 	// Returns: Number of points in the path.
 	int findStraightPath(const float* startPos, const float* endPos,
 						 const dtPolyRef* path, const int pathSize,

@@ -507,34 +507,33 @@ void NavMeshTesterTool::handleStep()
 
 void NavMeshTesterTool::handleUpdate(const float /*dt*/)
 {
-	if (m_pathFindState == DT_QUERY_RUNNING)
+	if (m_toolMode == TOOLMODE_PATHFIND_SLICED)
 	{
-		m_pathFindState = m_navQuery->updateSlicedFindPath(1);
-	}
-	
-	if (m_pathFindState == DT_QUERY_READY)
-	{
-		m_npolys = m_navQuery->finalizeSlicedFindPath(m_polys, MAX_POLYS);
-		m_nstraightPath = 0;
-		if (m_npolys)
+		if (m_pathFindState == DT_QUERY_RUNNING)
 		{
-			// In case of partial path, make sure the end point is clamped to the last polygon.
-			float epos[3];
-			dtVcopy(epos, m_epos);
-			if (m_polys[m_npolys-1] != m_endRef)
-			m_navQuery->closestPointOnPoly(m_polys[m_npolys-1], m_epos, epos);
-
-			m_nstraightPath = m_navQuery->findStraightPath(m_spos, epos, m_polys, m_npolys,
-			m_straightPath, m_straightPathFlags,
-			m_straightPathPolys, MAX_POLYS);
+			m_pathFindState = m_navQuery->updateSlicedFindPath(1);
 		}
-		 
-		 m_pathFindState = DT_QUERY_FAILED;
+		
+		if (m_pathFindState == DT_QUERY_READY)
+		{
+			m_npolys = m_navQuery->finalizeSlicedFindPath(m_polys, MAX_POLYS);
+			m_nstraightPath = 0;
+			if (m_npolys)
+			{
+				// In case of partial path, make sure the end point is clamped to the last polygon.
+				float epos[3];
+				dtVcopy(epos, m_epos);
+				if (m_polys[m_npolys-1] != m_endRef)
+				m_navQuery->closestPointOnPoly(m_polys[m_npolys-1], m_epos, epos);
+
+				m_nstraightPath = m_navQuery->findStraightPath(m_spos, epos, m_polys, m_npolys,
+				m_straightPath, m_straightPathFlags,
+				m_straightPathPolys, MAX_POLYS);
+			}
+			 
+			 m_pathFindState = DT_QUERY_FAILED;
+		}
 	}
-
-	
-	
-
 }
 
 void NavMeshTesterTool::reset()
