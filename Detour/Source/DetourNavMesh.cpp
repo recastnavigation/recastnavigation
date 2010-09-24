@@ -869,6 +869,20 @@ dtTileRef dtNavMesh::getTileRefAt(int x, int y) const
 	return 0;
 }
 
+const dtMeshTile* dtNavMesh::getTileByRef(dtTileRef ref) const
+{
+	if (!ref)
+		return 0;
+	unsigned int tileIndex = decodePolyIdTile((dtPolyRef)ref);
+	unsigned int tileSalt = decodePolyIdSalt((dtPolyRef)ref);
+	if ((int)tileIndex >= m_maxTiles)
+		return 0;
+	const dtMeshTile* tile = &m_tiles[tileIndex];
+	if (tile->salt != tileSalt)
+		return 0;
+	return tile;
+}
+
 int dtNavMesh::getMaxTiles() const
 {
 	return m_maxTiles;
