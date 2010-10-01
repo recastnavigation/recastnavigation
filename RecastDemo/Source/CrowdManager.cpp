@@ -29,11 +29,164 @@
 #include "CrowdManager.h"
 #include "SampleInterfaces.h" // For timer
 #include "DetourAssert.h"
+#include "DetourAlloc.h"
 
 static const int VO_ADAPTIVE_GRID_SIZE = 4;
 static const int VO_ADAPTIVE_GRID_DEPTH = 5;
 static const int VO_GRID_SIZE = 33;
 
+
+inline int hashPos2(int x, int y, int n)
+{
+	return ((x*73856093) ^ (y*19349663)) & (n-1);
+}
+
+ProximityGrid::ProximityGrid() :
+	m_maxItems(0),
+	m_cellSize(0),
+	m_pool(0),
+	m_poolHead(0),
+	m_poolSize(0),
+	m_buckets(0),
+	m_bucketsSize(0)
+{
+}
+	
+ProximityGrid::~ProximityGrid()
+{
+	dtFree(m_buckets);
+	dtFree(m_pool);
+}
+	
+bool ProximityGrid::init(const int maxItems, const float cellSize)
+{
+	dtAssert(maxItems > 0);
+	dtAssert(cellSize > 0.0f);
+	
+	m_cellSize = cellSize;
+	m_invCellSize = 1.0f / m_cellSize;
+	
+	// Allocate hashs buckets
+	m_bucketsSize = dtNextPow2(maxItems);
+	m_buckets = (unsigned short*)dtAlloc(sizeof(unsigned short)*m_bucketsSize, DT_ALLOC_PERM);
+	if (!m_buckets)
+		return false;
+
+	// Allocate pool of items.
+	m_poolSize = maxItems*4;
+	m_poolHead = 0;
+	m_pool = (Item*)dtAlloc(sizeof(Item)*m_poolSize, DT_ALLOC_PERM);
+	if (!m_pool)
+		return false;
+	
+	clear();
+	
+	return true;
+}
+
+void ProximityGrid::clear()
+{
+	memset(m_buckets, 0xff, sizeof(unsigned short)*m_bucketsSize);
+	m_poolHead = 0;
+	m_bounds[0] = 0xffff;
+	m_bounds[1] = 0xffff;
+	m_bounds[2] = -0xffff;
+	m_bounds[3] = -0xffff;
+}
+
+void ProximityGrid::addItem(const unsigned short id,
+							const float minx, const float miny,
+							const float maxx, const float maxy)
+{
+	const int iminx = (int)floorf(minx * m_invCellSize);
+	const int iminy = (int)floorf(miny * m_invCellSize);
+	const int imaxx = (int)floorf(maxx * m_invCellSize);
+	const int imaxy = (int)floorf(maxy * m_invCellSize);
+	
+	m_bounds[0] = dtMin(m_bounds[0], iminx);
+	m_bounds[1] = dtMin(m_bounds[1], iminy);
+	m_bounds[2] = dtMax(m_bounds[2], imaxx);
+	m_bounds[3] = dtMax(m_bounds[3], imaxy);
+	
+	for (int y = iminy; y <= imaxy; ++y)
+	{
+		for (int x = iminx; x <= imaxx; ++x)
+		{
+			if (m_poolHead < m_poolSize)
+			{
+				const int h = hashPos2(x, y, m_bucketsSize);
+				const unsigned short idx = (unsigned short)m_poolHead;
+				m_poolHead++;
+				Item& item = m_pool[idx];
+				item.x = (short)x;
+				item.y = (short)y;
+				item.id = id;
+				item.next = m_buckets[h];
+				m_buckets[h] = idx;
+			}
+		}
+	}
+}
+
+int ProximityGrid::queryItems(const float minx, const float miny,
+							  const float maxx, const float maxy,
+							  unsigned short* ids, const int maxIds) const
+{
+	const int iminx = (int)floorf(minx * m_invCellSize);
+	const int iminy = (int)floorf(miny * m_invCellSize);
+	const int imaxx = (int)floorf(maxx * m_invCellSize);
+	const int imaxy = (int)floorf(maxy * m_invCellSize);
+	
+	int n = 0;
+	
+	for (int y = iminy; y <= imaxy; ++y)
+	{
+		for (int x = iminx; x <= imaxx; ++x)
+		{
+			const int h = hashPos2(x, y, m_bucketsSize);
+			unsigned short idx = m_buckets[h];
+			while (idx != 0xffff)
+			{
+				Item& item = m_pool[idx];
+				if ((int)item.x == x && (int)item.y == y)
+				{
+					// Check if the id exists already.
+					const unsigned short* end = ids + n;
+					unsigned short* i = ids;
+					while (i != end && *i != item.id)
+						++i;
+					// Item not found, add it.
+					if (i == end)
+					{
+						if (n >= maxIds)
+							return n;
+						ids[n++] = item.id;
+					}
+				}
+				idx = item.next;
+			}
+		}
+	}
+	
+	return n;
+}
+
+int ProximityGrid::getItemCountAt(const int x, const int y) const
+{
+	int n = 0;
+	
+	const int h = hashPos2(x, y, m_bucketsSize);
+	unsigned short idx = m_buckets[h];
+	while (idx != 0xffff)
+	{
+		Item& item = m_pool[idx];
+		if ((int)item.x == x && (int)item.y == y)
+			n++;
+		idx = item.next;
+	}
+
+	return n;
+}
 
 
 PathQueue::PathQueue() :
@@ -673,6 +826,9 @@ CrowdManager::CrowdManager() :
 		m_vodebug[i] = dtAllocObstacleAvoidanceDebugData();
 		m_vodebug[i]->init(sampleCount);
 	}
+
+	// TODO: the radius should be related to the agent radius used to create the navmesh!
+	m_grid.init(100, 1.0f);
 	
 	reset();
 }
@@ -767,10 +923,14 @@ int CrowdManager::getNeighbours(const float* pos, const float height, const floa
 {
 	int n = 0;
 	
-	for (int i = 0; i < MAX_AGENTS; ++i)
+	unsigned short ids[MAX_AGENTS];
+	int nids = m_grid.queryItems(pos[0]-range, pos[2]-range,
+								 pos[0]+range, pos[2]+range,
+								 ids, MAX_AGENTS);
+	
+	for (int i = 0; i < nids; ++i)
 	{
-		if (!m_agents[i].active) continue;
-		Agent* ag = &m_agents[i];
+		Agent* ag = &m_agents[ids[i]];
 
 		if (ag == skip) continue;
 		
@@ -811,6 +971,21 @@ void CrowdManager::update(const float dt, unsigned int flags, dtNavMeshQuery* na
 	static const float MAX_SPEED = 3.5f;
 
 	m_pathq.update(navquery);
+	
+
+	m_grid.clear();
+	for (int i = 0; i < nagents; ++i)
+	{
+		Agent* ag = agents[i];
+		const float* p = ag->mover.m_pos;
+		const float r = ag->mover.m_radius;
+		const float minx = p[0] - r;
+		const float miny = p[2] - r;
+		const float maxx = p[0] + r;
+		const float maxy = p[2] + r;
+		m_grid.addItem((unsigned short)i, minx, miny, maxx, maxy);
+	}
+
 	
 	// Update target and agent navigation state.
 	// TODO: add queue for path queries.

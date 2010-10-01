@@ -34,6 +34,50 @@
 	AGENT_TARGET_FAILED = 5,
 };*/
 
+class ProximityGrid
+{
+	int m_maxItems;
+	float m_cellSize;
+	float m_invCellSize;
+
+	struct Item
+	{
+		unsigned short id;
+		short x,y;
+		unsigned short next;
+	};
+	Item* m_pool;
+	int m_poolHead;
+	int m_poolSize;
+	
+	unsigned short* m_buckets;
+	int m_bucketsSize;
+	
+	int m_bounds[4];
+	
+public:
+	ProximityGrid();
+	~ProximityGrid();
+	
+	bool init(const int maxItems, const float cellSize);
+	
+	void clear();
+	
+	void addItem(const unsigned short id,
+				 const float minx, const float miny,
+				 const float maxx, const float maxy);
+	
+	int queryItems(const float minx, const float miny,
+				   const float maxx, const float maxy,
+				   unsigned short* ids, const int maxIds) const;
+	
+	int getItemCountAt(const int x, const int y) const;
+	const int* getBounds() const { return m_bounds; }
+	const float getCellSize() const { return m_cellSize; }
+};
+
+
+
 static const int AGENT_MAX_PATH = 256;
 static const int AGENT_MAX_CORNERS = 4;
 static const int AGENT_MAX_TRAIL = 64;
@@ -202,6 +246,7 @@ class CrowdManager
 	dtObstacleAvoidanceDebugData* m_vodebug[MAX_AGENTS];
 	dtObstacleAvoidanceQuery* m_obstacleQuery;
 	PathQueue m_pathq;
+	ProximityGrid m_grid;
 	
 	int m_totalTime;
 	int m_rvoTime;
@@ -229,6 +274,8 @@ public:
 	inline int getTotalTime() const { return m_totalTime; }
 	inline int getRVOTime() const { return m_rvoTime; }
 	inline int getSampleCount() const { return m_sampleCount; }
+	const ProximityGrid* getGrid() const { return &m_grid; }
+
 };
 
 

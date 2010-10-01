@@ -178,6 +178,8 @@
 				6B555DF5100B25FC00247EA3 /* Samples */,
 				6BB7FE8E10F4A175006DA0A6 /* Tools */,
 				6B25B6180FFA62BE004F1BC4 /* main.cpp */,
+				6BD667D8123D27EC0021A7A4 /* CrowdManager.h */,
+				6BD667D9123D28100021A7A4 /* CrowdManager.cpp */,
 				6BAF4440121C3D0A008CFCDF /* SampleInterfaces.h */,
 				6BAF4441121C3D26008CFCDF /* SampleInterfaces.cpp */,
 				6BF5F2C511747E9F000502A6 /* stb_image.h */,
@@ -204,8 +206,6 @@
 				6BD402001224279400995864 /* PerfTimer.cpp */,
 				6B847774122D220D00ADF63D /* ValueHistory.h */,
 				6B847776122D221C00ADF63D /* ValueHistory.cpp */,
-				6BD667D8123D27EC0021A7A4 /* CrowdManager.h */,
-				6BD667D9123D28100021A7A4 /* CrowdManager.cpp */,
 			);
 			name = Classes;
 			sourceTree = "<group>";

@@ -182,6 +182,7 @@ CrowdTool::CrowdTool() :
 	m_showPath(false),
 	m_showVO(false),
 	m_showOpt(false),
+	m_showGrid(false),
 	m_expandOptions(true),
 	m_anticipateTurns(true),
 	m_useVO(true),
@@ -262,8 +263,10 @@ void CrowdTool::handleMenu()
 			m_showPath = !m_showPath;
 		if (imguiCheck("Show VO", m_showVO))
 			m_showVO = !m_showVO;
-		if (imguiCheck("Show Opt", m_showOpt))
+		if (imguiCheck("Show Path Optimization", m_showOpt))
 			m_showOpt = !m_showOpt;
+		if (imguiCheck("Show Prox Grid", m_showGrid))
+			m_showGrid = !m_showGrid;
 		imguiUnindent();
 	}
 }
@@ -591,6 +594,40 @@ void CrowdTool::handleRender()
 		dd.depthMask(true);
 	}
 	
+	if (m_showGrid)
+	{
+		float gridy = -FLT_MAX;
+		for (int i = 0; i < m_crowd.getAgentCount(); ++i)
+		{
+			const Agent* ag = m_crowd.getAgent(i);
+			if (!ag->active) continue;
+			const float* pos = ag->mover.m_pos;
+			gridy = dtMax(gridy, pos[1]);
+		}
+		gridy += 1.0f;
+			
+		dd.depthMask(false);
+		dd.begin(DU_DRAW_QUADS);
+		const ProximityGrid* grid = m_crowd.getGrid();
+		const int* bounds = grid->getBounds();
+		const float cs = grid->getCellSize();
+		for (int y = bounds[1]; y <= bounds[3]; ++y)
+		{
+			for (int x = bounds[0]; x <= bounds[2]; ++x)
+			{
+				const int count = grid->getItemCountAt(x,y); 
+				if (!count) continue;
+				unsigned int col = duRGBA(128,0,0,dtMin(count*40,255));
+				dd.vertex(x*cs, gridy, y*cs, col);
+				dd.vertex(x*cs, gridy, y*cs+cs, col);
+				dd.vertex(x*cs+cs, gridy, y*cs+cs, col);
+				dd.vertex(x*cs+cs, gridy, y*cs, col);
+			}
+		}
+		dd.end();
+		dd.depthMask(true);
+	}
+
 	
 /*
 	for (int i = 0; i < m_form.npolys; ++i)

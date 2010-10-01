@@ -68,6 +68,7 @@ class CrowdTool : public SampleTool
 	bool m_showPath;
 	bool m_showVO;
 	bool m_showOpt;
+	bool m_showGrid;
 	
 	bool m_expandOptions;
 	bool m_anticipateTurns;
