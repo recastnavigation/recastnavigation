@@ -332,6 +332,18 @@
 			6BA8D0651256095800272A3B /* PBXTextBookmark */ = 6BA8D0651256095800272A3B /* PBXTextBookmark */;
 			6BA8D0661256095800272A3B /* PBXTextBookmark */ = 6BA8D0661256095800272A3B /* PBXTextBookmark */;
 			6BA8D06712560BD400272A3B /* PBXTextBookmark */ = 6BA8D06712560BD400272A3B /* PBXTextBookmark */;
+			6BA8D0961256101900272A3B /* PBXTextBookmark */ = 6BA8D0961256101900272A3B /* PBXTextBookmark */;
+			6BA8D0971256101900272A3B /* PBXTextBookmark */ = 6BA8D0971256101900272A3B /* PBXTextBookmark */;
+			6BA8D0981256101900272A3B /* PBXTextBookmark */ = 6BA8D0981256101900272A3B /* PBXTextBookmark */;
+			6BA8D0991256101900272A3B /* PBXTextBookmark */ = 6BA8D0991256101900272A3B /* PBXTextBookmark */;
+			6BA8D0E91256148D00272A3B /* PBXTextBookmark */ = 6BA8D0E91256148D00272A3B /* PBXTextBookmark */;
+			6BA8D0EA1256148D00272A3B /* PBXTextBookmark */ = 6BA8D0EA1256148D00272A3B /* PBXTextBookmark */;
+			6BA8D0EB1256148D00272A3B /* XCBuildMessageTextBookmark */ = 6BA8D0EB1256148D00272A3B /* XCBuildMessageTextBookmark */;
+			6BA8D0EC1256148D00272A3B /* PBXTextBookmark */ = 6BA8D0EC1256148D00272A3B /* PBXTextBookmark */;
+			6BA8D0F41256156500272A3B /* PBXTextBookmark */ = 6BA8D0F41256156500272A3B /* PBXTextBookmark */;
+			6BA8D0F51256156500272A3B /* PBXTextBookmark */ = 6BA8D0F51256156500272A3B /* PBXTextBookmark */;
+			6BA8D0F61256156500272A3B /* PBXTextBookmark */ = 6BA8D0F61256156500272A3B /* PBXTextBookmark */;
+			6BA8D0F81256159A00272A3B /* PBXTextBookmark */ = 6BA8D0F81256159A00272A3B /* PBXTextBookmark */;
 			6BAF3CB112116AD9008CFCDF = 6BAF3CB112116AD9008CFCDF /* PBXTextBookmark */;
 			6BAF3E781212869F008CFCDF = 6BAF3E781212869F008CFCDF /* PBXTextBookmark */;
 			6BAF404F12140B4E008CFCDF = 6BAF404F12140B4E008CFCDF /* PBXTextBookmark */;
@@ -1087,7 +1099,7 @@
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {1219, 8281}}";
 			sepNavSelRange = "{8071, 18}";
-			sepNavVisRange = "{7496, 687}";
+			sepNavVisRange = "{7496, 602}";
 		};
 	};
 	6BA1E88E10C7BFD3008007F6 /* Sample_SoloMeshSimple.h */ = {
@@ -1539,7 +1551,7 @@
 		fRef = 6BD667D8123D27EC0021A7A4 /* CrowdManager.h */;
 		name = "CrowdManager.h: 277";
 		rLen = 58;
-		rLoc = 7628;
+		rLoc = 6853;
 		rType = 0;
 		vrLen = 1139;
 		vrLoc = 5576;
@@ -1549,7 +1561,7 @@
 		fRef = 6BD667D8123D27EC0021A7A4 /* CrowdManager.h */;
 		name = "CrowdManager.h: 269";
 		rLen = 0;
-		rLoc = 7106;
+		rLoc = 6331;
 		rType = 0;
 		vrLen = 1139;
 		vrLoc = 5576;
@@ -1559,7 +1571,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 423";
 		rLen = 0;
-		rLoc = 7180;
+		rLoc = 7162;
 		rType = 0;
 		vrLen = 780;
 		vrLoc = 10192;
@@ -1579,7 +1591,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 979";
 		rLen = 0;
-		rLoc = 25058;
+		rLoc = 17799;
 		rType = 0;
 		vrLen = 824;
 		vrLoc = 22582;
@@ -1589,7 +1601,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 968";
 		rLen = 0;
-		rLoc = 24709;
+		rLoc = 17799;
 		rType = 0;
 		vrLen = 824;
 		vrLoc = 22582;
@@ -1599,7 +1611,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 423";
 		rLen = 0;
-		rLoc = 7180;
+		rLoc = 7162;
 		rType = 0;
 		vrLen = 780;
 		vrLoc = 10192;
@@ -1609,7 +1621,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 452";
 		rLen = 0;
-		rLoc = 8234;
+		rLoc = 7903;
 		rType = 0;
 		vrLen = 1074;
 		vrLoc = 10805;
@@ -1619,7 +1631,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 600";
 		rLen = 0;
-		rLoc = 12484;
+		rLoc = 7903;
 		rType = 0;
 		vrLen = 1070;
 		vrLoc = 15227;
@@ -1649,7 +1661,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 600";
 		rLen = 0;
-		rLoc = 12484;
+		rLoc = 7903;
 		rType = 0;
 		vrLen = 1070;
 		vrLoc = 15227;
@@ -1659,7 +1671,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 600";
 		rLen = 0;
-		rLoc = 12484;
+		rLoc = 7903;
 		rType = 0;
 		vrLen = 1144;
 		vrLoc = 15430;
@@ -1669,7 +1681,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 600";
 		rLen = 0;
-		rLoc = 12484;
+		rLoc = 7903;
 		rType = 0;
 		vrLen = 925;
 		vrLoc = 15545;
@@ -1680,7 +1692,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		fallbackIsa = XCBuildMessageTextBookmark;
 		rLen = 1;
-		rLoc = 1034;
+		rLoc = 1001;
 		rType = 1;
 	};
 	6BA8CF141255CC4F00272A3B /* PBXTextBookmark */ = {
@@ -1688,7 +1700,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 975";
 		rLen = 0;
-		rLoc = 24900;
+		rLoc = 17799;
 		rType = 0;
 		vrLen = 751;
 		vrLoc = 23005;
@@ -1698,7 +1710,7 @@
 		fRef = 6BD667D8123D27EC0021A7A4 /* CrowdManager.h */;
 		name = "CrowdManager.h: 262";
 		rLen = 0;
-		rLoc = 6801;
+		rLoc = 6026;
 		rType = 0;
 		vrLen = 1085;
 		vrLoc = 5630;
@@ -1708,7 +1720,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 922";
 		rLen = 0;
-		rLoc = 20236;
+		rLoc = 9313;
 		rType = 0;
 		vrLen = 792;
 		vrLoc = 21377;
@@ -1718,7 +1730,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 830";
 		rLen = 0;
-		rLoc = 17588;
+		rLoc = 9313;
 		rType = 0;
 		vrLen = 956;
 		vrLoc = 19472;
@@ -1728,7 +1740,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 830";
 		rLen = 0;
-		rLoc = 17587;
+		rLoc = 9313;
 		rType = 0;
 		vrLen = 1011;
 		vrLoc = 19505;
@@ -1755,7 +1767,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 602";
 		rLen = 0;
-		rLoc = 12484;
+		rLoc = 7903;
 		rType = 0;
 		vrLen = 860;
 		vrLoc = 15968;
@@ -1765,7 +1777,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 609";
 		rLen = 0;
-		rLoc = 12484;
+		rLoc = 7903;
 		rType = 0;
 		vrLen = 904;
 		vrLoc = 15968;
@@ -1785,7 +1797,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 831";
 		rLen = 0;
-		rLoc = 17609;
+		rLoc = 9313;
 		rType = 0;
 		vrLen = 863;
 		vrLoc = 19884;
@@ -1795,7 +1807,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 932";
 		rLen = 0;
-		rLoc = 20476;
+		rLoc = 9313;
 		rType = 0;
 		vrLen = 799;
 		vrLoc = 21977;
@@ -1805,7 +1817,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 929";
 		rLen = 0;
-		rLoc = 20388;
+		rLoc = 9313;
 		rType = 0;
 		vrLen = 817;
 		vrLoc = 21977;
@@ -1815,7 +1827,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 933";
 		rLen = 0;
-		rLoc = 20475;
+		rLoc = 9313;
 		rType = 0;
 		vrLen = 817;
 		vrLoc = 21977;
@@ -1835,7 +1847,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 188";
 		rLen = 0;
-		rLoc = 3102;
+		rLoc = 3092;
 		rType = 0;
 		vrLen = 708;
 		vrLoc = 4430;
@@ -1845,7 +1857,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 606";
 		rLen = 0;
-		rLoc = 12715;
+		rLoc = 12637;
 		rType = 0;
 		vrLen = 1178;
 		vrLoc = 15762;
@@ -1855,7 +1867,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 610";
 		rLen = 0;
-		rLoc = 12786;
+		rLoc = 12708;
 		rType = 0;
 		vrLen = 1016;
 		vrLoc = 16127;
@@ -1965,7 +1977,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 209";
 		rLen = 0;
-		rLoc = 3318;
+		rLoc = 3308;
 		rType = 0;
 		vrLen = 548;
 		vrLoc = 4926;
@@ -1975,7 +1987,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 211";
 		rLen = 0;
-		rLoc = 3413;
+		rLoc = 3403;
 		rType = 0;
 		vrLen = 498;
 		vrLoc = 5027;
@@ -1985,7 +1997,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 199";
 		rLen = 0;
-		rLoc = 3187;
+		rLoc = 3177;
 		rType = 0;
 		vrLen = 534;
 		vrLoc = 4964;
@@ -2284,7 +2296,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 231";
 		rLen = 0;
-		rLoc = 6084;
+		rLoc = 6066;
 		rType = 0;
 		vrLen = 726;
 		vrLoc = 5493;
@@ -2294,7 +2306,7 @@
 		fRef = 6BD667D8123D27EC0021A7A4 /* CrowdManager.h */;
 		name = "CrowdManager.h: 187";
 		rLen = 0;
-		rLoc = 4205;
+		rLoc = 3784;
 		rType = 0;
 		vrLen = 1091;
 		vrLoc = 3729;
@@ -2304,7 +2316,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 684";
 		rLen = 0;
-		rLoc = 14067;
+		rLoc = 9313;
 		rType = 0;
 		vrLen = 878;
 		vrLoc = 16627;
@@ -2314,7 +2326,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 1155";
 		rLen = 0;
-		rLoc = 29779;
+		rLoc = 17799;
 		rType = 0;
 		vrLen = 568;
 		vrLoc = 27543;
@@ -2324,7 +2336,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 1155";
 		rLen = 0;
-		rLoc = 29779;
+		rLoc = 17799;
 		rType = 0;
 		vrLen = 568;
 		vrLoc = 27543;
@@ -2343,7 +2355,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 228";
 		rLen = 0;
-		rLoc = 5918;
+		rLoc = 5900;
 		rType = 0;
 		vrLen = 671;
 		vrLoc = 5493;
@@ -2363,7 +2375,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 248";
 		rLen = 0;
-		rLoc = 6687;
+		rLoc = 6669;
 		rType = 0;
 		vrLen = 707;
 		vrLoc = 5887;
@@ -2373,7 +2385,7 @@
 		fRef = 6BD667D8123D27EC0021A7A4 /* CrowdManager.h */;
 		name = "CrowdManager.h: 176";
 		rLen = 0;
-		rLoc = 3955;
+		rLoc = 3519;
 		rType = 0;
 		vrLen = 1050;
 		vrLoc = 3785;
@@ -2383,7 +2395,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 500";
 		rLen = 0;
-		rLoc = 11742;
+		rLoc = 9313;
 		rType = 0;
 		vrLen = 633;
 		vrLoc = 11438;
@@ -2393,7 +2405,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 526";
 		rLen = 0;
-		rLoc = 11742;
+		rLoc = 9313;
 		rType = 0;
 		vrLen = 1039;
 		vrLoc = 11944;
@@ -2403,7 +2415,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 522";
 		rLen = 0;
-		rLoc = 11742;
+		rLoc = 9313;
 		rType = 0;
 		vrLen = 1039;
 		vrLoc = 11944;
@@ -2422,7 +2434,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 238";
 		rLen = 0;
-		rLoc = 6359;
+		rLoc = 6341;
 		rType = 0;
 		vrLen = 925;
 		vrLoc = 5539;
@@ -2432,7 +2444,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 234";
 		rLen = 0;
-		rLoc = 6223;
+		rLoc = 6205;
 		rType = 0;
 		vrLen = 877;
 		vrLoc = 5599;
@@ -2442,7 +2454,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 577";
 		rLen = 0;
-		rLoc = 15931;
+		rLoc = 15853;
 		rType = 0;
 		vrLen = 921;
 		vrLoc = 15284;
@@ -2452,7 +2464,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 577";
 		rLen = 0;
-		rLoc = 15931;
+		rLoc = 15853;
 		rType = 0;
 		vrLen = 921;
 		vrLoc = 15284;
@@ -2479,7 +2491,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 296";
 		rLen = 0;
-		rLoc = 7717;
+		rLoc = 7699;
 		rType = 0;
 		vrLen = 933;
 		vrLoc = 15263;
@@ -2489,7 +2501,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 296";
 		rLen = 0;
-		rLoc = 7717;
+		rLoc = 7699;
 		rType = 0;
 		vrLen = 933;
 		vrLoc = 15263;
@@ -2516,7 +2528,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 565";
 		rLen = 0;
-		rLoc = 11742;
+		rLoc = 9313;
 		rType = 0;
 		vrLen = 1059;
 		vrLoc = 13288;
@@ -2526,7 +2538,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 296";
 		rLen = 0;
-		rLoc = 7717;
+		rLoc = 7699;
 		rType = 0;
 		vrLen = 943;
 		vrLoc = 15257;
@@ -2536,7 +2548,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 240";
 		rLen = 0;
-		rLoc = 6460;
+		rLoc = 6442;
 		rType = 0;
 		vrLen = 965;
 		vrLoc = 5539;
@@ -2546,7 +2558,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 244";
 		rLen = 0;
-		rLoc = 6608;
+		rLoc = 6590;
 		rType = 0;
 		vrLen = 1349;
 		vrLoc = 0;
@@ -2556,7 +2568,7 @@
 		fRef = 6BD667D8123D27EC0021A7A4 /* CrowdManager.h */;
 		name = "CrowdManager.h: 252";
 		rLen = 0;
-		rLoc = 6478;
+		rLoc = 5703;
 		rType = 0;
 		vrLen = 852;
 		vrLoc = 5275;
@@ -2566,7 +2578,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 984";
 		rLen = 0;
-		rLoc = 24479;
+		rLoc = 17799;
 		rType = 0;
 		vrLen = 1052;
 		vrLoc = 22820;
@@ -2576,7 +2588,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 910";
 		rLen = 0;
-		rLoc = 19846;
+		rLoc = 9313;
 		rType = 0;
 		vrLen = 1028;
 		vrLoc = 21252;
@@ -2586,7 +2598,7 @@
 		fRef = 6BD667D8123D27EC0021A7A4 /* CrowdManager.h */;
 		name = "CrowdManager.h: 127";
 		rLen = 0;
-		rLoc = 3248;
+		rLoc = 3070;
 		rType = 0;
 		vrLen = 1078;
 		vrLoc = 2762;
@@ -2596,7 +2608,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 1063";
 		rLen = 0;
-		rLoc = 24369;
+		rLoc = 17799;
 		rType = 0;
 		vrLen = 1284;
 		vrLoc = 24931;
@@ -2606,7 +2618,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 1019";
 		rLen = 0;
-		rLoc = 22391;
+		rLoc = 17799;
 		rType = 0;
 		vrLen = 1300;
 		vrLoc = 25187;
@@ -2616,7 +2628,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 1067";
 		rLen = 0;
-		rLoc = 24117;
+		rLoc = 17799;
 		rType = 0;
 		vrLen = 1445;
 		vrLoc = 25078;
@@ -2626,7 +2638,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 1078";
 		rLen = 0;
-		rLoc = 24369;
+		rLoc = 17799;
 		rType = 0;
 		vrLen = 1676;
 		vrLoc = 23978;
@@ -2636,7 +2648,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 1082";
 		rLen = 0;
-		rLoc = 24275;
+		rLoc = 17799;
 		rType = 0;
 		vrLen = 1236;
 		vrLoc = 25555;
@@ -2646,7 +2658,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 778";
 		rLen = 0;
-		rLoc = 16588;
+		rLoc = 9313;
 		rType = 0;
 		vrLen = 1321;
 		vrLoc = 18562;
@@ -2656,7 +2668,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 790";
 		rLen = 0;
-		rLoc = 16795;
+		rLoc = 9313;
 		rType = 0;
 		vrLen = 1285;
 		vrLoc = 18598;
@@ -2666,7 +2678,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 1019";
 		rLen = 0;
-		rLoc = 22422;
+		rLoc = 17799;
 		rType = 0;
 		vrLen = 1503;
 		vrLoc = 23819;
@@ -2676,7 +2688,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 1030";
 		rLen = 0;
-		rLoc = 22801;
+		rLoc = 17799;
 		rType = 0;
 		vrLen = 1216;
 		vrLoc = 25484;
@@ -2686,7 +2698,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 1030";
 		rLen = 0;
-		rLoc = 22801;
+		rLoc = 17799;
 		rType = 0;
 		vrLen = 1064;
 		vrLoc = 26497;
@@ -2696,7 +2708,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 1056";
 		rLen = 0;
-		rLoc = 23525;
+		rLoc = 17799;
 		rType = 0;
 		vrLen = 1213;
 		vrLoc = 25484;
@@ -2705,8 +2717,8 @@
 		isa = PBXTextBookmark;
 		fRef = 6BD667D8123D27EC0021A7A4 /* CrowdManager.h */;
 		name = "CrowdManager.h: 178";
-		rLen = 121;
-		rLoc = 5560;
+		rLen = 0;
+		rLoc = 4697;
 		rType = 0;
 		vrLen = 1570;
 		vrLoc = 3390;
@@ -2716,7 +2728,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 1076";
 		rLen = 0;
-		rLoc = 24157;
+		rLoc = 17799;
 		rType = 0;
 		vrLen = 1237;
 		vrLoc = 25484;
@@ -2726,7 +2738,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 1051";
 		rLen = 0;
-		rLoc = 23430;
+		rLoc = 17799;
 		rType = 0;
 		vrLen = 1511;
 		vrLoc = 24944;
@@ -2736,7 +2748,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 781";
 		rLen = 0;
-		rLoc = 16663;
+		rLoc = 9313;
 		rType = 0;
 		vrLen = 1156;
 		vrLoc = 18440;
@@ -2746,7 +2758,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 481";
 		rLen = 0;
-		rLoc = 11569;
+		rLoc = 9313;
 		rType = 0;
 		vrLen = 1059;
 		vrLoc = 10860;
@@ -2756,7 +2768,7 @@
 		fRef = 6BD667D8123D27EC0021A7A4 /* CrowdManager.h */;
 		name = "CrowdManager.h: 168";
 		rLen = 0;
-		rLoc = 4225;
+		rLoc = 3804;
 		rType = 0;
 		vrLen = 1601;
 		vrLoc = 3424;
@@ -2766,7 +2778,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 1096";
 		rLen = 0;
-		rLoc = 27033;
+		rLoc = 17799;
 		rType = 0;
 		vrLen = 842;
 		vrLoc = 26395;
@@ -2785,7 +2797,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 371";
 		rLen = 0;
-		rLoc = 10180;
+		rLoc = 7903;
 		rType = 0;
 		vrLen = 1024;
 		vrLoc = 9531;
@@ -2794,8 +2806,8 @@
 		isa = PBXTextBookmark;
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 82";
-		rLen = 97;
-		rLoc = 2518;
+		rLen = 86;
+		rLoc = 2519;
 		rType = 0;
 		vrLen = 920;
 		vrLoc = 2019;
@@ -2805,7 +2817,7 @@
 		fRef = 6BD667D8123D27EC0021A7A4 /* CrowdManager.h */;
 		name = "CrowdManager.h: 176";
 		rLen = 0;
-		rLoc = 4985;
+		rLoc = 4697;
 		rType = 0;
 		vrLen = 1552;
 		vrLoc = 3781;
@@ -2814,8 +2826,8 @@
 		isa = PBXTextBookmark;
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 1134";
-		rLen = 34;
-		rLoc = 28327;
+		rLen = 0;
+		rLoc = 17799;
 		rType = 0;
 		vrLen = 963;
 		vrLoc = 27202;
@@ -2825,7 +2837,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 1165";
 		rLen = 0;
-		rLoc = 28689;
+		rLoc = 17799;
 		rType = 0;
 		vrLen = 810;
 		vrLoc = 28366;
@@ -2835,7 +2847,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 605";
 		rLen = 0;
-		rLoc = 16418;
+		rLoc = 16319;
 		rType = 0;
 		vrLen = 1016;
 		vrLoc = 15528;
@@ -2844,8 +2856,8 @@
 		isa = PBXTextBookmark;
 		fRef = 6BD667D8123D27EC0021A7A4 /* CrowdManager.h */;
 		name = "CrowdManager.h: 159";
-		rLen = 21;
-		rLoc = 3772;
+		rLen = 35;
+		rLoc = 3435;
 		rType = 0;
 		vrLen = 1484;
 		vrLoc = 3526;
@@ -2855,7 +2867,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 944";
 		rLen = 0;
-		rLoc = 22735;
+		rLoc = 17799;
 		rType = 0;
 		vrLen = 1157;
 		vrLoc = 22190;
@@ -2865,7 +2877,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 468";
 		rLen = 0;
-		rLoc = 11147;
+		rLoc = 9313;
 		rType = 0;
 		vrLen = 739;
 		vrLoc = 10682;
@@ -2875,7 +2887,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 1016";
 		rLen = 0;
-		rLoc = 24456;
+		rLoc = 17799;
 		rType = 0;
 		vrLen = 1017;
 		vrLoc = 23710;
@@ -2885,7 +2897,7 @@
 		fRef = 6BD667D8123D27EC0021A7A4 /* CrowdManager.h */;
 		name = "CrowdManager.h: 234";
 		rLen = 0;
-		rLoc = 6329;
+		rLoc = 5554;
 		rType = 0;
 		vrLen = 840;
 		vrLoc = 5797;
@@ -2895,7 +2907,7 @@
 		fRef = 6BD667D8123D27EC0021A7A4 /* CrowdManager.h */;
 		name = "CrowdManager.h: 126";
 		rLen = 0;
-		rLoc = 3248;
+		rLoc = 3070;
 		rType = 0;
 		vrLen = 1118;
 		vrLoc = 2762;
@@ -2905,10 +2917,129 @@
 		fRef = 6BD667D8123D27EC0021A7A4 /* CrowdManager.h */;
 		name = "CrowdManager.h: 151";
 		rLen = 0;
-		rLoc = 3761;
+		rLoc = 3424;
 		rType = 0;
 		vrLen = 1310;
 		vrLoc = 3068;
+	};
+	6BA8D0961256101900272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
+		name = "CrowdTool.cpp: 574";
+		rLen = 0;
+		rLoc = 15447;
+		rType = 0;
+		vrLen = 918;
+		vrLoc = 15388;
+	};
+	6BA8D0971256101900272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D8123D27EC0021A7A4 /* CrowdManager.h */;
+		name = "CrowdManager.h: 176";
+		rLen = 0;
+		rLoc = 4697;
+		rType = 0;
+		vrLen = 1776;
+		vrLoc = 3854;
+	};
+	6BA8D0981256101900272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		name = "CrowdManager.cpp: 1242";
+		rLen = 0;
+		rLoc = 29106;
+		rType = 0;
+		vrLen = 909;
+		vrLoc = 29200;
+	};
+	6BA8D0991256101900272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		name = "CrowdManager.cpp: 723";
+		rLen = 0;
+		rLoc = 9313;
+		rType = 0;
+		vrLen = 710;
+		vrLoc = 16470;
+	};
+	6BA8D0E91256148D00272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D8123D27EC0021A7A4 /* CrowdManager.h */;
+		name = "CrowdManager.h: 177";
+		rLen = 8;
+		rLoc = 4756;
+		rType = 0;
+		vrLen = 1141;
+		vrLoc = 3962;
+	};
+	6BA8D0EA1256148D00272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
+		name = "CrowdTool.cpp: 364";
+		rLen = 0;
+		rLoc = 9360;
+		rType = 0;
+		vrLen = 1047;
+		vrLoc = 8959;
+	};
+	6BA8D0EB1256148D00272A3B /* XCBuildMessageTextBookmark */ = {
+		isa = PBXTextBookmark;
+		comments = "'ncor' was not declared in this scope";
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		fallbackIsa = XCBuildMessageTextBookmark;
+		rLen = 1;
+		rLoc = 950;
+		rType = 1;
+	};
+	6BA8D0EC1256148D00272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		name = "CrowdManager.cpp: 965";
+		rLen = 0;
+		rLoc = 22907;
+		rType = 0;
+		vrLen = 873;
+		vrLoc = 23013;
+	};
+	6BA8D0F41256156500272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D8123D27EC0021A7A4 /* CrowdManager.h */;
+		name = "CrowdManager.h: 152";
+		rLen = 0;
+		rLoc = 4021;
+		rType = 0;
+		vrLen = 1414;
+		vrLoc = 3408;
+	};
+	6BA8D0F51256156500272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		name = "CrowdManager.cpp: 1102";
+		rLen = 0;
+		rLoc = 26923;
+		rType = 0;
+		vrLen = 1201;
+		vrLoc = 26058;
+	};
+	6BA8D0F61256156500272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		name = "CrowdManager.cpp: 1094";
+		rLen = 0;
+		rLoc = 26664;
+		rType = 0;
+		vrLen = 1193;
+		vrLoc = 26058;
+	};
+	6BA8D0F81256159A00272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		name = "CrowdManager.cpp: 1096";
+		rLen = 0;
+		rLoc = 26764;
+		rType = 0;
+		vrLen = 1206;
+		vrLoc = 26058;
 	};
 	6BAF3C571211663A008CFCDF /* CrowdTool.h */ = {
 		uiCtxt = {
@@ -2919,9 +3050,9 @@
 	};
 	6BAF3C581211663A008CFCDF /* CrowdTool.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {931, 8125}}";
-			sepNavSelRange = "{16418, 0}";
-			sepNavVisRange = "{15528, 1016}";
+			sepNavIntBoundsRect = "{{0, 0}, {931, 8021}}";
+			sepNavSelRange = "{9360, 0}";
+			sepNavVisRange = "{8959, 1047}";
 			sepNavWindowFrame = "{{15, 51}, {1214, 722}}";
 		};
 	};
@@ -3160,7 +3291,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 381";
 		rLen = 0;
-		rLoc = 6181;
+		rLoc = 6163;
 		rType = 0;
 		vrLen = 616;
 		vrLoc = 9608;
@@ -3460,16 +3591,16 @@
 	};
 	6BD667D8123D27EC0021A7A4 /* CrowdManager.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {931, 3744}}";
-			sepNavSelRange = "{3761, 0}";
-			sepNavVisRange = "{3068, 1310}";
+			sepNavIntBoundsRect = "{{0, 0}, {1041, 3458}}";
+			sepNavSelRange = "{4021, 0}";
+			sepNavVisRange = "{3408, 1414}";
 		};
 	};
 	6BD667D9123D28100021A7A4 /* CrowdManager.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {931, 16185}}";
-			sepNavSelRange = "{24456, 0}";
-			sepNavVisRange = "{23710, 1017}";
+			sepNavIntBoundsRect = "{{0, 0}, {931, 15782}}";
+			sepNavSelRange = "{26764, 0}";
+			sepNavVisRange = "{26058, 1206}";
 		};
 	};
 	6BD667FF123D2D230021A7A4 /* PBXTextBookmark */ = {

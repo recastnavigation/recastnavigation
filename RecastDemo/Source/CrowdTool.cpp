@@ -77,11 +77,11 @@ static bool isectSegAABB(const float* sp, const float* sq,
 	return true;
 }
 
-static void getMoverBounds(const Mover* m, float* bmin, float* bmax)
+static void getAgentBounds(const Agent* ag, float* bmin, float* bmax)
 {
-	const float* p = m->getPos();
-	const float r = m->getRadius();
-	const float h = m->getHeight();
+	const float* p = ag->npos;
+	const float r = ag->radius;
+	const float h = ag->height;
 	bmin[0] = p[0] - r;
 	bmin[1] = p[1];
 	bmin[2] = p[2] - r;
@@ -218,7 +218,7 @@ void CrowdTool::handleClick(const float* s, const float* p, bool shift)
 				const Agent* ag = m_crowd.getAgent(i);
 				if (!ag->active) continue;
 				float bmin[3], bmax[3];
-				getMoverBounds(&ag->mover, bmin, bmax);
+				getAgentBounds(ag, bmin, bmax);
 				float tmin, tmax;
 				if (isectSegAABB(s, p, bmin,bmax, tmin, tmax))
 				{
@@ -308,21 +308,21 @@ void CrowdTool::handleRender()
 		const Agent* ag = m_crowd.getAgent(i);
 		if (!ag->active) continue;
 
-		const float height = ag->mover.getHeight();
-		const float radius = ag->mover.getRadius();
-		const float* pos = ag->mover.getPos();
-		const float* target = ag->mover.getCorridorTarget();
-		const float* vel = ag->mover.getVelocity();
-		const float* dvel = ag->mover.getDesiredVelocity();
+		const float height = ag->height;
+		const float radius = ag->radius;
+		const float* pos = ag->npos;
+		const float* target = ag->corridor.getTarget();
+		const float* vel = ag->vel;
+		const float* dvel = ag->dvel;
 		
 		dd.depthMask(false);
 		
 		if (m_showPath)
 		{
-			const dtPolyRef* cor = ag->mover.getCorridor();
-			const int ncor = ag->mover.getCorridorCount();			
-			for (int i = 0; i < ncor; ++i)
-				duDebugDrawNavMeshPoly(&dd, *nmesh, cor[i], duRGBA(0,0,0,64));
+			const dtPolyRef* path = ag->corridor.getPath();
+			const int npath = ag->corridor.getPathCount();			
+			for (int i = 0; i < npath; ++i)
+				duDebugDrawNavMeshPoly(&dd, *nmesh, path[i], duRGBA(0,0,0,64));
 		}
 		
 		dd.begin(DU_DRAW_LINES,3.0f);
@@ -348,13 +348,13 @@ void CrowdTool::handleRender()
 
 		if (m_showCorners)
 		{
-			if (ag->mover.getCornerCount())
+			if (ag->corridor.getCornerCount())
 			{
 				dd.begin(DU_DRAW_LINES, 2.0f);
-				for (int j = 0; j < ag->mover.getCornerCount(); ++j)
+				for (int j = 0; j < ag->corridor.getCornerCount(); ++j)
 				{
-					const float* va = j == 0 ? pos : ag->mover.getCornerPos(j-1);
-					const float* vb = ag->mover.getCornerPos(j);
+					const float* va = j == 0 ? pos : ag->corridor.getCornerPos(j-1);
+					const float* vb = ag->corridor.getCornerPos(j);
 					dd.vertex(va[0],va[1]+radius,va[2], duRGBA(128,0,0,64));
 					dd.vertex(vb[0],vb[1]+radius,vb[2], duRGBA(128,0,0,64));
 				}
@@ -387,15 +387,15 @@ void CrowdTool::handleRender()
 		
 		if (m_showCollisionSegments)
 		{
-			const float* center = ag->mover.getLocalCenter();
+			const float* center = ag->corridor.getLocalCenter();
 			duDebugDrawCross(&dd, center[0],center[1]+radius,center[2], 0.2f, duRGBA(192,0,128,255), 2.0f);
-			duDebugDrawCircle(&dd, center[0],center[1]+radius,center[2], ag->mover.getCollisionQueryRange(),
+			duDebugDrawCircle(&dd, center[0],center[1]+radius,center[2], ag->collisionQueryRange,
 							  duRGBA(192,0,128,128), 2.0f);
 
 			dd.begin(DU_DRAW_LINES, 3.0f);
-			for (int j = 0; j < ag->mover.getLocalSegmentCount(); ++j)
+			for (int j = 0; j < ag->corridor.getLocalSegmentCount(); ++j)
 			{
-				const float* s = ag->mover.getLocalSegment(j);
+				const float* s = ag->corridor.getLocalSegment(j);
 				unsigned int col = duRGBA(192,0,128,192);
 				if (dtTriArea2D(pos, s, s+3) < 0.0f)
 					col = duDarkenCol(col);
@@ -462,7 +462,7 @@ void CrowdTool::handleRender()
 		{
 			const Agent* ag = m_crowd.getAgent(i);
 			if (!ag->active) continue;
-			const float* pos = ag->mover.getPos();
+			const float* pos = ag->corridor.getPos();
 			gridy = dtMax(gridy, pos[1]);
 		}
 		gridy += 1.0f;
@@ -593,8 +593,8 @@ void CrowdTool::handleRenderOverlay(double* proj, double* model, int* view)
 		{
 			const Agent* ag = m_crowd.getAgent(i);
 			if (!ag->active) continue;
-			const float* pos = ag->mover.getPos();
-			const float h = ag->mover.getHeight();
+			const float* pos = ag->npos;
+			const float h = ag->height;
 			if (gluProject((GLdouble)pos[0], (GLdouble)pos[1]+h, (GLdouble)pos[2],
 						   model, proj, view, &x, &y, &z))
 			{

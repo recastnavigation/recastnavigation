@@ -119,24 +119,11 @@ public:
 	int getPathResult(PathQueueRef ref, dtPolyRef* path, const int maxPath);
 };
 
-// TODO: Remove dynamics stuff from mover (velocity, new pos).
-// Mover should just store current location, target location and
-// path corridor, corners and collision segments.
 
-class Mover
+class PathCorridor
 {
 	float m_pos[3];
 	float m_target[3];
-	float m_radius, m_height;
-	
-	float m_dvel[3];
-	float m_nvel[3];
-	float m_vel[3];
-	
-	float m_npos[3];
-	
-	float m_pathOptimizationRange;
-	float m_collisionQueryRange;
 
 	float m_localCenter[3];
 	float m_localSegs[AGENT_MAX_LOCALSEGS*6];
@@ -151,58 +138,57 @@ class Mover
 	int m_ncorners;
 	
 public:
-	Mover();
-	~Mover();
+	PathCorridor();
+	~PathCorridor();
 	
-	void init(dtPolyRef ref, const float* pos, const float radius, const float height,
-			  const float collisionQueryRange, const float pathOptimizationRange);
+	void init(dtPolyRef ref, const float* pos);
 	
-	void updateLocalNeighbourhood(dtNavMeshQuery* navquery, const dtQueryFilter* filter);
-	void updateCorners(dtNavMeshQuery* navquery, const dtQueryFilter* filter, float* opts = 0, float* opte = 0);
-	void integrate(const float maxAcc, const float dt);
-	void updatePosition(dtNavMeshQuery* navquery, const dtQueryFilter* filter);
+	void updateLocalNeighbourhood(const float collisionQueryRange, dtNavMeshQuery* navquery, const dtQueryFilter* filter);
+	void updateCorners(const float pathOptimizationRange, dtNavMeshQuery* navquery, const dtQueryFilter* filter, float* opts = 0, float* opte = 0);
+	void updatePosition(const float* npos, dtNavMeshQuery* navquery, const dtQueryFilter* filter);
 	float getDistanceToGoal(const float range) const;
-	void calcSmoothSteerDirection(float* dvel);
-	void calcStraightSteerDirection(float* dvel);
-	void appendLocalCollisionSegments(dtObstacleAvoidanceQuery* obstacleQuery);
+	void calcSmoothSteerDirection(float* dir);
+	void calcStraightSteerDirection(float* dir);
 
-	void setDesiredVelocity(const float* dvel);
-	void setNewVelocity(const float* nvel);
-	void setNewPos(const float* npos);
+	void setCorridor(const float* target, const dtPolyRef* polys, const int npolys);
 
+	inline const float* getPos() const { return m_pos; }	
+	inline const float* getTarget() const { return m_target; }
+	
+	inline const dtPolyRef* getPath() const { return m_path; }
+	inline int getPathCount() const { return m_npath; } 	
+	
 	inline int getCornerCount() const { return m_ncorners; }
 	inline const float* getCornerPos(int i) const { return &m_cornerVerts[i*3]; }
 	
 	inline const float* getLocalCenter() const { return m_localCenter; }
 	inline int getLocalSegmentCount() const { return m_localSegCount; }
 	inline const float* getLocalSegment(int i) const { return &m_localSegs[i*6]; }
-	
-	inline const float* getPos() const { return m_pos; }
-	inline const float* getNewPos() const { return m_npos; }
-	inline const float* getVelocity() const { return m_vel; }
-	inline const float* getDesiredVelocity() const { return m_dvel; }
-	inline float getRadius() const { return m_radius; }
-	inline float getHeight() const { return m_height; }
-	inline float getCollisionQueryRange() const { return m_collisionQueryRange; }
-	
-	inline void setCorridor(const float* target, const dtPolyRef* path, int npath);
-	inline const float* getCorridorTarget() const { return m_target; }
-	inline const dtPolyRef* getCorridor() const { return m_path; }
-	inline int getCorridorCount() const { return m_npath; } 	
 };
+
 
 struct Agent
 {
 	unsigned char active;
 	
-	Mover mover;
+	PathCorridor corridor;
 	
+	void integrate(const float maxAcc, const float dt);
+
 	float maxspeed;
 	float t;
 	float var;
 	
-	float opts[3], opte[3];
+	float radius, height;
+	float npos[3];
 	float disp[3];
+	float dvel[3];
+	float nvel[3];
+	float vel[3];
+	float collisionQueryRange;
+	float pathOptimizationRange;
+	
+	float opts[3], opte[3];
 	
 	float trail[AGENT_MAX_TRAIL*3];
 	int htrail;
