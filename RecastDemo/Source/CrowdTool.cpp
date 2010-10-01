@@ -173,6 +173,7 @@ static void createFormation(Formation* form, const dtNavMesh* navmesh)
 
 CrowdTool::CrowdTool() :
 	m_sample(0),
+	m_oldFlags(0),
 	m_targetPosSet(0),
 	m_expandDebugDraw(false),
 	m_showLabels(true),
@@ -195,11 +196,20 @@ CrowdTool::CrowdTool() :
 
 CrowdTool::~CrowdTool()
 {
+	if (m_sample)
+	{
+		m_sample->setNavMeshDrawFlags(m_oldFlags);
+	}
 }
 
 void CrowdTool::init(Sample* sample)
 {
 	m_sample = sample;
+	if (m_sample)
+	{
+		m_oldFlags = m_sample->getNavMeshDrawFlags();
+		m_sample->setNavMeshDrawFlags(m_oldFlags & ~DU_DRAWNAVMESH_CLOSEDLIST);
+	}
 }
 
 void CrowdTool::reset()

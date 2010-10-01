@@ -55,6 +55,8 @@ struct Formation
 class CrowdTool : public SampleTool
 {
 	Sample* m_sample;
+	unsigned char m_oldFlags;
+	
 	float m_targetPos[3];
 	bool m_targetPosSet;
 	

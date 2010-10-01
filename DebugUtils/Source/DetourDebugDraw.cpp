@@ -248,12 +248,14 @@ void duDebugDrawNavMesh(duDebugDraw* dd, const dtNavMesh& mesh, unsigned char fl
 void duDebugDrawNavMeshWithClosedList(struct duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMeshQuery& query, unsigned char flags)
 {
 	if (!dd) return;
+
+	const dtNavMeshQuery* q = (flags & DU_DRAWNAVMESH_CLOSEDLIST) ? &query : 0;
 	
 	for (int i = 0; i < mesh.getMaxTiles(); ++i)
 	{
 		const dtMeshTile* tile = mesh.getTile(i);
 		if (!tile->header) continue;
-		drawMeshTile(dd, mesh, &query, tile, flags);
+		drawMeshTile(dd, mesh, q, tile, flags);
 	}
 }
 
