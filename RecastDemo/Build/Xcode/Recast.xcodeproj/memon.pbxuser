@@ -24,9 +24,6 @@
 			6B920A121225B1C900D5B5AD /* DetourHashLookup.cpp:78 */,
 			6B920A141225B1CF00D5B5AD /* DetourHashLookup.cpp:131 */,
 			6BD66851124350F50021A7A4 /* NavMeshTesterTool.cpp:480 */,
-			6BBB03061247344B00533229 /* CrowdManager.cpp:592 */,
-			6BBB03361247383D00533229 /* CrowdManager.cpp:217 */,
-			6BA8CF5E1255D4AC00272A3B /* DetourDebugDraw.cpp:252 */,
 			6BA8CF601255D4C500272A3B /* Sample.cpp:45 */,
 		);
 		codeSenseManager = 6B8632AA0F78115100E2684A /* Code sense */;
@@ -268,6 +265,73 @@
 			6BA8CF7C1255D5FE00272A3B /* PBXTextBookmark */ = 6BA8CF7C1255D5FE00272A3B /* PBXTextBookmark */;
 			6BA8CF7D1255D5FE00272A3B /* PBXTextBookmark */ = 6BA8CF7D1255D5FE00272A3B /* PBXTextBookmark */;
 			6BA8CF7E1255D5FE00272A3B /* PBXTextBookmark */ = 6BA8CF7E1255D5FE00272A3B /* PBXTextBookmark */;
+			6BA8CF941255D97400272A3B /* PBXTextBookmark */ = 6BA8CF941255D97400272A3B /* PBXTextBookmark */;
+			6BA8CF951255D97400272A3B /* PBXTextBookmark */ = 6BA8CF951255D97400272A3B /* PBXTextBookmark */;
+			6BA8CF961255D97400272A3B /* PBXTextBookmark */ = 6BA8CF961255D97400272A3B /* PBXTextBookmark */;
+			6BA8CF971255D97400272A3B /* PBXTextBookmark */ = 6BA8CF971255D97400272A3B /* PBXTextBookmark */;
+			6BA8CF981255D97400272A3B /* PBXTextBookmark */ = 6BA8CF981255D97400272A3B /* PBXTextBookmark */;
+			6BA8CF991255D97400272A3B /* PBXTextBookmark */ = 6BA8CF991255D97400272A3B /* PBXTextBookmark */;
+			6BA8CF9A1255D97400272A3B /* PBXTextBookmark */ = 6BA8CF9A1255D97400272A3B /* PBXTextBookmark */;
+			6BA8CF9F1255D9F900272A3B /* PBXTextBookmark */ = 6BA8CF9F1255D9F900272A3B /* PBXTextBookmark */;
+			6BA8CFA01255D9F900272A3B /* XCBuildMessageTextBookmark */ = 6BA8CFA01255D9F900272A3B /* XCBuildMessageTextBookmark */;
+			6BA8CFA11255D9F900272A3B /* PBXTextBookmark */ = 6BA8CFA11255D9F900272A3B /* PBXTextBookmark */;
+			6BA8CFA81255DC6500272A3B /* PBXTextBookmark */ = 6BA8CFA81255DC6500272A3B /* PBXTextBookmark */;
+			6BA8CFA91255DC6500272A3B /* PBXTextBookmark */ = 6BA8CFA91255DC6500272A3B /* PBXTextBookmark */;
+			6BA8CFAA1255DC6500272A3B /* PBXTextBookmark */ = 6BA8CFAA1255DC6500272A3B /* PBXTextBookmark */;
+			6BA8CFAB1255DC6500272A3B /* PBXTextBookmark */ = 6BA8CFAB1255DC6500272A3B /* PBXTextBookmark */;
+			6BA8CFAC1255DC6500272A3B /* PBXTextBookmark */ = 6BA8CFAC1255DC6500272A3B /* PBXTextBookmark */;
+			6BA8CFB11255DD7C00272A3B /* PBXTextBookmark */ = 6BA8CFB11255DD7C00272A3B /* PBXTextBookmark */;
+			6BA8CFB21255DD7C00272A3B /* XCBuildMessageTextBookmark */ = 6BA8CFB21255DD7C00272A3B /* XCBuildMessageTextBookmark */;
+			6BA8CFB31255DD7C00272A3B /* PBXTextBookmark */ = 6BA8CFB31255DD7C00272A3B /* PBXTextBookmark */;
+			6BA8CFB81255DD8900272A3B /* PBXTextBookmark */ = 6BA8CFB81255DD8900272A3B /* PBXTextBookmark */;
+			6BA8CFBC1255DDC100272A3B /* PBXTextBookmark */ = 6BA8CFBC1255DDC100272A3B /* PBXTextBookmark */;
+			6BA8CFBD1255DDC100272A3B /* PBXTextBookmark */ = 6BA8CFBD1255DDC100272A3B /* PBXTextBookmark */;
+			6BA8CFBE1255DE0500272A3B /* PBXTextBookmark */ = 6BA8CFBE1255DE0500272A3B /* PBXTextBookmark */;
+			6BA8CFBF1255DE0500272A3B /* PBXTextBookmark */ = 6BA8CFBF1255DE0500272A3B /* PBXTextBookmark */;
+			6BA8CFC01255DE0500272A3B /* PBXTextBookmark */ = 6BA8CFC01255DE0500272A3B /* PBXTextBookmark */;
+			6BA8CFC11255DE1300272A3B /* PBXTextBookmark */ = 6BA8CFC11255DE1300272A3B /* PBXTextBookmark */;
+			6BA8CFC21255DE1300272A3B /* PBXTextBookmark */ = 6BA8CFC21255DE1300272A3B /* PBXTextBookmark */;
+			6BA8CFC31255DE1300272A3B /* PBXTextBookmark */ = 6BA8CFC31255DE1300272A3B /* PBXTextBookmark */;
+			6BA8CFC61255DE4C00272A3B /* PBXTextBookmark */ = 6BA8CFC61255DE4C00272A3B /* PBXTextBookmark */;
+			6BA8CFC71255DE4C00272A3B /* PBXTextBookmark */ = 6BA8CFC71255DE4C00272A3B /* PBXTextBookmark */;
+			6BA8CFC81255DE4C00272A3B /* PBXTextBookmark */ = 6BA8CFC81255DE4C00272A3B /* PBXTextBookmark */;
+			6BA8CFD61255E57A00272A3B /* PBXTextBookmark */ = 6BA8CFD61255E57A00272A3B /* PBXTextBookmark */;
+			6BA8CFD71255E57A00272A3B /* PBXTextBookmark */ = 6BA8CFD71255E57A00272A3B /* PBXTextBookmark */;
+			6BA8CFD81255E57A00272A3B /* PBXTextBookmark */ = 6BA8CFD81255E57A00272A3B /* PBXTextBookmark */;
+			6BA8CFD91255E57A00272A3B /* PBXTextBookmark */ = 6BA8CFD91255E57A00272A3B /* PBXTextBookmark */;
+			6BA8CFDA1255EB4E00272A3B /* PBXTextBookmark */ = 6BA8CFDA1255EB4E00272A3B /* PBXTextBookmark */;
+			6BA8CFDB1255EB4E00272A3B /* PBXTextBookmark */ = 6BA8CFDB1255EB4E00272A3B /* PBXTextBookmark */;
+			6BA8CFDC1255EB4E00272A3B /* PBXTextBookmark */ = 6BA8CFDC1255EB4E00272A3B /* PBXTextBookmark */;
+			6BA8CFDD1255F2B000272A3B /* PBXTextBookmark */ = 6BA8CFDD1255F2B000272A3B /* PBXTextBookmark */;
+			6BA8CFE61255F61B00272A3B /* PBXTextBookmark */ = 6BA8CFE61255F61B00272A3B /* PBXTextBookmark */;
+			6BA8CFE71255F61B00272A3B /* PBXTextBookmark */ = 6BA8CFE71255F61B00272A3B /* PBXTextBookmark */;
+			6BA8CFEE1255F6C400272A3B /* PBXTextBookmark */ = 6BA8CFEE1255F6C400272A3B /* PBXTextBookmark */;
+			6BA8CFF11255F6F200272A3B /* PBXTextBookmark */ = 6BA8CFF11255F6F200272A3B /* PBXTextBookmark */;
+			6BA8CFF31255F71600272A3B /* PBXTextBookmark */ = 6BA8CFF31255F71600272A3B /* PBXTextBookmark */;
+			6BA8CFF81255F77A00272A3B /* PBXTextBookmark */ = 6BA8CFF81255F77A00272A3B /* PBXTextBookmark */;
+			6BA8CFF91255F77A00272A3B /* PBXTextBookmark */ = 6BA8CFF91255F77A00272A3B /* PBXTextBookmark */;
+			6BA8CFFA1255F7EB00272A3B /* PBXTextBookmark */ = 6BA8CFFA1255F7EB00272A3B /* PBXTextBookmark */;
+			6BA8CFFD1255F8A600272A3B /* PBXTextBookmark */ = 6BA8CFFD1255F8A600272A3B /* PBXTextBookmark */;
+			6BA8CFFE1255F8A600272A3B /* PBXTextBookmark */ = 6BA8CFFE1255F8A600272A3B /* PBXTextBookmark */;
+			6BA8CFFF1255F8A600272A3B /* PBXTextBookmark */ = 6BA8CFFF1255F8A600272A3B /* PBXTextBookmark */;
+			6BA8D0021255F9C600272A3B /* PBXTextBookmark */ = 6BA8D0021255F9C600272A3B /* PBXTextBookmark */;
+			6BA8D0031255FA9400272A3B /* PBXTextBookmark */ = 6BA8D0031255FA9400272A3B /* PBXTextBookmark */;
+			6BA8D0101255FBC800272A3B /* PBXTextBookmark */ = 6BA8D0101255FBC800272A3B /* PBXTextBookmark */;
+			6BA8D0111255FBC800272A3B /* PBXTextBookmark */ = 6BA8D0111255FBC800272A3B /* PBXTextBookmark */;
+			6BA8D0121255FBC800272A3B /* XCBuildMessageTextBookmark */ = 6BA8D0121255FBC800272A3B /* XCBuildMessageTextBookmark */;
+			6BA8D0131255FBC800272A3B /* PBXTextBookmark */ = 6BA8D0131255FBC800272A3B /* PBXTextBookmark */;
+			6BA8D02F1255FF4600272A3B /* PBXTextBookmark */ = 6BA8D02F1255FF4600272A3B /* PBXTextBookmark */;
+			6BA8D0301255FF4600272A3B /* PBXTextBookmark */ = 6BA8D0301255FF4600272A3B /* PBXTextBookmark */;
+			6BA8D0311255FF4600272A3B /* PBXTextBookmark */ = 6BA8D0311255FF4600272A3B /* PBXTextBookmark */;
+			6BA8D0321255FF4600272A3B /* PBXTextBookmark */ = 6BA8D0321255FF4600272A3B /* PBXTextBookmark */;
+			6BA8D05D1256059E00272A3B /* PBXTextBookmark */ = 6BA8D05D1256059E00272A3B /* PBXTextBookmark */;
+			6BA8D05E1256059E00272A3B /* PBXTextBookmark */ = 6BA8D05E1256059E00272A3B /* PBXTextBookmark */;
+			6BA8D05F1256059E00272A3B /* PBXTextBookmark */ = 6BA8D05F1256059E00272A3B /* PBXTextBookmark */;
+			6BA8D0601256059E00272A3B /* PBXTextBookmark */ = 6BA8D0601256059E00272A3B /* PBXTextBookmark */;
+			6BA8D0641256095800272A3B /* PBXTextBookmark */ = 6BA8D0641256095800272A3B /* PBXTextBookmark */;
+			6BA8D0651256095800272A3B /* PBXTextBookmark */ = 6BA8D0651256095800272A3B /* PBXTextBookmark */;
+			6BA8D0661256095800272A3B /* PBXTextBookmark */ = 6BA8D0661256095800272A3B /* PBXTextBookmark */;
+			6BA8D06712560BD400272A3B /* PBXTextBookmark */ = 6BA8D06712560BD400272A3B /* PBXTextBookmark */;
 			6BAF3CB112116AD9008CFCDF = 6BAF3CB112116AD9008CFCDF /* PBXTextBookmark */;
 			6BAF3E781212869F008CFCDF = 6BAF3E781212869F008CFCDF /* PBXTextBookmark */;
 			6BAF404F12140B4E008CFCDF = 6BAF404F12140B4E008CFCDF /* PBXTextBookmark */;
@@ -351,9 +415,9 @@
 		ignoreCount = 0;
 		lineNumber = 1324;
 		location = Recast;
-		modificationTime = 307615228.447264;
+		modificationTime = 307623700.115019;
 		originalNumberOfMultipleMatches = 1;
-		state = 1;
+		state = 0;
 	};
 	6B1185F41006895B0018F96F /* DetourNode.cpp */ = {
 		uiCtxt = {
@@ -584,7 +648,7 @@
 		ignoreCount = 0;
 		lineNumber = 362;
 		location = Recast;
-		modificationTime = 307614937.160346;
+		modificationTime = 307623703.350588;
 		originalNumberOfMultipleMatches = 1;
 		state = 1;
 	};
@@ -871,7 +935,7 @@
 		ignoreCount = 0;
 		lineNumber = 78;
 		location = Recast;
-		modificationTime = 307614936.228447;
+		modificationTime = 307623700.11648;
 		originalNumberOfMultipleMatches = 0;
 		state = 2;
 	};
@@ -888,9 +952,9 @@
 		hitCount = 0;
 		ignoreCount = 0;
 		lineNumber = 131;
-		modificationTime = 307615228.447562;
+		modificationTime = 307623700.116675;
 		originalNumberOfMultipleMatches = 1;
-		state = 1;
+		state = 0;
 	};
 	6B920A521225C0AC00D5B5AD /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
@@ -1084,7 +1148,7 @@
 		ignoreCount = 0;
 		lineNumber = 137;
 		location = Recast;
-		modificationTime = 307614937.177776;
+		modificationTime = 307623703.369916;
 		originalNumberOfMultipleMatches = 1;
 		state = 1;
 	};
@@ -1173,7 +1237,7 @@
 		fRef = 6BD667D8123D27EC0021A7A4 /* CrowdManager.h */;
 		name = "CrowdManager.h: 71";
 		rLen = 0;
-		rLoc = 2097;
+		rLoc = 1904;
 		rType = 0;
 		vrLen = 842;
 		vrLoc = 1492;
@@ -1203,7 +1267,7 @@
 		fRef = 6BD667D8123D27EC0021A7A4 /* CrowdManager.h */;
 		name = "CrowdManager.h: 50";
 		rLen = 0;
-		rLoc = 1466;
+		rLoc = 1273;
 		rType = 0;
 		vrLen = 689;
 		vrLoc = 1229;
@@ -1275,7 +1339,7 @@
 		fRef = 6BD667D8123D27EC0021A7A4 /* CrowdManager.h */;
 		name = "CrowdManager.h: 41";
 		rLen = 0;
-		rLoc = 1332;
+		rLoc = 1139;
 		rType = 0;
 		vrLen = 683;
 		vrLoc = 1229;
@@ -1305,7 +1369,7 @@
 		fRef = 6BD667D8123D27EC0021A7A4 /* CrowdManager.h */;
 		name = "CrowdManager.h: 68";
 		rLen = 78;
-		rLoc = 1800;
+		rLoc = 1607;
 		rType = 0;
 		vrLen = 684;
 		vrLoc = 1229;
@@ -1345,7 +1409,7 @@
 		fRef = 6BD667D8123D27EC0021A7A4 /* CrowdManager.h */;
 		name = "CrowdManager.h: 50";
 		rLen = 0;
-		rLoc = 1450;
+		rLoc = 1257;
 		rType = 0;
 		vrLen = 561;
 		vrLoc = 1255;
@@ -1375,7 +1439,7 @@
 		fRef = 6BD667D8123D27EC0021A7A4 /* CrowdManager.h */;
 		name = "CrowdManager.h: 56";
 		rLen = 18;
-		rLoc = 1520;
+		rLoc = 1327;
 		rType = 0;
 		vrLen = 642;
 		vrLoc = 1261;
@@ -1415,7 +1479,7 @@
 		fRef = 6BD667D8123D27EC0021A7A4 /* CrowdManager.h */;
 		name = "CrowdManager.h: 56";
 		rLen = 8;
-		rLoc = 1525;
+		rLoc = 1332;
 		rType = 0;
 		vrLen = 697;
 		vrLoc = 1468;
@@ -1425,7 +1489,7 @@
 		fRef = 6BD667D8123D27EC0021A7A4 /* CrowdManager.h */;
 		name = "CrowdManager.h: 74";
 		rLen = 0;
-		rLoc = 2037;
+		rLoc = 1844;
 		rType = 0;
 		vrLen = 823;
 		vrLoc = 1468;
@@ -1435,7 +1499,7 @@
 		fRef = 6BD667D8123D27EC0021A7A4 /* CrowdManager.h */;
 		name = "CrowdManager.h: 74";
 		rLen = 53;
-		rLoc = 1934;
+		rLoc = 1741;
 		rType = 0;
 		vrLen = 825;
 		vrLoc = 1468;
@@ -1465,7 +1529,7 @@
 		fRef = 6BD667D8123D27EC0021A7A4 /* CrowdManager.h */;
 		name = "CrowdManager.h: 74";
 		rLen = 14;
-		rLoc = 1939;
+		rLoc = 1746;
 		rType = 0;
 		vrLen = 838;
 		vrLoc = 1658;
@@ -1475,7 +1539,7 @@
 		fRef = 6BD667D8123D27EC0021A7A4 /* CrowdManager.h */;
 		name = "CrowdManager.h: 277";
 		rLen = 58;
-		rLoc = 6627;
+		rLoc = 7628;
 		rType = 0;
 		vrLen = 1139;
 		vrLoc = 5576;
@@ -1485,7 +1549,7 @@
 		fRef = 6BD667D8123D27EC0021A7A4 /* CrowdManager.h */;
 		name = "CrowdManager.h: 269";
 		rLen = 0;
-		rLoc = 6225;
+		rLoc = 7106;
 		rType = 0;
 		vrLen = 1139;
 		vrLoc = 5576;
@@ -1495,7 +1559,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 423";
 		rLen = 0;
-		rLoc = 10947;
+		rLoc = 7180;
 		rType = 0;
 		vrLen = 780;
 		vrLoc = 10192;
@@ -1515,7 +1579,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 979";
 		rLen = 0;
-		rLoc = 23527;
+		rLoc = 25058;
 		rType = 0;
 		vrLen = 824;
 		vrLoc = 22582;
@@ -1525,7 +1589,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 968";
 		rLen = 0;
-		rLoc = 23184;
+		rLoc = 24709;
 		rType = 0;
 		vrLen = 824;
 		vrLoc = 22582;
@@ -1535,7 +1599,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 423";
 		rLen = 0;
-		rLoc = 10947;
+		rLoc = 7180;
 		rType = 0;
 		vrLen = 780;
 		vrLoc = 10192;
@@ -1545,7 +1609,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 452";
 		rLen = 0;
-		rLoc = 11609;
+		rLoc = 8234;
 		rType = 0;
 		vrLen = 1074;
 		vrLoc = 10805;
@@ -1555,7 +1619,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 600";
 		rLen = 0;
-		rLoc = 16327;
+		rLoc = 12484;
 		rType = 0;
 		vrLen = 1070;
 		vrLoc = 15227;
@@ -1575,7 +1639,7 @@
 		fRef = 6BD667D8123D27EC0021A7A4 /* CrowdManager.h */;
 		name = "CrowdManager.h: 74";
 		rLen = 3;
-		rLoc = 1960;
+		rLoc = 1767;
 		rType = 0;
 		vrLen = 906;
 		vrLoc = 1468;
@@ -1585,7 +1649,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 600";
 		rLen = 0;
-		rLoc = 16327;
+		rLoc = 12484;
 		rType = 0;
 		vrLen = 1070;
 		vrLoc = 15227;
@@ -1595,7 +1659,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 600";
 		rLen = 0;
-		rLoc = 16327;
+		rLoc = 12484;
 		rType = 0;
 		vrLen = 1144;
 		vrLoc = 15430;
@@ -1605,7 +1669,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 600";
 		rLen = 0;
-		rLoc = 16327;
+		rLoc = 12484;
 		rType = 0;
 		vrLen = 925;
 		vrLoc = 15545;
@@ -1616,7 +1680,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		fallbackIsa = XCBuildMessageTextBookmark;
 		rLen = 1;
-		rLoc = 981;
+		rLoc = 1034;
 		rType = 1;
 	};
 	6BA8CF141255CC4F00272A3B /* PBXTextBookmark */ = {
@@ -1624,7 +1688,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 975";
 		rLen = 0;
-		rLoc = 23369;
+		rLoc = 24900;
 		rType = 0;
 		vrLen = 751;
 		vrLoc = 23005;
@@ -1634,7 +1698,7 @@
 		fRef = 6BD667D8123D27EC0021A7A4 /* CrowdManager.h */;
 		name = "CrowdManager.h: 262";
 		rLen = 0;
-		rLoc = 5961;
+		rLoc = 6801;
 		rType = 0;
 		vrLen = 1085;
 		vrLoc = 5630;
@@ -1644,7 +1708,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 922";
 		rLen = 0;
-		rLoc = 22145;
+		rLoc = 20236;
 		rType = 0;
 		vrLen = 792;
 		vrLoc = 21377;
@@ -1654,7 +1718,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 830";
 		rLen = 0;
-		rLoc = 20276;
+		rLoc = 17588;
 		rType = 0;
 		vrLen = 956;
 		vrLoc = 19472;
@@ -1664,7 +1728,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 830";
 		rLen = 0;
-		rLoc = 20275;
+		rLoc = 17587;
 		rType = 0;
 		vrLen = 1011;
 		vrLoc = 19505;
@@ -1683,7 +1747,7 @@
 		isa = PBXTextBookmark;
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		rLen = 0;
-		rLoc = 628;
+		rLoc = 479;
 		rType = 1;
 	};
 	6BA8CF341255CDD100272A3B /* PBXTextBookmark */ = {
@@ -1691,7 +1755,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 602";
 		rLen = 0;
-		rLoc = 16327;
+		rLoc = 12484;
 		rType = 0;
 		vrLen = 860;
 		vrLoc = 15968;
@@ -1701,7 +1765,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 609";
 		rLen = 0;
-		rLoc = 16327;
+		rLoc = 12484;
 		rType = 0;
 		vrLen = 904;
 		vrLoc = 15968;
@@ -1721,7 +1785,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 831";
 		rLen = 0;
-		rLoc = 20297;
+		rLoc = 17609;
 		rType = 0;
 		vrLen = 863;
 		vrLoc = 19884;
@@ -1731,7 +1795,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 932";
 		rLen = 0;
-		rLoc = 22385;
+		rLoc = 20476;
 		rType = 0;
 		vrLen = 799;
 		vrLoc = 21977;
@@ -1741,7 +1805,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 929";
 		rLen = 0;
-		rLoc = 22297;
+		rLoc = 20388;
 		rType = 0;
 		vrLen = 817;
 		vrLoc = 21977;
@@ -1751,7 +1815,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 933";
 		rLen = 0;
-		rLoc = 22384;
+		rLoc = 20475;
 		rType = 0;
 		vrLen = 817;
 		vrLoc = 21977;
@@ -1761,7 +1825,7 @@
 		fRef = 6BAF3C571211663A008CFCDF /* CrowdTool.h */;
 		name = "CrowdTool.h: 71";
 		rLen = 10;
-		rLoc = 1817;
+		rLoc = 1439;
 		rType = 0;
 		vrLen = 633;
 		vrLoc = 1390;
@@ -1771,7 +1835,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 188";
 		rLen = 0;
-		rLoc = 5089;
+		rLoc = 3102;
 		rType = 0;
 		vrLen = 708;
 		vrLoc = 4430;
@@ -1781,7 +1845,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 606";
 		rLen = 0;
-		rLoc = 16555;
+		rLoc = 12715;
 		rType = 0;
 		vrLen = 1178;
 		vrLoc = 15762;
@@ -1791,7 +1855,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 610";
 		rLen = 0;
-		rLoc = 16626;
+		rLoc = 12786;
 		rType = 0;
 		vrLen = 1016;
 		vrLoc = 16127;
@@ -1811,7 +1875,7 @@
 		fRef = 6BAF3C571211663A008CFCDF /* CrowdTool.h */;
 		name = "CrowdTool.h: 59";
 		rLen = 0;
-		rLoc = 1573;
+		rLoc = 1214;
 		rType = 0;
 		vrLen = 598;
 		vrLoc = 1390;
@@ -1901,7 +1965,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 209";
 		rLen = 0;
-		rLoc = 5345;
+		rLoc = 3318;
 		rType = 0;
 		vrLen = 548;
 		vrLoc = 4926;
@@ -1911,7 +1975,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 211";
 		rLen = 0;
-		rLoc = 5440;
+		rLoc = 3413;
 		rType = 0;
 		vrLen = 498;
 		vrLoc = 5027;
@@ -1921,7 +1985,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 199";
 		rLen = 0;
-		rLoc = 5214;
+		rLoc = 3187;
 		rType = 0;
 		vrLen = 534;
 		vrLoc = 4964;
@@ -1956,24 +2020,6 @@
 		vrLen = 497;
 		vrLoc = 7087;
 	};
-	6BA8CF5E1255D4AC00272A3B /* DetourDebugDraw.cpp:252 */ = {
-		isa = PBXFileBreakpoint;
-		actions = (
-		);
-		breakpointStyle = 0;
-		continueAfterActions = 0;
-		countType = 0;
-		delayBeforeContinue = 0;
-		fileReference = 6BB93C7B10CFE1D500F74F2B /* DetourDebugDraw.cpp */;
-		functionName = "duDebugDrawNavMeshWithClosedList(struct duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMeshQuery& query, unsigned char flags)";
-		hitCount = 1;
-		ignoreCount = 0;
-		lineNumber = 252;
-		location = Recast;
-		modificationTime = 307614978.805375;
-		originalNumberOfMultipleMatches = 1;
-		state = 1;
-	};
 	6BA8CF601255D4C500272A3B /* Sample.cpp:45 */ = {
 		isa = PBXFileBreakpoint;
 		actions = (
@@ -1984,11 +2030,11 @@
 		delayBeforeContinue = 0;
 		fileReference = 6B25B6140FFA62BE004F1BC4 /* Sample.cpp */;
 		functionName = "Sample::Sample()";
-		hitCount = 1;
+		hitCount = 0;
 		ignoreCount = 0;
 		lineNumber = 45;
 		location = Recast;
-		modificationTime = 307614942.48468;
+		modificationTime = 307623703.424199;
 		originalNumberOfMultipleMatches = 1;
 		state = 1;
 	};
@@ -2203,18 +2249,679 @@
 		vrLen = 597;
 		vrLoc = 4600;
 	};
+	6BA8CF941255D97400272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BB7FC0A10EBB6AA006DA0A6 /* NavMeshTesterTool.cpp */;
+		name = "NavMeshTesterTool.cpp: 170";
+		rLen = 0;
+		rLoc = 4635;
+		rType = 0;
+		vrLen = 658;
+		vrLoc = 4600;
+	};
+	6BA8CF951255D97400272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BCF32351104CD05009445BF /* OffMeshConnectionTool.cpp */;
+		name = "OffMeshConnectionTool.cpp: 68";
+		rLen = 0;
+		rLoc = 1807;
+		rType = 0;
+		vrLen = 855;
+		vrLoc = 1456;
+	};
+	6BA8CF961255D97400272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BAF3C571211663A008CFCDF /* CrowdTool.h */;
+		name = "CrowdTool.h: 59";
+		rLen = 0;
+		rLoc = 1673;
+		rType = 0;
+		vrLen = 935;
+		vrLoc = 1260;
+	};
+	6BA8CF971255D97400272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
+		name = "CrowdTool.cpp: 231";
+		rLen = 0;
+		rLoc = 6084;
+		rType = 0;
+		vrLen = 726;
+		vrLoc = 5493;
+	};
+	6BA8CF981255D97400272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D8123D27EC0021A7A4 /* CrowdManager.h */;
+		name = "CrowdManager.h: 187";
+		rLen = 0;
+		rLoc = 4205;
+		rType = 0;
+		vrLen = 1091;
+		vrLoc = 3729;
+	};
+	6BA8CF991255D97400272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		name = "CrowdManager.cpp: 684";
+		rLen = 0;
+		rLoc = 14067;
+		rType = 0;
+		vrLen = 878;
+		vrLoc = 16627;
+	};
+	6BA8CF9A1255D97400272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		name = "CrowdManager.cpp: 1155";
+		rLen = 0;
+		rLoc = 29779;
+		rType = 0;
+		vrLen = 568;
+		vrLoc = 27543;
+	};
+	6BA8CF9F1255D9F900272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		name = "CrowdManager.cpp: 1155";
+		rLen = 0;
+		rLoc = 29779;
+		rType = 0;
+		vrLen = 568;
+		vrLoc = 27543;
+	};
+	6BA8CFA01255D9F900272A3B /* XCBuildMessageTextBookmark */ = {
+		isa = PBXTextBookmark;
+		comments = "Unused variable 'navmesh'";
+		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
+		fallbackIsa = XCBuildMessageTextBookmark;
+		rLen = 1;
+		rLoc = 239;
+		rType = 1;
+	};
+	6BA8CFA11255D9F900272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
+		name = "CrowdTool.cpp: 228";
+		rLen = 0;
+		rLoc = 5918;
+		rType = 0;
+		vrLen = 671;
+		vrLoc = 5493;
+	};
+	6BA8CFA81255DC6500272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BAF3C571211663A008CFCDF /* CrowdTool.h */;
+		name = "CrowdTool.h: 36";
+		rLen = 11;
+		rLoc = 1249;
+		rType = 0;
+		vrLen = 630;
+		vrLoc = 920;
+	};
+	6BA8CFA91255DC6500272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
+		name = "CrowdTool.cpp: 248";
+		rLen = 0;
+		rLoc = 6687;
+		rType = 0;
+		vrLen = 707;
+		vrLoc = 5887;
+	};
+	6BA8CFAA1255DC6500272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D8123D27EC0021A7A4 /* CrowdManager.h */;
+		name = "CrowdManager.h: 176";
+		rLen = 0;
+		rLoc = 3955;
+		rType = 0;
+		vrLen = 1050;
+		vrLoc = 3785;
+	};
+	6BA8CFAB1255DC6500272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		name = "CrowdManager.cpp: 500";
+		rLen = 0;
+		rLoc = 11742;
+		rType = 0;
+		vrLen = 633;
+		vrLoc = 11438;
+	};
+	6BA8CFAC1255DC6500272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		name = "CrowdManager.cpp: 526";
+		rLen = 0;
+		rLoc = 11742;
+		rType = 0;
+		vrLen = 1039;
+		vrLoc = 11944;
+	};
+	6BA8CFB11255DD7C00272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		name = "CrowdManager.cpp: 522";
+		rLen = 0;
+		rLoc = 11742;
+		rType = 0;
+		vrLen = 1039;
+		vrLoc = 11944;
+	};
+	6BA8CFB21255DD7C00272A3B /* XCBuildMessageTextBookmark */ = {
+		isa = PBXTextBookmark;
+		comments = "'navquery' was not declared in this scope";
+		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
+		fallbackIsa = XCBuildMessageTextBookmark;
+		rLen = 1;
+		rLoc = 251;
+		rType = 1;
+	};
+	6BA8CFB31255DD7C00272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
+		name = "CrowdTool.cpp: 238";
+		rLen = 0;
+		rLoc = 6359;
+		rType = 0;
+		vrLen = 925;
+		vrLoc = 5539;
+	};
+	6BA8CFB81255DD8900272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
+		name = "CrowdTool.cpp: 234";
+		rLen = 0;
+		rLoc = 6223;
+		rType = 0;
+		vrLen = 877;
+		vrLoc = 5599;
+	};
+	6BA8CFBC1255DDC100272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
+		name = "CrowdTool.cpp: 577";
+		rLen = 0;
+		rLoc = 15931;
+		rType = 0;
+		vrLen = 921;
+		vrLoc = 15284;
+	};
+	6BA8CFBD1255DDC100272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
+		name = "CrowdTool.cpp: 577";
+		rLen = 0;
+		rLoc = 15931;
+		rType = 0;
+		vrLen = 921;
+		vrLoc = 15284;
+	};
+	6BA8CFBE1255DE0500272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BB93C7B10CFE1D500F74F2B /* DetourDebugDraw.cpp */;
+		name = "DetourDebugDraw.cpp: 252";
+		rLen = 0;
+		rLoc = 7249;
+		rType = 0;
+		vrLen = 964;
+		vrLoc = 6814;
+	};
+	6BA8CFBF1255DE0500272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
+		rLen = 0;
+		rLoc = 585;
+		rType = 1;
+	};
+	6BA8CFC01255DE0500272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
+		name = "CrowdTool.cpp: 296";
+		rLen = 0;
+		rLoc = 7717;
+		rType = 0;
+		vrLen = 933;
+		vrLoc = 15263;
+	};
+	6BA8CFC11255DE1300272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
+		name = "CrowdTool.cpp: 296";
+		rLen = 0;
+		rLoc = 7717;
+		rType = 0;
+		vrLen = 933;
+		vrLoc = 15263;
+	};
+	6BA8CFC21255DE1300272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		rLen = 0;
+		rLoc = 216;
+		rType = 1;
+	};
+	6BA8CFC31255DE1300272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		name = "CrowdManager.cpp: 217";
+		rLen = 0;
+		rLoc = 5272;
+		rType = 0;
+		vrLen = 1070;
+		vrLoc = 13208;
+	};
+	6BA8CFC61255DE4C00272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		name = "CrowdManager.cpp: 565";
+		rLen = 0;
+		rLoc = 11742;
+		rType = 0;
+		vrLen = 1059;
+		vrLoc = 13288;
+	};
+	6BA8CFC71255DE4C00272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
+		name = "CrowdTool.cpp: 296";
+		rLen = 0;
+		rLoc = 7717;
+		rType = 0;
+		vrLen = 943;
+		vrLoc = 15257;
+	};
+	6BA8CFC81255DE4C00272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
+		name = "CrowdTool.cpp: 240";
+		rLen = 0;
+		rLoc = 6460;
+		rType = 0;
+		vrLen = 965;
+		vrLoc = 5539;
+	};
+	6BA8CFD61255E57A00272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
+		name = "CrowdTool.cpp: 244";
+		rLen = 0;
+		rLoc = 6608;
+		rType = 0;
+		vrLen = 1349;
+		vrLoc = 0;
+	};
+	6BA8CFD71255E57A00272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D8123D27EC0021A7A4 /* CrowdManager.h */;
+		name = "CrowdManager.h: 252";
+		rLen = 0;
+		rLoc = 6478;
+		rType = 0;
+		vrLen = 852;
+		vrLoc = 5275;
+	};
+	6BA8CFD81255E57A00272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		name = "CrowdManager.cpp: 984";
+		rLen = 0;
+		rLoc = 24479;
+		rType = 0;
+		vrLen = 1052;
+		vrLoc = 22820;
+	};
+	6BA8CFD91255E57A00272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		name = "CrowdManager.cpp: 910";
+		rLen = 0;
+		rLoc = 19846;
+		rType = 0;
+		vrLen = 1028;
+		vrLoc = 21252;
+	};
+	6BA8CFDA1255EB4E00272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D8123D27EC0021A7A4 /* CrowdManager.h */;
+		name = "CrowdManager.h: 127";
+		rLen = 0;
+		rLoc = 3248;
+		rType = 0;
+		vrLen = 1078;
+		vrLoc = 2762;
+	};
+	6BA8CFDB1255EB4E00272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		name = "CrowdManager.cpp: 1063";
+		rLen = 0;
+		rLoc = 24369;
+		rType = 0;
+		vrLen = 1284;
+		vrLoc = 24931;
+	};
+	6BA8CFDC1255EB4E00272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		name = "CrowdManager.cpp: 1019";
+		rLen = 0;
+		rLoc = 22391;
+		rType = 0;
+		vrLen = 1300;
+		vrLoc = 25187;
+	};
+	6BA8CFDD1255F2B000272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		name = "CrowdManager.cpp: 1067";
+		rLen = 0;
+		rLoc = 24117;
+		rType = 0;
+		vrLen = 1445;
+		vrLoc = 25078;
+	};
+	6BA8CFE61255F61B00272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		name = "CrowdManager.cpp: 1078";
+		rLen = 0;
+		rLoc = 24369;
+		rType = 0;
+		vrLen = 1676;
+		vrLoc = 23978;
+	};
+	6BA8CFE71255F61B00272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		name = "CrowdManager.cpp: 1082";
+		rLen = 0;
+		rLoc = 24275;
+		rType = 0;
+		vrLen = 1236;
+		vrLoc = 25555;
+	};
+	6BA8CFEE1255F6C400272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		name = "CrowdManager.cpp: 778";
+		rLen = 0;
+		rLoc = 16588;
+		rType = 0;
+		vrLen = 1321;
+		vrLoc = 18562;
+	};
+	6BA8CFF11255F6F200272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		name = "CrowdManager.cpp: 790";
+		rLen = 0;
+		rLoc = 16795;
+		rType = 0;
+		vrLen = 1285;
+		vrLoc = 18598;
+	};
+	6BA8CFF31255F71600272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		name = "CrowdManager.cpp: 1019";
+		rLen = 0;
+		rLoc = 22422;
+		rType = 0;
+		vrLen = 1503;
+		vrLoc = 23819;
+	};
+	6BA8CFF81255F77A00272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		name = "CrowdManager.cpp: 1030";
+		rLen = 0;
+		rLoc = 22801;
+		rType = 0;
+		vrLen = 1216;
+		vrLoc = 25484;
+	};
+	6BA8CFF91255F77A00272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		name = "CrowdManager.cpp: 1030";
+		rLen = 0;
+		rLoc = 22801;
+		rType = 0;
+		vrLen = 1064;
+		vrLoc = 26497;
+	};
+	6BA8CFFA1255F7EB00272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		name = "CrowdManager.cpp: 1056";
+		rLen = 0;
+		rLoc = 23525;
+		rType = 0;
+		vrLen = 1213;
+		vrLoc = 25484;
+	};
+	6BA8CFFD1255F8A600272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D8123D27EC0021A7A4 /* CrowdManager.h */;
+		name = "CrowdManager.h: 178";
+		rLen = 121;
+		rLoc = 5560;
+		rType = 0;
+		vrLen = 1570;
+		vrLoc = 3390;
+	};
+	6BA8CFFE1255F8A600272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		name = "CrowdManager.cpp: 1076";
+		rLen = 0;
+		rLoc = 24157;
+		rType = 0;
+		vrLen = 1237;
+		vrLoc = 25484;
+	};
+	6BA8CFFF1255F8A600272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		name = "CrowdManager.cpp: 1051";
+		rLen = 0;
+		rLoc = 23430;
+		rType = 0;
+		vrLen = 1511;
+		vrLoc = 24944;
+	};
+	6BA8D0021255F9C600272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		name = "CrowdManager.cpp: 781";
+		rLen = 0;
+		rLoc = 16663;
+		rType = 0;
+		vrLen = 1156;
+		vrLoc = 18440;
+	};
+	6BA8D0031255FA9400272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		name = "CrowdManager.cpp: 481";
+		rLen = 0;
+		rLoc = 11569;
+		rType = 0;
+		vrLen = 1059;
+		vrLoc = 10860;
+	};
+	6BA8D0101255FBC800272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D8123D27EC0021A7A4 /* CrowdManager.h */;
+		name = "CrowdManager.h: 168";
+		rLen = 0;
+		rLoc = 4225;
+		rType = 0;
+		vrLen = 1601;
+		vrLoc = 3424;
+	};
+	6BA8D0111255FBC800272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		name = "CrowdManager.cpp: 1096";
+		rLen = 0;
+		rLoc = 27033;
+		rType = 0;
+		vrLen = 842;
+		vrLoc = 26395;
+	};
+	6BA8D0121255FBC800272A3B /* XCBuildMessageTextBookmark */ = {
+		isa = PBXTextBookmark;
+		comments = "'const struct Mover' has no member named 'm_colradius'";
+		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
+		fallbackIsa = XCBuildMessageTextBookmark;
+		rLen = 1;
+		rLoc = 392;
+		rType = 1;
+	};
+	6BA8D0131255FBC800272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
+		name = "CrowdTool.cpp: 371";
+		rLen = 0;
+		rLoc = 10180;
+		rType = 0;
+		vrLen = 1024;
+		vrLoc = 9531;
+	};
+	6BA8D02F1255FF4600272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
+		name = "CrowdTool.cpp: 82";
+		rLen = 97;
+		rLoc = 2518;
+		rType = 0;
+		vrLen = 920;
+		vrLoc = 2019;
+	};
+	6BA8D0301255FF4600272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D8123D27EC0021A7A4 /* CrowdManager.h */;
+		name = "CrowdManager.h: 176";
+		rLen = 0;
+		rLoc = 4985;
+		rType = 0;
+		vrLen = 1552;
+		vrLoc = 3781;
+	};
+	6BA8D0311255FF4600272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		name = "CrowdManager.cpp: 1134";
+		rLen = 34;
+		rLoc = 28327;
+		rType = 0;
+		vrLen = 963;
+		vrLoc = 27202;
+	};
+	6BA8D0321255FF4600272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		name = "CrowdManager.cpp: 1165";
+		rLen = 0;
+		rLoc = 28689;
+		rType = 0;
+		vrLen = 810;
+		vrLoc = 28366;
+	};
+	6BA8D05D1256059E00272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
+		name = "CrowdTool.cpp: 605";
+		rLen = 0;
+		rLoc = 16418;
+		rType = 0;
+		vrLen = 1016;
+		vrLoc = 15528;
+	};
+	6BA8D05E1256059E00272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D8123D27EC0021A7A4 /* CrowdManager.h */;
+		name = "CrowdManager.h: 159";
+		rLen = 21;
+		rLoc = 3772;
+		rType = 0;
+		vrLen = 1484;
+		vrLoc = 3526;
+	};
+	6BA8D05F1256059E00272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		name = "CrowdManager.cpp: 944";
+		rLen = 0;
+		rLoc = 22735;
+		rType = 0;
+		vrLen = 1157;
+		vrLoc = 22190;
+	};
+	6BA8D0601256059E00272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		name = "CrowdManager.cpp: 468";
+		rLen = 0;
+		rLoc = 11147;
+		rType = 0;
+		vrLen = 739;
+		vrLoc = 10682;
+	};
+	6BA8D0641256095800272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		name = "CrowdManager.cpp: 1016";
+		rLen = 0;
+		rLoc = 24456;
+		rType = 0;
+		vrLen = 1017;
+		vrLoc = 23710;
+	};
+	6BA8D0651256095800272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D8123D27EC0021A7A4 /* CrowdManager.h */;
+		name = "CrowdManager.h: 234";
+		rLen = 0;
+		rLoc = 6329;
+		rType = 0;
+		vrLen = 840;
+		vrLoc = 5797;
+	};
+	6BA8D0661256095800272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D8123D27EC0021A7A4 /* CrowdManager.h */;
+		name = "CrowdManager.h: 126";
+		rLen = 0;
+		rLoc = 3248;
+		rType = 0;
+		vrLen = 1118;
+		vrLoc = 2762;
+	};
+	6BA8D06712560BD400272A3B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D8123D27EC0021A7A4 /* CrowdManager.h */;
+		name = "CrowdManager.h: 151";
+		rLen = 0;
+		rLoc = 3761;
+		rType = 0;
+		vrLen = 1310;
+		vrLoc = 3068;
+	};
 	6BAF3C571211663A008CFCDF /* CrowdTool.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {933, 1430}}";
-			sepNavSelRange = "{1573, 0}";
-			sepNavVisRange = "{1390, 598}";
+			sepNavIntBoundsRect = "{{0, 0}, {931, 1105}}";
+			sepNavSelRange = "{1249, 11}";
+			sepNavVisRange = "{920, 630}";
 		};
 	};
 	6BAF3C581211663A008CFCDF /* CrowdTool.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {933, 10296}}";
-			sepNavSelRange = "{5214, 0}";
-			sepNavVisRange = "{4964, 534}";
+			sepNavIntBoundsRect = "{{0, 0}, {931, 8125}}";
+			sepNavSelRange = "{16418, 0}";
+			sepNavVisRange = "{15528, 1016}";
 			sepNavWindowFrame = "{{15, 51}, {1214, 722}}";
 		};
 	};
@@ -2371,8 +3078,8 @@
 	6BB7FC0A10EBB6AA006DA0A6 /* NavMeshTesterTool.cpp */ = {
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {933, 15899}}";
-			sepNavSelRange = "{4678, 0}";
-			sepNavVisRange = "{4600, 597}";
+			sepNavSelRange = "{4635, 0}";
+			sepNavVisRange = "{4600, 658}";
 			sepNavWindowFrame = "{{38, 30}, {1214, 722}}";
 		};
 	};
@@ -2420,9 +3127,9 @@
 	};
 	6BB93C7B10CFE1D500F74F2B /* DetourDebugDraw.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {950, 5876}}";
+			sepNavIntBoundsRect = "{{0, 0}, {950, 5720}}";
 			sepNavSelRange = "{7249, 0}";
-			sepNavVisRange = "{7092, 512}";
+			sepNavVisRange = "{6814, 964}";
 			sepNavWindowFrame = "{{61, 9}, {1214, 722}}";
 		};
 	};
@@ -2453,53 +3160,17 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 381";
 		rLen = 0;
-		rLoc = 10214;
+		rLoc = 6181;
 		rType = 0;
 		vrLen = 616;
 		vrLoc = 9608;
-	};
-	6BBB03061247344B00533229 /* CrowdManager.cpp:592 */ = {
-		isa = PBXFileBreakpoint;
-		actions = (
-		);
-		breakpointStyle = 0;
-		continueAfterActions = 0;
-		countType = 0;
-		delayBeforeContinue = 0;
-		fileReference = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
-		functionName = "Mover::updatePathState(dtNavMeshQuery* navquery, const dtQueryFilter* filter, const float* ext, PathQueue* pathq)";
-		hitCount = 0;
-		ignoreCount = 0;
-		lineNumber = 592;
-		location = Recast;
-		modificationTime = 307614937.236984;
-		originalNumberOfMultipleMatches = 1;
-		state = 1;
-	};
-	6BBB03361247383D00533229 /* CrowdManager.cpp:217 */ = {
-		isa = PBXFileBreakpoint;
-		actions = (
-		);
-		breakpointStyle = 0;
-		continueAfterActions = 0;
-		countType = 0;
-		delayBeforeContinue = 0;
-		fileReference = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
-		functionName = "PathQueue::update(dtNavMeshQuery* navquery)";
-		hitCount = 0;
-		ignoreCount = 0;
-		lineNumber = 217;
-		location = Recast;
-		modificationTime = 307614937.242928;
-		originalNumberOfMultipleMatches = 1;
-		state = 1;
 	};
 	6BBB035612473DA500533229 /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
 		fRef = 6BD667D8123D27EC0021A7A4 /* CrowdManager.h */;
 		name = "CrowdManager.h: 43";
 		rLen = 0;
-		rLoc = 2342;
+		rLoc = 2149;
 		rType = 0;
 		vrLen = 719;
 		vrLoc = 1340;
@@ -2629,7 +3300,7 @@
 		ignoreCount = 0;
 		lineNumber = 279;
 		location = Recast;
-		modificationTime = 307614937.143502;
+		modificationTime = 307623703.336449;
 		originalNumberOfMultipleMatches = 1;
 		state = 1;
 	};
@@ -2642,9 +3313,9 @@
 	};
 	6BCF32351104CD05009445BF /* OffMeshConnectionTool.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {933, 2158}}";
-			sepNavSelRange = "{1458, 66}";
-			sepNavVisRange = "{1184, 621}";
+			sepNavIntBoundsRect = "{{0, 0}, {931, 2184}}";
+			sepNavSelRange = "{1807, 0}";
+			sepNavVisRange = "{1456, 855}";
 		};
 	};
 	6BD401FF1224278800995864 /* PerfTimer.h */ = {
@@ -2775,7 +3446,7 @@
 		ignoreCount = 0;
 		lineNumber = 541;
 		location = Recast;
-		modificationTime = 307614937.192084;
+		modificationTime = 307623703.377993;
 		originalNumberOfMultipleMatches = 1;
 		state = 1;
 	};
@@ -2789,16 +3460,16 @@
 	};
 	6BD667D8123D27EC0021A7A4 /* CrowdManager.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {933, 3614}}";
-			sepNavSelRange = "{5961, 0}";
-			sepNavVisRange = "{5630, 1085}";
+			sepNavIntBoundsRect = "{{0, 0}, {931, 3744}}";
+			sepNavSelRange = "{3761, 0}";
+			sepNavVisRange = "{3068, 1310}";
 		};
 	};
 	6BD667D9123D28100021A7A4 /* CrowdManager.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {933, 15795}}";
-			sepNavSelRange = "{22384, 0}";
-			sepNavVisRange = "{21977, 817}";
+			sepNavIntBoundsRect = "{{0, 0}, {931, 16185}}";
+			sepNavSelRange = "{24456, 0}";
+			sepNavVisRange = "{23710, 1017}";
 		};
 	};
 	6BD667FF123D2D230021A7A4 /* PBXTextBookmark */ = {
@@ -2845,7 +3516,7 @@
 		ignoreCount = 0;
 		lineNumber = 480;
 		location = Recast;
-		modificationTime = 307614937.213029;
+		modificationTime = 307623703.394133;
 		originalNumberOfMultipleMatches = 1;
 		state = 1;
 	};
@@ -3014,7 +3685,7 @@
 		fRef = 6BAF3C571211663A008CFCDF /* CrowdTool.h */;
 		name = "CrowdTool.h: 71";
 		rLen = 0;
-		rLoc = 1829;
+		rLoc = 1451;
 		rType = 0;
 		vrLen = 634;
 		vrLoc = 1388;
