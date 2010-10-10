@@ -749,6 +749,7 @@ int CrowdManager::addAgent(const float* pos, const float radius, const float hei
 	ag->height = height;
 	ag->collisionQueryRange = radius * 8;
 	ag->pathOptimizationRange = radius * 30;
+	ag->nneis = 0;
 	
 	dtVset(ag->dvel, 0,0,0);
 	dtVset(ag->nvel, 0,0,0);
@@ -822,8 +823,49 @@ int CrowdManager::getActiveAgents(Agent** agents, const int maxAgents)
 	return n;
 }
 
+
+static int addNeighbour(const int idx, const float dist,
+						Neighbour* neis, const int nneis, const int maxNeis)
+{
+	// Insert neighbour based on the distance.
+	Neighbour* nei = 0;
+	if (!nneis)
+	{
+		nei = &neis[nneis];
+	}
+	else if (dist >= neis[nneis-1].dist)
+	{
+		if (nneis >= maxNeis)
+			return nneis;
+		nei = &neis[nneis];
+	}
+	else
+	{
+		int i;
+		for (i = 0; i < nneis; ++i)
+			if (dist <= neis[i].dist)
+				break;
+		
+		const int tgt = i+1;
+		const int n = dtMin(nneis-i, maxNeis-tgt);
+		
+		dtAssert(tgt+n <= maxNeis);
+		
+		if (n > 0)
+			memmove(&neis[tgt], &neis[i], sizeof(Neighbour)*n);
+		nei = &neis[i];
+	}
+	
+	memset(nei, 0, sizeof(Neighbour));
+
+	nei->idx = idx;
+	nei->dist = dist;
+	
+	return dtMin(nneis+1, maxNeis);
+}
+
 int CrowdManager::getNeighbours(const float* pos, const float height, const float range,
-								const Agent* skip, Agent** result, const int maxResult)
+								const Agent* skip, Neighbour* result, const int maxResult)
 {
 	int n = 0;
 	
@@ -837,7 +879,8 @@ int CrowdManager::getNeighbours(const float* pos, const float height, const floa
 		Agent* ag = &m_agents[ids[i]];
 
 		if (ag == skip) continue;
-		
+
+		// Check for overlap.
 		float diff[3];
 		dtVsub(diff, pos, ag->npos);
 		if (fabsf(diff[1]) >= (height+ag->height)/2.0f)
@@ -847,39 +890,23 @@ int CrowdManager::getNeighbours(const float* pos, const float height, const floa
 		if (distSqr > dtSqr(range))
 			continue;
 		
-		if (n < maxResult)
-			result[n++] = ag;
+		n = addNeighbour(ids[i], distSqr, result, n, maxResult);
 	}
 	return n;
 }
 
-void CrowdManager::update(const float dt, unsigned int flags, dtNavMeshQuery* navquery)
+void CrowdManager::updateMoveRequest(const float dt, dtNavMeshQuery* navquery)
 {
-	m_sampleCount = 0;
-	m_totalTime = 0;
-	m_rvoTime = 0;
-	
-	if (!navquery)
-		return;
-	
-	TimeVal startTime = getPerfTime();
-	
-	Agent* agents[MAX_AGENTS];
-	Agent* neis[MAX_AGENTS];
-	int nagents = getActiveAgents(agents, MAX_AGENTS);
-	
-	static const float MAX_ACC = 8.0f;
-	static const float MAX_SPEED = 3.5f;
-
 	// Update move requests.
 	for (int i = 0; i < m_moveRequestCount; ++i)
 	{
 		MoveRequest* req = &m_moveRequests[i];
 		Agent* ag = &m_agents[req->idx];
-
+		
+		// Agent not active anymore, kill request.
 		if (!ag->active)
 			req->state = MR_TARGET_FAILED;
-			
+		
 		if (req->state == MR_TARGET_REQUESTING)
 		{
 			// Calculate request position.
@@ -918,17 +945,17 @@ void CrowdManager::update(const float dt, unsigned int flags, dtNavMeshQuery* na
 				const dtPolyRef* path = ag->corridor.getPath();
 				const int npath = ag->corridor.getPathCount();
 				dtAssert(npath);
-
+				
 				// Apply results.
 				float targetPos[3];
 				dtVcopy(targetPos, req->pos);
-
+				
 				bool valid = true;
 				dtPolyRef res[AGENT_MAX_PATH];
 				int nres = m_pathq.getPathResult(req->pathqRef, res, AGENT_MAX_PATH);
 				if (!nres)
 					valid = false;
-
+				
 				// Merge result and existing path.
 				// The agent might have moved whilst the request is
 				// being processed, so the path may have changed.
@@ -990,7 +1017,27 @@ void CrowdManager::update(const float dt, unsigned int flags, dtNavMeshQuery* na
 	}
 	
 	m_pathq.update(navquery);
+}
+
+void CrowdManager::update(const float dt, unsigned int flags, dtNavMeshQuery* navquery)
+{
+	m_sampleCount = 0;
+	m_totalTime = 0;
+	m_rvoTime = 0;
 	
+	if (!navquery)
+		return;
+	
+	TimeVal startTime = getPerfTime();
+	
+	Agent* agents[MAX_AGENTS];
+	int nagents = getActiveAgents(agents, MAX_AGENTS);
+	
+	static const float MAX_ACC = 8.0f;
+	static const float MAX_SPEED = 3.5f;
+
+	// Update async move request and path finder.
+	updateMoveRequest(dt, navquery);
 
 	// Register agents to proximity grid.
 	m_grid.clear();
@@ -999,19 +1046,17 @@ void CrowdManager::update(const float dt, unsigned int flags, dtNavMeshQuery* na
 		Agent* ag = agents[i];
 		const float* p = ag->npos;
 		const float r = ag->radius;
-		const float minx = p[0] - r;
-		const float miny = p[2] - r;
-		const float maxx = p[0] + r;
-		const float maxy = p[2] + r;
-		m_grid.addItem((unsigned short)i, minx, miny, maxx, maxy);
+		m_grid.addItem((unsigned short)i, p[0]-r, p[2]-r, p[0]+r, p[2]+r);
 	}
-
 	
-	// Get nearby navmesh segments to collide with.
+	// Get nearby navmesh segments and agents to collide with.
 	for (int i = 0; i < nagents; ++i)
 	{
 		Agent* ag = agents[i];
+		// Update collision segments
 		ag->corridor.updateLocalNeighbourhood(ag->collisionQueryRange, navquery, &m_filter);
+		// Query neighbour agents
+		ag->nneis = getNeighbours(ag->npos, ag->height, ag->collisionQueryRange, ag, ag->neis, MAX_NEIGHBOURS);
 	}
 	
 	// Find next corner to steer to.
@@ -1033,8 +1078,6 @@ void CrowdManager::update(const float dt, unsigned int flags, dtNavMeshQuery* na
 			ag->corridor.calcSmoothSteerDirection(dvel);
 		else
 			ag->corridor.calcStraightSteerDirection(dvel);
-		
-		// Calculate steering speed.
 		
 		// Calculate speed scale, which tells the agent to slowdown at the end of the path.
 		const float slowDownRadius = ag->radius*2;	// TODO: make less hacky.
@@ -1080,11 +1123,10 @@ void CrowdManager::update(const float dt, unsigned int flags, dtNavMeshQuery* na
 		{
 			m_obstacleQuery->reset();
 			
-			// Find neighbours and add them as obstacles.
-			const int nneis = getNeighbours(ag->npos, ag->height, ag->collisionQueryRange, ag, neis, MAX_AGENTS);
-			for (int j = 0; j < nneis; ++j)
+			// Add neighbours as obstacles.
+			for (int j = 0; j < ag->nneis; ++j)
 			{
-				const Agent* nei = neis[j];
+				const Agent* nei = &m_agents[ag->neis[j].idx];
 				m_obstacleQuery->addCircle(nei->npos, nei->radius, nei->vel, nei->dvel,
 										   dtVdist2DSqr(ag->npos, nei->npos));
 			}
@@ -1100,7 +1142,7 @@ void CrowdManager::update(const float dt, unsigned int flags, dtNavMeshQuery* na
 				m_obstacleQuery->addSegment(s, s+3, distSqr);
 			}
 
-			
+			// Sample new safe velocity.
 			bool adaptive = true;
 
 			if (adaptive)
@@ -1143,11 +1185,10 @@ void CrowdManager::update(const float dt, unsigned int flags, dtNavMeshQuery* na
 			dtVset(ag->disp, 0,0,0);
 			
 			float w = 0;
-			
-			for (int j = 0; j < nagents; ++j)
+
+			for (int j = 0; j < ag->nneis; ++j)
 			{
-				if (i == j) continue;
-				Agent* nei = agents[j];
+				const Agent* nei = &m_agents[ag->neis[j].idx];
 				
 				float diff[3];
 				dtVsub(diff, ag->npos, nei->npos);
@@ -1193,9 +1234,9 @@ void CrowdManager::update(const float dt, unsigned int flags, dtNavMeshQuery* na
 		dtVcopy(ag->npos, ag->corridor.getPos());
 	}
 	
-	
 	TimeVal endTime = getPerfTime();
-	
+
+	// Debug/demo book keeping
 	int ns = 0;
 	for (int i = 0; i < nagents; ++i)
 	{
