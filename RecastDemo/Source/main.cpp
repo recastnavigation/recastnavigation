@@ -61,7 +61,7 @@ static const int g_nsamples = sizeof(g_samples)/sizeof(SampleItem);
 
 
 int main(int /*argc*/, char** /*argv*/)
-{	
+{
 	// Init SDL
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
 	{
@@ -894,7 +894,7 @@ int main(int /*argc*/, char** /*argv*/)
 			const float r = 25.0f;
 			for (int i = 0; i < 20; ++i)
 			{
-				const float a = (float)i / 20.0f * (float)M_PI*2;
+				const float a = (float)i / 20.0f * RC_PI*2;
 				const float fx = (float)x + cosf(a)*r;
 				const float fy = (float)y + sinf(a)*r;
 				glVertex2f(fx,fy);

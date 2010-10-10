@@ -22,6 +22,9 @@
 #include "SDL.h"
 #include "SDL_opengl.h"
 
+// Some math headers don't have PI defined.
+static const float PI = 3.14159265f;
+
 void imguifree(void* ptr, void* userptr);
 void* imguimalloc(size_t size, void* userptr);
 
@@ -235,7 +238,7 @@ bool imguiRenderGLInit(const char* fontpath)
 {
 	for (int i = 0; i < CIRCLE_VERTS; ++i)
 	{
-		float a = (float)i/(float)CIRCLE_VERTS * (float)M_PI*2;
+		float a = (float)i/(float)CIRCLE_VERTS * PI*2;
 		g_circleVerts[i*2+0] = cosf(a);
 		g_circleVerts[i*2+1] = sinf(a);
 	}
