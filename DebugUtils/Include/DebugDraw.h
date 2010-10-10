@@ -19,6 +19,9 @@
 #ifndef DEBUGDRAW_H
 #define DEBUGDRAW_H
 
+// Some math headers don't have PI defined.
+static const float DU_PI = 3.14159265f;
+
 enum duDebugDrawPrimitives
 {
 	DU_DRAW_POINTS,

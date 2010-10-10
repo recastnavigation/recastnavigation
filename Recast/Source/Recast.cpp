@@ -200,7 +200,7 @@ void rcMarkWalkableTriangles(rcContext* /*ctx*/, const float walkableSlopeAngle,
 	// TODO: VC complains about unref formal variable, figure out a way to handle this better.
 //	rcAssert(ctx);
 	
-	const float walkableThr = cosf(walkableSlopeAngle/180.0f*(float)M_PI);
+	const float walkableThr = cosf(walkableSlopeAngle/180.0f*RC_PI);
 
 	float norm[3];
 	
@@ -222,7 +222,7 @@ void rcClearUnwalkableTriangles(rcContext* /*ctx*/, const float walkableSlopeAng
 	// TODO: VC complains about unref formal variable, figure out a way to handle this better.
 //	rcAssert(ctx);
 	
-	const float walkableThr = cosf(walkableSlopeAngle/180.0f*(float)M_PI);
+	const float walkableThr = cosf(walkableSlopeAngle/180.0f*RC_PI);
 	
 	float norm[3];
 	

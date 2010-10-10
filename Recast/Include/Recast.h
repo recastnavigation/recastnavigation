@@ -19,6 +19,9 @@
 #ifndef RECAST_H
 #define RECAST_H
 
+// Some math headers don't have PI defined.
+static const float RC_PI = 3.14159265f;
+
 enum rcLogCategory
 {
 	RC_LOG_PROGRESS = 1,

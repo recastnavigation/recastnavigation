@@ -169,7 +169,7 @@ void duAppendCylinderWire(struct duDebugDraw* dd, float minx, float miny, float 
 		init = true;
 		for (int i = 0; i < NUM_SEG; ++i)
 		{
-			const float a = (float)i/(float)NUM_SEG*(float)M_PI*2;
+			const float a = (float)i/(float)NUM_SEG*DU_PI*2;
 			dir[i*2] = cosf(a);
 			dir[i*2+1] = sinf(a);
 		}
@@ -425,7 +425,7 @@ void duAppendCircle(struct duDebugDraw* dd, const float x, const float y, const 
 		init = true;
 		for (int i = 0; i < NUM_SEG; ++i)
 		{
-			const float a = (float)i/(float)NUM_SEG*(float)M_PI*2;
+			const float a = (float)i/(float)NUM_SEG*DU_PI*2;
 			dir[i*2] = cosf(a);
 			dir[i*2+1] = sinf(a);
 		}
