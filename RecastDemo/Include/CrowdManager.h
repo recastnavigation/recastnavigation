@@ -166,6 +166,13 @@ public:
 	inline const float* getLocalSegment(int i) const { return &m_localSegs[i*6]; }
 };
 
+static const int MAX_NEIGHBOURS = 6;
+
+struct Neighbour
+{
+	int idx;
+	float dist;
+};
 
 struct Agent
 {
@@ -178,6 +185,9 @@ struct Agent
 	float maxspeed;
 	float t;
 	float var;
+	
+	Neighbour neis[MAX_NEIGHBOURS];
+	int nneis;
 	
 	float radius, height;
 	float npos[3];
@@ -239,7 +249,7 @@ class CrowdManager
 	int m_moveRequestCount;
 	
 	int getNeighbours(const float* pos, const float height, const float range,
-					  const Agent* skip, Agent** result, const int maxResult);
+					  const Agent* skip, Neighbour* result, const int maxResult);
 
 public:
 	CrowdManager();
@@ -253,7 +263,7 @@ public:
 	bool requestMoveTarget(const int idx, dtPolyRef ref, const float* pos);
 	
 	int getActiveAgents(Agent** agents, const int maxAgents);
-	
+	void updateMoveRequest(const float dt, dtNavMeshQuery* navquery);
 	void update(const float dt, unsigned int flags, dtNavMeshQuery* navquery);
 	
 	const dtQueryFilter* getFilter() const { return &m_filter; }
