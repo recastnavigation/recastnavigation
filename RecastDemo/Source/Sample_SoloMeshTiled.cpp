@@ -720,8 +720,8 @@ bool Sample_SoloMeshTiled::handleBuild()
 	m_cfg.walkableRadius = (int)ceilf(m_agentRadius / m_cfg.cs);
 	m_cfg.maxEdgeLen = (int)(m_edgeMaxLen / m_cellSize);
 	m_cfg.maxSimplificationError = m_edgeMaxError;
-	m_cfg.minRegionSize = (int)rcSqr(m_regionMinSize);
-	m_cfg.mergeRegionSize = (int)rcSqr(m_regionMergeSize);
+	m_cfg.minRegionArea = (int)rcSqr(m_regionMinSize);		// Note: area = size*size
+	m_cfg.mergeRegionArea = (int)rcSqr(m_regionMergeSize);	// Note: area = size*size
 	m_cfg.maxVertsPerPoly = (int)m_vertsPerPoly;
 	m_cfg.tileSize = (int)m_tileSize;
 	m_cfg.borderSize = m_cfg.walkableRadius + 3; // Reserve enough padding.
@@ -867,7 +867,7 @@ bool Sample_SoloMeshTiled::handleBuild()
 				continue;
 			}
 			
-			if (!rcBuildRegions(m_ctx, *tile.chf, tileCfg.borderSize, tileCfg.minRegionSize, tileCfg.mergeRegionSize))
+			if (!rcBuildRegions(m_ctx, *tile.chf, tileCfg.borderSize, tileCfg.minRegionArea, tileCfg.mergeRegionArea))
 			{
 				m_ctx->log(RC_LOG_ERROR, "buildTiledNavigation: [%d,%d] Could not build regions.", x, y);
 				continue;

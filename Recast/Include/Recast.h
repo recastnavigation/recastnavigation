@@ -115,8 +115,8 @@ struct rcConfig
 	int walkableRadius;				// Radius of the agent in cells (vx)
 	int maxEdgeLen;					// Maximum contour edge length (vx)
 	float maxSimplificationError;	// Maximum distance error from contour to cells (vx)
-	int minRegionSize;				// Minimum regions size. Smaller regions will be deleted (vx)
-	int mergeRegionSize;			// Minimum regions size. Smaller regions will be merged (vx)
+	int minRegionArea;				// Regions whose area is smaller than this threshold will be removed. (vx)
+	int mergeRegionArea;			// Regions whose area is smaller than this threshold will be merged (vx)
 	int maxVertsPerPoly;			// Max number of vertices per polygon
 	float detailSampleDist;			// Detail mesh sample spacing.
 	float detailSampleMaxError;		// Detail mesh simplification max sample error.
@@ -619,32 +619,34 @@ bool rcBuildDistanceField(rcContext* ctx, rcCompactHeightfield& chf);
 // Divides the walkable heighfied into simple regions using watershed partitioning.
 // Each region has only one contour and no overlaps.
 // The regions are stored in the compact heightfield 'reg' field.
-// The process sometimes creates small regions. The parameter
-// 'minRegionSize' specifies the smallest allowed regions size.
-// If the area of a regions is smaller than allowed, the regions is
-// removed or merged to neighbour region. 
+// The process sometimes creates small regions. If the area of a regions is
+// smaller than 'mergeRegionArea' then the region will be merged with a neighbour
+// region if possible. If multiple regions form an area which is smaller than
+// 'minRegionArea' all the regions belonging to that area will be removed.
+// Here area means the count of spans in an area.
 // Params:
 //	chf - (in/out) compact heightfield representing the open space.
-//	minRegionSize - (in) the smallest allowed regions size.
-//	maxMergeRegionSize - (in) the largest allowed regions size which can be merged.
+//	minRegionArea - (in) the smallest allowed region area.
+//	maxMergeRegionArea - (in) the largest allowed region area which can be merged.
 // Returns false if operation ran out of memory.
 bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
-					const int borderSize, const int minRegionSize, const int mergeRegionSize);
+					const int borderSize, const int minRegionArea, const int mergeRegionArea);
 
 // Divides the walkable heighfied into simple regions using simple monotone partitioning.
 // Each region has only one contour and no overlaps.
 // The regions are stored in the compact heightfield 'reg' field.
-// The process sometimes creates small regions. The parameter
-// 'minRegionSize' specifies the smallest allowed regions size.
-// If the area of a regions is smaller than allowed, the regions is
-// removed or merged to neighbour region. 
+// The process sometimes creates small regions. If the area of a regions is
+// smaller than 'mergeRegionArea' then the region will be merged with a neighbour
+// region if possible. If multiple regions form an area which is smaller than
+// 'minRegionArea' all the regions belonging to that area will be removed.
+// Here area means the count of spans in an area.
 // Params:
 //	chf - (in/out) compact heightfield representing the open space.
-//	minRegionSize - (in) the smallest allowed regions size.
-//	maxMergeRegionSize - (in) the largest allowed regions size which can be merged.
+//	minRegionArea - (in) the smallest allowed regions size.
+//	maxMergeRegionArea - (in) the largest allowed regions size which can be merged.
 // Returns false if operation ran out of memory.
 bool rcBuildRegionsMonotone(rcContext* ctx, rcCompactHeightfield& chf,
-							const int borderSize, const int minRegionSize, const int mergeRegionSize);
+							const int borderSize, const int minRegionArea, const int mergeRegionArea);
 
 // Builds simplified contours from the regions outlines.
 // Params:

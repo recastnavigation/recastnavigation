@@ -375,8 +375,8 @@ bool Sample_SoloMeshSimple::handleBuild()
 	m_cfg.walkableRadius = (int)ceilf(m_agentRadius / m_cfg.cs);
 	m_cfg.maxEdgeLen = (int)(m_edgeMaxLen / m_cellSize);
 	m_cfg.maxSimplificationError = m_edgeMaxError;
-	m_cfg.minRegionSize = (int)rcSqr(m_regionMinSize);
-	m_cfg.mergeRegionSize = (int)rcSqr(m_regionMergeSize);
+	m_cfg.minRegionArea = (int)rcSqr(m_regionMinSize);		// Note: area = size*size
+	m_cfg.mergeRegionArea = (int)rcSqr(m_regionMergeSize);	// Note: area = size*size
 	m_cfg.maxVertsPerPoly = (int)m_vertsPerPoly;
 	m_cfg.detailSampleDist = m_detailSampleDist < 0.9f ? 0 : m_cellSize * m_detailSampleDist;
 	m_cfg.detailSampleMaxError = m_cellHeight * m_detailSampleMaxError;
@@ -495,7 +495,7 @@ bool Sample_SoloMeshSimple::handleBuild()
 	}
 
 	// Partition the walkable surface into simple regions without holes.
-	if (!rcBuildRegions(m_ctx, *m_chf, m_cfg.borderSize, m_cfg.minRegionSize, m_cfg.mergeRegionSize))
+	if (!rcBuildRegions(m_ctx, *m_chf, m_cfg.borderSize, m_cfg.minRegionArea, m_cfg.mergeRegionArea))
 	{
 		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Could not build regions.");
 		return false;
