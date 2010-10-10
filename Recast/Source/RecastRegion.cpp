@@ -437,12 +437,19 @@ static unsigned short* expandRegions(int maxIter, unsigned short level,
 
 struct rcRegion
 {
-	inline rcRegion(unsigned short i) : count(0), id(i), area(0), remap(false) {}
+	inline rcRegion(unsigned short i) :
+		count(0),
+		id(i),
+		area(0),
+		remap(false),
+		visited(false)
+	{}
 	
 	int count;
 	unsigned short id;
 	unsigned char area;
 	bool remap;
+	bool visited;
 	rcIntArray connections;
 	rcIntArray floors;
 };
@@ -759,8 +766,10 @@ static bool filterSmallRegions(rcContext* ctx, int minRegionSize, int mergeRegio
 			}
 		}
 	}
-	
-	// Remove too small unconnected regions.
+
+	// Remove too small regions.
+	rcIntArray stack(32);
+	rcIntArray trace(32);
 	for (int i = 0; i < nreg; ++i)
 	{
 		rcRegion& reg = regions[i];
@@ -768,19 +777,62 @@ static bool filterSmallRegions(rcContext* ctx, int minRegionSize, int mergeRegio
 			continue;                       
 		if (reg.count == 0)
 			continue;
+		if (reg.visited)
+			continue;
 		
-		if (reg.connections.size() == 1 && reg.connections[0] == 0)
+		// Count the total size of all the connected regions.
+		// Also keep track of the regions connects to a tile border.
+		bool connectsToBorder = false;
+		int count = 0;
+		stack.resize(0);
+		trace.resize(0);
+
+		reg.visited = true;
+		stack.push(i);
+		
+		while (stack.size())
 		{
-			if (reg.count < minRegionSize)
+			// Pop
+			int ri = stack.pop();
+			
+			rcRegion& creg = regions[ri];
+
+			count += creg.count;
+			trace.push(ri);
+
+			for (int j = 0; j < creg.connections.size(); ++j)
 			{
-				// Non-connected small region, remove.
-				reg.count = 0;
-				reg.id = 0;
+				if (creg.connections[j] & RC_BORDER_REG)
+				{
+					connectsToBorder = true;
+					continue;
+				}
+				rcRegion& nreg = regions[creg.connections[j]];
+				if (nreg.visited)
+					continue;
+				if (nreg.id == 0 || (nreg.id & RC_BORDER_REG))
+					continue;
+				// Visit
+				stack.push(nreg.id);
+				nreg.visited = true;
+			}
+		}
+		
+		// If the accumulated regions size is too small, remove it.
+		// Do not remove areas which connect to tile borders
+		// as their size cannot be estimated correctly and removing them
+		// can potentially remove necessary areas.
+		if (count < minRegionSize && !connectsToBorder)
+		{
+			// Kill all visited regions.
+			for (int j = 0; j < trace.size(); ++j)
+			{
+				regions[trace[j]].count = 0;
+				regions[trace[j]].id = 0;
 			}
 		}
 	}
-	
-	
+		
 	// Merge too small regions to neighbour regions.
 	int mergeCount = 0 ;
 	do

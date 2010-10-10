@@ -118,7 +118,7 @@ void Sample::resetCommonSettings()
 	m_agentRadius = 0.6f;
 	m_agentMaxClimb = 0.9f;
 	m_agentMaxSlope = 45.0f;
-	m_regionMinSize = 50;
+	m_regionMinSize = 8;
 	m_regionMergeSize = 20;
 	m_edgeMaxLen = 12.0f;
 	m_edgeMaxError = 1.3f;

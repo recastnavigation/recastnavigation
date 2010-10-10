@@ -284,7 +284,7 @@
 							<key>PBXSmartGroupTreeModuleOutlineStateSelectionKey</key>
 							<array>
 								<array>
-									<integer>29</integer>
+									<integer>34</integer>
 									<integer>27</integer>
 									<integer>1</integer>
 									<integer>0</integer>
@@ -326,7 +326,7 @@
 								<key>PBXProjectModuleGUID</key>
 								<string>6B8632A30F78115100E2684A</string>
 								<key>PBXProjectModuleLabel</key>
-								<string>imguiRenderGL.cpp</string>
+								<string>RecastRegion.cpp</string>
 								<key>PBXSplitModuleInNavigatorKey</key>
 								<dict>
 									<key>Split0</key>
@@ -334,11 +334,11 @@
 										<key>PBXProjectModuleGUID</key>
 										<string>6B8632A40F78115100E2684A</string>
 										<key>PBXProjectModuleLabel</key>
-										<string>imguiRenderGL.cpp</string>
+										<string>RecastRegion.cpp</string>
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>6BB2EE2A1261C92300E350F8</string>
+										<string>6BB2EE411261D02000E350F8</string>
 										<key>history</key>
 										<array>
 											<string>6BBB4AA5115B4F3400CF791D</string>
@@ -357,7 +357,6 @@
 											<string>6BAF46D3121D8FF1008CFCDF</string>
 											<string>6B1C8E08121EB4FF0048697F</string>
 											<string>6BA6876E1222F02E00730711</string>
-											<string>6BA687831222F42100730711</string>
 											<string>6BA687881222F4DB00730711</string>
 											<string>6BA687CA1222FA9300730711</string>
 											<string>6BD402111224336600995864</string>
@@ -370,9 +369,7 @@
 											<string>6BD402B4122441CB00995864</string>
 											<string>6B920A521225C0AC00D5B5AD</string>
 											<string>6B920A6D1225C5DD00D5B5AD</string>
-											<string>6B920AA81225DBCB00D5B5AD</string>
 											<string>6BA7F8AC1226EF0400C8C47A</string>
-											<string>6BA7F8D01226EF9D00C8C47A</string>
 											<string>6BA7F8EC1227002300C8C47A</string>
 											<string>6BA7F8ED1227002300C8C47A</string>
 											<string>6BA7F8EE1227002300C8C47A</string>
@@ -412,8 +409,6 @@
 											<string>6BA8CF501255D44700272A3B</string>
 											<string>6BA8CF511255D44700272A3B</string>
 											<string>6BA8CF5B1255D49B00272A3B</string>
-											<string>6BA8CF6F1255D50700272A3B</string>
-											<string>6BA8CF7B1255D5FE00272A3B</string>
 											<string>6BA8CF7C1255D5FE00272A3B</string>
 											<string>6BA8CF941255D97400272A3B</string>
 											<string>6BA8CF951255D97400272A3B</string>
@@ -430,7 +425,12 @@
 											<string>6BB2EE261261C92300E350F8</string>
 											<string>6BB2EE271261C92300E350F8</string>
 											<string>6BB2EE281261C92300E350F8</string>
-											<string>6BB2EE291261C92300E350F8</string>
+											<string>6BB2EE351261CEB800E350F8</string>
+											<string>6BB2EE361261CEB800E350F8</string>
+											<string>6BB2EE381261CEB800E350F8</string>
+											<string>6BB2EE3E1261D02000E350F8</string>
+											<string>6BB2EE3F1261D02000E350F8</string>
+											<string>6BB2EE401261D02000E350F8</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>
@@ -444,18 +444,18 @@
 							<key>GeometryConfiguration</key>
 							<dict>
 								<key>Frame</key>
-								<string>{{0, 0}, {992, 379}}</string>
+								<string>{{0, 0}, {992, 673}}</string>
 								<key>RubberWindowFrame</key>
 								<string>0 59 1278 719 0 0 1280 778 </string>
 							</dict>
 							<key>Module</key>
 							<string>PBXNavigatorGroup</string>
 							<key>Proportion</key>
-							<string>379pt</string>
+							<string>673pt</string>
 						</dict>
 						<dict>
 							<key>Proportion</key>
-							<string>294pt</string>
+							<string>0pt</string>
 							<key>Tabs</key>
 							<array>
 								<dict>
@@ -485,7 +485,7 @@
 									<key>GeometryConfiguration</key>
 									<dict>
 										<key>Frame</key>
-										<string>{{10, 27}, {992, 267}}</string>
+										<string>{{10, 27}, {992, -27}}</string>
 										<key>RubberWindowFrame</key>
 										<string>0 59 1278 719 0 0 1280 778 </string>
 									</dict>
