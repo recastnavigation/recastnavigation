@@ -284,13 +284,14 @@
 							<key>PBXSmartGroupTreeModuleOutlineStateSelectionKey</key>
 							<array>
 								<array>
-									<integer>81</integer>
+									<integer>15</integer>
+									<integer>11</integer>
 									<integer>1</integer>
 									<integer>0</integer>
 								</array>
 							</array>
 							<key>PBXSmartGroupTreeModuleOutlineStateVisibleRectKey</key>
-							<string>{{0, 692}, {264, 660}}</string>
+							<string>{{0, 0}, {264, 660}}</string>
 						</dict>
 						<key>PBXTopSmartGroupGIDs</key>
 						<array/>
@@ -325,7 +326,7 @@
 								<key>PBXProjectModuleGUID</key>
 								<string>6B8632A30F78115100E2684A</string>
 								<key>PBXProjectModuleLabel</key>
-								<string>main.cpp</string>
+								<string>DetourNavMesh.h</string>
 								<key>PBXSplitModuleInNavigatorKey</key>
 								<dict>
 									<key>Split0</key>
@@ -333,11 +334,11 @@
 										<key>PBXProjectModuleGUID</key>
 										<string>6B8632A40F78115100E2684A</string>
 										<key>PBXProjectModuleLabel</key>
-										<string>main.cpp</string>
+										<string>DetourNavMesh.h</string>
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>6B1635D6126887C80083FC15</string>
+										<string>6B1635DF1268887E0083FC15</string>
 										<key>history</key>
 										<array>
 											<string>6BBB4C34115B7A3D00CF791D</string>
@@ -414,7 +415,6 @@
 											<string>6B1633121268326F0083FC15</string>
 											<string>6B1633141268326F0083FC15</string>
 											<string>6B163317126832D20083FC15</string>
-											<string>6B16338112684C6F0083FC15</string>
 											<string>6B16357012687A5D0083FC15</string>
 											<string>6B16357112687A5D0083FC15</string>
 											<string>6B16358E12687D740083FC15</string>
@@ -429,7 +429,8 @@
 											<string>6B1635C9126885AD0083FC15</string>
 											<string>6B1635D3126887C80083FC15</string>
 											<string>6B1635D4126887C80083FC15</string>
-											<string>6B1635D5126887C80083FC15</string>
+											<string>6B1635D91268881A0083FC15</string>
+											<string>6B1635DA1268881A0083FC15</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>
