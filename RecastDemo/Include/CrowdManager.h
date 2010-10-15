@@ -215,7 +215,7 @@ enum UpdateFlags
 
 class CrowdManager
 {
-	static const int MAX_AGENTS = 32;
+	static const int MAX_AGENTS = 128;
 	Agent m_agents[MAX_AGENTS];
 	dtObstacleAvoidanceDebugData* m_vodebug[MAX_AGENTS];
 	dtObstacleAvoidanceQuery* m_obstacleQuery;

@@ -479,7 +479,7 @@ int main(int /*argc*/, char** /*argv*/)
 			sample->handleRender();
 		if (test)
 			test->handleRender();
-
+		
 		glDisable(GL_FOG);
 		
 		// Render GUI

@@ -281,16 +281,57 @@ bool InputGeom::save(const char* filepath)
 	return true;
 }
 
+static bool isectSegAABB(const float* sp, const float* sq,
+						 const float* amin, const float* amax,
+						 float& tmin, float& tmax)
+{
+	static const float EPS = 1e-6f;
+	
+	float d[3];
+	d[0] = sq[0] - sp[0];
+	d[1] = sq[1] - sp[1];
+	d[2] = sq[2] - sp[2];
+	tmin = 0.0;
+	tmax = 1.0f;
+	
+	for (int i = 0; i < 3; i++)
+	{
+		if (fabsf(d[i]) < EPS)
+		{
+			if (sp[i] < amin[i] || sp[i] > amax[i])
+				return false;
+		}
+		else
+		{
+			const float ood = 1.0f / d[i];
+			float t1 = (amin[i] - sp[i]) * ood;
+			float t2 = (amax[i] - sp[i]) * ood;
+			if (t1 > t2) { float tmp = t1; t1 = t2; t2 = tmp; }
+			if (t1 > tmin) tmin = t1;
+			if (t2 < tmax) tmax = t2;
+			if (tmin > tmax) return false;
+		}
+	}
+	
+	return true;
+}
+
+
 bool InputGeom::raycastMesh(float* src, float* dst, float& tmin)
 {
 	float dir[3];
 	rcVsub(dir, dst, src);
 
+	// Prune hit ray.
+	float btmin, btmax;
+	if (!isectSegAABB(src, dst, m_meshBMin, m_meshBMax, btmin, btmax))
+		return false;
 	float p[2], q[2];
-	p[0] = src[0];
-	p[1] = src[2];
-	q[0] = dst[0];
-	q[1] = dst[2];
+	p[0] = src[0] + (dst[0]-src[0])*btmin;
+	p[1] = src[2] + (dst[2]-src[2])*btmin;
+	q[0] = src[0] + (dst[0]-src[0])*btmax;
+	q[1] = src[2] + (dst[2]-src[2])*btmax;
+	
 	int cid[512];
 	const int ncid = rcGetChunksOverlappingSegment(m_chunkyMesh, p, q, cid, 512);
 	if (!ncid)
@@ -306,7 +347,7 @@ bool InputGeom::raycastMesh(float* src, float* dst, float& tmin)
 		const int* tris = &m_chunkyMesh->tris[node.i*3];
 		const int ntris = node.n;
 
-		for (int j = 0; j < ntris*3; ++j)
+		for (int j = 0; j < ntris*3; j += 3)
 		{
 			float t = 1;
 			if (intersectSegmentTriangle(src, dst,
