@@ -497,17 +497,20 @@ void PathCorridor::updateLocalNeighbourhood(const float collisionQueryRange, dtN
 		return;
 	
 	dtVcopy(m_localCenter, m_pos);
+
+	// First query non-overlapping polygons.
 	static const int MAX_LOCALS = 32;
 	dtPolyRef locals[MAX_LOCALS];
-	
 	const int nlocals = navquery->findLocalNeighbourhood(m_path[0], m_pos, collisionQueryRange,
 														 filter, locals, 0, MAX_LOCALS);
 	
+	// Secondly, store all polygon edges.
 	m_localSegCount = 0;
 	for (int j = 0; j < nlocals; ++j)
 	{
-		float segs[DT_VERTS_PER_POLYGON*3*2];
-		const int nsegs = navquery->getPolyWallSegments(locals[j], filter, segs);
+		static const int MAX_SEGS = DT_VERTS_PER_POLYGON*2;
+		float segs[MAX_SEGS*6];
+		const int nsegs = navquery->getPolyWallSegments(locals[j], filter, segs, MAX_SEGS);
 		for (int k = 0; k < nsegs; ++k)
 		{
 			const float* s = &segs[k*6];

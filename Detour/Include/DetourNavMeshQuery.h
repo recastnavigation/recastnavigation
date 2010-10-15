@@ -300,9 +300,11 @@ public:
 	// Params:
 	//  ref - (in) ref to the polygon.
 	//  filter - (in) path polygon filter.
-	//  segments[DT_VERTS_PER_POLYGON*3*2] - (out) wall segments.
+	//  segments[6*maxSegments] - (out) wall segments (2 endpoints per segment).
+	//  maxSegments - (in) max number of segments that can be stored in 'segments'.
 	// Returns: Number of wall segments.
-	int getPolyWallSegments(dtPolyRef ref, const dtQueryFilter* filter, float* segments);
+	int getPolyWallSegments(dtPolyRef ref, const dtQueryFilter* filter,
+							float* segments, const int maxSegments);
 	
 	// Returns closest point on navigation polygon.
 	// Uses detail polygons to find the closest point to the navigation polygon surface. 

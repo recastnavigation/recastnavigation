@@ -2147,7 +2147,8 @@ static void insertInterval(dtSegInterval* ints, int& nints, const int maxInts,
 	nints++;
 }
 
-int dtNavMeshQuery::getPolyWallSegments(dtPolyRef ref, const dtQueryFilter* filter, float* segments)
+int dtNavMeshQuery::getPolyWallSegments(dtPolyRef ref, const dtQueryFilter* filter,
+										float* segments, const int maxSegments)
 {
 	dtAssert(m_nav);
 	
@@ -2210,7 +2211,7 @@ int dtNavMeshQuery::getPolyWallSegments(dtPolyRef ref, const dtQueryFilter* filt
 			if (imin == imax) continue;
 			if (imin == 0 && imax == 255)
 			{
-				if (n < DT_VERTS_PER_POLYGON)
+				if (n < maxSegments)
 				{
 					float* seg = &segments[n*6];
 					n++;
@@ -2222,7 +2223,7 @@ int dtNavMeshQuery::getPolyWallSegments(dtPolyRef ref, const dtQueryFilter* filt
 			{
 				const float tmin = imin/255.0f; 
 				const float tmax = imax/255.0f; 
-				if (n < DT_VERTS_PER_POLYGON)
+				if (n < maxSegments)
 				{
 					float* seg = &segments[n*6];
 					n++;

@@ -1118,8 +1118,9 @@ void NavMeshTesterTool::handleRender()
 				dd.depthMask(true);
 			}
 
-			float segs[DT_VERTS_PER_POLYGON*3*2];
-			const int nsegs = m_navQuery->getPolyWallSegments(m_polys[i], &m_filter, segs);
+			static const int MAX_SEGS = DT_VERTS_PER_POLYGON*2;
+			float segs[MAX_SEGS*6];
+			const int nsegs = m_navQuery->getPolyWallSegments(m_polys[i], &m_filter, segs, MAX_SEGS);
 			dd.begin(DU_DRAW_LINES, 2.0f);
 			for (int j = 0; j < nsegs; ++j)
 			{
