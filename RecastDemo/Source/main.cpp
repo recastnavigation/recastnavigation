@@ -365,7 +365,13 @@ int main(int /*argc*/, char** /*argv*/)
 		if (processHitTest && geom && sample)
 		{
 			float t;
-			if (geom->raycastMesh(rays, raye, t))
+			TimeVal t0 = getPerfTime();
+			bool hit = geom->raycastMesh(rays, raye, t);
+			TimeVal t1 = getPerfTime();
+			
+			printf("raycast() %.4fms\n", getPerfDeltaTimeUsec(t0,t1)/1000.0f);
+			
+			if (hit)
 			{
 				if (SDL_GetModState() & KMOD_CTRL)
 				{

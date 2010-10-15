@@ -42,8 +42,11 @@ struct rcChunkyTriMesh
 bool rcCreateChunkyTriMesh(const float* verts, const int* tris, int ntris,
 						   int trisPerChunk, rcChunkyTriMesh* cm);
 
-// Returns the chunk indices which touch the input rectable.
-int rcGetChunksInRect(const rcChunkyTriMesh* cm, float bmin[2], float bmax[2], int* ids, const int maxIds);
+// Returns the chunk indices which overlap the input rectable.
+int rcGetChunksOverlappingRect(const rcChunkyTriMesh* cm, float bmin[2], float bmax[2], int* ids, const int maxIds);
+
+// Returns the chunk indices which overlap the input segment.
+int rcGetChunksOverlappingSegment(const rcChunkyTriMesh* cm, float p[2], float q[2], int* ids, const int maxIds);
 
 
 #endif // CHUNKYTRIMESH_H

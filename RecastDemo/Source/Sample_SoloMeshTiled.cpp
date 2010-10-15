@@ -803,7 +803,7 @@ bool Sample_SoloMeshTiled::handleBuild()
 			tbmax[0] = tileCfg.bmax[0];
 			tbmax[1] = tileCfg.bmax[2];
 			int cid[512];// TODO: Make grow when returning too many items.
-			const int ncid = rcGetChunksInRect(chunkyMesh, tbmin, tbmax, cid, 512);
+			const int ncid = rcGetChunksOverlappingRect(chunkyMesh, tbmin, tbmax, cid, 512);
 			if (!ncid)
 				continue;
 			

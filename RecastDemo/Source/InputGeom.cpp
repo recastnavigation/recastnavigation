@@ -285,29 +285,39 @@ bool InputGeom::raycastMesh(float* src, float* dst, float& tmin)
 {
 	float dir[3];
 	rcVsub(dir, dst, src);
+
+	float p[2], q[2];
+	p[0] = src[0];
+	p[1] = src[2];
+	q[0] = dst[0];
+	q[1] = dst[2];
+	int cid[512];
+	const int ncid = rcGetChunksOverlappingSegment(m_chunkyMesh, p, q, cid, 512);
+	if (!ncid)
+		return false;
 	
-	int nt = m_mesh->getTriCount();
-	const float* verts = m_mesh->getVerts();
-	const float* normals = m_mesh->getNormals();
-	const int* tris = m_mesh->getTris();
 	tmin = 1.0f;
 	bool hit = false;
+	const float* verts = m_mesh->getVerts();
 	
-	for (int i = 0; i < nt*3; i += 3)
+	for (int i = 0; i < ncid; ++i)
 	{
-		const float* n = &normals[i];
-		if (rcVdot(dir, n) > 0)
-			continue;
-		
-		float t = 1;
-		if (intersectSegmentTriangle(src, dst,
-									 &verts[tris[i]*3],
-									 &verts[tris[i+1]*3],
-									 &verts[tris[i+2]*3], t))
+		const rcChunkyTriMeshNode& node = m_chunkyMesh->nodes[cid[i]];
+		const int* tris = &m_chunkyMesh->tris[node.i*3];
+		const int ntris = node.n;
+
+		for (int j = 0; j < ntris*3; ++j)
 		{
-			if (t < tmin)
-				tmin = t;
-			hit = true;
+			float t = 1;
+			if (intersectSegmentTriangle(src, dst,
+										 &verts[tris[j]*3],
+										 &verts[tris[j+1]*3],
+										 &verts[tris[j+2]*3], t))
+			{
+				if (t < tmin)
+					tmin = t;
+				hit = true;
+			}
 		}
 	}
 	

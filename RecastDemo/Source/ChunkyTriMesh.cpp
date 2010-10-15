@@ -19,6 +19,7 @@
 #include "ChunkyTriMesh.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 struct BoundsItem
 {
@@ -209,9 +210,9 @@ inline bool checkOverlapRect(const float amin[2], const float amax[2],
 	return overlap;
 }
 
-int rcGetChunksInRect(const rcChunkyTriMesh* cm,
-					  float bmin[2], float bmax[2],
-					  int* ids, const int maxIds)
+int rcGetChunksOverlappingRect(const rcChunkyTriMesh* cm,
+							   float bmin[2], float bmax[2],
+							   int* ids, const int maxIds)
 {
 	// Traverse tree
 	int i = 0;
@@ -243,3 +244,72 @@ int rcGetChunksInRect(const rcChunkyTriMesh* cm,
 	return n;
 }
 
+
+
+static bool checkOverlapSegment(const float p[2], const float q[2],
+								const float bmin[2], const float bmax[2])
+{
+	static const float EPSILON = 1e-6f;
+
+	float tmin = 0;
+	float tmax = 1;
+	float d[2];
+	d[0] = q[0] - p[0];
+	d[1] = q[1] - p[1];
+	
+	for (int i = 0; i < 2; i++)
+	{
+		if (fabsf(d[i]) < EPSILON)
+		{
+			// Ray is parallel to slab. No hit if origin not within slab
+			if (p[i] < bmin[i] || p[i] > bmax[i])
+				return false;
+		}
+		else
+		{
+			// Compute intersection t value of ray with near and far plane of slab
+			float ood = 1.0f / d[i];
+			float t1 = (bmin[i] - p[i]) * ood;
+			float t2 = (bmax[i] - p[i]) * ood;
+			if (t1 > t2) { float tmp = t1; t1 = t2; t2 = tmp; }
+			if (t1 > tmin) tmin = t1;
+			if (t2 < tmax) tmax = t2;
+			if (tmin > tmax) return false;
+		}
+	}
+	return true;
+}
+
+int rcGetChunksOverlappingSegment(const rcChunkyTriMesh* cm,
+								  float p[2], float q[2],
+								  int* ids, const int maxIds)
+{
+	// Traverse tree
+	int i = 0;
+	int n = 0;
+	while (i < cm->nnodes)
+	{
+		const rcChunkyTriMeshNode* node = &cm->nodes[i];
+		const bool overlap = checkOverlapSegment(p, q, node->bmin, node->bmax);
+		const bool isLeafNode = node->i >= 0;
+		
+		if (isLeafNode && overlap)
+		{
+			if (n < maxIds)
+			{
+				ids[n] = i;
+				n++;
+			}
+		}
+		
+		if (overlap || isLeafNode)
+			i++;
+		else
+		{
+			const int escapeIndex = -node->i;
+			i += escapeIndex;
+		}
+	}
+	
+	return n;
+}
