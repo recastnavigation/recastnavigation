@@ -34,7 +34,7 @@ typedef unsigned int dtTileRef;
 static const int DT_VERTS_PER_POLYGON = 6;
 
 static const int DT_NAVMESH_MAGIC = 'D'<<24 | 'N'<<16 | 'A'<<8 | 'V'; //'DNAV';
-static const int DT_NAVMESH_VERSION = 4;
+static const int DT_NAVMESH_VERSION = 5;
 
 static const int DT_NAVMESH_STATE_MAGIC = 'D'<<24 | 'N'<<16 | 'M'<<8 | 'S'; //'DNMS';
 static const int DT_NAVMESH_STATE_VERSION = 1;
