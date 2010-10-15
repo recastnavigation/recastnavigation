@@ -513,6 +513,9 @@ void dtObstacleAvoidanceQuery::sampleVelocity(const float* pos, const float rad,
 	}
 }
 
+
+static const float DT_PI = 3.14159265f;
+
 void dtObstacleAvoidanceQuery::sampleVelocityAdaptive(const float* pos, const float rad, const float vmax,
 													  const float* vel, const float* dvel,
 													  float* nvel,
@@ -527,41 +530,67 @@ void dtObstacleAvoidanceQuery::sampleVelocityAdaptive(const float* pos, const fl
 	
 	// First sample location.
 	float res[3];
-	dtVset(res, dvel[0] * m_velBias, 0, vel[2] * m_velBias);
-	float cs = vmax * (2 - m_velBias*2) / (float)(m_gridSize-1);
+	dtVset(res, dvel[0] * m_velBias, 0, dvel[2] * m_velBias);
+	
+	// Build sampling pattern aligned to desired velocity.
+	static const int MAX_PATTERN_SIZE = 32;
+	float pat[MAX_PATTERN_SIZE*2];
+	int npat = 0;
+
+	// Always add sample at zero
+	pat[npat*2+0] = 0;
+	pat[npat*2+1] = 0;
+	npat++;
+
+	const int nring = dtClamp(m_gridSize, 1, MAX_PATTERN_SIZE);
+	const float sring = (1.0f/nring) * DT_PI*2;
+	const float dang = atan2f(dvel[2], dvel[0]);
+	
+	for (int i = 0; i < nring; ++i)
+	{
+		const float a = dang + (float)(i+0.5f)*sring; 
+		pat[npat*2+0] = cosf(a)*0.5f;
+		pat[npat*2+1] = sinf(a)*0.5f;
+		npat++;
+	}
+	for (int i = 0; i < nring; ++i)
+	{
+		const float a = dang + (float)i * sring;
+		pat[npat*2+0] = cosf(a);
+		pat[npat*2+1] = sinf(a);
+		npat++;
+	}
+
+
+	float cr = vmax * (1.0f-m_velBias);
 	
 	for (int k = 0; k < m_gridDepth; ++k)
 	{
-		const float half = (m_gridSize-1)*cs*0.5f;
-		
 		float minPenalty = FLT_MAX;
 		float bvel[3];
 		dtVset(bvel, 0,0,0);
-
-		for (int y = 0; y < m_gridSize; ++y)
+		
+		for (int i = 0; i < npat; ++i)
 		{
-			for (int x = 0; x < m_gridSize; ++x)
+			float vcand[3];
+			vcand[0] = res[0] + pat[i*2+0]*cr;
+			vcand[1] = 0;
+			vcand[2] = res[2] + pat[i*2+1]*cr;
+			
+			if (dtSqr(vcand[0])+dtSqr(vcand[2]) > dtSqr(vmax+0.001f)) continue;
+			
+			const float penalty = processSample(vcand,cr/10, pos,rad,vmax,vel,dvel, debug);
+			if (penalty < minPenalty)
 			{
-				float vcand[3];
-				vcand[0] = res[0] + x*cs - half;
-				vcand[1] = 0;
-				vcand[2] = res[2] + y*cs - half;
-				
-				if (dtSqr(vcand[0])+dtSqr(vcand[2]) > dtSqr(vmax+cs/2)) continue;
-				
-				const float penalty = processSample(vcand,cs, pos,rad,vmax,vel,dvel, debug);
-				if (penalty < minPenalty)
-				{
-					minPenalty = penalty;
-					dtVcopy(bvel, vcand);
-				}
+				minPenalty = penalty;
+				dtVcopy(bvel, vcand);
 			}
 		}
-		
+
 		dtVcopy(res, bvel);
-		
-		cs *= 0.5f;
-	}
+
+		cr *= 0.5f;
+	}	
 	
 	dtVcopy(nvel, res);
 }

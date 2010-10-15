@@ -100,7 +100,7 @@ public:
 	inline void setCurrentVelocityWeight(float w) { m_weightCurVel = w; }
 	inline void setPreferredSideWeight(float w) { m_weightSide = w; }
 	inline void setCollisionTimeWeight(float w) { m_weightToi = w; }
-	inline void setTimeHorizon(float t) { m_horizTime = t; }	
+	inline void setTimeHorizon(float t) { m_horizTime = t; }
 
 	void sampleVelocity(const float* pos, const float rad, const float vmax,
 						const float* vel, const float* dvel,

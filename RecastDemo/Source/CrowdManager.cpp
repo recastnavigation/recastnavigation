@@ -31,8 +31,9 @@
 #include "DetourAssert.h"
 #include "DetourAlloc.h"
 
-static const int VO_ADAPTIVE_GRID_SIZE = 4;
+static const int VO_ADAPTIVE_GRID_SIZE = 7; // this resuts 1+n*2 samples per depth.
 static const int VO_ADAPTIVE_GRID_DEPTH = 5;
+
 static const int VO_GRID_SIZE = 33;
 
 
