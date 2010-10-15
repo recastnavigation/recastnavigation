@@ -991,11 +991,10 @@ bool rcBuildDistanceField(rcContext* ctx, rcCompactHeightfield& chf)
 	return true;
 }
 
-static void paintRectRegion(int minx, int maxx, int miny, int maxy,
-							unsigned short regId,
+static void paintRectRegion(int minx, int maxx, int miny, int maxy, unsigned short regId,
 							rcCompactHeightfield& chf, unsigned short* srcReg)
 {
-	const int w = chf.width;
+	const int w = chf.width;	
 	for (int y = miny; y < maxy; ++y)
 	{
 		for (int x = minx; x < maxx; ++x)
@@ -1050,12 +1049,16 @@ bool rcBuildRegionsMonotone(rcContext* ctx, rcCompactHeightfield& chf,
 	
 	
 	// Mark border regions.
-	if (borderSize)
+	if (borderSize > 0)
 	{
-		paintRectRegion(0, borderSize, 0, h, id|RC_BORDER_REG, chf, srcReg); id++;
-		paintRectRegion(w-borderSize, w, 0, h, id|RC_BORDER_REG, chf, srcReg); id++;
-		paintRectRegion(0, w, 0, borderSize, id|RC_BORDER_REG, chf, srcReg); id++;
-		paintRectRegion(0, w, h-borderSize, h, id|RC_BORDER_REG, chf, srcReg); id++;
+		// Make sure border will not overflow.
+		const int bw = rcMin(w, borderSize);
+		const int bh = rcMin(h, borderSize);
+		// Paint regions
+		paintRectRegion(0, bw, 0, h, id|RC_BORDER_REG, chf, srcReg); id++;
+		paintRectRegion(w-bw, w, 0, h, id|RC_BORDER_REG, chf, srcReg); id++;
+		paintRectRegion(0, w, 0, bh, id|RC_BORDER_REG, chf, srcReg); id++;
+		paintRectRegion(0, w, h-bh, h, id|RC_BORDER_REG, chf, srcReg); id++;
 	}
 	
 	rcIntArray prev(256);
