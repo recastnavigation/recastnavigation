@@ -182,17 +182,6 @@ inline unsigned int dtIlog2(unsigned int v)
 
 inline int dtAlign4(int x) { return (x+3) & ~3; }
 
-inline unsigned int dtHashInt(unsigned int a)
-{
-	a += ~(a<<15);
-	a ^=  (a>>10);
-	a +=  (a<<3);
-	a ^=  (a>>6);
-	a += ~(a<<11);
-	a ^=  (a>>16);
-	return a;
-}
-
 inline int dtOppositeTile(int side) { return (side+4) & 0x7; }
 
 inline float dtVdot2D(const float* u, const float* v)

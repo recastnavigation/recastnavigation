@@ -276,7 +276,7 @@ int dtNavMesh::findConnectingPolys(const float* va, const float* vb,
 			{
 				conarea[n*2+0] = dtMax(amin[0], bmin[0]);
 				conarea[n*2+1] = dtMin(amax[0], bmax[0]);
-				con[n] = base | (unsigned int)i;
+				con[n] = base | (dtPolyRef)i;
 				n++;
 			}
 			break;
@@ -431,7 +431,7 @@ void dtNavMesh::connectExtOffMeshLinks(dtMeshTile* tile, dtMeshTile* target, int
 				const unsigned short landPolyIdx = (unsigned short)decodePolyIdPoly(ref);
 				dtPoly* landPoly = &tile->polys[landPolyIdx];
 				dtLink* link = &tile->links[idx];
-				link->ref = getPolyRefBase(target) | (unsigned int)(targetCon->poly);
+				link->ref = getPolyRefBase(target) | (dtPolyRef)(targetCon->poly);
 				link->edge = 0xff;
 				link->side = (unsigned char)side;
 				link->bmin = link->bmax = 0;
@@ -469,7 +469,7 @@ void dtNavMesh::connectIntLinks(dtMeshTile* tile)
 			if (idx != DT_NULL_LINK)
 			{
 				dtLink* link = &tile->links[idx];
-				link->ref = base | (unsigned int)(poly->neis[j]-1);
+				link->ref = base | (dtPolyRef)(poly->neis[j]-1);
 				link->edge = (unsigned char)j;
 				link->side = 0xff;
 				link->bmin = link->bmax = 0;
@@ -538,7 +538,7 @@ void dtNavMesh::connectIntOffMeshLinks(dtMeshTile* tile)
 						const unsigned short landPolyIdx = (unsigned short)decodePolyIdPoly(ref);
 						dtPoly* landPoly = &tile->polys[landPolyIdx];
 						dtLink* link = &tile->links[idx];
-						link->ref = base | (unsigned int)(con->poly);
+						link->ref = base | (dtPolyRef)(con->poly);
 						link->edge = 0xff;
 						link->side = 0xff;
 						link->bmin = link->bmax = 0;

@@ -22,6 +22,17 @@
 #include "DetourCommon.h"
 #include <string.h>
 
+inline unsigned int dtHashRef(dtPolyRef a)
+{
+	a += ~(a<<15);
+	a ^=  (a>>10);
+	a +=  (a<<3);
+	a ^=  (a>>6);
+	a += ~(a<<11);
+	a ^=  (a>>16);
+	return (unsigned int)a;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////
 dtNodePool::dtNodePool(int maxNodes, int hashSize) :
 	m_nodes(0),
@@ -59,9 +70,9 @@ void dtNodePool::clear()
 	m_nodeCount = 0;
 }
 
-const dtNode* dtNodePool::findNode(unsigned int id) const
+const dtNode* dtNodePool::findNode(dtPolyRef id) const
 {
-	unsigned int bucket = dtHashInt(id) & (m_hashSize-1);
+	unsigned int bucket = dtHashRef(id) & (m_hashSize-1);
 	unsigned short i = m_first[bucket];
 	while (i != DT_NULL_IDX)
 	{
@@ -72,9 +83,9 @@ const dtNode* dtNodePool::findNode(unsigned int id) const
 	return 0;
 }
 
-dtNode* dtNodePool::getNode(unsigned int id)
+dtNode* dtNodePool::getNode(dtPolyRef id)
 {
-	unsigned int bucket = dtHashInt(id) & (m_hashSize-1);
+	unsigned int bucket = dtHashRef(id) & (m_hashSize-1);
 	unsigned short i = m_first[bucket];
 	dtNode* node = 0;
 	while (i != DT_NULL_IDX)

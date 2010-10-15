@@ -19,6 +19,8 @@
 #ifndef DETOURNODE_H
 #define DETOURNODE_H
 
+#include "DetourNavMesh.h"
+
 enum dtNodeFlags
 {
 	DT_NODE_OPEN = 0x01,
@@ -29,12 +31,12 @@ static const unsigned short DT_NULL_IDX = 0xffff;
 
 struct dtNode
 {
-	float pos[3];
-	float cost;
-	float total;
-	unsigned int id;
-	unsigned int pidx : 30;
-	unsigned int flags : 2;
+	float pos[3];				// Position of the node.
+	float cost;					// Cost from previous node to current node.
+	float total;				// Cost up to the node.
+	unsigned int pidx : 30;		// Index to parent node.
+	unsigned int flags : 2;		// Node flags 0/open/closed.
+	dtPolyRef id;				// Polygon ref the node corresponds to.
 };
 
 class dtNodePool
@@ -44,8 +46,8 @@ public:
 	~dtNodePool();
 	inline void operator=(const dtNodePool&) {}
 	void clear();
-	dtNode* getNode(unsigned int id);
-	const dtNode* findNode(unsigned int id) const;
+	dtNode* getNode(dtPolyRef id);
+	const dtNode* findNode(dtPolyRef id) const;
 
 	inline unsigned int getNodeIdx(const dtNode* node) const
 	{

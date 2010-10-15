@@ -21,6 +21,9 @@
 
 #include "DetourAlloc.h"
 
+// Note: If you want to use 64-bit refs, change the types of both dtPolyRef & dtTileRef.
+// It is also recommended to change dtHashRef() to proper 64-bit hash too.
+
 // Reference to navigation polygon.
 typedef unsigned int dtPolyRef;
 
