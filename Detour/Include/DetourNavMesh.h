@@ -307,27 +307,33 @@ public:
 	// Decodes a tile id.
 	inline void decodePolyId(dtPolyRef ref, unsigned int& salt, unsigned int& it, unsigned int& ip) const
 	{
-		salt = (unsigned int)((ref >> (m_polyBits+m_tileBits)) & ((1<<m_saltBits)-1));
-		it = (unsigned int)((ref >> m_polyBits) & ((1<<m_tileBits)-1));
-		ip = (unsigned int)(ref & ((1<<m_polyBits)-1));
+		const dtPolyRef saltMask = ((dtPolyRef)1<<m_saltBits)-1;
+		const dtPolyRef tileMask = ((dtPolyRef)1<<m_tileBits)-1;
+		const dtPolyRef polyMask = ((dtPolyRef)1<<m_polyBits)-1;
+		salt = (unsigned int)((ref >> (m_polyBits+m_tileBits)) & saltMask);
+		it = (unsigned int)((ref >> m_polyBits) & tileMask);
+		ip = (unsigned int)(ref & polyMask);
 	}
 
 	// Decodes a tile salt.
 	inline unsigned int decodePolyIdSalt(dtPolyRef ref) const
 	{
-		return (unsigned int)((ref >> (m_polyBits+m_tileBits)) & ((1<<m_saltBits)-1));
+		const dtPolyRef saltMask = ((dtPolyRef)1<<m_saltBits)-1;
+		return (unsigned int)((ref >> (m_polyBits+m_tileBits)) & saltMask);
 	}
 	
 	// Decodes a tile id.
 	inline unsigned int decodePolyIdTile(dtPolyRef ref) const
 	{
-		return (unsigned int)((ref >> m_polyBits) & ((1<<m_tileBits)-1));
+		const dtPolyRef tileMask = ((dtPolyRef)1<<m_tileBits)-1;
+		return (unsigned int)((ref >> m_polyBits) & tileMask);
 	}
 	
 	// Decodes a poly id.
 	inline unsigned int decodePolyIdPoly(dtPolyRef ref) const
 	{
-		return (unsigned int)(ref & ((1<<m_polyBits)-1));
+		const dtPolyRef polyMask = ((dtPolyRef)1<<m_polyBits)-1;
+		return (unsigned int)(ref & polyMask);
 	}
 	
 private:

@@ -284,14 +284,14 @@
 							<key>PBXSmartGroupTreeModuleOutlineStateSelectionKey</key>
 							<array>
 								<array>
-									<integer>26</integer>
+									<integer>15</integer>
 									<integer>11</integer>
 									<integer>1</integer>
 									<integer>0</integer>
 								</array>
 							</array>
 							<key>PBXSmartGroupTreeModuleOutlineStateVisibleRectKey</key>
-							<string>{{0, 238}, {264, 660}}</string>
+							<string>{{0, 178}, {264, 660}}</string>
 						</dict>
 						<key>PBXTopSmartGroupGIDs</key>
 						<array/>
@@ -326,7 +326,7 @@
 								<key>PBXProjectModuleGUID</key>
 								<string>6B8632A30F78115100E2684A</string>
 								<key>PBXProjectModuleLabel</key>
-								<string>DetourObstacleAvoidance.cpp</string>
+								<string>DetourNavMesh.h</string>
 								<key>PBXSplitModuleInNavigatorKey</key>
 								<dict>
 									<key>Split0</key>
@@ -334,11 +334,11 @@
 										<key>PBXProjectModuleGUID</key>
 										<string>6B8632A40F78115100E2684A</string>
 										<key>PBXProjectModuleLabel</key>
-										<string>DetourObstacleAvoidance.cpp</string>
+										<string>DetourNavMesh.h</string>
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>6B163613126892060083FC15</string>
+										<string>6BB9C1E4126C265200B97C1C</string>
 										<key>history</key>
 										<array>
 											<string>6BBB4C34115B7A3D00CF791D</string>
@@ -422,15 +422,15 @@
 											<string>6B1635C8126885AD0083FC15</string>
 											<string>6B1635D3126887C80083FC15</string>
 											<string>6B1635D4126887C80083FC15</string>
-											<string>6B1635D91268881A0083FC15</string>
-											<string>6B1635E612688D1B0083FC15</string>
 											<string>6B1635E812688D1B0083FC15</string>
 											<string>6B163608126891A40083FC15</string>
 											<string>6B16360A126891A40083FC15</string>
 											<string>6B16360B126891A40083FC15</string>
 											<string>6B16360C126891A40083FC15</string>
 											<string>6B163611126892060083FC15</string>
-											<string>6B163612126892060083FC15</string>
+											<string>6BB9C1B6126B55F200B97C1C</string>
+											<string>6BB9C1E1126C24C300B97C1C</string>
+											<string>6BB9C1E2126C24C300B97C1C</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>
@@ -469,7 +469,9 @@
 									<key>GeometryConfiguration</key>
 									<dict>
 										<key>Frame</key>
-										<string>{{10, 27}, {992, 92}}</string>
+										<string>{{10, 27}, {992, -27}}</string>
+										<key>RubberWindowFrame</key>
+										<string>0 59 1278 719 0 0 1280 778 </string>
 									</dict>
 									<key>Module</key>
 									<string>XCDetailModule</string>
@@ -485,7 +487,7 @@
 									<key>GeometryConfiguration</key>
 									<dict>
 										<key>Frame</key>
-										<string>{{10, 27}, {992, -27}}</string>
+										<string>{{0, 0}, {614, 336}}</string>
 									</dict>
 									<key>Module</key>
 									<string>PBXProjectFindModule</string>
@@ -523,9 +525,7 @@
 									<key>GeometryConfiguration</key>
 									<dict>
 										<key>Frame</key>
-										<string>{{10, 27}, {992, -27}}</string>
-										<key>RubberWindowFrame</key>
-										<string>0 59 1278 719 0 0 1280 778 </string>
+										<string>{{0, 0}, {568, 405}}</string>
 									</dict>
 									<key>Module</key>
 									<string>PBXBuildResultsModule</string>
@@ -553,11 +553,11 @@
 			</array>
 			<key>TableOfContents</key>
 			<array>
-				<string>6B1632F5126830210083FC15</string>
+				<string>6BB9C1C0126B562300B97C1C</string>
 				<string>1CA23ED40692098700951B8B</string>
-				<string>6B1632F6126830210083FC15</string>
+				<string>6BB9C1C1126B562300B97C1C</string>
 				<string>6B8632A30F78115100E2684A</string>
-				<string>6B1632F7126830210083FC15</string>
+				<string>6BB9C1C2126B562300B97C1C</string>
 				<string>1CA23EDF0692099D00951B8B</string>
 				<string>1CA23EE00692099D00951B8B</string>
 				<string>1CA23EE10692099D00951B8B</string>
@@ -705,14 +705,14 @@
 			</array>
 			<key>TableOfContents</key>
 			<array>
-				<string>6B1632F8126830210083FC15</string>
+				<string>6BB9C1C3126B562300B97C1C</string>
 				<string>1CCC7628064C1048000F2A68</string>
 				<string>1CCC7629064C1048000F2A68</string>
-				<string>6B1632F9126830210083FC15</string>
-				<string>6B1632FA126830210083FC15</string>
-				<string>6B1632FB126830210083FC15</string>
-				<string>6B1632FC126830210083FC15</string>
-				<string>6B1632FD126830210083FC15</string>
+				<string>6BB9C1C4126B562300B97C1C</string>
+				<string>6BB9C1C5126B562300B97C1C</string>
+				<string>6BB9C1C6126B562300B97C1C</string>
+				<string>6BB9C1C7126B562300B97C1C</string>
+				<string>6B8632A30F78115100E2684A</string>
 			</array>
 			<key>ToolbarConfigUserDefaultsMinorVersion</key>
 			<string>2</string>
@@ -744,8 +744,8 @@
 	<integer>5</integer>
 	<key>WindowOrderList</key>
 	<array>
-		<string>6B1632FF126830210083FC15</string>
-		<string>6B163300126830210083FC15</string>
+		<string>6BB9C1C9126B562300B97C1C</string>
+		<string>6BB9C1CA126B562300B97C1C</string>
 		<string>/Users/memon/Code/recastnavigation/RecastDemo/Build/Xcode/Recast.xcodeproj</string>
 	</array>
 	<key>WindowString</key>
