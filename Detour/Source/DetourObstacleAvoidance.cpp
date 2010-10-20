@@ -206,8 +206,6 @@ void dtFreeObstacleAvoidanceQuery(dtObstacleAvoidanceQuery* ptr)
 
 
 dtObstacleAvoidanceQuery::dtObstacleAvoidanceQuery() :
-	m_gridSize(0),
-	m_gridDepth(0),
 	m_velBias(0.0f),
 	m_weightDesVel(0.0f),
 	m_weightCurVel(0.0f),
@@ -255,85 +253,24 @@ void dtObstacleAvoidanceQuery::reset()
 }
 
 void dtObstacleAvoidanceQuery::addCircle(const float* pos, const float rad,
-										 const float* vel, const float* dvel,
-										 const float dist)
+										 const float* vel, const float* dvel)
 {
-	// Find location for the circle.
-	dtObstacleCircle* cir = 0;
-	if (!m_ncircles)
-	{
-		cir = &m_circles[m_ncircles];
-	}
-	else if (dist >= m_circles[m_ncircles-1].dist)
-	{
-		if (m_ncircles >= m_maxCircles)
-			return;
-		cir = &m_circles[m_ncircles];
-	}
-	else
-	{
-		int i;
-		for (i = 0; i < m_ncircles; ++i)
-			if (dist <= m_circles[i].dist)
-				break;
+	if (m_ncircles >= m_maxCircles)
+		return;
 		
-		const int tgt = i+1;
-		const int n = dtMin(m_ncircles-i, m_maxCircles-tgt);
-
-		dtAssert(tgt+n <= m_maxCircles);
-
-		if (n > 0)
-			memmove(&m_circles[tgt], &m_circles[i], sizeof(dtObstacleCircle)*n);
-		cir = &m_circles[i];
-	}
-	
-	memset(cir, 0, sizeof(dtObstacleCircle));
-	if (m_ncircles < m_maxCircles)
-		m_ncircles++;
-	
+	dtObstacleCircle* cir = &m_circles[m_ncircles++];
 	dtVcopy(cir->p, pos);
 	cir->rad = rad;
 	dtVcopy(cir->vel, vel);
 	dtVcopy(cir->dvel, dvel);
-	cir->dist = dist;
 }
 
-void dtObstacleAvoidanceQuery::addSegment(const float* p, const float* q, const float dist)
+void dtObstacleAvoidanceQuery::addSegment(const float* p, const float* q)
 {
-	// Find location for the segment.
-	dtObstacleSegment* seg = 0;
-	if (!m_nsegments)
-	{
-		seg = &m_segments[m_nsegments];
-	}
-	else if (dist >= m_segments[m_nsegments-1].dist)
-	{
-		if (m_nsegments >= m_maxSegments)
-			return;
-		seg = &m_segments[m_nsegments];
-	}
-	else
-	{
-		int i;
-		for (i = 0; i < m_nsegments; ++i)
-			if (dist <= m_segments[i].dist)
-				break;
-		
-		const int tgt = i+1;
-		const int n = dtMin(m_nsegments-i, m_maxSegments-tgt);
-
-		dtAssert(tgt+n <= m_maxSegments);
-
-		if (n > 0)
-			memmove(&m_segments[tgt], &m_segments[i], sizeof(dtObstacleSegment)*n);
-		seg = &m_segments[i];
-	}
+	if (m_nsegments > m_maxSegments)
+		return;
 	
-	memset(seg, 0, sizeof(dtObstacleSegment));
-	if (m_nsegments < m_maxSegments)
-		m_nsegments++;
-		
-	seg->dist = dist;
+	dtObstacleSegment* seg = &m_segments[m_nsegments++];
 	dtVcopy(seg->p, p);
 	dtVcopy(seg->q, q);
 }
@@ -473,10 +410,10 @@ float dtObstacleAvoidanceQuery::processSample(const float* vcand, const float cs
 	return penalty;
 }
 
-void dtObstacleAvoidanceQuery::sampleVelocity(const float* pos, const float rad, const float vmax,
-											  const float* vel, const float* dvel,
-											  float* nvel,
-											  dtObstacleAvoidanceDebugData* debug)
+void dtObstacleAvoidanceQuery::sampleVelocityGrid(const float* pos, const float rad, const float vmax,
+												  const float* vel, const float* dvel,
+												  float* nvel, const int gsize,
+												  dtObstacleAvoidanceDebugData* debug)
 {
 	prepare(pos, dvel);
 	
@@ -487,14 +424,14 @@ void dtObstacleAvoidanceQuery::sampleVelocity(const float* pos, const float rad,
 
 	const float cvx = dvel[0] * m_velBias;
 	const float cvz = dvel[2] * m_velBias;
-	const float cs = vmax * 2 * (1 - m_velBias) / (float)(m_gridSize-1);
-	const float half = (m_gridSize-1)*cs*0.5f;
+	const float cs = vmax * 2 * (1 - m_velBias) / (float)(gsize-1);
+	const float half = (gsize-1)*cs*0.5f;
 		
 	float minPenalty = FLT_MAX;
 		
-	for (int y = 0; y < m_gridSize; ++y)
+	for (int y = 0; y < gsize; ++y)
 	{
-		for (int x = 0; x < m_gridSize; ++x)
+		for (int x = 0; x < gsize; ++x)
 		{
 			float vcand[3];
 			vcand[0] = cvx + x*cs - half;
@@ -517,8 +454,8 @@ void dtObstacleAvoidanceQuery::sampleVelocity(const float* pos, const float rad,
 static const float DT_PI = 3.14159265f;
 
 void dtObstacleAvoidanceQuery::sampleVelocityAdaptive(const float* pos, const float rad, const float vmax,
-													  const float* vel, const float* dvel,
-													  float* nvel,
+													  const float* vel, const float* dvel, float* nvel,
+													  const int ndivs, const int nrings, const int depth,
 													  dtObstacleAvoidanceDebugData* debug)
 {
 	prepare(pos, dvel);
@@ -528,43 +465,42 @@ void dtObstacleAvoidanceQuery::sampleVelocityAdaptive(const float* pos, const fl
 	if (debug)
 		debug->reset();
 	
-	// First sample location.
-	float res[3];
-	dtVset(res, dvel[0] * m_velBias, 0, dvel[2] * m_velBias);
 	
 	// Build sampling pattern aligned to desired velocity.
-	static const int MAX_PATTERN_SIZE = 32;
-	float pat[MAX_PATTERN_SIZE*2];
+	static const int MAX_PATTERN_DIVS = 32;
+	static const int MAX_PATTERN_RINGS = 4;
+	float pat[(MAX_PATTERN_DIVS*MAX_PATTERN_RINGS+1)*2];
 	int npat = 0;
 
+	const int nd = dtClamp(ndivs, 1, MAX_PATTERN_DIVS);
+	const int nr = dtClamp(nrings, 1, MAX_PATTERN_RINGS);
+	const float da = (1.0f/nd) * DT_PI*2;
+	const float dang = atan2f(dvel[2], dvel[0]);
+	
 	// Always add sample at zero
 	pat[npat*2+0] = 0;
 	pat[npat*2+1] = 0;
 	npat++;
-
-	const int nring = dtClamp(m_gridSize, 1, MAX_PATTERN_SIZE);
-	const float sring = (1.0f/nring) * DT_PI*2;
-	const float dang = atan2f(dvel[2], dvel[0]);
 	
-	for (int i = 0; i < nring; ++i)
+	for (int j = 0; j < nr; ++j)
 	{
-		const float a = dang + (float)(i+0.5f)*sring; 
-		pat[npat*2+0] = cosf(a)*0.5f;
-		pat[npat*2+1] = sinf(a)*0.5f;
-		npat++;
-	}
-	for (int i = 0; i < nring; ++i)
-	{
-		const float a = dang + (float)i * sring;
-		pat[npat*2+0] = cosf(a);
-		pat[npat*2+1] = sinf(a);
-		npat++;
+		const float rad = (float)(nr-j)/(float)nr;
+		float a = dang + (j&1)*0.5f*da;
+		for (int i = 0; i < nd; ++i)
+		{
+			pat[npat*2+0] = cosf(a)*rad;
+			pat[npat*2+1] = sinf(a)*rad;
+			npat++;
+			a += da;
+		}
 	}
 
-
+	// Start sampling.
 	float cr = vmax * (1.0f-m_velBias);
-	
-	for (int k = 0; k < m_gridDepth; ++k)
+	float res[3];
+	dtVset(res, dvel[0] * m_velBias, 0, dvel[2] * m_velBias);
+
+	for (int k = 0; k < depth; ++k)
 	{
 		float minPenalty = FLT_MAX;
 		float bvel[3];

@@ -9,7 +9,7 @@
 		};
 	};
 	29B97313FDCFA39411CA2CEA /* Project object */ = {
-		activeBuildConfigurationName = Release;
+		activeBuildConfigurationName = Debug;
 		activeExecutable = 6B8632970F78114600E2684A /* Recast */;
 		activeTarget = 8D1107260486CEB800E47090 /* Recast */;
 		addToTargets = (
@@ -25,6 +25,7 @@
 			6B920A141225B1CF00D5B5AD /* DetourHashLookup.cpp:131 */,
 			6BD66851124350F50021A7A4 /* NavMeshTesterTool.cpp:480 */,
 			6BA8CF601255D4C500272A3B /* Sample.cpp:45 */,
+			6BB9C251126F555D00B97C1C /* DetourObstacleAvoidance.cpp:465 */,
 		);
 		codeSenseManager = 6B8632AA0F78115100E2684A /* Code sense */;
 		executables = (
@@ -221,6 +222,29 @@
 			6BB9C1E2126C24C300B97C1C /* PBXTextBookmark */ = 6BB9C1E2126C24C300B97C1C /* PBXTextBookmark */;
 			6BB9C1E3126C24C300B97C1C /* PBXTextBookmark */ = 6BB9C1E3126C24C300B97C1C /* PBXTextBookmark */;
 			6BB9C1E4126C265200B97C1C /* PBXTextBookmark */ = 6BB9C1E4126C265200B97C1C /* PBXTextBookmark */;
+			6BB9C1E5126C273100B97C1C /* PBXTextBookmark */ = 6BB9C1E5126C273100B97C1C /* PBXTextBookmark */;
+			6BB9C228126F4A9100B97C1C /* PBXTextBookmark */ = 6BB9C228126F4A9100B97C1C /* PBXTextBookmark */;
+			6BB9C229126F4A9100B97C1C /* PBXTextBookmark */ = 6BB9C229126F4A9100B97C1C /* PBXTextBookmark */;
+			6BB9C22A126F4A9100B97C1C /* PBXTextBookmark */ = 6BB9C22A126F4A9100B97C1C /* PBXTextBookmark */;
+			6BB9C22B126F4A9100B97C1C /* PBXTextBookmark */ = 6BB9C22B126F4A9100B97C1C /* PBXTextBookmark */;
+			6BB9C22C126F4A9100B97C1C /* PBXTextBookmark */ = 6BB9C22C126F4A9100B97C1C /* PBXTextBookmark */;
+			6BB9C22D126F4A9100B97C1C /* PBXTextBookmark */ = 6BB9C22D126F4A9100B97C1C /* PBXTextBookmark */;
+			6BB9C22E126F4A9100B97C1C /* PBXTextBookmark */ = 6BB9C22E126F4A9100B97C1C /* PBXTextBookmark */;
+			6BB9C22F126F4A9100B97C1C /* PBXTextBookmark */ = 6BB9C22F126F4A9100B97C1C /* PBXTextBookmark */;
+			6BB9C23E126F4DB200B97C1C /* PBXTextBookmark */ = 6BB9C23E126F4DB200B97C1C /* PBXTextBookmark */;
+			6BB9C23F126F4DB200B97C1C /* XCBuildMessageTextBookmark */ = 6BB9C23F126F4DB200B97C1C /* XCBuildMessageTextBookmark */;
+			6BB9C240126F4DB200B97C1C /* PBXTextBookmark */ = 6BB9C240126F4DB200B97C1C /* PBXTextBookmark */;
+			6BB9C243126F549B00B97C1C /* PBXTextBookmark */ = 6BB9C243126F549B00B97C1C /* PBXTextBookmark */;
+			6BB9C244126F549B00B97C1C /* PBXTextBookmark */ = 6BB9C244126F549B00B97C1C /* PBXTextBookmark */;
+			6BB9C245126F549B00B97C1C /* PBXTextBookmark */ = 6BB9C245126F549B00B97C1C /* PBXTextBookmark */;
+			6BB9C246126F549B00B97C1C /* PBXTextBookmark */ = 6BB9C246126F549B00B97C1C /* PBXTextBookmark */;
+			6BB9C24B126F54C800B97C1C /* PBXTextBookmark */ = 6BB9C24B126F54C800B97C1C /* PBXTextBookmark */;
+			6BB9C253126F555F00B97C1C /* PBXTextBookmark */ = 6BB9C253126F555F00B97C1C /* PBXTextBookmark */;
+			6BB9C254126F555F00B97C1C /* PBXTextBookmark */ = 6BB9C254126F555F00B97C1C /* PBXTextBookmark */;
+			6BB9C255126F555F00B97C1C /* PBXTextBookmark */ = 6BB9C255126F555F00B97C1C /* PBXTextBookmark */;
+			6BB9C256126F555F00B97C1C /* PBXTextBookmark */ = 6BB9C256126F555F00B97C1C /* PBXTextBookmark */;
+			6BB9C25C126F55D600B97C1C /* PBXTextBookmark */ = 6BB9C25C126F55D600B97C1C /* PBXTextBookmark */;
+			6BB9C262126F562C00B97C1C /* PBXTextBookmark */ = 6BB9C262126F562C00B97C1C /* PBXTextBookmark */;
 			6BBB0361124E242E00533229 = 6BBB0361124E242E00533229 /* PBXTextBookmark */;
 			6BBB0363124E242E00533229 = 6BBB0363124E242E00533229 /* PBXTextBookmark */;
 			6BBB4C34115B7A3D00CF791D = 6BBB4C34115B7A3D00CF791D /* PBXTextBookmark */;
@@ -272,7 +296,8 @@
 		hitCount = 0;
 		ignoreCount = 0;
 		lineNumber = 1324;
-		modificationTime = 308826279.221625;
+		location = Recast;
+		modificationTime = 309286258.801484;
 		originalNumberOfMultipleMatches = 1;
 		state = 1;
 	};
@@ -573,8 +598,8 @@
 		isa = PBXTextBookmark;
 		fRef = 6B9EFF02122819E200535FF1 /* DetourObstacleAvoidance.h */;
 		name = "DetourObstacleAvoidance.h: 96";
-		rLen = 10;
-		rLoc = 3207;
+		rLen = 0;
+		rLoc = 3096;
 		rType = 0;
 		vrLen = 1819;
 		vrLoc = 3088;
@@ -604,7 +629,7 @@
 		fRef = 6BD667D8123D27EC0021A7A4 /* CrowdManager.h */;
 		name = "CrowdManager.h: 232";
 		rLen = 0;
-		rLoc = 5681;
+		rLoc = 6163;
 		rType = 0;
 		vrLen = 908;
 		vrLoc = 5232;
@@ -614,7 +639,7 @@
 		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
 		name = "CrowdManager.cpp: 35";
 		rLen = 0;
-		rLoc = 1417;
+		rLoc = 1407;
 		rType = 0;
 		vrLen = 1286;
 		vrLoc = 446;
@@ -624,7 +649,7 @@
 		fRef = 6B9EFF0812281C3E00535FF1 /* DetourObstacleAvoidance.cpp */;
 		name = "DetourObstacleAvoidance.cpp: 568";
 		rLen = 0;
-		rLoc = 13659;
+		rLoc = 12450;
 		rType = 0;
 		vrLen = 905;
 		vrLoc = 13302;
@@ -634,7 +659,7 @@
 		fRef = 6B9EFF0812281C3E00535FF1 /* DetourObstacleAvoidance.cpp */;
 		name = "DetourObstacleAvoidance.cpp: 568";
 		rLen = 0;
-		rLoc = 13659;
+		rLoc = 12450;
 		rType = 0;
 		vrLen = 938;
 		vrLoc = 13269;
@@ -665,9 +690,9 @@
 	};
 	6B25B6180FFA62BE004F1BC4 /* main.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {931, 11895}}";
-			sepNavSelRange = "{1942, 0}";
-			sepNavVisRange = "{1842, 1045}";
+			sepNavIntBoundsRect = "{{0, 0}, {931, 11869}}";
+			sepNavSelRange = "{2461, 0}";
+			sepNavVisRange = "{1585, 1213}";
 			sepNavWindowFrame = "{{15, 51}, {1214, 722}}";
 		};
 	};
@@ -724,7 +749,8 @@
 		hitCount = 0;
 		ignoreCount = 0;
 		lineNumber = 362;
-		modificationTime = 308826279.220464;
+		location = Recast;
+		modificationTime = 309286240.760318;
 		originalNumberOfMultipleMatches = 1;
 		state = 1;
 	};
@@ -925,9 +951,9 @@
 	};
 	6B8DE88B10B69E4C00DF20FB /* DetourNavMesh.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {931, 5356}}";
-			sepNavSelRange = "{12977, 0}";
-			sepNavVisRange = "{11723, 1652}";
+			sepNavIntBoundsRect = "{{0, 0}, {931, 5278}}";
+			sepNavSelRange = "{14566, 0}";
+			sepNavVisRange = "{13725, 2039}";
 		};
 	};
 	6B8DE88C10B69E4C00DF20FB /* DetourNavMeshBuilder.h */ = {
@@ -961,7 +987,7 @@
 		ignoreCount = 0;
 		lineNumber = 78;
 		location = Recast;
-		modificationTime = 308826245.414741;
+		modificationTime = 309286237.392774;
 		originalNumberOfMultipleMatches = 0;
 		state = 2;
 	};
@@ -978,9 +1004,9 @@
 		hitCount = 0;
 		ignoreCount = 0;
 		lineNumber = 131;
-		modificationTime = 308826245.41512;
+		modificationTime = 309286258.80118;
 		originalNumberOfMultipleMatches = 1;
-		state = 0;
+		state = 1;
 	};
 	6B920A521225C0AC00D5B5AD /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
@@ -1067,16 +1093,16 @@
 	};
 	6B9EFF02122819E200535FF1 /* DetourObstacleAvoidance.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {931, 1963}}";
-			sepNavSelRange = "{3207, 10}";
-			sepNavVisRange = "{3088, 1819}";
+			sepNavIntBoundsRect = "{{0, 0}, {931, 1846}}";
+			sepNavSelRange = "{3711, 22}";
+			sepNavVisRange = "{3162, 1535}";
 		};
 	};
 	6B9EFF0812281C3E00535FF1 /* DetourObstacleAvoidance.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {931, 7813}}";
-			sepNavSelRange = "{13659, 0}";
-			sepNavVisRange = "{13267, 940}";
+			sepNavIntBoundsRect = "{{0, 0}, {931, 7059}}";
+			sepNavSelRange = "{12152, 0}";
+			sepNavVisRange = "{11613, 838}";
 		};
 	};
 	6BA1E88810C7BFC9008007F6 /* Sample_SoloMeshSimple.cpp */ = {
@@ -1133,7 +1159,8 @@
 		hitCount = 0;
 		ignoreCount = 0;
 		lineNumber = 137;
-		modificationTime = 308826279.220855;
+		location = Recast;
+		modificationTime = 309286240.769202;
 		originalNumberOfMultipleMatches = 1;
 		state = 1;
 	};
@@ -1254,7 +1281,8 @@
 		hitCount = 0;
 		ignoreCount = 0;
 		lineNumber = 45;
-		modificationTime = 308826279.219005;
+		location = Recast;
+		modificationTime = 309286240.789448;
 		originalNumberOfMultipleMatches = 1;
 		state = 1;
 	};
@@ -1297,9 +1325,9 @@
 	};
 	6BAF3C581211663A008CFCDF /* CrowdTool.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {931, 8008}}";
-			sepNavSelRange = "{1351, 1095}";
-			sepNavVisRange = "{1742, 1225}";
+			sepNavIntBoundsRect = "{{0, 0}, {931, 8151}}";
+			sepNavSelRange = "{8689, 0}";
+			sepNavVisRange = "{8537, 1412}";
 			sepNavWindowFrame = "{{15, 51}, {1214, 722}}";
 		};
 	};
@@ -1625,7 +1653,7 @@
 		fRef = 6B9EFF0812281C3E00535FF1 /* DetourObstacleAvoidance.cpp */;
 		name = "DetourObstacleAvoidance.cpp: 568";
 		rLen = 0;
-		rLoc = 13659;
+		rLoc = 12450;
 		rType = 0;
 		vrLen = 940;
 		vrLoc = 13267;
@@ -1850,6 +1878,253 @@
 		vrLen = 1652;
 		vrLoc = 11723;
 	};
+	6BB9C1E5126C273100B97C1C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B8DE88B10B69E4C00DF20FB /* DetourNavMesh.h */;
+		name = "DetourNavMesh.h: 385";
+		rLen = 0;
+		rLoc = 15347;
+		rType = 0;
+		vrLen = 2039;
+		vrLoc = 13725;
+	};
+	6BB9C228126F4A9100B97C1C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B8DE88B10B69E4C00DF20FB /* DetourNavMesh.h */;
+		name = "DetourNavMesh.h: 370";
+		rLen = 0;
+		rLoc = 14566;
+		rType = 0;
+		vrLen = 2039;
+		vrLoc = 13725;
+	};
+	6BB9C229126F4A9100B97C1C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B25B6180FFA62BE004F1BC4 /* main.cpp */;
+		name = "main.cpp: 82";
+		rLen = 0;
+		rLoc = 2461;
+		rType = 0;
+		vrLen = 1213;
+		vrLoc = 1585;
+	};
+	6BB9C22A126F4A9100B97C1C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D8123D27EC0021A7A4 /* CrowdManager.h */;
+		name = "CrowdManager.h: 140";
+		rLen = 0;
+		rLoc = 3459;
+		rType = 0;
+		vrLen = 1135;
+		vrLoc = 3180;
+	};
+	6BB9C22B126F4A9100B97C1C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		name = "CrowdManager.cpp: 472";
+		rLen = 0;
+		rLoc = 10993;
+		rType = 0;
+		vrLen = 945;
+		vrLoc = 10373;
+	};
+	6BB9C22C126F4A9100B97C1C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
+		name = "CrowdTool.cpp: 338";
+		rLen = 0;
+		rLoc = 8689;
+		rType = 0;
+		vrLen = 1412;
+		vrLoc = 8537;
+	};
+	6BB9C22D126F4A9100B97C1C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B9EFF02122819E200535FF1 /* DetourObstacleAvoidance.h */;
+		name = "DetourObstacleAvoidance.h: 107";
+		rLen = 51;
+		rLoc = 3853;
+		rType = 0;
+		vrLen = 1776;
+		vrLoc = 3037;
+	};
+	6BB9C22E126F4A9100B97C1C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B9EFF0812281C3E00535FF1 /* DetourObstacleAvoidance.cpp */;
+		name = "DetourObstacleAvoidance.cpp: 460";
+		rLen = 0;
+		rLoc = 11421;
+		rType = 0;
+		vrLen = 1064;
+		vrLoc = 10440;
+	};
+	6BB9C22F126F4A9100B97C1C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B9EFF0812281C3E00535FF1 /* DetourObstacleAvoidance.cpp */;
+		name = "DetourObstacleAvoidance.cpp: 491";
+		rLen = 0;
+		rLoc = 12183;
+		rType = 0;
+		vrLen = 991;
+		vrLoc = 11498;
+	};
+	6BB9C23E126F4DB200B97C1C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B9EFF0812281C3E00535FF1 /* DetourObstacleAvoidance.cpp */;
+		name = "DetourObstacleAvoidance.cpp: 231";
+		rLen = 0;
+		rLoc = 5750;
+		rType = 0;
+		vrLen = 795;
+		vrLoc = 5496;
+	};
+	6BB9C23F126F4DB200B97C1C /* XCBuildMessageTextBookmark */ = {
+		isa = PBXTextBookmark;
+		comments = "'class dtObstacleAvoidanceQuery' has no member named 'sampleVelocity'";
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		fallbackIsa = XCBuildMessageTextBookmark;
+		rLen = 1;
+		rLoc = 1229;
+		rType = 1;
+	};
+	6BB9C240126F4DB200B97C1C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		name = "CrowdManager.cpp: 1225";
+		rLen = 0;
+		rLoc = 29474;
+		rType = 0;
+		vrLen = 824;
+		vrLoc = 29149;
+	};
+	6BB9C243126F549B00B97C1C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B9EFF0812281C3E00535FF1 /* DetourObstacleAvoidance.cpp */;
+		name = "DetourObstacleAvoidance.cpp: 458";
+		rLen = 50;
+		rLoc = 11370;
+		rType = 0;
+		vrLen = 890;
+		vrLoc = 10955;
+	};
+	6BB9C244126F549B00B97C1C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B9EFF02122819E200535FF1 /* DetourObstacleAvoidance.h */;
+		name = "DetourObstacleAvoidance.h: 105";
+		rLen = 22;
+		rLoc = 3711;
+		rType = 0;
+		vrLen = 1535;
+		vrLoc = 3162;
+	};
+	6BB9C245126F549B00B97C1C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		name = "CrowdManager.cpp: 1228";
+		rLen = 0;
+		rLoc = 29571;
+		rType = 0;
+		vrLen = 931;
+		vrLoc = 29100;
+	};
+	6BB9C246126F549B00B97C1C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		name = "CrowdManager.cpp: 35";
+		rLen = 0;
+		rLoc = 1361;
+		rType = 0;
+		vrLen = 822;
+		vrLoc = 842;
+	};
+	6BB9C24B126F54C800B97C1C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		name = "CrowdManager.cpp: 1226";
+		rLen = 0;
+		rLoc = 29558;
+		rType = 0;
+		vrLen = 898;
+		vrLoc = 29100;
+	};
+	6BB9C251126F555D00B97C1C /* DetourObstacleAvoidance.cpp:465 */ = {
+		isa = PBXFileBreakpoint;
+		actions = (
+		);
+		breakpointStyle = 0;
+		continueAfterActions = 0;
+		countType = 0;
+		delayBeforeContinue = 0;
+		fileReference = 6B9EFF0812281C3E00535FF1 /* DetourObstacleAvoidance.cpp */;
+		functionName = "dtObstacleAvoidanceQuery::sampleVelocityAdaptive(const float* pos, const float rad, const float vmax, const float* vel, const float* dvel, float* nvel, const int ndivs, const int nrings, const int depth, dtObstacleAvoidanceDebugData* debug)";
+		hitCount = 1;
+		ignoreCount = 0;
+		lineNumber = 465;
+		location = Recast;
+		modificationTime = 309286240.829786;
+		originalNumberOfMultipleMatches = 1;
+		state = 1;
+	};
+	6BB9C253126F555F00B97C1C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B9EFF02122819E200535FF1 /* DetourObstacleAvoidance.h */;
+		name = "DetourObstacleAvoidance.h: 105";
+		rLen = 22;
+		rLoc = 3711;
+		rType = 0;
+		vrLen = 1535;
+		vrLoc = 3162;
+	};
+	6BB9C254126F555F00B97C1C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		name = "CrowdManager.cpp: 1224";
+		rLen = 0;
+		rLoc = 29429;
+		rType = 0;
+		vrLen = 931;
+		vrLoc = 29100;
+	};
+	6BB9C255126F555F00B97C1C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B9EFF0812281C3E00535FF1 /* DetourObstacleAvoidance.cpp */;
+		name = "DetourObstacleAvoidance.cpp: 480";
+		rLen = 0;
+		rLoc = 11817;
+		rType = 0;
+		vrLen = 1022;
+		vrLoc = 11183;
+	};
+	6BB9C256126F555F00B97C1C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B9EFF0812281C3E00535FF1 /* DetourObstacleAvoidance.cpp */;
+		name = "DetourObstacleAvoidance.cpp: 466";
+		rLen = 0;
+		rLoc = 11552;
+		rType = 0;
+		vrLen = 1022;
+		vrLoc = 11183;
+	};
+	6BB9C25C126F55D600B97C1C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B9EFF0812281C3E00535FF1 /* DetourObstacleAvoidance.cpp */;
+		name = "DetourObstacleAvoidance.cpp: 488";
+		rLen = 0;
+		rLoc = 12152;
+		rType = 0;
+		vrLen = 859;
+		vrLoc = 11555;
+	};
+	6BB9C262126F562C00B97C1C /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6B9EFF0812281C3E00535FF1 /* DetourObstacleAvoidance.cpp */;
+		name = "DetourObstacleAvoidance.cpp: 488";
+		rLen = 0;
+		rLoc = 12152;
+		rType = 0;
+		vrLen = 838;
+		vrLoc = 11613;
+	};
 	6BBB0361124E242E00533229 /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
 		fRef = 6BBB0362124E242E00533229 /* Matrix4.h */;
@@ -1914,7 +2189,8 @@
 		hitCount = 0;
 		ignoreCount = 0;
 		lineNumber = 279;
-		modificationTime = 308826279.219623;
+		location = Recast;
+		modificationTime = 309286240.655807;
 		originalNumberOfMultipleMatches = 1;
 		state = 1;
 	};
@@ -2029,7 +2305,8 @@
 		hitCount = 0;
 		ignoreCount = 0;
 		lineNumber = 541;
-		modificationTime = 308826279.220026;
+		location = Recast;
+		modificationTime = 309286240.691116;
 		originalNumberOfMultipleMatches = 1;
 		state = 1;
 	};
@@ -2043,16 +2320,17 @@
 	};
 	6BD667D8123D27EC0021A7A4 /* CrowdManager.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1041, 3718}}";
-			sepNavSelRange = "{5681, 0}";
-			sepNavVisRange = "{5232, 908}";
+			sepNavIntBoundsRect = "{{0, 0}, {931, 4147}}";
+			sepNavSelRange = "{3459, 0}";
+			sepNavVisRange = "{3180, 1135}";
 		};
 	};
 	6BD667D9123D28100021A7A4 /* CrowdManager.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {931, 16445}}";
-			sepNavSelRange = "{1417, 0}";
-			sepNavVisRange = "{446, 1286}";
+			sepNavIntBoundsRect = "{{0, 0}, {931, 16900}}";
+			sepNavSelRange = "{29429, 0}";
+			sepNavVisRange = "{29100, 931}";
+			sepNavWindowFrame = "{{15, 134}, {1120, 639}}";
 		};
 	};
 	6BD6681812434B790021A7A4 /* PBXTextBookmark */ = {
@@ -2078,7 +2356,8 @@
 		hitCount = 0;
 		ignoreCount = 0;
 		lineNumber = 480;
-		modificationTime = 308826279.221242;
+		location = Recast;
+		modificationTime = 309286240.704872;
 		originalNumberOfMultipleMatches = 1;
 		state = 1;
 	};

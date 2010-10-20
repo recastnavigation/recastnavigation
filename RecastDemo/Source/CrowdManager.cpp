@@ -31,8 +31,9 @@
 #include "DetourAssert.h"
 #include "DetourAlloc.h"
 
-static const int VO_ADAPTIVE_GRID_SIZE = 7; // this resuts 1+n*2 samples per depth.
-static const int VO_ADAPTIVE_GRID_DEPTH = 5;
+static const int VO_ADAPTIVE_DIVS = 7;
+static const int VO_ADAPTIVE_RINGS = 2;
+static const int VO_ADAPTIVE_DEPTH = 5;
 
 static const int VO_GRID_SIZE = 33;
 
@@ -392,30 +393,46 @@ static int mergeCorridor(dtPolyRef* path, const int npath, const int maxPath,
 	return req+size;
 }
 
-// Finds straight path towards the goal and prunes it to contain only relevant vertices.
-static int findCorners(const float* pos, const float* target,
-					   const dtPolyRef* path, const int npath,
-					   float* cornerVerts, unsigned char* cornerFlags,
-					   dtPolyRef* cornerpath, const int maxCorners,
-					   const dtNavMeshQuery* navquery)
+PathCorridor::PathCorridor() :
+	m_npath(0)
 {
+	
+}
+
+PathCorridor::~PathCorridor()
+{
+}
+
+void PathCorridor::init(dtPolyRef ref, const float* pos)
+{
+	dtVcopy(m_pos, pos);
+	dtVcopy(m_target, pos);
+	m_path[0] = ref;
+	m_npath = 1;
+}
+
+int PathCorridor::findCorners(float* cornerVerts, unsigned char* cornerFlags,
+							  dtPolyRef* cornerPolys, const int maxCorners,
+							  dtNavMeshQuery* navquery, const dtQueryFilter* filter)
+{
+	dtAssert(m_npath);
+	
 	static const float MIN_TARGET_DIST = 0.01f;
 	
-	int ncorners = navquery->findStraightPath(pos, target, path, npath,
-											  cornerVerts, cornerFlags, cornerpath,
-											  maxCorners);
+	int ncorners = navquery->findStraightPath(m_pos, m_target, m_path, m_npath,
+											  cornerVerts, cornerFlags, cornerPolys, maxCorners);
 	
 	// Prune points in the beginning of the path which are too close.
 	while (ncorners)
 	{
 		if ((cornerFlags[0] & DT_STRAIGHTPATH_OFFMESH_CONNECTION) ||
-			dtVdist2DSqr(&cornerVerts[0], pos) > dtSqr(MIN_TARGET_DIST))
+			dtVdist2DSqr(&cornerVerts[0], m_pos) > dtSqr(MIN_TARGET_DIST))
 			break;
 		ncorners--;
 		if (ncorners)
 		{
 			memmove(cornerFlags, cornerFlags+1, sizeof(unsigned char)*ncorners);
-			memmove(cornerpath, cornerpath+1, sizeof(dtPolyRef)*ncorners);
+			memmove(cornerPolys, cornerPolys+1, sizeof(dtPolyRef)*ncorners);
 			memmove(cornerVerts, cornerVerts+3, sizeof(float)*3*ncorners);
 		}
 	}
@@ -433,116 +450,37 @@ static int findCorners(const float* pos, const float* target,
 	return ncorners;
 }
 
-static int optimizePath(const float* pos, const float* next, const float maxLookAhead,
-						dtPolyRef* path, const int npath,
-						const dtNavMeshQuery* navquery, const dtQueryFilter* filter)
+void PathCorridor::optimizePath(const float* next, const float pathOptimizationRange,
+								dtNavMeshQuery* navquery, const dtQueryFilter* filter)
 {
 	// Clamp the ray to max distance.
 	float goal[3];
 	dtVcopy(goal, next);
-	const float distSqr = dtVdist2DSqr(pos, goal);
+	const float distSqr = dtVdist2DSqr(m_pos, goal);
 	
 	// If too close to the goal, do not try to optimize.
 	if (distSqr < dtSqr(0.01f))
-		return npath;
+		return;
 	
 	// If too far truncate ray length.
-	if (distSqr > dtSqr(maxLookAhead))
+	if (distSqr > dtSqr(pathOptimizationRange))
 	{
 		float delta[3];
-		dtVsub(delta, goal, pos);
-		dtVmad(goal, pos, delta, dtSqr(maxLookAhead)/distSqr);
+		dtVsub(delta, goal, m_pos);
+		dtVmad(goal, m_pos, delta, dtSqr(pathOptimizationRange)/distSqr);
 	}
 	
 	static const int MAX_RES = 32;
 	dtPolyRef res[MAX_RES];
 	float t, norm[3];
-	const int nres = navquery->raycast(path[0], pos, goal, filter, t, norm, res, MAX_RES);
+	const int nres = navquery->raycast(m_path[0], m_pos, goal, filter, t, norm, res, MAX_RES);
 	if (nres > 1 && t > 0.99f)
 	{
-		return mergeCorridor(path, npath, AGENT_MAX_PATH, res, nres);
-	}
-	
-	return npath;
-}
-
-
-PathCorridor::PathCorridor()
-{
-}
-
-PathCorridor::~PathCorridor()
-{
-}
-
-void PathCorridor::init(dtPolyRef ref, const float* pos)
-{
-	dtVcopy(m_pos, pos);
-	dtVcopy(m_target, pos);
-
-	m_path[0] = ref;
-	m_npath = 1;
-	
-	dtVset(m_localCenter, 0,0,0);
-	m_localSegCount = 0;
-
-	m_ncorners = 0;
-}
-
-void PathCorridor::updateLocalNeighbourhood(const float collisionQueryRange, dtNavMeshQuery* navquery, const dtQueryFilter* filter)
-{
-	dtAssert(m_npath);
-	
-	// Only update the neigbourhood after certain distance has been passed.
-	if (dtVdist2DSqr(m_pos, m_localCenter) < dtSqr(collisionQueryRange*0.25f))
-		return;
-	
-	dtVcopy(m_localCenter, m_pos);
-
-	// First query non-overlapping polygons.
-	static const int MAX_LOCALS = 32;
-	dtPolyRef locals[MAX_LOCALS];
-	const int nlocals = navquery->findLocalNeighbourhood(m_path[0], m_pos, collisionQueryRange,
-														 filter, locals, 0, MAX_LOCALS);
-	
-	// Secondly, store all polygon edges.
-	m_localSegCount = 0;
-	for (int j = 0; j < nlocals; ++j)
-	{
-		static const int MAX_SEGS = DT_VERTS_PER_POLYGON*2;
-		float segs[MAX_SEGS*6];
-		const int nsegs = navquery->getPolyWallSegments(locals[j], filter, segs, MAX_SEGS);
-		for (int k = 0; k < nsegs; ++k)
-		{
-			const float* s = &segs[k*6];
-			// Skip too distant segments.
-			float tseg;
-			const float distSqr = dtDistancePtSegSqr2D(m_pos, s, s+3, tseg);
-			if (distSqr > dtSqr(collisionQueryRange))
-				continue;
-			if (m_localSegCount < AGENT_MAX_LOCALSEGS)
-			{
-				memcpy(&m_localSegs[m_localSegCount*6], s, sizeof(float)*6);
-				m_localSegCount++;
-			}
-		}
+		m_npath = mergeCorridor(m_path, m_npath, AGENT_MAX_PATH, res, nres);
 	}
 }
 
-float PathCorridor::getDistanceToGoal(const float range) const
-{
-	if (!m_ncorners)
-		return range;
-	
-	const bool endOfPath = (m_cornerFlags[m_ncorners-1] & DT_STRAIGHTPATH_END) ? true : false;
-	const bool offMeshConnection = (m_cornerFlags[m_ncorners-1] & DT_STRAIGHTPATH_OFFMESH_CONNECTION) ? true : false;
-	if (endOfPath || offMeshConnection)
-		return dtMin(dtVdist2D(m_pos, &m_cornerVerts[(m_ncorners-1)*3]), range);
-	
-	return range;
-}
-
-void PathCorridor::updateCorners(const float pathOptimizationRange,
+/*void PathCorridor::updateCorners(const float pathOptimizationRange,
 						  dtNavMeshQuery* navquery, const dtQueryFilter* filter,
 						  float* opts, float* opte)
 {
@@ -554,7 +492,7 @@ void PathCorridor::updateCorners(const float pathOptimizationRange,
 	if (opte)
 		dtVset(opte, 0,0,0);
 	
-	// Find nest couple of corners for steering.
+	// Find next couple of corners for steering.
 	m_ncorners = findCorners(m_pos, m_target, m_path, m_npath,
 							 m_cornerVerts, m_cornerFlags, m_cornerPolys,
 							 AGENT_MAX_CORNERS, navquery);
@@ -571,7 +509,7 @@ void PathCorridor::updateCorners(const float pathOptimizationRange,
 		m_npath = optimizePath(m_pos, m_cornerVerts+3, pathOptimizationRange,
 								m_path, m_npath, navquery, filter);
 	}
-}
+}*/
 
 void PathCorridor::updatePosition(const float* npos, dtNavMeshQuery* navquery, const dtQueryFilter* filter)
 {
@@ -592,49 +530,6 @@ void PathCorridor::updatePosition(const float* npos, dtNavMeshQuery* navquery, c
 	dtVcopy(m_pos, result);
 }
 
-void PathCorridor::calcSmoothSteerDirection(float* dir)
-{
-	if (!m_ncorners)
-	{
-		dtVset(dir, 0,0,0);
-		return;
-	}
-
-	const int ip0 = 0;
-	const int ip1 = dtMin(1, m_ncorners-1);
-	const float* p0 = &m_cornerVerts[ip0*3];
-	const float* p1 = &m_cornerVerts[ip1*3];
-	
-	float dir0[3], dir1[3];
-	dtVsub(dir0, p0, m_pos);
-	dtVsub(dir1, p1, m_pos);
-	dir0[1] = 0;
-	dir1[1] = 0;
-	
-	float len0 = dtVlen(dir0);
-	float len1 = dtVlen(dir1);
-	if (len1 > 0.001f)
-		dtVscale(dir1,dir1,1.0f/len1);
-	
-	dir[0] = dir0[0] - dir1[0]*len0*0.5f;
-	dir[1] = 0;
-	dir[2] = dir0[2] - dir1[2]*len0*0.5f;
-	
-	dtVnormalize(dir);
-}
-
-void PathCorridor::calcStraightSteerDirection(float* dir)
-{
-	if (!m_ncorners)
-	{
-		dtVset(dir, 0,0,0);
-		return;
-	}
-	dtVsub(dir, &m_cornerVerts[0], m_pos);
-	dir[1] = 0;
-	dtVnormalize(dir);
-}
-
 void PathCorridor::setCorridor(const float* target, const dtPolyRef* path, const int npath)
 {
 	dtAssert(npath > 0);
@@ -643,6 +538,8 @@ void PathCorridor::setCorridor(const float* target, const dtPolyRef* path, const
 	memcpy(m_path, path, sizeof(dtPolyRef)*npath);
 	m_npath = npath;
 }
+
+
 
 
 void Agent::integrate(const float maxAcc, const float dt)
@@ -663,6 +560,157 @@ void Agent::integrate(const float maxAcc, const float dt)
 		dtVset(vel,0,0,0);
 }
 
+float Agent::getDistanceToGoal(const float range) const
+{
+	if (!ncorners)
+		return range;
+	
+	const bool endOfPath = (cornerFlags[ncorners-1] & DT_STRAIGHTPATH_END) ? true : false;
+	const bool offMeshConnection = (cornerFlags[ncorners-1] & DT_STRAIGHTPATH_OFFMESH_CONNECTION) ? true : false;
+	if (endOfPath || offMeshConnection)
+		return dtMin(dtVdist2D(npos, &cornerVerts[(ncorners-1)*3]), range);
+	
+	return range;
+}
+
+void Agent::calcSmoothSteerDirection(float* dir)
+{
+	if (!ncorners)
+	{
+		dtVset(dir, 0,0,0);
+		return;
+	}
+	
+	const int ip0 = 0;
+	const int ip1 = dtMin(1, ncorners-1);
+	const float* p0 = &cornerVerts[ip0*3];
+	const float* p1 = &cornerVerts[ip1*3];
+	
+	float dir0[3], dir1[3];
+	dtVsub(dir0, p0, npos);
+	dtVsub(dir1, p1, npos);
+	dir0[1] = 0;
+	dir1[1] = 0;
+	
+	float len0 = dtVlen(dir0);
+	float len1 = dtVlen(dir1);
+	if (len1 > 0.001f)
+		dtVscale(dir1,dir1,1.0f/len1);
+	
+	dir[0] = dir0[0] - dir1[0]*len0*0.5f;
+	dir[1] = 0;
+	dir[2] = dir0[2] - dir1[2]*len0*0.5f;
+	
+	dtVnormalize(dir);
+}
+
+void Agent::calcStraightSteerDirection(float* dir)
+{
+	if (!ncorners)
+	{
+		dtVset(dir, 0,0,0);
+		return;
+	}
+	dtVsub(dir, &cornerVerts[0], npos);
+	dir[1] = 0;
+	dtVnormalize(dir);
+}
+
+
+
+LocalBoundary::LocalBoundary() :
+	m_nsegs(0)
+{
+	dtVset(m_center, FLT_MAX,FLT_MAX,FLT_MAX);
+}
+
+LocalBoundary::~LocalBoundary()
+{
+}
+	
+void LocalBoundary::init()
+{
+	dtVset(m_center, FLT_MAX,FLT_MAX,FLT_MAX);
+	m_nsegs = 0;
+}
+
+void LocalBoundary::addSegment(const float dist, const float* s)
+{
+	// Insert neighbour based on the distance.
+	Segment* seg = 0;
+	if (!m_nsegs)
+	{
+		// First, trivial accept.
+		seg = &m_segs[0];
+	}
+	else if (dist >= m_segs[m_nsegs-1].d)
+	{
+		// Further than the last segment, skip.
+		if (m_nsegs >= MAX_SEGS)
+			return;
+		// Last, trivial accept.
+		seg = &m_segs[m_nsegs];
+	}
+	else
+	{
+		// Insert inbetween.
+		int i;
+		for (i = 0; i < m_nsegs; ++i)
+			if (dist <= m_segs[i].d)
+				break;
+		const int tgt = i+1;
+		const int n = dtMin(m_nsegs-i, MAX_SEGS-tgt);
+		dtAssert(tgt+n <= MAX_SEGS);
+		if (n > 0)
+			memmove(&m_segs[tgt], &m_segs[i], sizeof(Segment)*n);
+		seg = &m_segs[i];
+	}
+	
+	seg->d = dist;
+	memcpy(seg->s, s, sizeof(float)*6);
+	
+	if (m_nsegs < MAX_SEGS)
+		m_nsegs++;
+}
+
+void LocalBoundary::update(dtPolyRef ref, const float* pos, const float collisionQueryRange,
+						   dtNavMeshQuery* navquery, const dtQueryFilter* filter)
+{
+	static const int MAX_LOCAL_POLYS = 16;
+	static const int MAX_SEGS_PER_POLY = DT_VERTS_PER_POLYGON*2;
+	
+	if (!ref)
+	{
+		dtVset(m_center, FLT_MAX,FLT_MAX,FLT_MAX);
+		m_nsegs = 0;
+		return;
+	}
+	
+	dtVcopy(m_center, pos);
+	
+	// First query non-overlapping polygons.
+	dtPolyRef locals[MAX_LOCAL_POLYS];
+	const int nlocals = navquery->findLocalNeighbourhood(ref, pos, collisionQueryRange,
+														 filter, locals, 0, MAX_LOCAL_POLYS);
+	
+	// Secondly, store all polygon edges.
+	m_nsegs = 0;
+	float segs[MAX_SEGS_PER_POLY*6];
+	for (int j = 0; j < nlocals; ++j)
+	{
+		const int nsegs = navquery->getPolyWallSegments(locals[j], filter, segs, MAX_SEGS_PER_POLY);
+		for (int k = 0; k < nsegs; ++k)
+		{
+			const float* s = &segs[k*6];
+			// Skip too distant segments.
+			float tseg;
+			const float distSqr = dtDistancePtSegSqr2D(pos, s, s+3, tseg);
+			if (distSqr > dtSqr(collisionQueryRange))
+				continue;
+			addSegment(distSqr, s);
+		}
+	}
+}
 
 
 CrowdManager::CrowdManager() :
@@ -675,7 +723,7 @@ CrowdManager::CrowdManager() :
 	dtVset(m_ext, 2,4,2);
 	
 	m_obstacleQuery = dtAllocObstacleAvoidanceQuery();
-	m_obstacleQuery->init(6, 10);
+	m_obstacleQuery->init(6, 8);
 	
 	m_obstacleQuery->setDesiredVelocityWeight(2.0f);
 	m_obstacleQuery->setCurrentVelocityWeight(0.75f);
@@ -685,7 +733,9 @@ CrowdManager::CrowdManager() :
 	m_obstacleQuery->setVelocitySelectionBias(0.4f);
 	
 	memset(m_vodebug, 0, sizeof(m_vodebug));
-	const int sampleCount = dtMax(VO_GRID_SIZE*VO_GRID_SIZE, (VO_ADAPTIVE_GRID_SIZE*VO_ADAPTIVE_GRID_SIZE)*VO_ADAPTIVE_GRID_DEPTH);
+	const int maxAdaptiveSamples = (VO_ADAPTIVE_DIVS*VO_ADAPTIVE_RINGS+1)*VO_ADAPTIVE_DEPTH;
+	const int maxGridSamples = VO_GRID_SIZE*VO_GRID_SIZE;
+	const int sampleCount = dtMax(maxAdaptiveSamples, maxGridSamples);
 	for (int i = 0; i < MAX_AGENTS; ++i)
 	{
 		m_vodebug[i] = dtAllocObstacleAvoidanceDebugData();
@@ -748,6 +798,7 @@ int CrowdManager::addAgent(const float* pos, const float radius, const float hei
 	}
 	
 	ag->corridor.init(ref, nearest);
+	ag->boundary.init();
 
 	ag->radius = radius;
 	ag->height = height;
@@ -1057,8 +1108,9 @@ void CrowdManager::update(const float dt, unsigned int flags, dtNavMeshQuery* na
 	for (int i = 0; i < nagents; ++i)
 	{
 		Agent* ag = agents[i];
-		// Update collision segments
-		ag->corridor.updateLocalNeighbourhood(ag->collisionQueryRange, navquery, &m_filter);
+		// Only update the collision boundary after certain distance has been passed.
+		if (dtVdist2DSqr(ag->npos, ag->boundary.getCenter()) > dtSqr(ag->collisionQueryRange*0.25f))
+			ag->boundary.update(ag->corridor.getFirstPoly(), ag->npos, ag->collisionQueryRange, navquery, &m_filter);
 		// Query neighbour agents
 		ag->nneis = getNeighbours(ag->npos, ag->height, ag->collisionQueryRange, ag, ag->neis, MAX_NEIGHBOURS);
 	}
@@ -1067,7 +1119,27 @@ void CrowdManager::update(const float dt, unsigned int flags, dtNavMeshQuery* na
 	for (int i = 0; i < nagents; ++i)
 	{
 		Agent* ag = agents[i];
-		ag->corridor.updateCorners(ag->pathOptimizationRange, navquery, &m_filter, ag->opts, ag->opte);
+		
+		// Find corners for steering
+		ag->ncorners = ag->corridor.findCorners(ag->cornerVerts, ag->cornerFlags, ag->cornerPolys,
+												AGENT_MAX_CORNERS, navquery, &m_filter);
+		
+		// Check to see if the corner after the next corner is directly visible,
+		// and short cut to there.
+		if (ag->ncorners > 1)
+		{
+			const float* target = ag->cornerVerts+3;
+			dtVcopy(ag->opts, ag->corridor.getPos());
+			dtVcopy(ag->opte, target);
+			ag->corridor.optimizePath(target, ag->pathOptimizationRange, navquery, &m_filter);
+		}
+		else
+		{
+			dtVset(ag->opts, 0,0,0);
+			dtVset(ag->opte, 0,0,0);
+		}
+		
+//		ag->corridor.updateCorners(ag->pathOptimizationRange, navquery, &m_filter, ag->opts, ag->opte);
 	}
 	
 	// Calculate steering.
@@ -1079,13 +1151,13 @@ void CrowdManager::update(const float dt, unsigned int flags, dtNavMeshQuery* na
 		
 		// Calculate steering direction.
 		if (flags & CROWDMAN_ANTICIPATE_TURNS)
-			ag->corridor.calcSmoothSteerDirection(dvel);
+			ag->calcSmoothSteerDirection(dvel);
 		else
-			ag->corridor.calcStraightSteerDirection(dvel);
+			ag->calcStraightSteerDirection(dvel);
 		
 		// Calculate speed scale, which tells the agent to slowdown at the end of the path.
 		const float slowDownRadius = ag->radius*2;	// TODO: make less hacky.
-		const float speedScale = ag->corridor.getDistanceToGoal(slowDownRadius) / slowDownRadius;
+		const float speedScale = ag->getDistanceToGoal(slowDownRadius) / slowDownRadius;
 		
 		// Apply style.
 		if (flags & CROWDMAN_DRUNK)
@@ -1131,19 +1203,16 @@ void CrowdManager::update(const float dt, unsigned int flags, dtNavMeshQuery* na
 			for (int j = 0; j < ag->nneis; ++j)
 			{
 				const Agent* nei = &m_agents[ag->neis[j].idx];
-				m_obstacleQuery->addCircle(nei->npos, nei->radius, nei->vel, nei->dvel,
-										   dtVdist2DSqr(ag->npos, nei->npos));
+				m_obstacleQuery->addCircle(nei->npos, nei->radius, nei->vel, nei->dvel);
 			}
 
 			// Append neighbour segments as obstacles.
-			for (int j = 0; j < ag->corridor.getLocalSegmentCount(); ++j)
+			for (int j = 0; j < ag->boundary.getSegmentCount(); ++j)
 			{
-				const float* s = ag->corridor.getLocalSegment(j);
+				const float* s = ag->boundary.getSegment(j);
 				if (dtTriArea2D(ag->npos, s, s+3) < 0.0f)
 					continue;
-				float tseg;
-				const float distSqr = dtDistancePtSegSqr2D(ag->npos, s, s+3, tseg);
-				m_obstacleQuery->addSegment(s, s+3, distSqr);
+				m_obstacleQuery->addSegment(s, s+3);
 			}
 
 			// Sample new safe velocity.
@@ -1151,17 +1220,16 @@ void CrowdManager::update(const float dt, unsigned int flags, dtNavMeshQuery* na
 
 			if (adaptive)
 			{
-				m_obstacleQuery->setSamplingGridSize(VO_ADAPTIVE_GRID_SIZE);
-				m_obstacleQuery->setSamplingGridDepth(VO_ADAPTIVE_GRID_DEPTH);
-				m_obstacleQuery->sampleVelocityAdaptive(ag->npos, ag->radius, ag->maxspeed, ag->vel, ag->dvel,
-														ag->nvel, m_vodebug[i]);
+				m_obstacleQuery->sampleVelocityAdaptive(ag->npos, ag->radius, ag->maxspeed,
+														ag->vel, ag->dvel, ag->nvel,
+														VO_ADAPTIVE_DIVS, VO_ADAPTIVE_RINGS, VO_ADAPTIVE_DEPTH,
+														m_vodebug[i]);
 			}
 			else
 			{
-				m_obstacleQuery->setSamplingGridSize(VO_GRID_SIZE);
-				m_obstacleQuery->sampleVelocity(ag->npos, ag->radius, ag->maxspeed,
-												ag->vel, ag->dvel,
-												ag->nvel, m_vodebug[i]);
+				m_obstacleQuery->sampleVelocityGrid(ag->npos, ag->radius, ag->maxspeed,
+													ag->vel, ag->dvel, ag->nvel,
+													VO_GRID_SIZE, m_vodebug[i]);
 			}
 		}
 		else

@@ -71,7 +71,6 @@ public:
 static const int AGENT_MAX_PATH = 256;
 static const int AGENT_MAX_CORNERS = 4;
 static const int AGENT_MAX_TRAIL = 64;
-static const int AGENT_MAX_LOCALSEGS = 32;
 static const int AGENT_MAX_NEIS = 8;
 
 static const unsigned int PATHQ_INVALID = 0;
@@ -125,17 +124,8 @@ class PathCorridor
 	float m_pos[3];
 	float m_target[3];
 
-	float m_localCenter[3];
-	float m_localSegs[AGENT_MAX_LOCALSEGS*6];
-	int m_localSegCount;
-
 	dtPolyRef m_path[AGENT_MAX_PATH];
 	int m_npath;
-	
-	float m_cornerVerts[AGENT_MAX_CORNERS*3];
-	unsigned char m_cornerFlags[AGENT_MAX_CORNERS];
-	dtPolyRef m_cornerPolys[AGENT_MAX_CORNERS];
-	int m_ncorners;
 	
 public:
 	PathCorridor();
@@ -143,27 +133,59 @@ public:
 	
 	void init(dtPolyRef ref, const float* pos);
 	
-	void updateLocalNeighbourhood(const float collisionQueryRange, dtNavMeshQuery* navquery, const dtQueryFilter* filter);
-	void updateCorners(const float pathOptimizationRange, dtNavMeshQuery* navquery, const dtQueryFilter* filter, float* opts = 0, float* opte = 0);
-	void updatePosition(const float* npos, dtNavMeshQuery* navquery, const dtQueryFilter* filter);
-	float getDistanceToGoal(const float range) const;
-	void calcSmoothSteerDirection(float* dir);
-	void calcStraightSteerDirection(float* dir);
+/*	void updateCorners(const float pathOptimizationRange,
+					   dtNavMeshQuery* navquery, const dtQueryFilter* filter,
+					   float* opts = 0, float* opte = 0);*/
 
+	int findCorners(float* cornerVerts, unsigned char* cornerFlags,
+					dtPolyRef* cornerPolys, const int maxCorners,
+					dtNavMeshQuery* navquery, const dtQueryFilter* filter);
+
+	void optimizePath(const float* next, const float pathOptimizationRange,
+					  dtNavMeshQuery* navquery, const dtQueryFilter* filter);
+
+	void updatePosition(const float* npos, dtNavMeshQuery* navquery, const dtQueryFilter* filter);
+	
 	void setCorridor(const float* target, const dtPolyRef* polys, const int npolys);
 
 	inline const float* getPos() const { return m_pos; }	
 	inline const float* getTarget() const { return m_target; }
 	
+	inline dtPolyRef getFirstPoly() const { return m_npath ? m_path[0] : 0; }
+	
 	inline const dtPolyRef* getPath() const { return m_path; }
 	inline int getPathCount() const { return m_npath; } 	
+};
+
+
+class LocalBoundary
+{
+	static const int MAX_SEGS = 8;
 	
-	inline int getCornerCount() const { return m_ncorners; }
-	inline const float* getCornerPos(int i) const { return &m_cornerVerts[i*3]; }
+	struct Segment
+	{
+		float s[6];	// Segment start/end
+		float d;	// Distance for pruning.
+	};
 	
-	inline const float* getLocalCenter() const { return m_localCenter; }
-	inline int getLocalSegmentCount() const { return m_localSegCount; }
-	inline const float* getLocalSegment(int i) const { return &m_localSegs[i*6]; }
+	float m_center[3];
+	Segment m_segs[MAX_SEGS];
+	int m_nsegs;
+	
+	void addSegment(const float dist, const float* seg);
+
+public:
+	LocalBoundary();
+	~LocalBoundary();
+
+	void init();
+	
+	void update(dtPolyRef ref, const float* pos, const float collisionQueryRange,
+				dtNavMeshQuery* navquery, const dtQueryFilter* filter);
+
+	inline const float* getCenter() const { return m_center; }
+	inline int getSegmentCount() const { return m_nsegs; }
+	inline const float* getSegment(int i) const { return m_segs[i].s; }
 };
 
 static const int MAX_NEIGHBOURS = 6;
@@ -179,9 +201,14 @@ struct Agent
 	unsigned char active;
 	
 	PathCorridor corridor;
+	LocalBoundary boundary;
 	
 	void integrate(const float maxAcc, const float dt);
-
+	void calcSmoothSteerDirection(float* dir);
+	void calcStraightSteerDirection(float* dir);
+	float getDistanceToGoal(const float range) const;
+	
+	
 	float maxspeed;
 	float t;
 	float var;
@@ -197,6 +224,11 @@ struct Agent
 	float vel[3];
 	float collisionQueryRange;
 	float pathOptimizationRange;
+	
+	float cornerVerts[AGENT_MAX_CORNERS*3];
+	unsigned char cornerFlags[AGENT_MAX_CORNERS];
+	dtPolyRef cornerPolys[AGENT_MAX_CORNERS];
+	int ncorners;
 	
 	float opts[3], opte[3];
 	

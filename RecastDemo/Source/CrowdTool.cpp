@@ -348,13 +348,13 @@ void CrowdTool::handleRender()
 
 		if (m_showCorners)
 		{
-			if (ag->corridor.getCornerCount())
+			if (ag->ncorners)
 			{
 				dd.begin(DU_DRAW_LINES, 2.0f);
-				for (int j = 0; j < ag->corridor.getCornerCount(); ++j)
+				for (int j = 0; j < ag->ncorners; ++j)
 				{
-					const float* va = j == 0 ? pos : ag->corridor.getCornerPos(j-1);
-					const float* vb = ag->corridor.getCornerPos(j);
+					const float* va = j == 0 ? pos : &ag->cornerVerts[(j-1)*3];
+					const float* vb = &ag->cornerVerts[j*3];
 					dd.vertex(va[0],va[1]+radius,va[2], duRGBA(128,0,0,64));
 					dd.vertex(vb[0],vb[1]+radius,vb[2], duRGBA(128,0,0,64));
 				}
@@ -387,15 +387,15 @@ void CrowdTool::handleRender()
 		
 		if (m_showCollisionSegments)
 		{
-			const float* center = ag->corridor.getLocalCenter();
+			const float* center = ag->boundary.getCenter();
 			duDebugDrawCross(&dd, center[0],center[1]+radius,center[2], 0.2f, duRGBA(192,0,128,255), 2.0f);
 			duDebugDrawCircle(&dd, center[0],center[1]+radius,center[2], ag->collisionQueryRange,
 							  duRGBA(192,0,128,128), 2.0f);
 
 			dd.begin(DU_DRAW_LINES, 3.0f);
-			for (int j = 0; j < ag->corridor.getLocalSegmentCount(); ++j)
+			for (int j = 0; j < ag->boundary.getSegmentCount(); ++j)
 			{
-				const float* s = ag->corridor.getLocalSegment(j);
+				const float* s = ag->boundary.getSegment(j);
 				unsigned int col = duRGBA(192,0,128,192);
 				if (dtTriArea2D(pos, s, s+3) < 0.0f)
 					col = duDarkenCol(col);
@@ -429,7 +429,7 @@ void CrowdTool::handleRender()
 				const float sr = debug->getSampleSize(i);
 				const float pen = debug->getSamplePenalty(i);
 				const float pen2 = debug->getSamplePreferredSidePenalty(i);
-				unsigned int col = duLerpCol(duRGBA(255,255,255,220), duRGBA(0,96,128,220), (int)(pen*255));
+				unsigned int col = duLerpCol(duRGBA(255,255,255,220), duRGBA(128,96,0,220), (int)(pen*255));
 				col = duLerpCol(col, duRGBA(128,0,0,220), (int)(pen2*128));
 				dd.vertex(dx+p[0]-sr, dy, dz+p[2]-sr, col);
 				dd.vertex(dx+p[0]-sr, dy, dz+p[2]+sr, col);

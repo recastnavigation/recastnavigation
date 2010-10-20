@@ -26,14 +26,12 @@ struct dtObstacleCircle
 	float dvel[3];			// Velocity of the obstacle
 	float rad;				// Radius of the obstacle
 	float dp[3], np[3];		// Use for side selection during sampling.
-	float dist;
 };
 
 struct dtObstacleSegment
 {
 	float p[3], q[3];		// End points of the obstacle segment
 	bool touch;
-	float dist;
 };
 
 static const int RVO_SAMPLE_RAD = 15;
@@ -88,13 +86,10 @@ public:
 	void reset();
 
 	void addCircle(const float* pos, const float rad,
-				   const float* vel, const float* dvel,
-				   const float dist);
+				   const float* vel, const float* dvel);
 				   
-	void addSegment(const float* p, const float* q, const float dist);
+	void addSegment(const float* p, const float* q);
 
-	inline void setSamplingGridSize(int n) { m_gridSize = n; }
-	inline void setSamplingGridDepth(int n) { m_gridDepth = n; }
 	inline void setVelocitySelectionBias(float v) { m_velBias = v; }
 	inline void setDesiredVelocityWeight(float w) { m_weightDesVel = w; }
 	inline void setCurrentVelocityWeight(float w) { m_weightCurVel = w; }
@@ -102,14 +97,14 @@ public:
 	inline void setCollisionTimeWeight(float w) { m_weightToi = w; }
 	inline void setTimeHorizon(float t) { m_horizTime = t; }
 
-	void sampleVelocity(const float* pos, const float rad, const float vmax,
-						const float* vel, const float* dvel,
-						float* nvel,
-						dtObstacleAvoidanceDebugData* debug = 0);
+	void sampleVelocityGrid(const float* pos, const float rad, const float vmax,
+							const float* vel, const float* dvel, float* nvel,
+							const int gsize,
+							dtObstacleAvoidanceDebugData* debug = 0);
 
 	void sampleVelocityAdaptive(const float* pos, const float rad, const float vmax,
-								const float* vel, const float* dvel,
-								float* nvel,
+								const float* vel, const float* dvel, float* nvel,
+								const int ndivs, const int nrings, const int depth, 
 								dtObstacleAvoidanceDebugData* debug = 0);
 	
 	inline int getObstacleCircleCount() const { return m_ncircles; }
@@ -130,8 +125,6 @@ private:
 	dtObstacleCircle* insertCircle(const float dist);
 	dtObstacleSegment* insertSegment(const float dist);
 
-	int m_gridSize;
-	int m_gridDepth;
 	float m_velBias;
 	float m_weightDesVel;
 	float m_weightCurVel;
