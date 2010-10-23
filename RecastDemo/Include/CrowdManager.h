@@ -68,10 +68,6 @@ public:
 
 
 
-static const int AGENT_MAX_PATH = 256;
-static const int AGENT_MAX_CORNERS = 4;
-static const int AGENT_MAX_TRAIL = 64;
-static const int AGENT_MAX_NEIS = 8;
 
 static const unsigned int PATHQ_INVALID = 0;
 
@@ -86,13 +82,15 @@ typedef unsigned int PathQueueRef;
 
 class PathQueue
 {
+	static const int PQ_MAX_PATH = 256;
+	
 	struct PathQuery
 	{
 		// Path find start and end location.
 		float startPos[3], endPos[3];
 		dtPolyRef startRef, endRef;
 		// Result.
-		dtPolyRef path[AGENT_MAX_PATH];
+		dtPolyRef path[PQ_MAX_PATH];
 		bool ready;
 		int npath;
 		PathQueueRef ref;
@@ -124,19 +122,18 @@ class PathCorridor
 	float m_pos[3];
 	float m_target[3];
 
-	dtPolyRef m_path[AGENT_MAX_PATH];
+	dtPolyRef* m_path;
 	int m_npath;
+	int m_maxPath;
 	
 public:
 	PathCorridor();
 	~PathCorridor();
 	
-	void init(dtPolyRef ref, const float* pos);
+	bool init(const int maxPath);
 	
-/*	void updateCorners(const float pathOptimizationRange,
-					   dtNavMeshQuery* navquery, const dtQueryFilter* filter,
-					   float* opts = 0, float* opte = 0);*/
-
+	void reset(dtPolyRef ref, const float* pos);
+	
 	int findCorners(float* cornerVerts, unsigned char* cornerFlags,
 					dtPolyRef* cornerPolys, const int maxCorners,
 					dtNavMeshQuery* navquery, const dtQueryFilter* filter);
@@ -178,7 +175,7 @@ public:
 	LocalBoundary();
 	~LocalBoundary();
 
-	void init();
+	void reset();
 	
 	void update(dtPolyRef ref, const float* pos, const float collisionQueryRange,
 				dtNavMeshQuery* navquery, const dtQueryFilter* filter);
@@ -188,7 +185,10 @@ public:
 	inline const float* getSegment(int i) const { return m_segs[i].s; }
 };
 
-static const int MAX_NEIGHBOURS = 6;
+
+static const int AGENT_MAX_NEIGHBOURS = 6;
+static const int AGENT_MAX_CORNERS = 4;
+static const int AGENT_MAX_TRAIL = 64;
 
 struct Neighbour
 {
@@ -198,22 +198,24 @@ struct Neighbour
 
 struct Agent
 {
-	unsigned char active;
-	
-	PathCorridor corridor;
-	LocalBoundary boundary;
-	
 	void integrate(const float maxAcc, const float dt);
 	void calcSmoothSteerDirection(float* dir);
 	void calcStraightSteerDirection(float* dir);
 	float getDistanceToGoal(const float range) const;
 	
+	unsigned char active;
+	
+	PathCorridor corridor;
+	LocalBoundary boundary;
 	
 	float maxspeed;
 	float t;
 	float var;
-	
-	Neighbour neis[MAX_NEIGHBOURS];
+
+	float collisionQueryRange;
+	float pathOptimizationRange;
+
+	Neighbour neis[AGENT_MAX_NEIGHBOURS];
 	int nneis;
 	
 	float radius, height;
@@ -222,8 +224,6 @@ struct Agent
 	float dvel[3];
 	float nvel[3];
 	float vel[3];
-	float collisionQueryRange;
-	float pathOptimizationRange;
 	
 	float cornerVerts[AGENT_MAX_CORNERS*3];
 	unsigned char cornerFlags[AGENT_MAX_CORNERS];
@@ -253,6 +253,9 @@ class CrowdManager
 	dtObstacleAvoidanceQuery* m_obstacleQuery;
 	PathQueue m_pathq;
 	ProximityGrid m_grid;
+	
+	dtPolyRef* m_pathResult;
+	int m_maxPathResult;
 	
 	float m_ext[3];
 	dtQueryFilter m_filter;

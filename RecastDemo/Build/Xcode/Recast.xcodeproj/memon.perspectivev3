@@ -284,14 +284,13 @@
 							<key>PBXSmartGroupTreeModuleOutlineStateSelectionKey</key>
 							<array>
 								<array>
-									<integer>26</integer>
-									<integer>11</integer>
+									<integer>61</integer>
 									<integer>1</integer>
 									<integer>0</integer>
 								</array>
 							</array>
 							<key>PBXSmartGroupTreeModuleOutlineStateVisibleRectKey</key>
-							<string>{{0, 430}, {264, 660}}</string>
+							<string>{{0, 475}, {264, 660}}</string>
 						</dict>
 						<key>PBXTopSmartGroupGIDs</key>
 						<array/>
@@ -326,7 +325,7 @@
 								<key>PBXProjectModuleGUID</key>
 								<string>6B8632A30F78115100E2684A</string>
 								<key>PBXProjectModuleLabel</key>
-								<string>DetourObstacleAvoidance.cpp</string>
+								<string>CrowdManager.h</string>
 								<key>PBXSplitModuleInNavigatorKey</key>
 								<dict>
 									<key>Split0</key>
@@ -334,11 +333,11 @@
 										<key>PBXProjectModuleGUID</key>
 										<string>6B8632A40F78115100E2684A</string>
 										<key>PBXProjectModuleLabel</key>
-										<string>DetourObstacleAvoidance.cpp</string>
+										<string>CrowdManager.h</string>
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>6BB9C262126F562C00B97C1C</string>
+										<string>6BB9C2B2126F641400B97C1C</string>
 										<key>history</key>
 										<array>
 											<string>6BBB4C34115B7A3D00CF791D</string>
@@ -404,7 +403,6 @@
 											<string>6BB2EE361261CEB800E350F8</string>
 											<string>6BB2EE3F1261D02000E350F8</string>
 											<string>6BB2EE661261D48100E350F8</string>
-											<string>6BB2EE671261D48100E350F8</string>
 											<string>6BB2EE691261D48100E350F8</string>
 											<string>6BB2EE731261DA0400E350F8</string>
 											<string>6BB2EE7B1264CD7900E350F8</string>
@@ -426,11 +424,12 @@
 											<string>6B16360A126891A40083FC15</string>
 											<string>6BB9C228126F4A9100B97C1C</string>
 											<string>6BB9C229126F4A9100B97C1C</string>
-											<string>6BB9C22A126F4A9100B97C1C</string>
 											<string>6BB9C22C126F4A9100B97C1C</string>
 											<string>6BB9C253126F555F00B97C1C</string>
-											<string>6BB9C254126F555F00B97C1C</string>
-											<string>6BB9C255126F555F00B97C1C</string>
+											<string>6BB9C2A2126F623D00B97C1C</string>
+											<string>6BB9C2AA126F62C000B97C1C</string>
+											<string>6BB9C2AB126F62C000B97C1C</string>
+											<string>6BB9C2AC126F62C000B97C1C</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>
@@ -444,18 +443,18 @@
 							<key>GeometryConfiguration</key>
 							<dict>
 								<key>Frame</key>
-								<string>{{0, 0}, {992, 530}}</string>
+								<string>{{0, 0}, {992, 673}}</string>
 								<key>RubberWindowFrame</key>
 								<string>0 59 1278 719 0 0 1280 778 </string>
 							</dict>
 							<key>Module</key>
 							<string>PBXNavigatorGroup</string>
 							<key>Proportion</key>
-							<string>530pt</string>
+							<string>673pt</string>
 						</dict>
 						<dict>
 							<key>Proportion</key>
-							<string>143pt</string>
+							<string>0pt</string>
 							<key>Tabs</key>
 							<array>
 								<dict>
@@ -523,7 +522,7 @@
 									<key>GeometryConfiguration</key>
 									<dict>
 										<key>Frame</key>
-										<string>{{10, 27}, {992, 116}}</string>
+										<string>{{10, 27}, {992, -27}}</string>
 										<key>RubberWindowFrame</key>
 										<string>0 59 1278 719 0 0 1280 778 </string>
 									</dict>
@@ -744,7 +743,6 @@
 	<integer>5</integer>
 	<key>WindowOrderList</key>
 	<array>
-		<string>6BB9C263126F562C00B97C1C</string>
 		<string>6BB9C1C9126B562300B97C1C</string>
 		<string>6BB9C1CA126B562300B97C1C</string>
 		<string>/Users/memon/Code/recastnavigation/RecastDemo/Build/Xcode/Recast.xcodeproj</string>

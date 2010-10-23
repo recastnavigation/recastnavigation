@@ -465,7 +465,6 @@ void dtObstacleAvoidanceQuery::sampleVelocityAdaptive(const float* pos, const fl
 	if (debug)
 		debug->reset();
 	
-	
 	// Build sampling pattern aligned to desired velocity.
 	static const int MAX_PATTERN_DIVS = 32;
 	static const int MAX_PATTERN_RINGS = 4;
