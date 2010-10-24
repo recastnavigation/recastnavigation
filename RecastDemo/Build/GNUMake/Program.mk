@@ -4,4 +4,4 @@ $(BIN)/$(NAME): $(OBJECTS)
 	c++ $(LDFLAGS) -o $@ $(OBJECTS) $(LIBS)
 
 clean:
-	rm -f $(BIN)/$(NAME).a $(BIN)/$(NAME)
+	rm -f $(BIN)/$(NAME).a $(OBJECTS)
