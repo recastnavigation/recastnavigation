@@ -290,7 +290,7 @@
 								</array>
 							</array>
 							<key>PBXSmartGroupTreeModuleOutlineStateVisibleRectKey</key>
-							<string>{{0, 475}, {264, 660}}</string>
+							<string>{{0, 623}, {264, 660}}</string>
 						</dict>
 						<key>PBXTopSmartGroupGIDs</key>
 						<array/>
@@ -325,7 +325,7 @@
 								<key>PBXProjectModuleGUID</key>
 								<string>6B8632A30F78115100E2684A</string>
 								<key>PBXProjectModuleLabel</key>
-								<string>CrowdManager.h</string>
+								<string>SlideShow.cpp</string>
 								<key>PBXSplitModuleInNavigatorKey</key>
 								<dict>
 									<key>Split0</key>
@@ -333,11 +333,11 @@
 										<key>PBXProjectModuleGUID</key>
 										<string>6B8632A40F78115100E2684A</string>
 										<key>PBXProjectModuleLabel</key>
-										<string>CrowdManager.h</string>
+										<string>SlideShow.cpp</string>
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>6BB9C2B2126F641400B97C1C</string>
+										<string>6BB9C2C612744A1C00B97C1C</string>
 										<key>history</key>
 										<array>
 											<string>6BBB4C34115B7A3D00CF791D</string>
@@ -346,7 +346,6 @@
 											<string>6BF5F2E511748884000502A6</string>
 											<string>6BF5F2E611748884000502A6</string>
 											<string>6BF5F2E711748884000502A6</string>
-											<string>6B4214D911803923006C347B</string>
 											<string>6B98462E11E6141900FA177B</string>
 											<string>6B98473011E737D800FA177B</string>
 											<string>6BAF4321121AF998008CFCDF</string>
@@ -429,7 +428,9 @@
 											<string>6BB9C2A2126F623D00B97C1C</string>
 											<string>6BB9C2AA126F62C000B97C1C</string>
 											<string>6BB9C2AB126F62C000B97C1C</string>
-											<string>6BB9C2AC126F62C000B97C1C</string>
+											<string>6BB9C2B5127449CE00B97C1C</string>
+											<string>6BB9C2BD127449CE00B97C1C</string>
+											<string>6BB9C2BF127449CE00B97C1C</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>
