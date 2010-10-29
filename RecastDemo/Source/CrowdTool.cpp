@@ -253,7 +253,8 @@ void CrowdTool::handleClick(const float* s, const float* p, bool shift)
 		dtNavMeshQuery* navquery = m_sample->getNavMeshQuery();
 		const dtQueryFilter* filter = m_crowd.getFilter();
 		const float* ext = m_crowd.getQueryExtents();
-		m_targetRef = navquery->findNearestPoly(p, ext, filter, m_targetPos);
+		
+		navquery->findNearestPoly(p, ext, filter, &m_targetRef, m_targetPos);
 		
 		if (shift)
 		{

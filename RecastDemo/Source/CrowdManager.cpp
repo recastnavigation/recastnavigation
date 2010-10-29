@@ -216,8 +216,8 @@ void PathQueue::update(dtNavMeshQuery* navquery)
 			PathQuery& q = m_queue[i];
 			if (q.ref == PATHQ_INVALID)
 				continue;
-			q.npath = navquery->findPath(q.startRef, q.endRef, q.startPos, q.endPos,
-										 q.filter, q.path, PQ_MAX_PATH);
+			navquery->findPath(q.startRef, q.endRef, q.startPos, q.endPos,
+							   q.filter, q.path, &q.npath, PQ_MAX_PATH);
 			q.ready = true;
 			break;
 		}
@@ -474,8 +474,9 @@ int PathCorridor::findCorners(float* cornerVerts, unsigned char* cornerFlags,
 	
 	static const float MIN_TARGET_DIST = 0.01f;
 	
-	int ncorners = navquery->findStraightPath(m_pos, m_target, m_path, m_npath,
-											  cornerVerts, cornerFlags, cornerPolys, maxCorners);
+	int ncorners = 0;
+	navquery->findStraightPath(m_pos, m_target, m_path, m_npath,
+							   cornerVerts, cornerFlags, cornerPolys, &ncorners, maxCorners);
 	
 	// Prune points in the beginning of the path which are too close.
 	while (ncorners)
@@ -530,7 +531,8 @@ void PathCorridor::optimizePath(const float* next, const float pathOptimizationR
 	static const int MAX_RES = 32;
 	dtPolyRef res[MAX_RES];
 	float t, norm[3];
-	const int nres = navquery->raycast(m_path[0], m_pos, goal, filter, t, norm, res, MAX_RES);
+	int nres = 0;
+	navquery->raycast(m_path[0], m_pos, goal, filter, &t, norm, res, &nres, MAX_RES);
 	if (nres > 1 && t > 0.99f)
 	{
 		m_npath = mergeCorridor(m_path, m_npath, m_maxPath, res, nres);
@@ -546,8 +548,9 @@ void PathCorridor::movePosition(const float* npos, dtNavMeshQuery* navquery, con
 	float result[3];
 	static const int MAX_VISITED = 16;
 	dtPolyRef visited[MAX_VISITED];
-	int nvisited = navquery->moveAlongSurface(m_path[0], m_pos, npos, filter,
-											  result, visited, MAX_VISITED);
+	int nvisited = 0;
+	navquery->moveAlongSurface(m_path[0], m_pos, npos, filter,
+							   result, visited, &nvisited, MAX_VISITED);
 	m_npath = fixupCorridor(m_path, m_npath, m_maxPath, visited, nvisited);
 	
 	// Adjust the position to stay on top of the navmesh.
@@ -566,8 +569,9 @@ void PathCorridor::moveTargetPosition(const float* npos, dtNavMeshQuery* navquer
 	float result[3];
 	static const int MAX_VISITED = 16;
 	dtPolyRef visited[MAX_VISITED];
-	int nvisited = navquery->moveAlongSurface(m_path[m_npath-1], m_target, npos, filter,
-											  result, visited, MAX_VISITED);
+	int nvisited = 0;
+	navquery->moveAlongSurface(m_path[m_npath-1], m_target, npos, filter,
+							   result, visited, &nvisited, MAX_VISITED);
 	m_npath = fixupCorridorEnd(m_path, m_npath, m_maxPath, visited, nvisited);
 	
 	// TODO: should we do that?
@@ -741,15 +745,17 @@ void LocalBoundary::update(dtPolyRef ref, const float* pos, const float collisio
 	
 	// First query non-overlapping polygons.
 	dtPolyRef locals[MAX_LOCAL_POLYS];
-	const int nlocals = navquery->findLocalNeighbourhood(ref, pos, collisionQueryRange,
-														 filter, locals, 0, MAX_LOCAL_POLYS);
+	int nlocals = 0;
+	navquery->findLocalNeighbourhood(ref, pos, collisionQueryRange,
+									 filter, locals, 0, &nlocals, MAX_LOCAL_POLYS);
 	
 	// Secondly, store all polygon edges.
 	m_nsegs = 0;
 	float segs[MAX_SEGS_PER_POLY*6];
+	int nsegs = 0;
 	for (int j = 0; j < nlocals; ++j)
 	{
-		const int nsegs = navquery->getPolyWallSegments(locals[j], filter, segs, MAX_SEGS_PER_POLY);
+		navquery->getPolyWallSegments(locals[j], filter, segs, &nsegs, MAX_SEGS_PER_POLY);
 		for (int k = 0; k < nsegs; ++k)
 		{
 			const float* s = &segs[k*6];
@@ -855,7 +861,8 @@ int CrowdManager::addAgent(const float* pos, const float radius, const float hei
 
 	// Find nearest position on navmesh and place the agent there.
 	float nearest[3];
-	dtPolyRef ref = navquery->findNearestPoly(pos, m_ext, &m_filter, nearest);
+	dtPolyRef ref;
+	navquery->findNearestPoly(pos, m_ext, &m_filter, &ref, nearest);
 	if (!ref)
 	{
 		// Could not find a location on navmesh.
@@ -1082,8 +1089,9 @@ void CrowdManager::updateMoveRequest(const float dt, dtNavMeshQuery* navquery, c
 				float result[3];
 				static const int MAX_VISITED = 16;
 				dtPolyRef visited[MAX_VISITED];
-				int nvisited = navquery->moveAlongSurface(req->temp[req->ntemp-1], req->pos, req->apos, filter,
-														  result, visited, MAX_VISITED);
+				int nvisited = 0;
+				navquery->moveAlongSurface(req->temp[req->ntemp-1], req->pos, req->apos, filter,
+										   result, visited, &nvisited, MAX_VISITED);
 				req->ntemp = fixupCorridorEnd(req->temp, req->ntemp, MAX_TEMP_PATH, visited, nvisited);
 				dtVcopy(req->pos, result);
 				
@@ -1191,7 +1199,7 @@ void CrowdManager::updateMoveRequest(const float dt, dtNavMeshQuery* navquery, c
 					{
 						// Partial path, constrain target position inside the last polygon.
 						float nearest[3];
-						if (navquery->closestPointOnPoly(res[nres-1], targetPos, nearest))
+						if (navquery->closestPointOnPoly(res[nres-1], targetPos, nearest) == DT_SUCCESS)
 							dtVcopy(targetPos, nearest);
 						else
 							valid = false;

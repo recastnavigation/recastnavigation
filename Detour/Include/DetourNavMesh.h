@@ -66,6 +66,17 @@ enum dtPolyTypes
 	DT_POLYTYPE_OFFMESH_CONNECTION = 1,			// Off-mesh connections.
 };
 
+enum dtStatus
+{
+	DT_FAILURE = 0,								// Operation failed.
+	DT_FAILURE_DATA_MAGIC,
+	DT_FAILURE_DATA_VERSION,
+	DT_FAILURE_OUT_OF_MEMORY,
+	DT_SUCCESS,									// Operation succeed.
+	DT_IN_PROGRESS,								// Operation still in progress.
+};
+
+
 // Structure describing the navigation polygon data.
 struct dtPoly
 {
@@ -177,7 +188,7 @@ public:
 	// Params:
 	//  params - (in) navmesh initialization params, see dtNavMeshParams.
 	// Returns: True if succeed, else false.
-	bool init(const dtNavMeshParams* params);
+	dtStatus init(const dtNavMeshParams* params);
 
 	// Initializes the nav mesh for single tile use.
 	// Params:
@@ -185,7 +196,7 @@ public:
 	//  dataSize - (in) Data size of the new tile mesh.
 	//	flags - (in) Tile flags, see dtTileFlags.
 	// Returns: True if succeed, else false.
-	bool init(unsigned char* data, const int dataSize, const int flags);
+	dtStatus init(unsigned char* data, const int dataSize, const int flags);
 	
 	// Returns pointer to navmesh initialization params.
 	const dtNavMeshParams* getParams() const;
@@ -198,17 +209,16 @@ public:
 	//  dataSize - (in) Data size of the new tile mesh.
 	//	flags - (in) Tile flags, see dtTileFlags.
 	//  lastRef - (in,optional) Last tile ref, the tile will be restored so that
-	//            the reference (as well as poly references) will be the same.  
-	// Returns: Reference to the tile, 0 if failed. 
-	dtTileRef addTile(unsigned char* data, int dataSize, int flags, dtTileRef lastRef = 0);
+	//            the reference (as well as poly references) will be the same. Default: 0.
+	//  result - (out,optional) tile ref if the tile was succesfully added.
+	dtStatus addTile(unsigned char* data, int dataSize, int flags, dtTileRef lastRef, dtTileRef* result);
 	
 	// Removes specified tile.
 	// Params:
 	//  ref - (in) Reference to the tile to remove.
 	//  data - (out) Data associated with deleted tile.
 	//  dataSize - (out) Size of the data associated with deleted tile. 
-	// Returns: True if remove suceed, else false.
-	bool removeTile(dtTileRef ref, unsigned char** data, int* dataSize);
+	dtStatus removeTile(dtTileRef ref, unsigned char** data, int* dataSize);
 
 	// Calculates tile location based in input world position.
 	// Params:
@@ -249,8 +259,7 @@ public:
 	//  ref - (in) reference to a polygon.
 	//  tile - (out) pointer to the tile containing the polygon.
 	//  poly - (out) pointer to the polygon.
-	// Returns false if poly ref is not valid, true on success.
-	bool getTileAndPolyByRef(const dtPolyRef ref, const dtMeshTile** tile, const dtPoly** poly) const;
+	dtStatus getTileAndPolyByRef(const dtPolyRef ref, const dtMeshTile** tile, const dtPoly** poly) const;
 	
 	// Returns pointer to tile and polygon pointed by the polygon reference.
 	// Note: this function does not check if 'ref' s valid, and is thus faster. Use only with valid refs!
@@ -273,29 +282,29 @@ public:
 	//	startPos[3] - (out) start point of the link.
 	//	endPos[3] - (out) end point of the link.
 	// Returns: true if link is found.
-	bool getOffMeshConnectionPolyEndPoints(dtPolyRef prevRef, dtPolyRef polyRef, float* startPos, float* endPos) const;
+	dtStatus getOffMeshConnectionPolyEndPoints(dtPolyRef prevRef, dtPolyRef polyRef, float* startPos, float* endPos) const;
 	
 	// Sets polygon flags.
-	void setPolyFlags(dtPolyRef ref, unsigned short flags);
+	dtStatus setPolyFlags(dtPolyRef ref, unsigned short flags);
 
 	// Return polygon flags.
-	unsigned short getPolyFlags(dtPolyRef ref) const;
+	dtStatus getPolyFlags(dtPolyRef ref, unsigned short* resultFlags) const;
 
 	// Set polygon type.
-	void setPolyArea(dtPolyRef ref, unsigned char area);
+	dtStatus setPolyArea(dtPolyRef ref, unsigned char area);
 
 	// Return polygon area type.
-	unsigned char getPolyArea(dtPolyRef ref) const;
+	dtStatus getPolyArea(dtPolyRef ref, unsigned char* resultArea) const;
 
 
 	// Returns number of bytes required to store tile state.
 	int getTileStateSize(const dtMeshTile* tile) const;
 	
 	// Stores tile state to buffer.
-	bool storeTileState(const dtMeshTile* tile, unsigned char* data, const int maxDataSize) const;
+	dtStatus storeTileState(const dtMeshTile* tile, unsigned char* data, const int maxDataSize) const;
 	
 	// Restores tile state.
-	bool restoreTileState(dtMeshTile* tile, const unsigned char* data, const int maxDataSize);
+	dtStatus restoreTileState(dtMeshTile* tile, const unsigned char* data, const int maxDataSize);
 	
 
 	// Encodes a tile id.
@@ -371,8 +380,8 @@ private:
 	dtPolyRef findNearestPolyInTile(const dtMeshTile* tile, const float* center,
 									const float* extents, float* nearestPt) const;
 	// Returns closest point on polygon.
-	bool closestPointOnPolyInTile(const dtMeshTile* tile, unsigned int ip,
-								  const float* pos, float* closest) const;
+	dtStatus closestPointOnPolyInTile(const dtMeshTile* tile, unsigned int ip,
+									  const float* pos, float* closest) const;
 	
 	dtNavMeshParams m_params;			// Current initialization params. TODO: do not store this info twice.
 	float m_orig[3];					// Origin of the tile (0,0)

@@ -295,7 +295,7 @@ dtNavMesh* Sample_TileMesh::loadAll(const char* path)
 	
 	dtNavMesh* mesh = dtAllocNavMesh();
 
-	if (!mesh || !mesh->init(&header.params))
+	if (!mesh || mesh->init(&header.params) != DT_SUCCESS)
 	{
 		fclose(fp);
 		return 0;
@@ -314,7 +314,7 @@ dtNavMesh* Sample_TileMesh::loadAll(const char* path)
 		memset(data, 0, tileHeader.dataSize);
 		fread(data, tileHeader.dataSize, 1, fp);
 		
-		mesh->addTile(data, tileHeader.dataSize, DT_TILE_FREE_DATA, tileHeader.tileRef);
+		mesh->addTile(data, tileHeader.dataSize, DT_TILE_FREE_DATA, tileHeader.tileRef, 0);
 	}
 	
 	fclose(fp);
@@ -710,13 +710,13 @@ bool Sample_TileMesh::handleBuild()
 	params.tileHeight = m_tileSize*m_cellSize;
 	params.maxTiles = m_maxTiles;
 	params.maxPolys = m_maxPolysPerTile;
-	if (!m_navMesh->init(&params))
+	if (m_navMesh->init(&params) != DT_SUCCESS)
 	{
 		m_ctx->log(RC_LOG_ERROR, "buildTiledNavigation: Could not init navmesh.");
 		return false;
 	}
 	
-	if (!m_navQuery->init(m_navMesh, 2048))
+	if (m_navQuery->init(m_navMesh, 2048) != DT_SUCCESS)
 	{
 		m_ctx->log(RC_LOG_ERROR, "buildTiledNavigation: Could not init Detour navmesh query");
 		return false;
@@ -764,7 +764,7 @@ void Sample_TileMesh::buildTile(const float* pos)
 		m_navMesh->removeTile(m_navMesh->getTileRefAt(tx,ty),0,0);
 		
 		// Let the navmesh own the data.
-		if (!m_navMesh->addTile(data,dataSize,DT_TILE_FREE_DATA))
+		if (m_navMesh->addTile(data,dataSize,DT_TILE_FREE_DATA,0,0) != DT_SUCCESS)
 			dtFree(data);
 	}
 	
@@ -844,7 +844,7 @@ void Sample_TileMesh::buildAllTiles()
 				// Remove any previous data (navmesh owns and deletes the data).
 				m_navMesh->removeTile(m_navMesh->getTileRefAt(x,y),0,0);
 				// Let the navmesh own the data.
-				if (!m_navMesh->addTile(data,dataSize,true))
+				if (m_navMesh->addTile(data,dataSize,DT_TILE_FREE_DATA,0,0) != DT_SUCCESS)
 					dtFree(data);
 			}
 		}

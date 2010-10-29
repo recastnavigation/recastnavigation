@@ -32,7 +32,7 @@ class NavMeshTesterTool : public SampleTool
 
 	dtQueryFilter m_filter;
 
-	dtQueryState m_pathFindState;
+	dtStatus m_pathFindStatus;
 
 	enum ToolMode
 	{

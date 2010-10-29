@@ -96,13 +96,6 @@ public:
 	inline void setExcludeFlags(const unsigned short flags) { m_excludeFlags = flags; }	
 };
 
-enum dtQueryState
-{
-	DT_QUERY_FAILED = 0,						// Path find failed.
-	DT_QUERY_RUNNING,							// Path find running.
-	DT_QUERY_READY,								// Path find results ready.
-};
-
 class dtNavMeshQuery
 {
 public:
@@ -114,17 +107,19 @@ public:
 	//  nav - (in) pointer to navigation mesh data.
 	//  maxNodes - (in) Maximum number of search nodes to use (max 65536).
 	// Returns: True if succeed, else false.
-	bool init(const dtNavMesh* nav, const int maxNodes);
+	dtStatus init(const dtNavMesh* nav, const int maxNodes);
 	
 	// Finds the nearest navigation polygon around the center location.
 	// Params:
 	//	center[3] - (in) The center of the search box.
 	//	extents[3] - (in) The extents of the search box.
 	//  filter - (in) path polygon filter.
+	//  nearestRef - (out) Reference to the nearest polygon.
 	//  nearestPt[3] - (out, opt) The nearest point on found polygon, null if not needed.
 	// Returns: Reference identifier for the polygon, or 0 if no polygons found.
-	dtPolyRef findNearestPoly(const float* center, const float* extents,
-							  const dtQueryFilter* filter, float* nearestPt) const;
+	dtStatus findNearestPoly(const float* center, const float* extents,
+							 const dtQueryFilter* filter,
+							 dtPolyRef* nearestRef, float* nearestPt) const;
 	
 	// Returns polygons which overlap the query box.
 	// Params:
@@ -132,10 +127,11 @@ public:
 	//	extents[3] - (in) the extents of the search box.
 	//  filter - (in) path polygon filter.
 	//	polys - (out) array holding the search result.
+	//  polyCount - (out) Number of polygons in search result array.
 	//	maxPolys - (in) The max number of polygons the polys array can hold.
-	// Returns: Number of polygons in search result array.
-	int queryPolygons(const float* center, const float* extents, const dtQueryFilter* filter,
-					  dtPolyRef* polys, const int maxPolys) const;
+	dtStatus queryPolygons(const float* center, const float* extents,
+						   const dtQueryFilter* filter,
+						   dtPolyRef* polys, int* polyCount, const int maxPolys) const;
 	
 	// Finds path from start polygon to end polygon.
 	// If target polygon canno be reached through the navigation graph,
@@ -149,12 +145,12 @@ public:
 	//	endPos[3] - (in) Path end location.
 	//  filter - (in) path polygon filter.
 	//	path - (out) array holding the search result.
-	//	maxPathSize - (in) The max number of polygons the path array can hold. Must be at least 1.
-	// Returns: Number of polygons in search result array.
-	int findPath(dtPolyRef startRef, dtPolyRef endRef,
-				 const float* startPos, const float* endPos,
-				 const dtQueryFilter* filter,
-				 dtPolyRef* path, const int maxPathSize) const;
+	//  pathCount - (out) Number of polygons in search result array.
+	//	maxPath - (in) The max number of polygons the path array can hold. Must be at least 1.
+	dtStatus findPath(dtPolyRef startRef, dtPolyRef endRef,
+					  const float* startPos, const float* endPos,
+					  const dtQueryFilter* filter,
+					  dtPolyRef* path, int* pathCount, const int maxPath) const;
 	
 	// Intializes sliced path find query.
 	// Note 1: calling any other dtNavMeshQuery method before calling findPathEnd()
@@ -167,22 +163,21 @@ public:
 	//	startPos[3] - (in) Path start location.
 	//	endPos[3] - (in) Path end location.
 	//  filter - (in) path polygon filter.
-	// Returns: Path query state.
-	dtQueryState initSlicedFindPath(dtPolyRef startRef, dtPolyRef endRef,
-									const float* startPos, const float* endPos,
-									const dtQueryFilter* filter);
+	dtStatus initSlicedFindPath(dtPolyRef startRef, dtPolyRef endRef,
+								const float* startPos, const float* endPos,
+								const dtQueryFilter* filter);
 
 	// Updates sliced path find query.
 	// Params:
 	//  maxIter - (in) max number of iterations to update.
 	// Returns: Path query state.
-	dtQueryState updateSlicedFindPath(const int maxIter);
+	dtStatus updateSlicedFindPath(const int maxIter);
 
 	// Finalizes sliced path find  query.
 	//	path - (out) array holding the search result.
-	//	maxPathSize - (in) The max number of polygons the path array can hold.
-	// Returns: Number of polygons in search result array.
-	int finalizeSlicedFindPath(dtPolyRef* path, const int maxPathSize);
+	//  pathCount - (out) Number of polygons in search result array.
+	//	maxPath - (in) The max number of polygons the path array can hold.
+	dtStatus finalizeSlicedFindPath(dtPolyRef* path, int* pathCount, const int maxPath);
 	
 	// Finds a straight path from start to end locations within the corridor
 	// described by the path polygons.
@@ -198,12 +193,12 @@ public:
 	//	straightPath - (out) Points describing the straight path.
 	//  straightPathFlags - (out, opt) Flags describing each point type, see dtStraightPathFlags.
 	//  straightPathRefs - (out, opt) References to polygons at point locations.
-	//	maxStraightPathSize - (in) The max number of points the straight path array can hold. Must be at least 1.
-	// Returns: Number of points in the path.
-	int findStraightPath(const float* startPos, const float* endPos,
-						 const dtPolyRef* path, const int pathSize,
-						 float* straightPath, unsigned char* straightPathFlags, dtPolyRef* straightPathRefs,
-						 const int maxStraightPathSize) const;
+	//  straightPathCount - (out) Number of points in the path.
+	//	maxStraightPath - (in) The max number of points the straight path array can hold. Must be at least 1.
+	dtStatus findStraightPath(const float* startPos, const float* endPos,
+							  const dtPolyRef* path, const int pathSize,
+							  float* straightPath, unsigned char* straightPathFlags, dtPolyRef* straightPathRefs,
+							  int* straightPathCount, const int maxStraightPath) const;
 	
 	// Moves from startPos to endPos constrained to the navmesh.
 	// If the endPos is reachable, the resultPos will be endPos,
@@ -217,11 +212,11 @@ public:
 	//  filter - (in) path polygon filter.
 	//  resultPos[3] - (out) new position of the mover.
 	//  visited - (out) array of visited polygons.
+	//  visitedCount - (out) Number of entries in the visited array.
 	//  maxVisitedSize - (in) max number of polygons in the visited array.
-	// Returns: Number of entries in the visited array.
-	int moveAlongSurface(dtPolyRef startRef, const float* startPos, const float* endPos,
-						 const dtQueryFilter* filter,
-						 float* resultPos, dtPolyRef* visited, const int maxVisitedSize) const;
+	dtStatus moveAlongSurface(dtPolyRef startRef, const float* startPos, const float* endPos,
+							  const dtQueryFilter* filter,
+							  float* resultPos, dtPolyRef* visited, int* visitedCount, const int maxVisitedSize) const;
 	
 	// Casts 'walkability' ray along the navmesh surface from startPos towards the endPos.
 	// Params:
@@ -231,23 +226,25 @@ public:
 	//	t - (out) hit parameter along the segment, FLT_MAX if no hit.
 	//	hitNormal[3] - (out) normal of the nearest hit.
 	//  filter - (in) path polygon filter.
-	//  path - (out) visited path polygons.
-	//  pathSize - (in) max number of polygons in the path array.
-	// Returns: Number of polygons visited or 0 if failed.
-	int raycast(dtPolyRef startRef, const float* startPos, const float* endPos, const dtQueryFilter* filter,
-				float& t, float* hitNormal, dtPolyRef* path, const int pathSize) const;
+	//  path - (out,opt) visited path polygons.
+	//  pathCount - (out,opt) Number of polygons visited.
+	//  maxPath - (in) max number of polygons in the path array.
+	dtStatus raycast(dtPolyRef startRef, const float* startPos, const float* endPos,
+					 const dtQueryFilter* filter,
+					 float* t, float* hitNormal, dtPolyRef* path, int* pathCount, const int maxPath) const;
 	
 	// Returns distance to nearest wall from the specified location.
 	// Params:
-	//	centerRef - (in) ref to the polygon where the center lies.
+	//	startRef - (in) ref to the polygon where the center lies.
 	//	centerPos[3] - (in) center if the query circle.
 	//	maxRadius - (in) max search radius.
 	//  filter - (in) path polygon filter.
+	//  hitDist - (out) distance to nearest wall from the test location.
 	//	hitPos[3] - (out) location of the nearest hit.
 	//	hitNormal[3] - (out) normal of the nearest hit.
-	// Returns: Distance to nearest wall from the test location.
-	float findDistanceToWall(dtPolyRef centerRef, const float* centerPos, float maxRadius,
-							 const dtQueryFilter* filter, float* hitPos, float* hitNormal) const;
+	dtStatus findDistanceToWall(dtPolyRef startRef, const float* centerPos, const float maxRadius,
+								const dtQueryFilter* filter,
+								float* hitDist, float* hitPos, float* hitNormal) const;
 	
 	// Finds polygons found along the navigation graph which touch the specified circle.
 	// Params:
@@ -258,12 +255,12 @@ public:
 	//	resultRef - (out, opt) refs to the polygons touched by the circle.
 	//	resultParent - (out, opt) parent of each result polygon.
 	//	resultCost - (out, opt) search cost at each result polygon.
+	//  resultCount - (out, opt) Number of results.
 	//	maxResult - (int) maximum capacity of search results.
-	// Returns: Number of results.
-	int	findPolysAroundCircle(dtPolyRef startRef, const float* centerPos, const float radius,
-							  const dtQueryFilter* filter,
-							  dtPolyRef* resultRef, dtPolyRef* resultParent, float* resultCost,
-							  const int maxResult) const;
+	dtStatus findPolysAroundCircle(dtPolyRef startRef, const float* centerPos, const float radius,
+								   const dtQueryFilter* filter,
+								   dtPolyRef* resultRef, dtPolyRef* resultParent, float* resultCost,
+								   int* resultCount, const int maxResult) const;
 	
 	// Finds polygons found along the navigation graph which touch the convex polygon shape.
 	// Params:
@@ -274,12 +271,12 @@ public:
 	//	resultRef - (out, opt) refs to the polygons touched by the circle.
 	//	resultParent - (out, opt) parent of each result polygon.
 	//	resultCost - (out, opt) search cost at each result polygon.
+	//  resultCount - (out) number of results.
 	//	maxResult - (int) maximum capacity of search results.
-	// Returns: Number of results.
-	int	findPolysAroundShape(dtPolyRef startRef, const float* verts, const int nverts,
-							 const dtQueryFilter* filter,
-							 dtPolyRef* resultRef, dtPolyRef* resultParent, float* resultCost,
-							 const int maxResult) const;
+	dtStatus findPolysAroundShape(dtPolyRef startRef, const float* verts, const int nverts,
+								  const dtQueryFilter* filter,
+								  dtPolyRef* resultRef, dtPolyRef* resultParent, float* resultCost,
+								  int* resultCount, const int maxResult) const;
 	
 	// Finds non-overlapping local neighbourhood around center location.
 	// Note: The algorithm is optimized for small query radius and small number of polygons. 
@@ -290,21 +287,22 @@ public:
 	//  filter - (in) path polygon filter.
 	//	resultRef - (out) refs to the polygons touched by the circle.
 	//	resultParent - (out, opt) parent of each result polygon.
+	//  resultCount - (out) number of results.
 	//	maxResult - (int) maximum capacity of search results.
-	// Returns: Number of results.
-	int	findLocalNeighbourhood(dtPolyRef startRef, const float* centerPos, const float radius,
-							   const dtQueryFilter* filter,
-							   dtPolyRef* resultRef, dtPolyRef* resultParent, const int maxResult) const;
+	dtStatus findLocalNeighbourhood(dtPolyRef startRef, const float* centerPos, const float radius,
+									const dtQueryFilter* filter,
+									dtPolyRef* resultRef, dtPolyRef* resultParent,
+									int* resultCount, const int maxResult) const;
 	
 	// Returns wall segments of specified polygon.
 	// Params:
 	//  ref - (in) ref to the polygon.
 	//  filter - (in) path polygon filter.
 	//  segments[6*maxSegments] - (out) wall segments (2 endpoints per segment).
+	//  segmentCount - (out) number of wall segments.
 	//  maxSegments - (in) max number of segments that can be stored in 'segments'.
-	// Returns: Number of wall segments.
-	int getPolyWallSegments(dtPolyRef ref, const dtQueryFilter* filter,
-							float* segments, const int maxSegments);
+	dtStatus getPolyWallSegments(dtPolyRef ref, const dtQueryFilter* filter,
+								 float* segments, int* segmentCount, const int maxSegments) const;
 	
 	// Returns closest point on navigation polygon.
 	// Uses detail polygons to find the closest point to the navigation polygon surface. 
@@ -313,7 +311,7 @@ public:
 	//	pos[3] - (in) the point to check.
 	//	closest[3] - (out) closest point.
 	// Returns: true if closest point found.
-	bool closestPointOnPoly(dtPolyRef ref, const float* pos, float* closest) const;
+	dtStatus closestPointOnPoly(dtPolyRef ref, const float* pos, float* closest) const;
 	
 	// Returns closest point on navigation polygon boundary.
 	// Uses the navigation polygon boundary to snap the point to poly boundary
@@ -323,7 +321,7 @@ public:
 	//	pos[3] - (in) the point to check.
 	//	closest[3] - (out) closest point.
 	// Returns: true if closest point found.
-	bool closestPointOnPolyBoundary(dtPolyRef ref, const float* pos, float* closest) const;
+	dtStatus closestPointOnPolyBoundary(dtPolyRef ref, const float* pos, float* closest) const;
 	
 	// Returns start and end location of an off-mesh link polygon.
 	// Params:
@@ -332,7 +330,7 @@ public:
 	//	startPos[3] - (out) start point of the link.
 	//	endPos[3] - (out) end point of the link.
 	// Returns: true if link is found.
-	bool getOffMeshConnectionPolyEndPoints(dtPolyRef prevRef, dtPolyRef polyRef, float* startPos, float* endPos) const;
+	dtStatus getOffMeshConnectionPolyEndPoints(dtPolyRef prevRef, dtPolyRef polyRef, float* startPos, float* endPos) const;
 	
 	// Returns height of the polygon at specified location.
 	// Params:
@@ -340,7 +338,7 @@ public:
 	//	pos[3] - (in) the point where to locate the height.
 	//	height - (out) height at the location.
 	// Returns: true if over polygon.
-	bool getPolyHeight(dtPolyRef ref, const float* pos, float* height) const;
+	dtStatus getPolyHeight(dtPolyRef ref, const float* pos, float* height) const;
 		
 	// Returns true if poly reference ins in closed list.
 	bool isInClosedList(dtPolyRef ref) const;
@@ -359,26 +357,26 @@ private:
 	dtPolyRef findNearestPolyInTile(const dtMeshTile* tile, const float* center, const float* extents,
 									const dtQueryFilter* filter, float* nearestPt) const;
 	// Returns closest point on polygon.
-	bool closestPointOnPolyInTile(const dtMeshTile* tile, const dtPoly* poly, const float* pos, float* closest) const;
+	dtStatus closestPointOnPolyInTile(const dtMeshTile* tile, const dtPoly* poly, const float* pos, float* closest) const;
 	
 	// Returns portal points between two polygons.
-	bool getPortalPoints(dtPolyRef from, dtPolyRef to, float* left, float* right,
-						 unsigned char& fromType, unsigned char& toType) const;
-	bool getPortalPoints(dtPolyRef from, const dtPoly* fromPoly, const dtMeshTile* fromTile,
-						 dtPolyRef to, const dtPoly* toPoly, const dtMeshTile* toTile,
-						 float* left, float* right) const;
+	dtStatus getPortalPoints(dtPolyRef from, dtPolyRef to, float* left, float* right,
+							 unsigned char& fromType, unsigned char& toType) const;
+	dtStatus getPortalPoints(dtPolyRef from, const dtPoly* fromPoly, const dtMeshTile* fromTile,
+							 dtPolyRef to, const dtPoly* toPoly, const dtMeshTile* toTile,
+							 float* left, float* right) const;
 	
 	// Returns edge mid point between two polygons.
-	bool getEdgeMidPoint(dtPolyRef from, dtPolyRef to, float* mid) const;
-	bool getEdgeMidPoint(dtPolyRef from, const dtPoly* fromPoly, const dtMeshTile* fromTile,
-						 dtPolyRef to, const dtPoly* toPoly, const dtMeshTile* toTile,
-						 float* mid) const;
+	dtStatus getEdgeMidPoint(dtPolyRef from, dtPolyRef to, float* mid) const;
+	dtStatus getEdgeMidPoint(dtPolyRef from, const dtPoly* fromPoly, const dtMeshTile* fromTile,
+							 dtPolyRef to, const dtPoly* toPoly, const dtMeshTile* toTile,
+							 float* mid) const;
 	
 	const dtNavMesh* m_nav;				// Pointer to navmesh data.
 
 	struct dtQueryData
 	{
-		dtQueryState state;
+		dtStatus status;
 		struct dtNode* lastBestNode;
 		float lastBestNodeCost;
 		dtPolyRef startRef, endRef;

@@ -639,14 +639,14 @@ bool Sample_SoloMeshSimple::handleBuild()
 			return false;
 		}
 		
-		if (!m_navMesh->init(navData, navDataSize, DT_TILE_FREE_DATA))
+		if (m_navMesh->init(navData, navDataSize, DT_TILE_FREE_DATA) != DT_SUCCESS)
 		{
 			dtFree(navData);
 			m_ctx->log(RC_LOG_ERROR, "Could not init Detour navmesh");
 			return false;
 		}
 		
-		if (!m_navQuery->init(m_navMesh, 2048))
+		if (m_navQuery->init(m_navMesh, 2048) != DT_SUCCESS)
 		{
 			m_ctx->log(RC_LOG_ERROR, "Could not init Detour navmesh query");
 			return false;
