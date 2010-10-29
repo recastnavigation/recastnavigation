@@ -61,7 +61,6 @@ class CrowdTool : public SampleTool
 	enum ToolMode
 	{
 		TOOLMODE_CREATE,
-		TOOLMODE_MOVE,
 		TOOLMODE_MOVE_TARGET,
 	};
 	ToolMode m_mode;

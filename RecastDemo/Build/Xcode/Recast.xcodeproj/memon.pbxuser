@@ -212,6 +212,17 @@
 			6B8D55E1127AAD060077C699 /* PBXTextBookmark */ = 6B8D55E1127AAD060077C699 /* PBXTextBookmark */;
 			6B8D55E3127AAE590077C699 /* PBXTextBookmark */ = 6B8D55E3127AAE590077C699 /* PBXTextBookmark */;
 			6B8D55EA127AAE680077C699 /* PBXTextBookmark */ = 6B8D55EA127AAE680077C699 /* PBXTextBookmark */;
+			6B8D55F2127ABAD40077C699 /* PBXTextBookmark */ = 6B8D55F2127ABAD40077C699 /* PBXTextBookmark */;
+			6B8D55F3127ABAD40077C699 /* PBXTextBookmark */ = 6B8D55F3127ABAD40077C699 /* PBXTextBookmark */;
+			6B8D55F4127ABAD40077C699 /* PBXTextBookmark */ = 6B8D55F4127ABAD40077C699 /* PBXTextBookmark */;
+			6B8D55F5127ABAD40077C699 /* PBXTextBookmark */ = 6B8D55F5127ABAD40077C699 /* PBXTextBookmark */;
+			6B8D55F6127ABAD40077C699 /* PBXTextBookmark */ = 6B8D55F6127ABAD40077C699 /* PBXTextBookmark */;
+			6B8D55F9127ABB6B0077C699 /* PBXTextBookmark */ = 6B8D55F9127ABB6B0077C699 /* PBXTextBookmark */;
+			6B8D55FD127ABBCB0077C699 /* PBXTextBookmark */ = 6B8D55FD127ABBCB0077C699 /* PBXTextBookmark */;
+			6B8D55FE127ABBCB0077C699 /* PBXTextBookmark */ = 6B8D55FE127ABBCB0077C699 /* PBXTextBookmark */;
+			6B8D5603127ABBD80077C699 /* PBXTextBookmark */ = 6B8D5603127ABBD80077C699 /* PBXTextBookmark */;
+			6B8D5604127ABBD80077C699 /* XCBuildMessageTextBookmark */ = 6B8D5604127ABBD80077C699 /* XCBuildMessageTextBookmark */;
+			6B8D5605127ABBD80077C699 /* PBXTextBookmark */ = 6B8D5605127ABBD80077C699 /* PBXTextBookmark */;
 			6B920A521225C0AC00D5B5AD = 6B920A521225C0AC00D5B5AD /* PBXTextBookmark */;
 			6B920A6D1225C5DD00D5B5AD = 6B920A6D1225C5DD00D5B5AD /* PBXTextBookmark */;
 			6B98462E11E6141900FA177B = 6B98462E11E6141900FA177B /* PBXTextBookmark */;
@@ -992,8 +1003,8 @@
 		isa = PBXTextBookmark;
 		fRef = 6BAF3C571211663A008CFCDF /* CrowdTool.h */;
 		name = "CrowdTool.h: 65";
-		rLen = 20;
-		rLoc = 1732;
+		rLen = 0;
+		rLoc = 1737;
 		rType = 0;
 		vrLen = 819;
 		vrLoc = 1128;
@@ -1003,7 +1014,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 145";
 		rLen = 0;
-		rLoc = 3716;
+		rLoc = 3702;
 		rType = 0;
 		vrLen = 889;
 		vrLoc = 3056;
@@ -1013,7 +1024,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 269";
 		rLen = 0;
-		rLoc = 7053;
+		rLoc = 7253;
 		rType = 0;
 		vrLen = 1289;
 		vrLoc = 6303;
@@ -1023,7 +1034,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 269";
 		rLen = 0;
-		rLoc = 7053;
+		rLoc = 7253;
 		rType = 0;
 		vrLen = 1289;
 		vrLoc = 6303;
@@ -1433,6 +1444,115 @@
 		vrLen = 1151;
 		vrLoc = 11524;
 	};
+	6B8D55F2127ABAD40077C699 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */;
+		name = "CrowdManager.cpp: 521";
+		rLen = 0;
+		rLoc = 11932;
+		rType = 0;
+		vrLen = 1220;
+		vrLoc = 11524;
+	};
+	6B8D55F3127ABAD40077C699 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BD667D8123D27EC0021A7A4 /* CrowdManager.h */;
+		name = "CrowdManager.h: 307";
+		rLen = 0;
+		rLoc = 7186;
+		rType = 0;
+		vrLen = 1731;
+		vrLoc = 6316;
+	};
+	6B8D55F4127ABAD40077C699 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BAF3C571211663A008CFCDF /* CrowdTool.h */;
+		name = "CrowdTool.h: 64";
+		rLen = 20;
+		rLoc = 1715;
+		rType = 0;
+		vrLen = 968;
+		vrLoc = 1262;
+	};
+	6B8D55F5127ABAD40077C699 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
+		name = "CrowdTool.cpp: 265";
+		rLen = 0;
+		rLoc = 7253;
+		rType = 0;
+		vrLen = 1392;
+		vrLoc = 6205;
+	};
+	6B8D55F6127ABAD40077C699 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
+		name = "CrowdTool.cpp: 163";
+		rLen = 0;
+		rLoc = 4127;
+		rType = 0;
+		vrLen = 1133;
+		vrLoc = 3309;
+	};
+	6B8D55F9127ABB6B0077C699 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
+		name = "CrowdTool.cpp: 160";
+		rLen = 0;
+		rLoc = 4071;
+		rType = 0;
+		vrLen = 1174;
+		vrLoc = 3436;
+	};
+	6B8D55FD127ABBCB0077C699 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
+		name = "CrowdTool.cpp: 262";
+		rLen = 0;
+		rLoc = 6757;
+		rType = 0;
+		vrLen = 1078;
+		vrLoc = 6483;
+	};
+	6B8D55FE127ABBCB0077C699 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BAF3C571211663A008CFCDF /* CrowdTool.h */;
+		name = "CrowdTool.h: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 1476;
+		vrLoc = 0;
+	};
+	6B8D5603127ABBD80077C699 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BAF3C571211663A008CFCDF /* CrowdTool.h */;
+		name = "CrowdTool.h: 23";
+		rLen = 0;
+		rLoc = 1011;
+		rType = 0;
+		vrLen = 1186;
+		vrLoc = 0;
+	};
+	6B8D5604127ABBD80077C699 /* XCBuildMessageTextBookmark */ = {
+		isa = PBXTextBookmark;
+		comments = "'TOOLMODE_ADJUST_TARGET' was not declared in this scope";
+		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
+		fallbackIsa = XCBuildMessageTextBookmark;
+		rLen = 1;
+		rLoc = 144;
+		rType = 1;
+	};
+	6B8D5605127ABBD80077C699 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
+		name = "CrowdTool.cpp: 145";
+		rLen = 0;
+		rLoc = 3702;
+		rType = 0;
+		vrLen = 721;
+		vrLoc = 3306;
+	};
 	6B8DE6F010A88F0500DF20FB /* PBXBookmarkGroup */ = {
 		isa = PBXBookmarkGroup;
 		children = (
@@ -1806,16 +1926,16 @@
 	};
 	6BAF3C571211663A008CFCDF /* CrowdTool.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {931, 1105}}";
-			sepNavSelRange = "{1732, 20}";
-			sepNavVisRange = "{1128, 819}";
+			sepNavIntBoundsRect = "{{0, 0}, {931, 1014}}";
+			sepNavSelRange = "{1011, 0}";
+			sepNavVisRange = "{0, 1186}";
 		};
 	};
 	6BAF3C581211663A008CFCDF /* CrowdTool.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {931, 8437}}";
-			sepNavSelRange = "{7053, 0}";
-			sepNavVisRange = "{6303, 1289}";
+			sepNavIntBoundsRect = "{{0, 0}, {931, 8567}}";
+			sepNavSelRange = "{3702, 0}";
+			sepNavVisRange = "{3306, 721}";
 			sepNavWindowFrame = "{{15, 51}, {1214, 722}}";
 		};
 	};
@@ -2141,7 +2261,7 @@
 		fRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */;
 		name = "CrowdTool.cpp: 338";
 		rLen = 0;
-		rLoc = 9362;
+		rLoc = 9201;
 		rType = 0;
 		vrLen = 1412;
 		vrLoc = 8537;
@@ -2445,16 +2565,16 @@
 	};
 	6BD667D8123D27EC0021A7A4 /* CrowdManager.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {931, 4407}}";
-			sepNavSelRange = "{6314, 0}";
-			sepNavVisRange = "{6095, 1472}";
+			sepNavIntBoundsRect = "{{0, 0}, {931, 4225}}";
+			sepNavSelRange = "{7186, 0}";
+			sepNavVisRange = "{6316, 1731}";
 		};
 	};
 	6BD667D9123D28100021A7A4 /* CrowdManager.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {931, 19123}}";
-			sepNavSelRange = "{11810, 0}";
-			sepNavVisRange = "{11524, 1151}";
+			sepNavIntBoundsRect = "{{0, 0}, {931, 19084}}";
+			sepNavSelRange = "{11932, 0}";
+			sepNavVisRange = "{11524, 1220}";
 			sepNavWindowFrame = "{{15, 134}, {1120, 639}}";
 		};
 	};

@@ -140,8 +140,6 @@ void CrowdTool::handleMenu()
 
 	if (imguiCheck("Create Agents", m_mode == TOOLMODE_CREATE))
 		m_mode = TOOLMODE_CREATE;
-	if (imguiCheck("Move Agents", m_mode == TOOLMODE_MOVE))
-		m_mode = TOOLMODE_MOVE;
 	if (imguiCheck("Move Target", m_mode == TOOLMODE_MOVE_TARGET))
 		m_mode = TOOLMODE_MOVE_TARGET;
 	
@@ -152,9 +150,13 @@ void CrowdTool::handleMenu()
 		imguiValue("Click to add agents.");
 		imguiValue("Shift+Click to remove.");
 	}
-	else if (m_mode == TOOLMODE_MOVE)
+	else if (m_mode == TOOLMODE_MOVE_TARGET)
 	{
 		imguiValue("Click to set move target.");
+		imguiValue("Shift+Click to adjust target.");
+		imguiValue("Adjusting uses special pathfinder");
+		imguiValue("which is really fast to change the");
+		imguiValue("target in small increments.");
 	}
 	
 	imguiSeparator();
@@ -245,23 +247,6 @@ void CrowdTool::handleClick(const float* s, const float* p, bool shift)
 				m_crowd.requestMoveTarget(idx, m_targetRef, m_targetPos);
 		}
 	}
-	else if (m_mode == TOOLMODE_MOVE)
-	{
-		// Find nearest point on navmesh and set move request to that location.
-		dtNavMeshQuery* navquery = m_sample->getNavMeshQuery();
-		const dtQueryFilter* filter = m_crowd.getFilter();
-		const float* ext = m_crowd.getQueryExtents();
-		m_targetRef = navquery->findNearestPoly(p, ext, filter, m_targetPos);
-		if (m_targetRef)
-		{
-			for (int i = 0; i < m_crowd.getAgentCount(); ++i)
-			{
-				const Agent* ag = m_crowd.getAgent(i);
-				if (!ag->active) continue;
-				m_crowd.requestMoveTarget(i, m_targetRef, m_targetPos);
-			}
-		}
-	}
 	else if (m_mode == TOOLMODE_MOVE_TARGET)
 	{
 		// Find nearest point on navmesh and set move request to that location.
@@ -269,13 +254,25 @@ void CrowdTool::handleClick(const float* s, const float* p, bool shift)
 		const dtQueryFilter* filter = m_crowd.getFilter();
 		const float* ext = m_crowd.getQueryExtents();
 		m_targetRef = navquery->findNearestPoly(p, ext, filter, m_targetPos);
-		if (m_targetRef)
+		
+		if (shift)
 		{
+			// Adjust target using tiny local search.
 			for (int i = 0; i < m_crowd.getAgentCount(); ++i)
 			{
 				const Agent* ag = m_crowd.getAgent(i);
 				if (!ag->active) continue;
 				m_crowd.adjustMoveTarget(i, m_targetRef, m_targetPos);
+			}
+		}
+		else
+		{
+			// Move target using paht finder
+			for (int i = 0; i < m_crowd.getAgentCount(); ++i)
+			{
+				const Agent* ag = m_crowd.getAgent(i);
+				if (!ag->active) continue;
+				m_crowd.requestMoveTarget(i, m_targetRef, m_targetPos);
 			}
 		}
 	}
