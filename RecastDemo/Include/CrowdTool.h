@@ -62,6 +62,7 @@ class CrowdTool : public SampleTool
 	{
 		TOOLMODE_CREATE,
 		TOOLMODE_MOVE,
+		TOOLMODE_MOVE_TARGET,
 	};
 	ToolMode m_mode;
 	

@@ -141,7 +141,8 @@ public:
 	void optimizePath(const float* next, const float pathOptimizationRange,
 					  dtNavMeshQuery* navquery, const dtQueryFilter* filter);
 
-	void updatePosition(const float* npos, dtNavMeshQuery* navquery, const dtQueryFilter* filter);
+	void movePosition(const float* npos, dtNavMeshQuery* navquery, const dtQueryFilter* filter);
+	void moveTargetPosition(const float* npos, dtNavMeshQuery* navquery, const dtQueryFilter* filter);
 	
 	void setCorridor(const float* target, const dtPolyRef* polys, const int npolys);
 
@@ -250,6 +251,7 @@ class CrowdManager
 	static const int MAX_AGENTS = 128;
 	Agent m_agents[MAX_AGENTS];
 	dtObstacleAvoidanceDebugData* m_vodebug[MAX_AGENTS];
+	
 	dtObstacleAvoidanceQuery* m_obstacleQuery;
 	PathQueue m_pathq;
 	ProximityGrid m_grid;
@@ -266,19 +268,26 @@ class CrowdManager
 
 	enum MoveRequestState
 	{
+		MR_TARGET_FAILED,
+		MR_TARGET_VALID,
 		MR_TARGET_REQUESTING,
 		MR_TARGET_WAITING_FOR_PATH,
-		MR_TARGET_VALID,
-		MR_TARGET_FAILED,
+		MR_TARGET_ADJUST,
 	};
 	
+	static const int MAX_TEMP_PATH = 32;
+
 	struct MoveRequest
 	{
-		int idx;
-		dtPolyRef ref;
-		float pos[3];
-		unsigned char state;
-		PathQueueRef pathqRef;
+		unsigned char state;			// State of the request
+		int idx;						// Agent index
+		dtPolyRef ref;					// Goal ref
+		float pos[3];					// Goal position
+		PathQueueRef pathqRef;			// Path find query ref
+		dtPolyRef aref;					// Goal adjustment ref
+		float apos[3];					// Goal adjustment pos
+		dtPolyRef temp[MAX_TEMP_PATH];	// Adjusted path to the goal
+		int ntemp;
 	};
 	MoveRequest m_moveRequests[MAX_AGENTS];
 	int m_moveRequestCount;
@@ -295,10 +304,12 @@ public:
 	const int getAgentCount() const;
 	int addAgent(const float* pos, const float radius, const float height, dtNavMeshQuery* navquery);
 	void removeAgent(const int idx);
+	
 	bool requestMoveTarget(const int idx, dtPolyRef ref, const float* pos);
+	bool adjustMoveTarget(const int idx, dtPolyRef ref, const float* pos);
 	
 	int getActiveAgents(Agent** agents, const int maxAgents);
-	void updateMoveRequest(const float dt, dtNavMeshQuery* navquery);
+	void updateMoveRequest(const float dt, dtNavMeshQuery* navquery, const dtQueryFilter* filter);
 	void update(const float dt, unsigned int flags, dtNavMeshQuery* navquery);
 	
 	const dtQueryFilter* getFilter() const { return &m_filter; }

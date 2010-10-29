@@ -452,7 +452,7 @@ void imguiRenderGLDraw()
 			{
 				const float verts[3*2] =
 				{
-					(float)cmd.rect.x*s+0.5f, (float)cmd.rect.y*s+(float)cmd.rect.h*s-1,
+					(float)cmd.rect.x*s+0.5f, (float)cmd.rect.y*s+0.5f+(float)cmd.rect.h*s-1,
 					(float)cmd.rect.x*s+0.5f+(float)cmd.rect.w*s/2-0.5f, (float)cmd.rect.y*s+0.5f,
 					(float)cmd.rect.x*s+0.5f+(float)cmd.rect.w*s-1, (float)cmd.rect.y*s+0.5f+(float)cmd.rect.h*s-1,
 				};
