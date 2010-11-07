@@ -1150,6 +1150,27 @@ dtStatus dtNavMesh::getOffMeshConnectionPolyEndPoints(dtPolyRef prevRef, dtPolyR
 }
 
 
+const dtOffMeshConnection* dtNavMesh::getOffMeshConnectionByRef(dtPolyRef ref) const
+{
+	unsigned int salt, it, ip;
+	
+	// Get current polygon
+	decodePolyId(ref, salt, it, ip);
+	if (it >= (unsigned int)m_maxTiles) return 0;
+	if (m_tiles[it].salt != salt || m_tiles[it].header == 0) return 0;
+	const dtMeshTile* tile = &m_tiles[it];
+	if (ip >= (unsigned int)tile->header->polyCount) return 0;
+	const dtPoly* poly = &tile->polys[ip];
+	
+	// Make sure that the current poly is indeed off-mesh link.
+	if (poly->getType() != DT_POLYTYPE_OFFMESH_CONNECTION)
+		return 0;
+
+	const unsigned int idx =  ip - tile->header->offMeshBase;
+	dtAssert(idx < (unsigned int)tile->header->offMeshConCount);
+	return &tile->offMeshCons[idx];
+}
+
 
 dtStatus dtNavMesh::setPolyFlags(dtPolyRef ref, unsigned short flags)
 {

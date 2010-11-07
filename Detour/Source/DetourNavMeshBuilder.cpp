@@ -530,6 +530,8 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 			con->rad = params->offMeshConRad[i];
 			con->flags = params->offMeshConDir[i] ? DT_OFFMESH_CON_BIDIR : 0;
 			con->side = offMeshConClass[i*2+1];
+			if (params->offMeshConUserID)
+				con->userId = params->offMeshConUserID[i];
 			n++;
 		}
 	}

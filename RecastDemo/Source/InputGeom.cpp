@@ -374,6 +374,7 @@ void InputGeom::addOffMeshConnection(const float* spos, const float* epos, const
 	m_offMeshConDirs[m_offMeshConCount] = bidir;
 	m_offMeshConAreas[m_offMeshConCount] = area;
 	m_offMeshConFlags[m_offMeshConCount] = flags;
+	m_offMeshConId[m_offMeshConCount] = 1000 + m_offMeshConCount;
 	rcVcopy(&v[0], spos);
 	rcVcopy(&v[3], epos);
 	m_offMeshConCount++;

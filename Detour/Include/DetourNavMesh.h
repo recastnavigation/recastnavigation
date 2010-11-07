@@ -34,7 +34,7 @@ typedef unsigned int dtTileRef;
 static const int DT_VERTS_PER_POLYGON = 6;
 
 static const int DT_NAVMESH_MAGIC = 'D'<<24 | 'N'<<16 | 'A'<<8 | 'V'; //'DNAV';
-static const int DT_NAVMESH_VERSION = 5;
+static const int DT_NAVMESH_VERSION = 6;
 
 static const int DT_NAVMESH_STATE_MAGIC = 'D'<<24 | 'N'<<16 | 'M'<<8 | 'S'; //'DNMS';
 static const int DT_NAVMESH_STATE_VERSION = 1;
@@ -124,6 +124,7 @@ struct dtOffMeshConnection
 	unsigned short poly;					// Poly Id
 	unsigned char flags;					// Link flags
 	unsigned char side;						// End point side.
+	unsigned int userId;					// User ID to identify this connection.
 };
 
 struct dtMeshHeader
@@ -283,6 +284,9 @@ public:
 	//	endPos[3] - (out) end point of the link.
 	// Returns: true if link is found.
 	dtStatus getOffMeshConnectionPolyEndPoints(dtPolyRef prevRef, dtPolyRef polyRef, float* startPos, float* endPos) const;
+
+	// Returns pointer to off-mesh connection based on polyref, or null if ref not valid.
+	const dtOffMeshConnection* getOffMeshConnectionByRef(dtPolyRef ref) const;
 	
 	// Sets polygon flags.
 	dtStatus setPolyFlags(dtPolyRef ref, unsigned short flags);

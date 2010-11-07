@@ -47,6 +47,7 @@ struct dtNavMeshCreateParams
 	const unsigned short* offMeshConFlags;	// Off-mesh connection flags.
 	const unsigned char* offMeshConAreas;	// Off-mesh connection area ids.
 	const unsigned char* offMeshConDir;		// Off-mesh connection direction flags (1 = bidir, 0 = oneway).
+	const unsigned int* offMeshConUserID;	// Off-mesh connection user id (optional).
 	int offMeshConCount;					// Number of off-mesh connections
 	// Tile location
 	unsigned int userId;					// User ID bound to the tile.
