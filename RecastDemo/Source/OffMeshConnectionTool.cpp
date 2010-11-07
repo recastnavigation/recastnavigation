@@ -132,6 +132,10 @@ void OffMeshConnectionTool::handleClick(const float* /*s*/, const float* p, bool
 	
 }
 
+void OffMeshConnectionTool::handleToggle()
+{
+}
+
 void OffMeshConnectionTool::handleStep()
 {
 }

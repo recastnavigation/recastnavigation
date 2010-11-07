@@ -125,6 +125,8 @@ public:
 		}
 	}
 
+	virtual void handleToggle() {}
+
 	virtual void handleStep() {}
 
 	virtual void handleUpdate(const float /*dt*/) {}

@@ -322,6 +322,10 @@ void NavMeshTesterTool::handleClick(const float* /*s*/, const float* p, bool shi
 
 void NavMeshTesterTool::handleStep()
 {
+}
+
+void NavMeshTesterTool::handleToggle()
+{
 	// TODO: merge separate to a path iterator. Use same code in recalc() too.
 	if (m_toolMode != TOOLMODE_PATHFIND_FOLLOW)
 		return;

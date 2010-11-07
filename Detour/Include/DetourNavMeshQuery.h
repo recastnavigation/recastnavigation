@@ -173,11 +173,21 @@ public:
 	// Returns: Path query state.
 	dtStatus updateSlicedFindPath(const int maxIter);
 
-	// Finalizes sliced path find  query.
+	// Finalizes sliced path find query and returns found path.
 	//	path - (out) array holding the search result.
 	//  pathCount - (out) Number of polygons in search result array.
 	//	maxPath - (in) The max number of polygons the path array can hold.
 	dtStatus finalizeSlicedFindPath(dtPolyRef* path, int* pathCount, const int maxPath);
+	
+	// Finalizes partial sliced path find query and returns path to the furthest
+	// polygon on the existing path that was visited during the search.
+	//	existing - (out) Array of polygons in the existing path.
+	//  existingSize - (out) Number of polygons in existing path array.
+	//	path - (out) array holding the search result.
+	//  pathCount - (out) Number of polygons in search result array.
+	//	maxPath - (in) The max number of polygons the path array can hold.
+	dtStatus finalizeSlicedFindPathPartial(const dtPolyRef* existing, const int existingSize,
+										   dtPolyRef* path, int* pathCount, const int maxPath);
 	
 	// Finds a straight path from start to end locations within the corridor
 	// described by the path polygons.

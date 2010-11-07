@@ -86,8 +86,10 @@ public:
 			m_sample->setHighlightedTile(m_hitPos);
 	}
 	
+	virtual void handleToggle() {}
+
 	virtual void handleStep() {}
-	
+
 	virtual void handleUpdate(const float /*dt*/) {}
 
 	virtual void handleRender()

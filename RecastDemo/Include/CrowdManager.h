@@ -138,8 +138,10 @@ public:
 					dtPolyRef* cornerPolys, const int maxCorners,
 					dtNavMeshQuery* navquery, const dtQueryFilter* filter);
 
-	void optimizePath(const float* next, const float pathOptimizationRange,
-					  dtNavMeshQuery* navquery, const dtQueryFilter* filter);
+	void optimizePathVisibility(const float* next, const float pathOptimizationRange,
+								dtNavMeshQuery* navquery, const dtQueryFilter* filter);
+
+	bool optimizePathTopology(dtNavMeshQuery* navquery, const dtQueryFilter* filter);
 
 	void movePosition(const float* npos, dtNavMeshQuery* navquery, const dtQueryFilter* filter);
 	void moveTargetPosition(const float* npos, dtNavMeshQuery* navquery, const dtQueryFilter* filter);
@@ -216,6 +218,8 @@ struct Agent
 	float collisionQueryRange;
 	float pathOptimizationRange;
 
+	float topologyOptTime;
+	
 	Neighbour neis[AGENT_MAX_NEIGHBOURS];
 	int nneis;
 	
@@ -243,6 +247,8 @@ enum UpdateFlags
 	CROWDMAN_ANTICIPATE_TURNS = 1,
 	CROWDMAN_USE_VO = 2,
 	CROWDMAN_DRUNK = 4,
+	CROWDMAN_OPTIMIZE_VIS = 8,
+	CROWDMAN_OPTIMIZE_TOPO = 16,
 };
 
 
@@ -295,6 +301,9 @@ class CrowdManager
 	int getNeighbours(const float* pos, const float height, const float range,
 					  const Agent* skip, Neighbour* result, const int maxResult);
 
+	void updateTopologyOptimization(const float dt, dtNavMeshQuery* navquery, const dtQueryFilter* filter);
+	void updateMoveRequest(const float dt, dtNavMeshQuery* navquery, const dtQueryFilter* filter);
+
 public:
 	CrowdManager();
 	~CrowdManager();
@@ -307,9 +316,8 @@ public:
 	
 	bool requestMoveTarget(const int idx, dtPolyRef ref, const float* pos);
 	bool adjustMoveTarget(const int idx, dtPolyRef ref, const float* pos);
-	
+
 	int getActiveAgents(Agent** agents, const int maxAgents);
-	void updateMoveRequest(const float dt, dtNavMeshQuery* navquery, const dtQueryFilter* filter);
 	void update(const float dt, unsigned int flags, dtNavMeshQuery* navquery);
 	
 	const dtQueryFilter* getFilter() const { return &m_filter; }

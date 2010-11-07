@@ -70,7 +70,7 @@ void dtNodePool::clear()
 	m_nodeCount = 0;
 }
 
-const dtNode* dtNodePool::findNode(dtPolyRef id) const
+dtNode* dtNodePool::findNode(dtPolyRef id)
 {
 	unsigned int bucket = dtHashRef(id) & (m_hashSize-1);
 	unsigned short i = m_first[bucket];

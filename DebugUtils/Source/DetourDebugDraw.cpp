@@ -72,9 +72,9 @@ static void drawPolyBoundaries(duDebugDraw* dd, const dtMeshTile* tile,
 						}
 					}
 					if (con)
-						c = duRGBA(255,255,255,64);
+						c = duRGBA(255,255,255,24);
 					else
-						c = duRGBA(0,0,0,128);
+						c = duRGBA(0,0,0,48);
 				}
 				else
 					c = duRGBA(0,48,64,32);

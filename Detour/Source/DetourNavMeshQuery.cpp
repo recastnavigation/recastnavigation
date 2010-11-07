@@ -1015,6 +1015,75 @@ dtStatus dtNavMeshQuery::finalizeSlicedFindPath(dtPolyRef* path, int* pathCount,
 	return DT_SUCCESS;
 }
 
+dtStatus dtNavMeshQuery::finalizeSlicedFindPathPartial(const dtPolyRef* existing, const int existingSize,
+													   dtPolyRef* path, int* pathCount, const int maxPath)
+{
+	*pathCount = 0;
+	
+	if (existingSize == 0)
+	{
+		return DT_FAILURE;
+	}
+	
+	if (m_query.status != DT_SUCCESS && m_query.status != DT_IN_PROGRESS)
+	{
+		// Reset query.
+		memset(&m_query, 0, sizeof(dtQueryData));
+		return DT_FAILURE;
+	}
+	
+	int n = 0;
+	
+	if (m_query.startRef == m_query.endRef)
+	{
+		// Special case: the search starts and ends at same poly.
+		path[n++] = m_query.startRef;
+	}
+	else
+	{
+		// Find furthest existing node that was visited.
+		dtNode* prev = 0;
+		dtNode* node = 0;
+		for (int i = existingSize-1; i >= 0; --i)
+		{
+			node = m_nodePool->findNode(existing[i]);
+			if (node)
+				break;
+		}
+		
+		if (!node)
+		{
+			return DT_FAILURE;
+		}
+		
+		// Reverse the path.
+		do
+		{
+			dtNode* next = m_nodePool->getNodeAtIdx(node->pidx);
+			node->pidx = m_nodePool->getNodeIdx(prev);
+			prev = node;
+			node = next;
+		}
+		while (node);
+		
+		// Store path
+		node = prev;
+		do
+		{
+			path[n++] = node->id;
+			node = m_nodePool->getNodeAtIdx(node->pidx);
+		}
+		while (node && n < maxPath);
+	}
+	
+	// Reset query.
+	memset(&m_query, 0, sizeof(dtQueryData));
+	
+	*pathCount = n;
+	
+	return DT_SUCCESS;
+}
+
 
 dtStatus dtNavMeshQuery::findStraightPath(const float* startPos, const float* endPos,
 										  const dtPolyRef* path, const int pathSize,

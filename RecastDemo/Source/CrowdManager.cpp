@@ -506,8 +506,8 @@ int PathCorridor::findCorners(float* cornerVerts, unsigned char* cornerFlags,
 	return ncorners;
 }
 
-void PathCorridor::optimizePath(const float* next, const float pathOptimizationRange,
-								dtNavMeshQuery* navquery, const dtQueryFilter* filter)
+void PathCorridor::optimizePathVisibility(const float* next, const float pathOptimizationRange,
+										  dtNavMeshQuery* navquery, const dtQueryFilter* filter)
 {
 	dtAssert(m_path);
 	
@@ -537,6 +537,31 @@ void PathCorridor::optimizePath(const float* next, const float pathOptimizationR
 	{
 		m_npath = mergeCorridor(m_path, m_npath, m_maxPath, res, nres);
 	}
+}
+
+bool PathCorridor::optimizePathTopology(dtNavMeshQuery* navquery, const dtQueryFilter* filter)
+{
+	dtAssert(m_path);
+
+	if (m_npath < 3)
+		return false;
+	
+	static const int MAX_ITER = 32;
+	static const int MAX_RES = 32;
+
+	dtPolyRef res[MAX_RES];
+	int nres = 0;
+	navquery->initSlicedFindPath(m_path[0], m_path[m_npath-1], m_pos, m_target, filter);
+	navquery->updateSlicedFindPath(MAX_ITER);
+	dtStatus status = navquery->finalizeSlicedFindPathPartial(m_path, m_npath, res, &nres, MAX_RES);
+
+	if (status == DT_SUCCESS && nres > 0)
+	{
+		m_npath = mergeCorridor(m_path, m_npath, m_maxPath, res, nres);
+		return true;
+	}
+	
+	return false;
 }
 
 void PathCorridor::movePosition(const float* npos, dtNavMeshQuery* navquery, const dtQueryFilter* filter)
@@ -876,6 +901,7 @@ int CrowdManager::addAgent(const float* pos, const float radius, const float hei
 	ag->height = height;
 	ag->collisionQueryRange = radius * 8;
 	ag->pathOptimizationRange = radius * 30;
+	ag->topologyOptTime = 0;
 	ag->nneis = 0;
 	
 	dtVset(ag->dvel, 0,0,0);
@@ -901,7 +927,9 @@ int CrowdManager::addAgent(const float* pos, const float radius, const float hei
 void CrowdManager::removeAgent(const int idx)
 {
 	if (idx >= 0 && idx < MAX_AGENTS)
-		memset(&m_agents[idx], 0, sizeof(Agent));
+	{
+		m_agents[idx].active = 0;
+	}
 }
 
 bool CrowdManager::requestMoveTarget(const int idx, dtPolyRef ref, const float* pos)
@@ -1231,6 +1259,76 @@ void CrowdManager::updateMoveRequest(const float dt, dtNavMeshQuery* navquery, c
 	
 }
 
+
+
+static int addToOptQueue(Agent* newag, Agent** agents, const int nagents, const int maxAgents)
+{
+	// Insert neighbour based on greatest time.
+	int slot = 0;
+	if (!nagents)
+	{
+		slot = nagents;
+	}
+	else if (newag->topologyOptTime <= agents[nagents-1]->topologyOptTime)
+	{
+		if (nagents >= maxAgents)
+			return nagents;
+		slot = nagents;
+	}
+	else
+	{
+		int i;
+		for (i = 0; i < nagents; ++i)
+			if (newag->topologyOptTime >= agents[i]->topologyOptTime)
+				break;
+		
+		const int tgt = i+1;
+		const int n = dtMin(nagents-i, maxAgents-tgt);
+		
+		dtAssert(tgt+n <= maxAgents);
+		
+		if (n > 0)
+			memmove(&agents[tgt], &agents[i], sizeof(Agent*)*n);
+		slot = i;
+	}
+
+	agents[slot] = newag;
+	
+	return dtMin(nagents+1, maxAgents);
+}
+
+void CrowdManager::updateTopologyOptimization(const float dt, dtNavMeshQuery* navquery, const dtQueryFilter* filter)
+{
+	Agent* agents[MAX_AGENTS];
+	int nagents = getActiveAgents(agents, MAX_AGENTS);
+	if (!nagents)
+		return;
+	
+	const float OPT_TIME_THR = 0.5f; // seconds
+	const int OPT_MAX_AGENTS = 1;
+	
+	Agent* queue[OPT_MAX_AGENTS];
+	int nqueue = 0;
+	
+	for (int i = 0; i < nagents; ++i)
+	{
+		Agent* ag = agents[i];
+		ag->topologyOptTime += dt;
+		if (ag->topologyOptTime >= OPT_TIME_THR)
+		{
+			nqueue = addToOptQueue(ag, queue, nqueue, OPT_MAX_AGENTS);
+		}
+	}
+
+	for (int i = 0; i < nqueue; ++i)
+	{
+		Agent* ag = queue[i];
+		ag->corridor.optimizePathTopology(navquery, filter);
+		ag->topologyOptTime = 0;
+	}
+
+}
+
 void CrowdManager::update(const float dt, unsigned int flags, dtNavMeshQuery* navquery)
 {
 	m_sampleCount = 0;
@@ -1251,6 +1349,10 @@ void CrowdManager::update(const float dt, unsigned int flags, dtNavMeshQuery* na
 	// Update async move request and path finder.
 	updateMoveRequest(dt, navquery, &m_filter);
 
+	// Optimize path topology.
+	if (flags & CROWDMAN_OPTIMIZE_TOPO)
+		updateTopologyOptimization(dt, navquery, &m_filter);
+	
 	// Register agents to proximity grid.
 	m_grid.clear();
 	for (int i = 0; i < nagents; ++i)
@@ -1283,12 +1385,12 @@ void CrowdManager::update(const float dt, unsigned int flags, dtNavMeshQuery* na
 		
 		// Check to see if the corner after the next corner is directly visible,
 		// and short cut to there.
-		if (ag->ncorners > 0)
+		if ((flags & CROWDMAN_OPTIMIZE_VIS) && ag->ncorners > 0)
 		{
 			const float* target = &ag->cornerVerts[dtMin(1,ag->ncorners-1)*3];
 			dtVcopy(ag->opts, ag->corridor.getPos());
 			dtVcopy(ag->opte, target);
-			ag->corridor.optimizePath(target, ag->pathOptimizationRange, navquery, &m_filter);
+			ag->corridor.optimizePathVisibility(target, ag->pathOptimizationRange, navquery, &m_filter);
 		}
 		else
 		{

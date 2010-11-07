@@ -204,14 +204,19 @@ int main(int /*argc*/, char** /*argv*/)
 					else if (event.key.keysym.sym == SDLK_SPACE)
 					{
 						if (sample)
-							sample->handleStep();
+							sample->handleToggle();
 					}
 					else if (event.key.keysym.sym == SDLK_1)
+					{
+						if (sample)
+							sample->handleStep();
+					}
+					else if (event.key.keysym.sym == SDLK_9)
 					{
 						if (geom)
 							geom->save("geomset.txt");
 					}
-					else if (event.key.keysym.sym == SDLK_2)
+					else if (event.key.keysym.sym == SDLK_0)
 					{
 						delete geom;
 						geom = new InputGeom;

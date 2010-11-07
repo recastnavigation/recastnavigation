@@ -44,9 +44,13 @@ class CrowdTool : public SampleTool
 	bool m_showVO;
 	bool m_showOpt;
 	bool m_showGrid;
+	bool m_showNodes;
+	bool m_showPerfGraph;
 	
 	bool m_expandOptions;
 	bool m_anticipateTurns;
+	bool m_optimizeVis;
+	bool m_optimizeTopo;
 	bool m_useVO;
 	bool m_drunkMove;
 	
@@ -74,6 +78,7 @@ public:
 	virtual void reset();
 	virtual void handleMenu();
 	virtual void handleClick(const float* s, const float* p, bool shift);
+	virtual void handleToggle();
 	virtual void handleStep();
 	virtual void handleUpdate(const float dt);
 	virtual void handleRender();

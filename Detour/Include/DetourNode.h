@@ -47,7 +47,7 @@ public:
 	inline void operator=(const dtNodePool&) {}
 	void clear();
 	dtNode* getNode(dtPolyRef id);
-	const dtNode* findNode(dtPolyRef id) const;
+	dtNode* findNode(dtPolyRef id);
 
 	inline unsigned int getNodeIdx(const dtNode* node) const
 	{

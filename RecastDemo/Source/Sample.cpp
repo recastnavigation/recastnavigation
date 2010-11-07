@@ -176,6 +176,12 @@ void Sample::handleClick(const float* s, const float* p, bool shift)
 		m_tool->handleClick(s, p, shift);
 }
 
+void Sample::handleToggle()
+{
+	if (m_tool)
+		m_tool->handleToggle();
+}
+
 void Sample::handleStep()
 {
 	if (m_tool)

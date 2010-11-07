@@ -357,10 +357,10 @@ void Sample_Debug::handleClick(const float* s, const float* p, bool shift)
 		m_tool->handleClick(s, p, shift);
 }
 
-void Sample_Debug::handleStep()
+void Sample_Debug::handleToggle()
 {
 	if (m_tool)
-		m_tool->handleStep();
+		m_tool->handleToggle();
 }
 
 bool Sample_Debug::handleBuild()

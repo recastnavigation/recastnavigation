@@ -135,6 +135,16 @@ void duDebugDrawBox(struct duDebugDraw* dd, float minx, float miny, float minz,
 	dd->end();
 }
 
+void duDebugDrawCylinder(struct duDebugDraw* dd, float minx, float miny, float minz,
+						 float maxx, float maxy, float maxz, unsigned int col)
+{
+	if (!dd) return;
+	
+	dd->begin(DU_DRAW_TRIS);
+	duAppendCylinder(dd, minx,miny,minz, maxx,maxy,maxz, col);
+	dd->end();
+}
+
 void duDebugDrawGridXZ(struct duDebugDraw* dd, const float ox, const float oy, const float oz,
 					   const int w, const int h, const float size,
 					   const unsigned int col, const float lineWidth)
@@ -286,6 +296,58 @@ void duAppendBox(struct duDebugDraw* dd, float minx, float miny, float minz,
 		dd->vertex(&verts[*in*3], fcol[i]); in++;
 		dd->vertex(&verts[*in*3], fcol[i]); in++;
 		dd->vertex(&verts[*in*3], fcol[i]); in++;
+	}
+}
+
+void duAppendCylinder(struct duDebugDraw* dd, float minx, float miny, float minz,
+					  float maxx, float maxy, float maxz, unsigned int col)
+{
+	if (!dd) return;
+	
+	static const int NUM_SEG = 16;
+	static float dir[NUM_SEG*2];
+	static bool init = false;
+	if (!init)
+	{
+		init = true;
+		for (int i = 0; i < NUM_SEG; ++i)
+		{
+			const float a = (float)i/(float)NUM_SEG*DU_PI*2;
+			dir[i*2] = cosf(a);
+			dir[i*2+1] = sinf(a);
+		}
+	}
+	
+	unsigned int col2 = duMultCol(col, 160);
+	
+	const float cx = (maxx + minx)/2;
+	const float cz = (maxz + minz)/2;
+	const float rx = (maxx - minx)/2;
+	const float rz = (maxz - minz)/2;
+
+	for (int i = 2; i < NUM_SEG; ++i)
+	{
+		const int a = 0, b = i-1, c = i;
+		dd->vertex(cx+dir[a*2+0]*rx, miny, cz+dir[a*2+1]*rz, col2);
+		dd->vertex(cx+dir[b*2+0]*rx, miny, cz+dir[b*2+1]*rz, col2);
+		dd->vertex(cx+dir[c*2+0]*rx, miny, cz+dir[c*2+1]*rz, col2);
+	}
+	for (int i = 2; i < NUM_SEG; ++i)
+	{
+		const int a = 0, b = i, c = i-1;
+		dd->vertex(cx+dir[a*2+0]*rx, maxy, cz+dir[a*2+1]*rz, col);
+		dd->vertex(cx+dir[b*2+0]*rx, maxy, cz+dir[b*2+1]*rz, col);
+		dd->vertex(cx+dir[c*2+0]*rx, maxy, cz+dir[c*2+1]*rz, col);
+	}
+	for (int i = 0, j = NUM_SEG-1; i < NUM_SEG; j = i++)
+	{
+		dd->vertex(cx+dir[i*2+0]*rx, miny, cz+dir[i*2+1]*rz, col2);
+		dd->vertex(cx+dir[j*2+0]*rx, miny, cz+dir[j*2+1]*rz, col2);
+		dd->vertex(cx+dir[j*2+0]*rx, maxy, cz+dir[j*2+1]*rz, col);
+
+		dd->vertex(cx+dir[i*2+0]*rx, miny, cz+dir[i*2+1]*rz, col2);
+		dd->vertex(cx+dir[j*2+0]*rx, maxy, cz+dir[j*2+1]*rz, col);
+		dd->vertex(cx+dir[i*2+0]*rx, maxy, cz+dir[i*2+1]*rz, col);
 	}
 }
 
