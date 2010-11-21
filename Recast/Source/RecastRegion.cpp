@@ -283,6 +283,8 @@ static bool floodRegion(int x, int y, int i,
 				if (chf.areas[ai] != area)
 					continue;
 				unsigned short nr = srcReg[ai];
+				if (nr & RC_BORDER_REG) // Do not take borders into account.
+					continue;
 				if (nr != 0 && nr != r)
 					ar = nr;
 				
@@ -319,16 +321,13 @@ static bool floodRegion(int x, int y, int i,
 				const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(cs, dir);
 				if (chf.areas[ai] != area)
 					continue;
-				if (chf.dist[ai] >= lev)
+				if (chf.dist[ai] >= lev && srcReg[ai] == 0)
 				{
-					if (srcReg[ai] == 0)
-					{
-						srcReg[ai] = r;
-						srcDist[ai] = 0;
-						stack.push(ax);
-						stack.push(ay);
-						stack.push(ai);
-					}
+					srcReg[ai] = r;
+					srcDist[ai] = 0;
+					stack.push(ax);
+					stack.push(ay);
+					stack.push(ai);
 				}
 			}
 		}
@@ -1242,7 +1241,6 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 				{
 					if (chf.dist[i] < level || srcReg[i] != 0 || chf.areas[i] == RC_NULL_AREA)
 						continue;
-					
 					if (floodRegion(x, y, i, level, regionId, chf, srcReg, srcDist, stack))
 						regionId++;
 				}
@@ -1250,7 +1248,6 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 		}
 		
 		ctx->stopTimer(RC_TIMER_BUILD_REGIONS_FLOOD);
-		
 	}
 	
 	// Expand current regions until no empty connected cells found.
