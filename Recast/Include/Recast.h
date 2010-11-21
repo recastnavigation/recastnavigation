@@ -251,7 +251,7 @@ void rcFreePolyMesh(rcPolyMesh* pmesh);
 // Each submesh represents a polygon in the polymesh and they are stored in
 // exactly same order. Each submesh is described as 4 values:
 // base vertex, vertex count, base triangle, triangle count. That is,
-//   const unsigned char* t = &dmesh.tris[(tbase+i)*3]; and
+//   const unsigned char* t = &dmesh.tris[(tbase+i)*4]; and
 //   const float* v = &dmesh.verts[(vbase+t[j])*3];
 // If the input polygon has 'n' vertices, those vertices are first in the
 // submesh vertex list. This allows to compres the mesh by not storing the
