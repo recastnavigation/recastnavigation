@@ -421,7 +421,7 @@ void duDebugDrawNavMeshPoly(duDebugDraw* dd, const dtNavMesh& mesh, dtPolyRef re
 	
 	const dtMeshTile* tile = 0;
 	const dtPoly* poly = 0;
-	if (mesh.getTileAndPolyByRef(ref, &tile, &poly) != DT_SUCCESS)
+	if (dtStatusFailed(mesh.getTileAndPolyByRef(ref, &tile, &poly)))
 		return;
 	
 	dd->depthMask(false);

@@ -296,8 +296,13 @@ dtNavMesh* Sample_TileMesh::loadAll(const char* path)
 	}
 	
 	dtNavMesh* mesh = dtAllocNavMesh();
-
-	if (!mesh || mesh->init(&header.params) != DT_SUCCESS)
+	if (!mesh)
+	{
+		fclose(fp);
+		return 0;
+	}
+	dtStatus status = mesh->init(&header.params);
+	if (dtStatusFailed(status))
 	{
 		fclose(fp);
 		return 0;
@@ -712,13 +717,18 @@ bool Sample_TileMesh::handleBuild()
 	params.tileHeight = m_tileSize*m_cellSize;
 	params.maxTiles = m_maxTiles;
 	params.maxPolys = m_maxPolysPerTile;
-	if (m_navMesh->init(&params) != DT_SUCCESS)
+	
+	dtStatus status;
+	
+	status = m_navMesh->init(&params);
+	if (dtStatusFailed(status))
 	{
 		m_ctx->log(RC_LOG_ERROR, "buildTiledNavigation: Could not init navmesh.");
 		return false;
 	}
 	
-	if (m_navQuery->init(m_navMesh, 2048) != DT_SUCCESS)
+	status = m_navQuery->init(m_navMesh, 2048);
+	if (dtStatusFailed(status))
 	{
 		m_ctx->log(RC_LOG_ERROR, "buildTiledNavigation: Could not init Detour navmesh query");
 		return false;
@@ -766,7 +776,8 @@ void Sample_TileMesh::buildTile(const float* pos)
 		m_navMesh->removeTile(m_navMesh->getTileRefAt(tx,ty),0,0);
 		
 		// Let the navmesh own the data.
-		if (m_navMesh->addTile(data,dataSize,DT_TILE_FREE_DATA,0,0) != DT_SUCCESS)
+		dtStatus status = m_navMesh->addTile(data,dataSize,DT_TILE_FREE_DATA,0,0);
+		if (dtStatusFailed(status))
 			dtFree(data);
 	}
 	
@@ -846,7 +857,8 @@ void Sample_TileMesh::buildAllTiles()
 				// Remove any previous data (navmesh owns and deletes the data).
 				m_navMesh->removeTile(m_navMesh->getTileRefAt(x,y),0,0);
 				// Let the navmesh own the data.
-				if (m_navMesh->addTile(data,dataSize,DT_TILE_FREE_DATA,0,0) != DT_SUCCESS)
+				dtStatus status = m_navMesh->addTile(data,dataSize,DT_TILE_FREE_DATA,0,0);
+				if (dtStatusFailed(status))
 					dtFree(data);
 			}
 		}

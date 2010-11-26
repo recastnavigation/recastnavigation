@@ -442,7 +442,8 @@ void NavMeshTesterTool::handleToggle()
 		m_pathIterPolyCount -= npos;
 				
 		// Handle the connection.
-		if (m_navMesh->getOffMeshConnectionPolyEndPoints(prevRef, polyRef, startPos, endPos) == DT_SUCCESS)
+		dtStatus status = m_navMesh->getOffMeshConnectionPolyEndPoints(prevRef, polyRef, startPos, endPos);
+		if (dtStatusSucceed(status))
 		{
 			if (m_nsmoothPath < MAX_SMOOTH)
 			{
@@ -476,12 +477,11 @@ void NavMeshTesterTool::handleUpdate(const float /*dt*/)
 {
 	if (m_toolMode == TOOLMODE_PATHFIND_SLICED)
 	{
-		if (m_pathFindStatus == DT_IN_PROGRESS)
+		if (dtStatusInProgress(m_pathFindStatus))
 		{
 			m_pathFindStatus = m_navQuery->updateSlicedFindPath(1);
 		}
-		
-		if (m_pathFindStatus == DT_SUCCESS)
+		if (dtStatusSucceed(m_pathFindStatus))
 		{
 			m_navQuery->finalizeSlicedFindPath(m_polys, &m_npolys, MAX_POLYS);
 			m_nstraightPath = 0;
@@ -498,7 +498,7 @@ void NavMeshTesterTool::handleUpdate(const float /*dt*/)
 											 m_straightPathPolys, &m_nstraightPath, MAX_POLYS);
 			}
 			 
-			 m_pathFindStatus = DT_FAILURE;
+			m_pathFindStatus = DT_FAILURE;
 		}
 	}
 }
@@ -639,7 +639,8 @@ void NavMeshTesterTool::recalc()
 						npolys -= npos;
 						
 						// Handle the connection.
-						if (m_navMesh->getOffMeshConnectionPolyEndPoints(prevRef, polyRef, startPos, endPos) == DT_SUCCESS)
+						dtStatus status = m_navMesh->getOffMeshConnectionPolyEndPoints(prevRef, polyRef, startPos, endPos);
+						if (dtStatusSucceed(status))
 						{
 							if (m_nsmoothPath < MAX_SMOOTH)
 							{
@@ -856,7 +857,8 @@ static void getPolyCenter(dtNavMesh* navMesh, dtPolyRef ref, float* center)
 	
 	const dtMeshTile* tile = 0;
 	const dtPoly* poly = 0;
-	if (navMesh->getTileAndPolyByRef(ref, &tile, &poly) != DT_SUCCESS)
+	dtStatus status = navMesh->getTileAndPolyByRef(ref, &tile, &poly);
+	if (dtStatusFailed(status))
 		return;
 		
 	for (int i = 0; i < (int)poly->vertCount; ++i)
