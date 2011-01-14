@@ -252,8 +252,8 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 		return false;
 	if (!params->polyCount || !params->polys)
 		return false;
-	if (!params->detailMeshes || !params->detailVerts || !params->detailTris)
-		return false;
+//	if (!params->detailMeshes || !params->detailVerts || !params->detailTris)
+//		return false;
 
 	const int nvp = params->nvp;
 	
@@ -323,18 +323,41 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	
 	// Find unique detail vertices.
 	int uniqueDetailVertCount = 0;
-	for (int i = 0; i < params->polyCount; ++i)
+	int detailTriCount = 0;
+	if (params->detailMeshes)
 	{
-		const unsigned short* p = &params->polys[i*nvp*2];
-		int ndv = params->detailMeshes[i*4+1];
-		int nv = 0;
-		for (int j = 0; j < nvp; ++j)
+		// Has detail mesh, count unique detail vertex count and use input detail tri count.
+		detailTriCount = params->detailTriCount;
+		for (int i = 0; i < params->polyCount; ++i)
 		{
-			if (p[j] == MESH_NULL_IDX) break;
-			nv++;
+			const unsigned short* p = &params->polys[i*nvp*2];
+			int ndv = params->detailMeshes[i*4+1];
+			int nv = 0;
+			for (int j = 0; j < nvp; ++j)
+			{
+				if (p[j] == MESH_NULL_IDX) break;
+				nv++;
+			}
+			ndv -= nv;
+			uniqueDetailVertCount += ndv;
 		}
-		ndv -= nv;
-		uniqueDetailVertCount += ndv;
+	}
+	else
+	{
+		// No input detail mesh, build detail mesh from nav polys.
+		uniqueDetailVertCount = 0; // No extra detail verts.
+		detailTriCount = 0;
+		for (int i = 0; i < params->polyCount; ++i)
+		{
+			const unsigned short* p = &params->polys[i*nvp*2];
+			int nv = 0;
+			for (int j = 0; j < nvp; ++j)
+			{
+				if (p[j] == MESH_NULL_IDX) break;
+				nv++;
+			}
+			detailTriCount += nv-2;
+		}
 	}
 	
 	// Calculate data size
@@ -344,7 +367,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	const int linksSize = dtAlign4(sizeof(dtLink)*maxLinkCount);
 	const int detailMeshesSize = dtAlign4(sizeof(dtPolyDetail)*params->polyCount);
 	const int detailVertsSize = dtAlign4(sizeof(float)*3*uniqueDetailVertCount);
-	const int detailTrisSize = dtAlign4(sizeof(unsigned char)*4*params->detailTriCount);
+	const int detailTrisSize = dtAlign4(sizeof(unsigned char)*4*detailTriCount);
 	const int bvTreeSize = dtAlign4(sizeof(dtBVNode)*params->polyCount*2);
 	const int offMeshConsSize = dtAlign4(sizeof(dtOffMeshConnection)*storedOffMeshConCount);
 	
@@ -385,7 +408,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	dtVcopy(header->bmax, params->bmax);
 	header->detailMeshCount = params->polyCount;
 	header->detailVertCount = uniqueDetailVertCount;
-	header->detailTriCount = params->detailTriCount;
+	header->detailTriCount = detailTriCount;
 	header->bvQuantFactor = 1.0f / params->cs;
 	header->offMeshBase = params->polyCount;
 	header->walkableHeight = params->walkableHeight;
@@ -488,26 +511,56 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	// Store detail meshes and vertices.
 	// The nav polygon vertices are stored as the first vertices on each mesh.
 	// We compress the mesh data by skipping them and using the navmesh coordinates.
-	unsigned short vbase = 0;
-	for (int i = 0; i < params->polyCount; ++i)
+	if (params->detailMeshes)
 	{
-		dtPolyDetail& dtl = navDMeshes[i];
-		const int vb = (int)params->detailMeshes[i*4+0];
-		const int ndv = (int)params->detailMeshes[i*4+1];
-		const int nv = navPolys[i].vertCount;
-		dtl.vertBase = (unsigned int)vbase;
-		dtl.vertCount = (unsigned char)(ndv-nv);
-		dtl.triBase = (unsigned int)params->detailMeshes[i*4+2];
-		dtl.triCount = (unsigned char)params->detailMeshes[i*4+3];
-		// Copy vertices except the first 'nv' verts which are equal to nav poly verts.
-		if (ndv-nv)
+		unsigned short vbase = 0;
+		for (int i = 0; i < params->polyCount; ++i)
 		{
-			memcpy(&navDVerts[vbase*3], &params->detailVerts[(vb+nv)*3], sizeof(float)*3*(ndv-nv));
-			vbase += (unsigned short)(ndv-nv);
+			dtPolyDetail& dtl = navDMeshes[i];
+			const int vb = (int)params->detailMeshes[i*4+0];
+			const int ndv = (int)params->detailMeshes[i*4+1];
+			const int nv = navPolys[i].vertCount;
+			dtl.vertBase = (unsigned int)vbase;
+			dtl.vertCount = (unsigned char)(ndv-nv);
+			dtl.triBase = (unsigned int)params->detailMeshes[i*4+2];
+			dtl.triCount = (unsigned char)params->detailMeshes[i*4+3];
+			// Copy vertices except the first 'nv' verts which are equal to nav poly verts.
+			if (ndv-nv)
+			{
+				memcpy(&navDVerts[vbase*3], &params->detailVerts[(vb+nv)*3], sizeof(float)*3*(ndv-nv));
+				vbase += (unsigned short)(ndv-nv);
+			}
+		}
+		// Store triangles.
+		memcpy(navDTris, params->detailTris, sizeof(unsigned char)*4*params->detailTriCount);
+	}
+	else
+	{
+		// Create dummy detail mesh by triangulating polys.
+		int tbase = 0;
+		for (int i = 0; i < params->polyCount; ++i)
+		{
+			dtPolyDetail& dtl = navDMeshes[i];
+			const int nv = navPolys[i].vertCount;
+			dtl.vertBase = 0;
+			dtl.vertCount = 0;
+			dtl.triBase = (unsigned int)tbase;
+			dtl.triCount = (unsigned char)(nv-2);
+			// Triangulate polygon (local indices).
+			for (int j = 2; j < nv; ++j)
+			{
+				unsigned char* t = &navDTris[tbase*4];
+				t[0] = 0;
+				t[1] = (unsigned char)(j-1);
+				t[2] = (unsigned char)j;
+				// Bit for each edge that belongs to poly boundary.
+				t[3] = (1<<2);
+				if (j == 2) t[3] |= (1<<0);
+				if (j == nv-1) t[3] |= (1<<4);
+				tbase++;
+			}
 		}
 	}
-	// Store triangles.
-	memcpy(navDTris, params->detailTris, sizeof(unsigned char)*4*params->detailTriCount);
 
 	// Store and create BVtree.
 	// TODO: take detail mesh into account! use byte per bbox extent?
