@@ -863,16 +863,27 @@ bool Sample_SoloMeshTiled::handleBuild()
 			for (int i  = 0; i < m_geom->getConvexVolumeCount(); ++i)
 				rcMarkConvexPolyArea(m_ctx, vols[i].verts, vols[i].nverts, vols[i].hmin, vols[i].hmax, (unsigned char)vols[i].area, *tile.chf);
 			
-			if (!rcBuildDistanceField(m_ctx, *tile.chf))
+			if (m_monotonePartitioning)
 			{
-				m_ctx->log(RC_LOG_ERROR, "buildTiledNavigation: [%d,%d] Could not build distance fields.", x, y);
-				continue;
+				if (!rcBuildRegionsMonotone(m_ctx, *tile.chf, tileCfg.borderSize, tileCfg.minRegionArea, tileCfg.mergeRegionArea))
+				{
+					m_ctx->log(RC_LOG_ERROR, "buildTiledNavigation: [%d,%d] Could not build regions.", x, y);
+					continue;
+				}
 			}
-			
-			if (!rcBuildRegions(m_ctx, *tile.chf, tileCfg.borderSize, tileCfg.minRegionArea, tileCfg.mergeRegionArea))
+			else
 			{
-				m_ctx->log(RC_LOG_ERROR, "buildTiledNavigation: [%d,%d] Could not build regions.", x, y);
-				continue;
+				if (!rcBuildDistanceField(m_ctx, *tile.chf))
+				{
+					m_ctx->log(RC_LOG_ERROR, "buildTiledNavigation: [%d,%d] Could not build distance fields.", x, y);
+					continue;
+				}
+				
+				if (!rcBuildRegions(m_ctx, *tile.chf, tileCfg.borderSize, tileCfg.minRegionArea, tileCfg.mergeRegionArea))
+				{
+					m_ctx->log(RC_LOG_ERROR, "buildTiledNavigation: [%d,%d] Could not build regions.", x, y);
+					continue;
+				}
 			}
 			
 			tile.cset = rcAllocContourSet();

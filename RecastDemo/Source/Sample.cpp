@@ -120,6 +120,7 @@ void Sample::resetCommonSettings()
 	m_agentMaxSlope = 45.0f;
 	m_regionMinSize = 8;
 	m_regionMergeSize = 20;
+	m_monotonePartitioning = false;
 	m_edgeMaxLen = 12.0f;
 	m_edgeMaxError = 1.3f;
 	m_vertsPerPoly = 6.0f;
@@ -155,6 +156,8 @@ void Sample::handleCommonSettings()
 	imguiLabel("Region");
 	imguiSlider("Min Region Size", &m_regionMinSize, 0.0f, 150.0f, 1.0f);
 	imguiSlider("Merged Region Size", &m_regionMergeSize, 0.0f, 150.0f, 1.0f);
+	if (imguiCheck("Monotore Partitioning", m_monotonePartitioning))
+		m_monotonePartitioning = !m_monotonePartitioning;
 	
 	imguiSeparator();
 	imguiLabel("Polygonization");

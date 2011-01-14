@@ -29,6 +29,7 @@ enum SampleToolType
 	TOOL_NONE = 0,
 	TOOL_TILE_EDIT,
 	TOOL_TILE_HIGHLIGHT,
+	TOOL_TEMP_OBSTACLE,
 	TOOL_NAVMESH_TESTER,
 	TOOL_OFFMESH_CONNECTION,
 	TOOL_CONVEX_VOLUME,
@@ -87,6 +88,7 @@ protected:
 	float m_agentMaxSlope;
 	float m_regionMinSize;
 	float m_regionMergeSize;
+	bool m_monotonePartitioning;
 	float m_edgeMaxLen;
 	float m_edgeMaxError;
 	float m_vertsPerPoly;

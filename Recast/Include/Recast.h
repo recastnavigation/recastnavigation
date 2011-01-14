@@ -34,6 +34,7 @@ enum rcTimerLabel
 	RC_TIMER_TOTAL,
 	RC_TIMER_TEMP,
 	RC_TIMER_RASTERIZE_TRIANGLES,
+	RC_TIMER_BUILD_LEANHEIGHTFIELD,
 	RC_TIMER_BUILD_COMPACTHEIGHTFIELD,
 	RC_TIMER_BUILD_CONTOURS,
 	RC_TIMER_BUILD_CONTOURS_TRACE,
@@ -46,6 +47,7 @@ enum rcTimerLabel
 	RC_TIMER_MERGE_POLYMESH,
 	RC_TIMER_ERODE_AREA,
 	RC_TIMER_MARK_BOX_AREA,
+	RC_TIMER_MARK_CYLINDER_AREA,
 	RC_TIMER_MARK_CONVEXPOLY_AREA,
 	RC_TIMER_BUILD_DISTANCEFIELD,
 	RC_TIMER_BUILD_DISTANCEFIELD_DIST,
@@ -195,6 +197,29 @@ rcCompactHeightfield* rcAllocCompactHeightfield();
 void rcFreeCompactHeightfield(rcCompactHeightfield* chf);
 
 
+// Lean heightfield stores minimal information to create rcCompactNeighfield
+// in one continuous chunk of memory. The header and data are both laid out
+// in the memory one after each other. The data is accessed as follows:
+//		const int headerSize = rcAlign4(sizeof(rcLeanHeightfield));
+//		const int countsSize = rcAlign4(sizeof(unsigned char)*lhf.width*lhf.height);
+//		const int floorsSize = rcAlign4(sizeof(unsigned short)*lhf.spanCount);
+//		const unsigned char* data = (const unsigned char*)&lhf;
+//		const unsigned char* counts = (const unsigned char*)&data[headerSize];
+//		const unsigned short* floors = (const unsigned short*)&data[headerSize+countsSize];
+//		const unsigned char* areas = (const unsigned char*)&data[headerSize+countsSize+floorsSize];
+// This allows the heighfield to be read and written or compressed as one chunk, i.e.:
+//		fwrite(lhf, lhf->size, 1, fp);
+// Use rcFree() to free the memory occupied by rcLeanHeightfield.
+struct rcLeanHeightfield
+{
+	int width, height;					// Width and height of the heightfield.
+	int spanCount;						// Number of spans in the heightfield.
+	float bmin[3], bmax[3];				// Bounding box of the heightfield.
+	float cs, ch;						// Cell size and height.
+	int size;							// Memory required by the heighfield.
+};
+
+
 struct rcContour
 {
 	int* verts;			// Vertex coordinates, each vertex contains 4 components.
@@ -338,6 +363,7 @@ template<class T> inline T rcAbs(T a) { return a < 0 ? -a : a; }
 template<class T> inline T rcSqr(T a) { return a*a; }
 template<class T> inline T rcClamp(T v, T mn, T mx) { return v < mn ? mn : (v > mx ? mx : v); }
 float rcSqrt(float x);
+inline int rcAlign4(int x) { return (x+3) & ~3; }
 
 // Common vector helper functions.
 inline void rcVcross(float* dest, const float* v1, const float* v2)
@@ -567,16 +593,32 @@ void rcFilterWalkableLowHeightSpans(rcContext* ctx, int walkableHeight, rcHeight
 // Returns number of spans.
 int rcGetHeightFieldSpanCount(rcContext* ctx, rcHeightfield& hf);
 
+// Builds minimal representation of the heighfield.
+// Params:
+//	hf - (in) heightfield to be compacted
+//	chf - (out) lean heightfield representing the open space.
+// Returns pointer to the created lean heighfield.
+rcLeanHeightfield* rcBuildLeanHeightfield(rcContext* ctx, rcHeightfield& hf, const int walkableHeight);
+
 // Builds compact representation of the heightfield.
 // Params:
 //	walkableHeight - (in) minimum height where the agent can still walk
 //	walkableClimb - (in) maximum height between grid cells the agent can climb
-//  flags - (in) require flags for a cell to be included in the compact heightfield.
 //	hf - (in) heightfield to be compacted
 //	chf - (out) compact heightfield representing the open space.
 // Returns false if operation ran out of memory.
 bool rcBuildCompactHeightfield(rcContext* ctx, const int walkableHeight, const int walkableClimb,
 							   rcHeightfield& hf, rcCompactHeightfield& chf);
+
+// Builds compact representation of the heightfield from lean data.
+// Params:
+//	walkableHeight - (in) minimum height where the agent can still walk
+//	walkableClimb - (in) maximum height between grid cells the agent can climb
+//	lhf - (in) lean heightfield to be used as input
+//	chf - (out) compact heightfield representing the open space.
+// Returns false if operation ran out of memory.
+bool rcBuildCompactHeightfield(rcContext* ctx, const int walkableHeight, const int walkableClimb,
+							   rcLeanHeightfield& lhf, rcCompactHeightfield& chf);
 
 // Erodes walkable area.
 // Params:
@@ -609,6 +651,17 @@ void rcMarkBoxArea(rcContext* ctx, const float* bmin, const float* bmax, unsigne
 void rcMarkConvexPolyArea(rcContext* ctx, const float* verts, const int nverts,
 						  const float hmin, const float hmax, unsigned char areaId,
 						  rcCompactHeightfield& chf);
+
+// Marks the area of the cylinder into the area type of the compact heightfield.
+// Params:
+//  pos - (in) center bottom location of hte cylinder.
+//  r - (in) radius of the cylinder.
+//  h - (in) height of the cylinder.
+//  areaId - (in) area ID to mark.
+//	chf - (in/out) compact heightfield to mark.
+void rcMarkCylinderArea(rcContext* ctx, const float* pos,
+						const float r, const float h, unsigned char areaId,
+						rcCompactHeightfield& chf);
 
 // Builds distance field and stores it into the combat heightfield.
 // Params:
@@ -676,7 +729,7 @@ bool rcMergePolyMeshes(rcContext* ctx, rcPolyMesh** meshes, const int nmeshes, r
 //	chf - (in) compact height field, used to query height for new vertices.
 //  sampleDist - (in) spacing between height samples used to generate more detail into mesh.
 //  sampleMaxError - (in) maximum allowed distance between simplified detail mesh and height sample.
-//	pmdtl - (out) detail mesh.
+//	dmesh - (out) detail mesh.
 // Returns false if operation ran out of memory.
 bool rcBuildPolyMeshDetail(rcContext* ctx, const rcPolyMesh& mesh, const rcCompactHeightfield& chf,
 						   const float sampleDist, const float sampleMaxError,

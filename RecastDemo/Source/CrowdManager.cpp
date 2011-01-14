@@ -837,7 +837,7 @@ CrowdManager::CrowdManager() :
 	}
 
 	// TODO: the radius should be related to the agent radius used to create the navmesh!
-	m_grid.init(100, 1.0f);
+	m_grid.init(MAX_AGENTS, 1.0f);
 	
 	reset();
 }

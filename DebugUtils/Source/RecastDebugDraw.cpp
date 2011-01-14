@@ -268,6 +268,61 @@ void duDebugDrawCompactHeightfieldDistance(duDebugDraw* dd, const rcCompactHeigh
 	dd->end();
 }
 
+void duDebugDrawLeanHeightfieldSolid(duDebugDraw* dd, const rcLeanHeightfield& lhf)
+{
+	if (!dd) return;
+	
+	const float cs = lhf.cs;
+	const float ch = lhf.ch;
+	
+	const int headerSize = rcAlign4(sizeof(rcLeanHeightfield));
+	const int countsSize = rcAlign4(sizeof(unsigned char)*lhf.width*lhf.height);
+	const int floorsSize = rcAlign4(sizeof(unsigned short)*lhf.spanCount);
+	const unsigned char* data = (const unsigned char*)&lhf;
+	const unsigned char* counts = (const unsigned char*)&data[headerSize];
+	const unsigned short* floors = (const unsigned short*)&data[headerSize+countsSize];
+	const unsigned char* areas = (const unsigned char*)&data[headerSize+countsSize+floorsSize];
+	
+	
+	dd->begin(DU_DRAW_QUADS);
+	
+	unsigned short mask = (1<<RC_SPAN_HEIGHT_BITS)-1;
+	
+	int idx = 0;
+	
+	for (int y = 0; y < lhf.height; ++y)
+	{
+		for (int x = 0; x < lhf.width; ++x)
+		{
+			const float fx = lhf.bmin[0] + x*cs;
+			const float fz = lhf.bmin[2] + y*cs;
+			const int count = counts[x+y*lhf.width];
+			
+			for (int i = idx, ni = idx+count; i < ni; ++i)
+			{
+				const int y = floors[i] & mask;
+				unsigned char area = areas[i];
+				
+				unsigned int color;
+				if (area == RC_WALKABLE_AREA)
+					color = duRGBA(0,192,255,64);
+				else if (area == RC_NULL_AREA)
+					color = duRGBA(0,0,0,64);
+				else
+					color = duIntToCol(area, 255);
+				
+				const float fy = lhf.bmin[1] + (y+1)*ch;
+				dd->vertex(fx, fy, fz, color);
+				dd->vertex(fx, fy, fz+cs, color);
+				dd->vertex(fx+cs, fy, fz+cs, color);
+				dd->vertex(fx+cs, fy, fz, color);
+			}
+			idx += count;
+		}
+	}
+	dd->end();
+}
+
 static void getContourCenter(const rcContour* cont, const float* orig, float cs, float ch, float* center)
 {
 	center[0] = 0;

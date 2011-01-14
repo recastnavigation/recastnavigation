@@ -33,6 +33,7 @@
 #include "Sample_SoloMeshSimple.h"
 #include "Sample_SoloMeshTiled.h"
 #include "Sample_TileMesh.h"
+#include "Sample_TempObstacles.h"
 #include "Sample_Debug.h"
 
 #ifdef WIN32
@@ -49,13 +50,15 @@ Sample* createSoloSimple() { return new Sample_SoloMeshSimple(); }
 Sample* createSoloTiled() { return new Sample_SoloMeshTiled(); }
 Sample* createTile() { return new Sample_TileMesh(); }
 Sample* createDebug() { return new Sample_Debug(); }
+Sample* createTempObstacle() { return new Sample_TempObstacles(); }
 
 static SampleItem g_samples[] =
 {
 	{ createSoloSimple, "Solo Mesh Simple" },
 	{ createSoloTiled, "Solo Mesh Tiled" },
 	{ createTile, "Tile Mesh" },
-	{ createDebug, "Debug" },
+	{ createTempObstacle, "Temp Obstacles" },
+//	{ createDebug, "Debug" },
 };
 static const int g_nsamples = sizeof(g_samples)/sizeof(SampleItem); 
 
@@ -370,11 +373,7 @@ int main(int /*argc*/, char** /*argv*/)
 		if (processHitTest && geom && sample)
 		{
 			float t;
-			TimeVal t0 = getPerfTime();
 			bool hit = geom->raycastMesh(rays, raye, t);
-			TimeVal t1 = getPerfTime();
-			
-			printf("raycast() %.4fms\n", getPerfDeltaTimeUsec(t0,t1)/1000.0f);
 			
 			if (hit)
 			{

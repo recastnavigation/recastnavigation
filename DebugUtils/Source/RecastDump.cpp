@@ -412,6 +412,7 @@ void duLogBuildTimes(rcContext& ctx, const int totalTimeUsec)
  
 	ctx.log(RC_LOG_PROGRESS, "Build Times");
 	logLine(ctx, RC_TIMER_RASTERIZE_TRIANGLES,		"- Rasterize", pc);
+	logLine(ctx, RC_TIMER_BUILD_LEANHEIGHTFIELD,	"- Build Lean", pc);
 	logLine(ctx, RC_TIMER_BUILD_COMPACTHEIGHTFIELD,	"- Build Compact", pc);
 	logLine(ctx, RC_TIMER_FILTER_BORDER,				"- Filter Border", pc);
 	logLine(ctx, RC_TIMER_FILTER_WALKABLE,			"- Filter Walkable", pc);
@@ -419,6 +420,7 @@ void duLogBuildTimes(rcContext& ctx, const int totalTimeUsec)
 	logLine(ctx, RC_TIMER_MEDIAN_AREA,				"- Median Area", pc);
 	logLine(ctx, RC_TIMER_MARK_BOX_AREA,				"- Mark Box Area", pc);
 	logLine(ctx, RC_TIMER_MARK_CONVEXPOLY_AREA,		"- Mark Convex Area", pc);
+	logLine(ctx, RC_TIMER_MARK_CYLINDER_AREA,		"- Mark Cylinder Area", pc);
 	logLine(ctx, RC_TIMER_BUILD_DISTANCEFIELD,		"- Build Disntace Field", pc);
 	logLine(ctx, RC_TIMER_BUILD_DISTANCEFIELD_DIST,	"    - Distance", pc);
 	logLine(ctx, RC_TIMER_BUILD_DISTANCEFIELD_BLUR,	"    - Blur", pc);
