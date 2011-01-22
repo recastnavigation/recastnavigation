@@ -72,7 +72,8 @@ public:
 	virtual void handleRenderOverlay(double* proj, double* model, int* view);
 	virtual void handleMeshChanged(class InputGeom* geom);
 	virtual bool handleBuild();
-	
+	virtual void handleUpdate(const float dt);
+
 	void getTilePos(const float* pos, int& tx, int& ty);
 	
 	void renderCachedTile(const int tx, const int ty);

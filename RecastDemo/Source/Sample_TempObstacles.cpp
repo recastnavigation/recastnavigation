@@ -411,7 +411,19 @@ class TileCache
 	struct BuildContext
 	{
 		BuildContext() : chf(0), cset(0), pmesh(0), dmesh(0) {};
-		~BuildContext() { rcFreeCompactHeightfield(chf); rcFreeContourSet(cset); rcFreePolyMesh(pmesh); rcFreePolyMeshDetail(dmesh); }
+		~BuildContext() { }
+		
+		inline void purge()
+		{
+			rcFreeCompactHeightfield(chf);
+			rcFreeContourSet(cset);
+			rcFreePolyMesh(pmesh);
+			rcFreePolyMeshDetail(dmesh);
+			chf = 0;
+			cset = 0;
+			pmesh = 0;
+			dmesh = 0;
+		}
 		
 		rcCompactHeightfield* chf;
 		rcContourSet* cset;
@@ -419,6 +431,16 @@ class TileCache
 		rcPolyMeshDetail* dmesh;
 	};
 	
+	struct Request
+	{
+		int tx,ty;
+	};
+	static const int MAX_REQUESTS = 64;
+	Request m_reqs[MAX_REQUESTS];
+	int m_nreqs;
+
+	int m_buildState;
+	BuildContext m_bc;
 	
 public:
 	TileCache() :
@@ -427,7 +449,9 @@ public:
 		m_maxTiles(0),
 		m_buffer(0),
 		m_bufferSize(0),
-		m_buildDetail(false)
+		m_buildDetail(false),
+		m_nreqs(0),
+		m_buildState(0)
 	{
 	}
 	
@@ -450,6 +474,7 @@ public:
 		delete [] m_tiles;
 		m_tiles = 0;
 		m_maxTiles = 0;
+		m_nreqs = 0;
 	}
 	
 	bool init(const int maxTiles, const rcConfig& cfg,
@@ -469,7 +494,14 @@ public:
 		m_agentRadius = agentRadius;
 		m_agentMaxClimb = agentMaxClimb;
 		
+		m_nreqs = 0;
+		
 		return true;
+	}
+	
+	const float getBorderSize() const
+	{
+		return m_cfg.borderSize*m_cfg.cs;
 	}
 	
 	bool initCompressionBuffer(int size)
@@ -488,6 +520,332 @@ public:
 			return false;
 		m_tiles[m_ntiles++] = tile;
 		return true;
+	}
+	
+	bool addUpdateRequest(const int tx, const int ty)
+	{
+		for (int i = 0; i < m_nreqs; ++i)
+		{
+			if (m_reqs[i].tx == tx && m_reqs[i].ty == ty)
+				return true;
+		}
+		if (m_nreqs >= MAX_REQUESTS)
+			return false;
+		Request* req = &m_reqs[m_nreqs++];
+		req->tx = tx;
+		req->ty = ty;
+		return true;
+	}
+	
+	void update(const float dt, rcContext* ctx, dtNavMesh* navmesh, ObstacleSet* obs)
+	{
+		static const int MAX_TIME_USEC = 1000;
+		
+		if (!m_nreqs)
+			return;
+		if (!m_buffer)
+			return;
+
+		// Process requests until max time has passed.
+		
+		TimeVal startTime = getPerfTime();
+		
+		while (m_nreqs > 0)
+		{
+			if (m_buildState == -1)
+			{
+				// Pop new request
+				m_nreqs--;
+				for (int i = 0; i < m_nreqs; ++i)
+					m_reqs[i] = m_reqs[i+1];
+				m_buildState = 0;
+				if (!m_nreqs)
+					return;
+			}
+			
+			const int tx = m_reqs[0].tx;
+			const int ty = m_reqs[0].ty;
+			const CompressedTile* tile = getTile(tx,ty);
+			if (!tile)
+			{
+				ctx->log(RC_LOG_ERROR, "buildNavigation: Could not find tile (%d,%d).", tx, ty);
+				m_buildState = -1;
+				return;
+			}
+
+			if (m_buildState == 0)
+			{
+				// Decompress tile and build compact heighfield.
+				int size = lzf_decompress(tile->compressedData, tile->compressedSize, m_buffer, m_bufferSize);
+				if (size <= 0)
+				{
+					ctx->log(RC_LOG_ERROR, "buildNavigation: Could not decompress tile.");
+					m_buildState = -1;
+					return;
+				}
+				rcLeanHeightfield* lhf = (rcLeanHeightfield*)m_buffer;
+
+				m_bc.purge();
+			
+				// Compact the heightfield so that it is faster to handle from now on.
+				// This will result more cache coherent data as well as the neighbours
+				// between walkable cells will be calculated.
+				m_bc.chf = rcAllocCompactHeightfield();
+				if (!m_bc.chf)
+				{
+					ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'chf'.");
+					m_buildState = -1;
+					return;
+				}
+				
+				if (!rcBuildCompactHeightfield(ctx, m_cfg.walkableHeight, m_cfg.walkableClimb, *lhf, *m_bc.chf))
+				{
+					ctx->log(RC_LOG_ERROR, "buildNavigation: Could not build compact data.");
+					m_buildState = -1;
+					return;
+				}
+
+				// Advance state and bail out if used too much time.
+				m_buildState++;
+				if (getPerfDeltaTimeUsec(startTime, getPerfTime()) > MAX_TIME_USEC)
+					return;
+			}
+			
+			if (m_buildState == 1)
+			{
+				// Mark obstacles.
+				for (int i = 0; i < obs->getObstacleCount(); ++i)
+				{
+					const TempObstacle* ob = obs->getObstacle(i);
+					rcMarkCylinderArea(ctx, ob->pos, ob->r, ob->h, RC_NULL_AREA, *m_bc.chf);
+				}
+				
+				// Erode the walkable area by agent radius.
+				if (!rcErodeWalkableArea(ctx, m_cfg.walkableRadius, *m_bc.chf))
+				{
+					ctx->log(RC_LOG_ERROR, "buildNavigation: Could not erode.");
+					m_buildState = -1;
+					return;
+				}
+				
+				// (Optional) Mark areas.
+				/*		const ConvexVolume* vols = m_geom->getConvexVolumes();
+				 for (int i  = 0; i < m_geom->getConvexVolumeCount(); ++i)
+				 {
+				 rcMarkConvexPolyArea(m_ctx, vols[i].verts, vols[i].nverts, vols[i].hmin, vols[i].hmax,
+				 (unsigned char)vols[i].area, *bc.chf);
+				 }*/
+				
+				// Advance state and bail out if used too much time.
+				m_buildState++;
+				if (getPerfDeltaTimeUsec(startTime, getPerfTime()) > MAX_TIME_USEC)
+					return;
+			}
+			
+			if (m_buildState == 2)
+			{
+				// Partition the walkable surface into simple regions without holes.
+				if (!rcBuildRegionsMonotone(ctx, *m_bc.chf, m_cfg.borderSize, m_cfg.minRegionArea, m_cfg.mergeRegionArea))
+				{
+					ctx->log(RC_LOG_ERROR, "buildNavigation: Could not build regions.");
+					m_buildState = -1;
+					return;
+				}
+				
+				// Advance state and bail out if used too much time.
+				m_buildState++;
+				if (getPerfDeltaTimeUsec(startTime, getPerfTime()) > MAX_TIME_USEC)
+					return;
+			}
+			
+			if (m_buildState == 3)
+			{
+				// Create contours.
+				m_bc.cset = rcAllocContourSet();
+				if (!m_bc.cset)
+				{
+					ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'cset'.");
+					m_buildState = -1;
+					return;
+				}
+				if (!rcBuildContours(ctx, *m_bc.chf, m_cfg.maxSimplificationError, m_cfg.maxEdgeLen, *m_bc.cset))
+				{
+					ctx->log(RC_LOG_ERROR, "buildNavigation: Could not create contours.");
+					m_buildState = -1;
+					return;
+				}
+				
+				if (m_bc.cset->nconts == 0)
+				{
+					// Done, no mesh.
+					m_buildState = -1;
+					return;
+				}
+				
+				// Advance state and bail out if used too much time.
+				m_buildState++;
+				if (getPerfDeltaTimeUsec(startTime, getPerfTime()) > MAX_TIME_USEC)
+					return;
+			}
+			
+			if (m_buildState == 4)
+			{
+				// Build polygon navmesh from the contours.
+				m_bc.pmesh = rcAllocPolyMesh();
+				if (!m_bc.pmesh)
+				{
+					ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'pmesh'.");
+					m_buildState = -1;
+					return;
+				}
+				if (!rcBuildPolyMesh(ctx, *m_bc.cset, m_cfg.maxVertsPerPoly, *m_bc.pmesh))
+				{
+					ctx->log(RC_LOG_ERROR, "buildNavigation: Could not triangulate contours.");
+					m_buildState = -1;
+					return;
+				}
+				
+				// Advance state and bail out if used too much time.
+				m_buildState++;
+				if (getPerfDeltaTimeUsec(startTime, getPerfTime()) > MAX_TIME_USEC)
+					return;
+			}
+			
+			// Build detail mesh.
+			if (m_buildState == 5)
+			{
+				if (m_buildDetail)
+				{
+					m_bc.dmesh = rcAllocPolyMeshDetail();
+					if (!m_bc.dmesh)
+					{
+						ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'dmesh'.");
+						m_buildState = -1;
+						return;
+					}
+					
+					if (!rcBuildPolyMeshDetail(ctx, *m_bc.pmesh, *m_bc.chf,
+											   m_cfg.detailSampleDist, m_cfg.detailSampleMaxError,
+											   *m_bc.dmesh))
+					{
+						ctx->log(RC_LOG_ERROR, "buildNavigation: Could build polymesh detail.");
+						m_buildState = -1;
+						return;
+					}
+				}
+				
+				// Advance state and bail out if used too much time.
+				m_buildState++;
+				if (getPerfDeltaTimeUsec(startTime, getPerfTime()) > MAX_TIME_USEC)
+					return;
+			}
+			
+			if (m_buildState == 6)
+			{
+				// Remove padding from the polymesh data. TODO: Remove this odditity.
+				for (int i = 0; i < m_bc.pmesh->nverts; ++i)
+				{
+					unsigned short* v = &m_bc.pmesh->verts[i*3];
+					v[0] -= (unsigned short)m_cfg.borderSize;
+					v[2] -= (unsigned short)m_cfg.borderSize;
+				}
+				
+				if (m_bc.pmesh->nverts >= 0xffff)
+				{
+					// The vertex indices are ushorts, and cannot point to more than 0xffff vertices.
+					ctx->log(RC_LOG_ERROR, "Too many vertices per tile %d (max: %d).", m_bc.pmesh->nverts, 0xffff);
+				}
+				
+				// Update poly flags from areas.
+				for (int i = 0; i < m_bc.pmesh->npolys; ++i)
+				{
+					if (m_bc.pmesh->areas[i] == RC_WALKABLE_AREA)
+						m_bc.pmesh->areas[i] = SAMPLE_POLYAREA_GROUND;
+					
+					if (m_bc.pmesh->areas[i] == SAMPLE_POLYAREA_GROUND ||
+						m_bc.pmesh->areas[i] == SAMPLE_POLYAREA_GRASS ||
+						m_bc.pmesh->areas[i] == SAMPLE_POLYAREA_ROAD)
+					{
+						m_bc.pmesh->flags[i] = SAMPLE_POLYFLAGS_WALK;
+					}
+					else if (m_bc.pmesh->areas[i] == SAMPLE_POLYAREA_WATER)
+					{
+						m_bc.pmesh->flags[i] = SAMPLE_POLYFLAGS_SWIM;
+					}
+					else if (m_bc.pmesh->areas[i] == SAMPLE_POLYAREA_DOOR)
+					{
+						m_bc.pmesh->flags[i] = SAMPLE_POLYFLAGS_WALK | SAMPLE_POLYFLAGS_DOOR;
+					}
+				}
+				
+				dtNavMeshCreateParams params;
+				memset(&params, 0, sizeof(params));
+				params.verts = m_bc.pmesh->verts;
+				params.vertCount = m_bc.pmesh->nverts;
+				params.polys = m_bc.pmesh->polys;
+				params.polyAreas = m_bc.pmesh->areas;
+				params.polyFlags = m_bc.pmesh->flags;
+				params.polyCount = m_bc.pmesh->npolys;
+				params.nvp = m_bc.pmesh->nvp;
+				
+				if (m_bc.dmesh)
+				{
+					params.detailMeshes = m_bc.dmesh->meshes;
+					params.detailVerts = m_bc.dmesh->verts;
+					params.detailVertsCount = m_bc.dmesh->nverts;
+					params.detailTris = m_bc.dmesh->tris;
+					params.detailTriCount = m_bc.dmesh->ntris;
+				}
+				
+				/*		params.offMeshConVerts = m_geom->getOffMeshConnectionVerts();
+				 params.offMeshConRad = m_geom->getOffMeshConnectionRads();
+				 params.offMeshConDir = m_geom->getOffMeshConnectionDirs();
+				 params.offMeshConAreas = m_geom->getOffMeshConnectionAreas();
+				 params.offMeshConFlags = m_geom->getOffMeshConnectionFlags();
+				 params.offMeshConUserID = m_geom->getOffMeshConnectionId();
+				 params.offMeshConCount = m_geom->getOffMeshConnectionCount();*/
+				
+				params.walkableHeight = m_agentHeight;
+				params.walkableRadius = m_agentRadius;
+				params.walkableClimb = m_agentMaxClimb;
+				params.tileX = tx;
+				params.tileY = ty;
+				
+				const float tcs = m_cfg.tileSize * m_cfg.cs;
+				params.bmin[0] = m_cfg.bmin[0] + tx*tcs;
+				params.bmin[1] = m_cfg.bmin[1];
+				params.bmin[2] = m_cfg.bmin[2] + ty*tcs;
+				params.bmax[0] = m_cfg.bmin[0] + (tx+1)*tcs;
+				params.bmax[1] = m_cfg.bmax[1];
+				params.bmax[2] = m_cfg.bmin[2] + (ty+1)*tcs;
+				
+				params.cs = m_cfg.cs;
+				params.ch = m_cfg.ch;
+				params.tileSize = m_cfg.tileSize;
+
+				unsigned char* navData = 0;
+				int navDataSize = 0;
+
+				if (!dtCreateNavMeshData(&params, &navData, &navDataSize))
+				{
+					ctx->log(RC_LOG_ERROR, "Could not build Detour navmesh.");
+					m_buildState = -1;
+					return;
+				}
+				
+				navmesh->removeTile(navmesh->getTileRefAt(tx,ty),0,0);
+				// Let the navmesh own the data.
+				dtStatus status = navmesh->addTile(navData,navDataSize,DT_TILE_FREE_DATA,0,0);
+				if (dtStatusFailed(status))
+					dtFree(navData);
+				
+				// Done!
+				m_buildState = -1;
+				// Bail out if used too much time.
+				if (getPerfDeltaTimeUsec(startTime, getPerfTime()) > MAX_TIME_USEC)
+					return;
+			}
+		}		
 	}
 	
 	unsigned char* buildNavMeshTile(rcContext* ctx, ObstacleSet* obs, const int tx, const int ty, int& dataSize)
@@ -1257,12 +1615,14 @@ void Sample_TempObstacles::addTempObstacle(const float* pos)
 	if (!m_tileCache)
 		return;
 
-	const float r = 1.0f;
+	const float orad = 1.0f;
 	
-	TempObstacle* ob = m_obs->addObstacle(pos, r, 2.0f);
+	TempObstacle* ob = m_obs->addObstacle(pos, orad, 2.0f);
+	
 	
 	// Update all touched tiles.
-	const float rad2 = r + 0.001f;
+	const float borderSize = m_tileCache->getBorderSize();
+	const float rad2 = orad + borderSize + 0.001f;
 	const float minx = pos[0]-rad2;
 	const float minz = pos[2]-rad2;
 	const float maxx = pos[0]+rad2;
@@ -1283,7 +1643,10 @@ void Sample_TempObstacles::rebuildTiles(const TouchedTile* touched, const int nt
 	{
 		const int x = touched[i].tx;
 		const int y = touched[i].ty;
-		int dataSize = 0;
+		
+		m_tileCache->addUpdateRequest(x,y);
+		
+/*		int dataSize = 0;
 		unsigned char* data = m_tileCache->buildNavMeshTile(m_ctx, m_obs, x,y, dataSize);
 		if (data)
 		{
@@ -1292,7 +1655,7 @@ void Sample_TempObstacles::rebuildTiles(const TouchedTile* touched, const int nt
 			dtStatus status = m_navMesh->addTile(data,dataSize,DT_TILE_FREE_DATA,0,0);
 			if (dtStatusFailed(status))
 				dtFree(data);
-		}
+		}*/
 	}
 	
 	m_ctx->stopTimer(RC_TIMER_TOTAL);
@@ -1461,6 +1824,14 @@ bool Sample_TempObstacles::handleBuild()
 		m_tool->init(this);
 
 	return true;
+}
+
+void Sample_TempObstacles::handleUpdate(const float dt)
+{
+	if (!m_navMesh)
+		return;
+	
+	m_tileCache->update(dt, m_ctx, m_navMesh, m_obs);
 }
 
 void Sample_TempObstacles::getTilePos(const float* pos, int& tx, int& ty)
