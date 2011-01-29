@@ -108,8 +108,6 @@ public:
 			if (m_sample)
 				m_sample->removeAllTiles();
 		}
-		imguiValue("Click LMB to create a tile.");
-		imguiValue("Shift+LMB to remove a tile.");
 	}
 
 	virtual void handleClick(const float* /*s*/, const float* p, bool shift)
@@ -163,6 +161,9 @@ public:
 			imguiDrawText((int)x, (int)y-25, IMGUI_ALIGN_CENTER, text, imguiRGBA(0,0,0,220));
 		}
 		
+		// Tool help
+		const int h = view[3];
+		imguiDrawText(280, h-40, IMGUI_ALIGN_LEFT, "LMB: Rebuild hit tile.  Shift+LMB: Clear hit tile.", imguiRGBA(255,255,255,192));	
 	}
 };
 

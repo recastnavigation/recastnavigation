@@ -75,7 +75,6 @@ public:
 	
 	virtual void handleMenu()
 	{
-		imguiValue("Click LMB to highlight a tile.");
 	}
 	
 	virtual void handleClick(const float* /*s*/, const float* p, bool /*shift*/)
@@ -127,6 +126,9 @@ public:
 			imguiDrawText((int)x, (int)y-25, IMGUI_ALIGN_CENTER, text, imguiRGBA(0,0,0,220));
 		}
 		
+		// Tool help
+		const int h = view[3];
+		imguiDrawText(280, h-40, IMGUI_ALIGN_LEFT, "LMB: Highlight hit.", imguiRGBA(255,255,255,192));	
 	}
 };
 

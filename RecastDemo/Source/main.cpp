@@ -132,7 +132,6 @@ int main(int /*argc*/, char** /*argv*/)
 	bool mouseOverMenu = false;
 	bool showMenu = !presentationMode;
 	bool showLog = false;
-	bool showDebugMode = true;
 	bool showTools = true;
 	bool showLevels = false;
 	bool showSample = false;
@@ -141,7 +140,6 @@ int main(int /*argc*/, char** /*argv*/)
 	int propScroll = 0;
 	int logScroll = 0;
 	int toolsScroll = 0;
-	int debugScroll = 0;
 	
 	char sampleName[64] = "Choose Sample..."; 
 	
@@ -511,24 +509,19 @@ int main(int /*argc*/, char** /*argv*/)
 		// Help text.
 		if (showMenu)
 		{
-			const char msg[] = "W/S/A/D: Move  RMB: Rotate   LMB+SHIFT: Place Start   LMB: Place End";
-			imguiDrawText(width/2, height-20, IMGUI_ALIGN_CENTER, msg, imguiRGBA(255,255,255,128));
+			const char msg[] = "W/S/A/D: Move  RMB: Rotate";
+			imguiDrawText(280, height-20, IMGUI_ALIGN_LEFT, msg, imguiRGBA(255,255,255,128));
 		}
 		
 		if (showMenu)
 		{
-			int propDiv = showDebugMode ? (int)(height*0.6f) : height;
-			
-			if (imguiBeginScrollArea("Properties",
-									 width-250-10, 10+height-propDiv, 250, propDiv-20, &propScroll))
+			if (imguiBeginScrollArea("Properties", width-250-10, 10, 250, height-20, &propScroll))
 				mouseOverMenu = true;
 
 			if (imguiCheck("Show Log", showLog))
 				showLog = !showLog;
 			if (imguiCheck("Show Tools", showTools))
 				showTools = !showTools;
-			if (imguiCheck("Show Debug Mode", showDebugMode))
-				showDebugMode = !showDebugMode;
 
 			imguiSeparator();
 			imguiLabel("Sample");
@@ -571,9 +564,11 @@ int main(int /*argc*/, char** /*argv*/)
 				imguiValue(text);
 			}
 			imguiSeparator();
-					
+
 			if (geom && sample)
 			{
+				imguiSeparatorLine();
+				
 				sample->handleSettings();
 
 				if (imguiButton("Build"))
@@ -594,20 +589,13 @@ int main(int /*argc*/, char** /*argv*/)
 				imguiSeparator();
 			}
 			
-			imguiEndScrollArea();
-			
-			if (showDebugMode)
+			if (sample)
 			{
-				if (imguiBeginScrollArea("Debug Mode",
-										 width-250-10, 10,
-										 250, height-propDiv-10, &debugScroll))
-					mouseOverMenu = true;
-
-				if (sample)
-					sample->handleDebugMode();
-
-				imguiEndScrollArea();
+				imguiSeparatorLine();
+				sample->handleDebugMode();
 			}
+
+			imguiEndScrollArea();
 		}
 		
 		// Sample selection dialog.
@@ -873,7 +861,7 @@ int main(int /*argc*/, char** /*argv*/)
 		// Log
 		if (showLog && showMenu)
 		{
-			if (imguiBeginScrollArea("Log", 10, 10, width - 300, 200, &logScroll))
+			if (imguiBeginScrollArea("Log", 250+20, 10, width - 300 - 250, 200, &logScroll))
 				mouseOverMenu = true;
 			for (int i = 0; i < ctx.getLogCount(); ++i)
 				imguiLabel(ctx.getLogText(i));
@@ -881,12 +869,13 @@ int main(int /*argc*/, char** /*argv*/)
 		}
 		
 		// Tools
-		if (!showTestCases && showTools && showMenu && geom && sample)
+		if (!showTestCases && showTools && showMenu) // && geom && sample)
 		{
-			if (imguiBeginScrollArea("Tools", 10, height - 10 - 350, 250, 350, &toolsScroll))
+			if (imguiBeginScrollArea("Tools", 10, 10, 250, height-20, &toolsScroll))
 				mouseOverMenu = true;
 
-			sample->handleTools();
+			if (sample)
+				sample->handleTools();
 			
 			imguiEndScrollArea();
 		}

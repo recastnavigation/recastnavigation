@@ -149,16 +149,6 @@ void ConvexVolumeTool::handleMenu()
 		m_npts = 0;
 		m_nhull = 0;
 	}
-
-	imguiSeparator();
-	
-	imguiValue("Click to create points.");
-	imguiValue("The shape is convex hull");
-	imguiValue("of all the create points.");
-	imguiValue("Click on highlited point");
-	imguiValue("to finish the shape.");
-
-	imguiSeparator();
 }
 
 void ConvexVolumeTool::handleClick(const float* /*s*/, const float* p, bool shift)
@@ -278,6 +268,18 @@ void ConvexVolumeTool::handleRender()
 	dd.end();	
 }
 
-void ConvexVolumeTool::handleRenderOverlay(double* /*proj*/, double* /*model*/, int* /*view*/)
+void ConvexVolumeTool::handleRenderOverlay(double* /*proj*/, double* /*model*/, int* view)
 {
+	// Tool help
+	const int h = view[3];
+	if (!m_npts)
+	{
+		imguiDrawText(280, h-40, IMGUI_ALIGN_LEFT, "LMB: Create new shape.  SHIFT+LMB: Delete existing shape (click inside a shape).", imguiRGBA(255,255,255,192));	
+	}
+	else
+	{
+		imguiDrawText(280, h-40, IMGUI_ALIGN_LEFT, "Click LMB to add new points. Click on the red point to finish the shape.", imguiRGBA(255,255,255,192));	
+		imguiDrawText(280, h-60, IMGUI_ALIGN_LEFT, "The shape will be convex hull of all added points.", imguiRGBA(255,255,255,192));	
+	}
+	
 }

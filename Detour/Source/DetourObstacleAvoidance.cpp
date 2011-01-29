@@ -410,10 +410,10 @@ float dtObstacleAvoidanceQuery::processSample(const float* vcand, const float cs
 	return penalty;
 }
 
-void dtObstacleAvoidanceQuery::sampleVelocityGrid(const float* pos, const float rad, const float vmax,
-												  const float* vel, const float* dvel,
-												  float* nvel, const int gsize,
-												  dtObstacleAvoidanceDebugData* debug)
+int dtObstacleAvoidanceQuery::sampleVelocityGrid(const float* pos, const float rad, const float vmax,
+												 const float* vel, const float* dvel,
+												 float* nvel, const int gsize,
+												 dtObstacleAvoidanceDebugData* debug)
 {
 	prepare(pos, dvel);
 	
@@ -428,6 +428,7 @@ void dtObstacleAvoidanceQuery::sampleVelocityGrid(const float* pos, const float 
 	const float half = (gsize-1)*cs*0.5f;
 		
 	float minPenalty = FLT_MAX;
+	int ns = 0;
 		
 	for (int y = 0; y < gsize; ++y)
 	{
@@ -441,6 +442,7 @@ void dtObstacleAvoidanceQuery::sampleVelocityGrid(const float* pos, const float 
 			if (dtSqr(vcand[0])+dtSqr(vcand[2]) > dtSqr(vmax+cs/2)) continue;
 			
 			const float penalty = processSample(vcand, cs, pos,rad,vmax,vel,dvel, debug);
+			ns++;
 			if (penalty < minPenalty)
 			{
 				minPenalty = penalty;
@@ -448,15 +450,17 @@ void dtObstacleAvoidanceQuery::sampleVelocityGrid(const float* pos, const float 
 			}
 		}
 	}
+	
+	return ns;
 }
 
 
 static const float DT_PI = 3.14159265f;
 
-void dtObstacleAvoidanceQuery::sampleVelocityAdaptive(const float* pos, const float rad, const float vmax,
-													  const float* vel, const float* dvel, float* nvel,
-													  const int ndivs, const int nrings, const int depth,
-													  dtObstacleAvoidanceDebugData* debug)
+int dtObstacleAvoidanceQuery::sampleVelocityAdaptive(const float* pos, const float rad, const float vmax,
+													 const float* vel, const float* dvel, float* nvel,
+													 const int ndivs, const int nrings, const int depth,
+													 dtObstacleAvoidanceDebugData* debug)
 {
 	prepare(pos, dvel);
 	
@@ -498,6 +502,7 @@ void dtObstacleAvoidanceQuery::sampleVelocityAdaptive(const float* pos, const fl
 	float cr = vmax * (1.0f-m_velBias);
 	float res[3];
 	dtVset(res, dvel[0] * m_velBias, 0, dvel[2] * m_velBias);
+	int ns = 0;
 
 	for (int k = 0; k < depth; ++k)
 	{
@@ -515,6 +520,7 @@ void dtObstacleAvoidanceQuery::sampleVelocityAdaptive(const float* pos, const fl
 			if (dtSqr(vcand[0])+dtSqr(vcand[2]) > dtSqr(vmax+0.001f)) continue;
 			
 			const float penalty = processSample(vcand,cr/10, pos,rad,vmax,vel,dvel, debug);
+			ns++;
 			if (penalty < minPenalty)
 			{
 				minPenalty = penalty;
@@ -528,5 +534,7 @@ void dtObstacleAvoidanceQuery::sampleVelocityAdaptive(const float* pos, const fl
 	}	
 	
 	dtVcopy(nvel, res);
+	
+	return ns;
 }
 

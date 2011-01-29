@@ -43,6 +43,11 @@
 		6BAF3C591211663A008CFCDF /* CrowdTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BAF3C581211663A008CFCDF /* CrowdTool.cpp */; };
 		6BAF40DB12196A3D008CFCDF /* DetourNavMeshQuery.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BAF40DA12196A3D008CFCDF /* DetourNavMeshQuery.cpp */; };
 		6BAF4442121C3D26008CFCDF /* SampleInterfaces.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BAF4441121C3D26008CFCDF /* SampleInterfaces.cpp */; };
+		6BB5013612F458CB001B1957 /* DetourCrowd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BB5013112F458CB001B1957 /* DetourCrowd.cpp */; };
+		6BB5013712F458CB001B1957 /* DetourLocalBoundary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BB5013212F458CB001B1957 /* DetourLocalBoundary.cpp */; };
+		6BB5013812F458CB001B1957 /* DetourPathCorridor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BB5013312F458CB001B1957 /* DetourPathCorridor.cpp */; };
+		6BB5013912F458CB001B1957 /* DetourPathQueue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BB5013412F458CB001B1957 /* DetourPathQueue.cpp */; };
+		6BB5013A12F458CB001B1957 /* DetourProximityGrid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BB5013512F458CB001B1957 /* DetourProximityGrid.cpp */; };
 		6BB788170FC0472B003C24DB /* ChunkyTriMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BB788160FC0472B003C24DB /* ChunkyTriMesh.cpp */; };
 		6BB7FC0B10EBB6AA006DA0A6 /* NavMeshTesterTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BB7FC0A10EBB6AA006DA0A6 /* NavMeshTesterTool.cpp */; };
 		6BB7FDA510F36F0E006DA0A6 /* InputGeom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BB7FDA410F36F0E006DA0A6 /* InputGeom.cpp */; };
@@ -52,7 +57,6 @@
 		6BB93CF610CFEC4500F74F2B /* RecastDump.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BB93CF510CFEC4500F74F2B /* RecastDump.cpp */; };
 		6BCF32361104CD05009445BF /* OffMeshConnectionTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BCF32351104CD05009445BF /* OffMeshConnectionTool.cpp */; };
 		6BD402011224279400995864 /* PerfTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BD402001224279400995864 /* PerfTimer.cpp */; };
-		6BD667DA123D28100021A7A4 /* CrowdManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BD667D9123D28100021A7A4 /* CrowdManager.cpp */; };
 		6BF5F23A11747606000502A6 /* Filelist.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BF5F23911747606000502A6 /* Filelist.cpp */; };
 		6BF5F2401174763B000502A6 /* SlideShow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BF5F23F1174763B000502A6 /* SlideShow.cpp */; };
 		6BF7C1401111953A002B3F46 /* TestCase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BF7C13F1111953A002B3F46 /* TestCase.cpp */; };
@@ -132,6 +136,16 @@
 		6BAF4440121C3D0A008CFCDF /* SampleInterfaces.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SampleInterfaces.h; path = ../../Include/SampleInterfaces.h; sourceTree = SOURCE_ROOT; };
 		6BAF4441121C3D26008CFCDF /* SampleInterfaces.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleInterfaces.cpp; path = ../../Source/SampleInterfaces.cpp; sourceTree = SOURCE_ROOT; };
 		6BAF4561121D173A008CFCDF /* RecastAssert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RecastAssert.h; path = ../../../Recast/Include/RecastAssert.h; sourceTree = SOURCE_ROOT; };
+		6BB5012C12F458CB001B1957 /* DetourCrowd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DetourCrowd.h; path = ../../../DetourCrowd/Include/DetourCrowd.h; sourceTree = SOURCE_ROOT; };
+		6BB5012D12F458CB001B1957 /* DetourLocalBoundary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DetourLocalBoundary.h; path = ../../../DetourCrowd/Include/DetourLocalBoundary.h; sourceTree = SOURCE_ROOT; };
+		6BB5012E12F458CB001B1957 /* DetourPathCorridor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DetourPathCorridor.h; path = ../../../DetourCrowd/Include/DetourPathCorridor.h; sourceTree = SOURCE_ROOT; };
+		6BB5012F12F458CB001B1957 /* DetourPathQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DetourPathQueue.h; path = ../../../DetourCrowd/Include/DetourPathQueue.h; sourceTree = SOURCE_ROOT; };
+		6BB5013012F458CB001B1957 /* DetourProximityGrid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DetourProximityGrid.h; path = ../../../DetourCrowd/Include/DetourProximityGrid.h; sourceTree = SOURCE_ROOT; };
+		6BB5013112F458CB001B1957 /* DetourCrowd.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DetourCrowd.cpp; path = ../../../DetourCrowd/Source/DetourCrowd.cpp; sourceTree = SOURCE_ROOT; };
+		6BB5013212F458CB001B1957 /* DetourLocalBoundary.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DetourLocalBoundary.cpp; path = ../../../DetourCrowd/Source/DetourLocalBoundary.cpp; sourceTree = SOURCE_ROOT; };
+		6BB5013312F458CB001B1957 /* DetourPathCorridor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DetourPathCorridor.cpp; path = ../../../DetourCrowd/Source/DetourPathCorridor.cpp; sourceTree = SOURCE_ROOT; };
+		6BB5013412F458CB001B1957 /* DetourPathQueue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DetourPathQueue.cpp; path = ../../../DetourCrowd/Source/DetourPathQueue.cpp; sourceTree = SOURCE_ROOT; };
+		6BB5013512F458CB001B1957 /* DetourProximityGrid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DetourProximityGrid.cpp; path = ../../../DetourCrowd/Source/DetourProximityGrid.cpp; sourceTree = SOURCE_ROOT; };
 		6BB788160FC0472B003C24DB /* ChunkyTriMesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ChunkyTriMesh.cpp; path = ../../Source/ChunkyTriMesh.cpp; sourceTree = SOURCE_ROOT; };
 		6BB788180FC04753003C24DB /* ChunkyTriMesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ChunkyTriMesh.h; path = ../../Include/ChunkyTriMesh.h; sourceTree = SOURCE_ROOT; };
 		6BB7FC0910EBB6AA006DA0A6 /* NavMeshTesterTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NavMeshTesterTool.h; path = ../../Include/NavMeshTesterTool.h; sourceTree = SOURCE_ROOT; };
@@ -150,8 +164,6 @@
 		6BCF32351104CD05009445BF /* OffMeshConnectionTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OffMeshConnectionTool.cpp; path = ../../Source/OffMeshConnectionTool.cpp; sourceTree = SOURCE_ROOT; };
 		6BD401FF1224278800995864 /* PerfTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PerfTimer.h; path = ../../Include/PerfTimer.h; sourceTree = SOURCE_ROOT; };
 		6BD402001224279400995864 /* PerfTimer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PerfTimer.cpp; path = ../../Source/PerfTimer.cpp; sourceTree = SOURCE_ROOT; };
-		6BD667D8123D27EC0021A7A4 /* CrowdManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CrowdManager.h; path = ../../Include/CrowdManager.h; sourceTree = SOURCE_ROOT; };
-		6BD667D9123D28100021A7A4 /* CrowdManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CrowdManager.cpp; path = ../../Source/CrowdManager.cpp; sourceTree = SOURCE_ROOT; };
 		6BF5F23911747606000502A6 /* Filelist.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Filelist.cpp; path = ../../Source/Filelist.cpp; sourceTree = SOURCE_ROOT; };
 		6BF5F23C11747614000502A6 /* Filelist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Filelist.h; path = ../../Include/Filelist.h; sourceTree = SOURCE_ROOT; };
 		6BF5F23E1174763B000502A6 /* SlideShow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SlideShow.h; path = ../../Include/SlideShow.h; sourceTree = SOURCE_ROOT; };
@@ -181,26 +193,20 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				6B56847412DA05F2000B9960 /* lzf.h */,
-				6B8BA93912DAE5CC00EE6EFF /* lzfP.h */,
-				6B8BA92612DAE1DF00EE6EFF /* lzf_c.c */,
-				6B8BA92712DAE1DF00EE6EFF /* lzf_d.c */,
+				6BB5012B12F458AE001B1957 /* DetourCrowd */,
+				6BB5012A12F45891001B1957 /* Contrib */,
 				6BB93C7610CFE1BD00F74F2B /* DebugUtils */,
 				6BDD9E030F91110C00904EEF /* Detour */,
 				6B137C7D0F7FCBE800459200 /* Recast */,
 				6B555DF5100B25FC00247EA3 /* Samples */,
 				6BB7FE8E10F4A175006DA0A6 /* Tools */,
 				6B25B6180FFA62BE004F1BC4 /* main.cpp */,
-				6BD667D8123D27EC0021A7A4 /* CrowdManager.h */,
-				6BD667D9123D28100021A7A4 /* CrowdManager.cpp */,
 				6BAF4440121C3D0A008CFCDF /* SampleInterfaces.h */,
 				6BAF4441121C3D26008CFCDF /* SampleInterfaces.cpp */,
-				6BF5F2C511747E9F000502A6 /* stb_image.h */,
 				6BF5F23E1174763B000502A6 /* SlideShow.h */,
 				6BF5F23F1174763B000502A6 /* SlideShow.cpp */,
 				6BF5F23C11747614000502A6 /* Filelist.h */,
 				6BF5F23911747606000502A6 /* Filelist.cpp */,
-				6B555DF6100B273500247EA3 /* stb_truetype.h */,
 				6B137C7A0F7FCBE400459200 /* imgui.h */,
 				6B137C6C0F7FCBBB00459200 /* imgui.cpp */,
 				6B555DAE100B211D00247EA3 /* imguiRenderGL.h */,
@@ -327,6 +333,36 @@
 				6B5683B712D9E7D3000B9960 /* Sample_TempObstacles.cpp */,
 			);
 			name = Samples;
+			sourceTree = "<group>";
+		};
+		6BB5012A12F45891001B1957 /* Contrib */ = {
+			isa = PBXGroup;
+			children = (
+				6B555DF6100B273500247EA3 /* stb_truetype.h */,
+				6BF5F2C511747E9F000502A6 /* stb_image.h */,
+				6B56847412DA05F2000B9960 /* lzf.h */,
+				6B8BA93912DAE5CC00EE6EFF /* lzfP.h */,
+				6B8BA92612DAE1DF00EE6EFF /* lzf_c.c */,
+				6B8BA92712DAE1DF00EE6EFF /* lzf_d.c */,
+			);
+			name = Contrib;
+			sourceTree = "<group>";
+		};
+		6BB5012B12F458AE001B1957 /* DetourCrowd */ = {
+			isa = PBXGroup;
+			children = (
+				6BB5012C12F458CB001B1957 /* DetourCrowd.h */,
+				6BB5013112F458CB001B1957 /* DetourCrowd.cpp */,
+				6BB5012D12F458CB001B1957 /* DetourLocalBoundary.h */,
+				6BB5013212F458CB001B1957 /* DetourLocalBoundary.cpp */,
+				6BB5012E12F458CB001B1957 /* DetourPathCorridor.h */,
+				6BB5013312F458CB001B1957 /* DetourPathCorridor.cpp */,
+				6BB5012F12F458CB001B1957 /* DetourPathQueue.h */,
+				6BB5013412F458CB001B1957 /* DetourPathQueue.cpp */,
+				6BB5013012F458CB001B1957 /* DetourProximityGrid.h */,
+				6BB5013512F458CB001B1957 /* DetourProximityGrid.cpp */,
+			);
+			name = DetourCrowd;
 			sourceTree = "<group>";
 		};
 		6BB7FE8E10F4A175006DA0A6 /* Tools */ = {
@@ -479,10 +515,14 @@
 				6BD402011224279400995864 /* PerfTimer.cpp in Sources */,
 				6B9EFF0912281C3E00535FF1 /* DetourObstacleAvoidance.cpp in Sources */,
 				6B847777122D221D00ADF63D /* ValueHistory.cpp in Sources */,
-				6BD667DA123D28100021A7A4 /* CrowdManager.cpp in Sources */,
 				6B5683B812D9E7D3000B9960 /* Sample_TempObstacles.cpp in Sources */,
 				6B8BA92812DAE1DF00EE6EFF /* lzf_c.c in Sources */,
 				6B8BA92912DAE1DF00EE6EFF /* lzf_d.c in Sources */,
+				6BB5013612F458CB001B1957 /* DetourCrowd.cpp in Sources */,
+				6BB5013712F458CB001B1957 /* DetourLocalBoundary.cpp in Sources */,
+				6BB5013812F458CB001B1957 /* DetourPathCorridor.cpp in Sources */,
+				6BB5013912F458CB001B1957 /* DetourPathQueue.cpp in Sources */,
+				6BB5013A12F458CB001B1957 /* DetourProximityGrid.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

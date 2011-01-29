@@ -167,9 +167,10 @@ public:
 
 	// Updates sliced path find query.
 	// Params:
-	//  maxIter - (in) max number of iterations to update.
+	//  maxIter - (in) Max number of iterations to update.
+	//  doneIters - (out,opt) Number of iterations done during the update.
 	// Returns: Path query state.
-	dtStatus updateSlicedFindPath(const int maxIter);
+	dtStatus updateSlicedFindPath(const int maxIter, int* doneIters);
 
 	// Finalizes sliced path find query and returns found path.
 	//	path - (out) array holding the search result.

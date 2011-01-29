@@ -97,15 +97,15 @@ public:
 	inline void setCollisionTimeWeight(float w) { m_weightToi = w; }
 	inline void setTimeHorizon(float t) { m_horizTime = t; }
 
-	void sampleVelocityGrid(const float* pos, const float rad, const float vmax,
-							const float* vel, const float* dvel, float* nvel,
-							const int gsize,
-							dtObstacleAvoidanceDebugData* debug = 0);
+	int sampleVelocityGrid(const float* pos, const float rad, const float vmax,
+						   const float* vel, const float* dvel, float* nvel,
+						   const int gsize,
+						   dtObstacleAvoidanceDebugData* debug = 0);
 
-	void sampleVelocityAdaptive(const float* pos, const float rad, const float vmax,
-								const float* vel, const float* dvel, float* nvel,
-								const int ndivs, const int nrings, const int depth, 
-								dtObstacleAvoidanceDebugData* debug = 0);
+	int sampleVelocityAdaptive(const float* pos, const float rad, const float vmax,
+							   const float* vel, const float* dvel, float* nvel,
+							   const int ndivs, const int nrings, const int depth, 
+							   dtObstacleAvoidanceDebugData* debug = 0);
 	
 	inline int getObstacleCircleCount() const { return m_ncircles; }
 	const dtObstacleCircle* getObstacleCircle(const int i) { return &m_circles[i]; }

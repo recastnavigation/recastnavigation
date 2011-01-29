@@ -813,7 +813,7 @@ dtStatus dtNavMeshQuery::initSlicedFindPath(dtPolyRef startRef, dtPolyRef endRef
 	return m_query.status;
 }
 	
-dtStatus dtNavMeshQuery::updateSlicedFindPath(const int maxIter)
+dtStatus dtNavMeshQuery::updateSlicedFindPath(const int maxIter, int* doneIters)
 {
 	if (!dtStatusInProgress(m_query.status))
 		return m_query.status;
@@ -841,6 +841,8 @@ dtStatus dtNavMeshQuery::updateSlicedFindPath(const int maxIter)
 			m_query.lastBestNode = bestNode;
 			const dtStatus details = m_query.status & DT_STATUS_DETAIL_MASK;
 			m_query.status = DT_SUCCESS | details;
+			if (doneIters)
+				*doneIters = iter;
 			return m_query.status;
 		}
 		
@@ -853,6 +855,8 @@ dtStatus dtNavMeshQuery::updateSlicedFindPath(const int maxIter)
 		{
 			// The polygon has disappeared during the sliced query, fail.
 			m_query.status = DT_FAILURE;
+			if (doneIters)
+				*doneIters = iter;
 			return m_query.status;
 		}
 		
@@ -868,6 +872,8 @@ dtStatus dtNavMeshQuery::updateSlicedFindPath(const int maxIter)
 			{
 				// The polygon has disappeared during the sliced query, fail.
 				m_query.status = DT_FAILURE;
+				if (doneIters)
+					*doneIters = iter;
 				return m_query.status;
 			}
 		}
@@ -978,6 +984,9 @@ dtStatus dtNavMeshQuery::updateSlicedFindPath(const int maxIter)
 		const dtStatus details = m_query.status & DT_STATUS_DETAIL_MASK;
 		m_query.status = DT_SUCCESS | details;
 	}
+
+	if (doneIters)
+		*doneIters = iter;
 
 	return m_query.status;
 }

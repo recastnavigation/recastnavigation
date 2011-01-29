@@ -23,7 +23,7 @@
 #include "DetourNavMesh.h"
 #include "DetourObstacleAvoidance.h"
 #include "ValueHistory.h"
-#include "CrowdManager.h"
+#include "DetourCrowd.h"
 
 // Tool to create crowds.
 
@@ -34,15 +34,17 @@ class CrowdTool : public SampleTool
 	
 	float m_targetPos[3];
 	dtPolyRef m_targetRef;
-	
-	bool m_expandDebugDraw;
-	bool m_showLabels;
+
+
+	bool m_expandSelectedDebugDraw;
 	bool m_showCorners;
-	bool m_showTargets;
 	bool m_showCollisionSegments;
 	bool m_showPath;
 	bool m_showVO;
 	bool m_showOpt;
+
+	bool m_expandDebugDraw;
+	bool m_showLabels;
 	bool m_showGrid;
 	bool m_showNodes;
 	bool m_showPerfGraph;
@@ -55,19 +57,33 @@ class CrowdTool : public SampleTool
 	bool m_drunkMove;
 	
 	bool m_run;
+
+	dtCrowdAgentDebugInfo m_agentDebug;
+	dtObstacleAvoidanceDebugData* m_vod;
 	
-	CrowdManager m_crowd;
+	static const int AGENT_MAX_TRAIL = 64;
+	static const int MAX_AGENTS = 128;
+	struct AgentTrail
+	{
+		float trail[AGENT_MAX_TRAIL*3];
+		int htrail;
+	};
+	AgentTrail m_trails[MAX_AGENTS];
+	
+	dtCrowd m_crowd;
 		
 	ValueHistory m_crowdTotalTime;
-	ValueHistory m_crowdRvoTime;
 	ValueHistory m_crowdSampleCount;
 	
 	enum ToolMode
 	{
 		TOOLMODE_CREATE,
 		TOOLMODE_MOVE_TARGET,
+		TOOLMODE_SELECT,
 	};
 	ToolMode m_mode;
+	
+	void updateTick(const float dt);
 	
 public:
 	CrowdTool();
