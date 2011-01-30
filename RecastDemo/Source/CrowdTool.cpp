@@ -514,7 +514,15 @@ void CrowdTool::handleRender()
 						dd.vertex(va[0],va[1]+radius,va[2], duRGBA(128,0,0,192));
 						dd.vertex(vb[0],vb[1]+radius,vb[2], duRGBA(128,0,0,192));
 					}
+					if (ag->ncorners && ag->cornerFlags[ag->ncorners-1] & DT_STRAIGHTPATH_OFFMESH_CONNECTION)
+					{
+						const float* v = &ag->cornerVerts[(ag->ncorners-1)*3];
+						dd.vertex(v[0],v[1],v[2], duRGBA(192,0,0,192));
+						dd.vertex(v[0],v[1]+radius*2,v[2], duRGBA(192,0,0,192));
+					}
+					
 					dd.end();
+					
 					
 					if (m_anticipateTurns)
 					{

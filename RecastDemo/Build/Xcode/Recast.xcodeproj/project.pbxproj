@@ -351,12 +351,12 @@
 		6BB5012B12F458AE001B1957 /* DetourCrowd */ = {
 			isa = PBXGroup;
 			children = (
-				6BB501E112F46B6A001B1957 /* DetourObstacleAvoidance.h */,
-				6BB501E212F46B6A001B1957 /* DetourObstacleAvoidance.cpp */,
 				6BB5012C12F458CB001B1957 /* DetourCrowd.h */,
 				6BB5013112F458CB001B1957 /* DetourCrowd.cpp */,
 				6BB5012D12F458CB001B1957 /* DetourLocalBoundary.h */,
 				6BB5013212F458CB001B1957 /* DetourLocalBoundary.cpp */,
+				6BB501E112F46B6A001B1957 /* DetourObstacleAvoidance.h */,
+				6BB501E212F46B6A001B1957 /* DetourObstacleAvoidance.cpp */,
 				6BB5012E12F458CB001B1957 /* DetourPathCorridor.h */,
 				6BB5013312F458CB001B1957 /* DetourPathCorridor.cpp */,
 				6BB5012F12F458CB001B1957 /* DetourPathQueue.h */,

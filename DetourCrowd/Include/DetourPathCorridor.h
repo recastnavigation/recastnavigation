@@ -48,6 +48,10 @@ public:
 	
 	bool optimizePathTopology(dtNavMeshQuery* navquery, const dtQueryFilter* filter);
 	
+	bool moveOverOffmeshConnection(dtPolyRef offMeshConRef, dtPolyRef* refs,
+								   float* startPos, float* endPos,
+								   dtNavMeshQuery* navquery);
+	
 	void movePosition(const float* npos, dtNavMeshQuery* navquery, const dtQueryFilter* filter);
 	void moveTargetPosition(const float* npos, dtNavMeshQuery* navquery, const dtQueryFilter* filter);
 	

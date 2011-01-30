@@ -36,10 +36,18 @@ struct dtCrowdNeighbour
 	float dist;
 };
 
+enum CrowdAgentState
+{
+	DT_CROWDAGENT_STATE_WALKING,
+	DT_CROWDAGENT_STATE_OFFMESH,
+};
+
 struct dtCrowdAgent
 {
 	unsigned char active;
-	
+
+	unsigned char state;
+
 	dtPathCorridor corridor;
 	dtLocalBoundary boundary;
 	
@@ -71,6 +79,13 @@ struct dtCrowdAgent
 	int ncorners;
 };
 
+struct dtCrowdAgentAnimation
+{
+	unsigned char active;
+	float initPos[3], startPos[3], endPos[3];
+	dtPolyRef polyRef;
+	float t, tmax;
+};
 
 enum UpdateFlags
 {
@@ -103,6 +118,7 @@ class dtCrowd
 	int m_maxAgents;
 	dtCrowdAgent* m_agents;
 	dtCrowdAgent** m_activeAgents;
+	dtCrowdAgentAnimation* m_agentAnims;
 	
 	dtPathQueue m_pathq;
 

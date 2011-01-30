@@ -286,6 +286,50 @@ bool dtPathCorridor::optimizePathTopology(dtNavMeshQuery* navquery, const dtQuer
 	return false;
 }
 
+bool dtPathCorridor::moveOverOffmeshConnection(dtPolyRef offMeshConRef, dtPolyRef* refs,
+											   float* startPos, float* endPos,
+											   dtNavMeshQuery* navquery)
+{
+	dtAssert(navquery);
+	dtAssert(m_path);
+	dtAssert(m_npath);
+
+	// Advance the path up to and over the off-mesh connection.
+	dtPolyRef prevRef = 0, polyRef = m_path[0];
+	int npos = 0;
+	while (npos < m_npath && polyRef != offMeshConRef)
+	{
+		prevRef = polyRef;
+		polyRef = m_path[npos];
+		npos++;
+	}
+	if (npos == m_npath)
+	{
+		// Could not find offMeshConRef
+		return false;
+	}
+	
+	// Prune path
+	for (int i = npos; i < m_npath; ++i)
+		m_path[i-npos] = m_path[i];
+	m_npath -= npos;
+
+	refs[0] = prevRef;
+	refs[1] = polyRef;
+	
+	const dtNavMesh* nav = navquery->getAttachedNavMesh();
+	dtAssert(nav);
+
+	dtStatus status = nav->getOffMeshConnectionPolyEndPoints(refs[0], refs[1], startPos, endPos);
+	if (dtStatusSucceed(status))
+	{
+		dtVcopy(m_pos, endPos);
+		return true;
+	}
+
+	return false;
+}
+
 void dtPathCorridor::movePosition(const float* npos, dtNavMeshQuery* navquery, const dtQueryFilter* filter)
 {
 	dtAssert(m_path);

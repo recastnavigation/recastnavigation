@@ -332,15 +332,6 @@ public:
 	// Returns: true if closest point found.
 	dtStatus closestPointOnPolyBoundary(dtPolyRef ref, const float* pos, float* closest) const;
 	
-	// Returns start and end location of an off-mesh link polygon.
-	// Params:
-	//	prevRef - (in) ref to the polygon before the link (used to select direction).
-	//	polyRef - (in) ref to the off-mesh link polygon.
-	//	startPos[3] - (out) start point of the link.
-	//	endPos[3] - (out) end point of the link.
-	// Returns: true if link is found.
-	dtStatus getOffMeshConnectionPolyEndPoints(dtPolyRef prevRef, dtPolyRef polyRef, float* startPos, float* endPos) const;
-	
 	// Returns height of the polygon at specified location.
 	// Params:
 	//	ref - (in) ref to the polygon.
@@ -353,6 +344,8 @@ public:
 	bool isInClosedList(dtPolyRef ref) const;
 	
 	class dtNodePool* getNodePool() const { return m_nodePool; }
+	
+	const dtNavMesh* getAttachedNavMesh() const { return m_nav; }
 	
 private:
 	
