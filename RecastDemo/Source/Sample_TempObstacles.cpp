@@ -38,9 +38,7 @@
 #include "CrowdTool.h"
 #include "RecastAlloc.h"
 #include "RecastAssert.h"
-extern "C" {
-#include "lzf.h"
-}
+#include "fastlz.h"
 
 #ifdef WIN32
 #	define snprintf _snprintf
@@ -257,10 +255,10 @@ static CompressedTile* rasterizeTile(BuildContext* ctx, InputGeom* geom,
 		if (rc.lhf)
 		{
 			// Compress
-			const int outSize = rc.lhf->size - 1;
+			const int outSize = (int)(rc.lhf->size*1.05f);
 			rc.tile->dataSize = rc.lhf->size;
 			rc.tile->compressedData = new unsigned char[outSize];
-			rc.tile->compressedSize = (int)lzf_compress((const void *const)rc.lhf, rc.lhf->size, rc.tile->compressedData, outSize);
+			rc.tile->compressedSize = (int)fastlz_compress((const void *const)rc.lhf, rc.lhf->size, rc.tile->compressedData);
 		}
 
 		// Everything in rc gets deleted when it goes out of scope, save and return tile.
@@ -576,7 +574,7 @@ public:
 			if (m_buildState == 0)
 			{
 				// Decompress tile and build compact heighfield.
-				int size = lzf_decompress(tile->compressedData, tile->compressedSize, m_buffer, m_bufferSize);
+				int size = fastlz_decompress(tile->compressedData, tile->compressedSize, m_buffer, m_bufferSize);
 				if (size <= 0)
 				{
 					ctx->log(RC_LOG_ERROR, "buildNavigation: Could not decompress tile.");
@@ -856,7 +854,7 @@ public:
 		if (!m_buffer)
 			return 0;
 		
-		int size = lzf_decompress(tile->compressedData, tile->compressedSize, m_buffer, m_bufferSize);
+		int size = fastlz_decompress(tile->compressedData, tile->compressedSize, m_buffer, m_bufferSize);
 		
 		if (size <= 0)
 			return 0;
@@ -1072,7 +1070,8 @@ public:
 		if (!tile)
 			return;
 
-		int size = lzf_decompress(tile->compressedData, tile->compressedSize, m_buffer, m_bufferSize);
+		int size = fastlz_decompress(tile->compressedData, tile->compressedSize, m_buffer, m_bufferSize);
+		
 		if (size > 0)
 		{
 			rcLeanHeightfield* chf = (rcLeanHeightfield*)m_buffer;
