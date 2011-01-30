@@ -217,6 +217,7 @@ void dtCrowd::purge()
 	
 	dtFree(m_moveRequests);
 	m_moveRequests = 0;
+	m_moveRequestCount = 0;
 	
 	dtFreeProximityGrid(m_grid);
 	m_grid = 0;
@@ -246,7 +247,8 @@ bool dtCrowd::init(const int maxAgents, const float maxAgentRadius, dtNavMesh* n
 	m_obstacleQuery = dtAllocObstacleAvoidanceQuery();
 	if (!m_obstacleQuery)
 		return false;
-	m_obstacleQuery->init(6, 8);
+	if (!m_obstacleQuery->init(6, 8))
+		return false;
 	
 	m_obstacleQuery->setDesiredVelocityWeight(2.0f);
 	m_obstacleQuery->setCurrentVelocityWeight(0.75f);
