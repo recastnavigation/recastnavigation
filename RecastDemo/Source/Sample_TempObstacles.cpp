@@ -1354,13 +1354,10 @@ void Sample_TempObstacles::handleSettings()
 	
 	imguiSeparator();
 	
-	imguiIndent();
-	imguiIndent();
-	
 	char msg[64];
-	snprintf(msg, 64, "Tile Cache Build Time: %.1fms", m_cacheBuildTimeMs);
-	imguiLabel(msg);
-	
+	snprintf(msg, 64, "Tile Cache Build Time  %.1fms", m_cacheBuildTimeMs);
+	imguiValue(msg);
+
 	imguiSeparator();
 	
 	imguiSeparator();
@@ -1543,24 +1540,24 @@ void Sample_TempObstacles::handleRenderOverlay(double* proj, double* model, int*
 		m_tool->handleRenderOverlay(proj, model, view);
 
 	// Stats
-	imguiDrawRect(20,20,300,100,imguiRGBA(0,0,0,64));
+	imguiDrawRect(280,10,300,100,imguiRGBA(0,0,0,64));
 	
 	char text[64];
-	float y = 120-30;
+	float y = 110-30;
 	
 	snprintf(text,64,"Lean Data: %.1fkB", m_tileCache->getRawSize()/1024.0f);
-	imguiDrawText(40, y, IMGUI_ALIGN_LEFT, text, imguiRGBA(255,255,255,255));
+	imguiDrawText(300, y, IMGUI_ALIGN_LEFT, text, imguiRGBA(255,255,255,255));
 	y -= 20;
 	
 	snprintf(text,64,"Compressed: %.1fkB (%.1f%%)", m_tileCache->getCompressedSize()/1024.0f,
 			 m_tileCache->getRawSize() > 0 ? 100.0f*(float)m_tileCache->getCompressedSize()/(float)m_tileCache->getRawSize() : 0);
-	imguiDrawText(40, y, IMGUI_ALIGN_LEFT, text, imguiRGBA(255,255,255,255));
+	imguiDrawText(300, y, IMGUI_ALIGN_LEFT, text, imguiRGBA(255,255,255,255));
 	y -= 20;
 
 	if (m_rebuildTileCount > 0 && m_rebuildTime > 0.0f)
 	{
 		snprintf(text,64,"Changed obstacles, rebuild %d tiles: %.3f ms", m_rebuildTileCount, m_rebuildTime);
-		imguiDrawText(40, y, IMGUI_ALIGN_LEFT, text, imguiRGBA(255,192,0,255));
+		imguiDrawText(300, y, IMGUI_ALIGN_LEFT, text, imguiRGBA(255,192,0,255));
 		y -= 20;
 	}
 	
@@ -1827,6 +1824,9 @@ bool Sample_TempObstacles::handleBuild()
 
 void Sample_TempObstacles::handleUpdate(const float dt)
 {
+	if (m_tool)
+		m_tool->handleUpdate(dt);
+	
 	if (!m_navMesh)
 		return;
 	
