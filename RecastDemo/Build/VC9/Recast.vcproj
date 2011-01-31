@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\Contrib\SDL\include;..\..\Include;..\..\..\Detour\Include;..\..\..\DebugUtils\Include;..\..\..\Recast\Include;..\..\Contrib;$(NOINHERIT)"
+				AdditionalIncludeDirectories="..\..\Contrib\fastlz;..\..\Contrib\SDL\include;..\..\Include;..\..\..\DetourCrowd\Include;..\..\..\Detour\Include;..\..\..\DebugUtils\Include;..\..\..\Recast\Include;..\..\Contrib"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -117,7 +117,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\..\DebugUtils\Include;..\..\Contrib\SDL\include;..\..\Include;..\..\..\Detour\Include;..\..\..\Recast\Include;..\..\Contrib"
+				AdditionalIncludeDirectories="..\..\Contrib\fastlz;..\..\Contrib\SDL\include;..\..\Include;..\..\..\DetourCrowd\Include;..\..\..\Detour\Include;..\..\..\DebugUtils\Include;..\..\..\Recast\Include;..\..\Contrib"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -271,10 +271,6 @@
 					RelativePath="..\..\..\Detour\Include\DetourNode.h"
 					>
 				</File>
-				<File
-					RelativePath="..\..\..\Detour\Include\DetourObstacleAvoidance.h"
-					>
-				</File>
 			</Filter>
 			<Filter
 				Name="Source"
@@ -303,10 +299,6 @@
 					RelativePath="..\..\..\Detour\Source\DetourNode.cpp"
 					>
 				</File>
-				<File
-					RelativePath="..\..\..\Detour\Source\DetourObstacleAvoidance.cpp"
-					>
-				</File>
 			</Filter>
 		</Filter>
 		<Filter
@@ -321,10 +313,6 @@
 				</File>
 				<File
 					RelativePath="..\..\Include\ConvexVolumeTool.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\Include\CrowdManager.h"
 					>
 				</File>
 				<File
@@ -380,6 +368,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\Include\Sample_TempObstacles.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\Include\Sample_TileMesh.h"
 					>
 				</File>
@@ -417,10 +409,6 @@
 				</File>
 				<File
 					RelativePath="..\..\Source\ConvexVolumeTool.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\Source\CrowdManager.cpp"
 					>
 				</File>
 				<File
@@ -477,6 +465,10 @@
 				</File>
 				<File
 					RelativePath="..\..\Source\Sample_SoloMeshTiled.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\Sample_TempObstacles.cpp"
 					>
 				</File>
 				<File
@@ -544,6 +536,78 @@
 					>
 				</File>
 			</Filter>
+		</Filter>
+		<Filter
+			Name="DetourCrowd"
+			>
+			<Filter
+				Name="Include"
+				>
+				<File
+					RelativePath="..\..\..\DetourCrowd\Include\DetourCrowd.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\DetourCrowd\Include\DetourLocalBoundary.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\DetourCrowd\Include\DetourObstacleAvoidance.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\DetourCrowd\Include\DetourPathCorridor.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\DetourCrowd\Include\DetourPathQueue.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\DetourCrowd\Include\DetourProximityGrid.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Source"
+				>
+				<File
+					RelativePath="..\..\..\DetourCrowd\Source\DetourCrowd.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\DetourCrowd\Source\DetourLocalBoundary.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\DetourCrowd\Source\DetourObstacleAvoidance.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\DetourCrowd\Source\DetourPathCorridor.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\DetourCrowd\Source\DetourPathQueue.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\DetourCrowd\Source\DetourProximityGrid.cpp"
+					>
+				</File>
+			</Filter>
+		</Filter>
+		<Filter
+			Name="Contrib"
+			>
+			<File
+				RelativePath="..\..\Contrib\fastlz\fastlz.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Contrib\fastlz\fastlz.h"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

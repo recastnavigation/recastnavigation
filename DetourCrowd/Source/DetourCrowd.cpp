@@ -20,6 +20,7 @@
 #include <math.h>
 #include <string.h>
 #include <float.h>
+#include <stdlib.h>
 #include <new>
 #include "DetourCrowd.h"
 #include "DetourNavMesh.h"
@@ -499,7 +500,7 @@ int dtCrowd::getNeighbours(const float* pos, const float height, const float ran
 	return n;
 }
 
-void dtCrowd::updateMoveRequest(const float dt)
+void dtCrowd::updateMoveRequest(const float /*dt*/)
 {
 	// Fire off new requests.
 	for (int i = 0; i < m_moveRequestCount; ++i)

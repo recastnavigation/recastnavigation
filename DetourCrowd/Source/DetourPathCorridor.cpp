@@ -189,7 +189,7 @@ void dtPathCorridor::reset(dtPolyRef ref, const float* pos)
 
 int dtPathCorridor::findCorners(float* cornerVerts, unsigned char* cornerFlags,
 							  dtPolyRef* cornerPolys, const int maxCorners,
-							  dtNavMeshQuery* navquery, const dtQueryFilter* filter)
+							  dtNavMeshQuery* navquery, const dtQueryFilter* /*filter*/)
 {
 	dtAssert(m_path);
 	dtAssert(m_npath);

@@ -332,7 +332,8 @@ public:
 	
 	int hitTestObstacle(const float* sp, const float* sq)
 	{
-		float tmin = FLT_MAX, imin = -1;
+		float tmin = FLT_MAX;
+		int imin = -1;
 		for (int i = 0; i < m_nobst; ++i)
 		{
 			const TempObstacle* ob = &m_obst[i];
@@ -535,7 +536,7 @@ public:
 		return true;
 	}
 	
-	void update(const float dt, rcContext* ctx, dtNavMesh* navmesh, ObstacleSet* obs)
+	void update(const float /*dt*/, rcContext* ctx, dtNavMesh* navmesh, ObstacleSet* obs)
 	{
 		static const int MAX_TIME_USEC = 1000;
 		
@@ -1172,7 +1173,7 @@ public:
 		imguiValue("Click LMB to highlight a tile.");
 	}
 
-	virtual void handleClick(const float* /*s*/, const float* p, bool shift)
+	virtual void handleClick(const float* /*s*/, const float* p, bool /*shift*/)
 	{
 		m_hitPosSet = true;
 		rcVcopy(m_hitPos,p);
@@ -1277,7 +1278,7 @@ public:
 	virtual void handleStep() {}
 	virtual void handleUpdate(const float /*dt*/) {}
 	virtual void handleRender() {}
-	virtual void handleRenderOverlay(double* proj, double* model, int* view) { }
+	virtual void handleRenderOverlay(double* /*proj*/, double* /*model*/, int* /*view*/) { }
 };
 
 
@@ -1543,7 +1544,7 @@ void Sample_TempObstacles::handleRenderOverlay(double* proj, double* model, int*
 	imguiDrawRect(280,10,300,100,imguiRGBA(0,0,0,64));
 	
 	char text[64];
-	float y = 110-30;
+	int y = 110-30;
 	
 	snprintf(text,64,"Lean Data: %.1fkB", m_tileCache->getRawSize()/1024.0f);
 	imguiDrawText(300, y, IMGUI_ALIGN_LEFT, text, imguiRGBA(255,255,255,255));
@@ -1597,8 +1598,8 @@ int Sample_TempObstacles::calcTouchedTiles(const float minx, const float minz, c
 		{
 			if (n < maxTouched)
 			{
-				touched[n].tx = x;
-				touched[n].ty = y;
+				touched[n].tx = (short)x;
+				touched[n].ty = (short)y;
 				n++;
 			}
 		}
