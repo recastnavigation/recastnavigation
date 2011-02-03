@@ -308,7 +308,7 @@ static const int CHECK_SIZE = 8;
 static const int DEFAULT_SPACING = 4;
 static const int TEXT_HEIGHT = 8;
 static const int SCROLL_AREA_PADDING = 6;
-static const int INTEND_SIZE = 16;
+static const int INDENT_SIZE = 16;
 static const int AREA_HEADER = 28;
 
 static int g_scrollTop = 0;
@@ -628,14 +628,14 @@ bool imguiSlider(const char* text, float* val, float vmin, float vmax, float vin
 
 void imguiIndent()
 {
-	g_state.widgetX += INTEND_SIZE;
-	g_state.widgetW -= INTEND_SIZE;
+	g_state.widgetX += INDENT_SIZE;
+	g_state.widgetW -= INDENT_SIZE;
 }
 
 void imguiUnindent()
 {
-	g_state.widgetX -= INTEND_SIZE;
-	g_state.widgetW += INTEND_SIZE;
+	g_state.widgetX -= INDENT_SIZE;
+	g_state.widgetW += INDENT_SIZE;
 }
 
 void imguiSeparator()
