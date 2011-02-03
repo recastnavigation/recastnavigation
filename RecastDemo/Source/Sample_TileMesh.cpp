@@ -866,7 +866,7 @@ void Sample_TileMesh::buildAllTiles()
 	}
 	
 	// Start the build process.	
-	m_ctx->startTimer(RC_TIMER_TEMP);
+	m_ctx->stopTimer(RC_TIMER_TEMP);
 
 	m_totalBuildTimeMs = m_ctx->getAccumulatedTime(RC_TIMER_TEMP)/1000.0f;
 }
