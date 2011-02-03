@@ -270,7 +270,7 @@ void duDebugDrawNavMeshNodes(struct duDebugDraw* dd, const dtNavMeshQuery& query
 		dd->begin(DU_DRAW_POINTS, 4.0f);
 		for (int i = 0; i < pool->getHashSize(); ++i)
 		{
-			for (unsigned short j = pool->getFirst(i); j != DT_NULL_IDX; j = pool->getNext(j))
+			for (dtNodeIndex j = pool->getFirst(i); j != DT_NULL_IDX; j = pool->getNext(j))
 			{
 				const dtNode* node = pool->getNodeAtIdx(j+1);
 				if (!node) continue;
@@ -282,7 +282,7 @@ void duDebugDrawNavMeshNodes(struct duDebugDraw* dd, const dtNavMeshQuery& query
 		dd->begin(DU_DRAW_LINES, 2.0f);
 		for (int i = 0; i < pool->getHashSize(); ++i)
 		{
-			for (unsigned short j = pool->getFirst(i); j != DT_NULL_IDX; j = pool->getNext(j))
+			for (dtNodeIndex j = pool->getFirst(i); j != DT_NULL_IDX; j = pool->getNext(j))
 			{
 				const dtNode* node = pool->getNodeAtIdx(j+1);
 				if (!node) continue;
