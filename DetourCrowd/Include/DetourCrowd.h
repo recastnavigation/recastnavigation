@@ -29,7 +29,7 @@
 
 static const int DT_CROWDAGENT_MAX_NEIGHBOURS = 6;
 static const int DT_CROWDAGENT_MAX_CORNERS = 4;
-
+static const int DT_CROWD_MAX_OBSTAVOIDANCE_PARAMS = 8;
 struct dtCrowdNeighbour
 {
 	int idx;
@@ -42,10 +42,22 @@ enum CrowdAgentState
 	DT_CROWDAGENT_STATE_OFFMESH,
 };
 
+struct dtCrowdAgentParams
+{
+	float radius;
+	float height;
+	float maxAcceleration;
+	float maxSpeed;
+	float collisionQueryRange;
+	float pathOptimizationRange;
+	float separationWeight;
+	unsigned char updateFlags;
+	unsigned char obstacleAvoidanceType;
+};
+
 struct dtCrowdAgent
 {
 	unsigned char active;
-
 	unsigned char state;
 
 	dtPathCorridor corridor;
@@ -59,12 +71,6 @@ struct dtCrowdAgent
 	dtCrowdNeighbour neis[DT_CROWDAGENT_MAX_NEIGHBOURS];
 	int nneis;
 	
-	float radius, height;
-	float maxAcceleration;
-	float maxSpeed;
-	float collisionQueryRange;
-	float pathOptimizationRange;
-
 	float desiredSpeed;
 
 	float npos[3];
@@ -72,7 +78,9 @@ struct dtCrowdAgent
 	float dvel[3];
 	float nvel[3];
 	float vel[3];
-	
+
+	dtCrowdAgentParams params;
+
 	float cornerVerts[DT_CROWDAGENT_MAX_CORNERS*3];
 	unsigned char cornerFlags[DT_CROWDAGENT_MAX_CORNERS];
 	dtPolyRef cornerPolys[DT_CROWDAGENT_MAX_CORNERS];
@@ -90,20 +98,10 @@ struct dtCrowdAgentAnimation
 enum UpdateFlags
 {
 	DT_CROWD_ANTICIPATE_TURNS = 1,
-	DT_CROWD_USE_VO = 2,
-//	DT_CROWD_DRUNK = 4,
+	DT_CROWD_OBSTACLE_AVOIDANCE = 2,
+	DT_CROWD_SEPARATION = 4,
 	DT_CROWD_OPTIMIZE_VIS = 8,
 	DT_CROWD_OPTIMIZE_TOPO = 16,
-};
-
-struct dtCrowdAgentParams
-{
-	float radius;
-	float height;
-	float maxAcceleration;
-	float maxSpeed;
-	float collisionQueryRange;
-	float pathOptimizationRange;
 };
 
 struct dtCrowdAgentDebugInfo
@@ -122,7 +120,9 @@ class dtCrowd
 	
 	dtPathQueue m_pathq;
 
+	dtObstacleAvoidanceParams m_obstacleQueryParams[DT_CROWD_MAX_OBSTAVOIDANCE_PARAMS];
 	dtObstacleAvoidanceQuery* m_obstacleQuery;
+	
 	dtProximityGrid* m_grid;
 	
 	dtPolyRef* m_pathResult;
@@ -176,17 +176,21 @@ public:
 	
 	bool init(const int maxAgents, const float maxAgentRadius, dtNavMesh* nav);
 	
+	void setObstacleAvoidanceParams(const int idx, const dtObstacleAvoidanceParams* params);
+	const dtObstacleAvoidanceParams* getObstacleAvoidanceParams(const int idx) const;
+	
 	const dtCrowdAgent* getAgent(const int idx);
 	const int getAgentCount() const;
 	
 	int addAgent(const float* pos, const dtCrowdAgentParams* params);
+	void updateAgentParameters(const int idx, const dtCrowdAgentParams* params);
 	void removeAgent(const int idx);
 	
 	bool requestMoveTarget(const int idx, dtPolyRef ref, const float* pos);
 	bool adjustMoveTarget(const int idx, dtPolyRef ref, const float* pos);
 
 	int getActiveAgents(dtCrowdAgent** agents, const int maxAgents);
-	void update(const float dt, unsigned int flags, dtCrowdAgentDebugInfo* debug);
+	void update(const float dt, dtCrowdAgentDebugInfo* debug);
 	
 	const dtQueryFilter* getFilter() const { return &m_filter; }
 	const float* getQueryExtents() const { return m_ext; }
@@ -195,6 +199,7 @@ public:
 	
 	const dtProximityGrid* getGrid() const { return m_grid; }
 	const dtPathQueue* getPathQueue() const { return &m_pathq; }
+	const dtNavMeshQuery* getNavMeshQuery() const { return m_navquery; }
 };
 
 

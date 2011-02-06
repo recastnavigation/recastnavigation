@@ -593,7 +593,7 @@ bool imguiSlider(const char* text, float* val, float vmin, float vmax, float vin
 			if (u < 0) u = 0;
 			if (u > 1) u = 1;
 			*val = vmin + u*(vmax-vmin);
-			*val = floorf(*val / vinc)*vinc; // Snap to vinc
+			*val = floorf(*val/vinc+0.5f)*vinc; // Snap to vinc
 			m = (int)(u * range);
 			valChanged = true;
 		}

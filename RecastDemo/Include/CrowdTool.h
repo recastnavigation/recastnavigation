@@ -42,6 +42,7 @@ class CrowdTool : public SampleTool
 	bool m_showPath;
 	bool m_showVO;
 	bool m_showOpt;
+	bool m_showNeis;
 
 	bool m_expandDebugDraw;
 	bool m_showLabels;
@@ -53,8 +54,10 @@ class CrowdTool : public SampleTool
 	bool m_anticipateTurns;
 	bool m_optimizeVis;
 	bool m_optimizeTopo;
-	bool m_useVO;
-	bool m_drunkMove;
+	bool m_obstacleAvoidance;
+	float m_obstacleAvoidanceType;
+	bool m_separation;
+	float m_separationWeight;
 	
 	bool m_run;
 
@@ -83,6 +86,7 @@ class CrowdTool : public SampleTool
 	};
 	ToolMode m_mode;
 	
+	void updateAgentParams();
 	void updateTick(const float dt);
 	
 public:

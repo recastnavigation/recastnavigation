@@ -30,11 +30,6 @@
 #include "DetourAssert.h"
 #include "DetourAlloc.h"
 
-static const int VO_ADAPTIVE_DIVS = 7;
-static const int VO_ADAPTIVE_RINGS = 2;
-static const int VO_ADAPTIVE_DEPTH = 5;
-
-static const int VO_GRID_SIZE = 33;
 
 static const int MAX_ITERS_PER_UPDATE = 10;
 
@@ -49,7 +44,7 @@ inline float between(const float t, const float t0, const float t1)
 static void integrate(dtCrowdAgent* ag, const float dt)
 {
 	// Fake dynamic constraint.
-	const float maxDelta = ag->maxAcceleration * dt;
+	const float maxDelta = ag->params.maxAcceleration * dt;
 	float dv[3];
 	dtVsub(dv, ag->nvel, ag->vel);
 	float ds = dtVlen(dv);
@@ -250,13 +245,23 @@ bool dtCrowd::init(const int maxAgents, const float maxAgentRadius, dtNavMesh* n
 		return false;
 	if (!m_obstacleQuery->init(6, 8))
 		return false;
-	
-	m_obstacleQuery->setDesiredVelocityWeight(2.0f);
-	m_obstacleQuery->setCurrentVelocityWeight(0.75f);
-	m_obstacleQuery->setPreferredSideWeight(0.75f);
-	m_obstacleQuery->setCollisionTimeWeight(2.5f);
-	m_obstacleQuery->setTimeHorizon(2.5f);
-	m_obstacleQuery->setVelocitySelectionBias(0.4f);
+
+	// Init obstacle query params.
+	memset(m_obstacleQueryParams, 0, sizeof(m_obstacleQueryParams));
+	for (int i = 0; i < DT_CROWD_MAX_OBSTAVOIDANCE_PARAMS; ++i)
+	{
+		dtObstacleAvoidanceParams* params = &m_obstacleQueryParams[i];
+		params->velBias = 0.4f;
+		params->weightDesVel = 2.0f;
+		params->weightCurVel = 0.75f;
+		params->weightSide = 0.75f;
+		params->weightToi = 2.5f;
+		params->horizTime = 2.5f;
+		params->gridSize = 33;
+		params->adaptiveDivs = 7;
+		params->adaptiveRings = 2;
+		params->adaptiveDepth = 5;
+	}
 	
 	// Allocate temp buffer for merging paths.
 	m_maxPathResult = 256;
@@ -307,6 +312,19 @@ bool dtCrowd::init(const int maxAgents, const float maxAgentRadius, dtNavMesh* n
 	return true;
 }
 
+void dtCrowd::setObstacleAvoidanceParams(const int idx, const dtObstacleAvoidanceParams* params)
+{
+	if (idx >= 0 && idx < DT_CROWD_MAX_OBSTAVOIDANCE_PARAMS)
+		memcpy(&m_obstacleQueryParams[idx], params, sizeof(dtObstacleAvoidanceParams));
+}
+
+const dtObstacleAvoidanceParams* dtCrowd::getObstacleAvoidanceParams(const int idx) const
+{
+	if (idx >= 0 && idx < DT_CROWD_MAX_OBSTAVOIDANCE_PARAMS)
+		return &m_obstacleQueryParams[idx];
+	return 0;
+}
+
 const int dtCrowd::getAgentCount() const
 {
 	return m_maxAgents;
@@ -315,6 +333,13 @@ const int dtCrowd::getAgentCount() const
 const dtCrowdAgent* dtCrowd::getAgent(const int idx)
 {
 	return &m_agents[idx];
+}
+
+void dtCrowd::updateAgentParameters(const int idx, const dtCrowdAgentParams* params)
+{
+	if (idx < 0 || idx > m_maxAgents)
+		return;
+	memcpy(&m_agents[idx].params, params, sizeof(dtCrowdAgentParams));
 }
 
 int dtCrowd::addAgent(const float* pos, const dtCrowdAgentParams* params)
@@ -347,12 +372,7 @@ int dtCrowd::addAgent(const float* pos, const dtCrowdAgentParams* params)
 	ag->corridor.reset(ref, nearest);
 	ag->boundary.reset();
 
-	ag->radius = params->radius;
-	ag->height = params->height;
-	ag->maxAcceleration = params->maxAcceleration;
-	ag->maxSpeed = params->maxSpeed;
-	ag->collisionQueryRange = params->collisionQueryRange;
-	ag->pathOptimizationRange = params->pathOptimizationRange;
+	updateAgentParameters(idx, params);
 	
 	ag->topologyOptTime = 0;
 	ag->nneis = 0;
@@ -488,7 +508,7 @@ int dtCrowd::getNeighbours(const float* pos, const float height, const float ran
 		// Check for overlap.
 		float diff[3];
 		dtVsub(diff, pos, ag->npos);
-		if (fabsf(diff[1]) >= (height+ag->height)/2.0f)
+		if (fabsf(diff[1]) >= (height+ag->params.height)/2.0f)
 			continue;
 		diff[1] = 0;
 		const float distSqr = dtVlenSqr(diff);
@@ -723,6 +743,8 @@ void dtCrowd::updateTopologyOptimization(dtCrowdAgent** agents, const int nagent
 		dtCrowdAgent* ag = agents[i];
 		if (ag->state == DT_CROWDAGENT_STATE_OFFMESH)
 			continue;
+		if ((ag->params.updateFlags & DT_CROWD_OPTIMIZE_TOPO) == 0)
+			continue;
 		ag->topologyOptTime += dt;
 		if (ag->topologyOptTime >= OPT_TIME_THR)
 			nqueue = addToOptQueue(ag, queue, nqueue, OPT_MAX_AGENTS);
@@ -737,7 +759,7 @@ void dtCrowd::updateTopologyOptimization(dtCrowdAgent** agents, const int nagent
 
 }
 
-void dtCrowd::update(const float dt, unsigned int flags, dtCrowdAgentDebugInfo* debug)
+void dtCrowd::update(const float dt, dtCrowdAgentDebugInfo* debug)
 {
 	m_velocitySampleCount = 0;
 	
@@ -750,8 +772,7 @@ void dtCrowd::update(const float dt, unsigned int flags, dtCrowdAgentDebugInfo* 
 	updateMoveRequest(dt);
 
 	// Optimize path topology.
-	if (flags & DT_CROWD_OPTIMIZE_TOPO)
-		updateTopologyOptimization(agents, nagents, dt);
+	updateTopologyOptimization(agents, nagents, dt);
 	
 	// Register agents to proximity grid.
 	m_grid->clear();
@@ -759,7 +780,7 @@ void dtCrowd::update(const float dt, unsigned int flags, dtCrowdAgentDebugInfo* 
 	{
 		dtCrowdAgent* ag = agents[i];
 		const float* p = ag->npos;
-		const float r = ag->radius;
+		const float r = ag->params.radius;
 		m_grid->addItem((unsigned short)i, p[0]-r, p[2]-r, p[0]+r, p[2]+r);
 	}
 	
@@ -771,10 +792,15 @@ void dtCrowd::update(const float dt, unsigned int flags, dtCrowdAgentDebugInfo* 
 			continue;
 
 		// Only update the collision boundary after certain distance has been passed.
-		if (dtVdist2DSqr(ag->npos, ag->boundary.getCenter()) > dtSqr(ag->collisionQueryRange*0.25f))
-			ag->boundary.update(ag->corridor.getFirstPoly(), ag->npos, ag->collisionQueryRange, m_navquery, &m_filter);
+		const float updateThr = ag->params.collisionQueryRange*0.25f;
+		if (dtVdist2DSqr(ag->npos, ag->boundary.getCenter()) > dtSqr(updateThr))
+		{
+			ag->boundary.update(ag->corridor.getFirstPoly(), ag->npos, ag->params.collisionQueryRange,
+								m_navquery, &m_filter);
+		}
 		// Query neighbour agents
-		ag->nneis = getNeighbours(ag->npos, ag->height, ag->collisionQueryRange, ag, ag->neis, DT_CROWDAGENT_MAX_NEIGHBOURS);
+		ag->nneis = getNeighbours(ag->npos, ag->params.height, ag->params.collisionQueryRange,
+								  ag, ag->neis, DT_CROWDAGENT_MAX_NEIGHBOURS);
 	}
 	
 	// Find next corner to steer to.
@@ -791,10 +817,10 @@ void dtCrowd::update(const float dt, unsigned int flags, dtCrowdAgentDebugInfo* 
 		
 		// Check to see if the corner after the next corner is directly visible,
 		// and short cut to there.
-		if ((flags & DT_CROWD_OPTIMIZE_VIS) && ag->ncorners > 0)
+		if ((ag->params.updateFlags & DT_CROWD_OPTIMIZE_VIS) && ag->ncorners > 0)
 		{
 			const float* target = &ag->cornerVerts[dtMin(1,ag->ncorners-1)*3];
-			ag->corridor.optimizePathVisibility(target, ag->pathOptimizationRange, m_navquery, &m_filter);
+			ag->corridor.optimizePathVisibility(target, ag->params.pathOptimizationRange, m_navquery, &m_filter);
 			
 			// Copy data for debug purposes.
 			if (debugIdx == i)
@@ -824,7 +850,7 @@ void dtCrowd::update(const float dt, unsigned int flags, dtCrowdAgentDebugInfo* 
 			continue;
 		
 		// Check 
-		const float triggerRadius = ag->radius*2.25f;
+		const float triggerRadius = ag->params.radius*2.25f;
 		if (overOffmeshConnection(ag, triggerRadius))
 		{
 			// Prepare to off-mesh connection.
@@ -840,7 +866,7 @@ void dtCrowd::update(const float dt, unsigned int flags, dtCrowdAgentDebugInfo* 
 				anim->polyRef = refs[1];
 				anim->active = 1;
 				anim->t = 0.0f;
-				anim->tmax = (dtVdist2D(anim->startPos, anim->endPos) / ag->maxSpeed) * 0.5f;
+				anim->tmax = (dtVdist2D(anim->startPos, anim->endPos) / ag->params.maxSpeed) * 0.5f;
 				
 				ag->state = DT_CROWDAGENT_STATE_OFFMESH;
 				ag->ncorners = 0;
@@ -866,39 +892,58 @@ void dtCrowd::update(const float dt, unsigned int flags, dtCrowdAgentDebugInfo* 
 		float dvel[3] = {0,0,0};
 		
 		// Calculate steering direction.
-		if (flags & DT_CROWD_ANTICIPATE_TURNS)
+		if (ag->params.updateFlags & DT_CROWD_ANTICIPATE_TURNS)
 			calcSmoothSteerDirection(ag, dvel);
 		else
 			calcStraightSteerDirection(ag, dvel);
 		
 		// Calculate speed scale, which tells the agent to slowdown at the end of the path.
-		const float slowDownRadius = ag->radius*2;	// TODO: make less hacky.
+		const float slowDownRadius = ag->params.radius*2;	// TODO: make less hacky.
 		const float speedScale = getDistanceToGoal(ag, slowDownRadius) / slowDownRadius;
 			
-		// Apply style.
-		// TODO: find way to express custom movement styles.
-/*		if (flags & DT_CROWD_DRUNK)
+		ag->desiredSpeed = ag->params.maxSpeed;
+		dtVscale(dvel, dvel, ag->desiredSpeed * speedScale);
+
+		// Separation
+		if (ag->params.updateFlags & DT_CROWD_SEPARATION)
 		{
-			// Drunken steering
+			const float separationDist = ag->params.collisionQueryRange; 
+			const float invSeparationDist = 1.0f / separationDist; 
+			const float separationWeight = ag->params.separationWeight;
 			
-			// Pulsating speed.
-			ag->t += dt * (1.0f - ag->var*0.25f);
-			ag->desiredSpeed = ag->maxSpeed * (1 + dtSqr(cosf(ag->t*2.0f))*0.3f);
+			float w = 0;
+			float disp[3] = {0,0,0};
 			
-			dtVscale(dvel, dvel, ag->desiredSpeed * speedScale);
+			for (int j = 0; j < ag->nneis; ++j)
+			{
+				const dtCrowdAgent* nei = &m_agents[ag->neis[j].idx];
+				
+				float diff[3];
+				dtVsub(diff, ag->npos, nei->npos);
+				diff[1] = 0;
+				
+				const float distSqr = dtVlenSqr(diff);
+				if (distSqr < 0.00001f)
+					continue;
+				if (distSqr > dtSqr(separationDist))
+					continue;
+				const float dist = sqrtf(distSqr);
+				const float weight = separationWeight * (1.0f - dtSqr(dist*invSeparationDist));
+				
+				dtVmad(disp, disp, diff, weight/dist);
+				w += 1.0f;
+			}
 			
-			// Slightly wandering steering.
-			const float amp = cosf(ag->var*13.69f+ag->t*3.123f) * 0.2f;
-			const float nx = -dvel[2];
-			const float nz = dvel[0];
-			dvel[0] += nx*amp;
-			dvel[2] += nz*amp;
-		}
-		else*/
-		{
-			// Normal steering.
-			ag->desiredSpeed = ag->maxSpeed;
-			dtVscale(dvel, dvel, ag->desiredSpeed * speedScale);
+			if (w > 0.0001f)
+			{
+				// Adjust desired velocity.
+				dtVmad(dvel, dvel, disp, 1.0f/w);
+				// Clamp desired velocity to desired speed.
+				const float speedSqr = dtVlenSqr(dvel);
+				const float desiredSqr = dtSqr(ag->desiredSpeed);
+				if (speedSqr > desiredSqr)
+					dtVscale(dvel, dvel, desiredSqr/speedSqr);
+			}
 		}
 		
 		// Set the desired velocity.
@@ -913,7 +958,7 @@ void dtCrowd::update(const float dt, unsigned int flags, dtCrowdAgentDebugInfo* 
 		if (ag->state != DT_CROWDAGENT_STATE_WALKING)
 			continue;
 		
-		if (flags & DT_CROWD_USE_VO)
+		if (ag->params.updateFlags & DT_CROWD_OBSTACLE_AVOIDANCE)
 		{
 			m_obstacleQuery->reset();
 			
@@ -921,7 +966,7 @@ void dtCrowd::update(const float dt, unsigned int flags, dtCrowdAgentDebugInfo* 
 			for (int j = 0; j < ag->nneis; ++j)
 			{
 				const dtCrowdAgent* nei = &m_agents[ag->neis[j].idx];
-				m_obstacleQuery->addCircle(nei->npos, nei->radius, nei->vel, nei->dvel);
+				m_obstacleQuery->addCircle(nei->npos, nei->params.radius, nei->vel, nei->dvel);
 			}
 
 			// Append neighbour segments as obstacles.
@@ -941,18 +986,17 @@ void dtCrowd::update(const float dt, unsigned int flags, dtCrowdAgentDebugInfo* 
 			bool adaptive = true;
 			int ns = 0;
 
+			const dtObstacleAvoidanceParams* params = &m_obstacleQueryParams[ag->params.obstacleAvoidanceType];
+				
 			if (adaptive)
 			{
-				ns = m_obstacleQuery->sampleVelocityAdaptive(ag->npos, ag->radius, ag->desiredSpeed,
-															 ag->vel, ag->dvel, ag->nvel,
-															 VO_ADAPTIVE_DIVS, VO_ADAPTIVE_RINGS, VO_ADAPTIVE_DEPTH,
-															 vod);
+				ns = m_obstacleQuery->sampleVelocityAdaptive(ag->npos, ag->params.radius, ag->desiredSpeed,
+															 ag->vel, ag->dvel, ag->nvel, params, vod);
 			}
 			else
 			{
-				ns = m_obstacleQuery->sampleVelocityGrid(ag->npos, ag->radius, ag->desiredSpeed,
-														 ag->vel, ag->dvel, ag->nvel,
-														 VO_GRID_SIZE, vod);
+				ns = m_obstacleQuery->sampleVelocityGrid(ag->npos, ag->params.radius, ag->desiredSpeed,
+														 ag->vel, ag->dvel, ag->nvel, params, vod);
 			}
 			m_velocitySampleCount += ns;
 		}
@@ -996,17 +1040,13 @@ void dtCrowd::update(const float dt, unsigned int flags, dtCrowdAgentDebugInfo* 
 
 				float diff[3];
 				dtVsub(diff, ag->npos, nei->npos);
-				
-				if (fabsf(diff[1]) >= (ag->height+  nei->height)/2.0f)
-					continue;
-				
 				diff[1] = 0;
 				
 				float dist = dtVlenSqr(diff);
-				if (dist > dtSqr(ag->radius + nei->radius))
+				if (dist > dtSqr(ag->params.radius + nei->params.radius))
 					continue;
 				dist = sqrtf(dist);
-				float pen = (ag->radius + nei->radius) - dist;
+				float pen = (ag->params.radius + nei->params.radius) - dist;
 				if (dist < 0.0001f)
 				{
 					// Agents on top of each other, try to choose diverging separation directions.
