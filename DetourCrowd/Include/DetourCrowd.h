@@ -53,6 +53,7 @@ struct dtCrowdAgentParams
 	float separationWeight;
 	unsigned char updateFlags;
 	unsigned char obstacleAvoidanceType;
+	void* userData;
 };
 
 struct dtCrowdAgent

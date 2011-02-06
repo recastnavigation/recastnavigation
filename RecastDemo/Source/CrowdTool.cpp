@@ -325,6 +325,7 @@ void CrowdTool::handleClick(const float* s, const float* p, bool shift)
 		{
 			// Add
 			dtCrowdAgentParams ap;
+			memset(&ap, 0, sizeof(ap));
 			ap.radius = m_sample->getAgentRadius();
 			ap.height = m_sample->getAgentHeight();
 			ap.maxAcceleration = 8.0f;
