@@ -1127,10 +1127,12 @@ void NavMeshTesterTool::handleRender()
 				dd.depthMask(true);
 			}
 
-			static const int MAX_SEGS = DT_VERTS_PER_POLYGON*2;
+			static const int MAX_SEGS = DT_VERTS_PER_POLYGON*4;
 			float segs[MAX_SEGS*6];
+			dtPolyRef refs[MAX_SEGS];
+			memset(refs, 0, sizeof(dtPolyRef)*MAX_SEGS); 
 			int nsegs = 0;
-			m_navQuery->getPolyWallSegments(m_polys[i], &m_filter, segs, &nsegs, MAX_SEGS);
+			m_navQuery->getPolyWallSegments(m_polys[i], &m_filter, segs, refs, &nsegs, MAX_SEGS);
 			dd.begin(DU_DRAW_LINES, 2.0f);
 			for (int j = 0; j < nsegs; ++j)
 			{
@@ -1152,15 +1154,24 @@ void NavMeshTesterTool::handleRender()
 				dtVmad(p1, p0, norm, agentRadius*0.5f);
 
 				// Skip backfacing segments.
-				unsigned int col = duRGBA(255,255,255,192);
-				if (dtTriArea2D(m_spos, s, s+3) < 0.0f)
-					col = duRGBA(255,255,255,64);
+				if (refs[j])
+				{
+					unsigned int col = duRGBA(255,255,255,32);
+					dd.vertex(s[0],s[1]+agentClimb,s[2],col);
+					dd.vertex(s[3],s[4]+agentClimb,s[5],col);
+				}
+				else
+				{
+					unsigned int col = duRGBA(192,32,16,192);
+					if (dtTriArea2D(m_spos, s, s+3) < 0.0f)
+						col = duRGBA(96,32,16,192);
 					
-				dd.vertex(p0[0],p0[1]+agentClimb,p0[2],duRGBA(0,0,0,128));
-				dd.vertex(p1[0],p1[1]+agentClimb,p1[2],duRGBA(0,0,0,128));
+					dd.vertex(p0[0],p0[1]+agentClimb,p0[2],col);
+					dd.vertex(p1[0],p1[1]+agentClimb,p1[2],col);
 
-				dd.vertex(s[0],s[1]+agentClimb,s[2],col);
-				dd.vertex(s[3],s[4]+agentClimb,s[5],col);
+					dd.vertex(s[0],s[1]+agentClimb,s[2],col);
+					dd.vertex(s[3],s[4]+agentClimb,s[5],col);
+				}
 			}
 			dd.end();
 			

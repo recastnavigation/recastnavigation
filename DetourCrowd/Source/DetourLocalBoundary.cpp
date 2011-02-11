@@ -106,7 +106,7 @@ void dtLocalBoundary::update(dtPolyRef ref, const float* pos, const float collis
 	int nsegs = 0;
 	for (int j = 0; j < nlocals; ++j)
 	{
-		navquery->getPolyWallSegments(locals[j], filter, segs, &nsegs, MAX_SEGS_PER_POLY);
+		navquery->getPolyWallSegments(locals[j], filter, segs, 0, &nsegs, MAX_SEGS_PER_POLY);
 		for (int k = 0; k < nsegs; ++k)
 		{
 			const float* s = &segs[k*6];
