@@ -419,7 +419,18 @@ int main(int /*argc*/, char** /*argv*/)
 			}
 			simIter++;
 		}
- 		
+
+		// Clamp the framerate so that we do not hog all the CPU.
+		const float FRAME_RATE = 40;
+		if (dt < FRAME_RATE)
+		{
+			int ms = (int)((FRAME_RATE - dt)*1000.0f);
+			if (ms > 10) ms = 10;
+			if (ms >= 0)
+				SDL_Delay(ms);
+		}
+		
+		
 		// Update and render
 		glViewport(0, 0, width, height);
 		glClearColor(0.3f, 0.3f, 0.32f, 1.0f);
