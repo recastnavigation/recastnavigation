@@ -57,6 +57,7 @@ enum rcTimerLabel
 	RC_TIMER_BUILD_REGIONS_EXPAND,
 	RC_TIMER_BUILD_REGIONS_FLOOD,
 	RC_TIMER_BUILD_REGIONS_FILTER,
+	RC_TIMER_BUILD_LAYERS,
 	RC_TIMER_BUILD_POLYMESHDETAIL,
 	RC_TIMER_MERGE_POLYMESHDETAIL,
 	RC_MAX_TIMERS
@@ -736,6 +737,43 @@ bool rcBuildPolyMeshDetail(rcContext* ctx, const rcPolyMesh& mesh, const rcCompa
 						   rcPolyMeshDetail& dmesh);
 
 bool rcMergePolyMeshDetails(rcContext* ctx, rcPolyMeshDetail** meshes, const int nmeshes, rcPolyMeshDetail& mesh);
+
+
+
+// TODO: Put in right place!
+struct rcHeightfieldLayerPortal
+{
+	unsigned short pos, smin, smax;
+	unsigned char dir;
+};
+
+struct rcHeightfieldLayer
+{
+	unsigned short ymin, ymax;
+	unsigned short* heights;
+	unsigned char* areas;
+	rcHeightfieldLayerPortal* portals;
+	int nportals;
+};
+
+struct rcHeightfieldLayerSet
+{
+	rcHeightfieldLayer* layers;
+	int nlayers;
+	int width, height;
+	int borderSize;
+	float bmin[3], bmax[3];	// Bounding box of the heightfield.
+	float cs, ch;			// Cell size and height.
+};
+
+rcHeightfieldLayerSet* rcAllocHeightfieldLayerSet();
+void rcFreeHeightfieldLayerSet(rcHeightfieldLayerSet* lset);
+
+
+bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf, 
+							  const int borderSize, const int walkableHeight,
+							  rcHeightfieldLayerSet& lset);
+
 
 
 #endif // RECAST_H

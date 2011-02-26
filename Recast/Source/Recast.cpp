@@ -90,6 +90,26 @@ void rcFreeCompactHeightfield(rcCompactHeightfield* chf)
 	rcFree(chf);
 }
 
+
+rcHeightfieldLayerSet* rcAllocHeightfieldLayerSet()
+{
+	rcHeightfieldLayerSet* lset = (rcHeightfieldLayerSet*)rcAlloc(sizeof(rcHeightfieldLayerSet), RC_ALLOC_PERM);
+	memset(lset, 0, sizeof(rcHeightfieldLayerSet));
+	return lset;
+}
+
+void rcFreeHeightfieldLayerSet(rcHeightfieldLayerSet* lset)
+{
+	if (!lset) return;
+	for (int i = 0; i < lset->nlayers; ++i)
+	{
+		rcFree(lset->layers[i].heights);
+		rcFree(lset->layers[i].areas);
+	}
+	rcFree(lset->layers);
+	rcFree(lset);
+}
+
 rcContourSet* rcAllocContourSet()
 {
 	rcContourSet* cset = (rcContourSet*)rcAlloc(sizeof(rcContourSet), RC_ALLOC_PERM);

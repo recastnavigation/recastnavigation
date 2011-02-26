@@ -421,7 +421,7 @@ void duLogBuildTimes(rcContext& ctx, const int totalTimeUsec)
 	logLine(ctx, RC_TIMER_MARK_BOX_AREA,				"- Mark Box Area", pc);
 	logLine(ctx, RC_TIMER_MARK_CONVEXPOLY_AREA,		"- Mark Convex Area", pc);
 	logLine(ctx, RC_TIMER_MARK_CYLINDER_AREA,		"- Mark Cylinder Area", pc);
-	logLine(ctx, RC_TIMER_BUILD_DISTANCEFIELD,		"- Build Disntace Field", pc);
+	logLine(ctx, RC_TIMER_BUILD_DISTANCEFIELD,		"- Build Distance Field", pc);
 	logLine(ctx, RC_TIMER_BUILD_DISTANCEFIELD_DIST,	"    - Distance", pc);
 	logLine(ctx, RC_TIMER_BUILD_DISTANCEFIELD_BLUR,	"    - Blur", pc);
 	logLine(ctx, RC_TIMER_BUILD_REGIONS,				"- Build Regions", pc);
@@ -429,6 +429,7 @@ void duLogBuildTimes(rcContext& ctx, const int totalTimeUsec)
 	logLine(ctx, RC_TIMER_BUILD_REGIONS_EXPAND,		"      - Expand", pc);
 	logLine(ctx, RC_TIMER_BUILD_REGIONS_FLOOD,		"      - Find Basins", pc);
 	logLine(ctx, RC_TIMER_BUILD_REGIONS_FILTER,		"    - Filter", pc);
+	logLine(ctx, RC_TIMER_BUILD_LAYERS,				"- Build Layers", pc);
 	logLine(ctx, RC_TIMER_BUILD_CONTOURS,			"- Build Contours", pc);
 	logLine(ctx, RC_TIMER_BUILD_CONTOURS_TRACE,		"    - Trace", pc);
 	logLine(ctx, RC_TIMER_BUILD_CONTOURS_SIMPLIFY,	"    - Simplify", pc);

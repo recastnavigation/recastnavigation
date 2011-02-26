@@ -178,6 +178,7 @@ Sample_TileMesh::Sample_TileMesh() :
 	m_triareas(0),
 	m_solid(0),
 	m_chf(0),
+	m_lset(0),
 	m_cset(0),
 	m_pmesh(0),
 	m_dmesh(0),
@@ -212,6 +213,8 @@ void Sample_TileMesh::cleanup()
 	m_solid = 0;
 	rcFreeCompactHeightfield(m_chf);
 	m_chf = 0;
+	rcFreeHeightfieldLayerSet(m_lset);
+	m_lset = 0;
 	rcFreeContourSet(m_cset);
 	m_cset = 0;
 	rcFreePolyMesh(m_pmesh);
@@ -466,6 +469,7 @@ void Sample_TileMesh::handleDebugMode()
 		valid[DRAWMODE_CONTOURS] = m_cset != 0;
 		valid[DRAWMODE_POLYMESH] = m_pmesh != 0;
 		valid[DRAWMODE_POLYMESH_DETAIL] = m_dmesh != 0;
+		valid[DRAWMODE_HEIGHFIELD_LAYERS] = m_lset != 0;
 	}
 	
 	int unavail = 0;
@@ -512,6 +516,8 @@ void Sample_TileMesh::handleDebugMode()
 		m_drawMode = DRAWMODE_POLYMESH;
 	if (imguiCheck("Poly Mesh Detail", m_drawMode == DRAWMODE_POLYMESH_DETAIL, valid[DRAWMODE_POLYMESH_DETAIL]))
 		m_drawMode = DRAWMODE_POLYMESH_DETAIL;
+	if (imguiCheck("Heighfield Layers", m_drawMode == DRAWMODE_HEIGHFIELD_LAYERS, valid[DRAWMODE_HEIGHFIELD_LAYERS]))
+		m_drawMode = DRAWMODE_HEIGHFIELD_LAYERS;
 	
 	if (unavail)
 	{
@@ -565,7 +571,7 @@ void Sample_TileMesh::handleRender()
 	duDebugDrawGridXZ(&dd, bmin[0],bmin[1],bmin[2], tw,th, s, duRGBA(0,0,0,64), 1.0f);
 	
 	// Draw active tile
-	duDebugDrawBoxWire(&dd, m_tileBmin[0],m_tileBmin[1],m_tileBmin[2], m_tileBmax[0],m_tileBmax[1],m_tileBmax[2], m_tileCol, 2.0f);
+	duDebugDrawBoxWire(&dd, m_tileBmin[0],m_tileBmin[1],m_tileBmin[2], m_tileBmax[0],m_tileBmax[1],m_tileBmax[2], m_tileCol, 1.0f);
 	
 /*	if (m_navMesh)
 	{
@@ -614,12 +620,14 @@ void Sample_TileMesh::handleRender()
 		duDebugDrawHeightfieldWalkable(&dd, *m_solid);
 		glDisable(GL_FOG);
 	}
+	
 	if (m_cset && m_drawMode == DRAWMODE_RAW_CONTOURS)
 	{
 		glDepthMask(GL_FALSE);
 		duDebugDrawRawContours(&dd, *m_cset);
 		glDepthMask(GL_TRUE);
 	}
+	
 	if (m_cset && m_drawMode == DRAWMODE_BOTH_CONTOURS)
 	{
 		glDepthMask(GL_FALSE);
@@ -654,6 +662,13 @@ void Sample_TileMesh::handleRender()
 		glDepthMask(GL_TRUE);
 	}
 	
+	if (m_lset && m_drawMode == DRAWMODE_HEIGHFIELD_LAYERS)
+	{
+		glDepthMask(GL_FALSE);
+		duDebugDrawHeightfieldLayers(&dd, *m_lset);
+		glDepthMask(GL_TRUE);
+	}
+	
 	m_geom->drawConvexVolumes(&dd);
 	
 	if (m_tool)
@@ -667,12 +682,32 @@ void Sample_TileMesh::handleRenderOverlay(double* proj, double* model, int* view
 	GLdouble x, y, z;
 	
 	// Draw start and end point labels
-	if (m_tileBuildTime > 0.0f && gluProject((GLdouble)(m_tileBmin[0]+m_tileBmax[0])/2, (GLdouble)(m_tileBmin[1]+m_tileBmax[1])/2, (GLdouble)(m_tileBmin[2]+m_tileBmax[2])/2,
+/*	if (m_tileBuildTime > 0.0f && gluProject((GLdouble)(m_tileBmin[0]+m_tileBmax[0])/2, (GLdouble)(m_tileBmin[1]+m_tileBmax[1])/2, (GLdouble)(m_tileBmin[2]+m_tileBmax[2])/2,
 											 model, proj, view, &x, &y, &z))
 	{
 		char text[32];
 		snprintf(text,32,"%.3fms / %dTris / %.1fkB", m_tileBuildTime, m_tileTriCount, m_tileMemUsage);
 		imguiDrawText((int)x, (int)y-25, IMGUI_ALIGN_CENTER, text, imguiRGBA(0,0,0,220));
+	}*/
+	
+	if (m_lset && m_drawMode == DRAWMODE_HEIGHFIELD_LAYERS)
+	{
+		for (int i = 0; i < m_lset->nlayers; ++i)
+		{
+			const rcHeightfieldLayer* layer = &m_lset->layers[i];
+			unsigned int color = duIntToCol(i+1, 255);
+			float pos[3];
+			rcVcopy(pos, m_lset->bmin);
+			pos[1] = m_lset->bmin[1] + ((layer->ymin+layer->ymax)/2)*m_lset->ch;
+			if (gluProject((GLdouble)pos[0], (GLdouble)pos[1], (GLdouble)pos[2], model, proj, view, &x, &y, &z))
+			{
+				char text[32];
+				snprintf(text,32,"Layer %d", i+1);
+				imguiDrawText((int)x+10+1, (int)y-1, IMGUI_ALIGN_LEFT, text, imguiRGBA(0,0,0,128));
+				imguiDrawText((int)x+10, (int)y, IMGUI_ALIGN_LEFT, text, color);
+			}
+			
+		}
 	}
 	
 	if (m_tool)
@@ -764,7 +799,7 @@ void Sample_TileMesh::buildTile(const float* pos)
 	m_tileBmax[1] = bmax[1];
 	m_tileBmax[2] = bmin[2] + (ty+1)*ts;
 	
-	m_tileCol = duRGBA(77,204,0,255);
+	m_tileCol = duRGBA(255,255,255,64);
 	
 	m_ctx->resetLog();
 	
@@ -816,7 +851,7 @@ void Sample_TileMesh::removeTile(const float* pos)
 	m_tileBmax[1] = bmax[1];
 	m_tileBmax[2] = bmin[2] + (ty+1)*ts;
 	
-	m_tileCol = duRGBA(204,25,0,255);
+	m_tileCol = duRGBA(128,32,16,64);
 	
 	m_navMesh->removeTile(m_navMesh->getTileRefAt(tx,ty),0,0);
 }
@@ -1063,6 +1098,24 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 		}
 	}
  
+
+	// TODO: Remove
+	// NOTE! This is for heighfield layer testing only, not needed for general build process!
+	{
+		m_lset = rcAllocHeightfieldLayerSet();
+		if (!m_lset)
+		{
+			m_ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'lset'.");
+			return 0;
+		}
+		if (!rcBuildHeightfieldLayers(m_ctx, *m_chf, m_cfg.borderSize, m_cfg.walkableHeight, *m_lset))
+		{
+			m_ctx->log(RC_LOG_ERROR, "buildNavigation: Could not build heighfield layers.");
+			return 0;
+		}
+	}
+	
+	
 	// Create contours.
 	m_cset = rcAllocContourSet();
 	if (!m_cset)

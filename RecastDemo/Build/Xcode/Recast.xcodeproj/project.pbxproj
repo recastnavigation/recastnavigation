@@ -24,6 +24,7 @@
 		6B25B61D0FFA62BE004F1BC4 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B25B6180FFA62BE004F1BC4 /* main.cpp */; };
 		6B2AEC530FFB8958005BE9CC /* Sample_TileMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B2AEC520FFB8958005BE9CC /* Sample_TileMesh.cpp */; };
 		6B324C66111C5D9A00EBD2FD /* ConvexVolumeTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B324C65111C5D9A00EBD2FD /* ConvexVolumeTool.cpp */; };
+		6B3F9D6D13179EFC000B33D9 /* RecastLayers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B3F9D6C13179EFC000B33D9 /* RecastLayers.cpp */; };
 		6B555DB1100B212E00247EA3 /* imguiRenderGL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */; };
 		6B5683B812D9E7D3000B9960 /* Sample_TempObstacles.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B5683B712D9E7D3000B9960 /* Sample_TempObstacles.cpp */; };
 		6B62416A103434880002E346 /* RecastMeshDetail.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B624169103434880002E346 /* RecastMeshDetail.cpp */; };
@@ -97,6 +98,7 @@
 		6B2AEC520FFB8958005BE9CC /* Sample_TileMesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Sample_TileMesh.cpp; path = ../../Source/Sample_TileMesh.cpp; sourceTree = SOURCE_ROOT; };
 		6B324C64111C5D9A00EBD2FD /* ConvexVolumeTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ConvexVolumeTool.h; path = ../../Include/ConvexVolumeTool.h; sourceTree = SOURCE_ROOT; };
 		6B324C65111C5D9A00EBD2FD /* ConvexVolumeTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ConvexVolumeTool.cpp; path = ../../Source/ConvexVolumeTool.cpp; sourceTree = SOURCE_ROOT; };
+		6B3F9D6C13179EFC000B33D9 /* RecastLayers.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RecastLayers.cpp; path = ../../../Recast/Source/RecastLayers.cpp; sourceTree = SOURCE_ROOT; };
 		6B555DAE100B211D00247EA3 /* imguiRenderGL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = imguiRenderGL.h; path = ../../Include/imguiRenderGL.h; sourceTree = SOURCE_ROOT; };
 		6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = imguiRenderGL.cpp; path = ../../Source/imguiRenderGL.cpp; sourceTree = SOURCE_ROOT; };
 		6B555DF6100B273500247EA3 /* stb_truetype.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stb_truetype.h; path = ../../Contrib/stb_truetype.h; sourceTree = SOURCE_ROOT; };
@@ -303,6 +305,7 @@
 				6B137C880F7FCC1100459200 /* RecastRasterization.cpp */,
 				6B137C850F7FCC1100459200 /* RecastFilter.cpp */,
 				6BF7C4531115C277002B3F46 /* RecastArea.cpp */,
+				6B3F9D6C13179EFC000B33D9 /* RecastLayers.cpp */,
 				6B137C890F7FCC1100459200 /* RecastRegion.cpp */,
 				6B137C830F7FCC1100459200 /* RecastContour.cpp */,
 				6B137C870F7FCC1100459200 /* RecastMesh.cpp */,
@@ -517,6 +520,7 @@
 				6BB5013A12F458CB001B1957 /* DetourProximityGrid.cpp in Sources */,
 				6BB501E312F46B6A001B1957 /* DetourObstacleAvoidance.cpp in Sources */,
 				6B86C9AA12F69DD500C92D2E /* fastlz.c in Sources */,
+				6B3F9D6D13179EFC000B33D9 /* RecastLayers.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

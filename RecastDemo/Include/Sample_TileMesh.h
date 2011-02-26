@@ -35,6 +35,7 @@ protected:
 	unsigned char* m_triareas;
 	rcHeightfield* m_solid;
 	rcCompactHeightfield* m_chf;
+	rcHeightfieldLayerSet* m_lset;
 	rcContourSet* m_cset;
 	rcPolyMesh* m_pmesh;
 	rcPolyMeshDetail* m_dmesh;
@@ -60,6 +61,7 @@ protected:
 		DRAWMODE_CONTOURS,
 		DRAWMODE_POLYMESH,
 		DRAWMODE_POLYMESH_DETAIL,
+		DRAWMODE_HEIGHFIELD_LAYERS,
 		MAX_DRAWMODE
 	};
 	
