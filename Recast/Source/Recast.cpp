@@ -105,6 +105,8 @@ void rcFreeHeightfieldLayerSet(rcHeightfieldLayerSet* lset)
 	{
 		rcFree(lset->layers[i].heights);
 		rcFree(lset->layers[i].areas);
+		rcFree(lset->layers[i].regs);
+		rcFree(lset->layers[i].portals);
 	}
 	rcFree(lset->layers);
 	rcFree(lset);

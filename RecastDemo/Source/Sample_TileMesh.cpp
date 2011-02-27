@@ -665,7 +665,7 @@ void Sample_TileMesh::handleRender()
 	if (m_lset && m_drawMode == DRAWMODE_HEIGHFIELD_LAYERS)
 	{
 		glDepthMask(GL_FALSE);
-		duDebugDrawHeightfieldLayers(&dd, *m_lset);
+		duDebugDrawHeightfieldLayersRegions(&dd, *m_lset);
 		glDepthMask(GL_TRUE);
 	}
 	
@@ -1112,6 +1112,11 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 		{
 			m_ctx->log(RC_LOG_ERROR, "buildNavigation: Could not build heighfield layers.");
 			return 0;
+		}
+		
+		for (int i = 0; i < m_lset->nlayers; ++i)
+		{
+			rcBuildLayerRegions(m_ctx, m_lset->layers[i], m_cfg.walkableClimb);
 		}
 	}
 	

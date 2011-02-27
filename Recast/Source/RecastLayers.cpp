@@ -57,6 +57,14 @@ static void addUnique(unsigned char* a, unsigned char& an, unsigned char v)
 	an++;
 }
 
+static void addUniqueLast(unsigned char* a, unsigned char& an, unsigned char v)
+{
+	const int n = (int)an;
+	if (n > 0 && a[n-1] == v) return;
+	a[an] = v;
+	an++;
+}
+
 static bool contains(const unsigned char* a, const unsigned char an, const unsigned char v)
 {
 	const int n = (int)an;
@@ -469,9 +477,6 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 	const int lh = h - borderSize*2;
 
 	lset.nlayers = (int)layerId;
-	lset.width = lw;
-	lset.height = lh;
-	lset.borderSize = borderSize;
 	rcVcopy(lset.bmin, chf.bmin);
 	rcVcopy(lset.bmax, chf.bmax);
 	lset.bmin[0] += borderSize*chf.cs;
@@ -504,6 +509,10 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 		
 		// Allocate memory for the current layer.
 		rcHeightfieldLayer* layer = &lset.layers[i];
+		
+		layer->width = lw;
+		layer->height = lh;
+
 		layer->heights = (unsigned short*)rcAlloc(sizeof(unsigned short)*lw*lh, RC_ALLOC_PERM);
 		if (!layer->heights)
 		{
@@ -543,13 +552,18 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 				for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
 				{
 					const rcCompactSpan& s = chf.spans[i];
-					if (srcReg[i] == 0xff) continue;
+					// Skip unassigned regions.
+					if (srcReg[i] == 0xff)
+						continue;
+					// Skip of does nto belong to current layer.
 					unsigned char lid = regs[srcReg[i]].layerId;
 					if (lid != curId)
 						continue;
+					// Store height and area type.
 					const int idx = x+y*lw;
 					layer->heights[idx] = s.y;
 					layer->areas[idx] = chf.areas[i];
+					
 					// Check connection.
 					unsigned char con = 0;
 					for (int dir = 0; dir < 4; ++dir)
@@ -670,6 +684,236 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 	}
 	
 	ctx->stopTimer(RC_TIMER_BUILD_LAYERS);
+	
+	return true;
+}
+
+inline bool isConnected(rcHeightfieldLayer& layer, const int ia, const int ib, const int walkableClimb)
+{
+	if (layer.areas[ib] == RC_NULL_AREA) return false;
+	if (rcAbs((int)layer.heights[ia] - (int)layer.heights[ib]) > walkableClimb) return false;
+	return true;
+}
+
+struct rcMonotoneRegion
+{
+	unsigned char neis[RC_MAX_NEIS];
+	unsigned char nneis;
+	unsigned char regId;
+};
+
+static bool canMerge(rcMonotoneRegion* reg, unsigned char newRegId, const rcMonotoneRegion* regs, const int nregs)
+{
+	int count = 0;
+	const int nnei = (int)reg->nneis;
+	for (int i = 0; i < nnei; ++i)
+	{
+		if (regs[reg->neis[i]].regId == newRegId)
+			count++;
+	}
+	return count == 1;
+}
+
+// TODO: move this somewhere else, once the layer meshing is done.
+bool rcBuildLayerRegions(rcContext* ctx, rcHeightfieldLayer& layer, const int walkableClimb)
+{
+	rcAssert(ctx);
+	
+//	ctx->startTimer(RC_TIMER_BUILD_LAYERS);
+	
+	const int w = layer.width;
+	const int h = layer.height;
+
+	rcAssert(layer.regs == 0);
+	
+	layer.regs = (unsigned char*)rcAlloc(sizeof(unsigned char)*w*h, RC_ALLOC_TEMP);
+	if (!layer.regs)
+	{
+		ctx->log(RC_LOG_ERROR, "rcBuildHeightfieldLayers: Out of memory 'regs' (%d).", w*h);
+		return false;
+	}
+	memset(layer.regs,0xff,sizeof(unsigned char)*w*h);
+	
+	const int nsweeps = w;
+	rcScopedDelete<rcLayerSweepSpan> sweeps = (rcLayerSweepSpan*)rcAlloc(sizeof(rcLayerSweepSpan)*nsweeps, RC_ALLOC_TEMP);
+	if (!sweeps)
+	{
+		ctx->log(RC_LOG_ERROR, "rcBuildHeightfieldLayers: Out of memory 'sweeps' (%d).", nsweeps);
+		return false;
+	}
+	
+	
+	// Partition walkable area into monotone regions.
+	int prevCount[256];
+	unsigned char regId = 0;
+	
+	for (int y = 0; y < h; ++y)
+	{
+		memset(prevCount,0,sizeof(int)*regId);
+		unsigned char sweepId = 0;
+		
+		for (int x = 0; x < w; ++x)
+		{
+			const int idx = x + y*w;
+			if (layer.areas[idx] == RC_NULL_AREA) continue;
+				
+			unsigned char sid = 0xff;
+				
+			// -x
+			const int xidx = (x-1)+y*w;
+			if (x > 0 && isConnected(layer, idx, xidx, walkableClimb))
+			{
+				if (layer.regs[xidx] != 0xff)
+					sid = layer.regs[xidx];
+			}
+				
+			if (sid == 0xff)
+			{
+				sid = sweepId++;
+				sweeps[sid].nei = 0xff;
+				sweeps[sid].ns = 0;
+			}
+				
+			// -y
+			const int yidx = x+(y-1)*w;
+			if (y > 0 && isConnected(layer, idx, yidx, walkableClimb))
+			{
+				const unsigned char nr = layer.regs[yidx];
+				if (nr != 0xff)
+				{
+					// Set neighbour when first valid neighbour is encoutered.
+					if (sweeps[sid].ns == 0)
+						sweeps[sid].nei = nr;
+					
+					if (sweeps[sid].nei == nr)
+					{
+						// Update existing neighbour
+						sweeps[sid].ns++;
+						prevCount[nr]++;
+					}
+					else
+					{
+						// This is hit if there is nore than one neighbour.
+						// Invalidate the neighbour.
+						sweeps[sid].nei = 0xff;
+					}
+				}
+			}
+			
+			layer.regs[idx] = sid;
+		}
+		
+		// Create unique ID.
+		for (int i = 0; i < sweepId; ++i)
+		{
+			// If the neighbour is set and there is only one continuous connection to it,
+			// the sweep will be merged with the previous one, else new region is created.
+			if (sweeps[i].nei != 0xff && prevCount[sweeps[i].nei] == (int)sweeps[i].ns)
+			{
+				sweeps[i].id = sweeps[i].nei;
+			}
+			else
+			{
+				if (regId == 255)
+				{
+					ctx->log(RC_LOG_ERROR, "rcBuildHeightfieldLayers: Region ID overflow.");
+					return false;
+				}
+				sweeps[i].id = regId++;
+			}
+		}
+		
+		// Remap local sweep ids to region ids.
+		for (int x = 0; x < w; ++x)
+		{
+			const int idx = x+y*w;
+			layer.regs[idx] = sweeps[layer.regs[idx]].id;
+		}
+	}
+
+	// Allocate and init layer regions.
+	const int nregs = (int)regId;
+	rcScopedDelete<rcMonotoneRegion> regs = (rcMonotoneRegion*)rcAlloc(sizeof(rcMonotoneRegion)*nregs, RC_ALLOC_TEMP);
+	if (!regs)
+	{
+		ctx->log(RC_LOG_ERROR, "rcBuildHeightfieldLayers: Out of memory 'regs' (%d).", nregs);
+		return false;
+	}
+	memset(regs, 0, sizeof(rcMonotoneRegion)*nregs);
+	for (int i = 0; i < nregs; ++i)
+		regs[i].regId = 0xff;
+	
+	// Find region neighbours.
+	for (int y = 0; y < h; ++y)
+	{
+		for (int x = 0; x < w; ++x)
+		{
+			const int idx = x+y*w;
+			const unsigned char ri = layer.regs[idx];
+			if (ri == 0xff)
+				continue;
+			
+			// Update neighbours
+			const int ymi = x+(y-1)*w;
+			if (y > 0 && isConnected(layer, idx, ymi, walkableClimb))
+			{
+				const unsigned char rai = layer.regs[ymi];
+				if (rai != 0xff && rai != ri)
+				{
+					addUniqueLast(regs[ri].neis, regs[ri].nneis, rai);
+					addUniqueLast(regs[rai].neis, regs[rai].nneis, ri);
+				}
+			}
+		}
+	}
+
+	// Merge regions.
+	static const int MAX_STACK = 32;
+	unsigned char stack[MAX_STACK];
+	int nstack = 0;
+
+	unsigned char newRegId = 0;
+	
+	for (int i = 0; i < nregs; ++i)
+	{
+		if (regs[i].regId != 0xff)
+			continue;
+		
+		nstack = 0;
+		stack[nstack++] = (unsigned char)i;
+		
+		regs[i].regId = newRegId;
+		
+		while (nstack)
+		{
+			rcMonotoneRegion& reg = regs[stack[0]];
+			nstack--;
+			for (int j = 0; j < nstack; ++j)
+				stack[j] = stack[j+1];
+			
+			for (int j = 0; j < (int)reg.nneis; ++j)
+			{
+				const unsigned char nei = reg.neis[j];
+				rcMonotoneRegion& regn = regs[nei];
+				if (regn.regId != 0xff)
+					continue;
+				if (canMerge(&regn, newRegId, regs, nregs))
+				{
+					regn.regId = newRegId;
+					if (nstack < MAX_STACK)
+						stack[nstack++] = nei;
+				}
+			}
+		}
+
+		newRegId++;
+	}
+	
+	for (int i = 0; i < w*h; ++i)
+	{
+		if (layer.regs[i] != 0xff)
+			layer.regs[i] = regs[layer.regs[i]].regId;
+	}
 	
 	return true;
 }

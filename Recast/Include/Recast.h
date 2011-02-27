@@ -221,6 +221,38 @@ struct rcLeanHeightfield
 };
 
 
+
+struct rcHeightfieldLayerPortal
+{
+	unsigned short pos;					// Position of the portal.
+	unsigned short smin, smax;			// Span min/max of the portal.
+	unsigned char dir;					// Direction of the portal (same as used by rcGetCon()).
+};
+
+struct rcHeightfieldLayer
+{
+	int width, height;					// Width and height of the layer.
+	int nportals;						// Number of portals.
+	unsigned short ymin, ymax;			// Height min/max range.
+	unsigned short* heights;			// Heighfield.
+	unsigned char* areas;				// Area types.
+	unsigned char* regs;				// Regions.
+	rcHeightfieldLayerPortal* portals;	// Portals.
+};
+
+struct rcHeightfieldLayerSet
+{
+	rcHeightfieldLayer* layers;			// Pointer to layers.
+	int nlayers;						// Number of layers.
+	float bmin[3], bmax[3];				// Bounding box of the heightfield.
+	float cs, ch;						// Cell size and height.
+};
+
+rcHeightfieldLayerSet* rcAllocHeightfieldLayerSet();
+void rcFreeHeightfieldLayerSet(rcHeightfieldLayerSet* lset);
+
+
+
 struct rcContour
 {
 	int* verts;			// Vertex coordinates, each vertex contains 4 components.
@@ -680,6 +712,7 @@ bool rcBuildDistanceField(rcContext* ctx, rcCompactHeightfield& chf);
 // Here area means the count of spans in an area.
 // Params:
 //	chf - (in/out) compact heightfield representing the open space.
+//  borderSize - (in) Non-navigable Border around the heightfield.
 //	minRegionArea - (in) the smallest allowed region area.
 //	maxMergeRegionArea - (in) the largest allowed region area which can be merged.
 // Returns false if operation ran out of memory.
@@ -696,11 +729,27 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 // Here area means the count of spans in an area.
 // Params:
 //	chf - (in/out) compact heightfield representing the open space.
+//  borderSize - (in) Non-navigable Border around the heightfield.
 //	minRegionArea - (in) the smallest allowed regions size.
 //	maxMergeRegionArea - (in) the largest allowed regions size which can be merged.
 // Returns false if operation ran out of memory.
 bool rcBuildRegionsMonotone(rcContext* ctx, rcCompactHeightfield& chf,
 							const int borderSize, const int minRegionArea, const int mergeRegionArea);
+
+// Builds 2D layer representation of a heighfield.
+// Params:
+//  chf - (in) compact heightfield representing the open space.
+//  borderSize - (in) Non-navigable Border around the heightfield.
+//	walkableHeight - (in) minimum height where the agent can still walk.
+//  lset - (out) set of 2D heighfield layers.
+// Returns false if operation ran out of memory.
+bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf, 
+							  const int borderSize, const int walkableHeight,
+							  rcHeightfieldLayerSet& lset);
+
+// TODO: move this somewhere else, once the layer meshing is done.
+bool rcBuildLayerRegions(rcContext* ctx, rcHeightfieldLayer& layer, const int walkableClimb);
+
 
 // Builds simplified contours from the regions outlines.
 // Params:
@@ -737,42 +786,6 @@ bool rcBuildPolyMeshDetail(rcContext* ctx, const rcPolyMesh& mesh, const rcCompa
 						   rcPolyMeshDetail& dmesh);
 
 bool rcMergePolyMeshDetails(rcContext* ctx, rcPolyMeshDetail** meshes, const int nmeshes, rcPolyMeshDetail& mesh);
-
-
-
-// TODO: Put in right place!
-struct rcHeightfieldLayerPortal
-{
-	unsigned short pos, smin, smax;
-	unsigned char dir;
-};
-
-struct rcHeightfieldLayer
-{
-	unsigned short ymin, ymax;
-	unsigned short* heights;
-	unsigned char* areas;
-	rcHeightfieldLayerPortal* portals;
-	int nportals;
-};
-
-struct rcHeightfieldLayerSet
-{
-	rcHeightfieldLayer* layers;
-	int nlayers;
-	int width, height;
-	int borderSize;
-	float bmin[3], bmax[3];	// Bounding box of the heightfield.
-	float cs, ch;			// Cell size and height.
-};
-
-rcHeightfieldLayerSet* rcAllocHeightfieldLayerSet();
-void rcFreeHeightfieldLayerSet(rcHeightfieldLayerSet* lset);
-
-
-bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf, 
-							  const int borderSize, const int walkableHeight,
-							  rcHeightfieldLayerSet& lset);
 
 
 

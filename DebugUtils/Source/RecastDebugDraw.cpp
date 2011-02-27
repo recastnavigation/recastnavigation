@@ -329,13 +329,14 @@ void duDebugDrawHeightfieldLayers(duDebugDraw* dd, const struct rcHeightfieldLay
 	
 	const float cs = lset.cs;
 	const float ch = lset.ch;
-	const int w = lset.width;
-	const int h = lset.height;
 	
 	for (int i = 0; i < lset.nlayers; ++i)
 	{
 		const rcHeightfieldLayer* layer = &lset.layers[i];
-		
+
+		const int w = layer->width;
+		const int h = layer->height;
+
 		unsigned int color = duIntToCol(i+1, 255);
 
 		// Layer bounds
@@ -413,6 +414,93 @@ void duDebugDrawHeightfieldLayers(duDebugDraw* dd, const struct rcHeightfieldLay
 		dd->end();
 	}
 
+}
+
+void duDebugDrawHeightfieldLayersRegions(duDebugDraw* dd, const struct rcHeightfieldLayerSet& lset)
+{
+	if (!dd) return;
+	
+	const float cs = lset.cs;
+	const float ch = lset.ch;
+	
+	for (int i = 0; i < lset.nlayers; ++i)
+	{
+		const rcHeightfieldLayer* layer = &lset.layers[i];
+		
+		const int w = layer->width;
+		const int h = layer->height;
+		
+		unsigned int color = duIntToCol(i+1, 255);
+		
+		// Layer bounds
+		float bmin[3], bmax[3];
+		rcVcopy(bmin, lset.bmin);
+		rcVcopy(bmax, lset.bmax);
+		bmin[1] = lset.bmin[1] + (layer->ymin-1)*ch;
+		bmax[1] = lset.bmin[1] + (layer->ymax+1)*ch;
+		duDebugDrawBoxWire(dd, bmin[0],bmin[1],bmin[2], bmax[0],bmax[1],bmax[2], duTransCol(color,128), 2.0f);
+		
+		// Layer height
+		dd->begin(DU_DRAW_QUADS);
+		for (int y = 0; y < h; ++y)
+		{
+			for (int x = 0; x < w; ++x)
+			{
+				const int idx = x+y*w;
+				const int h = (int)layer->heights[idx];
+				if (h == 0xffff) continue;
+				const unsigned char area = layer->regs ? layer->regs[idx]+1 : 1;
+				
+				unsigned int col = duLerpCol(color, duIntToCol(area, 255), 128);
+				
+				const float fx = lset.bmin[0] + x*cs;
+				const float fy = lset.bmin[1] + (h+1)*ch;
+				const float fz = lset.bmin[2] + y*cs;
+				
+				dd->vertex(fx, fy, fz, col);
+				dd->vertex(fx, fy, fz+cs, col);
+				dd->vertex(fx+cs, fy, fz+cs, col);
+				dd->vertex(fx+cs, fy, fz, col);
+			}
+		}
+		dd->end();
+		
+/*		// Portals
+		unsigned int pcol = duLerpCol(color,duRGBA(255,255,255,255),128);
+		dd->begin(DU_DRAW_LINES, 2.0f);
+		for (int j = 0; j < layer->nportals; ++j)
+		{
+			const rcHeightfieldLayerPortal* portal = &layer->portals[j];
+			if (portal->dir == 0 || portal->dir == 2)
+			{
+				const int ha = (int)layer->heights[portal->pos + portal->smin*w];
+				const int hb = (int)layer->heights[portal->pos + (portal->smax-1)*w];
+				const int xx = (portal->dir == 0) ? portal->pos : portal->pos+1;
+				const float fx = lset.bmin[0] + xx*cs;
+				const float fya = lset.bmin[1] + (ha+4)*ch;
+				const float fyb = lset.bmin[1] + (hb+4)*ch;
+				const float fza = lset.bmin[2] + portal->smin*cs;
+				const float fzb = lset.bmin[2] + portal->smax*cs;
+				dd->vertex(fx, fya, fza, pcol);
+				dd->vertex(fx, fyb, fzb, pcol);
+			}
+			else if (portal->dir == 3 || portal->dir == 1)
+			{
+				const int ha = (int)layer->heights[portal->smin + portal->pos*w];
+				const int hb = (int)layer->heights[(portal->smax-1) + portal->pos*w];
+				const int yy = (portal->dir == 3) ? portal->pos : portal->pos+1;
+				const float fxa = lset.bmin[0] + portal->smin*cs;
+				const float fxb = lset.bmin[0] + portal->smax*cs;
+				const float fya = lset.bmin[1] + (ha+3)*ch;
+				const float fyb = lset.bmin[1] + (hb+3)*ch;
+				const float fz = lset.bmin[2] + yy*cs;
+				dd->vertex(fxa, fya, fz, pcol);
+				dd->vertex(fxb, fyb, fz, pcol);
+			}
+		}
+		dd->end();*/
+	}
+	
 }
 
 static void getContourCenter(const rcContour* cont, const float* orig, float cs, float ch, float* center)
