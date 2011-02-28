@@ -697,22 +697,29 @@ inline bool isConnected(rcHeightfieldLayer& layer, const int ia, const int ib, c
 
 struct rcMonotoneRegion
 {
+	int area;
 	unsigned char neis[RC_MAX_NEIS];
 	unsigned char nneis;
 	unsigned char regId;
 };
 
-static bool canMerge(rcMonotoneRegion* reg, unsigned char newRegId, const rcMonotoneRegion* regs, const int nregs)
+static bool canMerge(unsigned char oldRegId, unsigned char newRegId, const rcMonotoneRegion* regs, const int nregs)
 {
 	int count = 0;
-	const int nnei = (int)reg->nneis;
-	for (int i = 0; i < nnei; ++i)
+	for (int i = 0; i < nregs; ++i)
 	{
-		if (regs[reg->neis[i]].regId == newRegId)
-			count++;
+		const rcMonotoneRegion& reg = regs[i];
+		if (reg.regId != oldRegId) continue;
+		const int nnei = (int)reg.nneis;
+		for (int j = 0; j < nnei; ++j)
+		{
+			if (regs[reg.neis[j]].regId == newRegId)
+				count++;
+		}
 	}
 	return count == 1;
 }
+
 
 // TODO: move this somewhere else, once the layer meshing is done.
 bool rcBuildLayerRegions(rcContext* ctx, rcHeightfieldLayer& layer, const int walkableClimb)
@@ -741,7 +748,7 @@ bool rcBuildLayerRegions(rcContext* ctx, rcHeightfieldLayer& layer, const int wa
 		ctx->log(RC_LOG_ERROR, "rcBuildHeightfieldLayers: Out of memory 'sweeps' (%d).", nsweeps);
 		return false;
 	}
-	
+	memset(sweeps,0,sizeof(rcLayerSweepSpan)*nsweeps);
 	
 	// Partition walkable area into monotone regions.
 	int prevCount[256];
@@ -749,7 +756,8 @@ bool rcBuildLayerRegions(rcContext* ctx, rcHeightfieldLayer& layer, const int wa
 	
 	for (int y = 0; y < h; ++y)
 	{
-		memset(prevCount,0,sizeof(int)*regId);
+		if (regId > 0)
+			memset(prevCount,0,sizeof(int)*regId);
 		unsigned char sweepId = 0;
 		
 		for (int x = 0; x < w; ++x)
@@ -827,7 +835,8 @@ bool rcBuildLayerRegions(rcContext* ctx, rcHeightfieldLayer& layer, const int wa
 		for (int x = 0; x < w; ++x)
 		{
 			const int idx = x+y*w;
-			layer.regs[idx] = sweeps[layer.regs[idx]].id;
+			if (layer.regs[idx] != 0xff)
+				layer.regs[idx] = sweeps[layer.regs[idx]].id;
 		}
 	}
 
@@ -853,6 +862,9 @@ bool rcBuildLayerRegions(rcContext* ctx, rcHeightfieldLayer& layer, const int wa
 			if (ri == 0xff)
 				continue;
 			
+			// Update area.
+			regs[ri].area++;
+			
 			// Update neighbours
 			const int ymi = x+(y-1)*w;
 			if (y > 0 && isConnected(layer, idx, ymi, walkableClimb))
@@ -867,48 +879,54 @@ bool rcBuildLayerRegions(rcContext* ctx, rcHeightfieldLayer& layer, const int wa
 		}
 	}
 
-	// Merge regions.
-	static const int MAX_STACK = 32;
-	unsigned char stack[MAX_STACK];
-	int nstack = 0;
-
-	unsigned char newRegId = 0;
-	
+	for (int i = 0; i < nregs; ++i)
+		regs[i].regId = (unsigned char)i;
+		
 	for (int i = 0; i < nregs; ++i)
 	{
-		if (regs[i].regId != 0xff)
-			continue;
-		
-		nstack = 0;
-		stack[nstack++] = (unsigned char)i;
-		
-		regs[i].regId = newRegId;
-		
-		while (nstack)
+		rcMonotoneRegion& reg = regs[i];
+
+		int merge = -1;
+		int mergea = 0;
+		for (int j = 0; j < (int)reg.nneis; ++j)
 		{
-			rcMonotoneRegion& reg = regs[stack[0]];
-			nstack--;
-			for (int j = 0; j < nstack; ++j)
-				stack[j] = stack[j+1];
-			
-			for (int j = 0; j < (int)reg.nneis; ++j)
+			const unsigned char nei = reg.neis[j];
+			rcMonotoneRegion& regn = regs[nei];
+			if (reg.regId == regn.regId)
+				continue;
+			if (regn.area > mergea)
 			{
-				const unsigned char nei = reg.neis[j];
-				rcMonotoneRegion& regn = regs[nei];
-				if (regn.regId != 0xff)
-					continue;
-				if (canMerge(&regn, newRegId, regs, nregs))
+				if (canMerge(reg.regId, regn.regId, regs, nregs))
 				{
-					regn.regId = newRegId;
-					if (nstack < MAX_STACK)
-						stack[nstack++] = nei;
+					mergea = regn.area;
+					merge = (int)nei;
 				}
 			}
 		}
-
-		newRegId++;
+		if (merge != -1)
+		{
+			const unsigned char oldId = reg.regId;
+			const unsigned char newId = regs[merge].regId;
+			for (int j = 0; j < nregs; ++j)
+				if (regs[j].regId == oldId)
+					regs[j].regId = newId;
+		}
 	}
 	
+	// Compact ids.
+	unsigned char remap[256];
+	memset(remap, 0, 256);
+	// Find number of unique regions.
+	regId = 0;
+	for (int i = 0; i < nregs; ++i)
+		remap[regs[i].regId] = 1;
+	for (int i = 0; i < 256; ++i)
+		if (remap[i])
+			remap[i] = regId++;
+	// Remap ids.
+	for (int i = 0; i < nregs; ++i)
+		regs[i].regId = remap[regs[i].regId];
+
 	for (int i = 0; i < w*h; ++i)
 	{
 		if (layer.regs[i] != 0xff)
