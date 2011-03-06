@@ -30,8 +30,7 @@
 #include "Filelist.h"
 #include "SlideShow.h"
 
-#include "Sample_SoloMeshSimple.h"
-#include "Sample_SoloMeshTiled.h"
+#include "Sample_SoloMesh.h"
 #include "Sample_TileMesh.h"
 #include "Sample_TempObstacles.h"
 #include "Sample_Debug.h"
@@ -46,16 +45,14 @@ struct SampleItem
 	const char* name;
 };
 
-Sample* createSoloSimple() { return new Sample_SoloMeshSimple(); }
-Sample* createSoloTiled() { return new Sample_SoloMeshTiled(); }
+Sample* createSolo() { return new Sample_SoloMesh(); }
 Sample* createTile() { return new Sample_TileMesh(); }
-Sample* createDebug() { return new Sample_Debug(); }
 Sample* createTempObstacle() { return new Sample_TempObstacles(); }
+Sample* createDebug() { return new Sample_Debug(); }
 
 static SampleItem g_samples[] =
 {
-	{ createSoloSimple, "Solo Mesh Simple" },
-	{ createSoloTiled, "Solo Mesh Tiled" },
+	{ createSolo, "Solo Mesh" },
 	{ createTile, "Tile Mesh" },
 	{ createTempObstacle, "Temp Obstacles" },
 //	{ createDebug, "Debug" },
@@ -80,7 +77,7 @@ int main(int /*argc*/, char** /*argv*/)
 	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 8);
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
 	
 	const SDL_VideoInfo* vi = SDL_GetVideoInfo();
 
@@ -170,9 +167,6 @@ int main(int /*argc*/, char** /*argv*/)
 	glFogfv(GL_FOG_COLOR, fogCol);
 	
 	glDepthFunc(GL_LEQUAL);
-	
-//	glEnable(GL_POINT_SMOOTH);
-//	glEnable(GL_LINE_SMOOTH);
 	
 	bool done = false;
 	while(!done)

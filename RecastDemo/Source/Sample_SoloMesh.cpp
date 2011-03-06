@@ -25,7 +25,7 @@
 #include "imgui.h"
 #include "InputGeom.h"
 #include "Sample.h"
-#include "Sample_SoloMeshSimple.h"
+#include "Sample_SoloMesh.h"
 #include "Recast.h"
 #include "RecastDebugDraw.h"
 #include "RecastDump.h"
@@ -42,7 +42,7 @@
 #endif
 
 
-Sample_SoloMeshSimple::Sample_SoloMeshSimple() :
+Sample_SoloMesh::Sample_SoloMesh() :
 	m_keepInterResults(true),
 	m_totalBuildTimeMs(0),
 	m_triareas(0),
@@ -56,12 +56,12 @@ Sample_SoloMeshSimple::Sample_SoloMeshSimple() :
 	setTool(new NavMeshTesterTool);
 }
 		
-Sample_SoloMeshSimple::~Sample_SoloMeshSimple()
+Sample_SoloMesh::~Sample_SoloMesh()
 {
 	cleanup();
 }
 	
-void Sample_SoloMeshSimple::cleanup()
+void Sample_SoloMesh::cleanup()
 {
 	delete [] m_triareas;
 	m_triareas = 0;
@@ -79,7 +79,7 @@ void Sample_SoloMeshSimple::cleanup()
 	m_navMesh = 0;
 }
 			
-void Sample_SoloMeshSimple::handleSettings()
+void Sample_SoloMesh::handleSettings()
 {
 	Sample::handleCommonSettings();
 	
@@ -95,7 +95,7 @@ void Sample_SoloMeshSimple::handleSettings()
 	imguiSeparator();
 }
 
-void Sample_SoloMeshSimple::handleTools()
+void Sample_SoloMesh::handleTools()
 {
 	int type = !m_tool ? TOOL_NONE : m_tool->type();
 	
@@ -127,7 +127,7 @@ void Sample_SoloMeshSimple::handleTools()
 
 }
 
-void Sample_SoloMeshSimple::handleDebugMode()
+void Sample_SoloMesh::handleDebugMode()
 {
 	// Check which modes are valid.
 	bool valid[MAX_DRAWMODE];
@@ -205,7 +205,7 @@ void Sample_SoloMeshSimple::handleDebugMode()
 	}
 }
 
-void Sample_SoloMeshSimple::handleRender()
+void Sample_SoloMesh::handleRender()
 {
 	if (!m_geom || !m_geom->getMesh())
 		return;
@@ -318,13 +318,13 @@ void Sample_SoloMeshSimple::handleRender()
 	glDepthMask(GL_TRUE);
 }
 
-void Sample_SoloMeshSimple::handleRenderOverlay(double* proj, double* model, int* view)
+void Sample_SoloMesh::handleRenderOverlay(double* proj, double* model, int* view)
 {
 	if (m_tool)
 		m_tool->handleRenderOverlay(proj, model, view);
 }
 
-void Sample_SoloMeshSimple::handleMeshChanged(class InputGeom* geom)
+void Sample_SoloMesh::handleMeshChanged(class InputGeom* geom)
 {
 	Sample::handleMeshChanged(geom);
 
@@ -339,7 +339,7 @@ void Sample_SoloMeshSimple::handleMeshChanged(class InputGeom* geom)
 }
 
 
-bool Sample_SoloMeshSimple::handleBuild()
+bool Sample_SoloMesh::handleBuild()
 {
 	if (!m_geom || !m_geom->getMesh())
 	{
