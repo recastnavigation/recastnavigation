@@ -37,6 +37,8 @@ struct duDebugDraw
 	
 	virtual void depthMask(bool state) = 0;
 
+	virtual void texture(bool state) = 0;
+
 	// Begin drawing primitives.
 	// Params:
 	//  prim - (in) primitive type to draw, one of rcDebugDrawPrimitives.
@@ -56,6 +58,18 @@ struct duDebugDraw
 	//  color - (in) color of the verts.
 	virtual void vertex(const float x, const float y, const float z, unsigned int color) = 0;
 
+	// Submit a vertex
+	// Params:
+	//  pos - (in) position of the verts.
+	//  color - (in) color of the verts.
+	virtual void vertex(const float* pos, unsigned int color, const float* uv) = 0;
+	
+	// Submit a vertex
+	// Params:
+	//  x,y,z - (in) position of the verts.
+	//  color - (in) color of the verts.
+	virtual void vertex(const float x, const float y, const float z, unsigned int color, const float u, const float v) = 0;
+	
 	// End drawing primitives.
 	virtual void end() = 0;
 };

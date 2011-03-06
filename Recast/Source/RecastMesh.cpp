@@ -195,7 +195,7 @@ inline bool collinear(const int* a, const int* b, const int* c)
 //	Returns true iff ab properly intersects cd: they share
 //	a point interior to both segments.  The properness of the
 //	intersection is ensured by using strict leftness.
-bool intersectProp(const int* a, const int* b, const int* c, const int* d)
+static bool intersectProp(const int* a, const int* b, const int* c, const int* d)
 {
 	// Eliminate improper cases.
 	if (collinear(a,b,c) || collinear(a,b,d) ||
@@ -469,6 +469,7 @@ static void mergePolys(unsigned short* pa, unsigned short* pb, int ea, int eb,
 	
 	memcpy(pa, tmp, sizeof(unsigned short)*nvp);
 }
+
 
 static void pushFront(int v, int* arr, int& an)
 {
@@ -1165,11 +1166,11 @@ bool rcBuildPolyMesh(rcContext* ctx, rcContourSet& cset, int nvp, rcPolyMesh& me
 	
 	if (mesh.nverts > 0xffff)
 	{
-		ctx->log(RC_LOG_ERROR, "rcMergePolyMeshes: The resulting mesh has too many vertices %d (max %d). Data can be corrupted.", mesh.nverts, 0xffff);
+		ctx->log(RC_LOG_ERROR, "rcBuildPolyMesh: The resulting mesh has too many vertices %d (max %d). Data can be corrupted.", mesh.nverts, 0xffff);
 	}
 	if (mesh.npolys > 0xffff)
 	{
-		ctx->log(RC_LOG_ERROR, "rcMergePolyMeshes: The resulting mesh has too many polygons %d (max %d). Data can be corrupted.", mesh.npolys, 0xffff);
+		ctx->log(RC_LOG_ERROR, "rcBuildPolyMesh: The resulting mesh has too many polygons %d (max %d). Data can be corrupted.", mesh.npolys, 0xffff);
 	}
 	
 	ctx->stopTimer(RC_TIMER_BUILD_POLYMESH);

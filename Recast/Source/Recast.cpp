@@ -132,6 +132,23 @@ void rcFreeLayerContourSet(rcLayerContourSet* cset)
 	rcFree(cset);
 }
 
+rcLayerPolyMesh* rcAllocLayerPolyMesh()
+{
+	rcLayerPolyMesh* lmesh = (rcLayerPolyMesh*)rcAlloc(sizeof(rcLayerPolyMesh), RC_ALLOC_PERM);
+	memset(lmesh, 0, sizeof(rcLayerPolyMesh));
+	return lmesh;
+}
+
+void rcFreeLayerPolyMesh(rcLayerPolyMesh* lmesh)
+{
+	if (!lmesh) return;
+	rcFree(lmesh->verts);
+	rcFree(lmesh->polys);
+	rcFree(lmesh->flags);
+	rcFree(lmesh->areas);
+	rcFree(lmesh);
+}
+
 
 
 rcContourSet* rcAllocContourSet()

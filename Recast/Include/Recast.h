@@ -779,6 +779,28 @@ bool rcBuildLayerContours(rcContext* ctx,
 						  rcLayerContourSet& lcset);
 
 
+struct rcLayerPolyMesh
+{
+	unsigned short* verts;	// Vertices of the mesh, 3 elements per vertex.
+	unsigned short* polys;	// Polygons of the mesh, nvp*2 elements per polygon.
+	unsigned short* flags;	// Per polygon flags.
+	unsigned char* areas;	// Area ID of polygons.
+	int nverts;				// Number of vertices.
+	int npolys;				// Number of polygons.
+	int maxpolys;			// Number of allocated polygons.
+	int nvp;				// Max number of vertices per polygon.
+	float bmin[3], bmax[3];	// Bounding box of the mesh.
+	float cs, ch;			// Cell size and height.
+};
+
+rcLayerPolyMesh* rcAllocLayerPolyMesh();
+void rcFreeLayerPolyMesh(rcLayerPolyMesh* lmesh);
+
+bool rcBuildLayerPolyMesh(rcContext* ctx,
+						  rcLayerContourSet& lcset,
+						  const int maxVertsPerPoly,
+						  rcLayerPolyMesh& lmesh);
+
 
 
 // Builds simplified contours from the regions outlines.

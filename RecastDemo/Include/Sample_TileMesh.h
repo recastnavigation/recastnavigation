@@ -44,6 +44,8 @@ protected:
 	rcHeightfieldLayerSet* m_lset;
 	rcLayerContourSet* m_lcsets[MAX_LAYERS];
 	int m_nlcsets;
+	rcLayerPolyMesh* m_lmeshes[MAX_LAYERS];
+	int m_nlmeshes;
 	
 	enum DrawMode
 	{
@@ -68,6 +70,7 @@ protected:
 		
 		DRAWMODE_HEIGHFIELD_LAYERS,
 		DRAWMODE_LAYER_CONTOURS,
+		DRAWMODE_LAYER_MESHES,
 		
 		MAX_DRAWMODE
 	};

@@ -162,10 +162,10 @@ int main(int /*argc*/, char** /*argv*/)
 	
 	glEnable(GL_CULL_FACE);
 	
-	float fogCol[4] = { 0.32f,0.25f,0.25f,1 };
+	float fogCol[4] = { 0.32f, 0.31f, 0.30f, 1.0f };
 	glEnable(GL_FOG);
 	glFogi(GL_FOG_MODE, GL_LINEAR);
-	glFogf(GL_FOG_START, camr*0.2f);
+	glFogf(GL_FOG_START, camr*0.1f);
 	glFogf(GL_FOG_END, camr*1.25f);
 	glFogfv(GL_FOG_COLOR, fogCol);
 	
@@ -667,7 +667,7 @@ int main(int /*argc*/, char** /*argv*/)
 				}
 				rx = 45;
 				ry = -45;
-				glFogf(GL_FOG_START, camr*0.2f);
+				glFogf(GL_FOG_START, camr*0.1f);
 				glFogf(GL_FOG_END, camr*1.25f);
 			}
 			
@@ -743,7 +743,7 @@ int main(int /*argc*/, char** /*argv*/)
 					}
 					rx = 45;
 					ry = -45;
-					glFogf(GL_FOG_START, camr*0.2f);
+					glFogf(GL_FOG_START, camr*0.1f);
 					glFogf(GL_FOG_END, camr*1.25f);
 				}
 			}
@@ -857,7 +857,7 @@ int main(int /*argc*/, char** /*argv*/)
 						}
 						rx = 45;
 						ry = -45;
-						glFogf(GL_FOG_START, camr*0.2f);
+						glFogf(GL_FOG_START, camr*0.1f);
 						glFogf(GL_FOG_END, camr*1.25f);
 					}
 					

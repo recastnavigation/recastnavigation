@@ -1460,20 +1460,23 @@ void Sample_TempObstacles::handleRender()
 	
 	DebugDrawGL dd;
 
+	const float texScale = 1.0f / (m_cellSize * 10.0f);
+	
 	// Draw mesh
 	if (m_drawMode == DRAWMODE_MESH)
 	{
 		// Draw mesh
 		duDebugDrawTriMeshSlope(&dd, m_geom->getMesh()->getVerts(), m_geom->getMesh()->getVertCount(),
 								m_geom->getMesh()->getTris(), m_geom->getMesh()->getNormals(), m_geom->getMesh()->getTriCount(),
-								m_agentMaxSlope);
+								m_agentMaxSlope, texScale);
 		m_geom->drawOffMeshConnections(&dd);
 	}
 	else if (m_drawMode != DRAWMODE_NAVMESH_TRANS)
 	{
 		// Draw mesh
 		duDebugDrawTriMesh(&dd, m_geom->getMesh()->getVerts(), m_geom->getMesh()->getVertCount(),
-						   m_geom->getMesh()->getTris(), m_geom->getMesh()->getNormals(), m_geom->getMesh()->getTriCount(), 0);
+						   m_geom->getMesh()->getTris(), m_geom->getMesh()->getNormals(), m_geom->getMesh()->getTriCount(), 0,
+						   texScale);
 		m_geom->drawOffMeshConnections(&dd);
 	}
 	

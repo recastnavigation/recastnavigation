@@ -82,7 +82,7 @@ void Sample::handleRender()
 		
 	// Draw mesh
 	duDebugDrawTriMesh(&dd, m_geom->getMesh()->getVerts(), m_geom->getMesh()->getVertCount(),
-					   m_geom->getMesh()->getTris(), m_geom->getMesh()->getNormals(), m_geom->getMesh()->getTriCount(), 0);
+					   m_geom->getMesh()->getTris(), m_geom->getMesh()->getNormals(), m_geom->getMesh()->getTriCount(), 0, 1.0f);
 	// Draw bounds
 	const float* bmin = m_geom->getMeshBoundsMin();
 	const float* bmax = m_geom->getMeshBoundsMax();
