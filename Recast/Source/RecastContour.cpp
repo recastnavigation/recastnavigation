@@ -340,7 +340,7 @@ static void simplifyContour(rcIntArray& points, rcIntArray& simplified,
 			endi = ai;
 		}
 		
-		// Tessellate only outer edges oredges between areas.
+		// Tessellate only outer edges or edges between areas.
 		if ((points[ci*4+3] & RC_CONTOUR_REG_MASK) == 0 ||
 			(points[ci*4+3] & RC_AREA_BORDER))
 		{

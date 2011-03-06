@@ -323,17 +323,61 @@ void duDebugDrawLeanHeightfieldSolid(duDebugDraw* dd, const rcLeanHeightfield& l
 	dd->end();
 }
 
+static void drawLayerPortals(duDebugDraw* dd, const rcHeightfieldLayer* layer, const unsigned int color)
+{
+	const float cs = layer->cs;
+	const float ch = layer->ch;
+	const float h = (layer->ymax-layer->ymin+1)*ch;
+
+	unsigned int pcol = duLerpCol(color,duRGBA(255,255,255,255),64);
+	dd->begin(DU_DRAW_LINES, 2.0f);
+	for (int j = 0; j < layer->nportals; ++j)
+	{
+		const rcHeightfieldLayerPortal* portal = &layer->portals[j];
+		if (portal->dir == 0 || portal->dir == 2)
+		{
+			const int xx = portal->dir == 0 ? (int)portal->pos : (int)portal->pos+1;
+			const float fx = layer->bmin[0] + xx*cs;
+			const float fya = layer->bmin[1] + (layer->ymin)*ch;
+			const float fyb = layer->bmin[1] + (layer->ymin)*ch;
+			const float fza = layer->bmin[2] + portal->smin*cs;
+			const float fzb = layer->bmin[2] + portal->smax*cs;
+			dd->vertex(fx, fya+h, fza, pcol);
+			dd->vertex(fx, fyb+h, fzb, pcol);
+			dd->vertex(fx, fya, fza, pcol);
+			dd->vertex(fx, fya+h, fza, pcol);
+			dd->vertex(fx, fyb, fzb, pcol);
+			dd->vertex(fx, fyb+h, fzb, pcol);
+		}
+		else if (portal->dir == 3 || portal->dir == 1)
+		{
+			const int yy = portal->dir == 3 ? (int)portal->pos : (int)portal->pos+1;
+			const float fxa = layer->bmin[0] + portal->smin*cs;
+			const float fxb = layer->bmin[0] + portal->smax*cs;
+			const float fya = layer->bmin[1] + (layer->ymin)*ch;
+			const float fyb = layer->bmin[1] + (layer->ymin)*ch;
+			const float fz = layer->bmin[2] + yy*cs;
+			dd->vertex(fxa, fya+h, fz, pcol);
+			dd->vertex(fxb, fyb+h, fz, pcol);
+			dd->vertex(fxa, fya, fz, pcol);
+			dd->vertex(fxa, fya+h, fz, pcol);
+			dd->vertex(fxb, fyb, fz, pcol);
+			dd->vertex(fxb, fyb+h, fz, pcol);
+		}
+	}
+	dd->end();
+}
+
 void duDebugDrawHeightfieldLayers(duDebugDraw* dd, const struct rcHeightfieldLayerSet& lset)
 {
 	if (!dd) return;
-	
-	const float cs = lset.cs;
-	const float ch = lset.ch;
 	
 	for (int i = 0; i < lset.nlayers; ++i)
 	{
 		const rcHeightfieldLayer* layer = &lset.layers[i];
 
+		const float cs = layer->cs;
+		const float ch = layer->ch;
 		const int w = layer->width;
 		const int h = layer->height;
 
@@ -341,10 +385,10 @@ void duDebugDrawHeightfieldLayers(duDebugDraw* dd, const struct rcHeightfieldLay
 
 		// Layer bounds
 		float bmin[3], bmax[3];
-		rcVcopy(bmin, lset.bmin);
-		rcVcopy(bmax, lset.bmax);
-		bmin[1] = lset.bmin[1] + (layer->ymin-1)*ch;
-		bmax[1] = lset.bmin[1] + (layer->ymax+1)*ch;
+		rcVcopy(bmin, layer->bmin);
+		rcVcopy(bmax, layer->bmax);
+		bmin[1] = layer->bmin[1] + (layer->ymin-1)*ch;
+		bmax[1] = layer->bmin[1] + (layer->ymax+1)*ch;
 		duDebugDrawBoxWire(dd, bmin[0],bmin[1],bmin[2], bmax[0],bmax[1],bmax[2], duTransCol(color,128), 2.0f);
 
 		// Layer height
@@ -366,9 +410,9 @@ void duDebugDrawHeightfieldLayers(duDebugDraw* dd, const struct rcHeightfieldLay
 				else
 					col = duLerpCol(color, duIntToCol(area, 255), 32);
 				
-				const float fx = lset.bmin[0] + x*cs;
-				const float fy = lset.bmin[1] + (h+1)*ch;
-				const float fz = lset.bmin[2] + y*cs;
+				const float fx = layer->bmin[0] + x*cs;
+				const float fy = layer->bmin[1] + (h+1)*ch;
+				const float fz = layer->bmin[2] + y*cs;
 				
 				dd->vertex(fx, fy, fz, col);
 				dd->vertex(fx, fy, fz+cs, col);
@@ -379,39 +423,7 @@ void duDebugDrawHeightfieldLayers(duDebugDraw* dd, const struct rcHeightfieldLay
 		dd->end();
 		
 		// Portals
-		unsigned int pcol = duLerpCol(color,duRGBA(255,255,255,255),128);
-		dd->begin(DU_DRAW_LINES, 2.0f);
-		for (int j = 0; j < layer->nportals; ++j)
-		{
-			const rcHeightfieldLayerPortal* portal = &layer->portals[j];
-			if (portal->dir == 0 || portal->dir == 2)
-			{
-				const int ha = (int)layer->heights[portal->pos + portal->smin*w];
-				const int hb = (int)layer->heights[portal->pos + (portal->smax-1)*w];
-				const int xx = (portal->dir == 0) ? portal->pos : portal->pos+1;
-				const float fx = lset.bmin[0] + xx*cs;
-				const float fya = lset.bmin[1] + (ha+4)*ch;
-				const float fyb = lset.bmin[1] + (hb+4)*ch;
-				const float fza = lset.bmin[2] + portal->smin*cs;
-				const float fzb = lset.bmin[2] + portal->smax*cs;
-				dd->vertex(fx, fya, fza, pcol);
-				dd->vertex(fx, fyb, fzb, pcol);
-			}
-			else if (portal->dir == 3 || portal->dir == 1)
-			{
-				const int ha = (int)layer->heights[portal->smin + portal->pos*w];
-				const int hb = (int)layer->heights[(portal->smax-1) + portal->pos*w];
-				const int yy = (portal->dir == 3) ? portal->pos : portal->pos+1;
-				const float fxa = lset.bmin[0] + portal->smin*cs;
-				const float fxb = lset.bmin[0] + portal->smax*cs;
-				const float fya = lset.bmin[1] + (ha+3)*ch;
-				const float fyb = lset.bmin[1] + (hb+3)*ch;
-				const float fz = lset.bmin[2] + yy*cs;
-				dd->vertex(fxa, fya, fz, pcol);
-				dd->vertex(fxb, fyb, fz, pcol);
-			}
-		}
-		dd->end();
+		drawLayerPortals(dd, layer, color);
 	}
 
 }
@@ -420,13 +432,12 @@ void duDebugDrawHeightfieldLayersRegions(duDebugDraw* dd, const struct rcHeightf
 {
 	if (!dd) return;
 	
-	const float cs = lset.cs;
-	const float ch = lset.ch;
-	
 	for (int i = 0; i < lset.nlayers; ++i)
 	{
 		const rcHeightfieldLayer* layer = &lset.layers[i];
 		
+		const float cs = layer->cs;
+		const float ch = layer->ch;
 		const int w = layer->width;
 		const int h = layer->height;
 		
@@ -434,10 +445,10 @@ void duDebugDrawHeightfieldLayersRegions(duDebugDraw* dd, const struct rcHeightf
 		
 		// Layer bounds
 		float bmin[3], bmax[3];
-		rcVcopy(bmin, lset.bmin);
-		rcVcopy(bmax, lset.bmax);
-		bmin[1] = lset.bmin[1] + (layer->ymin-1)*ch;
-		bmax[1] = lset.bmin[1] + (layer->ymax+1)*ch;
+		rcVcopy(bmin, layer->bmin);
+		rcVcopy(bmax, layer->bmax);
+		bmin[1] = layer->bmin[1] + (layer->ymin-1)*ch;
+		bmax[1] = layer->bmin[1] + (layer->ymax+1)*ch;
 		duDebugDrawBoxWire(dd, bmin[0],bmin[1],bmin[2], bmax[0],bmax[1],bmax[2], duTransCol(color,128), 2.0f);
 		
 		// Layer height
@@ -453,9 +464,9 @@ void duDebugDrawHeightfieldLayersRegions(duDebugDraw* dd, const struct rcHeightf
 				
 				unsigned int col = duLerpCol(color, duIntToCol(area, 255), 128);
 				
-				const float fx = lset.bmin[0] + x*cs;
-				const float fy = lset.bmin[1] + (h+1)*ch;
-				const float fz = lset.bmin[2] + y*cs;
+				const float fx = layer->bmin[0] + x*cs;
+				const float fy = layer->bmin[1] + (h+1)*ch;
+				const float fz = layer->bmin[2] + y*cs;
 				
 				dd->vertex(fx, fy, fz, col);
 				dd->vertex(fx, fy, fz+cs, col);
@@ -464,43 +475,72 @@ void duDebugDrawHeightfieldLayersRegions(duDebugDraw* dd, const struct rcHeightf
 			}
 		}
 		dd->end();
-		
-/*		// Portals
-		unsigned int pcol = duLerpCol(color,duRGBA(255,255,255,255),128);
-		dd->begin(DU_DRAW_LINES, 2.0f);
-		for (int j = 0; j < layer->nportals; ++j)
-		{
-			const rcHeightfieldLayerPortal* portal = &layer->portals[j];
-			if (portal->dir == 0 || portal->dir == 2)
-			{
-				const int ha = (int)layer->heights[portal->pos + portal->smin*w];
-				const int hb = (int)layer->heights[portal->pos + (portal->smax-1)*w];
-				const int xx = (portal->dir == 0) ? portal->pos : portal->pos+1;
-				const float fx = lset.bmin[0] + xx*cs;
-				const float fya = lset.bmin[1] + (ha+4)*ch;
-				const float fyb = lset.bmin[1] + (hb+4)*ch;
-				const float fza = lset.bmin[2] + portal->smin*cs;
-				const float fzb = lset.bmin[2] + portal->smax*cs;
-				dd->vertex(fx, fya, fza, pcol);
-				dd->vertex(fx, fyb, fzb, pcol);
-			}
-			else if (portal->dir == 3 || portal->dir == 1)
-			{
-				const int ha = (int)layer->heights[portal->smin + portal->pos*w];
-				const int hb = (int)layer->heights[(portal->smax-1) + portal->pos*w];
-				const int yy = (portal->dir == 3) ? portal->pos : portal->pos+1;
-				const float fxa = lset.bmin[0] + portal->smin*cs;
-				const float fxb = lset.bmin[0] + portal->smax*cs;
-				const float fya = lset.bmin[1] + (ha+3)*ch;
-				const float fyb = lset.bmin[1] + (hb+3)*ch;
-				const float fz = lset.bmin[2] + yy*cs;
-				dd->vertex(fxa, fya, fz, pcol);
-				dd->vertex(fxb, fyb, fz, pcol);
-			}
-		}
-		dd->end();*/
+				
+		// Portals
+		drawLayerPortals(dd, layer, color);
 	}
 	
+}
+
+void duDebugDrawLayerContours(duDebugDraw* dd, const struct rcLayerContourSet& lcset)
+{
+	if (!dd) return;
+	
+	const float* orig = lcset.bmin;
+	const float cs = lcset.cs;
+	const float ch = lcset.ch;
+	
+	const unsigned char a = 255;// (unsigned char)(alpha*255.0f);
+	
+	dd->begin(DU_DRAW_LINES, 2.0f);
+	
+	for (int i = 0; i < lcset.nconts; ++i)
+	{
+		const rcLayerContour& c = lcset.conts[i];
+		unsigned int color = 0;
+		
+		for (int j = 0; j < c.nverts; ++j)
+		{
+			const int k = (j+1) % c.nverts;
+			const unsigned char* va = &c.verts[j*4];
+			const unsigned char* vb = &c.verts[k*4];
+			const float ax = orig[0] + va[0]*cs;
+			const float ay = orig[1] + (va[1]+1+(i&1))*ch;
+			const float az = orig[2] + va[2]*cs;
+			const float bx = orig[0] + vb[0]*cs;
+			const float by = orig[1] + (vb[1]+1+(i&1))*ch;
+			const float bz = orig[2] + vb[2]*cs;
+			color = duIntToCol(vb[3], a);
+			dd->vertex(ax,ay,az,color);
+			dd->vertex(bx,by,bz,duDarkenCol(color));
+		}
+	}
+	dd->end();
+	
+	dd->begin(DU_DRAW_POINTS, 4.0f);	
+	
+	for (int i = 0; i < lcset.nconts; ++i)
+	{
+		const rcLayerContour& c = lcset.conts[i];
+		unsigned int color = 0;
+		
+		for (int j = 0; j < c.nverts; ++j)
+		{
+			const int k = (j+1) % c.nverts;
+			const unsigned char* va = &c.verts[j*4];
+			const unsigned char* vb = &c.verts[k*4];
+
+			color = duDarkenCol(duIntToCol(va[3], a));
+			if (va[3] != vb[3])
+				color = duRGBA(255,255,255,a);
+
+			float fx = orig[0] + va[0]*cs;
+			float fy = orig[1] + (va[1]+1+(i&1))*ch;
+			float fz = orig[2] + va[2]*cs;
+			dd->vertex(fx,fy,fz, color);
+		}
+	}
+	dd->end();
 }
 
 static void getContourCenter(const rcContour* cont, const float* orig, float cs, float ch, float* center)

@@ -35,11 +35,15 @@ protected:
 	unsigned char* m_triareas;
 	rcHeightfield* m_solid;
 	rcCompactHeightfield* m_chf;
-	rcHeightfieldLayerSet* m_lset;
 	rcContourSet* m_cset;
 	rcPolyMesh* m_pmesh;
 	rcPolyMeshDetail* m_dmesh;
 	rcConfig m_cfg;	
+
+	static const int MAX_LAYERS = 128;
+	rcHeightfieldLayerSet* m_lset;
+	rcLayerContourSet* m_lcsets[MAX_LAYERS];
+	int m_nlcsets;
 	
 	enum DrawMode
 	{
@@ -61,7 +65,10 @@ protected:
 		DRAWMODE_CONTOURS,
 		DRAWMODE_POLYMESH,
 		DRAWMODE_POLYMESH_DETAIL,
+		
 		DRAWMODE_HEIGHFIELD_LAYERS,
+		DRAWMODE_LAYER_CONTOURS,
+		
 		MAX_DRAWMODE
 	};
 	

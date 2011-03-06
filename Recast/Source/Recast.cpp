@@ -112,6 +112,28 @@ void rcFreeHeightfieldLayerSet(rcHeightfieldLayerSet* lset)
 	rcFree(lset);
 }
 
+
+rcLayerContourSet* rcAllocLayerContourSet()
+{
+	rcLayerContourSet* cset = (rcLayerContourSet*)rcAlloc(sizeof(rcLayerContourSet), RC_ALLOC_PERM);
+	memset(cset, 0, sizeof(rcLayerContourSet));
+	return cset;
+}
+
+void rcFreeLayerContourSet(rcLayerContourSet* cset)
+{
+	if (!cset) return;
+	for (int i = 0; i < cset->nconts; ++i)
+	{
+		rcFree(cset->conts[i].verts);
+//		rcFree(cset->conts[i].rverts);
+	}
+	rcFree(cset->conts);
+	rcFree(cset);
+}
+
+
+
 rcContourSet* rcAllocContourSet()
 {
 	rcContourSet* cset = (rcContourSet*)rcAlloc(sizeof(rcContourSet), RC_ALLOC_PERM);

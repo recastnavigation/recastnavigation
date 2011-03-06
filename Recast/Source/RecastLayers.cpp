@@ -476,15 +476,16 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 	const int lw = w - borderSize*2;
 	const int lh = h - borderSize*2;
 
+	// Build contracted bbox for layers.
+	float bmin[3], bmax[3];
+	rcVcopy(bmin, chf.bmin);
+	rcVcopy(bmax, chf.bmax);
+	bmin[0] += borderSize*chf.cs;
+	bmin[2] += borderSize*chf.cs;
+	bmax[0] -= borderSize*chf.cs;
+	bmax[2] -= borderSize*chf.cs;
+	
 	lset.nlayers = (int)layerId;
-	rcVcopy(lset.bmin, chf.bmin);
-	rcVcopy(lset.bmax, chf.bmax);
-	lset.bmin[0] += borderSize*chf.cs;
-	lset.bmin[2] += borderSize*chf.cs;
-	lset.bmax[0] -= borderSize*chf.cs;
-	lset.bmax[2] -= borderSize*chf.cs;
-	lset.cs = chf.cs;
-	lset.ch = chf.ch;
 	
 	lset.layers = (rcHeightfieldLayer*)rcAlloc(sizeof(rcHeightfieldLayer)*lset.nlayers, RC_ALLOC_PERM);
 	if (!lset.layers)
@@ -512,6 +513,11 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 		
 		layer->width = lw;
 		layer->height = lh;
+		layer->cs = chf.cs;
+		layer->ch = chf.ch;
+		// TODO: Should this be local bbox instead?
+		rcVcopy(layer->bmin, bmin);
+		rcVcopy(layer->bmax, bmax);
 
 		layer->heights = (unsigned short*)rcAlloc(sizeof(unsigned short)*lw*lh, RC_ALLOC_PERM);
 		if (!layer->heights)
@@ -622,15 +628,15 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 						if (start[j] != -1)
 						{
 							// Add portal.
-							rcHeightfieldLayerPortal* portal = allocPortal(&layer->portals,layer->nportals,cportals);
+							rcHeightfieldLayerPortal* portal = allocPortal(&layer->portals, layer->nportals, cportals);
 							if (!portal)
 							{
 								ctx->log(RC_LOG_ERROR, "rcBuildHeightfieldLayers: Out of memory 'portals' (%d).", cportals);
 								return false;
 							}
-							portal->pos = (unsigned short)y;
-							portal->smin = (unsigned short)start[j];
-							portal->smax = (unsigned short)x;
+							portal->pos = (unsigned char)y/*+off[j]*/;
+							portal->smin = (unsigned char)start[j];
+							portal->smax = (unsigned char)x;
 							portal->dir = dir[j];
 							
 							start[j] = -1;
@@ -669,9 +675,9 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 								ctx->log(RC_LOG_ERROR, "rcBuildHeightfieldLayers: Out of memory 'portals' (%d).", cportals);
 								return false;
 							}
-							portal->pos = (unsigned short)x;
-							portal->smin = (unsigned short)start[j];
-							portal->smax = (unsigned short)y;
+							portal->pos = (unsigned char)x/*+off[j]*/;
+							portal->smin = (unsigned char)start[j];
+							portal->smax = (unsigned char)y;
 							portal->dir = dir[j];
 							
 							start[j] = -1;
@@ -690,7 +696,7 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 
 inline bool isConnected(rcHeightfieldLayer& layer, const int ia, const int ib, const int walkableClimb)
 {
-	if (layer.areas[ib] == RC_NULL_AREA) return false;
+	if (layer.areas[ia] != layer.areas[ib]) return false;
 	if (rcAbs((int)layer.heights[ia] - (int)layer.heights[ib]) > walkableClimb) return false;
 	return true;
 }
@@ -927,6 +933,8 @@ bool rcBuildLayerRegions(rcContext* ctx, rcHeightfieldLayer& layer, const int wa
 	for (int i = 0; i < nregs; ++i)
 		regs[i].regId = remap[regs[i].regId];
 
+	layer.regCount = regId;
+	
 	for (int i = 0; i < w*h; ++i)
 	{
 		if (layer.regs[i] != 0xff)
@@ -935,3 +943,489 @@ bool rcBuildLayerRegions(rcContext* ctx, rcHeightfieldLayer& layer, const int wa
 	
 	return true;
 }
+
+static bool allocVert(rcLayerContour& cont, int& cverts)
+{
+	if (cont.nverts+1 > cverts)
+	{
+		cverts = !cverts ? 16 : cverts*2;
+		unsigned char* nv = (unsigned char*)rcAlloc(cverts*4, RC_ALLOC_TEMP);
+		if (!nv) return false;
+		if (cont.nverts)
+			memcpy(nv, cont.verts, cont.nverts*4);
+		rcFree(cont.verts);
+		cont.verts = nv;
+	}
+	return true;
+}
+
+static bool addVertex(rcLayerContour& cont, int x, int y, int z, int r, int& cverts)
+{
+	// Try to merge with existing segments.
+	if (cont.nverts > 1)
+	{
+		unsigned char* pa = &cont.verts[(cont.nverts-2)*4];
+		unsigned char* pb = &cont.verts[(cont.nverts-1)*4];
+		if ((int)pb[3] == r)
+		{
+			if (pa[0] == pb[0] && (int)pb[0] == x)
+			{
+				// The verts are aligned aling x-axis, update z.
+				pb[1] = (unsigned char)y;
+				pb[2] = (unsigned char)z;
+				pb[3] = (unsigned char)r;
+				return true;
+			}
+			else if (pa[2] == pb[2] && (int)pb[2] == z)
+			{
+				// The verts are aligned aling z-axis, update x.
+				pb[0] = (unsigned char)x;
+				pb[1] = (unsigned char)y;
+				pb[3] = (unsigned char)r;
+				return true;
+			}
+		}
+	}
+				
+	// Add new point.
+	if (!allocVert(cont, cverts))
+		return false;
+	
+	unsigned char* v = &cont.verts[cont.nverts*4];
+	v[0] = (unsigned char)x;
+	v[1] = (unsigned char)y;
+	v[2] = (unsigned char)z;
+	v[3] = (unsigned char)r;
+	cont.nverts++;
+	
+	return true;
+}
+
+
+static unsigned char getNeighbourReg(rcHeightfieldLayer& layer,
+									 const unsigned char* cons,
+									 const int ax, const int ay, const int dir,
+									 const int walkableClimb)
+{
+	const int ia = ax+ay*layer.width;
+	
+	const int bx = ax + rcGetDirOffsetX(dir);
+	const int by = ay + rcGetDirOffsetY(dir);
+	if (bx < 0 || by < 0 || bx >= layer.width || by >= layer.height)
+	{
+		if (cons[ia] & (1<<dir))
+			return 0xfe - dir;
+		return 0xff;
+	}
+
+	const int ib = bx+by*layer.width;
+	
+	if (rcAbs((int)layer.heights[ia] - (int)layer.heights[ib]) > walkableClimb)
+	{
+		if (cons[ia] & (1<<dir))
+			return 0xfe - dir;
+		return 0xff;
+	}
+	
+	return layer.regs[ib];
+}
+
+static int getCornerHeight(rcHeightfieldLayer& layer,
+						   const int x, const int y, const int dir,
+						   const int walkableClimb)
+{
+	return layer.heights[x+y*layer.width];
+}
+
+static bool walkContour(int x, int y, rcHeightfieldLayer& layer,
+						const unsigned char* cons,
+						const int walkableClimb, rcLayerContour& cont)
+{
+	const int w = layer.width;
+	const int h = layer.height;
+	int cverts = cont.nverts;
+	
+	int startX = x;
+	int startY = y;
+	int startDir = -1;
+	
+	for (int i = 0; i < 4; ++i)
+	{
+		const int dir = (i+3)&3;
+		unsigned char rn = getNeighbourReg(layer, cons, x, y, dir, walkableClimb);
+		if (rn != layer.regs[x+y*w])
+		{
+			startDir = dir;
+			break;
+		}
+	}
+	if (startDir == -1)
+		return true;
+	
+	int dir = startDir;
+	const int maxIter = w*h;
+	
+	int iter = 0;
+	while (iter < maxIter)
+	{
+		unsigned char rn = getNeighbourReg(layer, cons, x, y, dir, walkableClimb);
+
+		int nx = x;
+		int ny = y;
+		int ndir = dir;
+		
+		if (rn != layer.regs[x+y*w])
+		{
+			// Solid edge.
+			int px = x;
+			int py = getCornerHeight(layer, x, y, dir, walkableClimb);
+			int pz = y;
+			switch(dir)
+			{
+				case 0: pz++; break;
+				case 1: px++; pz++; break;
+				case 2: px++; break;
+			}
+			
+			// Try to merge with previous vertex.
+			if (!addVertex(cont,px,py,pz,rn,cverts))
+				return false;
+			
+			ndir = (dir+1) & 0x3;  // Rotate CW
+		}
+		else
+		{
+			// Move to next.
+			nx = x + rcGetDirOffsetX(dir);
+			ny = y + rcGetDirOffsetY(dir);
+			ndir = (dir+3) & 0x3;	// Rotate CCW
+		}
+		
+		if (iter > 0 && x == startX && y == startY && dir == startDir)
+			break;
+
+		x = nx;
+		y = ny;
+		dir = ndir;
+		
+		iter++;
+	}
+	
+	// Remove last vertex if it is duplicate of the first one.
+	unsigned char* pa = &cont.verts[(cont.nverts-1)*4];
+	unsigned char* pb = &cont.verts[0];
+	if (pa[0] == pb[0] && pa[2] == pb[2])
+		cont.nverts--;
+	
+	return true;
+}	
+
+
+static float distancePtSeg(const int x, const int z,
+						   const int px, const int pz,
+						   const int qx, const int qz)
+{
+	/*	float pqx = (float)(qx - px);
+	 float pqy = (float)(qy - py);
+	 float pqz = (float)(qz - pz);
+	 float dx = (float)(x - px);
+	 float dy = (float)(y - py);
+	 float dz = (float)(z - pz);
+	 float d = pqx*pqx + pqy*pqy + pqz*pqz;
+	 float t = pqx*dx + pqy*dy + pqz*dz;
+	 if (d > 0)
+	 t /= d;
+	 if (t < 0)
+	 t = 0;
+	 else if (t > 1)
+	 t = 1;
+	 
+	 dx = px + t*pqx - x;
+	 dy = py + t*pqy - y;
+	 dz = pz + t*pqz - z;
+	 
+	 return dx*dx + dy*dy + dz*dz;*/
+	
+	float pqx = (float)(qx - px);
+	float pqz = (float)(qz - pz);
+	float dx = (float)(x - px);
+	float dz = (float)(z - pz);
+	float d = pqx*pqx + pqz*pqz;
+	float t = pqx*dx + pqz*dz;
+	if (d > 0)
+		t /= d;
+	if (t < 0)
+		t = 0;
+	else if (t > 1)
+		t = 1;
+	
+	dx = px + t*pqx - x;
+	dz = pz + t*pqz - z;
+	
+	return dx*dx + dz*dz;
+}
+
+static bool simplifyContour(rcLayerContour& cont, const float maxError)
+{
+	int* poly = (int*)rcAlloc(sizeof(int)*cont.nverts, RC_ALLOC_TEMP);
+	if (!poly)
+		return false;
+	int npoly = 0;
+	
+	for (int i = 0; i < cont.nverts; ++i)
+	{
+		int j = (i+1) % cont.nverts;
+		// Check for start of a wall segment.
+		unsigned char ra = cont.verts[j*4+3];
+		unsigned char rb = cont.verts[i*4+3];
+		if (ra != rb)
+			poly[npoly++] = i;
+	}
+	if (npoly < 2)
+	{
+		// If there is no transitions at all,
+		// create some initial points for the simplification process. 
+		// Find lower-left and upper-right vertices of the contour.
+		int llx = cont.verts[0];
+		int llz = cont.verts[2];
+		int lli = 0;
+		int urx = cont.verts[0];
+		int urz = cont.verts[2];
+		int uri = 0;
+		for (int i = 1; i < cont.nverts; ++i)
+		{
+			int x = cont.verts[i*4+0];
+			int z = cont.verts[i*4+2];
+			if (x < llx || (x == llx && z < llz))
+			{
+				llx = x;
+				llz = z;
+				lli = i;
+			}
+			if (x > urx || (x == urx && z > urz))
+			{
+				urx = x;
+				urz = z;
+				uri = i;
+			}
+		}
+		npoly = 0;
+		poly[npoly++] = lli;
+		poly[npoly++] = uri;
+	}
+
+	// Add points until all raw points are within
+	// error tolerance to the simplified shape.
+	for (int i = 0; i < npoly; )
+	{
+		int ii = (i+1) % npoly;
+		
+		const int ai = poly[i];
+		const int ax = cont.verts[ai*4+0];
+		const int az = cont.verts[ai*4+2];
+		
+		const int bi = poly[ii];
+		const int bx = cont.verts[bi*4+0];
+		const int bz = cont.verts[bi*4+2];
+		
+		// Find maximum deviation from the segment.
+		float maxd = 0;
+		int maxi = -1;
+		int ci, cinc, endi;
+		
+		// Traverse the segment in lexilogical order so that the
+		// max deviation is calculated similarly when traversing
+		// opposite segments.
+		if (bx > ax || (bx == ax && bz > az))
+		{
+			cinc = 1;
+			ci = (ai+cinc) % cont.nverts;
+			endi = bi;
+		}
+		else
+		{
+			cinc = cont.nverts-1;
+			ci = (bi+cinc) % cont.nverts;
+			endi = ai;
+		}
+		
+		// Tessellate only outer edges or edges between areas.
+		while (ci != endi)
+		{
+			float d = distancePtSeg(cont.verts[ci*4+0], cont.verts[ci*4+2], ax, az, bx, bz);
+			if (d > maxd)
+			{
+				maxd = d;
+				maxi = ci;
+			}
+			ci = (ci+cinc) % cont.nverts;
+		}
+		
+		
+		// If the max deviation is larger than accepted error,
+		// add new point, else continue to next segment.
+		if (maxi != -1 && maxd > (maxError*maxError))
+		{
+			npoly++;
+			for (int j = npoly-1; j > i; --j)
+				poly[j] = poly[j-1];
+			poly[i+1] = maxi;
+		}
+		else
+		{
+			++i;
+		}
+	}
+
+	// Remap vertices
+	int start = 0;
+	for (int i = 1; i < npoly; ++i)
+		if (poly[i] < poly[start])
+			start = i;
+	
+	cont.nverts = 0;
+	for (int i = 0; i < npoly; ++i)
+	{
+		const int j = (start+i) % npoly;
+		unsigned char* src = &cont.verts[poly[j]*4];
+		unsigned char* dst = &cont.verts[cont.nverts*4];
+		dst[0] = src[0];
+		dst[1] = src[1];
+		dst[2] = src[2];
+		dst[3] = src[3];
+		cont.nverts++;
+	}
+	
+	rcFree(poly);
+	
+	return true;
+}
+
+// TODO: move this somewhere else, once the layer meshing is done.
+bool rcBuildLayerContours(rcContext* ctx,
+						  rcHeightfieldLayer& layer,
+						  const int walkableClimb, 	const float maxError,
+						  rcLayerContourSet& lcset)
+{
+	rcAssert(ctx);
+
+	const int w = layer.width;
+	const int h = layer.height;
+	
+	rcAssert(lcset.conts == 0);
+	
+	rcVcopy(lcset.bmin, layer.bmin);
+	rcVcopy(lcset.bmax, layer.bmax);
+	lcset.cs = layer.cs;
+	lcset.ch = layer.ch;
+	lcset.nconts = layer.regCount;
+	lcset.conts = (rcLayerContour*)rcAlloc(sizeof(rcLayerContour)*lcset.nconts, RC_ALLOC_TEMP);
+	if (!lcset.conts)
+	{
+		ctx->log(RC_LOG_ERROR, "rcBuildLayerContours: Out of memory 'conts' (%d).", lcset.nconts);
+		return false;
+	}
+	memset(lcset.conts, 0, sizeof(rcLayerContour)*lcset.nconts);
+
+	rcScopedDelete<unsigned char> cons = (unsigned char*)rcAlloc(sizeof(unsigned char)*w*h, RC_ALLOC_TEMP);
+	if (!cons)
+	{
+		ctx->log(RC_LOG_ERROR, "rcBuildLayerContours: Out of memory 'cons' (%d).", w*h);
+		return false;
+	}
+	memset(cons,0,sizeof(unsigned char)*w*h);
+	
+	
+/*	if (portal->dir == 0 || portal->dir == 2)
+	{
+		const int xx = portal->dir == 0 ? (int)portal->pos : (int)portal->pos+1;
+		const float fx = layer->bmin[0] + xx*cs;
+		const float fya = layer->bmin[1] + (layer->ymin)*ch;
+		const float fyb = layer->bmin[1] + (layer->ymin)*ch;
+		const float fza = layer->bmin[2] + portal->smin*cs;
+		const float fzb = layer->bmin[2] + portal->smax*cs;
+		dd->vertex(fx, fya+h, fza, pcol);
+		dd->vertex(fx, fyb+h, fzb, pcol);
+	}
+	else if (portal->dir == 3 || portal->dir == 1)
+	{
+		const int yy = portal->dir == 3 ? (int)portal->pos : (int)portal->pos+1;
+		const float fxa = layer->bmin[0] + portal->smin*cs;
+		const float fxb = layer->bmin[0] + portal->smax*cs;
+		const float fya = layer->bmin[1] + (layer->ymin)*ch;
+		const float fyb = layer->bmin[1] + (layer->ymin)*ch;
+		const float fz = layer->bmin[2] + yy*cs;
+		dd->vertex(fxa, fya+h, fz, pcol);
+		dd->vertex(fxb, fyb+h, fz, pcol);
+	}*/
+	
+	// Paint portals
+	for (int i = 0; i < layer.nportals; ++i)
+	{
+		const rcHeightfieldLayerPortal* portal = &layer.portals[i];
+		if (portal->dir == 0 || portal->dir == 2)
+		{
+			const unsigned char mask = (const unsigned char)(1 << portal->dir);
+			for (int j = (int)portal->smin; j < (int)portal->smax; ++j)
+				cons[(int)portal->pos + j*w] |= mask;
+		}
+		else
+		{
+			const unsigned char mask = (const unsigned char)(1 << portal->dir);
+			for (int j = (int)portal->smin; j < (int)portal->smax; ++j)
+				cons[j + (int)portal->pos*w] |= mask;
+		}
+	}
+	
+/*	printf("cons:\n");
+	for (int y = 0; y < h; ++y)
+	{
+		for (int x = 0; x < w; ++x)
+		{
+			unsigned char c = cons[x+y*w];
+			if (c == 0)
+				printf(".");
+			else
+				printf("%x",c);
+		}
+		printf("\n");
+	}*/
+			
+	
+	// Find contours.
+	for (int y = 0; y < h; ++y)
+	{
+		for (int x = 0; x < w; ++x)
+		{
+			const int idx = x+y*w;
+			const unsigned char ri = layer.regs[idx];
+			if (ri == 0xff)
+				continue;
+
+			rcLayerContour& cont = lcset.conts[ri];
+			
+			if (cont.nverts > 0)
+				continue;
+			
+			cont.reg = ri;
+			cont.area = layer.areas[idx];
+			
+			if (!walkContour(x, y, layer, cons, walkableClimb, cont))
+			{
+				ctx->log(RC_LOG_ERROR, "rcBuildLayerContours: Failed to walk contour.");
+				return false;
+			}
+			
+			if (!simplifyContour(cont, maxError))
+			{
+				ctx->log(RC_LOG_ERROR, "rcBuildLayerContours: Failed to simplify contour.");
+				return false;
+			}
+
+		}
+	}
+	
+	return true;
+}	
+
+

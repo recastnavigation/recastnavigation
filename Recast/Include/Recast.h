@@ -224,15 +224,19 @@ struct rcLeanHeightfield
 
 struct rcHeightfieldLayerPortal
 {
-	unsigned short pos;					// Position of the portal.
-	unsigned short smin, smax;			// Span min/max of the portal.
+	unsigned char pos;					// Position of the portal.
 	unsigned char dir;					// Direction of the portal (same as used by rcGetCon()).
+	unsigned char smin, smax;			// Span min/max of the portal.
+	unsigned short hmin, hmax;			// Span min/max of the portal.
 };
 
 struct rcHeightfieldLayer
 {
+	float bmin[3], bmax[3];				// Bounding box of the heightfield.
+	float cs, ch;						// Cell size and height.
 	int width, height;					// Width and height of the layer.
 	int nportals;						// Number of portals.
+	unsigned char regCount;
 	unsigned short ymin, ymax;			// Height min/max range.
 	unsigned short* heights;			// Heighfield.
 	unsigned char* areas;				// Area types.
@@ -244,8 +248,6 @@ struct rcHeightfieldLayerSet
 {
 	rcHeightfieldLayer* layers;			// Pointer to layers.
 	int nlayers;						// Number of layers.
-	float bmin[3], bmax[3];				// Bounding box of the heightfield.
-	float cs, ch;						// Cell size and height.
 };
 
 rcHeightfieldLayerSet* rcAllocHeightfieldLayerSet();
@@ -749,6 +751,34 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 
 // TODO: move this somewhere else, once the layer meshing is done.
 bool rcBuildLayerRegions(rcContext* ctx, rcHeightfieldLayer& layer, const int walkableClimb);
+
+
+
+struct rcLayerContour
+{
+	int nverts;
+	unsigned char* verts;
+	unsigned char reg, area;
+};
+
+struct rcLayerContourSet
+{
+	float bmin[3], bmax[3];				// Bounding box of the heightfield.
+	float cs, ch;						// Cell size and height.
+	int nconts;
+	rcLayerContour* conts;
+};
+
+rcLayerContourSet* rcAllocLayerContourSet();
+void rcFreeLayerContourSet(rcLayerContourSet* lset);
+
+// TODO: move this somewhere else, once the layer meshing is done.
+bool rcBuildLayerContours(rcContext* ctx,
+						  rcHeightfieldLayer& layer,
+						  const int walkableClimb, const float maxError,
+						  rcLayerContourSet& lcset);
+
+
 
 
 // Builds simplified contours from the regions outlines.

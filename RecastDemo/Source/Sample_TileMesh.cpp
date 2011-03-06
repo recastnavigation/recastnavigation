@@ -178,10 +178,11 @@ Sample_TileMesh::Sample_TileMesh() :
 	m_triareas(0),
 	m_solid(0),
 	m_chf(0),
-	m_lset(0),
 	m_cset(0),
 	m_pmesh(0),
 	m_dmesh(0),
+	m_lset(0),
+	m_nlcsets(0),
 	m_drawMode(DRAWMODE_NAVMESH),
 	m_maxTiles(0),
 	m_maxPolysPerTile(0),
@@ -194,6 +195,8 @@ Sample_TileMesh::Sample_TileMesh() :
 	resetCommonSettings();
 	memset(m_tileBmin, 0, sizeof(m_tileBmin));
 	memset(m_tileBmax, 0, sizeof(m_tileBmax));
+
+	memset(m_lcsets, 0, sizeof(m_lcsets));
 	
 	setTool(new NavMeshTileTool);
 }
@@ -213,14 +216,21 @@ void Sample_TileMesh::cleanup()
 	m_solid = 0;
 	rcFreeCompactHeightfield(m_chf);
 	m_chf = 0;
-	rcFreeHeightfieldLayerSet(m_lset);
-	m_lset = 0;
 	rcFreeContourSet(m_cset);
 	m_cset = 0;
 	rcFreePolyMesh(m_pmesh);
 	m_pmesh = 0;
 	rcFreePolyMeshDetail(m_dmesh);
 	m_dmesh = 0;
+
+	rcFreeHeightfieldLayerSet(m_lset);
+	m_lset = 0;
+	for (int i = 0; i < MAX_LAYERS; ++i)
+	{
+		rcFreeLayerContourSet(m_lcsets[i]);
+		m_lcsets[i] = 0;
+	}
+	m_nlcsets = 0;
 }
 
 
@@ -470,6 +480,7 @@ void Sample_TileMesh::handleDebugMode()
 		valid[DRAWMODE_POLYMESH] = m_pmesh != 0;
 		valid[DRAWMODE_POLYMESH_DETAIL] = m_dmesh != 0;
 		valid[DRAWMODE_HEIGHFIELD_LAYERS] = m_lset != 0;
+		valid[DRAWMODE_LAYER_CONTOURS] = m_nlcsets != 0;
 	}
 	
 	int unavail = 0;
@@ -516,8 +527,11 @@ void Sample_TileMesh::handleDebugMode()
 		m_drawMode = DRAWMODE_POLYMESH;
 	if (imguiCheck("Poly Mesh Detail", m_drawMode == DRAWMODE_POLYMESH_DETAIL, valid[DRAWMODE_POLYMESH_DETAIL]))
 		m_drawMode = DRAWMODE_POLYMESH_DETAIL;
+	
 	if (imguiCheck("Heighfield Layers", m_drawMode == DRAWMODE_HEIGHFIELD_LAYERS, valid[DRAWMODE_HEIGHFIELD_LAYERS]))
 		m_drawMode = DRAWMODE_HEIGHFIELD_LAYERS;
+	if (imguiCheck("Layer Contours", m_drawMode == DRAWMODE_LAYER_CONTOURS, valid[DRAWMODE_LAYER_CONTOURS]))
+		m_drawMode = DRAWMODE_LAYER_CONTOURS;
 	
 	if (unavail)
 	{
@@ -668,6 +682,14 @@ void Sample_TileMesh::handleRender()
 		duDebugDrawHeightfieldLayersRegions(&dd, *m_lset);
 		glDepthMask(GL_TRUE);
 	}
+
+	if (m_nlcsets && m_drawMode == DRAWMODE_LAYER_CONTOURS)
+	{
+		glDepthMask(GL_FALSE);
+		for (int i = 0; i < m_nlcsets; ++i)
+			duDebugDrawLayerContours(&dd, *m_lcsets[i]);
+		glDepthMask(GL_TRUE);
+	}
 	
 	m_geom->drawConvexVolumes(&dd);
 	
@@ -697,8 +719,8 @@ void Sample_TileMesh::handleRenderOverlay(double* proj, double* model, int* view
 			const rcHeightfieldLayer* layer = &m_lset->layers[i];
 			unsigned int color = duIntToCol(i+1, 255);
 			float pos[3];
-			rcVcopy(pos, m_lset->bmin);
-			pos[1] = m_lset->bmin[1] + ((layer->ymin+layer->ymax)/2)*m_lset->ch;
+			rcVcopy(pos, layer->bmin);
+			pos[1] = layer->bmin[1] + ((layer->ymin+layer->ymax)/2)*layer->ch;
 			if (gluProject((GLdouble)pos[0], (GLdouble)pos[1], (GLdouble)pos[2], model, proj, view, &x, &y, &z))
 			{
 				char text[32];
@@ -1114,9 +1136,17 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 			return 0;
 		}
 		
+		m_nlcsets = 0;
 		for (int i = 0; i < m_lset->nlayers; ++i)
 		{
 			rcBuildLayerRegions(m_ctx, m_lset->layers[i], m_cfg.walkableClimb);
+
+			m_lcsets[m_nlcsets] = rcAllocLayerContourSet();
+			if (!rcBuildLayerContours(m_ctx, m_lset->layers[i],
+									  m_cfg.walkableClimb, m_cfg.maxSimplificationError,
+									  *m_lcsets[m_nlcsets]))
+				break;
+			m_nlcsets++;
 		}
 	}
 	
