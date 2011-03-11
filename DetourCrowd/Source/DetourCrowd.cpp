@@ -489,7 +489,8 @@ int dtCrowd::getActiveAgents(dtCrowdAgent** agents, const int maxAgents)
 
 
 int dtCrowd::getNeighbours(const float* pos, const float height, const float range,
-								const dtCrowdAgent* skip, dtCrowdNeighbour* result, const int maxResult)
+						   const dtCrowdAgent* skip, dtCrowdNeighbour* result, const int maxResult,
+						   dtCrowdAgent** agents, const int nagents)
 {
 	int n = 0;
 	
@@ -501,7 +502,7 @@ int dtCrowd::getNeighbours(const float* pos, const float height, const float ran
 	
 	for (int i = 0; i < nids; ++i)
 	{
-		dtCrowdAgent* ag = &m_agents[ids[i]];
+		const dtCrowdAgent* ag = agents[ids[i]];
 
 		if (ag == skip) continue;
 
@@ -800,7 +801,7 @@ void dtCrowd::update(const float dt, dtCrowdAgentDebugInfo* debug)
 		}
 		// Query neighbour agents
 		ag->nneis = getNeighbours(ag->npos, ag->params.height, ag->params.collisionQueryRange,
-								  ag, ag->neis, DT_CROWDAGENT_MAX_NEIGHBOURS);
+								  ag, ag->neis, DT_CROWDAGENT_MAX_NEIGHBOURS, agents, nagents);
 	}
 	
 	// Find next corner to steer to.
