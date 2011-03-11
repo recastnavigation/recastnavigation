@@ -1303,15 +1303,27 @@ bool rcBuildLayerContours(rcContext* ctx,
 					return false;
 				}
 				
-				for (int i = 0; i < temp.nverts; ++i)
+				for (int i = 0, j = temp.nverts-1; i < temp.nverts; j=i++)
 				{
-					bool shouldRemove;
-					unsigned char* v = &temp.verts[i*4];
-					v[1] = getCornerHeight(layer, (int)v[0], (int)v[1], (int)v[2], walkableClimb, shouldRemove);
-					v[3] = shouldRemove ? 1 : 0;
+					unsigned char* dst = &cont.verts[j*4];
+					unsigned char* v = &temp.verts[j*4];
+					unsigned char* vn = &temp.verts[i*4];
+					unsigned char nei = vn[3]; // The neighbour reg is stored at segment vertex of a segment. 
+					bool shouldRemove = false;
+					unsigned char h = getCornerHeight(layer, (int)v[0], (int)v[1], (int)v[2], walkableClimb, shouldRemove);
+
+					dst[0] = v[0];
+					dst[1] = h;
+					dst[2] = v[2];
+					
+					// Store portal direction and remove status to the fourth component.
+					dst[3] = 0x0f;
+					const int dir = 0xfe - (int)nei;
+					if (dir >= 0 && dir <= 3)
+						dst[3] = (unsigned char)dir;
+					if (shouldRemove)
+						dst[3] |= 0x80;
 				}
-				
-				memcpy(cont.verts, temp.verts, sizeof(unsigned char)*4*temp.nverts);
 			}
 		}
 	}
@@ -1325,6 +1337,44 @@ bool rcBuildLayerContours(rcContext* ctx,
 
 
 
+static const int VERTEX_BUCKET_COUNT2 = (1<<8);
+
+inline int computeVertexHash2(int x, int y, int z)
+{
+	const unsigned int h1 = 0x8da6b343; // Large multiplicative constants;
+	const unsigned int h2 = 0xd8163841; // here arbitrarily chosen primes
+	const unsigned int h3 = 0xcb1ab31f;
+	unsigned int n = h1 * x + h2 * y + h3 * z;
+	return (int)(n & (VERTEX_BUCKET_COUNT2-1));
+}
+
+static unsigned short addVertex(unsigned short x, unsigned short y, unsigned short z,
+								unsigned short* verts, unsigned short* firstVert, unsigned short* nextVert, int& nv)
+{
+	int bucket = computeVertexHash2(x, 0, z);
+	unsigned short i = firstVert[bucket];
+	
+	while (i != RC_MESH_NULL_IDX)
+	{
+		const unsigned short* v = &verts[i*3];
+		if (v[0] == x && v[2] == z && (rcAbs(v[1] - y) <= 2))
+			return i;
+		i = nextVert[i]; // next
+	}
+	
+	// Could not find, create new.
+	i = nv; nv++;
+	unsigned short* v = &verts[i*3];
+	v[0] = x;
+	v[1] = y;
+	v[2] = z;
+	nextVert[i] = firstVert[bucket];
+	firstVert[bucket] = i;
+	
+	return (unsigned short)i;
+}
+
+
 struct rcEdge
 {
 	unsigned short vert[2];
@@ -1333,7 +1383,8 @@ struct rcEdge
 };
 
 static bool buildMeshAdjacency(unsigned short* polys, const int npolys,
-							   const int nverts, const int vertsPerPoly)
+							   const unsigned short* verts, const int nverts,
+							   const int vertsPerPoly, const rcLayerContourSet& lcset)
 {
 	// Based on code by Eric Lengyel from:
 	// http://www.terathon.com/code/edges.php
@@ -1360,6 +1411,7 @@ static bool buildMeshAdjacency(unsigned short* polys, const int npolys,
 		unsigned short* t = &polys[i*vertsPerPoly*2];
 		for (int j = 0; j < vertsPerPoly; ++j)
 		{
+			if (t[j] == RC_MESH_NULL_IDX) break;
 			unsigned short v0 = t[j];
 			unsigned short v1 = (j+1 >= vertsPerPoly || t[j+1] == RC_MESH_NULL_IDX) ? t[0] : t[j+1];
 			if (v0 < v1)
@@ -1370,7 +1422,7 @@ static bool buildMeshAdjacency(unsigned short* polys, const int npolys,
 				edge.poly[0] = (unsigned short)i;
 				edge.polyEdge[0] = (unsigned short)j;
 				edge.poly[1] = (unsigned short)i;
-				edge.polyEdge[1] = 0;
+				edge.polyEdge[1] = 0xff;
 				// Insert edge
 				nextEdge[edgeCount] = firstEdge[v0];
 				firstEdge[v0] = (unsigned short)edgeCount;
@@ -1384,10 +1436,12 @@ static bool buildMeshAdjacency(unsigned short* polys, const int npolys,
 		unsigned short* t = &polys[i*vertsPerPoly*2];
 		for (int j = 0; j < vertsPerPoly; ++j)
 		{
+			if (t[j] == RC_MESH_NULL_IDX) break;
 			unsigned short v0 = t[j];
 			unsigned short v1 = (j+1 >= vertsPerPoly || t[j+1] == RC_MESH_NULL_IDX) ? t[0] : t[j+1];
 			if (v0 > v1)
 			{
+				bool found = false;
 				for (unsigned short e = firstEdge[v1]; e != RC_MESH_NULL_IDX; e = nextEdge[e])
 				{
 					rcEdge& edge = edges[e];
@@ -1395,12 +1449,107 @@ static bool buildMeshAdjacency(unsigned short* polys, const int npolys,
 					{
 						edge.poly[1] = (unsigned short)i;
 						edge.polyEdge[1] = (unsigned short)j;
+						found = true;
 						break;
+					}
+				}
+				if (!found)
+				{
+					// Matching edge not found, it is an open edge, add it.
+					rcEdge& edge = edges[edgeCount];
+					edge.vert[0] = v1;
+					edge.vert[1] = v0;
+					edge.poly[0] = (unsigned short)i;
+					edge.polyEdge[0] = (unsigned short)j;
+					edge.poly[1] = (unsigned short)i;
+					edge.polyEdge[1] = 0xff;
+					// Insert edge
+					nextEdge[edgeCount] = firstEdge[v1];
+					firstEdge[v1] = (unsigned short)edgeCount;
+					edgeCount++;
+				}
+			}
+		}
+	}
+
+	// Mark portal edges.
+	for (int i = 0; i < lcset.nconts; ++i)
+	{
+		rcLayerContour& cont = lcset.conts[i];
+		if (cont.nverts < 3)
+			continue;
+		
+		for (int j = 0, k = cont.nverts-1; j < cont.nverts; k=j++)
+		{
+			const unsigned char* va = &cont.verts[k*4];
+			const unsigned char* vb = &cont.verts[j*4];
+			const unsigned char dir = va[3] & 0xf;
+			if (dir == 0xf)
+				continue;
+			
+			if (dir == 0 || dir == 2)
+			{
+				// Find matching vertical edge
+				const unsigned short x = (unsigned short)va[0];
+				unsigned short zmin = (unsigned short)va[2];
+				unsigned short zmax = (unsigned short)vb[2];
+				if (zmin > zmax)
+					rcSwap(zmin, zmax);
+				for (int i = 0; i < edgeCount; ++i)
+				{
+					rcEdge& e = edges[i];
+					// Skip connected edges.
+					if (e.poly[0] != e.poly[1])
+						continue;
+					const unsigned short* eva = &verts[e.vert[0]*3];
+					const unsigned short* evb = &verts[e.vert[1]*3];
+					if (eva[0] == x && evb[0] == x)
+					{
+						unsigned short ezmin = eva[2];
+						unsigned short ezmax = evb[2];
+						if (ezmin > ezmax)
+							rcSwap(ezmin, ezmax);
+						if (overlapRange(zmin,zmax, ezmin, ezmax))
+						{
+							// Reuse the other polyedge to store dir.
+							e.polyEdge[1] = dir;
+						}
+					}
+				}
+			}
+			else
+			{
+				// Find matching vertical edge
+				const unsigned short z = (unsigned short)va[2];
+				unsigned short xmin = (unsigned short)va[0];
+				unsigned short xmax = (unsigned short)vb[0];
+				if (xmin > xmax)
+					rcSwap(xmin, xmax);
+				for (int i = 0; i < edgeCount; ++i)
+				{
+					rcEdge& e = edges[i];
+					// Skip connected edges.
+					if (e.poly[0] != e.poly[1])
+						continue;
+					const unsigned short* eva = &verts[e.vert[0]*3];
+					const unsigned short* evb = &verts[e.vert[1]*3];
+					if (eva[2] == z && evb[2] == z)
+					{
+						unsigned short exmin = eva[0];
+						unsigned short exmax = evb[0];
+						if (exmin > exmax)
+							rcSwap(exmin, exmax);
+						if (overlapRange(xmin,xmax, exmin, exmax))
+						{
+							// Reuse the other polyedge to store dir.
+							e.polyEdge[1] = dir;
+						}
 					}
 				}
 			}
 		}
 	}
+	
 	
 	// Store adjacency
 	for (int i = 0; i < edgeCount; ++i)
@@ -1413,6 +1562,12 @@ static bool buildMeshAdjacency(unsigned short* polys, const int npolys,
 			p0[vertsPerPoly + e.polyEdge[0]] = e.poly[1];
 			p1[vertsPerPoly + e.polyEdge[1]] = e.poly[0];
 		}
+		else if (e.polyEdge[1] != 0xff)
+		{
+			unsigned short* p0 = &polys[e.poly[0]*vertsPerPoly*2];
+			p0[vertsPerPoly + e.polyEdge[0]] = 0x8000 | (unsigned short)e.poly[1];
+		}
+
 	}
 	
 	rcFree(firstEdge);
@@ -1421,43 +1576,6 @@ static bool buildMeshAdjacency(unsigned short* polys, const int npolys,
 	return true;
 }
 
-
-static const int VERTEX_BUCKET_COUNT2 = (1<<8);
-
-inline int computeVertexHash2(int x, int y, int z)
-{
-	const unsigned int h1 = 0x8da6b343; // Large multiplicative constants;
-	const unsigned int h2 = 0xd8163841; // here arbitrarily chosen primes
-	const unsigned int h3 = 0xcb1ab31f;
-	unsigned int n = h1 * x + h2 * y + h3 * z;
-	return (int)(n & (VERTEX_BUCKET_COUNT2-1));
-}
-
-static unsigned short addVertex(unsigned short x, unsigned short y, unsigned short z,
-								unsigned short* verts, unsigned short* firstVert, unsigned short* nextVert, int& nv)
-{
-	int bucket = computeVertexHash2(x, 0, z);
-	unsigned short i = firstVert[bucket];
-	
-	while (i != RC_MESH_NULL_IDX)
-	{
-		const unsigned short* v = &verts[i*3];
-		if (v[0] == x && (rcAbs(v[1] - y) <= 2) && v[2] == z)
-			return i;
-		i = nextVert[i]; // next
-	}
-	
-	// Could not find, create new.
-	i = nv; nv++;
-	unsigned short* v = &verts[i*3];
-	v[0] = x;
-	v[1] = y;
-	v[2] = z;
-	nextVert[i] = firstVert[bucket];
-	firstVert[bucket] = i;
-	
-	return (unsigned short)i;
-}
 
 inline int prev(int i, int n) { return i-1 >= 0 ? i-1 : n-1; }
 inline int next(int i, int n) { return i+1 < n ? i+1 : 0; }
@@ -2140,9 +2258,6 @@ static bool removeVertex(rcContext* ctx, rcLayerPolyMesh& mesh, const unsigned s
 }
 
 
-
-
-
 bool rcBuildLayerPolyMesh(rcContext* ctx,
 						  rcLayerContourSet& lcset,
 						  const int maxVertsPerPoly,
@@ -2278,7 +2393,7 @@ bool rcBuildLayerPolyMesh(rcContext* ctx,
 			const unsigned char* v = &cont.verts[j*4];
 			indices[j] = addVertex((unsigned short)v[0], (unsigned short)v[1], (unsigned short)v[2],
 								   mesh.verts, firstVert, nextVert, mesh.nverts);
-			if (v[3])
+			if (v[3] & 0x80)
 			{
 				// This vertex should be removed.
 				vflags[indices[j]] = 1;
@@ -2387,12 +2502,12 @@ bool rcBuildLayerPolyMesh(rcContext* ctx,
 	}
 	
 	// Calculate adjacency.
-	if (!buildMeshAdjacency(mesh.polys, mesh.npolys, mesh.nverts, nvp))
+	if (!buildMeshAdjacency(mesh.polys, mesh.npolys, mesh.verts, mesh.nverts, nvp, lcset))
 	{
 		ctx->log(RC_LOG_ERROR, "rcBuildLayerPolyMesh: Adjacency failed.");
 		return false;
 	}
-	
+		
 	if (mesh.nverts > 0xffff)
 	{
 		ctx->log(RC_LOG_ERROR, "rcBuildLayerPolyMesh: The resulting mesh has too many vertices %d (max %d). Data can be corrupted.", mesh.nverts, 0xffff);

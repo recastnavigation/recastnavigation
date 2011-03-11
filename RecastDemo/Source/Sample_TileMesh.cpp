@@ -746,8 +746,8 @@ void Sample_TileMesh::handleRenderOverlay(double* proj, double* model, int* view
 			{
 				char text[32];
 				snprintf(text,32,"Layer %d", i+1);
-				imguiDrawText((int)x+10+1, (int)y-1, IMGUI_ALIGN_LEFT, text, imguiRGBA(0,0,0,128));
-				imguiDrawText((int)x+10, (int)y, IMGUI_ALIGN_LEFT, text, color);
+				imguiDrawRoundedRect(x+10-6,y-6,100,20, 4, duTransCol(color,128));
+				imguiDrawText((int)x+10, (int)y, IMGUI_ALIGN_LEFT, text, imguiRGBA(255,255,255,255));
 			}
 			
 		}
