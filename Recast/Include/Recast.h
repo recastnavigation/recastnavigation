@@ -222,14 +222,6 @@ struct rcLeanHeightfield
 
 
 
-struct rcHeightfieldLayerPortal
-{
-	unsigned char pos;					// Position of the portal.
-	unsigned char dir;					// Direction of the portal (same as used by rcGetCon()).
-	unsigned char smin, smax;			// Span min/max of the portal.
-	unsigned short hmin, hmax;			// Span min/max of the portal.
-};
-
 struct rcHeightfieldLayer
 {
 	float bmin[3], bmax[3];				// Bounding box of the heightfield.
@@ -237,11 +229,11 @@ struct rcHeightfieldLayer
 	int width, height;					// Width and height of the layer.
 	int nportals;						// Number of portals.
 	unsigned char regCount;
-	unsigned short ymin, ymax;			// Height min/max range.
-	unsigned short* heights;			// Heighfield.
+	unsigned char maxHeight;			// Height min/max range.
+	unsigned char* heights;				// Heighfield.
 	unsigned char* areas;				// Area types.
 	unsigned char* regs;				// Regions.
-	rcHeightfieldLayerPortal* portals;	// Portals.
+	unsigned char* cons;				// Connections.
 };
 
 struct rcHeightfieldLayerSet

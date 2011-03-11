@@ -89,24 +89,6 @@ struct rcLayerSweepSpan
 };
 
 
-rcHeightfieldLayerPortal* allocPortal(rcHeightfieldLayerPortal** portals, int& nportals, int& cportals)
-{
-	if (nportals+1 >= cportals)
-	{
-		cportals *= 2;
-		rcHeightfieldLayerPortal* np = (rcHeightfieldLayerPortal*)rcAlloc(sizeof(rcHeightfieldLayerPortal)*cportals,RC_ALLOC_PERM);
-		if (!np)
-			return 0;
-		if (nportals > 0)
-			memcpy(np,*portals,sizeof(rcHeightfieldLayerPortal)*nportals);
-		rcFree(*portals);
-		*portals = np;
-	}
-	nportals++;
-	return &(*portals)[nportals-1];
-}
-
-
 bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 							  const int borderSize, const int walkableHeight,
 							  rcHeightfieldLayerSet& lset)
@@ -345,19 +327,24 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 			for (int j = 0; j < nneis; ++j)
 			{
 				const unsigned char nei = reg.neis[j];
+				rcLayerRegion& regn = regs[nei];
 				// Skip already visited.
-				if (regs[nei].layerId != 0xff)
+				if (regn.layerId != 0xff)
 					continue;
 				// Skip if the neighbour is overlapping root region.
 				if (contains(root.layers, root.nlayers, nei))
 					continue;
-				
+				// Skip if the height range would become too large.
+				const int ymin = rcMin(root.ymin, regn.ymin);
+				const int ymax = rcMin(root.ymax, regn.ymax);
+				if ((ymax - ymin) >= 255)
+					 continue;
+
 				if (nstack < MAX_STACK)
 				{
 					// Deepen
 					stack[nstack++] = (unsigned char)nei;
 					
-					rcLayerRegion& regn = regs[nei];
 					// Mark layer id
 					regn.layerId = layerId;
 					// Merge current layers to root.
@@ -395,7 +382,12 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 				// Skip if teh regions are not close to each other.
 				if (!overlapRange(ri.ymin,ri.ymax+mergeHeight, rj.ymin,rj.ymax+mergeHeight))
 					continue;
-				
+				// Skip if the height range would become too large.
+				const int ymin = rcMin(ri.ymin, rj.ymin);
+				const int ymax = rcMin(ri.ymax, rj.ymax);
+				if ((ymax - ymin) >= 255)
+				  continue;
+						  
 				// Make sure that there is no overlap when mergin 'ri' and 'rj'.
 				bool overlap = false;
 				// Iterate over all regions which have the same layerId as 'rj'
@@ -494,13 +486,6 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 		return false;
 	}
 	memset(lset.layers, 0, sizeof(rcHeightfieldLayer)*lset.nlayers);
-	
-	rcScopedDelete<unsigned char> cons = (unsigned char*)rcAlloc(sizeof(unsigned char)*lw*lh, RC_ALLOC_TEMP);
-	if (!cons)
-	{
-		ctx->log(RC_LOG_ERROR, "rcBuildHeightfieldLayers: Out of memory 'con' (%d).", lw*lh);
-		return false;
-	}
 
 	
 	// Store layers.
@@ -515,17 +500,14 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 		layer->height = lh;
 		layer->cs = chf.cs;
 		layer->ch = chf.ch;
-		// TODO: Should this be local bbox instead?
-		rcVcopy(layer->bmin, bmin);
-		rcVcopy(layer->bmax, bmax);
 
-		layer->heights = (unsigned short*)rcAlloc(sizeof(unsigned short)*lw*lh, RC_ALLOC_PERM);
+		layer->heights = (unsigned char*)rcAlloc(sizeof(unsigned char)*lw*lh, RC_ALLOC_PERM);
 		if (!layer->heights)
 		{
 			ctx->log(RC_LOG_ERROR, "rcBuildHeightfieldLayers: Out of memory 'heights' (%d).", w*h);
 			return false;
 		}
-		memset(layer->heights, 0xff, sizeof(unsigned short)*lw*lh);
+		memset(layer->heights, 0xff, sizeof(unsigned char)*lw*lh);
 		
 		layer->areas = (unsigned char*)rcAlloc(sizeof(unsigned char)*lw*lh, RC_ALLOC_PERM);
 		if (!layer->areas)
@@ -534,18 +516,31 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 			return false;
 		}
 		memset(layer->areas, RC_NULL_AREA, sizeof(unsigned char)*lw*lh);
-		
-		memset(cons, 0, sizeof(unsigned char)*lw*lh);
+
+		layer->cons = (unsigned char*)rcAlloc(sizeof(unsigned char)*lw*lh, RC_ALLOC_PERM);
+		if (!layer->cons)
+		{
+			ctx->log(RC_LOG_ERROR, "rcBuildHeightfieldLayers: Out of memory 'cons' (%d).", w*h);
+			return false;
+		}
+		memset(layer->cons, 0, sizeof(unsigned char)*lw*lh);
 		
 		// Find layer height bounds.
+		int ymin = 0, ymax = 0;
 		for (int j = 0; j < nregs; ++j)
 		{
 			if (regs[j].start && regs[j].layerId == curId)
 			{
-				layer->ymin = regs[j].ymin;
-				layer->ymax = regs[j].ymax;
+				ymin = (int)regs[j].ymin;
+				ymax = (int)regs[j].ymax;
 			}
 		}
+
+		// Adjust the bbox to fit the heighfield.
+		rcVcopy(layer->bmin, bmin);
+		rcVcopy(layer->bmax, bmax);
+		layer->bmin[1] = bmin[1] + ymin*chf.ch;
+		layer->bmax[1] = bmin[1] + ymax*chf.ch;		
 		
 		// Copy height and area from compact heighfield. 
 		for (int y = 0; y < lh; ++y)
@@ -567,10 +562,11 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 						continue;
 					// Store height and area type.
 					const int idx = x+y*lw;
-					layer->heights[idx] = s.y;
+					layer->heights[idx] = (unsigned char)(s.y - ymin);
 					layer->areas[idx] = chf.areas[i];
 					
 					// Check connection.
+					unsigned char portal = 0;
 					unsigned char con = 0;
 					for (int dir = 0; dir < 4; ++dir)
 					{
@@ -580,113 +576,25 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 							const int ay = cy + rcGetDirOffsetY(dir);
 							const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(s, dir);
 							unsigned char alid = srcReg[ai] != 0xff ? regs[srcReg[ai]].layerId : 0xff;
+							// Portal mask
 							if (chf.areas[ai] != RC_NULL_AREA && lid != alid)
-								con |= (unsigned char)(1<<dir);
-						}
-					}
-					cons[idx] = con;
-				}
-			}
-		}
-		
-		// Create portals
-		int cportals = 6;
-		layer->portals = (rcHeightfieldLayerPortal*)rcAlloc(sizeof(rcHeightfieldLayerPortal)*cportals,RC_ALLOC_PERM);
-		if (!layer->portals)
-		{
-			ctx->log(RC_LOG_ERROR, "rcBuildHeightfieldLayers: Out of memory 'portals' (%d).", cportals);
-			return false;
-		}
-		layer->nportals = 0;
-		
-		// Directions same as rcGetCon()
-		const unsigned char XM = 1<<0;	// x-
-		const unsigned char YP = 1<<1;	// y+
-		const unsigned char XP = 1<<2;	// x+
-		const unsigned char YM = 1<<3;	// y-
-
-		// Portals along x-axis
-		for (int y = 0; y < lh; ++y)
-		{
-			const unsigned char dir[2] = {3,1};
-			const unsigned char mask[2] = {YM,YP};
-			int start[2] = { -1, -1};
-			
-			for (int x = 0; x < lw+1; ++x)
-			{
-				const int idx = x+y*lw;
-				for (int j = 0; j < 2; ++j)
-				{
-					unsigned char set = x<lw ? (cons[idx] & mask[j]) : 0;
-					if (set)
-					{
-						if (start[j] == -1)
-							start[j] = x;
-					}
-					else
-					{
-						if (start[j] != -1)
-						{
-							// Add portal.
-							rcHeightfieldLayerPortal* portal = allocPortal(&layer->portals, layer->nportals, cportals);
-							if (!portal)
+								portal |= (unsigned char)(1<<dir);
+							// Valid connection mask
+							if (chf.areas[ai] != RC_NULL_AREA && lid == alid)
 							{
-								ctx->log(RC_LOG_ERROR, "rcBuildHeightfieldLayers: Out of memory 'portals' (%d).", cportals);
-								return false;
+								const int nx = ax - borderSize;
+								const int ny = ay - borderSize;
+								if (nx >= 0 && ny >= 0 && nx < lw && ny < lh)
+									con |= (unsigned char)(1<<dir);
 							}
-							portal->pos = (unsigned char)y/*+off[j]*/;
-							portal->smin = (unsigned char)start[j];
-							portal->smax = (unsigned char)x;
-							portal->dir = dir[j];
-							
-							start[j] = -1;
 						}
 					}
+					
+					layer->cons[idx] = (portal << 4) | con;
 				}
 			}
 		}
-		
-		// Portals along y-axis
-		for (int x = 0; x < lw; ++x)
-		{
-			const unsigned char dir[2] = {0,2};
-			const unsigned char mask[2] = {XM,XP};
-			int start[2] = { -1, -1};
-			
-			for (int y = 0; y < lh+1; ++y)
-			{
-				const int idx = x+y*lw;
-				for (int j = 0; j < 2; ++j)
-				{
-					unsigned char set = y<lh ? (cons[idx] & mask[j]) : 0;
-					if (set)
-					{
-						if (start[j] == -1)
-							start[j] = y;
-					}
-					else
-					{
-						if (start[j] != -1)
-						{
-							// Add portal.
-							rcHeightfieldLayerPortal* portal = allocPortal(&layer->portals,layer->nportals,cportals);
-							if (!portal)
-							{
-								ctx->log(RC_LOG_ERROR, "rcBuildHeightfieldLayers: Out of memory 'portals' (%d).", cportals);
-								return false;
-							}
-							portal->pos = (unsigned char)x/*+off[j]*/;
-							portal->smin = (unsigned char)start[j];
-							portal->smax = (unsigned char)y;
-							portal->dir = dir[j];
-							
-							start[j] = -1;
-						}
-					}
-				}
-			}
-		}
-		
+				
 	}
 	
 	ctx->stopTimer(RC_TIMER_BUILD_LAYERS);
@@ -1005,37 +913,30 @@ static bool appendVertex(rcTempContour& cont, const int x, const int y, const in
 
 
 static unsigned char getNeighbourReg(rcHeightfieldLayer& layer,
-									 const unsigned char* cons,
-									 const int ax, const int ay, const int dir,
-									 const int walkableClimb)
+									 const int ax, const int ay, const int dir)
 {
 	const int ia = ax+ay*layer.width;
 	
+	const unsigned char con = layer.cons[ia] & 0xf;
+	const unsigned char portal = layer.cons[ia] >> 4;
+	const unsigned char mask = (unsigned char)(1<<dir);
+	
+	if ((con & mask) == 0)
+	{
+		// No connection, return portal or hard edge.
+		if (portal & mask)
+			return 0xfe - dir;
+		return 0xff;
+	}
+	
 	const int bx = ax + rcGetDirOffsetX(dir);
 	const int by = ay + rcGetDirOffsetY(dir);
-	if (bx < 0 || by < 0 || bx >= layer.width || by >= layer.height)
-	{
-		if (cons[ia] & (1<<dir))
-			return 0xfe - dir;
-		return 0xff;
-	}
-
 	const int ib = bx+by*layer.width;
-	
-	if (rcAbs((int)layer.heights[ia] - (int)layer.heights[ib]) > walkableClimb)
-	{
-		if (cons[ia] & (1<<dir))
-			return 0xfe - dir;
-		return 0xff;
-	}
 	
 	return layer.regs[ib];
 }
 
-static bool walkContour(rcHeightfieldLayer& layer,
-						const unsigned char* cons,
-						int x, int y, const int walkableClimb,
-						rcTempContour& cont)
+static bool walkContour(rcHeightfieldLayer& layer, int x, int y, rcTempContour& cont)
 {
 	const int w = layer.width;
 	const int h = layer.height;
@@ -1049,7 +950,7 @@ static bool walkContour(rcHeightfieldLayer& layer,
 	for (int i = 0; i < 4; ++i)
 	{
 		const int dir = (i+3)&3;
-		unsigned char rn = getNeighbourReg(layer, cons, x, y, dir, walkableClimb);
+		unsigned char rn = getNeighbourReg(layer, x, y, dir);
 		if (rn != layer.regs[x+y*w])
 		{
 			startDir = dir;
@@ -1065,7 +966,7 @@ static bool walkContour(rcHeightfieldLayer& layer,
 	int iter = 0;
 	while (iter < maxIter)
 	{
-		unsigned char rn = getNeighbourReg(layer, cons, x, y, dir, walkableClimb);
+		unsigned char rn = getNeighbourReg(layer, x, y, dir);
 
 		int nx = x;
 		int ny = y;
@@ -1269,19 +1170,18 @@ static void simplifyContour(rcTempContour& cont, const float maxError)
 	}
 }
 
-static int getCornerHeight(rcHeightfieldLayer& layer, const unsigned char* cons,
-									 const int x, const int y, const int z, const int walkableClimb,
-									 bool& shouldRemove)
+static int getCornerHeight(rcHeightfieldLayer& layer,
+						   const int x, const int y, const int z,
+						   const int walkableClimb,
+						   bool& shouldRemove)
 {
 	const int w = layer.width;
 	const int h = layer.height;
 
-//	unsigned char ic[4];
-//	unsigned char ia[4];
 	int n = 0;
 	
-	unsigned char ic = 0xff;
-	int ih = 0;
+	unsigned char portal = 0xf;
+	int height = 0;
 	
 	for (int dz = -1; dz <= 0; ++dz)
 	{
@@ -1292,25 +1192,29 @@ static int getCornerHeight(rcHeightfieldLayer& layer, const unsigned char* cons,
 			if (px >= 0 && pz >= 0 && px < w && pz < h)
 			{
 				const int idx  = px + pz*w;
-				const int hh = (int)layer.heights[idx];
-				if (rcAbs(hh-y) <= walkableClimb)
+				const int h = (int)layer.heights[idx];
+				if (rcAbs(h-y) <= walkableClimb)
 				{
-					ih = rcMax(ih, hh);
-					ic &= cons[idx];
-					//ia[n] = layer.areas[idx];
+					height = rcMax(height, h);
+					portal &= (layer.cons[idx] >> 4);
 					n++;
 				}
 			}
 		}
 	}
 	
+	int portalCount = 0;
+	for (int dir = 0; dir < 4; ++dir)
+		if (portal & (1<<dir))
+			portalCount++;
+	
 	shouldRemove = false;
-	if (n > 1 && (ic == 1 || ic == 2 || ic == 4 || ic == 8))
+	if (n > 1 && portalCount == 1)
 	{
 		shouldRemove = true;
 	}
 	
-	return ih;
+	return height;
 }
 
 
@@ -1339,14 +1243,6 @@ bool rcBuildLayerContours(rcContext* ctx,
 		return false;
 	}
 	memset(lcset.conts, 0, sizeof(rcLayerContour)*lcset.nconts);
-
-	rcScopedDelete<unsigned char> cons = (unsigned char*)rcAlloc(sizeof(unsigned char)*w*h, RC_ALLOC_TEMP);
-	if (!cons)
-	{
-		ctx->log(RC_LOG_ERROR, "rcBuildLayerContours: Out of memory 'cons' (%d).", w*h);
-		return false;
-	}
-	memset(cons,0,sizeof(unsigned char)*w*h);
 	
 	// Allocate temp buffer for contour tracing.
 	const int maxTempVerts = (w*h*2)*2; // Twice around the layer.
@@ -1357,37 +1253,19 @@ bool rcBuildLayerContours(rcContext* ctx,
 	temp.cpoly = maxTempVerts;
 
 	temp.verts = (unsigned char*)rcAlloc(sizeof(unsigned char)*temp.cverts, RC_ALLOC_TEMP);
-	if (!cons)
+	if (!temp.verts)
 	{
 		ctx->log(RC_LOG_ERROR, "rcBuildLayerContours: Out of memory 'temp.verts' (%d).", temp.cverts);
 		return false;
 	}
 	
 	temp.poly = (unsigned short*)rcAlloc(sizeof(unsigned short)*temp.cpoly, RC_ALLOC_TEMP);
-	if (!cons)
+	if (!temp.poly)
 	{
 		ctx->log(RC_LOG_ERROR, "rcBuildLayerContours: Out of memory 'temp.poly' (%d).", temp.cpoly);
 		return false;
 	}
-	
-	// Paint portals
-	for (int i = 0; i < layer.nportals; ++i)
-	{
-		const rcHeightfieldLayerPortal* portal = &layer.portals[i];
-		if (portal->dir == 0 || portal->dir == 2)
-		{
-			const unsigned char mask = (const unsigned char)(1 << portal->dir);
-			for (int j = (int)portal->smin; j < (int)portal->smax; ++j)
-				cons[(int)portal->pos + j*w] |= mask;
-		}
-		else
-		{
-			const unsigned char mask = (const unsigned char)(1 << portal->dir);
-			for (int j = (int)portal->smin; j < (int)portal->smax; ++j)
-				cons[j + (int)portal->pos*w] |= mask;
-		}
-	}
-		
+			
 	// Find contours.
 	for (int y = 0; y < h; ++y)
 	{
@@ -1406,7 +1284,7 @@ bool rcBuildLayerContours(rcContext* ctx,
 			cont.reg = ri;
 			cont.area = layer.areas[idx];
 			
-			if (!walkContour(layer, cons, x, y, walkableClimb, temp))
+			if (!walkContour(layer, x, y, temp))
 			{
 				ctx->log(RC_LOG_ERROR, "rcBuildLayerContours: Failed to walk contour (nverts=%d cverts=%d).", temp.nverts, temp.cverts);
 				return false;
@@ -1429,7 +1307,7 @@ bool rcBuildLayerContours(rcContext* ctx,
 				{
 					bool shouldRemove;
 					unsigned char* v = &temp.verts[i*4];
-					v[1] = getCornerHeight(layer, cons, (int)v[0], (int)v[1], (int)v[2], walkableClimb, shouldRemove);
+					v[1] = getCornerHeight(layer, (int)v[0], (int)v[1], (int)v[2], walkableClimb, shouldRemove);
 					v[3] = shouldRemove ? 1 : 0;
 				}
 				

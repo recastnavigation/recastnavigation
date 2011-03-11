@@ -385,7 +385,44 @@ static void drawLayerPortals(duDebugDraw* dd, const rcHeightfieldLayer* layer, c
 {
 	const float cs = layer->cs;
 	const float ch = layer->ch;
-	const float h = (layer->ymax-layer->ymin+1)*ch;
+	const int w = layer->width;
+	const int h = layer->height;
+	
+	unsigned int pcol = duRGBA(255,255,255,255);
+	
+	const int segs[4*4] = {0,0,0,1, 0,1,1,1, 1,1,1,0, 1,0,0,0};
+	
+	// Layer portals
+	dd->begin(DU_DRAW_LINES, 2.0f);
+	for (int y = 0; y < h; ++y)
+	{
+		for (int x = 0; x < w; ++x)
+		{
+			const int idx = x+y*w;
+			const int h = (int)layer->heights[idx];
+			if (h == 255) continue;
+			
+			for (int dir = 0; dir < 4; ++dir)
+			{
+				if (layer->cons[idx] & (1<<(dir+4)))
+				{
+					const int* seg = &segs[dir*4];
+					const float ax = layer->bmin[0] + (x+seg[0])*cs;
+					const float ay = layer->bmin[1] + (h+2)*ch;
+					const float az = layer->bmin[2] + (y+seg[1])*cs;
+					const float bx = layer->bmin[0] + (x+seg[2])*cs;
+					const float by = layer->bmin[1] + (h+2)*ch;
+					const float bz = layer->bmin[2] + (y+seg[3])*cs;
+					dd->vertex(ax, ay, az, pcol);
+					dd->vertex(bx, by, bz, pcol);
+				}
+			}
+		}
+	}
+	dd->end();
+	
+	
+/*	const float h = rcMax(layer->bmax[1]-layer->bmin[1], ch);
 
 	unsigned int pcol = duLerpCol(color,duRGBA(255,255,255,255),64);
 	dd->begin(DU_DRAW_LINES, 2.0f);
@@ -396,34 +433,32 @@ static void drawLayerPortals(duDebugDraw* dd, const rcHeightfieldLayer* layer, c
 		{
 			const int xx = portal->dir == 0 ? (int)portal->pos : (int)portal->pos+1;
 			const float fx = layer->bmin[0] + xx*cs;
-			const float fya = layer->bmin[1] + (layer->ymin)*ch;
-			const float fyb = layer->bmin[1] + (layer->ymin)*ch;
+			const float fy = layer->bmin[1];
 			const float fza = layer->bmin[2] + portal->smin*cs;
 			const float fzb = layer->bmin[2] + portal->smax*cs;
-			dd->vertex(fx, fya+h, fza, pcol);
-			dd->vertex(fx, fyb+h, fzb, pcol);
-			dd->vertex(fx, fya, fza, pcol);
-			dd->vertex(fx, fya+h, fza, pcol);
-			dd->vertex(fx, fyb, fzb, pcol);
-			dd->vertex(fx, fyb+h, fzb, pcol);
+			dd->vertex(fx, fy+h, fza, pcol);
+			dd->vertex(fx, fy+h, fzb, pcol);
+			dd->vertex(fx, fy, fza, pcol);
+			dd->vertex(fx, fy+h, fza, pcol);
+			dd->vertex(fx, fy, fzb, pcol);
+			dd->vertex(fx, fy+h, fzb, pcol);
 		}
 		else if (portal->dir == 3 || portal->dir == 1)
 		{
 			const int yy = portal->dir == 3 ? (int)portal->pos : (int)portal->pos+1;
 			const float fxa = layer->bmin[0] + portal->smin*cs;
 			const float fxb = layer->bmin[0] + portal->smax*cs;
-			const float fya = layer->bmin[1] + (layer->ymin)*ch;
-			const float fyb = layer->bmin[1] + (layer->ymin)*ch;
+			const float fy = layer->bmin[1];
 			const float fz = layer->bmin[2] + yy*cs;
-			dd->vertex(fxa, fya+h, fz, pcol);
-			dd->vertex(fxb, fyb+h, fz, pcol);
-			dd->vertex(fxa, fya, fz, pcol);
-			dd->vertex(fxa, fya+h, fz, pcol);
-			dd->vertex(fxb, fyb, fz, pcol);
-			dd->vertex(fxb, fyb+h, fz, pcol);
+			dd->vertex(fxa, fy+h, fz, pcol);
+			dd->vertex(fxb, fy+h, fz, pcol);
+			dd->vertex(fxa, fy, fz, pcol);
+			dd->vertex(fxa, fy+h, fz, pcol);
+			dd->vertex(fxb, fy, fz, pcol);
+			dd->vertex(fxb, fy+h, fz, pcol);
 		}
 	}
-	dd->end();
+	dd->end();*/
 }
 
 void duDebugDrawHeightfieldLayers(duDebugDraw* dd, const struct rcHeightfieldLayerSet& lset)
@@ -445,8 +480,6 @@ void duDebugDrawHeightfieldLayers(duDebugDraw* dd, const struct rcHeightfieldLay
 		float bmin[3], bmax[3];
 		rcVcopy(bmin, layer->bmin);
 		rcVcopy(bmax, layer->bmax);
-		bmin[1] = layer->bmin[1] + (layer->ymin-1)*ch;
-		bmax[1] = layer->bmin[1] + (layer->ymax+1)*ch;
 		duDebugDrawBoxWire(dd, bmin[0],bmin[1],bmin[2], bmax[0],bmax[1],bmax[2], duTransCol(color,128), 2.0f);
 
 		// Layer height
@@ -505,8 +538,6 @@ void duDebugDrawHeightfieldLayersRegions(duDebugDraw* dd, const struct rcHeightf
 		float bmin[3], bmax[3];
 		rcVcopy(bmin, layer->bmin);
 		rcVcopy(bmax, layer->bmax);
-		bmin[1] = layer->bmin[1] + (layer->ymin-1)*ch;
-		bmax[1] = layer->bmin[1] + (layer->ymax+1)*ch;
 		duDebugDrawBoxWire(dd, bmin[0],bmin[1],bmin[2], bmax[0],bmax[1],bmax[2], duTransCol(color,128), 2.0f);
 		
 		// Layer height

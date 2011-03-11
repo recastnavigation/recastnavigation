@@ -40,12 +40,14 @@ protected:
 	rcPolyMeshDetail* m_dmesh;
 	rcConfig m_cfg;	
 
+
 	static const int MAX_LAYERS = 128;
 	rcHeightfieldLayerSet* m_lset;
 	rcLayerContourSet* m_lcsets[MAX_LAYERS];
 	int m_nlcsets;
 	rcLayerPolyMesh* m_lmeshes[MAX_LAYERS];
 	int m_nlmeshes;
+	
 	
 	enum DrawMode
 	{
@@ -74,7 +76,7 @@ protected:
 		
 		MAX_DRAWMODE
 	};
-	
+		
 	DrawMode m_drawMode;
 	
 	int m_maxTiles;

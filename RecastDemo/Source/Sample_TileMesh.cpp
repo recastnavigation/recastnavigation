@@ -36,6 +36,7 @@
 #include "ConvexVolumeTool.h"
 #include "CrowdTool.h"
 
+
 #ifdef WIN32
 #	define snprintf _snprintf
 #endif
@@ -740,7 +741,7 @@ void Sample_TileMesh::handleRenderOverlay(double* proj, double* model, int* view
 			unsigned int color = duIntToCol(i+1, 255);
 			float pos[3];
 			rcVcopy(pos, layer->bmin);
-			pos[1] = layer->bmin[1] + ((layer->ymin+layer->ymax)/2)*layer->ch;
+			pos[1] = (layer->bmin[1] + layer->bmax[1])*0.5f;
 			if (gluProject((GLdouble)pos[0], (GLdouble)pos[1], (GLdouble)pos[2], model, proj, view, &x, &y, &z))
 			{
 				char text[32];
@@ -912,7 +913,7 @@ void Sample_TileMesh::buildAllTiles()
 	const int th = (gh + ts-1) / ts;
 	const float tcs = m_tileSize*m_cellSize;
 
-
+	
 	// Start the build process.
 	m_ctx->startTimer(RC_TIMER_TEMP);
 
@@ -946,6 +947,7 @@ void Sample_TileMesh::buildAllTiles()
 	m_ctx->stopTimer(RC_TIMER_TEMP);
 
 	m_totalBuildTimeMs = m_ctx->getAccumulatedTime(RC_TIMER_TEMP)/1000.0f;
+	
 }
 
 void Sample_TileMesh::removeAllTiles()
@@ -962,6 +964,7 @@ void Sample_TileMesh::removeAllTiles()
 		for (int x = 0; x < tw; ++x)
 			m_navMesh->removeTile(m_navMesh->getTileRefAt(x,y),0,0);
 }
+
 
 unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const float* bmin, const float* bmax, int& dataSize)
 {
@@ -1161,19 +1164,24 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 		for (int i = 0; i < m_lset->nlayers; ++i)
 		{
 			rcBuildLayerRegions(m_ctx, m_lset->layers[i], m_cfg.walkableClimb);
-
+			
 			m_lcsets[m_nlcsets] = rcAllocLayerContourSet();
 			if (!rcBuildLayerContours(m_ctx, m_lset->layers[i],
 									  m_cfg.walkableClimb, m_cfg.maxSimplificationError,
 									  *m_lcsets[m_nlcsets]))
+			{
 				break;
+			}
 			
 			m_lmeshes[m_nlmeshes] = rcAllocLayerPolyMesh();
 			if (!rcBuildLayerPolyMesh(m_ctx, *m_lcsets[m_nlcsets],
 									  m_cfg.maxVertsPerPoly,
 									  *m_lmeshes[m_nlmeshes]))
+			{
 				break;
-
+			}
+			
+			
 			m_nlcsets++;
 			m_nlmeshes++;
 			
