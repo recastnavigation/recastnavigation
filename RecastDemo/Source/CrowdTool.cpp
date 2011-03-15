@@ -680,10 +680,26 @@ void CrowdTool::handleRender()
 				dd.begin(DU_DRAW_LINES, 2.0f);
 				for (int j = 0; j < ag->nneis; ++j)
 				{
-					const dtCrowdAgent* nei = m_crowd.getAgent(ag->neis[j].idx);
-					if (!nei->active) continue;
-					dd.vertex(pos[0],pos[1]+radius,pos[2], duRGBA(0,192,128,128));
-					dd.vertex(nei->npos[0],nei->npos[1]+radius,nei->npos[2], duRGBA(0,192,128,128));
+					// Get 'n'th active agent.
+					// TODO: fix this properly.
+					int n = ag->neis[j].idx;
+					const dtCrowdAgent* nei = 0;
+					for (int i = 0; i < m_crowd.getAgentCount(); ++i)
+					{
+						const dtCrowdAgent* ag = m_crowd.getAgent(i);
+						if (!ag->active) continue;
+						if (n == 0)
+						{
+							nei = m_crowd.getAgent(ag->neis[j].idx);
+							break;
+						}
+						n--;
+					}
+					if (nei )
+					{
+						dd.vertex(pos[0],pos[1]+radius,pos[2], duRGBA(0,192,128,128));
+						dd.vertex(nei->npos[0],nei->npos[1]+radius,nei->npos[2], duRGBA(0,192,128,128));
+					}
 				}
 				dd.end();
 			}
