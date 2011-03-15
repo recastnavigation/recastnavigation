@@ -164,12 +164,11 @@ class dtCrowd
 	
 	dtNavMeshQuery* m_navquery;
 
-	int getNeighbours(const float* pos, const float height, const float range,
-					  const dtCrowdAgent* skip, dtCrowdNeighbour* result, const int maxResult,
-					  dtCrowdAgent** agents, const int nagents);
 	void updateTopologyOptimization(dtCrowdAgent** agents, const int nagents, const float dt);
 	void updateMoveRequest(const float dt);
 
+	inline int getAgentIndex(const dtCrowdAgent* agent) const  { return agent - m_agents; }
+	
 	void purge();
 	
 public:

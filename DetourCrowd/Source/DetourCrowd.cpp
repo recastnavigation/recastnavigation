@@ -170,6 +170,39 @@ static int addNeighbour(const int idx, const float dist,
 	return dtMin(nneis+1, maxNeis);
 }
 
+static int getNeighbours(const float* pos, const float height, const float range,
+						 const dtCrowdAgent* skip, dtCrowdNeighbour* result, const int maxResult,
+						 dtCrowdAgent** agents, const int nagents, dtProximityGrid* grid)
+{
+	int n = 0;
+	
+	static const int MAX_NEIS = 32;
+	unsigned short ids[MAX_NEIS];
+	int nids = grid->queryItems(pos[0]-range, pos[2]-range,
+								pos[0]+range, pos[2]+range,
+								ids, MAX_NEIS);
+	
+	for (int i = 0; i < nids; ++i)
+	{
+		const dtCrowdAgent* ag = agents[ids[i]];
+		
+		if (ag == skip) continue;
+		
+		// Check for overlap.
+		float diff[3];
+		dtVsub(diff, pos, ag->npos);
+		if (fabsf(diff[1]) >= (height+ag->params.height)/2.0f)
+			continue;
+		diff[1] = 0;
+		const float distSqr = dtVlenSqr(diff);
+		if (distSqr > dtSqr(range))
+			continue;
+		
+		n = addNeighbour(ids[i], distSqr, result, n, maxResult);
+	}
+	return n;
+}
+
 
 
 dtCrowd::dtCrowd() :
@@ -487,40 +520,6 @@ int dtCrowd::getActiveAgents(dtCrowdAgent** agents, const int maxAgents)
 }
 
 
-
-int dtCrowd::getNeighbours(const float* pos, const float height, const float range,
-						   const dtCrowdAgent* skip, dtCrowdNeighbour* result, const int maxResult,
-						   dtCrowdAgent** agents, const int nagents)
-{
-	int n = 0;
-	
-	static const int MAX_NEIS = 32;
-	unsigned short ids[MAX_NEIS];
-	int nids = m_grid->queryItems(pos[0]-range, pos[2]-range,
-								  pos[0]+range, pos[2]+range,
-								  ids, MAX_NEIS);
-	
-	for (int i = 0; i < nids; ++i)
-	{
-		const dtCrowdAgent* ag = agents[ids[i]];
-
-		if (ag == skip) continue;
-
-		// Check for overlap.
-		float diff[3];
-		dtVsub(diff, pos, ag->npos);
-		if (fabsf(diff[1]) >= (height+ag->params.height)/2.0f)
-			continue;
-		diff[1] = 0;
-		const float distSqr = dtVlenSqr(diff);
-		if (distSqr > dtSqr(range))
-			continue;
-		
-		n = addNeighbour(ids[i], distSqr, result, n, maxResult);
-	}
-	return n;
-}
-
 void dtCrowd::updateMoveRequest(const float /*dt*/)
 {
 	// Fire off new requests.
@@ -801,7 +800,8 @@ void dtCrowd::update(const float dt, dtCrowdAgentDebugInfo* debug)
 		}
 		// Query neighbour agents
 		ag->nneis = getNeighbours(ag->npos, ag->params.height, ag->params.collisionQueryRange,
-								  ag, ag->neis, DT_CROWDAGENT_MAX_NEIGHBOURS, agents, nagents);
+								  ag, ag->neis, DT_CROWDAGENT_MAX_NEIGHBOURS,
+								  agents, nagents, m_grid);
 	}
 	
 	// Find next corner to steer to.
@@ -966,7 +966,7 @@ void dtCrowd::update(const float dt, dtCrowdAgentDebugInfo* debug)
 			// Add neighbours as obstacles.
 			for (int j = 0; j < ag->nneis; ++j)
 			{
-				const dtCrowdAgent* nei = &m_agents[ag->neis[j].idx];
+				const dtCrowdAgent* nei = agents[ag->neis[j].idx];
 				m_obstacleQuery->addCircle(nei->npos, nei->params.radius, nei->vel, nei->dvel);
 			}
 
@@ -1025,7 +1025,7 @@ void dtCrowd::update(const float dt, dtCrowdAgentDebugInfo* debug)
 		for (int i = 0; i < nagents; ++i)
 		{
 			dtCrowdAgent* ag = agents[i];
-			const int idx0 = ag - m_agents;
+			const int idx0 = getAgentIndex(ag);
 			
 			if (ag->state != DT_CROWDAGENT_STATE_WALKING)
 				continue;
@@ -1036,8 +1036,8 @@ void dtCrowd::update(const float dt, dtCrowdAgentDebugInfo* debug)
 
 			for (int j = 0; j < ag->nneis; ++j)
 			{
-				const dtCrowdAgent* nei = &m_agents[ag->neis[j].idx];
-				const int idx1 = nei - m_agents;
+				const dtCrowdAgent* nei = agents[ag->neis[j].idx];
+				const int idx1 = getAgentIndex(nei);
 
 				float diff[3];
 				dtVsub(diff, ag->npos, nei->npos);
