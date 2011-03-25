@@ -19,6 +19,7 @@
 #ifndef DETOURCOMMON_H
 #define DETOURCOMMON_H
 
+
 template<class T> inline void dtSwap(T& a, T& b) { T t = a; a = b; b = t; }
 template<class T> inline T dtMin(T a, T b) { return a < b ? a : b; }
 template<class T> inline T dtMax(T a, T b) { return a > b ? a : b; }

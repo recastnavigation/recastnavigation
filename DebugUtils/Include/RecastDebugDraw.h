@@ -29,8 +29,7 @@ void duDebugDrawCompactHeightfieldSolid(struct duDebugDraw* dd, const struct rcC
 void duDebugDrawCompactHeightfieldRegions(struct duDebugDraw* dd, const struct rcCompactHeightfield& chf);
 void duDebugDrawCompactHeightfieldDistance(struct duDebugDraw* dd, const struct rcCompactHeightfield& chf);
 
-void duDebugDrawLeanHeightfieldSolid(duDebugDraw* dd, const struct rcLeanHeightfield& lhf);
-
+void duDebugDrawHeightfieldLayer(duDebugDraw* dd, const struct rcHeightfieldLayer& layer, const int idx);
 void duDebugDrawHeightfieldLayers(duDebugDraw* dd, const struct rcHeightfieldLayerSet& lset);
 void duDebugDrawHeightfieldLayersRegions(duDebugDraw* dd, const struct rcHeightfieldLayerSet& lset);
 

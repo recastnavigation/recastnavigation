@@ -64,6 +64,15 @@ inline bool overlapSlabs(const float* amin, const float* amax,
 	return false;
 }
 
+static float getSlabCoord(const float* va, const int side)
+{
+	if (side == 0 || side == 4)
+		return va[0];
+	else if (side == 2 || side == 6)
+		return va[2];
+	return 0;
+}
+
 static void calcSlabEndPoints(const float* va, const float* vb, float* bmin, float* bmax, const int side)
 {
 	if (side == 0 || side == 4)
@@ -251,6 +260,7 @@ int dtNavMesh::findConnectingPolys(const float* va, const float* vb,
 	
 	float amin[2], amax[2];
 	calcSlabEndPoints(va,vb, amin,amax, side);
+	const float apos = getSlabCoord(va, side);
 
 	// Remove links pointing to 'side' and compact the links array. 
 	float bmin[2], bmax[2];
@@ -267,11 +277,18 @@ int dtNavMesh::findConnectingPolys(const float* va, const float* vb,
 		{
 			// Skip edges which do not point to the right side.
 			if (poly->neis[j] != m) continue;
-			// Check if the segments touch.
+			
 			const float* vc = &tile->verts[poly->verts[j]*3];
 			const float* vd = &tile->verts[poly->verts[(j+1) % nv]*3];
+			const float bpos = getSlabCoord(vc, side);
+			
+			// Segments are not close enough.
+			if (dtAbs(apos-bpos) > 0.01f)
+				continue;
+			
+			// Check if the segments touch.
 			calcSlabEndPoints(vc,vd, bmin,bmax, side);
-
+			
 			if (!overlapSlabs(amin,amax, bmin,bmax, 0.01f, tile->header->walkableClimb)) continue;
 			
 			// Add return value.
@@ -288,9 +305,11 @@ int dtNavMesh::findConnectingPolys(const float* va, const float* vb,
 	return n;
 }
 
-void dtNavMesh::unconnectExtLinks(dtMeshTile* tile, int side)
+void dtNavMesh::unconnectExtLinks(dtMeshTile* tile, dtMeshTile* target)
 {
-	if (!tile) return;
+	if (!tile || !target) return;
+
+	const unsigned int targetNum = decodePolyIdTile(getTileRef(target));
 
 	for (int i = 0; i < tile->header->polyCount; ++i)
 	{
@@ -299,7 +318,8 @@ void dtNavMesh::unconnectExtLinks(dtMeshTile* tile, int side)
 		unsigned int pj = DT_NULL_LINK;
 		while (j != DT_NULL_LINK)
 		{
-			if (tile->links[j].side == side)
+			if (tile->links[j].side != 0xff &&
+				decodePolyIdTile(tile->links[j].ref) == targetNum)
 			{
 				// Revove link.
 				unsigned int nj = tile->links[j].next;
@@ -330,19 +350,25 @@ void dtNavMesh::connectExtLinks(dtMeshTile* tile, dtMeshTile* target, int side)
 		dtPoly* poly = &tile->polys[i];
 
 		// Create new links.
-		unsigned short m = DT_EXT_LINK | (unsigned short)side;
+//		unsigned short m = DT_EXT_LINK | (unsigned short)side;
+		
 		const int nv = poly->vertCount;
 		for (int j = 0; j < nv; ++j)
 		{
-			// Skip edges which do not point to the right side.
-			if (poly->neis[j] != m) continue;
+			// Skip non-portal edges.
+			if ((poly->neis[j] & DT_EXT_LINK) == 0)
+				continue;
+			
+			const int dir = (int)(poly->neis[j] & 0xff);
+			if (side != -1 && dir != side)
+				continue;
 			
 			// Create new links
 			const float* va = &tile->verts[poly->verts[j]*3];
 			const float* vb = &tile->verts[poly->verts[(j+1) % nv]*3];
 			dtPolyRef nei[4];
 			float neia[4*2];
-			int nnei = findConnectingPolys(va,vb, target, dtOppositeTile(side), nei,neia,4);
+			int nnei = findConnectingPolys(va,vb, target, dtOppositeTile(dir), nei,neia,4);
 			for (int k = 0; k < nnei; ++k)
 			{
 				unsigned int idx = allocLink(tile);
@@ -351,13 +377,13 @@ void dtNavMesh::connectExtLinks(dtMeshTile* tile, dtMeshTile* target, int side)
 					dtLink* link = &tile->links[idx];
 					link->ref = nei[k];
 					link->edge = (unsigned char)j;
-					link->side = (unsigned char)side;
+					link->side = (unsigned char)dir;
 					
 					link->next = poly->firstLink;
 					poly->firstLink = idx;
 
 					// Compress portal limits to a byte value.
-					if (side == 0 || side == 4)
+					if (dir == 0 || dir == 4)
 					{
 						float tmin = (neia[k*2+0]-va[2]) / (vb[2]-va[2]);
 						float tmax = (neia[k*2+1]-va[2]) / (vb[2]-va[2]);
@@ -366,7 +392,7 @@ void dtNavMesh::connectExtLinks(dtMeshTile* tile, dtMeshTile* target, int side)
 						link->bmin = (unsigned char)(dtClamp(tmin, 0.0f, 1.0f)*255.0f);
 						link->bmax = (unsigned char)(dtClamp(tmax, 0.0f, 1.0f)*255.0f);
 					}
-					else if (side == 2 || side == 6)
+					else if (dir == 2 || dir == 6)
 					{
 						float tmin = (neia[k*2+0]-va[0]) / (vb[0]-va[0]);
 						float tmax = (neia[k*2+1]-va[0]) / (vb[0]-va[0]);
@@ -711,7 +737,7 @@ dtStatus dtNavMesh::addTile(unsigned char* data, int dataSize, int flags,
 		return DT_FAILURE | DT_WRONG_VERSION;
 		
 	// Make sure the location is free.
-	if (getTileAt(header->x, header->y))
+	if (getTileAt(header->x, header->y, header->layer))
 		return DT_FAILURE;
 		
 	// Allocate a tile.
@@ -783,6 +809,10 @@ dtStatus dtNavMesh::addTile(unsigned char* data, int dataSize, int flags,
 	tile->bvTree = (dtBVNode*)d; d += bvtreeSize;
 	tile->offMeshCons = (dtOffMeshConnection*)d; d += offMeshLinksSize;
 
+	// If there are no items in the bvtree, reset the tree pointer.
+	if (!bvtreeSize)
+		tile->bvTree = 0;
+
 	// Build links freelist
 	tile->linksFreeList = 0;
 	tile->links[header->maxLinkCount-1].next = DT_NULL_LINK;
@@ -798,16 +828,32 @@ dtStatus dtNavMesh::addTile(unsigned char* data, int dataSize, int flags,
 	connectIntLinks(tile);
 	connectIntOffMeshLinks(tile);
 
-	// Create connections connections.
+	// Create connections with neighbour tiles.
+	static const int MAX_NEIS = 32;
+	dtMeshTile* neis[MAX_NEIS];
+	int nneis;
+	
+	// Connect with layers in current tile.
+	nneis = getTilesAt(header->x, header->y, neis, MAX_NEIS);
+	for (int j = 0; j < nneis; ++j)
+	{
+		if (neis[j] == tile) continue;
+		connectExtLinks(tile, neis[j], -1);
+		connectExtLinks(neis[j], tile, -1);
+		connectExtOffMeshLinks(tile, neis[j], -1);
+		connectExtOffMeshLinks(neis[j], tile, -1);
+	}
+	
+	// Connect with neighbour tiles.
 	for (int i = 0; i < 8; ++i)
 	{
-		dtMeshTile* nei = getNeighbourTileAt(header->x, header->y, i);
-		if (nei)
+		nneis = getNeighbourTilesAt(header->x, header->y, i, neis, MAX_NEIS);
+		for (int j = 0; j < nneis; ++j)
 		{
-			connectExtLinks(tile, nei, i);
-			connectExtLinks(nei, tile, dtOppositeTile(i));
-			connectExtOffMeshLinks(tile, nei, i);
-			connectExtOffMeshLinks(nei, tile, dtOppositeTile(i));
+			connectExtLinks(tile, neis[j], i);
+			connectExtLinks(neis[j], tile, dtOppositeTile(i));
+			connectExtOffMeshLinks(tile, neis[j], i);
+			connectExtOffMeshLinks(neis[j], tile, dtOppositeTile(i));
 		}
 	}
 	
@@ -817,55 +863,102 @@ dtStatus dtNavMesh::addTile(unsigned char* data, int dataSize, int flags,
 	return DT_SUCCESS;
 }
 
-const dtMeshTile* dtNavMesh::getTileAt(int x, int y) const
+const dtMeshTile* dtNavMesh::getTileAt(const int x, const int y, const int layer) const
 {
 	// Find tile based on hash.
 	int h = computeTileHash(x,y,m_tileLutMask);
 	dtMeshTile* tile = m_posLookup[h];
 	while (tile)
 	{
-		if (tile->header && tile->header->x == x && tile->header->y == y)
+		if (tile->header &&
+			tile->header->x == x &&
+			tile->header->y == y &&
+			tile->header->layer == layer)
+		{
 			return tile;
+		}
 		tile = tile->next;
 	}
 	return 0;
 }
 
-dtMeshTile* dtNavMesh::getNeighbourTileAt(int x, int y, int side) const
+int dtNavMesh::getNeighbourTilesAt(const int x, const int y, const int side, dtMeshTile** tiles, const int maxTiles) const
 {
+	int nx = x, ny = y;
 	switch (side)
 	{
-		case 0: x++; break;
-		case 1: x++; y++; break;
-		case 2: y++; break;
-		case 3: x--; y++; break;
-		case 4: x--; break;
-		case 5: x--; y--; break;
-		case 6: y--; break;
-		case 7: x++; y--; break;
+		case 0: nx++; break;
+		case 1: nx++; ny++; break;
+		case 2: ny++; break;
+		case 3: nx--; ny++; break;
+		case 4: nx--; break;
+		case 5: nx--; ny--; break;
+		case 6: ny--; break;
+		case 7: nx++; ny--; break;
 	};
 
+	return getTilesAt(nx, ny, tiles, maxTiles);
+}
+
+int dtNavMesh::getTilesAt(const int x, const int y, dtMeshTile** tiles, const int maxTiles) const
+{
+	int n = 0;
+	
 	// Find tile based on hash.
 	int h = computeTileHash(x,y,m_tileLutMask);
 	dtMeshTile* tile = m_posLookup[h];
 	while (tile)
 	{
-		if (tile->header && tile->header->x == x && tile->header->y == y)
-			return tile;
+		if (tile->header &&
+			tile->header->x == x &&
+			tile->header->y == y)
+		{
+			if (n < maxTiles)
+				tiles[n++] = tile;
+		}
 		tile = tile->next;
 	}
-	return 0;
+	
+	return n;
 }
 
-dtTileRef dtNavMesh::getTileRefAt(int x, int y) const
+int dtNavMesh::getTilesAt(const int x, const int y, dtMeshTile const** tiles, const int maxTiles) const
+{
+	int n = 0;
+	
+	// Find tile based on hash.
+	int h = computeTileHash(x,y,m_tileLutMask);
+	dtMeshTile* tile = m_posLookup[h];
+	while (tile)
+	{
+		if (tile->header &&
+			tile->header->x == x &&
+			tile->header->y == y)
+		{
+			if (n < maxTiles)
+				tiles[n++] = tile;
+		}
+		tile = tile->next;
+	}
+	
+	return n;
+}
+
+
+dtTileRef dtNavMesh::getTileRefAt(const int x, const int y, const int layer) const
 {
 	// Find tile based on hash.
 	int h = computeTileHash(x,y,m_tileLutMask);
 	dtMeshTile* tile = m_posLookup[h];
 	while (tile)
 	{
-		if (tile->header && tile->header->x == x && tile->header->y == y)
+		if (tile->header &&
+			tile->header->x == x &&
+			tile->header->y == y &&
+			tile->header->layer == layer)
+		{
 			return getTileRef(tile);
+		}
 		tile = tile->next;
 	}
 	return 0;
@@ -969,14 +1062,27 @@ dtStatus dtNavMesh::removeTile(dtTileRef ref, unsigned char** data, int* dataSiz
 	}
 	
 	// Remove connections to neighbour tiles.
-	for (int i = 0; i < 8; ++i)
+	// Create connections with neighbour tiles.
+	static const int MAX_NEIS = 32;
+	dtMeshTile* neis[MAX_NEIS];
+	int nneis;
+	
+	// Connect with layers in current tile.
+	nneis = getTilesAt(tile->header->x, tile->header->y, neis, MAX_NEIS);
+	for (int j = 0; j < nneis; ++j)
 	{
-		dtMeshTile* nei = getNeighbourTileAt(tile->header->x,tile->header->y,i);
-		if (!nei) continue;
-		unconnectExtLinks(nei, dtOppositeTile(i));
+		if (neis[j] == tile) continue;
+		unconnectExtLinks(neis[j], tile);
 	}
 	
-	
+	// Connect with neighbour tiles.
+	for (int i = 0; i < 8; ++i)
+	{
+		nneis = getNeighbourTilesAt(tile->header->x, tile->header->y, i, neis, MAX_NEIS);
+		for (int j = 0; j < nneis; ++j)
+			unconnectExtLinks(neis[j], tile);
+	}
+		
 	// Reset tile.
 	if (tile->flags & DT_TILE_FREE_DATA)
 	{

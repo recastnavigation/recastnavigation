@@ -175,16 +175,12 @@ Sample_TileMesh::Sample_TileMesh() :
 	m_keepInterResults(false),
 	m_buildAll(true),
 	m_totalBuildTimeMs(0),
-	m_drawPortals(false),
 	m_triareas(0),
 	m_solid(0),
 	m_chf(0),
 	m_cset(0),
 	m_pmesh(0),
 	m_dmesh(0),
-	m_lset(0),
-	m_nlcsets(0),
-	m_nlmeshes(0),
 	m_drawMode(DRAWMODE_NAVMESH),
 	m_maxTiles(0),
 	m_maxPolysPerTile(0),
@@ -197,9 +193,6 @@ Sample_TileMesh::Sample_TileMesh() :
 	resetCommonSettings();
 	memset(m_tileBmin, 0, sizeof(m_tileBmin));
 	memset(m_tileBmax, 0, sizeof(m_tileBmax));
-
-	memset(m_lcsets, 0, sizeof(m_lcsets));
-	memset(m_lmeshes, 0, sizeof(m_lmeshes));
 	
 	setTool(new NavMeshTileTool);
 }
@@ -225,23 +218,6 @@ void Sample_TileMesh::cleanup()
 	m_pmesh = 0;
 	rcFreePolyMeshDetail(m_dmesh);
 	m_dmesh = 0;
-
-	rcFreeHeightfieldLayerSet(m_lset);
-	m_lset = 0;
-	
-	for (int i = 0; i < MAX_LAYERS; ++i)
-	{
-		rcFreeLayerContourSet(m_lcsets[i]);
-		m_lcsets[i] = 0;
-	}
-	m_nlcsets = 0;
-
-	for (int i = 0; i < MAX_LAYERS; ++i)
-	{
-		rcFreeLayerPolyMesh(m_lmeshes[i]);
-		m_lmeshes[i] = 0;
-	}
-	m_nlmeshes = 0;
 }
 
 
@@ -490,9 +466,6 @@ void Sample_TileMesh::handleDebugMode()
 		valid[DRAWMODE_CONTOURS] = m_cset != 0;
 		valid[DRAWMODE_POLYMESH] = m_pmesh != 0;
 		valid[DRAWMODE_POLYMESH_DETAIL] = m_dmesh != 0;
-		valid[DRAWMODE_HEIGHFIELD_LAYERS] = m_lset != 0;
-		valid[DRAWMODE_LAYER_CONTOURS] = m_nlcsets != 0;
-		valid[DRAWMODE_LAYER_MESHES] = m_nlmeshes != 0;
 	}
 	
 	int unavail = 0;
@@ -539,16 +512,7 @@ void Sample_TileMesh::handleDebugMode()
 		m_drawMode = DRAWMODE_POLYMESH;
 	if (imguiCheck("Poly Mesh Detail", m_drawMode == DRAWMODE_POLYMESH_DETAIL, valid[DRAWMODE_POLYMESH_DETAIL]))
 		m_drawMode = DRAWMODE_POLYMESH_DETAIL;
-	
-	imguiSeparatorLine();
-	
-	if (imguiCheck("Heighfield Layers", m_drawMode == DRAWMODE_HEIGHFIELD_LAYERS, valid[DRAWMODE_HEIGHFIELD_LAYERS]))
-		m_drawMode = DRAWMODE_HEIGHFIELD_LAYERS;
-	if (imguiCheck("Layer Contours", m_drawMode == DRAWMODE_LAYER_CONTOURS, valid[DRAWMODE_LAYER_CONTOURS]))
-		m_drawMode = DRAWMODE_LAYER_CONTOURS;
-	if (imguiCheck("Layer Meshes", m_drawMode == DRAWMODE_LAYER_MESHES, valid[DRAWMODE_LAYER_MESHES]))
-		m_drawMode = DRAWMODE_LAYER_MESHES;
-	
+		
 	if (unavail)
 	{
 		imguiValue("Tick 'Keep Itermediate Results'");
@@ -575,13 +539,7 @@ void Sample_TileMesh::handleRender()
 								m_agentMaxSlope, texScale);
 		m_geom->drawOffMeshConnections(&dd);
 	}
-	
-
-	
-/*	duDebugDrawTriMesh(&dd, m_geom->getMesh()->getVerts(), m_geom->getMesh()->getVertCount(),
-					   m_geom->getMesh()->getTris(), m_geom->getMesh()->getNormals(), m_geom->getMesh()->getTriCount(), 0);
-	m_geom->drawOffMeshConnections(&dd);*/
-	
+		
 	glDepthMask(GL_FALSE);
 	
 	// Draw bounds
@@ -598,15 +556,9 @@ void Sample_TileMesh::handleRender()
 	duDebugDrawGridXZ(&dd, bmin[0],bmin[1],bmin[2], tw,th, s, duRGBA(0,0,0,64), 1.0f);
 	
 	// Draw active tile
-	duDebugDrawBoxWire(&dd, m_tileBmin[0],m_tileBmin[1],m_tileBmin[2], m_tileBmax[0],m_tileBmax[1],m_tileBmax[2], m_tileCol, 1.0f);
-	
-/*	if (m_navMesh)
-	{
-		duDebugDrawNavMeshWithClosedList(&dd, *m_navMesh, *m_navQuery, m_navMeshDrawFlags);
-		if (m_drawPortals)
-			duDebugDrawNavMeshPortals(&dd, *m_navMesh);
-	}*/
-	
+	duDebugDrawBoxWire(&dd, m_tileBmin[0],m_tileBmin[1],m_tileBmin[2],
+					   m_tileBmax[0],m_tileBmax[1],m_tileBmax[2], m_tileCol, 1.0f);
+		
 	if (m_navMesh && m_navQuery &&
 		(m_drawMode == DRAWMODE_NAVMESH ||
 		 m_drawMode == DRAWMODE_NAVMESH_TRANS ||
@@ -688,30 +640,7 @@ void Sample_TileMesh::handleRender()
 		duDebugDrawPolyMeshDetail(&dd, *m_dmesh);
 		glDepthMask(GL_TRUE);
 	}
-	
-	if (m_lset && m_drawMode == DRAWMODE_HEIGHFIELD_LAYERS)
-	{
-		glDepthMask(GL_FALSE);
-		duDebugDrawHeightfieldLayersRegions(&dd, *m_lset);
-		glDepthMask(GL_TRUE);
-	}
-
-	if (m_nlcsets && m_drawMode == DRAWMODE_LAYER_CONTOURS)
-	{
-		glDepthMask(GL_FALSE);
-		for (int i = 0; i < m_nlcsets; ++i)
-			duDebugDrawLayerContours(&dd, *m_lcsets[i]);
-		glDepthMask(GL_TRUE);
-	}
-
-	if (m_nlmeshes && m_drawMode == DRAWMODE_LAYER_MESHES)
-	{
-		glDepthMask(GL_FALSE);
-		for (int i = 0; i < m_nlmeshes; ++i)
-			duDebugDrawLayerPolyMesh(&dd, *m_lmeshes[i]);
-		glDepthMask(GL_TRUE);
-	}
-	
+		
 	m_geom->drawConvexVolumes(&dd);
 	
 	if (m_tool)
@@ -725,32 +654,12 @@ void Sample_TileMesh::handleRenderOverlay(double* proj, double* model, int* view
 	GLdouble x, y, z;
 	
 	// Draw start and end point labels
-/*	if (m_tileBuildTime > 0.0f && gluProject((GLdouble)(m_tileBmin[0]+m_tileBmax[0])/2, (GLdouble)(m_tileBmin[1]+m_tileBmax[1])/2, (GLdouble)(m_tileBmin[2]+m_tileBmax[2])/2,
+	if (m_tileBuildTime > 0.0f && gluProject((GLdouble)(m_tileBmin[0]+m_tileBmax[0])/2, (GLdouble)(m_tileBmin[1]+m_tileBmax[1])/2, (GLdouble)(m_tileBmin[2]+m_tileBmax[2])/2,
 											 model, proj, view, &x, &y, &z))
 	{
 		char text[32];
 		snprintf(text,32,"%.3fms / %dTris / %.1fkB", m_tileBuildTime, m_tileTriCount, m_tileMemUsage);
 		imguiDrawText((int)x, (int)y-25, IMGUI_ALIGN_CENTER, text, imguiRGBA(0,0,0,220));
-	}*/
-	
-	if (m_lset && m_drawMode == DRAWMODE_HEIGHFIELD_LAYERS)
-	{
-		for (int i = 0; i < m_lset->nlayers; ++i)
-		{
-			const rcHeightfieldLayer* layer = &m_lset->layers[i];
-			unsigned int color = duIntToCol(i+1, 255);
-			float pos[3];
-			rcVcopy(pos, layer->bmin);
-			pos[1] = (layer->bmin[1] + layer->bmax[1])*0.5f;
-			if (gluProject((GLdouble)pos[0], (GLdouble)pos[1], (GLdouble)pos[2], model, proj, view, &x, &y, &z))
-			{
-				char text[32];
-				snprintf(text,32,"Layer %d", i+1);
-				imguiDrawRoundedRect(x+10-6,y-6,100,20, 4, duTransCol(color,128));
-				imguiDrawText((int)x+10, (int)y, IMGUI_ALIGN_LEFT, text, imguiRGBA(255,255,255,255));
-			}
-			
-		}
 	}
 	
 	if (m_tool)
@@ -852,7 +761,7 @@ void Sample_TileMesh::buildTile(const float* pos)
 	if (data)
 	{
 		// Remove any previous data (navmesh owns and deletes the data).
-		m_navMesh->removeTile(m_navMesh->getTileRefAt(tx,ty),0,0);
+		m_navMesh->removeTile(m_navMesh->getTileRefAt(tx,ty,0),0,0);
 		
 		// Let the navmesh own the data.
 		dtStatus status = m_navMesh->addTile(data,dataSize,DT_TILE_FREE_DATA,0,0);
@@ -896,7 +805,7 @@ void Sample_TileMesh::removeTile(const float* pos)
 	
 	m_tileCol = duRGBA(128,32,16,64);
 	
-	m_navMesh->removeTile(m_navMesh->getTileRefAt(tx,ty),0,0);
+	m_navMesh->removeTile(m_navMesh->getTileRefAt(tx,ty,0),0,0);
 }
 
 void Sample_TileMesh::buildAllTiles()
@@ -934,7 +843,7 @@ void Sample_TileMesh::buildAllTiles()
 			if (data)
 			{
 				// Remove any previous data (navmesh owns and deletes the data).
-				m_navMesh->removeTile(m_navMesh->getTileRefAt(x,y),0,0);
+				m_navMesh->removeTile(m_navMesh->getTileRefAt(x,y,0),0,0);
 				// Let the navmesh own the data.
 				dtStatus status = m_navMesh->addTile(data,dataSize,DT_TILE_FREE_DATA,0,0);
 				if (dtStatusFailed(status))
@@ -962,7 +871,7 @@ void Sample_TileMesh::removeAllTiles()
 	
 	for (int y = 0; y < th; ++y)
 		for (int x = 0; x < tw; ++x)
-			m_navMesh->removeTile(m_navMesh->getTileRefAt(x,y),0,0);
+			m_navMesh->removeTile(m_navMesh->getTileRefAt(x,y,0),0,0);
 }
 
 
@@ -1109,7 +1018,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	if (!rcErodeWalkableArea(m_ctx, m_cfg.walkableRadius, *m_chf))
 	{
 		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Could not erode.");
-		return false;
+		return 0;
 	}
 
 	// (Optional) Mark areas.
@@ -1142,53 +1051,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 			return 0;
 		}
 	}
- 
-
-	// TODO: Remove
-	// NOTE! This is for heighfield layer testing only, not needed for general build process!
-	{
-		m_lset = rcAllocHeightfieldLayerSet();
-		if (!m_lset)
-		{
-			m_ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'lset'.");
-			return 0;
-		}
-		if (!rcBuildHeightfieldLayers(m_ctx, *m_chf, m_cfg.borderSize, m_cfg.walkableHeight, *m_lset))
-		{
-			m_ctx->log(RC_LOG_ERROR, "buildNavigation: Could not build heighfield layers.");
-			return 0;
-		}
-		
-		m_nlcsets = 0;
-		m_nlmeshes = 0;
-		for (int i = 0; i < m_lset->nlayers; ++i)
-		{
-			rcBuildLayerRegions(m_ctx, m_lset->layers[i], m_cfg.walkableClimb);
-			
-			m_lcsets[m_nlcsets] = rcAllocLayerContourSet();
-			if (!rcBuildLayerContours(m_ctx, m_lset->layers[i],
-									  m_cfg.walkableClimb, m_cfg.maxSimplificationError,
-									  *m_lcsets[m_nlcsets]))
-			{
-				break;
-			}
-			
-			m_lmeshes[m_nlmeshes] = rcAllocLayerPolyMesh();
-			if (!rcBuildLayerPolyMesh(m_ctx, *m_lcsets[m_nlcsets],
-									  m_cfg.maxVertsPerPoly,
-									  *m_lmeshes[m_nlmeshes]))
-			{
-				break;
-			}
-			
-			
-			m_nlcsets++;
-			m_nlmeshes++;
-			
-		}
-	}
-	
-	
+ 	
 	// Create contours.
 	m_cset = rcAllocContourSet();
 	if (!m_cset)
@@ -1248,14 +1111,6 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	int navDataSize = 0;
 	if (m_cfg.maxVertsPerPoly <= DT_VERTS_PER_POLYGON)
 	{
-		// Remove padding from the polymesh data. TODO: Remove this odditity.
-		for (int i = 0; i < m_pmesh->nverts; ++i)
-		{
-			unsigned short* v = &m_pmesh->verts[i*3];
-			v[0] -= (unsigned short)m_cfg.borderSize;
-			v[2] -= (unsigned short)m_cfg.borderSize;
-		}
-		
 		if (m_pmesh->nverts >= 0xffff)
 		{
 			// The vertex indices are ushorts, and cannot point to more than 0xffff vertices.
@@ -1311,26 +1166,18 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 		params.walkableClimb = m_agentMaxClimb;
 		params.tileX = tx;
 		params.tileY = ty;
-		rcVcopy(params.bmin, bmin);
-		rcVcopy(params.bmax, bmax);
+		params.tileLayer = 0;
+		rcVcopy(params.bmin, m_pmesh->bmin);
+		rcVcopy(params.bmax, m_pmesh->bmax);
 		params.cs = m_cfg.cs;
 		params.ch = m_cfg.ch;
-		params.tileSize = m_cfg.tileSize;
+		params.buildBvTree = true;
 		
 		if (!dtCreateNavMeshData(&params, &navData, &navDataSize))
 		{
 			m_ctx->log(RC_LOG_ERROR, "Could not build Detour navmesh.");
 			return 0;
-		}
-		
-		// Restore padding so that the debug visualization is correct.
-		for (int i = 0; i < m_pmesh->nverts; ++i)
-		{
-			unsigned short* v = &m_pmesh->verts[i*3];
-			v[0] += (unsigned short)m_cfg.borderSize;
-			v[2] += (unsigned short)m_cfg.borderSize;
-		}
-		
+		}		
 	}
 	m_tileMemUsage = navDataSize/1024.0f;
 	

@@ -130,7 +130,7 @@ void duDebugDrawBox(struct duDebugDraw* dd, float minx, float miny, float minz,
 {
 	if (!dd) return;
 	
-	dd->begin(DU_DRAW_TRIS);
+	dd->begin(DU_DRAW_QUADS);
 	duAppendBox(dd, minx,miny,minz, maxx,maxy,maxz, fcol);
 	dd->end();
 }

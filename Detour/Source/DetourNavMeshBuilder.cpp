@@ -252,8 +252,6 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 		return false;
 	if (!params->polyCount || !params->polys)
 		return false;
-//	if (!params->detailMeshes || !params->detailVerts || !params->detailTris)
-//		return false;
 
 	const int nvp = params->nvp;
 	
@@ -298,23 +296,13 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 		for (int j = 0; j < nvp; ++j)
 		{
 			if (p[j] == MESH_NULL_IDX) break;
-			int nj = j+1;
-			if (nj >= nvp || p[nj] == MESH_NULL_IDX) nj = 0;
-			const unsigned short* va = &params->verts[p[j]*3];
-			const unsigned short* vb = &params->verts[p[nj]*3];
-			
 			edgeCount++;
 			
-			if (params->tileSize > 0)
+			if (p[nvp+j] & 0x8000)
 			{
-				if (va[0] == params->tileSize && vb[0] == params->tileSize)
-					portalCount++; // x+
-				else if (va[2] == params->tileSize && vb[2] == params->tileSize)
-					portalCount++; // z+
-				else if (va[0] == 0 && vb[0] == 0)
-					portalCount++; // x-
-				else if (va[2] == 0 && vb[2] == 0)
-					portalCount++; // z-
+				unsigned short dir = p[nvp+j] & 0xf;
+				if (dir != 0xf)
+					portalCount++;
 			}
 		}
 	}
@@ -368,7 +356,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	const int detailMeshesSize = dtAlign4(sizeof(dtPolyDetail)*params->polyCount);
 	const int detailVertsSize = dtAlign4(sizeof(float)*3*uniqueDetailVertCount);
 	const int detailTrisSize = dtAlign4(sizeof(unsigned char)*4*detailTriCount);
-	const int bvTreeSize = dtAlign4(sizeof(dtBVNode)*params->polyCount*2);
+	const int bvTreeSize = params->buildBvTree ? dtAlign4(sizeof(dtBVNode)*params->polyCount*2) : 0;
 	const int offMeshConsSize = dtAlign4(sizeof(dtOffMeshConnection)*storedOffMeshConCount);
 	
 	const int dataSize = headerSize + vertsSize + polysSize + linksSize +
@@ -400,6 +388,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	header->version = DT_NAVMESH_VERSION;
 	header->x = params->tileX;
 	header->y = params->tileY;
+	header->layer = params->tileLayer;
 	header->userId = params->userId;
 	header->polyCount = totPolyCount;
 	header->vertCount = totVertCount;
@@ -415,7 +404,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	header->walkableRadius = params->walkableRadius;
 	header->walkableClimb = params->walkableClimb;
 	header->offMeshConCount = storedOffMeshConCount;
-	header->bvNodeCount = params->polyCount*2;
+	header->bvNodeCount = params->buildBvTree ? params->polyCount*2 : 0;
 	
 	const int offMeshVertsBase = params->vertCount;
 	const int offMeshPolyBase = params->polyCount;
@@ -459,7 +448,27 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 		{
 			if (src[j] == MESH_NULL_IDX) break;
 			p->verts[j] = src[j];
-			p->neis[j] = (src[nvp+j]+1) & 0xffff;
+			if (src[nvp+j] & 0x8000)
+			{
+				// Border or portal edge.
+				unsigned short dir = src[nvp+j] & 0xf;
+				if (dir == 0xf) // Border
+					p->neis[j] = 0;
+				else if (dir == 0) // Portal x-
+					p->neis[j] = DT_EXT_LINK | 4;
+				else if (dir == 1) // Portal z+
+					p->neis[j] = DT_EXT_LINK | 2;
+				else if (dir == 2) // Portal x+
+					p->neis[j] = DT_EXT_LINK | 0;
+				else if (dir == 3) // Portal z-
+					p->neis[j] = DT_EXT_LINK | 6;
+			}
+			else
+			{
+				// Normal connection
+				p->neis[j] = src[nvp+j]+1;
+			}
+			
 			p->vertCount++;
 		}
 		src += nvp*2;
@@ -479,32 +488,6 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 			p->setArea(params->offMeshConAreas[i]);
 			p->setType(DT_POLYTYPE_OFFMESH_CONNECTION);
 			n++;
-		}
-	}
-	
-	// Store portal edges.
-	if (params->tileSize > 0)
-	{
-		for (int i = 0; i < params->polyCount; ++i)
-		{
-			dtPoly* poly = &navPolys[i];
-			for (int j = 0; j < poly->vertCount; ++j)
-			{
-				int nj = j+1;
-				if (nj >= poly->vertCount) nj = 0;
-
-				const unsigned short* va = &params->verts[poly->verts[j]*3];
-				const unsigned short* vb = &params->verts[poly->verts[nj]*3];
-							
-				if (va[0] == params->tileSize && vb[0] == params->tileSize) // x+
-					poly->neis[j] = DT_EXT_LINK | 0;
-				else if (va[2] == params->tileSize && vb[2]  == params->tileSize) // z+
-					poly->neis[j] = DT_EXT_LINK | 2;
-				else if (va[0] == 0 && vb[0] == 0) // x-
-					poly->neis[j] = DT_EXT_LINK | 4;
-				else if (va[2] == 0 && vb[2] == 0) // z-
-					poly->neis[j] = DT_EXT_LINK | 6;
-			}
 		}
 	}
 
@@ -564,8 +547,11 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 
 	// Store and create BVtree.
 	// TODO: take detail mesh into account! use byte per bbox extent?
-	createBVTree(params->verts, params->vertCount, params->polys, params->polyCount,
-				 nvp, params->cs, params->ch, params->polyCount*2, navBvtree);
+	if (params->buildBvTree)
+	{
+		createBVTree(params->verts, params->vertCount, params->polys, params->polyCount,
+					 nvp, params->cs, params->ch, params->polyCount*2, navBvtree);
+	}
 	
 	// Store Off-Mesh connections.
 	n = 0;
@@ -653,6 +639,7 @@ bool dtNavMeshHeaderSwapEndian(unsigned char* data, const int /*dataSize*/)
 	swapEndian(&header->version);
 	swapEndian(&header->x);
 	swapEndian(&header->y);
+	swapEndian(&header->layer);
 	swapEndian(&header->userId);
 	swapEndian(&header->polyCount);
 	swapEndian(&header->vertCount);

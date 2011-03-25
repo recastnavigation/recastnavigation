@@ -21,11 +21,13 @@
 
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"
+#include "DetourTileCacheBuilder.h"
 
 enum DrawNavMeshFlags
 {
 	DU_DRAWNAVMESH_OFFMESHCONS = 0x01,
 	DU_DRAWNAVMESH_CLOSEDLIST = 0x02,
+	DU_DRAWNAVMESH_COLOR_TILES = 0x04,
 };
 
 void duDebugDrawNavMesh(struct duDebugDraw* dd, const dtNavMesh& mesh, unsigned char flags);
@@ -34,5 +36,9 @@ void duDebugDrawNavMeshNodes(struct duDebugDraw* dd, const dtNavMeshQuery& query
 void duDebugDrawNavMeshBVTree(struct duDebugDraw* dd, const dtNavMesh& mesh);
 void duDebugDrawNavMeshPortals(struct duDebugDraw* dd, const dtNavMesh& mesh);
 void duDebugDrawNavMeshPoly(struct duDebugDraw* dd, const dtNavMesh& mesh, dtPolyRef ref, const unsigned int col);
+
+void duDebugDrawTileCacheLayer(struct duDebugDraw* dd, const dtTileCacheLayer& layer,
+							   const float* bmin, const float* bmax,
+							   const float cs, const float ch, const int idx);
 
 #endif // DETOURDEBUGDRAW_H

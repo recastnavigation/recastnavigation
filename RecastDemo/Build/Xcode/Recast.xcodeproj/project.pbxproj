@@ -27,6 +27,7 @@
 		6B3F9D6D13179EFC000B33D9 /* RecastLayers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B3F9D6C13179EFC000B33D9 /* RecastLayers.cpp */; };
 		6B555DB1100B212E00247EA3 /* imguiRenderGL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */; };
 		6B5683B812D9E7D3000B9960 /* Sample_TempObstacles.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B5683B712D9E7D3000B9960 /* Sample_TempObstacles.cpp */; };
+		6B5DC3B713350E6300D33D05 /* DetourTileCacheBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B5DC3B513350E6300D33D05 /* DetourTileCacheBuilder.cpp */; };
 		6B62416A103434880002E346 /* RecastMeshDetail.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B624169103434880002E346 /* RecastMeshDetail.cpp */; };
 		6B8036AE113BAABE005ED67B /* Sample_Debug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B8036AD113BAABE005ED67B /* Sample_Debug.cpp */; };
 		6B847777122D221D00ADF63D /* ValueHistory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B847776122D221C00ADF63D /* ValueHistory.cpp */; };
@@ -103,6 +104,8 @@
 		6B555DF6100B273500247EA3 /* stb_truetype.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stb_truetype.h; path = ../../Contrib/stb_truetype.h; sourceTree = SOURCE_ROOT; };
 		6B5683B612D9E7D3000B9960 /* Sample_TempObstacles.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Sample_TempObstacles.h; path = ../../Include/Sample_TempObstacles.h; sourceTree = SOURCE_ROOT; };
 		6B5683B712D9E7D3000B9960 /* Sample_TempObstacles.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Sample_TempObstacles.cpp; path = ../../Source/Sample_TempObstacles.cpp; sourceTree = SOURCE_ROOT; };
+		6B5DC3B513350E6300D33D05 /* DetourTileCacheBuilder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DetourTileCacheBuilder.cpp; sourceTree = "<group>"; };
+		6B5DC3B613350E6300D33D05 /* DetourTileCacheBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DetourTileCacheBuilder.h; sourceTree = "<group>"; };
 		6B624169103434880002E346 /* RecastMeshDetail.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RecastMeshDetail.cpp; path = ../../../Recast/Source/RecastMeshDetail.cpp; sourceTree = SOURCE_ROOT; };
 		6B8036AC113BAABE005ED67B /* Sample_Debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Sample_Debug.h; path = ../../Include/Sample_Debug.h; sourceTree = SOURCE_ROOT; };
 		6B8036AD113BAABE005ED67B /* Sample_Debug.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Sample_Debug.cpp; path = ../../Source/Sample_Debug.cpp; sourceTree = SOURCE_ROOT; };
@@ -110,6 +113,7 @@
 		6B847776122D221C00ADF63D /* ValueHistory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ValueHistory.cpp; path = ../../Source/ValueHistory.cpp; sourceTree = SOURCE_ROOT; };
 		6B8632D90F78122C00E2684A /* SDL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL.framework; path = Library/Frameworks/SDL.framework; sourceTree = SDKROOT; };
 		6B8632DB0F78123E00E2684A /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		6B86B21213387FB200B14842 /* DetourStatus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DetourStatus.h; path = ../../../Detour/Include/DetourStatus.h; sourceTree = SOURCE_ROOT; };
 		6B86C9A812F69DD500C92D2E /* fastlz.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = fastlz.c; path = ../../Contrib/fastlz/fastlz.c; sourceTree = SOURCE_ROOT; };
 		6B86C9A912F69DD500C92D2E /* fastlz.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fastlz.h; path = ../../Contrib/fastlz/fastlz.h; sourceTree = SOURCE_ROOT; };
 		6B8DE88710B69E3E00DF20FB /* DetourNavMesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DetourNavMesh.cpp; path = ../../../Detour/Source/DetourNavMesh.cpp; sourceTree = SOURCE_ROOT; };
@@ -189,10 +193,11 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				6BB5012B12F458AE001B1957 /* DetourCrowd */,
 				6BB5012A12F45891001B1957 /* Contrib */,
 				6BB93C7610CFE1BD00F74F2B /* DebugUtils */,
 				6BDD9E030F91110C00904EEF /* Detour */,
+				6BB5012B12F458AE001B1957 /* DetourCrowd */,
+				6B5DC3B413350E6300D33D05 /* DetourTileCache */,
 				6B137C7D0F7FCBE800459200 /* Recast */,
 				6B555DF5100B25FC00247EA3 /* Samples */,
 				6BB7FE8E10F4A175006DA0A6 /* Tools */,
@@ -330,6 +335,16 @@
 			name = Samples;
 			sourceTree = "<group>";
 		};
+		6B5DC3B413350E6300D33D05 /* DetourTileCache */ = {
+			isa = PBXGroup;
+			children = (
+				6B5DC3B613350E6300D33D05 /* DetourTileCacheBuilder.h */,
+				6B5DC3B513350E6300D33D05 /* DetourTileCacheBuilder.cpp */,
+			);
+			name = DetourTileCache;
+			path = ../../../DetourTileCache;
+			sourceTree = SOURCE_ROOT;
+		};
 		6BB5012A12F45891001B1957 /* Contrib */ = {
 			isa = PBXGroup;
 			children = (
@@ -406,6 +421,7 @@
 				6B1185F41006895B0018F96F /* DetourNode.cpp */,
 				6B1185FC10068B040018F96F /* DetourCommon.h */,
 				6B1185FD10068B150018F96F /* DetourCommon.cpp */,
+				6B86B21213387FB200B14842 /* DetourStatus.h */,
 			);
 			name = Detour;
 			sourceTree = "<group>";
@@ -515,6 +531,7 @@
 				6B86C9AA12F69DD500C92D2E /* fastlz.c in Sources */,
 				6B3F9D6D13179EFC000B33D9 /* RecastLayers.cpp in Sources */,
 				6BD1B1D01323E2EC00587F83 /* Sample_SoloMesh.cpp in Sources */,
+				6B5DC3B713350E6300D33D05 /* DetourTileCacheBuilder.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

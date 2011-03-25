@@ -51,7 +51,7 @@ struct dtNavMeshCreateParams
 	int offMeshConCount;					// Number of off-mesh connections
 	// Tile location
 	unsigned int userId;					// User ID bound to the tile.
-	int tileX, tileY;						// Tile location (tile coords).
+	int tileX, tileY, tileLayer;			// Tile location (tile coords).
 	float bmin[3], bmax[3];					// Tile bounds (wu).
 	// Settings
 	float walkableHeight;					// Agent height (wu).
@@ -59,7 +59,7 @@ struct dtNavMeshCreateParams
 	float walkableClimb;					// Agent max climb (wu).
 	float cs;								// Cell size (xz) (wu).
 	float ch;								// Cell height (y) (wu).
-	int tileSize;							// Tile size (width & height) (vx).
+	bool buildBvTree;						// Flag indicating if BVTree for polygon query should be build.
 };
 
 // Build navmesh data from given input data.

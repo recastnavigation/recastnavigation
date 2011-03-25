@@ -30,7 +30,6 @@ class Sample_TempObstacles : public Sample
 protected:
 	bool m_keepInterResults;
 	float m_cacheBuildTimeMs;
-	bool m_drawPortals;
 
 	class TileCache* m_tileCache;
 	class ObstacleSet* m_obs;
@@ -44,6 +43,7 @@ protected:
 		DRAWMODE_NAVMESH_PORTALS,
 		DRAWMODE_NAVMESH_INVIS,
 		DRAWMODE_MESH,
+		DRAWMODE_CACHE_BOUNDS,
 		MAX_DRAWMODE
 	};
 	

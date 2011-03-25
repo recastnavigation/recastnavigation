@@ -20,6 +20,8 @@
 #define DETOURNAVMESH_H
 
 #include "DetourAlloc.h"
+#include "DetourStatus.h"
+
 
 // Note: If you want to use 64-bit refs, change the types of both dtPolyRef & dtTileRef.
 // It is also recommended to change dtHashRef() to proper 64-bit hash too.
@@ -34,7 +36,7 @@ typedef unsigned int dtTileRef;
 static const int DT_VERTS_PER_POLYGON = 6;
 
 static const int DT_NAVMESH_MAGIC = 'D'<<24 | 'N'<<16 | 'A'<<8 | 'V'; //'DNAV';
-static const int DT_NAVMESH_VERSION = 6;
+static const int DT_NAVMESH_VERSION = 7;
 
 static const int DT_NAVMESH_STATE_MAGIC = 'D'<<24 | 'N'<<16 | 'M'<<8 | 'S'; //'DNMS';
 static const int DT_NAVMESH_STATE_VERSION = 1;
@@ -65,49 +67,6 @@ enum dtPolyTypes
 	DT_POLYTYPE_GROUND = 0,						// Regular ground polygons.
 	DT_POLYTYPE_OFFMESH_CONNECTION = 1,			// Off-mesh connections.
 };
-
-
-typedef unsigned int dtStatus;
-
-// High level status.
-static const unsigned int DT_FAILURE = 1u << 31;			// Operation failed.
-static const unsigned int DT_SUCCESS = 1u << 30;			// Operation succeed.
-static const unsigned int DT_IN_PROGRESS = 1u << 29;		// Operation still in progress.
-
-// Detail information for status.
-static const unsigned int DT_STATUS_DETAIL_MASK = 0x0ffffff;
-static const unsigned int DT_WRONG_MAGIC = 1 << 0;		// Input data is not recognized.
-static const unsigned int DT_WRONG_VERSION = 1 << 1;	// Input data is in wrong version.
-static const unsigned int DT_OUT_OF_MEMORY = 1 << 2;	// Operation ran out of memory.
-static const unsigned int DT_INVALID_PARAM = 1 << 3;	// An input parameter was invalid.
-static const unsigned int DT_BUFFER_TOO_SMALL = 1 << 4;	// Result buffer for the query was too small to store all results.
-static const unsigned int DT_OUT_OF_NODES = 1 << 5;		// Query ran out of nodes during search.
-static const unsigned int DT_PARTIAL_RESULT = 1 << 6;	// Query did not reach the end location, returning best guess. 
-
-
-// Returns true of status is success.
-inline bool dtStatusSucceed(dtStatus status)
-{
-	return (status & DT_SUCCESS) != 0;
-}
-
-// Returns true of status is failure.
-inline bool dtStatusFailed(dtStatus status)
-{
-	return (status & DT_FAILURE) != 0;
-}
-
-// Returns true of status is in progress.
-inline bool dtStatusInProgress(dtStatus status)
-{
-	return (status & DT_IN_PROGRESS) != 0;
-}
-
-// Returns true if specific detail is set.
-inline bool dtStatusDetail(dtStatus status, unsigned int detail)
-{
-	return (status & detail) != 0;
-}
 
 
 // Structure describing the navigation polygon data.
@@ -164,7 +123,7 @@ struct dtMeshHeader
 {
 	int magic;								// Magic number, used to identify the data.
 	int version;							// Data version number.
-	int x, y;								// Location of the time on the grid.
+	int x, y, layer;						// Location of the tile on the grid.
 	unsigned int userId;					// User ID of the tile.
 	int polyCount;							// Number of polygons in the tile.
 	int vertCount;							// Number of vertices in the tile.
@@ -265,14 +224,17 @@ public:
 	// Params:
 	//  x,y - (in) Location of the tile to get.
 	// Returns: pointer to tile if tile exists or 0 tile does not exists.
-	const dtMeshTile* getTileAt(int x, int y) const;
+	const dtMeshTile* getTileAt(const int x, const int y, const int layer) const;
 
+	int getTilesAt(const int x, const int y,
+				   dtMeshTile const** tiles, const int maxTiles) const;
+	
 	// Returns reference to tile at specified location.
 	// Params:
 	//  x,y - (in) Location of the tile to get.
 	// Returns: reference to tile if tile exists or 0 tile does not exists.
-	dtTileRef getTileRefAt(int x, int y) const;
-	
+	dtTileRef getTileRefAt(int x, int y, int layer) const;
+
 	// Returns tile references of a tile based on tile pointer.
 	dtTileRef getTileRef(const dtMeshTile* tile) const;
 
@@ -388,7 +350,13 @@ private:
 	dtMeshTile* getTile(int i);
 
 	// Returns neighbour tile based on side. 
-	dtMeshTile* getNeighbourTileAt(int x, int y, int side) const;
+	int getTilesAt(const int x, const int y,
+				   dtMeshTile** tiles, const int maxTiles) const;
+
+	// Returns neighbour tile based on side. 
+	int getNeighbourTilesAt(const int x, const int y, const int side,
+							dtMeshTile** tiles, const int maxTiles) const;
+	
 	// Returns all polygons in neighbour tile based on portal defined by the segment.
 	int findConnectingPolys(const float* va, const float* vb,
 							const dtMeshTile* tile, int side,
@@ -405,7 +373,7 @@ private:
 	void connectExtOffMeshLinks(dtMeshTile* tile, dtMeshTile* target, int side);
 	
 	// Removes external links at specified side.
-	void unconnectExtLinks(dtMeshTile* tile, int side);
+	void unconnectExtLinks(dtMeshTile* tile, dtMeshTile* target);
 	
 
 	// TODO: These methods are duplicates from dtNavMeshQuery, but are needed for off-mesh connection finding.

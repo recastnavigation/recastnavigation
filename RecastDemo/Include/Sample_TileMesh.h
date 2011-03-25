@@ -30,7 +30,6 @@ protected:
 	bool m_keepInterResults;
 	bool m_buildAll;
 	float m_totalBuildTimeMs;
-	bool m_drawPortals;
 
 	unsigned char* m_triareas;
 	rcHeightfield* m_solid;
@@ -39,15 +38,6 @@ protected:
 	rcPolyMesh* m_pmesh;
 	rcPolyMeshDetail* m_dmesh;
 	rcConfig m_cfg;	
-
-
-	static const int MAX_LAYERS = 128;
-	rcHeightfieldLayerSet* m_lset;
-	rcLayerContourSet* m_lcsets[MAX_LAYERS];
-	int m_nlcsets;
-	rcLayerPolyMesh* m_lmeshes[MAX_LAYERS];
-	int m_nlmeshes;
-	
 	
 	enum DrawMode
 	{
@@ -68,12 +58,7 @@ protected:
 		DRAWMODE_BOTH_CONTOURS,
 		DRAWMODE_CONTOURS,
 		DRAWMODE_POLYMESH,
-		DRAWMODE_POLYMESH_DETAIL,
-		
-		DRAWMODE_HEIGHFIELD_LAYERS,
-		DRAWMODE_LAYER_CONTOURS,
-		DRAWMODE_LAYER_MESHES,
-		
+		DRAWMODE_POLYMESH_DETAIL,		
 		MAX_DRAWMODE
 	};
 		

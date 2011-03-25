@@ -896,7 +896,7 @@ static bool removeVertex(rcContext* ctx, rcPolyMesh& mesh, const unsigned short 
 }
 
 
-bool rcBuildPolyMesh(rcContext* ctx, rcContourSet& cset, int nvp, rcPolyMesh& mesh)
+bool rcBuildPolyMesh(rcContext* ctx, rcContourSet& cset, const int nvp, rcPolyMesh& mesh)
 {
 	rcAssert(ctx);
 	
@@ -906,6 +906,7 @@ bool rcBuildPolyMesh(rcContext* ctx, rcContourSet& cset, int nvp, rcPolyMesh& me
 	rcVcopy(mesh.bmax, cset.bmax);
 	mesh.cs = cset.cs;
 	mesh.ch = cset.ch;
+	mesh.borderSize = cset.borderSize;
 	
 	int maxVertices = 0;
 	int maxTris = 0;
@@ -939,7 +940,7 @@ bool rcBuildPolyMesh(rcContext* ctx, rcContourSet& cset, int nvp, rcPolyMesh& me
 		ctx->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'mesh.verts' (%d).", maxVertices);
 		return false;
 	}
-	mesh.polys = (unsigned short*)rcAlloc(sizeof(unsigned short)*maxTris*nvp*2*2, RC_ALLOC_PERM);
+	mesh.polys = (unsigned short*)rcAlloc(sizeof(unsigned short)*maxTris*nvp*2, RC_ALLOC_PERM);
 	if (!mesh.polys)
 	{
 		ctx->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'mesh.polys' (%d).", maxTris*nvp*2);
@@ -1155,6 +1156,37 @@ bool rcBuildPolyMesh(rcContext* ctx, rcContourSet& cset, int nvp, rcPolyMesh& me
 	{
 		ctx->log(RC_LOG_ERROR, "rcBuildPolyMesh: Adjacency failed.");
 		return false;
+	}
+	
+	// Find portal edges
+	if (mesh.borderSize > 0)
+	{
+		const int w = cset.width;
+		const int h = cset.height;
+		for (int i = 0; i < mesh.npolys; ++i)
+		{
+			unsigned short* p = &mesh.polys[i*2*nvp];
+			for (int j = 0; j < nvp; ++j)
+			{
+				if (p[j] == RC_MESH_NULL_IDX) break;
+				// Skip connected edges.
+				if (p[nvp+j] != RC_MESH_NULL_IDX)
+					continue;
+				int nj = j+1;
+				if (nj >= nvp || p[nj] == RC_MESH_NULL_IDX) nj = 0;
+				const unsigned short* va = &mesh.verts[p[j]*3];
+				const unsigned short* vb = &mesh.verts[p[nj]*3];
+
+				if ((int)va[0] == 0 && (int)vb[0] == 0)
+					p[nvp+j] = 0x8000 | 0;
+				else if ((int)va[2] == h && (int)vb[2] == h)
+					p[nvp+j] = 0x8000 | 1;
+				else if ((int)va[0] == w && (int)vb[0] == w)
+					p[nvp+j] = 0x8000 | 2;
+				else if ((int)va[2] == 0 && (int)vb[2] == 0)
+					p[nvp+j] = 0x8000 | 3;
+			}
+		}
 	}
 
 	// Just allocate the mesh flags array. The user is resposible to fill it.

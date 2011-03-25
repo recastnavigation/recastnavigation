@@ -121,6 +121,8 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 {
 	dtPolyRef base = mesh.getPolyRefBase(tile);
 
+	int tileNum = mesh.decodePolyIdTile(base);
+	
 	dd->depthMask(false);
 
 	dd->begin(DU_DRAW_TRIS);
@@ -137,10 +139,17 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 			col = duRGBA(255,196,0,64);
 		else
 		{
-			if (p->getArea() == 0) // Treat zero area type as default.
-				col = duRGBA(0,192,255,64);
+			if (flags & DU_DRAWNAVMESH_COLOR_TILES)
+			{
+				col = duIntToCol(tileNum, 128);
+			}
 			else
-				col = duIntToCol(p->getArea(), 64);
+			{
+				if (p->getArea() == 0) // Treat zero area type as default.
+					col = duRGBA(0,192,255,64);
+				else
+					col = duIntToCol(p->getArea(), 64);
+			}
 		}
 		
 		for (int j = 0; j < pd->triCount; ++j)
@@ -334,7 +343,7 @@ void duDebugDrawNavMeshBVTree(duDebugDraw* dd, const dtNavMesh& mesh)
 static void drawMeshTilePortal(duDebugDraw* dd, const dtMeshTile* tile)
 {
 	// Draw portals
-	const float padx = 0.02f;
+	const float padx = 0.04f;
 	const float pady = tile->header->walkableClimb;
 
 	dd->begin(DU_DRAW_LINES, 2.0f);
@@ -464,3 +473,87 @@ void duDebugDrawNavMeshPoly(duDebugDraw* dd, const dtNavMesh& mesh, dtPolyRef re
 
 }
 
+void duDebugDrawTileCacheLayer(struct duDebugDraw* dd, const dtTileCacheLayer& layer,
+							   const float* bmin, const float* bmax,
+							   const float cs, const float ch, const int idx)
+{
+	const int w = (int)layer.header->width;
+	const int h = (int)layer.header->height;
+	
+	unsigned int color = duIntToCol(idx+1, 255);
+	
+	// Layer bounds
+	float lbmin[3], lbmax[3];
+	lbmin[0] = bmin[0] + layer.header->minx*cs;
+	lbmin[1] = bmin[1];
+	lbmin[2] = bmin[2] + layer.header->miny*cs;
+	lbmax[0] = bmin[0] + (layer.header->maxx+1)*cs;
+	lbmax[1] = bmax[1];
+	lbmax[2] = bmin[2] + (layer.header->maxy+1)*cs;
+	duDebugDrawBoxWire(dd, lbmin[0],lbmin[1],lbmin[2], lbmax[0],lbmax[1],lbmax[2], duTransCol(color,128), 2.0f);
+	
+	// Layer height
+	dd->begin(DU_DRAW_QUADS);
+	for (int y = 0; y < h; ++y)
+	{
+		for (int x = 0; x < w; ++x)
+		{
+			const int idx = x+y*w;
+			const int h = (int)layer.heights[idx];
+			if (h == 0xff) continue;
+			const unsigned char area = layer.areas[idx];
+			
+			unsigned int col;
+			if (area == 63)
+				col = duLerpCol(color, duRGBA(0,192,255,64), 32);
+			else if (area == 0)
+				col = duLerpCol(color, duRGBA(0,0,0,64), 32);
+			else
+				col = duLerpCol(color, duIntToCol(area, 255), 32);
+			
+			const float fx = bmin[0] + x*cs;
+			const float fy = bmin[1] + (h+1)*ch;
+			const float fz = bmin[2] + y*cs;
+			
+			dd->vertex(fx, fy, fz, col);
+			dd->vertex(fx, fy, fz+cs, col);
+			dd->vertex(fx+cs, fy, fz+cs, col);
+			dd->vertex(fx+cs, fy, fz, col);
+		}
+	}
+	dd->end();
+	
+	// Portals
+	unsigned int pcol = duRGBA(255,255,255,255);
+	
+	const int segs[4*4] = {0,0,0,1, 0,1,1,1, 1,1,1,0, 1,0,0,0};
+	
+	// Layer portals
+	dd->begin(DU_DRAW_LINES, 2.0f);
+	for (int y = 0; y < h; ++y)
+	{
+		for (int x = 0; x < w; ++x)
+		{
+			const int idx = x+y*w;
+			const int h = (int)layer.heights[idx];
+			if (h == 0xff) continue;
+			
+			for (int dir = 0; dir < 4; ++dir)
+			{
+				if (layer.cons[idx] & (1<<(dir+4)))
+				{
+					const int* seg = &segs[dir*4];
+					const float ax = bmin[0] + (x+seg[0])*cs;
+					const float ay = bmin[1] + (h+2)*ch;
+					const float az = bmin[2] + (y+seg[1])*cs;
+					const float bx = bmin[0] + (x+seg[2])*cs;
+					const float by = bmin[1] + (h+2)*ch;
+					const float bz = bmin[2] + (y+seg[3])*cs;
+					dd->vertex(ax, ay, az, pcol);
+					dd->vertex(bx, by, bz, pcol);
+				}
+			}
+		}
+	}
+	dd->end();
+}

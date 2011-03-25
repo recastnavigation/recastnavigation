@@ -494,8 +494,12 @@ int dtNavMeshQuery::queryPolygonsInTile(const dtMeshTile* tile, const float* qmi
 		const dtPolyRef base = m_nav->getPolyRefBase(tile);
 		for (int i = 0; i < tile->header->polyCount; ++i)
 		{
+			const dtPoly* p = &tile->polys[i];
+			const dtPolyRef ref = base | (dtPolyRef)i;
+			if (!filter->passFilter(ref, tile, p))
+				continue;
+				
 			// Calc polygon bounds.
-			dtPoly* p = &tile->polys[i];
 			const float* v = &tile->verts[p->verts[0]*3];
 			dtVcopy(bmin, v);
 			dtVcopy(bmax, v);
@@ -507,12 +511,8 @@ int dtNavMeshQuery::queryPolygonsInTile(const dtMeshTile* tile, const float* qmi
 			}
 			if (dtOverlapBounds(qmin,qmax, bmin,bmax))
 			{
-				const dtPolyRef ref = base | (dtPolyRef)i;
-				if (filter->passFilter(ref, tile, p))
-				{
-					if (n < maxPolys)
-						polys[n++] = ref;
-				}
+				if (n < maxPolys)
+					polys[n++] = ref;
 			}
 		}
 		return n;
@@ -534,18 +534,23 @@ dtStatus dtNavMeshQuery::queryPolygons(const float* center, const float* extents
 	m_nav->calcTileLoc(bmin, &minx, &miny);
 	m_nav->calcTileLoc(bmax, &maxx, &maxy);
 
+	static const int MAX_NEIS = 32;
+	const dtMeshTile* neis[MAX_NEIS];
+	
 	int n = 0;
 	for (int y = miny; y <= maxy; ++y)
 	{
 		for (int x = minx; x <= maxx; ++x)
 		{
-			const dtMeshTile* tile = m_nav->getTileAt(x,y);
-			if (!tile) continue;
-			n += queryPolygonsInTile(tile, bmin, bmax, filter, polys+n, maxPolys-n);
-			if (n >= maxPolys)
+			const int nneis = m_nav->getTilesAt(x,y,neis,MAX_NEIS);
+			for (int j = 0; j < nneis; ++j)
 			{
-				*polyCount = n;
-				return DT_SUCCESS | DT_BUFFER_TOO_SMALL;
+				n += queryPolygonsInTile(neis[j], bmin, bmax, filter, polys+n, maxPolys-n);
+				if (n >= maxPolys)
+				{
+					*polyCount = n;
+					return DT_SUCCESS | DT_BUFFER_TOO_SMALL;
+				}
 			}
 		}
 	}
