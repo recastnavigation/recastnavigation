@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\Contrib\fastlz;..\..\Contrib\SDL\include;..\..\Include;..\..\..\DetourCrowd\Include;..\..\..\Detour\Include;..\..\..\DebugUtils\Include;..\..\..\Recast\Include;..\..\Contrib"
+				AdditionalIncludeDirectories="..\..\Contrib\fastlz;..\..\Contrib\SDL\include;..\..\Include;..\..\..\DetourCrowd\Include;..\..\..\Detour\Include;..\..\..\DebugUtils\Include;..\..\..\Recast\Include;..\..\Contrib;..\..\..\DetourTileCache"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -62,11 +62,12 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="opengl32.lib glu32.lib sdlmain.lib sdl.lib"
-				LinkIncremental="1"
+				LinkIncremental="0"
 				AdditionalLibraryDirectories="..\..\Contrib\SDL\lib"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
+				CLRThreadAttribute="0"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -117,7 +118,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\Contrib\fastlz;..\..\Contrib\SDL\include;..\..\Include;..\..\..\DetourCrowd\Include;..\..\..\Detour\Include;..\..\..\DebugUtils\Include;..\..\..\Recast\Include;..\..\Contrib"
+				AdditionalIncludeDirectories="..\..\Contrib\fastlz;..\..\Contrib\SDL\include;..\..\Include;..\..\..\DetourCrowd\Include;..\..\..\Detour\Include;..\..\..\DebugUtils\Include;..\..\..\Recast\Include;..\..\Contrib;..\..\..\DetourTileCache"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -137,7 +138,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="opengl32.lib glu32.lib sdlmain.lib sdl.lib"
-				LinkIncremental="1"
+				LinkIncremental="0"
 				AdditionalLibraryDirectories="..\..\Contrib\SDL\lib"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -217,6 +218,10 @@
 				</File>
 				<File
 					RelativePath="..\..\..\Recast\Source\RecastFilter.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\Recast\Source\RecastLayers.cpp"
 					>
 				</File>
 				<File
@@ -360,11 +365,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\Include\Sample_SoloMeshSimple.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\Include\Sample_SoloMeshTiled.h"
+					RelativePath="..\..\Include\Sample_SoloMesh.h"
 					>
 				</File>
 				<File
@@ -460,11 +461,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\Source\Sample_SoloMeshSimple.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\Source\Sample_SoloMeshTiled.cpp"
+					RelativePath="..\..\Source\Sample_SoloMesh.cpp"
 					>
 				</File>
 				<File
@@ -606,6 +603,18 @@
 			</File>
 			<File
 				RelativePath="..\..\Contrib\fastlz\fastlz.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="DetourTileCache"
+			>
+			<File
+				RelativePath="..\..\..\DetourTileCache\DetourTileCacheBuilder.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\DetourTileCache\DetourTileCacheBuilder.h"
 				>
 			</File>
 		</Filter>

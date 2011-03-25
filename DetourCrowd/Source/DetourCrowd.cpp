@@ -172,7 +172,7 @@ static int addNeighbour(const int idx, const float dist,
 
 static int getNeighbours(const float* pos, const float height, const float range,
 						 const dtCrowdAgent* skip, dtCrowdNeighbour* result, const int maxResult,
-						 dtCrowdAgent** agents, const int nagents, dtProximityGrid* grid)
+						 dtCrowdAgent** agents, const int /*nagents*/, dtProximityGrid* grid)
 {
 	int n = 0;
 	

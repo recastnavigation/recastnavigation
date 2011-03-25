@@ -345,7 +345,7 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 	}
 	
 	// Merge non-overlapping regions that are close in height.
-	const int mergeHeight = walkableHeight * 4;
+	const unsigned short mergeHeight = (unsigned short)walkableHeight * 4;
 	
 	for (int i = 0; i < nregs; ++i)
 	{

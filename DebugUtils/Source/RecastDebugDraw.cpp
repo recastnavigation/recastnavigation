@@ -326,7 +326,7 @@ void duDebugDrawCompactHeightfieldDistance(duDebugDraw* dd, const rcCompactHeigh
 	dd->end();
 }
 
-static void drawLayerPortals(duDebugDraw* dd, const rcHeightfieldLayer* layer, const unsigned int color)
+static void drawLayerPortals(duDebugDraw* dd, const rcHeightfieldLayer* layer)
 {
 	const float cs = layer->cs;
 	const float ch = layer->ch;
@@ -418,7 +418,7 @@ void duDebugDrawHeightfieldLayer(duDebugDraw* dd, const struct rcHeightfieldLaye
 	dd->end();
 	
 	// Portals
-	drawLayerPortals(dd, &layer, color);
+	drawLayerPortals(dd, &layer);
 }
 
 void duDebugDrawHeightfieldLayers(duDebugDraw* dd, const struct rcHeightfieldLayerSet& lset)

@@ -615,7 +615,7 @@ public:
 		return true;
 	}
 	
-	void update(const float /*dt*/, dtNavMesh* navmesh, ObstacleSet* obs)
+	void update(const float /*dt*/, dtNavMesh* /*navmesh*/, ObstacleSet* /*obs*/)
 	{
 /*		static const int MAX_TIME_USEC = 1000;
 		
@@ -667,7 +667,7 @@ public:
 		bmax[2] = m_params.orig[2] + (ty+1)*th;
 	}
 	
-	bool buildNavMeshTilesAt(ObstacleSet* obs,
+	bool buildNavMeshTilesAt(ObstacleSet* /*obs*/,
 							 const int tx, const int ty,
 							 dtNavMesh* navMesh)
 	{

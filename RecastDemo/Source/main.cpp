@@ -37,6 +37,7 @@
 
 #ifdef WIN32
 #	define snprintf _snprintf
+#	define putenv _putenv
 #endif
 
 struct SampleItem
@@ -69,6 +70,9 @@ int main(int /*argc*/, char** /*argv*/)
 		return -1;
 	}
 	
+	// Center window
+	putenv("SDL_VIDEO_CENTERED=1");
+
 	// Init OpenGL
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
@@ -76,9 +80,11 @@ int main(int /*argc*/, char** /*argv*/)
 	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
+//#ifndef WIN32
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
-	
+//#endif
+
 	const SDL_VideoInfo* vi = SDL_GetVideoInfo();
 
 	bool presentationMode = false;
@@ -104,7 +110,9 @@ int main(int /*argc*/, char** /*argv*/)
 		printf("Could not initialise SDL opengl\n");
 		return -1;
 	}
-	
+
+	glEnable(GL_MULTISAMPLE);
+
 	SDL_WM_SetCaption("Recast Demo", 0);
 	
 	if (!imguiRenderGLInit("DroidSans.ttf"))

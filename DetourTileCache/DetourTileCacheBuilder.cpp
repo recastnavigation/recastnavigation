@@ -29,6 +29,7 @@ template<class T> class dtFixedArray
 	T* m_ptr;
 	const int m_size;
 	inline T* operator=(T* p);
+	inline void operator=(dtFixedArray<T>& p);
 	inline dtFixedArray();
 public:
 	inline dtFixedArray(dtTileCacheAlloc* a, const int s) : m_alloc(a), m_ptr((T*)a->alloc(sizeof(T)*s)), m_size(s) {}
@@ -471,7 +472,7 @@ static unsigned char getNeighbourReg(dtTileCacheLayer& layer,
 	{
 		// No connection, return portal or hard edge.
 		if (portal & mask)
-			return 0xf8 + dir;
+			return 0xf8 + (unsigned char)dir;
 		return 0xff;
 	}
 	
@@ -598,7 +599,7 @@ static void simplifyContour(dtTempContour& cont, const float maxError)
 		unsigned char ra = cont.verts[j*4+3];
 		unsigned char rb = cont.verts[i*4+3];
 		if (ra != rb)
-			cont.poly[cont.npoly++] = i;
+			cont.poly[cont.npoly++] = (unsigned short)i;
 	}
 	if (cont.npoly < 2)
 	{
@@ -629,8 +630,8 @@ static void simplifyContour(dtTempContour& cont, const float maxError)
 			}
 		}
 		cont.npoly = 0;
-		cont.poly[cont.npoly++] = lli;
-		cont.poly[cont.npoly++] = uri;
+		cont.poly[cont.npoly++] = (unsigned short)lli;
+		cont.poly[cont.npoly++] = (unsigned short)uri;
 	}
 	
 	// Add points until all raw points are within
@@ -716,10 +717,10 @@ static void simplifyContour(dtTempContour& cont, const float maxError)
 	}
 }
 
-static int getCornerHeight(dtTileCacheLayer& layer,
-						   const int x, const int y, const int z,
-						   const int walkableClimb,
-						   bool& shouldRemove)
+static unsigned char getCornerHeight(dtTileCacheLayer& layer,
+									 const int x, const int y, const int z,
+									 const int walkableClimb,
+									 bool& shouldRemove)
 {
 	const int w = (int)layer.header->width;
 	const int h = (int)layer.header->height;
@@ -727,7 +728,7 @@ static int getCornerHeight(dtTileCacheLayer& layer,
 	int n = 0;
 	
 	unsigned char portal = 0xf;
-	int height = 0;
+	unsigned char height = 0;
 	
 	for (int dz = -1; dz <= 0; ++dz)
 	{
@@ -741,7 +742,7 @@ static int getCornerHeight(dtTileCacheLayer& layer,
 				const int h = (int)layer.heights[idx];
 				if (dtAbs(h-y) <= walkableClimb)
 				{
-					height = dtMax(height, h);
+					height = dtMax(height, (unsigned char)h);
 					portal &= (layer.cons[idx] >> 4);
 					n++;
 				}
@@ -885,7 +886,7 @@ static unsigned short addVertex(unsigned short x, unsigned short y, unsigned sho
 	}
 	
 	// Could not find, create new.
-	i = nv; nv++;
+	i = (unsigned short)nv; nv++;
 	unsigned short* v = &verts[i*3];
 	v[0] = x;
 	v[1] = y;
@@ -1424,7 +1425,7 @@ static void pushBack(unsigned short v, unsigned short* arr, int& an)
 	an++;
 }
 
-static bool canRemoveVertex(dtTileCacheAlloc* alloc, dtTileCachePolyMesh& mesh, const unsigned short rem)
+static bool canRemoveVertex(dtTileCachePolyMesh& mesh, const unsigned short rem)
 {
 	// Count number of polygons to remove.
 	int numRemovedVerts = 0;
@@ -1499,8 +1500,8 @@ static bool canRemoveVertex(dtTileCacheAlloc* alloc, dtTileCachePolyMesh& mesh, 
 				if (!exists)
 				{
 					unsigned short* e = &edges[nedges*3];
-					e[0] = a;
-					e[1] = b;
+					e[0] = (unsigned short)a;
+					e[1] = (unsigned short)b;
 					e[2] = 1;
 					nedges++;
 				}
@@ -1523,7 +1524,7 @@ static bool canRemoveVertex(dtTileCacheAlloc* alloc, dtTileCachePolyMesh& mesh, 
 	return true;
 }
 
-static dtStatus removeVertex(dtTileCacheAlloc* alloc, dtTileCachePolyMesh& mesh, const unsigned short rem, const int maxTris)
+static dtStatus removeVertex(dtTileCachePolyMesh& mesh, const unsigned short rem, const int maxTris)
 {
 	// Count number of polygons to remove.
 	int numRemovedVerts = 0;
@@ -1702,7 +1703,8 @@ static dtStatus removeVertex(dtTileCacheAlloc* alloc, dtTileCachePolyMesh& mesh,
 		return DT_SUCCESS;
 	
 	// Merge polygons.
-	if (MAX_VERTS_PER_POLY > 3)
+	int maxVertsPerPoly = MAX_VERTS_PER_POLY;
+	if (maxVertsPerPoly > 3)
 	{
 		for (;;)
 		{
@@ -1887,7 +1889,8 @@ dtStatus dtBuildTileCachePolyMesh(dtTileCacheAlloc* alloc,
 			continue;
 		
 		// Merge polygons.
-		if (MAX_VERTS_PER_POLY > 3)
+		int maxVertsPerPoly =MAX_VERTS_PER_POLY ;
+		if (maxVertsPerPoly > 3)
 		{
 			for(;;)
 			{
@@ -1951,9 +1954,9 @@ dtStatus dtBuildTileCachePolyMesh(dtTileCacheAlloc* alloc,
 	{
 		if (vflags[i])
 		{
-			if (!canRemoveVertex(alloc, mesh, (unsigned short)i))
+			if (!canRemoveVertex(mesh, (unsigned short)i))
 				continue;
-			dtStatus status = removeVertex(alloc, mesh, (unsigned short)i, maxTris);
+			dtStatus status = removeVertex(mesh, (unsigned short)i, maxTris);
 			if (dtStatusFailed(status))
 				return status;
 			// Remove vertex
