@@ -21,6 +21,7 @@
 #include "DetourAssert.h"
 #include "DetourTileCacheBuilder.h"
 #include <string.h>
+#include <math.h>
 
 
 template<class T> class dtFixedArray
@@ -39,7 +40,6 @@ public:
 };
 
 static const unsigned short DT_TILECACHE_NULL_IDX = 0xffff;
-static const unsigned char DT_TILECACHE_NULL_AREA = 0;
 
 inline int getDirOffsetX(int dir)
 {
@@ -57,41 +57,6 @@ static const int MAX_VERTS_PER_POLY = 6;	// TODO: use the DT_VERTS_PER_POLYGON
 static const int MAX_REM_EDGES = 48;		// TODO: make this an expression.
 
 
-
-int dtCalcTileCacheLayerBufferSize(const int gridWidth, const int gridHeight)
-{
-	const int headerSize = dtAlign4(sizeof(dtTileCacheLayerHeader));
-	const int gridSize = gridWidth * gridHeight;
-	return headerSize + gridSize*4;
-}
-
-dtStatus dtCastTileCacheLayer(dtTileCacheLayer& layer, unsigned char* buffer, const int bufferSize)
-{
-	if (!buffer)
-		return DT_FAILURE;
-	
-	dtTileCacheLayerHeader* header = (dtTileCacheLayerHeader*)buffer;
-	if (header->magic != DT_TILECACHE_MAGIC)
-		return DT_FAILURE | DT_WRONG_MAGIC;
-	if (header->version != DT_TILECACHE_VERSION)
-		return DT_FAILURE | DT_WRONG_VERSION;
-	
-	const int headerSize = dtAlign4(sizeof(dtTileCacheLayerHeader));
-	const int gridSize = (int)header->width * (int)header->height;
-	const int memUsage = headerSize + gridSize*4;
-	if (bufferSize < memUsage)
-		return DT_FAILURE | DT_BUFFER_TOO_SMALL;
-	
-	memset(&layer, 0, sizeof(layer));
-	
-	layer.header = header;
-	layer.heights = buffer + headerSize;
-	layer.areas = buffer + headerSize + gridSize;
-	layer.cons = buffer + headerSize + gridSize*2;
-	layer.regs = buffer + headerSize + gridSize*3;
-	
-	return DT_SUCCESS;
-}
 
 dtTileCacheContourSet* dtAllocTileCacheContourSet(dtTileCacheAlloc* alloc)
 {
@@ -740,7 +705,7 @@ static unsigned char getCornerHeight(dtTileCacheLayer& layer,
 			{
 				const int idx  = px + pz*w;
 				const int h = (int)layer.heights[idx];
-				if (dtAbs(h-y) <= walkableClimb)
+				if (dtAbs(h-y) <= walkableClimb && layer.areas[idx] != DT_TILECACHE_NULL_AREA)
 				{
 					height = dtMax(height, (unsigned char)h);
 					portal &= (layer.cons[idx] >> 4);
@@ -783,7 +748,7 @@ dtStatus dtBuildTileCacheContours(dtTileCacheAlloc* alloc,
 	memset(lcset.conts, 0, sizeof(dtTileCacheContour)*lcset.nconts);
 	
 	// Allocate temp buffer for contour tracing.
-	const int maxTempVerts = (w*h*2) * 2; // Twice around the layer.
+	const int maxTempVerts = (w+h)*2 * 2; // Twice around the layer.
 	
 	dtFixedArray<unsigned char> tempVerts(alloc, maxTempVerts*4);
 	if (!tempVerts)
@@ -1971,6 +1936,170 @@ dtStatus dtBuildTileCachePolyMesh(dtTileCacheAlloc* alloc,
 	if (!buildMeshAdjacency(alloc, mesh.polys, mesh.npolys, mesh.verts, mesh.nverts, lcset))
 		return DT_FAILURE | DT_OUT_OF_MEMORY;
 		
+	return DT_SUCCESS;
+}
+
+dtStatus dtMarkCylinderArea(dtTileCacheLayer& layer, const float* orig, const float cs, const float ch,
+							const float* pos, const float radius, const float height, const unsigned char areaId)
+{
+	float bmin[3], bmax[3];
+	bmin[0] = pos[0] - radius;
+	bmin[1] = pos[1];
+	bmin[2] = pos[2] - radius;
+	bmax[0] = pos[0] + radius;
+	bmax[1] = pos[1] + height;
+	bmax[2] = pos[2] + radius;
+	const float r2 = dtSqr(radius/cs + 0.5f);
+
+	const int w = (int)layer.header->width;
+	const int h = (int)layer.header->height;
+	const float ics = 1.0f/cs;
+	const float ich = 1.0f/ch;
+	
+	const float px = (pos[0]-orig[0])*ics;
+	const float pz = (pos[2]-orig[2])*ics;
+	
+	int minx = (int)floorf((bmin[0]-orig[0])*ics);
+	int miny = (int)floorf((bmin[1]-orig[1])*ich);
+	int minz = (int)floorf((bmin[2]-orig[2])*ics);
+	int maxx = (int)floorf((bmax[0]-orig[0])*ics);
+	int maxy = (int)floorf((bmax[1]-orig[1])*ich);
+	int maxz = (int)floorf((bmax[2]-orig[2])*ics);
+
+	if (maxx < 0) return DT_SUCCESS;
+	if (minx >= w) return DT_SUCCESS;
+	if (maxz < 0) return DT_SUCCESS;
+	if (minz >= h) return DT_SUCCESS;
+	
+	if (minx < 0) minx = 0;
+	if (maxx >= w) maxx = w-1;
+	if (minz < 0) minz = 0;
+	if (maxz >= h) maxz = h-1;
+	
+	for (int z = minz; z <= maxz; ++z)
+	{
+		for (int x = minx; x <= maxx; ++x)
+		{
+			const float dx = (float)(x+0.5f) - px;
+			const float dz = (float)(z+0.5f) - pz;
+			if (dx*dx + dz*dz > r2)
+				continue;
+			const int y = layer.heights[x+z*w];
+			if (y < miny || y > maxy)
+				continue;
+			layer.areas[x+z*w] = areaId;
+		}
+	}
+
+	return DT_SUCCESS;
+}
+
+
+dtStatus dtBuildTileCacheLayer(dtTileCacheCompressor* comp,
+							   dtTileCacheLayerHeader* header,
+							   const unsigned char* heights,
+							   const unsigned char* areas,
+							   const unsigned char* cons,
+							   unsigned char** outData, int* outDataSize)
+{
+	const int headerSize = dtAlign4(sizeof(dtTileCacheLayerHeader));
+	const int gridSize = (int)header->width * (int)header->height;
+	const int maxDataSize = headerSize + comp->maxCompressedSize(gridSize*3);
+	unsigned char* data = (unsigned char*)dtAlloc(maxDataSize, DT_ALLOC_PERM);
+	if (!data)
+		return DT_FAILURE | DT_OUT_OF_MEMORY;
+	memset(data, 0, maxDataSize);
+	
+	// Store header
+	memcpy(data, header, sizeof(dtTileCacheLayerHeader));
+	
+	// Concatenate grid data for compression.
+	const int bufferSize = gridSize*3;
+	unsigned char* buffer = (unsigned char*)dtAlloc(bufferSize, DT_ALLOC_TEMP);
+	if (!buffer)
+		return DT_FAILURE | DT_OUT_OF_MEMORY;
+	memcpy(buffer, heights, gridSize);
+	memcpy(buffer+gridSize, areas, gridSize);
+	memcpy(buffer+gridSize*2, cons, gridSize);
+	
+	// Compress
+	unsigned char* compressed = data + headerSize;
+	const int maxCompressedSize = maxDataSize - headerSize;
+	int compressedSize = 0;
+	dtStatus status = comp->compress(buffer, bufferSize, compressed, maxCompressedSize, &compressedSize);
+	if (dtStatusFailed(status))
+		return status;
+
+	*outData = data;
+	*outDataSize = headerSize + compressedSize;
+	
+	dtFree(buffer);
+	
+	return DT_SUCCESS;
+}
+
+void dtFreeTileCacheLayer(dtTileCacheAlloc* alloc, dtTileCacheLayer* layer)
+{
+	dtAssert(alloc);
+	// The layer is allocated as one conitguous blob of data.
+	alloc->free(layer);
+}
+
+dtStatus dtDecompressTileCacheLayer(dtTileCacheAlloc* alloc, dtTileCacheCompressor* comp,
+									unsigned char* compressed, const int compressedSize,
+									dtTileCacheLayer** layerOut)
+{
+	dtAssert(alloc);
+	dtAssert(comp);
+
+	if (!layerOut)
+		return DT_FAILURE | DT_INVALID_PARAM;
+	if (!compressed)
+		return DT_FAILURE | DT_INVALID_PARAM;
+
+	*layerOut = 0;
+
+	dtTileCacheLayerHeader* compressedHeader = (dtTileCacheLayerHeader*)compressed;
+	if (compressedHeader->magic != DT_TILECACHE_MAGIC)
+		return DT_FAILURE | DT_WRONG_MAGIC;
+	if (compressedHeader->version != DT_TILECACHE_VERSION)
+		return DT_FAILURE | DT_WRONG_VERSION;
+	
+	const int layerSize = dtAlign4(sizeof(dtTileCacheLayer));
+	const int headerSize = dtAlign4(sizeof(dtTileCacheLayerHeader));
+	const int gridSize = (int)compressedHeader->width * (int)compressedHeader->height;
+	const int bufferSize = layerSize + headerSize + gridSize*4;
+	
+	unsigned char* buffer = (unsigned char*)alloc->alloc(bufferSize);
+	if (!buffer)
+		return DT_FAILURE | DT_OUT_OF_MEMORY;
+	memset(buffer, 0, bufferSize);
+
+	dtTileCacheLayer* layer = (dtTileCacheLayer*)buffer;
+	dtTileCacheLayerHeader* header = (dtTileCacheLayerHeader*)(buffer + layerSize);
+	unsigned char* grids = buffer + layerSize + headerSize;
+	const int gridsSize = bufferSize - (layerSize + headerSize); 
+	
+	// Copy header
+	memcpy(header, compressedHeader, headerSize);
+	// Decompress grid.
+	int size = 0;
+	dtStatus status = comp->decompress(compressed+headerSize, compressedSize-headerSize,
+									   grids, gridsSize, &size);
+	if (dtStatusFailed(status))
+	{
+		dtFree(buffer);
+		return status;
+	}
+	
+	layer->header = header;
+	layer->heights = grids;
+	layer->areas = grids + gridSize;
+	layer->cons = grids + gridSize*2;
+	layer->regs = grids + gridSize*3;
+	
+	*layerOut = layer;
+	
 	return DT_SUCCESS;
 }
 

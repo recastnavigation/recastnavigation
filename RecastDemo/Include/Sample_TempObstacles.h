@@ -29,10 +29,17 @@ class Sample_TempObstacles : public Sample
 {
 protected:
 	bool m_keepInterResults;
-	float m_cacheBuildTimeMs;
 
-	class TileCache* m_tileCache;
-	class ObstacleSet* m_obs;
+	class LinearAllocator* m_talloc;
+	class FastLZCompressor* m_tcomp;
+
+	class dtTileCache* m_tileCache;
+	
+	float m_cacheBuildTimeMs;
+	int m_cacheCompressedSize;
+	int m_cacheRawSize;
+	int m_cacheLayerCount;
+	int m_cacheBuildMemUsage;
 	
 	enum DrawMode
 	{
@@ -52,14 +59,6 @@ protected:
 	int m_maxTiles;
 	int m_maxPolysPerTile;
 	float m_tileSize;
-	
-	int m_rebuildTileCount;
-	float m_rebuildTime;
-	
-	int calcTouchedTiles(const float minx, const float minz, const float maxx, const float maxz,
-						 struct TouchedTile* touched, const int maxTouched);
-	
-	void rebuildTiles(const struct TouchedTile* touched, const int ntouched);
 	
 public:
 	Sample_TempObstacles();

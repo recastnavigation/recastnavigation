@@ -473,12 +473,13 @@ void duDebugDrawNavMeshPoly(duDebugDraw* dd, const dtNavMesh& mesh, dtPolyRef re
 
 }
 
-void duDebugDrawTileCacheLayer(struct duDebugDraw* dd, const dtTileCacheLayer& layer,
-							   const float* bmin, const float* bmax,
-							   const float cs, const float ch, const int idx)
+void duDebugDrawTileCacheLayer(struct duDebugDraw* dd, const dtTileCacheLayer& layer, const float cs, const float ch)
 {
 	const int w = (int)layer.header->width;
 	const int h = (int)layer.header->height;
+	const float* bmin = layer.header->bmin;
+	const float* bmax = layer.header->bmax;
+	const int idx = layer.header->tlayer;
 	
 	unsigned int color = duIntToCol(idx+1, 255);
 	

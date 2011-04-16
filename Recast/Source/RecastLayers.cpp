@@ -528,7 +528,7 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 		rcVcopy(layer->bmin, bmin);
 		rcVcopy(layer->bmax, bmax);
 		layer->bmin[1] = bmin[1] + hmin*chf.ch;
-		layer->bmax[1] = bmin[1] + hmax*chf.ch;		
+		layer->bmax[1] = bmin[1] + hmax*chf.ch;
 		layer->hmin = hmin;
 		layer->hmax = hmax;
 
@@ -581,7 +581,13 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 							unsigned char alid = srcReg[ai] != 0xff ? regs[srcReg[ai]].layerId : 0xff;
 							// Portal mask
 							if (chf.areas[ai] != RC_NULL_AREA && lid != alid)
+							{
 								portal |= (unsigned char)(1<<dir);
+								// Update height so that it matches on both sides of the portal.
+								const rcCompactSpan& as = chf.spans[ai];
+								if (as.y > hmin)
+									layer->heights[idx] = rcMax(layer->heights[idx], (unsigned char)(as.y - hmin));
+							}
 							// Valid connection mask
 							if (chf.areas[ai] != RC_NULL_AREA && lid == alid)
 							{
@@ -597,6 +603,7 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 				}
 			}
 		}
+		
 		if (layer->minx > layer->maxx)
 			layer->minx = layer->maxx = 0;
 		if (layer->miny > layer->maxy)

@@ -37,8 +37,6 @@ void duDebugDrawNavMeshBVTree(struct duDebugDraw* dd, const dtNavMesh& mesh);
 void duDebugDrawNavMeshPortals(struct duDebugDraw* dd, const dtNavMesh& mesh);
 void duDebugDrawNavMeshPoly(struct duDebugDraw* dd, const dtNavMesh& mesh, dtPolyRef ref, const unsigned int col);
 
-void duDebugDrawTileCacheLayer(struct duDebugDraw* dd, const dtTileCacheLayer& layer,
-							   const float* bmin, const float* bmax,
-							   const float cs, const float ch, const int idx);
+void duDebugDrawTileCacheLayer(struct duDebugDraw* dd, const dtTileCacheLayer& layer, const float cs, const float ch);
 
 #endif // DETOURDEBUGDRAW_H

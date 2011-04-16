@@ -22,19 +22,18 @@
 #include "DetourAlloc.h"
 #include "DetourStatus.h"
 
-static const int DT_TILECACHE_MAGIC = 'D'<<24 | 'T'<<16 | 'I'<<8 | 'C'; //'DTIC';
+static const int DT_TILECACHE_MAGIC = 'D'<<24 | 'T'<<16 | 'L'<<8 | 'R'; //'DTLR';
 static const int DT_TILECACHE_VERSION = 1;
 
-struct dtTileCacheLayerParams
-{
-	float bmin[3], bmax[3];				// Bounding box of the heightfield.
-	float cs, ch;						// Cell size and height.
-};
+static const unsigned char DT_TILECACHE_NULL_AREA = 0;
+static const unsigned char DT_TILECACHE_WALKABLE_AREA = 63;
 
 struct dtTileCacheLayerHeader
 {
 	int magic;								// Data magic
 	int version;							// Data version
+	int tx,ty,tlayer;
+	float bmin[3], bmax[3];
 	unsigned short hmin, hmax;				// Height min/max range
 	unsigned char width, height;			// Dimension of the layer.
 	unsigned char minx, maxx, miny, maxy;	// Usable sub-region.
@@ -77,6 +76,10 @@ struct dtTileCachePolyMesh
 
 struct dtTileCacheAlloc
 {
+	virtual void reset()
+	{
+	}
+	
 	virtual void* alloc(const int size)
 	{
 		return dtAlloc(size, DT_ALLOC_TEMP);
@@ -88,12 +91,28 @@ struct dtTileCacheAlloc
 	}
 };
 
+struct dtTileCacheCompressor
+{
+	virtual int maxCompressedSize(const int bufferSize) = 0;
+	virtual dtStatus compress(const unsigned char* buffer, const int bufferSize,
+							  unsigned char* compressed, const int maxCompressedSize, int* compressedSize) = 0;
+	virtual dtStatus decompress(const unsigned char* compressed, const int compressedSize,
+								unsigned char* buffer, const int maxBufferSize, int* bufferSize) = 0;
+};
 
-dtStatus dtCastTileCacheLayer(dtTileCacheLayer& layer, unsigned char* buffer, const int bufferSize);
 
-// Returns the amount of memory requires for specific grid size.
-int dtCalcTileCacheLayerBufferSize(const int gridWidth, const int gridHeight);
-									
+dtStatus dtBuildTileCacheLayer(dtTileCacheCompressor* comp,
+							   dtTileCacheLayerHeader* header,
+							   const unsigned char* heights,
+							   const unsigned char* areas,
+							   const unsigned char* cons,
+							   unsigned char** outData, int* outDataSize);
+
+void dtFreeTileCacheLayer(dtTileCacheAlloc* alloc, dtTileCacheLayer* layer);
+
+dtStatus dtDecompressTileCacheLayer(dtTileCacheAlloc* alloc, dtTileCacheCompressor* comp,
+									unsigned char* compressed, const int compressedSize,
+									dtTileCacheLayer** layerOut);
 
 dtTileCacheContourSet* dtAllocTileCacheContourSet(dtTileCacheAlloc* alloc);
 void dtFreeTileCacheContourSet(dtTileCacheAlloc* alloc, dtTileCacheContourSet* cset);
@@ -101,6 +120,8 @@ void dtFreeTileCacheContourSet(dtTileCacheAlloc* alloc, dtTileCacheContourSet* c
 dtTileCachePolyMesh* dtAllocTileCachePolyMesh(dtTileCacheAlloc* alloc);
 void dtFreeTileCachePolyMesh(dtTileCacheAlloc* alloc, dtTileCachePolyMesh* lmesh);
 
+dtStatus dtMarkCylinderArea(dtTileCacheLayer& layer, const float* orig, const float cs, const float ch,
+							const float* pos, const float radius, const float height, const unsigned char areaId);
 
 dtStatus dtBuildTileCacheRegions(dtTileCacheAlloc* alloc,
 								 dtTileCacheLayer& layer,
