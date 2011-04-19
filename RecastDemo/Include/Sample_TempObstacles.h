@@ -30,8 +30,8 @@ class Sample_TempObstacles : public Sample
 protected:
 	bool m_keepInterResults;
 
-	class LinearAllocator* m_talloc;
-	class FastLZCompressor* m_tcomp;
+	struct LinearAllocator* m_talloc;
+	struct FastLZCompressor* m_tcomp;
 
 	class dtTileCache* m_tileCache;
 	

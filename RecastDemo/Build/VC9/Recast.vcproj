@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\Contrib\fastlz;..\..\Contrib\SDL\include;..\..\Include;..\..\..\DetourCrowd\Include;..\..\..\Detour\Include;..\..\..\DebugUtils\Include;..\..\..\Recast\Include;..\..\Contrib;..\..\..\DetourTileCache"
+				AdditionalIncludeDirectories="..\..\Contrib\fastlz;..\..\Contrib\SDL\include;..\..\Include;..\..\..\DetourCrowd\Include;..\..\..\Detour\Include;..\..\..\DebugUtils\Include;..\..\..\Recast\Include;..\..\Contrib;..\..\..\DetourTileCache\Include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -118,7 +118,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\Contrib\fastlz;..\..\Contrib\SDL\include;..\..\Include;..\..\..\DetourCrowd\Include;..\..\..\Detour\Include;..\..\..\DebugUtils\Include;..\..\..\Recast\Include;..\..\Contrib;..\..\..\DetourTileCache"
+				AdditionalIncludeDirectories="..\..\Contrib\fastlz;..\..\Contrib\SDL\include;..\..\Include;..\..\..\DetourCrowd\Include;..\..\..\Detour\Include;..\..\..\DebugUtils\Include;..\..\..\Recast\Include;..\..\Contrib;..\..\..\DetourTileCache\Include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -609,14 +609,30 @@
 		<Filter
 			Name="DetourTileCache"
 			>
-			<File
-				RelativePath="..\..\..\DetourTileCache\DetourTileCacheBuilder.cpp"
+			<Filter
+				Name="Include"
 				>
-			</File>
-			<File
-				RelativePath="..\..\..\DetourTileCache\DetourTileCacheBuilder.h"
+				<File
+					RelativePath="..\..\..\DetourTileCache\Include\DetourTileCache.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\DetourTileCache\Include\DetourTileCacheBuilder.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Source"
 				>
-			</File>
+				<File
+					RelativePath="..\..\..\DetourTileCache\Source\DetourTileCache.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\DetourTileCache\Source\DetourTileCacheBuilder.cpp"
+					>
+				</File>
+			</Filter>
 		</Filter>
 	</Files>
 	<Globals>

@@ -106,7 +106,7 @@ struct FastLZCompressor : public dtTileCacheCompressor
 	}
 	
 	virtual dtStatus compress(const unsigned char* buffer, const int bufferSize,
-							  unsigned char* compressed, const int maxCompressedSize, int* compressedSize)
+							  unsigned char* compressed, const int /*maxCompressedSize*/, int* compressedSize)
 	{
 		*compressedSize = fastlz_compress((const void *const)buffer, bufferSize, compressed);
 		return DT_SUCCESS;
@@ -161,7 +161,7 @@ struct LinearAllocator : public dtTileCacheAlloc
 		return mem;
 	}
 	
-	virtual void free(void* ptr)
+	virtual void free(void* /*ptr*/)
 	{
 		// Empty
 	}
