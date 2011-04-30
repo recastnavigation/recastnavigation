@@ -517,9 +517,9 @@ void rcClearUnwalkableTriangles(rcContext* ctx, const float walkableSlopeAngle, 
 //  smin,smax - (in) spans min/max height
 //  flags - (in) span flags (zero or WALKABLE)
 //  flagMergeThr - (in) merge threshold.
-void rcAddSpan(rcContext* ctx, rcHeightfield& solid, const int x, const int y,
+void rcAddSpan(rcContext* ctx, rcHeightfield& hf, const int x, const int y,
 			   const unsigned short smin, const unsigned short smax,
-			   const unsigned short area, const int flagMergeThr);
+			   const unsigned char area, const int flagMergeThr);
 
 // Rasterizes a triangle into heightfield spans.
 // Params:
