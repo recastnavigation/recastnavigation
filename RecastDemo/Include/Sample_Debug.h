@@ -23,7 +23,7 @@
 #include "DetourNavMesh.h"
 #include "Recast.h"
 
-// Sample used for random debugging.
+/// Sample used for random debugging.
 class Sample_Debug : public Sample
 {
 protected:

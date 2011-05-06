@@ -28,8 +28,8 @@ class dtLocalBoundary
 	
 	struct Segment
 	{
-		float s[6];	// Segment start/end
-		float d;	// Distance for pruning.
+		float s[6];	///< Segment start/end
+		float d;	///< Distance for pruning.
 	};
 	
 	float m_center[3];

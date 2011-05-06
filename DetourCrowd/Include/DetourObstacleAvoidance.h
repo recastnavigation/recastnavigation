@@ -21,16 +21,16 @@
 
 struct dtObstacleCircle
 {
-	float p[3];				// Position of the obstacle
-	float vel[3];			// Velocity of the obstacle
-	float dvel[3];			// Velocity of the obstacle
-	float rad;				// Radius of the obstacle
-	float dp[3], np[3];		// Use for side selection during sampling.
+	float p[3];				///< Position of the obstacle
+	float vel[3];			///< Velocity of the obstacle
+	float dvel[3];			///< Velocity of the obstacle
+	float rad;				///< Radius of the obstacle
+	float dp[3], np[3];		///< Use for side selection during sampling.
 };
 
 struct dtObstacleSegment
 {
-	float p[3], q[3];		// End points of the obstacle segment
+	float p[3], q[3];		///< End points of the obstacle segment
 	bool touch;
 };
 
@@ -73,8 +73,8 @@ dtObstacleAvoidanceDebugData* dtAllocObstacleAvoidanceDebugData();
 void dtFreeObstacleAvoidanceDebugData(dtObstacleAvoidanceDebugData* ptr);
 
 
-static const int DT_MAX_PATTERN_DIVS = 32;	// Max numver of adaptive divs.
-static const int DT_MAX_PATTERN_RINGS = 4;	// Max number of adaptive rings.
+static const int DT_MAX_PATTERN_DIVS = 32;	///< Max numver of adaptive divs.
+static const int DT_MAX_PATTERN_RINGS = 4;	///< Max number of adaptive rings.
 
 struct dtObstacleAvoidanceParams
 {
@@ -84,10 +84,10 @@ struct dtObstacleAvoidanceParams
 	float weightSide;
 	float weightToi;
 	float horizTime;
-	unsigned char gridSize;	// grid
-	unsigned char adaptiveDivs;	// adaptive
-	unsigned char adaptiveRings;	// adaptive
-	unsigned char adaptiveDepth;	// adaptive
+	unsigned char gridSize;	///< grid
+	unsigned char adaptiveDivs;	///< adaptive
+	unsigned char adaptiveRings;	///< adaptive
+	unsigned char adaptiveDepth;	///< adaptive
 };
 
 class dtObstacleAvoidanceQuery

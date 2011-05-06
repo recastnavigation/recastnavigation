@@ -9,15 +9,15 @@ typedef unsigned int dtObstacleRef;
 
 typedef unsigned int dtCompressedTileRef;
 
-// Flags for addTile
+/// Flags for addTile
 enum dtCompressedTileFlags
 {
-	DT_COMPRESSEDTILE_FREE_DATA = 0x01,					// Navmesh owns the tile memory and should free it.
+	DT_COMPRESSEDTILE_FREE_DATA = 0x01,					///< Navmesh owns the tile memory and should free it.
 };
 
 struct dtCompressedTile
 {
-	unsigned int salt;						// Counter describing modifications to the tile.
+	unsigned int salt;						///< Counter describing modifications to the tile.
 	struct dtTileCacheLayerHeader* header;
 	unsigned char* compressed;
 	int compressedSize;
@@ -108,40 +108,40 @@ public:
 	void getObstacleBounds(const struct dtTileCacheObstacle* ob, float* bmin, float* bmax) const;
 	
 
-	// Encodes a tile id.
+	/// Encodes a tile id.
 	inline dtCompressedTileRef encodeTileId(unsigned int salt, unsigned int it) const
 	{
 		return ((dtCompressedTileRef)salt << m_tileBits) | (dtCompressedTileRef)it;
 	}
 	
-	// Decodes a tile salt.
+	/// Decodes a tile salt.
 	inline unsigned int decodeTileIdSalt(dtCompressedTileRef ref) const
 	{
 		const dtCompressedTileRef saltMask = ((dtCompressedTileRef)1<<m_saltBits)-1;
 		return (unsigned int)((ref >> m_tileBits) & saltMask);
 	}
 	
-	// Decodes a tile id.
+	/// Decodes a tile id.
 	inline unsigned int decodeTileIdTile(dtCompressedTileRef ref) const
 	{
 		const dtCompressedTileRef tileMask = ((dtCompressedTileRef)1<<m_tileBits)-1;
 		return (unsigned int)(ref & tileMask);
 	}
 
-	// Encodes an obstacle id.
+	/// Encodes an obstacle id.
 	inline dtObstacleRef encodeObstacleId(unsigned int salt, unsigned int it) const
 	{
 		return ((dtObstacleRef)salt << 16) | (dtObstacleRef)it;
 	}
 	
-	// Decodes an obstacle salt.
+	/// Decodes an obstacle salt.
 	inline unsigned int decodeObstacleIdSalt(dtObstacleRef ref) const
 	{
 		const dtObstacleRef saltMask = ((dtObstacleRef)1<<16)-1;
 		return (unsigned int)((ref >> 16) & saltMask);
 	}
 	
-	// Decodes an obstacle id.
+	/// Decodes an obstacle id.
 	inline unsigned int decodeObstacleIdObstacle(dtObstacleRef ref) const
 	{
 		const dtObstacleRef tileMask = ((dtObstacleRef)1<<16)-1;
@@ -163,15 +163,15 @@ private:
 		dtObstacleRef ref;
 	};
 	
-	int m_tileLutSize;						// Tile hash lookup size (must be pot).
-	int m_tileLutMask;						// Tile hash lookup mask.
+	int m_tileLutSize;						///< Tile hash lookup size (must be pot).
+	int m_tileLutMask;						///< Tile hash lookup mask.
 	
-	dtCompressedTile** m_posLookup;			// Tile hash lookup.
-	dtCompressedTile* m_nextFreeTile;		// Freelist of tiles.
-	dtCompressedTile* m_tiles;				// List of tiles.
+	dtCompressedTile** m_posLookup;			///< Tile hash lookup.
+	dtCompressedTile* m_nextFreeTile;		///< Freelist of tiles.
+	dtCompressedTile* m_tiles;				///< List of tiles.
 	
-	unsigned int m_saltBits;				// Number of salt bits in the tile ID.
-	unsigned int m_tileBits;				// Number of tile bits in the tile ID.
+	unsigned int m_saltBits;				///< Number of salt bits in the tile ID.
+	unsigned int m_tileBits;				///< Number of tile bits in the tile ID.
 	
 	dtTileCacheParams m_params;
 	

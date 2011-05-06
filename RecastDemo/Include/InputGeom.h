@@ -37,7 +37,8 @@ class InputGeom
 	rcMeshLoaderObj* m_mesh;
 	float m_meshBMin[3], m_meshBMax[3];
 	
-	// Off-Mesh connections.
+	/// @name Off-Mesh connections.
+	///@{
 	static const int MAX_OFFMESH_CONNECTIONS = 256;
 	float m_offMeshConVerts[MAX_OFFMESH_CONNECTIONS*3*2];
 	float m_offMeshConRads[MAX_OFFMESH_CONNECTIONS];
@@ -46,11 +47,14 @@ class InputGeom
 	unsigned short m_offMeshConFlags[MAX_OFFMESH_CONNECTIONS];
 	unsigned int m_offMeshConId[MAX_OFFMESH_CONNECTIONS];
 	int m_offMeshConCount;
+	///@}
 
-	// Convex Volumes.
+	/// @name Convex Volumes.
+	///@{
 	static const int MAX_VOLUMES = 256;
 	ConvexVolume m_volumes[MAX_VOLUMES];
 	int m_volumeCount;
+	///@}
 	
 public:
 	InputGeom();
@@ -61,14 +65,15 @@ public:
 	bool load(class rcContext* ctx, const char* filepath);
 	bool save(const char* filepath);
 	
-	// Method to return static mesh data.
+	/// Method to return static mesh data.
 	inline const rcMeshLoaderObj* getMesh() const { return m_mesh; }
 	inline const float* getMeshBoundsMin() const { return m_meshBMin; }
 	inline const float* getMeshBoundsMax() const { return m_meshBMax; }
 	inline const rcChunkyTriMesh* getChunkyMesh() const { return m_chunkyMesh; }
 	bool raycastMesh(float* src, float* dst, float& tmin);
 
-	// Off-Mesh connections.
+	/// @name Off-Mesh connections.
+	///@{
 	int getOffMeshConnectionCount() const { return m_offMeshConCount; }
 	const float* getOffMeshConnectionVerts() const { return m_offMeshConVerts; }
 	const float* getOffMeshConnectionRads() const { return m_offMeshConRads; }
@@ -80,14 +85,17 @@ public:
 							  unsigned char bidir, unsigned char area, unsigned short flags);
 	void deleteOffMeshConnection(int i);
 	void drawOffMeshConnections(struct duDebugDraw* dd, bool hilight = false);
+	///@}
 
-	// Box Volumes.
+	/// @name Box Volumes.
+	///@{
 	int getConvexVolumeCount() const { return m_volumeCount; }
 	const ConvexVolume* getConvexVolumes() const { return m_volumes; }
 	void addConvexVolume(const float* verts, const int nverts,
 						 const float minh, const float maxh, unsigned char area);
 	void deleteConvexVolume(int i);
 	void drawConvexVolumes(struct duDebugDraw* dd, bool hilight = false);
+	///@}
 };
 
 #endif // INPUTGEOM_H

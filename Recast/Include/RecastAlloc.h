@@ -21,8 +21,8 @@
 
 enum rcAllocHint
 {
-	RC_ALLOC_PERM,		// Memory persist after a function call.
-	RC_ALLOC_TEMP		// Memory used temporarily within a function.
+	RC_ALLOC_PERM,		///< Memory persist after a function call.
+	RC_ALLOC_TEMP		///< Memory used temporarily within a function.
 };
 
 typedef void* (rcAllocFunc)(int size, rcAllocHint hint);
@@ -35,7 +35,7 @@ void rcFree(void* ptr);
 
 
 
-// Simple dynamic array ints.
+/// Simple dynamic array ints.
 class rcIntArray
 {
 	int* m_data;
@@ -54,7 +54,7 @@ public:
 	inline int size() const { return m_size; }
 };
 
-// Simple internal helper class to delete array in scope
+/// Simple internal helper class to delete array in scope
 template<class T> class rcScopedDelete
 {
 	T* ptr;

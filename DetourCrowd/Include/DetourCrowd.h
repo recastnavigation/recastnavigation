@@ -149,14 +149,14 @@ class dtCrowd
 
 	struct MoveRequest
 	{
-		unsigned char state;			// State of the request
-		int idx;						// Agent index
-		dtPolyRef ref;					// Goal ref
-		float pos[3];					// Goal position
-		dtPathQueueRef pathqRef;		// Path find query ref
-		dtPolyRef aref;					// Goal adjustment ref
-		float apos[3];					// Goal adjustment pos
-		dtPolyRef temp[MAX_TEMP_PATH];	// Adjusted path to the goal
+		unsigned char state;			///< State of the request
+		int idx;						///< Agent index
+		dtPolyRef ref;					///< Goal ref
+		float pos[3];					///< Goal position
+		dtPathQueueRef pathqRef;		///< Path find query ref
+		dtPolyRef aref;					///< Goal adjustment ref
+		float apos[3];					///< Goal adjustment pos
+		dtPolyRef temp[MAX_TEMP_PATH];	///< Adjusted path to the goal
 		int ntemp;
 	};
 	MoveRequest* m_moveRequests;

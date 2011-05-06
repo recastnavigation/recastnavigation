@@ -30,7 +30,7 @@ enum duDebugDrawPrimitives
 	DU_DRAW_QUADS,	
 };
 
-// Abstrace debug draw interface.
+/// Abstract debug draw interface.
 struct duDebugDraw
 {
 	virtual ~duDebugDraw() = 0;
@@ -39,38 +39,32 @@ struct duDebugDraw
 
 	virtual void texture(bool state) = 0;
 
-	// Begin drawing primitives.
-	// Params:
-	//  prim - (in) primitive type to draw, one of rcDebugDrawPrimitives.
-	//  nverts - (in) number of vertices to be submitted.
-	//  size - (in) size of a primitive, applies to point size and line width only.
+	/// Begin drawing primitives.
+	///  @param prim [in] primitive type to draw, one of rcDebugDrawPrimitives.
+	///  @param size [in] size of a primitive, applies to point size and line width only.
 	virtual void begin(duDebugDrawPrimitives prim, float size = 1.0f) = 0;
 
-	// Submit a vertex
-	// Params:
-	//  pos - (in) position of the verts.
-	//  color - (in) color of the verts.
+	/// Submit a vertex
+	///  @param pos [in] position of the verts.
+	///  @param color [in] color of the verts.
 	virtual void vertex(const float* pos, unsigned int color) = 0;
 
-	// Submit a vertex
-	// Params:
-	//  x,y,z - (in) position of the verts.
-	//  color - (in) color of the verts.
+	/// Submit a vertex
+	///  @param x,y,z [in] position of the verts.
+	///  @param color [in] color of the verts.
 	virtual void vertex(const float x, const float y, const float z, unsigned int color) = 0;
 
-	// Submit a vertex
-	// Params:
-	//  pos - (in) position of the verts.
-	//  color - (in) color of the verts.
+	/// Submit a vertex
+	///  @param pos [in] position of the verts.
+	///  @param color [in] color of the verts.
 	virtual void vertex(const float* pos, unsigned int color, const float* uv) = 0;
 	
-	// Submit a vertex
-	// Params:
-	//  x,y,z - (in) position of the verts.
-	//  color - (in) color of the verts.
+	/// Submit a vertex
+	///  @param x,y,z [in] position of the verts.
+	///  @param color [in] color of the verts.
 	virtual void vertex(const float x, const float y, const float z, unsigned int color, const float u, const float v) = 0;
 	
-	// End drawing primitives.
+	/// End drawing primitives.
 	virtual void end() = 0;
 };
 

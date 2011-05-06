@@ -22,7 +22,7 @@
 #include "DetourAlloc.h"
 #include "DetourStatus.h"
 
-static const int DT_TILECACHE_MAGIC = 'D'<<24 | 'T'<<16 | 'L'<<8 | 'R'; //'DTLR';
+static const int DT_TILECACHE_MAGIC = 'D'<<24 | 'T'<<16 | 'L'<<8 | 'R'; ///< 'DTLR';
 static const int DT_TILECACHE_VERSION = 1;
 
 static const unsigned char DT_TILECACHE_NULL_AREA = 0;
@@ -30,19 +30,19 @@ static const unsigned char DT_TILECACHE_WALKABLE_AREA = 63;
 
 struct dtTileCacheLayerHeader
 {
-	int magic;								// Data magic
-	int version;							// Data version
+	int magic;								///< Data magic
+	int version;							///< Data version
 	int tx,ty,tlayer;
 	float bmin[3], bmax[3];
-	unsigned short hmin, hmax;				// Height min/max range
-	unsigned char width, height;			// Dimension of the layer.
-	unsigned char minx, maxx, miny, maxy;	// Usable sub-region.
+	unsigned short hmin, hmax;				///< Height min/max range
+	unsigned char width, height;			///< Dimension of the layer.
+	unsigned char minx, maxx, miny, maxy;	///< Usable sub-region.
 };
 
 struct dtTileCacheLayer
 {
 	dtTileCacheLayerHeader* header;
-	unsigned char regCount;					// Region count.
+	unsigned char regCount;					///< Region count.
 	unsigned char* heights;
 	unsigned char* areas;
 	unsigned char* cons;
@@ -65,12 +65,12 @@ struct dtTileCacheContourSet
 
 struct dtTileCachePolyMesh
 {
-	int nverts;				// Number of vertices.
-	int npolys;				// Number of polygons.
-	unsigned short* verts;	// Vertices of the mesh, 3 elements per vertex.
-	unsigned short* polys;	// Polygons of the mesh, nvp*2 elements per polygon.
-	unsigned short* flags;	// Per polygon flags.
-	unsigned char* areas;	// Area ID of polygons.
+	int nverts;				///< Number of vertices.
+	int npolys;				///< Number of polygons.
+	unsigned short* verts;	///< Vertices of the mesh, 3 elements per vertex.
+	unsigned short* polys;	///< Polygons of the mesh, nvp*2 elements per polygon.
+	unsigned short* flags;	///< Per polygon flags.
+	unsigned char* areas;	///< Area ID of polygons.
 };
 
 

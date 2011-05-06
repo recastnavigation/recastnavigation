@@ -31,16 +31,16 @@ class dtPathQueue
 	struct PathQuery
 	{
 		dtPathQueueRef ref;
-		// Path find start and end location.
+		/// Path find start and end location.
 		float startPos[3], endPos[3];
 		dtPolyRef startRef, endRef;
-		// Result.
+		/// Result.
 		dtPolyRef* path;
 		int npath;
-		// State.
+		/// State.
 		dtStatus status;
 		int keepAlive;
-		const dtQueryFilter* filter; // TODO: This is potentially dangerous!
+		const dtQueryFilter* filter; ///< TODO: This is potentially dangerous!
 	};
 	
 	static const int MAX_QUEUE = 8;

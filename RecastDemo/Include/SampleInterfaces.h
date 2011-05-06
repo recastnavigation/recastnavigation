@@ -26,7 +26,7 @@
 
 // These are example implementations of various interfaces used in Recast and Detour.
 
-// Recast build context.
+/// Recast build context.
 class BuildContext : public rcContext
 {
 	TimeVal m_startTime[RC_MAX_TIMERS];
@@ -43,24 +43,26 @@ public:
 	BuildContext();
 	virtual ~BuildContext();
 	
-	// Dumps the log to stdout.
+	/// Dumps the log to stdout.
 	void dumpLog(const char* format, ...);
-	// Returns number of log messages.
+	/// Returns number of log messages.
 	int getLogCount() const;
-	// Returns log message text.
+	/// Returns log message text.
 	const char* getLogText(const int i) const;
 	
 protected:	
-	// Virtual functions for custom implementations.
+	/// Virtual functions for custom implementations.
+	///@{
 	virtual void doResetLog();
 	virtual void doLog(const rcLogCategory /*category*/, const char* /*msg*/, const int /*len*/);
 	virtual void doResetTimers();
 	virtual void doStartTimer(const rcTimerLabel /*label*/);
 	virtual void doStopTimer(const rcTimerLabel /*label*/);
 	virtual int doGetAccumulatedTime(const rcTimerLabel /*label*/) const;
+	///@}
 };
 
-// OpenGL debug draw implementation.
+/// OpenGL debug draw implementation.
 class DebugDrawGL : public duDebugDraw
 {
 public:
@@ -74,7 +76,7 @@ public:
 	virtual void end();
 };
 
-// stdio file implementation.
+/// stdio file implementation.
 class FileIO : public duFileIO
 {
 	FILE* m_fp;
