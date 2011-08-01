@@ -424,6 +424,26 @@ void duDebugDrawNavMeshPortals(duDebugDraw* dd, const dtNavMesh& mesh)
 	}
 }
 
+void duDebugDrawNavMeshPolysWithFlags(struct duDebugDraw* dd, const dtNavMesh& mesh,
+									  const unsigned short polyFlags, const unsigned int col)
+{
+	if (!dd) return;
+	
+	for (int i = 0; i < mesh.getMaxTiles(); ++i)
+	{
+		const dtMeshTile* tile = mesh.getTile(i);
+		if (!tile->header) continue;
+		dtPolyRef base = mesh.getPolyRefBase(tile);
+
+		for (int j = 0; j < tile->header->polyCount; ++j)
+		{
+			const dtPoly* p = &tile->polys[j];
+			if ((p->flags & polyFlags) == 0) continue;
+			duDebugDrawNavMeshPoly(dd, mesh, base|(dtPolyRef)j, col);
+		}
+	}
+}
+
 void duDebugDrawNavMeshPoly(duDebugDraw* dd, const dtNavMesh& mesh, dtPolyRef ref, const unsigned int col)
 {
 	if (!dd) return;

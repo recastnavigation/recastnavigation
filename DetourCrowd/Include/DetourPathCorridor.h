@@ -51,6 +51,11 @@ public:
 	bool moveOverOffmeshConnection(dtPolyRef offMeshConRef, dtPolyRef* refs,
 								   float* startPos, float* endPos,
 								   dtNavMeshQuery* navquery);
+
+	bool trimInvalidPath(dtPolyRef safeRef, const float* safePos,
+						 dtNavMeshQuery* navquery, const dtQueryFilter* filter);
+	
+	bool isValid(const int maxLookAhead, dtNavMeshQuery* navquery, const dtQueryFilter* filter);
 	
 	void movePosition(const float* npos, dtNavMeshQuery* navquery, const dtQueryFilter* filter);
 	void moveTargetPosition(const float* npos, dtNavMeshQuery* navquery, const dtQueryFilter* filter);
@@ -61,6 +66,7 @@ public:
 	inline const float* getTarget() const { return m_target; }
 	
 	inline dtPolyRef getFirstPoly() const { return m_npath ? m_path[0] : 0; }
+	inline dtPolyRef getLastPoly() const { return m_npath ? m_path[m_npath-1] : 0; }
 	
 	inline const dtPolyRef* getPath() const { return m_path; }
 	inline int getPathCount() const { return m_npath; } 	

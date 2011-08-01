@@ -1200,8 +1200,14 @@ dtStatus dtNavMeshQuery::findStraightPath(const float* startPos, const float* en
 				// Next portal.
 				if (dtStatusFailed(getPortalPoints(path[i], path[i+1], left, right, fromType, toType)))
 				{
+					// Failed to get portal points, in practice this means that path[i+1] is invalid polygon.
+					// Clamp the end point to path[i], and return the path so far.
+					
 					if (dtStatusFailed(closestPointOnPolyBoundary(path[i], endPos, closestEndPos)))
+					{
+						// This should only happen when the first polygon is invalid.
 						return DT_FAILURE | DT_INVALID_PARAM;
+					}
 					
 					dtVcopy(&straightPath[n*3], closestEndPos);
 					if (straightPathFlags)
@@ -1210,7 +1216,9 @@ dtStatus dtNavMeshQuery::findStraightPath(const float* startPos, const float* en
 						straightPathRefs[n] = path[i];
 					n++;
 					
-					return DT_SUCCESS;
+					*straightPathCount = n;
+					
+					return DT_SUCCESS | DT_PARTIAL_RESULT | ((n >= maxStraightPath) ? DT_BUFFER_TOO_SMALL : 0);
 				}
 				
 				// If starting really close the portal, advance.
@@ -2704,6 +2712,20 @@ dtStatus dtNavMeshQuery::findDistanceToWall(dtPolyRef startRef, const float* cen
 	*hitDist = sqrtf(radiusSqr);
 	
 	return status;
+}
+
+bool dtNavMeshQuery::isValidPolyRef(dtPolyRef ref, const dtQueryFilter* filter) const
+{
+	const dtMeshTile* tile = 0;
+	const dtPoly* poly = 0;
+	dtStatus status = m_nav->getTileAndPolyByRef(ref, &tile, &poly);
+	// If cannot get polygon, assume it does not exists and boundary is invalid.
+	if (dtStatusFailed(status))
+		return false;
+	// If cannot pass filter, assume flags has changed and boundary is invalid.
+	if (!filter->passFilter(ref, tile, poly))
+		return false;
+	return true;
 }
 
 bool dtNavMeshQuery::isInClosedList(dtPolyRef ref) const

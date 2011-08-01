@@ -423,10 +423,10 @@ int main(int /*argc*/, char** /*argv*/)
 		}
 
 		// Clamp the framerate so that we do not hog all the CPU.
-		const float FRAME_RATE = 40;
-		if (dt < FRAME_RATE)
+		const float MIN_FRAME_TIME = 1.0f/40.0f;
+		if (dt < MIN_FRAME_TIME)
 		{
-			int ms = (int)((FRAME_RATE - dt)*1000.0f);
+			int ms = (int)((MIN_FRAME_TIME - dt)*1000.0f);
 			if (ms > 10) ms = 10;
 			if (ms >= 0)
 				SDL_Delay(ms);

@@ -38,6 +38,7 @@ struct dtCrowdNeighbour
 
 enum CrowdAgentState
 {
+	DT_CROWDAGENT_STATE_INVALID,
 	DT_CROWDAGENT_STATE_WALKING,
 	DT_CROWDAGENT_STATE_OFFMESH,
 };
@@ -138,6 +139,7 @@ class dtCrowd
 
 	enum MoveRequestState
 	{
+		MR_TARGET_NONE,
 		MR_TARGET_FAILED,
 		MR_TARGET_VALID,
 		MR_TARGET_REQUESTING,
@@ -158,6 +160,7 @@ class dtCrowd
 		float apos[3];					///< Goal adjustment pos
 		dtPolyRef temp[MAX_TEMP_PATH];	///< Adjusted path to the goal
 		int ntemp;
+		bool replan;
 	};
 	MoveRequest* m_moveRequests;
 	int m_moveRequestCount;
@@ -166,9 +169,13 @@ class dtCrowd
 
 	void updateTopologyOptimization(dtCrowdAgent** agents, const int nagents, const float dt);
 	void updateMoveRequest(const float dt);
+	void checkPathValidty(dtCrowdAgent** agents, const int nagents, const float dt);
 
 	inline int getAgentIndex(const dtCrowdAgent* agent) const  { return agent - m_agents; }
-	
+	const MoveRequest* getActiveMoveTarget(const int idx) const;
+
+	bool requestMoveTargetReplan(const int idx, dtPolyRef ref, const float* pos);
+
 	void purge();
 	
 public:
@@ -194,6 +201,7 @@ public:
 	void update(const float dt, dtCrowdAgentDebugInfo* debug);
 	
 	const dtQueryFilter* getFilter() const { return &m_filter; }
+	dtQueryFilter* getEditableFilter() { return &m_filter; }
 	const float* getQueryExtents() const { return m_ext; }
 	
 	inline int getVelocitySampleCount() const { return m_velocitySampleCount; }
@@ -203,5 +211,8 @@ public:
 	const dtNavMeshQuery* getNavMeshQuery() const { return m_navquery; }
 };
 
+dtCrowd* dtAllocCrowd();
+void dtFreeCrowd(dtCrowd* ptr);
 
-#endif // CROWDMANAGER_H
+
+#endif // DETOURCROWD_H

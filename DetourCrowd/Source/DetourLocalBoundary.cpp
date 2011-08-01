@@ -25,7 +25,8 @@
 
 
 dtLocalBoundary::dtLocalBoundary() :
-	m_nsegs(0)
+	m_nsegs(0),
+	m_npolys(0)
 {
 	dtVset(m_center, FLT_MAX,FLT_MAX,FLT_MAX);
 }
@@ -37,6 +38,7 @@ dtLocalBoundary::~dtLocalBoundary()
 void dtLocalBoundary::reset()
 {
 	dtVset(m_center, FLT_MAX,FLT_MAX,FLT_MAX);
+	m_npolys = 0;
 	m_nsegs = 0;
 }
 
@@ -52,7 +54,7 @@ void dtLocalBoundary::addSegment(const float dist, const float* s)
 	else if (dist >= m_segs[m_nsegs-1].d)
 	{
 		// Further than the last segment, skip.
-		if (m_nsegs >= MAX_SEGS)
+		if (m_nsegs >= MAX_LOCAL_SEGS)
 			return;
 		// Last, trivial accept.
 		seg = &m_segs[m_nsegs];
@@ -65,8 +67,8 @@ void dtLocalBoundary::addSegment(const float dist, const float* s)
 			if (dist <= m_segs[i].d)
 				break;
 		const int tgt = i+1;
-		const int n = dtMin(m_nsegs-i, MAX_SEGS-tgt);
-		dtAssert(tgt+n <= MAX_SEGS);
+		const int n = dtMin(m_nsegs-i, MAX_LOCAL_SEGS-tgt);
+		dtAssert(tgt+n <= MAX_LOCAL_SEGS);
 		if (n > 0)
 			memmove(&m_segs[tgt], &m_segs[i], sizeof(Segment)*n);
 		seg = &m_segs[i];
@@ -75,38 +77,36 @@ void dtLocalBoundary::addSegment(const float dist, const float* s)
 	seg->d = dist;
 	memcpy(seg->s, s, sizeof(float)*6);
 	
-	if (m_nsegs < MAX_SEGS)
+	if (m_nsegs < MAX_LOCAL_SEGS)
 		m_nsegs++;
 }
 
 void dtLocalBoundary::update(dtPolyRef ref, const float* pos, const float collisionQueryRange,
 							 dtNavMeshQuery* navquery, const dtQueryFilter* filter)
 {
-	static const int MAX_LOCAL_POLYS = 16;
 	static const int MAX_SEGS_PER_POLY = DT_VERTS_PER_POLYGON*3;
 	
 	if (!ref)
 	{
 		dtVset(m_center, FLT_MAX,FLT_MAX,FLT_MAX);
 		m_nsegs = 0;
+		m_npolys = 0;
 		return;
 	}
 	
 	dtVcopy(m_center, pos);
 	
 	// First query non-overlapping polygons.
-	dtPolyRef locals[MAX_LOCAL_POLYS];
-	int nlocals = 0;
 	navquery->findLocalNeighbourhood(ref, pos, collisionQueryRange,
-									 filter, locals, 0, &nlocals, MAX_LOCAL_POLYS);
+									 filter, m_polys, 0, &m_npolys, MAX_LOCAL_POLYS);
 	
 	// Secondly, store all polygon edges.
 	m_nsegs = 0;
 	float segs[MAX_SEGS_PER_POLY*6];
 	int nsegs = 0;
-	for (int j = 0; j < nlocals; ++j)
+	for (int j = 0; j < m_npolys; ++j)
 	{
-		navquery->getPolyWallSegments(locals[j], filter, segs, 0, &nsegs, MAX_SEGS_PER_POLY);
+		navquery->getPolyWallSegments(m_polys[j], filter, segs, 0, &nsegs, MAX_SEGS_PER_POLY);
 		for (int k = 0; k < nsegs; ++k)
 		{
 			const float* s = &segs[k*6];
@@ -119,3 +119,19 @@ void dtLocalBoundary::update(dtPolyRef ref, const float* pos, const float collis
 		}
 	}
 }
+
+bool dtLocalBoundary::isValid(dtNavMeshQuery* navquery, const dtQueryFilter* filter)
+{
+	if (!m_npolys)
+		return false;
+	
+	// Check that all polygons still pass query filter.
+	for (int i = 0; i < m_npolys; ++i)
+	{
+		if (!navquery->isValidPolyRef(m_polys[i], filter))
+			return false;
+	}
+	
+	return true;
+}
+

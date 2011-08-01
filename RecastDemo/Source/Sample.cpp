@@ -26,6 +26,7 @@
 #include "DetourDebugDraw.h"
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"
+#include "DetourCrowd.h"
 #include "imgui.h"
 #include "SDL.h"
 #include "SDL_opengl.h"
@@ -38,18 +39,21 @@ Sample::Sample() :
 	m_geom(0),
 	m_navMesh(0),
 	m_navQuery(0),
+	m_crowd(0),
 	m_navMeshDrawFlags(DU_DRAWNAVMESH_OFFMESHCONS|DU_DRAWNAVMESH_CLOSEDLIST),
 	m_tool(0),
 	m_ctx(0)
 {
 	resetCommonSettings();
 	m_navQuery = dtAllocNavMeshQuery();
+	m_crowd = dtAllocCrowd();
 }
 
 Sample::~Sample()
 {
 	dtFreeNavMeshQuery(m_navQuery);
 	dtFreeNavMesh(m_navMesh);
+	dtFreeCrowd(m_crowd);
 	delete m_tool;
 }
 

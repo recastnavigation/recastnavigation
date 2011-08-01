@@ -35,7 +35,6 @@ class CrowdTool : public SampleTool
 	float m_targetPos[3];
 	dtPolyRef m_targetRef;
 
-
 	bool m_expandSelectedDebugDraw;
 	bool m_showCorners;
 	bool m_showCollisionSegments;
@@ -73,16 +72,16 @@ class CrowdTool : public SampleTool
 	};
 	AgentTrail m_trails[MAX_AGENTS];
 	
-	dtCrowd m_crowd;
-		
 	ValueHistory m_crowdTotalTime;
 	ValueHistory m_crowdSampleCount;
+	
 	
 	enum ToolMode
 	{
 		TOOLMODE_CREATE,
 		TOOLMODE_MOVE_TARGET,
 		TOOLMODE_SELECT,
+		TOOLMODE_TOGGLE_POLYS,
 	};
 	ToolMode m_mode;
 	

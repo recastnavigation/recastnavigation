@@ -328,7 +328,10 @@ public:
 	///  @returns true if over polygon.
 	dtStatus getPolyHeight(dtPolyRef ref, const float* pos, float* height) const;
 		
-	/// Returns true if poly reference ins in closed list.
+	// Returns true if polygon reference points to valid data and passes the filter.
+	bool isValidPolyRef(dtPolyRef ref, const dtQueryFilter* filter) const;
+	
+	// Returns true if poly reference ins in closed list.
 	bool isInClosedList(dtPolyRef ref) const;
 	
 	class dtNodePool* getNodePool() const { return m_nodePool; }

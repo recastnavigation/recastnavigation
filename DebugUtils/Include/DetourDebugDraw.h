@@ -35,6 +35,7 @@ void duDebugDrawNavMeshWithClosedList(struct duDebugDraw* dd, const dtNavMesh& m
 void duDebugDrawNavMeshNodes(struct duDebugDraw* dd, const dtNavMeshQuery& query);
 void duDebugDrawNavMeshBVTree(struct duDebugDraw* dd, const dtNavMesh& mesh);
 void duDebugDrawNavMeshPortals(struct duDebugDraw* dd, const dtNavMesh& mesh);
+void duDebugDrawNavMeshPolysWithFlags(struct duDebugDraw* dd, const dtNavMesh& mesh, const unsigned short polyFlags, const unsigned int col);
 void duDebugDrawNavMeshPoly(struct duDebugDraw* dd, const dtNavMesh& mesh, dtPolyRef ref, const unsigned int col);
 
 void duDebugDrawTileCacheLayer(struct duDebugDraw* dd, const dtTileCacheLayer& layer, const float cs, const float ch);

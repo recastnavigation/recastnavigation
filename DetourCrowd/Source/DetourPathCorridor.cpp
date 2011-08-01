@@ -155,6 +155,7 @@ int dtMergeCorridorStartShortcut(dtPolyRef* path, const int npath, const int max
 	return req+size;
 }
 
+
 dtPathCorridor::dtPathCorridor() :
 	m_path(0),
 	m_npath(0),
@@ -263,6 +264,8 @@ void dtPathCorridor::optimizePathVisibility(const float* next, const float pathO
 
 bool dtPathCorridor::optimizePathTopology(dtNavMeshQuery* navquery, const dtQueryFilter* filter)
 {
+	dtAssert(navquery);
+	dtAssert(filter);
 	dtAssert(m_path);
 	
 	if (m_npath < 3)
@@ -383,4 +386,56 @@ void dtPathCorridor::setCorridor(const float* target, const dtPolyRef* path, con
 	dtVcopy(m_target, target);
 	memcpy(m_path, path, sizeof(dtPolyRef)*npath);
 	m_npath = npath;
+}
+
+bool dtPathCorridor::trimInvalidPath(dtPolyRef safeRef, const float* safePos,
+									 dtNavMeshQuery* navquery, const dtQueryFilter* filter)
+{
+	dtAssert(navquery);
+	dtAssert(filter);
+	dtAssert(m_path);
+	
+	// Keep valid path as far as possible.
+	int n = 0;
+	while (n < m_npath && navquery->isValidPolyRef(m_path[n], filter)) {
+		n++;
+	}
+	
+	if (n == m_npath)
+	{
+		// All valid, no need to fix.
+		return true;
+	}
+	else if (n == 0)
+	{
+		// The first polyref is bad, use current safe values.
+		dtVcopy(m_pos, safePos);
+		m_path[0] = safeRef;
+		m_npath = 1;
+	}
+	else
+	{
+		// The path is partially usable.
+		m_npath = n;
+	}
+	
+	// Clamp target pos to last poly
+	float tgt[3];
+	dtVcopy(tgt, m_target);
+	navquery->closestPointOnPolyBoundary(m_path[m_npath-1], tgt, m_target);
+	
+	return true;
+}
+
+bool dtPathCorridor::isValid(const int maxLookAhead, dtNavMeshQuery* navquery, const dtQueryFilter* filter)
+{
+	// Check that all polygons still pass query filter.
+	const int n = dtMin(m_npath, maxLookAhead);
+	for (int i = 0; i < n; ++i)
+	{
+		if (!navquery->isValidPolyRef(m_path[i], filter))
+			return false;
+	}
+
+	return true;
 }
