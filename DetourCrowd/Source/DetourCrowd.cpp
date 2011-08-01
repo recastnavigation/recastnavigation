@@ -31,10 +31,6 @@
 #include "DetourAlloc.h"
 
 
-#include <stdio.h>
-
-
-
 dtCrowd* dtAllocCrowd()
 {
 	void* mem = dtAlloc(sizeof(dtCrowd), DT_ALLOC_PERM);
