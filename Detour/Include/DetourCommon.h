@@ -19,6 +19,12 @@
 #ifndef DETOURCOMMON_H
 #define DETOURCOMMON_H
 
+/** 
+ * @defgroup detour Detour
+ * Classes and functions related to path planning.
+ * @note This is a summary list.  Use the index or documentation search 
+ * functionality to find minor elements.
+ */
 
 template<class T> inline void dtSwap(T& a, T& b) { T t = a; a = b; b = t; }
 template<class T> inline T dtMin(T a, T b) { return a < b ? a : b; }

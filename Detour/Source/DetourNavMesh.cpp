@@ -142,6 +142,10 @@ dtNavMesh* dtAllocNavMesh()
 	return new(mem) dtNavMesh;
 }
 
+/// @par
+///
+/// This function will only free the memory for tiles with the #DT_TILE_FREE_DATA
+/// flag set.
 void dtFreeNavMesh(dtNavMesh* navmesh)
 {
 	if (!navmesh) return;
@@ -150,6 +154,19 @@ void dtFreeNavMesh(dtNavMesh* navmesh)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
+
+/// @class dtNavMesh
+///
+/// This class is usually used in conjunction with the dtNavMeshQuery class.
+/// 
+/// Technically, all navigation meshes are tiled. A 'solo' mesh is simply a navigation mesh initialized 
+/// to have only a single tile.
+///
+/// This class does not implement any asynchronous methods. So the ::dtStatus result of all methods will 
+/// always contain either a success or failure flag.
+/// 
+/// @see dtNavMeshQuery, dtCreateNavMeshData(), dtNavMeshCreateParams, #dtAllocNavMesh, #dtFreeNavMesh
+
 dtNavMesh::dtNavMesh() :
 	m_tileWidth(0),
 	m_tileHeight(0),
@@ -246,6 +263,10 @@ dtStatus dtNavMesh::init(unsigned char* data, const int dataSize, const int flag
 	return addTile(data, dataSize, flags, 0, 0);
 }
 
+/// @par
+///
+/// @note The parameters are created automatically when the single tile
+/// initialization is performed.
 const dtNavMeshParams* dtNavMesh::getParams() const
 {
 	return &m_params;
@@ -726,6 +747,17 @@ int dtNavMesh::queryPolygonsInTile(const dtMeshTile* tile, const float* qmin, co
 	}
 }
 
+/// @par
+///
+/// The add operation will fail if the data is in the wrong format, the allocated tile
+/// space is full, or there is a tile already at the specified reference.
+///
+/// The lastRef parameter is used to restore a tile with the same tile
+/// reference it had previously used.  In this case the #dtPolyRef's for the
+/// tile will be restored to the same values they were before the tile was 
+/// removed.
+///
+/// @see dtCreateNavMeshData, #removeTile
 dtStatus dtNavMesh::addTile(unsigned char* data, int dataSize, int flags,
 							dtTileRef lastRef, dtTileRef* result)
 {
@@ -922,6 +954,10 @@ int dtNavMesh::getTilesAt(const int x, const int y, dtMeshTile** tiles, const in
 	return n;
 }
 
+/// @par
+///
+/// This function will not fail if the tiles array is too small to hold the
+/// entire result set.  It will simply fill the array to capacity.
 int dtNavMesh::getTilesAt(const int x, const int y, dtMeshTile const** tiles, const int maxTiles) const
 {
 	int n = 0;
@@ -1012,6 +1048,11 @@ dtStatus dtNavMesh::getTileAndPolyByRef(const dtPolyRef ref, const dtMeshTile** 
 	return DT_SUCCESS;
 }
 
+/// @par
+///
+/// @warning Only use this function if it is known that the provided polygon
+/// reference is valid. This function is faster than #getTileAndPolyByRef, but
+/// it does not validate the reference.
 void dtNavMesh::getTileAndPolyByRefUnsafe(const dtPolyRef ref, const dtMeshTile** tile, const dtPoly** poly) const
 {
 	unsigned int salt, it, ip;
@@ -1031,6 +1072,12 @@ bool dtNavMesh::isValidPolyRef(dtPolyRef ref) const
 	return true;
 }
 
+/// @par
+///
+/// This function returns the data for the tile so that, if desired,
+/// it can be added back to the navigation mesh at a later point.
+///
+/// @see #addTile
 dtStatus dtNavMesh::removeTile(dtTileRef ref, unsigned char** data, int* dataSize)
 {
 	if (!ref)
@@ -1130,6 +1177,20 @@ dtTileRef dtNavMesh::getTileRef(const dtMeshTile* tile) const
 	return (dtTileRef)encodePolyId(tile->salt, it, 0);
 }
 
+/// @par
+///
+/// Example use case:
+/// @code
+///
+/// const dtPolyRef base = navmesh->getPolyRefBase(tile);
+/// for (int i = 0; i < tile->header->polyCount; ++i)
+/// {
+///     const dtPoly* p = &tile->polys[i];
+///     const dtPolyRef ref = base | (dtPolyRef)i;
+///     
+///     // Use the reference to access the polygon data.
+/// }
+/// @endcode
 dtPolyRef dtNavMesh::getPolyRefBase(const dtMeshTile* tile) const
 {
 	if (!tile) return 0;
@@ -1150,6 +1211,7 @@ struct dtPolyState
 	unsigned char area;							// Area ID of the polygon.
 };
 
+///  @see #storeTileState
 int dtNavMesh::getTileStateSize(const dtMeshTile* tile) const
 {
 	if (!tile) return 0;
@@ -1158,6 +1220,11 @@ int dtNavMesh::getTileStateSize(const dtMeshTile* tile) const
 	return headerSize + polyStateSize;
 }
 
+/// @par
+///
+/// Tile state includes non-structural data such as polygon flags, area ids, etc.
+/// @note The state data is only valid until the tile reference changes.
+/// @see #getTileStateSize, #restoreTileState
 dtStatus dtNavMesh::storeTileState(const dtMeshTile* tile, unsigned char* data, const int maxDataSize) const
 {
 	// Make sure there is enough space to store the state.
@@ -1185,6 +1252,11 @@ dtStatus dtNavMesh::storeTileState(const dtMeshTile* tile, unsigned char* data, 
 	return DT_SUCCESS;
 }
 
+/// @par
+///
+/// Tile state includes non-structural data such as polygon flags, area ids, etc.
+/// @note This function does not impact the tile's #dtTileRef and #dtPolyRef's.
+/// @see #storeTileState
 dtStatus dtNavMesh::restoreTileState(dtMeshTile* tile, const unsigned char* data, const int maxDataSize)
 {
 	// Make sure there is enough space to store the state.
@@ -1215,7 +1287,13 @@ dtStatus dtNavMesh::restoreTileState(dtMeshTile* tile, const unsigned char* data
 	return DT_SUCCESS;
 }
 
-// Returns start and end location of an off-mesh link polygon.
+/// @par
+///
+/// Off-mesh connections are stored in the navigation mesh as special 2-vertex 
+/// polygons with a single edge. At least one of the vertices is expected to be 
+/// inside a normal polygon. So an off-mesh connection is "entered" from a 
+/// normal polygon at one of its endpoints. This is the polygon identified by 
+/// the prevRef parameter.
 dtStatus dtNavMesh::getOffMeshConnectionPolyEndPoints(dtPolyRef prevRef, dtPolyRef polyRef, float* startPos, float* endPos) const
 {
 	unsigned int salt, it, ip;
