@@ -617,7 +617,8 @@ INPUT                  = Detour \
                          DetourCrowd \
                          DetourTileCache \
                          Recast \
-                         Docs\Conceptual
+                         Docs\Conceptual \
+                         Docs\Extern
 
 # This tag can be used to specify the character encoding of the source files 
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding, which is 
@@ -637,7 +638,8 @@ INPUT_ENCODING         = UTF-8
 
 FILE_PATTERNS          = *.cpp \
                          *.h \
-                         *_c.txt
+                         *_c.txt \
+                         *_api.txt
 
 # The RECURSIVE tag can be used to turn specify whether or not subdirectories 
 # should be searched for input files as well. Possible values are YES and NO. 
