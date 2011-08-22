@@ -19,264 +19,446 @@
 #ifndef RECAST_H
 #define RECAST_H
 
-// Some math headers don't have PI defined.
+/** 
+ * @defgroup recast Recast
+ * Elements related to path planning.
+ * @note This list is not yet complete.  (The documentation effort is still underway.)
+ */
+
+/// The value of PI used by Recast.
 static const float RC_PI = 3.14159265f;
 
+/// Recast log categories.
+/// @ingroup recast
+/// @see rcContext
 enum rcLogCategory
 {
-	RC_LOG_PROGRESS = 1,
-	RC_LOG_WARNING,
-	RC_LOG_ERROR,
+	RC_LOG_PROGRESS = 1,	///< A progress log entry.
+	RC_LOG_WARNING,	 	    ///< A warning log entry.
+	RC_LOG_ERROR,	   	    ///< An error log entry.
 };
 
+/// Recast performance timer categories.
+/// @ingroup recast
+/// @see rcContext
 enum rcTimerLabel
 {
+	/// The user defined total time of the build.
 	RC_TIMER_TOTAL,
+	/// A user defined build time.
 	RC_TIMER_TEMP,
+	/// The time to rasterize the triangles. (See: #rcRasterizeTriangle)
 	RC_TIMER_RASTERIZE_TRIANGLES,
+	/// The time to build the compact heightfield. (See: #rcBuildCompactHeightfield)
 	RC_TIMER_BUILD_COMPACTHEIGHTFIELD,
+	/// The total time to build the contours. (See: #rcBuildContours)
 	RC_TIMER_BUILD_CONTOURS,
+	/// The time to trace the boundaries of the contours. (See: #rcBuildContours)
 	RC_TIMER_BUILD_CONTOURS_TRACE,
+	/// The time to simplify the contours. (See: #rcBuildContours)
 	RC_TIMER_BUILD_CONTOURS_SIMPLIFY,
+	/// The time to filter ledge spans. (See: #rcFilterLedgeSpans)
 	RC_TIMER_FILTER_BORDER,
+	/// The time to filter low height spans. (See: #rcFilterWalkableLowHeightSpans)
 	RC_TIMER_FILTER_WALKABLE,
+	/// The time to apply the median filter. (See: #rcMedianFilterWalkableArea)
 	RC_TIMER_MEDIAN_AREA,
+	/// The time to filter low obstacles. (See: #rcFilterLowHangingWalkableObstacles)
 	RC_TIMER_FILTER_LOW_OBSTACLES,
+	/// The time to build the polygon mesh. (See: #rcBuildPolyMesh)
 	RC_TIMER_BUILD_POLYMESH,
+	/// The time to merge polygon meshes. (See: #rcMergePolyMeshes)
 	RC_TIMER_MERGE_POLYMESH,
+	/// The time to erode the walkable area. (See: #rcErodeWalkableArea)
 	RC_TIMER_ERODE_AREA,
+	/// The time to mark a box area. (See: #rcMarkBoxArea)
 	RC_TIMER_MARK_BOX_AREA,
+	/// The time to mark a cylinder area. (See: #rcMarkCylinderArea)
 	RC_TIMER_MARK_CYLINDER_AREA,
+	/// The time to mark a convex polygon area. (See: #rcMarkConvexPolyArea)
 	RC_TIMER_MARK_CONVEXPOLY_AREA,
+	/// The total time to build the distance field. (See: #rcBuildDistanceField)
 	RC_TIMER_BUILD_DISTANCEFIELD,
+	/// The time to build the distances of the distance field. (See: #rcBuildDistanceField)
 	RC_TIMER_BUILD_DISTANCEFIELD_DIST,
+	/// The time to blur the distance field. (See: #rcBuildDistanceField)
 	RC_TIMER_BUILD_DISTANCEFIELD_BLUR,
+	/// The total time to build the regions. (See: #rcBuildRegions, #rcBuildRegionsMonotone)
 	RC_TIMER_BUILD_REGIONS,
+	/// The total time to apply the watershed algorithm. (See: #rcBuildRegions)
 	RC_TIMER_BUILD_REGIONS_WATERSHED,
+	/// The time to expand regions while applying the watershed algorithm. (See: #rcBuildRegions)
 	RC_TIMER_BUILD_REGIONS_EXPAND,
+	/// The time to flood regions while applying the watershed algorithm. (See: #rcBuildRegions)
 	RC_TIMER_BUILD_REGIONS_FLOOD,
+	/// The time to filter out small regions. (See: #rcBuildRegions, #rcBuildRegionsMonotone)
 	RC_TIMER_BUILD_REGIONS_FILTER,
-	RC_TIMER_BUILD_LAYERS,
+	/// The time to build heightfield layers. (See: #rcBuildHeightfieldLayers)
+	RC_TIMER_BUILD_LAYERS, 
+	/// The time to build the polygon mesh detail. (See: #rcBuildPolyMeshDetail)
 	RC_TIMER_BUILD_POLYMESHDETAIL,
+	/// The time to merge polygon mesh details. (See: #rcMergePolyMeshDetails)
 	RC_TIMER_MERGE_POLYMESHDETAIL,
+	/// The maximum number of timers.  (Used for iterating timers.)
 	RC_MAX_TIMERS
 };
 
-/// Build context provides several optional utilities needed for the build process,
-/// such as timing, logging, and build time collecting.
+/// Provides an interface for optional logging and performance tracking of the Recast 
+/// build process.
 class rcContext
 {
 public:
+
+	/// Contructor.
+	///  @param[in] state  TRUE if the logging and performance timers should be enabled.  [Default: true]
 	inline rcContext(bool state = true) : m_logEnabled(state), m_timerEnabled(state) {}
 	virtual ~rcContext() {}
 
 	/// Enables or disables logging.
+	///  @param[in] state TRUE if logging should be enabled.
 	inline void enableLog(bool state) { m_logEnabled = state; }
-	/// Resets log.
+
+	/// Clears all log entries.
 	inline void resetLog() { if (m_logEnabled) doResetLog(); }
+
 	/// Logs a message.
+	///  @param[in] category The category of the message.
+	///  @param[in] format The message.
 	void log(const rcLogCategory category, const char* format, ...);
 
-	/// Enables or disables timer.
+	/// Enables or disables the performance timers.
+	///  @param[in] state  TRUE if timers should be enabled.
 	inline void enableTimer(bool state) { m_timerEnabled = state; }
-	/// Resets all timers.
+
+	/// Clears all peformance timers. (Resets all to unused.)
 	inline void resetTimers() { if (m_timerEnabled) doResetTimers(); }
-	/// Starts timer, used for performance timing.
+
+	/// Starts the specified performance timer.
+	///  @param label  The category of timer.
 	inline void startTimer(const rcTimerLabel label) { if (m_timerEnabled) doStartTimer(label); }
-	/// Stops timer, used for performance timing.
+
+	/// Stops the specified performance timer.
+	///  @param label  The category of the timer.
 	inline void stopTimer(const rcTimerLabel label) { if (m_timerEnabled) doStopTimer(label); }
-	/// Returns time accumulated between timer start/stop.
+
+	/// Returns the total accumulated time of the specified performance timer.
+	///  @param label  The category of the timer.
+	///  @return The accumulated time of the timer, or -1 if timers are disabled or the timer has never been started.
 	inline int getAccumulatedTime(const rcTimerLabel label) const { return m_timerEnabled ? doGetAccumulatedTime(label) : -1; }
 
 protected:
 
-	/// @name Virtual functions to override for custom implementations.
+	/// @name Custom implementation functions.
+	/// Logging and timer functionality must be provided by a concrete
+	/// implementation of these functions. This class does not implement these functions.
 	///@{
+
+	/// Clears all log entries.
 	virtual void doResetLog() {}
+
+	/// Logs a message.
+	///  @param[in] category The category of the message.
+	///  @param[in] msg The formatted message.
+	///  @param[in] len The length of the formatted message.
 	virtual void doLog(const rcLogCategory /*category*/, const char* /*msg*/, const int /*len*/) {}
+
+	/// Clears all timers. (Resets all to unused.)
 	virtual void doResetTimers() {}
+
+	/// Starts the specified performance timer.
+	///  @param[in] label  The category of timer.
 	virtual void doStartTimer(const rcTimerLabel /*label*/) {}
+
+	/// Stops the specified performance timer.
+	///  @param[in] label  The category of the timer.
 	virtual void doStopTimer(const rcTimerLabel /*label*/) {}
+
+	/// Returns the total accumulated time of the specified performance timer.
+	///  @param[in] label  The category of the timer.
+	///  @return The accumulated time of the timer, or -1 if timers are disabled or the timer has never been started.
 	virtual int doGetAccumulatedTime(const rcTimerLabel /*label*/) const { return -1; }
+
 	///@}
 	
+	/// True if logging is enabled.
 	bool m_logEnabled;
+
+	/// True if the performance timers are enabled.
 	bool m_timerEnabled;
 };
 
-
-/// The units of the parameters are specified in parenthesis as follows:
-/// (vx) voxels, (wu) world units
+/// Specifies a configuration to use when performing Recast builds.
 struct rcConfig
 {
-	int width, height;				///< Dimensions of the rasterized heightfield (vx)
-	int tileSize;					///< Width and Height of a tile (vx)
-	int borderSize;					///< Non-navigable Border around the heightfield (vx)
-	float cs, ch;					///< Grid cell size and height (wu)
-	float bmin[3], bmax[3];			///< Grid bounds (wu)
-	float walkableSlopeAngle;		///< Maximum walkable slope angle in degrees.
-	int walkableHeight;				///< Minimum height where the agent can still walk (vx)
-	int walkableClimb;				///< Maximum height between grid cells the agent can climb (vx)
-	int walkableRadius;				///< Radius of the agent in cells (vx)
-	int maxEdgeLen;					///< Maximum contour edge length (vx)
-	float maxSimplificationError;	///< Maximum distance error from contour to cells (vx)
-	int minRegionArea;				///< Regions whose area is smaller than this threshold will be removed. (vx)
-	int mergeRegionArea;			///< Regions whose area is smaller than this threshold will be merged (vx)
-	int maxVertsPerPoly;			///< Max number of vertices per polygon
-	float detailSampleDist;			///< Detail mesh sample spacing.
-	float detailSampleMaxError;		///< Detail mesh simplification max sample error.
+	/// The width of the field along the x-axis. [Limit: >= 0] [Units: vx]
+	int width;
+
+	/// The height of the field along the z-axis. [Limit: >= 0] [Units: vx]
+	int height;	
+	
+	/// The width/height size of tile's on the xz-plane. [Limit: >= 0] [Units: vx]
+	int tileSize;	
+	
+	/// The size of the non-navigable border around the heightfield. [Limit: >=0] [Units: vx]
+	int borderSize;
+
+	/// The xz-plane cell size to use for fields. [Limit: > 0] [Units: wu] 
+	float cs;
+
+	/// The y-axis cell size to use for fields. [Limit: > 0] [Units: wu]
+	float ch;
+
+	/// The minimum bounds of the field's AABB. [(x, y, z)] [Units: wu]
+	float bmin[3]; 
+
+	/// The maximum bounds of the field's AABB. [(x, y, z)] [Units: wu]
+	float bmax[3];
+
+	/// The maximum slope that is considered walkable. [Limits: 0 <= value < 90] [Units: Degrees] 
+	float walkableSlopeAngle;
+
+	/// Minimum floor to 'ceiling' height that will still allow the floor area to 
+	/// be considered walkable. [Limit: >= 3] [Units: vx] 
+	int walkableHeight;				
+	
+	/// Maximum ledge height that is considered to still be traversable. [Limit: >=0] [Units: vx] 
+	int walkableClimb;				
+	
+	/// The distance to erode/shrink the walkable area of the heightfield away from 
+	/// obstructions.  [Limit: >=0] [Units: vx] 
+	int walkableRadius;				
+	
+	/// The maximum allowed length for contour edges along the border of the mesh. [Limit: >=0] [Units: vx] 
+	int maxEdgeLen;					
+	
+	/// The maximum distance a simplfied contour's border edges should deviate 
+	/// the original raw contour. [Limit: >=0] [Units: wu]
+	float maxSimplificationError;	
+	
+	/// The minimum number of cells allowed to form isolated island regions. [Limit: >=0] [Units: vx] 
+	int minRegionArea;				
+	
+	/// Any regions with a cell count smaller than this value will, if possible, 
+	/// be merged with larger regions. [Limit: >=0] [Units: vx] 
+	int mergeRegionArea;			
+	
+	/// The maximum number of vertices allowed for polygons generated during the 
+	/// contour to polygon conversion process. [Limit: >= 3] 
+	int maxVertsPerPoly;
+	
+	/// Sets the sampling distance to use when generating the detail mesh.
+	/// (For height detail only.) [Limits: 0 or >= 0.9] [Units: wu] 
+	float detailSampleDist;
+	
+	/// The maximum distance the detail mesh surface should deviate from heightfield
+	/// data. (For height detail only.) [Limit: >=0] [Units: wu] 
+	float detailSampleMaxError;
 };
 
-/// Define number of bits in the above structure for smin/smax.
+/// Defines number of bits in rcSpan::smin and rcSpan::smax.
 static const int RC_SPAN_HEIGHT_BITS = 13;
-/// The max height is used for clamping rasterized values.
+/// Defines the maximum value for rcSpan::smin and rcSpan::smax.
 static const int RC_SPAN_MAX_HEIGHT = (1<<RC_SPAN_HEIGHT_BITS)-1;
 
-/// Heightfield span.
+/// Represents a span in a heightfield.
+/// @see rcHeightfield
 struct rcSpan
 {
-	unsigned int smin : 13;			///< Span min height.
-	unsigned int smax : 13;			///< Span max height.
-	unsigned int area : 6;			///< Span area type.
-	rcSpan* next;					///< Next span in column.
+	unsigned int smin : 13;			///< The mimum height of the span.
+	unsigned int smax : 13;			///< The maximum height of the span.
+	unsigned int area : 6;			///< The area id assigned to the span.
+	rcSpan* next;					///< The next span higher up in column.
 };
 
-/// Number of spans allocated per pool.
+/// The number of spans allocated per span spool.
+/// @see rcSpanPool
 static const int RC_SPANS_PER_POOL = 2048;
 
-/// Memory pool used for quick span allocation.
+/// A memory pool used for quick allocation of spans within a heightfield.
+/// @see rcHeightfield
 struct rcSpanPool
 {
-	rcSpanPool* next;					///< Pointer to next pool.
-	rcSpan items[RC_SPANS_PER_POOL];	///< Array of spans.
+	rcSpanPool* next;					///< The next span pool.
+	rcSpan items[RC_SPANS_PER_POOL];	///< Array of spans in the pool.
 };
 
-/// Dynamic span-heightfield.
+/// A dynamic heightfield representing obstructed space.
 struct rcHeightfield
 {
-	int width, height;			///< Dimension of the heightfield.
-	float bmin[3], bmax[3];		///< Bounding box of the heightfield
-	float cs, ch;				///< Cell size and height.
-	rcSpan** spans;				///< Heightfield of spans (width*height).
-	rcSpanPool* pools;			///< Linked list of span pools.
-	rcSpan* freelist;			///< Pointer to next free span.
+	int width;	  	    ///< The width of the heightfield. (Along the x-axis in cell units.)
+	int height;			///< The height of the heightfield. (Along the z-axis in cell units.)
+	float bmin[3];  	///< The minimum bounds in world space. [(x, y, z)]
+	float bmax[3];		///< The maximum bounds in world space. [(x, y, z)]
+	float cs;	   	    ///< The size of each cell. (On the xz-plane.)
+	float ch;			///< The height of each cell. (The minimum increment along the y-axis.)
+	rcSpan** spans;		///< Heightfield of spans (width*height).
+	rcSpanPool* pools;	///< Linked list of span pools.
+	rcSpan* freelist;	///< The next free span.
 };
 
+/// Allocates a heightfield object using the Recast allocator.
+///  @return A heightfield that is ready for initialization, or null on failure.
+///  @ingroup recast
 rcHeightfield* rcAllocHeightfield();
+
+/// Frees the specified heightfield object using the Recast allocator.
+///  @param[in] hf  A heightfield allocated using #rcAllocHeightfield
+///  @ingroup recast
 void rcFreeHeightField(rcHeightfield* hf);
 
 
+/// Provides information on the content of a cell column in a compact heightfield. 
 struct rcCompactCell
 {
-	unsigned int index : 24;	///< Index to first span in column.
-	unsigned int count : 8;		///< Number of spans in this column.
+	unsigned int index : 24;	///< Index to the first span in the column.
+	unsigned int count : 8;		///< Number of spans in the column.
 };
 
+/// Represents a span of unobstructed space within a compact heightfield.
 struct rcCompactSpan
 {
-	unsigned short y;			///< Bottom coordinate of the span.
-	unsigned short reg;
-	unsigned int con : 24;		///< Connections to neighbour cells.
-	unsigned int h : 8;			///< Height of the span.
+	unsigned short y;			///< The lower extent of the span. (Measured from the heightfield's base.)
+	unsigned short reg;	 	    ///< The id of the region the span belongs to. (Or zero if not in a region.)
+	unsigned int con : 24;		///< Packed neighbor connection data.
+	unsigned int h : 8;			///< The height of the span.  (Measured from #y.)
 };
 
-/// Compact static heightfield.
+/// A compact, static heightfield representing unobstructed space.
 struct rcCompactHeightfield
 {
-	int width, height;					///< Width and height of the heightfield.
-	int spanCount;						///< Number of spans in the heightfield.
-	int walkableHeight, walkableClimb;	///< Agent properties.
-	int borderSize;						///< Border size of the heighfield.
-	unsigned short maxDistance;			///< Maximum distance value stored in heightfield.
-	unsigned short maxRegions;			///< Maximum Region Id stored in heightfield.
-	float bmin[3], bmax[3];				///< Bounding box of the heightfield.
-	float cs, ch;						///< Cell size and height.
-	rcCompactCell* cells;				///< Pointer to width*height cells.
-	rcCompactSpan* spans;				///< Pointer to spans.
-	unsigned short* dist;				///< Pointer to per span distance to border.
-	unsigned char* areas;				///< Pointer to per span area ID.
+	int width;			  	    ///< The width of the heightfield. (Along the x-axis in cell units.)
+	int height;					///< The height of the heightfield. (Along the z-axis in cell units.)
+	int spanCount;				///< The number of spans in the heightfield.
+	int walkableHeight;	 	    ///< The walkable height used during the build of the field.  (See: rcConfig::walkableHeight)
+	int walkableClimb;			///< The walkable climb used during the build of the field. (See: rcConfig::walkableClimb)
+	int borderSize;				///< The AABB border size used during the build of the field. (See: rcConfig::borderSize)
+	unsigned short maxDistance;	///< The maximum distance value of any span within the field. 
+	unsigned short maxRegions;	///< The maximum region id of any span within the field. 
+	float bmin[3];		  	    ///< The minimum bounds in world space. [(x, y, z)]
+	float bmax[3];				///< The maximum bounds in world space. [(x, y, z)]
+	float cs;			   	    ///< The size of each cell. (On the xz-plane.)
+	float ch;					///< The height of each cell. (The minimum increment along the y-axis.)
+	rcCompactCell* cells;		///< Array of cells. [Size: #width*#height]
+	rcCompactSpan* spans;		///< Array of spans. [Size: #spanCount]
+	unsigned short* dist;		///< Array containing border distance data. [Size: #spanCount]
+	unsigned char* areas;		///< Array containing area id data. [Size: #spanCount]
 };
 
+/// Allocates a compact heightfield object using the Recast allocator.
+///  @return A compact heightfield that is ready for initialization, or null on failure.
+///  @ingroup recast
 rcCompactHeightfield* rcAllocCompactHeightfield();
+
+/// Frees the specified compact heightfield object using the Recast allocator.
+///  @param[in] chf  A compact heightfield allocated using #rcAllocCompactHeightfield
+///  @ingroup recast
 void rcFreeCompactHeightfield(rcCompactHeightfield* chf);
 
 
-
+/// Represents a heightfield layer within a layer set.
+/// @ingroup recast
+/// @see rcHeightfieldLayerSet
 struct rcHeightfieldLayer
 {
-	float bmin[3], bmax[3];				///< Bounding box of the heightfield.
-	float cs, ch;						///< Cell size and height.
-	int width, height;					///< Width and height of the layer.
-	int minx,maxx,miny,maxy;			///< Bounding box of usable data.
-	int hmin, hmax;						///< Height min/max
-	unsigned char* heights;				///< Heighfield.
-	unsigned char* areas;				///< Area types.
-	unsigned char* cons;				///< Connections.
+	float bmin[3];		  	    ///< The minimum bounds in world space. [(x, y, z)]
+	float bmax[3];				///< The maximum bounds in world space. [(x, y, z)]
+	float cs;			   	    ///< The size of each cell. (On the xz-plane.)
+	float ch;					///< The height of each cell. (The minimum increment along the y-axis.)
+	int width;			  	    ///< The width of the heightfield. (Along the x-axis in cell units.)
+	int height;					///< The height of the heightfield. (Along the z-axis in cell units.)
+	int minx;			   	    ///< The minimum x-bounds of usable data.
+	int maxx;			   	    ///< The maximum x-bounds of usable data.
+	int miny;			   	    ///< The minimum y-bounds of usable data. (Along the z-axis.)
+	int maxy;					///< The maximum y-bounds of usable data. (Along the z-axis.)
+	int hmin;			   	    ///< The minimum height bounds of usable data. (Along the y-axis.)
+	int hmax;					///< The maximum height bounds of usable data. (Along the y-axis.)
+	unsigned char* heights;		///< The heightfield. [Size: (width - borderSize*2) * (h - borderSize*2)]
+	unsigned char* areas;		///< Area ids. [Size: Same as #heights]
+	unsigned char* cons;		///< Packed neighbor connection information. [Size: Same as #heights]
 };
 
+/// Represents a set of heightfield layers.
+/// @ingroup recast
+/// @see rcAllocHeightfieldLayerSet, rcFreeHeightfieldLayerSet 
 struct rcHeightfieldLayerSet
 {
-	rcHeightfieldLayer* layers;			///< Pointer to layers.
-	int nlayers;						///< Number of layers.
+	rcHeightfieldLayer* layers;			///< The layers in the set. [Size: #nlayers]
+	int nlayers;						///< The number of layers in the set.
 };
 
+/// Allocates a heightfield layer set using the Recast allocator.
+///  @return A heightfield layer set that is ready for initialization, or null on failure.
+///  @ingroup recast
 rcHeightfieldLayerSet* rcAllocHeightfieldLayerSet();
+
+/// Frees the specified heightfield layer set using the Recast allocator.
+///  @param[in] lset  A heightfield layer set allocated using #rcAllocHeightfieldLayerSet
+///  @ingroup recast
 void rcFreeHeightfieldLayerSet(rcHeightfieldLayerSet* lset);
 
-
-
+/// Represents a simple, non-overlapping contour in field space.
 struct rcContour
 {
-	int* verts;			///< Vertex coordinates, each vertex contains 4 components.
-	int nverts;			///< Number of vertices.
-	int* rverts;		///< Raw vertex coordinates, each vertex contains 4 components.
-	int nrverts;		///< Number of raw vertices.
-	unsigned short reg;	///< Region ID of the contour.
-	unsigned char area;	///< Area ID of the contour.
+	int* verts;			///< Simplified contour vertex and connection data. [Size: 4 * #nverts]
+	int nverts;			///< The number of vertices in the simplified contour. 
+	int* rverts;		///< Raw contour vertex and connection data. [Size: 4 * #nrverts]
+	int nrverts;		///< The number of vertices in the raw contour. 
+	unsigned short reg;	///< The region id of the contour.
+	unsigned char area;	///< The area id of the contour.
 };
 
+/// Represents a group of related contours.
 struct rcContourSet
 {
-	rcContour* conts;		///< Pointer to all contours.
-	int nconts;				///< Number of contours.
-	float bmin[3], bmax[3];	///< Bounding box of the heightfield.
-	float cs, ch;			///< Cell size and height.
-	int width, height;		///< Region where the contours were build.
-	int borderSize;			///< Border size of the heighfield where the contours were build from.
+	rcContour* conts;	///< An array of the contours in the set. [Size: #nconts]
+	int nconts;			///< The number of contours in the set.
+	float bmin[3];  	///< The minimum bounds in world space. [(x, y, z)]
+	float bmax[3];		///< The maximum bounds in world space. [(x, y, z)]
+	float cs;	   	    ///< The size of each cell. (On the xz-plane.)
+	float ch;			///< The height of each cell. (The minimum increment along the y-axis.)
+	int width;	  	    ///< The width of the set. (Along the x-axis in cell units.) 
+	int height;	 	    ///< The height of the set. (Along the z-axis in cell units.) 
+	int borderSize;		///< The AABB border size used to generate the source data from which the contours were derived.
 };
 
+/// Allocates a contour set object using the Recast allocator.
+///  @return A contour set that is ready for initialization, or null on failure.
+///  @ingroup recast
 rcContourSet* rcAllocContourSet();
+
+/// Frees the specified contour set using the Recast allocator.
+///  @param[in] cset  A contour set allocated using #rcAllocContourSet
+///  @ingroup recast
 void rcFreeContourSet(rcContourSet* cset);
 
 
-/// Polymesh store a connected mesh of polygons.
-/// The polygons are store in an array where each polygons takes
-/// 'nvp*2' elements. The first 'nvp' elements are indices to vertices
-/// and the second 'nvp' elements are indices to neighbour polygons.
-/// If a polygon has less than 'bvp' vertices, the remaining indices
-/// are set to RC_MESH_NULL_IDX. If an polygon edge does not have a neighbour
-/// the neighbour index is set to RC_MESH_NULL_IDX.
-/// Vertices can be transformed into world space as follows:
-///   x = bmin[0] + verts[i*3+0]*cs;
-///   y = bmin[1] + verts[i*3+1]*ch;
-///   z = bmin[2] + verts[i*3+2]*cs;
+/// Represents a polygon mesh suitable for use in building a navigation mesh. 
 struct rcPolyMesh
 {	
-	unsigned short* verts;	///< Vertices of the mesh, 3 elements per vertex.
-	unsigned short* polys;	///< Polygons of the mesh, nvp*2 elements per polygon.
-	unsigned short* regs;	///< Region ID of the polygons.
-	unsigned short* flags;	///< Per polygon flags.
-	unsigned char* areas;	///< Area ID of polygons.
-	int nverts;				///< Number of vertices.
-	int npolys;				///< Number of polygons.
-	int maxpolys;			///< Number of allocated polygons.
-	int nvp;				///< Max number of vertices per polygon.
-	float bmin[3], bmax[3];	///< Bounding box of the mesh.
-	float cs, ch;			///< Cell size and height.
-	int borderSize;			///< Border size of the heighfield where the mesh was build from.
+	unsigned short* verts;	///< The mesh vertices. [Form: (x, y, z) * #nverts]
+	unsigned short* polys;	///< Polygon and neighbor data. [Length: #maxpolys * 2 * #nvp]
+	unsigned short* regs;	///< The region id assigned to each polygon. [Length: #maxpolys]
+	unsigned short* flags;	///< The user defined flags for each polygon. [Length: #maxpolys]
+	unsigned char* areas;	///< The area id assigned to each polygon. [Length: #maxpolys]
+	int nverts;				///< The number of vertices.
+	int npolys;				///< The number of polygons.
+	int maxpolys;			///< The number of allocated polygons.
+	int nvp;				///< The maximum number of vertices per polygon.
+	float bmin[3];	  	    ///< The minimum bounds in world space. [(x, y, z)]
+	float bmax[3];	  	    ///< The maximum bounds in world space. [(x, y, z)]
+	float cs;		   	    ///< The size of each cell. (On the xz-plane.)
+	float ch;				///< The height of each cell. (The minimum increment along the y-axis.)
+	int borderSize;			///< The AABB border size used to generate the source data from which the mesh was derived.
 };
 
+/// Allocates a polygon mesh object using the Recast allocator.
+///  @return A polygon mesh that is ready for initialization, or null on failure.
+///  @ingroup recast
 rcPolyMesh* rcAllocPolyMesh();
+
+/// Frees the specified polygon mesh using the Recast allocator.
+///  @param[in] pmesh  A polygon mesh allocated using #rcAllocPolyMesh
+///  @ingroup recast
 void rcFreePolyMesh(rcPolyMesh* pmesh);
 
 
@@ -719,3 +901,9 @@ bool rcMergePolyMeshDetails(rcContext* ctx, rcPolyMeshDetail** meshes, const int
 
 
 #endif // RECAST_H
+
+///////////////////////////////////////////////////////////////////////////
+
+// Due to the large amount of detail documentation for this file, 
+// the content normally located at the end of the header file has been separated
+// out to a file in the /Docs/Extern directory.

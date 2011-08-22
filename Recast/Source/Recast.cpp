@@ -32,7 +32,27 @@ float rcSqrt(float x)
 	return sqrtf(x);
 }
 
+/// @class rcContext
+/// @ingroup recast
+/// @par
+///
+/// Logging and timer functionality must be provided by a concrete
+/// implementation of this class.  This class does not provide either on its 
+/// own.  Also, this class does not provide an interface for extracting log 
+/// messages. (Only adding them.) So the concrete implementations must 
+/// provide one.
+///
+/// If no logging or timers are required, just pass an instance of this 
+/// class through the Recast build process.
+///
 
+/// @par
+///
+/// Example:
+/// @code
+/// // Where ctx is an instance of rcContext and filepath is a char array.
+/// ctx->log(RC_LOG_ERROR, "buildTiledNavigation: Could not load '%s'", filepath);
+/// @endcode
 void rcContext::log(const rcLogCategory category, const char* format, ...)
 {
 	if (!m_logEnabled)
