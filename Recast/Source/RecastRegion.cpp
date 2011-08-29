@@ -936,7 +936,16 @@ static bool filterSmallRegions(rcContext* ctx, int minRegionArea, int mergeRegio
 	return true;
 }
 
-
+/// @par
+/// 
+/// This is usually the second to the last step in creating a fully built
+/// compact heightfield.  This step is required before regions are built
+/// using #rcBuildRegions or #rcBuildRegionsMonotone.
+/// 
+/// After this step, the distance data is available via the rcCompactHeightfield::maxDistance
+/// and rcCompactHeightfield::dist fields.
+///
+/// @see rcCompactHeightfield, rcBuildRegions, rcBuildRegionsMonotone
 bool rcBuildDistanceField(rcContext* ctx, rcCompactHeightfield& chf)
 {
 	rcAssert(ctx);
@@ -1019,6 +1028,25 @@ struct rcSweepSpan
 	unsigned short nei;	// neighbour id
 };
 
+/// @par
+/// 
+/// Non-null regions will consist of connected, non-overlapping walkable spans that form a single contour.
+/// Contours will form simple polygons.
+/// 
+/// If multiple regions form an area that is smaller than @p minRegionArea, then all spans will be
+/// re-assigned to the zero (null) region.
+/// 
+/// Partitioning can result in smaller than necessary regions. @p mergeRegionArea helps 
+/// reduce unecessarily small regions.
+/// 
+/// See the #rcConfig documentation for more information on the configuration parameters.
+/// 
+/// The region data will be available via the rcCompactHeightfield::maxRegions
+/// and rcCompactSpan::reg fields.
+/// 
+/// @warning The distance field must be created using #rcBuildDistanceField before attempting to build regions.
+/// 
+/// @see rcCompactHeightfield, rcCompactSpan, rcBuildDistanceField, rcBuildRegionsMonotone, rcConfig
 bool rcBuildRegionsMonotone(rcContext* ctx, rcCompactHeightfield& chf,
 							const int borderSize, const int minRegionArea, const int mergeRegionArea)
 {
@@ -1171,6 +1199,25 @@ bool rcBuildRegionsMonotone(rcContext* ctx, rcCompactHeightfield& chf,
 	return true;
 }
 
+/// @par
+/// 
+/// Non-null regions will consist of connected, non-overlapping walkable spans that form a single contour.
+/// Contours will form simple polygons.
+/// 
+/// If multiple regions form an area that is smaller than @p minRegionArea, then all spans will be
+/// re-assigned to the zero (null) region.
+/// 
+/// Watershed partitioning can result in smaller than necessary regions, especially in diagonal corridors. 
+/// @p mergeRegionArea helps reduce unecessarily small regions.
+/// 
+/// See the #rcConfig documentation for more information on the configuration parameters.
+/// 
+/// The region data will be available via the rcCompactHeightfield::maxRegions
+/// and rcCompactSpan::reg fields.
+/// 
+/// @warning The distance field must be created using #rcBuildDistanceField before attempting to build regions.
+/// 
+/// @see rcCompactHeightfield, rcCompactSpan, rcBuildDistanceField, rcBuildRegionsMonotone, rcConfig
 bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 					const int borderSize, const int minRegionArea, const int mergeRegionArea)
 {

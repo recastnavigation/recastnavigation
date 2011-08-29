@@ -39,7 +39,7 @@ typedef void* (rcAllocFunc)(int size, rcAllocHint hint);
 //  @param[in] ptr 
 typedef void (rcFreeFunc)(void* ptr);
 
-/// Sets the custom allocation functions to be used by Recast.
+/// Sets the base custom allocation functions to be used by Recast.
 ///  @param[in] allocFunc  The memory allocation function to be used by #rcAlloc
 ///  @param[in] freeFunc   The memory de-allocation function to be used by #rcFree
 void rcAllocSetCustom(rcAllocFunc *allocFunc, rcFreeFunc *freeFunc);

@@ -592,6 +592,19 @@ static bool mergeContours(rcContour& ca, rcContour& cb, int ia, int ib)
 	return true;
 }
 
+/// @par
+///
+/// The raw contours will match the region outlines exactly. The @p maxError and @p maxEdgeLen
+/// parameters control how closely the simplified contours will match the raw contours.
+///
+/// Simplified contours are generated such that the vertices for portals between areas match up. 
+/// (They are considered mandatory vertices.)
+///
+/// Setting @p maxEdgeLength to zero will disabled the edge length feature.
+/// 
+/// See the #rcConfig documentation for more information on the configuration parameters.
+/// 
+/// @see rcAllocContourSet, rcCompactHeightfield, rcContourSet, rcConfig
 bool rcBuildContours(rcContext* ctx, rcCompactHeightfield& chf,
 					 const float maxError, const int maxEdgeLen,
 					 rcContourSet& cset, const int buildFlags)

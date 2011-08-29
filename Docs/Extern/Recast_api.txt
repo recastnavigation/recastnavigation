@@ -2,9 +2,36 @@
 // elements defined in the Recast.h.
 
 /**
- 
+
+@defgroup recast Recast
+
+Members in this module are used to create mesh data that is then
+used to create Detour navigation meshes.
+
+The are a large number of possible ways to building navigation mesh data.
+One of the simple piplines is as follows:
+
+-# Prepare the input triangle mesh.
+-# Build a #rcHeightfield.
+-# Build a #rcCompactHeightfield.
+-# Build a #rcContourSet.
+-# Build a #rcPolyMesh.
+-# Build a #rcPolyMeshDetail.
+-# Use the rcPolyMesh and rcPolyMeshDetail to build a Detour navigation mesh
+   tile.
+
+The general life-cycle of the main classes is as follows:
+
+-# Allocate the object using the Recast allocator. (E.g. #rcAllocHeightfield)
+-# Initialize or build the object. (E.g. #rcCreateHeightfield)
+-# Update the object as needed. (E.g. #rcRasterizeTriangles)
+-# Use the object as part of the pipeline.
+-# Free the object using the Recast allocator. (E.g. #rcFreeHeightField)
+
+@note This is a summary list of members.  Use the index or search 
+feature to find minor members.
+
 @struct rcConfig
-@ingroup recast
 @par
 
 The is a convenience structure that represents an aggregation of parameters 
@@ -107,7 +134,6 @@ is limited to <= #DT_VERTS_PER_POLYGON.
 
 
 @struct rcHeightfield
-@ingroup recast
 @par
 
 The grid of a heightfield is layed out on the xz-plane based on the
@@ -180,7 +206,6 @@ Useful instances of this type can only by obtained from a #rcCompactHeightfield 
 
 
 @struct rcCompactHeightfield
-@ingroup recast
 @par
 
 For this type of heightfield, the spans represent the open (unobstructed) 
@@ -267,7 +292,6 @@ for (int y = 0; y < chf.height; ++y)
 @see rcAllocCompactHeightfield, rcFreeCompactHeightfield, rcBuildCompactHeightfield
 
 @struct rcContour
-@ingroup recast
 @par
 
 A contour only exists within the context of a #rcContourSet object.
@@ -320,18 +344,16 @@ if (r & RC_AREA_BORDER)
 See #verts for information on element layout.
 
 @struct rcContourSet
-@ingroup recast
 @par
 
 All contours within the set share the minimum bounds and cell sizes of the set.
 
 The standard process for building a contour set is to allocate it
-using #rcAllocContourSet, then initialize is using #rcBuildContours.
+using #rcAllocContourSet, then initialize it using #rcBuildContours.
 
 @see rcAllocContourSet, rcFreeContourSet, rcBuildContours
 
 @struct rcPolyMesh
-@ingroup recast
 @par
 
 A mesh of potentially overlapping convex polygons of between three 
@@ -423,5 +445,143 @@ Edges 3->4 and 4->8 are border edges not shared with any other polygon.
 
 The standard build process assigns the value of #RC_WALKABLE_AREA to all walkable polygons.
 This value can then be changed to meet user requirements.
+
+@struct rcPolyMeshDetail
+@par
+
+The detail mesh is made up of triangle sub-meshes that provide extra 
+height detail for each polygon in its assoicated polygon mesh.
+
+The standard process for building a detail mesh is to allocate it 
+using #rcAllocPolyMeshDetail, then build it using #rcBuildPolyMeshDetail.
+
+See the individual field definitions for details realted to the structure
+the mesh.
+
+@see rcAllocPolyMeshDetail, rcFreePolyMeshDetail, rcBuildPolyMeshDetail, rcPolyMesh
+
+@var rcPolyMeshDetail::meshes
+@par
+
+[(baseVertIndex, vertCount, baseTriIndex, triCount) * #nmeshes]
+
+Maximum number of vertices per sub-mesh: 127<br/>
+Maximum number of triangles per sub-mesh: 255
+
+The sub-meshes are stored in the same order as the polygons from the
+rcPolyMesh they represent.  E.g. rcPolyMeshDetail sub-mesh 5 is associated
+with #rcPolyMesh polygon 5.
+
+Example of iterating the triangles in a sub-mesh.
+
+@code
+// Where dmesh is a reference to a rcPolyMeshDetail object.
+
+// Iterate the sub-meshes. (One for each source polygon.)
+for (int i = 0; i < dmesh.nmeshes; ++i)
+{
+	const unsigned int* meshDef = &dmesh.meshes[i*4];
+	const unsigned int baseVerts = meshDef[0];
+	const unsigned int baseTri = meshDef[2];
+	const int ntris = (int)meshDef[3];	
+	
+	const float* verts = &dmesh.verts[baseVerts*3];
+	const unsigned char* tris = &dmesh.tris[baseTri*4];
+
+    // Iterate the sub-mesh's triangles.
+	for (int j = 0; j < ntris; ++j)
+	{
+		const float x = verts[tris[j*4+0]*3];
+		const float y = verts[tris[j*4+1]*3];
+		const float z = verts[tris[j*4+2]*3];
+		// Do something with the vertex.
+	}
+}
+@endcode
+
+@var rcPolyMeshDetail::verts
+@par
+
+[(x, y, z) * #nverts] 
+
+The vertices are grouped by sub-mesh and will contain duplicates since 
+each sub-mesh is independently defined.
+
+The first group of vertices for each sub-mesh are in the same order as 
+the vertices for the sub-mesh's associated PolyMesh polygon. These 
+vertices are followed by any additional detail vertices. So it the 
+associated polygon has 5 vertices, the sub-mesh will have a minimum 
+of 5 vertices and the first 5 vertices will be equivalent to the 5 
+polygon vertices.
+
+@var rcPolyMeshDetail::tris
+@par
+
+[(vertIndexA, vertIndexB, vertIndexC, flags) * #ntris] 
+
+The triangles are grouped by sub-mesh.
+
+<b>Vertex Indices</b>
+
+The vertex indices in the triangle array are local to the sub-mesh, not global. 
+To translate into an global index in the vertices array, the values must be 
+offset by the sub-mesh's base vertex index.
+
+Example: If the baseVertexIndex for the sub-mesh is 5 and the triangle entry 
+is (4, 8, 7, 0), then the actual indices for the vertices are (4 + 5, 8 + 5, 7 + 5).
+
+@b Flags
+
+The flags entry indicates which edges are internal and which are external to 
+the sub-mesh. Internal edges connect to other triangles within the same sub-mesh. 
+External edges represent portals to other sub-meshes or the null region.
+
+Each flag is stored in a 2-bit position. Where position 0 is the lowest 2-bits 
+and position 4 is the highest 2-bits:
+
+<tt>
+Position 0: Edge AB (>> 0)<br/>
+Position 1: Edge BC (>> 2)<br/>
+Position 2: Edge CA (>> 4)<br/>
+Position 4: Unused<br/>
+</tt>
+
+Testing can be performed as follows:
+
+@code
+if (((flags >> 2) & 0x3) != 0)
+{
+    // Edge BC is an external edge.
+}
+@endcode
+
+@fn void rcSetCon(rcCompactSpan &s, int dir, int i)
+@par
+
+This function is used by the build process. It is rarely of use to end users.
+
+@see #rcCompactHeightfield, #rcCompactSpan
+
+@fn int rcGetCon(const rcCompactSpan &s, int dir)
+@par
+
+Can be used to locate neighbor spans in a compact heightfield. See the 
+#rcCompactHeightfield documentation for details on its use.
+
+@see #rcCompactHeightfield, #rcCompactSpan
+
+@fn int rcGetDirOffsetX(int dir)
+@par
+
+The value of @p dir will be automatically wrapped. So a value of 6 will be interpreted as 2.
+
+See the #rcCompactHeightfield documentation for usage details.
+
+@fn int rcGetDirOffsetY(int dir)
+@par
+
+The value of @p dir will be automatically wrapped. So a value of 6 will be interpreted as 2.
+
+See the #rcCompactHeightfield documentation for usage details.
 
 */
