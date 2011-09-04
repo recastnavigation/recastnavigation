@@ -136,6 +136,7 @@ void dtFreeNavMeshQuery(dtNavMeshQuery* navmesh)
 /// @see dtNavMesh, dtQueryFilter, #dtAllocNavMeshQuery(), #dtAllocNavMeshQuery()
 
 dtNavMeshQuery::dtNavMeshQuery() :
+	m_nav(0),
 	m_tinyNodePool(0),
 	m_nodePool(0),
 	m_openList(0)
