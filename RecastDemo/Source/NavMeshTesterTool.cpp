@@ -159,7 +159,7 @@ NavMeshTesterTool::NavMeshTesterTool() :
 	m_pathIterNum(0),
 	m_steerPointCount(0)
 {
-	m_filter.setIncludeFlags(SAMPLE_POLYFLAGS_ALL);
+	m_filter.setIncludeFlags(SAMPLE_POLYFLAGS_ALL ^ SAMPLE_POLYFLAGS_DISABLED);
 	m_filter.setExcludeFlags(0);
 
 	m_polyPickExt[0] = 2;

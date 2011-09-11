@@ -32,6 +32,7 @@
 #include "DetourNavMeshBuilder.h"
 #include "DetourDebugDraw.h"
 #include "NavMeshTesterTool.h"
+#include "NavMeshPruneTool.h"
 #include "OffMeshConnectionTool.h"
 #include "ConvexVolumeTool.h"
 #include "CrowdTool.h"
@@ -412,6 +413,10 @@ void Sample_TileMesh::handleTools()
 	{
 		setTool(new NavMeshTesterTool);
 	}
+	if (imguiCheck("Prune Navmesh", type == TOOL_NAVMESH_PRUNE))
+	{
+		setTool(new NavmeshPruneTool);
+	}
 	if (imguiCheck("Create Tiles", type == TOOL_TILE_EDIT))
 	{
 		setTool(new NavMeshTileTool);
@@ -575,6 +580,7 @@ void Sample_TileMesh::handleRender()
 			duDebugDrawNavMeshPortals(&dd, *m_navMesh);
 		if (m_drawMode == DRAWMODE_NAVMESH_NODES)
 			duDebugDrawNavMeshNodes(&dd, *m_navQuery);
+		duDebugDrawNavMeshPolysWithFlags(&dd, *m_navMesh, SAMPLE_POLYFLAGS_DISABLED, duRGBA(0,0,0,128));
 	}
 	
 	

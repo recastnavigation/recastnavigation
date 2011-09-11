@@ -561,8 +561,6 @@ void CrowdTool::handleRender()
 	if (!nav || !crowd)
 		return;
 
-	duDebugDrawNavMeshPolysWithFlags(&dd, *nav, SAMPLE_POLYFLAGS_DISABLED, duRGBA(220,0,0,128));
-
 	if (m_showNodes && crowd->getPathQueue())
 	{
 		const dtNavMeshQuery* navquery = crowd->getPathQueue()->getNavQuery();
