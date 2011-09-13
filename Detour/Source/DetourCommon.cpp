@@ -238,6 +238,9 @@ bool dtClosestHeightPointTriangle(const float* p, const float* a, const float* b
 	return false;
 }
 
+/// @par
+///
+/// All points are projected onto the xz-plane, so the y-values are ignored.
 bool dtPointInPolygon(const float* pt, const float* verts, const int nverts)
 {
 	// TODO: Replace pnpoly with triArea2D tests?
@@ -291,6 +294,9 @@ inline bool overlapRange(const float amin, const float amax,
 	return ((amin+eps) > bmax || (amax-eps) < bmin) ? false : true;
 }
 
+/// @par
+///
+/// All vertices are projected onto the xz-plane, so the y-values are ignored.
 bool dtOverlapPolyPoly2D(const float* polya, const int npolya,
 						 const float* polyb, const int npolyb)
 {

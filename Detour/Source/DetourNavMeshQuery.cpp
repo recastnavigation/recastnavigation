@@ -439,6 +439,9 @@ dtStatus dtNavMeshQuery::getPolyHeight(dtPolyRef ref, const float* pos, float* h
 /// return #DT_SUCCESS, but @p nearestRef will be zero. So if in doubt, check 
 /// @p nearestRef before using @p nearestPt.
 ///
+/// @warning This function is not suitable for large area searches.  If the search
+/// extents overlaps more than 128 polygons it may return an invalid result.
+///
 dtStatus dtNavMeshQuery::findNearestPoly(const float* center, const float* extents,
 										 const dtQueryFilter* filter,
 										 dtPolyRef* nearestRef, float* nearestPt) const

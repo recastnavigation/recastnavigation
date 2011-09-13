@@ -41,10 +41,10 @@ class dtQueryFilter
 public:
 	dtQueryFilter();
 	
-    /// Returns true if the polygon can be visited.  (I.e. Is traversable.)
-    ///  @param[in] ref   The reference id of the polygon test.
-    ///  @param[in] tile  The tile containing the polygon.
-    ///  @param[in] poly  The polygon to test.
+	/// Returns true if the polygon can be visited.  (I.e. Is traversable.)
+	///  @param[in]		ref		The reference id of the polygon test.
+	///  @param[in]		tile	The tile containing the polygon.
+	///  @param[in]		poly  The polygon to test.
 #ifdef DT_VIRTUAL_QUERYFILTER
 	virtual bool passFilter(const dtPolyRef ref,
 							const dtMeshTile* tile,
@@ -56,18 +56,18 @@ public:
 #endif
 
 	/// Returns cost to move from the beginning to the end of a line segment
-    /// that is fully contained within a polygon.
-    ///  @param[in] pa        The start position on the edge of the previous and current polygon. [(x, y, z)]
-    ///  @param[in] pb        The end position on the edge of the current and next polygon. [(x, y, z)]
-    ///  @param[in] prevRef   The reference id of the previous polygon. [opt]
-    ///  @param[in] prevTile  The tile containing the previous polygon. [opt]
-    ///  @param[in] prevPoly  The previous polygon. [opt]
-	///  @param[in] curRef    The reference id of the current polygon.
-    ///  @param[in] curTile   The tile containing the current polygon.
-    ///  @param[in] curPoly   The current polygon.
-    ///  @param[in] nextRef   The refernece id of the next polygon. [opt]
-    ///  @param[in] nextTile  The tile containing the next polygon. [opt]
-    ///  @param[in] nextPoly  The next polygon. [opt]
+	/// that is fully contained within a polygon.
+	///  @param[in]		pa			The start position on the edge of the previous and current polygon. [(x, y, z)]
+	///  @param[in]		pb			The end position on the edge of the current and next polygon. [(x, y, z)]
+	///  @param[in]		prevRef		The reference id of the previous polygon. [opt]
+	///  @param[in]		prevTile	The tile containing the previous polygon. [opt]
+	///  @param[in]		prevPoly	The previous polygon. [opt]
+	///  @param[in]		curRef		The reference id of the current polygon.
+	///  @param[in]		curTile		The tile containing the current polygon.
+	///  @param[in]		curPoly		The current polygon.
+	///  @param[in]		nextRef		The refernece id of the next polygon. [opt]
+	///  @param[in]		nextTile	The tile containing the next polygon. [opt]
+	///  @param[in]		nextPoly	The next polygon. [opt]
 #ifdef DT_VIRTUAL_QUERYFILTER
 	virtual float getCost(const float* pa, const float* pb,
 						  const dtPolyRef prevRef, const dtMeshTile* prevTile, const dtPoly* prevPoly,
@@ -84,31 +84,31 @@ public:
 	///@{
 
 	/// Returns the traversal cost of the area.
-    ///  @param[in] i The id of the area.
-    ///  @returns The traversal cost of the area.
+	///  @param[in]		i		The id of the area.
+	/// @returns The traversal cost of the area.
 	inline float getAreaCost(const int i) const { return m_areaCost[i]; }
 
-    /// Sets the traversal cost of the area.
-    ///  @param[in] i    The id of the area.
-    ///  @param[in] cost The new cost of traversing the area.
+	/// Sets the traversal cost of the area.
+	///  @param[in]		i		The id of the area.
+	///  @param[in]		cost	The new cost of traversing the area.
 	inline void setAreaCost(const int i, const float cost) { m_areaCost[i] = cost; } 
 
-    /// Returns the include flags for the filter.
-    /// Any polygons that include one or more of these flags will be
-    /// included in the operation.
+	/// Returns the include flags for the filter.
+	/// Any polygons that include one or more of these flags will be
+	/// included in the operation.
 	inline unsigned short getIncludeFlags() const { return m_includeFlags; }
 
-    /// Sets the include flags for the filter.
-    /// @param[in] flags The new flags.
+	/// Sets the include flags for the filter.
+	/// @param[in]		flags	The new flags.
 	inline void setIncludeFlags(const unsigned short flags) { m_includeFlags = flags; }
 
-    /// Returns the exclude flags for the filter.
-    /// Any polygons that include one ore more of these flags will be
-    /// excluded from the operation.
+	/// Returns the exclude flags for the filter.
+	/// Any polygons that include one ore more of these flags will be
+	/// excluded from the operation.
 	inline unsigned short getExcludeFlags() const { return m_excludeFlags; }
 
-    /// Sets the exclude flags for the filter.
-    /// @param[in] flags The new flags.
+	/// Sets the exclude flags for the filter.
+	/// @param[in]		flags		The new flags.
 	inline void setExcludeFlags(const unsigned short flags) { m_excludeFlags = flags; }	
 
 	///@}
@@ -125,275 +125,275 @@ public:
 	~dtNavMeshQuery();
 	
 	/// Initializes the query object.
-    ///  @param[in] nav       Pointer to the dtNavMesh object to use for all queries.
-    ///  @param[in] maxNodes  Maximum number of search nodes. [Limits: 0 < value <= 65536]
-	///  @returns The status flags for the query.
+	///  @param[in]		nav			Pointer to the dtNavMesh object to use for all queries.
+	///  @param[in]		maxNodes	Maximum number of search nodes. [Limits: 0 < value <= 65536]
+	/// @returns The status flags for the query.
 	dtStatus init(const dtNavMesh* nav, const int maxNodes);
 	
-    /// @name Standard Pathfinding Functions
-    // /@{
+	/// @name Standard Pathfinding Functions
+	// /@{
 
 	/// Finds a path from the start polygon to the end polygon.
-	///  @param[in]  startRef   The refrence id of the start polygon.
-	///  @param[in]  endRef     The reference id of the end polygon.
-    ///  @param[in]  startPos   A position within the start polygon. [(x, y, z)]
-	///  @param[in]  endPos     A position within the end polygon. [(x, y, z)]
-	///  @param[in]  filter     The polygon filter to apply to the query.
-    ///  @param[out] path       An ordered list of polygon references representing the path. (Start to end.) 
-    ///                         [(polyRef) * @p pathCount]
-	///  @param[out] pathCount  The number of polygons returned in the @p path array.
-    ///  @param[in]  maxPath    The maximum number of polygons the @p path array can hold. [Limit: >= 1]
+	///  @param[in]		startRef	The refrence id of the start polygon.
+	///  @param[in]		endRef		The reference id of the end polygon.
+	///  @param[in]		startPos	A position within the start polygon. [(x, y, z)]
+	///  @param[in]		endPos		A position within the end polygon. [(x, y, z)]
+	///  @param[in]		filter		The polygon filter to apply to the query.
+	///  @param[out]	path		An ordered list of polygon references representing the path. (Start to end.) 
+	///  							[(polyRef) * @p pathCount]
+	///  @param[out]	pathCount	The number of polygons returned in the @p path array.
+	///  @param[in]		maxPath		The maximum number of polygons the @p path array can hold. [Limit: >= 1]
 	dtStatus findPath(dtPolyRef startRef, dtPolyRef endRef,
 					  const float* startPos, const float* endPos,
 					  const dtQueryFilter* filter,
 					  dtPolyRef* path, int* pathCount, const int maxPath) const;
 	
 	/// Finds the straight path from the start to the end position within the polygon corridor.
-	///  @param[in]  startPos           Path start position. [(x, y, z)]
-	///  @param[in]  endPos             Path end position. [(x, y, z)]
-	///  @param[in]  path               An array of polygon references that represent the path corridor.
-	///  @param[in]  pathSize           The number of polygons in the @p path array.
-	///  @param[out] straightPath       Points describing the straight path. [(x, y, z) * @p straightPathCount].
-    ///  @param[out] straightPathFlags  Flags describing each point. (See: #dtStraightPathFlags) [opt]
-	///  @param[out] straightPathRefs   The reference id of the polygon that is being entered at each point. [opt]
-	///  @param[out] straightPathCount  The number of points in the straight path.
-	///  @param[in]  maxStraightPath    The maximum number of points the straight path arrays can hold.  [Limit: > 0]
-	///  @returns The status flags for the query.
+	///  @param[in]		startPos			Path start position. [(x, y, z)]
+	///  @param[in]		endPos				Path end position. [(x, y, z)]
+	///  @param[in]		path				An array of polygon references that represent the path corridor.
+	///  @param[in]		pathSize			The number of polygons in the @p path array.
+	///  @param[out]	straightPath		Points describing the straight path. [(x, y, z) * @p straightPathCount].
+	///  @param[out]	straightPathFlags	Flags describing each point. (See: #dtStraightPathFlags) [opt]
+	///  @param[out]	straightPathRefs	The reference id of the polygon that is being entered at each point. [opt]
+	///  @param[out]	straightPathCount	The number of points in the straight path.
+	///  @param[in]		maxStraightPath		The maximum number of points the straight path arrays can hold.  [Limit: > 0]
+	/// @returns The status flags for the query.
 	dtStatus findStraightPath(const float* startPos, const float* endPos,
 							  const dtPolyRef* path, const int pathSize,
 							  float* straightPath, unsigned char* straightPathFlags, dtPolyRef* straightPathRefs,
 							  int* straightPathCount, const int maxStraightPath) const;
 
-    ///@}
-    /// @name Sliced Pathfinding Functions
-    /// Common use case:
-    ///     -# Call initSlicedFindPath() to initialize the sliced path query.
-    ///     -# Call updateSlicedFindPath() until it returns complete.
-    ///     -# Call finalizeSlicedFindPath() to get the path.
-    ///@{ 
+	///@}
+	/// @name Sliced Pathfinding Functions
+	/// Common use case:
+	///	-# Call initSlicedFindPath() to initialize the sliced path query.
+	///	-# Call updateSlicedFindPath() until it returns complete.
+	///	-# Call finalizeSlicedFindPath() to get the path.
+	///@{ 
 
 	/// Intializes a sliced path query.
-	///  @param[in] startRef  The refrence id of the start polygon.
-	///  @param[in] endRef    The reference id of the end polygon.
-    ///  @param[in] startPos  A position within the start polygon. [(x, y, z)]
-	///  @param[in] endPos    A position within the end polygon. [(x, y, z)]
-	///  @param[in] filter    The polygon filter to apply to the query.
-	///  @returns The status flags for the query.
+	///  @param[in]		startRef	The refrence id of the start polygon.
+	///  @param[in]		endRef		The reference id of the end polygon.
+	///  @param[in]		startPos	A position within the start polygon. [(x, y, z)]
+	///  @param[in]		endPos		A position within the end polygon. [(x, y, z)]
+	///  @param[in]		filter		The polygon filter to apply to the query.
+	/// @returns The status flags for the query.
 	dtStatus initSlicedFindPath(dtPolyRef startRef, dtPolyRef endRef,
 								const float* startPos, const float* endPos,
 								const dtQueryFilter* filter);
 
 	/// Updates an in-progress sliced path query.
-	///  @param[in]  maxIter    The maximum number of iterations to perform.
-    ///  @param[out] doneIters  The actual number of iterations completed. [opt]
-	///  @returns The status flags for the query.
+	///  @param[in]		maxIter		The maximum number of iterations to perform.
+	///  @param[out]	doneIters	The actual number of iterations completed. [opt]
+	/// @returns The status flags for the query.
 	dtStatus updateSlicedFindPath(const int maxIter, int* doneIters);
 
 	/// Finalizes and returns the results of a sliced path query.
-	///  @param[out] path       An ordered list of polygon references representing the path. (Start to end.) 
-    ///                         [(polyRef) * @p pathCount]
-	///  @param[out] pathCount  The number of polygons returned in the @p path array.
-    ///  @param[in]  maxPath    The max number of polygons the path array can hold. [Limit: >= 1]
-	///  @returns The status flags for the query.
+	///  @param[out]	path		An ordered list of polygon references representing the path. (Start to end.) 
+	///  							[(polyRef) * @p pathCount]
+	///  @param[out]	pathCount	The number of polygons returned in the @p path array.
+	///  @param[in]		maxPath		The max number of polygons the path array can hold. [Limit: >= 1]
+	/// @returns The status flags for the query.
 	dtStatus finalizeSlicedFindPath(dtPolyRef* path, int* pathCount, const int maxPath);
 	
 	/// Finalizes and returns the results of an incomplete sliced path query, returning the path to the furthest
 	/// polygon on the existing path that was visited during the search.
-	///  @param[out] existing      An array of polygon references for the existing path.
-	///  @param[out] existingSize  The number of polygon in the @p existing array.
-	///  @param[out] path       An ordered list of polygon references representing the path. (Start to end.) 
-    ///                         [(polyRef) * @p pathCount]
-	///  @param[out] pathCount  The number of polygons returned in the @p path array.
-    ///  @param[in]  maxPath    The max number of polygons the @p path array can hold. [Limit: >= 1]
-	///  @returns The status flags for the query.
+	///  @param[out]	existing		An array of polygon references for the existing path.
+	///  @param[out]	existingSize	The number of polygon in the @p existing array.
+	///  @param[out]	path			An ordered list of polygon references representing the path. (Start to end.) 
+	///  								[(polyRef) * @p pathCount]
+	///  @param[out]	pathCount		The number of polygons returned in the @p path array.
+	///  @param[in]		maxPath			The max number of polygons the @p path array can hold. [Limit: >= 1]
+	/// @returns The status flags for the query.
 	dtStatus finalizeSlicedFindPathPartial(const dtPolyRef* existing, const int existingSize,
 										   dtPolyRef* path, int* pathCount, const int maxPath);
-    
-    ///@}
-    /// @name Dijkstra Search Functions
-    /// @{ 
+
+	///@}
+	/// @name Dijkstra Search Functions
+	/// @{ 
 
 	/// Finds the polygons along the navigation graph that touch the specified circle.
-	///  @param[in]  startRef      The reference id of the polygon where the search starts.
-	///  @param[in]  centerPos     The center of the search circle. [(x, y, z)]
-	///  @param[in]  radius        The radius of the search circle.
-	///  @param[in]  filter        The polygon filter to apply to the query.
-	///  @param[out] resultRef     The reference ids of the polygons touched by the circle. [opt]
-	///  @param[out] resultParent  The reference ids of the parent polygons for each result. 
-    ///                            Zero if a result polygon has no parent. [opt]
-	///  @param[out] resultCost    The search cost from @p centerPos to the polygon. [opt]
-	///  @param[out] resultCount   The number of polygons found. [opt]
-	///  @param[in]  maxResult     The maximum number of polygons the result arrays can hold.
-	///  @returns The status flags for the query.
+	///  @param[in]		startRef		The reference id of the polygon where the search starts.
+	///  @param[in]		centerPos		The center of the search circle. [(x, y, z)]
+	///  @param[in]		radius			The radius of the search circle.
+	///  @param[in]		filter			The polygon filter to apply to the query.
+	///  @param[out]	resultRef		The reference ids of the polygons touched by the circle. [opt]
+	///  @param[out]	resultParent	The reference ids of the parent polygons for each result. 
+	///  								Zero if a result polygon has no parent. [opt]
+	///  @param[out]	resultCost		The search cost from @p centerPos to the polygon. [opt]
+	///  @param[out]	resultCount		The number of polygons found. [opt]
+	///  @param[in]		maxResult		The maximum number of polygons the result arrays can hold.
+	/// @returns The status flags for the query.
 	dtStatus findPolysAroundCircle(dtPolyRef startRef, const float* centerPos, const float radius,
 								   const dtQueryFilter* filter,
 								   dtPolyRef* resultRef, dtPolyRef* resultParent, float* resultCost,
 								   int* resultCount, const int maxResult) const;
 	
 	/// Finds the polygons along the naviation graph that touch the specified convex polygon.
-	///  @param[in]  startRef      The reference id of the polygon where the search starts.
-    ///  @param[in]  verts         The vertices describing the convex polygon. (CCW) 
-    ///                            [(x, y, z) * @p nverts]
-	///  @param[in]  nverts        The number of vertices in the polygon.
-	///  @param[in]  filter        The polygon filter to apply to the query.
-	///  @param[out] resultRef     The reference ids of the polygons touched by the search polygon. [opt]
-	///  @param[out] resultParent  The reference ids of the parent polygons for each result. Zero if a 
-    ///                            result polygon has no parent. [opt]
-	///  @param[out] resultCost    The search cost from the centroid point to the polygon. [opt]
-	///  @param[out] resultCount   The number of polygons found.
-	///  @param[in]  maxResult     The maximum number of polygons the result arrays can hold.
-	///  @returns The status flags for the query.
+	///  @param[in]		startRef		The reference id of the polygon where the search starts.
+	///  @param[in]		verts			The vertices describing the convex polygon. (CCW) 
+	///  								[(x, y, z) * @p nverts]
+	///  @param[in]		nverts			The number of vertices in the polygon.
+	///  @param[in]		filter			The polygon filter to apply to the query.
+	///  @param[out]	resultRef		The reference ids of the polygons touched by the search polygon. [opt]
+	///  @param[out]	resultParent	The reference ids of the parent polygons for each result. Zero if a 
+	///  								result polygon has no parent. [opt]
+	///  @param[out]	resultCost		The search cost from the centroid point to the polygon. [opt]
+	///  @param[out]	resultCount		The number of polygons found.
+	///  @param[in]		maxResult		The maximum number of polygons the result arrays can hold.
+	/// @returns The status flags for the query.
 	dtStatus findPolysAroundShape(dtPolyRef startRef, const float* verts, const int nverts,
 								  const dtQueryFilter* filter,
 								  dtPolyRef* resultRef, dtPolyRef* resultParent, float* resultCost,
 								  int* resultCount, const int maxResult) const;
 	
-    /// @}
+	/// @}
 	/// @name Local Query Functions
-    ///@{
-    
+	///@{
+
 	/// Finds the polygon nearest to the specified center point.
-    ///  @param[in]  center     The center of the search box. [(x, y, z)]
-    ///  @param[in]  extents    The search distance along each axis. [(x, y, z)]
-    ///  @param[in]  filter     The polygon filter to apply to the query.
-    ///  @param[out] nearestRef The reference id of the nearest polygon.
-    ///  @param[out] nearestPt  The nearest point on the polygon. [opt] [(x, y, z)]
-	///  @returns The status flags for the query.
+	///  @param[in]		center		The center of the search box. [(x, y, z)]
+	///  @param[in]		extents		The search distance along each axis. [(x, y, z)]
+	///  @param[in]		filter		The polygon filter to apply to the query.
+	///  @param[out]	nearestRef	The reference id of the nearest polygon.
+	///  @param[out]	nearestPt	The nearest point on the polygon. [opt] [(x, y, z)]
+	/// @returns The status flags for the query.
 	dtStatus findNearestPoly(const float* center, const float* extents,
 							 const dtQueryFilter* filter,
 							 dtPolyRef* nearestRef, float* nearestPt) const;
 	
 	/// Finds polygons that overlap the search box.
-    ///  @param[in]  center     The center of the search box. [(x, y, z)]
-	///  @param[in]  extents    The search distance along each axis. [(x, y, z)]
-	///  @param[in]  filter     The polygon filter to apply to the query.
-    ///  @param[out] polys      The reference ids of the polygons that overlap the query box.
-	///  @param[out] polyCount  The number of polygons in the search result.
-	///  @param[in]  maxPolys   The maximum number of polygons the search result can hold.
-	///  @returns The status flags for the query.
+	///  @param[in]		center		The center of the search box. [(x, y, z)]
+	///  @param[in]		extents		The search distance along each axis. [(x, y, z)]
+	///  @param[in]		filter		The polygon filter to apply to the query.
+	///  @param[out]	polys		The reference ids of the polygons that overlap the query box.
+	///  @param[out]	polyCount	The number of polygons in the search result.
+	///  @param[in]		maxPolys	The maximum number of polygons the search result can hold.
+	/// @returns The status flags for the query.
 	dtStatus queryPolygons(const float* center, const float* extents,
 						   const dtQueryFilter* filter,
 						   dtPolyRef* polys, int* polyCount, const int maxPolys) const;
 
 	/// Finds the non-overlapping navigation polygons in the local neighbourhood around the center position.
-	///  @param[in]  startRef      The reference id of the polygon where the search starts.
-	///  @param[in]  centerPos     The center of the query circle. [(x, y, z)]
-	///  @param[in]  radius        The radius of the query circle.
-	///  @param[in]  filter        The polygon filter to apply to the query.
-	///  @param[out] resultRef     The reference ids of the polygons touched by the circle.
-	///  @param[out] resultParent  The reference ids of the parent polygons for each result. 
-    ///                            Zero if a result polygon has no parent. [opt]
-	///  @param[out] resultCount   The number of polygons found.
-	///  @param[in]  maxResult     The maximum number of polygons the result arrays can hold.
-	///  @returns The status flags for the query.
+	///  @param[in]		startRef		The reference id of the polygon where the search starts.
+	///  @param[in]		centerPos		The center of the query circle. [(x, y, z)]
+	///  @param[in]		radius			The radius of the query circle.
+	///  @param[in]		filter			The polygon filter to apply to the query.
+	///  @param[out]	resultRef		The reference ids of the polygons touched by the circle.
+	///  @param[out]	resultParent	The reference ids of the parent polygons for each result. 
+	///  								Zero if a result polygon has no parent. [opt]
+	///  @param[out]	resultCount		The number of polygons found.
+	///  @param[in]		maxResult		The maximum number of polygons the result arrays can hold.
+	/// @returns The status flags for the query.
 	dtStatus findLocalNeighbourhood(dtPolyRef startRef, const float* centerPos, const float radius,
 									const dtQueryFilter* filter,
 									dtPolyRef* resultRef, dtPolyRef* resultParent,
 									int* resultCount, const int maxResult) const;
 
 	/// Moves from the start to the end position constrained to the navigation mesh.
-	///  @param[in]  startRef        The reference id of the start polygon.
-	///  @param[in]  startPos        A position of the mover within the start polygon. [(x, y, x)]
-	///  @param[in]  endPos          The desired end position of the mover. [(x, y, z)]
-	///  @param[in]  filter          The polygon filter to apply to the query.
-	///  @param[out] resultPos       The result position of the mover. [(x, y, z)]
-	///  @param[out] visited         The reference ids of the polygons visited during the move.
-	///  @param[out] visitedCount    The number of polygons visited during the move.
-	///  @param[in]  maxVisitedSize  The maximum number of polygons the @p visited array can hold.
-	///  @returns The status flags for the query.
+	///  @param[in]		startRef		The reference id of the start polygon.
+	///  @param[in]		startPos		A position of the mover within the start polygon. [(x, y, x)]
+	///  @param[in]		endPos			The desired end position of the mover. [(x, y, z)]
+	///  @param[in]		filter			The polygon filter to apply to the query.
+	///  @param[out]	resultPos		The result position of the mover. [(x, y, z)]
+	///  @param[out]	visited			The reference ids of the polygons visited during the move.
+	///  @param[out]	visitedCount	The number of polygons visited during the move.
+	///  @param[in]		maxVisitedSize	The maximum number of polygons the @p visited array can hold.
+	/// @returns The status flags for the query.
 	dtStatus moveAlongSurface(dtPolyRef startRef, const float* startPos, const float* endPos,
 							  const dtQueryFilter* filter,
 							  float* resultPos, dtPolyRef* visited, int* visitedCount, const int maxVisitedSize) const;
 	
 	/// Casts a 'walkability' ray along the surface of the navigation mesh from 
-    /// the start position toward the end position.
-	///  @param[in]  startRef   The reference id of the start polygon.
-	///  @param[in]  startPos   A position within the start polygon representing 
-    ///                         the start of the ray. [(x, y, z)]
-	///  @param[in]  endPos     The position to cast the ray toward. [(x, y, z)]
-    ///  @param[out] t          The hit parameter. (FLT_MAX if no wall hit.)
-	///  @param[out] hitNormal  The normal of the nearest wall hit. [(x, y, z)]
-	///  @param[in]  filter     The polygon filter to apply to the query.
-	///  @param[out] path       The reference ids of the visited polygons. [opt]
-	///  @param[out] pathCount  The number of visited polygons. [opt]
-	///  @param[in]  maxPath    The maximum number of polygons the @p path array can hold.
-	///  @returns The status flags for the query.
+	/// the start position toward the end position.
+	///  @param[in]		startRef	The reference id of the start polygon.
+	///  @param[in]		startPos	A position within the start polygon representing 
+	///  							the start of the ray. [(x, y, z)]
+	///  @param[in]		endPos		The position to cast the ray toward. [(x, y, z)]
+	///  @param[out]	t			The hit parameter. (FLT_MAX if no wall hit.)
+	///  @param[out]	hitNormal	The normal of the nearest wall hit. [(x, y, z)]
+	///  @param[in]		filter		The polygon filter to apply to the query.
+	///  @param[out]	path		The reference ids of the visited polygons. [opt]
+	///  @param[out]	pathCount	The number of visited polygons. [opt]
+	///  @param[in]		maxPath		The maximum number of polygons the @p path array can hold.
+	/// @returns The status flags for the query.
 	dtStatus raycast(dtPolyRef startRef, const float* startPos, const float* endPos,
 					 const dtQueryFilter* filter,
 					 float* t, float* hitNormal, dtPolyRef* path, int* pathCount, const int maxPath) const;
 	
 	/// Finds the distance from the specified position to the nearest polygon wall.
-	///  @param[in]  startRef         The reference id of the polygon containing @p centerPos.
-	///  @param[in]  centerPos        The center of the search circle. [(x, y, z)]
-	///  @param[in]  maxRadius        The radius of the search circle.
-	///  @param[in]  filter           The polygon filter to apply to the query.
-	///  @param[out] hitDist          The distance to the nearest wall from @p centerPos.
-	///  @param[out] hitPos           The nearest position on the wall that was hit. [(x, y, z)]
-	///  @param[out] hitNormal        The normalized ray formed from the wall point to the 
-    ///                               source point. [(x, y, z)]
-	///  @returns The status flags for the query.
+	///  @param[in]		startRef		The reference id of the polygon containing @p centerPos.
+	///  @param[in]		centerPos		The center of the search circle. [(x, y, z)]
+	///  @param[in]		maxRadius		The radius of the search circle.
+	///  @param[in]		filter			The polygon filter to apply to the query.
+	///  @param[out]	hitDist			The distance to the nearest wall from @p centerPos.
+	///  @param[out]	hitPos			The nearest position on the wall that was hit. [(x, y, z)]
+	///  @param[out]	hitNormal		The normalized ray formed from the wall point to the 
+	///  								source point. [(x, y, z)]
+	/// @returns The status flags for the query.
 	dtStatus findDistanceToWall(dtPolyRef startRef, const float* centerPos, const float maxRadius,
 								const dtQueryFilter* filter,
 								float* hitDist, float* hitPos, float* hitNormal) const;
 	
 	/// Returns the segments for the specified polygon, optionally including portals.
-	///  @param[in]  ref           The reference id of the polygon.
-	///  @param[in]  filter        The polygon filter to apply to the query.
-	///  @param[out] segmentVerts  The segments. [(ax, ay, az, bx, by, bz) * segmentCount]
-    ///  @param[out] segmentRefs   The reference ids of each segment's neighbor polygon. 
-    ///                            Or zero if the segment is a wall. [opt] [(parentRef) * @p segmentCount] 
-	///  @param[out] segmentCount  The number of segments returned.
-	///  @param[in]  maxSegments   The maximum number of segments the result arrays can hold.
-	///  @returns The status flags for the query.
+	///  @param[in]		ref				The reference id of the polygon.
+	///  @param[in]		filter			The polygon filter to apply to the query.
+	///  @param[out]	segmentVerts	The segments. [(ax, ay, az, bx, by, bz) * segmentCount]
+	///  @param[out]	segmentRefs		The reference ids of each segment's neighbor polygon. 
+	///  								Or zero if the segment is a wall. [opt] [(parentRef) * @p segmentCount] 
+	///  @param[out]	segmentCount	The number of segments returned.
+	///  @param[in]		maxSegments		The maximum number of segments the result arrays can hold.
+	/// @returns The status flags for the query.
 	dtStatus getPolyWallSegments(dtPolyRef ref, const dtQueryFilter* filter,
 								 float* segmentVerts, dtPolyRef* segmentRefs, int* segmentCount,
 								 const int maxSegments) const;
 	
 	/// Finds the closest point on the specified polygon.
-	///  @param[in]  ref      The reference id of the polygon.
-	///  @param[in]  pos      The position to check. [(x, y, z)]
-	///  @param[out] closest  The closest point on the polygon. [(x, y, z)]
-	///  @returns The status flags for the query.
+	///  @param[in]		ref			The reference id of the polygon.
+	///  @param[in]		pos			The position to check. [(x, y, z)]
+	///  @param[out]	closest		The closest point on the polygon. [(x, y, z)]
+	/// @returns The status flags for the query.
 	dtStatus closestPointOnPoly(dtPolyRef ref, const float* pos, float* closest) const;
 	
 	/// Returns a point on the boundary closest to the source point if the source point is outside the 
-    /// polygon's xz-bounds.
-	///  @param[in]  ref      The reference id to the polygon.
-	///  @param[in]  pos      The position to check. [(x, y, z)]
-	///  @param[out] closest  The closest point. [(x, y, z)]
-	///  @returns The status flags for the query.
+	/// polygon's xz-bounds.
+	///  @param[in]		ref			The reference id to the polygon.
+	///  @param[in]		pos			The position to check. [(x, y, z)]
+	///  @param[out]	closest		The closest point. [(x, y, z)]
+	/// @returns The status flags for the query.
 	dtStatus closestPointOnPolyBoundary(dtPolyRef ref, const float* pos, float* closest) const;
 	
 	/// Gets the height of the polygon at the provided position using the height detail. (Most accurate.)
-	///  @param[in]  ref     The reference id of the polygon.
-	///  @param[in]  pos     A position within the xz-bounds of the polygon. [(x, y, z)]
-	///  @param[out] height  The height at the surface of the polygon.
-	///  @returns The status flags for the query.
+	///  @param[in]		ref			The reference id of the polygon.
+	///  @param[in]		pos			A position within the xz-bounds of the polygon. [(x, y, z)]
+	///  @param[out]	height		The height at the surface of the polygon.
+	/// @returns The status flags for the query.
 	dtStatus getPolyHeight(dtPolyRef ref, const float* pos, float* height) const;
 
-    /// @}
-    /// @name Miscellaneous Functions
-    /// @{
+	/// @}
+	/// @name Miscellaneous Functions
+	/// @{
 
-    /// Returns true if the polygon reference is valid and passes the filter restrictions.
-    ///  @param[in] ref The polygon reference to check.
-    ///  @param[in] filter The filter to apply.
-    bool isValidPolyRef(dtPolyRef ref, const dtQueryFilter* filter) const;
+	/// Returns true if the polygon reference is valid and passes the filter restrictions.
+	///  @param[in]		ref			The polygon reference to check.
+	///  @param[in]		filter		The filter to apply.
+	bool isValidPolyRef(dtPolyRef ref, const dtQueryFilter* filter) const;
 
-    /// Returns true if the polygon reference is in the closed list. 
-    ///  @param[in] ref  The reference id of the polygon to check.
-	///  @returns True if the polygon is in closed list.
+	/// Returns true if the polygon reference is in the closed list. 
+	///  @param[in]		ref		The reference id of the polygon to check.
+	/// @returns True if the polygon is in closed list.
 	bool isInClosedList(dtPolyRef ref) const;
 	
-    /// Gets the node pool.
-    /// @returns The node pool.
+	/// Gets the node pool.
+	/// @returns The node pool.
 	class dtNodePool* getNodePool() const { return m_nodePool; }
 	
-    /// Gets the navigation mesh the query object is using.
-    /// @return The navigation mesh the query object is using.
+	/// Gets the navigation mesh the query object is using.
+	/// @return The navigation mesh the query object is using.
 	const dtNavMesh* getAttachedNavMesh() const { return m_nav; }
 
-    /// @}
+	/// @}
 	
 private:
 	
@@ -441,13 +441,13 @@ private:
 };
 
 /// Allocates a query object using the Detour allocator.
-///  @return An allocated query object, or null on failure.
-///  @ingroup detour
+/// @return An allocated query object, or null on failure.
+/// @ingroup detour
 dtNavMeshQuery* dtAllocNavMeshQuery();
 
 /// Frees the specified query object using the Detour allocator.
-///  @param[in] query A query object allocated using #dtAllocNavMeshQuery
-///  @ingroup detour
+///  @param[in]		query		A query object allocated using #dtAllocNavMeshQuery
+/// @ingroup detour
 void dtFreeNavMeshQuery(dtNavMeshQuery* query);
 
 #endif // DETOURNAVMESHQUERY_H
