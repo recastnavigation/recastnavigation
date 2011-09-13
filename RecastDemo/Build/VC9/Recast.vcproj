@@ -345,6 +345,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\Include\NavmeshPruneTool.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\Include\NavMeshTesterTool.h"
 					>
 				</File>
@@ -438,6 +442,10 @@
 				</File>
 				<File
 					RelativePath="..\..\Source\MeshLoaderObj.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\NavmeshPruneTool.cpp"
 					>
 				</File>
 				<File
