@@ -218,7 +218,7 @@ class dtCrowd
 	void updateMoveRequest(const float dt);
 	void checkPathValidity(dtCrowdAgent** agents, const int nagents, const float dt);
 
-	inline int getAgentIndex(const dtCrowdAgent* agent) const  { return agent - m_agents; }
+	inline int getAgentIndex(const dtCrowdAgent* agent) const  { return (int)(agent - m_agents); }
 
 	bool requestMoveTargetReplan(const int idx, dtPolyRef ref, const float* pos);
 
