@@ -64,7 +64,7 @@ static const unsigned short DT_EXT_LINK = 0x8000;
 /// A value that indicates the entity does not link to anything.
 static const unsigned int DT_NULL_LINK = 0xffffffff;
 
-/// A flag that indicates that an off-mesh connection can be traversed in both directions. (Is bi-directional.)
+/// A flag that indicates that an off-mesh connection can be traversed in both directions. (Is bidirectional.)
 static const unsigned int DT_OFFMESH_CON_BIDIR = 1;
 
 /// The maximum number of user defined area ids.
@@ -254,7 +254,7 @@ struct dtMeshTile
 	dtMeshTile* next;						///< The next free tile, or the next tile in the spatial grid.
 };
 
-/// Configutration parameters used to define multi-tile navigation meshes.
+/// Configuration parameters used to define multi-tile navigation meshes.
 /// The values are used to allocate space during the initialization of a navigation mesh.
 /// @see dtNavMesh::init()
 /// @ingroup detour

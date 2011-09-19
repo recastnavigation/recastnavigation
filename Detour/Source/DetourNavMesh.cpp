@@ -155,17 +155,35 @@ void dtFreeNavMesh(dtNavMesh* navmesh)
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-/// @class dtNavMesh
-///
-/// This class is usually used in conjunction with the dtNavMeshQuery class.
-/// 
-/// Technically, all navigation meshes are tiled. A 'solo' mesh is simply a navigation mesh initialized 
-/// to have only a single tile.
-///
-/// This class does not implement any asynchronous methods. So the ::dtStatus result of all methods will 
-/// always contain either a success or failure flag.
-/// 
-/// @see dtNavMeshQuery, dtCreateNavMeshData(), dtNavMeshCreateParams, #dtAllocNavMesh, #dtFreeNavMesh
+/**
+@class dtNavMesh
+
+The navigation mesh consists of one or more tiles defining three primary types of structural data:
+
+A polygon mesh which defines most of the navigation graph. (See rcPolyMesh for its structure.)
+A detail mesh used for determining surface height on the polygon mesh. (See rcPolyMeshDetail for its structure.)
+Off-mesh connections, which define custom point-to-point edges within the navigation graph.
+
+The general build process is as follows:
+
+-# Create rcPolyMesh and rcPolyMeshDetail data using the Recast build pipeline.
+-# Optionally, create off-mesh connection data.
+-# Combine the source data into a dtNavMeshCreateParams structure.
+-# Create a tile data array using dtCreateNavMeshData().
+-# Allocate at dtNavMesh object and initialize it. (For single tile navigation meshes,
+   the tile data is loaded during this step.)
+-# For multi-tile navigation meshes, load the tile data using dtNavMesh::addTile().
+
+Notes:
+
+- This class is usually used in conjunction with the dtNavMeshQuery class for pathfinding.
+- Technically, all navigation meshes are tiled. A 'solo' mesh is simply a navigation mesh initialized 
+  to have only a single tile.
+- This class does not implement any asynchronous methods. So the ::dtStatus result of all methods will 
+  always contain either a success or failure flag.
+
+@see dtNavMeshQuery, dtCreateNavMeshData, dtNavMeshCreateParams, #dtAllocNavMesh, #dtFreeNavMesh
+*/
 
 dtNavMesh::dtNavMesh() :
 	m_tileWidth(0),
