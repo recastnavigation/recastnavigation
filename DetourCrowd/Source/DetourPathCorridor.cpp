@@ -155,6 +155,47 @@ int dtMergeCorridorStartShortcut(dtPolyRef* path, const int npath, const int max
 	return req+size;
 }
 
+/**
+@class dtPathCorridor
+@par
+
+The corridor is loaded with a path, usually obtained from a #dtNavMeshQuery::findPath() query. The corridor
+is then used to plan local movement, with the corridor automatically updating as needed to deal with inaccurate 
+agent locomotion.
+
+Example of a common use case:
+
+-# Construct the corridor object and call #init() to allocate its path buffer.
+-# Obtain a path from a #dtNavMeshQuery object.
+-# Use #reset() to set the agent's current position. (At the beginning of the path.)
+-# Use #setCorridor() to load the path and target.
+-# Use #findCorners() to plan movement. (This handles dynamic path straightening.)
+-# Use #movePosition() to feed agent movement back into the corridor. (The corridor will automatically adjust as needed.)
+-# If the target is moving, use #moveTargetPosition() to update the end of the corridor. 
+   (The corridor will automatically adjust as needed.)
+-# Repeat the previous 3 steps to continue to move the agent.
+
+The corridor position and target are always constrained to the navigation mesh.
+
+One of the difficulties in maintaining a path is that floating point errors, locomotion inaccuracies, and/or local 
+steering can result in the agent crossing the boundary of the path corridor, temporarily invalidating the path. 
+This class uses local mesh queries to detect and update the corridor as needed to handle these types of issues. 
+
+The fact that local mesh queries are used to move the position and target locations results in two beahviors that 
+need to be considered:
+
+Every time a move function is used there is a chance that the path will become non-optimial. Basically, the further 
+the target is moved from its original location, and the further the position is moved outside the original corridor, 
+the more likely the path will become non-optimal. This issue can be addressed by periodically running the 
+#optimizePathTopology() and #optimizePathVisibility() methods.
+
+All local mesh queries have distance limitations. (Review the #dtNavMeshQuery methods for details.) So the most accurate 
+use case is to move the position and target in small increments. If a large increment is used, then the corridor 
+may not be able to accurately find the new location.  Because of this limiation, if a position is moved in a large
+increment, then compare the desired and resulting polygon references. If the two do not match, then path replanning 
+may be needed.  E.g. If you move the target, check #getLastPoly() to see if it is the expected polygon.
+
+*/
 
 dtPathCorridor::dtPathCorridor() :
 	m_path(0),
@@ -168,6 +209,9 @@ dtPathCorridor::~dtPathCorridor()
 	dtFree(m_path);
 }
 
+/// @par
+///
+/// @warning Cannot be called more than once.
 bool dtPathCorridor::init(const int maxPath)
 {
 	dtAssert(!m_path);
@@ -179,6 +223,10 @@ bool dtPathCorridor::init(const int maxPath)
 	return true;
 }
 
+/// @par
+///
+/// Essentially, the corridor is set of one polygon in size with the target
+/// equal to the position.
 void dtPathCorridor::reset(dtPolyRef ref, const float* pos)
 {
 	dtAssert(m_path);
@@ -188,6 +236,18 @@ void dtPathCorridor::reset(dtPolyRef ref, const float* pos)
 	m_npath = 1;
 }
 
+/**
+@par
+
+This is the function used to plan local movement within the corridor. One or more corners can be 
+detected in order to plan movement. It performs essentially the same function as #dtNavMeshQuery::findStraightPath.
+
+Due to internal optimizations, the maximum number of corners returned will be (@p maxCorners - 1) 
+For example: If the buffers are sized to hold 10 corners, the function will never return more than 9 corners. 
+So if 10 corners are needed, the buffers should be sized for 11 corners.
+
+If the target is within range, it will be the last corner and have a polygon reference id of zero.
+*/
 int dtPathCorridor::findCorners(float* cornerVerts, unsigned char* cornerFlags,
 							  dtPolyRef* cornerPolys, const int maxCorners,
 							  dtNavMeshQuery* navquery, const dtQueryFilter* /*filter*/)
@@ -229,6 +289,21 @@ int dtPathCorridor::findCorners(float* cornerVerts, unsigned char* cornerFlags,
 	return ncorners;
 }
 
+/** 
+@par
+
+Inaccurate locomotion or dynamic obstacle avoidance can force the argent position significantly outside the 
+original corridor. Over time this can result in the formation of a non-optimal corridor. This function uses an 
+efficient local visibility search to try to re-optimize the corridor between the current position and @p next.
+
+The corridor will change only if @p next is visible from the current position and moving directly toward the point 
+is better than following the existing path.
+
+The more inaccurate the agent movement, the more beneficial this function becomes. Simply adjust the frequency 
+of the call to match the needs to the agent.
+
+This function is not suitable for long distance searches.
+*/
 void dtPathCorridor::optimizePathVisibility(const float* next, const float pathOptimizationRange,
 										  dtNavMeshQuery* navquery, const dtQueryFilter* filter)
 {
@@ -262,6 +337,16 @@ void dtPathCorridor::optimizePathVisibility(const float* next, const float pathO
 	}
 }
 
+/**
+@par
+
+Inaccurate locomotion or dynamic obstacle avoidance can force the agent position significantly outside the 
+original corridor. Over time this can result in the formation of a non-optimal corridor. This function will use a 
+local area path search to try to re-optimize the corridor.
+
+The more inaccurate the agent movement, the more beneficial this function becomes. Simply adjust the frequency of 
+the call to match the needs to the agent.
+*/
 bool dtPathCorridor::optimizePathTopology(dtNavMeshQuery* navquery, const dtQueryFilter* filter)
 {
 	dtAssert(navquery);
@@ -333,6 +418,21 @@ bool dtPathCorridor::moveOverOffmeshConnection(dtPolyRef offMeshConRef, dtPolyRe
 	return false;
 }
 
+/**
+@par
+
+Behavior:
+
+- The movement is constrained to the surface of the navigation mesh. 
+- The corridor is automatically adjusted (shorted or lengthened) in order to remain valid. 
+- The new position will be located in the adjusted corridor's first polygon.
+
+The expected use case is that the desired position will be 'near' the current corridor. What is considered 'near' 
+depends on local polygon density, query search extents, etc.
+
+The resulting position will differ from the desired position if the desired position is not on the navigation mesh, 
+or it can't be reached using a local search.
+*/
 void dtPathCorridor::movePosition(const float* npos, dtNavMeshQuery* navquery, const dtQueryFilter* filter)
 {
 	dtAssert(m_path);
@@ -354,6 +454,19 @@ void dtPathCorridor::movePosition(const float* npos, dtNavMeshQuery* navquery, c
 	dtVcopy(m_pos, result);
 }
 
+/**
+@par
+
+Behavior:
+
+- The movement is constrained to the surface of the navigation mesh. 
+- The corridor is automatically adjusted (shorted or lengthened) in order to remain valid. 
+- The new target will be located in the adjusted corridor's last polygon.
+
+The expected use case is that the desired target will be 'near' the current corridor. What is considered 'near' depends on local polygon density, query search extents, etc.
+
+The resulting target will differ from the desired target if the desired target is not on the navigation mesh, or it can't be reached using a local search.
+*/
 void dtPathCorridor::moveTargetPosition(const float* npos, dtNavMeshQuery* navquery, const dtQueryFilter* filter)
 {
 	dtAssert(m_path);
@@ -377,6 +490,12 @@ void dtPathCorridor::moveTargetPosition(const float* npos, dtNavMeshQuery* navqu
 	dtVcopy(m_target, result);
 }
 
+/// @par
+///
+/// The current corridor position is expected to be within the first polygon in the path. The target 
+/// is expected to be in the last polygon. 
+/// 
+/// @warning The size of the path must not exceed the size of corridor's path buffer set during #init().
 void dtPathCorridor::setCorridor(const float* target, const dtPolyRef* path, const int npath)
 {
 	dtAssert(m_path);
@@ -427,6 +546,10 @@ bool dtPathCorridor::trimInvalidPath(dtPolyRef safeRef, const float* safePos,
 	return true;
 }
 
+/// @par
+///
+/// The path can be invalidated if there are structural changes to the underlying navigation mesh, or the state of 
+/// a polygon within the path changes resulting in it being filtered out. (E.g. An exclusion or inclusion flag changes.)
 bool dtPathCorridor::isValid(const int maxLookAhead, dtNavMeshQuery* navquery, const dtQueryFilter* filter)
 {
 	// Check that all polygons still pass query filter.
