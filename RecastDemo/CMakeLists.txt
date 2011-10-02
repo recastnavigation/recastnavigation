@@ -10,6 +10,7 @@ SET(recastdemo_SRCS
 	Source/InputGeom.cpp
 	Source/main.cpp
 	Source/MeshLoaderObj.cpp
+	Source/NavMeshPruneTool.cpp
 	Source/NavMeshTesterTool.cpp
 	Source/OffMeshConnectionTool.cpp
 	Source/PerfTimer.cpp
@@ -34,6 +35,7 @@ SET(recastdemo_HDRS
 	Include/imguiRenderGL.h
 	Include/InputGeom.h
 	Include/MeshLoaderObj.h
+	Include/NavMeshPruneTool.h
 	Include/NavMeshTesterTool.h
 	Include/OffMeshConnectionTool.h
 	Include/PerfTimer.h
