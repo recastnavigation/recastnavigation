@@ -33,7 +33,7 @@
 #include "DetourNavMeshBuilder.h"
 #include "DetourDebugDraw.h"
 #include "NavMeshTesterTool.h"
-#include "NavmeshPruneTool.h"
+#include "NavMeshPruneTool.h"
 #include "OffMeshConnectionTool.h"
 #include "ConvexVolumeTool.h"
 #include "CrowdTool.h"
@@ -106,7 +106,7 @@ void Sample_SoloMesh::handleTools()
 	}
 	if (imguiCheck("Prune Navmesh", type == TOOL_NAVMESH_PRUNE))
 	{
-		setTool(new NavmeshPruneTool);
+		setTool(new NavMeshPruneTool);
 	}
 	if (imguiCheck("Create Off-Mesh Connections", type == TOOL_OFFMESH_CONNECTION))
 	{

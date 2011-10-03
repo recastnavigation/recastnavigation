@@ -415,7 +415,7 @@ void Sample_TileMesh::handleTools()
 	}
 	if (imguiCheck("Prune Navmesh", type == TOOL_NAVMESH_PRUNE))
 	{
-		setTool(new NavmeshPruneTool);
+		setTool(new NavMeshPruneTool);
 	}
 	if (imguiCheck("Create Tiles", type == TOOL_TILE_EDIT))
 	{

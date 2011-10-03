@@ -23,7 +23,7 @@
 
 // Prune navmesh to accessible locations from a point.
 
-class NavmeshPruneTool : public SampleTool
+class NavMeshPruneTool : public SampleTool
 {
 	Sample* m_sample;
 	
@@ -33,8 +33,8 @@ class NavmeshPruneTool : public SampleTool
 	bool m_hitPosSet;
 	
 public:
-	NavmeshPruneTool();
-	~NavmeshPruneTool();
+	NavMeshPruneTool();
+	~NavMeshPruneTool();
 	
 	virtual int type() { return TOOL_NAVMESH_PRUNE; }
 	virtual void init(Sample* sample);

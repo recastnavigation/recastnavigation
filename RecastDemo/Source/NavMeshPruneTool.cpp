@@ -24,7 +24,7 @@
 #include "SDL.h"
 #include "SDL_opengl.h"
 #include "imgui.h"
-#include "NavmeshPruneTool.h"
+#include "NavMeshPruneTool.h"
 #include "InputGeom.h"
 #include "Sample.h"
 #include "DetourNavMesh.h"
@@ -219,30 +219,30 @@ static void disableUnvisitedPolys(dtNavMesh* nav, NavmeshFlags* flags)
 	}
 }
 
-NavmeshPruneTool::NavmeshPruneTool() :
+NavMeshPruneTool::NavMeshPruneTool() :
 	m_flags(0),
 	m_hitPosSet(false)
 {
 }
 
-NavmeshPruneTool::~NavmeshPruneTool()
+NavMeshPruneTool::~NavMeshPruneTool()
 {
 	delete m_flags;
 }
 
-void NavmeshPruneTool::init(Sample* sample)
+void NavMeshPruneTool::init(Sample* sample)
 {
 	m_sample = sample;
 }
 
-void NavmeshPruneTool::reset()
+void NavMeshPruneTool::reset()
 {
 	m_hitPosSet = false;
 	delete m_flags;
 	m_flags = 0;
 }
 
-void NavmeshPruneTool::handleMenu()
+void NavMeshPruneTool::handleMenu()
 {
 	dtNavMesh* nav = m_sample->getNavMesh();
 	if (!nav) return;
@@ -261,7 +261,7 @@ void NavmeshPruneTool::handleMenu()
 	}
 }
 
-void NavmeshPruneTool::handleClick(const float* /*s*/, const float* p, bool shift)
+void NavMeshPruneTool::handleClick(const float* /*s*/, const float* p, bool shift)
 {
 	if (!m_sample) return;
 	InputGeom* geom = m_sample->getInputGeom();
@@ -288,19 +288,19 @@ void NavmeshPruneTool::handleClick(const float* /*s*/, const float* p, bool shif
 	floodNavmesh(nav, m_flags, ref, 1);
 }
 
-void NavmeshPruneTool::handleToggle()
+void NavMeshPruneTool::handleToggle()
 {
 }
 
-void NavmeshPruneTool::handleStep()
+void NavMeshPruneTool::handleStep()
 {
 }
 
-void NavmeshPruneTool::handleUpdate(const float /*dt*/)
+void NavMeshPruneTool::handleUpdate(const float /*dt*/)
 {
 }
 
-void NavmeshPruneTool::handleRender()
+void NavMeshPruneTool::handleRender()
 {
 	DebugDrawGL dd;
 
@@ -339,7 +339,7 @@ void NavmeshPruneTool::handleRender()
 
 }
 
-void NavmeshPruneTool::handleRenderOverlay(double* proj, double* model, int* view)
+void NavMeshPruneTool::handleRenderOverlay(double* proj, double* model, int* view)
 {
 	// Tool help
 	const int h = view[3];
