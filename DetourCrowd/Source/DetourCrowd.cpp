@@ -218,7 +218,43 @@ static int getNeighbours(const float* pos, const float height, const float range
 	return n;
 }
 
+/**
+@class dtCrowd
+@par
 
+This is the core class of the @ref crowd module.  See the @ref crowd documentation for a summary
+of the crowd features.
+
+A common method for setting up the crowd is as follows:
+
+-# Allocate the crowd using #dtAllocCrowd.
+-# Initialize the crowd using #init().
+-# Set the avoidance configurations using #setObstacleAvoidanceParams().
+-# Add agents using #addAgent() and make an initial movement request using #requestMoveTarget().
+
+A common process for managing the crowd is as follows:
+
+-# Call #update() to allow the crowd to manage its agents.
+-# Retrieve agent information using #getActiveAgents().
+-# Make movement requests using #requestMoveTarget() and #adjustMoveTarget().
+-# Repeat every frame.
+
+Some agent configuration settings can be updated using #updateAgentParameters().  But the crowd owns the
+agent position.  So it is not possible to update an active agent's position.  If agent position
+must be fed back into the crowd, the agent must be removed and re-added.
+
+Notes: 
+
+- Path related information is available for newly added agents only after an #update() has been
+  performed.
+- Agent objects are kept in a pool and re-used.  So it is important when using agent objects to check the value of
+  #dtCrowdAgent::active to determine if the agent is actually in use or not.
+- This class is meant to provide 'local' movement. There is a limit of 256 polygons in the path corridor.  
+  So it is not meant to provide automatic pathfinding services over long distances.
+
+@see dtAllocCrowd(), dtFreeCrowd(), init(), dtCrowdAgent
+
+*/
 
 dtCrowd::dtCrowd() :
 	m_maxAgents(0),
@@ -273,6 +309,9 @@ void dtCrowd::purge()
 	m_navquery = 0;
 }
 
+/// @par
+///
+/// May be called more than once to purge and re-initialize the crowd.
 bool dtCrowd::init(const int maxAgents, const float maxAgentRadius, dtNavMesh* nav)
 {
 	purge();
@@ -378,6 +417,9 @@ const int dtCrowd::getAgentCount() const
 	return m_maxAgents;
 }
 
+/// @par
+/// 
+/// Agents in the pool may not be in use.  Check #dtCrowdAgent.active before using the returned object.
 const dtCrowdAgent* dtCrowd::getAgent(const int idx)
 {
 	return &m_agents[idx];
@@ -390,6 +432,9 @@ void dtCrowd::updateAgentParameters(const int idx, const dtCrowdAgentParams* par
 	memcpy(&m_agents[idx].params, params, sizeof(dtCrowdAgentParams));
 }
 
+/// @par
+///
+/// The agent's position will be constrained to the surface of the navigation mesh.
 int dtCrowd::addAgent(const float* pos, const dtCrowdAgentParams* params)
 {
 	// Find empty slot.
@@ -439,6 +484,10 @@ int dtCrowd::addAgent(const float* pos, const dtCrowdAgentParams* params)
 	return idx;
 }
 
+/// @par
+///
+/// The agent is deactivated and will no longer be processed.  Its #dtCrowdAgent object
+/// is not removed from the pool.  It is marked as inactive so that it is available for reuse.
 void dtCrowd::removeAgent(const int idx)
 {
 	if (idx >= 0 && idx < m_maxAgents)
@@ -505,7 +554,15 @@ bool dtCrowd::requestMoveTargetReplan(const int idx, dtPolyRef ref, const float*
 	return true;
 }
 
-
+/// @par
+/// 
+/// This method is used when a new target is set.  Use #adjustMoveTarget() when 
+/// only small local adjustments are needed. (Such as happens when following a 
+/// moving target.)
+/// 
+/// The position will be constrained to the surface of the navigation mesh.
+///
+/// The request will be processed during the next #update().
 bool dtCrowd::requestMoveTarget(const int idx, dtPolyRef ref, const float* pos)
 {
 	if (idx < 0 || idx > m_maxAgents)
@@ -545,7 +602,15 @@ bool dtCrowd::requestMoveTarget(const int idx, dtPolyRef ref, const float* pos)
 	return true;
 }
 
-
+/// @par
+/// 
+/// This method is used when to make small local adjustments to the current 
+/// target. (Such as happens when following a moving target.) Use 
+/// #requestMoveTarget() when a new target is needed. 
+/// 
+/// The position will be constrained to the surface of the navigation mesh.
+///
+/// The request will be processed during the next #update().
 bool dtCrowd::adjustMoveTarget(const int idx, dtPolyRef ref, const float* pos)
 {
 	if (idx < 0 || idx > m_maxAgents)

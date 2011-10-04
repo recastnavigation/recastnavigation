@@ -293,8 +293,11 @@ int dtPathCorridor::findCorners(float* cornerVerts, unsigned char* cornerFlags,
 @par
 
 Inaccurate locomotion or dynamic obstacle avoidance can force the argent position significantly outside the 
-original corridor. Over time this can result in the formation of a non-optimal corridor. This function uses an 
-efficient local visibility search to try to re-optimize the corridor between the current position and @p next.
+original corridor. Over time this can result in the formation of a non-optimal corridor. Non-optimal paths can 
+also form near the corners of tiles.
+
+This function uses an efficient local visibility search to try to optimize the corridor 
+between the current position and @p next.
 
 The corridor will change only if @p next is visible from the current position and moving directly toward the point 
 is better than following the existing path.

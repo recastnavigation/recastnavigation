@@ -21,7 +21,8 @@
 
 #include "DetourNavMeshQuery.h"
 
-/// Represents a dynamic polygon corridor used to plan agent movement
+/// Represents a dynamic polygon corridor used to plan agent movement.
+/// @ingroup crowd, detour
 class dtPathCorridor
 {
 	float m_pos[3];
