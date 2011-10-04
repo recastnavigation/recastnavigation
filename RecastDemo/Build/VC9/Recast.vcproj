@@ -345,7 +345,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\Include\NavmeshPruneTool.h"
+					RelativePath="..\..\Include\NavMeshPruneTool.h"
 					>
 				</File>
 				<File
@@ -445,7 +445,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\Source\NavmeshPruneTool.cpp"
+					RelativePath="..\..\Source\NavMeshPruneTool.cpp"
 					>
 				</File>
 				<File
