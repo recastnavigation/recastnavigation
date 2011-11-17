@@ -494,7 +494,7 @@ dtObstacleRef hitTestObstacle(const dtTileCache* tc, const float* sp, const floa
 	for (int i = 0; i < tc->getObstacleCount(); ++i)
 	{
 		const dtTileCacheObstacle* ob = tc->getObstacle(i);
-		if (ob->state == OBS_EMPTY)
+		if (ob->state == DT_OBSTACLE_EMPTY)
 			continue;
 		
 		float bmin[3], bmax[3], t0,t1;
@@ -518,11 +518,19 @@ void drawObstacles(duDebugDraw* dd, const dtTileCache* tc)
 	for (int i = 0; i < tc->getObstacleCount(); ++i)
 	{
 		const dtTileCacheObstacle* ob = tc->getObstacle(i);
-		if (ob->state == OBS_EMPTY) continue;
+		if (ob->state == DT_OBSTACLE_EMPTY) continue;
 		float bmin[3], bmax[3];
 		tc->getObstacleBounds(ob, bmin,bmax);
-		unsigned int col = ob->state == OBS_NEW ? duRGBA(255,192,0,255) : duRGBA(192,32,0,255);
-		duDebugDrawCylinder(dd, bmin[0],bmin[1],bmin[2], bmax[0],bmax[1],bmax[2], duTransCol(col,128));
+
+		unsigned int col = 0;
+		if (ob->state == DT_OBSTACLE_PROCESSING)
+			col = duRGBA(255,255,0,128);
+		else if (ob->state == DT_OBSTACLE_PROCESSED)
+			col = duRGBA(255,192,0,192);
+		else if (ob->state == DT_OBSTACLE_REMOVING)
+			col = duRGBA(220,0,0,128);
+
+		duDebugDrawCylinder(dd, bmin[0],bmin[1],bmin[2], bmax[0],bmax[1],bmax[2], col);
 		duDebugDrawCylinderWire(dd, bmin[0],bmin[1],bmin[2], bmax[0],bmax[1],bmax[2], duDarkenCol(col), 2);
 	}
 }
@@ -1012,7 +1020,7 @@ void Sample_TempObstacles::clearAllTempObstacles()
 	for (int i = 0; i < m_tileCache->getObstacleCount(); ++i)
 	{
 		const dtTileCacheObstacle* ob = m_tileCache->getObstacle(i);
-		if (ob->state == OBS_EMPTY) continue;
+		if (ob->state == DT_OBSTACLE_EMPTY) continue;
 		m_tileCache->removeObstacle(m_tileCache->getObstacleRef(ob));
 	}
 }
