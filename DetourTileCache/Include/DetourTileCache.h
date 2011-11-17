@@ -29,9 +29,10 @@ struct dtCompressedTile
 
 enum ObstacleState
 {
-	OBS_EMPTY,
-	OBS_NEW,
-	OBS_PROCESSED,
+	DT_OBSTACLE_EMPTY,
+	DT_OBSTACLE_PROCESSING,
+	DT_OBSTACLE_PROCESSED,
+	DT_OBSTACLE_REMOVING,
 };
 
 static const int DT_MAX_TOUCHED_TILES = 8;
@@ -39,9 +40,11 @@ struct dtTileCacheObstacle
 {
 	float pos[3], radius, height;
 	dtCompressedTileRef touched[DT_MAX_TOUCHED_TILES];
+	dtCompressedTileRef pending[DT_MAX_TOUCHED_TILES];
 	unsigned short salt;
 	unsigned char state;
 	unsigned char ntouched;
+	unsigned char npending;
 	dtTileCacheObstacle* next;
 };
 
