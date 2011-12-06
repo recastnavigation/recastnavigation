@@ -420,15 +420,13 @@ static void simplifyContour(rcIntArray& points, rcIntArray& simplified,
 					// Round based on the segments in lexilogical order so that the
 					// max tesselation is consistent regardles in which direction
 					// segments are traversed.
-					if (bx > ax || (bx == ax && bz > az))
+					const int n = bi < ai ? (bi+pn - ai) : (bi - ai);
+					if (n > 1)
 					{
-						const int n = bi < ai ? (bi+pn - ai) : (bi - ai);
-						maxi = (ai + n/2) % pn;
-					}
-					else
-					{
-						const int n = bi < ai ? (bi+pn - ai) : (bi - ai);
-						maxi = (ai + (n+1)/2) % pn;
+						if (bx > ax || (bx == ax && bz > az))
+							maxi = (ai + n/2) % pn;
+						else
+							maxi = (ai + (n+1)/2) % pn;
 					}
 				}
 			}
