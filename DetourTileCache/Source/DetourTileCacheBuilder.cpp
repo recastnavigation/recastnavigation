@@ -2103,3 +2103,39 @@ dtStatus dtDecompressTileCacheLayer(dtTileCacheAlloc* alloc, dtTileCacheCompress
 	return DT_SUCCESS;
 }
 
+
+
+bool dtTileCacheHeaderSwapEndian(unsigned char* data, const int dataSize)
+{
+	dtTileCacheLayerHeader* header = (dtTileCacheLayerHeader*)data;
+	
+	int swappedMagic = DT_TILECACHE_MAGIC;
+	int swappedVersion = DT_TILECACHE_VERSION;
+	dtSwapEndian(&swappedMagic);
+	dtSwapEndian(&swappedVersion);
+	
+	if ((header->magic != DT_TILECACHE_MAGIC || header->version != DT_TILECACHE_VERSION) &&
+		(header->magic != swappedMagic || header->version != swappedVersion))
+	{
+		return false;
+	}
+	
+	dtSwapEndian(&header->magic);
+	dtSwapEndian(&header->version);
+	dtSwapEndian(&header->tx);
+	dtSwapEndian(&header->ty);
+	dtSwapEndian(&header->tlayer);
+	dtSwapEndian(&header->bmin[0]);
+	dtSwapEndian(&header->bmin[1]);
+	dtSwapEndian(&header->bmin[2]);
+	dtSwapEndian(&header->bmax[0]);
+	dtSwapEndian(&header->bmax[1]);
+	dtSwapEndian(&header->bmax[2]);
+	dtSwapEndian(&header->hmin);
+	dtSwapEndian(&header->hmax);
+	
+	// width, height, minx, maxx, miny, maxy are unsigned char, no need to swap.
+	
+	return true;
+}
+
