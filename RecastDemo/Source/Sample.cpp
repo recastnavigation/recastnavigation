@@ -47,6 +47,9 @@ Sample::Sample() :
 	resetCommonSettings();
 	m_navQuery = dtAllocNavMeshQuery();
 	m_crowd = dtAllocCrowd();
+
+	for (int i = 0; i < MAX_TOOLS; i++)
+		m_toolStates[i] = 0;
 }
 
 Sample::~Sample()
@@ -55,6 +58,8 @@ Sample::~Sample()
 	dtFreeNavMesh(m_navMesh);
 	dtFreeCrowd(m_crowd);
 	delete m_tool;
+	for (int i = 0; i < MAX_TOOLS; i++)
+		delete m_toolStates[i];
 }
 
 void Sample::setTool(SampleTool* tool)
@@ -204,5 +209,52 @@ void Sample::handleUpdate(const float dt)
 {
 	if (m_tool)
 		m_tool->handleUpdate(dt);
+	updateToolStates(dt);
+}
+
+
+void Sample::updateToolStates(const float dt)
+{
+	for (int i = 0; i < MAX_TOOLS; i++)
+	{
+		if (m_toolStates[i])
+			m_toolStates[i]->handleUpdate(dt);
+	}
+}
+
+void Sample::initToolStates(Sample* sample)
+{
+	for (int i = 0; i < MAX_TOOLS; i++)
+	{
+		if (m_toolStates[i])
+			m_toolStates[i]->init(sample);
+	}
+}
+
+void Sample::resetToolStates()
+{
+	for (int i = 0; i < MAX_TOOLS; i++)
+	{
+		if (m_toolStates[i])
+			m_toolStates[i]->reset();
+	}
+}
+
+void Sample::renderToolStates()
+{
+	for (int i = 0; i < MAX_TOOLS; i++)
+	{
+		if (m_toolStates[i])
+			m_toolStates[i]->handleRender();
+	}
+}
+
+void Sample::renderOverlayToolStates(double* proj, double* model, int* view)
+{
+	for (int i = 0; i < MAX_TOOLS; i++)
+	{
+		if (m_toolStates[i])
+			m_toolStates[i]->handleRenderOverlay(proj, model, view);
+	}
 }
 

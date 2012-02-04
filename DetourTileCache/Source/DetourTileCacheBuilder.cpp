@@ -39,8 +39,6 @@ public:
 	inline int size() const { return m_size; }
 };
 
-static const unsigned short DT_TILECACHE_NULL_IDX = 0xffff;
-
 inline int getDirOffsetX(int dir)
 {
 	const int offset[4] = { -1, 0, 1, 0, };
@@ -116,6 +114,7 @@ struct dtLayerMonotoneRegion
 	unsigned char neis[DT_LAYER_MAX_NEIS];
 	unsigned char nneis;
 	unsigned char regId;
+	unsigned char areaId;
 };
 
 struct dtTempContour
@@ -306,6 +305,7 @@ dtStatus dtBuildTileCacheRegions(dtTileCacheAlloc* alloc,
 			
 			// Update area.
 			regs[ri].area++;
+			regs[ri].areaId = layer.areas[idx];
 			
 			// Update neighbours
 			const int ymi = x+(y-1)*w;
@@ -335,6 +335,8 @@ dtStatus dtBuildTileCacheRegions(dtTileCacheAlloc* alloc,
 			const unsigned char nei = reg.neis[j];
 			dtLayerMonotoneRegion& regn = regs[nei];
 			if (reg.regId == regn.regId)
+				continue;
+			if (reg.areaId != regn.areaId)
 				continue;
 			if (regn.area > mergea)
 			{
@@ -694,6 +696,8 @@ static unsigned char getCornerHeight(dtTileCacheLayer& layer,
 	
 	unsigned char portal = 0xf;
 	unsigned char height = 0;
+	unsigned char preg = 0xff;
+	bool allSameReg = true;
 	
 	for (int dz = -1; dz <= 0; ++dz)
 	{
@@ -709,6 +713,9 @@ static unsigned char getCornerHeight(dtTileCacheLayer& layer,
 				{
 					height = dtMax(height, (unsigned char)h);
 					portal &= (layer.cons[idx] >> 4);
+					if (preg != 0xff && preg != layer.regs[idx])
+						allSameReg = false;
+					preg = layer.regs[idx]; 
 					n++;
 				}
 			}
@@ -721,7 +728,7 @@ static unsigned char getCornerHeight(dtTileCacheLayer& layer,
 			portalCount++;
 	
 	shouldRemove = false;
-	if (n > 1 && portalCount == 1)
+	if (n > 1 && portalCount == 1 && allSameReg)
 	{
 		shouldRemove = true;
 	}
@@ -1751,6 +1758,8 @@ dtStatus dtBuildTileCachePolyMesh(dtTileCacheAlloc* alloc,
 	}
 
 	// TODO: warn about too many vertices?
+	
+	mesh.nvp = MAX_VERTS_PER_POLY;
 	
 	dtFixedArray<unsigned char> vflags(alloc, maxVertices);
 	if (!vflags)

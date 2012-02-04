@@ -27,14 +27,8 @@
 
 // Tool to create crowds.
 
-class CrowdTool : public SampleTool
+struct CrowdToolParams
 {
-	Sample* m_sample;
-	unsigned char m_oldFlags;
-	
-	float m_targetPos[3];
-	dtPolyRef m_targetRef;
-
 	bool m_expandSelectedDebugDraw;
 	bool m_showCorners;
 	bool m_showCollisionSegments;
@@ -42,7 +36,7 @@ class CrowdTool : public SampleTool
 	bool m_showVO;
 	bool m_showOpt;
 	bool m_showNeis;
-
+	
 	bool m_expandDebugDraw;
 	bool m_showLabels;
 	bool m_showGrid;
@@ -57,8 +51,14 @@ class CrowdTool : public SampleTool
 	float m_obstacleAvoidanceType;
 	bool m_separation;
 	float m_separationWeight;
+};
+
+class CrowdToolState : public SampleToolState
+{
+	Sample* m_sample;
 	
-	bool m_run;
+	float m_targetPos[3];
+	dtPolyRef m_targetRef;
 
 	dtCrowdAgentDebugInfo m_agentDebug;
 	dtObstacleAvoidanceDebugData* m_vod;
@@ -74,7 +74,40 @@ class CrowdTool : public SampleTool
 	
 	ValueHistory m_crowdTotalTime;
 	ValueHistory m_crowdSampleCount;
+
+	CrowdToolParams m_toolParams;
+
+	bool m_run;
+
+public:
+	CrowdToolState();
+	virtual ~CrowdToolState();
 	
+	virtual void init(class Sample* sample);
+	virtual void reset();
+	virtual void handleRender();
+	virtual void handleRenderOverlay(double* proj, double* model, int* view);
+	virtual void handleUpdate(const float dt);
+
+	inline bool isRunning() const { return m_run; }
+	inline void setRunning(const bool s) { m_run = s; }
+	
+	void addAgent(const float* pos);
+	void removeAgent(const int idx);
+	void hilightAgent(const int idx);
+	void updateAgentParams();
+	int hitTestAgents(const float* s, const float* p);
+	void setMoveTarget(const float* p, bool adjust);
+	void updateTick(const float dt);
+
+	inline CrowdToolParams* getToolParams() { return &m_toolParams; }
+};
+
+
+class CrowdTool : public SampleTool
+{
+	Sample* m_sample;
+	CrowdToolState* m_state;
 	
 	enum ToolMode
 	{
@@ -90,7 +123,7 @@ class CrowdTool : public SampleTool
 	
 public:
 	CrowdTool();
-	~CrowdTool();
+	virtual ~CrowdTool();
 	
 	virtual int type() { return TOOL_CROWD; }
 	virtual void init(Sample* sample);

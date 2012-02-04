@@ -35,6 +35,7 @@ enum SampleToolType
 	TOOL_OFFMESH_CONNECTION,
 	TOOL_CONVEX_VOLUME,
 	TOOL_CROWD,
+	MAX_TOOLS
 };
 
 /// These are just sample areas to use consistent values across the samples.
@@ -73,6 +74,14 @@ struct SampleTool
 	virtual void handleUpdate(const float dt) = 0;
 };
 
+struct SampleToolState {
+	virtual ~SampleToolState() {}
+	virtual void init(class Sample* sample) = 0;
+	virtual void reset() = 0;
+	virtual void handleRender() = 0;
+	virtual void handleRenderOverlay(double* proj, double* model, int* view) = 0;
+	virtual void handleUpdate(const float dt) = 0;
+};
 
 class Sample
 {
@@ -100,6 +109,7 @@ protected:
 	float m_detailSampleMaxError;
 	
 	SampleTool* m_tool;
+	SampleToolState* m_toolStates[MAX_TOOLS];
 	
 	BuildContext* m_ctx;
 	
@@ -110,6 +120,8 @@ public:
 	void setContext(BuildContext* ctx) { m_ctx = ctx; }
 	
 	void setTool(SampleTool* tool);
+	SampleToolState* getToolState(int type) { return m_toolStates[type]; }
+	void setToolState(int type, SampleToolState* s) { m_toolStates[type] = s; }
 	
 	virtual void handleSettings();
 	virtual void handleTools();
@@ -135,6 +147,12 @@ public:
 	
 	inline unsigned char getNavMeshDrawFlags() const { return m_navMeshDrawFlags; }
 	inline void setNavMeshDrawFlags(unsigned char flags) { m_navMeshDrawFlags = flags; }
+
+	void updateToolStates(const float dt);
+	void initToolStates(Sample* sample);
+	void resetToolStates();
+	void renderToolStates();
+	void renderOverlayToolStates(double* proj, double* model, int* view);
 
 	void resetCommonSettings();
 	void handleCommonSettings();

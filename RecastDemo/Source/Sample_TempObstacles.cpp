@@ -167,6 +167,59 @@ struct LinearAllocator : public dtTileCacheAlloc
 	}
 };
 
+struct MeshProcess : public dtTileCacheMeshProcess
+{
+	InputGeom* m_geom;
+
+	inline MeshProcess() : m_geom(0)
+	{
+	}
+
+	inline void init(InputGeom* geom)
+	{
+		m_geom = geom;
+	}
+	
+	virtual void process(struct dtNavMeshCreateParams* params,
+						 unsigned char* polyAreas, unsigned short* polyFlags)
+	{
+		// Update poly flags from areas.
+		for (int i = 0; i < params->polyCount; ++i)
+		{
+			if (polyAreas[i] == DT_TILECACHE_WALKABLE_AREA)
+				polyAreas[i] = SAMPLE_POLYAREA_GROUND;
+
+			if (polyAreas[i] == SAMPLE_POLYAREA_GROUND ||
+				polyAreas[i] == SAMPLE_POLYAREA_GRASS ||
+				polyAreas[i] == SAMPLE_POLYAREA_ROAD)
+			{
+				polyFlags[i] = SAMPLE_POLYFLAGS_WALK;
+			}
+			else if (polyAreas[i] == SAMPLE_POLYAREA_WATER)
+			{
+				polyFlags[i] = SAMPLE_POLYFLAGS_SWIM;
+			}
+			else if (polyAreas[i] == SAMPLE_POLYAREA_DOOR)
+			{
+				polyFlags[i] = SAMPLE_POLYFLAGS_WALK | SAMPLE_POLYFLAGS_DOOR;
+			}
+		}
+
+		// Pass in off-mesh connections.
+		if (m_geom)
+		{
+			params->offMeshConVerts = m_geom->getOffMeshConnectionVerts();
+			params->offMeshConRad = m_geom->getOffMeshConnectionRads();
+			params->offMeshConDir = m_geom->getOffMeshConnectionDirs();
+			params->offMeshConAreas = m_geom->getOffMeshConnectionAreas();
+			params->offMeshConFlags = m_geom->getOffMeshConnectionFlags();
+			params->offMeshConUserID = m_geom->getOffMeshConnectionId();
+			params->offMeshConCount = m_geom->getOffMeshConnectionCount();	
+		}
+	}
+};
+
+
 
 
 static const int MAX_TILES = 32;
@@ -422,9 +475,36 @@ void drawTiles(duDebugDraw* dd, dtTileCache* tc)
 	}
 
 }
-	
-void drawDetail(duDebugDraw* dd, dtTileCache* tc, const int tx, const int ty)
+
+enum DrawDetailType
 {
+	DRAWDETAIL_AREAS,
+	DRAWDETAIL_REGIONS,
+	DRAWDETAIL_CONTOURS,
+	DRAWDETAIL_MESH,
+};
+
+void drawDetail(duDebugDraw* dd, dtTileCache* tc, const int tx, const int ty, int type)
+{
+	struct TileCacheBuildContext
+	{
+		inline TileCacheBuildContext(struct dtTileCacheAlloc* a) : layer(0), lcset(0), lmesh(0), alloc(a) {}
+		inline ~TileCacheBuildContext() { purge(); }
+		void purge()
+		{
+			dtFreeTileCacheLayer(alloc, layer);
+			layer = 0;
+			dtFreeTileCacheContourSet(alloc, lcset);
+			lcset = 0;
+			dtFreeTileCachePolyMesh(alloc, lmesh);
+			lmesh = 0;
+		}
+		struct dtTileCacheLayer* layer;
+		struct dtTileCacheContourSet* lcset;
+		struct dtTileCachePolyMesh* lmesh;
+		struct dtTileCacheAlloc* alloc;
+	};
+
 	const int MAX_TILES = 32;
 	dtCompressedTileRef tiles[MAX_TILES];
 	const int ntiles = tc->getTilesAt(tx,ty,tiles,MAX_TILES);
@@ -439,15 +519,56 @@ void drawDetail(duDebugDraw* dd, dtTileCache* tc, const int tx, const int ty)
 
 		talloc->reset();
 
+		TileCacheBuildContext bc(talloc);
+		const int walkableClimbVx = (int)(params->walkableClimb / params->ch);
+		dtStatus status;
+		
 		// Decompress tile layer data. 
-		dtTileCacheLayer* layer = 0;
-		dtStatus status = dtDecompressTileCacheLayer(talloc, tcomp, tile->data, tile->dataSize, &layer);
+		status = dtDecompressTileCacheLayer(talloc, tcomp, tile->data, tile->dataSize, &bc.layer);
 		if (dtStatusFailed(status))
 			return;
+		if (type == DRAWDETAIL_AREAS)
+		{
+			duDebugDrawTileCacheLayerAreas(dd, *bc.layer, params->cs, params->ch);
+			continue;
+		}
+
+		// Build navmesh
+		status = dtBuildTileCacheRegions(talloc, *bc.layer, walkableClimbVx);
+		if (dtStatusFailed(status))
+			return;
+		if (type == DRAWDETAIL_REGIONS)
+		{
+			duDebugDrawTileCacheLayerRegions(dd, *bc.layer, params->cs, params->ch);
+			continue;
+		}
 		
-		duDebugDrawTileCacheLayer(dd, *layer, params->cs, params->ch);
+		bc.lcset = dtAllocTileCacheContourSet(talloc);
+		if (!bc.lcset)
+			return;
+		status = dtBuildTileCacheContours(talloc, *bc.layer, walkableClimbVx,
+										  params->maxSimplificationError, *bc.lcset);
+		if (dtStatusFailed(status))
+			return;
+		if (type == DRAWDETAIL_CONTOURS)
+		{
+			duDebugDrawTileCacheContours(dd, *bc.lcset, tile->header->bmin, params->cs, params->ch);
+			continue;
+		}
 		
-		dtFreeTileCacheLayer(talloc, layer);
+		bc.lmesh = dtAllocTileCachePolyMesh(talloc);
+		if (!bc.lmesh)
+			return;
+		status = dtBuildTileCachePolyMesh(talloc, *bc.lcset, *bc.lmesh);
+		if (dtStatusFailed(status))
+			return;
+
+		if (type == DRAWDETAIL_MESH)
+		{
+			duDebugDrawTileCachePolyMesh(dd, *bc.lmesh, tile->header->bmin, params->cs, params->ch);
+			continue;
+		}
+
 	}
 }
 
@@ -544,13 +665,15 @@ class TempObstacleHilightTool : public SampleTool
 	float m_hitPos[3];
 	bool m_hitPosSet;
 	float m_agentRadius;
+	int m_drawType;
 	
 public:
 
 	TempObstacleHilightTool() :
 		m_sample(0),
 		m_hitPosSet(false),
-		m_agentRadius(0)
+		m_agentRadius(0),
+		m_drawType(DRAWDETAIL_AREAS)
 	{
 		m_hitPos[0] = m_hitPos[1] = m_hitPos[2] = 0;
 	}
@@ -572,6 +695,15 @@ public:
 	{
 		imguiLabel("Highlight Tile Cache");
 		imguiValue("Click LMB to highlight a tile.");
+		imguiSeparator();
+		if (imguiCheck("Draw Areas", m_drawType == DRAWDETAIL_AREAS))
+			m_drawType = DRAWDETAIL_AREAS;
+		if (imguiCheck("Draw Regions", m_drawType == DRAWDETAIL_REGIONS))
+			m_drawType = DRAWDETAIL_REGIONS;
+		if (imguiCheck("Draw Contours", m_drawType == DRAWDETAIL_CONTOURS))
+			m_drawType = DRAWDETAIL_CONTOURS;
+		if (imguiCheck("Draw Mesh", m_drawType == DRAWDETAIL_MESH))
+			m_drawType = DRAWDETAIL_MESH;
 	}
 
 	virtual void handleClick(const float* /*s*/, const float* p, bool /*shift*/)
@@ -607,7 +739,7 @@ public:
 			{
 				int tx=0, ty=0;
 				m_sample->getTilePos(m_hitPos, tx, ty);
-				m_sample->renderCachedTile(tx,ty);
+				m_sample->renderCachedTile(tx,ty,m_drawType);
 			}
 
 		}
@@ -703,6 +835,7 @@ Sample_TempObstacles::Sample_TempObstacles() :
 	
 	m_talloc = new LinearAllocator(32000);
 	m_tcomp = new FastLZCompressor;
+	m_tmproc = new MeshProcess;
 	
 	setTool(new TempObstacleCreateTool);
 }
@@ -915,7 +1048,7 @@ void Sample_TempObstacles::handleRender()
 		 m_drawMode == DRAWMODE_NAVMESH_INVIS))
 	{
 		if (m_drawMode != DRAWMODE_NAVMESH_INVIS)
-			duDebugDrawNavMeshWithClosedList(&dd, *m_navMesh, *m_navQuery, m_navMeshDrawFlags|DU_DRAWNAVMESH_COLOR_TILES);
+			duDebugDrawNavMeshWithClosedList(&dd, *m_navMesh, *m_navQuery, m_navMeshDrawFlags/*|DU_DRAWNAVMESH_COLOR_TILES*/);
 		if (m_drawMode == DRAWMODE_NAVMESH_BVTREE)
 			duDebugDrawNavMeshBVTree(&dd, *m_navMesh);
 		if (m_drawMode == DRAWMODE_NAVMESH_PORTALS)
@@ -932,15 +1065,16 @@ void Sample_TempObstacles::handleRender()
 	
 	if (m_tool)
 		m_tool->handleRender();
+	renderToolStates();
 	
 	glDepthMask(GL_TRUE);
 }
 
-void Sample_TempObstacles::renderCachedTile(const int tx, const int ty)
+void Sample_TempObstacles::renderCachedTile(const int tx, const int ty, const int type)
 {
 	DebugDrawGL dd;
 	if (m_tileCache)
-		drawDetail(&dd,m_tileCache,tx,ty);
+		drawDetail(&dd,m_tileCache,tx,ty,type);
 }
 
 void Sample_TempObstacles::renderCachedTileOverlay(const int tx, const int ty, double* proj, double* model, int* view)
@@ -953,6 +1087,7 @@ void Sample_TempObstacles::handleRenderOverlay(double* proj, double* model, int*
 {	
 	if (m_tool)
 		m_tool->handleRenderOverlay(proj, model, view);
+	renderOverlayToolStates(proj, model, view);
 
 	// Stats
 /*	imguiDrawRect(280,10,300,100,imguiRGBA(0,0,0,64));
@@ -992,7 +1127,10 @@ void Sample_TempObstacles::handleMeshChanged(class InputGeom* geom)
 	{
 		m_tool->reset();
 		m_tool->init(this);
+		m_tmproc->init(m_geom);
 	}
+	resetToolStates();
+	initToolStates(this);
 }
 
 void Sample_TempObstacles::addTempObstacle(const float* pos)
@@ -1034,6 +1172,8 @@ bool Sample_TempObstacles::handleBuild()
 		m_ctx->log(RC_LOG_ERROR, "buildTiledNavigation: No vertices and triangles.");
 		return false;
 	}
+
+	m_tmproc->init(m_geom);
 	
 	// Init cache
 	const float* bmin = m_geom->getMeshBoundsMin();
@@ -1090,7 +1230,7 @@ bool Sample_TempObstacles::handleBuild()
 		m_ctx->log(RC_LOG_ERROR, "buildTiledNavigation: Could not allocate tile cache.");
 		return false;
 	}
-	status = m_tileCache->init(&tcparams, m_talloc, m_tcomp);
+	status = m_tileCache->init(&tcparams, m_talloc, m_tcomp, m_tmproc);
 	if (dtStatusFailed(status))
 	{
 		m_ctx->log(RC_LOG_ERROR, "buildTiledNavigation: Could not init tile cache.");
@@ -1189,6 +1329,7 @@ bool Sample_TempObstacles::handleBuild()
 	
 	if (m_tool)
 		m_tool->init(this);
+	initToolStates(this);
 
 	return true;
 }

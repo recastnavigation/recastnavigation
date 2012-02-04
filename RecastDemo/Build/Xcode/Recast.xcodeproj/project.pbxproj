@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 45;
+	objectVersion = 46;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -20,6 +20,9 @@
 		6B137C900F7FCC1100459200 /* RecastMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B137C870F7FCC1100459200 /* RecastMesh.cpp */; };
 		6B137C910F7FCC1100459200 /* RecastRasterization.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B137C880F7FCC1100459200 /* RecastRasterization.cpp */; };
 		6B137C920F7FCC1100459200 /* RecastRegion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B137C890F7FCC1100459200 /* RecastRegion.cpp */; };
+		6B21B00014139EF8009557F9 /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6B21AFFF14139EF8009557F9 /* SDL.framework */; };
+		6B21B00214139EFE009557F9 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6B21B00114139EFE009557F9 /* OpenGL.framework */; };
+		6B21B048141CB700009557F9 /* NavmeshPruneTool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B21B047141CB700009557F9 /* NavmeshPruneTool.cpp */; };
 		6B25B6190FFA62BE004F1BC4 /* Sample.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B25B6140FFA62BE004F1BC4 /* Sample.cpp */; };
 		6B25B61D0FFA62BE004F1BC4 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B25B6180FFA62BE004F1BC4 /* main.cpp */; };
 		6B2AEC530FFB8958005BE9CC /* Sample_TileMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B2AEC520FFB8958005BE9CC /* Sample_TileMesh.cpp */; };
@@ -30,8 +33,6 @@
 		6B62416A103434880002E346 /* RecastMeshDetail.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B624169103434880002E346 /* RecastMeshDetail.cpp */; };
 		6B8036AE113BAABE005ED67B /* Sample_Debug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B8036AD113BAABE005ED67B /* Sample_Debug.cpp */; };
 		6B847777122D221D00ADF63D /* ValueHistory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B847776122D221C00ADF63D /* ValueHistory.cpp */; };
-		6B8632DA0F78122C00E2684A /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6B8632D90F78122C00E2684A /* SDL.framework */; };
-		6B8632DC0F78123E00E2684A /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6B8632DB0F78123E00E2684A /* OpenGL.framework */; };
 		6B86C9AA12F69DD500C92D2E /* fastlz.c in Sources */ = {isa = PBXBuildFile; fileRef = 6B86C9A812F69DD500C92D2E /* fastlz.c */; };
 		6B8DE88910B69E3E00DF20FB /* DetourNavMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B8DE88710B69E3E00DF20FB /* DetourNavMesh.cpp */; };
 		6B8DE88A10B69E3E00DF20FB /* DetourNavMeshBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B8DE88810B69E3E00DF20FB /* DetourNavMeshBuilder.cpp */; };
@@ -92,6 +93,11 @@
 		6B137C870F7FCC1100459200 /* RecastMesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RecastMesh.cpp; path = ../../../Recast/Source/RecastMesh.cpp; sourceTree = SOURCE_ROOT; };
 		6B137C880F7FCC1100459200 /* RecastRasterization.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RecastRasterization.cpp; path = ../../../Recast/Source/RecastRasterization.cpp; sourceTree = SOURCE_ROOT; };
 		6B137C890F7FCC1100459200 /* RecastRegion.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RecastRegion.cpp; path = ../../../Recast/Source/RecastRegion.cpp; sourceTree = SOURCE_ROOT; };
+		6B21AFFF14139EF8009557F9 /* SDL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL.framework; path = Library/Frameworks/SDL.framework; sourceTree = SDKROOT; };
+		6B21B00114139EFE009557F9 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		6B21B04514139F75009557F9 /* Recast copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Recast copy-Info.plist"; path = "/Users/memon/Code/recastnavigation/RecastDemo/Build/Xcode/Recast copy-Info.plist"; sourceTree = "<absolute>"; };
+		6B21B046141CB6E9009557F9 /* NavmeshPruneTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NavmeshPruneTool.h; path = ../../Include/NavmeshPruneTool.h; sourceTree = "<group>"; };
+		6B21B047141CB700009557F9 /* NavmeshPruneTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NavmeshPruneTool.cpp; path = ../../Source/NavmeshPruneTool.cpp; sourceTree = "<group>"; };
 		6B25B6100FFA62AD004F1BC4 /* Sample.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Sample.h; path = ../../Include/Sample.h; sourceTree = SOURCE_ROOT; };
 		6B25B6140FFA62BE004F1BC4 /* Sample.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Sample.cpp; path = ../../Source/Sample.cpp; sourceTree = SOURCE_ROOT; };
 		6B25B6180FFA62BE004F1BC4 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../../Source/main.cpp; sourceTree = SOURCE_ROOT; };
@@ -110,8 +116,6 @@
 		6B8036AD113BAABE005ED67B /* Sample_Debug.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Sample_Debug.cpp; path = ../../Source/Sample_Debug.cpp; sourceTree = SOURCE_ROOT; };
 		6B847774122D220D00ADF63D /* ValueHistory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ValueHistory.h; path = ../../Include/ValueHistory.h; sourceTree = SOURCE_ROOT; };
 		6B847776122D221C00ADF63D /* ValueHistory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ValueHistory.cpp; path = ../../Source/ValueHistory.cpp; sourceTree = SOURCE_ROOT; };
-		6B8632D90F78122C00E2684A /* SDL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL.framework; path = Library/Frameworks/SDL.framework; sourceTree = SDKROOT; };
-		6B8632DB0F78123E00E2684A /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		6B86B21213387FB200B14842 /* DetourStatus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DetourStatus.h; path = ../../../Detour/Include/DetourStatus.h; sourceTree = SOURCE_ROOT; };
 		6B86C9A812F69DD500C92D2E /* fastlz.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = fastlz.c; path = ../../Contrib/fastlz/fastlz.c; sourceTree = SOURCE_ROOT; };
 		6B86C9A912F69DD500C92D2E /* fastlz.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fastlz.h; path = ../../Contrib/fastlz/fastlz.h; sourceTree = SOURCE_ROOT; };
@@ -184,9 +188,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6B21B00214139EFE009557F9 /* OpenGL.framework in Frameworks */,
+				6B21B00014139EF8009557F9 /* SDL.framework in Frameworks */,
 				8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */,
-				6B8632DA0F78122C00E2684A /* SDL.framework in Frameworks */,
-				6B8632DC0F78123E00E2684A /* OpenGL.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -236,8 +240,8 @@
 		1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				6B8632D90F78122C00E2684A /* SDL.framework */,
-				6B8632DB0F78123E00E2684A /* OpenGL.framework */,
+				6B21B00114139EFE009557F9 /* OpenGL.framework */,
+				6B21AFFF14139EF8009557F9 /* SDL.framework */,
 				1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */,
 			);
 			name = "Linked Frameworks";
@@ -269,6 +273,7 @@
 				29B97317FDCFA39411CA2CEA /* Resources */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
+				6B21B04514139F75009557F9 /* Recast copy-Info.plist */,
 			);
 			name = Recast;
 			sourceTree = "<group>";
@@ -391,6 +396,8 @@
 				6BCF32351104CD05009445BF /* OffMeshConnectionTool.cpp */,
 				6BB7FC0910EBB6AA006DA0A6 /* NavMeshTesterTool.h */,
 				6BB7FC0A10EBB6AA006DA0A6 /* NavMeshTesterTool.cpp */,
+				6B21B046141CB6E9009557F9 /* NavmeshPruneTool.h */,
+				6B21B047141CB700009557F9 /* NavmeshPruneTool.cpp */,
 			);
 			name = Tools;
 			sourceTree = "<group>";
@@ -457,9 +464,16 @@
 /* Begin PBXProject section */
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0410;
+			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "Recast" */;
-			compatibilityVersion = "Xcode 3.1";
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
+			knownRegions = (
+				en,
+			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* Recast */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -538,6 +552,7 @@
 				6BD1B1D01323E2EC00587F83 /* Sample_SoloMesh.cpp in Sources */,
 				6BC048CA134F23330047265D /* DetourTileCacheBuilder.cpp in Sources */,
 				6BC048CD134F23620047265D /* DetourTileCache.cpp in Sources */,
+				6B21B048141CB700009557F9 /* NavmeshPruneTool.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -570,15 +585,15 @@
 				CONFIGURATION_BUILD_DIR = ../../Bin;
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Recast_Prefix.pch;
-				GCC_VERSION = 4.2;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				HEADER_SEARCH_PATHS = "/Library/Frameworks/SDL.framework/Headers/**";
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
 					"-Wreorder",
@@ -600,10 +615,11 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Recast_Prefix.pch;
-				GCC_VERSION = 4.2;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				HEADER_SEARCH_PATHS = "/Library/Frameworks/SDL.framework/Headers/**";
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = "";
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
@@ -619,26 +635,24 @@
 		C01FCF4F08A954540054247B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				PREBINDING = NO;
-				SDKROOT = macosx10.5;
+				SDKROOT = macosx10.6;
 			};
 			name = Debug;
 		};
 		C01FCF5008A954540054247B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				PREBINDING = NO;
-				SDKROOT = macosx10.5;
+				SDKROOT = macosx10.6;
 			};
 			name = Release;
 		};

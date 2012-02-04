@@ -651,7 +651,8 @@ void Sample_TileMesh::handleRender()
 	
 	if (m_tool)
 		m_tool->handleRender();
-	
+	renderToolStates();
+
 	glDepthMask(GL_TRUE);
 }
 
@@ -670,6 +671,7 @@ void Sample_TileMesh::handleRenderOverlay(double* proj, double* model, int* view
 	
 	if (m_tool)
 		m_tool->handleRenderOverlay(proj, model, view);
+	renderOverlayToolStates(proj, model, view);
 }
 
 void Sample_TileMesh::handleMeshChanged(class InputGeom* geom)
@@ -686,6 +688,8 @@ void Sample_TileMesh::handleMeshChanged(class InputGeom* geom)
 		m_tool->reset();
 		m_tool->init(this);
 	}
+	resetToolStates();
+	initToolStates(this);
 }
 
 bool Sample_TileMesh::handleBuild()
@@ -733,6 +737,7 @@ bool Sample_TileMesh::handleBuild()
 	
 	if (m_tool)
 		m_tool->init(this);
+	initToolStates(this);
 
 	return true;
 }

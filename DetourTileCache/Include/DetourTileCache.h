@@ -61,6 +61,12 @@ struct dtTileCacheParams
 	int maxObstacles;
 };
 
+struct dtTileCacheMeshProcess
+{
+	virtual void process(struct dtNavMeshCreateParams* params,
+						 unsigned char* polyAreas, unsigned short* polyFlags) = 0;
+};
+
 
 class dtTileCache
 {
@@ -82,7 +88,10 @@ public:
 	
 	dtObstacleRef getObstacleRef(const dtTileCacheObstacle* obmin) const;
 	
-	dtStatus init(const dtTileCacheParams* params, struct dtTileCacheAlloc* talloc, struct dtTileCacheCompressor* tcomp);
+	dtStatus init(const dtTileCacheParams* params,
+				  struct dtTileCacheAlloc* talloc,
+				  struct dtTileCacheCompressor* tcomp,
+				  struct dtTileCacheMeshProcess* tmproc);
 	
 	int getTilesAt(const int tx, const int ty, dtCompressedTileRef* tiles, const int maxTiles) const ;
 	
@@ -180,6 +189,7 @@ private:
 	
 	dtTileCacheAlloc* m_talloc;
 	dtTileCacheCompressor* m_tcomp;
+	dtTileCacheMeshProcess* m_tmproc;
 	
 	dtTileCacheObstacle* m_obstacles;
 	dtTileCacheObstacle* m_nextFreeObstacle;

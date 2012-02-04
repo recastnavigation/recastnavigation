@@ -27,6 +27,7 @@ static const int DT_TILECACHE_VERSION = 1;
 
 static const unsigned char DT_TILECACHE_NULL_AREA = 0;
 static const unsigned char DT_TILECACHE_WALKABLE_AREA = 63;
+static const unsigned short DT_TILECACHE_NULL_IDX = 0xffff;
 
 struct dtTileCacheLayerHeader
 {
@@ -65,6 +66,7 @@ struct dtTileCacheContourSet
 
 struct dtTileCachePolyMesh
 {
+	int nvp;
 	int nverts;				///< Number of vertices.
 	int npolys;				///< Number of polygons.
 	unsigned short* verts;	///< Vertices of the mesh, 3 elements per vertex.

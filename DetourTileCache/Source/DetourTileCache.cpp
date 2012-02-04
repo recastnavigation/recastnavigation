@@ -70,6 +70,7 @@ dtTileCache::dtTileCache() :
 	m_tileBits(0),
 	m_talloc(0),
 	m_tcomp(0),
+	m_tmproc(0),
 	m_obstacles(0),
 	m_nextFreeObstacle(0),
 	m_nreqs(0),
@@ -113,10 +114,14 @@ const dtCompressedTile* dtTileCache::getTileByRef(dtCompressedTileRef ref) const
 }
 
 
-dtStatus dtTileCache::init(const dtTileCacheParams* params, dtTileCacheAlloc* talloc, dtTileCacheCompressor* tcomp)
+dtStatus dtTileCache::init(const dtTileCacheParams* params,
+						   dtTileCacheAlloc* talloc,
+						   dtTileCacheCompressor* tcomp,
+						   dtTileCacheMeshProcess* tmproc)
 {
 	m_talloc = talloc;
 	m_tcomp = tcomp;
+	m_tmproc = tmproc;
 	m_nreqs = 0;
 	memcpy(&m_params, params, sizeof(m_params));
 	
@@ -628,48 +633,6 @@ dtStatus dtTileCache::buildNavMeshTile(const dtCompressedTileRef ref, dtNavMesh*
 	if (!bc.lmesh->npolys)
 		return DT_SUCCESS;
 	
-	
-	// TODO: fix this, a callback?
-	enum SamplePolyAreas
-	{
-		SAMPLE_POLYAREA_GROUND,
-		SAMPLE_POLYAREA_WATER,
-		SAMPLE_POLYAREA_ROAD,
-		SAMPLE_POLYAREA_DOOR,
-		SAMPLE_POLYAREA_GRASS,
-		SAMPLE_POLYAREA_JUMP,
-	};
-	enum SamplePolyFlags
-	{
-		SAMPLE_POLYFLAGS_WALK = 0x01,		// Ability to walk (ground, grass, road)
-		SAMPLE_POLYFLAGS_SWIM = 0x02,		// Ability to swim (water).
-		SAMPLE_POLYFLAGS_DOOR = 0x04,		// Ability to move through doors.
-		SAMPLE_POLYFLAGS_JUMP = 0x08,		// Ability to jump.
-		SAMPLE_POLYFLAGS_ALL = 0xffff		// All abilities.
-	};
-	
-	// Update poly flags from areas.
-	for (int i = 0; i < bc.lmesh->npolys; ++i)
-	{
-		if (bc.lmesh->areas[i] == DT_TILECACHE_WALKABLE_AREA)
-			bc.lmesh->areas[i] = SAMPLE_POLYAREA_GROUND;
-		
-		if (bc.lmesh->areas[i] == SAMPLE_POLYAREA_GROUND ||
-			bc.lmesh->areas[i] == SAMPLE_POLYAREA_GRASS ||
-			bc.lmesh->areas[i] == SAMPLE_POLYAREA_ROAD)
-		{
-			bc.lmesh->flags[i] = SAMPLE_POLYFLAGS_WALK;
-		}
-		else if (bc.lmesh->areas[i] == SAMPLE_POLYAREA_WATER)
-		{
-			bc.lmesh->flags[i] = SAMPLE_POLYFLAGS_SWIM;
-		}
-		else if (bc.lmesh->areas[i] == SAMPLE_POLYAREA_DOOR)
-		{
-			bc.lmesh->flags[i] = SAMPLE_POLYFLAGS_WALK | SAMPLE_POLYFLAGS_DOOR;
-		}
-	}
-	
 	dtNavMeshCreateParams params;
 	memset(&params, 0, sizeof(params));
 	params.verts = bc.lmesh->verts;
@@ -679,15 +642,6 @@ dtStatus dtTileCache::buildNavMeshTile(const dtCompressedTileRef ref, dtNavMesh*
 	params.polyFlags = bc.lmesh->flags;
 	params.polyCount = bc.lmesh->npolys;
 	params.nvp = DT_VERTS_PER_POLYGON;
-	
-	/*		params.offMeshConVerts = m_geom->getOffMeshConnectionVerts();
-	 params.offMeshConRad = m_geom->getOffMeshConnectionRads();
-	 params.offMeshConDir = m_geom->getOffMeshConnectionDirs();
-	 params.offMeshConAreas = m_geom->getOffMeshConnectionAreas();
-	 params.offMeshConFlags = m_geom->getOffMeshConnectionFlags();
-	 params.offMeshConUserID = m_geom->getOffMeshConnectionId();
-	 params.offMeshConCount = m_geom->getOffMeshConnectionCount();*/
-	
 	params.walkableHeight = m_params.walkableHeight;
 	params.walkableRadius = m_params.walkableRadius;
 	params.walkableClimb = m_params.walkableClimb;
@@ -699,6 +653,11 @@ dtStatus dtTileCache::buildNavMeshTile(const dtCompressedTileRef ref, dtNavMesh*
 	params.buildBvTree = false;
 	dtVcopy(params.bmin, tile->header->bmin);
 	dtVcopy(params.bmax, tile->header->bmax);
+	
+	if (m_tmproc)
+	{
+		m_tmproc->process(&params, bc.lmesh->areas, bc.lmesh->flags);
+	}
 	
 	unsigned char* navData = 0;
 	int navDataSize = 0;
