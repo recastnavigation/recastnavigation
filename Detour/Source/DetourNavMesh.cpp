@@ -744,8 +744,11 @@ int dtNavMesh::queryPolygonsInTile(const dtMeshTile* tile, const float* qmin, co
 		dtPolyRef base = getPolyRefBase(tile);
 		for (int i = 0; i < tile->header->polyCount; ++i)
 		{
-			// Calc polygon bounds.
 			dtPoly* p = &tile->polys[i];
+			// Do not return off-mesh connection polygons.
+			if (p->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
+				continue;
+			// Calc polygon bounds.
 			const float* v = &tile->verts[p->verts[0]*3];
 			dtVcopy(bmin, v);
 			dtVcopy(bmax, v);
