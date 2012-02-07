@@ -1336,8 +1336,7 @@ bool Sample_TempObstacles::handleBuild()
 
 void Sample_TempObstacles::handleUpdate(const float dt)
 {
-	if (m_tool)
-		m_tool->handleUpdate(dt);
+	Sample::handleUpdate(dt);
 	
 	if (!m_navMesh)
 		return;

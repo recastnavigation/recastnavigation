@@ -1370,7 +1370,7 @@ static void mergePolys(unsigned short* pa, unsigned short* pb, int ea, int eb)
 	const int nb = countPolyVerts(pb);
 	
 	// Merge polygons.
-	memset(tmp, 0xff, sizeof(unsigned short)*MAX_VERTS_PER_POLY);
+	memset(tmp, 0xff, sizeof(unsigned short)*MAX_VERTS_PER_POLY*2);
 	int n = 0;
 	// Add pa
 	for (int i = 0; i < na-1; ++i)
