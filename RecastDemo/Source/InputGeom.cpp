@@ -272,8 +272,8 @@ bool InputGeom::save(const char* filepath)
 	{
 		ConvexVolume* vol = &m_volumes[i];
 		fprintf(fp, "v %d %d %f %f\n", vol->nverts, vol->area, vol->hmin, vol->hmax);
-		for (int i = 0; i < vol->nverts; ++i)
-			fprintf(fp, "%f %f %f\n", vol->verts[i*3+0], vol->verts[i*3+1], vol->verts[i*3+2]);
+		for (int j = 0; j < vol->nverts; ++j)
+			fprintf(fp, "%f %f %f\n", vol->verts[j*3+0], vol->verts[j*3+1], vol->verts[j*3+2]);
 	}
 	
 	fclose(fp);

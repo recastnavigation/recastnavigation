@@ -550,9 +550,9 @@ static bool canRemoveVertex(rcContext* ctx, rcPolyMesh& mesh, const unsigned sho
 					
 				// Check if the edge exists
 				bool exists = false;
-				for (int k = 0; k < nedges; ++k)
+				for (int m = 0; m < nedges; ++m)
 				{
-					int* e = &edges[k*3];
+					int* e = &edges[m*3];
 					if (e[1] == b)
 					{
 						// Exists, increment vertex share count.

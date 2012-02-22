@@ -192,7 +192,7 @@ void CrowdToolState::reset()
 void CrowdToolState::handleRender()
 {
 	DebugDrawGL dd;
-	const float s = m_sample->getAgentRadius();
+	const float rad = m_sample->getAgentRadius();
 	
 	dtNavMesh* nav = m_sample->getNavMesh();
 	dtCrowd* crowd = m_sample->getCrowd();
@@ -226,7 +226,7 @@ void CrowdToolState::handleRender()
 	}
 	
 	if (m_targetRef)
-		duDebugDrawCross(&dd, m_targetPos[0],m_targetPos[1]+0.1f,m_targetPos[2], s, duRGBA(255,255,255,192), 2.0f);
+		duDebugDrawCross(&dd, m_targetPos[0],m_targetPos[1]+0.1f,m_targetPos[2], rad, duRGBA(255,255,255,192), 2.0f);
 	
 	// Occupancy grid.
 	if (m_toolParams.m_showGrid)
@@ -378,16 +378,16 @@ void CrowdToolState::handleRender()
 					const dtCrowdAgent* nei = 0;
 					for (int i = 0; i < crowd->getAgentCount(); ++i)
 					{
-						const dtCrowdAgent* ag = crowd->getAgent(i);
-						if (!ag->active) continue;
+						const dtCrowdAgent* nag = crowd->getAgent(i);
+						if (!nag->active) continue;
 						if (n == 0)
 						{
-							nei = crowd->getAgent(ag->neis[j].idx);
+							nei = nag;
 							break;
 						}
 						n--;
 					}
-					if (nei )
+					if (nei)
 					{
 						dd.vertex(pos[0],pos[1]+radius,pos[2], duRGBA(0,192,128,128));
 						dd.vertex(nei->npos[0],nei->npos[1]+radius,nei->npos[2], duRGBA(0,192,128,128));
@@ -583,7 +583,8 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 
 void CrowdToolState::handleUpdate(const float dt)
 {
-	updateTick(dt);
+	if (m_run)
+		updateTick(dt);
 }
 
 void CrowdToolState::addAgent(const float* p)

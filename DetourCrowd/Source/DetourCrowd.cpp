@@ -772,6 +772,8 @@ void dtCrowd::updateMoveRequest(const float /*dt*/)
 	// Update requests.
 	m_pathq.update(MAX_ITERS_PER_UPDATE);
 
+	dtStatus status;
+
 	// Process path results.
 	for (int i = 0; i < m_moveRequestCount; ++i)
 	{
@@ -781,7 +783,7 @@ void dtCrowd::updateMoveRequest(const float /*dt*/)
 		if (req->state == MR_TARGET_WAITING_FOR_PATH)
 		{
 			// Poll path queue.
-			dtStatus status = m_pathq.getRequestStatus(req->pathqRef);
+			status = m_pathq.getRequestStatus(req->pathqRef);
 			if (dtStatusFailed(status))
 			{
 				req->pathqRef = DT_PATHQ_INVALID;
@@ -800,7 +802,7 @@ void dtCrowd::updateMoveRequest(const float /*dt*/)
 				dtPolyRef* res = m_pathResult;
 				bool valid = true;
 				int nres = 0;
-				dtStatus status = m_pathq.getPathResult(req->pathqRef, res, &nres, m_maxPathResult);
+				status = m_pathq.getPathResult(req->pathqRef, res, &nres, m_maxPathResult);
 				if (dtStatusFailed(status) || !nres)
 					valid = false;
 				

@@ -979,16 +979,16 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	for (int i = 0; i < ncid; ++i)
 	{
 		const rcChunkyTriMeshNode& node = chunkyMesh->nodes[cid[i]];
-		const int* tris = &chunkyMesh->tris[node.i*3];
-		const int ntris = node.n;
+		const int* ctris = &chunkyMesh->tris[node.i*3];
+		const int nctris = node.n;
 		
-		m_tileTriCount += ntris;
+		m_tileTriCount += nctris;
 		
-		memset(m_triareas, 0, ntris*sizeof(unsigned char));
+		memset(m_triareas, 0, nctris*sizeof(unsigned char));
 		rcMarkWalkableTriangles(m_ctx, m_cfg.walkableSlopeAngle,
-								verts, nverts, tris, ntris, m_triareas);
+								verts, nverts, ctris, nctris, m_triareas);
 		
-		rcRasterizeTriangles(m_ctx, verts, nverts, tris, m_triareas, ntris, *m_solid, m_cfg.walkableClimb);
+		rcRasterizeTriangles(m_ctx, verts, nverts, ctris, m_triareas, nctris, *m_solid, m_cfg.walkableClimb);
 	}
 	
 	if (!m_keepInterResults)

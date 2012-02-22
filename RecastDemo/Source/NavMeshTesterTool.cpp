@@ -458,9 +458,9 @@ void NavMeshTesterTool::handleToggle()
 			}
 			// Move position at the other side of the off-mesh link.
 			dtVcopy(m_iterPos, endPos);
-			float h;
-			m_navQuery->getPolyHeight(m_pathIterPolys[0], m_iterPos, &h);
-			m_iterPos[1] = h;
+			float eh = 0.0f;
+			m_navQuery->getPolyHeight(m_pathIterPolys[0], m_iterPos, &eh);
+			m_iterPos[1] = eh;
 		}
 	}
 	
@@ -655,9 +655,9 @@ void NavMeshTesterTool::recalc()
 							}
 							// Move position at the other side of the off-mesh link.
 							dtVcopy(iterPos, endPos);
-							float h;
-							m_navQuery->getPolyHeight(polys[0], iterPos, &h);
-							iterPos[1] = h;
+							float eh = 0.0f;
+							m_navQuery->getPolyHeight(polys[0], iterPos, &eh);
+							iterPos[1] = eh;
 						}
 					}
 					
@@ -914,10 +914,10 @@ void NavMeshTesterTool::handleRender()
 		if (m_nsmoothPath)
 		{
 			dd.depthMask(false);
-			const unsigned int pathCol = duRGBA(0,0,0,220);
+			const unsigned int spathCol = duRGBA(0,0,0,220);
 			dd.begin(DU_DRAW_LINES, 3.0f);
 			for (int i = 0; i < m_nsmoothPath; ++i)
-				dd.vertex(m_smoothPath[i*3], m_smoothPath[i*3+1]+0.1f, m_smoothPath[i*3+2], pathCol);
+				dd.vertex(m_smoothPath[i*3], m_smoothPath[i*3+1]+0.1f, m_smoothPath[i*3+2], spathCol);
 			dd.end();
 			dd.depthMask(true);
 		}
@@ -969,7 +969,7 @@ void NavMeshTesterTool::handleRender()
 		if (m_nstraightPath)
 		{
 			dd.depthMask(false);
-			const unsigned int pathCol = duRGBA(64,16,0,220);
+			const unsigned int spathCol = duRGBA(64,16,0,220);
 			const unsigned int offMeshCol = duRGBA(128,96,0,220);
 			dd.begin(DU_DRAW_LINES, 2.0f);
 			for (int i = 0; i < m_nstraightPath-1; ++i)
@@ -996,7 +996,7 @@ void NavMeshTesterTool::handleRender()
 					col = offMeshCol;
 				else
 					col = pathCol;
-				dd.vertex(m_straightPath[i*3], m_straightPath[i*3+1]+0.4f, m_straightPath[i*3+2], pathCol);
+				dd.vertex(m_straightPath[i*3], m_straightPath[i*3+1]+0.4f, m_straightPath[i*3+2], spathCol);
 			}
 			dd.end();
 			dd.depthMask(true);
@@ -1012,17 +1012,17 @@ void NavMeshTesterTool::handleRender()
 				duDebugDrawNavMeshPoly(&dd, *m_navMesh, m_polys[i], pathCol);
 			
 			dd.depthMask(false);
-			const unsigned int pathCol = m_hitResult ? duRGBA(64,16,0,220) : duRGBA(240,240,240,220);
+			const unsigned int spathCol = m_hitResult ? duRGBA(64,16,0,220) : duRGBA(240,240,240,220);
 			dd.begin(DU_DRAW_LINES, 2.0f);
 			for (int i = 0; i < m_nstraightPath-1; ++i)
 			{
-				dd.vertex(m_straightPath[i*3], m_straightPath[i*3+1]+0.4f, m_straightPath[i*3+2], pathCol);
-				dd.vertex(m_straightPath[(i+1)*3], m_straightPath[(i+1)*3+1]+0.4f, m_straightPath[(i+1)*3+2], pathCol);
+				dd.vertex(m_straightPath[i*3], m_straightPath[i*3+1]+0.4f, m_straightPath[i*3+2], spathCol);
+				dd.vertex(m_straightPath[(i+1)*3], m_straightPath[(i+1)*3+1]+0.4f, m_straightPath[(i+1)*3+2], spathCol);
 			}
 			dd.end();
 			dd.begin(DU_DRAW_POINTS, 4.0f);
 			for (int i = 0; i < m_nstraightPath; ++i)
-				dd.vertex(m_straightPath[i*3], m_straightPath[i*3+1]+0.4f, m_straightPath[i*3+2], pathCol);
+				dd.vertex(m_straightPath[i*3], m_straightPath[i*3+1]+0.4f, m_straightPath[i*3+2], spathCol);
 			dd.end();
 
 			if (m_hitResult)

@@ -75,8 +75,8 @@ bool rcErodeWalkableArea(rcContext* ctx, int radius, rcCompactHeightfield& chf)
 						{
 							const int nx = x + rcGetDirOffsetX(dir);
 							const int ny = y + rcGetDirOffsetY(dir);
-							const int ni = (int)chf.cells[nx+ny*w].index + rcGetCon(s, dir);
-							if (chf.areas[ni] != RC_NULL_AREA)
+							const int nidx = (int)chf.cells[nx+ny*w].index + rcGetCon(s, dir);
+							if (chf.areas[nidx] != RC_NULL_AREA)
 							{
 								nc++;
 							}

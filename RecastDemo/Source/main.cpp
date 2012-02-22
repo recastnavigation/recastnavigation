@@ -71,7 +71,8 @@ int main(int /*argc*/, char** /*argv*/)
 	}
 	
 	// Center window
-	putenv("SDL_VIDEO_CENTERED=1");
+	char env[] = "SDL_VIDEO_CENTERED=1";
+	putenv(env);
 
 	// Init OpenGL
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
@@ -374,8 +375,8 @@ int main(int /*argc*/, char** /*argv*/)
 		// Hit test mesh.
 		if (processHitTest && geom && sample)
 		{
-			float t;
-			bool hit = geom->raycastMesh(rays, raye, t);
+			float hitt;
+			bool hit = geom->raycastMesh(rays, raye, hitt);
 			
 			if (hit)
 			{
@@ -383,16 +384,16 @@ int main(int /*argc*/, char** /*argv*/)
 				{
 					// Marker
 					mposSet = true;
-					mpos[0] = rays[0] + (raye[0] - rays[0])*t;
-					mpos[1] = rays[1] + (raye[1] - rays[1])*t;
-					mpos[2] = rays[2] + (raye[2] - rays[2])*t;
+					mpos[0] = rays[0] + (raye[0] - rays[0])*hitt;
+					mpos[1] = rays[1] + (raye[1] - rays[1])*hitt;
+					mpos[2] = rays[2] + (raye[2] - rays[2])*hitt;
 				}
 				else
 				{
 					float pos[3];
-					pos[0] = rays[0] + (raye[0] - rays[0])*t;
-					pos[1] = rays[1] + (raye[1] - rays[1])*t;
-					pos[2] = rays[2] + (raye[2] - rays[2])*t;
+					pos[0] = rays[0] + (raye[0] - rays[0])*hitt;
+					pos[1] = rays[1] + (raye[1] - rays[1])*hitt;
+					pos[2] = rays[2] + (raye[2] - rays[2])*hitt;
 					sample->handleClick(rays, pos, processHitTestShift);
 				}
 			}

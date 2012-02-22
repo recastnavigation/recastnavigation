@@ -439,13 +439,13 @@ bool rcBuildCompactHeightfield(rcContext* ctx, const int walkableHeight, const i
 						if ((top - bot) >= walkableHeight && rcAbs((int)ns.y - (int)s.y) <= walkableClimb)
 						{
 							// Mark direction as walkable.
-							const int idx = k - (int)nc.index;
-							if (idx < 0 || idx > MAX_LAYERS)
+							const int lidx = k - (int)nc.index;
+							if (lidx < 0 || lidx > MAX_LAYERS)
 							{
-								tooHighNeighbour = rcMax(tooHighNeighbour, idx);
+								tooHighNeighbour = rcMax(tooHighNeighbour, lidx);
 								continue;
 							}
-							rcSetCon(s, dir, idx);
+							rcSetCon(s, dir, lidx);
 							break;
 						}
 					}

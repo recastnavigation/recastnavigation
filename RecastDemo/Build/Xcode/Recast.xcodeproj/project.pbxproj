@@ -596,6 +596,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
+					"-Wshadow",
 					"-Wreorder",
 					"-Wsign-compare",
 					"-Wall",
@@ -623,6 +624,7 @@
 				OTHER_CFLAGS = "";
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
+					"-Wshadow",
 					"-Wreorder",
 					"-Wsign-compare",
 					"-Wall",

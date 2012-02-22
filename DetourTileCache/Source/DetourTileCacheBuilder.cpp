@@ -708,10 +708,10 @@ static unsigned char getCornerHeight(dtTileCacheLayer& layer,
 			if (px >= 0 && pz >= 0 && px < w && pz < h)
 			{
 				const int idx  = px + pz*w;
-				const int h = (int)layer.heights[idx];
-				if (dtAbs(h-y) <= walkableClimb && layer.areas[idx] != DT_TILECACHE_NULL_AREA)
+				const int lh = (int)layer.heights[idx];
+				if (dtAbs(lh-y) <= walkableClimb && layer.areas[idx] != DT_TILECACHE_NULL_AREA)
 				{
-					height = dtMax(height, (unsigned char)h);
+					height = dtMax(height, (unsigned char)lh);
 					portal &= (layer.cons[idx] >> 4);
 					if (preg != 0xff && preg != layer.regs[idx])
 						allSameReg = false;
@@ -809,11 +809,11 @@ dtStatus dtBuildTileCacheContours(dtTileCacheAlloc* alloc,
 					unsigned char* vn = &temp.verts[i*4];
 					unsigned char nei = vn[3]; // The neighbour reg is stored at segment vertex of a segment. 
 					bool shouldRemove = false;
-					unsigned char h = getCornerHeight(layer, (int)v[0], (int)v[1], (int)v[2],
-													  walkableClimb, shouldRemove);
+					unsigned char lh = getCornerHeight(layer, (int)v[0], (int)v[1], (int)v[2],
+													   walkableClimb, shouldRemove);
 					
 					dst[0] = v[0];
-					dst[1] = h;
+					dst[1] = lh;
 					dst[2] = v[2];
 					
 					// Store portal direction and remove status to the fourth component.
@@ -989,9 +989,9 @@ static bool buildMeshAdjacency(dtTileCacheAlloc* alloc,
 				if (zmin > zmax)
 					dtSwap(zmin, zmax);
 				
-				for (int i = 0; i < edgeCount; ++i)
+				for (int m = 0; m < edgeCount; ++m)
 				{
-					rcEdge& e = edges[i];
+					rcEdge& e = edges[m];
 					// Skip connected edges.
 					if (e.poly[0] != e.poly[1])
 						continue;
@@ -1019,9 +1019,9 @@ static bool buildMeshAdjacency(dtTileCacheAlloc* alloc,
 				unsigned short xmax = (unsigned short)vb[0];
 				if (xmin > xmax)
 					dtSwap(xmin, xmax);
-				for (int i = 0; i < edgeCount; ++i)
+				for (int m = 0; m < edgeCount; ++m)
 				{
-					rcEdge& e = edges[i];
+					rcEdge& e = edges[m];
 					// Skip connected edges.
 					if (e.poly[0] != e.poly[1])
 						continue;
@@ -1458,9 +1458,9 @@ static bool canRemoveVertex(dtTileCachePolyMesh& mesh, const unsigned short rem)
 				
 				// Check if the edge exists
 				bool exists = false;
-				for (int k = 0; k < nedges; ++k)
+				for (int m = 0; m < nedges; ++m)
 				{
-					unsigned short* e = &edges[k*3];
+					unsigned short* e = &edges[m*3];
 					if (e[1] == b)
 					{
 						// Exists, increment vertex share count.

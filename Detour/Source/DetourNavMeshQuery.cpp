@@ -821,7 +821,7 @@ dtStatus dtNavMeshQuery::findPath(dtPolyRef startRef, dtPolyRef endRef,
 			// Add or update the node.
 			neighbourNode->pidx = m_nodePool->getNodeIdx(bestNode);
 			neighbourNode->id = neighbourRef;
-			neighbourNode->flags &= ~DT_NODE_CLOSED;
+			neighbourNode->flags = (neighbourNode->flags & ~DT_NODE_CLOSED);
 			neighbourNode->cost = cost;
 			neighbourNode->total = total;
 			
@@ -1078,7 +1078,7 @@ dtStatus dtNavMeshQuery::updateSlicedFindPath(const int maxIter, int* doneIters)
 			// Add or update the node.
 			neighbourNode->pidx = m_nodePool->getNodeIdx(bestNode);
 			neighbourNode->id = neighbourRef;
-			neighbourNode->flags &= ~DT_NODE_CLOSED;
+			neighbourNode->flags = (neighbourNode->flags & ~DT_NODE_CLOSED);
 			neighbourNode->cost = cost;
 			neighbourNode->total = total;
 			
@@ -2218,7 +2218,7 @@ dtStatus dtNavMeshQuery::findPolysAroundCircle(dtPolyRef startRef, const float* 
 				continue;
 			
 			neighbourNode->id = neighbourRef;
-			neighbourNode->flags &= ~DT_NODE_CLOSED;
+			neighbourNode->flags = (neighbourNode->flags & ~DT_NODE_CLOSED);
 			neighbourNode->pidx = m_nodePool->getNodeIdx(bestNode);
 			neighbourNode->total = total;
 			
@@ -2398,7 +2398,7 @@ dtStatus dtNavMeshQuery::findPolysAroundShape(dtPolyRef startRef, const float* v
 				continue;
 			
 			neighbourNode->id = neighbourRef;
-			neighbourNode->flags &= ~DT_NODE_CLOSED;
+			neighbourNode->flags = (neighbourNode->flags & ~DT_NODE_CLOSED);
 			neighbourNode->pidx = m_nodePool->getNodeIdx(bestNode);
 			neighbourNode->total = total;
 			
@@ -2720,17 +2720,17 @@ dtStatus dtNavMeshQuery::getPolyWallSegments(dtPolyRef ref, const dtQueryFilter*
 		else
 		{
 			// Internal edge
-			dtPolyRef ref = 0;
+			dtPolyRef neiRef = 0;
 			if (poly->neis[j])
 			{
 				const unsigned int idx = (unsigned int)(poly->neis[j]-1);
-				ref = m_nav->getPolyRefBase(tile) | idx;
-				if (!filter->passFilter(ref, tile, &tile->polys[idx]))
-					ref = 0;
+				neiRef = m_nav->getPolyRefBase(tile) | idx;
+				if (!filter->passFilter(neiRef, tile, &tile->polys[idx]))
+					neiRef = 0;
 			}
 
 			// If the edge leads to another polygon and portals are not stored, skip.
-			if (ref != 0 && !storePortals)
+			if (neiRef != 0 && !storePortals)
 				continue;
 			
 			if (n < maxSegments)
@@ -2741,7 +2741,7 @@ dtStatus dtNavMeshQuery::getPolyWallSegments(dtPolyRef ref, const dtQueryFilter*
 				dtVcopy(seg+0, vj);
 				dtVcopy(seg+3, vi);
 				if (segmentRefs)
-					segmentRefs[n] = ref;
+					segmentRefs[n] = neiRef;
 				n++;
 			}
 			else
@@ -2977,7 +2977,7 @@ dtStatus dtNavMeshQuery::findDistanceToWall(dtPolyRef startRef, const float* cen
 				continue;
 			
 			neighbourNode->id = neighbourRef;
-			neighbourNode->flags &= ~DT_NODE_CLOSED;
+			neighbourNode->flags = (neighbourNode->flags & ~DT_NODE_CLOSED);
 			neighbourNode->pidx = m_nodePool->getNodeIdx(bestNode);
 			neighbourNode->total = total;
 				

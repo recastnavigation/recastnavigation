@@ -267,11 +267,11 @@ static int addEdge(rcContext* ctx, int* edges, int& nedges, const int maxEdges, 
 	int e = findEdge(edges, nedges, s, t);
 	if (e == UNDEF)
 	{
-		int* e = &edges[nedges*4];
-		e[0] = s;
-		e[1] = t;
-		e[2] = l;
-		e[3] = r;
+		int* edge = &edges[nedges*4];
+		edge[0] = s;
+		edge[1] = t;
+		edge[2] = l;
+		edge[3] = r;
 		return nedges++;
 	}
 	else
@@ -583,10 +583,10 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 				int maxi = -1;
 				for (int m = a+1; m < b; ++m)
 				{
-					float d = distancePtSeg(&edge[m*3],va,vb);
-					if (d > maxd)
+					float dev = distancePtSeg(&edge[m*3],va,vb);
+					if (dev > maxd)
 					{
-						maxd = d;
+						maxd = dev;
 						maxi = m;
 					}
 				}

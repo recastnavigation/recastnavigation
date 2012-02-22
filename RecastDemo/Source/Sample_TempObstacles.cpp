@@ -222,7 +222,7 @@ struct MeshProcess : public dtTileCacheMeshProcess
 
 
 
-static const int MAX_TILES = 32;
+static const int MAX_LAYERS = 32;
 
 struct TileCacheData
 {
@@ -239,7 +239,7 @@ struct RasterizationContext
 		chf(0),
 		ntiles(0)
 	{
-		memset(tiles, 0, sizeof(TileCacheData)*MAX_TILES);
+		memset(tiles, 0, sizeof(TileCacheData)*MAX_LAYERS);
 	}
 	
 	~RasterizationContext()
@@ -248,7 +248,7 @@ struct RasterizationContext
 		delete [] triareas;
 		rcFreeHeightfieldLayerSet(lset);
 		rcFreeCompactHeightfield(chf);
-		for (int i = 0; i < MAX_TILES; ++i)
+		for (int i = 0; i < MAX_LAYERS; ++i)
 		{
 			dtFree(tiles[i].data);
 			tiles[i].data = 0;
@@ -259,7 +259,7 @@ struct RasterizationContext
 	unsigned char* triareas;
 	rcHeightfieldLayerSet* lset;
 	rcCompactHeightfield* chf;
-	TileCacheData tiles[MAX_TILES];
+	TileCacheData tiles[MAX_LAYERS];
 	int ntiles;
 };
 
@@ -396,7 +396,7 @@ static int rasterizeTileLayers(BuildContext* ctx, InputGeom* geom,
 	}
 	
 	rc.ntiles = 0;
-	for (int i = 0; i < rcMin(rc.lset->nlayers, MAX_TILES); ++i)
+	for (int i = 0; i < rcMin(rc.lset->nlayers, MAX_LAYERS); ++i)
 	{
 		TileCacheData* tile = &rc.tiles[rc.ntiles++];
 		const rcHeightfieldLayer* layer = &rc.lset->layers[i];
@@ -505,9 +505,8 @@ void drawDetail(duDebugDraw* dd, dtTileCache* tc, const int tx, const int ty, in
 		struct dtTileCacheAlloc* alloc;
 	};
 
-	const int MAX_TILES = 32;
-	dtCompressedTileRef tiles[MAX_TILES];
-	const int ntiles = tc->getTilesAt(tx,ty,tiles,MAX_TILES);
+	dtCompressedTileRef tiles[MAX_LAYERS];
+	const int ntiles = tc->getTilesAt(tx,ty,tiles,MAX_LAYERS);
 
 	dtTileCacheAlloc* talloc = tc->getAlloc();
 	dtTileCacheCompressor* tcomp = tc->getCompressor();
@@ -575,9 +574,8 @@ void drawDetail(duDebugDraw* dd, dtTileCache* tc, const int tx, const int ty, in
 
 void drawDetailOverlay(const dtTileCache* tc, const int tx, const int ty, double* proj, double* model, int* view)
 {
-	const int MAX_TILES = 32;
-	dtCompressedTileRef tiles[MAX_TILES];
-	const int ntiles = tc->getTilesAt(tx,ty,tiles,MAX_TILES);
+	dtCompressedTileRef tiles[MAX_LAYERS];
+	const int ntiles = tc->getTilesAt(tx,ty,tiles,MAX_LAYERS);
 	if (!ntiles)
 		return;
 	
@@ -1281,15 +1279,14 @@ bool Sample_TempObstacles::handleBuild()
 	{
 		for (int x = 0; x < tw; ++x)
 		{
-			static const int MAX_TILES = 32;
-			TileCacheData tiles[MAX_TILES];
+			TileCacheData tiles[MAX_LAYERS];
 			memset(tiles, 0, sizeof(tiles));
-			int ntiles = rasterizeTileLayers(m_ctx, m_geom, x, y, cfg, tiles, MAX_TILES);
+			int ntiles = rasterizeTileLayers(m_ctx, m_geom, x, y, cfg, tiles, MAX_LAYERS);
 
 			for (int i = 0; i < ntiles; ++i)
 			{
 				TileCacheData* tile = &tiles[i];
-				dtStatus status = m_tileCache->addTile(tile->data, tile->dataSize, DT_COMPRESSEDTILE_FREE_DATA, 0);
+				status = m_tileCache->addTile(tile->data, tile->dataSize, DT_COMPRESSEDTILE_FREE_DATA, 0);
 				if (dtStatusFailed(status))
 				{
 					dtFree(tile->data);

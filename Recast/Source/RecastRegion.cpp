@@ -298,9 +298,9 @@ static bool floodRegion(int x, int y, int i,
 					const int ai2 = (int)chf.cells[ax2+ay2*w].index + rcGetCon(as, dir2);
 					if (chf.areas[ai2] != area)
 						continue;
-					unsigned short nr = srcReg[ai2];
-					if (nr != 0 && nr != r)
-						ar = nr;
+					unsigned short nr2 = srcReg[ai2];
+					if (nr2 != 0 && nr2 != r)
+						ar = nr2;
 				}				
 			}
 		}
@@ -678,17 +678,17 @@ static void walkContour(int x, int y, int i, int dir,
 	// Remove adjacent duplicates.
 	if (cont.size() > 1)
 	{
-		for (int i = 0; i < cont.size(); )
+		for (int j = 0; j < cont.size(); )
 		{
-			int ni = (i+1) % cont.size();
-			if (cont[i] == cont[ni])
+			int nj = (j+1) % cont.size();
+			if (cont[j] == cont[nj])
 			{
-				for (int j = i; j < cont.size()-1; ++j)
-					cont[j] = cont[j+1];
+				for (int k = j; k < cont.size()-1; ++k)
+					cont[k] = cont[k+1];
 				cont.pop();
 			}
 			else
-				++i;
+				++j;
 		}
 	}
 }
@@ -806,14 +806,14 @@ static bool filterSmallRegions(rcContext* ctx, int minRegionArea, int mergeRegio
 					connectsToBorder = true;
 					continue;
 				}
-				rcRegion& nreg = regions[creg.connections[j]];
-				if (nreg.visited)
+				rcRegion& neireg = regions[creg.connections[j]];
+				if (neireg.visited)
 					continue;
-				if (nreg.id == 0 || (nreg.id & RC_BORDER_REG))
+				if (neireg.id == 0 || (neireg.id & RC_BORDER_REG))
 					continue;
 				// Visit
-				stack.push(nreg.id);
-				nreg.visited = true;
+				stack.push(neireg.id);
+				neireg.visited = true;
 			}
 		}
 		

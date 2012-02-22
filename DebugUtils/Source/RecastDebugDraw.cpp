@@ -344,8 +344,8 @@ static void drawLayerPortals(duDebugDraw* dd, const rcHeightfieldLayer* layer)
 		for (int x = 0; x < w; ++x)
 		{
 			const int idx = x+y*w;
-			const int h = (int)layer->heights[idx];
-			if (h == 255) continue;
+			const int lh = (int)layer->heights[idx];
+			if (lh == 255) continue;
 			
 			for (int dir = 0; dir < 4; ++dir)
 			{
@@ -353,10 +353,10 @@ static void drawLayerPortals(duDebugDraw* dd, const rcHeightfieldLayer* layer)
 				{
 					const int* seg = &segs[dir*4];
 					const float ax = layer->bmin[0] + (x+seg[0])*cs;
-					const float ay = layer->bmin[1] + (h+2)*ch;
+					const float ay = layer->bmin[1] + (lh+2)*ch;
 					const float az = layer->bmin[2] + (y+seg[1])*cs;
 					const float bx = layer->bmin[0] + (x+seg[2])*cs;
-					const float by = layer->bmin[1] + (h+2)*ch;
+					const float by = layer->bmin[1] + (lh+2)*ch;
 					const float bz = layer->bmin[2] + (y+seg[3])*cs;
 					dd->vertex(ax, ay, az, pcol);
 					dd->vertex(bx, by, bz, pcol);
@@ -392,10 +392,10 @@ void duDebugDrawHeightfieldLayer(duDebugDraw* dd, const struct rcHeightfieldLaye
 	{
 		for (int x = 0; x < w; ++x)
 		{
-			const int idx = x+y*w;
-			const int h = (int)layer.heights[idx];
+			const int lidx = x+y*w;
+			const int lh = (int)layer.heights[lidx];
 			if (h == 0xff) continue;
-			const unsigned char area = layer.areas[idx];
+			const unsigned char area = layer.areas[lidx];
 			
 			unsigned int col;
 			if (area == RC_WALKABLE_AREA)
@@ -406,7 +406,7 @@ void duDebugDrawHeightfieldLayer(duDebugDraw* dd, const struct rcHeightfieldLaye
 				col = duLerpCol(color, duIntToCol(area, 255), 32);
 			
 			const float fx = layer.bmin[0] + x*cs;
-			const float fy = layer.bmin[1] + (h+1)*ch;
+			const float fy = layer.bmin[1] + (lh+1)*ch;
 			const float fz = layer.bmin[2] + y*cs;
 			
 			dd->vertex(fx, fy, fz, col);
@@ -719,9 +719,9 @@ void duDebugDrawRegionConnections(duDebugDraw* dd, const rcContourSet& cset, con
 	for (int i = 0; i < cset.nconts; ++i)
 	{
 		const rcContour* cont = &cset.conts[i];
-		unsigned int color = duDarkenCol(duIntToCol(cont->reg,a));
+		unsigned int col = duDarkenCol(duIntToCol(cont->reg,a));
 		getContourCenter(cont, orig, cs, ch, pos);
-		dd->vertex(pos, color);
+		dd->vertex(pos, col);
 	}
 	dd->end();
 }

@@ -511,7 +511,7 @@ static void debugDrawTileCachePortals(struct duDebugDraw* dd, const dtTileCacheL
 		for (int x = 0; x < w; ++x)
 		{
 			const int idx = x+y*w;
-			const int h = (int)layer.heights[idx];
+			const int lh = (int)layer.heights[idx];
 			if (h == 0xff) continue;
 			
 			for (int dir = 0; dir < 4; ++dir)
@@ -520,10 +520,10 @@ static void debugDrawTileCachePortals(struct duDebugDraw* dd, const dtTileCacheL
 				{
 					const int* seg = &segs[dir*4];
 					const float ax = bmin[0] + (x+seg[0])*cs;
-					const float ay = bmin[1] + (h+2)*ch;
+					const float ay = bmin[1] + (lh+2)*ch;
 					const float az = bmin[2] + (y+seg[1])*cs;
 					const float bx = bmin[0] + (x+seg[2])*cs;
-					const float by = bmin[1] + (h+2)*ch;
+					const float by = bmin[1] + (lh+2)*ch;
 					const float bz = bmin[2] + (y+seg[3])*cs;
 					dd->vertex(ax, ay, az, pcol);
 					dd->vertex(bx, by, bz, pcol);
@@ -560,10 +560,10 @@ void duDebugDrawTileCacheLayerAreas(struct duDebugDraw* dd, const dtTileCacheLay
 	{
 		for (int x = 0; x < w; ++x)
 		{
-			const int idx = x+y*w;
-			const int h = (int)layer.heights[idx];
-			if (h == 0xff) continue;
-			const unsigned char area = layer.areas[idx];
+			const int lidx = x+y*w;
+			const int lh = (int)layer.heights[lidx];
+			if (lh == 0xff) continue;
+			const unsigned char area = layer.areas[lidx];
 			
 			unsigned int col;
 			if (area == 63)
@@ -574,7 +574,7 @@ void duDebugDrawTileCacheLayerAreas(struct duDebugDraw* dd, const dtTileCacheLay
 				col = duLerpCol(color, duIntToCol(area, 255), 32);
 			
 			const float fx = bmin[0] + x*cs;
-			const float fy = bmin[1] + (h+1)*ch;
+			const float fy = bmin[1] + (lh+1)*ch;
 			const float fz = bmin[2] + y*cs;
 			
 			dd->vertex(fx, fy, fz, col);
@@ -614,15 +614,15 @@ void duDebugDrawTileCacheLayerRegions(struct duDebugDraw* dd, const dtTileCacheL
 	{
 		for (int x = 0; x < w; ++x)
 		{
-			const int idx = x+y*w;
-			const int h = (int)layer.heights[idx];
-			if (h == 0xff) continue;
-			const unsigned char reg = layer.regs[idx];
+			const int lidx = x+y*w;
+			const int lh = (int)layer.heights[lidx];
+			if (lh == 0xff) continue;
+			const unsigned char reg = layer.regs[lidx];
 			
 			unsigned int col = duLerpCol(color, duIntToCol(reg, 255), 192);
 			
 			const float fx = bmin[0] + x*cs;
-			const float fy = bmin[1] + (h+1)*ch;
+			const float fy = bmin[1] + (lh+1)*ch;
 			const float fz = bmin[2] + y*cs;
 			
 			dd->vertex(fx, fy, fz, col);

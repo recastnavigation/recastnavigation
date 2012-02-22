@@ -491,12 +491,12 @@ int dtObstacleAvoidanceQuery::sampleVelocityAdaptive(const float* pos, const flo
 	
 	for (int j = 0; j < nr; ++j)
 	{
-		const float rad = (float)(nr-j)/(float)nr;
+		const float r = (float)(nr-j)/(float)nr;
 		float a = dang + (j&1)*0.5f*da;
 		for (int i = 0; i < nd; ++i)
 		{
-			pat[npat*2+0] = cosf(a)*rad;
-			pat[npat*2+1] = sinf(a)*rad;
+			pat[npat*2+0] = cosf(a)*r;
+			pat[npat*2+1] = sinf(a)*r;
 			npat++;
 			a += da;
 		}

@@ -550,14 +550,14 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 				const int cx = borderSize+x;
 				const int cy = borderSize+y;
 				const rcCompactCell& c = chf.cells[cx+cy*w];
-				for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
+				for (int j = (int)c.index, nj = (int)(c.index+c.count); j < nj; ++j)
 				{
-					const rcCompactSpan& s = chf.spans[i];
+					const rcCompactSpan& s = chf.spans[j];
 					// Skip unassigned regions.
-					if (srcReg[i] == 0xff)
+					if (srcReg[j] == 0xff)
 						continue;
 					// Skip of does nto belong to current layer.
-					unsigned char lid = regs[srcReg[i]].layerId;
+					unsigned char lid = regs[srcReg[j]].layerId;
 					if (lid != curId)
 						continue;
 					
@@ -570,7 +570,7 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 					// Store height and area type.
 					const int idx = x+y*lw;
 					layer->heights[idx] = (unsigned char)(s.y - hmin);
-					layer->areas[idx] = chf.areas[i];
+					layer->areas[idx] = chf.areas[j];
 					
 					// Check connection.
 					unsigned char portal = 0;
