@@ -1194,7 +1194,7 @@ dtStatus dtNavMesh::removeTile(dtTileRef ref, unsigned char** data, int* dataSiz
 dtTileRef dtNavMesh::getTileRef(const dtMeshTile* tile) const
 {
 	if (!tile) return 0;
-	const unsigned int it = tile - m_tiles;
+	const unsigned int it = (unsigned int)(tile - m_tiles);
 	return (dtTileRef)encodePolyId(tile->salt, it, 0);
 }
 
@@ -1215,7 +1215,7 @@ dtTileRef dtNavMesh::getTileRef(const dtMeshTile* tile) const
 dtPolyRef dtNavMesh::getPolyRefBase(const dtMeshTile* tile) const
 {
 	if (!tile) return 0;
-	const unsigned int it = tile - m_tiles;
+	const unsigned int it = (unsigned int)(tile - m_tiles);
 	return encodePolyId(tile->salt, it, 0);
 }
 
