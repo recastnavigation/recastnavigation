@@ -512,7 +512,7 @@ static void debugDrawTileCachePortals(struct duDebugDraw* dd, const dtTileCacheL
 		{
 			const int idx = x+y*w;
 			const int lh = (int)layer.heights[idx];
-			if (h == 0xff) continue;
+			if (lh == 0xff) continue;
 			
 			for (int dir = 0; dir < 4; ++dir)
 			{
