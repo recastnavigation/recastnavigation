@@ -473,6 +473,9 @@ inline void dtSwapEndian(float* v)
 	dtSwapByte(x+0, x+3); dtSwapByte(x+1, x+2);
 }
 
+void dtRandomPointInConvexPoly(const float* pts, const int npts, float* areas,
+							   const float s, const float t, float* out);
+
 /// @}
 
 #endif // DETOURCOMMON_H

@@ -19,6 +19,7 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "SDL.h"
 #include "SDL_opengl.h"
@@ -38,6 +39,13 @@
 
 // Uncomment this to dump all the requests in stdout.
 #define DUMP_REQS
+
+// Returns a random number [0..1)
+static float frand()
+{
+//	return ((float)(rand() & 0xffff)/(float)0xffff);
+	return (float)rand()/(float)RAND_MAX;
+}
 
 inline bool inRange(const float* v1, const float* v2, const float r, const float h)
 {
@@ -152,6 +160,8 @@ NavMeshTesterTool::NavMeshTesterTool() :
 	m_npolys(0),
 	m_nstraightPath(0),
 	m_nsmoothPath(0),
+	m_nrandPoints(0),
+	m_randPointsInCircle(false),
 	m_hitResult(false),
 	m_distanceToWall(0),
 	m_sposSet(false),
@@ -167,6 +177,7 @@ NavMeshTesterTool::NavMeshTesterTool() :
 	m_polyPickExt[2] = 2;
 	
 	m_neighbourhoodRadius = 2.5f;
+	m_randomRadius = 5.0f;
 }
 
 NavMeshTesterTool::~NavMeshTesterTool()
@@ -192,6 +203,7 @@ void NavMeshTesterTool::init(Sample* sample)
 	}
 	
 	m_neighbourhoodRadius = sample->getAgentRadius() * 20.0f;
+	m_randomRadius = sample->getAgentRadius() * 30.0f;
 }
 
 void NavMeshTesterTool::handleMenu()
@@ -248,6 +260,69 @@ void NavMeshTesterTool::handleMenu()
 		m_toolMode = TOOLMODE_FIND_LOCAL_NEIGHBOURHOOD;
 		recalc();
 	}
+
+	imguiSeparator();
+	
+	if (imguiButton("Set Random Start"))
+	{
+		dtStatus status = m_navQuery->findRandomPoint(&m_filter, frand, &m_startRef, m_spos);
+		if (dtStatusSucceed(status))
+		{
+			m_sposSet = true;
+			recalc();
+		}
+	}
+	if (imguiButton("Set Random End", m_sposSet))
+	{
+		if (m_sposSet)
+		{
+			dtStatus status = m_navQuery->findRandomPointAroundCircle(m_startRef, m_spos, m_randomRadius, &m_filter, frand, &m_endRef, m_epos);
+			if (dtStatusSucceed(status))
+			{
+				m_eposSet = true;
+				recalc();
+			}
+		}
+	}
+
+	imguiSeparator();
+
+	if (imguiButton("Make Random Points"))
+	{
+		m_randPointsInCircle = false;
+		m_nrandPoints = 0;
+		for (int i = 0; i < MAX_RAND_POINTS; i++)
+		{
+			float pt[3];
+			dtPolyRef ref;
+			dtStatus status = m_navQuery->findRandomPoint(&m_filter, frand, &ref, pt);
+			if (dtStatusSucceed(status))
+			{
+				dtVcopy(&m_randPoints[m_nrandPoints*3], pt);
+				m_nrandPoints++;
+			}
+		}
+	}
+	if (imguiButton("Make Random Points Around", m_sposSet))
+	{
+		if (m_sposSet)
+		{
+			m_nrandPoints = 0;
+			m_randPointsInCircle = true;
+			for (int i = 0; i < MAX_RAND_POINTS; i++)
+			{
+				float pt[3];
+				dtPolyRef ref;
+				dtStatus status = m_navQuery->findRandomPointAroundCircle(m_startRef, m_spos, m_randomRadius, &m_filter, frand, &ref, pt);
+				if (dtStatusSucceed(status))
+				{
+					dtVcopy(&m_randPoints[m_nrandPoints*3], pt);
+					m_nrandPoints++;
+				}
+			}
+		}
+	}
+
 	
 	imguiSeparator();
 
@@ -1184,7 +1259,23 @@ void NavMeshTesterTool::handleRender()
 			duDebugDrawCircle(&dd, m_spos[0], m_spos[1]+agentHeight/2, m_spos[2], m_neighbourhoodRadius, duRGBA(64,16,0,220), 2.0f);
 			dd.depthMask(true);
 		}
-	}	
+	}
+	
+	if (m_nrandPoints > 0)
+	{
+		dd.begin(DU_DRAW_POINTS, 6.0f);
+		for (int i = 0; i < m_nrandPoints; i++)
+		{
+			const float* p = &m_randPoints[i*3];
+			dd.vertex(p[0],p[1]+0.1,p[2], duRGBA(220,32,16,192));
+		} 
+		dd.end();
+		
+		if (m_randPointsInCircle && m_sposSet)
+		{
+			duDebugDrawCircle(&dd, m_spos[0], m_spos[1]+agentHeight/2, m_spos[2], m_randomRadius, duRGBA(64,16,0,220), 2.0f);
+		}
+	}
 }
 
 void NavMeshTesterTool::handleRenderOverlay(double* proj, double* model, int* view)

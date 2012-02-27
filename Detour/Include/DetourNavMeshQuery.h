@@ -348,6 +348,30 @@ public:
 	dtStatus getPolyWallSegments(dtPolyRef ref, const dtQueryFilter* filter,
 								 float* segmentVerts, dtPolyRef* segmentRefs, int* segmentCount,
 								 const int maxSegments) const;
+
+	/// Returns random location on navmesh.
+	/// Polygons are chosen weighted by area. The search runs in linear related to number of polygon.
+	///  @param[in]		filter			The polygon filter to apply to the query.
+	///  @param[in]		frand			Function returning a random number [0..1).
+	///  @param[out]	randomRef		The reference id of the random location.
+	///  @param[out]	randomPt		The random location. 
+	/// @returns The status flags for the query.
+	dtStatus findRandomPoint(const dtQueryFilter* filter, float (*frand)(),
+							 dtPolyRef* randomRef, float* randomPt) const;
+
+	/// Returns random location on navmesh within the reach of specified location.
+	/// Polygons are chosen weighted by area. The search runs in linear related to number of polygon.
+	/// The location is not exactly constrained by the circle, but it limits the visited polygons.
+	///  @param[in]		startRef		The reference id of the polygon where the search starts.
+	///  @param[in]		centerPos		The center of the search circle. [(x, y, z)]
+	///  @param[in]		filter			The polygon filter to apply to the query.
+	///  @param[in]		frand			Function returning a random number [0..1).
+	///  @param[out]	randomRef		The reference id of the random location.
+	///  @param[out]	randomPt		The random location. [(x, y, z)]
+	/// @returns The status flags for the query.
+	dtStatus findRandomPointAroundCircle(dtPolyRef startRef, const float* centerPos, const float maxRadius,
+										 const dtQueryFilter* filter, float (*frand)(),
+										 dtPolyRef* randomRef, float* randomPt) const;
 	
 	/// Finds the closest point on the specified polygon.
 	///  @param[in]		ref			The reference id of the polygon.
