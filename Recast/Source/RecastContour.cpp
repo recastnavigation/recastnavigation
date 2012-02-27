@@ -464,7 +464,7 @@ static void simplifyContour(rcIntArray& points, rcIntArray& simplified,
 		// and the neighbour region is take from the next raw point.
 		const int ai = (simplified[i*4+3]+1) % pn;
 		const int bi = simplified[i*4+3];
-		simplified[i*4+3] = (points[ai*4+3] & RC_CONTOUR_REG_MASK) | (points[bi*4+3] & RC_BORDER_VERTEX);
+		simplified[i*4+3] = (points[ai*4+3] & (RC_CONTOUR_REG_MASK|RC_AREA_BORDER)) | (points[bi*4+3] & RC_BORDER_VERTEX);
 	}
 	
 }

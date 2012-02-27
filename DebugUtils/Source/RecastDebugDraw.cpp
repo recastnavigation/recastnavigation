@@ -806,24 +806,23 @@ void duDebugDrawContours(duDebugDraw* dd, const rcContourSet& cset, const float 
 		const rcContour& c = cset.conts[i];
 		if (!c.nverts)
 			continue;
-		unsigned int color = duIntToCol(c.reg, a);
-
-		for (int j = 0; j < c.nverts; ++j)
+		const unsigned int color = duIntToCol(c.reg, a);
+		const unsigned int bcolor = duLerpCol(color,duRGBA(255,255,255,a),128);
+		for (int j = 0, k = c.nverts-1; j < c.nverts; k=j++)
 		{
-			const int* v = &c.verts[j*4];
-			float fx = orig[0] + v[0]*cs;
-			float fy = orig[1] + (v[1]+1+(i&1))*ch;
-			float fz = orig[2] + v[2]*cs;
-			dd->vertex(fx,fy,fz, color);
-			if (j > 0)
-				dd->vertex(fx,fy,fz, color);
+			const int* va = &c.verts[k*4];
+			const int* vb = &c.verts[j*4];
+			unsigned int col = (va[3] & RC_AREA_BORDER) ? bcolor : color; 
+			float fx,fy,fz;
+			fx = orig[0] + va[0]*cs;
+			fy = orig[1] + (va[1]+1+(i&1))*ch;
+			fz = orig[2] + va[2]*cs;
+			dd->vertex(fx,fy,fz, col);
+			fx = orig[0] + vb[0]*cs;
+			fy = orig[1] + (vb[1]+1+(i&1))*ch;
+			fz = orig[2] + vb[2]*cs;
+			dd->vertex(fx,fy,fz, col);
 		}
-		// Loop last segment
-		const int* v = &c.verts[0];
-		float fx = orig[0] + v[0]*cs;
-		float fy = orig[1] + (v[1]+1+(i&1))*ch;
-		float fz = orig[2] + v[2]*cs;
-		dd->vertex(fx,fy,fz, color);
 	}
 	dd->end();
 

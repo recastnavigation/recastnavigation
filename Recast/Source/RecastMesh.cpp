@@ -934,10 +934,18 @@ bool rcBuildPolyMesh(rcContext* ctx, rcContourSet& cset, const int nvp, rcPolyMe
 	rcScopedDelete<unsigned char> vflags = (unsigned char*)rcAlloc(sizeof(unsigned char)*maxVertices, RC_ALLOC_TEMP);
 	if (!vflags)
 	{
-		ctx->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'mesh.verts' (%d).", maxVertices);
+		ctx->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'vflags' (%d).", maxVertices);
 		return false;
 	}
 	memset(vflags, 0, maxVertices);
+
+	rcScopedDelete<unsigned short> vportal = (unsigned short*)rcAlloc(sizeof(unsigned short)*maxVertices, RC_ALLOC_TEMP);
+	if (!vportal)
+	{
+		ctx->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'vportal' (%d).", maxVertices);
+		return false;
+	}
+	memset(vportal, 0xff, maxVertices);
 	
 	mesh.verts = (unsigned short*)rcAlloc(sizeof(unsigned short)*maxVertices*3, RC_ALLOC_PERM);
 	if (!mesh.verts)
@@ -1053,6 +1061,14 @@ bool rcBuildPolyMesh(rcContext* ctx, rcContourSet& cset, const int nvp, rcPolyMe
 				vflags[indices[j]] = 1;
 			}
 		}
+
+		// Store portal edges
+		for (int j = 0; j < cont.nverts; ++j)
+		{
+			const int* v = &cont.verts[j*4];
+			if ((v[3] & RC_AREA_BORDER) == 0)
+				vportal[indices[j]] = indices[(j+1) % cont.nverts];
+		}
 		
 		// Build initial polygons.
 		int npolys = 0;
@@ -1150,8 +1166,17 @@ bool rcBuildPolyMesh(rcContext* ctx, rcContourSet& cset, const int nvp, rcPolyMe
 			}
 			// Remove vertex
 			// Note: mesh.nverts is already decremented inside removeVertex()!
+			// Fixup vertex flags
 			for (int j = i; j < mesh.nverts; ++j)
 				vflags[j] = vflags[j+1];
+			// Fixup portal indices
+			for (int j = i; j < mesh.nverts; ++j)
+				vportal[j] = vportal[j+1];
+			for (int j = 0; j < mesh.nverts; ++j)
+			{
+				if (vportal[j] > (unsigned short)i)
+					vportal[j]--;
+			}
 			--i;
 		}
 	}
@@ -1181,6 +1206,10 @@ bool rcBuildPolyMesh(rcContext* ctx, rcContourSet& cset, const int nvp, rcPolyMe
 				if (nj >= nvp || p[nj] == RC_MESH_NULL_IDX) nj = 0;
 				const unsigned short* va = &mesh.verts[p[j]*3];
 				const unsigned short* vb = &mesh.verts[p[nj]*3];
+
+				// Make sure the edge is marked as portal.
+				if (vportal[p[j]] != p[nj])
+					continue;
 
 				if ((int)va[0] == 0 && (int)vb[0] == 0)
 					p[nvp+j] = 0x8000 | 0;
