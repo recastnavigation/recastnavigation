@@ -1092,6 +1092,14 @@ bool rcBuildPolyMeshDetail(rcContext* ctx, const rcPolyMesh& mesh, const rcCompa
 						   const float sampleDist, const float sampleMaxError,
 						   rcPolyMeshDetail& dmesh);
 
+/// Copies the poly mesh data from src to dst.
+///  @ingroup recast
+///  @param[in,out]	ctx		The build context to use during the operation.
+///  @param[in]		src		The source mesh to copy from.
+///  @param[out]	dst		The resulting detail mesh. (Must be pre-allocated, must be empty mesh.)
+///  @returns True if the operation completed successfully.
+bool rcCopyPolyMesh(rcContext* ctx, const rcPolyMesh& src, rcPolyMesh& dst);
+
 /// Merges multiple detail meshes into a single detail mesh.
 ///  @ingroup recast
 ///  @param[in,out]	ctx		The build context to use during the operation.
