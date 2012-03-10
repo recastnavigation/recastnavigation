@@ -198,6 +198,7 @@ dtNavMesh::dtNavMesh() :
 	m_tileBits(0),
 	m_polyBits(0)
 {
+	memset(&m_params, 0, sizeof(dtNavMeshParams));
 	m_orig[0] = 0;
 	m_orig[1] = 0;
 	m_orig[2] = 0;
