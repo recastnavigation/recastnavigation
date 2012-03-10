@@ -595,6 +595,7 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CPLUSPLUSFLAGS = (
+					"-Wunused-value",
 					"$(OTHER_CFLAGS)",
 					"-Wshadow",
 					"-Wreorder",
@@ -623,6 +624,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = "";
 				OTHER_CPLUSPLUSFLAGS = (
+					"-Wunused-value",
 					"$(OTHER_CFLAGS)",
 					"-Wshadow",
 					"-Wreorder",
