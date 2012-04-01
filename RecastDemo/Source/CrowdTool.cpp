@@ -92,6 +92,8 @@ static void getAgentBounds(const dtCrowdAgent* ag, float* bmin, float* bmax)
 
 CrowdToolState::CrowdToolState() :
 	m_sample(0),
+	m_nav(0),
+	m_crowd(0),
 	m_targetRef(0),
 	m_run(true)
 {
@@ -142,8 +144,12 @@ void CrowdToolState::init(class Sample* sample)
 	
 	dtNavMesh* nav = m_sample->getNavMesh();
 	dtCrowd* crowd = m_sample->getCrowd();
-	if (nav && crowd && crowd->getAgentCount() == 0)
+	
+	if (nav && crowd && (m_nav != nav || m_crowd != crowd))
 	{
+		m_nav = nav;
+		m_crowd = crowd;
+	
 		crowd->init(MAX_AGENTS, m_sample->getAgentRadius(), nav);
 		
 		// Make polygons with 'disabled' flag invalid.
@@ -163,7 +169,7 @@ void CrowdToolState::init(class Sample* sample)
 		
 		// Medium (22)
 		params.velBias = 0.5f;
-		params.adaptiveDivs = 5;
+		params.adaptiveDivs = 5; 
 		params.adaptiveRings = 2;
 		params.adaptiveDepth = 2;
 		crowd->setObstacleAvoidanceParams(1, &params);
