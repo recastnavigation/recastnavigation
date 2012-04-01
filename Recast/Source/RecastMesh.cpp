@@ -1310,7 +1310,7 @@ bool rcMergePolyMeshes(rcContext* ctx, rcPolyMesh** meshes, const int nmeshes, r
 		ctx->log(RC_LOG_ERROR, "rcMergePolyMeshes: Out of memory 'vremap' (%d).", maxVertsPerMesh);
 		return false;
 	}
-	memset(nextVert, 0, sizeof(int)*maxVerts);
+	memset(vremap, 0, sizeof(unsigned short)*maxVertsPerMesh);
 	
 	for (int i = 0; i < nmeshes; ++i)
 	{
