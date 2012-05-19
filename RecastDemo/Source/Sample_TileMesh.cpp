@@ -768,12 +768,13 @@ void Sample_TileMesh::buildTile(const float* pos)
 	
 	int dataSize = 0;
 	unsigned char* data = buildTileMesh(tx, ty, m_tileBmin, m_tileBmax, dataSize);
-	
+
+	// Remove any previous data (navmesh owns and deletes the data).
+	m_navMesh->removeTile(m_navMesh->getTileRefAt(tx,ty,0),0,0);
+
+	// Add tile, or leave the location empty.
 	if (data)
 	{
-		// Remove any previous data (navmesh owns and deletes the data).
-		m_navMesh->removeTile(m_navMesh->getTileRefAt(tx,ty,0),0,0);
-		
 		// Let the navmesh own the data.
 		dtStatus status = m_navMesh->addTile(data,dataSize,DT_TILE_FREE_DATA,0,0);
 		if (dtStatusFailed(status))

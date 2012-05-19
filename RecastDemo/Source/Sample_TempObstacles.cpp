@@ -49,6 +49,10 @@
 #endif
 
 
+// This value specifies how many layers (or "floors") each navmesh tile is expected to have.
+static const int EXPECTED_LAYERS_PER_TILE = 4;
+
+
 static bool isectSegAABB(const float* sp, const float* sq,
 						 const float* amin, const float* amax,
 						 float& tmin, float& tmax)
@@ -855,6 +859,7 @@ void Sample_TempObstacles::handleSettings()
 	imguiLabel("Tiling");
 	imguiSlider("TileSize", &m_tileSize, 16.0f, 128.0f, 8.0f);
 	
+	int gridSize = 1;
 	if (m_geom)
 	{
 		const float* bmin = m_geom->getMeshBoundsMin();
@@ -870,7 +875,7 @@ void Sample_TempObstacles::handleSettings()
 
 		// Max tiles and max polys affect how the tile IDs are caculated.
 		// There are 22 bits available for identifying a tile and a polygon.
-		int tileBits = rcMin((int)dtIlog2(dtNextPow2(tw*th)), 14);
+		int tileBits = rcMin((int)dtIlog2(dtNextPow2(tw*th*EXPECTED_LAYERS_PER_TILE)), 14);
 		if (tileBits > 14) tileBits = 14;
 		int polyBits = 22 - tileBits;
 		m_maxTiles = 1 << tileBits;
@@ -879,6 +884,7 @@ void Sample_TempObstacles::handleSettings()
 		imguiValue(text);
 		snprintf(text, 64, "Max Polys  %d", m_maxPolysPerTile);
 		imguiValue(text);
+		gridSize = tw*th;
 	}
 	else
 	{
@@ -895,6 +901,9 @@ void Sample_TempObstacles::handleSettings()
 	
 	snprintf(msg, 64, "Layers  %d", m_cacheLayerCount);
 	imguiValue(msg);
+	snprintf(msg, 64, "Layers (per tile)  %.1f", (float)m_cacheLayerCount/(float)gridSize);
+	imguiValue(msg);
+	
 	snprintf(msg, 64, "Memory  %.1f kB / %.1f kB (%.1f%%)", m_cacheCompressedSize/1024.0f, m_cacheRawSize/1024.0f, compressionRatio*100.0f);
 	imguiValue(msg);
 	snprintf(msg, 64, "Navmesh Build Time  %.1f ms", m_cacheBuildTimeMs);
@@ -1217,7 +1226,7 @@ bool Sample_TempObstacles::handleBuild()
 	tcparams.walkableRadius = m_agentRadius;
 	tcparams.walkableClimb = m_agentMaxClimb;
 	tcparams.maxSimplificationError = m_edgeMaxError;
-	tcparams.maxTiles = tw*th*2;
+	tcparams.maxTiles = tw*th*EXPECTED_LAYERS_PER_TILE;
 	tcparams.maxObstacles = 128;
 
 	dtFreeTileCache(m_tileCache);
@@ -1300,7 +1309,6 @@ bool Sample_TempObstacles::handleBuild()
 			}
 		}
 	}
-	
 
 	// Build initial meshes
 	m_ctx->startTimer(RC_TIMER_TOTAL);
