@@ -76,6 +76,8 @@ public:
 								   float* startPos, float* endPos,
 								   dtNavMeshQuery* navquery);
 
+	bool fixPathStart(dtPolyRef safeRef, const float* safePos);
+
 	bool trimInvalidPath(dtPolyRef safeRef, const float* safePos,
 						 dtNavMeshQuery* navquery, const dtQueryFilter* filter);
 	

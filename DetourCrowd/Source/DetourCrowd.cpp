@@ -46,7 +46,7 @@ void dtFreeCrowd(dtCrowd* ptr)
 }
 
 
-static const int MAX_ITERS_PER_UPDATE = 10;
+static const int MAX_ITERS_PER_UPDATE = 100;
 
 static const int MAX_PATHQUEUE_NODES = 4096;
 static const int MAX_COMMON_NODES = 512;
@@ -217,6 +217,79 @@ static int getNeighbours(const float* pos, const float height, const float range
 	}
 	return n;
 }
+
+static int addToOptQueue(dtCrowdAgent* newag, dtCrowdAgent** agents, const int nagents, const int maxAgents)
+{
+	// Insert neighbour based on greatest time.
+	int slot = 0;
+	if (!nagents)
+	{
+		slot = nagents;
+	}
+	else if (newag->topologyOptTime <= agents[nagents-1]->topologyOptTime)
+	{
+		if (nagents >= maxAgents)
+			return nagents;
+		slot = nagents;
+	}
+	else
+	{
+		int i;
+		for (i = 0; i < nagents; ++i)
+			if (newag->topologyOptTime >= agents[i]->topologyOptTime)
+				break;
+		
+		const int tgt = i+1;
+		const int n = dtMin(nagents-i, maxAgents-tgt);
+		
+		dtAssert(tgt+n <= maxAgents);
+		
+		if (n > 0)
+			memmove(&agents[tgt], &agents[i], sizeof(dtCrowdAgent*)*n);
+		slot = i;
+	}
+	
+	agents[slot] = newag;
+	
+	return dtMin(nagents+1, maxAgents);
+}
+
+static int addToPathQueue(dtCrowdAgent* newag, dtCrowdAgent** agents, const int nagents, const int maxAgents)
+{
+	// Insert neighbour based on greatest time.
+	int slot = 0;
+	if (!nagents)
+	{
+		slot = nagents;
+	}
+	else if (newag->targetReplanTime <= agents[nagents-1]->targetReplanTime)
+	{
+		if (nagents >= maxAgents)
+			return nagents;
+		slot = nagents;
+	}
+	else
+	{
+		int i;
+		for (i = 0; i < nagents; ++i)
+			if (newag->targetReplanTime >= agents[i]->targetReplanTime)
+				break;
+		
+		const int tgt = i+1;
+		const int n = dtMin(nagents-i, maxAgents-tgt);
+		
+		dtAssert(tgt+n <= maxAgents);
+		
+		if (n > 0)
+			memmove(&agents[tgt], &agents[i], sizeof(dtCrowdAgent*)*n);
+		slot = i;
+	}
+	
+	agents[slot] = newag;
+	
+	return dtMin(nagents+1, maxAgents);
+}
+
 
 /**
 @class dtCrowd
@@ -584,6 +657,10 @@ int dtCrowd::getActiveAgents(dtCrowdAgent** agents, const int maxAgents)
 
 void dtCrowd::updateMoveRequest(const float /*dt*/)
 {
+	const int PATH_MAX_AGENTS = 8;
+	dtCrowdAgent* queue[PATH_MAX_AGENTS];
+	int nqueue = 0;
+	
 	// Fire off new requests.
 	for (int i = 0; i < m_maxAgents; ++i)
 	{
@@ -611,7 +688,7 @@ void dtCrowd::updateMoveRequest(const float /*dt*/)
 			m_navquery->initSlicedFindPath(path[0], ag->targetRef, ag->npos, ag->targetPos, &m_filter);
 			m_navquery->updateSlicedFindPath(MAX_ITER, 0);
 			dtStatus status = 0;
-			if (ag->targetReplan && npath > 10)
+			if (ag->targetReplan) // && npath > 10)
 			{
 				// Try to use existing steady path during replan if possible.
 				status = m_navquery->finalizeSlicedFindPathPartial(path, npath, reqPath, &reqPathCount, MAX_RES);
@@ -667,10 +744,17 @@ void dtCrowd::updateMoveRequest(const float /*dt*/)
 		
 		if (ag->targetState == DT_CROWDAGENT_TARGET_WAITING_FOR_QUEUE)
 		{
-			ag->targetPathqRef = m_pathq.request(ag->corridor.getLastPoly(), ag->targetRef, ag->corridor.getTarget(), ag->targetPos, &m_filter);
-			if (ag->targetPathqRef != DT_PATHQ_INVALID)
-				ag->targetState = DT_CROWDAGENT_TARGET_WAITING_FOR_PATH;
+			nqueue = addToPathQueue(ag, queue, nqueue, PATH_MAX_AGENTS);
 		}
+	}
+
+	for (int i = 0; i < nqueue; ++i)
+	{
+		dtCrowdAgent* ag = queue[i];
+		ag->targetPathqRef = m_pathq.request(ag->corridor.getLastPoly(), ag->targetRef,
+											 ag->corridor.getTarget(), ag->targetPos, &m_filter);
+		if (ag->targetPathqRef != DT_PATHQ_INVALID)
+			ag->targetState = DT_CROWDAGENT_TARGET_WAITING_FOR_PATH;
 	}
 
 	
@@ -795,43 +879,6 @@ void dtCrowd::updateMoveRequest(const float /*dt*/)
 }
 
 
-
-static int addToOptQueue(dtCrowdAgent* newag, dtCrowdAgent** agents, const int nagents, const int maxAgents)
-{
-	// Insert neighbour based on greatest time.
-	int slot = 0;
-	if (!nagents)
-	{
-		slot = nagents;
-	}
-	else if (newag->topologyOptTime <= agents[nagents-1]->topologyOptTime)
-	{
-		if (nagents >= maxAgents)
-			return nagents;
-		slot = nagents;
-	}
-	else
-	{
-		int i;
-		for (i = 0; i < nagents; ++i)
-			if (newag->topologyOptTime >= agents[i]->topologyOptTime)
-				break;
-		
-		const int tgt = i+1;
-		const int n = dtMin(nagents-i, maxAgents-tgt);
-		
-		dtAssert(tgt+n <= maxAgents);
-		
-		if (n > 0)
-			memmove(&agents[tgt], &agents[i], sizeof(dtCrowdAgent*)*n);
-		slot = i;
-	}
-
-	agents[slot] = newag;
-	
-	return dtMin(nagents+1, maxAgents);
-}
-
 void dtCrowd::updateTopologyOptimization(dtCrowdAgent** agents, const int nagents, const float dt)
 {
 	if (!nagents)
@@ -907,6 +954,10 @@ void dtCrowd::checkPathValidity(dtCrowdAgent** agents, const int nagents, const 
 				continue;
 			}
 
+			// Make sure the first polygon is valid, but leave other valid
+			// polygons in the path so that replanner can adjust the path better.
+			ag->corridor.fixPathStart(agentRef, agentPos);
+//			ag->corridor.trimInvalidPath(agentRef, agentPos, m_navquery, &m_filter);
 			ag->boundary.reset();
 			dtVcopy(ag->npos, agentPos);
 
@@ -936,8 +987,8 @@ void dtCrowd::checkPathValidity(dtCrowdAgent** agents, const int nagents, const 
 		if (!ag->corridor.isValid(CHECK_LOOKAHEAD, m_navquery, &m_filter))
 		{
 			// Fix current path.
-			ag->corridor.trimInvalidPath(agentRef, agentPos, m_navquery, &m_filter);
-			ag->boundary.reset();
+//			ag->corridor.trimInvalidPath(agentRef, agentPos, m_navquery, &m_filter);
+//			ag->boundary.reset();
 			replan = true;
 		}
 		
