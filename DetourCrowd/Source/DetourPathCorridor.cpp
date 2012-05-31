@@ -368,7 +368,7 @@ bool dtPathCorridor::optimizePathTopology(dtNavMeshQuery* navquery, const dtQuer
 	navquery->updateSlicedFindPath(MAX_ITER, 0);
 	dtStatus status = navquery->finalizeSlicedFindPathPartial(m_path, m_npath, res, &nres, MAX_RES);
 	
-	if (status == DT_SUCCESS && nres > 0)
+	if (dtStatusSucceed(status) && nres > 0)
 	{
 		m_npath = dtMergeCorridorStartShortcut(m_path, m_npath, m_maxPath, res, nres);
 		return true;

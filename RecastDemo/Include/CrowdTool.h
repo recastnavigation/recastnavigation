@@ -42,6 +42,7 @@ struct CrowdToolParams
 	bool m_showGrid;
 	bool m_showNodes;
 	bool m_showPerfGraph;
+	bool m_showDetailAll;
 	
 	bool m_expandOptions;
 	bool m_anticipateTurns;

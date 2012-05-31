@@ -1491,7 +1491,9 @@ dtStatus dtNavMeshQuery::finalizeSlicedFindPathPartial(const dtPolyRef* existing
 		
 		if (!node)
 		{
-			return DT_FAILURE;
+			m_query.status |= DT_PARTIAL_RESULT;
+			dtAssert(m_query.lastBestNode);
+			node = m_query.lastBestNode;
 		}
 		
 		// Reverse the path.

@@ -91,6 +91,17 @@ struct dtCrowdAgentParams
 	void* userData;
 };
 
+enum MoveRequestState
+{
+	DT_CROWDAGENT_TARGET_NONE = 0,
+	DT_CROWDAGENT_TARGET_FAILED,
+	DT_CROWDAGENT_TARGET_VALID,
+	DT_CROWDAGENT_TARGET_REQUESTING,
+	DT_CROWDAGENT_TARGET_WAITING_FOR_QUEUE,
+	DT_CROWDAGENT_TARGET_WAITING_FOR_PATH,
+	DT_CROWDAGENT_TARGET_VELOCITY,
+};
+
 /// Represents an agent managed by a #dtCrowd object.
 /// @ingroup crowd
 struct dtCrowdAgent
@@ -107,10 +118,7 @@ struct dtCrowdAgent
 	/// The local boundary data for the agent.
 	dtLocalBoundary boundary;
 	
-	float t;
-	float var;
-
-	/// The last time the agent's path corridor was optimized.
+	/// Time since the agent's path corridor was optimized.
 	float topologyOptTime;
 	
 	/// The known neighbors of the agent.
@@ -142,6 +150,13 @@ struct dtCrowdAgent
 
 	/// The number of corners.
 	int ncorners;
+	
+	unsigned char targetState;			///< State of the movement request.
+	dtPolyRef targetRef;				///< Target polyref of the movement request.
+	float targetPos[3];					///< Target position of the movement request (or velocity in case of DT_CROWDAGENT_TARGET_VELOCITY).
+	dtPathQueueRef targetPathqRef;		///< Path finder ref.
+	bool targetReplan;					///< Flag indicating that the current path is being replanned.
+	float targetReplanTime;				/// <Time since the agent's target was replanned.
 };
 
 struct dtCrowdAgentAnimation
@@ -197,42 +212,13 @@ class dtCrowd
 
 	int m_velocitySampleCount;
 
-	enum MoveRequestState
-	{
-		MR_TARGET_NONE,
-		MR_TARGET_FAILED,
-		MR_TARGET_VALID,
-		MR_TARGET_REQUESTING,
-		MR_TARGET_WAITING_FOR_PATH,
-		MR_TARGET_ADJUST,
-	};
-	
-	static const int MAX_TEMP_PATH = 32;
-
-	struct MoveRequest
-	{
-		unsigned char state;			///< State of the request
-		int idx;						///< Agent index
-		dtPolyRef ref;					///< Goal ref
-		float pos[3];					///< Goal position
-		dtPathQueueRef pathqRef;		///< Path find query ref
-		dtPolyRef aref;					///< Goal adjustment ref
-		float apos[3];					///< Goal adjustment pos
-		dtPolyRef temp[MAX_TEMP_PATH];	///< Adjusted path to the goal
-		int ntemp;
-		bool replan;
-	};
-	MoveRequest* m_moveRequests;
-	int m_moveRequestCount;
-	
 	dtNavMeshQuery* m_navquery;
 
 	void updateTopologyOptimization(dtCrowdAgent** agents, const int nagents, const float dt);
 	void updateMoveRequest(const float dt);
-	void checkPathValidty(dtCrowdAgent** agents, const int nagents, const float dt);
+	void checkPathValidity(dtCrowdAgent** agents, const int nagents, const float dt);
 
 	inline int getAgentIndex(const dtCrowdAgent* agent) const  { return agent - m_agents; }
-	const MoveRequest* getActiveMoveTarget(const int idx) const;
 
 	bool requestMoveTargetReplan(const int idx, dtPolyRef ref, const float* pos);
 
@@ -291,12 +277,16 @@ public:
 	/// @return True if the request was successfully submitted.
 	bool requestMoveTarget(const int idx, dtPolyRef ref, const float* pos);
 
-	/// Sumbits a request to adjust the target position of the specified agent.
+	/// Submits a new move request for the specified agent.
 	///  @param[in]		idx		The agent index. [Limits: 0 <= value < #getAgentCount()]
-	///  @param[in]		ref		The position's polygon reference.
-	///  @param[in]		pos		The position within the polygon. [(x, y, z)]
+	///  @param[in]		vel		The movement velocity. [(x, y, z)]
 	/// @return True if the request was successfully submitted.
-	bool adjustMoveTarget(const int idx, dtPolyRef ref, const float* pos);
+	bool requestMoveVelocity(const int idx, const float* vel);
+
+	/// Resets any request for the specified agent.
+	///  @param[in]		idx		The agent index. [Limits: 0 <= value < #getAgentCount()]
+	/// @return True if the request was successfully reseted.
+	bool resetMoveTarget(const int idx);
 
 	/// Gets the active agents int the agent pool.
 	///  @param[out]	agents		An array of agent pointers. [(#dtCrowdAgent *) * maxAgents]
