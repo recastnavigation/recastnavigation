@@ -535,7 +535,7 @@ private:
 	/// Builds internal polygons links for a tile.
 	void connectIntLinks(dtMeshTile* tile);
 	/// Builds internal polygons links for a tile.
-	void connectIntOffMeshLinks(dtMeshTile* tile);
+	void baseOffMeshLinks(dtMeshTile* tile);
 
 	/// Builds external polygon links for a tile.
 	void connectExtLinks(dtMeshTile* tile, dtMeshTile* target, int side);

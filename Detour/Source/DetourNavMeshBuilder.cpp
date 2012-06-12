@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <float.h>
 #include "DetourNavMesh.h"
 #include "DetourCommon.h"
 #include "DetourNavMeshBuilder.h"
@@ -237,6 +238,7 @@ static unsigned char classifyOffMeshPoint(const float* pt, const float* bmin, co
 	case ZM: return 6;
 	case XP|ZM: return 7;
 	};
+
 	return 0xff;	
 }
 
@@ -274,10 +276,50 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 		if (!offMeshConClass)
 			return false;
 
+		// Find tight heigh bounds, used for culling out off-mesh start locations.
+		float hmin = FLT_MAX;
+		float hmax = -FLT_MAX;
+		
+		if (params->detailVerts && params->detailVertsCount)
+		{
+			for (int i = 0; i < params->detailVertsCount; ++i)
+			{
+				const float h = params->detailVerts[i*3+1];
+				hmin = dtMin(hmin,h);
+				hmax = dtMax(hmax,h);
+			}
+		}
+		else
+		{
+			for (int i = 0; i < params->vertCount; ++i)
+			{
+				const unsigned short* iv = &params->verts[i*3];
+				const float h = params->bmin[1] + iv[1] * params->ch;
+				hmin = dtMin(hmin,h);
+				hmax = dtMax(hmax,h);
+			}
+		}
+		hmin -= params->walkableClimb;
+		hmax += params->walkableClimb;
+		float bmin[3], bmax[3];
+		dtVcopy(bmin, params->bmin);
+		dtVcopy(bmax, params->bmax);
+		bmin[1] = hmin;
+		bmax[1] = hmax;
+
 		for (int i = 0; i < params->offMeshConCount; ++i)
 		{
-			offMeshConClass[i*2+0] = classifyOffMeshPoint(&params->offMeshConVerts[(i*2+0)*3], params->bmin, params->bmax);
-			offMeshConClass[i*2+1] = classifyOffMeshPoint(&params->offMeshConVerts[(i*2+1)*3], params->bmin, params->bmax);
+			const float* p0 = &params->offMeshConVerts[(i*2+0)*3];
+			const float* p1 = &params->offMeshConVerts[(i*2+1)*3];
+			offMeshConClass[i*2+0] = classifyOffMeshPoint(p0, bmin, bmax);
+			offMeshConClass[i*2+1] = classifyOffMeshPoint(p1, bmin, bmax);
+
+			// Zero out off-mesh start positions which are not even potentially touching the mesh.
+			if (offMeshConClass[i*2+0] == 0xff)
+			{
+				if (p0[1] < bmin[1] || p0[1] > bmax[1])
+					offMeshConClass[i*2+0] = 0;
+			}
 
 			// Cound how many links should be allocated for off-mesh connections.
 			if (offMeshConClass[i*2+0] == 0xff)
