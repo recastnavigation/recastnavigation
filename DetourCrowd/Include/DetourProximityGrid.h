@@ -59,7 +59,7 @@ public:
 	int getItemCountAt(const int x, const int y) const;
 	
 	inline const int* getBounds() const { return m_bounds; }
-	inline const float getCellSize() const { return m_cellSize; }
+	inline float getCellSize() const { return m_cellSize; }
 };
 
 dtProximityGrid* dtAllocProximityGrid();

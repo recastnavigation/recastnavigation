@@ -253,7 +253,7 @@ public:
 
 	/// The maximum number of agents that can be managed by the object.
 	/// @return The maximum number of agents.
-	const int getAgentCount() const;
+	int getAgentCount() const;
 	
 	/// Adds a new agent to the crowd.
 	///  @param[in]		pos		The requested position of the agent. [(x, y, z)]
