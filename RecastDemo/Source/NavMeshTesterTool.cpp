@@ -155,6 +155,7 @@ NavMeshTesterTool::NavMeshTesterTool() :
 	m_navQuery(0),
 	m_pathFindStatus(DT_FAILURE),
 	m_toolMode(TOOLMODE_PATHFIND_FOLLOW),
+	m_straightPathOptions(0),
 	m_startRef(0),
 	m_endRef(0),
 	m_npolys(0),
@@ -217,6 +218,28 @@ void NavMeshTesterTool::handleMenu()
 	{
 		m_toolMode = TOOLMODE_PATHFIND_STRAIGHT;
 		recalc();
+	}
+	if (m_toolMode == TOOLMODE_PATHFIND_STRAIGHT)
+	{
+		imguiIndent();
+		imguiLabel("Vertices at crossings");
+		if (imguiCheck("None", m_straightPathOptions == 0))
+		{
+			m_straightPathOptions = 0;
+			recalc();
+		}
+		if (imguiCheck("Area", m_straightPathOptions == DT_STRAIGHTPATH_AREA_CROSSINGS))
+		{
+			m_straightPathOptions = DT_STRAIGHTPATH_AREA_CROSSINGS;
+			recalc();
+		}
+		if (imguiCheck("All", m_straightPathOptions == DT_STRAIGHTPATH_ALL_CROSSINGS))
+		{
+			m_straightPathOptions = DT_STRAIGHTPATH_ALL_CROSSINGS;
+			recalc();
+		}
+
+		imguiUnindent();
 	}
 	if (imguiCheck("Pathfind Sliced", m_toolMode == TOOLMODE_PATHFIND_SLICED))
 	{
@@ -772,7 +795,7 @@ void NavMeshTesterTool::recalc()
 				
 				m_navQuery->findStraightPath(m_spos, epos, m_polys, m_npolys,
 											 m_straightPath, m_straightPathFlags,
-											 m_straightPathPolys, &m_nstraightPath, MAX_POLYS);
+											 m_straightPathPolys, &m_nstraightPath, MAX_POLYS, m_straightPathOptions);
 			}
 		}
 		else
@@ -1033,7 +1056,8 @@ void NavMeshTesterTool::handleRender()
 			dd.depthMask(true);
 		}
 	}
-	else if (m_toolMode == TOOLMODE_PATHFIND_STRAIGHT || m_toolMode == TOOLMODE_PATHFIND_SLICED)
+	else if (m_toolMode == TOOLMODE_PATHFIND_STRAIGHT ||
+			 m_toolMode == TOOLMODE_PATHFIND_SLICED)
 	{
 		duDebugDrawNavMeshPoly(&dd, *m_navMesh, m_startRef, startCol);
 		duDebugDrawNavMeshPoly(&dd, *m_navMesh, m_endRef, endCol);

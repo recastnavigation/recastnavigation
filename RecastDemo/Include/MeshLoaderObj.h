@@ -40,7 +40,7 @@ private:
 	void addTriangle(int a, int b, int c, int& cap);
 	
 	char m_filename[260];
-	
+	float m_scale;	
 	float* m_verts;
 	int* m_tris;
 	float* m_normals;

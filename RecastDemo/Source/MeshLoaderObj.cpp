@@ -24,6 +24,7 @@
 #include <math.h>
 
 rcMeshLoaderObj::rcMeshLoaderObj() :
+	m_scale(1.0f),
 	m_verts(0),
 	m_tris(0),
 	m_normals(0),
@@ -51,9 +52,9 @@ void rcMeshLoaderObj::addVertex(float x, float y, float z, int& cap)
 		m_verts = nv;
 	}
 	float* dst = &m_verts[m_vertCount*3];
-	*dst++ = x;
-	*dst++ = y;
-	*dst++ = z;
+	*dst++ = x*m_scale;
+	*dst++ = y*m_scale;
+	*dst++ = z*m_scale;
 	m_vertCount++;
 }
 
