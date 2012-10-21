@@ -50,6 +50,7 @@ static int loadBin(const char* path, unsigned char** data)
 */
 
 Sample_Debug::Sample_Debug() :
+	m_chf(0),
 	m_cset(0),
 	m_pmesh(0)
 {
@@ -137,7 +138,7 @@ Sample_Debug::Sample_Debug() :
 		if (m_cset)
 		{
 			FileIO io;
-			if (io.openForRead("dump.cset"))
+			if (io.openForRead("PathSet_TMP_NA_PathingTestAReg1_1_2_CS.rc"))
 			{
 				duReadContourSet(*m_cset, &io);
 				
@@ -145,23 +146,33 @@ Sample_Debug::Sample_Debug() :
 					   m_cset->bmin[0], m_cset->bmin[1], m_cset->bmin[2],
 					   m_cset->bmax[0], m_cset->bmax[1], m_cset->bmax[2]);
 				printf("cs=%f ch=%f\n", m_cset->cs, m_cset->ch);
-				m_cset->bmax[1] *= 0.1f;
 			}
 			else
 			{
-				printf("could not open dump.cset\n");
+				printf("could not open test.cset\n");
 			}
 		}
 		else
 		{
 			printf("Could not alloc cset\n");
 		}
+
+
+/*		if (m_cset)
+		{
+			m_pmesh = rcAllocPolyMesh();
+			if (m_pmesh)
+			{
+				rcBuildPolyMesh(m_ctx, *m_cset, 6, *m_pmesh);
+			}
+		}*/
 	}
 	
 }
 
 Sample_Debug::~Sample_Debug()
 {
+	rcFreeCompactHeightfield(m_chf);
 	rcFreeContourSet(m_cset);
 	rcFreePolyMesh(m_pmesh);
 }
@@ -182,6 +193,12 @@ void Sample_Debug::handleRender()
 {
 	DebugDrawGL dd;
 	
+	if (m_chf)
+	{
+		duDebugDrawCompactHeightfieldRegions(&dd, *m_chf);
+//		duDebugDrawCompactHeightfieldSolid(&dd, *m_chf);
+	}
+		
 	if (m_navMesh)
 		duDebugDrawNavMesh(&dd, *m_navMesh, DU_DRAWNAVMESH_OFFMESHCONS);
 
@@ -198,9 +215,6 @@ void Sample_Debug::handleRender()
 	{
 		duDebugDrawRawContours(&dd, *m_cset, 0.25f);
 		duDebugDrawContours(&dd, *m_cset);
-		const float* bmin = m_cset->bmin;
-		const float* bmax = m_cset->bmax;
-		duDebugDrawBoxWire(&dd, bmin[0],bmin[1],bmin[2], bmax[0],bmax[1],bmax[2], duRGBA(255,255,255,128), 1.0f);
 	}
 	
 	if (m_pmesh)
@@ -319,6 +333,8 @@ const float* Sample_Debug::getBoundsMin()
 {
 	if (m_cset)
 		return m_cset->bmin;
+	if (m_chf)
+		return m_chf->bmin;
 	if (m_navMesh)
 		return m_bmin;
 	return 0;
@@ -328,6 +344,8 @@ const float* Sample_Debug::getBoundsMax()
 {
 	if (m_cset)
 		return m_cset->bmax;
+	if (m_chf)
+		return m_chf->bmax;
 	if (m_navMesh)
 		return m_bmax;
 	return 0;
@@ -348,12 +366,22 @@ void Sample_Debug::handleToggle()
 bool Sample_Debug::handleBuild()
 {
 
-	if (m_cset)
+	if (m_chf)
 	{
-		m_pmesh = rcAllocPolyMesh();
-		if (m_pmesh)
+		rcFreeContourSet(m_cset);
+		m_cset = 0;
+		
+		// Create contours.
+		m_cset = rcAllocContourSet();
+		if (!m_cset)
 		{
-			rcBuildPolyMesh(m_ctx, *m_cset, 6, *m_pmesh);
+			m_ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'cset'.");
+			return false;
+		}
+		if (!rcBuildContours(m_ctx, *m_chf, /*m_cfg.maxSimplificationError*/1.3f, /*m_cfg.maxEdgeLen*/12, *m_cset))
+		{
+			m_ctx->log(RC_LOG_ERROR, "buildNavigation: Could not create contours.");
+			return false;
 		}
 	}
 		

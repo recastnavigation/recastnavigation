@@ -131,7 +131,7 @@ public:
 		
 		m_nav = nav;
 		
-		return true;
+		return false;
 	}
 	
 	inline void clearAllFlags()
@@ -166,7 +166,7 @@ public:
 	
 };
 
-static void floodNavmesh(const dtNavMesh* nav, NavmeshFlags* flags, dtPolyRef start, unsigned char flag, PolyRefArray* visited)
+static void floodNavmesh(dtNavMesh* nav, NavmeshFlags* flags, dtPolyRef start, unsigned char flag)
 {
 	// If already visited, skip.
 	if (flags->getFlags(start))
@@ -178,8 +178,6 @@ static void floodNavmesh(const dtNavMesh* nav, NavmeshFlags* flags, dtPolyRef st
 	while (openList.size())
 	{
 		const dtPolyRef ref = openList.pop();
-		if (visited)
-			visited->push(ref);
 		// Get current poly and tile.
 		// The API input has been cheked already, skip checking internal data.
 		const dtMeshTile* tile = 0;
@@ -201,102 +199,7 @@ static void floodNavmesh(const dtNavMesh* nav, NavmeshFlags* flags, dtPolyRef st
 	}
 }
 
-static int getPolyVerts(const dtNavMesh* nav, dtPolyRef ref, float* verts)
-{
-	const dtMeshTile* tile = 0;
-	const dtPoly* poly = 0;
-	dtStatus status = nav->getTileAndPolyByRef(ref, &tile, &poly);
-	if (dtStatusFailed(status))
-		return 0;
-	for (int i = 0; i < (int)poly->vertCount; ++i)
-		dtVcopy(&verts[i*3], &tile->verts[poly->verts[i]*3]);
-	return (int)poly->vertCount;
-}
-
-static void calcBounds(const dtNavMesh* nav, const PolyRefArray& polys, float* bounds)
-{
-	dtVset(&bounds[0], FLT_MAX,FLT_MAX,FLT_MAX);
-	dtVset(&bounds[3], -FLT_MAX,-FLT_MAX,-FLT_MAX);
-	float verts[DT_VERTS_PER_POLYGON*3];
-	for (int i = 0; i < polys.size(); i++)
-	{
-		const dtPolyRef ref = polys[i];
-		int nv = getPolyVerts(nav, ref, verts);
-		for (int j = 0; j < nv; j++)
-		{
-			dtVmin(&bounds[0], &verts[j*3]);
-			dtVmax(&bounds[3], &verts[j*3]);
-		}
-	}
-}
-
-static bool selectSmallAreas(const dtNavMesh* nav, NavmeshFlags* flags,
-							 const float minSize, unsigned char flag)
-{
-	PolyRefArray visited;
-	NavmeshFlags oflags;
-	if (!oflags.init(nav))
-	{
-		return false;
-	}
-
-	for (int i = 0; i < nav->getMaxTiles(); ++i)
-	{
-		const dtMeshTile* tile = nav->getTile(i);
-		if (!tile->header) continue;
-		dtPolyRef base = nav->getPolyRefBase(tile);
-		for (int j = 0; j < tile->header->polyCount; j++)
-		{
-			dtPolyRef start = base | (dtPolyRef)j;
-			if (oflags.getFlags(start))
-				continue;
-				
-			// Flood connected polygons. 
-			visited.resize(0);
-			floodNavmesh(nav, &oflags, start, 1, &visited);
-			if (visited.size() > 0)
-			{
-				// Calculate the bbox of the visited polygons
-				float bounds[6];
-				calcBounds(nav, visited, bounds);
-				const float w = bounds[3]-bounds[0];
-				const float h = bounds[5]-bounds[2];
-				// The visited area is too small, mark it.
-				if (w < minSize && h < minSize)
-				{
-					for (int k = 0; k < visited.size(); k++)
-						flags->setFlags(visited[k], flag);
-				}
-			}
-		}
-		
-	}
-	
-	return true;
-}
-
-
-static void disableSelectedPolys(dtNavMesh* nav, NavmeshFlags* flags)
-{
-	for (int i = 0; i < nav->getMaxTiles(); ++i)
-	{
-		const dtMeshTile* tile = ((const dtNavMesh*)nav)->getTile(i);
-		if (!tile->header) continue;
-		const dtPolyRef base = nav->getPolyRefBase(tile);
-		for (int j = 0; j < tile->header->polyCount; ++j)
-		{
-			const dtPolyRef ref = base | (unsigned int)j;
-			if (flags->getFlags(ref))
-			{
-				unsigned short f = 0;
-				nav->getPolyFlags(ref, &f);
-				nav->setPolyFlags(ref, f | SAMPLE_POLYFLAGS_DISABLED);
-			}
-		}
-	}
-}
-
-static void disableUnselectedPolys(dtNavMesh* nav, NavmeshFlags* flags)
+static void disableUnvisitedPolys(dtNavMesh* nav, NavmeshFlags* flags)
 {
 	for (int i = 0; i < nav->getMaxTiles(); ++i)
 	{
@@ -343,39 +246,19 @@ void NavMeshPruneTool::handleMenu()
 {
 	dtNavMesh* nav = m_sample->getNavMesh();
 	if (!nav) return;
-
-	if (imguiButton("Select Small Areas"))
-	{
-		if (!m_flags)
-		{
-			m_flags = new NavmeshFlags;
-			m_flags->init(nav);
-		}
-		const float minSize = m_sample->getAgentRadius()*2 * 5.0f;
-		selectSmallAreas(nav, m_flags, minSize, 1);
-	}
-
 	if (!m_flags) return;
 
 	if (imguiButton("Clear Selection"))
 	{
 		m_flags->clearAllFlags();
 	}
-
-	if (imguiButton("Prune Selected"))
-	{
-		disableSelectedPolys(nav, m_flags);
-		delete m_flags;
-		m_flags = 0;
-	}
 	
 	if (imguiButton("Prune Unselected"))
 	{
-		disableUnselectedPolys(nav, m_flags);
+		disableUnvisitedPolys(nav, m_flags);
 		delete m_flags;
 		m_flags = 0;
 	}
-
 }
 
 void NavMeshPruneTool::handleClick(const float* /*s*/, const float* p, bool shift)
@@ -402,7 +285,7 @@ void NavMeshPruneTool::handleClick(const float* /*s*/, const float* p, bool shif
 	dtPolyRef ref = 0;
 	query->findNearestPoly(p, ext, &filter, &ref, 0);
 
-	floodNavmesh(nav, m_flags, ref, 1, 0);
+	floodNavmesh(nav, m_flags, ref, 1);
 }
 
 void NavMeshPruneTool::handleToggle()
