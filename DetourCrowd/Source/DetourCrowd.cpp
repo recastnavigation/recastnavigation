@@ -17,7 +17,6 @@
 //
 
 #define _USE_MATH_DEFINES
-#include <math.h>
 #include <string.h>
 #include <float.h>
 #include <stdlib.h>
@@ -27,6 +26,7 @@
 #include "DetourNavMeshQuery.h"
 #include "DetourObstacleAvoidance.h"
 #include "DetourCommon.h"
+#include "DetourMath.h"
 #include "DetourAssert.h"
 #include "DetourAlloc.h"
 
@@ -206,7 +206,7 @@ static int getNeighbours(const float* pos, const float height, const float range
 		// Check for overlap.
 		float diff[3];
 		dtVsub(diff, pos, ag->npos);
-		if (fabsf(diff[1]) >= (height+ag->params.height)/2.0f)
+		if (dtMathFabs(diff[1]) >= (height+ag->params.height)/2.0f)
 			continue;
 		diff[1] = 0;
 		const float distSqr = dtVlenSqr(diff);
@@ -1200,7 +1200,7 @@ void dtCrowd::update(const float dt, dtCrowdAgentDebugInfo* debug)
 					continue;
 				if (distSqr > dtSqr(separationDist))
 					continue;
-				const float dist = sqrtf(distSqr);
+				const float dist = dtMathSqrtf(distSqr);
 				const float weight = separationWeight * (1.0f - dtSqr(dist*invSeparationDist));
 				
 				dtVmad(disp, disp, diff, weight/dist);
@@ -1318,7 +1318,7 @@ void dtCrowd::update(const float dt, dtCrowdAgentDebugInfo* debug)
 				float dist = dtVlenSqr(diff);
 				if (dist > dtSqr(ag->params.radius + nei->params.radius))
 					continue;
-				dist = sqrtf(dist);
+				dist = dtMathSqrtf(dist);
 				float pen = (ag->params.radius + nei->params.radius) - dist;
 				if (dist < 0.0001f)
 				{

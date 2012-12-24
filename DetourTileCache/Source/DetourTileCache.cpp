@@ -3,9 +3,9 @@
 #include "DetourNavMeshBuilder.h"
 #include "DetourNavMesh.h"
 #include "DetourCommon.h"
+#include "DetourMath.h"
 #include "DetourAlloc.h"
 #include "DetourAssert.h"
-#include <math.h>
 #include <string.h>
 #include <new>
 
@@ -409,10 +409,10 @@ dtStatus dtTileCache::queryTiles(const float* bmin, const float* bmax,
 	
 	const float tw = m_params.width * m_params.cs;
 	const float th = m_params.height * m_params.cs;
-	const int tx0 = (int)floorf((bmin[0]-m_params.orig[0]) / tw);
-	const int tx1 = (int)floorf((bmax[0]-m_params.orig[0]) / tw);
-	const int ty0 = (int)floorf((bmin[2]-m_params.orig[2]) / th);
-	const int ty1 = (int)floorf((bmax[2]-m_params.orig[2]) / th);
+	const int tx0 = (int)dtMathFloorf((bmin[0]-m_params.orig[0]) / tw);
+	const int tx1 = (int)dtMathFloorf((bmax[0]-m_params.orig[0]) / tw);
+	const int ty0 = (int)dtMathFloorf((bmin[2]-m_params.orig[2]) / th);
+	const int ty1 = (int)dtMathFloorf((bmax[2]-m_params.orig[2]) / th);
 	
 	for (int ty = ty0; ty <= ty1; ++ty)
 	{

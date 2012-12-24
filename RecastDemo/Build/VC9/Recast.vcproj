@@ -261,6 +261,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\..\Detour\Include\DetourMath.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\..\Detour\Include\DetourNavMesh.h"
 					>
 				</File>

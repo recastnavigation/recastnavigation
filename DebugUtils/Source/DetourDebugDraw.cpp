@@ -16,7 +16,6 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <math.h>
 #include "DebugDraw.h"
 #include "DetourDebugDraw.h"
 #include "DetourNavMesh.h"
