@@ -76,7 +76,7 @@ ELSE(XCODE)
 	ADD_EXECUTABLE(RecastDemo WIN32 ${recastdemo_SRCS} ${recastdemo_HDRS})
 ENDIF(XCODE)
 
-TARGET_LINK_LIBRARIES(RecastDemo DebugUtils Detour DetourCrowd DetourTileCache Recast ${SDL_LIBRARY} ${SDLMAIN_LIBRARY} ${OPENGL_LIBRARIES})
+TARGET_LINK_LIBRARIES(RecastDemo DebugUtils Detour DetourCrowd DetourTileCache Recast ${SDL_LIBRARY} ${OPENGL_LIBRARIES})
 
 IF(MSVC)
 	# Enable some linker optimisations
