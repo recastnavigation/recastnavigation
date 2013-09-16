@@ -16,13 +16,13 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <math.h>
 #include <float.h>
 #include <string.h>
 #include "DetourNavMeshQuery.h"
 #include "DetourNavMesh.h"
 #include "DetourNode.h"
 #include "DetourCommon.h"
+#include "DetourMath.h"
 #include "DetourAlloc.h"
 #include "DetourAssert.h"
 #include <new>
@@ -3342,7 +3342,7 @@ dtStatus dtNavMeshQuery::findDistanceToWall(dtPolyRef startRef, const float* cen
 	dtVsub(hitNormal, centerPos, hitPos);
 	dtVnormalize(hitNormal);
 	
-	*hitDist = sqrtf(radiusSqr);
+	*hitDist = dtMathSqrtf(radiusSqr);
 	
 	return status;
 }
