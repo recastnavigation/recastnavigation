@@ -16,11 +16,11 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <math.h>
 #include <string.h>
 #include <new>
 #include "DetourProximityGrid.h"
 #include "DetourCommon.h"
+#include "DetourMath.h"
 #include "DetourAlloc.h"
 #include "DetourAssert.h"
 
@@ -103,10 +103,10 @@ void dtProximityGrid::addItem(const unsigned short id,
 							  const float minx, const float miny,
 							  const float maxx, const float maxy)
 {
-	const int iminx = (int)floorf(minx * m_invCellSize);
-	const int iminy = (int)floorf(miny * m_invCellSize);
-	const int imaxx = (int)floorf(maxx * m_invCellSize);
-	const int imaxy = (int)floorf(maxy * m_invCellSize);
+	const int iminx = (int)dtMathFloorf(minx * m_invCellSize);
+	const int iminy = (int)dtMathFloorf(miny * m_invCellSize);
+	const int imaxx = (int)dtMathFloorf(maxx * m_invCellSize);
+	const int imaxy = (int)dtMathFloorf(maxy * m_invCellSize);
 	
 	m_bounds[0] = dtMin(m_bounds[0], iminx);
 	m_bounds[1] = dtMin(m_bounds[1], iminy);
@@ -137,10 +137,10 @@ int dtProximityGrid::queryItems(const float minx, const float miny,
 								const float maxx, const float maxy,
 								unsigned short* ids, const int maxIds) const
 {
-	const int iminx = (int)floorf(minx * m_invCellSize);
-	const int iminy = (int)floorf(miny * m_invCellSize);
-	const int imaxx = (int)floorf(maxx * m_invCellSize);
-	const int imaxy = (int)floorf(maxy * m_invCellSize);
+	const int iminx = (int)dtMathFloorf(minx * m_invCellSize);
+	const int iminy = (int)dtMathFloorf(miny * m_invCellSize);
+	const int imaxx = (int)dtMathFloorf(maxx * m_invCellSize);
+	const int imaxy = (int)dtMathFloorf(maxy * m_invCellSize);
 	
 	int n = 0;
 	

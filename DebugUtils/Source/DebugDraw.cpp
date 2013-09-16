@@ -17,9 +17,9 @@
 //
 
 #define _USE_MATH_DEFINES
-#include <math.h>
 #include <string.h>
 #include "DebugDraw.h"
+#include "DetourMath.h"
 
 
 duDebugDraw::~duDebugDraw()
@@ -180,8 +180,8 @@ void duAppendCylinderWire(struct duDebugDraw* dd, float minx, float miny, float 
 		for (int i = 0; i < NUM_SEG; ++i)
 		{
 			const float a = (float)i/(float)NUM_SEG*DU_PI*2;
-			dir[i*2] = cosf(a);
-			dir[i*2+1] = sinf(a);
+			dir[i*2] = dtMathCosf(a);
+			dir[i*2+1] = dtMathSinf(a);
 		}
 	}
 	
