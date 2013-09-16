@@ -1118,7 +1118,7 @@ void dtCrowd::update(const float dt, dtCrowdAgentDebugInfo* debug)
 		if (overOffmeshConnection(ag, triggerRadius))
 		{
 			// Prepare to off-mesh connection.
-			const int idx = ag - m_agents;
+			const int idx = (int)(ag - m_agents);
 			dtCrowdAgentAnimation* anim = &m_agentAnims[idx];
 			
 			// Adjust the path over the off-mesh connection.
