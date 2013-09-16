@@ -106,6 +106,7 @@
 		6B324C64111C5D9A00EBD2FD /* ConvexVolumeTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ConvexVolumeTool.h; path = ../../Include/ConvexVolumeTool.h; sourceTree = SOURCE_ROOT; };
 		6B324C65111C5D9A00EBD2FD /* ConvexVolumeTool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ConvexVolumeTool.cpp; path = ../../Source/ConvexVolumeTool.cpp; sourceTree = SOURCE_ROOT; };
 		6B3F9D6C13179EFC000B33D9 /* RecastLayers.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RecastLayers.cpp; path = ../../../Recast/Source/RecastLayers.cpp; sourceTree = SOURCE_ROOT; };
+		6B54B34A17E7898F001497F4 /* DetourMath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DetourMath.h; path = ../../../Detour/Include/DetourMath.h; sourceTree = "<group>"; };
 		6B555DAE100B211D00247EA3 /* imguiRenderGL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = imguiRenderGL.h; path = ../../Include/imguiRenderGL.h; sourceTree = SOURCE_ROOT; };
 		6B555DB0100B212E00247EA3 /* imguiRenderGL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = imguiRenderGL.cpp; path = ../../Source/imguiRenderGL.cpp; sourceTree = SOURCE_ROOT; };
 		6B555DF6100B273500247EA3 /* stb_truetype.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stb_truetype.h; path = ../../Contrib/stb_truetype.h; sourceTree = SOURCE_ROOT; };
@@ -420,6 +421,7 @@
 		6BDD9E030F91110C00904EEF /* Detour */ = {
 			isa = PBXGroup;
 			children = (
+				6B54B34A17E7898F001497F4 /* DetourMath.h */,
 				6BAF427A121ADCC2008CFCDF /* DetourAssert.h */,
 				6B9846ED11E718F800FA177B /* DetourAlloc.h */,
 				6B9846EE11E718F800FA177B /* DetourAlloc.cpp */,
@@ -601,6 +603,7 @@
 					"-Wreorder",
 					"-Wsign-compare",
 					"-Wall",
+					"-Wignored-qualifiers",
 				);
 				PRODUCT_NAME = Recast;
 				USER_HEADER_SEARCH_PATHS = "";
@@ -630,6 +633,7 @@
 					"-Wreorder",
 					"-Wsign-compare",
 					"-Wall",
+					"-Wignored-qualifiers",
 				);
 				PRODUCT_NAME = Recast;
 				USER_HEADER_SEARCH_PATHS = "";
