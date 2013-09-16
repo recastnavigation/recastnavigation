@@ -2,6 +2,8 @@
 Recast & Detour
 ===============
 
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/memononen/recastnavigation/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
 ## Recast
 
 Recast is state of the art navigation mesh construction toolset for games.
