@@ -21,7 +21,7 @@ Directory Layout
 	
 ./Images
 
-	Images related to the docuemntation.
+	Images related to the documentation.
 	
 Miscellany
 
