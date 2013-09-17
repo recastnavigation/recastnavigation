@@ -92,14 +92,16 @@ public:
 	///  @param[in]		npos		The desired new position. [(x, y, z)]
 	///  @param[in]		navquery	The query object used to build the corridor.
 	///  @param[in]		filter		The filter to apply to the operation.
-	void movePosition(const float* npos, dtNavMeshQuery* navquery, const dtQueryFilter* filter);
+	/// @return Returns true if move succeeded.
+	bool movePosition(const float* npos, dtNavMeshQuery* navquery, const dtQueryFilter* filter);
 
 	/// Moves the target from the curent location to the desired location, adjusting the corridor
 	/// as needed to reflect the change. 
 	///  @param[in]		npos		The desired new target position. [(x, y, z)]
 	///  @param[in]		navquery	The query object used to build the corridor.
 	///  @param[in]		filter		The filter to apply to the operation.
-	void moveTargetPosition(const float* npos, dtNavMeshQuery* navquery, const dtQueryFilter* filter);
+	/// @return Returns true if move succeeded.
+	bool moveTargetPosition(const float* npos, dtNavMeshQuery* navquery, const dtQueryFilter* filter);
 	
 	/// Loads a new path and target into the corridor.
 	///  @param[in]		target		The target location within the last polygon of the path. [(x, y, z)]
