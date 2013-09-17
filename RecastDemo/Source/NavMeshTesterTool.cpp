@@ -1102,7 +1102,7 @@ void NavMeshTesterTool::handleRender()
 					col = offMeshCol;
 				else
 					col = spathCol;
-				dd.vertex(m_straightPath[i*3], m_straightPath[i*3+1]+0.4f, m_straightPath[i*3+2], spathCol);
+				dd.vertex(m_straightPath[i*3], m_straightPath[i*3+1]+0.4f, m_straightPath[i*3+2], col);
 			}
 			dd.end();
 			dd.depthMask(true);
