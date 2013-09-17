@@ -516,8 +516,14 @@ int dtCrowd::addAgent(const float* pos, const dtCrowdAgentParams* params)
 
 	// Find nearest position on navmesh and place the agent there.
 	float nearest[3];
-	dtPolyRef ref;
-	m_navquery->findNearestPoly(pos, m_ext, &m_filter, &ref, nearest);
+	dtPolyRef ref = 0;
+	dtVcopy(nearest, pos);
+	dtStatus status = m_navquery->findNearestPoly(pos, m_ext, &m_filter, &ref, nearest);
+	if (dtStatusFailed(status))
+	{
+		dtVcopy(nearest, pos);
+		ref = 0;
+	}
 	
 	ag->corridor.reset(ref, nearest);
 	ag->boundary.reset();
@@ -941,8 +947,9 @@ void dtCrowd::checkPathValidity(dtCrowdAgent** agents, const int nagents, const 
 			// Current location is not valid, try to reposition.
 			// TODO: this can snap agents, how to handle that?
 			float nearest[3];
+			dtVcopy(nearest, agentPos);
 			agentRef = 0;
-			m_navquery->findNearestPoly(ag->npos, m_ext, &m_filter, &agentRef, nearest);
+			dtStatus status = m_navquery->findNearestPoly(ag->npos, m_ext, &m_filter, &agentRef, nearest);
 			dtVcopy(agentPos, nearest);
 
 			if (!agentRef)
@@ -971,6 +978,8 @@ void dtCrowd::checkPathValidity(dtCrowdAgent** agents, const int nagents, const 
 			{
 				// Current target is not valid, try to reposition.
 				float nearest[3];
+				dtVcopy(nearest, ag->targetPos);
+				ag->targetRef = 0;
 				m_navquery->findNearestPoly(ag->targetPos, m_ext, &m_filter, &ag->targetRef, nearest);
 				dtVcopy(ag->targetPos, nearest);
 				replan = true;
