@@ -200,8 +200,8 @@ static unsigned short getHeight(const float fx, const float fy, const float fz,
 {
 	int ix = (int)floorf(fx*ics + 0.01f);
 	int iz = (int)floorf(fz*ics + 0.01f);
-	ix = rcClamp(ix-hp.xmin, 0, hp.width);
-	iz = rcClamp(iz-hp.ymin, 0, hp.height);
+	ix = rcClamp(ix-hp.xmin, 0, hp.width - 1);
+	iz = rcClamp(iz-hp.ymin, 0, hp.height - 1);
 	unsigned short h = hp.data[ix+iz*hp.width];
 	if (h == RC_UNSET_HEIGHT)
 	{
