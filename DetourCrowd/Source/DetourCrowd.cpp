@@ -489,7 +489,7 @@ const dtCrowdAgent* dtCrowd::getAgent(const int idx)
 
 void dtCrowd::updateAgentParameters(const int idx, const dtCrowdAgentParams* params)
 {
-	if (idx < 0 || idx > m_maxAgents)
+	if (idx < 0 || idx >= m_maxAgents)
 		return;
 	memcpy(&m_agents[idx].params, params, sizeof(dtCrowdAgentParams));
 }
@@ -567,7 +567,7 @@ void dtCrowd::removeAgent(const int idx)
 
 bool dtCrowd::requestMoveTargetReplan(const int idx, dtPolyRef ref, const float* pos)
 {
-	if (idx < 0 || idx > m_maxAgents)
+	if (idx < 0 || idx >= m_maxAgents)
 		return false;
 	
 	dtCrowdAgent* ag = &m_agents[idx];
@@ -594,7 +594,7 @@ bool dtCrowd::requestMoveTargetReplan(const int idx, dtPolyRef ref, const float*
 /// The request will be processed during the next #update().
 bool dtCrowd::requestMoveTarget(const int idx, dtPolyRef ref, const float* pos)
 {
-	if (idx < 0 || idx > m_maxAgents)
+	if (idx < 0 || idx >= m_maxAgents)
 		return false;
 	if (!ref)
 		return false;
@@ -616,7 +616,7 @@ bool dtCrowd::requestMoveTarget(const int idx, dtPolyRef ref, const float* pos)
 
 bool dtCrowd::requestMoveVelocity(const int idx, const float* vel)
 {
-	if (idx < 0 || idx > m_maxAgents)
+	if (idx < 0 || idx >= m_maxAgents)
 		return false;
 	
 	dtCrowdAgent* ag = &m_agents[idx];
@@ -633,7 +633,7 @@ bool dtCrowd::requestMoveVelocity(const int idx, const float* vel)
 
 bool dtCrowd::resetMoveTarget(const int idx)
 {
-	if (idx < 0 || idx > m_maxAgents)
+	if (idx < 0 || idx >= m_maxAgents)
 		return false;
 	
 	dtCrowdAgent* ag = &m_agents[idx];
