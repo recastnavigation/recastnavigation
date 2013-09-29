@@ -8,6 +8,9 @@
 *.pdb
 *.so
 
+## Linux exes have no extension
+RecastDemo/Bin/RecastDemo
+
 ## Logs and databases #
 *.log
 *.sql
