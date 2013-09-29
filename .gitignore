@@ -3,7 +3,9 @@
 *.class
 *.dll
 *.exe
+*.ilk
 *.o
+*.pdb
 *.so
 
 ## Logs and databases #
@@ -22,3 +24,6 @@ Thumbs.db
 
 ## xcode specific
 *xcuserdata*
+
+## SDL contrib
+RecastDemo/Contrib/SDL/*
