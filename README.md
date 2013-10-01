@@ -23,12 +23,6 @@ the regions as simple polygons.
 2. The walkable areas described by the mold are divided into simple overlayed 2D regions. The resulting regions have only one non-overlapping contour, which simplifies the final step of the process tremendously.
 3. The navigation polygons are peeled off from the regions by first tracing the boundaries and then simplifying them. The resulting polygons are finally converted to convex polygons which makes them perfect for pathfinding and spatial reasoning about the level. 
 
-The toolset code is located in the Recast folder and demo application using the Recast
-toolset is located in the RecastDemo folder.
-
-The project files with this distribution can be compiled with Microsoft Visual C++ 2008
-(you can download it for free) and XCode 3.1.
-
 
 ## Detour
 
@@ -36,21 +30,26 @@ Recast is accompanied with Detour, path-finding and spatial reasoning toolkit. Y
 
 Detour offers simple static navigation mesh which is suitable for many simple cases, as well as tiled navigation mesh which allows you to plug in and out pieces of the mesh. The tiled mesh allows to create systems where you stream new navigation data in and out as the player progresses the level, or you may regenerate tiles as the world changes. 
 
+
 ## Recast Demo
 
-You can find a comprehensive demo project in RecastDemo folder. It is a kitchen sink demo containing all the functionality of the library. If you are new to Recast & Detour, check out [Sample_SoloMesh.cpp](/RecastDemo/Source/Sample_SoloMesh.cpp) to get started with 
+You can find a comprehensive demo project in RecastDemo folder. It is a kitchen sink demo containing all the functionality of the library. If you are new to Recast & Detour, check out [Sample_SoloMesh.cpp](/RecastDemo/Source/Sample_SoloMesh.cpp) to get started with building navmeshes and [NavMeshTesterTool.cpp](/RecastDemo/Source/NavMeshTesterTool.cpp) to see how Detour can be used to find paths.
 
 ### Building RecastDemo
 
-RecastDemo uses [premake4](http://industriousone.com/premake) to build platform specific projects, now is good time to install it if you don't have it already. To build RecasDemo, in your favorite terminal navigate into the RecastDemo folder, then:
-- *OS X*: premake4 xcode4
-- *Windows*: premake4 vs2010
-- *Linux*: premake4 gmake 
-See premake4 documentation for full list of supported build file types. The projects will be created in RecastDemo/Build folder. And after you have compiled the project, the /RecastDemo/ executable will be located in RecastDemo/Bin folder.
+RecastDemo uses [premake4](http://industriousone.com/premake) to build platform specific projects, now is good time to install it if you don't have it already. To build *RecasDemo*, in your favorite terminal navigate into the `RecastDemo` folder, then:
+
+- *OS X*: `premake4 xcode4`
+- *Windows*: `premake4 vs2010`
+- *Linux*: `premake4 gmake`
+
+See premake4 documentation for full list of supported build file types. The projects will be created in `RecastDemo/Build` folder. And after you have compiled the project, the *RecastDemo* executable will be located in `RecastDemo/Bin` folder.
+
 
 ## Integrating with your own project
 
-It is recommended to add the source directories DebugUtils, Detour, DetourCrowd, DetourTileCache, and Recast into your own project depending on which parts of the project you need. For example your level building tool could include DebugUtils, Recast, and Detour, and your game runtime could just include Detour.
+It is recommended to add the source directories `DebugUtils`, `Detour`, `DetourCrowd`, `DetourTileCache`, and `Recast` into your own project depending on which parts of the project you need. For example your level building tool could include DebugUtils, Recast, and Detour, and your game runtime could just include Detour.
+
 
 ## Discuss
 
