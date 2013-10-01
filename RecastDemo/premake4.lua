@@ -152,7 +152,7 @@ project "RecastDemo"
 	-- windows library cflags and libs
 	configuration { "windows" }
 		includedirs { "../RecastDemo/Contrib/SDL/include" }
-		libdirs { "../RecastDemo/Contrib/SDL/lib" }
+		libdirs { "../RecastDemo/Contrib/SDL/lib/x86" }
 		links { 
 			"opengl32",
 			"glu32",
