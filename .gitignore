@@ -11,6 +11,9 @@
 ## Linux exes have no extension
 RecastDemo/Bin/RecastDemo
 
+# Build directory
+RecastDemo/Build
+
 ## Logs and databases #
 *.log
 *.sql

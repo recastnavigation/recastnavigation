@@ -4,6 +4,8 @@ Recast & Detour
 
 [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/memononen/recastnavigation/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
 
+![screenshot of a navmesh baked with the sample program](/RecastDemo/screenshot.png?raw=true)
+
 ## Recast
 
 Recast is state of the art navigation mesh construction toolset for games.
@@ -34,6 +36,21 @@ Recast is accompanied with Detour, path-finding and spatial reasoning toolkit. Y
 
 Detour offers simple static navigation mesh which is suitable for many simple cases, as well as tiled navigation mesh which allows you to plug in and out pieces of the mesh. The tiled mesh allows to create systems where you stream new navigation data in and out as the player progresses the level, or you may regenerate tiles as the world changes. 
 
+## Recast Demo
+
+You can find a comprehensive demo project in RecastDemo folder. It is a kitchen sink demo containing all the functionality of the library. If you are new to Recast & Detour, check out [Sample_SoloMesh.cpp](/RecastDemo/Source/Sample_SoloMesh.cpp) to get started with 
+
+### Building RecastDemo
+
+RecastDemo uses [premake4](http://industriousone.com/premake) to build platform specific projects, now is good time to install it if you don't have it already. To build RecasDemo, in your favorite terminal navigate into the RecastDemo folder, then:
+- *OS X*: premake4 xcode4
+- *Windows*: premake4 vs2010
+- *Linux*: premake4 gmake 
+See premake4 documentation for full list of supported build file types. The projects will be created in RecastDemo/Build folder. And after you have compiled the project, the /RecastDemo/ executable will be located in RecastDemo/Bin folder.
+
+## Integrating with your own project
+
+It is recommended to add the source directories DebugUtils, Detour, DetourCrowd, DetourTileCache, and Recast into your own project depending on which parts of the project you need. For example your level building tool could include DebugUtils, Recast, and Detour, and your game runtime could just include Detour.
 
 ## Discuss
 
