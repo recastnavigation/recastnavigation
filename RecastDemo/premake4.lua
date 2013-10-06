@@ -16,14 +16,15 @@ solution "recastnavigation"
 	-- extra warnings, no exceptions or rtti
 	flags { 
 		"ExtraWarnings",
+		"FloatFast",
 		"NoExceptions",
-		"NoRTTI"
+		"NoRTTI",
+		"Symbols"
 	}
 
 	-- debug configs
 	configuration "Debug*"
 		defines { "DEBUG" }
-		flags { "Symbols" }
 		targetdir ( todir .. "/lib/Debug" )
  
  	-- release configs
