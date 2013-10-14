@@ -27,6 +27,8 @@ RecastDemo/Build
 .Trashes
 ehthumbs.db
 Thumbs.db
+*.swp
+*.swo
 
 ## xcode specific
 *xcuserdata*
