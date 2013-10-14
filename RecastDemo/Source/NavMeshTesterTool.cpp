@@ -850,16 +850,15 @@ void NavMeshTesterTool::recalc()
 			else
 			{
 				// Hit
-				m_hitPos[0] = m_spos[0] + (m_epos[0] - m_spos[0]) * t;
-				m_hitPos[1] = m_spos[1] + (m_epos[1] - m_spos[1]) * t;
-				m_hitPos[2] = m_spos[2] + (m_epos[2] - m_spos[2]) * t;
-				if (m_npolys)
-				{
-					float h = 0;
-					m_navQuery->getPolyHeight(m_polys[m_npolys-1], m_hitPos, &h);
-					m_hitPos[1] = h;
-				}
+				dtVlerp(m_hitPos, m_spos, m_epos, t);
 				m_hitResult = true;
+			}
+			// Adjust height.
+			if (m_npolys > 0)
+			{
+				float h = 0;
+				m_navQuery->getPolyHeight(m_polys[m_npolys-1], m_hitPos, &h);
+				m_hitPos[1] = h;
 			}
 			dtVcopy(&m_straightPath[3], m_hitPos);
 		}

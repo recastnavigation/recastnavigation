@@ -3,8 +3,16 @@
 *.class
 *.dll
 *.exe
+*.ilk
 *.o
+*.pdb
 *.so
+
+## Linux exes have no extension
+RecastDemo/Bin/RecastDemo
+
+# Build directory
+RecastDemo/Build
 
 ## Logs and databases #
 *.log
@@ -24,3 +32,6 @@ Thumbs.db
 
 ## xcode specific
 *xcuserdata*
+
+## SDL contrib
+RecastDemo/Contrib/SDL/*
