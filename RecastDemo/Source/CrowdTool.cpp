@@ -1068,6 +1068,7 @@ void CrowdTool::handleToggle()
 
 void CrowdTool::handleUpdate(const float dt)
 {
+	rcIgnoreUnused(dt);
 }
 
 void CrowdTool::handleRender()
@@ -1076,6 +1077,9 @@ void CrowdTool::handleRender()
 
 void CrowdTool::handleRenderOverlay(double* proj, double* model, int* view)
 {
+	rcIgnoreUnused(model);
+	rcIgnoreUnused(proj);
+
 	// Tool help
 	const int h = view[3];
 	int ty = h-40;
