@@ -219,7 +219,7 @@ struct rcConfig
 	int maxEdgeLen;
 	
 	/// The maximum distance a simplfied contour's border edges should deviate 
-	/// the original raw contour. [Limit: >=0] [Units: wu]
+	/// the original raw contour. [Limit: >=0] [Units: vx]
 	float maxSimplificationError;
 	
 	/// The minimum number of cells allowed to form isolated island areas. [Limit: >=0] [Units: vx] 
