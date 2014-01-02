@@ -661,7 +661,8 @@ static bool removeVertex(rcContext* ctx, rcPolyMesh& mesh, const unsigned short 
 			}
 			// Remove the polygon.
 			unsigned short* p2 = &mesh.polys[(mesh.npolys-1)*nvp*2];
-			memcpy(p,p2,sizeof(unsigned short)*nvp);
+			if (p != p2)
+				memcpy(p,p2,sizeof(unsigned short)*nvp);
 			memset(p+nvp,0xff,sizeof(unsigned short)*nvp);
 			mesh.regs[i] = mesh.regs[mesh.npolys-1];
 			mesh.areas[i] = mesh.areas[mesh.npolys-1];
@@ -861,7 +862,9 @@ static bool removeVertex(rcContext* ctx, rcPolyMesh& mesh, const unsigned short 
 				unsigned short* pa = &polys[bestPa*nvp];
 				unsigned short* pb = &polys[bestPb*nvp];
 				mergePolys(pa, pb, bestEa, bestEb, tmpPoly, nvp);
-				memcpy(pb, &polys[(npolys-1)*nvp], sizeof(unsigned short)*nvp);
+				unsigned short* last = &polys[(npolys-1)*nvp];
+				if (pb != last)
+					memcpy(pb, last, sizeof(unsigned short)*nvp);
 				pregs[bestPb] = pregs[npolys-1];
 				pareas[bestPb] = pareas[npolys-1];
 				npolys--;
