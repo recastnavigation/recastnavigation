@@ -95,7 +95,7 @@ static void addSpan(rcHeightfield& hf, const int x, const int y,
 	s->area = area;
 	s->next = 0;
 	
-	// Empty cell, add he first span.
+	// Empty cell, add the first span.
 	if (!hf.spans[idx])
 	{
 		hf.spans[idx] = s;
@@ -222,14 +222,10 @@ static void rasterizeTri(const float* v0, const float* v1, const float* v2,
 	if (!overlapBounds(bmin, bmax, tmin, tmax))
 		return;
 	
-	// Calculate the footpring of the triangle on the grid.
-	int x0 = (int)((tmin[0] - bmin[0])*ics);
+	// Calculate the footprint of the triangle on the grid's y-axis
 	int y0 = (int)((tmin[2] - bmin[2])*ics);
-	int x1 = (int)((tmax[0] - bmin[0])*ics);
 	int y1 = (int)((tmax[2] - bmin[2])*ics);
-	x0 = rcClamp(x0, 0, w-1);
 	y0 = rcClamp(y0, 0, h-1);
-	x1 = rcClamp(x1, 0, w-1);
 	y1 = rcClamp(y1, 0, h-1);
 	
 	// Clip the triangle into all grid cells it touches.
@@ -248,6 +244,17 @@ static void rasterizeTri(const float* v0, const float* v1, const float* v2,
 		nvrow = clipPoly(out, nvrow, inrow, 0, -1, cz+cs);
 		if (nvrow < 3) continue;
 		
+		float minX = inrow[0], maxX = inrow[0];
+		for (int i=1; i<nvrow; ++i)
+		{
+			if (minX > inrow[i*3])	minX = inrow[i*3];
+			if (maxX < inrow[i*3])	maxX = inrow[i*3];
+		}
+		int x0 = (int)((minX - bmin[0])*ics);
+		int x1 = (int)((maxX - bmin[0])*ics);
+		x0 = rcClamp(x0, 0, w-1);
+		x1 = rcClamp(x1, 0, w-1);
+
 		for (int x = x0; x <= x1; ++x)
 		{
 			// Clip polygon to column.
