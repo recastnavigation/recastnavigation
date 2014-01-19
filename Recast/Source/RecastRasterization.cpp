@@ -170,17 +170,17 @@ void rcAddSpan(rcContext* /*ctx*/, rcHeightfield& hf, const int x, const int y,
 }
 
 // divides a convex polygons into two convex polygons on both sides of a line
-static void dividePoly(const float* in, int nbIn,
-					  float* out1, int* nb1,
-					  float* out2, int* nb2,
+static void dividePoly(const float* in, int nin,
+					  float* out1, int* nout1,
+					  float* out2, int* nout2,
 					  float x, int axis)
 {
 	float d[12];
-	for (int i = 0; i < nbIn; ++i)
+	for (int i = 0; i < nin; ++i)
 		d[i] = x - in[i*3+axis];
 
 	int m = 0, n = 0;
-	for (int i = 0, j = nbIn-1; i < nbIn; j=i, ++i)
+	for (int i = 0, j = nin-1; i < nin; j=i, ++i)
 	{
 		bool ina = d[j] >= 0;
 		bool inb = d[i] >= 0;
@@ -211,8 +211,8 @@ static void dividePoly(const float* in, int nbIn,
 		n++;
 	}
 	
-	*nb1 = m;
-	*nb2 = n;
+	*nout1 = m;
+	*nout2 = n;
 }
 
 

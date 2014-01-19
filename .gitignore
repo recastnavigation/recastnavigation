@@ -14,6 +14,9 @@ RecastDemo/Bin/RecastDemo
 # Build directory
 RecastDemo/Build
 
+# Ignore some meshes based on name
+RecastDemo/Bin/Meshes/_*
+
 ## Logs and databases #
 *.log
 *.sql
