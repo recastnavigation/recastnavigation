@@ -794,6 +794,100 @@ static void getHeightData(const rcCompactHeightfield& chf,
 			break;
 	}
 
+	// in some dense cases the polygon simplification moves the polygon to a point where the center
+	// is very far from the region. So we search the span in flood-fill fashion from the vertics
+	if (stack.size() == 0)
+	{
+		memset(hp.data, 0, sizeof(unsigned short)*hp.width*hp.height);
+
+		// Use poly vertices as seed points for the flood fill.
+		for (int j = 0; j < npoly; ++j)
+		{
+			int cx = 0, cz = 0, ci =-1;
+			int dmin = RC_UNSET_HEIGHT;
+			for (int k = 0; k < 9; ++k)
+			{
+				const int ax = (int)verts[poly[j]*3+0] + offset[k*2+0];
+				const int ay = (int)verts[poly[j]*3+1];
+				const int az = (int)verts[poly[j]*3+2] + offset[k*2+1];
+				if (ax < hp.xmin || ax >= hp.xmin+hp.width ||
+					az < hp.ymin || az >= hp.ymin+hp.height)
+					continue;
+			
+				const rcCompactCell& c = chf.cells[(ax+bs)+(az+bs)*chf.width];
+				for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
+				{
+					const rcCompactSpan& s = chf.spans[i];
+					int d = rcAbs(ay - (int)s.y);
+					if (d < dmin)
+					{
+						cx = ax;
+						cz = az;
+						ci = i;
+						dmin = d;
+					}
+				}
+			}
+			if (ci != -1)
+			{
+				stack.push(cx);
+				stack.push(cz);
+				stack.push(ci);
+			}
+		}
+
+		for (int i = 0; i < stack.size(); i += 3)
+		{
+			int cx = stack[i+0];
+			int cy = stack[i+1];
+			int idx = cx-hp.xmin+(cy-hp.ymin)*hp.width;
+			hp.data[idx] = 1;
+		}
+	
+		while (stack.size() > 0)
+		{
+			int ci = stack.pop();
+			int cy = stack.pop();
+			int cx = stack.pop();
+		
+			// Check if close to center of the polygon.
+			if (rcAbs(cx-pcx) <= 1 && rcAbs(cy-pcz) <= 1)
+			{
+				stack.resize(0);
+				stack.push(cx);
+				stack.push(cy);
+				stack.push(ci);
+				break;
+			}
+		
+			const rcCompactSpan& cs = chf.spans[ci];
+		
+			for (int dir = 0; dir < 4; ++dir)
+			{
+				if (rcGetCon(cs, dir) == RC_NOT_CONNECTED) continue;
+			
+				const int ax = cx + rcGetDirOffsetX(dir);
+				const int ay = cy + rcGetDirOffsetY(dir);
+			
+				if (ax < hp.xmin || ax >= (hp.xmin+hp.width) ||
+					ay < hp.ymin || ay >= (hp.ymin+hp.height))
+					continue;
+			
+				if (hp.data[ax-hp.xmin+(ay-hp.ymin)*hp.width] != 0)
+					continue;
+			
+				const int ai = (int)chf.cells[(ax+bs)+(ay+bs)*chf.width].index + rcGetCon(cs, dir);
+
+				int idx = ax-hp.xmin+(ay-hp.ymin)*hp.width;
+				hp.data[idx] = 1;
+			
+				stack.push(ax);
+				stack.push(ay);
+				stack.push(ai);
+			}
+		}
+	}
+
 	// Floodfill the heightfield to get 2D height data,
 	// starting at center location found above as seed.
 
