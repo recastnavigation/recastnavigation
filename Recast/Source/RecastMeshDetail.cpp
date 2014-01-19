@@ -794,8 +794,8 @@ static void getHeightData(const rcCompactHeightfield& chf,
 			break;
 	}
 
-	// in some dense cases the polygon simplification moves the polygon to a point where the center
-	// is very far from the region. So we search the span in flood-fill fashion from the vertics
+	// in some rare dense cases the polygon simplification moves the polygon to a point where the center
+	// is very far from the region. So we search the span in flood-fill fashion from the vertices
 	if (stack.size() == 0)
 	{
 		memset(hp.data, 0, sizeof(unsigned short)*hp.width*hp.height);
