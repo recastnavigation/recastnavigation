@@ -744,60 +744,20 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 static void getHeightData(const rcCompactHeightfield& chf,
 						  const unsigned short* poly, const int npoly,
 						  const unsigned short* verts, const int bs,
-						  rcHeightPatch& hp, rcIntArray& stack)
+						  rcHeightPatch& hp, rcIntArray& stack,
+						  int region)
 {
-	// Floodfill the heightfield to get 2D height data,
-	// starting at vertex locations as seeds.
-	
 	// Note: Reads to the compact heightfield are offset by border size (bs)
 	// since border size offset is already removed from the polymesh vertices.
-	
-	memset(hp.data, 0, sizeof(unsigned short)*hp.width*hp.height);
-	
+
 	stack.resize(0);
-	
+
 	static const int offset[9*2] =
 	{
-		0,0, -1,-1, 0,-1, 1,-1, 1,0, 1,1, 0,1, -1,1, -1,0,
+		0,0, -1,0, 0,1, 1,0, 0,-1, -1,-1, -1,1, 1,1, 1,-1
 	};
-	
-	// Use poly vertices as seed points for the flood fill.
-	for (int j = 0; j < npoly; ++j)
-	{
-		int cx = 0, cz = 0, ci =-1;
-		int dmin = RC_UNSET_HEIGHT;
-		for (int k = 0; k < 9; ++k)
-		{
-			const int ax = (int)verts[poly[j]*3+0] + offset[k*2+0];
-			const int ay = (int)verts[poly[j]*3+1];
-			const int az = (int)verts[poly[j]*3+2] + offset[k*2+1];
-			if (ax < hp.xmin || ax >= hp.xmin+hp.width ||
-				az < hp.ymin || az >= hp.ymin+hp.height)
-				continue;
-			
-			const rcCompactCell& c = chf.cells[(ax+bs)+(az+bs)*chf.width];
-			for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
-			{
-				const rcCompactSpan& s = chf.spans[i];
-				int d = rcAbs(ay - (int)s.y);
-				if (d < dmin)
-				{
-					cx = ax;
-					cz = az;
-					ci = i;
-					dmin = d;
-				}
-			}
-		}
-		if (ci != -1)
-		{
-			stack.push(cx);
-			stack.push(cz);
-			stack.push(ci);
-		}
-	}
-	
-	// Find center of the polygon using flood fill.
+
+	// find the center of the polygon
 	int pcx = 0, pcz = 0;
 	for (int j = 0; j < npoly; ++j)
 	{
@@ -806,57 +766,36 @@ static void getHeightData(const rcCompactHeightfield& chf,
 	}
 	pcx /= npoly;
 	pcz /= npoly;
-	
-	for (int i = 0; i < stack.size(); i += 3)
-	{
-		int cx = stack[i+0];
-		int cy = stack[i+1];
-		int idx = cx-hp.xmin+(cy-hp.ymin)*hp.width;
-		hp.data[idx] = 1;
-	}
-	
-	while (stack.size() > 0)
-	{
-		int ci = stack.pop();
-		int cy = stack.pop();
-		int cx = stack.pop();
-		
-		// Check if close to center of the polygon.
-		if (rcAbs(cx-pcx) <= 1 && rcAbs(cy-pcz) <= 1)
-		{
-			stack.resize(0);
-			stack.push(cx);
-			stack.push(cy);
-			stack.push(ci);
-			break;
-		}
-		
-		const rcCompactSpan& cs = chf.spans[ci];
-		
-		for (int dir = 0; dir < 4; ++dir)
-		{
-			if (rcGetCon(cs, dir) == RC_NOT_CONNECTED) continue;
-			
-			const int ax = cx + rcGetDirOffsetX(dir);
-			const int ay = cy + rcGetDirOffsetY(dir);
-			
-			if (ax < hp.xmin || ax >= (hp.xmin+hp.width) ||
-				ay < hp.ymin || ay >= (hp.ymin+hp.height))
-				continue;
-			
-			if (hp.data[ax-hp.xmin+(ay-hp.ymin)*hp.width] != 0)
-				continue;
-			
-			const int ai = (int)chf.cells[(ax+bs)+(ay+bs)*chf.width].index + rcGetCon(cs, dir);
 
-			int idx = ax-hp.xmin+(ay-hp.ymin)*hp.width;
-			hp.data[idx] = 1;
-			
-			stack.push(ax);
-			stack.push(ay);
-			stack.push(ai);
+	// find a span with the right region around this point
+	// No need to check for connectivity because the region ensures it
+	for (int dir = 0; dir < 9; ++dir)
+	{
+		int ax = pcx + offset[dir*2+0];
+		int az = pcz + offset[dir*2+1];
+
+		if (ax < hp.xmin || ax >= hp.xmin+hp.width ||
+			az < hp.ymin || az >= hp.ymin+hp.height)
+			continue;
+
+		const rcCompactCell& c = chf.cells[(ax+bs)+(az+bs)*chf.width];
+		for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
+		{
+			const rcCompactSpan& s = chf.spans[i];
+			if (s.reg == region)
+			{
+				stack.push(ax);
+				stack.push(az);
+				stack.push(i);
+				break;
+			}
 		}
+		if (stack.size() > 0)
+			break;
 	}
+
+	// Floodfill the heightfield to get 2D height data,
+	// starting at center location found above as seed.
 
 	memset(hp.data, 0xff, sizeof(unsigned short)*hp.width*hp.height);
 
@@ -914,7 +853,6 @@ static void getHeightData(const rcCompactHeightfield& chf,
 			stack.push(ai);
 		}
 	}
-	
 }
 
 static unsigned char getEdgeFlags(const float* va, const float* vb,
@@ -1072,7 +1010,7 @@ bool rcBuildPolyMeshDetail(rcContext* ctx, const rcPolyMesh& mesh, const rcCompa
 		hp.ymin = bounds[i*4+2];
 		hp.width = bounds[i*4+1]-bounds[i*4+0];
 		hp.height = bounds[i*4+3]-bounds[i*4+2];
-		getHeightData(chf, p, npoly, mesh.verts, borderSize, hp, stack);
+		getHeightData(chf, p, npoly, mesh.verts, borderSize, hp, stack, mesh.regs[i]);
 		
 		// Build detail mesh.
 		int nverts = 0;
