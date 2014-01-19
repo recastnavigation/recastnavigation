@@ -45,5 +45,5 @@ void duDebugDrawTileCacheContours(duDebugDraw* dd, const struct dtTileCacheConto
 void duDebugDrawTileCachePolyMesh(duDebugDraw* dd, const struct dtTileCachePolyMesh& lmesh,
 								  const float* orig, const float cs, const float ch);
 void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMeshQuery* query,
-								  const dtMeshTile* tile, unsigned char flags)
+								  const dtMeshTile* tile, unsigned char flags);
 #endif // DETOURDEBUGDRAW_H
