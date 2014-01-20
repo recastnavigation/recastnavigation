@@ -200,7 +200,7 @@ static void dividePoly(const float* in, int nin,
 			out1[m*3+1] = in[i*3+1];
 			out1[m*3+2] = in[i*3+2];
 			m++;
-			if (d[0] != 0) // not on the line
+			if (d[i] != 0) // not on the line
 				continue;
 		}
 
