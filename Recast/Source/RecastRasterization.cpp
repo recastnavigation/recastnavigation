@@ -193,27 +193,38 @@ static void dividePoly(const float* in, int nin,
 			rcVcopy(out2 + n*3, out1 + m*3);
 			m++;
 			n++;
+			// add the i'th point to the right polygon. Do NOT add points that are on the dividing line
+			// since these were already added above
+			if (d[i] > 0)
+			{
+				rcVcopy(out1 + m*3, in + i*3);
+				m++;
+			}
+			else if (d[i] < 0)
+			{
+				rcVcopy(out2 + n*3, in + i*3);
+				n++;
+			}
 		}
-		if (inb)
+		else // same side
 		{
-			out1[m*3+0] = in[i*3+0];
-			out1[m*3+1] = in[i*3+1];
-			out1[m*3+2] = in[i*3+2];
-			m++;
-			if (d[i] != 0) // not on the line
-				continue;
+			// add the i'th point to the right polygon. Addition is done even for points on the dividing line
+			if (d[i] >= 0)
+			{
+				rcVcopy(out1 + m*3, in + i*3);
+				m++;
+				if (d[i] != 0)
+					continue;
+			}
+			rcVcopy(out2 + n*3, in + i*3);
+			n++;
 		}
-
-		// i-th point is on the other half plane or on the line
-		out2[n*3+0] = in[i*3+0];
-		out2[n*3+1] = in[i*3+1];
-		out2[n*3+2] = in[i*3+2];
-		n++;
 	}
-	
+
 	*nout1 = m;
 	*nout2 = n;
 }
+
 
 
 static void rasterizeTri(const float* v0, const float* v1, const float* v2,
