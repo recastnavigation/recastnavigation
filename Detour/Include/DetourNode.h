@@ -48,7 +48,12 @@ public:
 	~dtNodePool();
 	inline void operator=(const dtNodePool&) {}
 	void clear();
-	dtNode* getNode(dtPolyRef id);
+
+	/* Get a dtNode by ref. If there is none then - allocate
+	 * There can be more than one node for the same polyRef, in which case they are seqential
+	 * nb [in]	the number of extra nodes to allocate if needed
+	 */
+	dtNode* getNode(dtPolyRef id, int nExtra=0);	
 	dtNode* findNode(dtPolyRef id);
 
 	inline unsigned int getNodeIdx(const dtNode* node) const
@@ -82,6 +87,7 @@ public:
 	inline int getHashSize() const { return m_hashSize; }
 	inline dtNodeIndex getFirst(int bucket) const { return m_first[bucket]; }
 	inline dtNodeIndex getNext(int i) const { return m_next[i]; }
+	inline int getNodeCount() const { return m_nodeCount;}
 	
 private:
 	
