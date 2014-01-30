@@ -113,17 +113,15 @@ dtNode* dtNodePool::getNode(dtPolyRef id, int nExtra)
 		return 0;
 
 	// add to hash table
-	i = (dtNodeIndex)m_nodeCount;
-	m_next[i] = m_first[bucket];
-	m_first[bucket] = i;
+	int n = (dtNodeIndex)m_nodeCount;
+	dtNode* ret = &m_nodes[n];
 
-	dtNode* ret = &m_nodes[i];
-
-	for ( ; nExtra >= 0; --nExtra)
+	// add the nodes from last to first
+	for (int j=n+nExtra ; j>=n; --j)
 	{
-		i = (dtNodeIndex)m_nodeCount;
+		i = (dtNodeIndex)j;
 		m_nodeCount++;
-	
+
 		// Init node
 		node = &m_nodes[i];
 		node->pidx = 0;
@@ -131,8 +129,10 @@ dtNode* dtNodePool::getNode(dtPolyRef id, int nExtra)
 		node->total = 0;
 		node->id = id;
 		node->flags = 0;
-	}
 
+		m_next[i] = m_first[bucket];
+		m_first[bucket] = i;
+	}
 
 	return ret;
 }
