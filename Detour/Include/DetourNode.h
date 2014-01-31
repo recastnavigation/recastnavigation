@@ -35,7 +35,8 @@ struct dtNode
 	float pos[3];				///< Position of the node.
 	float cost;					///< Cost from previous node to current node.
 	float total;				///< Cost up to the node.
-	unsigned int pidx : 30;		///< Index to parent node.
+	unsigned int pidx : 28;		///< Index to parent node.
+	unsigned int state : 2;		///< extra state information. A polyRef can have multiple nodes with different extra info.
 	unsigned int flags : 2;		///< Node flags 0/open/closed.
 	dtPolyRef id;				///< Polygon ref the node corresponds to.
 };
@@ -49,12 +50,11 @@ public:
 	inline void operator=(const dtNodePool&) {}
 	void clear();
 
-	/* Get a dtNode by ref. If there is none then - allocate
-	 * There can be more than one node for the same polyRef, in which case they are seqential
-	 * nb [in]	the number of extra nodes to allocate if needed
-	 */
-	dtNode* getNode(dtPolyRef id, int nExtra=0);	
-	dtNode* findNode(dtPolyRef id);
+	// Get a dtNode by ref and extra state information. If there is none then - allocate
+	// There can be more than one node for the same polyRef but with different extra state information
+	dtNode* getNode(dtPolyRef id, unsigned char state=0);	
+	dtNode* findNode(dtPolyRef id, unsigned char state);
+	unsigned int findNodes(dtPolyRef id, int bufsize, dtNode** buf);
 
 	inline unsigned int getNodeIdx(const dtNode* node) const
 	{

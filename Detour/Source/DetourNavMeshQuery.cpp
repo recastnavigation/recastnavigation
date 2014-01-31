@@ -1048,21 +1048,17 @@ dtStatus dtNavMeshQuery::findPath(dtPolyRef startRef, dtPolyRef endRef,
 				continue;
 
 			// deal explicitly with crossing tile boundaries
-			int crossSide = 0, extraNodes = 0;
+			unsigned char crossSide = 0;
 			if (bestTile->links[i].side != 0xff)
-			{
-				extraNodes = 3;
 				crossSide = bestTile->links[i].side >> 1;
-			}
 
 			// get the node
-			dtNode* neighbourNode = m_nodePool->getNode(neighbourRef, extraNodes);
+			dtNode* neighbourNode = m_nodePool->getNode(neighbourRef, crossSide);
 			if (!neighbourNode)
 			{
 				status |= DT_OUT_OF_NODES;
 				continue;
 			}
-			neighbourNode += crossSide;
 			
 			// If the node is visited the first time, calculate node position.
 			if (neighbourNode->flags == 0)
@@ -1315,20 +1311,16 @@ dtStatus dtNavMeshQuery::updateSlicedFindPath(const int maxIter, int* doneIters)
 				continue;
 			
 			// deal explicitly with crossing tile boundaries
-			int crossSide = 0, extraNodes = 0;
+			unsigned char crossSide = 0;
 			if (bestTile->links[i].side != 0xff)
-			{
-				extraNodes = 3;
 				crossSide = bestTile->links[i].side >> 1;
-			}
 
-			dtNode* neighbourNode = m_nodePool->getNode(neighbourRef, extraNodes);
+			dtNode* neighbourNode = m_nodePool->getNode(neighbourRef, crossSide);
 			if (!neighbourNode)
 			{
 				m_query.status |= DT_OUT_OF_NODES;
 				continue;
 			}
-			neighbourNode += crossSide;
 			
 			// If the node is visited the first time, calculate node position.
 			if (neighbourNode->flags == 0)
@@ -1512,7 +1504,7 @@ dtStatus dtNavMeshQuery::finalizeSlicedFindPathPartial(const dtPolyRef* existing
 		dtNode* node = 0;
 		for (int i = existingSize-1; i >= 0; --i)
 		{
-			node = m_nodePool->findNode(existing[i]);
+			m_nodePool->findNodes(existing[i], 1, &node);
 			if (node)
 				break;
 		}
@@ -3388,19 +3380,15 @@ bool dtNavMeshQuery::isValidPolyRef(dtPolyRef ref, const dtQueryFilter* filter) 
 bool dtNavMeshQuery::isInClosedList(dtPolyRef ref) const
 {
 	if (!m_nodePool) return false;
-	const dtNode* node = m_nodePool->findNode(ref);
-	if (!node)
-		return false;
+	
+	dtNode* nodes[4];
+	int n= m_nodePool->findNodes(ref, 4, nodes);
 
-	const dtNode* last=m_nodePool->getNodeAtIdx(m_nodePool->getNodeCount() -1);
-
-	do // several nodes might be allocated for the same ref
+	for (int i=0; i<n; i++)
 	{
-		if (node->flags & DT_NODE_CLOSED)
+		if (nodes[i]->flags & DT_NODE_CLOSED)
 			return true;
-		
-		node++;
-	} while (node<last && node->id == ref);
+	}		
 
 	return false;
 }
