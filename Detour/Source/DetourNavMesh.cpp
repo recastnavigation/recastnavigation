@@ -617,7 +617,7 @@ void dtNavMesh::baseOffMeshLinks(dtMeshTile* tile)
 	}
 }
 
-void dtNavMesh::closestPointOnPolyInTile(const dtMeshTile* tile, unsigned int ip,
+bool dtNavMesh::closestPointOnPolyInTile(const dtMeshTile* tile, unsigned int ip,
 										 const float* pos, float* closest) const
 {
 	const dtPoly* poly = &tile->polys[ip];
@@ -630,7 +630,7 @@ void dtNavMesh::closestPointOnPolyInTile(const dtMeshTile* tile, unsigned int ip
 		const float d1 = dtVdist(pos, v1);
 		const float u = d0 / (d0+d1);
 		dtVlerp(closest, v0, v1, u);
-		return;
+		return false;
 	}
 	
 	const dtPolyDetail* pd = &tile->detailMeshes[ip];
@@ -644,7 +644,8 @@ void dtNavMesh::closestPointOnPolyInTile(const dtMeshTile* tile, unsigned int ip
 		dtVcopy(&verts[i*3], &tile->verts[poly->verts[i]*3]);
 	
 	dtVcopy(closest, pos);
-	if (!dtDistancePtPolyEdgesSqr(pos, verts, nv, edged, edget))
+	bool inside = dtDistancePtPolyEdgesSqr(pos, verts, nv, edged, edget);
+	if (!inside)
 	{
 		// Point is outside the polygon, dtClamp to nearest edge.
 		float dmin = FLT_MAX;
@@ -681,6 +682,8 @@ void dtNavMesh::closestPointOnPolyInTile(const dtMeshTile* tile, unsigned int ip
 			break;
 		}
 	}
+
+	return inside;
 }
 
 dtPolyRef dtNavMesh::findNearestPolyInTile(const dtMeshTile* tile,
@@ -694,6 +697,9 @@ dtPolyRef dtNavMesh::findNearestPolyInTile(const dtMeshTile* tile,
 	// Get nearby polygons from proximity grid.
 	dtPolyRef polys[128];
 	int polyCount = queryPolygonsInTile(tile, bmin, bmax, polys, 128);
+
+	// tile thickness is scaled relative to an agent height
+	const float polyThick = tile->header->walkableHeight * SCALE_POLY_THICK;
 	
 	// Find nearest polygon amongst the nearby polygons.
 	dtPolyRef nearest = 0;
@@ -701,15 +707,31 @@ dtPolyRef dtNavMesh::findNearestPolyInTile(const dtMeshTile* tile,
 	for (int i = 0; i < polyCount; ++i)
 	{
 		dtPolyRef ref = polys[i];
-		float closestPtPoly[3];
-		closestPointOnPolyInTile(tile, decodePolyIdPoly(ref), center, closestPtPoly);
-		float d = dtVdistSqr(center, closestPtPoly);
+		float d, closestPtPoly[3], offset[3];
+		bool inside2D = closestPointOnPolyInTile(tile, decodePolyIdPoly(ref), center, closestPtPoly);
+
+		dtVsub(offset, center, closestPtPoly);
+
+		if (inside2D)
+		{
+			// right above the polygon is considered on the polygon
+			d = dtAbs(offset[1]) - polyThick;
+			d = d > 0 ? d*d : 0;
+		}
+		else
+			d = dtVlenSqr(offset);
+
 		if (d < nearestDistanceSqr)
 		{
 			if (nearestPt)
 				dtVcopy(nearestPt, closestPtPoly);
 			nearestDistanceSqr = d;
 			nearest = ref;
+			if (d == 0)
+			{
+				nearestDistanceSqr = 0;
+				break;
+			}
 		}
 	}
 	
