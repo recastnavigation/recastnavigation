@@ -817,7 +817,6 @@ int main(int /*argc*/, char** /*argv*/)
 					{
 						delete geom;
 						geom = 0;
-						
 						showLog = true;
 						logScroll = 0;
 						ctx.dumpLog("Geom load log %s:", meshName);
@@ -826,6 +825,10 @@ int main(int /*argc*/, char** /*argv*/)
 					{
 						sample->handleMeshChanged(geom);
 					}
+
+					// This will ensure that tile & poly bits are updated in tiled sample.
+					if (sample)
+						sample->handleSettings();
 
 					ctx.resetLog();
 					if (sample && !sample->handleBuild())
@@ -860,7 +863,7 @@ int main(int /*argc*/, char** /*argv*/)
 						}
 						rx = 45;
 						ry = -45;
-						glFogf(GL_FOG_START, camr*0.1f);
+						glFogf(GL_FOG_START, camr*0.2f);
 						glFogf(GL_FOG_END, camr*1.25f);
 					}
 					

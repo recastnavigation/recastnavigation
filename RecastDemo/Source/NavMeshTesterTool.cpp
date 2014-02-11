@@ -506,8 +506,8 @@ void NavMeshTesterTool::handleToggle()
 		if (m_pathIterPolyCount)
 		{
 			// Iterate over the path to find smooth path on the detail mesh surface.
-			m_navQuery->closestPointOnPoly(m_startRef, m_spos, m_iterPos);
-			m_navQuery->closestPointOnPoly(m_pathIterPolys[m_pathIterPolyCount-1], m_epos, m_targetPos);
+			m_navQuery->closestPointOnPoly(m_startRef, m_spos, m_iterPos, 0);
+			m_navQuery->closestPointOnPoly(m_pathIterPolys[m_pathIterPolyCount-1], m_epos, m_targetPos, 0);
 			
 			m_nsmoothPath = 0;
 			
@@ -650,7 +650,7 @@ void NavMeshTesterTool::handleUpdate(const float /*dt*/)
 				float epos[3];
 				dtVcopy(epos, m_epos);
 				if (m_polys[m_npolys-1] != m_endRef)
-				m_navQuery->closestPointOnPoly(m_polys[m_npolys-1], m_epos, epos);
+				m_navQuery->closestPointOnPoly(m_polys[m_npolys-1], m_epos, epos, 0);
 
 				m_navQuery->findStraightPath(m_spos, epos, m_polys, m_npolys,
 											 m_straightPath, m_straightPathFlags,
@@ -715,8 +715,8 @@ void NavMeshTesterTool::recalc()
 				int npolys = m_npolys;
 				
 				float iterPos[3], targetPos[3];
-				m_navQuery->closestPointOnPoly(m_startRef, m_spos, iterPos);
-				m_navQuery->closestPointOnPoly(polys[npolys-1], m_epos, targetPos);
+				m_navQuery->closestPointOnPoly(m_startRef, m_spos, iterPos, 0);
+				m_navQuery->closestPointOnPoly(polys[npolys-1], m_epos, targetPos, 0);
 				
 				static const float STEP_SIZE = 0.5f;
 				static const float SLOP = 0.01f;
@@ -855,7 +855,7 @@ void NavMeshTesterTool::recalc()
 				float epos[3];
 				dtVcopy(epos, m_epos);
 				if (m_polys[m_npolys-1] != m_endRef)
-					m_navQuery->closestPointOnPoly(m_polys[m_npolys-1], m_epos, epos);
+					m_navQuery->closestPointOnPoly(m_polys[m_npolys-1], m_epos, epos, 0);
 				
 				m_navQuery->findStraightPath(m_spos, epos, m_polys, m_npolys,
 											 m_straightPath, m_straightPathFlags,
