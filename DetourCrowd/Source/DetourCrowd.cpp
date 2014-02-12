@@ -711,7 +711,7 @@ void dtCrowd::updateMoveRequest(const float /*dt*/)
 				if (reqPath[reqPathCount-1] != ag->targetRef)
 				{
 					// Partial path, constrain target position inside the last polygon.
-					status = m_navquery->closestPointOnPoly(reqPath[reqPathCount-1], ag->targetPos, reqPos);
+					status = m_navquery->closestPointOnPoly(reqPath[reqPathCount-1], ag->targetPos, reqPos, 0);
 					if (dtStatusFailed(status))
 						reqPathCount = 0;
 				}
@@ -855,7 +855,7 @@ void dtCrowd::updateMoveRequest(const float /*dt*/)
 					{
 						// Partial path, constrain target position inside the last polygon.
 						float nearest[3];
-						status = m_navquery->closestPointOnPoly(res[nres-1], targetPos, nearest);
+						status = m_navquery->closestPointOnPoly(res[nres-1], targetPos, nearest, 0);
 						if (dtStatusSucceed(status))
 							dtVcopy(targetPos, nearest);
 						else
@@ -949,7 +949,7 @@ void dtCrowd::checkPathValidity(dtCrowdAgent** agents, const int nagents, const 
 			float nearest[3];
 			dtVcopy(nearest, agentPos);
 			agentRef = 0;
-			dtStatus status = m_navquery->findNearestPoly(ag->npos, m_ext, &m_filter, &agentRef, nearest);
+			m_navquery->findNearestPoly(ag->npos, m_ext, &m_filter, &agentRef, nearest);
 			dtVcopy(agentPos, nearest);
 
 			if (!agentRef)

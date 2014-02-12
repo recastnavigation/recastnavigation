@@ -378,9 +378,9 @@ public:
 	///  @param[in]		ref			The reference id of the polygon.
 	///  @param[in]		pos			The position to check. [(x, y, z)]
 	///  @param[out]	closest		The closest point on the polygon. [(x, y, z)]
-	///  @param[out]	inside2D		true if the closest point is above/below the polygon
+	///  @param[out]	posOverPoly	True of the position is over the polygon.
 	/// @returns The status flags for the query.
-	dtStatus closestPointOnPoly(dtPolyRef ref, const float* pos, float* closest, bool* inside2D=0) const;
+	dtStatus closestPointOnPoly(dtPolyRef ref, const float* pos, float* closest, bool* posOverPoly) const;
 	
 	/// Returns a point on the boundary closest to the source point if the source point is outside the 
 	/// polygon's xz-bounds.
@@ -429,13 +429,7 @@ private:
 	/// Queries polygons within a tile.
 	int queryPolygonsInTile(const dtMeshTile* tile, const float* qmin, const float* qmax, const dtQueryFilter* filter,
 							dtPolyRef* polys, const int maxPolys) const;
-	/// Find nearest polygon within a tile.
-	dtPolyRef findNearestPolyInTile(const dtMeshTile* tile, const float* center, const float* extents,
-									const dtQueryFilter* filter, float* nearestPt) const;
-	/// finds the closest point on a polygon.
-	/// returns whether the point is inside the polygon (in 2D)
-	bool closestPointOnPolyInTile(const dtMeshTile* tile, const dtPoly* poly, const float* pos, float* closest) const;
-	
+
 	/// Returns portal points between two polygons.
 	dtStatus getPortalPoints(dtPolyRef from, dtPolyRef to, float* left, float* right,
 							 unsigned char& fromType, unsigned char& toType) const;

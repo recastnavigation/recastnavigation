@@ -501,7 +501,7 @@ dtStatus dtNavMeshQuery::findRandomPointAroundCircle(dtPolyRef startRef, const f
 ///
 /// See closestPointOnPolyBoundary() for a limited but faster option.
 ///
-dtStatus dtNavMeshQuery::closestPointOnPoly(dtPolyRef ref, const float* pos, float* closest, bool* inside2D) const
+dtStatus dtNavMeshQuery::closestPointOnPoly(dtPolyRef ref, const float* pos, float* closest, bool* posOverPoly) const
 {
 	dtAssert(m_nav);
 	const dtMeshTile* tile = 0;
@@ -511,16 +511,6 @@ dtStatus dtNavMeshQuery::closestPointOnPoly(dtPolyRef ref, const float* pos, flo
 	if (!tile)
 		return DT_FAILURE | DT_INVALID_PARAM;
 	
-	bool in2D = closestPointOnPolyInTile(tile, poly, pos, closest);
-	if (inside2D)
-		*inside2D = in2D;
-	
-	return DT_SUCCESS;
-}
-
-bool dtNavMeshQuery::closestPointOnPolyInTile(const dtMeshTile* tile, const dtPoly* poly,
-											  const float* pos, float* closest) const
-{
 	// Off-mesh connections don't have detail polygons.
 	if (poly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
 	{
@@ -530,7 +520,9 @@ bool dtNavMeshQuery::closestPointOnPolyInTile(const dtMeshTile* tile, const dtPo
 		const float d1 = dtVdist(pos, v1);
 		const float u = d0 / (d0+d1);
 		dtVlerp(closest, v0, v1, u);
-		return false;
+		if (posOverPoly)
+			*posOverPoly = false;
+		return DT_SUCCESS;
 	}
 
 	const unsigned int ip = (unsigned int)(poly - tile->polys);
@@ -545,8 +537,7 @@ bool dtNavMeshQuery::closestPointOnPolyInTile(const dtMeshTile* tile, const dtPo
 		dtVcopy(&verts[i*3], &tile->verts[poly->verts[i]*3]);
 	
 	dtVcopy(closest, pos);
-	bool inside = dtDistancePtPolyEdgesSqr(pos, verts, nv, edged, edget);
-	if (!inside)
+	if (!dtDistancePtPolyEdgesSqr(pos, verts, nv, edged, edget))
 	{
 		// Point is outside the polygon, dtClamp to nearest edge.
 		float dmin = FLT_MAX;
@@ -562,6 +553,14 @@ bool dtNavMeshQuery::closestPointOnPolyInTile(const dtMeshTile* tile, const dtPo
 		const float* va = &verts[imin*3];
 		const float* vb = &verts[((imin+1)%nv)*3];
 		dtVlerp(closest, va, vb, edget[imin]);
+
+		if (posOverPoly)
+			*posOverPoly = false;
+	}
+	else
+	{
+		if (posOverPoly)
+			*posOverPoly = true;
 	}
 
 	// Find height at the location.
@@ -583,32 +582,8 @@ bool dtNavMeshQuery::closestPointOnPolyInTile(const dtMeshTile* tile, const dtPo
 			break;
 		}
 	}
-
-	return inside;
-
-/*	float closestDistSqr = FLT_MAX;
-	for (int j = 0; j < pd->triCount; ++j)
-	{
-		const unsigned char* t = &tile->detailTris[(pd->triBase+j)*4];
-		const float* v[3];
-		for (int k = 0; k < 3; ++k)
-		{
-			if (t[k] < poly->vertCount)
-				v[k] = &tile->verts[poly->verts[t[k]]*3];
-			else
-				v[k] = &tile->detailVerts[(pd->vertBase+(t[k]-poly->vertCount))*3];
-		}
-
-		float pt[3];
-		dtClosestPtPointTriangle(pt, pos, v[0], v[1], v[2]);
-		float d = dtVdistSqr(pos, pt);
-		
-		if (d < closestDistSqr)
-		{
-			dtVcopy(closest, pt);
-			closestDistSqr = d;
-		}
-	}*/
+	
+	return DT_SUCCESS;
 }
 
 /// @par
@@ -744,48 +719,40 @@ dtStatus dtNavMeshQuery::findNearestPoly(const float* center, const float* exten
 	int polyCount = 0;
 	if (dtStatusFailed(queryPolygons(center, extents, filter, polys, &polyCount, 128)))
 		return DT_FAILURE | DT_INVALID_PARAM;
-
-	if (polyCount == 0)
-		return DT_SUCCESS;
-
-	// tile thickness is scaled relative to an agent height
-	const dtMeshTile* tile0;
-	const dtPoly* poly0;
-	m_nav->getTileAndPolyByRefUnsafe(polys[0], &tile0, &poly0);
-	const float polyThick = tile0->header->walkableHeight * SCALE_POLY_THICK;
 	
 	// Find nearest polygon amongst the nearby polygons.
 	dtPolyRef nearest = 0;
 	float nearestDistanceSqr = FLT_MAX;
+	bool nearestOverPoly = false;
 	for (int i = 0; i < polyCount; ++i)
 	{
 		dtPolyRef ref = polys[i];
-		float d, closestPtPoly[3], offset[3];
-		bool inside2d;
-		closestPointOnPoly(ref, center, closestPtPoly, &inside2d);
-		
-		dtVsub(offset, center, closestPtPoly);
+		float closestPtPoly[3];
+		float diff[3];
+		bool posOverPoly = false;
+		closestPointOnPoly(ref, center, closestPtPoly, &posOverPoly);
 
-		if (inside2d)
+		// If a point is directly over a polygon and closer than
+		// climb height, favor that instead of straight line nearest point.
+		dtVsub(diff, center, closestPtPoly);
+		if (posOverPoly)
 		{
-			// right above the polygon is considered on the polygon
-			d = dtAbs(offset[1]) - polyThick;
-			d = d > 0 ? d*d : 0;
+			const dtMeshTile* tile = 0;
+			const dtPoly* poly = 0;
+			m_nav->getTileAndPolyByRefUnsafe(polys[i], &tile, &poly);
+			if (dtAbs(diff[1]) > tile->header->walkableClimb)
+				posOverPoly = false;
 		}
-		else
-			d = dtVlenSqr(offset);
-
-		if (d < nearestDistanceSqr)
+		
+		float d = dtVlenSqr(diff);
+		
+		if (d < nearestDistanceSqr || (!nearestOverPoly && posOverPoly))
 		{
 			if (nearestPt)
 				dtVcopy(nearestPt, closestPtPoly);
 			nearestDistanceSqr = d;
+			nearestOverPoly = posOverPoly;
 			nearest = ref;
-			if (d == 0)
-			{
-				nearestDistanceSqr = 0;
-				break;
-			}
 		}
 	}
 	
@@ -793,60 +760,6 @@ dtStatus dtNavMeshQuery::findNearestPoly(const float* center, const float* exten
 		*nearestRef = nearest;
 	
 	return DT_SUCCESS;
-}
-
-dtPolyRef dtNavMeshQuery::findNearestPolyInTile(const dtMeshTile* tile, const float* center, const float* extents,
-												const dtQueryFilter* filter, float* nearestPt) const
-{
-	dtAssert(m_nav);
-
-	float bmin[3], bmax[3];
-	dtVsub(bmin, center, extents);
-	dtVadd(bmax, center, extents);
-	
-	// Get nearby polygons from proximity grid.
-	dtPolyRef polys[128];
-	int polyCount = queryPolygonsInTile(tile, bmin, bmax, filter, polys, 128);
-	
-	// tile thickness is scaled relative to an agent height
-	const float polyThick = tile->header->walkableHeight * SCALE_POLY_THICK;
-
-	// Find nearest polygon amongst the nearby polygons.
-	dtPolyRef nearest = 0;
-	float nearestDistanceSqr = FLT_MAX;
-	for (int i = 0; i < polyCount; ++i)
-	{
-		dtPolyRef ref = polys[i];
-		const dtPoly* poly = &tile->polys[m_nav->decodePolyIdPoly(ref)];
-		float d, closestPtPoly[3], offset[3];
-		bool inside2d = closestPointOnPolyInTile(tile, poly, center, closestPtPoly);
-		
-		dtVsub(offset, center, closestPtPoly);
-
-		if (inside2d)
-		{
-			// right above the polygon is considered on the polygon
-			d = dtAbs(offset[1]) - polyThick;
-			d = d > 0 ? d*d : 0;
-		}
-		else
-			d = dtVlenSqr(offset);
-
-		if (d < nearestDistanceSqr)
-		{
-			if (nearestPt)
-				dtVcopy(nearestPt, closestPtPoly);
-			nearestDistanceSqr = d;
-			nearest = ref;
-			if (d == 0)
-			{
-				nearestDistanceSqr = 0;
-				break;
-			}
-		}
-	}
-	
-	return nearest;
 }
 
 int dtNavMeshQuery::queryPolygonsInTile(const dtMeshTile* tile, const float* qmin, const float* qmax,

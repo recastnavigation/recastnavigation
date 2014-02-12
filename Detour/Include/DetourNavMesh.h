@@ -94,10 +94,6 @@ static const unsigned int DT_OFFMESH_CON_BIDIR = 1;
 /// @ingroup detour
 static const int DT_MAX_AREAS = 64;
 
-/// Polygon thickness relative to agent height (for correct scaling)
-/// We define the polygon to have a slight thickness so that things slightly above and below will be considered on the polygon.
-static const float SCALE_POLY_THICK = 1.f / 6.f;
-
 /// Tile flags used for various functions and fields.
 /// For an example, see dtNavMesh::addTile().
 enum dtTileFlags
@@ -616,11 +612,8 @@ private:
 	/// Find nearest polygon within a tile.
 	dtPolyRef findNearestPolyInTile(const dtMeshTile* tile, const float* center,
 									const float* extents, float* nearestPt) const;
-
-	/// find the closest point on polygon.
-	/// @return whether the point is straight above the closest polygon
-	bool closestPointOnPolyInTile(const dtMeshTile* tile, unsigned int ip,
-								  const float* pos, float* closest) const;
+	/// Returns closest point on polygon.
+	void closestPointOnPoly(dtPolyRef ref, const float* pos, float* closest, bool* posOverPoly) const;
 	
 	dtNavMeshParams m_params;			///< Current initialization params. TODO: do not store this info twice.
 	float m_orig[3];					///< Origin of the tile (0,0)
