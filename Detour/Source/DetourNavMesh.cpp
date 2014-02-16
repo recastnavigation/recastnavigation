@@ -711,13 +711,13 @@ dtPolyRef dtNavMesh::findNearestPolyInTile(const dtMeshTile* tile,
 	// Find nearest polygon amongst the nearby polygons.
 	dtPolyRef nearest = 0;
 	float nearestDistanceSqr = FLT_MAX;
-	bool nearestOverPoly = false;
 	for (int i = 0; i < polyCount; ++i)
 	{
 		dtPolyRef ref = polys[i];
 		float closestPtPoly[3];
 		float diff[3];
 		bool posOverPoly = false;
+		float d = 0;
 		closestPointOnPoly(ref, center, closestPtPoly, &posOverPoly);
 
 		// If a point is directly over a polygon and closer than
@@ -725,18 +725,18 @@ dtPolyRef dtNavMesh::findNearestPolyInTile(const dtMeshTile* tile,
 		dtVsub(diff, center, closestPtPoly);
 		if (posOverPoly)
 		{
-			const dtMeshTile* tile = 0;
-			if (dtAbs(diff[1]) > tile->header->walkableClimb)
-				posOverPoly = false;
+			d = dtAbs(diff[1]) - tile->header->walkableClimb;
+			d = d > 0 ? d*d : 0;			
+		}
+		else
+		{
+			d = dtVlenSqr(diff);
 		}
 		
-		float d = dtVlenSqr(diff);
-		
-		if (d < nearestDistanceSqr || (!nearestOverPoly && posOverPoly))
+		if (d < nearestDistanceSqr)
 		{
 			dtVcopy(nearestPt, closestPtPoly);
 			nearestDistanceSqr = d;
-			nearestOverPoly = posOverPoly;
 			nearest = ref;
 		}
 	}
