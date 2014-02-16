@@ -318,10 +318,13 @@ public:
 	///  @param[out]	path		The reference ids of the visited polygons. [opt]
 	///  @param[out]	pathCount	The number of visited polygons. [opt]
 	///  @param[in]		maxPath		The maximum number of polygons the @p path array can hold.
+	///  @param[out]	pathCost	The cost of the path until hit.
+	///  @param[in]		prevRef		[optional]: cost calculation allow for an additional parent ref. Used during pathfinding
 	/// @returns The status flags for the query.
 	dtStatus raycast(dtPolyRef startRef, const float* startPos, const float* endPos,
 					 const dtQueryFilter* filter,
-					 float* t, float* hitNormal, dtPolyRef* path, int* pathCount, const int maxPath) const;
+					 float* t, float* hitNormal, dtPolyRef* path, int* pathCount, const int maxPath,
+					 float* pathCost=0, dtPolyRef prevRef=0) const;
 	
 	/// Finds the distance from the specified position to the nearest polygon wall.
 	///  @param[in]		startRef		The reference id of the polygon containing @p centerPos.

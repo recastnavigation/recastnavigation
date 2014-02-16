@@ -1016,19 +1016,29 @@ dtStatus dtNavMeshQuery::findPath(dtPolyRef startRef, dtPolyRef endRef,
 		
 		// Get current poly and tile.
 		// The API input has been cheked already, skip checking internal data.
-		const dtPolyRef bestRef = bestNode->id;
+		dtPolyRef bestRef = bestNode->id;
 		const dtMeshTile* bestTile = 0;
 		const dtPoly* bestPoly = 0;
 		m_nav->getTileAndPolyByRefUnsafe(bestRef, &bestTile, &bestPoly);
 		
-		// Get parent poly and tile.
-		dtPolyRef parentRef = 0;
+		// Get parent and grand parent poly and tile.
+		dtPolyRef parentRef = 0, grandpaRef = 0;
 		const dtMeshTile* parentTile = 0;
 		const dtPoly* parentPoly = 0;
+		dtNode* parentNode = 0;
 		if (bestNode->pidx)
-			parentRef = m_nodePool->getNodeAtIdx(bestNode->pidx)->id;
+		{
+			parentNode = m_nodePool->getNodeAtIdx(bestNode->pidx);
+			parentRef = parentNode->id;
+			if (parentNode->pidx)
+				grandpaRef = m_nodePool->getNodeAtIdx(parentNode->pidx)->id;
+		}
 		if (parentRef)
 			m_nav->getTileAndPolyByRefUnsafe(parentRef, &parentTile, &parentPoly);
+
+		// decide whether to test raycast to previous nodes
+		const float rayCutDist = 30.0f; // TODO: maybe this needs to be on the filter?
+		bool tryLOS = (parentRef != 0) && (dtVdistSqr(parentNode->pos, bestNode->pos) < dtSqr(rayCutDist));
 		
 		for (unsigned int i = bestPoly->firstLink; i != DT_NULL_LINK; i = bestTile->links[i].next)
 		{
@@ -1060,6 +1070,10 @@ dtStatus dtNavMeshQuery::findPath(dtPolyRef startRef, dtPolyRef endRef,
 				continue;
 			}
 			
+			// do not expand to nodes that were already visited from the same parent
+			if (neighbourNode->pidx != 0 && neighbourNode->pidx == bestNode->pidx)
+				continue;
+
 			// If the node is visited the first time, calculate node position.
 			if (neighbourNode->flags == 0)
 			{
@@ -1071,31 +1085,38 @@ dtStatus dtNavMeshQuery::findPath(dtPolyRef startRef, dtPolyRef endRef,
 			// Calculate cost and heuristic.
 			float cost = 0;
 			float heuristic = 0;
-			
-			// Special case for last node.
-			if (neighbourRef == endRef)
+
+			// raycast parent
+			float t = 0;
+			if (tryLOS)
 			{
-				// Cost
-				const float curCost = filter->getCost(bestNode->pos, neighbourNode->pos,
-													  parentRef, parentTile, parentPoly,
-													  bestRef, bestTile, bestPoly,
-													  neighbourRef, neighbourTile, neighbourPoly);
-				const float endCost = filter->getCost(neighbourNode->pos, endPos,
-													  bestRef, bestTile, bestPoly,
-													  neighbourRef, neighbourTile, neighbourPoly,
-													  0, 0, 0);
-				
-				cost = bestNode->cost + curCost + endCost;
-				heuristic = 0;
+				float normal[3], curCost;
+				raycast(parentRef, parentNode->pos, neighbourNode->pos, filter, &t, normal, 0, 0, 0, &curCost, grandpaRef);
+				cost = parentNode->cost + curCost;
 			}
-			else
+
+			if (t < 1.0f) // hit
 			{
-				// Cost
 				const float curCost = filter->getCost(bestNode->pos, neighbourNode->pos,
 													  parentRef, parentTile, parentPoly,
 													  bestRef, bestTile, bestPoly,
 													  neighbourRef, neighbourTile, neighbourPoly);
 				cost = bestNode->cost + curCost;
+			}
+
+			// Special case for last node.
+			if (neighbourRef == endRef)
+			{
+				const float endCost = filter->getCost(neighbourNode->pos, endPos,
+													  bestRef, bestTile, bestPoly,
+													  neighbourRef, neighbourTile, neighbourPoly,
+													  0, 0, 0);
+				
+				cost = cost + endCost;
+				heuristic = 0;
+			}
+			else
+			{
 				heuristic = dtVdist(neighbourNode->pos, endPos)*H_SCALE;
 			}
 
@@ -1109,11 +1130,13 @@ dtStatus dtNavMeshQuery::findPath(dtPolyRef startRef, dtPolyRef endRef,
 				continue;
 			
 			// Add or update the node.
-			neighbourNode->pidx = m_nodePool->getNodeIdx(bestNode);
+			neighbourNode->pidx = t < 1.0f ? m_nodePool->getNodeIdx(bestNode) : bestNode->pidx;
 			neighbourNode->id = neighbourRef;
-			neighbourNode->flags = (neighbourNode->flags & ~DT_NODE_CLOSED);
+			neighbourNode->flags = (neighbourNode->flags & ~(DT_NODE_CLOSED | DT_NODE_PARENT_DETACHED));
 			neighbourNode->cost = cost;
 			neighbourNode->total = total;
+			if (t >= 1.0f)
+				neighbourNode->flags = (neighbourNode->flags | DT_NODE_PARENT_DETACHED);
 			
 			if (neighbourNode->flags & DT_NODE_OPEN)
 			{
@@ -1142,10 +1165,14 @@ dtStatus dtNavMeshQuery::findPath(dtPolyRef startRef, dtPolyRef endRef,
 	// Reverse the path.
 	dtNode* prev = 0;
 	dtNode* node = lastBestNode;
+	int prevRay = 0;
 	do
 	{
 		dtNode* next = m_nodePool->getNodeAtIdx(node->pidx);
 		node->pidx = m_nodePool->getNodeIdx(prev);
+		int nextRay = node->flags & DT_NODE_PARENT_DETACHED;
+		node->flags = (node->flags & ~DT_NODE_PARENT_DETACHED) | prevRay;
+		prevRay = nextRay;
 		prev = node;
 		node = next;
 	}
@@ -1156,13 +1183,29 @@ dtStatus dtNavMeshQuery::findPath(dtPolyRef startRef, dtPolyRef endRef,
 	int n = 0;
 	do
 	{
-		path[n++] = node->id;
-		if (n >= maxPath)
+		dtNode* next = m_nodePool->getNodeAtIdx(node->pidx);
+		dtStatus status2 = 0;
+		if (node->flags & DT_NODE_PARENT_DETACHED)
 		{
-			status |= DT_BUFFER_TOO_SMALL;
+			float t, normal[3];
+			int m;
+			status2 = raycast(node->id, node->pos, next->pos, filter, &t, normal, path+n, &m, maxPath-n);
+			n += m;
+		}
+		else
+		{
+			path[n++] = node->id;
+			if (n >= maxPath)
+				status2 = DT_BUFFER_TOO_SMALL;
+		}
+
+		if (status2 & DT_STATUS_DETAIL_MASK)
+		{
+			status |= status2 & DT_STATUS_DETAIL_MASK;
 			break;
 		}
-		node = m_nodePool->getNodeAtIdx(node->pidx);
+
+		node = next;
 	}
 	while (node);
 	
@@ -1275,15 +1318,22 @@ dtStatus dtNavMeshQuery::updateSlicedFindPath(const int maxIter, int* doneIters)
 			return m_query.status;
 		}
 		
-		// Get parent poly and tile.
-		dtPolyRef parentRef = 0;
+		// Get parent and grand parent poly and tile.
+		dtPolyRef parentRef = 0, grandpaRef = 0;
 		const dtMeshTile* parentTile = 0;
 		const dtPoly* parentPoly = 0;
+		dtNode* parentNode = 0;
 		if (bestNode->pidx)
-			parentRef = m_nodePool->getNodeAtIdx(bestNode->pidx)->id;
+		{
+			parentNode = m_nodePool->getNodeAtIdx(bestNode->pidx);
+			parentRef = parentNode->id;
+			if (parentNode->pidx)
+				grandpaRef = m_nodePool->getNodeAtIdx(parentNode->pidx)->id;
+		}
 		if (parentRef)
 		{
-			if (dtStatusFailed(m_nav->getTileAndPolyByRef(parentRef, &parentTile, &parentPoly)))
+			bool invalidParent = dtStatusFailed(m_nav->getTileAndPolyByRef(parentRef, &parentTile, &parentPoly));
+			if (invalidParent || (grandpaRef && dtStatusFailed(m_nav->isValidPolyRef(grandpaRef))) )
 			{
 				// The polygon has disappeared during the sliced query, fail.
 				m_query.status = DT_FAILURE;
@@ -1292,6 +1342,10 @@ dtStatus dtNavMeshQuery::updateSlicedFindPath(const int maxIter, int* doneIters)
 				return m_query.status;
 			}
 		}
+
+		// decide whether to test raycast to previous nodes
+		const float rayCutDist = 30.0f; // TODO: maybe this needs to be on the filter?
+		bool tryLOS = (parentRef != 0) && (dtVdistSqr(parentNode->pos, bestNode->pos) < dtSqr(rayCutDist));
 		
 		for (unsigned int i = bestPoly->firstLink; i != DT_NULL_LINK; i = bestTile->links[i].next)
 		{
@@ -1322,6 +1376,10 @@ dtStatus dtNavMeshQuery::updateSlicedFindPath(const int maxIter, int* doneIters)
 				continue;
 			}
 			
+			// do not expand to nodes that were already visited from the same parent
+			if (neighbourNode->pidx != 0 && neighbourNode->pidx == bestNode->pidx)
+				continue;
+
 			// If the node is visited the first time, calculate node position.
 			if (neighbourNode->flags == 0)
 			{
@@ -1334,30 +1392,37 @@ dtStatus dtNavMeshQuery::updateSlicedFindPath(const int maxIter, int* doneIters)
 			float cost = 0;
 			float heuristic = 0;
 			
+			// raycast parent
+			float t = 0;
+			if (tryLOS)
+			{
+				float normal[3], curCost;
+				raycast(parentRef, parentNode->pos, neighbourNode->pos, m_query.filter, &t, normal, 0, 0, 0, &curCost, grandpaRef);
+				cost = parentNode->cost + curCost;
+			}
+
+			if (t < 1.0f) // hit
+			{
+				const float curCost = m_query.filter->getCost(bestNode->pos, neighbourNode->pos,
+															  parentRef, parentTile, parentPoly,
+															bestRef, bestTile, bestPoly,
+															neighbourRef, neighbourTile, neighbourPoly);
+				cost = bestNode->cost + curCost;
+			}
+
 			// Special case for last node.
 			if (neighbourRef == m_query.endRef)
 			{
-				// Cost
-				const float curCost = m_query.filter->getCost(bestNode->pos, neighbourNode->pos,
-															  parentRef, parentTile, parentPoly,
-															  bestRef, bestTile, bestPoly,
-															  neighbourRef, neighbourTile, neighbourPoly);
 				const float endCost = m_query.filter->getCost(neighbourNode->pos, m_query.endPos,
 															  bestRef, bestTile, bestPoly,
 															  neighbourRef, neighbourTile, neighbourPoly,
 															  0, 0, 0);
 				
-				cost = bestNode->cost + curCost + endCost;
+				cost = cost + endCost;
 				heuristic = 0;
 			}
 			else
 			{
-				// Cost
-				const float curCost = m_query.filter->getCost(bestNode->pos, neighbourNode->pos,
-															  parentRef, parentTile, parentPoly,
-															  bestRef, bestTile, bestPoly,
-															  neighbourRef, neighbourTile, neighbourPoly);
-				cost = bestNode->cost + curCost;
 				heuristic = dtVdist(neighbourNode->pos, m_query.endPos)*H_SCALE;
 			}
 			
@@ -1371,11 +1436,13 @@ dtStatus dtNavMeshQuery::updateSlicedFindPath(const int maxIter, int* doneIters)
 				continue;
 			
 			// Add or update the node.
-			neighbourNode->pidx = m_nodePool->getNodeIdx(bestNode);
+			neighbourNode->pidx = t < 1.0f ? m_nodePool->getNodeIdx(bestNode) : bestNode->pidx;
 			neighbourNode->id = neighbourRef;
-			neighbourNode->flags = (neighbourNode->flags & ~DT_NODE_CLOSED);
+			neighbourNode->flags = (neighbourNode->flags & ~(DT_NODE_CLOSED | DT_NODE_PARENT_DETACHED));
 			neighbourNode->cost = cost;
 			neighbourNode->total = total;
+			if (t >= 1.0f)
+				neighbourNode->flags = (neighbourNode->flags | DT_NODE_PARENT_DETACHED);
 			
 			if (neighbourNode->flags & DT_NODE_OPEN)
 			{
@@ -1439,11 +1506,15 @@ dtStatus dtNavMeshQuery::finalizeSlicedFindPath(dtPolyRef* path, int* pathCount,
 		
 		dtNode* prev = 0;
 		dtNode* node = m_query.lastBestNode;
+		int prevRay = 0;
 		do
 		{
 			dtNode* next = m_nodePool->getNodeAtIdx(node->pidx);
 			node->pidx = m_nodePool->getNodeIdx(prev);
 			prev = node;
+			int nextRay = node->flags & DT_NODE_PARENT_DETACHED;
+			node->flags = (node->flags & ~DT_NODE_PARENT_DETACHED) | prevRay;
+			prevRay = nextRay;
 			node = next;
 		}
 		while (node);
@@ -1452,13 +1523,28 @@ dtStatus dtNavMeshQuery::finalizeSlicedFindPath(dtPolyRef* path, int* pathCount,
 		node = prev;
 		do
 		{
-			path[n++] = node->id;
-			if (n >= maxPath)
+			dtNode* next = m_nodePool->getNodeAtIdx(node->pidx);
+			dtStatus status = 0;
+			if (node->flags & DT_NODE_PARENT_DETACHED)
 			{
-				m_query.status |= DT_BUFFER_TOO_SMALL;
+				float t, normal[3];
+				int m;
+				status = raycast(node->id, node->pos, next->pos, m_query.filter, &t, normal, path+n, &m, maxPath-n);
+				n += m;
+			}
+			else
+			{
+				path[n++] = node->id;
+				if (n >= maxPath)
+					status = DT_BUFFER_TOO_SMALL;
+			}
+
+			if (status & DT_STATUS_DETAIL_MASK)
+			{
+				m_query.status |= status & DT_STATUS_DETAIL_MASK;
 				break;
 			}
-			node = m_nodePool->getNodeAtIdx(node->pidx);
+			node = next;
 		}
 		while (node);
 	}
@@ -2248,36 +2334,50 @@ dtStatus dtNavMeshQuery::getEdgeMidPoint(dtPolyRef from, const dtPoly* fromPoly,
 ///
 dtStatus dtNavMeshQuery::raycast(dtPolyRef startRef, const float* startPos, const float* endPos,
 								 const dtQueryFilter* filter,
-								 float* t, float* hitNormal, dtPolyRef* path, int* pathCount, const int maxPath) const
+								 float* t, float* hitNormal, dtPolyRef* path, int* pathCount, const int maxPath,
+								 float* pathCost, dtPolyRef prevRef) const
 {
 	dtAssert(m_nav);
 	
 	*t = 0;
 	if (pathCount)
 		*pathCount = 0;
-	
+	if (pathCost)
+		*pathCost = 0;
+
 	// Validate input
 	if (!startRef || !m_nav->isValidPolyRef(startRef))
 		return DT_FAILURE | DT_INVALID_PARAM;
+	if (prevRef && !m_nav->isValidPolyRef(prevRef))
+		return DT_FAILURE | DT_INVALID_PARAM;
 	
-	dtPolyRef curRef = startRef;
-	float verts[DT_VERTS_PER_POLYGON*3];	
+	float dir[3], curPos[3], lastPos[3];
+	float verts[DT_VERTS_PER_POLYGON*3+3];	
 	int n = 0;
-	
-	hitNormal[0] = 0;
-	hitNormal[1] = 0;
-	hitNormal[2] = 0;
-	
+
+	dtVcopy(curPos, startPos);
+	dtVsub(dir, endPos, startPos);
+	dtVset(hitNormal, 0, 0, 0);
+
 	dtStatus status = DT_SUCCESS;
-	
+
+	const dtMeshTile* prevTile, *tile, *nextTile;
+	const dtPoly* prevPoly, *poly, *nextPoly;
+	dtPolyRef curRef, nextRef;
+
+	// The API input has been checked already, skip checking internal data.
+	nextRef = curRef = startRef;
+	tile = 0;
+	poly = 0;
+	m_nav->getTileAndPolyByRefUnsafe(curRef, &tile, &poly);
+	nextTile = prevTile = tile;
+	nextPoly = prevPoly = poly;
+	if (prevRef)
+		m_nav->getTileAndPolyByRefUnsafe(prevRef, &tile, &poly);
+
 	while (curRef)
 	{
 		// Cast ray against current polygon.
-		
-		// The API input has been cheked already, skip checking internal data.
-		const dtMeshTile* tile = 0;
-		const dtPoly* poly = 0;
-		m_nav->getTileAndPolyByRefUnsafe(curRef, &tile, &poly);
 		
 		// Collect vertices.
 		int nv = 0;
@@ -2285,7 +2385,8 @@ dtStatus dtNavMeshQuery::raycast(dtPolyRef startRef, const float* startPos, cons
 		{
 			dtVcopy(&verts[nv*3], &tile->verts[poly->verts[i]*3]);
 			nv++;
-		}		
+		}
+		dtVcopy(&verts[nv*3], &tile->verts[poly->verts[0]*3]);
 		
 		float tmin, tmax;
 		int segMin, segMax;
@@ -2305,18 +2406,22 @@ dtStatus dtNavMeshQuery::raycast(dtPolyRef startRef, const float* startPos, cons
 			path[n++] = curRef;
 		else
 			status |= DT_BUFFER_TOO_SMALL;
-		
+
 		// Ray end is completely inside the polygon.
 		if (segMax == -1)
 		{
 			*t = FLT_MAX;
 			if (pathCount)
 				*pathCount = n;
+			
+			// add the cost
+			if (pathCost)
+				*pathCost += filter->getCost(curPos, endPos, prevRef, prevTile, prevPoly, curRef, tile, poly, curRef, tile, poly);
 			return status;
 		}
-		
+
 		// Follow neighbours.
-		dtPolyRef nextRef = 0;
+		nextRef = 0;
 		
 		for (unsigned int i = poly->firstLink; i != DT_NULL_LINK; i = tile->links[i].next)
 		{
@@ -2327,8 +2432,8 @@ dtStatus dtNavMeshQuery::raycast(dtPolyRef startRef, const float* startPos, cons
 				continue;
 			
 			// Get pointer to the next polygon.
-			const dtMeshTile* nextTile = 0;
-			const dtPoly* nextPoly = 0;
+			nextTile = 0;
+			nextPoly = 0;
 			m_nav->getTileAndPolyByRefUnsafe(link->ref, &nextTile, &nextPoly);
 			
 			// Skip off-mesh connections.
@@ -2396,6 +2501,24 @@ dtStatus dtNavMeshQuery::raycast(dtPolyRef startRef, const float* startPos, cons
 			}
 		}
 		
+		// add the cost
+		if (pathCost)
+		{
+			// compute the intersection point at the furthest end of the polygon
+			// and correct the height (since the raycast moves in 2d)
+			dtVcopy(lastPos, curPos);
+			dtVmad(curPos, startPos, dir, *t);
+			float* e1 = &verts[segMax*3];
+			float* e2 = &verts[(segMax+1)*3]; // no need to modulu nv, seg[nv+1] was added earlier
+			float eDir[3], diff[3];
+			dtVsub(eDir, e2, e1);
+			dtVsub(diff, curPos, e1);
+			float s = dtSqr(eDir[0]) > dtSqr(eDir[2]) ? diff[0] / eDir[0] : diff[2] / eDir[2];
+			curPos[1] = e1[1] + eDir[1] * s;
+
+			*pathCost += filter->getCost(lastPos, curPos, prevRef, prevTile, prevPoly, curRef, tile, poly, nextRef, nextTile, nextPoly);
+		}
+
 		if (!nextRef)
 		{
 			// No neighbour, we hit a wall.
@@ -2416,9 +2539,14 @@ dtStatus dtNavMeshQuery::raycast(dtPolyRef startRef, const float* startPos, cons
 				*pathCount = n;
 			return status;
 		}
-		
+
 		// No hit, advance to neighbour polygon.
+		prevRef = curRef;
 		curRef = nextRef;
+		prevTile = tile;
+		tile = nextTile;
+		prevPoly = poly;
+		poly = nextPoly;
 	}
 	
 	if (pathCount)
