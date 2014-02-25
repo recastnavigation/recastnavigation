@@ -115,6 +115,34 @@ public:
 
 };
 
+
+
+/// Provides information about raycast hit
+/// filled by dtNavMeshQuery::raycast
+/// @ingroup detour
+struct RaycastHit
+{
+	/// The hit parameter. (FLT_MAX if no wall hit.)
+	float t; 
+	
+	/// hitNormal	The normal of the nearest wall hit. [(x, y, z)]
+	float hitNormal[3];
+	
+	///  The reference ids of the visited polygons. [opt]
+	dtPolyRef* path;
+	
+	/// The number of visited polygons. [opt]
+	int pathCount;
+
+	/// The maximum number of polygons the @p path array can hold.
+	int maxPath;
+
+	///  The cost of the path until hit.
+	float pathCost;
+};
+
+
+
 /// Provides the ability to perform pathfinding related queries against
 /// a navigation mesh.
 /// @ingroup detour
@@ -308,6 +336,7 @@ public:
 	
 	/// Casts a 'walkability' ray along the surface of the navigation mesh from 
 	/// the start position toward the end position.
+	/// @note A wrapper around raycast(..., RaycastHit*). Retained for backward compatibility.
 	///  @param[in]		startRef	The reference id of the start polygon.
 	///  @param[in]		startPos	A position within the start polygon representing 
 	///  							the start of the ray. [(x, y, z)]
@@ -318,14 +347,27 @@ public:
 	///  @param[out]	path		The reference ids of the visited polygons. [opt]
 	///  @param[out]	pathCount	The number of visited polygons. [opt]
 	///  @param[in]		maxPath		The maximum number of polygons the @p path array can hold.
-	///  @param[out]	pathCost	The cost of the path until hit.
-	///  @param[in]		prevRef		[optional]: cost calculation allow for an additional parent ref. Used during pathfinding
 	/// @returns The status flags for the query.
 	dtStatus raycast(dtPolyRef startRef, const float* startPos, const float* endPos,
 					 const dtQueryFilter* filter,
-					 float* t, float* hitNormal, dtPolyRef* path, int* pathCount, const int maxPath,
-					 float* pathCost=0, dtPolyRef prevRef=0) const;
+					 float* t, float* hitNormal, dtPolyRef* path, int* pathCount, const int maxPath) const;
 	
+	/// Casts a 'walkability' ray along the surface of the navigation mesh from 
+	/// the start position toward the end position.
+	///  @param[in]		startRef	The reference id of the start polygon.
+	///  @param[in]		startPos	A position within the start polygon representing 
+	///  							the start of the ray. [(x, y, z)]
+	///  @param[in]		endPos		The position to cast the ray toward. [(x, y, z)]
+	///  @param[in]		filter		The polygon filter to apply to the query.
+	///  @param[in]		flags		govern how the raycast behaves. See dtRaycastOptions
+	///  @param[out]	hit			The raycast hit structure.
+	///  @param[in]		prevRef		parent of start ref. Used during for cost calculation [opt]
+	/// @returns The status flags for the query.
+	dtStatus raycast(dtPolyRef startRef, const float* startPos, const float* endPos,
+					 const dtQueryFilter* filter, const unsigned int options,
+					 RaycastHit* hit, dtPolyRef prevRef=0) const;
+
+
 	/// Finds the distance from the specified position to the nearest polygon wall.
 	///  @param[in]		startRef		The reference id of the polygon containing @p centerPos.
 	///  @param[in]		centerPos		The center of the search circle. [(x, y, z)]

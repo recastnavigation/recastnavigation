@@ -25,7 +25,7 @@ enum dtNodeFlags
 {
 	DT_NODE_OPEN = 0x01,
 	DT_NODE_CLOSED = 0x02,
-	DT_NODE_PARENT_DETACHED = 0x04, // parent of the node is not connected. Found using raycast.
+	DT_NODE_PARENT_DETACHED = 0x04, // parent of the node is not connected/adjacent. Found using raycast.
 };
 
 typedef unsigned short dtNodeIndex;
@@ -56,7 +56,7 @@ public:
 	// There can be more than one node for the same polyRef but with different extra state information
 	dtNode* getNode(dtPolyRef id, unsigned char state=0);	
 	dtNode* findNode(dtPolyRef id, unsigned char state);
-	unsigned int findNodes(dtPolyRef id, int bufsize, dtNode** buf);
+	unsigned int findNodes(dtPolyRef id, dtNode** nodes, const int maxNodes);
 
 	inline unsigned int getNodeIdx(const dtNode* node) const
 	{

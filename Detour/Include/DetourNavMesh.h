@@ -117,6 +117,13 @@ enum dtStraightPathOptions
 	DT_STRAIGHTPATH_ALL_CROSSINGS = 0x02,	///< Add a vertex at every polygon edge crossing.
 };
 
+
+/// Options for dtNavMeshQuery::raycast
+enum dtRaycastOptions
+{
+	DT_RAYCAST_USE_COSTS = 0x01,		///< Raycast should calculate movement cost along the ray and fill RaycastHit::cost
+};
+
 /// Flags representing the type of a navigation mesh polygon.
 enum dtPolyTypes
 {

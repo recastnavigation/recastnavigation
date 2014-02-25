@@ -84,7 +84,7 @@ void dtNodePool::clear()
 	m_nodeCount = 0;
 }
 
-unsigned int dtNodePool::findNodes(dtPolyRef id, int bufSize, dtNode** buf)
+unsigned int dtNodePool::findNodes(dtPolyRef id, dtNode** nodes, const int maxNodes)
 {
 	int n = 0;
 	unsigned int bucket = dtHashRef(id) & (m_hashSize-1);
@@ -93,9 +93,9 @@ unsigned int dtNodePool::findNodes(dtPolyRef id, int bufSize, dtNode** buf)
 	{
 		if (m_nodes[i].id == id)
 		{
-			if (n >= bufSize)
+			if (n >= maxNodes)
 				return n;
-			buf[n++] = &m_nodes[i];
+			nodes[n++] = &m_nodes[i];
 		}
 		i = m_next[i];
 	}
