@@ -207,10 +207,11 @@ public:
 	///  @param[in]		startPos	A position within the start polygon. [(x, y, z)]
 	///  @param[in]		endPos		A position within the end polygon. [(x, y, z)]
 	///  @param[in]		filter		The polygon filter to apply to the query.
+	///  @param[in]		options		query options (see: #dtFindPathOptions)
 	/// @returns The status flags for the query.
 	dtStatus initSlicedFindPath(dtPolyRef startRef, dtPolyRef endRef,
 								const float* startPos, const float* endPos,
-								const dtQueryFilter* filter);
+								const dtQueryFilter* filter, const unsigned int options=0);
 
 	/// Updates an in-progress sliced path query.
 	///  @param[in]		maxIter		The maximum number of iterations to perform.
@@ -508,6 +509,8 @@ private:
 		dtPolyRef startRef, endRef;
 		float startPos[3], endPos[3];
 		const dtQueryFilter* filter;
+		unsigned int options;
+		float raycastLimitSqr;
 	};
 	dtQueryData m_query;				///< Sliced query state.
 
