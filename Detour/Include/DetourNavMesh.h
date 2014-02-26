@@ -132,8 +132,9 @@ enum dtRaycastOptions
 };
 
 
-/// used when #DT_FINDPATH_LIMIT_RAYCASTS is set to limit raycasting to a multiple of the character radius
-static const float RAY_CAST_LIMIT_PROPORTIONS = 20.0f;
+/// Limit raycasting during any angle pahfinding
+/// The limit is given as a multiple of the character radius
+static const float RAY_CAST_LIMIT_PROPORTIONS = 50.0f;
 
 /// Flags representing the type of a navigation mesh polygon.
 enum dtPolyTypes
