@@ -1216,6 +1216,7 @@ dtStatus dtNavMeshQuery::updateSlicedFindPath(const int maxIter, int* doneIters)
 	}
 
 	RaycastHit rayHit;
+	rayHit.maxPath = 0;
 		
 	int iter = 0;
 	while (iter < maxIter && !m_openList->empty())
@@ -1468,6 +1469,9 @@ dtStatus dtNavMeshQuery::finalizeSlicedFindPath(dtPolyRef* path, int* pathCount,
 				int m;
 				status = raycast(node->id, node->pos, next->pos, m_query.filter, &t, normal, path+n, &m, maxPath-n);
 				n += m;
+				// raycast ends on poly boundary and the path might include the next poly boundary.
+				if (path[n-1] == next->id)
+					n--; // remove to avoid duplicates
 			}
 			else
 			{
