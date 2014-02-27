@@ -211,7 +211,7 @@ public:
 	/// @returns The status flags for the query.
 	dtStatus initSlicedFindPath(dtPolyRef startRef, dtPolyRef endRef,
 								const float* startPos, const float* endPos,
-								const dtQueryFilter* filter, const unsigned int options=DT_FINDPATH_ANY_ANGLE);
+								const dtQueryFilter* filter, const unsigned int options=0/*DT_FINDPATH_ANY_ANGLE*/);
 
 	/// Updates an in-progress sliced path query.
 	///  @param[in]		maxIter		The maximum number of iterations to perform.

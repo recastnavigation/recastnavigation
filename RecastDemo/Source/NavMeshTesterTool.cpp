@@ -654,7 +654,7 @@ void NavMeshTesterTool::handleUpdate(const float /*dt*/)
 
 				m_navQuery->findStraightPath(m_spos, epos, m_polys, m_npolys,
 											 m_straightPath, m_straightPathFlags,
-											 m_straightPathPolys, &m_nstraightPath, MAX_POLYS);
+											 m_straightPathPolys, &m_nstraightPath, MAX_POLYS, DT_STRAIGHTPATH_ALL_CROSSINGS);
 			}
 			 
 			m_pathFindStatus = DT_FAILURE;
