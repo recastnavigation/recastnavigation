@@ -1544,11 +1544,15 @@ dtStatus dtNavMeshQuery::finalizeSlicedFindPathPartial(const dtPolyRef* existing
 		}
 		
 		// Reverse the path.
+		int prevRay = 0;
 		do
 		{
 			dtNode* next = m_nodePool->getNodeAtIdx(node->pidx);
 			node->pidx = m_nodePool->getNodeIdx(prev);
 			prev = node;
+			int nextRay = node->flags & DT_NODE_PARENT_DETACHED; // keep track of whether parent is not adjacent (i.e. due to raycast shortcut)
+			node->flags = (node->flags & ~DT_NODE_PARENT_DETACHED) | prevRay; // and store it in the reversed path's node
+			prevRay = nextRay;
 			node = next;
 		}
 		while (node);
@@ -1557,13 +1561,31 @@ dtStatus dtNavMeshQuery::finalizeSlicedFindPathPartial(const dtPolyRef* existing
 		node = prev;
 		do
 		{
-			path[n++] = node->id;
-			if (n >= maxPath)
+			dtNode* next = m_nodePool->getNodeAtIdx(node->pidx);
+			dtStatus status = 0;
+			if (node->flags & DT_NODE_PARENT_DETACHED)
 			{
-				m_query.status |= DT_BUFFER_TOO_SMALL;
+				float t, normal[3];
+				int m;
+				status = raycast(node->id, node->pos, next->pos, m_query.filter, &t, normal, path+n, &m, maxPath-n);
+				n += m;
+				// raycast ends on poly boundary and the path might include the next poly boundary.
+				if (path[n-1] == next->id)
+					n--; // remove to avoid duplicates
+			}
+			else
+			{
+				path[n++] = node->id;
+				if (n >= maxPath)
+					status = DT_BUFFER_TOO_SMALL;
+			}
+
+			if (status & DT_STATUS_DETAIL_MASK)
+			{
+				m_query.status |= status & DT_STATUS_DETAIL_MASK;
 				break;
 			}
-			node = m_nodePool->getNodeAtIdx(node->pidx);
+			node = next;
 		}
 		while (node);
 	}
