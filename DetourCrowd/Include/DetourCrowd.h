@@ -49,7 +49,6 @@ static const int DT_CROWD_MAX_OBSTAVOIDANCE_PARAMS = 8;
 /// @ingroup crowd
 /// @see dtQueryFilter, dtCrowd::getFilter() dtCrowd::getEditableFilter(),
 ///		dtCrowdAgentParams::queryFilterType
-
 static const int DT_CROWD_MAX_QUERY_FILTER_TYPE = 16;
 
 /// Provides neighbor data for agents managed by the crowd.
