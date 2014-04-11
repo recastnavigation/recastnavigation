@@ -101,7 +101,8 @@ int main(int /*argc*/, char** /*argv*/)
 	}
 	else
 	{	
-		width = vi->current_w - 20;
+		width = rcMin(vi->current_w, (int)(vi->current_h * 16.0 / 9.0));
+		width = width - 80;
 		height = vi->current_h - 80;
 		screen = SDL_SetVideoMode(width, height, 0, SDL_OPENGL);
 	}
