@@ -45,9 +45,6 @@ static const int DT_CROWDAGENT_MAX_CORNERS = 4;
 ///		 dtCrowdAgentParams::obstacleAvoidanceType
 static const int DT_CROWD_MAX_OBSTAVOIDANCE_PARAMS = 8;
 
-/// The maximum number of query filter types
-static const int DT_CROWD_MAX_QUERY_FILTER_TYPE = 16;
-
 /// Provides neighbor data for agents managed by the crowd.
 /// @ingroup crowd
 /// @see dtCrowdAgent::neis, dtCrowd
@@ -90,7 +87,7 @@ struct dtCrowdAgentParams
 	/// [Limits: 0 <= value <= #DT_CROWD_MAX_OBSTAVOIDANCE_PARAMS]
 	unsigned char obstacleAvoidanceType;	
 
-	/// The index of the query filter used by this agent.
+	// [F]
 	unsigned char queryFilterType;
 
 	/// User defined data attached to the agent.
@@ -107,6 +104,9 @@ enum MoveRequestState
 	DT_CROWDAGENT_TARGET_WAITING_FOR_PATH,
 	DT_CROWDAGENT_TARGET_VELOCITY,
 };
+
+// [F]
+static const int DT_CROWD_MAX_QUERY_FILTER_TYPE = 16;
 
 /// Represents an agent managed by a #dtCrowd object.
 /// @ingroup crowd
@@ -163,6 +163,9 @@ struct dtCrowdAgent
 	dtPathQueueRef targetPathqRef;		///< Path finder ref.
 	bool targetReplan;					///< Flag indicating that the current path is being replanned.
 	float targetReplanTime;				/// <Time since the agent's target was replanned.
+
+	// [F]
+	unsigned char queryFilterType;
 };
 
 struct dtCrowdAgentAnimation
@@ -196,6 +199,8 @@ struct dtCrowdAgentDebugInfo
 /// @ingroup crowd
 class dtCrowd
 {
+	public:
+
 	int m_maxAgents;
 	dtCrowdAgent* m_agents;
 	dtCrowdAgent** m_activeAgents;
@@ -212,7 +217,8 @@ class dtCrowd
 	int m_maxPathResult;
 	
 	float m_ext[3];
-
+	//dtQueryFilter m_filter;
+	// [F]
 	dtQueryFilter m_filters[DT_CROWD_MAX_QUERY_FILTER_TYPE];
 
 	float m_maxAgentRadius;
@@ -256,12 +262,7 @@ public:
 	/// Gets the specified agent from the pool.
 	///	 @param[in]		idx		The agent index. [Limits: 0 <= value < #getAgentCount()]
 	/// @return The requested agent.
-	const dtCrowdAgent* getAgent(const int idx);
-
-	/// Gets the specified agent from the pool.
-	///	 @param[in]		idx		The agent index. [Limits: 0 <= value < #getAgentCount()]
-	/// @return The requested agent.
-	dtCrowdAgent* getEditableAgent(const int idx);
+	dtCrowdAgent* getAgent(const int idx);
 
 	/// The maximum number of agents that can be managed by the object.
 	/// @return The maximum number of agents.
@@ -313,11 +314,17 @@ public:
 	
 	/// Gets the filter used by the crowd.
 	/// @return The filter used by the crowd.
-	inline const dtQueryFilter* getFilter(const int i) const { return (i >= 0 && i < DT_CROWD_MAX_QUERY_FILTER_TYPE) ? &m_filters[i] : 0; }
-	
+	//const dtQueryFilter* getFilter() const { return &m_filter; }
+	// [F]
+	//const dtQueryFilter* getFilter() const {return &m_filters[0];}
+	const dtQueryFilter* getIndexedFilter(const int i = 0) const { return (i >= 0 && i < DT_CROWD_MAX_QUERY_FILTER_TYPE) ? &m_filters[i] : 0; }
+
 	/// Gets the filter used by the crowd.
 	/// @return The filter used by the crowd.
-	inline dtQueryFilter* getEditableFilter(const int i) { return (i >= 0 && i < DT_CROWD_MAX_QUERY_FILTER_TYPE) ? &m_filters[i] : 0; }
+	//dtQueryFilter* getEditableFilter() { return &m_filter; }
+	// [F]
+	//dtQueryFilter* getEditableFilter() {return &m_filters[0];}
+	dtQueryFilter* getIndexedEditableFilter(const int i = 0) { return (i >= 0 && i < DT_CROWD_MAX_QUERY_FILTER_TYPE) ? &m_filters[i] : 0; }
 
 	/// Gets the search extents [(x, y, z)] used by the crowd for query operations. 
 	/// @return The search extents used by the crowd. [(x, y, z)]
