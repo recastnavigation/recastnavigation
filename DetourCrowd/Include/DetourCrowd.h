@@ -45,7 +45,11 @@ static const int DT_CROWDAGENT_MAX_CORNERS = 4;
 ///		 dtCrowdAgentParams::obstacleAvoidanceType
 static const int DT_CROWD_MAX_OBSTAVOIDANCE_PARAMS = 8;
 
-/// The maximum number of query filter types
+/// The maximum number of query filter types supported by the crowd manager.
+/// @ingroup crowd
+/// @see dtQueryFilter, dtCrowd::getFilter() dtCrowd::getEditableFilter(),
+///		dtCrowdAgentParams::queryFilterType
+
 static const int DT_CROWD_MAX_QUERY_FILTER_TYPE = 16;
 
 /// Provides neighbor data for agents managed by the crowd.
