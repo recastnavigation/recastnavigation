@@ -247,7 +247,7 @@ bool imguiRenderGLInit(const char* fontpath)
 	FILE* fp = fopen(fontpath, "rb");
 	if (!fp) return false;
 	fseek(fp, 0, SEEK_END);
-	int size = ftell(fp);
+	size_t size = ftell(fp);
 	fseek(fp, 0, SEEK_SET);
 	
 	unsigned char* ttfBuffer = (unsigned char*)malloc(size); 
@@ -257,8 +257,13 @@ bool imguiRenderGLInit(const char* fontpath)
 		return false;
 	}
 	
-	fread(ttfBuffer, 1, size, fp);
+	size_t readLen = fread(ttfBuffer, 1, size, fp);
 	fclose(fp);
+	if (readLen != size)
+	{
+		return false;
+	}
+
 	fp = 0;
 	
 	unsigned char* bmap = (unsigned char*)malloc(512*512);
