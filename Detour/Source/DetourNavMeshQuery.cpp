@@ -3351,6 +3351,8 @@ dtStatus dtNavMeshQuery::findDistanceToWall(dtPolyRef startRef, const float* cen
 	float radiusSqr = dtSqr(maxRadius);
 	
 	dtStatus status = DT_SUCCESS;
+
+	const float *bestvj = 0, *bestvi = 0;
 	
 	while (!m_openList->empty())
 	{
@@ -3425,6 +3427,8 @@ dtStatus dtNavMeshQuery::findDistanceToWall(dtPolyRef startRef, const float* cen
 			hitPos[0] = vj[0] + (vi[0] - vj[0])*tseg;
 			hitPos[1] = vj[1] + (vi[1] - vj[1])*tseg;
 			hitPos[2] = vj[2] + (vi[2] - vj[2])*tseg;
+			bestvj = vj;
+			bestvi = vi;
 		}
 		
 		for (unsigned int i = bestPoly->firstLink; i != DT_NULL_LINK; i = bestTile->links[i].next)
@@ -3498,8 +3502,17 @@ dtStatus dtNavMeshQuery::findDistanceToWall(dtPolyRef startRef, const float* cen
 	}
 	
 	// Calc hit normal.
-	dtVsub(hitNormal, centerPos, hitPos);
-	dtVnormalize(hitNormal);
+	if(bestvj && bestvi)
+	{
+		float tangent[3];
+		dtVsub(tangent, bestvi, bestvj);
+
+		hitNormal[0] = tangent[2];
+		hitNormal[1] = 0;
+		hitNormal[2] = -tangent[0];
+
+		dtVnormalize(hitNormal);
+	}
 	
 	*hitDist = dtMathSqrtf(radiusSqr);
 	
