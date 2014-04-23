@@ -106,8 +106,12 @@ bool TestCase::load(const char* filePath)
 		fclose(fp);
 		return false;
 	}
-	fread(buf, bufSize, 1, fp);
+	size_t readLen = fread(buf, bufSize, 1, fp);
 	fclose(fp);
+	if (readLen != 1)
+	{
+		return false;
+	}
 
 	char* src = buf;
 	char* srcEnd = buf + bufSize;

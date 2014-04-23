@@ -78,7 +78,6 @@ void rcMeshLoaderObj::addTriangle(int a, int b, int c, int& cap)
 
 static char* parseRow(char* buf, char* bufEnd, char* row, int len)
 {
-	bool cont = false;
 	bool start = true;
 	bool done = false;
 	int n = 0;
@@ -90,7 +89,6 @@ static char* parseRow(char* buf, char* bufEnd, char* row, int len)
 		switch (c)
 		{
 			case '\\':
-				cont = true; // multirow
 				break;
 			case '\n':
 				if (start) break;
@@ -103,7 +101,6 @@ static char* parseRow(char* buf, char* bufEnd, char* row, int len)
 				if (start) break;
 			default:
 				start = false;
-				cont = false;
 				row[n++] = c;
 				if (n >= len-1)
 					done = true;
@@ -153,8 +150,13 @@ bool rcMeshLoaderObj::load(const char* filename)
 		fclose(fp);
 		return false;
 	}
-	fread(buf, bufSize, 1, fp);
+	size_t readLen = fread(buf, bufSize, 1, fp);
 	fclose(fp);
+
+	if (readLen != 1)
+	{
+		return false;
+	}
 
 	char* src = buf;
 	char* srcEnd = buf + bufSize;

@@ -1317,4 +1317,3 @@ bool rcMergePolyMeshDetails(rcContext* ctx, rcPolyMeshDetail** meshes, const int
 	
 	return true;
 }
-
