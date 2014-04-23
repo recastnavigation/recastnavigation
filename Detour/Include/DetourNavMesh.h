@@ -134,7 +134,7 @@ enum dtRaycastOptions
 
 /// Limit raycasting during any angle pahfinding
 /// The limit is given as a multiple of the character radius
-static const float RAY_CAST_LIMIT_PROPORTIONS = 50.0f;
+static const float DT_RAY_CAST_LIMIT_PROPORTIONS = 50.0f;
 
 /// Flags representing the type of a navigation mesh polygon.
 enum dtPolyTypes

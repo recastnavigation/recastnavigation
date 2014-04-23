@@ -120,7 +120,7 @@ public:
 /// Provides information about raycast hit
 /// filled by dtNavMeshQuery::raycast
 /// @ingroup detour
-struct RaycastHit
+struct dtRaycastHit
 {
 	/// The hit parameter. (FLT_MAX if no wall hit.)
 	float t; 
@@ -128,7 +128,7 @@ struct RaycastHit
 	/// hitNormal	The normal of the nearest wall hit. [(x, y, z)]
 	float hitNormal[3];
 	
-	///  The reference ids of the visited polygons. [opt]
+	/// Pointer to an array of reference ids of the visited polygons. [opt]
 	dtPolyRef* path;
 	
 	/// The number of visited polygons. [opt]
@@ -211,7 +211,7 @@ public:
 	/// @returns The status flags for the query.
 	dtStatus initSlicedFindPath(dtPolyRef startRef, dtPolyRef endRef,
 								const float* startPos, const float* endPos,
-								const dtQueryFilter* filter, const unsigned int options=0/*DT_FINDPATH_ANY_ANGLE*/);
+								const dtQueryFilter* filter, const unsigned int options=0);
 
 	/// Updates an in-progress sliced path query.
 	///  @param[in]		maxIter		The maximum number of iterations to perform.
@@ -361,12 +361,12 @@ public:
 	///  @param[in]		endPos		The position to cast the ray toward. [(x, y, z)]
 	///  @param[in]		filter		The polygon filter to apply to the query.
 	///  @param[in]		flags		govern how the raycast behaves. See dtRaycastOptions
-	///  @param[out]	hit			The raycast hit structure.
+	///  @param[out]	hit			Pointer to a raycast hit structure which will be filled by the results.
 	///  @param[in]		prevRef		parent of start ref. Used during for cost calculation [opt]
 	/// @returns The status flags for the query.
 	dtStatus raycast(dtPolyRef startRef, const float* startPos, const float* endPos,
 					 const dtQueryFilter* filter, const unsigned int options,
-					 RaycastHit* hit, dtPolyRef prevRef=0) const;
+					 dtRaycastHit* hit, dtPolyRef prevRef=0) const;
 
 
 	/// Finds the distance from the specified position to the nearest polygon wall.
