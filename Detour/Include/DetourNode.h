@@ -25,7 +25,7 @@ enum dtNodeFlags
 {
 	DT_NODE_OPEN = 0x01,
 	DT_NODE_CLOSED = 0x02,
-	DT_NODE_PARENT_DETACHED = 0x04, // parent of the node is not connected/adjacent. Found using raycast.
+	DT_NODE_PARENT_DETACHED = 0x04, // parent of the node is  nmnot connected/adjacent. Found using raycast.
 };
 
 typedef unsigned short dtNodeIndex;
