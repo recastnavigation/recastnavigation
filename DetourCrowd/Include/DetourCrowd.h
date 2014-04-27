@@ -121,8 +121,8 @@ struct dtCrowdAgent
 	/// The type of mesh polygon the agent is traversing. (See: #CrowdAgentState)
 	unsigned char state;
 
-	/// 1 if the path is a partial path (the path does not lead to the target)
-	unsigned char partial;
+	/// True if the agent has valid path (targetState == DT_CROWDAGENT_TARGET_VALID) and the path does not lead to the requested position, else false.
+	bool partial;
 
 	/// The path corridor the agent is using.
 	dtPathCorridor corridor;
