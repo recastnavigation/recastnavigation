@@ -538,6 +538,7 @@ int dtCrowd::addAgent(const float* pos, const dtCrowdAgentParams* params)
 	
 	ag->corridor.reset(ref, nearest);
 	ag->boundary.reset();
+	ag->partial = 0;
 
 	updateAgentParameters(idx, params);
 	
@@ -716,6 +717,11 @@ void dtCrowd::updateMoveRequest(const float /*dt*/)
 				status = m_navquery->finalizeSlicedFindPath(reqPath, &reqPathCount, MAX_RES);
 			}
 
+			if (dtStatusDetail(status, DT_PARTIAL_RESULT))
+				ag->partial = 1;
+			else
+				ag->partial = 0;
+
 			if (!dtStatusFailed(status) && reqPathCount > 0)
 			{
 				// In progress or succeed.
@@ -819,7 +825,12 @@ void dtCrowd::updateMoveRequest(const float /*dt*/)
 				status = m_pathq.getPathResult(ag->targetPathqRef, res, &nres, m_maxPathResult);
 				if (dtStatusFailed(status) || !nres)
 					valid = false;
-				
+
+				if (dtStatusDetail(status, DT_PARTIAL_RESULT))
+					ag->partial = 1;
+				else
+					ag->partial = 0;
+
 				// Merge result and existing path.
 				// The agent might have moved whilst the request is
 				// being processed, so the path may have changed.
