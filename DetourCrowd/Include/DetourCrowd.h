@@ -115,8 +115,8 @@ enum MoveRequestState
 /// @ingroup crowd
 struct dtCrowdAgent
 {
-	/// 1 if the agent is active, or 0 if the agent is in an unused slot in the agent pool.
-	unsigned char active;
+	/// True if the agent is active, false if the agent is in an unused slot in the agent pool.
+	bool active;
 
 	/// The type of mesh polygon the agent is traversing. (See: #CrowdAgentState)
 	unsigned char state;
@@ -173,7 +173,7 @@ struct dtCrowdAgent
 
 struct dtCrowdAgentAnimation
 {
-	unsigned char active;
+	bool active;
 	float initPos[3], startPos[3], endPos[3];
 	dtPolyRef polyRef;
 	float t, tmax;
