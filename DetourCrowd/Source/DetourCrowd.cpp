@@ -538,6 +538,7 @@ int dtCrowd::addAgent(const float* pos, const dtCrowdAgentParams* params)
 	
 	ag->corridor.reset(ref, nearest);
 	ag->boundary.reset();
+	ag->partial = false;
 
 	updateAgentParameters(idx, params);
 	
@@ -746,6 +747,7 @@ void dtCrowd::updateMoveRequest(const float /*dt*/)
 
 			ag->corridor.setCorridor(reqPos, reqPath, reqPathCount);
 			ag->boundary.reset();
+			ag->partial = false;
 
 			if (reqPath[reqPathCount-1] == ag->targetRef)
 			{
@@ -819,7 +821,12 @@ void dtCrowd::updateMoveRequest(const float /*dt*/)
 				status = m_pathq.getPathResult(ag->targetPathqRef, res, &nres, m_maxPathResult);
 				if (dtStatusFailed(status) || !nres)
 					valid = false;
-				
+
+				if (dtStatusDetail(status, DT_PARTIAL_RESULT))
+					ag->partial = true;
+				else
+					ag->partial = false;
+
 				// Merge result and existing path.
 				// The agent might have moved whilst the request is
 				// being processed, so the path may have changed.
@@ -964,6 +971,7 @@ void dtCrowd::checkPathValidity(dtCrowdAgent** agents, const int nagents, const 
 			{
 				// Could not find location in navmesh, set state to invalid.
 				ag->corridor.reset(0, agentPos);
+				ag->partial = false;
 				ag->boundary.reset();
 				ag->state = DT_CROWDAGENT_STATE_INVALID;
 				continue;
@@ -1000,6 +1008,7 @@ void dtCrowd::checkPathValidity(dtCrowdAgent** agents, const int nagents, const 
 			{
 				// Failed to reposition target, fail moverequest.
 				ag->corridor.reset(agentRef, agentPos);
+				ag->partial = false;
 				ag->targetState = DT_CROWDAGENT_TARGET_NONE;
 			}
 		}
@@ -1392,6 +1401,7 @@ void dtCrowd::update(const float dt, dtCrowdAgentDebugInfo* debug)
 		if (ag->targetState == DT_CROWDAGENT_TARGET_NONE || ag->targetState == DT_CROWDAGENT_TARGET_VELOCITY)
 		{
 			ag->corridor.reset(ag->corridor.getFirstPoly(), ag->npos);
+			ag->partial = false;
 		}
 
 	}
