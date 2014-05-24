@@ -525,6 +525,8 @@ int dtCrowd::addAgent(const float* pos, const dtCrowdAgentParams* params)
 	
 	dtCrowdAgent* ag = &m_agents[idx];		
 
+	updateAgentParameters(idx, params);
+	
 	// Find nearest position on navmesh and place the agent there.
 	float nearest[3];
 	dtPolyRef ref = 0;
@@ -540,8 +542,6 @@ int dtCrowd::addAgent(const float* pos, const dtCrowdAgentParams* params)
 	ag->boundary.reset();
 	ag->partial = false;
 
-	updateAgentParameters(idx, params);
-	
 	ag->topologyOptTime = 0;
 	ag->targetReplanTime = 0;
 	ag->nneis = 0;
