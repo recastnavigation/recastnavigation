@@ -155,7 +155,7 @@ void CrowdToolState::init(class Sample* sample)
 		crowd->init(MAX_AGENTS, m_sample->getAgentRadius(), nav);
 		
 		// Make polygons with 'disabled' flag invalid.
-		crowd->getEditableFilter()->setExcludeFlags(SAMPLE_POLYFLAGS_DISABLED);
+		crowd->getEditableFilter(0)->setExcludeFlags(SAMPLE_POLYFLAGS_DISABLED);
 		
 		// Setup local avoidance params to different qualities.
 		dtObstacleAvoidanceParams params;
@@ -707,7 +707,7 @@ void CrowdToolState::setMoveTarget(const float* p, bool adjust)
 	// Find nearest point on navmesh and set move request to that location.
 	dtNavMeshQuery* navquery = m_sample->getNavMeshQuery();
 	dtCrowd* crowd = m_sample->getCrowd();
-	const dtQueryFilter* filter = crowd->getFilter();
+	const dtQueryFilter* filter = crowd->getFilter(0);
 	const float* ext = crowd->getQueryExtents();
 
 	if (adjust)
