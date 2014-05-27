@@ -1268,7 +1268,7 @@ dtStatus dtNavMeshQuery::updateSlicedFindPath(const int maxIter, int* doneIters)
 		if (parentRef)
 		{
 			bool invalidParent = dtStatusFailed(m_nav->getTileAndPolyByRef(parentRef, &parentTile, &parentPoly));
-			if (invalidParent || (grandpaRef && dtStatusFailed(m_nav->isValidPolyRef(grandpaRef))) )
+			if (invalidParent || (grandpaRef && !m_nav->isValidPolyRef(grandpaRef)) )
 			{
 				// The polygon has disappeared during the sliced query, fail.
 				m_query.status = DT_FAILURE;
