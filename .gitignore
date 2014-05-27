@@ -38,3 +38,6 @@ Thumbs.db
 
 ## SDL contrib
 RecastDemo/Contrib/SDL/*
+
+## Generated doc files
+Docs/html
