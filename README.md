@@ -12,7 +12,7 @@ Recast is state of the art navigation mesh construction toolset for games.
 
 * It is automatic, which means that you can throw any level geometry at it and you will get robust mesh out
 * It is fast which means swift turnaround times for level designers
-* It is open source so it comes with full source and you can customize it to your hearts content. 
+* It is open source so it comes with full source and you can customize it to your heart's content. 
 
 The Recast process starts with constructing a voxel mold from a level geometry 
 and then casting a navigation mesh over it. The process consists of three steps, 
@@ -28,7 +28,7 @@ the regions as simple polygons.
 
 Recast is accompanied with Detour, path-finding and spatial reasoning toolkit. You can use any navigation mesh with Detour, but of course the data generated with Recast fits perfectly.
 
-Detour offers simple static navigation mesh which is suitable for many simple cases, as well as tiled navigation mesh which allows you to plug in and out pieces of the mesh. The tiled mesh allows to create systems where you stream new navigation data in and out as the player progresses the level, or you may regenerate tiles as the world changes. 
+Detour offers simple static navigation mesh which is suitable for many simple cases, as well as tiled navigation mesh which allows you to plug in and out pieces of the mesh. The tiled mesh allows you to create systems where you stream new navigation data in and out as the player progresses the level, or you may regenerate tiles as the world changes. 
 
 
 ## Recast Demo
@@ -54,7 +54,7 @@ It is recommended to add the source directories `DebugUtils`, `Detour`, `DetourC
 ## Discuss
 
 - Discuss Recast & Detour: http://groups.google.com/group/recastnavigation
-- Develoment blog: http://digestingduck.blogspot.com/
+- Development blog: http://digestingduck.blogspot.com/
 
 
 ## License
