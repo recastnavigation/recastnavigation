@@ -59,6 +59,13 @@ enum SamplePolyFlags
 	SAMPLE_POLYFLAGS_ALL		= 0xffff	// All abilities.
 };
 
+enum SamplePartitionType
+{
+	SAMPLE_PARTITION_WATERSHED,
+	SAMPLE_PARTITION_MONOTONE,
+	SAMPLE_PARTITION_LAYERS,
+};
+
 struct SampleTool
 {
 	virtual ~SampleTool() {}
@@ -101,12 +108,12 @@ protected:
 	float m_agentMaxSlope;
 	float m_regionMinSize;
 	float m_regionMergeSize;
-	bool m_monotonePartitioning;
 	float m_edgeMaxLen;
 	float m_edgeMaxError;
 	float m_vertsPerPoly;
 	float m_detailSampleDist;
 	float m_detailSampleMaxError;
+	int m_partitionType;
 	
 	SampleTool* m_tool;
 	SampleToolState* m_toolStates[MAX_TOOLS];

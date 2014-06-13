@@ -964,7 +964,7 @@ void rcMarkCylinderArea(rcContext* ctx, const float* pos,
 ///  @returns True if the operation completed successfully.
 bool rcBuildDistanceField(rcContext* ctx, rcCompactHeightfield& chf);
 
-/// Builds region data for the heightfield using watershed partitioning. 
+/// Builds region data for the heightfield using watershed partitioning.
 ///  @ingroup recast
 ///  @param[in,out]	ctx				The build context to use during the operation.
 ///  @param[in,out]	chf				A populated compact heightfield.
@@ -977,6 +977,18 @@ bool rcBuildDistanceField(rcContext* ctx, rcCompactHeightfield& chf);
 ///  @returns True if the operation completed successfully.
 bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 					const int borderSize, const int minRegionArea, const int mergeRegionArea);
+
+/// Builds region data for the heightfield by partitioning the heightfield in non-overlapping layers.
+///  @ingroup recast
+///  @param[in,out]	ctx				The build context to use during the operation.
+///  @param[in,out]	chf				A populated compact heightfield.
+///  @param[in]		borderSize		The size of the non-navigable border around the heightfield.
+///  								[Limit: >=0] [Units: vx]
+///  @param[in]		minRegionArea	The minimum number of cells allowed to form isolated island areas.
+///  								[Limit: >=0] [Units: vx].
+///  @returns True if the operation completed successfully.
+bool rcBuildLayerRegions(rcContext* ctx, rcCompactHeightfield& chf,
+						 const int borderSize, const int minRegionArea);
 
 /// Builds region data for the heightfield using simple monotone partitioning.
 ///  @ingroup recast 
@@ -991,7 +1003,6 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 ///  @returns True if the operation completed successfully.
 bool rcBuildRegionsMonotone(rcContext* ctx, rcCompactHeightfield& chf,
 							const int borderSize, const int minRegionArea, const int mergeRegionArea);
-
 
 /// Sets the neighbor connection data for the specified direction.
 ///  @param[in]		s		The span to update.
