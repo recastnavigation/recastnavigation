@@ -26,6 +26,7 @@ class TestCase
 	enum TestType
 	{
 		TEST_PATHFIND,
+		TEST_RAYCAST,
 	};
 	
 	struct Test
@@ -39,6 +40,7 @@ class TestCase
 		
 		TestType type;
 		float spos[3], epos[3];
+		float nspos[3], nepos[3];
 		float radius;
 		int includeFlags, excludeFlags;
 		bool expand;

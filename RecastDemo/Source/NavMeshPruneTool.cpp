@@ -63,7 +63,7 @@ public:
 		}
 		m_size = n;
 	}
-	inline void push(int item) { resize(m_size+1); m_data[m_size-1] = item; }
+	inline void push(dtPolyRef item) { resize(m_size+1); m_data[m_size-1] = item; }
 	inline dtPolyRef pop() { if (m_size > 0) m_size--; return m_data[m_size]; }
 	inline const dtPolyRef& operator[](int i) const { return m_data[i]; }
 	inline dtPolyRef& operator[](int i) { return m_data[i]; }
@@ -261,8 +261,11 @@ void NavMeshPruneTool::handleMenu()
 	}
 }
 
-void NavMeshPruneTool::handleClick(const float* /*s*/, const float* p, bool shift)
+void NavMeshPruneTool::handleClick(const float* s, const float* p, bool shift)
 {
+	rcIgnoreUnused(s);
+	rcIgnoreUnused(shift);
+
 	if (!m_sample) return;
 	InputGeom* geom = m_sample->getInputGeom();
 	if (!geom) return;
@@ -341,9 +344,11 @@ void NavMeshPruneTool::handleRender()
 
 void NavMeshPruneTool::handleRenderOverlay(double* proj, double* model, int* view)
 {
+	rcIgnoreUnused(model);
+	rcIgnoreUnused(proj);
+
 	// Tool help
 	const int h = view[3];
 
-	imguiDrawText(280, h-40, IMGUI_ALIGN_LEFT, "LMB: Click fill area.", imguiRGBA(255,255,255,192));	
-	
+	imguiDrawText(280, h-40, IMGUI_ALIGN_LEFT, "LMB: Click fill area.", imguiRGBA(255,255,255,192));
 }

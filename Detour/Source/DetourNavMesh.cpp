@@ -193,11 +193,13 @@ dtNavMesh::dtNavMesh() :
 	m_tileLutMask(0),
 	m_posLookup(0),
 	m_nextFree(0),
-	m_tiles(0),
-	m_saltBits(0),
-	m_tileBits(0),
-	m_polyBits(0)
+	m_tiles(0)
 {
+#ifndef DT_POLYREF64
+	m_saltBits = 0;
+	m_tileBits = 0;
+	m_polyBits = 0;
+#endif
 	memset(&m_params, 0, sizeof(dtNavMeshParams));
 	m_orig[0] = 0;
 	m_orig[1] = 0;
@@ -249,12 +251,15 @@ dtStatus dtNavMesh::init(const dtNavMeshParams* params)
 	}
 	
 	// Init ID generator values.
+#ifndef DT_POLYREF64
 	m_tileBits = dtIlog2(dtNextPow2((unsigned int)params->maxTiles));
 	m_polyBits = dtIlog2(dtNextPow2((unsigned int)params->maxPolys));
 	// Only allow 31 salt bits, since the salt mask is calculated using 32bit uint and it will overflow.
 	m_saltBits = dtMin((unsigned int)31, 32 - m_tileBits - m_polyBits);
+
 	if (m_saltBits < 10)
 		return DT_FAILURE | DT_INVALID_PARAM;
+#endif
 	
 	return DT_SUCCESS;
 }
@@ -612,10 +617,12 @@ void dtNavMesh::baseOffMeshLinks(dtMeshTile* tile)
 	}
 }
 
-void dtNavMesh::closestPointOnPolyInTile(const dtMeshTile* tile, unsigned int ip,
-										 const float* pos, float* closest) const
+void dtNavMesh::closestPointOnPoly(dtPolyRef ref, const float* pos, float* closest, bool* posOverPoly) const
 {
-	const dtPoly* poly = &tile->polys[ip];
+	const dtMeshTile* tile = 0;
+	const dtPoly* poly = 0;
+	getTileAndPolyByRefUnsafe(ref, &tile, &poly);
+	
 	// Off-mesh connections don't have detail polygons.
 	if (poly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
 	{
@@ -625,11 +632,14 @@ void dtNavMesh::closestPointOnPolyInTile(const dtMeshTile* tile, unsigned int ip
 		const float d1 = dtVdist(pos, v1);
 		const float u = d0 / (d0+d1);
 		dtVlerp(closest, v0, v1, u);
+		if (posOverPoly)
+			*posOverPoly = false;
 		return;
 	}
 	
+	const unsigned int ip = (unsigned int)(poly - tile->polys);
 	const dtPolyDetail* pd = &tile->detailMeshes[ip];
-
+	
 	// Clamp point to be inside the polygon.
 	float verts[DT_VERTS_PER_POLYGON*3];	
 	float edged[DT_VERTS_PER_POLYGON];
@@ -655,6 +665,14 @@ void dtNavMesh::closestPointOnPolyInTile(const dtMeshTile* tile, unsigned int ip
 		const float* va = &verts[imin*3];
 		const float* vb = &verts[((imin+1)%nv)*3];
 		dtVlerp(closest, va, vb, edget[imin]);
+		
+		if (posOverPoly)
+			*posOverPoly = false;
+	}
+	else
+	{
+		if (posOverPoly)
+			*posOverPoly = true;
 	}
 	
 	// Find height at the location.
@@ -697,12 +715,27 @@ dtPolyRef dtNavMesh::findNearestPolyInTile(const dtMeshTile* tile,
 	{
 		dtPolyRef ref = polys[i];
 		float closestPtPoly[3];
-		closestPointOnPolyInTile(tile, decodePolyIdPoly(ref), center, closestPtPoly);
-		float d = dtVdistSqr(center, closestPtPoly);
+		float diff[3];
+		bool posOverPoly = false;
+		float d = 0;
+		closestPointOnPoly(ref, center, closestPtPoly, &posOverPoly);
+
+		// If a point is directly over a polygon and closer than
+		// climb height, favor that instead of straight line nearest point.
+		dtVsub(diff, center, closestPtPoly);
+		if (posOverPoly)
+		{
+			d = dtAbs(diff[1]) - tile->header->walkableClimb;
+			d = d > 0 ? d*d : 0;			
+		}
+		else
+		{
+			d = dtVlenSqr(diff);
+		}
+		
 		if (d < nearestDistanceSqr)
 		{
-			if (nearestPt)
-				dtVcopy(nearestPt, closestPtPoly);
+			dtVcopy(nearestPt, closestPtPoly);
 			nearestDistanceSqr = d;
 			nearest = ref;
 		}
@@ -1209,7 +1242,11 @@ dtStatus dtNavMesh::removeTile(dtTileRef ref, unsigned char** data, int* dataSiz
 	tile->offMeshCons = 0;
 
 	// Update salt, salt should never be zero.
+#ifdef DT_POLYREF64
+	tile->salt = (tile->salt+1) & ((1<<DT_SALT_BITS)-1);
+#else
 	tile->salt = (tile->salt+1) & ((1<<m_saltBits)-1);
+#endif
 	if (tile->salt == 0)
 		tile->salt++;
 

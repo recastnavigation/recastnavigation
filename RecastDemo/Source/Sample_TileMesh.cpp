@@ -283,7 +283,12 @@ dtNavMesh* Sample_TileMesh::loadAll(const char* path)
 	
 	// Read header.
 	NavMeshSetHeader header;
-	fread(&header, sizeof(NavMeshSetHeader), 1, fp);
+	size_t readLen = fread(&header, sizeof(NavMeshSetHeader), 1, fp);
+	if (readLen != 1)
+	{
+		fclose(fp);
+		return 0;
+	}
 	if (header.magic != NAVMESHSET_MAGIC)
 	{
 		fclose(fp);
@@ -312,15 +317,20 @@ dtNavMesh* Sample_TileMesh::loadAll(const char* path)
 	for (int i = 0; i < header.numTiles; ++i)
 	{
 		NavMeshTileHeader tileHeader;
-		fread(&tileHeader, sizeof(tileHeader), 1, fp);
+		readLen = fread(&tileHeader, sizeof(tileHeader), 1, fp);
+		if (readLen != 1)
+			return 0;
+
 		if (!tileHeader.tileRef || !tileHeader.dataSize)
 			break;
 
 		unsigned char* data = (unsigned char*)dtAlloc(tileHeader.dataSize, DT_ALLOC_PERM);
 		if (!data) break;
 		memset(data, 0, tileHeader.dataSize);
-		fread(data, tileHeader.dataSize, 1, fp);
-		
+		readLen = fread(data, tileHeader.dataSize, 1, fp);
+		if (readLen != 1)
+			return 0;
+
 		mesh->addTile(data, tileHeader.dataSize, DT_TILE_FREE_DATA, tileHeader.tileRef, 0);
 	}
 	

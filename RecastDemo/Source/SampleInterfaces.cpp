@@ -312,8 +312,8 @@ bool FileIO::write(const void* ptr, const size_t size)
 bool FileIO::read(void* ptr, const size_t size)
 {
 	if (!m_fp || m_mode != 2) return false;
-	fread(ptr, size, 1, m_fp);
-	return true;
+	size_t readLen = fread(ptr, size, 1, m_fp);
+	return readLen == 1;
 }
 
 

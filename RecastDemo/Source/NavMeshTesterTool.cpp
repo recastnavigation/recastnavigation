@@ -101,6 +101,66 @@ static int fixupCorridor(dtPolyRef* path, const int npath, const int maxPath,
 	return req+size;
 }
 
+// This function checks if the path has a small U-turn, that is,
+// a polygon further in the path is adjacent to the first polygon
+// in the path. If that happens, a shortcut is taken.
+// This can happen if the target (T) location is at tile boundary,
+// and we're (S) approaching it parallel to the tile edge.
+// The choice at the vertex can be arbitrary, 
+//  +---+---+
+//  |:::|:::|
+//  +-S-+-T-+
+//  |:::|   | <-- the step can end up in here, resulting U-turn path.
+//  +---+---+
+static int fixupShortcuts(dtPolyRef* path, int npath, dtNavMeshQuery* navQuery)
+{
+	if (npath < 3)
+		return npath;
+
+	// Get connected polygons
+	static const int maxNeis = 16;
+	dtPolyRef neis[maxNeis];
+	int nneis = 0;
+
+	const dtMeshTile* tile = 0;
+	const dtPoly* poly = 0;
+	if (dtStatusFailed(navQuery->getAttachedNavMesh()->getTileAndPolyByRef(path[0], &tile, &poly)))
+		return npath;
+	
+	for (unsigned int k = poly->firstLink; k != DT_NULL_LINK; k = tile->links[k].next)
+	{
+		const dtLink* link = &tile->links[k];
+		if (link->ref != 0)
+		{
+			if (nneis < maxNeis)
+				neis[nneis++] = link->ref;
+		}
+	}
+
+	// If any of the neighbour polygons is within the next few polygons
+	// in the path, short cut to that polygon directly.
+	static const int maxLookAhead = 6;
+	int cut = 0;
+	for (int i = dtMin(maxLookAhead, npath) - 1; i > 1 && cut == 0; i--) {
+		for (int j = 0; j < nneis; j++)
+		{
+			if (path[i] == neis[j]) {
+				cut = i;
+				break;
+			}
+		}
+	}
+	if (cut > 1)
+	{
+		int offset = cut-1;
+		npath -= offset;
+		for (int i = 1; i < npath; i++)
+			path[i] = path[i+offset];
+	}
+
+	return npath;
+}
+
 static bool getSteerTarget(dtNavMeshQuery* navQuery, const float* startPos, const float* endPos,
 						   const float minTargetDist,
 						   const dtPolyRef* path, const int pathSize,
@@ -446,8 +506,8 @@ void NavMeshTesterTool::handleToggle()
 		if (m_pathIterPolyCount)
 		{
 			// Iterate over the path to find smooth path on the detail mesh surface.
-			m_navQuery->closestPointOnPoly(m_startRef, m_spos, m_iterPos);
-			m_navQuery->closestPointOnPoly(m_pathIterPolys[m_pathIterPolyCount-1], m_epos, m_targetPos);
+			m_navQuery->closestPointOnPoly(m_startRef, m_spos, m_iterPos, 0);
+			m_navQuery->closestPointOnPoly(m_pathIterPolys[m_pathIterPolyCount-1], m_epos, m_targetPos, 0);
 			
 			m_nsmoothPath = 0;
 			
@@ -503,6 +563,8 @@ void NavMeshTesterTool::handleToggle()
 	m_navQuery->moveAlongSurface(m_pathIterPolys[0], m_iterPos, moveTgt, &m_filter,
 								 result, visited, &nvisited, 16);
 	m_pathIterPolyCount = fixupCorridor(m_pathIterPolys, m_pathIterPolyCount, MAX_POLYS, visited, nvisited);
+	m_pathIterPolyCount = fixupShortcuts(m_pathIterPolys, m_pathIterPolyCount, m_navQuery);
+
 	float h = 0;
 	m_navQuery->getPolyHeight(m_pathIterPolys[0], result, &h);
 	result[1] = h;
@@ -588,7 +650,7 @@ void NavMeshTesterTool::handleUpdate(const float /*dt*/)
 				float epos[3];
 				dtVcopy(epos, m_epos);
 				if (m_polys[m_npolys-1] != m_endRef)
-				m_navQuery->closestPointOnPoly(m_polys[m_npolys-1], m_epos, epos);
+				m_navQuery->closestPointOnPoly(m_polys[m_npolys-1], m_epos, epos, 0);
 
 				m_navQuery->findStraightPath(m_spos, epos, m_polys, m_npolys,
 											 m_straightPath, m_straightPathFlags,
@@ -653,8 +715,8 @@ void NavMeshTesterTool::recalc()
 				int npolys = m_npolys;
 				
 				float iterPos[3], targetPos[3];
-				m_navQuery->closestPointOnPoly(m_startRef, m_spos, iterPos);
-				m_navQuery->closestPointOnPoly(polys[npolys-1], m_epos, targetPos);
+				m_navQuery->closestPointOnPoly(m_startRef, m_spos, iterPos, 0);
+				m_navQuery->closestPointOnPoly(polys[npolys-1], m_epos, targetPos, 0);
 				
 				static const float STEP_SIZE = 0.5f;
 				static const float SLOP = 0.01f;
@@ -698,8 +760,10 @@ void NavMeshTesterTool::recalc()
 					int nvisited = 0;
 					m_navQuery->moveAlongSurface(polys[0], iterPos, moveTgt, &m_filter,
 												 result, visited, &nvisited, 16);
-															   
+
 					npolys = fixupCorridor(polys, npolys, MAX_POLYS, visited, nvisited);
+					npolys = fixupShortcuts(polys, npolys, m_navQuery);
+
 					float h = 0;
 					m_navQuery->getPolyHeight(polys[0], result, &h);
 					result[1] = h;
@@ -791,7 +855,7 @@ void NavMeshTesterTool::recalc()
 				float epos[3];
 				dtVcopy(epos, m_epos);
 				if (m_polys[m_npolys-1] != m_endRef)
-					m_navQuery->closestPointOnPoly(m_polys[m_npolys-1], m_epos, epos);
+					m_navQuery->closestPointOnPoly(m_polys[m_npolys-1], m_epos, epos, 0);
 				
 				m_navQuery->findStraightPath(m_spos, epos, m_polys, m_npolys,
 											 m_straightPath, m_straightPathFlags,
@@ -1297,7 +1361,7 @@ void NavMeshTesterTool::handleRender()
 		for (int i = 0; i < m_nrandPoints; i++)
 		{
 			const float* p = &m_randPoints[i*3];
-			dd.vertex(p[0],p[1]+0.1,p[2], duRGBA(220,32,16,192));
+			dd.vertex(p[0],p[1]+0.1f,p[2], duRGBA(220,32,16,192));
 		} 
 		dd.end();
 		

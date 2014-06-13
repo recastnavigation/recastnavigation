@@ -185,6 +185,7 @@ dtStatus dtPathQueue::getPathResult(dtPathQueueRef ref, dtPolyRef* path, int* pa
 		if (m_queue[i].ref == ref)
 		{
 			PathQuery& q = m_queue[i];
+			dtStatus details = q.status & DT_STATUS_DETAIL_MASK;
 			// Free request for reuse.
 			q.ref = DT_PATHQ_INVALID;
 			q.status = 0;
@@ -192,7 +193,7 @@ dtStatus dtPathQueue::getPathResult(dtPathQueueRef ref, dtPolyRef* path, int* pa
 			int n = dtMin(q.npath, maxPath);
 			memcpy(path, q.path, sizeof(dtPolyRef)*n);
 			*pathSize = n;
-			return DT_SUCCESS;
+			return details | DT_SUCCESS;
 		}
 	}
 	return DT_FAILURE;

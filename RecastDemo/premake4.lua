@@ -16,21 +16,22 @@ solution "recastnavigation"
 	-- extra warnings, no exceptions or rtti
 	flags { 
 		"ExtraWarnings",
+		"FloatFast",
 		"NoExceptions",
-		"NoRTTI"
+		"NoRTTI",
+		"Symbols"
 	}
 
 	-- debug configs
 	configuration "Debug*"
 		defines { "DEBUG" }
-		flags { "Symbols" }
-		targetdir ( "Build/" .. action .. "/Debug" )
+		targetdir ( todir .. "/lib/Debug" )
  
  	-- release configs
 	configuration "Release*"
 		defines { "NDEBUG" }
 		flags { "Optimize" }
-		targetdir ( "Build/" .. action .. "/Release" )
+		targetdir ( todir .. "/lib/Release" )
 
 	-- windows specific
 	configuration "windows"
@@ -50,7 +51,6 @@ project "DebugUtils"
 		"../DebugUtils/Include/*.h",
 		"../DebugUtils/Source/*.cpp"
 	}
-	targetdir (todir .. "/lib")
 
 project "Detour"
 	language "C++"
@@ -62,7 +62,6 @@ project "Detour"
 		"../Detour/Include/*.h", 
 		"../Detour/Source/*.cpp" 
 	}
-	targetdir (todir .. "/lib")
 
 project "DetourCrowd"
 	language "C++"
@@ -76,7 +75,6 @@ project "DetourCrowd"
 		"../DetourCrowd/Include/*.h",
 		"../DetourCrowd/Source/*.cpp"
 	}
-	targetdir (todir .. "/lib")
 
 project "DetourTileCache"
 	language "C++"
@@ -90,7 +88,6 @@ project "DetourTileCache"
 		"../DetourTileCache/Include/*.h",
 		"../DetourTileCache/Source/*.cpp"
 	}
-	targetdir (todir .. "/lib")
 
 project "Recast"
 	language "C++"
@@ -102,7 +99,6 @@ project "Recast"
 		"../Recast/Include/*.h",
 		"../Recast/Source/*.cpp" 
 	}
-	targetdir (todir .. "/lib")
 
 project "RecastDemo"
 	language "C++"
