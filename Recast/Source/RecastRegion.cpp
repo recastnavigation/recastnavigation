@@ -241,19 +241,6 @@ static unsigned short* boxBlur(rcCompactHeightfield& chf, int thr,
 }
 
 
-static bool regionInColumn(rcCompactHeightfield& chf, int x, int y, int skipi,
-						   unsigned short* regs, unsigned short r)
-{
-	const rcCompactCell& c = chf.cells[x+y*chf.width];
-	for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
-	{
-		if (i == skipi) continue;
-		if (regs[i] == r)
-			return true;
-	}
-	return false;
-}
-
 static bool floodRegion(int x, int y, int i,
 						unsigned short level, unsigned short r,
 						rcCompactHeightfield& chf,
@@ -328,51 +315,6 @@ static bool floodRegion(int x, int y, int i,
 			srcReg[ci] = 0;
 			continue;
 		}
-		
-		// Make sure we do not expand so that the region overlaps.
-		// This happens in pathological case in spiral staircase like
-		// scenarios.
-/*		bool overlap = false;
-		for (int dir = 0; dir < 4; ++dir)
-		{
-			// 8 connected
-			if (rcGetCon(cs, dir) != RC_NOT_CONNECTED)
-			{
-				const int ax = cx + rcGetDirOffsetX(dir);
-				const int ay = cy + rcGetDirOffsetY(dir);
-				const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(cs, dir);
-				if (chf.areas[ai] != area)
-					continue;
-				unsigned short nr = srcReg[ai];
-				if (nr & RC_BORDER_REG) // Do not take borders into account.
-					continue;
-				if (regionInColumn(chf, ax, ay, ai, srcReg, r))
-				{
-					overlap = true;
-					break;
-				}
-				
-				const rcCompactSpan& as = chf.spans[ai];
-				const int dir2 = (dir+1) & 0x3;
-				if (rcGetCon(as, dir2) != RC_NOT_CONNECTED)
-				{
-					const int ax2 = ax + rcGetDirOffsetX(dir2);
-					const int ay2 = ay + rcGetDirOffsetY(dir2);
-					const int ai2 = (int)chf.cells[ax2+ay2*w].index + rcGetCon(as, dir2);
-					if (chf.areas[ai2] != area)
-						continue;
-					if (regionInColumn(chf, ax2, ay2, ai2, srcReg, r))
-					{
-						overlap = true;
-						break;
-					}
-				}
-			}
-		}
-		if (overlap)
-		{
-			continue;
-		}*/
 		
 		count++;
 		
