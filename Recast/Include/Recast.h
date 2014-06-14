@@ -338,7 +338,7 @@ struct rcHeightfieldLayer
 	int maxy;					///< The maximum y-bounds of usable data. (Along the z-axis.)
 	int hmin;					///< The minimum height bounds of usable data. (Along the y-axis.)
 	int hmax;					///< The maximum height bounds of usable data. (Along the y-axis.)
-	unsigned char* heights;		///< The heightfield. [Size: (width - borderSize*2) * (h - borderSize*2)]
+	unsigned char* heights;		///< The heightfield. [Size: width * height]
 	unsigned char* areas;		///< Area ids. [Size: Same as #heights]
 	unsigned char* cons;		///< Packed neighbor connection information. [Size: Same as #heights]
 };
