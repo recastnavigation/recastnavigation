@@ -489,6 +489,99 @@ static void delaunayHull(rcContext* ctx, const int npts, const float* pts,
 	}
 }
 
+// Calculate minimum extend of the polygon.
+static float polyMinExtent(const float* verts, const int nverts)
+{
+	float minDist = FLT_MAX;
+	for (int i = 0; i < nverts; i++)
+	{
+		const int ni = (i+1) % nverts;
+		const float* p1 = &verts[i*3];
+		const float* p2 = &verts[ni*3];
+		float maxEdgeDist = 0;
+		for (int j = 0; j < nverts; j++)
+		{
+			if (j == i || j == ni) continue;
+			float d = distancePtSeg2d(&verts[j*3], p1,p2);
+			maxEdgeDist = rcMax(maxEdgeDist, d);
+		}
+		minDist = rcMin(minDist, maxEdgeDist);
+	}
+	return rcSqrt(minDist);
+}
+
+inline int next(int i, int n)
+{
+	return (i+1) % n;
+}
+
+inline int prev(int i, int n)
+{
+	return (i + n-1) % n;
+}
+
+static void triangulateHull(const int nverts, const float* verts, const int nhull, const int* hull, rcIntArray& tris)
+{
+	int start = 0, left = 1, right = nhull-1;
+
+	// Start from shortest ear.
+	float dmin = FLT_MAX;
+	for (int i = 0; i < nhull; i++)
+	{
+		int pi = prev(i, nhull);
+		int ni = next(i, nhull);
+		const float* pv = &verts[hull[pi]*3];
+		const float* nv = &verts[hull[ni]*3];
+		const float d = vdistSq2(pv, nv);
+		if (d < dmin)
+		{
+			start = i;
+			left = ni;
+			right = pi;
+			dmin = d;
+		}
+	}
+	
+	// Add first triangle
+	tris.push(hull[start]);
+	tris.push(hull[left]);
+	tris.push(hull[right]);
+	tris.push(0);
+
+	// Triangulate the polygon by adding the shortest diagonal
+	// by moving left or right.
+	while (next(left, nhull) != right)
+	{
+		// Check to see if se should advance left or right.
+		int nleft = next(left, nhull);
+		int nright = prev(right, nhull);
+
+		const float* cvleft = &verts[hull[left]*3];
+		const float* nvleft = &verts[hull[nleft]*3];
+		const float* cvright = &verts[hull[right]*3];
+		const float* nvright = &verts[hull[nright]*3];
+
+		const float dleft = vdistSq2(nvleft, cvright);
+		const float dright = vdistSq2(cvleft, nvright);
+		if (dleft < dright)
+		{
+			tris.push(hull[left]);
+			tris.push(hull[nleft]);
+			tris.push(hull[right]);
+			tris.push(0);
+			left = nleft;
+		}
+		else
+		{
+			tris.push(hull[left]);
+			tris.push(hull[nright]);
+			tris.push(hull[right]);
+			tris.push(0);
+			right = nright;
+		}
+	}
+}
+
 
 inline float getJitterX(const int i)
 {
@@ -518,9 +611,15 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 	for (int i = 0; i < nin; ++i)
 		rcVcopy(&verts[i*3], &in[i*3]);
 	nverts = nin;
-	
+
+	edges.resize(0);
+	tris.resize(0);
+
 	const float cs = chf.cs;
 	const float ics = 1.0f/cs;
+
+	// Calculate minimum extents of the polygon based on input data.
+	float minExtent = polyMinExtent(verts, nverts);
 	
 	// Tessellate outlines.
 	// This is done in separate pass in order to ensure
@@ -627,25 +726,24 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 			}
 		}
 	}
-	
+
+	// If the polygon minimum extent is small (sliver or small triangle), do not try to add internal points.
+	if (minExtent < sampleDist*2)
+	{
+		triangulateHull(nverts, verts, nhull, hull, tris);
+		return true;
+	}
 
 	// Tessellate the base mesh.
-	edges.resize(0);
-	tris.resize(0);
-
-	delaunayHull(ctx, nverts, verts, nhull, hull, tris, edges);
-	
+	// We're using the triangulateHull instead of delaunayHull as it tends to
+	// create a bit better triangulation for long thing triangles when there
+	// are no internal points.
+	triangulateHull(nverts, verts, nhull, hull, tris);
+		
 	if (tris.size() == 0)
 	{
 		// Could not triangulate the poly, make sure there is some valid data there.
-		ctx->log(RC_LOG_WARNING, "buildPolyDetail: Could not triangulate polygon, adding default data.");
-		for (int i = 2; i < nverts; ++i)
-		{
-			tris.push(0);
-			tris.push(i-1);
-			tris.push(i);
-			tris.push(0);
-		}
+		ctx->log(RC_LOG_WARNING, "buildPolyDetail: Could not triangulate polygon (%d verts).", nverts);
 		return true;
 	}
 

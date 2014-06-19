@@ -41,6 +41,10 @@ class dtQueryFilter
 public:
 	dtQueryFilter();
 	
+#ifdef DT_VIRTUAL_QUERYFILTER
+	virtual ~dtQueryFilter() { }
+#endif
+	
 	/// Returns true if the polygon can be visited.  (I.e. Is traversable.)
 	///  @param[in]		ref		The reference id of the polygon test.
 	///  @param[in]		tile	The tile containing the polygon.

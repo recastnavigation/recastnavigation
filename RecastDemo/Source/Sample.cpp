@@ -129,12 +129,12 @@ void Sample::resetCommonSettings()
 	m_agentMaxSlope = 45.0f;
 	m_regionMinSize = 8;
 	m_regionMergeSize = 20;
-	m_monotonePartitioning = false;
 	m_edgeMaxLen = 12.0f;
 	m_edgeMaxError = 1.3f;
 	m_vertsPerPoly = 6.0f;
 	m_detailSampleDist = 6.0f;
 	m_detailSampleMaxError = 1.0f;
+	m_partitionType = SAMPLE_PARTITION_WATERSHED;
 }
 
 void Sample::handleCommonSettings()
@@ -165,8 +165,15 @@ void Sample::handleCommonSettings()
 	imguiLabel("Region");
 	imguiSlider("Min Region Size", &m_regionMinSize, 0.0f, 150.0f, 1.0f);
 	imguiSlider("Merged Region Size", &m_regionMergeSize, 0.0f, 150.0f, 1.0f);
-	if (imguiCheck("Monotore Partitioning", m_monotonePartitioning))
-		m_monotonePartitioning = !m_monotonePartitioning;
+
+	imguiSeparator();
+	imguiLabel("Partitioning");
+	if (imguiCheck("Watershed", m_partitionType == SAMPLE_PARTITION_WATERSHED))
+		m_partitionType = SAMPLE_PARTITION_WATERSHED;
+	if (imguiCheck("Monotone", m_partitionType == SAMPLE_PARTITION_MONOTONE))
+		m_partitionType = SAMPLE_PARTITION_MONOTONE;
+	if (imguiCheck("Layers", m_partitionType == SAMPLE_PARTITION_LAYERS))
+		m_partitionType = SAMPLE_PARTITION_LAYERS;
 	
 	imguiSeparator();
 	imguiLabel("Polygonization");
