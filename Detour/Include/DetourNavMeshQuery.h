@@ -215,7 +215,7 @@ public:
 	/// @returns The status flags for the query.
 	dtStatus initSlicedFindPath(dtPolyRef startRef, dtPolyRef endRef,
 								const float* startPos, const float* endPos,
-								const dtQueryFilter* filter, const unsigned int options=0);
+								const dtQueryFilter* filter, const unsigned int options = 0);
 
 	/// Updates an in-progress sliced path query.
 	///  @param[in]		maxIter		The maximum number of iterations to perform.
@@ -370,7 +370,7 @@ public:
 	/// @returns The status flags for the query.
 	dtStatus raycast(dtPolyRef startRef, const float* startPos, const float* endPos,
 					 const dtQueryFilter* filter, const unsigned int options,
-					 dtRaycastHit* hit, dtPolyRef prevRef=0) const;
+					 dtRaycastHit* hit, dtPolyRef prevRef = 0) const;
 
 
 	/// Finds the distance from the specified position to the nearest polygon wall.

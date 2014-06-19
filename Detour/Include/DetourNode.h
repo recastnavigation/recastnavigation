@@ -92,7 +92,7 @@ public:
 	inline int getHashSize() const { return m_hashSize; }
 	inline dtNodeIndex getFirst(int bucket) const { return m_first[bucket]; }
 	inline dtNodeIndex getNext(int i) const { return m_next[i]; }
-	inline int getNodeCount() const { return m_nodeCount;}
+	inline int getNodeCount() const { return m_nodeCount; }
 	
 private:
 	
