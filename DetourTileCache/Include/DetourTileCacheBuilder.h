@@ -78,6 +78,8 @@ struct dtTileCachePolyMesh
 
 struct dtTileCacheAlloc
 {
+	virtual ~dtTileCacheAlloc() { }
+
 	virtual void reset()
 	{
 	}
@@ -95,6 +97,8 @@ struct dtTileCacheAlloc
 
 struct dtTileCacheCompressor
 {
+	virtual ~dtTileCacheCompressor() { }
+
 	virtual int maxCompressedSize(const int bufferSize) = 0;
 	virtual dtStatus compress(const unsigned char* buffer, const int bufferSize,
 							  unsigned char* compressed, const int maxCompressedSize, int* compressedSize) = 0;
