@@ -1537,7 +1537,7 @@ bool rcCopyPolyMesh(rcContext* ctx, const rcPolyMesh& src, rcPolyMesh& dst)
 		ctx->log(RC_LOG_ERROR, "rcCopyPolyMesh: Out of memory 'dst.flags' (%d).", src.npolys);
 		return false;
 	}
-	memcpy(dst.flags, src.flags, sizeof(unsigned char)*src.npolys);
+	memcpy(dst.flags, src.flags, sizeof(unsigned short)*src.npolys);
 	
 	return true;
 }
