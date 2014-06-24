@@ -1159,7 +1159,7 @@ dtStatus dtNavMeshQuery::initSlicedFindPath(dtPolyRef startRef, dtPolyRef endRef
 	dtVcopy(m_query.endPos, endPos);
 	m_query.filter = filter;
 	m_query.options = options;
-	m_query.raycastLimitSqr = 1E37;
+	m_query.raycastLimitSqr = FLT_MAX;
 	
 	if (!startRef || !endRef)
 		return DT_FAILURE | DT_INVALID_PARAM;
@@ -1175,7 +1175,7 @@ dtStatus dtNavMeshQuery::initSlicedFindPath(dtPolyRef startRef, dtPolyRef endRef
 		// so it is enough to compute it from the first tile.
 		const dtMeshTile* tile = m_nav->getTileByRef(startRef);
 		float agentRadius = tile->header->walkableRadius;
-		m_query.raycastLimitSqr = dtSqr(agentRadius * RAY_CAST_LIMIT_PROPORTIONS);
+		m_query.raycastLimitSqr = dtSqr(agentRadius * DT_RAY_CAST_LIMIT_PROPORTIONS);
 	}
 
 	if (startRef == endRef)
@@ -1215,7 +1215,7 @@ dtStatus dtNavMeshQuery::updateSlicedFindPath(const int maxIter, int* doneIters)
 		return DT_FAILURE;
 	}
 
-	RaycastHit rayHit;
+	dtRaycastHit rayHit;
 	rayHit.maxPath = 0;
 		
 	int iter = 0;
@@ -1268,7 +1268,7 @@ dtStatus dtNavMeshQuery::updateSlicedFindPath(const int maxIter, int* doneIters)
 		if (parentRef)
 		{
 			bool invalidParent = dtStatusFailed(m_nav->getTileAndPolyByRef(parentRef, &parentTile, &parentPoly));
-			if (invalidParent || (grandpaRef && dtStatusFailed(m_nav->isValidPolyRef(grandpaRef))) )
+			if (invalidParent || (grandpaRef && !m_nav->isValidPolyRef(grandpaRef)) )
 			{
 				// The polygon has disappeared during the sliced query, fail.
 				m_query.status = DT_FAILURE;
@@ -1332,15 +1332,23 @@ dtStatus dtNavMeshQuery::updateSlicedFindPath(const int maxIter, int* doneIters)
 			float heuristic = 0;
 			
 			// raycast parent
-			rayHit.t = 0;
+			bool foundShortCut = false;
+			rayHit.pathCost = rayHit.t = 0;
 			if (tryLOS)
 			{
 				raycast(parentRef, parentNode->pos, neighbourNode->pos, m_query.filter, DT_RAYCAST_USE_COSTS, &rayHit, grandpaRef);
-				cost = parentNode->cost + rayHit.pathCost;
+				foundShortCut = rayHit.t >= 1.0f;
 			}
 
-			if (rayHit.t < 1.0f) // hit
+			// update move cost
+			if (foundShortCut)
 			{
+				// shortcut found using raycast. Using shorter cost instead
+				cost = parentNode->cost + rayHit.pathCost;
+			}
+			else
+			{
+				// No shortcut found.
 				const float curCost = m_query.filter->getCost(bestNode->pos, neighbourNode->pos,
 															  parentRef, parentTile, parentPoly,
 															bestRef, bestTile, bestPoly,
@@ -1374,12 +1382,12 @@ dtStatus dtNavMeshQuery::updateSlicedFindPath(const int maxIter, int* doneIters)
 				continue;
 			
 			// Add or update the node.
-			neighbourNode->pidx = rayHit.t < 1.0f ? m_nodePool->getNodeIdx(bestNode) : bestNode->pidx;
+			neighbourNode->pidx = foundShortCut ? bestNode->pidx : m_nodePool->getNodeIdx(bestNode);
 			neighbourNode->id = neighbourRef;
 			neighbourNode->flags = (neighbourNode->flags & ~(DT_NODE_CLOSED | DT_NODE_PARENT_DETACHED));
 			neighbourNode->cost = cost;
 			neighbourNode->total = total;
-			if (rayHit.t >= 1.0f)
+			if (foundShortCut)
 				neighbourNode->flags = (neighbourNode->flags | DT_NODE_PARENT_DETACHED);
 			
 			if (neighbourNode->flags & DT_NODE_OPEN)
@@ -2301,7 +2309,7 @@ dtStatus dtNavMeshQuery::raycast(dtPolyRef startRef, const float* startPos, cons
 								 const dtQueryFilter* filter,
 								 float* t, float* hitNormal, dtPolyRef* path, int* pathCount, const int maxPath) const
 {
-	RaycastHit hit;
+	dtRaycastHit hit;
 	hit.path = path;
 	hit.maxPath = maxPath;
 
@@ -2357,7 +2365,7 @@ dtStatus dtNavMeshQuery::raycast(dtPolyRef startRef, const float* startPos, cons
 ///
 dtStatus dtNavMeshQuery::raycast(dtPolyRef startRef, const float* startPos, const float* endPos,
 								 const dtQueryFilter* filter, const unsigned int options,
-								 RaycastHit* hit, dtPolyRef prevRef) const
+								 dtRaycastHit* hit, dtPolyRef prevRef) const
 {
 	dtAssert(m_nav);
 	
@@ -3524,8 +3532,8 @@ bool dtNavMeshQuery::isInClosedList(dtPolyRef ref) const
 {
 	if (!m_nodePool) return false;
 	
-	dtNode* nodes[4];
-	int n= m_nodePool->findNodes(ref, nodes, 4);
+	dtNode* nodes[DT_MAX_STATES_PER_NODE];
+	int n= m_nodePool->findNodes(ref, nodes, DT_MAX_STATES_PER_NODE);
 
 	for (int i=0; i<n; i++)
 	{

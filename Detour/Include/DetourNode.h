@@ -25,7 +25,7 @@ enum dtNodeFlags
 {
 	DT_NODE_OPEN = 0x01,
 	DT_NODE_CLOSED = 0x02,
-	DT_NODE_PARENT_DETACHED = 0x04, // parent of the node is not connected/adjacent. Found using raycast.
+	DT_NODE_PARENT_DETACHED = 0x04, // parent of the node is not adjacent. Found using raycast.
 };
 
 typedef unsigned short dtNodeIndex;
@@ -37,10 +37,13 @@ struct dtNode
 	float cost;					///< Cost from previous node to current node.
 	float total;				///< Cost up to the node.
 	unsigned int pidx : 24;		///< Index to parent node.
-	unsigned int state : 2;		///< extra state information. A polyRef can have multiple nodes with different extra info.
-	unsigned int flags : 3;		///< Node flags 0/open/closed.
+	unsigned int state : 2;		///< extra state information. A polyRef can have multiple nodes with different extra info. see DT_MAX_STATES_PER_NODE
+	unsigned int flags : 3;		///< Node flags. A combination of dtNodeFlags.
 	dtPolyRef id;				///< Polygon ref the node corresponds to.
 };
+
+
+static const int DT_MAX_STATES_PER_NODE = 4;	// number of extra states per node. See dtNode::state
 
 
 
@@ -89,7 +92,7 @@ public:
 	inline int getHashSize() const { return m_hashSize; }
 	inline dtNodeIndex getFirst(int bucket) const { return m_first[bucket]; }
 	inline dtNodeIndex getNext(int i) const { return m_next[i]; }
-	inline int getNodeCount() const { return m_nodeCount;}
+	inline int getNodeCount() const { return m_nodeCount; }
 	
 private:
 	
