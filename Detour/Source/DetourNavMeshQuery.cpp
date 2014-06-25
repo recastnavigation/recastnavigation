@@ -2401,7 +2401,7 @@ dtStatus dtNavMeshQuery::raycast(dtPolyRef startRef, const float* startPos, cons
 	nextTile = prevTile = tile;
 	nextPoly = prevPoly = poly;
 	if (prevRef)
-		m_nav->getTileAndPolyByRefUnsafe(prevRef, &tile, &poly);
+		m_nav->getTileAndPolyByRefUnsafe(prevRef, &prevTile, &prevPoly);
 
 	while (curRef)
 	{
