@@ -311,11 +311,30 @@ void dtObstacleAvoidanceQuery::prepare(const float* pos, const float* dvel)
 	}	
 }
 
+
+/* Calculate the collision penalty for a given velocity vector
+ * 
+ * @param vcand sampled velocity
+ * @param dvel desired velocity
+ * @param minPenalty threshold penalty for early out
+ */
 float dtObstacleAvoidanceQuery::processSample(const float* vcand, const float cs,
 											  const float* pos, const float rad,
 											  const float* vel, const float* dvel,
+											  const float minPenalty,
 											  dtObstacleAvoidanceDebugData* debug)
 {
+	// penalty for straying away from the desired and current velocities
+	const float vpen = m_params.weightDesVel * (dtVdist2D(vcand, dvel) * m_invVmax);
+	const float vcpen = m_params.weightCurVel * (dtVdist2D(vcand, vel) * m_invVmax);
+	if (vpen + vcpen > minPenalty)
+		return vpen + vcpen; // already too much.
+
+	// find the threshold hit time to bail out based on the early out penalty
+	// (see how the penalty is calculated below to understnad)
+	float minPen = minPenalty - vpen - vcpen;
+	float tThresold = ((double)m_params.weightToi/(double)minPen - 0.1) / (double)m_invHorizTime;
+
 	// Find min time of impact and exit amongst all obstacles.
 	float tmin = m_params.horizTime;
 	float side = 0;
@@ -350,7 +369,11 @@ float dtObstacleAvoidanceQuery::processSample(const float* vcand, const float cs
 		{
 			// The closest obstacle is somewhere ahead of us, keep track of nearest obstacle.
 			if (htmin < tmin)
+			{
 				tmin = htmin;
+				if (tmin < tThresold)
+					return minPenalty;
+			}
 		}
 	}
 
@@ -383,15 +406,17 @@ float dtObstacleAvoidanceQuery::processSample(const float* vcand, const float cs
 		
 		// The closest obstacle is somewhere ahead of us, keep track of nearest obstacle.
 		if (htmin < tmin)
+		{
 			tmin = htmin;
+			if (tmin < tThresold)
+				return minPenalty;
+		}
 	}
 	
 	// Normalize side bias, to prevent it dominating too much.
 	if (nside)
 		side /= nside;
 	
-	const float vpen = m_params.weightDesVel * (dtVdist2D(vcand, dvel) * m_invVmax);
-	const float vcpen = m_params.weightCurVel * (dtVdist2D(vcand, vel) * m_invVmax);
 	const float spen = m_params.weightSide * side;
 	const float tpen = m_params.weightToi * (1.0f/(0.1f+tmin*m_invHorizTime));
 	
@@ -440,7 +465,7 @@ int dtObstacleAvoidanceQuery::sampleVelocityGrid(const float* pos, const float r
 			
 			if (dtSqr(vcand[0])+dtSqr(vcand[2]) > dtSqr(vmax+cs/2)) continue;
 			
-			const float penalty = processSample(vcand, cs, pos,rad,vel,dvel, debug);
+			const float penalty = processSample(vcand, cs, pos,rad,vel,dvel, minPenalty, debug);
 			ns++;
 			if (penalty < minPenalty)
 			{
@@ -523,7 +548,7 @@ int dtObstacleAvoidanceQuery::sampleVelocityAdaptive(const float* pos, const flo
 			
 			if (dtSqr(vcand[0])+dtSqr(vcand[2]) > dtSqr(vmax+0.001f)) continue;
 			
-			const float penalty = processSample(vcand,cr/10, pos,rad,vel,dvel, debug);
+			const float penalty = processSample(vcand,cr/10, pos,rad,vel,dvel, minPenalty, debug);
 			ns++;
 			if (penalty < minPenalty)
 			{
