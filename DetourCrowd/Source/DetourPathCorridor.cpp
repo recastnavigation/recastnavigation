@@ -359,7 +359,7 @@ bool dtPathCorridor::optimizePathTopology(dtNavMeshQuery* navquery, const dtQuer
 	if (m_npath < 3)
 		return false;
 	
-	static const int MAX_ITER = 48;
+	static const int MAX_ITER = 32;
 	static const int MAX_RES = 32;
 	
 	dtPolyRef res[MAX_RES];
