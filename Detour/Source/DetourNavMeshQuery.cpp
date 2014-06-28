@@ -1303,12 +1303,8 @@ dtStatus dtNavMeshQuery::updateSlicedFindPath(const int maxIter, int* doneIters)
 			if (!m_query.filter->passFilter(neighbourRef, neighbourTile, neighbourPoly))
 				continue;
 			
-			// deal explicitly with crossing tile boundaries
-			unsigned char crossSide = 0;
-			if (bestTile->links[i].side != 0xff)
-				crossSide = bestTile->links[i].side >> 1;
-
-			dtNode* neighbourNode = m_nodePool->getNode(neighbourRef, crossSide);
+			// get the neighbor node
+			dtNode* neighbourNode = m_nodePool->getNode(neighbourRef, 0);
 			if (!neighbourNode)
 			{
 				m_query.status |= DT_OUT_OF_NODES;
