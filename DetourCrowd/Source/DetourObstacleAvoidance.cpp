@@ -549,17 +549,30 @@ int dtObstacleAvoidanceQuery::sampleVelocityAdaptive(const float* pos, const flo
 		const float r = (float)(nr-j)/(float)nr;
 		pat[npat*2+0] = ddir[(j%1)*3] * r;
 		pat[npat*2+1] = ddir[(j%1)*3+2] * r;
-		float* last = pat + npat*2;
+		float* last1 = pat + npat*2;
+		float* last2 = last1;
 		npat++;
 
-		for (int i = 1; i < nd; i++)
+		for (int i = 1; i < nd-1; i+=2)
 		{
-			pat[npat*2+0] = last[0]*ca - last[1]*sa;
-			pat[npat*2+1] = last[0]*sa + last[1]*ca;
-			last = pat + npat*2;
-			npat++;
+			// get next point on the "right" (rotate CW)
+			pat[npat*2+0] = last1[0]*ca + last1[1]*sa;
+			pat[npat*2+1] = -last1[0]*sa + last1[1]*ca;
+			// get next point on the "left" (rotate CCW)
+			pat[npat*2+2] = last2[0]*ca - last2[1]*sa;
+			pat[npat*2+3] = last2[0]*sa + last2[1]*ca;
+
+			last1 = pat + npat*2;
+			last2 = last1 + 2;
+			npat += 2;
 		}
 
+		if ((nd&1) == 0)
+		{
+			pat[npat*2+2] = last2[0]*ca - last2[1]*sa;
+			pat[npat*2+3] = last2[0]*sa + last2[1]*ca;
+			npat++;
+		}
 	}
 
 
@@ -602,4 +615,3 @@ int dtObstacleAvoidanceQuery::sampleVelocityAdaptive(const float* pos, const flo
 	
 	return ns;
 }
-
