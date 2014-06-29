@@ -490,6 +490,16 @@ inline void dtNormalize2D(float* v)
 	v[2] *= d;
 }
 
+// vector normalization that ignores the y-component.
+inline void dtRorate2D(float* dest, const float* v, float ang)
+{
+	float c = cosf(ang);
+	float s = sinf(ang);
+	dest[0] = v[0]*c - v[2]*s;
+	dest[2] = v[0]*s + v[2]*c;
+	dest[1] = v[1];
+}
+
 
 int dtObstacleAvoidanceQuery::sampleVelocityAdaptive(const float* pos, const float rad, const float vmax,
 													 const float* vel, const float* dvel, float* nvel,
@@ -505,10 +515,6 @@ int dtObstacleAvoidanceQuery::sampleVelocityAdaptive(const float* pos, const flo
 	
 	dtVset(nvel, 0,0,0);
 	
-	float ddir[3];
-	dtVcopy(ddir, dvel);
-	dtNormalize2D(ddir);
-
 	if (debug)
 		debug->reset();
 
@@ -522,10 +528,16 @@ int dtObstacleAvoidanceQuery::sampleVelocityAdaptive(const float* pos, const flo
 	
 	const int nd = dtClamp(ndivs, 1, DT_MAX_PATTERN_DIVS);
 	const int nr = dtClamp(nrings, 1, DT_MAX_PATTERN_RINGS);
+	const int nd2 = nd / 2;
 	const float da = (1.0f/nd) * DT_PI*2;
+	const float ca = cosf(da);
+	const float sa = sinf(da);
 
-	const float ca = cosf(da), cha = cosf(da*0.5f);
-	const float sa = sinf(da), sha = sinf(da*0.5f);
+	// desired direction
+	float ddir[6];
+	dtVcopy(ddir, dvel);
+	dtNormalize2D(ddir);
+	dtRorate2D (ddir+3, ddir, da*0.5f); // rotated by da/2
 
 	// Always add sample at zero
 	pat[npat*2+0] = 0;
@@ -535,22 +547,13 @@ int dtObstacleAvoidanceQuery::sampleVelocityAdaptive(const float* pos, const flo
 	for (int j = 0; j < nr; ++j)
 	{
 		const float r = (float)(nr-j)/(float)nr;
-		if ((j&1) == 0)
-		{
-			pat[npat*2+0] = ddir[0] * r;
-			pat[npat*2+1] = ddir[2] * r;
-		}
-		else // for odd j - rotate by half da angle
-		{
-			pat[npat*2+0] = (ddir[0]*cha - ddir[2]*sha) * r;
-			pat[npat*2+1] = (ddir[0]*sha + ddir[2]*cha) * r;
-		}
+		pat[npat*2+0] = ddir[(j%1)*3] * r;
+		pat[npat*2+1] = ddir[(j%1)*3+2] * r;
 		float* last = pat + npat*2;
 		npat++;
 
 		for (int i = 1; i < nd; i++)
 		{
-			// rotate by angle da
 			pat[npat*2+0] = last[0]*ca - last[1]*sa;
 			pat[npat*2+1] = last[0]*sa + last[1]*ca;
 			last = pat + npat*2;
@@ -558,6 +561,7 @@ int dtObstacleAvoidanceQuery::sampleVelocityAdaptive(const float* pos, const flo
 		}
 
 	}
+
 
 	// Start sampling.
 	float cr = vmax * (1.0f - m_params.velBias);
