@@ -479,6 +479,18 @@ int dtObstacleAvoidanceQuery::sampleVelocityGrid(const float* pos, const float r
 }
 
 
+// vector normalization that ignores the y-component.
+inline void dtNormalize2D(float* v)
+{
+	float d = dtSqrt(v[0]*v[0]+v[2]*v[2]);
+	if (d==0)
+		return;
+	d = 1.0f / d;
+	v[0] *= d;
+	v[2] *= d;
+}
+
+
 int dtObstacleAvoidanceQuery::sampleVelocityAdaptive(const float* pos, const float rad, const float vmax,
 													 const float* vel, const float* dvel, float* nvel,
 													 const dtObstacleAvoidanceParams* params,
@@ -493,6 +505,10 @@ int dtObstacleAvoidanceQuery::sampleVelocityAdaptive(const float* pos, const flo
 	
 	dtVset(nvel, 0,0,0);
 	
+	float ddir[3];
+	dtVcopy(ddir, dvel);
+	dtNormalize2D(ddir);
+
 	if (debug)
 		debug->reset();
 
@@ -507,8 +523,10 @@ int dtObstacleAvoidanceQuery::sampleVelocityAdaptive(const float* pos, const flo
 	const int nd = dtClamp(ndivs, 1, DT_MAX_PATTERN_DIVS);
 	const int nr = dtClamp(nrings, 1, DT_MAX_PATTERN_RINGS);
 	const float da = (1.0f/nd) * DT_PI*2;
-	const float dang = dtMathAtan2f(dvel[2], dvel[0]);
-	
+
+	const float ca = cosf(da), cha = cosf(da*0.5f);
+	const float sa = sinf(da), sha = sinf(da*0.5f);
+
 	// Always add sample at zero
 	pat[npat*2+0] = 0;
 	pat[npat*2+1] = 0;
@@ -517,14 +535,28 @@ int dtObstacleAvoidanceQuery::sampleVelocityAdaptive(const float* pos, const flo
 	for (int j = 0; j < nr; ++j)
 	{
 		const float r = (float)(nr-j)/(float)nr;
-		float a = dang + (j&1)*0.5f*da;
-		for (int i = 0; i < nd; ++i)
+		if ((j&1) == 0)
 		{
-			pat[npat*2+0] = cosf(a)*r;
-			pat[npat*2+1] = sinf(a)*r;
-			npat++;
-			a += da;
+			pat[npat*2+0] = ddir[0] * r;
+			pat[npat*2+1] = ddir[2] * r;
 		}
+		else // for odd j - rotate by half da angle
+		{
+			pat[npat*2+0] = (ddir[0]*cha - ddir[2]*sha) * r;
+			pat[npat*2+1] = (ddir[0]*sha + ddir[2]*cha) * r;
+		}
+		float* last = pat + npat*2;
+		npat++;
+
+		for (int i = 1; i < nd; i++)
+		{
+			// rotate by angle da
+			pat[npat*2+0] = last[0]*ca - last[1]*sa;
+			pat[npat*2+1] = last[0]*sa + last[1]*ca;
+			last = pat + npat*2;
+			npat++;
+		}
+
 	}
 
 	// Start sampling.
