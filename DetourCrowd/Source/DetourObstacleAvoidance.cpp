@@ -327,13 +327,13 @@ float dtObstacleAvoidanceQuery::processSample(const float* vcand, const float cs
 	// penalty for straying away from the desired and current velocities
 	const float vpen = m_params.weightDesVel * (dtVdist2D(vcand, dvel) * m_invVmax);
 	const float vcpen = m_params.weightCurVel * (dtVdist2D(vcand, vel) * m_invVmax);
-	if (vpen + vcpen > minPenalty)
-		return vpen + vcpen; // already too much.
 
 	// find the threshold hit time to bail out based on the early out penalty
 	// (see how the penalty is calculated below to understnad)
 	float minPen = minPenalty - vpen - vcpen;
-	float tThresold = ((double)m_params.weightToi/(double)minPen - 0.1) / (double)m_invHorizTime;
+	float tThresold = ((double)m_params.weightToi/(double)minPen - 0.1) * (double)m_params.horizTime;
+	if (tThresold - m_params.horizTime > -FLT_EPSILON)
+		return minPenalty; // already too much
 
 	// Find min time of impact and exit amongst all obstacles.
 	float tmin = m_params.horizTime;
@@ -439,7 +439,7 @@ int dtObstacleAvoidanceQuery::sampleVelocityGrid(const float* pos, const float r
 	memcpy(&m_params, params, sizeof(dtObstacleAvoidanceParams));
 	m_invHorizTime = 1.0f / m_params.horizTime;
 	m_vmax = vmax;
-	m_invVmax = 1.0f / vmax;
+	m_invVmax = vmax > 0 ? 1.0f / vmax : FLT_MAX;
 	
 	dtVset(nvel, 0,0,0);
 	
@@ -511,7 +511,7 @@ int dtObstacleAvoidanceQuery::sampleVelocityAdaptive(const float* pos, const flo
 	memcpy(&m_params, params, sizeof(dtObstacleAvoidanceParams));
 	m_invHorizTime = 1.0f / m_params.horizTime;
 	m_vmax = vmax;
-	m_invVmax = 1.0f / vmax;
+	m_invVmax = vmax > 0 ? 1.0f / vmax : FLT_MAX;
 	
 	dtVset(nvel, 0,0,0);
 	
