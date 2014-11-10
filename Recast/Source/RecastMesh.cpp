@@ -160,8 +160,8 @@ static unsigned short addVertex(unsigned short x, unsigned short y, unsigned sho
 	return (unsigned short)i;
 }
 
-inline int prev(int i, int n) { return i-1 >= 0 ? i-1 : n-1; }
-inline int next(int i, int n) { return i+1 < n ? i+1 : 0; }
+inline int prev(int i, int n) { return (i + n-1) % n; }
+inline int next(int i, int n) { return (i + 1) % n; }
 
 inline int area2(const int* a, const int* b, const int* c)
 {
