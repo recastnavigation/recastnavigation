@@ -465,8 +465,8 @@ static int calcAreaOfPolygon2D(const int* verts, const int nverts)
 
 // TODO: these are the same as in RecastMesh.cpp, consider using the same.
 
-inline int prev(int i, int n) { return i-1 >= 0 ? i-1 : n-1; }
-inline int next(int i, int n) { return i+1 < n ? i+1 : 0; }
+inline int prev(int i, int n) { return (i + n-1) % n; }
+inline int next(int i, int n) { return (i + 1) % n; }
 
 inline int area2(const int* a, const int* b, const int* c)
 {

@@ -507,15 +507,8 @@ static float polyMinExtent(const float* verts, const int nverts)
 	return rcSqrt(minDist);
 }
 
-inline int next(int i, int n)
-{
-	return (i+1) % n;
-}
-
-inline int prev(int i, int n)
-{
-	return (i + n-1) % n;
-}
+inline int next(int i, int n) { return (i+1) % n; }
+inline int prev(int i, int n) { return (i + n-1) % n; }
 
 static void triangulateHull(const int nverts, const float* verts, const int nhull, const int* hull, rcIntArray& tris)
 {
