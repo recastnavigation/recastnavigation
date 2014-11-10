@@ -239,15 +239,15 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 			for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
 			{
 				const rcCompactSpan& s = chf.spans[i];
-				const unsigned char regi = srcReg[i];
-				if (regi == 0xff) continue;
+				const unsigned char ri = srcReg[i];
+				if (ri == 0xff) continue;
 				
-				regs[regi].ymin = rcMin(regs[regi].ymin, s.y);
-				regs[regi].ymax = rcMax(regs[regi].ymax, s.y);
+				regs[ri].ymin = rcMin(regs[ri].ymin, s.y);
+				regs[ri].ymax = rcMax(regs[ri].ymax, s.y);
 				
 				// Collect all region layers.
 				if (nlregs < RC_MAX_LAYERS)
-					lregs[nlregs++] = regi;
+					lregs[nlregs++] = ri;
 				
 				// Update neighbours
 				for (int dir = 0; dir < 4; ++dir)
@@ -258,8 +258,8 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 						const int ay = y + rcGetDirOffsetY(dir);
 						const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(s, dir);
 						const unsigned char rai = srcReg[ai];
-						if (rai != 0xff && rai != regi)
-							addUnique(regs[regi].neis, regs[regi].nneis, rai);
+						if (rai != 0xff && rai != ri)
+							addUnique(regs[ri].neis, regs[ri].nneis, rai);
 					}
 				}
 				
