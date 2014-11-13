@@ -34,6 +34,7 @@ bool duDumpPolyMeshDetailToObj(struct rcPolyMeshDetail& dmesh, duFileIO* io);
 bool duDumpContourSet(struct rcContourSet& cset, duFileIO* io);
 bool duReadContourSet(struct rcContourSet& cset, duFileIO* io);
 
+bool duDumpHeightfield(struct rcHeightfield& hf, duFileIO* io);
 bool duDumpCompactHeightfield(struct rcCompactHeightfield& chf, duFileIO* io);
 bool duReadCompactHeightfield(struct rcCompactHeightfield& chf, duFileIO* io);
 

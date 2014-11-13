@@ -258,6 +258,51 @@ bool duReadContourSet(struct rcContourSet& cset, duFileIO* io)
 }
 	
 
+bool duDumpHeightfield(struct rcHeightfield& hf, duFileIO* io)
+{
+	if (!io)
+	{
+		printf("duDumpHeightfield: input IO is null.\n"); 
+		return false;
+	}
+	if (!io->isWriting())
+	{
+		printf("duDumpHeightfield: input IO not writing.\n"); 
+		return false;
+	}
+
+	io->write(&hf.width, sizeof(hf.width));
+	io->write(&hf.height, sizeof(hf.height));
+
+	io->write(hf.bmin, sizeof(hf.bmin));
+	io->write(hf.bmax, sizeof(hf.bmax));
+
+	io->write(&hf.cs, sizeof(hf.cs));
+	io->write(&hf.ch, sizeof(hf.ch));
+
+	int tmp = 0;
+	if (hf.spans) tmp |= 1;
+
+	io->write(&tmp, sizeof(tmp));
+
+	for (short y = 0; y < hf.height; ++y)
+	{
+		for (short x = 0; x < hf.width; ++x)
+		{
+			const rcSpan* s = hf.spans[x + y * hf.width];
+			while (s)
+			{
+				// Write data without the pointer part
+				io->write(&x, sizeof(x)); 
+				io->write(&y, sizeof(y)); 
+				io->write(s, sizeof(rcSpan) - sizeof(s->next)); 
+				s = s->next;
+			}
+		}
+	}
+	return true;
+}
+
 static const int CHF_MAGIC = ('r' << 24) | ('c' << 16) | ('h' << 8) | 'f';
 static const int CHF_VERSION = 3;
 
