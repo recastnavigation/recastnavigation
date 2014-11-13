@@ -238,7 +238,7 @@ static void calcTriNormal(const float* v0, const float* v1, const float* v2, flo
 
 /// @par
 ///
-/// Only sets the areas id's for the walkable triangles.  Does not alter the
+/// Only sets the area id's for the walkable triangles.  Does not alter the
 /// area id's for unwalkable triangles.
 /// 
 /// See the #rcConfig documentation for more information on the configuration parameters.
@@ -267,7 +267,7 @@ void rcMarkWalkableTriangles(rcContext* ctx, const float walkableSlopeAngle,
 
 /// @par
 ///
-/// Only sets the areas id's for the unwalkable triangles.  Does not alter the
+/// Only sets the area id's for the unwalkable triangles.  Does not alter the
 /// area id's for walkable triangles.
 /// 
 /// See the #rcConfig documentation for more information on the configuration parameters.
