@@ -1159,7 +1159,7 @@ void NavMeshTesterTool::handleRender()
 				unsigned int col = 0;
 				if (m_straightPathFlags[i] & DT_STRAIGHTPATH_START)
 					col = startCol;
-				else if (m_straightPathFlags[i] & DT_STRAIGHTPATH_START)
+				else if (m_straightPathFlags[i] & DT_STRAIGHTPATH_END)
 					col = endCol;
 				else if (m_straightPathFlags[i] & DT_STRAIGHTPATH_OFFMESH_CONNECTION)
 					col = offMeshCol;
