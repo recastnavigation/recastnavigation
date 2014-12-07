@@ -281,7 +281,7 @@ void dtObstacleAvoidanceQuery::prepare(const float* pos, const float* dvel)
 		const float* pa = pos;
 		const float* pb = cir->p;
 		
-		const float orig[3] = {0,0};
+		const float orig[3] = {0,0,0};
 		float dv[3];
 		dtVsub(cir->dp,pb,pa);
 		dtVnormalize(cir->dp);
