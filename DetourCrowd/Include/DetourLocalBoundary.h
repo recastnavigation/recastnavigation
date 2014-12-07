@@ -40,7 +40,7 @@ class dtLocalBoundary
 	dtPolyRef m_polys[MAX_LOCAL_POLYS];
 	int m_npolys;
 
-	void addSegment(const float dist, const float* seg);
+	void addSegment(const float dist, const float* s);
 	
 public:
 	dtLocalBoundary();
