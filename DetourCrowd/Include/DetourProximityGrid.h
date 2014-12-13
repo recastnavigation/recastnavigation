@@ -44,7 +44,7 @@ public:
 	dtProximityGrid();
 	~dtProximityGrid();
 	
-	bool init(const int maxItems, const float cellSize);
+	bool init(const int poolSize, const float cellSize);
 	
 	void clear();
 	
