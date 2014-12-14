@@ -308,7 +308,7 @@ dtStatus dtNavMeshQuery::findRandomPoint(const dtQueryFilter* filter, float (*fr
 	return DT_SUCCESS;
 }
 
-dtStatus dtNavMeshQuery::findRandomPointAroundCircle(dtPolyRef startRef, const float* centerPos, const float radius,
+dtStatus dtNavMeshQuery::findRandomPointAroundCircle(dtPolyRef startRef, const float* centerPos, const float maxRadius,
 													 const dtQueryFilter* filter, float (*frand)(),
 													 dtPolyRef* randomRef, float* randomPt) const
 {
@@ -340,7 +340,7 @@ dtStatus dtNavMeshQuery::findRandomPointAroundCircle(dtPolyRef startRef, const f
 	
 	dtStatus status = DT_SUCCESS;
 	
-	const float radiusSqr = dtSqr(radius);
+	const float radiusSqr = dtSqr(maxRadius);
 	float areaSum = 0.0f;
 
 	const dtMeshTile* randomTile = 0;

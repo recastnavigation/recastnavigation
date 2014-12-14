@@ -717,7 +717,7 @@ dtPolyRef dtNavMesh::findNearestPolyInTile(const dtMeshTile* tile,
 		float closestPtPoly[3];
 		float diff[3];
 		bool posOverPoly = false;
-		float d = 0;
+		float d;
 		closestPointOnPoly(ref, center, closestPtPoly, &posOverPoly);
 
 		// If a point is directly over a polygon and closer than
