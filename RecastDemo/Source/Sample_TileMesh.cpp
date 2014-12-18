@@ -933,6 +933,27 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	m_cfg.detailSampleDist = m_detailSampleDist < 0.9f ? 0 : m_cellSize * m_detailSampleDist;
 	m_cfg.detailSampleMaxError = m_cellHeight * m_detailSampleMaxError;
 	
+	// Expand the heighfield bounding box by border size to find the extents of geometry we need to build this tile.
+	//
+	// This is done in order to make sure that the navmesh tiles connect correctly at the borders,
+	// and the obstacles close to the border work correctly with the dilation process.
+	// No polygons (or contours) will be created on the border area.
+	//
+	// IMPORTANT!
+	//
+	//   :''''''''':
+	//   : +-----+ :
+	//   : |     | :
+	//   : |     |<--- tile to build
+	//   : |     | :  
+	//   : +-----+ :<-- geometry needed
+	//   :.........:
+	//
+	// You should use this bounding box to query your input geometry.
+	//
+	// For example if you build a navmesh for terrain, and want the navmesh tiles to match the terrain tile size
+	// you will need to pass in data from neighbour terrain tiles too! In a simple case, just pass in all the 8 neighbours,
+	// or use the bounding box below to only pass in a sliver of each of the 8 neighbours.
 	rcVcopy(m_cfg.bmin, bmin);
 	rcVcopy(m_cfg.bmax, bmax);
 	m_cfg.bmin[0] -= m_cfg.borderSize*m_cfg.cs;
