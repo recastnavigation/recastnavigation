@@ -131,9 +131,6 @@ private:
 						const float minPenalty,
 						dtObstacleAvoidanceDebugData* debug);
 
-	dtObstacleCircle* insertCircle(const float dist);
-	dtObstacleSegment* insertSegment(const float dist);
-
 	dtObstacleAvoidanceParams m_params;
 	float m_invHorizTime;
 	float m_vmax;

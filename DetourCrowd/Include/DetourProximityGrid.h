@@ -21,7 +21,6 @@
 
 class dtProximityGrid
 {
-	int m_maxItems;
 	float m_cellSize;
 	float m_invCellSize;
 	
@@ -44,7 +43,7 @@ public:
 	dtProximityGrid();
 	~dtProximityGrid();
 	
-	bool init(const int maxItems, const float cellSize);
+	bool init(const int poolSize, const float cellSize);
 	
 	void clear();
 	
