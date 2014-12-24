@@ -768,7 +768,7 @@ class TempObstacleCreateTool : public SampleTool
 	
 public:
 	
-	TempObstacleCreateTool()
+	TempObstacleCreateTool() : m_sample(0)
 	{
 	}
 	
