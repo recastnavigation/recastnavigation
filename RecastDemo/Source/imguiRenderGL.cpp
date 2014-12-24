@@ -261,6 +261,7 @@ bool imguiRenderGLInit(const char* fontpath)
 	fclose(fp);
 	if (readLen != size)
 	{
+		free(ttfBuffer);
 		return false;
 	}
 
