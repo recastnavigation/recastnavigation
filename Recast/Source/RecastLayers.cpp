@@ -481,10 +481,8 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 	for (int i = 0; i < lset.nlayers; ++i)
 	{
 		unsigned char curId = (unsigned char)i;
-		
-		// Allocate memory for the current layer.
+
 		rcHeightfieldLayer* layer = &lset.layers[i];
-		memset(layer, 0, sizeof(rcHeightfieldLayer));
 
 		const int gridSize = sizeof(unsigned char)*lw*lh;
 
