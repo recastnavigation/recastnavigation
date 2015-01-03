@@ -745,7 +745,7 @@ void NavMeshTesterTool::recalc()
 					// Find movement delta.
 					float delta[3], len;
 					dtVsub(delta, steerPos, iterPos);
-					len = dtSqrt(dtVdot(delta,delta));
+					len = dtMathSqrtf(dtVdot(delta, delta));
 					// If the steer target is end of path or off-mesh link, do not move past the location.
 					if ((endOfPath || offMeshConnection) && len < STEP_SIZE)
 						len = 1;
