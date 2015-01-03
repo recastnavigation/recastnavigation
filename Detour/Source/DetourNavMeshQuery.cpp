@@ -1605,8 +1605,8 @@ dtStatus dtNavMeshQuery::finalizeSlicedFindPathPartial(const dtPolyRef* existing
 }
 
 
-dtStatus dtNavMeshQuery::appendVertex(const float* pos, const unsigned char flags, const dtPolyRef ref,
-									  float* straightPath, unsigned char* straightPathFlags, dtPolyRef* straightPathRefs,
+dtStatus dtNavMeshQuery::appendVertex(const float* pos, dtStraightPathFlags flags, const dtPolyRef ref,
+									  float* straightPath, dtStraightPathFlags* straightPathFlags, dtPolyRef* straightPathRefs,
 									  int* straightPathCount, const int maxStraightPath) const
 {
 	if ((*straightPathCount) > 0 && dtVequal(&straightPath[((*straightPathCount)-1)*3], pos))
@@ -1627,7 +1627,7 @@ dtStatus dtNavMeshQuery::appendVertex(const float* pos, const unsigned char flag
 			straightPathRefs[(*straightPathCount)] = ref;
 		(*straightPathCount)++;
 		// If reached end of path or there is no space to append more vertices, return.
-		if (flags == DT_STRAIGHTPATH_END || (*straightPathCount) >= maxStraightPath)
+		if ((flags.straightpathEnd && !flags.straightpathStart && !flags.straightpathOffmeshConection) || (*straightPathCount) >= maxStraightPath)
 		{
 			return DT_SUCCESS | (((*straightPathCount) >= maxStraightPath) ? DT_BUFFER_TOO_SMALL : 0);
 		}
@@ -1636,8 +1636,8 @@ dtStatus dtNavMeshQuery::appendVertex(const float* pos, const unsigned char flag
 }
 
 dtStatus dtNavMeshQuery::appendPortals(const int startIdx, const int endIdx, const float* endPos, const dtPolyRef* path,
-									  float* straightPath, unsigned char* straightPathFlags, dtPolyRef* straightPathRefs,
-									  int* straightPathCount, const int maxStraightPath, const int options) const
+									   float* straightPath, dtStraightPathFlags* straightPathFlags, dtPolyRef* straightPathRefs,
+									   int* straightPathCount, const int maxStraightPath, const int options) const
 {
 	const float* startPos = &straightPath[(*straightPathCount-1)*3];
 	// Append or update last vertex
@@ -1675,7 +1675,7 @@ dtStatus dtNavMeshQuery::appendPortals(const int startIdx, const int endIdx, con
 			float pt[3];
 			dtVlerp(pt, left,right, t);
 
-			stat = appendVertex(pt, 0, path[i+1],
+			stat = appendVertex(pt, dtStraightPathFlags(), path[i+1],
 								straightPath, straightPathFlags, straightPathRefs,
 								straightPathCount, maxStraightPath);
 			if (stat != DT_IN_PROGRESS)
@@ -1704,7 +1704,7 @@ dtStatus dtNavMeshQuery::appendPortals(const int startIdx, const int endIdx, con
 ///
 dtStatus dtNavMeshQuery::findStraightPath(const float* startPos, const float* endPos,
 										  const dtPolyRef* path, const int pathSize,
-										  float* straightPath, unsigned char* straightPathFlags, dtPolyRef* straightPathRefs,
+										  float* straightPath, dtStraightPathFlags* straightPathFlags, dtPolyRef* straightPathRefs,
 										  int* straightPathCount, const int maxStraightPath, const int options) const
 {
 	dtAssert(m_nav);
@@ -1729,7 +1729,9 @@ dtStatus dtNavMeshQuery::findStraightPath(const float* startPos, const float* en
 		return DT_FAILURE | DT_INVALID_PARAM;
 	
 	// Add start point.
-	stat = appendVertex(closestStartPos, DT_STRAIGHTPATH_START, path[0],
+	dtStraightPathFlags flag;
+	flag.straightpathStart = true;
+	stat = appendVertex(closestStartPos, flag, path[0],
 						straightPath, straightPathFlags, straightPathRefs,
 						straightPathCount, maxStraightPath);
 	if (stat != DT_IN_PROGRESS)
@@ -1778,7 +1780,7 @@ dtStatus dtNavMeshQuery::findStraightPath(const float* startPos, const float* en
 											 straightPathCount, maxStraightPath, options);
 					}
 
-					stat = appendVertex(closestEndPos, 0, path[i],
+					stat = appendVertex(closestEndPos, dtStraightPathFlags(), path[i],
 										straightPath, straightPathFlags, straightPathRefs,
 										straightPathCount, maxStraightPath);
 					
@@ -1827,11 +1829,11 @@ dtStatus dtNavMeshQuery::findStraightPath(const float* startPos, const float* en
 					dtVcopy(portalApex, portalLeft);
 					apexIndex = leftIndex;
 					
-					unsigned char flags = 0;
+					dtStraightPathFlags flags;
 					if (!leftPolyRef)
-						flags = DT_STRAIGHTPATH_END;
+						flags.straightpathEnd = true;
 					else if (leftPolyType == DT_POLYTYPE_OFFMESH_CONNECTION)
-						flags = DT_STRAIGHTPATH_OFFMESH_CONNECTION;
+						flags.straightpathOffmeshConection = true;
 					dtPolyRef ref = leftPolyRef;
 					
 					// Append or update vertex
@@ -1878,11 +1880,11 @@ dtStatus dtNavMeshQuery::findStraightPath(const float* startPos, const float* en
 					dtVcopy(portalApex, portalRight);
 					apexIndex = rightIndex;
 					
-					unsigned char flags = 0;
+					dtStraightPathFlags flags;
 					if (!rightPolyRef)
-						flags = DT_STRAIGHTPATH_END;
+						flags.straightpathEnd = true;
 					else if (rightPolyType == DT_POLYTYPE_OFFMESH_CONNECTION)
-						flags = DT_STRAIGHTPATH_OFFMESH_CONNECTION;
+						flags.straightpathOffmeshConection = true;
 					dtPolyRef ref = rightPolyRef;
 
 					// Append or update vertex
@@ -1916,7 +1918,9 @@ dtStatus dtNavMeshQuery::findStraightPath(const float* startPos, const float* en
 		}
 	}
 
-	stat = appendVertex(closestEndPos, DT_STRAIGHTPATH_END, 0,
+	dtStraightPathFlags endflag;
+	endflag.straightpathEnd = true;
+	stat = appendVertex(closestEndPos, endflag, 0,
 						straightPath, straightPathFlags, straightPathRefs,
 						straightPathCount, maxStraightPath);
 	

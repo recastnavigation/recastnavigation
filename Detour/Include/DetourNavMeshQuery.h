@@ -194,7 +194,7 @@ public:
 	/// @returns The status flags for the query.
 	dtStatus findStraightPath(const float* startPos, const float* endPos,
 							  const dtPolyRef* path, const int pathSize,
-							  float* straightPath, unsigned char* straightPathFlags, dtPolyRef* straightPathRefs,
+							  float* straightPath, dtStraightPathFlags* straightPathFlags, dtPolyRef* straightPathRefs,
 							  int* straightPathCount, const int maxStraightPath, const int options = 0) const;
 
 	///@}
@@ -494,13 +494,13 @@ private:
 							 float* mid) const;
 	
 	// Appends vertex to a straight path
-	dtStatus appendVertex(const float* pos, const unsigned char flags, const dtPolyRef ref,
-						  float* straightPath, unsigned char* straightPathFlags, dtPolyRef* straightPathRefs,
+	dtStatus appendVertex(const float* pos, dtStraightPathFlags flags, const dtPolyRef ref,
+						  float* straightPath, dtStraightPathFlags* straightPathFlags, dtPolyRef* straightPathRefs,
 						  int* straightPathCount, const int maxStraightPath) const;
 
 	// Appends intermediate portal points to a straight path.
 	dtStatus appendPortals(const int startIdx, const int endIdx, const float* endPos, const dtPolyRef* path,
-						   float* straightPath, unsigned char* straightPathFlags, dtPolyRef* straightPathRefs,
+						   float* straightPath, dtStraightPathFlags* straightPathFlags, dtPolyRef* straightPathRefs,
 						   int* straightPathCount, const int maxStraightPath, const int options) const;
 	
 	const dtNavMesh* m_nav;				///< Pointer to navmesh data.
