@@ -108,11 +108,29 @@ struct dtStraightPathFlags {
 	bool straightpathEnd : 1;              ///< The vertex is the end position in the path.
 	bool straightpathOffmeshConection : 1; ///< The vertex is the start of an off-mesh connection.
 
-	dtStraightPathFlags()
+	inline dtStraightPathFlags()
 		: straightpathStart(false)
 		, straightpathEnd(false)
 		, straightpathOffmeshConection(false)
 	{}
+
+	inline dtStraightPathFlags WithStraightPathStart(bool start) const {
+		dtStraightPathFlags result = *this;
+		result.straightpathStart = start;
+		return result;
+	}
+
+	inline dtStraightPathFlags WithStraightPathEnd(bool end) const {
+		dtStraightPathFlags result = *this;
+		result.straightpathEnd = end;
+		return result;
+	}
+
+	inline dtStraightPathFlags WithStraightPathOffmeshConnection(bool offmesh) const {
+		dtStraightPathFlags result = *this;
+		result.straightpathOffmeshConection = offmesh;
+		return result;
+	}
 };
 
 /// Options for dtNavMeshQuery::findStraightPath.

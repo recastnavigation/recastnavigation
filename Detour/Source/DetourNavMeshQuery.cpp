@@ -1729,9 +1729,7 @@ dtStatus dtNavMeshQuery::findStraightPath(const float* startPos, const float* en
 		return DT_FAILURE | DT_INVALID_PARAM;
 	
 	// Add start point.
-	dtStraightPathFlags flag;
-	flag.straightpathStart = true;
-	stat = appendVertex(closestStartPos, flag, path[0],
+	stat = appendVertex(closestStartPos, dtStraightPathFlags().WithStraightPathStart(true), path[0],
 						straightPath, straightPathFlags, straightPathRefs,
 						straightPathCount, maxStraightPath);
 	if (stat != DT_IN_PROGRESS)
@@ -1918,9 +1916,7 @@ dtStatus dtNavMeshQuery::findStraightPath(const float* startPos, const float* en
 		}
 	}
 
-	dtStraightPathFlags endflag;
-	endflag.straightpathEnd = true;
-	stat = appendVertex(closestEndPos, endflag, 0,
+	stat = appendVertex(closestEndPos, dtStraightPathFlags().WithStraightPathEnd(true), 0,
 						straightPath, straightPathFlags, straightPathRefs,
 						straightPathCount, maxStraightPath);
 	
