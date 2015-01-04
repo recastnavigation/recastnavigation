@@ -270,7 +270,7 @@ int dtPathCorridor::findCorners(float* cornerVerts, dtStraightPathFlags* cornerF
 		ncorners--;
 		if (ncorners)
 		{
-			memmove(cornerFlags, cornerFlags+1, sizeof(unsigned char)*ncorners);
+			memmove(cornerFlags, cornerFlags+1, sizeof(dtStraightPathFlags)*ncorners);
 			memmove(cornerPolys, cornerPolys+1, sizeof(dtPolyRef)*ncorners);
 			memmove(cornerVerts, cornerVerts+3, sizeof(float)*3*ncorners);
 		}
