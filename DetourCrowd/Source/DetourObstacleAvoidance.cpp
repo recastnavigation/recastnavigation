@@ -58,7 +58,7 @@ static int isectRaySeg(const float* ap, const float* u,
 	dtVsub(v,bq,bp);
 	dtVsub(w,ap,bp);
 	float d = dtVperp2D(u,v);
-	if (dtMathFabs(d) < 1e-6f) return 0;
+	if (dtMathFabsf(d) < 1e-6f) return 0;
 	d = 1.0f/d;
 	t = dtVperp2D(v,w) * d;
 	if (t < 0 || t > 1) return 0;
@@ -262,7 +262,7 @@ void dtObstacleAvoidanceQuery::addCircle(const float* pos, const float rad,
 
 void dtObstacleAvoidanceQuery::addSegment(const float* p, const float* q)
 {
-	if (m_nsegments > m_maxSegments)
+	if (m_nsegments >= m_maxSegments)
 		return;
 	
 	dtObstacleSegment* seg = &m_segments[m_nsegments++];

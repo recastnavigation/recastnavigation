@@ -110,6 +110,7 @@ bool TestCase::load(const char* filePath)
 	fclose(fp);
 	if (readLen != 1)
 	{
+		delete[] buf;
 		return false;
 	}
 
