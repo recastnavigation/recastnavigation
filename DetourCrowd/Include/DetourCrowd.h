@@ -155,7 +155,7 @@ struct dtCrowdAgent
 	float cornerVerts[DT_CROWDAGENT_MAX_CORNERS*3];
 
 	/// The local path corridor corner flags. (See: #dtStraightPathFlags) [(flags) * #ncorners]
-	unsigned char cornerFlags[DT_CROWDAGENT_MAX_CORNERS];
+	dtStraightPathFlags cornerFlags[DT_CROWDAGENT_MAX_CORNERS];
 
 	/// The reference id of the polygon being entered at the corner. [(polyRef) * #ncorners]
 	dtPolyRef cornerPolys[DT_CROWDAGENT_MAX_CORNERS];

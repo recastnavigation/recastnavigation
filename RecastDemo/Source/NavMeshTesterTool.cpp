@@ -164,13 +164,13 @@ static int fixupShortcuts(dtPolyRef* path, int npath, dtNavMeshQuery* navQuery)
 static bool getSteerTarget(dtNavMeshQuery* navQuery, const float* startPos, const float* endPos,
 						   const float minTargetDist,
 						   const dtPolyRef* path, const int pathSize,
-						   float* steerPos, unsigned char& steerPosFlag, dtPolyRef& steerPosRef,
+						   float* steerPos, dtStraightPathFlags& steerPosFlag, dtPolyRef& steerPosRef,
 						   float* outPoints = 0, int* outPointCount = 0)							 
 {
 	// Find steer target.
 	static const int MAX_STEER_POINTS = 3;
 	float steerPath[MAX_STEER_POINTS*3];
-	unsigned char steerPathFlags[MAX_STEER_POINTS];
+	dtStraightPathFlags steerPathFlags[MAX_STEER_POINTS];
 	dtPolyRef steerPathPolys[MAX_STEER_POINTS];
 	int nsteerPath = 0;
 	navQuery->findStraightPath(startPos, endPos, path, pathSize,
@@ -184,14 +184,13 @@ static bool getSteerTarget(dtNavMeshQuery* navQuery, const float* startPos, cons
 		for (int i = 0; i < nsteerPath; ++i)
 			dtVcopy(&outPoints[i*3], &steerPath[i*3]);
 	}
-
 	
 	// Find vertex far enough to steer to.
 	int ns = 0;
 	while (ns < nsteerPath)
 	{
 		// Stop at Off-Mesh link or when point is further than slop away.
-		if ((steerPathFlags[ns] & DT_STRAIGHTPATH_OFFMESH_CONNECTION) ||
+		if (steerPathFlags[ns].straightpathOffmeshConection ||
 			!inRange(&steerPath[ns*3], startPos, minTargetDist, 1000.0f))
 			break;
 		ns++;
@@ -531,7 +530,7 @@ void NavMeshTesterTool::handleToggle()
 
 	// Find location to steer towards.
 	float steerPos[3];
-	unsigned char steerPosFlag;
+	dtStraightPathFlags steerPosFlag;
 	dtPolyRef steerPosRef;
 		
 	if (!getSteerTarget(m_navQuery, m_iterPos, m_targetPos, SLOP,
@@ -541,8 +540,8 @@ void NavMeshTesterTool::handleToggle()
 		
 	dtVcopy(m_steerPos, steerPos);
 	
-	bool endOfPath = (steerPosFlag & DT_STRAIGHTPATH_END) ? true : false;
-	bool offMeshConnection = (steerPosFlag & DT_STRAIGHTPATH_OFFMESH_CONNECTION) ? true : false;
+	bool endOfPath = steerPosFlag.straightpathEnd;
+	bool offMeshConnection = steerPosFlag.straightpathOffmeshConection;
 		
 	// Find movement delta.
 	float delta[3], len;
@@ -732,15 +731,15 @@ void NavMeshTesterTool::recalc()
 				{
 					// Find location to steer towards.
 					float steerPos[3];
-					unsigned char steerPosFlag;
+					dtStraightPathFlags steerPosFlag;
 					dtPolyRef steerPosRef;
 					
 					if (!getSteerTarget(m_navQuery, iterPos, targetPos, SLOP,
 										polys, npolys, steerPos, steerPosFlag, steerPosRef))
 						break;
 					
-					bool endOfPath = (steerPosFlag & DT_STRAIGHTPATH_END) ? true : false;
-					bool offMeshConnection = (steerPosFlag & DT_STRAIGHTPATH_OFFMESH_CONNECTION) ? true : false;
+					bool endOfPath = steerPosFlag.straightpathEnd;
+					bool offMeshConnection = steerPosFlag.straightpathOffmeshConection;
 					
 					// Find movement delta.
 					float delta[3], len;
@@ -1144,7 +1143,7 @@ void NavMeshTesterTool::handleRender()
 			for (int i = 0; i < m_nstraightPath-1; ++i)
 			{
 				unsigned int col;
-				if (m_straightPathFlags[i] & DT_STRAIGHTPATH_OFFMESH_CONNECTION)
+				if (m_straightPathFlags[i].straightpathOffmeshConection)
 					col = offMeshCol;
 				else
 					col = spathCol;
@@ -1157,11 +1156,11 @@ void NavMeshTesterTool::handleRender()
 			for (int i = 0; i < m_nstraightPath; ++i)
 			{
 				unsigned int col;
-				if (m_straightPathFlags[i] & DT_STRAIGHTPATH_START)
+				if (m_straightPathFlags[i].straightpathStart)
 					col = startCol;
-				else if (m_straightPathFlags[i] & DT_STRAIGHTPATH_END)
+				else if (m_straightPathFlags[i].straightpathEnd)
 					col = endCol;
-				else if (m_straightPathFlags[i] & DT_STRAIGHTPATH_OFFMESH_CONNECTION)
+				else if (m_straightPathFlags[i].straightpathOffmeshConection)
 					col = offMeshCol;
 				else
 					col = spathCol;

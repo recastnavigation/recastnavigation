@@ -248,7 +248,7 @@ So if 10 corners are needed, the buffers should be sized for 11 corners.
 
 If the target is within range, it will be the last corner and have a polygon reference id of zero.
 */
-int dtPathCorridor::findCorners(float* cornerVerts, unsigned char* cornerFlags,
+int dtPathCorridor::findCorners(float* cornerVerts, dtStraightPathFlags* cornerFlags,
 							  dtPolyRef* cornerPolys, const int maxCorners,
 							  dtNavMeshQuery* navquery, const dtQueryFilter* /*filter*/)
 {
@@ -264,13 +264,13 @@ int dtPathCorridor::findCorners(float* cornerVerts, unsigned char* cornerFlags,
 	// Prune points in the beginning of the path which are too close.
 	while (ncorners)
 	{
-		if ((cornerFlags[0] & DT_STRAIGHTPATH_OFFMESH_CONNECTION) ||
+		if (cornerFlags[0].straightpathOffmeshConection ||
 			dtVdist2DSqr(&cornerVerts[0], m_pos) > dtSqr(MIN_TARGET_DIST))
 			break;
 		ncorners--;
 		if (ncorners)
 		{
-			memmove(cornerFlags, cornerFlags+1, sizeof(unsigned char)*ncorners);
+			memmove(cornerFlags, cornerFlags+1, sizeof(dtStraightPathFlags)*ncorners);
 			memmove(cornerPolys, cornerPolys+1, sizeof(dtPolyRef)*ncorners);
 			memmove(cornerVerts, cornerVerts+3, sizeof(float)*3*ncorners);
 		}
@@ -279,7 +279,7 @@ int dtPathCorridor::findCorners(float* cornerVerts, unsigned char* cornerFlags,
 	// Prune points after an off-mesh connection.
 	for (int i = 0; i < ncorners; ++i)
 	{
-		if (cornerFlags[i] & DT_STRAIGHTPATH_OFFMESH_CONNECTION)
+		if (cornerFlags[i].straightpathOffmeshConection)
 		{
 			ncorners = i+1;
 			break;
