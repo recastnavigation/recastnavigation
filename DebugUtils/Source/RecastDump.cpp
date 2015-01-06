@@ -350,7 +350,7 @@ bool duReadCompactHeightfield(struct rcCompactHeightfield& chf, duFileIO* io)
 	
 	io->read(&chf.walkableHeight, sizeof(chf.walkableHeight));
 	io->read(&chf.walkableClimb, sizeof(chf.walkableClimb));
-	io->write(&chf.borderSize, sizeof(chf.borderSize));
+	io->read(&chf.borderSize, sizeof(chf.borderSize));
 
 	io->read(&chf.maxDistance, sizeof(chf.maxDistance));
 	io->read(&chf.maxRegions, sizeof(chf.maxRegions));
