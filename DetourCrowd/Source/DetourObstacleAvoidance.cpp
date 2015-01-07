@@ -44,7 +44,7 @@ static int sweepCircleCircle(const float* c0, const float r0, const float* v,
 	float d = b*b - a*c;
 	if (d < 0.0f) return 0; // no intersection.
 	a = 1.0f / a;
-	const float rd = dtSqrt(d);
+	const float rd = dtMathSqrtf(d);
 	tmin = (b - rd) * a;
 	tmax = (b + rd) * a;
 	return 1;
@@ -482,7 +482,7 @@ int dtObstacleAvoidanceQuery::sampleVelocityGrid(const float* pos, const float r
 // vector normalization that ignores the y-component.
 inline void dtNormalize2D(float* v)
 {
-	float d = dtSqrt(v[0]*v[0]+v[2]*v[2]);
+	float d = dtMathSqrtf(v[0] * v[0] + v[2] * v[2]);
 	if (d==0)
 		return;
 	d = 1.0f / d;
