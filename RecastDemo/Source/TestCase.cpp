@@ -101,11 +101,6 @@ bool TestCase::load(const char* filePath)
 	int bufSize = ftell(fp);
 	fseek(fp, 0, SEEK_SET);
 	buf = new char[bufSize];
-	if (!buf)
-	{
-		fclose(fp);
-		return false;
-	}
 	size_t readLen = fread(buf, bufSize, 1, fp);
 	fclose(fp);
 	if (readLen != 1)
@@ -135,9 +130,7 @@ bool TestCase::load(const char* filePath)
 		else if (row[0] == 'p' && row[1] == 'f')
 		{
 			// Pathfind test.
-			Test* test = new Test;
-			memset(test, 0, sizeof(Test));
-			test->type = TEST_PATHFIND;
+			Test* test = new Test(TEST_PATHFIND);
 			test->expand = false;
 			test->next = m_tests;
 			m_tests = test;
@@ -148,10 +141,8 @@ bool TestCase::load(const char* filePath)
 		}
 		else if (row[0] == 'r' && row[1] == 'c')
 		{
-			// Pathfind test.
-			Test* test = new Test;
-			memset(test, 0, sizeof(Test));
-			test->type = TEST_RAYCAST;
+			// Raycast test.
+			Test* test = new Test(TEST_RAYCAST);
 			test->expand = false;
 			test->next = m_tests;
 			m_tests = test;
