@@ -202,7 +202,7 @@ int main(int /*argc*/, char** /*argv*/)
 						showLevels = false;
 						showSample = false;
 						showTestCases = true;
-						scanDirectory("Tests", ".txt", files);
+						files.scanDirectory("Tests", ".txt");
 					}
 					else if (event.key.keysym.sym == SDLK_TAB)
 					{
@@ -569,7 +569,7 @@ int main(int /*argc*/, char** /*argv*/)
 					showSample = false;
 					showTestCases = false;
 					showLevels = true;
-					scanDirectory("Meshes", ".obj", files);
+					files.scanDirectory("Meshes", ".obj");
 				}
 			}
 			if (geom)

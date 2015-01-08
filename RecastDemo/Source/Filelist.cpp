@@ -26,31 +26,34 @@
 #	include <dirent.h>
 #endif
 
-static void fileListAdd(FileList& list, const char* path)
+void FileList::Add(const char* path)
 {
-	if (list.size >= FileList::MAX_FILES)
+	if (size >= FileList::MAX_FILES)
 		return;
+	
 	int n = strlen(path);
-	list.files[list.size] = new char[n+1];
-	strcpy(list.files[list.size], path);
-	list.size++;
+	files[size] = new char[n+1];
+	strcpy(files[size], path);
+	size++;
 }
 
-static void fileListClear(FileList& list)
+void FileList::Clear()
 {
-	for (int i = 0; i < list.size; ++i)
-		delete [] list.files[i];
-	list.size = 0;
+	for (int i = 0; i < size; ++i)
+		delete [] files[i];
+	size = 0;
 }
 
-FileList::FileList() : size(0)
+FileList::FileList()
+: size(0)
 {
-	memset(files, 0, sizeof(char*)*MAX_FILES);
+	for (int i = 0; i < MAX_FILES; ++i)
+		files[i] = 0;
 }
 
 FileList::~FileList()
 {
-	fileListClear(*this);
+	Clear();
 }
 
 static int cmp(const void* a, const void* b)
@@ -58,23 +61,24 @@ static int cmp(const void* a, const void* b)
 	return strcmp(*(const char**)a, *(const char**)b);
 }
 	
-void scanDirectory(const char* path, const char* ext, FileList& list)
+void FileList::scanDirectory(const char* path, const char* ext)
 {
-	fileListClear(list);
+	Clear();
 	
 #ifdef WIN32
 	_finddata_t dir;
 	char pathWithExt[260];
-	long fh;
-	strcpy(pathWithExt, path);
-	strcat(pathWithExt, "/*");
-	strcat(pathWithExt, ext);
-	fh = _findfirst(pathWithExt, &dir);
+	sprintf_s(pathWithExt, "%s/*%s", path, ext);
+
+	long fh = _findfirst(pathWithExt, &dir);
 	if (fh == -1L)
+	{
 		return;
+	}
+	
 	do
 	{
-		fileListAdd(list, dir.name);
+		Add(dir.name);
 	}
 	while (_findnext(fh, &dir) == 0);
 	_findclose(fh);
@@ -82,19 +86,23 @@ void scanDirectory(const char* path, const char* ext, FileList& list)
 	dirent* current = 0;
 	DIR* dp = opendir(path);
 	if (!dp)
+	{
 		return;
+	}
 	
 	while ((current = readdir(dp)) != 0)
 	{
 		int len = strlen(current->d_name);
 		if (len > 4 && strncmp(current->d_name+len-4, ext, 4) == 0)
 		{
-			fileListAdd(list, current->d_name);
+			Add(current->d_name);
 		}
 	}
 	closedir(dp);
 #endif
 
-	if (list.size > 1)
-		qsort(list.files, list.size, sizeof(char*), cmp);
+	if (size > 1)
+	{
+		qsort(files, size, sizeof(char*), cmp);
+	}
 }

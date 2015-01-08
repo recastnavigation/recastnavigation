@@ -81,7 +81,7 @@ bool SlideShow::loadImage(const char* path)
 bool SlideShow::init(const char* path)
 {
 	strcpy(m_path, path);
-	scanDirectory(m_path, ".png", m_files);
+	m_files.scanDirectory(m_path, ".png");
 	
 	return true;
 }

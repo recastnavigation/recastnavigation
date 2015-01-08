@@ -28,8 +28,12 @@ struct FileList
 	
 	char* files[MAX_FILES];
 	int size;
-};
 
-void scanDirectory(const char* path, const char* ext, FileList& list);
+	void scanDirectory(const char* path, const char* ext);
+
+private:
+	void Add(const char* path);
+	void Clear();
+};
 
 #endif // FILELIST_H
