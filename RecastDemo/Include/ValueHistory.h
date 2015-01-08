@@ -36,8 +36,13 @@ struct GraphParams
 	void setRect(int ix, int iy, int iw, int ih, int ipad);
 	void setValueRange(float ivmin, float ivmax, int indiv, const char* iunits);
 	
-	int x, y, w, h, pad;
-	float vmin, vmax;
+    int x;
+    int y;
+    int w;
+    int h;
+    int pad;
+    float vmin;
+    float vmax;
 	int ndiv;
 	char units[16];
 };

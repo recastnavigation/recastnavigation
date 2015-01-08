@@ -26,7 +26,8 @@ static const int MAX_CONVEXVOL_PTS = 12;
 struct ConvexVolume
 {
 	float verts[MAX_CONVEXVOL_PTS*3];
-	float hmin, hmax;
+    float hmin;
+    float hmax;
 	int nverts;
 	int area;
 };
@@ -35,7 +36,8 @@ class InputGeom
 {
 	rcChunkyTriMesh* m_chunkyMesh;
 	rcMeshLoaderObj* m_mesh;
-	float m_meshBMin[3], m_meshBMax[3];
+    float m_meshBMin[3];
+    float m_meshBMax[3];
 	
 	/// @name Off-Mesh connections.
 	///@{

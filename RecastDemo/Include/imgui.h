@@ -21,15 +21,15 @@
 
 enum imguiMouseButton
 {
-	IMGUI_MBUT_LEFT = 0x01, 
-	IMGUI_MBUT_RIGHT = 0x02, 
+	IMGUI_MBUT_LEFT = 0x01,
+	IMGUI_MBUT_RIGHT = 0x02
 };
 
 enum imguiTextAlign
 {
 	IMGUI_ALIGN_LEFT,
 	IMGUI_ALIGN_CENTER,
-	IMGUI_ALIGN_RIGHT,
+	IMGUI_ALIGN_RIGHT
 };
 
 inline unsigned int imguiRGBA(unsigned char r, unsigned char g, unsigned char b, unsigned char a=255)
@@ -68,23 +68,33 @@ enum imguiGfxCmdType
 	IMGUI_GFXCMD_TRIANGLE,
 	IMGUI_GFXCMD_LINE,
 	IMGUI_GFXCMD_TEXT,
-	IMGUI_GFXCMD_SCISSOR,
+	IMGUI_GFXCMD_SCISSOR
 };
 
 struct imguiGfxRect
 {
-	short x,y,w,h,r;
+    short x;
+    short y;
+    short w;
+    short h;
+    short r;
 };
 
 struct imguiGfxText
 {
-	short x,y,align;
+    short x;
+    short y;
+    short align;
 	const char* text;
 };
 
 struct imguiGfxLine
 {
-	short x0,y0,x1,y1,r;
+    short x0;
+    short y0;
+    short x1;
+    short y1;
+    short r;
 };
 
 struct imguiGfxCmd
