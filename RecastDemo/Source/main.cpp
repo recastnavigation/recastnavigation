@@ -686,7 +686,7 @@ int main(int /*argc*/, char** /*argv*/)
 				mouseOverMenu = true;
 			
 			int levelToLoad = -1;
-			for (int i = 0; i < files.size; ++i)
+			for (int i = 0; i < files.files.size(); ++i)
 			{
 				if (imguiItem(files.files[i]))
 					levelToLoad = i;
@@ -764,7 +764,7 @@ int main(int /*argc*/, char** /*argv*/)
 				mouseOverMenu = true;
 
 			int testToLoad = -1;
-			for (int i = 0; i < files.size; ++i)
+			for (int i = 0; i < files.files.size(); ++i)
 			{
 				if (imguiItem(files.files[i]))
 					testToLoad = i;

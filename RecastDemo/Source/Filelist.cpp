@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <algorithm>
 #ifdef WIN32
 #	include <io.h>
 #else
@@ -28,37 +29,30 @@
 
 void FileList::Add(const char* path)
 {
-	if (size >= FileList::MAX_FILES)
-		return;
-	
 	int n = strlen(path);
-	files[size] = new char[n+1];
-	strcpy(files[size], path);
-	size++;
+	char* copiedPath = new char[n + 1];
+	strcpy(copiedPath, path);
+	files.push_back(copiedPath);
 }
 
 void FileList::Clear()
 {
-	for (int i = 0; i < size; ++i)
-		delete [] files[i];
-	size = 0;
+	vector<char*>::iterator filesIter = files.begin();
+	vector<char*>::iterator filesEnd = files.end();
+	for (; filesIter != filesEnd; ++filesIter) {
+		delete[] (*filesIter);
+	}
+
+	files.clear();
 }
 
 FileList::FileList()
-: size(0)
 {
-	for (int i = 0; i < MAX_FILES; ++i)
-		files[i] = 0;
 }
 
 FileList::~FileList()
 {
 	Clear();
-}
-
-static int cmp(const void* a, const void* b)
-{
-	return strcmp(*(const char**)a, *(const char**)b);
 }
 	
 void FileList::scanDirectory(const char* path, const char* ext)
@@ -101,8 +95,11 @@ void FileList::scanDirectory(const char* path, const char* ext)
 	closedir(dp);
 #endif
 
-	if (size > 1)
-	{
-		qsort(files, size, sizeof(char*), cmp);
-	}
+	// Sort the list of files alphabetically.
+	struct {
+		bool operator()(const char* a, const char* b) const {
+			return strcmp(a, b) < 0;
+		}
+	} cmp;
+	std::sort(files.begin(), files.end(), cmp);
 }
