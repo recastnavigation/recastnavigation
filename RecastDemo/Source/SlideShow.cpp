@@ -23,16 +23,17 @@
 //#define STBI_HEADER_FILE_ONLY
 #include "stb_image.h"
 
-SlideShow::SlideShow() :
+SlideShow::SlideShow(string path) :
+    m_path(path),
 	m_width(0),
 	m_height(0),
 	m_texId(0),
-	m_showSlides(false),
 	m_showCurSlide(true),
 	m_slideAlpha(1.0f),
 	m_curSlide(-1),
 	m_nextSlide(0)
 {
+    scanDirectory(m_path, ".png", m_files);
 }
 
 SlideShow::~SlideShow()
@@ -75,14 +76,6 @@ bool SlideShow::loadImage(const char* path)
 	glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	
 	stbi_image_free(data);
-	
-	return true;
-}
-
-bool SlideShow::init(const char* path)
-{
-	m_path = path;
-	scanDirectory(m_path, ".png", m_files);
 	
 	return true;
 }

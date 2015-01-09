@@ -29,10 +29,9 @@ using std::string;
 class SlideShow
 {
 public:
-	SlideShow();
+	SlideShow(string path);
 	~SlideShow();
 
-	bool init(const char* path);
 	void nextSlide();
 	void prevSlide();
 	void setSlide(int n);
@@ -49,7 +48,6 @@ private:
 	int m_height;
 	unsigned int m_texId;
 
-	bool m_showSlides;
 	bool m_showCurSlide;
 	float m_slideAlpha;
 	int m_curSlide;

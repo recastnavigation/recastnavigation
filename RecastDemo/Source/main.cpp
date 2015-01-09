@@ -60,6 +60,7 @@ static SampleItem g_samples[] =
 };
 static const int g_nsamples = sizeof(g_samples)/sizeof(SampleItem); 
 
+int run(int width, int height, bool presentationMode);
 
 int main(int /*argc*/, char** /*argv*/)
 {
@@ -122,6 +123,11 @@ int main(int /*argc*/, char** /*argv*/)
 		SDL_Quit();
 		return -1;
 	}
+ 
+    return run(width, height, presentationMode);
+}
+
+int run(int width, int height, bool presentationMode) {
 
 	float t = 0.0f;
 	float timeAcc = 0.0f;
@@ -157,8 +163,7 @@ int main(int /*argc*/, char** /*argv*/)
 	float mpos[3] = {0,0,0};
 	bool mposSet = false;
 	
-	SlideShow slideShow;
-	slideShow.init("slides/");
+	SlideShow slideShow("slides/");
 	
 	InputGeom* geom = 0;
 	Sample* sample = 0;
