@@ -153,7 +153,7 @@ int main(int /*argc*/, char** /*argv*/)
 	char sampleName[64] = "Choose Sample..."; 
 	
 	FileList files;
-	char meshName[128] = "Choose Mesh...";
+	string meshName = "Choose Mesh...";
 	
 	float mpos[3] = {0,0,0};
 	bool mposSet = false;
@@ -234,7 +234,7 @@ int main(int /*argc*/, char** /*argv*/)
 							
 							showLog = true;
 							logScroll = 0;
-							ctx.dumpLog("Geom load log %s:", meshName);
+							ctx.dumpLog("Geom load log %s:", meshName.c_str());
 						}
 						if (sample && geom)
 						{
@@ -558,7 +558,7 @@ int main(int /*argc*/, char** /*argv*/)
 			
 			imguiSeparator();
 			imguiLabel("Input Mesh");
-			if (imguiButton(meshName))
+			if (imguiButton(meshName.c_str()))
 			{
 				if (showLevels)
 				{
@@ -596,7 +596,7 @@ int main(int /*argc*/, char** /*argv*/)
 						showLog = true;
 						logScroll = 0;
 					}
-					ctx.dumpLog("Build log %s:", meshName);
+					ctx.dumpLog("Build log %s:", meshName.c_str());
 					
 					// Clear test.
 					delete test;
@@ -694,8 +694,7 @@ int main(int /*argc*/, char** /*argv*/)
 			
 			if (levelToLoad != -1)
 			{
-				strncpy(meshName, files.files[levelToLoad], sizeof(meshName));
-				meshName[sizeof(meshName)-1] = '\0';
+				meshName = files.files[levelToLoad];
 				showLevels = false;
 				
 				delete geom;
@@ -703,7 +702,7 @@ int main(int /*argc*/, char** /*argv*/)
 				
 				char path[256];
 				strcpy(path, "Meshes/");
-				strcat(path, meshName);
+				strcat(path, meshName.c_str());
 				
 				geom = new InputGeom;
 				if (!geom || !geom->loadMesh(&ctx, path))
@@ -713,8 +712,7 @@ int main(int /*argc*/, char** /*argv*/)
 					
 					showLog = true;
 					logScroll = 0;
-					ctx.dumpLog("Geom load log %s:", meshName);
-				}
+					ctx.dumpLog("Geom load log %s:", meshName.c_str()); }
 				if (sample && geom)
 				{
 					sample->handleMeshChanged(geom);
@@ -776,102 +774,98 @@ int main(int /*argc*/, char** /*argv*/)
 				strcpy(path, "Tests/");
 				strcat(path, files.files[testToLoad]);
 				test = new TestCase;
-				if (test)
+				// Load the test.
+				if (!test->load(path))
 				{
-					// Load the test.
-					if (!test->load(path))
-					{
-						delete test;
-						test = 0;
-					}
+					delete test;
+					test = 0;
+				}
 
-					// Create sample
-					Sample* newSample = 0;
-					for (int i = 0; i < g_nsamples; ++i)
+				// Create sample
+				Sample* newSample = 0;
+				for (int i = 0; i < g_nsamples; ++i)
+				{
+					if (strcmp(g_samples[i].name, test->getSampleName()) == 0)
 					{
-						if (strcmp(g_samples[i].name, test->getSampleName()) == 0)
-						{
-							newSample = g_samples[i].create();
-							if (newSample) strcpy(sampleName, g_samples[i].name);
-						}
+						newSample = g_samples[i].create();
+						if (newSample) strcpy(sampleName, g_samples[i].name);
 					}
-					if (newSample)
-					{
-						delete sample;
-						sample = newSample;
-						sample->setContext(&ctx);
-						showSample = false;
-					}
+				}
+				if (newSample)
+				{
+					delete sample;
+					sample = newSample;
+					sample->setContext(&ctx);
+					showSample = false;
+				}
 
-					// Load geom.
-					strcpy(meshName, test->getGeomFileName());
-					meshName[sizeof(meshName)-1] = '\0';
-					
+				// Load geom.
+				meshName = test->getGeomFileName();
+				
+				delete geom;
+				geom = 0;
+				
+				strcpy(path, "Meshes/");
+				strcat(path, meshName.c_str());
+				
+				geom = new InputGeom;
+				if (!geom || !geom->loadMesh(&ctx, path))
+				{
 					delete geom;
 					geom = 0;
-					
-					strcpy(path, "Meshes/");
-					strcat(path, meshName);
-					
-					geom = new InputGeom;
-					if (!geom || !geom->loadMesh(&ctx, path))
-					{
-						delete geom;
-						geom = 0;
-						showLog = true;
-						logScroll = 0;
-						ctx.dumpLog("Geom load log %s:", meshName);
-					}
-					if (sample && geom)
-					{
-						sample->handleMeshChanged(geom);
-					}
-
-					// This will ensure that tile & poly bits are updated in tiled sample.
-					if (sample)
-						sample->handleSettings();
-
-					ctx.resetLog();
-					if (sample && !sample->handleBuild())
-					{
-						ctx.dumpLog("Build log %s:", meshName);
-					}
-					
-					if (geom || sample)
-					{
-						const float* bmin = 0;
-						const float* bmax = 0;
-						if (sample)
-						{
-							bmin = sample->getBoundsMin();
-							bmax = sample->getBoundsMax();
-						}
-						else if (geom)
-						{
-							bmin = geom->getMeshBoundsMin();
-							bmax = geom->getMeshBoundsMax();
-						}
-						// Reset camera and fog to match the mesh bounds.
-						if (bmin && bmax)
-						{
-							camr = sqrtf(rcSqr(bmax[0]-bmin[0]) +
-										 rcSqr(bmax[1]-bmin[1]) +
-										 rcSqr(bmax[2]-bmin[2])) / 2;
-							camx = (bmax[0] + bmin[0]) / 2 + camr;
-							camy = (bmax[1] + bmin[1]) / 2 + camr;
-							camz = (bmax[2] + bmin[2]) / 2 + camr;
-							camr *= 3;
-						}
-						rx = 45;
-						ry = -45;
-						glFogf(GL_FOG_START, camr*0.2f);
-						glFogf(GL_FOG_END, camr*1.25f);
-					}
-					
-					// Do the tests.
-					if (sample)
-						test->doTests(sample->getNavMesh(), sample->getNavMeshQuery());
+					showLog = true;
+					logScroll = 0;
+					ctx.dumpLog("Geom load log %s:", meshName.c_str());
 				}
+				if (sample && geom)
+				{
+					sample->handleMeshChanged(geom);
+				}
+
+				// This will ensure that tile & poly bits are updated in tiled sample.
+				if (sample)
+					sample->handleSettings();
+
+				ctx.resetLog();
+				if (sample && !sample->handleBuild())
+				{
+					ctx.dumpLog("Build log %s:", meshName.c_str());
+				}
+				
+				if (geom || sample)
+				{
+					const float* bmin = 0;
+					const float* bmax = 0;
+					if (sample)
+					{
+						bmin = sample->getBoundsMin();
+						bmax = sample->getBoundsMax();
+					}
+					else if (geom)
+					{
+						bmin = geom->getMeshBoundsMin();
+						bmax = geom->getMeshBoundsMax();
+					}
+					// Reset camera and fog to match the mesh bounds.
+					if (bmin && bmax)
+					{
+						camr = sqrtf(rcSqr(bmax[0]-bmin[0]) +
+									 rcSqr(bmax[1]-bmin[1]) +
+									 rcSqr(bmax[2]-bmin[2])) / 2;
+						camx = (bmax[0] + bmin[0]) / 2 + camr;
+						camy = (bmax[1] + bmin[1]) / 2 + camr;
+						camz = (bmax[2] + bmin[2]) / 2 + camr;
+						camr *= 3;
+					}
+					rx = 45;
+					ry = -45;
+					glFogf(GL_FOG_START, camr*0.2f);
+					glFogf(GL_FOG_END, camr*1.25f);
+				}
+				
+				// Do the tests.
+				if (sample)
+					test->doTests(sample->getNavMesh(), sample->getNavMeshQuery());
 			}				
 				
 			imguiEndScrollArea();
