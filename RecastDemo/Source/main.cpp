@@ -700,12 +700,11 @@ int main(int /*argc*/, char** /*argv*/)
 				delete geom;
 				geom = 0;
 				
-				char path[256];
-				strcpy(path, "Meshes/");
-				strcat(path, meshName.c_str());
+				string path = "Meshes/";
+				path += meshName;
 				
 				geom = new InputGeom;
-				if (!geom || !geom->loadMesh(&ctx, path))
+				if (!geom || !geom->loadMesh(&ctx, path.c_str()))
 				{
 					delete geom;
 					geom = 0;
@@ -770,12 +769,11 @@ int main(int /*argc*/, char** /*argv*/)
 			
 			if (testToLoad != -1)
 			{
-				char path[256];
-				strcpy(path, "Tests/");
-				strcat(path, files.files[testToLoad]);
+				string path = "Tests/";
+				path += files.files[testToLoad];
 				test = new TestCase;
 				// Load the test.
-				if (!test->load(path))
+				if (!test->load(path.c_str()))
 				{
 					delete test;
 					test = 0;
@@ -805,11 +803,11 @@ int main(int /*argc*/, char** /*argv*/)
 				delete geom;
 				geom = 0;
 				
-				strcpy(path, "Meshes/");
-				strcat(path, meshName.c_str());
+				path = "Meshes/";
+				path += meshName;
 				
 				geom = new InputGeom;
-				if (!geom || !geom->loadMesh(&ctx, path))
+				if (!geom || !geom->loadMesh(&ctx, path.c_str()))
 				{
 					delete geom;
 					geom = 0;
