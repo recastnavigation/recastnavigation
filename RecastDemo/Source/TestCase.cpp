@@ -83,12 +83,12 @@ static char* parseRow(char* buf, char* bufEnd, char* row, int len)
 	return buf;
 }
 
-static void copyName(char* dst, const char* src)
+static void copyName(string& dst, const char* src)
 {
 	// Skip white spaces
 	while (*src && isspace(*src))
 		src++;
-	strcpy(dst, src);
+	dst = src;
 }
 
 bool TestCase::load(const char* filePath)

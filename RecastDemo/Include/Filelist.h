@@ -20,8 +20,10 @@
 #define FILELIST_H
 
 #include <vector>
+#include <string>
 
 using std::vector;
+using std::string;
 
 class FileList
 {
@@ -31,7 +33,7 @@ public:
 	
 	vector<char*> files;
 
-	void scanDirectory(const char* path, const char* ext);
+	void scanDirectory(const string& path, const char* ext);
 
 private:
 	void Add(const char* path);

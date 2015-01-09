@@ -55,14 +55,14 @@ FileList::~FileList()
 	Clear();
 }
 	
-void FileList::scanDirectory(const char* path, const char* ext)
+void FileList::scanDirectory(const string& path, const char* ext)
 {
 	Clear();
 	
 #ifdef WIN32
 	_finddata_t dir;
 	char pathWithExt[260];
-	sprintf_s(pathWithExt, "%s/*%s", path, ext);
+	sprintf_s(pathWithExt, "%s/*%s", path.c_str(), ext);
 
 	long fh = _findfirst(pathWithExt, &dir);
 	if (fh == -1L)
@@ -78,7 +78,7 @@ void FileList::scanDirectory(const char* path, const char* ext)
 	_findclose(fh);
 #else
 	dirent* current = 0;
-	DIR* dp = opendir(path);
+	DIR* dp = opendir(path.c_str());
 	if (!dp)
 	{
 		return;

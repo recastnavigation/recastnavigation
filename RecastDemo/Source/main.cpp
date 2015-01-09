@@ -81,29 +81,28 @@ int main(int /*argc*/, char** /*argv*/)
 	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
-//#ifndef WIN32
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
-//#endif
 
-	const SDL_VideoInfo* vi = SDL_GetVideoInfo();
+	const SDL_VideoInfo* videoInfo = SDL_GetVideoInfo();
 
 	bool presentationMode = false;
 
-	int width, height;
+	int width;
+	int height;
 	SDL_Surface* screen = 0;
 	
 	if (presentationMode)
 	{
-		width = vi->current_w;
-		height = vi->current_h;
+		width = videoInfo->current_w;
+		height = videoInfo->current_h;
 		screen = SDL_SetVideoMode(width, height, 0, SDL_OPENGL|SDL_FULLSCREEN);
 	}
 	else
 	{	
-		width = rcMin(vi->current_w, (int)(vi->current_h * 16.0 / 9.0));
+		width = rcMin(videoInfo->current_w, (int)(videoInfo->current_h * 16.0 / 9.0));
 		width = width - 80;
-		height = vi->current_h - 80;
+		height = videoInfo->current_h - 80;
 		screen = SDL_SetVideoMode(width, height, 0, SDL_OPENGL);
 	}
 	
@@ -123,7 +122,7 @@ int main(int /*argc*/, char** /*argv*/)
 		SDL_Quit();
 		return -1;
 	}
-	
+
 	float t = 0.0f;
 	float timeAcc = 0.0f;
 	Uint32 lastTime = SDL_GetTicks();
@@ -150,7 +149,7 @@ int main(int /*argc*/, char** /*argv*/)
 	int logScroll = 0;
 	int toolsScroll = 0;
 	
-	char sampleName[64] = "Choose Sample..."; 
+	string sampleName = "Choose Sample..."; 
 	
 	FileList files;
 	string meshName = "Choose Mesh...";
@@ -542,7 +541,7 @@ int main(int /*argc*/, char** /*argv*/)
 
 			imguiSeparator();
 			imguiLabel("Sample");
-			if (imguiButton(sampleName))
+			if (imguiButton(sampleName.c_str()))
 			{
 				if (showSample)
 				{
@@ -629,7 +628,7 @@ int main(int /*argc*/, char** /*argv*/)
 				{
 					newSample = g_samples[i].create();
 					if (newSample)
-						strcpy(sampleName, g_samples[i].name);
+						sampleName = g_samples[i].name;
 				}
 			}
 			if (newSample)
@@ -783,10 +782,11 @@ int main(int /*argc*/, char** /*argv*/)
 				Sample* newSample = 0;
 				for (int i = 0; i < g_nsamples; ++i)
 				{
-					if (strcmp(g_samples[i].name, test->getSampleName()) == 0)
+					if (strcmp(g_samples[i].name, test->getSampleName().c_str()) == 0)
 					{
 						newSample = g_samples[i].create();
-						if (newSample) strcpy(sampleName, g_samples[i].name);
+						if (newSample)
+							sampleName = g_samples[i].name;
 					}
 				}
 				if (newSample)

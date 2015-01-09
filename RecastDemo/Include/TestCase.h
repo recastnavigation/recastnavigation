@@ -21,6 +21,10 @@
 
 #include "DetourNavMesh.h"
 
+#include <string>
+
+using std::string;
+
 class TestCase
 {
 	enum TestType
@@ -79,8 +83,8 @@ class TestCase
 		Test* next;
 	};
 
-	char m_sampleName[256];
-	char m_geomFileName[256];
+	string m_sampleName;
+	string m_geomFileName;
 	Test* m_tests;
 	
 	void resetTimes();
@@ -91,8 +95,8 @@ public:
 
 	bool load(const char* filePath);
 	
-	inline const char* getSampleName() const { return m_sampleName; }
-	inline const char* getGeomFileName() const { return m_geomFileName; }
+	inline const string& getSampleName() const { return m_sampleName; }
+	inline const string& getGeomFileName() const { return m_geomFileName; }
 	
 	void doTests(class dtNavMesh* navmesh, class dtNavMeshQuery* navquery);
 	
