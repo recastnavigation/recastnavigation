@@ -58,7 +58,7 @@ void scanDirectory(string path, string ext, vector<string>& filelist)
 		int len = strlen(current->d_name);
 		if (len > 4 && strncmp(current->d_name+len-4, ext.c_str(), 4) == 0)
 		{
-			Add(current->d_name);
+			filelist.push_back(current->d_name);
 		}
 	}
 	closedir(dp);
