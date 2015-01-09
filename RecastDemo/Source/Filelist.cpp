@@ -26,53 +26,22 @@
 #else
 #	include <dirent.h>
 #endif
-
-void FileList::Add(const char* path)
-{
-	int n = strlen(path);
-	char* copiedPath = new char[n + 1];
-	strcpy(copiedPath, path);
-	files.push_back(copiedPath);
-}
-
-void FileList::Clear()
-{
-	vector<char*>::iterator filesIter = files.begin();
-	vector<char*>::iterator filesEnd = files.end();
-	for (; filesIter != filesEnd; ++filesIter) {
-		delete[] (*filesIter);
-	}
-
-	files.clear();
-}
-
-FileList::FileList()
-{
-}
-
-FileList::~FileList()
-{
-	Clear();
-}
 	
-void FileList::scanDirectory(const string& path, const char* ext)
+void scanDirectory(string path, string ext, vector<string>& filelist)
 {
-	Clear();
-	
+	filelist.clear();
+
 #ifdef WIN32
-	_finddata_t dir;
-	char pathWithExt[260];
-	sprintf_s(pathWithExt, "%s/*%s", path.c_str(), ext);
+	string pathWithExt = path + "/*" + ext;
 
-	long fh = _findfirst(pathWithExt, &dir);
+	_finddata_t dir;
+	long fh = _findfirst(pathWithExt.c_str(), &dir);
 	if (fh == -1L)
-	{
 		return;
-	}
 	
 	do
 	{
-		Add(dir.name);
+		filelist.push_back(dir.name);
 	}
 	while (_findnext(fh, &dir) == 0);
 	_findclose(fh);
@@ -87,7 +56,7 @@ void FileList::scanDirectory(const string& path, const char* ext)
 	while ((current = readdir(dp)) != 0)
 	{
 		int len = strlen(current->d_name);
-		if (len > 4 && strncmp(current->d_name+len-4, ext, 4) == 0)
+		if (len > 4 && strncmp(current->d_name+len-4, ext.c_str(), 4) == 0)
 		{
 			Add(current->d_name);
 		}
@@ -96,10 +65,5 @@ void FileList::scanDirectory(const string& path, const char* ext)
 #endif
 
 	// Sort the list of files alphabetically.
-	struct {
-		bool operator()(const char* a, const char* b) const {
-			return strcmp(a, b) < 0;
-		}
-	} cmp;
-	std::sort(files.begin(), files.end(), cmp);
+	std::sort(filelist.begin(), filelist.end());
 }

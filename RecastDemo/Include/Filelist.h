@@ -25,19 +25,6 @@
 using std::vector;
 using std::string;
 
-class FileList
-{
-public:
-	FileList();
-	~FileList();
-	
-	vector<char*> files;
-
-	void scanDirectory(const string& path, const char* ext);
-
-private:
-	void Add(const char* path);
-	void Clear();
-};
+void scanDirectory(string path, string ext, vector<string>& filelist);
 
 #endif // FILELIST_H

@@ -151,7 +151,7 @@ int main(int /*argc*/, char** /*argv*/)
 	
 	string sampleName = "Choose Sample..."; 
 	
-	FileList files;
+	vector<string> files;
 	string meshName = "Choose Mesh...";
 	
 	float mpos[3] = {0,0,0};
@@ -201,7 +201,7 @@ int main(int /*argc*/, char** /*argv*/)
 						showLevels = false;
 						showSample = false;
 						showTestCases = true;
-						files.scanDirectory("Tests", ".txt");
+						scanDirectory("Tests", ".txt", files);
 					}
 					else if (event.key.keysym.sym == SDLK_TAB)
 					{
@@ -568,7 +568,7 @@ int main(int /*argc*/, char** /*argv*/)
 					showSample = false;
 					showTestCases = false;
 					showLevels = true;
-					files.scanDirectory("Meshes", ".obj");
+					scanDirectory("Meshes", ".obj", files);
 				}
 			}
 			if (geom)
@@ -685,15 +685,15 @@ int main(int /*argc*/, char** /*argv*/)
 				mouseOverMenu = true;
 			
 			int levelToLoad = -1;
-			for (int i = 0; i < files.files.size(); ++i)
+			for (int i = 0; i < files.size(); ++i)
 			{
-				if (imguiItem(files.files[i]))
+				if (imguiItem(files[i].c_str()))
 					levelToLoad = i;
 			}
 			
 			if (levelToLoad != -1)
 			{
-				meshName = files.files[levelToLoad];
+				meshName = files[levelToLoad];
 				showLevels = false;
 				
 				delete geom;
@@ -760,16 +760,16 @@ int main(int /*argc*/, char** /*argv*/)
 				mouseOverMenu = true;
 
 			int testToLoad = -1;
-			for (int i = 0; i < files.files.size(); ++i)
+			for (int i = 0; i < files.size(); ++i)
 			{
-				if (imguiItem(files.files[i]))
+				if (imguiItem(files[i].c_str()))
 					testToLoad = i;
 			}
 			
 			if (testToLoad != -1)
 			{
 				string path = "Tests/";
-				path += files.files[testToLoad];
+				path += files[testToLoad];
 				test = new TestCase;
 				// Load the test.
 				if (!test->load(path.c_str()))

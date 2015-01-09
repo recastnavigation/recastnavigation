@@ -82,7 +82,7 @@ bool SlideShow::loadImage(const char* path)
 bool SlideShow::init(const char* path)
 {
 	m_path = path;
-	m_files.scanDirectory(m_path, ".png");
+	scanDirectory(m_path, ".png", m_files);
 	
 	return true;
 }
@@ -99,7 +99,7 @@ void SlideShow::prevSlide()
 
 void SlideShow::setSlide(int n)
 {
-	const int maxIdx = m_files.files.size() ? m_files.files.size() - 1 : 0;
+	const int maxIdx = m_files.size() ? m_files.size() - 1 : 0;
 	m_nextSlide = n;
 	if (m_nextSlide < 0) m_nextSlide = 0;
 	if (m_nextSlide > maxIdx) m_nextSlide = maxIdx; 
@@ -121,9 +121,9 @@ void SlideShow::updateAndDraw(float dt, const float w, const float h)
 	if (m_curSlide != m_nextSlide && m_slideAlpha < 0.01f)
 	{
 		m_curSlide = m_nextSlide;
-		if (m_curSlide >= 0 && m_curSlide < m_files.files.size())
+		if (m_curSlide >= 0 && m_curSlide < m_files.size())
 		{
-			string path = m_path + m_files.files[m_curSlide];
+			string path = m_path + m_files[m_curSlide];
 			loadImage(path.c_str());
 		}
 	}

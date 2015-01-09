@@ -20,8 +20,10 @@
 #define SLIDESHOW_H
 
 #include "Filelist.h"
+#include <vector>
 #include <string>
 
+using std::vector;
 using std::string;
 
 class SlideShow
@@ -40,7 +42,7 @@ private:
 	void purgeImage();
 	bool loadImage(const char* path);
 
-	FileList m_files;
+	vector<string> m_files;
 	string m_path;
 
 	int m_width;
