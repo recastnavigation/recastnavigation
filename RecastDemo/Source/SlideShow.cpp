@@ -27,6 +27,7 @@ SlideShow::SlideShow() :
 	m_width(0),
 	m_height(0),
 	m_texId(0),
+	m_showSlides(false),
 	m_showCurSlide(true),
 	m_slideAlpha(1.0f),
 	m_curSlide(-1),
@@ -80,8 +81,8 @@ bool SlideShow::loadImage(const char* path)
 
 bool SlideShow::init(const char* path)
 {
-	strcpy(m_path, path);
-	m_files.scanDirectory(m_path, ".png");
+	m_path = path;
+	m_files.scanDirectory(m_path.c_str(), ".png");
 	
 	return true;
 }
@@ -123,7 +124,7 @@ void SlideShow::updateAndDraw(float dt, const float w, const float h)
 		if (m_curSlide >= 0 && m_curSlide < m_files.files.size())
 		{
 			char path[256];
-			strcpy(path, m_path);
+			strcpy(path, m_path.c_str());
 			strcat(path, m_files.files[m_curSlide]);
 			loadImage(path);
 		}

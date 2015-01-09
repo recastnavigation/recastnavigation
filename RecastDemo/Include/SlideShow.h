@@ -20,25 +20,12 @@
 #define SLIDESHOW_H
 
 #include "Filelist.h"
+#include <string>
+
+using std::string;
 
 class SlideShow
 {
-	FileList m_files;
-	char m_path[256];
-
-	int m_width;
-	int m_height;
-	unsigned int m_texId;
-
-	void purgeImage();
-	bool loadImage(const char* path);
-
-	bool m_showSlides;
-	bool m_showCurSlide;
-	float m_slideAlpha;
-	int m_curSlide;
-	int m_nextSlide;
-	
 public:
 	SlideShow();
 	~SlideShow();
@@ -48,6 +35,23 @@ public:
 	void prevSlide();
 	void setSlide(int n);
 	void updateAndDraw(float dt, const float w, const float h);
+
+private:
+	void purgeImage();
+	bool loadImage(const char* path);
+
+	FileList m_files;
+	string m_path;
+
+	int m_width;
+	int m_height;
+	unsigned int m_texId;
+
+	bool m_showSlides;
+	bool m_showCurSlide;
+	float m_slideAlpha;
+	int m_curSlide;
+	int m_nextSlide;
 };
 
 #endif // SLIDESHOW_H
