@@ -93,7 +93,7 @@ public:
 	TestCase();
 	~TestCase();
 
-	bool load(const char* filePath);
+	bool load(string filePath);
 	
 	inline const string& getSampleName() const { return m_sampleName; }
 	inline const string& getGeomFileName() const { return m_geomFileName; }

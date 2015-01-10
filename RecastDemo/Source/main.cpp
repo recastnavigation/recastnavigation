@@ -19,6 +19,7 @@
 #include <stdio.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
+#include <iostream>
 #include "SDL.h"
 #include "SDL_opengl.h"
 #include "imgui.h"
@@ -72,8 +73,7 @@ int main(int /*argc*/, char** /*argv*/)
 	}
 	
 	// Center window
-	char env[] = "SDL_VIDEO_CENTERED=1";
-	putenv(env);
+	putenv("SDL_VIDEO_CENTERED=1");
 
 	// Init OpenGL
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
@@ -109,7 +109,7 @@ int main(int /*argc*/, char** /*argv*/)
 	
 	if (!screen)
 	{
-		printf("Could not initialise SDL opengl\n");
+		std::cerr << "Fatal error: Could not initialise SDL opengl!\n";
 		return -1;
 	}
 
@@ -119,12 +119,14 @@ int main(int /*argc*/, char** /*argv*/)
 	
 	if (!imguiRenderGLInit("DroidSans.ttf"))
 	{
-		printf("Could not init GUI renderer.\n");
+		std::cerr << "Fatal error: Could not init GUI renderer.\n";
 		SDL_Quit();
 		return -1;
 	}
  
-    return run(width, height, presentationMode);
+	int retval = run(width, height, presentationMode);
+	SDL_Quit();
+	return retval;
 }
 
 int run(int width, int height, bool presentationMode) {
@@ -689,16 +691,15 @@ int run(int width, int height, bool presentationMode) {
 			if (imguiBeginScrollArea("Choose Level", width-10-250-10-200, height-10-450, 200, 450, &levelScroll))
 				mouseOverMenu = true;
 			
-			int levelToLoad = -1;
-			for (int i = 0; i < files.size(); ++i)
+			string levelName = "";
+
+			for (string file : files)
+				if (imguiItem(file.c_str()))
+					levelName = file;
+
+			if (levelName != "")
 			{
-				if (imguiItem(files[i].c_str()))
-					levelToLoad = i;
-			}
-			
-			if (levelToLoad != -1)
-			{
-				meshName = files[levelToLoad];
+				meshName = levelName;
 				showLevels = false;
 				
 				delete geom;
@@ -764,23 +765,22 @@ int run(int width, int height, bool presentationMode) {
 			if (imguiBeginScrollArea("Choose Test To Run", width-10-250-10-200, height-10-450, 200, 450, &testScroll))
 				mouseOverMenu = true;
 
-			int testToLoad = -1;
-			for (int i = 0; i < files.size(); ++i)
+			// Get the name of the currently selected test.
+			string testName = "";
+			for (string test : files)
+				if (imguiItem(test.c_str()))
+					testName = test;
+
+			if (testName != "")
 			{
-				if (imguiItem(files[i].c_str()))
-					testToLoad = i;
-			}
-			
-			if (testToLoad != -1)
-			{
-				string path = "Tests/";
-				path += files[testToLoad];
+				string path = "Tests/" + testName;
 				test = new TestCase;
+
 				// Load the test.
-				if (!test->load(path.c_str()))
+				if (!test->load(path))
 				{
 					delete test;
-					test = 0;
+					test = nullptr;
 				}
 
 				// Create sample

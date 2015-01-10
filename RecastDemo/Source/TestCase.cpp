@@ -20,6 +20,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <math.h>
+#include <fstream>
 #include "TestCase.h"
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"
@@ -91,26 +92,19 @@ static void copyName(string& dst, const char* src)
 	dst = src;
 }
 
-bool TestCase::load(const char* filePath)
+bool TestCase::load(string filePath)
 {
-	char* buf = 0;
-	FILE* fp = fopen(filePath, "rb");
-	if (!fp)
+	std::ifstream file(filePath, std::ios::binary);
+	file.seekg(0, std::ios::end);
+	std::streamsize size = file.tellg();
+	file.seekg(0, std::ios::beg);
+
+	char* buf = new char[size];
+	if (!file.read(buf, size))
 		return false;
-	fseek(fp, 0, SEEK_END);
-	int bufSize = ftell(fp);
-	fseek(fp, 0, SEEK_SET);
-	buf = new char[bufSize];
-	size_t readLen = fread(buf, bufSize, 1, fp);
-	fclose(fp);
-	if (readLen != 1)
-	{
-		delete[] buf;
-		return false;
-	}
 
 	char* src = buf;
-	char* srcEnd = buf + bufSize;
+	char* srcEnd = buf + size;
 	char row[512];
 	while (src < srcEnd)
 	{
