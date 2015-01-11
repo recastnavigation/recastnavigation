@@ -22,25 +22,42 @@
 #include "DetourNavMesh.h"
 
 #include <string>
+#include <vector>
 
 using std::string;
+using std::vector;
 
 class TestCase
 {
+public:
+	TestCase();
+	~TestCase();
+
+	bool load(string filePath);
+	
+	inline const string& getSampleName() const { return m_sampleName; }
+	inline const string& getGeomFileName() const { return m_geomFileName; }
+	
+	void doTests(class dtNavMesh* navmesh, class dtNavMeshQuery* navquery);
+	
+	void handleRender();
+	bool handleRenderOverlay(double* proj, double* model, int* view);
+
+private:
 	enum TestType
 	{
 		TEST_PATHFIND,
 		TEST_RAYCAST
 	};
-	
+
 	struct Test
 	{
-		Test(TestType type) 
+		Test(TestType type, bool expand)
 			: type(type)
 			, radius(0)
 			, includeFlags(0)
 			, excludeFlags(0)
-			, expand(false)
+			, expand(expand)
 			, straight(0)
 			, nstraight(0)
 			, polys(0)
@@ -60,48 +77,34 @@ class TestCase
 
 		~Test()
 		{
-			delete [] straight;
-			delete [] polys;
+			delete[] straight;
+			delete[] polys;
 		}
-		
+
 		TestType type;
 		float spos[3], epos[3];
 		float nspos[3], nepos[3];
 		float radius;
 		int includeFlags, excludeFlags;
 		bool expand;
-		
+
 		float* straight;
 		int nstraight;
 		dtPolyRef* polys;
 		int npolys;
-		
+
 		int findNearestPolyTime;
 		int findPathTime;
 		int findStraightPathTime;
-		
+
 		Test* next;
 	};
 
+	void resetTimes();
+
 	string m_sampleName;
 	string m_geomFileName;
-	Test* m_tests;
-	
-	void resetTimes();
-	
-public:
-	TestCase();
-	~TestCase();
-
-	bool load(string filePath);
-	
-	inline const string& getSampleName() const { return m_sampleName; }
-	inline const string& getGeomFileName() const { return m_geomFileName; }
-	
-	void doTests(class dtNavMesh* navmesh, class dtNavMeshQuery* navquery);
-	
-	void handleRender();
-	bool handleRenderOverlay(double* proj, double* model, int* view);
+	vector<Test> m_tests;
 };
 
 #endif // TESTCASE_H
