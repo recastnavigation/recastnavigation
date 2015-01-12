@@ -52,8 +52,8 @@ private:
 
 	struct Test
 	{
-		Test(TestType type, bool expand)
-			: type(type)
+		Test(TestType testType, bool expand)
+			: type(testType)
 			, radius(0)
 			, includeFlags(0)
 			, excludeFlags(0)

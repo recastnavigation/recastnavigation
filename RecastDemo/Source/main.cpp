@@ -137,11 +137,21 @@ int run(int width, int height, bool presentationMode) {
 	float totalTime = 0.0f;
 	float timeAcc = 0.0f;
 	Uint32 lastTime = SDL_GetTicks();
-	int mx = 0, my = 0;
+	int mx = 0;
+	int my = 0;
 	float rx = 45;
 	float ry = -45;
-	float moveW = 0, moveS = 0, moveA = 0, moveD = 0;
-	float camx = 0, camy = 0, camz = 0, camr = 1000;
+
+	float moveW = 0;
+	float moveS = 0;
+	float moveA = 0;
+	float moveD = 0;
+
+	float camx = 0;
+	float camy = 0;
+	float camz = 0;
+	float camr = 1000;
+
 	float origrx = 0, origry = 0;
 	int origx = 0, origy = 0;
 	float scrollZoom = 0;
@@ -191,7 +201,7 @@ int run(int width, int height, bool presentationMode) {
 	while(!done)
 	{
 		// Handle input events.
-		int mscroll = 0;
+		int mouseScroll = 0;
 		bool processHitTest = false;
 		bool processHitTestShift = false;
 		SDL_Event event;
@@ -234,7 +244,7 @@ int run(int width, int height, bool presentationMode) {
 					}
 					else if (event.key.keysym.sym == SDLK_0)
 					{
-						geom = std::make_unique<InputGeom>();
+                        geom = std::unique_ptr<InputGeom>(new InputGeom);
 						if (!geom->load(&ctx, "geomset.txt"))
 						{
 							geom = nullptr;
@@ -306,14 +316,14 @@ int run(int width, int height, bool presentationMode) {
 					else if (event.button.button == SDL_BUTTON_WHEELUP)
 					{
 						if (mouseOverMenu)
-							mscroll--;
+							mouseScroll--;
 						else
 							scrollZoom -= 1.0f;
 					}
 					else if (event.button.button == SDL_BUTTON_WHEELDOWN)
 					{
 						if (mouseOverMenu)
-							mscroll++;
+							mouseScroll++;
 						else
 							scrollZoom += 1.0f;
 					}
@@ -367,11 +377,11 @@ int run(int width, int height, bool presentationMode) {
 			}
 		}
 
-		unsigned char mbut = 0;
+		unsigned char mouseButton = 0;
 		if (SDL_GetMouseState(0,0) & SDL_BUTTON_LMASK)
-			mbut |= IMGUI_MBUT_LEFT;
+			mouseButton |= IMGUI_MBUT_LEFT;
 		if (SDL_GetMouseState(0,0) & SDL_BUTTON_RMASK)
-			mbut |= IMGUI_MBUT_RIGHT;
+			mouseButton |= IMGUI_MBUT_RIGHT;
 		
 		Uint32	time = SDL_GetTicks();
 		float	dt = (time - lastTime) / 1000.0f;
@@ -517,7 +527,7 @@ int run(int width, int height, bool presentationMode) {
 		
 		mouseOverMenu = false;
 		
-		imguiBeginFrame(mx,my,mbut,mscroll);
+		imguiBeginFrame(mx, my, mouseButton, mouseScroll);
 		
 		if (sample)
 		{
@@ -703,7 +713,7 @@ int run(int width, int height, bool presentationMode) {
 				string path = "Meshes/";
 				path += meshName;
 				
-				geom = std::make_unique<InputGeom>();
+                geom = std::unique_ptr<InputGeom>(new InputGeom);
 				if (!geom->loadMesh(&ctx, path.c_str()))
 				{
 					geom = nullptr;
@@ -802,7 +812,7 @@ int run(int width, int height, bool presentationMode) {
 				path = "Meshes/";
 				path += meshName;
 				
-				geom = std::make_unique<InputGeom>();
+                geom = std::unique_ptr<InputGeom>(new InputGeom);
 				if (!geom->loadMesh(&ctx, path.c_str()))
 				{
 					geom = nullptr;
