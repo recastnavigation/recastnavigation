@@ -94,7 +94,7 @@ bool TestCase::load(string filePath)
 	std::streamsize size = file.tellg();
 	file.seekg(0, std::ios::beg);
 
-	char* buf = new char[size];
+	char* buf = new char[static_cast<unsigned int>(size)];
 	if (!file.read(buf, size))
 		return false;
 
@@ -119,22 +119,25 @@ bool TestCase::load(string filePath)
 		else if (row[0] == 'p' && row[1] == 'f')
 		{
 			// Pathfind test.
-			m_tests.emplace_back(TEST_PATHFIND, false);
-			Test& test = m_tests.back();
-			sscanf(row + 2, "%f %f %f %f %f %f %x %x",
-				   test.spos[0], test.spos[1], test.spos[2],
-				   test.epos[0], test.epos[1], test.epos[2],
-				   test.includeFlags, test.excludeFlags);
+			Test test(TEST_PATHFIND, false);
+			std::istringstream ss(row + 2);
+			ss >> test.spos[0] >> test.spos[1] >> test.spos[2] 
+			   >> test.epos[0] >> test.epos[1] >> test.epos[2]
+			   >> std::hex
+			   >> test.includeFlags >> test.excludeFlags;
+
+			m_tests.push_back(std::move(test));
 		}
 		else if (row[0] == 'r' && row[1] == 'c')
 		{
 			// Raycast test.
-			m_tests.emplace_back(TEST_RAYCAST, false);
-			Test& test = m_tests.back();
-			sscanf(row + 2, "%f %f %f %f %f %f %x %x",
-				   test.spos[0], test.spos[1], test.spos[2],
-				   test.epos[0], test.epos[1], test.epos[2],
-				   test.includeFlags, test.excludeFlags);
+			Test test(TEST_RAYCAST, false);
+			std::istringstream ss(row + 2);
+			ss >> test.spos[0] >> test.spos[1] >> test.spos[2]
+				>> test.epos[0] >> test.epos[1] >> test.epos[2]
+				>> std::hex
+				>> test.includeFlags >> test.excludeFlags;
+			m_tests.push_back(std::move(test));
 		}
 	}
 	

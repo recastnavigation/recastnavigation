@@ -20,6 +20,7 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <iostream>
+#include <memory>
 #include "SDL.h"
 #include "SDL_opengl.h"
 #include "imgui.h"
@@ -61,7 +62,9 @@ static SampleItem g_samples[] =
 };
 static const int g_nsamples = sizeof(g_samples)/sizeof(SampleItem); 
 
+// Function forward-declares
 int run(int width, int height, bool presentationMode);
+void drawMarker(float markerPosition[3], GLdouble projectionMatrix[16], GLdouble modelviewMatrix[16], GLint viewport[4]);
 
 int main(int /*argc*/, char** /*argv*/)
 {
@@ -100,7 +103,7 @@ int main(int /*argc*/, char** /*argv*/)
 		screen = SDL_SetVideoMode(width, height, 0, SDL_OPENGL|SDL_FULLSCREEN);
 	}
 	else
-	{	
+	{
 		width = rcMin(videoInfo->current_w, (int)(videoInfo->current_h * 16.0 / 9.0));
 		width = width - 80;
 		height = videoInfo->current_h - 80;
@@ -131,7 +134,7 @@ int main(int /*argc*/, char** /*argv*/)
 
 int run(int width, int height, bool presentationMode) {
 
-	float t = 0.0f;
+	float totalTime = 0.0f;
 	float timeAcc = 0.0f;
 	Uint32 lastTime = SDL_GetTicks();
 	int mx = 0, my = 0;
@@ -162,25 +165,25 @@ int run(int width, int height, bool presentationMode) {
 	vector<string> files;
 	string meshName = "Choose Mesh...";
 	
-	float mpos[3] = {0,0,0};
+	float markerPosition[3] = {0,0,0};
 	bool mposSet = false;
 	
 	SlideShow slideShow("slides/");
 	
-	InputGeom* geom = 0;
-	Sample* sample = 0;
+	std::unique_ptr<InputGeom> geom;
+	std::unique_ptr<Sample> sample;
 	TestCase* test = 0;
 
 	BuildContext ctx;
 	
 	glEnable(GL_CULL_FACE);
 	
-	float fogCol[4] = { 0.32f, 0.31f, 0.30f, 1.0f };
+	float fogColor[4] = { 0.32f, 0.31f, 0.30f, 1.0f };
 	glEnable(GL_FOG);
 	glFogi(GL_FOG_MODE, GL_LINEAR);
-	glFogf(GL_FOG_START, camr*0.1f);
-	glFogf(GL_FOG_END, camr*1.25f);
-	glFogfv(GL_FOG_COLOR, fogCol);
+	glFogf(GL_FOG_START, camr * 0.1f);
+	glFogf(GL_FOG_END, camr * 1.25f);
+	glFogfv(GL_FOG_COLOR, fogColor);
 	
 	glDepthFunc(GL_LEQUAL);
 	
@@ -231,12 +234,10 @@ int run(int width, int height, bool presentationMode) {
 					}
 					else if (event.key.keysym.sym == SDLK_0)
 					{
-						delete geom;
-						geom = new InputGeom;
-						if (!geom || !geom->load(&ctx, "geomset.txt"))
+						geom = std::make_unique<InputGeom>();
+						if (!geom->load(&ctx, "geomset.txt"))
 						{
-							delete geom;
-							geom = 0;
+							geom = nullptr;
 							
 							showLog = true;
 							logScroll = 0;
@@ -244,7 +245,7 @@ int run(int width, int height, bool presentationMode) {
 						}
 						if (sample && geom)
 						{
-							sample->handleMeshChanged(geom);
+							sample->handleMeshChanged(geom.get());
 						}
 							
 						if (geom || sample)
@@ -376,14 +377,13 @@ int run(int width, int height, bool presentationMode) {
 		float	dt = (time - lastTime) / 1000.0f;
 		lastTime = time;
 		
-		t += dt;
-
+		totalTime += dt;
 
 		// Hit test mesh.
 		if (processHitTest && geom && sample)
 		{
-			float hitt;
-			bool hit = geom->raycastMesh(rays, raye, hitt);
+			float hitTime;
+			bool hit = geom->raycastMesh(rays, raye, hitTime);
 			
 			if (hit)
 			{
@@ -391,16 +391,16 @@ int run(int width, int height, bool presentationMode) {
 				{
 					// Marker
 					mposSet = true;
-					mpos[0] = rays[0] + (raye[0] - rays[0])*hitt;
-					mpos[1] = rays[1] + (raye[1] - rays[1])*hitt;
-					mpos[2] = rays[2] + (raye[2] - rays[2])*hitt;
+					markerPosition[0] = rays[0] + (raye[0] - rays[0]) * hitTime;
+					markerPosition[1] = rays[1] + (raye[1] - rays[1]) * hitTime;
+					markerPosition[2] = rays[2] + (raye[2] - rays[2]) * hitTime;
 				}
 				else
 				{
 					float pos[3];
-					pos[0] = rays[0] + (raye[0] - rays[0])*hitt;
-					pos[1] = rays[1] + (raye[1] - rays[1])*hitt;
-					pos[2] = rays[2] + (raye[2] - rays[2])*hitt;
+					pos[0] = rays[0] + (raye[0] - rays[0]) * hitTime;
+					pos[1] = rays[1] + (raye[1] - rays[1]) * hitTime;
+					pos[2] = rays[2] + (raye[2] - rays[2]) * hitTime;
 					sample->handleClick(rays, pos, processHitTestShift);
 				}
 			}
@@ -416,7 +416,7 @@ int run(int width, int height, bool presentationMode) {
 		
 		// Update sample simulation.
 		const float SIM_RATE = 20;
-		const float DELTA_TIME = 1.0f/SIM_RATE;
+		const float DELTA_TIME = 1.0f / SIM_RATE;
 		timeAcc = rcClamp(timeAcc+dt, -1.0f, 1.0f);
 		int simIter = 0;
 		while (timeAcc > DELTA_TIME)
@@ -444,7 +444,7 @@ int run(int width, int height, bool presentationMode) {
 		// Update and render
 		glViewport(0, 0, width, height);
 		glClearColor(0.3f, 0.3f, 0.32f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glDisable(GL_TEXTURE_2D);
@@ -453,24 +453,24 @@ int run(int width, int height, bool presentationMode) {
 		glEnable(GL_DEPTH_TEST);
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		gluPerspective(50.0f, (float)width/(float)height, 1.0f, camr);
+		gluPerspective(50.0f, (float)width / (float)height, 1.0f, camr);
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
-		glRotatef(rx,1,0,0);
-		glRotatef(ry,0,1,0);
+		glRotatef(rx, 1, 0, 0);
+		glRotatef(ry, 0, 1, 0);
 		glTranslatef(-camx, -camy, -camz);
 		
 		// Get hit ray position and direction.
-		GLdouble proj[16];
-		GLdouble model[16];
-		GLint view[4];
-		glGetDoublev(GL_PROJECTION_MATRIX, proj);
-		glGetDoublev(GL_MODELVIEW_MATRIX, model);
-		glGetIntegerv(GL_VIEWPORT, view);
+		GLdouble projectionMatrix[16];
+		GLdouble modelviewMatrix[16];
+		GLint viewport[4];
+		glGetDoublev(GL_PROJECTION_MATRIX, projectionMatrix);
+		glGetDoublev(GL_MODELVIEW_MATRIX, modelviewMatrix);
+		glGetIntegerv(GL_VIEWPORT, viewport);
 		GLdouble x, y, z;
-		gluUnProject(mx, my, 0.0f, model, proj, view, &x, &y, &z);
+		gluUnProject(mx, my, 0.0f, modelviewMatrix, projectionMatrix, viewport, &x, &y, &z);
 		rays[0] = (float)x; rays[1] = (float)y; rays[2] = (float)z;
-		gluUnProject(mx, my, 1.0f, model, proj, view, &x, &y, &z);
+		gluUnProject(mx, my, 1.0f, modelviewMatrix, projectionMatrix, viewport, &x, &y, &z);
 		raye[0] = (float)x; raye[1] = (float)y; raye[2] = (float)z;
 		
 		// Handle keyboard movement.
@@ -490,13 +490,13 @@ int run(int width, int height, bool presentationMode) {
 		movey += scrollZoom * 2.0f;
 		scrollZoom = 0;
 		
-		camx += movex * (float)model[0];
-		camy += movex * (float)model[4];
-		camz += movex * (float)model[8];
+		camx += movex * (float)modelviewMatrix[0];
+		camy += movex * (float)modelviewMatrix[4];
+		camz += movex * (float)modelviewMatrix[8];
 		
-		camx += movey * (float)model[2];
-		camy += movey * (float)model[6];
-		camz += movey * (float)model[10];
+		camx += movey * (float)modelviewMatrix[2];
+		camy += movey * (float)modelviewMatrix[6];
+		camz += movey * (float)modelviewMatrix[10];
 
 		glEnable(GL_FOG);
 
@@ -521,11 +521,11 @@ int run(int width, int height, bool presentationMode) {
 		
 		if (sample)
 		{
-			sample->handleRenderOverlay((double*)proj, (double*)model, (int*)view);
+			sample->handleRenderOverlay((double*)projectionMatrix, (double*)modelviewMatrix, (int*)viewport);
 		}
 		if (test)
 		{
-			if (test->handleRenderOverlay((double*)proj, (double*)model, (int*)view))
+			if (test->handleRenderOverlay((double*)projectionMatrix, (double*)modelviewMatrix, (int*)viewport))
 				mouseOverMenu = true;
 		}
 
@@ -628,24 +628,22 @@ int run(int width, int height, bool presentationMode) {
 			if (imguiBeginScrollArea("Choose Sample", width-10-250-10-200, height-10-250, 200, 250, &levelScroll))
 				mouseOverMenu = true;
 
-			Sample* newSample = 0;
+			std::unique_ptr<Sample> newSample;
 			for (int i = 0; i < g_nsamples; ++i)
 			{
 				if (imguiItem(g_samples[i].name))
 				{
-					newSample = g_samples[i].create();
-					if (newSample)
-						sampleName = g_samples[i].name;
+					newSample = std::unique_ptr<Sample>(g_samples[i].create());
+					sampleName = g_samples[i].name;
 				}
 			}
 			if (newSample)
 			{
-				delete sample;
-				sample = newSample;
+				sample = std::move(newSample);
 				sample->setContext(&ctx);
 				if (geom && sample)
 				{
-					sample->handleMeshChanged(geom);
+					sample->handleMeshChanged(geom.get());
 				}
 				showSample = false;
 			}
@@ -702,24 +700,21 @@ int run(int width, int height, bool presentationMode) {
 				meshName = levelName;
 				showLevels = false;
 				
-				delete geom;
-				geom = 0;
-				
 				string path = "Meshes/";
 				path += meshName;
 				
-				geom = new InputGeom;
-				if (!geom || !geom->loadMesh(&ctx, path.c_str()))
+				geom = std::make_unique<InputGeom>();
+				if (!geom->loadMesh(&ctx, path.c_str()))
 				{
-					delete geom;
-					geom = 0;
-					
+					geom = nullptr;
+
 					showLog = true;
 					logScroll = 0;
-					ctx.dumpLog("Geom load log %s:", meshName.c_str()); }
+					ctx.dumpLog("Geom load log %s:", meshName.c_str());
+				}
 				if (sample && geom)
 				{
-					sample->handleMeshChanged(geom);
+					sample->handleMeshChanged(geom.get());
 				}
 
 				if (geom || sample)
@@ -784,20 +779,19 @@ int run(int width, int height, bool presentationMode) {
 				}
 
 				// Create sample
-				Sample* newSample = 0;
+				std::unique_ptr<Sample> newSample;
 				for (int i = 0; i < g_nsamples; ++i)
 				{
 					if (strcmp(g_samples[i].name, test->getSampleName().c_str()) == 0)
 					{
-						newSample = g_samples[i].create();
+						newSample = std::unique_ptr<Sample>(g_samples[i].create());
 						if (newSample)
 							sampleName = g_samples[i].name;
 					}
 				}
 				if (newSample)
 				{
-					delete sample;
-					sample = newSample;
+					sample = std::move(newSample);
 					sample->setContext(&ctx);
 					showSample = false;
 				}
@@ -805,29 +799,27 @@ int run(int width, int height, bool presentationMode) {
 				// Load geom.
 				meshName = test->getGeomFileName();
 				
-				delete geom;
-				geom = 0;
-				
 				path = "Meshes/";
 				path += meshName;
 				
-				geom = new InputGeom;
-				if (!geom || !geom->loadMesh(&ctx, path.c_str()))
+				geom = std::make_unique<InputGeom>();
+				if (!geom->loadMesh(&ctx, path.c_str()))
 				{
-					delete geom;
-					geom = 0;
+					geom = nullptr;
 					showLog = true;
 					logScroll = 0;
 					ctx.dumpLog("Geom load log %s:", meshName.c_str());
 				}
 				if (sample && geom)
 				{
-					sample->handleMeshChanged(geom);
+					sample->handleMeshChanged(geom.get());
 				}
 
 				// This will ensure that tile & poly bits are updated in tiled sample.
 				if (sample)
+				{
 					sample->handleSettings();
+				}
 
 				ctx.resetLog();
 				if (sample && !sample->handleBuild())
@@ -888,7 +880,7 @@ int run(int width, int height, bool presentationMode) {
 		// Tools
 		if (!showTestCases && showTools && showMenu) // && geom && sample)
 		{
-			if (imguiBeginScrollArea("Tools", 10, 10, 250, height-20, &toolsScroll))
+			if (imguiBeginScrollArea("Tools", 10, 10, 250, height - 20, &toolsScroll))
 				mouseOverMenu = true;
 
 			if (sample)
@@ -900,28 +892,14 @@ int run(int width, int height, bool presentationMode) {
 		slideShow.updateAndDraw(dt, (float)width, (float)height);
 		
 		// Marker
-		if (mposSet && gluProject((GLdouble)mpos[0], (GLdouble)mpos[1], (GLdouble)mpos[2],
-								  model, proj, view, &x, &y, &z))
+		if (mposSet)
 		{
-			// Draw marker circle
-			glLineWidth(5.0f);
-			glColor4ub(240,220,0,196);
-			glBegin(GL_LINE_LOOP);
-			const float r = 25.0f;
-			for (int i = 0; i < 20; ++i)
-			{
-				const float a = (float)i / 20.0f * RC_PI*2;
-				const float fx = (float)x + cosf(a)*r;
-				const float fy = (float)y + sinf(a)*r;
-				glVertex2f(fx,fy);
-			}
-			glEnd();
-			glLineWidth(1.0f);
+			drawMarker(markerPosition, projectionMatrix, modelviewMatrix, viewport);
 		}
-		
+
 		imguiEndFrame();
-		imguiRenderGLDraw();		
-		
+		imguiRenderGLDraw();
+
 		glEnable(GL_DEPTH_TEST);
 		SDL_GL_SwapBuffers();
 	}
@@ -930,8 +908,28 @@ int run(int width, int height, bool presentationMode) {
 	
 	SDL_Quit();
 	
-	delete sample;
-	delete geom;
-	
 	return 0;
+}
+
+void drawMarker(float markerPosition[3], GLdouble projectionMatrix[16], GLdouble modelviewMatrix[16], GLint viewport[4])
+{
+	GLdouble windowCoords[3];
+	if (gluProject((GLdouble)markerPosition[0], (GLdouble)markerPosition[1], (GLdouble)markerPosition[2],
+		modelviewMatrix, projectionMatrix, viewport, &windowCoords[0], &windowCoords[1], &windowCoords[2]))
+	{
+		// Draw marker circle
+		glLineWidth(5.0f);
+		glColor4ub(240, 220, 0, 196);
+		glBegin(GL_LINE_LOOP);
+		const float radius = 25.0f;
+		for (int i = 0; i < 20; ++i)
+		{
+			const float angle = (float)i / 20.0f * RC_PI * 2;
+			const float fx = (float)windowCoords[0] + cosf(angle) * radius;
+			const float fy = (float)windowCoords[1] + sinf(angle) * radius;
+			glVertex2f(fx, fy);
+		}
+		glEnd();
+		glLineWidth(1.0f);
+	}
 }
