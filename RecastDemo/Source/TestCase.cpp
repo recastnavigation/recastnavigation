@@ -167,6 +167,7 @@ void TestCase::doTests(dtNavMesh* navmesh, dtNavMeshQuery* navquery)
 	dtPolyRef polys[MAX_POLYS];
 	float straight[MAX_POLYS * 3];
 	const float polyPickExt[3] = {2, 4, 2};
+    
 	
 	for (Test& test : m_tests) {
         test.polys.clear();
@@ -355,7 +356,8 @@ bool TestCase::handleRenderOverlay(double* proj, double* model, int* view)
 
 	for (Test& test : m_tests)
 	{
-		float pt[3], dir[3];
+        float pt[3];
+        float dir[3];
 		if (test.nstraight)
 		{
 			dtVcopy(pt, &test.straight[3]);

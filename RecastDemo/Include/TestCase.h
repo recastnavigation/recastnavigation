@@ -65,7 +65,6 @@ private:
 			, findNearestPolyTime(0)
 			, findPathTime(0)
 			, findStraightPathTime(0)
-			, next(0)
 		{
 			for (int i = 0; i < 3; ++i) {
 				spos[i] = 0;
@@ -76,10 +75,13 @@ private:
 		}
 
 		TestType type;
-		float spos[3], epos[3];
-		float nspos[3], nepos[3];
+        float spos[3];
+        float epos[3];
+        float nspos[3];
+        float nepos[3];
 		float radius;
-		int includeFlags, excludeFlags;
+        int includeFlags;
+        int excludeFlags;
 		bool expand;
 
 		vector<float> straight;
@@ -90,8 +92,6 @@ private:
 		int findNearestPolyTime;
 		int findPathTime;
 		int findStraightPathTime;
-
-		Test* next;
 	};
 
 	void resetTimes();
