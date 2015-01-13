@@ -169,11 +169,9 @@ void TestCase::doTests(dtNavMesh* navmesh, dtNavMeshQuery* navquery)
 	const float polyPickExt[3] = {2, 4, 2};
 	
 	for (Test& test : m_tests) {
-		delete[] test.polys;
-		test.polys = 0;
+        test.polys.clear();
 		test.npolys = 0;
-		delete[] test.straight;
-		test.straight = 0;
+        test.straight.clear();
 		test.nstraight = 0;
 		
 		dtQueryFilter filter;
@@ -219,13 +217,13 @@ void TestCase::doTests(dtNavMesh* navmesh, dtNavMeshQuery* navquery)
 			// Copy results
 			if (test.npolys)
 			{
-				test.polys = new dtPolyRef[test.npolys];
-				memcpy(test.polys, polys, sizeof(dtPolyRef) * test.npolys);
+                test.polys.resize(test.npolys);
+				memcpy(test.polys.data(), polys, sizeof(dtPolyRef) * test.npolys);
 			}
 			if (test.nstraight)
 			{
-				test.straight = new float[test.nstraight*3];
-				memcpy(test.straight, straight, sizeof(float) * 3 * test.nstraight);
+                test.straight.resize(test.nstraight * 3);
+				memcpy(test.straight.data(), straight, sizeof(float) * 3 * test.nstraight);
 			}
 		}
 		else if (test.type == TEST_RAYCAST)
@@ -233,7 +231,7 @@ void TestCase::doTests(dtNavMesh* navmesh, dtNavMeshQuery* navquery)
 			float t = 0;
 			float hitNormal[3], hitPos[3];
 			
-			test.straight = new float[2 * 3];
+            test.straight.resize(2 * 3);
 			test.nstraight = 2;
 			
 			test.straight[0] = test.spos[0];
@@ -268,8 +266,8 @@ void TestCase::doTests(dtNavMesh* navmesh, dtNavMeshQuery* navquery)
 
 			if (test.npolys)
 			{
-				test.polys = new dtPolyRef[test.npolys];
-				memcpy(test.polys, polys, sizeof(dtPolyRef)*test.npolys);
+                test.polys.resize(test.npolys);
+				memcpy(test.polys.data(), polys, sizeof(dtPolyRef)*test.npolys);
 			}
 		}
 	}
@@ -316,14 +314,14 @@ void TestCase::handleRender()
 			glColor4ub(255, 192, 0, 255);
 			glVertex3f(test.nspos[0] - s, test.nspos[1], test.nspos[2]);
 			glVertex3f(test.nspos[0] + s, test.nspos[1], test.nspos[2]);
-			glVertex3f(test.nspos[0], test.nspos[1], test.nspos[2]-s);
-			glVertex3f(test.nspos[0], test.nspos[1], test.nspos[2]+s);
+			glVertex3f(test.nspos[0], test.nspos[1], test.nspos[2] - s);
+			glVertex3f(test.nspos[0], test.nspos[1], test.nspos[2] + s);
 			
 			glColor4ub(255, 32, 0, 128);
 			glVertex3f(test.epos[0] - s, test.epos[1], test.epos[2]);
 			glVertex3f(test.epos[0] + s, test.epos[1], test.epos[2]);
-			glVertex3f(test.epos[0], test.epos[1], test.epos[2]-s);
-			glVertex3f(test.epos[0], test.epos[1], test.epos[2]+s);
+			glVertex3f(test.epos[0], test.epos[1], test.epos[2] - s);
+			glVertex3f(test.epos[0], test.epos[1], test.epos[2] + s);
 			glColor4ub(255, 192, 0, 255);
 			glVertex3f(test.nepos[0] - s, test.nepos[1], test.nepos[2]);
 			glVertex3f(test.nepos[0] + s, test.nepos[1], test.nepos[2]);

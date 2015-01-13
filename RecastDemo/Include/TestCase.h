@@ -52,12 +52,12 @@ private:
 
 	struct Test
 	{
-		Test(TestType testType, bool expand)
+		Test(TestType testType, bool expandRender)
 			: type(testType)
 			, radius(0)
 			, includeFlags(0)
 			, excludeFlags(0)
-			, expand(expand)
+			, expand(expandRender)
 			, straight(0)
 			, nstraight(0)
 			, polys(0)
@@ -75,12 +75,6 @@ private:
 			}
 		}
 
-		~Test()
-		{
-			delete[] straight;
-			delete[] polys;
-		}
-
 		TestType type;
 		float spos[3], epos[3];
 		float nspos[3], nepos[3];
@@ -88,9 +82,9 @@ private:
 		int includeFlags, excludeFlags;
 		bool expand;
 
-		float* straight;
+		vector<float> straight;
 		int nstraight;
-		dtPolyRef* polys;
+		vector<dtPolyRef> polys;
 		int npolys;
 
 		int findNearestPolyTime;

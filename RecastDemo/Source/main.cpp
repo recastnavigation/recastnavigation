@@ -76,7 +76,8 @@ int main(int /*argc*/, char** /*argv*/)
 	}
 	
 	// Center window
-	putenv("SDL_VIDEO_CENTERED=1");
+    char sdl_video_env[] = "SDL_VIDEO_CENTERED=1";
+	putenv(sdl_video_env);
 
 	// Init OpenGL
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
@@ -772,9 +773,9 @@ int run(int width, int height, bool presentationMode) {
 
 			// Get the name of the currently selected test.
 			string testName = "";
-			for (string test : files)
-				if (imguiItem(test.c_str()))
-					testName = test;
+			for (string testfilename : files)
+				if (imguiItem(testfilename.c_str()))
+					testName = testfilename;
 
 			if (testName != "")
 			{
