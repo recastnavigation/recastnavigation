@@ -80,8 +80,8 @@ private:
         float nspos[3];
         float nepos[3];
 		float radius;
-        int includeFlags;
-        int excludeFlags;
+        unsigned short includeFlags;
+        unsigned short excludeFlags;
 		bool expand;
 
 		vector<float> straight;
