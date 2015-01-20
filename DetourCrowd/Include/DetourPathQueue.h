@@ -56,7 +56,7 @@ public:
 	dtPathQueue();
 	~dtPathQueue();
 	
-	bool init(const int maxPathSize, const int maxSearchNodeCount, dtNavMesh* nav);
+	bool init(const int maxPathSize, const int maxSearchNodeCount, const dtNavMesh* nav);
 	
 	void update(const int maxIters);
 	
