@@ -50,7 +50,7 @@ void dtPathQueue::purge()
 	}
 }
 
-bool dtPathQueue::init(const int maxPathSize, const int maxSearchNodeCount, dtNavMesh* nav)
+bool dtPathQueue::init(const int maxPathSize, const int maxSearchNodeCount, const dtNavMesh* nav)
 {
 	purge();
 
