@@ -672,7 +672,6 @@ class TempObstacleHilightTool : public SampleTool
 	Sample_TempObstacles* m_sample;
 	float m_hitPos[3];
 	bool m_hitPosSet;
-	float m_agentRadius;
 	int m_drawType;
 	
 public:
@@ -680,7 +679,6 @@ public:
 	TempObstacleHilightTool() :
 		m_sample(0),
 		m_hitPosSet(false),
-		m_agentRadius(0),
 		m_drawType(DRAWDETAIL_AREAS)
 	{
 		m_hitPos[0] = m_hitPos[1] = m_hitPos[2] = 0;

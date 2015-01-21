@@ -139,7 +139,7 @@ int main(int /*argc*/, char** /*argv*/)
 	float timeAcc = 0.0f;
 	Uint32 prevFrameTime = SDL_GetTicks();
 	int mousePos[2] = {0, 0};
-	float origMousePos[2] = {0, 0}; // Used to compute mouse movement totals across frames.
+	int origMousePos[2] = {0, 0}; // Used to compute mouse movement totals across frames.
 	
 	float cameraEulers[] = {45, -45};
 	float cameraPos[] = {0, 0, 0};
