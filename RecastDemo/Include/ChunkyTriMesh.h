@@ -21,8 +21,10 @@
 
 struct rcChunkyTriMeshNode
 {
-	float bmin[2], bmax[2];
-	int i, n;
+	float bmin[2];
+	float bmax[2];
+	int i;
+	int n;
 };
 
 struct rcChunkyTriMesh
