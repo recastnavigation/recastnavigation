@@ -343,6 +343,17 @@ public:
 
 	/// Gets the query object used by the crowd.
 	const dtNavMeshQuery* getNavMeshQuery() const { return m_navquery; }
+	
+	/// Finds all agents within range of centerPos, excluding the specified agent.
+	///  @param[in]		centerPos		The center of the search circle. [(x, y, z)]
+	///  @param[in]		height			The height of the search circle.
+	///  @param[in]		radius			The radius of the search circle.
+	///  @param[in]		skipIdx			The optional index of the agent to be excluded from the query. [Limits: 0 <= value < #getAgentCount()] -1 ignore
+	///  @param[out]	crowdNeighbour	An array of crowd neighbour pointers. [(#dtCrowdNeighbour *) * maxNeighbours]
+	///  @param[in]		maxNeighbours	The maximum size of the crowd neighbor array.
+	///  @param[out]	numNeighbours	The number of crowd neighbors found
+	/// @return True if the request was successfully submitted.
+	bool findAgentsAroundCircle(const float *centerPos, const float height, const float radius, int skipIdx, dtCrowdNeighbour *crowdNeighbour, const int maxNeighbours, int *numNeighbours);
 };
 
 /// Allocates a crowd object using the Detour allocator.

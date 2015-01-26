@@ -1444,3 +1444,24 @@ void dtCrowd::update(const float dt, dtCrowdAgentDebugInfo* debug)
 	}
 	
 }
+
+bool dtCrowd::findAgentsAroundCircle(const float *centerPos, const float height, const float radius, int skipIdx, dtCrowdNeighbour *crowdNeighbour, const int maxNeighbours, int *numNeighbours)
+{
+	const dtCrowdAgent *ag = getAgent(skipIdx);
+
+	if (skipIdx != -1 && ag == 0)
+		return false;
+
+	dtCrowdAgent **agents = m_activeAgents;
+	int nagents = getActiveAgents(agents, m_maxAgents);
+
+	int nneis = getNeighbours(centerPos, height, radius,
+							  ag, crowdNeighbour, maxNeighbours,
+							  agents, nagents, m_grid);
+	for (int j = 0; j < nneis; j++)
+		crowdNeighbour[j].idx = getAgentIndex(agents[crowdNeighbour[j].idx]);
+
+	*numNeighbours = nneis;
+
+	return true;
+}
