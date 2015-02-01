@@ -640,24 +640,19 @@ int run(int width, int height, bool presentationMode) {
 			if (imguiBeginScrollArea("Choose Sample", width-10-250-10-200, height-10-250, 200, 250, &levelScroll))
 				mouseOverMenu = true;
 
-			std::unique_ptr<Sample> newSample;
 			for (int i = 0; i < g_nsamples; ++i)
 			{
 				if (imguiItem(g_samples[i].name))
 				{
-					newSample = std::unique_ptr<Sample>(g_samples[i].create());
+					sample = std::unique_ptr<Sample>(g_samples[i].create());
+					sample->setContext(&ctx);
 					sampleName = g_samples[i].name;
+					if (geom && sample)
+					{
+						sample->handleMeshChanged(geom.get());
+					}
+					showSample = false;
 				}
-			}
-			if (newSample)
-			{
-				sample = std::move(newSample);
-				sample->setContext(&ctx);
-				if (geom && sample)
-				{
-					sample->handleMeshChanged(geom.get());
-				}
-				showSample = false;
 			}
 
 			if (geom || sample)
