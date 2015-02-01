@@ -17,14 +17,14 @@
 //
 
 #include "SlideShow.h"
-#include <string.h>
-#include <stdio.h>
+#include "FileList.h"
+
 #include <SDL_opengl.h>
-//#define STBI_HEADER_FILE_ONLY
 #include "stb_image.h"
 
+
 SlideShow::SlideShow(string path) :
-    m_path(path),
+	m_path(path),
 	m_width(0),
 	m_height(0),
 	m_texId(0),
@@ -33,7 +33,7 @@ SlideShow::SlideShow(string path) :
 	m_curSlide(-1),
 	m_nextSlide(0)
 {
-    scanDirectory(m_path, ".png", m_files);
+	scanDirectory(m_path, ".png", m_files);
 }
 
 SlideShow::~SlideShow()

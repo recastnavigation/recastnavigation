@@ -19,7 +19,6 @@
 #ifndef SLIDESHOW_H
 #define SLIDESHOW_H
 
-#include "Filelist.h"
 #include <vector>
 #include <string>
 
