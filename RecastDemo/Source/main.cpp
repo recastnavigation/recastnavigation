@@ -60,9 +60,9 @@ static SampleItem g_samples[] =
 	{ createSolo, "Solo Mesh" },
 	{ createTile, "Tile Mesh" },
 	{ createTempObstacle, "Temp Obstacles" },
-//	{ createDebug, "Debug" },
+	//	{ createDebug, "Debug" },
 };
-static const int g_nsamples = sizeof(g_samples)/sizeof(SampleItem); 
+static const int g_nsamples = sizeof(g_samples) / sizeof(SampleItem);
 
 // Function forward-declares
 int run(int width, int height, bool presentationMode);
@@ -76,7 +76,7 @@ int main(int /*argc*/, char** /*argv*/)
 		std::cerr << "Could not initialise SDL\n";
 		return -1;
 	}
-	
+
 	// Center window
 	putenv("SDL_VIDEO_CENTERED=1");
 
@@ -101,7 +101,7 @@ int main(int /*argc*/, char** /*argv*/)
 	{
 		width = videoInfo->current_w;
 		height = videoInfo->current_h;
-		screen = SDL_SetVideoMode(width, height, 0, SDL_OPENGL|SDL_FULLSCREEN);
+		screen = SDL_SetVideoMode(width, height, 0, SDL_OPENGL | SDL_FULLSCREEN);
 	}
 	else
 	{
@@ -110,7 +110,7 @@ int main(int /*argc*/, char** /*argv*/)
 		height = videoInfo->current_h - 80;
 		screen = SDL_SetVideoMode(width, height, 0, SDL_OPENGL);
 	}
-	
+
 	if (!screen)
 	{
 		std::cerr << "Fatal error: Could not initialise SDL opengl!\n";
@@ -120,14 +120,14 @@ int main(int /*argc*/, char** /*argv*/)
 	glEnable(GL_MULTISAMPLE);
 
 	SDL_WM_SetCaption("Recast Demo", 0);
-	
+
 	if (!imguiRenderGLInit("DroidSans.ttf"))
 	{
 		std::cerr << "Fatal error: Could not init GUI renderer.\n";
 		SDL_Quit();
 		return -1;
 	}
- 
+
 	int retval = run(width, height, presentationMode);
 	SDL_Quit();
 	return retval;
@@ -158,7 +158,7 @@ int run(int width, int height, bool presentationMode) {
 	float scrollZoom = 0;
 	bool rotate = false;
 	bool movedDuringRotate = false;
-	float rays[3], raye[3]; 
+	float rays[3], raye[3];
 	bool mouseOverMenu = false;
 	bool showMenu = !presentationMode;
 	bool showLog = false;
@@ -170,224 +170,224 @@ int run(int width, int height, bool presentationMode) {
 	int propScroll = 0;
 	int logScroll = 0;
 	int toolsScroll = 0;
-	
-	string sampleName = "Choose Sample..."; 
-	
+
+	string sampleName = "Choose Sample...";
+
 	vector<string> files;
 	string meshName = "Choose Mesh...";
-	
-	float markerPosition[3] = {0,0,0};
+
+	float markerPosition[3] = { 0, 0, 0 };
 	bool mposSet = false;
-	
+
 	SlideShow slideShow("slides/");
-	
+
 	std::unique_ptr<InputGeom> geom;
 	std::unique_ptr<Sample> sample;
 	TestCase* test = 0;
 
 	BuildContext ctx;
-	
+
 	glEnable(GL_CULL_FACE);
-	
+
 	float fogColor[4] = { 0.32f, 0.31f, 0.30f, 1.0f };
 	glEnable(GL_FOG);
 	glFogi(GL_FOG_MODE, GL_LINEAR);
 	glFogf(GL_FOG_START, camr * 0.1f);
 	glFogf(GL_FOG_END, camr * 1.25f);
 	glFogfv(GL_FOG_COLOR, fogColor);
-	
+
 	glDepthFunc(GL_LEQUAL);
-	
+
 	bool done = false;
-	while(!done)
+	while (!done)
 	{
 		// Handle input events.
 		int mouseScroll = 0;
 		bool processHitTest = false;
 		bool processHitTestShift = false;
 		SDL_Event event;
-		
+
 		while (SDL_PollEvent(&event))
 		{
 			switch (event.type)
 			{
-				case SDL_KEYDOWN:
-					// Handle any key presses here.
-					if (event.key.keysym.sym == SDLK_ESCAPE)
+			case SDL_KEYDOWN:
+				// Handle any key presses here.
+				if (event.key.keysym.sym == SDLK_ESCAPE)
+				{
+					done = true;
+				}
+				else if (event.key.keysym.sym == SDLK_t)
+				{
+					showLevels = false;
+					showSample = false;
+					showTestCases = true;
+					scanDirectory("Tests", ".txt", files);
+				}
+				else if (event.key.keysym.sym == SDLK_TAB)
+				{
+					showMenu = !showMenu;
+				}
+				else if (event.key.keysym.sym == SDLK_SPACE)
+				{
+					if (sample)
+						sample->handleToggle();
+				}
+				else if (event.key.keysym.sym == SDLK_1)
+				{
+					if (sample)
+						sample->handleStep();
+				}
+				else if (event.key.keysym.sym == SDLK_9)
+				{
+					if (geom)
+						geom->save("geomset.txt");
+				}
+				else if (event.key.keysym.sym == SDLK_0)
+				{
+					geom = std::unique_ptr<InputGeom>(new InputGeom);
+					if (!geom->load(&ctx, "geomset.txt"))
 					{
-						done = true;
+						geom = nullptr;
+
+						showLog = true;
+						logScroll = 0;
+						ctx.dumpLog("Geom load log %s:", meshName.c_str());
 					}
-					else if (event.key.keysym.sym == SDLK_t)
+					if (sample && geom)
 					{
-						showLevels = false;
-						showSample = false;
-						showTestCases = true;
-						scanDirectory("Tests", ".txt", files);
+						sample->handleMeshChanged(geom.get());
 					}
-					else if (event.key.keysym.sym == SDLK_TAB)
+
+					if (geom || sample)
 					{
-						showMenu = !showMenu;
-					}
-					else if (event.key.keysym.sym == SDLK_SPACE)
-					{
+						const float* bmin = 0;
+						const float* bmax = 0;
 						if (sample)
-							sample->handleToggle();
-					}
-					else if (event.key.keysym.sym == SDLK_1)
-					{
-						if (sample)
-							sample->handleStep();
-					}
-					else if (event.key.keysym.sym == SDLK_9)
-					{
-						if (geom)
-							geom->save("geomset.txt");
-					}
-					else if (event.key.keysym.sym == SDLK_0)
-					{
-						geom = std::unique_ptr<InputGeom>(new InputGeom);
-						if (!geom->load(&ctx, "geomset.txt"))
 						{
-							geom = nullptr;
-							
-							showLog = true;
-							logScroll = 0;
-							ctx.dumpLog("Geom load log %s:", meshName.c_str());
+							bmin = sample->getBoundsMin();
+							bmax = sample->getBoundsMax();
 						}
-						if (sample && geom)
+						else if (geom)
 						{
-							sample->handleMeshChanged(geom.get());
+							bmin = geom->getMeshBoundsMin();
+							bmax = geom->getMeshBoundsMax();
 						}
-							
-						if (geom || sample)
+						// Reset camera and fog to match the mesh bounds.
+						if (bmin && bmax)
 						{
-							const float* bmin = 0;
-							const float* bmax = 0;
-							if (sample)
-							{
-								bmin = sample->getBoundsMin();
-								bmax = sample->getBoundsMax();
-							}
-							else if (geom)
-							{
-								bmin = geom->getMeshBoundsMin();
-								bmax = geom->getMeshBoundsMax();
-							}
-							// Reset camera and fog to match the mesh bounds.
-							if (bmin && bmax)
-							{
-								camr = sqrtf(rcSqr(bmax[0]-bmin[0]) +
-											 rcSqr(bmax[1]-bmin[1]) +
-											 rcSqr(bmax[2]-bmin[2])) / 2;
-								camx = (bmax[0] + bmin[0]) / 2 + camr;
-								camy = (bmax[1] + bmin[1]) / 2 + camr;
-								camz = (bmax[2] + bmin[2]) / 2 + camr;
-								camr *= 3;
-							}
-							rx = 45;
-							ry = -45;
-							glFogf(GL_FOG_START, camr*0.2f);
-							glFogf(GL_FOG_END, camr*1.25f);
+							camr = sqrtf(rcSqr(bmax[0] - bmin[0]) +
+								rcSqr(bmax[1] - bmin[1]) +
+								rcSqr(bmax[2] - bmin[2])) / 2;
+							camx = (bmax[0] + bmin[0]) / 2 + camr;
+							camy = (bmax[1] + bmin[1]) / 2 + camr;
+							camz = (bmax[2] + bmin[2]) / 2 + camr;
+							camr *= 3;
 						}
+						rx = 45;
+						ry = -45;
+						glFogf(GL_FOG_START, camr*0.2f);
+						glFogf(GL_FOG_END, camr*1.25f);
 					}
-					else if (event.key.keysym.sym == SDLK_RIGHT)
+				}
+				else if (event.key.keysym.sym == SDLK_RIGHT)
+				{
+					slideShow.nextSlide();
+				}
+				else if (event.key.keysym.sym == SDLK_LEFT)
+				{
+					slideShow.prevSlide();
+				}
+				break;
+
+			case SDL_MOUSEBUTTONDOWN:
+				if (event.button.button == SDL_BUTTON_RIGHT)
+				{
+					if (!mouseOverMenu)
 					{
-						slideShow.nextSlide();
+						// Rotate view
+						rotate = true;
+						movedDuringRotate = false;
+						origx = mx;
+						origy = my;
+						origrx = rx;
+						origry = ry;
 					}
-					else if (event.key.keysym.sym == SDLK_LEFT)
+				}
+				else if (event.button.button == SDL_BUTTON_WHEELUP)
+				{
+					if (mouseOverMenu)
+						mouseScroll--;
+					else
+						scrollZoom -= 1.0f;
+				}
+				else if (event.button.button == SDL_BUTTON_WHEELDOWN)
+				{
+					if (mouseOverMenu)
+						mouseScroll++;
+					else
+						scrollZoom += 1.0f;
+				}
+				break;
+
+			case SDL_MOUSEBUTTONUP:
+				// Handle mouse clicks here.
+				if (event.button.button == SDL_BUTTON_RIGHT)
+				{
+					rotate = false;
+					if (!mouseOverMenu)
 					{
-						slideShow.prevSlide();
-					}
-					break;
-					
-				case SDL_MOUSEBUTTONDOWN:
-					if (event.button.button == SDL_BUTTON_RIGHT)
-					{
-						if (!mouseOverMenu)
-						{
-							// Rotate view
-							rotate = true;
-							movedDuringRotate = false;
-							origx = mx;
-							origy = my;
-							origrx = rx;
-							origry = ry;
-						}
-					}	
-					else if (event.button.button == SDL_BUTTON_WHEELUP)
-					{
-						if (mouseOverMenu)
-							mouseScroll--;
-						else
-							scrollZoom -= 1.0f;
-					}
-					else if (event.button.button == SDL_BUTTON_WHEELDOWN)
-					{
-						if (mouseOverMenu)
-							mouseScroll++;
-						else
-							scrollZoom += 1.0f;
-					}
-					break;
-					
-				case SDL_MOUSEBUTTONUP:
-					// Handle mouse clicks here.
-					if (event.button.button == SDL_BUTTON_RIGHT)
-					{
-						rotate = false;
-						if (!mouseOverMenu)
-						{
-							if (!movedDuringRotate)
-							{
-								processHitTest = true;
-								processHitTestShift = true;
-							}
-						}
-					}
-					else if (event.button.button == SDL_BUTTON_LEFT)
-					{
-						if (!mouseOverMenu)
+						if (!movedDuringRotate)
 						{
 							processHitTest = true;
-							processHitTestShift = (SDL_GetModState() & KMOD_SHIFT) ? true : false;
+							processHitTestShift = true;
 						}
 					}
-					
-					break;
-					
-				case SDL_MOUSEMOTION:
-					mx = event.motion.x;
-					my = height-1 - event.motion.y;
-					if (rotate)
+				}
+				else if (event.button.button == SDL_BUTTON_LEFT)
+				{
+					if (!mouseOverMenu)
 					{
-						int dx = mx - origx;
-						int dy = my - origy;
-						rx = origrx - dy*0.25f;
-						ry = origry + dx*0.25f;
-						if (dx*dx+dy*dy > 3*3)
-							movedDuringRotate = true;
+						processHitTest = true;
+						processHitTestShift = (SDL_GetModState() & KMOD_SHIFT) ? true : false;
 					}
-					break;
-					
-				case SDL_QUIT:
-					done = true;
-					break;
-					
-				default:
-					break;
+				}
+
+				break;
+
+			case SDL_MOUSEMOTION:
+				mx = event.motion.x;
+				my = height - 1 - event.motion.y;
+				if (rotate)
+				{
+					int dx = mx - origx;
+					int dy = my - origy;
+					rx = origrx - dy*0.25f;
+					ry = origry + dx*0.25f;
+					if (dx*dx + dy*dy > 3 * 3)
+						movedDuringRotate = true;
+				}
+				break;
+
+			case SDL_QUIT:
+				done = true;
+				break;
+
+			default:
+				break;
 			}
 		}
 
 		unsigned char mouseButton = 0;
-		if (SDL_GetMouseState(0,0) & SDL_BUTTON_LMASK)
+		if (SDL_GetMouseState(0, 0) & SDL_BUTTON_LMASK)
 			mouseButton |= IMGUI_MBUT_LEFT;
-		if (SDL_GetMouseState(0,0) & SDL_BUTTON_RMASK)
+		if (SDL_GetMouseState(0, 0) & SDL_BUTTON_RMASK)
 			mouseButton |= IMGUI_MBUT_RIGHT;
-		
+
 		Uint32	time = SDL_GetTicks();
 		float	dt = (time - lastTime) / 1000.0f;
 		lastTime = time;
-		
+
 		totalTime += dt;
 
 		// Hit test mesh.
@@ -395,7 +395,7 @@ int run(int width, int height, bool presentationMode) {
 		{
 			float hitTime;
 			bool hit = geom->raycastMesh(rays, raye, hitTime);
-			
+
 			if (hit)
 			{
 				if (SDL_GetModState() & KMOD_CTRL)
@@ -424,11 +424,11 @@ int run(int width, int height, bool presentationMode) {
 				}
 			}
 		}
-		
+
 		// Update sample simulation.
 		const float SIM_RATE = 20;
 		const float DELTA_TIME = 1.0f / SIM_RATE;
-		timeAcc = rcClamp(timeAcc+dt, -1.0f, 1.0f);
+		timeAcc = rcClamp(timeAcc + dt, -1.0f, 1.0f);
 		int simIter = 0;
 		while (timeAcc > DELTA_TIME)
 		{
@@ -442,7 +442,7 @@ int run(int width, int height, bool presentationMode) {
 		}
 
 		// Clamp the framerate so that we do not hog all the CPU.
-		const float MIN_FRAME_TIME = 1.0f/40.0f;
+		const float MIN_FRAME_TIME = 1.0f / 40.0f;
 		if (dt < MIN_FRAME_TIME)
 		{
 			int ms = (int)((MIN_FRAME_TIME - dt)*1000.0f);
@@ -450,8 +450,8 @@ int run(int width, int height, bool presentationMode) {
 			if (ms >= 0)
 				SDL_Delay(ms);
 		}
-		
-		
+
+
 		// Update and render
 		glViewport(0, 0, width, height);
 		glClearColor(0.3f, 0.3f, 0.32f, 1.0f);
@@ -459,7 +459,7 @@ int run(int width, int height, bool presentationMode) {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glDisable(GL_TEXTURE_2D);
-		
+
 		// Render 3d
 		glEnable(GL_DEPTH_TEST);
 		glMatrixMode(GL_PROJECTION);
@@ -470,7 +470,7 @@ int run(int width, int height, bool presentationMode) {
 		glRotatef(rx, 1, 0, 0);
 		glRotatef(ry, 0, 1, 0);
 		glTranslatef(-camx, -camy, -camz);
-		
+
 		// Get hit ray position and direction.
 		GLdouble projectionMatrix[16];
 		GLdouble modelviewMatrix[16];
@@ -483,28 +483,28 @@ int run(int width, int height, bool presentationMode) {
 		rays[0] = (float)x; rays[1] = (float)y; rays[2] = (float)z;
 		gluUnProject(mx, my, 1.0f, modelviewMatrix, projectionMatrix, viewport, &x, &y, &z);
 		raye[0] = (float)x; raye[1] = (float)y; raye[2] = (float)z;
-		
+
 		// Handle keyboard movement.
 		Uint8* keystate = SDL_GetKeyState(NULL);
 		moveW = rcClamp(moveW + dt * 4 * (keystate[SDLK_w] ? 1 : -1), 0.0f, 1.0f);
 		moveS = rcClamp(moveS + dt * 4 * (keystate[SDLK_s] ? 1 : -1), 0.0f, 1.0f);
 		moveA = rcClamp(moveA + dt * 4 * (keystate[SDLK_a] ? 1 : -1), 0.0f, 1.0f);
 		moveD = rcClamp(moveD + dt * 4 * (keystate[SDLK_d] ? 1 : -1), 0.0f, 1.0f);
-		
+
 		float keybSpeed = 22.0f;
 		if (SDL_GetModState() & KMOD_SHIFT)
 			keybSpeed *= 4.0f;
-		
+
 		float movex = (moveD - moveA) * keybSpeed * dt;
 		float movey = (moveS - moveW) * keybSpeed * dt;
-		
+
 		movey += scrollZoom * 2.0f;
 		scrollZoom = 0;
-		
+
 		camx += movex * (float)modelviewMatrix[0];
 		camy += movex * (float)modelviewMatrix[4];
 		camz += movex * (float)modelviewMatrix[8];
-		
+
 		camx += movey * (float)modelviewMatrix[2];
 		camy += movey * (float)modelviewMatrix[6];
 		camz += movey * (float)modelviewMatrix[10];
@@ -515,9 +515,9 @@ int run(int width, int height, bool presentationMode) {
 			sample->handleRender();
 		if (test)
 			test->handleRender();
-		
+
 		glDisable(GL_FOG);
-		
+
 		// Render GUI
 		glDisable(GL_DEPTH_TEST);
 		glMatrixMode(GL_PROJECTION);
@@ -525,11 +525,11 @@ int run(int width, int height, bool presentationMode) {
 		gluOrtho2D(0, width, 0, height);
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
-		
+
 		mouseOverMenu = false;
-		
+
 		imguiBeginFrame(mx, my, mouseButton, mouseScroll);
-		
+
 		if (sample)
 		{
 			sample->handleRenderOverlay((double*)projectionMatrix, (double*)modelviewMatrix, (int*)viewport);
@@ -544,12 +544,12 @@ int run(int width, int height, bool presentationMode) {
 		if (showMenu)
 		{
 			const char msg[] = "W/S/A/D: Move  RMB: Rotate";
-			imguiDrawText(280, height-20, IMGUI_ALIGN_LEFT, msg, imguiRGBA(255,255,255,128));
+			imguiDrawText(280, height - 20, IMGUI_ALIGN_LEFT, msg, imguiRGBA(255, 255, 255, 128));
 		}
-		
+
 		if (showMenu)
 		{
-			if (imguiBeginScrollArea("Properties", width-250-10, 10, 250, height-20, &propScroll))
+			if (imguiBeginScrollArea("Properties", width - 250 - 10, 10, 250, height - 20, &propScroll))
 				mouseOverMenu = true;
 
 			if (imguiCheck("Show Log", showLog))
@@ -572,7 +572,7 @@ int run(int width, int height, bool presentationMode) {
 					showTestCases = false;
 				}
 			}
-			
+
 			imguiSeparator();
 			imguiLabel("Input Mesh");
 			if (imguiButton(meshName.c_str()))
@@ -603,7 +603,7 @@ int run(int width, int height, bool presentationMode) {
 			if (geom && sample)
 			{
 				imguiSeparatorLine();
-				
+
 				sample->handleSettings();
 
 				if (imguiButton("Build"))
@@ -615,7 +615,7 @@ int run(int width, int height, bool presentationMode) {
 						logScroll = 0;
 					}
 					ctx.dumpLog("Build log %s:", meshName.c_str());
-					
+
 					// Clear test.
 					delete test;
 					test = 0;
@@ -623,7 +623,7 @@ int run(int width, int height, bool presentationMode) {
 
 				imguiSeparator();
 			}
-			
+
 			if (sample)
 			{
 				imguiSeparatorLine();
@@ -632,12 +632,12 @@ int run(int width, int height, bool presentationMode) {
 
 			imguiEndScrollArea();
 		}
-		
+
 		// Sample selection dialog.
 		if (showSample)
 		{
 			static int levelScroll = 0;
-			if (imguiBeginScrollArea("Choose Sample", width-10-250-10-200, height-10-250, 200, 250, &levelScroll))
+			if (imguiBeginScrollArea("Choose Sample", width - 10 - 250 - 10 - 200, height - 10 - 250, 200, 250, &levelScroll))
 				mouseOverMenu = true;
 
 			for (int i = 0; i < g_nsamples; ++i)
@@ -672,9 +672,9 @@ int run(int width, int height, bool presentationMode) {
 				// Reset camera and fog to match the mesh bounds.
 				if (bmin && bmax)
 				{
-					camr = sqrtf(rcSqr(bmax[0]-bmin[0]) +
-								 rcSqr(bmax[1]-bmin[1]) +
-								 rcSqr(bmax[2]-bmin[2])) / 2;
+					camr = sqrtf(rcSqr(bmax[0] - bmin[0]) +
+						rcSqr(bmax[1] - bmin[1]) +
+						rcSqr(bmax[2] - bmin[2])) / 2;
 					camx = (bmax[0] + bmin[0]) / 2 + camr;
 					camy = (bmax[1] + bmin[1]) / 2 + camr;
 					camz = (bmax[2] + bmin[2]) / 2 + camr;
@@ -685,17 +685,17 @@ int run(int width, int height, bool presentationMode) {
 				glFogf(GL_FOG_START, camr*0.1f);
 				glFogf(GL_FOG_END, camr*1.25f);
 			}
-			
+
 			imguiEndScrollArea();
 		}
-		
+
 		// Level selection dialog.
 		if (showLevels)
 		{
 			static int levelScroll = 0;
-			if (imguiBeginScrollArea("Choose Level", width-10-250-10-200, height-10-450, 200, 450, &levelScroll))
+			if (imguiBeginScrollArea("Choose Level", width - 10 - 250 - 10 - 200, height - 10 - 450, 200, 450, &levelScroll))
 				mouseOverMenu = true;
-			
+
 			string levelName = "";
 
 			for (string file : files)
@@ -706,10 +706,10 @@ int run(int width, int height, bool presentationMode) {
 			{
 				meshName = levelName;
 				showLevels = false;
-				
+
 				string path = "Meshes/";
 				path += meshName;
-				
+
 				geom = std::unique_ptr<InputGeom>(new InputGeom);
 				if (!geom->loadMesh(&ctx, path.c_str()))
 				{
@@ -741,9 +741,9 @@ int run(int width, int height, bool presentationMode) {
 					// Reset camera and fog to match the mesh bounds.
 					if (bmin && bmax)
 					{
-						camr = sqrtf(rcSqr(bmax[0]-bmin[0]) +
-									 rcSqr(bmax[1]-bmin[1]) +
-									 rcSqr(bmax[2]-bmin[2])) / 2;
+						camr = sqrtf(rcSqr(bmax[0] - bmin[0]) +
+							rcSqr(bmax[1] - bmin[1]) +
+							rcSqr(bmax[2] - bmin[2])) / 2;
 						camx = (bmax[0] + bmin[0]) / 2 + camr;
 						camy = (bmax[1] + bmin[1]) / 2 + camr;
 						camz = (bmax[2] + bmin[2]) / 2 + camr;
@@ -755,16 +755,16 @@ int run(int width, int height, bool presentationMode) {
 					glFogf(GL_FOG_END, camr*1.25f);
 				}
 			}
-			
+
 			imguiEndScrollArea();
-			
+
 		}
-		
+
 		// Test cases
 		if (showTestCases)
 		{
 			static int testScroll = 0;
-			if (imguiBeginScrollArea("Choose Test To Run", width-10-250-10-200, height-10-450, 200, 450, &testScroll))
+			if (imguiBeginScrollArea("Choose Test To Run", width - 10 - 250 - 10 - 200, height - 10 - 450, 200, 450, &testScroll))
 				mouseOverMenu = true;
 
 			// Get the name of the currently selected test.
@@ -805,10 +805,10 @@ int run(int width, int height, bool presentationMode) {
 
 				// Load geom.
 				meshName = test->getGeomFileName();
-				
+
 				path = "Meshes/";
 				path += meshName;
-				
+
 				geom = std::unique_ptr<InputGeom>(new InputGeom);
 				if (!geom->loadMesh(&ctx, path.c_str()))
 				{
@@ -833,7 +833,7 @@ int run(int width, int height, bool presentationMode) {
 				{
 					ctx.dumpLog("Build log %s:", meshName.c_str());
 				}
-				
+
 				if (geom || sample)
 				{
 					const float* bmin = 0;
@@ -851,9 +851,9 @@ int run(int width, int height, bool presentationMode) {
 					// Reset camera and fog to match the mesh bounds.
 					if (bmin && bmax)
 					{
-						camr = sqrtf(rcSqr(bmax[0]-bmin[0]) +
-									 rcSqr(bmax[1]-bmin[1]) +
-									 rcSqr(bmax[2]-bmin[2])) / 2;
+						camr = sqrtf(rcSqr(bmax[0] - bmin[0]) +
+							rcSqr(bmax[1] - bmin[1]) +
+							rcSqr(bmax[2] - bmin[2])) / 2;
 						camx = (bmax[0] + bmin[0]) / 2 + camr;
 						camy = (bmax[1] + bmin[1]) / 2 + camr;
 						camz = (bmax[2] + bmin[2]) / 2 + camr;
@@ -864,26 +864,26 @@ int run(int width, int height, bool presentationMode) {
 					glFogf(GL_FOG_START, camr*0.2f);
 					glFogf(GL_FOG_END, camr*1.25f);
 				}
-				
+
 				// Do the tests.
 				if (sample)
 					test->doTests(sample->getNavMesh(), sample->getNavMeshQuery());
-			}				
-				
+			}
+
 			imguiEndScrollArea();
 		}
 
-		
+
 		// Log
 		if (showLog && showMenu)
 		{
-			if (imguiBeginScrollArea("Log", 250+20, 10, width - 300 - 250, 200, &logScroll))
+			if (imguiBeginScrollArea("Log", 250 + 20, 10, width - 300 - 250, 200, &logScroll))
 				mouseOverMenu = true;
 			for (int i = 0; i < ctx.getLogCount(); ++i)
 				imguiLabel(ctx.getLogText(i));
 			imguiEndScrollArea();
 		}
-		
+
 		// Tools
 		if (!showTestCases && showTools && showMenu) // && geom && sample)
 		{
@@ -892,12 +892,12 @@ int run(int width, int height, bool presentationMode) {
 
 			if (sample)
 				sample->handleTools();
-			
+
 			imguiEndScrollArea();
 		}
-		
+
 		slideShow.updateAndDraw(dt, (float)width, (float)height);
-		
+
 		// Marker
 		if (mposSet)
 		{
@@ -910,11 +910,11 @@ int run(int width, int height, bool presentationMode) {
 		glEnable(GL_DEPTH_TEST);
 		SDL_GL_SwapBuffers();
 	}
-	
+
 	imguiRenderGLDestroy();
-	
+
 	SDL_Quit();
-	
+
 	return 0;
 }
 
