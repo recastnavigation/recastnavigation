@@ -16,29 +16,31 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <stdio.h>
-#define _USE_MATH_DEFINES
-#include <math.h>
-#include <iostream>
-#include <memory>
-#include "SDL.h"
-#include "SDL_opengl.h"
-#include "imgui.h"
-#include "imguiRenderGL.h"
 #include "Recast.h"
 #include "RecastDebugDraw.h"
 #include "InputGeom.h"
 #include "TestCase.h"
 #include "Filelist.h"
 #include "SlideShow.h"
-
 #include "Sample_SoloMesh.h"
 #include "Sample_TileMesh.h"
 #include "Sample_TempObstacles.h"
 #include "Sample_Debug.h"
 
+#include "SDL.h"
+#include "SDL_opengl.h"
+#include "imgui.h"
+#include "imguiRenderGL.h"
+
+#define _USE_MATH_DEFINES
+#include <math.h>
+#include <iostream>
+#include <memory>
+#include <sstream>
+#include <iomanip>
+#include <cstdlib>
+
 #ifdef WIN32
-#	define snprintf _snprintf
 #	define putenv _putenv
 #endif
 
@@ -71,13 +73,12 @@ int main(int /*argc*/, char** /*argv*/)
 	// Init SDL
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
 	{
-		printf("Could not initialise SDL\n");
+		std::cerr << "Could not initialise SDL\n";
 		return -1;
 	}
 	
 	// Center window
-	char sdl_video_env[] = "SDL_VIDEO_CENTERED=1";
-	putenv(sdl_video_env);
+	putenv("SDL_VIDEO_CENTERED=1");
 
 	// Init OpenGL
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
@@ -89,14 +90,13 @@ int main(int /*argc*/, char** /*argv*/)
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
 
-	const SDL_VideoInfo* videoInfo = SDL_GetVideoInfo();
-
 	bool presentationMode = false;
 
 	int width;
 	int height;
 	SDL_Surface* screen = 0;
-	
+
+	const SDL_VideoInfo* videoInfo = SDL_GetVideoInfo();
 	if (presentationMode)
 	{
 		width = videoInfo->current_w;
@@ -591,11 +591,12 @@ int run(int width, int height, bool presentationMode) {
 			}
 			if (geom)
 			{
-				char text[64];
-				snprintf(text, 64, "Verts: %.1fk  Tris: %.1fk",
-						 geom->getMesh()->getVertCount()/1000.0f,
-						 geom->getMesh()->getTriCount()/1000.0f);
-				imguiValue(text);
+				float kVerts = geom->getMesh()->getVertCount() / 1000.0f;
+				float kTris = geom->getMesh()->getTriCount() / 1000.0f;
+				std::stringstream text;
+				text << std::fixed << std::setprecision(1);
+				text << "Verts: " << kVerts << "k  Tris: " << kTris << "k";
+				imguiValue(text.str().c_str());
 			}
 			imguiSeparator();
 
