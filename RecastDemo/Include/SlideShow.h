@@ -38,7 +38,7 @@ public:
 
 private:
 	void purgeImage();
-	bool loadImage(const char* path);
+	bool loadImage(const string& path);
 
 	vector<string> m_files;
 	string m_path;

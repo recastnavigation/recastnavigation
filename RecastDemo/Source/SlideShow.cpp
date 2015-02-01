@@ -52,15 +52,15 @@ void SlideShow::purgeImage()
 	}
 }
 
-bool SlideShow::loadImage(const char* path)
+bool SlideShow::loadImage(const string& path)
 {
 	purgeImage();
 	
 	int bpp;
-	unsigned char* data = stbi_load(path, &m_width, &m_height, &bpp, 4);
+	unsigned char* data = stbi_load(path.c_str(), &m_width, &m_height, &bpp, 4);
 	if (!data)
 	{
-		printf("Could not load file '%s': %s\n", path, stbi_failure_reason());
+		printf("Could not load file '%s': %s\n", path.c_str(), stbi_failure_reason());
 		return false;
 	}
 	
@@ -114,7 +114,7 @@ void SlideShow::updateAndDraw(float dt, const float w, const float h)
 	if (m_curSlide != m_nextSlide && m_slideAlpha < 0.01f)
 	{
 		m_curSlide = m_nextSlide;
-		if (m_curSlide >= 0 && m_curSlide < m_files.size())
+		if (m_curSlide >= 0 && m_curSlide < (int)m_files.size())
 		{
 			string path = m_path + m_files[m_curSlide];
 			loadImage(path.c_str());
