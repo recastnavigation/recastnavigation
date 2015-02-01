@@ -76,7 +76,7 @@ int main(int /*argc*/, char** /*argv*/)
 	}
 	
 	// Center window
-    char sdl_video_env[] = "SDL_VIDEO_CENTERED=1";
+	char sdl_video_env[] = "SDL_VIDEO_CENTERED=1";
 	putenv(sdl_video_env);
 
 	// Init OpenGL
@@ -245,7 +245,7 @@ int run(int width, int height, bool presentationMode) {
 					}
 					else if (event.key.keysym.sym == SDLK_0)
 					{
-                        geom = std::unique_ptr<InputGeom>(new InputGeom);
+						geom = std::unique_ptr<InputGeom>(new InputGeom);
 						if (!geom->load(&ctx, "geomset.txt"))
 						{
 							geom = nullptr;
@@ -714,7 +714,7 @@ int run(int width, int height, bool presentationMode) {
 				string path = "Meshes/";
 				path += meshName;
 				
-                geom = std::unique_ptr<InputGeom>(new InputGeom);
+				geom = std::unique_ptr<InputGeom>(new InputGeom);
 				if (!geom->loadMesh(&ctx, path.c_str()))
 				{
 					geom = nullptr;
@@ -813,7 +813,7 @@ int run(int width, int height, bool presentationMode) {
 				path = "Meshes/";
 				path += meshName;
 				
-                geom = std::unique_ptr<InputGeom>(new InputGeom);
+				geom = std::unique_ptr<InputGeom>(new InputGeom);
 				if (!geom->loadMesh(&ctx, path.c_str()))
 				{
 					geom = nullptr;
