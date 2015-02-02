@@ -16,15 +16,6 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <iostream>
-#include <iomanip>
-#include <sstream>
-
-#include <stdio.h>
-#include <ctype.h>
-#include <string.h>
-#include <math.h>
-#include <fstream>
 #include "TestCase.h"
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"
@@ -34,9 +25,11 @@
 #include "imgui.h"
 #include "PerfTimer.h"
 
-#ifdef WIN32
-#define snprintf _snprintf
-#endif
+#include <iostream>
+#include <iomanip>
+#include <sstream>
+#include <math.h>
+#include <fstream>
 
 static string trim(const string& str) {
 	string result(str, str.find_first_not_of(" \t"));
@@ -322,12 +315,10 @@ bool TestCase::handleRenderOverlay(double* proj, double* model, int* view)
 		
 		if (gluProject((GLdouble)pt[0], (GLdouble)pt[1], (GLdouble)pt[2], model, proj, view, &x, &y, &z))
 		{
-			char text[64];
-			sprintf(text, "Path %d\n", n);
-			unsigned int col = imguiRGBA(0,0,0,128);
-			if (test.expand)
-				col = imguiRGBA(255,192,0,220);
-			imguiDrawText((int)x, (int)(y-25), IMGUI_ALIGN_CENTER, text, col);
+			std::stringstream text;
+			text << "Path " << n << "\n";
+			unsigned int col = test.expand ? imguiRGBA(255,192,0,220) : imguiRGBA(0,0,0,128);
+			imguiDrawText((int)x, (int)(y - 25), IMGUI_ALIGN_CENTER, text.str().c_str(), col);
 		}
 		n++;
 	}
@@ -335,7 +326,7 @@ bool TestCase::handleRenderOverlay(double* proj, double* model, int* view)
 	static int resScroll = 0;
 	bool mouseOverMenu = imguiBeginScrollArea("Test Results", 10, view[3] - 10 - 350, 200, 350, &resScroll);
 	
-	char text[64];
+	std::stringstream text;
 	n = 0;
 	for (Test& test : m_tests)
 	{
@@ -344,20 +335,26 @@ bool TestCase::handleRenderOverlay(double* proj, double* model, int* view)
 		os << std::setprecision(4) << (float)total / 1000.0f << " ms";
 		subtext = os.str();
 
-		sprintf(text, "Path %d", n);
+		text.str(string());
+		text << "Path " << n;
 
-		if (imguiCollapse(text, subtext.c_str(), test.expand))
+		if (imguiCollapse(text.str().c_str(), subtext.c_str(), test.expand))
 			test.expand = !test.expand;
 		if (test.expand)
 		{
-			snprintf(text, 64, "Poly: %.4f ms", (float)test.findNearestPolyTime / 1000.0f);
-			imguiValue(text);
+			text << std::fixed << std::setprecision(4);
+			
+			text.str(string());
+			text << "Poly: " << (float)test.findNearestPolyTime / 1000.0f << " ms";
+			imguiValue(text.str().c_str());
 
-			snprintf(text, 64, "Path: %.4f ms", (float)test.findPathTime / 1000.0f);
-			imguiValue(text);
+			text.str(string());
+			text << "Path: " << (float)test.findPathTime / 1000.0f << " ms";
+			imguiValue(text.str().c_str());
 
-			snprintf(text, 64, "Straight: %.4f ms", (float)test.findStraightPathTime / 1000.0f);
-			imguiValue(text);
+			text.str(string());
+			text << "Straight: " << (float)test.findStraightPathTime / 1000.0f << " ms";
+			imguiValue(text.str().c_str());
 			
 			imguiSeparator();
 		}
