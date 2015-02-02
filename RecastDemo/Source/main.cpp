@@ -67,6 +67,7 @@ static const int g_nsamples = sizeof(g_samples) / sizeof(SampleItem);
 // Function forward-declares
 int run(int width, int height, bool presentationMode);
 void drawMarker(float markerPosition[3], GLdouble projectionMatrix[16], GLdouble modelviewMatrix[16], GLint viewport[4]);
+void resetCameraAndFog(const std::unique_ptr<InputGeom>& geom, const std::unique_ptr<Sample>& sample, float& camx, float& camy, float& camz, float& camr, float& rx, float& ry);
 
 int main(int /*argc*/, char** /*argv*/)
 {
@@ -177,7 +178,7 @@ int run(int width, int height, bool presentationMode) {
 	string meshName = "Choose Mesh...";
 
 	float markerPosition[3] = { 0, 0, 0 };
-	bool mposSet = false;
+	bool markerPositionSet = false;
 
 	SlideShow slideShow("slides/");
 
@@ -335,13 +336,10 @@ int run(int width, int height, bool presentationMode) {
 				if (event.button.button == SDL_BUTTON_RIGHT)
 				{
 					rotate = false;
-					if (!mouseOverMenu)
+					if (!mouseOverMenu && !movedDuringRotate)
 					{
-						if (!movedDuringRotate)
-						{
-							processHitTest = true;
-							processHitTestShift = true;
-						}
+						processHitTest = true;
+						processHitTestShift = true;
 					}
 				}
 				else if (event.button.button == SDL_BUTTON_LEFT)
@@ -362,9 +360,9 @@ int run(int width, int height, bool presentationMode) {
 				{
 					int dx = mx - origx;
 					int dy = my - origy;
-					rx = origrx - dy*0.25f;
-					ry = origry + dx*0.25f;
-					if (dx*dx + dy*dy > 3 * 3)
+					rx = origrx - dy * 0.25f;
+					ry = origry + dx * 0.25f;
+					if (dx * dx + dy * dy > 3 * 3)
 						movedDuringRotate = true;
 				}
 				break;
@@ -384,8 +382,8 @@ int run(int width, int height, bool presentationMode) {
 		if (SDL_GetMouseState(0, 0) & SDL_BUTTON_RMASK)
 			mouseButton |= IMGUI_MBUT_RIGHT;
 
-		Uint32	time = SDL_GetTicks();
-		float	dt = (time - lastTime) / 1000.0f;
+		Uint32 time = SDL_GetTicks();
+		float dt = (time - lastTime) / 1000.0f;
 		lastTime = time;
 
 		totalTime += dt;
@@ -394,34 +392,30 @@ int run(int width, int height, bool presentationMode) {
 		if (processHitTest && geom && sample)
 		{
 			float hitTime;
-			bool hit = geom->raycastMesh(rays, raye, hitTime);
-
-			if (hit)
+			if (geom->raycastMesh(rays, raye, hitTime))
 			{
 				if (SDL_GetModState() & KMOD_CTRL)
 				{
 					// Marker
-					mposSet = true;
+					markerPositionSet = true;
 					markerPosition[0] = rays[0] + (raye[0] - rays[0]) * hitTime;
 					markerPosition[1] = rays[1] + (raye[1] - rays[1]) * hitTime;
 					markerPosition[2] = rays[2] + (raye[2] - rays[2]) * hitTime;
 				}
 				else
 				{
-					float pos[3];
-					pos[0] = rays[0] + (raye[0] - rays[0]) * hitTime;
-					pos[1] = rays[1] + (raye[1] - rays[1]) * hitTime;
-					pos[2] = rays[2] + (raye[2] - rays[2]) * hitTime;
+					float pos[3] = {
+						rays[0] + (raye[0] - rays[0]) * hitTime,
+						rays[1] + (raye[1] - rays[1]) * hitTime,
+						rays[2] + (raye[2] - rays[2]) * hitTime
+					};
 					sample->handleClick(rays, pos, processHitTestShift);
 				}
 			}
-			else
+			else if (SDL_GetModState() & KMOD_CTRL)
 			{
-				if (SDL_GetModState() & KMOD_CTRL)
-				{
-					// Marker
-					mposSet = false;
-				}
+				// Marker
+				markerPositionSet = false;
 			}
 		}
 
@@ -433,11 +427,8 @@ int run(int width, int height, bool presentationMode) {
 		while (timeAcc > DELTA_TIME)
 		{
 			timeAcc -= DELTA_TIME;
-			if (simIter < 5)
-			{
-				if (sample)
-					sample->handleUpdate(DELTA_TIME);
-			}
+			if (simIter < 5 && sample)
+				sample->handleUpdate(DELTA_TIME);
 			simIter++;
 		}
 
@@ -445,10 +436,9 @@ int run(int width, int height, bool presentationMode) {
 		const float MIN_FRAME_TIME = 1.0f / 40.0f;
 		if (dt < MIN_FRAME_TIME)
 		{
-			int ms = (int)((MIN_FRAME_TIME - dt)*1000.0f);
+			int ms = (int)((MIN_FRAME_TIME - dt) * 1000.0f);
 			if (ms > 10) ms = 10;
-			if (ms >= 0)
-				SDL_Delay(ms);
+			if (ms >= 0) SDL_Delay(ms);
 		}
 
 
@@ -496,9 +486,7 @@ int run(int width, int height, bool presentationMode) {
 			keybSpeed *= 4.0f;
 
 		float movex = (moveD - moveA) * keybSpeed * dt;
-		float movey = (moveS - moveW) * keybSpeed * dt;
-
-		movey += scrollZoom * 2.0f;
+		float movey = (moveS - moveW) * keybSpeed * dt + scrollZoom * 2.0f;
 		scrollZoom = 0;
 
 		camx += movex * (float)modelviewMatrix[0];
@@ -531,24 +519,15 @@ int run(int width, int height, bool presentationMode) {
 		imguiBeginFrame(mx, my, mouseButton, mouseScroll);
 
 		if (sample)
-		{
 			sample->handleRenderOverlay((double*)projectionMatrix, (double*)modelviewMatrix, (int*)viewport);
-		}
-		if (test)
-		{
-			if (test->handleRenderOverlay((double*)projectionMatrix, (double*)modelviewMatrix, (int*)viewport))
-				mouseOverMenu = true;
-		}
-
-		// Help text.
-		if (showMenu)
-		{
-			const char msg[] = "W/S/A/D: Move  RMB: Rotate";
-			imguiDrawText(280, height - 20, IMGUI_ALIGN_LEFT, msg, imguiRGBA(255, 255, 255, 128));
-		}
+		if (test && test->handleRenderOverlay((double*)projectionMatrix, (double*)modelviewMatrix, (int*)viewport))
+			mouseOverMenu = true;
 
 		if (showMenu)
 		{
+			// Help text.
+			imguiDrawText(280, height - 20, IMGUI_ALIGN_LEFT, "W/S/A/D: Move  RMB: Rotate", imguiRGBA(255, 255, 255, 128));
+			
 			if (imguiBeginScrollArea("Properties", width - 250 - 10, 10, 250, height - 20, &propScroll))
 				mouseOverMenu = true;
 
@@ -561,33 +540,25 @@ int run(int width, int height, bool presentationMode) {
 			imguiLabel("Sample");
 			if (imguiButton(sampleName.c_str()))
 			{
-				if (showSample)
+				if (!showSample)
 				{
-					showSample = false;
-				}
-				else
-				{
-					showSample = true;
 					showLevels = false;
 					showTestCases = false;
 				}
+				showSample = !showSample;
 			}
 
 			imguiSeparator();
 			imguiLabel("Input Mesh");
 			if (imguiButton(meshName.c_str()))
 			{
-				if (showLevels)
-				{
-					showLevels = false;
-				}
-				else
+				if (!showLevels)
 				{
 					showSample = false;
 					showTestCases = false;
-					showLevels = true;
 					scanDirectory("Meshes", ".obj", files);
 				}
+				showLevels = !showLevels;
 			}
 			if (geom)
 			{
@@ -655,36 +626,7 @@ int run(int width, int height, bool presentationMode) {
 				}
 			}
 
-			if (geom || sample)
-			{
-				const float* bmin = 0;
-				const float* bmax = 0;
-				if (sample)
-				{
-					bmin = sample->getBoundsMin();
-					bmax = sample->getBoundsMax();
-				}
-				else if (geom)
-				{
-					bmin = geom->getMeshBoundsMin();
-					bmax = geom->getMeshBoundsMax();
-				}
-				// Reset camera and fog to match the mesh bounds.
-				if (bmin && bmax)
-				{
-					camr = sqrtf(rcSqr(bmax[0] - bmin[0]) +
-						rcSqr(bmax[1] - bmin[1]) +
-						rcSqr(bmax[2] - bmin[2])) / 2;
-					camx = (bmax[0] + bmin[0]) / 2 + camr;
-					camy = (bmax[1] + bmin[1]) / 2 + camr;
-					camz = (bmax[2] + bmin[2]) / 2 + camr;
-					camr *= 3;
-				}
-				rx = 45;
-				ry = -45;
-				glFogf(GL_FOG_START, camr*0.1f);
-				glFogf(GL_FOG_END, camr*1.25f);
-			}
+			resetCameraAndFog(geom, sample, camx, camy, camz, camr, rx, ry);
 
 			imguiEndScrollArea();
 		}
@@ -707,8 +649,7 @@ int run(int width, int height, bool presentationMode) {
 				meshName = levelName;
 				showLevels = false;
 
-				string path = "Meshes/";
-				path += meshName;
+				string path = "Meshes/" + meshName;
 
 				geom = std::unique_ptr<InputGeom>(new InputGeom);
 				if (!geom->loadMesh(&ctx, path.c_str()))
@@ -720,40 +661,9 @@ int run(int width, int height, bool presentationMode) {
 					ctx.dumpLog("Geom load log %s:", meshName.c_str());
 				}
 				if (sample && geom)
-				{
 					sample->handleMeshChanged(geom.get());
-				}
 
-				if (geom || sample)
-				{
-					const float* bmin = 0;
-					const float* bmax = 0;
-					if (sample)
-					{
-						bmin = sample->getBoundsMin();
-						bmax = sample->getBoundsMax();
-					}
-					else if (geom)
-					{
-						bmin = geom->getMeshBoundsMin();
-						bmax = geom->getMeshBoundsMax();
-					}
-					// Reset camera and fog to match the mesh bounds.
-					if (bmin && bmax)
-					{
-						camr = sqrtf(rcSqr(bmax[0] - bmin[0]) +
-							rcSqr(bmax[1] - bmin[1]) +
-							rcSqr(bmax[2] - bmin[2])) / 2;
-						camx = (bmax[0] + bmin[0]) / 2 + camr;
-						camy = (bmax[1] + bmin[1]) / 2 + camr;
-						camz = (bmax[2] + bmin[2]) / 2 + camr;
-						camr *= 3;
-					}
-					rx = 45;
-					ry = -45;
-					glFogf(GL_FOG_START, camr*0.1f);
-					glFogf(GL_FOG_END, camr*1.25f);
-				}
+				resetCameraAndFog(geom, sample, camx, camy, camz, camr, rx, ry);
 			}
 
 			imguiEndScrollArea();
@@ -806,8 +716,7 @@ int run(int width, int height, bool presentationMode) {
 				// Load geom.
 				meshName = test->getGeomFileName();
 
-				path = "Meshes/";
-				path += meshName;
+				path = "Meshes/" + meshName;
 
 				geom = std::unique_ptr<InputGeom>(new InputGeom);
 				if (!geom->loadMesh(&ctx, path.c_str()))
@@ -817,54 +726,20 @@ int run(int width, int height, bool presentationMode) {
 					logScroll = 0;
 					ctx.dumpLog("Geom load log %s:", meshName.c_str());
 				}
+				
 				if (sample && geom)
-				{
 					sample->handleMeshChanged(geom.get());
-				}
 
 				// This will ensure that tile & poly bits are updated in tiled sample.
 				if (sample)
-				{
 					sample->handleSettings();
-				}
 
 				ctx.resetLog();
 				if (sample && !sample->handleBuild())
-				{
 					ctx.dumpLog("Build log %s:", meshName.c_str());
-				}
 
-				if (geom || sample)
-				{
-					const float* bmin = 0;
-					const float* bmax = 0;
-					if (sample)
-					{
-						bmin = sample->getBoundsMin();
-						bmax = sample->getBoundsMax();
-					}
-					else if (geom)
-					{
-						bmin = geom->getMeshBoundsMin();
-						bmax = geom->getMeshBoundsMax();
-					}
-					// Reset camera and fog to match the mesh bounds.
-					if (bmin && bmax)
-					{
-						camr = sqrtf(rcSqr(bmax[0] - bmin[0]) +
-							rcSqr(bmax[1] - bmin[1]) +
-							rcSqr(bmax[2] - bmin[2])) / 2;
-						camx = (bmax[0] + bmin[0]) / 2 + camr;
-						camy = (bmax[1] + bmin[1]) / 2 + camr;
-						camz = (bmax[2] + bmin[2]) / 2 + camr;
-						camr *= 3;
-					}
-					rx = 45;
-					ry = -45;
-					glFogf(GL_FOG_START, camr*0.2f);
-					glFogf(GL_FOG_END, camr*1.25f);
-				}
-
+				resetCameraAndFog(geom, sample, camx, camy, camz, camr, rx, ry);
+				
 				// Do the tests.
 				if (sample)
 					test->doTests(sample->getNavMesh(), sample->getNavMeshQuery());
@@ -899,10 +774,8 @@ int run(int width, int height, bool presentationMode) {
 		slideShow.updateAndDraw(dt, (float)width, (float)height);
 
 		// Marker
-		if (mposSet)
-		{
+		if (markerPositionSet)
 			drawMarker(markerPosition, projectionMatrix, modelviewMatrix, viewport);
-		}
 
 		imguiEndFrame();
 		imguiRenderGLDraw();
@@ -916,6 +789,40 @@ int run(int width, int height, bool presentationMode) {
 	SDL_Quit();
 
 	return 0;
+}
+
+void resetCameraAndFog(const std::unique_ptr<InputGeom>& geom, const std::unique_ptr<Sample>& sample,
+					   float& camx, float& camy, float& camz, float& camr, float& rx, float& ry) {
+	if (geom || sample)
+	{
+		const float* bmin = 0;
+		const float* bmax = 0;
+		if (sample)
+		{
+			bmin = sample->getBoundsMin();
+			bmax = sample->getBoundsMax();
+		}
+		else if (geom)
+		{
+			bmin = geom->getMeshBoundsMin();
+			bmax = geom->getMeshBoundsMax();
+		}
+		// Reset camera and fog to match the mesh bounds.
+		if (bmin && bmax)
+		{
+			camr = sqrtf(rcSqr(bmax[0] - bmin[0]) +
+						 rcSqr(bmax[1] - bmin[1]) +
+						 rcSqr(bmax[2] - bmin[2])) / 2;
+			camx = (bmax[0] + bmin[0]) / 2 + camr;
+			camy = (bmax[1] + bmin[1]) / 2 + camr;
+			camz = (bmax[2] + bmin[2]) / 2 + camr;
+			camr *= 3;
+		}
+		rx = 45;
+		ry = -45;
+		glFogf(GL_FOG_START, camr*0.1f);
+		glFogf(GL_FOG_END, camr*1.25f);
+	}
 }
 
 void drawMarker(float markerPosition[3], GLdouble projectionMatrix[16], GLdouble modelviewMatrix[16], GLint viewport[4])
