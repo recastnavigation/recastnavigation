@@ -30,9 +30,6 @@ using std::vector;
 class TestCase
 {
 public:
-	TestCase();
-	~TestCase();
-
 	bool load(string filePath);
 	
 	inline const string& getSampleName() const { return m_sampleName; }
@@ -58,9 +55,7 @@ private:
 			, includeFlags(0)
 			, excludeFlags(0)
 			, expand(expandRender)
-			, straight(0)
 			, nstraight(0)
-			, polys(0)
 			, npolys(0)
 			, findNearestPolyTime(0)
 			, findPathTime(0)

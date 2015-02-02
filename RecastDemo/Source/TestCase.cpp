@@ -38,111 +38,54 @@
 #define snprintf _snprintf
 #endif
 
-TestCase::TestCase()
-{
-}
-
-TestCase::~TestCase()
-{
-}
-
-static char* parseRow(char* buf, char* bufEnd, char* row, int len)
-{
-	bool start = true;
-	bool done = false;
-	int n = 0;
-	while (!done && buf < bufEnd)
-	{
-		char c = *buf;
-		buf++;
-		// multirow
-		switch (c)
-		{
-			case '\n':
-				if (!start)
-					done = true;
-				break;
-			case '\r':
-				break;
-			case '\t':
-			case ' ':
-				if (start) break;
-			default:
-				start = false;
-				row[n++] = c;
-				if (n >= len-1)
-					done = true;
-				break;
-		}
-	}
-	row[n] = '\0';
-	return buf;
-}
-
-static void copyName(string& dst, const char* src)
-{
-	// Skip white spaces
-	while (*src && isspace(*src))
-		src++;
-	dst = src;
+static string trim(const string& str) {
+	string result(str, str.find_first_not_of(" \t"));
+	result.erase(result.find_last_not_of(" \t") + 1);
+	return result;
 }
 
 bool TestCase::load(string filePath)
 {
 	std::ifstream file(filePath, std::ios::binary);
-	file.seekg(0, std::ios::end);
-	std::streamsize size = file.tellg();
-	file.seekg(0, std::ios::beg);
-
-	char* buf = new char[static_cast<unsigned int>(size)];
-	if (!file.read(buf, size))
-		return false;
-
-	char* src = buf;
-	char* srcEnd = buf + size;
-	char row[512];
-	while (src < srcEnd)
-	{
-		// Parse one row
-		row[0] = '\0';
-		src = parseRow(src, srcEnd, row, sizeof(row) / sizeof(char));
-		if (row[0] == 's')
+	string line;
+	while (std::getline(file, line)) {
+		string::size_type startPos = line.find_first_not_of(" \r\n\t");
+		
+		// String is all whitespace.
+		if (startPos == string::npos) continue;
+		
+		std::istringstream ss(line.substr(startPos));
+		string identifier;
+		ss >> identifier;
+		if (identifier == "s")
 		{
-			// Sample name.
-			copyName(m_sampleName, row + 1);
+			m_sampleName = trim(line.substr(1));
 		}
-		else if (row[0] == 'f')
+		else if (identifier == "f")
 		{
-			// File name.
-			copyName(m_geomFileName, row + 1);
+			m_geomFileName = trim(line.substr(1));
 		}
-		else if (row[0] == 'p' && row[1] == 'f')
+		else if (identifier == "pf")
 		{
 			// Pathfind test.
-			Test test(TEST_PATHFIND, false);
-			std::istringstream ss(row + 2);
-			ss >> test.spos[0] >> test.spos[1] >> test.spos[2] 
-			   >> test.epos[0] >> test.epos[1] >> test.epos[2]
-			   >> std::hex
-			   >> test.includeFlags >> test.excludeFlags;
-
-			m_tests.push_back(std::move(test));
+			m_tests.emplace_back(TEST_PATHFIND, false);
+			Test& test = m_tests.back();
+			
+			ss >> test.spos[0] >> test.spos[1] >> test.spos[2];
+			ss >> test.epos[0] >> test.epos[1] >> test.epos[2];
+			ss >> std::hex >> test.includeFlags >> test.excludeFlags;
 		}
-		else if (row[0] == 'r' && row[1] == 'c')
+		else if (identifier == "rc")
 		{
 			// Raycast test.
-			Test test(TEST_RAYCAST, false);
-			std::istringstream ss(row + 2);
-			ss >> test.spos[0] >> test.spos[1] >> test.spos[2]
-				>> test.epos[0] >> test.epos[1] >> test.epos[2]
-				>> std::hex
-				>> test.includeFlags >> test.excludeFlags;
-			m_tests.push_back(std::move(test));
+			m_tests.emplace_back(TEST_RAYCAST, false);
+			Test& test = m_tests.back();
+			
+			ss >> test.spos[0] >> test.spos[1] >> test.spos[2];
+			ss >> test.epos[0] >> test.epos[1] >> test.epos[2];
+			ss >> std::hex >> test.includeFlags >> test.excludeFlags;
 		}
 	}
-	
-	delete[] buf;
-
 	return true;
 }
 		
@@ -278,10 +221,10 @@ void TestCase::doTests(dtNavMesh* navmesh, dtNavMeshQuery* navquery)
 	for (Test& test : m_tests)
 	{
 		const int total = test.findNearestPolyTime + test.findPathTime + test.findStraightPathTime;
-		printf(" - Path %02d:     %.4f ms\n", n, (float)total/1000.0f);
-		printf("    - poly:     %.4f ms\n", (float)test.findNearestPolyTime/1000.0f);
-		printf("    - path:     %.4f ms\n", (float)test.findPathTime/1000.0f);
-		printf("    - straight: %.4f ms\n", (float)test.findStraightPathTime/1000.0f);
+		printf(" - Path %02d:     %.4f ms\n", n, (float)total / 1000.0f);
+		printf("    - poly:     %.4f ms\n", (float)test.findNearestPolyTime / 1000.0f);
+		printf("    - path:     %.4f ms\n", (float)test.findPathTime / 1000.0f);
+		printf("    - straight: %.4f ms\n", (float)test.findStraightPathTime / 1000.0f);
 		n++;
 	}
 }
@@ -296,9 +239,9 @@ void TestCase::handleRender()
 		dtVsub(dir, test.epos, test.spos);
 		dtVnormalize(dir);
 		glColor4ub(128, 25, 0, 192);
-		glVertex3f(test.spos[0], test.spos[1]-0.3f, test.spos[2]);
-		glVertex3f(test.spos[0], test.spos[1]+0.3f, test.spos[2]);
-		glVertex3f(test.spos[0], test.spos[1]+0.3f, test.spos[2]);
+		glVertex3f(test.spos[0], test.spos[1] - 0.3f, test.spos[2]);
+		glVertex3f(test.spos[0], test.spos[1] + 0.3f, test.spos[2]);
+		glVertex3f(test.spos[0], test.spos[1] + 0.3f, test.spos[2]);
 		glVertex3f(test.spos[0] + dir[0] * 0.3f, test.spos[1] + 0.3f + dir[1] * 0.3f, test.spos[2] + dir[2] * 0.3f);
 		glColor4ub(51, 102, 0, 129);
 		glVertex3f(test.epos[0], test.epos[1] - 0.3f, test.epos[2]);
