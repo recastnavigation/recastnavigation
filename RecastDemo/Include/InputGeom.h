@@ -22,14 +22,31 @@
 #include "ChunkyTriMesh.h"
 #include "MeshLoaderObj.h"
 
+#include <string>
+#include <vector>
+
+using std::string;
+using std::vector;
+
 static const int MAX_CONVEXVOL_PTS = 12;
 struct ConvexVolume
 {
-	float verts[MAX_CONVEXVOL_PTS*3];
+	float verts[MAX_CONVEXVOL_PTS * 3];
     float hmin;
     float hmax;
 	int nverts;
 	int area;
+	
+	ConvexVolume()
+	: hmin(0)
+	, hmax(0)
+	, nverts(0)
+	, area(0)
+	{
+		for (int i = 0; i < MAX_CONVEXVOL_PTS * 3; ++i) {
+			verts[i] = 0;
+		}
+	}
 };
 
 class InputGeom
@@ -53,19 +70,17 @@ class InputGeom
 
 	/// @name Convex Volumes.
 	///@{
-	static const int MAX_VOLUMES = 256;
-	ConvexVolume m_volumes[MAX_VOLUMES];
-	int m_volumeCount;
+	vector<ConvexVolume> m_volumes;
 	///@}
 	
 public:
 	InputGeom();
 	~InputGeom();
 	
-	bool loadMesh(class rcContext* ctx, const char* filepath);
+	bool loadMesh(class rcContext* ctx, string filepath);
 	
-	bool load(class rcContext* ctx, const char* filepath);
-	bool save(const char* filepath);
+	bool load(class rcContext* ctx, string filepath);
+	bool save(string filepath);
 	
 	/// Method to return static mesh data.
 	inline const rcMeshLoaderObj* getMesh() const { return m_mesh; }
@@ -91,8 +106,8 @@ public:
 
 	/// @name Box Volumes.
 	///@{
-	int getConvexVolumeCount() const { return m_volumeCount; }
-	const ConvexVolume* getConvexVolumes() const { return m_volumes; }
+	int getConvexVolumeCount() const { return m_volumes.size(); }
+	const ConvexVolume* getConvexVolumes() const { return m_volumes.data(); }
 	void addConvexVolume(const float* verts, const int nverts,
 						 const float minh, const float maxh, unsigned char area);
 	void deleteConvexVolume(int i);
