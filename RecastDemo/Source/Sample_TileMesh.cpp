@@ -956,10 +956,10 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	// or use the bounding box below to only pass in a sliver of each of the 8 neighbours.
 	rcVcopy(m_cfg.bmin, bmin);
 	rcVcopy(m_cfg.bmax, bmax);
-	m_cfg.bmin[0] -= m_cfg.borderSize*m_cfg.cs;
-	m_cfg.bmin[2] -= m_cfg.borderSize*m_cfg.cs;
-	m_cfg.bmax[0] += m_cfg.borderSize*m_cfg.cs;
-	m_cfg.bmax[2] += m_cfg.borderSize*m_cfg.cs;
+	m_cfg.bmin[0] -= m_cfg.borderSize * m_cfg.cs;
+	m_cfg.bmin[2] -= m_cfg.borderSize * m_cfg.cs;
+	m_cfg.bmax[0] += m_cfg.borderSize * m_cfg.cs;
+	m_cfg.bmax[2] += m_cfg.borderSize * m_cfg.cs;
 	
 	// Reset build times gathering.
 	m_ctx->resetTimers();
@@ -969,19 +969,19 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	
 	m_ctx->log(RC_LOG_PROGRESS, "Building navigation:");
 	m_ctx->log(RC_LOG_PROGRESS, " - %d x %d cells", m_cfg.width, m_cfg.height);
-	m_ctx->log(RC_LOG_PROGRESS, " - %.1fK verts, %.1fK tris", nverts/1000.0f, ntris/1000.0f);
+	m_ctx->log(RC_LOG_PROGRESS, " - %.1fK verts, %.1fK tris", nverts / 1000.0f, ntris / 1000.0f);
 	
 	// Allocate voxel heightfield where we rasterize our input data to.
 	m_solid = rcAllocHeightfield();
 	if (!m_solid)
 	{
 		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'solid'.");
-		return 0;
+		return nullptr;
 	}
 	if (!rcCreateHeightfield(m_ctx, *m_solid, m_cfg.width, m_cfg.height, m_cfg.bmin, m_cfg.bmax, m_cfg.cs, m_cfg.ch))
 	{
 		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Could not create solid heightfield.");
-		return 0;
+		return nullptr;
 	}
 	
 	// Allocate array that can hold triangle flags.
@@ -991,7 +991,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	if (!m_triareas)
 	{
 		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'm_triareas' (%d).", chunkyMesh->maxTrisPerChunk);
-		return 0;
+		return nullptr;
 	}
 	
 	float tbmin[2], tbmax[2];
@@ -1002,7 +1002,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	int cid[512];// TODO: Make grow when returning too many items.
 	const int ncid = rcGetChunksOverlappingRect(chunkyMesh, tbmin, tbmax, cid, 512);
 	if (!ncid)
-		return 0;
+		return nullptr;
 	
 	m_tileTriCount = 0;
 	
@@ -1024,7 +1024,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	if (!m_keepInterResults)
 	{
 		delete [] m_triareas;
-		m_triareas = 0;
+		m_triareas = nullptr;
 	}
 	
 	// Once all geometry is rasterized, we do initial pass of filtering to
@@ -1041,12 +1041,12 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	if (!m_chf)
 	{
 		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'chf'.");
-		return 0;
+		return nullptr;
 	}
 	if (!rcBuildCompactHeightfield(m_ctx, m_cfg.walkableHeight, m_cfg.walkableClimb, *m_solid, *m_chf))
 	{
 		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Could not build compact data.");
-		return 0;
+		return nullptr;
 	}
 	
 	if (!m_keepInterResults)
@@ -1059,7 +1059,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	if (!rcErodeWalkableArea(m_ctx, m_cfg.walkableRadius, *m_chf))
 	{
 		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Could not erode.");
-		return 0;
+		return nullptr;
 	}
 
 	// (Optional) Mark areas.
@@ -1100,14 +1100,14 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 		if (!rcBuildDistanceField(m_ctx, *m_chf))
 		{
 			m_ctx->log(RC_LOG_ERROR, "buildNavigation: Could not build distance field.");
-			return false;
+			return nullptr;
 		}
 		
 		// Partition the walkable surface into simple regions without holes.
 		if (!rcBuildRegions(m_ctx, *m_chf, m_cfg.borderSize, m_cfg.minRegionArea, m_cfg.mergeRegionArea))
 		{
 			m_ctx->log(RC_LOG_ERROR, "buildNavigation: Could not build watershed regions.");
-			return false;
+			return nullptr;
 		}
 	}
 	else if (m_partitionType == SAMPLE_PARTITION_MONOTONE)
@@ -1117,7 +1117,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 		if (!rcBuildRegionsMonotone(m_ctx, *m_chf, m_cfg.borderSize, m_cfg.minRegionArea, m_cfg.mergeRegionArea))
 		{
 			m_ctx->log(RC_LOG_ERROR, "buildNavigation: Could not build monotone regions.");
-			return false;
+			return nullptr;
 		}
 	}
 	else // SAMPLE_PARTITION_LAYERS
@@ -1126,7 +1126,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 		if (!rcBuildLayerRegions(m_ctx, *m_chf, m_cfg.borderSize, m_cfg.minRegionArea))
 		{
 			m_ctx->log(RC_LOG_ERROR, "buildNavigation: Could not build layer regions.");
-			return false;
+			return nullptr;
 		}
 	}
 	 	
@@ -1135,17 +1135,17 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	if (!m_cset)
 	{
 		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'cset'.");
-		return 0;
+		return nullptr;
 	}
 	if (!rcBuildContours(m_ctx, *m_chf, m_cfg.maxSimplificationError, m_cfg.maxEdgeLen, *m_cset))
 	{
 		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Could not create contours.");
-		return 0;
+		return nullptr;
 	}
 	
 	if (m_cset->nconts == 0)
 	{
-		return 0;
+		return nullptr;
 	}
 	
 	// Build polygon navmesh from the contours.
@@ -1153,12 +1153,12 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	if (!m_pmesh)
 	{
 		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'pmesh'.");
-		return 0;
+		return nullptr;
 	}
 	if (!rcBuildPolyMesh(m_ctx, *m_cset, m_cfg.maxVertsPerPoly, *m_pmesh))
 	{
 		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Could not triangulate contours.");
-		return 0;
+		return nullptr;
 	}
 	
 	// Build detail mesh.
@@ -1166,7 +1166,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	if (!m_dmesh)
 	{
 		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'dmesh'.");
-		return 0;
+		return nullptr;
 	}
 	
 	if (!rcBuildPolyMeshDetail(m_ctx, *m_pmesh, *m_chf,
@@ -1174,7 +1174,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 							   *m_dmesh))
 	{
 		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Could build polymesh detail.");
-		return 0;
+		return nullptr;
 	}
 	
 	if (!m_keepInterResults)
@@ -1193,7 +1193,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 		{
 			// The vertex indices are ushorts, and cannot point to more than 0xffff vertices.
 			m_ctx->log(RC_LOG_ERROR, "Too many vertices per tile %d (max: %d).", m_pmesh->nverts, 0xffff);
-			return 0;
+			return nullptr;
 		}
 		
 		// Update poly flags from areas.
@@ -1254,7 +1254,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 		if (!dtCreateNavMeshData(&params, &navData, &navDataSize))
 		{
 			m_ctx->log(RC_LOG_ERROR, "Could not build Detour navmesh.");
-			return 0;
+			return nullptr;
 		}		
 	}
 	m_tileMemUsage = navDataSize/1024.0f;
