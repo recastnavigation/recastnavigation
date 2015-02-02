@@ -79,7 +79,8 @@ int main(int /*argc*/, char** /*argv*/)
 	}
 
 	// Center window
-	putenv("SDL_VIDEO_CENTERED=1");
+	char centerWindowEnv[] = "SDL_VIDEO_CENTERED=1";
+	putenv(centerWindowEnv);
 
 	// Init OpenGL
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
@@ -135,7 +136,6 @@ int main(int /*argc*/, char** /*argv*/)
 }
 
 int run(int width, int height, bool presentationMode) {
-
 	float totalTime = 0.0f;
 	float timeAcc = 0.0f;
 	Uint32 lastTime = SDL_GetTicks();
@@ -184,7 +184,7 @@ int run(int width, int height, bool presentationMode) {
 
 	std::unique_ptr<InputGeom> geom;
 	std::unique_ptr<Sample> sample;
-	TestCase* test = 0;
+	std::unique_ptr<TestCase> test;
 
 	BuildContext ctx;
 
@@ -256,9 +256,7 @@ int run(int width, int height, bool presentationMode) {
 						ctx.dumpLog("Geom load log %s:", meshName.c_str());
 					}
 					if (sample && geom)
-					{
 						sample->handleMeshChanged(geom.get());
-					}
 
 					if (geom || sample)
 					{
@@ -278,8 +276,8 @@ int run(int width, int height, bool presentationMode) {
 						if (bmin && bmax)
 						{
 							camr = sqrtf(rcSqr(bmax[0] - bmin[0]) +
-								rcSqr(bmax[1] - bmin[1]) +
-								rcSqr(bmax[2] - bmin[2])) / 2;
+										 rcSqr(bmax[1] - bmin[1]) +
+										 rcSqr(bmax[2] - bmin[2])) / 2;
 							camx = (bmax[0] + bmin[0]) / 2 + camr;
 							camy = (bmax[1] + bmin[1]) / 2 + camr;
 							camz = (bmax[2] + bmin[2]) / 2 + camr;
@@ -350,7 +348,6 @@ int run(int width, int height, bool presentationMode) {
 						processHitTestShift = (SDL_GetModState() & KMOD_SHIFT) ? true : false;
 					}
 				}
-
 				break;
 
 			case SDL_MOUSEMOTION:
@@ -537,6 +534,7 @@ int run(int width, int height, bool presentationMode) {
 				showTools = !showTools;
 
 			imguiSeparator();
+			
 			imguiLabel("Sample");
 			if (imguiButton(sampleName.c_str()))
 			{
@@ -549,6 +547,7 @@ int run(int width, int height, bool presentationMode) {
 			}
 
 			imguiSeparator();
+			
 			imguiLabel("Input Mesh");
 			if (imguiButton(meshName.c_str()))
 			{
@@ -588,8 +587,7 @@ int run(int width, int height, bool presentationMode) {
 					ctx.dumpLog("Build log %s:", meshName.c_str());
 
 					// Clear test.
-					delete test;
-					test = 0;
+					test = nullptr;
 				}
 
 				imguiSeparator();
@@ -685,38 +683,28 @@ int run(int width, int height, bool presentationMode) {
 
 			if (testName != "")
 			{
-				string path = "Tests/" + testName;
-				test = new TestCase;
-
 				// Load the test.
-				if (!test->load(path))
-				{
-					delete test;
+				test = std::unique_ptr<TestCase>(new TestCase);
+				if (!test->load("Tests/" + testName))
 					test = nullptr;
-				}
 
 				// Create sample
-				std::unique_ptr<Sample> newSample;
 				for (int i = 0; i < g_nsamples; ++i)
 				{
-					if (strcmp(g_samples[i].name, test->getSampleName().c_str()) == 0)
+					if (g_samples[i].name == test->getSampleName())
 					{
-						newSample = std::unique_ptr<Sample>(g_samples[i].create());
-						if (newSample)
-							sampleName = g_samples[i].name;
+						sample = std::unique_ptr<Sample>(g_samples[i].create());
+						sample->setContext(&ctx);
+						sampleName = g_samples[i].name;
+						showSample = false;
+						break;
 					}
-				}
-				if (newSample)
-				{
-					sample = std::move(newSample);
-					sample->setContext(&ctx);
-					showSample = false;
 				}
 
 				// Load geom.
 				meshName = test->getGeomFileName();
 
-				path = "Meshes/" + meshName;
+				string path = "Meshes/" + meshName;
 
 				geom = std::unique_ptr<InputGeom>(new InputGeom);
 				if (!geom->loadMesh(&ctx, path.c_str()))
@@ -747,7 +735,6 @@ int run(int width, int height, bool presentationMode) {
 
 			imguiEndScrollArea();
 		}
-
 
 		// Log
 		if (showLog && showMenu)
