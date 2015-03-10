@@ -143,9 +143,9 @@ struct dtCrowdAgent
 	float desiredSpeed;
 
 	float npos[3];		///< The current agent position. [(x, y, z)]
-	float disp[3];
+	float disp[3];		///< Used during collision detection. [(x, y, z)]
 	float dvel[3];		///< The desired velocity of the agent. [(x, y, z)]
-	float nvel[3];
+	float nvel[3];		///< The desired velocity of the agent adjusted by obstacle avoidance. [(x, y, z)]
 	float vel[3];		///< The actual velocity of the agent. [(x, y, z)]
 
 	/// The agent's configuration parameters.
