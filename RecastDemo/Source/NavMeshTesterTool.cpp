@@ -21,8 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "SDL.h"
-#include "SDL_opengl.h"
+#include "wnd.h"
 #include "imgui.h"
 #include "NavMeshTesterTool.h"
 #include "Sample.h"

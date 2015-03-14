@@ -132,8 +132,13 @@ project "RecastDemo"
 	-- distribute executable in RecastDemo/Bin directory
 	targetdir "Bin"
 
+	newoption {
+		trigger 	= "use-glfw",
+		description = "Force use GLFW3 instead of SDL"
+	}
+
 	-- linux library cflags and libs
-	configuration { "linux", "gmake" }
+	configuration { "linux", "gmake", "not use-glfw" }
 		buildoptions { 
 			"`pkg-config --cflags sdl`",
 			"`pkg-config --cflags gl`",
@@ -145,6 +150,28 @@ project "RecastDemo"
 			"`pkg-config --libs glu`" 
 		}
 
+	configuration { "linux", "gmake", "use-glfw" }
+		defines { "USE_GLFW" }
+		buildoptions { 
+			"`pkg-config --cflags glfw3`",
+			"`pkg-config --cflags gl`",
+			"`pkg-config --cflags glu`" 
+		}
+		linkoptions { 
+			"`pkg-config --libs glfw3`",
+			"`pkg-config --libs gl`",
+			"`pkg-config --libs glu`" 
+		}
+        links {
+            "pthread",
+            "X11",
+            "Xrandr",
+            "Xinerama",
+            "Xi",
+            "Xxf86vm",
+            "Xcursor"
+        }
+		
 	-- windows library cflags and libs
 	configuration { "windows" }
 		includedirs { "../RecastDemo/Contrib/SDL/include" }

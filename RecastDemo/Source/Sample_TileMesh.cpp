@@ -20,8 +20,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
-#include "SDL.h"
-#include "SDL_opengl.h"
+#include "wnd.h"
 #include "imgui.h"
 #include "InputGeom.h"
 #include "Sample.h"
@@ -1100,14 +1099,14 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 		if (!rcBuildDistanceField(m_ctx, *m_chf))
 		{
 			m_ctx->log(RC_LOG_ERROR, "buildNavigation: Could not build distance field.");
-			return false;
+			return 0;
 		}
 		
 		// Partition the walkable surface into simple regions without holes.
 		if (!rcBuildRegions(m_ctx, *m_chf, m_cfg.borderSize, m_cfg.minRegionArea, m_cfg.mergeRegionArea))
 		{
 			m_ctx->log(RC_LOG_ERROR, "buildNavigation: Could not build watershed regions.");
-			return false;
+			return 0;
 		}
 	}
 	else if (m_partitionType == SAMPLE_PARTITION_MONOTONE)
@@ -1117,7 +1116,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 		if (!rcBuildRegionsMonotone(m_ctx, *m_chf, m_cfg.borderSize, m_cfg.minRegionArea, m_cfg.mergeRegionArea))
 		{
 			m_ctx->log(RC_LOG_ERROR, "buildNavigation: Could not build monotone regions.");
-			return false;
+			return 0;
 		}
 	}
 	else // SAMPLE_PARTITION_LAYERS
@@ -1126,7 +1125,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 		if (!rcBuildLayerRegions(m_ctx, *m_chf, m_cfg.borderSize, m_cfg.minRegionArea))
 		{
 			m_ctx->log(RC_LOG_ERROR, "buildNavigation: Could not build layer regions.");
-			return false;
+			return 0;
 		}
 	}
 	 	
