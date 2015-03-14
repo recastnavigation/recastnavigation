@@ -16,11 +16,18 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
+#ifdef WIN32
+#	include <windows.h>
+#endif
+
 #include <stdio.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
-#include "SDL.h"
-#include "SDL_opengl.h"
+#include <string.h>
+#include <queue>
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+#include "Projection.h"
 #include "imgui.h"
 #include "imguiRenderGL.h"
 #include "Recast.h"
@@ -38,6 +45,10 @@
 #ifdef WIN32
 #	define snprintf _snprintf
 #	define putenv _putenv
+#	define glfwSleep(x)		Sleep(x)
+#else
+#	include <unistd.h>
+#	define glfwSleep(x)		usleep(x * 1000.0f)
 #endif
 
 struct SampleItem
@@ -60,73 +71,155 @@ static SampleItem g_samples[] =
 };
 static const int g_nsamples = sizeof(g_samples)/sizeof(SampleItem); 
 
+enum EventType
+{
+	KeyPress,
+	KeyRelease,
+	MousePress,
+	MouseRelease,
+	MouseMotion,
+	MouseScroll,
+};
+
+struct EventKey
+{
+	int type;
+	int action;
+	int sym;
+	int scancode;
+	int mods;
+};
+
+struct EventMouse
+{
+	int type;
+	int action;
+	int button;
+	int x;
+	int y;
+	int mods;
+};
+
+typedef union Event
+{
+	int type;
+	EventKey key;
+	EventMouse mouse;
+} Event;
+
+static int gKeyModState = 0;
+static std::queue<Event> gEventQueue;
+
+void key_cb(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	gKeyModState = mods;
+
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+		glfwSetWindowShouldClose(window, GL_TRUE);
+
+	Event e;
+	e.type = action == GLFW_PRESS ? KeyPress : KeyRelease;
+	e.key.action = action;
+	e.key.sym = key;
+	e.key.scancode = scancode;
+	e.key.mods = mods;
+	gEventQueue.push(e);
+}
+
+void mouse_move_cb(GLFWwindow* window, double x, double y)
+{
+	Event e;
+	e.type = MouseMotion;
+	e.mouse.x = int(x);
+	e.mouse.y = int(y);
+	gEventQueue.push(e);
+}
+
+void mouse_button_cb(GLFWwindow* window, int button, int action, int mods)
+{
+	gKeyModState = mods;
+
+	Event e;
+	e.type = action == GLFW_PRESS ? MousePress : MouseRelease;
+	e.key.action = action;
+	e.mouse.button = button;
+	e.mouse.mods = mods;
+	gEventQueue.push(e);
+}
+
+void mouse_scroll_cb(GLFWwindow* window, double x, double y)
+{
+	Event e;
+	e.type = MouseScroll;
+	e.mouse.x = int(x);
+	e.mouse.y = int(y);
+	gEventQueue.push(e);
+}
+
+void error_cb(int error, const char* desc)
+{
+	printf("GLFW error %d: %s\n", error, desc);
+}
 
 int main(int /*argc*/, char** /*argv*/)
 {
-	// Init SDL
-	if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
+	// Init GLFW
+	if (!glfwInit())
 	{
-		printf("Could not initialise SDL\n");
+		printf("Failed to init GLFW.\n");
 		return -1;
 	}
-	
-	// Center window
-	char env[] = "SDL_VIDEO_CENTERED=1";
-	putenv(env);
 
-	// Init OpenGL
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
-	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
-	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
-	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
-//#ifndef WIN32
-	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
-//#endif
+	glfwSetErrorCallback(error_cb);
+	glfwWindowHint(GLFW_AUX_BUFFERS, 1);
+	glfwWindowHint(GLFW_SAMPLES, 4);
 
-	const SDL_VideoInfo* vi = SDL_GetVideoInfo();
+	const GLFWvidmode* vi = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
 	bool presentationMode = false;
 
 	int width, height;
-	SDL_Surface* screen = 0;
-	
+	GLFWmonitor* fullscreen = 0;
 	if (presentationMode)
 	{
-		width = vi->current_w;
-		height = vi->current_h;
-		screen = SDL_SetVideoMode(width, height, 0, SDL_OPENGL|SDL_FULLSCREEN);
+		width = vi->width;
+		height = vi->height;
+		fullscreen = glfwGetPrimaryMonitor();
 	}
 	else
 	{	
-		width = rcMin(vi->current_w, (int)(vi->current_h * 16.0 / 9.0));
+		width = rcMin(vi->width, (int)(vi->height * 16.0 / 9.0));
 		width = width - 80;
-		height = vi->current_h - 80;
-		screen = SDL_SetVideoMode(width, height, 0, SDL_OPENGL);
+		height = vi->height - 80;
 	}
 	
-	if (!screen)
+	GLFWwindow* window = glfwCreateWindow(width, height, "Recast Demo", fullscreen, NULL);
+	if (!window)
 	{
-		printf("Could not initialise SDL opengl\n");
+		printf("Could not create GLFW window.\n");
 		return -1;
 	}
 
+	glfwSetKeyCallback(window, key_cb);
+	glfwSetCursorPosCallback(window, mouse_move_cb);
+	glfwSetScrollCallback(window, mouse_scroll_cb);
+	glfwSetMouseButtonCallback(window, mouse_button_cb);
+
+	glfwMakeContextCurrent(window);
+	glfwSwapInterval(1);
+
 	glEnable(GL_MULTISAMPLE);
 
-	SDL_WM_SetCaption("Recast Demo", 0);
-	
 	if (!imguiRenderGLInit("DroidSans.ttf"))
 	{
 		printf("Could not init GUI renderer.\n");
-		SDL_Quit();
+		glfwTerminate();
 		return -1;
 	}
 	
 	float t = 0.0f;
 	float timeAcc = 0.0f;
-	Uint32 lastTime = SDL_GetTicks();
+	double lastTime = glfwGetTime();
 	int mx = 0, my = 0;
 	float rx = 45;
 	float ry = -45;
@@ -149,6 +242,9 @@ int main(int /*argc*/, char** /*argv*/)
 	int propScroll = 0;
 	int logScroll = 0;
 	int toolsScroll = 0;
+
+	float projMat[16], orthoMat[16];
+	ortho2d(orthoMat, 0, width, 0, height);
 	
 	char sampleName[64] = "Choose Sample..."; 
 	
@@ -178,52 +274,49 @@ int main(int /*argc*/, char** /*argv*/)
 	
 	glDepthFunc(GL_LEQUAL);
 	
-	bool done = false;
-	while(!done)
+	while(!glfwWindowShouldClose(window))
 	{
 		// Handle input events.
 		int mscroll = 0;
 		bool processHitTest = false;
 		bool processHitTestShift = false;
-		SDL_Event event;
 		
-		while (SDL_PollEvent(&event))
+		Event event;
+		while (!gEventQueue.empty())
 		{
+			event = gEventQueue.front();
+			gEventQueue.pop();
+
 			switch (event.type)
 			{
-				case SDL_KEYDOWN:
-					// Handle any key presses here.
-					if (event.key.keysym.sym == SDLK_ESCAPE)
-					{
-						done = true;
-					}
-					else if (event.key.keysym.sym == SDLK_t)
+				case KeyPress:
+					if (event.key.sym == GLFW_KEY_T)
 					{
 						showLevels = false;
 						showSample = false;
 						showTestCases = true;
 						scanDirectory("Tests", ".txt", files);
 					}
-					else if (event.key.keysym.sym == SDLK_TAB)
+					else if (event.key.sym == GLFW_KEY_TAB)
 					{
 						showMenu = !showMenu;
 					}
-					else if (event.key.keysym.sym == SDLK_SPACE)
+					else if (event.key.sym == GLFW_KEY_SPACE)
 					{
 						if (sample)
 							sample->handleToggle();
 					}
-					else if (event.key.keysym.sym == SDLK_1)
+					else if (event.key.sym == GLFW_KEY_1)
 					{
 						if (sample)
 							sample->handleStep();
 					}
-					else if (event.key.keysym.sym == SDLK_9)
+					else if (event.key.sym == GLFW_KEY_9)
 					{
 						if (geom)
 							geom->save("geomset.txt");
 					}
-					else if (event.key.keysym.sym == SDLK_0)
+					else if (event.key.sym == GLFW_KEY_0)
 					{
 						delete geom;
 						geom = new InputGeom;
@@ -272,18 +365,18 @@ int main(int /*argc*/, char** /*argv*/)
 							glFogf(GL_FOG_END, camr*1.25f);
 						}
 					}
-					else if (event.key.keysym.sym == SDLK_RIGHT)
+					else if (event.key.sym == GLFW_KEY_RIGHT)
 					{
 						slideShow.nextSlide();
 					}
-					else if (event.key.keysym.sym == SDLK_LEFT)
+					else if (event.key.sym == GLFW_KEY_LEFT)
 					{
 						slideShow.prevSlide();
 					}
 					break;
 					
-				case SDL_MOUSEBUTTONDOWN:
-					if (event.button.button == SDL_BUTTON_RIGHT)
+				case MousePress:
+					if (event.mouse.button == GLFW_MOUSE_BUTTON_RIGHT)
 					{
 						if (!mouseOverMenu)
 						{
@@ -296,25 +389,11 @@ int main(int /*argc*/, char** /*argv*/)
 							origry = ry;
 						}
 					}	
-					else if (event.button.button == SDL_BUTTON_WHEELUP)
-					{
-						if (mouseOverMenu)
-							mscroll--;
-						else
-							scrollZoom -= 1.0f;
-					}
-					else if (event.button.button == SDL_BUTTON_WHEELDOWN)
-					{
-						if (mouseOverMenu)
-							mscroll++;
-						else
-							scrollZoom += 1.0f;
-					}
 					break;
 					
-				case SDL_MOUSEBUTTONUP:
+				case MouseRelease:
 					// Handle mouse clicks here.
-					if (event.button.button == SDL_BUTTON_RIGHT)
+					if (event.mouse.button == GLFW_MOUSE_BUTTON_RIGHT)
 					{
 						rotate = false;
 						if (!mouseOverMenu)
@@ -326,20 +405,36 @@ int main(int /*argc*/, char** /*argv*/)
 							}
 						}
 					}
-					else if (event.button.button == SDL_BUTTON_LEFT)
+					else if (event.mouse.button == GLFW_MOUSE_BUTTON_LEFT)
 					{
 						if (!mouseOverMenu)
 						{
 							processHitTest = true;
-							processHitTestShift = (SDL_GetModState() & KMOD_SHIFT) ? true : false;
+							processHitTestShift = (gKeyModState & GLFW_MOD_SHIFT) ? true : false;
 						}
 					}
-					
 					break;
-					
-				case SDL_MOUSEMOTION:
-					mx = event.motion.x;
-					my = height-1 - event.motion.y;
+
+				case MouseScroll:
+					if (event.mouse.y > 0)
+					{
+						if (mouseOverMenu)
+							mscroll--;
+						else
+							scrollZoom -= 1.0f;
+					}
+					else
+					{
+						if (mouseOverMenu)
+							mscroll++;
+						else
+							scrollZoom += 1.0f;
+					}
+					break;
+
+				case MouseMotion:
+					mx = event.mouse.x;
+					my = height-1 - event.mouse.y;
 					if (rotate)
 					{
 						int dx = mx - origx;
@@ -351,23 +446,19 @@ int main(int /*argc*/, char** /*argv*/)
 					}
 					break;
 					
-				case SDL_QUIT:
-					done = true;
-					break;
-					
 				default:
 					break;
 			}
 		}
 
 		unsigned char mbut = 0;
-		if (SDL_GetMouseState(0,0) & SDL_BUTTON_LMASK)
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 			mbut |= IMGUI_MBUT_LEFT;
-		if (SDL_GetMouseState(0,0) & SDL_BUTTON_RMASK)
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 			mbut |= IMGUI_MBUT_RIGHT;
 		
-		Uint32	time = SDL_GetTicks();
-		float	dt = (time - lastTime) / 1000.0f;
+		double	time = glfwGetTime();
+		float	dt = (time - lastTime);
 		lastTime = time;
 		
 		t += dt;
@@ -381,7 +472,7 @@ int main(int /*argc*/, char** /*argv*/)
 			
 			if (hit)
 			{
-				if (SDL_GetModState() & KMOD_CTRL)
+				if (gKeyModState & GLFW_MOD_CONTROL)
 				{
 					// Marker
 					mposSet = true;
@@ -400,7 +491,7 @@ int main(int /*argc*/, char** /*argv*/)
 			}
 			else
 			{
-				if (SDL_GetModState() & KMOD_CTRL)
+				if (gKeyModState & GLFW_MOD_CONTROL)
 				{
 					// Marker
 					mposSet = false;
@@ -431,7 +522,7 @@ int main(int /*argc*/, char** /*argv*/)
 			int ms = (int)((MIN_FRAME_TIME - dt)*1000.0f);
 			if (ms > 10) ms = 10;
 			if (ms >= 0)
-				SDL_Delay(ms);
+				glfwSleep(ms);
 		}
 		
 		
@@ -447,7 +538,8 @@ int main(int /*argc*/, char** /*argv*/)
 		glEnable(GL_DEPTH_TEST);
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		gluPerspective(50.0f, (float)width/(float)height, 1.0f, camr);
+		perspective(projMat, 50.0f, (float)width / (float)height, 1.0f, camr);
+		glLoadMatrixf(projMat);
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 		glRotatef(rx,1,0,0);
@@ -461,21 +553,20 @@ int main(int /*argc*/, char** /*argv*/)
 		glGetDoublev(GL_PROJECTION_MATRIX, proj);
 		glGetDoublev(GL_MODELVIEW_MATRIX, model);
 		glGetIntegerv(GL_VIEWPORT, view);
-		GLdouble x, y, z;
-		gluUnProject(mx, my, 0.0f, model, proj, view, &x, &y, &z);
-		rays[0] = (float)x; rays[1] = (float)y; rays[2] = (float)z;
-		gluUnProject(mx, my, 1.0f, model, proj, view, &x, &y, &z);
-		raye[0] = (float)x; raye[1] = (float)y; raye[2] = (float)z;
+		float pos[3];
+		unproject(mx, my, 0.0f, model, proj, view, pos);
+		rays[0] = pos[0]; rays[1] = pos[1]; rays[2] = pos[2];
+		unproject(mx, my, 1.0f, model, proj, view, pos);
+		raye[0] = pos[0]; raye[1] = pos[1]; raye[2] = pos[2];
 		
 		// Handle keyboard movement.
-		Uint8* keystate = SDL_GetKeyState(NULL);
-		moveW = rcClamp(moveW + dt * 4 * (keystate[SDLK_w] ? 1 : -1), 0.0f, 1.0f);
-		moveS = rcClamp(moveS + dt * 4 * (keystate[SDLK_s] ? 1 : -1), 0.0f, 1.0f);
-		moveA = rcClamp(moveA + dt * 4 * (keystate[SDLK_a] ? 1 : -1), 0.0f, 1.0f);
-		moveD = rcClamp(moveD + dt * 4 * (keystate[SDLK_d] ? 1 : -1), 0.0f, 1.0f);
+		moveW = rcClamp(moveW + dt * 4 * (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS ? 1 : -1), 0.0f, 1.0f);
+		moveS = rcClamp(moveS + dt * 4 * (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS ? 1 : -1), 0.0f, 1.0f);
+		moveA = rcClamp(moveA + dt * 4 * (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS ? 1 : -1), 0.0f, 1.0f);
+		moveD = rcClamp(moveD + dt * 4 * (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS ? 1 : -1), 0.0f, 1.0f);
 		
 		float keybSpeed = 22.0f;
-		if (SDL_GetModState() & KMOD_SHIFT)
+		if (gKeyModState & GLFW_MOD_SHIFT)
 			keybSpeed *= 4.0f;
 		
 		float movex = (moveD - moveA) * keybSpeed * dt;
@@ -505,7 +596,7 @@ int main(int /*argc*/, char** /*argv*/)
 		glDisable(GL_DEPTH_TEST);
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		gluOrtho2D(0, width, 0, height);
+		glLoadMatrixf(orthoMat);
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 		
@@ -903,8 +994,7 @@ int main(int /*argc*/, char** /*argv*/)
 		slideShow.updateAndDraw(dt, (float)width, (float)height);
 		
 		// Marker
-		if (mposSet && gluProject((GLdouble)mpos[0], (GLdouble)mpos[1], (GLdouble)mpos[2],
-								  model, proj, view, &x, &y, &z))
+		if (mposSet && project(mpos[0], mpos[1], mpos[2], model, proj, view, pos))
 		{
 			// Draw marker circle
 			glLineWidth(5.0f);
@@ -914,8 +1004,8 @@ int main(int /*argc*/, char** /*argv*/)
 			for (int i = 0; i < 20; ++i)
 			{
 				const float a = (float)i / 20.0f * RC_PI*2;
-				const float fx = (float)x + cosf(a)*r;
-				const float fy = (float)y + sinf(a)*r;
+				const float fx = pos[0] + cosf(a)*r;
+				const float fy = pos[1] + sinf(a)*r;
 				glVertex2f(fx,fy);
 			}
 			glEnd();
@@ -926,12 +1016,14 @@ int main(int /*argc*/, char** /*argv*/)
 		imguiRenderGLDraw();		
 		
 		glEnable(GL_DEPTH_TEST);
-		SDL_GL_SwapBuffers();
+
+		glfwSwapBuffers(window);
+		glfwPollEvents();
 	}
 	
 	imguiRenderGLDestroy();
 	
-	SDL_Quit();
+	glfwTerminate();
 	
 	delete sample;
 	delete geom;

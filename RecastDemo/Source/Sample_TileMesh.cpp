@@ -20,8 +20,8 @@
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
-#include "SDL.h"
-#include "SDL_opengl.h"
+#include <GLFW/glfw3.h>
+#include "Projection.h"
 #include "imgui.h"
 #include "InputGeom.h"
 #include "Sample.h"
@@ -150,15 +150,14 @@ public:
 	
 	virtual void handleRenderOverlay(double* proj, double* model, int* view)
 	{
-		GLdouble x, y, z;
-		if (m_hitPosSet && gluProject((GLdouble)m_hitPos[0], (GLdouble)m_hitPos[1], (GLdouble)m_hitPos[2],
-									  model, proj, view, &x, &y, &z))
+		float pos[3];
+		if (m_hitPosSet && project(m_hitPos[0], m_hitPos[1], m_hitPos[2], model, proj, view, pos))
 		{
 			int tx=0, ty=0;
 			m_sample->getTilePos(m_hitPos, tx, ty);
 			char text[32];
 			snprintf(text,32,"(%d,%d)", tx,ty);
-			imguiDrawText((int)x, (int)y-25, IMGUI_ALIGN_CENTER, text, imguiRGBA(0,0,0,220));
+			imguiDrawText((int)pos[0], (int)pos[1]-25, IMGUI_ALIGN_CENTER, text, imguiRGBA(0,0,0,220));
 		}
 		
 		// Tool help
@@ -666,15 +665,15 @@ void Sample_TileMesh::handleRender()
 
 void Sample_TileMesh::handleRenderOverlay(double* proj, double* model, int* view)
 {
-	GLdouble x, y, z;
+	float pos[3];
 	
 	// Draw start and end point labels
-	if (m_tileBuildTime > 0.0f && gluProject((GLdouble)(m_tileBmin[0]+m_tileBmax[0])/2, (GLdouble)(m_tileBmin[1]+m_tileBmax[1])/2, (GLdouble)(m_tileBmin[2]+m_tileBmax[2])/2,
-											 model, proj, view, &x, &y, &z))
+	if (m_tileBuildTime > 0.0f && project((m_tileBmin[0]+m_tileBmax[0])/2, (m_tileBmin[1]+m_tileBmax[1])/2, (m_tileBmin[2]+m_tileBmax[2])/2,
+											 model, proj, view, pos))
 	{
 		char text[32];
 		snprintf(text,32,"%.3fms / %dTris / %.1fkB", m_tileBuildTime, m_tileTriCount, m_tileMemUsage);
-		imguiDrawText((int)x, (int)y-25, IMGUI_ALIGN_CENTER, text, imguiRGBA(0,0,0,220));
+		imguiDrawText((int)pos[0], (int)pos[1]-25, IMGUI_ALIGN_CENTER, text, imguiRGBA(0,0,0,220));
 	}
 	
 	if (m_tool)
@@ -1100,14 +1099,14 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 		if (!rcBuildDistanceField(m_ctx, *m_chf))
 		{
 			m_ctx->log(RC_LOG_ERROR, "buildNavigation: Could not build distance field.");
-			return false;
+			return 0;
 		}
 		
 		// Partition the walkable surface into simple regions without holes.
 		if (!rcBuildRegions(m_ctx, *m_chf, m_cfg.borderSize, m_cfg.minRegionArea, m_cfg.mergeRegionArea))
 		{
 			m_ctx->log(RC_LOG_ERROR, "buildNavigation: Could not build watershed regions.");
-			return false;
+			return 0;
 		}
 	}
 	else if (m_partitionType == SAMPLE_PARTITION_MONOTONE)
@@ -1117,7 +1116,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 		if (!rcBuildRegionsMonotone(m_ctx, *m_chf, m_cfg.borderSize, m_cfg.minRegionArea, m_cfg.mergeRegionArea))
 		{
 			m_ctx->log(RC_LOG_ERROR, "buildNavigation: Could not build monotone regions.");
-			return false;
+			return 0;
 		}
 	}
 	else // SAMPLE_PARTITION_LAYERS
@@ -1126,7 +1125,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 		if (!rcBuildLayerRegions(m_ctx, *m_chf, m_cfg.borderSize, m_cfg.minRegionArea))
 		{
 			m_ctx->log(RC_LOG_ERROR, "buildNavigation: Could not build layer regions.");
-			return false;
+			return 0;
 		}
 	}
 	 	
