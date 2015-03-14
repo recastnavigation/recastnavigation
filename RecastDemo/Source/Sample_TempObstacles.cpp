@@ -22,8 +22,7 @@
 #include <string.h>
 #include <float.h>
 #include <new>
-#include "SDL.h"
-#include "SDL_opengl.h"
+#include "wnd.h"
 #include "imgui.h"
 #include "InputGeom.h"
 #include "Sample.h"
