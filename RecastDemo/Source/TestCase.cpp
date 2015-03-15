@@ -24,7 +24,8 @@
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"
 #include "DetourCommon.h"
-#include "wnd.h"
+#include "SDL.h"
+#include "SDL_opengl.h"
 #include "imgui.h"
 #include "PerfTimer.h"
 

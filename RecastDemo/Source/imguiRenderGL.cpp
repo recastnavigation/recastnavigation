@@ -18,9 +18,9 @@
 
 #define _USE_MATH_DEFINES
 #include <math.h>
-#include <stdio.h>
 #include "imgui.h"
-#include "wnd.h"
+#include "SDL.h"
+#include "SDL_opengl.h"
 
 // Some math headers don't have PI defined.
 static const float PI = 3.14159265f;

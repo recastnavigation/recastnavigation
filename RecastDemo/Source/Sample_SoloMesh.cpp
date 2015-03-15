@@ -20,7 +20,8 @@
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
-#include "wnd.h"
+#include "SDL.h"
+#include "SDL_opengl.h"
 #include "imgui.h"
 #include "InputGeom.h"
 #include "Sample.h"
