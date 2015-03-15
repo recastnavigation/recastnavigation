@@ -21,8 +21,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <float.h>
-#include "SDL.h"
-#include "SDL_opengl.h"
+#include <GL/glu.h>
+#include <GLFW/glfw3.h>
 #include "imgui.h"
 #include "CrowdTool.h"
 #include "InputGeom.h"

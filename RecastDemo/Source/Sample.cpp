@@ -19,6 +19,7 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <stdio.h>
+#include <GLFW/glfw3.h>
 #include "Sample.h"
 #include "InputGeom.h"
 #include "Recast.h"
@@ -28,8 +29,6 @@
 #include "DetourNavMeshQuery.h"
 #include "DetourCrowd.h"
 #include "imgui.h"
-#include "SDL.h"
-#include "SDL_opengl.h"
 
 #ifdef WIN32
 #	define snprintf _snprintf

@@ -19,7 +19,7 @@
 #include "SlideShow.h"
 #include <string.h>
 #include <stdio.h>
-#include <SDL_opengl.h>
+#include <GLFW/glfw3.h>
 //#define STBI_HEADER_FILE_ONLY
 #include "stb_image.h"
 

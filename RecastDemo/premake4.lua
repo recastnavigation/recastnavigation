@@ -135,44 +135,32 @@ project "RecastDemo"
 	-- linux library cflags and libs
 	configuration { "linux", "gmake" }
 		buildoptions { 
-			"`pkg-config --cflags sdl`",
+			"`pkg-config --cflags glfw3`",
 			"`pkg-config --cflags gl`",
 			"`pkg-config --cflags glu`" 
 		}
 		linkoptions { 
-			"`pkg-config --libs sdl`",
+			"`pkg-config --libs glfw3`",
 			"`pkg-config --libs gl`",
 			"`pkg-config --libs glu`" 
+		}
+		links {
+			"pthread",
+			"X11",
+			"Xrandr",
+			"Xinerama",
+			"Xi",
+			"Xxf86vm",
+			"Xcursor"
 		}
 
 	-- windows library cflags and libs
 	configuration { "windows" }
-		includedirs { "../RecastDemo/Contrib/SDL/include" }
-		libdirs { "../RecastDemo/Contrib/SDL/lib/x86" }
-		links { 
-			"opengl32",
-			"glu32",
-			"sdlmain",
-			"sdl"
-		}
+		links { "glfw3", "gdi32", "winmm", "user32", "GLEW", "glu32", "opengl32", "kernel32" }
 
 	-- mac includes and libs
 	configuration { "macosx" }
 		kind "ConsoleApp" -- xcode4 failes to run the project if using WindowedApp
-		includedirs { "/Library/Frameworks/SDL.framework/Headers" }
 		buildoptions { "-Wunused-value -Wshadow -Wreorder -Wsign-compare -Wall" }
-		links { 
-			"OpenGL.framework", 
-			"/Library/Frameworks/SDL.framework", 
-			"Cocoa.framework",
-		}
-
-		files {
-			"../RecastDemo/Include/SDLMain.h", 
-			"../RecastDemo/Source/SDLMain.m",
--- These don't seem to work in xcode4 target yet.
---			"Info.plist",
---			"Icon.icns",
---			"English.lproj/InfoPlist.strings",
---			"English.lproj/MainMenu.xib",
-		}
+		links { "glfw3" }
+		linkoptions { "-framework OpenGL", "-framework Cocoa", "-framework IOKit", "-framework CoreVideo" }
