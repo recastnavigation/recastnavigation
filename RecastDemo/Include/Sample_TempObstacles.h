@@ -82,6 +82,9 @@ public:
 	void addTempObstacle(const float* pos);
 	void removeTempObstacle(const float* sp, const float* sq);
 	void clearAllTempObstacles();
+
+	void saveAll(const char* path);
+	void loadAll(const char* path);
 };
 
 

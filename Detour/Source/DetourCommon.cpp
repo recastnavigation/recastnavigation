@@ -21,11 +21,6 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-float dtSqrt(float x)
-{
-	return dtMathSqrtf(x);
-}
-
 void dtClosestPtPointTriangle(float* closest, const float* p,
 							  const float* a, const float* b, const float* c)
 {
@@ -360,7 +355,7 @@ void dtRandomPointInConvexPoly(const float* pts, const int npts, float* areas,
 		acc += dacc;
 	}
 	
-	float v = dtSqrt(t);
+	float v = dtMathSqrtf(t);
 	
 	const float a = 1 - v;
 	const float b = (1 - u) * v;

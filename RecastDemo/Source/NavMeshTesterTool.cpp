@@ -745,7 +745,7 @@ void NavMeshTesterTool::recalc()
 					// Find movement delta.
 					float delta[3], len;
 					dtVsub(delta, steerPos, iterPos);
-					len = dtSqrt(dtVdot(delta,delta));
+					len = dtMathSqrtf(dtVdot(delta, delta));
 					// If the steer target is end of path or off-mesh link, do not move past the location.
 					if ((endOfPath || offMeshConnection) && len < STEP_SIZE)
 						len = 1;
@@ -1143,7 +1143,7 @@ void NavMeshTesterTool::handleRender()
 			dd.begin(DU_DRAW_LINES, 2.0f);
 			for (int i = 0; i < m_nstraightPath-1; ++i)
 			{
-				unsigned int col = 0;
+				unsigned int col;
 				if (m_straightPathFlags[i] & DT_STRAIGHTPATH_OFFMESH_CONNECTION)
 					col = offMeshCol;
 				else
@@ -1156,10 +1156,10 @@ void NavMeshTesterTool::handleRender()
 			dd.begin(DU_DRAW_POINTS, 6.0f);
 			for (int i = 0; i < m_nstraightPath; ++i)
 			{
-				unsigned int col = 0;
+				unsigned int col;
 				if (m_straightPathFlags[i] & DT_STRAIGHTPATH_START)
 					col = startCol;
-				else if (m_straightPathFlags[i] & DT_STRAIGHTPATH_START)
+				else if (m_straightPathFlags[i] & DT_STRAIGHTPATH_END)
 					col = endCol;
 				else if (m_straightPathFlags[i] & DT_STRAIGHTPATH_OFFMESH_CONNECTION)
 					col = offMeshCol;

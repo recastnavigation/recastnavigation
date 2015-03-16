@@ -308,7 +308,7 @@ dtStatus dtNavMeshQuery::findRandomPoint(const dtQueryFilter* filter, float (*fr
 	return DT_SUCCESS;
 }
 
-dtStatus dtNavMeshQuery::findRandomPointAroundCircle(dtPolyRef startRef, const float* centerPos, const float radius,
+dtStatus dtNavMeshQuery::findRandomPointAroundCircle(dtPolyRef startRef, const float* centerPos, const float maxRadius,
 													 const dtQueryFilter* filter, float (*frand)(),
 													 dtPolyRef* randomRef, float* randomPt) const
 {
@@ -340,7 +340,7 @@ dtStatus dtNavMeshQuery::findRandomPointAroundCircle(dtPolyRef startRef, const f
 	
 	dtStatus status = DT_SUCCESS;
 	
-	const float radiusSqr = dtSqr(radius);
+	const float radiusSqr = dtSqr(maxRadius);
 	float areaSum = 0.0f;
 
 	const dtMeshTile* randomTile = 0;
@@ -704,7 +704,7 @@ dtStatus dtNavMeshQuery::getPolyHeight(dtPolyRef ref, const float* pos, float* h
 /// @p nearestRef before using @p nearestPt.
 ///
 /// @warning This function is not suitable for large area searches.  If the search
-/// extents overlaps more than 128 polygons it may return an invalid result.
+/// extents overlaps more than MAX_SEARCH (128) polygons it may return an invalid result.
 ///
 dtStatus dtNavMeshQuery::findNearestPoly(const float* center, const float* extents,
 										 const dtQueryFilter* filter,
@@ -715,9 +715,10 @@ dtStatus dtNavMeshQuery::findNearestPoly(const float* center, const float* exten
 	*nearestRef = 0;
 	
 	// Get nearby polygons from proximity grid.
-	dtPolyRef polys[128];
+	const int MAX_SEARCH = 128;
+	dtPolyRef polys[MAX_SEARCH];
 	int polyCount = 0;
-	if (dtStatusFailed(queryPolygons(center, extents, filter, polys, &polyCount, 128)))
+	if (dtStatusFailed(queryPolygons(center, extents, filter, polys, &polyCount, MAX_SEARCH)))
 		return DT_FAILURE | DT_INVALID_PARAM;
 	
 	// Find nearest polygon amongst the nearby polygons.

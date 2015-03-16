@@ -160,6 +160,7 @@ static unsigned short addVertex(unsigned short x, unsigned short y, unsigned sho
 	return (unsigned short)i;
 }
 
+// Last time I checked the if version got compiled using cmov, which was a lot faster than module (with idiv).
 inline int prev(int i, int n) { return i-1 >= 0 ? i-1 : n-1; }
 inline int next(int i, int n) { return i+1 < n ? i+1 : 0; }
 
@@ -746,7 +747,7 @@ static bool removeVertex(rcContext* ctx, rcPolyMesh& mesh, const unsigned short 
 	}
 	
 	// Remove vertex.
-	for (int i = (int)rem; i < mesh.nverts; ++i)
+	for (int i = (int)rem; i < mesh.nverts - 1; ++i)
 	{
 		mesh.verts[i*3+0] = mesh.verts[(i+1)*3+0];
 		mesh.verts[i*3+1] = mesh.verts[(i+1)*3+1];

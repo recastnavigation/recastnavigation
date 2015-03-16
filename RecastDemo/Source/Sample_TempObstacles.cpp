@@ -768,7 +768,7 @@ class TempObstacleCreateTool : public SampleTool
 	
 public:
 	
-	TempObstacleCreateTool()
+	TempObstacleCreateTool() : m_sample(0)
 	{
 	}
 	
@@ -910,6 +910,27 @@ void Sample_TempObstacles::handleSettings()
 	imguiValue(msg);
 	snprintf(msg, 64, "Build Peak Mem Usage  %.1f kB", m_cacheBuildMemUsage/1024.0f);
 	imguiValue(msg);
+
+	imguiSeparator();
+
+	imguiIndent();
+	imguiIndent();
+
+	if (imguiButton("Save"))
+	{
+		saveAll("all_tiles_tilecache.bin");
+	}
+
+	if (imguiButton("Load"))
+	{
+		dtFreeNavMesh(m_navMesh);
+		dtFreeTileCache(m_tileCache);
+		loadAll("all_tiles_tilecache.bin");
+		m_navQuery->init(m_navMesh, 2048);
+	}
+
+	imguiUnindent();
+	imguiUnindent();
 	
 	imguiSeparator();
 }
@@ -1360,4 +1381,130 @@ void Sample_TempObstacles::getTilePos(const float* pos, int& tx, int& ty)
 	const float ts = m_tileSize*m_cellSize;
 	tx = (int)((pos[0] - bmin[0]) / ts);
 	ty = (int)((pos[2] - bmin[2]) / ts);
+}
+
+static const int TILECACHESET_MAGIC = 'T'<<24 | 'S'<<16 | 'E'<<8 | 'T'; //'TSET';
+static const int TILECACHESET_VERSION = 1;
+
+struct TileCacheSetHeader
+{
+	int magic;
+	int version;
+	int numTiles;
+	dtNavMeshParams meshParams;
+	dtTileCacheParams cacheParams;
+};
+
+struct TileCacheTileHeader
+{
+	dtCompressedTileRef tileRef;
+	int dataSize;
+};
+
+void Sample_TempObstacles::saveAll(const char* path)
+{
+	if (!m_tileCache) return;
+	
+	FILE* fp = fopen(path, "wb");
+	if (!fp)
+		return;
+	
+	// Store header.
+	TileCacheSetHeader header;
+	header.magic = TILECACHESET_MAGIC;
+	header.version = TILECACHESET_VERSION;
+	header.numTiles = 0;
+	for (int i = 0; i < m_tileCache->getTileCount(); ++i)
+	{
+		const dtCompressedTile* tile = m_tileCache->getTile(i);
+		if (!tile || !tile->header || !tile->dataSize) continue;
+		header.numTiles++;
+	}
+	memcpy(&header.cacheParams, m_tileCache->getParams(), sizeof(dtTileCacheParams));
+	memcpy(&header.meshParams, m_navMesh->getParams(), sizeof(dtNavMeshParams));
+	fwrite(&header, sizeof(TileCacheSetHeader), 1, fp);
+
+	// Store tiles.
+	for (int i = 0; i < m_tileCache->getTileCount(); ++i)
+	{
+		const dtCompressedTile* tile = m_tileCache->getTile(i);
+		if (!tile || !tile->header || !tile->dataSize) continue;
+
+		TileCacheTileHeader tileHeader;
+		tileHeader.tileRef = m_tileCache->getTileRef(tile);
+		tileHeader.dataSize = tile->dataSize;
+		fwrite(&tileHeader, sizeof(tileHeader), 1, fp);
+
+		fwrite(tile->data, tile->dataSize, 1, fp);
+	}
+
+	fclose(fp);
+}
+
+void Sample_TempObstacles::loadAll(const char* path)
+{
+	FILE* fp = fopen(path, "rb");
+	if (!fp) return;
+	
+	// Read header.
+	TileCacheSetHeader header;
+	fread(&header, sizeof(TileCacheSetHeader), 1, fp);
+	if (header.magic != TILECACHESET_MAGIC)
+	{
+		fclose(fp);
+		return;
+	}
+	if (header.version != TILECACHESET_VERSION)
+	{
+		fclose(fp);
+		return;
+	}
+	
+	m_navMesh = dtAllocNavMesh();
+	if (!m_navMesh)
+	{
+		fclose(fp);
+		return;
+	}
+	dtStatus status = m_navMesh->init(&header.meshParams);
+	if (dtStatusFailed(status))
+	{
+		fclose(fp);
+		return;
+	}
+
+	m_tileCache = dtAllocTileCache();
+	if (!m_tileCache)
+	{
+		fclose(fp);
+		return;
+	}
+	status = m_tileCache->init(&header.cacheParams, m_talloc, m_tcomp, m_tmproc);
+	if (dtStatusFailed(status))
+	{
+		fclose(fp);
+		return;
+	}
+		
+	// Read tiles.
+	for (int i = 0; i < header.numTiles; ++i)
+	{
+		TileCacheTileHeader tileHeader;
+		fread(&tileHeader, sizeof(tileHeader), 1, fp);
+		if (!tileHeader.tileRef || !tileHeader.dataSize)
+			break;
+
+		unsigned char* data = (unsigned char*)dtAlloc(tileHeader.dataSize, DT_ALLOC_PERM);
+		if (!data) break;
+		memset(data, 0, tileHeader.dataSize);
+		fread(data, tileHeader.dataSize, 1, fp);
+		
+		dtCompressedTileRef tile = 0;
+		m_tileCache->addTile(data, tileHeader.dataSize, DT_COMPRESSEDTILE_FREE_DATA, &tile);
+
+		if (tile)
+			m_tileCache->buildNavMeshTile(tile, m_navMesh);
+	}
+	
+	fclose(fp);
 }
