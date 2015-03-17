@@ -21,8 +21,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <GL/glu.h>
 #include <GLFW/glfw3.h>
+#include "Projection.h"
 #include "imgui.h"
 #include "NavMeshTesterTool.h"
 #include "Sample.h"
@@ -1374,18 +1374,16 @@ void NavMeshTesterTool::handleRender()
 
 void NavMeshTesterTool::handleRenderOverlay(double* proj, double* model, int* view)
 {
-	GLdouble x, y, z;
+	float pos[3];
 	
 	// Draw start and end point labels
-	if (m_sposSet && gluProject((GLdouble)m_spos[0], (GLdouble)m_spos[1], (GLdouble)m_spos[2],
-								model, proj, view, &x, &y, &z))
+	if (m_sposSet && project(m_spos[0], m_spos[1], m_spos[2], model, proj, view, pos))
 	{
-		imguiDrawText((int)x, (int)(y-25), IMGUI_ALIGN_CENTER, "Start", imguiRGBA(0,0,0,220));
+		imguiDrawText((int)pos[0], (int)(pos[1]-25), IMGUI_ALIGN_CENTER, "Start", imguiRGBA(0,0,0,220));
 	}
-	if (m_eposSet && gluProject((GLdouble)m_epos[0], (GLdouble)m_epos[1], (GLdouble)m_epos[2],
-								model, proj, view, &x, &y, &z))
+	if (m_eposSet && project(m_epos[0], m_epos[1], m_epos[2], model, proj, view, pos))
 	{
-		imguiDrawText((int)x, (int)(y-25), IMGUI_ALIGN_CENTER, "End", imguiRGBA(0,0,0,220));
+		imguiDrawText((int)pos[0], (int)(pos[1]-25), IMGUI_ALIGN_CENTER, "End", imguiRGBA(0,0,0,220));
 	}
 	
 	// Tool help

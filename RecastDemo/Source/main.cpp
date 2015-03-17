@@ -21,8 +21,8 @@
 #include <math.h>
 #include <string.h>
 #include <queue>
-#include <GL/glu.h>
 #include <GLFW/glfw3.h>
+#include "Projection.h"
 #include "imgui.h"
 #include "imguiRenderGL.h"
 #include "Recast.h"
@@ -108,6 +108,7 @@ static std::queue<Event> gEventQueue;
 void key_cb(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	gKeyModState = mods;
+
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GL_TRUE);
 
@@ -131,6 +132,8 @@ void mouse_move_cb(GLFWwindow* window, double x, double y)
 
 void mouse_button_cb(GLFWwindow* window, int button, int action, int mods)
 {
+	gKeyModState = mods;
+
 	Event e;
 	e.type = action == GLFW_PRESS ? MousePress : MouseRelease;
 	e.key.action = action;
@@ -234,6 +237,9 @@ int main(int /*argc*/, char** /*argv*/)
 	int propScroll = 0;
 	int logScroll = 0;
 	int toolsScroll = 0;
+
+	float projMat[16], orthoMat[16];
+	ortho2d(orthoMat, 0, width, 0, height);
 	
 	char sampleName[64] = "Choose Sample..."; 
 	
@@ -447,7 +453,7 @@ int main(int /*argc*/, char** /*argv*/)
 			mbut |= IMGUI_MBUT_RIGHT;
 		
 		double	time = glfwGetTime();
-		float	dt = (time - lastTime) / 1000.0f;
+		float	dt = (time - lastTime);
 		lastTime = time;
 		
 		t += dt;
@@ -527,7 +533,8 @@ int main(int /*argc*/, char** /*argv*/)
 		glEnable(GL_DEPTH_TEST);
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		gluPerspective(50.0f, (float)width/(float)height, 1.0f, camr);
+		perspective(projMat, 50.0f, (float)width / (float)height, 1.0f, camr);
+		glLoadMatrixf(projMat);
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 		glRotatef(rx,1,0,0);
@@ -541,11 +548,11 @@ int main(int /*argc*/, char** /*argv*/)
 		glGetDoublev(GL_PROJECTION_MATRIX, proj);
 		glGetDoublev(GL_MODELVIEW_MATRIX, model);
 		glGetIntegerv(GL_VIEWPORT, view);
-		GLdouble x, y, z;
-		gluUnProject(mx, my, 0.0f, model, proj, view, &x, &y, &z);
-		rays[0] = (float)x; rays[1] = (float)y; rays[2] = (float)z;
-		gluUnProject(mx, my, 1.0f, model, proj, view, &x, &y, &z);
-		raye[0] = (float)x; raye[1] = (float)y; raye[2] = (float)z;
+		float pos[3];
+		unproject(mx, my, 0.0f, model, proj, view, pos);
+		rays[0] = pos[0]; rays[1] = pos[1]; rays[2] = pos[2];
+		unproject(mx, my, 1.0f, model, proj, view, pos);
+		raye[0] = pos[0]; raye[1] = pos[1]; raye[2] = pos[2];
 		
 		// Handle keyboard movement.
 		moveW = rcClamp(moveW + dt * 4 * (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS ? 1 : -1), 0.0f, 1.0f);
@@ -584,7 +591,7 @@ int main(int /*argc*/, char** /*argv*/)
 		glDisable(GL_DEPTH_TEST);
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		gluOrtho2D(0, width, 0, height);
+		glLoadMatrixf(orthoMat);
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 		
@@ -982,8 +989,7 @@ int main(int /*argc*/, char** /*argv*/)
 		slideShow.updateAndDraw(dt, (float)width, (float)height);
 		
 		// Marker
-		if (mposSet && gluProject((GLdouble)mpos[0], (GLdouble)mpos[1], (GLdouble)mpos[2],
-								  model, proj, view, &x, &y, &z))
+		if (mposSet && project(mpos[0], mpos[1], mpos[2], model, proj, view, pos))
 		{
 			// Draw marker circle
 			glLineWidth(5.0f);
@@ -993,8 +999,8 @@ int main(int /*argc*/, char** /*argv*/)
 			for (int i = 0; i < 20; ++i)
 			{
 				const float a = (float)i / 20.0f * RC_PI*2;
-				const float fx = (float)x + cosf(a)*r;
-				const float fy = (float)y + sinf(a)*r;
+				const float fx = pos[0] + cosf(a)*r;
+				const float fy = pos[1] + sinf(a)*r;
 				glVertex2f(fx,fy);
 			}
 			glEnd();

@@ -22,8 +22,8 @@
 #include <string.h>
 #include <float.h>
 #include <new>
-#include <GL/glu.h>
 #include <GLFW/glfw3.h>
+#include "Projection.h"
 #include "imgui.h"
 #include "InputGeom.h"
 #include "Sample.h"
@@ -591,21 +591,19 @@ void drawDetailOverlay(const dtTileCache* tc, const int tx, const int ty, double
 	{
 		const dtCompressedTile* tile = tc->getTileByRef(tiles[i]);
 		
-		float pos[3];
+		float pos[3], wpos[3];
 		pos[0] = (tile->header->bmin[0]+tile->header->bmax[0])/2.0f;
 		pos[1] = tile->header->bmin[1];
 		pos[2] = (tile->header->bmin[2]+tile->header->bmax[2])/2.0f;
-		
-		GLdouble x, y, z;
-		if (gluProject((GLdouble)pos[0], (GLdouble)pos[1], (GLdouble)pos[2],
-					   model, proj, view, &x, &y, &z))
+
+		if (project(pos[0], pos[1], pos[2], model, proj, view, wpos))
 		{
 			snprintf(text,128,"(%d,%d)/%d", tile->header->tx,tile->header->ty,tile->header->tlayer);
-			imguiDrawText((int)x, (int)y-25, IMGUI_ALIGN_CENTER, text, imguiRGBA(0,0,0,220));
+			imguiDrawText((int)wpos[0], (int)wpos[1]-25, IMGUI_ALIGN_CENTER, text, imguiRGBA(0,0,0,220));
 			snprintf(text,128,"Compressed: %.1f kB", tile->dataSize/1024.0f);
-			imguiDrawText((int)x, (int)y-45, IMGUI_ALIGN_CENTER, text, imguiRGBA(0,0,0,128));
+			imguiDrawText((int)wpos[0], (int)wpos[1]-45, IMGUI_ALIGN_CENTER, text, imguiRGBA(0,0,0,128));
 			snprintf(text,128,"Raw:%.1fkB", rawSize/1024.0f);
-			imguiDrawText((int)x, (int)y-65, IMGUI_ALIGN_CENTER, text, imguiRGBA(0,0,0,128));
+			imguiDrawText((int)wpos[0], (int)wpos[1]-65, IMGUI_ALIGN_CENTER, text, imguiRGBA(0,0,0,128));
 		}
 	}
 }

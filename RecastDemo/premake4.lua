@@ -137,12 +137,10 @@ project "RecastDemo"
 		buildoptions { 
 			"`pkg-config --cflags glfw3`",
 			"`pkg-config --cflags gl`",
-			"`pkg-config --cflags glu`" 
 		}
 		linkoptions { 
 			"`pkg-config --libs glfw3`",
 			"`pkg-config --libs gl`",
-			"`pkg-config --libs glu`" 
 		}
 		links {
 			"pthread",
@@ -156,7 +154,7 @@ project "RecastDemo"
 
 	-- windows library cflags and libs
 	configuration { "windows" }
-		links { "glfw3", "gdi32", "winmm", "user32", "GLEW", "glu32", "opengl32", "kernel32" }
+		links { "glfw3", "gdi32", "winmm", "user32", "GLEW", "opengl32", "kernel32" }
 
 	-- mac includes and libs
 	configuration { "macosx" }

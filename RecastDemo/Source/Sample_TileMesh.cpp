@@ -20,8 +20,8 @@
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
-#include <GL/glu.h>
 #include <GLFW/glfw3.h>
+#include "Projection.h"
 #include "imgui.h"
 #include "InputGeom.h"
 #include "Sample.h"
@@ -150,15 +150,14 @@ public:
 	
 	virtual void handleRenderOverlay(double* proj, double* model, int* view)
 	{
-		GLdouble x, y, z;
-		if (m_hitPosSet && gluProject((GLdouble)m_hitPos[0], (GLdouble)m_hitPos[1], (GLdouble)m_hitPos[2],
-									  model, proj, view, &x, &y, &z))
+		float pos[3];
+		if (m_hitPosSet && project(m_hitPos[0], m_hitPos[1], m_hitPos[2], model, proj, view, pos))
 		{
 			int tx=0, ty=0;
 			m_sample->getTilePos(m_hitPos, tx, ty);
 			char text[32];
 			snprintf(text,32,"(%d,%d)", tx,ty);
-			imguiDrawText((int)x, (int)y-25, IMGUI_ALIGN_CENTER, text, imguiRGBA(0,0,0,220));
+			imguiDrawText((int)pos[0], (int)pos[1]-25, IMGUI_ALIGN_CENTER, text, imguiRGBA(0,0,0,220));
 		}
 		
 		// Tool help
@@ -666,15 +665,15 @@ void Sample_TileMesh::handleRender()
 
 void Sample_TileMesh::handleRenderOverlay(double* proj, double* model, int* view)
 {
-	GLdouble x, y, z;
+	float pos[3];
 	
 	// Draw start and end point labels
-	if (m_tileBuildTime > 0.0f && gluProject((GLdouble)(m_tileBmin[0]+m_tileBmax[0])/2, (GLdouble)(m_tileBmin[1]+m_tileBmax[1])/2, (GLdouble)(m_tileBmin[2]+m_tileBmax[2])/2,
-											 model, proj, view, &x, &y, &z))
+	if (m_tileBuildTime > 0.0f && project((m_tileBmin[0]+m_tileBmax[0])/2, (m_tileBmin[1]+m_tileBmax[1])/2, (m_tileBmin[2]+m_tileBmax[2])/2,
+											 model, proj, view, pos))
 	{
 		char text[32];
 		snprintf(text,32,"%.3fms / %dTris / %.1fkB", m_tileBuildTime, m_tileTriCount, m_tileMemUsage);
-		imguiDrawText((int)x, (int)y-25, IMGUI_ALIGN_CENTER, text, imguiRGBA(0,0,0,220));
+		imguiDrawText((int)pos[0], (int)pos[1]-25, IMGUI_ALIGN_CENTER, text, imguiRGBA(0,0,0,220));
 	}
 	
 	if (m_tool)

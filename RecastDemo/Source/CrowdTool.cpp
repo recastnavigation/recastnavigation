@@ -21,8 +21,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <float.h>
-#include <GL/glu.h>
 #include <GLFW/glfw3.h>
+#include "Projection.h"
 #include "imgui.h"
 #include "CrowdTool.h"
 #include "InputGeom.h"
@@ -519,13 +519,12 @@ void CrowdToolState::handleRender()
 
 void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 {
-	GLdouble x, y, z;
+	float pos[3];
 	
 	// Draw start and end point labels
-	if (m_targetRef && gluProject((GLdouble)m_targetPos[0], (GLdouble)m_targetPos[1], (GLdouble)m_targetPos[2],
-								  model, proj, view, &x, &y, &z))
+	if (m_targetRef && project(m_targetPos[0], m_targetPos[1], m_targetPos[2], model, proj, view, pos))
 	{
-		imguiDrawText((int)x, (int)(y+25), IMGUI_ALIGN_CENTER, "TARGET", imguiRGBA(0,0,0,220));
+		imguiDrawText((int)pos[1], (int)(pos[1]+25), IMGUI_ALIGN_CENTER, "TARGET", imguiRGBA(0,0,0,220));
 	}
 	
 	char label[32];
@@ -547,12 +546,11 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 						const dtNode* node = pool->getNodeAtIdx(j+1);
 						if (!node) continue;
 
-						if (gluProject((GLdouble)node->pos[0],(GLdouble)node->pos[1]+off,(GLdouble)node->pos[2],
-									   model, proj, view, &x, &y, &z))
+						if (project(node->pos[0],node->pos[1]+off,node->pos[2], model, proj, view, pos))
 						{
 							const float heuristic = node->total;// - node->cost;
 							snprintf(label, 32, "%.2f", heuristic);
-							imguiDrawText((int)x, (int)y+15, IMGUI_ALIGN_CENTER, label, imguiRGBA(0,0,0,220));
+							imguiDrawText((int)pos[0], (int)pos[1]+15, IMGUI_ALIGN_CENTER, label, imguiRGBA(0,0,0,220));
 						}
 					}
 				}
@@ -569,13 +567,12 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 			{
 				const dtCrowdAgent* ag = crowd->getAgent(i);
 				if (!ag->active) continue;
-				const float* pos = ag->npos;
+				const float* npos = ag->npos;
 				const float h = ag->params.height;
-				if (gluProject((GLdouble)pos[0], (GLdouble)pos[1]+h, (GLdouble)pos[2],
-							   model, proj, view, &x, &y, &z))
+				if (project(npos[0], npos[1]+h, npos[2], model, proj, view, pos))
 				{
 					snprintf(label, 32, "%d", i);
-					imguiDrawText((int)x, (int)y+15, IMGUI_ALIGN_CENTER, label, imguiRGBA(0,0,0,220));
+					imguiDrawText((int)pos[0], (int)pos[1]+15, IMGUI_ALIGN_CENTER, label, imguiRGBA(0,0,0,220));
 				}
 			}			
 		}
@@ -600,11 +597,10 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 						const dtCrowdAgent* nei = crowd->getAgent(ag->neis[j].idx);
 						if (!nei->active) continue;
 						
-						if (gluProject((GLdouble)nei->npos[0], (GLdouble)nei->npos[1]+radius, (GLdouble)nei->npos[2],
-									   model, proj, view, &x, &y, &z))
+						if (project(nei->npos[0], nei->npos[1]+radius, nei->npos[2], model, proj, view, pos))
 						{
 							snprintf(label, 32, "%.3f", ag->neis[j].dist);
-							imguiDrawText((int)x, (int)y+15, IMGUI_ALIGN_CENTER, label, imguiRGBA(255,255,255,220));
+							imguiDrawText((int)pos[0], (int)pos[1]+15, IMGUI_ALIGN_CENTER, label, imguiRGBA(255,255,255,220));
 						}
 					}
 				}

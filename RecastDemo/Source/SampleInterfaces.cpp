@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
-#include <GL/glu.h>
 #include <GLFW/glfw3.h>
 #include "SampleInterfaces.h"
 #include "Recast.h"

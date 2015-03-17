@@ -21,8 +21,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <float.h>
-#include <GL/glu.h>
 #include <GLFW/glfw3.h>
+#include "Projection.h"
 #include "imgui.h"
 #include "OffMeshConnectionTool.h"
 #include "InputGeom.h"
@@ -150,13 +150,13 @@ void OffMeshConnectionTool::handleRender()
 
 void OffMeshConnectionTool::handleRenderOverlay(double* proj, double* model, int* view)
 {
-	GLdouble x, y, z;
+	float pos[3];
 	
 	// Draw start and end point labels
-	if (m_hitPosSet && gluProject((GLdouble)m_hitPos[0], (GLdouble)m_hitPos[1], (GLdouble)m_hitPos[2],
-								model, proj, view, &x, &y, &z))
+	if (m_hitPosSet && project((GLdouble)m_hitPos[0], (GLdouble)m_hitPos[1], (GLdouble)m_hitPos[2],
+								model, proj, view, pos))
 	{
-		imguiDrawText((int)x, (int)(y-25), IMGUI_ALIGN_CENTER, "Start", imguiRGBA(0,0,0,220));
+		imguiDrawText((int)pos[0], (int)(pos[2]-25), IMGUI_ALIGN_CENTER, "Start", imguiRGBA(0,0,0,220));
 	}
 	
 	// Tool help
