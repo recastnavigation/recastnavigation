@@ -19,6 +19,8 @@
 #ifndef PROJECTION_H
 #define PROJECTION_H
 
+static double kPi = 3.14159265358979323846;
+
 inline void mmul(float* m, const double* a, const double* b)
 {
 	for (int r = 0; r < 4; r++)
@@ -185,7 +187,7 @@ inline void frustum(float *m, float left, float right,
 inline void perspective(float* m, const float &fovy, const float &aspect,
 				const float &znear, const float &zfar)
 {
-	const float ymax = znear * tanf(fovy * M_PI / 360.0);
+	const float ymax = znear * tanf(fovy * kPi / 360.0);
 	const float xmax = ymax * aspect;
 	frustum(m, -xmax, xmax, -ymax, ymax, znear, zfar);
 }

@@ -21,6 +21,7 @@
 #include <math.h>
 #include <string.h>
 #include <queue>
+#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include "Projection.h"
 #include "imgui.h"
@@ -38,6 +39,7 @@
 #include "Sample_Debug.h"
 
 #ifdef WIN32
+#	include <windows.h>
 #	define snprintf _snprintf
 #	define putenv _putenv
 #	define glfwSleep(x)		Sleep(x)

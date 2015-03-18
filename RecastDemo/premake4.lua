@@ -135,10 +135,12 @@ project "RecastDemo"
 	-- linux library cflags and libs
 	configuration { "linux", "gmake" }
 		buildoptions { 
+			"`pkg-config --cflags glew`",
 			"`pkg-config --cflags glfw3`",
 			"`pkg-config --cflags gl`",
 		}
 		linkoptions { 
+			"`pkg-config --libs glew`",
 			"`pkg-config --libs glfw3`",
 			"`pkg-config --libs gl`",
 		}
@@ -154,7 +156,9 @@ project "RecastDemo"
 
 	-- windows library cflags and libs
 	configuration { "windows" }
-		links { "glfw3", "gdi32", "winmm", "user32", "GLEW", "opengl32", "kernel32" }
+		links { "glfw3", "gdi32", "winmm", "user32", "glew32", "opengl32", "kernel32" }
+		libdirs { "contrib/libs" }
+		debugdir "Bin"
 
 	-- mac includes and libs
 	configuration { "macosx" }
