@@ -164,5 +164,8 @@ project "RecastDemo"
 	configuration { "macosx" }
 		kind "ConsoleApp" -- xcode4 failes to run the project if using WindowedApp
 		buildoptions { "-Wunused-value -Wshadow -Wreorder -Wsign-compare -Wall" }
+        -- additional /usr/local search dirs if using brew to install glfw3 and glew
+        includedirs { "/usr/local/include" }
+        libdirs { "/usr/local/lib" }
 		links { "glfw3" }
 		linkoptions { "-framework OpenGL", "-framework Cocoa", "-framework IOKit", "-framework CoreVideo" }
