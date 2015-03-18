@@ -16,6 +16,10 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
+#ifdef WIN32
+#	include <windows.h>
+#endif
+
 #include <stdio.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -39,7 +43,6 @@
 #include "Sample_Debug.h"
 
 #ifdef WIN32
-#	include <windows.h>
 #	define snprintf _snprintf
 #	define putenv _putenv
 #	define glfwSleep(x)		Sleep(x)
