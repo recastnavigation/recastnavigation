@@ -1,6 +1,6 @@
 --
--- premake4 file to build RecastDemo
--- http://industriousone.com/premake
+-- premake5 file to build RecastDemo
+-- http://premake.github.io/
 --
 
 local action = _ACTION or ""

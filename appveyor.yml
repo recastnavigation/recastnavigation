@@ -1,0 +1,34 @@
+shallow_clone: true
+
+os:
+  - Visual Studio 2015
+
+environment:
+  matrix:
+  - TOOLSET: vs2010
+  - TOOLSET: vs2013
+  # Can't use vs2015 toolset yet as it appears SDL 1.2 has some link errors with it.
+  # - TOOLSET: vs2015
+
+install:
+  # Download Premake
+  - ps: Start-FileDownload 'https://github.com/premake/premake-core/releases/download/v5.0.0-alpha6/premake-5.0.0-alpha6-windows.zip' 'premake.zip'
+  
+  # Extract it in-place; premake5.exe is at the top level.
+  - 7z x premake.zip
+
+  # Download SDL.
+  - ps: Start-FileDownload 'https://www.libsdl.org/release/SDL-devel-1.2.15-VC.zip' 'RecastDemo/Contrib/SDL.zip'
+  
+  # Extract it and put it in the right place.
+  - cd RecastDemo/Contrib && 7z x SDL.zip && mv SDL-1.2.15 SDL && cd ../..
+  
+  # Generate solution files using premake.
+  - cd RecastDemo && "../premake5.exe" %TOOLSET% && cd ..
+
+configuration:
+  - Debug
+  - Release
+
+build:
+  project: RecastDemo/Build/$(TOOLSET)/recastnavigation.sln

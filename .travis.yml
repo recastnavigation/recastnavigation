@@ -1,0 +1,38 @@
+sudo: false
+
+language: cpp
+
+# Install SDL 1.2 development libraries.
+addons:
+  apt:
+    packages:
+    - libsdl1.2-dev
+
+# Build with gcc and clang.
+compiler:
+  - gcc
+# Disable clang for now since it seems there's a problem using it with fast fp math; it's likely Travis' ancient environment that's at fault.
+#  - clang
+
+# Build both debug and release configurations, through use of an environment variable in the build matrix.
+env:
+  - CONFIGURATION=debug
+  - CONFIGURATION=release
+
+install:
+  # Download and build premake5 from source; the Travis environment doesn't have the right version of glibc6 for the prebuilt binaries to work.
+  - wget https://github.com/premake/premake-core/releases/download/v5.0.0-alpha6/premake-5.0.0-alpha6-src.zip -O premake.zip
+  - unzip premake.zip
+  - cd premake-5.0.0-alpha6/build/gmake.unix
+  - make config=release
+  - cd ../../..
+  - mv premake-5.0.0-alpha6/bin/release/premake5 premake5
+
+# Run premake to generate makefiles.
+# Have to cd into directory and back out since premake5 doesn't appear to accept a directory argument.
+before_script:
+  - cd RecastDemo && ../premake5 gmake && cd ..
+
+# Run make in the directory containing generated makefiles, on the configuration specified by the environment variable.
+script:
+  - make -C RecastDemo/Build/gmake config=$CONFIGURATION
