@@ -42,3 +42,6 @@ RecastDemo/Contrib/SDL/*
 
 ## Generated doc files
 Docs/html
+
+## Allow Premake executables (otherwise excluded)
+!premake/*
