@@ -1,7 +1,7 @@
 #todo: add pre-build step to download SDL (and any other dependencies)
 
 install:
-  - cd RecastDemo && ../premake/premake4.exe vs2013
+  - cd RecastDemo && "../premake/premake5.exe" vs2013 && cd ..
 
 build:
   project: RecastDemo/Build/vs2013/recastnavigation.sln
