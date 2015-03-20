@@ -8,5 +8,9 @@ install:
   # Generate solution files using premake.
   - cd RecastDemo && "../premake/premake5.exe" vs2013 && cd ..
 
+configuration:
+  - Debug
+  - Release
+
 build:
   project: RecastDemo/Build/vs2013/recastnavigation.sln
