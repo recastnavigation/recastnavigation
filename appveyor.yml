@@ -3,7 +3,7 @@ install:
   - ps: Start-FileDownload 'https://www.libsdl.org/release/SDL-devel-1.2.15-VC.zip' 'RecastDemo/Contrib/SDL.zip'
   
   # Extract it and put it in the right place.
-  - cd RecastDemo/Contrib && "C:\Program Files\7-Zip\7z.exe" x SDL.zip && mv SDL-1.2.15 SDL && cd ../..
+  - cd RecastDemo/Contrib && 7z x SDL.zip && mv SDL-1.2.15 SDL && cd ../..
   
   # Generate solution files using premake.
   - cd RecastDemo && "../premake/premake5.exe" vs2013 && cd ..
