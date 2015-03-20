@@ -2,6 +2,8 @@
 Recast & Detour
 ===============
 
+[![Appveyor build status](https://ci.appveyor.com/api/projects/status/4s8cunkkp81hshyq/branch/master?svg=true)](https://ci.appveyor.com/project/hymerman/recastnavigation/branch/master)
+
 [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/memononen/recastnavigation/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
 
 ![screenshot of a navmesh baked with the sample program](/RecastDemo/screenshot.png?raw=true)
