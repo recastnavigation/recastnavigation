@@ -1,3 +1,7 @@
+os:
+  - Windows Server 2012 R2
+  - Visual Studio 2015 CTP 6
+
 install:
   # Download SDL.
   - ps: Start-FileDownload 'https://www.libsdl.org/release/SDL-devel-1.2.15-VC.zip' 'RecastDemo/Contrib/SDL.zip'
