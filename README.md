@@ -39,11 +39,11 @@ You can find a comprehensive demo project in RecastDemo folder. It is a kitchen 
 
 ### Building RecastDemo
 
-RecastDemo uses [premake5](http://industriousone.com/premake) to build platform specific projects, and the executable is included in the 'premake/' directory. To build *RecastDemo*, in your favorite terminal navigate into the `RecastDemo` folder, then:
+RecastDemo uses [premake5](http://premake.bitbucket.org/) to build platform specific projects, and the executable is included in the 'premake/' directory. To build *RecastDemo*, in your favorite terminal navigate into the `RecastDemo` folder, then:
 
 - *OS X*: `../premake/premake5 xcode4`
 - *Windows*: `"../premake/premake5" vs2010`
-- *Linux*: `../premake/premake5 gmake`
+- *Linux*: `../premake/premake5mac gmake`
 
 See premake5 documentation for full list of supported build file types. The projects will be created in `RecastDemo/Build` folder. And after you have compiled the project, the *RecastDemo* executable will be located in `RecastDemo/Bin` folder.
 
