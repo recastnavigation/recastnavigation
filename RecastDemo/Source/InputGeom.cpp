@@ -104,18 +104,21 @@ static char* parseRow(char* buf, char* bufEnd, char* row, int len)
 
 
 
-InputGeom::InputGeom() :
+InputGeom::InputGeom(int maxvolumes) :
 	m_chunkyMesh(0),
 	m_mesh(0),
 	m_offMeshConCount(0),
+	m_maxVolumes(maxvolumes),
 	m_volumeCount(0)
 {
+	m_volumes = new ConvexVolume[m_maxVolumes];
 }
 
 InputGeom::~InputGeom()
 {
 	delete m_chunkyMesh;
 	delete m_mesh;
+	delete m_volumes;
 }
 		
 bool InputGeom::loadMesh(rcContext* ctx, const char* filepath)
@@ -231,7 +234,7 @@ bool InputGeom::load(rcContext* ctx, const char* filePath)
 		else if (row[0] == 'v')
 		{
 			// Convex volumes
-			if (m_volumeCount < MAX_VOLUMES)
+			if (m_volumeCount < m_maxVolumes)
 			{
 				ConvexVolume* vol = &m_volumes[m_volumeCount++];
 				sscanf(row+1, "%d %d %f %f", &vol->nverts, &vol->area, &vol->hmin, &vol->hmax);
@@ -432,7 +435,7 @@ void InputGeom::drawOffMeshConnections(duDebugDraw* dd, bool hilight)
 void InputGeom::addConvexVolume(const float* verts, const int nverts,
 								const float minh, const float maxh, unsigned char area)
 {
-	if (m_volumeCount >= MAX_VOLUMES) return;
+	if (m_volumeCount >= m_maxVolumes) return;
 	ConvexVolume* vol = &m_volumes[m_volumeCount++];
 	memset(vol, 0, sizeof(ConvexVolume));
 	memcpy(vol->verts, verts, sizeof(float)*3*nverts);
