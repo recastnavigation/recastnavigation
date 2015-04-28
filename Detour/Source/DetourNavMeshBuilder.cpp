@@ -106,7 +106,6 @@ inline int longestAxis(unsigned short x, unsigned short y, unsigned short z)
 	if (z > maxVal)
 	{
 		axis = 2;
-		maxVal = z;
 	}
 	return axis;
 }
@@ -429,7 +428,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	float* navDVerts = (float*)d; d += detailVertsSize;
 	unsigned char* navDTris = (unsigned char*)d; d += detailTrisSize;
 	dtBVNode* navBvtree = (dtBVNode*)d; d += bvTreeSize;
-	dtOffMeshConnection* offMeshCons = (dtOffMeshConnection*)d; d += offMeshConsSize;
+	dtOffMeshConnection* offMeshCons = (dtOffMeshConnection*)d; // d += offMeshConsSize;
 	
 	
 	// Store header
@@ -712,7 +711,7 @@ bool dtNavMeshDataSwapEndian(unsigned char* data, const int /*dataSize*/)
 	float* detailVerts = (float*)d; d += detailVertsSize;
 	/*unsigned char* detailTris = (unsigned char*)d;*/ d += detailTrisSize;
 	dtBVNode* bvTree = (dtBVNode*)d; d += bvtreeSize;
-	dtOffMeshConnection* offMeshCons = (dtOffMeshConnection*)d; d += offMeshLinksSize;
+	dtOffMeshConnection* offMeshCons = (dtOffMeshConnection*)d; // d += offMeshLinksSize;
 	
 	// Vertices
 	for (int i = 0; i < header->vertCount*3; ++i)

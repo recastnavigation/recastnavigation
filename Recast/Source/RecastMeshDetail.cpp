@@ -731,7 +731,7 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 	
 	// Tessellate the base mesh.
 	// We're using the triangulateHull instead of delaunayHull as it tends to
-	// create a bit better triangulation for long thing triangles when there
+	// create a bit better triangulation for long thin triangles when there
 	// are no internal points.
 	triangulateHull(nverts, verts, nhull, hull, tris);
 	
