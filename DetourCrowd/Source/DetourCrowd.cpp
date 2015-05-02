@@ -653,6 +653,7 @@ bool dtCrowd::resetMoveTarget(const int idx)
 	// Initialize request.
 	ag->targetRef = 0;
 	dtVset(ag->targetPos, 0,0,0);
+	dtVset(ag->dvel, 0,0,0);
 	ag->targetPathqRef = DT_PATHQ_INVALID;
 	ag->targetReplan = false;
 	ag->targetState = DT_CROWDAGENT_TARGET_NONE;
