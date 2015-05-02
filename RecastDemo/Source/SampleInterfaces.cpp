@@ -2,13 +2,13 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include <string.h>
+#include <GLFW/glfw3.h>
 #include "SampleInterfaces.h"
 #include "Recast.h"
 #include "RecastDebugDraw.h"
 #include "DetourDebugDraw.h"
 #include "PerfTimer.h"
-#include "SDL.h"
-#include "SDL_opengl.h"
 
 #ifdef WIN32
 #	define snprintf _snprintf

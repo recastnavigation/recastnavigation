@@ -7,14 +7,14 @@ local action = _ACTION or ""
 local todir = "Build/" .. action
 
 solution "recastnavigation"
-	configurations { 
+	configurations {
 		"Debug",
 		"Release"
 	}
 	location (todir)
 
 	-- extra warnings, no exceptions or rtti
-	flags { 
+	flags {
 		"ExtraWarnings",
 		"FloatFast",
 		"NoExceptions",
@@ -26,7 +26,7 @@ solution "recastnavigation"
 	configuration "Debug*"
 		defines { "DEBUG" }
 		targetdir ( todir .. "/lib/Debug" )
- 
+
  	-- release configs
 	configuration "Release*"
 		defines { "NDEBUG" }
@@ -41,13 +41,13 @@ solution "recastnavigation"
 project "DebugUtils"
 	language "C++"
 	kind "StaticLib"
-	includedirs { 
+	includedirs {
 		"../DebugUtils/Include",
 		"../Detour/Include",
 		"../DetourTileCache/Include",
 		"../Recast/Include"
 	}
-	files { 
+	files {
 		"../DebugUtils/Include/*.h",
 		"../DebugUtils/Source/*.cpp"
 	}
@@ -55,12 +55,12 @@ project "DebugUtils"
 project "Detour"
 	language "C++"
 	kind "StaticLib"
-	includedirs { 
-		"../Detour/Include" 
+	includedirs {
+		"../Detour/Include"
 	}
-	files { 
-		"../Detour/Include/*.h", 
-		"../Detour/Source/*.cpp" 
+	files {
+		"../Detour/Include/*.h",
+		"../Detour/Source/*.cpp"
 	}
 
 project "DetourCrowd"
@@ -92,18 +92,18 @@ project "DetourTileCache"
 project "Recast"
 	language "C++"
 	kind "StaticLib"
-	includedirs { 
-		"../Recast/Include" 
+	includedirs {
+		"../Recast/Include"
 	}
-	files { 
+	files {
 		"../Recast/Include/*.h",
-		"../Recast/Source/*.cpp" 
+		"../Recast/Source/*.cpp"
 	}
 
 project "RecastDemo"
 	language "C++"
 	kind "WindowedApp"
-	includedirs { 
+	includedirs {
 		"../RecastDemo/Include",
 		"../RecastDemo/Contrib",
 		"../RecastDemo/Contrib/fastlz",
@@ -113,7 +113,7 @@ project "RecastDemo"
 		"../DetourTileCache/Include",
 		"../Recast/Include"
 	}
-	files	{ 
+	files	{
 		"../RecastDemo/Include/*.h",
 		"../RecastDemo/Source/*.cpp",
 		"../RecastDemo/Contrib/fastlz/*.h",
@@ -121,7 +121,7 @@ project "RecastDemo"
 	}
 
 	-- project dependencies
-	links { 
+	links {
 		"DebugUtils",
 		"Detour",
 		"DetourCrowd",
@@ -134,45 +134,38 @@ project "RecastDemo"
 
 	-- linux library cflags and libs
 	configuration { "linux", "gmake" }
-		buildoptions { 
-			"`pkg-config --cflags sdl`",
+		buildoptions {
+			"`pkg-config --cflags glew`",
+			"`pkg-config --cflags glfw3`",
 			"`pkg-config --cflags gl`",
-			"`pkg-config --cflags glu`" 
 		}
-		linkoptions { 
-			"`pkg-config --libs sdl`",
+		linkoptions {
+			"`pkg-config --libs glew`",
+			"`pkg-config --libs glfw3`",
 			"`pkg-config --libs gl`",
-			"`pkg-config --libs glu`" 
+		}
+		links {
+			"pthread",
+			"X11",
+			"Xrandr",
+			"Xinerama",
+			"Xi",
+			"Xxf86vm",
+			"Xcursor"
 		}
 
 	-- windows library cflags and libs
 	configuration { "windows" }
-		includedirs { "../RecastDemo/Contrib/SDL/include" }
-		libdirs { "../RecastDemo/Contrib/SDL/lib/x86" }
-		links { 
-			"opengl32",
-			"glu32",
-			"sdlmain",
-			"sdl"
-		}
+		links { "glfw3", "gdi32", "winmm", "user32", "glew32", "opengl32", "kernel32" }
+		libdirs { "contrib/libs" }
+        --debugdir "Bin"
 
 	-- mac includes and libs
 	configuration { "macosx" }
 		kind "ConsoleApp" -- xcode4 failes to run the project if using WindowedApp
-		includedirs { "/Library/Frameworks/SDL.framework/Headers" }
 		buildoptions { "-Wunused-value -Wshadow -Wreorder -Wsign-compare -Wall" }
-		links { 
-			"OpenGL.framework", 
-			"/Library/Frameworks/SDL.framework", 
-			"Cocoa.framework",
-		}
-
-		files {
-			"../RecastDemo/Include/SDLMain.h", 
-			"../RecastDemo/Source/SDLMain.m",
--- These don't seem to work in xcode4 target yet.
---			"Info.plist",
---			"Icon.icns",
---			"English.lproj/InfoPlist.strings",
---			"English.lproj/MainMenu.xib",
-		}
+        -- additional /usr/local search dirs if using brew to install glfw3 and glew
+        includedirs { "/usr/local/include" }
+        libdirs { "/usr/local/lib" }
+		links { "glfw3" }
+		linkoptions { "-framework OpenGL", "-framework Cocoa", "-framework IOKit", "-framework CoreVideo" }

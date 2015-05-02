@@ -45,6 +45,10 @@ RecastDemo uses [premake4](http://industriousone.com/premake) to build platform 
 
 See premake4 documentation for full list of supported build file types. The projects will be created in `RecastDemo/Build` folder. And after you have compiled the project, the *RecastDemo* executable will be located in `RecastDemo/Bin` folder.
 
+#### Alternative way
+
+You can also use [fips](http://github.com/floooh/fips) to build all libraries and RecastDemo, for more info see [fips-recast](http://github.com/fungos/fips-recast).
+
 
 ## Integrating with your own project
 

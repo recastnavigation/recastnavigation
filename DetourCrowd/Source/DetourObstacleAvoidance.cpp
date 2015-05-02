@@ -528,7 +528,6 @@ int dtObstacleAvoidanceQuery::sampleVelocityAdaptive(const float* pos, const flo
 	
 	const int nd = dtClamp(ndivs, 1, DT_MAX_PATTERN_DIVS);
 	const int nr = dtClamp(nrings, 1, DT_MAX_PATTERN_RINGS);
-	const int nd2 = nd / 2;
 	const float da = (1.0f/nd) * DT_PI*2;
 	const float ca = cosf(da);
 	const float sa = sinf(da);

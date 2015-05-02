@@ -20,12 +20,12 @@
 #include <ctype.h>
 #include <string.h>
 #include <math.h>
+#include <GLFW/glfw3.h>
+#include "Projection.h"
 #include "TestCase.h"
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"
 #include "DetourCommon.h"
-#include "SDL.h"
-#include "SDL_opengl.h"
 #include "imgui.h"
 #include "PerfTimer.h"
 
@@ -369,7 +369,7 @@ void TestCase::handleRender()
 
 bool TestCase::handleRenderOverlay(double* proj, double* model, int* view)
 {
-	GLdouble x, y, z;
+	float pos[3];
 	char text[64], subtext[64];
 	int n = 0;
 
@@ -397,14 +397,13 @@ bool TestCase::handleRenderOverlay(double* proj, double* model, int* view)
 			pt[1]+=0.5f;
 		}
 		
-		if (gluProject((GLdouble)pt[0], (GLdouble)pt[1], (GLdouble)pt[2],
-					   model, proj, view, &x, &y, &z))
+		if (project(pt[0], pt[1], pt[2], model, proj, view, pos))
 		{
 			snprintf(text, 64, "Path %d\n", n);
 			unsigned int col = imguiRGBA(0,0,0,128);
 			if (iter->expand)
 				col = imguiRGBA(255,192,0,220);
-			imguiDrawText((int)x, (int)(y-25), IMGUI_ALIGN_CENTER, text, col);
+			imguiDrawText((int)pos[0], (int)(pos[1]-25), IMGUI_ALIGN_CENTER, text, col);
 		}
 		n++;
 	}
