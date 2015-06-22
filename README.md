@@ -45,6 +45,8 @@ RecastDemo uses [premake4](http://industriousone.com/premake) to build platform 
 
 See premake4 documentation for full list of supported build file types. The projects will be created in `RecastDemo/Build` folder. And after you have compiled the project, the *RecastDemo* executable will be located in `RecastDemo/Bin` folder.
 
+*Note:* On Windows, please use x86 version of the SDL.dll to run the demo Application. 
+
 
 ## Integrating with your own project
 
