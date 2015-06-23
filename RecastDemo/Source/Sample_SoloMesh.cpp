@@ -438,7 +438,11 @@ bool Sample_SoloMesh::handleBuild()
 	// the are type for each of the meshes and rasterize them.
 	memset(m_triareas, 0, ntris*sizeof(unsigned char));
 	rcMarkWalkableTriangles(m_ctx, m_cfg.walkableSlopeAngle, verts, nverts, tris, ntris, m_triareas);
-	rcRasterizeTriangles(m_ctx, verts, nverts, tris, m_triareas, ntris, *m_solid, m_cfg.walkableClimb);
+	if (!rcRasterizeTriangles(m_ctx, verts, nverts, tris, m_triareas, ntris, *m_solid, m_cfg.walkableClimb))
+	{
+		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Could not rasterize triangles.");
+		return false;
+	}
 
 	if (!m_keepInterResults)
 	{

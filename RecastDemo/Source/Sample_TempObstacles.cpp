@@ -348,7 +348,8 @@ static int rasterizeTileLayers(BuildContext* ctx, InputGeom* geom,
 		rcMarkWalkableTriangles(ctx, tcfg.walkableSlopeAngle,
 								verts, nverts, tris, ntris, rc.triareas);
 		
-		rcRasterizeTriangles(ctx, verts, nverts, tris, rc.triareas, ntris, *rc.solid, tcfg.walkableClimb);
+		if (!rcRasterizeTriangles(ctx, verts, nverts, tris, rc.triareas, ntris, *rc.solid, tcfg.walkableClimb))
+			return 0;
 	}
 	
 	// Once all geometry is rasterized, we do initial pass of filtering to
