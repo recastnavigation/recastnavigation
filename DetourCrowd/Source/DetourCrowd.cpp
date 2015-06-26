@@ -379,7 +379,7 @@ void dtCrowd::purge()
 /// @par
 ///
 /// May be called more than once to purge and re-initialize the crowd.
-bool dtCrowd::init(const int maxAgents, const float maxAgentRadius, dtNavMesh* nav)
+bool dtCrowd::init(const int maxAgents, const float maxAgentRadius, const dtNavMesh* nav)
 {
 	purge();
 	

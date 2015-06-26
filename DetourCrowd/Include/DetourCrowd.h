@@ -246,7 +246,7 @@ public:
 	///  @param[in]		maxAgentRadius	The maximum radius of any agent that will be added to the crowd. [Limit: > 0]
 	///  @param[in]		nav				The navigation mesh to use for planning.
 	/// @return True if the initialization succeeded.
-	bool init(const int maxAgents, const float maxAgentRadius, dtNavMesh* nav);
+	bool init(const int maxAgents, const float maxAgentRadius, const dtNavMesh* nav);
 	
 	/// Sets the shared avoidance configuration for the specified index.
 	///  @param[in]		idx		The index. [Limits: 0 <= value < #DT_CROWD_MAX_OBSTAVOIDANCE_PARAMS]
