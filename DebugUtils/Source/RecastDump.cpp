@@ -158,8 +158,8 @@ bool duDumpContourSet(struct rcContourSet& cset, duFileIO* io)
 	io->write(cset.bmin, sizeof(cset.bmin));
 	io->write(cset.bmax, sizeof(cset.bmax));
 	
-	io->write(&cset.cs, sizeof(cset.cs));
-	io->write(&cset.ch, sizeof(cset.ch));
+	io->write(&cset.cellSizeXZ, sizeof(cset.cellSizeXZ));
+	io->write(&cset.cellSizeY, sizeof(cset.cellSizeY));
 
 	io->write(&cset.width, sizeof(cset.width));
 	io->write(&cset.height, sizeof(cset.height));
@@ -222,8 +222,8 @@ bool duReadContourSet(struct rcContourSet& cset, duFileIO* io)
 	io->read(cset.bmin, sizeof(cset.bmin));
 	io->read(cset.bmax, sizeof(cset.bmax));
 	
-	io->read(&cset.cs, sizeof(cset.cs));
-	io->read(&cset.ch, sizeof(cset.ch));
+	io->read(&cset.cellSizeXZ, sizeof(cset.cellSizeXZ));
+	io->read(&cset.cellSizeY, sizeof(cset.cellSizeY));
 	
 	io->read(&cset.width, sizeof(cset.width));
 	io->read(&cset.height, sizeof(cset.height));

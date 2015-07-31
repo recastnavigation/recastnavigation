@@ -844,8 +844,8 @@ bool rcBuildContours(rcContext* ctx, rcCompactHeightfield& chf,
 		cset.bmax[0] -= pad;
 		cset.bmax[2] -= pad;
 	}
-	cset.cs = chf.cs;
-	cset.ch = chf.ch;
+	cset.cellSizeXZ = chf.cs;
+	cset.cellSizeY = chf.ch;
 	cset.width = chf.width - chf.borderSize*2;
 	cset.height = chf.height - chf.borderSize*2;
 	cset.borderSize = chf.borderSize;

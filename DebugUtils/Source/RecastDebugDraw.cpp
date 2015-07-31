@@ -683,8 +683,8 @@ void duDebugDrawRegionConnections(duDebugDraw* dd, const rcContourSet& cset, con
 	if (!dd) return;
 	
 	const float* orig = cset.bmin;
-	const float cs = cset.cs;
-	const float ch = cset.ch;
+	const float cs = cset.cellSizeXZ;
+	const float ch = cset.cellSizeY;
 	
 	// Draw centers
 	float pos[3], pos2[3];
@@ -731,8 +731,8 @@ void duDebugDrawRawContours(duDebugDraw* dd, const rcContourSet& cset, const flo
 	if (!dd) return;
 
 	const float* orig = cset.bmin;
-	const float cs = cset.cs;
-	const float ch = cset.ch;
+	const float cs = cset.cellSizeXZ;
+	const float ch = cset.cellSizeY;
 	
 	const unsigned char a = (unsigned char)(alpha*255.0f);
 	
@@ -794,8 +794,8 @@ void duDebugDrawContours(duDebugDraw* dd, const rcContourSet& cset, const float 
 	if (!dd) return;
 
 	const float* orig = cset.bmin;
-	const float cs = cset.cs;
-	const float ch = cset.ch;
+	const float cs = cset.cellSizeXZ;
+	const float ch = cset.cellSizeY;
 	
 	const unsigned char a = (unsigned char)(alpha*255.0f);
 	
