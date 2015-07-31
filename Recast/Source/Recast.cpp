@@ -390,7 +390,7 @@ bool rcBuildCompactHeightfield(rcContext* ctx, const int walkableHeight, const i
 					const int bot = (int)s->smax;
 					const int top = s->next ? (int)s->next->smin : MAX_HEIGHT;
 					chf.spans[idx].y = (unsigned short)rcClamp(bot, 0, 0xffff);
-					chf.spans[idx].h = (unsigned char)rcClamp(top - bot, 0, 0xff);
+					chf.spans[idx].height = (unsigned char)rcClamp(top - bot, 0, 0xff);
 					chf.areas[idx] = s->area;
 					idx++;
 					c.count++;
@@ -428,7 +428,7 @@ bool rcBuildCompactHeightfield(rcContext* ctx, const int walkableHeight, const i
 					{
 						const rcCompactSpan& ns = chf.spans[k];
 						const int bot = rcMax(s.y, ns.y);
-						const int top = rcMin(s.y+s.h, ns.y+ns.h);
+						const int top = rcMin(s.y + s.height, ns.y + ns.height);
 
 						// Check that the gap between the spans is walkable,
 						// and that the climb height between the gaps is not too high.
