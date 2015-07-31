@@ -208,10 +208,13 @@ bool rcErodeWalkableArea(rcContext* ctx, int radius, rcCompactHeightfield& compa
 		}
 	}
 	
-	const unsigned char thr = (unsigned char)(radius*2);
 	for (int i = 0; i < compactHeightfield.spanCount; ++i)
-		if (dist[i] < thr)
+	{
+		if (dist[i] < (unsigned char)(radius * 2))
+		{
 			compactHeightfield.areas[i] = RC_NULL_AREA;
+		}
+	}
 	
 	rcFree(dist);
 	
@@ -227,7 +230,9 @@ static void insertSort(unsigned char* a, const int n)
 	{
 		const unsigned char value = a[i];
 		for (j = i - 1; j >= 0 && a[j] > value; j--)
+		{
 			a[j+1] = a[j];
+		}
 		a[j+1] = value;
 	}
 }
