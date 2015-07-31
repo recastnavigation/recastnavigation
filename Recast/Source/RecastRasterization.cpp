@@ -57,7 +57,7 @@ static rcSpan* allocSpan(rcHeightfield& hf)
 		// Add new items to the free list.
 		rcSpan* freelist = hf.freelist;
 		rcSpan* head = &pool->items[0];
-		rcSpan* it = &pool->items[RC_SPANS_PER_POOL];
+		rcSpan* it = &pool->items[rcSpanPool::RC_SPANS_PER_POOL];
 		do
 		{
 			--it;

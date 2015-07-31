@@ -242,10 +242,6 @@ struct rcConfig
 	float detailSampleMaxError;
 };
 
-/// The number of spans allocated per span spool.
-/// @see rcSpanPool
-static const int RC_SPANS_PER_POOL = 2048;
-
 /// Represents a span in a heightfield.
 /// @see rcHeightfield
 struct rcSpan
@@ -265,6 +261,9 @@ struct rcSpan
 /// @see rcHeightfield
 struct rcSpanPool
 {
+	/// The number of spans allocated per span spool.
+	static const int RC_SPANS_PER_POOL = 2048;
+
 	rcSpanPool* next;					///< The next span pool.
 	rcSpan items[RC_SPANS_PER_POOL];	///< Array of spans in the pool.
 };

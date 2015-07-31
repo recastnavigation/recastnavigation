@@ -472,7 +472,7 @@ static int getHeightfieldMemoryUsage(const rcHeightfield& hf)
 	rcSpanPool* pool = hf.pools;
 	while (pool)
 	{
-		size += (sizeof(rcSpanPool) - sizeof(rcSpan)) + sizeof(rcSpan)*RC_SPANS_PER_POOL;
+		size += (sizeof(rcSpanPool) - sizeof(rcSpan)) + sizeof(rcSpan)*rcSpanPool::RC_SPANS_PER_POOL;
 		pool = pool->next;
 	}
 	return size;
