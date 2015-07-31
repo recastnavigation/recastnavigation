@@ -242,11 +242,6 @@ struct rcConfig
 	float detailSampleMaxError;
 };
 
-/// Defines the number of bits allocated to rcSpan::smin and rcSpan::smax.
-static const int RC_SPAN_HEIGHT_BITS = 13;
-/// Defines the maximum value for rcSpan::smin and rcSpan::smax.
-static const int RC_SPAN_MAX_HEIGHT = (1<<RC_SPAN_HEIGHT_BITS)-1;
-
 /// The number of spans allocated per span spool.
 /// @see rcSpanPool
 static const int RC_SPANS_PER_POOL = 2048;
@@ -255,6 +250,11 @@ static const int RC_SPANS_PER_POOL = 2048;
 /// @see rcHeightfield
 struct rcSpan
 {
+	/// Defines the number of bits allocated to rcSpan::smin and rcSpan::smax.
+	static const int RC_SPAN_HEIGHT_BITS = 13;
+	/// Defines the maximum value for rcSpan::smin and rcSpan::smax.
+	static const int RC_SPAN_MAX_HEIGHT = (1<<RC_SPAN_HEIGHT_BITS)-1;
+	
 	unsigned int smin : RC_SPAN_HEIGHT_BITS;	///< The lower limit of the span. [Limit: < #smax]
 	unsigned int smax : RC_SPAN_HEIGHT_BITS;	///< The upper limit of the span. [Limit: <= #RC_SPAN_MAX_HEIGHT]
 	unsigned int area : 6;						///< The area id assigned to the span.

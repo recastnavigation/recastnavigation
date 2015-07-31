@@ -312,8 +312,8 @@ static void rasterizeTri(const float* v0, const float* v1, const float* v2,
 			if (smax > by) smax = by;
 			
 			// Snap the span to the heightfield height grid.
-			unsigned short ismin = (unsigned short)rcClamp((int)floorf(smin * ich), 0, RC_SPAN_MAX_HEIGHT);
-			unsigned short ismax = (unsigned short)rcClamp((int)ceilf(smax * ich), (int)ismin+1, RC_SPAN_MAX_HEIGHT);
+			unsigned short ismin = (unsigned short)rcClamp((int)floorf(smin * ich), 0, rcSpan::RC_SPAN_MAX_HEIGHT);
+			unsigned short ismax = (unsigned short)rcClamp((int)ceilf(smax * ich), (int)ismin + 1, rcSpan::RC_SPAN_MAX_HEIGHT);
 			
 			addSpan(hf, x, y, ismin, ismax, area, flagMergeThr);
 		}
