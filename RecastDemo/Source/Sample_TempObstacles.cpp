@@ -310,7 +310,7 @@ static int rasterizeTileLayers(BuildContext* ctx, InputGeom* geom,
 		ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'solid'.");
 		return 0;
 	}
-	if (!rcCreateHeightfield(ctx, *rc.solid, tcfg.width, tcfg.height, tcfg.bmin, tcfg.bmax, tcfg.cellSizeXZ, tcfg.ch))
+	if (!rcCreateHeightfield(ctx, *rc.solid, tcfg.width, tcfg.height, tcfg.bmin, tcfg.bmax, tcfg.cellSizeXZ, tcfg.cellSizeY))
 	{
 		ctx->log(RC_LOG_ERROR, "buildNavigation: Could not create solid heightfield.");
 		return 0;
@@ -1216,10 +1216,10 @@ bool Sample_TempObstacles::handleBuild()
 	rcConfig cfg;
 	memset(&cfg, 0, sizeof(cfg));
 	cfg.cellSizeXZ = m_cellSize;
-	cfg.ch = m_cellHeight;
+	cfg.cellSizeY = m_cellHeight;
 	cfg.walkableSlopeAngle = m_agentMaxSlope;
-	cfg.walkableHeight = (int)ceilf(m_agentHeight / cfg.ch);
-	cfg.walkableClimb = (int)floorf(m_agentMaxClimb / cfg.ch);
+	cfg.walkableHeight = (int)ceilf(m_agentHeight / cfg.cellSizeY);
+	cfg.walkableClimb = (int)floorf(m_agentMaxClimb / cfg.cellSizeY);
 	cfg.walkableRadius = (int)ceilf(m_agentRadius / cfg.cellSizeXZ);
 	cfg.maxEdgeLen = (int)(m_edgeMaxLen / m_cellSize);
 	cfg.maxSimplificationError = m_edgeMaxError;
