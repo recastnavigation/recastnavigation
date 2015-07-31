@@ -27,7 +27,6 @@
 #include "RecastAssert.h"
 
 
-
 static void insertSort(unsigned char* a, const int n)
 {
 	int i, j;
@@ -65,14 +64,14 @@ bool rcMedianFilterWalkableArea(rcContext* ctx, rcCompactHeightfield& chf)
 	}
 	
 	// Init distance.
-	memset(areas, 0xff, sizeof(unsigned char)*chf.spanCount);
+	memset(areas, 0xff, sizeof(unsigned char) * chf.spanCount);
 	
 	for (int y = 0; y < h; ++y)
 	{
 		for (int x = 0; x < w; ++x)
 		{
-			const rcCompactCell& c = chf.cells[x+y*w];
-			for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
+			const rcCompactCell& c = chf.cells[x + y * w];
+			for (int i = (int)c.index, ni = (int)(c.index + c.count); i < ni; ++i)
 			{
 				const rcCompactSpan& s = chf.spans[i];
 				if (chf.areas[i] == RC_NULL_AREA)
@@ -91,19 +90,19 @@ bool rcMedianFilterWalkableArea(rcContext* ctx, rcCompactHeightfield& chf)
 					{
 						const int ax = x + rcGetDirOffsetX(dir);
 						const int ay = y + rcGetDirOffsetY(dir);
-						const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(s, dir);
+						const int ai = (int)chf.cells[ax + ay * w].index + rcGetCon(s, dir);
 						if (chf.areas[ai] != RC_NULL_AREA)
-							nei[dir*2+0] = chf.areas[ai];
+							nei[dir * 2 + 0] = chf.areas[ai];
 						
 						const rcCompactSpan& as = chf.spans[ai];
-						const int dir2 = (dir+1) & 0x3;
+						const int dir2 = (dir + 1) & 0x3;
 						if (rcGetCon(as, dir2) != RC_NOT_CONNECTED)
 						{
 							const int ax2 = ax + rcGetDirOffsetX(dir2);
 							const int ay2 = ay + rcGetDirOffsetY(dir2);
-							const int ai2 = (int)chf.cells[ax2+ay2*w].index + rcGetCon(as, dir2);
+							const int ai2 = (int)chf.cells[ax2 + ay2 * w].index + rcGetCon(as, dir2);
 							if (chf.areas[ai2] != RC_NULL_AREA)
-								nei[dir*2+1] = chf.areas[ai2];
+								nei[dir * 2 + 1] = chf.areas[ai2];
 						}
 					}
 				}
@@ -113,7 +112,7 @@ bool rcMedianFilterWalkableArea(rcContext* ctx, rcCompactHeightfield& chf)
 		}
 	}
 	
-	memcpy(chf.areas, areas, sizeof(unsigned char)*chf.spanCount);
+	memcpy(chf.areas, areas, sizeof(unsigned char) * chf.spanCount);
 	
 	rcFree(areas);
 
@@ -127,8 +126,7 @@ bool rcMedianFilterWalkableArea(rcContext* ctx, rcCompactHeightfield& chf)
 /// The value of spacial parameters are in world units.
 /// 
 /// @see rcCompactHeightfield, rcMedianFilterWalkableArea
-void rcMarkBoxArea(rcContext* ctx, const float* bmin, const float* bmax, unsigned char areaId,
-				   rcCompactHeightfield& chf)
+void rcMarkBoxArea(rcContext* ctx, const float* bmin, const float* bmax, unsigned char areaId, rcCompactHeightfield& chf)
 {
 	rcAssert(ctx);
 	
@@ -195,9 +193,7 @@ static int pointInPoly(int nvert, const float* verts, const float* p)
 /// projected onto the xz-plane at @p hmin, then extruded to @p hmax.
 /// 
 /// @see rcCompactHeightfield, rcMedianFilterWalkableArea
-void rcMarkConvexPolyArea(rcContext* ctx, const float* verts, const int nverts,
-						  const float hmin, const float hmax, unsigned char areaId,
-						  rcCompactHeightfield& chf)
+void rcMarkConvexPolyArea(rcContext* ctx, const float* verts, const int nverts, const float hmin, const float hmax, unsigned char areaId, rcCompactHeightfield& chf)
 {
 	rcAssert(ctx);
 	
@@ -262,8 +258,7 @@ void rcMarkConvexPolyArea(rcContext* ctx, const float* verts, const int nverts,
 	ctx->stopTimer(RC_TIMER_MARK_CONVEXPOLY_AREA);
 }
 
-int rcOffsetPoly(const float* verts, const int nverts, const float offset,
-				 float* outVerts, const int maxOutVerts)
+int rcOffsetPoly(const float* verts, const int nverts, const float offset, float* outVerts, const int maxOutVerts)
 {
 	const float	MITER_LIMIT = 1.20f;
 
@@ -345,9 +340,7 @@ int rcOffsetPoly(const float* verts, const int nverts, const float offset,
 /// The value of spacial parameters are in world units.
 /// 
 /// @see rcCompactHeightfield, rcMedianFilterWalkableArea
-void rcMarkCylinderArea(rcContext* ctx, const float* pos,
-						const float r, const float h, unsigned char areaId,
-						rcCompactHeightfield& chf)
+void rcMarkCylinderArea(rcContext* ctx, const float* pos, const float r, const float h, unsigned char areaId, rcCompactHeightfield& chf)
 {
 	rcAssert(ctx);
 	
