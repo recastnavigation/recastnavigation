@@ -142,9 +142,9 @@ static void subdivide(BoundsItem* items, int nitems, int imin, int imax, int tri
 bool rcCreateChunkyTriMesh(const float* verts, const int* tris, int ntris,
 						   int trisPerChunk, rcChunkyTriMesh* cm)
 {
-	int nchunks = (ntris + trisPerChunk-1) / trisPerChunk;
+	int nchunks = (ntris + trisPerChunk - 1) / trisPerChunk;
 
-	cm->nodes = new rcChunkyTriMeshNode[nchunks*4];
+	cm->nodes = new rcChunkyTriMeshNode[nchunks * 4];
 	if (!cm->nodes)
 		return false;
 		

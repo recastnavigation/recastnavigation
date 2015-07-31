@@ -97,7 +97,6 @@ int main(int /*argc*/, char** /*argv*/)
 	int width;
 	int height;
 	SDL_Surface* screen = 0;
-
 	const SDL_VideoInfo* videoInfo = SDL_GetVideoInfo();
 	if (presentationMode)
 	{
@@ -107,8 +106,7 @@ int main(int /*argc*/, char** /*argv*/)
 	}
 	else
 	{
-		width = rcMin(videoInfo->current_w, (int)(videoInfo->current_h * 16.0 / 9.0));
-		width = width - 80;
+		width = rcMin(videoInfo->current_w, (int)(videoInfo->current_h * 16.0 / 9.0)) - 80;
 		height = videoInfo->current_h - 80;
 		screen = SDL_SetVideoMode(width, height, 0, SDL_OPENGL);
 	}
@@ -438,7 +436,6 @@ int run(int width, int height, bool presentationMode) {
 			if (ms >= 0) SDL_Delay(ms);
 		}
 
-
 		// Update and render
 		glViewport(0, 0, width, height);
 		glClearColor(0.3f, 0.3f, 0.32f, 1.0f);
@@ -637,8 +634,7 @@ int run(int width, int height, bool presentationMode) {
 				mouseOverMenu = true;
 
 			string levelName = "";
-
-			for (string file : files)
+			for (const string& file : files)
 				if (imguiItem(file.c_str()))
 					levelName = file;
 
