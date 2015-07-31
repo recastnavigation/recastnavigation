@@ -24,8 +24,7 @@
 ///  @param[in]		hf				The heightfield to be compacted.
 ///  @param[out]	chf				The resulting compact heightfield. (Must be pre-allocated.)
 ///  @returns True if the operation completed successfully.
-bool rcBuildCompactHeightfield(rcContext* ctx, const int walkableHeight, const int walkableClimb,
-							   rcHeightfield& hf, rcCompactHeightfield& chf);
+bool rcBuildCompactHeightfield(rcContext* ctx, const int walkableHeight, const int walkableClimb, rcHeightfield& hf, rcCompactHeightfield& chf);
 
 /// Erodes the walkable area within the heightfield by the specified radius.
 ///  @ingroup recast
