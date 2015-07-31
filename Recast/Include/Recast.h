@@ -190,7 +190,7 @@ struct rcConfig
 	int borderSize;
 
 	/// The xz-plane cell size to use for fields. [Limit: > 0] [Units: wu] 
-	float xzPlaneFieldCellSize;
+	float cellSizeXZ;
 
 	/// The y-axis cell size to use for fields. [Limit: > 0] [Units: wu]
 	float ch;
