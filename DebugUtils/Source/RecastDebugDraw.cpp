@@ -238,7 +238,7 @@ void duDebugDrawCompactHeightfieldSolid(duDebugDraw* dd, const rcCompactHeightfi
 				else
 					color = duIntToCol(chf.areas[i], 255);
 				
-				const float fy = chf.bmin[1] + (s.y+1)*ch;
+				const float fy = chf.bmin[1] + (s.minY+1)*ch;
 				dd->vertex(fx, fy, fz, color);
 				dd->vertex(fx, fy, fz+cs, color);
 				dd->vertex(fx+cs, fy, fz+cs, color);
@@ -269,10 +269,10 @@ void duDebugDrawCompactHeightfieldRegions(duDebugDraw* dd, const rcCompactHeight
 			for (unsigned i = c.index, ni = c.index+c.count; i < ni; ++i)
 			{
 				const rcCompactSpan& s = chf.spans[i];
-				const float fy = chf.bmin[1] + (s.y)*ch;
+				const float fy = chf.bmin[1] + (s.minY)*ch;
 				unsigned int color;
-				if (s.reg)
-					color = duIntToCol(s.reg, 192);
+				if (s.regionID)
+					color = duIntToCol(s.regionID, 192);
 				else
 					color = duRGBA(0,0,0,64);
 
@@ -313,7 +313,7 @@ void duDebugDrawCompactHeightfieldDistance(duDebugDraw* dd, const rcCompactHeigh
 			for (unsigned i = c.index, ni = c.index+c.count; i < ni; ++i)
 			{
 				const rcCompactSpan& s = chf.spans[i];
-				const float fy = chf.bmin[1] + (s.y+1)*ch;
+				const float fy = chf.bmin[1] + (s.minY+1)*ch;
 				const unsigned char cd = (unsigned char)(chf.dist[i] * dscale);
 				const unsigned int color = duRGBA(cd,cd,cd,255);
 				dd->vertex(fx, fy, fz, color);

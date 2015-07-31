@@ -873,7 +873,7 @@ static void getHeightDataSeedsFromVertices(const rcCompactHeightfield& chf,
 			for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
 			{
 				const rcCompactSpan& s = chf.spans[i];
-				int d = rcAbs(ay - (int)s.y);
+				int d = rcAbs(ay - (int)s.minY);
 				if (d < dmin)
 				{
 					cx = ax;
@@ -962,7 +962,7 @@ static void getHeightDataSeedsFromVertices(const rcCompactHeightfield& chf,
 		int ci = stack[i+2];
 		int idx = cx-hp.xmin+(cy-hp.ymin)*hp.width;
 		const rcCompactSpan& cs = chf.spans[ci];
-		hp.data[idx] = cs.y;
+		hp.data[idx] = cs.minY;
 		
 		// getHeightData seeds are given in coordinates with borders
 		stack[i+0] += bs;
@@ -999,10 +999,10 @@ static void getHeightData(const rcCompactHeightfield& chf,
 			for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
 			{
 				const rcCompactSpan& s = chf.spans[i];
-				if (s.reg == region)
+				if (s.regionID == region)
 				{
 					// Store height
-					hp.data[hx + hy*hp.width] = s.y;
+					hp.data[hx + hy*hp.width] = s.minY;
 					empty = false;
 					
 					// If any of the neighbours is not in same region,
@@ -1016,7 +1016,7 @@ static void getHeightData(const rcCompactHeightfield& chf,
 							const int ay = y + rcGetDirOffsetY(dir);
 							const int ai = (int)chf.cells[ax+ay*chf.width].index + rcGetCon(s, dir);
 							const rcCompactSpan& as = chf.spans[ai];
-							if (as.reg != region)
+							if (as.regionID != region)
 							{
 								border = true;
 								break;
@@ -1076,7 +1076,7 @@ static void getHeightData(const rcCompactHeightfield& chf,
 			const int ai = (int)chf.cells[ax + ay*chf.width].index + rcGetCon(cs, dir);
 			const rcCompactSpan& as = chf.spans[ai];
 			
-			hp.data[hx + hy*hp.width] = as.y;
+			hp.data[hx + hy*hp.width] = as.minY;
 			
 			stack.push(ax);
 			stack.push(ay);

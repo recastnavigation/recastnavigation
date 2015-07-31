@@ -349,7 +349,7 @@ void rcMarkBoxArea(rcContext* ctx, const float* bmin, const float* bmax, unsigne
 			for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
 			{
 				rcCompactSpan& s = chf.spans[i];
-				if ((int)s.y >= miny && (int)s.y <= maxy)
+				if ((int)s.minY >= miny && (int)s.minY <= maxy)
 				{
 					if (chf.areas[i] != RC_NULL_AREA)
 						chf.areas[i] = areaId;
@@ -433,7 +433,7 @@ void rcMarkConvexPolyArea(rcContext* ctx, const float* verts, const int nverts,
 				rcCompactSpan& s = chf.spans[i];
 				if (chf.areas[i] == RC_NULL_AREA)
 					continue;
-				if ((int)s.y >= miny && (int)s.y <= maxy)
+				if ((int)s.minY >= miny && (int)s.minY <= maxy)
 				{
 					float p[3];
 					p[0] = chf.bmin[0] + (x+0.5f)*chf.cs; 
@@ -582,7 +582,7 @@ void rcMarkCylinderArea(rcContext* ctx, const float* pos,
 				if (chf.areas[i] == RC_NULL_AREA)
 					continue;
 				
-				if ((int)s.y >= miny && (int)s.y <= maxy)
+				if ((int)s.minY >= miny && (int)s.minY <= maxy)
 				{
 					const float sx = chf.bmin[0] + (x+0.5f)*chf.cs; 
 					const float sz = chf.bmin[2] + (z+0.5f)*chf.cs; 

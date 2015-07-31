@@ -389,7 +389,7 @@ bool rcBuildCompactHeightfield(rcContext* ctx, const int walkableHeight, const i
 				{
 					const int bot = (int)s->smax;
 					const int top = s->next ? (int)s->next->smin : MAX_HEIGHT;
-					chf.spans[idx].y = (unsigned short)rcClamp(bot, 0, 0xffff);
+					chf.spans[idx].minY = (unsigned short)rcClamp(bot, 0, 0xffff);
 					chf.spans[idx].height = (unsigned char)rcClamp(top - bot, 0, 0xff);
 					chf.areas[idx] = s->area;
 					idx++;
@@ -427,12 +427,12 @@ bool rcBuildCompactHeightfield(rcContext* ctx, const int walkableHeight, const i
 					for (int k = (int)nc.index, nk = (int)(nc.index+nc.count); k < nk; ++k)
 					{
 						const rcCompactSpan& ns = chf.spans[k];
-						const int bot = rcMax(s.y, ns.y);
-						const int top = rcMin(s.y + s.height, ns.y + ns.height);
+						const int bot = rcMax(s.minY, ns.minY);
+						const int top = rcMin(s.minY + s.height, ns.minY + ns.height);
 
 						// Check that the gap between the spans is walkable,
 						// and that the climb height between the gaps is not too high.
-						if ((top - bot) >= walkableHeight && rcAbs((int)ns.y - (int)s.y) <= walkableClimb)
+						if ((top - bot) >= walkableHeight && rcAbs((int)ns.minY - (int)s.minY) <= walkableClimb)
 						{
 							// Mark direction as walkable.
 							const int lidx = k - (int)nc.index;

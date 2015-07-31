@@ -1077,8 +1077,8 @@ static bool mergeAndFilterLayerRegions(rcContext* ctx, int minRegionArea,
 				
 				reg.spanCount++;
 				
-				reg.ymin = rcMin(reg.ymin, s.y);
-				reg.ymax = rcMax(reg.ymax, s.y);
+				reg.ymin = rcMin(reg.ymin, s.minY);
+				reg.ymax = rcMax(reg.ymax, s.minY);
 				
 				// Collect all region layers.
 				lregs.push(ri);
@@ -1503,7 +1503,7 @@ bool rcBuildRegionsMonotone(rcContext* ctx, rcCompactHeightfield& chf,
 	
 	// Store the result out.
 	for (int i = 0; i < chf.spanCount; ++i)
-		chf.spans[i].reg = srcReg[i];
+		chf.spans[i].regionID = srcReg[i];
 	
 	ctx->stopTimer(RC_TIMER_BUILD_REGIONS);
 
@@ -1659,7 +1659,7 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 		
 	// Write the result out.
 	for (int i = 0; i < chf.spanCount; ++i)
-		chf.spans[i].reg = srcReg[i];
+		chf.spans[i].regionID = srcReg[i];
 	
 	ctx->stopTimer(RC_TIMER_BUILD_REGIONS);
 	
@@ -1815,7 +1815,7 @@ bool rcBuildLayerRegions(rcContext* ctx, rcCompactHeightfield& chf,
 	
 	// Store the result out.
 	for (int i = 0; i < chf.spanCount; ++i)
-		chf.spans[i].reg = srcReg[i];
+		chf.spans[i].regionID = srcReg[i];
 	
 	ctx->stopTimer(RC_TIMER_BUILD_REGIONS);
 	
