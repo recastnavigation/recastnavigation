@@ -147,11 +147,207 @@ bool rcBuildCompactHeightfield(rcContext* ctx, const int walkableHeight, const i
 
 	if (tooHighNeighbour > MAX_LAYERS)
 	{
-		ctx->log(RC_LOG_ERROR, "rcBuildCompactHeightfield: Heightfield has too many layers %d (max: %d)",
-			tooHighNeighbour, MAX_LAYERS);
+		ctx->log(RC_LOG_ERROR, "rcBuildCompactHeightfield: Heightfield has too many layers %d (max: %d)", tooHighNeighbour, MAX_LAYERS);
 	}
 
 	ctx->stopTimer(RC_TIMER_BUILD_COMPACTHEIGHTFIELD);
+
+	return true;
+}
+
+/// @par 
+/// 
+/// Basically, any spans that are closer to a boundary or obstruction than the specified radius 
+/// are marked as unwalkable.
+///
+/// This method is usually called immediately after the heightfield has been built.
+///
+/// @see rcCompactHeightfield, rcBuildCompactHeightfield, rcConfig::walkableRadius
+bool rcErodeWalkableArea(rcContext* ctx, int radius, rcCompactHeightfield& compactHeightfield)
+{
+	rcAssert(ctx);
+
+	const int w = compactHeightfield.width;
+	const int h = compactHeightfield.height;
+
+	ctx->startTimer(RC_TIMER_ERODE_AREA);
+
+	unsigned char* dist = (unsigned char*)rcAlloc(sizeof(unsigned char) * compactHeightfield.spanCount, RC_ALLOC_TEMP);
+	if (!dist)
+	{
+		ctx->log(RC_LOG_ERROR, "erodeWalkableArea: Out of memory 'dist' (%d).", compactHeightfield.spanCount);
+		return false;
+	}
+
+	// Init distance.
+	memset(dist, 0xff, sizeof(unsigned char) * compactHeightfield.spanCount);
+
+	// Mark boundary cells.
+	for (int y = 0; y < h; ++y)
+	{
+		for (int x = 0; x < w; ++x)
+		{
+			const rcCompactCell& c = compactHeightfield.cells[x + y*w];
+			for (int i = (int)c.index, ni = (int)(c.index + c.count); i < ni; ++i)
+			{
+				if (compactHeightfield.areas[i] == RC_NULL_AREA)
+				{
+					dist[i] = 0;
+				}
+				else
+				{
+					const rcCompactSpan& s = compactHeightfield.spans[i];
+					int nc = 0;
+					for (int dir = 0; dir < 4; ++dir)
+					{
+						if (rcGetCon(s, dir) != RC_NOT_CONNECTED)
+						{
+							const int nx = x + rcGetDirOffsetX(dir);
+							const int ny = y + rcGetDirOffsetY(dir);
+							const int nidx = (int)compactHeightfield.cells[nx + ny*w].index + rcGetCon(s, dir);
+							if (compactHeightfield.areas[nidx] != RC_NULL_AREA)
+							{
+								nc++;
+							}
+						}
+					}
+					// At least one missing neighbour.
+					if (nc != 4)
+						dist[i] = 0;
+				}
+			}
+		}
+	}
+
+	unsigned char nd;
+
+	// Pass 1
+	for (int y = 0; y < h; ++y)
+	{
+		for (int x = 0; x < w; ++x)
+		{
+			const rcCompactCell& c = compactHeightfield.cells[x + y*w];
+			for (int i = (int)c.index, ni = (int)(c.index + c.count); i < ni; ++i)
+			{
+				const rcCompactSpan& s = compactHeightfield.spans[i];
+
+				if (rcGetCon(s, 0) != RC_NOT_CONNECTED)
+				{
+					// (-1,0)
+					const int ax = x + rcGetDirOffsetX(0);
+					const int ay = y + rcGetDirOffsetY(0);
+					const int ai = (int)compactHeightfield.cells[ax + ay * w].index + rcGetCon(s, 0);
+					const rcCompactSpan& as = compactHeightfield.spans[ai];
+					nd = (unsigned char)rcMin((int)dist[ai] + 2, 255);
+					if (nd < dist[i])
+						dist[i] = nd;
+
+					// (-1,-1)
+					if (rcGetCon(as, 3) != RC_NOT_CONNECTED)
+					{
+						const int aax = ax + rcGetDirOffsetX(3);
+						const int aay = ay + rcGetDirOffsetY(3);
+						const int aai = (int)compactHeightfield.cells[aax + aay * w].index + rcGetCon(as, 3);
+						nd = (unsigned char)rcMin((int)dist[aai] + 3, 255);
+						if (nd < dist[i])
+							dist[i] = nd;
+					}
+				}
+				if (rcGetCon(s, 3) != RC_NOT_CONNECTED)
+				{
+					// (0,-1)
+					const int ax = x + rcGetDirOffsetX(3);
+					const int ay = y + rcGetDirOffsetY(3);
+					const int ai = (int)compactHeightfield.cells[ax + ay * w].index + rcGetCon(s, 3);
+					const rcCompactSpan& as = compactHeightfield.spans[ai];
+					nd = (unsigned char)rcMin((int)dist[ai] + 2, 255);
+					if (nd < dist[i])
+						dist[i] = nd;
+
+					// (1,-1)
+					if (rcGetCon(as, 2) != RC_NOT_CONNECTED)
+					{
+						const int aax = ax + rcGetDirOffsetX(2);
+						const int aay = ay + rcGetDirOffsetY(2);
+						const int aai = (int)compactHeightfield.cells[aax + aay * w].index + rcGetCon(as, 2);
+						nd = (unsigned char)rcMin((int)dist[aai] + 3, 255);
+						if (nd < dist[i])
+							dist[i] = nd;
+					}
+				}
+			}
+		}
+	}
+
+	// Pass 2
+	for (int y = h - 1; y >= 0; --y)
+	{
+		for (int x = w - 1; x >= 0; --x)
+		{
+			const rcCompactCell& c = compactHeightfield.cells[x + y * w];
+			for (int i = (int)c.index, ni = (int)(c.index + c.count); i < ni; ++i)
+			{
+				const rcCompactSpan& s = compactHeightfield.spans[i];
+
+				if (rcGetCon(s, 2) != RC_NOT_CONNECTED)
+				{
+					// (1,0)
+					const int ax = x + rcGetDirOffsetX(2);
+					const int ay = y + rcGetDirOffsetY(2);
+					const int ai = (int)compactHeightfield.cells[ax + ay * w].index + rcGetCon(s, 2);
+					const rcCompactSpan& as = compactHeightfield.spans[ai];
+					nd = (unsigned char)rcMin((int)dist[ai] + 2, 255);
+					if (nd < dist[i])
+						dist[i] = nd;
+
+					// (1,1)
+					if (rcGetCon(as, 1) != RC_NOT_CONNECTED)
+					{
+						const int aax = ax + rcGetDirOffsetX(1);
+						const int aay = ay + rcGetDirOffsetY(1);
+						const int aai = (int)compactHeightfield.cells[aax + aay * w].index + rcGetCon(as, 1);
+						nd = (unsigned char)rcMin((int)dist[aai] + 3, 255);
+						if (nd < dist[i])
+							dist[i] = nd;
+					}
+				}
+				if (rcGetCon(s, 1) != RC_NOT_CONNECTED)
+				{
+					// (0,1)
+					const int ax = x + rcGetDirOffsetX(1);
+					const int ay = y + rcGetDirOffsetY(1);
+					const int ai = (int)compactHeightfield.cells[ax + ay * w].index + rcGetCon(s, 1);
+					const rcCompactSpan& as = compactHeightfield.spans[ai];
+					nd = (unsigned char)rcMin((int)dist[ai] + 2, 255);
+					if (nd < dist[i])
+						dist[i] = nd;
+
+					// (-1,1)
+					if (rcGetCon(as, 0) != RC_NOT_CONNECTED)
+					{
+						const int aax = ax + rcGetDirOffsetX(0);
+						const int aay = ay + rcGetDirOffsetY(0);
+						const int aai = (int)compactHeightfield.cells[aax + aay * w].index + rcGetCon(as, 0);
+						nd = (unsigned char)rcMin((int)dist[aai] + 3, 255);
+						if (nd < dist[i])
+							dist[i] = nd;
+					}
+				}
+			}
+		}
+	}
+
+	for (int i = 0; i < compactHeightfield.spanCount; ++i)
+	{
+		if (dist[i] < (unsigned char)(radius * 2))
+		{
+			compactHeightfield.areas[i] = RC_NULL_AREA;
+		}
+	}
+
+	rcFree(dist);
+
+	ctx->stopTimer(RC_TIMER_ERODE_AREA);
 
 	return true;
 }
