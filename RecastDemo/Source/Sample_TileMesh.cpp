@@ -915,12 +915,12 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 		
 	// Init build configuration from GUI
 	memset(&m_cfg, 0, sizeof(m_cfg));
-	m_cfg.cs = m_cellSize;
+	m_cfg.xzPlaneFieldCellSize = m_cellSize;
 	m_cfg.ch = m_cellHeight;
 	m_cfg.walkableSlopeAngle = m_agentMaxSlope;
 	m_cfg.walkableHeight = (int)ceilf(m_agentHeight / m_cfg.ch);
 	m_cfg.walkableClimb = (int)floorf(m_agentMaxClimb / m_cfg.ch);
-	m_cfg.walkableRadius = (int)ceilf(m_agentRadius / m_cfg.cs);
+	m_cfg.walkableRadius = (int)ceilf(m_agentRadius / m_cfg.xzPlaneFieldCellSize);
 	m_cfg.maxEdgeLen = (int)(m_edgeMaxLen / m_cellSize);
 	m_cfg.maxSimplificationError = m_edgeMaxError;
 	m_cfg.minRegionArea = (int)rcSqr(m_regionMinSize);		// Note: area = size*size
@@ -956,10 +956,10 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	// or use the bounding box below to only pass in a sliver of each of the 8 neighbours.
 	rcVcopy(m_cfg.bmin, bmin);
 	rcVcopy(m_cfg.bmax, bmax);
-	m_cfg.bmin[0] -= m_cfg.borderSize * m_cfg.cs;
-	m_cfg.bmin[2] -= m_cfg.borderSize * m_cfg.cs;
-	m_cfg.bmax[0] += m_cfg.borderSize * m_cfg.cs;
-	m_cfg.bmax[2] += m_cfg.borderSize * m_cfg.cs;
+	m_cfg.bmin[0] -= m_cfg.borderSize * m_cfg.xzPlaneFieldCellSize;
+	m_cfg.bmin[2] -= m_cfg.borderSize * m_cfg.xzPlaneFieldCellSize;
+	m_cfg.bmax[0] += m_cfg.borderSize * m_cfg.xzPlaneFieldCellSize;
+	m_cfg.bmax[2] += m_cfg.borderSize * m_cfg.xzPlaneFieldCellSize;
 	
 	// Reset build times gathering.
 	m_ctx->resetTimers();
@@ -978,7 +978,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'solid'.");
 		return nullptr;
 	}
-	if (!rcCreateHeightfield(m_ctx, *m_solid, m_cfg.width, m_cfg.height, m_cfg.bmin, m_cfg.bmax, m_cfg.cs, m_cfg.ch))
+	if (!rcCreateHeightfield(m_ctx, *m_solid, m_cfg.width, m_cfg.height, m_cfg.bmin, m_cfg.bmax, m_cfg.xzPlaneFieldCellSize, m_cfg.ch))
 	{
 		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Could not create solid heightfield.");
 		return nullptr;
@@ -1247,7 +1247,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 		params.tileLayer = 0;
 		rcVcopy(params.bmin, m_pmesh->bmin);
 		rcVcopy(params.bmax, m_pmesh->bmax);
-		params.cs = m_cfg.cs;
+		params.cs = m_cfg.xzPlaneFieldCellSize;
 		params.ch = m_cfg.ch;
 		params.buildBvTree = true;
 		

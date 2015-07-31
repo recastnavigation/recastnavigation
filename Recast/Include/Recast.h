@@ -190,7 +190,7 @@ struct rcConfig
 	int borderSize;
 
 	/// The xz-plane cell size to use for fields. [Limit: > 0] [Units: wu] 
-	float cs;
+	float xzPlaneFieldCellSize;
 
 	/// The y-axis cell size to use for fields. [Limit: > 0] [Units: wu]
 	float ch;
@@ -255,10 +255,10 @@ static const int RC_SPANS_PER_POOL = 2048;
 /// @see rcHeightfield
 struct rcSpan
 {
-	unsigned int smin : 13;			///< The lower limit of the span. [Limit: < #smax]
-	unsigned int smax : 13;			///< The upper limit of the span. [Limit: <= #RC_SPAN_MAX_HEIGHT]
-	unsigned int area : 6;			///< The area id assigned to the span.
-	rcSpan* next;					///< The next span higher up in column.
+	unsigned int smin : RC_SPAN_HEIGHT_BITS;	///< The lower limit of the span. [Limit: < #smax]
+	unsigned int smax : RC_SPAN_HEIGHT_BITS;	///< The upper limit of the span. [Limit: <= #RC_SPAN_MAX_HEIGHT]
+	unsigned int area : 6;						///< The area id assigned to the span.
+	rcSpan* next;								///< The next span higher up in column.
 };
 
 /// A memory pool used for quick allocation of spans within a heightfield.
