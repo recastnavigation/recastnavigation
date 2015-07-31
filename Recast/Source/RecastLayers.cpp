@@ -523,8 +523,8 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 
 		layer->width = lw;
 		layer->height = lh;
-		layer->cs = chf.cs;
-		layer->ch = chf.ch;
+		layer->cellSizeXZ = chf.cs;
+		layer->cellSizeY = chf.ch;
 		
 		// Adjust the bbox to fit the heightfield.
 		rcVcopy(layer->bmin, bmin);

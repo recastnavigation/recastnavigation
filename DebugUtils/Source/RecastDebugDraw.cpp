@@ -328,8 +328,8 @@ void duDebugDrawCompactHeightfieldDistance(duDebugDraw* dd, const rcCompactHeigh
 
 static void drawLayerPortals(duDebugDraw* dd, const rcHeightfieldLayer* layer)
 {
-	const float cs = layer->cs;
-	const float ch = layer->ch;
+	const float cs = layer->cellSizeXZ;
+	const float ch = layer->cellSizeY;
 	const int w = layer->width;
 	const int h = layer->height;
 	
@@ -369,8 +369,8 @@ static void drawLayerPortals(duDebugDraw* dd, const rcHeightfieldLayer* layer)
 
 void duDebugDrawHeightfieldLayer(duDebugDraw* dd, const struct rcHeightfieldLayer& layer, const int idx)
 {
-	const float cs = layer.cs;
-	const float ch = layer.ch;
+	const float cs = layer.cellSizeXZ;
+	const float ch = layer.cellSizeY;
 	const int w = layer.width;
 	const int h = layer.height;
 	
