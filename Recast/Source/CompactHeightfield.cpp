@@ -447,3 +447,51 @@ bool rcMedianFilterWalkableArea(rcContext* ctx, rcCompactHeightfield& chf)
 
 	return true;
 }
+
+/// @par
+///
+/// The value of spacial parameters are in world units.
+/// 
+/// @see rcCompactHeightfield, rcMedianFilterWalkableArea
+void rcMarkBoxArea(rcContext* ctx, const float* bmin, const float* bmax, unsigned char areaId, rcCompactHeightfield& chf)
+{
+	rcAssert(ctx);
+
+	ctx->startTimer(RC_TIMER_MARK_BOX_AREA);
+
+	int minx = (int)((bmin[0] - chf.bmin[0]) / chf.cs);
+	int miny = (int)((bmin[1] - chf.bmin[1]) / chf.ch);
+	int minz = (int)((bmin[2] - chf.bmin[2]) / chf.cs);
+	int maxx = (int)((bmax[0] - chf.bmin[0]) / chf.cs);
+	int maxy = (int)((bmax[1] - chf.bmin[1]) / chf.ch);
+	int maxz = (int)((bmax[2] - chf.bmin[2]) / chf.cs);
+
+	if (maxx < 0) return;
+	if (minx >= chf.width) return;
+	if (maxz < 0) return;
+	if (minz >= chf.height) return;
+
+	if (minx < 0) minx = 0;
+	if (maxx >= chf.width) maxx = chf.width - 1;
+	if (minz < 0) minz = 0;
+	if (maxz >= chf.height) maxz = chf.height - 1;
+
+	for (int z = minz; z <= maxz; ++z)
+	{
+		for (int x = minx; x <= maxx; ++x)
+		{
+			const rcCompactCell& c = chf.cells[x + z*chf.width];
+			for (int i = (int)c.index, ni = (int)(c.index + c.count); i < ni; ++i)
+			{
+				rcCompactSpan& s = chf.spans[i];
+				if ((int)s.minY >= miny && (int)s.minY <= maxy)
+				{
+					if (chf.areas[i] != RC_NULL_AREA)
+						chf.areas[i] = areaId;
+				}
+			}
+		}
+	}
+
+	ctx->stopTimer(RC_TIMER_MARK_BOX_AREA);
+}
