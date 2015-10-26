@@ -21,61 +21,79 @@
 
 #include "DetourNavMesh.h"
 
+#include <string>
+#include <vector>
+
+using std::string;
+using std::vector;
+
 class TestCase
 {
-	enum TestType
-	{
-		TEST_PATHFIND,
-		TEST_RAYCAST,
-	};
-	
-	struct Test
-	{
-		Test() : straight(0), nstraight(0), polys(0), npolys(0) {};
-		~Test()
-		{
-			delete [] straight;
-			delete [] polys;
-		}
-		
-		TestType type;
-		float spos[3], epos[3];
-		float nspos[3], nepos[3];
-		float radius;
-		int includeFlags, excludeFlags;
-		bool expand;
-		
-		float* straight;
-		int nstraight;
-		dtPolyRef* polys;
-		int npolys;
-		
-		int findNearestPolyTime;
-		int findPathTime;
-		int findStraightPathTime;
-		
-		Test* next;
-	};
-
-	char m_sampleName[256];
-	char m_geomFileName[256];
-	Test* m_tests;
-	
-	void resetTimes();
-	
 public:
-	TestCase();
-	~TestCase();
-
-	bool load(const char* filePath);
+	bool load(string filePath);
 	
-	inline const char* getSampleName() const { return m_sampleName; }
-	inline const char* getGeomFileName() const { return m_geomFileName; }
+	inline const string& getSampleName() const { return m_sampleName; }
+	inline const string& getGeomFileName() const { return m_geomFileName; }
 	
 	void doTests(class dtNavMesh* navmesh, class dtNavMeshQuery* navquery);
 	
 	void handleRender();
 	bool handleRenderOverlay(double* proj, double* model, int* view);
+
+private:
+	enum TestType
+	{
+		TEST_PATHFIND,
+		TEST_RAYCAST
+	};
+
+	struct Test
+	{
+		Test(TestType testType, bool expandRender)
+			: type(testType)
+			, radius(0)
+			, includeFlags(0)
+			, excludeFlags(0)
+			, expand(expandRender)
+			, nstraight(0)
+			, npolys(0)
+			, findNearestPolyTime(0)
+			, findPathTime(0)
+			, findStraightPathTime(0)
+		{
+			for (int i = 0; i < 3; ++i) {
+				spos[i] = 0;
+				epos[i] = 0;
+				nspos[i] = 0;
+				nepos[i] = 0;
+			}
+		}
+
+		TestType type;
+        float spos[3];
+        float epos[3];
+        float nspos[3];
+        float nepos[3];
+		float radius;
+        unsigned short includeFlags;
+        unsigned short excludeFlags;
+		bool expand;
+
+		vector<float> straight;
+		int nstraight;
+		vector<dtPolyRef> polys;
+		int npolys;
+
+		int findNearestPolyTime;
+		int findPathTime;
+		int findStraightPathTime;
+	};
+
+	void resetTimes();
+
+	string m_sampleName;
+	string m_geomFileName;
+	vector<Test> m_tests;
 };
 
 #endif // TESTCASE_H

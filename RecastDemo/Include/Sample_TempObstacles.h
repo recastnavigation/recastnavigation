@@ -24,7 +24,6 @@
 #include "Recast.h"
 #include "ChunkyTriMesh.h"
 
-
 class Sample_TempObstacles : public Sample
 {
 protected:

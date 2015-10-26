@@ -19,35 +19,38 @@
 #ifndef SLIDESHOW_H
 #define SLIDESHOW_H
 
-#include "Filelist.h"
+#include <vector>
+#include <string>
+
+using std::vector;
+using std::string;
 
 class SlideShow
 {
-	FileList m_files;
-	char m_path[256];
+public:
+	SlideShow(string path);
+	~SlideShow();
+
+	void nextSlide();
+	void prevSlide();
+	void setSlide(int n);
+	void updateAndDraw(float dt, const float w, const float h);
+
+private:
+	void purgeImage();
+	bool loadImage(const string& path);
+
+	vector<string> m_files;
+	string m_path;
 
 	int m_width;
 	int m_height;
 	unsigned int m_texId;
 
-	void purgeImage();
-	bool loadImage(const char* path);
-
-	bool m_showSlides;
 	bool m_showCurSlide;
 	float m_slideAlpha;
 	int m_curSlide;
 	int m_nextSlide;
-	
-public:
-	SlideShow();
-	~SlideShow();
-
-	bool init(const char* path);
-	void nextSlide();
-	void prevSlide();
-	void setSlide(int n);
-	void updateAndDraw(float dt, const float w, const float h);
 };
 
 #endif // SLIDESHOW_H

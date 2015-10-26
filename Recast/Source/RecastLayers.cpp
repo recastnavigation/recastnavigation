@@ -242,8 +242,8 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 				const unsigned char ri = srcReg[i];
 				if (ri == 0xff) continue;
 				
-				regs[ri].ymin = rcMin(regs[ri].ymin, s.y);
-				regs[ri].ymax = rcMax(regs[ri].ymax, s.y);
+				regs[ri].ymin = rcMin(regs[ri].ymin, s.minY);
+				regs[ri].ymax = rcMax(regs[ri].ymax, s.minY);
 				
 				// Collect all region layers.
 				if (nlregs < RC_MAX_LAYERS)
@@ -523,8 +523,8 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 
 		layer->width = lw;
 		layer->height = lh;
-		layer->cs = chf.cs;
-		layer->ch = chf.ch;
+		layer->cellSizeXZ = chf.cs;
+		layer->cellSizeY = chf.ch;
 		
 		// Adjust the bbox to fit the heightfield.
 		rcVcopy(layer->bmin, bmin);
@@ -567,7 +567,7 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 					
 					// Store height and area type.
 					const int idx = x+y*lw;
-					layer->heights[idx] = (unsigned char)(s.y - hmin);
+					layer->heights[idx] = (unsigned char)(s.minY - hmin);
 					layer->areas[idx] = chf.areas[j];
 					
 					// Check connection.
@@ -587,8 +587,8 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 								portal |= (unsigned char)(1<<dir);
 								// Update height so that it matches on both sides of the portal.
 								const rcCompactSpan& as = chf.spans[ai];
-								if (as.y > hmin)
-									layer->heights[idx] = rcMax(layer->heights[idx], (unsigned char)(as.y - hmin));
+								if (as.minY > hmin)
+									layer->heights[idx] = rcMax(layer->heights[idx], (unsigned char)(as.minY - hmin));
 							}
 							// Valid connection mask
 							if (chf.areas[ai] != RC_NULL_AREA && lid == alid)

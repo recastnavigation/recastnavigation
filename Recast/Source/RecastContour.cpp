@@ -31,14 +31,14 @@ static int getCornerHeight(int x, int y, int i, int dir,
 						   bool& isBorderVertex)
 {
 	const rcCompactSpan& s = chf.spans[i];
-	int ch = (int)s.y;
+	int ch = (int)s.minY;
 	int dirp = (dir+1) & 0x3;
 	
 	unsigned int regs[4] = {0,0,0,0};
 	
 	// Combine region and area codes in order to prevent
 	// border vertices which are in between two areas to be removed.
-	regs[0] = chf.spans[i].reg | (chf.areas[i] << 16);
+	regs[0] = chf.spans[i].regionID | (chf.areas[i] << 16);
 	
 	if (rcGetCon(s, dir) != RC_NOT_CONNECTED)
 	{
@@ -46,16 +46,16 @@ static int getCornerHeight(int x, int y, int i, int dir,
 		const int ay = y + rcGetDirOffsetY(dir);
 		const int ai = (int)chf.cells[ax+ay*chf.width].index + rcGetCon(s, dir);
 		const rcCompactSpan& as = chf.spans[ai];
-		ch = rcMax(ch, (int)as.y);
-		regs[1] = chf.spans[ai].reg | (chf.areas[ai] << 16);
+		ch = rcMax(ch, (int)as.minY);
+		regs[1] = chf.spans[ai].regionID | (chf.areas[ai] << 16);
 		if (rcGetCon(as, dirp) != RC_NOT_CONNECTED)
 		{
 			const int ax2 = ax + rcGetDirOffsetX(dirp);
 			const int ay2 = ay + rcGetDirOffsetY(dirp);
 			const int ai2 = (int)chf.cells[ax2+ay2*chf.width].index + rcGetCon(as, dirp);
 			const rcCompactSpan& as2 = chf.spans[ai2];
-			ch = rcMax(ch, (int)as2.y);
-			regs[2] = chf.spans[ai2].reg | (chf.areas[ai2] << 16);
+			ch = rcMax(ch, (int)as2.minY);
+			regs[2] = chf.spans[ai2].regionID | (chf.areas[ai2] << 16);
 		}
 	}
 	if (rcGetCon(s, dirp) != RC_NOT_CONNECTED)
@@ -64,16 +64,16 @@ static int getCornerHeight(int x, int y, int i, int dir,
 		const int ay = y + rcGetDirOffsetY(dirp);
 		const int ai = (int)chf.cells[ax+ay*chf.width].index + rcGetCon(s, dirp);
 		const rcCompactSpan& as = chf.spans[ai];
-		ch = rcMax(ch, (int)as.y);
-		regs[3] = chf.spans[ai].reg | (chf.areas[ai] << 16);
+		ch = rcMax(ch, (int)as.minY);
+		regs[3] = chf.spans[ai].regionID | (chf.areas[ai] << 16);
 		if (rcGetCon(as, dir) != RC_NOT_CONNECTED)
 		{
 			const int ax2 = ax + rcGetDirOffsetX(dir);
 			const int ay2 = ay + rcGetDirOffsetY(dir);
 			const int ai2 = (int)chf.cells[ax2+ay2*chf.width].index + rcGetCon(as, dir);
 			const rcCompactSpan& as2 = chf.spans[ai2];
-			ch = rcMax(ch, (int)as2.y);
-			regs[2] = chf.spans[ai2].reg | (chf.areas[ai2] << 16);
+			ch = rcMax(ch, (int)as2.minY);
+			regs[2] = chf.spans[ai2].regionID | (chf.areas[ai2] << 16);
 		}
 	}
 
@@ -139,7 +139,7 @@ static void walkContour(int x, int y, int i,
 				const int ax = x + rcGetDirOffsetX(dir);
 				const int ay = y + rcGetDirOffsetY(dir);
 				const int ai = (int)chf.cells[ax+ay*chf.width].index + rcGetCon(s, dir);
-				r = (int)chf.spans[ai].reg;
+				r = (int)chf.spans[ai].regionID;
 				if (area != chf.areas[ai])
 					isAreaBorder = true;
 			}
@@ -844,8 +844,8 @@ bool rcBuildContours(rcContext* ctx, rcCompactHeightfield& chf,
 		cset.bmax[0] -= pad;
 		cset.bmax[2] -= pad;
 	}
-	cset.cs = chf.cs;
-	cset.ch = chf.ch;
+	cset.cellSizeXZ = chf.cs;
+	cset.cellSizeY = chf.ch;
 	cset.width = chf.width - chf.borderSize*2;
 	cset.height = chf.height - chf.borderSize*2;
 	cset.borderSize = chf.borderSize;
@@ -875,7 +875,7 @@ bool rcBuildContours(rcContext* ctx, rcCompactHeightfield& chf,
 			{
 				unsigned char res = 0;
 				const rcCompactSpan& s = chf.spans[i];
-				if (!chf.spans[i].reg || (chf.spans[i].reg & RC_BORDER_REG))
+				if (!chf.spans[i].regionID || (chf.spans[i].regionID & RC_BORDER_REG))
 				{
 					flags[i] = 0;
 					continue;
@@ -888,9 +888,9 @@ bool rcBuildContours(rcContext* ctx, rcCompactHeightfield& chf,
 						const int ax = x + rcGetDirOffsetX(dir);
 						const int ay = y + rcGetDirOffsetY(dir);
 						const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(s, dir);
-						r = chf.spans[ai].reg;
+						r = chf.spans[ai].regionID;
 					}
-					if (r == chf.spans[i].reg)
+					if (r == chf.spans[i].regionID)
 						res |= (1 << dir);
 				}
 				flags[i] = res ^ 0xf; // Inverse, mark non connected edges.
@@ -915,7 +915,7 @@ bool rcBuildContours(rcContext* ctx, rcCompactHeightfield& chf,
 					flags[i] = 0;
 					continue;
 				}
-				const unsigned short reg = chf.spans[i].reg;
+				const unsigned short reg = chf.spans[i].regionID;
 				if (!reg || (reg & RC_BORDER_REG))
 					continue;
 				const unsigned char area = chf.areas[i];

@@ -17,13 +17,14 @@
 //
 
 #include "SlideShow.h"
-#include <string.h>
-#include <stdio.h>
-#include <SDL_opengl.h>
-//#define STBI_HEADER_FILE_ONLY
-#include "stb_image.h"
 
-SlideShow::SlideShow() :
+#include "FileList.h"
+#include <SDL_opengl.h>
+#include "stb_image.h"
+#include <iostream>
+
+SlideShow::SlideShow(string path) :
+	m_path(path),
 	m_width(0),
 	m_height(0),
 	m_texId(0),
@@ -32,6 +33,7 @@ SlideShow::SlideShow() :
 	m_curSlide(-1),
 	m_nextSlide(0)
 {
+	scanDirectory(m_path, ".png", m_files);
 }
 
 SlideShow::~SlideShow()
@@ -50,15 +52,15 @@ void SlideShow::purgeImage()
 	}
 }
 
-bool SlideShow::loadImage(const char* path)
+bool SlideShow::loadImage(const string& path)
 {
 	purgeImage();
 	
 	int bpp;
-	unsigned char* data = stbi_load(path, &m_width, &m_height, &bpp, 4);
+	unsigned char* data = stbi_load(path.c_str(), &m_width, &m_height, &bpp, 4);
 	if (!data)
 	{
-		printf("Could not load file '%s': %s\n", path, stbi_failure_reason());
+		std::cerr << "Could not load file '" << path << "': " << stbi_failure_reason() << "\n";
 		return false;
 	}
 	
@@ -78,30 +80,22 @@ bool SlideShow::loadImage(const char* path)
 	return true;
 }
 
-bool SlideShow::init(const char* path)
-{
-	strcpy(m_path, path);
-	scanDirectory(m_path, ".png", m_files);
-	
-	return true;
-}
-
 void SlideShow::nextSlide()
 {
-	setSlide(m_nextSlide+1);
+	setSlide(m_nextSlide + 1);
 }
 
 void SlideShow::prevSlide()
 {
-	setSlide(m_nextSlide-1);
+	setSlide(m_nextSlide - 1);
 }
 
 void SlideShow::setSlide(int n)
 {
-	const int maxIdx = m_files.size ? m_files.size-1 : 0;
+	const int maxIdx = m_files.size() ? m_files.size() - 1 : 0;
 	m_nextSlide = n;
 	if (m_nextSlide < 0) m_nextSlide = 0;
-	if (m_nextSlide > maxIdx) m_nextSlide = maxIdx; 
+	if (m_nextSlide > maxIdx) m_nextSlide = maxIdx;
 }
 
 void SlideShow::updateAndDraw(float dt, const float w, const float h)
@@ -111,21 +105,19 @@ void SlideShow::updateAndDraw(float dt, const float w, const float h)
 		slideAlphaTarget = 0;
 	
 	if (slideAlphaTarget > m_slideAlpha)
-		m_slideAlpha += dt*4;
+		m_slideAlpha += dt * 4;
 	else if (slideAlphaTarget < m_slideAlpha)
-		m_slideAlpha -= dt*4;
+		m_slideAlpha -= dt * 4;
 	if (m_slideAlpha < 0) m_slideAlpha = 0;
 	if (m_slideAlpha > 1) m_slideAlpha = 1; 
 	
 	if (m_curSlide != m_nextSlide && m_slideAlpha < 0.01f)
 	{
 		m_curSlide = m_nextSlide;
-		if (m_curSlide >= 0 && m_curSlide < m_files.size)
+		if (m_curSlide >= 0 && m_curSlide < (int)m_files.size())
 		{
-			char path[256];
-			strcpy(path, m_path);
-			strcat(path, m_files.files[m_curSlide]);
-			loadImage(path);
+			string path = m_path + m_files[m_curSlide];
+			loadImage(path.c_str());
 		}
 	}
 	
@@ -138,8 +130,8 @@ void SlideShow::updateAndDraw(float dt, const float w, const float h)
 		
 		const float tw = (float)m_width;
 		const float th = (float)m_height;
-		const float hw = w*0.5f;
-		const float hh = h*0.5f;
+		const float hw = w * 0.5f;
+		const float hh = h * 0.5f;
 		
 		glColor4ub(255,255,255,alpha);
 		glBegin(GL_QUADS);

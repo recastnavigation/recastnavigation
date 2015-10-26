@@ -145,7 +145,7 @@ Sample_Debug::Sample_Debug() :
 				printf("bmin=(%f,%f,%f) bmax=(%f,%f,%f)\n",
 					   m_cset->bmin[0], m_cset->bmin[1], m_cset->bmin[2],
 					   m_cset->bmax[0], m_cset->bmax[1], m_cset->bmax[2]);
-				printf("cs=%f ch=%f\n", m_cset->cs, m_cset->ch);
+				printf("cs=%f ch=%f\n", m_cset->cellSizeXZ, m_cset->cellSizeY);
 			}
 			else
 			{

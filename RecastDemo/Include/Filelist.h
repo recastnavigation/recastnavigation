@@ -19,17 +19,12 @@
 #ifndef FILELIST_H
 #define FILELIST_H
 
-struct FileList
-{
-	static const int MAX_FILES = 256;
-	
-	FileList();
-	~FileList();
-	
-	char* files[MAX_FILES];
-	int size;
-};
+#include <vector>
+#include <string>
 
-void scanDirectory(const char* path, const char* ext, FileList& list);
+using std::vector;
+using std::string;
+
+void scanDirectory(string path, string ext, vector<string>& filelist);
 
 #endif // FILELIST_H

@@ -238,7 +238,7 @@ void duDebugDrawCompactHeightfieldSolid(duDebugDraw* dd, const rcCompactHeightfi
 				else
 					color = duIntToCol(chf.areas[i], 255);
 				
-				const float fy = chf.bmin[1] + (s.y+1)*ch;
+				const float fy = chf.bmin[1] + (s.minY+1)*ch;
 				dd->vertex(fx, fy, fz, color);
 				dd->vertex(fx, fy, fz+cs, color);
 				dd->vertex(fx+cs, fy, fz+cs, color);
@@ -269,10 +269,10 @@ void duDebugDrawCompactHeightfieldRegions(duDebugDraw* dd, const rcCompactHeight
 			for (unsigned i = c.index, ni = c.index+c.count; i < ni; ++i)
 			{
 				const rcCompactSpan& s = chf.spans[i];
-				const float fy = chf.bmin[1] + (s.y)*ch;
+				const float fy = chf.bmin[1] + (s.minY)*ch;
 				unsigned int color;
-				if (s.reg)
-					color = duIntToCol(s.reg, 192);
+				if (s.regionID)
+					color = duIntToCol(s.regionID, 192);
 				else
 					color = duRGBA(0,0,0,64);
 
@@ -313,7 +313,7 @@ void duDebugDrawCompactHeightfieldDistance(duDebugDraw* dd, const rcCompactHeigh
 			for (unsigned i = c.index, ni = c.index+c.count; i < ni; ++i)
 			{
 				const rcCompactSpan& s = chf.spans[i];
-				const float fy = chf.bmin[1] + (s.y+1)*ch;
+				const float fy = chf.bmin[1] + (s.minY+1)*ch;
 				const unsigned char cd = (unsigned char)(chf.dist[i] * dscale);
 				const unsigned int color = duRGBA(cd,cd,cd,255);
 				dd->vertex(fx, fy, fz, color);
@@ -328,8 +328,8 @@ void duDebugDrawCompactHeightfieldDistance(duDebugDraw* dd, const rcCompactHeigh
 
 static void drawLayerPortals(duDebugDraw* dd, const rcHeightfieldLayer* layer)
 {
-	const float cs = layer->cs;
-	const float ch = layer->ch;
+	const float cs = layer->cellSizeXZ;
+	const float ch = layer->cellSizeY;
 	const int w = layer->width;
 	const int h = layer->height;
 	
@@ -369,8 +369,8 @@ static void drawLayerPortals(duDebugDraw* dd, const rcHeightfieldLayer* layer)
 
 void duDebugDrawHeightfieldLayer(duDebugDraw* dd, const struct rcHeightfieldLayer& layer, const int idx)
 {
-	const float cs = layer.cs;
-	const float ch = layer.ch;
+	const float cs = layer.cellSizeXZ;
+	const float ch = layer.cellSizeY;
 	const int w = layer.width;
 	const int h = layer.height;
 	
@@ -683,8 +683,8 @@ void duDebugDrawRegionConnections(duDebugDraw* dd, const rcContourSet& cset, con
 	if (!dd) return;
 	
 	const float* orig = cset.bmin;
-	const float cs = cset.cs;
-	const float ch = cset.ch;
+	const float cs = cset.cellSizeXZ;
+	const float ch = cset.cellSizeY;
 	
 	// Draw centers
 	float pos[3], pos2[3];
@@ -731,8 +731,8 @@ void duDebugDrawRawContours(duDebugDraw* dd, const rcContourSet& cset, const flo
 	if (!dd) return;
 
 	const float* orig = cset.bmin;
-	const float cs = cset.cs;
-	const float ch = cset.ch;
+	const float cs = cset.cellSizeXZ;
+	const float ch = cset.cellSizeY;
 	
 	const unsigned char a = (unsigned char)(alpha*255.0f);
 	
@@ -794,8 +794,8 @@ void duDebugDrawContours(duDebugDraw* dd, const rcContourSet& cset, const float 
 	if (!dd) return;
 
 	const float* orig = cset.bmin;
-	const float cs = cset.cs;
-	const float ch = cset.ch;
+	const float cs = cset.cellSizeXZ;
+	const float ch = cset.cellSizeY;
 	
 	const unsigned char a = (unsigned char)(alpha*255.0f);
 	

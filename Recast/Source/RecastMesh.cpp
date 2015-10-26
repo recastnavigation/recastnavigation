@@ -987,8 +987,8 @@ bool rcBuildPolyMesh(rcContext* ctx, rcContourSet& cset, const int nvp, rcPolyMe
 
 	rcVcopy(mesh.bmin, cset.bmin);
 	rcVcopy(mesh.bmax, cset.bmax);
-	mesh.cs = cset.cs;
-	mesh.ch = cset.ch;
+	mesh.cs = cset.cellSizeXZ;
+	mesh.ch = cset.cellSizeY;
 	mesh.borderSize = cset.borderSize;
 	
 	int maxVertices = 0;
