@@ -2420,6 +2420,9 @@ dtStatus dtNavMeshQuery::raycast(dtPolyRef startRef, const float* startPos, cons
 			hit->pathCount = n;
 			return status;
 		}
+
+		hit->hitEdgeIndex = segMax;
+
 		// Keep track of furthest t so far.
 		if (tmax > hit->t)
 			hit->t = tmax;

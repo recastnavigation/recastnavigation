@@ -131,6 +131,9 @@ struct dtRaycastHit
 	
 	/// hitNormal	The normal of the nearest wall hit. [(x, y, z)]
 	float hitNormal[3];
+
+	/// The index of the edge on the final polygon where the wall was hit.
+	int hitEdgeIndex;
 	
 	/// Pointer to an array of reference ids of the visited polygons. [opt]
 	dtPolyRef* path;
