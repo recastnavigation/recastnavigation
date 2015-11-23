@@ -320,6 +320,81 @@ static void rasterizeTri(const float* v0, const float* v1, const float* v2,
 	}
 }
 
+static void rasterizeFilledConvexVolume(rcContext* ctx, const float* vertices, const int numVertices,
+									  const unsigned char area, rcHeightfield& hf,
+									  const float* bmin, const float* bmax,
+									  const float cs, const float ics, const float ch, const float ich,
+									  const int flagMergeThr)
+{
+	if (numVertices < 3) return;
+	
+	const int w = hf.width;
+	const int h = hf.height;
+	
+	// Calculate the bounding box of all the points
+	float tmin[3], tmax[3];
+	rcVcopy(tmin, &vertices[0]);
+	rcVcopy(tmax, &vertices[0]);
+	for (int i = 1; i < numVertices; ++i)
+	{
+		rcVmin(tmin, &vertices[i*3]);
+		rcVmax(tmax, &vertices[i*3]);
+	}
+	
+	// If the OBB does not touch the bbox of the heightfield, skip it.
+	if (!overlapBounds(bmin, bmax, tmin, tmax))
+		return;
+
+	// Calculate the footprint of the hull on the grid
+	int y0 = (int)((tmin[2] - bmin[2])*ics);
+	int y1 = (int)((tmax[2] - bmin[2])*ics);
+	y0 = rcClamp(y0, 0, h-1);
+	y1 = rcClamp(y1, 0, h-1);
+	
+	int x0 = (int)((tmin[0] - bmin[0])*ics);
+	int x1 = (int)((tmax[0] - bmin[0])*ics);
+	x0 = rcClamp(x0, 0, w-1);
+	x1 = rcClamp(x1, 0, w-1);
+	
+	// Allocate a temporary heightfield
+	rcHeightfield* tempField = rcAllocHeightfield();
+	rcCreateHeightfield(ctx, *tempField, x1-x0+1, y1-y0+1, tmin, tmax, cs, ch);
+	
+	// Rasterize every triple of vertices as a triangle into the temp heightfield
+	int vIds[3];
+	for(vIds[0] = 0; vIds[0] < numVertices; ++vIds[0])
+	{
+		for (vIds[1] = vIds[0] + 1; vIds[1] < numVertices; ++vIds[1])
+		{
+			for (vIds[2] = vIds[1] + 1; vIds[2] < numVertices; ++vIds[2])
+			{
+				rasterizeTri(&vertices[vIds[0]*3], &vertices[vIds[1]*3], &vertices[vIds[2]*3], area, *tempField, tmin, tmax, cs, ics, ich, flagMergeThr);
+			}
+		}
+	}
+	
+	// Combine all spans in the temp heightfield to fill in gaps, and merge into master heightfield
+	for (int y = 0; y < tempField->height; ++y)
+	{
+		for (int x = 0; x < tempField->width; ++x)
+		{
+			rcSpan* firstSpan = tempField->spans[y * tempField->width + x];
+			if (firstSpan == NULL) continue;
+			
+			rcSpan* span = firstSpan;
+			while (span->next)
+			{
+				span = span->next;
+				firstSpan->smax = span->smax;
+			}
+			
+			rcAddSpan(ctx, hf, x0 + x, y0 + y, firstSpan->smin, firstSpan->smax, area, flagMergeThr);
+		}
+	}
+	
+	rcFreeHeightField(tempField);
+}
+
 /// @par
 ///
 /// No spans will be added if the triangle does not overlap the heightfield grid.
@@ -419,6 +494,50 @@ void rcRasterizeTriangles(rcContext* ctx, const float* verts, const unsigned cha
 		// Rasterize.
 		rasterizeTri(v0, v1, v2, areas[i], solid, solid.bmin, solid.bmax, solid.cs, ics, ich, flagMergeThr);
 	}
+	
+	ctx->stopTimer(RC_TIMER_RASTERIZE_TRIANGLES);
+}
+
+void rcRasterizeFilledConvexVolume(rcContext* ctx, const float* vertices, const int numVertices, const unsigned char area, rcHeightfield& solid, int flagMergeThr)
+{
+	rcAssert(ctx);
+	
+	ctx->startTimer(RC_TIMER_RASTERIZE_TRIANGLES);
+
+	rasterizeFilledConvexVolume(ctx, vertices, numVertices, area, solid, solid.bmin, solid.bmax, solid.cs, 1.0f/solid.cs, solid.ch, 1.0f/solid.ch, flagMergeThr);
+	
+	ctx->stopTimer(RC_TIMER_RASTERIZE_TRIANGLES);
+}
+
+void rcRasterizeFilledOBB(rcContext* ctx, const float* center, const float* extent, const float* forward, const float* up,
+					const unsigned char area, rcHeightfield& solid, int flagMergeThr)
+{
+	rcAssert(ctx);
+	
+	ctx->startTimer(RC_TIMER_RASTERIZE_TRIANGLES);
+	
+	float right[3];
+	rcVcross(right, forward, up);
+	rcVnormalize(right);
+	
+	float trX[3] = {right[0], up[0], forward[0]};
+	float trY[3] = {right[1], up[1], forward[1]};
+	float trZ[3] = {right[2], up[2], forward[2]};
+	
+	// Generate the vertices for the OBB
+	float vertices[3*8];
+	for (int i = 0; i < 8; ++i)
+	{
+		float pt[3] = { (i & 1) ? extent[0] : -extent[0],
+						(i & 2) ? extent[1] : -extent[1],
+						(i & 4) ? extent[2] : -extent[2] };
+		vertices[i * 3 + 0] = rcVdot(pt, trX);
+		vertices[i * 3 + 1] = rcVdot(pt, trY);
+		vertices[i * 3 + 2] = rcVdot(pt, trZ);
+		rcVadd(&vertices[i*3], &vertices[i*3], center);
+	}
+	
+	rasterizeFilledConvexVolume(ctx, vertices, 8, area, solid, solid.bmin, solid.bmax, solid.cs, 1.0f/solid.cs, solid.ch, 1.0f/solid.ch, flagMergeThr);
 	
 	ctx->stopTimer(RC_TIMER_RASTERIZE_TRIANGLES);
 }
