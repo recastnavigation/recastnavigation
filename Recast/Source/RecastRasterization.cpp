@@ -19,6 +19,7 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <stdio.h>
+#include <float.h>
 #include "Recast.h"
 #include "RecastAlloc.h"
 #include "RecastAssert.h"
@@ -320,6 +321,39 @@ static void rasterizeTri(const float* v0, const float* v1, const float* v2,
 	}
 }
 
+static bool isHullTri(const float* vertices, const int numVertices, const int* triIndices)
+{
+	// Classify all the points in the hull against the plane of the triangle
+	// If they're not all on the same side, this triangle is not part of the hull
+	float va[3], vb[3];
+	rcVcopy(va, &vertices[triIndices[1]*3]);
+	rcVcopy(vb, &vertices[triIndices[2]*3]);
+	rcVsub(va, va, &vertices[triIndices[0]*3]);
+	rcVsub(vb, vb, &vertices[triIndices[0]*3]);
+	
+	float normal[3];
+	rcVcross(normal, va, vb);
+	
+	bool anyFront = false;
+	bool anyBack = false;
+	
+	for (int i = 0; i < numVertices; ++i)
+	{
+		float v[3];
+		rcVsub(v, &vertices[i*3], &vertices[triIndices[0]*3]);
+		float dot = rcVdot(v, normal);
+		if (dot > 0.001f)
+			anyFront = true;
+		if (dot < -0.001f)
+			anyBack = true;
+		
+		if (anyFront && anyBack)
+			return false;
+	}
+	
+	return true;
+}
+
 static void rasterizeFilledConvexVolume(rcContext* ctx, const float* vertices, const int numVertices,
 									  const unsigned char area, rcHeightfield& hf,
 									  const float* bmin, const float* bmax,
@@ -368,6 +402,8 @@ static void rasterizeFilledConvexVolume(rcContext* ctx, const float* vertices, c
 		{
 			for (vIds[2] = vIds[1] + 1; vIds[2] < numVertices; ++vIds[2])
 			{
+				if (!isHullTri(vertices, numVertices, vIds)) continue;
+				
 				rasterizeTri(&vertices[vIds[0]*3], &vertices[vIds[1]*3], &vertices[vIds[2]*3], area, *tempField, tmin, tmax, cs, ics, ich, flagMergeThr);
 			}
 		}
