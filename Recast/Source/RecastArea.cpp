@@ -48,7 +48,7 @@ void rcComputeDistanceField(rcCompactHeightfield& chf, unsigned char* dist, int 
 				{
 					dist[i] = 0;
 				}
-				else
+				else if(fromAreaID == RC_NULL_AREA)
 				{
 					const rcCompactSpan& s = chf.spans[i];
 					int nc = 0;
