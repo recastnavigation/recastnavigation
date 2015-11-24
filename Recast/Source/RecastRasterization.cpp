@@ -538,11 +538,11 @@ void rcRasterizeFilledConvexVolume(rcContext* ctx, const float* vertices, const 
 {
 	rcAssert(ctx);
 	
-	ctx->startTimer(RC_TIMER_RASTERIZE_TRIANGLES);
+	ctx->startTimer(RC_TIMER_RASTERIZE_CONVEX_VOLUMES);
 
 	rasterizeFilledConvexVolume(ctx, vertices, numVertices, area, solid, solid.bmin, solid.bmax, solid.cs, 1.0f/solid.cs, solid.ch, 1.0f/solid.ch, flagMergeThr);
 	
-	ctx->stopTimer(RC_TIMER_RASTERIZE_TRIANGLES);
+	ctx->stopTimer(RC_TIMER_RASTERIZE_CONVEX_VOLUMES);
 }
 
 void rcRasterizeFilledOBB(rcContext* ctx, const float* center, const float* extent, const float* forward, const float* up,
@@ -550,7 +550,7 @@ void rcRasterizeFilledOBB(rcContext* ctx, const float* center, const float* exte
 {
 	rcAssert(ctx);
 	
-	ctx->startTimer(RC_TIMER_RASTERIZE_TRIANGLES);
+	ctx->startTimer(RC_TIMER_RASTERIZE_CONVEX_VOLUMES);
 	
 	float right[3];
 	rcVcross(right, forward, up);
@@ -575,5 +575,5 @@ void rcRasterizeFilledOBB(rcContext* ctx, const float* center, const float* exte
 	
 	rasterizeFilledConvexVolume(ctx, vertices, 8, area, solid, solid.bmin, solid.bmax, solid.cs, 1.0f/solid.cs, solid.ch, 1.0f/solid.ch, flagMergeThr);
 	
-	ctx->stopTimer(RC_TIMER_RASTERIZE_TRIANGLES);
+	ctx->stopTimer(RC_TIMER_RASTERIZE_CONVEX_VOLUMES);
 }

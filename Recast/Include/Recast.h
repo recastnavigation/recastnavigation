@@ -41,6 +41,8 @@ enum rcTimerLabel
 	RC_TIMER_TEMP,
 	/// The time to rasterize the triangles. (See: #rcRasterizeTriangle)
 	RC_TIMER_RASTERIZE_TRIANGLES,
+	/// The time to rasterize filled convex volumes.
+	RC_TIMER_RASTERIZE_CONVEX_VOLUMES,
 	/// The time to build the compact heightfield. (See: #rcBuildCompactHeightfield)
 	RC_TIMER_BUILD_COMPACTHEIGHTFIELD,
 	/// The total time to build the contours. (See: #rcBuildContours)
