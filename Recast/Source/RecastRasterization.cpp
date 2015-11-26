@@ -379,20 +379,20 @@ static void rasterizeFilledConvexVolume(rcContext* ctx, const float* vertices, c
 	if (!overlapBounds(bmin, bmax, tmin, tmax))
 		return;
 
-	// Calculate the footprint of the hull on the grid
-	int y0 = (int)((tmin[2] - bmin[2])*ics);
-	int y1 = (int)((tmax[2] - bmin[2])*ics);
-	y0 = rcClamp(y0, 0, h-1);
-	y1 = rcClamp(y1, 0, h-1);
-	
-	int x0 = (int)((tmin[0] - bmin[0])*ics);
-	int x1 = (int)((tmax[0] - bmin[0])*ics);
-	x0 = rcClamp(x0, 0, w-1);
-	x1 = rcClamp(x1, 0, w-1);
+	// Clip the horizontal bounds that we're going to rasterize to the heightfield bbox
+	// Don't clip the vertical because we might lose bounding polys that way and fail to fill things
+	tmax[0] = rcMin(tmax[0], bmax[0]);
+	tmax[2] = rcMin(tmax[2], bmax[2]);
+	tmin[0] = rcMax(tmin[0], bmin[0]);
+	tmin[2] = rcMax(tmin[2], bmin[2]);
+
+	int tw = (int)((tmax[0] - tmin[0])*ics);
+	int th = (int)((tmax[2] - tmin[2])*ics);
+	if (tw == 0 || th == 0) return;
 	
 	// Allocate a temporary heightfield
 	rcHeightfield* tempField = rcAllocHeightfield();
-	rcCreateHeightfield(ctx, *tempField, x1-x0+1, y1-y0+1, tmin, tmax, cs, ch);
+	rcCreateHeightfield(ctx, *tempField, tw, th, tmin, tmax, cs, ch);
 	
 	// Rasterize every triple of vertices as a triangle into the temp heightfield
 	int vIds[3];
@@ -408,6 +408,11 @@ static void rasterizeFilledConvexVolume(rcContext* ctx, const float* vertices, c
 			}
 		}
 	}
+
+	// Calculate offsets for feeding spans back into the master heightfield
+	int xOffset = (tmin[0] - bmin[0])*ics;
+	int vOffset = (tmin[1] - bmin[1])*ich;
+	int zOffset = (tmin[2] - bmin[2])*ics;
 	
 	// Combine all spans in the temp heightfield to fill in gaps, and merge into master heightfield
 	for (int y = 0; y < tempField->height; ++y)
@@ -423,8 +428,11 @@ static void rasterizeFilledConvexVolume(rcContext* ctx, const float* vertices, c
 				span = span->next;
 				firstSpan->smax = span->smax;
 			}
+
+			firstSpan->smin = rcMax(0u, firstSpan->smin + vOffset);
+			firstSpan->smax = rcMax(firstSpan->smin, firstSpan->smax + vOffset);
 			
-			rcAddSpan(ctx, hf, x0 + x, y0 + y, firstSpan->smin, firstSpan->smax, area, flagMergeThr);
+			rcAddSpan(ctx, hf, xOffset + x, zOffset + y, firstSpan->smin, firstSpan->smax, area, flagMergeThr);
 		}
 	}
 	
