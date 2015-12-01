@@ -429,8 +429,8 @@ static void rasterizeFilledConvexVolume(rcContext* ctx, const float* vertices, c
 				firstSpan->smax = span->smax;
 			}
 
-			firstSpan->smin = rcMax(0u, firstSpan->smin + vOffset);
-			firstSpan->smax = rcMax(firstSpan->smin, firstSpan->smax + vOffset);
+			firstSpan->smin = rcMax(0, (signed)firstSpan->smin + vOffset);
+			firstSpan->smax = rcMax((signed)firstSpan->smin, (signed)firstSpan->smax + vOffset);
 			
 			rcAddSpan(ctx, hf, xOffset + x, zOffset + y, firstSpan->smin, firstSpan->smax, area, flagMergeThr);
 		}
