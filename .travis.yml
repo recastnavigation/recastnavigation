@@ -17,7 +17,7 @@ before_install:
   - sudo apt-get install -qq libsdl1.2-dev
 
 install:
-  - wget https://github.com/premake/premake-core/releases/download/v5.0.0-alpha6/premake-5.0.0-alpha6-linux.tar.gz premake.tar.gz
+  - wget https://github.com/premake/premake-core/releases/download/v5.0.0-alpha6/premake-5.0.0-alpha6-linux.tar.gz -O premake.tar.gz
   - tar -xzvf premake.tar.gz
 
 # Run premake to generate makefiles.
