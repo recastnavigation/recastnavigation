@@ -14,7 +14,7 @@ env:
 # Install SDL 1.2 development libraries.
 before_install:
   - sudo apt-get update -qq
-  - sudo apt-get install -qq libsdl1.2-dev
+  - sudo apt-get install -qq libsdl1.2-dev libc6
 
 install:
   - wget https://github.com/premake/premake-core/releases/download/v5.0.0-alpha6/premake-5.0.0-alpha6-linux.tar.gz -O premake.tar.gz
