@@ -3,6 +3,12 @@ os:
   - Visual Studio 2015 CTP 6
 
 install:
+  # Download Premake
+  - ps: Start-FileDownload 'https://github.com/premake/premake-core/releases/download/v5.0.0-alpha6/premake-5.0.0-alpha6-windows.zip' 'premake.zip'
+  
+  # Extract it in-place; premake5.exe is at the top level.
+  7z x premake.zip
+
   # Download SDL.
   - ps: Start-FileDownload 'https://www.libsdl.org/release/SDL-devel-1.2.15-VC.zip' 'RecastDemo/Contrib/SDL.zip'
   
@@ -10,7 +16,7 @@ install:
   - cd RecastDemo/Contrib && 7z x SDL.zip && mv SDL-1.2.15 SDL && cd ../..
   
   # Generate solution files using premake.
-  - cd RecastDemo && "../premake/premake5.exe" vs2013 && cd ..
+  - cd RecastDemo && "../premake5.exe" vs2013 && cd ..
 
 configuration:
   - Debug

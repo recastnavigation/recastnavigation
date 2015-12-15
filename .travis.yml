@@ -16,10 +16,14 @@ before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -qq libsdl1.2-dev
 
+install:
+  - wget https://github.com/premake/premake-core/releases/download/v5.0.0-alpha6/premake-5.0.0-alpha6-linux.tar.gz premake.tar.gz
+  - tar -xzvf premake.tar.gz
+
 # Run premake to generate makefiles.
 # Have to cd into directory and back out since premake5 doesn't appear to accept a directory argument.
 before_script:
-  - cd RecastDemo && ../premake/premake5 gmake && cd ..
+  - cd RecastDemo && ../premake5 gmake && cd ..
 
 # Run make in the directory containing generated makefiles, on the configuration specified by the environment variable.
 script:
