@@ -7,7 +7,7 @@ install:
   - ps: Start-FileDownload 'https://github.com/premake/premake-core/releases/download/v5.0.0-alpha6/premake-5.0.0-alpha6-windows.zip' 'premake.zip'
   
   # Extract it in-place; premake5.exe is at the top level.
-  7z x premake.zip
+  - 7z x premake.zip
 
   # Download SDL.
   - ps: Start-FileDownload 'https://www.libsdl.org/release/SDL-devel-1.2.15-VC.zip' 'RecastDemo/Contrib/SDL.zip'
