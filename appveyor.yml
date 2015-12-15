@@ -1,6 +1,5 @@
 os:
-  - Windows Server 2012 R2
-  - Visual Studio 2015 CTP 6
+  - Visual Studio 2015
 
 install:
   # Download Premake
