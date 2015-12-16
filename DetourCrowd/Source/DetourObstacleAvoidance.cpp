@@ -547,8 +547,8 @@ int dtObstacleAvoidanceQuery::sampleVelocityAdaptive(const float* pos, const flo
 	for (int j = 0; j < nr; ++j)
 	{
 		const float r = (float)(nr-j)/(float)nr;
-		pat[npat*2+0] = ddir[0] * r;
-		pat[npat*2+1] = ddir[2] * r;
+		pat[npat*2+0] = ddir[(j%2)*3] * r;
+		pat[npat*2+1] = ddir[(j%2)*3+2] * r;
 		float* last1 = pat + npat*2;
 		float* last2 = last1;
 		npat++;
