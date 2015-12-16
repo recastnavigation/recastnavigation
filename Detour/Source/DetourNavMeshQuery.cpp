@@ -712,7 +712,7 @@ dtStatus dtNavMeshQuery::findNearestPoly(const float* center, const float* exten
 {
 	dtAssert(m_nav);
 
-	*nearestRef = 0;
+	if(nearestRef)*nearestRef = 0;
 	
 	// Get nearby polygons from proximity grid.
 	const int MAX_SEARCH = 128;
