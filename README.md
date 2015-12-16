@@ -2,8 +2,8 @@
 Recast & Detour
 ===============
 
-[![Travis (Linux) Build Status](https://travis-ci.org/hymerman/recastnavigation.svg?branch=continuous-integration-setup)](https://travis-ci.org/hymerman/recastnavigation)
-[![Appveyor (Windows) build status](https://ci.appveyor.com/api/projects/status/4s8cunkkp81hshyq/branch/continuous-integration-setup?svg=true)](https://ci.appveyor.com/project/hymerman/recastnavigation/branch/continuous-integration-setup)
+[![Travis (Linux) Build Status](https://travis-ci.org/recastnavigation/recastnavigation.svg?branch=master)](https://travis-ci.org/recastnavigation/recastnavigation)
+[![Appveyor (Windows) Build  Status](https://ci.appveyor.com/api/projects/status/20w84u25b3f8h179/branch/master?svg=true)](https://ci.appveyor.com/project/recastnavigation/recastnavigation/branch/master)
 
 [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/memononen/recastnavigation/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
 
