@@ -3,6 +3,10 @@ shallow_clone: true
 os:
   - Visual Studio 2015
 
+environment:
+  - TOOLSET: vs2013
+  - TOOLSET: vs2015
+
 install:
   # Download Premake
   - ps: Start-FileDownload 'https://github.com/premake/premake-core/releases/download/v5.0.0-alpha6/premake-5.0.0-alpha6-windows.zip' 'premake.zip'
@@ -17,11 +21,11 @@ install:
   - cd RecastDemo/Contrib && 7z x SDL.zip && mv SDL-1.2.15 SDL && cd ../..
   
   # Generate solution files using premake.
-  - cd RecastDemo && "../premake5.exe" vs2013 && cd ..
+  - cd RecastDemo && "../premake5.exe" %TOOLSET% && cd ..
 
 configuration:
   - Debug
   - Release
 
 build:
-  project: RecastDemo/Build/vs2013/recastnavigation.sln
+  project: RecastDemo/Build/%TOOLSET%/recastnavigation.sln
