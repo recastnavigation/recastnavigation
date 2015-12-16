@@ -4,6 +4,7 @@ os:
   - Visual Studio 2015
 
 environment:
+  matrix:
   - TOOLSET: vs2013
   - TOOLSET: vs2015
 
