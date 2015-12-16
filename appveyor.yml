@@ -29,4 +29,4 @@ configuration:
   - Release
 
 build:
-  project: RecastDemo/Build/%TOOLSET%/recastnavigation.sln
+  project: RecastDemo/Build/$env:TOOLSET/recastnavigation.sln
