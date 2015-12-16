@@ -3,8 +3,7 @@ language: cpp
 # Build with gcc and clang.
 compiler:
   - gcc
-# Disable clang for now since it seems there's a problem using it with fast fp math.
-#  - clang
+  - clang
 
 # Build both debug and release configurations, through use of an environment variable in the build matrix.
 env:
