@@ -7,6 +7,7 @@ environment:
   matrix:
   - TOOLSET: vs2010
   - TOOLSET: vs2013
+  # Can't use vs2015 toolset yet as it appears SDL 1.2 has some link errors with it.
   # - TOOLSET: vs2015
 
 install:

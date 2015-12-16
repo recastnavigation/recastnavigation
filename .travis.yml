@@ -11,7 +11,7 @@ addons:
 # Build with gcc and clang.
 compiler:
   - gcc
-# Disable clang for now since it seems there's a problem using it with fast fp math.
+# Disable clang for now since it seems there's a problem using it with fast fp math; it's likely Travis' ancient environment that's at fault.
 #  - clang
 
 # Build both debug and release configurations, through use of an environment variable in the build matrix.
@@ -20,6 +20,7 @@ env:
   - CONFIGURATION=release
 
 install:
+  # Download and build premake5 from source; the Travis environment doesn't have the right version of glibc6 for the prebuilt binaries to work.
   - wget https://github.com/premake/premake-core/releases/download/v5.0.0-alpha6/premake-5.0.0-alpha6-src.zip -O premake.zip
   - unzip premake.zip
   - cd premake-5.0.0-alpha6/build/gmake.unix
