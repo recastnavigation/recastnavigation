@@ -26,46 +26,29 @@
 #include "RecastAlloc.h"
 #include "RecastAssert.h"
 
-/// @par 
-/// 
-/// Basically, any spans that are closer to a boundary or obstruction than the specified radius 
-/// are marked as unwalkable.
-///
-/// This method is usually called immediately after the heightfield has been built.
-///
-/// @see rcCompactHeightfield, rcBuildCompactHeightfield, rcConfig::walkableRadius
-bool rcErodeWalkableArea(rcContext* ctx, int radius, rcCompactHeightfield& chf)
+void rcComputeDistanceField(rcCompactHeightfield& chf, unsigned char* dist, int fromAreaID)
 {
-	rcAssert(ctx);
-	
+	rcAssert(dist);
+
 	const int w = chf.width;
 	const int h = chf.height;
-	
-	ctx->startTimer(RC_TIMER_ERODE_AREA);
-	
-	unsigned char* dist = (unsigned char*)rcAlloc(sizeof(unsigned char)*chf.spanCount, RC_ALLOC_TEMP);
-	if (!dist)
-	{
-		ctx->log(RC_LOG_ERROR, "erodeWalkableArea: Out of memory 'dist' (%d).", chf.spanCount);
-		return false;
-	}
-	
+
 	// Init distance.
 	memset(dist, 0xff, sizeof(unsigned char)*chf.spanCount);
-	
+
 	// Mark boundary cells.
 	for (int y = 0; y < h; ++y)
 	{
 		for (int x = 0; x < w; ++x)
 		{
-			const rcCompactCell& c = chf.cells[x+y*w];
-			for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
+			const rcCompactCell& c = chf.cells[x + y*w];
+			for (int i = (int)c.index, ni = (int)(c.index + c.count); i < ni; ++i)
 			{
-				if (chf.areas[i] == RC_NULL_AREA)
+				if (chf.areas[i] == fromAreaID)
 				{
 					dist[i] = 0;
 				}
-				else
+				else if(fromAreaID == RC_NULL_AREA)
 				{
 					const rcCompactSpan& s = chf.spans[i];
 					int nc = 0;
@@ -75,8 +58,8 @@ bool rcErodeWalkableArea(rcContext* ctx, int radius, rcCompactHeightfield& chf)
 						{
 							const int nx = x + rcGetDirOffsetX(dir);
 							const int ny = y + rcGetDirOffsetY(dir);
-							const int nidx = (int)chf.cells[nx+ny*w].index + rcGetCon(s, dir);
-							if (chf.areas[nidx] != RC_NULL_AREA)
+							const int nidx = (int)chf.cells[nx + ny*w].index + rcGetCon(s, dir);
+							if (chf.areas[nidx] != fromAreaID)
 							{
 								nc++;
 							}
@@ -89,37 +72,37 @@ bool rcErodeWalkableArea(rcContext* ctx, int radius, rcCompactHeightfield& chf)
 			}
 		}
 	}
-	
+
 	unsigned char nd;
-	
+
 	// Pass 1
 	for (int y = 0; y < h; ++y)
 	{
 		for (int x = 0; x < w; ++x)
 		{
-			const rcCompactCell& c = chf.cells[x+y*w];
-			for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
+			const rcCompactCell& c = chf.cells[x + y*w];
+			for (int i = (int)c.index, ni = (int)(c.index + c.count); i < ni; ++i)
 			{
 				const rcCompactSpan& s = chf.spans[i];
-				
+
 				if (rcGetCon(s, 0) != RC_NOT_CONNECTED)
 				{
 					// (-1,0)
 					const int ax = x + rcGetDirOffsetX(0);
 					const int ay = y + rcGetDirOffsetY(0);
-					const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(s, 0);
+					const int ai = (int)chf.cells[ax + ay*w].index + rcGetCon(s, 0);
 					const rcCompactSpan& as = chf.spans[ai];
-					nd = (unsigned char)rcMin((int)dist[ai]+2, 255);
+					nd = (unsigned char)rcMin((int)dist[ai] + 2, 255);
 					if (nd < dist[i])
 						dist[i] = nd;
-					
+
 					// (-1,-1)
 					if (rcGetCon(as, 3) != RC_NOT_CONNECTED)
 					{
 						const int aax = ax + rcGetDirOffsetX(3);
 						const int aay = ay + rcGetDirOffsetY(3);
-						const int aai = (int)chf.cells[aax+aay*w].index + rcGetCon(as, 3);
-						nd = (unsigned char)rcMin((int)dist[aai]+3, 255);
+						const int aai = (int)chf.cells[aax + aay*w].index + rcGetCon(as, 3);
+						nd = (unsigned char)rcMin((int)dist[aai] + 3, 255);
 						if (nd < dist[i])
 							dist[i] = nd;
 					}
@@ -129,19 +112,19 @@ bool rcErodeWalkableArea(rcContext* ctx, int radius, rcCompactHeightfield& chf)
 					// (0,-1)
 					const int ax = x + rcGetDirOffsetX(3);
 					const int ay = y + rcGetDirOffsetY(3);
-					const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(s, 3);
+					const int ai = (int)chf.cells[ax + ay*w].index + rcGetCon(s, 3);
 					const rcCompactSpan& as = chf.spans[ai];
-					nd = (unsigned char)rcMin((int)dist[ai]+2, 255);
+					nd = (unsigned char)rcMin((int)dist[ai] + 2, 255);
 					if (nd < dist[i])
 						dist[i] = nd;
-					
+
 					// (1,-1)
 					if (rcGetCon(as, 2) != RC_NOT_CONNECTED)
 					{
 						const int aax = ax + rcGetDirOffsetX(2);
 						const int aay = ay + rcGetDirOffsetY(2);
-						const int aai = (int)chf.cells[aax+aay*w].index + rcGetCon(as, 2);
-						nd = (unsigned char)rcMin((int)dist[aai]+3, 255);
+						const int aai = (int)chf.cells[aax + aay*w].index + rcGetCon(as, 2);
+						nd = (unsigned char)rcMin((int)dist[aai] + 3, 255);
 						if (nd < dist[i])
 							dist[i] = nd;
 					}
@@ -149,35 +132,35 @@ bool rcErodeWalkableArea(rcContext* ctx, int radius, rcCompactHeightfield& chf)
 			}
 		}
 	}
-	
+
 	// Pass 2
-	for (int y = h-1; y >= 0; --y)
+	for (int y = h - 1; y >= 0; --y)
 	{
-		for (int x = w-1; x >= 0; --x)
+		for (int x = w - 1; x >= 0; --x)
 		{
-			const rcCompactCell& c = chf.cells[x+y*w];
-			for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
+			const rcCompactCell& c = chf.cells[x + y*w];
+			for (int i = (int)c.index, ni = (int)(c.index + c.count); i < ni; ++i)
 			{
 				const rcCompactSpan& s = chf.spans[i];
-				
+
 				if (rcGetCon(s, 2) != RC_NOT_CONNECTED)
 				{
 					// (1,0)
 					const int ax = x + rcGetDirOffsetX(2);
 					const int ay = y + rcGetDirOffsetY(2);
-					const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(s, 2);
+					const int ai = (int)chf.cells[ax + ay*w].index + rcGetCon(s, 2);
 					const rcCompactSpan& as = chf.spans[ai];
-					nd = (unsigned char)rcMin((int)dist[ai]+2, 255);
+					nd = (unsigned char)rcMin((int)dist[ai] + 2, 255);
 					if (nd < dist[i])
 						dist[i] = nd;
-					
+
 					// (1,1)
 					if (rcGetCon(as, 1) != RC_NOT_CONNECTED)
 					{
 						const int aax = ax + rcGetDirOffsetX(1);
 						const int aay = ay + rcGetDirOffsetY(1);
-						const int aai = (int)chf.cells[aax+aay*w].index + rcGetCon(as, 1);
-						nd = (unsigned char)rcMin((int)dist[aai]+3, 255);
+						const int aai = (int)chf.cells[aax + aay*w].index + rcGetCon(as, 1);
+						nd = (unsigned char)rcMin((int)dist[aai] + 3, 255);
 						if (nd < dist[i])
 							dist[i] = nd;
 					}
@@ -187,19 +170,19 @@ bool rcErodeWalkableArea(rcContext* ctx, int radius, rcCompactHeightfield& chf)
 					// (0,1)
 					const int ax = x + rcGetDirOffsetX(1);
 					const int ay = y + rcGetDirOffsetY(1);
-					const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(s, 1);
+					const int ai = (int)chf.cells[ax + ay*w].index + rcGetCon(s, 1);
 					const rcCompactSpan& as = chf.spans[ai];
-					nd = (unsigned char)rcMin((int)dist[ai]+2, 255);
+					nd = (unsigned char)rcMin((int)dist[ai] + 2, 255);
 					if (nd < dist[i])
 						dist[i] = nd;
-					
+
 					// (-1,1)
 					if (rcGetCon(as, 0) != RC_NOT_CONNECTED)
 					{
 						const int aax = ax + rcGetDirOffsetX(0);
 						const int aay = ay + rcGetDirOffsetY(0);
-						const int aai = (int)chf.cells[aax+aay*w].index + rcGetCon(as, 0);
-						nd = (unsigned char)rcMin((int)dist[aai]+3, 255);
+						const int aai = (int)chf.cells[aax + aay*w].index + rcGetCon(as, 0);
+						nd = (unsigned char)rcMin((int)dist[aai] + 3, 255);
 						if (nd < dist[i])
 							dist[i] = nd;
 					}
@@ -207,6 +190,30 @@ bool rcErodeWalkableArea(rcContext* ctx, int radius, rcCompactHeightfield& chf)
 			}
 		}
 	}
+}
+
+/// @par 
+/// 
+/// Basically, any spans that are closer to a boundary or obstruction than the specified radius 
+/// are marked as unwalkable.
+///
+/// This method is usually called immediately after the heightfield has been built.
+///
+/// @see rcCompactHeightfield, rcBuildCompactHeightfield, rcConfig::walkableRadius
+bool rcErodeWalkableArea(rcContext* ctx, int radius, rcCompactHeightfield& chf)
+{
+	rcAssert(ctx);
+		
+	ctx->startTimer(RC_TIMER_ERODE_AREA);
+	
+	unsigned char* dist = (unsigned char*)rcAlloc(sizeof(unsigned char)*chf.spanCount, RC_ALLOC_TEMP);
+	if (!dist)
+	{
+		ctx->log(RC_LOG_ERROR, "erodeWalkableArea: Out of memory 'dist' (%d).", chf.spanCount);
+		return false;
+	}
+	
+	rcComputeDistanceField(chf, dist, RC_NULL_AREA);
 	
 	const unsigned char thr = (unsigned char)(radius*2);
 	for (int i = 0; i < chf.spanCount; ++i)
