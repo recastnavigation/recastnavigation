@@ -712,7 +712,8 @@ dtStatus dtNavMeshQuery::findNearestPoly(const float* center, const float* exten
 {
 	dtAssert(m_nav);
 
-	*nearestRef = 0;
+	if (!nearestRef)
+		return DT_FAILURE | DT_INVALID_PARAM;
 	
 	// Get nearby polygons from proximity grid.
 	const int MAX_SEARCH = 128;
@@ -721,6 +722,8 @@ dtStatus dtNavMeshQuery::findNearestPoly(const float* center, const float* exten
 	if (dtStatusFailed(queryPolygons(center, extents, filter, polys, &polyCount, MAX_SEARCH)))
 		return DT_FAILURE | DT_INVALID_PARAM;
 	
+	*nearestRef = 0;
+
 	if (polyCount == 0)
 		return DT_SUCCESS;
 	
