@@ -127,7 +127,7 @@ public:
 	inline void resetTimers() { if (m_timerEnabled) doResetTimers(); }
 
 	/// Starts the specified performance timer.
-	///  @param	label	The category of timer.
+	///  @param	label	The category of the timer.
 	inline void startTimer(const rcTimerLabel label) { if (m_timerEnabled) doStartTimer(label); }
 
 	/// Stops the specified performance timer.
@@ -171,6 +171,22 @@ protected:
 
 	/// True if the performance timers are enabled.
 	bool m_timerEnabled;
+};
+
+/// A helper to first start a timer and then stop it when this helper goes out of scope.
+/// @see rcContext
+class rcScopedTimer
+{
+public:
+	/// Constructs an instance and starts the timer.
+	///  @param[in]		ctx		The context to use.
+	///  @param[in]		label	The category of the timer.
+	inline rcScopedTimer(rcContext* ctx, const rcTimerLabel label) : m_ctx(ctx), m_label(label) { m_ctx->startTimer(m_label); }
+	inline ~rcScopedTimer() { m_ctx->stopTimer(m_label); }
+
+private:
+	rcContext* const m_ctx;
+	const rcTimerLabel m_label;
 };
 
 /// Specifies a configuration to use when performing Recast builds.
@@ -245,7 +261,7 @@ struct rcConfig
 /// Defines the number of bits allocated to rcSpan::smin and rcSpan::smax.
 static const int RC_SPAN_HEIGHT_BITS = 13;
 /// Defines the maximum value for rcSpan::smin and rcSpan::smax.
-static const int RC_SPAN_MAX_HEIGHT = (1<<RC_SPAN_HEIGHT_BITS)-1;
+static const int RC_SPAN_MAX_HEIGHT = (1 << RC_SPAN_HEIGHT_BITS) - 1;
 
 /// The number of spans allocated per span spool.
 /// @see rcSpanPool
@@ -255,10 +271,10 @@ static const int RC_SPANS_PER_POOL = 2048;
 /// @see rcHeightfield
 struct rcSpan
 {
-	unsigned int smin : 13;			///< The lower limit of the span. [Limit: < #smax]
-	unsigned int smax : 13;			///< The upper limit of the span. [Limit: <= #RC_SPAN_MAX_HEIGHT]
-	unsigned int area : 6;			///< The area id assigned to the span.
-	rcSpan* next;					///< The next span higher up in column.
+	unsigned int smin : RC_SPAN_HEIGHT_BITS; ///< The lower limit of the span. [Limit: < #smax]
+	unsigned int smax : RC_SPAN_HEIGHT_BITS; ///< The upper limit of the span. [Limit: <= #RC_SPAN_MAX_HEIGHT]
+	unsigned int area : 6;                   ///< The area id assigned to the span.
+	rcSpan* next;                            ///< The next span higher up in column.
 };
 
 /// A memory pool used for quick allocation of spans within a heightfield.
@@ -747,6 +763,7 @@ void rcCalcGridSize(const float* bmin, const float* bmax, float cs, int* w, int*
 ///  @param[in]		bmax	The maximum bounds of the field's AABB. [(x, y, z)] [Units: wu]
 ///  @param[in]		cs		The xz-plane cell size to use for the field. [Limit: > 0] [Units: wu]
 ///  @param[in]		ch		The y-axis cell size to use for field. [Limit: > 0] [Units: wu]
+///  @returns True if the operation completed successfully.
 bool rcCreateHeightfield(rcContext* ctx, rcHeightfield& hf, int width, int height,
 						 const float* bmin, const float* bmax,
 						 float cs, float ch);
@@ -790,7 +807,8 @@ void rcClearUnwalkableTriangles(rcContext* ctx, const float walkableSlopeAngle, 
 ///  @param[in]		smax			The maximum height of the span. [Limit: <= #RC_SPAN_MAX_HEIGHT] [Units: vx]
 ///  @param[in]		area			The area id of the span. [Limit: <= #RC_WALKABLE_AREA)
 ///  @param[in]		flagMergeThr	The merge theshold. [Limit: >= 0] [Units: vx]
-void rcAddSpan(rcContext* ctx, rcHeightfield& hf, const int x, const int y,
+///  @returns True if the operation completed successfully.
+bool rcAddSpan(rcContext* ctx, rcHeightfield& hf, const int x, const int y,
 			   const unsigned short smin, const unsigned short smax,
 			   const unsigned char area, const int flagMergeThr);
 
@@ -804,7 +822,8 @@ void rcAddSpan(rcContext* ctx, rcHeightfield& hf, const int x, const int y,
 ///  @param[in,out]	solid			An initialized heightfield.
 ///  @param[in]		flagMergeThr	The distance where the walkable flag is favored over the non-walkable flag.
 ///  								[Limit: >= 0] [Units: vx]
-void rcRasterizeTriangle(rcContext* ctx, const float* v0, const float* v1, const float* v2,
+///  @returns True if the operation completed successfully.
+bool rcRasterizeTriangle(rcContext* ctx, const float* v0, const float* v1, const float* v2,
 						 const unsigned char area, rcHeightfield& solid,
 						 const int flagMergeThr = 1);
 
@@ -819,7 +838,8 @@ void rcRasterizeTriangle(rcContext* ctx, const float* v0, const float* v1, const
 ///  @param[in,out]	solid			An initialized heightfield.
 ///  @param[in]		flagMergeThr	The distance where the walkable flag is favored over the non-walkable flag. 
 ///  								[Limit: >= 0] [Units: vx]
-void rcRasterizeTriangles(rcContext* ctx, const float* verts, const int nv,
+///  @returns True if the operation completed successfully.
+bool rcRasterizeTriangles(rcContext* ctx, const float* verts, const int nv,
 						  const int* tris, const unsigned char* areas, const int nt,
 						  rcHeightfield& solid, const int flagMergeThr = 1);
 
@@ -834,7 +854,8 @@ void rcRasterizeTriangles(rcContext* ctx, const float* verts, const int nv,
 ///  @param[in,out]	solid		An initialized heightfield.
 ///  @param[in]		flagMergeThr	The distance where the walkable flag is favored over the non-walkable flag. 
 ///  							[Limit: >= 0] [Units: vx]
-void rcRasterizeTriangles(rcContext* ctx, const float* verts, const int nv,
+///  @returns True if the operation completed successfully.
+bool rcRasterizeTriangles(rcContext* ctx, const float* verts, const int nv,
 						  const unsigned short* tris, const unsigned char* areas, const int nt,
 						  rcHeightfield& solid, const int flagMergeThr = 1);
 
@@ -847,7 +868,8 @@ void rcRasterizeTriangles(rcContext* ctx, const float* verts, const int nv,
 ///  @param[in,out]	solid			An initialized heightfield.
 ///  @param[in]		flagMergeThr	The distance where the walkable flag is favored over the non-walkable flag. 
 ///  								[Limit: >= 0] [Units: vx]
-void rcRasterizeTriangles(rcContext* ctx, const float* verts, const unsigned char* areas, const int nt,
+///  @returns True if the operation completed successfully.
+bool rcRasterizeTriangles(rcContext* ctx, const float* verts, const unsigned char* areas, const int nt,
 						  rcHeightfield& solid, const int flagMergeThr = 1);
 
 /// Marks non-walkable spans as walkable if their maximum is within @p walkableClimp of a walkable neihbor. 

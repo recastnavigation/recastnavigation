@@ -2,6 +2,9 @@
 Recast & Detour
 ===============
 
+[![Travis (Linux) Build Status](https://travis-ci.org/recastnavigation/recastnavigation.svg?branch=master)](https://travis-ci.org/recastnavigation/recastnavigation)
+[![Appveyor (Windows) Build  Status](https://ci.appveyor.com/api/projects/status/20w84u25b3f8h179/branch/master?svg=true)](https://ci.appveyor.com/project/recastnavigation/recastnavigation/branch/master)
+
 [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/memononen/recastnavigation/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
 
 ![screenshot of a navmesh baked with the sample program](/RecastDemo/screenshot.png?raw=true)
@@ -37,13 +40,13 @@ You can find a comprehensive demo project in RecastDemo folder. It is a kitchen 
 
 ### Building RecastDemo
 
-RecastDemo uses [premake4](http://industriousone.com/premake) to build platform specific projects, now is good time to install it if you don't have it already. To build *RecasDemo*, in your favorite terminal navigate into the `RecastDemo` folder, then:
+RecastDemo uses [premake5](http://premake.github.io/) to build platform specific projects. Download it and make sure it's available on your path, or specify the path to it. To build *RecastDemo*, in your favorite terminal navigate into the `RecastDemo` folder, then:
 
-- *OS X*: `premake4 xcode4`
-- *Windows*: `premake4 vs2010`
-- *Linux*: `premake4 gmake`
+- *OS X*: `premake5 xcode4`
+- *Windows*: `"premake5" vs2015`
+- *Linux*: `premake5 gmake`
 
-See premake4 documentation for full list of supported build file types. The projects will be created in `RecastDemo/Build` folder. And after you have compiled the project, the *RecastDemo* executable will be located in `RecastDemo/Bin` folder.
+See premake5 documentation for full list of supported build file types. The projects will be created in `RecastDemo/Build` folder. And after you have compiled the project, the *RecastDemo* executable will be located in `RecastDemo/Bin` folder.
 
 *Note:* On Windows, please use x86 version of the SDL.dll to run the demo Application. 
 

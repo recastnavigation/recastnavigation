@@ -329,7 +329,7 @@ bool rcBuildCompactHeightfield(rcContext* ctx, const int walkableHeight, const i
 {
 	rcAssert(ctx);
 	
-	ctx->startTimer(RC_TIMER_BUILD_COMPACTHEIGHTFIELD);
+	rcScopedTimer timer(ctx, RC_TIMER_BUILD_COMPACTHEIGHTFIELD);
 	
 	const int w = hf.width;
 	const int h = hf.height;
@@ -456,8 +456,6 @@ bool rcBuildCompactHeightfield(rcContext* ctx, const int walkableHeight, const i
 		ctx->log(RC_LOG_ERROR, "rcBuildCompactHeightfield: Heightfield has too many layers %d (max: %d)",
 				 tooHighNeighbour, MAX_LAYERS);
 	}
-		
-	ctx->stopTimer(RC_TIMER_BUILD_COMPACTHEIGHTFIELD);
 	
 	return true;
 }

@@ -712,7 +712,8 @@ dtStatus dtNavMeshQuery::findNearestPoly(const float* center, const float* exten
 {
 	dtAssert(m_nav);
 
-	*nearestRef = 0;
+	if (!nearestRef)
+		return DT_FAILURE | DT_INVALID_PARAM;
 	
 	// Get nearby polygons from proximity grid.
 	const int MAX_SEARCH = 128;
@@ -721,8 +722,15 @@ dtStatus dtNavMeshQuery::findNearestPoly(const float* center, const float* exten
 	if (dtStatusFailed(queryPolygons(center, extents, filter, polys, &polyCount, MAX_SEARCH)))
 		return DT_FAILURE | DT_INVALID_PARAM;
 	
+	*nearestRef = 0;
+
+	if (polyCount == 0)
+		return DT_SUCCESS;
+	
 	// Find nearest polygon amongst the nearby polygons.
 	dtPolyRef nearest = 0;
+	float nearestPoint[3];
+
 	float nearestDistanceSqr = FLT_MAX;
 	for (int i = 0; i < polyCount; ++i)
 	{
@@ -751,15 +759,17 @@ dtStatus dtNavMeshQuery::findNearestPoly(const float* center, const float* exten
 		
 		if (d < nearestDistanceSqr)
 		{
-			if (nearestPt)
-				dtVcopy(nearestPt, closestPtPoly);
+			dtVcopy(nearestPoint, closestPtPoly);
+
 			nearestDistanceSqr = d;
 			nearest = ref;
 		}
 	}
 	
-	if (nearestRef)
-		*nearestRef = nearest;
+	*nearestRef = nearest;
+
+	if (nearestPt)
+		dtVcopy(nearestPt, nearestPoint);
 	
 	return DT_SUCCESS;
 }
@@ -2420,6 +2430,9 @@ dtStatus dtNavMeshQuery::raycast(dtPolyRef startRef, const float* startPos, cons
 			hit->pathCount = n;
 			return status;
 		}
+
+		hit->hitEdgeIndex = segMax;
+
 		// Keep track of furthest t so far.
 		if (tmax > hit->t)
 			hit->t = tmax;
