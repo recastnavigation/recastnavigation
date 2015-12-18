@@ -87,7 +87,7 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 {
 	rcAssert(ctx);
 	
-	ctx->startTimer(RC_TIMER_BUILD_LAYERS);
+	rcScopedTimer timer(ctx, RC_TIMER_BUILD_LAYERS);
 	
 	const int w = chf.width;
 	const int h = chf.height;
@@ -446,10 +446,7 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 	
 	// No layers, return empty.
 	if (layerId == 0)
-	{
-		ctx->stopTimer(RC_TIMER_BUILD_LAYERS);
 		return true;
-	}
 	
 	// Create layers.
 	rcAssert(lset.layers == 0);
@@ -611,8 +608,6 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 		if (layer->miny > layer->maxy)
 			layer->miny = layer->maxy = 0;
 	}
-	
-	ctx->stopTimer(RC_TIMER_BUILD_LAYERS);
 	
 	return true;
 }

@@ -127,7 +127,7 @@ public:
 	inline void resetTimers() { if (m_timerEnabled) doResetTimers(); }
 
 	/// Starts the specified performance timer.
-	///  @param	label	The category of timer.
+	///  @param	label	The category of the timer.
 	inline void startTimer(const rcTimerLabel label) { if (m_timerEnabled) doStartTimer(label); }
 
 	/// Stops the specified performance timer.
@@ -171,6 +171,22 @@ protected:
 
 	/// True if the performance timers are enabled.
 	bool m_timerEnabled;
+};
+
+/// A helper to first start a timer and then stop it when this helper goes out of scope.
+/// @see rcContext
+class rcScopedTimer
+{
+public:
+	/// Constructs an instance and starts the timer.
+	///  @param[in]		ctx		The context to use.
+	///  @param[in]		label	The category of the timer.
+	inline rcScopedTimer(rcContext* ctx, const rcTimerLabel label) : m_ctx(ctx), m_label(label) { m_ctx->startTimer(m_label); }
+	inline ~rcScopedTimer() { m_ctx->stopTimer(m_label); }
+
+private:
+	rcContext* const m_ctx;
+	const rcTimerLabel m_label;
 };
 
 /// Specifies a configuration to use when performing Recast builds.
