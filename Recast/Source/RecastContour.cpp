@@ -831,7 +831,7 @@ bool rcBuildContours(rcContext* ctx, rcCompactHeightfield& chf,
 	const int h = chf.height;
 	const int borderSize = chf.borderSize;
 	
-	ctx->startTimer(RC_TIMER_BUILD_CONTOURS);
+	rcScopedTimer timer(ctx, RC_TIMER_BUILD_CONTOURS);
 	
 	rcVcopy(cset.bmin, chf.bmin);
 	rcVcopy(cset.bmax, chf.bmax);
@@ -1099,8 +1099,6 @@ bool rcBuildContours(rcContext* ctx, rcCompactHeightfield& chf,
 		}
 		
 	}
-	
-	ctx->stopTimer(RC_TIMER_BUILD_CONTOURS);
 	
 	return true;
 }

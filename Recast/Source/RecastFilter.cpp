@@ -37,7 +37,7 @@ void rcFilterLowHangingWalkableObstacles(rcContext* ctx, const int walkableClimb
 {
 	rcAssert(ctx);
 
-	ctx->startTimer(RC_TIMER_FILTER_LOW_OBSTACLES);
+	rcScopedTimer timer(ctx, RC_TIMER_FILTER_LOW_OBSTACLES);
 	
 	const int w = solid.width;
 	const int h = solid.height;
@@ -67,8 +67,6 @@ void rcFilterLowHangingWalkableObstacles(rcContext* ctx, const int walkableClimb
 			}
 		}
 	}
-
-	ctx->stopTimer(RC_TIMER_FILTER_LOW_OBSTACLES);
 }
 
 /// @par
@@ -86,7 +84,7 @@ void rcFilterLedgeSpans(rcContext* ctx, const int walkableHeight, const int walk
 {
 	rcAssert(ctx);
 	
-	ctx->startTimer(RC_TIMER_FILTER_BORDER);
+	rcScopedTimer timer(ctx, RC_TIMER_FILTER_BORDER);
 
 	const int w = solid.width;
 	const int h = solid.height;
@@ -167,9 +165,7 @@ void rcFilterLedgeSpans(rcContext* ctx, const int walkableHeight, const int walk
 			}
 		}
 	}
-	
-	ctx->stopTimer(RC_TIMER_FILTER_BORDER);
-}	
+}
 
 /// @par
 ///
@@ -181,7 +177,7 @@ void rcFilterWalkableLowHeightSpans(rcContext* ctx, int walkableHeight, rcHeight
 {
 	rcAssert(ctx);
 	
-	ctx->startTimer(RC_TIMER_FILTER_WALKABLE);
+	rcScopedTimer timer(ctx, RC_TIMER_FILTER_WALKABLE);
 	
 	const int w = solid.width;
 	const int h = solid.height;
@@ -202,6 +198,4 @@ void rcFilterWalkableLowHeightSpans(rcContext* ctx, int walkableHeight, rcHeight
 			}
 		}
 	}
-	
-	ctx->stopTimer(RC_TIMER_FILTER_WALKABLE);
 }

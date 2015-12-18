@@ -331,13 +331,11 @@ void rcRasterizeTriangle(rcContext* ctx, const float* v0, const float* v1, const
 {
 	rcAssert(ctx);
 
-	ctx->startTimer(RC_TIMER_RASTERIZE_TRIANGLES);
+	rcScopedTimer timer(ctx, RC_TIMER_RASTERIZE_TRIANGLES);
 
 	const float ics = 1.0f/solid.cs;
 	const float ich = 1.0f/solid.ch;
 	rasterizeTri(v0, v1, v2, area, solid, solid.bmin, solid.bmax, solid.cs, ics, ich, flagMergeThr);
-
-	ctx->stopTimer(RC_TIMER_RASTERIZE_TRIANGLES);
 }
 
 /// @par
@@ -351,7 +349,7 @@ void rcRasterizeTriangles(rcContext* ctx, const float* verts, const int /*nv*/,
 {
 	rcAssert(ctx);
 
-	ctx->startTimer(RC_TIMER_RASTERIZE_TRIANGLES);
+	rcScopedTimer timer(ctx, RC_TIMER_RASTERIZE_TRIANGLES);
 	
 	const float ics = 1.0f/solid.cs;
 	const float ich = 1.0f/solid.ch;
@@ -364,8 +362,6 @@ void rcRasterizeTriangles(rcContext* ctx, const float* verts, const int /*nv*/,
 		// Rasterize.
 		rasterizeTri(v0, v1, v2, areas[i], solid, solid.bmin, solid.bmax, solid.cs, ics, ich, flagMergeThr);
 	}
-	
-	ctx->stopTimer(RC_TIMER_RASTERIZE_TRIANGLES);
 }
 
 /// @par
@@ -379,7 +375,7 @@ void rcRasterizeTriangles(rcContext* ctx, const float* verts, const int /*nv*/,
 {
 	rcAssert(ctx);
 
-	ctx->startTimer(RC_TIMER_RASTERIZE_TRIANGLES);
+	rcScopedTimer timer(ctx, RC_TIMER_RASTERIZE_TRIANGLES);
 	
 	const float ics = 1.0f/solid.cs;
 	const float ich = 1.0f/solid.ch;
@@ -392,8 +388,6 @@ void rcRasterizeTriangles(rcContext* ctx, const float* verts, const int /*nv*/,
 		// Rasterize.
 		rasterizeTri(v0, v1, v2, areas[i], solid, solid.bmin, solid.bmax, solid.cs, ics, ich, flagMergeThr);
 	}
-	
-	ctx->stopTimer(RC_TIMER_RASTERIZE_TRIANGLES);
 }
 
 /// @par
@@ -406,7 +400,7 @@ void rcRasterizeTriangles(rcContext* ctx, const float* verts, const unsigned cha
 {
 	rcAssert(ctx);
 	
-	ctx->startTimer(RC_TIMER_RASTERIZE_TRIANGLES);
+	rcScopedTimer timer(ctx, RC_TIMER_RASTERIZE_TRIANGLES);
 	
 	const float ics = 1.0f/solid.cs;
 	const float ich = 1.0f/solid.ch;
@@ -419,6 +413,4 @@ void rcRasterizeTriangles(rcContext* ctx, const float* verts, const unsigned cha
 		// Rasterize.
 		rasterizeTri(v0, v1, v2, areas[i], solid, solid.bmin, solid.bmax, solid.cs, ics, ich, flagMergeThr);
 	}
-	
-	ctx->stopTimer(RC_TIMER_RASTERIZE_TRIANGLES);
 }
