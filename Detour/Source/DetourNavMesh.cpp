@@ -350,7 +350,7 @@ int dtNavMesh::findConnectingPolys(const float* va, const float* vb,
 	return n;
 }
 
-void dtNavMesh::unconnectExtLinks(dtMeshTile* tile, dtMeshTile* target)
+void dtNavMesh::unconnectLinks(dtMeshTile* tile, dtMeshTile* target)
 {
 	if (!tile || !target) return;
 
@@ -363,10 +363,9 @@ void dtNavMesh::unconnectExtLinks(dtMeshTile* tile, dtMeshTile* target)
 		unsigned int pj = DT_NULL_LINK;
 		while (j != DT_NULL_LINK)
 		{
-			if (tile->links[j].side != 0xff &&
-				decodePolyIdTile(tile->links[j].ref) == targetNum)
+			if (decodePolyIdTile(tile->links[j].ref) == targetNum)
 			{
-				// Revove link.
+				// Remove link.
 				unsigned int nj = tile->links[j].next;
 				if (pj == DT_NULL_LINK)
 					poly->firstLink = nj;
@@ -1192,25 +1191,24 @@ dtStatus dtNavMesh::removeTile(dtTileRef ref, unsigned char** data, int* dataSiz
 	}
 	
 	// Remove connections to neighbour tiles.
-	// Create connections with neighbour tiles.
 	static const int MAX_NEIS = 32;
 	dtMeshTile* neis[MAX_NEIS];
 	int nneis;
 	
-	// Connect with layers in current tile.
+	// Disconnect from other layers in current tile.
 	nneis = getTilesAt(tile->header->x, tile->header->y, neis, MAX_NEIS);
 	for (int j = 0; j < nneis; ++j)
 	{
 		if (neis[j] == tile) continue;
-		unconnectExtLinks(neis[j], tile);
+		unconnectLinks(neis[j], tile);
 	}
 	
-	// Connect with neighbour tiles.
+	// Disconnect from neighbour tiles.
 	for (int i = 0; i < 8; ++i)
 	{
 		nneis = getNeighbourTilesAt(tile->header->x, tile->header->y, i, neis, MAX_NEIS);
 		for (int j = 0; j < nneis; ++j)
-			unconnectExtLinks(neis[j], tile);
+			unconnectLinks(neis[j], tile);
 	}
 		
 	// Reset tile.
