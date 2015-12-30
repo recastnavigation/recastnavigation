@@ -620,7 +620,7 @@ private:
 	void connectExtOffMeshLinks(dtMeshTile* tile, dtMeshTile* target, int side);
 	
 	/// Removes external links at specified side.
-	void unconnectExtLinks(dtMeshTile* tile, dtMeshTile* target);
+	void unconnectLinks(dtMeshTile* tile, dtMeshTile* target);
 	
 
 	// TODO: These methods are duplicates from dtNavMeshQuery, but are needed for off-mesh connection finding.
