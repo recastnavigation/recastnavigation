@@ -158,7 +158,7 @@ project "RecastDemo"
 		}
 		postbuildcommands {
 			-- Copy the SDL2 dll to the Bin folder.
-			"{COPY} %{wks.location}../../Contrib/SDL/lib/x86/SDL2.dll %{cfg.targetdir}"
+			'{COPY} "%{wks.location}../../Contrib/SDL/lib/x86/SDL2.dll" "%{cfg.targetdir}"'
 		}
 
 	-- mac includes and libs
