@@ -23,6 +23,11 @@
 #include <float.h>
 #include "SDL.h"
 #include "SDL_opengl.h"
+#ifdef __APPLE__
+#	include <OpenGL/glu.h>
+#else
+#	include <GL/glu.h>
+#endif
 #include "imgui.h"
 #include "CrowdTool.h"
 #include "InputGeom.h"
@@ -37,7 +42,6 @@
 #ifdef WIN32
 #	define snprintf _snprintf
 #endif
-
 
 static bool isectSegAABB(const float* sp, const float* sq,
 						 const float* amin, const float* amax,

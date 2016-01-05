@@ -2,12 +2,6 @@ sudo: false
 
 language: cpp
 
-# Install SDL 1.2 development libraries.
-addons:
-  apt:
-    packages:
-    - libsdl1.2-dev
-
 # Build with gcc and clang.
 compiler:
   - gcc
@@ -20,6 +14,18 @@ env:
   - CONFIGURATION=release
 
 install:
+  # Download and build SDL2 from source.
+  - mkdir dummyprefix
+  - export PREFIX=$PWD/dummyprefix
+  - export PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig
+  - export PATH=$PATH:$PWD/dummyprefix/bin
+  - wget https://www.libsdl.org/release/SDL2-2.0.4.tar.gz -O SDL2.tar.gz
+  - tar -xzf SDL2.tar.gz
+  - cd SDL2-2.0.4
+  - ./configure --prefix=$PREFIX
+  - make -j5
+  - make install
+  - cd ..
   # Download and build premake5 from source; the Travis environment doesn't have the right version of glibc6 for the prebuilt binaries to work.
   - wget https://github.com/premake/premake-core/releases/download/v5.0.0-alpha6/premake-5.0.0-alpha6-src.zip -O premake.zip
   - unzip premake.zip

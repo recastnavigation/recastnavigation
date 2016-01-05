@@ -17,10 +17,10 @@ solution "recastnavigation"
 	flags { 
 		"ExtraWarnings",
 		"FloatFast",
-		"NoExceptions",
-		"NoRTTI",
 		"Symbols"
 	}
+	exceptionhandling "Off"
+	rtti "Off"
 
 	-- debug configs
 	configuration "Debug*"
@@ -135,12 +135,12 @@ project "RecastDemo"
 	-- linux library cflags and libs
 	configuration { "linux", "gmake" }
 		buildoptions { 
-			"`pkg-config --cflags sdl`",
+			"`pkg-config --cflags sdl2`",
 			"`pkg-config --cflags gl`",
 			"`pkg-config --cflags glu`" 
 		}
 		linkoptions { 
-			"`pkg-config --libs sdl`",
+			"`pkg-config --libs sdl2`",
 			"`pkg-config --libs gl`",
 			"`pkg-config --libs glu`" 
 		}
@@ -149,30 +149,26 @@ project "RecastDemo"
 	configuration { "windows" }
 		includedirs { "../RecastDemo/Contrib/SDL/include" }
 		libdirs { "../RecastDemo/Contrib/SDL/lib/x86" }
+		debugdir "../RecastDemo/Bin/"
 		links { 
-			"opengl32",
 			"glu32",
-			"sdlmain",
-			"sdl"
+			"opengl32",
+			"SDL2",
+			"SDL2main",
+		}
+		postbuildcommands {
+			-- Copy the SDL2 dll to the Bin folder.
+			"{COPY} %{wks.location}../../Contrib/SDL/lib/x86/SDL2.dll %{cfg.targetdir}"
 		}
 
 	-- mac includes and libs
 	configuration { "macosx" }
 		kind "ConsoleApp" -- xcode4 failes to run the project if using WindowedApp
-		includedirs { "/Library/Frameworks/SDL.framework/Headers" }
+		includedirs { "/Library/Frameworks/SDL2.framework/Headers" }
 		buildoptions { "-Wunused-value -Wshadow -Wreorder -Wsign-compare -Wall" }
 		links { 
 			"OpenGL.framework", 
-			"/Library/Frameworks/SDL.framework", 
+			"SDL2.framework",
 			"Cocoa.framework",
 		}
 
-		files {
-			"../RecastDemo/Include/SDLMain.h", 
-			"../RecastDemo/Source/SDLMain.m",
--- These don't seem to work in xcode4 target yet.
---			"Info.plist",
---			"Icon.icns",
---			"English.lproj/InfoPlist.strings",
---			"English.lproj/MainMenu.xib",
-		}
