@@ -213,7 +213,7 @@ int main(int /*argc*/, char** /*argv*/)
 						showLevels = false;
 						showSample = false;
 						showTestCases = true;
-						scanDirectory("Tests", ".txt", files);
+						scanDirectory("TestCases", ".txt", files);
 					}
 					else if (event.key.keysym.sym == SDLK_TAB)
 					{
@@ -802,7 +802,7 @@ int main(int /*argc*/, char** /*argv*/)
 			if (testToLoad != -1)
 			{
 				char path[256];
-				strcpy(path, "Tests/");
+				strcpy(path, "TestCases/");
 				strcat(path, files.files[testToLoad]);
 				test = new TestCase;
 				if (test)

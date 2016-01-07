@@ -42,3 +42,4 @@ before_script:
 # Run make in the directory containing generated makefiles, on the configuration specified by the environment variable.
 script:
   - make -C RecastDemo/Build/gmake config=$CONFIGURATION
+  - RecastDemo/Bin/Tests

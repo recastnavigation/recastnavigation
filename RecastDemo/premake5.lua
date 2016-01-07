@@ -172,3 +172,76 @@ project "RecastDemo"
 			"Cocoa.framework",
 		}
 
+project "Tests"
+	language "C++"
+	kind "ConsoleApp"
+
+	-- Catch requires RTTI and exceptions
+	exceptionhandling "On"
+	rtti "On"
+
+	includedirs { 
+		"../DebugUtils/Include",
+		"../Detour/Include",
+		"../DetourCrowd/Include",
+		"../DetourTileCache/Include",
+		"../Recast/Include",
+		"../Recast/Source",
+		"../Tests/Recast",
+		"../Tests",
+	}
+	files	{ 
+		"../Tests/*.h",
+		"../Tests/*.hpp",
+		"../Tests/*.cpp",
+		"../Tests/Recast/*.h",
+		"../Tests/Recast/*.cpp",
+	}
+
+	-- project dependencies
+	links { 
+		"DebugUtils",
+		"Detour",
+		"DetourCrowd",
+		"DetourTileCache",
+		"Recast",
+	}
+
+	-- distribute executable in RecastDemo/Bin directory
+	targetdir "Bin"
+
+	-- linux library cflags and libs
+	configuration { "linux", "gmake" }
+		buildoptions { 
+			"`pkg-config --cflags sdl2`",
+			"`pkg-config --cflags gl`",
+			"`pkg-config --cflags glu`" 
+		}
+		linkoptions { 
+			"`pkg-config --libs sdl2`",
+			"`pkg-config --libs gl`",
+			"`pkg-config --libs glu`" 
+		}
+
+	-- windows library cflags and libs
+	configuration { "windows" }
+		includedirs { "../RecastDemo/Contrib/SDL/include" }
+		libdirs { "../RecastDemo/Contrib/SDL/lib/x86" }
+		debugdir "../RecastDemo/Bin/"
+		links { 
+			"glu32",
+			"opengl32",
+			"SDL2",
+			"SDL2main",
+		}
+
+	-- mac includes and libs
+	configuration { "macosx" }
+		kind "ConsoleApp"
+		includedirs { "/Library/Frameworks/SDL2.framework/Headers" }
+		buildoptions { "-Wunused-value -Wshadow -Wreorder -Wsign-compare -Wall" }
+		links { 
+			"OpenGL.framework", 
+			"SDL2.framework",
+			"Cocoa.framework",
+		}

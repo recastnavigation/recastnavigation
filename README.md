@@ -64,6 +64,12 @@ RecastDemo uses [premake5](http://premake.github.io/) to build platform specific
 - Run `"premake5" vs2015` from the `RecastDemo` folder
 - Open the solution, build, and run.
 
+### Running Unit tests
+
+- Follow the instructions to build RecastDemo above.  Premake should generate another build target called "Tests".
+- Build the "Tests" project.  This will generate an executable named "Tests" in `RecastDemo/Bin/`
+- Run the "Tests" executable.  It will execute all the unit tests, indicate those that failed, and display a count of those that succeeded.
+
 ## Integrating with your own project
 
 It is recommended to add the source directories `DebugUtils`, `Detour`, `DetourCrowd`, `DetourTileCache`, and `Recast` into your own project depending on which parts of the project you need. For example your level building tool could include DebugUtils, Recast, and Detour, and your game runtime could just include Detour.

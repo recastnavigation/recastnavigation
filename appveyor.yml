@@ -20,7 +20,7 @@ install:
   - ps: Start-FileDownload 'https://www.libsdl.org/release/SDL2-devel-2.0.4-VC.zip' 'RecastDemo/Contrib/SDL.zip'
   
   # Extract it, put it in the right place, and rename it.
-  - cd RecastDemo/Contrib && 7z x SDL.zip && ren SDL2-2.0.4 SDL && cd ../..
+  - cd RecastDemo\Contrib && 7z x SDL.zip && ren SDL2-2.0.4 SDL && cd ..\..
   
   # Generate solution files using premake.
   - cd RecastDemo && "../premake5.exe" %TOOLSET% && cd ..
@@ -31,3 +31,6 @@ configuration:
 
 build:
   project: RecastDemo/Build/$(TOOLSET)/recastnavigation.sln
+
+after_test:
+  - RecastDemo\Bin\Tests.exe
