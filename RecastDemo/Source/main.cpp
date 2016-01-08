@@ -28,6 +28,9 @@
 #	include <GL/glu.h>
 #endif
 
+#include <vector>
+#include <string>
+
 #include "imgui.h"
 #include "imguiRenderGL.h"
 
@@ -46,6 +49,9 @@
 #	define snprintf _snprintf
 #	define putenv _putenv
 #endif
+
+using std::string;
+using std::vector;
 
 struct SampleItem
 {
@@ -163,7 +169,7 @@ int main(int /*argc*/, char** /*argv*/)
 	
 	char sampleName[64] = "Choose Sample..."; 
 	
-	FileList files;
+	vector<string> files;
 	char meshName[128] = "Choose Mesh...";
 	
 	float markerPosition[3] = {0, 0, 0};
@@ -714,16 +720,20 @@ int main(int /*argc*/, char** /*argv*/)
 			if (imguiBeginScrollArea("Choose Level", width - 10 - 250 - 10 - 200, height - 10 - 450, 200, 450, &levelScroll))
 				mouseOverMenu = true;
 			
-			int levelToLoad = -1;
-			for (int i = 0; i < files.size; ++i)
+			vector<string>::const_iterator fileIter = files.begin();
+			vector<string>::const_iterator filesEnd = files.end();
+			vector<string>::const_iterator levelToLoad = filesEnd;
+			for (; fileIter != filesEnd; ++fileIter)
 			{
-				if (imguiItem(files.files[i]))
-					levelToLoad = i;
+				if (imguiItem(fileIter->c_str()))
+				{
+					levelToLoad = fileIter;
+				}
 			}
 			
-			if (levelToLoad != -1)
+			if (levelToLoad != filesEnd)
 			{
-				strncpy(meshName, files.files[levelToLoad], sizeof(meshName));
+				strncpy(meshName, levelToLoad->c_str(), sizeof(meshName));
 				meshName[sizeof(meshName)-1] = '\0';
 				showLevels = false;
 				
@@ -792,18 +802,22 @@ int main(int /*argc*/, char** /*argv*/)
 			if (imguiBeginScrollArea("Choose Test To Run", width-10-250-10-200, height-10-450, 200, 450, &testScroll))
 				mouseOverMenu = true;
 
-			int testToLoad = -1;
-			for (int i = 0; i < files.size; ++i)
+			vector<string>::const_iterator fileIter = files.begin();
+			vector<string>::const_iterator filesEnd = files.end();
+			vector<string>::const_iterator testToLoad = filesEnd;
+			for (; fileIter != filesEnd; ++fileIter)
 			{
-				if (imguiItem(files.files[i]))
-					testToLoad = i;
+				if (imguiItem(fileIter->c_str()))
+				{
+					testToLoad = fileIter;
+				}
 			}
 			
-			if (testToLoad != -1)
+			if (testToLoad != filesEnd)
 			{
 				char path[256];
 				strcpy(path, "TestCases/");
-				strcat(path, files.files[testToLoad]);
+				strcat(path, testToLoad->c_str());
 				test = new TestCase;
 				if (test)
 				{

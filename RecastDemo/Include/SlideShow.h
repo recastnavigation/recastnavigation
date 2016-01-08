@@ -20,10 +20,12 @@
 #define SLIDESHOW_H
 
 #include "Filelist.h"
+#include <vector>
+#include <string>
 
 class SlideShow
 {
-	FileList m_files;
+	std::vector<std::string> m_files;
 	char m_path[256];
 
 	int m_width;
