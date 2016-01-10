@@ -30,7 +30,7 @@
 class BuildContext : public rcContext
 {
 	TimeVal m_startTime[RC_MAX_TIMERS];
-	int m_accTime[RC_MAX_TIMERS];
+	TimeVal m_accTime[RC_MAX_TIMERS];
 
 	static const int MAX_MESSAGES = 1000;
 	const char* m_messages[MAX_MESSAGES];

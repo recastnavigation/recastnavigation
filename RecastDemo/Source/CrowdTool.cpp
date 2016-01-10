@@ -854,7 +854,7 @@ void CrowdToolState::updateTick(const float dt)
 	m_agentDebug.vod->normalizeSamples();
 	
 	m_crowdSampleCount.addSample((float)crowd->getVelocitySampleCount());
-	m_crowdTotalTime.addSample(getPerfDeltaTimeUsec(startTime, endTime) / 1000.0f);
+	m_crowdTotalTime.addSample(getPerfTimeUsec(endTime - startTime) / 1000.0f);
 }
 
 
