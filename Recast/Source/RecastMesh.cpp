@@ -663,6 +663,16 @@ static bool canRemoveVertex(rcContext* ctx, rcPolyMesh& mesh, const unsigned sho
 	return true;
 }
 
+static int getCommonOrFirst(int val1, int val2, int val3)
+{
+	if (val1 == val2 || val1 == val3)
+		return val1;
+	if (val2 == val3)
+		return val2;
+
+	return val1;
+}
+
 static bool removeVertex(rcContext* ctx, rcPolyMesh& mesh, const unsigned short rem, const int maxTris)
 {
 	const int nvp = mesh.nvp;
@@ -895,8 +905,8 @@ static bool removeVertex(rcContext* ctx, rcPolyMesh& mesh, const unsigned short 
 			polys[npolys*nvp+0] = (unsigned short)hole[t[0]];
 			polys[npolys*nvp+1] = (unsigned short)hole[t[1]];
 			polys[npolys*nvp+2] = (unsigned short)hole[t[2]];
-			pregs[npolys] = (unsigned short)hreg[t[0]];
-			pareas[npolys] = (unsigned char)harea[t[0]];
+			pregs[npolys] = (unsigned short)getCommonOrFirst(hreg[t[0]], hreg[t[1]], hreg[t[2]]);
+			pareas[npolys] = (unsigned char)getCommonOrFirst(harea[t[0]], harea[t[1]], harea[t[2]]);
 			npolys++;
 		}
 	}
