@@ -30,13 +30,12 @@ TimeVal getPerfTime()
 	return count;
 }
 
-int getPerfDeltaTimeUsec(const TimeVal start, const TimeVal end)
+int getPerfTimeUsec(const TimeVal duration)
 {
 	static __int64 freq = 0;
 	if (freq == 0)
 		QueryPerformanceFrequency((LARGE_INTEGER*)&freq);
-	__int64 elapsed = end - start;
-	return (int)(elapsed*1000000 / freq);
+	return (int)(duration*1000000 / freq);
 }
 
 #else
@@ -52,9 +51,9 @@ TimeVal getPerfTime()
 	return (TimeVal)now.tv_sec*1000000L + (TimeVal)now.tv_usec;
 }
 
-int getPerfDeltaTimeUsec(const TimeVal start, const TimeVal end)
+int getPerfTimeUsec(const TimeVal duration)
 {
-	return (int)(end - start);
+	return (int)duration;
 }
 
 #endif

@@ -215,7 +215,7 @@ void TestCase::doTests(dtNavMesh* navmesh, dtNavMeshQuery* navquery)
 		navquery->findNearestPoly(iter->epos, polyPickExt, &filter, &endRef, iter->nepos);
 
 		TimeVal findNearestPolyEnd = getPerfTime();
-		iter->findNearestPolyTime += getPerfDeltaTimeUsec(findNearestPolyStart, findNearestPolyEnd);
+		iter->findNearestPolyTime += getPerfTimeUsec(findNearestPolyEnd - findNearestPolyStart);
 
 		if (!startRef || ! endRef)
 			continue;
@@ -228,7 +228,7 @@ void TestCase::doTests(dtNavMesh* navmesh, dtNavMeshQuery* navquery)
 			navquery->findPath(startRef, endRef, iter->spos, iter->epos, &filter, polys, &iter->npolys, MAX_POLYS);
 			
 			TimeVal findPathEnd = getPerfTime();
-			iter->findPathTime += getPerfDeltaTimeUsec(findPathStart, findPathEnd);
+			iter->findPathTime += getPerfTimeUsec(findPathEnd - findPathStart);
 		
 			// Find straight path
 			if (iter->npolys)
@@ -238,7 +238,7 @@ void TestCase::doTests(dtNavMesh* navmesh, dtNavMeshQuery* navquery)
 				navquery->findStraightPath(iter->spos, iter->epos, polys, iter->npolys,
 										   straight, 0, 0, &iter->nstraight, MAX_POLYS);
 				TimeVal findStraightPathEnd = getPerfTime();
-				iter->findStraightPathTime += getPerfDeltaTimeUsec(findStraightPathStart, findStraightPathEnd);
+				iter->findStraightPathTime += getPerfTimeUsec(findStraightPathEnd - findStraightPathStart);
 			}
 		
 			// Copy results
@@ -270,7 +270,7 @@ void TestCase::doTests(dtNavMesh* navmesh, dtNavMeshQuery* navquery)
 			navquery->raycast(startRef, iter->spos, iter->epos, &filter, &t, hitNormal, polys, &iter->npolys, MAX_POLYS);
 
 			TimeVal findPathEnd = getPerfTime();
-			iter->findPathTime += getPerfDeltaTimeUsec(findPathStart, findPathEnd);
+			iter->findPathTime += getPerfTimeUsec(findPathEnd - findPathStart);
 
 			if (t > 1)
 			{

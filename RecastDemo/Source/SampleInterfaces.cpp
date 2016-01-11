@@ -79,7 +79,7 @@ void BuildContext::doStopTimer(const rcTimerLabel label)
 
 int BuildContext::doGetAccumulatedTime(const rcTimerLabel label) const
 {
-	return m_accTime[label];
+	return getPerfTimeUsec(m_accTime[label]);
 }
 
 void BuildContext::dumpLog(const char* format, ...)
