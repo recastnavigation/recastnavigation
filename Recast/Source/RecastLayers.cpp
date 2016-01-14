@@ -258,7 +258,7 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 						const int ay = y + rcGetDirOffsetY(dir);
 						const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(s, dir);
 						const unsigned char rai = srcReg[ai];
-						if (rai != 0xff && rai != ri)
+						if (rai != 0xff && rai != ri && regs[ri].nneis < RC_MAX_NEIS)
 							addUnique(regs[ri].neis, regs[ri].nneis, rai);
 					}
 				}
