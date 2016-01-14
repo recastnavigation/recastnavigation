@@ -392,6 +392,7 @@ struct rcContourSet
 	int width;			///< The width of the set. (Along the x-axis in cell units.) 
 	int height;			///< The height of the set. (Along the z-axis in cell units.) 
 	int borderSize;		///< The AABB border size used to generate the source data from which the contours were derived.
+	float maxError;		///< The max edge error that this contour set was simplified with.
 };
 
 /// Represents a polygon mesh suitable for use in building a navigation mesh. 
@@ -412,6 +413,7 @@ struct rcPolyMesh
 	float cs;				///< The size of each cell. (On the xz-plane.)
 	float ch;				///< The height of each cell. (The minimum increment along the y-axis.)
 	int borderSize;			///< The AABB border size used to generate the source data from which the mesh was derived.
+	float maxEdgeError;		///< The max error of the polygon edges in the mesh.
 };
 
 /// Contains triangle meshes that represent detailed height data associated 

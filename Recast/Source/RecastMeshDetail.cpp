@@ -202,7 +202,7 @@ static float distToPoly(int nvert, const float* verts, const float* p)
 
 static unsigned short getHeight(const float fx, const float fy, const float fz,
 								const float /*cs*/, const float ics, const float ch,
-								const rcHeightPatch& hp)
+								const int radius, const rcHeightPatch& hp)
 {
 	int ix = (int)floorf(fx*ics + 0.01f);
 	int iz = (int)floorf(fz*ics + 0.01f);
@@ -212,23 +212,69 @@ static unsigned short getHeight(const float fx, const float fy, const float fz,
 	if (h == RC_UNSET_HEIGHT)
 	{
 		// Special case when data might be bad.
-		// Find nearest neighbour pixel which has valid height.
-		const int off[8*2] = { -1,0, -1,-1, 0,-1, 1,-1, 1,0, 1,1, 0,1, -1,1};
+		// Walk adjacent cells in a spiral up to 'radius', and look
+		// for a pixel which has a valid height.
+		int x = 1, z = 0, dx = 1, dz = 0;
+		int maxSize = radius * 2 + 1;
+		int maxIter = maxSize * maxSize - 1;
+
+		int nextRingIterStart = 8;
+		int nextRingIters = 16;
+
 		float dmin = FLT_MAX;
-		for (int i = 0; i < 8; ++i)
+		for (int i = 0; i < maxIter; i++)
 		{
-			const int nx = ix+off[i*2+0];
-			const int nz = iz+off[i*2+1];
-			if (nx < 0 || nz < 0 || nx >= hp.width || nz >= hp.height) continue;
-			const unsigned short nh = hp.data[nx+nz*hp.width];
-			if (nh == RC_UNSET_HEIGHT) continue;
-			
-			const float d = fabsf(nh*ch - fy);
-			if (d < dmin)
+			const int nx = ix + x;
+			const int nz = iz + z;
+
+			if (nx >= 0 && nz >= 0 && nx < hp.width && nz < hp.height)
 			{
-				h = nh;
-				dmin = d;
+				const unsigned short nh = hp.data[nx + nz*hp.width];
+				if (nh != RC_UNSET_HEIGHT)
+				{
+					const float d = fabsf(nh*ch - fy);
+					if (d < dmin)
+					{
+						h = nh;
+						dmin = d;
+					}
+				}
 			}
+
+			// We are searching in a grid which looks approximately like this:
+			//  __________
+			// |2 ______ 2|
+			// | |1 __ 1| |
+			// | | |__| | |
+			// | |______| |
+			// |__________|
+			// We want to find the best height as close to the center cell as possible. This means that
+			// if we find a height in one of the neighbor cells to the center, we don't want to
+			// expand further out than the 8 neighbors - we want to limit our search to the closest
+			// of these "rings", but the best height in the ring.
+			// For example, the center is just 1 cell. We checked that at the entrance to the function.
+			// The next "ring" contains 8 cells (marked 1 above). Those are all the neighbors to the center cell.
+			// The next one again contains 16 cells (marked 2). In general each ring has 8 additional cells, which
+			// can be thought of as adding 2 cells around the "center" of each side when we expand the ring.
+			// Here we detect if we are about to enter the next ring, and if we are and we have found
+			// a height, we abort the search.
+			if (i + 1 == nextRingIterStart)
+			{
+				if (h != RC_UNSET_HEIGHT)
+					break;
+
+				nextRingIterStart += nextRingIters;
+				nextRingIters += 8;
+			}
+
+			if ((x == z) || ((x < 0) && (x == -z)) || ((x > 0) && (x == 1 - z)))
+			{
+				int tmp = dx;
+				dx = -dz;
+				dz = tmp;
+			}
+			x += dx;
+			z += dz;
 		}
 	}
 	return h;
@@ -590,9 +636,9 @@ inline float getJitterY(const int i)
 
 static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 							const float sampleDist, const float sampleMaxError,
-							const rcCompactHeightfield& chf, const rcHeightPatch& hp,
-							float* verts, int& nverts, rcIntArray& tris,
-							rcIntArray& edges, rcIntArray& samples)
+							const int heightSearchRadius, const rcCompactHeightfield& chf,
+							const rcHeightPatch& hp, float* verts, int& nverts,
+							rcIntArray& tris, rcIntArray& edges, rcIntArray& samples)
 {
 	static const int MAX_VERTS = 127;
 	static const int MAX_TRIS = 255;	// Max tris for delaunay is 2n-2-k (n=num verts, k=num hull verts).
@@ -661,7 +707,7 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 				pos[0] = vj[0] + dx*u;
 				pos[1] = vj[1] + dy*u;
 				pos[2] = vj[2] + dz*u;
-				pos[1] = getHeight(pos[0],pos[1],pos[2], cs, ics, chf.ch, hp)*chf.ch;
+				pos[1] = getHeight(pos[0],pos[1],pos[2], cs, ics, chf.ch, heightSearchRadius, hp)*chf.ch;
 			}
 			// Simplify samples.
 			int idx[MAX_VERTS_PER_EDGE] = {0,nn};
@@ -769,7 +815,7 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 				// Make sure the samples are not too close to the edges.
 				if (distToPoly(nin,in,pt) > -sampleDist/2) continue;
 				samples.push(x);
-				samples.push(getHeight(pt[0], pt[1], pt[2], cs, ics, chf.ch, hp));
+				samples.push(getHeight(pt[0], pt[1], pt[2], cs, ics, chf.ch, heightSearchRadius, hp));
 				samples.push(z);
 				samples.push(0); // Not added
 			}
@@ -1130,6 +1176,7 @@ bool rcBuildPolyMeshDetail(rcContext* ctx, const rcPolyMesh& mesh, const rcCompa
 	const float ch = mesh.ch;
 	const float* orig = mesh.bmin;
 	const int borderSize = mesh.borderSize;
+	const int heightSearchRadius = rcMax(1, (int)ceilf(mesh.maxEdgeError));
 	
 	rcIntArray edges(64);
 	rcIntArray tris(512);
@@ -1246,7 +1293,8 @@ bool rcBuildPolyMeshDetail(rcContext* ctx, const rcPolyMesh& mesh, const rcCompa
 		int nverts = 0;
 		if (!buildPolyDetail(ctx, poly, npoly,
 							 sampleDist, sampleMaxError,
-							 chf, hp, verts, nverts, tris,
+							 heightSearchRadius, chf, hp,
+							 verts, nverts, tris,
 							 edges, samples))
 		{
 			return false;
