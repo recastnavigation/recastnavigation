@@ -834,33 +834,25 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 	return true;
 }
 
-
-static void getHeightDataSeedsFromVertices(const rcCompactHeightfield& chf,
-										   const unsigned short* poly, const int npoly,
-										   const unsigned short* verts, const int bs,
-										   rcHeightPatch& hp, rcIntArray& stack)
+static void seedArrayWithPolyCenter(rcContext* ctx, const rcCompactHeightfield& chf,
+									const unsigned short* poly, const int npoly,
+									const unsigned short* verts, const int bs,
+									rcHeightPatch& hp, rcIntArray& array)
 {
-	// Floodfill the heightfield to get 2D height data,
-	// starting at vertex locations as seeds.
-	
 	// Note: Reads to the compact heightfield are offset by border size (bs)
 	// since border size offset is already removed from the polymesh vertices.
-	
-	memset(hp.data, 0, sizeof(unsigned short)*hp.width*hp.height);
-	
-	stack.resize(0);
 	
 	static const int offset[9*2] =
 	{
 		0,0, -1,-1, 0,-1, 1,-1, 1,0, 1,1, 0,1, -1,1, -1,0,
 	};
 	
-	// Use poly vertices as seed points for the flood fill.
-	for (int j = 0; j < npoly; ++j)
+	// Find cell closest to a poly vertex
+	int startCellX = 0, startCellY = 0, startSpanIndex = -1;
+	int dmin = RC_UNSET_HEIGHT;
+	for (int j = 0; j < npoly && dmin > 0; ++j)
 	{
-		int cx = 0, cz = 0, ci =-1;
-		int dmin = RC_UNSET_HEIGHT;
-		for (int k = 0; k < 9; ++k)
+		for (int k = 0; k < 9 && dmin > 0; ++k)
 		{
 			const int ax = (int)verts[poly[j]*3+0] + offset[k*2+0];
 			const int ay = (int)verts[poly[j]*3+1];
@@ -870,191 +862,208 @@ static void getHeightDataSeedsFromVertices(const rcCompactHeightfield& chf,
 				continue;
 			
 			const rcCompactCell& c = chf.cells[(ax+bs)+(az+bs)*chf.width];
-			for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
+			for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni && dmin > 0; ++i)
 			{
 				const rcCompactSpan& s = chf.spans[i];
 				int d = rcAbs(ay - (int)s.y);
 				if (d < dmin)
 				{
-					cx = ax;
-					cz = az;
-					ci = i;
+					startCellX = ax;
+					startCellY = az;
+					startSpanIndex = i;
 					dmin = d;
 				}
 			}
 		}
-		if (ci != -1)
-		{
-			stack.push(cx);
-			stack.push(cz);
-			stack.push(ci);
-		}
 	}
 	
-	// Find center of the polygon using flood fill.
-	int pcx = 0, pcz = 0;
+	rcAssert(startSpanIndex != -1);
+	// Find center of the polygon
+	int pcx = 0, pcy = 0;
 	for (int j = 0; j < npoly; ++j)
 	{
 		pcx += (int)verts[poly[j]*3+0];
-		pcz += (int)verts[poly[j]*3+2];
+		pcy += (int)verts[poly[j]*3+2];
 	}
 	pcx /= npoly;
-	pcz /= npoly;
+	pcy /= npoly;
 	
-	for (int i = 0; i < stack.size(); i += 3)
+	// Use seeds array as a stack for DFS
+	array.resize(0);
+	array.push(startCellX);
+	array.push(startCellY);
+	array.push(startSpanIndex);
+
+	int dirs[] = { 0, 1, 2, 3 };
+	memset(hp.data, 0, sizeof(unsigned short)*hp.width*hp.height);
+	// DFS to move to the center. Note that we need a DFS here and can not just move
+	// directly towards the center without recording intermediate nodes, even though the polygons
+	// are convex. In very rare we can get stuck due to contour simplification if we do not
+	// record nodes.
+	int cx = -1, cy = -1, ci = -1;
+	while (true)
 	{
-		int cx = stack[i+0];
-		int cy = stack[i+1];
-		int idx = cx-hp.xmin+(cy-hp.ymin)*hp.width;
-		hp.data[idx] = 1;
-	}
-	
-	while (stack.size() > 0)
-	{
-		int ci = stack.pop();
-		int cy = stack.pop();
-		int cx = stack.pop();
-		
-		// Check if close to center of the polygon.
-		if (rcAbs(cx-pcx) <= 1 && rcAbs(cy-pcz) <= 1)
+		if (array.size() < 3)
 		{
-			stack.resize(0);
-			stack.push(cx);
-			stack.push(cy);
-			stack.push(ci);
+			ctx->log(RC_LOG_WARNING, "Walk towards polygon center failed to reach center");
 			break;
 		}
-		
+
+		ci = array.pop();
+		cy = array.pop();
+		cx = array.pop();
+
+		if (cx == pcx && cy == pcy)
+			break;
+
+		// If we are already at the correct X-position, prefer direction
+		// directly towards the center in the Y-axis; otherwise prefer
+		// direction in the X-axis
+		int directDir;
+		if (cx == pcx)
+			directDir = rcGetDirForOffset(0, pcy > cy ? 1 : -1);
+		else
+			directDir = rcGetDirForOffset(pcx > cx ? 1 : -1, 0);
+
+		// Push the direct dir last so we start with this on next iteration
+		rcSwap(dirs[directDir], dirs[3]);
+
 		const rcCompactSpan& cs = chf.spans[ci];
-		
-		for (int dir = 0; dir < 4; ++dir)
+		for (int i = 0; i < 4; i++)
 		{
-			if (rcGetCon(cs, dir) == RC_NOT_CONNECTED) continue;
-			
-			const int ax = cx + rcGetDirOffsetX(dir);
-			const int ay = cy + rcGetDirOffsetY(dir);
-			
-			if (ax < hp.xmin || ax >= (hp.xmin+hp.width) ||
-				ay < hp.ymin || ay >= (hp.ymin+hp.height))
+			int dir = dirs[i];
+			if (rcGetCon(cs, dir) == RC_NOT_CONNECTED)
 				continue;
-			
-			if (hp.data[ax-hp.xmin+(ay-hp.ymin)*hp.width] != 0)
+
+			int newX = cx + rcGetDirOffsetX(dir);
+			int newY = cy + rcGetDirOffsetY(dir);
+
+			int hpx = newX - hp.xmin;
+			int hpy = newY - hp.ymin;
+			if (hpx < 0 || hpx >= hp.width || hpy < 0 || hpy >= hp.height)
 				continue;
-			
-			const int ai = (int)chf.cells[(ax+bs)+(ay+bs)*chf.width].index + rcGetCon(cs, dir);
-			
-			int idx = ax-hp.xmin+(ay-hp.ymin)*hp.width;
-			hp.data[idx] = 1;
-			
-			stack.push(ax);
-			stack.push(ay);
-			stack.push(ai);
+
+			if (hp.data[hpx+hpy*hp.width] != 0)
+				continue;
+
+			hp.data[hpx+hpy*hp.width] = 1;
+			array.push(newX);
+			array.push(newY);
+			array.push((int)chf.cells[(newX+bs)+(newY+bs)*chf.width].index + rcGetCon(cs, dir));
 		}
+
+		rcSwap(dirs[directDir], dirs[3]);
 	}
-	
+
+	array.resize(0);
+	// getHeightData seeds are given in coordinates with borders
+	array.push(cx+bs);
+	array.push(cy+bs);
+	array.push(ci);
+
 	memset(hp.data, 0xff, sizeof(unsigned short)*hp.width*hp.height);
-	
-	// Mark start locations.
-	for (int i = 0; i < stack.size(); i += 3)
-	{
-		int cx = stack[i+0];
-		int cy = stack[i+1];
-		int ci = stack[i+2];
-		int idx = cx-hp.xmin+(cy-hp.ymin)*hp.width;
-		const rcCompactSpan& cs = chf.spans[ci];
-		hp.data[idx] = cs.y;
-		
-		// getHeightData seeds are given in coordinates with borders
-		stack[i+0] += bs;
-		stack[i+1] += bs;
-	}
-	
+	const rcCompactSpan& cs = chf.spans[ci];
+	hp.data[cx-hp.xmin+(cy-hp.ymin)*hp.width] = cs.y;
 }
 
 
+static void push3(rcIntArray& queue, int v1, int v2, int v3)
+{
+	queue.resize(queue.size() + 3);
+	queue[queue.size() - 3] = v1;
+	queue[queue.size() - 2] = v2;
+	queue[queue.size() - 1] = v3;
+}
 
-static void getHeightData(const rcCompactHeightfield& chf,
+static void getHeightData(rcContext* ctx, const rcCompactHeightfield& chf,
 						  const unsigned short* poly, const int npoly,
 						  const unsigned short* verts, const int bs,
-						  rcHeightPatch& hp, rcIntArray& stack,
+						  rcHeightPatch& hp, rcIntArray& queue,
 						  int region)
 {
 	// Note: Reads to the compact heightfield are offset by border size (bs)
 	// since border size offset is already removed from the polymesh vertices.
 	
-	stack.resize(0);
+	queue.resize(0);
+	// Set all heights to RC_UNSET_HEIGHT.
 	memset(hp.data, 0xff, sizeof(unsigned short)*hp.width*hp.height);
-	
+
 	bool empty = true;
 	
-	// Copy the height from the same region, and mark region borders
-	// as seed points to fill the rest.
-	for (int hy = 0; hy < hp.height; hy++)
+	// We cannot sample from this poly if it was created from polys
+	// of different regions. If it was then it could potentially be overlapping
+	// with polys of that region and the heights sampled here could be wrong.
+	if (region != RC_MULTIPLE_REGS)
 	{
-		int y = hp.ymin + hy + bs;
-		for (int hx = 0; hx < hp.width; hx++)
+		// Copy the height from the same region, and mark region borders
+		// as seed points to fill the rest.
+		for (int hy = 0; hy < hp.height; hy++)
 		{
-			int x = hp.xmin + hx + bs;
-			const rcCompactCell& c = chf.cells[x+y*chf.width];
-			for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
+			int y = hp.ymin + hy + bs;
+			for (int hx = 0; hx < hp.width; hx++)
 			{
-				const rcCompactSpan& s = chf.spans[i];
-				if (s.reg == region)
+				int x = hp.xmin + hx + bs;
+				const rcCompactCell& c = chf.cells[x + y*chf.width];
+				for (int i = (int)c.index, ni = (int)(c.index + c.count); i < ni; ++i)
 				{
-					// Store height
-					hp.data[hx + hy*hp.width] = s.y;
-					empty = false;
-					
-					// If any of the neighbours is not in same region,
-					// add the current location as flood fill start
-					bool border = false;
-					for (int dir = 0; dir < 4; ++dir)
+					const rcCompactSpan& s = chf.spans[i];
+					if (s.reg == region)
 					{
-						if (rcGetCon(s, dir) != RC_NOT_CONNECTED)
+						// Store height
+						hp.data[hx + hy*hp.width] = s.y;
+						empty = false;
+
+						// If any of the neighbours is not in same region,
+						// add the current location as flood fill start
+						bool border = false;
+						for (int dir = 0; dir < 4; ++dir)
 						{
-							const int ax = x + rcGetDirOffsetX(dir);
-							const int ay = y + rcGetDirOffsetY(dir);
-							const int ai = (int)chf.cells[ax+ay*chf.width].index + rcGetCon(s, dir);
-							const rcCompactSpan& as = chf.spans[ai];
-							if (as.reg != region)
+							if (rcGetCon(s, dir) != RC_NOT_CONNECTED)
 							{
-								border = true;
-								break;
+								const int ax = x + rcGetDirOffsetX(dir);
+								const int ay = y + rcGetDirOffsetY(dir);
+								const int ai = (int)chf.cells[ax + ay*chf.width].index + rcGetCon(s, dir);
+								const rcCompactSpan& as = chf.spans[ai];
+								if (as.reg != region)
+								{
+									border = true;
+									break;
+								}
 							}
 						}
+						if (border)
+							push3(queue, x, y, i);
+						break;
 					}
-					if (border)
-					{
-						stack.push(x);
-						stack.push(y);
-						stack.push(i);
-					}
-					break;
 				}
 			}
 		}
 	}
 	
-	// if the polygon does not contian any points from the current region (rare, but happens)
-	// then use the cells closest to the polygon vertices as seeds to fill the height field
+	// if the polygon does not contain any points from the current region (rare, but happens)
+	// or if it could potentially be overlapping polygons of the same region,
+	// then use the center as the seed point.
 	if (empty)
-		getHeightDataSeedsFromVertices(chf, poly, npoly, verts, bs, hp, stack);
+		seedArrayWithPolyCenter(ctx, chf, poly, npoly, verts, bs, hp, queue);
 	
 	static const int RETRACT_SIZE = 256;
 	int head = 0;
 	
-	while (head*3 < stack.size())
+	// We assume the seed is centered in the polygon, so a BFS to collect
+	// height data will ensure we do not move onto overlapping polygons and
+	// sample wrong heights.
+	while (head*3 < queue.size())
 	{
-		int cx = stack[head*3+0];
-		int cy = stack[head*3+1];
-		int ci = stack[head*3+2];
+		int cx = queue[head*3+0];
+		int cy = queue[head*3+1];
+		int ci = queue[head*3+2];
 		head++;
 		if (head >= RETRACT_SIZE)
 		{
 			head = 0;
-			if (stack.size() > RETRACT_SIZE*3)
-				memmove(&stack[0], &stack[RETRACT_SIZE*3], sizeof(int)*(stack.size()-RETRACT_SIZE*3));
-			stack.resize(stack.size()-RETRACT_SIZE*3);
+			if (queue.size() > RETRACT_SIZE*3)
+				memmove(&queue[0], &queue[RETRACT_SIZE*3], sizeof(int)*(queue.size()-RETRACT_SIZE*3));
+			queue.resize(queue.size()-RETRACT_SIZE*3);
 		}
 		
 		const rcCompactSpan& cs = chf.spans[ci];
@@ -1067,7 +1076,7 @@ static void getHeightData(const rcCompactHeightfield& chf,
 			const int hx = ax - hp.xmin - bs;
 			const int hy = ay - hp.ymin - bs;
 			
-			if (hx < 0 || hx >= hp.width || hy < 0 || hy >= hp.height)
+			if ((unsigned int)hx >= (unsigned int)hp.width || (unsigned int)hy >= (unsigned int)hp.height)
 				continue;
 			
 			if (hp.data[hx + hy*hp.width] != RC_UNSET_HEIGHT)
@@ -1078,9 +1087,7 @@ static void getHeightData(const rcCompactHeightfield& chf,
 			
 			hp.data[hx + hy*hp.width] = as.y;
 			
-			stack.push(ax);
-			stack.push(ay);
-			stack.push(ai);
+			push3(queue, ax, ay, ai);
 		}
 	}
 }
@@ -1133,7 +1140,7 @@ bool rcBuildPolyMeshDetail(rcContext* ctx, const rcPolyMesh& mesh, const rcCompa
 	
 	rcIntArray edges(64);
 	rcIntArray tris(512);
-	rcIntArray stack(512);
+	rcIntArray arr(512);
 	rcIntArray samples(512);
 	float verts[256*3];
 	rcHeightPatch hp;
@@ -1240,7 +1247,7 @@ bool rcBuildPolyMeshDetail(rcContext* ctx, const rcPolyMesh& mesh, const rcCompa
 		hp.ymin = bounds[i*4+2];
 		hp.width = bounds[i*4+1]-bounds[i*4+0];
 		hp.height = bounds[i*4+3]-bounds[i*4+2];
-		getHeightData(chf, p, npoly, mesh.verts, borderSize, hp, stack, mesh.regs[i]);
+		getHeightData(ctx, chf, p, npoly, mesh.verts, borderSize, hp, arr, mesh.regs[i]);
 		
 		// Build detail mesh.
 		int nverts = 0;
