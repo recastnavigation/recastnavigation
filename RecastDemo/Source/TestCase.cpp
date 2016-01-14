@@ -146,7 +146,7 @@ bool TestCase::load(const char* filePath)
 			test->expand = false;
 			test->next = m_tests;
 			m_tests = test;
-			sscanf(row+2, "%f %f %f %f %f %f %x %x",
+			sscanf(row+2, "%f %f %f %f %f %f %hx %hx",
 				   &test->spos[0], &test->spos[1], &test->spos[2],
 				   &test->epos[0], &test->epos[1], &test->epos[2],
 				   &test->includeFlags, &test->excludeFlags);
@@ -160,7 +160,7 @@ bool TestCase::load(const char* filePath)
 			test->expand = false;
 			test->next = m_tests;
 			m_tests = test;
-			sscanf(row+2, "%f %f %f %f %f %f %x %x",
+			sscanf(row+2, "%f %f %f %f %f %f %hx %hx",
 				   &test->spos[0], &test->spos[1], &test->spos[2],
 				   &test->epos[0], &test->epos[1], &test->epos[2],
 				   &test->includeFlags, &test->excludeFlags);
@@ -204,8 +204,8 @@ void TestCase::doTests(dtNavMesh* navmesh, dtNavMeshQuery* navquery)
 		iter->nstraight = 0;
 		
 		dtQueryFilter filter;
-		filter.setIncludeFlags((unsigned short)iter->includeFlags);
-		filter.setExcludeFlags((unsigned short)iter->excludeFlags);
+		filter.setIncludeFlags(iter->includeFlags);
+		filter.setExcludeFlags(iter->excludeFlags);
 	
 		// Find start points
 		TimeVal findNearestPolyStart = getPerfTime();

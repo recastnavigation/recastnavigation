@@ -35,7 +35,6 @@ class SlideShow
 	void purgeImage();
 	bool loadImage(const char* path);
 
-	bool m_showSlides;
 	bool m_showCurSlide;
 	float m_slideAlpha;
 	int m_curSlide;

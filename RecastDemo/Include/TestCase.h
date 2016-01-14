@@ -39,10 +39,13 @@ class TestCase
 		}
 		
 		TestType type;
-		float spos[3], epos[3];
-		float nspos[3], nepos[3];
+		float spos[3];
+		float epos[3];
+		float nspos[3];
+		float nepos[3];
 		float radius;
-		int includeFlags, excludeFlags;
+		unsigned short includeFlags;
+		unsigned short excludeFlags;
 		bool expand;
 		
 		float* straight;
