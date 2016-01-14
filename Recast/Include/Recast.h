@@ -513,6 +513,14 @@ void rcFreePolyMeshDetail(rcPolyMeshDetail* dmesh);
 /// @see rcCompactSpan::reg
 static const unsigned short RC_BORDER_REG = 0x8000;
 
+/// Polygon touches multiple regions.
+/// If a polygon has this region ID it was merged with or created
+/// from polygons of different regions during the polymesh
+/// build step that removes redundant border vertices. 
+/// (Used during the polymesh and detail polymesh build processes)
+/// @see rcPolyMesh::regs
+static const unsigned short RC_MULTIPLE_REGS = 0;
+
 /// Border vertex flag.
 /// If a region ID has this bit set, then the associated element lies on
 /// a tile border. If a contour vertex's region ID has this bit set, the 
@@ -1059,7 +1067,7 @@ inline int rcGetCon(const rcCompactSpan& s, int dir)
 ///  	in the direction.
 inline int rcGetDirOffsetX(int dir)
 {
-	const int offset[4] = { -1, 0, 1, 0, };
+	static const int offset[4] = { -1, 0, 1, 0, };
 	return offset[dir&0x03];
 }
 
@@ -1069,8 +1077,18 @@ inline int rcGetDirOffsetX(int dir)
 ///  	in the direction.
 inline int rcGetDirOffsetY(int dir)
 {
-	const int offset[4] = { 0, 1, 0, -1 };
+	static const int offset[4] = { 0, 1, 0, -1 };
 	return offset[dir&0x03];
+}
+
+/// Gets the direction for the specified offset. One of x and y should be 0.
+///  @param[in]		x		The x offset. [Limits: -1 <= value <= 1]
+///  @param[in]		y		The y offset. [Limits: -1 <= value <= 1]
+///  @return The direction that represents the offset.
+inline int rcGetDirForOffset(int x, int y)
+{
+	static const int dirs[5] = { 3, 0, -1, 2, 1 };
+	return dirs[((y+1)<<1)+x];
 }
 
 /// @}
