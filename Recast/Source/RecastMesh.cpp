@@ -1000,6 +1000,7 @@ bool rcBuildPolyMesh(rcContext* ctx, rcContourSet& cset, const int nvp, rcPolyMe
 	mesh.cs = cset.cs;
 	mesh.ch = cset.ch;
 	mesh.borderSize = cset.borderSize;
+	mesh.maxEdgeError = cset.maxError;
 	
 	int maxVertices = 0;
 	int maxTris = 0;
@@ -1505,6 +1506,7 @@ bool rcCopyPolyMesh(rcContext* ctx, const rcPolyMesh& src, rcPolyMesh& dst)
 	dst.cs = src.cs;
 	dst.ch = src.ch;
 	dst.borderSize = src.borderSize;
+	dst.maxEdgeError = src.maxEdgeError;
 	
 	dst.verts = (unsigned short*)rcAlloc(sizeof(unsigned short)*src.nverts*3, RC_ALLOC_PERM);
 	if (!dst.verts)
