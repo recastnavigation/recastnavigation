@@ -20,7 +20,7 @@
 #include <string.h>
 #include "RecastAlloc.h"
 
-static void *rcAllocDefault(int size, rcAllocHint)
+static void *rcAllocDefault(size_t size, rcAllocHint)
 {
 	return malloc(size);
 }
@@ -41,7 +41,7 @@ void rcAllocSetCustom(rcAllocFunc *allocFunc, rcFreeFunc *freeFunc)
 }
 
 /// @see rcAllocSetCustom
-void* rcAlloc(int size, rcAllocHint hint)
+void* rcAlloc(size_t size, rcAllocHint hint)
 {
 	return sRecastAllocFunc(size, hint);
 }
