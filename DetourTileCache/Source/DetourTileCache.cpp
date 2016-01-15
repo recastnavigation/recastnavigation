@@ -40,10 +40,10 @@ inline int computeTileHash(int x, int y, const int mask)
 }
 
 
-struct BuildContext
+struct NavMeshTileBuildContext
 {
-	inline BuildContext(struct dtTileCacheAlloc* a) : layer(0), lcset(0), lmesh(0), alloc(a) {}
-	inline ~BuildContext() { purge(); }
+	inline NavMeshTileBuildContext(struct dtTileCacheAlloc* a) : layer(0), lcset(0), lmesh(0), alloc(a) {}
+	inline ~NavMeshTileBuildContext() { purge(); }
 	void purge()
 	{
 		dtFreeTileCacheLayer(alloc, layer);
@@ -587,7 +587,7 @@ dtStatus dtTileCache::buildNavMeshTile(const dtCompressedTileRef ref, dtNavMesh*
 	
 	m_talloc->reset();
 	
-	BuildContext bc(m_talloc);
+	NavMeshTileBuildContext bc(m_talloc);
 	const int walkableClimbVx = (int)(m_params.walkableClimb / m_params.ch);
 	dtStatus status;
 	
