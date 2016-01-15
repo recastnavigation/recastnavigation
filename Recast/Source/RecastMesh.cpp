@@ -528,8 +528,8 @@ static int getPolyMergeValue(unsigned short* pa, unsigned short* pb,
 	return dx*dx + dy*dy;
 }
 
-static void mergePolys(unsigned short* pa, unsigned short* pb, int ea, int eb,
-					   unsigned short* tmp, const int nvp)
+static void mergePolyVerts(unsigned short* pa, unsigned short* pb, int ea, int eb,
+						   unsigned short* tmp, const int nvp)
 {
 	const int na = countPolyVerts(pa, nvp);
 	const int nb = countPolyVerts(pb, nvp);
@@ -695,7 +695,7 @@ static bool removeVertex(rcContext* ctx, rcPolyMesh& mesh, const unsigned short 
 		ctx->log(RC_LOG_WARNING, "removeVertex: Out of memory 'hole' (%d).", numRemovedVerts*nvp);
 		return false;
 	}
-	
+
 	int nhreg = 0;
 	rcScopedDelete<int> hreg = (int*)rcAlloc(sizeof(int)*numRemovedVerts*nvp, RC_ALLOC_TEMP);
 	if (!hreg)
@@ -895,7 +895,14 @@ static bool removeVertex(rcContext* ctx, rcPolyMesh& mesh, const unsigned short 
 			polys[npolys*nvp+0] = (unsigned short)hole[t[0]];
 			polys[npolys*nvp+1] = (unsigned short)hole[t[1]];
 			polys[npolys*nvp+2] = (unsigned short)hole[t[2]];
-			pregs[npolys] = (unsigned short)hreg[t[0]];
+
+			// If this polygon covers multiple region types then
+			// mark it as such
+			if (hreg[t[0]] != hreg[t[1]] || hreg[t[1]] != hreg[t[2]])
+				pregs[npolys] = RC_MULTIPLE_REGS;
+			else
+				pregs[npolys] = (unsigned short)hreg[t[0]];
+
 			pareas[npolys] = (unsigned char)harea[t[0]];
 			npolys++;
 		}
@@ -936,7 +943,10 @@ static bool removeVertex(rcContext* ctx, rcPolyMesh& mesh, const unsigned short 
 				// Found best, merge.
 				unsigned short* pa = &polys[bestPa*nvp];
 				unsigned short* pb = &polys[bestPb*nvp];
-				mergePolys(pa, pb, bestEa, bestEb, tmpPoly, nvp);
+				mergePolyVerts(pa, pb, bestEa, bestEb, tmpPoly, nvp);
+				if (pregs[bestPa] != pregs[bestPb])
+					pregs[bestPa] = RC_MULTIPLE_REGS;
+
 				unsigned short* last = &polys[(npolys-1)*nvp];
 				if (pb != last)
 					memcpy(pb, last, sizeof(unsigned short)*nvp);
@@ -990,6 +1000,7 @@ bool rcBuildPolyMesh(rcContext* ctx, rcContourSet& cset, const int nvp, rcPolyMe
 	mesh.cs = cset.cs;
 	mesh.ch = cset.ch;
 	mesh.borderSize = cset.borderSize;
+	mesh.maxEdgeError = cset.maxError;
 	
 	int maxVertices = 0;
 	int maxTris = 0;
@@ -1182,7 +1193,7 @@ bool rcBuildPolyMesh(rcContext* ctx, rcContourSet& cset, const int nvp, rcPolyMe
 					// Found best, merge.
 					unsigned short* pa = &polys[bestPa*nvp];
 					unsigned short* pb = &polys[bestPb*nvp];
-					mergePolys(pa, pb, bestEa, bestEb, tmpPoly, nvp);
+					mergePolyVerts(pa, pb, bestEa, bestEb, tmpPoly, nvp);
 					unsigned short* lastPoly = &polys[(npolys-1)*nvp];
 					if (pb != lastPoly)
 						memcpy(pb, lastPoly, sizeof(unsigned short)*nvp);
@@ -1495,6 +1506,7 @@ bool rcCopyPolyMesh(rcContext* ctx, const rcPolyMesh& src, rcPolyMesh& dst)
 	dst.cs = src.cs;
 	dst.ch = src.ch;
 	dst.borderSize = src.borderSize;
+	dst.maxEdgeError = src.maxEdgeError;
 	
 	dst.verts = (unsigned short*)rcAlloc(sizeof(unsigned short)*src.nverts*3, RC_ALLOC_PERM);
 	if (!dst.verts)

@@ -5,8 +5,6 @@ Recast & Detour
 [![Travis (Linux) Build Status](https://travis-ci.org/recastnavigation/recastnavigation.svg?branch=master)](https://travis-ci.org/recastnavigation/recastnavigation)
 [![Appveyor (Windows) Build  Status](https://ci.appveyor.com/api/projects/status/20w84u25b3f8h179/branch/master?svg=true)](https://ci.appveyor.com/project/recastnavigation/recastnavigation/branch/master)
 
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/memononen/recastnavigation/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
-
 ![screenshot of a navmesh baked with the sample program](/RecastDemo/screenshot.png?raw=true)
 
 ## Recast
@@ -40,27 +38,44 @@ You can find a comprehensive demo project in RecastDemo folder. It is a kitchen 
 
 ### Building RecastDemo
 
-RecastDemo uses [premake5](http://premake.github.io/) to build platform specific projects. Download it and make sure it's available on your path, or specify the path to it. To build *RecastDemo*, in your favorite terminal navigate into the `RecastDemo` folder, then:
+RecastDemo uses [premake5](http://premake.github.io/) to build platform specific projects. Download it and make sure it's available on your path, or specify the path to it.
 
-- *OS X*: `premake5 xcode4`
-- *Windows*: `"premake5" vs2015`
-- *Linux*: `premake5 gmake`
+#### Linux
 
-See premake5 documentation for full list of supported build file types. The projects will be created in `RecastDemo/Build` folder. And after you have compiled the project, the *RecastDemo* executable will be located in `RecastDemo/Bin` folder.
+- Install SDl2 and its dependencies according to your distro's guidelines.
+- run `premake5 gmake` from the `RecastDemo` folder.
+- `cd Build/gmake` then `make`
+- Run `RecastDemo\Bin\RecastDemo`
 
-*Note:* On Windows, please use x86 version of the SDL.dll to run the demo Application. 
+#### OSX
 
+- Grab the latest SDL2 development library dmg from [here](https://www.libsdl.org/download-2.0.php) and place `SDL2.framework` in `/Library/Frameworks/`
+- Navigate to the `RecastDemo` folder and run `premake5 xcode4`
+- Open `Build/xcode4/recastnavigation.xcworkspace`
+- Select the "RecastDemo" project in the left pane, go to the "BuildPhases" tab and expand "Link Binary With Libraries"
+- Remove the existing entry for SDL2 (it should have a white box icon) and re-add it by hitting the plus, selecting "Add Other", and selecting `/Library/Frameworks/SDL2.framework`.  It should now have a suitcase icon.
+- Set the RecastDemo project as the target and build.
+
+#### Windows
+
+- Grab the latest SDL2 development library release from [here](https://www.libsdl.org/download-2.0.php) and unzip it `RecastDemo\Contrib`.  Rename the SDL folder such that the path `RecastDemo\Contrib\SDL\lib\x86` is valid.
+- Run `"premake5" vs2015` from the `RecastDemo` folder
+- Open the solution, build, and run.
+
+### Running Unit tests
+
+- Follow the instructions to build RecastDemo above.  Premake should generate another build target called "Tests".
+- Build the "Tests" project.  This will generate an executable named "Tests" in `RecastDemo/Bin/`
+- Run the "Tests" executable.  It will execute all the unit tests, indicate those that failed, and display a count of those that succeeded.
 
 ## Integrating with your own project
 
 It is recommended to add the source directories `DebugUtils`, `Detour`, `DetourCrowd`, `DetourTileCache`, and `Recast` into your own project depending on which parts of the project you need. For example your level building tool could include DebugUtils, Recast, and Detour, and your game runtime could just include Detour.
 
-
 ## Discuss
 
 - Discuss Recast & Detour: http://groups.google.com/group/recastnavigation
 - Development blog: http://digestingduck.blogspot.com/
-
 
 ## License
 

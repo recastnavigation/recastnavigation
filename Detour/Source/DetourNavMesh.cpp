@@ -837,6 +837,11 @@ int dtNavMesh::queryPolygonsInTile(const dtMeshTile* tile, const float* qmin, co
 /// tile will be restored to the same values they were before the tile was 
 /// removed.
 ///
+/// The nav mesh assumes exclusive access to the data passed and will make
+/// changes to the dynamic portion of the data. For that reason the data
+/// should not be reused in other nav meshes until the tile has been successfully
+/// removed from this nav mesh.
+///
 /// @see dtCreateNavMeshData, #removeTile
 dtStatus dtNavMesh::addTile(unsigned char* data, int dataSize, int flags,
 							dtTileRef lastRef, dtTileRef* result)

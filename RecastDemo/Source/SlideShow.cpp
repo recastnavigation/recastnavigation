@@ -17,9 +17,10 @@
 //
 
 #include "SlideShow.h"
+
 #include <string.h>
 #include <stdio.h>
-#include <SDL_opengl.h>
+#include "SDL_opengl.h"
 //#define STBI_HEADER_FILE_ONLY
 #include "stb_image.h"
 
@@ -98,7 +99,7 @@ void SlideShow::prevSlide()
 
 void SlideShow::setSlide(int n)
 {
-	const int maxIdx = m_files.size ? m_files.size-1 : 0;
+	const int maxIdx = m_files.size() ? m_files.size() - 1 : 0;
 	m_nextSlide = n;
 	if (m_nextSlide < 0) m_nextSlide = 0;
 	if (m_nextSlide > maxIdx) m_nextSlide = maxIdx; 
@@ -120,11 +121,11 @@ void SlideShow::updateAndDraw(float dt, const float w, const float h)
 	if (m_curSlide != m_nextSlide && m_slideAlpha < 0.01f)
 	{
 		m_curSlide = m_nextSlide;
-		if (m_curSlide >= 0 && m_curSlide < m_files.size)
+		if (m_curSlide >= 0 && static_cast<std::size_t>(m_curSlide) < m_files.size())
 		{
 			char path[256];
 			strcpy(path, m_path);
-			strcat(path, m_files.files[m_curSlide]);
+			strcat(path, m_files[m_curSlide].c_str());
 			loadImage(path);
 		}
 	}
