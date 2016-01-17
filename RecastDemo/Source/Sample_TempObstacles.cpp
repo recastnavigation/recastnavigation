@@ -866,8 +866,8 @@ void Sample_TempObstacles::handleSettings()
 	int gridSize = 1;
 	if (m_geom)
 	{
-		const float* bmin = m_geom->getMeshBoundsMin();
-		const float* bmax = m_geom->getMeshBoundsMax();
+		const float* bmin = m_geom->getNavMeshBoundsMin();
+		const float* bmax = m_geom->getNavMeshBoundsMax();
 		char text[64];
 		int gw = 0, gh = 0;
 		rcCalcGridSize(bmin, bmax, m_cellSize, &gw, &gh);
@@ -1059,8 +1059,8 @@ void Sample_TempObstacles::handleRender()
 	glDepthMask(GL_FALSE);
 	
 	// Draw bounds
-	const float* bmin = m_geom->getMeshBoundsMin();
-	const float* bmax = m_geom->getMeshBoundsMax();
+	const float* bmin = m_geom->getNavMeshBoundsMin();
+	const float* bmax = m_geom->getNavMeshBoundsMax();
 	duDebugDrawBoxWire(&dd, bmin[0],bmin[1],bmin[2], bmax[0],bmax[1],bmax[2], duRGBA(255,255,255,128), 1.0f);
 	
 	// Tiling grid.
@@ -1208,8 +1208,8 @@ bool Sample_TempObstacles::handleBuild()
 	m_tmproc->init(m_geom);
 	
 	// Init cache
-	const float* bmin = m_geom->getMeshBoundsMin();
-	const float* bmax = m_geom->getMeshBoundsMax();
+	const float* bmin = m_geom->getNavMeshBoundsMin();
+	const float* bmax = m_geom->getNavMeshBoundsMax();
 	int gw = 0, gh = 0;
 	rcCalcGridSize(bmin, bmax, m_cellSize, &gw, &gh);
 	const int ts = (int)m_tileSize;
@@ -1280,7 +1280,7 @@ bool Sample_TempObstacles::handleBuild()
 
 	dtNavMeshParams params;
 	memset(&params, 0, sizeof(params));
-	rcVcopy(params.orig, m_geom->getMeshBoundsMin());
+	rcVcopy(params.orig, bmin);
 	params.tileWidth = m_tileSize*m_cellSize;
 	params.tileHeight = m_tileSize*m_cellSize;
 	params.maxTiles = m_maxTiles;
@@ -1380,7 +1380,7 @@ void Sample_TempObstacles::getTilePos(const float* pos, int& tx, int& ty)
 {
 	if (!m_geom) return;
 	
-	const float* bmin = m_geom->getMeshBoundsMin();
+	const float* bmin = m_geom->getNavMeshBoundsMin();
 	
 	const float ts = m_tileSize*m_cellSize;
 	tx = (int)((pos[0] - bmin[0]) / ts);

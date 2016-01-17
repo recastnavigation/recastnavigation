@@ -105,19 +105,45 @@ void Sample::handleRenderOverlay(double* /*proj*/, double* /*model*/, int* /*vie
 void Sample::handleMeshChanged(InputGeom* geom)
 {
 	m_geom = geom;
+
+	const BuildSettings* buildSettings = geom->getBuildSettings();
+	if (buildSettings)
+	{
+		m_cellSize = buildSettings->cellSize;
+		m_cellHeight = buildSettings->cellHeight;
+		m_agentHeight = buildSettings->agentHeight;
+		m_agentRadius = buildSettings->agentRadius;
+		m_agentMaxClimb = buildSettings->agentMaxClimb;
+		m_agentMaxSlope = buildSettings->agentMaxSlope;
+		m_regionMinSize = buildSettings->regionMinSize;
+		m_regionMergeSize = buildSettings->regionMergeSize;
+		m_edgeMaxLen = buildSettings->edgeMaxLen;
+		m_edgeMaxError = buildSettings->edgeMaxError;
+		m_vertsPerPoly = buildSettings->vertsPerPoly;
+		m_detailSampleDist = buildSettings->detailSampleDist;
+		m_detailSampleMaxError = buildSettings->detailSampleMaxError;
+		m_partitionType = buildSettings->partitionType;
+	}
 }
 
-const float* Sample::getBoundsMin()
+void Sample::collectSettings(BuildSettings& settings)
 {
-	if (!m_geom) return 0;
-	return m_geom->getMeshBoundsMin();
+	settings.cellSize = m_cellSize;
+	settings.cellHeight = m_cellHeight;
+	settings.agentHeight = m_agentHeight;
+	settings.agentRadius = m_agentRadius;
+	settings.agentMaxClimb = m_agentMaxClimb;
+	settings.agentMaxSlope = m_agentMaxSlope;
+	settings.regionMinSize = m_regionMinSize;
+	settings.regionMergeSize = m_regionMergeSize;
+	settings.edgeMaxLen = m_edgeMaxLen;
+	settings.edgeMaxError = m_edgeMaxError;
+	settings.vertsPerPoly = m_vertsPerPoly;
+	settings.detailSampleDist = m_detailSampleDist;
+	settings.detailSampleMaxError = m_detailSampleMaxError;
+	settings.partitionType = m_partitionType;
 }
 
-const float* Sample::getBoundsMax()
-{
-	if (!m_geom) return 0;
-	return m_geom->getMeshBoundsMax();
-}
 
 void Sample::resetCommonSettings()
 {
@@ -145,8 +171,8 @@ void Sample::handleCommonSettings()
 	
 	if (m_geom)
 	{
-		const float* bmin = m_geom->getMeshBoundsMin();
-		const float* bmax = m_geom->getMeshBoundsMax();
+		const float* bmin = m_geom->getNavMeshBoundsMin();
+		const float* bmax = m_geom->getNavMeshBoundsMax();
 		int gw = 0, gh = 0;
 		rcCalcGridSize(bmin, bmax, m_cellSize, &gw, &gh);
 		char text[64];

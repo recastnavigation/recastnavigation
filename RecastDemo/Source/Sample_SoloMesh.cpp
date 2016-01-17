@@ -235,8 +235,8 @@ void Sample_SoloMesh::handleRender()
 	glDepthMask(GL_FALSE);
 
 	// Draw bounds
-	const float* bmin = m_geom->getMeshBoundsMin();
-	const float* bmax = m_geom->getMeshBoundsMax();
+	const float* bmin = m_geom->getNavMeshBoundsMin();
+	const float* bmax = m_geom->getNavMeshBoundsMax();
 	duDebugDrawBoxWire(&dd, bmin[0],bmin[1],bmin[2], bmax[0],bmax[1],bmax[2], duRGBA(255,255,255,128), 1.0f);
 	dd.begin(DU_DRAW_POINTS, 5.0f);
 	dd.vertex(bmin[0],bmin[1],bmin[2],duRGBA(255,255,255,128));
@@ -362,8 +362,8 @@ bool Sample_SoloMesh::handleBuild()
 	
 	cleanup();
 	
-	const float* bmin = m_geom->getMeshBoundsMin();
-	const float* bmax = m_geom->getMeshBoundsMax();
+	const float* bmin = m_geom->getNavMeshBoundsMin();
+	const float* bmax = m_geom->getNavMeshBoundsMax();
 	const float* verts = m_geom->getMesh()->getVerts();
 	const int nverts = m_geom->getMesh()->getVertCount();
 	const int* tris = m_geom->getMesh()->getTris();

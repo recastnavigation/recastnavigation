@@ -22,6 +22,7 @@
 #include <vector>
 #include <string>
 
-void scanDirectory(std::string path, std::string ext, std::vector<std::string>& fileList);
+void scanDirectoryAppend(const std::string& path, const std::string& ext, std::vector<std::string>& fileList);
+void scanDirectory(const std::string& path, const std::string& ext, std::vector<std::string>& fileList);
 
 #endif // FILELIST_H

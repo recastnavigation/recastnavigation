@@ -69,8 +69,8 @@ protected:
 	float m_tileSize;
 	
 	unsigned int m_tileCol;
-	float m_tileBmin[3];
-	float m_tileBmax[3];
+	float m_lastBuiltTileBmin[3];
+	float m_lastBuiltTileBmax[3];
 	float m_tileBuildTime;
 	float m_tileMemUsage;
 	int m_tileTriCount;
@@ -93,6 +93,7 @@ public:
 	virtual void handleRenderOverlay(double* proj, double* model, int* view);
 	virtual void handleMeshChanged(class InputGeom* geom);
 	virtual bool handleBuild();
+	virtual void collectSettings(struct BuildSettings& settings);
 	
 	void getTilePos(const float* pos, int& tx, int& ty);
 	
