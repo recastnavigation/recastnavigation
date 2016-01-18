@@ -56,7 +56,7 @@ using std::vector;
 struct SampleItem
 {
 	Sample* (*create)();
-	const char* name;
+	const string name;
 };
 Sample* createSolo() { return new Sample_SoloMesh(); }
 Sample* createTile() { return new Sample_TileMesh(); }
@@ -167,10 +167,11 @@ int main(int /*argc*/, char** /*argv*/)
 	int logScroll = 0;
 	int toolsScroll = 0;
 	
-	char sampleName[64] = "Choose Sample..."; 
+	string sampleName = "Choose Sample...";
 	
 	vector<string> files;
-	char meshName[128] = "Choose Mesh...";
+	const string meshesFolder = "Meshes";
+	string meshName = "Choose Mesh...";
 	
 	float markerPosition[3] = {0, 0, 0};
 	bool markerPositionSet = false;
@@ -180,6 +181,8 @@ int main(int /*argc*/, char** /*argv*/)
 	
 	InputGeom* geom = 0;
 	Sample* sample = 0;
+
+	const string testCasesFolder = "TestCases";
 	TestCase* test = 0;
 
 	BuildContext ctx;
@@ -219,7 +222,7 @@ int main(int /*argc*/, char** /*argv*/)
 						showLevels = false;
 						showSample = false;
 						showTestCases = true;
-						scanDirectory("TestCases", ".txt", files);
+						scanDirectory(testCasesFolder, ".txt", files);
 					}
 					else if (event.key.keysym.sym == SDLK_TAB)
 					{
@@ -237,56 +240,18 @@ int main(int /*argc*/, char** /*argv*/)
 					}
 					else if (event.key.keysym.sym == SDLK_9)
 					{
-						if (geom)
-							geom->save("geomset.txt");
-					}
-					else if (event.key.keysym.sym == SDLK_0)
-					{
-						delete geom;
-						geom = new InputGeom;
-						if (!geom || !geom->load(&ctx, "geomset.txt"))
-						{
-							delete geom;
-							geom = 0;
-							
-							showLog = true;
-							logScroll = 0;
-							ctx.dumpLog("Geom load log %s:", meshName);
-						}
 						if (sample && geom)
 						{
-							sample->handleMeshChanged(geom);
-						}
-							
-						if (geom || sample)
-						{
-							const float* bmin = 0;
-							const float* bmax = 0;
-							if (sample)
-							{
-								bmin = sample->getBoundsMin();
-								bmax = sample->getBoundsMax();
-							}
-							else if (geom)
-							{
-								bmin = geom->getMeshBoundsMin();
-								bmax = geom->getMeshBoundsMax();
-							}
-							// Reset camera and fog to match the mesh bounds.
-							if (bmin && bmax)
-							{
-								camr = sqrtf(rcSqr(bmax[0] - bmin[0]) +
-											 rcSqr(bmax[1] - bmin[1]) +
-											 rcSqr(bmax[2] - bmin[2])) / 2;
-								cameraPos[0] = (bmax[0] + bmin[0]) / 2 + camr;
-								cameraPos[1] = (bmax[1] + bmin[1]) / 2 + camr;
-								cameraPos[2] = (bmax[2] + bmin[2]) / 2 + camr;
-								camr *= 3;
-							}
-							cameraEulers[0] = 45;
-							cameraEulers[1] = -45;
-							glFogf(GL_FOG_START, camr * 0.2f);
-							glFogf(GL_FOG_END, camr * 1.25f);
+							string savePath = meshesFolder + "/";
+							BuildSettings settings;
+							memset(&settings, 0, sizeof(settings));
+
+							rcVcopy(settings.navMeshBMin, geom->getNavMeshBoundsMin());
+							rcVcopy(settings.navMeshBMax, geom->getNavMeshBoundsMax());
+
+							sample->collectSettings(settings);
+
+							geom->saveGeomSet(&settings);
 						}
 					}
 					else if (event.key.keysym.sym == SDLK_RIGHT)
@@ -577,7 +542,7 @@ int main(int /*argc*/, char** /*argv*/)
 
 			imguiSeparator();
 			imguiLabel("Sample");
-			if (imguiButton(sampleName))
+			if (imguiButton(sampleName.c_str()))
 			{
 				if (showSample)
 				{
@@ -593,7 +558,7 @@ int main(int /*argc*/, char** /*argv*/)
 			
 			imguiSeparator();
 			imguiLabel("Input Mesh");
-			if (imguiButton(meshName))
+			if (imguiButton(meshName.c_str()))
 			{
 				if (showLevels)
 				{
@@ -604,7 +569,8 @@ int main(int /*argc*/, char** /*argv*/)
 					showSample = false;
 					showTestCases = false;
 					showLevels = true;
-					scanDirectory("Meshes", ".obj", files);
+					scanDirectory(meshesFolder, ".obj", files);
+					scanDirectoryAppend(meshesFolder, ".gset", files);
 				}
 			}
 			if (geom)
@@ -631,7 +597,7 @@ int main(int /*argc*/, char** /*argv*/)
 						showLog = true;
 						logScroll = 0;
 					}
-					ctx.dumpLog("Build log %s:", meshName);
+					ctx.dumpLog("Build log %s:", meshName.c_str());
 					
 					// Clear test.
 					delete test;
@@ -660,11 +626,11 @@ int main(int /*argc*/, char** /*argv*/)
 			Sample* newSample = 0;
 			for (int i = 0; i < g_nsamples; ++i)
 			{
-				if (imguiItem(g_samples[i].name))
+				if (imguiItem(g_samples[i].name.c_str()))
 				{
 					newSample = g_samples[i].create();
 					if (newSample)
-						strcpy(sampleName, g_samples[i].name);
+						sampleName = g_samples[i].name;
 				}
 			}
 			if (newSample)
@@ -683,15 +649,10 @@ int main(int /*argc*/, char** /*argv*/)
 			{
 				const float* bmin = 0;
 				const float* bmax = 0;
-				if (sample)
+				if (geom)
 				{
-					bmin = sample->getBoundsMin();
-					bmax = sample->getBoundsMax();
-				}
-				else if (geom)
-				{
-					bmin = geom->getMeshBoundsMin();
-					bmax = geom->getMeshBoundsMax();
+					bmin = geom->getNavMeshBoundsMin();
+					bmax = geom->getNavMeshBoundsMax();
 				}
 				// Reset camera and fog to match the mesh bounds.
 				if (bmin && bmax)
@@ -733,26 +694,23 @@ int main(int /*argc*/, char** /*argv*/)
 			
 			if (levelToLoad != filesEnd)
 			{
-				strncpy(meshName, levelToLoad->c_str(), sizeof(meshName));
-				meshName[sizeof(meshName)-1] = '\0';
+				meshName = *levelToLoad;
 				showLevels = false;
 				
 				delete geom;
 				geom = 0;
 				
-				char path[256];
-				strcpy(path, "Meshes/");
-				strcat(path, meshName);
+				string path = meshesFolder + "/" + meshName;
 				
 				geom = new InputGeom;
-				if (!geom || !geom->loadMesh(&ctx, path))
+				if (!geom->load(&ctx, path))
 				{
 					delete geom;
 					geom = 0;
 					
 					showLog = true;
 					logScroll = 0;
-					ctx.dumpLog("Geom load log %s:", meshName);
+					ctx.dumpLog("Geom load log %s:", meshName.c_str());
 				}
 				if (sample && geom)
 				{
@@ -763,15 +721,10 @@ int main(int /*argc*/, char** /*argv*/)
 				{
 					const float* bmin = 0;
 					const float* bmax = 0;
-					if (sample)
+					if (geom)
 					{
-						bmin = sample->getBoundsMin();
-						bmax = sample->getBoundsMax();
-					}
-					else if (geom)
-					{
-						bmin = geom->getMeshBoundsMin();
-						bmax = geom->getMeshBoundsMax();
+						bmin = geom->getNavMeshBoundsMin();
+						bmax = geom->getNavMeshBoundsMax();
 					}
 					// Reset camera and fog to match the mesh bounds.
 					if (bmin && bmax)
@@ -815,9 +768,7 @@ int main(int /*argc*/, char** /*argv*/)
 			
 			if (testToLoad != filesEnd)
 			{
-				char path[256];
-				strcpy(path, "TestCases/");
-				strcat(path, testToLoad->c_str());
+				string path = testCasesFolder + "/" + *testToLoad;
 				test = new TestCase;
 				if (test)
 				{
@@ -832,10 +783,11 @@ int main(int /*argc*/, char** /*argv*/)
 					Sample* newSample = 0;
 					for (int i = 0; i < g_nsamples; ++i)
 					{
-						if (strcmp(g_samples[i].name, test->getSampleName()) == 0)
+						if (g_samples[i].name == test->getSampleName())
 						{
 							newSample = g_samples[i].create();
-							if (newSample) strcpy(sampleName, g_samples[i].name);
+							if (newSample)
+								sampleName = g_samples[i].name;
 						}
 					}
 					if (newSample)
@@ -847,23 +799,21 @@ int main(int /*argc*/, char** /*argv*/)
 					}
 
 					// Load geom.
-					strcpy(meshName, test->getGeomFileName());
-					meshName[sizeof(meshName)-1] = '\0';
+					meshName = test->getGeomFileName();
 					
 					delete geom;
 					geom = 0;
 					
-					strcpy(path, "Meshes/");
-					strcat(path, meshName);
+					path = meshesFolder + "/" + meshName;
 					
 					geom = new InputGeom;
-					if (!geom || !geom->loadMesh(&ctx, path))
+					if (!geom || !geom->load(&ctx, path))
 					{
 						delete geom;
 						geom = 0;
 						showLog = true;
 						logScroll = 0;
-						ctx.dumpLog("Geom load log %s:", meshName);
+						ctx.dumpLog("Geom load log %s:", meshName.c_str());
 					}
 					if (sample && geom)
 					{
@@ -877,22 +827,17 @@ int main(int /*argc*/, char** /*argv*/)
 					ctx.resetLog();
 					if (sample && !sample->handleBuild())
 					{
-						ctx.dumpLog("Build log %s:", meshName);
+						ctx.dumpLog("Build log %s:", meshName.c_str());
 					}
 					
 					if (geom || sample)
 					{
 						const float* bmin = 0;
 						const float* bmax = 0;
-						if (sample)
+						if (geom)
 						{
-							bmin = sample->getBoundsMin();
-							bmax = sample->getBoundsMax();
-						}
-						else if (geom)
-						{
-							bmin = geom->getMeshBoundsMin();
-							bmax = geom->getMeshBoundsMax();
+							bmin = geom->getNavMeshBoundsMin();
+							bmax = geom->getNavMeshBoundsMax();
 						}
 						// Reset camera and fog to match the mesh bounds.
 						if (bmin && bmax)

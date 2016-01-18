@@ -19,7 +19,7 @@
 #include "MeshLoaderObj.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <cstring>
 #define _USE_MATH_DEFINES
 #include <math.h>
 
@@ -135,10 +135,10 @@ static int parseFace(char* row, int* data, int n, int vcnt)
 	return j;
 }
 
-bool rcMeshLoaderObj::load(const char* filename)
+bool rcMeshLoaderObj::load(const std::string& filename)
 {
 	char* buf = 0;
-	FILE* fp = fopen(filename, "rb");
+	FILE* fp = fopen(filename.c_str(), "rb");
 	if (!fp)
 		return false;
 	fseek(fp, 0, SEEK_END);
@@ -226,8 +226,6 @@ bool rcMeshLoaderObj::load(const char* filename)
 		}
 	}
 	
-	strncpy(m_filename, filename, sizeof(m_filename));
-	m_filename[sizeof(m_filename)-1] = '\0';
-	
+	m_filename = filename;
 	return true;
 }
