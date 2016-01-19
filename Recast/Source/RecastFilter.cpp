@@ -155,13 +155,10 @@ void rcFilterLedgeSpans(rcContext* ctx, const int walkableHeight, const int walk
 				// neighbour span is less than the walkableClimb.
 				if (minh < -walkableClimb)
 					s->area = RC_NULL_AREA;
-					
 				// If the difference between all neighbours is too large,
 				// we are at steep slope, mark the span as ledge.
-				if ((asmax - asmin) > walkableClimb)
-				{
+				else if ((asmax - asmin) > walkableClimb)
 					s->area = RC_NULL_AREA;
-				}
 			}
 		}
 	}
