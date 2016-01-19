@@ -185,6 +185,10 @@ public:
 	inline ~rcScopedTimer() { m_ctx->stopTimer(m_label); }
 
 private:
+	// Explicitly disabled copy constructor and copy assignment operator.
+	rcScopedTimer(const rcScopedTimer&);
+	rcScopedTimer& operator=(const rcScopedTimer&);
+	
 	rcContext* const m_ctx;
 	const rcTimerLabel m_label;
 };

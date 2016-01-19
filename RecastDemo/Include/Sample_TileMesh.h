@@ -101,6 +101,11 @@ public:
 	void removeTile(const float* pos);
 	void buildAllTiles();
 	void removeAllTiles();
+
+private:
+	// Explicitly disabled copy constructor and copy assignment operator.
+	Sample_TileMesh(const Sample_TileMesh&);
+	Sample_TileMesh& operator=(const Sample_TileMesh&);
 };
 
 

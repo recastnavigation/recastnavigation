@@ -246,10 +246,6 @@ NavMeshTesterTool::NavMeshTesterTool() :
 	m_randomRadius = 5.0f;
 }
 
-NavMeshTesterTool::~NavMeshTesterTool()
-{
-}
-
 void NavMeshTesterTool::init(Sample* sample)
 {
 	m_sample = sample;

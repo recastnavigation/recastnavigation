@@ -140,6 +140,11 @@ public:
 	void deleteConvexVolume(int i);
 	void drawConvexVolumes(struct duDebugDraw* dd, bool hilight = false);
 	///@}
+	
+private:
+	// Explicitly disabled copy constructor and copy assignment operator.
+	InputGeom(const InputGeom&);
+	InputGeom& operator=(const InputGeom&);
 };
 
 #endif // INPUTGEOM_H

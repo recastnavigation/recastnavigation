@@ -78,11 +78,9 @@ struct dtTileCachePolyMesh
 
 struct dtTileCacheAlloc
 {
-	virtual ~dtTileCacheAlloc() { }
+	virtual ~dtTileCacheAlloc() {}
 
-	virtual void reset()
-	{
-	}
+	virtual void reset() {}
 	
 	virtual void* alloc(const size_t size)
 	{

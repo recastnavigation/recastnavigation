@@ -162,6 +162,11 @@ public:
 
 	void resetCommonSettings();
 	void handleCommonSettings();
+
+private:
+	// Explicitly disabled copy constructor and copy assignment operator.
+	Sample(const Sample&);
+	Sample& operator=(const Sample&);
 };
 
 

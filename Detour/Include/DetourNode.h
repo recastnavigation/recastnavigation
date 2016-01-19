@@ -42,17 +42,13 @@ struct dtNode
 	dtPolyRef id;				///< Polygon ref the node corresponds to.
 };
 
-
 static const int DT_MAX_STATES_PER_NODE = 4;	// number of extra states per node. See dtNode::state
-
-
 
 class dtNodePool
 {
 public:
 	dtNodePool(int maxNodes, int hashSize);
 	~dtNodePool();
-	inline void operator=(const dtNodePool&) {}
 	void clear();
 
 	// Get a dtNode by ref and extra state information. If there is none then - allocate
@@ -64,19 +60,19 @@ public:
 	inline unsigned int getNodeIdx(const dtNode* node) const
 	{
 		if (!node) return 0;
-		return (unsigned int)(node - m_nodes)+1;
+		return (unsigned int)(node - m_nodes) + 1;
 	}
 
 	inline dtNode* getNodeAtIdx(unsigned int idx)
 	{
 		if (!idx) return 0;
-		return &m_nodes[idx-1];
+		return &m_nodes[idx - 1];
 	}
 
 	inline const dtNode* getNodeAtIdx(unsigned int idx) const
 	{
 		if (!idx) return 0;
-		return &m_nodes[idx-1];
+		return &m_nodes[idx - 1];
 	}
 	
 	inline int getMemUsed() const
@@ -95,6 +91,9 @@ public:
 	inline int getNodeCount() const { return m_nodeCount; }
 	
 private:
+	// Explicitly disabled copy constructor and copy assignment operator.
+	dtNodePool(const dtNodePool&);
+	dtNodePool& operator=(const dtNodePool&);
 	
 	dtNode* m_nodes;
 	dtNodeIndex* m_first;
@@ -109,17 +108,10 @@ class dtNodeQueue
 public:
 	dtNodeQueue(int n);
 	~dtNodeQueue();
-	inline void operator=(dtNodeQueue&) {}
 	
-	inline void clear()
-	{
-		m_size = 0;
-	}
+	inline void clear() { m_size = 0; }
 	
-	inline dtNode* top()
-	{
-		return m_heap[0];
-	}
+	inline dtNode* top() { return m_heap[0]; }
 	
 	inline dtNode* pop()
 	{
@@ -152,12 +144,16 @@ public:
 	inline int getMemUsed() const
 	{
 		return sizeof(*this) +
-		sizeof(dtNode*)*(m_capacity+1);
+		sizeof(dtNode*) * (m_capacity + 1);
 	}
 	
 	inline int getCapacity() const { return m_capacity; }
 	
 private:
+	// Explicitly disabled copy constructor and copy assignment operator.
+	dtNodeQueue(const dtNodeQueue&);
+	dtNodeQueue& operator=(const dtNodeQueue&);
+
 	void bubbleUp(int i, dtNode* node);
 	void trickleDown(int i, dtNode* node);
 	

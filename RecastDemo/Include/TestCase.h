@@ -59,6 +59,10 @@ class TestCase
 		int findStraightPathTime;
 		
 		Test* next;
+	private:
+		// Explicitly disabled copy constructor and copy assignment operator.
+		Test(const Test&);
+		Test& operator=(const Test&);
 	};
 
 	std::string m_sampleName;
@@ -80,6 +84,11 @@ public:
 	
 	void handleRender();
 	bool handleRenderOverlay(double* proj, double* model, int* view);
+
+private:
+	// Explicitly disabled copy constructor and copy assignment operator.
+	TestCase(const TestCase&);
+	TestCase& operator=(const TestCase&);
 };
 
 #endif // TESTCASE_H

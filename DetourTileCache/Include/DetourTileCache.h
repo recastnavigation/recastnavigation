@@ -164,7 +164,10 @@ public:
 	
 	
 private:
-	
+	// Explicitly disabled copy constructor and copy assignment operator.
+	dtTileCache(const dtTileCache&);
+	dtTileCache& operator=(const dtTileCache&);
+
 	enum ObstacleRequestAction
 	{
 		REQUEST_ADD,
@@ -203,7 +206,6 @@ private:
 	static const int MAX_UPDATE = 64;
 	dtCompressedTileRef m_update[MAX_UPDATE];
 	int m_nupdate;
-	
 };
 
 dtTileCache* dtAllocTileCache();
