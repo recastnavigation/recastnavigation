@@ -58,6 +58,10 @@ public:
 	inline float getSampleCollisionTimePenalty(const int i) const { return m_tpen[i]; }
 
 private:
+	// Explicitly disabled copy constructor and copy assignment operator.
+	dtObstacleAvoidanceDebugData(const dtObstacleAvoidanceDebugData&);
+	dtObstacleAvoidanceDebugData& operator=(const dtObstacleAvoidanceDebugData&);
+
 	int m_nsamples;
 	int m_maxSamples;
 	float* m_vel;
@@ -122,6 +126,9 @@ public:
 	const dtObstacleSegment* getObstacleSegment(const int i) { return &m_segments[i]; }
 
 private:
+	// Explicitly disabled copy constructor and copy assignment operator.
+	dtObstacleAvoidanceQuery(const dtObstacleAvoidanceQuery&);
+	dtObstacleAvoidanceQuery& operator=(const dtObstacleAvoidanceQuery&);
 
 	void prepare(const float* pos, const float* dvel);
 

@@ -343,6 +343,11 @@ public:
 
 	/// Gets the query object used by the crowd.
 	const dtNavMeshQuery* getNavMeshQuery() const { return m_navquery; }
+
+private:
+	// Explicitly disabled copy constructor and copy assignment operator.
+	dtCrowd(const dtCrowd&);
+	dtCrowd& operator=(const dtCrowd&);
 };
 
 /// Allocates a crowd object using the Detour allocator.

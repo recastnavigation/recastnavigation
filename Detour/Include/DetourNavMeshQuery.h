@@ -475,6 +475,9 @@ public:
 	/// @}
 	
 private:
+	// Explicitly disabled copy constructor and copy assignment operator
+	dtNavMeshQuery(const dtNavMeshQuery&);
+	dtNavMeshQuery& operator=(const dtNavMeshQuery&);
 	
 	/// Returns neighbour tile based on side.
 	dtMeshTile* getNeighbourTileAt(int x, int y, int side) const;

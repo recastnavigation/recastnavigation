@@ -85,6 +85,11 @@ public:
 
 	void saveAll(const char* path);
 	void loadAll(const char* path);
+
+private:
+	// Explicitly disabled copy constructor and copy assignment operator.
+	Sample_TempObstacles(const Sample_TempObstacles&);
+	Sample_TempObstacles& operator=(const Sample_TempObstacles&);
 };
 
 
