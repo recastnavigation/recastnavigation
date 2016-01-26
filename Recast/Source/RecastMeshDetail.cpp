@@ -1194,13 +1194,13 @@ bool rcBuildPolyMeshDetail(rcContext* ctx, const rcPolyMesh& mesh, const rcCompa
 	int nPolyVerts = 0;
 	int maxhw = 0, maxhh = 0;
 	
-	rcScopedDelete<int> bounds = (int*)rcAlloc(sizeof(int)*mesh.npolys*4, RC_ALLOC_TEMP);
+	rcScopedDelete<int> bounds((int*)rcAlloc(sizeof(int)*mesh.npolys*4, RC_ALLOC_TEMP));
 	if (!bounds)
 	{
 		ctx->log(RC_LOG_ERROR, "rcBuildPolyMeshDetail: Out of memory 'bounds' (%d).", mesh.npolys*4);
 		return false;
 	}
-	rcScopedDelete<float> poly = (float*)rcAlloc(sizeof(float)*nvp*3, RC_ALLOC_TEMP);
+	rcScopedDelete<float> poly((float*)rcAlloc(sizeof(float)*nvp*3, RC_ALLOC_TEMP));
 	if (!poly)
 	{
 		ctx->log(RC_LOG_ERROR, "rcBuildPolyMeshDetail: Out of memory 'poly' (%d).", nvp*3);

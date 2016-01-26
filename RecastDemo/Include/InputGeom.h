@@ -31,11 +31,51 @@ struct ConvexVolume
 	int area;
 };
 
+struct BuildSettings
+{
+	// Cell size in world units
+	float cellSize;
+	// Cell height in world units
+	float cellHeight;
+	// Agent height in world units
+	float agentHeight;
+	// Agent radius in world units
+	float agentRadius;
+	// Agent max climb in world units
+	float agentMaxClimb;
+	// Agent max slope in degrees
+	float agentMaxSlope;
+	// Region minimum size in voxels.
+	// regionMinSize = sqrt(regionMinArea)
+	float regionMinSize;
+	// Region merge size in voxels.
+	// regionMergeSize = sqrt(regionMergeArea)
+	float regionMergeSize;
+	// Edge max length in world units
+	float edgeMaxLen;
+	// Edge max error in voxels
+	float edgeMaxError;
+	float vertsPerPoly;
+	// Detail sample distance in voxels
+	float detailSampleDist;
+	// Detail sample max error in voxel heights.
+	float detailSampleMaxError;
+	// Partition type, see SamplePartitionType
+	int partitionType;
+	// Bounds of the area to mesh
+	float navMeshBMin[3];
+	float navMeshBMax[3];
+	// Size of the tiles in voxels
+	float tileSize;
+};
+
 class InputGeom
 {
 	rcChunkyTriMesh* m_chunkyMesh;
 	rcMeshLoaderObj* m_mesh;
 	float m_meshBMin[3], m_meshBMax[3];
+	BuildSettings m_buildSettings;
+	bool m_hasBuildSettings;
 	
 	/// @name Off-Mesh connections.
 	///@{
@@ -56,20 +96,24 @@ class InputGeom
 	int m_volumeCount;
 	///@}
 	
+	bool loadMesh(class rcContext* ctx, const std::string& filepath);
+	bool loadGeomSet(class rcContext* ctx, const std::string& filepath);
 public:
 	InputGeom();
 	~InputGeom();
 	
-	bool loadMesh(class rcContext* ctx, const char* filepath);
 	
-	bool load(class rcContext* ctx, const char* filepath);
-	bool save(const char* filepath);
+	bool load(class rcContext* ctx, const std::string& filepath);
+	bool saveGeomSet(const BuildSettings* settings);
 	
 	/// Method to return static mesh data.
-	inline const rcMeshLoaderObj* getMesh() const { return m_mesh; }
-	inline const float* getMeshBoundsMin() const { return m_meshBMin; }
-	inline const float* getMeshBoundsMax() const { return m_meshBMax; }
-	inline const rcChunkyTriMesh* getChunkyMesh() const { return m_chunkyMesh; }
+	const rcMeshLoaderObj* getMesh() const { return m_mesh; }
+	const float* getMeshBoundsMin() const { return m_meshBMin; }
+	const float* getMeshBoundsMax() const { return m_meshBMax; }
+	const float* getNavMeshBoundsMin() const { return m_hasBuildSettings ? m_buildSettings.navMeshBMin : m_meshBMin; }
+	const float* getNavMeshBoundsMax() const { return m_hasBuildSettings ? m_buildSettings.navMeshBMax : m_meshBMax; }
+	const rcChunkyTriMesh* getChunkyMesh() const { return m_chunkyMesh; }
+	const BuildSettings* getBuildSettings() const { return m_hasBuildSettings ? &m_buildSettings : 0; }
 	bool raycastMesh(float* src, float* dst, float& tmin);
 
 	/// @name Off-Mesh connections.
@@ -96,6 +140,11 @@ public:
 	void deleteConvexVolume(int i);
 	void drawConvexVolumes(struct duDebugDraw* dd, bool hilight = false);
 	///@}
+	
+private:
+	// Explicitly disabled copy constructor and copy assignment operator.
+	InputGeom(const InputGeom&);
+	InputGeom& operator=(const InputGeom&);
 };
 
 #endif // INPUTGEOM_H

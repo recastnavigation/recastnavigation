@@ -88,18 +88,18 @@ static char* parseRow(char* buf, char* bufEnd, char* row, int len)
 	return buf;
 }
 
-static void copyName(char* dst, const char* src)
+static void copyName(std::string& dst, const char* src)
 {
 	// Skip white spaces
 	while (*src && isspace(*src))
 		src++;
-	strcpy(dst, src);
+	dst = src;
 }
 
-bool TestCase::load(const char* filePath)
+bool TestCase::load(const std::string& filePath)
 {
 	char* buf = 0;
-	FILE* fp = fopen(filePath, "rb");
+	FILE* fp = fopen(filePath.c_str(), "rb");
 	if (!fp)
 		return false;
 	fseek(fp, 0, SEEK_END);

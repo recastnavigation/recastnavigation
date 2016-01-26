@@ -34,7 +34,7 @@ class NavMeshPruneTool : public SampleTool
 	
 public:
 	NavMeshPruneTool();
-	~NavMeshPruneTool();
+	virtual ~NavMeshPruneTool();
 	
 	virtual int type() { return TOOL_NAVMESH_PRUNE; }
 	virtual void init(Sample* sample);
@@ -46,6 +46,11 @@ public:
 	virtual void handleUpdate(const float dt);
 	virtual void handleRender();
 	virtual void handleRenderOverlay(double* proj, double* model, int* view);
+
+private:
+	// Explicitly disabled copy constructor and copy assignment operator.
+	NavMeshPruneTool(const NavMeshPruneTool&);
+	NavMeshPruneTool& operator=(const NavMeshPruneTool&);
 };
 
 #endif // NAVMESHPRUNETOOL_H

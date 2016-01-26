@@ -37,6 +37,11 @@ struct rcChunkyTriMesh
 	int* tris;
 	int ntris;
 	int maxTrisPerChunk;
+
+private:
+	// Explicitly disabled copy constructor and copy assignment operator.
+	rcChunkyTriMesh(const rcChunkyTriMesh&);
+	rcChunkyTriMesh& operator=(const rcChunkyTriMesh&);
 };
 
 /// Creates partitioned triangle mesh (AABB tree),

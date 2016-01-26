@@ -14,10 +14,6 @@ ValueHistory::ValueHistory() :
 		m_samples[i] = 0;
 }
 
-ValueHistory::~ValueHistory()
-{
-}
-
 float ValueHistory::getSampleMin() const
 {
 	float val = m_samples[0];

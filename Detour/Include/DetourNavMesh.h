@@ -145,7 +145,7 @@ enum dtPolyTypes
 };
 
 
-/// Defines a polyogn within a dtMeshTile object.
+/// Defines a polygon within a dtMeshTile object.
 /// @ingroup detour
 struct dtPoly
 {
@@ -300,6 +300,9 @@ struct dtMeshTile
 	int dataSize;							///< Size of the tile data.
 	int flags;								///< Tile flags. (See: #dtTileFlags)
 	dtMeshTile* next;						///< The next free tile, or the next tile in the spatial grid.
+private:
+	dtMeshTile(const dtMeshTile&);
+	dtMeshTile& operator=(const dtMeshTile&);
 };
 
 /// Configuration parameters used to define multi-tile navigation meshes.
@@ -591,6 +594,9 @@ public:
 	/// @}
 	
 private:
+	// Explicitly disabled copy constructor and copy assignment operator.
+	dtNavMesh(const dtNavMesh&);
+	dtNavMesh& operator=(const dtNavMesh&);
 
 	/// Returns pointer to tile in the tile array.
 	dtMeshTile* getTile(int i);

@@ -109,10 +109,6 @@ ConvexVolumeTool::ConvexVolumeTool() :
 {
 }
 
-ConvexVolumeTool::~ConvexVolumeTool()
-{
-}
-
 void ConvexVolumeTool::init(Sample* sample)
 {
 	m_sample = sample;

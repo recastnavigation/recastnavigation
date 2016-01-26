@@ -29,10 +29,8 @@
 using std::vector;
 using std::string;
 
-void scanDirectory(string path, string ext, vector<string>& filelist)
+void scanDirectoryAppend(const string& path, const string& ext, vector<string>& filelist)
 {
-	filelist.clear();
-	
 #ifdef WIN32
 	string pathWithExt = path + "/*" + ext;
 	
@@ -70,4 +68,10 @@ void scanDirectory(string path, string ext, vector<string>& filelist)
 	
 	// Sort the list of files alphabetically.
 	std::sort(filelist.begin(), filelist.end());
+}
+
+void scanDirectory(const string& path, const string& ext, vector<string>& filelist)
+{
+	filelist.clear();
+	scanDirectoryAppend(path, ext, filelist);
 }

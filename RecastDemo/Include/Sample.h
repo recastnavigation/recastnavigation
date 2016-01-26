@@ -141,6 +141,7 @@ public:
 	virtual void handleMeshChanged(class InputGeom* geom);
 	virtual bool handleBuild();
 	virtual void handleUpdate(const float dt);
+	virtual void collectSettings(struct BuildSettings& settings);
 
 	virtual class InputGeom* getInputGeom() { return m_geom; }
 	virtual class dtNavMesh* getNavMesh() { return m_navMesh; }
@@ -149,11 +150,9 @@ public:
 	virtual float getAgentRadius() { return m_agentRadius; }
 	virtual float getAgentHeight() { return m_agentHeight; }
 	virtual float getAgentClimb() { return m_agentMaxClimb; }
-	virtual const float* getBoundsMin();
-	virtual const float* getBoundsMax();
 	
-	inline unsigned char getNavMeshDrawFlags() const { return m_navMeshDrawFlags; }
-	inline void setNavMeshDrawFlags(unsigned char flags) { m_navMeshDrawFlags = flags; }
+	unsigned char getNavMeshDrawFlags() const { return m_navMeshDrawFlags; }
+	void setNavMeshDrawFlags(unsigned char flags) { m_navMeshDrawFlags = flags; }
 
 	void updateToolStates(const float dt);
 	void initToolStates(Sample* sample);
@@ -163,6 +162,11 @@ public:
 
 	void resetCommonSettings();
 	void handleCommonSettings();
+
+private:
+	// Explicitly disabled copy constructor and copy assignment operator.
+	Sample(const Sample&);
+	Sample& operator=(const Sample&);
 };
 
 

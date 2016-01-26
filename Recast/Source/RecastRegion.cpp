@@ -1363,7 +1363,7 @@ bool rcBuildRegionsMonotone(rcContext* ctx, rcCompactHeightfield& chf,
 	const int h = chf.height;
 	unsigned short id = 1;
 	
-	rcScopedDelete<unsigned short> srcReg = (unsigned short*)rcAlloc(sizeof(unsigned short)*chf.spanCount, RC_ALLOC_TEMP);
+	rcScopedDelete<unsigned short> srcReg((unsigned short*)rcAlloc(sizeof(unsigned short)*chf.spanCount, RC_ALLOC_TEMP));
 	if (!srcReg)
 	{
 		ctx->log(RC_LOG_ERROR, "rcBuildRegionsMonotone: Out of memory 'src' (%d).", chf.spanCount);
@@ -1372,7 +1372,7 @@ bool rcBuildRegionsMonotone(rcContext* ctx, rcCompactHeightfield& chf,
 	memset(srcReg,0,sizeof(unsigned short)*chf.spanCount);
 
 	const int nsweeps = rcMax(chf.width,chf.height);
-	rcScopedDelete<rcSweepSpan> sweeps = (rcSweepSpan*)rcAlloc(sizeof(rcSweepSpan)*nsweeps, RC_ALLOC_TEMP);
+	rcScopedDelete<rcSweepSpan> sweeps((rcSweepSpan*)rcAlloc(sizeof(rcSweepSpan)*nsweeps, RC_ALLOC_TEMP));
 	if (!sweeps)
 	{
 		ctx->log(RC_LOG_ERROR, "rcBuildRegionsMonotone: Out of memory 'sweeps' (%d).", nsweeps);
@@ -1535,7 +1535,7 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 	const int w = chf.width;
 	const int h = chf.height;
 	
-	rcScopedDelete<unsigned short> buf = (unsigned short*)rcAlloc(sizeof(unsigned short)*chf.spanCount*4, RC_ALLOC_TEMP);
+	rcScopedDelete<unsigned short> buf((unsigned short*)rcAlloc(sizeof(unsigned short)*chf.spanCount*4, RC_ALLOC_TEMP));
 	if (!buf)
 	{
 		ctx->log(RC_LOG_ERROR, "rcBuildRegions: Out of memory 'tmp' (%d).", chf.spanCount*4);
@@ -1575,6 +1575,13 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 		// Make sure border will not overflow.
 		const int bw = rcMin(w, borderSize);
 		const int bh = rcMin(h, borderSize);
+
+		if (regionId > 0xFFFB)
+		{
+			ctx->log(RC_LOG_ERROR, "rcBuildRegions: Region ID overflow");
+			return false;
+		}
+		
 		// Paint regions
 		paintRectRegion(0, bw, 0, h, regionId|RC_BORDER_REG, chf, srcReg); regionId++;
 		paintRectRegion(w-bw, w, 0, h, regionId|RC_BORDER_REG, chf, srcReg); regionId++;
@@ -1622,7 +1629,15 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 				if (i >= 0 && srcReg[i] == 0)
 				{
 					if (floodRegion(x, y, i, level, regionId, chf, srcReg, srcDist, stack))
+					{
+						if (regionId == 0xFFFF)
+						{
+							ctx->log(RC_LOG_ERROR, "rcBuildRegions: Region ID overflow");
+							return false;
+						}
+						
 						regionId++;
+					}
 				}
 			}
 		}
@@ -1672,7 +1687,7 @@ bool rcBuildLayerRegions(rcContext* ctx, rcCompactHeightfield& chf,
 	const int h = chf.height;
 	unsigned short id = 1;
 	
-	rcScopedDelete<unsigned short> srcReg = (unsigned short*)rcAlloc(sizeof(unsigned short)*chf.spanCount, RC_ALLOC_TEMP);
+	rcScopedDelete<unsigned short> srcReg((unsigned short*)rcAlloc(sizeof(unsigned short)*chf.spanCount, RC_ALLOC_TEMP));
 	if (!srcReg)
 	{
 		ctx->log(RC_LOG_ERROR, "rcBuildRegionsMonotone: Out of memory 'src' (%d).", chf.spanCount);
@@ -1681,7 +1696,7 @@ bool rcBuildLayerRegions(rcContext* ctx, rcCompactHeightfield& chf,
 	memset(srcReg,0,sizeof(unsigned short)*chf.spanCount);
 	
 	const int nsweeps = rcMax(chf.width,chf.height);
-	rcScopedDelete<rcSweepSpan> sweeps = (rcSweepSpan*)rcAlloc(sizeof(rcSweepSpan)*nsweeps, RC_ALLOC_TEMP);
+	rcScopedDelete<rcSweepSpan> sweeps((rcSweepSpan*)rcAlloc(sizeof(rcSweepSpan)*nsweeps, RC_ALLOC_TEMP));
 	if (!sweeps)
 	{
 		ctx->log(RC_LOG_ERROR, "rcBuildRegionsMonotone: Out of memory 'sweeps' (%d).", nsweeps);

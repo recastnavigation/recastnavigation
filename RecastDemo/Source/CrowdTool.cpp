@@ -867,10 +867,6 @@ CrowdTool::CrowdTool() :
 {
 }
 
-CrowdTool::~CrowdTool()
-{
-}
-
 void CrowdTool::init(Sample* sample)
 {
 	if (m_sample != sample)

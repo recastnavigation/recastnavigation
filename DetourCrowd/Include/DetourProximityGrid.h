@@ -59,6 +59,11 @@ public:
 	
 	inline const int* getBounds() const { return m_bounds; }
 	inline float getCellSize() const { return m_cellSize; }
+
+private:
+	// Explicitly disabled copy constructor and copy assignment operator.
+	dtProximityGrid(const dtProximityGrid&);
+	dtProximityGrid& operator=(const dtProximityGrid&);
 };
 
 dtProximityGrid* dtAllocProximityGrid();
