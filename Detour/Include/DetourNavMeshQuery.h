@@ -148,7 +148,18 @@ struct dtRaycastHit
 	float pathCost;
 };
 
+/// Provides custom polygon query behavior.
+/// Used by dtNavMeshQuery::queryPolygons.
+/// @ingroup detour
+class dtPolyQuery
+{
+public:
+	virtual ~dtPolyQuery() { }
 
+	/// Called for each batch of unique polygons touched by the search area in dtNavMeshQuery::queryPolygons.
+	/// This can be called multiple times for a single query.
+	virtual void process(const dtMeshTile* tile, dtPoly** polys, dtPolyRef* refs, int count) = 0;
+};
 
 /// Provides the ability to perform pathfinding related queries against
 /// a navigation mesh.
@@ -311,6 +322,14 @@ public:
 	dtStatus queryPolygons(const float* center, const float* extents,
 						   const dtQueryFilter* filter,
 						   dtPolyRef* polys, int* polyCount, const int maxPolys) const;
+
+	/// Finds polygons that overlap the search box.
+	///  @param[in]		center		The center of the search box. [(x, y, z)]
+	///  @param[in]		extents		The search distance along each axis. [(x, y, z)]
+	///  @param[in]		filter		The polygon filter to apply to the query.
+	///  @param[in]		query		The query. Polygons found will be batched together and passed to this query.
+	dtStatus queryPolygons(const float* center, const float* extents,
+						   const dtQueryFilter* filter, dtPolyQuery* query) const;
 
 	/// Finds the non-overlapping navigation polygons in the local neighbourhood around the center position.
 	///  @param[in]		startRef		The reference id of the polygon where the search starts.
@@ -479,12 +498,9 @@ private:
 	dtNavMeshQuery(const dtNavMeshQuery&);
 	dtNavMeshQuery& operator=(const dtNavMeshQuery&);
 	
-	/// Returns neighbour tile based on side.
-	dtMeshTile* getNeighbourTileAt(int x, int y, int side) const;
-
 	/// Queries polygons within a tile.
-	int queryPolygonsInTile(const dtMeshTile* tile, const float* qmin, const float* qmax, const dtQueryFilter* filter,
-							dtPolyRef* polys, const int maxPolys) const;
+	void queryPolygonsInTile(const dtMeshTile* tile, const float* qmin, const float* qmax,
+							 const dtQueryFilter* filter, dtPolyQuery* query) const;
 
 	/// Returns portal points between two polygons.
 	dtStatus getPortalPoints(dtPolyRef from, dtPolyRef to, float* left, float* right,
