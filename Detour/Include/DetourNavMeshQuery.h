@@ -172,7 +172,7 @@ public:
 	
 	/// Initializes the query object.
 	///  @param[in]		nav			Pointer to the dtNavMesh object to use for all queries.
-	///  @param[in]		maxNodes	Maximum number of search nodes. [Limits: 0 < value <= 65536]
+	///  @param[in]		maxNodes	Maximum number of search nodes. [Limits: 0 < value <= 65535]
 	/// @returns The status flags for the query.
 	dtStatus init(const dtNavMesh* nav, const int maxNodes);
 	
