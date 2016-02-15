@@ -165,6 +165,9 @@ dtNavMeshQuery::~dtNavMeshQuery()
 /// This function can be used multiple times.
 dtStatus dtNavMeshQuery::init(const dtNavMesh* nav, const int maxNodes)
 {
+	if (maxNodes > DT_NULL_IDX || maxNodes > (1 << DT_NODE_PARENT_BITS) - 1)
+		return DT_FAILURE | DT_INVALID_PARAM;
+
 	m_nav = nav;
 	
 	if (!m_nodePool || m_nodePool->getMaxNodes() < maxNodes)
@@ -195,7 +198,6 @@ dtStatus dtNavMeshQuery::init(const dtNavMesh* nav, const int maxNodes)
 		m_tinyNodePool->clear();
 	}
 	
-	// TODO: check the open list size too.
 	if (!m_openList || m_openList->getCapacity() < maxNodes)
 	{
 		if (m_openList)
