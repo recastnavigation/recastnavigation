@@ -49,6 +49,8 @@ chances of your issue being dealt with quickly:
 
 * **Overview of the Issue** - what type of issue is it, and why is it an issue for you?
 * **Callstack** - if it's a crash or other runtime error, a callstack will help diagnosis
+* **Screenshots** - for navmesh generation problems, a picture really is worth a thousand words.
+    Implement `duDebugDraw` and call some methods from DetourDebugDraw.h. Seriously, just do it, we'll definitely ask you to if you haven't!
 * **Logs** - stdout and stderr from the console, or log files if there are any.
     If integrating into your own codebase, be sure to implement the log callbacks in `rcContext`.
 * **Reproduction steps** - a minimal, unambigious set of steps including input, that causes the error for you.

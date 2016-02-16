@@ -716,6 +716,8 @@ public:
 
 	void process(const dtMeshTile* tile, dtPoly** polys, dtPolyRef* refs, int count)
 	{
+		dtIgnoreUnused(polys);
+
 		for (int i = 0; i < count; ++i)
 		{
 			dtPolyRef ref = refs[i];
@@ -914,6 +916,9 @@ public:
 
 	void process(const dtMeshTile* tile, dtPoly** polys, dtPolyRef* refs, int count)
 	{
+		dtIgnoreUnused(tile);
+		dtIgnoreUnused(polys);
+
 		int numLeft = m_maxPolys - m_numCollected;
 		int toCopy = count;
 		if (toCopy > numLeft)
