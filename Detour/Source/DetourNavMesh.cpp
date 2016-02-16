@@ -304,7 +304,7 @@ int dtNavMesh::findConnectingPolys(const float* va, const float* vb,
 	if (!tile) return 0;
 	
 	float amin[2], amax[2];
-	calcSlabEndPoints(va,vb, amin,amax, side);
+	calcSlabEndPoints(va, vb, amin, amax, side);
 	const float apos = getSlabCoord(va, side);
 
 	// Remove links pointing to 'side' and compact the links array. 
