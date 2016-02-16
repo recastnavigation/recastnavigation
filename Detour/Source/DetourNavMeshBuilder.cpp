@@ -106,7 +106,6 @@ inline int longestAxis(unsigned short x, unsigned short y, unsigned short z)
 	if (z > maxVal)
 	{
 		axis = 2;
-		maxVal = z;
 	}
 	return axis;
 }
