@@ -21,7 +21,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "SDL_opengl.h"
-//#define STBI_HEADER_FILE_ONLY
+#define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
 SlideShow::SlideShow() :
