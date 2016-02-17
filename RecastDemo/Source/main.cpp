@@ -39,7 +39,6 @@
 #include "InputGeom.h"
 #include "TestCase.h"
 #include "Filelist.h"
-#include "SlideShow.h"
 #include "Sample_SoloMesh.h"
 #include "Sample_TileMesh.h"
 #include "Sample_TempObstacles.h"
@@ -176,9 +175,6 @@ int main(int /*argc*/, char** /*argv*/)
 	float markerPosition[3] = {0, 0, 0};
 	bool markerPositionSet = false;
 	
-	SlideShow slideShow;
-	slideShow.init("slides/");
-	
 	InputGeom* geom = 0;
 	Sample* sample = 0;
 
@@ -253,14 +249,6 @@ int main(int /*argc*/, char** /*argv*/)
 
 							geom->saveGeomSet(&settings);
 						}
-					}
-					else if (event.key.keysym.sym == SDLK_RIGHT)
-					{
-						slideShow.nextSlide();
-					}
-					else if (event.key.keysym.sym == SDLK_LEFT)
-					{
-						slideShow.prevSlide();
 					}
 					break;
 				
@@ -887,8 +875,6 @@ int main(int /*argc*/, char** /*argv*/)
 			
 			imguiEndScrollArea();
 		}
-		
-		slideShow.updateAndDraw(dt, (float)width, (float)height);
 		
 		// Marker
 		if (markerPositionSet && gluProject((GLdouble)markerPosition[0], (GLdouble)markerPosition[1], (GLdouble)markerPosition[2],
