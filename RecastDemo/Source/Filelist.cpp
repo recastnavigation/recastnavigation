@@ -35,7 +35,7 @@ void scanDirectoryAppend(const string& path, const string& ext, vector<string>& 
 	string pathWithExt = path + "/*" + ext;
 	
 	_finddata_t dir;
-	long fh = _findfirst(pathWithExt.c_str(), &dir);
+	intptr_t fh = _findfirst(pathWithExt.c_str(), &dir);
 	if (fh == -1L)
 	{
 		return;
