@@ -66,7 +66,6 @@ static SampleItem g_samples[] =
 	{ createSolo, "Solo Mesh" },
 	{ createTile, "Tile Mesh" },
 	{ createTempObstacle, "Temp Obstacles" },
-//	{ createDebug, "Debug" },
 };
 static const int g_nsamples = sizeof(g_samples) / sizeof(SampleItem);
 
@@ -626,7 +625,7 @@ int main(int /*argc*/, char** /*argv*/)
 				delete sample;
 				sample = newSample;
 				sample->setContext(&ctx);
-				if (geom && sample)
+				if (geom)
 				{
 					sample->handleMeshChanged(geom);
 				}
@@ -695,6 +694,13 @@ int main(int /*argc*/, char** /*argv*/)
 				{
 					delete geom;
 					geom = 0;
+
+					// Destroy the sample if it already had geometry loaded, as we've just deleted it!
+					if (sample && sample->getInputGeom())
+					{
+						delete sample;
+						sample = 0;
+					}
 					
 					showLog = true;
 					logScroll = 0;
@@ -778,10 +784,12 @@ int main(int /*argc*/, char** /*argv*/)
 								sampleName = g_samples[i].name;
 						}
 					}
-					if (newSample)
+
+					delete sample;
+					sample = newSample;
+
+					if (sample)
 					{
-						delete sample;
-						sample = newSample;
 						sample->setContext(&ctx);
 						showSample = false;
 					}
@@ -789,16 +797,17 @@ int main(int /*argc*/, char** /*argv*/)
 					// Load geom.
 					meshName = test->getGeomFileName();
 					
-					delete geom;
-					geom = 0;
 					
 					path = meshesFolder + "/" + meshName;
 					
+					delete geom;
 					geom = new InputGeom;
 					if (!geom || !geom->load(&ctx, path))
 					{
 						delete geom;
 						geom = 0;
+						delete sample;
+						sample = 0;
 						showLog = true;
 						logScroll = 0;
 						ctx.dumpLog("Geom load log %s:", meshName.c_str());
