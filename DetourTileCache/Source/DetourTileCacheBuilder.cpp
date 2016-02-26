@@ -29,9 +29,7 @@ template<class T> class dtFixedArray
 	dtTileCacheAlloc* m_alloc;
 	T* m_ptr;
 	const int m_size;
-	inline T* operator=(T* p);
 	inline void operator=(dtFixedArray<T>& p);
-	inline dtFixedArray();
 public:
 	inline dtFixedArray(dtTileCacheAlloc* a, const int s) : m_alloc(a), m_ptr((T*)a->alloc(sizeof(T)*s)), m_size(s) {}
 	inline ~dtFixedArray() { if (m_alloc) m_alloc->free(m_ptr); }
