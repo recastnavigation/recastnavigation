@@ -220,6 +220,7 @@ static void disableUnvisitedPolys(dtNavMesh* nav, NavmeshFlags* flags)
 }
 
 NavMeshPruneTool::NavMeshPruneTool() :
+	m_sample(0),
 	m_flags(0),
 	m_hitPosSet(false)
 {
