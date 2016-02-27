@@ -39,7 +39,6 @@
 #include "InputGeom.h"
 #include "TestCase.h"
 #include "Filelist.h"
-#include "SlideShow.h"
 #include "Sample_SoloMesh.h"
 #include "Sample_TileMesh.h"
 #include "Sample_TempObstacles.h"
@@ -67,7 +66,6 @@ static SampleItem g_samples[] =
 	{ createSolo, "Solo Mesh" },
 	{ createTile, "Tile Mesh" },
 	{ createTempObstacle, "Temp Obstacles" },
-//	{ createDebug, "Debug" },
 };
 static const int g_nsamples = sizeof(g_samples) / sizeof(SampleItem);
 
@@ -176,9 +174,6 @@ int main(int /*argc*/, char** /*argv*/)
 	float markerPosition[3] = {0, 0, 0};
 	bool markerPositionSet = false;
 	
-	SlideShow slideShow;
-	slideShow.init("slides/");
-	
 	InputGeom* geom = 0;
 	Sample* sample = 0;
 
@@ -253,14 +248,6 @@ int main(int /*argc*/, char** /*argv*/)
 
 							geom->saveGeomSet(&settings);
 						}
-					}
-					else if (event.key.keysym.sym == SDLK_RIGHT)
-					{
-						slideShow.nextSlide();
-					}
-					else if (event.key.keysym.sym == SDLK_LEFT)
-					{
-						slideShow.prevSlide();
 					}
 					break;
 				
@@ -638,7 +625,7 @@ int main(int /*argc*/, char** /*argv*/)
 				delete sample;
 				sample = newSample;
 				sample->setContext(&ctx);
-				if (geom && sample)
+				if (geom)
 				{
 					sample->handleMeshChanged(geom);
 				}
@@ -707,6 +694,13 @@ int main(int /*argc*/, char** /*argv*/)
 				{
 					delete geom;
 					geom = 0;
+
+					// Destroy the sample if it already had geometry loaded, as we've just deleted it!
+					if (sample && sample->getInputGeom())
+					{
+						delete sample;
+						sample = 0;
+					}
 					
 					showLog = true;
 					logScroll = 0;
@@ -790,10 +784,12 @@ int main(int /*argc*/, char** /*argv*/)
 								sampleName = g_samples[i].name;
 						}
 					}
-					if (newSample)
+
+					delete sample;
+					sample = newSample;
+
+					if (sample)
 					{
-						delete sample;
-						sample = newSample;
 						sample->setContext(&ctx);
 						showSample = false;
 					}
@@ -801,16 +797,17 @@ int main(int /*argc*/, char** /*argv*/)
 					// Load geom.
 					meshName = test->getGeomFileName();
 					
-					delete geom;
-					geom = 0;
 					
 					path = meshesFolder + "/" + meshName;
 					
+					delete geom;
 					geom = new InputGeom;
 					if (!geom || !geom->load(&ctx, path))
 					{
 						delete geom;
 						geom = 0;
+						delete sample;
+						sample = 0;
 						showLog = true;
 						logScroll = 0;
 						ctx.dumpLog("Geom load log %s:", meshName.c_str());
@@ -887,8 +884,6 @@ int main(int /*argc*/, char** /*argv*/)
 			
 			imguiEndScrollArea();
 		}
-		
-		slideShow.updateAndDraw(dt, (float)width, (float)height);
 		
 		// Marker
 		if (markerPositionSet && gluProject((GLdouble)markerPosition[0], (GLdouble)markerPosition[1], (GLdouble)markerPosition[2],
