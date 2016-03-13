@@ -651,9 +651,9 @@ void dtNavMesh::closestPointOnPoly(dtPolyRef ref, const float* pos, float* close
 	if (!dtDistancePtPolyEdgesSqr(pos, verts, nv, edged, edget))
 	{
 		// Point is outside the polygon, dtClamp to nearest edge.
-		float dmin = FLT_MAX;
-		int imin = -1;
-		for (int i = 0; i < nv; ++i)
+		float dmin = edged[0];
+		int imin = 0;
+		for (int i = 1; i < nv; ++i)
 		{
 			if (edged[i] < dmin)
 			{
