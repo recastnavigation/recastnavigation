@@ -304,7 +304,7 @@ int dtNavMesh::findConnectingPolys(const float* va, const float* vb,
 	if (!tile) return 0;
 	
 	float amin[2], amax[2];
-	calcSlabEndPoints(va,vb, amin,amax, side);
+	calcSlabEndPoints(va, vb, amin, amax, side);
 	const float apos = getSlabCoord(va, side);
 
 	// Remove links pointing to 'side' and compact the links array. 
@@ -924,7 +924,7 @@ dtStatus dtNavMesh::addTile(unsigned char* data, int dataSize, int flags,
 	tile->detailVerts = (float*)d; d += detailVertsSize;
 	tile->detailTris = (unsigned char*)d; d += detailTrisSize;
 	tile->bvTree = (dtBVNode*)d; d += bvtreeSize;
-	tile->offMeshCons = (dtOffMeshConnection*)d; d += offMeshLinksSize;
+	tile->offMeshCons = (dtOffMeshConnection*)d; // d += offMeshLinksSize;
 
 	// If there are no items in the bvtree, reset the tree pointer.
 	if (!bvtreeSize)
@@ -1323,7 +1323,7 @@ dtStatus dtNavMesh::storeTileState(const dtMeshTile* tile, unsigned char* data, 
 		return DT_FAILURE | DT_BUFFER_TOO_SMALL;
 		
 	dtTileState* tileState = (dtTileState*)data; data += dtAlign4(sizeof(dtTileState));
-	dtPolyState* polyStates = (dtPolyState*)data; data += dtAlign4(sizeof(dtPolyState) * tile->header->polyCount);
+	dtPolyState* polyStates = (dtPolyState*)data; // data += dtAlign4(sizeof(dtPolyState) * tile->header->polyCount);
 	
 	// Store tile state.
 	tileState->magic = DT_NAVMESH_STATE_MAGIC;
@@ -1355,7 +1355,7 @@ dtStatus dtNavMesh::restoreTileState(dtMeshTile* tile, const unsigned char* data
 		return DT_FAILURE | DT_INVALID_PARAM;
 	
 	const dtTileState* tileState = (const dtTileState*)data; data += dtAlign4(sizeof(dtTileState));
-	const dtPolyState* polyStates = (const dtPolyState*)data; data += dtAlign4(sizeof(dtPolyState) * tile->header->polyCount);
+	const dtPolyState* polyStates = (const dtPolyState*)data; // data += dtAlign4(sizeof(dtPolyState) * tile->header->polyCount);
 	
 	// Check that the restore is possible.
 	if (tileState->magic != DT_NAVMESH_STATE_MAGIC)
