@@ -1721,10 +1721,17 @@ dtStatus dtNavMeshQuery::appendVertex(const float* pos, const unsigned char flag
 		if (straightPathRefs)
 			straightPathRefs[(*straightPathCount)] = ref;
 		(*straightPathCount)++;
-		// If reached end of path or there is no space to append more vertices, return.
-		if (flags == DT_STRAIGHTPATH_END || (*straightPathCount) >= maxStraightPath)
+
+		// If there is no space to append more vertices, return.
+		if ((*straightPathCount) >= maxStraightPath)
 		{
-			return DT_SUCCESS | (((*straightPathCount) >= maxStraightPath) ? DT_BUFFER_TOO_SMALL : 0);
+			return DT_SUCCESS | DT_BUFFER_TOO_SMALL;
+		}
+
+		// If reached end of path, return.
+		if (flags == DT_STRAIGHTPATH_END)
+		{
+			return DT_SUCCESS;
 		}
 	}
 	return DT_IN_PROGRESS;
@@ -1870,12 +1877,14 @@ dtStatus dtNavMeshQuery::findStraightPath(const float* startPos, const float* en
 					// Apeend portals along the current straight path segment.
 					if (options & (DT_STRAIGHTPATH_AREA_CROSSINGS | DT_STRAIGHTPATH_ALL_CROSSINGS))
 					{
-						stat = appendPortals(apexIndex, i, closestEndPos, path,
+						// Ignore status return value as we're just about to return anyway.
+						appendPortals(apexIndex, i, closestEndPos, path,
 											 straightPath, straightPathFlags, straightPathRefs,
 											 straightPathCount, maxStraightPath, options);
 					}
 
-					stat = appendVertex(closestEndPos, 0, path[i],
+					// Ignore status return value as we're just about to return anyway.
+					appendVertex(closestEndPos, 0, path[i],
 										straightPath, straightPathFlags, straightPathRefs,
 										straightPathCount, maxStraightPath);
 					
@@ -2013,7 +2022,8 @@ dtStatus dtNavMeshQuery::findStraightPath(const float* startPos, const float* en
 		}
 	}
 
-	stat = appendVertex(closestEndPos, DT_STRAIGHTPATH_END, 0,
+	// Ignore status return value as we're just about to return anyway.
+	appendVertex(closestEndPos, DT_STRAIGHTPATH_END, 0,
 						straightPath, straightPathFlags, straightPathRefs,
 						straightPathCount, maxStraightPath);
 	
