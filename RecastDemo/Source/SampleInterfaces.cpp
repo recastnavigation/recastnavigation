@@ -20,6 +20,8 @@ BuildContext::BuildContext() :
 	m_messageCount(0),
 	m_textPoolSize(0)
 {
+	memset(m_messages, 0, sizeof(char*) * MAX_MESSAGES);
+
 	resetTimers();
 }
 
