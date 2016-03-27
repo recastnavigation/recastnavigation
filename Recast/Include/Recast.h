@@ -41,6 +41,8 @@ enum rcTimerLabel
 	RC_TIMER_TEMP,
 	/// The time to rasterize the triangles. (See: #rcRasterizeTriangle)
 	RC_TIMER_RASTERIZE_TRIANGLES,
+	/// The time to rasterize filled convex volumes.
+	RC_TIMER_RASTERIZE_CONVEX_VOLUMES,
 	/// The time to build the compact heightfield. (See: #rcBuildCompactHeightfield)
 	RC_TIMER_BUILD_COMPACTHEIGHTFIELD,
 	/// The total time to build the contours. (See: #rcBuildContours)
@@ -893,6 +895,32 @@ bool rcRasterizeTriangles(rcContext* ctx, const float* verts, const int nv,
 ///  @returns True if the operation completed successfully.
 bool rcRasterizeTriangles(rcContext* ctx, const float* verts, const unsigned char* areas, const int nt,
 						  rcHeightfield& solid, const int flagMergeThr = 1);
+
+/// Rasterizes a solid (i.e. filled) convex volume defined by a set of points into the specified heightfield.
+///  @ingroup recast
+///  @param[in,out]	ctx				The build context to use during the operation.
+///  @param[in]		vertices		The vertices of the volume. [(x, y, z) * @p numVertices]
+///  @param[in]		numVertices		The number of vertices in the volume.
+///  @param[in]		area			The area id of the volume. [Limit: <= #RC_WALKABLE_AREA]
+///  @param[in,out]	solid			An initialized heightfield.
+///  @param[in]		flagMergeThr	The distance where the walkable flag is favored over the non-walkable flag.
+///  								[Limit: >= 0] [Units: vx]
+void rcRasterizeFilledConvexVolume(rcContext* ctx, const float* vertices, const int numVertices, const unsigned char area,
+								   rcHeightfield& solid, int flagMergeThr = 1);
+
+/// Rasterizes a solid (i.e. filled) OBB into the specified heightfield.
+///  @ingroup recast
+///  @param[in,out]	ctx				The build context to use during the operation.
+///  @param[in]		center			The center position of the OBB.
+///  @param[in]		extent			The extents of the OBB (half the size)
+///  @param[in]		forward			The forward-vector of the OBB's orientation
+///  @param[in]		up				The up-vector of the OBB's orientation
+///  @param[in]		area			The area id of the OBB. [Limit: <= #RC_WALKABLE_AREA]
+///  @param[in,out]	solid			An initialized heightfield.
+///  @param[in]		flagMergeThr	The distance where the walkable flag is favored over the non-walkable flag.
+///  								[Limit: >= 0] [Units: vx]
+void rcRasterizeFilledOBB(rcContext* ctx, const float* center, const float* extent, const float* forward, const float* up,
+						  const unsigned char area, rcHeightfield& solid, int flagMergeThr = 1);
 
 /// Marks non-walkable spans as walkable if their maximum is within @p walkableClimp of a walkable neihbor. 
 ///  @ingroup recast

@@ -19,6 +19,7 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <stdio.h>
+#include <float.h>
 #include "Recast.h"
 #include "RecastAlloc.h"
 #include "RecastAssert.h"
@@ -334,6 +335,124 @@ static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
 	return true;
 }
 
+static bool isHullTri(const float* vertices, const int numVertices, const int* triIndices)
+{
+	// Classify all the points in the hull against the plane of the triangle
+	// If they're not all on the same side, this triangle is not part of the hull
+	float va[3], vb[3];
+	rcVcopy(va, &vertices[triIndices[1]*3]);
+	rcVcopy(vb, &vertices[triIndices[2]*3]);
+	rcVsub(va, va, &vertices[triIndices[0]*3]);
+	rcVsub(vb, vb, &vertices[triIndices[0]*3]);
+	
+	float normal[3];
+	rcVcross(normal, va, vb);
+	
+	bool anyFront = false;
+	bool anyBack = false;
+	
+	for (int i = 0; i < numVertices; ++i)
+	{
+		float v[3];
+		rcVsub(v, &vertices[i*3], &vertices[triIndices[0]*3]);
+		float dot = rcVdot(v, normal);
+		if (dot > 0.001f)
+			anyFront = true;
+		if (dot < -0.001f)
+			anyBack = true;
+		
+		if (anyFront && anyBack)
+			return false;
+	}
+	
+	return true;
+}
+
+static void rasterizeFilledConvexVolume(rcContext* ctx, const float* vertices, const int numVertices,
+									  const unsigned char area, rcHeightfield& hf,
+									  const float* bmin, const float* bmax,
+									  const float cs, const float ics, const float ch, const float ich,
+									  const int flagMergeThr)
+{
+	if (numVertices < 3) return;
+	
+	const int w = hf.width;
+	const int h = hf.height;
+	
+	// Calculate the bounding box of all the points
+	float tmin[3], tmax[3];
+	rcVcopy(tmin, &vertices[0]);
+	rcVcopy(tmax, &vertices[0]);
+	for (int i = 1; i < numVertices; ++i)
+	{
+		rcVmin(tmin, &vertices[i*3]);
+		rcVmax(tmax, &vertices[i*3]);
+	}
+	
+	// If the OBB does not touch the bbox of the heightfield, skip it.
+	if (!overlapBounds(bmin, bmax, tmin, tmax))
+		return;
+
+	// Clip the horizontal bounds that we're going to rasterize to the heightfield bbox
+	// Don't clip the vertical because we might lose bounding polys that way and fail to fill things
+	tmax[0] = rcMin(tmax[0], bmax[0]);
+	tmax[2] = rcMin(tmax[2], bmax[2]);
+	tmin[0] = rcMax(tmin[0], bmin[0]);
+	tmin[2] = rcMax(tmin[2], bmin[2]);
+
+	int tw = (int)((tmax[0] - tmin[0])*ics);
+	int th = (int)((tmax[2] - tmin[2])*ics);
+	if (tw == 0 || th == 0) return;
+	
+	// Allocate a temporary heightfield
+	rcHeightfield* tempField = rcAllocHeightfield();
+	rcCreateHeightfield(ctx, *tempField, tw, th, tmin, tmax, cs, ch);
+	
+	// Rasterize every triple of vertices as a triangle into the temp heightfield
+	int vIds[3];
+	for(vIds[0] = 0; vIds[0] < numVertices; ++vIds[0])
+	{
+		for (vIds[1] = vIds[0] + 1; vIds[1] < numVertices; ++vIds[1])
+		{
+			for (vIds[2] = vIds[1] + 1; vIds[2] < numVertices; ++vIds[2])
+			{
+				if (!isHullTri(vertices, numVertices, vIds)) continue;
+				
+				rasterizeTri(&vertices[vIds[0]*3], &vertices[vIds[1]*3], &vertices[vIds[2]*3], area, *tempField, tmin, tmax, cs, ics, ich, flagMergeThr);
+			}
+		}
+	}
+
+	// Calculate offsets for feeding spans back into the master heightfield
+	int xOffset = (tmin[0] - bmin[0])*ics;
+	int vOffset = (tmin[1] - bmin[1])*ich;
+	int zOffset = (tmin[2] - bmin[2])*ics;
+	
+	// Combine all spans in the temp heightfield to fill in gaps, and merge into master heightfield
+	for (int y = 0; y < tempField->height; ++y)
+	{
+		for (int x = 0; x < tempField->width; ++x)
+		{
+			rcSpan* firstSpan = tempField->spans[y * tempField->width + x];
+			if (firstSpan == NULL) continue;
+			
+			rcSpan* span = firstSpan;
+			while (span->next)
+			{
+				span = span->next;
+				firstSpan->smax = span->smax;
+			}
+
+			firstSpan->smin = rcMax(0, (signed)firstSpan->smin + vOffset);
+			firstSpan->smax = rcMax((signed)firstSpan->smin, (signed)firstSpan->smax + vOffset);
+			
+			rcAddSpan(ctx, hf, xOffset + x, zOffset + y, firstSpan->smin, firstSpan->smax, area, flagMergeThr);
+		}
+	}
+	
+	rcFreeHeightField(tempField);
+}
+
 /// @par
 ///
 /// No spans will be added if the triangle does not overlap the heightfield grid.
@@ -451,4 +570,48 @@ bool rcRasterizeTriangles(rcContext* ctx, const float* verts, const unsigned cha
 	}
 
 	return true;
+}
+
+void rcRasterizeFilledConvexVolume(rcContext* ctx, const float* vertices, const int numVertices, const unsigned char area, rcHeightfield& solid, int flagMergeThr)
+{
+	rcAssert(ctx);
+	
+	ctx->startTimer(RC_TIMER_RASTERIZE_CONVEX_VOLUMES);
+
+	rasterizeFilledConvexVolume(ctx, vertices, numVertices, area, solid, solid.bmin, solid.bmax, solid.cs, 1.0f/solid.cs, solid.ch, 1.0f/solid.ch, flagMergeThr);
+	
+	ctx->stopTimer(RC_TIMER_RASTERIZE_CONVEX_VOLUMES);
+}
+
+void rcRasterizeFilledOBB(rcContext* ctx, const float* center, const float* extent, const float* forward, const float* up,
+					const unsigned char area, rcHeightfield& solid, int flagMergeThr)
+{
+	rcAssert(ctx);
+	
+	ctx->startTimer(RC_TIMER_RASTERIZE_CONVEX_VOLUMES);
+	
+	float right[3];
+	rcVcross(right, forward, up);
+	rcVnormalize(right);
+	
+	float trX[3] = {right[0], up[0], forward[0]};
+	float trY[3] = {right[1], up[1], forward[1]};
+	float trZ[3] = {right[2], up[2], forward[2]};
+	
+	// Generate the vertices for the OBB
+	float vertices[3*8];
+	for (int i = 0; i < 8; ++i)
+	{
+		float pt[3] = { (i & 1) ? extent[0] : -extent[0],
+						(i & 2) ? extent[1] : -extent[1],
+						(i & 4) ? extent[2] : -extent[2] };
+		vertices[i * 3 + 0] = rcVdot(pt, trX);
+		vertices[i * 3 + 1] = rcVdot(pt, trY);
+		vertices[i * 3 + 2] = rcVdot(pt, trZ);
+		rcVadd(&vertices[i*3], &vertices[i*3], center);
+	}
+	
+	rasterizeFilledConvexVolume(ctx, vertices, 8, area, solid, solid.bmin, solid.bmax, solid.cs, 1.0f/solid.cs, solid.ch, 1.0f/solid.ch, flagMergeThr);
+	
+	ctx->stopTimer(RC_TIMER_RASTERIZE_CONVEX_VOLUMES);
 }

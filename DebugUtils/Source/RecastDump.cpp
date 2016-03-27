@@ -421,7 +421,8 @@ void duLogBuildTimes(rcContext& ctx, const int totalTimeUsec)
 	const float pc = 100.0f / totalTimeUsec;
  
 	ctx.log(RC_LOG_PROGRESS, "Build Times");
-	logLine(ctx, RC_TIMER_RASTERIZE_TRIANGLES,		"- Rasterize", pc);
+	logLine(ctx, RC_TIMER_RASTERIZE_TRIANGLES,		"- Rasterize triangles", pc);
+	logLine(ctx, RC_TIMER_RASTERIZE_CONVEX_VOLUMES, "- Rasterize volumes", pc);
 	logLine(ctx, RC_TIMER_BUILD_COMPACTHEIGHTFIELD,	"- Build Compact", pc);
 	logLine(ctx, RC_TIMER_FILTER_BORDER,				"- Filter Border", pc);
 	logLine(ctx, RC_TIMER_FILTER_WALKABLE,			"- Filter Walkable", pc);
