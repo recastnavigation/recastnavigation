@@ -261,11 +261,12 @@ static void calcTriNormal(const float* v0, const float* v1, const float* v2, flo
 /// 
 /// @see rcHeightfield, rcClearUnwalkableTriangles, rcRasterizeTriangles
 void rcMarkWalkableTriangles(rcContext* ctx, const float walkableSlopeAngle,
-							 const float* verts, int /*nv*/,
+							 const float* verts, int nv,
 							 const int* tris, int nt,
 							 unsigned char* areas)
 {
 	rcIgnoreUnused(ctx);
+	rcIgnoreUnused(nv);
 	
 	const float walkableThr = cosf(walkableSlopeAngle/180.0f*RC_PI);
 
