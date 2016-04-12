@@ -1575,12 +1575,6 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 		// Make sure border will not overflow.
 		const int bw = rcMin(w, borderSize);
 		const int bh = rcMin(h, borderSize);
-
-		if (regionId > 0xFFFB)
-		{
-			ctx->log(RC_LOG_ERROR, "rcBuildRegions: Region ID overflow");
-			return false;
-		}
 		
 		// Paint regions
 		paintRectRegion(0, bw, 0, h, regionId|RC_BORDER_REG, chf, srcReg); regionId++;

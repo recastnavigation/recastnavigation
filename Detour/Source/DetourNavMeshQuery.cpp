@@ -542,9 +542,9 @@ dtStatus dtNavMeshQuery::closestPointOnPoly(dtPolyRef ref, const float* pos, flo
 	if (!dtDistancePtPolyEdgesSqr(pos, verts, nv, edged, edget))
 	{
 		// Point is outside the polygon, dtClamp to nearest edge.
-		float dmin = FLT_MAX;
-		int imin = -1;
-		for (int i = 0; i < nv; ++i)
+		float dmin = edged[0];
+		int imin = 0;
+		for (int i = 1; i < nv; ++i)
 		{
 			if (edged[i] < dmin)
 			{
@@ -628,9 +628,9 @@ dtStatus dtNavMeshQuery::closestPointOnPolyBoundary(dtPolyRef ref, const float* 
 	else
 	{
 		// Point is outside the polygon, dtClamp to nearest edge.
-		float dmin = FLT_MAX;
-		int imin = -1;
-		for (int i = 0; i < nv; ++i)
+		float dmin = edged[0];
+		int imin = 0;
+		for (int i = 1; i < nv; ++i)
 		{
 			if (edged[i] < dmin)
 			{
@@ -1721,10 +1721,17 @@ dtStatus dtNavMeshQuery::appendVertex(const float* pos, const unsigned char flag
 		if (straightPathRefs)
 			straightPathRefs[(*straightPathCount)] = ref;
 		(*straightPathCount)++;
-		// If reached end of path or there is no space to append more vertices, return.
-		if (flags == DT_STRAIGHTPATH_END || (*straightPathCount) >= maxStraightPath)
+
+		// If there is no space to append more vertices, return.
+		if ((*straightPathCount) >= maxStraightPath)
 		{
-			return DT_SUCCESS | (((*straightPathCount) >= maxStraightPath) ? DT_BUFFER_TOO_SMALL : 0);
+			return DT_SUCCESS | DT_BUFFER_TOO_SMALL;
+		}
+
+		// If reached end of path, return.
+		if (flags == DT_STRAIGHTPATH_END)
+		{
+			return DT_SUCCESS;
 		}
 	}
 	return DT_IN_PROGRESS;
@@ -1849,10 +1856,12 @@ dtStatus dtNavMeshQuery::findStraightPath(const float* startPos, const float* en
 		for (int i = 0; i < pathSize; ++i)
 		{
 			float left[3], right[3];
-			unsigned char fromType, toType;
+			unsigned char toType;
 			
 			if (i+1 < pathSize)
 			{
+				unsigned char fromType; // fromType is ignored.
+
 				// Next portal.
 				if (dtStatusFailed(getPortalPoints(path[i], path[i+1], left, right, fromType, toType)))
 				{
@@ -1868,12 +1877,14 @@ dtStatus dtNavMeshQuery::findStraightPath(const float* startPos, const float* en
 					// Apeend portals along the current straight path segment.
 					if (options & (DT_STRAIGHTPATH_AREA_CROSSINGS | DT_STRAIGHTPATH_ALL_CROSSINGS))
 					{
-						stat = appendPortals(apexIndex, i, closestEndPos, path,
+						// Ignore status return value as we're just about to return anyway.
+						appendPortals(apexIndex, i, closestEndPos, path,
 											 straightPath, straightPathFlags, straightPathRefs,
 											 straightPathCount, maxStraightPath, options);
 					}
 
-					stat = appendVertex(closestEndPos, 0, path[i],
+					// Ignore status return value as we're just about to return anyway.
+					appendVertex(closestEndPos, 0, path[i],
 										straightPath, straightPathFlags, straightPathRefs,
 										straightPathCount, maxStraightPath);
 					
@@ -1894,7 +1905,7 @@ dtStatus dtNavMeshQuery::findStraightPath(const float* startPos, const float* en
 				dtVcopy(left, closestEndPos);
 				dtVcopy(right, closestEndPos);
 				
-				fromType = toType = DT_POLYTYPE_GROUND;
+				toType = DT_POLYTYPE_GROUND;
 			}
 			
 			// Right vertex.
@@ -2011,7 +2022,8 @@ dtStatus dtNavMeshQuery::findStraightPath(const float* startPos, const float* en
 		}
 	}
 
-	stat = appendVertex(closestEndPos, DT_STRAIGHTPATH_END, 0,
+	// Ignore status return value as we're just about to return anyway.
+	appendVertex(closestEndPos, DT_STRAIGHTPATH_END, 0,
 						straightPath, straightPathFlags, straightPathRefs,
 						straightPathCount, maxStraightPath);
 	
@@ -2482,10 +2494,10 @@ dtStatus dtNavMeshQuery::raycast(dtPolyRef startRef, const float* startPos, cons
 
 	const dtMeshTile* prevTile, *tile, *nextTile;
 	const dtPoly* prevPoly, *poly, *nextPoly;
-	dtPolyRef curRef, nextRef;
+	dtPolyRef curRef;
 
 	// The API input has been checked already, skip checking internal data.
-	nextRef = curRef = startRef;
+	curRef = startRef;
 	tile = 0;
 	poly = 0;
 	m_nav->getTileAndPolyByRefUnsafe(curRef, &tile, &poly);
@@ -2540,7 +2552,7 @@ dtStatus dtNavMeshQuery::raycast(dtPolyRef startRef, const float* startPos, cons
 		}
 
 		// Follow neighbours.
-		nextRef = 0;
+		dtPolyRef nextRef = 0;
 		
 		for (unsigned int i = poly->firstLink; i != DT_NULL_LINK; i = tile->links[i].next)
 		{

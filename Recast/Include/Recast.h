@@ -293,6 +293,9 @@ struct rcSpanPool
 /// @ingroup recast
 struct rcHeightfield
 {
+	rcHeightfield();
+	~rcHeightfield();
+
 	int width;			///< The width of the heightfield. (Along the x-axis in cell units.)
 	int height;			///< The height of the heightfield. (Along the z-axis in cell units.)
 	float bmin[3];  	///< The minimum bounds in world space. [(x, y, z)]
@@ -302,6 +305,11 @@ struct rcHeightfield
 	rcSpan** spans;		///< Heightfield of spans (width*height).
 	rcSpanPool* pools;	///< Linked list of span pools.
 	rcSpan* freelist;	///< The next free span.
+
+private:
+	// Explicitly-disabled copy constructor and copy assignment operator.
+	rcHeightfield(const rcHeightfield&);
+	rcHeightfield& operator=(const rcHeightfield&);
 };
 
 /// Provides information on the content of a cell column in a compact heightfield. 
@@ -886,7 +894,7 @@ bool rcRasterizeTriangles(rcContext* ctx, const float* verts, const int nv,
 bool rcRasterizeTriangles(rcContext* ctx, const float* verts, const unsigned char* areas, const int nt,
 						  rcHeightfield& solid, const int flagMergeThr = 1);
 
-/// Marks non-walkable spans as walkable if their maximum is within @p walkableClimp of a walkable neihbor. 
+/// Marks non-walkable spans as walkable if their maximum is within @p walkableClimp of a walkable neighbor. 
 ///  @ingroup recast
 ///  @param[in,out]	ctx				The build context to use during the operation.
 ///  @param[in]		walkableClimb	Maximum ledge height that is considered to still be traversable. 

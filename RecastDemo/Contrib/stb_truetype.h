@@ -2064,7 +2064,7 @@ static void stbtt__fill_active_edges_new(float *scanline, float *scanline_fill, 
 }
 
 // directly AA rasterize edges w/o supersampling
-static void stbtt__rasterize_sorted_edges(stbtt__bitmap *result, stbtt__edge *e, int n, int vsubsample, int off_x, int off_y, void *userdata)
+static void stbtt__rasterize_sorted_edges(stbtt__bitmap *result, stbtt__edge *e, int n, int /*vsubsample*/, int off_x, int off_y, void *userdata)
 {
    stbtt__hheap hh = { 0, 0, 0 };
    stbtt__active_edge *active = NULL;
@@ -2430,7 +2430,10 @@ STBTT_DEF unsigned char *stbtt_GetGlyphBitmapSubpixel(const stbtt_fontinfo *info
 
    if (scale_x == 0) scale_x = scale_y;
    if (scale_y == 0) {
-      if (scale_x == 0) return NULL;
+      if (scale_x == 0) {
+         STBTT_free(vertices, info->userdata);
+         return NULL;
+	  }
       scale_y = scale_x;
    }
 

@@ -77,6 +77,7 @@ dtTileCache::dtTileCache() :
 	m_nupdate(0)
 {
 	memset(&m_params, 0, sizeof(m_params));
+	memset(m_reqs, 0, sizeof(ObstacleRequest) * MAX_REQUESTS);
 }
 	
 dtTileCache::~dtTileCache()
