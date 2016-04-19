@@ -958,9 +958,9 @@ dtStatus dtNavMesh::addTile(unsigned char* data, int dataSize, int flags,
 		{
 			connectExtLinks(tile, neis[j], -1);
 			connectExtLinks(neis[j], tile, -1);
+			connectExtOffMeshLinks(neis[j], tile, -1);
 		}
 		connectExtOffMeshLinks(tile, neis[j], -1);
-		connectExtOffMeshLinks(neis[j], tile, -1);
 	}
 	
 	// Connect with neighbour tiles.
