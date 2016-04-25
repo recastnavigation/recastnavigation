@@ -111,7 +111,13 @@ public:
 	dtStatus queryTiles(const float* bmin, const float* bmax,
 						dtCompressedTileRef* results, int* resultCount, const int maxResults) const;
 	
-	dtStatus update(const float /*dt*/, class dtNavMesh* navmesh);
+	/// Updates the tile cache by rebuilding tiles touched by unfinished obstacle requests.
+	///  @param[in]		dt			The time step size. Currently not used.
+	///  @param[in]		navmesh		The mesh to affect when rebuilding tiles.
+	///  @param[out]	upToDate	Whether the tile cache is fully up to date with obstacle requests and tile rebuilds.
+	///  							If the tile cache is up to date another (immediate) call to update will have no effect;
+	///  							otherwise another call will continue processing obstacle requests and tile rebuilds.
+	dtStatus update(const float dt, class dtNavMesh* navmesh, bool* upToDate = 0);
 	
 	dtStatus buildNavMeshTilesAt(const int tx, const int ty, class dtNavMesh* navmesh);
 	
