@@ -441,7 +441,8 @@ dtStatus dtTileCache::queryTiles(const float* bmin, const float* bmax,
 	return DT_SUCCESS;
 }
 
-dtStatus dtTileCache::update(const float /*dt*/, dtNavMesh* navmesh)
+dtStatus dtTileCache::update(const float /*dt*/, dtNavMesh* navmesh,
+							 bool* upToDate)
 {
 	if (m_nupdate == 0)
 	{
@@ -500,12 +501,13 @@ dtStatus dtTileCache::update(const float /*dt*/, dtNavMesh* navmesh)
 		m_nreqs = 0;
 	}
 	
+	dtStatus status = DT_SUCCESS;
 	// Process updates
 	if (m_nupdate)
 	{
 		// Build mesh
 		const dtCompressedTileRef ref = m_update[0];
-		dtStatus status = buildNavMeshTile(ref, navmesh);
+		status = buildNavMeshTile(ref, navmesh);
 		m_nupdate--;
 		if (m_nupdate > 0)
 			memmove(m_update, m_update+1, m_nupdate*sizeof(dtCompressedTileRef));
@@ -548,12 +550,12 @@ dtStatus dtTileCache::update(const float /*dt*/, dtNavMesh* navmesh)
 				}
 			}
 		}
-			
-		if (dtStatusFailed(status))
-			return status;
 	}
 	
-	return DT_SUCCESS;
+	if (upToDate)
+		*upToDate = m_nupdate == 0 && m_nreqs == 0;
+
+	return status;
 }
 
 
