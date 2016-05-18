@@ -2714,9 +2714,9 @@ dtStatus dtNavMeshQuery::raycast(dtPolyRef startRef, const float* startPos, cons
 /// filled to capacity.
 /// 
 dtStatus dtNavMeshQuery::findPolysAroundCircle(dtPolyRef startRef, const float* centerPos, const float radius,
-											   const dtQueryFilter* filter,
-											   dtPolyRef* resultRef, dtPolyRef* resultParent, float* resultCost,
-											   int* resultCount, const int maxResult) const
+                                               const dtQueryFilter* filter,
+                                               dtPolyRef* resultRef, int* resultParent, float* resultCost,
+                                               int* resultCount, const int maxResult) const
 {
 	dtAssert(m_nav);
 	dtAssert(m_nodePool);
@@ -2726,6 +2726,9 @@ dtStatus dtNavMeshQuery::findPolysAroundCircle(dtPolyRef startRef, const float* 
 	
 	// Validate input
 	if (!startRef || !m_nav->isValidPolyRef(startRef))
+		return DT_FAILURE | DT_INVALID_PARAM;
+
+	if (!centerPos || radius < 0 || !filter || !resultRef || !resultCount || maxResult < 0)
 		return DT_FAILURE | DT_INVALID_PARAM;
 	
 	m_nodePool->clear();
@@ -2758,22 +2761,13 @@ dtStatus dtNavMeshQuery::findPolysAroundCircle(dtPolyRef startRef, const float* 
 		const dtMeshTile* bestTile = 0;
 		const dtPoly* bestPoly = 0;
 		m_nav->getTileAndPolyByRefUnsafe(bestRef, &bestTile, &bestPoly);
-		
-		// Get parent poly and tile.
-		dtPolyRef parentRef = 0;
-		const dtMeshTile* parentTile = 0;
-		const dtPoly* parentPoly = 0;
-		if (bestNode->pidx)
-			parentRef = m_nodePool->getNodeAtIdx(bestNode->pidx)->id;
-		if (parentRef)
-			m_nav->getTileAndPolyByRefUnsafe(parentRef, &parentTile, &parentPoly);
 
 		if (n < maxResult)
 		{
-			if (resultRef)
-				resultRef[n] = bestRef;
+			resultRef[n] = bestRef;
+
 			if (resultParent)
-				resultParent[n] = parentRef;
+				resultParent[n] = (int)bestNode->pidx - 1;
 			if (resultCost)
 				resultCost[n] = bestNode->total;
 			++n;
@@ -2782,6 +2776,8 @@ dtStatus dtNavMeshQuery::findPolysAroundCircle(dtPolyRef startRef, const float* 
 		{
 			status |= DT_BUFFER_TOO_SMALL;
 		}
+
+		dtPolyRef parentRef = bestNode->pidx > 0 ? resultRef[bestNode->pidx - 1] : 0;
 		
 		for (unsigned int i = bestPoly->firstLink; i != DT_NULL_LINK; i = bestTile->links[i].next)
 		{
@@ -2832,7 +2828,14 @@ dtStatus dtNavMeshQuery::findPolysAroundCircle(dtPolyRef startRef, const float* 
 				continue;
 			
 			neighbourNode->id = neighbourRef;
-			neighbourNode->pidx = m_nodePool->getNodeIdx(bestNode);
+			// Set the parent to the index into the resultRef
+			// of the parent + 1, i.e. n - 1 + 1. Note that this is
+			// fine even if we overflowed the array as we will always
+			// point back to a polygon in the closed list and we only
+			// use it during the search as an optimization to avoid
+			// recalculating some things for the poly we are expanding to
+			// when we would just skip it anyway.
+			neighbourNode->pidx = (unsigned int)n;
 			neighbourNode->total = total;
 			
 			if (neighbourNode->flags & DT_NODE_OPEN)
@@ -2875,9 +2878,9 @@ dtStatus dtNavMeshQuery::findPolysAroundCircle(dtPolyRef startRef, const float* 
 /// be filled to capacity.
 ///
 dtStatus dtNavMeshQuery::findPolysAroundShape(dtPolyRef startRef, const float* verts, const int nverts,
-											  const dtQueryFilter* filter,
-											  dtPolyRef* resultRef, dtPolyRef* resultParent, float* resultCost,
-											  int* resultCount, const int maxResult) const
+                                              const dtQueryFilter* filter,
+                                              dtPolyRef* resultRef, int* resultParent, float* resultCost,
+                                              int* resultCount, const int maxResult) const
 {
 	dtAssert(m_nav);
 	dtAssert(m_nodePool);
@@ -2888,14 +2891,17 @@ dtStatus dtNavMeshQuery::findPolysAroundShape(dtPolyRef startRef, const float* v
 	// Validate input
 	if (!startRef || !m_nav->isValidPolyRef(startRef))
 		return DT_FAILURE | DT_INVALID_PARAM;
+
+	if (!verts || nverts < 3 || !filter || !resultRef || !resultCount || maxResult < 0)
+		return DT_FAILURE | DT_INVALID_PARAM;
 	
 	m_nodePool->clear();
 	m_openList->clear();
 	
 	float centerPos[3] = {0,0,0};
 	for (int i = 0; i < nverts; ++i)
-		dtVadd(centerPos,centerPos,&verts[i*3]);
-	dtVscale(centerPos,centerPos,1.0f/nverts);
+		dtVadd(centerPos, centerPos, &verts[i * 3]);
+	dtVscale(centerPos, centerPos, 1.0f/nverts);
 
 	dtNode* startNode = m_nodePool->getNode(startRef);
 	dtVcopy(startNode->pos, centerPos);
@@ -2923,21 +2929,12 @@ dtStatus dtNavMeshQuery::findPolysAroundShape(dtPolyRef startRef, const float* v
 		const dtPoly* bestPoly = 0;
 		m_nav->getTileAndPolyByRefUnsafe(bestRef, &bestTile, &bestPoly);
 		
-		// Get parent poly and tile.
-		dtPolyRef parentRef = 0;
-		const dtMeshTile* parentTile = 0;
-		const dtPoly* parentPoly = 0;
-		if (bestNode->pidx)
-			parentRef = m_nodePool->getNodeAtIdx(bestNode->pidx)->id;
-		if (parentRef)
-			m_nav->getTileAndPolyByRefUnsafe(parentRef, &parentTile, &parentPoly);
-
 		if (n < maxResult)
 		{
-			if (resultRef)
-				resultRef[n] = bestRef;
+			resultRef[n] = bestRef;
+
 			if (resultParent)
-				resultParent[n] = parentRef;
+				resultParent[n] = (int)bestNode->pidx - 1;
 			if (resultCost)
 				resultCost[n] = bestNode->total;
 
@@ -2947,6 +2944,8 @@ dtStatus dtNavMeshQuery::findPolysAroundShape(dtPolyRef startRef, const float* v
 		{
 			status |= DT_BUFFER_TOO_SMALL;
 		}
+
+		dtPolyRef parentRef = bestNode->pidx > 0 ? resultRef[bestNode->pidx - 1] : 0;
 		
 		for (unsigned int i = bestPoly->firstLink; i != DT_NULL_LINK; i = bestTile->links[i].next)
 		{
@@ -2999,7 +2998,7 @@ dtStatus dtNavMeshQuery::findPolysAroundShape(dtPolyRef startRef, const float* v
 				continue;
 			
 			neighbourNode->id = neighbourRef;
-			neighbourNode->pidx = m_nodePool->getNodeIdx(bestNode);
+			neighbourNode->pidx = (unsigned int)n;
 			neighbourNode->total = total;
 			
 			if (neighbourNode->flags & DT_NODE_OPEN)
@@ -3042,9 +3041,9 @@ dtStatus dtNavMeshQuery::findPolysAroundShape(dtPolyRef startRef, const float* v
 /// be filled to capacity.
 /// 
 dtStatus dtNavMeshQuery::findLocalNeighbourhood(dtPolyRef startRef, const float* centerPos, const float radius,
-												const dtQueryFilter* filter,
-												dtPolyRef* resultRef, dtPolyRef* resultParent,
-												int* resultCount, const int maxResult) const
+                                                const dtQueryFilter* filter,
+                                                dtPolyRef* resultRef, int* resultParent,
+                                                int* resultCount, const int maxResult) const
 {
 	dtAssert(m_nav);
 	dtAssert(m_tinyNodePool);
@@ -3053,6 +3052,9 @@ dtStatus dtNavMeshQuery::findLocalNeighbourhood(dtPolyRef startRef, const float*
 
 	// Validate input
 	if (!startRef || !m_nav->isValidPolyRef(startRef))
+		return DT_FAILURE | DT_INVALID_PARAM;
+
+	if (!centerPos || radius < 0 || !filter || !resultRef || !resultCount || maxResult < 0)
 		return DT_FAILURE | DT_INVALID_PARAM;
 	
 	static const int MAX_STACK = 48;
@@ -3079,7 +3081,7 @@ dtStatus dtNavMeshQuery::findLocalNeighbourhood(dtPolyRef startRef, const float*
 	{
 		resultRef[n] = startNode->id;
 		if (resultParent)
-			resultParent[n] = 0;
+			resultParent[n] = -1;
 		++n;
 	}
 	else
@@ -3155,9 +3157,13 @@ dtStatus dtNavMeshQuery::findLocalNeighbourhood(dtPolyRef startRef, const float*
 				dtVcopy(&pa[k*3], &neighbourTile->verts[neighbourPoly->verts[k]*3]);
 			
 			bool overlap = false;
+			int curRefIndex = -1;
 			for (int j = 0; j < n; ++j)
 			{
 				dtPolyRef pastRef = resultRef[j];
+
+				if (pastRef == curRef)
+					curRefIndex = j;
 				
 				// Connected polys do not overlap.
 				bool connected = false;
@@ -3196,7 +3202,13 @@ dtStatus dtNavMeshQuery::findLocalNeighbourhood(dtPolyRef startRef, const float*
 			{
 				resultRef[n] = neighbourRef;
 				if (resultParent)
-					resultParent[n] = curRef;
+				{
+					// If we haven't overflowed results we should have a proper
+					// parent.
+					dtAssert(curRefIndex != -1);
+					resultParent[n] = curRefIndex;
+				}
+
 				++n;
 			}
 			else

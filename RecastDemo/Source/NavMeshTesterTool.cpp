@@ -956,7 +956,7 @@ void NavMeshTesterTool::recalc()
 				   m_filter.getIncludeFlags(), m_filter.getExcludeFlags());
 #endif
 			m_navQuery->findPolysAroundCircle(m_startRef, m_spos, dist, &m_filter,
-											  m_polys, m_parent, 0, &m_npolys, MAX_POLYS);
+			                                  m_polys, m_parent, 0, &m_npolys, MAX_POLYS);
 
 		}
 	}
@@ -993,7 +993,7 @@ void NavMeshTesterTool::recalc()
 				   m_filter.getIncludeFlags(), m_filter.getExcludeFlags());
 #endif
 			m_navQuery->findPolysAroundShape(m_startRef, m_queryPoly, 4, &m_filter,
-											 m_polys, m_parent, 0, &m_npolys, MAX_POLYS);
+			                                 m_polys, m_parent, 0, &m_npolys, MAX_POLYS);
 		}
 	}
 	else if (m_toolMode == TOOLMODE_FIND_LOCAL_NEIGHBOURHOOD)
@@ -1006,7 +1006,7 @@ void NavMeshTesterTool::recalc()
 				   m_filter.getIncludeFlags(), m_filter.getExcludeFlags());
 #endif
 			m_navQuery->findLocalNeighbourhood(m_startRef, m_spos, m_neighbourhoodRadius, &m_filter,
-											   m_polys, m_parent, &m_npolys, MAX_POLYS);
+			                                   m_polys, m_parent, &m_npolys, MAX_POLYS);
 		}
 	}
 }
@@ -1226,11 +1226,11 @@ void NavMeshTesterTool::handleRender()
 		{
 			duDebugDrawNavMeshPoly(&dd, *m_navMesh, m_polys[i], pathCol);
 			dd.depthMask(false);
-			if (m_parent[i])
+			if (m_parent[i] >= 0)
 			{
 				float p0[3], p1[3];
 				dd.depthMask(false);
-				getPolyCenter(m_navMesh, m_parent[i], p0);
+				getPolyCenter(m_navMesh, m_polys[m_parent[i]], p0);
 				getPolyCenter(m_navMesh, m_polys[i], p1);
 				duDebugDrawArc(&dd, p0[0],p0[1],p0[2], p1[0],p1[1],p1[2], 0.25f, 0.0f, 0.4f, duRGBA(0,0,0,128), 2.0f);
 				dd.depthMask(true);
@@ -1254,11 +1254,11 @@ void NavMeshTesterTool::handleRender()
 		{
 			duDebugDrawNavMeshPoly(&dd, *m_navMesh, m_polys[i], pathCol);
 			dd.depthMask(false);
-			if (m_parent[i])
+			if (m_parent[i] >= 0)
 			{
 				float p0[3], p1[3];
 				dd.depthMask(false);
-				getPolyCenter(m_navMesh, m_parent[i], p0);
+				getPolyCenter(m_navMesh, m_polys[m_parent[i]], p0);
 				getPolyCenter(m_navMesh, m_polys[i], p1);
 				duDebugDrawArc(&dd, p0[0],p0[1],p0[2], p1[0],p1[1],p1[2], 0.25f, 0.0f, 0.4f, duRGBA(0,0,0,128), 2.0f);
 				dd.depthMask(true);
@@ -1288,11 +1288,11 @@ void NavMeshTesterTool::handleRender()
 		{
 			duDebugDrawNavMeshPoly(&dd, *m_navMesh, m_polys[i], pathCol);
 			dd.depthMask(false);
-			if (m_parent[i])
+			if (m_parent[i] >= 0)
 			{
 				float p0[3], p1[3];
 				dd.depthMask(false);
-				getPolyCenter(m_navMesh, m_parent[i], p0);
+				getPolyCenter(m_navMesh, m_polys[m_parent[i]], p0);
 				getPolyCenter(m_navMesh, m_polys[i], p1);
 				duDebugDrawArc(&dd, p0[0],p0[1],p0[2], p1[0],p1[1],p1[2], 0.25f, 0.0f, 0.4f, duRGBA(0,0,0,128), 2.0f);
 				dd.depthMask(true);

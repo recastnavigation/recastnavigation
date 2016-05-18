@@ -56,7 +56,7 @@ class NavMeshTesterTool : public SampleTool
 	dtPolyRef m_startRef;
 	dtPolyRef m_endRef;
 	dtPolyRef m_polys[MAX_POLYS];
-	dtPolyRef m_parent[MAX_POLYS];
+	int m_parent[MAX_POLYS];
 	int m_npolys;
 	float m_straightPath[MAX_POLYS*3];
 	unsigned char m_straightPathFlags[MAX_POLYS];
