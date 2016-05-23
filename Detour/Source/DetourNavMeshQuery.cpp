@@ -2825,7 +2825,13 @@ dtStatus dtNavMeshQuery::findPolysAroundCircle(dtPolyRef startRef, const float* 
 			if (neighbourNode->flags == 0)
 				dtVlerp(neighbourNode->pos, va, vb, 0.5f);
 			
-			const float total = bestNode->total + dtVdist(bestNode->pos, neighbourNode->pos);
+			float cost = filter->getCost(
+				bestNode->pos, neighbourNode->pos,
+				parentRef, parentTile, parentPoly,
+				bestRef, bestTile, bestPoly,
+				neighbourRef, neighbourTile, neighbourPoly);
+
+			const float total = bestNode->total + cost;
 			
 			// The node is already in open list and the new result is worse, skip.
 			if ((neighbourNode->flags & DT_NODE_OPEN) && total >= neighbourNode->total)
@@ -2992,7 +2998,13 @@ dtStatus dtNavMeshQuery::findPolysAroundShape(dtPolyRef startRef, const float* v
 			if (neighbourNode->flags == 0)
 				dtVlerp(neighbourNode->pos, va, vb, 0.5f);
 			
-			const float total = bestNode->total + dtVdist(bestNode->pos, neighbourNode->pos);
+			float cost = filter->getCost(
+				bestNode->pos, neighbourNode->pos,
+				parentRef, parentTile, parentPoly,
+				bestRef, bestTile, bestPoly,
+				neighbourRef, neighbourTile, neighbourPoly);
+
+			const float total = bestNode->total + cost;
 			
 			// The node is already in open list and the new result is worse, skip.
 			if ((neighbourNode->flags & DT_NODE_OPEN) && total >= neighbourNode->total)
