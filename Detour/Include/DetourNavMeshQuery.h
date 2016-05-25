@@ -193,7 +193,7 @@ public:
 					  const float* startPos, const float* endPos,
 					  const dtQueryFilter* filter,
 					  dtPolyRef* path, int* pathCount, const int maxPath) const;
-	
+
 	/// Finds the straight path from the start to the end position within the polygon corridor.
 	///  @param[in]		startPos			Path start position. [(x, y, z)]
 	///  @param[in]		endPos				Path end position. [(x, y, z)]
@@ -296,6 +296,20 @@ public:
 								  dtPolyRef* resultRef, dtPolyRef* resultParent, float* resultCost,
 								  int* resultCount, const int maxResult) const;
 	
+	/// Gets a path from the explored nodes in the previous search.
+	///  @param[in]		endRef		The reference id of the end polygon.
+	///  @param[out]	path		An ordered list of polygon references representing the path. (Start to end.)
+	///  							[(polyRef) * @p pathCount]
+	///  @param[out]	pathCount	The number of polygons returned in the @p path array.
+	///  @param[in]		maxPath		The maximum number of polygons the @p path array can hold. [Limit: >= 0]
+	///  @returns		The status flags. Returns DT_FAILURE | DT_INVALID_PARAM if any parameter is wrong, or if
+	///  				@p endRef was not explored in the previous search. Returns DT_SUCCESS | DT_BUFFER_TOO_SMALL
+	///  				if @p path cannot contain the entire path. In this case it is filled to capacity with a partial path.
+	///  				Otherwise returns DT_SUCCESS.
+	///  @remarks		The result of this function depends on the state of the query object. For that reason it should only
+	///  				be used immediately after one of the two Dijkstra searches, findPolysAroundCircle or findPolysAroundShape.
+	dtStatus getPathFromDijkstraSearch(dtPolyRef endRef, dtPolyRef* path, int* pathCount, int maxPath) const;
+
 	/// @}
 	/// @name Local Query Functions
 	///@{
@@ -524,6 +538,9 @@ private:
 	dtStatus appendPortals(const int startIdx, const int endIdx, const float* endPos, const dtPolyRef* path,
 						   float* straightPath, unsigned char* straightPathFlags, dtPolyRef* straightPathRefs,
 						   int* straightPathCount, const int maxStraightPath, const int options) const;
+
+	// Gets the path leading to the specified end node.
+	dtStatus getPathToNode(class dtNode* endNode, dtPolyRef* path, int* pathCount, int maxPath) const;
 	
 	const dtNavMesh* m_nav;				///< Pointer to navmesh data.
 
