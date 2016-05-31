@@ -2743,20 +2743,6 @@ dtStatus dtNavMeshQuery::findPolysAroundCircle(dtPolyRef startRef, const float* 
 	dtStatus status = DT_SUCCESS;
 	
 	int n = 0;
-	if (n < maxResult)
-	{
-		if (resultRef)
-			resultRef[n] = startNode->id;
-		if (resultParent)
-			resultParent[n] = 0;
-		if (resultCost)
-			resultCost[n] = 0;
-		++n;
-	}
-	else
-	{
-		status |= DT_BUFFER_TOO_SMALL;
-	}
 	
 	const float radiusSqr = dtSqr(radius);
 	
@@ -2781,6 +2767,21 @@ dtStatus dtNavMeshQuery::findPolysAroundCircle(dtPolyRef startRef, const float* 
 			parentRef = m_nodePool->getNodeAtIdx(bestNode->pidx)->id;
 		if (parentRef)
 			m_nav->getTileAndPolyByRefUnsafe(parentRef, &parentTile, &parentPoly);
+
+		if (n < maxResult)
+		{
+			if (resultRef)
+				resultRef[n] = bestRef;
+			if (resultParent)
+				resultParent[n] = parentRef;
+			if (resultCost)
+				resultCost[n] = bestNode->total;
+			++n;
+		}
+		else
+		{
+			status |= DT_BUFFER_TOO_SMALL;
+		}
 		
 		for (unsigned int i = bestPoly->firstLink; i != DT_NULL_LINK; i = bestTile->links[i].next)
 		{
@@ -2824,14 +2825,19 @@ dtStatus dtNavMeshQuery::findPolysAroundCircle(dtPolyRef startRef, const float* 
 			if (neighbourNode->flags == 0)
 				dtVlerp(neighbourNode->pos, va, vb, 0.5f);
 			
-			const float total = bestNode->total + dtVdist(bestNode->pos, neighbourNode->pos);
+			float cost = filter->getCost(
+				bestNode->pos, neighbourNode->pos,
+				parentRef, parentTile, parentPoly,
+				bestRef, bestTile, bestPoly,
+				neighbourRef, neighbourTile, neighbourPoly);
+
+			const float total = bestNode->total + cost;
 			
 			// The node is already in open list and the new result is worse, skip.
 			if ((neighbourNode->flags & DT_NODE_OPEN) && total >= neighbourNode->total)
 				continue;
 			
 			neighbourNode->id = neighbourRef;
-			neighbourNode->flags = (neighbourNode->flags & ~DT_NODE_CLOSED);
 			neighbourNode->pidx = m_nodePool->getNodeIdx(bestNode);
 			neighbourNode->total = total;
 			
@@ -2841,20 +2847,6 @@ dtStatus dtNavMeshQuery::findPolysAroundCircle(dtPolyRef startRef, const float* 
 			}
 			else
 			{
-				if (n < maxResult)
-				{
-					if (resultRef)
-						resultRef[n] = neighbourNode->id;
-					if (resultParent)
-						resultParent[n] = m_nodePool->getNodeAtIdx(neighbourNode->pidx)->id;
-					if (resultCost)
-						resultCost[n] = neighbourNode->total;
-					++n;
-				}
-				else
-				{
-					status |= DT_BUFFER_TOO_SMALL;
-				}
 				neighbourNode->flags = DT_NODE_OPEN;
 				m_openList->push(neighbourNode);
 			}
@@ -2923,20 +2915,6 @@ dtStatus dtNavMeshQuery::findPolysAroundShape(dtPolyRef startRef, const float* v
 	dtStatus status = DT_SUCCESS;
 
 	int n = 0;
-	if (n < maxResult)
-	{
-		if (resultRef)
-			resultRef[n] = startNode->id;
-		if (resultParent)
-			resultParent[n] = 0;
-		if (resultCost)
-			resultCost[n] = 0;
-		++n;
-	}
-	else
-	{
-		status |= DT_BUFFER_TOO_SMALL;
-	}
 	
 	while (!m_openList->empty())
 	{
@@ -2959,6 +2937,22 @@ dtStatus dtNavMeshQuery::findPolysAroundShape(dtPolyRef startRef, const float* v
 			parentRef = m_nodePool->getNodeAtIdx(bestNode->pidx)->id;
 		if (parentRef)
 			m_nav->getTileAndPolyByRefUnsafe(parentRef, &parentTile, &parentPoly);
+
+		if (n < maxResult)
+		{
+			if (resultRef)
+				resultRef[n] = bestRef;
+			if (resultParent)
+				resultParent[n] = parentRef;
+			if (resultCost)
+				resultCost[n] = bestNode->total;
+
+			++n;
+		}
+		else
+		{
+			status |= DT_BUFFER_TOO_SMALL;
+		}
 		
 		for (unsigned int i = bestPoly->firstLink; i != DT_NULL_LINK; i = bestTile->links[i].next)
 		{
@@ -3004,14 +2998,19 @@ dtStatus dtNavMeshQuery::findPolysAroundShape(dtPolyRef startRef, const float* v
 			if (neighbourNode->flags == 0)
 				dtVlerp(neighbourNode->pos, va, vb, 0.5f);
 			
-			const float total = bestNode->total + dtVdist(bestNode->pos, neighbourNode->pos);
+			float cost = filter->getCost(
+				bestNode->pos, neighbourNode->pos,
+				parentRef, parentTile, parentPoly,
+				bestRef, bestTile, bestPoly,
+				neighbourRef, neighbourTile, neighbourPoly);
+
+			const float total = bestNode->total + cost;
 			
 			// The node is already in open list and the new result is worse, skip.
 			if ((neighbourNode->flags & DT_NODE_OPEN) && total >= neighbourNode->total)
 				continue;
 			
 			neighbourNode->id = neighbourRef;
-			neighbourNode->flags = (neighbourNode->flags & ~DT_NODE_CLOSED);
 			neighbourNode->pidx = m_nodePool->getNodeIdx(bestNode);
 			neighbourNode->total = total;
 			
@@ -3021,20 +3020,6 @@ dtStatus dtNavMeshQuery::findPolysAroundShape(dtPolyRef startRef, const float* v
 			}
 			else
 			{
-				if (n < maxResult)
-				{
-					if (resultRef)
-						resultRef[n] = neighbourNode->id;
-					if (resultParent)
-						resultParent[n] = m_nodePool->getNodeAtIdx(neighbourNode->pidx)->id;
-					if (resultCost)
-						resultCost[n] = neighbourNode->total;
-					++n;
-				}
-				else
-				{
-					status |= DT_BUFFER_TOO_SMALL;
-				}
 				neighbourNode->flags = DT_NODE_OPEN;
 				m_openList->push(neighbourNode);
 			}
