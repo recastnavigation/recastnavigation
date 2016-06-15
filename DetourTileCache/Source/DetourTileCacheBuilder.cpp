@@ -2025,7 +2025,11 @@ dtStatus dtBuildTileCacheLayer(dtTileCacheCompressor* comp,
 	const int bufferSize = gridSize*3;
 	unsigned char* buffer = (unsigned char*)dtAlloc(bufferSize, DT_ALLOC_TEMP);
 	if (!buffer)
+	{
+		dtFree(data);
 		return DT_FAILURE | DT_OUT_OF_MEMORY;
+	}
+
 	memcpy(buffer, heights, gridSize);
 	memcpy(buffer+gridSize, areas, gridSize);
 	memcpy(buffer+gridSize*2, cons, gridSize);
@@ -2036,7 +2040,11 @@ dtStatus dtBuildTileCacheLayer(dtTileCacheCompressor* comp,
 	int compressedSize = 0;
 	dtStatus status = comp->compress(buffer, bufferSize, compressed, maxCompressedSize, &compressedSize);
 	if (dtStatusFailed(status))
+	{
+		dtFree(buffer);
+		dtFree(data);
 		return status;
+	}
 
 	*outData = data;
 	*outDataSize = headerSize + compressedSize;
