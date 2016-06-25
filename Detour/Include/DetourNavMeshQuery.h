@@ -540,7 +540,7 @@ private:
 						   int* straightPathCount, const int maxStraightPath, const int options) const;
 
 	// Gets the path leading to the specified end node.
-	dtStatus getPathToNode(class dtNode* endNode, dtPolyRef* path, int* pathCount, int maxPath) const;
+	dtStatus getPathToNode(struct dtNode* endNode, dtPolyRef* path, int* pathCount, int maxPath) const;
 	
 	const dtNavMesh* m_nav;				///< Pointer to navmesh data.
 
