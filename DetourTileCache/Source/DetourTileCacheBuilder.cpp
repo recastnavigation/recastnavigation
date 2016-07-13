@@ -2002,6 +2002,44 @@ dtStatus dtMarkCylinderArea(dtTileCacheLayer& layer, const float* orig, const fl
 	return DT_SUCCESS;
 }
 
+dtStatus dtMarkBoxArea(dtTileCacheLayer& layer, const float* orig, const float cs, const float ch,
+					   const float* bmin, const float* bmax, const unsigned char areaId)
+{
+	const int w = (int)layer.header->width;
+	const int h = (int)layer.header->height;
+	const float ics = 1.0f/cs;
+	const float ich = 1.0f/ch;
+
+	int minx = (int)floorf((bmin[0]-orig[0])*ics);
+	int miny = (int)floorf((bmin[1]-orig[1])*ich);
+	int minz = (int)floorf((bmin[2]-orig[2])*ics);
+	int maxx = (int)floorf((bmax[0]-orig[0])*ics);
+	int maxy = (int)floorf((bmax[1]-orig[1])*ich);
+	int maxz = (int)floorf((bmax[2]-orig[2])*ics);
+	
+	if (maxx < 0) return DT_SUCCESS;
+	if (minx >= w) return DT_SUCCESS;
+	if (maxz < 0) return DT_SUCCESS;
+	if (minz >= h) return DT_SUCCESS;
+
+	if (minx < 0) minx = 0;
+	if (maxx >= w) maxx = w-1;
+	if (minz < 0) minz = 0;
+	if (maxz >= h) maxz = h-1;
+	
+	for (int z = minz; z <= maxz; ++z)
+	{
+		for (int x = minx; x <= maxx; ++x)
+		{
+			const int y = layer.heights[x+z*w];
+			if (y < miny || y > maxy)
+				continue;
+			layer.areas[x+z*w] = areaId;
+		}
+	}
+
+	return DT_SUCCESS;
+}
 
 dtStatus dtBuildTileCacheLayer(dtTileCacheCompressor* comp,
 							   dtTileCacheLayerHeader* header,
