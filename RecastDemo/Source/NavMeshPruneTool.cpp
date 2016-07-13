@@ -171,6 +171,8 @@ static void floodNavmesh(dtNavMesh* nav, NavmeshFlags* flags, dtPolyRef start, u
 	// If already visited, skip.
 	if (flags->getFlags(start))
 		return;
+
+	flags->setFlags(start, flag);
 		
 	PolyRefArray openList;
 	openList.push(start);
