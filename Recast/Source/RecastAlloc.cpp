@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "RecastAlloc.h"
+#include "RecastAssert.h"
 
 static void *rcAllocDefault(size_t size, rcAllocHint)
 {
@@ -77,6 +78,7 @@ void rcIntArray::doResize(int n)
 	if (!m_cap) m_cap = n;
 	while (m_cap < n) m_cap *= 2;
 	int* newData = (int*)rcAlloc(m_cap*sizeof(int), RC_ALLOC_TEMP);
+	rcAssert(newData);
 	if (m_size && newData) memcpy(newData, m_data, m_size*sizeof(int));
 	rcFree(m_data);
 	m_data = newData;
