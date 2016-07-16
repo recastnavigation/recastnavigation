@@ -1022,18 +1022,14 @@ dtStatus dtNavMeshQuery::findPath(dtPolyRef startRef, dtPolyRef endRef,
 	dtAssert(m_nodePool);
 	dtAssert(m_openList);
 	
-	*pathCount = 0;
-	
-	if (!startRef || !endRef)
-		return DT_FAILURE | DT_INVALID_PARAM;
-	
-	if (!maxPath)
-		return DT_FAILURE | DT_INVALID_PARAM;
+	if (pathCount)
+		*pathCount = 0;
 	
 	// Validate input
-	if (!m_nav->isValidPolyRef(startRef) || !m_nav->isValidPolyRef(endRef))
+	if (!m_nav->isValidPolyRef(startRef) || !m_nav->isValidPolyRef(endRef) ||
+		!startPos || !endPos || !filter || maxPath <= 0 || !path || !pathCount)
 		return DT_FAILURE | DT_INVALID_PARAM;
-	
+
 	if (startRef == endRef)
 	{
 		path[0] = startRef;
@@ -1193,41 +1189,55 @@ dtStatus dtNavMeshQuery::findPath(dtPolyRef startRef, dtPolyRef endRef,
 			}
 		}
 	}
-	
+
+	status = getPathToNode(lastBestNode, path, pathCount, maxPath);
+
 	if (lastBestNode->id != endRef)
 		status |= DT_PARTIAL_RESULT;
 	
-	// Reverse the path.
-	dtNode* prev = 0;
-	dtNode* node = lastBestNode;
-	do
-	{
-		dtNode* next = m_nodePool->getNodeAtIdx(node->pidx);
-		node->pidx = m_nodePool->getNodeIdx(prev);
-		prev = node;
-		node = next;
-	}
-	while (node);
-	
-	// Store path
-	node = prev;
-	int n = 0;
-	do
-	{
-		path[n++] = node->id;
-		if (n >= maxPath)
-		{
-			status |= DT_BUFFER_TOO_SMALL;
-			break;
-		}
-		node = m_nodePool->getNodeAtIdx(node->pidx);
-	}
-	while (node);
-	
-	*pathCount = n;
-	
 	return status;
 }
+
+dtStatus dtNavMeshQuery::getPathToNode(dtNode* endNode, dtPolyRef* path, int* pathCount, int maxPath) const
+{
+	// Find the length of the entire path.
+	dtNode* curNode = endNode;
+	int length = 0;
+	do
+	{
+		length++;
+		curNode = m_nodePool->getNodeAtIdx(curNode->pidx);
+	} while (curNode);
+
+	// If the path cannot be fully stored then advance to the last node we will be able to store.
+	curNode = endNode;
+	int writeCount;
+	for (writeCount = length; writeCount > maxPath; writeCount--)
+	{
+		dtAssert(curNode);
+
+		curNode = m_nodePool->getNodeAtIdx(curNode->pidx);
+	}
+
+	// Write path
+	for (int i = writeCount - 1; i >= 0; i--)
+	{
+		dtAssert(curNode);
+
+		path[i] = curNode->id;
+		curNode = m_nodePool->getNodeAtIdx(curNode->pidx);
+	}
+
+	dtAssert(!curNode);
+
+	*pathCount = dtMin(length, maxPath);
+
+	if (length > maxPath)
+		return DT_SUCCESS | DT_BUFFER_TOO_SMALL;
+
+	return DT_SUCCESS;
+}
+
 
 /// @par
 ///
@@ -3029,6 +3039,21 @@ dtStatus dtNavMeshQuery::findPolysAroundShape(dtPolyRef startRef, const float* v
 	*resultCount = n;
 	
 	return status;
+}
+
+dtStatus dtNavMeshQuery::getPathFromDijkstraSearch(dtPolyRef endRef, dtPolyRef* path, int* pathCount, int maxPath) const
+{
+	if (!m_nav->isValidPolyRef(endRef) || !path || !pathCount || maxPath < 0)
+		return DT_FAILURE | DT_INVALID_PARAM;
+
+	*pathCount = 0;
+
+	dtNode* endNode;
+	if (m_nodePool->findNodes(endRef, &endNode, 1) != 1 ||
+		(endNode->flags & DT_NODE_CLOSED) == 0)
+		return DT_FAILURE | DT_INVALID_PARAM;
+
+	return getPathToNode(endNode, path, pathCount, maxPath);
 }
 
 /// @par
