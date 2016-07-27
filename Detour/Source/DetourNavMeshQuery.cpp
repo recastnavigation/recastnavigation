@@ -1052,7 +1052,7 @@ dtStatus dtNavMeshQuery::findPath(dtPolyRef startRef, dtPolyRef endRef,
 	dtNode* lastBestNode = startNode;
 	float lastBestNodeCost = startNode->total;
 	
-	dtStatus status = DT_SUCCESS;
+	bool outOfNodes = false;
 	
 	while (!m_openList->empty())
 	{
@@ -1110,7 +1110,7 @@ dtStatus dtNavMeshQuery::findPath(dtPolyRef startRef, dtPolyRef endRef,
 			dtNode* neighbourNode = m_nodePool->getNode(neighbourRef, crossSide);
 			if (!neighbourNode)
 			{
-				status |= DT_OUT_OF_NODES;
+				outOfNodes = true;
 				continue;
 			}
 			
@@ -1190,10 +1190,13 @@ dtStatus dtNavMeshQuery::findPath(dtPolyRef startRef, dtPolyRef endRef,
 		}
 	}
 
-	status = getPathToNode(lastBestNode, path, pathCount, maxPath);
+	dtStatus status = getPathToNode(lastBestNode, path, pathCount, maxPath);
 
 	if (lastBestNode->id != endRef)
 		status |= DT_PARTIAL_RESULT;
+
+	if (outOfNodes)
+		status |= DT_OUT_OF_NODES;
 	
 	return status;
 }
