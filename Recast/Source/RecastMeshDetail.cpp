@@ -647,11 +647,10 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 	int hull[MAX_VERTS];
 	int nhull = 0;
 	
-	nverts = 0;
+	nverts = nin;
 	
 	for (int i = 0; i < nin; ++i)
 		rcVcopy(&verts[i*3], &in[i*3]);
-	nverts = nin;
 	
 	edges.resize(0);
 	tris.resize(0);
@@ -777,7 +776,7 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 	
 	// Tessellate the base mesh.
 	// We're using the triangulateHull instead of delaunayHull as it tends to
-	// create a bit better triangulation for long thing triangles when there
+	// create a bit better triangulation for long thin triangles when there
 	// are no internal points.
 	triangulateHull(nverts, verts, nhull, hull, tris);
 	

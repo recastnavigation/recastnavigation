@@ -35,13 +35,38 @@ enum ObstacleState
 	DT_OBSTACLE_REMOVING,
 };
 
+enum ObstacleType
+{
+	DT_OBSTACLE_CYLINDER,
+	DT_OBSTACLE_BOX,
+};
+
+struct dtObstacleCylinder
+{
+	float pos[ 3 ];
+	float radius;
+	float height;
+};
+
+struct dtObstacleBox
+{
+	float bmin[ 3 ];
+	float bmax[ 3 ];
+};
+
 static const int DT_MAX_TOUCHED_TILES = 8;
 struct dtTileCacheObstacle
 {
-	float pos[3], radius, height;
+	union
+	{
+		dtObstacleCylinder cylinder;
+		dtObstacleBox box;
+	};
+
 	dtCompressedTileRef touched[DT_MAX_TOUCHED_TILES];
 	dtCompressedTileRef pending[DT_MAX_TOUCHED_TILES];
 	unsigned short salt;
+	unsigned char type;
 	unsigned char state;
 	unsigned char ntouched;
 	unsigned char npending;
@@ -106,12 +131,20 @@ public:
 	dtStatus removeTile(dtCompressedTileRef ref, unsigned char** data, int* dataSize);
 	
 	dtStatus addObstacle(const float* pos, const float radius, const float height, dtObstacleRef* result);
+	dtStatus addBoxObstacle(const float* bmin, const float* bmax, dtObstacleRef* result);
+	
 	dtStatus removeObstacle(const dtObstacleRef ref);
 	
 	dtStatus queryTiles(const float* bmin, const float* bmax,
 						dtCompressedTileRef* results, int* resultCount, const int maxResults) const;
 	
-	dtStatus update(const float /*dt*/, class dtNavMesh* navmesh);
+	/// Updates the tile cache by rebuilding tiles touched by unfinished obstacle requests.
+	///  @param[in]		dt			The time step size. Currently not used.
+	///  @param[in]		navmesh		The mesh to affect when rebuilding tiles.
+	///  @param[out]	upToDate	Whether the tile cache is fully up to date with obstacle requests and tile rebuilds.
+	///  							If the tile cache is up to date another (immediate) call to update will have no effect;
+	///  							otherwise another call will continue processing obstacle requests and tile rebuilds.
+	dtStatus update(const float dt, class dtNavMesh* navmesh, bool* upToDate = 0);
 	
 	dtStatus buildNavMeshTilesAt(const int tx, const int ty, class dtNavMesh* navmesh);
 	

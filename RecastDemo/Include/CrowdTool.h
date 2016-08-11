@@ -126,9 +126,6 @@ class CrowdTool : public SampleTool
 	};
 	ToolMode m_mode;
 	
-	void updateAgentParams();
-	void updateTick(const float dt);
-	
 public:
 	CrowdTool();
 	

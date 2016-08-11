@@ -28,7 +28,7 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-static const unsigned TEXT_POOL_SIZE = 8000;
+static const unsigned TEXT_POOL_SIZE = 50000;
 static char g_textPool[TEXT_POOL_SIZE];
 static unsigned g_textPoolSize = 0;
 static const char* allocText(const char* text)

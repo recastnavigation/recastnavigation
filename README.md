@@ -73,7 +73,11 @@ RecastDemo uses [premake5](http://premake.github.io/) to build platform specific
 
 ## Integrating with your own project
 
-It is recommended to add the source directories `DebugUtils`, `Detour`, `DetourCrowd`, `DetourTileCache`, and `Recast` into your own project depending on which parts of the project you need. For example your level building tool could include DebugUtils, Recast, and Detour, and your game runtime could just include Detour.
+It is recommended to add the source directories `DebugUtils`, `Detour`, `DetourCrowd`, `DetourTileCache`, and `Recast` into your own project depending on which parts of the project you need. For example your level building tool could include `DebugUtils`, `Recast`, and `Detour`, and your game runtime could just include `Detour`.
+
+## Contributing
+
+See the [Contributing document](CONTRIBUTING.md) for guidelines for making contributions.
 
 ## Discuss
 

@@ -123,7 +123,6 @@ public:
 template<class T> class rcScopedDelete
 {
 	T* ptr;
-	inline T* operator=(T* p);
 public:
 
 	/// Constructs an instance with a null pointer.
