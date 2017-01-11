@@ -272,24 +272,24 @@ struct RasterizationContext
 	int ntiles;
 };
 
-static int rasterizeTileLayers(BuildContext* ctx, InputGeom* geom,
+int Sample_TempObstacles::rasterizeTileLayers(
 							   const int tx, const int ty,
 							   const rcConfig& cfg,
 							   TileCacheData* tiles,
 							   const int maxTiles)
 {
-	if (!geom || !geom->getMesh() || !geom->getChunkyMesh())
+	if (!m_geom || !m_geom->getMesh() || !m_geom->getChunkyMesh())
 	{
-		ctx->log(RC_LOG_ERROR, "buildTile: Input mesh is not specified.");
+		m_ctx->log(RC_LOG_ERROR, "buildTile: Input mesh is not specified.");
 		return 0;
 	}
 	
 	FastLZCompressor comp;
 	RasterizationContext rc;
 	
-	const float* verts = geom->getMesh()->getVerts();
-	const int nverts = geom->getMesh()->getVertCount();
-	const rcChunkyTriMesh* chunkyMesh = geom->getChunkyMesh();
+	const float* verts = m_geom->getMesh()->getVerts();
+	const int nverts = m_geom->getMesh()->getVertCount();
+	const rcChunkyTriMesh* chunkyMesh = m_geom->getChunkyMesh();
 	
 	// Tile bounds.
 	const float tcs = cfg.tileSize * cfg.cs;
@@ -312,12 +312,12 @@ static int rasterizeTileLayers(BuildContext* ctx, InputGeom* geom,
 	rc.solid = rcAllocHeightfield();
 	if (!rc.solid)
 	{
-		ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'solid'.");
+		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'solid'.");
 		return 0;
 	}
-	if (!rcCreateHeightfield(ctx, *rc.solid, tcfg.width, tcfg.height, tcfg.bmin, tcfg.bmax, tcfg.cs, tcfg.ch))
+	if (!rcCreateHeightfield(m_ctx, *rc.solid, tcfg.width, tcfg.height, tcfg.bmin, tcfg.bmax, tcfg.cs, tcfg.ch))
 	{
-		ctx->log(RC_LOG_ERROR, "buildNavigation: Could not create solid heightfield.");
+		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Could not create solid heightfield.");
 		return 0;
 	}
 	
@@ -327,7 +327,7 @@ static int rasterizeTileLayers(BuildContext* ctx, InputGeom* geom,
 	rc.triareas = new unsigned char[chunkyMesh->maxTrisPerChunk];
 	if (!rc.triareas)
 	{
-		ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'm_triareas' (%d).", chunkyMesh->maxTrisPerChunk);
+		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'm_triareas' (%d).", chunkyMesh->maxTrisPerChunk);
 		return 0;
 	}
 	
@@ -350,45 +350,48 @@ static int rasterizeTileLayers(BuildContext* ctx, InputGeom* geom,
 		const int ntris = node.n;
 		
 		memset(rc.triareas, 0, ntris*sizeof(unsigned char));
-		rcMarkWalkableTriangles(ctx, tcfg.walkableSlopeAngle,
+		rcMarkWalkableTriangles(m_ctx, tcfg.walkableSlopeAngle,
 								verts, nverts, tris, ntris, rc.triareas);
 		
-		if (!rcRasterizeTriangles(ctx, verts, nverts, tris, rc.triareas, ntris, *rc.solid, tcfg.walkableClimb))
+		if (!rcRasterizeTriangles(m_ctx, verts, nverts, tris, rc.triareas, ntris, *rc.solid, tcfg.walkableClimb))
 			return 0;
 	}
 	
 	// Once all geometry is rasterized, we do initial pass of filtering to
 	// remove unwanted overhangs caused by the conservative rasterization
 	// as well as filter spans where the character cannot possibly stand.
-	rcFilterLowHangingWalkableObstacles(ctx, tcfg.walkableClimb, *rc.solid);
-	rcFilterLedgeSpans(ctx, tcfg.walkableHeight, tcfg.walkableClimb, *rc.solid);
-	rcFilterWalkableLowHeightSpans(ctx, tcfg.walkableHeight, *rc.solid);
+	if (m_filterLowHangingObstacles)
+		rcFilterLowHangingWalkableObstacles(m_ctx, tcfg.walkableClimb, *rc.solid);
+	if (m_filterLedgeSpans)
+		rcFilterLedgeSpans(m_ctx, tcfg.walkableHeight, tcfg.walkableClimb, *rc.solid);
+	if (m_filterWalkableLowHeightSpans)
+		rcFilterWalkableLowHeightSpans(m_ctx, tcfg.walkableHeight, *rc.solid);
 	
 	
 	rc.chf = rcAllocCompactHeightfield();
 	if (!rc.chf)
 	{
-		ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'chf'.");
+		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'chf'.");
 		return 0;
 	}
-	if (!rcBuildCompactHeightfield(ctx, tcfg.walkableHeight, tcfg.walkableClimb, *rc.solid, *rc.chf))
+	if (!rcBuildCompactHeightfield(m_ctx, tcfg.walkableHeight, tcfg.walkableClimb, *rc.solid, *rc.chf))
 	{
-		ctx->log(RC_LOG_ERROR, "buildNavigation: Could not build compact data.");
+		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Could not build compact data.");
 		return 0;
 	}
 	
 	// Erode the walkable area by agent radius.
-	if (!rcErodeWalkableArea(ctx, tcfg.walkableRadius, *rc.chf))
+	if (!rcErodeWalkableArea(m_ctx, tcfg.walkableRadius, *rc.chf))
 	{
-		ctx->log(RC_LOG_ERROR, "buildNavigation: Could not erode.");
+		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Could not erode.");
 		return 0;
 	}
 	
 	// (Optional) Mark areas.
-	const ConvexVolume* vols = geom->getConvexVolumes();
-	for (int i  = 0; i < geom->getConvexVolumeCount(); ++i)
+	const ConvexVolume* vols = m_geom->getConvexVolumes();
+	for (int i  = 0; i < m_geom->getConvexVolumeCount(); ++i)
 	{
-		rcMarkConvexPolyArea(ctx, vols[i].verts, vols[i].nverts,
+		rcMarkConvexPolyArea(m_ctx, vols[i].verts, vols[i].nverts,
 							 vols[i].hmin, vols[i].hmax,
 							 (unsigned char)vols[i].area, *rc.chf);
 	}
@@ -396,12 +399,12 @@ static int rasterizeTileLayers(BuildContext* ctx, InputGeom* geom,
 	rc.lset = rcAllocHeightfieldLayerSet();
 	if (!rc.lset)
 	{
-		ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'lset'.");
+		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'lset'.");
 		return 0;
 	}
-	if (!rcBuildHeightfieldLayers(ctx, *rc.chf, tcfg.borderSize, tcfg.walkableHeight, *rc.lset))
+	if (!rcBuildHeightfieldLayers(m_ctx, *rc.chf, tcfg.borderSize, tcfg.walkableHeight, *rc.lset))
 	{
-		ctx->log(RC_LOG_ERROR, "buildNavigation: Could not build heighfield layers.");
+		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Could not build heighfield layers.");
 		return 0;
 	}
 	
@@ -1311,7 +1314,7 @@ bool Sample_TempObstacles::handleBuild()
 		{
 			TileCacheData tiles[MAX_LAYERS];
 			memset(tiles, 0, sizeof(tiles));
-			int ntiles = rasterizeTileLayers(m_ctx, m_geom, x, y, cfg, tiles, MAX_LAYERS);
+			int ntiles = rasterizeTileLayers(x, y, cfg, tiles, MAX_LAYERS);
 
 			for (int i = 0; i < ntiles; ++i)
 			{
