@@ -41,11 +41,11 @@ Sample::Sample() :
 	m_navQuery(0),
 	m_crowd(0),
 	m_navMeshDrawFlags(DU_DRAWNAVMESH_OFFMESHCONS|DU_DRAWNAVMESH_CLOSEDLIST),
-	m_tool(0),
-	m_ctx(0),
 	m_filterLowHangingObstacles(true),
 	m_filterLedgeSpans(true),
-	m_filterWalkableLowHeightSpans(true)
+	m_filterWalkableLowHeightSpans(true),
+	m_tool(0),
+	m_ctx(0)
 {
 	resetCommonSettings();
 	m_navQuery = dtAllocNavMeshQuery();
