@@ -1448,7 +1448,13 @@ void Sample_TempObstacles::loadAll(const char* path)
 	
 	// Read header.
 	TileCacheSetHeader header;
-	fread(&header, sizeof(TileCacheSetHeader), 1, fp);
+	size_t headerReadReturnCode = fread(&header, sizeof(TileCacheSetHeader), 1, fp);
+	if( headerReadReturnCode != 1)
+	{
+		// Error or early EOF
+		fclose(fp);
+		return;
+	}
 	if (header.magic != TILECACHESET_MAGIC)
 	{
 		fclose(fp);
@@ -1490,17 +1496,34 @@ void Sample_TempObstacles::loadAll(const char* path)
 	for (int i = 0; i < header.numTiles; ++i)
 	{
 		TileCacheTileHeader tileHeader;
-		fread(&tileHeader, sizeof(tileHeader), 1, fp);
+		size_t tileHeaderReadReturnCode = fread(&tileHeader, sizeof(tileHeader), 1, fp);
+		if( tileHeaderReadReturnCode != 1)
+		{
+			// Error or early EOF
+			fclose(fp);
+			return;
+		}
 		if (!tileHeader.tileRef || !tileHeader.dataSize)
 			break;
 
 		unsigned char* data = (unsigned char*)dtAlloc(tileHeader.dataSize, DT_ALLOC_PERM);
 		if (!data) break;
 		memset(data, 0, tileHeader.dataSize);
-		fread(data, tileHeader.dataSize, 1, fp);
+		size_t tileDataReadReturnCode = fread(data, tileHeader.dataSize, 1, fp);
+		if( tileDataReadReturnCode != 1)
+		{
+			// Error or early EOF
+			dtFree(data);
+			fclose(fp);
+			return;
+		}
 		
 		dtCompressedTileRef tile = 0;
-		m_tileCache->addTile(data, tileHeader.dataSize, DT_COMPRESSEDTILE_FREE_DATA, &tile);
+		dtStatus addTileStatus = m_tileCache->addTile(data, tileHeader.dataSize, DT_COMPRESSEDTILE_FREE_DATA, &tile);
+		if (dtStatusFailed(addTileStatus))
+		{
+			dtFree(data);
+		}
 
 		if (tile)
 			m_tileCache->buildNavMeshTile(tile, m_navMesh);
