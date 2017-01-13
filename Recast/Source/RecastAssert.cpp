@@ -18,6 +18,8 @@
 
 #include "RecastAssert.h"
 
+#ifndef NDEBUG
+
 static rcAssertFailFunc* sRecastAssertFailFunc = NULL;
 
 void rcAssertFailSetCustom(rcAssertFailFunc *assertFailFunc)
@@ -29,3 +31,5 @@ rcAssertFailFunc* rcAssertFailGetCustom()
 {
 	return sRecastAssertFailFunc;
 }
+
+#endif

@@ -18,6 +18,8 @@
 
 #include "DetourAssert.h"
 
+#ifndef NDEBUG
+
 static dtAssertFailFunc* sAssertFailFunc = NULL;
 
 void dtAssertFailSetCustom(dtAssertFailFunc *assertFailFunc)
@@ -29,3 +31,5 @@ dtAssertFailFunc* dtAssertFailGetCustom()
 {
 	return sAssertFailFunc;
 }
+
+#endif
