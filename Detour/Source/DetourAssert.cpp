@@ -20,7 +20,7 @@
 
 #ifndef NDEBUG
 
-static dtAssertFailFunc* sAssertFailFunc = NULL;
+static dtAssertFailFunc* sAssertFailFunc = 0;
 
 void dtAssertFailSetCustom(dtAssertFailFunc *assertFailFunc)
 {

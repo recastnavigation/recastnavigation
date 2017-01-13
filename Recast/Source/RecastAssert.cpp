@@ -20,7 +20,7 @@
 
 #ifndef NDEBUG
 
-static rcAssertFailFunc* sRecastAssertFailFunc = NULL;
+static rcAssertFailFunc* sRecastAssertFailFunc = 0;
 
 void rcAssertFailSetCustom(rcAssertFailFunc *assertFailFunc)
 {
