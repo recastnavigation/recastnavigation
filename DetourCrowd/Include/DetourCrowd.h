@@ -69,6 +69,12 @@ enum CrowdAgentState
 	DT_CROWDAGENT_STATE_OFFMESH,		///< The agent is traversing an off-mesh connection.
 };
 
+enum CrowdAgentIntegrate
+{
+	DT_CROWDAGENT_INTEGRATE_VELOCITY,
+	DT_CROWDAGENT_INTEGRATE_ANGLE
+};
+
 /// Configuration parameters for a crowd agent.
 /// @ingroup crowd
 struct dtCrowdAgentParams
@@ -96,9 +102,14 @@ struct dtCrowdAgentParams
 	/// The index of the query filter used by this agent.
 	unsigned char queryFilterType;
 
+	/// Type of integration for velocity
+	unsigned char integrationType;
+
 	/// User defined data attached to the agent.
 	void* userData;
 };
+
+static_assert( sizeof( dtCrowdAgentParams ) == 36 , "" );
 
 enum MoveRequestState
 {
@@ -111,12 +122,19 @@ enum MoveRequestState
 	DT_CROWDAGENT_TARGET_VELOCITY,
 };
 
+enum AgentActiveState
+{
+	DT_CROWDAGENT_STATE_DISABLED = 0,
+	DT_CROWDAGENT_STATE_PAUSED,
+	DT_CROWDAGENT_STATE_NORMAL
+};
+
 /// Represents an agent managed by a #dtCrowd object.
 /// @ingroup crowd
 struct dtCrowdAgent
 {
 	/// True if the agent is active, false if the agent is in an unused slot in the agent pool.
-	bool active;
+	AgentActiveState active : 8;
 
 	/// The type of mesh polygon the agent is traversing. (See: #CrowdAgentState)
 	unsigned char state;
@@ -147,6 +165,7 @@ struct dtCrowdAgent
 	float dvel[3];		///< The desired velocity of the agent. Based on the current path, calculated from scratch each frame. [(x, y, z)]
 	float nvel[3];		///< The desired velocity adjusted by obstacle avoidance, calculated from scratch each frame. [(x, y, z)]
 	float vel[3];		///< The actual velocity of the agent. The change from nvel -> vel is constrained by max acceleration. [(x, y, z)]
+	float angle;
 
 	/// The agent's configuration parameters.
 	dtCrowdAgentParams params;
