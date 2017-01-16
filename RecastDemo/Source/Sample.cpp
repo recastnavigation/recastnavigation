@@ -41,6 +41,9 @@ Sample::Sample() :
 	m_navQuery(0),
 	m_crowd(0),
 	m_navMeshDrawFlags(DU_DRAWNAVMESH_OFFMESHCONS|DU_DRAWNAVMESH_CLOSEDLIST),
+	m_filterLowHangingObstacles(true),
+	m_filterLedgeSpans(true),
+	m_filterWalkableLowHeightSpans(true),
 	m_tool(0),
 	m_ctx(0)
 {
@@ -201,6 +204,15 @@ void Sample::handleCommonSettings()
 	if (imguiCheck("Layers", m_partitionType == SAMPLE_PARTITION_LAYERS))
 		m_partitionType = SAMPLE_PARTITION_LAYERS;
 	
+	imguiSeparator();
+	imguiLabel("Filtering");
+	if (imguiCheck("Low Hanging Obstacles", m_filterLowHangingObstacles))
+		m_filterLowHangingObstacles = !m_filterLowHangingObstacles;
+	if (imguiCheck("Ledge Spans", m_filterLedgeSpans))
+		m_filterLedgeSpans= !m_filterLedgeSpans;
+	if (imguiCheck("Walkable Low Height Spans", m_filterWalkableLowHeightSpans))
+		m_filterWalkableLowHeightSpans = !m_filterWalkableLowHeightSpans;
+
 	imguiSeparator();
 	imguiLabel("Polygonization");
 	imguiSlider("Max Edge Length", &m_edgeMaxLen, 0.0f, 50.0f, 1.0f);
