@@ -22,26 +22,6 @@
 #include "DetourCommon.h"
 #include "DetourNode.h"
 
-static unsigned int duPolyToColDefault(const struct dtPoly* p, int alpha)
-{
-	if (p->getArea() == 0)
-	{
-		// Treat zero area type as default.
-		return duRGBA(0, 192, 255, alpha);
-	}
-	else
-	{
-		return duIntToCol(p->getArea(), alpha);
-	}
-}
-
-static duPolyToColFunc* sPolyToColFunc = &duPolyToColDefault;
-
-void duPolyToColSetCustom(duPolyToColFunc *polyToColFunc)
-{
-	sPolyToColFunc = polyToColFunc;
-}
-
 
 static float distancePtLine2d(const float* pt, const float* p, const float* q)
 {
@@ -162,7 +142,7 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 			if (flags & DU_DRAWNAVMESH_COLOR_TILES)
 				col = tileColor;
 			else
-				col = (*sPolyToColFunc)(p, 64);
+				col = dd->polyToCol(p, 64);
 		}
 		
 		for (int j = 0; j < pd->triCount; ++j)
@@ -198,7 +178,7 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 			if (query && query->isInClosedList(base | (dtPolyRef)i))
 				col = duRGBA(255,196,0,220);
 			else
-				col = duDarkenCol((*sPolyToColFunc)(p, 220));
+				col = duDarkenCol(dd->polyToCol(p, 220));
 
 			const dtOffMeshConnection* con = &tile->offMeshCons[i - tile->header->offMeshBase];
 			const float* va = &tile->verts[p->verts[0]*3];

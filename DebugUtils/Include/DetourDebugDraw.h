@@ -30,15 +30,6 @@ enum DrawNavMeshFlags
 	DU_DRAWNAVMESH_COLOR_TILES = 0x04,
 };
 
-/// Compute a color for given polygon.
-/// @param p [in] the polygon to compute color for.
-/// @return The color value.
-typedef unsigned int (duPolyToColFunc)(const struct dtPoly* p, int alpha);
-
-/// Set a custom color compute function to be used by Detour when drawing a polygon.
-///  @param polyToColFunc [in] function invoked to compute a color from a polygon
-void duPolyToColSetCustom(duPolyToColFunc *polyToColFunc);
-
 void duDebugDrawNavMesh(struct duDebugDraw* dd, const dtNavMesh& mesh, unsigned char flags);
 void duDebugDrawNavMeshWithClosedList(struct duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMeshQuery& query, unsigned char flags);
 void duDebugDrawNavMeshNodes(struct duDebugDraw* dd, const dtNavMeshQuery& query);
