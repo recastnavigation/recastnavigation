@@ -142,7 +142,7 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 			if (flags & DU_DRAWNAVMESH_COLOR_TILES)
 				col = tileColor;
 			else
-				col = dd->polyToCol(p, 64);
+				col = duTransCol(dd->polyToCol(p), 64);
 		}
 		
 		for (int j = 0; j < pd->triCount; ++j)
@@ -178,7 +178,7 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 			if (query && query->isInClosedList(base | (dtPolyRef)i))
 				col = duRGBA(255,196,0,220);
 			else
-				col = duDarkenCol(dd->polyToCol(p, 220));
+				col = duDarkenCol(duTransCol(dd->polyToCol(p), 220));
 
 			const dtOffMeshConnection* con = &tile->offMeshCons[i - tile->header->offMeshBase];
 			const float* va = &tile->verts[p->verts[0]*3];
