@@ -445,7 +445,7 @@ void duDebugDrawNavMeshPoly(duDebugDraw* dd, const dtNavMesh& mesh, dtPolyRef re
 	
 	dd->depthMask(false);
 	
-	const unsigned int c = (col & 0x00ffffff) | (64 << 24);
+	const unsigned int c = duTransCol(col, 64);
 	const unsigned int ip = (unsigned int)(poly - tile->polys);
 
 	if (poly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
@@ -456,7 +456,7 @@ void duDebugDrawNavMeshPoly(duDebugDraw* dd, const dtNavMesh& mesh, dtPolyRef re
 
 		// Connection arc.
 		duAppendArc(dd, con->pos[0],con->pos[1],con->pos[2], con->pos[3],con->pos[4],con->pos[5], 0.25f,
-					(con->flags & 1) ? 0.6f : 0, 0.6f, c);
+					(con->flags & 1) ? 0.6f : 0.0f, 0.6f, c);
 		
 		dd->end();
 	}

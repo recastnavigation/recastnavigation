@@ -274,7 +274,7 @@ void NavMeshPruneTool::handleUpdate(const float /*dt*/)
 
 void NavMeshPruneTool::handleRender()
 {
-	DebugDrawGL dd;
+	duDebugDraw& dd = m_sample->getDebugDraw();
 
 	if (m_hitPosSet)
 	{

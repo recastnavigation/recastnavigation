@@ -142,7 +142,7 @@ void OffMeshConnectionTool::handleUpdate(const float /*dt*/)
 
 void OffMeshConnectionTool::handleRender()
 {
-	DebugDrawGL dd;
+	duDebugDraw& dd = m_sample->getDebugDraw();
 	const float s = m_sample->getAgentRadius();
 	
 	if (m_hitPosSet)
