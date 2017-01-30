@@ -121,6 +121,7 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 	dtPolyRef base = mesh.getPolyRefBase(tile);
 
 	int tileNum = mesh.decodePolyIdTile(base);
+	const unsigned int tileColor = duIntToCol(tileNum, 128);
 	
 	dd->depthMask(false);
 
@@ -139,16 +140,9 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 		else
 		{
 			if (flags & DU_DRAWNAVMESH_COLOR_TILES)
-			{
-				col = duIntToCol(tileNum, 128);
-			}
+				col = tileColor;
 			else
-			{
-				if (p->getArea() == 0) // Treat zero area type as default.
-					col = duRGBA(0,192,255,64);
-				else
-					col = duIntToCol(p->getArea(), 64);
-			}
+				col = duTransCol(dd->polyToCol(p), 64);
 		}
 		
 		for (int j = 0; j < pd->triCount; ++j)
@@ -184,8 +178,8 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 			if (query && query->isInClosedList(base | (dtPolyRef)i))
 				col = duRGBA(255,196,0,220);
 			else
-				col = duDarkenCol(duIntToCol(p->getArea(), 220));
-			
+				col = duDarkenCol(duTransCol(dd->polyToCol(p), 220));
+
 			const dtOffMeshConnection* con = &tile->offMeshCons[i - tile->header->offMeshBase];
 			const float* va = &tile->verts[p->verts[0]*3];
 			const float* vb = &tile->verts[p->verts[1]*3];
