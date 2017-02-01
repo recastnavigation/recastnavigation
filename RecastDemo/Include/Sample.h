@@ -59,12 +59,10 @@ enum SamplePolyFlags
 	SAMPLE_POLYFLAGS_ALL		= 0xffff	// All abilities.
 };
 
-unsigned int sampleAreaToCol(unsigned int area);
-
 class SampleDebugDraw : public DebugDrawGL
 {
 public:
-	virtual unsigned int polyToCol(const struct dtPoly* poly);
+	virtual unsigned int areaToCol(unsigned int area);
 };
 
 enum SamplePartitionType

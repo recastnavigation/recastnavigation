@@ -35,7 +35,7 @@
 #	define snprintf _snprintf
 #endif
 
-unsigned int sampleAreaToCol(unsigned int area)
+unsigned int SampleDebugDraw::areaToCol(unsigned int area)
 {
 	switch(area)
 	{
@@ -54,11 +54,6 @@ unsigned int sampleAreaToCol(unsigned int area)
 	// Unexpected : red
 	default: return duRGBA(255, 0, 0, 255);
 	}
-}
-
-unsigned int SampleDebugDraw::polyToCol(const struct dtPoly* poly)
-{
-	return sampleAreaToCol(poly->getArea());
 }
 
 Sample::Sample() :
