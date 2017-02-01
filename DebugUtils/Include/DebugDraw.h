@@ -67,10 +67,8 @@ struct duDebugDraw
 	/// End drawing primitives.
 	virtual void end() = 0;
 
-	/// Compute a color for given polygon.
-	/// @param poly [in] the polygon to compute color for.
-	/// @return The color value.
-	virtual unsigned int polyToCol(const struct dtPoly* poly);
+	/// Compute a color for given area.
+	virtual unsigned int areaToCol(unsigned int area);
 };
 
 inline unsigned int duRGBA(int r, int g, int b, int a)
