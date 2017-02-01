@@ -28,16 +28,16 @@ duDebugDraw::~duDebugDraw()
 	// Empty
 }
 
-unsigned int duDebugDraw::polyToCol(const struct dtPoly* poly)
+unsigned int duDebugDraw::areaToCol(unsigned int area)
 {
-	if (poly->getArea() == 0)
+	if (area == 0)
 	{
 		// Treat zero area type as default.
 		return duRGBA(0, 192, 255, 255);
 	}
 	else
 	{
-		return duIntToCol(poly->getArea(), 255);
+		return duIntToCol(area, 255);
 	}
 }
 
