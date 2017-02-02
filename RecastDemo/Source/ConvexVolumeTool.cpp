@@ -130,14 +130,18 @@ void ConvexVolumeTool::handleMenu()
 
 	imguiLabel("Area Type");
 	imguiIndent();
-	if (imguiCheck("Grass", m_areaType == SAMPLE_POLYAREA_GRASS))
-		m_areaType = SAMPLE_POLYAREA_GRASS;
-	if (imguiCheck("Road", m_areaType == SAMPLE_POLYAREA_ROAD))
-		m_areaType = SAMPLE_POLYAREA_ROAD;
+	if (imguiCheck("Ground", m_areaType == SAMPLE_POLYAREA_GROUND))
+		m_areaType = SAMPLE_POLYAREA_GROUND;
 	if (imguiCheck("Water", m_areaType == SAMPLE_POLYAREA_WATER))
 		m_areaType = SAMPLE_POLYAREA_WATER;
+	if (imguiCheck("Road", m_areaType == SAMPLE_POLYAREA_ROAD))
+		m_areaType = SAMPLE_POLYAREA_ROAD;
 	if (imguiCheck("Door", m_areaType == SAMPLE_POLYAREA_DOOR))
 		m_areaType = SAMPLE_POLYAREA_DOOR;
+	if (imguiCheck("Grass", m_areaType == SAMPLE_POLYAREA_GRASS))
+		m_areaType = SAMPLE_POLYAREA_GRASS;
+	if (imguiCheck("Jump", m_areaType == SAMPLE_POLYAREA_JUMP))
+		m_areaType = SAMPLE_POLYAREA_JUMP;
 	imguiUnindent();
 
 	imguiSeparator();
@@ -242,7 +246,7 @@ void ConvexVolumeTool::handleUpdate(const float /*dt*/)
 
 void ConvexVolumeTool::handleRender()
 {
-	DebugDrawGL dd;
+	duDebugDraw& dd = m_sample->getDebugDraw();
 	
 	// Find height extents of the shape.
 	float minh = FLT_MAX, maxh = 0;
