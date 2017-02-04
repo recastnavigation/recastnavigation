@@ -62,6 +62,9 @@ protected:
 	DrawMode m_drawMode;
 	
 	void cleanup();
+
+	void saveAll(const char* path, const dtNavMesh* mesh);
+	dtNavMesh* loadAll(const char* path);
 		
 public:
 	Sample_SoloMesh();
