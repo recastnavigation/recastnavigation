@@ -71,6 +71,56 @@ void rcContext::log(const rcLogCategory category, const char* format, ...)
 	doLog(category, msg, len);
 }
 
+rcAreaModification::rcAreaModification() :
+	m_value(RC_WALKABLE_AREA),
+	m_mask(RC_WALKABLE_AREA)
+{
+}
+
+rcAreaModification::rcAreaModification(unsigned char value) :
+	m_value(value),
+	m_mask(RC_WALKABLE_AREA)
+{
+}
+
+rcAreaModification::rcAreaModification(unsigned char value, unsigned char mask) :
+	m_value(value),
+	m_mask(mask)
+{
+}
+
+rcAreaModification::rcAreaModification(const rcAreaModification& other) :
+	m_value(other.m_value),
+	m_mask(other.m_mask)
+{
+}
+
+void rcAreaModification::operator = (const rcAreaModification& other)
+{
+	m_value = other.m_value;
+	m_mask = other.m_mask;
+}
+
+bool rcAreaModification::operator == (const rcAreaModification& other) const
+{
+	return ((m_value == other.m_value) && (m_mask == other.m_mask));
+}
+
+bool rcAreaModification::operator != (const rcAreaModification& other) const
+{
+	return ((m_value == other.m_value) && (m_mask == other.m_mask));
+}
+
+void rcAreaModification::apply(unsigned char& area) const
+{
+	area = ((m_value & m_mask) | (area & ~m_mask));
+}
+
+unsigned char rcAreaModification::getMaskedValue() const
+{
+	return (m_value & m_mask);
+}
+
 rcHeightfield* rcAllocHeightfield()
 {
 	return new (rcAlloc(sizeof(rcHeightfield), RC_ALLOC_PERM)) rcHeightfield;
@@ -263,7 +313,8 @@ static void calcTriNormal(const float* v0, const float* v1, const float* v2, flo
 void rcMarkWalkableTriangles(rcContext* ctx, const float walkableSlopeAngle,
 							 const float* verts, int nv,
 							 const int* tris, int nt,
-							 unsigned char* areas)
+							 unsigned char* areas,
+							 rcAreaModification areaMod)
 {
 	rcIgnoreUnused(ctx);
 	rcIgnoreUnused(nv);
@@ -278,7 +329,7 @@ void rcMarkWalkableTriangles(rcContext* ctx, const float walkableSlopeAngle,
 		calcTriNormal(&verts[tri[0]*3], &verts[tri[1]*3], &verts[tri[2]*3], norm);
 		// Check if the face is walkable.
 		if (norm[1] > walkableThr)
-			areas[i] = RC_WALKABLE_AREA;
+			areaMod.apply(areas[i]);
 	}
 }
 
@@ -293,7 +344,8 @@ void rcMarkWalkableTriangles(rcContext* ctx, const float walkableSlopeAngle,
 void rcClearUnwalkableTriangles(rcContext* ctx, const float walkableSlopeAngle,
 								const float* verts, int /*nv*/,
 								const int* tris, int nt,
-								unsigned char* areas)
+								unsigned char* areas,
+								rcAreaModification areaMod)
 {
 	rcIgnoreUnused(ctx);
 	
@@ -307,7 +359,7 @@ void rcClearUnwalkableTriangles(rcContext* ctx, const float walkableSlopeAngle,
 		calcTriNormal(&verts[tri[0]*3], &verts[tri[1]*3], &verts[tri[2]*3], norm);
 		// Check if the face is walkable.
 		if (norm[1] <= walkableThr)
-			areas[i] = RC_NULL_AREA;
+			areaMod.apply(areas[i]);
 	}
 }
 

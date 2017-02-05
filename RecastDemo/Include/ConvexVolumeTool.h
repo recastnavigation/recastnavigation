@@ -26,7 +26,7 @@
 class ConvexVolumeTool : public SampleTool
 {
 	Sample* m_sample;
-	int m_areaType;
+	rcAreaModification m_areaMod;
 	float m_polyOffset;
 	float m_boxHeight;
 	float m_boxDescent;

@@ -37,23 +37,37 @@
 
 unsigned int SampleDebugDraw::areaToCol(unsigned int area)
 {
-	switch(area)
+	unsigned int col;
+
+	unsigned char ceil = (area & SAMPLE_POLYAREA_CEIL_MASK);
+	switch(ceil)
 	{
-	// Ground (0) : brown
-	case SAMPLE_POLYAREA_GROUND: return duRGBA(125, 125, 0, 255);
+	// No ceil, white
+	case 0: col = duRGBA(255, 255, 255, 255); break;
+	// Ground : light blue
+	case SAMPLE_POLYAREA_GROUND: col = duRGBA(0, 192, 255, 255); break;
 	// Water : blue
-	case SAMPLE_POLYAREA_WATER: return duRGBA(0, 0, 255, 255);
-	// Road : dark grey
-	case SAMPLE_POLYAREA_ROAD: return duRGBA(80, 80, 80, 255);
-	// Door : cyan
-	case SAMPLE_POLYAREA_DOOR: return duRGBA(0, 255, 255, 255);
+	case SAMPLE_POLYAREA_WATER: col = duRGBA(0, 0, 255, 255); break;
+	// Road : brown
+	case SAMPLE_POLYAREA_ROAD: col = duRGBA(50, 20, 12, 255); break;
 	// Grass : green
-	case SAMPLE_POLYAREA_GRASS: return duRGBA(0, 255, 0, 255);
-	// Jump : yellow
-	case SAMPLE_POLYAREA_JUMP: return duRGBA(255, 255, 0, 255);
-	// Unexpected : red
-	default: return duRGBA(255, 0, 0, 255);
+	case SAMPLE_POLYAREA_GRASS: col = duRGBA(0, 255, 0, 255); break;
+	// Unexpected ceil : red
+	default: col = duRGBA(255, 0, 0, 255); break;
 	}
+
+	if(area & SAMPLE_POLYAREA_DOOR)
+	{
+		// Door : cyan
+		col = duLerpCol(col, duRGBA(0, 255, 255, 255), 127);
+	}
+	if(area & SAMPLE_POLYAREA_JUMP)
+	{
+		// Jump : yellow
+		col = duLerpCol(col, duRGBA(255, 255, 0, 255), 127);
+	}
+
+	return col;
 }
 
 Sample::Sample() :

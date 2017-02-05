@@ -393,7 +393,7 @@ int Sample_TempObstacles::rasterizeTileLayers(
 	{
 		rcMarkConvexPolyArea(m_ctx, vols[i].verts, vols[i].nverts,
 							 vols[i].hmin, vols[i].hmax,
-							 (unsigned char)vols[i].area, *rc.chf);
+							 vols[i].areaMod, *rc.chf);
 	}
 	
 	rc.lset = rcAllocHeightfieldLayerSet();

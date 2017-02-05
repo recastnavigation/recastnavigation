@@ -441,6 +441,30 @@ struct rcPolyMeshDetail
 	int ntris;				///< The number of triangles in #tris.
 };
 
+/// @ingroup recast
+class rcAreaModification
+{
+public:
+	/// Value is set to #RC_WALKABLE_AREA, i.e. all available bits
+	/// Mask is set to #RC_WALKABLE_AREA, i.e. all available bits, which means value is fully applied
+	rcAreaModification();
+	/// Mask is set to all available bits, which means value is fully applied
+	///  @param[in] value	The area id to apply. [Limit: <= #RC_WALKABLE_AREA]
+	rcAreaModification(unsigned char value);
+	///  @param[in] value	The area id to apply. [Limit: <= #RC_WALKABLE_AREA]
+	///  @param[in] mask	Bitwise mask used when applying value. [Limit: <= #RC_WALKABLE_AREA]
+	rcAreaModification(unsigned char value, unsigned char mask);
+	rcAreaModification(const rcAreaModification& other);
+	void operator = (const rcAreaModification& other);
+	bool operator == (const rcAreaModification& other) const;
+	bool operator != (const rcAreaModification& other) const;
+	void apply(unsigned char& area) const;
+	unsigned char getMaskedValue() const;
+
+	unsigned char m_value;	///< Value to apply to target area id
+	unsigned char m_mask;	///< Bitwise mask used when applying value to target area id
+};
+
 /// @name Allocation Functions
 /// Functions used to allocate and de-allocate Recast objects.
 /// @see rcAllocSetCustom
@@ -790,8 +814,7 @@ bool rcCreateHeightfield(rcContext* ctx, rcHeightfield& hf, int width, int heigh
 						 const float* bmin, const float* bmax,
 						 float cs, float ch);
 
-/// Sets the area id of all triangles with a slope below the specified value
-/// to #RC_WALKABLE_AREA.
+/// Modifies the area id of all triangles with a slope below the specified value.
 ///  @ingroup recast
 ///  @param[in,out]	ctx					The build context to use during the operation.
 ///  @param[in]		walkableSlopeAngle	The maximum slope that is considered walkable.
@@ -801,10 +824,11 @@ bool rcCreateHeightfield(rcContext* ctx, rcHeightfield& hf, int width, int heigh
 ///  @param[in]		tris				The triangle vertex indices. [(vertA, vertB, vertC) * @p nt]
 ///  @param[in]		nt					The number of triangles.
 ///  @param[out]	areas				The triangle area ids. [Length: >= @p nt]
+///  @param[in]		areaMod				The area modification to apply.
 void rcMarkWalkableTriangles(rcContext* ctx, const float walkableSlopeAngle, const float* verts, int nv,
-							 const int* tris, int nt, unsigned char* areas); 
+							 const int* tris, int nt, unsigned char* areas, rcAreaModification areaMod = rcAreaModification(RC_WALKABLE_AREA)); 
 
-/// Sets the area id of all triangles with a slope greater than or equal to the specified value to #RC_NULL_AREA.
+/// Modifies the area id of all triangles with a slope greater than or equal to the specified value.
 ///  @ingroup recast
 ///  @param[in,out]	ctx					The build context to use during the operation.
 ///  @param[in]		walkableSlopeAngle	The maximum slope that is considered walkable.
@@ -814,8 +838,9 @@ void rcMarkWalkableTriangles(rcContext* ctx, const float walkableSlopeAngle, con
 ///  @param[in]		tris				The triangle vertex indices. [(vertA, vertB, vertC) * @p nt]
 ///  @param[in]		nt					The number of triangles.
 ///  @param[out]	areas				The triangle area ids. [Length: >= @p nt]
+///  @param[in]		areaMod				The area modification to apply.
 void rcClearUnwalkableTriangles(rcContext* ctx, const float walkableSlopeAngle, const float* verts, int nv,
-								const int* tris, int nt, unsigned char* areas); 
+								const int* tris, int nt, unsigned char* areas, rcAreaModification areaMod = rcAreaModification(RC_NULL_AREA)); 
 
 /// Adds a span to the specified heightfield.
 ///  @ingroup recast
@@ -966,9 +991,9 @@ bool rcMedianFilterWalkableArea(rcContext* ctx, rcCompactHeightfield& chf);
 ///  @param[in,out]	ctx		The build context to use during the operation.
 ///  @param[in]		bmin	The minimum of the bounding box. [(x, y, z)]
 ///  @param[in]		bmax	The maximum of the bounding box. [(x, y, z)]
-///  @param[in]		areaId	The area id to apply. [Limit: <= #RC_WALKABLE_AREA]
+///  @param[in]		areaMod	The area modification to apply.
 ///  @param[in,out]	chf		A populated compact heightfield.
-void rcMarkBoxArea(rcContext* ctx, const float* bmin, const float* bmax, unsigned char areaId,
+void rcMarkBoxArea(rcContext* ctx, const float* bmin, const float* bmax, rcAreaModification areaMod,
 				   rcCompactHeightfield& chf);
 
 /// Applies the area id to the all spans within the specified convex polygon. 
@@ -978,10 +1003,10 @@ void rcMarkBoxArea(rcContext* ctx, const float* bmin, const float* bmax, unsigne
 ///  @param[in]		nverts	The number of vertices in the polygon.
 ///  @param[in]		hmin	The height of the base of the polygon.
 ///  @param[in]		hmax	The height of the top of the polygon.
-///  @param[in]		areaId	The area id to apply. [Limit: <= #RC_WALKABLE_AREA]
+///  @param[in]		areaMod	The area modification to apply.
 ///  @param[in,out]	chf		A populated compact heightfield.
 void rcMarkConvexPolyArea(rcContext* ctx, const float* verts, const int nverts,
-						  const float hmin, const float hmax, unsigned char areaId,
+						  const float hmin, const float hmax, rcAreaModification areaMod,
 						  rcCompactHeightfield& chf);
 
 /// Helper function to offset voncex polygons for rcMarkConvexPolyArea.
@@ -1000,10 +1025,10 @@ int rcOffsetPoly(const float* verts, const int nverts, const float offset,
 ///  @param[in]		pos		The center of the base of the cylinder. [Form: (x, y, z)] 
 ///  @param[in]		r		The radius of the cylinder.
 ///  @param[in]		h		The height of the cylinder.
-///  @param[in]		areaId	The area id to apply. [Limit: <= #RC_WALKABLE_AREA]
+///  @param[in]		areaMod	The area modification to apply.
 ///  @param[in,out]	chf	A populated compact heightfield.
 void rcMarkCylinderArea(rcContext* ctx, const float* pos,
-						const float r, const float h, unsigned char areaId,
+						const float r, const float h, rcAreaModification areaMod,
 						rcCompactHeightfield& chf);
 
 /// Builds the distance field for the specified compact heightfield. 
