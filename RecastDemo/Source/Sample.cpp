@@ -42,7 +42,6 @@ unsigned int SampleDebugDraw::areaToCol(unsigned int area)
 	unsigned char ceil = (area & SAMPLE_POLYAREA_CEIL_MASK);
 	switch(ceil)
 	{
-<<<<<<< HEAD
 	// No ceil, white
 	case 0: col = duRGBA(255, 255, 255, 255); break;
 	// Ground : light blue
@@ -51,16 +50,6 @@ unsigned int SampleDebugDraw::areaToCol(unsigned int area)
 	case SAMPLE_POLYAREA_WATER: col = duRGBA(0, 0, 255, 255); break;
 	// Road : brown
 	case SAMPLE_POLYAREA_ROAD: col = duRGBA(50, 20, 12, 255); break;
-=======
-	// Ground (0) : light blue
-	case SAMPLE_POLYAREA_GROUND: return duRGBA(0, 192, 255, 255);
-	// Water : blue
-	case SAMPLE_POLYAREA_WATER: return duRGBA(0, 0, 255, 255);
-	// Road : brown
-	case SAMPLE_POLYAREA_ROAD: return duRGBA(50, 20, 12, 255);
-	// Door : cyan
-	case SAMPLE_POLYAREA_DOOR: return duRGBA(0, 255, 255, 255);
->>>>>>> refs/remotes/recastnavigation/master
 	// Grass : green
 	case SAMPLE_POLYAREA_GRASS: col = duRGBA(0, 255, 0, 255); break;
 	// Unexpected ceil : red
