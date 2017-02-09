@@ -267,15 +267,17 @@ public:
 	///  @param[in]		radius			The radius of the search circle.
 	///  @param[in]		filter			The polygon filter to apply to the query.
 	///  @param[out]	resultRef		The reference ids of the polygons touched by the circle. [opt]
-	///  @param[out]	resultParent	The reference ids of the parent polygons for each result. 
-	///  								Zero if a result polygon has no parent. [opt]
+	///  @param[out]	resultParent	The indices into resultRef of the parent polygons for each result. [opt]
+	///  								-1 if a result polygon has no parent (i.e. for resultRef[0]).
+	///  								If resultRef[i] is a polygon, then resultRef[resultParent[i]] is the
+	///  								reference id of the parent polygon.
 	///  @param[out]	resultCost		The search cost from @p centerPos to the polygon. [opt]
 	///  @param[out]	resultCount		The number of polygons found. [opt]
 	///  @param[in]		maxResult		The maximum number of polygons the result arrays can hold.
 	/// @returns The status flags for the query.
 	dtStatus findPolysAroundCircle(dtPolyRef startRef, const float* centerPos, const float radius,
 								   const dtQueryFilter* filter,
-								   dtPolyRef* resultRef, dtPolyRef* resultParent, float* resultCost,
+								   dtPolyRef* resultRef, int* resultParent, float* resultCost,
 								   int* resultCount, const int maxResult) const;
 	
 	/// Finds the polygons along the naviation graph that touch the specified convex polygon.
@@ -285,15 +287,17 @@ public:
 	///  @param[in]		nverts			The number of vertices in the polygon.
 	///  @param[in]		filter			The polygon filter to apply to the query.
 	///  @param[out]	resultRef		The reference ids of the polygons touched by the search polygon. [opt]
-	///  @param[out]	resultParent	The reference ids of the parent polygons for each result. Zero if a 
-	///  								result polygon has no parent. [opt]
+	///  @param[out]	resultParent	The indices into resultRef of the parent polygons for each result. [opt]
+	///  								-1 if a result polygon has no parent (i.e. for resultRef[0]).
+	///  								If resultRef[i] is a polygon, then resultRef[resultParent[i]] is the
+	///  								reference id of the parent polygon.
 	///  @param[out]	resultCost		The search cost from the centroid point to the polygon. [opt]
 	///  @param[out]	resultCount		The number of polygons found.
 	///  @param[in]		maxResult		The maximum number of polygons the result arrays can hold.
 	/// @returns The status flags for the query.
 	dtStatus findPolysAroundShape(dtPolyRef startRef, const float* verts, const int nverts,
 								  const dtQueryFilter* filter,
-								  dtPolyRef* resultRef, dtPolyRef* resultParent, float* resultCost,
+								  dtPolyRef* resultRef, int* resultParent, float* resultCost,
 								  int* resultCount, const int maxResult) const;
 	
 	/// Gets a path from the explored nodes in the previous search.
@@ -351,14 +355,16 @@ public:
 	///  @param[in]		radius			The radius of the query circle.
 	///  @param[in]		filter			The polygon filter to apply to the query.
 	///  @param[out]	resultRef		The reference ids of the polygons touched by the circle.
-	///  @param[out]	resultParent	The reference ids of the parent polygons for each result. 
-	///  								Zero if a result polygon has no parent. [opt]
+	///  @param[out]	resultParent	The indices into resultRef of the parent polygons for each result. [opt]
+	///  								-1 if a result polygon has no parent (i.e. for resultRef[0]).
+	///  								If resultRef[i] is a polygon, then resultRef[resultParent[i]] is the
+	///  								reference id of the parent polygon.
 	///  @param[out]	resultCount		The number of polygons found.
 	///  @param[in]		maxResult		The maximum number of polygons the result arrays can hold.
 	/// @returns The status flags for the query.
 	dtStatus findLocalNeighbourhood(dtPolyRef startRef, const float* centerPos, const float radius,
 									const dtQueryFilter* filter,
-									dtPolyRef* resultRef, dtPolyRef* resultParent,
+									dtPolyRef* resultRef, int* resultParent,
 									int* resultCount, const int maxResult) const;
 
 	/// Moves from the start to the end position constrained to the navigation mesh.
