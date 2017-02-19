@@ -840,7 +840,7 @@ void rcMarkWalkableTriangles(rcContext* ctx, const float walkableSlopeAngle, con
 ///  @param[out]	areas				The triangle area ids. [Length: >= @p nt]
 ///  @param[in]		areaMod				The area modification to apply.
 void rcClearUnwalkableTriangles(rcContext* ctx, const float walkableSlopeAngle, const float* verts, int nv,
-								const int* tris, int nt, unsigned char* areas, rcAreaModification areaMod = rcAreaModification(RC_NULL_AREA)); 
+								const int* tris, int nt, unsigned char* areas); 
 
 /// Adds a span to the specified heightfield.
 ///  @ingroup recast

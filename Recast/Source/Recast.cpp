@@ -344,8 +344,7 @@ void rcMarkWalkableTriangles(rcContext* ctx, const float walkableSlopeAngle,
 void rcClearUnwalkableTriangles(rcContext* ctx, const float walkableSlopeAngle,
 								const float* verts, int /*nv*/,
 								const int* tris, int nt,
-								unsigned char* areas,
-								rcAreaModification areaMod)
+								unsigned char* areas)
 {
 	rcIgnoreUnused(ctx);
 	
@@ -359,7 +358,7 @@ void rcClearUnwalkableTriangles(rcContext* ctx, const float walkableSlopeAngle,
 		calcTriNormal(&verts[tri[0]*3], &verts[tri[1]*3], &verts[tri[2]*3], norm);
 		// Check if the face is walkable.
 		if (norm[1] <= walkableThr)
-			areaMod.apply(areas[i]);
+			areas[i] = RC_WALKABLE_AREA;
 	}
 }
 

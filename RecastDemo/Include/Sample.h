@@ -38,32 +38,21 @@ enum SampleToolType
 	MAX_TOOLS
 };
 
-/// These are just sample areas to use consistent values across the samples.
-/// The use should specify these base on his needs.
-// enum SamplePolyAreas
-// {
-// 	SAMPLE_POLYAREA_GROUND,
-// 	SAMPLE_POLYAREA_WATER,
-// 	SAMPLE_POLYAREA_ROAD,
-// 	SAMPLE_POLYAREA_GRASS,
-// 	SAMPLE_POLYAREA_DOOR,
-// 	SAMPLE_POLYAREA_JUMP,
-// };
 /// Mask of the ceil part of the area id (3 lower bits)
 /// the 0 value (RC_NULL_AREA) is left unused
-static const unsigned char SAMPLE_POLYAREA_CEIL_MASK = 0x07;
+static const unsigned char SAMPLE_POLYAREA_TYPE_MASK = 0x07;
 /// Value for the kind of ceil "ground"
-static const unsigned char SAMPLE_POLYAREA_GROUND = 0x1;
+static const unsigned char SAMPLE_POLYAREA_TYPE_GROUND = 0x1;
 /// Value for the kind of ceil "water"
-static const unsigned char SAMPLE_POLYAREA_WATER = 0x2;
+static const unsigned char SAMPLE_POLYAREA_TYPE_WATER = 0x2;
 /// Value for the kind of ceil "road"
-static const unsigned char SAMPLE_POLYAREA_ROAD = 0x3;
+static const unsigned char SAMPLE_POLYAREA_TYPE_ROAD = 0x3;
 /// Value for the kind of ceil "grass"
-static const unsigned char SAMPLE_POLYAREA_GRASS = 0x4;
-/// Flag for door area. Can be combined with ceil and jump.
-static const unsigned char SAMPLE_POLYAREA_DOOR = 0x08;
-/// Flag for jump area. Can be combined with ceil and jump.
-static const unsigned char SAMPLE_POLYAREA_JUMP = 0x10;
+static const unsigned char SAMPLE_POLYAREA_TYPE_GRASS = 0x4;
+/// Flag for door area. Can be combined with area types and jump flag.
+static const unsigned char SAMPLE_POLYAREA_FLAG_DOOR = 0x08;
+/// Flag for jump area. Can be combined with area types and door flag.
+static const unsigned char SAMPLE_POLYAREA_FLAG_JUMP = 0x10;
 
 enum SamplePolyFlags
 {
@@ -74,6 +63,8 @@ enum SamplePolyFlags
 	SAMPLE_POLYFLAGS_DISABLED	= 0x10,		// Disabled polygon
 	SAMPLE_POLYFLAGS_ALL		= 0xffff	// All abilities.
 };
+
+unsigned short sampleAreaToFlags(unsigned char area);
 
 class SampleDebugDraw : public DebugDrawGL
 {

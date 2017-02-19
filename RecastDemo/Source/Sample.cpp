@@ -35,33 +35,47 @@
 #	define snprintf _snprintf
 #endif
 
+unsigned short sampleAreaToFlags(unsigned char area)
+{
+	unsigned char areaType = area & SAMPLE_POLYAREA_TYPE_MASK;
+	unsigned short flags = ((areaType == SAMPLE_POLYAREA_TYPE_WATER) ? SAMPLE_POLYFLAGS_SWIM : SAMPLE_POLYFLAGS_WALK);
+	if((areaType & SAMPLE_POLYAREA_FLAG_DOOR) != 0)
+	{
+		flags |= SAMPLE_POLYFLAGS_DOOR;
+	}
+	if((areaType & SAMPLE_POLYAREA_FLAG_JUMP) != 0)
+	{
+		flags |= SAMPLE_POLYFLAGS_JUMP;
+	}
+	return flags;
+}
+
+
 unsigned int SampleDebugDraw::areaToCol(unsigned int area)
 {
 	unsigned int col;
 
-	unsigned char ceil = (area & SAMPLE_POLYAREA_CEIL_MASK);
+	unsigned char ceil = (area & SAMPLE_POLYAREA_TYPE_MASK);
 	switch(ceil)
 	{
-	// No ceil, white
-	case 0: col = duRGBA(255, 255, 255, 255); break;
 	// Ground : light blue
-	case SAMPLE_POLYAREA_GROUND: col = duRGBA(0, 192, 255, 255); break;
+	case SAMPLE_POLYAREA_TYPE_GROUND: col = duRGBA(0, 192, 255, 255); break;
 	// Water : blue
-	case SAMPLE_POLYAREA_WATER: col = duRGBA(0, 0, 255, 255); break;
+	case SAMPLE_POLYAREA_TYPE_WATER: col = duRGBA(0, 0, 255, 255); break;
 	// Road : brown
-	case SAMPLE_POLYAREA_ROAD: col = duRGBA(50, 20, 12, 255); break;
+	case SAMPLE_POLYAREA_TYPE_ROAD: col = duRGBA(50, 20, 12, 255); break;
 	// Grass : green
-	case SAMPLE_POLYAREA_GRASS: col = duRGBA(0, 255, 0, 255); break;
+	case SAMPLE_POLYAREA_TYPE_GRASS: col = duRGBA(0, 255, 0, 255); break;
 	// Unexpected ceil : red
 	default: col = duRGBA(255, 0, 0, 255); break;
 	}
 
-	if(area & SAMPLE_POLYAREA_DOOR)
+	if(area & SAMPLE_POLYAREA_FLAG_DOOR)
 	{
 		// Door : cyan
 		col = duLerpCol(col, duRGBA(0, 255, 255, 255), 127);
 	}
-	if(area & SAMPLE_POLYAREA_JUMP)
+	if(area & SAMPLE_POLYAREA_FLAG_JUMP)
 	{
 		// Jump : yellow
 		col = duLerpCol(col, duRGBA(255, 255, 0, 255), 127);
