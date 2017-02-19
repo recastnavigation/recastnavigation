@@ -37,8 +37,8 @@
 
 unsigned short sampleAreaToFlags(unsigned char area)
 {
-	unsigned char areaType = area & SAMPLE_POLYAREA_TYPE_MASK;
-	unsigned short flags = unsigned short((areaType == SAMPLE_POLYAREA_TYPE_WATER) ? SAMPLE_POLYFLAGS_SWIM : SAMPLE_POLYFLAGS_WALK);
+	unsigned char areaType = (area & SAMPLE_POLYAREA_TYPE_MASK);
+	unsigned short flags = (unsigned short)((areaType == SAMPLE_POLYAREA_TYPE_WATER) ? SAMPLE_POLYFLAGS_SWIM : SAMPLE_POLYFLAGS_WALK);
 	if((areaType & SAMPLE_POLYAREA_FLAG_DOOR) != 0)
 	{
 		flags |= SAMPLE_POLYFLAGS_DOOR;
