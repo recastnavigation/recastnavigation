@@ -71,22 +71,19 @@ void rcContext::log(const rcLogCategory category, const char* format, ...)
 	doLog(category, msg, len);
 }
 
-rcAreaModification::rcAreaModification() :
-	m_value(RC_WALKABLE_AREA),
-	m_mask(RC_WALKABLE_AREA)
-{
-}
-
 rcAreaModification::rcAreaModification(unsigned char value) :
 	m_value(value),
-	m_mask(RC_WALKABLE_AREA)
+	m_mask(RC_AREA_FLAGS_MASK)
 {
+	rcAssert(value <= RC_AREA_FLAGS_MASK);
 }
 
 rcAreaModification::rcAreaModification(unsigned char value, unsigned char mask) :
 	m_value(value),
 	m_mask(mask)
 {
+	rcAssert(value <= RC_AREA_FLAGS_MASK);
+	rcAssert(mask <= RC_AREA_FLAGS_MASK);
 }
 
 rcAreaModification::rcAreaModification(const rcAreaModification& other) :

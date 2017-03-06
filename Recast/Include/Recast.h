@@ -441,18 +441,17 @@ struct rcPolyMeshDetail
 	int ntris;				///< The number of triangles in #tris.
 };
 
+static const unsigned char RC_AREA_FLAGS_MASK = 0xFF;
+
 /// @ingroup recast
 class rcAreaModification
 {
 public:
-	/// Value is set to #RC_WALKABLE_AREA, i.e. all available bits
-	/// Mask is set to #RC_WALKABLE_AREA, i.e. all available bits, which means value is fully applied
-	rcAreaModification();
 	/// Mask is set to all available bits, which means value is fully applied
-	///  @param[in] value	The area id to apply. [Limit: <= #RC_WALKABLE_AREA]
+	///  @param[in] value	The area id to apply. [Limit: <= #RC_AREA_FLAGS_MASK]
 	rcAreaModification(unsigned char value);
-	///  @param[in] value	The area id to apply. [Limit: <= #RC_WALKABLE_AREA]
-	///  @param[in] mask	Bitwise mask used when applying value. [Limit: <= #RC_WALKABLE_AREA]
+	///  @param[in] value	The area id to apply. [Limit: <= #RC_AREA_FLAGS_MASK]
+	///  @param[in] mask	Bitwise mask used when applying value. [Limit: <= #RC_AREA_FLAGS_MASK]
 	rcAreaModification(unsigned char value, unsigned char mask);
 	rcAreaModification(const rcAreaModification& other);
 	void operator = (const rcAreaModification& other);
@@ -826,7 +825,7 @@ bool rcCreateHeightfield(rcContext* ctx, rcHeightfield& hf, int width, int heigh
 ///  @param[out]	areas				The triangle area ids. [Length: >= @p nt]
 ///  @param[in]		areaMod				The area modification to apply.
 void rcMarkWalkableTriangles(rcContext* ctx, const float walkableSlopeAngle, const float* verts, int nv,
-							 const int* tris, int nt, unsigned char* areas, rcAreaModification areaMod = rcAreaModification(RC_WALKABLE_AREA)); 
+							 const int* tris, int nt, unsigned char* areas, rcAreaModification areaMod); 
 
 /// Modifies the area id of all triangles with a slope greater than or equal to the specified value.
 ///  @ingroup recast

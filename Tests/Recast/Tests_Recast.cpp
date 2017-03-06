@@ -448,27 +448,27 @@ TEST_CASE("rcMarkWalkableTriangles")
 
 	SECTION("One walkable triangle")
 	{
-		rcMarkWalkableTriangles(ctx, walkableSlopeAngle, verts, nv, walkable_tri, nt, areas);
+		rcMarkWalkableTriangles(ctx, walkableSlopeAngle, verts, nv, walkable_tri, nt, areas, rcAreaModification(RC_WALKABLE_AREA));
 		REQUIRE(areas[0] == RC_WALKABLE_AREA);
 	}
 
 	SECTION("One non-walkable triangle")
 	{
-		rcMarkWalkableTriangles(ctx, walkableSlopeAngle, verts, nv, unwalkable_tri, nt, areas);
+		rcMarkWalkableTriangles(ctx, walkableSlopeAngle, verts, nv, unwalkable_tri, nt, areas, rcAreaModification(RC_WALKABLE_AREA));
 		REQUIRE(areas[0] == RC_NULL_AREA);
 	}
 
 	SECTION("Non-walkable triangle area id's are not modified")
 	{
 		areas[0] = 42;
-		rcMarkWalkableTriangles(ctx, walkableSlopeAngle, verts, nv, unwalkable_tri, nt, areas);
+		rcMarkWalkableTriangles(ctx, walkableSlopeAngle, verts, nv, unwalkable_tri, nt, areas, rcAreaModification(RC_WALKABLE_AREA));
 		REQUIRE(areas[0] == 42);
 	}
 
 	SECTION("Slopes equal to the max slope are considered unwalkable.")
 	{
 		walkableSlopeAngle = 0;
-		rcMarkWalkableTriangles(ctx, walkableSlopeAngle, verts, nv, walkable_tri, nt, areas);
+		rcMarkWalkableTriangles(ctx, walkableSlopeAngle, verts, nv, walkable_tri, nt, areas, rcAreaModification(RC_WALKABLE_AREA));
 		REQUIRE(areas[0] == RC_NULL_AREA);
 	}
 }

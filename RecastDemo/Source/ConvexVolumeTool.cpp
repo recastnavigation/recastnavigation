@@ -97,16 +97,16 @@ static int pointInPoly(int nvert, const float* verts, const float* p)
 	return c;
 }
 
-static rcAreaModification const SAMPLE_GROUND_AREAMOD(SAMPLE_POLYAREA_TYPE_GROUND, SAMPLE_POLYAREA_TYPE_MASK);
-static rcAreaModification const SAMPLE_WATER_AREAMOD(SAMPLE_POLYAREA_TYPE_WATER, SAMPLE_POLYAREA_TYPE_MASK);
-static rcAreaModification const SAMPLE_ROAD_AREAMOD(SAMPLE_POLYAREA_TYPE_ROAD, SAMPLE_POLYAREA_TYPE_MASK);
-static rcAreaModification const SAMPLE_GRASS_AREAMOD(SAMPLE_POLYAREA_TYPE_GRASS, SAMPLE_POLYAREA_TYPE_MASK);
-static rcAreaModification const SAMPLE_DOOR_AREAMOD(SAMPLE_POLYAREA_FLAG_DOOR, SAMPLE_POLYAREA_FLAG_DOOR);
-static rcAreaModification const SAMPLE_JUMP_AREAMOD(SAMPLE_POLYAREA_FLAG_JUMP, SAMPLE_POLYAREA_FLAG_JUMP);
+static rcAreaModification const SAMPLE_AREAMOD_GROUND(SAMPLE_POLYAREA_TYPE_GROUND, SAMPLE_POLYAREA_TYPE_MASK);
+static rcAreaModification const SAMPLE_AREAMOD_WATER(SAMPLE_POLYAREA_TYPE_WATER, SAMPLE_POLYAREA_TYPE_MASK);
+static rcAreaModification const SAMPLE_AREAMOD_ROAD(SAMPLE_POLYAREA_TYPE_ROAD, SAMPLE_POLYAREA_TYPE_MASK);
+static rcAreaModification const SAMPLE_AREAMOD_GRASS(SAMPLE_POLYAREA_TYPE_GRASS, SAMPLE_POLYAREA_TYPE_MASK);
+static rcAreaModification const SAMPLE_AREAMOD_DOOR(SAMPLE_POLYAREA_FLAG_DOOR, SAMPLE_POLYAREA_FLAG_DOOR);
+static rcAreaModification const SAMPLE_AREAMOD_JUMP(SAMPLE_POLYAREA_FLAG_JUMP, SAMPLE_POLYAREA_FLAG_JUMP);
 
 ConvexVolumeTool::ConvexVolumeTool() :
 	m_sample(0),
-	m_areaMod(SAMPLE_GRASS_AREAMOD),
+	m_areaMod(SAMPLE_AREAMOD_GRASS),
 	m_polyOffset(0.0f),
 	m_boxHeight(6.0f),
 	m_boxDescent(1.0f),
@@ -136,18 +136,18 @@ void ConvexVolumeTool::handleMenu()
 
 	imguiLabel("Area Type");
 	imguiIndent();
-	if (imguiCheck("Ground", m_areaMod == SAMPLE_GROUND_AREAMOD))
-		m_areaMod = SAMPLE_GROUND_AREAMOD;
-	if (imguiCheck("Water", m_areaMod == SAMPLE_WATER_AREAMOD))
-		m_areaMod = SAMPLE_WATER_AREAMOD;
-	if (imguiCheck("Road", m_areaMod == SAMPLE_ROAD_AREAMOD))
-		m_areaMod = SAMPLE_ROAD_AREAMOD;
-	if (imguiCheck("Grass", m_areaMod == SAMPLE_GRASS_AREAMOD))
-		m_areaMod = SAMPLE_GRASS_AREAMOD;
-	if (imguiCheck("Door", m_areaMod == SAMPLE_DOOR_AREAMOD))
-		m_areaMod = SAMPLE_DOOR_AREAMOD;
-	if (imguiCheck("Jump", m_areaMod == SAMPLE_JUMP_AREAMOD))
-		m_areaMod = SAMPLE_JUMP_AREAMOD;
+	if (imguiCheck("Ground", m_areaMod == SAMPLE_AREAMOD_GROUND))
+		m_areaMod = SAMPLE_AREAMOD_GROUND;
+	if (imguiCheck("Water", m_areaMod == SAMPLE_AREAMOD_WATER))
+		m_areaMod = SAMPLE_AREAMOD_WATER;
+	if (imguiCheck("Road", m_areaMod == SAMPLE_AREAMOD_ROAD))
+		m_areaMod = SAMPLE_AREAMOD_ROAD;
+	if (imguiCheck("Grass", m_areaMod == SAMPLE_AREAMOD_GRASS))
+		m_areaMod = SAMPLE_AREAMOD_GRASS;
+	if (imguiCheck("Door", m_areaMod == SAMPLE_AREAMOD_DOOR))
+		m_areaMod = SAMPLE_AREAMOD_DOOR;
+	if (imguiCheck("Jump", m_areaMod == SAMPLE_AREAMOD_JUMP))
+		m_areaMod = SAMPLE_AREAMOD_JUMP;
 	imguiUnindent();
 
 	imguiSeparator();
