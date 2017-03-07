@@ -75,15 +75,12 @@ rcAreaModification::rcAreaModification(unsigned char value) :
 	m_value(value),
 	m_mask(RC_AREA_FLAGS_MASK)
 {
-	rcAssert(value <= RC_AREA_FLAGS_MASK);
 }
 
 rcAreaModification::rcAreaModification(unsigned char value, unsigned char mask) :
 	m_value(value),
 	m_mask(mask)
 {
-	rcAssert(value <= RC_AREA_FLAGS_MASK);
-	rcAssert(mask <= RC_AREA_FLAGS_MASK);
 }
 
 rcAreaModification::rcAreaModification(const rcAreaModification& other) :
