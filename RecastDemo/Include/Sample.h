@@ -54,6 +54,8 @@ static const unsigned char SAMPLE_POLYAREA_FLAG_DOOR = 0x08;
 /// Flag for jump area. Can be combined with area types and door flag.
 static const unsigned char SAMPLE_POLYAREA_FLAG_JUMP = 0x10;
 
+extern rcAreaModification const SAMPLE_AREAMOD_GROUND;
+
 enum SamplePolyFlags
 {
 	SAMPLE_POLYFLAGS_WALK		= 0x01,		// Ability to walk (ground, grass, road)

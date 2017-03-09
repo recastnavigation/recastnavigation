@@ -441,7 +441,7 @@ struct rcPolyMeshDetail
 	int ntris;				///< The number of triangles in #tris.
 };
 
-static const unsigned char RC_AREA_FLAGS_MASK = 0xFF;
+static const unsigned char RC_AREA_FLAGS_MASK = 0x3F;
 
 /// @ingroup recast
 class rcAreaModification

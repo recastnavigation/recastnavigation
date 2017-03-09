@@ -1039,7 +1039,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 		
 		memset(m_triareas, 0, nctris*sizeof(unsigned char));
 		rcMarkWalkableTriangles(m_ctx, m_cfg.walkableSlopeAngle,
-								verts, nverts, ctris, nctris, m_triareas, rcAreaModification(SAMPLE_POLYAREA_TYPE_GROUND));
+								verts, nverts, ctris, nctris, m_triareas, SAMPLE_AREAMOD_GROUND);
 		
 		if (!rcRasterizeTriangles(m_ctx, verts, nverts, ctris, m_triareas, nctris, *m_solid, m_cfg.walkableClimb))
 			return 0;
