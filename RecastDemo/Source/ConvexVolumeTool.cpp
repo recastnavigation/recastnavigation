@@ -97,10 +97,16 @@ static int pointInPoly(int nvert, const float* verts, const float* p)
 	return c;
 }
 
+rcAreaModification const SAMPLE_AREAMOD_GROUND(SAMPLE_POLYAREA_TYPE_GROUND, SAMPLE_POLYAREA_TYPE_MASK);
+static rcAreaModification const SAMPLE_AREAMOD_WATER(SAMPLE_POLYAREA_TYPE_WATER, SAMPLE_POLYAREA_TYPE_MASK);
+static rcAreaModification const SAMPLE_AREAMOD_ROAD(SAMPLE_POLYAREA_TYPE_ROAD, SAMPLE_POLYAREA_TYPE_MASK);
+static rcAreaModification const SAMPLE_AREAMOD_GRASS(SAMPLE_POLYAREA_TYPE_GRASS, SAMPLE_POLYAREA_TYPE_MASK);
+static rcAreaModification const SAMPLE_AREAMOD_DOOR(SAMPLE_POLYAREA_FLAG_DOOR, SAMPLE_POLYAREA_FLAG_DOOR);
+static rcAreaModification const SAMPLE_AREAMOD_JUMP(SAMPLE_POLYAREA_FLAG_JUMP, SAMPLE_POLYAREA_FLAG_JUMP);
 
 ConvexVolumeTool::ConvexVolumeTool() :
 	m_sample(0),
-	m_areaType(SAMPLE_POLYAREA_GRASS),
+	m_areaMod(SAMPLE_AREAMOD_GRASS),
 	m_polyOffset(0.0f),
 	m_boxHeight(6.0f),
 	m_boxDescent(1.0f),
@@ -130,18 +136,18 @@ void ConvexVolumeTool::handleMenu()
 
 	imguiLabel("Area Type");
 	imguiIndent();
-	if (imguiCheck("Ground", m_areaType == SAMPLE_POLYAREA_GROUND))
-		m_areaType = SAMPLE_POLYAREA_GROUND;
-	if (imguiCheck("Water", m_areaType == SAMPLE_POLYAREA_WATER))
-		m_areaType = SAMPLE_POLYAREA_WATER;
-	if (imguiCheck("Road", m_areaType == SAMPLE_POLYAREA_ROAD))
-		m_areaType = SAMPLE_POLYAREA_ROAD;
-	if (imguiCheck("Door", m_areaType == SAMPLE_POLYAREA_DOOR))
-		m_areaType = SAMPLE_POLYAREA_DOOR;
-	if (imguiCheck("Grass", m_areaType == SAMPLE_POLYAREA_GRASS))
-		m_areaType = SAMPLE_POLYAREA_GRASS;
-	if (imguiCheck("Jump", m_areaType == SAMPLE_POLYAREA_JUMP))
-		m_areaType = SAMPLE_POLYAREA_JUMP;
+	if (imguiCheck("Ground", m_areaMod == SAMPLE_AREAMOD_GROUND))
+		m_areaMod = SAMPLE_AREAMOD_GROUND;
+	if (imguiCheck("Water", m_areaMod == SAMPLE_AREAMOD_WATER))
+		m_areaMod = SAMPLE_AREAMOD_WATER;
+	if (imguiCheck("Road", m_areaMod == SAMPLE_AREAMOD_ROAD))
+		m_areaMod = SAMPLE_AREAMOD_ROAD;
+	if (imguiCheck("Grass", m_areaMod == SAMPLE_AREAMOD_GRASS))
+		m_areaMod = SAMPLE_AREAMOD_GRASS;
+	if (imguiCheck("Door", m_areaMod == SAMPLE_AREAMOD_DOOR))
+		m_areaMod = SAMPLE_AREAMOD_DOOR;
+	if (imguiCheck("Jump", m_areaMod == SAMPLE_AREAMOD_JUMP))
+		m_areaMod = SAMPLE_AREAMOD_JUMP;
 	imguiUnindent();
 
 	imguiSeparator();
@@ -203,11 +209,11 @@ void ConvexVolumeTool::handleClick(const float* /*s*/, const float* p, bool shif
 					float offset[MAX_PTS*2*3];
 					int noffset = rcOffsetPoly(verts, m_nhull, m_polyOffset, offset, MAX_PTS*2);
 					if (noffset > 0)
-						geom->addConvexVolume(offset, noffset, minh, maxh, (unsigned char)m_areaType);
+						geom->addConvexVolume(offset, noffset, minh, maxh, m_areaMod);
 				}
 				else
 				{
-					geom->addConvexVolume(verts, m_nhull, minh, maxh, (unsigned char)m_areaType);
+					geom->addConvexVolume(verts, m_nhull, minh, maxh, m_areaMod);
 				}
 			}
 			

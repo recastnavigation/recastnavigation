@@ -21,14 +21,16 @@
 
 #include "ChunkyTriMesh.h"
 #include "MeshLoaderObj.h"
+#include "Recast.h"
 
 static const int MAX_CONVEXVOL_PTS = 12;
 struct ConvexVolume
 {
+	ConvexVolume(): areaMod(RC_AREA_FLAGS_MASK) {}
 	float verts[MAX_CONVEXVOL_PTS*3];
 	float hmin, hmax;
 	int nverts;
-	int area;
+	rcAreaModification areaMod;
 };
 
 struct BuildSettings
@@ -136,7 +138,7 @@ public:
 	int getConvexVolumeCount() const { return m_volumeCount; }
 	const ConvexVolume* getConvexVolumes() const { return m_volumes; }
 	void addConvexVolume(const float* verts, const int nverts,
-						 const float minh, const float maxh, unsigned char area);
+						 const float minh, const float maxh, rcAreaModification areaMod);
 	void deleteConvexVolume(int i);
 	void drawConvexVolumes(struct duDebugDraw* dd, bool hilight = false);
 	///@}
