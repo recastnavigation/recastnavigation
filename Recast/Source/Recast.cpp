@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include <new>
 #include "Recast.h"
 #include "RecastAlloc.h"
 #include "RecastAssert.h"
@@ -70,25 +71,85 @@ void rcContext::log(const rcLogCategory category, const char* format, ...)
 	doLog(category, msg, len);
 }
 
+rcAreaModification::rcAreaModification(unsigned char value) :
+	m_value(value),
+	m_mask(RC_AREA_FLAGS_MASK)
+{
+}
+
+rcAreaModification::rcAreaModification(unsigned char value, unsigned char mask) :
+	m_value(value),
+	m_mask(mask)
+{
+}
+
+rcAreaModification::rcAreaModification(const rcAreaModification& other) :
+	m_value(other.m_value),
+	m_mask(other.m_mask)
+{
+}
+
+void rcAreaModification::operator = (const rcAreaModification& other)
+{
+	m_value = other.m_value;
+	m_mask = other.m_mask;
+}
+
+bool rcAreaModification::operator == (const rcAreaModification& other) const
+{
+	return ((m_value == other.m_value) && (m_mask == other.m_mask));
+}
+
+bool rcAreaModification::operator != (const rcAreaModification& other) const
+{
+	return ((m_value == other.m_value) && (m_mask == other.m_mask));
+}
+
+void rcAreaModification::apply(unsigned char& area) const
+{
+	area = ((m_value & m_mask) | (area & ~m_mask));
+}
+
+unsigned char rcAreaModification::getMaskedValue() const
+{
+	return (m_value & m_mask);
+}
+
 rcHeightfield* rcAllocHeightfield()
 {
-	rcHeightfield* hf = (rcHeightfield*)rcAlloc(sizeof(rcHeightfield), RC_ALLOC_PERM);
-	memset(hf, 0, sizeof(rcHeightfield));
-	return hf;
+	return new (rcAlloc(sizeof(rcHeightfield), RC_ALLOC_PERM)) rcHeightfield;
+}
+
+rcHeightfield::rcHeightfield()
+	: width()
+	, height()
+	, bmin()
+	, bmax()
+	, cs()
+	, ch()
+	, spans()
+	, pools()
+	, freelist()
+{
+}
+
+rcHeightfield::~rcHeightfield()
+{
+	// Delete span array.
+	rcFree(spans);
+	// Delete span pools.
+	while (pools)
+	{
+		rcSpanPool* next = pools->next;
+		rcFree(pools);
+		pools = next;
+	}
 }
 
 void rcFreeHeightField(rcHeightfield* hf)
 {
 	if (!hf) return;
-	// Delete span array.
-	rcFree(hf->spans);
-	// Delete span pools.
-	while (hf->pools)
-	{
-		rcSpanPool* next = hf->pools->next;
-		rcFree(hf->pools);
-		hf->pools = next;
-	}
+	hf->~rcHeightfield();
 	rcFree(hf);
 }
 
@@ -108,7 +169,6 @@ void rcFreeCompactHeightfield(rcCompactHeightfield* chf)
 	rcFree(chf->areas);
 	rcFree(chf);
 }
-
 
 rcHeightfieldLayerSet* rcAllocHeightfieldLayerSet()
 {
@@ -245,11 +305,13 @@ static void calcTriNormal(const float* v0, const float* v1, const float* v2, flo
 /// 
 /// @see rcHeightfield, rcClearUnwalkableTriangles, rcRasterizeTriangles
 void rcMarkWalkableTriangles(rcContext* ctx, const float walkableSlopeAngle,
-							 const float* verts, int /*nv*/,
+							 const float* verts, int nv,
 							 const int* tris, int nt,
-							 unsigned char* areas)
+							 unsigned char* areas,
+							 rcAreaModification areaMod)
 {
 	rcIgnoreUnused(ctx);
+	rcIgnoreUnused(nv);
 	
 	const float walkableThr = cosf(walkableSlopeAngle/180.0f*RC_PI);
 
@@ -261,7 +323,7 @@ void rcMarkWalkableTriangles(rcContext* ctx, const float walkableSlopeAngle,
 		calcTriNormal(&verts[tri[0]*3], &verts[tri[1]*3], &verts[tri[2]*3], norm);
 		// Check if the face is walkable.
 		if (norm[1] > walkableThr)
-			areas[i] = RC_WALKABLE_AREA;
+			areaMod.apply(areas[i]);
 	}
 }
 

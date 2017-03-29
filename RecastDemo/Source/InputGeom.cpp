@@ -29,6 +29,7 @@
 #include "DebugDraw.h"
 #include "RecastDebugDraw.h"
 #include "DetourNavMesh.h"
+#include "Sample.h"
 
 static bool intersectSegmentTriangle(const float* sp, const float* sq,
 									 const float* a, const float* b, const float* c,
@@ -166,10 +167,26 @@ bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath)
 	char* buf = 0;
 	FILE* fp = fopen(filepath.c_str(), "rb");
 	if (!fp)
+	{
 		return false;
-	fseek(fp, 0, SEEK_END);
-	int bufSize = ftell(fp);
-	fseek(fp, 0, SEEK_SET);
+	}
+	if (fseek(fp, 0, SEEK_END) != 0)
+	{
+		fclose(fp);
+		return false;
+	}
+
+	long bufSize = ftell(fp);
+	if (bufSize < 0)
+	{
+		fclose(fp);
+		return false;
+	}
+	if (fseek(fp, 0, SEEK_SET) != 0)
+	{
+		fclose(fp);
+		return false;
+	}
 	buf = new char[bufSize];
 	if (!buf)
 	{
@@ -236,7 +253,7 @@ bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath)
 			if (m_volumeCount < MAX_VOLUMES)
 			{
 				ConvexVolume* vol = &m_volumes[m_volumeCount++];
-				sscanf(row+1, "%d %d %f %f", &vol->nverts, &vol->area, &vol->hmin, &vol->hmax);
+				sscanf(row+1, "%d %c %c %f %f", &vol->nverts, &vol->areaMod.m_value, &vol->areaMod.m_mask, &vol->hmin, &vol->hmax);
 				for (int i = 0; i < vol->nverts; ++i)
 				{
 					row[0] = '\0';
@@ -358,7 +375,7 @@ bool InputGeom::saveGeomSet(const BuildSettings* settings)
 	for (int i = 0; i < m_volumeCount; ++i)
 	{
 		ConvexVolume* vol = &m_volumes[i];
-		fprintf(fp, "v %d %d %f %f\n", vol->nverts, vol->area, vol->hmin, vol->hmax);
+		fprintf(fp, "v %d %c %c %f %f\n", vol->nverts, vol->areaMod.m_value, vol->areaMod.m_mask, vol->hmin, vol->hmax);
 		for (int j = 0; j < vol->nverts; ++j)
 			fprintf(fp, "%f %f %f\n", vol->verts[j*3+0], vol->verts[j*3+1], vol->verts[j*3+2]);
 	}
@@ -512,7 +529,7 @@ void InputGeom::drawOffMeshConnections(duDebugDraw* dd, bool hilight)
 }
 
 void InputGeom::addConvexVolume(const float* verts, const int nverts,
-								const float minh, const float maxh, unsigned char area)
+								const float minh, const float maxh, rcAreaModification areaMod)
 {
 	if (m_volumeCount >= MAX_VOLUMES) return;
 	ConvexVolume* vol = &m_volumes[m_volumeCount++];
@@ -521,7 +538,7 @@ void InputGeom::addConvexVolume(const float* verts, const int nverts,
 	vol->hmin = minh;
 	vol->hmax = maxh;
 	vol->nverts = nverts;
-	vol->area = area;
+	vol->areaMod = areaMod;
 }
 
 void InputGeom::deleteConvexVolume(int i)
@@ -539,7 +556,7 @@ void InputGeom::drawConvexVolumes(struct duDebugDraw* dd, bool /*hilight*/)
 	for (int i = 0; i < m_volumeCount; ++i)
 	{
 		const ConvexVolume* vol = &m_volumes[i];
-		unsigned int col = duIntToCol(vol->area, 32);
+		unsigned int col = duTransCol(dd->areaToCol(vol->areaMod.getMaskedValue()), 32);
 		for (int j = 0, k = vol->nverts-1; j < vol->nverts; k = j++)
 		{
 			const float* va = &vol->verts[k*3];
@@ -565,7 +582,7 @@ void InputGeom::drawConvexVolumes(struct duDebugDraw* dd, bool /*hilight*/)
 	for (int i = 0; i < m_volumeCount; ++i)
 	{
 		const ConvexVolume* vol = &m_volumes[i];
-		unsigned int col = duIntToCol(vol->area, 220);
+		unsigned int col = duTransCol(dd->areaToCol(vol->areaMod.getMaskedValue()), 220);
 		for (int j = 0, k = vol->nverts-1; j < vol->nverts; k = j++)
 		{
 			const float* va = &vol->verts[k*3];
@@ -584,7 +601,7 @@ void InputGeom::drawConvexVolumes(struct duDebugDraw* dd, bool /*hilight*/)
 	for (int i = 0; i < m_volumeCount; ++i)
 	{
 		const ConvexVolume* vol = &m_volumes[i];
-		unsigned int col = duDarkenCol(duIntToCol(vol->area, 255));
+		unsigned int col = duDarkenCol(duTransCol(dd->areaToCol(vol->areaMod.getMaskedValue()), 220));
 		for (int j = 0; j < vol->nverts; ++j)
 		{
 			dd->vertex(vol->verts[j*3+0],vol->verts[j*3+1]+0.1f,vol->verts[j*3+2], col);

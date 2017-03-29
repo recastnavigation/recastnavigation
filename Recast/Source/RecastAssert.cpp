@@ -16,40 +16,20 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#ifndef CONVEXVOLUMETOOL_H
-#define CONVEXVOLUMETOOL_H
+#include "RecastAssert.h"
 
-#include "Sample.h"
+#ifndef NDEBUG
 
-// Tool to create convex volumess for InputGeom
+static rcAssertFailFunc* sRecastAssertFailFunc = 0;
 
-class ConvexVolumeTool : public SampleTool
+void rcAssertFailSetCustom(rcAssertFailFunc *assertFailFunc)
 {
-	Sample* m_sample;
-	rcAreaModification m_areaMod;
-	float m_polyOffset;
-	float m_boxHeight;
-	float m_boxDescent;
-	
-	static const int MAX_PTS = 12;
-	float m_pts[MAX_PTS*3];
-	int m_npts;
-	int m_hull[MAX_PTS];
-	int m_nhull;
-	
-public:
-	ConvexVolumeTool();
-	
-	virtual int type() { return TOOL_CONVEX_VOLUME; }
-	virtual void init(Sample* sample);
-	virtual void reset();
-	virtual void handleMenu();
-	virtual void handleClick(const float* s, const float* p, bool shift);
-	virtual void handleToggle();
-	virtual void handleStep();
-	virtual void handleUpdate(const float dt);
-	virtual void handleRender();
-	virtual void handleRenderOverlay(double* proj, double* model, int* view);
-};
+	sRecastAssertFailFunc = assertFailFunc;
+}
 
-#endif // CONVEXVOLUMETOOL_H
+rcAssertFailFunc* rcAssertFailGetCustom()
+{
+	return sRecastAssertFailFunc;
+}
+
+#endif

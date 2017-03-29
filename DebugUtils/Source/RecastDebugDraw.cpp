@@ -198,7 +198,7 @@ void duDebugDrawHeightfieldWalkable(duDebugDraw* dd, const rcHeightfield& hf)
 				else if (s->area == RC_NULL_AREA)
 					fcol[0] = duRGBA(64,64,64,255);
 				else
-					fcol[0] = duMultCol(duIntToCol(s->area, 255), 200);
+					fcol[0] = duMultCol(dd->areaToCol(s->area), 200);
 				
 				duAppendBox(dd, fx, orig[1]+s->smin*ch, fz, fx+cs, orig[1] + s->smax*ch, fz+cs, fcol);
 				s = s->next;
@@ -230,13 +230,14 @@ void duDebugDrawCompactHeightfieldSolid(duDebugDraw* dd, const rcCompactHeightfi
 			{
 				const rcCompactSpan& s = chf.spans[i];
 
+				const unsigned char area = chf.areas[i];
 				unsigned int color;
-				if (chf.areas[i] == RC_WALKABLE_AREA)
+				if (area == RC_WALKABLE_AREA)
 					color = duRGBA(0,192,255,64);
-				else if (chf.areas[i] == RC_NULL_AREA)
+				else if (area == RC_NULL_AREA)
 					color = duRGBA(0,0,0,64);
 				else
-					color = duIntToCol(chf.areas[i], 255);
+					color = dd->areaToCol(area);
 				
 				const float fy = chf.bmin[1] + (s.y+1)*ch;
 				dd->vertex(fx, fy, fz, color);
@@ -403,7 +404,7 @@ void duDebugDrawHeightfieldLayer(duDebugDraw* dd, const struct rcHeightfieldLaye
 			else if (area == RC_NULL_AREA)
 				col = duLerpCol(color, duRGBA(0,0,0,64), 32);
 			else
-				col = duLerpCol(color, duIntToCol(area, 255), 32);
+				col = duLerpCol(color, dd->areaToCol(area), 32);
 			
 			const float fx = layer.bmin[0] + x*cs;
 			const float fy = layer.bmin[1] + (lh+1)*ch;
@@ -866,14 +867,15 @@ void duDebugDrawPolyMesh(duDebugDraw* dd, const struct rcPolyMesh& mesh)
 	for (int i = 0; i < mesh.npolys; ++i)
 	{
 		const unsigned short* p = &mesh.polys[i*nvp*2];
+		const unsigned char area = mesh.areas[i];
 		
 		unsigned int color;
-		if (mesh.areas[i] == RC_WALKABLE_AREA)
+		if (area == RC_WALKABLE_AREA)
 			color = duRGBA(0,192,255,64);
-		else if (mesh.areas[i] == RC_NULL_AREA)
+		else if (area == RC_NULL_AREA)
 			color = duRGBA(0,0,0,64);
 		else
-			color = duIntToCol(mesh.areas[i], 255);
+			color = dd->areaToCol(area);
 		
 		unsigned short vi[3];
 		for (int j = 2; j < nvp; ++j)

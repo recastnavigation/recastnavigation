@@ -32,7 +32,23 @@ class TestCase
 	
 	struct Test
 	{
-		Test() : straight(0), nstraight(0), polys(0), npolys(0) {};
+		Test() :
+			type(),
+			radius(0),
+			includeFlags(0),
+			excludeFlags(0),
+			expand(false),
+			straight(0),
+			nstraight(0),
+			polys(0),
+			npolys(0),
+			findNearestPolyTime(0),
+			findPathTime(0),
+			findStraightPathTime(0),
+			next(0)
+		{
+		}
+
 		~Test()
 		{
 			delete [] straight;

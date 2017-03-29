@@ -77,6 +77,7 @@ dtTileCache::dtTileCache() :
 	m_nupdate(0)
 {
 	memset(&m_params, 0, sizeof(m_params));
+	memset(m_reqs, 0, sizeof(ObstacleRequest) * MAX_REQUESTS);
 }
 	
 dtTileCache::~dtTileCache()
@@ -369,9 +370,44 @@ dtStatus dtTileCache::addObstacle(const float* pos, const float radius, const fl
 	memset(ob, 0, sizeof(dtTileCacheObstacle));
 	ob->salt = salt;
 	ob->state = DT_OBSTACLE_PROCESSING;
-	dtVcopy(ob->pos, pos);
-	ob->radius = radius;
-	ob->height = height;
+	ob->type = DT_OBSTACLE_CYLINDER;
+	dtVcopy(ob->cylinder.pos, pos);
+	ob->cylinder.radius = radius;
+	ob->cylinder.height = height;
+	
+	ObstacleRequest* req = &m_reqs[m_nreqs++];
+	memset(req, 0, sizeof(ObstacleRequest));
+	req->action = REQUEST_ADD;
+	req->ref = getObstacleRef(ob);
+	
+	if (result)
+		*result = req->ref;
+	
+	return DT_SUCCESS;
+}
+
+dtStatus dtTileCache::addBoxObstacle(const float* bmin, const float* bmax, dtObstacleRef* result)
+{
+	if (m_nreqs >= MAX_REQUESTS)
+		return DT_FAILURE | DT_BUFFER_TOO_SMALL;
+	
+	dtTileCacheObstacle* ob = 0;
+	if (m_nextFreeObstacle)
+	{
+		ob = m_nextFreeObstacle;
+		m_nextFreeObstacle = ob->next;
+		ob->next = 0;
+	}
+	if (!ob)
+		return DT_FAILURE | DT_OUT_OF_MEMORY;
+	
+	unsigned short salt = ob->salt;
+	memset(ob, 0, sizeof(dtTileCacheObstacle));
+	ob->salt = salt;
+	ob->state = DT_OBSTACLE_PROCESSING;
+	ob->type = DT_OBSTACLE_BOX;
+	dtVcopy(ob->box.bmin, bmin);
+	dtVcopy(ob->box.bmax, bmax);
 	
 	ObstacleRequest* req = &m_reqs[m_nreqs++];
 	memset(req, 0, sizeof(ObstacleRequest));
@@ -440,7 +476,8 @@ dtStatus dtTileCache::queryTiles(const float* bmin, const float* bmax,
 	return DT_SUCCESS;
 }
 
-dtStatus dtTileCache::update(const float /*dt*/, dtNavMesh* navmesh)
+dtStatus dtTileCache::update(const float /*dt*/, dtNavMesh* navmesh,
+							 bool* upToDate)
 {
 	if (m_nupdate == 0)
 	{
@@ -499,12 +536,13 @@ dtStatus dtTileCache::update(const float /*dt*/, dtNavMesh* navmesh)
 		m_nreqs = 0;
 	}
 	
+	dtStatus status = DT_SUCCESS;
 	// Process updates
 	if (m_nupdate)
 	{
 		// Build mesh
 		const dtCompressedTileRef ref = m_update[0];
-		dtStatus status = buildNavMeshTile(ref, navmesh);
+		status = buildNavMeshTile(ref, navmesh);
 		m_nupdate--;
 		if (m_nupdate > 0)
 			memmove(m_update, m_update+1, m_nupdate*sizeof(dtCompressedTileRef));
@@ -547,12 +585,12 @@ dtStatus dtTileCache::update(const float /*dt*/, dtNavMesh* navmesh)
 				}
 			}
 		}
-			
-		if (dtStatusFailed(status))
-			return status;
 	}
 	
-	return DT_SUCCESS;
+	if (upToDate)
+		*upToDate = m_nupdate == 0 && m_nreqs == 0;
+
+	return status;
 }
 
 
@@ -604,8 +642,16 @@ dtStatus dtTileCache::buildNavMeshTile(const dtCompressedTileRef ref, dtNavMesh*
 			continue;
 		if (contains(ob->touched, ob->ntouched, ref))
 		{
-			dtMarkCylinderArea(*bc.layer, tile->header->bmin, m_params.cs, m_params.ch,
-							   ob->pos, ob->radius, ob->height, 0);
+			if (ob->type == DT_OBSTACLE_CYLINDER)
+			{
+				dtMarkCylinderArea(*bc.layer, tile->header->bmin, m_params.cs, m_params.ch,
+							    ob->cylinder.pos, ob->cylinder.radius, ob->cylinder.height, 0);
+			}
+			else if (ob->type == DT_OBSTACLE_BOX)
+			{
+				dtMarkBoxArea(*bc.layer, tile->header->bmin, m_params.cs, m_params.ch,
+							ob->box.bmin, ob->box.bmax, 0);
+			}
 		}
 	}
 	
@@ -699,10 +745,20 @@ void dtTileCache::calcTightTileBounds(const dtTileCacheLayerHeader* header, floa
 
 void dtTileCache::getObstacleBounds(const struct dtTileCacheObstacle* ob, float* bmin, float* bmax) const
 {
-	bmin[0] = ob->pos[0] - ob->radius;
-	bmin[1] = ob->pos[1];
-	bmin[2] = ob->pos[2] - ob->radius;
-	bmax[0] = ob->pos[0] + ob->radius;
-	bmax[1] = ob->pos[1] + ob->height;
-	bmax[2] = ob->pos[2] + ob->radius;	
+	if (ob->type == DT_OBSTACLE_CYLINDER)
+	{
+		const dtObstacleCylinder &cl = ob->cylinder;
+
+		bmin[0] = cl.pos[0] - cl.radius;
+		bmin[1] = cl.pos[1];
+		bmin[2] = cl.pos[2] - cl.radius;
+		bmax[0] = cl.pos[0] + cl.radius;
+		bmax[1] = cl.pos[1] + cl.height;
+		bmax[2] = cl.pos[2] + cl.radius;
+	}
+	else if (ob->type == DT_OBSTACLE_BOX)
+	{
+		dtVcopy(bmin, ob->box.bmin);
+		dtVcopy(bmax, ob->box.bmax);
+	}
 }

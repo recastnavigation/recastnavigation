@@ -233,6 +233,7 @@ NavMeshTesterTool::NavMeshTesterTool() :
 	m_sposSet(false),
 	m_eposSet(false),
 	m_pathIterNum(0),
+	m_pathIterPolyCount(0),
 	m_steerPointCount(0)
 {
 	m_filter.setIncludeFlags(SAMPLE_POLYFLAGS_ALL ^ SAMPLE_POLYFLAGS_DISABLED);
@@ -256,12 +257,12 @@ void NavMeshTesterTool::init(Sample* sample)
 	if (m_navQuery)
 	{
 		// Change costs.
-		m_filter.setAreaCost(SAMPLE_POLYAREA_GROUND, 1.0f);
-		m_filter.setAreaCost(SAMPLE_POLYAREA_WATER, 10.0f);
-		m_filter.setAreaCost(SAMPLE_POLYAREA_ROAD, 1.0f);
-		m_filter.setAreaCost(SAMPLE_POLYAREA_DOOR, 1.0f);
-		m_filter.setAreaCost(SAMPLE_POLYAREA_GRASS, 2.0f);
-		m_filter.setAreaCost(SAMPLE_POLYAREA_JUMP, 1.5f);
+		m_filter.setAreaCost(SAMPLE_POLYAREA_TYPE_GROUND, 1.0f);
+		m_filter.setAreaCost(SAMPLE_POLYAREA_TYPE_WATER, 10.0f);
+		m_filter.setAreaCost(SAMPLE_POLYAREA_TYPE_ROAD, 1.0f);
+		m_filter.setAreaCost(SAMPLE_POLYAREA_FLAG_DOOR, 1.0f);
+		m_filter.setAreaCost(SAMPLE_POLYAREA_TYPE_GRASS, 2.0f);
+		m_filter.setAreaCost(SAMPLE_POLYAREA_FLAG_JUMP, 1.5f);
 	}
 	
 	m_neighbourhoodRadius = sample->getAgentRadius() * 20.0f;
@@ -1039,7 +1040,7 @@ static void getPolyCenter(dtNavMesh* navMesh, dtPolyRef ref, float* center)
 
 void NavMeshTesterTool::handleRender()
 {
-	DebugDrawGL dd;
+	duDebugDraw& dd = m_sample->getDebugDraw();
 	
 	static const unsigned int startCol = duRGBA(128,25,0,192);
 	static const unsigned int endCol = duRGBA(51,102,0,129);
@@ -1396,7 +1397,7 @@ void NavMeshTesterTool::handleRenderOverlay(double* proj, double* model, int* vi
 
 void NavMeshTesterTool::drawAgent(const float* pos, float r, float h, float c, const unsigned int col)
 {
-	DebugDrawGL dd;
+	duDebugDraw& dd = m_sample->getDebugDraw();
 	
 	dd.depthMask(false);
 	

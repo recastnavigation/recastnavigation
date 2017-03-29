@@ -38,17 +38,24 @@ enum SampleToolType
 	MAX_TOOLS
 };
 
-/// These are just sample areas to use consistent values across the samples.
-/// The use should specify these base on his needs.
-enum SamplePolyAreas
-{
-	SAMPLE_POLYAREA_GROUND,
-	SAMPLE_POLYAREA_WATER,
-	SAMPLE_POLYAREA_ROAD,
-	SAMPLE_POLYAREA_DOOR,
-	SAMPLE_POLYAREA_GRASS,
-	SAMPLE_POLYAREA_JUMP,
-};
+/// Mask of the ceil part of the area id (3 lower bits)
+/// the 0 value (RC_NULL_AREA) is left unused
+static const unsigned char SAMPLE_POLYAREA_TYPE_MASK = 0x07;
+/// Value for the kind of ceil "ground"
+static const unsigned char SAMPLE_POLYAREA_TYPE_GROUND = 0x1;
+/// Value for the kind of ceil "water"
+static const unsigned char SAMPLE_POLYAREA_TYPE_WATER = 0x2;
+/// Value for the kind of ceil "road"
+static const unsigned char SAMPLE_POLYAREA_TYPE_ROAD = 0x3;
+/// Value for the kind of ceil "grass"
+static const unsigned char SAMPLE_POLYAREA_TYPE_GRASS = 0x4;
+/// Flag for door area. Can be combined with area types and jump flag.
+static const unsigned char SAMPLE_POLYAREA_FLAG_DOOR = 0x08;
+/// Flag for jump area. Can be combined with area types and door flag.
+static const unsigned char SAMPLE_POLYAREA_FLAG_JUMP = 0x10;
+
+extern rcAreaModification const SAMPLE_AREAMOD_GROUND;
+
 enum SamplePolyFlags
 {
 	SAMPLE_POLYFLAGS_WALK		= 0x01,		// Ability to walk (ground, grass, road)
@@ -57,6 +64,14 @@ enum SamplePolyFlags
 	SAMPLE_POLYFLAGS_JUMP		= 0x08,		// Ability to jump.
 	SAMPLE_POLYFLAGS_DISABLED	= 0x10,		// Disabled polygon
 	SAMPLE_POLYFLAGS_ALL		= 0xffff	// All abilities.
+};
+
+unsigned short sampleAreaToFlags(unsigned char area);
+
+class SampleDebugDraw : public DebugDrawGL
+{
+public:
+	virtual unsigned int areaToCol(unsigned int area);
 };
 
 enum SamplePartitionType
@@ -114,11 +129,17 @@ protected:
 	float m_detailSampleDist;
 	float m_detailSampleMaxError;
 	int m_partitionType;
+
+	bool m_filterLowHangingObstacles;
+	bool m_filterLedgeSpans;
+	bool m_filterWalkableLowHeightSpans;
 	
 	SampleTool* m_tool;
 	SampleToolState* m_toolStates[MAX_TOOLS];
 	
 	BuildContext* m_ctx;
+
+	SampleDebugDraw m_dd;
 	
 public:
 	Sample();
@@ -129,7 +150,9 @@ public:
 	void setTool(SampleTool* tool);
 	SampleToolState* getToolState(int type) { return m_toolStates[type]; }
 	void setToolState(int type, SampleToolState* s) { m_toolStates[type] = s; }
-	
+
+	SampleDebugDraw& getDebugDraw() { return m_dd; }
+
 	virtual void handleSettings();
 	virtual void handleTools();
 	virtual void handleDebugMode();

@@ -324,7 +324,10 @@ dtNavMesh* Sample_TileMesh::loadAll(const char* path)
 		NavMeshTileHeader tileHeader;
 		readLen = fread(&tileHeader, sizeof(tileHeader), 1, fp);
 		if (readLen != 1)
+		{
+			fclose(fp);
 			return 0;
+		}
 
 		if (!tileHeader.tileRef || !tileHeader.dataSize)
 			break;
@@ -334,7 +337,10 @@ dtNavMesh* Sample_TileMesh::loadAll(const char* path)
 		memset(data, 0, tileHeader.dataSize);
 		readLen = fread(data, tileHeader.dataSize, 1, fp);
 		if (readLen != 1)
+		{
+			fclose(fp);
 			return 0;
+		}
 
 		mesh->addTile(data, tileHeader.dataSize, DT_TILE_FREE_DATA, tileHeader.tileRef, 0);
 	}
@@ -544,18 +550,16 @@ void Sample_TileMesh::handleRender()
 	if (!m_geom || !m_geom->getMesh())
 		return;
 	
-	DebugDrawGL dd;
-
 	const float texScale = 1.0f / (m_cellSize * 10.0f);
 	
 	// Draw mesh
 	if (m_drawMode != DRAWMODE_NAVMESH_TRANS)
 	{
 		// Draw mesh
-		duDebugDrawTriMeshSlope(&dd, m_geom->getMesh()->getVerts(), m_geom->getMesh()->getVertCount(),
+		duDebugDrawTriMeshSlope(&m_dd, m_geom->getMesh()->getVerts(), m_geom->getMesh()->getVertCount(),
 								m_geom->getMesh()->getTris(), m_geom->getMesh()->getNormals(), m_geom->getMesh()->getTriCount(),
 								m_agentMaxSlope, texScale);
-		m_geom->drawOffMeshConnections(&dd);
+		m_geom->drawOffMeshConnections(&m_dd);
 	}
 		
 	glDepthMask(GL_FALSE);
@@ -563,7 +567,7 @@ void Sample_TileMesh::handleRender()
 	// Draw bounds
 	const float* bmin = m_geom->getNavMeshBoundsMin();
 	const float* bmax = m_geom->getNavMeshBoundsMax();
-	duDebugDrawBoxWire(&dd, bmin[0],bmin[1],bmin[2], bmax[0],bmax[1],bmax[2], duRGBA(255,255,255,128), 1.0f);
+	duDebugDrawBoxWire(&m_dd, bmin[0],bmin[1],bmin[2], bmax[0],bmax[1],bmax[2], duRGBA(255,255,255,128), 1.0f);
 	
 	// Tiling grid.
 	int gw = 0, gh = 0;
@@ -571,10 +575,10 @@ void Sample_TileMesh::handleRender()
 	const int tw = (gw + (int)m_tileSize-1) / (int)m_tileSize;
 	const int th = (gh + (int)m_tileSize-1) / (int)m_tileSize;
 	const float s = m_tileSize*m_cellSize;
-	duDebugDrawGridXZ(&dd, bmin[0],bmin[1],bmin[2], tw,th, s, duRGBA(0,0,0,64), 1.0f);
+	duDebugDrawGridXZ(&m_dd, bmin[0],bmin[1],bmin[2], tw,th, s, duRGBA(0,0,0,64), 1.0f);
 	
 	// Draw active tile
-	duDebugDrawBoxWire(&dd, m_lastBuiltTileBmin[0],m_lastBuiltTileBmin[1],m_lastBuiltTileBmin[2],
+	duDebugDrawBoxWire(&m_dd, m_lastBuiltTileBmin[0],m_lastBuiltTileBmin[1],m_lastBuiltTileBmin[2],
 					   m_lastBuiltTileBmax[0],m_lastBuiltTileBmax[1],m_lastBuiltTileBmax[2], m_tileCol, 1.0f);
 		
 	if (m_navMesh && m_navQuery &&
@@ -586,81 +590,81 @@ void Sample_TileMesh::handleRender()
 		 m_drawMode == DRAWMODE_NAVMESH_INVIS))
 	{
 		if (m_drawMode != DRAWMODE_NAVMESH_INVIS)
-			duDebugDrawNavMeshWithClosedList(&dd, *m_navMesh, *m_navQuery, m_navMeshDrawFlags);
+			duDebugDrawNavMeshWithClosedList(&m_dd, *m_navMesh, *m_navQuery, m_navMeshDrawFlags);
 		if (m_drawMode == DRAWMODE_NAVMESH_BVTREE)
-			duDebugDrawNavMeshBVTree(&dd, *m_navMesh);
+			duDebugDrawNavMeshBVTree(&m_dd, *m_navMesh);
 		if (m_drawMode == DRAWMODE_NAVMESH_PORTALS)
-			duDebugDrawNavMeshPortals(&dd, *m_navMesh);
+			duDebugDrawNavMeshPortals(&m_dd, *m_navMesh);
 		if (m_drawMode == DRAWMODE_NAVMESH_NODES)
-			duDebugDrawNavMeshNodes(&dd, *m_navQuery);
-		duDebugDrawNavMeshPolysWithFlags(&dd, *m_navMesh, SAMPLE_POLYFLAGS_DISABLED, duRGBA(0,0,0,128));
+			duDebugDrawNavMeshNodes(&m_dd, *m_navQuery);
+		duDebugDrawNavMeshPolysWithFlags(&m_dd, *m_navMesh, SAMPLE_POLYFLAGS_DISABLED, duRGBA(0,0,0,128));
 	}
 	
 	
 	glDepthMask(GL_TRUE);
 	
 	if (m_chf && m_drawMode == DRAWMODE_COMPACT)
-		duDebugDrawCompactHeightfieldSolid(&dd, *m_chf);
+		duDebugDrawCompactHeightfieldSolid(&m_dd, *m_chf);
 	
 	if (m_chf && m_drawMode == DRAWMODE_COMPACT_DISTANCE)
-		duDebugDrawCompactHeightfieldDistance(&dd, *m_chf);
+		duDebugDrawCompactHeightfieldDistance(&m_dd, *m_chf);
 	if (m_chf && m_drawMode == DRAWMODE_COMPACT_REGIONS)
-		duDebugDrawCompactHeightfieldRegions(&dd, *m_chf);
+		duDebugDrawCompactHeightfieldRegions(&m_dd, *m_chf);
 	if (m_solid && m_drawMode == DRAWMODE_VOXELS)
 	{
 		glEnable(GL_FOG);
-		duDebugDrawHeightfieldSolid(&dd, *m_solid);
+		duDebugDrawHeightfieldSolid(&m_dd, *m_solid);
 		glDisable(GL_FOG);
 	}
 	if (m_solid && m_drawMode == DRAWMODE_VOXELS_WALKABLE)
 	{
 		glEnable(GL_FOG);
-		duDebugDrawHeightfieldWalkable(&dd, *m_solid);
+		duDebugDrawHeightfieldWalkable(&m_dd, *m_solid);
 		glDisable(GL_FOG);
 	}
 	
 	if (m_cset && m_drawMode == DRAWMODE_RAW_CONTOURS)
 	{
 		glDepthMask(GL_FALSE);
-		duDebugDrawRawContours(&dd, *m_cset);
+		duDebugDrawRawContours(&m_dd, *m_cset);
 		glDepthMask(GL_TRUE);
 	}
 	
 	if (m_cset && m_drawMode == DRAWMODE_BOTH_CONTOURS)
 	{
 		glDepthMask(GL_FALSE);
-		duDebugDrawRawContours(&dd, *m_cset, 0.5f);
-		duDebugDrawContours(&dd, *m_cset);
+		duDebugDrawRawContours(&m_dd, *m_cset, 0.5f);
+		duDebugDrawContours(&m_dd, *m_cset);
 		glDepthMask(GL_TRUE);
 	}
 	if (m_cset && m_drawMode == DRAWMODE_CONTOURS)
 	{
 		glDepthMask(GL_FALSE);
-		duDebugDrawContours(&dd, *m_cset);
+		duDebugDrawContours(&m_dd, *m_cset);
 		glDepthMask(GL_TRUE);
 	}
 	if (m_chf && m_cset && m_drawMode == DRAWMODE_REGION_CONNECTIONS)
 	{
-		duDebugDrawCompactHeightfieldRegions(&dd, *m_chf);
+		duDebugDrawCompactHeightfieldRegions(&m_dd, *m_chf);
 		
 		glDepthMask(GL_FALSE);
-		duDebugDrawRegionConnections(&dd, *m_cset);
+		duDebugDrawRegionConnections(&m_dd, *m_cset);
 		glDepthMask(GL_TRUE);
 	}
 	if (m_pmesh && m_drawMode == DRAWMODE_POLYMESH)
 	{
 		glDepthMask(GL_FALSE);
-		duDebugDrawPolyMesh(&dd, *m_pmesh);
+		duDebugDrawPolyMesh(&m_dd, *m_pmesh);
 		glDepthMask(GL_TRUE);
 	}
 	if (m_dmesh && m_drawMode == DRAWMODE_POLYMESH_DETAIL)
 	{
 		glDepthMask(GL_FALSE);
-		duDebugDrawPolyMeshDetail(&dd, *m_dmesh);
+		duDebugDrawPolyMeshDetail(&m_dd, *m_dmesh);
 		glDepthMask(GL_TRUE);
 	}
 		
-	m_geom->drawConvexVolumes(&dd);
+	m_geom->drawConvexVolumes(&m_dd);
 	
 	if (m_tool)
 		m_tool->handleRender();
@@ -1035,7 +1039,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 		
 		memset(m_triareas, 0, nctris*sizeof(unsigned char));
 		rcMarkWalkableTriangles(m_ctx, m_cfg.walkableSlopeAngle,
-								verts, nverts, ctris, nctris, m_triareas);
+								verts, nverts, ctris, nctris, m_triareas, SAMPLE_AREAMOD_GROUND);
 		
 		if (!rcRasterizeTriangles(m_ctx, verts, nverts, ctris, m_triareas, nctris, *m_solid, m_cfg.walkableClimb))
 			return 0;
@@ -1050,9 +1054,12 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	// Once all geometry is rasterized, we do initial pass of filtering to
 	// remove unwanted overhangs caused by the conservative rasterization
 	// as well as filter spans where the character cannot possibly stand.
-	rcFilterLowHangingWalkableObstacles(m_ctx, m_cfg.walkableClimb, *m_solid);
-	rcFilterLedgeSpans(m_ctx, m_cfg.walkableHeight, m_cfg.walkableClimb, *m_solid);
-	rcFilterWalkableLowHeightSpans(m_ctx, m_cfg.walkableHeight, *m_solid);
+	if (m_filterLowHangingObstacles)
+		rcFilterLowHangingWalkableObstacles(m_ctx, m_cfg.walkableClimb, *m_solid);
+	if (m_filterLedgeSpans)
+		rcFilterLedgeSpans(m_ctx, m_cfg.walkableHeight, m_cfg.walkableClimb, *m_solid);
+	if (m_filterWalkableLowHeightSpans)
+		rcFilterWalkableLowHeightSpans(m_ctx, m_cfg.walkableHeight, *m_solid);
 	
 	// Compact the heightfield so that it is faster to handle from now on.
 	// This will result more cache coherent data as well as the neighbours
@@ -1085,7 +1092,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	// (Optional) Mark areas.
 	const ConvexVolume* vols = m_geom->getConvexVolumes();
 	for (int i  = 0; i < m_geom->getConvexVolumeCount(); ++i)
-		rcMarkConvexPolyArea(m_ctx, vols[i].verts, vols[i].nverts, vols[i].hmin, vols[i].hmax, (unsigned char)vols[i].area, *m_chf);
+		rcMarkConvexPolyArea(m_ctx, vols[i].verts, vols[i].nverts, vols[i].hmin, vols[i].hmax, vols[i].areaMod, *m_chf);
 	
 	
 	// Partition the heightfield so that we can use simple algorithm later to triangulate the walkable areas.
@@ -1219,23 +1226,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 		// Update poly flags from areas.
 		for (int i = 0; i < m_pmesh->npolys; ++i)
 		{
-			if (m_pmesh->areas[i] == RC_WALKABLE_AREA)
-				m_pmesh->areas[i] = SAMPLE_POLYAREA_GROUND;
-			
-			if (m_pmesh->areas[i] == SAMPLE_POLYAREA_GROUND ||
-				m_pmesh->areas[i] == SAMPLE_POLYAREA_GRASS ||
-				m_pmesh->areas[i] == SAMPLE_POLYAREA_ROAD)
-			{
-				m_pmesh->flags[i] = SAMPLE_POLYFLAGS_WALK;
-			}
-			else if (m_pmesh->areas[i] == SAMPLE_POLYAREA_WATER)
-			{
-				m_pmesh->flags[i] = SAMPLE_POLYFLAGS_SWIM;
-			}
-			else if (m_pmesh->areas[i] == SAMPLE_POLYAREA_DOOR)
-			{
-				m_pmesh->flags[i] = SAMPLE_POLYFLAGS_WALK | SAMPLE_POLYFLAGS_DOOR;
-			}
+			m_pmesh->flags[i] = sampleAreaToFlags(m_pmesh->areas[i]);
 		}
 		
 		dtNavMeshCreateParams params;
