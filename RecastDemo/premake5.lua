@@ -202,6 +202,8 @@ project "Tests"
 		"../Tests/*.cpp",
 		"../Tests/Recast/*.h",
 		"../Tests/Recast/*.cpp",
+		"../Tests/Detour/*.h",
+		"../Tests/Detour/*.cpp",
 	}
 
 	-- project dependencies
