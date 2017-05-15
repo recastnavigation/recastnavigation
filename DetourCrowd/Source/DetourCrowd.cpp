@@ -56,22 +56,68 @@ inline float tween(const float t, const float t0, const float t1)
 	return dtClamp((t-t0) / (t1-t0), 0.0f, 1.0f);
 }
 
+inline float mixAngle( float from, float to, float f )
+{
+	float dtheta = to - from;
+	if( dtheta > M_PI ) from += 2*M_PI;
+	else if( dtheta < -M_PI ) from -= 2*M_PI;
+	return ( from * (1.0f-f) + to * f );
+}
+
 static void integrate(dtCrowdAgent* ag, const float dt)
 {
-	// Fake dynamic constraint.
-	const float maxDelta = ag->params.maxAcceleration * dt;
-	float dv[3];
-	dtVsub(dv, ag->nvel, ag->vel);
-	float ds = dtVlen(dv);
-	if (ds > maxDelta)
-		dtVscale(dv, dv, maxDelta/ds);
-	dtVadd(ag->vel, ag->vel, dv);
-	
+	// Switch for movement type
+	switch( ag->params.integrationType )
+	{
+
+	case DT_CROWDAGENT_INTEGRATE_VELOCITY:
+	{
+		// Fake dynamic constraint.
+		const float maxDelta = ag->params.maxAcceleration * dt;
+
+		float dv[3];
+		dtVsub( dv, ag->nvel, ag->vel );
+		float ds = dtVlen( dv );
+		if( ds > maxDelta )
+			dtVscale( dv, dv, maxDelta / ds );
+
+		dtVadd( ag->vel, ag->vel, dv );
+	}
+	break;
+
+	case DT_CROWDAGENT_INTEGRATE_ANGLE:
+	{
+		// Fake dynamic constraint.
+		const float maxDelta = ag->params.maxSpeed;
+
+		if( ag->nvel[0] * ag->nvel[0] + ag->nvel[2] * ag->nvel[2] > 0.05f*0.05f )
+		{
+			const float destAngle = atan2f( ag->nvel[2], ag->nvel[0] );
+			ag->angle = mixAngle( ag->angle, destAngle, 4.0f * dt );
+		}
+
+		float dn = dtVlen( ag->nvel );
+		float dv[3] ={ cosf( ag->angle ) * dn ,  ag->nvel[1] - ag->vel[1] , sinf( ag->angle ) * dn };
+		float ds = dtVlen( dv );
+		if( ds > maxDelta )
+			dtVscale( dv, dv, maxDelta / ds );
+
+		dtVset( ag->vel, dv[0], dv[1], dv[2] );
+	}
+	break;
+
+	default:
+		dtAssert( !"Unknown integration type" );
+		break;
+
+	}
+
 	// Integrate
-	if (dtVlen(ag->vel) > 0.0001f)
-		dtVmad(ag->npos, ag->npos, ag->vel, dt);
+	if( dtVlen( ag->vel ) > 0.0001f )
+		dtVmad( ag->npos, ag->npos, ag->vel, dt );
 	else
-		dtVset(ag->vel,0,0,0);
+		dtVset( ag->vel, 0, 0, 0 );
+
 }
 
 static bool overOffmeshConnection(const dtCrowdAgent* ag, const float radius)
@@ -441,7 +487,7 @@ bool dtCrowd::init(const int maxAgents, const float maxAgentRadius, dtNavMesh* n
 	for (int i = 0; i < m_maxAgents; ++i)
 	{
 		new(&m_agents[i]) dtCrowdAgent();
-		m_agents[i].active = false;
+		m_agents[i].active = DT_CROWDAGENT_STATE_DISABLED;
 		if (!m_agents[i].corridor.init(m_maxPathResult))
 			return false;
 	}
@@ -552,6 +598,7 @@ int dtCrowd::addAgent(const float* pos, const dtCrowdAgentParams* params)
 	dtVcopy(ag->npos, nearest);
 	
 	ag->desiredSpeed = 0;
+	ag->angle = 0.0f;
 
 	if (ref)
 		ag->state = DT_CROWDAGENT_STATE_WALKING;
@@ -560,7 +607,7 @@ int dtCrowd::addAgent(const float* pos, const dtCrowdAgentParams* params)
 	
 	ag->targetState = DT_CROWDAGENT_TARGET_NONE;
 	
-	ag->active = true;
+	ag->active = DT_CROWDAGENT_STATE_NORMAL;
 
 	return idx;
 }
@@ -573,7 +620,7 @@ void dtCrowd::removeAgent(const int idx)
 {
 	if (idx >= 0 && idx < m_maxAgents)
 	{
-		m_agents[idx].active = false;
+		m_agents[idx].active = DT_CROWDAGENT_STATE_DISABLED;
 	}
 }
 
@@ -666,7 +713,7 @@ int dtCrowd::getActiveAgents(dtCrowdAgent** agents, const int maxAgents)
 	int n = 0;
 	for (int i = 0; i < m_maxAgents; ++i)
 	{
-		if (!m_agents[i].active) continue;
+		if (m_agents[i].active != DT_CROWDAGENT_STATE_NORMAL ) continue;
 		if (n < maxAgents)
 			agents[n++] = &m_agents[i];
 	}
@@ -684,7 +731,7 @@ void dtCrowd::updateMoveRequest(const float /*dt*/)
 	for (int i = 0; i < m_maxAgents; ++i)
 	{
 		dtCrowdAgent* ag = &m_agents[i];
-		if (!ag->active)
+		if (ag->active != DT_CROWDAGENT_STATE_NORMAL)
 			continue;
 		if (ag->state == DT_CROWDAGENT_STATE_INVALID)
 			continue;
@@ -787,7 +834,7 @@ void dtCrowd::updateMoveRequest(const float /*dt*/)
 	for (int i = 0; i < m_maxAgents; ++i)
 	{
 		dtCrowdAgent* ag = &m_agents[i];
-		if (!ag->active)
+		if (ag->active != DT_CROWDAGENT_STATE_NORMAL )
 			continue;
 		if (ag->targetState == DT_CROWDAGENT_TARGET_NONE || ag->targetState == DT_CROWDAGENT_TARGET_VELOCITY)
 			continue;
