@@ -481,9 +481,9 @@ dtStatus dtNavMeshQuery::findRandomPointAroundCircle(dtPolyRef startRef, const f
 	dtRandomPointInConvexPoly(verts, randomPoly->vertCount, areas, s, t, pt);
 	
 	float h = 0.0f;
-	dtStatus stat = getPolyHeight(randomPolyRef, pt, &h);
+	status = getPolyHeight(randomPolyRef, pt, &h);
 	if (dtStatusFailed(status))
-		return stat;
+		return status;
 	pt[1] = h;
 	
 	dtVcopy(randomPt, pt);
