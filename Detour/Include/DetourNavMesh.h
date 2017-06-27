@@ -19,13 +19,9 @@
 #ifndef DETOURNAVMESH_H
 #define DETOURNAVMESH_H
 
+#include "DetourConfig.h"
 #include "DetourAlloc.h"
 #include "DetourStatus.h"
-
-// Undefine (or define in a build cofnig) the following line to use 64bit polyref.
-// Generally not needed, useful for very large worlds.
-// Note: tiles build using 32bit refs are not compatible with 64bit refs!
-//#define DT_POLYREF64 1
 
 #ifdef DT_POLYREF64
 // TODO: figure out a multiplatform version of uint64_t
@@ -33,9 +29,6 @@
 // - or: http://www.azillionmonkeys.com/qed/pstdint.h
 #include <stdint.h>
 #endif
-
-// Note: If you want to use 64-bit refs, change the types of both dtPolyRef & dtTileRef.
-// It is also recommended that you change dtHashRef() to a proper 64-bit hash.
 
 /// A handle to a polygon within a navigation mesh tile.
 /// @ingroup detour

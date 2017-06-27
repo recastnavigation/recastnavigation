@@ -19,16 +19,9 @@
 #ifndef DETOURNAVMESHQUERY_H
 #define DETOURNAVMESHQUERY_H
 
+#include "DetourConfig.h"
 #include "DetourNavMesh.h"
 #include "DetourStatus.h"
-
-
-// Define DT_VIRTUAL_QUERYFILTER if you wish to derive a custom filter from dtQueryFilter.
-// On certain platforms indirect or virtual function call is expensive. The default
-// setting is to use non-virtual functions, the actual implementations of the functions
-// are declared as inline for maximum speed. 
-
-//#define DT_VIRTUAL_QUERYFILTER 1
 
 /// Defines polygon filtering and traversal costs for navigation mesh query operations.
 /// @ingroup detour
