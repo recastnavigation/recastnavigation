@@ -15,9 +15,11 @@
 //    misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 //
- 
+
 #ifndef RECAST_H
 #define RECAST_H
+
+#include "RecastConfig.h"
 
 /// The value of PI used by Recast.
 static const float RC_PI = 3.14159265f;
@@ -262,8 +264,6 @@ struct rcConfig
 	float detailSampleMaxError;
 };
 
-/// Defines the number of bits allocated to rcSpan::smin and rcSpan::smax.
-static const int RC_SPAN_HEIGHT_BITS = 13;
 /// Defines the maximum value for rcSpan::smin and rcSpan::smax.
 static const int RC_SPAN_MAX_HEIGHT = (1 << RC_SPAN_HEIGHT_BITS) - 1;
 
