@@ -113,7 +113,7 @@ static void walkContour(int x, int y, int i,
 	unsigned char startDir = dir;
 	int starti = i;
 	
-	const unsigned char area = chf.areas[i];
+	const unsigned int area = chf.areas[i];
 	
 	int iter = 0;
 	while (++iter < 40000)
@@ -919,7 +919,7 @@ bool rcBuildContours(rcContext* ctx, rcCompactHeightfield& chf,
 				const unsigned short reg = chf.spans[i].reg;
 				if (!reg || (reg & RC_BORDER_REG))
 					continue;
-				const unsigned char area = chf.areas[i];
+				const unsigned int area = chf.areas[i];
 				
 				verts.resize(0);
 				simplified.resize(0);

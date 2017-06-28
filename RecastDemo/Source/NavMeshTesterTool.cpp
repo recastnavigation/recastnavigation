@@ -132,7 +132,7 @@ static int fixupShortcuts(dtPolyRef* path, int npath, dtNavMeshQuery* navQuery)
 	if (dtStatusFailed(navQuery->getAttachedNavMesh()->getTileAndPolyByRef(path[0], &tile, &poly)))
 		return npath;
 	
-	for (unsigned int k = poly->firstLink; k != DT_NULL_LINK; k = tile->links[k].next)
+	for (unsigned int k = poly->getFirstLink(); k != DT_NULL_LINK; k = tile->links[k].next)
 	{
 		const dtLink* link = &tile->links[k];
 		if (link->ref != 0)
@@ -1023,14 +1023,14 @@ static void getPolyCenter(dtNavMesh* navMesh, dtPolyRef ref, float* center)
 	if (dtStatusFailed(status))
 		return;
 		
-	for (int i = 0; i < (int)poly->vertCount; ++i)
+	for (int i = 0; i < (int)poly->getVertCount(); ++i)
 	{
 		const float* v = &tile->verts[poly->verts[i]*3];
 		center[0] += v[0];
 		center[1] += v[1];
 		center[2] += v[2];
 	}
-	const float s = 1.0f / poly->vertCount;
+	const float s = 1.0f / poly->getVertCount();
 	center[0] *= s;
 	center[1] *= s;
 	center[2] *= s;

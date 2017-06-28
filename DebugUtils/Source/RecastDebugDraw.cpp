@@ -228,7 +228,7 @@ void duDebugDrawCompactHeightfieldSolid(duDebugDraw* dd, const rcCompactHeightfi
 			{
 				const rcCompactSpan& s = chf.spans[i];
 
-				const unsigned char area = chf.areas[i];
+				const unsigned int area = chf.areas[i];
 				unsigned int color;
 				if (area == RC_NULL_AREA)
 					color = duRGBA(0,0,0,64);
@@ -392,7 +392,7 @@ void duDebugDrawHeightfieldLayer(duDebugDraw* dd, const struct rcHeightfieldLaye
 			const int lidx = x+y*w;
 			const int lh = (int)layer.heights[lidx];
 			if (h == 0xff) continue;
-			const unsigned char area = layer.areas[lidx];
+			const unsigned int area = layer.areas[lidx];
 			
 			unsigned int col;
 			if (area == RC_NULL_AREA)
@@ -861,7 +861,7 @@ void duDebugDrawPolyMesh(duDebugDraw* dd, const struct rcPolyMesh& mesh)
 	for (int i = 0; i < mesh.npolys; ++i)
 	{
 		const unsigned short* p = &mesh.polys[i*nvp*2];
-		const unsigned char area = mesh.areas[i];
+		const unsigned int area = mesh.areas[i];
 		
 		unsigned int color;
 		if (area == RC_NULL_AREA)

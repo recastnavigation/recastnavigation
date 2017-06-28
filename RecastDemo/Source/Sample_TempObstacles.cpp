@@ -190,14 +190,8 @@ struct MeshProcess : public dtTileCacheMeshProcess
 	}
 	
 	virtual void process(struct dtNavMeshCreateParams* params,
-						 unsigned char* polyAreas, unsigned short* polyFlags)
+						 unsigned int* /*polyAreas*/)
 	{
-		// Update poly flags from areas.
-		for (int i = 0; i < params->polyCount; ++i)
-		{
-			polyFlags[i] = sampleAreaToFlags(polyAreas[i]);
-		}
-
 		// Pass in off-mesh connections.
 		if (m_geom)
 		{
@@ -205,7 +199,6 @@ struct MeshProcess : public dtTileCacheMeshProcess
 			params->offMeshConRad = m_geom->getOffMeshConnectionRads();
 			params->offMeshConDir = m_geom->getOffMeshConnectionDirs();
 			params->offMeshConAreas = m_geom->getOffMeshConnectionAreas();
-			params->offMeshConFlags = m_geom->getOffMeshConnectionFlags();
 			params->offMeshConUserID = m_geom->getOffMeshConnectionId();
 			params->offMeshConCount = m_geom->getOffMeshConnectionCount();	
 		}

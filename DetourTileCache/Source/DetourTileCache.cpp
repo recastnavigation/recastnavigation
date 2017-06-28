@@ -689,7 +689,6 @@ dtStatus dtTileCache::buildNavMeshTile(const dtCompressedTileRef ref, dtNavMesh*
 	params.vertCount = bc.lmesh->nverts;
 	params.polys = bc.lmesh->polys;
 	params.polyAreas = bc.lmesh->areas;
-	params.polyFlags = bc.lmesh->flags;
 	params.polyCount = bc.lmesh->npolys;
 	params.nvp = DT_VERTS_PER_POLYGON;
 	params.walkableHeight = m_params.walkableHeight;
@@ -706,7 +705,7 @@ dtStatus dtTileCache::buildNavMeshTile(const dtCompressedTileRef ref, dtNavMesh*
 	
 	if (m_tmproc)
 	{
-		m_tmproc->process(&params, bc.lmesh->areas, bc.lmesh->flags);
+		m_tmproc->process(&params, bc.lmesh->areas);
 	}
 	
 	unsigned char* navData = 0;

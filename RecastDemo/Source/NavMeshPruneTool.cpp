@@ -153,7 +153,7 @@ static void floodNavmesh(dtNavMesh* nav, NavmeshFlags* flags, dtPolyRef start, u
 		nav->getTileAndPolyByRefUnsafe(ref, &tile, &poly);
 
 		// Visit linked polygons.
-		for (unsigned int i = poly->firstLink; i != DT_NULL_LINK; i = tile->links[i].next)
+		for (unsigned int i = poly->getFirstLink(); i != DT_NULL_LINK; i = tile->links[i].next)
 		{
 			const dtPolyRef neiRef = tile->links[i].ref;
 			// Skip invalid and already visited.
@@ -179,9 +179,9 @@ static void disableUnvisitedPolys(dtNavMesh* nav, NavmeshFlags* flags)
 			const dtPolyRef ref = base | (unsigned int)j;
 			if (!flags->getFlags(ref))
 			{
-				unsigned short f = 0;
-				nav->getPolyFlags(ref, &f);
-				nav->setPolyFlags(ref, f | SAMPLE_POLYFLAGS_DISABLED);
+				unsigned int f = 0;
+				nav->getPolyArea(ref, &f);
+				nav->setPolyArea(ref, f | SAMPLE_POLYFLAGS_DISABLED);
 			}
 		}
 	}

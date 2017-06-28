@@ -317,7 +317,7 @@ int dtNavMesh::findConnectingPolys(const float* va, const float* vb,
 	for (int i = 0; i < tile->header->polyCount; ++i)
 	{
 		dtPoly* poly = &tile->polys[i];
-		const int nv = poly->vertCount;
+		const int nv = poly->getVertCount();
 		for (int j = 0; j < nv; ++j)
 		{
 			// Skip edges which do not point to the right side.
@@ -359,7 +359,7 @@ void dtNavMesh::unconnectLinks(dtMeshTile* tile, dtMeshTile* target)
 	for (int i = 0; i < tile->header->polyCount; ++i)
 	{
 		dtPoly* poly = &tile->polys[i];
-		unsigned int j = poly->firstLink;
+		unsigned int j = poly->getFirstLink();
 		unsigned int pj = DT_NULL_LINK;
 		while (j != DT_NULL_LINK)
 		{
@@ -368,7 +368,7 @@ void dtNavMesh::unconnectLinks(dtMeshTile* tile, dtMeshTile* target)
 				// Remove link.
 				unsigned int nj = tile->links[j].next;
 				if (pj == DT_NULL_LINK)
-					poly->firstLink = nj;
+					poly->setFirstLink(nj);
 				else
 					tile->links[pj].next = nj;
 				freeLink(tile, j);
@@ -396,7 +396,7 @@ void dtNavMesh::connectExtLinks(dtMeshTile* tile, dtMeshTile* target, int side)
 		// Create new links.
 //		unsigned short m = DT_EXT_LINK | (unsigned short)side;
 		
-		const int nv = poly->vertCount;
+		const int nv = poly->getVertCount();
 		for (int j = 0; j < nv; ++j)
 		{
 			// Skip non-portal edges.
@@ -423,8 +423,8 @@ void dtNavMesh::connectExtLinks(dtMeshTile* tile, dtMeshTile* target, int side)
 					link->edge = (unsigned char)j;
 					link->side = (unsigned char)dir;
 					
-					link->next = poly->firstLink;
-					poly->firstLink = idx;
+					link->next = poly->getFirstLink();
+					poly->setFirstLink(idx);
 
 					// Compress portal limits to a byte value.
 					if (dir == 0 || dir == 4)
@@ -467,7 +467,7 @@ void dtNavMesh::connectExtOffMeshLinks(dtMeshTile* tile, dtMeshTile* target, int
 
 		dtPoly* targetPoly = &target->polys[targetCon->poly];
 		// Skip off-mesh connections which start location could not be connected at all.
-		if (targetPoly->firstLink == DT_NULL_LINK)
+		if (targetPoly->getFirstLink() == DT_NULL_LINK)
 			continue;
 		
 		const float ext[3] = { targetCon->rad, target->header->walkableClimb, targetCon->rad };
@@ -495,8 +495,8 @@ void dtNavMesh::connectExtOffMeshLinks(dtMeshTile* tile, dtMeshTile* target, int
 			link->side = oppositeSide;
 			link->bmin = link->bmax = 0;
 			// Add to linked list.
-			link->next = targetPoly->firstLink;
-			targetPoly->firstLink = idx;
+			link->next = targetPoly->getFirstLink();
+			targetPoly->setFirstLink(idx);
 		}
 		
 		// Link target poly to off-mesh connection.
@@ -513,8 +513,8 @@ void dtNavMesh::connectExtOffMeshLinks(dtMeshTile* tile, dtMeshTile* target, int
 				link->side = (unsigned char)(side == -1 ? 0xff : side);
 				link->bmin = link->bmax = 0;
 				// Add to linked list.
-				link->next = landPoly->firstLink;
-				landPoly->firstLink = tidx;
+				link->next = landPoly->getFirstLink();
+				landPoly->setFirstLink(tidx);
 			}
 		}
 	}
@@ -530,14 +530,14 @@ void dtNavMesh::connectIntLinks(dtMeshTile* tile)
 	for (int i = 0; i < tile->header->polyCount; ++i)
 	{
 		dtPoly* poly = &tile->polys[i];
-		poly->firstLink = DT_NULL_LINK;
+		poly->setFirstLink(DT_NULL_LINK);
 
 		if (poly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
 			continue;
 			
 		// Build edge links backwards so that the links will be
 		// in the linked list from lowest index to highest.
-		for (int j = poly->vertCount-1; j >= 0; --j)
+		for (int j = poly->getVertCount()-1; j >= 0; --j)
 		{
 			// Skip hard and non-internal edges.
 			if (poly->neis[j] == 0 || (poly->neis[j] & DT_EXT_LINK)) continue;
@@ -551,8 +551,8 @@ void dtNavMesh::connectIntLinks(dtMeshTile* tile)
 				link->side = 0xff;
 				link->bmin = link->bmax = 0;
 				// Add to linked list.
-				link->next = poly->firstLink;
-				poly->firstLink = idx;
+				link->next = poly->getFirstLink();
+				poly->setFirstLink(idx);
 			}
 		}			
 	}
@@ -594,8 +594,8 @@ void dtNavMesh::baseOffMeshLinks(dtMeshTile* tile)
 			link->side = 0xff;
 			link->bmin = link->bmax = 0;
 			// Add to linked list.
-			link->next = poly->firstLink;
-			poly->firstLink = idx;
+			link->next = poly->getFirstLink();
+			poly->setFirstLink(idx);
 		}
 
 		// Start end-point is always connect back to off-mesh connection. 
@@ -610,8 +610,8 @@ void dtNavMesh::baseOffMeshLinks(dtMeshTile* tile)
 			link->side = 0xff;
 			link->bmin = link->bmax = 0;
 			// Add to linked list.
-			link->next = landPoly->firstLink;
-			landPoly->firstLink = tidx;
+			link->next = landPoly->getFirstLink();
+			landPoly->setFirstLink(tidx);
 		}
 	}
 }
@@ -643,7 +643,7 @@ void dtNavMesh::closestPointOnPoly(dtPolyRef ref, const float* pos, float* close
 	float verts[DT_VERTS_PER_POLYGON*3];	
 	float edged[DT_VERTS_PER_POLYGON];
 	float edget[DT_VERTS_PER_POLYGON];
-	const int nv = poly->vertCount;
+	const int nv = poly->getVertCount();
 	for (int i = 0; i < nv; ++i)
 		dtVcopy(&verts[i*3], &tile->verts[poly->verts[i]*3]);
 	
@@ -681,10 +681,10 @@ void dtNavMesh::closestPointOnPoly(dtPolyRef ref, const float* pos, float* close
 		const float* v[3];
 		for (int k = 0; k < 3; ++k)
 		{
-			if (t[k] < poly->vertCount)
+			if (t[k] < poly->getVertCount())
 				v[k] = &tile->verts[poly->verts[t[k]]*3];
 			else
-				v[k] = &tile->detailVerts[(pd->vertBase+(t[k]-poly->vertCount))*3];
+				v[k] = &tile->detailVerts[(pd->vertBase+(t[k]-poly->getVertCount()))*3];
 		}
 		float h;
 		if (dtClosestHeightPointTriangle(closest, v[0], v[1], v[2], h))
@@ -811,7 +811,7 @@ int dtNavMesh::queryPolygonsInTile(const dtMeshTile* tile, const float* qmin, co
 			const float* v = &tile->verts[p->verts[0]*3];
 			dtVcopy(bmin, v);
 			dtVcopy(bmax, v);
-			for (int j = 1; j < p->vertCount; ++j)
+			for (unsigned int j = 1; j < p->getVertCount(); ++j)
 			{
 				v = &tile->verts[p->verts[j]*3];
 				dtVmin(bmin, v);
@@ -1300,8 +1300,7 @@ struct dtTileState
 
 struct dtPolyState
 {
-	unsigned short flags;						// Flags (see dtPolyFlags).
-	unsigned char area;							// Area ID of the polygon.
+	unsigned int area;						// Area of the polygon.
 };
 
 ///  @see #storeTileState
@@ -1338,8 +1337,7 @@ dtStatus dtNavMesh::storeTileState(const dtMeshTile* tile, unsigned char* data, 
 	{
 		const dtPoly* p = &tile->polys[i];
 		dtPolyState* s = &polyStates[i];
-		s->flags = p->flags;
-		s->area = p->getArea();
+		s->area = p->area;
 	}
 	
 	return DT_SUCCESS;
@@ -1373,8 +1371,7 @@ dtStatus dtNavMesh::restoreTileState(dtMeshTile* tile, const unsigned char* data
 	{
 		dtPoly* p = &tile->polys[i];
 		const dtPolyState* s = &polyStates[i];
-		p->flags = s->flags;
-		p->setArea(s->area);
+		p->area = s->area;
 	}
 	
 	return DT_SUCCESS;
@@ -1410,7 +1407,7 @@ dtStatus dtNavMesh::getOffMeshConnectionPolyEndPoints(dtPolyRef prevRef, dtPolyR
 	int idx0 = 0, idx1 = 1;
 	
 	// Find link that points to first vertex.
-	for (unsigned int i = poly->firstLink; i != DT_NULL_LINK; i = tile->links[i].next)
+	for (unsigned int i = poly->getFirstLink(); i != DT_NULL_LINK; i = tile->links[i].next)
 	{
 		if (tile->links[i].edge == 0)
 		{
@@ -1455,7 +1452,7 @@ const dtOffMeshConnection* dtNavMesh::getOffMeshConnectionByRef(dtPolyRef ref) c
 }
 
 
-dtStatus dtNavMesh::setPolyFlags(dtPolyRef ref, unsigned short flags)
+dtStatus dtNavMesh::setPolyArea(dtPolyRef ref, unsigned int area)
 {
 	if (!ref) return DT_FAILURE;
 	unsigned int salt, it, ip;
@@ -1466,45 +1463,12 @@ dtStatus dtNavMesh::setPolyFlags(dtPolyRef ref, unsigned short flags)
 	if (ip >= (unsigned int)tile->header->polyCount) return DT_FAILURE | DT_INVALID_PARAM;
 	dtPoly* poly = &tile->polys[ip];
 	
-	// Change flags.
-	poly->flags = flags;
+	poly->area = area;
 	
 	return DT_SUCCESS;
 }
 
-dtStatus dtNavMesh::getPolyFlags(dtPolyRef ref, unsigned short* resultFlags) const
-{
-	if (!ref) return DT_FAILURE;
-	unsigned int salt, it, ip;
-	decodePolyId(ref, salt, it, ip);
-	if (it >= (unsigned int)m_maxTiles) return DT_FAILURE | DT_INVALID_PARAM;
-	if (m_tiles[it].salt != salt || m_tiles[it].header == 0) return DT_FAILURE | DT_INVALID_PARAM;
-	const dtMeshTile* tile = &m_tiles[it];
-	if (ip >= (unsigned int)tile->header->polyCount) return DT_FAILURE | DT_INVALID_PARAM;
-	const dtPoly* poly = &tile->polys[ip];
-
-	*resultFlags = poly->flags;
-	
-	return DT_SUCCESS;
-}
-
-dtStatus dtNavMesh::setPolyArea(dtPolyRef ref, unsigned char area)
-{
-	if (!ref) return DT_FAILURE;
-	unsigned int salt, it, ip;
-	decodePolyId(ref, salt, it, ip);
-	if (it >= (unsigned int)m_maxTiles) return DT_FAILURE | DT_INVALID_PARAM;
-	if (m_tiles[it].salt != salt || m_tiles[it].header == 0) return DT_FAILURE | DT_INVALID_PARAM;
-	dtMeshTile* tile = &m_tiles[it];
-	if (ip >= (unsigned int)tile->header->polyCount) return DT_FAILURE | DT_INVALID_PARAM;
-	dtPoly* poly = &tile->polys[ip];
-	
-	poly->setArea(area);
-	
-	return DT_SUCCESS;
-}
-
-dtStatus dtNavMesh::getPolyArea(dtPolyRef ref, unsigned char* resultArea) const
+dtStatus dtNavMesh::getPolyArea(dtPolyRef ref, unsigned int* resultArea) const
 {
 	if (!ref) return DT_FAILURE;
 	unsigned int salt, it, ip;
@@ -1515,7 +1479,7 @@ dtStatus dtNavMesh::getPolyArea(dtPolyRef ref, unsigned char* resultArea) const
 	if (ip >= (unsigned int)tile->header->polyCount) return DT_FAILURE | DT_INVALID_PARAM;
 	const dtPoly* poly = &tile->polys[ip];
 	
-	*resultArea = poly->getArea();
+	*resultArea = poly->area;
 	
 	return DT_SUCCESS;
 }

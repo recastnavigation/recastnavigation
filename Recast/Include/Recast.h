@@ -367,7 +367,7 @@ struct rcHeightfieldLayer
 	int hmin;					///< The minimum height bounds of usable data. (Along the y-axis.)
 	int hmax;					///< The maximum height bounds of usable data. (Along the y-axis.)
 	unsigned char* heights;		///< The heightfield. [Size: width * height]
-	unsigned char* areas;		///< Area ids. [Size: Same as #heights]
+	unsigned int* areas;		///< Areas. [Size: Same as #heights]
 	unsigned char* cons;		///< Packed neighbor connection information. [Size: Same as #heights]
 };
 
@@ -388,7 +388,7 @@ struct rcContour
 	int* rverts;		///< Raw contour vertex and connection data. [Size: 4 * #nrverts]
 	int nrverts;		///< The number of vertices in the raw contour. 
 	unsigned short reg;	///< The region id of the contour.
-	unsigned char area;	///< The area id of the contour.
+	unsigned int area;	///< The area id of the contour.
 };
 
 /// Represents a group of related contours.
@@ -414,8 +414,7 @@ struct rcPolyMesh
 	unsigned short* verts;	///< The mesh vertices. [Form: (x, y, z) * #nverts]
 	unsigned short* polys;	///< Polygon and neighbor data. [Length: #maxpolys * 2 * #nvp]
 	unsigned short* regs;	///< The region id assigned to each polygon. [Length: #maxpolys]
-	unsigned short* flags;	///< The user defined flags for each polygon. [Length: #maxpolys]
-	unsigned char* areas;	///< The area id assigned to each polygon. [Length: #maxpolys]
+	unsigned int* areas;	///< The area assigned to each polygon. [Length: #maxpolys]
 	int nverts;				///< The number of vertices.
 	int npolys;				///< The number of polygons.
 	int maxpolys;			///< The number of allocated polygons.

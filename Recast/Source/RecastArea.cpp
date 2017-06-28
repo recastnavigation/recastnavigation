@@ -218,12 +218,12 @@ bool rcErodeWalkableArea(rcContext* ctx, int radius, rcCompactHeightfield& chf)
 	return true;
 }
 
-static void insertSort(unsigned char* a, const int n)
+static void insertSort(unsigned int* a, const int n)
 {
 	int i, j;
 	for (i = 1; i < n; i++)
 	{
-		const unsigned char value = a[i];
+		const unsigned int value = a[i];
 		for (j = i - 1; j >= 0 && a[j] > value; j--)
 			a[j+1] = a[j];
 		a[j+1] = value;
@@ -245,7 +245,7 @@ bool rcMedianFilterWalkableArea(rcContext* ctx, rcCompactHeightfield& chf)
 	
 	rcScopedTimer timer(ctx, RC_TIMER_MEDIAN_AREA);
 	
-	unsigned char* areas = (unsigned char*)rcAlloc(sizeof(unsigned char)*chf.spanCount, RC_ALLOC_TEMP);
+	unsigned int* areas = (unsigned int*)rcAlloc(sizeof(unsigned int)*chf.spanCount, RC_ALLOC_TEMP);
 	if (!areas)
 	{
 		ctx->log(RC_LOG_ERROR, "medianFilterWalkableArea: Out of memory 'areas' (%d).", chf.spanCount);
@@ -253,7 +253,7 @@ bool rcMedianFilterWalkableArea(rcContext* ctx, rcCompactHeightfield& chf)
 	}
 	
 	// Init distance.
-	memset(areas, 0xff, sizeof(unsigned char)*chf.spanCount);
+	memset(areas, 0xff, sizeof(unsigned int)*chf.spanCount);
 	
 	for (int y = 0; y < h; ++y)
 	{
@@ -269,7 +269,7 @@ bool rcMedianFilterWalkableArea(rcContext* ctx, rcCompactHeightfield& chf)
 					continue;
 				}
 				
-				unsigned char nei[9];
+				unsigned int nei[9];
 				for (int j = 0; j < 9; ++j)
 					nei[j] = chf.areas[i];
 				
@@ -301,7 +301,7 @@ bool rcMedianFilterWalkableArea(rcContext* ctx, rcCompactHeightfield& chf)
 		}
 	}
 	
-	memcpy(chf.areas, areas, sizeof(unsigned char)*chf.spanCount);
+	memcpy(chf.areas, areas, sizeof(unsigned int)*chf.spanCount);
 	
 	rcFree(areas);
 	

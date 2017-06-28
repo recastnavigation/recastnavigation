@@ -88,7 +88,7 @@ inline bool dtQueryFilter::passFilter(const dtPolyRef /*ref*/,
 									  const dtMeshTile* /*tile*/,
 									  const dtPoly* poly) const
 {
-	return (poly->flags & m_includeFlags) != 0 && (poly->flags & m_excludeFlags) == 0;
+	return (poly->area & m_includeFlags) != 0 && (poly->area & m_excludeFlags) == 0;
 }
 
 inline float dtQueryFilter::getCost(const float* pa, const float* pb,
@@ -96,7 +96,7 @@ inline float dtQueryFilter::getCost(const float* pa, const float* pb,
 									const dtPolyRef /*curRef*/, const dtMeshTile* /*curTile*/, const dtPoly* curPoly,
 									const dtPolyRef /*nextRef*/, const dtMeshTile* /*nextTile*/, const dtPoly* /*nextPoly*/) const
 {
-	return dtVdist(pa, pb) * m_areaCost[curPoly->getArea()];
+	return dtVdist(pa, pb) * m_areaCost[curPoly->area];
 }
 #endif	
 	
@@ -260,7 +260,7 @@ dtStatus dtNavMeshQuery::findRandomPoint(const dtQueryFilter* filter, float (*fr
 
 		// Calc area of the polygon.
 		float polyArea = 0.0f;
-		for (int j = 2; j < p->vertCount; ++j)
+		for (unsigned int j = 2; j < p->getVertCount(); ++j)
 		{
 			const float* va = &tile->verts[p->verts[0]*3];
 			const float* vb = &tile->verts[p->verts[j-1]*3];
@@ -286,7 +286,7 @@ dtStatus dtNavMeshQuery::findRandomPoint(const dtQueryFilter* filter, float (*fr
 	float verts[3*DT_VERTS_PER_POLYGON];
 	float areas[DT_VERTS_PER_POLYGON];
 	dtVcopy(&verts[0*3],v);
-	for (int j = 1; j < poly->vertCount; ++j)
+	for (unsigned int j = 1; j < poly->getVertCount(); ++j)
 	{
 		v = &tile->verts[poly->verts[j]*3];
 		dtVcopy(&verts[j*3],v);
@@ -296,7 +296,7 @@ dtStatus dtNavMeshQuery::findRandomPoint(const dtQueryFilter* filter, float (*fr
 	const float t = frand();
 	
 	float pt[3];
-	dtRandomPointInConvexPoly(verts, poly->vertCount, areas, s, t, pt);
+	dtRandomPointInConvexPoly(verts, poly->getVertCount(), areas, s, t, pt);
 	
 	float h = 0.0f;
 	dtStatus status = getPolyHeight(polyRef, pt, &h);
@@ -367,7 +367,7 @@ dtStatus dtNavMeshQuery::findRandomPointAroundCircle(dtPolyRef startRef, const f
 		{
 			// Calc area of the polygon.
 			float polyArea = 0.0f;
-			for (int j = 2; j < bestPoly->vertCount; ++j)
+			for (unsigned int j = 2; j < bestPoly->getVertCount(); ++j)
 			{
 				const float* va = &bestTile->verts[bestPoly->verts[0]*3];
 				const float* vb = &bestTile->verts[bestPoly->verts[j-1]*3];
@@ -395,7 +395,7 @@ dtStatus dtNavMeshQuery::findRandomPointAroundCircle(dtPolyRef startRef, const f
 		if (parentRef)
 			m_nav->getTileAndPolyByRefUnsafe(parentRef, &parentTile, &parentPoly);
 		
-		for (unsigned int i = bestPoly->firstLink; i != DT_NULL_LINK; i = bestTile->links[i].next)
+		for (unsigned int i = bestPoly->getFirstLink(); i != DT_NULL_LINK; i = bestTile->links[i].next)
 		{
 			const dtLink* link = &bestTile->links[i];
 			dtPolyRef neighbourRef = link->ref;
@@ -468,7 +468,7 @@ dtStatus dtNavMeshQuery::findRandomPointAroundCircle(dtPolyRef startRef, const f
 	float verts[3*DT_VERTS_PER_POLYGON];
 	float areas[DT_VERTS_PER_POLYGON];
 	dtVcopy(&verts[0*3],v);
-	for (int j = 1; j < randomPoly->vertCount; ++j)
+	for (unsigned int j = 1; j < randomPoly->getVertCount(); ++j)
 	{
 		v = &randomTile->verts[randomPoly->verts[j]*3];
 		dtVcopy(&verts[j*3],v);
@@ -478,7 +478,7 @@ dtStatus dtNavMeshQuery::findRandomPointAroundCircle(dtPolyRef startRef, const f
 	const float t = frand();
 	
 	float pt[3];
-	dtRandomPointInConvexPoly(verts, randomPoly->vertCount, areas, s, t, pt);
+	dtRandomPointInConvexPoly(verts, randomPoly->getVertCount(), areas, s, t, pt);
 	
 	float h = 0.0f;
 	dtStatus stat = getPolyHeight(randomPolyRef, pt, &h);
@@ -534,7 +534,7 @@ dtStatus dtNavMeshQuery::closestPointOnPoly(dtPolyRef ref, const float* pos, flo
 	float verts[DT_VERTS_PER_POLYGON*3];	
 	float edged[DT_VERTS_PER_POLYGON];
 	float edget[DT_VERTS_PER_POLYGON];
-	const int nv = poly->vertCount;
+	const int nv = poly->getVertCount();
 	for (int i = 0; i < nv; ++i)
 		dtVcopy(&verts[i*3], &tile->verts[poly->verts[i]*3]);
 	
@@ -572,10 +572,10 @@ dtStatus dtNavMeshQuery::closestPointOnPoly(dtPolyRef ref, const float* pos, flo
 		const float* v[3];
 		for (int k = 0; k < 3; ++k)
 		{
-			if (t[k] < poly->vertCount)
+			if (t[k] < poly->getVertCount())
 				v[k] = &tile->verts[poly->verts[t[k]]*3];
 			else
-				v[k] = &tile->detailVerts[(pd->vertBase+(t[k]-poly->vertCount))*3];
+				v[k] = &tile->detailVerts[(pd->vertBase+(t[k]-poly->getVertCount()))*3];
 		}
 		float h;
 		if (dtClosestHeightPointTriangle(closest, v[0], v[1], v[2], h))
@@ -613,7 +613,7 @@ dtStatus dtNavMeshQuery::closestPointOnPolyBoundary(dtPolyRef ref, const float* 
 	float edged[DT_VERTS_PER_POLYGON];
 	float edget[DT_VERTS_PER_POLYGON];
 	int nv = 0;
-	for (int i = 0; i < (int)poly->vertCount; ++i)
+	for (int i = 0; i < (int)poly->getVertCount(); ++i)
 	{
 		dtVcopy(&verts[nv*3], &tile->verts[poly->verts[i]*3]);
 		nv++;
@@ -681,10 +681,10 @@ dtStatus dtNavMeshQuery::getPolyHeight(dtPolyRef ref, const float* pos, float* h
 			const float* v[3];
 			for (int k = 0; k < 3; ++k)
 			{
-				if (t[k] < poly->vertCount)
+				if (t[k] < poly->getVertCount())
 					v[k] = &tile->verts[poly->verts[t[k]]*3];
 				else
-					v[k] = &tile->detailVerts[(pd->vertBase+(t[k]-poly->vertCount))*3];
+					v[k] = &tile->detailVerts[(pd->vertBase+(t[k]-poly->getVertCount()))*3];
 			}
 			float h;
 			if (dtClosestHeightPointTriangle(pos, v[0], v[1], v[2], h))
@@ -871,7 +871,7 @@ void dtNavMeshQuery::queryPolygonsInTile(const dtMeshTile* tile, const float* qm
 			const float* v = &tile->verts[p->verts[0]*3];
 			dtVcopy(bmin, v);
 			dtVcopy(bmax, v);
-			for (int j = 1; j < p->vertCount; ++j)
+			for (unsigned int j = 1; j < p->getVertCount(); ++j)
 			{
 				v = &tile->verts[p->verts[j]*3];
 				dtVmin(bmin, v);
@@ -1084,7 +1084,7 @@ dtStatus dtNavMeshQuery::findPath(dtPolyRef startRef, dtPolyRef endRef,
 		if (parentRef)
 			m_nav->getTileAndPolyByRefUnsafe(parentRef, &parentTile, &parentPoly);
 		
-		for (unsigned int i = bestPoly->firstLink; i != DT_NULL_LINK; i = bestTile->links[i].next)
+		for (unsigned int i = bestPoly->getFirstLink(); i != DT_NULL_LINK; i = bestTile->links[i].next)
 		{
 			dtPolyRef neighbourRef = bestTile->links[i].ref;
 			
@@ -1394,7 +1394,7 @@ dtStatus dtNavMeshQuery::updateSlicedFindPath(const int maxIter, int* doneIters)
 				tryLOS = true;
 		}
 		
-		for (unsigned int i = bestPoly->firstLink; i != DT_NULL_LINK; i = bestTile->links[i].next)
+		for (unsigned int i = bestPoly->getFirstLink(); i != DT_NULL_LINK; i = bestTile->links[i].next)
 		{
 			dtPolyRef neighbourRef = bestTile->links[i].ref;
 			
@@ -1779,7 +1779,7 @@ dtStatus dtNavMeshQuery::appendPortals(const int startIdx, const int endIdx, con
 		if (options & DT_STRAIGHTPATH_AREA_CROSSINGS)
 		{
 			// Skip intersection if only area crossings are requested.
-			if (fromPoly->getArea() == toPoly->getArea())
+			if (fromPoly->area == toPoly->area)
 				continue;
 		}
 		
@@ -2122,7 +2122,7 @@ dtStatus dtNavMeshQuery::moveAlongSurface(dtPolyRef startRef, const float* start
 		m_nav->getTileAndPolyByRefUnsafe(curRef, &curTile, &curPoly);			
 		
 		// Collect vertices.
-		const int nverts = curPoly->vertCount;
+		const int nverts = curPoly->getVertCount();
 		for (int i = 0; i < nverts; ++i)
 			dtVcopy(&verts[i*3], &curTile->verts[curPoly->verts[i]*3]);
 		
@@ -2135,7 +2135,7 @@ dtStatus dtNavMeshQuery::moveAlongSurface(dtPolyRef startRef, const float* start
 		}
 		
 		// Find wall edges and find nearest point inside the walls.
-		for (int i = 0, j = (int)curPoly->vertCount-1; i < (int)curPoly->vertCount; j = i++)
+		for (int i = 0, j = (int)curPoly->getVertCount()-1; i < (int)curPoly->getVertCount(); j = i++)
 		{
 			// Find links to neighbours.
 			static const int MAX_NEIS = 8;
@@ -2145,7 +2145,7 @@ dtStatus dtNavMeshQuery::moveAlongSurface(dtPolyRef startRef, const float* start
 			if (curPoly->neis[j] & DT_EXT_LINK)
 			{
 				// Tile border.
-				for (unsigned int k = curPoly->firstLink; k != DT_NULL_LINK; k = curTile->links[k].next)
+				for (unsigned int k = curPoly->getFirstLink(); k != DT_NULL_LINK; k = curTile->links[k].next)
 				{
 					const dtLink* link = &curTile->links[k];
 					if (link->edge == j)
@@ -2288,7 +2288,7 @@ dtStatus dtNavMeshQuery::getPortalPoints(dtPolyRef from, const dtPoly* fromPoly,
 {
 	// Find the link that points to the 'to' polygon.
 	const dtLink* link = 0;
-	for (unsigned int i = fromPoly->firstLink; i != DT_NULL_LINK; i = fromTile->links[i].next)
+	for (unsigned int i = fromPoly->getFirstLink(); i != DT_NULL_LINK; i = fromTile->links[i].next)
 	{
 		if (fromTile->links[i].ref == to)
 		{
@@ -2303,7 +2303,7 @@ dtStatus dtNavMeshQuery::getPortalPoints(dtPolyRef from, const dtPoly* fromPoly,
 	if (fromPoly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
 	{
 		// Find link that points to first vertex.
-		for (unsigned int i = fromPoly->firstLink; i != DT_NULL_LINK; i = fromTile->links[i].next)
+		for (unsigned int i = fromPoly->getFirstLink(); i != DT_NULL_LINK; i = fromTile->links[i].next)
 		{
 			if (fromTile->links[i].ref == to)
 			{
@@ -2318,7 +2318,7 @@ dtStatus dtNavMeshQuery::getPortalPoints(dtPolyRef from, const dtPoly* fromPoly,
 	
 	if (toPoly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
 	{
-		for (unsigned int i = toPoly->firstLink; i != DT_NULL_LINK; i = toTile->links[i].next)
+		for (unsigned int i = toPoly->getFirstLink(); i != DT_NULL_LINK; i = toTile->links[i].next)
 		{
 			if (toTile->links[i].ref == from)
 			{
@@ -2333,7 +2333,7 @@ dtStatus dtNavMeshQuery::getPortalPoints(dtPolyRef from, const dtPoly* fromPoly,
 	
 	// Find portal vertices.
 	const int v0 = fromPoly->verts[link->edge];
-	const int v1 = fromPoly->verts[(link->edge+1) % (int)fromPoly->vertCount];
+	const int v1 = fromPoly->verts[(link->edge+1) % (int)fromPoly->getVertCount()];
 	dtVcopy(left, &fromTile->verts[v0*3]);
 	dtVcopy(right, &fromTile->verts[v1*3]);
 	
@@ -2525,7 +2525,7 @@ dtStatus dtNavMeshQuery::raycast(dtPolyRef startRef, const float* startPos, cons
 		
 		// Collect vertices.
 		int nv = 0;
-		for (int i = 0; i < (int)poly->vertCount; ++i)
+		for (int i = 0; i < (int)poly->getVertCount(); ++i)
 		{
 			dtVcopy(&verts[nv*3], &tile->verts[poly->verts[i]*3]);
 			nv++;
@@ -2567,7 +2567,7 @@ dtStatus dtNavMeshQuery::raycast(dtPolyRef startRef, const float* startPos, cons
 		// Follow neighbours.
 		dtPolyRef nextRef = 0;
 		
-		for (unsigned int i = poly->firstLink; i != DT_NULL_LINK; i = tile->links[i].next)
+		for (unsigned int i = poly->getFirstLink(); i != DT_NULL_LINK; i = tile->links[i].next)
 		{
 			const dtLink* link = &tile->links[i];
 			
@@ -2606,7 +2606,7 @@ dtStatus dtNavMeshQuery::raycast(dtPolyRef startRef, const float* startPos, cons
 			
 			// Check for partial edge links.
 			const int v0 = poly->verts[link->edge];
-			const int v1 = poly->verts[(link->edge+1) % poly->vertCount];
+			const int v1 = poly->verts[(link->edge+1) % poly->getVertCount()];
 			const float* left = &tile->verts[v0*3];
 			const float* right = &tile->verts[v1*3];
 			
@@ -2796,7 +2796,7 @@ dtStatus dtNavMeshQuery::findPolysAroundCircle(dtPolyRef startRef, const float* 
 			status |= DT_BUFFER_TOO_SMALL;
 		}
 		
-		for (unsigned int i = bestPoly->firstLink; i != DT_NULL_LINK; i = bestTile->links[i].next)
+		for (unsigned int i = bestPoly->getFirstLink(); i != DT_NULL_LINK; i = bestTile->links[i].next)
 		{
 			const dtLink* link = &bestTile->links[i];
 			dtPolyRef neighbourRef = link->ref;
@@ -2967,7 +2967,7 @@ dtStatus dtNavMeshQuery::findPolysAroundShape(dtPolyRef startRef, const float* v
 			status |= DT_BUFFER_TOO_SMALL;
 		}
 		
-		for (unsigned int i = bestPoly->firstLink; i != DT_NULL_LINK; i = bestTile->links[i].next)
+		for (unsigned int i = bestPoly->getFirstLink(); i != DT_NULL_LINK; i = bestTile->links[i].next)
 		{
 			const dtLink* link = &bestTile->links[i];
 			dtPolyRef neighbourRef = link->ref;
@@ -3142,7 +3142,7 @@ dtStatus dtNavMeshQuery::findLocalNeighbourhood(dtPolyRef startRef, const float*
 		const dtPoly* curPoly = 0;
 		m_nav->getTileAndPolyByRefUnsafe(curRef, &curTile, &curPoly);
 		
-		for (unsigned int i = curPoly->firstLink; i != DT_NULL_LINK; i = curTile->links[i].next)
+		for (unsigned int i = curPoly->getFirstLink(); i != DT_NULL_LINK; i = curTile->links[i].next)
 		{
 			const dtLink* link = &curTile->links[i];
 			dtPolyRef neighbourRef = link->ref;
@@ -3190,7 +3190,7 @@ dtStatus dtNavMeshQuery::findLocalNeighbourhood(dtPolyRef startRef, const float*
 			// Check that the polygon does not collide with existing polygons.
 			
 			// Collect vertices of the neighbour poly.
-			const int npa = neighbourPoly->vertCount;
+			const int npa = neighbourPoly->getVertCount();
 			for (int k = 0; k < npa; ++k)
 				dtVcopy(&pa[k*3], &neighbourTile->verts[neighbourPoly->verts[k]*3]);
 			
@@ -3201,7 +3201,7 @@ dtStatus dtNavMeshQuery::findLocalNeighbourhood(dtPolyRef startRef, const float*
 				
 				// Connected polys do not overlap.
 				bool connected = false;
-				for (unsigned int k = curPoly->firstLink; k != DT_NULL_LINK; k = curTile->links[k].next)
+				for (unsigned int k = curPoly->getFirstLink(); k != DT_NULL_LINK; k = curTile->links[k].next)
 				{
 					if (curTile->links[k].ref == pastRef)
 					{
@@ -3218,7 +3218,7 @@ dtStatus dtNavMeshQuery::findLocalNeighbourhood(dtPolyRef startRef, const float*
 				m_nav->getTileAndPolyByRefUnsafe(pastRef, &pastTile, &pastPoly);
 				
 				// Get vertices and test overlap
-				const int npb = pastPoly->vertCount;
+				const int npb = pastPoly->getVertCount();
 				for (int k = 0; k < npb; ++k)
 					dtVcopy(&pb[k*3], &pastTile->verts[pastPoly->verts[k]*3]);
 				
@@ -3318,14 +3318,14 @@ dtStatus dtNavMeshQuery::getPolyWallSegments(dtPolyRef ref, const dtQueryFilter*
 	
 	dtStatus status = DT_SUCCESS;
 	
-	for (int i = 0, j = (int)poly->vertCount-1; i < (int)poly->vertCount; j = i++)
+	for (int i = 0, j = (int)poly->getVertCount()-1; i < (int)poly->getVertCount(); j = i++)
 	{
 		// Skip non-solid edges.
 		nints = 0;
 		if (poly->neis[j] & DT_EXT_LINK)
 		{
 			// Tile border.
-			for (unsigned int k = poly->firstLink; k != DT_NULL_LINK; k = tile->links[k].next)
+			for (unsigned int k = poly->getFirstLink(); k != DT_NULL_LINK; k = tile->links[k].next)
 			{
 				const dtLink* link = &tile->links[k];
 				if (link->edge == j)
@@ -3497,14 +3497,14 @@ dtStatus dtNavMeshQuery::findDistanceToWall(dtPolyRef startRef, const float* cen
 			m_nav->getTileAndPolyByRefUnsafe(parentRef, &parentTile, &parentPoly);
 		
 		// Hit test walls.
-		for (int i = 0, j = (int)bestPoly->vertCount-1; i < (int)bestPoly->vertCount; j = i++)
+		for (int i = 0, j = (int)bestPoly->getVertCount()-1; i < (int)bestPoly->getVertCount(); j = i++)
 		{
 			// Skip non-solid edges.
 			if (bestPoly->neis[j] & DT_EXT_LINK)
 			{
 				// Tile border.
 				bool solid = true;
-				for (unsigned int k = bestPoly->firstLink; k != DT_NULL_LINK; k = bestTile->links[k].next)
+				for (unsigned int k = bestPoly->getFirstLink(); k != DT_NULL_LINK; k = bestTile->links[k].next)
 				{
 					const dtLink* link = &bestTile->links[k];
 					if (link->edge == j)
@@ -3549,7 +3549,7 @@ dtStatus dtNavMeshQuery::findDistanceToWall(dtPolyRef startRef, const float* cen
 			hitPos[2] = vj[2] + (vi[2] - vj[2])*tseg;
 		}
 		
-		for (unsigned int i = bestPoly->firstLink; i != DT_NULL_LINK; i = bestTile->links[i].next)
+		for (unsigned int i = bestPoly->getFirstLink(); i != DT_NULL_LINK; i = bestTile->links[i].next)
 		{
 			const dtLink* link = &bestTile->links[i];
 			dtPolyRef neighbourRef = link->ref;
@@ -3568,7 +3568,7 @@ dtStatus dtNavMeshQuery::findDistanceToWall(dtPolyRef startRef, const float* cen
 			
 			// Calc distance to the edge.
 			const float* va = &bestTile->verts[bestPoly->verts[link->edge]*3];
-			const float* vb = &bestTile->verts[bestPoly->verts[(link->edge+1) % bestPoly->vertCount]*3];
+			const float* vb = &bestTile->verts[bestPoly->verts[(link->edge+1) % bestPoly->getVertCount()]*3];
 			float tseg;
 			float distSqr = dtDistancePtSegSqr2D(centerPos, va, vb, tseg);
 			

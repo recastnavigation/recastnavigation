@@ -514,29 +514,29 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 
 		const int gridSize = sizeof(unsigned char)*lw*lh;
 
-		layer->heights = (unsigned char*)rcAlloc(gridSize, RC_ALLOC_PERM);
+		layer->heights = (unsigned char*)rcAlloc(gridSize * sizeof(unsigned char), RC_ALLOC_PERM);
 		if (!layer->heights)
 		{
 			ctx->log(RC_LOG_ERROR, "rcBuildHeightfieldLayers: Out of memory 'heights' (%d).", gridSize);
 			return false;
 		}
-		memset(layer->heights, 0xff, gridSize);
+		memset(layer->heights, 0xff, gridSize * sizeof(unsigned char));
 
-		layer->areas = (unsigned char*)rcAlloc(gridSize, RC_ALLOC_PERM);
+		layer->areas = (unsigned int*)rcAlloc(gridSize * sizeof(unsigned int), RC_ALLOC_PERM);
 		if (!layer->areas)
 		{
 			ctx->log(RC_LOG_ERROR, "rcBuildHeightfieldLayers: Out of memory 'areas' (%d).", gridSize);
 			return false;
 		}
-		memset(layer->areas, 0, gridSize);
+		memset(layer->areas, 0, gridSize * sizeof(unsigned int));
 
-		layer->cons = (unsigned char*)rcAlloc(gridSize, RC_ALLOC_PERM);
+		layer->cons = (unsigned char*)rcAlloc(gridSize * sizeof(unsigned char), RC_ALLOC_PERM);
 		if (!layer->cons)
 		{
 			ctx->log(RC_LOG_ERROR, "rcBuildHeightfieldLayers: Out of memory 'cons' (%d).", gridSize);
 			return false;
 		}
-		memset(layer->cons, 0, gridSize);
+		memset(layer->cons, 0, gridSize * sizeof(unsigned char));
 		
 		// Find layer height bounds.
 		int hmin = 0, hmax = 0;

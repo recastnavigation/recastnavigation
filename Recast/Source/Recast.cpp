@@ -229,7 +229,6 @@ void rcFreePolyMesh(rcPolyMesh* pmesh)
 	rcFree(pmesh->verts);
 	rcFree(pmesh->polys);
 	rcFree(pmesh->regs);
-	rcFree(pmesh->flags);
 	rcFree(pmesh->areas);
 	rcFree(pmesh);
 }
@@ -435,8 +434,7 @@ bool rcBuildCompactHeightfield(rcContext* ctx, const int walkableHeight, const i
 		ctx->log(RC_LOG_ERROR, "rcBuildCompactHeightfield: Out of memory 'chf.areas' (%d)", spanCount);
 		return false;
 	}
-	static_assert(RC_NULL_AREA == 0, "Cannot memset to RC_NULL_AREA");
-	memset(chf.areas, RC_NULL_AREA, sizeof(unsigned int)*spanCount);
+	memset(chf.areas, 0, sizeof(unsigned int)*spanCount);
 	
 	const int MAX_HEIGHT = 0xffff;
 	

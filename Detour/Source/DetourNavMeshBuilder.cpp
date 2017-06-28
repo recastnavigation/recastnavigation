@@ -516,9 +516,8 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	for (int i = 0; i < params->polyCount; ++i)
 	{
 		dtPoly* p = &navPolys[i];
-		p->vertCount = 0;
-		p->flags = params->polyFlags[i];
-		p->setArea(params->polyAreas[i]);
+		p->setVertCount(0);
+		p->area = params->polyAreas[i];
 		p->setType(DT_POLYTYPE_GROUND);
 		for (int j = 0; j < nvp; ++j)
 		{
@@ -545,7 +544,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 				p->neis[j] = src[nvp+j]+1;
 			}
 			
-			p->vertCount++;
+			p->setVertCount(p->getVertCount() + 1);
 		}
 		src += nvp*2;
 	}
@@ -557,11 +556,10 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 		if (offMeshConClass[i*2+0] == 0xff)
 		{
 			dtPoly* p = &navPolys[offMeshPolyBase+n];
-			p->vertCount = 2;
+			p->setVertCount(2);
 			p->verts[0] = (unsigned short)(offMeshVertsBase + n*2+0);
 			p->verts[1] = (unsigned short)(offMeshVertsBase + n*2+1);
-			p->flags = params->offMeshConFlags[i];
-			p->setArea(params->offMeshConAreas[i]);
+			p->area = params->offMeshConAreas[i];
 			p->setType(DT_POLYTYPE_OFFMESH_CONNECTION);
 			n++;
 		}
@@ -578,7 +576,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 			dtPolyDetail& dtl = navDMeshes[i];
 			const int vb = (int)params->detailMeshes[i*4+0];
 			const int ndv = (int)params->detailMeshes[i*4+1];
-			const int nv = navPolys[i].vertCount;
+			const int nv = navPolys[i].getVertCount();
 			dtl.vertBase = (unsigned int)vbase;
 			dtl.vertCount = (unsigned char)(ndv-nv);
 			dtl.triBase = (unsigned int)params->detailMeshes[i*4+2];
@@ -600,7 +598,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 		for (int i = 0; i < params->polyCount; ++i)
 		{
 			dtPolyDetail& dtl = navDMeshes[i];
-			const int nv = navPolys[i].vertCount;
+			const int nv = navPolys[i].getVertCount();
 			dtl.vertBase = 0;
 			dtl.vertCount = 0;
 			dtl.triBase = (unsigned int)tbase;
@@ -751,13 +749,12 @@ bool dtNavMeshDataSwapEndian(unsigned char* data, const int /*dataSize*/)
 	for (int i = 0; i < header->polyCount; ++i)
 	{
 		dtPoly* p = &polys[i];
-		// poly->firstLink is update when tile is added, no need to swap.
+		dtSwapEndian(&p->firstLinkAndVertCountAndType);
 		for (int j = 0; j < DT_VERTS_PER_POLYGON; ++j)
 		{
 			dtSwapEndian(&p->verts[j]);
 			dtSwapEndian(&p->neis[j]);
 		}
-		dtSwapEndian(&p->flags);
 	}
 
 	// Links are rebuild when tile is added, no need to swap.
