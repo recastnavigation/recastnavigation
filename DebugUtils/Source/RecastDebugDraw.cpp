@@ -193,9 +193,7 @@ void duDebugDrawHeightfieldWalkable(duDebugDraw* dd, const rcHeightfield& hf)
 			const rcSpan* s = hf.spans[x + y*w];
 			while (s)
 			{
-				if (s->area == RC_WALKABLE_AREA)
-					fcol[0] = duRGBA(64,128,160,255);
-				else if (s->area == RC_NULL_AREA)
+				if (s->area == RC_NULL_AREA)
 					fcol[0] = duRGBA(64,64,64,255);
 				else
 					fcol[0] = duMultCol(dd->areaToCol(s->area), 200);
@@ -232,9 +230,7 @@ void duDebugDrawCompactHeightfieldSolid(duDebugDraw* dd, const rcCompactHeightfi
 
 				const unsigned char area = chf.areas[i];
 				unsigned int color;
-				if (area == RC_WALKABLE_AREA)
-					color = duRGBA(0,192,255,64);
-				else if (area == RC_NULL_AREA)
+				if (area == RC_NULL_AREA)
 					color = duRGBA(0,0,0,64);
 				else
 					color = dd->areaToCol(area);
@@ -399,9 +395,7 @@ void duDebugDrawHeightfieldLayer(duDebugDraw* dd, const struct rcHeightfieldLaye
 			const unsigned char area = layer.areas[lidx];
 			
 			unsigned int col;
-			if (area == RC_WALKABLE_AREA)
-				col = duLerpCol(color, duRGBA(0,192,255,64), 32);
-			else if (area == RC_NULL_AREA)
+			if (area == RC_NULL_AREA)
 				col = duLerpCol(color, duRGBA(0,0,0,64), 32);
 			else
 				col = duLerpCol(color, dd->areaToCol(area), 32);
@@ -870,9 +864,7 @@ void duDebugDrawPolyMesh(duDebugDraw* dd, const struct rcPolyMesh& mesh)
 		const unsigned char area = mesh.areas[i];
 		
 		unsigned int color;
-		if (area == RC_WALKABLE_AREA)
-			color = duRGBA(0,192,255,64);
-		else if (area == RC_NULL_AREA)
+		if (area == RC_NULL_AREA)
 			color = duRGBA(0,0,0,64);
 		else
 			color = dd->areaToCol(area);

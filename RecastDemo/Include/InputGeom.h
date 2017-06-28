@@ -26,7 +26,7 @@
 static const int MAX_CONVEXVOL_PTS = 12;
 struct ConvexVolume
 {
-	ConvexVolume(): areaMod(RC_AREA_FLAGS_MASK) {}
+	ConvexVolume() : areaMod(1) {}
 	float verts[MAX_CONVEXVOL_PTS*3];
 	float hmin, hmax;
 	int nverts;

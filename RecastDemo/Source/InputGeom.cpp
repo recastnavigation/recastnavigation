@@ -253,7 +253,9 @@ bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath)
 			if (m_volumeCount < MAX_VOLUMES)
 			{
 				ConvexVolume* vol = &m_volumes[m_volumeCount++];
-				sscanf(row+1, "%d %c %c %f %f", &vol->nverts, &vol->areaMod.m_value, &vol->areaMod.m_mask, &vol->hmin, &vol->hmax);
+				unsigned int area, mask;
+				sscanf(row+1, "%d %u %u %f %f", &vol->nverts, &area, &mask, &vol->hmin, &vol->hmax);
+				vol->areaMod = rcAreaModification(area, mask);
 				for (int i = 0; i < vol->nverts; ++i)
 				{
 					row[0] = '\0';
@@ -375,7 +377,7 @@ bool InputGeom::saveGeomSet(const BuildSettings* settings)
 	for (int i = 0; i < m_volumeCount; ++i)
 	{
 		ConvexVolume* vol = &m_volumes[i];
-		fprintf(fp, "v %d %c %c %f %f\n", vol->nverts, vol->areaMod.m_value, vol->areaMod.m_mask, vol->hmin, vol->hmax);
+		fprintf(fp, "v %d %u %u %f %f\n", vol->nverts, vol->areaMod.getMaskedValue(), vol->areaMod.getMask(), vol->hmin, vol->hmax);
 		for (int j = 0; j < vol->nverts; ++j)
 			fprintf(fp, "%f %f %f\n", vol->verts[j*3+0], vol->verts[j*3+1], vol->verts[j*3+2]);
 	}

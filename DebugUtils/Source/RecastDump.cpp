@@ -259,7 +259,7 @@ bool duReadContourSet(struct rcContourSet& cset, duFileIO* io)
 	
 
 static const int CHF_MAGIC = ('r' << 24) | ('c' << 16) | ('h' << 8) | 'f';
-static const int CHF_VERSION = 3;
+static const int CHF_VERSION = 4;
 
 bool duDumpCompactHeightfield(struct rcCompactHeightfield& chf, duFileIO* io)
 {
@@ -309,7 +309,7 @@ bool duDumpCompactHeightfield(struct rcCompactHeightfield& chf, duFileIO* io)
 	if (chf.dist)
 		io->write(chf.dist, sizeof(unsigned short)*chf.spanCount);
 	if (chf.areas)
-		io->write(chf.areas, sizeof(unsigned char)*chf.spanCount);
+		io->write(chf.areas, sizeof(unsigned int)*chf.spanCount);
 
 	return true;
 }
@@ -396,13 +396,13 @@ bool duReadCompactHeightfield(struct rcCompactHeightfield& chf, duFileIO* io)
 	}
 	if (tmp & 8)
 	{
-		chf.areas = (unsigned char*)rcAlloc(sizeof(unsigned char)*chf.spanCount, RC_ALLOC_PERM);
+		chf.areas = (unsigned int*)rcAlloc(sizeof(unsigned int)*chf.spanCount, RC_ALLOC_PERM);
 		if (!chf.areas)
 		{
 			printf("duReadCompactHeightfield: Could not alloc areas (%d)\n", chf.spanCount);
 			return false;
 		}
-		io->read(chf.areas, sizeof(unsigned char)*chf.spanCount);
+		io->read(chf.areas, sizeof(unsigned int)*chf.spanCount);
 	}
 	
 	return true;

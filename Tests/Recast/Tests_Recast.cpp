@@ -444,31 +444,31 @@ TEST_CASE("rcMarkWalkableTriangles")
 	int walkable_tri[] = { 0, 1, 2 };
 	int unwalkable_tri[] = { 0, 2, 1 };
 	int nt = 1;
-	unsigned char areas[] = { RC_NULL_AREA };
+	unsigned int areas[] = { RC_NULL_AREA };
 
 	SECTION("One walkable triangle")
 	{
-		rcMarkWalkableTriangles(ctx, walkableSlopeAngle, verts, nv, walkable_tri, nt, areas, rcAreaModification(RC_WALKABLE_AREA));
-		REQUIRE(areas[0] == RC_WALKABLE_AREA);
+		rcMarkWalkableTriangles(ctx, walkableSlopeAngle, verts, nv, walkable_tri, nt, areas, rcAreaModification(1));
+		REQUIRE(areas[0] == 1);
 	}
 
 	SECTION("One non-walkable triangle")
 	{
-		rcMarkWalkableTriangles(ctx, walkableSlopeAngle, verts, nv, unwalkable_tri, nt, areas, rcAreaModification(RC_WALKABLE_AREA));
+		rcMarkWalkableTriangles(ctx, walkableSlopeAngle, verts, nv, unwalkable_tri, nt, areas, rcAreaModification(1));
 		REQUIRE(areas[0] == RC_NULL_AREA);
 	}
 
 	SECTION("Non-walkable triangle area id's are not modified")
 	{
 		areas[0] = 42;
-		rcMarkWalkableTriangles(ctx, walkableSlopeAngle, verts, nv, unwalkable_tri, nt, areas, rcAreaModification(RC_WALKABLE_AREA));
+		rcMarkWalkableTriangles(ctx, walkableSlopeAngle, verts, nv, unwalkable_tri, nt, areas, rcAreaModification(1));
 		REQUIRE(areas[0] == 42);
 	}
 
 	SECTION("Slopes equal to the max slope are considered unwalkable.")
 	{
 		walkableSlopeAngle = 0;
-		rcMarkWalkableTriangles(ctx, walkableSlopeAngle, verts, nv, walkable_tri, nt, areas, rcAreaModification(RC_WALKABLE_AREA));
+		rcMarkWalkableTriangles(ctx, walkableSlopeAngle, verts, nv, walkable_tri, nt, areas, rcAreaModification(1));
 		REQUIRE(areas[0] == RC_NULL_AREA);
 	}
 }
@@ -486,7 +486,7 @@ TEST_CASE("rcClearUnwalkableTriangles")
 	int walkable_tri[] = { 0, 1, 2 };
 	int unwalkable_tri[] = { 0, 2, 1 };
 	int nt = 1;
-	unsigned char areas[] = { 42 };
+	unsigned int areas[] = { 42 };
 
 	SECTION("Sets area ID of unwalkable triangle to RC_NULL_AREA")
 	{
@@ -662,7 +662,7 @@ TEST_CASE("rcRasterizeTriangles")
 		0, 1, 2,
 		0, 3, 1
 	};
-	unsigned char areas[] = {
+	unsigned int areas[] = {
 		1,
 		2
 	};

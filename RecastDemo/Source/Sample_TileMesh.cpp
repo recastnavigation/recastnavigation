@@ -1010,7 +1010,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	// Allocate array that can hold triangle flags.
 	// If you have multiple meshes you need to process, allocate
 	// and array which can hold the max number of triangles you need to process.
-	m_triareas = new unsigned char[chunkyMesh->maxTrisPerChunk];
+	m_triareas = new unsigned int[chunkyMesh->maxTrisPerChunk];
 	if (!m_triareas)
 	{
 		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'm_triareas' (%d).", chunkyMesh->maxTrisPerChunk);
@@ -1037,7 +1037,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 		
 		m_tileTriCount += nctris;
 		
-		memset(m_triareas, 0, nctris*sizeof(unsigned char));
+		memset(m_triareas, 0, nctris*sizeof(unsigned int));
 		rcMarkWalkableTriangles(m_ctx, m_cfg.walkableSlopeAngle,
 								verts, nverts, ctris, nctris, m_triareas, SAMPLE_AREAMOD_GROUND);
 		
