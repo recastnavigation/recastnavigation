@@ -275,10 +275,10 @@ static const int RC_SPANS_PER_POOL = 2048;
 /// @see rcHeightfield
 struct rcSpan
 {
+	rcSpan* next;                            ///< The next span higher up in column.
 	unsigned int smin : RC_SPAN_HEIGHT_BITS; ///< The lower limit of the span. [Limit: < #smax]
 	unsigned int smax : RC_SPAN_HEIGHT_BITS; ///< The upper limit of the span. [Limit: <= #RC_SPAN_MAX_HEIGHT]
-	unsigned int area : 6;                   ///< The area id assigned to the span.
-	rcSpan* next;                            ///< The next span higher up in column.
+	unsigned int area;                   ///< The area flags assigned to the span.
 };
 
 /// A memory pool used for quick allocation of spans within a heightfield.
@@ -347,7 +347,7 @@ struct rcCompactHeightfield
 	rcCompactCell* cells;		///< Array of cells. [Size: #width*#height]
 	rcCompactSpan* spans;		///< Array of spans. [Size: #spanCount]
 	unsigned short* dist;		///< Array containing border distance data. [Size: #spanCount]
-	unsigned char* areas;		///< Array containing area id data. [Size: #spanCount]
+	unsigned int* areas;		///< Array containing area id data. [Size: #spanCount]
 };
 
 /// Represents a heightfield layer within a layer set.
@@ -367,7 +367,7 @@ struct rcHeightfieldLayer
 	int hmin;					///< The minimum height bounds of usable data. (Along the y-axis.)
 	int hmax;					///< The maximum height bounds of usable data. (Along the y-axis.)
 	unsigned char* heights;		///< The heightfield. [Size: width * height]
-	unsigned char* areas;		///< Area ids. [Size: Same as #heights]
+	unsigned int* areas;		///< Areas. [Size: Same as #heights]
 	unsigned char* cons;		///< Packed neighbor connection information. [Size: Same as #heights]
 };
 
@@ -388,7 +388,7 @@ struct rcContour
 	int* rverts;		///< Raw contour vertex and connection data. [Size: 4 * #nrverts]
 	int nrverts;		///< The number of vertices in the raw contour. 
 	unsigned short reg;	///< The region id of the contour.
-	unsigned char area;	///< The area id of the contour.
+	unsigned int area;	///< The area id of the contour.
 };
 
 /// Represents a group of related contours.
@@ -414,8 +414,7 @@ struct rcPolyMesh
 	unsigned short* verts;	///< The mesh vertices. [Form: (x, y, z) * #nverts]
 	unsigned short* polys;	///< Polygon and neighbor data. [Length: #maxpolys * 2 * #nvp]
 	unsigned short* regs;	///< The region id assigned to each polygon. [Length: #maxpolys]
-	unsigned short* flags;	///< The user defined flags for each polygon. [Length: #maxpolys]
-	unsigned char* areas;	///< The area id assigned to each polygon. [Length: #maxpolys]
+	unsigned int* areas;	///< The area assigned to each polygon. [Length: #maxpolys]
 	int nverts;				///< The number of vertices.
 	int npolys;				///< The number of polygons.
 	int maxpolys;			///< The number of allocated polygons.
@@ -441,27 +440,27 @@ struct rcPolyMeshDetail
 	int ntris;				///< The number of triangles in #tris.
 };
 
-static const unsigned char RC_AREA_FLAGS_MASK = 0x3F;
-
 /// @ingroup recast
 class rcAreaModification
 {
+private:
+	unsigned int m_value;	///< Value to apply to target area id
+	unsigned int m_mask;	///< Bitwise mask used when applying value to target area id
+
 public:
 	/// Mask is set to all available bits, which means value is fully applied
 	///  @param[in] value	The area id to apply. [Limit: <= #RC_AREA_FLAGS_MASK]
-	rcAreaModification(unsigned char value);
+	rcAreaModification(unsigned int value);
 	///  @param[in] value	The area id to apply. [Limit: <= #RC_AREA_FLAGS_MASK]
 	///  @param[in] mask	Bitwise mask used when applying value. [Limit: <= #RC_AREA_FLAGS_MASK]
-	rcAreaModification(unsigned char value, unsigned char mask);
+	rcAreaModification(unsigned int value, unsigned int mask);
 	rcAreaModification(const rcAreaModification& other);
 	void operator = (const rcAreaModification& other);
 	bool operator == (const rcAreaModification& other) const;
 	bool operator != (const rcAreaModification& other) const;
-	void apply(unsigned char& area) const;
-	unsigned char getMaskedValue() const;
-
-	unsigned char m_value;	///< Value to apply to target area id
-	unsigned char m_mask;	///< Bitwise mask used when applying value to target area id
+	void apply(unsigned int& area) const;
+	unsigned int getMaskedValue() const;
+	unsigned int getMask() const;
 };
 
 /// @name Allocation Functions
@@ -596,12 +595,7 @@ static const unsigned short RC_MESH_NULL_IDX = 0xffff;
 /// Represents the null area.
 /// When a data element is given this value it is considered to no longer be 
 /// assigned to a usable area.  (E.g. It is unwalkable.)
-static const unsigned char RC_NULL_AREA = 0;
-
-/// The default area id used to indicate a walkable polygon. 
-/// This is also the maximum allowed area id, and the only non-null area id 
-/// recognized by some steps in the build process. 
-static const unsigned char RC_WALKABLE_AREA = 63;
+static const unsigned int RC_NULL_AREA = 0;
 
 /// The value returned by #rcGetCon if the specified direction is not connected
 /// to another span. (Has no neighbor.)
@@ -822,12 +816,13 @@ bool rcCreateHeightfield(rcContext* ctx, rcHeightfield& hf, int width, int heigh
 ///  @param[in]		nv					The number of vertices.
 ///  @param[in]		tris				The triangle vertex indices. [(vertA, vertB, vertC) * @p nt]
 ///  @param[in]		nt					The number of triangles.
-///  @param[out]	areas				The triangle area ids. [Length: >= @p nt]
+///  @param[out]	areas				The triangle areas. [Length: >= @p nt]
 ///  @param[in]		areaMod				The area modification to apply.
 void rcMarkWalkableTriangles(rcContext* ctx, const float walkableSlopeAngle, const float* verts, int nv,
-							 const int* tris, int nt, unsigned char* areas, rcAreaModification areaMod); 
+							 const int* tris, int nt, unsigned int* areas, rcAreaModification areaMod); 
 
-/// Modifies the area id of all triangles with a slope greater than or equal to the specified value.
+/// Modifies the area flags of all triangles with a slope greater than or equal to the specified value.
+/// The area flags are set to RC_NULL_AREA.
 ///  @ingroup recast
 ///  @param[in,out]	ctx					The build context to use during the operation.
 ///  @param[in]		walkableSlopeAngle	The maximum slope that is considered walkable.
@@ -836,9 +831,9 @@ void rcMarkWalkableTriangles(rcContext* ctx, const float walkableSlopeAngle, con
 ///  @param[in]		nv					The number of vertices.
 ///  @param[in]		tris				The triangle vertex indices. [(vertA, vertB, vertC) * @p nt]
 ///  @param[in]		nt					The number of triangles.
-///  @param[out]	areas				The triangle area ids. [Length: >= @p nt]
+///  @param[out]	area				The triangle area. [Length: >= @p nt]
 void rcClearUnwalkableTriangles(rcContext* ctx, const float walkableSlopeAngle, const float* verts, int nv,
-								const int* tris, int nt, unsigned char* areas); 
+								const int* tris, int nt, unsigned int* areas); 
 
 /// Adds a span to the specified heightfield.
 ///  @ingroup recast
@@ -850,12 +845,12 @@ void rcClearUnwalkableTriangles(rcContext* ctx, const float walkableSlopeAngle, 
 ///  								[Limits: 0 <= value < rcHeightfield::height]
 ///  @param[in]		smin			The minimum height of the span. [Limit: < @p smax] [Units: vx]
 ///  @param[in]		smax			The maximum height of the span. [Limit: <= #RC_SPAN_MAX_HEIGHT] [Units: vx]
-///  @param[in]		area			The area id of the span. [Limit: <= #RC_WALKABLE_AREA)
+///  @param[in]		area			The area of the span.
 ///  @param[in]		flagMergeThr	The merge theshold. [Limit: >= 0] [Units: vx]
 ///  @returns True if the operation completed successfully.
 bool rcAddSpan(rcContext* ctx, rcHeightfield& hf, const int x, const int y,
 			   const unsigned short smin, const unsigned short smax,
-			   const unsigned char area, const int flagMergeThr);
+			   const unsigned int area, const int flagMergeThr);
 
 /// Rasterizes a triangle into the specified heightfield.
 ///  @ingroup recast
@@ -863,13 +858,14 @@ bool rcAddSpan(rcContext* ctx, rcHeightfield& hf, const int x, const int y,
 ///  @param[in]		v0				Triangle vertex 0 [(x, y, z)]
 ///  @param[in]		v1				Triangle vertex 1 [(x, y, z)]
 ///  @param[in]		v2				Triangle vertex 2 [(x, y, z)]
-///  @param[in]		area			The area id of the triangle. [Limit: <= #RC_WALKABLE_AREA]
+///  @param[in]		area			The area of the triangle.
 ///  @param[in,out]	solid			An initialized heightfield.
-///  @param[in]		flagMergeThr	The distance where the walkable flag is favored over the non-walkable flag.
+///  @param[in]		flagMergeThr	If two spans are merged with a voxel distance lower than this, then
+///  								the walkable flag is preferred.
 ///  								[Limit: >= 0] [Units: vx]
 ///  @returns True if the operation completed successfully.
 bool rcRasterizeTriangle(rcContext* ctx, const float* v0, const float* v1, const float* v2,
-						 const unsigned char area, rcHeightfield& solid,
+						 const unsigned int area, rcHeightfield& solid,
 						 const int flagMergeThr = 1);
 
 /// Rasterizes an indexed triangle mesh into the specified heightfield.
@@ -878,43 +874,46 @@ bool rcRasterizeTriangle(rcContext* ctx, const float* v0, const float* v1, const
 ///  @param[in]		verts			The vertices. [(x, y, z) * @p nv]
 ///  @param[in]		nv				The number of vertices.
 ///  @param[in]		tris			The triangle indices. [(vertA, vertB, vertC) * @p nt]
-///  @param[in]		areas			The area id's of the triangles. [Limit: <= #RC_WALKABLE_AREA] [Size: @p nt]
+///  @param[in]		areas			The areas of the triangles. [Size: @p nt]
 ///  @param[in]		nt				The number of triangles.
 ///  @param[in,out]	solid			An initialized heightfield.
-///  @param[in]		flagMergeThr	The distance where the walkable flag is favored over the non-walkable flag. 
+///  @param[in]		flagMergeThr	If two spans are merged with a voxel distance lower than this, then
+///  								the walkable flag is preferred.
 ///  								[Limit: >= 0] [Units: vx]
 ///  @returns True if the operation completed successfully.
 bool rcRasterizeTriangles(rcContext* ctx, const float* verts, const int nv,
-						  const int* tris, const unsigned char* areas, const int nt,
+						  const int* tris, const unsigned int* areas, const int nt,
 						  rcHeightfield& solid, const int flagMergeThr = 1);
 
 /// Rasterizes an indexed triangle mesh into the specified heightfield.
 ///  @ingroup recast
-///  @param[in,out]	ctx			The build context to use during the operation.
-///  @param[in]		verts		The vertices. [(x, y, z) * @p nv]
-///  @param[in]		nv			The number of vertices.
-///  @param[in]		tris		The triangle indices. [(vertA, vertB, vertC) * @p nt]
-///  @param[in]		areas		The area id's of the triangles. [Limit: <= #RC_WALKABLE_AREA] [Size: @p nt]
-///  @param[in]		nt			The number of triangles.
-///  @param[in,out]	solid		An initialized heightfield.
-///  @param[in]		flagMergeThr	The distance where the walkable flag is favored over the non-walkable flag. 
-///  							[Limit: >= 0] [Units: vx]
+///  @param[in,out]	ctx				The build context to use during the operation.
+///  @param[in]		verts			The vertices. [(x, y, z) * @p nv]
+///  @param[in]		nv				The number of vertices.
+///  @param[in]		tris			The triangle indices. [(vertA, vertB, vertC) * @p nt]
+///  @param[in]		area			The areas of the triangles. [Size: @p nt]
+///  @param[in]		nt				The number of triangles.
+///  @param[in,out]	solid			An initialized heightfield.
+///  @param[in]		flagMergeThr	If two spans are merged with a voxel distance lower than this, then
+///  								the walkable flag is preferred.
+///  								[Limit: >= 0] [Units: vx]
 ///  @returns True if the operation completed successfully.
 bool rcRasterizeTriangles(rcContext* ctx, const float* verts, const int nv,
-						  const unsigned short* tris, const unsigned char* areas, const int nt,
+						  const unsigned short* tris, const unsigned int* areas, const int nt,
 						  rcHeightfield& solid, const int flagMergeThr = 1);
 
 /// Rasterizes triangles into the specified heightfield.
 ///  @ingroup recast
 ///  @param[in,out]	ctx				The build context to use during the operation.
 ///  @param[in]		verts			The triangle vertices. [(ax, ay, az, bx, by, bz, cx, by, cx) * @p nt]
-///  @param[in]		areas			The area id's of the triangles. [Limit: <= #RC_WALKABLE_AREA] [Size: @p nt]
+///  @param[in]		areas			The areas of the triangles. [Size: @p nt]
 ///  @param[in]		nt				The number of triangles.
 ///  @param[in,out]	solid			An initialized heightfield.
-///  @param[in]		flagMergeThr	The distance where the walkable flag is favored over the non-walkable flag. 
+///  @param[in]		flagMergeThr	If two spans are merged with a voxel distance lower than this, then
+///  								the walkable flag is preferred.
 ///  								[Limit: >= 0] [Units: vx]
 ///  @returns True if the operation completed successfully.
-bool rcRasterizeTriangles(rcContext* ctx, const float* verts, const unsigned char* areas, const int nt,
+bool rcRasterizeTriangles(rcContext* ctx, const float* verts, const unsigned int* areas, const int nt,
 						  rcHeightfield& solid, const int flagMergeThr = 1);
 
 /// Marks non-walkable spans as walkable if their maximum is within @p walkableClimp of a walkable neighbor. 

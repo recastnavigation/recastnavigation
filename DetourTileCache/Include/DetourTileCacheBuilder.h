@@ -25,8 +25,7 @@
 static const int DT_TILECACHE_MAGIC = 'D'<<24 | 'T'<<16 | 'L'<<8 | 'R'; ///< 'DTLR';
 static const int DT_TILECACHE_VERSION = 1;
 
-static const unsigned char DT_TILECACHE_NULL_AREA = 0;
-static const unsigned char DT_TILECACHE_WALKABLE_AREA = 63;
+static const unsigned int DT_TILECACHE_NULL_AREA = 0;
 static const unsigned short DT_TILECACHE_NULL_IDX = 0xffff;
 
 struct dtTileCacheLayerHeader
@@ -45,7 +44,7 @@ struct dtTileCacheLayer
 	dtTileCacheLayerHeader* header;
 	unsigned char regCount;					///< Region count.
 	unsigned char* heights;
-	unsigned char* areas;
+	unsigned int* areas;
 	unsigned char* cons;
 	unsigned char* regs;
 };
@@ -71,8 +70,7 @@ struct dtTileCachePolyMesh
 	int npolys;				///< Number of polygons.
 	unsigned short* verts;	///< Vertices of the mesh, 3 elements per vertex.
 	unsigned short* polys;	///< Polygons of the mesh, nvp*2 elements per polygon.
-	unsigned short* flags;	///< Per polygon flags.
-	unsigned char* areas;	///< Area ID of polygons.
+	unsigned int* areas;	///< Areas of polygons.
 };
 
 
@@ -108,7 +106,7 @@ struct dtTileCacheCompressor
 dtStatus dtBuildTileCacheLayer(dtTileCacheCompressor* comp,
 							   dtTileCacheLayerHeader* header,
 							   const unsigned char* heights,
-							   const unsigned char* areas,
+							   const unsigned int* areas,
 							   const unsigned char* cons,
 							   unsigned char** outData, int* outDataSize);
 

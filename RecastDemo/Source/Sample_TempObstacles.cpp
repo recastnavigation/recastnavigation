@@ -190,14 +190,8 @@ struct MeshProcess : public dtTileCacheMeshProcess
 	}
 	
 	virtual void process(struct dtNavMeshCreateParams* params,
-						 unsigned char* polyAreas, unsigned short* polyFlags)
+						 unsigned int* /*polyAreas*/)
 	{
-		// Update poly flags from areas.
-		for (int i = 0; i < params->polyCount; ++i)
-		{
-			polyFlags[i] = sampleAreaToFlags(polyAreas[i]);
-		}
-
 		// Pass in off-mesh connections.
 		if (m_geom)
 		{
@@ -205,7 +199,6 @@ struct MeshProcess : public dtTileCacheMeshProcess
 			params->offMeshConRad = m_geom->getOffMeshConnectionRads();
 			params->offMeshConDir = m_geom->getOffMeshConnectionDirs();
 			params->offMeshConAreas = m_geom->getOffMeshConnectionAreas();
-			params->offMeshConFlags = m_geom->getOffMeshConnectionFlags();
 			params->offMeshConUserID = m_geom->getOffMeshConnectionId();
 			params->offMeshConCount = m_geom->getOffMeshConnectionCount();	
 		}
@@ -249,7 +242,7 @@ struct RasterizationContext
 	}
 	
 	rcHeightfield* solid;
-	unsigned char* triareas;
+	unsigned int* triareas;
 	rcHeightfieldLayerSet* lset;
 	rcCompactHeightfield* chf;
 	TileCacheData tiles[MAX_LAYERS];
@@ -308,7 +301,7 @@ int Sample_TempObstacles::rasterizeTileLayers(
 	// Allocate array that can hold triangle flags.
 	// If you have multiple meshes you need to process, allocate
 	// and array which can hold the max number of triangles you need to process.
-	rc.triareas = new unsigned char[chunkyMesh->maxTrisPerChunk];
+	rc.triareas = new unsigned int[chunkyMesh->maxTrisPerChunk];
 	if (!rc.triareas)
 	{
 		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'm_triareas' (%d).", chunkyMesh->maxTrisPerChunk);
@@ -333,7 +326,7 @@ int Sample_TempObstacles::rasterizeTileLayers(
 		const int* tris = &chunkyMesh->tris[node.i*3];
 		const int ntris = node.n;
 		
-		memset(rc.triareas, 0, ntris*sizeof(unsigned char));
+		memset(rc.triareas, 0, ntris*sizeof(unsigned int));
 		rcMarkWalkableTriangles(m_ctx, tcfg.walkableSlopeAngle,
 								verts, nverts, tris, ntris, rc.triareas,
 								SAMPLE_AREAMOD_GROUND);

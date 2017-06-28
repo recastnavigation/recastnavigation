@@ -66,8 +66,6 @@ enum SamplePolyFlags
 	SAMPLE_POLYFLAGS_ALL		= 0xffff	// All abilities.
 };
 
-unsigned short sampleAreaToFlags(unsigned char area);
-
 class SampleDebugDraw : public DebugDrawGL
 {
 public:

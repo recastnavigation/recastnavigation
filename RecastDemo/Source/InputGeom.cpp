@@ -236,14 +236,14 @@ bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath)
 			if (m_offMeshConCount < MAX_OFFMESH_CONNECTIONS)
 			{
 				float* v = &m_offMeshConVerts[m_offMeshConCount*3*2];
-				int bidir, area = 0, flags = 0;
+				int bidir;
+				unsigned int area = 0;
 				float rad;
-				sscanf(row+1, "%f %f %f  %f %f %f %f %d %d %d",
-					   &v[0], &v[1], &v[2], &v[3], &v[4], &v[5], &rad, &bidir, &area, &flags);
+				sscanf(row+1, "%f %f %f  %f %f %f %f %d %u",
+					   &v[0], &v[1], &v[2], &v[3], &v[4], &v[5], &rad, &bidir, &area);
 				m_offMeshConRads[m_offMeshConCount] = rad;
 				m_offMeshConDirs[m_offMeshConCount] = (unsigned char)bidir;
-				m_offMeshConAreas[m_offMeshConCount] = (unsigned char)area;
-				m_offMeshConFlags[m_offMeshConCount] = (unsigned short)flags;
+				m_offMeshConAreas[m_offMeshConCount] = area;
 				m_offMeshConCount++;
 			}
 		}
@@ -253,7 +253,9 @@ bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath)
 			if (m_volumeCount < MAX_VOLUMES)
 			{
 				ConvexVolume* vol = &m_volumes[m_volumeCount++];
-				sscanf(row+1, "%d %c %c %f %f", &vol->nverts, &vol->areaMod.m_value, &vol->areaMod.m_mask, &vol->hmin, &vol->hmax);
+				unsigned int area, mask;
+				sscanf(row+1, "%d %u %u %f %f", &vol->nverts, &area, &mask, &vol->hmin, &vol->hmax);
+				vol->areaMod = rcAreaModification(area, mask);
 				for (int i = 0; i < vol->nverts; ++i)
 				{
 					row[0] = '\0';
@@ -365,17 +367,16 @@ bool InputGeom::saveGeomSet(const BuildSettings* settings)
 		const float* v = &m_offMeshConVerts[i*3*2];
 		const float rad = m_offMeshConRads[i];
 		const int bidir = m_offMeshConDirs[i];
-		const int area = m_offMeshConAreas[i];
-		const int flags = m_offMeshConFlags[i];
-		fprintf(fp, "c %f %f %f  %f %f %f  %f %d %d %d\n",
-				v[0], v[1], v[2], v[3], v[4], v[5], rad, bidir, area, flags);
+		const unsigned int area = m_offMeshConAreas[i];
+		fprintf(fp, "c %f %f %f  %f %f %f  %f %d %u\n",
+				v[0], v[1], v[2], v[3], v[4], v[5], rad, bidir, area);
 	}
 
 	// Convex volumes
 	for (int i = 0; i < m_volumeCount; ++i)
 	{
 		ConvexVolume* vol = &m_volumes[i];
-		fprintf(fp, "v %d %c %c %f %f\n", vol->nverts, vol->areaMod.m_value, vol->areaMod.m_mask, vol->hmin, vol->hmax);
+		fprintf(fp, "v %d %u %u %f %f\n", vol->nverts, vol->areaMod.getMaskedValue(), vol->areaMod.getMask(), vol->hmin, vol->hmax);
 		for (int j = 0; j < vol->nverts; ++j)
 			fprintf(fp, "%f %f %f\n", vol->verts[j*3+0], vol->verts[j*3+1], vol->verts[j*3+2]);
 	}
@@ -470,14 +471,13 @@ bool InputGeom::raycastMesh(float* src, float* dst, float& tmin)
 }
 
 void InputGeom::addOffMeshConnection(const float* spos, const float* epos, const float rad,
-									 unsigned char bidir, unsigned char area, unsigned short flags)
+									 unsigned char bidir, unsigned int area)
 {
 	if (m_offMeshConCount >= MAX_OFFMESH_CONNECTIONS) return;
 	float* v = &m_offMeshConVerts[m_offMeshConCount*3*2];
 	m_offMeshConRads[m_offMeshConCount] = rad;
 	m_offMeshConDirs[m_offMeshConCount] = bidir;
 	m_offMeshConAreas[m_offMeshConCount] = area;
-	m_offMeshConFlags[m_offMeshConCount] = flags;
 	m_offMeshConId[m_offMeshConCount] = 1000 + m_offMeshConCount;
 	rcVcopy(&v[0], spos);
 	rcVcopy(&v[3], epos);
@@ -494,7 +494,6 @@ void InputGeom::deleteOffMeshConnection(int i)
 	m_offMeshConRads[i] = m_offMeshConRads[m_offMeshConCount];
 	m_offMeshConDirs[i] = m_offMeshConDirs[m_offMeshConCount];
 	m_offMeshConAreas[i] = m_offMeshConAreas[m_offMeshConCount];
-	m_offMeshConFlags[i] = m_offMeshConFlags[m_offMeshConCount];
 }
 
 void InputGeom::drawOffMeshConnections(duDebugDraw* dd, bool hilight)

@@ -90,7 +90,6 @@ void dtFreeTileCachePolyMesh(dtTileCacheAlloc* alloc, dtTileCachePolyMesh* lmesh
 	if (!lmesh) return;
 	alloc->free(lmesh->verts);
 	alloc->free(lmesh->polys);
-	alloc->free(lmesh->flags);
 	alloc->free(lmesh->areas);
 	alloc->free(lmesh);
 }
@@ -1382,7 +1381,8 @@ static void mergePolys(unsigned short* pa, unsigned short* pb, int ea, int eb)
 }
 
 
-static void pushFront(unsigned short v, unsigned short* arr, int& an)
+template<typename T>
+static void pushFront(T v, T* arr, int& an)
 {
 	an++;
 	for (int i = an-1; i > 0; --i)
@@ -1390,7 +1390,8 @@ static void pushFront(unsigned short v, unsigned short* arr, int& an)
 	arr[0] = v;
 }
 
-static void pushBack(unsigned short v, unsigned short* arr, int& an)
+template<typename T>
+static void pushBack(T v, T* arr, int& an)
 {
 	arr[an] = v;
 	an++;
@@ -1510,12 +1511,18 @@ static dtStatus removeVertex(dtTileCachePolyMesh& mesh, const unsigned short rem
 		}
 	}
 	
+	struct edge
+	{
+		unsigned short a, b;
+		unsigned int area;
+	};
+
 	int nedges = 0;
-	unsigned short edges[MAX_REM_EDGES*3];
+	edge edges[MAX_REM_EDGES];
 	int nhole = 0;
 	unsigned short hole[MAX_REM_EDGES];
 	int nharea = 0;
-	unsigned short harea[MAX_REM_EDGES];
+	unsigned int harea[MAX_REM_EDGES];
 	
 	for (int i = 0; i < mesh.npolys; ++i)
 	{
@@ -1533,10 +1540,10 @@ static dtStatus removeVertex(dtTileCachePolyMesh& mesh, const unsigned short rem
 				{
 					if (nedges >= MAX_REM_EDGES)
 						return DT_FAILURE | DT_BUFFER_TOO_SMALL;
-					unsigned short* e = &edges[nedges*3];
-					e[0] = p[k];
-					e[1] = p[j];
-					e[2] = mesh.areas[i];
+					edge* e = &edges[nedges];
+					e->a = p[k];
+					e->b = p[j];
+					e->area = mesh.areas[i];
 					nedges++;
 				}
 			}
@@ -1569,8 +1576,9 @@ static dtStatus removeVertex(dtTileCachePolyMesh& mesh, const unsigned short rem
 	}
 	for (int i = 0; i < nedges; ++i)
 	{
-		if (edges[i*3+0] > rem) edges[i*3+0]--;
-		if (edges[i*3+1] > rem) edges[i*3+1]--;
+		edge* e = &edges[i];
+		if (e->a > rem) e->a--;
+		if (e->b > rem) e->b--;
 	}
 	
 	if (nedges == 0)
@@ -1578,8 +1586,8 @@ static dtStatus removeVertex(dtTileCachePolyMesh& mesh, const unsigned short rem
 	
 	// Start with one vertex, keep appending connected
 	// segments to the start and end of the hole.
-	pushBack(edges[0], hole, nhole);
-	pushBack(edges[2], harea, nharea);
+	pushBack(edges[0].a, hole, nhole);
+	pushBack(edges[0].area, harea, nharea);
 	
 	while (nedges)
 	{
@@ -1587,34 +1595,30 @@ static dtStatus removeVertex(dtTileCachePolyMesh& mesh, const unsigned short rem
 		
 		for (int i = 0; i < nedges; ++i)
 		{
-			const unsigned short ea = edges[i*3+0];
-			const unsigned short eb = edges[i*3+1];
-			const unsigned short a = edges[i*3+2];
+			edge* e = &edges[i];
 			bool add = false;
-			if (hole[0] == eb)
+			if (hole[0] == e->b)
 			{
 				// The segment matches the beginning of the hole boundary.
 				if (nhole >= MAX_REM_EDGES)
 					return DT_FAILURE | DT_BUFFER_TOO_SMALL;
-				pushFront(ea, hole, nhole);
-				pushFront(a, harea, nharea);
+				pushFront(e->a, hole, nhole);
+				pushFront(e->area, harea, nharea);
 				add = true;
 			}
-			else if (hole[nhole-1] == ea)
+			else if (hole[nhole-1] == e->a)
 			{
 				// The segment matches the end of the hole boundary.
 				if (nhole >= MAX_REM_EDGES)
 					return DT_FAILURE | DT_BUFFER_TOO_SMALL;
-				pushBack(eb, hole, nhole);
-				pushBack(a, harea, nharea);
+				pushBack(e->b, hole, nhole);
+				pushBack(e->area, harea, nharea);
 				add = true;
 			}
 			if (add)
 			{
 				// The edge segment was added, remove it.
-				edges[i*3+0] = edges[(nedges-1)*3+0];
-				edges[i*3+1] = edges[(nedges-1)*3+1];
-				edges[i*3+2] = edges[(nedges-1)*3+2];
+				edges[i] = edges[nedges-1];
 				--nedges;
 				match = true;
 				--i;
@@ -1653,7 +1657,7 @@ static dtStatus removeVertex(dtTileCachePolyMesh& mesh, const unsigned short rem
 		return DT_FAILURE | DT_BUFFER_TOO_SMALL;
 	
 	unsigned short polys[MAX_REM_EDGES*MAX_VERTS_PER_POLY];
-	unsigned char pareas[MAX_REM_EDGES];
+	unsigned int pareas[MAX_REM_EDGES];
 	
 	// Build initial polygons.
 	int npolys = 0;
@@ -1666,7 +1670,7 @@ static dtStatus removeVertex(dtTileCachePolyMesh& mesh, const unsigned short rem
 			polys[npolys*MAX_VERTS_PER_POLY+0] = hole[t[0]];
 			polys[npolys*MAX_VERTS_PER_POLY+1] = hole[t[1]];
 			polys[npolys*MAX_VERTS_PER_POLY+2] = hole[t[2]];
-			pareas[npolys] = (unsigned char)harea[t[0]];
+			pareas[npolys] = harea[t[0]];
 			npolys++;
 		}
 	}
@@ -1773,23 +1777,16 @@ dtStatus dtBuildTileCachePolyMesh(dtTileCacheAlloc* alloc,
 	if (!mesh.polys)
 		return DT_FAILURE | DT_OUT_OF_MEMORY;
 
-	mesh.areas = (unsigned char*)alloc->alloc(sizeof(unsigned char)*maxTris);
+	mesh.areas = (unsigned int*)alloc->alloc(sizeof(unsigned int)*maxTris);
 	if (!mesh.areas)
 		return DT_FAILURE | DT_OUT_OF_MEMORY;
-
-	mesh.flags = (unsigned short*)alloc->alloc(sizeof(unsigned short)*maxTris);
-	if (!mesh.flags)
-		return DT_FAILURE | DT_OUT_OF_MEMORY;
-
-	// Just allocate and clean the mesh flags array. The user is resposible for filling it.
-	memset(mesh.flags, 0, sizeof(unsigned short) * maxTris);
 		
 	mesh.nverts = 0;
 	mesh.npolys = 0;
 	
 	memset(mesh.verts, 0, sizeof(unsigned short)*maxVertices*3);
 	memset(mesh.polys, 0xff, sizeof(unsigned short)*maxTris*MAX_VERTS_PER_POLY*2);
-	memset(mesh.areas, 0, sizeof(unsigned char)*maxTris);
+	memset(mesh.areas, 0, sizeof(unsigned int)*maxTris);
 	
 	unsigned short firstVert[VERTEX_BUCKET_COUNT2];
 	for (int i = 0; i < VERTEX_BUCKET_COUNT2; ++i)
@@ -2044,13 +2041,13 @@ dtStatus dtMarkBoxArea(dtTileCacheLayer& layer, const float* orig, const float c
 dtStatus dtBuildTileCacheLayer(dtTileCacheCompressor* comp,
 							   dtTileCacheLayerHeader* header,
 							   const unsigned char* heights,
-							   const unsigned char* areas,
+							   const unsigned int* areas,
 							   const unsigned char* cons,
 							   unsigned char** outData, int* outDataSize)
 {
 	const int headerSize = dtAlign4(sizeof(dtTileCacheLayerHeader));
 	const int gridSize = (int)header->width * (int)header->height;
-	const int maxDataSize = headerSize + comp->maxCompressedSize(gridSize*3);
+	const int maxDataSize = headerSize + comp->maxCompressedSize(gridSize*6);
 	unsigned char* data = (unsigned char*)dtAlloc(maxDataSize, DT_ALLOC_PERM);
 	if (!data)
 		return DT_FAILURE | DT_OUT_OF_MEMORY;
@@ -2060,7 +2057,7 @@ dtStatus dtBuildTileCacheLayer(dtTileCacheCompressor* comp,
 	memcpy(data, header, sizeof(dtTileCacheLayerHeader));
 	
 	// Concatenate grid data for compression.
-	const int bufferSize = gridSize*3;
+	const int bufferSize = gridSize*6;
 	unsigned char* buffer = (unsigned char*)dtAlloc(bufferSize, DT_ALLOC_TEMP);
 	if (!buffer)
 	{
@@ -2069,8 +2066,8 @@ dtStatus dtBuildTileCacheLayer(dtTileCacheCompressor* comp,
 	}
 
 	memcpy(buffer, heights, gridSize);
-	memcpy(buffer+gridSize, areas, gridSize);
-	memcpy(buffer+gridSize*2, cons, gridSize);
+	memcpy(buffer+gridSize, areas, gridSize * sizeof(unsigned int));
+	memcpy(buffer+gridSize*5, cons, gridSize);
 	
 	// Compress
 	unsigned char* compressed = data + headerSize;
@@ -2122,7 +2119,9 @@ dtStatus dtDecompressTileCacheLayer(dtTileCacheAlloc* alloc, dtTileCacheCompress
 	const int layerSize = dtAlign4(sizeof(dtTileCacheLayer));
 	const int headerSize = dtAlign4(sizeof(dtTileCacheLayerHeader));
 	const int gridSize = (int)compressedHeader->width * (int)compressedHeader->height;
-	const int bufferSize = layerSize + headerSize + gridSize*4;
+	// Allocate memory for regions here. These are not included in the compressed data,
+	// but will be filled in build process.
+	const int bufferSize = layerSize + headerSize + gridSize*7;
 	
 	unsigned char* buffer = (unsigned char*)alloc->alloc(bufferSize);
 	if (!buffer)
@@ -2148,9 +2147,9 @@ dtStatus dtDecompressTileCacheLayer(dtTileCacheAlloc* alloc, dtTileCacheCompress
 	
 	layer->header = header;
 	layer->heights = grids;
-	layer->areas = grids + gridSize;
-	layer->cons = grids + gridSize*2;
-	layer->regs = grids + gridSize*3;
+	layer->areas = (unsigned int*)(grids + gridSize);
+	layer->cons = grids + gridSize*5;
+	layer->regs = grids + gridSize*6;
 	
 	*layerOut = layer;
 	

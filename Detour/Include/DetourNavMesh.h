@@ -22,6 +22,7 @@
 #include "DetourConfig.h"
 #include "DetourAlloc.h"
 #include "DetourStatus.h"
+#include "DetourAssert.h"
 
 #ifdef DT_POLYREF64
 // TODO: figure out a multiplatform version of uint64_t
@@ -78,7 +79,7 @@ static const int DT_NAVMESH_STATE_VERSION = 1;
 static const unsigned short DT_EXT_LINK = 0x8000;
 
 /// A value that indicates the entity does not link to anything.
-static const unsigned int DT_NULL_LINK = 0xffffffff;
+static const unsigned int DT_NULL_LINK = (1 << 27) - 1;
 
 /// A flag that indicates that an off-mesh connection can be traversed in both directions. (Is bidirectional.)
 static const unsigned int DT_OFFMESH_CON_BIDIR = 1;
@@ -142,8 +143,11 @@ enum dtPolyTypes
 /// @ingroup detour
 struct dtPoly
 {
-	/// Index to first link in linked list. (Or #DT_NULL_LINK if there is no link.)
-	unsigned int firstLink;
+	/// Bit field for first link, vert count and type of poly.
+	/// Use getters and setters to access this.
+	unsigned int firstLinkAndVertCountAndType;
+	/// The area of the polygon.
+	unsigned int area;
 
 	/// The indices of the polygon's vertices.
 	/// The actual vertices are located in dtMeshTile::verts.
@@ -152,27 +156,29 @@ struct dtPoly
 	/// Packed data representing neighbor polygons references and flags for each edge.
 	unsigned short neis[DT_VERTS_PER_POLYGON];
 
-	/// The user defined polygon flags.
-	unsigned short flags;
+	unsigned int getFirstLink() const { return firstLinkAndVertCountAndType >> 5; }
+	void setFirstLink(unsigned int firstLink)
+	{
+		dtAssert(firstLink < (1 << 27));
+		firstLinkAndVertCountAndType &= 0x1F;
+		firstLinkAndVertCountAndType |= firstLink << 5;
+	}
 
-	/// The number of vertices in the polygon.
-	unsigned char vertCount;
+	unsigned char getVertCount() const { return (unsigned char)((firstLinkAndVertCountAndType >> 2) & 7); }
+	void setVertCount(unsigned char vertCount)
+	{
+		dtAssert(vertCount < (1 << 3));
+		firstLinkAndVertCountAndType &= ~(7u << 2);
+		firstLinkAndVertCountAndType |= vertCount << 2;
+	}
 
-	/// The bit packed area id and polygon type.
-	/// @note Use the structure's set and get methods to acess this value.
-	unsigned char areaAndtype;
-
-	/// Sets the user defined area id. [Limit: < #DT_MAX_AREAS]
-	inline void setArea(unsigned char a) { areaAndtype = (areaAndtype & 0xc0) | (a & 0x3f); }
-
-	/// Sets the polygon type. (See: #dtPolyTypes.)
-	inline void setType(unsigned char t) { areaAndtype = (areaAndtype & 0x3f) | (t << 6); }
-
-	/// Gets the user defined area id.
-	inline unsigned char getArea() const { return areaAndtype & 0x3f; }
-
-	/// Gets the polygon type. (See: #dtPolyTypes)
-	inline unsigned char getType() const { return areaAndtype >> 6; }
+	unsigned char getType() const { return (unsigned char)(firstLinkAndVertCountAndType & 3); }
+	void setType(unsigned char type)
+	{
+		dtAssert(type < (1 << 2));
+		firstLinkAndVertCountAndType &= ~3u;
+		firstLinkAndVertCountAndType |= type;
+	}
 };
 
 /// Defines the location of detail sub-mesh data within a dtMeshTile.
@@ -450,29 +456,17 @@ public:
 	/// @name State Management
 	/// These functions do not effect #dtTileRef or #dtPolyRef's. 
 
-	/// Sets the user defined flags for the specified polygon.
-	///  @param[in]	ref		The polygon reference.
-	///  @param[in]	flags	The new flags for the polygon.
-	/// @return The status flags for the operation.
-	dtStatus setPolyFlags(dtPolyRef ref, unsigned short flags);
-
-	/// Gets the user defined flags for the specified polygon.
-	///  @param[in]		ref				The polygon reference.
-	///  @param[out]	resultFlags		The polygon flags.
-	/// @return The status flags for the operation.
-	dtStatus getPolyFlags(dtPolyRef ref, unsigned short* resultFlags) const;
-
 	/// Sets the user defined area for the specified polygon.
 	///  @param[in]	ref		The polygon reference.
-	///  @param[in]	area	The new area id for the polygon. [Limit: < #DT_MAX_AREAS]
+	///  @param[in]	area	The new area for the polygon.
 	/// @return The status flags for the operation.
-	dtStatus setPolyArea(dtPolyRef ref, unsigned char area);
+	dtStatus setPolyArea(dtPolyRef ref, unsigned int area);
 
 	/// Gets the user defined area for the specified polygon.
 	///  @param[in]		ref			The polygon reference.
-	///  @param[out]	resultArea	The area id for the polygon.
+	///  @param[out]	resultArea	The area for the polygon.
 	/// @return The status flags for the operation.
-	dtStatus getPolyArea(dtPolyRef ref, unsigned char* resultArea) const;
+	dtStatus getPolyArea(dtPolyRef ref, unsigned int* resultArea) const;
 
 	/// Gets the size of the buffer required by #storeTileState to store the specified tile's state.
 	///  @param[in]	tile	The tile.

@@ -53,7 +53,7 @@ static void drawPolyBoundaries(duDebugDraw* dd, const dtMeshTile* tile,
 		
 		const dtPolyDetail* pd = &tile->detailMeshes[i];
 		
-		for (int j = 0, nj = (int)p->vertCount; j < nj; ++j)
+		for (int j = 0, nj = (int)p->getVertCount(); j < nj; ++j)
 		{
 			unsigned int c = col;
 			if (inner)
@@ -62,7 +62,7 @@ static void drawPolyBoundaries(duDebugDraw* dd, const dtMeshTile* tile,
 				if (p->neis[j] & DT_EXT_LINK)
 				{
 					bool con = false;
-					for (unsigned int k = p->firstLink; k != DT_NULL_LINK; k = tile->links[k].next)
+					for (unsigned int k = p->getFirstLink(); k != DT_NULL_LINK; k = tile->links[k].next)
 					{
 						if (tile->links[k].edge == j)
 						{
@@ -94,10 +94,10 @@ static void drawPolyBoundaries(duDebugDraw* dd, const dtMeshTile* tile,
 				const float* tv[3];
 				for (int m = 0; m < 3; ++m)
 				{
-					if (t[m] < p->vertCount)
+					if (t[m] < p->getVertCount())
 						tv[m] = &tile->verts[p->verts[t[m]]*3];
 					else
-						tv[m] = &tile->detailVerts[(pd->vertBase+(t[m]-p->vertCount))*3];
+						tv[m] = &tile->detailVerts[(pd->vertBase+(t[m]-p->getVertCount()))*3];
 				}
 				for (int m = 0, n = 2; m < 3; n=m++)
 				{
@@ -142,7 +142,7 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 			if (flags & DU_DRAWNAVMESH_COLOR_TILES)
 				col = tileColor;
 			else
-				col = duTransCol(dd->areaToCol(p->getArea()), 64);
+				col = duTransCol(dd->areaToCol(p->area), 64);
 		}
 		
 		for (int j = 0; j < pd->triCount; ++j)
@@ -150,10 +150,10 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 			const unsigned char* t = &tile->detailTris[(pd->triBase+j)*4];
 			for (int k = 0; k < 3; ++k)
 			{
-				if (t[k] < p->vertCount)
+				if (t[k] < p->getVertCount())
 					dd->vertex(&tile->verts[p->verts[t[k]]*3], col);
 				else
-					dd->vertex(&tile->detailVerts[(pd->vertBase+t[k]-p->vertCount)*3], col);
+					dd->vertex(&tile->detailVerts[(pd->vertBase+t[k]-p->getVertCount())*3], col);
 			}
 		}
 	}
@@ -178,7 +178,7 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 			if (query && query->isInClosedList(base | (dtPolyRef)i))
 				col = duRGBA(255,196,0,220);
 			else
-				col = duDarkenCol(duTransCol(dd->areaToCol(p->getArea()), 220));
+				col = duDarkenCol(duTransCol(dd->areaToCol(p->area), 220));
 
 			const dtOffMeshConnection* con = &tile->offMeshCons[i - tile->header->offMeshBase];
 			const float* va = &tile->verts[p->verts[0]*3];
@@ -187,7 +187,7 @@ static void drawMeshTile(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMesh
 			// Check to see if start and end end-points have links.
 			bool startSet = false;
 			bool endSet = false;
-			for (unsigned int k = p->firstLink; k != DT_NULL_LINK; k = tile->links[k].next)
+			for (unsigned int k = p->getFirstLink(); k != DT_NULL_LINK; k = tile->links[k].next)
 			{
 				if (tile->links[k].edge == 0)
 					startSet = true;
@@ -347,7 +347,7 @@ static void drawMeshTilePortal(duDebugDraw* dd, const dtMeshTile* tile)
 			dtPoly* poly = &tile->polys[i];
 			
 			// Create new links.
-			const int nv = poly->vertCount;
+			const int nv = poly->getVertCount();
 			for (int j = 0; j < nv; ++j)
 			{
 				// Skip edges which do not point to the right side.
@@ -415,7 +415,7 @@ void duDebugDrawNavMeshPortals(duDebugDraw* dd, const dtNavMesh& mesh)
 }
 
 void duDebugDrawNavMeshPolysWithFlags(struct duDebugDraw* dd, const dtNavMesh& mesh,
-									  const unsigned short polyFlags, const unsigned int col)
+									  const unsigned int polyFlags, const unsigned int col)
 {
 	if (!dd) return;
 	
@@ -428,7 +428,7 @@ void duDebugDrawNavMeshPolysWithFlags(struct duDebugDraw* dd, const dtNavMesh& m
 		for (int j = 0; j < tile->header->polyCount; ++j)
 		{
 			const dtPoly* p = &tile->polys[j];
-			if ((p->flags & polyFlags) == 0) continue;
+			if ((p->area & polyFlags) == 0) continue;
 			duDebugDrawNavMeshPoly(dd, mesh, base|(dtPolyRef)j, col);
 		}
 	}
@@ -470,10 +470,10 @@ void duDebugDrawNavMeshPoly(duDebugDraw* dd, const dtNavMesh& mesh, dtPolyRef re
 			const unsigned char* t = &tile->detailTris[(pd->triBase+i)*4];
 			for (int j = 0; j < 3; ++j)
 			{
-				if (t[j] < poly->vertCount)
+				if (t[j] < poly->getVertCount())
 					dd->vertex(&tile->verts[poly->verts[t[j]]*3], c);
 				else
-					dd->vertex(&tile->detailVerts[(pd->vertBase+t[j]-poly->vertCount)*3], c);
+					dd->vertex(&tile->detailVerts[(pd->vertBase+t[j]-poly->getVertCount())*3], c);
 			}
 		}
 		dd->end();
@@ -554,7 +554,7 @@ void duDebugDrawTileCacheLayerAreas(struct duDebugDraw* dd, const dtTileCacheLay
 			const int lh = (int)layer.heights[lidx];
 			if (lh == 0xff) continue;
 
-			const unsigned char area = layer.areas[lidx];
+			const unsigned int area = layer.areas[lidx];
 			unsigned int col;
 			if (area == 63)
 				col = duLerpCol(color, duRGBA(0,192,255,64), 32);
@@ -737,12 +737,10 @@ void duDebugDrawTileCachePolyMesh(duDebugDraw* dd, const struct dtTileCachePolyM
 	for (int i = 0; i < lmesh.npolys; ++i)
 	{
 		const unsigned short* p = &lmesh.polys[i*nvp*2];
-		const unsigned char area = lmesh.areas[i];
+		const unsigned int area = lmesh.areas[i];
 		
 		unsigned int color;
-		if (area == DT_TILECACHE_WALKABLE_AREA)
-			color = duRGBA(0,192,255,64);
-		else if (area == DT_TILECACHE_NULL_AREA)
+		if (area == DT_TILECACHE_NULL_AREA)
 			color = duRGBA(0,0,0,64);
 		else
 			color = dd->areaToCol(area);

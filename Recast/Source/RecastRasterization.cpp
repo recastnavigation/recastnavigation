@@ -84,7 +84,7 @@ static void freeSpan(rcHeightfield& hf, rcSpan* ptr)
 
 static bool addSpan(rcHeightfield& hf, const int x, const int y,
 					const unsigned short smin, const unsigned short smax,
-					const unsigned char area, const int flagMergeThr)
+					const unsigned int area, const int flagMergeThr)
 {
 	
 	int idx = x + y*hf.width;
@@ -167,7 +167,7 @@ static bool addSpan(rcHeightfield& hf, const int x, const int y,
 /// @see rcHeightfield, rcSpan.
 bool rcAddSpan(rcContext* ctx, rcHeightfield& hf, const int x, const int y,
 			   const unsigned short smin, const unsigned short smax,
-			   const unsigned char area, const int flagMergeThr)
+			   const unsigned int area, const int flagMergeThr)
 {
 	rcAssert(ctx);
 
@@ -239,7 +239,7 @@ static void dividePoly(const float* in, int nin,
 
 
 static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
-						 const unsigned char area, rcHeightfield& hf,
+						 const unsigned int area, rcHeightfield& hf,
 						 const float* bmin, const float* bmax,
 						 const float cs, const float ics, const float ich,
 						 const int flagMergeThr)
@@ -340,7 +340,7 @@ static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
 ///
 /// @see rcHeightfield
 bool rcRasterizeTriangle(rcContext* ctx, const float* v0, const float* v1, const float* v2,
-						 const unsigned char area, rcHeightfield& solid,
+						 const unsigned int area, rcHeightfield& solid,
 						 const int flagMergeThr)
 {
 	rcAssert(ctx);
@@ -364,7 +364,7 @@ bool rcRasterizeTriangle(rcContext* ctx, const float* v0, const float* v1, const
 ///
 /// @see rcHeightfield
 bool rcRasterizeTriangles(rcContext* ctx, const float* verts, const int /*nv*/,
-						  const int* tris, const unsigned char* areas, const int nt,
+						  const int* tris, const unsigned int* areas, const int nt,
 						  rcHeightfield& solid, const int flagMergeThr)
 {
 	rcAssert(ctx);
@@ -396,7 +396,7 @@ bool rcRasterizeTriangles(rcContext* ctx, const float* verts, const int /*nv*/,
 ///
 /// @see rcHeightfield
 bool rcRasterizeTriangles(rcContext* ctx, const float* verts, const int /*nv*/,
-						  const unsigned short* tris, const unsigned char* areas, const int nt,
+						  const unsigned short* tris, const unsigned int* areas, const int nt,
 						  rcHeightfield& solid, const int flagMergeThr)
 {
 	rcAssert(ctx);
@@ -427,7 +427,7 @@ bool rcRasterizeTriangles(rcContext* ctx, const float* verts, const int /*nv*/,
 /// Spans will only be added for triangles that overlap the heightfield grid.
 ///
 /// @see rcHeightfield
-bool rcRasterizeTriangles(rcContext* ctx, const float* verts, const unsigned char* areas, const int nt,
+bool rcRasterizeTriangles(rcContext* ctx, const float* verts, const unsigned int* areas, const int nt,
 						  rcHeightfield& solid, const int flagMergeThr)
 {
 	rcAssert(ctx);
