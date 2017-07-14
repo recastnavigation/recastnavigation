@@ -38,6 +38,7 @@ enum ObstacleState
 enum ObstacleType
 {
 	DT_OBSTACLE_CYLINDER,
+	DT_OBSTACLE_AABB,
 	DT_OBSTACLE_BOX,
 };
 
@@ -48,10 +49,17 @@ struct dtObstacleCylinder
 	float height;
 };
 
-struct dtObstacleBox
+struct dtObstacleAabb
 {
 	float bmin[ 3 ];
 	float bmax[ 3 ];
+};
+
+struct dtObstacleBox
+{
+	float center[ 3 ];
+	float halfextents[ 3 ];
+	float rotaux[ 2 ]; //{ cos(0.5f*angle)*sin(-0.5f*angle); cos(0.5f*angle)*cos(0.5f*angle) - 0.5 }
 };
 
 static const int DT_MAX_TOUCHED_TILES = 8;
@@ -60,6 +68,7 @@ struct dtTileCacheObstacle
 	union
 	{
 		dtObstacleCylinder cylinder;
+		dtObstacleAabb aabb;
 		dtObstacleBox box;
 	};
 
@@ -130,8 +139,14 @@ public:
 	
 	dtStatus removeTile(dtCompressedTileRef ref, unsigned char** data, int* dataSize);
 	
+	// Cylinder obstacle.
 	dtStatus addObstacle(const float* pos, const float radius, const float height, dtObstacleRef* result);
+
+	// Aabb obstacle.
 	dtStatus addBoxObstacle(const float* bmin, const float* bmax, dtObstacleRef* result);
+
+	// Box obstacle: can be rotated in Y.
+	dtStatus addBoxObstacle(const float* bmin, const float* bmax, const float yRadians, dtObstacleRef* result);
 	
 	dtStatus removeObstacle(const dtObstacleRef ref);
 	
