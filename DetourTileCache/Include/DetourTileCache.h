@@ -145,7 +145,7 @@ public:
 	// Aabb obstacle.
 	dtStatus addBoxObstacle(const float* bmin, const float* bmax, dtObstacleRef* result);
 
-	// Box obstacle: can be rotated in Y.
+	// Obb obstacle: can be rotated in Y.
 	dtStatus addBoxObstacle(const float* bmin, const float* bmax, const float yRadians, dtObstacleRef* result);
 	
 	dtStatus removeObstacle(const dtObstacleRef ref);
