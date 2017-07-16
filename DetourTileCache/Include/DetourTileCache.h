@@ -38,8 +38,8 @@ enum ObstacleState
 enum ObstacleType
 {
 	DT_OBSTACLE_CYLINDER,
-	DT_OBSTACLE_AABB,
-	DT_OBSTACLE_BOX,
+	DT_OBSTACLE_BOX, // AABB
+	DT_OBSTACLE_ORIENTED_BOX, // OBB
 };
 
 struct dtObstacleCylinder
@@ -49,17 +49,17 @@ struct dtObstacleCylinder
 	float height;
 };
 
-struct dtObstacleAabb
+struct dtObstacleBox
 {
 	float bmin[ 3 ];
 	float bmax[ 3 ];
 };
 
-struct dtObstacleBox
+struct dtObstacleOrientedBox
 {
 	float center[ 3 ];
-	float halfextents[ 3 ];
-	float rotaux[ 2 ]; //{ cos(0.5f*angle)*sin(-0.5f*angle); cos(0.5f*angle)*cos(0.5f*angle) - 0.5 }
+	float halfExtents[ 3 ];
+	float rotAux[ 2 ]; //{ cos(0.5f*angle)*sin(-0.5f*angle); cos(0.5f*angle)*cos(0.5f*angle) - 0.5 }
 };
 
 static const int DT_MAX_TOUCHED_TILES = 8;
@@ -68,8 +68,8 @@ struct dtTileCacheObstacle
 	union
 	{
 		dtObstacleCylinder cylinder;
-		dtObstacleAabb aabb;
 		dtObstacleBox box;
+		dtObstacleOrientedBox orientedBox;
 	};
 
 	dtCompressedTileRef touched[DT_MAX_TOUCHED_TILES];

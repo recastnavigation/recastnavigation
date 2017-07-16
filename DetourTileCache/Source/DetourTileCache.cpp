@@ -405,9 +405,9 @@ dtStatus dtTileCache::addBoxObstacle(const float* bmin, const float* bmax, dtObs
 	memset(ob, 0, sizeof(dtTileCacheObstacle));
 	ob->salt = salt;
 	ob->state = DT_OBSTACLE_PROCESSING;
-	ob->type = DT_OBSTACLE_AABB;
-	dtVcopy(ob->aabb.bmin, bmin);
-	dtVcopy(ob->aabb.bmax, bmax);
+	ob->type = DT_OBSTACLE_BOX;
+	dtVcopy(ob->box.bmin, bmin);
+	dtVcopy(ob->box.bmax, bmax);
 	
 	ObstacleRequest* req = &m_reqs[m_nreqs++];
 	memset(req, 0, sizeof(ObstacleRequest));
@@ -420,7 +420,7 @@ dtStatus dtTileCache::addBoxObstacle(const float* bmin, const float* bmax, dtObs
 	return DT_SUCCESS;
 }
 
-dtStatus dtTileCache::addBoxObstacle(const float* center, const float* halfextents, const float yRadians, dtObstacleRef* result)
+dtStatus dtTileCache::addBoxObstacle(const float* center, const float* halfExtents, const float yRadians, dtObstacleRef* result)
 {
 	if (m_nreqs >= MAX_REQUESTS)
 		return DT_FAILURE | DT_BUFFER_TOO_SMALL;
@@ -439,14 +439,14 @@ dtStatus dtTileCache::addBoxObstacle(const float* center, const float* halfexten
 	memset(ob, 0, sizeof(dtTileCacheObstacle));
 	ob->salt = salt;
 	ob->state = DT_OBSTACLE_PROCESSING;
-	ob->type = DT_OBSTACLE_BOX;
-	dtVcopy(ob->box.center, center);
-	dtVcopy(ob->box.halfextents, halfextents);
+	ob->type = DT_OBSTACLE_ORIENTED_BOX;
+	dtVcopy(ob->orientedBox.center, center);
+	dtVcopy(ob->orientedBox.halfExtents, halfExtents);
 
 	float coshalf= cosf(0.5f*yRadians);
 	float sinhalf = sinf(-0.5f*yRadians);
-	ob->box.rotaux[0] = coshalf*sinhalf;
-	ob->box.rotaux[1] = coshalf*coshalf - 0.5f;
+	ob->orientedBox.rotAux[0] = coshalf*sinhalf;
+	ob->orientedBox.rotAux[1] = coshalf*coshalf - 0.5f;
 
 	ObstacleRequest* req = &m_reqs[m_nreqs++];
 	memset(req, 0, sizeof(ObstacleRequest));
@@ -686,15 +686,15 @@ dtStatus dtTileCache::buildNavMeshTile(const dtCompressedTileRef ref, dtNavMesh*
 				dtMarkCylinderArea(*bc.layer, tile->header->bmin, m_params.cs, m_params.ch,
 							    ob->cylinder.pos, ob->cylinder.radius, ob->cylinder.height, 0);
 			}
-			else if (ob->type == DT_OBSTACLE_AABB)
-			{
-				dtMarkBoxArea(*bc.layer, tile->header->bmin, m_params.cs, m_params.ch,
-					ob->aabb.bmin, ob->aabb.bmax, 0);
-			}
 			else if (ob->type == DT_OBSTACLE_BOX)
 			{
 				dtMarkBoxArea(*bc.layer, tile->header->bmin, m_params.cs, m_params.ch,
-					ob->box.center, ob->box.halfextents, ob->box.rotaux, 0);
+					ob->box.bmin, ob->box.bmax, 0);
+			}
+			else if (ob->type == DT_OBSTACLE_ORIENTED_BOX)
+			{
+				dtMarkBoxArea(*bc.layer, tile->header->bmin, m_params.cs, m_params.ch,
+					ob->orientedBox.center, ob->orientedBox.halfExtents, ob->orientedBox.rotAux, 0);
 			}
 		}
 	}
@@ -800,21 +800,21 @@ void dtTileCache::getObstacleBounds(const struct dtTileCacheObstacle* ob, float*
 		bmax[1] = cl.pos[1] + cl.height;
 		bmax[2] = cl.pos[2] + cl.radius;
 	}
-	else if (ob->type == DT_OBSTACLE_AABB)
-	{
-		dtVcopy(bmin, ob->aabb.bmin);
-		dtVcopy(bmax, ob->aabb.bmax);
-	}
 	else if (ob->type == DT_OBSTACLE_BOX)
 	{
-		const dtObstacleBox &box = ob->box;
+		dtVcopy(bmin, ob->box.bmin);
+		dtVcopy(bmax, ob->box.bmax);
+	}
+	else if (ob->type == DT_OBSTACLE_ORIENTED_BOX)
+	{
+		const dtObstacleOrientedBox &orientedBox = ob->orientedBox;
 
-		float maxr = 1.41f*dtMax(box.halfextents[0], box.halfextents[2]);
-		bmin[0] = box.center[0] - maxr;
-		bmax[0] = box.center[0] + maxr;
-		bmin[1] = box.center[1] - box.halfextents[1];
-		bmax[1] = box.center[1] + box.halfextents[1];
-		bmin[2] = box.center[2] - maxr;
-		bmax[2] = box.center[2] + maxr;
+		float maxr = 1.41f*dtMax(orientedBox.halfExtents[0], orientedBox.halfExtents[2]);
+		bmin[0] = orientedBox.center[0] - maxr;
+		bmax[0] = orientedBox.center[0] + maxr;
+		bmin[1] = orientedBox.center[1] - orientedBox.halfExtents[1];
+		bmax[1] = orientedBox.center[1] + orientedBox.halfExtents[1];
+		bmin[2] = orientedBox.center[2] - maxr;
+		bmax[2] = orientedBox.center[2] + maxr;
 	}
 }

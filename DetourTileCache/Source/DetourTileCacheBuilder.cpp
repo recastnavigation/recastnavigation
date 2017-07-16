@@ -2042,7 +2042,7 @@ dtStatus dtMarkBoxArea(dtTileCacheLayer& layer, const float* orig, const float c
 }
 
 dtStatus dtMarkBoxArea(dtTileCacheLayer& layer, const float* orig, const float cs, const float ch,
-					   const float* center, const float* halfextents, const float* rotaux, const unsigned char areaId)
+					   const float* center, const float* halfExtents, const float* rotAux, const unsigned char areaId)
 {
 	const int w = (int)layer.header->width;
 	const int h = (int)layer.header->height;
@@ -2052,13 +2052,13 @@ dtStatus dtMarkBoxArea(dtTileCacheLayer& layer, const float* orig, const float c
 	float cx = (center[0] - orig[0])*ics;
 	float cz = (center[2] - orig[2])*ics;
 	
-	float maxr = 1.41f*dtMax(halfextents[0], halfextents[2]);
+	float maxr = 1.41f*dtMax(halfExtents[0], halfExtents[2]);
 	int minx = (int)floorf(cx - maxr*ics);
 	int maxx = (int)floorf(cx + maxr*ics);
 	int minz = (int)floorf(cz - maxr*ics);
 	int maxz = (int)floorf(cz + maxr*ics);
-	int miny = (int)floorf((center[1]-halfextents[1]-orig[1])*ich);
-	int maxy = (int)floorf((center[1]+halfextents[1]-orig[1])*ich);
+	int miny = (int)floorf((center[1]-halfExtents[1]-orig[1])*ich);
+	int maxy = (int)floorf((center[1]+halfExtents[1]-orig[1])*ich);
 
 	if (maxx < 0) return DT_SUCCESS;
 	if (minx >= w) return DT_SUCCESS;
@@ -2070,8 +2070,8 @@ dtStatus dtMarkBoxArea(dtTileCacheLayer& layer, const float* orig, const float c
 	if (minz < 0) minz = 0;
 	if (maxz >= h) maxz = h-1;
 	
-	float xhalf = halfextents[0]*ics + 0.5f;
-	float zhalf = halfextents[2]*ics + 0.5f;
+	float xhalf = halfExtents[0]*ics + 0.5f;
+	float zhalf = halfExtents[2]*ics + 0.5f;
 
 	for (int z = minz; z <= maxz; ++z)
 	{
@@ -2079,10 +2079,10 @@ dtStatus dtMarkBoxArea(dtTileCacheLayer& layer, const float* orig, const float c
 		{			
 			float x2 = 2.0f*(float(x) - cx);
 			float z2 = 2.0f*(float(z) - cz);
-			float xrot = rotaux[1]*x2 + rotaux[0]*z2;
+			float xrot = rotAux[1]*x2 + rotAux[0]*z2;
 			if (xrot > xhalf || xrot < -xhalf)
 				continue;
-			float zrot = rotaux[1]*z2 - rotaux[0]*x2;
+			float zrot = rotAux[1]*z2 - rotAux[0]*x2;
 			if (zrot > zhalf || zrot < -zhalf)
 				continue;
 			const int y = layer.heights[x+z*w];
