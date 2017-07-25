@@ -248,7 +248,7 @@ void ConvexVolumeTool::handleRender()
 {
 	duDebugDraw& dd = m_sample->getDebugDraw();
 	
-	// Find height extents of the shape.
+	// Find height extent of the shape.
 	float minh = FLT_MAX, maxh = 0;
 	for (int i = 0; i < m_npts; ++i)
 		minh = rcMin(minh, m_pts[i*3+1]);

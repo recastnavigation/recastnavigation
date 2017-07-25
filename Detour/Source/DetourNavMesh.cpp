@@ -470,12 +470,12 @@ void dtNavMesh::connectExtOffMeshLinks(dtMeshTile* tile, dtMeshTile* target, int
 		if (targetPoly->firstLink == DT_NULL_LINK)
 			continue;
 		
-		const float ext[3] = { targetCon->rad, target->header->walkableClimb, targetCon->rad };
+		const float halfExtents[3] = { targetCon->rad, target->header->walkableClimb, targetCon->rad };
 		
 		// Find polygon to connect to.
 		const float* p = &targetCon->pos[3];
 		float nearestPt[3];
-		dtPolyRef ref = findNearestPolyInTile(tile, p, ext, nearestPt);
+		dtPolyRef ref = findNearestPolyInTile(tile, p, halfExtents, nearestPt);
 		if (!ref)
 			continue;
 		// findNearestPoly may return too optimistic results, further check to make sure. 
@@ -570,12 +570,12 @@ void dtNavMesh::baseOffMeshLinks(dtMeshTile* tile)
 		dtOffMeshConnection* con = &tile->offMeshCons[i];
 		dtPoly* poly = &tile->polys[con->poly];
 	
-		const float ext[3] = { con->rad, tile->header->walkableClimb, con->rad };
+		const float halfExtents[3] = { con->rad, tile->header->walkableClimb, con->rad };
 		
 		// Find polygon to connect to.
 		const float* p = &con->pos[0]; // First vertex
 		float nearestPt[3];
-		dtPolyRef ref = findNearestPolyInTile(tile, p, ext, nearestPt);
+		dtPolyRef ref = findNearestPolyInTile(tile, p, halfExtents, nearestPt);
 		if (!ref) continue;
 		// findNearestPoly may return too optimistic results, further check to make sure. 
 		if (dtSqr(nearestPt[0]-p[0])+dtSqr(nearestPt[2]-p[2]) > dtSqr(con->rad))
@@ -696,12 +696,12 @@ void dtNavMesh::closestPointOnPoly(dtPolyRef ref, const float* pos, float* close
 }
 
 dtPolyRef dtNavMesh::findNearestPolyInTile(const dtMeshTile* tile,
-										   const float* center, const float* extents,
+										   const float* center, const float* halfExtents,
 										   float* nearestPt) const
 {
 	float bmin[3], bmax[3];
-	dtVsub(bmin, center, extents);
-	dtVadd(bmax, center, extents);
+	dtVsub(bmin, center, halfExtents);
+	dtVadd(bmax, center, halfExtents);
 	
 	// Get nearby polygons from proximity grid.
 	dtPolyRef polys[128];
