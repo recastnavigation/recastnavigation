@@ -420,6 +420,45 @@ dtStatus dtTileCache::addBoxObstacle(const float* bmin, const float* bmax, dtObs
 	return DT_SUCCESS;
 }
 
+dtStatus dtTileCache::addBoxObstacle(const float* center, const float* extents, const float yRadians, dtObstacleRef* result)
+{
+	if (m_nreqs >= MAX_REQUESTS)
+		return DT_FAILURE | DT_BUFFER_TOO_SMALL;
+
+	dtTileCacheObstacle* ob = 0;
+	if (m_nextFreeObstacle)
+	{
+		ob = m_nextFreeObstacle;
+		m_nextFreeObstacle = ob->next;
+		ob->next = 0;
+	}
+	if (!ob)
+		return DT_FAILURE | DT_OUT_OF_MEMORY;
+
+	unsigned short salt = ob->salt;
+	memset(ob, 0, sizeof(dtTileCacheObstacle));
+	ob->salt = salt;
+	ob->state = DT_OBSTACLE_PROCESSING;
+	ob->type = DT_OBSTACLE_ORIENTED_BOX;
+	dtVcopy(ob->orientedBox.center, center);
+	dtVcopy(ob->orientedBox.extents, extents);
+
+	float coshalf= cosf(0.5f*yRadians);
+	float sinhalf = sinf(-0.5f*yRadians);
+	ob->orientedBox.rotAux[0] = coshalf*sinhalf;
+	ob->orientedBox.rotAux[1] = coshalf*coshalf - 0.5f;
+
+	ObstacleRequest* req = &m_reqs[m_nreqs++];
+	memset(req, 0, sizeof(ObstacleRequest));
+	req->action = REQUEST_ADD;
+	req->ref = getObstacleRef(ob);
+
+	if (result)
+		*result = req->ref;
+
+	return DT_SUCCESS;
+}
+
 dtStatus dtTileCache::removeObstacle(const dtObstacleRef ref)
 {
 	if (!ref)
@@ -650,7 +689,12 @@ dtStatus dtTileCache::buildNavMeshTile(const dtCompressedTileRef ref, dtNavMesh*
 			else if (ob->type == DT_OBSTACLE_BOX)
 			{
 				dtMarkBoxArea(*bc.layer, tile->header->bmin, m_params.cs, m_params.ch,
-							ob->box.bmin, ob->box.bmax, 0);
+					ob->box.bmin, ob->box.bmax, 0);
+			}
+			else if (ob->type == DT_OBSTACLE_ORIENTED_BOX)
+			{
+				dtMarkBoxArea(*bc.layer, tile->header->bmin, m_params.cs, m_params.ch,
+					ob->orientedBox.center, ob->orientedBox.extents, ob->orientedBox.rotAux, 0);
 			}
 		}
 	}
@@ -760,5 +804,17 @@ void dtTileCache::getObstacleBounds(const struct dtTileCacheObstacle* ob, float*
 	{
 		dtVcopy(bmin, ob->box.bmin);
 		dtVcopy(bmax, ob->box.bmax);
+	}
+	else if (ob->type == DT_OBSTACLE_ORIENTED_BOX)
+	{
+		const dtObstacleOrientedBox &orientedBox = ob->orientedBox;
+
+		float maxr = 1.41f*dtMax(orientedBox.extents[0], orientedBox.extents[2]);
+		bmin[0] = orientedBox.center[0] - maxr;
+		bmax[0] = orientedBox.center[0] + maxr;
+		bmin[1] = orientedBox.center[1] - orientedBox.extents[1];
+		bmax[1] = orientedBox.center[1] + orientedBox.extents[1];
+		bmin[2] = orientedBox.center[2] - maxr;
+		bmax[2] = orientedBox.center[2] + maxr;
 	}
 }

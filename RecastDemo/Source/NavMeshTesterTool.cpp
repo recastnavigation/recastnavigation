@@ -45,7 +45,7 @@
 // Uncomment this to dump all the requests in stdout.
 #define DUMP_REQS
 
-// Returns a random number [0..1)
+// Returns a random number [0..1]
 static float frand()
 {
 //	return ((float)(rand() & 0xffff)/(float)0xffff);
