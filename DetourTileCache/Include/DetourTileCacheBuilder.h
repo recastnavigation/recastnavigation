@@ -130,6 +130,9 @@ dtStatus dtMarkCylinderArea(dtTileCacheLayer& layer, const float* orig, const fl
 dtStatus dtMarkBoxArea(dtTileCacheLayer& layer, const float* orig, const float cs, const float ch,
 					   const float* bmin, const float* bmax, const unsigned char areaId);
 
+dtStatus dtMarkBoxArea(dtTileCacheLayer& layer, const float* orig, const float cs, const float ch,
+					   const float* center, const float* extents, const float* rotAux, const unsigned char areaId);
+
 dtStatus dtBuildTileCacheRegions(dtTileCacheAlloc* alloc,
 								 dtTileCacheLayer& layer,
 								 const int walkableClimb);
