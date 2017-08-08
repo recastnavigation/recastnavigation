@@ -356,6 +356,21 @@ dtStatus dtTileCache::addObstacle(const float* pos, const float radius, const fl
 	if (m_nreqs >= MAX_REQUESTS)
 		return DT_FAILURE | DT_BUFFER_TOO_SMALL;
 	
+	float bmin[3];
+	float bmax[3];
+	bmin[0] = pos[0] - radius;
+	bmin[1] = pos[1];
+	bmin[2] = pos[2] - radius;
+	bmax[0] = pos[0] + radius;
+	bmax[1] = pos[1] + height;
+	bmax[2] = pos[2] + radius;
+
+	int ntouched = 0;
+	dtCompressedTileRef touched[DT_MAX_TOUCHED_TILES];
+	queryTiles(bmin, bmax, touched, &ntouched, DT_MAX_TOUCHED_TILES);
+	if (ntouched == 0)
+		return DT_FAILURE;
+
 	dtTileCacheObstacle* ob = 0;
 	if (m_nextFreeObstacle)
 	{
@@ -391,6 +406,12 @@ dtStatus dtTileCache::addBoxObstacle(const float* bmin, const float* bmax, dtObs
 	if (m_nreqs >= MAX_REQUESTS)
 		return DT_FAILURE | DT_BUFFER_TOO_SMALL;
 	
+	int ntouched = 0;
+	dtCompressedTileRef touched[DT_MAX_TOUCHED_TILES];
+	queryTiles(bmin, bmax, touched, &ntouched, DT_MAX_TOUCHED_TILES);
+	if (ntouched == 0)
+		return DT_FAILURE;
+
 	dtTileCacheObstacle* ob = 0;
 	if (m_nextFreeObstacle)
 	{
