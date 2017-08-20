@@ -712,7 +712,7 @@ void CrowdToolState::setMoveTarget(const float* p, bool adjust)
 	dtNavMeshQuery* navquery = m_sample->getNavMeshQuery();
 	dtCrowd* crowd = m_sample->getCrowd();
 	const dtQueryFilter* filter = crowd->getFilter(0);
-	const float* ext = crowd->getQueryExtents();
+	const float* halfExtents = crowd->getQueryExtents();
 
 	if (adjust)
 	{
@@ -740,7 +740,7 @@ void CrowdToolState::setMoveTarget(const float* p, bool adjust)
 	}
 	else
 	{
-		navquery->findNearestPoly(p, ext, filter, &m_targetRef, m_targetPos);
+		navquery->findNearestPoly(p, halfExtents, filter, &m_targetRef, m_targetPos);
 		
 		if (m_agentDebug.idx != -1)
 		{
@@ -1032,10 +1032,10 @@ void CrowdTool::handleClick(const float* s, const float* p, bool shift)
 		if (nav && navquery)
 		{
 			dtQueryFilter filter;
-			const float* ext = crowd->getQueryExtents();
+			const float* halfExtents = crowd->getQueryExtents();
 			float tgt[3];
 			dtPolyRef ref;
-			navquery->findNearestPoly(p, ext, &filter, &ref, tgt);
+			navquery->findNearestPoly(p, halfExtents, &filter, &ref, tgt);
 			if (ref)
 			{
 				unsigned short flags = 0;

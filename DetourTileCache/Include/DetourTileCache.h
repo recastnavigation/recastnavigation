@@ -58,7 +58,7 @@ struct dtObstacleBox
 struct dtObstacleOrientedBox
 {
 	float center[ 3 ];
-	float extents[ 3 ];
+	float halfExtents[ 3 ];
 	float rotAux[ 2 ]; //{ cos(0.5f*angle)*sin(-0.5f*angle); cos(0.5f*angle)*cos(0.5f*angle) - 0.5 }
 };
 
@@ -146,7 +146,7 @@ public:
 	dtStatus addBoxObstacle(const float* bmin, const float* bmax, dtObstacleRef* result);
 
 	// Box obstacle: can be rotated in Y.
-	dtStatus addBoxObstacle(const float* center, const float* extents, const float yRadians, dtObstacleRef* result);
+	dtStatus addBoxObstacle(const float* center, const float* halfExtents, const float yRadians, dtObstacleRef* result);
 	
 	dtStatus removeObstacle(const dtObstacleRef ref);
 	
