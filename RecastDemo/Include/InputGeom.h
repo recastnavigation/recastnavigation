@@ -91,15 +91,15 @@ class InputGeom
 
 	/// @name Convex Volumes.
 	///@{
-	static const int MAX_VOLUMES = 256;
-	ConvexVolume m_volumes[MAX_VOLUMES];
+	ConvexVolume * m_volumes;
+	const int m_maxVolumes;
 	int m_volumeCount;
 	///@}
 	
 	bool loadMesh(class rcContext* ctx, const std::string& filepath);
 	bool loadGeomSet(class rcContext* ctx, const std::string& filepath);
 public:
-	InputGeom();
+	InputGeom(int maxvolumes = 256);
 	~InputGeom();
 	
 	
