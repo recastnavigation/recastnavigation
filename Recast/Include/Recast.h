@@ -277,7 +277,7 @@ struct rcSpan
 {
 	unsigned int smin : RC_SPAN_HEIGHT_BITS; ///< The lower limit of the span. [Limit: < #smax]
 	unsigned int smax : RC_SPAN_HEIGHT_BITS; ///< The upper limit of the span. [Limit: <= #RC_SPAN_MAX_HEIGHT]
-	unsigned int area : 8;                   ///< The area id assigned to the span.
+	unsigned int area : 6;                   ///< The area id assigned to the span.
 	rcSpan* next;                            ///< The next span higher up in column.
 };
 
