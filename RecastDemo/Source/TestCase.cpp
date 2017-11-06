@@ -76,6 +76,7 @@ static char* parseRow(char* buf, char* bufEnd, char* row, int len)
 			case '\t':
 			case ' ':
 				if (start) break;
+				// else falls through
 			default:
 				start = false;
 				row[n++] = c;
