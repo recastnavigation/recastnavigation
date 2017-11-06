@@ -132,6 +132,9 @@ protected:
 
 	SampleDebugDraw m_dd;
 	
+	dtNavMesh* loadAll(const char* path);
+	void saveAll(const char* path, const dtNavMesh* mesh);
+
 public:
 	Sample();
 	virtual ~Sample();
