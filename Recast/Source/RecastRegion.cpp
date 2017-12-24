@@ -1391,9 +1391,9 @@ bool rcBuildRegionsMonotone(rcContext* ctx, rcCompactHeightfield& chf,
 		paintRectRegion(w-bw, w, 0, h, id|RC_BORDER_REG, chf, srcReg); id++;
 		paintRectRegion(0, w, 0, bh, id|RC_BORDER_REG, chf, srcReg); id++;
 		paintRectRegion(0, w, h-bh, h, id|RC_BORDER_REG, chf, srcReg); id++;
-		
-		chf.borderSize = borderSize;
 	}
+
+	chf.borderSize = borderSize;
 	
 	rcIntArray prev(256);
 
@@ -1581,9 +1581,9 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 		paintRectRegion(w-bw, w, 0, h, regionId|RC_BORDER_REG, chf, srcReg); regionId++;
 		paintRectRegion(0, w, 0, bh, regionId|RC_BORDER_REG, chf, srcReg); regionId++;
 		paintRectRegion(0, w, h-bh, h, regionId|RC_BORDER_REG, chf, srcReg); regionId++;
-
-		chf.borderSize = borderSize;
 	}
+
+	chf.borderSize = borderSize;
 	
 	int sId = -1;
 	while (level > 0)
@@ -1709,9 +1709,9 @@ bool rcBuildLayerRegions(rcContext* ctx, rcCompactHeightfield& chf,
 		paintRectRegion(w-bw, w, 0, h, id|RC_BORDER_REG, chf, srcReg); id++;
 		paintRectRegion(0, w, 0, bh, id|RC_BORDER_REG, chf, srcReg); id++;
 		paintRectRegion(0, w, h-bh, h, id|RC_BORDER_REG, chf, srcReg); id++;
-		
-		chf.borderSize = borderSize;
 	}
+
+	chf.borderSize = borderSize;
 	
 	rcIntArray prev(256);
 	
