@@ -36,6 +36,7 @@ solution "recastnavigation"
 
 	-- windows specific
 	configuration "windows"
+		platforms { "Win32", "Win64" }
 		defines { "WIN32", "_WINDOWS", "_CRT_SECURE_NO_WARNINGS", "_HAS_EXCEPTIONS=0" }
 		-- warnings "Extra" uses /W4 which is too aggressive for us, so use W3 instead.
 		-- Disable:
