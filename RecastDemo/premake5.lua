@@ -44,6 +44,12 @@ solution "recastnavigation"
 		-- * C4291: no matching operator delete found; we don't use exceptions, so doesn't matter
 		buildoptions { "/W3", "/wd4351", "/wd4291" }
 
+	filter "platforms:Win32"
+		architecture "x32"
+
+	filter "platforms:Win64"
+		architecture "x64"
+
 project "DebugUtils"
 	language "C++"
 	kind "StaticLib"
