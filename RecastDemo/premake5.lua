@@ -35,7 +35,14 @@ solution "recastnavigation"
 
 	-- windows specific
 	configuration "windows"
+		platforms { "Win32", "Win64" }
 		defines { "WIN32", "_WINDOWS", "_CRT_SECURE_NO_WARNINGS", "_HAS_EXCEPTIONS=0" }
+
+	filter "platforms:Win32"
+		architecture "x32"
+
+	filter "platforms:Win64"
+		architecture "x64"
 
 	-- linux specific
 	configuration { "linux", "gmake" }
