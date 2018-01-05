@@ -242,114 +242,6 @@ struct NavMeshTileHeader
 	int dataSize;
 };
 
-void Sample_TileMesh::saveAll(const char* path, const dtNavMesh* mesh)
-{
-	if (!mesh) return;
-	
-	FILE* fp = fopen(path, "wb");
-	if (!fp)
-		return;
-	
-	// Store header.
-	NavMeshSetHeader header;
-	header.magic = NAVMESHSET_MAGIC;
-	header.version = NAVMESHSET_VERSION;
-	header.numTiles = 0;
-	for (int i = 0; i < mesh->getMaxTiles(); ++i)
-	{
-		const dtMeshTile* tile = mesh->getTile(i);
-		if (!tile || !tile->header || !tile->dataSize) continue;
-		header.numTiles++;
-	}
-	memcpy(&header.params, mesh->getParams(), sizeof(dtNavMeshParams));
-	fwrite(&header, sizeof(NavMeshSetHeader), 1, fp);
-
-	// Store tiles.
-	for (int i = 0; i < mesh->getMaxTiles(); ++i)
-	{
-		const dtMeshTile* tile = mesh->getTile(i);
-		if (!tile || !tile->header || !tile->dataSize) continue;
-
-		NavMeshTileHeader tileHeader;
-		tileHeader.tileRef = mesh->getTileRef(tile);
-		tileHeader.dataSize = tile->dataSize;
-		fwrite(&tileHeader, sizeof(tileHeader), 1, fp);
-
-		fwrite(tile->data, tile->dataSize, 1, fp);
-	}
-
-	fclose(fp);
-}
-
-dtNavMesh* Sample_TileMesh::loadAll(const char* path)
-{
-	FILE* fp = fopen(path, "rb");
-	if (!fp) return 0;
-	
-	// Read header.
-	NavMeshSetHeader header;
-	size_t readLen = fread(&header, sizeof(NavMeshSetHeader), 1, fp);
-	if (readLen != 1)
-	{
-		fclose(fp);
-		return 0;
-	}
-	if (header.magic != NAVMESHSET_MAGIC)
-	{
-		fclose(fp);
-		return 0;
-	}
-	if (header.version != NAVMESHSET_VERSION)
-	{
-		fclose(fp);
-		return 0;
-	}
-	
-	dtNavMesh* mesh = dtAllocNavMesh();
-	if (!mesh)
-	{
-		fclose(fp);
-		return 0;
-	}
-	dtStatus status = mesh->init(&header.params);
-	if (dtStatusFailed(status))
-	{
-		fclose(fp);
-		return 0;
-	}
-		
-	// Read tiles.
-	for (int i = 0; i < header.numTiles; ++i)
-	{
-		NavMeshTileHeader tileHeader;
-		readLen = fread(&tileHeader, sizeof(tileHeader), 1, fp);
-		if (readLen != 1)
-		{
-			fclose(fp);
-			return 0;
-		}
-
-		if (!tileHeader.tileRef || !tileHeader.dataSize)
-			break;
-
-		unsigned char* data = (unsigned char*)dtAlloc(tileHeader.dataSize, DT_ALLOC_PERM);
-		if (!data) break;
-		memset(data, 0, tileHeader.dataSize);
-		readLen = fread(data, tileHeader.dataSize, 1, fp);
-		if (readLen != 1)
-		{
-			fclose(fp);
-			return 0;
-		}
-
-		mesh->addTile(data, tileHeader.dataSize, DT_TILE_FREE_DATA, tileHeader.tileRef, 0);
-	}
-	
-	fclose(fp);
-	
-	return mesh;
-}
-
 void Sample_TileMesh::handleSettings()
 {
 	Sample::handleCommonSettings();
@@ -401,13 +293,13 @@ void Sample_TileMesh::handleSettings()
 	
 	if (imguiButton("Save"))
 	{
-		saveAll("all_tiles_navmesh.bin", m_navMesh);
+		Sample::saveAll("all_tiles_navmesh.bin", m_navMesh);
 	}
 
 	if (imguiButton("Load"))
 	{
 		dtFreeNavMesh(m_navMesh);
-		m_navMesh = loadAll("all_tiles_navmesh.bin");
+		m_navMesh = Sample::loadAll("all_tiles_navmesh.bin");
 		m_navQuery->init(m_navMesh, 2048);
 	}
 
