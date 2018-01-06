@@ -160,7 +160,7 @@ project "RecastDemo"
 	-- windows library cflags and libs
 	configuration { "windows" }
 		includedirs { "../RecastDemo/Contrib/SDL/include" }
-		libdirs { "../RecastDemo/Contrib/SDL/lib/x86" }
+		libdirs { "../RecastDemo/Contrib/SDL/lib/%{cfg.architecture:gsub('x86_64', 'x64')}" }
 		debugdir "../RecastDemo/Bin/"
 		links { 
 			"glu32",
@@ -170,7 +170,7 @@ project "RecastDemo"
 		}
 		postbuildcommands {
 			-- Copy the SDL2 dll to the Bin folder.
-			'{COPY} "%{wks.location}../../Contrib/SDL/lib/x86/SDL2.dll" "%{cfg.targetdir}"'
+			'{COPY} "%{wks.location}../../Contrib/SDL/lib/%{cfg.architecture:gsub("x86_64", "x64")}/SDL2.dll" "%{cfg.targetdir}"'
 		}
 
 	-- mac includes and libs
@@ -240,7 +240,7 @@ project "Tests"
 	-- windows library cflags and libs
 	configuration { "windows" }
 		includedirs { "../RecastDemo/Contrib/SDL/include" }
-		libdirs { "../RecastDemo/Contrib/SDL/lib/x86" }
+		libdirs { "../RecastDemo/Contrib/SDL/lib/%{cfg.architecture:gsub('x86_64', 'x64')}" }
 		debugdir "../RecastDemo/Bin/"
 		links { 
 			"glu32",
