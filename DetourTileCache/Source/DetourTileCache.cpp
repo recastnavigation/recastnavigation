@@ -516,15 +516,18 @@ dtStatus dtTileCache::queryTiles(const float* bmin, const float* bmax,
 }
 
 dtStatus dtTileCache::update(const float /*dt*/, dtNavMesh* navmesh,
-							 bool* upToDate)
+	bool* upToDate)
 {
 	if (m_nupdate == 0)
 	{
+		bool abortedEarly = false;
+		int lastSpot = 0;
+
 		// Process requests.
 		for (int i = 0; i < m_nreqs; ++i)
 		{
 			ObstacleRequest* req = &m_reqs[i];
-			
+
 			unsigned int idx = decodeObstacleIdObstacle(req->ref);
 			if ((int)idx >= m_params.maxObstacles)
 				continue;
@@ -532,7 +535,7 @@ dtStatus dtTileCache::update(const float /*dt*/, dtNavMesh* navmesh,
 			unsigned int salt = decodeObstacleIdSalt(req->ref);
 			if (ob->salt != salt)
 				continue;
-			
+
 			if (req->action == REQUEST_ADD)
 			{
 				// Find touched tiles.
@@ -546,12 +549,13 @@ dtStatus dtTileCache::update(const float /*dt*/, dtNavMesh* navmesh,
 				ob->npending = 0;
 				for (int j = 0; j < ob->ntouched; ++j)
 				{
-					if (m_nupdate < MAX_UPDATE)
-					{
-						if (!contains(m_update, m_nupdate, ob->touched[j]))
-							m_update[m_nupdate++] = ob->touched[j];
-						ob->pending[ob->npending++] = ob->touched[j];
-					}
+					if (m_nupdate == MAX_UPDATE && i != m_nreqs - 1)
+						abortedEarly = true;
+
+					if (!contains(m_update, m_nupdate, ob->touched[j]))
+						m_update[m_nupdate++] = ob->touched[j];
+					ob->pending[ob->npending++] = ob->touched[j];
+
 				}
 			}
 			else if (req->action == REQUEST_REMOVE)
@@ -562,19 +566,38 @@ dtStatus dtTileCache::update(const float /*dt*/, dtNavMesh* navmesh,
 				ob->npending = 0;
 				for (int j = 0; j < ob->ntouched; ++j)
 				{
-					if (m_nupdate < MAX_UPDATE)
-					{
-						if (!contains(m_update, m_nupdate, ob->touched[j]))
-							m_update[m_nupdate++] = ob->touched[j];
-						ob->pending[ob->npending++] = ob->touched[j];
-					}
+					if (m_nupdate == MAX_UPDATE && i != m_nreqs - 1)
+						abortedEarly = true;
+
+					if (!contains(m_update, m_nupdate, ob->touched[j]))
+						m_update[m_nupdate++] = ob->touched[j];
+					ob->pending[ob->npending++] = ob->touched[j];
+
 				}
 			}
+
+			if (abortedEarly)
+			{
+				lastSpot = ++i;
+				break;
+			}
+
 		}
-		
-		m_nreqs = 0;
+
+		if (abortedEarly)
+		{
+			//Move remaining obstacles to the front of the line
+			memmove(m_reqs, m_reqs + lastSpot,( m_nreqs - lastSpot) * sizeof(ObstacleRequest));
+			m_nreqs = m_nreqs - lastSpot;
+		}
+		else
+		{
+			m_nreqs = 0;
+		}
+
+
 	}
-	
+
 	dtStatus status = DT_SUCCESS;
 	// Process updates
 	if (m_nupdate)
@@ -584,7 +607,7 @@ dtStatus dtTileCache::update(const float /*dt*/, dtNavMesh* navmesh,
 		status = buildNavMeshTile(ref, navmesh);
 		m_nupdate--;
 		if (m_nupdate > 0)
-			memmove(m_update, m_update+1, m_nupdate*sizeof(dtCompressedTileRef));
+			memmove(m_update, m_update + 1, m_nupdate * sizeof(dtCompressedTileRef));
 
 		// Update obstacle states.
 		for (int i = 0; i < m_params.maxObstacles; ++i)
@@ -597,12 +620,12 @@ dtStatus dtTileCache::update(const float /*dt*/, dtNavMesh* navmesh,
 				{
 					if (ob->pending[j] == ref)
 					{
-						ob->pending[j] = ob->pending[(int)ob->npending-1];
+						ob->pending[j] = ob->pending[(int)ob->npending - 1];
 						ob->npending--;
 						break;
 					}
 				}
-				
+
 				// If all pending tiles processed, change state.
 				if (ob->npending == 0)
 				{
@@ -614,7 +637,7 @@ dtStatus dtTileCache::update(const float /*dt*/, dtNavMesh* navmesh,
 					{
 						ob->state = DT_OBSTACLE_EMPTY;
 						// Update salt, salt should never be zero.
-						ob->salt = (ob->salt+1) & ((1<<16)-1);
+						ob->salt = (ob->salt + 1) & ((1 << 16) - 1);
 						if (ob->salt == 0)
 							ob->salt++;
 						// Return obstacle to free list.
@@ -625,7 +648,7 @@ dtStatus dtTileCache::update(const float /*dt*/, dtNavMesh* navmesh,
 			}
 		}
 	}
-	
+
 	if (upToDate)
 		*upToDate = m_nupdate == 0 && m_nreqs == 0;
 
