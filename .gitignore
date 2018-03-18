@@ -43,3 +43,7 @@ RecastDemo/Contrib/SDL/*
 
 ## Generated doc files
 Docs/html
+
+## IDE files
+.idea/
+cmake-build-*/

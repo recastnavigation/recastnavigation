@@ -17,6 +17,10 @@ include_directories(../Recast/Include)
 include_directories(Include)
 
 add_executable(RecastDemo ${SOURCES})
+file(COPY Bin/Meshes DESTINATION ${CMAKE_BINARY_DIR}/RecastDemo)
+file(COPY Bin/TestCases DESTINATION ${CMAKE_BINARY_DIR}/RecastDemo)
+file(COPY Bin/DroidSans.ttf DESTINATION ${CMAKE_BINARY_DIR}/RecastDemo)
+
 add_dependencies(RecastDemo DebugUtils Detour DetourCrowd DetourTileCache Recast)
 target_link_libraries(RecastDemo ${OPENGL_LIBRARIES} ${SDL2_LIBRARY} DebugUtils Detour DetourCrowd DetourTileCache Recast)
 
