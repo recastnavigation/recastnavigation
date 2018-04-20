@@ -386,8 +386,6 @@ static unsigned short* expandRegions(int maxIter, unsigned short level,
 	}
 
 	rcIntArray dirtyEntries;
-	memcpy(dstReg, srcReg, sizeof(unsigned short)*chf.spanCount);
-	memcpy(dstDist, srcDist, sizeof(unsigned short)*chf.spanCount);
 	int iter = 0;
 	while (stack.size() > 0)
 	{
@@ -441,6 +439,13 @@ static unsigned short* expandRegions(int maxIter, unsigned short level,
 		// rcSwap source and dest.
 		rcSwap(srcReg, dstReg);
 		rcSwap(srcDist, dstDist);
+
+		// Copy entries that differ between src and dst to keep them in sync.
+		for (int i = 0; i < dirtyEntries.size(); i++) {
+			int entry = dirtyEntries[i];
+			dstReg[entry] = srcReg[entry];
+			dstDist[entry] = srcDist[entry];
+		}
 		
 		if (failed*3 == stack.size())
 			break;
@@ -451,14 +456,6 @@ static unsigned short* expandRegions(int maxIter, unsigned short level,
 			if (iter >= maxIter)
 				break;
 		}
-
-		// If doing another iteration, copy entries that differ between
-		// src and dst.
-		for (int i = 0; i < dirtyEntries.size(); i++) {
-			int entry = dirtyEntries[i];
-			dstReg[entry] = srcReg[entry];
-			dstDist[entry] = srcDist[entry];
-		}
 	}
 	
 	return srcReg;
@@ -468,7 +465,7 @@ static unsigned short* expandRegions(int maxIter, unsigned short level,
 
 static void sortCellsByLevel(unsigned short startLevel,
 							  rcCompactHeightfield& chf,
-							  unsigned short* srcReg,
+							  const unsigned short* srcReg,
 							  unsigned int nbStacks, rcIntArray* stacks,
 							  unsigned short loglevelsPerStack) // the levels per stack (2 in our case) as a bit shift
 {
@@ -507,7 +504,7 @@ static void sortCellsByLevel(unsigned short startLevel,
 
 
 static void appendStacks(rcIntArray& srcStack, rcIntArray& dstStack,
-						 unsigned short* srcReg)
+						 const unsigned short* srcReg)
 {
 	for (int j=0; j<srcStack.size(); j+=3)
 	{
@@ -681,7 +678,7 @@ static bool isRegionConnectedToBorder(const rcRegion& reg)
 	return false;
 }
 
-static bool isSolidEdge(rcCompactHeightfield& chf, unsigned short* srcReg,
+static bool isSolidEdge(rcCompactHeightfield& chf, const unsigned short* srcReg,
 						int x, int y, int i, int dir)
 {
 	const rcCompactSpan& s = chf.spans[i];
@@ -700,7 +697,7 @@ static bool isSolidEdge(rcCompactHeightfield& chf, unsigned short* srcReg,
 
 static void walkContour(int x, int y, int i, int dir,
 						rcCompactHeightfield& chf,
-						unsigned short* srcReg,
+						const unsigned short* srcReg,
 						rcIntArray& cont)
 {
 	int startDir = dir;
@@ -1570,6 +1567,7 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 	
 	memset(srcReg, 0, sizeof(unsigned short)*chf.spanCount);
 	memset(srcDist, 0, sizeof(unsigned short)*chf.spanCount);
+	memset(dstDist, 0, sizeof(unsigned short)*chf.spanCount);
 	
 	unsigned short regionId = 1;
 	unsigned short level = (chf.maxDistance+1) & ~1;
@@ -1592,6 +1590,9 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 		paintRectRegion(0, w, 0, bh, regionId|RC_BORDER_REG, chf, srcReg); regionId++;
 		paintRectRegion(0, w, h-bh, h, regionId|RC_BORDER_REG, chf, srcReg); regionId++;
 	}
+	// dst(Reg|Dist) are scratch space for expandRegions(). We keep their contents in sync to src(Reg|Dist)
+	// so that expandRegions can avoid costly copoying.
+	memcpy(dstReg, srcReg, sizeof(unsigned short)*chf.spanCount);
 
 	chf.borderSize = borderSize;
 	
@@ -1632,6 +1633,8 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 				int i = lvlStacks[sId][j+2];
 				if (i >= 0 && srcReg[i] == 0)
 				{
+	                                // These two calls should have the same results.
+					floodRegion(x, y, i, level, regionId, chf, dstReg, dstDist, stack);
 					if (floodRegion(x, y, i, level, regionId, chf, srcReg, srcDist, stack))
 					{
 						if (regionId == 0xFFFF)
