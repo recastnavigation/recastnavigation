@@ -10,8 +10,10 @@ compiler:
 
 # Build both debug and release configurations, through use of an environment variable in the build matrix.
 env:
-  - CONFIGURATION=debug
-  - CONFIGURATION=release
+  - CONFIGURATION: debug
+    CMAKE_BUILD_TYPE: Debug
+  - CONFIGURATION: release
+    CMAKE_BUILD_TYPE: Release
 
 install:
   # Download and build SDL2 from source.
@@ -23,7 +25,7 @@ install:
   - tar -xzf SDL2.tar.gz
   - cd SDL2-2.0.4
   - ./configure --prefix=$PREFIX
-  - make -j5
+  - make -j$(nproc)
   - make install
   - cd ..
   # Download and build premake5 from source; the Travis environment doesn't have the right version of glibc6 for the prebuilt binaries to work.
@@ -38,8 +40,11 @@ install:
 # Have to cd into directory and back out since premake5 doesn't appear to accept a directory argument.
 before_script:
   - cd RecastDemo && ../premake5 gmake && cd ..
+  - mkdir build && cd build && cmake -DRECASTNAVIGATION_STATIC=TRUE -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} .. && cd ..
 
 # Run make in the directory containing generated makefiles, on the configuration specified by the environment variable.
 script:
-  - make -C RecastDemo/Build/gmake config=$CONFIGURATION
+  - make -C RecastDemo/Build/gmake -j$(nproc) config=$CONFIGURATION
   - RecastDemo/Bin/Tests
+  - make -C build -j$(nproc)
+  - cd build && ctest
