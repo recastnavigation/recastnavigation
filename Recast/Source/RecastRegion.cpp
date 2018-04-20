@@ -385,13 +385,14 @@ static unsigned short* expandRegions(int maxIter, unsigned short level,
 		}
 	}
 
+	rcIntArray dirtyEntries;
+	memcpy(dstReg, srcReg, sizeof(unsigned short)*chf.spanCount);
+	memcpy(dstDist, srcDist, sizeof(unsigned short)*chf.spanCount);
 	int iter = 0;
 	while (stack.size() > 0)
 	{
 		int failed = 0;
-		
-		memcpy(dstReg, srcReg, sizeof(unsigned short)*chf.spanCount);
-		memcpy(dstDist, srcDist, sizeof(unsigned short)*chf.spanCount);
+		dirtyEntries.resize(0);
 		
 		for (int j = 0; j < stack.size(); j += 3)
 		{
@@ -429,6 +430,7 @@ static unsigned short* expandRegions(int maxIter, unsigned short level,
 				stack[j+2] = -1; // mark as used
 				dstReg[i] = r;
 				dstDist[i] = d2;
+				dirtyEntries.push(i);
 			}
 			else
 			{
@@ -448,6 +450,14 @@ static unsigned short* expandRegions(int maxIter, unsigned short level,
 			++iter;
 			if (iter >= maxIter)
 				break;
+		}
+
+		// If doing another iteration, copy entries that differ between
+		// src and dst.
+		for (int i = 0; i < dirtyEntries.size(); i++) {
+			int entry = dirtyEntries[i];
+			dstReg[entry] = srcReg[entry];
+			dstDist[entry] = srcDist[entry];
 		}
 	}
 	
