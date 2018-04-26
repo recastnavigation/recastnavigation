@@ -385,12 +385,12 @@ static unsigned short* expandRegions(int maxIter, unsigned short level,
 		}
 	}
 
-	rcIntArray dirtyEntries;
+	rcVector<int> dirtyEntries;
 	int iter = 0;
 	while (stack.size() > 0)
 	{
 		int failed = 0;
-		dirtyEntries.resize(0);
+		dirtyEntries.clear();
 		
 		for (int j = 0; j < stack.size(); j += 3)
 		{
@@ -428,7 +428,7 @@ static unsigned short* expandRegions(int maxIter, unsigned short level,
 				stack[j+2] = -1; // mark as used
 				dstReg[i] = r;
 				dstDist[i] = d2;
-				dirtyEntries.push(i);
+				dirtyEntries.push_back(i);
 			}
 			else
 			{
@@ -441,8 +441,7 @@ static unsigned short* expandRegions(int maxIter, unsigned short level,
 		rcSwap(srcDist, dstDist);
 
 		// Copy entries that differ between src and dst to keep them in sync.
-		for (int i = 0; i < dirtyEntries.size(); i++) {
-			int entry = dirtyEntries[i];
+		for (int entry : dirtyEntries) {
 			dstReg[entry] = srcReg[entry];
 			dstDist[entry] = srcDist[entry];
 		}
