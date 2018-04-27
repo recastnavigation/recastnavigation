@@ -240,22 +240,26 @@ static unsigned short* boxBlur(rcCompactHeightfield& chf, int thr,
 	return dst;
 }
 
+struct SpanLocator {
+	int x;
+	int y;
+	// index within chf.spans
+	int i;
+};
 
 static bool floodRegion(int x, int y, int i,
 						unsigned short level, unsigned short r,
 						rcCompactHeightfield& chf,
 						unsigned short* srcReg, unsigned short* srcDist,
-						rcIntArray& stack)
+						rcVector<SpanLocator>& stack)
 {
 	const int w = chf.width;
 	
 	const unsigned char area = chf.areas[i];
 	
 	// Flood fill mark region.
-	stack.resize(0);
-	stack.push((int)x);
-	stack.push((int)y);
-	stack.push((int)i);
+	stack.clear();
+	stack.push_back({x, y, i});
 	srcReg[i] = r;
 	srcDist[i] = 0;
 	
@@ -264,11 +268,10 @@ static bool floodRegion(int x, int y, int i,
 	
 	while (stack.size() > 0)
 	{
-		int ci = stack.pop();
-		int cy = stack.pop();
-		int cx = stack.pop();
+		SpanLocator current = stack.back();
+		stack.pop_back();
 		
-		const rcCompactSpan& cs = chf.spans[ci];
+		const rcCompactSpan& cs = chf.spans[current.i];
 		
 		// Check if any of the neighbours already have a valid region set.
 		unsigned short ar = 0;
@@ -277,8 +280,8 @@ static bool floodRegion(int x, int y, int i,
 			// 8 connected
 			if (rcGetCon(cs, dir) != RC_NOT_CONNECTED)
 			{
-				const int ax = cx + rcGetDirOffsetX(dir);
-				const int ay = cy + rcGetDirOffsetY(dir);
+				const int ax = current.x + rcGetDirOffsetX(dir);
+				const int ay = current.y + rcGetDirOffsetY(dir);
 				const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(cs, dir);
 				if (chf.areas[ai] != area)
 					continue;
@@ -312,7 +315,7 @@ static bool floodRegion(int x, int y, int i,
 		}
 		if (ar != 0)
 		{
-			srcReg[ci] = 0;
+			srcReg[current.i] = 0;
 			continue;
 		}
 		
@@ -323,8 +326,8 @@ static bool floodRegion(int x, int y, int i,
 		{
 			if (rcGetCon(cs, dir) != RC_NOT_CONNECTED)
 			{
-				const int ax = cx + rcGetDirOffsetX(dir);
-				const int ay = cy + rcGetDirOffsetY(dir);
+				const int ax = current.x + rcGetDirOffsetX(dir);
+				const int ay = current.y + rcGetDirOffsetY(dir);
 				const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(cs, dir);
 				if (chf.areas[ai] != area)
 					continue;
@@ -332,9 +335,7 @@ static bool floodRegion(int x, int y, int i,
 				{
 					srcReg[ai] = r;
 					srcDist[ai] = 0;
-					stack.push(ax);
-					stack.push(ay);
-					stack.push(ai);
+					stack.push_back({ax, ay, ai});
 				}
 			}
 		}
@@ -346,7 +347,7 @@ static bool floodRegion(int x, int y, int i,
 static void expandRegions(int maxIter, unsigned short level,
 					      rcCompactHeightfield& chf,
 					      unsigned short* srcReg, unsigned short* srcDist,
-					      rcIntArray& stack,
+					      rcVector<SpanLocator>& stack,
 					      bool fillStack)
 {
 	const int w = chf.width;
@@ -355,7 +356,7 @@ static void expandRegions(int maxIter, unsigned short level,
 	if (fillStack)
 	{
 		// Find cells revealed by the raised level.
-		stack.resize(0);
+		stack.clear();
 		for (int y = 0; y < h; ++y)
 		{
 			for (int x = 0; x < w; ++x)
@@ -365,9 +366,7 @@ static void expandRegions(int maxIter, unsigned short level,
 				{
 					if (chf.dist[i] >= level && srcReg[i] == 0 && chf.areas[i] != RC_NULL_AREA)
 					{
-						stack.push(x);
-						stack.push(y);
-						stack.push(i);
+						stack.push_back({x, y, i});
 					}
 				}
 			}
@@ -376,11 +375,10 @@ static void expandRegions(int maxIter, unsigned short level,
 	else // use cells in the input stack
 	{
 		// mark all cells which already have a region
-		for (int j=0; j<stack.size(); j+=3)
+		for (SpanLocator& span : stack)
 		{
-			int i = stack[j+2];
-			if (srcReg[i] != 0)
-				stack[j+2] = -1;
+			if (srcReg[span.i] != 0)
+				span.i = -1;
 		}
 	}
 
@@ -396,11 +394,11 @@ static void expandRegions(int maxIter, unsigned short level,
 		int failed = 0;
 		dirtyEntries.clear();
 		
-		for (int j = 0; j < stack.size(); j += 3)
+		for (SpanLocator& span : stack)
 		{
-			int x = stack[j+0];
-			int y = stack[j+1];
-			int i = stack[j+2];
+			int x = span.x;
+			int y = span.y;
+			int i = span.i;
 			if (i < 0)
 			{
 				failed++;
@@ -429,7 +427,7 @@ static void expandRegions(int maxIter, unsigned short level,
 			}
 			if (r)
 			{
-				stack[j+2] = -1; // mark as used
+				span.i = -1; // mark as used
 				dirtyEntries.push_back({i, r, d2});
 			}
 			else
@@ -445,7 +443,7 @@ static void expandRegions(int maxIter, unsigned short level,
 			srcDist[idx] = entry.d2;
 		}
 		
-		if (failed*3 == stack.size())
+		if (failed == stack.size())
 			break;
 		
 		if (level > 0)
@@ -462,7 +460,7 @@ static void expandRegions(int maxIter, unsigned short level,
 static void sortCellsByLevel(unsigned short startLevel,
 							  rcCompactHeightfield& chf,
 							  const unsigned short* srcReg,
-							  unsigned int nbStacks, rcIntArray* stacks,
+							  unsigned int nbStacks, rcVector<SpanLocator>* stacks,
 							  unsigned short loglevelsPerStack) // the levels per stack (2 in our case) as a bit shift
 {
 	const int w = chf.width;
@@ -470,7 +468,7 @@ static void sortCellsByLevel(unsigned short startLevel,
 	startLevel = startLevel >> loglevelsPerStack;
 
 	for (unsigned int j=0; j<nbStacks; ++j)
-		stacks[j].resize(0);
+		stacks[j].clear();
 
 	// put all cells in the level range into the appropriate stacks
 	for (int y = 0; y < h; ++y)
@@ -490,26 +488,21 @@ static void sortCellsByLevel(unsigned short startLevel,
 				if (sId < 0)
 					sId = 0;
 
-				stacks[sId].push(x);
-				stacks[sId].push(y);
-				stacks[sId].push(i);
+				stacks[sId].push_back({x, y, i});
 			}
 		}
 	}
 }
 
 
-static void appendStacks(rcIntArray& srcStack, rcIntArray& dstStack,
+static void appendStacks(rcVector<SpanLocator>& srcStack, rcVector<SpanLocator>& dstStack,
 						 const unsigned short* srcReg)
 {
-	for (int j=0; j<srcStack.size(); j+=3)
+	for (const SpanLocator& span : srcStack)
 	{
-		int i = srcStack[j+2];
-		if ((i < 0) || (srcReg[i] != 0))
+		if ((span.i < 0) || (srcReg[span.i] != 0))
 			continue;
-		dstStack.push(srcStack[j]);
-		dstStack.push(srcStack[j+1]);
-		dstStack.push(srcStack[j+2]);
+		dstStack.push_back(span);
 	}
 }
 
@@ -1549,11 +1542,12 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 
 	const int LOG_NB_STACKS = 3;
 	const int NB_STACKS = 1 << LOG_NB_STACKS;
-	rcIntArray lvlStacks[NB_STACKS];
+	rcVector<SpanLocator> lvlStacks[NB_STACKS];
 	for (int i=0; i<NB_STACKS; ++i)
-		lvlStacks[i].resize(1024);
+		lvlStacks[i].reserve(1024);
 
-	rcIntArray stack(1024);
+	rcVector<SpanLocator> stack;
+	stack.reserve(1024);
 	rcIntArray visited(1024);
 	
 	unsigned short* srcReg = buf;
@@ -1612,11 +1606,11 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 			rcScopedTimer timerFloor(ctx, RC_TIMER_BUILD_REGIONS_FLOOD);
 
 			// Mark new regions with IDs.
-			for (int j = 0; j<lvlStacks[sId].size(); j += 3)
+			for (const SpanLocator& span : lvlStacks[sId])
 			{
-				int x = lvlStacks[sId][j];
-				int y = lvlStacks[sId][j+1];
-				int i = lvlStacks[sId][j+2];
+				int x = span.x;
+				int y = span.y;
+				int i = span.i;
 				if (i >= 0 && srcReg[i] == 0)
 				{
 					if (floodRegion(x, y, i, level, regionId, chf, srcReg, srcDist, stack))
