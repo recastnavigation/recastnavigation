@@ -250,7 +250,8 @@ struct SpanLocator {
 static bool floodRegion(int x, int y, int i,
 						unsigned short level, unsigned short r,
 						rcCompactHeightfield& chf,
-						unsigned short* srcReg, unsigned short* srcDist,
+						rcVector<unsigned short>& srcReg,
+						rcVector<unsigned short>& srcDist,
 						rcVector<SpanLocator>& stack)
 {
 	const int w = chf.width;
@@ -346,7 +347,8 @@ static bool floodRegion(int x, int y, int i,
 
 static void expandRegions(int maxIter, unsigned short level,
 					      rcCompactHeightfield& chf,
-					      unsigned short* srcReg, unsigned short* srcDist,
+					      rcVector<unsigned short>& srcReg,
+					      rcVector<unsigned short>& srcDist,
 					      rcVector<SpanLocator>& stack,
 					      bool fillStack)
 {
@@ -459,7 +461,7 @@ static void expandRegions(int maxIter, unsigned short level,
 
 static void sortCellsByLevel(unsigned short startLevel,
 							  rcCompactHeightfield& chf,
-							  const unsigned short* srcReg,
+							  const rcVector<unsigned short>& srcReg,
 							  unsigned int nbStacks, rcVector<SpanLocator>* stacks,
 							  unsigned short loglevelsPerStack) // the levels per stack (2 in our case) as a bit shift
 {
@@ -496,7 +498,7 @@ static void sortCellsByLevel(unsigned short startLevel,
 
 
 static void appendStacks(rcVector<SpanLocator>& srcStack, rcVector<SpanLocator>& dstStack,
-						 const unsigned short* srcReg)
+						 const rcVector<unsigned short>& srcReg)
 {
 	for (const SpanLocator& span : srcStack)
 	{
@@ -1531,12 +1533,8 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 	const int w = chf.width;
 	const int h = chf.height;
 	
-	rcScopedDelete<unsigned short> buf((unsigned short*)rcAlloc(sizeof(unsigned short)*chf.spanCount*2, RC_ALLOC_TEMP));
-	if (!buf)
-	{
-		ctx->log(RC_LOG_ERROR, "rcBuildRegions: Out of memory 'tmp' (%d).", chf.spanCount*4);
-		return false;
-	}
+	rcVector<unsigned short> srcReg(chf.spanCount, 0);
+	rcVector<unsigned short> srcDist(chf.spanCount, 0);
 	
 	ctx->startTimer(RC_TIMER_BUILD_REGIONS_WATERSHED);
 
@@ -1549,12 +1547,6 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 	rcVector<SpanLocator> stack;
 	stack.reserve(1024);
 	rcIntArray visited(1024);
-	
-	unsigned short* srcReg = buf;
-	unsigned short* srcDist = buf+chf.spanCount;
-	
-	memset(srcReg, 0, sizeof(unsigned short)*chf.spanCount);
-	memset(srcDist, 0, sizeof(unsigned short)*chf.spanCount);
 	
 	unsigned short regionId = 1;
 	unsigned short level = (chf.maxDistance+1) & ~1;
@@ -1572,10 +1564,10 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 		const int bh = rcMin(h, borderSize);
 		
 		// Paint regions
-		paintRectRegion(0, bw, 0, h, regionId|RC_BORDER_REG, chf, srcReg); regionId++;
-		paintRectRegion(w-bw, w, 0, h, regionId|RC_BORDER_REG, chf, srcReg); regionId++;
-		paintRectRegion(0, w, 0, bh, regionId|RC_BORDER_REG, chf, srcReg); regionId++;
-		paintRectRegion(0, w, h-bh, h, regionId|RC_BORDER_REG, chf, srcReg); regionId++;
+		paintRectRegion(0, bw, 0, h, regionId|RC_BORDER_REG, chf, srcReg.data()); regionId++;
+		paintRectRegion(w-bw, w, 0, h, regionId|RC_BORDER_REG, chf, srcReg.data()); regionId++;
+		paintRectRegion(0, w, 0, bh, regionId|RC_BORDER_REG, chf, srcReg.data()); regionId++;
+		paintRectRegion(0, w, h-bh, h, regionId|RC_BORDER_REG, chf, srcReg.data()); regionId++;
 	}
 
 	chf.borderSize = borderSize;
@@ -1639,7 +1631,7 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 		// Merge regions and filter out smalle regions.
 		rcIntArray overlaps;
 		chf.maxRegions = regionId;
-		if (!mergeAndFilterRegions(ctx, minRegionArea, mergeRegionArea, chf.maxRegions, chf, srcReg, overlaps))
+		if (!mergeAndFilterRegions(ctx, minRegionArea, mergeRegionArea, chf.maxRegions, chf, srcReg.data(), overlaps))
 			return false;
 
 		// If overlapping regions were found during merging, split those regions.
