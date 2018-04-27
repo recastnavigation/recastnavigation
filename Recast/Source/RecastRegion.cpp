@@ -343,12 +343,11 @@ static bool floodRegion(int x, int y, int i,
 	return count > 0;
 }
 
-static unsigned short* expandRegions(int maxIter, unsigned short level,
-									 rcCompactHeightfield& chf,
-									 unsigned short* srcReg, unsigned short* srcDist,
-									 unsigned short* dstReg, unsigned short* dstDist, 
-									 rcIntArray& stack,
-									 bool fillStack)
+static void expandRegions(int maxIter, unsigned short level,
+					      rcCompactHeightfield& chf,
+					      unsigned short* srcReg, unsigned short* srcDist,
+					      rcIntArray& stack,
+					      bool fillStack)
 {
 	const int w = chf.width;
 	const int h = chf.height;
@@ -426,9 +425,9 @@ static unsigned short* expandRegions(int maxIter, unsigned short level,
 			if (r)
 			{
 				stack[j+2] = -1; // mark as used
-				dstReg[i] = r;
-				dstDist[i] = d2;
 				dirtyEntries.push(i);
+				dirtyEntries.push(r);
+				dirtyEntries.push(d2);
 			}
 			else
 			{
@@ -436,15 +435,11 @@ static unsigned short* expandRegions(int maxIter, unsigned short level,
 			}
 		}
 		
-		// rcSwap source and dest.
-		rcSwap(srcReg, dstReg);
-		rcSwap(srcDist, dstDist);
-
 		// Copy entries that differ between src and dst to keep them in sync.
-		for (int i = 0; i < dirtyEntries.size(); i++) {
-			int entry = dirtyEntries[i];
-			dstReg[entry] = srcReg[entry];
-			dstDist[entry] = srcDist[entry];
+		for (int i = 0; i < dirtyEntries.size(); i+=3) {
+			int idx = dirtyEntries[i];
+			srcReg[idx] = dirtyEntries[i+1];
+			srcDist[idx] = dirtyEntries[i+2];
 		}
 		
 		if (failed*3 == stack.size())
@@ -457,8 +452,6 @@ static unsigned short* expandRegions(int maxIter, unsigned short level,
 				break;
 		}
 	}
-	
-	return srcReg;
 }
 
 
@@ -1542,7 +1535,7 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 	const int w = chf.width;
 	const int h = chf.height;
 	
-	rcScopedDelete<unsigned short> buf((unsigned short*)rcAlloc(sizeof(unsigned short)*chf.spanCount*4, RC_ALLOC_TEMP));
+	rcScopedDelete<unsigned short> buf((unsigned short*)rcAlloc(sizeof(unsigned short)*chf.spanCount*2, RC_ALLOC_TEMP));
 	if (!buf)
 	{
 		ctx->log(RC_LOG_ERROR, "rcBuildRegions: Out of memory 'tmp' (%d).", chf.spanCount*4);
@@ -1562,12 +1555,9 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 	
 	unsigned short* srcReg = buf;
 	unsigned short* srcDist = buf+chf.spanCount;
-	unsigned short* dstReg = buf+chf.spanCount*2;
-	unsigned short* dstDist = buf+chf.spanCount*3;
 	
 	memset(srcReg, 0, sizeof(unsigned short)*chf.spanCount);
 	memset(srcDist, 0, sizeof(unsigned short)*chf.spanCount);
-	memset(dstDist, 0, sizeof(unsigned short)*chf.spanCount);
 	
 	unsigned short regionId = 1;
 	unsigned short level = (chf.maxDistance+1) & ~1;
@@ -1590,9 +1580,6 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 		paintRectRegion(0, w, 0, bh, regionId|RC_BORDER_REG, chf, srcReg); regionId++;
 		paintRectRegion(0, w, h-bh, h, regionId|RC_BORDER_REG, chf, srcReg); regionId++;
 	}
-	// dst(Reg|Dist) are scratch space for expandRegions(). We keep their contents in sync to src(Reg|Dist)
-	// so that expandRegions can avoid costly copoying.
-	memcpy(dstReg, srcReg, sizeof(unsigned short)*chf.spanCount);
 
 	chf.borderSize = borderSize;
 	
@@ -1615,11 +1602,7 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 			rcScopedTimer timerExpand(ctx, RC_TIMER_BUILD_REGIONS_EXPAND);
 
 			// Expand current regions until no empty connected cells found.
-			if (expandRegions(expandIters, level, chf, srcReg, srcDist, dstReg, dstDist, lvlStacks[sId], false) != srcReg)
-			{
-				rcSwap(srcReg, dstReg);
-				rcSwap(srcDist, dstDist);
-			}
+			expandRegions(expandIters, level, chf, srcReg, srcDist, lvlStacks[sId], false);
 		}
 		
 		{
@@ -1633,8 +1616,6 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 				int i = lvlStacks[sId][j+2];
 				if (i >= 0 && srcReg[i] == 0)
 				{
-	                                // These two calls should have the same results.
-					floodRegion(x, y, i, level, regionId, chf, dstReg, dstDist, stack);
 					if (floodRegion(x, y, i, level, regionId, chf, srcReg, srcDist, stack))
 					{
 						if (regionId == 0xFFFF)
@@ -1651,11 +1632,7 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 	}
 	
 	// Expand current regions until no empty connected cells found.
-	if (expandRegions(expandIters*8, 0, chf, srcReg, srcDist, dstReg, dstDist, stack, true) != srcReg)
-	{
-		rcSwap(srcReg, dstReg);
-		rcSwap(srcDist, dstDist);
-	}
+	expandRegions(expandIters*8, 0, chf, srcReg, srcDist, stack, true);
 	
 	ctx->stopTimer(RC_TIMER_BUILD_REGIONS_WATERSHED);
 	
