@@ -384,12 +384,17 @@ static void expandRegions(int maxIter, unsigned short level,
 		}
 	}
 
-	rcIntArray dirtyEntries;
+	struct DirtyEntry {
+	  int index;
+	  unsigned short region;
+	  unsigned short d2;
+	};
+	rcVector<DirtyEntry> dirtyEntries;
 	int iter = 0;
 	while (stack.size() > 0)
 	{
 		int failed = 0;
-		dirtyEntries.resize(0);
+		dirtyEntries.clear();
 		
 		for (int j = 0; j < stack.size(); j += 3)
 		{
@@ -425,9 +430,7 @@ static void expandRegions(int maxIter, unsigned short level,
 			if (r)
 			{
 				stack[j+2] = -1; // mark as used
-				dirtyEntries.push(i);
-				dirtyEntries.push(r);
-				dirtyEntries.push(d2);
+				dirtyEntries.push_back({i, r, d2});
 			}
 			else
 			{
@@ -436,10 +439,10 @@ static void expandRegions(int maxIter, unsigned short level,
 		}
 		
 		// Copy entries that differ between src and dst to keep them in sync.
-		for (int i = 0; i < dirtyEntries.size(); i+=3) {
-			int idx = dirtyEntries[i];
-			srcReg[idx] = (unsigned short)dirtyEntries[i+1];
-			srcDist[idx] = (unsigned short)dirtyEntries[i+2];
+		for (const auto& entry : dirtyEntries) {
+			int idx = entry.index;
+			srcReg[idx] = entry.region;
+			srcDist[idx] = entry.d2;
 		}
 		
 		if (failed*3 == stack.size())
