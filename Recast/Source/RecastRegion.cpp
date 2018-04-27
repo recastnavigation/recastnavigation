@@ -438,8 +438,8 @@ static void expandRegions(int maxIter, unsigned short level,
 		// Copy entries that differ between src and dst to keep them in sync.
 		for (int i = 0; i < dirtyEntries.size(); i+=3) {
 			int idx = dirtyEntries[i];
-			srcReg[idx] = dirtyEntries[i+1];
-			srcDist[idx] = dirtyEntries[i+2];
+			srcReg[idx] = (unsigned short)dirtyEntries[i+1];
+			srcDist[idx] = (unsigned short)dirtyEntries[i+2];
 		}
 		
 		if (failed*3 == stack.size())
