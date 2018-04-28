@@ -338,7 +338,7 @@ static bool floodRegion(int x, int y, int i,
 				{
 					srcReg[ai] = r;
 					srcDist[ai] = 0;
-					stack.push_back({ax, ay, ai});
+					stack.push_back(SpanLocator(ax, ay, ai));
 				}
 			}
 		}
@@ -370,7 +370,7 @@ static void expandRegions(int maxIter, unsigned short level,
 				{
 					if (chf.dist[i] >= level && srcReg[i] == 0 && chf.areas[i] != RC_NULL_AREA)
 					{
-						stack.push_back({x, y, i});
+						stack.push_back(SpanLocator(x, y, i));
 					}
 				}
 			}
@@ -496,7 +496,7 @@ static void sortCellsByLevel(unsigned short startLevel,
 				if (sId < 0)
 					sId = 0;
 
-				stacks[sId].push_back({x, y, i});
+				stacks[sId].push_back(SpanLocator(x, y, i));
 			}
 		}
 	}

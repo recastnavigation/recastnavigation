@@ -19,6 +19,7 @@
 #ifndef RECASTALLOC_H
 #define RECASTALLOC_H
 
+#include <limits.h>
 #include <stddef.h>
 #include <vector>
 
