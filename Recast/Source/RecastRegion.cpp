@@ -240,22 +240,29 @@ static unsigned short* boxBlur(rcCompactHeightfield& chf, int thr,
 	return dst;
 }
 
+struct SpanLocator {
+	SpanLocator() : x(0), y(0), i(0) {}
+	SpanLocator(int x_, int y_, int i_) : x(x_), y(y_), i(i_) {}
+	int x;
+	int y;
+	// index within chf.spans
+	int i;
+};
 
 static bool floodRegion(int x, int y, int i,
 						unsigned short level, unsigned short r,
 						rcCompactHeightfield& chf,
-						unsigned short* srcReg, unsigned short* srcDist,
-						rcIntArray& stack)
+						rcVector<unsigned short>& srcReg,
+						rcVector<unsigned short>& srcDist,
+						rcVector<SpanLocator>& stack)
 {
 	const int w = chf.width;
 	
 	const unsigned char area = chf.areas[i];
 	
 	// Flood fill mark region.
-	stack.resize(0);
-	stack.push((int)x);
-	stack.push((int)y);
-	stack.push((int)i);
+	stack.clear();
+	stack.push_back(SpanLocator(x, y, i));
 	srcReg[i] = r;
 	srcDist[i] = 0;
 	
@@ -264,11 +271,10 @@ static bool floodRegion(int x, int y, int i,
 	
 	while (stack.size() > 0)
 	{
-		int ci = stack.pop();
-		int cy = stack.pop();
-		int cx = stack.pop();
+		SpanLocator current = stack.back();
+		stack.pop_back();
 		
-		const rcCompactSpan& cs = chf.spans[ci];
+		const rcCompactSpan& cs = chf.spans[current.i];
 		
 		// Check if any of the neighbours already have a valid region set.
 		unsigned short ar = 0;
@@ -277,8 +283,8 @@ static bool floodRegion(int x, int y, int i,
 			// 8 connected
 			if (rcGetCon(cs, dir) != RC_NOT_CONNECTED)
 			{
-				const int ax = cx + rcGetDirOffsetX(dir);
-				const int ay = cy + rcGetDirOffsetY(dir);
+				const int ax = current.x + rcGetDirOffsetX(dir);
+				const int ay = current.y + rcGetDirOffsetY(dir);
 				const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(cs, dir);
 				if (chf.areas[ai] != area)
 					continue;
@@ -312,7 +318,7 @@ static bool floodRegion(int x, int y, int i,
 		}
 		if (ar != 0)
 		{
-			srcReg[ci] = 0;
+			srcReg[current.i] = 0;
 			continue;
 		}
 		
@@ -323,8 +329,8 @@ static bool floodRegion(int x, int y, int i,
 		{
 			if (rcGetCon(cs, dir) != RC_NOT_CONNECTED)
 			{
-				const int ax = cx + rcGetDirOffsetX(dir);
-				const int ay = cy + rcGetDirOffsetY(dir);
+				const int ax = current.x + rcGetDirOffsetX(dir);
+				const int ay = current.y + rcGetDirOffsetY(dir);
 				const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(cs, dir);
 				if (chf.areas[ai] != area)
 					continue;
@@ -332,9 +338,7 @@ static bool floodRegion(int x, int y, int i,
 				{
 					srcReg[ai] = r;
 					srcDist[ai] = 0;
-					stack.push(ax);
-					stack.push(ay);
-					stack.push(ai);
+					stack.push_back(SpanLocator(ax, ay, ai));
 				}
 			}
 		}
@@ -345,8 +349,9 @@ static bool floodRegion(int x, int y, int i,
 
 static void expandRegions(int maxIter, unsigned short level,
 					      rcCompactHeightfield& chf,
-					      unsigned short* srcReg, unsigned short* srcDist,
-					      rcIntArray& stack,
+					      rcVector<unsigned short>& srcReg,
+					      rcVector<unsigned short>& srcDist,
+					      rcVector<SpanLocator>& stack,
 					      bool fillStack)
 {
 	const int w = chf.width;
@@ -355,7 +360,7 @@ static void expandRegions(int maxIter, unsigned short level,
 	if (fillStack)
 	{
 		// Find cells revealed by the raised level.
-		stack.resize(0);
+		stack.clear();
 		for (int y = 0; y < h; ++y)
 		{
 			for (int x = 0; x < w; ++x)
@@ -365,9 +370,7 @@ static void expandRegions(int maxIter, unsigned short level,
 				{
 					if (chf.dist[i] >= level && srcReg[i] == 0 && chf.areas[i] != RC_NULL_AREA)
 					{
-						stack.push(x);
-						stack.push(y);
-						stack.push(i);
+						stack.push_back(SpanLocator(x, y, i));
 					}
 				}
 			}
@@ -376,26 +379,34 @@ static void expandRegions(int maxIter, unsigned short level,
 	else // use cells in the input stack
 	{
 		// mark all cells which already have a region
-		for (int j=0; j<stack.size(); j+=3)
+		for (unsigned int i = 0; i < stack.size(); i++)
 		{
-			int i = stack[j+2];
-			if (srcReg[i] != 0)
-				stack[j+2] = -1;
+			SpanLocator& span = stack[i];
+			if (srcReg[span.i] != 0)
+				span.i = -1;
 		}
 	}
 
-	rcIntArray dirtyEntries;
+	struct DirtyEntry {
+	  DirtyEntry() : index(0), region(0), d2(0) {}
+	  DirtyEntry(int index_, unsigned short region_, unsigned short d2_) : index(index_), region(region_), d2(d2_) {}
+	  int index;
+	  unsigned short region;
+	  unsigned short d2;
+	};
+	rcVector<DirtyEntry> dirtyEntries;
 	int iter = 0;
 	while (stack.size() > 0)
 	{
-		int failed = 0;
-		dirtyEntries.resize(0);
+		unsigned int failed = 0;
+		dirtyEntries.clear();
 		
-		for (int j = 0; j < stack.size(); j += 3)
+		for (unsigned int j = 0; j < stack.size(); j++)
 		{
-			int x = stack[j+0];
-			int y = stack[j+1];
-			int i = stack[j+2];
+			SpanLocator& span = stack[j];
+			int x = span.x;
+			int y = span.y;
+			int i = span.i;
 			if (i < 0)
 			{
 				failed++;
@@ -424,10 +435,8 @@ static void expandRegions(int maxIter, unsigned short level,
 			}
 			if (r)
 			{
-				stack[j+2] = -1; // mark as used
-				dirtyEntries.push(i);
-				dirtyEntries.push(r);
-				dirtyEntries.push(d2);
+				span.i = -1; // mark as used
+				dirtyEntries.push_back(DirtyEntry(i, r, d2));
 			}
 			else
 			{
@@ -436,13 +445,13 @@ static void expandRegions(int maxIter, unsigned short level,
 		}
 		
 		// Copy entries that differ between src and dst to keep them in sync.
-		for (int i = 0; i < dirtyEntries.size(); i+=3) {
-			int idx = dirtyEntries[i];
-			srcReg[idx] = (unsigned short)dirtyEntries[i+1];
-			srcDist[idx] = (unsigned short)dirtyEntries[i+2];
+		for (unsigned int i = 0; i < dirtyEntries.size(); i++) {
+			int idx = dirtyEntries[i].index;
+			srcReg[idx] = dirtyEntries[i].region;
+			srcDist[idx] = dirtyEntries[i].d2;
 		}
 		
-		if (failed*3 == stack.size())
+		if (failed == stack.size())
 			break;
 		
 		if (level > 0)
@@ -458,8 +467,8 @@ static void expandRegions(int maxIter, unsigned short level,
 
 static void sortCellsByLevel(unsigned short startLevel,
 							  rcCompactHeightfield& chf,
-							  const unsigned short* srcReg,
-							  unsigned int nbStacks, rcIntArray* stacks,
+							  const rcVector<unsigned short>& srcReg,
+							  unsigned int nbStacks, rcVector<SpanLocator>* stacks,
 							  unsigned short loglevelsPerStack) // the levels per stack (2 in our case) as a bit shift
 {
 	const int w = chf.width;
@@ -467,7 +476,7 @@ static void sortCellsByLevel(unsigned short startLevel,
 	startLevel = startLevel >> loglevelsPerStack;
 
 	for (unsigned int j=0; j<nbStacks; ++j)
-		stacks[j].resize(0);
+		stacks[j].clear();
 
 	// put all cells in the level range into the appropriate stacks
 	for (int y = 0; y < h; ++y)
@@ -487,26 +496,22 @@ static void sortCellsByLevel(unsigned short startLevel,
 				if (sId < 0)
 					sId = 0;
 
-				stacks[sId].push(x);
-				stacks[sId].push(y);
-				stacks[sId].push(i);
+				stacks[sId].push_back(SpanLocator(x, y, i));
 			}
 		}
 	}
 }
 
 
-static void appendStacks(rcIntArray& srcStack, rcIntArray& dstStack,
-						 const unsigned short* srcReg)
+static void appendStacks(rcVector<SpanLocator>& srcStack, rcVector<SpanLocator>& dstStack,
+						 const rcVector<unsigned short>& srcReg)
 {
-	for (int j=0; j<srcStack.size(); j+=3)
+	for (unsigned int j = 0; j < srcStack.size(); j++)
 	{
-		int i = srcStack[j+2];
-		if ((i < 0) || (srcReg[i] != 0))
+		SpanLocator& span = srcStack[j];
+		if ((span.i < 0) || (srcReg[span.i] != 0))
 			continue;
-		dstStack.push(srcStack[j]);
-		dstStack.push(srcStack[j+1]);
-		dstStack.push(srcStack[j+2]);
+		dstStack.push_back(span);
 	}
 }
 
@@ -539,13 +544,13 @@ struct rcRegion
 static void removeAdjacentNeighbours(rcRegion& reg)
 {
 	// Remove adjacent duplicates.
-	for (int i = 0; i < reg.connections.size() && reg.connections.size() > 1; )
+	for (unsigned int i = 0; i < reg.connections.size() && reg.connections.size() > 1; )
 	{
 		int ni = (i+1) % reg.connections.size();
 		if (reg.connections[i] == reg.connections[ni])
 		{
 			// Remove duplicate
-			for (int j = i; j < reg.connections.size()-1; ++j)
+			for (unsigned int j = i; j < reg.connections.size()-1; ++j)
 				reg.connections[j] = reg.connections[j+1];
 			reg.connections.pop();
 		}
@@ -557,7 +562,7 @@ static void removeAdjacentNeighbours(rcRegion& reg)
 static void replaceNeighbour(rcRegion& reg, unsigned short oldId, unsigned short newId)
 {
 	bool neiChanged = false;
-	for (int i = 0; i < reg.connections.size(); ++i)
+	for (unsigned int i = 0; i < reg.connections.size(); ++i)
 	{
 		if (reg.connections[i] == oldId)
 		{
@@ -565,7 +570,7 @@ static void replaceNeighbour(rcRegion& reg, unsigned short oldId, unsigned short
 			neiChanged = true;
 		}
 	}
-	for (int i = 0; i < reg.floors.size(); ++i)
+	for (unsigned int i = 0; i < reg.floors.size(); ++i)
 	{
 		if (reg.floors[i] == oldId)
 			reg.floors[i] = newId;
@@ -1535,29 +1540,22 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 	const int w = chf.width;
 	const int h = chf.height;
 	
-	rcScopedDelete<unsigned short> buf((unsigned short*)rcAlloc(sizeof(unsigned short)*chf.spanCount*2, RC_ALLOC_TEMP));
-	if (!buf)
-	{
-		ctx->log(RC_LOG_ERROR, "rcBuildRegions: Out of memory 'tmp' (%d).", chf.spanCount*4);
-		return false;
-	}
+	rcVector<unsigned short> srcReg;
+	srcReg.resize(chf.spanCount);
+	rcVector<unsigned short> srcDist;
+	srcDist.resize(chf.spanCount);
 	
 	ctx->startTimer(RC_TIMER_BUILD_REGIONS_WATERSHED);
 
 	const int LOG_NB_STACKS = 3;
 	const int NB_STACKS = 1 << LOG_NB_STACKS;
-	rcIntArray lvlStacks[NB_STACKS];
+	rcVector<SpanLocator> lvlStacks[NB_STACKS];
 	for (int i=0; i<NB_STACKS; ++i)
-		lvlStacks[i].resize(1024);
+		lvlStacks[i].reserve(1024);
 
-	rcIntArray stack(1024);
+	rcVector<SpanLocator> stack;
+	stack.reserve(1024);
 	rcIntArray visited(1024);
-	
-	unsigned short* srcReg = buf;
-	unsigned short* srcDist = buf+chf.spanCount;
-	
-	memset(srcReg, 0, sizeof(unsigned short)*chf.spanCount);
-	memset(srcDist, 0, sizeof(unsigned short)*chf.spanCount);
 	
 	unsigned short regionId = 1;
 	unsigned short level = (chf.maxDistance+1) & ~1;
@@ -1575,10 +1573,10 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 		const int bh = rcMin(h, borderSize);
 		
 		// Paint regions
-		paintRectRegion(0, bw, 0, h, regionId|RC_BORDER_REG, chf, srcReg); regionId++;
-		paintRectRegion(w-bw, w, 0, h, regionId|RC_BORDER_REG, chf, srcReg); regionId++;
-		paintRectRegion(0, w, 0, bh, regionId|RC_BORDER_REG, chf, srcReg); regionId++;
-		paintRectRegion(0, w, h-bh, h, regionId|RC_BORDER_REG, chf, srcReg); regionId++;
+		paintRectRegion(0, bw, 0, h, regionId|RC_BORDER_REG, chf, srcReg.data()); regionId++;
+		paintRectRegion(w-bw, w, 0, h, regionId|RC_BORDER_REG, chf, srcReg.data()); regionId++;
+		paintRectRegion(0, w, 0, bh, regionId|RC_BORDER_REG, chf, srcReg.data()); regionId++;
+		paintRectRegion(0, w, h-bh, h, regionId|RC_BORDER_REG, chf, srcReg.data()); regionId++;
 	}
 
 	chf.borderSize = borderSize;
@@ -1609,11 +1607,12 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 			rcScopedTimer timerFloor(ctx, RC_TIMER_BUILD_REGIONS_FLOOD);
 
 			// Mark new regions with IDs.
-			for (int j = 0; j<lvlStacks[sId].size(); j += 3)
+			for (unsigned int j = 0; j < lvlStacks[sId].size(); j++)
 			{
-				int x = lvlStacks[sId][j];
-				int y = lvlStacks[sId][j+1];
-				int i = lvlStacks[sId][j+2];
+				const SpanLocator& span = lvlStacks[sId][j];
+				int x = span.x;
+				int y = span.y;
+				int i = span.i;
 				if (i >= 0 && srcReg[i] == 0)
 				{
 					if (floodRegion(x, y, i, level, regionId, chf, srcReg, srcDist, stack))
@@ -1642,7 +1641,7 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 		// Merge regions and filter out smalle regions.
 		rcIntArray overlaps;
 		chf.maxRegions = regionId;
-		if (!mergeAndFilterRegions(ctx, minRegionArea, mergeRegionArea, chf.maxRegions, chf, srcReg, overlaps))
+		if (!mergeAndFilterRegions(ctx, minRegionArea, mergeRegionArea, chf.maxRegions, chf, srcReg.data(), overlaps))
 			return false;
 
 		// If overlapping regions were found during merging, split those regions.

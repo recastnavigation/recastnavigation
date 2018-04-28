@@ -19,7 +19,9 @@
 #ifndef RECASTALLOC_H
 #define RECASTALLOC_H
 
+#include <limits.h>
 #include <stddef.h>
+#include <vector>
 
 /// Provides hint values to the memory allocator on how long the
 /// memory is expected to be used.
@@ -58,64 +60,76 @@ void* rcAlloc(size_t size, rcAllocHint hint);
 /// @see rcAlloc
 void rcFree(void* ptr);
 
+// An STL Allocator that uses rcAlloc and rcFree
+template <typename T, rcAllocHint Hint>
+struct rcAllocator {
+	typedef T value_type;
+	typedef T* pointer;
+	typedef const T* const_pointer;
+	typedef T& reference;
+	typedef const T& const_reference;
+	typedef size_t size_type;
+	typedef std::ptrdiff_t difference_type;
 
-/// A simple dynamic array of integers.
-class rcIntArray
+	rcAllocator() {}
+	template <typename U, rcAllocHint H>
+	rcAllocator(rcAllocator<U, H>&) {}
+
+	T* allocate(std::size_t count, T* = NULL) {
+		if (count > std::size_t(-1) / sizeof(T)) { throw std::bad_alloc(); }
+		T* value = static_cast<T*>(rcAlloc(count * sizeof(T), Hint));
+		if (!value) { throw std::bad_alloc(); }
+		return value;
+	}
+	void deallocate(T* p, std::size_t) {
+		rcFree(static_cast<void*>(p));
+	}
+	template <typename U>
+	struct rebind {
+		typedef rcAllocator<U, Hint> other;
+	};
+
+	T* address(T& v) { return &v; }
+	const T* const_address(const T& v) { return &v; }
+	void construct(T* p, const T& v) { new (p) T(v); }
+	void destroy(T* p) { p->~T(); }
+	size_t max_size() const { return ULONG_MAX / sizeof(T); }
+
+	template <typename U, rcAllocHint H>
+	bool operator==(const rcAllocator<U, H>&) { return true; }
+	template <typename U, rcAllocHint H>
+	bool operator!=(const rcAllocator<U, H>&) { return false; }
+};
+
+// Aliases for std::vector which default to rcAllocator.
+template <typename T, typename Allocator = rcAllocator<T, RC_ALLOC_TEMP> >
+class rcVector : public std::vector<T, Allocator> {};
+template <typename T, typename Allocator = rcAllocator<T, RC_ALLOC_PERM> >
+class rcPermVector : public std::vector<T, Allocator> {};
+
+// Legacy custom vector. New code should use rcVector<int> directly.
+class rcIntArray : public rcVector<int>
 {
-	int* m_data;
-	int m_size, m_cap;
-
-	void doResize(int n);
-	
-	// Explicitly disabled copy constructor and copy assignment operator.
-	rcIntArray(const rcIntArray&);
-	rcIntArray& operator=(const rcIntArray&);
-
 public:
 	/// Constructs an instance with an initial array size of zero.
-	rcIntArray() : m_data(0), m_size(0), m_cap(0) {}
+	rcIntArray() {}
 
 	/// Constructs an instance initialized to the specified size.
 	///  @param[in]		n	The initial size of the integer array.
-	rcIntArray(int n) : m_data(0), m_size(0), m_cap(0) { resize(n); }
-	~rcIntArray() { rcFree(m_data); }
-
-	/// Specifies the new size of the integer array.
-	///  @param[in]		n	The new size of the integer array.
-	void resize(int n)
-	{
-		if (n > m_cap)
-			doResize(n);
-		
-		m_size = n;
-	}
+	rcIntArray(int n) { resize(n); }
 
 	/// Push the specified integer onto the end of the array and increases the size by one.
 	///  @param[in]		item	The new value.
-	void push(int item) { resize(m_size+1); m_data[m_size-1] = item; }
+	void push(int item) { push_back(item); }
 
 	/// Returns the value at the end of the array and reduces the size by one.
 	///  @return The value at the end of the array.
 	int pop()
 	{
-		if (m_size > 0)
-			m_size--;
-		
-		return m_data[m_size];
+		int value = back();
+		pop_back();
+		return value;
 	}
-
-	/// The value at the specified array index.
-	/// @warning Does not provide overflow protection.
-	///  @param[in]		i	The index of the value.
-	const int& operator[](int i) const { return m_data[i]; }
-
-	/// The value at the specified array index.
-	/// @warning Does not provide overflow protection.
-	///  @param[in]		i	The index of the value.
-	int& operator[](int i) { return m_data[i]; }
-
-	/// The current size of the integer array.
-	int size() const { return m_size; }
 };
 
 /// A simple helper class used to delete an array when it goes out of scope.
