@@ -1540,8 +1540,10 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 	const int w = chf.width;
 	const int h = chf.height;
 	
-	rcVector<unsigned short> srcReg(chf.spanCount, 0);
-	rcVector<unsigned short> srcDist(chf.spanCount, 0);
+	rcVector<unsigned short> srcReg;
+	srcReg.resize(chf.spanCount);
+	rcVector<unsigned short> srcDist;
+	srcDist.resize(chf.spanCount);
 	
 	ctx->startTimer(RC_TIMER_BUILD_REGIONS_WATERSHED);
 
