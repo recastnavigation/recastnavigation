@@ -92,6 +92,7 @@ struct rcAllocator {
 	const T* const_address(const T& v) { return &v; }
 	void construct(T* p, const T& v) { new (p) T(v); }
 	void destroy(T* p) { p->~T(); }
+	size_t max_size() const { return ULONG_MAX / sizeof(T); }
 
 	template <typename U, rcAllocHint H>
 	bool operator==(const rcAllocator<U, H>&) { return true; }
