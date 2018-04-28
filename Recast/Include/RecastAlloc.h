@@ -68,7 +68,7 @@ struct rcAllocator {
 	template <typename U, rcAllocHint H>
 	rcAllocator(rcAllocator<U, H>&) {}
 
-	T* allocate(std::size_t count, T* = nullptr) {
+	T* allocate(std::size_t count, T* = NULL) {
 		if (count > std::size_t(-1) / sizeof(T)) { throw std::bad_alloc(); }
 		T* value = static_cast<T*>(rcAlloc(count * sizeof(T), Hint));
 		if (!value) { throw std::bad_alloc(); }
