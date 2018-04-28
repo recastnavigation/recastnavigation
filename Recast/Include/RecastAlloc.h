@@ -62,7 +62,7 @@ void rcFree(void* ptr);
 // An STL Allocator that uses rcAlloc and rcFree
 template <typename T, rcAllocHint Hint>
 struct rcAllocator {
-	using value_type = T;
+	typedef T value_type;
 	T* allocate(std::size_t count, T* hint = nullptr) {
 		if (count > std::size_t(-1) / sizeof(T)) { throw std::bad_alloc(); }
 		T* value = static_cast<T*>(rcAlloc(count * sizeof(T), Hint));
