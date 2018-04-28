@@ -89,9 +89,9 @@ struct rcAllocator {
 };
 
 // Aliases for std::vector which default to rcAllocator.
-template <typename T, typename Allocator = rcAllocator<T, RC_ALLOC_TEMP>>
+template <typename T, typename Allocator = rcAllocator<T, RC_ALLOC_TEMP> >
 using rcVector = std::vector<T, Allocator>;
-template <typename T, typename Allocator = rcAllocator<T, RC_ALLOC_PERM>>
+template <typename T, typename Allocator = rcAllocator<T, RC_ALLOC_PERM> >
 using rcPermVector = std::vector<T, Allocator>;
 
 // Legacy custom vector. New code should use rcVector<int> directly.
