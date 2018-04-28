@@ -63,18 +63,23 @@ void rcFree(void* ptr);
 template <typename T, rcAllocHint Hint>
 struct rcAllocator {
 	typedef T value_type;
-	T* allocate(std::size_t count, T* hint = nullptr) {
+
+	rcAllocator() {}
+	template <typename U, rcAllocHint H>
+	rcAllocator(rcAllocator<U, H>&) {}
+
+	T* allocate(std::size_t count, T* = nullptr) {
 		if (count > std::size_t(-1) / sizeof(T)) { throw std::bad_alloc(); }
 		T* value = static_cast<T*>(rcAlloc(count * sizeof(T), Hint));
 		if (!value) { throw std::bad_alloc(); }
 		return value;
 	}
-	void deallocate(T* p, std::size_t count) {
+	void deallocate(T* p, std::size_t) {
 		rcFree(static_cast<void*>(p));
 	}
 	template <typename U>
 	struct rebind {
-		using other = rcAllocator<U, Hint>;
+		typedef rcAllocator<U, Hint> other;
 	};
 
 	template <typename U, rcAllocHint H>

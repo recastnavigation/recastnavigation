@@ -241,6 +241,8 @@ static unsigned short* boxBlur(rcCompactHeightfield& chf, int thr,
 }
 
 struct SpanLocator {
+	SpanLocator() : x(0), y(0), i(0) {}
+	SpanLocator(int x_, int y_, int i_) : x(x_), y(y_), i(i_) {}
 	int x;
 	int y;
 	// index within chf.spans
@@ -260,7 +262,7 @@ static bool floodRegion(int x, int y, int i,
 	
 	// Flood fill mark region.
 	stack.clear();
-	stack.push_back({x, y, i});
+	stack.push_back(SpanLocator(x, y, i));
 	srcReg[i] = r;
 	srcDist[i] = 0;
 	
@@ -377,14 +379,17 @@ static void expandRegions(int maxIter, unsigned short level,
 	else // use cells in the input stack
 	{
 		// mark all cells which already have a region
-		for (SpanLocator& span : stack)
+		for (unsigned int i = 0; i < stack.size(); i++)
 		{
+			SpanLocator& span = stack[i];
 			if (srcReg[span.i] != 0)
 				span.i = -1;
 		}
 	}
 
 	struct DirtyEntry {
+	  DirtyEntry() : index(0), region(0), d2(0) {}
+	  DirtyEntry(int index_, unsigned short region_, unsigned short d2_) : index(index_), region(region_), d2(d2_) {}
 	  int index;
 	  unsigned short region;
 	  unsigned short d2;
@@ -393,11 +398,12 @@ static void expandRegions(int maxIter, unsigned short level,
 	int iter = 0;
 	while (stack.size() > 0)
 	{
-		int failed = 0;
+		unsigned int failed = 0;
 		dirtyEntries.clear();
 		
-		for (SpanLocator& span : stack)
+		for (unsigned int j = 0; j < stack.size(); j++)
 		{
+			SpanLocator& span = stack[j];
 			int x = span.x;
 			int y = span.y;
 			int i = span.i;
@@ -430,7 +436,7 @@ static void expandRegions(int maxIter, unsigned short level,
 			if (r)
 			{
 				span.i = -1; // mark as used
-				dirtyEntries.push_back({i, r, d2});
+				dirtyEntries.push_back(DirtyEntry(i, r, d2));
 			}
 			else
 			{
@@ -439,10 +445,10 @@ static void expandRegions(int maxIter, unsigned short level,
 		}
 		
 		// Copy entries that differ between src and dst to keep them in sync.
-		for (const auto& entry : dirtyEntries) {
-			int idx = entry.index;
-			srcReg[idx] = entry.region;
-			srcDist[idx] = entry.d2;
+		for (unsigned int i = 0; i < dirtyEntries.size(); i++) {
+			int idx = dirtyEntries[i].index;
+			srcReg[idx] = dirtyEntries[i].region;
+			srcDist[idx] = dirtyEntries[i].d2;
 		}
 		
 		if (failed == stack.size())
@@ -500,8 +506,9 @@ static void sortCellsByLevel(unsigned short startLevel,
 static void appendStacks(rcVector<SpanLocator>& srcStack, rcVector<SpanLocator>& dstStack,
 						 const rcVector<unsigned short>& srcReg)
 {
-	for (const SpanLocator& span : srcStack)
+	for (unsigned int j = 0; j < srcStack.size(); j++)
 	{
+		SpanLocator& span = srcStack[j];
 		if ((span.i < 0) || (srcReg[span.i] != 0))
 			continue;
 		dstStack.push_back(span);
@@ -537,13 +544,13 @@ struct rcRegion
 static void removeAdjacentNeighbours(rcRegion& reg)
 {
 	// Remove adjacent duplicates.
-	for (int i = 0; i < reg.connections.size() && reg.connections.size() > 1; )
+	for (unsigned int i = 0; i < reg.connections.size() && reg.connections.size() > 1; )
 	{
 		int ni = (i+1) % reg.connections.size();
 		if (reg.connections[i] == reg.connections[ni])
 		{
 			// Remove duplicate
-			for (int j = i; j < reg.connections.size()-1; ++j)
+			for (unsigned int j = i; j < reg.connections.size()-1; ++j)
 				reg.connections[j] = reg.connections[j+1];
 			reg.connections.pop();
 		}
@@ -555,7 +562,7 @@ static void removeAdjacentNeighbours(rcRegion& reg)
 static void replaceNeighbour(rcRegion& reg, unsigned short oldId, unsigned short newId)
 {
 	bool neiChanged = false;
-	for (int i = 0; i < reg.connections.size(); ++i)
+	for (unsigned int i = 0; i < reg.connections.size(); ++i)
 	{
 		if (reg.connections[i] == oldId)
 		{
@@ -563,7 +570,7 @@ static void replaceNeighbour(rcRegion& reg, unsigned short oldId, unsigned short
 			neiChanged = true;
 		}
 	}
-	for (int i = 0; i < reg.floors.size(); ++i)
+	for (unsigned int i = 0; i < reg.floors.size(); ++i)
 	{
 		if (reg.floors[i] == oldId)
 			reg.floors[i] = newId;
@@ -1598,8 +1605,9 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 			rcScopedTimer timerFloor(ctx, RC_TIMER_BUILD_REGIONS_FLOOD);
 
 			// Mark new regions with IDs.
-			for (const SpanLocator& span : lvlStacks[sId])
+			for (unsigned int j = 0; j < lvlStacks[sId].size(); j++)
 			{
+				const SpanLocator& span = lvlStacks[sId][j];
 				int x = span.x;
 				int y = span.y;
 				int i = span.i;
