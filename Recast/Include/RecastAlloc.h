@@ -63,6 +63,12 @@ void rcFree(void* ptr);
 template <typename T, rcAllocHint Hint>
 struct rcAllocator {
 	typedef T value_type;
+	typedef T* pointer;
+	typedef const T* const_pointer;
+	typedef T& reference;
+	typedef const T& const_reference;
+	typedef size_t size_type;
+	typedef std::ptrdiff_t difference_type;
 
 	rcAllocator() {}
 	template <typename U, rcAllocHint H>
@@ -81,6 +87,11 @@ struct rcAllocator {
 	struct rebind {
 		typedef rcAllocator<U, Hint> other;
 	};
+
+	T* address(T& v) { return &v; }
+	const T* const_address(const T& v) { return &v; }
+	void construct(T* p, const T& v) { new (p) T(v); }
+	void destroy(T* p) { p->~T(); }
 
 	template <typename U, rcAllocHint H>
 	bool operator==(const rcAllocator<U, H>&) { return true; }
