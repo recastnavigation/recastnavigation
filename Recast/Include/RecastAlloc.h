@@ -262,7 +262,7 @@ rcVectorBase<T, H>& rcVectorBase<T, H>::operator=(const rcVectorBase<T, H>& othe
 }
 
 template <typename T>
-class rcVector : public	rcVectorBase<T, RC_ALLOC_TEMP> {
+class rcVector : public rcVectorBase<T, RC_ALLOC_TEMP> {
 	typedef rcVectorBase<T, RC_ALLOC_TEMP> Base;
 public:
 	rcVector() : Base() {}
@@ -272,7 +272,7 @@ public:
 	rcVector(const T* begin, const T* end) : Base(begin, end) {}
 };
 template <typename T>
-class rcPermVector : public	rcVectorBase<T, RC_ALLOC_PERM> {
+class rcPermVector : public rcVectorBase<T, RC_ALLOC_PERM> {
 	typedef rcVectorBase<T, RC_ALLOC_PERM> Base;
 public:
 	rcPermVector() : Base() {}
