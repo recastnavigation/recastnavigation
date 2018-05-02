@@ -91,8 +91,8 @@ typedef intptr_t rcSizeType;
 template <typename T, rcAllocHint H>
 class rcVectorBase {
 	T* m_data;
-	ssize_t m_size;
-	ssize_t m_cap;
+	rcSizeType m_size;
+	rcSizeType m_cap;
 	// Constructs a T at the give address with either the copy constructor or the default.
 	static void construct(T* p, const T& v) { ::new(rcNewTag(), (void*)p) T(v); }
 	static void construct(T* p) { ::new(rcNewTag(), (void*)p) T; }
