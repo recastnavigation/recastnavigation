@@ -1136,7 +1136,6 @@ int64_t NowNanos() {
 
 const int64_t kNumLoops = 100;
 const int64_t kNumInserts = 100000;
-const int64_t kNumOps = kNumLoops * kNumInserts;
 
 // Prevent compiler from eliding the above loop. gcc/clang only?
 template <typename T>
