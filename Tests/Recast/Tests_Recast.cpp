@@ -8,16 +8,6 @@
 
 #include <vector>
 
-
-#ifdef __unix__
-// For rcVector benchmarking.
-#include <unistd.h>
-#ifdef _POSIX_TIMERS
-#include <time.h>
-#include <stdint.h>
-#endif  // _POSIX_TIMERS
-#endif  // __unix__
-
 TEST_CASE("rcSwap")
 {
 	SECTION("Swap two values")
@@ -900,14 +890,6 @@ struct Copier {
 const int Copier::kAlive = 0x1f;
 const int Copier::kDead = 0xde;
 
-#ifdef _POSIX_TIMERS
-int64_t NowNanos() {
-	struct timespec tp;
-	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &tp);
-	return tp.tv_nsec + 1000000000LL * tp.tv_sec;
-}
-#endif
-
 TEST_CASE("rcVector")
 {
 	SECTION("Vector basics.")
@@ -1119,7 +1101,22 @@ TEST_CASE("rcVector")
 }
 
 // TODO: Implement benchmarking for platforms other than posix.
+#ifdef __unix__
+// For rcVector benchmarking.
+#include <unistd.h>
 #ifdef _POSIX_TIMERS
+#include <time.h>
+#include <stdint.h>
+#endif  // _POSIX_TIMERS
+#endif  // __unix__
+
+#ifdef _POSIX_TIMERS
+int64_t NowNanos() {
+	struct timespec tp;
+	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &tp);
+	return tp.tv_nsec + 1000000000LL * tp.tv_sec;
+}
+
 #define BM(name, iterations) \
 	struct BM_ ## name { \
 		static void Run() { \
