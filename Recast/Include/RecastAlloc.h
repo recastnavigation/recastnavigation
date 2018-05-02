@@ -22,8 +22,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "RecastAssert.h"
-
 /// Provides hint values to the memory allocator on how long the
 /// memory is expected to be used.
 enum rcAllocHint
@@ -165,7 +163,6 @@ void rcVectorBase<T, H>::reserve(rcSizeType count) {
 }
 template <typename T, rcAllocHint H>
 T* rcVectorBase<T, H>::allocate_and_copy(rcSizeType size) {
-	rcAssert(size > m_size);
 	T* new_data = static_cast<T*>(rcAlloc(sizeof(T) * size, H));
 	copy_range(new_data, m_data, m_data + m_size);
 	return new_data;
