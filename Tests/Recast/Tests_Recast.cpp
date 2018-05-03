@@ -843,8 +843,8 @@ struct Incrementor {
 	static int copies;
 	Incrementor() { constructions++; }
 	~Incrementor() { destructions++; }
-	Incrementor(const Incrementor& other) { copies++; }
-	Incrementor& operator=(const Incrementor& other); // Deleted assignment.
+	Incrementor(const Incrementor&) { copies++; }
+	Incrementor& operator=(const Incrementor&); // Deleted assignment.
 
 	static void Reset() {
 		constructions = 0;
@@ -879,7 +879,7 @@ struct Copier {
 	Copier(const Copier& other) : value(kAlive) {
 		other.Verify();
 	}
-	Copier& operator=(const Copier& other);
+	Copier& operator=(const Copier&);
 
 	// Marks the value as dead.
 	~Copier() { value = kDead; }
