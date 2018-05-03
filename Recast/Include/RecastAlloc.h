@@ -90,9 +90,9 @@ typedef intptr_t rcSizeType;
 ///  * No specialization for bool.
 template <typename T, rcAllocHint H>
 class rcVectorBase {
-	T* m_data;
 	rcSizeType m_size;
 	rcSizeType m_cap;
+	T* m_data;
 	// Constructs a T at the give address with either the copy constructor or the default.
 	static void construct(T* p, const T& v) { ::new(rcNewTag(), (void*)p) T(v); }
 	static void construct(T* p) { ::new(rcNewTag(), (void*)p) T; }
@@ -109,9 +109,9 @@ class rcVectorBase {
 
 	rcVectorBase() : m_size(0), m_cap(0), m_data(0) {};
 	rcVectorBase(const rcVectorBase<T, H>& other) : m_size(0), m_cap(0), m_data(0) { assign(other.begin(), other.end()); }
-	explicit rcVectorBase(rcSizeType count) : m_data(0), m_size(0), m_cap(0) { resize(count); }
-	rcVectorBase(rcSizeType count, const T& value) : m_data(0), m_size(0), m_cap(0) { resize(count, value); }
-	rcVectorBase(const T* begin, const T* end) : m_data(0), m_size(0), m_cap(0) { assign(begin, end); }
+	explicit rcVectorBase(rcSizeType count) : m_size(0), m_cap(0), m_data(0) { resize(count); }
+	rcVectorBase(rcSizeType count, const T& value) : m_size(0), m_cap(0), m_data(0) { resize(count, value); }
+	rcVectorBase(const T* begin, const T* end) : m_size(0), m_cap(0), m_data(0) { assign(begin, end); }
 	~rcVectorBase() { destroy_range(0, m_size); rcFree(m_data); }
 
 	void reserve(rcSizeType size);
