@@ -185,6 +185,8 @@ void rcVectorBase<T, H>::push_back(const T& value) {
 
 	rcSizeType new_cap = m_size ? 2*m_size : 1;
 	T* data = allocate_and_copy(new_cap);
+	// construct between allocate and destroy+free in case value is
+	// in this vector.
 	construct(data + m_size, value);
 	destroy_range(0, m_size);
 	m_size++;
@@ -198,8 +200,9 @@ void rcVectorBase<T, H>::resize_impl(rcSizeType size, const T* value) {
 		destroy_range(size, m_size);
 		m_size = size;
 	} else if (size > m_size) {
-		// Assign to temporary in case value is in this vector.
 		T* new_data = allocate_and_copy(size);
+		// We defer deconstructing/freeing old data until after constructing
+		// new elements in case "value" is there.
 		if (value) {
 			construct_range(new_data + m_size, new_data + size, *value);
 		} else {
@@ -214,6 +217,7 @@ void rcVectorBase<T, H>::resize_impl(rcSizeType size, const T* value) {
 }
 template <typename T, rcAllocHint H>
 void rcVectorBase<T, H>::swap(rcVectorBase<T, H>& other) {
+	// TODO: Reorganize headers so we can use rcSwap here.
 	rcSizeType tmp_cap = other.m_cap;
 	rcSizeType tmp_size = other.m_size;
 	T* tmp_data = other.m_data;

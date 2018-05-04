@@ -7,6 +7,7 @@
 #include "RecastAlloc.h"
 #include "RecastAssert.h"
 
+// For comparing to rcVector in benchmarks.
 #include <vector>
 
 TEST_CASE("rcSwap")
@@ -1103,15 +1104,11 @@ TEST_CASE("rcVector")
 
 // TODO: Implement benchmarking for platforms other than posix.
 #ifdef __unix__
-// For rcVector benchmarking.
 #include <unistd.h>
 #ifdef _POSIX_TIMERS
 #include <time.h>
 #include <stdint.h>
-#endif  // _POSIX_TIMERS
-#endif  // __unix__
 
-#ifdef _POSIX_TIMERS
 int64_t NowNanos() {
 	struct timespec tp;
 	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &tp);
@@ -1138,7 +1135,8 @@ int64_t NowNanos() {
 const int64_t kNumLoops = 100;
 const int64_t kNumInserts = 100000;
 
-// Prevent compiler from eliding the above loop. gcc/clang only?
+// Prevent compiler from eliding a calculation.
+// TODO: Implement for MSVC.
 template <typename T>
 void DoNotOptimize(T* v) {
 	asm volatile ("" : "+r" (v));
@@ -1260,4 +1258,5 @@ BM(stdvector_Resize, kNumLoops)
 }
 
 #undef BM
-#endif  // ifdef _POSIX_TIMERS
+#endif  // _POSIX_TIMERS
+#endif  // __unix__
