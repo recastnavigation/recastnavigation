@@ -1043,38 +1043,6 @@ TEST_CASE("rcVector")
 		REQUIRE(b[0] == a[0]);
 	}
 
-	SECTION("Assign=")
-	{
-		rcVector<int> a(10, 0xa);
-		rcVector<int> b;
-		a = a;
-		REQUIRE(a[0] == 0xa);
-		REQUIRE(a.size() == 10);
-		b = a;
-		REQUIRE(b[0] == a[0]);
-		REQUIRE(b.size() == a.size());
-
-		rcVector<Incrementor> c(100);
-		rcVector<Incrementor> d;
-		Incrementor::Reset();
-		c = c;
-		REQUIRE(c.size() == 100);
-		REQUIRE(Incrementor::constructions == 0);
-		REQUIRE(Incrementor::destructions == 0);
-		REQUIRE(Incrementor::copies == 0);
-		// Doesn't overwrite anything, so only copies.
-		d = c;
-		REQUIRE(d.size() == 100);
-		REQUIRE(Incrementor::constructions == 0);
-		REQUIRE(Incrementor::destructions == 0);
-		REQUIRE(Incrementor::copies == 100);
-		Incrementor::Reset();
-		d = c;
-		REQUIRE(Incrementor::constructions == 0);
-		REQUIRE(Incrementor::destructions == 100);
-		REQUIRE(Incrementor::copies == 100);
-	}
-
 	SECTION("Copy")
 	{
 		rcVector<int> a(10, 0xa);

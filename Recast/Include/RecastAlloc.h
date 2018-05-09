@@ -22,6 +22,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <RecastAssert.h>
+
 /// Provides hint values to the memory allocator on how long the
 /// memory is expected to be used.
 enum rcAllocHint
@@ -68,6 +70,7 @@ inline void* operator new(size_t, const rcNewTag&, void* p) { return p; }
 /// Signed to avoid warnnings when comparing to int loop indexes, and common error with comparing to zero.
 /// MSVC2010 has a bug where ssize_t is unsigned (!!!).
 typedef intptr_t rcSizeType;
+#define RC_SIZE_MAX INTPTR_MAX
 
 /// Macros to hint to the compiler about the likeliest branch. Please add a benchmark that demonstrates a performance
 /// improvement before intrudcing use cases.
@@ -83,8 +86,7 @@ typedef intptr_t rcSizeType;
 ///  * Uses rcAlloc()/rcFree() to handle storage.
 ///  * No support for a custom allocator.
 ///  * Uses signed size instead of size_t to avoid warnings in for loops: "for (int i = 0; i < foo.size(); i++)"
-///  * Omits methods of limited utility: insert/erase (bad performance).
-///  * at() is equivalent to [], as we don't use exceptions.
+///  * Omits methods of limited utility: insert/erase, (bad performance), at (we don't use exceptions), operator=.
 ///  * assign() and the pre-sizing constructor follow C++11 semantics -- they don't construct a temporary if no value is provided.
 ///  * push_back() and resize() support adding values from the current vector. Range-based constructors and assign(begin, end) do not.
 ///  * No specialization for bool.
@@ -123,21 +125,19 @@ class rcVectorBase {
 	void resize(rcSizeType size, const T& value) { resize_impl(size, &value); }
 
 	void push_back(const T& value);
-	void pop_back() { back().~T(); m_size--; }
+	void pop_back() { rcAssert(m_size > 0); back().~T(); m_size--; }
 	void clear() { resize(0); }
 	rcSizeType size() const { return m_size; }
 	rcSizeType capacity() const { return m_cap; }
 	bool empty() const { return size() == 0; }
 
-	const T& operator[](rcSizeType i) const { return m_data[i]; }
-	T& operator[](rcSizeType i) { return m_data[i]; }
-	const T& at(rcSizeType i) const { return m_data[i]; }
-	T& at(rcSizeType i) { return m_data[i]; }
+	const T& operator[](rcSizeType i) const { rcAssert(i >= 0 && i < m_size); return m_data[i]; }
+	T& operator[](rcSizeType i) { rcAssert(i >= 0 && i < m_size); return m_data[i]; }
 
-	const T& front() const { return m_data[0]; }
-	T& front() { return m_data[0]; }
-	const T& back() const { return m_data[m_size - 1]; };
-	T& back() { return m_data[m_size - 1]; };
+	const T& front() const { rcAssert(m_size); return m_data[0]; }
+	T& front() { rcAssert(m_size); return m_data[0]; }
+	const T& back() const { rcAssert(m_size); return m_data[m_size - 1]; };
+	T& back() { rcAssert(m_size); return m_data[m_size - 1]; };
 	const T* data() const { return m_data; }
 	T* data() { return m_data; }
 
@@ -147,6 +147,8 @@ class rcVectorBase {
 	const T* end() const { return m_data + m_size; }
 
 	void swap(rcVectorBase<T, H>& other);
+
+	// Explicitly deleted.
 	rcVectorBase& operator=(const rcVectorBase<T, H>& other);
 };
 
@@ -163,6 +165,7 @@ void rcVectorBase<T, H>::reserve(rcSizeType count) {
 }
 template <typename T, rcAllocHint H>
 T* rcVectorBase<T, H>::allocate_and_copy(rcSizeType size) {
+	rcAssert(RC_SIZE_MAX / sizeof(T) >= size);
 	T* new_data = static_cast<T*>(rcAlloc(sizeof(T) * size, H));
 	copy_range(new_data, m_data, m_data + m_size);
 	return new_data;
@@ -183,6 +186,7 @@ void rcVectorBase<T, H>::push_back(const T& value) {
 		return;
 	}
 
+	rcAssert(RC_SIZE_MAX / (2*sizeof(T)) >= m_size);
 	rcSizeType new_cap = m_size ? 2*m_size : 1;
 	T* data = allocate_and_copy(new_cap);
 	// construct between allocate and destroy+free in case value is
@@ -256,13 +260,6 @@ void rcVectorBase<T, H>::destroy_range(rcSizeType begin, rcSizeType end) {
 	for (rcSizeType i = begin; i < end; i++) {
 		m_data[i].~T();
 	}
-}
-template <typename T, rcAllocHint H>
-rcVectorBase<T, H>& rcVectorBase<T, H>::operator=(const rcVectorBase<T, H>& other) {
-	if (this != &other) {
-		assign(other.begin(), other.end());
-	}
-	return *this;
 }
 
 template <typename T>
