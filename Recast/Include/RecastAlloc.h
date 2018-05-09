@@ -186,7 +186,7 @@ void rcVectorBase<T, H>::push_back(const T& value) {
 		return;
 	}
 
-	rcAssert(RC_SIZE_MAX / (2*sizeof(T)) >= m_size);
+	rcAssert(RC_SIZE_MAX / 2 >= m_size);
 	rcSizeType new_cap = m_size ? 2*m_size : 1;
 	T* data = allocate_and_copy(new_cap);
 	// construct between allocate and destroy+free in case value is
@@ -263,14 +263,14 @@ void rcVectorBase<T, H>::destroy_range(rcSizeType begin, rcSizeType end) {
 }
 
 template <typename T>
-class rcVector : public rcVectorBase<T, RC_ALLOC_TEMP> {
+class rcTempVector : public rcVectorBase<T, RC_ALLOC_TEMP> {
 	typedef rcVectorBase<T, RC_ALLOC_TEMP> Base;
 public:
-	rcVector() : Base() {}
-	explicit rcVector(rcSizeType size) : Base(size) {}
-	rcVector(rcSizeType size, const T& value) : Base(size, value) {}
-	rcVector(const rcVector<T>& other) : Base(other) {}
-	rcVector(const T* begin, const T* end) : Base(begin, end) {}
+	rcTempVector() : Base() {}
+	explicit rcTempVector(rcSizeType size) : Base(size) {}
+	rcTempVector(rcSizeType size, const T& value) : Base(size, value) {}
+	rcTempVector(const rcTempVector<T>& other) : Base(other) {}
+	rcTempVector(const T* begin, const T* end) : Base(begin, end) {}
 };
 template <typename T>
 class rcPermVector : public rcVectorBase<T, RC_ALLOC_PERM> {
@@ -287,7 +287,7 @@ public:
 /// Legacy class. Prefer rcVector<int>.
 class rcIntArray
 {
-	rcVector<int> m_impl;
+	rcTempVector<int> m_impl;
 public:
 	rcIntArray() {}
 	rcIntArray(int n) : m_impl(n, 0) {}

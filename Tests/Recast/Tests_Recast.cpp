@@ -896,7 +896,7 @@ TEST_CASE("rcVector")
 {
 	SECTION("Vector basics.")
 	{
-		rcVector<int> vec;
+		rcTempVector<int> vec;
 		REQUIRE(vec.size() == 0);
 		vec.push_back(10);
 		vec.push_back(12);
@@ -923,7 +923,7 @@ TEST_CASE("rcVector")
 	SECTION("Constructors/Destructors")
 	{
 		Incrementor::Reset();
-		rcVector<Incrementor> vec;
+		rcTempVector<Incrementor> vec;
 		REQUIRE(Incrementor::constructions == 0);
 		REQUIRE(Incrementor::destructions == 0);
 		REQUIRE(Incrementor::copies == 0);
@@ -969,7 +969,7 @@ TEST_CASE("rcVector")
 	{
 
 		// veriyf event counts after doubling size -- should require a lot of copying and destorying.
-		rcVector<Incrementor> vec;
+		rcTempVector<Incrementor> vec;
 		Incrementor::Reset();
 		vec.resize(100);
 		REQUIRE(Incrementor::constructions == 100);
@@ -985,8 +985,8 @@ TEST_CASE("rcVector")
 
 	SECTION("Swap")
 	{
-		rcVector<int> a(10, 0xa);
-		rcVector<int> b;
+		rcTempVector<int> a(10, 0xa);
+		rcTempVector<int> b;
 
 		int* a_data = a.data();
 		int* b_data = b.data();
@@ -1003,7 +1003,7 @@ TEST_CASE("rcVector")
 	SECTION("Overlapping init")
 	{
 		rcAllocSetCustom(&AllocAndInit, &FreeAndClear);
-		rcVector<Copier> vec;
+		rcTempVector<Copier> vec;
 		// Force a realloc during push_back().
 		vec.resize(64);
 		REQUIRE(vec.capacity() == vec.size());
@@ -1018,7 +1018,7 @@ TEST_CASE("rcVector")
 	SECTION("Vector Destructor")
 	{
 		{
-			rcVector<Incrementor> vec;
+			rcTempVector<Incrementor> vec;
 			vec.resize(10);
 			Incrementor::Reset();
 		}
@@ -1027,7 +1027,7 @@ TEST_CASE("rcVector")
 
 	SECTION("Assign")
 	{
-		rcVector<int> a(10, 0xa);
+		rcTempVector<int> a(10, 0xa);
 		a.assign(5, 0xb);
 		REQUIRE(a.size() == 5);
 		REQUIRE(a[0] == 0xb);
@@ -1037,7 +1037,7 @@ TEST_CASE("rcVector")
 		REQUIRE(a[0] == 0xc);
 		REQUIRE(a[14] == 0xc);
 
-		rcVector<int> b;
+		rcTempVector<int> b;
 		b.assign(a.data(), a.data() + a.size());
 		REQUIRE(b.size() == a.size());
 		REQUIRE(b[0] == a[0]);
@@ -1045,25 +1045,25 @@ TEST_CASE("rcVector")
 
 	SECTION("Copy")
 	{
-		rcVector<int> a(10, 0xa);
-		rcVector<int> b(a);
+		rcTempVector<int> a(10, 0xa);
+		rcTempVector<int> b(a);
 		REQUIRE(a.size() == 10);
 		REQUIRE(a.size() == b.size());
 		REQUIRE(a[0] == b[0]);
 		REQUIRE(a.data() != b.data());
-		rcVector<int> c(a.data(), a.data() + a.size());
+		rcTempVector<int> c(a.data(), a.data() + a.size());
 		REQUIRE(c.size() == a.size());
 		REQUIRE(c[0] == a[0]);
 
-		rcVector<Incrementor> d(10);
+		rcTempVector<Incrementor> d(10);
 		Incrementor::Reset();
-		rcVector<Incrementor> e(d);
+		rcTempVector<Incrementor> e(d);
 		REQUIRE(Incrementor::constructions == 0);
 		REQUIRE(Incrementor::destructions == 0);
 		REQUIRE(Incrementor::copies == 10);
 
 		Incrementor::Reset();
-		rcVector<Incrementor> f(d.data(), d.data() + d.size());
+		rcTempVector<Incrementor> f(d.data(), d.data() + d.size());
 		REQUIRE(Incrementor::constructions == 0);
 		REQUIRE(Incrementor::destructions == 0);
 		REQUIRE(Incrementor::copies == 10);
@@ -1149,7 +1149,7 @@ BM(FlatArray_Memset, kNumLoops)
 
 BM(rcVector_Push, kNumLoops)
 {
-	rcVector<int> v;
+	rcTempVector<int> v;
 	for (int j = 0; j < kNumInserts; j++) {
 		v.push_back(2);
 	}
@@ -1157,7 +1157,7 @@ BM(rcVector_Push, kNumLoops)
 }
 BM(rcVector_PushPreallocated, kNumLoops)
 {
-	rcVector<int> v;
+	rcTempVector<int> v;
 	v.reserve(kNumInserts);
 	for (int j = 0; j < kNumInserts; j++) {
 		v.push_back(2);
@@ -1166,13 +1166,13 @@ BM(rcVector_PushPreallocated, kNumLoops)
 }
 BM(rcVector_Assign, kNumLoops)
 {
-	rcVector<int> v;
+	rcTempVector<int> v;
 	v.assign(kNumInserts, 2);
 	DoNotOptimize(v.data());
 }
 BM(rcVector_AssignIndices, kNumLoops)
 {
-	rcVector<int> v;
+	rcTempVector<int> v;
 	v.resize(kNumInserts);
 	for (int j = 0; j < kNumInserts; j++) {
 		v[j] = 2;
@@ -1181,7 +1181,7 @@ BM(rcVector_AssignIndices, kNumLoops)
 }
 BM(rcVector_Resize, kNumLoops)
 {
-	rcVector<int> v;
+	rcTempVector<int> v;
 	v.resize(kNumInserts, 2);
 	DoNotOptimize(v.data());
 }
