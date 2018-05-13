@@ -2196,7 +2196,7 @@ dtStatus dtDecompressTileCacheLayer(dtTileCacheAlloc* alloc, dtTileCacheCompress
 									   grids, gridsSize, &size);
 	if (dtStatusFailed(status))
 	{
-		dtFree(buffer);
+		alloc->free(buffer);
 		return status;
 	}
 	
