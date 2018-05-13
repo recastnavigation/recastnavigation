@@ -1,6 +1,14 @@
+#include <stdio.h>
+#include <string.h>
+
 #include "catch.hpp"
 
 #include "Recast.h"
+#include "RecastAlloc.h"
+#include "RecastAssert.h"
+
+// For comparing to rcVector in benchmarks.
+#include <vector>
 
 TEST_CASE("rcSwap")
 {
@@ -828,3 +836,395 @@ TEST_CASE("rcRasterizeTriangles")
 		REQUIRE(!solid.spans[1 + 2 * width]->next);
 	}
 }
+
+// Used to verify that rcVector constructs/destroys objects correctly.
+struct Incrementor {
+	static int constructions;
+	static int destructions;
+	static int copies;
+	Incrementor() { constructions++; }
+	~Incrementor() { destructions++; }
+	Incrementor(const Incrementor&) { copies++; }
+	Incrementor& operator=(const Incrementor&); // Deleted assignment.
+
+	static void Reset() {
+		constructions = 0;
+		destructions = 0;
+		copies = 0;
+	}
+};
+int Incrementor::constructions = 0;
+int Incrementor::destructions = 0;
+int Incrementor::copies = 0;
+
+const int kMaxAllocSize = 1024;
+const unsigned char kClearValue = 0xff;
+// Simple alloc/free that clears the memory on free..
+void* AllocAndInit(size_t size, rcAllocHint) {
+	rcAssert(kMaxAllocSize >= size);
+	return memset(malloc(kMaxAllocSize), 0, kMaxAllocSize);
+}
+void FreeAndClear(void* mem) {
+	if (mem) {
+	  memset(mem, kClearValue, kMaxAllocSize);
+	}
+	free(mem);
+}
+// Verifies that memory has been initialized by AllocAndInit, and not cleared by FreeAndClear.
+struct Copier {
+	const static int kAlive;
+	const static int kDead;
+	Copier() : value(kAlive) {}
+
+	// checks that the source of the copy is valid.
+	Copier(const Copier& other) : value(kAlive) {
+		other.Verify();
+	}
+	Copier& operator=(const Copier&);
+
+	// Marks the value as dead.
+	~Copier() { value = kDead; }
+	void Verify() const {
+		REQUIRE(value == kAlive);
+	}
+	volatile int value;
+};
+const int Copier::kAlive = 0x1f;
+const int Copier::kDead = 0xde;
+
+TEST_CASE("rcVector")
+{
+	SECTION("Vector basics.")
+	{
+		rcTempVector<int> vec;
+		REQUIRE(vec.size() == 0);
+		vec.push_back(10);
+		vec.push_back(12);
+		REQUIRE(vec.size() == 2);
+		REQUIRE(vec.capacity() >= 2);
+		REQUIRE(vec[0] == 10);
+		REQUIRE(vec[1] == 12);
+		vec.pop_back();
+		REQUIRE(vec.size() == 1);
+		REQUIRE(vec[0] == 10);
+		vec.pop_back();
+		REQUIRE(vec.size() == 0);
+		vec.resize(100, 5);
+		REQUIRE(vec.size() == 100);
+		for (int i = 0; i < 100; i++) {
+			REQUIRE(vec[i] == 5);
+			vec[i] = i;
+		}
+		for (int i = 0; i < 100; i++) {
+			REQUIRE(vec[i] == i);
+		}
+	}
+
+	SECTION("Constructors/Destructors")
+	{
+		Incrementor::Reset();
+		rcTempVector<Incrementor> vec;
+		REQUIRE(Incrementor::constructions == 0);
+		REQUIRE(Incrementor::destructions == 0);
+		REQUIRE(Incrementor::copies == 0);
+		vec.push_back(Incrementor());
+		// push_back() may create and copy objects internally.
+		REQUIRE(Incrementor::constructions == 1);
+		REQUIRE(Incrementor::destructions >= 1);
+		// REQUIRE(Incrementor::copies >= 2);
+
+		vec.clear();
+		Incrementor::Reset();
+		vec.resize(100);
+		// Initialized with default instance. Temporaries may be constructed, then destroyed.
+		REQUIRE(Incrementor::constructions == 100);
+		REQUIRE(Incrementor::destructions == 0);
+		REQUIRE(Incrementor::copies == 0);
+
+		Incrementor::Reset();
+		for (int i = 0; i < 100; i++) {
+			REQUIRE(Incrementor::destructions == i);
+			vec.pop_back();
+		}
+		REQUIRE(Incrementor::constructions == 0);
+		REQUIRE(Incrementor::destructions == 100);
+		REQUIRE(Incrementor::copies == 0);
+
+		vec.resize(100);
+		Incrementor::Reset();
+		vec.clear();
+		// One temp object is constructed for the default argumnet of resize().
+		REQUIRE(Incrementor::constructions == 0);
+		REQUIRE(Incrementor::destructions == 100);
+		REQUIRE(Incrementor::copies == 0);
+
+		Incrementor::Reset();
+		vec.resize(100, Incrementor());
+		REQUIRE(Incrementor::constructions == 1);
+		REQUIRE(Incrementor::destructions == 1);
+		REQUIRE(Incrementor::copies == 100);
+	}
+
+	SECTION("Copying Contents")
+	{
+
+		// veriyf event counts after doubling size -- should require a lot of copying and destorying.
+		rcTempVector<Incrementor> vec;
+		Incrementor::Reset();
+		vec.resize(100);
+		REQUIRE(Incrementor::constructions == 100);
+		REQUIRE(Incrementor::destructions == 0);
+		REQUIRE(Incrementor::copies == 0);
+		Incrementor::Reset();
+		vec.resize(200);
+		REQUIRE(vec.size() == vec.capacity());
+		REQUIRE(Incrementor::constructions == 100);  // Construc new elements.
+		REQUIRE(Incrementor::destructions == 100);  // Destroy old contents.
+		REQUIRE(Incrementor::copies == 100);  // Copy old elements into new array.
+	}
+
+	SECTION("Swap")
+	{
+		rcTempVector<int> a(10, 0xa);
+		rcTempVector<int> b;
+
+		int* a_data = a.data();
+		int* b_data = b.data();
+
+		a.swap(b);
+		REQUIRE(a.size() == 0);
+		REQUIRE(b.size() == 10);
+		REQUIRE(b[0] == 0xa);
+		REQUIRE(b[9] == 0xa);
+		REQUIRE(a.data() == b_data);
+		REQUIRE(b.data() == a_data);
+	}
+
+	SECTION("Overlapping init")
+	{
+		rcAllocSetCustom(&AllocAndInit, &FreeAndClear);
+		rcTempVector<Copier> vec;
+		// Force a realloc during push_back().
+		vec.resize(64);
+		REQUIRE(vec.capacity() == vec.size());
+		REQUIRE(vec.capacity() > 0);
+		REQUIRE(vec.size() == vec.capacity());
+
+		// Don't crash.
+		vec.push_back(vec[0]);
+		rcAllocSetCustom(NULL, NULL);
+	}
+
+	SECTION("Vector Destructor")
+	{
+		{
+			rcTempVector<Incrementor> vec;
+			vec.resize(10);
+			Incrementor::Reset();
+		}
+		REQUIRE(Incrementor::destructions == 10);
+	}
+
+	SECTION("Assign")
+	{
+		rcTempVector<int> a(10, 0xa);
+		a.assign(5, 0xb);
+		REQUIRE(a.size() == 5);
+		REQUIRE(a[0] == 0xb);
+		REQUIRE(a[4] == 0xb);
+		a.assign(15, 0xc);
+		REQUIRE(a.size() == 15);
+		REQUIRE(a[0] == 0xc);
+		REQUIRE(a[14] == 0xc);
+
+		rcTempVector<int> b;
+		b.assign(a.data(), a.data() + a.size());
+		REQUIRE(b.size() == a.size());
+		REQUIRE(b[0] == a[0]);
+	}
+
+	SECTION("Copy")
+	{
+		rcTempVector<int> a(10, 0xa);
+		rcTempVector<int> b(a);
+		REQUIRE(a.size() == 10);
+		REQUIRE(a.size() == b.size());
+		REQUIRE(a[0] == b[0]);
+		REQUIRE(a.data() != b.data());
+		rcTempVector<int> c(a.data(), a.data() + a.size());
+		REQUIRE(c.size() == a.size());
+		REQUIRE(c[0] == a[0]);
+
+		rcTempVector<Incrementor> d(10);
+		Incrementor::Reset();
+		rcTempVector<Incrementor> e(d);
+		REQUIRE(Incrementor::constructions == 0);
+		REQUIRE(Incrementor::destructions == 0);
+		REQUIRE(Incrementor::copies == 10);
+
+		Incrementor::Reset();
+		rcTempVector<Incrementor> f(d.data(), d.data() + d.size());
+		REQUIRE(Incrementor::constructions == 0);
+		REQUIRE(Incrementor::destructions == 0);
+		REQUIRE(Incrementor::copies == 10);
+	}
+}
+
+// TODO: Implement benchmarking for platforms other than posix.
+#ifdef __unix__
+#include <unistd.h>
+#ifdef _POSIX_TIMERS
+#include <time.h>
+#include <stdint.h>
+
+int64_t NowNanos() {
+	struct timespec tp;
+	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &tp);
+	return tp.tv_nsec + 1000000000LL * tp.tv_sec;
+}
+
+#define BM(name, iterations) \
+	struct BM_ ## name { \
+		static void Run() { \
+			int64_t begin_time = NowNanos(); \
+			for (int i = 0 ; i < iterations; i++) { \
+				Body(); \
+			} \
+			int64_t nanos = NowNanos() - begin_time; \
+			printf("BM_%-35s %ld iterations in %10ld nanos: %10.2f nanos/it\n", #name ":", (int64_t)iterations, nanos, double(nanos) / iterations); \
+		} \
+		static void Body(); \
+	}; \
+	TEST_CASE(#name) { \
+		BM_ ## name::Run(); \
+	} \
+	void BM_ ## name::Body()
+
+const int64_t kNumLoops = 100;
+const int64_t kNumInserts = 100000;
+
+// Prevent compiler from eliding a calculation.
+// TODO: Implement for MSVC.
+template <typename T>
+void DoNotOptimize(T* v) {
+	asm volatile ("" : "+r" (v));
+}
+
+BM(FlatArray_Push, kNumLoops)
+{
+	int cap = 64;
+	int* v = (int*)rcAlloc(cap * sizeof(int), RC_ALLOC_TEMP);
+	for (int j = 0; j < kNumInserts; j++) {
+		if (j == cap) {
+			cap *= 2;
+			int* tmp  = (int*)rcAlloc(sizeof(int) * cap, RC_ALLOC_TEMP);
+			memcpy(tmp, v, j * sizeof(int));
+			rcFree(v);
+			v = tmp;
+		}
+		v[j] = 2;
+	}
+
+	DoNotOptimize(v);
+	rcFree(v);
+}
+BM(FlatArray_Fill, kNumLoops)
+{
+	int* v = (int*)rcAlloc(sizeof(int) * kNumInserts, RC_ALLOC_TEMP);
+	for (int j = 0; j < kNumInserts; j++) {
+		v[j] = 2;
+	}
+
+	DoNotOptimize(v);
+	rcFree(v);
+}
+BM(FlatArray_Memset, kNumLoops)
+{
+	int* v = (int*)rcAlloc(sizeof(int) * kNumInserts, RC_ALLOC_TEMP);
+	memset(v, 0, kNumInserts * sizeof(int));
+
+	DoNotOptimize(v);
+	rcFree(v);
+}
+
+BM(rcVector_Push, kNumLoops)
+{
+	rcTempVector<int> v;
+	for (int j = 0; j < kNumInserts; j++) {
+		v.push_back(2);
+	}
+	DoNotOptimize(v.data());
+}
+BM(rcVector_PushPreallocated, kNumLoops)
+{
+	rcTempVector<int> v;
+	v.reserve(kNumInserts);
+	for (int j = 0; j < kNumInserts; j++) {
+		v.push_back(2);
+	}
+	DoNotOptimize(v.data());
+}
+BM(rcVector_Assign, kNumLoops)
+{
+	rcTempVector<int> v;
+	v.assign(kNumInserts, 2);
+	DoNotOptimize(v.data());
+}
+BM(rcVector_AssignIndices, kNumLoops)
+{
+	rcTempVector<int> v;
+	v.resize(kNumInserts);
+	for (int j = 0; j < kNumInserts; j++) {
+		v[j] = 2;
+	}
+	DoNotOptimize(v.data());
+}
+BM(rcVector_Resize, kNumLoops)
+{
+	rcTempVector<int> v;
+	v.resize(kNumInserts, 2);
+	DoNotOptimize(v.data());
+}
+
+BM(stdvector_Push, kNumLoops)
+{
+	std::vector<int> v;
+	for (int j = 0; j < kNumInserts; j++) {
+		v.push_back(2);
+	}
+	DoNotOptimize(v.data());
+}
+BM(stdvector_PushPreallocated, kNumLoops)
+{
+	std::vector<int> v;
+	v.reserve(kNumInserts);
+	for (int j = 0; j < kNumInserts; j++) {
+		v.push_back(2);
+	}
+	DoNotOptimize(v.data());
+}
+BM(stdvector_Assign, kNumLoops)
+{
+	std::vector<int> v;
+	v.assign(kNumInserts, 2);
+	DoNotOptimize(v.data());
+}
+BM(stdvector_AssignIndices, kNumLoops)
+{
+	std::vector<int> v;
+	v.resize(kNumInserts);
+	for (int j = 0; j < kNumInserts; j++) {
+		v[j] = 2;
+	}
+	DoNotOptimize(v.data());
+}
+BM(stdvector_Resize, kNumLoops)
+{
+	std::vector<int> v;
+	v.resize(kNumInserts, 2);
+	DoNotOptimize(v.data());
+}
+
+#undef BM
+#endif  // _POSIX_TIMERS
+#endif  // __unix__
