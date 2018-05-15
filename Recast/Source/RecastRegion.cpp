@@ -343,6 +343,14 @@ static bool floodRegion(int x, int y, int i,
 	return count > 0;
 }
 
+// Struct to keep track of entries in the region table that have been changed.
+struct DirtyEntry {
+	DirtyEntry(int index_, unsigned short region_, unsigned short distance2_)
+		: index(index_), region(region_), distance2(distance2_) {}
+	int index;
+	unsigned short region;
+	unsigned short distance2;
+};
 static void expandRegions(int maxIter, unsigned short level,
 					      rcCompactHeightfield& chf,
 					      unsigned short* srcReg, unsigned short* srcDist,
@@ -384,12 +392,12 @@ static void expandRegions(int maxIter, unsigned short level,
 		}
 	}
 
-	rcIntArray dirtyEntries;
+	rcTempVector<DirtyEntry> dirtyEntries;
 	int iter = 0;
 	while (stack.size() > 0)
 	{
 		int failed = 0;
-		dirtyEntries.resize(0);
+		dirtyEntries.clear();
 		
 		for (int j = 0; j < stack.size(); j += 3)
 		{
@@ -425,9 +433,7 @@ static void expandRegions(int maxIter, unsigned short level,
 			if (r)
 			{
 				stack[j+2] = -1; // mark as used
-				dirtyEntries.push(i);
-				dirtyEntries.push(r);
-				dirtyEntries.push(d2);
+				dirtyEntries.push_back(DirtyEntry(i, r, d2));
 			}
 			else
 			{
@@ -436,10 +442,10 @@ static void expandRegions(int maxIter, unsigned short level,
 		}
 		
 		// Copy entries that differ between src and dst to keep them in sync.
-		for (int i = 0; i < dirtyEntries.size(); i+=3) {
-			int idx = dirtyEntries[i];
-			srcReg[idx] = (unsigned short)dirtyEntries[i+1];
-			srcDist[idx] = (unsigned short)dirtyEntries[i+2];
+		for (int i = 0; i < dirtyEntries.size(); i++) {
+			int idx = dirtyEntries[i].index;
+			srcReg[idx] = dirtyEntries[i].region;
+			srcDist[idx] = dirtyEntries[i].distance2;
 		}
 		
 		if (failed*3 == stack.size())
