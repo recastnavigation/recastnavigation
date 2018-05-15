@@ -892,6 +892,10 @@ struct Copier {
 const int Copier::kAlive = 0x1f;
 const int Copier::kDead = 0xde;
 
+struct NotDefaultConstructible {
+	NotDefaultConstructible(int) {}
+};
+
 TEST_CASE("rcVector")
 {
 	SECTION("Vector basics.")
@@ -1067,6 +1071,17 @@ TEST_CASE("rcVector")
 		REQUIRE(Incrementor::constructions == 0);
 		REQUIRE(Incrementor::destructions == 0);
 		REQUIRE(Incrementor::copies == 10);
+	}
+
+	SECTION("Type Requirements")
+	{
+		// This section verifies that we don't enforce unnecessary
+		// requirements on the types we hold.
+
+		// Implementing clear as resize(0) will cause this to fail
+		// as resize(0) requires T to be default constructible.
+		rcTempVector<NotDefaultConstructible> v;
+		v.clear();
 	}
 }
 

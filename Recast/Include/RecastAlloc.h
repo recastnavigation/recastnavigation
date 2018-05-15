@@ -123,10 +123,12 @@ class rcVectorBase {
 
 	void resize(rcSizeType size) { resize_impl(size, NULL); }
 	void resize(rcSizeType size, const T& value) { resize_impl(size, &value); }
+	// Not implemented as resize(0) because resize requires T to be default-constructible.
+	void clear() { destroy_range(0, m_size); m_size = 0; }
 
 	void push_back(const T& value);
 	void pop_back() { rcAssert(m_size > 0); back().~T(); m_size--; }
-	void clear() { resize(0); }
+
 	rcSizeType size() const { return m_size; }
 	rcSizeType capacity() const { return m_cap; }
 	bool empty() const { return size() == 0; }
