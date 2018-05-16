@@ -73,7 +73,7 @@ void rcContext::log(const rcLogCategory category, const char* format, ...)
 
 rcHeightfield* rcAllocHeightfield()
 {
-	return new (rcAlloc(sizeof(rcHeightfield), RC_ALLOC_PERM)) rcHeightfield;
+	return rcNew<rcHeightfield>(RC_ALLOC_PERM);
 }
 
 rcHeightfield::rcHeightfield()
@@ -104,26 +104,45 @@ rcHeightfield::~rcHeightfield()
 
 void rcFreeHeightField(rcHeightfield* hf)
 {
-	if (!hf) return;
-	hf->~rcHeightfield();
-	rcFree(hf);
+	rcDelete(hf);
 }
 
 rcCompactHeightfield* rcAllocCompactHeightfield()
 {
-	rcCompactHeightfield* chf = (rcCompactHeightfield*)rcAlloc(sizeof(rcCompactHeightfield), RC_ALLOC_PERM);
-	memset(chf, 0, sizeof(rcCompactHeightfield));
-	return chf;
+	return rcNew<rcCompactHeightfield>(RC_ALLOC_PERM);
 }
 
 void rcFreeCompactHeightfield(rcCompactHeightfield* chf)
 {
-	if (!chf) return;
-	rcFree(chf->cells);
-	rcFree(chf->spans);
-	rcFree(chf->dist);
-	rcFree(chf->areas);
-	rcFree(chf);
+	rcDelete(chf);
+}
+
+rcCompactHeightfield::rcCompactHeightfield()
+	: width(0),
+	height(0),
+	spanCount(0),
+	walkableHeight(0),
+	walkableClimb(0),
+	borderSize(0),
+	maxDistance(0),
+	maxRegions(0),
+	cs(0),
+	ch(0),
+	cells(0),
+	spans(0),
+	dist(0),
+	areas(0)
+{
+	// TODO: Use something like std::array to store bmin/bmax?
+	memset(bmin, 0, sizeof(bmin));
+	memset(bmax, 0, sizeof(bmax));
+}
+rcCompactHeightfield::~rcCompactHeightfield()
+{
+	rcFree(cells);
+	rcFree(spans);
+	rcFree(dist);
+	rcFree(areas);
 }
 
 rcHeightfieldLayerSet* rcAllocHeightfieldLayerSet()

@@ -67,6 +67,26 @@ void rcFree(void* ptr);
 struct rcNewTag {};
 inline void* operator new(size_t, const rcNewTag&, void* p) { return p; }
 
+/// Allocates and constructs an object of the given type, returning a pointer.
+/// TODO: Support constructor args.
+/// @param[in]		hint	Hint to the allocator.
+template <typename T>
+T* rcNew(rcAllocHint hint) {
+	T* ptr = (T*)rcAlloc(sizeof(T), hint);
+	::new(rcNewTag(), (void*)ptr) T();
+	return ptr;
+}
+
+/// Destroys and frees an object allocated with rcNew.
+/// @param[in]     ptr    The object pointer to delete.
+template <typename T>
+void rcDelete(T* ptr) {
+	if (ptr) {
+		ptr->~T();
+		rcFree((void*)ptr);
+	}
+}
+
 /// Signed to avoid warnnings when comparing to int loop indexes, and common error with comparing to zero.
 /// MSVC2010 has a bug where ssize_t is unsigned (!!!).
 typedef intptr_t rcSizeType;
