@@ -27,6 +27,16 @@
 #include "RecastAssert.h"
 #include <new>
 
+namespace
+{
+struct LevelStackEntry
+{
+	LevelStackEntry(int x_, int y_, int index_) : x(x_), y(y_), index(index_) {}
+	int x;
+	int y;
+	int index;
+};
+}  // namespace
 
 static void calculateDistanceField(rcCompactHeightfield& chf, unsigned short* src, unsigned short& maxDist)
 {
@@ -245,17 +255,15 @@ static bool floodRegion(int x, int y, int i,
 						unsigned short level, unsigned short r,
 						rcCompactHeightfield& chf,
 						unsigned short* srcReg, unsigned short* srcDist,
-						rcIntArray& stack)
+						rcTempVector<LevelStackEntry>& stack)
 {
 	const int w = chf.width;
 	
 	const unsigned char area = chf.areas[i];
 	
 	// Flood fill mark region.
-	stack.resize(0);
-	stack.push((int)x);
-	stack.push((int)y);
-	stack.push((int)i);
+	stack.clear();
+	stack.push_back(LevelStackEntry(x, y, i));
 	srcReg[i] = r;
 	srcDist[i] = 0;
 	
@@ -264,9 +272,11 @@ static bool floodRegion(int x, int y, int i,
 	
 	while (stack.size() > 0)
 	{
-		int ci = stack.pop();
-		int cy = stack.pop();
-		int cx = stack.pop();
+		LevelStackEntry& back = stack.back();
+		int cx = back.x;
+		int cy = back.y;
+		int ci = back.index;
+		stack.pop_back();
 		
 		const rcCompactSpan& cs = chf.spans[ci];
 		
@@ -332,9 +342,7 @@ static bool floodRegion(int x, int y, int i,
 				{
 					srcReg[ai] = r;
 					srcDist[ai] = 0;
-					stack.push(ax);
-					stack.push(ay);
-					stack.push(ai);
+					stack.push_back(LevelStackEntry(ax, ay, ai));
 				}
 			}
 		}
@@ -344,7 +352,8 @@ static bool floodRegion(int x, int y, int i,
 }
 
 // Struct to keep track of entries in the region table that have been changed.
-struct DirtyEntry {
+struct DirtyEntry
+{
 	DirtyEntry(int index_, unsigned short region_, unsigned short distance2_)
 		: index(index_), region(region_), distance2(distance2_) {}
 	int index;
@@ -354,7 +363,7 @@ struct DirtyEntry {
 static void expandRegions(int maxIter, unsigned short level,
 					      rcCompactHeightfield& chf,
 					      unsigned short* srcReg, unsigned short* srcDist,
-					      rcIntArray& stack,
+					      rcTempVector<LevelStackEntry>& stack,
 					      bool fillStack)
 {
 	const int w = chf.width;
@@ -363,7 +372,7 @@ static void expandRegions(int maxIter, unsigned short level,
 	if (fillStack)
 	{
 		// Find cells revealed by the raised level.
-		stack.resize(0);
+		stack.clear();
 		for (int y = 0; y < h; ++y)
 		{
 			for (int x = 0; x < w; ++x)
@@ -373,9 +382,7 @@ static void expandRegions(int maxIter, unsigned short level,
 				{
 					if (chf.dist[i] >= level && srcReg[i] == 0 && chf.areas[i] != RC_NULL_AREA)
 					{
-						stack.push(x);
-						stack.push(y);
-						stack.push(i);
+						stack.push_back(LevelStackEntry(x, y, i));
 					}
 				}
 			}
@@ -384,11 +391,11 @@ static void expandRegions(int maxIter, unsigned short level,
 	else // use cells in the input stack
 	{
 		// mark all cells which already have a region
-		for (int j=0; j<stack.size(); j+=3)
+		for (int j=0; j<stack.size(); j++)
 		{
-			int i = stack[j+2];
+			int i = stack[j].index;
 			if (srcReg[i] != 0)
-				stack[j+2] = -1;
+				stack[j].index = -1;
 		}
 	}
 
@@ -399,11 +406,11 @@ static void expandRegions(int maxIter, unsigned short level,
 		int failed = 0;
 		dirtyEntries.clear();
 		
-		for (int j = 0; j < stack.size(); j += 3)
+		for (int j = 0; j < stack.size(); j++)
 		{
-			int x = stack[j+0];
-			int y = stack[j+1];
-			int i = stack[j+2];
+			int x = stack[j].x;
+			int y = stack[j].y;
+			int i = stack[j].index;
 			if (i < 0)
 			{
 				failed++;
@@ -432,7 +439,7 @@ static void expandRegions(int maxIter, unsigned short level,
 			}
 			if (r)
 			{
-				stack[j+2] = -1; // mark as used
+				stack[j].index = -1; // mark as used
 				dirtyEntries.push_back(DirtyEntry(i, r, d2));
 			}
 			else
@@ -448,7 +455,7 @@ static void expandRegions(int maxIter, unsigned short level,
 			srcDist[idx] = dirtyEntries[i].distance2;
 		}
 		
-		if (failed*3 == stack.size())
+		if (failed == stack.size())
 			break;
 		
 		if (level > 0)
@@ -465,7 +472,7 @@ static void expandRegions(int maxIter, unsigned short level,
 static void sortCellsByLevel(unsigned short startLevel,
 							  rcCompactHeightfield& chf,
 							  const unsigned short* srcReg,
-							  unsigned int nbStacks, rcIntArray* stacks,
+							  unsigned int nbStacks, rcTempVector<LevelStackEntry>* stacks,
 							  unsigned short loglevelsPerStack) // the levels per stack (2 in our case) as a bit shift
 {
 	const int w = chf.width;
@@ -473,7 +480,7 @@ static void sortCellsByLevel(unsigned short startLevel,
 	startLevel = startLevel >> loglevelsPerStack;
 
 	for (unsigned int j=0; j<nbStacks; ++j)
-		stacks[j].resize(0);
+		stacks[j].clear();
 
 	// put all cells in the level range into the appropriate stacks
 	for (int y = 0; y < h; ++y)
@@ -493,26 +500,23 @@ static void sortCellsByLevel(unsigned short startLevel,
 				if (sId < 0)
 					sId = 0;
 
-				stacks[sId].push(x);
-				stacks[sId].push(y);
-				stacks[sId].push(i);
+				stacks[sId].push_back(LevelStackEntry(x, y, i));
 			}
 		}
 	}
 }
 
 
-static void appendStacks(rcIntArray& srcStack, rcIntArray& dstStack,
+static void appendStacks(const rcTempVector<LevelStackEntry>& srcStack,
+						 rcTempVector<LevelStackEntry>& dstStack,
 						 const unsigned short* srcReg)
 {
-	for (int j=0; j<srcStack.size(); j+=3)
+	for (int j=0; j<srcStack.size(); j++)
 	{
-		int i = srcStack[j+2];
+		int i = srcStack[j].index;
 		if ((i < 0) || (srcReg[i] != 0))
 			continue;
-		dstStack.push(srcStack[j]);
-		dstStack.push(srcStack[j+1]);
-		dstStack.push(srcStack[j+2]);
+		dstStack.push_back(srcStack[j]);
 	}
 }
 
@@ -1047,7 +1051,7 @@ static void addUniqueConnection(rcRegion& reg, int n)
 static bool mergeAndFilterLayerRegions(rcContext* ctx, int minRegionArea,
 									   unsigned short& maxRegionId,
 									   rcCompactHeightfield& chf,
-									   unsigned short* srcReg, rcIntArray& /*overlaps*/)
+									   unsigned short* srcReg)
 {
 	const int w = chf.width;
 	const int h = chf.height;
@@ -1552,12 +1556,12 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 
 	const int LOG_NB_STACKS = 3;
 	const int NB_STACKS = 1 << LOG_NB_STACKS;
-	rcIntArray lvlStacks[NB_STACKS];
+	rcTempVector<LevelStackEntry> lvlStacks[NB_STACKS];
 	for (int i=0; i<NB_STACKS; ++i)
-		lvlStacks[i].resize(1024);
+		lvlStacks[i].reserve(256);
 
-	rcIntArray stack(1024);
-	rcIntArray visited(1024);
+	rcTempVector<LevelStackEntry> stack;
+	stack.reserve(256);
 	
 	unsigned short* srcReg = buf;
 	unsigned short* srcDist = buf+chf.spanCount;
@@ -1615,11 +1619,12 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 			rcScopedTimer timerFloor(ctx, RC_TIMER_BUILD_REGIONS_FLOOD);
 
 			// Mark new regions with IDs.
-			for (int j = 0; j<lvlStacks[sId].size(); j += 3)
+			for (int j = 0; j<lvlStacks[sId].size(); j++)
 			{
-				int x = lvlStacks[sId][j];
-				int y = lvlStacks[sId][j+1];
-				int i = lvlStacks[sId][j+2];
+				LevelStackEntry current = lvlStacks[sId][j];
+				int x = current.x;
+				int y = current.y;
+				int i = current.index;
 				if (i >= 0 && srcReg[i] == 0)
 				{
 					if (floodRegion(x, y, i, level, regionId, chf, srcReg, srcDist, stack))
@@ -1805,9 +1810,8 @@ bool rcBuildLayerRegions(rcContext* ctx, rcCompactHeightfield& chf,
 		rcScopedTimer timerFilter(ctx, RC_TIMER_BUILD_REGIONS_FILTER);
 
 		// Merge monotone regions to layers and remove small regions.
-		rcIntArray overlaps;
 		chf.maxRegions = id;
-		if (!mergeAndFilterLayerRegions(ctx, minRegionArea, chf.maxRegions, chf, srcReg, overlaps))
+		if (!mergeAndFilterLayerRegions(ctx, minRegionArea, chf.maxRegions, chf, srcReg))
 			return false;
 	}
 	
