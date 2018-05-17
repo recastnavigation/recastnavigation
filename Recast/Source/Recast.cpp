@@ -23,10 +23,33 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
-#include <new>
 #include "Recast.h"
 #include "RecastAlloc.h"
 #include "RecastAssert.h"
+
+namespace
+{
+/// Allocates and constructs an object of the given type, returning a pointer.
+/// TODO: Support constructor args.
+/// @param[in]		hint	Hint to the allocator.
+template <typename T>
+T* rcNew(rcAllocHint hint) {
+	T* ptr = (T*)rcAlloc(sizeof(T), hint);
+	::new(rcNewTag(), (void*)ptr) T();
+	return ptr;
+}
+
+/// Destroys and frees an object allocated with rcNew.
+/// @param[in]     ptr    The object pointer to delete.
+template <typename T>
+void rcDelete(T* ptr) {
+	if (ptr) {
+		ptr->~T();
+		rcFree((void*)ptr);
+	}
+}
+}  // namespace
+
 
 float rcSqrt(float x)
 {
