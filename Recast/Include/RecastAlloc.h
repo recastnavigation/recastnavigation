@@ -65,7 +65,7 @@ void rcFree(void* ptr);
 /// rcNewTag is a dummy type used to differentiate our operator from the STL one, in case users import both Recast
 /// and STL.
 struct rcNewTag {};
-inline void* operator new(size_t, const rcNewTag&, void* p) { return p; }
+inline void* operator new(size_t,  adconst rcNewTag&, void* p) { return p; }
 
 /// Signed to avoid warnnings when comparing to int loop indexes, and common error with comparing to zero.
 /// MSVC2010 has a bug where ssize_t is unsigned (!!!).
@@ -73,7 +73,7 @@ typedef intptr_t rcSizeType;
 #define RC_SIZE_MAX INTPTR_MAX
 
 /// Macros to hint to the compiler about the likeliest branch. Please add a benchmark that demonstrates a performance
-/// improvement before intrudcing use cases.
+/// improvement before introducing use cases.
 #if defined(__GNUC__) || defined(__clang__)
 #define rcLikely(x) __builtin_expect((x), true)
 #define rcUnlikely(x) __builtin_expect((x), false)
@@ -116,7 +116,8 @@ class rcVectorBase {
 	rcVectorBase(const T* begin, const T* end) : m_size(0), m_cap(0), m_data(0) { assign(begin, end); }
 	~rcVectorBase() { destroy_range(0, m_size); rcFree(m_data); }
 
-	void reserve(rcSizeType size);
+	// Unlike in std::vector, we return a bool to indicate whether the alloc was successful.
+	bool reserve(rcSizeType size);
 
 	void assign(rcSizeType count, const T& value) { clear(); resize(count, value); }
 	void assign(const T* begin, const T* end);
@@ -155,21 +156,27 @@ class rcVectorBase {
 };
 
 template<typename T, rcAllocHint H>
-void rcVectorBase<T, H>::reserve(rcSizeType count) {
+bool rcVectorBase<T, H>::reserve(rcSizeType count) {
 	if (count <= m_cap) {
-		return;
+		return true;
 	}
 	T* new_data = allocate_and_copy(count);
+	if (!new_data) {
+	  return false;
+	}
 	destroy_range(0, m_size);
 	rcFree(m_data);
 	m_data = new_data;
 	m_cap = count;
+	return true;
 }
 template <typename T, rcAllocHint H>
 T* rcVectorBase<T, H>::allocate_and_copy(rcSizeType size) {
 	rcAssert(RC_SIZE_MAX / sizeof(T) >= size);
 	T* new_data = static_cast<T*>(rcAlloc(sizeof(T) * size, H));
-	copy_range(new_data, m_data, m_data + m_size);
+	if (new_data) {
+		copy_range(new_data, m_data, m_data + m_size);
+	}
 	return new_data;
 }
 template <typename T, rcAllocHint H>

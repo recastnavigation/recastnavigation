@@ -792,7 +792,10 @@ static bool mergeAndFilterRegions(rcContext* ctx, int minRegionArea, int mergeRe
 	
 	const int nreg = maxRegionId+1;
 	rcTempVector<rcRegion> regions;
-	regions.reserve(nreg);
+	if (!regions.reserve(nreg)) {
+		ctx->log(RC_LOG_ERROR, "mergeAndFilterRegions: Out of memory 'regions' (%d).", nreg);
+		return false;
+	}
 
 	// Construct regions
 	for (int i = 0; i < nreg; ++i)
@@ -1046,7 +1049,10 @@ static bool mergeAndFilterLayerRegions(rcContext* ctx, int minRegionArea,
 	rcTempVector<rcRegion> regions;
 	
 	// Construct regions
-	regions.reserve(nreg);
+	if (!regions.reserve(nreg)) {
+		ctx->log(RC_LOG_ERROR, "mergeAndFilterLayerRegions: Out of memory 'regions' (%d).", nreg);
+		return false;
+	}
 	for (int i = 0; i < nreg; ++i)
 		regions.push_back(rcRegion((unsigned short) i));
 	
