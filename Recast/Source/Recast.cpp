@@ -133,7 +133,6 @@ rcCompactHeightfield::rcCompactHeightfield()
 	dist(0),
 	areas(0)
 {
-	// TODO: Use something like std::array to store bmin/bmax?
 	memset(bmin, 0, sizeof(bmin));
 	memset(bmax, 0, sizeof(bmax));
 }
