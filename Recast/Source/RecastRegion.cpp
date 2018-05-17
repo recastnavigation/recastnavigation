@@ -27,8 +27,10 @@
 #include "RecastAssert.h"
 #include <new>
 
-namespace {
-struct LevelStackEntry {
+namespace
+{
+struct LevelStackEntry
+{
 	LevelStackEntry(int x_, int y_, int index_) : x(x_), y(y_), index(index_) {}
 	int x;
 	int y;
@@ -350,7 +352,8 @@ static bool floodRegion(int x, int y, int i,
 }
 
 // Struct to keep track of entries in the region table that have been changed.
-struct DirtyEntry {
+struct DirtyEntry
+{
 	DirtyEntry(int index_, unsigned short region_, unsigned short distance2_)
 		: index(index_), region(region_), distance2(distance2_) {}
 	int index;
