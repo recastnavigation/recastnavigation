@@ -332,6 +332,8 @@ struct rcCompactSpan
 /// @ingroup recast
 struct rcCompactHeightfield
 {
+	rcCompactHeightfield();
+	~rcCompactHeightfield();
 	int width;					///< The width of the heightfield. (Along the x-axis in cell units.)
 	int height;					///< The height of the heightfield. (Along the z-axis in cell units.)
 	int spanCount;				///< The number of spans in the heightfield.
