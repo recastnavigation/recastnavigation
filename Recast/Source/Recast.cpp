@@ -149,6 +149,8 @@ rcCompactHeightfield::rcCompactHeightfield()
 	borderSize(0),
 	maxDistance(0),
 	maxRegions(0),
+	bmin(),
+	bmax(),
 	cs(0),
 	ch(0),
 	cells(0),
@@ -156,8 +158,6 @@ rcCompactHeightfield::rcCompactHeightfield()
 	dist(0),
 	areas(0)
 {
-	memset(bmin, 0, sizeof(bmin));
-	memset(bmax, 0, sizeof(bmax));
 }
 rcCompactHeightfield::~rcCompactHeightfield()
 {
