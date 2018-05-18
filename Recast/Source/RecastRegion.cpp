@@ -25,7 +25,6 @@
 #include "Recast.h"
 #include "RecastAlloc.h"
 #include "RecastAssert.h"
-#include <new>
 
 namespace
 {
@@ -796,16 +795,15 @@ static bool mergeAndFilterRegions(rcContext* ctx, int minRegionArea, int mergeRe
 	const int h = chf.height;
 	
 	const int nreg = maxRegionId+1;
-	rcRegion* regions = (rcRegion*)rcAlloc(sizeof(rcRegion)*nreg, RC_ALLOC_TEMP);
-	if (!regions)
-	{
+	rcTempVector<rcRegion> regions;
+	if (!regions.reserve(nreg)) {
 		ctx->log(RC_LOG_ERROR, "mergeAndFilterRegions: Out of memory 'regions' (%d).", nreg);
 		return false;
 	}
 
 	// Construct regions
 	for (int i = 0; i < nreg; ++i)
-		new(&regions[i]) rcRegion((unsigned short)i);
+		regions.push_back(rcRegion((unsigned short) i));
 	
 	// Find edge of a region and find connections around the contour.
 	for (int y = 0; y < h; ++y)
@@ -1031,11 +1029,6 @@ static bool mergeAndFilterRegions(rcContext* ctx, int minRegionArea, int mergeRe
 		if (regions[i].overlap)
 			overlaps.push(regions[i].id);
 
-	for (int i = 0; i < nreg; ++i)
-		regions[i].~rcRegion();
-	rcFree(regions);
-	
-	
 	return true;
 }
 
@@ -1057,16 +1050,15 @@ static bool mergeAndFilterLayerRegions(rcContext* ctx, int minRegionArea,
 	const int h = chf.height;
 	
 	const int nreg = maxRegionId+1;
-	rcRegion* regions = (rcRegion*)rcAlloc(sizeof(rcRegion)*nreg, RC_ALLOC_TEMP);
-	if (!regions)
-	{
+	rcTempVector<rcRegion> regions;
+	
+	// Construct regions
+	if (!regions.reserve(nreg)) {
 		ctx->log(RC_LOG_ERROR, "mergeAndFilterLayerRegions: Out of memory 'regions' (%d).", nreg);
 		return false;
 	}
-	
-	// Construct regions
 	for (int i = 0; i < nreg; ++i)
-		new(&regions[i]) rcRegion((unsigned short)i);
+		regions.push_back(rcRegion((unsigned short) i));
 	
 	// Find region neighbours and overlapping regions.
 	rcIntArray lregs(32);
@@ -1243,10 +1235,6 @@ static bool mergeAndFilterLayerRegions(rcContext* ctx, int minRegionArea,
 		if ((srcReg[i] & RC_BORDER_REG) == 0)
 			srcReg[i] = regions[srcReg[i]].id;
 	}
-	
-	for (int i = 0; i < nreg; ++i)
-		regions[i].~rcRegion();
-	rcFree(regions);
 	
 	return true;
 }
