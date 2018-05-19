@@ -98,7 +98,6 @@ rcHeightfield* rcAllocHeightfield()
 {
 	return rcNew<rcHeightfield>(RC_ALLOC_PERM);
 }
-
 rcHeightfield::rcHeightfield()
 	: width()
 	, height()
@@ -141,22 +140,22 @@ void rcFreeCompactHeightfield(rcCompactHeightfield* chf)
 }
 
 rcCompactHeightfield::rcCompactHeightfield()
-	: width(0),
-	height(0),
-	spanCount(0),
-	walkableHeight(0),
-	walkableClimb(0),
-	borderSize(0),
-	maxDistance(0),
-	maxRegions(0),
+	: width(),
+	height(),
+	spanCount(),
+	walkableHeight(),
+	walkableClimb(),
+	borderSize(),
+	maxDistance(),
+	maxRegions(),
 	bmin(),
 	bmax(),
-	cs(0),
-	ch(0),
-	cells(0),
-	spans(0),
-	dist(0),
-	areas(0)
+	cs(),
+	ch(),
+	cells(),
+	spans(),
+	dist(),
+	areas()
 {
 }
 rcCompactHeightfield::~rcCompactHeightfield()
@@ -169,60 +168,91 @@ rcCompactHeightfield::~rcCompactHeightfield()
 
 rcHeightfieldLayerSet* rcAllocHeightfieldLayerSet()
 {
-	rcHeightfieldLayerSet* lset = (rcHeightfieldLayerSet*)rcAlloc(sizeof(rcHeightfieldLayerSet), RC_ALLOC_PERM);
-	memset(lset, 0, sizeof(rcHeightfieldLayerSet));
-	return lset;
+	return rcNew<rcHeightfieldLayerSet>(RC_ALLOC_PERM);
 }
-
 void rcFreeHeightfieldLayerSet(rcHeightfieldLayerSet* lset)
 {
-	if (!lset) return;
-	for (int i = 0; i < lset->nlayers; ++i)
+	rcDelete(lset);
+}
+
+rcHeightfieldLayerSet::rcHeightfieldLayerSet()
+	: layers(),	nlayers() {}
+rcHeightfieldLayerSet::~rcHeightfieldLayerSet()
+{
+	for (int i = 0; i < nlayers; ++i)
 	{
-		rcFree(lset->layers[i].heights);
-		rcFree(lset->layers[i].areas);
-		rcFree(lset->layers[i].cons);
+		rcFree(layers[i].heights);
+		rcFree(layers[i].areas);
+		rcFree(layers[i].cons);
 	}
-	rcFree(lset->layers);
-	rcFree(lset);
+	rcFree(layers);
 }
 
 
 rcContourSet* rcAllocContourSet()
 {
-	rcContourSet* cset = (rcContourSet*)rcAlloc(sizeof(rcContourSet), RC_ALLOC_PERM);
-	memset(cset, 0, sizeof(rcContourSet));
-	return cset;
+	return rcNew<rcContourSet>(RC_ALLOC_PERM);
 }
-
 void rcFreeContourSet(rcContourSet* cset)
 {
-	if (!cset) return;
-	for (int i = 0; i < cset->nconts; ++i)
-	{
-		rcFree(cset->conts[i].verts);
-		rcFree(cset->conts[i].rverts);
-	}
-	rcFree(cset->conts);
-	rcFree(cset);
+	rcDelete(cset);
 }
+
+rcContourSet::rcContourSet()
+	: conts(),
+	nconts(),
+	bmin(),
+	bmax(),
+	cs(),
+	ch(),
+	width(),
+	height(),
+	borderSize(),
+	maxError() {}
+rcContourSet::~rcContourSet()
+{
+	for (int i = 0; i < nconts; ++i)
+	{
+		rcFree(conts[i].verts);
+		rcFree(conts[i].rverts);
+	}
+	rcFree(conts);
+}
+
 
 rcPolyMesh* rcAllocPolyMesh()
 {
-	rcPolyMesh* pmesh = (rcPolyMesh*)rcAlloc(sizeof(rcPolyMesh), RC_ALLOC_PERM);
-	memset(pmesh, 0, sizeof(rcPolyMesh));
-	return pmesh;
+	return rcNew<rcPolyMesh>(RC_ALLOC_PERM);
 }
-
 void rcFreePolyMesh(rcPolyMesh* pmesh)
 {
-	if (!pmesh) return;
-	rcFree(pmesh->verts);
-	rcFree(pmesh->polys);
-	rcFree(pmesh->regs);
-	rcFree(pmesh->flags);
-	rcFree(pmesh->areas);
-	rcFree(pmesh);
+	rcDelete(pmesh);
+}
+
+rcPolyMesh::rcPolyMesh()
+	: verts(),
+	polys(),
+	regs(),
+	flags(),
+	areas(),
+	nverts(),
+	npolys(),
+	maxpolys(),
+	nvp(),
+	bmin(),
+	bmax(),
+	cs(),
+	ch(),
+	borderSize(),
+	maxEdgeError() {}
+
+rcPolyMesh::~rcPolyMesh()
+{
+	rcFree(verts);
+	rcFree(polys);
+	rcFree(regs);
+	rcFree(flags);
+	rcFree(areas);
 }
 
 rcPolyMeshDetail* rcAllocPolyMeshDetail()
