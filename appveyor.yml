@@ -5,13 +5,13 @@ os:
 
 environment:
   matrix:
-  - TOOLSET: vs2010
   - TOOLSET: vs2013
   - TOOLSET: vs2015
+  - TOOLSET: vs2017
 
 install:
   # Download Premake
-  - ps: Start-FileDownload 'https://github.com/premake/premake-core/releases/download/v5.0.0-alpha7/premake-5.0.0-alpha7-windows.zip' 'premake.zip'
+  - ps: Start-FileDownload 'https://github.com/premake/premake-core/releases/download/v5.0.0-alpha12/premake-5.0.0-alpha12-windows.zip' 'premake.zip'
   
   # Extract it in-place; premake5.exe is at the top level.
   - 7z x premake.zip
