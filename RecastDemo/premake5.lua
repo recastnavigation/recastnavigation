@@ -13,14 +13,12 @@ solution "recastnavigation"
 	}
 	location (todir)
 
-	-- extra warnings, no exceptions or rtti
-	flags { 
-		"ExtraWarnings",
-		"FloatFast",
-		"Symbols"
-	}
+	floatingpoint "Fast"
+	warnings "Extra"
+	symbols "On"
 	exceptionhandling "Off"
 	rtti "Off"
+	flags { "FatalCompileWarnings" }
 
 	-- debug configs
 	configuration "Debug*"
@@ -30,7 +28,7 @@ solution "recastnavigation"
  	-- release configs
 	configuration "Release*"
 		defines { "NDEBUG" }
-		flags { "Optimize" }
+		optimize "On"
 		targetdir ( todir .. "/lib/Release" )
 
 	-- windows specific
@@ -39,10 +37,6 @@ solution "recastnavigation"
 
 	-- linux specific
 	configuration { "linux", "gmake" }
-		buildoptions {
-			"-Wall",
-			"-Werror"
-		}
 
 project "DebugUtils"
 	language "C++"
@@ -171,7 +165,6 @@ project "RecastDemo"
 	configuration { "macosx" }
 		kind "ConsoleApp" -- xcode4 failes to run the project if using WindowedApp
 		includedirs { "/Library/Frameworks/SDL2.framework/Headers" }
-		buildoptions { "-Wunused-value -Wshadow -Wreorder -Wsign-compare -Wall" }
 		links { 
 			"OpenGL.framework", 
 			"SDL2.framework",
@@ -248,7 +241,6 @@ project "Tests"
 	configuration { "macosx" }
 		kind "ConsoleApp"
 		includedirs { "/Library/Frameworks/SDL2.framework/Headers" }
-		buildoptions { "-Wunused-value -Wshadow -Wreorder -Wsign-compare -Wall" }
 		links { 
 			"OpenGL.framework", 
 			"SDL2.framework",
