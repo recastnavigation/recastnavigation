@@ -1,17 +1,21 @@
 shallow_clone: true
 
-os:
-  - Visual Studio 2015
-
 environment:
   matrix:
-  - TOOLSET: vs2010
-  - TOOLSET: vs2013
-  - TOOLSET: vs2015
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
+      PREMAKE_ACTION: vs2013
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      PREMAKE_ACTION: vs2015
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+      PREMAKE_ACTION: vs2017
+
+configuration:
+  - Debug
+  - Release
 
 install:
   # Download Premake
-  - ps: Start-FileDownload 'https://github.com/premake/premake-core/releases/download/v5.0.0-alpha7/premake-5.0.0-alpha7-windows.zip' 'premake.zip'
+  - ps: Start-FileDownload 'https://github.com/premake/premake-core/releases/download/v5.0.0-alpha12/premake-5.0.0-alpha12-windows.zip' 'premake.zip'
   
   # Extract it in-place; premake5.exe is at the top level.
   - 7z x premake.zip
@@ -23,14 +27,11 @@ install:
   - cd RecastDemo\Contrib && 7z x SDL.zip && ren SDL2-2.0.4 SDL && cd ..\..
   
   # Generate solution files using premake.
-  - cd RecastDemo && "../premake5.exe" %TOOLSET% && cd ..
+  - cd RecastDemo && "../premake5.exe" %PREMAKE_ACTION% && cd ..
 
-configuration:
-  - Debug
-  - Release
 
 build:
-  project: RecastDemo/Build/$(TOOLSET)/recastnavigation.sln
+  project: RecastDemo/Build/$(PREMAKE_ACTION)/recastnavigation.sln
 
 after_test:
   - RecastDemo\Bin\Tests.exe

@@ -5,36 +5,22 @@ language: cpp
 # Build with gcc and clang.
 compiler:
   - gcc
-# Disable clang for now since it seems there's a problem using it with fast fp math; it's likely Travis' ancient environment that's at fault.
-#  - clang
+  - clang
 
 # Build both debug and release configurations, through use of an environment variable in the build matrix.
 env:
-  - CONFIGURATION: debug
-    CMAKE_BUILD_TYPE: Debug
-  - CONFIGURATION: release
-    CMAKE_BUILD_TYPE: Release
+  - BUILD_TYPE=debug CMAKE_BUILD_TYPE=Debug
+  - BUILD_TYPE=release CMAKE_BUILD_TYPE=Release
+
+addons:
+  apt:
+    packages:
+      - libsdl2-dev
 
 install:
-  # Download and build SDL2 from source.
-  - mkdir dummyprefix
-  - export PREFIX=$PWD/dummyprefix
-  - export PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig
-  - export PATH=$PATH:$PWD/dummyprefix/bin
-  - wget https://www.libsdl.org/release/SDL2-2.0.4.tar.gz -O SDL2.tar.gz
-  - tar -xzf SDL2.tar.gz
-  - cd SDL2-2.0.4
-  - ./configure --prefix=$PREFIX
-  - make -j$(nproc)
-  - make install
-  - cd ..
-  # Download and build premake5 from source; the Travis environment doesn't have the right version of glibc6 for the prebuilt binaries to work.
-  - wget https://github.com/premake/premake-core/releases/download/v5.0.0-alpha6/premake-5.0.0-alpha6-src.zip -O premake.zip
-  - unzip premake.zip
-  - cd premake-5.0.0-alpha6/build/gmake.unix
-  - make config=release
-  - cd ../../..
-  - mv premake-5.0.0-alpha6/bin/release/premake5 premake5
+  - wget https://github.com/premake/premake-core/releases/download/v5.0.0-alpha12/premake-5.0.0-alpha12-linux.tar.gz -O premake.tar.gz
+  - tar -xf premake.tar.gz
+  - rm premake.tar.gz
 
 # Run premake to generate makefiles.
 # Have to cd into directory and back out since premake5 doesn't appear to accept a directory argument.
@@ -44,7 +30,7 @@ before_script:
 
 # Run make in the directory containing generated makefiles, on the configuration specified by the environment variable.
 script:
-  - make -C RecastDemo/Build/gmake -j$(nproc) config=$CONFIGURATION
+  - make -C RecastDemo/Build/gmake -j$(nproc) config=${BUILD_TYPE}
   - RecastDemo/Bin/Tests
   - make -C build -j$(nproc)
   - cd build && ctest
