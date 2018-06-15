@@ -23,4 +23,5 @@ install(TARGETS DebugUtils
         )
 
 file(GLOB INCLUDES Include/*.h)
+
 install(FILES ${INCLUDES} DESTINATION include)
