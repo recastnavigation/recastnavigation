@@ -172,7 +172,7 @@ bool rcVectorBase<T, H>::reserve(rcSizeType count) {
 }
 template <typename T, rcAllocHint H>
 T* rcVectorBase<T, H>::allocate_and_copy(rcSizeType size) {
-	rcAssert(RC_SIZE_MAX / sizeof(T) >= size);
+	rcAssert(RC_SIZE_MAX / static_cast<rcSizeType>(sizeof(T)) >= size);
 	T* new_data = static_cast<T*>(rcAlloc(sizeof(T) * size, H));
 	if (new_data) {
 		copy_range(new_data, m_data, m_data + m_size);
