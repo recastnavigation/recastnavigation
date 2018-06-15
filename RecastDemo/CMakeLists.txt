@@ -1,12 +1,16 @@
 file(GLOB SOURCES Source/*.cpp Contrib/fastlz/fastlz.c)
 
-include(cmake/FindSDL2.cmake)
+LIST(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
+if (WIN32)
+	set(SDL2_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/contrib/SDL")
+endif()
 
 find_package(OpenGL REQUIRED)
 find_package(SDL2 REQUIRED)
 
 include_directories(SYSTEM ${OPENGL_INCLUDE_DIR})
-include_directories(SYSTEM ${SDL2_INCLUDE_DIRS})
+include_directories(SYSTEM ${SDL2_INCLUDE_DIR})
 include_directories(SYSTEM Contrib/fastlz)
 include_directories(SYSTEM Contrib)
 include_directories(../DebugUtils/Include)

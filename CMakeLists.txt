@@ -11,6 +11,10 @@ option(RECASTNAVIGATION_TESTS "Build tests" ON)
 option(RECASTNAVIGATION_EXAMPLES "Build examples" ON)
 option(RECASTNAVIGATION_STATIC "Build static libraries" OFF)
 
+if (WIN32)
+    set(RECASTNAVIGATION_STATIC ON)
+endif()
+
 add_subdirectory(DebugUtils)
 add_subdirectory(Detour)
 add_subdirectory(DetourCrowd)

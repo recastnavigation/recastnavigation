@@ -69,6 +69,7 @@ static SampleItem g_samples[] =
 };
 static const int g_nsamples = sizeof(g_samples) / sizeof(SampleItem);
 
+#undef main
 int main(int /*argc*/, char** /*argv*/)
 {
 	// Init SDL
