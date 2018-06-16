@@ -1,12 +1,15 @@
 file(GLOB SOURCES Source/*.cpp Contrib/fastlz/fastlz.c)
 
-LIST(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+
+if(NOT SDL2_ROOT_DIR)
+    set(SDL2_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Contrib/SDL")
+endif()
 
 find_package(OpenGL REQUIRED)
 find_package(SDL2 REQUIRED)
 
 include_directories(SYSTEM ${OPENGL_INCLUDE_DIR})
-include_directories(SYSTEM ${SDL2_INCLUDE_DIR})
 include_directories(SYSTEM Contrib/fastlz)
 include_directories(SYSTEM Contrib)
 include_directories(../DebugUtils/Include)
@@ -22,6 +25,6 @@ file(COPY Bin/TestCases DESTINATION ${CMAKE_BINARY_DIR}/RecastDemo)
 file(COPY Bin/DroidSans.ttf DESTINATION ${CMAKE_BINARY_DIR}/RecastDemo)
 
 add_dependencies(RecastDemo DebugUtils Detour DetourCrowd DetourTileCache Recast)
-target_link_libraries(RecastDemo ${OPENGL_LIBRARIES} ${SDL2_LIBRARY} DebugUtils Detour DetourCrowd DetourTileCache Recast)
+target_link_libraries(RecastDemo ${OPENGL_LIBRARIES} SDL2::SDL2main DebugUtils Detour DetourCrowd DetourTileCache Recast)
 
 install(TARGETS RecastDemo RUNTIME DESTINATION bin)
