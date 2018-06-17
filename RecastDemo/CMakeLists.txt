@@ -31,3 +31,7 @@ install(TARGETS RecastDemo RUNTIME DESTINATION bin)
 install(DIRECTORY Bin/Meshes DESTINATION bin)
 install(DIRECTORY Bin/TestCases DESTINATION bin)
 install(FILES Bin/DroidSans.ttf DESTINATION bin)
+
+if (WIN32)
+    install(FILES "${SDL2_RUNTIME_LIBRARY}" DESTINATION bin)
+endif()
