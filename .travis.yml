@@ -26,7 +26,7 @@ install:
 # Have to cd into directory and back out since premake5 doesn't appear to accept a directory argument.
 before_script:
   - cd RecastDemo && ../premake5 gmake && cd ..
-  - mkdir build && cd build && cmake -DRECASTNAVIGATION_STATIC=TRUE -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} .. && cd ..
+  - mkdir build && cd build && cmake -D CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} .. && cd ..
 
 # Run make in the directory containing generated makefiles, on the configuration specified by the environment variable.
 script:

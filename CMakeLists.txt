@@ -9,7 +9,7 @@ SET(VERSION 1.0.0)
 option(RECASTNAVIGATION_DEMO "Build demo" ON)
 option(RECASTNAVIGATION_TESTS "Build tests" ON)
 option(RECASTNAVIGATION_EXAMPLES "Build examples" ON)
-option(RECASTNAVIGATION_STATIC "Build static libraries" OFF)
+option(RECASTNAVIGATION_STATIC "Build static libraries" ON)
 
 add_subdirectory(DebugUtils)
 add_subdirectory(Detour)
