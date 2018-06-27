@@ -308,7 +308,7 @@ public:
 		m_impl.pop_back();
 		return v;
 	}
-	int size() const { return m_impl.size(); }
+	int size() const { return static_cast<int>(m_impl.size()); }
 	int& operator[](int index) { return m_impl[index]; }
 	int operator[](int index) const { return m_impl[index]; }
 };
