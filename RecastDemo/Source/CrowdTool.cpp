@@ -144,8 +144,6 @@ void CrowdToolState::init(class Sample* sample)
 	if (m_sample != sample)
 	{
 		m_sample = sample;
-//		m_oldFlags = m_sample->getNavMeshDrawFlags();
-//		m_sample->setNavMeshDrawFlags(m_oldFlags & ~DU_DRAWNAVMESH_CLOSEDLIST);
 	}
 	
 	dtNavMesh* nav = m_sample->getNavMesh();
