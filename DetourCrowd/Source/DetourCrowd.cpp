@@ -538,6 +538,11 @@ int dtCrowd::addAgent(const float* pos, const dtCrowdAgentParams* params)
 		dtVcopy(nearest, pos);
 		ref = 0;
 	}
+
+	if (!ref)
+	{
+		return -1;
+	}
 	
 	ag->corridor.reset(ref, nearest);
 	ag->boundary.reset();
