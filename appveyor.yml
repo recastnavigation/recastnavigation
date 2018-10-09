@@ -16,6 +16,9 @@ configuration:
   - Debug
   - Release
 
+platform:
+  - Win64
+
 install:
   # Download Premake
   - ps: Start-FileDownload 'https://github.com/premake/premake-core/releases/download/v5.0.0-alpha12/premake-5.0.0-alpha12-windows.zip' 'premake.zip'
