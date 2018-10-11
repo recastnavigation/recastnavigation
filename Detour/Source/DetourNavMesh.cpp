@@ -1302,9 +1302,6 @@ struct dtPolyState
 {
 	unsigned short flags;						// Flags (see dtPolyFlags).
 	unsigned char area;							// Area ID of the polygon.
-#ifdef NAVMESH_ISLAND_SYSTEM
-	unsigned int islandIdx;                     // Island index of the polygon
-#endif
 };
 
 ///  @see #storeTileState
@@ -1343,9 +1340,6 @@ dtStatus dtNavMesh::storeTileState(const dtMeshTile* tile, unsigned char* data, 
 		dtPolyState* s = &polyStates[i];
 		s->flags = p->flags;
 		s->area = p->getArea();
-#ifdef NAVMESH_ISLAND_SYSTEM
-		s->islandIdx = p->getIslandIdx();
-#endif
 	}
 	
 	return DT_SUCCESS;
@@ -1381,9 +1375,6 @@ dtStatus dtNavMesh::restoreTileState(dtMeshTile* tile, const unsigned char* data
 		const dtPolyState* s = &polyStates[i];
 		p->flags = s->flags;
 		p->setArea(s->area);
-#ifdef NAVMESH_ISLAND_SYSTEM
-		p->setIslandIdx(s->islandIdx);
-#endif
 	}
 	
 	return DT_SUCCESS;
@@ -1529,51 +1520,3 @@ dtStatus dtNavMesh::getPolyArea(dtPolyRef ref, unsigned char* resultArea) const
 	return DT_SUCCESS;
 }
 
-#ifdef NAVMESH_ISLAND_SYSTEM
-dtStatus dtNavMesh::setPolyIslandIdx(dtPolyRef ref, unsigned int idx)
-{
-	if (!ref) return DT_FAILURE;
-	unsigned int salt, it, ip;
-	decodePolyId(ref, salt, it, ip);
-	if (it >= (unsigned int)m_maxTiles) return DT_FAILURE | DT_INVALID_PARAM;
-	if (m_tiles[it].salt != salt || m_tiles[it].header == 0) return DT_FAILURE | DT_INVALID_PARAM;
-	dtMeshTile* tile = &m_tiles[it];
-	if (ip >= (unsigned int)tile->header->polyCount) return DT_FAILURE | DT_INVALID_PARAM;
-	dtPoly* poly = &tile->polys[ip];
-
-	poly->setIslandIdx(idx);
-
-	return DT_SUCCESS;
-}
-
-dtStatus dtNavMesh::getPolyIslandIdx(dtPolyRef ref, unsigned int* idx) const
-{
-	if (!ref || !idx) return DT_FAILURE;
-	unsigned int salt, it, ip;
-	decodePolyId(ref, salt, it, ip);
-	if (it >= (unsigned int)m_maxTiles) return DT_FAILURE | DT_INVALID_PARAM;
-	if (m_tiles[it].salt != salt || m_tiles[it].header == 0) return DT_FAILURE | DT_INVALID_PARAM;
-	const dtMeshTile* tile = &m_tiles[it];
-	if (ip >= (unsigned int)tile->header->polyCount) return DT_FAILURE | DT_INVALID_PARAM;
-	const dtPoly* poly = &tile->polys[ip];
-
-	*idx = poly->getIslandIdx();
-
-	return DT_SUCCESS;
-}
-
-bool dtNavMesh::checkPathExists(const dtPolyRef startRef, const dtPolyRef endRef) const
-{
-	unsigned int islandIndexFrom = 0;
-	unsigned int islandIndexTo = 0;
-	if (dtStatusFailed(getPolyIslandIdx(startRef, &islandIndexFrom)))
-		return false;
-	if (dtStatusFailed(getPolyIslandIdx(endRef, &islandIndexTo)))
-		return false;
-	if (islandIndexFrom == 0 || islandIndexTo == 0)
-		return false;
-	if (islandIndexFrom != islandIndexTo)
-		return false;
-	return true;
-}
-#endif
