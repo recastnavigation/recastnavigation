@@ -22,6 +22,9 @@
 #include "DetourAlloc.h"
 #include "DetourStatus.h"
 
+// Uncomment to enable navmesh island system
+//#define NAVMESH_ISLAND_SYSTEM
+
 // Undefine (or define in a build cofnig) the following line to use 64bit polyref.
 // Generally not needed, useful for very large worlds.
 // Note: tiles build using 32bit refs are not compatible with 64bit refs!
@@ -149,6 +152,12 @@ enum dtPolyTypes
 /// @ingroup detour
 struct dtPoly
 {
+	dtPoly()
+	{
+#ifdef NAVMESH_ISLAND_SYSTEM
+		islandIdx = 0;
+#endif
+	}
 	/// Index to first link in linked list. (Or #DT_NULL_LINK if there is no link.)
 	unsigned int firstLink;
 
@@ -161,6 +170,20 @@ struct dtPoly
 
 	/// The user defined polygon flags.
 	unsigned short flags;
+
+#ifdef NAVMESH_ISLAND_SYSTEM
+	/// The island index.
+	unsigned int islandIdx;
+
+	/// Gets island index
+	/// @return The island index.
+	inline unsigned int getIslandIdx() const { return islandIdx; }
+
+	/// Set island index
+	///  @param[in]	idx		The new island index.
+	inline void setIslandIdx(unsigned int idx) { islandIdx = idx; }
+
+#endif
 
 	/// The number of vertices in the polygon.
 	unsigned char vertCount;
@@ -592,6 +615,31 @@ public:
 	}
 
 	/// @}
+
+#ifdef NAVMESH_ISLAND_SYSTEM
+	/// @{
+	/// @name Island system
+
+	/// Gets the tile and polygon for the specified polygon reference.
+	///  @param[in]	startRef		The first reference first for the a polygon.
+	///  @param[in]	endRef			The second reference for the a polygon.
+	/// @return True if path exists
+	bool checkPathExists(const dtPolyRef startRef, const dtPolyRef endRef) const;
+
+	/// Gets the tile and polygon for the specified polygon reference.
+	///  @param[in]	ref		The reference for the a polygon.
+	///  @param[in]	idx		The new island index.
+	/// @return The status flags for the operation.
+	dtStatus setPolyIslandIdx(dtPolyRef ref, unsigned int idx);
+
+	/// Gets the tile and polygon for the specified polygon reference.
+	///  @param[in]  ref		The reference for the a polygon.
+	///  @param[out] idx		The island index.
+	/// @return The status flags for the operation.
+	dtStatus getPolyIslandIdx(dtPolyRef ref, unsigned int* idx) const;
+
+	/// @}
+#endif
 	
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.
@@ -635,7 +683,7 @@ private:
 							dtPolyRef* polys, const int maxPolys) const;
 	/// Find nearest polygon within a tile.
 	dtPolyRef findNearestPolyInTile(const dtMeshTile* tile, const float* center,
-									const float* halfExtents, float* nearestPt) const;
+									const float* extents, float* nearestPt) const;
 	/// Returns closest point on polygon.
 	void closestPointOnPoly(dtPolyRef ref, const float* pos, float* closest, bool* posOverPoly) const;
 	

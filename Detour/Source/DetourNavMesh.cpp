@@ -470,12 +470,12 @@ void dtNavMesh::connectExtOffMeshLinks(dtMeshTile* tile, dtMeshTile* target, int
 		if (targetPoly->firstLink == DT_NULL_LINK)
 			continue;
 		
-		const float halfExtents[3] = { targetCon->rad, target->header->walkableClimb, targetCon->rad };
+		const float ext[3] = { targetCon->rad, target->header->walkableClimb, targetCon->rad };
 		
 		// Find polygon to connect to.
 		const float* p = &targetCon->pos[3];
 		float nearestPt[3];
-		dtPolyRef ref = findNearestPolyInTile(tile, p, halfExtents, nearestPt);
+		dtPolyRef ref = findNearestPolyInTile(tile, p, ext, nearestPt);
 		if (!ref)
 			continue;
 		// findNearestPoly may return too optimistic results, further check to make sure. 
@@ -570,12 +570,12 @@ void dtNavMesh::baseOffMeshLinks(dtMeshTile* tile)
 		dtOffMeshConnection* con = &tile->offMeshCons[i];
 		dtPoly* poly = &tile->polys[con->poly];
 	
-		const float halfExtents[3] = { con->rad, tile->header->walkableClimb, con->rad };
+		const float ext[3] = { con->rad, tile->header->walkableClimb, con->rad };
 		
 		// Find polygon to connect to.
 		const float* p = &con->pos[0]; // First vertex
 		float nearestPt[3];
-		dtPolyRef ref = findNearestPolyInTile(tile, p, halfExtents, nearestPt);
+		dtPolyRef ref = findNearestPolyInTile(tile, p, ext, nearestPt);
 		if (!ref) continue;
 		// findNearestPoly may return too optimistic results, further check to make sure. 
 		if (dtSqr(nearestPt[0]-p[0])+dtSqr(nearestPt[2]-p[2]) > dtSqr(con->rad))
@@ -696,12 +696,12 @@ void dtNavMesh::closestPointOnPoly(dtPolyRef ref, const float* pos, float* close
 }
 
 dtPolyRef dtNavMesh::findNearestPolyInTile(const dtMeshTile* tile,
-										   const float* center, const float* halfExtents,
+										   const float* center, const float* extents,
 										   float* nearestPt) const
 {
 	float bmin[3], bmax[3];
-	dtVsub(bmin, center, halfExtents);
-	dtVadd(bmax, center, halfExtents);
+	dtVsub(bmin, center, extents);
+	dtVadd(bmax, center, extents);
 	
 	// Get nearby polygons from proximity grid.
 	dtPolyRef polys[128];
@@ -855,7 +855,7 @@ dtStatus dtNavMesh::addTile(unsigned char* data, int dataSize, int flags,
 		
 	// Make sure the location is free.
 	if (getTileAt(header->x, header->y, header->layer))
-		return DT_FAILURE | DT_ALREADY_OCCUPIED;
+		return DT_FAILURE;
 		
 	// Allocate a tile.
 	dtMeshTile* tile = 0;
@@ -1302,6 +1302,9 @@ struct dtPolyState
 {
 	unsigned short flags;						// Flags (see dtPolyFlags).
 	unsigned char area;							// Area ID of the polygon.
+#ifdef NAVMESH_ISLAND_SYSTEM
+	unsigned int islandIdx;                     // Island index of the polygon
+#endif
 };
 
 ///  @see #storeTileState
@@ -1340,6 +1343,9 @@ dtStatus dtNavMesh::storeTileState(const dtMeshTile* tile, unsigned char* data, 
 		dtPolyState* s = &polyStates[i];
 		s->flags = p->flags;
 		s->area = p->getArea();
+#ifdef NAVMESH_ISLAND_SYSTEM
+		s->islandIdx = p->getIslandIdx();
+#endif
 	}
 	
 	return DT_SUCCESS;
@@ -1375,6 +1381,9 @@ dtStatus dtNavMesh::restoreTileState(dtMeshTile* tile, const unsigned char* data
 		const dtPolyState* s = &polyStates[i];
 		p->flags = s->flags;
 		p->setArea(s->area);
+#ifdef NAVMESH_ISLAND_SYSTEM
+		p->setIslandIdx(s->islandIdx);
+#endif
 	}
 	
 	return DT_SUCCESS;
@@ -1520,3 +1529,51 @@ dtStatus dtNavMesh::getPolyArea(dtPolyRef ref, unsigned char* resultArea) const
 	return DT_SUCCESS;
 }
 
+#ifdef NAVMESH_ISLAND_SYSTEM
+dtStatus dtNavMesh::setPolyIslandIdx(dtPolyRef ref, unsigned int idx)
+{
+	if (!ref) return DT_FAILURE;
+	unsigned int salt, it, ip;
+	decodePolyId(ref, salt, it, ip);
+	if (it >= (unsigned int)m_maxTiles) return DT_FAILURE | DT_INVALID_PARAM;
+	if (m_tiles[it].salt != salt || m_tiles[it].header == 0) return DT_FAILURE | DT_INVALID_PARAM;
+	dtMeshTile* tile = &m_tiles[it];
+	if (ip >= (unsigned int)tile->header->polyCount) return DT_FAILURE | DT_INVALID_PARAM;
+	dtPoly* poly = &tile->polys[ip];
+
+	poly->setIslandIdx(idx);
+
+	return DT_SUCCESS;
+}
+
+dtStatus dtNavMesh::getPolyIslandIdx(dtPolyRef ref, unsigned int* idx) const
+{
+	if (!ref || !idx) return DT_FAILURE;
+	unsigned int salt, it, ip;
+	decodePolyId(ref, salt, it, ip);
+	if (it >= (unsigned int)m_maxTiles) return DT_FAILURE | DT_INVALID_PARAM;
+	if (m_tiles[it].salt != salt || m_tiles[it].header == 0) return DT_FAILURE | DT_INVALID_PARAM;
+	const dtMeshTile* tile = &m_tiles[it];
+	if (ip >= (unsigned int)tile->header->polyCount) return DT_FAILURE | DT_INVALID_PARAM;
+	const dtPoly* poly = &tile->polys[ip];
+
+	*idx = poly->getIslandIdx();
+
+	return DT_SUCCESS;
+}
+
+bool dtNavMesh::checkPathExists(const dtPolyRef startRef, const dtPolyRef endRef) const
+{
+	unsigned int islandIndexFrom = 0;
+	unsigned int islandIndexTo = 0;
+	if (dtStatusFailed(getPolyIslandIdx(startRef, &islandIndexFrom)))
+		return false;
+	if (dtStatusFailed(getPolyIslandIdx(endRef, &islandIndexTo)))
+		return false;
+	if (islandIndexFrom == 0 || islandIndexTo == 0)
+		return false;
+	if (islandIndexFrom != islandIndexTo)
+		return false;
+	return true;
+}
+#endif
