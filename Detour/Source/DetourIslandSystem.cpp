@@ -234,35 +234,35 @@ void dtIslandManager::splitTileToIslands(dtNavMeshQuery* query, dtPolyRef* neare
 			int findCount = 0;
 			query->findPolysAroundCircle(polyRef, c, ISLAND_CHECK_RADIUS, filter, nearestPolys, 0, 0, &findCount, ISLAND_FIND_POLYS_COUNT_MAX); // Find nearest
 
-			int isladIndex = 0;
+			unsigned int islandIndex = 0;
 			for (int i = 0; i < findCount; i++) // Find poly with island index
 			{
 				const unsigned int islandCheckIndex = m_navmeshIslands->getIsland(nearestPolys[i]);
 				if (islandCheckIndex != 0)
 				{
-					isladIndex = islandCheckIndex;
+					islandIndex = islandCheckIndex;
 					break;
 				}
 			}
 
-			if (isladIndex == 0) // If not find then generate new index
+			if (islandIndex == 0) // If not find then generate new index
 			{
-				isladIndex = m_freeIslandIdx;
+				islandIndex = m_freeIslandIdx;
 				m_freeIslandIdx++;
 				if (m_freeIslandIdx <= 0)
 					m_freeIslandIdx = 1;
 			}
 
-			m_navmeshIslands->setIsland(tileNum, polyNum, isladIndex); // Set island index
+			m_navmeshIslands->setIsland(tileNum, polyNum, islandIndex); // Set island index
 			for (int i = 0; i < findCount; i++)
 			{
 				const dtPolyRef nearestPoly = nearestPolys[i];
 				const unsigned int islandCheckIndex = m_navmeshIslands->getIsland(nearestPoly);
 
-				if (islandCheckIndex != 0 && islandCheckIndex != isladIndex) 
-					m_navmeshIslands->fillPolysWithIslandIdx(islandCheckIndex, isladIndex); // Merge islands
+				if (islandCheckIndex != 0 && islandCheckIndex != islandIndex) 
+					m_navmeshIslands->fillPolysWithIslandIdx(islandCheckIndex, islandIndex); // Merge islands
 				else
-					m_navmeshIslands->setIsland(nearestPoly, isladIndex);
+					m_navmeshIslands->setIsland(nearestPoly, islandIndex);
 			}
 		}
 	}

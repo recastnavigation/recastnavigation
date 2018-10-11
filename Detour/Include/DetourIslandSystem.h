@@ -122,8 +122,8 @@ private:
 
 private:
 	unsigned int m_freeIslandIdx;
-	NavmeshIslands* m_navmeshIslands;
 	const dtNavMesh* m_navmesh;
+	NavmeshIslands* m_navmeshIslands;
 };
 
 #endif // DETOURISLANDSYSTEM_H
