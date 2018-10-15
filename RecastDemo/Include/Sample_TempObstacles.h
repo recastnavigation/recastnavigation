@@ -40,7 +40,7 @@ protected:
 	int m_cacheCompressedSize;
 	int m_cacheRawSize;
 	int m_cacheLayerCount;
-	int m_cacheBuildMemUsage;
+	unsigned int m_cacheBuildMemUsage;
 	
 	enum DrawMode
 	{

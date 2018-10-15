@@ -1339,7 +1339,7 @@ bool Sample_TempObstacles::handleBuild()
 	m_ctx->stopTimer(RC_TIMER_TOTAL);
 	
 	m_cacheBuildTimeMs = m_ctx->getAccumulatedTime(RC_TIMER_TOTAL)/1000.0f;
-	m_cacheBuildMemUsage = m_talloc->high;
+	m_cacheBuildMemUsage = static_cast<unsigned int>(m_talloc->high);
 	
 
 	const dtNavMesh* nav = m_navMesh;
