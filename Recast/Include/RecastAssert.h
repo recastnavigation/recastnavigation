@@ -22,12 +22,16 @@
 // Note: This header file's only purpose is to include define assert.
 // Feel free to change the file and include your own implementation instead.
 
-#ifdef NDEBUG
+// Define rcAssert if there is no user-supplied definition.
+// Note that if there is a user-supplied definition, it is used even if NDEBUG is defined.
+#ifndef rcAssert
+#	ifdef NDEBUG
 // From http://cnicholson.net/2009/02/stupid-c-tricks-adventures-in-assert/
-#	define rcAssert(x) do { (void)sizeof(x); } while((void)(__LINE__==-1),false)  
-#else
-#	include <assert.h> 
-#	define rcAssert assert
-#endif
+#		define rcAssert(x) do { (void)sizeof(x); } while((void)(__LINE__==-1),false)
+#	else
+#		include <assert.h>
+#		define rcAssert assert
+#	endif
+#endif // ifndef rcAssert
 
 #endif // RECASTASSERT_H
