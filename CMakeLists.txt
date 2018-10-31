@@ -4,7 +4,7 @@ project(RecastNavigation)
 
 # lib versions
 SET(SOVERSION 1)
-SET(VERSION 1.0.0)
+SET(VERSION 1.5.1)
 
 option(RECASTNAVIGATION_DEMO "Build demo" ON)
 option(RECASTNAVIGATION_TESTS "Build tests" ON)
