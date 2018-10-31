@@ -9,6 +9,10 @@ else ()
     add_library(DetourTileCache SHARED ${SOURCES})
 endif ()
 
+target_link_libraries(DetourTileCache
+    Detour
+)
+
 set_target_properties(DetourTileCache PROPERTIES
         SOVERSION ${SOVERSION}
         VERSION ${VERSION}

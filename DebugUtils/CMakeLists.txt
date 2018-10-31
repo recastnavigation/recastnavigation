@@ -11,6 +11,11 @@ else()
     add_library(DebugUtils SHARED ${SOURCES})
 endif()
 
+target_link_libraries(DebugUtils
+    Recast
+    Detour
+)
+
 set_target_properties(DebugUtils PROPERTIES
         SOVERSION ${SOVERSION}
         VERSION ${VERSION}
