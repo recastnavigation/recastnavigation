@@ -6,6 +6,8 @@ else ()
     add_library(DetourCrowd SHARED ${SOURCES})
 endif ()
 
+add_library(RecastNavigation::DetourCrowd ALIAS DetourCrowd)
+
 set(DetourCrowd_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Include")
 
 target_include_directories(DetourCrowd PUBLIC

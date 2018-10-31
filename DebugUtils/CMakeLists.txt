@@ -6,6 +6,8 @@ else()
     add_library(DebugUtils SHARED ${SOURCES})
 endif()
 
+add_library(RecastNavigation::DebugUtils ALIAS DebugUtils)
+
 set(DebugUtils_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Include")
 
 target_include_directories(DebugUtils PUBLIC

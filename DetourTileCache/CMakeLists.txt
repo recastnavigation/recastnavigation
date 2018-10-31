@@ -6,6 +6,8 @@ else ()
     add_library(DetourTileCache SHARED ${SOURCES})
 endif ()
 
+add_library(RecastNavigation::DetourTileCache ALIAS DetourTileCache)
+
 set(DetourTileCache_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Include")
 
 target_include_directories(DetourTileCache PUBLIC
