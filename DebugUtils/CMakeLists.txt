@@ -1,19 +1,21 @@
 file(GLOB SOURCES Source/*.cpp)
 
-include_directories(../Recast/Include)
-include_directories(../Detour/Include)
-include_directories(../DetourTileCache/Include)
-include_directories(Include)
-
 if (RECASTNAVIGATION_STATIC)
     add_library(DebugUtils STATIC ${SOURCES})
 else()
     add_library(DebugUtils SHARED ${SOURCES})
 endif()
 
+set(DebugUtils_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Include")
+
+target_include_directories(DebugUtils PUBLIC
+    "$<BUILD_INTERFACE:${DebugUtils_INCLUDE_DIR}>"
+)
+
 target_link_libraries(DebugUtils
     Recast
     Detour
+    DetourTileCache
 )
 
 set_target_properties(DebugUtils PROPERTIES

@@ -1,13 +1,16 @@
 file(GLOB SOURCES Source/*.cpp)
 
-include_directories(../Detour/Include)
-include_directories(Include)
-
 if (RECASTNAVIGATION_STATIC)
     add_library(DetourTileCache STATIC ${SOURCES})
 else ()
     add_library(DetourTileCache SHARED ${SOURCES})
 endif ()
+
+set(DetourTileCache_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Include")
+
+target_include_directories(DetourTileCache PUBLIC
+    "$<BUILD_INTERFACE:${DetourTileCache_INCLUDE_DIR}>"
+)
 
 target_link_libraries(DetourTileCache
     Detour
