@@ -1,12 +1,16 @@
 file(GLOB SOURCES Source/*.cpp)
 
-include_directories(Include)
-
 if (RECASTNAVIGATION_STATIC)
     add_library(Recast STATIC ${SOURCES})
 else ()
     add_library(Recast SHARED ${SOURCES})
 endif ()
+
+set(Recast_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Include")
+
+target_include_directories(Recast PUBLIC
+    "$<BUILD_INTERFACE:${Recast_INCLUDE_DIR}>"
+)
 
 set_target_properties(Recast PROPERTIES
         SOVERSION ${SOVERSION}
