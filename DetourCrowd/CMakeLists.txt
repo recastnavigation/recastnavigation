@@ -9,6 +9,10 @@ else ()
     add_library(DetourCrowd SHARED ${SOURCES})
 endif ()
 
+target_link_libraries(DetourCrowd
+    Detour
+)
+
 set_target_properties(DetourCrowd PROPERTIES
         SOVERSION ${SOVERSION}
         VERSION ${VERSION}
