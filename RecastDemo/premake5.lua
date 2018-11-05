@@ -170,7 +170,7 @@ project "RecastDemo"
 		}
 		postbuildcommands {
 			-- Copy the SDL2 dll to the Bin folder.
-			'{COPY} "%{wks.location}../../Contrib/SDL/lib/%{cfg.architecture:gsub("x86_64", "x64")}/SDL2.dll" "%{cfg.targetdir}"'
+			'{COPY} "%{path.getabsolute("Contrib/SDL/lib/" .. cfg.architecture:gsub("x86_64", "x64") .. "/SDL2.dll")}" "%{cfg.targetdir}"'
 		}
 
 	-- mac includes and libs
