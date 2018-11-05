@@ -41,8 +41,7 @@ solution "recastnavigation"
 		-- warnings "Extra" uses /W4 which is too aggressive for us, so use W3 instead.
 		-- Disable:
 		-- * C4351: new behavior for array initialization
-		-- * C4291: no matching operator delete found; we don't use exceptions, so doesn't matter
-		buildoptions { "/W3", "/wd4351", "/wd4291" }
+		buildoptions { "/W3", "/wd4351" }
 
 	filter "platforms:Win32"
 		architecture "x32"

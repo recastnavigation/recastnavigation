@@ -66,6 +66,7 @@ void rcFree(void* ptr);
 /// and STL.
 struct rcNewTag {};
 inline void* operator new(size_t, const rcNewTag&, void* p) { return p; }
+inline void operator delete(void*, const rcNewTag&, void*) {}
 
 /// Signed to avoid warnnings when comparing to int loop indexes, and common error with comparing to zero.
 /// MSVC2010 has a bug where ssize_t is unsigned (!!!).
