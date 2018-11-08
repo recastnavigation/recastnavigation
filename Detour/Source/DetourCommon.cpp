@@ -204,32 +204,28 @@ void dtCalcPolyCenter(float* tc, const unsigned short* idx, int nidx, const floa
 bool dtClosestHeightPointTriangle(const float* p, const float* a, const float* b, const float* c, float& h)
 {
 	float v0[3], v1[3], v2[3];
+
 	dtVsub(v0, c,a);
 	dtVsub(v1, b,a);
 	dtVsub(v2, p,a);
-	
-	const float dot00 = dtVdot2D(v0, v0);
-	const float dot01 = dtVdot2D(v0, v1);
-	const float dot02 = dtVdot2D(v0, v2);
-	const float dot11 = dtVdot2D(v1, v1);
-	const float dot12 = dtVdot2D(v1, v2);
-	
-	// Compute barycentric coordinates
-	const float invDenom = 1.0f / (dot00 * dot11 - dot01 * dot01);
-	const float u = (dot11 * dot02 - dot01 * dot12) * invDenom;
-	const float v = (dot00 * dot12 - dot01 * dot02) * invDenom;
 
+	// Compute barycentric coordinates
+	float Denom = v0[0] * v1[2] - v0[2] * v1[0];
 	// The (sloppy) epsilon is needed to allow to get height of points which
 	// are interpolated along the edges of the triangles.
-	static const float EPS = 1e-4f;
-	
+	float EPS = - 1e-4f * Denom;
+
+	float u = v1[2] * v2[0] - v1[0] * v2[2];
+	if (u < EPS)
+		return false;
+
+	float v = v0[0] * v2[2] - v0[2] * v2[0];
+
 	// If point lies inside the triangle, return interpolated ycoord.
-	if (u >= -EPS && v >= -EPS && (u+v) <= 1+EPS)
-	{
-		h = a[1] + v0[1]*u + v1[1]*v;
+	if (v >= EPS && (u+v) <= Denom - EPS) {
+		h = a[1] + (v0[1]*u + v1[1]*v) / Denom;
 		return true;
 	}
-	
 	return false;
 }
 
