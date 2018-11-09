@@ -209,24 +209,24 @@ bool dtClosestHeightPointTriangle(const float* p, const float* a, const float* b
 	dtVsub(v1, b,a);
 	dtVsub(v2, p,a);
 
-	// Compute barycentric coordinates
-	float Denom = v0[0] * v1[2] - v0[2] * v1[0];
+	// Compute scaled barycentric coordinates
+	float denom = v0[0] * v1[2] - v0[2] * v1[0];
 	float u = v1[2] * v2[0] - v1[0] * v2[2];
 	float v = v0[0] * v2[2] - v0[2] * v2[0];
 
-	if (Denom < 0) {
-		Denom = -Denom;
+	if (denom < 0) {
+		denom = -denom;
 		u = -u;
 		v = -v;
 	}
 
 	// The (sloppy) epsilon is needed to allow to get height of points which
 	// are interpolated along the edges of the triangles.
-	float EPS = - 1e-4f * Denom;
+	float epsilon = - 1e-4f * denom;
 
 	// If point lies inside the triangle, return interpolated ycoord.
-	if (u >= EPS && v >= EPS && (u+v) <= Denom - EPS) {
-		h = a[1] + (v0[1]*u + v1[1]*v) / Denom;
+	if (u >= epsilon && v >= epsilon && (u+v) <= denom - epsilon) {
+		h = a[1] + (v0[1]*u + v1[1]*v) / denom;
 		return true;
 	}
 	return false;
