@@ -19,44 +19,38 @@ matrix:
   - name: OpenMW (all) on MacOS xcode9.4
     os: osx
     osx_image: xcode9.4
+    before_install:
+      - brew update
+      - brew install sdl2
     if: branch != coverity_scan
-  - name: OpenMW (all) on Ubuntu Xenial GCC-5
+  - name: Recastnavigation on Ubuntu Xenial GCC-5
     os: linux
     dist: xenial
     sudo: required
     if: branch != coverity_scan
-  - name: OpenMW (all) on Ubuntu Xenial GCC-8
-    os: linux
-    dist: xenial
-    sudo: required
-    env:
-    - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
-    if: branch != coverity_scan
-  - name: OpenMW (openmw) on Ubuntu Xenial Clang-7 with Static Analysis
+  - name: Recastnavigation on Ubuntu Xenial GCC-8
     os: linux
     dist: xenial
     sudo: required
     env:
-    - MATRIX_EVAL="CC=clang-7 && CXX=clang++-7"
-    - ANALYZE="scan-build-7 --force-analyze-debug-code --use-cc clang-7 --use-c++ clang++-7"
+      - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
+    if: branch != coverity_scan
+  - name: Recastnavigation on Ubuntu Xenial Clang-7 with Static Analysis
+    os: linux
+    dist: xenial
+    sudo: required
+    env:
+      - MATRIX_EVAL="CC=clang-7 && CXX=clang++-7"
+      - ANALYZE="scan-build-7 --force-analyze-debug-code --use-cc clang-7 --use-c++ clang++-7"
     if: branch != coverity_scan
     compiler: clang
-  - name: OpenMW (openmw-cs) on Ubuntu Xenial Clang-7 with Static Analysis
-    os: linux
-    dist: xenial
-    sudo: required
-    env:
-    - MATRIX_EVAL="CC=clang-7 && CXX=clang++-7"
-    - ANALYZE="scan-build-7 --force-analyze-debug-code --use-cc clang-7 --use-c++ clang++-7"
-    if: branch != coverity_scan
-    compiler: clang
-  - name: OpenMW Components Coverity Scan
+  - name: Recastnavigation Coverity Scan
     os: linux
     dist: xenial
     sudo: required
     if: branch = coverity_scan
 
-before_install:
+before_script:
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then eval "${MATRIX_EVAL}"; fi
 
 script:
