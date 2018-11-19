@@ -62,10 +62,11 @@ matrix:
 
 before_script:
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then eval "${MATRIX_EVAL}"; fi
-  - if [ "${PREMAKE}" = "1" ]; then cd RecastDemo && ../premake5 gmake; fi
-  - if [ "${PREMAKE}" != "1" ]; then mkdir -p build && cd build && ${ANALYZE} cmake ../; fi
+  - if [ "${PREMAKE}" = "1" ]; then cd RecastDemo && ../premake5 gmake && cd ..; fi
+  - if [ "${PREMAKE}" != "1" ]; then mkdir -p build && cd build && ${ANALYZE} cmake ../ && cd ..; fi
 
-script:
-  - make -j3  # 2 CPUs on Travis-CI + 1 extra for IO bound process
-  - if [ "${PREMAKE}" = "1" ]; then Bin/Tests; fi
-  - if [ "${PREMAKE}" != "1" ]; then ctest; fi
+script:  # 2 CPUs on Travis-CI + 1 extra for IO bound process
+  - if [ "${PREMAKE}" = "1" ]; then make -C RecastDemo/Build/gmake -j3; fi
+  - if [ "${PREMAKE}" != "1" ]; then make -C build -j3; fi
+  - if [ "${PREMAKE}" = "1" ]; then RecastDemo/Bin/Tests; fi
+  - if [ "${PREMAKE}" != "1" ]; then cd build && ctest; fi
