@@ -35,6 +35,16 @@ matrix:
     env:
       - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
     if: branch != coverity_scan
+  - name: Recastnavigation on Ubuntu Xenial GCC-5 using Premake5
+    os: linux
+    dist: xenial
+    sudo: required
+    if: branch != coverity_scan
+    before_install:
+      - wget https://github.com/premake/premake-core/releases/download/v5.0.0-alpha12/premake-5.0.0-alpha12-linux.tar.gz -O premake.tar.gz
+      - tar -xf premake.tar.gz
+    env:
+      - PREMAKE=1
   - name: Recastnavigation on Ubuntu Xenial Clang-7 with Static Analysis
     os: linux
     dist: xenial
@@ -52,8 +62,10 @@ matrix:
 
 before_script:
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then eval "${MATRIX_EVAL}"; fi
+  - if [ "${PREMAKE}" = "1" ]; then cd RecastDemo && ../premake5 gmake; fi
+  - if [ "${PREMAKE}" != "1" ]; then mkdir -p build && cd build && ${ANALYZE} cmake ../; fi
 
 script:
-  - mkdir -p build; cd ./build
-  - ${ANALYZE} cmake ../
-  - make -j3
+  - make -j3  # 2 CPUs on Travis-CI + 1 extra for IO bound process
+  - if [ "${PREMAKE}" = "1" ]; then Bin/Tests; fi
+  - if [ "${PREMAKE}" != "1" ]; then ctest; fi
