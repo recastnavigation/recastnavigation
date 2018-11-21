@@ -38,7 +38,9 @@ endif()
 add_dependencies(RecastDemo DebugUtils Detour DetourCrowd DetourTileCache Recast)
 target_link_libraries(RecastDemo ${OPENGL_LIBRARIES} SDL2::SDL2main DebugUtils Detour DetourCrowd DetourTileCache Recast)
 
-install(TARGETS RecastDemo RUNTIME DESTINATION bin)
+install(TARGETS RecastDemo
+        RUNTIME DESTINATION bin
+        BUNDLE DESTINATION bin)
 install(DIRECTORY Bin/Meshes DESTINATION bin)
 install(DIRECTORY Bin/TestCases DESTINATION bin)
 install(FILES Bin/DroidSans.ttf DESTINATION bin)

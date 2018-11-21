@@ -1,36 +1,72 @@
-sudo: false
-
 language: cpp
+branches:
+  only:
+  - master
+  - coverity_scan
+  - /recast-.*$/
 
-# Build with gcc and clang.
-compiler:
-  - gcc
-  - clang
-
-# Build both debug and release configurations, through use of an environment variable in the build matrix.
-env:
-  - BUILD_TYPE=debug CMAKE_BUILD_TYPE=Debug
-  - BUILD_TYPE=release CMAKE_BUILD_TYPE=Release
+sudo: false
 
 addons:
   apt:
-    packages:
-      - libsdl2-dev
+    sources:
+      - ubuntu-toolchain-r-test
+      - llvm-toolchain-xenial-7
+    packages: [ cmake, clang-7, clang-tools-7, gcc-8, g++-8, libsdl2-dev ]
 
-install:
-  - wget https://github.com/premake/premake-core/releases/download/v5.0.0-alpha12/premake-5.0.0-alpha12-linux.tar.gz -O premake.tar.gz
-  - tar -xf premake.tar.gz
-  - rm premake.tar.gz
+matrix:
+  include:
+  - name: Recastnavigation (all) on MacOS xcode9.4
+    os: osx
+    osx_image: xcode9.4
+    before_install:
+      - brew update
+      - brew install sdl2
+    if: branch != coverity_scan
+  - name: Recastnavigation on Ubuntu Xenial GCC-5
+    os: linux
+    dist: xenial
+    sudo: required
+    if: branch != coverity_scan
+  - name: Recastnavigation on Ubuntu Xenial GCC-8
+    os: linux
+    dist: xenial
+    sudo: required
+    env:
+      - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
+    if: branch != coverity_scan
+  - name: Recastnavigation on Ubuntu Xenial GCC-5 using Premake5
+    os: linux
+    dist: xenial
+    sudo: required
+    if: branch != coverity_scan
+    before_install:
+      - wget https://github.com/premake/premake-core/releases/download/v5.0.0-alpha12/premake-5.0.0-alpha12-linux.tar.gz -O premake.tar.gz
+      - tar -xf premake.tar.gz
+    env:
+      - PREMAKE=1
+  - name: Recastnavigation on Ubuntu Xenial Clang-7 with Static Analysis
+    os: linux
+    dist: xenial
+    sudo: required
+    env:
+      - MATRIX_EVAL="CC=clang-7 && CXX=clang++-7"
+      - ANALYZE="scan-build-7 --force-analyze-debug-code --use-cc clang-7 --use-c++ clang++-7"
+    if: branch != coverity_scan
+    compiler: clang
+  - name: Recastnavigation Coverity Scan
+    os: linux
+    dist: xenial
+    sudo: required
+    if: branch = coverity_scan
 
-# Run premake to generate makefiles.
-# Have to cd into directory and back out since premake5 doesn't appear to accept a directory argument.
 before_script:
-  - cd RecastDemo && ../premake5 gmake && cd ..
-  - mkdir build && cd build && cmake -D CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} .. && cd ..
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then eval "${MATRIX_EVAL}"; fi
+  - if [ "${PREMAKE}" = "1" ]; then cd RecastDemo && ../premake5 gmake && cd ..; fi
+  - if [ "${PREMAKE}" != "1" ]; then mkdir -p build && cd build && ${ANALYZE} cmake ../ && cd ..; fi
 
-# Run make in the directory containing generated makefiles, on the configuration specified by the environment variable.
-script:
-  - make -C RecastDemo/Build/gmake -j$(nproc) config=${BUILD_TYPE}
-  - RecastDemo/Bin/Tests
-  - make -C build -j$(nproc)
-  - cd build && ctest
+script:  # 2 CPUs on Travis-CI + 1 extra for IO bound process
+  - if [ "${PREMAKE}" = "1" ]; then make -C RecastDemo/Build/gmake -j3; fi
+  - if [ "${PREMAKE}" != "1" ]; then make -C build -j3; fi
+  - if [ "${PREMAKE}" = "1" ]; then RecastDemo/Bin/Tests; fi
+  - if [ "${PREMAKE}" != "1" ]; then cd build && ctest; fi
