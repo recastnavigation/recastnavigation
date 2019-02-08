@@ -1208,6 +1208,9 @@ dtStatus dtNavMeshQuery::getPathToNode(dtNode* endNode, dtPolyRef* path, int* pa
 	int length = 0;
 	do
 	{
+		// Go through the whole m_nodepool max once, otherwise it's most likely a sign of infinite loop
+		if (length > m_nodePool->getMaxNodes())
+			return DT_FAILURE;
 		length++;
 		curNode = m_nodePool->getNodeAtIdx(curNode->pidx);
 	} while (curNode);
