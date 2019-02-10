@@ -2781,10 +2781,8 @@ dtStatus dtNavMeshQuery::findPolysAroundCircle(dtPolyRef startRef, const float* 
 	{
 		return DT_FAILURE | DT_INVALID_PARAM;
 	}
-	
-	// Validate input
-	if (!startRef || !m_nav->isValidPolyRef(startRef))
-		return DT_FAILURE | DT_INVALID_PARAM;
+
+	*resultCount = 0;
 	
 	m_nodePool->clear();
 	m_openList->clear();
