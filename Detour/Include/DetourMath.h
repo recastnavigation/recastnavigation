@@ -8,7 +8,7 @@ Members in this module are wrappers around the standard math library
 #define DETOURMATH_H
 
 #include <math.h>
-// This include is required because libc++ has problems with isfinite
+// This include is required because libstdc++ has problems with isfinite
 // if cmath is included before math.h.
 #include <cmath>
 

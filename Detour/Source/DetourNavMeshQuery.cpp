@@ -521,8 +521,7 @@ dtStatus dtNavMeshQuery::closestPointOnPoly(dtPolyRef ref, const float* pos, flo
 	if (!tile)
 		return DT_FAILURE | DT_INVALID_PARAM;
 
-	if (!pos || !dtVisfinite(pos) ||
-		!closest)
+	if (!pos || !dtVisfinite(pos) || !closest)
 		return DT_FAILURE | DT_INVALID_PARAM;
 	
 	// Off-mesh connections don't have detail polygons.
@@ -1045,12 +1044,17 @@ dtStatus dtNavMeshQuery::findPath(dtPolyRef startRef, dtPolyRef endRef,
 	dtAssert(m_nav);
 	dtAssert(m_nodePool);
 	dtAssert(m_openList);
+
+	if (!pathCount)
+		return DT_FAILURE | DT_INVALID_PARAM;
+
+	*pathCount = 0;
 	
 	// Validate input
 	if (!m_nav->isValidPolyRef(startRef) || !m_nav->isValidPolyRef(endRef) ||
 		!startPos || !dtVisfinite(startPos) ||
 		!endPos || !dtVisfinite(endPos) ||
-		!filter || !path || !pathCount || maxPath <= 0)
+		!filter || !path || maxPath <= 0)
 	{
 		return DT_FAILURE | DT_INVALID_PARAM;
 	}
@@ -1061,8 +1065,6 @@ dtStatus dtNavMeshQuery::findPath(dtPolyRef startRef, dtPolyRef endRef,
 		*pathCount = 1;
 		return DT_SUCCESS;
 	}
-
-	*pathCount = 0;
 	
 	m_nodePool->clear();
 	m_openList->clear();
@@ -1284,6 +1286,19 @@ dtStatus dtNavMeshQuery::initSlicedFindPath(dtPolyRef startRef, dtPolyRef endRef
 	dtAssert(m_nav);
 	dtAssert(m_nodePool);
 	dtAssert(m_openList);
+
+	// Init path state.
+	memset(&m_query, 0, sizeof(dtQueryData));
+	m_query.status = DT_FAILURE;
+	m_query.startRef = startRef;
+	m_query.endRef = endRef;
+	if (startPos)
+		dtVcopy(m_query.startPos, startPos);
+	if (endPos)
+		dtVcopy(m_query.endPos, endPos);
+	m_query.filter = filter;
+	m_query.options = options;
+	m_query.raycastLimitSqr = FLT_MAX;
 	
 	// Validate input
 	if (!m_nav->isValidPolyRef(startRef) || !m_nav->isValidPolyRef(endRef)
@@ -1292,17 +1307,6 @@ dtStatus dtNavMeshQuery::initSlicedFindPath(dtPolyRef startRef, dtPolyRef endRef
 	{
 		return DT_FAILURE | DT_INVALID_PARAM;
 	}
-
-	// Init path state.
-	memset(&m_query, 0, sizeof(dtQueryData));
-	m_query.status = DT_FAILURE;
-	m_query.startRef = startRef;
-	m_query.endRef = endRef;
-	dtVcopy(m_query.startPos, startPos);
-	dtVcopy(m_query.endPos, endPos);
-	m_query.filter = filter;
-	m_query.options = options;
-	m_query.raycastLimitSqr = FLT_MAX;
 
 	// trade quality with performance?
 	if (options & DT_FINDPATH_ANY_ANGLE)
@@ -1558,10 +1562,13 @@ dtStatus dtNavMeshQuery::updateSlicedFindPath(const int maxIter, int* doneIters)
 
 dtStatus dtNavMeshQuery::finalizeSlicedFindPath(dtPolyRef* path, int* pathCount, const int maxPath)
 {
-	if (!path || !pathCount || maxPath <= 0)
+	if (!pathCount)
 		return DT_FAILURE | DT_INVALID_PARAM;
 
 	*pathCount = 0;
+
+	if (!path || maxPath <= 0)
+		return DT_FAILURE | DT_INVALID_PARAM;
 	
 	if (dtStatusFailed(m_query.status))
 	{
@@ -1646,10 +1653,13 @@ dtStatus dtNavMeshQuery::finalizeSlicedFindPath(dtPolyRef* path, int* pathCount,
 dtStatus dtNavMeshQuery::finalizeSlicedFindPathPartial(const dtPolyRef* existing, const int existingSize,
 													   dtPolyRef* path, int* pathCount, const int maxPath)
 {
-	if (!existing || existingSize <= 0 || !path || !pathCount || maxPath <= 0)
+	if (!pathCount)
 		return DT_FAILURE | DT_INVALID_PARAM;
 
 	*pathCount = 0;
+
+	if (!existing || existingSize <= 0 || !path || !pathCount || maxPath <= 0)
+		return DT_FAILURE | DT_INVALID_PARAM;
 	
 	if (dtStatusFailed(m_query.status))
 	{
@@ -1853,15 +1863,18 @@ dtStatus dtNavMeshQuery::findStraightPath(const float* startPos, const float* en
 {
 	dtAssert(m_nav);
 
+	if (!straightPathCount)
+		return DT_FAILURE | DT_INVALID_PARAM;
+
+	*straightPathCount = 0;
+
 	if (!startPos || !dtVisfinite(startPos) ||
 		!endPos || !dtVisfinite(endPos) ||
 		!path || pathSize <= 0 || !path[0] ||
-		!straightPathCount || maxStraightPath <= 0)
+		maxStraightPath <= 0)
 	{
 		return DT_FAILURE | DT_INVALID_PARAM;
 	}
-
-	*straightPathCount = 0;
 	
 	dtStatus stat = 0;
 	
@@ -2101,17 +2114,19 @@ dtStatus dtNavMeshQuery::moveAlongSurface(dtPolyRef startRef, const float* start
 	dtAssert(m_nav);
 	dtAssert(m_tinyNodePool);
 
-	// Validate input
+	if (!visitedCount)
+		return DT_FAILURE | DT_INVALID_PARAM;
+
+	*visitedCount = 0;
+
 	if (!m_nav->isValidPolyRef(startRef) ||
 		!startPos || !dtVisfinite(startPos) ||
 		!endPos || !dtVisfinite(endPos) ||
-		!filter || !resultPos || !visited || !visitedCount ||
+		!filter || !resultPos || !visited ||
 		maxVisitedSize <= 0)
 	{
 		return DT_FAILURE | DT_INVALID_PARAM;
 	}
-
-	*visitedCount = 0;
 	
 	dtStatus status = DT_SUCCESS;
 	
@@ -2520,6 +2535,13 @@ dtStatus dtNavMeshQuery::raycast(dtPolyRef startRef, const float* startPos, cons
 {
 	dtAssert(m_nav);
 
+	if (!hit)
+		return DT_FAILURE | DT_INVALID_PARAM;
+
+	hit->t = 0;
+	hit->pathCount = 0;
+	hit->pathCost = 0;
+
 	// Validate input
 	if (!m_nav->isValidPolyRef(startRef) ||
 		!startPos || !dtVisfinite(startPos) ||
@@ -2529,10 +2551,6 @@ dtStatus dtNavMeshQuery::raycast(dtPolyRef startRef, const float* startPos, cons
 	{
 		return DT_FAILURE | DT_INVALID_PARAM;
 	}
-	
-	hit->t = 0;
-	hit->pathCount = 0;
-	hit->pathCost = 0;
 	
 	float dir[3], curPos[3], lastPos[3];
 	float verts[DT_VERTS_PER_POLYGON*3+3];	
@@ -2774,15 +2792,18 @@ dtStatus dtNavMeshQuery::findPolysAroundCircle(dtPolyRef startRef, const float* 
 	dtAssert(m_nodePool);
 	dtAssert(m_openList);
 
+	if (!resultCount)
+		return DT_FAILURE | DT_INVALID_PARAM;
+
+	*resultCount = 0;
+
 	if (!m_nav->isValidPolyRef(startRef) ||
 		!centerPos || !dtVisfinite(centerPos) ||
 		radius < 0 || !dtMathIsfinite(radius) ||
-		!filter || !resultCount || maxResult < 0)
+		!filter || maxResult < 0)
 	{
 		return DT_FAILURE | DT_INVALID_PARAM;
 	}
-
-	*resultCount = 0;
 	
 	m_nodePool->clear();
 	m_openList->clear();
@@ -2945,14 +2966,17 @@ dtStatus dtNavMeshQuery::findPolysAroundShape(dtPolyRef startRef, const float* v
 	dtAssert(m_nodePool);
 	dtAssert(m_openList);
 
+	if (!resultCount)
+		return DT_FAILURE | DT_INVALID_PARAM;
+
+	*resultCount = 0;
+
 	if (!m_nav->isValidPolyRef(startRef) ||
 		!verts || nverts < 3 ||
-		!filter || !resultCount || maxResult < 0)
+		!filter || maxResult < 0)
 	{
 		return DT_FAILURE | DT_INVALID_PARAM;
 	}
-
-	*resultCount = 0;
 	
 	// Validate input
 	if (!startRef || !m_nav->isValidPolyRef(startRef))
@@ -3139,15 +3163,18 @@ dtStatus dtNavMeshQuery::findLocalNeighbourhood(dtPolyRef startRef, const float*
 	dtAssert(m_nav);
 	dtAssert(m_tinyNodePool);
 
+	if (!resultCount)
+		return DT_FAILURE | DT_INVALID_PARAM;
+
+	*resultCount = 0;
+
 	if (!m_nav->isValidPolyRef(startRef) ||
 		!centerPos || !dtVisfinite(centerPos) ||
 		radius < 0 || !dtMathIsfinite(radius) ||
-		!filter || !resultCount || maxResult < 0)
+		!filter || maxResult < 0)
 	{
 		return DT_FAILURE | DT_INVALID_PARAM;
 	}
-	
-	*resultCount = 0;
 
 	static const int MAX_STACK = 48;
 	dtNode* stack[MAX_STACK];
@@ -3355,16 +3382,19 @@ dtStatus dtNavMeshQuery::getPolyWallSegments(dtPolyRef ref, const dtQueryFilter*
 											 const int maxSegments) const
 {
 	dtAssert(m_nav);
+
+	if (!segmentCount)
+		return DT_FAILURE | DT_INVALID_PARAM;
 	
+	*segmentCount = 0;
+
 	const dtMeshTile* tile = 0;
 	const dtPoly* poly = 0;
 	if (dtStatusFailed(m_nav->getTileAndPolyByRef(ref, &tile, &poly)))
 		return DT_FAILURE | DT_INVALID_PARAM;
 
-	if (!filter || !segmentVerts || !segmentCount || maxSegments < 0)
+	if (!filter || !segmentVerts || maxSegments < 0)
 		return DT_FAILURE | DT_INVALID_PARAM;
-
-	*segmentCount = 0;
 	
 	int n = 0;
 	static const int MAX_INTERVAL = 16;
