@@ -655,6 +655,8 @@ private:
 	unsigned int m_tileBits;			///< Number of tile bits in the tile ID.
 	unsigned int m_polyBits;			///< Number of poly bits in the tile ID.
 #endif
+
+	friend class dtNavMeshQuery;
 };
 
 /// Allocates a navigation mesh object using the Detour allocator.
