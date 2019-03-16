@@ -588,7 +588,7 @@ dtStatus dtNavMeshQuery::closestPointOnPolyBoundary(dtPolyRef ref, const float* 
 
 /// @par
 ///
-/// Will return #DT_FAILURE if the provided position is outside the xz-bounds 
+/// Will return #DT_FAILURE | DT_INVALID_PARAM if the provided position is outside the xz-bounds 
 /// of the polygon.
 /// 
 dtStatus dtNavMeshQuery::getPolyHeight(dtPolyRef ref, const float* pos, float* height) const
@@ -602,44 +602,25 @@ dtStatus dtNavMeshQuery::getPolyHeight(dtPolyRef ref, const float* pos, float* h
 
 	if (!pos || !dtVisfinite2D(pos))
 		return DT_FAILURE | DT_INVALID_PARAM;
-	
+
+	// We used to return success for offmesh connections, but the
+	// getPolyHeight in DetourNavMesh does not do this, so special
+	// case it here.
 	if (poly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
 	{
 		const float* v0 = &tile->verts[poly->verts[0]*3];
 		const float* v1 = &tile->verts[poly->verts[1]*3];
-		const float d0 = dtVdist2D(pos, v0);
-		const float d1 = dtVdist2D(pos, v1);
-		const float u = d0 / (d0+d1);
+		float t;
+		dtDistancePtSegSqr2D(pos, v0, v1, t);
 		if (height)
-			*height = v0[1] + (v1[1] - v0[1]) * u;
+			*height = v0[1] + (v1[1] - v0[1])*t;
+
 		return DT_SUCCESS;
 	}
-	else
-	{
-		const unsigned int ip = (unsigned int)(poly - tile->polys);
-		const dtPolyDetail* pd = &tile->detailMeshes[ip];
-		for (int j = 0; j < pd->triCount; ++j)
-		{
-			const unsigned char* t = &tile->detailTris[(pd->triBase+j)*4];
-			const float* v[3];
-			for (int k = 0; k < 3; ++k)
-			{
-				if (t[k] < poly->vertCount)
-					v[k] = &tile->verts[poly->verts[t[k]]*3];
-				else
-					v[k] = &tile->detailVerts[(pd->vertBase+(t[k]-poly->vertCount))*3];
-			}
-			float h;
-			if (dtClosestHeightPointTriangle(pos, v[0], v[1], v[2], h))
-			{
-				if (height)
-					*height = h;
-				return DT_SUCCESS;
-			}
-		}
-	}
-	
-	return DT_FAILURE | DT_INVALID_PARAM;
+
+	return m_nav->getPolyHeight(tile, poly, pos, height)
+		? DT_SUCCESS
+		: DT_FAILURE | DT_INVALID_PARAM;
 }
 
 class dtFindNearestPolyQuery : public dtPolyQuery

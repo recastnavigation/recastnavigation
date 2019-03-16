@@ -651,6 +651,8 @@ private:
 	/// Find nearest polygon within a tile.
 	dtPolyRef findNearestPolyInTile(const dtMeshTile* tile, const float* center,
 									const float* halfExtents, float* nearestPt) const;
+	/// Returns whether position is over the poly and the height at the position if so.
+	bool getPolyHeight(const dtMeshTile* tile, const dtPoly* poly, const float* pos, float* height) const;
 	/// Returns closest point on polygon.
 	void closestPointOnPoly(dtPolyRef ref, const float* pos, float* closest, bool* posOverPoly) const;
 	
