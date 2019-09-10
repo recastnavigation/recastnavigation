@@ -31,6 +31,12 @@ Recast is accompanied with Detour, path-finding and spatial reasoning toolkit. Y
 
 Detour offers simple static navigation mesh which is suitable for many simple cases, as well as tiled navigation mesh which allows you to plug in and out pieces of the mesh. The tiled mesh allows you to create systems where you stream new navigation data in and out as the player progresses the level, or you may regenerate tiles as the world changes. 
 
+## Installation through vcpkg
+
+If you are using the [vcpkg](https://github.com/Microsoft/vcpkg/) dependency manager you can download and install Recast with a single command:
+```
+vcpkg install recast
+```
 
 ## Recast Demo
 
