@@ -48,7 +48,7 @@ RecastDemo uses [premake5](http://premake.github.io/) to build platform specific
 - Install SDL2 and its dependencies according to your distro's guidelines.
 - run `premake5 gmake` from the `RecastDemo` folder.
 - `cd Build/gmake` then `make`
-- Run `RecastDemo\Bin\RecastDemo`
+- `cd RecastDemo/Bin` and then run `./RecastDemo`
 
 #### OSX
 
