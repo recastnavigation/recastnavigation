@@ -1658,92 +1658,31 @@ dtStatus dtNavMeshQuery::finalizeSlicedFindPathPartial(const dtPolyRef* existing
 	return DT_SUCCESS | details;
 }
 
-
-dtStatus dtNavMeshQuery::appendVertex(const float* pos, const unsigned char flags, const dtPolyRef ref,
-									  float* straightPath, unsigned char* straightPathFlags, dtPolyRef* straightPathRefs,
-									  int* straightPathCount, const int maxStraightPath) const
+// Used in straight path calculation
+static inline void checkCornerVertex(dtStraightPathContext& ctx, bool checkRight,
+									 dtStraightPathContext::Corner& rightVertex,
+									 dtStraightPathContext::Corner& leftVertex,
+									 const dtStraightPathContext::Corner& nextVertex)
 {
-	if ((*straightPathCount) > 0 && dtVequal(&straightPath[((*straightPathCount)-1)*3], pos))
+	dtStraightPathContext::Corner& currVertex = checkRight ? rightVertex : leftVertex;
+	dtStraightPathContext::Corner& otherVertex = checkRight ? leftVertex : rightVertex;
+	const float areaSign = checkRight ? 1.f : -1.f;
+
+	if (dtTriArea2D(ctx.lastCorner, currVertex.point, nextVertex.point) * areaSign > 0.0f)
+		return;
+
+	if (dtTriArea2D(ctx.lastCorner, otherVertex.point, nextVertex.point) * areaSign > 0.0f ||
+		dtVequal(ctx.lastCorner, currVertex.point))
 	{
-		// The vertices are equal, update flags and poly.
-		if (straightPathFlags)
-			straightPathFlags[(*straightPathCount)-1] = flags;
-		if (straightPathRefs)
-			straightPathRefs[(*straightPathCount)-1] = ref;
+		currVertex = nextVertex;
 	}
 	else
 	{
-		// Append new vertex.
-		dtVcopy(&straightPath[(*straightPathCount)*3], pos);
-		if (straightPathFlags)
-			straightPathFlags[(*straightPathCount)] = flags;
-		if (straightPathRefs)
-			straightPathRefs[(*straightPathCount)] = ref;
-		(*straightPathCount)++;
-
-		// If there is no space to append more vertices, return.
-		if ((*straightPathCount) >= maxStraightPath)
-		{
-			return DT_SUCCESS | DT_BUFFER_TOO_SMALL;
-		}
-
-		// If reached end of path, return.
-		if (flags == DT_STRAIGHTPATH_END)
-		{
-			return DT_SUCCESS;
-		}
+		// Corner found, restart iteration from it
+		ctx.cornerFound = true;
+		ctx.corner = otherVertex;
+		ctx.i = otherVertex.fromIndex + 1;
 	}
-	return DT_IN_PROGRESS;
-}
-
-dtStatus dtNavMeshQuery::appendPortals(const int startIdx, const int endIdx, const float* endPos, const dtPolyRef* path,
-									  float* straightPath, unsigned char* straightPathFlags, dtPolyRef* straightPathRefs,
-									  int* straightPathCount, const int maxStraightPath, const int options) const
-{
-	const float* startPos = &straightPath[(*straightPathCount-1)*3];
-	// Append or update last vertex
-	dtStatus stat = 0;
-	for (int i = startIdx; i < endIdx; i++)
-	{
-		// Calculate portal
-		const dtPolyRef from = path[i];
-		const dtMeshTile* fromTile = 0;
-		const dtPoly* fromPoly = 0;
-		if (dtStatusFailed(m_nav->getTileAndPolyByRef(from, &fromTile, &fromPoly)))
-			return DT_FAILURE | DT_INVALID_PARAM;
-		
-		const dtPolyRef to = path[i+1];
-		const dtMeshTile* toTile = 0;
-		const dtPoly* toPoly = 0;
-		if (dtStatusFailed(m_nav->getTileAndPolyByRef(to, &toTile, &toPoly)))
-			return DT_FAILURE | DT_INVALID_PARAM;
-		
-		float left[3], right[3];
-		if (dtStatusFailed(getPortalPoints(from, fromPoly, fromTile, to, toPoly, toTile, left, right)))
-			break;
-	
-		if (options & DT_STRAIGHTPATH_AREA_CROSSINGS)
-		{
-			// Skip intersection if only area crossings are requested.
-			if (fromPoly->getArea() == toPoly->getArea())
-				continue;
-		}
-		
-		// Append intersection
-		float s,t;
-		if (dtIntersectSegSeg2D(startPos, endPos, left, right, s, t))
-		{
-			float pt[3];
-			dtVlerp(pt, left,right, t);
-
-			stat = appendVertex(pt, 0, path[i+1],
-								straightPath, straightPathFlags, straightPathRefs,
-								straightPathCount, maxStraightPath);
-			if (stat != DT_IN_PROGRESS)
-				return stat;
-		}
-	}
-	return DT_IN_PROGRESS;
 }
 
 /// @par
@@ -1775,16 +1714,9 @@ dtStatus dtNavMeshQuery::findStraightPath(const float* startPos, const float* en
 
 	*straightPathCount = 0;
 
-	if (!startPos || !dtVisfinite(startPos) ||
-		!endPos || !dtVisfinite(endPos) ||
-		!path || pathSize <= 0 || !path[0] ||
-		maxStraightPath <= 0)
-	{
+	if (!straightPath || maxStraightPath <= 0)
 		return DT_FAILURE | DT_INVALID_PARAM;
-	}
-	
-	dtStatus stat = 0;
-	
+
 	// TODO: Should this be callers responsibility?
 	float closestStartPos[3];
 	if (dtStatusFailed(closestPointOnPolyBoundary(path[0], startPos, closestStartPos)))
@@ -1793,205 +1725,261 @@ dtStatus dtNavMeshQuery::findStraightPath(const float* startPos, const float* en
 	float closestEndPos[3];
 	if (dtStatusFailed(closestPointOnPolyBoundary(path[pathSize-1], endPos, closestEndPos)))
 		return DT_FAILURE | DT_INVALID_PARAM;
-	
+
+	dtStraightPathContext ctx;
+	dtStatus status = initStraightPathSearch(closestStartPos, closestEndPos, path, pathSize, ctx);
+	if (dtStatusFailed(status))
+		return status;
+
 	// Add start point.
-	stat = appendVertex(closestStartPos, DT_STRAIGHTPATH_START, path[0],
-						straightPath, straightPathFlags, straightPathRefs,
-						straightPathCount, maxStraightPath);
-	if (stat != DT_IN_PROGRESS)
-		return stat;
-	
-	if (pathSize > 1)
+	dtVcopy(&straightPath[0], closestStartPos);
+	if (straightPathFlags)
+		straightPathFlags[0] = DT_STRAIGHTPATH_START;
+	if (straightPathRefs)
+		straightPathRefs[0] = path[0];
+	++(*straightPathCount);
+
+	// If there is no space to append more vertices, return.
+	if (maxStraightPath == 1)
+		return DT_SUCCESS | DT_BUFFER_TOO_SMALL;
+
+	do
 	{
-		float portalApex[3], portalLeft[3], portalRight[3];
-		dtVcopy(portalApex, closestStartPos);
-		dtVcopy(portalLeft, portalApex);
-		dtVcopy(portalRight, portalApex);
-		int apexIndex = 0;
-		int leftIndex = 0;
-		int rightIndex = 0;
-		
-		unsigned char leftPolyType = 0;
-		unsigned char rightPolyType = 0;
-		
-		dtPolyRef leftPolyRef = path[0];
-		dtPolyRef rightPolyRef = path[0];
-		
-		for (int i = 0; i < pathSize; ++i)
+		float pos[3];
+		unsigned char flags;
+		dtPolyRef ref;
+		status = findNextStraightPathPoint(ctx, pos, &flags, 0, &ref, options);
+		if (dtStatusFailed(status))
+			break;
+
+		// Append new vertex or merge to previous if position is the same.
+		if (!dtVequal(&straightPath[((*straightPathCount)-1)*3], pos))
 		{
+			dtVcopy(&straightPath[(*straightPathCount)*3], pos);
+			++(*straightPathCount);
+		}
+
+		const int vertexCount = (*straightPathCount);
+		if (straightPathFlags)
+			straightPathFlags[vertexCount-1] = flags;
+		if (straightPathRefs)
+			straightPathRefs[vertexCount-1] = ref;
+
+		// If there is no space to append more vertices, return.
+		if (dtStatusInProgress(status) && vertexCount >= maxStraightPath)
+			return DT_SUCCESS | DT_BUFFER_TOO_SMALL;
+	}
+	while (dtStatusInProgress(status));
+
+	return status;
+}
+
+// NB: startPos and endPos must lay inside the first and the last path polygon respectively
+dtStatus dtNavMeshQuery::initStraightPathSearch(const float* startPos, const float* endPos,
+												const dtPolyRef* path, int pathSize, dtStraightPathContext& ctx) const
+{
+	if (!startPos || !dtVisfinite(startPos) ||
+		!endPos || !dtVisfinite(endPos) ||
+		!path || pathSize <= 0 || !path[0])
+	{
+		return DT_FAILURE | DT_INVALID_PARAM;
+	}
+
+	dtVcopy(ctx.endPos, endPos);
+	ctx.path = path;
+	ctx.pathSize = pathSize;
+
+	dtVcopy(ctx.lastCorner, startPos);
+	ctx.lastCornerIndex = 0;
+	ctx.i = 0;
+	ctx.cornerFound = false;
+
+	dtVcopy(ctx.corner.point, startPos);
+	ctx.corner.polyRef = path[0];
+	ctx.corner.fromIndex = 0;
+	ctx.corner.flags = 0;
+
+	return DT_SUCCESS;
+}
+
+dtStatus dtNavMeshQuery::findNextStraightPathPoint(dtStraightPathContext& ctx, float* outPos, unsigned char* outFlags,
+													unsigned char* outArea, dtPolyRef* outRef, const int options) const
+{
+	// No corner found, search for the next one
+	if (!ctx.cornerFound)
+	{
+		// Iterations are finished or path data is invalid
+		if (ctx.i >= ctx.pathSize)
+			return DT_FAILURE;
+
+		// Check if the whole path is contained inside one poly
+		if (ctx.i == 0 && ctx.path[0] == ctx.path[ctx.pathSize-1])
+		{
+			if (outPos)
+				dtVcopy(outPos, ctx.endPos);
+			if (outFlags)
+				*outFlags = DT_STRAIGHTPATH_END;
+			if (outRef)
+				*outRef = 0;
+			if (outArea)
+				*outArea = 0;
+			return DT_SUCCESS;
+		}
+
+		dtStraightPathContext::Corner leftVertex = ctx.corner;
+		dtStraightPathContext::Corner rightVertex = ctx.corner;
+
+		// Walk path poly by poly until the corner or ending is detected
+		for (; ctx.i < ctx.pathSize; ++ctx.i)
+		{
+			dtStraightPathContext::Corner next;
+			next.fromIndex = ctx.i;
+
 			float left[3], right[3];
-			unsigned char toType;
-			
-			if (i+1 < pathSize)
+
+			if (ctx.i+1 < ctx.pathSize)
 			{
-				unsigned char fromType; // fromType is ignored.
+				const dtPolyRef currPolyRef = ctx.path[ctx.i];
+				next.polyRef = ctx.path[ctx.i+1];
 
 				// Next portal.
-				if (dtStatusFailed(getPortalPoints(path[i], path[i+1], left, right, fromType, toType)))
+				unsigned char fromType; // ignored
+				unsigned char toType;
+				if (dtStatusFailed(getPortalPoints(currPolyRef, next.polyRef, left, right, fromType, toType)))
 				{
-					// Failed to get portal points, in practice this means that path[i+1] is invalid polygon.
-					// Clamp the end point to path[i], and return the path so far.
-					
-					if (dtStatusFailed(closestPointOnPolyBoundary(path[i], endPos, closestEndPos)))
-					{
-						// This should only happen when the first polygon is invalid.
+					// Failed to get portal points, in practice this means that next poly is invalid.
+					// Clamp the end point to currPolyRef, and return the path so far.
+
+					// Failure should only happen when the first polygon is invalid.
+					if (dtStatusFailed(closestPointOnPolyBoundary(currPolyRef, ctx.endPos, ctx.corner.point)))
 						return DT_FAILURE | DT_INVALID_PARAM;
-					}
 
-					// Apeend portals along the current straight path segment.
-					if (options & (DT_STRAIGHTPATH_AREA_CROSSINGS | DT_STRAIGHTPATH_ALL_CROSSINGS))
-					{
-						// Ignore status return value as we're just about to return anyway.
-						appendPortals(apexIndex, i, closestEndPos, path,
-											 straightPath, straightPathFlags, straightPathRefs,
-											 straightPathCount, maxStraightPath, options);
-					}
-
-					// Ignore status return value as we're just about to return anyway.
-					appendVertex(closestEndPos, 0, path[i],
-										straightPath, straightPathFlags, straightPathRefs,
-										straightPathCount, maxStraightPath);
-					
-					return DT_SUCCESS | DT_PARTIAL_RESULT | ((*straightPathCount >= maxStraightPath) ? DT_BUFFER_TOO_SMALL : 0);
+					ctx.cornerFound = true;
+					ctx.corner.fromIndex = ctx.i;
+					ctx.corner.flags = DT_STRAIGHTPATH_END; // Only to inform the algorithm internally, will be zeroed out
+					ctx.corner.polyRef = currPolyRef;
+					break;
 				}
-				
-				// If starting really close the portal, advance.
-				if (i == 0)
+
+				next.flags = (toType == DT_POLYTYPE_OFFMESH_CONNECTION) ? DT_STRAIGHTPATH_OFFMESH_CONNECTION : 0;
+
+				// If starting really close to the portal, advance.
+				if (ctx.i == 0)
 				{
 					float t;
-					if (dtDistancePtSegSqr2D(portalApex, left, right, t) < dtSqr(0.001f))
+					if (dtDistancePtSegSqr2D(ctx.lastCorner, left, right, t) < dtSqr(0.001f))
 						continue;
 				}
 			}
 			else
 			{
 				// End of the path.
-				dtVcopy(left, closestEndPos);
-				dtVcopy(right, closestEndPos);
-				
-				toType = DT_POLYTYPE_GROUND;
+				dtVcopy(left, ctx.endPos);
+				dtVcopy(right, ctx.endPos);
+
+				next.polyRef = 0;
+				next.flags = DT_STRAIGHTPATH_END;
 			}
-			
+
 			// Right vertex.
-			if (dtTriArea2D(portalApex, portalRight, right) <= 0.0f)
-			{
-				if (dtVequal(portalApex, portalRight) || dtTriArea2D(portalApex, portalLeft, right) > 0.0f)
-				{
-					dtVcopy(portalRight, right);
-					rightPolyRef = (i+1 < pathSize) ? path[i+1] : 0;
-					rightPolyType = toType;
-					rightIndex = i;
-				}
-				else
-				{
-					// Append portals along the current straight path segment.
-					if (options & (DT_STRAIGHTPATH_AREA_CROSSINGS | DT_STRAIGHTPATH_ALL_CROSSINGS))
-					{
-						stat = appendPortals(apexIndex, leftIndex, portalLeft, path,
-											 straightPath, straightPathFlags, straightPathRefs,
-											 straightPathCount, maxStraightPath, options);
-						if (stat != DT_IN_PROGRESS)
-							return stat;					
-					}
-				
-					dtVcopy(portalApex, portalLeft);
-					apexIndex = leftIndex;
-					
-					unsigned char flags = 0;
-					if (!leftPolyRef)
-						flags = DT_STRAIGHTPATH_END;
-					else if (leftPolyType == DT_POLYTYPE_OFFMESH_CONNECTION)
-						flags = DT_STRAIGHTPATH_OFFMESH_CONNECTION;
-					dtPolyRef ref = leftPolyRef;
-					
-					// Append or update vertex
-					stat = appendVertex(portalApex, flags, ref,
-										straightPath, straightPathFlags, straightPathRefs,
-										straightPathCount, maxStraightPath);
-					if (stat != DT_IN_PROGRESS)
-						return stat;
-					
-					dtVcopy(portalLeft, portalApex);
-					dtVcopy(portalRight, portalApex);
-					leftIndex = apexIndex;
-					rightIndex = apexIndex;
-					
-					// Restart
-					i = apexIndex;
-					
-					continue;
-				}
-			}
-			
+			dtVcopy(next.point, right);
+			checkCornerVertex(ctx, true, rightVertex, leftVertex, next);
+			if (ctx.cornerFound)
+				break;
+
 			// Left vertex.
-			if (dtTriArea2D(portalApex, portalLeft, left) >= 0.0f)
-			{
-				if (dtVequal(portalApex, portalLeft) || dtTriArea2D(portalApex, portalRight, left) < 0.0f)
-				{
-					dtVcopy(portalLeft, left);
-					leftPolyRef = (i+1 < pathSize) ? path[i+1] : 0;
-					leftPolyType = toType;
-					leftIndex = i;
-				}
-				else
-				{
-					// Append portals along the current straight path segment.
-					if (options & (DT_STRAIGHTPATH_AREA_CROSSINGS | DT_STRAIGHTPATH_ALL_CROSSINGS))
-					{
-						stat = appendPortals(apexIndex, rightIndex, portalRight, path,
-											 straightPath, straightPathFlags, straightPathRefs,
-											 straightPathCount, maxStraightPath, options);
-						if (stat != DT_IN_PROGRESS)
-							return stat;
-					}
-
-					dtVcopy(portalApex, portalRight);
-					apexIndex = rightIndex;
-					
-					unsigned char flags = 0;
-					if (!rightPolyRef)
-						flags = DT_STRAIGHTPATH_END;
-					else if (rightPolyType == DT_POLYTYPE_OFFMESH_CONNECTION)
-						flags = DT_STRAIGHTPATH_OFFMESH_CONNECTION;
-					dtPolyRef ref = rightPolyRef;
-
-					// Append or update vertex
-					stat = appendVertex(portalApex, flags, ref,
-										straightPath, straightPathFlags, straightPathRefs,
-										straightPathCount, maxStraightPath);
-					if (stat != DT_IN_PROGRESS)
-						return stat;
-					
-					dtVcopy(portalLeft, portalApex);
-					dtVcopy(portalRight, portalApex);
-					leftIndex = apexIndex;
-					rightIndex = apexIndex;
-					
-					// Restart
-					i = apexIndex;
-					
-					continue;
-				}
-			}
-		}
-
-		// Append portals along the current straight path segment.
-		if (options & (DT_STRAIGHTPATH_AREA_CROSSINGS | DT_STRAIGHTPATH_ALL_CROSSINGS))
-		{
-			stat = appendPortals(apexIndex, pathSize-1, closestEndPos, path,
-								 straightPath, straightPathFlags, straightPathRefs,
-								 straightPathCount, maxStraightPath, options);
-			if (stat != DT_IN_PROGRESS)
-				return stat;
+			dtVcopy(next.point, left);
+			checkCornerVertex(ctx, false, rightVertex, leftVertex, next);
+			if (ctx.cornerFound)
+				break;
 		}
 	}
 
-	// Ignore status return value as we're just about to return anyway.
-	appendVertex(closestEndPos, DT_STRAIGHTPATH_END, 0,
-						straightPath, straightPathFlags, straightPathRefs,
-						straightPathCount, maxStraightPath);
-	
-	return DT_SUCCESS | ((*straightPathCount >= maxStraightPath) ? DT_BUFFER_TOO_SMALL : 0);
+	// The search ended and no corner is found, use end point
+	if (!ctx.cornerFound && ctx.i >= ctx.pathSize)
+	{
+		ctx.cornerFound = true;
+		dtVcopy(ctx.corner.point, ctx.endPos);
+		ctx.corner.fromIndex = ctx.pathSize - 1;
+		ctx.corner.flags = DT_STRAIGHTPATH_END;
+		ctx.corner.polyRef = 0;
+	}
+
+	// Return next straight line crossing (poly or area boundary)
+	if (options & (DT_STRAIGHTPATH_AREA_CROSSINGS | DT_STRAIGHTPATH_ALL_CROSSINGS))
+	{
+		while (ctx.lastCornerIndex < ctx.corner.fromIndex)
+		{
+			// Calculate portal
+			const dtPolyRef from = ctx.path[ctx.lastCornerIndex];
+			const dtMeshTile* fromTile = 0;
+			const dtPoly* fromPoly = 0;
+			if (dtStatusFailed(m_nav->getTileAndPolyByRef(from, &fromTile, &fromPoly)))
+				return DT_FAILURE | DT_INVALID_PARAM;
+
+			const dtPolyRef to = ctx.path[ctx.lastCornerIndex + 1];
+			const dtMeshTile* toTile = 0;
+			const dtPoly* toPoly = 0;
+			if (dtStatusFailed(m_nav->getTileAndPolyByRef(to, &toTile, &toPoly)))
+				return DT_FAILURE | DT_INVALID_PARAM;
+
+			float left[3], right[3];
+			if (dtStatusFailed(getPortalPoints(from, fromPoly, fromTile, to, toPoly, toTile, left, right)))
+				break;
+
+			++ctx.lastCornerIndex;
+
+			if (options & DT_STRAIGHTPATH_AREA_CROSSINGS)
+			{
+				// Skip intersection if only area crossings are requested.
+				if (fromPoly->getArea() == toPoly->getArea())
+					continue;
+			}
+
+			// Append intersection
+			float s, t;
+			if (dtIntersectSegSeg2D(ctx.lastCorner, ctx.corner.point, left, right, s, t))
+			{
+				if (outPos)
+					dtVlerp(outPos, left, right, t);
+				if (outFlags)
+					*outFlags = 0;
+				if (outRef)
+					*outRef = to;
+				if (outArea)
+					*outArea = toPoly->getArea();
+				return DT_IN_PROGRESS;
+			}
+		}
+	}
+
+	const bool isEnd = (ctx.corner.flags == DT_STRAIGHTPATH_END);
+	const bool isPartialEnd = isEnd && ctx.corner.polyRef;
+
+	// Return corner vertex
+	if (outPos)
+		dtVcopy(outPos, ctx.corner.point);
+	if (outFlags)
+		*outFlags = isPartialEnd ? 0 : ctx.corner.flags;
+	if (outRef)
+		*outRef = ctx.corner.polyRef;
+	if (outArea && ctx.corner.polyRef)
+	{
+		const dtMeshTile* tile = 0;
+		const dtPoly* poly = 0;
+		if (dtStatusSucceed(m_nav->getTileAndPolyByRef(ctx.corner.polyRef, &tile, &poly)))
+			*outArea = poly->getArea();
+	}
+
+	// We reached the end of the path
+	if (isEnd)
+		return DT_SUCCESS | (isPartialEnd ? DT_PARTIAL_RESULT : 0);
+
+	// Set processed corner as the current search apex
+	dtVcopy(ctx.lastCorner, ctx.corner.point);
+	ctx.lastCornerIndex = ctx.corner.fromIndex;
+	ctx.cornerFound = false;
+	return DT_IN_PROGRESS;
 }
 
 /// @par

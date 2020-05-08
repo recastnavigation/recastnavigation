@@ -159,6 +159,30 @@ public:
 	virtual void process(const dtMeshTile* tile, dtPoly** polys, dtPolyRef* refs, int count) = 0;
 };
 
+/// Context required for iterative straight path building.
+/// Search args are stored inside for consistency between calls.
+/// @ingroup detour
+struct dtStraightPathContext
+{
+	const dtPolyRef* path;
+	float endPos[3];
+	int pathSize;
+
+	struct Corner
+	{
+		dtPolyRef polyRef;
+		float point[3];
+		int fromIndex;
+		unsigned char flags;
+	};
+
+	float lastCorner[3];
+	int lastCornerIndex;
+	Corner corner;
+	int i;
+	bool cornerFound;
+};
+
 /// Provides the ability to perform pathfinding related queries against
 /// a navigation mesh.
 /// @ingroup detour
@@ -203,11 +227,39 @@ public:
 	///  @param[out]	straightPathCount	The number of points in the straight path.
 	///  @param[in]		maxStraightPath		The maximum number of points the straight path arrays can hold.  [Limit: > 0]
 	///  @param[in]		options				Query options. (see: #dtStraightPathOptions)
+	///  @see initStraightPathSearch
+	///  @see findNextStraightPathPoint
 	/// @returns The status flags for the query.
 	dtStatus findStraightPath(const float* startPos, const float* endPos,
 							  const dtPolyRef* path, const int pathSize,
 							  float* straightPath, unsigned char* straightPathFlags, dtPolyRef* straightPathRefs,
 							  int* straightPathCount, const int maxStraightPath, const int options = 0) const;
+
+	/// Initializes a context for iterative straight path building via #findNextStraightPathPoint.
+	///  @param[in]		startPos	Path start position inside the first path poly. [(x, y, z)]
+	///  @param[in]		endPos		Path end position inside the last path poly. [(x, y, z)]
+	///  @param[in]		path		An array of polygon references that represent the path corridor.
+	///  @param[in]		pathSize	The number of polygons in the @p path array.
+	///  @param[out]	ctx			Context structure to be initialized.
+	///  @see findStraightPath
+	///  @see findNextStraightPathPoint
+	/// @returns The status flags for the query.
+	dtStatus initStraightPathSearch(const float* startPos, const float* endPos,
+									const dtPolyRef* path, int pathSize, dtStraightPathContext& ctx) const;
+
+	/// Finds the next straight path point within the polygon corridor.
+	///  @param[in]		ctx			Search context initialized with #initStraightPathSearch.
+	///  @param[out]	outPos		Position of the point. [(x, y, z)] [opt].
+	///  @param[out]	outFlags	Flags describing the point. (See: #dtStraightPathFlags) [opt]
+	///  @param[out]	outArea		Area that is being entered at this point. [opt]
+	///  @param[out]	outRef		The reference id of the polygon that is being entered at this point. [opt]
+	///  @param[in]		options		Query options. (see: #dtStraightPathOptions)
+	///  @see initStraightPathSearch
+	///  @see findStraightPath
+	/// @returns The status flags for the query. DT_IN_PROGRESS until finished or error encountered.
+	dtStatus findNextStraightPathPoint(dtStraightPathContext& ctx,
+									   float* outPos, unsigned char* outFlags, unsigned char* outArea, dtPolyRef* outRef,
+									   const int options = 0) const;
 
 	///@}
 	/// @name Sliced Pathfinding Functions
@@ -526,16 +578,6 @@ private:
 	dtStatus getEdgeMidPoint(dtPolyRef from, const dtPoly* fromPoly, const dtMeshTile* fromTile,
 							 dtPolyRef to, const dtPoly* toPoly, const dtMeshTile* toTile,
 							 float* mid) const;
-	
-	// Appends vertex to a straight path
-	dtStatus appendVertex(const float* pos, const unsigned char flags, const dtPolyRef ref,
-						  float* straightPath, unsigned char* straightPathFlags, dtPolyRef* straightPathRefs,
-						  int* straightPathCount, const int maxStraightPath) const;
-
-	// Appends intermediate portal points to a straight path.
-	dtStatus appendPortals(const int startIdx, const int endIdx, const float* endPos, const dtPolyRef* path,
-						   float* straightPath, unsigned char* straightPathFlags, dtPolyRef* straightPathRefs,
-						   int* straightPathCount, const int maxStraightPath, const int options) const;
 
 	// Gets the path leading to the specified end node.
 	dtStatus getPathToNode(struct dtNode* endNode, dtPolyRef* path, int* pathCount, int maxPath) const;
