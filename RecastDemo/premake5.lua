@@ -76,7 +76,7 @@ project "Detour"
 	-- linux library cflags and libs
 	configuration { "linux", "gmake" }
 		buildoptions { 
-			"-Wno-error=class-memaccess"
+			"-Wno-class-memaccess"
 		}
 
 
@@ -156,7 +156,7 @@ project "RecastDemo"
 			"`pkg-config --cflags gl`",
 			"`pkg-config --cflags glu`",
 			"-Wno-ignored-qualifiers",
-			"-Wno-error=class-memaccess"
+			"-Wno-class-memaccess"
 
 		}
 		linkoptions { 
