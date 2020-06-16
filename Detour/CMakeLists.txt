@@ -20,10 +20,10 @@ set_target_properties(Detour PROPERTIES
         )
 
 install(TARGETS Detour
-        ARCHIVE DESTINATION lib
-        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         COMPONENT library
         )
 
 file(GLOB INCLUDES Include/*.h)
-install(FILES ${INCLUDES} DESTINATION include)
+install(FILES ${INCLUDES} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
