@@ -32,4 +32,5 @@ install(TARGETS DebugUtils
         )
 
 file(GLOB INCLUDES Include/*.h)
-install(FILES ${INCLUDES} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(FILES ${INCLUDES} DESTINATION
+    ${CMAKE_INSTALL_INCLUDEDIR}/recastnavigation)
