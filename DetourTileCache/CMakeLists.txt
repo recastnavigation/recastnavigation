@@ -1,10 +1,5 @@
 file(GLOB SOURCES Source/*.cpp)
-
-if (RECASTNAVIGATION_STATIC)
-    add_library(DetourTileCache STATIC ${SOURCES})
-else ()
-    add_library(DetourTileCache SHARED ${SOURCES})
-endif ()
+add_library(DetourTileCache ${SOURCES})
 
 add_library(RecastNavigation::DetourTileCache ALIAS DetourTileCache)
 set_target_properties(DetourTileCache PROPERTIES DEBUG_POSTFIX -d)
@@ -28,6 +23,7 @@ set_target_properties(DetourTileCache PROPERTIES
 
 
 install(TARGETS DetourTileCache
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         COMPONENT library

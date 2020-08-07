@@ -1,10 +1,5 @@
 file(GLOB SOURCES Source/*.cpp)
-
-if (RECASTNAVIGATION_STATIC)
-    add_library(DetourCrowd STATIC ${SOURCES})
-else ()
-    add_library(DetourCrowd SHARED ${SOURCES})
-endif ()
+add_library(DetourCrowd ${SOURCES})
 
 add_library(RecastNavigation::DetourCrowd ALIAS DetourCrowd)
 set_target_properties(DetourCrowd PROPERTIES DEBUG_POSTFIX -d)
@@ -27,6 +22,7 @@ set_target_properties(DetourCrowd PROPERTIES
         )
 
 install(TARGETS DetourCrowd
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         COMPONENT library

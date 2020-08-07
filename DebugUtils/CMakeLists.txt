@@ -1,10 +1,5 @@
 file(GLOB SOURCES Source/*.cpp)
-
-if (RECASTNAVIGATION_STATIC)
-    add_library(DebugUtils STATIC ${SOURCES})
-else()
-    add_library(DebugUtils SHARED ${SOURCES})
-endif()
+add_library(DebugUtils ${SOURCES})
 
 add_library(RecastNavigation::DebugUtils ALIAS DebugUtils)
 set_target_properties(DebugUtils PROPERTIES DEBUG_POSTFIX -d)
@@ -29,6 +24,7 @@ set_target_properties(DebugUtils PROPERTIES
         )
 
 install(TARGETS DebugUtils
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         COMPONENT library

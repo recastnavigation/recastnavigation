@@ -1,10 +1,5 @@
 file(GLOB SOURCES Source/*.cpp)
-
-if (RECASTNAVIGATION_STATIC)
-    add_library(Recast STATIC ${SOURCES})
-else ()
-    add_library(Recast SHARED ${SOURCES})
-endif ()
+add_library(Recast ${SOURCES})
 
 add_library(RecastNavigation::Recast ALIAS Recast)
 set_target_properties(Recast PROPERTIES DEBUG_POSTFIX -d)
@@ -23,6 +18,7 @@ set_target_properties(Recast PROPERTIES
         )
 
 install(TARGETS Recast
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         COMPONENT library

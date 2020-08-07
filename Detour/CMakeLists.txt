@@ -1,10 +1,5 @@
 file(GLOB SOURCES Source/*.cpp)
-
-if(RECASTNAVIGATION_STATIC)
-    add_library(Detour STATIC ${SOURCES})
-else()
-    add_library(Detour SHARED ${SOURCES})
-endif()
+add_library(Detour ${SOURCES})
 
 add_library(RecastNavigation::Detour ALIAS Detour)
 set_target_properties(Detour PROPERTIES DEBUG_POSTFIX -d)
@@ -23,6 +18,7 @@ set_target_properties(Detour PROPERTIES
         )
 
 install(TARGETS Detour
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         COMPONENT library
