@@ -8,5 +8,3 @@ add_executable(Tests ${TESTS_SOURCES})
 add_dependencies(Tests Recast Detour)
 target_link_libraries(Tests Recast Detour)
 add_test(Tests Tests)
-
-install(TARGETS Tests RUNTIME DESTINATION bin)
