@@ -22,6 +22,8 @@ target_link_libraries(DetourCrowd
 set_target_properties(DetourCrowd PROPERTIES
         SOVERSION ${SOVERSION}
         VERSION ${VERSION}
+        COMPILE_PDB_OUTPUT_DIRECTORY .
+        COMPILE_PDB_NAME "DetourCrowd-d"
         )
 
 install(TARGETS DetourCrowd
@@ -33,3 +35,4 @@ install(TARGETS DetourCrowd
 file(GLOB INCLUDES Include/*.h)
 install(FILES ${INCLUDES} DESTINATION
     ${CMAKE_INSTALL_INCLUDEDIR}/recastnavigation)
+install(FILES "$<TARGET_FILE_DIR:DetourCrowd>/DetourCrowd-d.pdb" CONFIGURATIONS "Debug" DESTINATION "lib") 

@@ -24,6 +24,8 @@ target_link_libraries(DebugUtils
 set_target_properties(DebugUtils PROPERTIES
         SOVERSION ${SOVERSION}
         VERSION ${VERSION}
+        COMPILE_PDB_OUTPUT_DIRECTORY .
+        COMPILE_PDB_NAME "DebugUtils-d"
         )
 
 install(TARGETS DebugUtils
@@ -35,3 +37,4 @@ install(TARGETS DebugUtils
 file(GLOB INCLUDES Include/*.h)
 install(FILES ${INCLUDES} DESTINATION
     ${CMAKE_INSTALL_INCLUDEDIR}/recastnavigation)
+install(FILES "$<TARGET_FILE_DIR:DebugUtils>/DebugUtils-d.pdb" CONFIGURATIONS "Debug" DESTINATION "lib") 

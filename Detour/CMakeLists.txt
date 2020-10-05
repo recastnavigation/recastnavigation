@@ -18,6 +18,8 @@ target_include_directories(Detour PUBLIC
 set_target_properties(Detour PROPERTIES
         SOVERSION ${SOVERSION}
         VERSION ${VERSION}
+        COMPILE_PDB_OUTPUT_DIRECTORY .
+        COMPILE_PDB_NAME "Detour-d"
         )
 
 install(TARGETS Detour
@@ -29,3 +31,4 @@ install(TARGETS Detour
 file(GLOB INCLUDES Include/*.h)
 install(FILES ${INCLUDES} DESTINATION
     ${CMAKE_INSTALL_INCLUDEDIR}/recastnavigation)
+install(FILES "$<TARGET_FILE_DIR:Detour>/Detour-d.pdb" CONFIGURATIONS "Debug" DESTINATION "lib") 
