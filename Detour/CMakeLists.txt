@@ -7,6 +7,7 @@ else()
 endif()
 
 add_library(RecastNavigation::Detour ALIAS Detour)
+set_target_properties(Detour PROPERTIES DEBUG_POSTFIX -d)
 
 set(Detour_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Include")
 

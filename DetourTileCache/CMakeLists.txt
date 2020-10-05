@@ -7,6 +7,7 @@ else ()
 endif ()
 
 add_library(RecastNavigation::DetourTileCache ALIAS DetourTileCache)
+set_target_properties(DetourTileCache PROPERTIES DEBUG_POSTFIX -d)
 
 set(DetourTileCache_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Include")
 

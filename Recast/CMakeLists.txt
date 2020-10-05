@@ -7,6 +7,7 @@ else ()
 endif ()
 
 add_library(RecastNavigation::Recast ALIAS Recast)
+set_target_properties(Recast PROPERTIES DEBUG_POSTFIX -d)
 
 set(Recast_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Include")
 

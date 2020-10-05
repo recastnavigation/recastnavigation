@@ -7,6 +7,7 @@ else()
 endif()
 
 add_library(RecastNavigation::DebugUtils ALIAS DebugUtils)
+set_target_properties(DebugUtils PROPERTIES DEBUG_POSTFIX -d)
 
 set(DebugUtils_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Include")
 
