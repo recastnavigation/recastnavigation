@@ -7,6 +7,7 @@ else ()
 endif ()
 
 add_library(RecastNavigation::DetourTileCache ALIAS DetourTileCache)
+set_target_properties(DetourTileCache PROPERTIES DEBUG_POSTFIX -d)
 
 set(DetourTileCache_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Include")
 
@@ -21,6 +22,8 @@ target_link_libraries(DetourTileCache
 set_target_properties(DetourTileCache PROPERTIES
         SOVERSION ${SOVERSION}
         VERSION ${VERSION}
+        COMPILE_PDB_OUTPUT_DIRECTORY .
+        COMPILE_PDB_NAME "DetourTileCache-d"
         )
 
 
@@ -33,3 +36,4 @@ install(TARGETS DetourTileCache
 file(GLOB INCLUDES Include/*.h)
 install(FILES ${INCLUDES} DESTINATION
     ${CMAKE_INSTALL_INCLUDEDIR}/recastnavigation)
+install(FILES "$<TARGET_FILE_DIR:DetourTileCache>/DetourTileCache-d.pdb" CONFIGURATIONS "Debug" DESTINATION "lib") 
