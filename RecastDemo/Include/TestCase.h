@@ -34,6 +34,10 @@ class TestCase
 	{
 		Test() :
 			type(),
+			spos(),
+			epos(),
+			nspos(),
+			nepos(),
 			radius(0),
 			includeFlags(0),
 			excludeFlags(0),

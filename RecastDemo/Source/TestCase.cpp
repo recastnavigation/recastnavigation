@@ -154,8 +154,7 @@ bool TestCase::load(const std::string& filePath)
 		else if (row[0] == 'p' && row[1] == 'f')
 		{
 			// Pathfind test.
-			Test* test = new Test;
-			memset(test, 0, sizeof(Test));
+			Test* test = new Test();
 			test->type = TEST_PATHFIND;
 			test->expand = false;
 			test->next = m_tests;
@@ -168,8 +167,7 @@ bool TestCase::load(const std::string& filePath)
 		else if (row[0] == 'r' && row[1] == 'c')
 		{
 			// Pathfind test.
-			Test* test = new Test;
-			memset(test, 0, sizeof(Test));
+			Test* test = new Test();
 			test->type = TEST_RAYCAST;
 			test->expand = false;
 			test->next = m_tests;
