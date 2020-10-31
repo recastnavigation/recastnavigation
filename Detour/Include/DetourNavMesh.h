@@ -330,7 +330,7 @@ struct dtNavMeshParams
 	float tileWidth;				///< The width of each tile. (Along the x-axis.)
 	float tileHeight;				///< The height of each tile. (Along the z-axis.)
 	int maxTiles;					///< The maximum number of tiles the navigation mesh can contain.
-	int maxPolys;					///< The maximum number of polygons each tile can contain.
+	int maxPolys;					///< The maximum number of polygons each tile can contain. Does not influence the build step, however adding a tile with more polygons will fail.
 };
 
 /// A navigation mesh based on tiles of convex polygons.
