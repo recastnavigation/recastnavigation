@@ -322,6 +322,19 @@ public:
 	dtStatus findNearestPoly(const float* center, const float* halfExtents,
 							 const dtQueryFilter* filter,
 							 dtPolyRef* nearestRef, float* nearestPt) const;
+
+	/// Finds the polygon nearest to the specified center point.
+	///  @param[in]		center		The center of the search box. [(x, y, z)]
+	///  @param[in]		halfExtents		The search distance along each axis. [(x, y, z)]
+	///  @param[in]		filter		The polygon filter to apply to the query.
+	///  @param[out]	nearestRef	The reference id of the nearest polygon.
+	///  @param[out]	nearestPt	The nearest point on the polygon. [opt] [(x, y, z)]
+	///  @param[out]	isOverPoly 	True if the point lies inside the polygon, false otherwise.
+	///  @param[out]	distance 	If not nullptr: Distance from point to the polygon. If center is inside the polygon, this is the abs Y distance only (so not necessarily 0).
+	/// @returns The status flags for the query.
+	dtStatus findNearestPoly(const float* center, const float* halfExtents,
+							 const dtQueryFilter* filter,
+							 dtPolyRef* nearestRef, float* nearestPt, bool* isOverPoly, float* distance) const;
 	
 	/// Finds polygons that overlap the search box.
 	///  @param[in]		center		The center of the search box. [(x, y, z)]

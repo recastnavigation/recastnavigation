@@ -630,15 +630,18 @@ class dtFindNearestPolyQuery : public dtPolyQuery
 	float m_nearestDistanceSqr;
 	dtPolyRef m_nearestRef;
 	float m_nearestPoint[3];
+	bool m_overPoly;
 
 public:
 	dtFindNearestPolyQuery(const dtNavMeshQuery* query, const float* center)
-		: m_query(query), m_center(center), m_nearestDistanceSqr(FLT_MAX), m_nearestRef(0), m_nearestPoint()
+		: m_query(query), m_center(center), m_nearestDistanceSqr(FLT_MAX), m_nearestRef(0), m_nearestPoint(), m_overPoly(false)
 	{
 	}
 
 	dtPolyRef nearestRef() const { return m_nearestRef; }
 	const float* nearestPoint() const { return m_nearestPoint; }
+	bool isOverPoly() const { return m_overPoly; }
+	float distance() const { return sqrt(m_nearestDistanceSqr); } // only called when explicitly requested
 
 	void process(const dtMeshTile* tile, dtPoly** polys, dtPolyRef* refs, int count)
 	{
@@ -672,6 +675,7 @@ public:
 
 				m_nearestDistanceSqr = d;
 				m_nearestRef = ref;
+				m_overPoly = posOverPoly;
 			}
 		}
 	}
@@ -705,6 +709,39 @@ dtStatus dtNavMeshQuery::findNearestPoly(const float* center, const float* halfE
 	// is valid.
 	if (nearestPt && *nearestRef)
 		dtVcopy(nearestPt, query.nearestPoint());
+	
+	return DT_SUCCESS;
+}
+
+// If center and nearestPt point to an equal position, isOverPoly will be true;
+// however there's also a special case of climb height inside the polygon (see dtFindNearestPolyQuery)
+dtStatus dtNavMeshQuery::findNearestPoly(const float* center, const float* halfExtents,
+										 const dtQueryFilter* filter,
+										 dtPolyRef* nearestRef, float* nearestPt, bool* isOverPoly, float* distance) const
+{
+	dtAssert(m_nav);
+
+	if (!nearestRef)
+		return DT_FAILURE | DT_INVALID_PARAM;
+
+	// queryPolygons below will check rest of params
+	
+	dtFindNearestPolyQuery query(this, center);
+
+	dtStatus status = queryPolygons(center, halfExtents, filter, &query);
+	if (dtStatusFailed(status))
+		return status;
+
+	*nearestRef = query.nearestRef();
+	// Only override nearestPt if we actually found a poly so the nearest point
+	// is valid.
+	if (nearestPt && *nearestRef)
+	{
+		dtVcopy(nearestPt, query.nearestPoint());
+		*isOverPoly = query.isOverPoly();
+		if (distance)
+			*distance = query.distance();
+	}
 	
 	return DT_SUCCESS;
 }
