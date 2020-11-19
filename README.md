@@ -62,7 +62,7 @@ RecastDemo uses [premake5](http://premake.github.io/) to build platform specific
 #### Windows
 
 - Grab the latest SDL2 development library release from [here](https://www.libsdl.org/download-2.0.php) and unzip it `RecastDemo\Contrib`.  Rename the SDL folder such that the path `RecastDemo\Contrib\SDL\lib\x86` is valid.
-- Run `"premake5" vs2015` from the `RecastDemo` folder
+- Run `"premake5" vs2019` from the `RecastDemo` folder
 - Open the solution, build, and run.
 
 ### Running Unit tests
