@@ -329,8 +329,8 @@ struct dtNavMeshParams
 	float orig[3];					///< The world space origin of the navigation mesh's tile space. [(x, y, z)]
 	float tileWidth;				///< The width of each tile. (Along the x-axis.)
 	float tileHeight;				///< The height of each tile. (Along the z-axis.)
-	int maxTiles;					///< The maximum number of tiles the navigation mesh can contain.
-	int maxPolys;					///< The maximum number of polygons each tile can contain.
+	int maxTiles;					///< The maximum number of tiles the navigation mesh can contain. This and maxPolys are used to calculate how many bits are needed to identify tiles and polygons uniquely.
+	int maxPolys;					///< The maximum number of polygons each tile can contain. This and maxTiles are used to calculate how many bits are needed to identify tiles and polygons uniquely.
 };
 
 /// A navigation mesh based on tiles of convex polygons.
