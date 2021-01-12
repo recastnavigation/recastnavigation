@@ -691,7 +691,7 @@ dtStatus dtNavMeshQuery::findNearestPoly(const float* center, const float* halfE
 										 const dtQueryFilter* filter,
 										 dtPolyRef* nearestRef, float* nearestPt) const
 {
-	return findNearestPoly(center, halfExtents, filter, nearestRef, nearestPt, nullptr, nullptr);
+	return findNearestPoly(center, halfExtents, filter, nearestRef, nearestPt, NULL, NULL);
 }
 
 // If center and nearestPt point to an equal position, isOverPoly will be true;
