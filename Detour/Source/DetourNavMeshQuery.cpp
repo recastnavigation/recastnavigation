@@ -691,26 +691,7 @@ dtStatus dtNavMeshQuery::findNearestPoly(const float* center, const float* halfE
 										 const dtQueryFilter* filter,
 										 dtPolyRef* nearestRef, float* nearestPt) const
 {
-	dtAssert(m_nav);
-
-	if (!nearestRef)
-		return DT_FAILURE | DT_INVALID_PARAM;
-
-	// queryPolygons below will check rest of params
-	
-	dtFindNearestPolyQuery query(this, center);
-
-	dtStatus status = queryPolygons(center, halfExtents, filter, &query);
-	if (dtStatusFailed(status))
-		return status;
-
-	*nearestRef = query.nearestRef();
-	// Only override nearestPt if we actually found a poly so the nearest point
-	// is valid.
-	if (nearestPt && *nearestRef)
-		dtVcopy(nearestPt, query.nearestPoint());
-	
-	return DT_SUCCESS;
+	return findNearestPoly(center, halfExtents, filter, nearestRef, nearestPt, nullptr, nullptr);
 }
 
 // If center and nearestPt point to an equal position, isOverPoly will be true;
@@ -738,7 +719,8 @@ dtStatus dtNavMeshQuery::findNearestPoly(const float* center, const float* halfE
 	if (nearestPt && *nearestRef)
 	{
 		dtVcopy(nearestPt, query.nearestPoint());
-		*isOverPoly = query.isOverPoly();
+		if (isOverPoly)
+			*isOverPoly = query.isOverPoly();
 		if (distance)
 			*distance = query.distance();
 	}
