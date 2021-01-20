@@ -641,7 +641,6 @@ public:
 	dtPolyRef nearestRef() const { return m_nearestRef; }
 	const float* nearestPoint() const { return m_nearestPoint; }
 	bool isOverPoly() const { return m_overPoly; }
-	float distance() const { return sqrt(m_nearestDistanceSqr); } // only called when explicitly requested
 
 	void process(const dtMeshTile* tile, dtPoly** polys, dtPolyRef* refs, int count)
 	{
@@ -691,14 +690,14 @@ dtStatus dtNavMeshQuery::findNearestPoly(const float* center, const float* halfE
 										 const dtQueryFilter* filter,
 										 dtPolyRef* nearestRef, float* nearestPt) const
 {
-	return findNearestPoly(center, halfExtents, filter, nearestRef, nearestPt, NULL, NULL);
+	return findNearestPoly(center, halfExtents, filter, nearestRef, nearestPt, NULL);
 }
 
 // If center and nearestPt point to an equal position, isOverPoly will be true;
 // however there's also a special case of climb height inside the polygon (see dtFindNearestPolyQuery)
 dtStatus dtNavMeshQuery::findNearestPoly(const float* center, const float* halfExtents,
 										 const dtQueryFilter* filter,
-										 dtPolyRef* nearestRef, float* nearestPt, bool* isOverPoly, float* distance) const
+										 dtPolyRef* nearestRef, float* nearestPt, bool* isOverPoly) const
 {
 	dtAssert(m_nav);
 
@@ -721,8 +720,6 @@ dtStatus dtNavMeshQuery::findNearestPoly(const float* center, const float* halfE
 		dtVcopy(nearestPt, query.nearestPoint());
 		if (isOverPoly)
 			*isOverPoly = query.isOverPoly();
-		if (distance)
-			*distance = query.distance();
 	}
 	
 	return DT_SUCCESS;
