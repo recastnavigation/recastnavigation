@@ -214,19 +214,28 @@ void rcVectorBase<T, H>::resize_impl(rcSizeType size, const T* value) {
 		destroy_range(size, m_size);
 		m_size = size;
 	} else if (size > m_size) {
-		T* new_data = allocate_and_copy(size);
-		// We defer deconstructing/freeing old data until after constructing
-		// new elements in case "value" is there.
-		if (value) {
-			construct_range(new_data + m_size, new_data + size, *value);
+		if (size <= m_cap) {
+			if (value) {
+				construct_range(m_data + m_size, m_data + size, *value);
+			} else {
+				construct_range(m_data + m_size, m_data + size);
+			}
+			m_size = size;
 		} else {
-			construct_range(new_data + m_size, new_data + size);
+			T* new_data = allocate_and_copy(size);
+			// We defer deconstructing/freeing old data until after constructing
+			// new elements in case "value" is there.
+			if (value) {
+				construct_range(new_data + m_size, new_data + size, *value);
+			} else {
+				construct_range(new_data + m_size, new_data + size);
+			}
+			destroy_range(0, m_size);
+			rcFree(m_data);
+			m_data = new_data;
+			m_cap = size;
+			m_size = size;
 		}
-		destroy_range(0, m_size);
-		rcFree(m_data);
-		m_data = new_data;
-		m_cap = size;
-		m_size = size;
 	}
 }
 template <typename T, rcAllocHint H>
