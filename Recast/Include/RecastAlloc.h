@@ -303,6 +303,7 @@ public:
 	rcIntArray(int n) : m_impl(n, 0) {}
 	void push(int item) { m_impl.push_back(item); }
 	void resize(int size) { m_impl.resize(size); }
+	void clear() { m_impl.clear(); }
 	int pop()
 	{
 		int v = m_impl.back();
