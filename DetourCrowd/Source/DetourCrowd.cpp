@@ -1439,7 +1439,7 @@ void dtCrowd::update(const float dt, dtCrowdAgentDebugInfo* debug)
 		else
 		{
 			const float u = tween(anim->t, ta, tb);
-			dtVlerp(ag->npos, anim->startPos, anim->endPos, u);
+			dtVlerpParabolic(ag->npos, anim->startPos, anim->endPos, u);
 		}
 			
 		// Update velocity.
