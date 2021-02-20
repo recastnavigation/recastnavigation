@@ -1073,12 +1073,14 @@ static bool mergeAndFilterLayerRegions(rcContext* ctx, int minRegionArea,
 			for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
 			{
 				const rcCompactSpan& s = chf.spans[i];
+				const unsigned char area = chf.areas[i];
 				const unsigned short ri = srcReg[i];
 				if (ri == 0 || ri >= nreg) continue;
 				rcRegion& reg = regions[ri];
 				
 				reg.spanCount++;
-				
+				reg.areaType = area;
+
 				reg.ymin = rcMin(reg.ymin, s.y);
 				reg.ymax = rcMax(reg.ymax, s.y);
 				
@@ -1157,6 +1159,9 @@ static bool mergeAndFilterLayerRegions(rcContext* ctx, int minRegionArea,
 				rcRegion& regn = regions[nei];
 				// Skip already visited.
 				if (regn.id != 0)
+					continue;
+				// Skip if different area type, do not connect regions with different area type.
+				if (reg.areaType != regn.areaType)
 					continue;
 				// Skip if the neighbour is overlapping root region.
 				bool overlap = false;
