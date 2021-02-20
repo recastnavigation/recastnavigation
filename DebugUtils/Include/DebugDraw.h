@@ -206,11 +206,11 @@ class duDisplayList : public duDebugDraw
 public:
 	duDisplayList(int cap = 512);
 	~duDisplayList();
-	virtual void depthMask(bool state);
-	virtual void begin(duDebugDrawPrimitives prim, float size = 1.0f);
-	virtual void vertex(const float x, const float y, const float z, unsigned int color);
-	virtual void vertex(const float* pos, unsigned int color);
-	virtual void end();
+	void depthMask(bool state) override;
+	void begin(duDebugDrawPrimitives prim, float size = 1.0f) override;
+	void vertex(const float x, const float y, const float z, unsigned int color) override;
+	void vertex(const float* pos, unsigned int color) override;
+	void end() override;
 	void clear();
 	void draw(struct duDebugDraw* dd);
 private:
