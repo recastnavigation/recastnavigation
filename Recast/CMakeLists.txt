@@ -12,7 +12,7 @@ target_include_directories(Recast PUBLIC
 
 set_target_properties(Recast PROPERTIES
         SOVERSION ${SOVERSION}
-        VERSION ${VERSION}
+        VERSION ${LIB_VERSION}
         COMPILE_PDB_OUTPUT_DIRECTORY .
         COMPILE_PDB_NAME "Recast-d"
         )

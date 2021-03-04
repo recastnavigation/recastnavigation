@@ -16,7 +16,7 @@ target_link_libraries(DetourCrowd
 
 set_target_properties(DetourCrowd PROPERTIES
         SOVERSION ${SOVERSION}
-        VERSION ${VERSION}
+        VERSION ${LIB_VERSION}
         COMPILE_PDB_OUTPUT_DIRECTORY .
         COMPILE_PDB_NAME "DetourCrowd-d"
         )
