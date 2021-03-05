@@ -1,7 +1,6 @@
 language: cpp
 os: linux
 dist: bionic
-osx_image: xcode12.2
 branches:
   only:
   - master
@@ -18,6 +17,7 @@ matrix:
   include:
   - name: Recastnavigation on MacOS using XCode
     os: osx
+    osx_image: xcode12.2
     before_install:
       - brew update
       - brew install sdl2
