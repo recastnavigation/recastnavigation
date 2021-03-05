@@ -18,7 +18,7 @@ target_link_libraries(DebugUtils
 
 set_target_properties(DebugUtils PROPERTIES
         SOVERSION ${SOVERSION}
-        VERSION ${VERSION}
+        VERSION ${LIB_VERSION}
         COMPILE_PDB_OUTPUT_DIRECTORY .
         COMPILE_PDB_NAME "DebugUtils-d"
         )
