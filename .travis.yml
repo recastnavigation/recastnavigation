@@ -1,4 +1,6 @@
 language: cpp
+os: linux
+dist: bionic
 branches:
   only:
   - master
@@ -9,55 +11,33 @@ sudo: false
 
 addons:
   apt:
-    sources:
-      - ubuntu-toolchain-r-test
-      - llvm-toolchain-xenial-7
-    packages: [ cmake, clang-7, clang-tools-7, gcc-8, g++-8, libsdl2-dev ]
+    packages: [ build-essential, cmake, clang, clang-tools, libsdl2-dev ]
 
 matrix:
   include:
-  - name: Recastnavigation (all) on MacOS xcode9.4
+  - name: Recastnavigation on MacOS using XCode
     os: osx
-    osx_image: xcode9.4
+    osx_image: xcode12.2
     before_install:
       - brew update
       - brew install sdl2
     if: branch != coverity_scan
-  - name: Recastnavigation on Ubuntu Xenial GCC-5
-    os: linux
-    dist: xenial
-    sudo: required
+  - name: Recastnavigation on Ubuntu GCC
     if: branch != coverity_scan
-  - name: Recastnavigation on Ubuntu Xenial GCC-8
-    os: linux
-    dist: xenial
-    sudo: required
-    env:
-      - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
-    if: branch != coverity_scan
-  - name: Recastnavigation on Ubuntu Xenial GCC-5 using Premake5
-    os: linux
-    dist: xenial
-    sudo: required
+  - name: Recastnavigation on Ubuntu GCC using Premake5
     if: branch != coverity_scan
     before_install:
       - wget https://github.com/premake/premake-core/releases/download/v5.0.0-alpha12/premake-5.0.0-alpha12-linux.tar.gz -O premake.tar.gz
       - tar -xf premake.tar.gz
     env:
       - PREMAKE=1
-  - name: Recastnavigation on Ubuntu Xenial Clang-7 with Static Analysis
-    os: linux
-    dist: xenial
-    sudo: required
+  - name: Recastnavigation on Ubuntu Clang with Static Analysis
     env:
-      - MATRIX_EVAL="CC=clang-7 && CXX=clang++-7"
-      - ANALYZE="scan-build-7 --force-analyze-debug-code --use-cc clang-7 --use-c++ clang++-7"
+      - MATRIX_EVAL="CC=clang && CXX=clang++"
+      - ANALYZE="scan-build --force-analyze-debug-code --use-cc clang --use-c++ clang++"
     if: branch != coverity_scan
     compiler: clang
   - name: Recastnavigation Coverity Scan
-    os: linux
-    dist: xenial
-    sudo: required
     if: branch = coverity_scan
 
 before_script:
