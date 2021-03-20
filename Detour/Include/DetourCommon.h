@@ -121,7 +121,21 @@ inline void dtVlerp(float* dest, const float* v1, const float* v2, const float t
 	dest[1] = v1[1]+(v2[1]-v1[1])*t;
 	dest[2] = v1[2]+(v2[2]-v1[2])*t;
 }
-
+inline void dtVlerpParabolic(float* dest, const float* v1, const float* v2, const float t)
+{
+	if (v2[1] > v1[1])
+	{//uproad - the speed slow down
+		dest[0] = v1[0] + (v2[0] - v1[0])*t;
+		dest[1] = v1[1] + 2 * (v2[1] - v1[1]) * t - (v2[1] - v1[1])*t*t;
+		dest[2] = v1[2] + (v2[2] - v1[2])*t;
+	}
+	else
+	{//downroad - the speed grow up
+		dest[0] = v1[0] + (v2[0] - v1[0])*t;
+		dest[1] = v1[1] + (v2[1] - v1[1])*t*t;
+		dest[2] = v1[2] + (v2[2] - v1[2])*t;
+	}
+}
 /// Performs a vector addition. (@p v1 + @p v2)
 ///  @param[out]	dest	The result vector. [(x, y, z)]
 ///  @param[in]		v1		The base vector. [(x, y, z)]
