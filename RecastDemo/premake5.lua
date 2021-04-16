@@ -151,14 +151,15 @@ project "RecastDemo"
 
 	-- linux library cflags and libs
 	configuration { "linux", "gmake" }
-		filter { "files:*.c" }
 		buildoptions { 
 			"`pkg-config --cflags sdl2`",
 			"`pkg-config --cflags gl`",
 			"`pkg-config --cflags glu`",
 			"-Wno-ignored-qualifiers",
+		}
+		filter { "files:*.c" }
+		buildoptions {
 			"-Wno-class-memaccess"
-
 		}
 		filter {}
 		linkoptions { 
