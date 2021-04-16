@@ -151,6 +151,7 @@ project "RecastDemo"
 
 	-- linux library cflags and libs
 	configuration { "linux", "gmake" }
+		filter { "files:*.c" }
 		buildoptions { 
 			"`pkg-config --cflags sdl2`",
 			"`pkg-config --cflags gl`",
@@ -159,6 +160,7 @@ project "RecastDemo"
 			"-Wno-class-memaccess"
 
 		}
+		filter {}
 		linkoptions { 
 			"`pkg-config --libs sdl2`",
 			"`pkg-config --libs gl`",
