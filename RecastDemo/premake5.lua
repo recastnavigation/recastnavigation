@@ -156,9 +156,12 @@ project "RecastDemo"
 			"`pkg-config --cflags gl`",
 			"`pkg-config --cflags glu`",
 			"-Wno-ignored-qualifiers",
-			"-Wno-class-memaccess"
-
 		}
+		filter { "files:*.c" }
+		buildoptions {
+			"-Wno-class-memaccess"
+		}
+		filter {}
 		linkoptions { 
 			"`pkg-config --libs sdl2`",
 			"`pkg-config --libs gl`",
