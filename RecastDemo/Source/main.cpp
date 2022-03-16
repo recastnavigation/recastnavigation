@@ -78,6 +78,9 @@ int main(int /*argc*/, char** /*argv*/)
 		return -1;
 	}
 
+    // Use OpenGL render driver.
+    SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
+
 	// Enable depth buffer.
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
