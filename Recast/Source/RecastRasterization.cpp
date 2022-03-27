@@ -244,6 +244,9 @@ static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
 						 const float cs, const float ics, const float ich,
 						 const int flagMergeThr)
 {
+	if ((hf.width == 0) || (hf.height == 0)) {
+		return true;
+	}
 	const int w = hf.width;
 	const int h = hf.height;
 	float tmin[3], tmax[3];
