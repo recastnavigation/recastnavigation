@@ -32,41 +32,47 @@
 #include "SDL_opengl.h"
 
 #ifdef WIN32
-#	define snprintf _snprintf
+#define snprintf _snprintf
 #endif
 
 unsigned int SampleDebugDraw::areaToCol(unsigned int area)
 {
-	switch(area)
+	switch (area)
 	{
 	// Ground (0) : light blue
-	case SAMPLE_POLYAREA_GROUND: return duRGBA(0, 192, 255, 255);
+	case SAMPLE_POLYAREA_GROUND:
+		return duRGBA(0, 192, 255, 255);
 	// Water : blue
-	case SAMPLE_POLYAREA_WATER: return duRGBA(0, 0, 255, 255);
+	case SAMPLE_POLYAREA_WATER:
+		return duRGBA(0, 0, 255, 255);
 	// Road : brown
-	case SAMPLE_POLYAREA_ROAD: return duRGBA(50, 20, 12, 255);
+	case SAMPLE_POLYAREA_ROAD:
+		return duRGBA(50, 20, 12, 255);
 	// Door : cyan
-	case SAMPLE_POLYAREA_DOOR: return duRGBA(0, 255, 255, 255);
+	case SAMPLE_POLYAREA_DOOR:
+		return duRGBA(0, 255, 255, 255);
 	// Grass : green
-	case SAMPLE_POLYAREA_GRASS: return duRGBA(0, 255, 0, 255);
+	case SAMPLE_POLYAREA_GRASS:
+		return duRGBA(0, 255, 0, 255);
 	// Jump : yellow
-	case SAMPLE_POLYAREA_JUMP: return duRGBA(255, 255, 0, 255);
+	case SAMPLE_POLYAREA_JUMP:
+		return duRGBA(255, 255, 0, 255);
 	// Unexpected : red
-	default: return duRGBA(255, 0, 0, 255);
+	default:
+		return duRGBA(255, 0, 0, 255);
 	}
 }
 
-Sample::Sample() :
-	m_geom(0),
-	m_navMesh(0),
-	m_navQuery(0),
-	m_crowd(0),
-	m_navMeshDrawFlags(DU_DRAWNAVMESH_OFFMESHCONS|DU_DRAWNAVMESH_CLOSEDLIST),
-	m_filterLowHangingObstacles(true),
-	m_filterLedgeSpans(true),
-	m_filterWalkableLowHeightSpans(true),
-	m_tool(0),
-	m_ctx(0)
+Sample::Sample() : m_geom(0),
+				   m_navMesh(0),
+				   m_navQuery(0),
+				   m_crowd(0),
+				   m_navMeshDrawFlags(DU_DRAWNAVMESH_OFFMESHCONS | DU_DRAWNAVMESH_CLOSEDLIST),
+				   m_filterLowHangingObstacles(true),
+				   m_filterLedgeSpans(true),
+				   m_filterWalkableLowHeightSpans(true),
+				   m_tool(0),
+				   m_ctx(0)
 {
 	resetCommonSettings();
 	m_navQuery = dtAllocNavMeshQuery();
@@ -86,7 +92,7 @@ Sample::~Sample()
 		delete m_toolStates[i];
 }
 
-void Sample::setTool(SampleTool* tool)
+void Sample::setTool(SampleTool *tool)
 {
 	delete m_tool;
 	m_tool = tool;
@@ -110,25 +116,25 @@ void Sample::handleRender()
 {
 	if (!m_geom)
 		return;
-	
+
 	// Draw mesh
 	duDebugDrawTriMesh(&m_dd, m_geom->getMesh()->getVerts(), m_geom->getMesh()->getVertCount(),
 					   m_geom->getMesh()->getTris(), m_geom->getMesh()->getNormals(), m_geom->getMesh()->getTriCount(), 0, 1.0f);
 	// Draw bounds
-	const float* bmin = m_geom->getMeshBoundsMin();
-	const float* bmax = m_geom->getMeshBoundsMax();
-	duDebugDrawBoxWire(&m_dd, bmin[0],bmin[1],bmin[2], bmax[0],bmax[1],bmax[2], duRGBA(255,255,255,128), 1.0f);
+	const float *bmin = m_geom->getMeshBoundsMin();
+	const float *bmax = m_geom->getMeshBoundsMax();
+	duDebugDrawBoxWire(&m_dd, bmin[0], bmin[1], bmin[2], bmax[0], bmax[1], bmax[2], duRGBA(255, 255, 255, 128), 1.0f);
 }
 
-void Sample::handleRenderOverlay(double* /*proj*/, double* /*model*/, int* /*view*/)
+void Sample::handleRenderOverlay(double * /*proj*/, double * /*model*/, int * /*view*/)
 {
 }
 
-void Sample::handleMeshChanged(InputGeom* geom)
+void Sample::handleMeshChanged(InputGeom *geom)
 {
 	m_geom = geom;
 
-	const BuildSettings* buildSettings = geom->getBuildSettings();
+	const BuildSettings *buildSettings = geom->getBuildSettings();
 	if (buildSettings)
 	{
 		m_cellSize = buildSettings->cellSize;
@@ -148,7 +154,7 @@ void Sample::handleMeshChanged(InputGeom* geom)
 	}
 }
 
-void Sample::collectSettings(BuildSettings& settings)
+void Sample::collectSettings(BuildSettings &settings)
 {
 	settings.cellSize = m_cellSize;
 	settings.cellHeight = m_cellHeight;
@@ -166,15 +172,14 @@ void Sample::collectSettings(BuildSettings& settings)
 	settings.partitionType = m_partitionType;
 }
 
-
 void Sample::resetCommonSettings()
 {
 	m_cellSize = 0.3f;
 	m_cellHeight = 0.2f;
 	m_agentHeight = 2.0f;
-	m_agentRadius = 0.6f;
-	m_agentMaxClimb = 0.9f;
-	m_agentMaxSlope = 45.0f;
+	m_agentRadius = 1.6f;
+	m_agentMaxClimb = 0.1f;
+	m_agentMaxSlope = 2.0f;
 	m_regionMinSize = 8;
 	m_regionMergeSize = 20;
 	m_edgeMaxLen = 12.0f;
@@ -190,25 +195,25 @@ void Sample::handleCommonSettings()
 	imguiLabel("Rasterization");
 	imguiSlider("Cell Size", &m_cellSize, 0.1f, 1.0f, 0.01f);
 	imguiSlider("Cell Height", &m_cellHeight, 0.1f, 1.0f, 0.01f);
-	
+
 	if (m_geom)
 	{
-		const float* bmin = m_geom->getNavMeshBoundsMin();
-		const float* bmax = m_geom->getNavMeshBoundsMax();
+		const float *bmin = m_geom->getNavMeshBoundsMin();
+		const float *bmax = m_geom->getNavMeshBoundsMax();
 		int gw = 0, gh = 0;
 		rcCalcGridSize(bmin, bmax, m_cellSize, &gw, &gh);
 		char text[64];
 		snprintf(text, 64, "Voxels  %d x %d", gw, gh);
 		imguiValue(text);
 	}
-	
+
 	imguiSeparator();
 	imguiLabel("Agent");
 	imguiSlider("Height", &m_agentHeight, 0.1f, 5.0f, 0.1f);
 	imguiSlider("Radius", &m_agentRadius, 0.0f, 5.0f, 0.1f);
 	imguiSlider("Max Climb", &m_agentMaxClimb, 0.1f, 5.0f, 0.1f);
 	imguiSlider("Max Slope", &m_agentMaxSlope, 0.0f, 90.0f, 1.0f);
-	
+
 	imguiSeparator();
 	imguiLabel("Region");
 	imguiSlider("Min Region Size", &m_regionMinSize, 0.0f, 150.0f, 1.0f);
@@ -222,13 +227,13 @@ void Sample::handleCommonSettings()
 		m_partitionType = SAMPLE_PARTITION_MONOTONE;
 	if (imguiCheck("Layers", m_partitionType == SAMPLE_PARTITION_LAYERS))
 		m_partitionType = SAMPLE_PARTITION_LAYERS;
-	
+
 	imguiSeparator();
 	imguiLabel("Filtering");
 	if (imguiCheck("Low Hanging Obstacles", m_filterLowHangingObstacles))
 		m_filterLowHangingObstacles = !m_filterLowHangingObstacles;
 	if (imguiCheck("Ledge Spans", m_filterLedgeSpans))
-		m_filterLedgeSpans= !m_filterLedgeSpans;
+		m_filterLedgeSpans = !m_filterLedgeSpans;
 	if (imguiCheck("Walkable Low Height Spans", m_filterWalkableLowHeightSpans))
 		m_filterWalkableLowHeightSpans = !m_filterWalkableLowHeightSpans;
 
@@ -236,17 +241,17 @@ void Sample::handleCommonSettings()
 	imguiLabel("Polygonization");
 	imguiSlider("Max Edge Length", &m_edgeMaxLen, 0.0f, 50.0f, 1.0f);
 	imguiSlider("Max Edge Error", &m_edgeMaxError, 0.1f, 3.0f, 0.1f);
-	imguiSlider("Verts Per Poly", &m_vertsPerPoly, 3.0f, 12.0f, 1.0f);		
+	imguiSlider("Verts Per Poly", &m_vertsPerPoly, 3.0f, 12.0f, 1.0f);
 
 	imguiSeparator();
 	imguiLabel("Detail Mesh");
 	imguiSlider("Sample Distance", &m_detailSampleDist, 0.0f, 16.0f, 1.0f);
 	imguiSlider("Max Sample Error", &m_detailSampleMaxError, 0.0f, 16.0f, 1.0f);
-	
+
 	imguiSeparator();
 }
 
-void Sample::handleClick(const float* s, const float* p, bool shift)
+void Sample::handleClick(const float *s, const float *p, bool shift)
 {
 	if (m_tool)
 		m_tool->handleClick(s, p, shift);
@@ -276,7 +281,6 @@ void Sample::handleUpdate(const float dt)
 	updateToolStates(dt);
 }
 
-
 void Sample::updateToolStates(const float dt)
 {
 	for (int i = 0; i < MAX_TOOLS; i++)
@@ -286,7 +290,7 @@ void Sample::updateToolStates(const float dt)
 	}
 }
 
-void Sample::initToolStates(Sample* sample)
+void Sample::initToolStates(Sample *sample)
 {
 	for (int i = 0; i < MAX_TOOLS; i++)
 	{
@@ -313,7 +317,7 @@ void Sample::renderToolStates()
 	}
 }
 
-void Sample::renderOverlayToolStates(double* proj, double* model, int* view)
+void Sample::renderOverlayToolStates(double *proj, double *model, int *view)
 {
 	for (int i = 0; i < MAX_TOOLS; i++)
 	{
@@ -322,7 +326,7 @@ void Sample::renderOverlayToolStates(double* proj, double* model, int* view)
 	}
 }
 
-static const int NAVMESHSET_MAGIC = 'M'<<24 | 'S'<<16 | 'E'<<8 | 'T'; //'MSET';
+static const int NAVMESHSET_MAGIC = 'M' << 24 | 'S' << 16 | 'E' << 8 | 'T'; //'MSET';
 static const int NAVMESHSET_VERSION = 1;
 
 struct NavMeshSetHeader
@@ -339,10 +343,11 @@ struct NavMeshTileHeader
 	int dataSize;
 };
 
-dtNavMesh* Sample::loadAll(const char* path)
+dtNavMesh *Sample::loadAll(const char *path)
 {
-	FILE* fp = fopen(path, "rb");
-	if (!fp) return 0;
+	FILE *fp = fopen(path, "rb");
+	if (!fp)
+		return 0;
 
 	// Read header.
 	NavMeshSetHeader header;
@@ -363,7 +368,7 @@ dtNavMesh* Sample::loadAll(const char* path)
 		return 0;
 	}
 
-	dtNavMesh* mesh = dtAllocNavMesh();
+	dtNavMesh *mesh = dtAllocNavMesh();
 	if (!mesh)
 	{
 		fclose(fp);
@@ -390,8 +395,9 @@ dtNavMesh* Sample::loadAll(const char* path)
 		if (!tileHeader.tileRef || !tileHeader.dataSize)
 			break;
 
-		unsigned char* data = (unsigned char*)dtAlloc(tileHeader.dataSize, DT_ALLOC_PERM);
-		if (!data) break;
+		unsigned char *data = (unsigned char *)dtAlloc(tileHeader.dataSize, DT_ALLOC_PERM);
+		if (!data)
+			break;
 		memset(data, 0, tileHeader.dataSize);
 		readLen = fread(data, tileHeader.dataSize, 1, fp);
 		if (readLen != 1)
@@ -409,11 +415,12 @@ dtNavMesh* Sample::loadAll(const char* path)
 	return mesh;
 }
 
-void Sample::saveAll(const char* path, const dtNavMesh* mesh)
+void Sample::saveAll(const char *path, const dtNavMesh *mesh)
 {
-	if (!mesh) return;
+	if (!mesh)
+		return;
 
-	FILE* fp = fopen(path, "wb");
+	FILE *fp = fopen(path, "wb");
 	if (!fp)
 		return;
 
@@ -424,8 +431,9 @@ void Sample::saveAll(const char* path, const dtNavMesh* mesh)
 	header.numTiles = 0;
 	for (int i = 0; i < mesh->getMaxTiles(); ++i)
 	{
-		const dtMeshTile* tile = mesh->getTile(i);
-		if (!tile || !tile->header || !tile->dataSize) continue;
+		const dtMeshTile *tile = mesh->getTile(i);
+		if (!tile || !tile->header || !tile->dataSize)
+			continue;
 		header.numTiles++;
 	}
 	memcpy(&header.params, mesh->getParams(), sizeof(dtNavMeshParams));
@@ -434,8 +442,9 @@ void Sample::saveAll(const char* path, const dtNavMesh* mesh)
 	// Store tiles.
 	for (int i = 0; i < mesh->getMaxTiles(); ++i)
 	{
-		const dtMeshTile* tile = mesh->getTile(i);
-		if (!tile || !tile->header || !tile->dataSize) continue;
+		const dtMeshTile *tile = mesh->getTile(i);
+		if (!tile || !tile->header || !tile->dataSize)
+			continue;
 
 		NavMeshTileHeader tileHeader;
 		tileHeader.tileRef = mesh->getTileRef(tile);

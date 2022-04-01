@@ -16,6 +16,13 @@ RecastDemo/Bin/Tests
 # Build directory
 RecastDemo/Build
 
+# vs directory
+.vs
+.vscode
+
+# out directory
+out
+
 # Ignore meshes
 RecastDemo/Bin/Meshes/*
 
