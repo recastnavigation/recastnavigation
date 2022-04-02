@@ -275,20 +275,17 @@ void TestCase::doTests(dtNavMesh *navmesh, dtNavMeshQuery *navquery)
 			memcpy(iter->straight, straight, sizeof(float) * 3 * iter->nstraight);
 		}
 
-		// Output result
-		std::string abs_path = "C:\\Users\\Administrator\\Desktop\\Code\recastnavigation\\RecastDemo\\";
-		std::string filename = "result.txt";
+		// TODO Output result
+		// std::string abs_path = "C:\\Users\\Administrator\\Desktop\\Code\\recastnavigation\\RecastDemo\\";
+		// std::string filename = "result.txt";
 
-		std::ofstream file(abs_path + filename, std::ios::out | std::ios::trunc);
-		if (!file.is_open())
-		{
-			std::cout << "Failed creating result file." << std::endl;
-			exit(0);
-		}
-		
+		// std::ofstream file(abs_path + filename, std::ios::out | std::ios::trunc);
+		// if (!file.is_open())
+		// {
+		// 	std::cout << "Failed creating result file." << std::endl;
+		// 	exit(0);
+		// }
 
-
-		
 		// Set exclusion flags
 		const float EXCLUDE_PROPORTION = 0.9;
 		const float exclude_boarder = EXCLUDE_PROPORTION / 2;
