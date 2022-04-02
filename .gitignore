@@ -1,0 +1,56 @@
+## Compiled source #
+*.com
+*.class
+*.dll
+*.exe
+*.ilk
+*.o
+*.pdb
+*.so
+*.idb
+
+## Linux exes have no extension
+RecastDemo/Bin/RecastDemo
+RecastDemo/Bin/Tests
+
+# Build directory
+RecastDemo/Build
+
+# vs directory
+.vs
+.vscode
+
+# out directory
+out
+
+# Ignore meshes
+RecastDemo/Bin/Meshes/*
+
+## Logs and databases #
+*.log
+*.sql
+*.sqlite
+
+## OS generated files #
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*.swp
+*.swo
+
+## xcode specific
+*xcuserdata*
+
+## SDL contrib
+RecastDemo/Contrib/SDL/*
+
+## Generated doc files
+Docs/html
+
+## IDE files
+.idea/
+cmake-build-*/

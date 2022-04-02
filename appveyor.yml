@@ -1,0 +1,51 @@
+shallow_clone: true
+
+environment:
+  matrix:
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
+      PREMAKE_ACTION: vs2013
+      CMAKE_GENERATOR: Visual Studio 12 2013 Win64
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      PREMAKE_ACTION: vs2015
+      CMAKE_GENERATOR: Visual Studio 14 2015 Win64
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+      PREMAKE_ACTION: vs2017
+      CMAKE_GENERATOR: Visual Studio 15 2017 Win64
+
+configuration:
+  - Debug
+  - Release
+
+platform:
+  - Win64
+
+install:
+  # Download Premake
+  - ps: Start-FileDownload 'https://github.com/premake/premake-core/releases/download/v5.0.0-alpha12/premake-5.0.0-alpha12-windows.zip' 'premake.zip'
+  
+  # Extract it in-place; premake5.exe is at the top level.
+  - 7z x premake.zip
+
+  # Download SDL.
+  - ps: Start-FileDownload 'https://www.libsdl.org/release/SDL2-devel-2.0.4-VC.zip' 'RecastDemo/Contrib/SDL.zip'
+
+  # Extract it, put it in the right place, and rename it.
+  - cd RecastDemo\Contrib && 7z x SDL.zip && ren SDL2-2.0.4 SDL && cd ..\..
+
+  # Generate solution files using premake.
+  - cd RecastDemo && "../premake5.exe" %PREMAKE_ACTION% && cd ..
+
+
+build:
+  project: RecastDemo/Build/$(PREMAKE_ACTION)/recastnavigation.sln
+
+after_build:
+  - mkdir build
+  - cd build
+  - cmake -G "%CMAKE_GENERATOR%" -DCMAKE_BUILD_TYPE="%CONFIGURATION%" -D CMAKE_INSTALL_PREFIX=. ..
+  - cmake --build . --config "%CONFIGURATION%" --target install -- /m:%NUMBER_OF_PROCESSORS%
+  - ctest -V
+  - cd ..
+
+after_test:
+  - RecastDemo\Bin\Tests.exe

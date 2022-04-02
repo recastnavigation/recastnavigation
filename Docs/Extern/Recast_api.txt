@@ -1,0 +1,587 @@
+// This file contains the detail API documentation for
+// elements defined in the Recast.h.
+
+/**
+
+@defgroup recast Recast
+
+Members in this module are used to create mesh data that is then
+used to create Detour navigation meshes.
+
+The are a large number of possible ways to building navigation mesh data.
+One of the simple piplines is as follows:
+
+-# Prepare the input triangle mesh.
+-# Build a #rcHeightfield.
+-# Build a #rcCompactHeightfield.
+-# Build a #rcContourSet.
+-# Build a #rcPolyMesh.
+-# Build a #rcPolyMeshDetail.
+-# Use the rcPolyMesh and rcPolyMeshDetail to build a Detour navigation mesh
+   tile.
+
+The general life-cycle of the main classes is as follows:
+
+-# Allocate the object using the Recast allocator. (E.g. #rcAllocHeightfield)
+-# Initialize or build the object. (E.g. #rcCreateHeightfield)
+-# Update the object as needed. (E.g. #rcRasterizeTriangles)
+-# Use the object as part of the pipeline.
+-# Free the object using the Recast allocator. (E.g. #rcFreeHeightField)
+
+@note This is a summary list of members.  Use the index or search 
+feature to find minor members.
+
+@struct rcConfig
+@par
+
+The is a convenience structure that represents an aggregation of parameters 
+used at different stages in the Recast build process. Some 
+values are derived during the build process. Not all parameters 
+are used for all build processes.
+
+Units are usually in voxels (vx) or world units (wu).  The units for voxels, 
+grid size, and cell size are all based on the values of #cs and #ch.
+
+In this documentation, the term 'field' refers to heightfield and
+contour data structures that define spacial information using an integer
+grid.
+
+The upper and lower limits for the various parameters often depend on 
+the platform's floating point accuraccy as well as interdependencies between 
+the values of multiple parameters.  See the individual parameter 
+documentation for details.
+
+@var rcConfig::borderSize
+@par
+
+This value represents the the closest the walkable area of the heightfield 
+should come to the xz-plane AABB of the field. It does not have any
+impact on the borders around internal obstructions.
+
+@var rcConfig::tileSize
+@par
+
+This field is only used when building multi-tile meshes.
+
+@var rcConfig::cs
+@par
+
+@p cs and #ch define voxel/grid/cell size.  So their values have significant 
+side effects on all parameters defined in voxel units.
+
+The minimum value for this parameter depends on the platform's floating point 
+accuracy, with the practical minimum usually around 0.05.
+
+@var rcConfig::ch
+@par
+
+#cs and @p ch define voxel/grid/cell size.  So their values have significant 
+side effects on all parameters defined in voxel units.
+
+The minimum value for this parameter depends on the platform's floating point 
+accuracy, with the practical minimum usually around 0.05.
+
+@var rcConfig::walkableSlopeAngle
+@par
+
+The practical upper limit for this parameter is usually around 85 degrees.
+
+@var rcConfig::walkableHeight
+@par
+
+Permits detection of overhangs in the source geometry that make the geometry
+below un-walkable. The value is usually set to the maximum agent height.
+
+@var rcConfig::walkableClimb
+@par
+
+Allows the mesh to flow over low lying obstructions such as curbs and 
+up/down stairways. The value is usually set to how far up/down an agent can step.
+
+@var rcConfig::walkableRadius
+@par
+
+In general, this is the closest any part of the final mesh should get to an 
+obstruction in the source geometry.  It is usually set to the maximum
+agent radius.
+
+While a value of zero is legal, it is not recommended and can result in
+odd edge case issues.
+
+@var rcConfig::maxEdgeLen
+@par
+
+Extra vertices will be inserted as needed to keep contour edges below this
+length. A value of zero effectively disables this feature.
+
+@var rcConfig::maxSimplificationError
+@par
+
+The effect of this parameter only applies to the xz-plane.
+
+@var rcConfig::minRegionArea
+@par
+
+Any regions that are smaller than this area will be marked as unwalkable.
+This is useful in removing useless regions that can sometimes form on 
+geometry such as table tops, box tops, etc.
+
+@var rcConfig::maxVertsPerPoly
+@par
+
+If the mesh data is to be used to construct a Detour navigation mesh, then the upper limit
+is limited to <= #DT_VERTS_PER_POLYGON.
+
+
+@struct rcHeightfield
+@par
+
+The grid of a heightfield is layed out on the xz-plane based on the
+value of #cs.  Spans exist within the grid columns with the span
+min/max values at increments of #ch from the base of the grid.  The smallest 
+possible span size is <tt>(#cs width) * (#cs depth) * (#ch height)</tt>. (Which is a single voxel.)
+
+The standard process for buidling a heightfield is to allocate it using
+#rcAllocHeightfield, initialize it using #rcCreateHeightfield, then
+add spans using the various helper functions such as #rcRasterizeTriangle.
+
+Building a heightfield is one of the first steps in creating a polygon mesh
+from source geometry.  After it is populated, it is used to build a 
+rcCompactHeightfield.
+
+Example of iterating the spans in a heightfield:
+@code
+// Where hf is a reference to an heightfield object.
+
+const float* orig = hf.bmin;
+const float cs = hf.cs;
+const float ch = hf.ch;
+
+const int w = hf.width;
+const int h = hf.height;
+
+for (int y = 0; y < h; ++y)
+{
+    for (int x = 0; x < w; ++x)
+    {
+        // Deriving the minimum corner of the grid location.
+        float fx = orig[0] + x*cs;
+        float fz = orig[2] + y*cs;
+        // The base span in the column. (May be null.)
+        const rcSpan* s = hf.spans[x + y*w]; 
+        while (s)
+        {
+            // Detriving the minium and maximum world position of the span.
+            float fymin = orig[1]+s->smin*ch;
+            float fymax = orig[1] + s->smax*ch;
+            // Do other things with the span before moving up the column.
+            s = s->next;
+        }
+    }
+}
+@endcode
+
+@see rcAllocHeightfield, rcFreeHeightField, rcCreateHeightfield
+
+@struct rcCompactCell
+@par
+
+See the rcCompactHeightfield documentation for an example of how compact cells
+are used to iterate the heightfield.
+
+Useful instances of this type can only by obtained from a #rcCompactHeightfield object.
+
+@see rcCompactHeightfield
+
+@struct rcCompactSpan
+@par
+
+The span represents open, unobstructed space within a compact heightfield column.
+See the rcCompactHeightfield documentation for an example of iterating spans and searching 
+span connections.
+
+Useful instances of this type can only by obtained from a #rcCompactHeightfield object.
+
+@see rcCompactHeightfield
+
+
+@struct rcCompactHeightfield
+@par
+
+For this type of heightfield, the spans represent the open (unobstructed) 
+space above the solid surfaces of a voxel field. It is usually created from 
+a #rcHeightfield object.  Data is stored in a compact, efficient manner,  
+but the structure is not condusive to adding and removing spans.
+
+The standard process for buidling a compact heightfield is to allocate it 
+using #rcAllocCompactHeightfield, build it using #rcBuildCompactHeightfield,
+then run it through the various helper functions to generate neighbor
+and region data.
+
+Connected neighbor spans form non-overlapping surfaces.  When neighbor 
+information is generated, spans will include data that can be used to 
+locate axis-neighbors. Axis-neighbors are connected
+spans that are offset from the current cell column as follows:
+<pre>
+Direction 0 = (-1, 0)
+Direction 1 = (0, 1)
+Direction 2 = (1, 0)
+Direction 3 = (0, -1)
+</pre>
+
+Example of iterating and inspecting spans, including connected neighbors:
+
+@code
+// Where chf is an instance of a rcCompactHeightfield.
+
+const float cs = chf.cs;
+const float ch = chf.ch;
+
+for (int y = 0; y < chf.height; ++y)
+{
+    for (int x = 0; x < chf.width; ++x)
+    {
+        // Deriving the minimum corner of the grid location.
+        const float fx = chf.bmin[0] + x*cs;
+        const float fz = chf.bmin[2] + y*cs;
+
+        // Get the cell for the grid location then iterate
+        // up the column.
+        const rcCompactCell& c = chf.cells[x+y*chf.width];
+        for (unsigned i = c.index, ni = c.index+c.count; i < ni; ++i)
+        {
+            const rcCompactSpan& s = chf.spans[i];
+
+            Deriving the minimum (floor) of the span.
+            const float fy = chf.bmin[1] + (s.y+1)*ch;
+
+            // Testing the area assignment of the span.
+            if (chf.areas[i] == RC_WALKABLE_AREA)
+            { 
+                // The span is in the default 'walkable area'.
+            }
+            else if (chf.areas[i] == RC_NULL_AREA)
+            { 
+                // The surface is not considered walkable.
+                // E.g. It was filtered out during the build processes.
+            }
+            else
+            { 
+                // Do something. (Only applicable for custom build
+                // build processes.)
+            }
+
+            // Iterating the connected axis-neighbor spans.
+            for (int dir = 0; dir < 4; ++dir)
+            {
+                if (rcGetCon(s, dir) != RC_NOT_CONNECTED)
+                {
+                    // There is a neighbor in this direction.
+                    const int nx = x + rcGetDirOffsetX(dir);
+                    const int ny = y + rcGetDirOffsetY(dir);
+                    const int ni = (int)chf.cells[nx+ny*w].index + rcGetCon(s, 0);
+                    const rcCompactSpan& ns = chf.spans[ni];
+                    // Do something with the neighbor span.
+                }
+            }
+        }
+    }
+}
+@endcode
+
+@see rcAllocCompactHeightfield, rcFreeCompactHeightfield, rcBuildCompactHeightfield
+
+@struct rcContour
+@par
+
+A contour only exists within the context of a #rcContourSet object.
+
+While the height of the contour's border may vary, the contour will always 
+form a simple polygon when projected onto the xz-plane.
+
+Example of converting vertices into world space:
+
+@code
+// Where cset is the rcContourSet object to which the contour belongs.
+float worldX = cset.bmin[0] + vertX * cset.cs;
+float worldY = cset.bmin[1] + vertY * cset.ch;
+float worldZ = cset.bmin[2] + vertZ * cset.cs;
+@endcode
+
+@see rcContourSet
+
+@var rcContour::verts
+@par
+
+The simplified contour is a version of the raw contour with all 
+'unnecessary' vertices removed. Whether a vertex is 
+considered unnecessary depends on the contour build process.
+
+The data format is as follows: (x, y, z, r) * #nverts
+
+A contour edge is formed by the current and next vertex. The r-value 
+represents region and connection information for the edge. For example:
+
+@code
+int r = verts[i*4+3];
+
+int regionId = r & RC_CONTOUR_REG_MASK;
+
+if (r & RC_BORDER_VERTEX)
+{
+    // The edge represents a solid border.
+}
+
+if (r & RC_AREA_BORDER)
+{
+    // The edge represents a transition between different areas.
+}
+@endcode
+
+@var rcContour::rverts
+@par
+
+See #verts for information on element layout.
+
+@struct rcContourSet
+@par
+
+All contours within the set share the minimum bounds and cell sizes of the set.
+
+The standard process for building a contour set is to allocate it
+using #rcAllocContourSet, then initialize it using #rcBuildContours.
+
+@see rcAllocContourSet, rcFreeContourSet, rcBuildContours
+
+@struct rcPolyMesh
+@par
+
+A mesh of potentially overlapping convex polygons of between three 
+and #nvp vertices. The mesh exists within the context of an axis-aligned 
+bounding box (AABB) with vertices laid out in an evenly spaced grid, based 
+on the values of #cs and #ch.
+
+The standard process for building a contour set is to allocate it using
+#rcAllocPolyMesh, the initialize it using #rcBuildPolyMesh
+
+Example of iterating the polygons:
+
+@code
+// Where mesh is a reference to a rcPolyMesh object.
+
+const int nvp = mesh.nvp;
+const float cs = mesh.cs;
+const float ch = mesh.ch;
+const float* orig = mesh.bmin;
+
+for (int i = 0; i < mesh.npolys; ++i)
+{
+   const unsigned short* p = &mesh.polys[i*nvp*2];
+   
+    // Iterate the vertices.
+   unsigned short vi[3];  // The vertex indices.
+   for (int j = 0; j < nvp; ++j)
+   {
+      if (p[j] == RC_MESH_NULL_IDX) 
+            break; // End of vertices.
+
+        if (p[j + nvp] == RC_MESH_NULL_IDX)
+        {
+            // The edge beginning with this vertex is a solid border.
+        }
+        else
+        {
+            // The edge beginning with this vertex connects to 
+            // polygon p[j + nvp].
+        }
+        
+        // Convert to world space.
+       const unsigned short* v = &mesh.verts[p[j]*3];
+      const float x = orig[0] + v[0]*cs;
+      const float y = orig[1] + v[1]*ch;
+      const float z = orig[2] + v[2]*cs;
+      // Do something with the vertices.
+   }
+}
+@endcode
+
+@see rcAllocPolyMesh, rcFreePolyMesh, rcBuildPolyMesh
+
+@var rcPolyMesh::verts
+@par
+
+The values of #bmin ,#cs, and #ch are used to convert vertex coordinates
+to world space as follows:
+
+@code
+float worldX = bmin[0] + verts[i*3+0] * cs
+float worldY = bmin[1] + verts[i*3+1] * ch
+float worldZ = bmin[2] + verts[i*3+2] * cs
+@endcode
+
+@var rcPolyMesh::polys
+@par
+
+Each entry is <tt>2 * #nvp</tt> in length. The first half of the entry 
+contains the indices of the polygon. The first instance of #RC_MESH_NULL_IDX
+indicates the end of the indices for the entry. The second half contains 
+indices to neighbor polygons. A value of #RC_MESH_NULL_IDX indicates no 
+connection for the associated edge. (I.e. The edge is a solid border.)
+
+For example:
+<pre>
+nvp = 6
+For the entry: (1, 3, 4, 8, RC_MESH_NULL_IDX, RC_MESH_NULL_IDX, 
+                18, RC_MESH_NULL_IDX , 21, RC_MESH_NULL_IDX, RC_MESH_NULL_IDX, RC_MESH_NULL_IDX)
+
+(1, 3, 4, 8) defines a polygon with 4 vertices.
+Edge 1->3 is shared with polygon 18.
+Edge 4->8 is shared with polygon 21.
+Edges 3->4 and 4->8 are border edges not shared with any other polygon.
+</pre>
+
+@var rcPolyMesh::areas
+@par
+
+The standard build process assigns the value of #RC_WALKABLE_AREA to all walkable polygons.
+This value can then be changed to meet user requirements.
+
+@struct rcPolyMeshDetail
+@par
+
+The detail mesh is made up of triangle sub-meshes that provide extra 
+height detail for each polygon in its assoicated polygon mesh.
+
+The standard process for building a detail mesh is to allocate it 
+using #rcAllocPolyMeshDetail, then build it using #rcBuildPolyMeshDetail.
+
+See the individual field definitions for details realted to the structure
+the mesh.
+
+@see rcAllocPolyMeshDetail, rcFreePolyMeshDetail, rcBuildPolyMeshDetail, rcPolyMesh
+
+@var rcPolyMeshDetail::meshes
+@par
+
+[(baseVertIndex, vertCount, baseTriIndex, triCount) * #nmeshes]
+
+Maximum number of vertices per sub-mesh: 127<br/>
+Maximum number of triangles per sub-mesh: 255
+
+The sub-meshes are stored in the same order as the polygons from the
+rcPolyMesh they represent.  E.g. rcPolyMeshDetail sub-mesh 5 is associated
+with #rcPolyMesh polygon 5.
+
+Example of iterating the triangles in a sub-mesh.
+
+@code
+// Where dmesh is a reference to a rcPolyMeshDetail object.
+
+// Iterate the sub-meshes. (One for each source polygon.)
+for (int i = 0; i < dmesh.nmeshes; ++i)
+{
+	const unsigned int* meshDef = &dmesh.meshes[i*4];
+	const unsigned int baseVerts = meshDef[0];
+	const unsigned int baseTri = meshDef[2];
+	const int ntris = (int)meshDef[3];	
+	
+	const float* verts = &dmesh.verts[baseVerts*3];
+	const unsigned char* tris = &dmesh.tris[baseTri*4];
+
+    // Iterate the sub-mesh's triangles.
+	for (int j = 0; j < ntris; ++j)
+	{
+		const float x = verts[tris[j*4+0]*3];
+		const float y = verts[tris[j*4+1]*3];
+		const float z = verts[tris[j*4+2]*3];
+		// Do something with the vertex.
+	}
+}
+@endcode
+
+@var rcPolyMeshDetail::verts
+@par
+
+[(x, y, z) * #nverts] 
+
+The vertices are grouped by sub-mesh and will contain duplicates since 
+each sub-mesh is independently defined.
+
+The first group of vertices for each sub-mesh are in the same order as 
+the vertices for the sub-mesh's associated PolyMesh polygon. These 
+vertices are followed by any additional detail vertices. So it the 
+associated polygon has 5 vertices, the sub-mesh will have a minimum 
+of 5 vertices and the first 5 vertices will be equivalent to the 5 
+polygon vertices.
+
+@var rcPolyMeshDetail::tris
+@par
+
+[(vertIndexA, vertIndexB, vertIndexC, flags) * #ntris] 
+
+The triangles are grouped by sub-mesh.
+
+<b>Vertex Indices</b>
+
+The vertex indices in the triangle array are local to the sub-mesh, not global. 
+To translate into an global index in the vertices array, the values must be 
+offset by the sub-mesh's base vertex index.
+
+Example: If the baseVertexIndex for the sub-mesh is 5 and the triangle entry 
+is (4, 8, 7, 0), then the actual indices for the vertices are (4 + 5, 8 + 5, 7 + 5).
+
+@b Flags
+
+The flags entry indicates which edges are internal and which are external to 
+the sub-mesh. Internal edges connect to other triangles within the same sub-mesh. 
+External edges represent portals to other sub-meshes or the null region.
+
+Each flag is stored in a 2-bit position. Where position 0 is the lowest 2-bits 
+and position 4 is the highest 2-bits:
+
+<tt>
+Position 0: Edge AB (>> 0)<br/>
+Position 1: Edge BC (>> 2)<br/>
+Position 2: Edge CA (>> 4)<br/>
+Position 4: Unused<br/>
+</tt>
+
+Testing can be performed as follows:
+
+@code
+if (((flags >> 2) & 0x3) != 0)
+{
+    // Edge BC is an external edge.
+}
+@endcode
+
+@fn void rcSetCon(rcCompactSpan &s, int dir, int i)
+@par
+
+This function is used by the build process. It is rarely of use to end users.
+
+@see #rcCompactHeightfield, #rcCompactSpan
+
+@fn int rcGetCon(const rcCompactSpan &s, int dir)
+@par
+
+Can be used to locate neighbor spans in a compact heightfield. See the 
+#rcCompactHeightfield documentation for details on its use.
+
+@see #rcCompactHeightfield, #rcCompactSpan
+
+@fn int rcGetDirOffsetX(int dir)
+@par
+
+The value of @p dir will be automatically wrapped. So a value of 6 will be interpreted as 2.
+
+See the #rcCompactHeightfield documentation for usage details.
+
+@fn int rcGetDirOffsetY(int dir)
+@par
+
+The value of @p dir will be automatically wrapped. So a value of 6 will be interpreted as 2.
+
+See the #rcCompactHeightfield documentation for usage details.
+
+*/
