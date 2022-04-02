@@ -15,3 +15,5 @@ RecastDemo是一个GUI的可视化demo，展示了整个工具的所有功能。
 将地图文件（.obj）放入Meshes目录下，将test文件放入TestCases目录下，test中每一行均为起终点的坐标，行的数量代表了期望的多路径寻路结果数量。
 
 ## 预览
+
+![screenshot of tme navigation result](preview.png)
