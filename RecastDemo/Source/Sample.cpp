@@ -182,7 +182,7 @@ void Sample::resetCommonSettings()
 	m_agentMaxSlope = 2.0f;
 	m_regionMinSize = 8;
 	m_regionMergeSize = 20;
-	m_edgeMaxLen = 12.0f;
+	m_edgeMaxLen = 8.0f;
 	m_edgeMaxError = 1.3f;
 	m_vertsPerPoly = 6.0f;
 	m_detailSampleDist = 6.0f;

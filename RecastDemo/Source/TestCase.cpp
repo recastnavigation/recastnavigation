@@ -34,6 +34,9 @@
 #include "imgui.h"
 #include "PerfTimer.h"
 #include <list>
+#include <fstream>
+#include <iostream>
+#include <stdlib.h>
 
 #ifdef WIN32
 #define snprintf _snprintf
@@ -209,9 +212,10 @@ void TestCase::doTests(dtNavMesh *navmesh, dtNavMeshQuery *navquery)
 
 	std::list<uint32_t> blocked_polys;
 	std::list<uint32_t>::iterator it;
+	uint32_t count = 0;
 	for (Test *iter = m_tests; iter; iter = iter->next)
 	{
-		// Reversed x coordinates
+		// Reverse x axis
 		iter->spos[0] = iter->spos[0] * -1;
 		iter->epos[0] = iter->epos[0] * -1;
 
@@ -271,7 +275,21 @@ void TestCase::doTests(dtNavMesh *navmesh, dtNavMeshQuery *navquery)
 			memcpy(iter->straight, straight, sizeof(float) * 3 * iter->nstraight);
 		}
 
-		// Set exclusions
+		// Output result
+		std::string abs_path = "C:\\Users\\Administrator\\Desktop\\Code\recastnavigation\\RecastDemo\\";
+		std::string filename = "result.txt";
+
+		std::ofstream file(abs_path + filename, std::ios::out | std::ios::trunc);
+		if (!file.is_open())
+		{
+			std::cout << "Failed creating result file." << std::endl;
+			exit(0);
+		}
+		
+
+
+		
+		// Set exclusion flags
 		const float EXCLUDE_PROPORTION = 0.9;
 		const float exclude_boarder = EXCLUDE_PROPORTION / 2;
 
