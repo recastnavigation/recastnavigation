@@ -198,6 +198,17 @@ void TestCase::resetTimes()
 	}
 }
 
+// validate if path end arrives expected end point
+bool validate_arrive(const float pos_a[3], const float pos_b[3],
+					 const float min_distance_arrive)
+{
+	const float dx = pos_a[0] - pos_b[0];
+	const float dy = pos_a[1] - pos_b[1];
+	const float dz = pos_a[2] - pos_b[2];
+	float dist = sqrtf(dx * dx + dy * dy + dz * dz);
+	return (dist < min_distance_arrive);
+}
+
 void TestCase::doTests(dtNavMesh *navmesh, dtNavMeshQuery *navquery)
 {
 	if (!navmesh || !navquery)
@@ -255,6 +266,7 @@ void TestCase::doTests(dtNavMesh *navmesh, dtNavMeshQuery *navquery)
 		// Find straight path
 		if (iter->npolys)
 		{
+
 			TimeVal findStraightPathStart = getPerfTime();
 
 			navquery->findStraightPath(iter->spos, iter->epos, polys, iter->npolys,
@@ -262,7 +274,8 @@ void TestCase::doTests(dtNavMesh *navmesh, dtNavMeshQuery *navquery)
 			TimeVal findStraightPathEnd = getPerfTime();
 			iter->findStraightPathTime += getPerfTimeUsec(findStraightPathEnd - findStraightPathStart);
 		}
-
+		std::cout << "Last Poly: " << std::endl;
+		std::cout << polys[iter->npolys] << std::endl;
 		// Copy results
 		if (iter->npolys)
 		{
