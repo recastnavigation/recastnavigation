@@ -223,7 +223,7 @@ void TestCase::doTests(dtNavMesh *navmesh, dtNavMeshQuery *navquery)
 
 	std::list<uint32_t> blocked_polys;
 	std::list<uint32_t>::iterator it;
-	uint32_t count = 0;
+	m_path_count = 0;
 	for (Test *iter = m_tests; iter; iter = iter->next)
 	{
 		// Reverse x axis
@@ -274,14 +274,32 @@ void TestCase::doTests(dtNavMesh *navmesh, dtNavMeshQuery *navquery)
 			TimeVal findStraightPathEnd = getPerfTime();
 			iter->findStraightPathTime += getPerfTimeUsec(findStraightPathEnd - findStraightPathStart);
 		}
-		std::cout << "Last Poly: " << std::endl;
-		std::cout << polys[iter->npolys] << std::endl;
-		// Copy results
+
+		float final_pos[] = {straight[(iter->nstraight - 1) * 3], straight[(iter->nstraight - 1) * 3 + 1], straight[(iter->nstraight - 1) * 3 + 2]};
+
+		m_ctx->log(RC_LOG_PROGRESS, "last point x: %f", final_pos[0]);
+		m_ctx->log(RC_LOG_PROGRESS, "last point y: %f", final_pos[1]);
+		m_ctx->log(RC_LOG_PROGRESS, "last point z: %f", final_pos[2]);
+
+		if (!validate_arrive(iter->epos, final_pos, 1))
+		{
+			delete[] iter->polys;
+			iter->polys = 0;
+			iter->npolys = 0;
+			delete[] iter->straight;
+			iter->straight = 0;
+			iter->nstraight = 0;
+			break;
+		}
+
+		m_path_count++;
+
 		if (iter->npolys)
 		{
 			iter->polys = new dtPolyRef[iter->npolys];
 			memcpy(iter->polys, polys, sizeof(dtPolyRef) * iter->npolys);
 		}
+
 		if (iter->nstraight)
 		{
 			iter->straight = new float[iter->nstraight * 3];
@@ -380,13 +398,14 @@ void TestCase::handleRender()
 
 bool TestCase::handleRenderOverlay(double *proj, double *model, int *view)
 {
+
 	GLdouble x, y, z;
 	char text[64], subtext[64];
 	int n = 0;
 
 	static const float LABEL_DIST = 1.0f;
 
-	for (Test *iter = m_tests; iter; iter = iter->next)
+	for (Test *iter = m_tests; iter && n < m_path_count; iter = iter->next)
 	{
 		float pt[3], dir[3];
 		if (iter->nstraight)
@@ -425,7 +444,7 @@ bool TestCase::handleRenderOverlay(double *proj, double *model, int *view)
 	//		mouseOverMenu = true;
 
 	n = 0;
-	for (Test *iter = m_tests; iter; iter = iter->next)
+	for (Test *iter = m_tests; iter && n < m_path_count; iter = iter->next)
 	{
 		const int total = iter->findNearestPolyTime + iter->findPathTime + iter->findStraightPathTime;
 		snprintf(subtext, 64, "%.4f ms", (float)total / 1000.0f);

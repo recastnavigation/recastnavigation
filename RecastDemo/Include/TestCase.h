@@ -21,6 +21,7 @@
 
 #include <string>
 #include "DetourNavMesh.h"
+#include "SampleInterfaces.h"
 
 class TestCase
 {
@@ -29,36 +30,35 @@ class TestCase
 		TEST_PATHFIND,
 		TEST_RAYCAST,
 	};
-	
+
 	struct Test
 	{
-		Test() :
-			type(),
-			spos(),
-			epos(),
-			nspos(),
-			nepos(),
-			radius(0),
-			includeFlags(0),
-			excludeFlags(0),
-			expand(false),
-			straight(0),
-			nstraight(0),
-			polys(0),
-			npolys(0),
-			findNearestPolyTime(0),
-			findPathTime(0),
-			findStraightPathTime(0),
-			next(0)
+		Test() : type(),
+				 spos(),
+				 epos(),
+				 nspos(),
+				 nepos(),
+				 radius(0),
+				 includeFlags(0),
+				 excludeFlags(0),
+				 expand(false),
+				 straight(0),
+				 nstraight(0),
+				 polys(0),
+				 npolys(0),
+				 findNearestPolyTime(0),
+				 findPathTime(0),
+				 findStraightPathTime(0),
+				 next(0)
 		{
 		}
 
 		~Test()
 		{
-			delete [] straight;
-			delete [] polys;
+			delete[] straight;
+			delete[] polys;
 		}
-		
+
 		TestType type;
 		float spos[3];
 		float epos[3];
@@ -68,47 +68,50 @@ class TestCase
 		unsigned short includeFlags;
 		unsigned short excludeFlags;
 		bool expand;
-		
-		float* straight;
+
+		float *straight;
 		int nstraight;
-		dtPolyRef* polys;
+		dtPolyRef *polys;
 		int npolys;
-		
+
 		int findNearestPolyTime;
 		int findPathTime;
 		int findStraightPathTime;
-		
-		Test* next;
+
+		Test *next;
+
 	private:
 		// Explicitly disabled copy constructor and copy assignment operator.
-		Test(const Test&);
-		Test& operator=(const Test&);
+		Test(const Test &);
+		Test &operator=(const Test &);
 	};
 
 	std::string m_sampleName;
 	std::string m_geomFileName;
-	Test* m_tests;
-	
+	Test *m_tests;
+	BuildContext *m_ctx;
+	int m_path_count;
 	void resetTimes();
-	
+
 public:
 	TestCase();
 	~TestCase();
 
-	bool load(const std::string& filePath);
-	
-	const std::string& getSampleName() const { return m_sampleName; }
-	const std::string& getGeomFileName() const { return m_geomFileName; }
-	
-	void doTests(class dtNavMesh* navmesh, class dtNavMeshQuery* navquery);
-	
+	bool load(const std::string &filePath);
+
+	const std::string &getSampleName() const { return m_sampleName; }
+	const std::string &getGeomFileName() const { return m_geomFileName; }
+
+	void doTests(class dtNavMesh *navmesh, class dtNavMeshQuery *navquery);
+	// MODIFIED: set context
+	void setContext(BuildContext *ctx) { m_ctx = ctx; }
 	void handleRender();
-	bool handleRenderOverlay(double* proj, double* model, int* view);
+	bool handleRenderOverlay(double *proj, double *model, int *view);
 
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.
-	TestCase(const TestCase&);
-	TestCase& operator=(const TestCase&);
+	TestCase(const TestCase &);
+	TestCase &operator=(const TestCase &);
 };
 
 #endif // TESTCASE_H
