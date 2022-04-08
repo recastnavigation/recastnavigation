@@ -20,8 +20,10 @@
 #define TESTCASE_H
 
 #include <string>
+#include <vector>
 #include "DetourNavMesh.h"
 #include "SampleInterfaces.h"
+#include <SampleInterfaces.h>
 
 class TestCase
 {
@@ -85,12 +87,24 @@ class TestCase
 		Test(const Test &);
 		Test &operator=(const Test &);
 	};
+	static const int MAX_POLY_NUM = 256 * 4; // int: recastnavigation api required // MODIFIED
+	static const uint32_t MAX_PATH_LEN = 2048 * 4;
+	static const uint32_t MAX_PATH_NUM = 10;
+	const float EXCLUDE_PROPORTION = 0.98;
+
+	BuildContext *m_ctx;
+	int m_path_count;
+	int m_nodes_num[MAX_PATH_NUM];
+	float m_paths_length[MAX_PATH_NUM];
+	float m_path_nodes[MAX_PATH_NUM * MAX_POLY_NUM * 3];
+	int m_polys_num_;
+	int m_path_len_;
+	float m_path_dis_;
 
 	std::string m_sampleName;
 	std::string m_geomFileName;
 	Test *m_tests;
-	BuildContext *m_ctx;
-	int m_path_count;
+
 	void resetTimes();
 
 public:
@@ -104,7 +118,19 @@ public:
 
 	void doTests(class dtNavMesh *navmesh, class dtNavMeshQuery *navquery);
 	// MODIFIED: set context
+	bool validate_arrive(const float pos_a[3], const float pos_b[3],
+						 const float min_distance_arrive);
 	void setContext(BuildContext *ctx) { m_ctx = ctx; }
+	void output_result_file(const std::vector<float> &from, const std::vector<float> &to, const uint32_t paths_num_wanted,
+							const float exclude_proportion, uint32_t paths_num,
+							std::vector<float> distance, std::vector<uint32_t> path_nodes_num,
+							std::vector<std::vector<std::vector<float>>> path_nodes);
+	void retrieve_result(
+		const std::vector<float> &from, const std::vector<float> &to, const uint32_t paths_num_wanted,
+		const float exclude_proportion, const float arrive_judge_dis, uint32_t *paths_num,
+		std::vector<float> *paths_distance, std::vector<uint32_t> *paths_nodes_num,
+		std::vector<std::vector<std::vector<float>>> *paths_nodes, std::string *log);
+
 	void handleRender();
 	bool handleRenderOverlay(double *proj, double *model, int *view);
 
