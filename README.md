@@ -11,7 +11,7 @@ Detour部分中实现在多边形tile中的导航。<br>
 RecastDemo是一个GUI的可视化demo，展示了整个工具的所有功能。
 
 ## 如何使用
-针对不同操作系统使用premake进行预编译，然后再编译后执行。<br>
+针对不同操作系统使用premake进行预编译，然后再编译后执行。Win可执行文件在RecastDemo下的Bin中。<br>
 将地图文件（.obj）放入Meshes目录下，将test文件放入TestCases目录下，test中每一行均为起终点的坐标，行的数量代表了期望的多路径寻路结果数量。<br>
 具体载入地图文件（.obj）的参数和寻路路径数量上限均在分别在Sample和TestCase以参数的形式设置。<br>
 多路径寻路的结果将会保存至Result文件夹下。
