@@ -31,6 +31,7 @@ class TestCase
 	{
 		TEST_PATHFIND,
 		TEST_RAYCAST,
+		TEST_SHIFTEDPATH,
 	};
 
 	struct Test
@@ -62,6 +63,8 @@ class TestCase
 		}
 
 		TestType type;
+		int FLAG_EXCLUSION;
+		float shift_coe = 0.0;
 		float spos[3];
 		float epos[3];
 		float nspos[3];

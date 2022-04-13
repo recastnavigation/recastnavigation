@@ -1,0 +1,10 @@
+================Navigation Summary================
+
+GEOM:nav_test.obj
+START: (45.3883, -0.562073, -3.67323)
+END: (46.651, 7.79761, 15.5135)
+EXCLUDE PROPORTION: 0.98
+# PATH QUERIED: 10
+# PATH FOUND: 0
+
+===============Path(s) Found Below================
