@@ -461,7 +461,6 @@ void NavMeshTesterTool::handleMenu()
 			{
 
 				m_navQuery->findDistanceToWall(ref, pt, 10.0, &m_filter, &hitDist, hitPos, hitNormal);
-				findpath_check << "Hit distance: " << hitDist << std::endl;
 				if (hitDist > MIN_OBSTACLE_DISTANCE)
 				{
 					findpath_check << "# " << i << " SELECTED " << std::endl;
