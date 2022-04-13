@@ -37,6 +37,7 @@
 #include "DetourNavMeshBuilder.h"
 #include "DetourDebugDraw.h"
 #include "DetourCommon.h"
+#include "TestCase.h"
 
 #ifdef WIN32
 #define snprintf _snprintf
@@ -386,6 +387,7 @@ void NavMeshTesterTool::handleMenu()
 			}
 		}
 	}
+
 	if (imguiButton("Make Random Points Around", m_sposSet))
 	{
 		if (m_sposSet)
@@ -404,6 +406,73 @@ void NavMeshTesterTool::handleMenu()
 				}
 			}
 		}
+	}
+	imguiSeparator();
+
+	if (imguiButton("Find Random Spawn Points"))
+	{
+
+		dtPolyRef pivot_ref;
+		float pivot[3] = {-24.019787, -2.369392, 22.227207};
+		const float polyPickExt[3] = {2, 4, 2};
+		m_navQuery->findNearestPoly(pivot, polyPickExt, &m_filter, &pivot_ref, pivot);
+
+		m_randPointsInCircle = false;
+		m_nrandPoints = 0;
+
+		std::string abs_path = "C:\\Users\\Administrator\\Desktop\\Code\\recastnavigation\\RecastDemo\\Bin\\Results\\";
+		std::string filename = "findpath_check.txt";
+		std::string final_path = abs_path + filename;
+		std::ofstream findpath_check(final_path, std::ios::out | std::ios::trunc);
+
+		for (int i = 0; i < MAX_RAND_POINTS; i++)
+		{
+			dtPolyRef polys[MAX_POLYS];
+			float straight[MAX_POLYS * 3];
+			// Reverse x axis
+			pivot[0] = pivot[0] * -1;
+
+			// delete[] & polys;
+			// delete[] & straight;
+
+			float pt[3];
+			dtPolyRef ref;
+			int npolys = 0;
+			int nstraight = 0;
+			dtStatus status = m_navQuery->findRandomPoint(&m_filter, frand, &ref, pt);
+			m_navQuery->findPath(pivot_ref, ref, pivot, pt, &m_filter, polys, &npolys, MAX_POLYS);
+
+			m_navQuery->findStraightPath(pivot, pt, polys, npolys,
+										 straight, 0, 0, &nstraight, MAX_POLYS);
+			float final_pos[] = {straight[(nstraight - 1) * 3], straight[(nstraight - 1) * 3 + 1], straight[(nstraight - 1) * 3 + 2]};
+			TestCase test;
+			if (test.validate_arrive(pt, final_pos, 1))
+			{
+				findpath_check << i << " Approved: " << std::endl;
+				for (int j = 0; j < 3; j++)
+				{
+					findpath_check << pt[j] << " ";
+				}
+				findpath_check << std::endl;
+				if (dtStatusSucceed(status))
+				{
+					dtVcopy(&m_randPoints[m_nrandPoints * 3], pt);
+					m_nrandPoints++;
+				}
+			}
+			else
+			{
+				findpath_check << i << " NOT Approved: " << std::endl;
+				for (int j = 0; j < 3; j++)
+				{
+					findpath_check << pt[j] << " ";
+				}
+				findpath_check << std::endl;
+			}
+
+			findpath_check << "======================================" << std::endl;
+		}
+		findpath_check.close();
 	}
 
 	imguiSeparator();
@@ -1086,7 +1155,7 @@ void NavMeshTesterTool::handleRender()
 			dd.depthMask(false);
 			dd.begin(DU_DRAW_LINES, 1.0f);
 
-			const unsigned int prevCol = duRGBA(255,192,0,220);
+			const unsigned int prevCol = duRGBA(255, 192, 0, 220);
 			const unsigned int curCol = duRGBA(255, 255, 255, 220);
 			const unsigned int steerCol = duRGBA(0, 192, 255, 220);
 
