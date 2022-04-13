@@ -413,7 +413,10 @@ void NavMeshTesterTool::handleMenu()
 	{
 
 		dtPolyRef pivot_ref;
-		float pivot[3] = {-24.019787, -2.369392, 22.227207};
+
+		// float pivot[3] = {-2.063193, -0.000061, 48.171658}; // tme center square
+		float pivot[3] = {-3.012138, 0.000002, 1.393684}; // 3D Musician Space
+
 		const float polyPickExt[3] = {2, 4, 2};
 		m_navQuery->findNearestPoly(pivot, polyPickExt, &m_filter, &pivot_ref, pivot);
 
@@ -424,14 +427,21 @@ void NavMeshTesterTool::handleMenu()
 		std::string filename = "findpath_check.txt";
 		std::string final_path = abs_path + filename;
 		std::ofstream findpath_check(final_path, std::ios::out | std::ios::trunc);
+		const int MAX_ATTEMPTED_POINTS = 1024;
+		const int MAX_REQUIRED_POINTS = 10;
+		const float MIN_OBSTACLE_DISTANCE = 3;
+		float hitDist;
+		float hitPos[3];
+		float hitNormal[3];
 
-		for (int i = 0; i < MAX_RAND_POINTS; i++)
+		for (int i = 0; i < MAX_ATTEMPTED_POINTS && m_nrandPoints < MAX_REQUIRED_POINTS; i++)
 		{
 			dtPolyRef polys[MAX_POLYS];
 			float straight[MAX_POLYS * 3];
 			// Reverse x axis
 			pivot[0] = pivot[0] * -1;
 
+			hitDist = 0;
 			// delete[] & polys;
 			// delete[] & straight;
 
@@ -445,24 +455,42 @@ void NavMeshTesterTool::handleMenu()
 			m_navQuery->findStraightPath(pivot, pt, polys, npolys,
 										 straight, 0, 0, &nstraight, MAX_POLYS);
 			float final_pos[] = {straight[(nstraight - 1) * 3], straight[(nstraight - 1) * 3 + 1], straight[(nstraight - 1) * 3 + 2]};
+
 			TestCase test;
 			if (test.validate_arrive(pt, final_pos, 1))
 			{
-				findpath_check << i << " Approved: " << std::endl;
-				for (int j = 0; j < 3; j++)
+
+				m_navQuery->findDistanceToWall(ref, pt, 10.0, &m_filter, &hitDist, hitPos, hitNormal);
+				findpath_check << "Hit distance: " << hitDist << std::endl;
+				if (hitDist > MIN_OBSTACLE_DISTANCE)
 				{
-					findpath_check << pt[j] << " ";
+					findpath_check << "# " << i << " SELECTED " << std::endl;
+					findpath_check << "Hit distance: " << hitDist << std::endl;
+
+					for (int j = 0; j < 3; j++)
+					{
+						findpath_check << pt[j] << " ";
+					}
+					findpath_check << std::endl;
+					if (dtStatusSucceed(status))
+					{
+						dtVcopy(&m_randPoints[m_nrandPoints * 3], pt);
+						m_nrandPoints++;
+					}
 				}
-				findpath_check << std::endl;
-				if (dtStatusSucceed(status))
+				else
 				{
-					dtVcopy(&m_randPoints[m_nrandPoints * 3], pt);
-					m_nrandPoints++;
+					findpath_check << i << " OBSTABLE TOO CLOSE " << std::endl;
+					for (int j = 0; j < 3; j++)
+					{
+						findpath_check << pt[j] << " ";
+					}
+					findpath_check << std::endl;
 				}
 			}
 			else
 			{
-				findpath_check << i << " NOT Approved: " << std::endl;
+				findpath_check << i << " NOT REACHABLE " << std::endl;
 				for (int j = 0; j < 3; j++)
 				{
 					findpath_check << pt[j] << " ";
