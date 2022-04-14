@@ -22,7 +22,7 @@
 #include "DetourNavMesh.h"
 #include "DetourStatus.h"
 #include <stdio.h>
-
+#include <math.h>
 // Define DT_VIRTUAL_QUERYFILTER if you wish to derive a custom filter from dtQueryFilter.
 // On certain platforms indirect or virtual function call is expensive. The default
 // setting is to use non-virtual functions, the actual implementations of the functions
@@ -450,6 +450,10 @@ public:
 								const dtQueryFilter *filter,
 								float *hitDist, float *hitPos, float *hitNormal) const;
 
+	dtStatus dtNavMeshQuery::findDistanceToWall_filter(dtPolyRef startRef, float *centerPos, float *obstacle_pos, float obstacle_radius, const float maxRadius,
+													   const dtQueryFilter *filter,
+													   float *hitDist, float *hitPos, float *hitNormal) const;
+
 	/// Returns the segments for the specified polygon, optionally including portals.
 	///  @param[in]		ref				The reference id of the polygon.
 	///  @param[in]		filter			The polygon filter to apply to the query.
@@ -459,6 +463,7 @@ public:
 	///  @param[out]	segmentCount	The number of segments returned.
 	///  @param[in]		maxSegments		The maximum number of segments the result arrays can hold.
 	/// @returns The status flags for the query.
+
 	dtStatus getPolyWallSegments(dtPolyRef ref, const dtQueryFilter *filter,
 								 float *segmentVerts, dtPolyRef *segmentRefs, int *segmentCount,
 								 const int maxSegments) const;
@@ -514,6 +519,15 @@ public:
 	/// @name Miscellaneous Functions
 	/// @{
 
+	bool validate_arrive(const float pos_a[3], const float pos_b[3],
+						 const float min_distance_arrive) const
+	{
+		const float dx = pos_a[0] - pos_b[0];
+		const float dy = pos_a[1] - pos_b[1];
+		const float dz = pos_a[2] - pos_b[2];
+		float dist = sqrtf(dx * dx + dy * dy + dz * dz);
+		return (dist < min_distance_arrive);
+	}
 	/// Returns true if the polygon reference is valid and passes the filter restrictions.
 	///  @param[in]		ref			The polygon reference to check.
 	///  @param[in]		filter		The filter to apply.

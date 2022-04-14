@@ -416,6 +416,7 @@ void NavMeshTesterTool::handleMenu()
 
 		// float pivot[3] = {-2.063193, -0.000061, 48.171658}; // tme center square
 		float pivot[3] = {-3.012138, 0.000002, 1.393684}; // 3D Musician Space
+		// float pivot[3] = {1.424002, 0.002388, 2.550192}; // 3D streaming house
 
 		const float polyPickExt[3] = {2, 4, 2};
 		m_navQuery->findNearestPoly(pivot, polyPickExt, &m_filter, &pivot_ref, pivot);
@@ -427,9 +428,11 @@ void NavMeshTesterTool::handleMenu()
 		std::string filename = "findpath_check.txt";
 		std::string final_path = abs_path + filename;
 		std::ofstream findpath_check(final_path, std::ios::out | std::ios::trunc);
-		const int MAX_ATTEMPTED_POINTS = 1024;
-		const int MAX_REQUIRED_POINTS = 10;
-		const float MIN_OBSTACLE_DISTANCE = 3;
+		const int MAX_ATTEMPTED_POINTS = 2048;
+		const int MAX_REQUIRED_POINTS = 64;
+		const float MIN_OBSTACLE_DISTANCE = 3.0;
+		float filted_obstacle_pos[3] = {0, 0, 0};
+		const float filted_obstacle_radius = 4.0;
 		float hitDist;
 		float hitPos[3];
 		float hitNormal[3];
@@ -459,8 +462,8 @@ void NavMeshTesterTool::handleMenu()
 			TestCase test;
 			if (test.validate_arrive(pt, final_pos, 1))
 			{
-
-				m_navQuery->findDistanceToWall(ref, pt, 10.0, &m_filter, &hitDist, hitPos, hitNormal);
+				// m_navQuery->findDistanceToWall(ref, pt, 10.0, &m_filter, &hitDist, hitPos, hitNormal);
+				m_navQuery->findDistanceToWall_filter(ref, pt, filted_obstacle_pos, filted_obstacle_radius, 10.0, &m_filter, &hitDist, hitPos, hitNormal);
 				if (hitDist > MIN_OBSTACLE_DISTANCE)
 				{
 					findpath_check << "# " << i << " SELECTED " << std::endl;
