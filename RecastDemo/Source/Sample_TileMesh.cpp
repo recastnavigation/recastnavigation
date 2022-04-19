@@ -283,6 +283,8 @@ void Sample_TileMesh::handleSettings()
 		dtFreeNavMesh(m_navMesh);
 		m_navMesh = Sample::loadAll("all_tiles_navmesh.bin");
 		m_navQuery->init(m_navMesh, 2048);
+		if (m_tool)
+			m_tool->init(this);
 	}
 
 	imguiUnindent();

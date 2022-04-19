@@ -930,6 +930,8 @@ void Sample_TempObstacles::handleSettings()
 		dtFreeTileCache(m_tileCache);
 		loadAll("all_tiles_tilecache.bin");
 		m_navQuery->init(m_navMesh, 2048);
+		if (m_tool)
+			m_tool->init(this);
 	}
 
 	imguiUnindent();

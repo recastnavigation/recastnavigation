@@ -102,6 +102,8 @@ void Sample_SoloMesh::handleSettings()
 		dtFreeNavMesh(m_navMesh);
 		m_navMesh = Sample::loadAll("solo_navmesh.bin");
 		m_navQuery->init(m_navMesh, 2048);
+		if (m_tool)
+			m_tool->init(this);
 	}
 
 	imguiUnindent();
