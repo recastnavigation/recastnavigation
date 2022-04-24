@@ -43,15 +43,19 @@ bool rcErodeWalkableArea(rcContext* ctx, int radius, rcCompactHeightfield& chf)
 	
 	rcScopedTimer timer(ctx, RC_TIMER_ERODE_AREA);
 	
-	unsigned char* dist = (unsigned char*)rcAlloc(sizeof(unsigned char)*chf.spanCount, RC_ALLOC_TEMP);
+	double* dist = (double*)rcAlloc(sizeof(double)*chf.spanCount, RC_ALLOC_TEMP);
 	if (!dist)
 	{
 		ctx->log(RC_LOG_ERROR, "erodeWalkableArea: Out of memory 'dist' (%d).", chf.spanCount);
 		return false;
 	}
-	
-	// Init distance.
-	memset(dist, 0xff, sizeof(unsigned char)*chf.spanCount);
+	const double DIST_MAX = w + h + radius;
+	const double DIST_NEIGHBOUR = 1; // distance between neighbour cells
+	const double DIST_DIAGONAL = sqrt(2); // distance between diagonal neighbour cells
+	for (int i = 0; i < chf.spanCount; i++)
+	{
+		dist[i] = DIST_MAX;
+	}
 	
 	// Mark boundary cells.
 	for (int y = 0; y < h; ++y)
@@ -90,8 +94,6 @@ bool rcErodeWalkableArea(rcContext* ctx, int radius, rcCompactHeightfield& chf)
 		}
 	}
 	
-	unsigned char nd;
-	
 	// Pass 1
 	for (int y = 0; y < h; ++y)
 	{
@@ -109,7 +111,7 @@ bool rcErodeWalkableArea(rcContext* ctx, int radius, rcCompactHeightfield& chf)
 					const int ay = y + rcGetDirOffsetY(0);
 					const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(s, 0);
 					const rcCompactSpan& as = chf.spans[ai];
-					nd = (unsigned char)rcMin((int)dist[ai]+2, 255);
+					double nd = dist[ai] + DIST_NEIGHBOUR;
 					if (nd < dist[i])
 						dist[i] = nd;
 					
@@ -119,7 +121,7 @@ bool rcErodeWalkableArea(rcContext* ctx, int radius, rcCompactHeightfield& chf)
 						const int aax = ax + rcGetDirOffsetX(3);
 						const int aay = ay + rcGetDirOffsetY(3);
 						const int aai = (int)chf.cells[aax+aay*w].index + rcGetCon(as, 3);
-						nd = (unsigned char)rcMin((int)dist[aai]+3, 255);
+						double nd = dist[aai] + DIST_DIAGONAL;
 						if (nd < dist[i])
 							dist[i] = nd;
 					}
@@ -131,7 +133,7 @@ bool rcErodeWalkableArea(rcContext* ctx, int radius, rcCompactHeightfield& chf)
 					const int ay = y + rcGetDirOffsetY(3);
 					const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(s, 3);
 					const rcCompactSpan& as = chf.spans[ai];
-					nd = (unsigned char)rcMin((int)dist[ai]+2, 255);
+					double nd = dist[ai] + DIST_NEIGHBOUR;
 					if (nd < dist[i])
 						dist[i] = nd;
 					
@@ -141,7 +143,7 @@ bool rcErodeWalkableArea(rcContext* ctx, int radius, rcCompactHeightfield& chf)
 						const int aax = ax + rcGetDirOffsetX(2);
 						const int aay = ay + rcGetDirOffsetY(2);
 						const int aai = (int)chf.cells[aax+aay*w].index + rcGetCon(as, 2);
-						nd = (unsigned char)rcMin((int)dist[aai]+3, 255);
+						double nd = dist[aai] + DIST_NEIGHBOUR;
 						if (nd < dist[i])
 							dist[i] = nd;
 					}
@@ -167,7 +169,7 @@ bool rcErodeWalkableArea(rcContext* ctx, int radius, rcCompactHeightfield& chf)
 					const int ay = y + rcGetDirOffsetY(2);
 					const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(s, 2);
 					const rcCompactSpan& as = chf.spans[ai];
-					nd = (unsigned char)rcMin((int)dist[ai]+2, 255);
+					double nd = dist[ai] + DIST_NEIGHBOUR;
 					if (nd < dist[i])
 						dist[i] = nd;
 					
@@ -177,7 +179,7 @@ bool rcErodeWalkableArea(rcContext* ctx, int radius, rcCompactHeightfield& chf)
 						const int aax = ax + rcGetDirOffsetX(1);
 						const int aay = ay + rcGetDirOffsetY(1);
 						const int aai = (int)chf.cells[aax+aay*w].index + rcGetCon(as, 1);
-						nd = (unsigned char)rcMin((int)dist[aai]+3, 255);
+						double nd = dist[aai] + DIST_DIAGONAL;
 						if (nd < dist[i])
 							dist[i] = nd;
 					}
@@ -189,7 +191,7 @@ bool rcErodeWalkableArea(rcContext* ctx, int radius, rcCompactHeightfield& chf)
 					const int ay = y + rcGetDirOffsetY(1);
 					const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(s, 1);
 					const rcCompactSpan& as = chf.spans[ai];
-					nd = (unsigned char)rcMin((int)dist[ai]+2, 255);
+					double nd = dist[ai] + DIST_NEIGHBOUR;
 					if (nd < dist[i])
 						dist[i] = nd;
 					
@@ -199,7 +201,7 @@ bool rcErodeWalkableArea(rcContext* ctx, int radius, rcCompactHeightfield& chf)
 						const int aax = ax + rcGetDirOffsetX(0);
 						const int aay = ay + rcGetDirOffsetY(0);
 						const int aai = (int)chf.cells[aax+aay*w].index + rcGetCon(as, 0);
-						nd = (unsigned char)rcMin((int)dist[aai]+3, 255);
+						double nd = dist[aai] + DIST_DIAGONAL;
 						if (nd < dist[i])
 							dist[i] = nd;
 					}
@@ -208,9 +210,8 @@ bool rcErodeWalkableArea(rcContext* ctx, int radius, rcCompactHeightfield& chf)
 		}
 	}
 	
-	const unsigned char thr = (unsigned char)(radius*2);
 	for (int i = 0; i < chf.spanCount; ++i)
-		if (dist[i] < thr)
+		if (dist[i] < radius)
 			chf.areas[i] = RC_NULL_AREA;
 	
 	rcFree(dist);
