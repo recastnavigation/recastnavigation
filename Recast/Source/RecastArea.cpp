@@ -50,9 +50,12 @@ bool rcErodeWalkableArea(rcContext* ctx, int radius, rcCompactHeightfield& chf)
 		ctx->log(RC_LOG_ERROR, "erodeWalkableArea: Out of memory 'dist' (%d).", chf.spanCount);
 		return false;
 	}
+
 	const double DIST_MAX = w + h + radius;
 	const double DIST_NEIGHBOUR = 1; // distance between neighbour cells
 	const double DIST_DIAGONAL = sqrt(2); // distance between diagonal neighbour cells
+
+	// Init distance.
 	for (int i = 0; i < chf.spanCount; i++)
 	{
 		dist[i] = DIST_MAX;
