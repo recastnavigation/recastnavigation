@@ -16,6 +16,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
+#include <cassert>
 #include <float.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -211,8 +212,11 @@ bool rcErodeWalkableArea(rcContext* ctx, int radius, rcCompactHeightfield& chf)
 	}
 	
 	for (int i = 0; i < chf.spanCount; ++i)
+	{
+		assert(dist[i] < DIST_MAX);
 		if (dist[i] < radius)
 			chf.areas[i] = RC_NULL_AREA;
+	}
 	
 	rcFree(dist);
 	
