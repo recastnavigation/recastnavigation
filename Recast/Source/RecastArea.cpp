@@ -51,9 +51,9 @@ bool rcErodeWalkableArea(rcContext* ctx, int radius, rcCompactHeightfield& chf)
 		return false;
 	}
 
-	const double DIST_MAX = w + h + radius;
+	const double DIST_MAX = (double)w + h + radius;
 	const double DIST_NEIGHBOUR = 1; // distance between neighbour cells
-	const double DIST_DIAGONAL = sqrt(2); // distance between diagonal neighbour cells
+	const double DIST_DIAGONAL = sqrt((double)2); // distance between diagonal neighbour cells
 
 	// Init distance.
 	for (int i = 0; i < chf.spanCount; i++)
