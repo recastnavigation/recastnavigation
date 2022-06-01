@@ -1399,7 +1399,6 @@ static void pushBack(unsigned short v, unsigned short* arr, int& an)
 static bool canRemoveVertex(dtTileCachePolyMesh& mesh, const unsigned short rem)
 {
 	// Count number of polygons to remove.
-	int numRemovedVerts = 0;
 	int numTouchedVerts = 0;
 	int numRemainingEdges = 0;
 	for (int i = 0; i < mesh.npolys; ++i)
@@ -1419,7 +1418,6 @@ static bool canRemoveVertex(dtTileCachePolyMesh& mesh, const unsigned short rem)
 		}
 		if (numRemoved)
 		{
-			numRemovedVerts += numRemoved;
 			numRemainingEdges += numVerts-(numRemoved+1);
 		}
 	}
