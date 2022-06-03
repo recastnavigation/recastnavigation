@@ -5,9 +5,6 @@ Recast & Detour
 [![Travis (Linux) Build Status](https://travis-ci.org/recastnavigation/recastnavigation.svg?branch=master)](https://travis-ci.org/recastnavigation/recastnavigation)
 [![Appveyor (Windows) Build  Status](https://ci.appveyor.com/api/projects/status/20w84u25b3f8h179/branch/master?svg=true)](https://ci.appveyor.com/project/recastnavigation/recastnavigation/branch/master)
 
-[![Issue Stats](http://www.issuestats.com/github/recastnavigation/recastnavigation/badge/pr?style=flat)](http://www.issuestats.com/github/recastnavigation/recastnavigation)
-[![Issue Stats](http://www.issuestats.com/github/recastnavigation/recastnavigation/badge/issue?style=flat)](http://www.issuestats.com/github/recastnavigation/recastnavigation)
-
 ![screenshot of a navmesh baked with the sample program](/RecastDemo/screenshot.png?raw=true)
 
 ## Recast
