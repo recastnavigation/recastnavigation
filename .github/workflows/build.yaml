@@ -16,14 +16,16 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
-          - windows-latest
-          - macos-latest
+          #- windows-latest
+          #- macos-latest
 
     runs-on: ${{ matrix.os }}
 
     steps:
     - uses: actions/checkout@v3
-    - uses: openrndr/setup-opengl@v1.1
+
+    - name: Install opengl
+      run: sudo apt-get install -y libgl1-mesa-dev
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
