@@ -1,0 +1,35 @@
+name: Build (CMake)
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        conf:
+          - Debug
+          - Release
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    #- name: Download SDL2
+    #  shell: pwsh
+    #  run: |
+    #    Start-FileDownload 'https://www.libsdl.org/release/SDL2-devel-2.0.4-VC.zip' 'RecastDemo/Contrib/SDL.zip'
+    #    cd RecastDemo\Contrib
+    #    7z x SDL.zip
+    #    ren SDL2-2.0.4 SDL
+    #    cd ..\..
+
+    - name: Configure CMake
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{matrix.conf}}
+
+    - name: Build
+      run: cmake --build ${{github.workspace}}/build --config ${{matrix.conf}}
