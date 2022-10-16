@@ -127,7 +127,6 @@ int main(int /*argc*/, char** /*argv*/)
 	}
 
 	SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
-	SDL_GL_CreateContext(window);
 
 	if (!imguiRenderGLInit("DroidSans.ttf"))
 	{
