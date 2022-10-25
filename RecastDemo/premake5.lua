@@ -6,7 +6,7 @@
 local action = _ACTION or ""
 local todir = "Build/" .. action
 
-solution "recastnavigation"
+workspace "recastnavigation"
 	configurations { 
 		"Debug",
 		"Release"
@@ -15,27 +15,27 @@ solution "recastnavigation"
 	location (todir)
 
 	floatingpoint "Fast"
-	symbols "On"
 	exceptionhandling "Off"
 	rtti "Off"
+	symbols "On"
 	flags { "FatalCompileWarnings" }
 
 	-- debug configs
-	configuration "Debug*"
+	filter "configurations:Debug"
 		defines { "DEBUG" }
 		targetdir ( todir .. "/lib/Debug" )
  
  	-- release configs
-	configuration "Release*"
+	filter "configurations:Release"
 		defines { "NDEBUG" }
 		optimize "On"
 		targetdir ( todir .. "/lib/Release" )
 
-	configuration "not windows"
+	filter "system:not windows"
 		warnings "Extra"
 
 	-- windows specific
-	configuration "windows"
+	filter "system:windows"
 		platforms { "Win32", "Win64" }
 		defines { "WIN32", "_WINDOWS", "_CRT_SECURE_NO_WARNINGS", "_HAS_EXCEPTIONS=0" }
 		-- warnings "Extra" uses /W4 which is too aggressive for us, so use W3 instead.
@@ -58,7 +58,7 @@ project "DebugUtils"
 		"../DetourTileCache/Include",
 		"../Recast/Include"
 	}
-	files { 
+	files {
 		"../DebugUtils/Include/*.h",
 		"../DebugUtils/Source/*.cpp"
 	}
@@ -74,11 +74,10 @@ project "Detour"
 		"../Detour/Source/*.cpp" 
 	}
 	-- linux library cflags and libs
-	configuration { "linux", "gmake" }
-		buildoptions { 
+	filter {"system:linux", "action:gmake"}
+		buildoptions {
 			"-Wno-class-memaccess"
 		}
-
 
 project "DetourCrowd"
 	language "C++"
@@ -150,7 +149,7 @@ project "RecastDemo"
 	targetdir "Bin"
 
 	-- linux library cflags and libs
-	configuration { "linux", "gmake" }
+	filter {"system:linux", "action:gmake"}
 		buildoptions { 
 			"`pkg-config --cflags sdl2`",
 			"`pkg-config --cflags gl`",
@@ -166,7 +165,7 @@ project "RecastDemo"
 		}
 
 	-- windows library cflags and libs
-	configuration { "windows" }
+	filter "system:windows"
 		includedirs { "../RecastDemo/Contrib/SDL/include" }
 		libdirs { "../RecastDemo/Contrib/SDL/lib/%{cfg.architecture:gsub('x86_64', 'x64')}" }
 		debugdir "../RecastDemo/Bin/"
@@ -182,7 +181,7 @@ project "RecastDemo"
 		}
 
 	-- mac includes and libs
-	configuration { "macosx" }
+	filter "system:macosx"
 		kind "ConsoleApp" -- xcode4 failes to run the project if using WindowedApp
 		includedirs { "/Library/Frameworks/SDL2.framework/Headers" }
 		links { 
@@ -209,7 +208,7 @@ project "Tests"
 		"../Tests/Recast",
 		"../Tests",
 	}
-	files	{ 
+	files { 
 		"../Tests/*.h",
 		"../Tests/*.hpp",
 		"../Tests/*.cpp",
@@ -232,7 +231,7 @@ project "Tests"
 	targetdir "Bin"
 
 	-- linux library cflags and libs
-	configuration { "linux", "gmake" }
+	filter {"system:linux", "action:gmake"}
 		buildoptions { 
 			"`pkg-config --cflags sdl2`",
 			"`pkg-config --cflags gl`",
@@ -246,7 +245,7 @@ project "Tests"
 		}
 
 	-- windows library cflags and libs
-	configuration { "windows" }
+	filter "system:windows"
 		includedirs { "../RecastDemo/Contrib/SDL/include" }
 		libdirs { "../RecastDemo/Contrib/SDL/lib/%{cfg.architecture:gsub('x86_64', 'x64')}" }
 		debugdir "../RecastDemo/Bin/"
@@ -258,7 +257,7 @@ project "Tests"
 		}
 
 	-- mac includes and libs
-	configuration { "macosx" }
+	filter "system:macosx"
 		kind "ConsoleApp"
 		includedirs { "/Library/Frameworks/SDL2.framework/Headers" }
 		links { 
