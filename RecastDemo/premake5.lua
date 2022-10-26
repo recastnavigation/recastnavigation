@@ -116,6 +116,17 @@ project "Recast"
 		"../Recast/Source/*.cpp" 
 	}
 
+project "FastLZ"
+	language "C"
+	kind "StaticLib"
+	includedirs {
+		"../RecastDemo/Contrib/fastlz",
+	}
+	files {
+		"../RecastDemo/Contrib/fastlz/*.h",
+		"../RecastDemo/Contrib/fastlz/*.c"
+	}
+
 project "RecastDemo"
 	language "C++"
 	kind "WindowedApp"
@@ -132,8 +143,6 @@ project "RecastDemo"
 	files	{ 
 		"../RecastDemo/Include/*.h",
 		"../RecastDemo/Source/*.cpp",
-		"../RecastDemo/Contrib/fastlz/*.h",
-		"../RecastDemo/Contrib/fastlz/*.c"
 	}
 
 	-- project dependencies
@@ -142,7 +151,8 @@ project "RecastDemo"
 		"Detour",
 		"DetourCrowd",
 		"DetourTileCache",
-		"Recast"
+		"Recast",
+		"FastLZ"
 	}
 
 	-- distribute executable in RecastDemo/Bin directory
@@ -155,8 +165,6 @@ project "RecastDemo"
 			"`pkg-config --cflags gl`",
 			"`pkg-config --cflags glu`",
 			"-Wno-ignored-qualifiers",
-			"-Wno-class-memaccess"
-
 		}
 		linkoptions { 
 			"`pkg-config --libs sdl2`",
