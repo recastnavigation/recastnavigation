@@ -32,4 +32,4 @@ jobs:
 
     - name: Build
       working-directory: ./RecastDemo/Build/gmake/
-      run: make debug
+      run: make config=debug
