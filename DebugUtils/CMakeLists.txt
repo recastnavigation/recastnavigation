@@ -24,10 +24,11 @@ set_target_properties(DebugUtils PROPERTIES
         )
 
 install(TARGETS DebugUtils
+        EXPORT recastnavigation-targets
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        COMPONENT library
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT library
+        INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} ${CMAKE_INSTALL_INCLUDEDIR}/recastnavigation
         )
 
 file(GLOB INCLUDES Include/*.h)
