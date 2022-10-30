@@ -2,18 +2,15 @@ shallow_clone: true
 
 environment:
   matrix:
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-      PREMAKE_ACTION: vs2015
-      CMAKE_GENERATOR: Visual Studio 14 2015 Win64
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       PREMAKE_ACTION: vs2017
       CMAKE_GENERATOR: Visual Studio 15 2017 Win64
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
       PREMAKE_ACTION: vs2019
-      CMAKE_GENERATOR: Visual Studio 16 2019 Win64
+      CMAKE_GENERATOR: Visual Studio 16 2019
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2022
       PREMAKE_ACTION: vs2022
-      CMAKE_GENERATOR: Visual Studio 17 2022 Win64
+      CMAKE_GENERATOR: Visual Studio 17 2022
 
 configuration:
   - Debug
