@@ -25,10 +25,9 @@
 #include "RecastAlloc.h"
 #include "RecastDump.h"
 
-
 duFileIO::~duFileIO()
 {
-	// Empty
+    // Defined out of line to fix the weak v-tables warning
 }
 	
 static void ioprintf(duFileIO* io, const char* format, ...)

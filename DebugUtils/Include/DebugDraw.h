@@ -27,7 +27,7 @@ enum duDebugDrawPrimitives
 	DU_DRAW_POINTS,
 	DU_DRAW_LINES,
 	DU_DRAW_TRIS,
-	DU_DRAW_QUADS,	
+	DU_DRAW_QUADS
 };
 
 /// Abstract debug draw interface.
@@ -196,16 +196,16 @@ class duDisplayList : public duDebugDraw
 	unsigned int* m_color;
 	int m_size;
 	int m_cap;
-
-	bool m_depthMask;
+    
 	duDebugDrawPrimitives m_prim;
 	float m_primSize;
+    bool m_depthMask;
 	
 	void resize(int cap);
 	
 public:
 	duDisplayList(int cap = 512);
-	~duDisplayList();
+	virtual ~duDisplayList();
 	virtual void depthMask(bool state);
 	virtual void begin(duDebugDrawPrimitives prim, float size = 1.0f);
 	virtual void vertex(const float x, const float y, const float z, unsigned int color);

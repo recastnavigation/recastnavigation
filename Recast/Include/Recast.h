@@ -28,7 +28,7 @@ enum rcLogCategory
 {
 	RC_LOG_PROGRESS = 1,	///< A progress log entry.
 	RC_LOG_WARNING,			///< A warning log entry.
-	RC_LOG_ERROR,			///< An error log entry.
+	RC_LOG_ERROR			///< An error log entry.
 };
 
 /// Recast performance timer categories.
@@ -101,7 +101,6 @@ enum rcTimerLabel
 class rcContext
 {
 public:
-
 	/// Contructor.
 	///  @param[in]		state	TRUE if the logging and performance timers should be enabled.  [Default: true]
 	inline rcContext(bool state = true) : m_logEnabled(state), m_timerEnabled(state) {}
@@ -140,9 +139,8 @@ public:
 	inline int getAccumulatedTime(const rcTimerLabel label) const { return m_timerEnabled ? doGetAccumulatedTime(label) : -1; }
 
 protected:
-
 	/// Clears all log entries.
-	virtual void doResetLog() {}
+    virtual void doResetLog();
 
 	/// Logs a message.
 	///  @param[in]		category	The category of the message.
@@ -564,7 +562,7 @@ static const int RC_AREA_BORDER = 0x20000;
 enum rcBuildContoursFlags
 {
 	RC_CONTOUR_TESS_WALL_EDGES = 0x01,	///< Tessellate solid (impassable) edges during contour simplification.
-	RC_CONTOUR_TESS_AREA_EDGES = 0x02,	///< Tessellate edges between areas during contour simplification.
+	RC_CONTOUR_TESS_AREA_EDGES = 0x02	///< Tessellate edges between areas during contour simplification.
 };
 
 /// Applied to the region id field of contour vertices in order to extract the region id.

@@ -23,6 +23,15 @@
 #include "DetourTileCacheBuilder.h"
 #include <string.h>
 
+dtTileCacheAlloc::~dtTileCacheAlloc()
+{
+    // Defined out of line to fix the weak v-tables warning
+}
+
+dtTileCacheCompressor::~dtTileCacheCompressor()
+{
+    // Defined out of line to fix the weak v-tables warning
+}
 
 template<class T> class dtFixedArray
 {

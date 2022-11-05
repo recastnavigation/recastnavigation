@@ -66,7 +66,7 @@ enum CrowdAgentState
 {
 	DT_CROWDAGENT_STATE_INVALID,		///< The agent is not in a valid state.
 	DT_CROWDAGENT_STATE_WALKING,		///< The agent is traversing a normal navigation mesh polygon.
-	DT_CROWDAGENT_STATE_OFFMESH,		///< The agent is traversing an off-mesh connection.
+	DT_CROWDAGENT_STATE_OFFMESH 		///< The agent is traversing an off-mesh connection.
 };
 
 /// Configuration parameters for a crowd agent.
@@ -108,7 +108,7 @@ enum MoveRequestState
 	DT_CROWDAGENT_TARGET_REQUESTING,
 	DT_CROWDAGENT_TARGET_WAITING_FOR_QUEUE,
 	DT_CROWDAGENT_TARGET_WAITING_FOR_PATH,
-	DT_CROWDAGENT_TARGET_VELOCITY,
+	DT_CROWDAGENT_TARGET_VELOCITY
 };
 
 /// Represents an agent managed by a #dtCrowd object.
@@ -188,7 +188,7 @@ enum UpdateFlags
 	DT_CROWD_OBSTACLE_AVOIDANCE = 2,
 	DT_CROWD_SEPARATION = 4,
 	DT_CROWD_OPTIMIZE_VIS = 8,			///< Use #dtPathCorridor::optimizePathVisibility() to optimize the agent path.
-	DT_CROWD_OPTIMIZE_TOPO = 16,		///< Use dtPathCorridor::optimizePathTopology() to optimize the agent path.
+	DT_CROWD_OPTIMIZE_TOPO = 16 		///< Use dtPathCorridor::optimizePathTopology() to optimize the agent path.
 };
 
 struct dtCrowdAgentDebugInfo
