@@ -35,7 +35,7 @@ jobs:
 
     - name: Build With Xcode
       working-directory: RecastDemo/Build/xcode4/
-      run: xcodebuild -scheme RecdastDemo -project RecastDemo.xcodeproj build
+      run: xcodebuild -scheme RecastDemo -project RecastDemo.xcodeproj build
     
     - name: Build Unit Tests With Xcode
       working-directory: RecastDemo/Build/xcode4/
