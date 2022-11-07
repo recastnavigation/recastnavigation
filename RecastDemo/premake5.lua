@@ -266,9 +266,6 @@ project "Tests"
 	-- mac includes and libs
 	filter "system:macosx"
 		kind "ConsoleApp"
-		includedirs { "/Library/Frameworks/SDL2.framework/Headers" }
-		links { 
-			"OpenGL.framework", 
-			"SDL2.framework",
+		links {
 			"Cocoa.framework",
 		}
