@@ -40,7 +40,6 @@ jobs:
     - name: Run Tests
       working-directory: RecastDemo/Bin
       run: ./Tests
-
     
   build-cmake:
     strategy:

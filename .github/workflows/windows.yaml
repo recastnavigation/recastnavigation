@@ -19,17 +19,46 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    #- name: Download SDL2
-    #  shell: pwsh
-    #  run: |
-    #    Start-FileDownload 'https://www.libsdl.org/release/SDL2-devel-2.0.4-VC.zip' 'RecastDemo/Contrib/SDL.zip'
-    #    cd RecastDemo\Contrib
-    #    7z x SDL.zip
-    #    ren SDL2-2.0.4 SDL
-    #    cd ..\..
-
     - name: Configure CMake
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{matrix.conf}}
 
     - name: Build
       run: cmake --build ${{github.workspace}}/build --config ${{matrix.conf}}
+
+  build-premake:
+    strategy:
+      matrix:
+        conf:
+          - Debug
+          - Release
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v1.1
+
+    - name: Download Premake and SDL
+      shell: pwsh
+      run: |
+        Start-FileDownload 'https://github.com/premake/premake-core/releases/download/v5.0.0-beta2/premake-5.0.0-beta2-windows.zip' 'premake.zip'
+        Start-FileDownload 'https://github.com/libsdl-org/SDL/releases/download/release-2.24.2/SDL2-devel-2.24.2-VC.zip' 'RecastDemo/Contrib/SDL.zip'
+    
+    - name: Unzip premake
+      run: 7z x premake.zip
+
+    - name: Unzip SDL
+      working-directory: RecastDemo/Contrib
+      run: |
+        7z x SDL.zip
+        ren SDL2-2.24.2 SDL
+
+    - name: Run Premake
+      working-directory: RecastDemo
+      run: ../premake5.exe vs2022
+
+    - name: Build
+      working-directory: RecastDemo/Build/vs2022
+      run: msbuild RecastDemo.cxproj -verbosity:diag -property:Configuration=${{matrix.conf}}
