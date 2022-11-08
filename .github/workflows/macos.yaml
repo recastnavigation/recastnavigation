@@ -12,6 +12,12 @@ env:
 
 jobs:
   build-premake:
+    strategy:
+      matrix:
+        conf:
+          - Debug
+          - Release
+
     runs-on: macos-latest
     
     steps:
@@ -36,11 +42,11 @@ jobs:
 
     - name: Build With Xcode
       working-directory: RecastDemo/Build/xcode4/
-      run: xcodebuild -scheme RecastDemo -project RecastDemo.xcodeproj build
+      run: xcodebuild -scheme RecastDemo -configuration {{matrix.conf}} -project RecastDemo.xcodeproj build
     
     - name: Build Unit Tests With Xcode
       working-directory: RecastDemo/Build/xcode4/
-      run: xcodebuild -scheme Tests -project Tests.xcodeproj build
+      run: xcodebuild -scheme Tests -configuration {{matrix.conf}} -project Tests.xcodeproj build
 
     - name: Run unit tests
       working-directory: RecastDemo/Bin
