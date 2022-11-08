@@ -130,7 +130,7 @@ project "RecastDemo"
 		"../DetourTileCache/Include",
 		"../Recast/Include"
 	}
-	files	{ 
+	files {
 		"../RecastDemo/Include/*.h",
 		"../RecastDemo/Source/*.cpp",
 		"../RecastDemo/Contrib/fastlz/*.h",
@@ -138,7 +138,7 @@ project "RecastDemo"
 	}
 
 	-- project dependencies
-	links { 
+	links {
 		"DebugUtils",
 		"Detour",
 		"DetourCrowd",
