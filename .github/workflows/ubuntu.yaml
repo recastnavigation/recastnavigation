@@ -22,7 +22,7 @@ jobs:
     - name: Download premake
       run: |
         curl -L -o premake.tar.gz https://github.com/premake/premake-core/releases/download/v5.0.0-beta2/premake-5.0.0-beta2-linux.tar.gz
-        tar -xzf premake.tar.gz -C /usr/local/bin
+        tar -xzf premake.tar.gz -C RecastDemo/
     
     - name: Run premake
       working-directory: RecastDemo
