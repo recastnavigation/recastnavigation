@@ -248,7 +248,8 @@ project "Tests"
 		linkoptions { 
 			"`pkg-config --libs sdl2`",
 			"`pkg-config --libs gl`",
-			"`pkg-config --libs glu`" 
+			"`pkg-config --libs glu`",
+			"-lpthread"
 		}
 
 	-- windows library cflags and libs
