@@ -1,30 +1,50 @@
-name: Build (CMake)
+name: Build (ubuntu)
 
 on:
   push:
-    branches: [ "**" ]
+    branches: [ master ]
   pull_request:
-    branches: [ "**" ]
+    branches: [ master ]
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
 
 jobs:
-  build:
-    strategy:
-      matrix:
-        os:
-          - ubuntu-latest
-          #- windows-latest
-          #- macos-latest
-
-    runs-on: ${{ matrix.os }}
+  build-premake:
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
 
-    - name: Install opengl
+    - name: Install opengl and SDL
+      run: sudo apt-get install -y libgl1-mesa-dev libsdl2-dev
+
+    - name: Download premake
+      run: |
+        curl -L -o premake.tar.gz https://github.com/premake/premake-core/releases/download/v5.0.0-beta2/premake-5.0.0-beta2-linux.tar.gz
+        tar -xzf premake.tar.gz -C /usr/local/bin
+    
+    - name: Run premake
+      working-directory: RecastDemo
+      run: premake5 gmake
+    
+    - name: Build
+      working-directory: RecastDemo/Build/gmake
+      run: make
+    
+    - name: Run Tests
+      working-directory: RecastDemo/Bin
+      run: ./Tests
+
+    
+  build-cmake:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install opengl and SDL
       run: sudo apt-get install -y libgl1-mesa-dev libsdl2-dev
 
     - name: Configure CMake
@@ -33,7 +53,7 @@ jobs:
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
     - name: Build
-      # Build your program with the given configuration
+
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
     - name: Test
@@ -41,4 +61,4 @@ jobs:
       # Execute tests defined by the CMake configuration.  
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: ctest -C ${{env.BUILD_TYPE}}
-      
+  
