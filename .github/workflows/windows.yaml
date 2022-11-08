@@ -1,4 +1,4 @@
-name: Build (Windows, CMake)
+name: Build (windows)
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ "**" ]
 
 jobs:
-  build:
+  build-cmake:
     strategy:
       matrix:
         conf:
