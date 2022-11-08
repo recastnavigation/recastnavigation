@@ -35,7 +35,7 @@ jobs:
     
     - name: Build
       working-directory: RecastDemo/Build/gmake
-      run: make config={{matrix.conf}}
+      run: make config=${{matrix.conf}}
     
     - name: Run Tests
       working-directory: RecastDemo/Bin
