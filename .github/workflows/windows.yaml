@@ -61,4 +61,4 @@ jobs:
 
     - name: Build
       working-directory: RecastDemo/Build/vs2022
-      run: msbuild RecastDemo.cxproj -verbosity:diag -property:Configuration=${{matrix.conf}}
+      run: msbuild RecastDemo.vcxproj -verbosity:diag -property:Configuration=${{matrix.conf}}
