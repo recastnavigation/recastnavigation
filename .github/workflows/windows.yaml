@@ -14,17 +14,16 @@ jobs:
           - Debug
           - Release
         vs-version:
-          - premake-action: vs2017
-            cmake-generator: Visual Studio 15 2017 Win64
-            range: '[15.0,15.8)'
           - premake-action: vs2019
             cmake-generator: Visual Studio 16 2017
             range: '[16.0,16.10)'
+            runner: windows-2019
           - premake-action: vs2022
             cmake-generator: Visual Studio 17 2022
             range: '[17.0,17.5)'
+            runner: windows-2022
 
-    runs-on: windows-latest
+    runs-on: ${{matrix.vs-version.runner}}
 
     steps:
     - uses: actions/checkout@v3
@@ -66,17 +65,16 @@ jobs:
           - Debug
           - Release
         vs-version:
-          - premake-action: vs2017
-            cmake-generator: Visual Studio 15 2017 Win64
-            range: '[15.0,15.8)'
           - premake-action: vs2019
             cmake-generator: Visual Studio 16 2017
             range: '[16.0,16.10)'
+            runner: windows-2019
           - premake-action: vs2022
             cmake-generator: Visual Studio 17 2022
             range: '[17.0,17.5)'
+            runner: windows-2022
 
-    runs-on: windows-latest
+    runs-on: ${{matrix.vs-version.runner}}
 
     steps:
     - uses: actions/checkout@v3
