@@ -7,30 +7,22 @@ on:
     branches: [ "**" ]
 
 jobs:
-  build-cmake:
-    strategy:
-      matrix:
-        conf:
-          - Debug
-          - Release
-
-    runs-on: windows-latest
-
-    steps:
-    - uses: actions/checkout@v3
-
-    - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{matrix.conf}}
-
-    - name: Build
-      run: cmake --build ${{github.workspace}}/build --config ${{matrix.conf}}
-
   build-premake:
     strategy:
       matrix:
         conf:
           - Debug
           - Release
+        vs-version:
+          - premake-action: vs2017
+            cmake-generator: Visual Studio 15 2017 Win64
+            range: '[15.0,15.8)'
+          - premake-action: vs2019
+            cmake-generator: Visual Studio 16 2017
+            range: '[16.0,16.10)'
+          - premake-action: vs2022
+            cmake-generator: Visual Studio 17 2022
+            range: '[17.0,17.5)'
 
     runs-on: windows-latest
 
@@ -39,26 +31,67 @@ jobs:
 
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v1.1
+      with:
+        vs-version: ${{matrix.vs-version.range}}
 
-    - name: Download Premake and SDL
+    - name: Download and Install SDL
+      working-directory: RecastDemo/Contrib
       shell: pwsh
       run: |
-        curl -L -o premake.zip https://github.com/premake/premake-core/releases/download/v5.0.0-beta2/premake-5.0.0-beta2-windows.zip
-        curl -L -o RecastDemo/Contrib/SDL.zip https://github.com/libsdl-org/SDL/releases/download/release-2.24.2/SDL2-devel-2.24.2-VC.zip
-    
-    - name: Unzip premake
-      run: 7z x premake.zip
-
-    - name: Unzip SDL
-      working-directory: RecastDemo/Contrib
-      run: |
-        7z x SDL.zip
+        (new-object System.Net.WebClient).DownloadFile("https://github.com/libsdl-org/SDL/releases/download/release-2.24.2/SDL2-devel-2.24.2-VC.zip","${{github.workspace}}/RecastDemo/Contrib/SDL.zip")
+        tar -xf SDL.zip
         ren SDL2-2.24.2 SDL
+        del SDL.zip
+
+    - name: Download and Install Premake
+      working-directory: RecastDemo
+      shell: pwsh
+      run: |
+        (new-object System.Net.WebClient).DownloadFile("https://github.com/premake/premake-core/releases/download/v5.0.0-beta2/premake-5.0.0-beta2-windows.zip","${{github.workspace}}/RecastDemo/premake.zip")
+        tar -xf premake.zip
+        del premake.zip
 
     - name: Run Premake
       working-directory: RecastDemo
-      run: ../premake5.exe vs2022
+      run: ./premake5.exe ${{matrix.vs-version.premake-action}}
 
     - name: Build
       working-directory: RecastDemo/Build/vs2022
       run: msbuild RecastDemo.vcxproj -property:Configuration=${{matrix.conf}}
+
+  build-cmake:
+    strategy:
+      matrix:
+        conf:
+          - Debug
+          - Release
+        vs-version:
+          - premake-action: vs2017
+            cmake-generator: Visual Studio 15 2017 Win64
+            range: '[15.0,15.8)'
+          - premake-action: vs2019
+            cmake-generator: Visual Studio 16 2017
+            range: '[16.0,16.10)'
+          - premake-action: vs2022
+            cmake-generator: Visual Studio 17 2022
+            range: '[17.0,17.5)'
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Download and Install SDL
+      working-directory: RecastDemo/Contrib
+      shell: pwsh
+      run: |
+        (new-object System.Net.WebClient).DownloadFile("https://github.com/libsdl-org/SDL/releases/download/release-2.24.2/SDL2-devel-2.24.2-VC.zip","${{github.workspace}}/RecastDemo/Contrib/SDL.zip")
+        tar -xf SDL.zip
+        ren SDL2-2.24.2 SDL
+        del SDL.zip
+
+    - name: Configure CMake
+      run: cmake -G "${{matrix.vs-version.cmake-generator}}" -B ${{github.workspace}}/build -D CMAKE_BUILD_TYPE=${{matrix.conf}} -D CMAKE_INSTALL_PREFIX=${{github.workspace}}/build
+
+    - name: Build with CMake
+      run: cmake --build ${{github.workspace}}/build --config ${{matrix.conf}}
