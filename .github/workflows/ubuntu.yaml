@@ -13,6 +13,9 @@ jobs:
         conf:
           - debug
           - release
+        compiler:
+          - clang
+          - gcc
 
     runs-on: ubuntu-latest
 
@@ -31,7 +34,7 @@ jobs:
     
     - name: Run premake
       working-directory: RecastDemo
-      run: ./premake5 gmake
+      run: ./premake5 --cc=${{matrix.compiler}} gmake
     
     - name: Build
       working-directory: RecastDemo/Build/gmake
