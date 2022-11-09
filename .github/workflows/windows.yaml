@@ -43,8 +43,8 @@ jobs:
     - name: Download Premake and SDL
       shell: pwsh
       run: |
-        curl -O premake.zip https://github.com/premake/premake-core/releases/download/v5.0.0-beta2/premake-5.0.0-beta2-windows.zip
-        curl -O RecastDemo/Contrib/SDL.zip https://github.com/libsdl-org/SDL/releases/download/release-2.24.2/SDL2-devel-2.24.2-VC.zip
+        curl -L -o premake.zip https://github.com/premake/premake-core/releases/download/v5.0.0-beta2/premake-5.0.0-beta2-windows.zip
+        curl -L -o RecastDemo/Contrib/SDL.zip https://github.com/libsdl-org/SDL/releases/download/release-2.24.2/SDL2-devel-2.24.2-VC.zip
     
     - name: Unzip premake
       run: 7z x premake.zip
