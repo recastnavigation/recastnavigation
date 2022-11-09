@@ -2,15 +2,15 @@ shallow_clone: true
 
 environment:
   matrix:
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
-      PREMAKE_ACTION: vs2013
-      CMAKE_GENERATOR: Visual Studio 12 2013 Win64
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-      PREMAKE_ACTION: vs2015
-      CMAKE_GENERATOR: Visual Studio 14 2015 Win64
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       PREMAKE_ACTION: vs2017
       CMAKE_GENERATOR: Visual Studio 15 2017 Win64
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+      PREMAKE_ACTION: vs2019
+      CMAKE_GENERATOR: Visual Studio 16 2019
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2022
+      PREMAKE_ACTION: vs2022
+      CMAKE_GENERATOR: Visual Studio 17 2022
 
 configuration:
   - Debug
@@ -21,7 +21,7 @@ platform:
 
 install:
   # Download Premake
-  - ps: Start-FileDownload 'https://github.com/premake/premake-core/releases/download/v5.0.0-alpha12/premake-5.0.0-alpha12-windows.zip' 'premake.zip'
+  - ps: Start-FileDownload 'https://github.com/premake/premake-core/releases/download/v5.0.0-beta2/premake-5.0.0-beta2-windows.zip' 'premake.zip'
   
   # Extract it in-place; premake5.exe is at the top level.
   - 7z x premake.zip
@@ -34,7 +34,6 @@ install:
 
   # Generate solution files using premake.
   - cd RecastDemo && "../premake5.exe" %PREMAKE_ACTION% && cd ..
-
 
 build:
   project: RecastDemo/Build/$(PREMAKE_ACTION)/recastnavigation.sln

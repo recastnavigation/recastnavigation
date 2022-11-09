@@ -16,6 +16,9 @@ RecastDemo/Bin/Tests
 # Build directory
 RecastDemo/Build
 
+# XCode debug symbols archive
+RecastDemo/Bin/*.dSYM
+
 # Ignore meshes
 RecastDemo/Bin/Meshes/*
 
