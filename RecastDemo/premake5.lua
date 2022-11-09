@@ -75,9 +75,10 @@ project "Detour"
 		"../Detour/Source/*.cpp" 
 	}
 	-- linux library cflags and libs
-	filter {"system:linux", "action:gmake"}
+	filter "system:linux"
 		buildoptions {
-			"-Wno-error=class-memaccess"
+			"-Wno-error=class-memaccess",
+			"-Wno-error=maybe-uninitialized"
 		}
 
 project "DetourCrowd"
@@ -150,7 +151,7 @@ project "RecastDemo"
 	targetdir "Bin"
 
 	-- linux library cflags and libs
-	filter {"system:linux", "action:gmake"}
+	filter "system:linux"
 		buildoptions { 
 			"`pkg-config --cflags sdl2`",
 			"`pkg-config --cflags gl`",
@@ -163,7 +164,7 @@ project "RecastDemo"
 			"`pkg-config --libs glu`" 
 		}
 
-	filter { "system:linux", "action:gmake*", "files:*.c" }
+	filter { "system:linux", "files:*.c" }
 		buildoptions {
 			"-Wno-class-memaccess"
 		}
