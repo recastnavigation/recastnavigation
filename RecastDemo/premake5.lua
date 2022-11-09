@@ -157,15 +157,15 @@ project "RecastDemo"
 			"`pkg-config --cflags glu`",
 			"-Wno-ignored-qualifiers",
 		}
-		filter { "files:*.c" }
-		buildoptions {
-			"-Wno-class-memaccess"
-		}
-		filter {}
 		linkoptions { 
 			"`pkg-config --libs sdl2`",
 			"`pkg-config --libs gl`",
 			"`pkg-config --libs glu`" 
+		}
+
+	filter { "system:linux", "action:gmake*", "files:*.c" }
+		buildoptions {
+			"-Wno-class-memaccess"
 		}
 
 	-- windows library cflags and libs
