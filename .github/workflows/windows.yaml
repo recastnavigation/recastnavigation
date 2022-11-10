@@ -14,10 +14,15 @@ jobs:
           - Debug
           - Release
         vs-version:
-          - premake-action: vs2019
+          - vs2019
+          - vs2022
+        include:
+          - vs-version: vs2019
+            premake-action: vs2019
             range: '16.0'
             runner: windows-2019
-          - premake-action: vs2022
+          - vs-version: vs2022
+            premake-action: vs2022
             range: '17.0'
             runner: windows-2022
 
