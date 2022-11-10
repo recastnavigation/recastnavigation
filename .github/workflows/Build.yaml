@@ -45,10 +45,6 @@ jobs:
     - name: Build Unit Tests With Xcode
       working-directory: RecastDemo/Build/xcode4/
       run: xcodebuild -scheme Tests -configuration ${{matrix.conf}} -project Tests.xcodeproj build
-
-    - name: Run unit tests
-      working-directory: RecastDemo/Bin
-      run: ./Tests
   
   linux-premake:
     strategy:
@@ -82,10 +78,6 @@ jobs:
     - name: Build
       working-directory: RecastDemo/Build/gmake2
       run: make config=${{matrix.conf}} verbose=true
-    
-    - name: Run Tests
-      working-directory: RecastDemo/Bin
-      run: ./Tests
     
   linux-cmake:
     strategy:
