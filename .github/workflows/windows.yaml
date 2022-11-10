@@ -66,11 +66,14 @@ jobs:
           - Debug
           - Release
         vs-version:
-          - cmake-generator: Visual Studio 16 2019
-            range: '[16.0,16.10)'
+          - vs2019
+          - vs2022
+        include:
+          - vs-version: vs2019
+            cmake-generator: Visual Studio 16 2019
             runner: windows-2019
-          - cmake-generator: Visual Studio 17 2022
-            range: '[17.0,17.5)'
+          - vs-version: vs2022
+            cmake-generator: Visual Studio 17 2022
             runner: windows-2022
 
     runs-on: ${{matrix.vs-version.runner}}
