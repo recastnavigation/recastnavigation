@@ -55,7 +55,7 @@ jobs:
       run: ./premake5.exe ${{matrix.vs-version.premake-action}}
 
     - name: Build
-      working-directory: RecastDemo/Build/vs2022
+      working-directory: RecastDemo/Build/${{matrix.vs-version.premake-action}}
       run: msbuild RecastDemo.vcxproj -property:Configuration=${{matrix.conf}}
 
   build-cmake:
