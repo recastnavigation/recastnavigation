@@ -16,11 +16,11 @@ jobs:
         vs-version:
           - premake-action: vs2019
             cmake-generator: Visual Studio 16 2017
-            range: '[16.0,16.10)'
+            range: '16.0'
             runner: windows-2019
           - premake-action: vs2022
             cmake-generator: Visual Studio 17 2022
-            range: '[17.0,17.5)'
+            range: '17.0'
             runner: windows-2022
 
     runs-on: ${{matrix.vs-version.runner}}
