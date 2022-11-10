@@ -18,15 +18,13 @@ jobs:
           - vs2022
         include:
           - vs-version: vs2019
-            premake-action: vs2019
-            range: '16.0'
+            version-range: '16.0'
             runner: windows-2019
           - vs-version: vs2022
-            premake-action: vs2022
-            range: '17.0'
+            version-range: '17.0'
             runner: windows-2022
 
-    runs-on: ${{matrix.vs-version.runner}}
+    runs-on: ${{matrix.runner}}
 
     steps:
     - uses: actions/checkout@v3
@@ -34,7 +32,7 @@ jobs:
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v1.1
       with:
-        vs-version: ${{matrix.vs-version.range}}
+        vs-version: ${{matrix.version-range}}
 
     - name: Download and Install SDL
       working-directory: RecastDemo/Contrib
@@ -55,10 +53,10 @@ jobs:
 
     - name: Run Premake
       working-directory: RecastDemo
-      run: ./premake5.exe ${{matrix.vs-version.premake-action}}
+      run: ./premake5.exe ${{matrix.vs-version}}
 
     - name: Build
-      working-directory: RecastDemo/Build/${{matrix.vs-version.premake-action}}
+      working-directory: RecastDemo/Build/${{matrix.vs-version}}
       run: msbuild RecastDemo.vcxproj -property:Configuration=${{matrix.conf}}
 
   build-cmake:
