@@ -76,7 +76,7 @@ jobs:
             cmake-generator: Visual Studio 17 2022
             runner: windows-2022
 
-    runs-on: ${{matrix.vs-version.runner}}
+    runs-on: ${{matrix.runner}}
 
     steps:
     - uses: actions/checkout@v3
@@ -91,7 +91,7 @@ jobs:
         del SDL.zip
 
     - name: Configure CMake
-      run: cmake -G "${{matrix.vs-version.cmake-generator}}" -B ${{github.workspace}}/build -D CMAKE_BUILD_TYPE=${{matrix.conf}} -D CMAKE_INSTALL_PREFIX=${{github.workspace}}/build
+      run: cmake -G "${{matrix.cmake-generator}}" -B ${{github.workspace}}/build -D CMAKE_BUILD_TYPE=${{matrix.conf}} -D CMAKE_INSTALL_PREFIX=${{github.workspace}}/build
 
     - name: Build with CMake
       run: cmake --build ${{github.workspace}}/build --config ${{matrix.conf}}
