@@ -75,7 +75,7 @@ project "Detour"
 		"../Detour/Source/*.cpp" 
 	}
 	-- linux library cflags and libs
-	filter "system:linux"
+	filter {"system:linux", "toolset:gcc"}
 		buildoptions {
 			"-Wno-error=class-memaccess",
 			"-Wno-error=maybe-uninitialized"
@@ -164,7 +164,7 @@ project "RecastDemo"
 			"`pkg-config --libs glu`" 
 		}
 
-	filter { "system:linux", "files:*.c" }
+	filter { "system:linux", "toolset:gcc", "files:*.c" }
 		buildoptions {
 			"-Wno-class-memaccess"
 		}
