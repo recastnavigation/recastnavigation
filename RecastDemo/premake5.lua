@@ -75,9 +75,10 @@ project "Detour"
 		"../Detour/Source/*.cpp" 
 	}
 	-- linux library cflags and libs
-	filter {"system:linux", "action:gmake"}
+	filter {"system:linux", "toolset:gcc"}
 		buildoptions {
-			"-Wno-error=class-memaccess"
+			"-Wno-error=class-memaccess",
+			"-Wno-error=maybe-uninitialized"
 		}
 
 project "DetourCrowd"
@@ -130,7 +131,7 @@ project "RecastDemo"
 		"../DetourTileCache/Include",
 		"../Recast/Include"
 	}
-	files	{ 
+	files {
 		"../RecastDemo/Include/*.h",
 		"../RecastDemo/Source/*.cpp",
 		"../RecastDemo/Contrib/fastlz/*.h",
@@ -138,7 +139,7 @@ project "RecastDemo"
 	}
 
 	-- project dependencies
-	links { 
+	links {
 		"DebugUtils",
 		"Detour",
 		"DetourCrowd",
@@ -150,7 +151,7 @@ project "RecastDemo"
 	targetdir "Bin"
 
 	-- linux library cflags and libs
-	filter {"system:linux", "action:gmake"}
+	filter "system:linux"
 		buildoptions { 
 			"`pkg-config --cflags sdl2`",
 			"`pkg-config --cflags gl`",
@@ -163,7 +164,7 @@ project "RecastDemo"
 			"`pkg-config --libs glu`" 
 		}
 
-	filter { "system:linux", "action:gmake*", "files:*.c" }
+	filter { "system:linux", "toolset:gcc", "files:*.c" }
 		buildoptions {
 			"-Wno-class-memaccess"
 		}
@@ -238,8 +239,8 @@ project "Tests"
 	targetdir "Bin"
 
 	-- linux library cflags and libs
-	filter {"system:linux", "action:gmake"}
-		buildoptions { 
+	filter "system:linux"
+		buildoptions {
 			"`pkg-config --cflags sdl2`",
 			"`pkg-config --cflags gl`",
 			"`pkg-config --cflags glu`",
@@ -248,7 +249,8 @@ project "Tests"
 		linkoptions { 
 			"`pkg-config --libs sdl2`",
 			"`pkg-config --libs gl`",
-			"`pkg-config --libs glu`" 
+			"`pkg-config --libs glu`",
+			"-lpthread"
 		}
 
 	-- windows library cflags and libs
