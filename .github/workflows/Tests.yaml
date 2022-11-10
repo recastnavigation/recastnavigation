@@ -68,7 +68,7 @@ jobs:
       working-directory: RecastDemo/Bin
       run: ./Tests
   
-  windows-premake:
+  windows-tests:
     runs-on: windows-2022
 
     steps:
