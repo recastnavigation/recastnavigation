@@ -24,19 +24,11 @@ the regions as simple polygons.
 2. The walkable areas described by the mold are divided into simple overlayed 2D regions. The resulting regions have only one non-overlapping contour, which simplifies the final step of the process tremendously.
 3. The navigation polygons are peeled off from the regions by first tracing the boundaries and then simplifying them. The resulting polygons are finally converted to convex polygons which makes them perfect for pathfinding and spatial reasoning about the level. 
 
-
 ## Detour
 
 Recast is accompanied with Detour, path-finding and spatial reasoning toolkit. You can use any navigation mesh with Detour, but of course the data generated with Recast fits perfectly.
 
 Detour offers simple static navigation mesh which is suitable for many simple cases, as well as tiled navigation mesh which allows you to plug in and out pieces of the mesh. The tiled mesh allows you to create systems where you stream new navigation data in and out as the player progresses the level, or you may regenerate tiles as the world changes. 
-
-## Installation through vcpkg
-
-If you are using the [vcpkg](https://github.com/Microsoft/vcpkg/) dependency manager you can download and install Recast with a single command:
-```
-vcpkg install recast
-```
 
 ## Recast Demo
 
@@ -49,24 +41,23 @@ RecastDemo uses [premake5](http://premake.github.io/) to build platform specific
 #### Linux
 
 - Install SDL2 and its dependencies according to your distro's guidelines.
-- run `premake5 gmake` from the `RecastDemo` folder.
-- `cd Build/gmake` then `make`
-- `cd RecastDemo/Bin` and then run `./RecastDemo`
+- Navigate to the `RecastDemo` folder and run `premake5 gmake2`
+- Navigate to `RecastDemo/Build/gmake2` and run `make`
+- Navigate to `RecastDemo/Bin` and run `./RecastDemo`
 
-#### OSX
+#### macOS
 
-- Grab the latest SDL2 development library dmg from [here](https://www.libsdl.org/download-2.0.php) and place `SDL2.framework` in `/Library/Frameworks/`
+- Grab the latest SDL2 development library dmg from [here](https://github.com/libsdl-org/SDL) and place `SDL2.framework` in `RecastDemo/Bin`
 - Navigate to the `RecastDemo` folder and run `premake5 xcode4`
 - Open `Build/xcode4/recastnavigation.xcworkspace`
-- Select the "RecastDemo" project in the left pane, go to the "BuildPhases" tab and expand "Link Binary With Libraries"
-- Remove the existing entry for SDL2 (it should have a white box icon) and re-add it by hitting the plus, selecting "Add Other", and selecting `/Library/Frameworks/SDL2.framework`.  It should now have a suitcase icon.
 - Set the RecastDemo project as the target and build.
 
 #### Windows
 
-- Grab the latest SDL2 development library release from [here](https://www.libsdl.org/download-2.0.php) and unzip it `RecastDemo\Contrib`.  Rename the SDL folder such that the path `RecastDemo\Contrib\SDL\lib\x86` is valid.
-- Run `"premake5" vs2019` from the `RecastDemo` folder
-- Open the solution, build, and run.
+- Grab the latest SDL2 development library release from [here](https://github.com/libsdl-org/SDL) and unzip it `RecastDemo\Contrib`.  Rename the SDL folder such that the path `RecastDemo\Contrib\SDL\lib\x86` is valid.
+- Navigate to the `RecastDemo` folder and run `premake5 vs2022`
+- Open `Build/vs2022/recastnavigation.sln`.
+- Set `RecastDemo` as the startup project, build, and run.
 
 ### Running Unit tests
 
@@ -77,6 +68,14 @@ RecastDemo uses [premake5](http://premake.github.io/) to build platform specific
 ## Integrating with your own project
 
 It is recommended to add the source directories `DebugUtils`, `Detour`, `DetourCrowd`, `DetourTileCache`, and `Recast` into your own project depending on which parts of the project you need. For example your level building tool could include `DebugUtils`, `Recast`, and `Detour`, and your game runtime could just include `Detour`.
+
+### Installation through vcpkg
+
+If you are using the [vcpkg](https://github.com/Microsoft/vcpkg/) dependency manager you can download and install Recast with:
+
+```
+vcpkg install recast
+```
 
 ## Contributing
 

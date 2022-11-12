@@ -239,8 +239,8 @@ project "Tests"
 	targetdir "Bin"
 
 	-- linux library cflags and libs
-	filter {"system:linux", "action:gmake"}
-		buildoptions { 
+	filter "system:linux"
+		buildoptions {
 			"`pkg-config --cflags sdl2`",
 			"`pkg-config --cflags gl`",
 			"`pkg-config --cflags glu`",
