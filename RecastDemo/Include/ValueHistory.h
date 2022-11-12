@@ -48,3 +48,4 @@ void drawGraph(const GraphParams* p, const ValueHistory* graph,
 
 
 #endif // VALUEHISTORY_H
+

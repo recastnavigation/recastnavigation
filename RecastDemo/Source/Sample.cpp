@@ -35,6 +35,16 @@
 #	define snprintf _snprintf
 #endif
 
+SampleTool::~SampleTool()
+{
+	// Defined out of line to fix the weak v-tables warning
+}
+
+SampleToolState::~SampleToolState()
+{
+	// Defined out of line to fix the weak v-tables warning
+}
+
 unsigned int SampleDebugDraw::areaToCol(unsigned int area)
 {
 	switch(area)
