@@ -74,7 +74,7 @@ enum SamplePartitionType
 
 struct SampleTool
 {
-    virtual ~SampleTool();
+	virtual ~SampleTool();
 	virtual int type() = 0;
 	virtual void init(class Sample* sample) = 0;
 	virtual void reset() = 0;
@@ -88,7 +88,7 @@ struct SampleTool
 };
 
 struct SampleToolState {
-    virtual ~SampleToolState();
+	virtual ~SampleToolState();
 	virtual void init(class Sample* sample) = 0;
 	virtual void reset() = 0;
 	virtual void handleRender() = 0;

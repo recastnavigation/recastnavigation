@@ -27,7 +27,7 @@
 
 duFileIO::~duFileIO()
 {
-    // Defined out of line to fix the weak v-tables warning
+	// Defined out of line to fix the weak v-tables warning
 }
 	
 static void ioprintf(duFileIO* io, const char* format, ...)

@@ -140,7 +140,7 @@ public:
 
 protected:
 	/// Clears all log entries.
-    virtual void doResetLog();
+	virtual void doResetLog();
 
 	/// Logs a message.
 	///  @param[in]		category	The category of the message.

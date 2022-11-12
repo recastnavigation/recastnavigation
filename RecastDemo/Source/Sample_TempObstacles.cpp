@@ -109,8 +109,8 @@ static int calcLayerBufferSize(const int gridWidth, const int gridHeight)
 
 struct FastLZCompressor : public dtTileCacheCompressor
 {
-    virtual ~FastLZCompressor();
-    
+	virtual ~FastLZCompressor();
+
 	virtual int maxCompressedSize(const int bufferSize)
 	{
 		return (int)(bufferSize* 1.05f);
@@ -133,7 +133,7 @@ struct FastLZCompressor : public dtTileCacheCompressor
 
 FastLZCompressor::~FastLZCompressor()
 {
-    // Defined out of line to fix the weak v-tables warning
+	// Defined out of line to fix the weak v-tables warning
 }
 
 struct LinearAllocator : public dtTileCacheAlloc
@@ -148,7 +148,7 @@ struct LinearAllocator : public dtTileCacheAlloc
 		resize(cap);
 	}
 	
-    virtual ~LinearAllocator();
+	virtual ~LinearAllocator();
 
 	void resize(const size_t cap)
 	{
@@ -182,8 +182,8 @@ struct LinearAllocator : public dtTileCacheAlloc
 
 LinearAllocator::~LinearAllocator()
 {
-    // Defined out of line to fix the weak v-tables warning
-    dtFree(buffer);
+	// Defined out of line to fix the weak v-tables warning
+	dtFree(buffer);
 }
 
 struct MeshProcess : public dtTileCacheMeshProcess
@@ -193,8 +193,8 @@ struct MeshProcess : public dtTileCacheMeshProcess
 	inline MeshProcess() : m_geom(0)
 	{
 	}
-    
-    virtual ~MeshProcess();
+
+	virtual ~MeshProcess();
 
 	inline void init(InputGeom* geom)
 	{
@@ -242,7 +242,7 @@ struct MeshProcess : public dtTileCacheMeshProcess
 
 MeshProcess::~MeshProcess()
 {
-    // Defined out of line to fix the weak v-tables warning
+	// Defined out of line to fix the weak v-tables warning
 }
 
 static const int MAX_LAYERS = 32;
@@ -832,7 +832,7 @@ public:
 
 TempObstacleCreateTool::~TempObstacleCreateTool()
 {
-    // Defined out of line to fix the weak v-tables warning
+	// Defined out of line to fix the weak v-tables warning
 }
 
 Sample_TempObstacles::Sample_TempObstacles() :

@@ -119,7 +119,7 @@ void dtFreeNavMeshQuery(dtNavMeshQuery* navmesh)
 
 dtPolyQuery::~dtPolyQuery()
 {
-    // Defined out of line to fix the weak v-tables warning
+	// Defined out of line to fix the weak v-tables warning
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -634,8 +634,8 @@ public:
 		: m_query(query), m_center(center), m_nearestDistanceSqr(FLT_MAX), m_nearestRef(0), m_nearestPoint(), m_overPoly(false)
 	{
 	}
-    
-    virtual ~dtFindNearestPolyQuery();
+
+	virtual ~dtFindNearestPolyQuery();
 
 	dtPolyRef nearestRef() const { return m_nearestRef; }
 	const float* nearestPoint() const { return m_nearestPoint; }
@@ -681,7 +681,7 @@ public:
 
 dtFindNearestPolyQuery::~dtFindNearestPolyQuery()
 {
-    // Defined out of line to fix the weak v-tables warning
+	// Defined out of line to fix the weak v-tables warning
 }
 
 /// @par 
@@ -858,8 +858,8 @@ public:
 		: m_polys(polys), m_maxPolys(maxPolys), m_numCollected(0), m_overflow(false)
 	{
 	}
-    
-    virtual ~dtCollectPolysQuery();
+
+	virtual ~dtCollectPolysQuery();
 
 	int numCollected() const { return m_numCollected; }
 	bool overflowed() const { return m_overflow; }
@@ -884,7 +884,7 @@ public:
 
 dtCollectPolysQuery::~dtCollectPolysQuery()
 {
-    // Defined out of line to fix the weak v-tables warning
+	// Defined out of line to fix the weak v-tables warning
 }
 
 /// @par 

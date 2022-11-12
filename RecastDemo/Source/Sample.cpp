@@ -37,12 +37,12 @@
 
 SampleTool::~SampleTool()
 {
-    // Defined out of line to fix the weak v-tables warning
+	// Defined out of line to fix the weak v-tables warning
 }
 
 SampleToolState::~SampleToolState()
 {
-    // Defined out of line to fix the weak v-tables warning
+	// Defined out of line to fix the weak v-tables warning
 }
 
 unsigned int SampleDebugDraw::areaToCol(unsigned int area)

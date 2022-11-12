@@ -196,10 +196,10 @@ class duDisplayList : public duDebugDraw
 	unsigned int* m_color;
 	int m_size;
 	int m_cap;
-    
+
 	duDebugDrawPrimitives m_prim;
 	float m_primSize;
-    bool m_depthMask;
+	bool m_depthMask;
 	
 	void resize(int cap);
 	

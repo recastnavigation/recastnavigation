@@ -172,7 +172,7 @@ public:
 
 NavMeshTileTool::~NavMeshTileTool()
 {
-    // Defined out of line to fix the weak v-tables warning
+	// Defined out of line to fix the weak v-tables warning
 }
 
 Sample_TileMesh::Sample_TileMesh() :

@@ -96,7 +96,7 @@ void rcContext::log(const rcLogCategory category, const char* format, ...)
 
 void rcContext::doResetLog()
 {
-    // Defined out of line to fix the weak v-tables warning
+	// Defined out of line to fix the weak v-tables warning
 }
 
 rcHeightfield* rcAllocHeightfield()

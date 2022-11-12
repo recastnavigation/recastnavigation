@@ -241,7 +241,7 @@ const dtTileCacheObstacle* dtTileCache::getObstacleByRef(dtObstacleRef ref)
 
 dtTileCacheMeshProcess::~dtTileCacheMeshProcess()
 {
-    // Defined out of line to fix the weak v-tables warning
+	// Defined out of line to fix the weak v-tables warning
 }
 
 dtStatus dtTileCache::addTile(unsigned char* data, const int dataSize, unsigned char flags, dtCompressedTileRef* result)

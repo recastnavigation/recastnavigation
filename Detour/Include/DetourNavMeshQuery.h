@@ -152,7 +152,7 @@ struct dtRaycastHit
 class dtPolyQuery
 {
 public:
-    virtual ~dtPolyQuery();
+	virtual ~dtPolyQuery();
 
 	/// Called for each batch of unique polygons touched by the search area in dtNavMeshQuery::queryPolygons.
 	/// This can be called multiple times for a single query.
