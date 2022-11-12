@@ -188,7 +188,7 @@ project "RecastDemo"
 	-- mac includes and libs
 	filter "system:macosx"
 		kind "ConsoleApp" -- xcode4 failes to run the project if using WindowedApp
-		includedirs { "/Library/Frameworks/SDL2.framework/Headers" }
+		includedirs { "Bin/SDL2.framework/Headers" }
 		links { 
 			"OpenGL.framework", 
 			"SDL2.framework",
@@ -268,9 +268,6 @@ project "Tests"
 	-- mac includes and libs
 	filter "system:macosx"
 		kind "ConsoleApp"
-		includedirs { "/Library/Frameworks/SDL2.framework/Headers" }
-		links { 
-			"OpenGL.framework", 
-			"SDL2.framework",
+		links {
 			"Cocoa.framework",
 		}
