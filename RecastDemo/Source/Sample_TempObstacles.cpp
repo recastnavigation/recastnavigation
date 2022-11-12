@@ -698,7 +698,7 @@ public:
 		m_hitPos[0] = m_hitPos[1] = m_hitPos[2] = 0;
 	}
 
-    virtual ~TempObstacleHilightTool();
+	virtual ~TempObstacleHilightTool();
 
 	virtual int type() { return TOOL_TILE_HIGHLIGHT; }
 
@@ -775,7 +775,7 @@ public:
 
 TempObstacleHilightTool::~TempObstacleHilightTool()
 {
-    // Defined out of line to fix the weak v-tables warning
+	// Defined out of line to fix the weak v-tables warning
 }
 
 class TempObstacleCreateTool : public SampleTool
@@ -788,7 +788,7 @@ public:
 	{
 	}
 	
-    virtual ~TempObstacleCreateTool();
+	virtual ~TempObstacleCreateTool();
 	
 	virtual int type() { return TOOL_TEMP_OBSTACLE; }
 	

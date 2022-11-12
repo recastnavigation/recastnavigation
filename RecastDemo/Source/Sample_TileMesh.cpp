@@ -87,7 +87,7 @@ public:
 		m_hitPos[0] = m_hitPos[1] = m_hitPos[2] = 0;
 	}
 
-    virtual ~NavMeshTileTool();
+	virtual ~NavMeshTileTool();
 
 	virtual int type() { return TOOL_TILE_EDIT; }
 
