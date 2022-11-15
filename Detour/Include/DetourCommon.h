@@ -37,7 +37,6 @@ feature to find minor members.
 
 /// Used to ignore a function parameter.  VS complains about unused parameters
 /// and this silences the warning.
-///  @param [in] _ Unused parameter
 template<class T> void dtIgnoreUnused(const T&) { }
 
 /// Swaps the values of the two parameters.

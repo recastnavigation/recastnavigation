@@ -146,23 +146,23 @@ protected:
 	///  @param[in]		category	The category of the message.
 	///  @param[in]		msg			The formatted message.
 	///  @param[in]		len			The length of the formatted message.
-	virtual void doLog(const rcLogCategory /*category*/, const char* /*msg*/, const int /*len*/) {}
+	virtual void doLog(const rcLogCategory category, const char* msg, const int len) { rcIgnoreUnused(category); rcIgnoreUnused(msg); rcIgnoreUnused(len); }
 
 	/// Clears all timers. (Resets all to unused.)
 	virtual void doResetTimers() {}
 
 	/// Starts the specified performance timer.
 	///  @param[in]		label	The category of timer.
-	virtual void doStartTimer(const rcTimerLabel /*label*/) {}
+	virtual void doStartTimer(const rcTimerLabel label) { rcIgnoreUnused(label); }
 
 	/// Stops the specified performance timer.
 	///  @param[in]		label	The category of the timer.
-	virtual void doStopTimer(const rcTimerLabel /*label*/) {}
+	virtual void doStopTimer(const rcTimerLabel label) { rcIgnoreUnused(label); }
 
 	/// Returns the total accumulated time of the specified performance timer.
 	///  @param[in]		label	The category of the timer.
 	///  @return The accumulated time of the timer, or -1 if timers are disabled or the timer has never been started.
-	virtual int doGetAccumulatedTime(const rcTimerLabel /*label*/) const { return -1; }
+	virtual int doGetAccumulatedTime(const rcTimerLabel label) const { rcIgnoreUnused(label); return -1; }
 	
 	/// True if logging is enabled.
 	bool m_logEnabled;
@@ -595,7 +595,6 @@ static const int RC_NOT_CONNECTED = 0x3f;
 
 /// Used to ignore a function parameter.  VS complains about unused parameters
 /// and this silences the warning.
-///  @param [in] _ Unused parameter
 template<class T> void rcIgnoreUnused(const T&) { }
 
 /// Swaps the values of the two parameters.
@@ -994,6 +993,7 @@ void rcMarkConvexPolyArea(rcContext* ctx, const float* verts, const int nverts,
 ///  @ingroup recast
 ///  @param[in]		verts		The vertices of the polygon [Form: (x, y, z) * @p nverts]
 ///  @param[in]		nverts		The number of vertices in the polygon.
+///  @param[in]		offset		How much to offset the polygon by. [Units: wu]
 ///  @param[out]	outVerts	The offset vertices (should hold up to 2 * @p nverts) [Form: (x, y, z) * return value]
 ///  @param[in]		maxOutVerts	The max number of vertices that can be stored to @p outVerts.
 ///  @returns Number of vertices in the offset polygon or 0 if too few vertices in @p outVerts.
