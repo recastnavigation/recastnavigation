@@ -32,14 +32,6 @@ inline bool overlapBounds(const float* amin, const float* amax, const float* bmi
 	return overlap;
 }
 
-inline bool overlapInterval(unsigned short amin, unsigned short amax,
-							unsigned short bmin, unsigned short bmax)
-{
-	if (amax < bmin) return false;
-	if (amin > bmax) return false;
-	return true;
-}
-
 static rcSpan* allocSpan(rcHeightfield& hf)
 {
 	// If running out of memory, allocate new page and update the freelist.
