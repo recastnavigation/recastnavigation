@@ -914,7 +914,6 @@ INPUT                  = . \
                          DetourCrowd \
                          DetourTileCache \
                          Recast \
-                         Docs/Conceptual \
                          Docs/Extern
 
 # This tag can be used to specify the character encoding of the source files
