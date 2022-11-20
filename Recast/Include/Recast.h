@@ -822,6 +822,11 @@ void rcClearUnwalkableTriangles(rcContext* ctx, const float walkableSlopeAngle, 
 								const int* tris, int nt, unsigned char* areas); 
 
 /// Adds a span to the specified heightfield.
+/// 
+/// The span addition can be set to favor flags. If the span is merged to
+/// another span and the new @p smax is within @p flagMergeThr units
+/// from the existing span, the span flags are merged.
+/// 
 ///  @ingroup recast
 ///  @param[in,out]	ctx				The build context to use during the operation.
 ///  @param[in,out]	hf				An initialized heightfield.
@@ -839,6 +844,10 @@ bool rcAddSpan(rcContext* ctx, rcHeightfield& hf, const int x, const int y,
 			   const unsigned char area, const int flagMergeThr);
 
 /// Rasterizes a triangle into the specified heightfield.
+///
+/// No spans will be added if the triangle does not overlap the heightfield grid.
+///
+/// @see rcHeightfield
 ///  @ingroup recast
 ///  @param[in,out]	ctx				The build context to use during the operation.
 ///  @param[in]		v0				Triangle vertex 0 [(x, y, z)]
@@ -854,6 +863,10 @@ bool rcRasterizeTriangle(rcContext* ctx, const float* v0, const float* v1, const
 						 const int flagMergeThr = 1);
 
 /// Rasterizes an indexed triangle mesh into the specified heightfield.
+///
+/// Spans will only be added for triangles that overlap the heightfield grid.
+/// 
+///  @see rcHeightfield
 ///  @ingroup recast
 ///  @param[in,out]	ctx				The build context to use during the operation.
 ///  @param[in]		verts			The vertices. [(x, y, z) * @p nv]
@@ -870,6 +883,10 @@ bool rcRasterizeTriangles(rcContext* ctx, const float* verts, const int nv,
 						  rcHeightfield& solid, const int flagMergeThr = 1);
 
 /// Rasterizes an indexed triangle mesh into the specified heightfield.
+///
+/// Spans will only be added for triangles that overlap the heightfield grid.
+/// 
+///  @see rcHeightfield
 ///  @ingroup recast
 ///  @param[in,out]	ctx			The build context to use during the operation.
 ///  @param[in]		verts		The vertices. [(x, y, z) * @p nv]
@@ -886,6 +903,10 @@ bool rcRasterizeTriangles(rcContext* ctx, const float* verts, const int nv,
 						  rcHeightfield& solid, const int flagMergeThr = 1);
 
 /// Rasterizes triangles into the specified heightfield.
+///
+/// Spans will only be added for triangles that overlap the heightfield grid.
+/// 
+///  @see rcHeightfield
 ///  @ingroup recast
 ///  @param[in,out]	ctx				The build context to use during the operation.
 ///  @param[in]		verts			The triangle vertices. [(ax, ay, az, bx, by, bz, cx, by, cx) * @p nt]
