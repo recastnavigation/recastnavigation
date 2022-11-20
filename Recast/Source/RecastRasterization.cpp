@@ -23,7 +23,7 @@
 #include "RecastAlloc.h"
 #include "RecastAssert.h"
 
-inline bool overlapBounds(const float* amin, const float* amax, const float* bmin, const float* bmax)
+static bool overlapBounds(const float* amin, const float* amax, const float* bmin, const float* bmax)
 {
 	bool overlap = true;
 	overlap = (amin[0] > bmax[0] || amax[0] < bmin[0]) ? false : overlap;
