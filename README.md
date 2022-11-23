@@ -5,7 +5,7 @@ Recast & Detour
 [![Build](https://github.com/recastnavigation/recastnavigation/actions/workflows/Build.yaml/badge.svg)](https://github.com/recastnavigation/recastnavigation/actions/workflows/Build.yaml)
 [![Tests](https://github.com/recastnavigation/recastnavigation/actions/workflows/Tests.yaml/badge.svg)](https://github.com/recastnavigation/recastnavigation/actions/workflows/Tests.yaml)
 
-![screenshot of a navmesh baked with the sample program](/RecastDemo/screenshot.png?raw=true)
+![screenshot of a navmesh baked with the sample program](/Docs/Images/screenshot.png)
 
 ## Recast
 

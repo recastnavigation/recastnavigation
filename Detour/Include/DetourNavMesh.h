@@ -312,8 +312,8 @@ private:
 };
 
 /// Get flags for edge in detail triangle.
-/// @param	triFlags[in]		The flags for the triangle (last component of detail vertices above).
-/// @param	edgeIndex[in]		The index of the first vertex of the edge. For instance, if 0,
+/// @param[in]	triFlags		The flags for the triangle (last component of detail vertices above).
+/// @param[in]	edgeIndex		The index of the first vertex of the edge. For instance, if 0,
 ///								returns flags for edge AB.
 inline int dtGetDetailTriEdgeFlags(unsigned char triFlags, int edgeIndex)
 {

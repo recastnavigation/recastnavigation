@@ -57,11 +57,13 @@ struct duDebugDraw
 	/// Submit a vertex
 	///  @param pos [in] position of the verts.
 	///  @param color [in] color of the verts.
+	///  @param uv [in] the uv coordinates of the verts.
 	virtual void vertex(const float* pos, unsigned int color, const float* uv) = 0;
 	
 	/// Submit a vertex
 	///  @param x,y,z [in] position of the verts.
 	///  @param color [in] color of the verts.
+	///  @param u,v [in] the uv coordinates of the verts.
 	virtual void vertex(const float x, const float y, const float z, unsigned int color, const float u, const float v) = 0;
 	
 	/// End drawing primitives.

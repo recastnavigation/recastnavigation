@@ -107,7 +107,7 @@
 
   <!-- Layout definition for a file page -->
   <file>
-    <briefdescription visible="Description"/>
+    <briefdescription visible="yes"/>
     <detaileddescription title=""/>    
     <includes visible="$SHOW_INCLUDE_FILES"/>
     <includegraph visible="$INCLUDE_GRAPH"/>
