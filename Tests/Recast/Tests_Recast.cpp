@@ -657,6 +657,43 @@ TEST_CASE("rcRasterizeTriangle")
 	}
 }
 
+TEST_CASE("rcRasterizeTriangle overlapping bb but non-overlapping triangle")
+{
+	// This is a minimal repro case for the issue fixed in PR #476 (https://github.com/recastnavigation/recastnavigation/pull/476)
+    rcContext ctx;
+
+	// create a heightfield
+    float cellSize = 1;
+    float cellHeight = 1;
+    int width = 10;
+    int height = 10;
+    float bmin[] = { 0, 0, 0 };
+    float bmax[] = { 10, 10, 10 };
+    rcHeightfield heightfield;
+    REQUIRE(rcCreateHeightfield(&ctx, heightfield, width, height, bmin, bmax, cellSize, cellHeight));
+
+	// rasterize a triangle outside of the heightfield.
+    unsigned char area = 42;
+    int flagMergeThr = 1;
+    float verts[] =
+	{
+        -10.0, 5.5, -10.0,
+        -10.0, 5.5, 3,
+        3.0, 5.5, -10.0
+    };
+    REQUIRE(rcRasterizeTriangle(&ctx, &verts[0], &verts[3], &verts[6], area, heightfield, flagMergeThr));
+    
+	// ensure that no spans were created
+    for (int x = 0; x < width; ++x)
+	{
+        for (int z = 0; z < height; ++z)
+		{
+            rcSpan* span = heightfield.spans[x + z * heightfield.width];
+			REQUIRE(span == NULL);
+        }
+    }
+}
+
 TEST_CASE("rcRasterizeTriangles")
 {
 	rcContext ctx;
