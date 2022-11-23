@@ -27,7 +27,7 @@ enum duDebugDrawPrimitives
 	DU_DRAW_POINTS,
 	DU_DRAW_LINES,
 	DU_DRAW_TRIS,
-	DU_DRAW_QUADS,	
+	DU_DRAW_QUADS
 };
 
 /// Abstract debug draw interface.
@@ -57,11 +57,13 @@ struct duDebugDraw
 	/// Submit a vertex
 	///  @param pos [in] position of the verts.
 	///  @param color [in] color of the verts.
+	///  @param uv [in] the uv coordinates of the verts.
 	virtual void vertex(const float* pos, unsigned int color, const float* uv) = 0;
 	
 	/// Submit a vertex
 	///  @param x,y,z [in] position of the verts.
 	///  @param color [in] color of the verts.
+	///  @param u,v [in] the uv coordinates of the verts.
 	virtual void vertex(const float x, const float y, const float z, unsigned int color, const float u, const float v) = 0;
 	
 	/// End drawing primitives.
@@ -197,15 +199,15 @@ class duDisplayList : public duDebugDraw
 	int m_size;
 	int m_cap;
 
-	bool m_depthMask;
 	duDebugDrawPrimitives m_prim;
 	float m_primSize;
+	bool m_depthMask;
 	
 	void resize(int cap);
 	
 public:
 	duDisplayList(int cap = 512);
-	~duDisplayList();
+	virtual ~duDisplayList();
 	virtual void depthMask(bool state);
 	virtual void begin(duDebugDrawPrimitives prim, float size = 1.0f);
 	virtual void vertex(const float x, const float y, const float z, unsigned int color);

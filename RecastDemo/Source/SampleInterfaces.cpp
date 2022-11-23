@@ -184,7 +184,7 @@ public:
 		}
 	}
 };
-GLCheckerTexture g_tex;
+static GLCheckerTexture g_tex;
 
 
 void DebugDrawGL::depthMask(bool state)

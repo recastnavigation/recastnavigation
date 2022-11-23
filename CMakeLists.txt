@@ -15,6 +15,7 @@ if(MSVC AND BUILD_SHARED_LIBS)
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 endif()
 
+include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
 
 configure_file(
@@ -42,6 +43,38 @@ add_subdirectory(Detour)
 add_subdirectory(DetourCrowd)
 add_subdirectory(DetourTileCache)
 add_subdirectory(Recast)
+
+configure_package_config_file(
+    ${PROJECT_SOURCE_DIR}/recastnavigation-config.cmake.in
+    recastnavigation-config.cmake
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/recastnavigation
+)
+
+write_basic_package_version_file(
+    recastnavigation-config-version.cmake
+    VERSION ${LIB_VERSION}
+    COMPATIBILITY AnyNewerVersion
+)
+
+export(
+    EXPORT recastnavigation-targets
+    NAMESPACE RecastNavigation::
+    FILE recastnavigation-targets.cmake
+)
+
+install(
+    EXPORT recastnavigation-targets
+    NAMESPACE RecastNavigation::
+    FILE recastnavigation-targets.cmake
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/recastnavigation
+)
+
+install(
+    FILES
+        ${PROJECT_BINARY_DIR}/recastnavigation-config.cmake
+        ${PROJECT_BINARY_DIR}/recastnavigation-config-version.cmake
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/recastnavigation
+)
 
 if (RECASTNAVIGATION_DEMO)
     add_subdirectory(RecastDemo)

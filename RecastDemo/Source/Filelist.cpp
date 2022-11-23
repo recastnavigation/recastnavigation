@@ -55,10 +55,10 @@ void scanDirectoryAppend(const string& path, const string& ext, vector<string>& 
 		return;
 	}
 	
-	int extLen = strlen(ext.c_str());
+	size_t extLen = strlen(ext.c_str());
 	while ((current = readdir(dp)) != 0)
 	{
-		int len = strlen(current->d_name);
+		size_t len = strlen(current->d_name);
 		if (len > extLen && strncmp(current->d_name + len - extLen, ext.c_str(), extLen) == 0)
 		{
 			filelist.push_back(current->d_name);
