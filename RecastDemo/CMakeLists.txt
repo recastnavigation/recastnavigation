@@ -3,7 +3,11 @@ file(GLOB SOURCES Source/*.cpp Contrib/fastlz/fastlz.c)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 if(NOT SDL2_ROOT_DIR)
+  if(WIN32)
     set(SDL2_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Contrib/SDL")
+  elseif(APPLE)
+    set(SDL2_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Bin")
+  endif()
 endif()
 
 find_package(OpenGL REQUIRED)
