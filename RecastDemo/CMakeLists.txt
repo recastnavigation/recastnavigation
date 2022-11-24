@@ -11,7 +11,14 @@ if(NOT SDL2_ROOT_DIR)
 endif()
 
 find_package(OpenGL REQUIRED)
-find_package(SDL2 REQUIRED)
+if(APPLE)
+  find_library(SDL2_LIBRARY 
+    NAMES SDL2
+    PATHS ${SDL2_ROOT_DIR}
+    REQUIRED)
+else()
+  find_package(SDL2 REQUIRED)
+endif()
 
 include_directories(SYSTEM ${OPENGL_INCLUDE_DIR})
 include_directories(SYSTEM Contrib/fastlz)
@@ -23,6 +30,9 @@ include_directories(../DetourTileCache/Include)
 include_directories(../Recast/Include)
 include_directories(Include)
 include_directories(Contrib/SDL/include)
+if(APPLE)
+  include_directories(${SDL2_LIBRARY}/Headers)
+endif()
 
 if (WIN32)
     add_executable(RecastDemo WIN32 ${SOURCES})
@@ -58,7 +68,12 @@ endif()
 
 
 add_dependencies(RecastDemo DebugUtils Detour DetourCrowd DetourTileCache Recast)
-target_link_libraries(RecastDemo ${OPENGL_LIBRARIES} SDL2::SDL2main DebugUtils Detour DetourCrowd DetourTileCache Recast)
+if(APPLE)
+  target_link_libraries(RecastDemo ${OPENGL_LIBRARIES} ${SDL2_LIBRARY} DebugUtils Detour DetourCrowd DetourTileCache Recast)
+else()
+  target_link_libraries(RecastDemo ${OPENGL_LIBRARIES} SDL2::SDL2main DebugUtils Detour DetourCrowd DetourTileCache Recast)
+endif()
+
 
 install(TARGETS RecastDemo
         RUNTIME DESTINATION bin
