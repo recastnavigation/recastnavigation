@@ -7,7 +7,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(Tests ${TESTS_SOURCES})
 
-set_property(TARGET Tests PROPERTY CXX_STANDARD 20)
+set_property(TARGET Tests PROPERTY CXX_STANDARD 17)
 
 add_dependencies(Tests Recast Detour)
 target_link_libraries(Tests Recast Detour)
