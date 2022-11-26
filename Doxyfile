@@ -911,6 +911,7 @@ WARN_LOGFILE           =
 INPUT                  = . \
                          README.md \
                          CONTRIBUTING.md \
+                         Roadmap.md \
                          DetourCrowd \
                          DetourTileCache \
                          Recast \

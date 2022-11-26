@@ -77,9 +77,9 @@ If you are using the [vcpkg](https://github.com/Microsoft/vcpkg/) dependency man
 vcpkg install recast
 ```
 
-## Contributing
+## Contribute
 
-See the [Contributing document](CONTRIBUTING.md) for guidelines for making contributions.
+Check out the [Project Roadmap](Roadmap.md) to see what features and functionality you might be able to help with, and the [Contributing doc](CONTRIBUTING.md) for guidance on making contributions.
 
 ## Discuss
 
