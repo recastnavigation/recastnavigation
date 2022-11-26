@@ -13,7 +13,7 @@ Recast is state of the art navigation mesh construction toolset for games.
 
 Recast is...
 * 🤖 **Automatic** - throw any level geometry at it and you will get a robust navmesh out
-* 💨 **Fast** - swift turnaround times for level designers
+* 🏎️ **Fast** - swift turnaround times for level designers
 * 🧘 **Flexible** - easily customize the navmesh generation and runtime navigation systems to suit your specific game's needs.
 
 Recast constructs a navmesh through a multi-step rasterization process:
