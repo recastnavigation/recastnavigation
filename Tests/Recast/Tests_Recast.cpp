@@ -694,6 +694,73 @@ TEST_CASE("rcRasterizeTriangle overlapping bb but non-overlapping triangle")
     }
 }
 
+TEST_CASE("rcRasterizeTriangle smaller than half a voxel size in x")
+{
+	SECTION("Skinny triangle along x axis")
+	{
+		rcContext ctx;
+		float verts[] = {
+			5, 0, 0.005f,
+			5, 0, -0.005f,
+			-5, 0, 0.005f,
+
+			-5, 0, 0.005f,
+			5, 0, -0.005f,
+			-5, 0, -0.005f,
+		};
+		float bmin[3];
+		float bmax[3];
+		rcCalcBounds(verts, 3, bmin, bmax);
+
+		float cellSize = 1;
+		float cellHeight = 1;
+
+		int width;
+		int height;
+
+		rcCalcGridSize(bmin, bmax, cellSize, &width, &height);
+
+		rcHeightfield solid;
+		REQUIRE(rcCreateHeightfield(&ctx, solid, width, height, bmin, bmax, cellSize, cellHeight));
+
+		unsigned char areas[] = {42, 42};
+		int flagMergeThr = 1;
+		REQUIRE(rcRasterizeTriangles(&ctx, verts, areas, 2, solid, flagMergeThr));
+	}
+	
+	SECTION("Skinny triangle along z axis")
+	{
+		rcContext ctx;
+		float verts[] = {
+			0.005f, 0, 5,
+			-0.005f, 0, 5,
+			0.005f, 0, -5,
+
+			0.005f, 0, -5,
+			-0.005f, 0, 5,
+			-0.005f, 0, -5
+		};
+		float bmin[3];
+		float bmax[3];
+		rcCalcBounds(verts, 3, bmin, bmax);
+
+		float cellSize = 1;
+		float cellHeight = 1;
+
+		int width;
+		int height;
+
+		rcCalcGridSize(bmin, bmax, cellSize, &width, &height);
+
+		rcHeightfield solid;
+		REQUIRE(rcCreateHeightfield(&ctx, solid, width, height, bmin, bmax, cellSize, cellHeight));
+
+		unsigned char areas[] = {42, 42};
+		int flagMergeThr = 1;
+		REQUIRE(rcRasterizeTriangles(&ctx, verts, areas, 2, solid, flagMergeThr));
+	}
+}
+
 TEST_CASE("rcRasterizeTriangles")
 {
 	rcContext ctx;
