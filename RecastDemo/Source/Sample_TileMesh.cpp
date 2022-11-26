@@ -766,6 +766,21 @@ void Sample_TileMesh::buildAllTiles()
 		}
 	}
 	
+	if (m_navMesh->hasOffMesh)
+	{
+		int tileNum = m_navMesh->getMaxTiles();
+		for (int y = 0; y < tileNum; ++y)
+		{
+			for (int x = 0; x < tileNum; ++x)
+			{
+				if (x == y) continue;
+				dtMeshTile* tile = m_navMesh->getTile(x);
+				dtMeshTile* target = m_navMesh->getTile(y);
+				if (!(tile->data) || !(target->data)) continue;
+				m_navMesh->connectGlobalOffMeshLinks(tile, target);
+			}
+		}
+	}
 	// Start the build process.	
 	m_ctx->stopTimer(RC_TIMER_TEMP);
 

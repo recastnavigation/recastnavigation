@@ -369,6 +369,8 @@ public:
 	/// @return The status flags for the operation.
 	dtStatus addTile(unsigned char* data, int dataSize, int flags, dtTileRef lastRef, dtTileRef* result);
 	
+	void connectGlobalOffMeshLinks(dtMeshTile* tile, dtMeshTile* target);
+	
 	/// Removes the specified tile from the navigation mesh.
 	///  @param[in]		ref			The reference of the tile to remove.
 	///  @param[out]	data		Data associated with deleted tile.
@@ -607,7 +609,7 @@ public:
 	}
 
 	/// @}
-	
+	bool hasOffMesh = false;
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.
 	dtNavMesh(const dtNavMesh&);
