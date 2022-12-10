@@ -250,17 +250,17 @@ static void dividePoly(const float* inVerts, int inVertsCount,
 ///
 ///	This code is extremely hot, so much care should be given to maintaining maximum perf here.
 /// 
-/// @param v0 Triangle vertex 0
-/// @param v1 Triangle vertex 1
-/// @param v2 Triangle vertex 2
-/// @param area The area ID to assign to the rasterized spans.
-/// @param hf Heightfield to rasterize into
-/// @param bmin The min extents of the heightfield bounding box.
-/// @param bmax The max extents of the heightfield bounding box.
-/// @param cs The x and z axis size of a voxel in the heightfield.
-/// @param ics 1 / cs
-/// @param ich 1 / ch
-/// @param flagMergeThr The threshold in which area flags will be merged. 
+/// @param[in] 	v0				Triangle vertex 0
+/// @param[in] 	v1				Triangle vertex 1
+/// @param[in] 	v2				Triangle vertex 2
+/// @param[in] 	area			The area ID to assign to the rasterized spans
+/// @param[in] 	hf				Heightfield to rasterize into
+/// @param[in] 	bmin			The min extents of the heightfield bounding box
+/// @param[in] 	bmax			The max extents of the heightfield bounding box
+/// @param[in] 	cs				The x and z axis size of a voxel in the heightfield
+/// @param[in] 	ics				1 / cs
+/// @param[in] 	ich				1 / ch
+/// @param[in] 	flagMergeThr	The threshold in which area flags will be merged 
 /// @returns true if the operation completes successfully.  false if there was an error adding spans to the heightfield.
 static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
                          const unsigned char area, rcHeightfield& hf,
