@@ -275,17 +275,18 @@ static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
                          const int flagMergeThr)
 {
 	// Calculate the bounding box of the triangle.
-	float tmin[3];
-	float tmax[3];
-	rcVcopy(tmin, v0);
-	rcVcopy(tmax, v0);
-	rcVmin(tmin, v1);
-	rcVmin(tmin, v2);
-	rcVmax(tmax, v1);
-	rcVmax(tmax, v2);
+	float triBBMin[3];
+	rcVcopy(triBBMin, v0);
+	rcVmin(triBBMin, v1);
+	rcVmin(triBBMin, v2);
+
+	float triBBMax[3];
+	rcVcopy(triBBMax, v0);
+	rcVmax(triBBMax, v1);
+	rcVmax(triBBMax, v2);
 
 	// If the triangle does not touch the bounding box of the heightfield, skip the triangle.
-	if (!overlapBounds(bmin, bmax, tmin, tmax))
+	if (!overlapBounds(bmin, bmax, triBBMin, triBBMax))
 	{
 		return true;
 	}
@@ -295,8 +296,8 @@ static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
 	const float by = bmax[1] - bmin[1];
 
 	// Calculate the footprint of the triangle on the grid's z-axis
-	int z0 = (int)((tmin[2] - bmin[2]) * ics);
-	int z1 = (int)((tmax[2] - bmin[2]) * ics);
+	int z0 = (int)((triBBMin[2] - bmin[2]) * ics);
+	int z1 = (int)((triBBMax[2] - bmin[2]) * ics);
 
 	// use -1 rather than 0 to cut the polygon properly at the start of the tile
 	z0 = rcClamp(z0, -1, h - 1);
@@ -305,24 +306,24 @@ static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
 	// Clip the triangle into all grid cells it touches.
 	float buf[7 * 3 * 4];
 	float* in = buf;
-	float* inrow = buf + 7 * 3;
-	float* p1 = inrow + 7 * 3;
+	float* inRow = buf + 7 * 3;
+	float* p1 = inRow + 7 * 3;
 	float* p2 = p1 + 7 * 3;
 
 	rcVcopy(&in[0], v0);
 	rcVcopy(&in[1 * 3], v1);
 	rcVcopy(&in[2 * 3], v2);
-	int nvrow;
+	int nvRow;
 	int nvIn = 3;
 
 	for (int z = z0; z <= z1; ++z)
 	{
 		// Clip polygon to row. Store the remaining polygon as well
-		const float cz = bmin[2] + z * cs;
-		dividePoly(in, nvIn, inrow, &nvrow, p1, &nvIn, cz + cs, RC_AXIS_Z);
+		const float cellZ = bmin[2] + z * cs;
+		dividePoly(in, nvIn, inRow, &nvRow, p1, &nvIn, cellZ + cs, RC_AXIS_Z);
 		rcSwap(in, p1);
 		
-		if (nvrow < 3)
+		if (nvRow < 3)
 		{
 			continue;
 		}
@@ -331,18 +332,18 @@ static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
 			continue;
 		}
 		
-		// find the horizontal bounds in the row
-		float minX = inrow[0];
-		float maxX = inrow[0];
-		for (int i = 1; i < nvrow; ++i)
+		// find X-axis bounds of the row
+		float minX = inRow[0];
+		float maxX = inRow[0];
+		for (int vert = 1; vert < nvRow; ++vert)
 		{
-			if (minX > inrow[i * 3])
+			if (minX > inRow[vert * 3])
 			{
-				minX = inrow[i * 3];
+				minX = inRow[vert * 3];
 			}
-			if (maxX < inrow[i * 3])
+			if (maxX < inRow[vert * 3])
 			{
-				maxX = inrow[i * 3];
+				maxX = inRow[vert * 3];
 			}
 		}
 		int x0 = (int)((minX - bmin[0]) * ics);
@@ -355,14 +356,14 @@ static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
 		x1 = rcClamp(x1, 0, w - 1);
 
 		int nv;
-		int nv2 = nvrow;
+		int nv2 = nvRow;
 
 		for (int x = x0; x <= x1; ++x)
 		{
 			// Clip polygon to column. store the remaining polygon as well
 			const float cx = bmin[0] + x * cs;
-			dividePoly(inrow, nv2, p1, &nv, p2, &nv2, cx + cs, RC_AXIS_X);
-			rcSwap(inrow, p2);
+			dividePoly(inRow, nv2, p1, &nv, p2, &nv2, cx + cs, RC_AXIS_X);
+			rcSwap(inRow, p2);
 			
 			if (nv < 3)
 			{
@@ -374,41 +375,41 @@ static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
 			}
 			
 			// Calculate min and max of the span.
-			float smin = p1[1];
-			float smax = p1[1];
-			for (int i = 1; i < nv; ++i)
+			float spanMin = p1[1];
+			float spanMax = p1[1];
+			for (int vert = 1; vert < nv; ++vert)
 			{
-				smin = rcMin(smin, p1[i * 3 + 1]);
-				smax = rcMax(smax, p1[i * 3 + 1]);
+				spanMin = rcMin(spanMin, p1[vert * 3 + 1]);
+				spanMax = rcMax(spanMax, p1[vert * 3 + 1]);
 			}
-			smin -= bmin[1];
-			smax -= bmin[1];
+			spanMin -= bmin[1];
+			spanMax -= bmin[1];
 			
-			// Skip the span if it is outside the heightfield bbox
-			if (smax < 0.0f)
+			// Skip the span if it's completely outside the heightfield bounding box
+			if (spanMax < 0.0f)
 			{
 				continue;
 			}
-			if (smin > by)
+			if (spanMin > by)
 			{
 				continue;
 			}
 			
-			// Clamp the span to the heightfield bbox.
-			if (smin < 0.0f)
+			// Clamp the span to the heightfield bounding box.
+			if (spanMin < 0.0f)
 			{
-				smin = 0;
+				spanMin = 0;
 			}
-			if (smax > by)
+			if (spanMax > by)
 			{
-				smax = by;
+				spanMax = by;
 			}
 
 			// Snap the span to the heightfield height grid.
-			unsigned short ismin = (unsigned short)rcClamp((int)floorf(smin * ich), 0, RC_SPAN_MAX_HEIGHT);
-			unsigned short ismax = (unsigned short)rcClamp((int)ceilf(smax * ich), (int)ismin + 1, RC_SPAN_MAX_HEIGHT);
+			unsigned short spanMinCellIndex = (unsigned short)rcClamp((int)floorf(spanMin * ich), 0, RC_SPAN_MAX_HEIGHT);
+			unsigned short spanMaxCellIndex = (unsigned short)rcClamp((int)ceilf(spanMax * ich), (int)spanMinCellIndex + 1, RC_SPAN_MAX_HEIGHT);
 
-			if (!addSpan(hf, x, z, ismin, ismax, area, flagMergeThr))
+			if (!addSpan(hf, x, z, spanMinCellIndex, spanMaxCellIndex, area, flagMergeThr))
 			{
 				return false;
 			}
