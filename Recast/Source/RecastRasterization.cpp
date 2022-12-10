@@ -163,60 +163,87 @@ bool rcAddSpan(rcContext* ctx, rcHeightfield& hf, const int x, const int y,
 	return true;
 }
 
-// divides a convex polygons into two convex polygons on both sides of a line
-static void dividePoly(const float* in, int nin,
-					  float* out1, int* nout1,
-					  float* out2, int* nout2,
-					  float x, int axis)
+enum rcAxis
 {
-	float d[12];
-	for (int i = 0; i < nin; ++i)
-		d[i] = x - in[i*3+axis];
+	RC_AXIS_X = 0,
+	RC_AXIS_Y = 1,
+	RC_AXIS_Z = 2
+};
 
-	int m = 0, n = 0;
-	for (int i = 0, j = nin-1; i < nin; j=i, ++i)
+/// Divides a convex polygon of max 12 vertices into two convex polygons
+/// across a separating axis.
+/// 
+/// @param[in]	inVerts			The input polygon vertices
+/// @param[in]	inVertsCount	The number of input polygon vertices
+/// @param[out]	outVerts1		Resulting polygon 1's vertices
+/// @param[out]	outVerts1Count	The number of resulting polygon 1 vertices
+/// @param[out]	outVerts2		Resulting polygon 2's vertices
+/// @param[out]	outVerts2Count	The number of resulting polygon 2 vertices
+/// @param[in]	axisOffset		THe offset along the specified axis
+/// @param[in]	axis			The separating axis
+static void dividePoly(const float* inVerts, int inVertsCount,
+                       float* outVerts1, int* outVerts1Count,
+                       float* outVerts2, int* outVerts2Count,
+                       float axisOffset, rcAxis axis)
+{
+	rcAssert(inVertsCount <= 12);
+	
+	// How far positive or negative away from the separating axis is each vertex.
+	float inVertAxisDelta[12];
+	for (int inVert = 0; inVert < inVertsCount; ++inVert)
 	{
-		bool ina = d[j] >= 0;
-		bool inb = d[i] >= 0;
-		if (ina != inb)
+		inVertAxisDelta[inVert] = axisOffset - inVerts[inVert * 3 + axis];
+	}
+
+	int poly1Vert = 0;
+	int poly2Vert = 0;
+	for (int inVertA = 0, inVertB = inVertsCount - 1; inVertA < inVertsCount; inVertB = inVertA, ++inVertA)
+	{
+		// If the two vertices are on either side of the separating axis
+		bool sameSide = (inVertAxisDelta[inVertA] >= 0) == (inVertAxisDelta[inVertB] >= 0);
+
+		if (!sameSide)
 		{
-			float s = d[j] / (d[j] - d[i]);
-			out1[m*3+0] = in[j*3+0] + (in[i*3+0] - in[j*3+0])*s;
-			out1[m*3+1] = in[j*3+1] + (in[i*3+1] - in[j*3+1])*s;
-			out1[m*3+2] = in[j*3+2] + (in[i*3+2] - in[j*3+2])*s;
-			rcVcopy(out2 + n*3, out1 + m*3);
-			m++;
-			n++;
+			float s = inVertAxisDelta[inVertB] / (inVertAxisDelta[inVertB] - inVertAxisDelta[inVertA]);
+			outVerts1[poly1Vert * 3 + 0] = inVerts[inVertB * 3 + 0] + (inVerts[inVertA * 3 + 0] - inVerts[inVertB * 3 + 0]) * s;
+			outVerts1[poly1Vert * 3 + 1] = inVerts[inVertB * 3 + 1] + (inVerts[inVertA * 3 + 1] - inVerts[inVertB * 3 + 1]) * s;
+			outVerts1[poly1Vert * 3 + 2] = inVerts[inVertB * 3 + 2] + (inVerts[inVertA * 3 + 2] - inVerts[inVertB * 3 + 2]) * s;
+			rcVcopy(&outVerts2[poly2Vert * 3], &outVerts1[poly1Vert * 3]);
+			poly1Vert++;
+			poly2Vert++;
+			
 			// add the i'th point to the right polygon. Do NOT add points that are on the dividing line
 			// since these were already added above
-			if (d[i] > 0)
+			if (inVertAxisDelta[inVertA] > 0)
 			{
-				rcVcopy(out1 + m*3, in + i*3);
-				m++;
+				rcVcopy(&outVerts1[poly1Vert * 3], &inVerts[inVertA * 3]);
+				poly1Vert++;
 			}
-			else if (d[i] < 0)
+			else if (inVertAxisDelta[inVertA] < 0)
 			{
-				rcVcopy(out2 + n*3, in + i*3);
-				n++;
+				rcVcopy(&outVerts2[poly2Vert * 3], &inVerts[inVertA * 3]);
+				poly2Vert++;
 			}
 		}
-		else // same side
+		else
 		{
 			// add the i'th point to the right polygon. Addition is done even for points on the dividing line
-			if (d[i] >= 0)
+			if (inVertAxisDelta[inVertA] >= 0)
 			{
-				rcVcopy(out1 + m*3, in + i*3);
-				m++;
-				if (d[i] != 0)
+				rcVcopy(&outVerts1[poly1Vert * 3], &inVerts[inVertA * 3]);
+				poly1Vert++;
+				if (inVertAxisDelta[inVertA] != 0)
+				{
 					continue;
+				}
 			}
-			rcVcopy(out2 + n*3, in + i*3);
-			n++;
+			rcVcopy(&outVerts2[poly2Vert * 3], &inVerts[inVertA * 3]);
+			poly2Vert++;
 		}
 	}
 
-	*nout1 = m;
-	*nout2 = n;
+	*outVerts1Count = poly1Vert;
+	*outVerts2Count = poly2Vert;
 }
 
 ///	Rasterize a single triangle to the heightfield.
@@ -286,7 +313,7 @@ static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
 	{
 		// Clip polygon to row. Store the remaining polygon as well
 		const float cz = bmin[2] + z * cs;
-		dividePoly(in, nvIn, inrow, &nvrow, p1, &nvIn, cz + cs, 2);
+		dividePoly(in, nvIn, inrow, &nvrow, p1, &nvIn, cz + cs, RC_AXIS_Z);
 		rcSwap(in, p1);
 		
 		if (nvrow < 3)
@@ -328,7 +355,7 @@ static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
 		{
 			// Clip polygon to column. store the remaining polygon as well
 			const float cx = bmin[0] + x * cs;
-			dividePoly(inrow, nv2, p1, &nv, p2, &nv2, cx + cs, 0);
+			dividePoly(inrow, nv2, p1, &nv, p2, &nv2, cx + cs, RC_AXIS_X);
 			rcSwap(inrow, p2);
 			
 			if (nv < 3)
