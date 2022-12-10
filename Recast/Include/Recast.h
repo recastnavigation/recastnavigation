@@ -624,11 +624,14 @@ template<class T> inline T rcAbs(T a) { return a < 0 ? -a : a; }
 template<class T> inline T rcSqr(T a) { return a*a; }
 
 /// Clamps the value to the specified range.
-///  @param[in]		v	The value to clamp.
-///  @param[in]		mn	The minimum permitted return value.
-///  @param[in]		mx	The maximum permitted return value.
+///  @param[in]		value	The value to clamp.
+///  @param[in]		minInclusive	The minimum permitted return value.
+///  @param[in]		maxInclusive	The maximum permitted return value.
 ///  @return The value, clamped to the specified range.
-template<class T> inline T rcClamp(T v, T mn, T mx) { return v < mn ? mn : (v > mx ? mx : v); }
+template<class T> inline T rcClamp(T value, T minInclusive, T maxInclusive)
+{
+	return value < minInclusive ? minInclusive: (value > maxInclusive ? maxInclusive : value);
+}
 
 /// Returns the square root of the value.
 ///  @param[in]		x	The value.
