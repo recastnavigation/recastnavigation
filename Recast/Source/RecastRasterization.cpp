@@ -79,76 +79,89 @@ static void freeSpan(rcHeightfield& hf, rcSpan* ptr)
 	hf.freelist = ptr;
 }
 
-static bool addSpan(rcHeightfield& hf, const int x, const int y,
-                    const unsigned short smin, const unsigned short smax,
-                    const unsigned char area, const int flagMergeThr)
+
+
+static bool addSpan(rcHeightfield& hf,
+	const int x, const int z,
+	const unsigned short min, const unsigned short max,
+	const unsigned char areaID, const int flagMergeThreshold)
 {
-	int idx = x + y*hf.width;
-	
-	rcSpan* s = allocSpan(hf);
-	if (!s)
+	// Create the new span.
+	rcSpan* newSpan = allocSpan(hf);
+	if (newSpan == NULL)
+	{
 		return false;
-	s->smin = smin;
-	s->smax = smax;
-	s->area = area;
-	s->next = 0;
-	
-	// Empty cell, add the first span.
-	if (!hf.spans[idx])
-	{
-		hf.spans[idx] = s;
-		return true;
 	}
-	rcSpan* prev = 0;
-	rcSpan* cur = hf.spans[idx];
+	newSpan->smin = min;
+	newSpan->smax = max;
+	newSpan->area = areaID;
+	newSpan->next = NULL;
 	
-	// Insert and merge spans.
-	while (cur)
+	const int columnIndex = x + z * hf.width;
+	rcSpan* previousSpan = NULL;
+	rcSpan* currentSpan = hf.spans[columnIndex];
+	
+	// Insert the new span, possibly merging it with existing spans.
+	while (currentSpan != NULL)
 	{
-		if (cur->smin > s->smax)
+		if (currentSpan->smin > newSpan->smax)
 		{
-			// Current span is further than the new span, break.
+			// Current span is completely after the new span, break.
 			break;
 		}
-		else if (cur->smax < s->smin)
+		
+		if (currentSpan->smax < newSpan->smin)
 		{
-			// Current span is before the new span advance.
-			prev = cur;
-			cur = cur->next;
+			// Current span is completely before the new span.  Keep going.
+			previousSpan = currentSpan;
+			currentSpan = currentSpan->next;
 		}
 		else
 		{
-			// Merge spans.
-			if (cur->smin < s->smin)
-				s->smin = cur->smin;
-			if (cur->smax > s->smax)
-				s->smax = cur->smax;
+			// The new span overlaps with an existing span.  Merge them.
+			if (currentSpan->smin < newSpan->smin)
+			{
+				newSpan->smin = currentSpan->smin;
+			}
+			if (currentSpan->smax > newSpan->smax)
+			{
+				newSpan->smax = currentSpan->smax;
+			}
 			
 			// Merge flags.
-			if (rcAbs((int)s->smax - (int)cur->smax) <= flagMergeThr)
-				s->area = rcMax(s->area, cur->area);
+			if (rcAbs((int)newSpan->smax - (int)currentSpan->smax) <= flagMergeThreshold)
+			{
+				// Higher area ID numbers indicate higher resolution priority.
+				newSpan->area = rcMax(newSpan->area, currentSpan->area);
+			}
 			
-			// Remove current span.
-			rcSpan* next = cur->next;
-			freeSpan(hf, cur);
-			if (prev)
-				prev->next = next;
+			// Remove the current span since it's now merged with newSpan.
+			// Keep going because there might be other overlapping spans that also need to be merged.
+			rcSpan* next = currentSpan->next;
+			freeSpan(hf, currentSpan);
+			if (previousSpan)
+			{
+				previousSpan->next = next;
+			}
 			else
-				hf.spans[idx] = next;
-			cur = next;
+			{
+				hf.spans[columnIndex] = next;
+			}
+			currentSpan = next;
 		}
 	}
 	
-	// Insert new span.
-	if (prev)
+	// Insert new span after prev
+	if (previousSpan != NULL)
 	{
-		s->next = prev->next;
-		prev->next = s;
+		newSpan->next = previousSpan->next;
+		previousSpan->next = newSpan;
 	}
 	else
 	{
-		s->next = hf.spans[idx];
-		hf.spans[idx] = s;
+		// This span should go before the others in the list
+		newSpan->next = hf.spans[columnIndex];
+		hf.spans[columnIndex] = newSpan;
 	}
 
 	return true;
