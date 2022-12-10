@@ -242,7 +242,7 @@ static void dividePoly(const float* inVerts, int inVertsCount,
 	int poly2Vert = 0;
 	for (int inVertA = 0, inVertB = inVertsCount - 1; inVertA < inVertsCount; inVertB = inVertA, ++inVertA)
 	{
-		// If the two vertices are on either side of the separating axis
+		// If the two vertices are on the same side of the separating axis
 		bool sameSide = (inVertAxisDelta[inVertA] >= 0) == (inVertAxisDelta[inVertB] >= 0);
 
 		if (!sameSide)
@@ -255,7 +255,7 @@ static void dividePoly(const float* inVerts, int inVertsCount,
 			poly1Vert++;
 			poly2Vert++;
 			
-			// add the i'th point to the right polygon. Do NOT add points that are on the dividing line
+			// add the inVertA point to the right polygon. Do NOT add points that are on the dividing line
 			// since these were already added above
 			if (inVertAxisDelta[inVertA] > 0)
 			{
@@ -270,7 +270,7 @@ static void dividePoly(const float* inVerts, int inVertsCount,
 		}
 		else
 		{
-			// add the i'th point to the right polygon. Addition is done even for points on the dividing line
+			// add the inVertA point to the right polygon. Addition is done even for points on the dividing line
 			if (inVertAxisDelta[inVertA] >= 0)
 			{
 				rcVcopy(&outVerts1[poly1Vert * 3], &inVerts[inVertA * 3]);
@@ -293,23 +293,23 @@ static void dividePoly(const float* inVerts, int inVertsCount,
 ///
 ///	This code is extremely hot, so much care should be given to maintaining maximum perf here.
 /// 
-/// @param[in] 	v0				Triangle vertex 0
-/// @param[in] 	v1				Triangle vertex 1
-/// @param[in] 	v2				Triangle vertex 2
-/// @param[in] 	area			The area ID to assign to the rasterized spans
-/// @param[in] 	hf				Heightfield to rasterize into
-/// @param[in] 	bmin			The min extents of the heightfield bounding box
-/// @param[in] 	bmax			The max extents of the heightfield bounding box
-/// @param[in] 	cs				The x and z axis size of a voxel in the heightfield
-/// @param[in] 	ics				1 / cs
-/// @param[in] 	ich				1 / ch
-/// @param[in] 	flagMergeThr	The threshold in which area flags will be merged 
+/// @param[in] 	v0					Triangle vertex 0
+/// @param[in] 	v1					Triangle vertex 1
+/// @param[in] 	v2					Triangle vertex 2
+/// @param[in] 	areaID				The area ID to assign to the rasterized spans
+/// @param[in] 	hf					Heightfield to rasterize into
+/// @param[in] 	hfBBMin				The min extents of the heightfield bounding box
+/// @param[in] 	hfBBMax				The max extents of the heightfield bounding box
+/// @param[in] 	cellSize			The x and z axis size of a voxel in the heightfield
+/// @param[in] 	inverseCellSize		1 / cellSize
+/// @param[in] 	inverseCellHeight	1 / cellHeight
+/// @param[in] 	flagMergeThreshold	The threshold in which area flags will be merged 
 /// @returns true if the operation completes successfully.  false if there was an error adding spans to the heightfield.
 static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
-                         const unsigned char area, rcHeightfield& hf,
-                         const float* bmin, const float* bmax,
-                         const float cs, const float ics, const float ich,
-                         const int flagMergeThr)
+                         const unsigned char areaID, rcHeightfield& hf,
+                         const float* hfBBMin, const float* hfBBMax,
+                         const float cellSize, const float inverseCellSize, const float inverseCellHeight,
+                         const int flagMergeThreshold)
 {
 	// Calculate the bounding box of the triangle.
 	float triBBMin[3];
@@ -323,18 +323,18 @@ static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
 	rcVmax(triBBMax, v2);
 
 	// If the triangle does not touch the bounding box of the heightfield, skip the triangle.
-	if (!overlapBounds(triBBMin, triBBMax, bmin, bmax))
+	if (!overlapBounds(triBBMin, triBBMax, hfBBMin, hfBBMax))
 	{
 		return true;
 	}
 
 	const int w = hf.width;
 	const int h = hf.height;
-	const float by = bmax[1] - bmin[1];
+	const float by = hfBBMax[1] - hfBBMin[1];
 
 	// Calculate the footprint of the triangle on the grid's z-axis
-	int z0 = (int)((triBBMin[2] - bmin[2]) * ics);
-	int z1 = (int)((triBBMax[2] - bmin[2]) * ics);
+	int z0 = (int)((triBBMin[2] - hfBBMin[2]) * inverseCellSize);
+	int z1 = (int)((triBBMax[2] - hfBBMin[2]) * inverseCellSize);
 
 	// use -1 rather than 0 to cut the polygon properly at the start of the tile
 	z0 = rcClamp(z0, -1, h - 1);
@@ -356,8 +356,8 @@ static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
 	for (int z = z0; z <= z1; ++z)
 	{
 		// Clip polygon to row. Store the remaining polygon as well
-		const float cellZ = bmin[2] + z * cs;
-		dividePoly(in, nvIn, inRow, &nvRow, p1, &nvIn, cellZ + cs, RC_AXIS_Z);
+		const float cellZ = hfBBMin[2] + (float)z * cellSize;
+		dividePoly(in, nvIn, inRow, &nvRow, p1, &nvIn, cellZ + cellSize, RC_AXIS_Z);
 		rcSwap(in, p1);
 		
 		if (nvRow < 3)
@@ -383,8 +383,8 @@ static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
 				maxX = inRow[vert * 3];
 			}
 		}
-		int x0 = (int)((minX - bmin[0]) * ics);
-		int x1 = (int)((maxX - bmin[0]) * ics);
+		int x0 = (int)((minX - hfBBMin[0]) * inverseCellSize);
+		int x1 = (int)((maxX - hfBBMin[0]) * inverseCellSize);
 		if (x1 < 0 || x0 >= w)
 		{
 			continue;
@@ -398,8 +398,8 @@ static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
 		for (int x = x0; x <= x1; ++x)
 		{
 			// Clip polygon to column. store the remaining polygon as well
-			const float cx = bmin[0] + x * cs;
-			dividePoly(inRow, nv2, p1, &nv, p2, &nv2, cx + cs, RC_AXIS_X);
+			const float cx = hfBBMin[0] + (float)x * cellSize;
+			dividePoly(inRow, nv2, p1, &nv, p2, &nv2, cx + cellSize, RC_AXIS_X);
 			rcSwap(inRow, p2);
 			
 			if (nv < 3)
@@ -419,8 +419,8 @@ static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
 				spanMin = rcMin(spanMin, p1[vert * 3 + 1]);
 				spanMax = rcMax(spanMax, p1[vert * 3 + 1]);
 			}
-			spanMin -= bmin[1];
-			spanMax -= bmin[1];
+			spanMin -= hfBBMin[1];
+			spanMax -= hfBBMin[1];
 			
 			// Skip the span if it's completely outside the heightfield bounding box
 			if (spanMax < 0.0f)
@@ -443,10 +443,10 @@ static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
 			}
 
 			// Snap the span to the heightfield height grid.
-			unsigned short spanMinCellIndex = (unsigned short)rcClamp((int)floorf(spanMin * ich), 0, RC_SPAN_MAX_HEIGHT);
-			unsigned short spanMaxCellIndex = (unsigned short)rcClamp((int)ceilf(spanMax * ich), (int)spanMinCellIndex + 1, RC_SPAN_MAX_HEIGHT);
+			unsigned short spanMinCellIndex = (unsigned short)rcClamp((int)floorf(spanMin * inverseCellHeight), 0, RC_SPAN_MAX_HEIGHT);
+			unsigned short spanMaxCellIndex = (unsigned short)rcClamp((int)ceilf(spanMax * inverseCellHeight), (int)spanMinCellIndex + 1, RC_SPAN_MAX_HEIGHT);
 
-			if (!addSpan(hf, x, z, spanMinCellIndex, spanMaxCellIndex, area, flagMergeThr))
+			if (!addSpan(hf, x, z, spanMinCellIndex, spanMaxCellIndex, areaID, flagMergeThreshold))
 			{
 				return false;
 			}
@@ -465,9 +465,9 @@ bool rcRasterizeTriangle(rcContext* ctx,
 	rcScopedTimer timer(ctx, RC_TIMER_RASTERIZE_TRIANGLES);
 
 	// Rasterize the single triangle.
-	const float ics = 1.0f / solid.cs;
-	const float ich = 1.0f / solid.ch;
-	if (!rasterizeTri(v0, v1, v2, area, solid, solid.bmin, solid.bmax, solid.cs, ics, ich, flagMergeThr))
+	const float inverseCellSize = 1.0f / solid.cs;
+	const float inverseCellHeight = 1.0f / solid.ch;
+	if (!rasterizeTri(v0, v1, v2, area, solid, solid.bmin, solid.bmax, solid.cs, inverseCellSize, inverseCellHeight, flagMergeThr))
 	{
 		ctx->log(RC_LOG_ERROR, "rcRasterizeTriangle: Out of memory.");
 		return false;
@@ -486,14 +486,14 @@ bool rcRasterizeTriangles(rcContext* ctx,
 	rcScopedTimer timer(ctx, RC_TIMER_RASTERIZE_TRIANGLES);
 	
 	// Rasterize the triangles.
-	const float ics = 1.0f / solid.cs;
-	const float ich = 1.0f / solid.ch;
+	const float inverseCellSize = 1.0f / solid.cs;
+	const float inverseCellHeight = 1.0f / solid.ch;
 	for (int triIndex = 0; triIndex < nt; ++triIndex)
 	{
 		const float* v0 = &verts[tris[triIndex * 3 + 0] * 3];
 		const float* v1 = &verts[tris[triIndex * 3 + 1] * 3];
 		const float* v2 = &verts[tris[triIndex * 3 + 2] * 3];
-		if (!rasterizeTri(v0, v1, v2, areas[triIndex], solid, solid.bmin, solid.bmax, solid.cs, ics, ich, flagMergeThr))
+		if (!rasterizeTri(v0, v1, v2, areas[triIndex], solid, solid.bmin, solid.bmax, solid.cs, inverseCellSize, inverseCellHeight, flagMergeThr))
 		{
 			ctx->log(RC_LOG_ERROR, "rcRasterizeTriangles: Out of memory.");
 			return false;
@@ -513,14 +513,14 @@ bool rcRasterizeTriangles(rcContext* ctx,
 	rcScopedTimer timer(ctx, RC_TIMER_RASTERIZE_TRIANGLES);
 
 	// Rasterize the triangles.
-	const float ics = 1.0f / solid.cs;
-	const float ich = 1.0f / solid.ch;
+	const float inverseCellSize = 1.0f / solid.cs;
+	const float inverseCellHeight = 1.0f / solid.ch;
 	for (int triIndex = 0; triIndex < nt; ++triIndex)
 	{
 		const float* v0 = &verts[tris[triIndex * 3 + 0] * 3];
 		const float* v1 = &verts[tris[triIndex * 3 + 1] * 3];
 		const float* v2 = &verts[tris[triIndex * 3 + 2] * 3];
-		if (!rasterizeTri(v0, v1, v2, areas[triIndex], solid, solid.bmin, solid.bmax, solid.cs, ics, ich, flagMergeThr))
+		if (!rasterizeTri(v0, v1, v2, areas[triIndex], solid, solid.bmin, solid.bmax, solid.cs, inverseCellSize, inverseCellHeight, flagMergeThr))
 		{
 			ctx->log(RC_LOG_ERROR, "rcRasterizeTriangles: Out of memory.");
 			return false;
@@ -539,14 +539,14 @@ bool rcRasterizeTriangles(rcContext* ctx,
 	rcScopedTimer timer(ctx, RC_TIMER_RASTERIZE_TRIANGLES);
 	
 	// Rasterize the triangles.
-	const float ics = 1.0f / solid.cs;
-	const float ich = 1.0f / solid.ch;
+	const float inverseCellSize = 1.0f / solid.cs;
+	const float inverseCellHeight = 1.0f / solid.ch;
 	for (int triIndex = 0; triIndex < nt; ++triIndex)
 	{
 		const float* v0 = &verts[(triIndex * 3 + 0) * 3];
 		const float* v1 = &verts[(triIndex * 3 + 1) * 3];
 		const float* v2 = &verts[(triIndex * 3 + 2) * 3];
-		if (!rasterizeTri(v0, v1, v2, areas[triIndex], solid, solid.bmin, solid.bmax, solid.cs, ics, ich, flagMergeThr))
+		if (!rasterizeTri(v0, v1, v2, areas[triIndex], solid, solid.bmin, solid.bmax, solid.cs, inverseCellSize, inverseCellHeight, flagMergeThr))
 		{
 			ctx->log(RC_LOG_ERROR, "rcRasterizeTriangles: Out of memory.");
 			return false;
