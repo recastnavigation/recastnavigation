@@ -23,13 +23,19 @@
 #include "RecastAlloc.h"
 #include "RecastAssert.h"
 
-static bool overlapBounds(const float* amin, const float* amax, const float* bmin, const float* bmax)
+/// Check whether two bounding boxes overlap
+///
+/// @param[in]	aMin	Min axis extents of bounding box A
+/// @param[in]	aMax	Max axis extents of bounding box A
+/// @param[in]	bMin	Min axis extents of bounding box B
+/// @param[in]	bMax	Max axis extents of bounding box B
+/// @returns true if the two bounding boxes overlap.  False otherwise.
+static bool overlapBounds(const float* aMin, const float* aMax, const float* bMin, const float* bMax)
 {
-	bool overlap = true;
-	overlap = (amin[0] > bmax[0] || amax[0] < bmin[0]) ? false : overlap;
-	overlap = (amin[1] > bmax[1] || amax[1] < bmin[1]) ? false : overlap;
-	overlap = (amin[2] > bmax[2] || amax[2] < bmin[2]) ? false : overlap;
-	return overlap;
+	return
+		aMin[0] <= bMax[0] && aMax[0] >= bMin[0] &&
+		aMin[1] <= bMax[1] && aMax[1] >= bMin[1] &&
+		aMin[2] <= bMax[2] && aMax[2] >= bMin[2];
 }
 
 static rcSpan* allocSpan(rcHeightfield& hf)
