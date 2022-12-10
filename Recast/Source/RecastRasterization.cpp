@@ -38,45 +38,60 @@ static bool overlapBounds(const float* aMin, const float* aMax, const float* bMi
 		aMin[2] <= bMax[2] && aMax[2] >= bMin[2];
 }
 
+/// Allocates a new span in the heightfield.
+/// Use a memory pool and free list to minimize actual allocations.
+/// 
+/// @param[in]	hf		The heightfield
+/// @returns A pointer to the allocated or re-used span memory. 
 static rcSpan* allocSpan(rcHeightfield& hf)
 {
-	// If running out of memory, allocate new page and update the freelist.
-	if (!hf.freelist || !hf.freelist->next)
+	// If necessary, allocate new page and update the freelist.
+	if (hf.freelist == NULL || hf.freelist->next == NULL)
 	{
 		// Create new page.
 		// Allocate memory for the new pool.
-		rcSpanPool* pool = (rcSpanPool*)rcAlloc(sizeof(rcSpanPool), RC_ALLOC_PERM);
-		if (!pool) return 0;
+		rcSpanPool* spanPool = (rcSpanPool*)rcAlloc(sizeof(rcSpanPool), RC_ALLOC_PERM);
+		if (spanPool == NULL)
+		{
+			return NULL;
+		}
 
 		// Add the pool into the list of pools.
-		pool->next = hf.pools;
-		hf.pools = pool;
-		// Add new items to the free list.
-		rcSpan* freelist = hf.freelist;
-		rcSpan* head = &pool->items[0];
-		rcSpan* it = &pool->items[RC_SPANS_PER_POOL];
+		spanPool->next = hf.pools;
+		hf.pools = spanPool;
+		
+		// Add new spans to the free list.
+		rcSpan* freeList = hf.freelist;
+		rcSpan* head = &spanPool->items[0];
+		rcSpan* it = &spanPool->items[RC_SPANS_PER_POOL];
 		do
 		{
 			--it;
-			it->next = freelist;
-			freelist = it;
+			it->next = freeList;
+			freeList = it;
 		}
 		while (it != head);
 		hf.freelist = it;
 	}
-	
-	// Pop item from in front of the free list.
-	rcSpan* it = hf.freelist;
+
+	// Pop item from the front of the free list.
+	rcSpan* newSpan = hf.freelist;
 	hf.freelist = hf.freelist->next;
-	return it;
+	return newSpan;
 }
 
-static void freeSpan(rcHeightfield& hf, rcSpan* ptr)
+/// Releases the memory used by the span back to the heightfield, so it can be re-used for new spans.
+/// @param[in]	hf		The heightfield.
+/// @param[in]	span	A pointer to the span to free
+static void freeSpan(rcHeightfield& hf, rcSpan* span)
 {
-	if (!ptr) return;
-	// Add the node in front of the free list.
-	ptr->next = hf.freelist;
-	hf.freelist = ptr;
+	if (span == NULL)
+	{
+		return;
+	}
+	// Add the span to the front of the free list.
+	span->next = hf.freelist;
+	hf.freelist = span;
 }
 
 /// Adds a span to the heightfield.  If the new span overlaps existing spans,
