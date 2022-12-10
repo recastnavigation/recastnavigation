@@ -79,8 +79,16 @@ static void freeSpan(rcHeightfield& hf, rcSpan* ptr)
 	hf.freelist = ptr;
 }
 
-
-
+/// Adds a span to the heightfield.  If the new span overlaps existing spans,
+/// it will merge the new span with the existing ones.
+///
+/// @param[in]	hf					Heightfield to add spans to
+/// @param[in]	x					The new span's column cell x index
+/// @param[in]	z					The new span's column cell z index
+/// @param[in]	min					The new span's minimum cell index
+/// @param[in]	max					The new span's maximum cell index
+/// @param[in]	areaID				The new span's area type ID
+/// @param[in]	flagMergeThreshold	How close two spans maximum extents need to be to merge area type IDs
 static bool addSpan(rcHeightfield& hf,
 	const int x, const int z,
 	const unsigned short min, const unsigned short max,
