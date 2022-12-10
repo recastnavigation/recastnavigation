@@ -77,7 +77,6 @@ static bool addSpan(rcHeightfield& hf, const int x, const int y,
                     const unsigned short smin, const unsigned short smax,
                     const unsigned char area, const int flagMergeThr)
 {
-	
 	int idx = x + y*hf.width;
 	
 	rcSpan* s = allocSpan(hf);
@@ -222,7 +221,6 @@ static void dividePoly(const float* in, int nin,
 
 ///	Rasterize a single triangle to the heightfield.
 ///
-///
 ///	This code is extremely hot, so much care should be given to maintaining maximum perf here.
 /// 
 /// @param v0 Triangle vertex 0
@@ -243,94 +241,144 @@ static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
                          const float cs, const float ics, const float ich,
                          const int flagMergeThr)
 {
-	const int w = hf.width;
-	const int h = hf.height;
-	float tmin[3], tmax[3];
-	const float by = bmax[1] - bmin[1];
-	
 	// Calculate the bounding box of the triangle.
+	float tmin[3];
+	float tmax[3];
 	rcVcopy(tmin, v0);
 	rcVcopy(tmax, v0);
 	rcVmin(tmin, v1);
 	rcVmin(tmin, v2);
 	rcVmax(tmax, v1);
 	rcVmax(tmax, v2);
-	
-	// If the triangle does not touch the bbox of the heightfield, skip the triagle.
+
+	// If the triangle does not touch the bounding box of the heightfield, skip the triangle.
 	if (!overlapBounds(bmin, bmax, tmin, tmax))
+	{
 		return true;
-	
-	// Calculate the footprint of the triangle on the grid's y-axis
-	int y0 = (int)((tmin[2] - bmin[2])*ics);
-	int y1 = (int)((tmax[2] - bmin[2])*ics);
+	}
+
+	const int w = hf.width;
+	const int h = hf.height;
+	const float by = bmax[1] - bmin[1];
+
+	// Calculate the footprint of the triangle on the grid's z-axis
+	int z0 = (int)((tmin[2] - bmin[2]) * ics);
+	int z1 = (int)((tmax[2] - bmin[2]) * ics);
+
 	// use -1 rather than 0 to cut the polygon properly at the start of the tile
-	y0 = rcClamp(y0, -1, h-1);
-	y1 = rcClamp(y1, 0, h-1);
-	
+	z0 = rcClamp(z0, -1, h - 1);
+	z1 = rcClamp(z1, 0, h - 1);
+
 	// Clip the triangle into all grid cells it touches.
-	float buf[7*3*4];
-	float *in = buf, *inrow = buf+7*3, *p1 = inrow+7*3, *p2 = p1+7*3;
+	float buf[7 * 3 * 4];
+	float* in = buf;
+	float* inrow = buf + 7 * 3;
+	float* p1 = inrow + 7 * 3;
+	float* p2 = p1 + 7 * 3;
 
 	rcVcopy(&in[0], v0);
-	rcVcopy(&in[1*3], v1);
-	rcVcopy(&in[2*3], v2);
-	int nvrow, nvIn = 3;
-	
-	for (int y = y0; y <= y1; ++y)
+	rcVcopy(&in[1 * 3], v1);
+	rcVcopy(&in[2 * 3], v2);
+	int nvrow;
+	int nvIn = 3;
+
+	for (int z = z0; z <= z1; ++z)
 	{
 		// Clip polygon to row. Store the remaining polygon as well
-		const float cz = bmin[2] + y*cs;
-		dividePoly(in, nvIn, inrow, &nvrow, p1, &nvIn, cz+cs, 2);
+		const float cz = bmin[2] + z * cs;
+		dividePoly(in, nvIn, inrow, &nvrow, p1, &nvIn, cz + cs, 2);
 		rcSwap(in, p1);
-		if (nvrow < 3) continue;
-		if (y < 0) continue;
-		// find the horizontal bounds in the row
-		float minX = inrow[0], maxX = inrow[0];
-		for (int i=1; i<nvrow; ++i)
+		
+		if (nvrow < 3)
 		{
-			if (minX > inrow[i*3])	minX = inrow[i*3];
-			if (maxX < inrow[i*3])	maxX = inrow[i*3];
-		}
-		int x0 = (int)((minX - bmin[0])*ics);
-		int x1 = (int)((maxX - bmin[0])*ics);
-		if (x1 < 0 || x0 >= w) {
 			continue;
 		}
-		x0 = rcClamp(x0, -1, w-1);
-		x1 = rcClamp(x1, 0, w-1);
+		if (z < 0)
+		{
+			continue;
+		}
+		
+		// find the horizontal bounds in the row
+		float minX = inrow[0];
+		float maxX = inrow[0];
+		for (int i = 1; i < nvrow; ++i)
+		{
+			if (minX > inrow[i * 3])
+			{
+				minX = inrow[i * 3];
+			}
+			if (maxX < inrow[i * 3])
+			{
+				maxX = inrow[i * 3];
+			}
+		}
+		int x0 = (int)((minX - bmin[0]) * ics);
+		int x1 = (int)((maxX - bmin[0]) * ics);
+		if (x1 < 0 || x0 >= w)
+		{
+			continue;
+		}
+		x0 = rcClamp(x0, -1, w - 1);
+		x1 = rcClamp(x1, 0, w - 1);
 
-		int nv, nv2 = nvrow;
+		int nv;
+		int nv2 = nvrow;
 
 		for (int x = x0; x <= x1; ++x)
 		{
 			// Clip polygon to column. store the remaining polygon as well
-			const float cx = bmin[0] + x*cs;
-			dividePoly(inrow, nv2, p1, &nv, p2, &nv2, cx+cs, 0);
+			const float cx = bmin[0] + x * cs;
+			dividePoly(inrow, nv2, p1, &nv, p2, &nv2, cx + cs, 0);
 			rcSwap(inrow, p2);
-			if (nv < 3) continue;
-			if (x < 0) continue;
+			
+			if (nv < 3)
+			{
+				continue;
+			}
+			if (x < 0)
+			{
+				continue;
+			}
+			
 			// Calculate min and max of the span.
-			float smin = p1[1], smax = p1[1];
+			float smin = p1[1];
+			float smax = p1[1];
 			for (int i = 1; i < nv; ++i)
 			{
-				smin = rcMin(smin, p1[i*3+1]);
-				smax = rcMax(smax, p1[i*3+1]);
+				smin = rcMin(smin, p1[i * 3 + 1]);
+				smax = rcMax(smax, p1[i * 3 + 1]);
 			}
 			smin -= bmin[1];
 			smax -= bmin[1];
-			// Skip the span if it is outside the heightfield bbox
-			if (smax < 0.0f) continue;
-			if (smin > by) continue;
-			// Clamp the span to the heightfield bbox.
-			if (smin < 0.0f) smin = 0;
-			if (smax > by) smax = by;
 			
+			// Skip the span if it is outside the heightfield bbox
+			if (smax < 0.0f)
+			{
+				continue;
+			}
+			if (smin > by)
+			{
+				continue;
+			}
+			
+			// Clamp the span to the heightfield bbox.
+			if (smin < 0.0f)
+			{
+				smin = 0;
+			}
+			if (smax > by)
+			{
+				smax = by;
+			}
+
 			// Snap the span to the heightfield height grid.
 			unsigned short ismin = (unsigned short)rcClamp((int)floorf(smin * ich), 0, RC_SPAN_MAX_HEIGHT);
-			unsigned short ismax = (unsigned short)rcClamp((int)ceilf(smax * ich), (int)ismin+1, RC_SPAN_MAX_HEIGHT);
-			
-			if (!addSpan(hf, x, y, ismin, ismax, area, flagMergeThr))
+			unsigned short ismax = (unsigned short)rcClamp((int)ceilf(smax * ich), (int)ismin + 1, RC_SPAN_MAX_HEIGHT);
+
+			if (!addSpan(hf, x, z, ismin, ismax, area, flagMergeThr))
+			{
 				return false;
+			}
 		}
 	}
 
