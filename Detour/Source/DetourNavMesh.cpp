@@ -1071,6 +1071,8 @@ dtStatus dtNavMesh::addTile(unsigned char* data, int dataSize, int flags,
 			connectExtOffMeshLinks(neis[j], tile, dtOppositeTile(i));
 		}
 	}
+
+	connectExtNonNeighborOffMeshLinks(tile);
 	
 	if (result)
 		*result = getTileRef(tile);
