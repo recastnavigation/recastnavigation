@@ -19,6 +19,7 @@
 #include <float.h>
 #include <string.h>
 #include <stdio.h>
+#include <math.h>
 #include "DetourNavMesh.h"
 #include "DetourNode.h"
 #include "DetourCommon.h"
@@ -518,7 +519,30 @@ void dtNavMesh::connectExtOffMeshLinks(dtMeshTile* tile, dtMeshTile* target, int
 			}
 		}
 	}
+}
 
+void dtNavMesh::connectExtNonNeighborOffMeshLinks(dtMeshTile *tile)
+{
+	static const int MAX_TILES = 32;
+	dtMeshTile* tiles[MAX_TILES];
+	int ntiles;
+	for (int i = 0; i < tile->header->offMeshConCount; ++i)
+	{
+		dtOffMeshConnection* selfCon = &tile->offMeshCons[i];
+		const float *targetPos = &selfCon->pos[3];
+		int tx, ty;
+		calcTileLoc(targetPos, &tx, &ty);
+		if (abs(tx - tile->header->x) <= 1 && abs(ty - tile->header->y) <= 1)
+		{
+			continue;
+		}
+		int ntiles = getTilesAt(tx, ty, tiles, MAX_TILES);
+		for (int j = 0; j < ntiles; ++j)
+		{
+			connectExtOffMeshLinks(tile, tiles[j], selfCon->side);
+			connectExtOffMeshLinks(tiles[j], tile, dtOppositeTile(selfCon->side));
+		}
+	}
 }
 
 void dtNavMesh::connectIntLinks(dtMeshTile* tile)
