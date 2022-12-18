@@ -827,7 +827,7 @@ void rcClearUnwalkableTriangles(rcContext* ctx, const float walkableSlopeAngle, 
 /// Adds a span to the specified heightfield.
 /// 
 /// The span addition can be set to favor flags. If the span is merged to
-/// another span and the new @p smax is within @p flagMergeThr units
+/// another span and the new @p spanMax is within @p flagMergeThreshold units
 /// from the existing span, the span flags are merged.
 /// 
 ///  @ingroup recast
@@ -837,10 +837,10 @@ void rcClearUnwalkableTriangles(rcContext* ctx, const float walkableSlopeAngle, 
 ///  									[Limits: 0 <= value < rcHeightfield::width]
 ///  @param[in]		y					The height index where the span is to be added.
 ///  									[Limits: 0 <= value < rcHeightfield::height]
-///  @param[in]		spanMin				The minimum height of the span. [Limit: < @p smax] [Units: vx]
+///  @param[in]		spanMin				The minimum height of the span. [Limit: < @p spanMax] [Units: vx]
 ///  @param[in]		spanMax				The maximum height of the span. [Limit: <= #RC_SPAN_MAX_HEIGHT] [Units: vx]
 ///  @param[in]		areaID				The area id of the span. [Limit: <= #RC_WALKABLE_AREA)
-///  @param[in]		flagMergeThreshold	The merge theshold. [Limit: >= 0] [Units: vx]
+///  @param[in]		flagMergeThreshold	The merge threshold. [Limit: >= 0] [Units: vx]
 ///  @returns True if the operation completed successfully.
 bool rcAddSpan(rcContext* context, rcHeightfield& heightfield,
 	           int x, int y,
