@@ -1347,7 +1347,6 @@ dtStatus dtNavMesh::removeTile(dtTileRef ref, unsigned char** data, int* dataSiz
 	{
 		for (const auto &farLinks: iter->second)
 		{
-			
 			nneis = getTilesAt(farLinks.x, farLinks.y, neis, MAX_NEIS);
 			for (int j = 0; j < nneis; ++j)
 			{
