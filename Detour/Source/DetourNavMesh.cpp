@@ -136,6 +136,16 @@ inline void freeLink(dtMeshTile* tile, unsigned int link)
 }
 
 
+void dtNavMesh::registerFarLinks(int x1, int y1, int x2, int y2, int side)
+{
+	auto iter = m_farLinks.find(std::make_pair(x1, y1));
+	if (iter == m_farLinks.end())
+	{
+		m_farLinks.emplace(std::make_pair(x1, y1), dtFarLinksSet());
+	}
+	m_farLinks[std::make_pair(x1, y1)].emplace(dtNonNeighborLink{x2, y2, side});
+}
+
 dtNavMesh* dtAllocNavMesh()
 {
 	void* mem = dtAlloc(sizeof(dtNavMesh), DT_ALLOC_PERM);
@@ -525,7 +535,21 @@ void dtNavMesh::connectExtNonNeighborOffMeshLinks(dtMeshTile *tile)
 {
 	static const int MAX_TILES = 32;
 	dtMeshTile* tiles[MAX_TILES];
-	int ntiles;
+
+	// First check if any tiles claim to link with me.
+	auto iter = m_farLinks.find(std::make_pair(tile->header->x, tile->header->y));
+	if (iter != m_farLinks.end())
+	{
+		for (const auto &farNeig: iter->second)
+		{
+			int ntiles = getTilesAt(farNeig.x, farNeig.y, tiles, MAX_TILES);
+			for (int j = 0; j < ntiles; ++j)
+			{
+				connectExtOffMeshLinks(tile, tiles[j], farNeig.side);
+				connectExtOffMeshLinks(tiles[j], tile, dtOppositeTile(farNeig.side));
+			}
+		}
+	}
 	for (int i = 0; i < tile->header->offMeshConCount; ++i)
 	{
 		dtOffMeshConnection* selfCon = &tile->offMeshCons[i];
@@ -537,6 +561,9 @@ void dtNavMesh::connectExtNonNeighborOffMeshLinks(dtMeshTile *tile)
 			continue;
 		}
 		int ntiles = getTilesAt(tx, ty, tiles, MAX_TILES);
+		// Tell the tiles at (tx, ty) to link me
+		registerFarLinks(tile->header->x, tile->header->y, tx, ty, selfCon->side);
+		registerFarLinks(tx, ty, tile->header->x, tile->header->y, dtOppositeTile(selfCon->side));
 		for (int j = 0; j < ntiles; ++j)
 		{
 			connectExtOffMeshLinks(tile, tiles[j], selfCon->side);
@@ -1312,6 +1339,24 @@ dtStatus dtNavMesh::removeTile(dtTileRef ref, unsigned char** data, int* dataSiz
 		nneis = getNeighbourTilesAt(tile->header->x, tile->header->y, i, neis, MAX_NEIS);
 		for (int j = 0; j < nneis; ++j)
 			unconnectLinks(neis[j], tile);
+	}
+
+	// Disconnect from far links.
+	auto iter = m_farLinks.find(std::make_pair(tile->header->x, tile->header->y));
+	if (iter != m_farLinks.end())
+	{
+		for (const auto &farLinks: iter->second)
+		{
+			
+			nneis = getTilesAt(farLinks.x, farLinks.y, neis, MAX_NEIS);
+			for (int j = 0; j < nneis; ++j)
+			{
+				if (neis[j] == tile) continue;
+				unconnectLinks(neis[j], tile);
+			}
+		}
+
+		m_farLinks.erase(iter);
 	}
 		
 	// Reset tile.

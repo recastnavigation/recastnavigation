@@ -19,6 +19,9 @@
 #ifndef DETOURNAVMESH_H
 #define DETOURNAVMESH_H
 
+#include <unordered_map>
+#include <unordered_set>
+
 #include "DetourAlloc.h"
 #include "DetourStatus.h"
 
@@ -676,6 +679,32 @@ private:
 #endif
 
 	friend class dtNavMeshQuery;
+
+// for non-neighbor off-mesh links
+private:
+	struct dtNonNeighborLink
+	{
+		int x, y;
+		int side;
+	};
+	static size_t& hash_combine(size_t& seed, size_t value) { seed ^= value + 0x9e3779b9 + (seed<<6) + (seed>>2); return seed; }
+	struct dtNonNeighborLink_Hash
+	{
+		size_t operator()(const dtNonNeighborLink& v) const { size_t hash = v.x; return hash_combine(hash_combine(hash, v.y), v.side); }
+	};
+	friend bool operator==(const dtNonNeighborLink& l, const dtNonNeighborLink& r) { return l.x == r.x && l.y == r.y && l.side == r.side; }
+
+	struct intPair_Hash
+	{
+		size_t operator()(const std::pair<int, int>& v) const { size_t hash = v.first; return hash_combine(hash, v.second); }
+	};
+	
+	using dtFarLinksSet = std::unordered_set<dtNonNeighborLink, dtNonNeighborLink_Hash>;
+	using dtFarLinksMap = std::unordered_map<std::pair<int, int>, dtFarLinksSet, intPair_Hash>;
+
+	dtFarLinksMap m_farLinks;
+
+	void registerFarLinks(int x1, int y1, int x2, int y2, int side);
 };
 
 /// Allocates a navigation mesh object using the Detour allocator.
