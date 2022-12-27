@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "catch.hpp"
+#include "catch_amalgamated.hpp"
 
 #include "Recast.h"
 #include "RecastAlloc.h"
@@ -92,8 +92,8 @@ TEST_CASE("rcSqrt")
 {
 	SECTION("Sqrt gets the sqrt of a number")
 	{
-		REQUIRE(rcSqrt(4) == Approx(2));
-		REQUIRE(rcSqrt(81) == Approx(9));
+		REQUIRE(rcSqrt(4) == Catch::Approx(2));
+		REQUIRE(rcSqrt(81) == Catch::Approx(9));
 	}
 }
 
@@ -105,9 +105,9 @@ TEST_CASE("rcVcross")
 		float v2[3] = {4, 9, 2};
 		float result[3];
 		rcVcross(result, v1, v2);
-		REQUIRE(result[0] == Approx(-15));
-		REQUIRE(result[1] == Approx(-2));
-		REQUIRE(result[2] == Approx(39));
+		REQUIRE(result[0] == Catch::Approx(-15));
+		REQUIRE(result[1] == Catch::Approx(-2));
+		REQUIRE(result[2] == Catch::Approx(39));
 	}
 
 	SECTION("Cross product with itself is zero")
@@ -115,9 +115,9 @@ TEST_CASE("rcVcross")
 		float v1[3] = {3, -3, 1};
 		float result[3];
 		rcVcross(result, v1, v1);
-		REQUIRE(result[0] == Approx(0));
-		REQUIRE(result[1] == Approx(0));
-		REQUIRE(result[2] == Approx(0));
+		REQUIRE(result[0] == Catch::Approx(0));
+		REQUIRE(result[1] == Catch::Approx(0));
+		REQUIRE(result[2] == Catch::Approx(0));
 	}
 }
 
@@ -127,7 +127,7 @@ TEST_CASE("rcVdot")
 	{
 		float v1[] = { 1, 0, 0 };
 		float result = rcVdot(v1, v1);
-		REQUIRE(result == Approx(1));
+		REQUIRE(result == Catch::Approx(1));
 	}
 
 	SECTION("Dot zero vector with anything is zero")
@@ -136,7 +136,7 @@ TEST_CASE("rcVdot")
 		float v2[] = { 0, 0, 0 };
 
 		float result = rcVdot(v1, v2);
-		REQUIRE(result == Approx(0));
+		REQUIRE(result == Catch::Approx(0));
 	}
 }
 
@@ -148,9 +148,9 @@ TEST_CASE("rcVmad")
 		float v2[3] = {0, 2, 4};
 		float result[3];
 		rcVmad(result, v1, v2, 2);
-		REQUIRE(result[0] == Approx(1));
-		REQUIRE(result[1] == Approx(6));
-		REQUIRE(result[2] == Approx(11));
+		REQUIRE(result[0] == Catch::Approx(1));
+		REQUIRE(result[1] == Catch::Approx(6));
+		REQUIRE(result[2] == Catch::Approx(11));
 	}
 
 	SECTION("second vector is scaled, first is not")
@@ -159,9 +159,9 @@ TEST_CASE("rcVmad")
 		float v2[3] = {5, 6, 7};
 		float result[3];
 		rcVmad(result, v1, v2, 0);
-		REQUIRE(result[0] == Approx(1));
-		REQUIRE(result[1] == Approx(2));
-		REQUIRE(result[2] == Approx(3));
+		REQUIRE(result[0] == Catch::Approx(1));
+		REQUIRE(result[1] == Catch::Approx(2));
+		REQUIRE(result[2] == Catch::Approx(3));
 	}
 }
 
@@ -173,9 +173,9 @@ TEST_CASE("rcVadd")
 		float v2[3] = {5, 6, 7};
 		float result[3];
 		rcVadd(result, v1, v2);
-		REQUIRE(result[0] == Approx(6));
-		REQUIRE(result[1] == Approx(8));
-		REQUIRE(result[2] == Approx(10));
+		REQUIRE(result[0] == Catch::Approx(6));
+		REQUIRE(result[1] == Catch::Approx(8));
+		REQUIRE(result[2] == Catch::Approx(10));
 	}
 }
 
@@ -187,9 +187,9 @@ TEST_CASE("rcVsub")
 		float v2[3] = {1, 2, 3};
 		float result[3];
 		rcVsub(result, v1, v2);
-		REQUIRE(result[0] == Approx(4));
-		REQUIRE(result[1] == Approx(2));
-		REQUIRE(result[2] == Approx(0));
+		REQUIRE(result[0] == Catch::Approx(4));
+		REQUIRE(result[1] == Catch::Approx(2));
+		REQUIRE(result[2] == Catch::Approx(0));
 	}
 }
 
@@ -200,9 +200,9 @@ TEST_CASE("rcVmin")
 		float v1[3] = {5, 4, 0};
 		float v2[3] = {1, 2, 9};
 		rcVmin(v1, v2);
-		REQUIRE(v1[0] == Approx(1));
-		REQUIRE(v1[1] == Approx(2));
-		REQUIRE(v1[2] == Approx(0));
+		REQUIRE(v1[0] == Catch::Approx(1));
+		REQUIRE(v1[1] == Catch::Approx(2));
+		REQUIRE(v1[2] == Catch::Approx(0));
 	}
 
 	SECTION("v1 is min")
@@ -210,9 +210,9 @@ TEST_CASE("rcVmin")
 		float v1[3] = {1, 2, 3};
 		float v2[3] = {4, 5, 6};
 		rcVmin(v1, v2);
-		REQUIRE(v1[0] == Approx(1));
-		REQUIRE(v1[1] == Approx(2));
-		REQUIRE(v1[2] == Approx(3));
+		REQUIRE(v1[0] == Catch::Approx(1));
+		REQUIRE(v1[1] == Catch::Approx(2));
+		REQUIRE(v1[2] == Catch::Approx(3));
 	}
 
 	SECTION("v2 is min")
@@ -220,9 +220,9 @@ TEST_CASE("rcVmin")
 		float v1[3] = {4, 5, 6};
 		float v2[3] = {1, 2, 3};
 		rcVmin(v1, v2);
-		REQUIRE(v1[0] == Approx(1));
-		REQUIRE(v1[1] == Approx(2));
-		REQUIRE(v1[2] == Approx(3));
+		REQUIRE(v1[0] == Catch::Approx(1));
+		REQUIRE(v1[1] == Catch::Approx(2));
+		REQUIRE(v1[2] == Catch::Approx(3));
 	}
 }
 
@@ -233,9 +233,9 @@ TEST_CASE("rcVmax")
 		float v1[3] = {5, 4, 0};
 		float v2[3] = {1, 2, 9};
 		rcVmax(v1, v2);
-		REQUIRE(v1[0] == Approx(5));
-		REQUIRE(v1[1] == Approx(4));
-		REQUIRE(v1[2] == Approx(9));
+		REQUIRE(v1[0] == Catch::Approx(5));
+		REQUIRE(v1[1] == Catch::Approx(4));
+		REQUIRE(v1[2] == Catch::Approx(9));
 	}
 
 	SECTION("v2 is max")
@@ -243,9 +243,9 @@ TEST_CASE("rcVmax")
 		float v1[3] = {1, 2, 3};
 		float v2[3] = {4, 5, 6};
 		rcVmax(v1, v2);
-		REQUIRE(v1[0] == Approx(4));
-		REQUIRE(v1[1] == Approx(5));
-		REQUIRE(v1[2] == Approx(6));
+		REQUIRE(v1[0] == Catch::Approx(4));
+		REQUIRE(v1[1] == Catch::Approx(5));
+		REQUIRE(v1[2] == Catch::Approx(6));
 	}
 
 	SECTION("v1 is max")
@@ -253,9 +253,9 @@ TEST_CASE("rcVmax")
 		float v1[3] = {4, 5, 6};
 		float v2[3] = {1, 2, 3};
 		rcVmax(v1, v2);
-		REQUIRE(v1[0] == Approx(4));
-		REQUIRE(v1[1] == Approx(5));
-		REQUIRE(v1[2] == Approx(6));
+		REQUIRE(v1[0] == Catch::Approx(4));
+		REQUIRE(v1[1] == Catch::Approx(5));
+		REQUIRE(v1[2] == Catch::Approx(6));
 	}
 }
 
@@ -266,12 +266,12 @@ TEST_CASE("rcVcopy")
 		float v1[3] = {5, 4, 0};
 		float result[3] = {1, 2, 9};
 		rcVcopy(result, v1);
-		REQUIRE(result[0] == Approx(5));
-		REQUIRE(result[1] == Approx(4));
-		REQUIRE(result[2] == Approx(0));
-		REQUIRE(v1[0] == Approx(5));
-		REQUIRE(v1[1] == Approx(4));
-		REQUIRE(v1[2] == Approx(0));
+		REQUIRE(result[0] == Catch::Approx(5));
+		REQUIRE(result[1] == Catch::Approx(4));
+		REQUIRE(result[2] == Catch::Approx(0));
+		REQUIRE(v1[0] == Catch::Approx(5));
+		REQUIRE(v1[1] == Catch::Approx(4));
+		REQUIRE(v1[2] == Catch::Approx(0));
 	}
 }
 
@@ -283,7 +283,7 @@ TEST_CASE("rcVdist")
 		float v2[3] = {1, 3, 1};
 		float result = rcVdist(v1, v2);
 
-		REQUIRE(result == Approx(3.4641f));
+		REQUIRE(result == Catch::Approx(3.4641f));
 	}
 
 	SECTION("Distance from zero is magnitude")
@@ -292,7 +292,7 @@ TEST_CASE("rcVdist")
 		float v2[3] = {0, 0, 0};
 		float distance = rcVdist(v1, v2);
 		float magnitude = rcSqrt(rcSqr(v1[0]) + rcSqr(v1[1]) + rcSqr(v1[2]));
-		REQUIRE(distance == Approx(magnitude));
+		REQUIRE(distance == Catch::Approx(magnitude));
 	}
 }
 
@@ -304,7 +304,7 @@ TEST_CASE("rcVdistSqr")
 		float v2[3] = {1, 3, 1};
 		float result = rcVdistSqr(v1, v2);
 
-		REQUIRE(result == Approx(12));
+		REQUIRE(result == Catch::Approx(12));
 	}
 
 	SECTION("squared distance from zero is squared magnitude")
@@ -313,7 +313,7 @@ TEST_CASE("rcVdistSqr")
 		float v2[3] = {0, 0, 0};
 		float distance = rcVdistSqr(v1, v2);
 		float magnitude = rcSqr(v1[0]) + rcSqr(v1[1]) + rcSqr(v1[2]);
-		REQUIRE(distance == Approx(magnitude));
+		REQUIRE(distance == Catch::Approx(magnitude));
 	}
 }
 
@@ -323,11 +323,11 @@ TEST_CASE("rcVnormalize")
 	{
 		float v[3] = {3, 3, 3};
 		rcVnormalize(v);
-		REQUIRE(v[0] == Approx(rcSqrt(1.0f / 3.0f)));
-		REQUIRE(v[1] == Approx(rcSqrt(1.0f / 3.0f)));
-		REQUIRE(v[2] == Approx(rcSqrt(1.0f / 3.0f)));
+		REQUIRE(v[0] == Catch::Approx(rcSqrt(1.0f / 3.0f)));
+		REQUIRE(v[1] == Catch::Approx(rcSqrt(1.0f / 3.0f)));
+		REQUIRE(v[2] == Catch::Approx(rcSqrt(1.0f / 3.0f)));
 		float magnitude = rcSqrt(rcSqr(v[0]) + rcSqr(v[1]) + rcSqr(v[2]));
-		REQUIRE(magnitude == Approx(1));
+		REQUIRE(magnitude == Catch::Approx(1));
 	}
 }
 
@@ -340,13 +340,13 @@ TEST_CASE("rcCalcBounds")
 		float bmax[3];
 		rcCalcBounds(verts, 1, bmin, bmax);
 
-		REQUIRE(bmin[0] == Approx(verts[0]));
-		REQUIRE(bmin[1] == Approx(verts[1]));
-		REQUIRE(bmin[2] == Approx(verts[2]));
+		REQUIRE(bmin[0] == Catch::Approx(verts[0]));
+		REQUIRE(bmin[1] == Catch::Approx(verts[1]));
+		REQUIRE(bmin[2] == Catch::Approx(verts[2]));
 
-		REQUIRE(bmax[0] == Approx(verts[0]));
-		REQUIRE(bmax[1] == Approx(verts[1]));
-		REQUIRE(bmax[2] == Approx(verts[2]));
+		REQUIRE(bmax[0] == Catch::Approx(verts[0]));
+		REQUIRE(bmax[1] == Catch::Approx(verts[1]));
+		REQUIRE(bmax[2] == Catch::Approx(verts[2]));
 	}
 
 	SECTION("bounds of more than one vector")
@@ -359,13 +359,13 @@ TEST_CASE("rcCalcBounds")
 		float bmax[3];
 		rcCalcBounds(verts, 2, bmin, bmax);
 
-		REQUIRE(bmin[0] == Approx(0));
-		REQUIRE(bmin[1] == Approx(2));
-		REQUIRE(bmin[2] == Approx(3));
+		REQUIRE(bmin[0] == Catch::Approx(0));
+		REQUIRE(bmin[1] == Catch::Approx(2));
+		REQUIRE(bmin[2] == Catch::Approx(3));
 
-		REQUIRE(bmax[0] == Approx(1));
-		REQUIRE(bmax[1] == Approx(2));
-		REQUIRE(bmax[2] == Approx(5));
+		REQUIRE(bmax[0] == Catch::Approx(1));
+		REQUIRE(bmax[1] == Catch::Approx(2));
+		REQUIRE(bmax[2] == Catch::Approx(5));
 	}
 }
 
@@ -422,16 +422,16 @@ TEST_CASE("rcCreateHeightfield")
 		REQUIRE(heightfield.width == width);
 		REQUIRE(heightfield.height == height);
 
-		REQUIRE(heightfield.bmin[0] == Approx(bmin[0]));
-		REQUIRE(heightfield.bmin[1] == Approx(bmin[1]));
-		REQUIRE(heightfield.bmin[2] == Approx(bmin[2]));
+		REQUIRE(heightfield.bmin[0] == Catch::Approx(bmin[0]));
+		REQUIRE(heightfield.bmin[1] == Catch::Approx(bmin[1]));
+		REQUIRE(heightfield.bmin[2] == Catch::Approx(bmin[2]));
 
-		REQUIRE(heightfield.bmax[0] == Approx(bmax[0]));
-		REQUIRE(heightfield.bmax[1] == Approx(bmax[1]));
-		REQUIRE(heightfield.bmax[2] == Approx(bmax[2]));
+		REQUIRE(heightfield.bmax[0] == Catch::Approx(bmax[0]));
+		REQUIRE(heightfield.bmax[1] == Catch::Approx(bmax[1]));
+		REQUIRE(heightfield.bmax[2] == Catch::Approx(bmax[2]));
 
-		REQUIRE(heightfield.cs == Approx(cellSize));
-		REQUIRE(heightfield.ch == Approx(cellHeight));
+		REQUIRE(heightfield.cs == Catch::Approx(cellSize));
+		REQUIRE(heightfield.ch == Catch::Approx(cellHeight));
 
 		REQUIRE(heightfield.spans != 0);
 		REQUIRE(heightfield.pools == 0);
@@ -654,6 +654,110 @@ TEST_CASE("rcRasterizeTriangle")
 		REQUIRE(solid.spans[1 + 1 * width]->smax == 1);
 		REQUIRE(solid.spans[1 + 1 * width]->area == area);
 		REQUIRE(!solid.spans[1 + 1 * width]->next);
+	}
+}
+
+TEST_CASE("rcRasterizeTriangle overlapping bb but non-overlapping triangle")
+{
+	// This is a minimal repro case for the issue fixed in PR #476 (https://github.com/recastnavigation/recastnavigation/pull/476)
+    rcContext ctx;
+
+	// create a heightfield
+    float cellSize = 1;
+    float cellHeight = 1;
+    int width = 10;
+    int height = 10;
+    float bmin[] = { 0, 0, 0 };
+    float bmax[] = { 10, 10, 10 };
+    rcHeightfield heightfield;
+    REQUIRE(rcCreateHeightfield(&ctx, heightfield, width, height, bmin, bmax, cellSize, cellHeight));
+
+	// rasterize a triangle outside of the heightfield.
+    unsigned char area = 42;
+    int flagMergeThr = 1;
+    float verts[] =
+	{
+        -10.0, 5.5, -10.0,
+        -10.0, 5.5, 3,
+        3.0, 5.5, -10.0
+    };
+    REQUIRE(rcRasterizeTriangle(&ctx, &verts[0], &verts[3], &verts[6], area, heightfield, flagMergeThr));
+    
+	// ensure that no spans were created
+    for (int x = 0; x < width; ++x)
+	{
+        for (int z = 0; z < height; ++z)
+		{
+            rcSpan* span = heightfield.spans[x + z * heightfield.width];
+			REQUIRE(span == NULL);
+        }
+    }
+}
+
+TEST_CASE("rcRasterizeTriangle smaller than half a voxel size in x")
+{
+	SECTION("Skinny triangle along x axis")
+	{
+		rcContext ctx;
+		float verts[] = {
+			5, 0, 0.005f,
+			5, 0, -0.005f,
+			-5, 0, 0.005f,
+
+			-5, 0, 0.005f,
+			5, 0, -0.005f,
+			-5, 0, -0.005f,
+		};
+		float bmin[3];
+		float bmax[3];
+		rcCalcBounds(verts, 3, bmin, bmax);
+
+		float cellSize = 1;
+		float cellHeight = 1;
+
+		int width;
+		int height;
+
+		rcCalcGridSize(bmin, bmax, cellSize, &width, &height);
+
+		rcHeightfield solid;
+		REQUIRE(rcCreateHeightfield(&ctx, solid, width, height, bmin, bmax, cellSize, cellHeight));
+
+		unsigned char areas[] = {42, 42};
+		int flagMergeThr = 1;
+		REQUIRE(rcRasterizeTriangles(&ctx, verts, areas, 2, solid, flagMergeThr));
+	}
+	
+	SECTION("Skinny triangle along z axis")
+	{
+		rcContext ctx;
+		float verts[] = {
+			0.005f, 0, 5,
+			-0.005f, 0, 5,
+			0.005f, 0, -5,
+
+			0.005f, 0, -5,
+			-0.005f, 0, 5,
+			-0.005f, 0, -5
+		};
+		float bmin[3];
+		float bmax[3];
+		rcCalcBounds(verts, 3, bmin, bmax);
+
+		float cellSize = 1;
+		float cellHeight = 1;
+
+		int width;
+		int height;
+
+		rcCalcGridSize(bmin, bmax, cellSize, &width, &height);
+
+		rcHeightfield solid;
+		REQUIRE(rcCreateHeightfield(&ctx, solid, width, height, bmin, bmax, cellSize, cellHeight));
+
+		unsigned char areas[] = {42, 42};
+		int flagMergeThr = 1;
+		REQUIRE(rcRasterizeTriangles(&ctx, verts, areas, 2, solid, flagMergeThr));
 	}
 }
 

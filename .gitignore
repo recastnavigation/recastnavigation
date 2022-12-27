@@ -16,6 +16,9 @@ RecastDemo/Bin/Tests
 # Build directory
 RecastDemo/Build
 
+# XCode debug symbols archive
+RecastDemo/Bin/*.dSYM
+
 # Ignore meshes
 RecastDemo/Bin/Meshes/*
 
@@ -43,6 +46,9 @@ RecastDemo/Contrib/SDL/*
 
 ## Generated doc files
 Docs/html
+
+## CMake build cache
+build
 
 ## IDE files
 .idea/

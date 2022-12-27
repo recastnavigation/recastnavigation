@@ -27,7 +27,7 @@ class TestCase
 	enum TestType
 	{
 		TEST_PATHFIND,
-		TEST_RAYCAST,
+		TEST_RAYCAST
 	};
 	
 	struct Test

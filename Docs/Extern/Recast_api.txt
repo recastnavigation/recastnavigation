@@ -28,9 +28,6 @@ The general life-cycle of the main classes is as follows:
 -# Use the object as part of the pipeline.
 -# Free the object using the Recast allocator. (E.g. #rcFreeHeightField)
 
-@note This is a summary list of members.  Use the index or search 
-feature to find minor members.
-
 @struct rcConfig
 @par
 
@@ -51,6 +48,10 @@ the platform's floating point accuraccy as well as interdependencies between
 the values of multiple parameters.  See the individual parameter 
 documentation for details.
 
+@note First you should decide the size of your agent's logical cylinder. 
+If your game world uses meters as units, a reasonable starting point for 
+a human-sized agent might be a radius of `0.4` and a height of `2.0`.
+
 @var rcConfig::borderSize
 @par
 
@@ -66,7 +67,24 @@ This field is only used when building multi-tile meshes.
 @var rcConfig::cs
 @par
 
-@p cs and #ch define voxel/grid/cell size.  So their values have significant 
+The voxelization cell size #cs defines the voxel size along both axes of 
+the ground plane: x and z in Recast. This value is usually derived from the 
+character radius `r`. A recommended starting value for #cs is either `r/2` 
+or `r/3`. Smaller values of #cs will increase rasterization resolution and 
+navmesh detail, but total generation time will increase exponentially.  In 
+outdoor environments, `r/2` is often good enough.  For indoor scenes with 
+tight spaces you might want the extra precision, so a value of `r/3` or 
+smaller may give better results.
+
+The initial instinct is to reduce this value to something very close to zero 
+to maximize the detail of the generated navmesh. This quickly becomes a case 
+of diminishing returns, however. Beyond a certain point there's usually not 
+much perceptable difference in the generated navmesh, but huge increases in 
+generation time.  This hinders your ability to quickly iterate on level 
+designs and provides little benefit.  The general recommendation here is to 
+use as large a value for #cs as you can get away with.
+
+#cs and #ch define voxel/grid/cell size.  So their values have significant 
 side effects on all parameters defined in voxel units.
 
 The minimum value for this parameter depends on the platform's floating point 
@@ -75,7 +93,15 @@ accuracy, with the practical minimum usually around 0.05.
 @var rcConfig::ch
 @par
 
-#cs and @p ch define voxel/grid/cell size.  So their values have significant 
+The voxelization cell height #ch is defined separately in order to allow for 
+greater precision in height tests. A good starting point for #ch is half the 
+#cs value. Smaller #ch values ensure that the navmesh properly connects areas 
+that are only separated by a small curb or ditch.  If small holes are generated 
+in your navmesh around where there are discontinuities in height (for example, 
+stairs or curbs), you may want to decrease the cell height value to increase 
+the vertical rasterization precision of Recast.
+
+#cs and #ch define voxel/grid/cell size.  So their values have significant 
 side effects on all parameters defined in voxel units.
 
 The minimum value for this parameter depends on the platform's floating point 
@@ -84,10 +110,20 @@ accuracy, with the practical minimum usually around 0.05.
 @var rcConfig::walkableSlopeAngle
 @par
 
+The parameter #walkableSlopeAngle is to filter out areas of the world where 
+the ground slope would be too steep for an agent to traverse. This value is 
+defined as a maximum angle in degrees that the surface normal of a polgyon 
+can differ from the world's up vector.  This value must be within the range 
+`[0, 90]`.
+
 The practical upper limit for this parameter is usually around 85 degrees.
 
 @var rcConfig::walkableHeight
 @par
+
+This value defines the worldspace height `h` of the agent in voxels. Th value 
+of #walkableHeight should be calculated as `ceil(h / ch)`.  Note this is based 
+on #ch not #cs since it's a height value.
 
 Permits detection of overhangs in the source geometry that make the geometry
 below un-walkable. The value is usually set to the maximum agent height.
@@ -95,21 +131,54 @@ below un-walkable. The value is usually set to the maximum agent height.
 @var rcConfig::walkableClimb
 @par
 
+The #walkableClimb value defines the maximum height of ledges and steps that 
+the agent can walk up. Given a designer-defined `maxClimb` distance in world 
+units, the value of #walkableClimb should be calculated as `ceil(maxClimb / ch)`.  
+Note that this is using #ch not #cs because it's a height-based value.
+
 Allows the mesh to flow over low lying obstructions such as curbs and 
 up/down stairways. The value is usually set to how far up/down an agent can step.
 
 @var rcConfig::walkableRadius
 @par
 
+The parameter #walkableRadius defines the worldspace agent radius `r` in voxels.  
+Most often, this value of #walkableRadius should be calculated as `ceil(r / cs)`. 
+Note this is based on #cs since the agent radius is always parallel to the ground 
+plane.
+
+If the #walkableRadius value is greater than zero, the edges of the navmesh will 
+be pushed away from all obstacles by this amount.
+
+A non-zero #walkableRadius allows for much simpler runtime navmesh collision checks.
+The game only needs to check that the center point of the agent is contained within 
+a navmesh polygon.  Without this erosion, runtime navigation checks need to collide
+the geometric projection of the agent's logical cylinder onto the navmesh with the 
+boundary edges of the navmesh polygons.
+
 In general, this is the closest any part of the final mesh should get to an 
 obstruction in the source geometry.  It is usually set to the maximum
 agent radius.
 
-While a value of zero is legal, it is not recommended and can result in
-odd edge case issues.
+If you want to have tight-fitting navmesh, or want to reuse the same navmesh for 
+multiple agents with differing radii, you can use a `walkableRadius` value of zero.
+Be advised though that you will need to perform your own collisions with the navmesh
+edges, and odd edge cases issues in the mesh generation can potentially occur.  For
+these reasons, specifying a radius of zero is allowed but is not recommended.
 
 @var rcConfig::maxEdgeLen
 @par
+
+In certain cases, long outer edges may decrease the quality of the resulting 
+triangulation, creating very long thin triangles. This can sometimes be 
+remedied by limiting the maximum edge length, causing the problematic long 
+edges to be broken up into smaller segments. 
+
+The parameter #maxEdgeLen defines the maximum edge length and is defined in 
+terms of voxels. A good value for #maxEdgeLen is something like 
+`walkableRadius * 8`. A good way to adjust this value is to first set it really 
+high and see if your data creates long edges. If it does, decrease #maxEdgeLen
+until you find the largest value which improves the resulting tesselation.
 
 Extra vertices will be inserted as needed to keep contour edges below this
 length. A value of zero effectively disables this feature.
@@ -117,10 +186,29 @@ length. A value of zero effectively disables this feature.
 @var rcConfig::maxSimplificationError
 @par
 
+When the rasterized areas are converted back to a vectorized representation, 
+the #maxSimplificationError describes how loosely the simplification is done.
+The simplification process uses the 
+<a href="https://en.wikipedia.org/wiki/Ramer–Douglas–Peucker_algorithm">Ramer–Douglas-Peucker algorithm</a>,
+and this value describes the max deviation in voxels.
+
+Good values for #maxSimplificationError are in the range `[1.1, 1.5]`.  
+A value of `1.3` is a good starting point and usually yields good results. 
+If the value is less than `1.1`, some sawtoothing starts to appear at the 
+generated edges.  If the value is more than `1.5`, the mesh simplification 
+starts to cut some corners it shouldn't.
+
 The effect of this parameter only applies to the xz-plane.
 
 @var rcConfig::minRegionArea
 @par
+
+Watershed partitioning is really prone to noise in the input distance field. 
+In order to get nicer areas, the areas are merged and small disconnected areas 
+are removed after the water shed partitioning. The parameter #minRegionArea 
+describes the minimum isolated region size that is still kept. A region is 
+removed if the number of voxels in the region is less than the square of 
+#minRegionArea.
 
 Any regions that are smaller than this area will be marked as unwalkable.
 This is useful in removing useless regions that can sometimes form on 
@@ -132,6 +220,13 @@ geometry such as table tops, box tops, etc.
 If the mesh data is to be used to construct a Detour navigation mesh, then the upper limit
 is limited to <= #DT_VERTS_PER_POLYGON.
 
+@var rcConfig::mergeRegionArea
+@par
+
+The triangulation process works best with small, localized voxel regions. 
+The parameter #mergeRegionArea controls the maximum voxel area of a region 
+that is allowed to be merged with another region.  If you see small patches 
+missing here and there, you could lower the #minRegionArea value.
 
 @struct rcHeightfield
 @par

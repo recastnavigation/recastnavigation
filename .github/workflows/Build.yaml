@@ -1,0 +1,221 @@
+name: Build
+
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ "**" ]
+
+jobs:
+  macOS-premake:
+    strategy:
+      matrix:
+        conf:
+          - Debug
+          - Release
+
+    runs-on: macos-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Download & install SDL
+      run: |
+        curl -L -o SDL2.dmg https://github.com/libsdl-org/SDL/releases/download/release-2.24.2/SDL2-2.24.2.dmg
+        hdiutil attach SDL2.dmg
+        cp -r /Volumes/SDL2/SDL2.framework RecastDemo/Bin
+        hdiutil detach /Volumes/SDL2
+        rm SDL2.dmg
+
+    - name: Download & install premake
+      working-directory: RecastDemo
+      run: |
+        curl -L -o premake.tar.gz https://github.com/premake/premake-core/releases/download/v5.0.0-beta2/premake-5.0.0-beta2-macosx.tar.gz
+        tar -xzf premake.tar.gz
+        rm premake.tar.gz
+
+    - name: Run premake
+      working-directory: RecastDemo
+      run: ./premake5 xcode4
+
+    - name: Build With Xcode
+      working-directory: RecastDemo/Build/xcode4/
+      run: xcodebuild -scheme RecastDemo -configuration ${{matrix.conf}} -project RecastDemo.xcodeproj build
+    
+    - name: Build Unit Tests With Xcode
+      working-directory: RecastDemo/Build/xcode4/
+      run: xcodebuild -scheme Tests -configuration ${{matrix.conf}} -project Tests.xcodeproj build
+  
+  macos-cmake:
+    strategy:
+      matrix:
+        conf:
+          - Debug
+          - Release
+
+    runs-on: macos-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    - name: Download & install SDL
+      run: |
+        curl -L -o SDL2.dmg https://github.com/libsdl-org/SDL/releases/download/release-2.24.2/SDL2-2.24.2.dmg
+        hdiutil attach SDL2.dmg
+        cp -r /Volumes/SDL2/SDL2.framework ${{github.workspace}}/RecastDemo/Bin/
+        hdiutil detach /Volumes/SDL2
+        rm SDL2.dmg
+
+    - name: Configure CMake
+      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
+      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{matrix.conf}} -DSDL2_LIBRARY=${{github.workspace}}/RecastDemo/Bin/SDL2.framework
+
+    - name: Build
+      run: cmake --build ${{github.workspace}}/build --config ${{matrix.conf}}
+  
+  linux-premake:
+    strategy:
+      matrix:
+        conf:
+          - debug
+          - release
+        compiler:
+          - clang
+          - gcc
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install opengl and SDL
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libgl1-mesa-dev libsdl2-dev
+
+    - name: Download & Install premake
+      working-directory: RecastDemo
+      run: |
+        curl -L -o premake.tar.gz https://github.com/premake/premake-core/releases/download/v5.0.0-beta2/premake-5.0.0-beta2-linux.tar.gz
+        tar -xzf premake.tar.gz
+        rm premake.tar.gz
+    
+    - name: Run premake
+      working-directory: RecastDemo
+      run: ./premake5 --cc=${{matrix.compiler}} gmake2
+    
+    - name: Build
+      working-directory: RecastDemo/Build/gmake2
+      run: make config=${{matrix.conf}} verbose=true
+    
+  linux-cmake:
+    strategy:
+      matrix:
+        conf:
+          - Debug
+          - Release
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install opengl and SDL
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libgl1-mesa-dev libsdl2-dev
+
+    - name: Configure CMake
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{matrix.conf}}
+
+    - name: Build
+      run: cmake --build ${{github.workspace}}/build --config ${{matrix.conf}}
+  
+  windows-premake:
+    strategy:
+      matrix:
+        conf:
+          - Debug
+          - Release
+        vs-version:
+          - vs2019
+          - vs2022
+        include:
+          - vs-version: vs2019
+            version-range: '16.0'
+            runner: windows-2019
+          - vs-version: vs2022
+            version-range: '17.0'
+            runner: windows-2022
+
+    runs-on: ${{matrix.runner}}
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v1.1
+      with:
+        vs-version: ${{matrix.version-range}}
+
+    - name: Download and Install SDL
+      working-directory: RecastDemo/Contrib
+      shell: pwsh
+      run: |
+        (new-object System.Net.WebClient).DownloadFile("https://github.com/libsdl-org/SDL/releases/download/release-2.24.2/SDL2-devel-2.24.2-VC.zip","${{github.workspace}}/RecastDemo/Contrib/SDL.zip")
+        tar -xf SDL.zip
+        ren SDL2-2.24.2 SDL
+        del SDL.zip
+
+    - name: Download and Install Premake
+      working-directory: RecastDemo
+      shell: pwsh
+      run: |
+        (new-object System.Net.WebClient).DownloadFile("https://github.com/premake/premake-core/releases/download/v5.0.0-beta2/premake-5.0.0-beta2-windows.zip","${{github.workspace}}/RecastDemo/premake.zip")
+        tar -xf premake.zip
+        del premake.zip
+
+    - name: Run Premake
+      working-directory: RecastDemo
+      run: ./premake5.exe ${{matrix.vs-version}}
+
+    - name: Build
+      working-directory: RecastDemo/Build/${{matrix.vs-version}}
+      run: msbuild RecastDemo.vcxproj -property:Configuration=${{matrix.conf}}
+
+  windows-cmake:
+    strategy:
+      matrix:
+        conf:
+          - Debug
+          - Release
+        vs-version:
+          - vs2019
+          - vs2022
+        include:
+          - vs-version: vs2019
+            cmake-generator: Visual Studio 16 2019
+            runner: windows-2019
+          - vs-version: vs2022
+            cmake-generator: Visual Studio 17 2022
+            runner: windows-2022
+
+    runs-on: ${{matrix.runner}}
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Download and Install SDL
+      working-directory: RecastDemo/Contrib
+      shell: pwsh
+      run: |
+        (new-object System.Net.WebClient).DownloadFile("https://github.com/libsdl-org/SDL/releases/download/release-2.24.2/SDL2-devel-2.24.2-VC.zip","${{github.workspace}}/RecastDemo/Contrib/SDL.zip")
+        tar -xf SDL.zip
+        ren SDL2-2.24.2 SDL
+        del SDL.zip
+
+    - name: Configure CMake
+      run: cmake -G "${{matrix.cmake-generator}}" -B ${{github.workspace}}/build -D CMAKE_BUILD_TYPE=${{matrix.conf}} -D CMAKE_INSTALL_PREFIX=${{github.workspace}}/build
+
+    - name: Build with CMake
+      run: cmake --build ${{github.workspace}}/build --config ${{matrix.conf}}
