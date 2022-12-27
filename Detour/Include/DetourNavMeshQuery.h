@@ -152,7 +152,7 @@ struct dtRaycastHit
 class dtPolyQuery
 {
 public:
-	virtual ~dtPolyQuery() { }
+	virtual ~dtPolyQuery();
 
 	/// Called for each batch of unique polygons touched by the search area in dtNavMeshQuery::queryPolygons.
 	/// This can be called multiple times for a single query.
@@ -175,7 +175,7 @@ public:
 	dtStatus init(const dtNavMesh* nav, const int maxNodes);
 	
 	/// @name Standard Pathfinding Functions
-	// /@{
+	/// @{
 
 	/// Finds a path from the start polygon to the end polygon.
 	///  @param[in]		startRef	The refrence id of the start polygon.
@@ -313,15 +313,31 @@ public:
 	///@{
 
 	/// Finds the polygon nearest to the specified center point.
+	/// [opt] means the specified parameter can be a null pointer, in that case the output parameter will not be set.
+	///
 	///  @param[in]		center		The center of the search box. [(x, y, z)]
-	///  @param[in]		halfExtents		The search distance along each axis. [(x, y, z)]
+	///  @param[in]		halfExtents	The search distance along each axis. [(x, y, z)]
 	///  @param[in]		filter		The polygon filter to apply to the query.
-	///  @param[out]	nearestRef	The reference id of the nearest polygon.
-	///  @param[out]	nearestPt	The nearest point on the polygon. [opt] [(x, y, z)]
+	///  @param[out]	nearestRef	The reference id of the nearest polygon. Will be set to 0 if no polygon is found.
+	///  @param[out]	nearestPt	The nearest point on the polygon. Unchanged if no polygon is found. [opt] [(x, y, z)]
 	/// @returns The status flags for the query.
 	dtStatus findNearestPoly(const float* center, const float* halfExtents,
 							 const dtQueryFilter* filter,
 							 dtPolyRef* nearestRef, float* nearestPt) const;
+
+	/// Finds the polygon nearest to the specified center point.
+	/// [opt] means the specified parameter can be a null pointer, in that case the output parameter will not be set.
+	/// 
+	///  @param[in]		center		The center of the search box. [(x, y, z)]
+	///  @param[in]		halfExtents	The search distance along each axis. [(x, y, z)]
+	///  @param[in]		filter		The polygon filter to apply to the query.
+	///  @param[out]	nearestRef	The reference id of the nearest polygon. Will be set to 0 if no polygon is found.
+	///  @param[out]	nearestPt	The nearest point on the polygon. Unchanged if no polygon is found. [opt] [(x, y, z)]
+	///  @param[out]	isOverPoly 	Set to true if the point's X/Z coordinate lies inside the polygon, false otherwise. Unchanged if no polygon is found. [opt]
+	/// @returns The status flags for the query.
+	dtStatus findNearestPoly(const float* center, const float* halfExtents,
+							 const dtQueryFilter* filter,
+							 dtPolyRef* nearestRef, float* nearestPt, bool* isOverPoly) const;
 	
 	/// Finds polygons that overlap the search box.
 	///  @param[in]		center		The center of the search box. [(x, y, z)]
@@ -380,9 +396,9 @@ public:
 	///  @param[in]		startPos	A position within the start polygon representing 
 	///  							the start of the ray. [(x, y, z)]
 	///  @param[in]		endPos		The position to cast the ray toward. [(x, y, z)]
+	///  @param[in]		filter		The polygon filter to apply to the query.
 	///  @param[out]	t			The hit parameter. (FLT_MAX if no wall hit.)
 	///  @param[out]	hitNormal	The normal of the nearest wall hit. [(x, y, z)]
-	///  @param[in]		filter		The polygon filter to apply to the query.
 	///  @param[out]	path		The reference ids of the visited polygons. [opt]
 	///  @param[out]	pathCount	The number of visited polygons. [opt]
 	///  @param[in]		maxPath		The maximum number of polygons the @p path array can hold.
@@ -398,7 +414,7 @@ public:
 	///  							the start of the ray. [(x, y, z)]
 	///  @param[in]		endPos		The position to cast the ray toward. [(x, y, z)]
 	///  @param[in]		filter		The polygon filter to apply to the query.
-	///  @param[in]		flags		govern how the raycast behaves. See dtRaycastOptions
+	///  @param[in]		options		govern how the raycast behaves. See dtRaycastOptions
 	///  @param[out]	hit			Pointer to a raycast hit structure which will be filled by the results.
 	///  @param[in]		prevRef		parent of start ref. Used during for cost calculation [opt]
 	/// @returns The status flags for the query.
@@ -449,6 +465,7 @@ public:
 	/// The location is not exactly constrained by the circle, but it limits the visited polygons.
 	///  @param[in]		startRef		The reference id of the polygon where the search starts.
 	///  @param[in]		centerPos		The center of the search circle. [(x, y, z)]
+	///  @param[in]		maxRadius		The radius of the search circle. [Units: wu]
 	///  @param[in]		filter			The polygon filter to apply to the query.
 	///  @param[in]		frand			Function returning a random number [0..1).
 	///  @param[out]	randomRef		The reference id of the random location.

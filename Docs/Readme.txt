@@ -7,11 +7,6 @@ Directory Layout
 
 	High level content and format files. (E.g. css, header, footer.)
 
-./Conceptual
-	
-	Conceptual (non-api) documentation such as overviews, how-to's, etc.
-	The main index page content is also in this directory.
-
 ./Extern
 
 	API documentation that is located outside the source files.
