@@ -18,7 +18,6 @@
 
 #include <stdio.h>
 #include <string.h>
-#define _USE_MATH_DEFINES
 #include <math.h>
 #include "imgui.h"
 
