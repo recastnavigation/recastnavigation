@@ -3,30 +3,23 @@
 We'd love for you to contribute to our source code and to make Recast and Detour even better than they are
 today! Here are the guidelines we'd like you to follow:
 
- - [Code of Conduct](#coc)
- - [Question or Problem?](#question)
- - [Issues and Bugs](#issue)
- - [Feature Requests](#feature)
- - [Submission Guidelines](#submission-guidelines)
- - [Git Commit Guidelines](#git-commit-guidelines)
-
-## <a name="coc"></a> Code of Conduct
+## Code of Conduct
 This project adheres to the [Open Code of Conduct][code-of-conduct].
 By participating, you are expected to honor this code.
 
-## <a name="question"></a> Got a Question or Problem?
+## Got a Question or Problem?
 
 If you have questions about how to use Recast or Detour, please direct these to the [Google Group][groups]
 discussion list. We are also available on [Gitter][gitter].
 
-## <a name="issue"></a> Found an Issue?
+## Found an Issue?
 If you find a bug in the source code or a mistake in the documentation, you can help us by
 submitting an issue to our [GitHub Repository][github]. Even better you can submit a Pull Request
 with a fix.
 
 **Please see the Submission Guidelines below**.
 
-## <a name="feature"></a> Want a Feature?
+## Want a Feature?
 You can request a new feature by submitting an issue to our [GitHub Repository][github]. If you
 would like to implement a new feature then consider what kind of change it is:
 
@@ -78,8 +71,7 @@ Before you submit your pull request consider the following guidelines:
      ```
 
 * Implement your changes, **including appropriate tests if appropriate/possible**.
-* Commit your changes using a descriptive commit message that follows our
-  [commit message conventions](#commit-message-format).
+* Commit your changes using a descriptive commit message that follows our commit message conventions (see below).
 
      ```shell
      git commit -a
@@ -108,10 +100,10 @@ Before you submit your pull request consider the following guidelines:
 
 If you have rebased to squash commits together, you will need to force push to update the PR:
 
-    ```shell
-    git rebase master -i
-    git push origin my-fix-branch -f
-    ```
+```shell
+git rebase master -i
+git push origin my-fix-branch -f
+```
 
 That's it! Thank you for your contribution!
 

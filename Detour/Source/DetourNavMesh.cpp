@@ -433,8 +433,8 @@ void dtNavMesh::connectExtLinks(dtMeshTile* tile, dtMeshTile* target, int side)
 						float tmax = (neia[k*2+1]-va[2]) / (vb[2]-va[2]);
 						if (tmin > tmax)
 							dtSwap(tmin,tmax);
-						link->bmin = (unsigned char)(dtClamp(tmin, 0.0f, 1.0f)*255.0f);
-						link->bmax = (unsigned char)(dtClamp(tmax, 0.0f, 1.0f)*255.0f);
+						link->bmin = (unsigned char)roundf(dtClamp(tmin, 0.0f, 1.0f)*255.0f);
+						link->bmax = (unsigned char)roundf(dtClamp(tmax, 0.0f, 1.0f)*255.0f);
 					}
 					else if (dir == 2 || dir == 6)
 					{
@@ -442,8 +442,8 @@ void dtNavMesh::connectExtLinks(dtMeshTile* tile, dtMeshTile* target, int side)
 						float tmax = (neia[k*2+1]-va[0]) / (vb[0]-va[0]);
 						if (tmin > tmax)
 							dtSwap(tmin,tmax);
-						link->bmin = (unsigned char)(dtClamp(tmin, 0.0f, 1.0f)*255.0f);
-						link->bmax = (unsigned char)(dtClamp(tmax, 0.0f, 1.0f)*255.0f);
+						link->bmin = (unsigned char)roundf(dtClamp(tmin, 0.0f, 1.0f)*255.0f);
+						link->bmax = (unsigned char)roundf(dtClamp(tmax, 0.0f, 1.0f)*255.0f);
 					}
 				}
 			}
@@ -914,6 +914,13 @@ dtStatus dtNavMesh::addTile(unsigned char* data, int dataSize, int flags,
 		return DT_FAILURE | DT_WRONG_MAGIC;
 	if (header->version != DT_NAVMESH_VERSION)
 		return DT_FAILURE | DT_WRONG_VERSION;
+
+#ifndef DT_POLYREF64
+	// Do not allow adding more polygons than specified in the NavMesh's maxPolys constraint.
+	// Otherwise, the poly ID cannot be represented with the given number of bits.
+	if (m_polyBits < dtIlog2(dtNextPow2((unsigned int)header->polyCount)))
+		return DT_FAILURE | DT_INVALID_PARAM;
+#endif
 		
 	// Make sure the location is free.
 	if (getTileAt(header->x, header->y, header->layer))

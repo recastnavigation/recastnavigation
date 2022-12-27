@@ -23,6 +23,15 @@
 #include "DetourTileCacheBuilder.h"
 #include <string.h>
 
+dtTileCacheAlloc::~dtTileCacheAlloc()
+{
+	// Defined out of line to fix the weak v-tables warning
+}
+
+dtTileCacheCompressor::~dtTileCacheCompressor()
+{
+	// Defined out of line to fix the weak v-tables warning
+}
 
 template<class T> class dtFixedArray
 {
@@ -1399,7 +1408,6 @@ static void pushBack(unsigned short v, unsigned short* arr, int& an)
 static bool canRemoveVertex(dtTileCachePolyMesh& mesh, const unsigned short rem)
 {
 	// Count number of polygons to remove.
-	int numRemovedVerts = 0;
 	int numTouchedVerts = 0;
 	int numRemainingEdges = 0;
 	for (int i = 0; i < mesh.npolys; ++i)
@@ -1419,7 +1427,6 @@ static bool canRemoveVertex(dtTileCachePolyMesh& mesh, const unsigned short rem)
 		}
 		if (numRemoved)
 		{
-			numRemovedVerts += numRemoved;
 			numRemainingEdges += numVerts-(numRemoved+1);
 		}
 	}

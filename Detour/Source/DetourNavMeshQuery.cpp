@@ -117,6 +117,11 @@ void dtFreeNavMeshQuery(dtNavMeshQuery* navmesh)
 	dtFree(navmesh);
 }
 
+dtPolyQuery::~dtPolyQuery()
+{
+	// Defined out of line to fix the weak v-tables warning
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////
 
 /// @class dtNavMeshQuery
@@ -301,11 +306,7 @@ dtStatus dtNavMeshQuery::findRandomPoint(const dtQueryFilter* filter, float (*fr
 	float pt[3];
 	dtRandomPointInConvexPoly(verts, poly->vertCount, areas, s, t, pt);
 	
-	float h = 0.0f;
-	dtStatus status = getPolyHeight(polyRef, pt, &h);
-	if (dtStatusFailed(status))
-		return status;
-	pt[1] = h;
+	closestPointOnPoly(polyRef, pt, pt, NULL);
 	
 	dtVcopy(randomPt, pt);
 	*randomRef = polyRef;
@@ -488,16 +489,12 @@ dtStatus dtNavMeshQuery::findRandomPointAroundCircle(dtPolyRef startRef, const f
 	float pt[3];
 	dtRandomPointInConvexPoly(verts, randomPoly->vertCount, areas, s, t, pt);
 	
-	float h = 0.0f;
-	dtStatus stat = getPolyHeight(randomPolyRef, pt, &h);
-	if (dtStatusFailed(status))
-		return stat;
-	pt[1] = h;
+	closestPointOnPoly(randomPolyRef, pt, pt, NULL);
 	
 	dtVcopy(randomPt, pt);
 	*randomRef = randomPolyRef;
 	
-	return DT_SUCCESS;
+	return status;
 }
 
 
@@ -630,15 +627,19 @@ class dtFindNearestPolyQuery : public dtPolyQuery
 	float m_nearestDistanceSqr;
 	dtPolyRef m_nearestRef;
 	float m_nearestPoint[3];
+	bool m_overPoly;
 
 public:
 	dtFindNearestPolyQuery(const dtNavMeshQuery* query, const float* center)
-		: m_query(query), m_center(center), m_nearestDistanceSqr(FLT_MAX), m_nearestRef(0), m_nearestPoint()
+		: m_query(query), m_center(center), m_nearestDistanceSqr(FLT_MAX), m_nearestRef(0), m_nearestPoint(), m_overPoly(false)
 	{
 	}
 
+	virtual ~dtFindNearestPolyQuery();
+
 	dtPolyRef nearestRef() const { return m_nearestRef; }
 	const float* nearestPoint() const { return m_nearestPoint; }
+	bool isOverPoly() const { return m_overPoly; }
 
 	void process(const dtMeshTile* tile, dtPoly** polys, dtPolyRef* refs, int count)
 	{
@@ -672,10 +673,16 @@ public:
 
 				m_nearestDistanceSqr = d;
 				m_nearestRef = ref;
+				m_overPoly = posOverPoly;
 			}
 		}
 	}
 };
+
+dtFindNearestPolyQuery::~dtFindNearestPolyQuery()
+{
+	// Defined out of line to fix the weak v-tables warning
+}
 
 /// @par 
 ///
@@ -686,6 +693,15 @@ public:
 dtStatus dtNavMeshQuery::findNearestPoly(const float* center, const float* halfExtents,
 										 const dtQueryFilter* filter,
 										 dtPolyRef* nearestRef, float* nearestPt) const
+{
+	return findNearestPoly(center, halfExtents, filter, nearestRef, nearestPt, NULL);
+}
+
+// If center and nearestPt point to an equal position, isOverPoly will be true;
+// however there's also a special case of climb height inside the polygon (see dtFindNearestPolyQuery)
+dtStatus dtNavMeshQuery::findNearestPoly(const float* center, const float* halfExtents,
+										 const dtQueryFilter* filter,
+										 dtPolyRef* nearestRef, float* nearestPt, bool* isOverPoly) const
 {
 	dtAssert(m_nav);
 
@@ -704,7 +720,11 @@ dtStatus dtNavMeshQuery::findNearestPoly(const float* center, const float* halfE
 	// Only override nearestPt if we actually found a poly so the nearest point
 	// is valid.
 	if (nearestPt && *nearestRef)
+	{
 		dtVcopy(nearestPt, query.nearestPoint());
+		if (isOverPoly)
+			*isOverPoly = query.isOverPoly();
+	}
 	
 	return DT_SUCCESS;
 }
@@ -839,6 +859,8 @@ public:
 	{
 	}
 
+	virtual ~dtCollectPolysQuery();
+
 	int numCollected() const { return m_numCollected; }
 	bool overflowed() const { return m_overflow; }
 
@@ -859,6 +881,11 @@ public:
 		m_numCollected += toCopy;
 	}
 };
+
+dtCollectPolysQuery::~dtCollectPolysQuery()
+{
+	// Defined out of line to fix the weak v-tables warning
+}
 
 /// @par 
 ///

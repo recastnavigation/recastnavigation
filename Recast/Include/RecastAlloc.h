@@ -22,7 +22,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include <RecastAssert.h>
+#include "RecastAssert.h"
 
 /// Provides hint values to the memory allocator on how long the
 /// memory is expected to be used.
@@ -106,11 +106,13 @@ class rcVectorBase {
 	// Creates an array of the given size, copies all of this vector's data into it, and returns it.
 	T* allocate_and_copy(rcSizeType size);
 	void resize_impl(rcSizeType size, const T* value);
+	// Requires: min_capacity > m_cap.
+	rcSizeType get_new_capacity(rcSizeType min_capacity);
  public:
 	typedef rcSizeType size_type;
 	typedef T value_type;
 
-	rcVectorBase() : m_size(0), m_cap(0), m_data(0) {};
+	rcVectorBase() : m_size(0), m_cap(0), m_data(0) {}
 	rcVectorBase(const rcVectorBase<T, H>& other) : m_size(0), m_cap(0), m_data(0) { assign(other.begin(), other.end()); }
 	explicit rcVectorBase(rcSizeType count) : m_size(0), m_cap(0), m_data(0) { resize(count); }
 	rcVectorBase(rcSizeType count, const T& value) : m_size(0), m_cap(0), m_data(0) { resize(count, value); }
@@ -140,8 +142,8 @@ class rcVectorBase {
 
 	const T& front() const { rcAssert(m_size); return m_data[0]; }
 	T& front() { rcAssert(m_size); return m_data[0]; }
-	const T& back() const { rcAssert(m_size); return m_data[m_size - 1]; };
-	T& back() { rcAssert(m_size); return m_data[m_size - 1]; };
+	const T& back() const { rcAssert(m_size); return m_data[m_size - 1]; }
+	T& back() { rcAssert(m_size); return m_data[m_size - 1]; }
 	const T* data() const { return m_data; }
 	T* data() { return m_data; }
 
@@ -196,8 +198,7 @@ void rcVectorBase<T, H>::push_back(const T& value) {
 		return;
 	}
 
-	rcAssert(RC_SIZE_MAX / 2 >= m_size);
-	rcSizeType new_cap = m_size ? 2*m_size : 1;
+	const rcSizeType new_cap = get_new_capacity(m_cap + 1);
 	T* data = allocate_and_copy(new_cap);
 	// construct between allocate and destroy+free in case value is
 	// in this vector.
@@ -208,25 +209,44 @@ void rcVectorBase<T, H>::push_back(const T& value) {
 	rcFree(m_data);
 	m_data = data;
 }
+
+template <typename T, rcAllocHint H>
+rcSizeType rcVectorBase<T, H>::get_new_capacity(rcSizeType min_capacity) {
+	rcAssert(min_capacity <= RC_SIZE_MAX);
+	if (rcUnlikely(m_cap >= RC_SIZE_MAX / 2))
+		return RC_SIZE_MAX;
+	return 2 * m_cap > min_capacity ? 2 * m_cap : min_capacity;
+}
+
 template <typename T, rcAllocHint H>
 void rcVectorBase<T, H>::resize_impl(rcSizeType size, const T* value) {
 	if (size < m_size) {
 		destroy_range(size, m_size);
 		m_size = size;
 	} else if (size > m_size) {
-		T* new_data = allocate_and_copy(size);
-		// We defer deconstructing/freeing old data until after constructing
-		// new elements in case "value" is there.
-		if (value) {
-			construct_range(new_data + m_size, new_data + size, *value);
+		if (size <= m_cap) {
+			if (value) {
+				construct_range(m_data + m_size, m_data + size, *value);
+			} else {
+				construct_range(m_data + m_size, m_data + size);
+			}
+			m_size = size;
 		} else {
-			construct_range(new_data + m_size, new_data + size);
+			const rcSizeType new_cap = get_new_capacity(size);
+			T* new_data = allocate_and_copy(new_cap);
+			// We defer deconstructing/freeing old data until after constructing
+			// new elements in case "value" is there.
+			if (value) {
+				construct_range(new_data + m_size, new_data + size, *value);
+			} else {
+				construct_range(new_data + m_size, new_data + size);
+			}
+			destroy_range(0, m_size);
+			rcFree(m_data);
+			m_data = new_data;
+			m_cap = new_cap;
+			m_size = size;
 		}
-		destroy_range(0, m_size);
-		rcFree(m_data);
-		m_data = new_data;
-		m_cap = size;
-		m_size = size;
 	}
 }
 template <typename T, rcAllocHint H>
@@ -303,6 +323,7 @@ public:
 	rcIntArray(int n) : m_impl(n, 0) {}
 	void push(int item) { m_impl.push_back(item); }
 	void resize(int size) { m_impl.resize(size); }
+	void clear() { m_impl.clear(); }
 	int pop()
 	{
 		int v = m_impl.back();

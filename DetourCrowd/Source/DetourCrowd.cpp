@@ -1409,12 +1409,14 @@ void dtCrowd::update(const float dt, dtCrowdAgentDebugInfo* debug)
 	}
 	
 	// Update agents using off-mesh connection.
-	for (int i = 0; i < m_maxAgents; ++i)
+	for (int i = 0; i < nagents; ++i)
 	{
-		dtCrowdAgentAnimation* anim = &m_agentAnims[i];
+		dtCrowdAgent* ag = agents[i];
+		const int idx = (int)(ag - m_agents);
+		dtCrowdAgentAnimation* anim = &m_agentAnims[idx];
 		if (!anim->active)
 			continue;
-		dtCrowdAgent* ag = agents[i];
+		
 
 		anim->t += dt;
 		if (anim->t > anim->tmax)

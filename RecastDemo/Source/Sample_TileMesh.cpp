@@ -87,9 +87,7 @@ public:
 		m_hitPos[0] = m_hitPos[1] = m_hitPos[2] = 0;
 	}
 
-	virtual ~NavMeshTileTool()
-	{
-	}
+	virtual ~NavMeshTileTool();
 
 	virtual int type() { return TOOL_TILE_EDIT; }
 
@@ -172,8 +170,10 @@ public:
 	}
 };
 
-
-
+NavMeshTileTool::~NavMeshTileTool()
+{
+	// Defined out of line to fix the weak v-tables warning
+}
 
 Sample_TileMesh::Sample_TileMesh() :
 	m_keepInterResults(false),
