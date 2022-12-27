@@ -91,16 +91,23 @@ rcHeightfield* rcAllocHeightfield()
 }
 
 rcHeightfield::rcHeightfield()
-	: width()
-	, height()
-	, bmin()
-	, bmax()
-	, cs()
-	, ch()
-	, spans()
-	, pools()
-	, freelist()
+: width(0)
+, height(0)
+, bmin()
+, bmax()
+, cs(0)
+, ch(0)
+, spans(NULL)
+, pools(NULL)
+, freelist(NULL)
 {
+	bmin[0] = 0;
+	bmin[1] = 0;
+	bmin[2] = 0;
+
+	bmax[0] = 0;
+	bmax[1] = 0;
+	bmax[2] = 0;
 }
 
 rcHeightfield::~rcHeightfield()
@@ -177,7 +184,8 @@ void rcFreeHeightfieldLayerSet(rcHeightfieldLayerSet* lset)
 }
 
 rcHeightfieldLayerSet::rcHeightfieldLayerSet()
-	: layers(), nlayers()
+: layers(NULL)
+, nlayers(0)
 {
 }
 
@@ -204,16 +212,26 @@ void rcFreeContourSet(rcContourSet* cset)
 }
 
 rcContourSet::rcContourSet()
-	: conts(),
-	nconts(),
-	bmin(),
-	bmax(),
-	cs(),
-	ch(),
-	width(),
-	height(),
-	borderSize(),
-	maxError() {}
+: conts(0)
+, nconts(0)
+, bmin()
+, bmax()
+, cs(0)
+, ch(0)
+, width(0)
+, height(0)
+, borderSize(0)
+, maxError(0)
+{
+	bmin[0] = 0;
+	bmin[1] = 0;
+	bmin[2] = 0;
+
+	bmax[0] = 0;
+	bmax[1] = 0;
+	bmax[2] = 0;
+}
+
 rcContourSet::~rcContourSet()
 {
 	for (int i = 0; i < nconts; ++i)
@@ -235,21 +253,30 @@ void rcFreePolyMesh(rcPolyMesh* pmesh)
 }
 
 rcPolyMesh::rcPolyMesh()
-	: verts(),
-	polys(),
-	regs(),
-	flags(),
-	areas(),
-	nverts(),
-	npolys(),
-	maxpolys(),
-	nvp(),
-	bmin(),
-	bmax(),
-	cs(),
-	ch(),
-	borderSize(),
-	maxEdgeError() {}
+: verts(NULL)
+, polys(NULL)
+, regs(NULL)
+, flags(NULL)
+, areas(NULL)
+, nverts(0)
+, npolys(0)
+, maxpolys(0)
+, nvp(0)
+, bmin()
+, bmax()
+, cs(0)
+, ch(0)
+, borderSize(0)
+, maxEdgeError(0)
+{
+	bmin[0] = 0;
+	bmin[1] = 0;
+	bmin[2] = 0;
+
+	bmax[0] = 0;
+	bmax[1] = 0;
+	bmax[2] = 0;
+}
 
 rcPolyMesh::~rcPolyMesh()
 {
