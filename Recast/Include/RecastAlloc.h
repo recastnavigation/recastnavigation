@@ -21,6 +21,7 @@
 
 #include "RecastAssert.h"
 
+#include <stdlib.h>
 #include <stdint.h>
 
 /// Provides hint values to the memory allocator on how long the

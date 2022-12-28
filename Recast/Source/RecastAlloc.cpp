@@ -18,8 +18,6 @@
 
 #include "RecastAlloc.h"
 
-#include <stdlib.h>
-
 static void* rcAllocDefault(size_t size, rcAllocHint)
 {
 	return malloc(size);
