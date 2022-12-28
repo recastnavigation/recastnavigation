@@ -288,18 +288,29 @@ rcPolyMesh::~rcPolyMesh()
 
 rcPolyMeshDetail* rcAllocPolyMeshDetail()
 {
-	rcPolyMeshDetail* dmesh = (rcPolyMeshDetail*)rcAlloc(sizeof(rcPolyMeshDetail), RC_ALLOC_PERM);
-	memset(dmesh, 0, sizeof(rcPolyMeshDetail));
-	return dmesh;
+	return rcNew<rcPolyMeshDetail>(RC_ALLOC_PERM);
 }
 
-void rcFreePolyMeshDetail(rcPolyMeshDetail* dmesh)
+void rcFreePolyMeshDetail(rcPolyMeshDetail* detailMesh)
 {
-	if (!dmesh) return;
-	rcFree(dmesh->meshes);
-	rcFree(dmesh->verts);
-	rcFree(dmesh->tris);
-	rcFree(dmesh);
+	rcDelete(detailMesh);
+}
+
+rcPolyMeshDetail::rcPolyMeshDetail()
+: meshes(NULL)
+, verts(NULL)
+, tris(NULL)
+, nmeshes(0)
+, nverts(0)
+, ntris(0)
+{
+}
+
+rcPolyMeshDetail::~rcPolyMeshDetail()
+{
+	rcFree(meshes);
+	rcFree(verts);
+	rcFree(tris);
 }
 
 void rcCalcBounds(const float* verts, int numVerts, float* minBounds, float* maxBounds)

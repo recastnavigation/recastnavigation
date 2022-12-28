@@ -483,12 +483,20 @@ private:
 /// @ingroup recast
 struct rcPolyMeshDetail
 {
+	rcPolyMeshDetail();
+	~rcPolyMeshDetail();
+	
 	unsigned int* meshes;	///< The sub-mesh data. [Size: 4*#nmeshes] 
 	float* verts;			///< The mesh vertices. [Size: 3*#nverts] 
 	unsigned char* tris;	///< The mesh triangles. [Size: 4*#ntris] 
 	int nmeshes;			///< The number of sub-meshes defined by #meshes.
 	int nverts;				///< The number of vertices in #verts.
 	int ntris;				///< The number of triangles in #tris.
+	
+private:
+	// Explicitly-disabled copy constructor and copy assignment operator.
+	rcPolyMeshDetail(const rcPolyMeshDetail&);
+	rcPolyMeshDetail& operator=(const rcPolyMeshDetail&);
 };
 
 /// @name Allocation Functions
