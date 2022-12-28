@@ -46,7 +46,7 @@ void* rcAlloc(size_t size, rcAllocHint hint)
 
 void rcFree(void* ptr)
 {
-	if (ptr)
+	if (ptr != NULL)
 	{
 		sRecastFreeFunc(ptr);
 	}

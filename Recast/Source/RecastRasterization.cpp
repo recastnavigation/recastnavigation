@@ -191,13 +191,13 @@ static bool addSpan(rcHeightfield& hf,
 }
 
 bool rcAddSpan(rcContext* context, rcHeightfield& heightfield,
-               const int x, const int y,
+               const int x, const int z,
                const unsigned short spanMin, const unsigned short spanMax,
                const unsigned char areaID, const int flagMergeThreshold)
 {
 	rcAssert(context);
 
-	if (!addSpan(heightfield, x, y, spanMin, spanMax, areaID, flagMergeThreshold))
+	if (!addSpan(heightfield, x, z, spanMin, spanMax, areaID, flagMergeThreshold))
 	{
 		context->log(RC_LOG_ERROR, "rcAddSpan: Out of memory.");
 		return false;
@@ -478,7 +478,7 @@ bool rcRasterizeTriangle(rcContext* context,
 
 bool rcRasterizeTriangles(rcContext* context,
                           const float* verts, const int /*nv*/,
-                          const int* tris, const unsigned char* areaIDs, const int numTris,
+                          const int* tris, const unsigned char* triAreaIDs, const int numTris,
                           rcHeightfield& heightfield, const int flagMergeThreshold)
 {
 	rcAssert(context != NULL);
@@ -493,7 +493,7 @@ bool rcRasterizeTriangles(rcContext* context,
 		const float* v0 = &verts[tris[triIndex * 3 + 0] * 3];
 		const float* v1 = &verts[tris[triIndex * 3 + 1] * 3];
 		const float* v2 = &verts[tris[triIndex * 3 + 2] * 3];
-		if (!rasterizeTri(v0, v1, v2, areaIDs[triIndex], heightfield, heightfield.bmin, heightfield.bmax, heightfield.cs, inverseCellSize, inverseCellHeight, flagMergeThreshold))
+		if (!rasterizeTri(v0, v1, v2, triAreaIDs[triIndex], heightfield, heightfield.bmin, heightfield.bmax, heightfield.cs, inverseCellSize, inverseCellHeight, flagMergeThreshold))
 		{
 			context->log(RC_LOG_ERROR, "rcRasterizeTriangles: Out of memory.");
 			return false;
@@ -505,7 +505,7 @@ bool rcRasterizeTriangles(rcContext* context,
 
 bool rcRasterizeTriangles(rcContext* context,
                           const float* verts, const int /*nv*/,
-                          const unsigned short* tris, const unsigned char* areaIDs, const int numTris,
+                          const unsigned short* tris, const unsigned char* triAreaIDs, const int numTris,
                           rcHeightfield& heightfield, const int flagMergeThreshold)
 {
 	rcAssert(context != NULL);
@@ -520,7 +520,7 @@ bool rcRasterizeTriangles(rcContext* context,
 		const float* v0 = &verts[tris[triIndex * 3 + 0] * 3];
 		const float* v1 = &verts[tris[triIndex * 3 + 1] * 3];
 		const float* v2 = &verts[tris[triIndex * 3 + 2] * 3];
-		if (!rasterizeTri(v0, v1, v2, areaIDs[triIndex], heightfield, heightfield.bmin, heightfield.bmax, heightfield.cs, inverseCellSize, inverseCellHeight, flagMergeThreshold))
+		if (!rasterizeTri(v0, v1, v2, triAreaIDs[triIndex], heightfield, heightfield.bmin, heightfield.bmax, heightfield.cs, inverseCellSize, inverseCellHeight, flagMergeThreshold))
 		{
 			context->log(RC_LOG_ERROR, "rcRasterizeTriangles: Out of memory.");
 			return false;
@@ -531,7 +531,7 @@ bool rcRasterizeTriangles(rcContext* context,
 }
 
 bool rcRasterizeTriangles(rcContext* context,
-                          const float* verts, const unsigned char* areaIDs, const int numTris,
+                          const float* verts, const unsigned char* triAreaIDs, const int numTris,
                           rcHeightfield& heightfield, const int flagMergeThreshold)
 {
 	rcAssert(context != NULL);
@@ -546,7 +546,7 @@ bool rcRasterizeTriangles(rcContext* context,
 		const float* v0 = &verts[(triIndex * 3 + 0) * 3];
 		const float* v1 = &verts[(triIndex * 3 + 1) * 3];
 		const float* v2 = &verts[(triIndex * 3 + 2) * 3];
-		if (!rasterizeTri(v0, v1, v2, areaIDs[triIndex], heightfield, heightfield.bmin, heightfield.bmax, heightfield.cs, inverseCellSize, inverseCellHeight, flagMergeThreshold))
+		if (!rasterizeTri(v0, v1, v2, triAreaIDs[triIndex], heightfield, heightfield.bmin, heightfield.bmax, heightfield.cs, inverseCellSize, inverseCellHeight, flagMergeThreshold))
 		{
 			context->log(RC_LOG_ERROR, "rcRasterizeTriangles: Out of memory.");
 			return false;

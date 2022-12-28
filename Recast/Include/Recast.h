@@ -503,10 +503,10 @@ struct rcPolyMeshDetail
 rcHeightfield* rcAllocHeightfield();
 
 /// Frees the specified heightfield object using the Recast allocator.
-///  @param[in]		hf	A heightfield allocated using #rcAllocHeightfield
+///  @param[in]		heightfield	A heightfield allocated using #rcAllocHeightfield
 ///  @ingroup recast
 ///  @see rcAllocHeightfield
-void rcFreeHeightField(rcHeightfield* hf);
+void rcFreeHeightField(rcHeightfield* heightfield);
 
 /// Allocates a compact heightfield object using the Recast allocator.
 ///  @return A compact heightfield that is ready for initialization, or null on failure.
@@ -515,10 +515,10 @@ void rcFreeHeightField(rcHeightfield* hf);
 rcCompactHeightfield* rcAllocCompactHeightfield();
 
 /// Frees the specified compact heightfield object using the Recast allocator.
-///  @param[in]		chf		A compact heightfield allocated using #rcAllocCompactHeightfield
+///  @param[in]		compactHeightfield		A compact heightfield allocated using #rcAllocCompactHeightfield
 ///  @ingroup recast
 ///  @see rcAllocCompactHeightfield
-void rcFreeCompactHeightfield(rcCompactHeightfield* chf);
+void rcFreeCompactHeightfield(rcCompactHeightfield* compactHeightfield);
 
 /// Allocates a heightfield layer set using the Recast allocator.
 ///  @return A heightfield layer set that is ready for initialization, or null on failure.
@@ -527,10 +527,10 @@ void rcFreeCompactHeightfield(rcCompactHeightfield* chf);
 rcHeightfieldLayerSet* rcAllocHeightfieldLayerSet();
 
 /// Frees the specified heightfield layer set using the Recast allocator.
-///  @param[in]		lset	A heightfield layer set allocated using #rcAllocHeightfieldLayerSet
+///  @param[in]		layerSet	A heightfield layer set allocated using #rcAllocHeightfieldLayerSet
 ///  @ingroup recast
 ///  @see rcAllocHeightfieldLayerSet
-void rcFreeHeightfieldLayerSet(rcHeightfieldLayerSet* lset);
+void rcFreeHeightfieldLayerSet(rcHeightfieldLayerSet* layerSet);
 
 /// Allocates a contour set object using the Recast allocator.
 ///  @return A contour set that is ready for initialization, or null on failure.
@@ -539,10 +539,10 @@ void rcFreeHeightfieldLayerSet(rcHeightfieldLayerSet* lset);
 rcContourSet* rcAllocContourSet();
 
 /// Frees the specified contour set using the Recast allocator.
-///  @param[in]		cset	A contour set allocated using #rcAllocContourSet
+///  @param[in]		contourSet	A contour set allocated using #rcAllocContourSet
 ///  @ingroup recast
 ///  @see rcAllocContourSet
-void rcFreeContourSet(rcContourSet* cset);
+void rcFreeContourSet(rcContourSet* contourSet);
 
 /// Allocates a polygon mesh object using the Recast allocator.
 ///  @return A polygon mesh that is ready for initialization, or null on failure.
@@ -551,10 +551,10 @@ void rcFreeContourSet(rcContourSet* cset);
 rcPolyMesh* rcAllocPolyMesh();
 
 /// Frees the specified polygon mesh using the Recast allocator.
-///  @param[in]		pmesh	A polygon mesh allocated using #rcAllocPolyMesh
+///  @param[in]		polyMesh	A polygon mesh allocated using #rcAllocPolyMesh
 ///  @ingroup recast
 ///  @see rcAllocPolyMesh
-void rcFreePolyMesh(rcPolyMesh* pmesh);
+void rcFreePolyMesh(rcPolyMesh* polyMesh);
 
 /// Allocates a detail mesh object using the Recast allocator.
 ///  @return A detail mesh that is ready for initialization, or null on failure.
@@ -563,10 +563,10 @@ void rcFreePolyMesh(rcPolyMesh* pmesh);
 rcPolyMeshDetail* rcAllocPolyMeshDetail();
 
 /// Frees the specified detail mesh using the Recast allocator.
-///  @param[in]		dmesh	A detail mesh allocated using #rcAllocPolyMeshDetail
+///  @param[in]		detailMesh	A detail mesh allocated using #rcAllocPolyMeshDetail
 ///  @ingroup recast
 ///  @see rcAllocPolyMeshDetail
-void rcFreePolyMeshDetail(rcPolyMeshDetail* dmesh);
+void rcFreePolyMeshDetail(rcPolyMeshDetail* detailMesh);
 
 /// @}
 
@@ -665,7 +665,7 @@ template<class T> inline T rcAbs(T a) { return a < 0 ? -a : a; }
 template<class T> inline T rcSqr(T a) { return a*a; }
 
 /// Clamps the value to the specified range.
-///  @param[in]		value	The value to clamp.
+///  @param[in]		value			The value to clamp.
 ///  @param[in]		minInclusive	The minimum permitted return value.
 ///  @param[in]		maxInclusive	The maximum permitted return value.
 ///  @return The value, clamped to the specified range.
@@ -808,20 +808,20 @@ inline void rcVnormalize(float* v)
 
 /// Calculates the bounding box of an array of vertices.
 ///  @ingroup recast
-///  @param[in]		verts	An array of vertices. [(x, y, z) * @p nv]
-///  @param[in]		nv		The number of vertices in the @p verts array.
-///  @param[out]	bmin	The minimum bounds of the AABB. [(x, y, z)] [Units: wu]
-///  @param[out]	bmax	The maximum bounds of the AABB. [(x, y, z)] [Units: wu]
-void rcCalcBounds(const float* verts, int nv, float* bmin, float* bmax);
+///  @param[in]		verts		An array of vertices. [(x, y, z) * @p nv]
+///  @param[in]		numVerts	The number of vertices in the @p verts array.
+///  @param[out]	minBounds	The minimum bounds of the AABB. [(x, y, z)] [Units: wu]
+///  @param[out]	maxBounds	The maximum bounds of the AABB. [(x, y, z)] [Units: wu]
+void rcCalcBounds(const float* verts, int numVerts, float* minBounds, float* maxBounds);
 
 /// Calculates the grid size based on the bounding box and grid cell size.
 ///  @ingroup recast
-///  @param[in]		bmin	The minimum bounds of the AABB. [(x, y, z)] [Units: wu]
-///  @param[in]		bmax	The maximum bounds of the AABB. [(x, y, z)] [Units: wu]
-///  @param[in]		cs		The xz-plane cell size. [Limit: > 0] [Units: wu]
-///  @param[out]	w		The width along the x-axis. [Limit: >= 0] [Units: vx]
-///  @param[out]	h		The height along the z-axis. [Limit: >= 0] [Units: vx]
-void rcCalcGridSize(const float* bmin, const float* bmax, float cs, int* w, int* h);
+///  @param[in]		minBounds	The minimum bounds of the AABB. [(x, y, z)] [Units: wu]
+///  @param[in]		maxBounds	The maximum bounds of the AABB. [(x, y, z)] [Units: wu]
+///  @param[in]		cellSize	The xz-plane cell size. [Limit: > 0] [Units: wu]
+///  @param[out]	sizeX		The width along the x-axis. [Limit: >= 0] [Units: vx]
+///  @param[out]	sizeZ		The height along the z-axis. [Limit: >= 0] [Units: vx]
+void rcCalcGridSize(const float* minBounds, const float* maxBounds, float cellSize, int* sizeX, int* sizeZ);
 
 /// Initializes a new heightfield.
 /// See the #rcConfig documentation for more information on the configuration parameters.
@@ -829,18 +829,18 @@ void rcCalcGridSize(const float* bmin, const float* bmax, float cs, int* w, int*
 /// @see rcAllocHeightfield, rcHeightfield
 /// @ingroup recast
 /// 
-/// @param[in,out]	ctx		The build context to use during the operation.
-/// @param[in,out]	hf		The allocated heightfield to initialize.
-/// @param[in]		width	The width of the field along the x-axis. [Limit: >= 0] [Units: vx]
-/// @param[in]		height	The height of the field along the z-axis. [Limit: >= 0] [Units: vx]
-/// @param[in]		bmin	The minimum bounds of the field's AABB. [(x, y, z)] [Units: wu]
-/// @param[in]		bmax	The maximum bounds of the field's AABB. [(x, y, z)] [Units: wu]
-/// @param[in]		cs		The xz-plane cell size to use for the field. [Limit: > 0] [Units: wu]
-/// @param[in]		ch		The y-axis cell size to use for field. [Limit: > 0] [Units: wu]
+/// @param[in,out]	context		The build context to use during the operation.
+/// @param[in,out]	heightfield	The allocated heightfield to initialize.
+/// @param[in]		sizeX		The width of the field along the x-axis. [Limit: >= 0] [Units: vx]
+/// @param[in]		sizeZ		The height of the field along the z-axis. [Limit: >= 0] [Units: vx]
+/// @param[in]		minBounds	The minimum bounds of the field's AABB. [(x, y, z)] [Units: wu]
+/// @param[in]		maxBounds	The maximum bounds of the field's AABB. [(x, y, z)] [Units: wu]
+/// @param[in]		cellSize	The xz-plane cell size to use for the field. [Limit: > 0] [Units: wu]
+/// @param[in]		cellHeight	The y-axis cell size to use for field. [Limit: > 0] [Units: wu]
 /// @returns True if the operation completed successfully.
-bool rcCreateHeightfield(rcContext* ctx, rcHeightfield& hf, int width, int height,
-						 const float* bmin, const float* bmax,
-						 float cs, float ch);
+bool rcCreateHeightfield(rcContext* context, rcHeightfield& heightfield, int sizeX, int sizeZ,
+						 const float* minBounds, const float* maxBounds,
+						 float cellSize, float cellHeight);
 
 /// Sets the area id of all triangles with a slope below the specified value
 /// to #RC_WALKABLE_AREA.
@@ -853,16 +853,16 @@ bool rcCreateHeightfield(rcContext* ctx, rcHeightfield& hf, int width, int heigh
 /// @see rcHeightfield, rcClearUnwalkableTriangles, rcRasterizeTriangles
 /// 
 /// @ingroup recast
-/// @param[in,out]	ctx					The build context to use during the operation.
+/// @param[in,out]	context				The build context to use during the operation.
 /// @param[in]		walkableSlopeAngle	The maximum slope that is considered walkable.
 /// 									[Limits: 0 <= value < 90] [Units: Degrees]
 /// @param[in]		verts				The vertices. [(x, y, z) * @p nv]
-/// @param[in]		nv					The number of vertices.
+/// @param[in]		numVerts			The number of vertices.
 /// @param[in]		tris				The triangle vertex indices. [(vertA, vertB, vertC) * @p nt]
-/// @param[in]		nt					The number of triangles.
-/// @param[out]		areas				The triangle area ids. [Length: >= @p nt]
-void rcMarkWalkableTriangles(rcContext* ctx, float walkableSlopeAngle, const float* verts, int nv,
-							 const int* tris, int nt, unsigned char* areas); 
+/// @param[in]		numTris				The number of triangles.
+/// @param[out]		triAreaIDs			The triangle area ids. [Length: >= @p nt]
+void rcMarkWalkableTriangles(rcContext* context, float walkableSlopeAngle, const float* verts, int numVerts,
+							 const int* tris, int numTris, unsigned char* triAreaIDs); 
 
 /// Sets the area id of all triangles with a slope greater than or equal to the specified value to #RC_NULL_AREA.
 /// 
@@ -874,16 +874,16 @@ void rcMarkWalkableTriangles(rcContext* ctx, float walkableSlopeAngle, const flo
 /// @see rcHeightfield, rcClearUnwalkableTriangles, rcRasterizeTriangles
 /// 
 ///  @ingroup recast
-///  @param[in,out]	ctx					The build context to use during the operation.
+///  @param[in,out]	context				The build context to use during the operation.
 ///  @param[in]		walkableSlopeAngle	The maximum slope that is considered walkable.
 ///  									[Limits: 0 <= value < 90] [Units: Degrees]
 ///  @param[in]		verts				The vertices. [(x, y, z) * @p nv]
-///  @param[in]		nv					The number of vertices.
+///  @param[in]		numVerts			The number of vertices.
 ///  @param[in]		tris				The triangle vertex indices. [(vertA, vertB, vertC) * @p nt]
-///  @param[in]		nt					The number of triangles.
-///  @param[out]	areas				The triangle area ids. [Length: >= @p nt]
-void rcClearUnwalkableTriangles(rcContext* ctx, float walkableSlopeAngle, const float* verts, int nv,
-								const int* tris, int nt, unsigned char* areas); 
+///  @param[in]		numTris				The number of triangles.
+///  @param[out]	triAreaIDs			The triangle area ids. [Length: >= @p nt]
+void rcClearUnwalkableTriangles(rcContext* context, float walkableSlopeAngle, const float* verts, int numVerts,
+								const int* tris, int numTris, unsigned char* triAreaIDs); 
 
 /// Adds a span to the specified heightfield.
 /// 
@@ -894,9 +894,9 @@ void rcClearUnwalkableTriangles(rcContext* ctx, float walkableSlopeAngle, const 
 ///  @ingroup recast
 ///  @param[in,out]	context				The build context to use during the operation.
 ///  @param[in,out]	heightfield			An initialized heightfield.
-///  @param[in]		x					The width index where the span is to be added.
+///  @param[in]		x					The column x index where the span is to be added.
 ///  									[Limits: 0 <= value < rcHeightfield::width]
-///  @param[in]		y					The height index where the span is to be added.
+///  @param[in]		z					The column z index where the span is to be added.
 ///  									[Limits: 0 <= value < rcHeightfield::height]
 ///  @param[in]		spanMin				The minimum height of the span. [Limit: < @p spanMax] [Units: vx]
 ///  @param[in]		spanMax				The maximum height of the span. [Limit: <= #RC_SPAN_MAX_HEIGHT] [Units: vx]
@@ -904,7 +904,7 @@ void rcClearUnwalkableTriangles(rcContext* ctx, float walkableSlopeAngle, const 
 ///  @param[in]		flagMergeThreshold	The merge threshold. [Limit: >= 0] [Units: vx]
 ///  @returns True if the operation completed successfully.
 bool rcAddSpan(rcContext* context, rcHeightfield& heightfield,
-	           int x, int y,
+	           int x, int z,
                unsigned short spanMin, unsigned short spanMax,
                unsigned char areaID, int flagMergeThreshold);
 
@@ -939,7 +939,7 @@ bool rcRasterizeTriangle(rcContext* context,
 ///  @param[in]		verts				The vertices. [(x, y, z) * @p nv]
 ///  @param[in]		numVerts			The number of vertices. (unused) TODO (graham): Remove in next major release
 ///  @param[in]		tris				The triangle indices. [(vertA, vertB, vertC) * @p nt]
-///  @param[in]		areaIDs				The area id's of the triangles. [Limit: <= #RC_WALKABLE_AREA] [Size: @p nt]
+///  @param[in]		triAreaIDs			The area id's of the triangles. [Limit: <= #RC_WALKABLE_AREA] [Size: @p nt]
 ///  @param[in]		numTris				The number of triangles.
 ///  @param[in,out]	heightfield			An initialized heightfield.
 ///  @param[in]		flagMergeThreshold	The distance where the walkable flag is favored over the non-walkable flag. 
@@ -947,7 +947,7 @@ bool rcRasterizeTriangle(rcContext* context,
 ///  @returns True if the operation completed successfully.
 bool rcRasterizeTriangles(rcContext* context,
                           const float* verts, int numVerts,
-                          const int* tris, const unsigned char* areaIDs, int numTris,
+                          const int* tris, const unsigned char* triAreaIDs, int numTris,
                           rcHeightfield& heightfield, int flagMergeThreshold = 1);
 
 /// Rasterizes an indexed triangle mesh into the specified heightfield.
@@ -960,7 +960,7 @@ bool rcRasterizeTriangles(rcContext* context,
 ///  @param[in]		verts				The vertices. [(x, y, z) * @p nv]
 ///  @param[in]		numVerts			The number of vertices. (unused) TODO (graham): Remove in next major release
 ///  @param[in]		tris				The triangle indices. [(vertA, vertB, vertC) * @p nt]
-///  @param[in]		areaIDs				The area id's of the triangles. [Limit: <= #RC_WALKABLE_AREA] [Size: @p nt]
+///  @param[in]		triAreaIDs			The area id's of the triangles. [Limit: <= #RC_WALKABLE_AREA] [Size: @p nt]
 ///  @param[in]		numTris				The number of triangles.
 ///  @param[in,out]	heightfield			An initialized heightfield.
 ///  @param[in]		flagMergeThreshold	The distance where the walkable flag is favored over the non-walkable flag. 
@@ -968,7 +968,7 @@ bool rcRasterizeTriangles(rcContext* context,
 ///  @returns True if the operation completed successfully.
 bool rcRasterizeTriangles(rcContext* context,
                           const float* verts, int numVerts,
-                          const unsigned short* tris, const unsigned char* areaIDs, int numTris,
+                          const unsigned short* tris, const unsigned char* triAreaIDs, int numTris,
                           rcHeightfield& heightfield, int flagMergeThreshold = 1);
 
 /// Rasterizes a triangle list into the specified heightfield.
@@ -981,14 +981,14 @@ bool rcRasterizeTriangles(rcContext* context,
 ///  @ingroup recast
 ///  @param[in,out]	context				The build context to use during the operation.
 ///  @param[in]		verts				The triangle vertices. [(ax, ay, az, bx, by, bz, cx, by, cx) * @p nt]
-///  @param[in]		areaIDs				The area id's of the triangles. [Limit: <= #RC_WALKABLE_AREA] [Size: @p nt]
+///  @param[in]		triAreaIDs			The area id's of the triangles. [Limit: <= #RC_WALKABLE_AREA] [Size: @p nt]
 ///  @param[in]		numTris				The number of triangles.
 ///  @param[in,out]	heightfield			An initialized heightfield.
 ///  @param[in]		flagMergeThreshold	The distance where the walkable flag is favored over the non-walkable flag. 
 ///  									[Limit: >= 0] [Units: vx]
 ///  @returns True if the operation completed successfully.
 bool rcRasterizeTriangles(rcContext* context,
-                          const float* verts, const unsigned char* areaIDs, int numTris,
+                          const float* verts, const unsigned char* triAreaIDs, int numTris,
                           rcHeightfield& heightfield, int flagMergeThreshold = 1);
 
 /// Marks non-walkable spans as walkable if their maximum is within @p walkableClimb of a walkable neighbor. 
@@ -1020,10 +1020,10 @@ void rcFilterWalkableLowHeightSpans(rcContext* ctx, int walkableHeight, rcHeight
 
 /// Returns the number of spans contained in the specified heightfield.
 ///  @ingroup recast
-///  @param[in,out]	ctx		The build context to use during the operation.
-///  @param[in]		hf		An initialized heightfield.
+///  @param[in,out]	context		The build context to use during the operation.
+///  @param[in]		heightfield	An initialized heightfield.
 ///  @returns The number of spans in the heightfield.
-int rcGetHeightFieldSpanCount(rcContext* ctx, rcHeightfield& hf);
+int rcGetHeightFieldSpanCount(rcContext* context, const rcHeightfield& heightfield);
 
 /// @}
 /// @name Compact Heightfield Functions
@@ -1041,16 +1041,16 @@ int rcGetHeightFieldSpanCount(rcContext* ctx, rcHeightfield& hf);
 /// @see rcAllocCompactHeightfield, rcHeightfield, rcCompactHeightfield, rcConfig
 /// @ingroup recast
 /// 
-/// @param[in,out]	ctx				The build context to use during the operation.
-/// @param[in]		walkableHeight	Minimum floor to 'ceiling' height that will still allow the floor area 
-/// 								to be considered walkable. [Limit: >= 3] [Units: vx]
-/// @param[in]		walkableClimb	Maximum ledge height that is considered to still be traversable. 
-/// 								[Limit: >=0] [Units: vx]
-/// @param[in]		hf				The heightfield to be compacted.
-/// @param[out]		chf				The resulting compact heightfield. (Must be pre-allocated.)
+/// @param[in,out]	context				The build context to use during the operation.
+/// @param[in]		walkableHeight		Minimum floor to 'ceiling' height that will still allow the floor area 
+/// 									to be considered walkable. [Limit: >= 3] [Units: vx]
+/// @param[in]		walkableClimb		Maximum ledge height that is considered to still be traversable. 
+/// 									[Limit: >=0] [Units: vx]
+/// @param[in]		heightfield			The heightfield to be compacted.
+/// @param[out]		compactHeightfield	The resulting compact heightfield. (Must be pre-allocated.)
 /// @returns True if the operation completed successfully.
-bool rcBuildCompactHeightfield(rcContext* ctx, const int walkableHeight, const int walkableClimb,
-							   rcHeightfield& hf, rcCompactHeightfield& chf);
+bool rcBuildCompactHeightfield(rcContext* context, int walkableHeight, int walkableClimb,
+							   rcHeightfield& heightfield, rcCompactHeightfield& compactHeightfield);
 
 /// Erodes the walkable area within the heightfield by the specified radius. 
 ///  @ingroup recast
@@ -1128,11 +1128,10 @@ bool rcBuildDistanceField(rcContext* ctx, rcCompactHeightfield& chf);
 ///  								[Limit: >=0] [Units: vx]
 ///  @param[in]		minRegionArea	The minimum number of cells allowed to form isolated island areas.
 ///  								[Limit: >=0] [Units: vx].
-///  @param[in]		mergeRegionArea		Any regions with a span count smaller than this value will, if possible,
+///  @param[in]		mergeRegionArea	Any regions with a span count smaller than this value will, if possible,
 ///  								be merged with larger regions. [Limit: >=0] [Units: vx] 
 ///  @returns True if the operation completed successfully.
-bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
-					const int borderSize, const int minRegionArea, const int mergeRegionArea);
+bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf, int borderSize, int minRegionArea, int mergeRegionArea);
 
 /// Builds region data for the heightfield by partitioning the heightfield in non-overlapping layers.
 ///  @ingroup recast
@@ -1143,8 +1142,7 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 ///  @param[in]		minRegionArea	The minimum number of cells allowed to form isolated island areas.
 ///  								[Limit: >=0] [Units: vx].
 ///  @returns True if the operation completed successfully.
-bool rcBuildLayerRegions(rcContext* ctx, rcCompactHeightfield& chf,
-						 const int borderSize, const int minRegionArea);
+bool rcBuildLayerRegions(rcContext* ctx, rcCompactHeightfield& chf, int borderSize, int minRegionArea);
 
 /// Builds region data for the heightfield using simple monotone partitioning.
 ///  @ingroup recast 
@@ -1158,58 +1156,59 @@ bool rcBuildLayerRegions(rcContext* ctx, rcCompactHeightfield& chf,
 ///  								be merged with larger regions. [Limit: >=0] [Units: vx] 
 ///  @returns True if the operation completed successfully.
 bool rcBuildRegionsMonotone(rcContext* ctx, rcCompactHeightfield& chf,
-							const int borderSize, const int minRegionArea, const int mergeRegionArea);
+							int borderSize, int minRegionArea, int mergeRegionArea);
 
 /// Sets the neighbor connection data for the specified direction.
-///  @param[in]		s		The span to update.
-///  @param[in]		dir		The direction to set. [Limits: 0 <= value < 4]
-///  @param[in]		i		The index of the neighbor span.
-inline void rcSetCon(rcCompactSpan& s, int dir, int i)
+///  @param[in]		span			The span to update.
+///  @param[in]		direction		The direction to set. [Limits: 0 <= value < 4]
+///  @param[in]		neighborIndex	The index of the neighbor span.
+inline void rcSetCon(rcCompactSpan& span, int direction, int neighborIndex)
 {
-	const unsigned int shift = (unsigned int)dir*6;
-	const unsigned int con = s.con;
-	s.con = (con & ~(0x3f << shift)) | (((unsigned int)i & 0x3f) << shift);
+	const unsigned int shift = (unsigned int)direction * 6;
+	const unsigned int con = span.con;
+	span.con = (con & ~(0x3f << shift)) | (((unsigned int)neighborIndex & 0x3f) << shift);
 }
 
 /// Gets neighbor connection data for the specified direction.
-///  @param[in]		s		The span to check.
-///  @param[in]		dir		The direction to check. [Limits: 0 <= value < 4]
+///  @param[in]		span		The span to check.
+///  @param[in]		direction	The direction to check. [Limits: 0 <= value < 4]
 ///  @return The neighbor connection data for the specified direction,
 ///  	or #RC_NOT_CONNECTED if there is no connection.
-inline int rcGetCon(const rcCompactSpan& s, int dir)
+inline int rcGetCon(const rcCompactSpan& span, int direction)
 {
-	const unsigned int shift = (unsigned int)dir*6;
-	return (s.con >> shift) & 0x3f;
+	const unsigned int shift = (unsigned int)direction * 6;
+	return (span.con >> shift) & 0x3f;
 }
 
 /// Gets the standard width (x-axis) offset for the specified direction.
-///  @param[in]		dir		The direction. [Limits: 0 <= value < 4]
+///  @param[in]		direction		The direction. [Limits: 0 <= value < 4]
 ///  @return The width offset to apply to the current cell position to move
 ///  	in the direction.
-inline int rcGetDirOffsetX(int dir)
+inline int rcGetDirOffsetX(int direction)
 {
 	static const int offset[4] = { -1, 0, 1, 0, };
-	return offset[dir&0x03];
+	return offset[direction & 0x03];
 }
 
+// TODO (graham): Rename this to rcGetDirOffsetZ
 /// Gets the standard height (z-axis) offset for the specified direction.
-///  @param[in]		dir		The direction. [Limits: 0 <= value < 4]
+///  @param[in]		direction		The direction. [Limits: 0 <= value < 4]
 ///  @return The height offset to apply to the current cell position to move
 ///  	in the direction.
-inline int rcGetDirOffsetY(int dir)
+inline int rcGetDirOffsetY(int direction)
 {
 	static const int offset[4] = { 0, 1, 0, -1 };
-	return offset[dir&0x03];
+	return offset[direction & 0x03];
 }
 
 /// Gets the direction for the specified offset. One of x and y should be 0.
-///  @param[in]		x		The x offset. [Limits: -1 <= value <= 1]
-///  @param[in]		y		The y offset. [Limits: -1 <= value <= 1]
+///  @param[in]		offsetX		The x offset. [Limits: -1 <= value <= 1]
+///  @param[in]		offsetZ		The z offset. [Limits: -1 <= value <= 1]
 ///  @return The direction that represents the offset.
-inline int rcGetDirForOffset(int x, int y)
+inline int rcGetDirForOffset(int offsetX, int offsetZ)
 {
 	static const int dirs[5] = { 3, 0, -1, 2, 1 };
-	return dirs[((y+1)<<1)+x];
+	return dirs[((offsetZ + 1) << 1) + offsetX];
 }
 
 /// @}
@@ -1228,7 +1227,7 @@ inline int rcGetDirForOffset(int x, int y)
 ///  @param[out]	lset		The resulting layer set. (Must be pre-allocated.)
 ///  @returns True if the operation completed successfully.
 bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf, 
-							  const int borderSize, const int walkableHeight,
+							  int borderSize, int walkableHeight,
 							  rcHeightfieldLayerSet& lset);
 
 /// Builds a contour set from the region outlines in the provided compact heightfield.
@@ -1243,8 +1242,8 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 ///  @param[in]		buildFlags	The build flags. (See: #rcBuildContoursFlags)
 ///  @returns True if the operation completed successfully.
 bool rcBuildContours(rcContext* ctx, rcCompactHeightfield& chf,
-					 const float maxError, const int maxEdgeLen,
-					 rcContourSet& cset, const int buildFlags = RC_CONTOUR_TESS_WALL_EDGES);
+					 float maxError, int maxEdgeLen,
+					 rcContourSet& cset, int buildFlags = RC_CONTOUR_TESS_WALL_EDGES);
 
 /// Builds a polygon mesh from the provided contours.
 ///  @ingroup recast
@@ -1276,7 +1275,7 @@ bool rcMergePolyMeshes(rcContext* ctx, rcPolyMesh** meshes, const int nmeshes, r
 ///  @param[out]	dmesh			The resulting detail mesh.  (Must be pre-allocated.)
 ///  @returns True if the operation completed successfully.
 bool rcBuildPolyMeshDetail(rcContext* ctx, const rcPolyMesh& mesh, const rcCompactHeightfield& chf,
-						   const float sampleDist, const float sampleMaxError,
+						   float sampleDist, float sampleMaxError,
 						   rcPolyMeshDetail& dmesh);
 
 /// Copies the poly mesh data from src to dst.
