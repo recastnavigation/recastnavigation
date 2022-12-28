@@ -95,23 +95,16 @@ void rcFreeHeightField(rcHeightfield* heightfield)
 }
 
 rcHeightfield::rcHeightfield()
-: width(0)
-, height(0)
+: width()
+, height()
 , bmin()
 , bmax()
-, cs(0)
-, ch(0)
-, spans(NULL)
-, pools(NULL)
-, freelist(NULL)
+, cs()
+, ch()
+, spans()
+, pools()
+, freelist()
 {
-	bmin[0] = 0;
-	bmin[1] = 0;
-	bmin[2] = 0;
-
-	bmax[0] = 0;
-	bmax[1] = 0;
-	bmax[2] = 0;
 }
 
 rcHeightfield::~rcHeightfield()
@@ -138,30 +131,23 @@ void rcFreeCompactHeightfield(rcCompactHeightfield* compactHeightfield)
 }
 
 rcCompactHeightfield::rcCompactHeightfield()
-: width(0)
-, height(0)
-, spanCount(0)
-, walkableHeight(0)
-, walkableClimb(0)
-, borderSize(0)
-, maxDistance(0)
-, maxRegions(0)
+: width()
+, height()
+, spanCount()
+, walkableHeight()
+, walkableClimb()
+, borderSize()
+, maxDistance()
+, maxRegions()
 , bmin()
 , bmax()
-, cs(0)
-, ch(0)
-, cells(NULL)
-, spans(NULL)
-, dist(NULL)
-, areas(NULL)
+, cs()
+, ch()
+, cells()
+, spans()
+, dist()
+, areas()
 {
-	bmin[0] = 0;
-	bmin[1] = 0;
-	bmin[2] = 0;
-
-	bmax[0] = 0;
-	bmax[1] = 0;
-	bmax[2] = 0;
 }
 
 rcCompactHeightfield::~rcCompactHeightfield()
@@ -183,8 +169,8 @@ void rcFreeHeightfieldLayerSet(rcHeightfieldLayerSet* layerSet)
 }
 
 rcHeightfieldLayerSet::rcHeightfieldLayerSet()
-: layers(NULL)
-, nlayers(0)
+: layers()
+, nlayers()
 {
 }
 
@@ -211,24 +197,17 @@ void rcFreeContourSet(rcContourSet* contourSet)
 }
 
 rcContourSet::rcContourSet()
-: conts(0)
-, nconts(0)
+: conts()
+, nconts()
 , bmin()
 , bmax()
-, cs(0)
-, ch(0)
-, width(0)
-, height(0)
-, borderSize(0)
-, maxError(0)
+, cs()
+, ch()
+, width()
+, height()
+, borderSize()
+, maxError()
 {
-	bmin[0] = 0;
-	bmin[1] = 0;
-	bmin[2] = 0;
-
-	bmax[0] = 0;
-	bmax[1] = 0;
-	bmax[2] = 0;
 }
 
 rcContourSet::~rcContourSet()
@@ -252,29 +231,22 @@ void rcFreePolyMesh(rcPolyMesh* polyMesh)
 }
 
 rcPolyMesh::rcPolyMesh()
-: verts(NULL)
-, polys(NULL)
-, regs(NULL)
-, flags(NULL)
-, areas(NULL)
-, nverts(0)
-, npolys(0)
-, maxpolys(0)
-, nvp(0)
+: verts()
+, polys()
+, regs()
+, flags()
+, areas()
+, nverts()
+, npolys()
+, maxpolys()
+, nvp()
 , bmin()
 , bmax()
-, cs(0)
-, ch(0)
-, borderSize(0)
-, maxEdgeError(0)
+, cs()
+, ch()
+, borderSize()
+, maxEdgeError()
 {
-	bmin[0] = 0;
-	bmin[1] = 0;
-	bmin[2] = 0;
-
-	bmax[0] = 0;
-	bmax[1] = 0;
-	bmax[2] = 0;
 }
 
 rcPolyMesh::~rcPolyMesh()
@@ -297,12 +269,12 @@ void rcFreePolyMeshDetail(rcPolyMeshDetail* detailMesh)
 }
 
 rcPolyMeshDetail::rcPolyMeshDetail()
-: meshes(NULL)
-, verts(NULL)
-, tris(NULL)
-, nmeshes(0)
-, nverts(0)
-, ntris(0)
+: meshes()
+, verts()
+, tris()
+, nmeshes()
+, nverts()
+, ntris()
 {
 }
 
