@@ -264,6 +264,10 @@ rcPolyMeshDetail* rcAllocPolyMeshDetail()
 
 void rcFreePolyMeshDetail(rcPolyMeshDetail* detailMesh)
 {
+	if (detailMesh == NULL)
+	{
+		return;
+	}
 	rcFree(detailMesh->meshes);
 	rcFree(detailMesh->verts);
 	rcFree(detailMesh->tris);
