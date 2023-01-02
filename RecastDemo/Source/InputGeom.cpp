@@ -104,14 +104,21 @@ static char* parseRow(char* buf, char* bufEnd, char* row, int len)
 	return buf;
 }
 
-
-
-InputGeom::InputGeom() :
-	m_chunkyMesh(0),
-	m_mesh(0),
-	m_hasBuildSettings(false),
-	m_offMeshConCount(0),
-	m_volumeCount(0)
+InputGeom::InputGeom()
+: m_chunkyMesh(0)
+, m_mesh(0)
+, m_meshBMin()
+, m_meshBMax()
+, m_buildSettings()
+, m_hasBuildSettings(false)
+, m_offMeshConVerts()
+, m_offMeshConRads()
+, m_offMeshConDirs()
+, m_offMeshConAreas()
+, m_offMeshConFlags()
+, m_offMeshConId()
+, m_offMeshConCount(0)
+, m_volumeCount(0)
 {
 }
 
@@ -530,7 +537,7 @@ void InputGeom::addConvexVolume(const float* verts, const int nverts,
 {
 	if (m_volumeCount >= MAX_VOLUMES) return;
 	ConvexVolume* vol = &m_volumes[m_volumeCount++];
-	memset(vol, 0, sizeof(ConvexVolume));
+	::new(vol) ConvexVolume();
 	memcpy(vol->verts, verts, sizeof(float)*3*nverts);
 	vol->hmin = minh;
 	vol->hmax = maxh;

@@ -512,6 +512,7 @@ public:
 	///  @param[in] mask	Bitwise mask used when applying value. [Limit: <= #RC_AREA_FLAGS_MASK]
 	rcAreaModification(unsigned char value, unsigned char mask);
 	rcAreaModification(const rcAreaModification& other);
+	
 	void operator = (const rcAreaModification& other);
 	bool operator == (const rcAreaModification& other) const;
 	bool operator != (const rcAreaModification& other) const;
