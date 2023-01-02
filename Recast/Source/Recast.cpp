@@ -264,7 +264,10 @@ rcPolyMeshDetail* rcAllocPolyMeshDetail()
 
 void rcFreePolyMeshDetail(rcPolyMeshDetail* detailMesh)
 {
-	rcDelete(detailMesh);
+	rcFree(detailMesh->meshes);
+	rcFree(detailMesh->verts);
+	rcFree(detailMesh->tris);
+	rcFree(detailMesh);
 }
 
 rcPolyMeshDetail::rcPolyMeshDetail()
@@ -275,13 +278,6 @@ rcPolyMeshDetail::rcPolyMeshDetail()
 , nverts()
 , ntris()
 {
-}
-
-rcPolyMeshDetail::~rcPolyMeshDetail()
-{
-	rcFree(meshes);
-	rcFree(verts);
-	rcFree(tris);
 }
 
 void rcCalcBounds(const float* verts, int numVerts, float* minBounds, float* maxBounds)

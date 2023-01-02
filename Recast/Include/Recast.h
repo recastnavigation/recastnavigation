@@ -484,7 +484,6 @@ private:
 struct rcPolyMeshDetail
 {
 	rcPolyMeshDetail();
-	~rcPolyMeshDetail();
 	
 	unsigned int* meshes;	///< The sub-mesh data. [Size: 4*#nmeshes] 
 	float* verts;			///< The mesh vertices. [Size: 3*#nverts] 
