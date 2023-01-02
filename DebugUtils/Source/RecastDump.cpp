@@ -16,7 +16,6 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#define _USE_MATH_DEFINES
 #include <math.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -25,10 +24,9 @@
 #include "RecastAlloc.h"
 #include "RecastDump.h"
 
-
 duFileIO::~duFileIO()
 {
-	// Empty
+	// Defined out of line to fix the weak v-tables warning
 }
 	
 static void ioprintf(duFileIO* io, const char* format, ...)

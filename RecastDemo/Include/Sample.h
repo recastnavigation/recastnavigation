@@ -78,12 +78,12 @@ enum SamplePartitionType
 {
 	SAMPLE_PARTITION_WATERSHED,
 	SAMPLE_PARTITION_MONOTONE,
-	SAMPLE_PARTITION_LAYERS,
+	SAMPLE_PARTITION_LAYERS
 };
 
 struct SampleTool
 {
-	virtual ~SampleTool() {}
+	virtual ~SampleTool();
 	virtual int type() = 0;
 	virtual void init(class Sample* sample) = 0;
 	virtual void reset() = 0;
@@ -97,7 +97,7 @@ struct SampleTool
 };
 
 struct SampleToolState {
-	virtual ~SampleToolState() {}
+	virtual ~SampleToolState();
 	virtual void init(class Sample* sample) = 0;
 	virtual void reset() = 0;
 	virtual void handleRender() = 0;
@@ -141,6 +141,9 @@ protected:
 
 	SampleDebugDraw m_dd;
 	
+	dtNavMesh* loadAll(const char* path);
+	void saveAll(const char* path, const dtNavMesh* mesh);
+
 public:
 	Sample();
 	virtual ~Sample();

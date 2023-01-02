@@ -17,7 +17,6 @@
 //
 
 #include <cstdio>
-#define _USE_MATH_DEFINES
 #include <cmath>
 
 #include "SDL.h"
@@ -78,6 +77,9 @@ int main(int /*argc*/, char** /*argv*/)
 		return -1;
 	}
 
+    // Use OpenGL render driver.
+    SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
+
 	// Enable depth buffer.
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
@@ -124,7 +126,6 @@ int main(int /*argc*/, char** /*argv*/)
 	}
 
 	SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
-	SDL_GL_CreateContext(window);
 
 	if (!imguiRenderGLInit("DroidSans.ttf"))
 	{
@@ -133,7 +134,6 @@ int main(int /*argc*/, char** /*argv*/)
 		return -1;
 	}
 	
-	float t = 0.0f;
 	float timeAcc = 0.0f;
 	Uint32 prevFrameTime = SDL_GetTicks();
 	int mousePos[2] = {0, 0};
@@ -352,8 +352,6 @@ int main(int /*argc*/, char** /*argv*/)
 		Uint32 time = SDL_GetTicks();
 		float dt = (time - prevFrameTime) / 1000.0f;
 		prevFrameTime = time;
-		
-		t += dt;
 
 		// Hit test mesh.
 		if (processHitTest && geom && sample)

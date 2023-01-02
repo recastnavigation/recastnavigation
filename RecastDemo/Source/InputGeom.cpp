@@ -16,7 +16,6 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#define _USE_MATH_DEFINES
 #include <math.h>
 #include <stdio.h>
 #include <ctype.h>
@@ -92,6 +91,7 @@ static char* parseRow(char* buf, char* bufEnd, char* row, int len)
 			case '\t':
 			case ' ':
 				if (start) break;
+				// else falls through
 			default:
 				start = false;
 				row[n++] = c;
@@ -423,9 +423,6 @@ static bool isectSegAABB(const float* sp, const float* sq,
 
 bool InputGeom::raycastMesh(float* src, float* dst, float& tmin)
 {
-	float dir[3];
-	rcVsub(dir, dst, src);
-
 	// Prune hit ray.
 	float btmin, btmax;
 	if (!isectSegAABB(src, dst, m_meshBMin, m_meshBMax, btmin, btmax))

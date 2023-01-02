@@ -16,7 +16,6 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#define _USE_MATH_DEFINES
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
@@ -254,7 +253,7 @@ void ConvexVolumeTool::handleRender()
 {
 	duDebugDraw& dd = m_sample->getDebugDraw();
 	
-	// Find height extents of the shape.
+	// Find height extent of the shape.
 	float minh = FLT_MAX, maxh = 0;
 	for (int i = 0; i < m_npts; ++i)
 		minh = rcMin(minh, m_pts[i*3+1]);

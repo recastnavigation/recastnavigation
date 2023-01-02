@@ -23,6 +23,15 @@
 #include "DetourTileCacheBuilder.h"
 #include <string.h>
 
+dtTileCacheAlloc::~dtTileCacheAlloc()
+{
+	// Defined out of line to fix the weak v-tables warning
+}
+
+dtTileCacheCompressor::~dtTileCacheCompressor()
+{
+	// Defined out of line to fix the weak v-tables warning
+}
 
 template<class T> class dtFixedArray
 {
@@ -1399,7 +1408,6 @@ static void pushBack(unsigned short v, unsigned short* arr, int& an)
 static bool canRemoveVertex(dtTileCachePolyMesh& mesh, const unsigned short rem)
 {
 	// Count number of polygons to remove.
-	int numRemovedVerts = 0;
 	int numTouchedVerts = 0;
 	int numRemainingEdges = 0;
 	for (int i = 0; i < mesh.npolys; ++i)
@@ -1419,7 +1427,6 @@ static bool canRemoveVertex(dtTileCachePolyMesh& mesh, const unsigned short rem)
 		}
 		if (numRemoved)
 		{
-			numRemovedVerts += numRemoved;
 			numRemainingEdges += numVerts-(numRemoved+1);
 		}
 	}
@@ -2041,6 +2048,60 @@ dtStatus dtMarkBoxArea(dtTileCacheLayer& layer, const float* orig, const float c
 	return DT_SUCCESS;
 }
 
+dtStatus dtMarkBoxArea(dtTileCacheLayer& layer, const float* orig, const float cs, const float ch,
+					   const float* center, const float* halfExtents, const float* rotAux, const unsigned char areaId)
+{
+	const int w = (int)layer.header->width;
+	const int h = (int)layer.header->height;
+	const float ics = 1.0f/cs;
+	const float ich = 1.0f/ch;
+
+	float cx = (center[0] - orig[0])*ics;
+	float cz = (center[2] - orig[2])*ics;
+	
+	float maxr = 1.41f*dtMax(halfExtents[0], halfExtents[2]);
+	int minx = (int)floorf(cx - maxr*ics);
+	int maxx = (int)floorf(cx + maxr*ics);
+	int minz = (int)floorf(cz - maxr*ics);
+	int maxz = (int)floorf(cz + maxr*ics);
+	int miny = (int)floorf((center[1]-halfExtents[1]-orig[1])*ich);
+	int maxy = (int)floorf((center[1]+halfExtents[1]-orig[1])*ich);
+
+	if (maxx < 0) return DT_SUCCESS;
+	if (minx >= w) return DT_SUCCESS;
+	if (maxz < 0) return DT_SUCCESS;
+	if (minz >= h) return DT_SUCCESS;
+
+	if (minx < 0) minx = 0;
+	if (maxx >= w) maxx = w-1;
+	if (minz < 0) minz = 0;
+	if (maxz >= h) maxz = h-1;
+	
+	float xhalf = halfExtents[0]*ics + 0.5f;
+	float zhalf = halfExtents[2]*ics + 0.5f;
+
+	for (int z = minz; z <= maxz; ++z)
+	{
+		for (int x = minx; x <= maxx; ++x)
+		{			
+			float x2 = 2.0f*(float(x) - cx);
+			float z2 = 2.0f*(float(z) - cz);
+			float xrot = rotAux[1]*x2 + rotAux[0]*z2;
+			if (xrot > xhalf || xrot < -xhalf)
+				continue;
+			float zrot = rotAux[1]*z2 - rotAux[0]*x2;
+			if (zrot > zhalf || zrot < -zhalf)
+				continue;
+			const int y = layer.heights[x+z*w];
+			if (y < miny || y > maxy)
+				continue;
+			layer.areas[x+z*w] = areaId;
+		}
+	}
+
+	return DT_SUCCESS;
+}
+
 dtStatus dtBuildTileCacheLayer(dtTileCacheCompressor* comp,
 							   dtTileCacheLayerHeader* header,
 							   const unsigned char* heights,
@@ -2142,7 +2203,7 @@ dtStatus dtDecompressTileCacheLayer(dtTileCacheAlloc* alloc, dtTileCacheCompress
 									   grids, gridsSize, &size);
 	if (dtStatusFailed(status))
 	{
-		dtFree(buffer);
+		alloc->free(buffer);
 		return status;
 	}
 	

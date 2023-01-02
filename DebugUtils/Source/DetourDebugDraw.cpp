@@ -101,7 +101,9 @@ static void drawPolyBoundaries(duDebugDraw* dd, const dtMeshTile* tile,
 				}
 				for (int m = 0, n = 2; m < 3; n=m++)
 				{
-					if (((t[3] >> (n*2)) & 0x3) == 0) continue;	// Skip inner detail edges.
+					if ((dtGetDetailTriEdgeFlags(t[3], n) & DT_DETAIL_EDGE_BOUNDARY) == 0)
+						continue;
+
 					if (distancePtLine2d(tv[n],v0,v1) < thr &&
 						distancePtLine2d(tv[m],v0,v1) < thr)
 					{

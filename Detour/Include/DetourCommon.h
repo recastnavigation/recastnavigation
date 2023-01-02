@@ -37,7 +37,6 @@ feature to find minor members.
 
 /// Used to ignore a function parameter.  VS complains about unused parameters
 /// and this silences the warning.
-///  @param [in] _ Unused parameter
 template<class T> void dtIgnoreUnused(const T&) { }
 
 /// Swaps the values of the two parameters.
@@ -283,6 +282,28 @@ inline bool dtVequal(const float* p0, const float* p1)
 	return d < thr;
 }
 
+/// Checks that the specified vector's components are all finite.
+///  @param[in]		v	A point. [(x, y, z)]
+/// @return True if all of the point's components are finite, i.e. not NaN
+/// or any of the infinities.
+inline bool dtVisfinite(const float* v)
+{
+	bool result =
+		dtMathIsfinite(v[0]) &&
+		dtMathIsfinite(v[1]) &&
+		dtMathIsfinite(v[2]);
+
+	return result;
+}
+
+/// Checks that the specified vector's 2D components are finite.
+///  @param[in]		v	A point. [(x, y, z)]
+inline bool dtVisfinite2D(const float* v)
+{
+	bool result = dtMathIsfinite(v[0]) && dtMathIsfinite(v[2]);
+	return result;
+}
+
 /// Derives the dot product of two vectors on the xz-plane. (@p u . @p v)
 ///  @param[in]		u		A vector [(x, y, z)]
 ///  @param[in]		v		A vector [(x, y, z)]
@@ -297,7 +318,7 @@ inline float dtVdot2D(const float* u, const float* v)
 /// Derives the xz-plane 2D perp product of the two vectors. (uz*vx - ux*vz)
 ///  @param[in]		u		The LHV vector [(x, y, z)]
 ///  @param[in]		v		The RHV vector [(x, y, z)]
-/// @return The dot product on the xz-plane.
+/// @return The perp dot product on the xz-plane.
 ///
 /// The vectors are projected onto the xz-plane, so the y-values are ignored.
 inline float dtVperp2D(const float* u, const float* v)

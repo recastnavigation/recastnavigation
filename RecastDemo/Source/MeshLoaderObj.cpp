@@ -20,7 +20,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <cstring>
-#define _USE_MATH_DEFINES
 #include <math.h>
 
 rcMeshLoaderObj::rcMeshLoaderObj() :
@@ -99,6 +98,7 @@ static char* parseRow(char* buf, char* bufEnd, char* row, int len)
 			case '\t':
 			case ' ':
 				if (start) break;
+				// else falls through
 			default:
 				start = false;
 				row[n++] = c;

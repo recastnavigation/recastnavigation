@@ -16,7 +16,6 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#define _USE_MATH_DEFINES
 #include <string.h>
 #include "DebugDraw.h"
 #include "DetourMath.h"
@@ -530,9 +529,9 @@ duDisplayList::duDisplayList(int cap) :
 	m_color(0),
 	m_size(0),
 	m_cap(0),
-	m_depthMask(true),
 	m_prim(DU_DRAW_LINES),
-	m_primSize(1.0f)
+	m_primSize(1.0f),
+	m_depthMask(true)
 {
 	if (cap < 8)
 		cap = 8;

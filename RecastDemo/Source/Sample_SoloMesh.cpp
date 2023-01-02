@@ -16,7 +16,6 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#define _USE_MATH_DEFINES
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
@@ -79,20 +78,38 @@ void Sample_SoloMesh::cleanup()
 	dtFreeNavMesh(m_navMesh);
 	m_navMesh = 0;
 }
-			
+
 void Sample_SoloMesh::handleSettings()
 {
 	Sample::handleCommonSettings();
-	
+
 	if (imguiCheck("Keep Itermediate Results", m_keepInterResults))
 		m_keepInterResults = !m_keepInterResults;
 
 	imguiSeparator();
+
+	imguiIndent();
+	imguiIndent();
+
+	if (imguiButton("Save"))
+	{
+		Sample::saveAll("solo_navmesh.bin", m_navMesh);
+	}
+
+	if (imguiButton("Load"))
+	{
+		dtFreeNavMesh(m_navMesh);
+		m_navMesh = Sample::loadAll("solo_navmesh.bin");
+		m_navQuery->init(m_navMesh, 2048);
+	}
+
+	imguiUnindent();
+	imguiUnindent();
 	
 	char msg[64];
 	snprintf(msg, 64, "Build Time: %.1fms", m_totalBuildTimeMs);
 	imguiLabel(msg);
-	
+
 	imguiSeparator();
 }
 

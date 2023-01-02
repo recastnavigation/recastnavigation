@@ -16,7 +16,6 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#define _USE_MATH_DEFINES
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
@@ -109,6 +108,8 @@ static int calcLayerBufferSize(const int gridWidth, const int gridHeight)
 
 struct FastLZCompressor : public dtTileCacheCompressor
 {
+	virtual ~FastLZCompressor();
+
 	virtual int maxCompressedSize(const int bufferSize)
 	{
 		return (int)(bufferSize* 1.05f);
@@ -129,6 +130,11 @@ struct FastLZCompressor : public dtTileCacheCompressor
 	}
 };
 
+FastLZCompressor::~FastLZCompressor()
+{
+	// Defined out of line to fix the weak v-tables warning
+}
+
 struct LinearAllocator : public dtTileCacheAlloc
 {
 	unsigned char* buffer;
@@ -141,10 +147,7 @@ struct LinearAllocator : public dtTileCacheAlloc
 		resize(cap);
 	}
 	
-	~LinearAllocator()
-	{
-		dtFree(buffer);
-	}
+	virtual ~LinearAllocator();
 
 	void resize(const size_t cap)
 	{
@@ -176,6 +179,12 @@ struct LinearAllocator : public dtTileCacheAlloc
 	}
 };
 
+LinearAllocator::~LinearAllocator()
+{
+	// Defined out of line to fix the weak v-tables warning
+	dtFree(buffer);
+}
+
 struct MeshProcess : public dtTileCacheMeshProcess
 {
 	InputGeom* m_geom;
@@ -183,6 +192,8 @@ struct MeshProcess : public dtTileCacheMeshProcess
 	inline MeshProcess() : m_geom(0)
 	{
 	}
+
+	virtual ~MeshProcess();
 
 	inline void init(InputGeom* geom)
 	{
@@ -212,8 +223,10 @@ struct MeshProcess : public dtTileCacheMeshProcess
 	}
 };
 
-
-
+MeshProcess::~MeshProcess()
+{
+	// Defined out of line to fix the weak v-tables warning
+}
 
 static const int MAX_LAYERS = 32;
 
@@ -479,7 +492,7 @@ enum DrawDetailType
 	DRAWDETAIL_AREAS,
 	DRAWDETAIL_REGIONS,
 	DRAWDETAIL_CONTOURS,
-	DRAWDETAIL_MESH,
+	DRAWDETAIL_MESH
 };
 
 void drawDetail(duDebugDraw* dd, dtTileCache* tc, const int tx, const int ty, int type)
@@ -652,9 +665,6 @@ void drawObstacles(duDebugDraw* dd, const dtTileCache* tc)
 	}
 }
 
-
-
-
 class TempObstacleHilightTool : public SampleTool
 {
 	Sample_TempObstacles* m_sample;
@@ -672,9 +682,7 @@ public:
 		m_hitPos[0] = m_hitPos[1] = m_hitPos[2] = 0;
 	}
 
-	virtual ~TempObstacleHilightTool()
-	{
-	}
+	virtual ~TempObstacleHilightTool();
 
 	virtual int type() { return TOOL_TILE_HIGHLIGHT; }
 
@@ -749,6 +757,10 @@ public:
 	}
 };
 
+TempObstacleHilightTool::~TempObstacleHilightTool()
+{
+	// Defined out of line to fix the weak v-tables warning
+}
 
 class TempObstacleCreateTool : public SampleTool
 {
@@ -760,9 +772,7 @@ public:
 	{
 	}
 	
-	virtual ~TempObstacleCreateTool()
-	{
-	}
+	virtual ~TempObstacleCreateTool();
 	
 	virtual int type() { return TOOL_TEMP_OBSTACLE; }
 	
@@ -804,9 +814,10 @@ public:
 	virtual void handleRenderOverlay(double* /*proj*/, double* /*model*/, int* /*view*/) { }
 };
 
-
-
-
+TempObstacleCreateTool::~TempObstacleCreateTool()
+{
+	// Defined out of line to fix the weak v-tables warning
+}
 
 Sample_TempObstacles::Sample_TempObstacles() :
 	m_keepInterResults(false),
@@ -1324,7 +1335,7 @@ bool Sample_TempObstacles::handleBuild()
 	m_ctx->stopTimer(RC_TIMER_TOTAL);
 	
 	m_cacheBuildTimeMs = m_ctx->getAccumulatedTime(RC_TIMER_TOTAL)/1000.0f;
-	m_cacheBuildMemUsage = m_talloc->high;
+	m_cacheBuildMemUsage = static_cast<unsigned int>(m_talloc->high);
 	
 
 	const dtNavMesh* nav = m_navMesh;

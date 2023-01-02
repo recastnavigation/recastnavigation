@@ -27,13 +27,17 @@ class TestCase
 	enum TestType
 	{
 		TEST_PATHFIND,
-		TEST_RAYCAST,
+		TEST_RAYCAST
 	};
 	
 	struct Test
 	{
 		Test() :
 			type(),
+			spos(),
+			epos(),
+			nspos(),
+			nepos(),
 			radius(0),
 			includeFlags(0),
 			excludeFlags(0),

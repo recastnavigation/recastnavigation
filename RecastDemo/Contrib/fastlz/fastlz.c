@@ -81,6 +81,11 @@ typedef unsigned char  flzuint8;
 typedef unsigned short flzuint16;
 typedef unsigned int   flzuint32;
 
+/* Disable "conversion from A to B, possible loss of data" warning when using MSVC */
+#if defined(_MSC_VER)
+#pragma warning(disable: 4244)
+#endif
+
 /* prototypes */
 int fastlz_compress(const void* input, int length, void* output);
 int fastlz_compress_level(int level, const void* input, int length, void* output);

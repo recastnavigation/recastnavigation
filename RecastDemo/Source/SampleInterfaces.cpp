@@ -1,4 +1,3 @@
-#define _USE_MATH_DEFINES
 #include <math.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -68,7 +67,7 @@ void BuildContext::doStartTimer(const rcTimerLabel label)
 void BuildContext::doStopTimer(const rcTimerLabel label)
 {
 	const TimeVal endTime = getPerfTime();
-	const int deltaTime = (int)(endTime - m_startTime[label]);
+	const TimeVal deltaTime = endTime - m_startTime[label];
 	if (m_accTime[label] == -1)
 		m_accTime[label] = deltaTime;
 	else
@@ -184,7 +183,7 @@ public:
 		}
 	}
 };
-GLCheckerTexture g_tex;
+static GLCheckerTexture g_tex;
 
 
 void DebugDrawGL::depthMask(bool state)

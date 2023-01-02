@@ -3,16 +3,13 @@
 
 #include "DetourStatus.h"
 
-
-
 typedef unsigned int dtObstacleRef;
-
 typedef unsigned int dtCompressedTileRef;
 
 /// Flags for addTile
 enum dtCompressedTileFlags
 {
-	DT_COMPRESSEDTILE_FREE_DATA = 0x01,					///< Navmesh owns the tile memory and should free it.
+	DT_COMPRESSEDTILE_FREE_DATA = 0x01	///< Navmesh owns the tile memory and should free it.
 };
 
 struct dtCompressedTile
@@ -32,13 +29,14 @@ enum ObstacleState
 	DT_OBSTACLE_EMPTY,
 	DT_OBSTACLE_PROCESSING,
 	DT_OBSTACLE_PROCESSED,
-	DT_OBSTACLE_REMOVING,
+	DT_OBSTACLE_REMOVING
 };
 
 enum ObstacleType
 {
 	DT_OBSTACLE_CYLINDER,
-	DT_OBSTACLE_BOX,
+	DT_OBSTACLE_BOX, // AABB
+	DT_OBSTACLE_ORIENTED_BOX // OBB
 };
 
 struct dtObstacleCylinder
@@ -54,6 +52,13 @@ struct dtObstacleBox
 	float bmax[ 3 ];
 };
 
+struct dtObstacleOrientedBox
+{
+	float center[ 3 ];
+	float halfExtents[ 3 ];
+	float rotAux[ 2 ]; //{ cos(0.5f*angle)*sin(-0.5f*angle); cos(0.5f*angle)*cos(0.5f*angle) - 0.5 }
+};
+
 static const int DT_MAX_TOUCHED_TILES = 8;
 struct dtTileCacheObstacle
 {
@@ -61,6 +66,7 @@ struct dtTileCacheObstacle
 	{
 		dtObstacleCylinder cylinder;
 		dtObstacleBox box;
+		dtObstacleOrientedBox orientedBox;
 	};
 
 	dtCompressedTileRef touched[DT_MAX_TOUCHED_TILES];
@@ -88,12 +94,9 @@ struct dtTileCacheParams
 
 struct dtTileCacheMeshProcess
 {
-	virtual ~dtTileCacheMeshProcess() { }
-
-	virtual void process(struct dtNavMeshCreateParams* params,
-						 unsigned char* polyAreas, unsigned short* polyFlags) = 0;
+	virtual ~dtTileCacheMeshProcess();
+	virtual void process(struct dtNavMeshCreateParams* params, unsigned char* polyAreas, unsigned short* polyFlags) = 0;
 };
-
 
 class dtTileCache
 {
@@ -130,8 +133,14 @@ public:
 	
 	dtStatus removeTile(dtCompressedTileRef ref, unsigned char** data, int* dataSize);
 	
+	// Cylinder obstacle.
 	dtStatus addObstacle(const float* pos, const float radius, const float height, dtObstacleRef* result);
+
+	// Aabb obstacle.
 	dtStatus addBoxObstacle(const float* bmin, const float* bmax, dtObstacleRef* result);
+
+	// Box obstacle: can be rotated in Y.
+	dtStatus addBoxObstacle(const float* center, const float* halfExtents, const float yRadians, dtObstacleRef* result);
 	
 	dtStatus removeObstacle(const dtObstacleRef ref);
 	
@@ -204,7 +213,7 @@ private:
 	enum ObstacleRequestAction
 	{
 		REQUEST_ADD,
-		REQUEST_REMOVE,
+		REQUEST_REMOVE
 	};
 	
 	struct ObstacleRequest

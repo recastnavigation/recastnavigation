@@ -18,7 +18,6 @@
 
 #include <stdio.h>
 #include <string.h>
-#define _USE_MATH_DEFINES
 #include <math.h>
 #include "imgui.h"
 
@@ -33,7 +32,7 @@ static char g_textPool[TEXT_POOL_SIZE];
 static unsigned g_textPoolSize = 0;
 static const char* allocText(const char* text)
 {
-	unsigned len = strlen(text)+1;
+	unsigned len = static_cast<unsigned>(strlen(text)+1);
 	if (g_textPoolSize + len >= TEXT_POOL_SIZE)
 		return 0;
 	char* dst = &g_textPool[g_textPoolSize]; 

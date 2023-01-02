@@ -16,7 +16,6 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#define _USE_MATH_DEFINES
 #include <math.h>
 #include <string.h>
 #include <stdio.h>
@@ -921,8 +920,8 @@ bool rcBuildContours(rcContext* ctx, rcCompactHeightfield& chf,
 					continue;
 				const unsigned char area = chf.areas[i];
 				
-				verts.resize(0);
-				simplified.resize(0);
+				verts.clear();
+				simplified.clear();
 				
 				ctx->startTimer(RC_TIMER_BUILD_CONTOURS_TRACE);
 				walkContour(x, y, i, chf, flags, verts);
@@ -1009,7 +1008,7 @@ bool rcBuildContours(rcContext* ctx, rcCompactHeightfield& chf,
 	if (cset.nconts > 0)
 	{
 		// Calculate winding of all polygons.
-		rcScopedDelete<char> winding((char*)rcAlloc(sizeof(char)*cset.nconts, RC_ALLOC_TEMP));
+		rcScopedDelete<signed char> winding((signed char*)rcAlloc(sizeof(signed char)*cset.nconts, RC_ALLOC_TEMP));
 		if (!winding)
 		{
 			ctx->log(RC_LOG_ERROR, "rcBuildContours: Out of memory 'hole' (%d).", cset.nconts);

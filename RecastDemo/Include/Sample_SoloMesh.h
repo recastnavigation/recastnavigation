@@ -62,7 +62,7 @@ protected:
 	DrawMode m_drawMode;
 	
 	void cleanup();
-		
+
 public:
 	Sample_SoloMesh();
 	virtual ~Sample_SoloMesh();

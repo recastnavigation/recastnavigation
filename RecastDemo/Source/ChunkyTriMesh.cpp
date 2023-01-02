@@ -83,7 +83,7 @@ static void subdivide(BoundsItem* items, int nitems, int imin, int imax, int tri
 	int inum = imax - imin;
 	int icur = curNode;
 	
-	if (curNode > maxNodes)
+	if (curNode >= maxNodes)
 		return;
 
 	rcChunkyTriMeshNode& node = nodes[curNode++];

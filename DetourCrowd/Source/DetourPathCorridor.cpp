@@ -431,7 +431,7 @@ Behavior:
 - The new position will be located in the adjusted corridor's first polygon.
 
 The expected use case is that the desired position will be 'near' the current corridor. What is considered 'near' 
-depends on local polygon density, query search extents, etc.
+depends on local polygon density, query search half extents, etc.
 
 The resulting position will differ from the desired position if the desired position is not on the navigation mesh, 
 or it can't be reached using a local search.
@@ -470,7 +470,7 @@ Behavior:
 - The corridor is automatically adjusted (shorted or lengthened) in order to remain valid. 
 - The new target will be located in the adjusted corridor's last polygon.
 
-The expected use case is that the desired target will be 'near' the current corridor. What is considered 'near' depends on local polygon density, query search extents, etc.
+The expected use case is that the desired target will be 'near' the current corridor. What is considered 'near' depends on local polygon density, query search half extents, etc.
 
 The resulting target will differ from the desired target if the desired target is not on the navigation mesh, or it can't be reached using a local search.
 */
