@@ -466,10 +466,10 @@ bool Sample_SoloMesh::handleBuild()
 	}
 	
 	//
-	// Step 3. Filter walkables surfaces.
+	// Step 3. Filter walkable surfaces.
 	//
 	
-	// Once all geoemtry is rasterized, we do initial pass of filtering to
+	// Once all geometry is rasterized, we do initial pass of filtering to
 	// remove unwanted overhangs caused by the conservative rasterization
 	// as well as filter spans where the character cannot possibly stand.
 	if (m_filterLowHangingObstacles)
