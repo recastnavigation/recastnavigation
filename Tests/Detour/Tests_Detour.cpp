@@ -1,4 +1,4 @@
-#include "catch_amalgamated.hpp"
+#include "catch2/catch_all.hpp"
 
 #include "DetourCommon.h"
 

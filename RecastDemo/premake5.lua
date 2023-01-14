@@ -213,7 +213,7 @@ project "Tests"
 		"../Recast/Source",
 		"../Tests/Recast",
 		"../Tests",
-		"../Tests/Contrib/Catch"
+		"../Tests/Contrib"
 	}
 	files { 
 		"../Tests/*.h",
@@ -223,7 +223,7 @@ project "Tests"
 		"../Tests/Recast/*.cpp",
 		"../Tests/Detour/*.h",
 		"../Tests/Detour/*.cpp",
-		"../Tests/Contrib/Catch/*.cpp"
+		"../Tests/Contrib/catch2/*.cpp"
 	}
 
 	-- project dependencies
