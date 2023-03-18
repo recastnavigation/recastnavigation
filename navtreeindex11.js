@@ -1,5 +1,6 @@
 var NAVTREEINDEX11 =
 {
+"structdtTileCacheParams.html#a426e4e8fbaea199ecc4714ba01aa8ef2":[4,0,64,4],
 "structdtTileCacheParams.html#a9d83b6704bebc30682a1f2e97d09d1fc":[4,0,64,7],
 "structdtTileCacheParams.html#aa3d397344d70e8d65300ceec47bf6512":[4,0,64,1],
 "structdtTileCacheParams.html#ab9a8b82edf527b2396f778a8b4121f88":[4,0,64,8],
@@ -248,6 +249,5 @@ var NAVTREEINDEX11 =
 "structrcRegion.html#ac6cbe80ad7da2858aa3f463079bc391e":[4,0,116,2],
 "structrcRegion.html#ac7b24c63bcdaeee325cdc61b4f12f39c":[4,0,116,0],
 "structrcRegion.html#ad9093323ce31904ef59709b0664f31d3":[4,0,116,8],
-"structrcRegion.html#afacd1efddbdfbb854e7c2cf505365f0b":[4,0,116,7],
-"structrcSpan.html":[4,0,119]
+"structrcRegion.html#afacd1efddbdfbb854e7c2cf505365f0b":[4,0,116,7]
 };

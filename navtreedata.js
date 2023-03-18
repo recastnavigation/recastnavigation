@@ -46,37 +46,38 @@ var NAVTREE =
     [ "Contributing to Recast and Detour", "md_CONTRIBUTING.html", [
       [ "Code of Conduct", "md_CONTRIBUTING.html#autotoc_md14", null ],
       [ "Got a Question or Problem?", "md_CONTRIBUTING.html#autotoc_md15", null ],
-      [ "Found an Issue?", "md_CONTRIBUTING.html#autotoc_md16", null ],
-      [ "Want a Feature?", "md_CONTRIBUTING.html#autotoc_md17", null ],
-      [ "Submission Guidelines", "md_CONTRIBUTING.html#autotoc_md18", [
-        [ "Submitting an Issue", "md_CONTRIBUTING.html#autotoc_md19", null ],
-        [ "Submitting a Pull Request", "md_CONTRIBUTING.html#autotoc_md20", [
-          [ "After your pull request is merged", "md_CONTRIBUTING.html#autotoc_md21", null ]
+      [ "Have a question?", "md_CONTRIBUTING.html#autotoc_md16", null ],
+      [ "Found an Issue?", "md_CONTRIBUTING.html#autotoc_md17", null ],
+      [ "Want a Feature?", "md_CONTRIBUTING.html#autotoc_md18", null ],
+      [ "Submission Guidelines", "md_CONTRIBUTING.html#autotoc_md19", [
+        [ "Submitting an Issue", "md_CONTRIBUTING.html#autotoc_md20", null ],
+        [ "Submitting a Pull Request", "md_CONTRIBUTING.html#autotoc_md21", [
+          [ "After your pull request is merged", "md_CONTRIBUTING.html#autotoc_md22", null ]
         ] ]
       ] ],
-      [ "Git Commit Guidelines", "md_CONTRIBUTING.html#autotoc_md22", [
-        [ "Commit content", "md_CONTRIBUTING.html#autotoc_md23", null ],
-        [ "Commit Message Format", "md_CONTRIBUTING.html#autotoc_md24", null ]
+      [ "Git Commit Guidelines", "md_CONTRIBUTING.html#autotoc_md23", [
+        [ "Commit content", "md_CONTRIBUTING.html#autotoc_md24", null ],
+        [ "Commit Message Format", "md_CONTRIBUTING.html#autotoc_md25", null ]
       ] ]
     ] ],
     [ "Recast Development Roadmap", "md_Roadmap.html", [
-      [ "Short Term", "md_Roadmap.html#autotoc_md26", [
-        [ "Documentation & Web Presence", "md_Roadmap.html#autotoc_md27", null ],
-        [ "More explicit variable names", "md_Roadmap.html#autotoc_md28", null ],
-        [ "Opt-in config value validation system", "md_Roadmap.html#autotoc_md29", null ]
+      [ "Short Term", "md_Roadmap.html#autotoc_md27", [
+        [ "Documentation & Web Presence", "md_Roadmap.html#autotoc_md28", null ],
+        [ "More explicit variable names", "md_Roadmap.html#autotoc_md29", null ],
+        [ "Opt-in config value validation system", "md_Roadmap.html#autotoc_md30", null ]
       ] ],
-      [ "Medium Term", "md_Roadmap.html#autotoc_md30", [
-        [ "STB-Style Single-Header Release Packaging", "md_Roadmap.html#autotoc_md31", null ],
-        [ "Ensure there's a good threading story", "md_Roadmap.html#autotoc_md32", null ],
-        [ "More Tests", "md_Roadmap.html#autotoc_md33", null ],
-        [ "More POD structs for clarity in internals", "md_Roadmap.html#autotoc_md34", null ],
-        [ "Revisit structural organization", "md_Roadmap.html#autotoc_md35", null ]
+      [ "Medium Term", "md_Roadmap.html#autotoc_md31", [
+        [ "STB-Style Single-Header Release Packaging", "md_Roadmap.html#autotoc_md32", null ],
+        [ "Ensure there's a good threading story", "md_Roadmap.html#autotoc_md33", null ],
+        [ "More Tests", "md_Roadmap.html#autotoc_md34", null ],
+        [ "More POD structs for clarity in internals", "md_Roadmap.html#autotoc_md35", null ],
+        [ "Revisit structural organization", "md_Roadmap.html#autotoc_md36", null ]
       ] ],
-      [ "Longer-Term", "md_Roadmap.html#autotoc_md36", [
-        [ "Higher-Level APIs", "md_Roadmap.html#autotoc_md37", null ],
-        [ "C API", "md_Roadmap.html#autotoc_md38", null ]
+      [ "Longer-Term", "md_Roadmap.html#autotoc_md37", [
+        [ "Higher-Level APIs", "md_Roadmap.html#autotoc_md38", null ],
+        [ "C API", "md_Roadmap.html#autotoc_md39", null ]
       ] ],
-      [ "Roadmap for New Recast/Detour Functionality", "md_Roadmap.html#autotoc_md39", null ]
+      [ "Roadmap for New Recast/Detour Functionality", "md_Roadmap.html#autotoc_md40", null ]
     ] ],
     [ "Modules", "modules.html", "modules" ],
     [ "Classes", "annotated.html", [
@@ -120,9 +121,9 @@ var NAVTREEINDEX =
 "functions_enum.html",
 "group__recast.html#ga6ef022fcf6dabdb0437b979304c0defe",
 "md_Roadmap.html#autotoc_md35",
-"structdtCrowdAgentParams.html#a780421355c73aecb187c1aa36de854d8",
-"structdtTileCacheParams.html#a9d83b6704bebc30682a1f2e97d09d1fc",
-"structrcSpan.html#a3b1dbeacc04852fe7330dcd0f5745424"
+"structdtCrowdAgentParams.html#a762f702ee5339eebaf252d391f31a586",
+"structdtTileCacheParams.html#a426e4e8fbaea199ecc4714ba01aa8ef2",
+"structrcSpan.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

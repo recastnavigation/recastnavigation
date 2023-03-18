@@ -1,5 +1,6 @@
 var NAVTREEINDEX12 =
 {
+"structrcSpan.html":[4,0,119],
 "structrcSpan.html#a3b1dbeacc04852fe7330dcd0f5745424":[4,0,119,1],
 "structrcSpan.html#a6bca504828087023719794cce9a5f0ab":[4,0,119,2],
 "structrcSpan.html#a8bf133cf1e7ccf3d69f1ba365cb0c1ca":[4,0,119,0],
