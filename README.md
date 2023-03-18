@@ -1,0 +1,1 @@
+This is the gh-pages branch of Recast Navigation.  It displays the generated doxygen documentation pages and is auto-updated by a github action whenever a push is made to the main branch.
