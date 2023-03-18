@@ -12,6 +12,9 @@ By participating, you are expected to honor this code.
 If you have questions about how to use Recast or Detour, please direct these to the [Google Group][groups]
 discussion list. We are also available on [Gitter][gitter].
 
+## Have a question?
+Questions about how to best use Recast, what it's capable of, and other inqueries should be directed to the [Q&A section of Github Discussions][q-and-a].  Questions submitted as Github issues will be converted to discussions.
+
 ## Found an Issue?
 If you find a bug in the source code or a mistake in the documentation, you can help us by
 submitting an issue to our [GitHub Repository][github]. Even better you can submit a Pull Request
@@ -32,7 +35,7 @@ project.
 ## Submission Guidelines
 
 ### Submitting an Issue
-Before you submit your issue search the [GitHub Issues][github-issues] archive,
+Before you submit your issue search the [GitHub Issues][github-issues] and [Github Discussions][q-and-a] archives,
 maybe your question was already answered.
 
 If your issue appears to be a bug, and hasn't been reported, open a new issue.
@@ -170,6 +173,7 @@ Important things you should try to include in commit messages include:
 
 
 [code-of-conduct]: https://github.com/recastnavigation/recastnavigation/blob/main/CODE_OF_CONDUCT.md
+[q-and-a]: https://github.com/recastnavigation/recastnavigation/discussions/categories/q-a
 [github]: https://github.com/recastnavigation/recastnavigation
 [github-issues]: https://github.com/recastnavigation/recastnavigation/issues
 [github-pulls]: https://github.com/recastnavigation/recastnavigation/pulls
