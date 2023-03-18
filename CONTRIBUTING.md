@@ -4,7 +4,7 @@ We'd love for you to contribute to our source code and to make Recast and Detour
 today! Here are the guidelines we'd like you to follow:
 
 ## Code of Conduct
-This project adheres to the [Open Code of Conduct][code-of-conduct].
+This project adheres to the [Contributor Covenant code of conduct][code-of-conduct].
 By participating, you are expected to honor this code.
 
 ## Got a Question or Problem?
@@ -169,7 +169,7 @@ Important things you should try to include in commit messages include:
 
 
 
-[code-of-conduct]: http://todogroup.org/opencodeofconduct/#Recastnavigation/b.hymers@gmail.com
+[code-of-conduct]: https://github.com/recastnavigation/recastnavigation/blob/main/CODE_OF_CONDUCT.md
 [github]: https://github.com/recastnavigation/recastnavigation
 [github-issues]: https://github.com/recastnavigation/recastnavigation/issues
 [github-pulls]: https://github.com/recastnavigation/recastnavigation/pulls
