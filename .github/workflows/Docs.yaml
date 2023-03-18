@@ -1,0 +1,29 @@
+name: Publish Docs
+
+permissions:
+  contents: write
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Install Doxygen
+        run: sudo apt-get install -y doxygen
+
+      - name: Build Doxygen Documentation
+        run: doxygen ./Doxyfile
+
+      - name: Deploy Documentation
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: ./Docs/html
+          branch: gh-pages
