@@ -1,0 +1,25 @@
+var structGuiState =
+[
+    [ "GuiState", "structGuiState.html#a1159b7a2b218c020875b65881ebfd4cb", null ],
+    [ "active", "structGuiState.html#a8182ed7ea717727bd7ae4b6bd906f89d", null ],
+    [ "areaId", "structGuiState.html#a335822c00941a3b0ac836338fdad5af5", null ],
+    [ "dragOrig", "structGuiState.html#ac1eb0dfc263debeea082f2bebec4a10a", null ],
+    [ "dragX", "structGuiState.html#a0a4933672881d971849922e737b2909d", null ],
+    [ "dragY", "structGuiState.html#a9ab909b28bf6f8d42a723019bc11d172", null ],
+    [ "hot", "structGuiState.html#a0db522de5d2a46ebcabeb9721e95a1db", null ],
+    [ "hotToBe", "structGuiState.html#aab12c1ba6341e43974ecca47d57a2292", null ],
+    [ "insideCurrentScroll", "structGuiState.html#a57154ede278ed4dd5f11afde5c8f2e3b", null ],
+    [ "isActive", "structGuiState.html#af6fe16bad26560cc8433134ebbb3d635", null ],
+    [ "isHot", "structGuiState.html#a4d7b807b2ab88bc58fad34bc8d3c4b23", null ],
+    [ "left", "structGuiState.html#a1b101aced6d0a66c959f6dbc8e9ba4b8", null ],
+    [ "leftPressed", "structGuiState.html#a4eca6767d38228c41e82a56b66ce4853", null ],
+    [ "leftReleased", "structGuiState.html#a8a64eb781d05dd4561d1100a6e3c759f", null ],
+    [ "mx", "structGuiState.html#a500386b3162aeaaa091381e71e65b872", null ],
+    [ "my", "structGuiState.html#aaae100f98cc2247cdd4c9f56e760a55e", null ],
+    [ "scroll", "structGuiState.html#aac5d3f5ae7a567ab5f5fd18d4b2c3d6b", null ],
+    [ "wentActive", "structGuiState.html#a781a53ecc27ed89de4b0a425a5452792", null ],
+    [ "widgetId", "structGuiState.html#adbb0ec177af2c0beaf4471339952d522", null ],
+    [ "widgetW", "structGuiState.html#a41ad9753307581846e18f4c412c65044", null ],
+    [ "widgetX", "structGuiState.html#ae5e5321a872b52b30c9582b74d6a45ea", null ],
+    [ "widgetY", "structGuiState.html#ae30e4fb22d16fa188b02b4ae41c6691b", null ]
+];
