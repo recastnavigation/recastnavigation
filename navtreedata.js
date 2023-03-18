@@ -60,24 +60,38 @@ var NAVTREE =
         [ "Commit Message Format", "md_CONTRIBUTING.html#autotoc_md25", null ]
       ] ]
     ] ],
+    [ "Contributor Covenant Code of Conduct", "md_CODE_OF_CONDUCT.html", [
+      [ "Our Pledge", "md_CODE_OF_CONDUCT.html#autotoc_md27", null ],
+      [ "Our Standards", "md_CODE_OF_CONDUCT.html#autotoc_md28", null ],
+      [ "Enforcement Responsibilities", "md_CODE_OF_CONDUCT.html#autotoc_md29", null ],
+      [ "Scope", "md_CODE_OF_CONDUCT.html#autotoc_md30", null ],
+      [ "Enforcement", "md_CODE_OF_CONDUCT.html#autotoc_md31", null ],
+      [ "Enforcement Guidelines", "md_CODE_OF_CONDUCT.html#autotoc_md32", [
+        [ "1. Correction", "md_CODE_OF_CONDUCT.html#autotoc_md33", null ],
+        [ "2. Warning", "md_CODE_OF_CONDUCT.html#autotoc_md34", null ],
+        [ "3. Temporary Ban", "md_CODE_OF_CONDUCT.html#autotoc_md35", null ],
+        [ "4. Permanent Ban", "md_CODE_OF_CONDUCT.html#autotoc_md36", null ]
+      ] ],
+      [ "Attribution", "md_CODE_OF_CONDUCT.html#autotoc_md37", null ]
+    ] ],
     [ "Recast Development Roadmap", "md_Roadmap.html", [
-      [ "Short Term", "md_Roadmap.html#autotoc_md27", [
-        [ "Documentation & Web Presence", "md_Roadmap.html#autotoc_md28", null ],
-        [ "More explicit variable names", "md_Roadmap.html#autotoc_md29", null ],
-        [ "Opt-in config value validation system", "md_Roadmap.html#autotoc_md30", null ]
+      [ "Short Term", "md_Roadmap.html#autotoc_md39", [
+        [ "Documentation & Web Presence", "md_Roadmap.html#autotoc_md40", null ],
+        [ "More explicit variable names", "md_Roadmap.html#autotoc_md41", null ],
+        [ "Opt-in config value validation system", "md_Roadmap.html#autotoc_md42", null ]
       ] ],
-      [ "Medium Term", "md_Roadmap.html#autotoc_md31", [
-        [ "STB-Style Single-Header Release Packaging", "md_Roadmap.html#autotoc_md32", null ],
-        [ "Ensure there's a good threading story", "md_Roadmap.html#autotoc_md33", null ],
-        [ "More Tests", "md_Roadmap.html#autotoc_md34", null ],
-        [ "More POD structs for clarity in internals", "md_Roadmap.html#autotoc_md35", null ],
-        [ "Revisit structural organization", "md_Roadmap.html#autotoc_md36", null ]
+      [ "Medium Term", "md_Roadmap.html#autotoc_md43", [
+        [ "STB-Style Single-Header Release Packaging", "md_Roadmap.html#autotoc_md44", null ],
+        [ "Ensure there's a good threading story", "md_Roadmap.html#autotoc_md45", null ],
+        [ "More Tests", "md_Roadmap.html#autotoc_md46", null ],
+        [ "More POD structs for clarity in internals", "md_Roadmap.html#autotoc_md47", null ],
+        [ "Revisit structural organization", "md_Roadmap.html#autotoc_md48", null ]
       ] ],
-      [ "Longer-Term", "md_Roadmap.html#autotoc_md37", [
-        [ "Higher-Level APIs", "md_Roadmap.html#autotoc_md38", null ],
-        [ "C API", "md_Roadmap.html#autotoc_md39", null ]
+      [ "Longer-Term", "md_Roadmap.html#autotoc_md49", [
+        [ "Higher-Level APIs", "md_Roadmap.html#autotoc_md50", null ],
+        [ "C API", "md_Roadmap.html#autotoc_md51", null ]
       ] ],
-      [ "Roadmap for New Recast/Detour Functionality", "md_Roadmap.html#autotoc_md40", null ]
+      [ "Roadmap for New Recast/Detour Functionality", "md_Roadmap.html#autotoc_md52", null ]
     ] ],
     [ "Modules", "modules.html", "modules" ],
     [ "Classes", "annotated.html", [
@@ -120,10 +134,10 @@ var NAVTREEINDEX =
 "classdtNodeQueue.html#aa0f83a0d1f38b0b97fb549d1372c8be7",
 "functions_enum.html",
 "group__recast.html#ga6ef022fcf6dabdb0437b979304c0defe",
-"md_Roadmap.html#autotoc_md35",
-"structdtCrowdAgentParams.html#a762f702ee5339eebaf252d391f31a586",
-"structdtTileCacheParams.html#a426e4e8fbaea199ecc4714ba01aa8ef2",
-"structrcSpan.html"
+"md_CONTRIBUTING.html#autotoc_md23",
+"structdtCrowdAgentDebugInfo.html",
+"structdtTileCacheObstacle.html#a6e42e7ac7564db49c70b849f3cc49a39",
+"structrcRegion.html#a058cf62973ff65b0d277724ed7cde9a8"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';
