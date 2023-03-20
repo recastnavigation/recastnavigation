@@ -112,7 +112,7 @@ bool dtIntersectSegmentPoly2D(const float* p0, const float* p1,
 							  float& tmin, float& tmax,
 							  int& segMin, int& segMax)
 {
-	static const float EPS = 0.00000001f;
+	static const float EPS = 0.000001f;
 	
 	tmin = 0;
 	tmax = 1;
