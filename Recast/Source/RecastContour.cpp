@@ -541,7 +541,7 @@ static bool vequal(const int* a, const int* b)
 	return a[0] == b[0] && a[2] == b[2];
 }
 
-static bool intersectSegCountour(const int* d0, const int* d1, int i, int n, const int* verts)
+static bool intersectSegContour(const int* d0, const int* d1, int i, int n, const int* verts)
 {
 	// For each edge (k,k+1) of P
 	for (int k = 0; k < n; k++)
@@ -777,9 +777,9 @@ static void mergeRegionHoles(rcContext* ctx, rcContourRegion& region)
 			for (int j = 0; j < ndiags; j++)
 			{
 				const int* pt = &outline->verts[diags[j].vert*4];
-				bool intersect = intersectSegCountour(pt, corner, diags[i].vert, outline->nverts, outline->verts);
+				bool intersect = intersectSegContour(pt, corner, diags[i].vert, outline->nverts, outline->verts);
 				for (int k = i; k < region.nholes && !intersect; k++)
-					intersect |= intersectSegCountour(pt, corner, -1, region.holes[k].contour->nverts, region.holes[k].contour->verts);
+					intersect |= intersectSegContour(pt, corner, -1, region.holes[k].contour->nverts, region.holes[k].contour->verts);
 				if (!intersect)
 				{
 					index = diags[j].vert;
