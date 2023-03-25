@@ -15,7 +15,7 @@ var RecastContour_8cpp =
     [ "inCone", "RecastContour_8cpp.html#ab93a3b7adad67c6fe99536760f60da7b", null ],
     [ "intersect", "RecastContour_8cpp.html#a8c40590db2ebb79a634dfadada974679", null ],
     [ "intersectProp", "RecastContour_8cpp.html#a5ebff194647dfe8f10ceab06390c68df", null ],
-    [ "intersectSegCountour", "RecastContour_8cpp.html#a44670adae86ff8db233723677fff6d90", null ],
+    [ "intersectSegContour", "RecastContour_8cpp.html#a7a82a0c3b7877d57e1f159b703847aa1", null ],
     [ "left", "RecastContour_8cpp.html#a0ba03d6a44337bfbcef8f0c9dad4289f", null ],
     [ "leftOn", "RecastContour_8cpp.html#a4cc687ea6596949ed340d5082d75daed", null ],
     [ "mergeContours", "RecastContour_8cpp.html#a1b37a039e4a04535bcddcb219ca7945b", null ],
