@@ -1,0 +1,4 @@
+// Must be 255 or smaller (not 256) because layer IDs are stored as
+// a byte where 255 is a special value.
+#define RC_MAX_LAYERS ${RC_MAX_LAYERS}
+#define RC_MAX_NEIS ${RC_MAX_NEIS}

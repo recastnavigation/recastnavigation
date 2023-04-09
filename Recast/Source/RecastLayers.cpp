@@ -26,11 +26,7 @@
 #include "RecastAlloc.h"
 #include "RecastAssert.h"
 
-
-// Must be 255 or smaller (not 256) because layer IDs are stored as
-// a byte where 255 is a special value.
-static const int RC_MAX_LAYERS = 63;
-static const int RC_MAX_NEIS = 16;
+#include <config.h>
 
 struct rcLayerRegion
 {
