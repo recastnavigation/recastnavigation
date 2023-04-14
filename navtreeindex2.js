@@ -162,11 +162,13 @@ var NAVTREEINDEX2 =
 "RecastDump_8h_source.html":[6,0,72],
 "RecastFilter_8cpp.html":[6,0,73],
 "RecastLayers_8cpp.html":[6,0,74],
-"RecastLayers_8cpp.html#a0865bdb05f7816f06bd8666f04535f42":[6,0,74,6],
-"RecastLayers_8cpp.html#a4bb3cae5fa2c81629762ccb89c6d136c":[6,0,74,3],
-"RecastLayers_8cpp.html#a9df3149dc43b5528b0003e20ccb931e3":[6,0,74,4],
-"RecastLayers_8cpp.html#adc2593ebcf70cf17029ab4a28013c29b":[6,0,74,2],
-"RecastLayers_8cpp.html#adc47551fbc117d2c43a91dd14a78df66":[6,0,74,7],
+"RecastLayers_8cpp.html#a0865bdb05f7816f06bd8666f04535f42":[6,0,74,8],
+"RecastLayers_8cpp.html#a4bb3cae5fa2c81629762ccb89c6d136c":[6,0,74,5],
+"RecastLayers_8cpp.html#a5ec9fb3bfe164c823f6d4f6a2f3c73cd":[6,0,74,3],
+"RecastLayers_8cpp.html#a9df3149dc43b5528b0003e20ccb931e3":[6,0,74,6],
+"RecastLayers_8cpp.html#adc2593ebcf70cf17029ab4a28013c29b":[6,0,74,4],
+"RecastLayers_8cpp.html#adc47551fbc117d2c43a91dd14a78df66":[6,0,74,9],
+"RecastLayers_8cpp.html#ae1ec4cdafb537791b99aa91bb4c515c1":[6,0,74,2],
 "RecastMeshDetail_8cpp.html":[6,0,76],
 "RecastMeshDetail_8cpp.html#a0ad602bda2f516b9a847c3b06c2d97fd":[6,0,76,33],
 "RecastMeshDetail_8cpp.html#a0e67f4996b610668123b58620dae5a4f":[6,0,76,29],
@@ -247,7 +249,5 @@ var NAVTREEINDEX2 =
 "RecastRegion_8cpp.html":[6,0,78],
 "RecastRegion_8cpp.html#a019a1b335b38abce33594128c4806a04":[6,0,78,9],
 "RecastRegion_8cpp.html#a02ba6d0e792550e0ce791fa42ef865d1":[6,0,78,23],
-"RecastRegion_8cpp.html#a25912e8836b3489f54fecd65d850beff":[6,0,78,13],
-"RecastRegion_8cpp.html#a2c802a2c5fc0d5e7e5d95a19539ff9a6":[6,0,78,4],
-"RecastRegion_8cpp.html#a362976ffc8da436099d6ce5d2a8e8996":[6,0,78,11]
+"RecastRegion_8cpp.html#a25912e8836b3489f54fecd65d850beff":[6,0,78,13]
 };

@@ -1,5 +1,7 @@
 var NAVTREEINDEX6 =
 {
+"classdtNodeQueue.html#a8be783bde0911bdf92503a2e111f2a1a":[5,0,34,6],
+"classdtNodeQueue.html#a98462fc76364861576fa8547987d5458":[5,0,34,0],
 "classdtNodeQueue.html#aa0f83a0d1f38b0b97fb549d1372c8be7":[5,0,34,2],
 "classdtNodeQueue.html#ad76eefdf18096e14f67c579c20a506af":[5,0,34,9],
 "classdtObstacleAvoidanceDebugData.html":[5,0,35],
@@ -247,7 +249,5 @@ var NAVTREEINDEX6 =
 "functions.html":[5,3,0,0],
 "functions.html":[5,3,0],
 "functions_b.html":[5,3,0,1],
-"functions_c.html":[5,3,0,2],
-"functions_d.html":[5,3,0,3],
-"functions_e.html":[5,3,0,4]
+"functions_c.html":[5,3,0,2]
 };

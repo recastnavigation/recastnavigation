@@ -1,5 +1,7 @@
 var NAVTREEINDEX10 =
 {
+"structdtCrowdAgentAnimation.html#a96b279c54ccfe7d77cc576edbff7298e":[5,0,16,5],
+"structdtCrowdAgentAnimation.html#aed88b3aa0469a0462d5f7d055d3b72cc":[5,0,16,1],
 "structdtCrowdAgentDebugInfo.html":[5,0,17],
 "structdtCrowdAgentDebugInfo.html#a2c3da33772d29888a52162695eaf37f8":[5,0,17,1],
 "structdtCrowdAgentDebugInfo.html#a64bc1afde8e9f8e1f3f42397fde21329":[5,0,17,3],
@@ -247,7 +249,5 @@ var NAVTREEINDEX10 =
 "structdtTileCacheObstacle.html":[5,0,63],
 "structdtTileCacheObstacle.html#a0e31025b2911c006f4a16d9f634b812a":[5,0,63,0],
 "structdtTileCacheObstacle.html#a10ae8b8922bd1cad14693de0c69c27c3":[5,0,63,4],
-"structdtTileCacheObstacle.html#a33a2a7301e5836a84af09074a8da8fe6":[5,0,63,9],
-"structdtTileCacheObstacle.html#a43d1c2aa32d48a2a88713ca3f62e0512":[5,0,63,8],
-"structdtTileCacheObstacle.html#a49a8cbfab1e19c6d5aa378f1a33f02ec":[5,0,63,3]
+"structdtTileCacheObstacle.html#a33a2a7301e5836a84af09074a8da8fe6":[5,0,63,9]
 };
