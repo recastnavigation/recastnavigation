@@ -238,6 +238,11 @@ project "Tests"
 	-- distribute executable in RecastDemo/Bin directory
 	targetdir "Bin"
 
+	-- enable ubsan and asan when compiling with clang
+	filter "toolset:clang"
+			buildoptions { "-fsanitize=undefined", "-fsanitize=address" } -- , "-fsanitize=memory" }
+			linkoptions { "-fsanitize=undefined", "-fsanitize=address" } --, "-fsanitize=memory" }
+
 	-- linux library cflags and libs
 	filter "system:linux"
 		buildoptions {
