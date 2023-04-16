@@ -1083,7 +1083,7 @@ int rcGetHeightFieldSpanCount(rcContext* context, const rcHeightfield& heightfie
 /// @param[out]		compactHeightfield	The resulting compact heightfield. (Must be pre-allocated.)
 /// @returns True if the operation completed successfully.
 bool rcBuildCompactHeightfield(rcContext* context, int walkableHeight, int walkableClimb,
-							   rcHeightfield& heightfield, rcCompactHeightfield& compactHeightfield);
+							   const rcHeightfield& heightfield, rcCompactHeightfield& compactHeightfield);
 
 /// Erodes the walkable area within the heightfield by the specified radius. 
 /// @ingroup recast
@@ -1256,7 +1256,7 @@ inline int rcGetDirForOffset(int offsetX, int offsetZ)
 ///  								to be considered walkable. [Limit: >= 3] [Units: vx]
 /// @param[out]		lset			The resulting layer set. (Must be pre-allocated.)
 /// @returns True if the operation completed successfully.
-bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf, 
+bool rcBuildHeightfieldLayers(rcContext* ctx, const rcCompactHeightfield& chf, 
 							  int borderSize, int walkableHeight,
 							  rcHeightfieldLayerSet& lset);
 
@@ -1271,7 +1271,7 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, rcCompactHeightfield& chf,
 /// @param[out]		cset		The resulting contour set. (Must be pre-allocated.)
 /// @param[in]		buildFlags	The build flags. (See: #rcBuildContoursFlags)
 /// @returns True if the operation completed successfully.
-bool rcBuildContours(rcContext* ctx, rcCompactHeightfield& chf,
+bool rcBuildContours(rcContext* ctx, const rcCompactHeightfield& chf,
 					 float maxError, int maxEdgeLen,
 					 rcContourSet& cset, int buildFlags = RC_CONTOUR_TESS_WALL_EDGES);
 
@@ -1283,7 +1283,7 @@ bool rcBuildContours(rcContext* ctx, rcCompactHeightfield& chf,
 /// 						contour to polygon conversion process. [Limit: >= 3] 
 /// @param[out]		mesh	The resulting polygon mesh. (Must be re-allocated.)
 /// @returns True if the operation completed successfully.
-bool rcBuildPolyMesh(rcContext* ctx, rcContourSet& cset, const int nvp, rcPolyMesh& mesh);
+bool rcBuildPolyMesh(rcContext* ctx, const rcContourSet& cset, const int nvp, rcPolyMesh& mesh);
 
 /// Merges multiple polygon meshes into a single mesh.
 ///  @ingroup recast
