@@ -7,7 +7,7 @@ var Recast_8cpp =
     [ "rcAllocHeightfieldLayerSet", "group__recast.html#gadc45406abb9ac9d1efddee04054207f5", null ],
     [ "rcAllocPolyMesh", "group__recast.html#ga1b6942363f019860984263c0f8f62b9d", null ],
     [ "rcAllocPolyMeshDetail", "group__recast.html#ga617834c1759867250e21569c204f1410", null ],
-    [ "rcBuildCompactHeightfield", "group__recast.html#gae8f77a45a6ca7fef19afcca7420b340d", null ],
+    [ "rcBuildCompactHeightfield", "group__recast.html#ga3dc179b83cb925eb6602cd06123bf038", null ],
     [ "rcCalcBounds", "group__recast.html#ga8d3d926002b6df3a5100a1f1e4086026", null ],
     [ "rcCalcGridSize", "group__recast.html#ga89dd61f0c62938be9ae41aaf026794c2", null ],
     [ "rcClearUnwalkableTriangles", "group__recast.html#gad293e95cc9b22e4305ad2c6fbf946622", null ],

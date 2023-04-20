@@ -112,8 +112,8 @@ Classes</h2></td></tr>
 Functions</h2></td></tr>
 <tr class="memitem:a10f7bbb90e6028365b2637249b6bb29a"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="RecastContour_8cpp.html#a10f7bbb90e6028365b2637249b6bb29a">getCornerHeight</a> (int x, int y, int i, int dir, const <a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a> &amp;chf, bool &amp;isBorderVertex)</td></tr>
 <tr class="separator:a10f7bbb90e6028365b2637249b6bb29a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5f3ae9ba0be2db4fd93a7a6e01326c05"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="RecastContour_8cpp.html#a5f3ae9ba0be2db4fd93a7a6e01326c05">walkContour</a> (int x, int y, int i, <a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a> &amp;chf, unsigned char *flags, <a class="el" href="classrcIntArray.html">rcIntArray</a> &amp;points)</td></tr>
-<tr class="separator:a5f3ae9ba0be2db4fd93a7a6e01326c05"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad5bc73ac319eae14a8b137a1bb4c9778"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="RecastContour_8cpp.html#ad5bc73ac319eae14a8b137a1bb4c9778">walkContour</a> (int x, int y, int i, const <a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a> &amp;chf, unsigned char *flags, <a class="el" href="classrcIntArray.html">rcIntArray</a> &amp;points)</td></tr>
+<tr class="separator:ad5bc73ac319eae14a8b137a1bb4c9778"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a95bb2b54ba0f6d1cee48278a1ba4980d"><td class="memItemLeft" align="right" valign="top">static float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="RecastContour_8cpp.html#a95bb2b54ba0f6d1cee48278a1ba4980d">distancePtSeg</a> (const int x, const int z, const int px, const int pz, const int qx, const int qz)</td></tr>
 <tr class="separator:a95bb2b54ba0f6d1cee48278a1ba4980d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa7cef37578da730d57670d60132da73f"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="RecastContour_8cpp.html#aa7cef37578da730d57670d60132da73f">simplifyContour</a> (<a class="el" href="classrcIntArray.html">rcIntArray</a> &amp;points, <a class="el" href="classrcIntArray.html">rcIntArray</a> &amp;simplified, const float maxError, const int maxEdgeLen, const int buildFlags)</td></tr>
@@ -158,9 +158,9 @@ Functions</h2></td></tr>
 <tr class="separator:a68e26a981b0c0fbf9154b0bfd60316ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7321f3f5954d621c5255819fe4f73004"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="RecastContour_8cpp.html#a7321f3f5954d621c5255819fe4f73004">mergeRegionHoles</a> (<a class="el" href="classrcContext.html">rcContext</a> *ctx, <a class="el" href="structrcContourRegion.html">rcContourRegion</a> &amp;region)</td></tr>
 <tr class="separator:a7321f3f5954d621c5255819fe4f73004"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga9ce76e55cf94a30c017fe3b039e1cbb2"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__recast.html#ga9ce76e55cf94a30c017fe3b039e1cbb2">rcBuildContours</a> (<a class="el" href="classrcContext.html">rcContext</a> *ctx, <a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a> &amp;chf, const float maxError, const int maxEdgeLen, <a class="el" href="structrcContourSet.html">rcContourSet</a> &amp;cset, const int buildFlags)</td></tr>
-<tr class="memdesc:ga9ce76e55cf94a30c017fe3b039e1cbb2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Builds a contour set from the region outlines in the provided compact heightfield.  <a href="group__recast.html#ga9ce76e55cf94a30c017fe3b039e1cbb2">More...</a><br /></td></tr>
-<tr class="separator:ga9ce76e55cf94a30c017fe3b039e1cbb2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gae211dbabbd2a9e3e3e374452f3fa4dfc"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__recast.html#gae211dbabbd2a9e3e3e374452f3fa4dfc">rcBuildContours</a> (<a class="el" href="classrcContext.html">rcContext</a> *ctx, const <a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a> &amp;chf, const float maxError, const int maxEdgeLen, <a class="el" href="structrcContourSet.html">rcContourSet</a> &amp;cset, const int buildFlags)</td></tr>
+<tr class="memdesc:gae211dbabbd2a9e3e3e374452f3fa4dfc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Builds a contour set from the region outlines in the provided compact heightfield.  <a href="group__recast.html#gae211dbabbd2a9e3e3e374452f3fa4dfc">More...</a><br /></td></tr>
+<tr class="separator:gae211dbabbd2a9e3e3e374452f3fa4dfc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
 <a id="a09ae1f04327bcd46a12ace0769a8f266"></a>
@@ -1119,8 +1119,8 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a5f3ae9ba0be2db4fd93a7a6e01326c05"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5f3ae9ba0be2db4fd93a7a6e01326c05">&#9670;&nbsp;</a></span>walkContour()</h2>
+<a id="ad5bc73ac319eae14a8b137a1bb4c9778"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad5bc73ac319eae14a8b137a1bb4c9778">&#9670;&nbsp;</a></span>walkContour()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1149,7 +1149,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a> &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a> &amp;&#160;</td>
           <td class="paramname"><em>chf</em>, </td>
         </tr>
         <tr>

@@ -211,9 +211,9 @@ Classes</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader">Compact Heightfield Functions</h2></td></tr>
 <tr><td class="ititle" colspan="2"><p><a class="anchor" id="amgrp8c38b45d3c928cb95def7046c10143be"></a></p><dl class="section see"><dt>See also</dt><dd><a class="el" href="structrcCompactHeightfield.html" title="A compact, static heightfield representing unobstructed space.">rcCompactHeightfield</a> </dd></dl>
 </td></tr>
-<tr class="memitem:gae8f77a45a6ca7fef19afcca7420b340d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__recast.html#gae8f77a45a6ca7fef19afcca7420b340d">rcBuildCompactHeightfield</a> (<a class="el" href="classrcContext.html">rcContext</a> *context, int walkableHeight, int walkableClimb, <a class="el" href="structrcHeightfield.html">rcHeightfield</a> &amp;heightfield, <a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a> &amp;compactHeightfield)</td></tr>
-<tr class="memdesc:gae8f77a45a6ca7fef19afcca7420b340d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Builds a compact heightfield representing open space, from a heightfield representing solid space.  <a href="group__recast.html#gae8f77a45a6ca7fef19afcca7420b340d">More...</a><br /></td></tr>
-<tr class="separator:gae8f77a45a6ca7fef19afcca7420b340d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3dc179b83cb925eb6602cd06123bf038"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__recast.html#ga3dc179b83cb925eb6602cd06123bf038">rcBuildCompactHeightfield</a> (<a class="el" href="classrcContext.html">rcContext</a> *context, int walkableHeight, int walkableClimb, const <a class="el" href="structrcHeightfield.html">rcHeightfield</a> &amp;heightfield, <a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a> &amp;compactHeightfield)</td></tr>
+<tr class="memdesc:ga3dc179b83cb925eb6602cd06123bf038"><td class="mdescLeft">&#160;</td><td class="mdescRight">Builds a compact heightfield representing open space, from a heightfield representing solid space.  <a href="group__recast.html#ga3dc179b83cb925eb6602cd06123bf038">More...</a><br /></td></tr>
+<tr class="separator:ga3dc179b83cb925eb6602cd06123bf038"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga466672bb756c401fbf6dd1e99c920ebb"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__recast.html#ga466672bb756c401fbf6dd1e99c920ebb">rcErodeWalkableArea</a> (<a class="el" href="classrcContext.html">rcContext</a> *ctx, int radius, <a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a> &amp;chf)</td></tr>
 <tr class="memdesc:ga466672bb756c401fbf6dd1e99c920ebb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Erodes the walkable area within the heightfield by the specified radius.  <a href="group__recast.html#ga466672bb756c401fbf6dd1e99c920ebb">More...</a><br /></td></tr>
 <tr class="separator:ga466672bb756c401fbf6dd1e99c920ebb"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -263,15 +263,15 @@ Classes</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader">Layer, Contour, Polymesh, and Detail Mesh Functions</h2></td></tr>
 <tr><td class="ititle" colspan="2"><p><a class="anchor" id="amgrp4c69fe8f03e89eb12c01fb9be2151b6d"></a></p><dl class="section see"><dt>See also</dt><dd><a class="el" href="structrcHeightfieldLayer.html" title="Represents a heightfield layer within a layer set.">rcHeightfieldLayer</a>, <a class="el" href="structrcContourSet.html" title="Represents a group of related contours.">rcContourSet</a>, <a class="el" href="structrcPolyMesh.html" title="Represents a polygon mesh suitable for use in building a navigation mesh.">rcPolyMesh</a>, <a class="el" href="structrcPolyMeshDetail.html" title="Contains triangle meshes that represent detailed height data associated with the polygons in its asso...">rcPolyMeshDetail</a> </dd></dl>
 </td></tr>
-<tr class="memitem:ga21dd089dcfc243ed949a28727dc41010"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__recast.html#ga21dd089dcfc243ed949a28727dc41010">rcBuildHeightfieldLayers</a> (<a class="el" href="classrcContext.html">rcContext</a> *ctx, <a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a> &amp;chf, int borderSize, int walkableHeight, <a class="el" href="structrcHeightfieldLayerSet.html">rcHeightfieldLayerSet</a> &amp;lset)</td></tr>
-<tr class="memdesc:ga21dd089dcfc243ed949a28727dc41010"><td class="mdescLeft">&#160;</td><td class="mdescRight">Builds a layer set from the specified compact heightfield.  <a href="group__recast.html#ga21dd089dcfc243ed949a28727dc41010">More...</a><br /></td></tr>
-<tr class="separator:ga21dd089dcfc243ed949a28727dc41010"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga9ce76e55cf94a30c017fe3b039e1cbb2"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__recast.html#ga9ce76e55cf94a30c017fe3b039e1cbb2">rcBuildContours</a> (<a class="el" href="classrcContext.html">rcContext</a> *ctx, <a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a> &amp;chf, float maxError, int maxEdgeLen, <a class="el" href="structrcContourSet.html">rcContourSet</a> &amp;cset, int buildFlags=<a class="el" href="Recast_8h.html#a63345b5052e97366027aa92b54c7786fa895b8adb44c79179f5e22f8f65abe5ed">RC_CONTOUR_TESS_WALL_EDGES</a>)</td></tr>
-<tr class="memdesc:ga9ce76e55cf94a30c017fe3b039e1cbb2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Builds a contour set from the region outlines in the provided compact heightfield.  <a href="group__recast.html#ga9ce76e55cf94a30c017fe3b039e1cbb2">More...</a><br /></td></tr>
-<tr class="separator:ga9ce76e55cf94a30c017fe3b039e1cbb2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga6ccf68fa67b52296071764bddf19dd9f"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__recast.html#ga6ccf68fa67b52296071764bddf19dd9f">rcBuildPolyMesh</a> (<a class="el" href="classrcContext.html">rcContext</a> *ctx, <a class="el" href="structrcContourSet.html">rcContourSet</a> &amp;cset, const int nvp, <a class="el" href="structrcPolyMesh.html">rcPolyMesh</a> &amp;mesh)</td></tr>
-<tr class="memdesc:ga6ccf68fa67b52296071764bddf19dd9f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Builds a polygon mesh from the provided contours.  <a href="group__recast.html#ga6ccf68fa67b52296071764bddf19dd9f">More...</a><br /></td></tr>
-<tr class="separator:ga6ccf68fa67b52296071764bddf19dd9f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga6d3f24b49036ca9b6c2bd5e7d13d053b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__recast.html#ga6d3f24b49036ca9b6c2bd5e7d13d053b">rcBuildHeightfieldLayers</a> (<a class="el" href="classrcContext.html">rcContext</a> *ctx, const <a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a> &amp;chf, int borderSize, int walkableHeight, <a class="el" href="structrcHeightfieldLayerSet.html">rcHeightfieldLayerSet</a> &amp;lset)</td></tr>
+<tr class="memdesc:ga6d3f24b49036ca9b6c2bd5e7d13d053b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Builds a layer set from the specified compact heightfield.  <a href="group__recast.html#ga6d3f24b49036ca9b6c2bd5e7d13d053b">More...</a><br /></td></tr>
+<tr class="separator:ga6d3f24b49036ca9b6c2bd5e7d13d053b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gae211dbabbd2a9e3e3e374452f3fa4dfc"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__recast.html#gae211dbabbd2a9e3e3e374452f3fa4dfc">rcBuildContours</a> (<a class="el" href="classrcContext.html">rcContext</a> *ctx, const <a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a> &amp;chf, float maxError, int maxEdgeLen, <a class="el" href="structrcContourSet.html">rcContourSet</a> &amp;cset, int buildFlags=<a class="el" href="Recast_8h.html#a63345b5052e97366027aa92b54c7786fa895b8adb44c79179f5e22f8f65abe5ed">RC_CONTOUR_TESS_WALL_EDGES</a>)</td></tr>
+<tr class="memdesc:gae211dbabbd2a9e3e3e374452f3fa4dfc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Builds a contour set from the region outlines in the provided compact heightfield.  <a href="group__recast.html#gae211dbabbd2a9e3e3e374452f3fa4dfc">More...</a><br /></td></tr>
+<tr class="separator:gae211dbabbd2a9e3e3e374452f3fa4dfc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga8688f9cb5dab904bbbe43c362a69e769"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__recast.html#ga8688f9cb5dab904bbbe43c362a69e769">rcBuildPolyMesh</a> (<a class="el" href="classrcContext.html">rcContext</a> *ctx, const <a class="el" href="structrcContourSet.html">rcContourSet</a> &amp;cset, const int nvp, <a class="el" href="structrcPolyMesh.html">rcPolyMesh</a> &amp;mesh)</td></tr>
+<tr class="memdesc:ga8688f9cb5dab904bbbe43c362a69e769"><td class="mdescLeft">&#160;</td><td class="mdescRight">Builds a polygon mesh from the provided contours.  <a href="group__recast.html#ga8688f9cb5dab904bbbe43c362a69e769">More...</a><br /></td></tr>
+<tr class="separator:ga8688f9cb5dab904bbbe43c362a69e769"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaa28c3eb627ca7d96015c7978ff0eb8f7"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__recast.html#gaa28c3eb627ca7d96015c7978ff0eb8f7">rcMergePolyMeshes</a> (<a class="el" href="classrcContext.html">rcContext</a> *ctx, <a class="el" href="structrcPolyMesh.html">rcPolyMesh</a> **meshes, const int nmeshes, <a class="el" href="structrcPolyMesh.html">rcPolyMesh</a> &amp;mesh)</td></tr>
 <tr class="memdesc:gaa28c3eb627ca7d96015c7978ff0eb8f7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Merges multiple polygon meshes into a single mesh.  <a href="group__recast.html#gaa28c3eb627ca7d96015c7978ff0eb8f7">More...</a><br /></td></tr>
 <tr class="separator:gaa28c3eb627ca7d96015c7978ff0eb8f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -404,7 +404,7 @@ Classes</h2></td></tr>
 
 <p>Allocates a compact heightfield object using the Recast allocator. </p>
 <dl class="section return"><dt>Returns</dt><dd>A compact heightfield that is ready for initialization, or null on failure.</dd></dl>
-<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__recast.html#gae8f77a45a6ca7fef19afcca7420b340d" title="Builds a compact heightfield representing open space, from a heightfield representing solid space.">rcBuildCompactHeightfield</a>, <a class="el" href="group__recast.html#ga914ed7cee333a9c29513d917f6bb4716" title="Frees the specified compact heightfield object using the Recast allocator.">rcFreeCompactHeightfield</a> </dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__recast.html#ga3dc179b83cb925eb6602cd06123bf038" title="Builds a compact heightfield representing open space, from a heightfield representing solid space.">rcBuildCompactHeightfield</a>, <a class="el" href="group__recast.html#ga914ed7cee333a9c29513d917f6bb4716" title="Frees the specified compact heightfield object using the Recast allocator.">rcFreeCompactHeightfield</a> </dd></dl>
 
 </div>
 </div>
@@ -425,7 +425,7 @@ Classes</h2></td></tr>
 
 <p>Allocates a contour set object using the Recast allocator. </p>
 <dl class="section return"><dt>Returns</dt><dd>A contour set that is ready for initialization, or null on failure.</dd></dl>
-<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__recast.html#ga9ce76e55cf94a30c017fe3b039e1cbb2" title="Builds a contour set from the region outlines in the provided compact heightfield.">rcBuildContours</a>, <a class="el" href="group__recast.html#gae3a9621529cb8d471a95161bd7d0ca96" title="Frees the specified contour set using the Recast allocator.">rcFreeContourSet</a> </dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__recast.html#gae211dbabbd2a9e3e3e374452f3fa4dfc" title="Builds a contour set from the region outlines in the provided compact heightfield.">rcBuildContours</a>, <a class="el" href="group__recast.html#gae3a9621529cb8d471a95161bd7d0ca96" title="Frees the specified contour set using the Recast allocator.">rcFreeContourSet</a> </dd></dl>
 
 </div>
 </div>
@@ -467,7 +467,7 @@ Classes</h2></td></tr>
 
 <p>Allocates a heightfield layer set using the Recast allocator. </p>
 <dl class="section return"><dt>Returns</dt><dd>A heightfield layer set that is ready for initialization, or null on failure.</dd></dl>
-<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__recast.html#ga21dd089dcfc243ed949a28727dc41010" title="Builds a layer set from the specified compact heightfield.">rcBuildHeightfieldLayers</a>, <a class="el" href="group__recast.html#ga657ea6ef521e4caadc4467bd61e26016" title="Frees the specified heightfield layer set using the Recast allocator.">rcFreeHeightfieldLayerSet</a> </dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__recast.html#ga6d3f24b49036ca9b6c2bd5e7d13d053b" title="Builds a layer set from the specified compact heightfield.">rcBuildHeightfieldLayers</a>, <a class="el" href="group__recast.html#ga657ea6ef521e4caadc4467bd61e26016" title="Frees the specified heightfield layer set using the Recast allocator.">rcFreeHeightfieldLayerSet</a> </dd></dl>
 
 </div>
 </div>
@@ -488,7 +488,7 @@ Classes</h2></td></tr>
 
 <p>Allocates a polygon mesh object using the Recast allocator. </p>
 <dl class="section return"><dt>Returns</dt><dd>A polygon mesh that is ready for initialization, or null on failure.</dd></dl>
-<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__recast.html#ga6ccf68fa67b52296071764bddf19dd9f" title="Builds a polygon mesh from the provided contours.">rcBuildPolyMesh</a>, <a class="el" href="group__recast.html#ga34925f90f2e5da1f84c383bfb0ff8e9f" title="Frees the specified polygon mesh using the Recast allocator.">rcFreePolyMesh</a> </dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__recast.html#ga8688f9cb5dab904bbbe43c362a69e769" title="Builds a polygon mesh from the provided contours.">rcBuildPolyMesh</a>, <a class="el" href="group__recast.html#ga34925f90f2e5da1f84c383bfb0ff8e9f" title="Frees the specified polygon mesh using the Recast allocator.">rcFreePolyMesh</a> </dd></dl>
 
 </div>
 </div>
@@ -513,8 +513,8 @@ Classes</h2></td></tr>
 
 </div>
 </div>
-<a id="gae8f77a45a6ca7fef19afcca7420b340d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gae8f77a45a6ca7fef19afcca7420b340d">&#9670;&nbsp;</a></span>rcBuildCompactHeightfield()</h2>
+<a id="ga3dc179b83cb925eb6602cd06123bf038"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga3dc179b83cb925eb6602cd06123bf038">&#9670;&nbsp;</a></span>rcBuildCompactHeightfield()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -540,7 +540,7 @@ Classes</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structrcHeightfield.html">rcHeightfield</a> &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="structrcHeightfield.html">rcHeightfield</a> &amp;&#160;</td>
           <td class="paramname"><em>heightfield</em>, </td>
         </tr>
         <tr>
@@ -575,8 +575,8 @@ Classes</h2></td></tr>
 
 </div>
 </div>
-<a id="ga9ce76e55cf94a30c017fe3b039e1cbb2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga9ce76e55cf94a30c017fe3b039e1cbb2">&#9670;&nbsp;</a></span>rcBuildContours()</h2>
+<a id="gae211dbabbd2a9e3e3e374452f3fa4dfc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gae211dbabbd2a9e3e3e374452f3fa4dfc">&#9670;&nbsp;</a></span>rcBuildContours()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -590,7 +590,7 @@ Classes</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a> &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a> &amp;&#160;</td>
           <td class="paramname"><em>chf</em>, </td>
         </tr>
         <tr>
@@ -689,8 +689,8 @@ Classes</h2></td></tr>
 
 </div>
 </div>
-<a id="ga21dd089dcfc243ed949a28727dc41010"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga21dd089dcfc243ed949a28727dc41010">&#9670;&nbsp;</a></span>rcBuildHeightfieldLayers()</h2>
+<a id="ga6d3f24b49036ca9b6c2bd5e7d13d053b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga6d3f24b49036ca9b6c2bd5e7d13d053b">&#9670;&nbsp;</a></span>rcBuildHeightfieldLayers()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -704,7 +704,7 @@ Classes</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a> &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a> &amp;&#160;</td>
           <td class="paramname"><em>chf</em>, </td>
         </tr>
         <tr>
@@ -803,8 +803,8 @@ Classes</h2></td></tr>
 
 </div>
 </div>
-<a id="ga6ccf68fa67b52296071764bddf19dd9f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga6ccf68fa67b52296071764bddf19dd9f">&#9670;&nbsp;</a></span>rcBuildPolyMesh()</h2>
+<a id="ga8688f9cb5dab904bbbe43c362a69e769"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga8688f9cb5dab904bbbe43c362a69e769">&#9670;&nbsp;</a></span>rcBuildPolyMesh()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -818,7 +818,7 @@ Classes</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="structrcContourSet.html">rcContourSet</a> &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="structrcContourSet.html">rcContourSet</a> &amp;&#160;</td>
           <td class="paramname"><em>cset</em>, </td>
         </tr>
         <tr>
@@ -1417,7 +1417,7 @@ Classes</h2></td></tr>
 <dl class="section user"><dt></dt><dd></dd></dl>
 <p>Basically, any spans that are closer to a boundary or obstruction than the specified radius are marked as unwalkable.</p>
 <p>This method is usually called immediately after the heightfield has been built.</p>
-<dl class="section see"><dt>See also</dt><dd><a class="el" href="structrcCompactHeightfield.html" title="A compact, static heightfield representing unobstructed space.">rcCompactHeightfield</a>, <a class="el" href="group__recast.html#gae8f77a45a6ca7fef19afcca7420b340d" title="Builds a compact heightfield representing open space, from a heightfield representing solid space.">rcBuildCompactHeightfield</a>, <a class="el" href="structrcConfig.html#a57a961a919d76559d6124d60ddf73864" title="The distance to erode/shrink the walkable area of the heightfield away from obstructions.">rcConfig::walkableRadius</a> </dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="structrcCompactHeightfield.html" title="A compact, static heightfield representing unobstructed space.">rcCompactHeightfield</a>, <a class="el" href="group__recast.html#ga3dc179b83cb925eb6602cd06123bf038" title="Builds a compact heightfield representing open space, from a heightfield representing solid space.">rcBuildCompactHeightfield</a>, <a class="el" href="structrcConfig.html#a57a961a919d76559d6124d60ddf73864" title="The distance to erode/shrink the walkable area of the heightfield away from obstructions.">rcConfig::walkableRadius</a> </dd></dl>
 
 </div>
 </div>

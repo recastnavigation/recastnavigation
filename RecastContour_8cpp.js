@@ -22,10 +22,10 @@ var RecastContour_8cpp =
     [ "mergeRegionHoles", "RecastContour_8cpp.html#a7321f3f5954d621c5255819fe4f73004", null ],
     [ "next", "RecastContour_8cpp.html#af019d68006e1f2d7b24c8f09051424cc", null ],
     [ "prev", "RecastContour_8cpp.html#a6f1109916123abdff2b46675c13307e3", null ],
-    [ "rcBuildContours", "group__recast.html#ga9ce76e55cf94a30c017fe3b039e1cbb2", null ],
+    [ "rcBuildContours", "group__recast.html#gae211dbabbd2a9e3e3e374452f3fa4dfc", null ],
     [ "removeDegenerateSegments", "RecastContour_8cpp.html#a4e79138985b8e7443e813250a17d3f71", null ],
     [ "simplifyContour", "RecastContour_8cpp.html#aa7cef37578da730d57670d60132da73f", null ],
     [ "vequal", "RecastContour_8cpp.html#ac36ef53201f5b44be2f321d65ae01987", null ],
-    [ "walkContour", "RecastContour_8cpp.html#a5f3ae9ba0be2db4fd93a7a6e01326c05", null ],
+    [ "walkContour", "RecastContour_8cpp.html#ad5bc73ac319eae14a8b137a1bb4c9778", null ],
     [ "xorb", "RecastContour_8cpp.html#a82c11ae489473adcaa21b9944f3553fd", null ]
 ];
