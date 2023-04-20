@@ -401,7 +401,7 @@ int rcGetHeightFieldSpanCount(rcContext* context, const rcHeightfield& heightfie
 }
 
 bool rcBuildCompactHeightfield(rcContext* context, const int walkableHeight, const int walkableClimb,
-                               rcHeightfield& heightfield, rcCompactHeightfield& compactHeightfield)
+                               const rcHeightfield& heightfield, rcCompactHeightfield& compactHeightfield)
 {
 	rcAssert(context);
 

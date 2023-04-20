@@ -986,7 +986,7 @@ static bool removeVertex(rcContext* ctx, rcPolyMesh& mesh, const unsigned short 
 /// limit must be retricted to <= #DT_VERTS_PER_POLYGON.
 ///
 /// @see rcAllocPolyMesh, rcContourSet, rcPolyMesh, rcConfig
-bool rcBuildPolyMesh(rcContext* ctx, rcContourSet& cset, const int nvp, rcPolyMesh& mesh)
+bool rcBuildPolyMesh(rcContext* ctx, const rcContourSet& cset, const int nvp, rcPolyMesh& mesh)
 {
 	rcAssert(ctx);
 	
