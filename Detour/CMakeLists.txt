@@ -6,6 +6,10 @@ set_target_properties(Detour PROPERTIES DEBUG_POSTFIX -d)
 
 set(Detour_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Include")
 
+if(RECASTNAVIGATION_DT_POLYREF64)
+    target_compile_definitions(Detour PUBLIC DT_POLYREF64)
+endif()
+
 target_include_directories(Detour PUBLIC
     "$<BUILD_INTERFACE:${Detour_INCLUDE_DIR}>"
 )

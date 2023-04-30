@@ -12,6 +12,7 @@ set_property(GLOBAL PROPERTY CXX_STANDARD 98)
 option(RECASTNAVIGATION_DEMO "Build demo" ON)
 option(RECASTNAVIGATION_TESTS "Build tests" ON)
 option(RECASTNAVIGATION_EXAMPLES "Build examples" ON)
+option(RECASTNAVIGATION_DT_POLYREF64 "Use 64bit polyrefs instead of 32bit for Detour" OFF)
 
 if(MSVC AND BUILD_SHARED_LIBS)
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
@@ -33,6 +34,9 @@ set(libdir "\${exec_prefix}/${CMAKE_INSTALL_LIBDIR}")
 set(bindir "\${exec_prefix}/${CMAKE_INSTALL_BINDIR}")
 set(includedir "\${prefix}/${CMAKE_INSTALL_INCLUDEDIR}")
 set(PACKAGE_VERSION "${LIB_VERSION}")
+if(RECASTNAVIGATION_DT_POLYREF64)
+    set(PKG_CONFIG_CFLAGS "${PKG_CONFIG_CFLAGS} -DDT_POLYREF64")
+endif()
 configure_file(
         "${RecastNavigation_SOURCE_DIR}/recastnavigation.pc.in"
         "${RecastNavigation_BINARY_DIR}/recastnavigation.pc"
