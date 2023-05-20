@@ -174,7 +174,7 @@ void rcFilterWalkableLowHeightSpans(rcContext* context, const int walkableHeight
 			{
 				const int bot = (int)(span->smax);
 				const int top = span->next ? (int)(span->next->smin) : MAX_HEIGHT;
-				if ((top - bot) <= walkableHeight)
+				if ((top - bot) < walkableHeight)
 				{
 					span->area = RC_NULL_AREA;
 				}
