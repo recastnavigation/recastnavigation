@@ -890,7 +890,7 @@ static bool buildMeshAdjacency(dtTileCacheAlloc* alloc,
 							   const dtTileCacheContourSet& lcset)
 {
 	// Based on code by Eric Lengyel from:
-	// http://www.terathon.com/code/edges.php
+	// https://web.archive.org/web/20080704083314/http://www.terathon.com/code/edges.php
 	
 	const int maxEdgeCount = npolys*MAX_VERTS_PER_POLY;
 	dtFixedArray<unsigned short> firstEdge(alloc, nverts + maxEdgeCount);
