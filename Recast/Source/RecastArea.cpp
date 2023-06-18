@@ -513,79 +513,113 @@ void rcMarkConvexPolyArea(rcContext* context, const float* verts, const int numV
 
 int rcOffsetPoly(const float* verts, const int numVerts, const float offset, float* outVerts, const int maxOutVerts)
 {
-	// TODO (graham): Better variable names here.
 	const float MITER_LIMIT = 1.20f;
+    const float EPSILON = 1e-6f;
 
-	int n = 0;
+	int numOutVerts = 0;
 
-	for (int i = 0; i < numVerts; i++)
+	for (int vertIndex = 0; vertIndex < numVerts; vertIndex++)
 	{
-		const int a = (i + numVerts - 1) % numVerts;
-		const int b = i;
-		const int c = (i + 1) % numVerts;
-		const float* va = &verts[a * 3];
-		const float* vb = &verts[b * 3];
-		const float* vc = &verts[c * 3];
-		float dx0 = vb[0] - va[0];
-		float dy0 = vb[2] - va[2];
-		float d0 = dx0 * dx0 + dy0 * dy0;
-		if (d0 > 1e-6f)
+        // Grab three vertices of the polygon.
+		const int vertIndexA = (vertIndex + numVerts - 1) % numVerts;
+		const int vertIndexB = vertIndex;
+		const int vertIndexC = (vertIndex + 1) % numVerts;
+		const float* vertA = &verts[vertIndexA * 3];
+		const float* vertB = &verts[vertIndexB * 3];
+		const float* vertC = &verts[vertIndexC * 3];
+
+        // From A to B on the x/z plane
+		float ABdeltaX = vertB[0] - vertA[0];
+		float ABdeltaZ = vertB[2] - vertA[2];
+		float ABsqMag = ABdeltaX * ABdeltaX + ABdeltaZ * ABdeltaZ;
+		if (ABsqMag > EPSILON) // Is the squared magnitude of the distance between A and B greater than zero?
 		{
-			d0 = 1.0f / rcSqrt(d0);
-			dx0 *= d0;
-			dy0 *= d0;
-		}
-		float dx1 = vc[0] - vb[0];
-		float dy1 = vc[2] - vb[2];
-		float d1 = dx1 * dx1 + dy1 * dy1;
-		if (d1 > 1e-6f)
-		{
-			d1 = 1.0f / rcSqrt(d1);
-			dx1 *= d1;
-			dy1 *= d1;
-		}
-		const float dlx0 = -dy0;
-		const float dly0 = dx0;
-		const float dlx1 = -dy1;
-		const float dly1 = dx1;
-		float cross = dx1 * dy0 - dx0 * dy1;
-		float dmx = (dlx0 + dlx1) * 0.5f;
-		float dmy = (dly0 + dly1) * 0.5f;
-		float dmr2 = dmx * dmx + dmy * dmy;
-		bool bevel = dmr2 * MITER_LIMIT * MITER_LIMIT < 1.0f;
-		if (dmr2 > 1e-6f)
-		{
-			const float scale = 1.0f / dmr2;
-			dmx *= scale;
-			dmy *= scale;
+            // Normalize the delta vector
+            float inverseMag = 1.0f / rcSqrt(ABsqMag);
+            ABdeltaX *= inverseMag;
+            ABdeltaZ *= inverseMag;
 		}
 
-		if (bevel && cross < 0.0f)
+        // From B to C on the x/z plane
+		float BCdeltaX = vertC[0] - vertB[0];
+		float BCdeltaZ = vertC[2] - vertB[2];
+		float BCsqMag = BCdeltaX * BCdeltaX + BCdeltaZ * BCdeltaZ;
+		if (BCsqMag > EPSILON) // Is the squared magnitude of the distance between B and C greater than zero?
 		{
-			if (n + 2 >= maxOutVerts)
+            // Normalize the delta vector
+            float inverseMag = 1.0f / rcSqrt(BCsqMag);
+            BCdeltaX *= inverseMag;
+            BCdeltaZ *= inverseMag;
+		}
+
+        // The y component of the cross product of the two delta vectors.
+        // The X and Z components of the cross product are both zero because the two
+        // delta vectors fall on the x/z plane.
+        float cross = BCdeltaX * ABdeltaZ - ABdeltaX * BCdeltaZ;
+
+        // CCW perpendicular vector to AB.  The segment normal.
+		const float ABperpX = -ABdeltaZ;
+		const float ABperpZ = ABdeltaX;
+
+        // CCW perpendicular vector to BC.  The segment normal.
+		const float BCperpX = -BCdeltaZ;
+		const float BCperpZ = BCdeltaX;
+
+        // Average the two segment normals to get the vertex normal for B.  This isn't normalized yet.
+		float BNormalX = (ABperpX + BCperpX) * 0.5f;
+		float BNormalZ = (ABperpZ + BCperpZ) * 0.5f;
+
+		float BNormalSqMag = BNormalX * BNormalX + BNormalZ * BNormalZ;
+
+        // If the magnitude of the normal average is less than about .69444, the corner is an acute enough angle
+        // that the result should be beveled.
+		bool bevel = BNormalSqMag * MITER_LIMIT * MITER_LIMIT < 1.0f;
+
+        // Now we normalize the BNormal vector
+		if (BNormalSqMag > EPSILON)
+		{
+			const float inverseMag = 1.0f / rcSqrt(BNormalSqMag);
+            BNormalX *= inverseMag;
+            BNormalZ *= inverseMag;
+		}
+
+		if (bevel && cross < 0.0f) // If the corner is convex and an acute enough angle, generate a bevel.
+		{
+			if (numOutVerts + 2 >= maxOutVerts)
+			{
 				return 0;
-			float d = (1.0f - (dx0 * dx1 + dy0 * dy1)) * 0.5f;
-			outVerts[n * 3 + 0] = vb[0] + (-dlx0 + dx0 * d) * offset;
-			outVerts[n * 3 + 1] = vb[1];
-			outVerts[n * 3 + 2] = vb[2] + (-dly0 + dy0 * d) * offset;
-			n++;
-			outVerts[n * 3 + 0] = vb[0] + (-dlx1 - dx1 * d) * offset;
-			outVerts[n * 3 + 1] = vb[1];
-			outVerts[n * 3 + 2] = vb[2] + (-dly1 - dy1 * d) * offset;
-			n++;
+			}
+
+            // Generate two bevel vertices at a distances from B's normal proportional to the angle between AB and BC.
+            // Move each bevel vertex out proportional to the given offset.
+			float d = (1.0f - (ABdeltaX * BCdeltaX + ABdeltaZ * BCdeltaZ)) * 0.5f;
+
+			outVerts[numOutVerts * 3 + 0] = vertB[0] + (-ABperpX + ABdeltaX * d) * offset;
+			outVerts[numOutVerts * 3 + 1] = vertB[1];
+			outVerts[numOutVerts * 3 + 2] = vertB[2] + (-ABperpZ + ABdeltaZ * d) * offset;
+			numOutVerts++;
+
+			outVerts[numOutVerts * 3 + 0] = vertB[0] + (-BCperpX - BCdeltaX * d) * offset;
+			outVerts[numOutVerts * 3 + 1] = vertB[1];
+			outVerts[numOutVerts * 3 + 2] = vertB[2] + (-BCperpZ - BCdeltaZ * d) * offset;
+			numOutVerts++;
 		}
 		else
 		{
-			if (n + 1 >= maxOutVerts)
+			if (numOutVerts + 1 >= maxOutVerts)
+			{
 				return 0;
-			outVerts[n * 3 + 0] = vb[0] - dmx * offset;
-			outVerts[n * 3 + 1] = vb[1];
-			outVerts[n * 3 + 2] = vb[2] - dmy * offset;
-			n++;
+			}
+
+            // Move B along its normal by the specified offset.
+			outVerts[numOutVerts * 3 + 0] = vertB[0] - BNormalX * offset;
+			outVerts[numOutVerts * 3 + 1] = vertB[1];
+			outVerts[numOutVerts * 3 + 2] = vertB[2] - BNormalZ * offset;
+			numOutVerts++;
 		}
 	}
 
-	return n;
+	return numOutVerts;
 }
 
 void rcMarkCylinderArea(rcContext* context, const float* position, const float radius, const float height,

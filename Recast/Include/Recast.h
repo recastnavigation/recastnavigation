@@ -1148,9 +1148,11 @@ void rcMarkConvexPolyArea(rcContext* context, const float* verts, int numVerts,
 						  float minY, float maxY, unsigned char areaId,
 						  rcCompactHeightfield& compactHeightfield);
 
-// TODO (graham): Better docs
+/// Expands a convex polygon along its vertex normals by the given offset amount.
+/// Inserts extra vertices to bevel sharp corners.
+///
 /// Helper function to offset convex polygons for rcMarkConvexPolyArea.
-/// 
+///
 /// @ingroup recast
 /// 
 /// @param[in]		verts		The vertices of the polygon [Form: (x, y, z) * @p numVerts]
