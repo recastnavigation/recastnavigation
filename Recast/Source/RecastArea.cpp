@@ -109,15 +109,15 @@ bool rcErodeWalkableArea(rcContext* context, const int erosionRadius, rcCompactH
 				int neighborCount = 0;
 				for (int direction = 0; direction < 4; ++direction)
 				{
-					int neighborCon = rcGetCon(span, direction);
-					if (neighborCon == RC_NOT_CONNECTED)
+					const int neighborConnection = rcGetCon(span, direction);
+					if (neighborConnection == RC_NOT_CONNECTED)
 					{
 						break;
 					}
 					
 					const int neighborX = x + rcGetDirOffsetX(direction);
 					const int neighborZ = z + rcGetDirOffsetY(direction);
-					const int neighborSpanIndex = (int)compactHeightfield.cells[neighborX + neighborZ * zStride].index + neighborCon;
+					const int neighborSpanIndex = (int)compactHeightfield.cells[neighborX + neighborZ * zStride].index + neighborConnection;
 					
 					if (compactHeightfield.areas[neighborSpanIndex] == RC_NULL_AREA)
 					{
@@ -272,11 +272,11 @@ bool rcErodeWalkableArea(rcContext* context, const int erosionRadius, rcCompactH
 	}
 
 	const unsigned char minBoundaryDistance = (unsigned char)(erosionRadius * 2);
-	for (int i = 0; i < compactHeightfield.spanCount; ++i)
+	for (int spanIndex = 0; spanIndex < compactHeightfield.spanCount; ++spanIndex)
 	{
-		if (distanceToBoundary[i] < minBoundaryDistance)
+		if (distanceToBoundary[spanIndex] < minBoundaryDistance)
 		{
-			compactHeightfield.areas[i] = RC_NULL_AREA;
+			compactHeightfield.areas[spanIndex] = RC_NULL_AREA;
 		}
 	}
 
@@ -342,11 +342,12 @@ bool rcMedianFilterWalkableArea(rcContext* context, rcCompactHeightfield& compac
 
 					const rcCompactSpan& aSpan = compactHeightfield.spans[aIndex];
 					const int dir2 = (dir + 1) & 0x3;
-					if (rcGetCon(aSpan, dir2) != RC_NOT_CONNECTED)
+					const int neighborConnection2 = rcGetCon(aSpan, dir2);
+					if (neighborConnection2 != RC_NOT_CONNECTED)
 					{
 						const int bX = aX + rcGetDirOffsetX(dir2);
 						const int bZ = aZ + rcGetDirOffsetY(dir2);
-						const int bIndex = (int)compactHeightfield.cells[bX + bZ * zStride].index + rcGetCon(aSpan, dir2);
+						const int bIndex = (int)compactHeightfield.cells[bX + bZ * zStride].index + neighborConnection2;
 						if (compactHeightfield.areas[bIndex] != RC_NULL_AREA)
 						{
 							neighborAreas[dir * 2 + 1] = compactHeightfield.areas[bIndex];
@@ -386,16 +387,16 @@ void rcMarkBoxArea(rcContext* context, const float* boxMinBounds, const float* b
 	int maxZ = (int)((boxMaxBounds[2] - compactHeightfield.bmin[2]) / compactHeightfield.cs);
 
 	// Early-out if the box is outside the bounds of the grid.
-	if (maxX < 0) return;
-	if (minX >= xSize) return;
-	if (maxZ < 0) return;
-	if (minZ >= zSize) return;
+	if (maxX < 0) { return; }
+	if (minX >= xSize) { return; }
+	if (maxZ < 0) { return; }
+	if (minZ >= zSize) { return; }
 
 	// Clamp relevant bound coordinates to the grid.
-	if (minX < 0) minX = 0;
-	if (maxX >= xSize) maxX = xSize - 1;
-	if (minZ < 0) minZ = 0;
-	if (maxZ >= zSize) maxZ = zSize - 1;
+	if (minX < 0) { minX = 0; }
+	if (maxX >= xSize) { maxX = xSize - 1; }
+	if (minZ < 0) { minZ = 0; }
+	if (maxZ >= zSize) { maxZ = zSize - 1; }
 
 	// Mark relevant cells.
 	for (int z = minZ; z <= maxZ; ++z)
@@ -461,16 +462,16 @@ void rcMarkConvexPolyArea(rcContext* context, const float* verts, const int numV
 	int maxz = (int)((bmax[2] - compactHeightfield.bmin[2]) / compactHeightfield.cs);
 
 	// Early-out if the polygon lies entirely outside the grid.
-	if (maxx < 0) return;
-	if (minx >= xSize) return;
-	if (maxz < 0) return;
-	if (minz >= zSize) return;
+	if (maxx < 0) { return; }
+    if (minx >= xSize) { return; }
+    if (maxz < 0) { return; }
+    if (minz >= zSize) { return; }
 
 	// Clamp the polygon footprint to the grid
-	if (minx < 0) minx = 0;
-	if (maxx >= xSize) maxx = xSize - 1;
-	if (minz < 0) minz = 0;
-	if (maxz >= zSize) maxz = zSize - 1;
+    if (minx < 0) { minx = 0; }
+    if (maxx >= xSize) { maxx = xSize - 1; }
+    if (minz < 0) { minz = 0; }
+    if (maxz >= zSize) { maxz = zSize - 1; }
 
 	// TODO: Optimize.
 	for (int z = minz; z <= maxz; ++z)
@@ -478,7 +479,7 @@ void rcMarkConvexPolyArea(rcContext* context, const float* verts, const int numV
 		for (int x = minx; x <= maxx; ++x)
 		{
 			const rcCompactCell& cell = compactHeightfield.cells[x + z * zStride];
-			int maxSpanIndex = (int)(cell.index + cell.count);
+			const int maxSpanIndex = (int)(cell.index + cell.count);
 			for (int spanIndex = (int)cell.index; spanIndex < maxSpanIndex; ++spanIndex)
 			{
 				rcCompactSpan& span = compactHeightfield.spans[spanIndex];
@@ -495,7 +496,7 @@ void rcMarkConvexPolyArea(rcContext* context, const float* verts, const int numV
 					continue;
 				}
 
-				float point[] = {
+				const float point[] = {
 					compactHeightfield.bmin[0] + ((float)x + 0.5f) * compactHeightfield.cs,
 					0,
 					compactHeightfield.bmin[2] + ((float)z + 0.5f) * compactHeightfield.cs
@@ -599,34 +600,38 @@ void rcMarkCylinderArea(rcContext* context, const float* position, const float r
 	const int zStride = xSize; // For readability
 
 	// Compute the bounding box of the cylinder
-	float bmin[3];
-	float bmax[3];
-	bmin[0] = position[0] - radius;
-	bmin[1] = position[1];
-	bmin[2] = position[2] - radius;
-	bmax[0] = position[0] + radius;
-	bmax[1] = position[1] + height;
-	bmax[2] = position[2] + radius;
+	const float cylinderBBMin[] =
+	{
+		position[0] - radius,
+		position[1],
+		position[2] - radius
+	};
+	const float cylinderBBMax[] =
+	{
+		position[0] + radius,
+		position[1] + height,
+		position[2] + radius
+	};
 
 	// Compute the grid footprint of the cylinder
-	int minx = (int)((bmin[0] - compactHeightfield.bmin[0]) / compactHeightfield.cs);
-	int miny = (int)((bmin[1] - compactHeightfield.bmin[1]) / compactHeightfield.ch);
-	int minz = (int)((bmin[2] - compactHeightfield.bmin[2]) / compactHeightfield.cs);
-	int maxx = (int)((bmax[0] - compactHeightfield.bmin[0]) / compactHeightfield.cs);
-	int maxy = (int)((bmax[1] - compactHeightfield.bmin[1]) / compactHeightfield.ch);
-	int maxz = (int)((bmax[2] - compactHeightfield.bmin[2]) / compactHeightfield.cs);
+	int minx = (int)((cylinderBBMin[0] - compactHeightfield.bmin[0]) / compactHeightfield.cs);
+	int miny = (int)((cylinderBBMin[1] - compactHeightfield.bmin[1]) / compactHeightfield.ch);
+	int minz = (int)((cylinderBBMin[2] - compactHeightfield.bmin[2]) / compactHeightfield.cs);
+	int maxx = (int)((cylinderBBMax[0] - compactHeightfield.bmin[0]) / compactHeightfield.cs);
+	int maxy = (int)((cylinderBBMax[1] - compactHeightfield.bmin[1]) / compactHeightfield.ch);
+	int maxz = (int)((cylinderBBMax[2] - compactHeightfield.bmin[2]) / compactHeightfield.cs);
 
 	// Early-out if the cylinder is completely outside the grid bounds.
-	if (maxx < 0) return;
-	if (minx >= xSize) return;
-	if (maxz < 0) return;
-	if (minz >= zSize) return;
+    if (maxx < 0) { return; }
+    if (minx >= xSize) { return; }
+    if (maxz < 0) { return; }
+    if (minz >= zSize) { return; }
 
 	// Clamp the cylinder bounds to the grid.
-	if (minx < 0) minx = 0;
-	if (maxx >= xSize) maxx = xSize - 1;
-	if (minz < 0) minz = 0;
-	if (maxz >= zSize) maxz = zSize - 1;
+    if (minx < 0) { minx = 0; }
+    if (maxx >= xSize) { maxx = xSize - 1; }
+    if (minz < 0) { minz = 0; }
+    if (maxz >= zSize) { maxz = zSize - 1; }
 
 	const float radiusSq = radius * radius;
 
