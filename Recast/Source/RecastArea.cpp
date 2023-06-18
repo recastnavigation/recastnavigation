@@ -57,7 +57,8 @@ static bool pointInPoly(int numVerts, const float* verts, const float* point)
 	{
 		const float* vi = &verts[i * 3];
 		const float* vj = &verts[j * 3];
-		if (vi[2] > point[2] == vj[2] > point[2])
+
+		if ((vi[2] > point[2]) == (vj[2] > point[2]))
 		{
 			continue;
 		}
