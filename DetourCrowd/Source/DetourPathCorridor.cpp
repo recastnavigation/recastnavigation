@@ -59,7 +59,7 @@ int dtMergeCorridorStartMoved(dtPolyRef* path, const int npath, const int maxPat
 	int size = dtMax(0, npath-orig);
 	if (req+size > maxPath)
 		size = maxPath-req;
-	if (size)
+	if (size > 0)
 		memmove(path+req, path+orig, size*sizeof(dtPolyRef));
 	
 	// Store visited
