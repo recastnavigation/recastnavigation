@@ -107,6 +107,7 @@ $(document).ready(function(){initNavTree('NavMeshTesterTool_8cpp.html',''); init
 <code>#include &quot;<a class="el" href="DetourNavMeshBuilder_8h_source.html">DetourNavMeshBuilder.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="DetourDebugDraw_8h_source.html">DetourDebugDraw.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="DetourCommon_8h_source.html">DetourCommon.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="DetourPathCorridor_8h_source.html">DetourPathCorridor.h</a>&quot;</code><br />
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
 Macros</h2></td></tr>
@@ -119,8 +120,6 @@ Functions</h2></td></tr>
 <tr class="separator:ac8e3cc6c626394b36e557edb46eb23c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5b7b330e2de37289d8ae69f304d334a9"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="NavMeshTesterTool_8cpp.html#a5b7b330e2de37289d8ae69f304d334a9">inRange</a> (const float *v1, const float *v2, const float r, const float h)</td></tr>
 <tr class="separator:a5b7b330e2de37289d8ae69f304d334a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa0a7c979eb3968d46f3ccffcd664b71d"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="NavMeshTesterTool_8cpp.html#aa0a7c979eb3968d46f3ccffcd664b71d">fixupCorridor</a> (<a class="el" href="group__detour.html#gab4e0b2257a670c1a800057999612b466">dtPolyRef</a> *path, const int npath, const int maxPath, const <a class="el" href="group__detour.html#gab4e0b2257a670c1a800057999612b466">dtPolyRef</a> *visited, const int nvisited)</td></tr>
-<tr class="separator:aa0a7c979eb3968d46f3ccffcd664b71d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afdd1fc4764fb0feadc7f2ae478064b69"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="NavMeshTesterTool_8cpp.html#afdd1fc4764fb0feadc7f2ae478064b69">fixupShortcuts</a> (<a class="el" href="group__detour.html#gab4e0b2257a670c1a800057999612b466">dtPolyRef</a> *path, int npath, <a class="el" href="classdtNavMeshQuery.html">dtNavMeshQuery</a> *navQuery)</td></tr>
 <tr class="separator:afdd1fc4764fb0feadc7f2ae478064b69"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab556b9cab58165a7bb55dc0eefe89fb9"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="NavMeshTesterTool_8cpp.html#ab556b9cab58165a7bb55dc0eefe89fb9">getSteerTarget</a> (<a class="el" href="classdtNavMeshQuery.html">dtNavMeshQuery</a> *navQuery, const float *startPos, const float *endPos, const float minTargetDist, const <a class="el" href="group__detour.html#gab4e0b2257a670c1a800057999612b466">dtPolyRef</a> *path, const int pathSize, float *steerPos, unsigned char &amp;steerPosFlag, <a class="el" href="group__detour.html#gab4e0b2257a670c1a800057999612b466">dtPolyRef</a> &amp;steerPosRef, float *outPoints=0, int *outPointCount=0)</td></tr>
@@ -144,60 +143,6 @@ Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="aa0a7c979eb3968d46f3ccffcd664b71d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa0a7c979eb3968d46f3ccffcd664b71d">&#9670;&nbsp;</a></span>fixupCorridor()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static int fixupCorridor </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="group__detour.html#gab4e0b2257a670c1a800057999612b466">dtPolyRef</a> *&#160;</td>
-          <td class="paramname"><em>path</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const int&#160;</td>
-          <td class="paramname"><em>npath</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const int&#160;</td>
-          <td class="paramname"><em>maxPath</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const <a class="el" href="group__detour.html#gab4e0b2257a670c1a800057999612b466">dtPolyRef</a> *&#160;</td>
-          <td class="paramname"><em>visited</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const int&#160;</td>
-          <td class="paramname"><em>nvisited</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
 <a id="afdd1fc4764fb0feadc7f2ae478064b69"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#afdd1fc4764fb0feadc7f2ae478064b69">&#9670;&nbsp;</a></span>fixupShortcuts()</h2>
 

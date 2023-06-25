@@ -128,16 +128,16 @@ var NAVTREEINDEX =
 "ChunkyTriMesh_8cpp.html",
 "DetourDebugDraw_8h_source.html",
 "Filelist_8h.html#ae20514067f3272c41e207bed25e530d8",
-"RecastRegion_8cpp.html#a2c802a2c5fc0d5e7e5d95a19539ff9a6",
-"classInputGeom.html#a1ad88411b19c3148c0ca68834fc981a4",
-"classSample__TempObstacles.html#ad13bab4ba46fe776398b28f5036fa439",
-"classdtNodeQueue.html#a8be783bde0911bdf92503a2e111f2a1a",
-"functions_d.html",
+"RecastRegion_8cpp.html#a362976ffc8da436099d6ce5d2a8e8996",
+"classInputGeom.html#a2a76738d42d4a398ba82e0087d3ea565",
+"classSample__TempObstacles.html#ad15ecefaaefd5e4d60a67df5db97a0b3",
+"classdtNodeQueue.html#a98462fc76364861576fa8547987d5458",
+"functions_e.html",
 "group__recast.html#ga6ef022fcf6dabdb0437b979304c0defe",
-"md_CONTRIBUTING.html#autotoc_md21",
-"structdtCrowdAgentAnimation.html#a96b279c54ccfe7d77cc576edbff7298e",
-"structdtTileCacheObstacle.html#a43d1c2aa32d48a2a88713ca3f62e0512",
-"structrcPotentialDiagonal.html#aedf8e9dad665440c8db85e1e9d37b05d"
+"md_CONTRIBUTING.html#autotoc_md22",
+"structdtCrowdAgentAnimation.html#aed88b3aa0469a0462d5f7d055d3b72cc",
+"structdtTileCacheObstacle.html#a49a8cbfab1e19c6d5aa378f1a33f02ec",
+"structrcRegion.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';
