@@ -570,23 +570,22 @@ int rcOffsetPoly(const float* verts, const int numVerts, const float offset, flo
 		const float currSegmentNormZ = currSegmentDir[0];
 
         // Average the two segment normals to get the proportional miter offset for B.
-        // This isn't normalized because it's defining the distance the corner needs to be adjusted to properly miter
-		// the adjoining offset edges.
-		float BMiterX = (prevSegmentNormX + currSegmentNormX) * 0.5f;
-		float BMiterZ = (prevSegmentNormZ + currSegmentNormZ) * 0.5f;
-
-		float BMiterSqMag = rcSqr(BMiterX) + rcSqr(BMiterZ);
+        // This isn't normalized because it's defining the distance and direction the corner will need to be
+        // adjusted proportionally to the edge offsets to properly miter the adjoining edges.
+		float cornerMiterX = (prevSegmentNormX + currSegmentNormX) * 0.5f;
+		float cornerMiterZ = (prevSegmentNormZ + currSegmentNormZ) * 0.5f;
+        const float cornerMiterSqMag = rcSqr(cornerMiterX) + rcSqr(cornerMiterZ);
 
         // If the magnitude of the segment normal average is less than about .69444,
         // the corner is an acute enough angle that the result should be beveled.
-		bool bevel = BMiterSqMag * MITER_LIMIT * MITER_LIMIT < 1.0f;
+        const bool bevel = cornerMiterSqMag * MITER_LIMIT * MITER_LIMIT < 1.0f;
 
-        // Now we normalize the BNormal vector
-		if (BMiterSqMag > EPSILON)
+        // Scale the corner miter so it's proportional to how much the corner should be offset compared to the edges.
+		if (cornerMiterSqMag > EPSILON)
 		{
-			const float scale = 1.0f / BMiterSqMag;
-            BMiterX *= scale;
-            BMiterZ *= scale;
+			const float scale = 1.0f / cornerMiterSqMag;
+            cornerMiterX *= scale;
+            cornerMiterZ *= scale;
 		}
 
 		if (bevel && cross < 0.0f) // If the corner is convex and an acute enough angle, generate a bevel.
@@ -618,9 +617,9 @@ int rcOffsetPoly(const float* verts, const int numVerts, const float offset, flo
 			}
 
             // Move B along the miter direction by the specified offset.
-			outVerts[numOutVerts * 3 + 0] = vertB[0] - BMiterX * offset;
+			outVerts[numOutVerts * 3 + 0] = vertB[0] - cornerMiterX * offset;
 			outVerts[numOutVerts * 3 + 1] = vertB[1];
-			outVerts[numOutVerts * 3 + 2] = vertB[2] - BMiterZ * offset;
+			outVerts[numOutVerts * 3 + 2] = vertB[2] - cornerMiterZ * offset;
 			numOutVerts++;
 		}
 	}
