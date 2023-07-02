@@ -559,9 +559,9 @@ int rcOffsetPoly(const float* verts, const int numVerts, const float offset, flo
 		currSegmentDir[1] = 0; // Squash onto x/z plane
 		rcVsafeNormalize(currSegmentDir);
 
-        // The y component of the cross product of the two delta vectors.
+        // The y component of the cross product of the two normalized segment directions.
         // The X and Z components of the cross product are both zero because the two
-        // delta vectors fall on the x/z plane.
+        // segment direction vectors fall within the x/z plane.
         float cross = currSegmentDir[0] * prevSegmentDir[2] - prevSegmentDir[0] * currSegmentDir[2];
 
         // CCW perpendicular vector to AB.  The segment normal.
@@ -598,7 +598,7 @@ int rcOffsetPoly(const float* verts, const int numVerts, const float offset, flo
 				return 0;
 			}
 
-            // Generate two bevel vertices at a distances from B's normal proportional to the angle between AB and BC.
+            // Generate two bevel vertices at a distances from B proportional to the angle between the two segments.
             // Move each bevel vertex out proportional to the given offset.
 			float d = (1.0f - (prevSegmentDir[0] * currSegmentDir[0] + prevSegmentDir[2] * currSegmentDir[2])) * 0.5f;
 
