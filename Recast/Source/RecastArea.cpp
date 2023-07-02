@@ -514,6 +514,8 @@ void rcMarkConvexPolyArea(rcContext* context, const float* verts, const int numV
 
 int rcOffsetPoly(const float* verts, const int numVerts, const float offset, float* outVerts, const int maxOutVerts)
 {
+	// Defines the limit at which a miter becomes a bevel.
+	// Similar in behavior to https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-miterlimit
 	const float MITER_LIMIT = 1.20f;
     const float EPSILON = 1e-6f;
 
@@ -566,22 +568,24 @@ int rcOffsetPoly(const float* verts, const int numVerts, const float offset, flo
 		const float BCperpX = -BCdeltaZ;
 		const float BCperpZ = BCdeltaX;
 
-        // Average the two segment normals to get the vertex normal for B.  This isn't normalized yet.
-		float BNormalX = (ABperpX + BCperpX) * 0.5f;
-		float BNormalZ = (ABperpZ + BCperpZ) * 0.5f;
+        // Average the two segment normals to get the proportional miter offset for B.
+        // This isn't normalized because it's defining the distance the corner needs to be adjusted to properly miter
+		// the adjoining offset edges.
+		float BMiterX = (ABperpX + BCperpX) * 0.5f;
+		float BMiterZ = (ABperpZ + BCperpZ) * 0.5f;
 
-		float BNormalSqMag = BNormalX * BNormalX + BNormalZ * BNormalZ;
+		float BMiterSqMag = BMiterX * BMiterX + BMiterZ * BMiterZ;
 
-        // If the magnitude of the normal average is less than about .69444, the corner is an acute enough angle
-        // that the result should be beveled.
-		bool bevel = BNormalSqMag * MITER_LIMIT * MITER_LIMIT < 1.0f;
+        // If the magnitude of the segment normal average is less than about .69444,
+        // the corner is an acute enough angle that the result should be beveled.
+		bool bevel = BMiterSqMag * MITER_LIMIT * MITER_LIMIT < 1.0f;
 
         // Now we normalize the BNormal vector
-		if (BNormalSqMag > EPSILON)
+		if (BMiterSqMag > EPSILON)
 		{
-			const float inverseMag = 1.0f / rcSqrt(BNormalSqMag);
-            BNormalX *= inverseMag;
-            BNormalZ *= inverseMag;
+			const float scale = 1.0f / BMiterSqMag;
+            BMiterX *= scale;
+            BMiterZ *= scale;
 		}
 
 		if (bevel && cross < 0.0f) // If the corner is convex and an acute enough angle, generate a bevel.
@@ -612,10 +616,10 @@ int rcOffsetPoly(const float* verts, const int numVerts, const float offset, flo
 				return 0;
 			}
 
-            // Move B along its normal by the specified offset.
-			outVerts[numOutVerts * 3 + 0] = vertB[0] - BNormalX * offset;
+            // Move B along the miter direction by the specified offset.
+			outVerts[numOutVerts * 3 + 0] = vertB[0] - BMiterX * offset;
 			outVerts[numOutVerts * 3 + 1] = vertB[1];
-			outVerts[numOutVerts * 3 + 2] = vertB[2] - BNormalZ * offset;
+			outVerts[numOutVerts * 3 + 2] = vertB[2] - BMiterZ * offset;
 			numOutVerts++;
 		}
 	}
