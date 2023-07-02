@@ -512,12 +512,25 @@ void rcMarkConvexPolyArea(rcContext* context, const float* verts, const int numV
 	}
 }
 
+static const float EPSILON = 1e-6f;
+
+static void rcVsafeNormalize(float* v)
+{
+	const float sqMag = rcSqr(v[0]) + rcSqr(v[1]) + rcSqr(v[2]);
+	if (sqMag > EPSILON)
+	{
+		const float inverseMag = 1.0f / rcSqrt(sqMag);
+		v[0] *= inverseMag;
+		v[1] *= inverseMag;
+		v[2] *= inverseMag;
+	}
+}
+
 int rcOffsetPoly(const float* verts, const int numVerts, const float offset, float* outVerts, const int maxOutVerts)
 {
 	// Defines the limit at which a miter becomes a bevel.
 	// Similar in behavior to https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-miterlimit
 	const float MITER_LIMIT = 1.20f;
-    const float EPSILON = 1e-6f;
 
 	int numOutVerts = 0;
 
@@ -532,41 +545,29 @@ int rcOffsetPoly(const float* verts, const int numVerts, const float offset, flo
 		const float* vertC = &verts[vertIndexC * 3];
 
         // From A to B on the x/z plane
-		float ABdeltaX = vertB[0] - vertA[0];
-		float ABdeltaZ = vertB[2] - vertA[2];
-		float ABsqMag = ABdeltaX * ABdeltaX + ABdeltaZ * ABdeltaZ;
-		if (ABsqMag > EPSILON) // Is the squared magnitude of the distance between A and B greater than zero?
-		{
-            // Normalize the delta vector
-            float inverseMag = 1.0f / rcSqrt(ABsqMag);
-            ABdeltaX *= inverseMag;
-            ABdeltaZ *= inverseMag;
-		}
-
+		float ABdelta[3];
+		rcVsub(ABdelta, vertB, vertA);
+		ABdelta[1] = 0; // Squash onto x/z plane
+		rcVsafeNormalize(ABdelta);
+		
         // From B to C on the x/z plane
-		float BCdeltaX = vertC[0] - vertB[0];
-		float BCdeltaZ = vertC[2] - vertB[2];
-		float BCsqMag = BCdeltaX * BCdeltaX + BCdeltaZ * BCdeltaZ;
-		if (BCsqMag > EPSILON) // Is the squared magnitude of the distance between B and C greater than zero?
-		{
-            // Normalize the delta vector
-            float inverseMag = 1.0f / rcSqrt(BCsqMag);
-            BCdeltaX *= inverseMag;
-            BCdeltaZ *= inverseMag;
-		}
+		float BCdelta[3];
+		rcVsub(BCdelta, vertC, vertB);
+		BCdelta[1] = 0; // Squash onto x/z plane
+		rcVsafeNormalize(BCdelta);
 
         // The y component of the cross product of the two delta vectors.
         // The X and Z components of the cross product are both zero because the two
         // delta vectors fall on the x/z plane.
-        float cross = BCdeltaX * ABdeltaZ - ABdeltaX * BCdeltaZ;
+        float cross = BCdelta[0] * ABdelta[2] - ABdelta[0] * BCdelta[2];
 
         // CCW perpendicular vector to AB.  The segment normal.
-		const float ABperpX = -ABdeltaZ;
-		const float ABperpZ = ABdeltaX;
+		const float ABperpX = -ABdelta[2];
+		const float ABperpZ = ABdelta[0];
 
         // CCW perpendicular vector to BC.  The segment normal.
-		const float BCperpX = -BCdeltaZ;
-		const float BCperpZ = BCdeltaX;
+		const float BCperpX = -BCdelta[2];
+		const float BCperpZ = BCdelta[0];
 
         // Average the two segment normals to get the proportional miter offset for B.
         // This isn't normalized because it's defining the distance the corner needs to be adjusted to properly miter
@@ -597,16 +598,16 @@ int rcOffsetPoly(const float* verts, const int numVerts, const float offset, flo
 
             // Generate two bevel vertices at a distances from B's normal proportional to the angle between AB and BC.
             // Move each bevel vertex out proportional to the given offset.
-			float d = (1.0f - (ABdeltaX * BCdeltaX + ABdeltaZ * BCdeltaZ)) * 0.5f;
+			float d = (1.0f - (ABdelta[0] * BCdelta[0] + ABdelta[2] * BCdelta[2])) * 0.5f;
 
-			outVerts[numOutVerts * 3 + 0] = vertB[0] + (-ABperpX + ABdeltaX * d) * offset;
+			outVerts[numOutVerts * 3 + 0] = vertB[0] + (-ABperpX + ABdelta[0] * d) * offset;
 			outVerts[numOutVerts * 3 + 1] = vertB[1];
-			outVerts[numOutVerts * 3 + 2] = vertB[2] + (-ABperpZ + ABdeltaZ * d) * offset;
+			outVerts[numOutVerts * 3 + 2] = vertB[2] + (-ABperpZ + ABdelta[2] * d) * offset;
 			numOutVerts++;
 
-			outVerts[numOutVerts * 3 + 0] = vertB[0] + (-BCperpX - BCdeltaX * d) * offset;
+			outVerts[numOutVerts * 3 + 0] = vertB[0] + (-BCperpX - BCdelta[0] * d) * offset;
 			outVerts[numOutVerts * 3 + 1] = vertB[1];
-			outVerts[numOutVerts * 3 + 2] = vertB[2] + (-BCperpZ - BCdeltaZ * d) * offset;
+			outVerts[numOutVerts * 3 + 2] = vertB[2] + (-BCperpZ - BCdelta[2] * d) * offset;
 			numOutVerts++;
 		}
 		else
