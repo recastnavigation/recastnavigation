@@ -514,6 +514,9 @@ void rcMarkConvexPolyArea(rcContext* context, const float* verts, const int numV
 
 static const float EPSILON = 1e-6f;
 
+/// Normalizes the vector if the length is greater than zero.
+/// If the magnitude is zero, the vector is unchanged.
+/// @param[in,out]	v	The vector to normalize. [(x, y, z)]
 static void rcVsafeNormalize(float* v)
 {
 	const float sqMag = rcSqr(v[0]) + rcSqr(v[1]) + rcSqr(v[2]);
