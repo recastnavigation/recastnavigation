@@ -545,37 +545,37 @@ int rcOffsetPoly(const float* verts, const int numVerts, const float offset, flo
 		const float* vertC = &verts[vertIndexC * 3];
 
         // From A to B on the x/z plane
-		float ABdelta[3];
-		rcVsub(ABdelta, vertB, vertA);
-		ABdelta[1] = 0; // Squash onto x/z plane
-		rcVsafeNormalize(ABdelta);
+		float prevSegmentDir[3];
+		rcVsub(prevSegmentDir, vertB, vertA);
+		prevSegmentDir[1] = 0; // Squash onto x/z plane
+		rcVsafeNormalize(prevSegmentDir);
 		
         // From B to C on the x/z plane
-		float BCdelta[3];
-		rcVsub(BCdelta, vertC, vertB);
-		BCdelta[1] = 0; // Squash onto x/z plane
-		rcVsafeNormalize(BCdelta);
+		float currSegmentDir[3];
+		rcVsub(currSegmentDir, vertC, vertB);
+		currSegmentDir[1] = 0; // Squash onto x/z plane
+		rcVsafeNormalize(currSegmentDir);
 
         // The y component of the cross product of the two delta vectors.
         // The X and Z components of the cross product are both zero because the two
         // delta vectors fall on the x/z plane.
-        float cross = BCdelta[0] * ABdelta[2] - ABdelta[0] * BCdelta[2];
+        float cross = currSegmentDir[0] * prevSegmentDir[2] - prevSegmentDir[0] * currSegmentDir[2];
 
         // CCW perpendicular vector to AB.  The segment normal.
-		const float ABperpX = -ABdelta[2];
-		const float ABperpZ = ABdelta[0];
+		const float prevSegmentNormX = -prevSegmentDir[2];
+		const float prevSegmentNormZ = prevSegmentDir[0];
 
         // CCW perpendicular vector to BC.  The segment normal.
-		const float BCperpX = -BCdelta[2];
-		const float BCperpZ = BCdelta[0];
+		const float currSegmentNormX = -currSegmentDir[2];
+		const float currSegmentNormZ = currSegmentDir[0];
 
         // Average the two segment normals to get the proportional miter offset for B.
         // This isn't normalized because it's defining the distance the corner needs to be adjusted to properly miter
 		// the adjoining offset edges.
-		float BMiterX = (ABperpX + BCperpX) * 0.5f;
-		float BMiterZ = (ABperpZ + BCperpZ) * 0.5f;
+		float BMiterX = (prevSegmentNormX + currSegmentNormX) * 0.5f;
+		float BMiterZ = (prevSegmentNormZ + currSegmentNormZ) * 0.5f;
 
-		float BMiterSqMag = BMiterX * BMiterX + BMiterZ * BMiterZ;
+		float BMiterSqMag = rcSqr(BMiterX) + rcSqr(BMiterZ);
 
         // If the magnitude of the segment normal average is less than about .69444,
         // the corner is an acute enough angle that the result should be beveled.
@@ -598,16 +598,16 @@ int rcOffsetPoly(const float* verts, const int numVerts, const float offset, flo
 
             // Generate two bevel vertices at a distances from B's normal proportional to the angle between AB and BC.
             // Move each bevel vertex out proportional to the given offset.
-			float d = (1.0f - (ABdelta[0] * BCdelta[0] + ABdelta[2] * BCdelta[2])) * 0.5f;
+			float d = (1.0f - (prevSegmentDir[0] * currSegmentDir[0] + prevSegmentDir[2] * currSegmentDir[2])) * 0.5f;
 
-			outVerts[numOutVerts * 3 + 0] = vertB[0] + (-ABperpX + ABdelta[0] * d) * offset;
+			outVerts[numOutVerts * 3 + 0] = vertB[0] + (-prevSegmentNormX + prevSegmentDir[0] * d) * offset;
 			outVerts[numOutVerts * 3 + 1] = vertB[1];
-			outVerts[numOutVerts * 3 + 2] = vertB[2] + (-ABperpZ + ABdelta[2] * d) * offset;
+			outVerts[numOutVerts * 3 + 2] = vertB[2] + (-prevSegmentNormZ + prevSegmentDir[2] * d) * offset;
 			numOutVerts++;
 
-			outVerts[numOutVerts * 3 + 0] = vertB[0] + (-BCperpX - BCdelta[0] * d) * offset;
+			outVerts[numOutVerts * 3 + 0] = vertB[0] + (-currSegmentNormX - currSegmentDir[0] * d) * offset;
 			outVerts[numOutVerts * 3 + 1] = vertB[1];
-			outVerts[numOutVerts * 3 + 2] = vertB[2] + (-BCperpZ - BCdelta[2] * d) * offset;
+			outVerts[numOutVerts * 3 + 2] = vertB[2] + (-currSegmentNormZ - currSegmentDir[2] * d) * offset;
 			numOutVerts++;
 		}
 		else
