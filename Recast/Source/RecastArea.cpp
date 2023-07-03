@@ -493,7 +493,7 @@ int rcOffsetPoly(const float* verts, const int nverts, const float offset,
 
 		if (bevel && cross < 0.0f)
 		{
-			if (n+2 >= maxOutVerts)
+			if (n+2 > maxOutVerts)
 				return 0;
 			float d = (1.0f - (dx0*dx1 + dy0*dy1))*0.5f;
 			outVerts[n*3+0] = vb[0] + (-dlx0+dx0*d)*offset;
@@ -507,7 +507,7 @@ int rcOffsetPoly(const float* verts, const int nverts, const float offset,
 		}
 		else
 		{
-			if (n+1 >= maxOutVerts)
+			if (n+1 > maxOutVerts)
 				return 0;
 			outVerts[n*3+0] = vb[0] - dmx*offset;
 			outVerts[n*3+1] = vb[1];
