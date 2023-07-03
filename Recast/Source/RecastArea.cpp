@@ -593,7 +593,7 @@ int rcOffsetPoly(const float* verts, const int numVerts, const float offset, flo
 
 		if (bevel && cross < 0.0f) // If the corner is convex and an acute enough angle, generate a bevel.
 		{
-			if (numOutVerts + 2 >= maxOutVerts)
+			if (numOutVerts + 2 > maxOutVerts)
 			{
 				return 0;
 			}
@@ -614,7 +614,7 @@ int rcOffsetPoly(const float* verts, const int numVerts, const float offset, flo
 		}
 		else
 		{
-			if (numOutVerts + 1 >= maxOutVerts)
+			if (numOutVerts + 1 > maxOutVerts)
 			{
 				return 0;
 			}
