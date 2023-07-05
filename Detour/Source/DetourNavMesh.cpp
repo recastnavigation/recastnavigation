@@ -193,7 +193,8 @@ dtNavMesh::dtNavMesh() :
 	m_tileLutMask(0),
 	m_posLookup(0),
 	m_nextFree(0),
-	m_tiles(0)
+	m_tiles(0),
+	hasOffMesh(false),
 {
 #ifndef DT_POLYREF64
 	m_saltBits = 0;
