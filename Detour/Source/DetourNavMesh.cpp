@@ -194,7 +194,7 @@ dtNavMesh::dtNavMesh() :
 	m_posLookup(0),
 	m_nextFree(0),
 	m_tiles(0),
-	hasOffMesh(false),
+	m_hasOffMesh(false)
 {
 #ifndef DT_POLYREF64
 	m_saltBits = 0;
@@ -1055,7 +1055,7 @@ dtStatus dtNavMesh::addTile(unsigned char* data, int dataSize, int flags,
 	return DT_SUCCESS;
 }
 
-void dtNavMesh::connectGlobalOffMeshLinks(dtMeshTile * tile, dtMeshTile * target)
+void dtNavMesh::connectGlobalOffMeshLinks(const dtMeshTile * tile, const dtMeshTile * target)
 {
 	if (!tile || !target) return;
 
@@ -1084,7 +1084,7 @@ void dtNavMesh::connectGlobalOffMeshLinks(dtMeshTile * tile, dtMeshTile * target
 		dtVcopy(v, nearestPt);
 
 		// Link off-mesh connection to target poly.
-		unsigned int idx = allocLink(target);
+		unsigned int idx = allocLink((dtMeshTile *)target);
 		if (idx != DT_NULL_LINK)
 		{
 			dtLink* link = &target->links[idx];
@@ -1100,7 +1100,7 @@ void dtNavMesh::connectGlobalOffMeshLinks(dtMeshTile * tile, dtMeshTile * target
 		// Link target poly to off-mesh connection.
 		if (targetCon->flags & DT_OFFMESH_CON_BIDIR)
 		{
-			unsigned int tidx = allocLink(tile);
+			unsigned int tidx = allocLink((dtMeshTile *)tile);
 			if (tidx != DT_NULL_LINK)
 			{
 				const unsigned short landPolyIdx = (unsigned short)decodePolyIdPoly(ref);
