@@ -609,7 +609,7 @@ public:
 	}
 
 	/// @}
-	bool hasOffMesh = false;
+	bool hasOffMesh;
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.
 	dtNavMesh(const dtNavMesh&);
