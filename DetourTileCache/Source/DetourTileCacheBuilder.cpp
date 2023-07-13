@@ -890,7 +890,7 @@ static bool buildMeshAdjacency(dtTileCacheAlloc* alloc,
 							   const dtTileCacheContourSet& lcset)
 {
 	// Based on code by Eric Lengyel from:
-	// http://www.terathon.com/code/edges.php
+	// https://web.archive.org/web/20080704083314/http://www.terathon.com/code/edges.php
 	
 	const int maxEdgeCount = npolys*MAX_VERTS_PER_POLY;
 	dtFixedArray<unsigned short> firstEdge(alloc, nverts + maxEdgeCount);
@@ -1558,7 +1558,7 @@ static dtStatus removeVertex(dtTileCachePolyMesh& mesh, const unsigned short rem
 	}
 	
 	// Remove vertex.
-	for (int i = (int)rem; i < mesh.nverts; ++i)
+	for (int i = (int)rem; i < mesh.nverts - 1; ++i)
 	{
 		mesh.verts[i*3+0] = mesh.verts[(i+1)*3+0];
 		mesh.verts[i*3+1] = mesh.verts[(i+1)*3+1];

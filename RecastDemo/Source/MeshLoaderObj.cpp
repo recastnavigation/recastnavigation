@@ -20,7 +20,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <cstring>
-#define _USE_MATH_DEFINES
 #include <math.h>
 
 rcMeshLoaderObj::rcMeshLoaderObj() :
