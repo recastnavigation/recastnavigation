@@ -773,7 +773,7 @@ void Sample_TileMesh::buildAllTiles()
 			for (int x = 0; x < tileNum; ++x)
 			{
 				if (x == y) continue;
-				const dtNavMesh const &nm = m_navMesh;
+				const dtNavMesh* const &nm = m_navMesh;
 				const dtMeshTile* tile = nm->getTile(x);
 				const dtMeshTile* target = nm->getTile(y);
 				if (!(tile->data) || !(target->data)) continue;
