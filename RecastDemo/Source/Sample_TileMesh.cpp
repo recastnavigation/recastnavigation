@@ -774,8 +774,8 @@ void Sample_TileMesh::buildAllTiles()
 			{
 				if (x == y) continue;
 				const dtNavMesh const &nm = m_navMesh;
-				const dtMeshTile*& tile = nm->getTile(x);
-				const dtMeshTile*& target = nm->getTile(y);
+				const dtMeshTile* tile = nm->getTile(x);
+				const dtMeshTile* target = nm->getTile(y);
 				if (!(tile->data) || !(target->data)) continue;
 				m_navMesh->connectGlobalOffMeshLinks(tile, target);
 			}
