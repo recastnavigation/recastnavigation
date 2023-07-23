@@ -64,8 +64,10 @@ var NAVTREEINDEX2 =
 "RecastAlloc_8h.html#ae3f9da3566ad0877b9e4c9e92f8e1a15":[6,0,64,16],
 "RecastAlloc_8h_source.html":[6,0,64],
 "RecastArea_8cpp.html":[6,0,65],
-"RecastArea_8cpp.html#a1071db3bfc13a7c581093d1f448f5e40":[6,0,65,0],
-"RecastArea_8cpp.html#aec57aa531152be79fa4a68bd4b2782f0":[6,0,65,1],
+"RecastArea_8cpp.html#a1499638887cce3274469f05084c60f5d":[6,0,65,1],
+"RecastArea_8cpp.html#a544f2c39b38253edc9d12e2f6567ae11":[6,0,65,0],
+"RecastArea_8cpp.html#ab84b0a39a5bcd3e4bd1a2d19b015bde9":[6,0,65,9],
+"RecastArea_8cpp.html#ac4b52279afe6cd37e7e3213e62fb1bab":[6,0,65,8],
 "RecastAssert_8cpp.html":[6,0,66],
 "RecastAssert_8cpp.html#a2040287091fff4c9733a932d37f978b7":[6,0,66,2],
 "RecastAssert_8cpp.html#a9fba2f1f45778f706f4478a73ba69e91":[6,0,66,1],
@@ -247,7 +249,5 @@ var NAVTREEINDEX2 =
 "RecastRasterization_8cpp.html#af54026b5ecdfeabb867b7147d8730303":[6,0,77,3],
 "RecastRegion_8cpp.html":[6,0,78],
 "RecastRegion_8cpp.html#a019a1b335b38abce33594128c4806a04":[6,0,78,9],
-"RecastRegion_8cpp.html#a02ba6d0e792550e0ce791fa42ef865d1":[6,0,78,23],
-"RecastRegion_8cpp.html#a25912e8836b3489f54fecd65d850beff":[6,0,78,13],
-"RecastRegion_8cpp.html#a2c802a2c5fc0d5e7e5d95a19539ff9a6":[6,0,78,4]
+"RecastRegion_8cpp.html#a02ba6d0e792550e0ce791fa42ef865d1":[6,0,78,23]
 };

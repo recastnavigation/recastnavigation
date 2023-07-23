@@ -214,24 +214,24 @@ Classes</h2></td></tr>
 <tr class="memitem:ga3dc179b83cb925eb6602cd06123bf038"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__recast.html#ga3dc179b83cb925eb6602cd06123bf038">rcBuildCompactHeightfield</a> (<a class="el" href="classrcContext.html">rcContext</a> *context, int walkableHeight, int walkableClimb, const <a class="el" href="structrcHeightfield.html">rcHeightfield</a> &amp;heightfield, <a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a> &amp;compactHeightfield)</td></tr>
 <tr class="memdesc:ga3dc179b83cb925eb6602cd06123bf038"><td class="mdescLeft">&#160;</td><td class="mdescRight">Builds a compact heightfield representing open space, from a heightfield representing solid space.  <a href="group__recast.html#ga3dc179b83cb925eb6602cd06123bf038">More...</a><br /></td></tr>
 <tr class="separator:ga3dc179b83cb925eb6602cd06123bf038"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga466672bb756c401fbf6dd1e99c920ebb"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__recast.html#ga466672bb756c401fbf6dd1e99c920ebb">rcErodeWalkableArea</a> (<a class="el" href="classrcContext.html">rcContext</a> *ctx, int radius, <a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a> &amp;chf)</td></tr>
-<tr class="memdesc:ga466672bb756c401fbf6dd1e99c920ebb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Erodes the walkable area within the heightfield by the specified radius.  <a href="group__recast.html#ga466672bb756c401fbf6dd1e99c920ebb">More...</a><br /></td></tr>
-<tr class="separator:ga466672bb756c401fbf6dd1e99c920ebb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga793672ade7833e916dd3c0e7a5bd6cc5"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__recast.html#ga793672ade7833e916dd3c0e7a5bd6cc5">rcMedianFilterWalkableArea</a> (<a class="el" href="classrcContext.html">rcContext</a> *ctx, <a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a> &amp;chf)</td></tr>
-<tr class="memdesc:ga793672ade7833e916dd3c0e7a5bd6cc5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Applies a median filter to walkable area types (based on area id), removing noise.  <a href="group__recast.html#ga793672ade7833e916dd3c0e7a5bd6cc5">More...</a><br /></td></tr>
-<tr class="separator:ga793672ade7833e916dd3c0e7a5bd6cc5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga527b4c24537e47bcc472f28965c7b7bf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__recast.html#ga527b4c24537e47bcc472f28965c7b7bf">rcMarkBoxArea</a> (<a class="el" href="classrcContext.html">rcContext</a> *ctx, const float *bmin, const float *bmax, unsigned char areaId, <a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a> &amp;chf)</td></tr>
-<tr class="memdesc:ga527b4c24537e47bcc472f28965c7b7bf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Applies an area id to all spans within the specified bounding box.  <a href="group__recast.html#ga527b4c24537e47bcc472f28965c7b7bf">More...</a><br /></td></tr>
-<tr class="separator:ga527b4c24537e47bcc472f28965c7b7bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga1e8f3c9c2cb664fb2874d01448a1f223"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__recast.html#ga1e8f3c9c2cb664fb2874d01448a1f223">rcMarkConvexPolyArea</a> (<a class="el" href="classrcContext.html">rcContext</a> *ctx, const float *verts, const int nverts, const float hmin, const float hmax, unsigned char areaId, <a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a> &amp;chf)</td></tr>
-<tr class="memdesc:ga1e8f3c9c2cb664fb2874d01448a1f223"><td class="mdescLeft">&#160;</td><td class="mdescRight">Applies the area id to the all spans within the specified convex polygon.  <a href="group__recast.html#ga1e8f3c9c2cb664fb2874d01448a1f223">More...</a><br /></td></tr>
-<tr class="separator:ga1e8f3c9c2cb664fb2874d01448a1f223"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gad71d03bb37c1a16700d57c5f7dff4057"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__recast.html#gad71d03bb37c1a16700d57c5f7dff4057">rcOffsetPoly</a> (const float *verts, const int nverts, const float offset, float *outVerts, const int maxOutVerts)</td></tr>
-<tr class="memdesc:gad71d03bb37c1a16700d57c5f7dff4057"><td class="mdescLeft">&#160;</td><td class="mdescRight">Helper function to offset voncex polygons for rcMarkConvexPolyArea.  <a href="group__recast.html#gad71d03bb37c1a16700d57c5f7dff4057">More...</a><br /></td></tr>
-<tr class="separator:gad71d03bb37c1a16700d57c5f7dff4057"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gac2de1bc06b5804dd4304a90f39829948"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__recast.html#gac2de1bc06b5804dd4304a90f39829948">rcMarkCylinderArea</a> (<a class="el" href="classrcContext.html">rcContext</a> *ctx, const float *pos, const float r, const float h, unsigned char areaId, <a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a> &amp;chf)</td></tr>
-<tr class="memdesc:gac2de1bc06b5804dd4304a90f39829948"><td class="mdescLeft">&#160;</td><td class="mdescRight">Applies the area id to all spans within the specified cylinder.  <a href="group__recast.html#gac2de1bc06b5804dd4304a90f39829948">More...</a><br /></td></tr>
-<tr class="separator:gac2de1bc06b5804dd4304a90f39829948"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaf2bf6010fc80e9b6e8f4c0c1fef7a97f"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__recast.html#gaf2bf6010fc80e9b6e8f4c0c1fef7a97f">rcErodeWalkableArea</a> (<a class="el" href="classrcContext.html">rcContext</a> *context, int erosionRadius, <a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a> &amp;compactHeightfield)</td></tr>
+<tr class="memdesc:gaf2bf6010fc80e9b6e8f4c0c1fef7a97f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Erodes the walkable area within the heightfield by the specified radius.  <a href="group__recast.html#gaf2bf6010fc80e9b6e8f4c0c1fef7a97f">More...</a><br /></td></tr>
+<tr class="separator:gaf2bf6010fc80e9b6e8f4c0c1fef7a97f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga80e89976e7d6388f1a78ad622ef57bdf"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__recast.html#ga80e89976e7d6388f1a78ad622ef57bdf">rcMedianFilterWalkableArea</a> (<a class="el" href="classrcContext.html">rcContext</a> *context, <a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a> &amp;compactHeightfield)</td></tr>
+<tr class="memdesc:ga80e89976e7d6388f1a78ad622ef57bdf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Applies a median filter to walkable area types (based on area id), removing noise.  <a href="group__recast.html#ga80e89976e7d6388f1a78ad622ef57bdf">More...</a><br /></td></tr>
+<tr class="separator:ga80e89976e7d6388f1a78ad622ef57bdf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gab76182beff7fc231b489c414b26e8638"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__recast.html#gab76182beff7fc231b489c414b26e8638">rcMarkBoxArea</a> (<a class="el" href="classrcContext.html">rcContext</a> *context, const float *boxMinBounds, const float *boxMaxBounds, unsigned char areaId, <a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a> &amp;compactHeightfield)</td></tr>
+<tr class="memdesc:gab76182beff7fc231b489c414b26e8638"><td class="mdescLeft">&#160;</td><td class="mdescRight">Applies an area id to all spans within the specified bounding box.  <a href="group__recast.html#gab76182beff7fc231b489c414b26e8638">More...</a><br /></td></tr>
+<tr class="separator:gab76182beff7fc231b489c414b26e8638"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga0dee8037963c1452a25b3835f3e8d902"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__recast.html#ga0dee8037963c1452a25b3835f3e8d902">rcMarkConvexPolyArea</a> (<a class="el" href="classrcContext.html">rcContext</a> *context, const float *verts, int numVerts, float minY, float maxY, unsigned char areaId, <a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a> &amp;compactHeightfield)</td></tr>
+<tr class="memdesc:ga0dee8037963c1452a25b3835f3e8d902"><td class="mdescLeft">&#160;</td><td class="mdescRight">Applies the area id to the all spans within the specified convex polygon.  <a href="group__recast.html#ga0dee8037963c1452a25b3835f3e8d902">More...</a><br /></td></tr>
+<tr class="separator:ga0dee8037963c1452a25b3835f3e8d902"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gafbf610dce5157badc30bd847684a3f9c"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__recast.html#gafbf610dce5157badc30bd847684a3f9c">rcOffsetPoly</a> (const float *verts, int numVerts, float offset, float *outVerts, int maxOutVerts)</td></tr>
+<tr class="memdesc:gafbf610dce5157badc30bd847684a3f9c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Expands a convex polygon along its vertex normals by the given offset amount.  <a href="group__recast.html#gafbf610dce5157badc30bd847684a3f9c">More...</a><br /></td></tr>
+<tr class="separator:gafbf610dce5157badc30bd847684a3f9c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga2c4bba9a06ae30ac063fba1a69a68cd9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__recast.html#ga2c4bba9a06ae30ac063fba1a69a68cd9">rcMarkCylinderArea</a> (<a class="el" href="classrcContext.html">rcContext</a> *context, const float *position, float radius, float height, unsigned char areaId, <a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a> &amp;compactHeightfield)</td></tr>
+<tr class="memdesc:ga2c4bba9a06ae30ac063fba1a69a68cd9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Applies the area id to all spans within the specified y-axis-aligned cylinder.  <a href="group__recast.html#ga2c4bba9a06ae30ac063fba1a69a68cd9">More...</a><br /></td></tr>
+<tr class="separator:ga2c4bba9a06ae30ac063fba1a69a68cd9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga255c830cc0d30fa0229a05033242e77d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__recast.html#ga255c830cc0d30fa0229a05033242e77d">rcBuildDistanceField</a> (<a class="el" href="classrcContext.html">rcContext</a> *ctx, <a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a> &amp;chf)</td></tr>
 <tr class="memdesc:ga255c830cc0d30fa0229a05033242e77d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Builds the distance field for the specified compact heightfield.  <a href="group__recast.html#ga255c830cc0d30fa0229a05033242e77d">More...</a><br /></td></tr>
 <tr class="separator:ga255c830cc0d30fa0229a05033242e77d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1372,8 +1372,8 @@ Classes</h2></td></tr>
 
 </div>
 </div>
-<a id="ga466672bb756c401fbf6dd1e99c920ebb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga466672bb756c401fbf6dd1e99c920ebb">&#9670;&nbsp;</a></span>rcErodeWalkableArea()</h2>
+<a id="gaf2bf6010fc80e9b6e8f4c0c1fef7a97f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaf2bf6010fc80e9b6e8f4c0c1fef7a97f">&#9670;&nbsp;</a></span>rcErodeWalkableArea()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1382,19 +1382,19 @@ Classes</h2></td></tr>
           <td class="memname">bool rcErodeWalkableArea </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classrcContext.html">rcContext</a> *&#160;</td>
-          <td class="paramname"><em>ctx</em>, </td>
+          <td class="paramname"><em>context</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>radius</em>, </td>
+          <td class="paramname"><em>erosionRadius</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a> &amp;&#160;</td>
-          <td class="paramname"><em>chf</em>&#160;</td>
+          <td class="paramname"><em>compactHeightfield</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -1405,19 +1405,18 @@ Classes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Erodes the walkable area within the heightfield by the specified radius. </p>
+<p>Basically, any spans that are closer to a boundary or obstruction than the specified radius are marked as un-walkable.</p>
+<p>This method is usually called immediately after the heightfield has been built.</p>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="structrcCompactHeightfield.html" title="A compact, static heightfield representing unobstructed space.">rcCompactHeightfield</a>, <a class="el" href="group__recast.html#ga3dc179b83cb925eb6602cd06123bf038" title="Builds a compact heightfield representing open space, from a heightfield representing solid space.">rcBuildCompactHeightfield</a>, <a class="el" href="structrcConfig.html#a57a961a919d76559d6124d60ddf73864" title="The distance to erode/shrink the walkable area of the heightfield away from obstructions.">rcConfig::walkableRadius</a></dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">ctx</td><td>The build context to use during the operation. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">radius</td><td>The radius of erosion. [Limits: 0 &lt; value &lt; 255] [Units: vx] </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">chf</td><td>The populated compact heightfield to erode. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">context</td><td>The build context to use during the operation. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">erosionRadius</td><td>The radius of erosion. [Limits: 0 &lt; value &lt; 255] [Units: vx] </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">compactHeightfield</td><td>The populated compact heightfield to erode. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>True if the operation completed successfully.</dd></dl>
-<dl class="section user"><dt></dt><dd></dd></dl>
-<p>Basically, any spans that are closer to a boundary or obstruction than the specified radius are marked as unwalkable.</p>
-<p>This method is usually called immediately after the heightfield has been built.</p>
-<dl class="section see"><dt>See also</dt><dd><a class="el" href="structrcCompactHeightfield.html" title="A compact, static heightfield representing unobstructed space.">rcCompactHeightfield</a>, <a class="el" href="group__recast.html#ga3dc179b83cb925eb6602cd06123bf038" title="Builds a compact heightfield representing open space, from a heightfield representing solid space.">rcBuildCompactHeightfield</a>, <a class="el" href="structrcConfig.html#a57a961a919d76559d6124d60ddf73864" title="The distance to erode/shrink the walkable area of the heightfield away from obstructions.">rcConfig::walkableRadius</a> </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>True if the operation completed successfully. </dd></dl>
 
 </div>
 </div>
@@ -1940,8 +1939,8 @@ Classes</h2></td></tr>
 
 </div>
 </div>
-<a id="ga527b4c24537e47bcc472f28965c7b7bf"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga527b4c24537e47bcc472f28965c7b7bf">&#9670;&nbsp;</a></span>rcMarkBoxArea()</h2>
+<a id="gab76182beff7fc231b489c414b26e8638"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gab76182beff7fc231b489c414b26e8638">&#9670;&nbsp;</a></span>rcMarkBoxArea()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1950,19 +1949,19 @@ Classes</h2></td></tr>
           <td class="memname">void rcMarkBoxArea </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classrcContext.html">rcContext</a> *&#160;</td>
-          <td class="paramname"><em>ctx</em>, </td>
+          <td class="paramname"><em>context</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const float *&#160;</td>
-          <td class="paramname"><em>bmin</em>, </td>
+          <td class="paramname"><em>boxMinBounds</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const float *&#160;</td>
-          <td class="paramname"><em>bmax</em>, </td>
+          <td class="paramname"><em>boxMaxBounds</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -1974,7 +1973,7 @@ Classes</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a> &amp;&#160;</td>
-          <td class="paramname"><em>chf</em>&#160;</td>
+          <td class="paramname"><em>compactHeightfield</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -1986,24 +1985,22 @@ Classes</h2></td></tr>
 
 <p>Applies an area id to all spans within the specified bounding box. </p>
 <p>(AABB)</p>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="structrcCompactHeightfield.html" title="A compact, static heightfield representing unobstructed space.">rcCompactHeightfield</a>, <a class="el" href="group__recast.html#ga80e89976e7d6388f1a78ad622ef57bdf" title="Applies a median filter to walkable area types (based on area id), removing noise.">rcMedianFilterWalkableArea</a></dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">ctx</td><td>The build context to use during the operation. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">bmin</td><td>The minimum of the bounding box. [(x, y, z)] </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">bmax</td><td>The maximum of the bounding box. [(x, y, z)] </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">context</td><td>The build context to use during the operation. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">boxMinBounds</td><td>The minimum extents of the bounding box. [(x, y, z)] [Units: wu] </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">boxMaxBounds</td><td>The maximum extents of the bounding box. [(x, y, z)] [Units: wu] </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">areaId</td><td>The area id to apply. [Limit: &lt;= <a class="el" href="Recast_8h.html#a55c878bf81a2811829c8c5e491be41cb" title="The default area id used to indicate a walkable polygon.">RC_WALKABLE_AREA</a>] </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">chf</td><td>A populated compact heightfield.</td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">compactHeightfield</td><td>A populated compact heightfield. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section user"><dt></dt><dd></dd></dl>
-<p>The value of spacial parameters are in world units.</p>
-<dl class="section see"><dt>See also</dt><dd><a class="el" href="structrcCompactHeightfield.html" title="A compact, static heightfield representing unobstructed space.">rcCompactHeightfield</a>, <a class="el" href="group__recast.html#ga793672ade7833e916dd3c0e7a5bd6cc5" title="Applies a median filter to walkable area types (based on area id), removing noise.">rcMedianFilterWalkableArea</a> </dd></dl>
 
 </div>
 </div>
-<a id="ga1e8f3c9c2cb664fb2874d01448a1f223"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga1e8f3c9c2cb664fb2874d01448a1f223">&#9670;&nbsp;</a></span>rcMarkConvexPolyArea()</h2>
+<a id="ga0dee8037963c1452a25b3835f3e8d902"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga0dee8037963c1452a25b3835f3e8d902">&#9670;&nbsp;</a></span>rcMarkConvexPolyArea()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -2012,7 +2009,7 @@ Classes</h2></td></tr>
           <td class="memname">void rcMarkConvexPolyArea </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classrcContext.html">rcContext</a> *&#160;</td>
-          <td class="paramname"><em>ctx</em>, </td>
+          <td class="paramname"><em>context</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -2023,20 +2020,20 @@ Classes</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const int&#160;</td>
-          <td class="paramname"><em>nverts</em>, </td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>numVerts</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const float&#160;</td>
-          <td class="paramname"><em>hmin</em>, </td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>minY</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const float&#160;</td>
-          <td class="paramname"><em>hmax</em>, </td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>maxY</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -2048,7 +2045,7 @@ Classes</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a> &amp;&#160;</td>
-          <td class="paramname"><em>chf</em>&#160;</td>
+          <td class="paramname"><em>compactHeightfield</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -2059,27 +2056,26 @@ Classes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Applies the area id to the all spans within the specified convex polygon. </p>
+<p>The value of spacial parameters are in world units.</p>
+<p>The y-values of the polygon vertices are ignored. So the polygon is effectively projected onto the xz-plane, translated to <code>minY</code>, and extruded to <code>maxY</code>.</p>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="structrcCompactHeightfield.html" title="A compact, static heightfield representing unobstructed space.">rcCompactHeightfield</a>, <a class="el" href="group__recast.html#ga80e89976e7d6388f1a78ad622ef57bdf" title="Applies a median filter to walkable area types (based on area id), removing noise.">rcMedianFilterWalkableArea</a></dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">ctx</td><td>The build context to use during the operation. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">verts</td><td>The vertices of the polygon [Fomr: (x, y, z) * <code>nverts</code>] </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">nverts</td><td>The number of vertices in the polygon. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">hmin</td><td>The height of the base of the polygon. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">hmax</td><td>The height of the top of the polygon. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">context</td><td>The build context to use during the operation. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">verts</td><td>The vertices of the polygon [For: (x, y, z) * <code>numVerts</code>] </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">numVerts</td><td>The number of vertices in the polygon. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">minY</td><td>The height of the base of the polygon. [Units: wu] </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">maxY</td><td>The height of the top of the polygon. [Units: wu] </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">areaId</td><td>The area id to apply. [Limit: &lt;= <a class="el" href="Recast_8h.html#a55c878bf81a2811829c8c5e491be41cb" title="The default area id used to indicate a walkable polygon.">RC_WALKABLE_AREA</a>] </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">chf</td><td>A populated compact heightfield.</td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">compactHeightfield</td><td>A populated compact heightfield. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section user"><dt></dt><dd></dd></dl>
-<p>The value of spacial parameters are in world units.</p>
-<p>The y-values of the polygon vertices are ignored. So the polygon is effectively projected onto the xz-plane at <code>hmin</code>, then extruded to <code>hmax</code>.</p>
-<dl class="section see"><dt>See also</dt><dd><a class="el" href="structrcCompactHeightfield.html" title="A compact, static heightfield representing unobstructed space.">rcCompactHeightfield</a>, <a class="el" href="group__recast.html#ga793672ade7833e916dd3c0e7a5bd6cc5" title="Applies a median filter to walkable area types (based on area id), removing noise.">rcMedianFilterWalkableArea</a> </dd></dl>
 
 </div>
 </div>
-<a id="gac2de1bc06b5804dd4304a90f39829948"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gac2de1bc06b5804dd4304a90f39829948">&#9670;&nbsp;</a></span>rcMarkCylinderArea()</h2>
+<a id="ga2c4bba9a06ae30ac063fba1a69a68cd9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga2c4bba9a06ae30ac063fba1a69a68cd9">&#9670;&nbsp;</a></span>rcMarkCylinderArea()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -2088,25 +2084,25 @@ Classes</h2></td></tr>
           <td class="memname">void rcMarkCylinderArea </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classrcContext.html">rcContext</a> *&#160;</td>
-          <td class="paramname"><em>ctx</em>, </td>
+          <td class="paramname"><em>context</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const float *&#160;</td>
-          <td class="paramname"><em>pos</em>, </td>
+          <td class="paramname"><em>position</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const float&#160;</td>
-          <td class="paramname"><em>r</em>, </td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>radius</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const float&#160;</td>
-          <td class="paramname"><em>h</em>, </td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>height</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -2118,7 +2114,7 @@ Classes</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a> &amp;&#160;</td>
-          <td class="paramname"><em>chf</em>&#160;</td>
+          <td class="paramname"><em>compactHeightfield</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -2128,21 +2124,19 @@ Classes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Applies the area id to all spans within the specified cylinder. </p>
+<p>Applies the area id to all spans within the specified y-axis-aligned cylinder. </p>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="structrcCompactHeightfield.html" title="A compact, static heightfield representing unobstructed space.">rcCompactHeightfield</a>, <a class="el" href="group__recast.html#ga80e89976e7d6388f1a78ad622ef57bdf" title="Applies a median filter to walkable area types (based on area id), removing noise.">rcMedianFilterWalkableArea</a></dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">ctx</td><td>The build context to use during the operation. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">pos</td><td>The center of the base of the cylinder. [Form: (x, y, z)] </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">r</td><td>The radius of the cylinder. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">h</td><td>The height of the cylinder. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">context</td><td>The build context to use during the operation. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">position</td><td>The center of the base of the cylinder. [Form: (x, y, z)] [Units: wu] </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">radius</td><td>The radius of the cylinder. [Units: wu] [Limit: &gt; 0] </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">height</td><td>The height of the cylinder. [Units: wu] [Limit: &gt; 0] </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">areaId</td><td>The area id to apply. [Limit: &lt;= <a class="el" href="Recast_8h.html#a55c878bf81a2811829c8c5e491be41cb" title="The default area id used to indicate a walkable polygon.">RC_WALKABLE_AREA</a>] </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">chf</td><td>A populated compact heightfield.</td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">compactHeightfield</td><td>A populated compact heightfield. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section user"><dt></dt><dd></dd></dl>
-<p>The value of spacial parameters are in world units.</p>
-<dl class="section see"><dt>See also</dt><dd><a class="el" href="structrcCompactHeightfield.html" title="A compact, static heightfield representing unobstructed space.">rcCompactHeightfield</a>, <a class="el" href="group__recast.html#ga793672ade7833e916dd3c0e7a5bd6cc5" title="Applies a median filter to walkable area types (based on area id), removing noise.">rcMedianFilterWalkableArea</a> </dd></dl>
 
 </div>
 </div>
@@ -2221,8 +2215,8 @@ Classes</h2></td></tr>
 
 </div>
 </div>
-<a id="ga793672ade7833e916dd3c0e7a5bd6cc5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga793672ade7833e916dd3c0e7a5bd6cc5">&#9670;&nbsp;</a></span>rcMedianFilterWalkableArea()</h2>
+<a id="ga80e89976e7d6388f1a78ad622ef57bdf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga80e89976e7d6388f1a78ad622ef57bdf">&#9670;&nbsp;</a></span>rcMedianFilterWalkableArea()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -2231,13 +2225,13 @@ Classes</h2></td></tr>
           <td class="memname">bool rcMedianFilterWalkableArea </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classrcContext.html">rcContext</a> *&#160;</td>
-          <td class="paramname"><em>ctx</em>, </td>
+          <td class="paramname"><em>context</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a> &amp;&#160;</td>
-          <td class="paramname"><em>chf</em>&#160;</td>
+          <td class="paramname"><em>compactHeightfield</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -2248,17 +2242,16 @@ Classes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Applies a median filter to walkable area types (based on area id), removing noise. </p>
+<p>This filter is usually applied after applying area id's using functions such as <a class="el" href="group__recast.html#gab76182beff7fc231b489c414b26e8638" title="Applies an area id to all spans within the specified bounding box.">rcMarkBoxArea</a>, <a class="el" href="group__recast.html#ga0dee8037963c1452a25b3835f3e8d902" title="Applies the area id to the all spans within the specified convex polygon.">rcMarkConvexPolyArea</a>, and <a class="el" href="group__recast.html#ga2c4bba9a06ae30ac063fba1a69a68cd9" title="Applies the area id to all spans within the specified y-axis-aligned cylinder.">rcMarkCylinderArea</a>.</p>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="structrcCompactHeightfield.html" title="A compact, static heightfield representing unobstructed space.">rcCompactHeightfield</a></dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">ctx</td><td>The build context to use during the operation. </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">chf</td><td>A populated compact heightfield. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">context</td><td>The build context to use during the operation. </td></tr>
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">compactHeightfield</td><td>A populated compact heightfield. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>True if the operation completed successfully.</dd></dl>
-<dl class="section user"><dt></dt><dd></dd></dl>
-<p>This filter is usually applied after applying area id's using functions such as <a class="el" href="group__recast.html#ga527b4c24537e47bcc472f28965c7b7bf" title="Applies an area id to all spans within the specified bounding box.">rcMarkBoxArea</a>, <a class="el" href="group__recast.html#ga1e8f3c9c2cb664fb2874d01448a1f223" title="Applies the area id to the all spans within the specified convex polygon.">rcMarkConvexPolyArea</a>, and <a class="el" href="group__recast.html#gac2de1bc06b5804dd4304a90f39829948" title="Applies the area id to all spans within the specified cylinder.">rcMarkCylinderArea</a>.</p>
-<dl class="section see"><dt>See also</dt><dd><a class="el" href="structrcCompactHeightfield.html" title="A compact, static heightfield representing unobstructed space.">rcCompactHeightfield</a> </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>True if the operation completed successfully. </dd></dl>
 
 </div>
 </div>
@@ -2368,8 +2361,8 @@ Classes</h2></td></tr>
 
 </div>
 </div>
-<a id="gad71d03bb37c1a16700d57c5f7dff4057"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gad71d03bb37c1a16700d57c5f7dff4057">&#9670;&nbsp;</a></span>rcOffsetPoly()</h2>
+<a id="gafbf610dce5157badc30bd847684a3f9c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gafbf610dce5157badc30bd847684a3f9c">&#9670;&nbsp;</a></span>rcOffsetPoly()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -2383,13 +2376,13 @@ Classes</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const int&#160;</td>
-          <td class="paramname"><em>nverts</em>, </td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>numVerts</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const float&#160;</td>
+          <td class="paramtype">float&#160;</td>
           <td class="paramname"><em>offset</em>, </td>
         </tr>
         <tr>
@@ -2401,7 +2394,7 @@ Classes</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const int&#160;</td>
+          <td class="paramtype">int&#160;</td>
           <td class="paramname"><em>maxOutVerts</em>&#160;</td>
         </tr>
         <tr>
@@ -2412,13 +2405,15 @@ Classes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Helper function to offset voncex polygons for rcMarkConvexPolyArea. </p>
+<p>Expands a convex polygon along its vertex normals by the given offset amount. </p>
+<p>Inserts extra vertices to bevel sharp corners.</p>
+<p>Helper function to offset convex polygons for rcMarkConvexPolyArea.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">verts</td><td>The vertices of the polygon [Form: (x, y, z) * <code>nverts</code>] </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">nverts</td><td>The number of vertices in the polygon. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">verts</td><td>The vertices of the polygon [Form: (x, y, z) * <code>numVerts</code>] </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">numVerts</td><td>The number of vertices in the polygon. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">offset</td><td>How much to offset the polygon by. [Units: wu] </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">outVerts</td><td>The offset vertices (should hold up to 2 * <code>nverts</code>) [Form: (x, y, z) * return value] </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">outVerts</td><td>The offset vertices (should hold up to 2 * <code>numVerts</code>) [Form: (x, y, z) * return value] </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">maxOutVerts</td><td>The max number of vertices that can be stored to <code>outVerts</code>. </td></tr>
   </table>
   </dd>
