@@ -38,7 +38,7 @@ jobs:
 
     - name: Run unit tests
       working-directory: RecastDemo/Bin
-      run: ./Tests
+      run: ./Tests --verbosity high --success
   
   linux-tests:
     runs-on: ubuntu-latest
@@ -68,7 +68,7 @@ jobs:
     
     - name: Run Tests
       working-directory: RecastDemo/Bin
-      run: ./Tests
+      run: ./Tests --verbosity high --success
   
   windows-tests:
     runs-on: windows-2022
@@ -106,4 +106,4 @@ jobs:
 
     - name: Run Tests
       working-directory: RecastDemo/Bin/
-      run: ./Tests.exe
+      run: ./Tests.exe --verbosity high --success
