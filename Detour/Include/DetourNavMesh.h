@@ -171,7 +171,7 @@ struct dtPoly
 	unsigned char vertCount;
 
 	/// The bit packed area id and polygon type.
-	/// @note Use the structure's set and get methods to acess this value.
+	/// @note Use the structure's set and get methods to access this value.
 	unsigned char areaAndtype;
 
 	/// Sets the user defined area id. [Limit: < #DT_MAX_AREAS]
