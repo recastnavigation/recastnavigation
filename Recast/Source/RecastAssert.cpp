@@ -18,7 +18,7 @@
 
 #include "RecastAssert.h"
 
-#ifndef NDEBUG
+#ifndef RC_DISABLE_ASSERTS
 
 static rcAssertFailFunc* sRecastAssertFailFunc = 0;
 

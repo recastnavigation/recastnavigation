@@ -19,7 +19,7 @@
 #ifndef RECASTASSERT_H
 #define RECASTASSERT_H
 
-#ifdef NDEBUG
+#ifdef RC_DISABLE_ASSERTS
 
 // From https://web.archive.org/web/20210117002833/http://cnicholson.net/2009/02/stupid-c-tricks-adventures-in-assert/
 #	define rcAssert(x) do { (void)sizeof(x); } while ((void)(__LINE__==-1), false)
