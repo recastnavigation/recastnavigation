@@ -28,7 +28,7 @@ workspace "recastnavigation"
  
  	-- release configs
 	filter "configurations:Release"
-		defines { "NDEBUG" }
+		defines { "RC_DISABLE_ASSERTS" }
 		optimize "On"
 		targetdir ( todir .. "/lib/Release" )
 

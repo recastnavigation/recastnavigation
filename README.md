@@ -66,15 +66,7 @@ RecastDemo uses [premake5](http://premake.github.io/) to build platform specific
 
 ## Integrating with your game or engine
 
-It is recommended to add the source directories `DebugUtils`, `Detour`, `DetourCrowd`, `DetourTileCache`, and `Recast` into your own project depending on which parts of the project you need. For example your level building tool could include `DebugUtils`, `Recast`, and `Detour`, and your game runtime could just include `Detour`.
-
-### Install through vcpkg
-
-If you are using the [vcpkg](https://github.com/Microsoft/vcpkg/) dependency manager you can download and install Recast with:
-
-```
-vcpkg install recast
-```
+See [Integration.md](Integration.md)
 
 ## Contribute
 
