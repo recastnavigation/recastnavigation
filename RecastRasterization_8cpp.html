@@ -92,7 +92,6 @@ $(document).ready(function(){initNavTree('RecastRasterization_8cpp.html',''); in
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><code>#include &lt;math.h&gt;</code><br />
-<code>#include &lt;stdio.h&gt;</code><br />
 <code>#include &quot;<a class="el" href="Recast_8h_source.html">Recast.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="RecastAlloc_8h_source.html">RecastAlloc.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="RecastAssert_8h_source.html">RecastAssert.h</a>&quot;</code><br />
@@ -110,24 +109,24 @@ Functions</h2></td></tr>
 <tr class="memitem:ad16e8ad5fc4ebec8d71d58217215ff60"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="RecastRasterization_8cpp.html#ad16e8ad5fc4ebec8d71d58217215ff60">overlapBounds</a> (const float *aMin, const float *aMax, const float *bMin, const float *bMax)</td></tr>
 <tr class="memdesc:ad16e8ad5fc4ebec8d71d58217215ff60"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check whether two bounding boxes overlap.  <a href="RecastRasterization_8cpp.html#ad16e8ad5fc4ebec8d71d58217215ff60">More...</a><br /></td></tr>
 <tr class="separator:ad16e8ad5fc4ebec8d71d58217215ff60"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa11b8335cd3e2dfd39972a4e9046467c"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structrcSpan.html">rcSpan</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="RecastRasterization_8cpp.html#aa11b8335cd3e2dfd39972a4e9046467c">allocSpan</a> (<a class="el" href="structrcHeightfield.html">rcHeightfield</a> &amp;hf)</td></tr>
-<tr class="memdesc:aa11b8335cd3e2dfd39972a4e9046467c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocates a new span in the heightfield.  <a href="RecastRasterization_8cpp.html#aa11b8335cd3e2dfd39972a4e9046467c">More...</a><br /></td></tr>
-<tr class="separator:aa11b8335cd3e2dfd39972a4e9046467c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a37457137923a03210b6e72b0c091225c"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="RecastRasterization_8cpp.html#a37457137923a03210b6e72b0c091225c">freeSpan</a> (<a class="el" href="structrcHeightfield.html">rcHeightfield</a> &amp;hf, <a class="el" href="structrcSpan.html">rcSpan</a> *span)</td></tr>
-<tr class="memdesc:a37457137923a03210b6e72b0c091225c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Releases the memory used by the span back to the heightfield, so it can be re-used for new spans.  <a href="RecastRasterization_8cpp.html#a37457137923a03210b6e72b0c091225c">More...</a><br /></td></tr>
-<tr class="separator:a37457137923a03210b6e72b0c091225c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a99ae97dd732c3528b730ba714afa9098"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="RecastRasterization_8cpp.html#a99ae97dd732c3528b730ba714afa9098">addSpan</a> (<a class="el" href="structrcHeightfield.html">rcHeightfield</a> &amp;hf, const int x, const int z, const unsigned short min, const unsigned short max, const unsigned char areaID, const int flagMergeThreshold)</td></tr>
-<tr class="memdesc:a99ae97dd732c3528b730ba714afa9098"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds a span to the heightfield.  <a href="RecastRasterization_8cpp.html#a99ae97dd732c3528b730ba714afa9098">More...</a><br /></td></tr>
-<tr class="separator:a99ae97dd732c3528b730ba714afa9098"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a184c1116c5c370cb0b1fe76974a26940"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structrcSpan.html">rcSpan</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="RecastRasterization_8cpp.html#a184c1116c5c370cb0b1fe76974a26940">allocSpan</a> (<a class="el" href="structrcHeightfield.html">rcHeightfield</a> &amp;heightfield)</td></tr>
+<tr class="memdesc:a184c1116c5c370cb0b1fe76974a26940"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocates a new span in the heightfield.  <a href="RecastRasterization_8cpp.html#a184c1116c5c370cb0b1fe76974a26940">More...</a><br /></td></tr>
+<tr class="separator:a184c1116c5c370cb0b1fe76974a26940"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a173b706a0029e34cb5ff8dd702918527"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="RecastRasterization_8cpp.html#a173b706a0029e34cb5ff8dd702918527">freeSpan</a> (<a class="el" href="structrcHeightfield.html">rcHeightfield</a> &amp;heightfield, <a class="el" href="structrcSpan.html">rcSpan</a> *span)</td></tr>
+<tr class="memdesc:a173b706a0029e34cb5ff8dd702918527"><td class="mdescLeft">&#160;</td><td class="mdescRight">Releases the memory used by the span back to the heightfield, so it can be re-used for new spans.  <a href="RecastRasterization_8cpp.html#a173b706a0029e34cb5ff8dd702918527">More...</a><br /></td></tr>
+<tr class="separator:a173b706a0029e34cb5ff8dd702918527"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa4ff34a2ddb3783399f347167e294fb3"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="RecastRasterization_8cpp.html#aa4ff34a2ddb3783399f347167e294fb3">addSpan</a> (<a class="el" href="structrcHeightfield.html">rcHeightfield</a> &amp;heightfield, const int x, const int z, const unsigned short min, const unsigned short max, const unsigned char areaID, const int flagMergeThreshold)</td></tr>
+<tr class="memdesc:aa4ff34a2ddb3783399f347167e294fb3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds a span to the heightfield.  <a href="RecastRasterization_8cpp.html#aa4ff34a2ddb3783399f347167e294fb3">More...</a><br /></td></tr>
+<tr class="separator:aa4ff34a2ddb3783399f347167e294fb3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga86f63cef2e174a1f4cb050767090beeb"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__recast.html#ga86f63cef2e174a1f4cb050767090beeb">rcAddSpan</a> (<a class="el" href="classrcContext.html">rcContext</a> *context, <a class="el" href="structrcHeightfield.html">rcHeightfield</a> &amp;heightfield, const int x, const int z, const unsigned short spanMin, const unsigned short spanMax, const unsigned char areaID, const int flagMergeThreshold)</td></tr>
 <tr class="memdesc:ga86f63cef2e174a1f4cb050767090beeb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds a span to the specified heightfield.  <a href="group__recast.html#ga86f63cef2e174a1f4cb050767090beeb">More...</a><br /></td></tr>
 <tr class="separator:ga86f63cef2e174a1f4cb050767090beeb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af54026b5ecdfeabb867b7147d8730303"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="RecastRasterization_8cpp.html#af54026b5ecdfeabb867b7147d8730303">dividePoly</a> (const float *inVerts, int inVertsCount, float *outVerts1, int *outVerts1Count, float *outVerts2, int *outVerts2Count, float axisOffset, <a class="el" href="RecastRasterization_8cpp.html#a62b583caa984b1e6c218932f3218789b">rcAxis</a> axis)</td></tr>
 <tr class="memdesc:af54026b5ecdfeabb867b7147d8730303"><td class="mdescLeft">&#160;</td><td class="mdescRight">Divides a convex polygon of max 12 vertices into two convex polygons across a separating axis.  <a href="RecastRasterization_8cpp.html#af54026b5ecdfeabb867b7147d8730303">More...</a><br /></td></tr>
 <tr class="separator:af54026b5ecdfeabb867b7147d8730303"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a48cc2a033f9552494a06236a5d66326b"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="RecastRasterization_8cpp.html#a48cc2a033f9552494a06236a5d66326b">rasterizeTri</a> (const float *v0, const float *v1, const float *v2, const unsigned char areaID, <a class="el" href="structrcHeightfield.html">rcHeightfield</a> &amp;hf, const float *hfBBMin, const float *hfBBMax, const float cellSize, const float inverseCellSize, const float inverseCellHeight, const int flagMergeThreshold)</td></tr>
-<tr class="memdesc:a48cc2a033f9552494a06236a5d66326b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Rasterize a single triangle to the heightfield.  <a href="RecastRasterization_8cpp.html#a48cc2a033f9552494a06236a5d66326b">More...</a><br /></td></tr>
-<tr class="separator:a48cc2a033f9552494a06236a5d66326b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a395fca228305f4ce5e001277d6e11ed7"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="RecastRasterization_8cpp.html#a395fca228305f4ce5e001277d6e11ed7">rasterizeTri</a> (const float *v0, const float *v1, const float *v2, const unsigned char areaID, <a class="el" href="structrcHeightfield.html">rcHeightfield</a> &amp;heightfield, const float *heightfieldBBMin, const float *heightfieldBBMax, const float cellSize, const float inverseCellSize, const float inverseCellHeight, const int flagMergeThreshold)</td></tr>
+<tr class="memdesc:a395fca228305f4ce5e001277d6e11ed7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Rasterize a single triangle to the heightfield.  <a href="RecastRasterization_8cpp.html#a395fca228305f4ce5e001277d6e11ed7">More...</a><br /></td></tr>
+<tr class="separator:a395fca228305f4ce5e001277d6e11ed7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga23a98560fac96a1d2eb9f01c6617e927"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__recast.html#ga23a98560fac96a1d2eb9f01c6617e927">rcRasterizeTriangle</a> (<a class="el" href="classrcContext.html">rcContext</a> *context, const float *v0, const float *v1, const float *v2, const unsigned char areaID, <a class="el" href="structrcHeightfield.html">rcHeightfield</a> &amp;heightfield, const int flagMergeThreshold)</td></tr>
 <tr class="memdesc:ga23a98560fac96a1d2eb9f01c6617e927"><td class="mdescLeft">&#160;</td><td class="mdescRight">Rasterizes a single triangle into the specified heightfield.  <a href="group__recast.html#ga23a98560fac96a1d2eb9f01c6617e927">More...</a><br /></td></tr>
 <tr class="separator:ga23a98560fac96a1d2eb9f01c6617e927"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -162,8 +161,8 @@ Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="a99ae97dd732c3528b730ba714afa9098"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a99ae97dd732c3528b730ba714afa9098">&#9670;&nbsp;</a></span>addSpan()</h2>
+<a id="aa4ff34a2ddb3783399f347167e294fb3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa4ff34a2ddb3783399f347167e294fb3">&#9670;&nbsp;</a></span>addSpan()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -175,7 +174,7 @@ Functions</h2></td></tr>
           <td class="memname">static bool addSpan </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="structrcHeightfield.html">rcHeightfield</a> &amp;&#160;</td>
-          <td class="paramname"><em>hf</em>, </td>
+          <td class="paramname"><em>heightfield</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -230,7 +229,7 @@ Functions</h2></td></tr>
 <p>If the new span overlaps existing spans, it will merge the new span with the existing ones.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">hf</td><td>Heightfield to add spans to </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">heightfield</td><td>Heightfield to add spans to </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">x</td><td>The new span's column cell x index </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">z</td><td>The new span's column cell z index </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">min</td><td>The new span's minimum cell index </td></tr>
@@ -243,8 +242,8 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="aa11b8335cd3e2dfd39972a4e9046467c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa11b8335cd3e2dfd39972a4e9046467c">&#9670;&nbsp;</a></span>allocSpan()</h2>
+<a id="a184c1116c5c370cb0b1fe76974a26940"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a184c1116c5c370cb0b1fe76974a26940">&#9670;&nbsp;</a></span>allocSpan()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -256,7 +255,7 @@ Functions</h2></td></tr>
           <td class="memname">static <a class="el" href="structrcSpan.html">rcSpan</a>* allocSpan </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="structrcHeightfield.html">rcHeightfield</a> &amp;&#160;</td>
-          <td class="paramname"><em>hf</em></td><td>)</td>
+          <td class="paramname"><em>heightfield</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -271,7 +270,7 @@ Functions</h2></td></tr>
 <p>Use a memory pool and free list to minimize actual allocations.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">hf</td><td>The heightfield </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">heightfield</td><td>The heightfield </td></tr>
   </table>
   </dd>
 </dl>
@@ -367,8 +366,8 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a37457137923a03210b6e72b0c091225c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a37457137923a03210b6e72b0c091225c">&#9670;&nbsp;</a></span>freeSpan()</h2>
+<a id="a173b706a0029e34cb5ff8dd702918527"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a173b706a0029e34cb5ff8dd702918527">&#9670;&nbsp;</a></span>freeSpan()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -380,7 +379,7 @@ Functions</h2></td></tr>
           <td class="memname">static void freeSpan </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="structrcHeightfield.html">rcHeightfield</a> &amp;&#160;</td>
-          <td class="paramname"><em>hf</em>, </td>
+          <td class="paramname"><em>heightfield</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -404,7 +403,7 @@ Functions</h2></td></tr>
 <p>Releases the memory used by the span back to the heightfield, so it can be re-used for new spans. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">hf</td><td>The heightfield. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">heightfield</td><td>The heightfield. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">span</td><td>A pointer to the span to free </td></tr>
   </table>
   </dd>
@@ -472,8 +471,8 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a48cc2a033f9552494a06236a5d66326b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a48cc2a033f9552494a06236a5d66326b">&#9670;&nbsp;</a></span>rasterizeTri()</h2>
+<a id="a395fca228305f4ce5e001277d6e11ed7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a395fca228305f4ce5e001277d6e11ed7">&#9670;&nbsp;</a></span>rasterizeTri()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -509,19 +508,19 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="structrcHeightfield.html">rcHeightfield</a> &amp;&#160;</td>
-          <td class="paramname"><em>hf</em>, </td>
+          <td class="paramname"><em>heightfield</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const float *&#160;</td>
-          <td class="paramname"><em>hfBBMin</em>, </td>
+          <td class="paramname"><em>heightfieldBBMin</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const float *&#160;</td>
-          <td class="paramname"><em>hfBBMax</em>, </td>
+          <td class="paramname"><em>heightfieldBBMax</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -568,9 +567,9 @@ Functions</h2></td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">v1</td><td>Triangle vertex 1 </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">v2</td><td>Triangle vertex 2 </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">areaID</td><td>The area ID to assign to the rasterized spans </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">hf</td><td>Heightfield to rasterize into </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">hfBBMin</td><td>The min extents of the heightfield bounding box </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">hfBBMax</td><td>The max extents of the heightfield bounding box </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">heightfield</td><td>Heightfield to rasterize into </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">heightfieldBBMin</td><td>The min extents of the heightfield bounding box </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">heightfieldBBMax</td><td>The max extents of the heightfield bounding box </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">cellSize</td><td>The x and z axis size of a voxel in the heightfield </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">inverseCellSize</td><td>1 / cellSize </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">inverseCellHeight</td><td>1 / cellHeight </td></tr>
