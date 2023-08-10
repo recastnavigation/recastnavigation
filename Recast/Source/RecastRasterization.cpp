@@ -17,7 +17,6 @@
 //
 
 #include <math.h>
-#include <stdio.h>
 #include "Recast.h"
 #include "RecastAlloc.h"
 #include "RecastAssert.h"
@@ -40,12 +39,12 @@ static bool overlapBounds(const float* aMin, const float* aMax, const float* bMi
 /// Allocates a new span in the heightfield.
 /// Use a memory pool and free list to minimize actual allocations.
 /// 
-/// @param[in]	hf		The heightfield
+/// @param[in]	heightfield		The heightfield
 /// @returns A pointer to the allocated or re-used span memory. 
-static rcSpan* allocSpan(rcHeightfield& hf)
+static rcSpan* allocSpan(rcHeightfield& heightfield)
 {
 	// If necessary, allocate new page and update the freelist.
-	if (hf.freelist == NULL || hf.freelist->next == NULL)
+	if (heightfield.freelist == NULL || heightfield.freelist->next == NULL)
 	{
 		// Create new page.
 		// Allocate memory for the new pool.
@@ -56,11 +55,11 @@ static rcSpan* allocSpan(rcHeightfield& hf)
 		}
 
 		// Add the pool into the list of pools.
-		spanPool->next = hf.pools;
-		hf.pools = spanPool;
+		spanPool->next = heightfield.pools;
+		heightfield.pools = spanPool;
 		
 		// Add new spans to the free list.
-		rcSpan* freeList = hf.freelist;
+		rcSpan* freeList = heightfield.freelist;
 		rcSpan* head = &spanPool->items[0];
 		rcSpan* it = &spanPool->items[RC_SPANS_PER_POOL];
 		do
@@ -70,46 +69,46 @@ static rcSpan* allocSpan(rcHeightfield& hf)
 			freeList = it;
 		}
 		while (it != head);
-		hf.freelist = it;
+		heightfield.freelist = it;
 	}
 
 	// Pop item from the front of the free list.
-	rcSpan* newSpan = hf.freelist;
-	hf.freelist = hf.freelist->next;
+	rcSpan* newSpan = heightfield.freelist;
+	heightfield.freelist = heightfield.freelist->next;
 	return newSpan;
 }
 
 /// Releases the memory used by the span back to the heightfield, so it can be re-used for new spans.
-/// @param[in]	hf		The heightfield.
+/// @param[in]	heightfield		The heightfield.
 /// @param[in]	span	A pointer to the span to free
-static void freeSpan(rcHeightfield& hf, rcSpan* span)
+static void freeSpan(rcHeightfield& heightfield, rcSpan* span)
 {
 	if (span == NULL)
 	{
 		return;
 	}
 	// Add the span to the front of the free list.
-	span->next = hf.freelist;
-	hf.freelist = span;
+	span->next = heightfield.freelist;
+	heightfield.freelist = span;
 }
 
 /// Adds a span to the heightfield.  If the new span overlaps existing spans,
 /// it will merge the new span with the existing ones.
 ///
-/// @param[in]	hf					Heightfield to add spans to
+/// @param[in]	heightfield					Heightfield to add spans to
 /// @param[in]	x					The new span's column cell x index
 /// @param[in]	z					The new span's column cell z index
 /// @param[in]	min					The new span's minimum cell index
 /// @param[in]	max					The new span's maximum cell index
 /// @param[in]	areaID				The new span's area type ID
 /// @param[in]	flagMergeThreshold	How close two spans maximum extents need to be to merge area type IDs
-static bool addSpan(rcHeightfield& hf,
+static bool addSpan(rcHeightfield& heightfield,
                     const int x, const int z,
                     const unsigned short min, const unsigned short max,
                     const unsigned char areaID, const int flagMergeThreshold)
 {
 	// Create the new span.
-	rcSpan* newSpan = allocSpan(hf);
+	rcSpan* newSpan = allocSpan(heightfield);
 	if (newSpan == NULL)
 	{
 		return false;
@@ -119,9 +118,9 @@ static bool addSpan(rcHeightfield& hf,
 	newSpan->area = areaID;
 	newSpan->next = NULL;
 	
-	const int columnIndex = x + z * hf.width;
+	const int columnIndex = x + z * heightfield.width;
 	rcSpan* previousSpan = NULL;
-	rcSpan* currentSpan = hf.spans[columnIndex];
+	rcSpan* currentSpan = heightfield.spans[columnIndex];
 	
 	// Insert the new span, possibly merging it with existing spans.
 	while (currentSpan != NULL)
@@ -160,14 +159,14 @@ static bool addSpan(rcHeightfield& hf,
 			// Remove the current span since it's now merged with newSpan.
 			// Keep going because there might be other overlapping spans that also need to be merged.
 			rcSpan* next = currentSpan->next;
-			freeSpan(hf, currentSpan);
+			freeSpan(heightfield, currentSpan);
 			if (previousSpan)
 			{
 				previousSpan->next = next;
 			}
 			else
 			{
-				hf.spans[columnIndex] = next;
+				heightfield.spans[columnIndex] = next;
 			}
 			currentSpan = next;
 		}
@@ -182,8 +181,8 @@ static bool addSpan(rcHeightfield& hf,
 	else
 	{
 		// This span should go before the others in the list
-		newSpan->next = hf.spans[columnIndex];
-		hf.spans[columnIndex] = newSpan;
+		newSpan->next = heightfield.spans[columnIndex];
+		heightfield.spans[columnIndex] = newSpan;
 	}
 
 	return true;
@@ -296,17 +295,17 @@ static void dividePoly(const float* inVerts, int inVertsCount,
 /// @param[in] 	v1					Triangle vertex 1
 /// @param[in] 	v2					Triangle vertex 2
 /// @param[in] 	areaID				The area ID to assign to the rasterized spans
-/// @param[in] 	hf					Heightfield to rasterize into
-/// @param[in] 	hfBBMin				The min extents of the heightfield bounding box
-/// @param[in] 	hfBBMax				The max extents of the heightfield bounding box
+/// @param[in] 	heightfield			Heightfield to rasterize into
+/// @param[in] 	heightfieldBBMin	The min extents of the heightfield bounding box
+/// @param[in] 	heightfieldBBMax	The max extents of the heightfield bounding box
 /// @param[in] 	cellSize			The x and z axis size of a voxel in the heightfield
 /// @param[in] 	inverseCellSize		1 / cellSize
 /// @param[in] 	inverseCellHeight	1 / cellHeight
 /// @param[in] 	flagMergeThreshold	The threshold in which area flags will be merged 
 /// @returns true if the operation completes successfully.  false if there was an error adding spans to the heightfield.
 static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
-                         const unsigned char areaID, rcHeightfield& hf,
-                         const float* hfBBMin, const float* hfBBMax,
+                         const unsigned char areaID, rcHeightfield& heightfield,
+                         const float* heightfieldBBMin, const float* heightfieldBBMax,
                          const float cellSize, const float inverseCellSize, const float inverseCellHeight,
                          const int flagMergeThreshold)
 {
@@ -322,18 +321,18 @@ static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
 	rcVmax(triBBMax, v2);
 
 	// If the triangle does not touch the bounding box of the heightfield, skip the triangle.
-	if (!overlapBounds(triBBMin, triBBMax, hfBBMin, hfBBMax))
+	if (!overlapBounds(triBBMin, triBBMax, heightfieldBBMin, heightfieldBBMax))
 	{
 		return true;
 	}
 
-	const int w = hf.width;
-	const int h = hf.height;
-	const float by = hfBBMax[1] - hfBBMin[1];
+	const int w = heightfield.width;
+	const int h = heightfield.height;
+	const float by = heightfieldBBMax[1] - heightfieldBBMin[1];
 
 	// Calculate the footprint of the triangle on the grid's z-axis
-	int z0 = (int)((triBBMin[2] - hfBBMin[2]) * inverseCellSize);
-	int z1 = (int)((triBBMax[2] - hfBBMin[2]) * inverseCellSize);
+	int z0 = (int)((triBBMin[2] - heightfieldBBMin[2]) * inverseCellSize);
+	int z1 = (int)((triBBMax[2] - heightfieldBBMin[2]) * inverseCellSize);
 
 	// use -1 rather than 0 to cut the polygon properly at the start of the tile
 	z0 = rcClamp(z0, -1, h - 1);
@@ -355,7 +354,7 @@ static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
 	for (int z = z0; z <= z1; ++z)
 	{
 		// Clip polygon to row. Store the remaining polygon as well
-		const float cellZ = hfBBMin[2] + (float)z * cellSize;
+		const float cellZ = heightfieldBBMin[2] + (float)z * cellSize;
 		dividePoly(in, nvIn, inRow, &nvRow, p1, &nvIn, cellZ + cellSize, RC_AXIS_Z);
 		rcSwap(in, p1);
 		
@@ -382,8 +381,8 @@ static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
 				maxX = inRow[vert * 3];
 			}
 		}
-		int x0 = (int)((minX - hfBBMin[0]) * inverseCellSize);
-		int x1 = (int)((maxX - hfBBMin[0]) * inverseCellSize);
+		int x0 = (int)((minX - heightfieldBBMin[0]) * inverseCellSize);
+		int x1 = (int)((maxX - heightfieldBBMin[0]) * inverseCellSize);
 		if (x1 < 0 || x0 >= w)
 		{
 			continue;
@@ -397,7 +396,7 @@ static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
 		for (int x = x0; x <= x1; ++x)
 		{
 			// Clip polygon to column. store the remaining polygon as well
-			const float cx = hfBBMin[0] + (float)x * cellSize;
+			const float cx = heightfieldBBMin[0] + (float)x * cellSize;
 			dividePoly(inRow, nv2, p1, &nv, p2, &nv2, cx + cellSize, RC_AXIS_X);
 			rcSwap(inRow, p2);
 			
@@ -418,8 +417,8 @@ static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
 				spanMin = rcMin(spanMin, p1[vert * 3 + 1]);
 				spanMax = rcMax(spanMax, p1[vert * 3 + 1]);
 			}
-			spanMin -= hfBBMin[1];
-			spanMax -= hfBBMin[1];
+			spanMin -= heightfieldBBMin[1];
+			spanMax -= heightfieldBBMin[1];
 			
 			// Skip the span if it's completely outside the heightfield bounding box
 			if (spanMax < 0.0f)
@@ -445,7 +444,7 @@ static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
 			unsigned short spanMinCellIndex = (unsigned short)rcClamp((int)floorf(spanMin * inverseCellHeight), 0, RC_SPAN_MAX_HEIGHT);
 			unsigned short spanMaxCellIndex = (unsigned short)rcClamp((int)ceilf(spanMax * inverseCellHeight), (int)spanMinCellIndex + 1, RC_SPAN_MAX_HEIGHT);
 
-			if (!addSpan(hf, x, z, spanMinCellIndex, spanMaxCellIndex, areaID, flagMergeThreshold))
+			if (!addSpan(heightfield, x, z, spanMinCellIndex, spanMaxCellIndex, areaID, flagMergeThreshold))
 			{
 				return false;
 			}
