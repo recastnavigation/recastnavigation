@@ -117,7 +117,7 @@ Public Member Functions</h2></td></tr>
 <tr><td colspan="2"><div class="groupHeader">Sliced Pathfinding Functions</div></td></tr>
 <tr><td colspan="2"><div class="groupText"><p>Common use case:</p>
 <ol type="1">
-<li>Call <a class="el" href="classdtNavMeshQuery.html#ae9a478194f14f1a4591f8b6528007d82" title="Intializes a sliced path query.">initSlicedFindPath()</a> to initialize the sliced path query.<ol type="a">
+<li>Call <a class="el" href="classdtNavMeshQuery.html#ae9a478194f14f1a4591f8b6528007d82" title="Initializes a sliced path query.">initSlicedFindPath()</a> to initialize the sliced path query.<ol type="a">
 <li>Call <a class="el" href="classdtNavMeshQuery.html#aa0c147e3da7fd0b59342da0fc456afc7" title="Updates an in-progress sliced path query.">updateSlicedFindPath()</a> until it returns complete.</li>
 <li>Call <a class="el" href="classdtNavMeshQuery.html#a98673bb238fbb139ec8407e266fa76fd" title="Finalizes and returns the results of a sliced path query.">finalizeSlicedFindPath()</a> to get the path. <br  />
  </li>
@@ -126,7 +126,7 @@ Public Member Functions</h2></td></tr>
 </ol>
 </div></td></tr>
 <tr class="memitem:ae9a478194f14f1a4591f8b6528007d82"><td class="memItemLeft" align="right" valign="top"><a class="el" href="DetourStatus_8h.html#a4f23c0dcf28d9e299a4aa06af5b9ada3">dtStatus</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classdtNavMeshQuery.html#ae9a478194f14f1a4591f8b6528007d82">initSlicedFindPath</a> (<a class="el" href="group__detour.html#gab4e0b2257a670c1a800057999612b466">dtPolyRef</a> startRef, <a class="el" href="group__detour.html#gab4e0b2257a670c1a800057999612b466">dtPolyRef</a> endRef, const float *startPos, const float *endPos, const <a class="el" href="classdtQueryFilter.html">dtQueryFilter</a> *filter, const unsigned int options=0)</td></tr>
-<tr class="memdesc:ae9a478194f14f1a4591f8b6528007d82"><td class="mdescLeft">&#160;</td><td class="mdescRight">Intializes a sliced path query.  <a href="classdtNavMeshQuery.html#ae9a478194f14f1a4591f8b6528007d82">More...</a><br /></td></tr>
+<tr class="memdesc:ae9a478194f14f1a4591f8b6528007d82"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a sliced path query.  <a href="classdtNavMeshQuery.html#ae9a478194f14f1a4591f8b6528007d82">More...</a><br /></td></tr>
 <tr class="separator:ae9a478194f14f1a4591f8b6528007d82"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa0c147e3da7fd0b59342da0fc456afc7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="DetourStatus_8h.html#a4f23c0dcf28d9e299a4aa06af5b9ada3">dtStatus</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classdtNavMeshQuery.html#aa0c147e3da7fd0b59342da0fc456afc7">updateSlicedFindPath</a> (const int maxIter, int *doneIters)</td></tr>
 <tr class="memdesc:aa0c147e3da7fd0b59342da0fc456afc7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates an in-progress sliced path query.  <a href="classdtNavMeshQuery.html#aa0c147e3da7fd0b59342da0fc456afc7">More...</a><br /></td></tr>
@@ -820,7 +820,7 @@ Public Member Functions</h2></td></tr>
 <p>Finds a path from the start polygon to the end polygon. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">startRef</td><td>The refrence id of the start polygon. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">startRef</td><td>The reference id of the start polygon. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">endRef</td><td>The reference id of the end polygon. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">startPos</td><td>A position within the start polygon. [(x, y, z)] </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">endPos</td><td>A position within the end polygon. [(x, y, z)] </td></tr>
@@ -1570,10 +1570,10 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Intializes a sliced path query. </p>
+<p>Initializes a sliced path query. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">startRef</td><td>The refrence id of the start polygon. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">startRef</td><td>The reference id of the start polygon. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">endRef</td><td>The reference id of the end polygon. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">startPos</td><td>A position within the start polygon. [(x, y, z)] </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">endPos</td><td>A position within the end polygon. [(x, y, z)] </td></tr>

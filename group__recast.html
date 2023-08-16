@@ -853,7 +853,7 @@ Classes</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>True if the operation completed successfully.</dd></dl>
 <dl class="section user"><dt></dt><dd></dd></dl>
-<dl class="section note"><dt>Note</dt><dd>If the mesh data is to be used to construct a Detour navigation mesh, then the upper limit must be retricted to &lt;= <a class="el" href="group__detour.html#ga8591fdac662dbfabb580de626c64c9f3" title="The maximum number of vertices per navigation polygon.">DT_VERTS_PER_POLYGON</a>.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>If the mesh data is to be used to construct a Detour navigation mesh, then the upper limit must be restricted to &lt;= <a class="el" href="group__detour.html#ga8591fdac662dbfabb580de626c64c9f3" title="The maximum number of vertices per navigation polygon.">DT_VERTS_PER_POLYGON</a>.</dd></dl>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="group__recast.html#ga1b6942363f019860984263c0f8f62b9d" title="Allocates a polygon mesh object using the Recast allocator.">rcAllocPolyMesh</a>, <a class="el" href="structrcContourSet.html" title="Represents a group of related contours.">rcContourSet</a>, <a class="el" href="structrcPolyMesh.html" title="Represents a polygon mesh suitable for use in building a navigation mesh.">rcPolyMesh</a>, <a class="el" href="structrcConfig.html" title="Specifies a configuration to use when performing Recast builds.">rcConfig</a> </dd></dl>
 
 </div>
@@ -986,7 +986,7 @@ Classes</h2></td></tr>
 <dl class="section user"><dt></dt><dd></dd></dl>
 <p>Non-null regions will consist of connected, non-overlapping walkable spans that form a single contour. Contours will form simple polygons.</p>
 <p>If multiple regions form an area that is smaller than <code>minRegionArea</code>, then all spans will be re-assigned to the zero (null) region.</p>
-<p>Watershed partitioning can result in smaller than necessary regions, especially in diagonal corridors. <code>mergeRegionArea</code> helps reduce unecessarily small regions.</p>
+<p>Watershed partitioning can result in smaller than necessary regions, especially in diagonal corridors. <code>mergeRegionArea</code> helps reduce unnecessarily small regions.</p>
 <p>See the <a class="el" href="structrcConfig.html" title="Specifies a configuration to use when performing Recast builds.">rcConfig</a> documentation for more information on the configuration parameters.</p>
 <p>The region data will be available via the <a class="el" href="structrcCompactHeightfield.html#a6bfb7a2fdb06a64b03f0fffa885edd94" title="The maximum region id of any span within the field.">rcCompactHeightfield::maxRegions</a> and <a class="el" href="structrcCompactSpan.html#aca1a16c8453c9533120c094979601d77" title="The id of the region the span belongs to. (Or zero if not in a region.)">rcCompactSpan::reg</a> fields.</p>
 <dl class="section warning"><dt>Warning</dt><dd>The distance field must be created using <a class="el" href="group__recast.html#ga255c830cc0d30fa0229a05033242e77d" title="Builds the distance field for the specified compact heightfield.">rcBuildDistanceField</a> before attempting to build regions.</dd></dl>
@@ -1053,7 +1053,7 @@ Classes</h2></td></tr>
 <dl class="section user"><dt></dt><dd></dd></dl>
 <p>Non-null regions will consist of connected, non-overlapping walkable spans that form a single contour. Contours will form simple polygons.</p>
 <p>If multiple regions form an area that is smaller than <code>minRegionArea</code>, then all spans will be re-assigned to the zero (null) region.</p>
-<p>Partitioning can result in smaller than necessary regions. <code>mergeRegionArea</code> helps reduce unecessarily small regions.</p>
+<p>Partitioning can result in smaller than necessary regions. <code>mergeRegionArea</code> helps reduce unnecessarily small regions.</p>
 <p>See the <a class="el" href="structrcConfig.html" title="Specifies a configuration to use when performing Recast builds.">rcConfig</a> documentation for more information on the configuration parameters.</p>
 <p>The region data will be available via the <a class="el" href="structrcCompactHeightfield.html#a6bfb7a2fdb06a64b03f0fffa885edd94" title="The maximum region id of any span within the field.">rcCompactHeightfield::maxRegions</a> and <a class="el" href="structrcCompactSpan.html#aca1a16c8453c9533120c094979601d77" title="The id of the region the span belongs to. (Or zero if not in a region.)">rcCompactSpan::reg</a> fields.</p>
 <dl class="section warning"><dt>Warning</dt><dd>The distance field must be created using <a class="el" href="group__recast.html#ga255c830cc0d30fa0229a05033242e77d" title="Builds the distance field for the specified compact heightfield.">rcBuildDistanceField</a> before attempting to build regions.</dd></dl>
@@ -1508,7 +1508,7 @@ Classes</h2></td></tr>
 
 <p>Marks non-walkable spans as walkable if their maximum is within <code>walkableClimb</code> of a walkable neighbor. </p>
 <p>Allows the formation of walkable regions that will flow over low lying objects such as curbs, and up structures such as stairways.</p>
-<p>Two neighboring spans are walkable if: <code>rcAbs(currentSpan.smax - neighborSpan.smax) &lt; waklableClimb</code></p>
+<p>Two neighboring spans are walkable if: <code>rcAbs(currentSpan.smax - neighborSpan.smax) &lt; walkableClimb</code></p>
 <dl class="section warning"><dt>Warning</dt><dd>Will override the effect of <a class="el" href="group__recast.html#gad40c996631bc70091d7355dc4c950655" title="Marks spans that are ledges as not-walkable.">rcFilterLedgeSpans</a>. So if both filters are used, call <a class="el" href="group__recast.html#gad40c996631bc70091d7355dc4c950655" title="Marks spans that are ledges as not-walkable.">rcFilterLedgeSpans</a> after calling this filter.</dd></dl>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="structrcHeightfield.html" title="A dynamic heightfield representing obstructed space.">rcHeightfield</a>, <a class="el" href="structrcConfig.html" title="Specifies a configuration to use when performing Recast builds.">rcConfig</a></dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
