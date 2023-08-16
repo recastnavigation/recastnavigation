@@ -519,7 +519,7 @@ bool Sample_SoloMesh::handleBuild()
 
 	
 	// Partition the heightfield so that we can use simple algorithm later to triangulate the walkable areas.
-	// There are 3 martitioning methods, each with some pros and cons:
+	// There are 3 partitioning methods, each with some pros and cons:
 	// 1) Watershed partitioning
 	//   - the classic Recast partitioning
 	//   - creates the nicest tessellation
@@ -528,8 +528,8 @@ bool Sample_SoloMesh::handleBuild()
 	//   - the are some corner cases where this method creates produces holes and overlaps
 	//      - holes may appear when a small obstacles is close to large open area (triangulation can handle this)
 	//      - overlaps may occur if you have narrow spiral corridors (i.e stairs), this make triangulation to fail
-	//   * generally the best choice if you precompute the nacmesh, use this if you have large open areas
-	// 2) Monotone partioning
+	//   * generally the best choice if you precompute the navmesh, use this if you have large open areas
+	// 2) Monotone partitioning
 	//   - fastest
 	//   - partitions the heightfield into regions without holes and overlaps (guaranteed)
 	//   - creates long thin polygons, which sometimes causes paths with detours

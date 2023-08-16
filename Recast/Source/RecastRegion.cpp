@@ -1339,7 +1339,7 @@ struct rcSweepSpan
 /// re-assigned to the zero (null) region.
 /// 
 /// Partitioning can result in smaller than necessary regions. @p mergeRegionArea helps 
-/// reduce unecessarily small regions.
+/// reduce unnecessarily small regions.
 /// 
 /// See the #rcConfig documentation for more information on the configuration parameters.
 /// 
@@ -1512,7 +1512,7 @@ bool rcBuildRegionsMonotone(rcContext* ctx, rcCompactHeightfield& chf,
 /// re-assigned to the zero (null) region.
 /// 
 /// Watershed partitioning can result in smaller than necessary regions, especially in diagonal corridors. 
-/// @p mergeRegionArea helps reduce unecessarily small regions.
+/// @p mergeRegionArea helps reduce unnecessarily small regions.
 /// 
 /// See the #rcConfig documentation for more information on the configuration parameters.
 /// 
@@ -1637,7 +1637,7 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 	{
 		rcScopedTimer timerFilter(ctx, RC_TIMER_BUILD_REGIONS_FILTER);
 
-		// Merge regions and filter out smalle regions.
+		// Merge regions and filter out small regions.
 		rcIntArray overlaps;
 		chf.maxRegions = regionId;
 		if (!mergeAndFilterRegions(ctx, minRegionArea, mergeRegionArea, chf.maxRegions, chf, srcReg, overlaps))

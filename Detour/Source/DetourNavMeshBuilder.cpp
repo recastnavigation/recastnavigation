@@ -358,7 +358,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 		}
 	}
 	
-	// Off-mesh connectionss are stored as polygons, adjust values.
+	// Off-mesh connections are stored as polygons, adjust values.
 	const int totPolyCount = params->polyCount + storedOffMeshConCount;
 	const int totVertCount = params->vertCount + storedOffMeshConCount*2;
 	
