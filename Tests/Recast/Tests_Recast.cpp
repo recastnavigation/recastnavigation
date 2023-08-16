@@ -1061,7 +1061,7 @@ TEST_CASE("rcVector")
 		vec.resize(100);
 		Incrementor::Reset();
 		vec.clear();
-		// One temp object is constructed for the default argumnet of resize().
+		// One temp object is constructed for the default argument of resize().
 		REQUIRE(Incrementor::constructions == 0);
 		REQUIRE(Incrementor::destructions == 100);
 		REQUIRE(Incrementor::copies == 0);
@@ -1076,7 +1076,7 @@ TEST_CASE("rcVector")
 	SECTION("Copying Contents")
 	{
 
-		// veriyf event counts after doubling size -- should require a lot of copying and destorying.
+		// veriyf event counts after doubling size -- should require a lot of copying and destroying.
 		rcTempVector<Incrementor> vec;
 		Incrementor::Reset();
 		vec.resize(100);

@@ -13,7 +13,7 @@ If you have questions about how to use Recast or Detour, please direct these to 
 discussion list. We are also available on [Gitter][gitter].
 
 ## Have a question?
-Questions about how to best use Recast, what it's capable of, and other inqueries should be directed to the [Q&A section of Github Discussions][q-and-a].  Questions submitted as Github issues will be converted to discussions.
+Questions about how to best use Recast, what it's capable of, and other inquiries should be directed to the [Q&A section of Github Discussions][q-and-a].  Questions submitted as Github issues will be converted to discussions.
 
 ## Found an Issue?
 If you find a bug in the source code or a mistake in the documentation, you can help us by
@@ -49,7 +49,7 @@ chances of your issue being dealt with quickly:
     Implement `duDebugDraw` and call some methods from DetourDebugDraw.h. Seriously, just do it, we'll definitely ask you to if you haven't!
 * **Logs** - stdout and stderr from the console, or log files if there are any.
     If integrating into your own codebase, be sure to implement the log callbacks in `rcContext`.
-* **Reproduction steps** - a minimal, unambigious set of steps including input, that causes the error for you.
+* **Reproduction steps** - a minimal, unambiguous set of steps including input, that causes the error for you.
     e.g. input geometry and settings you can use to input into RecastDemo to get it to fail.
 	Note: These can be saved by pressing the 9 key in RecastDemo, and the resulting .gset file can be shared (with the .obj if it is not one of the default ones).
 * **Recast version(s) and/or git commit hash** - particularly if you can find the point at which the error first started happening
