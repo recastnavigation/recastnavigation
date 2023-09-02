@@ -228,7 +228,7 @@ static bool intersect(const int* a, const int* b, const int* c, const int* d)
 
 	if (between(a, b, c) || between(a, b, d) ||
 		between(c, d, a) || between(c, d, b))
-			return true;
+		return true;
 	
 	return false;
 }
