@@ -216,8 +216,8 @@ static bool between(const int* a, const int* b, const int* c)
 	// If ab not vertical, check betweenness on x; else on y.
 	if (a[0] != b[0])
 		return	((a[0] <= c[0]) && (c[0] <= b[0])) || ((a[0] >= c[0]) && (c[0] >= b[0]));
-	else
-		return	((a[2] <= c[2]) && (c[2] <= b[2])) || ((a[2] >= c[2]) && (c[2] >= b[2]));
+
+	return	((a[2] <= c[2]) && (c[2] <= b[2])) || ((a[2] >= c[2]) && (c[2] >= b[2]));
 }
 
 // Returns true iff segments ab and cd intersect, properly or improperly.
@@ -225,11 +225,12 @@ static bool intersect(const int* a, const int* b, const int* c, const int* d)
 {
 	if (intersectProp(a, b, c, d))
 		return true;
-	else if (between(a, b, c) || between(a, b, d) ||
-			 between(c, d, a) || between(c, d, b))
+
+	if (between(a, b, c) || between(a, b, d) ||
+		between(c, d, a) || between(c, d, b))
 		return true;
-	else
-		return false;
+	
+	return false;
 }
 
 static bool vequal(const int* a, const int* b)
