@@ -19,6 +19,11 @@
 #ifndef DEBUGDRAW_H
 #define DEBUGDRAW_H
 
+#if __cplusplus and __cplusplus >= 201103L
+#define RC_OVERRIDE override
+#else
+#define RC_OVERRIDE
+#endif
 // Some math headers don't have PI defined.
 static const float DU_PI = 3.14159265f;
 
@@ -207,12 +212,12 @@ class duDisplayList : public duDebugDraw
 	
 public:
 	duDisplayList(int cap = 512);
-	virtual ~duDisplayList();
-	virtual void depthMask(bool state);
-	virtual void begin(duDebugDrawPrimitives prim, float size = 1.0f);
-	virtual void vertex(const float x, const float y, const float z, unsigned int color);
-	virtual void vertex(const float* pos, unsigned int color);
-	virtual void end();
+	virtual ~duDisplayList() RC_OVERRIDE;
+	virtual void depthMask(bool state) RC_OVERRIDE;
+	virtual void begin(duDebugDrawPrimitives prim, float size = 1.0f) RC_OVERRIDE;
+	virtual void vertex(const float x, const float y, const float z, unsigned int color) RC_OVERRIDE;
+	virtual void vertex(const float* pos, unsigned int color) RC_OVERRIDE;
+	virtual void end() RC_OVERRIDE;
 	void clear();
 	void draw(struct duDebugDraw* dd);
 private:

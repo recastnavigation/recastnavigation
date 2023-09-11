@@ -22,6 +22,12 @@
 #include "DetourAlloc.h"
 #include "DetourStatus.h"
 
+#if __cplusplus and __cplusplus >= 201103L
+#define RECAST_OVERRIDE override
+#else
+#define RECAST_OVERRIDE
+#endif
+
 static const int DT_TILECACHE_MAGIC = 'D'<<24 | 'T'<<16 | 'L'<<8 | 'R'; ///< 'DTLR';
 static const int DT_TILECACHE_VERSION = 1;
 
@@ -79,6 +85,13 @@ struct dtTileCachePolyMesh
 struct dtTileCacheAlloc
 {
 	virtual ~dtTileCacheAlloc();
+#if __cplusplus and __cplusplus >= 201103L
+	dtTileCacheAlloc() = default;
+	dtTileCacheAlloc( dtTileCacheAlloc const& ) = default;
+	dtTileCacheAlloc& operator=( dtTileCacheAlloc const& ) = default;
+	dtTileCacheAlloc( dtTileCacheAlloc && ) = default;
+	dtTileCacheAlloc& operator=( dtTileCacheAlloc && ) = default;
+#endif
 
 	virtual void reset() {}
 	
