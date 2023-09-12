@@ -25,6 +25,7 @@
 #include "DetourMath.h"
 #include "DetourAlloc.h"
 #include "DetourAssert.h"
+#include "DetourModernCpp.h"
 #include <new>
 
 /// @class dtQueryFilter
@@ -635,13 +636,13 @@ public:
 	{
 	}
 
-	virtual ~dtFindNearestPolyQuery();
+	virtual ~dtFindNearestPolyQuery() DT_OVERRIDE;
 
 	dtPolyRef nearestRef() const { return m_nearestRef; }
 	const float* nearestPoint() const { return m_nearestPoint; }
 	bool isOverPoly() const { return m_overPoly; }
 
-	void process(const dtMeshTile* tile, dtPoly** polys, dtPolyRef* refs, int count)
+	void process(const dtMeshTile* tile, dtPoly** polys, dtPolyRef* refs, int count) DT_OVERRIDE
 	{
 		dtIgnoreUnused(polys);
 
@@ -859,12 +860,12 @@ public:
 	{
 	}
 
-	virtual ~dtCollectPolysQuery();
+	virtual ~dtCollectPolysQuery() DT_OVERRIDE;
 
 	int numCollected() const { return m_numCollected; }
 	bool overflowed() const { return m_overflow; }
 
-	void process(const dtMeshTile* tile, dtPoly** polys, dtPolyRef* refs, int count)
+	void process(const dtMeshTile* tile, dtPoly** polys, dtPolyRef* refs, int count) DT_OVERRIDE
 	{
 		dtIgnoreUnused(tile);
 		dtIgnoreUnused(polys);

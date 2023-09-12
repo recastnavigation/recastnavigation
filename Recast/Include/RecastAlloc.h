@@ -24,6 +24,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#include "RecastAssert.h"
+#include "RecastModernCpp.h"
+
 /// Provides hint values to the memory allocator on how long the
 /// memory is expected to be used.
 enum rcAllocHint
