@@ -174,11 +174,11 @@ int main(int /*argc*/, char** /*argv*/)
 	float markerPosition[3] = {0, 0, 0};
 	bool markerPositionSet = false;
 	
-	InputGeom* geom = 0;
-	Sample* sample = 0;
+	InputGeom* geom = RC_NULL;
+	Sample* sample = RC_NULL;
 
 	const string testCasesFolder = "TestCases";
-	TestCase* test = 0;
+	TestCase* test = RC_NULL;
 
 	BuildContext ctx;
 	
@@ -344,9 +344,9 @@ int main(int /*argc*/, char** /*argv*/)
 		}
 
 		unsigned char mouseButtonMask = 0;
-		if (SDL_GetMouseState(0, 0) & SDL_BUTTON_LMASK)
+		if (SDL_GetMouseState(RC_NULL, RC_NULL) & SDL_BUTTON_LMASK)
 			mouseButtonMask |= IMGUI_MBUT_LEFT;
-		if (SDL_GetMouseState(0, 0) & SDL_BUTTON_RMASK)
+		if (SDL_GetMouseState(RC_NULL, RC_NULL) & SDL_BUTTON_RMASK)
 			mouseButtonMask |= IMGUI_MBUT_RIGHT;
 		
 		Uint32 time = SDL_GetTicks();
@@ -453,7 +453,7 @@ int main(int /*argc*/, char** /*argv*/)
 		rayEnd[2] = (float)z;
 		
 		// Handle keyboard movement.
-		const Uint8* keystate = SDL_GetKeyboardState(NULL);
+		const Uint8* keystate = SDL_GetKeyboardState(RC_NULL);
 		moveFront	= rcClamp(moveFront	+ dt * 4 * ((keystate[SDL_SCANCODE_W] || keystate[SDL_SCANCODE_UP		]) ? 1 : -1), 0.0f, 1.0f);
 		moveLeft	= rcClamp(moveLeft	+ dt * 4 * ((keystate[SDL_SCANCODE_A] || keystate[SDL_SCANCODE_LEFT		]) ? 1 : -1), 0.0f, 1.0f);
 		moveBack	= rcClamp(moveBack	+ dt * 4 * ((keystate[SDL_SCANCODE_S] || keystate[SDL_SCANCODE_DOWN		]) ? 1 : -1), 0.0f, 1.0f);
@@ -590,7 +590,7 @@ int main(int /*argc*/, char** /*argv*/)
 					
 					// Clear test.
 					delete test;
-					test = 0;
+					test = RC_NULL;
 				}
 
 				imguiSeparator();
@@ -612,7 +612,7 @@ int main(int /*argc*/, char** /*argv*/)
 			if (imguiBeginScrollArea("Choose Sample", width-10-250-10-200, height-10-250, 200, 250, &levelScroll))
 				mouseOverMenu = true;
 
-			Sample* newSample = 0;
+			Sample* newSample = RC_NULL;
 			for (int i = 0; i < g_nsamples; ++i)
 			{
 				if (imguiItem(g_samples[i].name.c_str()))
@@ -636,8 +636,8 @@ int main(int /*argc*/, char** /*argv*/)
 
 			if (geom || sample)
 			{
-				const float* bmin = 0;
-				const float* bmax = 0;
+				const float* bmin = RC_NULL;
+				const float* bmax = RC_NULL;
 				if (geom)
 				{
 					bmin = geom->getNavMeshBoundsMin();
@@ -687,7 +687,7 @@ int main(int /*argc*/, char** /*argv*/)
 				showLevels = false;
 				
 				delete geom;
-				geom = 0;
+				geom = RC_NULL;
 				
 				string path = meshesFolder + "/" + meshName;
 				
@@ -695,13 +695,13 @@ int main(int /*argc*/, char** /*argv*/)
 				if (!geom->load(&ctx, path))
 				{
 					delete geom;
-					geom = 0;
+					geom = RC_NULL;
 
 					// Destroy the sample if it already had geometry loaded, as we've just deleted it!
 					if (sample && sample->getInputGeom())
 					{
 						delete sample;
-						sample = 0;
+						sample = RC_NULL;
 					}
 					
 					showLog = true;
@@ -715,8 +715,8 @@ int main(int /*argc*/, char** /*argv*/)
 
 				if (geom || sample)
 				{
-					const float* bmin = 0;
-					const float* bmax = 0;
+					const float* bmin = RC_NULL;
+					const float* bmax = RC_NULL;
 					if (geom)
 					{
 						bmin = geom->getNavMeshBoundsMin();
@@ -772,11 +772,11 @@ int main(int /*argc*/, char** /*argv*/)
 					if (!test->load(path))
 					{
 						delete test;
-						test = 0;
+						test = RC_NULL;
 					}
 
 					// Create sample
-					Sample* newSample = 0;
+					Sample* newSample = RC_NULL;
 					for (int i = 0; i < g_nsamples; ++i)
 					{
 						if (g_samples[i].name == test->getSampleName())
@@ -807,9 +807,9 @@ int main(int /*argc*/, char** /*argv*/)
 					if (!geom || !geom->load(&ctx, path))
 					{
 						delete geom;
-						geom = 0;
+						geom = RC_NULL;
 						delete sample;
-						sample = 0;
+						sample = RC_NULL;
 						showLog = true;
 						logScroll = 0;
 						ctx.dumpLog("Geom load log %s:", meshName.c_str());
@@ -831,8 +831,8 @@ int main(int /*argc*/, char** /*argv*/)
 					
 					if (geom || sample)
 					{
-						const float* bmin = 0;
-						const float* bmax = 0;
+						const float* bmin = RC_NULL;
+						const float* bmax = RC_NULL;
 						if (geom)
 						{
 							bmin = geom->getNavMeshBoundsMin();

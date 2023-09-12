@@ -279,7 +279,7 @@ bool imguiRenderGLInit(const char* fontpath)
 		return false;
 	}
 
-	fp = 0;
+	fp = RC_NULL;
 	
 	unsigned char* bmap = (unsigned char*)malloc(512*512);
 	if (!bmap)

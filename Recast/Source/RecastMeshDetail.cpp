@@ -30,7 +30,7 @@ static const unsigned RC_UNSET_HEIGHT = 0xffff;
 
 struct rcHeightPatch
 {
-	inline rcHeightPatch() : data(0), xmin(0), ymin(0), width(0), height(0) {}
+	inline rcHeightPatch() : data(RC_NULL), xmin(0), ymin(0), width(0), height(0) {}
 	inline ~rcHeightPatch() { rcFree(data); }
 	unsigned short* data;
 	int xmin, ymin, width, height;

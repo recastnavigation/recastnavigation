@@ -44,14 +44,14 @@ static bool overlapBounds(const float* aMin, const float* aMax, const float* bMi
 static rcSpan* allocSpan(rcHeightfield& heightfield)
 {
 	// If necessary, allocate new page and update the freelist.
-	if (heightfield.freelist == NULL || heightfield.freelist->next == NULL)
+	if (heightfield.freelist == RC_NULL || heightfield.freelist->next == RC_NULL)
 	{
 		// Create new page.
 		// Allocate memory for the new pool.
 		rcSpanPool* spanPool = (rcSpanPool*)rcAlloc(sizeof(rcSpanPool), RC_ALLOC_PERM);
-		if (spanPool == NULL)
+		if (spanPool == RC_NULL)
 		{
-			return NULL;
+			return RC_NULL;
 		}
 
 		// Add the pool into the list of pools.
@@ -83,7 +83,7 @@ static rcSpan* allocSpan(rcHeightfield& heightfield)
 /// @param[in]	span	A pointer to the span to free
 static void freeSpan(rcHeightfield& heightfield, rcSpan* span)
 {
-	if (span == NULL)
+	if (span == RC_NULL)
 	{
 		return;
 	}
@@ -109,21 +109,21 @@ static bool addSpan(rcHeightfield& heightfield,
 {
 	// Create the new span.
 	rcSpan* newSpan = allocSpan(heightfield);
-	if (newSpan == NULL)
+	if (newSpan == RC_NULL)
 	{
 		return false;
 	}
 	newSpan->smin = min;
 	newSpan->smax = max;
 	newSpan->area = areaID;
-	newSpan->next = NULL;
+	newSpan->next = RC_NULL;
 	
 	const int columnIndex = x + z * heightfield.width;
-	rcSpan* previousSpan = NULL;
+	rcSpan* previousSpan = RC_NULL;
 	rcSpan* currentSpan = heightfield.spans[columnIndex];
 	
 	// Insert the new span, possibly merging it with existing spans.
-	while (currentSpan != NULL)
+	while (currentSpan != RC_NULL)
 	{
 		if (currentSpan->smin > newSpan->smax)
 		{
@@ -173,7 +173,7 @@ static bool addSpan(rcHeightfield& heightfield,
 	}
 	
 	// Insert new span after prev
-	if (previousSpan != NULL)
+	if (previousSpan != RC_NULL)
 	{
 		newSpan->next = previousSpan->next;
 		previousSpan->next = newSpan;
@@ -458,7 +458,7 @@ bool rcRasterizeTriangle(rcContext* context,
                          const float* v0, const float* v1, const float* v2,
                          const unsigned char areaID, rcHeightfield& heightfield, const int flagMergeThreshold)
 {
-	rcAssert(context != NULL);
+	rcAssert(context != RC_NULL);
 
 	rcScopedTimer timer(context, RC_TIMER_RASTERIZE_TRIANGLES);
 
@@ -479,7 +479,7 @@ bool rcRasterizeTriangles(rcContext* context,
                           const int* tris, const unsigned char* triAreaIDs, const int numTris,
                           rcHeightfield& heightfield, const int flagMergeThreshold)
 {
-	rcAssert(context != NULL);
+	rcAssert(context != RC_NULL);
 
 	rcScopedTimer timer(context, RC_TIMER_RASTERIZE_TRIANGLES);
 	
@@ -506,7 +506,7 @@ bool rcRasterizeTriangles(rcContext* context,
                           const unsigned short* tris, const unsigned char* triAreaIDs, const int numTris,
                           rcHeightfield& heightfield, const int flagMergeThreshold)
 {
-	rcAssert(context != NULL);
+	rcAssert(context != RC_NULL);
 
 	rcScopedTimer timer(context, RC_TIMER_RASTERIZE_TRIANGLES);
 
@@ -532,7 +532,7 @@ bool rcRasterizeTriangles(rcContext* context,
                           const float* verts, const unsigned char* triAreaIDs, const int numTris,
                           rcHeightfield& heightfield, const int flagMergeThreshold)
 {
-	rcAssert(context != NULL);
+	rcAssert(context != RC_NULL);
 
 	rcScopedTimer timer(context, RC_TIMER_RASTERIZE_TRIANGLES);
 	

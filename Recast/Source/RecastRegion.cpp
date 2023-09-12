@@ -1259,7 +1259,7 @@ bool rcBuildDistanceField(rcContext* ctx, rcCompactHeightfield& chf)
 	if (chf.dist)
 	{
 		rcFree(chf.dist);
-		chf.dist = 0;
+		chf.dist = RC_NULL;
 	}
 	
 	unsigned short* src = (unsigned short*)rcAlloc(sizeof(unsigned short)*chf.spanCount, RC_ALLOC_TEMP);

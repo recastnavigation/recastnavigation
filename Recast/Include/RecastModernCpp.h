@@ -6,10 +6,7 @@
 #include "RecastAssert.h"
 
 #if __cplusplus and __cplusplus >= 201103L
-#ifdef NULL
-#undef NULL
-#endif
-#define NULL nullptr
+#define RC_NULL nullptr
 #define RC_OVERRIDE override
 #else
 #include <stddef.h>

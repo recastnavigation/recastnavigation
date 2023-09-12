@@ -22,11 +22,13 @@
 #include <cstring>
 #include <math.h>
 
+#include "RecastModernCpp.h"
+
 rcMeshLoaderObj::rcMeshLoaderObj() :
 	m_scale(1.0f),
-	m_verts(0),
-	m_tris(0),
-	m_normals(0),
+	m_verts(RC_NULL),
+	m_tris(RC_NULL),
+	m_normals(RC_NULL),
 	m_vertCount(0),
 	m_triCount(0)
 {
@@ -137,7 +139,7 @@ static int parseFace(char* row, int* data, int n, int vcnt)
 
 bool rcMeshLoaderObj::load(const std::string& filename)
 {
-	char* buf = 0;
+	char* buf = RC_NULL;
 	FILE* fp = fopen(filename.c_str(), "rb");
 	if (!fp)
 		return false;
