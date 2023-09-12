@@ -56,10 +56,10 @@ struct SampleItem
 	Sample* (*create)();
 	const string name;
 };
-Sample* createSolo() { return new Sample_SoloMesh(); }
-Sample* createTile() { return new Sample_TileMesh(); }
-Sample* createTempObstacle() { return new Sample_TempObstacles(); }
-Sample* createDebug() { return new Sample_Debug(); }
+static Sample* createSolo() { return new Sample_SoloMesh(); }
+static Sample* createTile() { return new Sample_TileMesh(); }
+static Sample* createTempObstacle() { return new Sample_TempObstacles(); }
+static Sample* createDebug() { return new Sample_Debug(); }
 static SampleItem g_samples[] =
 {
 	{ createSolo, "Solo Mesh" },

@@ -405,7 +405,7 @@ inline float vdistSqr(const float* v1, const float* v2)
 }
 
 
-void appendArrowHead(struct duDebugDraw* dd, const float* p, const float* q,
+static void appendArrowHead(struct duDebugDraw* dd, const float* p, const float* q,
 					 const float s, unsigned int col)
 {
 	const float eps = 0.001f;

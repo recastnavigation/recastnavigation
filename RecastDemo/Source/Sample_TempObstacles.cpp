@@ -108,22 +108,22 @@ static int calcLayerBufferSize(const int gridWidth, const int gridHeight)
 
 struct FastLZCompressor : public dtTileCacheCompressor
 {
-	virtual ~FastLZCompressor();
+	virtual ~FastLZCompressor() RC_OVERRIDE;
 
-	virtual int maxCompressedSize(const int bufferSize)
+	virtual int maxCompressedSize(const int bufferSize) RC_OVERRIDE
 	{
 		return (int)(bufferSize* 1.05f);
 	}
 	
 	virtual dtStatus compress(const unsigned char* buffer, const int bufferSize,
-							  unsigned char* compressed, const int /*maxCompressedSize*/, int* compressedSize)
+							  unsigned char* compressed, const int /*maxCompressedSize*/, int* compressedSize) RC_OVERRIDE
 	{
 		*compressedSize = fastlz_compress((const void *const)buffer, bufferSize, compressed);
 		return DT_SUCCESS;
 	}
 	
 	virtual dtStatus decompress(const unsigned char* compressed, const int compressedSize,
-								unsigned char* buffer, const int maxBufferSize, int* bufferSize)
+								unsigned char* buffer, const int maxBufferSize, int* bufferSize) RC_OVERRIDE
 	{
 		*bufferSize = fastlz_decompress(compressed, compressedSize, buffer, maxBufferSize);
 		return *bufferSize < 0 ? DT_FAILURE : DT_SUCCESS;
@@ -147,7 +147,7 @@ struct LinearAllocator : public dtTileCacheAlloc
 		resize(cap);
 	}
 	
-	virtual ~LinearAllocator();
+	virtual ~LinearAllocator() RC_OVERRIDE;
 
 	void resize(const size_t cap)
 	{
@@ -156,13 +156,13 @@ struct LinearAllocator : public dtTileCacheAlloc
 		capacity = cap;
 	}
 	
-	virtual void reset()
+	virtual void reset() RC_OVERRIDE
 	{
 		high = dtMax(high, top);
 		top = 0;
 	}
 	
-	virtual void* alloc(const size_t size)
+	virtual void* alloc(const size_t size) RC_OVERRIDE
 	{
 		if (!buffer)
 			return 0;
@@ -173,7 +173,7 @@ struct LinearAllocator : public dtTileCacheAlloc
 		return mem;
 	}
 	
-	virtual void free(void* /*ptr*/)
+	virtual void free(void* /*ptr*/) RC_OVERRIDE
 	{
 		// Empty
 	}
@@ -193,7 +193,7 @@ struct MeshProcess : public dtTileCacheMeshProcess
 	{
 	}
 
-	virtual ~MeshProcess();
+	virtual ~MeshProcess() RC_OVERRIDE;
 
 	inline void init(InputGeom* geom)
 	{
@@ -201,7 +201,7 @@ struct MeshProcess : public dtTileCacheMeshProcess
 	}
 	
 	virtual void process(struct dtNavMeshCreateParams* params,
-						 unsigned char* polyAreas, unsigned short* polyFlags)
+						 unsigned char* polyAreas, unsigned short* polyFlags) RC_OVERRIDE
 	{
 		// Update poly flags from areas.
 		for (int i = 0; i < params->polyCount; ++i)
@@ -470,7 +470,7 @@ int Sample_TempObstacles::rasterizeTileLayers(
 }
 
 
-void drawTiles(duDebugDraw* dd, dtTileCache* tc)
+static void drawTiles(duDebugDraw* dd, dtTileCache* tc)
 {
 	unsigned int fcol[6];
 	float bmin[3], bmax[3];
@@ -510,7 +510,7 @@ enum DrawDetailType
 	DRAWDETAIL_MESH
 };
 
-void drawDetail(duDebugDraw* dd, dtTileCache* tc, const int tx, const int ty, int type)
+static void drawDetail(duDebugDraw* dd, dtTileCache* tc, const int tx, const int ty, int type)
 {
 	struct TileCacheBuildContext
 	{
@@ -598,7 +598,7 @@ void drawDetail(duDebugDraw* dd, dtTileCache* tc, const int tx, const int ty, in
 }
 
 
-void drawDetailOverlay(const dtTileCache* tc, const int tx, const int ty, double* proj, double* model, int* view)
+static void drawDetailOverlay(const dtTileCache* tc, const int tx, const int ty, double* proj, double* model, int* view)
 {
 	dtCompressedTileRef tiles[MAX_LAYERS];
 	const int ntiles = tc->getTilesAt(tx,ty,tiles,MAX_LAYERS);
@@ -632,7 +632,7 @@ void drawDetailOverlay(const dtTileCache* tc, const int tx, const int ty, double
 	}
 }
 		
-dtObstacleRef hitTestObstacle(const dtTileCache* tc, const float* sp, const float* sq)
+static dtObstacleRef hitTestObstacle(const dtTileCache* tc, const float* sp, const float* sq)
 {
 	float tmin = FLT_MAX;
 	const dtTileCacheObstacle* obmin = 0;
@@ -657,7 +657,7 @@ dtObstacleRef hitTestObstacle(const dtTileCache* tc, const float* sp, const floa
 	return tc->getObstacleRef(obmin);
 }
 	
-void drawObstacles(duDebugDraw* dd, const dtTileCache* tc)
+static void drawObstacles(duDebugDraw* dd, const dtTileCache* tc)
 {
 	// Draw obstacles
 	for (int i = 0; i < tc->getObstacleCount(); ++i)
@@ -697,18 +697,18 @@ public:
 		m_hitPos[0] = m_hitPos[1] = m_hitPos[2] = 0;
 	}
 
-	virtual ~TempObstacleHilightTool();
+	virtual ~TempObstacleHilightTool() RC_OVERRIDE;
 
-	virtual int type() { return TOOL_TILE_HIGHLIGHT; }
+	virtual int type() RC_OVERRIDE { return TOOL_TILE_HIGHLIGHT; }
 
-	virtual void init(Sample* sample)
+	virtual void init(Sample* sample) RC_OVERRIDE
 	{
 		m_sample = (Sample_TempObstacles*)sample; 
 	}
 	
-	virtual void reset() {}
+	virtual void reset() RC_OVERRIDE {}
 
-	virtual void handleMenu()
+	virtual void handleMenu() RC_OVERRIDE
 	{
 		imguiLabel("Highlight Tile Cache");
 		imguiValue("Click LMB to highlight a tile.");
@@ -723,19 +723,19 @@ public:
 			m_drawType = DRAWDETAIL_MESH;
 	}
 
-	virtual void handleClick(const float* /*s*/, const float* p, bool /*shift*/)
+	virtual void handleClick(const float* /*s*/, const float* p, bool /*shift*/) RC_OVERRIDE
 	{
 		m_hitPosSet = true;
 		rcVcopy(m_hitPos,p);
 	}
 
-	virtual void handleToggle() {}
+	virtual void handleToggle() RC_OVERRIDE {}
 
-	virtual void handleStep() {}
+	virtual void handleStep() RC_OVERRIDE {}
 
-	virtual void handleUpdate(const float /*dt*/) {}
+	virtual void handleUpdate(const float /*dt*/) RC_OVERRIDE {}
 	
-	virtual void handleRender()
+	virtual void handleRender() RC_OVERRIDE
 	{
 		if (m_hitPosSet && m_sample)
 		{
@@ -758,7 +758,7 @@ public:
 		}
 	}
 	
-	virtual void handleRenderOverlay(double* proj, double* model, int* view)
+	virtual void handleRenderOverlay(double* proj, double* model, int* view) RC_OVERRIDE
 	{
 		if (m_hitPosSet)
 		{
@@ -787,18 +787,18 @@ public:
 	{
 	}
 	
-	virtual ~TempObstacleCreateTool();
+	virtual ~TempObstacleCreateTool() RC_OVERRIDE;
 	
-	virtual int type() { return TOOL_TEMP_OBSTACLE; }
+	virtual int type() RC_OVERRIDE { return TOOL_TEMP_OBSTACLE; }
 	
-	virtual void init(Sample* sample)
+	virtual void init(Sample* sample) RC_OVERRIDE
 	{
 		m_sample = (Sample_TempObstacles*)sample; 
 	}
 	
-	virtual void reset() {}
+	virtual void reset() RC_OVERRIDE {}
 	
-	virtual void handleMenu()
+	virtual void handleMenu() RC_OVERRIDE
 	{
 		imguiLabel("Create Temp Obstacles");
 		
@@ -811,7 +811,7 @@ public:
 		imguiValue("Shift+LMB to remove an obstacle.");
 	}
 	
-	virtual void handleClick(const float* s, const float* p, bool shift)
+	virtual void handleClick(const float* s, const float* p, bool shift) RC_OVERRIDE
 	{
 		if (m_sample)
 		{
@@ -822,11 +822,11 @@ public:
 		}
 	}
 	
-	virtual void handleToggle() {}
-	virtual void handleStep() {}
-	virtual void handleUpdate(const float /*dt*/) {}
-	virtual void handleRender() {}
-	virtual void handleRenderOverlay(double* /*proj*/, double* /*model*/, int* /*view*/) { }
+	virtual void handleToggle() RC_OVERRIDE {}
+	virtual void handleStep() RC_OVERRIDE {}
+	virtual void handleUpdate(const float /*dt*/) RC_OVERRIDE {}
+	virtual void handleRender() RC_OVERRIDE {}
+	virtual void handleRenderOverlay(double* /*proj*/, double* /*model*/, int* /*view*/) RC_OVERRIDE { }
 };
 
 TempObstacleCreateTool::~TempObstacleCreateTool()

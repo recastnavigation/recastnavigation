@@ -19,6 +19,9 @@
 #ifndef DETOURNODE_H
 #define DETOURNODE_H
 
+#include <stdint.h>
+
+#include "DetourModernCpp.h"
 #include "DetourNavMesh.h"
 
 enum dtNodeFlags
@@ -29,7 +32,7 @@ enum dtNodeFlags
 };
 
 typedef unsigned short dtNodeIndex;
-static const dtNodeIndex DT_NULL_IDX = (dtNodeIndex)~0;
+static const dtNodeIndex DT_NULL_IDX = std::numeric_limits<unsigned short>::max();
 
 static const int DT_NODE_PARENT_BITS = 24;
 static const int DT_NODE_STATE_BITS = 2;

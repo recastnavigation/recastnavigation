@@ -86,18 +86,18 @@ public:
 		m_hitPos[0] = m_hitPos[1] = m_hitPos[2] = 0;
 	}
 
-	virtual ~NavMeshTileTool();
+	virtual ~NavMeshTileTool() RC_OVERRIDE;
 
-	virtual int type() { return TOOL_TILE_EDIT; }
+	virtual int type() RC_OVERRIDE { return TOOL_TILE_EDIT; }
 
-	virtual void init(Sample* sample)
+	virtual void init(Sample* sample) RC_OVERRIDE
 	{
 		m_sample = (Sample_TileMesh*)sample; 
 	}
 	
-	virtual void reset() {}
+	virtual void reset() RC_OVERRIDE {}
 
-	virtual void handleMenu()
+	virtual void handleMenu() RC_OVERRIDE
 	{
 		imguiLabel("Create Tiles");
 		if (imguiButton("Create All"))
@@ -112,7 +112,7 @@ public:
 		}
 	}
 
-	virtual void handleClick(const float* /*s*/, const float* p, bool shift)
+	virtual void handleClick(const float* /*s*/, const float* p, bool shift) RC_OVERRIDE
 	{
 		m_hitPosSet = true;
 		rcVcopy(m_hitPos,p);
@@ -125,13 +125,13 @@ public:
 		}
 	}
 
-	virtual void handleToggle() {}
+	virtual void handleToggle() RC_OVERRIDE {}
 
-	virtual void handleStep() {}
+	virtual void handleStep() RC_OVERRIDE {}
 
-	virtual void handleUpdate(const float /*dt*/) {}
+	virtual void handleUpdate(const float /*dt*/) RC_OVERRIDE {}
 	
-	virtual void handleRender()
+	virtual void handleRender() RC_OVERRIDE
 	{
 		if (m_hitPosSet)
 		{
@@ -150,7 +150,7 @@ public:
 		}
 	}
 	
-	virtual void handleRenderOverlay(double* proj, double* model, int* view)
+	virtual void handleRenderOverlay(double* proj, double* model, int* view) RC_OVERRIDE
 	{
 		GLdouble x, y, z;
 		if (m_hitPosSet && gluProject((GLdouble)m_hitPos[0], (GLdouble)m_hitPos[1], (GLdouble)m_hitPos[2],

@@ -38,17 +38,17 @@ protected:
 	
 public:
 	Sample_Debug();
-	virtual ~Sample_Debug();
+	virtual ~Sample_Debug() RC_OVERRIDE;
 	
-	virtual void handleSettings();
-	virtual void handleTools();
-	virtual void handleDebugMode();
-	virtual void handleClick(const float* s, const float* p, bool shift);
-	virtual void handleToggle();
-	virtual void handleRender();
-	virtual void handleRenderOverlay(double* proj, double* model, int* view);
-	virtual void handleMeshChanged(class InputGeom* geom);
-	virtual bool handleBuild();
+	virtual void handleSettings() RC_OVERRIDE;
+	virtual void handleTools() RC_OVERRIDE;
+	virtual void handleDebugMode() RC_OVERRIDE;
+	virtual void handleClick(const float* s, const float* p, bool shift) RC_OVERRIDE;
+	virtual void handleToggle() RC_OVERRIDE;
+	virtual void handleRender() RC_OVERRIDE;
+	virtual void handleRenderOverlay(double* proj, double* model, int* view) RC_OVERRIDE;
+	virtual void handleMeshChanged(class InputGeom* geom) RC_OVERRIDE;
+	virtual bool handleBuild() RC_OVERRIDE;
 
 	virtual const float* getBoundsMin();
 	virtual const float* getBoundsMax();
