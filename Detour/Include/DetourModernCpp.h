@@ -6,9 +6,11 @@
 #include "DetourAssert.h"
 
 #if defined(__cplusplus) && __cplusplus >= 201103L
+#define DT_NULL nullptr
 #define DT_OVERRIDE override
 #else
 #include <stddef.h>
+#define DT_NULL NULL
 #define DT_OVERRIDE
 #endif
 

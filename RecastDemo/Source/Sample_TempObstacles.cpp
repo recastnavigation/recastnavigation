@@ -142,7 +142,7 @@ struct LinearAllocator : public dtTileCacheAlloc
 	size_t top;
 	size_t high;
 	
-	LinearAllocator(const size_t cap) : buffer(0), capacity(0), top(0), high(0)
+	LinearAllocator(const size_t cap) : buffer(RC_NULL), capacity(0), top(0), high(0)
 	{
 		resize(cap);
 	}
@@ -165,9 +165,9 @@ struct LinearAllocator : public dtTileCacheAlloc
 	virtual void* alloc(const size_t size) RC_OVERRIDE
 	{
 		if (!buffer)
-			return 0;
+			return RC_NULL;
 		if (top+size > capacity)
-			return 0;
+			return RC_NULL;
 		unsigned char* mem = &buffer[top];
 		top += size;
 		return mem;
@@ -189,7 +189,7 @@ struct MeshProcess : public dtTileCacheMeshProcess
 {
 	InputGeom* m_geom;
 
-	inline MeshProcess() : m_geom(0)
+	inline MeshProcess() : m_geom(RC_NULL)
 	{
 	}
 
@@ -255,10 +255,10 @@ struct TileCacheData
 struct RasterizationContext
 {
 	RasterizationContext() :
-		solid(0),
-		triareas(0),
-		lset(0),
-		chf(0),
+		solid(RC_NULL),
+		triareas(RC_NULL),
+		lset(RC_NULL),
+		chf(RC_NULL),
 		ntiles(0)
 	{
 		memset(tiles, 0, sizeof(TileCacheData)*MAX_LAYERS);
@@ -273,7 +273,7 @@ struct RasterizationContext
 		for (int i = 0; i < MAX_LAYERS; ++i)
 		{
 			dtFree(tiles[i].data);
-			tiles[i].data = 0;
+			tiles[i].data = RC_NULL;
 		}
 	}
 	
@@ -462,7 +462,7 @@ int Sample_TempObstacles::rasterizeTileLayers(
 	for (int i = 0; i < rcMin(rc.ntiles, maxTiles); ++i)
 	{
 		tiles[n++] = rc.tiles[i];
-		rc.tiles[i].data = 0;
+		rc.tiles[i].data = RC_NULL;
 		rc.tiles[i].dataSize = 0;
 	}
 	
@@ -514,16 +514,16 @@ static void drawDetail(duDebugDraw* dd, dtTileCache* tc, const int tx, const int
 {
 	struct TileCacheBuildContext
 	{
-		inline TileCacheBuildContext(struct dtTileCacheAlloc* a) : layer(0), lcset(0), lmesh(0), alloc(a) {}
+		inline TileCacheBuildContext(struct dtTileCacheAlloc* a) : layer(RC_NULL), lcset(RC_NULL), lmesh(RC_NULL), alloc(a) {}
 		inline ~TileCacheBuildContext() { purge(); }
 		void purge()
 		{
 			dtFreeTileCacheLayer(alloc, layer);
-			layer = 0;
+			layer = RC_NULL;
 			dtFreeTileCacheContourSet(alloc, lcset);
-			lcset = 0;
+			lcset = RC_NULL;
 			dtFreeTileCachePolyMesh(alloc, lmesh);
-			lmesh = 0;
+			lmesh = RC_NULL;
 		}
 		struct dtTileCacheLayer* layer;
 		struct dtTileCacheContourSet* lcset;
@@ -635,7 +635,7 @@ static void drawDetailOverlay(const dtTileCache* tc, const int tx, const int ty,
 static dtObstacleRef hitTestObstacle(const dtTileCache* tc, const float* sp, const float* sq)
 {
 	float tmin = FLT_MAX;
-	const dtTileCacheObstacle* obmin = 0;
+	const dtTileCacheObstacle* obmin = RC_NULL;
 	for (int i = 0; i < tc->getObstacleCount(); ++i)
 	{
 		const dtTileCacheObstacle* ob = tc->getObstacle(i);
@@ -690,7 +690,7 @@ class TempObstacleHilightTool : public SampleTool
 public:
 
 	TempObstacleHilightTool() :
-		m_sample(0),
+		m_sample(RC_NULL),
 		m_hitPosSet(false),
 		m_drawType(DRAWDETAIL_AREAS)
 	{
@@ -783,7 +783,7 @@ class TempObstacleCreateTool : public SampleTool
 	
 public:
 	
-	TempObstacleCreateTool() : m_sample(0)
+	TempObstacleCreateTool() : m_sample(RC_NULL)
 	{
 	}
 	
@@ -836,7 +836,7 @@ TempObstacleCreateTool::~TempObstacleCreateTool()
 
 Sample_TempObstacles::Sample_TempObstacles() :
 	m_keepInterResults(false),
-	m_tileCache(0),
+	m_tileCache(RC_NULL),
 	m_cacheBuildTimeMs(0),
 	m_cacheCompressedSize(0),
 	m_cacheRawSize(0),
@@ -859,7 +859,7 @@ Sample_TempObstacles::Sample_TempObstacles() :
 Sample_TempObstacles::~Sample_TempObstacles()
 {
 	dtFreeNavMesh(m_navMesh);
-	m_navMesh = 0;
+	m_navMesh = RC_NULL;
 	dtFreeTileCache(m_tileCache);
 }
 
@@ -997,12 +997,12 @@ void Sample_TempObstacles::handleDebugMode()
 	
 	if (m_geom)
 	{
-		valid[DRAWMODE_NAVMESH] = m_navMesh != 0;
-		valid[DRAWMODE_NAVMESH_TRANS] = m_navMesh != 0;
-		valid[DRAWMODE_NAVMESH_BVTREE] = m_navMesh != 0;
-		valid[DRAWMODE_NAVMESH_NODES] = m_navQuery != 0;
-		valid[DRAWMODE_NAVMESH_PORTALS] = m_navMesh != 0;
-		valid[DRAWMODE_NAVMESH_INVIS] = m_navMesh != 0;
+		valid[DRAWMODE_NAVMESH] = m_navMesh != RC_NULL;
+		valid[DRAWMODE_NAVMESH_TRANS] = m_navMesh != RC_NULL;
+		valid[DRAWMODE_NAVMESH_BVTREE] = m_navMesh != RC_NULL;
+		valid[DRAWMODE_NAVMESH_NODES] = m_navQuery != RC_NULL;
+		valid[DRAWMODE_NAVMESH_PORTALS] = m_navMesh != RC_NULL;
+		valid[DRAWMODE_NAVMESH_INVIS] = m_navMesh != RC_NULL;
 		valid[DRAWMODE_MESH] = true;
 		valid[DRAWMODE_CACHE_BOUNDS] = true;
 	}
@@ -1157,10 +1157,10 @@ void Sample_TempObstacles::handleMeshChanged(class InputGeom* geom)
 	Sample::handleMeshChanged(geom);
 
 	dtFreeTileCache(m_tileCache);
-	m_tileCache = 0;
+	m_tileCache = RC_NULL;
 	
 	dtFreeNavMesh(m_navMesh);
-	m_navMesh = 0;
+	m_navMesh = RC_NULL;
 
 	if (m_tool)
 	{
@@ -1179,7 +1179,7 @@ void Sample_TempObstacles::addTempObstacle(const float* pos)
 	float p[3];
 	dtVcopy(p, pos);
 	p[1] -= 0.5f;
-	m_tileCache->addObstacle(p, 1.0f, 2.0f, 0);
+	m_tileCache->addObstacle(p, 1.0f, 2.0f, RC_NULL);
 }
 
 void Sample_TempObstacles::removeTempObstacle(const float* sp, const float* sq)
@@ -1327,11 +1327,11 @@ bool Sample_TempObstacles::handleBuild()
 			for (int i = 0; i < ntiles; ++i)
 			{
 				TileCacheData* tile = &tiles[i];
-				status = m_tileCache->addTile(tile->data, tile->dataSize, DT_COMPRESSEDTILE_FREE_DATA, 0);
+				status = m_tileCache->addTile(tile->data, tile->dataSize, DT_COMPRESSEDTILE_FREE_DATA, RC_NULL);
 				if (dtStatusFailed(status))
 				{
 					dtFree(tile->data);
-					tile->data = 0;
+					tile->data = RC_NULL;
 					continue;
 				}
 				

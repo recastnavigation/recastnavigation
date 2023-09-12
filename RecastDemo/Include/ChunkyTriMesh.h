@@ -19,6 +19,8 @@
 #ifndef CHUNKYTRIMESH_H
 #define CHUNKYTRIMESH_H
 
+#include "RecastModernCpp.h"
+
 struct rcChunkyTriMeshNode
 {
 	float bmin[2];
@@ -29,7 +31,7 @@ struct rcChunkyTriMeshNode
 
 struct rcChunkyTriMesh
 {
-	inline rcChunkyTriMesh() : nodes(0), nnodes(0), tris(0), ntris(0), maxTrisPerChunk(0) {}
+	inline rcChunkyTriMesh() : nodes(RC_NULL), nnodes(0), tris(RC_NULL), ntris(0), maxTrisPerChunk(0) {};
 	inline ~rcChunkyTriMesh() { delete [] nodes; delete [] tris; }
 
 	rcChunkyTriMeshNode* nodes;

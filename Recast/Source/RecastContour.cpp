@@ -640,7 +640,7 @@ static bool mergeContours(rcContour& ca, rcContour& cb, int ia, int ib)
 	ca.nverts = nv;
 	
 	rcFree(cb.verts);
-	cb.verts = 0;
+	cb.verts = RC_NULL;
 	cb.nverts = 0;
 	
 	return true;
@@ -948,8 +948,8 @@ bool rcBuildContours(rcContext* ctx, const rcCompactHeightfield& chf,
 						{
 							newConts[j] = cset.conts[j];
 							// Reset source pointers to prevent data deletion.
-							cset.conts[j].verts = 0;
-							cset.conts[j].rverts = 0;
+							cset.conts[j].verts = RC_NULL;
+							cset.conts[j].rverts = RC_NULL;
 						}
 						rcFree(cset.conts);
 						cset.conts = newConts;

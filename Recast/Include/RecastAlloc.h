@@ -124,11 +124,11 @@ class rcVectorBase {
 	typedef rcSizeType size_type;
 	typedef T value_type;
 
-	rcVectorBase() : m_size(0), m_cap(0), m_data(0) {}
-	rcVectorBase(const rcVectorBase<T, H>& other) : m_size(0), m_cap(0), m_data(0) { assign(other.begin(), other.end()); }
-	explicit rcVectorBase(rcSizeType count) : m_size(0), m_cap(0), m_data(0) { resize(count); }
-	rcVectorBase(rcSizeType count, const T& value) : m_size(0), m_cap(0), m_data(0) { resize(count, value); }
-	rcVectorBase(const T* begin, const T* end) : m_size(0), m_cap(0), m_data(0) { assign(begin, end); }
+	rcVectorBase() : m_size(0), m_cap(0), m_data(RC_NULL) {}
+	rcVectorBase(const rcVectorBase<T, H>& other) : m_size(0), m_cap(0), m_data(RC_NULL) { assign(other.begin(), other.end()); }
+	explicit rcVectorBase(rcSizeType count) : m_size(0), m_cap(0), m_data(RC_NULL) { resize(count); }
+	rcVectorBase(rcSizeType count, const T& value) : m_size(0), m_cap(0), m_data(RC_NULL) { resize(count, value); }
+	rcVectorBase(const T* begin, const T* end) : m_size(0), m_cap(0), m_data(RC_NULL) { assign(begin, end); }
 	~rcVectorBase() { destroy_range(0, m_size); rcFree(m_data); }
 
 	// Unlike in std::vector, we return a bool to indicate whether the alloc was successful.
@@ -137,7 +137,7 @@ class rcVectorBase {
 	void assign(rcSizeType count, const T& value) { clear(); resize(count, value); }
 	void assign(const T* begin, const T* end);
 
-	void resize(rcSizeType size) { resize_impl(size, NULL); }
+	void resize(rcSizeType size) { resize_impl(size, RC_NULL); }
 	void resize(rcSizeType size, const T& value) { resize_impl(size, &value); }
 	// Not implemented as resize(0) because resize requires T to be default-constructible.
 	void clear() { destroy_range(0, m_size); m_size = 0; }

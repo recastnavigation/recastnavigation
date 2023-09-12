@@ -18,6 +18,7 @@
 
 #include "Recast.h"
 #include "RecastAssert.h"
+#include "RecastModernCpp.h"
 
 #include <stdlib.h>
 
@@ -39,12 +40,12 @@ void rcFilterLowHangingWalkableObstacles(rcContext* context, const int walkableC
 	{
 		for (int x = 0; x < xSize; ++x)
 		{
-			rcSpan* previousSpan = NULL;
+			rcSpan* previousSpan = RC_NULL;
 			bool previousWasWalkable = false;
 			unsigned char previousAreaID = RC_NULL_AREA;
 
 			// For each span in the column...
-			for (rcSpan* span = heightfield.spans[x + z * xSize]; span != NULL; previousSpan = span, span = span->next)
+			for (rcSpan* span = heightfield.spans[x + z * xSize]; span != RC_NULL; previousSpan = span, span = span->next)
 			{
 				const bool walkable = span->area != RC_NULL_AREA;
 

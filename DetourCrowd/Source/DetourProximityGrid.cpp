@@ -23,12 +23,13 @@
 #include "DetourMath.h"
 #include "DetourAlloc.h"
 #include "DetourAssert.h"
+#include "DetourModernCpp.h"
 
 
 dtProximityGrid* dtAllocProximityGrid()
 {
 	void* mem = dtAlloc(sizeof(dtProximityGrid), DT_ALLOC_PERM);
-	if (!mem) return 0;
+	if (!mem) return DT_NULL;
 	return new(mem) dtProximityGrid;
 }
 
@@ -49,10 +50,10 @@ inline int hashPos2(int x, int y, int n)
 dtProximityGrid::dtProximityGrid() :
 	m_cellSize(0),
 	m_invCellSize(0),
-	m_pool(0),
+	m_pool(DT_NULL),
 	m_poolHead(0),
 	m_poolSize(0),
-	m_buckets(0),
+	m_buckets(DT_NULL),
 	m_bucketsSize(0)
 {
 }

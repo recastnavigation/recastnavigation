@@ -39,7 +39,7 @@
 #endif
 
 TestCase::TestCase() :
-	m_tests(0)
+	m_tests(RC_NULL)
 {
 }
 
@@ -99,7 +99,7 @@ static void copyName(std::string& dst, const char* src)
 
 bool TestCase::load(const std::string& filePath)
 {
-	char* buf = 0;
+	char* buf = RC_NULL;
 	FILE* fp = fopen(filePath.c_str(), "rb");
 	if (!fp)
 		return false;
@@ -209,10 +209,10 @@ void TestCase::doTests(dtNavMesh* navmesh, dtNavMeshQuery* navquery)
 	for (Test* iter = m_tests; iter; iter = iter->next)
 	{
 		delete [] iter->polys;
-		iter->polys = 0;
+		iter->polys = RC_NULL;
 		iter->npolys = 0;
 		delete [] iter->straight;
-		iter->straight = 0;
+		iter->straight = RC_NULL;
 		iter->nstraight = 0;
 		
 		dtQueryFilter filter;
@@ -248,7 +248,7 @@ void TestCase::doTests(dtNavMesh* navmesh, dtNavMeshQuery* navquery)
 				TimeVal findStraightPathStart = getPerfTime();
 				
 				navquery->findStraightPath(iter->spos, iter->epos, polys, iter->npolys,
-										   straight, 0, 0, &iter->nstraight, MAX_POLYS);
+										   straight, RC_NULL, RC_NULL, &iter->nstraight, MAX_POLYS);
 				TimeVal findStraightPathEnd = getPerfTime();
 				iter->findStraightPathTime += getPerfTimeUsec(findStraightPathEnd - findStraightPathStart);
 			}

@@ -21,8 +21,8 @@
 
 #include <stdint.h>
 
-#include "DetourModernCpp.h"
 #include "DetourNavMesh.h"
+#include "DetourModernCpp.h"
 
 enum dtNodeFlags
 {
@@ -70,13 +70,13 @@ public:
 
 	inline dtNode* getNodeAtIdx(unsigned int idx)
 	{
-		if (!idx) return 0;
+		if (!idx) return DT_NULL;
 		return &m_nodes[idx - 1];
 	}
 
 	inline const dtNode* getNodeAtIdx(unsigned int idx) const
 	{
-		if (!idx) return 0;
+		if (!idx) return DT_NULL;
 		return &m_nodes[idx - 1];
 	}
 	

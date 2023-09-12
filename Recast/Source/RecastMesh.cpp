@@ -1489,11 +1489,11 @@ bool rcCopyPolyMesh(rcContext* ctx, const rcPolyMesh& src, rcPolyMesh& dst)
 	rcAssert(ctx);
 	
 	// Destination must be empty.
-	rcAssert(dst.verts == 0);
-	rcAssert(dst.polys == 0);
-	rcAssert(dst.regs == 0);
-	rcAssert(dst.areas == 0);
-	rcAssert(dst.flags == 0);
+	rcAssert(dst.verts == RC_NULL);
+	rcAssert(dst.polys == RC_NULL);
+	rcAssert(dst.regs == RC_NULL);
+	rcAssert(dst.areas == RC_NULL);
+	rcAssert(dst.flags == RC_NULL);
 	
 	dst.nverts = src.nverts;
 	dst.npolys = src.npolys;

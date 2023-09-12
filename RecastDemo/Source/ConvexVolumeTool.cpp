@@ -98,7 +98,7 @@ static int pointInPoly(int nvert, const float* verts, const float* p)
 
 
 ConvexVolumeTool::ConvexVolumeTool() :
-	m_sample(0),
+	m_sample(RC_NULL),
 	m_areaType(SAMPLE_POLYAREA_GRASS),
 	m_polyOffset(0.0f),
 	m_boxHeight(6.0f),
