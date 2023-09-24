@@ -127,10 +127,13 @@ dtStatus dtTileCache::init(const dtTileCacheParams* params,
 	memcpy(&m_params, params, sizeof(m_params));
 	
 	// Alloc space for obstacles.
+    // 按最大阻挡数量分配内存
 	m_obstacles = (dtTileCacheObstacle*)dtAlloc(sizeof(dtTileCacheObstacle)*m_params.maxObstacles, DT_ALLOC_PERM);
 	if (!m_obstacles)
 		return DT_FAILURE | DT_OUT_OF_MEMORY;
+    // 内存清0
 	memset(m_obstacles, 0, sizeof(dtTileCacheObstacle)*m_params.maxObstacles);
+    // 使用 FreeList 来管理阻挡
 	m_nextFreeObstacle = 0;
 	for (int i = m_params.maxObstacles-1; i >= 0; --i)
 	{
@@ -139,11 +142,12 @@ dtStatus dtTileCache::init(const dtTileCacheParams* params,
 		m_nextFreeObstacle = &m_obstacles[i];
 	}
 	
-	// Init tiles
+    // 初始化 tile
 	m_tileLutSize = dtNextPow2(m_params.maxTiles/4);
 	if (!m_tileLutSize) m_tileLutSize = 1;
 	m_tileLutMask = m_tileLutSize-1;
 	
+    // 按最大tile数量分配压缩后tile内存
 	m_tiles = (dtCompressedTile*)dtAlloc(sizeof(dtCompressedTile)*m_params.maxTiles, DT_ALLOC_PERM);
 	if (!m_tiles)
 		return DT_FAILURE | DT_OUT_OF_MEMORY;
