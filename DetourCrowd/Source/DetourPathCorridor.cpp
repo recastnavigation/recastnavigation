@@ -512,7 +512,7 @@ void dtPathCorridor::setCorridor(const float* target, const dtPolyRef* path, con
 {
 	dtAssert(m_path);
 	dtAssert(npath > 0);
-	dtAssert(npath < m_maxPath);
+	dtAssert(npath <= m_maxPath);
 	
 	dtVcopy(m_target, target);
 	memcpy(m_path, path, sizeof(dtPolyRef)*npath);

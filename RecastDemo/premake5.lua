@@ -28,7 +28,7 @@ workspace "recastnavigation"
  
  	-- release configs
 	filter "configurations:Release"
-		defines { "NDEBUG" }
+		defines { "RC_DISABLE_ASSERTS" }
 		optimize "On"
 		targetdir ( todir .. "/lib/Release" )
 
@@ -213,7 +213,7 @@ project "Tests"
 		"../Recast/Source",
 		"../Tests/Recast",
 		"../Tests",
-		"../Tests/Contrib/Catch"
+		"../Tests/Contrib"
 	}
 	files { 
 		"../Tests/*.h",
@@ -223,7 +223,7 @@ project "Tests"
 		"../Tests/Recast/*.cpp",
 		"../Tests/Detour/*.h",
 		"../Tests/Detour/*.cpp",
-		"../Tests/Contrib/Catch/*.cpp"
+		"../Tests/Contrib/catch2/*.cpp"
 	}
 
 	-- project dependencies
@@ -237,6 +237,11 @@ project "Tests"
 
 	-- distribute executable in RecastDemo/Bin directory
 	targetdir "Bin"
+
+	-- enable ubsan and asan when compiling with clang
+	filter "toolset:clang"
+			buildoptions { "-fsanitize=undefined", "-fsanitize=address" } -- , "-fsanitize=memory" }
+			linkoptions { "-fsanitize=undefined", "-fsanitize=address" } --, "-fsanitize=memory" }
 
 	-- linux library cflags and libs
 	filter "system:linux"

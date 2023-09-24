@@ -18,7 +18,7 @@
 
 #include "DetourAssert.h"
 
-#ifndef NDEBUG
+#ifndef RC_DISABLE_ASSERTS
 
 static dtAssertFailFunc* sAssertFailFunc = 0;
 

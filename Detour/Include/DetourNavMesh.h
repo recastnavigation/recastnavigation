@@ -22,7 +22,7 @@
 #include "DetourAlloc.h"
 #include "DetourStatus.h"
 
-// Undefine (or define in a build cofnig) the following line to use 64bit polyref.
+// Undefine (or define in a build config) the following line to use 64bit polyref.
 // Generally not needed, useful for very large worlds.
 // Note: tiles build using 32bit refs are not compatible with 64bit refs!
 //#define DT_POLYREF64 1
@@ -171,7 +171,7 @@ struct dtPoly
 	unsigned char vertCount;
 
 	/// The bit packed area id and polygon type.
-	/// @note Use the structure's set and get methods to acess this value.
+	/// @note Use the structure's set and get methods to access this value.
 	unsigned char areaAndtype;
 
 	/// Sets the user defined area id. [Limit: < #DT_MAX_AREAS]

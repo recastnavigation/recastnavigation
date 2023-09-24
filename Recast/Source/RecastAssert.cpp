@@ -18,11 +18,11 @@
 
 #include "RecastAssert.h"
 
-#ifndef NDEBUG
+#ifndef RC_DISABLE_ASSERTS
 
 static rcAssertFailFunc* sRecastAssertFailFunc = 0;
 
-void rcAssertFailSetCustom(rcAssertFailFunc *assertFailFunc)
+void rcAssertFailSetCustom(rcAssertFailFunc* assertFailFunc)
 {
 	sRecastAssertFailFunc = assertFailFunc;
 }
