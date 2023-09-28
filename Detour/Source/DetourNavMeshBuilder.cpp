@@ -424,19 +424,16 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	}
 	
 	// Calculate data size
-	const int headerSize = dtAlign4(sizeof(dtMeshHeader));
-	const int vertsSize = dtAlign4(sizeof(float)*3*totVertCount);
-	const int polysSize = dtAlign4(sizeof(dtPoly)*totPolyCount);
-	const int linksSize = dtAlign4(sizeof(dtLink)*maxLinkCount);
-	const int detailMeshesSize = dtAlign4(sizeof(dtPolyDetail)*params->polyCount);
-	const int detailVertsSize = dtAlign4(sizeof(float)*3*uniqueDetailVertCount);
-	const int detailTrisSize = dtAlign4(sizeof(unsigned char)*4*detailTriCount);
-	const int bvTreeSize = params->buildBvTree ? dtAlign4(sizeof(dtBVNode)*params->polyCount*2) : 0;
-	const int offMeshConsSize = dtAlign4(sizeof(dtOffMeshConnection)*storedOffMeshConCount);
-	
-	const int dataSize = headerSize + vertsSize + polysSize + linksSize +
-						 detailMeshesSize + detailVertsSize + detailTrisSize +
-						 bvTreeSize + offMeshConsSize;
+	const int headerPosition = 0;
+	const int vertsPosition = dtAlignForType<float>(headerPosition + sizeof(dtMeshHeader));
+	const int polysPosition = dtAlignForType<dtPoly>(vertsPosition + sizeof(float)*3*totVertCount);
+	const int linksPosition = dtAlignForType<dtLink>(polysPosition + sizeof(dtPoly)*totPolyCount);
+	const int detailMeshesPosition = dtAlignForType<dtPolyDetail>(linksPosition + sizeof(dtLink)*maxLinkCount);
+	const int detailVertsPosition = dtAlignForType<float>(detailMeshesPosition + sizeof(dtPolyDetail)*params->polyCount);
+	const int detailTrisPosition = dtAlignForType<unsigned char>(detailVertsPosition + sizeof(float)*3*uniqueDetailVertCount);
+	const int bvtreePosition = dtAlignForType<dtBVNode>(detailTrisPosition + sizeof(unsigned char)*4*detailTriCount);
+	const int offMeshConsPosition = dtAlignForType<dtOffMeshConnection>(bvtreePosition + static_cast<int>(params->buildBvTree)*sizeof(dtBVNode)*params->polyCount*2);
+	const int dataSize = offMeshConsPosition + sizeof(dtOffMeshConnection)*storedOffMeshConCount;
 						 
 	unsigned char* data = (unsigned char*)dtAlloc(sizeof(unsigned char)*dataSize, DT_ALLOC_PERM);
 	if (!data)
@@ -445,19 +442,16 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 		return false;
 	}
 	memset(data, 0, dataSize);
-	
-	unsigned char* d = data;
 
-	dtMeshHeader* header = dtGetThenAdvanceBufferPointer<dtMeshHeader>(d, headerSize);
-	float* navVerts = dtGetThenAdvanceBufferPointer<float>(d, vertsSize);
-	dtPoly* navPolys = dtGetThenAdvanceBufferPointer<dtPoly>(d, polysSize);
-	d += linksSize; // Ignore links; just leave enough space for them. They'll be created on load.
-	dtPolyDetail* navDMeshes = dtGetThenAdvanceBufferPointer<dtPolyDetail>(d, detailMeshesSize);
-	float* navDVerts = dtGetThenAdvanceBufferPointer<float>(d, detailVertsSize);
-	unsigned char* navDTris = dtGetThenAdvanceBufferPointer<unsigned char>(d, detailTrisSize);
-	dtBVNode* navBvtree = dtGetThenAdvanceBufferPointer<dtBVNode>(d, bvTreeSize);
-	dtOffMeshConnection* offMeshCons = dtGetThenAdvanceBufferPointer<dtOffMeshConnection>(d, offMeshConsSize);
-	
+	dtMeshHeader* header = reinterpret_cast<dtMeshHeader*>(data + headerPosition);
+	float* navVerts = reinterpret_cast<float*>(data + vertsPosition);
+	dtPoly* navPolys = reinterpret_cast<dtPoly*>(data + polysPosition);
+	// Ignore links; just leave enough space for them. They'll be created on load.
+	dtPolyDetail* navDMeshes = reinterpret_cast<dtPolyDetail*>(data + detailMeshesPosition);
+	float* navDVerts = reinterpret_cast<float*>(data + detailVertsPosition);
+	unsigned char* navDTris = reinterpret_cast<unsigned char*>(data + detailTrisPosition);
+	dtBVNode* navBvtree = reinterpret_cast<dtBVNode*>(data + bvtreePosition);
+	dtOffMeshConnection* offMeshCons = reinterpret_cast<dtOffMeshConnection*>(data + offMeshConsPosition);
 	
 	// Store header
 	header->magic = DT_NAVMESH_MAGIC;
@@ -712,34 +706,35 @@ bool dtNavMeshHeaderSwapEndian(unsigned char* data, const int /*dataSize*/)
 bool dtNavMeshDataSwapEndian(unsigned char* data, const int /*dataSize*/)
 {
 	// Make sure the data is in right format.
-	dtMeshHeader* header = (dtMeshHeader*)data;
+	dtMeshHeader* header = reinterpret_cast<dtMeshHeader*>(data);
 	if (header->magic != DT_NAVMESH_MAGIC)
 		return false;
 	if (header->version != DT_NAVMESH_VERSION)
 		return false;
 	
-	// Patch header pointers.
-	const int headerSize = dtAlign4(sizeof(dtMeshHeader));
-	const int vertsSize = dtAlign4(sizeof(float)*3*header->vertCount);
-	const int polysSize = dtAlign4(sizeof(dtPoly)*header->polyCount);
-	const int linksSize = dtAlign4(sizeof(dtLink)*(header->maxLinkCount));
-	const int detailMeshesSize = dtAlign4(sizeof(dtPolyDetail)*header->detailMeshCount);
-	const int detailVertsSize = dtAlign4(sizeof(float)*3*header->detailVertCount);
-	const int detailTrisSize = dtAlign4(sizeof(unsigned char)*4*header->detailTriCount);
-	const int bvtreeSize = dtAlign4(sizeof(dtBVNode)*header->bvNodeCount);
-	const int offMeshLinksSize = dtAlign4(sizeof(dtOffMeshConnection)*header->offMeshConCount);
+	// Compute aligned positions for pointers.
+	const int headerPosition = 0;
+	const int vertsPosition = dtAlignForType<float>(headerPosition + sizeof(dtMeshHeader));
+	const int polysPosition = dtAlignForType<dtPoly>(vertsPosition + sizeof(float)*3*header->vertCount);
+	const int linksPosition = dtAlignForType<dtLink>(polysPosition + sizeof(dtPoly)*header->polyCount);
+	const int detailMeshesPosition = dtAlignForType<dtPolyDetail>(linksPosition + sizeof(dtLink)*header->maxLinkCount);
+	const int detailVertsPosition = dtAlignForType<float>(detailMeshesPosition + sizeof(dtPolyDetail)*header->detailMeshCount);
+	const int detailTrisPosition = dtAlignForType<unsigned char>(detailVertsPosition + sizeof(float)*3*header->detailVertCount);
+	const int bvtreePosition = dtAlignForType<dtBVNode>(detailTrisPosition + sizeof(unsigned char)*4*header->detailTriCount);
+	const int offMeshLinksPosition = dtAlignForType<dtOffMeshConnection>(bvtreePosition + sizeof(dtBVNode)*header->bvNodeCount);
+	const int tileSize = offMeshLinksPosition + sizeof(dtOffMeshConnection)*header->offMeshConCount;
 	
-	unsigned char* d = data + headerSize;
-	float* verts = dtGetThenAdvanceBufferPointer<float>(d, vertsSize);
-	dtPoly* polys = dtGetThenAdvanceBufferPointer<dtPoly>(d, polysSize);
-	d += linksSize; // Ignore links; they technically should be endian-swapped but all their data is overwritten on load anyway.
-	//dtLink* links = dtGetThenAdvanceBufferPointer<dtLink>(d, linksSize);
-	dtPolyDetail* detailMeshes = dtGetThenAdvanceBufferPointer<dtPolyDetail>(d, detailMeshesSize);
-	float* detailVerts = dtGetThenAdvanceBufferPointer<float>(d, detailVertsSize);
-	d += detailTrisSize; // Ignore detail tris; single bytes can't be endian-swapped.
-	//unsigned char* detailTris = dtGetThenAdvanceBufferPointer<unsigned char>(d, detailTrisSize);
-	dtBVNode* bvTree = dtGetThenAdvanceBufferPointer<dtBVNode>(d, bvtreeSize);
-	dtOffMeshConnection* offMeshCons = dtGetThenAdvanceBufferPointer<dtOffMeshConnection>(d, offMeshLinksSize);
+	// Patch header pointers.
+	float* verts = reinterpret_cast<float*>(data + vertsPosition);
+	dtPoly* polys = reinterpret_cast<dtPoly*>(data + polysPosition);
+	// Ignore links; they technically should be endian-swapped but all their data is overwritten on load anyway.
+	//dtLink* links = reinterpret_cast<dtLink*>(data + linksPosition);
+	dtPolyDetail* detailMeshes = reinterpret_cast<dtPolyDetail*>(data + detailMeshesPosition);
+	float* detailVerts = reinterpret_cast<float*>(data + detailVertsPosition);
+	// Ignore detail tris; single bytes can't be endian-swapped.
+	//unsigned char* detailTris = reinterpret_cast<unsigned char*>(data + detailTrisPosition);
+	dtBVNode* bvTree = reinterpret_cast<dtBVNode*>(data + bvtreePosition);
+	dtOffMeshConnection* offMeshCons = reinterpret_cast<dtOffMeshConnection*>(data + offMeshLinksPosition);
 	
 	// Vertices
 	for (int i = 0; i < header->vertCount*3; ++i)
