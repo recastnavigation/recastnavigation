@@ -424,15 +424,15 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	}
 	
 	// Calculate data size
-	const int headerSize = dtAlign4(sizeof(dtMeshHeader));
-	const int vertsSize = dtAlign4(sizeof(float)*3*totVertCount);
-	const int polysSize = dtAlign4(sizeof(dtPoly)*totPolyCount);
-	const int linksSize = dtAlign4(sizeof(dtLink)*maxLinkCount);
-	const int detailMeshesSize = dtAlign4(sizeof(dtPolyDetail)*params->polyCount);
-	const int detailVertsSize = dtAlign4(sizeof(float)*3*uniqueDetailVertCount);
-	const int detailTrisSize = dtAlign4(sizeof(unsigned char)*4*detailTriCount);
-	const int bvTreeSize = params->buildBvTree ? dtAlign4(sizeof(dtBVNode)*params->polyCount*2) : 0;
-	const int offMeshConsSize = dtAlign4(sizeof(dtOffMeshConnection)*storedOffMeshConCount);
+	const int headerSize = dtAlignForType<float>(sizeof(dtMeshHeader));
+	const int vertsSize = dtAlignForType<dtPoly>(sizeof(float)*3*totVertCount);
+	const int polysSize = dtAlignForType<dtLink>(sizeof(dtPoly)*totPolyCount);
+	const int linksSize = dtAlignForType<dtPolyDetail>(sizeof(dtLink)*maxLinkCount);
+	const int detailMeshesSize = dtAlignForType<float>(sizeof(dtPolyDetail)*params->polyCount);
+	const int detailVertsSize = dtAlignForType<unsigned char>(sizeof(float)*3*uniqueDetailVertCount);
+	const int detailTrisSize = dtAlignForType<dtBVNode>(sizeof(unsigned char)*4*detailTriCount);
+	const int bvTreeSize = params->buildBvTree ? dtAlignForType<dtOffMeshConnection>(sizeof(dtBVNode)*params->polyCount*2) : 0;
+	const int offMeshConsSize = sizeof(dtOffMeshConnection)*storedOffMeshConCount;
 	
 	const int dataSize = headerSize + vertsSize + polysSize + linksSize +
 						 detailMeshesSize + detailVertsSize + detailTrisSize +
@@ -457,7 +457,9 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	unsigned char* navDTris = dtGetThenAdvanceBufferPointer<unsigned char>(d, detailTrisSize);
 	dtBVNode* navBvtree = dtGetThenAdvanceBufferPointer<dtBVNode>(d, bvTreeSize);
 	dtOffMeshConnection* offMeshCons = dtGetThenAdvanceBufferPointer<dtOffMeshConnection>(d, offMeshConsSize);
-	
+
+	// Pointer must be advanced by dataSize value
+	dtAssert(static_cast<int>(d - data) == dataSize);
 	
 	// Store header
 	header->magic = DT_NAVMESH_MAGIC;
@@ -719,15 +721,15 @@ bool dtNavMeshDataSwapEndian(unsigned char* data, const int /*dataSize*/)
 		return false;
 	
 	// Patch header pointers.
-	const int headerSize = dtAlign4(sizeof(dtMeshHeader));
-	const int vertsSize = dtAlign4(sizeof(float)*3*header->vertCount);
-	const int polysSize = dtAlign4(sizeof(dtPoly)*header->polyCount);
-	const int linksSize = dtAlign4(sizeof(dtLink)*(header->maxLinkCount));
-	const int detailMeshesSize = dtAlign4(sizeof(dtPolyDetail)*header->detailMeshCount);
-	const int detailVertsSize = dtAlign4(sizeof(float)*3*header->detailVertCount);
-	const int detailTrisSize = dtAlign4(sizeof(unsigned char)*4*header->detailTriCount);
-	const int bvtreeSize = dtAlign4(sizeof(dtBVNode)*header->bvNodeCount);
-	const int offMeshLinksSize = dtAlign4(sizeof(dtOffMeshConnection)*header->offMeshConCount);
+	const int headerSize = dtAlignForType<float>(sizeof(dtMeshHeader));
+	const int vertsSize = dtAlignForType<dtPoly>(sizeof(float)*3*header->vertCount);
+	const int polysSize = dtAlignForType<dtLink>(sizeof(dtPoly)*header->polyCount);
+	const int linksSize = dtAlignForType<dtPolyDetail>(sizeof(dtLink)*(header->maxLinkCount));
+	const int detailMeshesSize = dtAlignForType<float>(sizeof(dtPolyDetail)*header->detailMeshCount);
+	const int detailVertsSize = dtAlignForType<unsigned char>(sizeof(float)*3*header->detailVertCount);
+	const int detailTrisSize = dtAlignForType<dtBVNode>(sizeof(unsigned char)*4*header->detailTriCount);
+	const int bvtreeSize = dtAlignForType<dtOffMeshConnection>(sizeof(dtBVNode)*header->bvNodeCount);
+	const int offMeshLinksSize = sizeof(dtOffMeshConnection)*header->offMeshConCount;
 	
 	unsigned char* d = data + headerSize;
 	float* verts = dtGetThenAdvanceBufferPointer<float>(d, vertsSize);
