@@ -104,7 +104,7 @@ void rcFilterLedgeSpans(rcContext* context, const int walkableHeight, const int 
 						break;
 					}
 
-					// First span.
+					// From minus infinity to the first span.
 					const rcSpan* neighborSpan = heightfield.spans[dx + dz * xSize];
 					int neighborTop = neighborSpan ? (int)neighborSpan->smin : MAX_HEIGHT;
 					
