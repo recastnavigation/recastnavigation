@@ -133,6 +133,10 @@ void rcFilterLedgeSpans(rcContext* context, const int walkableHeight, const int 
 								if (neighborBot < accessibleNeighborMinHeight) accessibleNeighborMinHeight = neighborBot;
 								if (neighborBot > accessibleNeighborMaxHeight) accessibleNeighborMaxHeight = neighborBot;
 							}
+							else if (accessibleNeighbourHeight < -walkableClimb)
+							{
+								break;
+							}
 
 						}
 					}
