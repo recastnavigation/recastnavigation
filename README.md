@@ -66,7 +66,9 @@ RecastDemo uses [premake5](http://premake.github.io/) to build platform specific
 
 ## Integrating with your game or engine
 
-See [Integration.md](Integration.md)
+- See [Integration.md](Integration.md)
+- See [official docs](https://recastnav.com)
+- See [official repo](https://github.com/recastnavigation/recastnavigation)
 
 ## Contribute
 
