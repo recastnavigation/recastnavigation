@@ -1,10 +1,8 @@
-#include <math.h>
-#include <stdio.h>
-#include <stdarg.h>
+#include <cmath>
+#include <cstdio>
+#include <cstdarg>
 #include "SampleInterfaces.h"
 #include "Recast.h"
-#include "RecastDebugDraw.h"
-#include "DetourDebugDraw.h"
 #include "PerfTimer.h"
 #include "SDL.h"
 #include "SDL_opengl.h"
@@ -37,14 +35,14 @@ void BuildContext::doLog(const rcLogCategory category, const char* msg, const in
 	if (m_messageCount >= MAX_MESSAGES)
 		return;
 	char* dst = &m_textPool[m_textPoolSize];
-	int n = TEXT_POOL_SIZE - m_textPoolSize;
+	const int n = TEXT_POOL_SIZE - m_textPoolSize;
 	if (n < 2)
 		return;
 	char* cat = dst;
 	char* text = dst+1;
 	const int maxtext = n-1;
 	// Store category
-	*cat = (char)category;
+	*cat = static_cast<char>(category);
 	// Store message
 	const int count = rcMin(len+1, maxtext);
 	memcpy(text, msg, count);
@@ -55,8 +53,8 @@ void BuildContext::doLog(const rcLogCategory category, const char* msg, const in
 
 void BuildContext::doResetTimers()
 {
-	for (int i = 0; i < RC_MAX_TIMERS; ++i)
-		m_accTime[i] = -1;
+	for (long long & i : m_accTime)
+		i = -1;
 }
 
 void BuildContext::doStartTimer(const rcTimerLabel label)
@@ -79,7 +77,7 @@ int BuildContext::doGetAccumulatedTime(const rcTimerLabel label) const
 	return getPerfTimeUsec(m_accTime[label]);
 }
 
-void BuildContext::dumpLog(const char* format, ...)
+void BuildContext::dumpLog(const char* format, ...) const
 {
 	// Print header.
 	va_list ap;
@@ -89,7 +87,7 @@ void BuildContext::dumpLog(const char* format, ...)
 	printf("\n");
 	
 	// Print messages
-	const int TAB_STOPS[4] = { 28, 36, 44, 52 };
+	constexpr int TAB_STOPS[4] = { 28, 36, 44, 52 };
 	for (int i = 0; i < m_messageCount; ++i)
 	{
 		const char* msg = m_messages[i]+1;
@@ -99,11 +97,11 @@ void BuildContext::dumpLog(const char* format, ...)
 			if (*msg == '\t')
 			{
 				int count = 1;
-				for (int j = 0; j < 4; ++j)
+				for (const int j : TAB_STOPS)
 				{
-					if (n < TAB_STOPS[j])
+					if (n < j)
 					{
-						count = TAB_STOPS[j] - n;
+						count = j - n;
 						break;
 					}
 				}
@@ -156,7 +154,7 @@ public:
 			// Create checker pattern.
 			const unsigned int col0 = duRGBA(215,215,215,255);
 			const unsigned int col1 = duRGBA(255,255,255,255);
-			static const int TSIZE = 64;
+			static constexpr int TSIZE = 64;
 			unsigned int data[TSIZE*TSIZE];
 			
 			glGenTextures(1, &m_texId);
@@ -186,12 +184,12 @@ public:
 static GLCheckerTexture g_tex;
 
 
-void DebugDrawGL::depthMask(bool state)
+void DebugDrawGL::depthMask(const bool state)
 {
 	glDepthMask(state ? GL_TRUE : GL_FALSE);
 }
 
-void DebugDrawGL::texture(bool state)
+void DebugDrawGL::texture(const bool state)
 {
 	if (state)
 	{
@@ -204,7 +202,7 @@ void DebugDrawGL::texture(bool state)
 	}
 }
 
-void DebugDrawGL::begin(duDebugDrawPrimitives prim, float size)
+void DebugDrawGL::begin(const duDebugDrawPrimitives prim, const float size)
 {
 	switch (prim)
 	{
@@ -222,31 +220,31 @@ void DebugDrawGL::begin(duDebugDrawPrimitives prim, float size)
 		case DU_DRAW_QUADS:
 			glBegin(GL_QUADS);
 			break;
-	};
+	}
 }
 
 void DebugDrawGL::vertex(const float* pos, unsigned int color)
 {
-	glColor4ubv((GLubyte*)&color);
+	glColor4ubv(reinterpret_cast<GLubyte*>(&color));
 	glVertex3fv(pos);
 }
 
 void DebugDrawGL::vertex(const float x, const float y, const float z, unsigned int color)
 {
-	glColor4ubv((GLubyte*)&color);
+	glColor4ubv(reinterpret_cast<GLubyte*>(&color));
 	glVertex3f(x,y,z);
 }
 
 void DebugDrawGL::vertex(const float* pos, unsigned int color, const float* uv)
 {
-	glColor4ubv((GLubyte*)&color);
+	glColor4ubv(reinterpret_cast<GLubyte*>(&color));
 	glTexCoord2fv(uv);
 	glVertex3fv(pos);
 }
 
 void DebugDrawGL::vertex(const float x, const float y, const float z, unsigned int color, const float u, const float v)
 {
-	glColor4ubv((GLubyte*)&color);
+	glColor4ubv(reinterpret_cast<GLubyte*>(&color));
 	glTexCoord2f(u,v);
 	glVertex3f(x,y,z);
 }
@@ -261,7 +259,7 @@ void DebugDrawGL::end()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 FileIO::FileIO() :
-	m_fp(0),
+	m_fp(nullptr),
 	m_mode(-1)
 {
 }
@@ -274,7 +272,8 @@ FileIO::~FileIO()
 bool FileIO::openForWrite(const char* path)
 {
 	if (m_fp) return false;
-	m_fp = fopen(path, "wb");
+	FILE* fp;
+	fopen_s(&fp, path, "wb");
 	if (!m_fp) return false;
 	m_mode = 1;
 	return true;
@@ -283,7 +282,8 @@ bool FileIO::openForWrite(const char* path)
 bool FileIO::openForRead(const char* path)
 {
 	if (m_fp) return false;
-	m_fp = fopen(path, "rb");
+	FILE* fp;
+	fopen_s(&fp, path, "rb");
 	if (!m_fp) return false;
 	m_mode = 2;
 	return true;
@@ -309,7 +309,7 @@ bool FileIO::write(const void* ptr, const size_t size)
 bool FileIO::read(void* ptr, const size_t size)
 {
 	if (!m_fp || m_mode != 2) return false;
-	size_t readLen = fread(ptr, size, 1, m_fp);
+	const size_t readLen = fread(ptr, size, 1, m_fp);
 	return readLen == 1;
 }
 

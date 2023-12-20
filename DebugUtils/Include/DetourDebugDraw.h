@@ -20,7 +20,6 @@
 #define DETOURDEBUGDRAW_H
 
 #include "DetourNavMesh.h"
-#include "DetourNavMeshQuery.h"
 #include "DetourTileCacheBuilder.h"
 
 enum DrawNavMeshFlags
@@ -30,19 +29,19 @@ enum DrawNavMeshFlags
 	DU_DRAWNAVMESH_COLOR_TILES = 0x04
 };
 
-void duDebugDrawNavMesh(struct duDebugDraw* dd, const dtNavMesh& mesh, unsigned char flags);
-void duDebugDrawNavMeshWithClosedList(struct duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMeshQuery& query, unsigned char flags);
-void duDebugDrawNavMeshNodes(struct duDebugDraw* dd, const dtNavMeshQuery& query);
-void duDebugDrawNavMeshBVTree(struct duDebugDraw* dd, const dtNavMesh& mesh);
-void duDebugDrawNavMeshPortals(struct duDebugDraw* dd, const dtNavMesh& mesh);
-void duDebugDrawNavMeshPolysWithFlags(struct duDebugDraw* dd, const dtNavMesh& mesh, const unsigned short polyFlags, const unsigned int col);
-void duDebugDrawNavMeshPoly(struct duDebugDraw* dd, const dtNavMesh& mesh, dtPolyRef ref, const unsigned int col);
+void duDebugDrawNavMesh(duDebugDraw* dd, const dtNavMesh& mesh, unsigned char flags);
+void duDebugDrawNavMeshWithClosedList(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMeshQuery& query, unsigned char flags);
+void duDebugDrawNavMeshNodes(duDebugDraw* dd, const dtNavMeshQuery& query);
+void duDebugDrawNavMeshBVTree(duDebugDraw* dd, const dtNavMesh& mesh);
+void duDebugDrawNavMeshPortals(duDebugDraw* dd, const dtNavMesh& mesh);
+void duDebugDrawNavMeshPolysWithFlags(duDebugDraw* dd, const dtNavMesh& mesh, unsigned short polyFlags, unsigned int col);
+void duDebugDrawNavMeshPoly(duDebugDraw* dd, const dtNavMesh& mesh, dtPolyRef ref, unsigned int col);
 
-void duDebugDrawTileCacheLayerAreas(struct duDebugDraw* dd, const dtTileCacheLayer& layer, const float cs, const float ch);
-void duDebugDrawTileCacheLayerRegions(struct duDebugDraw* dd, const dtTileCacheLayer& layer, const float cs, const float ch);
-void duDebugDrawTileCacheContours(duDebugDraw* dd, const struct dtTileCacheContourSet& lcset,
-								  const float* orig, const float cs, const float ch);
-void duDebugDrawTileCachePolyMesh(duDebugDraw* dd, const struct dtTileCachePolyMesh& lmesh,
-								  const float* orig, const float cs, const float ch);
+void duDebugDrawTileCacheLayerAreas(duDebugDraw* dd, const dtTileCacheLayer& layer, float cs, float ch);
+void duDebugDrawTileCacheLayerRegions(duDebugDraw* dd, const dtTileCacheLayer& layer, float cs, float ch);
+void duDebugDrawTileCacheContours(duDebugDraw* dd, const dtTileCacheContourSet& lcset,
+								  const float* orig, float cs, float ch);
+void duDebugDrawTileCachePolyMesh(duDebugDraw* dd, const dtTileCachePolyMesh& lmesh,
+								  const float* orig, float cs, float ch);
 
 #endif // DETOURDEBUGDRAW_H

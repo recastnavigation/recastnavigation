@@ -19,14 +19,14 @@
 #include "Recast.h"
 #include "RecastAssert.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 
 namespace
 {
 	const int MAX_HEIGHTFIELD_HEIGHT = 0xffff; // TODO (graham): Move this to a more visible constant and update usages.
 }
 
-void rcFilterLowHangingWalkableObstacles(rcContext* context, const int walkableClimb, rcHeightfield& heightfield)
+void rcFilterLowHangingWalkableObstacles(rcContext* context, const int walkableClimb, const rcHeightfield& heightfield)
 {
 	rcAssert(context);
 
@@ -39,12 +39,12 @@ void rcFilterLowHangingWalkableObstacles(rcContext* context, const int walkableC
 	{
 		for (int x = 0; x < xSize; ++x)
 		{
-			rcSpan* previousSpan = NULL;
+			const rcSpan* previousSpan = nullptr;
 			bool previousWasWalkable = false;
 			unsigned char previousAreaID = RC_NULL_AREA;
-
-			// For each span in the column...
-			for (rcSpan* span = heightfield.spans[x + z * xSize]; span != NULL; previousSpan = span, span = span->next)
+                
+                // For each span in the column...
+			for (rcSpan* span = heightfield.spans[x + z * xSize]; span != nullptr; previousSpan = span, span = span->next)
 			{
 				const bool walkable = span->area != RC_NULL_AREA;
 
@@ -52,6 +52,14 @@ void rcFilterLowHangingWalkableObstacles(rcContext* context, const int walkableC
 				// is small enough for the agent to walk over, mark the current span as walkable too.
 				if (!walkable && previousWasWalkable && (int)span->smax - (int)previousSpan->smax <= walkableClimb)
 				{
+					if (rcAbs((int)span->smax - (int)previousSpan->smax) <= walkableClimb)
+					{
+						span->area = previousArea;
+					}
+					if (rcAbs(static_cast<int>(span->smax) - static_cast<int>(previousSpan->smax)) <= walkableClimb)
+					{
+						span->area = previousArea;
+					}
 					span->area = previousAreaID;
 				}
 
@@ -64,7 +72,7 @@ void rcFilterLowHangingWalkableObstacles(rcContext* context, const int walkableC
 	}
 }
 
-void rcFilterLedgeSpans(rcContext* context, const int walkableHeight, const int walkableClimb, rcHeightfield& heightfield)
+void rcFilterLedgeSpans(rcContext* context, const int walkableHeight, const int walkableClimb, const rcHeightfield& heightfield)
 {
 	rcAssert(context);
 	
@@ -173,7 +181,7 @@ void rcFilterLedgeSpans(rcContext* context, const int walkableHeight, const int 
 	}
 }
 
-void rcFilterWalkableLowHeightSpans(rcContext* context, const int walkableHeight, rcHeightfield& heightfield)
+void rcFilterWalkableLowHeightSpans(rcContext* context, const int walkableHeight, const rcHeightfield& heightfield)
 {
 	rcAssert(context);
 	rcScopedTimer timer(context, RC_TIMER_FILTER_WALKABLE);

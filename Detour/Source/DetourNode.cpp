@@ -20,7 +20,7 @@
 #include "DetourAlloc.h"
 #include "DetourAssert.h"
 #include "DetourCommon.h"
-#include <string.h>
+#include <cstring>
 
 #ifdef DT_POLYREF64
 // From Thomas Wang, https://gist.github.com/badboy/6267743
@@ -38,20 +38,20 @@ inline unsigned int dtHashRef(dtPolyRef a)
 inline unsigned int dtHashRef(dtPolyRef a)
 {
 	a += ~(a<<15);
-	a ^=  (a>>10);
-	a +=  (a<<3);
-	a ^=  (a>>6);
+	a ^=  a>>10;
+	a +=  a<<3;
+	a ^=  a>>6;
 	a += ~(a<<11);
-	a ^=  (a>>16);
-	return (unsigned int)a;
+	a ^=  a>>16;
+	return a;
 }
 #endif
 
 //////////////////////////////////////////////////////////////////////////////////////////
-dtNodePool::dtNodePool(int maxNodes, int hashSize) :
-	m_nodes(0),
-	m_first(0),
-	m_next(0),
+dtNodePool::dtNodePool(const int maxNodes, const int hashSize) :
+	m_nodes(nullptr),
+	m_first(nullptr),
+	m_next(nullptr),
 	m_maxNodes(maxNodes),
 	m_hashSize(hashSize),
 	m_nodeCount(0)
@@ -61,9 +61,9 @@ dtNodePool::dtNodePool(int maxNodes, int hashSize) :
 	// we have 1 fewer nodes available than the number of values it can contain.
 	dtAssert(m_maxNodes > 0 && m_maxNodes <= DT_NULL_IDX && m_maxNodes <= (1 << DT_NODE_PARENT_BITS) - 1);
 
-	m_nodes = (dtNode*)dtAlloc(sizeof(dtNode)*m_maxNodes, DT_ALLOC_PERM);
-	m_next = (dtNodeIndex*)dtAlloc(sizeof(dtNodeIndex)*m_maxNodes, DT_ALLOC_PERM);
-	m_first = (dtNodeIndex*)dtAlloc(sizeof(dtNodeIndex)*hashSize, DT_ALLOC_PERM);
+	m_nodes = static_cast<dtNode*>(dtAlloc(sizeof(dtNode) * m_maxNodes, DT_ALLOC_PERM));
+	m_next = static_cast<dtNodeIndex*>(dtAlloc(sizeof(dtNodeIndex) * m_maxNodes, DT_ALLOC_PERM));
+	m_first = static_cast<dtNodeIndex*>(dtAlloc(sizeof(dtNodeIndex) * hashSize, DT_ALLOC_PERM));
 
 	dtAssert(m_nodes);
 	dtAssert(m_next);
@@ -86,10 +86,10 @@ void dtNodePool::clear()
 	m_nodeCount = 0;
 }
 
-unsigned int dtNodePool::findNodes(dtPolyRef id, dtNode** nodes, const int maxNodes)
+unsigned int dtNodePool::findNodes(const dtPolyRef id, dtNode** nodes, const int maxNodes) const
 {
 	int n = 0;
-	unsigned int bucket = dtHashRef(id) & (m_hashSize-1);
+	const unsigned int bucket = dtHashRef(id) & m_hashSize-1;
 	dtNodeIndex i = m_first[bucket];
 	while (i != DT_NULL_IDX)
 	{
@@ -105,9 +105,9 @@ unsigned int dtNodePool::findNodes(dtPolyRef id, dtNode** nodes, const int maxNo
 	return n;
 }
 
-dtNode* dtNodePool::findNode(dtPolyRef id, unsigned char state)
+dtNode* dtNodePool::findNode(const dtPolyRef id, const unsigned char state) const
 {
-	unsigned int bucket = dtHashRef(id) & (m_hashSize-1);
+	const unsigned int bucket = dtHashRef(id) & m_hashSize-1;
 	dtNodeIndex i = m_first[bucket];
 	while (i != DT_NULL_IDX)
 	{
@@ -115,14 +115,13 @@ dtNode* dtNodePool::findNode(dtPolyRef id, unsigned char state)
 			return &m_nodes[i];
 		i = m_next[i];
 	}
-	return 0;
+	return nullptr;
 }
 
-dtNode* dtNodePool::getNode(dtPolyRef id, unsigned char state)
+dtNode* dtNodePool::getNode(const dtPolyRef id, const unsigned char state)
 {
-	unsigned int bucket = dtHashRef(id) & (m_hashSize-1);
+	const unsigned int bucket = dtHashRef(id) & m_hashSize-1;
 	dtNodeIndex i = m_first[bucket];
-	dtNode* node = 0;
 	while (i != DT_NULL_IDX)
 	{
 		if (m_nodes[i].id == id && m_nodes[i].state == state)
@@ -131,13 +130,13 @@ dtNode* dtNodePool::getNode(dtPolyRef id, unsigned char state)
 	}
 	
 	if (m_nodeCount >= m_maxNodes)
-		return 0;
+		return nullptr;
 	
-	i = (dtNodeIndex)m_nodeCount;
+	i = static_cast<dtNodeIndex>(m_nodeCount);
 	m_nodeCount++;
 	
 	// Init node
-	node = &m_nodes[i];
+	dtNode* node = &m_nodes[i];
 	node->pidx = 0;
 	node->cost = 0;
 	node->total = 0;
@@ -153,14 +152,14 @@ dtNode* dtNodePool::getNode(dtPolyRef id, unsigned char state)
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
-dtNodeQueue::dtNodeQueue(int n) :
-	m_heap(0),
+dtNodeQueue::dtNodeQueue(const int n) :
+	m_heap(nullptr),
 	m_capacity(n),
 	m_size(0)
 {
 	dtAssert(m_capacity > 0);
 	
-	m_heap = (dtNode**)dtAlloc(sizeof(dtNode*)*(m_capacity+1), DT_ALLOC_PERM);
+	m_heap = static_cast<dtNode**>(dtAlloc(sizeof(dtNode*) * (m_capacity + 1), DT_ALLOC_PERM));
 	dtAssert(m_heap);
 }
 
@@ -169,11 +168,11 @@ dtNodeQueue::~dtNodeQueue()
 	dtFree(m_heap);
 }
 
-void dtNodeQueue::bubbleUp(int i, dtNode* node)
+void dtNodeQueue::bubbleUp(int i, dtNode* node) const
 {
 	int parent = (i-1)/2;
 	// note: (index > 0) means there is a parent
-	while ((i > 0) && (m_heap[parent]->total > node->total))
+	while (i > 0 && m_heap[parent]->total > node->total)
 	{
 		m_heap[i] = m_heap[parent];
 		i = parent;
@@ -182,19 +181,19 @@ void dtNodeQueue::bubbleUp(int i, dtNode* node)
 	m_heap[i] = node;
 }
 
-void dtNodeQueue::trickleDown(int i, dtNode* node)
+void dtNodeQueue::trickleDown(int i, dtNode* node) const
 {
-	int child = (i*2)+1;
+	int child = i*2+1;
 	while (child < m_size)
 	{
-		if (((child+1) < m_size) && 
-			(m_heap[child]->total > m_heap[child+1]->total))
+		if (child+1 < m_size &&
+			m_heap[child]->total > m_heap[child+1]->total)
 		{
 			child++;
 		}
 		m_heap[i] = m_heap[child];
 		i = child;
-		child = (i*2)+1;
+		child = i*2+1;
 	}
 	bubbleUp(i, node);
 }

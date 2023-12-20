@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.25)
 
 project(RecastNavigation)
 
@@ -7,8 +7,9 @@ SET(SOVERSION 1)
 set(LIB_VERSION 1.6.0)
 string(REPLACE "." "," LIB_VERSION_NUM "${LIB_VERSION}.0")
 
-set_property(GLOBAL PROPERTY CXX_STANDARD 98)
+set_property(GLOBAL PROPERTY CXX_STANDARD 17)
 
+option(RECASTNAVIGATION_CLI "Build command line interface" ON)
 option(RECASTNAVIGATION_DEMO "Build demo" ON)
 option(RECASTNAVIGATION_TESTS "Build tests" ON)
 option(RECASTNAVIGATION_EXAMPLES "Build examples" ON)
@@ -88,6 +89,9 @@ install(
 
 if (RECASTNAVIGATION_DEMO)
     add_subdirectory(RecastDemo)
+endif ()
+if (RECASTNAVIGATION_CLI)
+    add_subdirectory(RecastCLI)
 endif ()
 
 if (RECASTNAVIGATION_TESTS)

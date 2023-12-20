@@ -18,7 +18,7 @@
 
 #include "RecastAlloc.h"
 
-static void* rcAllocDefault(size_t size, rcAllocHint)
+static void* rcAllocDefault(const size_t size, rcAllocHint)
 {
 	return malloc(size);
 }
@@ -37,14 +37,14 @@ void rcAllocSetCustom(rcAllocFunc* allocFunc, rcFreeFunc* freeFunc)
 	sRecastFreeFunc = freeFunc ? freeFunc : rcFreeDefault;
 }
 
-void* rcAlloc(size_t size, rcAllocHint hint)
+void* rcAlloc(const size_t size, const rcAllocHint hint)
 {
 	return sRecastAllocFunc(size, hint);
 }
 
 void rcFree(void* ptr)
 {
-	if (ptr != NULL)
+	if (ptr != nullptr)
 	{
 		sRecastFreeFunc(ptr);
 	}

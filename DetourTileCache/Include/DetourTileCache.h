@@ -59,7 +59,7 @@ struct dtObstacleOrientedBox
 	float rotAux[ 2 ]; //{ cos(0.5f*angle)*sin(-0.5f*angle); cos(0.5f*angle)*cos(0.5f*angle) - 0.5 }
 };
 
-static const int DT_MAX_TOUCHED_TILES = 8;
+static constexpr int DT_MAX_TOUCHED_TILES = 8;
 struct dtTileCacheObstacle
 {
 	union
@@ -94,7 +94,7 @@ struct dtTileCacheParams
 
 struct dtTileCacheMeshProcess
 {
-	virtual ~dtTileCacheMeshProcess();
+	virtual ~dtTileCacheMeshProcess()=default;
 	virtual void process(struct dtNavMeshCreateParams* params, unsigned char* polyAreas, unsigned short* polyFlags) = 0;
 };
 
@@ -104,48 +104,48 @@ public:
 	dtTileCache();
 	~dtTileCache();
 	
-	struct dtTileCacheAlloc* getAlloc() { return m_talloc; }
-	struct dtTileCacheCompressor* getCompressor() { return m_tcomp; }
+	struct dtTileCacheAlloc* getAlloc() const { return m_talloc; }
+	struct dtTileCacheCompressor* getCompressor() const { return m_tcomp; }
 	const dtTileCacheParams* getParams() const { return &m_params; }
+
+	int getTileCount() const { return m_params.maxTiles; }
+	const dtCompressedTile* getTile(const int i) const { return &m_tiles[i]; }
+
+	int getObstacleCount() const { return m_params.maxObstacles; }
+	const dtTileCacheObstacle* getObstacle(const int i) const { return &m_obstacles[i]; }
 	
-	inline int getTileCount() const { return m_params.maxTiles; }
-	inline const dtCompressedTile* getTile(const int i) const { return &m_tiles[i]; }
-	
-	inline int getObstacleCount() const { return m_params.maxObstacles; }
-	inline const dtTileCacheObstacle* getObstacle(const int i) const { return &m_obstacles[i]; }
-	
-	const dtTileCacheObstacle* getObstacleByRef(dtObstacleRef ref);
+	const dtTileCacheObstacle* getObstacleByRef(dtObstacleRef ref)const;
 	
 	dtObstacleRef getObstacleRef(const dtTileCacheObstacle* obmin) const;
 	
 	dtStatus init(const dtTileCacheParams* params,
-				  struct dtTileCacheAlloc* talloc,
-				  struct dtTileCacheCompressor* tcomp,
-				  struct dtTileCacheMeshProcess* tmproc);
+	              dtTileCacheAlloc* talloc,
+	              dtTileCacheCompressor* tcomp,
+	              dtTileCacheMeshProcess* tmproc);
 	
-	int getTilesAt(const int tx, const int ty, dtCompressedTileRef* tiles, const int maxTiles) const ;
+	int getTilesAt(int tx, int ty, dtCompressedTileRef* tiles, int maxTiles) const ;
 	
-	dtCompressedTile* getTileAt(const int tx, const int ty, const int tlayer);
+	dtCompressedTile* getTileAt(int tx, int ty, int tlayer)const;
 	dtCompressedTileRef getTileRef(const dtCompressedTile* tile) const;
 	const dtCompressedTile* getTileByRef(dtCompressedTileRef ref) const;
 	
-	dtStatus addTile(unsigned char* data, const int dataSize, unsigned char flags, dtCompressedTileRef* result);
+	dtStatus addTile(unsigned char* data, int dataSize, unsigned char flags, dtCompressedTileRef* result);
 	
 	dtStatus removeTile(dtCompressedTileRef ref, unsigned char** data, int* dataSize);
 	
 	// Cylinder obstacle.
-	dtStatus addObstacle(const float* pos, const float radius, const float height, dtObstacleRef* result);
+	dtStatus addObstacle(const float* pos, float radius, float height, dtObstacleRef* result);
 
 	// Aabb obstacle.
 	dtStatus addBoxObstacle(const float* bmin, const float* bmax, dtObstacleRef* result);
 
 	// Box obstacle: can be rotated in Y.
-	dtStatus addBoxObstacle(const float* center, const float* halfExtents, const float yRadians, dtObstacleRef* result);
+	dtStatus addBoxObstacle(const float* center, const float* halfExtents, float yRadians, dtObstacleRef* result);
 	
-	dtStatus removeObstacle(const dtObstacleRef ref);
+	dtStatus removeObstacle(dtObstacleRef ref);
 	
 	dtStatus queryTiles(const float* bmin, const float* bmax,
-						dtCompressedTileRef* results, int* resultCount, const int maxResults) const;
+						dtCompressedTileRef* results, int* resultCount, int maxResults) const;
 	
 	/// Updates the tile cache by rebuilding tiles touched by unfinished obstacle requests.
 	///  @param[in]		dt			The time step size. Currently not used.
@@ -153,55 +153,55 @@ public:
 	///  @param[out]	upToDate	Whether the tile cache is fully up to date with obstacle requests and tile rebuilds.
 	///  							If the tile cache is up to date another (immediate) call to update will have no effect;
 	///  							otherwise another call will continue processing obstacle requests and tile rebuilds.
-	dtStatus update(const float dt, class dtNavMesh* navmesh, bool* upToDate = 0);
+	dtStatus update(float dt, class dtNavMesh* navmesh, bool* upToDate = nullptr);
 	
-	dtStatus buildNavMeshTilesAt(const int tx, const int ty, class dtNavMesh* navmesh);
+	dtStatus buildNavMeshTilesAt(int tx, int ty, dtNavMesh* navmesh) const;
 	
-	dtStatus buildNavMeshTile(const dtCompressedTileRef ref, class dtNavMesh* navmesh);
+	dtStatus buildNavMeshTile(dtCompressedTileRef ref, dtNavMesh* navmesh) const;
 	
-	void calcTightTileBounds(const struct dtTileCacheLayerHeader* header, float* bmin, float* bmax) const;
-	
-	void getObstacleBounds(const struct dtTileCacheObstacle* ob, float* bmin, float* bmax) const;
+	void calcTightTileBounds(const dtTileCacheLayerHeader* header, float* bmin, float* bmax) const;
+
+	static void getObstacleBounds(const dtTileCacheObstacle* ob, float* bmin, float* bmax);
 	
 
 	/// Encodes a tile id.
-	inline dtCompressedTileRef encodeTileId(unsigned int salt, unsigned int it) const
+	dtCompressedTileRef encodeTileId(const unsigned int salt, const unsigned int it) const
 	{
-		return ((dtCompressedTileRef)salt << m_tileBits) | (dtCompressedTileRef)it;
+		return (salt << m_tileBits) | it;
 	}
 	
 	/// Decodes a tile salt.
-	inline unsigned int decodeTileIdSalt(dtCompressedTileRef ref) const
+	unsigned int decodeTileIdSalt(const dtCompressedTileRef ref) const
 	{
-		const dtCompressedTileRef saltMask = ((dtCompressedTileRef)1<<m_saltBits)-1;
-		return (unsigned int)((ref >> m_tileBits) & saltMask);
+		const dtCompressedTileRef saltMask = (static_cast<dtCompressedTileRef>(1)<<m_saltBits)-1;
+		return ref >> m_tileBits & saltMask;
 	}
 	
 	/// Decodes a tile id.
-	inline unsigned int decodeTileIdTile(dtCompressedTileRef ref) const
+	unsigned int decodeTileIdTile(const dtCompressedTileRef ref) const
 	{
-		const dtCompressedTileRef tileMask = ((dtCompressedTileRef)1<<m_tileBits)-1;
-		return (unsigned int)(ref & tileMask);
+		const dtCompressedTileRef tileMask = (static_cast<dtCompressedTileRef>(1)<<m_tileBits)-1;
+		return ref & tileMask;
 	}
 
 	/// Encodes an obstacle id.
-	inline dtObstacleRef encodeObstacleId(unsigned int salt, unsigned int it) const
+	static dtObstacleRef encodeObstacleId(const unsigned int salt, const unsigned int it)
 	{
-		return ((dtObstacleRef)salt << 16) | (dtObstacleRef)it;
+		return (salt << 16) | it;
 	}
 	
 	/// Decodes an obstacle salt.
-	inline unsigned int decodeObstacleIdSalt(dtObstacleRef ref) const
+	static unsigned int decodeObstacleIdSalt(const dtObstacleRef ref)
 	{
-		const dtObstacleRef saltMask = ((dtObstacleRef)1<<16)-1;
-		return (unsigned int)((ref >> 16) & saltMask);
+		constexpr dtObstacleRef saltMask = (static_cast<dtObstacleRef>(1)<<16)-1;
+		return ref >> 16 & saltMask;
 	}
 	
 	/// Decodes an obstacle id.
-	inline unsigned int decodeObstacleIdObstacle(dtObstacleRef ref) const
+	static unsigned int decodeObstacleIdObstacle(const dtObstacleRef ref)
 	{
-		const dtObstacleRef tileMask = ((dtObstacleRef)1<<16)-1;
-		return (unsigned int)(ref & tileMask);
+		constexpr dtObstacleRef tileMask = (static_cast<dtObstacleRef>(1)<<16)-1;
+		return ref & tileMask;
 	}
 	
 	
@@ -232,7 +232,7 @@ private:
 	unsigned int m_saltBits;				///< Number of salt bits in the tile ID.
 	unsigned int m_tileBits;				///< Number of tile bits in the tile ID.
 	
-	dtTileCacheParams m_params;
+	dtTileCacheParams m_params{};
 	
 	dtTileCacheAlloc* m_talloc;
 	dtTileCacheCompressor* m_tcomp;
@@ -241,11 +241,11 @@ private:
 	dtTileCacheObstacle* m_obstacles;
 	dtTileCacheObstacle* m_nextFreeObstacle;
 	
-	static const int MAX_REQUESTS = 64;
-	ObstacleRequest m_reqs[MAX_REQUESTS];
+	static constexpr int MAX_REQUESTS = 64;
+	ObstacleRequest m_reqs[MAX_REQUESTS]{};
 	int m_nreqs;
 	
-	static const int MAX_UPDATE = 64;
+	static constexpr int MAX_UPDATE = 64;
 	dtCompressedTileRef m_update[MAX_UPDATE];
 	int m_nupdate;
 };

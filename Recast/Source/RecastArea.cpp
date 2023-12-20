@@ -20,7 +20,7 @@
 #include "RecastAlloc.h"
 #include "RecastAssert.h"
 
-#include <string.h> // for memcpy and memset
+#include <cstring> // for memcpy and memset
 
 /// Sorts the given data in-place using insertion sort.
 ///
@@ -50,7 +50,7 @@ static void insertSort(unsigned char* data, const int dataLength)
 /// @param[in]	verts		The polygon vertices
 /// @param[in]	point		The point to check
 /// @returns true if the point lies within the polygon, false otherwise.
-static bool pointInPoly(int numVerts, const float* verts, const float* point)
+static bool pointInPoly(const int numVerts, const float* verts, const float* point)
 {
 	bool inPoly = false;
 	for (int i = 0, j = numVerts - 1; i < numVerts; j = i++)
@@ -72,9 +72,9 @@ static bool pointInPoly(int numVerts, const float* verts, const float* point)
 	return inPoly;
 }
 
-bool rcErodeWalkableArea(rcContext* context, const int erosionRadius, rcCompactHeightfield& compactHeightfield)
+bool rcErodeWalkableArea(rcContext* context, const int erosionRadius, const rcCompactHeightfield& compactHeightfield)
 {
-	rcAssert(context != NULL);
+	rcAssert(context != nullptr);
 
 	const int xSize = compactHeightfield.width;
 	const int zSize = compactHeightfield.height;
@@ -82,8 +82,8 @@ bool rcErodeWalkableArea(rcContext* context, const int erosionRadius, rcCompactH
 
 	rcScopedTimer timer(context, RC_TIMER_ERODE_AREA);
 
-	unsigned char* distanceToBoundary = (unsigned char*)rcAlloc(sizeof(unsigned char) * compactHeightfield.spanCount,
-	                                                            RC_ALLOC_TEMP);
+	auto* distanceToBoundary = static_cast<unsigned char*>(rcAlloc(sizeof(unsigned char) * compactHeightfield.spanCount,
+	                                                                        RC_ALLOC_TEMP));
 	if (!distanceToBoundary)
 	{
 		context->log(RC_LOG_ERROR, "erodeWalkableArea: Out of memory 'dist' (%d).", compactHeightfield.spanCount);
@@ -97,7 +97,7 @@ bool rcErodeWalkableArea(rcContext* context, const int erosionRadius, rcCompactH
 		for (int x = 0; x < xSize; ++x)
 		{
 			const rcCompactCell& cell = compactHeightfield.cells[x + z * zStride];
-			for (int spanIndex = (int)cell.index, maxSpanIndex = (int)(cell.index + cell.count); spanIndex < maxSpanIndex; ++spanIndex)
+			for (int spanIndex = static_cast<int>(cell.index), maxSpanIndex = static_cast<int>(cell.index + cell.count); spanIndex < maxSpanIndex; ++spanIndex)
 			{
 				if (compactHeightfield.areas[spanIndex] == RC_NULL_AREA)
 				{
@@ -118,7 +118,7 @@ bool rcErodeWalkableArea(rcContext* context, const int erosionRadius, rcCompactH
 					
 					const int neighborX = x + rcGetDirOffsetX(direction);
 					const int neighborZ = z + rcGetDirOffsetY(direction);
-					const int neighborSpanIndex = (int)compactHeightfield.cells[neighborX + neighborZ * zStride].index + neighborConnection;
+					const int neighborSpanIndex = static_cast<int>(compactHeightfield.cells[neighborX + neighborZ * zStride].index) + neighborConnection;
 					
 					if (compactHeightfield.areas[neighborSpanIndex] == RC_NULL_AREA)
 					{
@@ -144,8 +144,8 @@ bool rcErodeWalkableArea(rcContext* context, const int erosionRadius, rcCompactH
 		for (int x = 0; x < xSize; ++x)
 		{
 			const rcCompactCell& cell = compactHeightfield.cells[x + z * zStride];
-			const int maxSpanIndex = (int)(cell.index + cell.count);
-			for (int spanIndex = (int)cell.index; spanIndex < maxSpanIndex; ++spanIndex)
+			const int maxSpanIndex = static_cast<int>(cell.index + cell.count);
+			for (int spanIndex = static_cast<int>(cell.index); spanIndex < maxSpanIndex; ++spanIndex)
 			{
 				const rcCompactSpan& span = compactHeightfield.spans[spanIndex];
 
@@ -154,9 +154,9 @@ bool rcErodeWalkableArea(rcContext* context, const int erosionRadius, rcCompactH
 					// (-1,0)
 					const int aX = x + rcGetDirOffsetX(0);
 					const int aY = z + rcGetDirOffsetY(0);
-					const int aIndex = (int)compactHeightfield.cells[aX + aY * xSize].index + rcGetCon(span, 0);
+					const int aIndex = static_cast<int>(compactHeightfield.cells[aX + aY * xSize].index) + rcGetCon(span, 0);
 					const rcCompactSpan& aSpan = compactHeightfield.spans[aIndex];
-					newDistance = (unsigned char)rcMin((int)distanceToBoundary[aIndex] + 2, 255);
+					newDistance = static_cast<unsigned char>(rcMin(static_cast<int>(distanceToBoundary[aIndex]) + 2, 255));
 					if (newDistance < distanceToBoundary[spanIndex])
 					{
 						distanceToBoundary[spanIndex] = newDistance;
@@ -167,8 +167,8 @@ bool rcErodeWalkableArea(rcContext* context, const int erosionRadius, rcCompactH
 					{
 						const int bX = aX + rcGetDirOffsetX(3);
 						const int bY = aY + rcGetDirOffsetY(3);
-						const int bIndex = (int)compactHeightfield.cells[bX + bY * xSize].index + rcGetCon(aSpan, 3);
-						newDistance = (unsigned char)rcMin((int)distanceToBoundary[bIndex] + 3, 255);
+						const int bIndex = static_cast<int>(compactHeightfield.cells[bX + bY * xSize].index) + rcGetCon(aSpan, 3);
+						newDistance = static_cast<unsigned char>(rcMin(static_cast<int>(distanceToBoundary[bIndex]) + 3, 255));
 						if (newDistance < distanceToBoundary[spanIndex])
 						{
 							distanceToBoundary[spanIndex] = newDistance;
@@ -180,9 +180,9 @@ bool rcErodeWalkableArea(rcContext* context, const int erosionRadius, rcCompactH
 					// (0,-1)
 					const int aX = x + rcGetDirOffsetX(3);
 					const int aY = z + rcGetDirOffsetY(3);
-					const int aIndex = (int)compactHeightfield.cells[aX + aY * xSize].index + rcGetCon(span, 3);
+					const int aIndex = static_cast<int>(compactHeightfield.cells[aX + aY * xSize].index) + rcGetCon(span, 3);
 					const rcCompactSpan& aSpan = compactHeightfield.spans[aIndex];
-					newDistance = (unsigned char)rcMin((int)distanceToBoundary[aIndex] + 2, 255);
+					newDistance = static_cast<unsigned char>(rcMin(static_cast<int>(distanceToBoundary[aIndex]) + 2, 255));
 					if (newDistance < distanceToBoundary[spanIndex])
 					{
 						distanceToBoundary[spanIndex] = newDistance;
@@ -193,8 +193,8 @@ bool rcErodeWalkableArea(rcContext* context, const int erosionRadius, rcCompactH
 					{
 						const int bX = aX + rcGetDirOffsetX(2);
 						const int bY = aY + rcGetDirOffsetY(2);
-						const int bIndex = (int)compactHeightfield.cells[bX + bY * xSize].index + rcGetCon(aSpan, 2);
-						newDistance = (unsigned char)rcMin((int)distanceToBoundary[bIndex] + 3, 255);
+						const int bIndex = static_cast<int>(compactHeightfield.cells[bX + bY * xSize].index) + rcGetCon(aSpan, 2);
+						newDistance = static_cast<unsigned char>(rcMin(static_cast<int>(distanceToBoundary[bIndex]) + 3, 255));
 						if (newDistance < distanceToBoundary[spanIndex])
 						{
 							distanceToBoundary[spanIndex] = newDistance;
@@ -211,8 +211,8 @@ bool rcErodeWalkableArea(rcContext* context, const int erosionRadius, rcCompactH
 		for (int x = xSize - 1; x >= 0; --x)
 		{
 			const rcCompactCell& cell = compactHeightfield.cells[x + z * zStride];
-			const int maxSpanIndex = (int)(cell.index + cell.count);
-			for (int spanIndex = (int)cell.index; spanIndex < maxSpanIndex; ++spanIndex)
+			const int maxSpanIndex = static_cast<int>(cell.index + cell.count);
+			for (int spanIndex = static_cast<int>(cell.index); spanIndex < maxSpanIndex; ++spanIndex)
 			{
 				const rcCompactSpan& span = compactHeightfield.spans[spanIndex];
 
@@ -221,9 +221,9 @@ bool rcErodeWalkableArea(rcContext* context, const int erosionRadius, rcCompactH
 					// (1,0)
 					const int aX = x + rcGetDirOffsetX(2);
 					const int aY = z + rcGetDirOffsetY(2);
-					const int aIndex = (int)compactHeightfield.cells[aX + aY * xSize].index + rcGetCon(span, 2);
+					const int aIndex = static_cast<int>(compactHeightfield.cells[aX + aY * xSize].index) + rcGetCon(span, 2);
 					const rcCompactSpan& aSpan = compactHeightfield.spans[aIndex];
-					newDistance = (unsigned char)rcMin((int)distanceToBoundary[aIndex] + 2, 255);
+					newDistance = static_cast<unsigned char>(rcMin(static_cast<int>(distanceToBoundary[aIndex]) + 2, 255));
 					if (newDistance < distanceToBoundary[spanIndex])
 					{
 						distanceToBoundary[spanIndex] = newDistance;
@@ -234,8 +234,8 @@ bool rcErodeWalkableArea(rcContext* context, const int erosionRadius, rcCompactH
 					{
 						const int bX = aX + rcGetDirOffsetX(1);
 						const int bY = aY + rcGetDirOffsetY(1);
-						const int bIndex = (int)compactHeightfield.cells[bX + bY * xSize].index + rcGetCon(aSpan, 1);
-						newDistance = (unsigned char)rcMin((int)distanceToBoundary[bIndex] + 3, 255);
+						const int bIndex = static_cast<int>(compactHeightfield.cells[bX + bY * xSize].index) + rcGetCon(aSpan, 1);
+						newDistance = static_cast<unsigned char>(rcMin(static_cast<int>(distanceToBoundary[bIndex]) + 3, 255));
 						if (newDistance < distanceToBoundary[spanIndex])
 						{
 							distanceToBoundary[spanIndex] = newDistance;
@@ -247,9 +247,9 @@ bool rcErodeWalkableArea(rcContext* context, const int erosionRadius, rcCompactH
 					// (0,1)
 					const int aX = x + rcGetDirOffsetX(1);
 					const int aY = z + rcGetDirOffsetY(1);
-					const int aIndex = (int)compactHeightfield.cells[aX + aY * xSize].index + rcGetCon(span, 1);
+					const int aIndex = static_cast<int>(compactHeightfield.cells[aX + aY * xSize].index) + rcGetCon(span, 1);
 					const rcCompactSpan& aSpan = compactHeightfield.spans[aIndex];
-					newDistance = (unsigned char)rcMin((int)distanceToBoundary[aIndex] + 2, 255);
+					newDistance = static_cast<unsigned char>(rcMin(static_cast<int>(distanceToBoundary[aIndex]) + 2, 255));
 					if (newDistance < distanceToBoundary[spanIndex])
 					{
 						distanceToBoundary[spanIndex] = newDistance;
@@ -260,8 +260,8 @@ bool rcErodeWalkableArea(rcContext* context, const int erosionRadius, rcCompactH
 					{
 						const int bX = aX + rcGetDirOffsetX(0);
 						const int bY = aY + rcGetDirOffsetY(0);
-						const int bIndex = (int)compactHeightfield.cells[bX + bY * xSize].index + rcGetCon(aSpan, 0);
-						newDistance = (unsigned char)rcMin((int)distanceToBoundary[bIndex] + 3, 255);
+						const int bIndex = static_cast<int>(compactHeightfield.cells[bX + bY * xSize].index) + rcGetCon(aSpan, 0);
+						newDistance = static_cast<unsigned char>(rcMin(static_cast<int>(distanceToBoundary[bIndex]) + 3, 255));
 						if (newDistance < distanceToBoundary[spanIndex])
 						{
 							distanceToBoundary[spanIndex] = newDistance;
@@ -272,7 +272,7 @@ bool rcErodeWalkableArea(rcContext* context, const int erosionRadius, rcCompactH
 		}
 	}
 
-	const unsigned char minBoundaryDistance = (unsigned char)(erosionRadius * 2);
+	const auto minBoundaryDistance = static_cast<unsigned char>(erosionRadius * 2);
 	for (int spanIndex = 0; spanIndex < compactHeightfield.spanCount; ++spanIndex)
 	{
 		if (distanceToBoundary[spanIndex] < minBoundaryDistance)
@@ -286,7 +286,7 @@ bool rcErodeWalkableArea(rcContext* context, const int erosionRadius, rcCompactH
 	return true;
 }
 
-bool rcMedianFilterWalkableArea(rcContext* context, rcCompactHeightfield& compactHeightfield)
+bool rcMedianFilterWalkableArea(rcContext* context, const rcCompactHeightfield& compactHeightfield)
 {
 	rcAssert(context);
 	
@@ -296,7 +296,7 @@ bool rcMedianFilterWalkableArea(rcContext* context, rcCompactHeightfield& compac
 
 	rcScopedTimer timer(context, RC_TIMER_MEDIAN_AREA);
 
-	unsigned char* areas = (unsigned char*)rcAlloc(sizeof(unsigned char) * compactHeightfield.spanCount, RC_ALLOC_TEMP);
+	auto* areas = static_cast<unsigned char*>(rcAlloc(sizeof(unsigned char) * compactHeightfield.spanCount, RC_ALLOC_TEMP));
 	if (!areas)
 	{
 		context->log(RC_LOG_ERROR, "medianFilterWalkableArea: Out of memory 'areas' (%d).",
@@ -310,8 +310,8 @@ bool rcMedianFilterWalkableArea(rcContext* context, rcCompactHeightfield& compac
 		for (int x = 0; x < xSize; ++x)
 		{
 			const rcCompactCell& cell = compactHeightfield.cells[x + z * zStride];
-			const int maxSpanIndex = (int)(cell.index + cell.count);
-			for (int spanIndex = (int)cell.index; spanIndex < maxSpanIndex; ++spanIndex)
+			const int maxSpanIndex = static_cast<int>(cell.index + cell.count);
+			for (int spanIndex = static_cast<int>(cell.index); spanIndex < maxSpanIndex; ++spanIndex)
 			{
 				const rcCompactSpan& span = compactHeightfield.spans[spanIndex];
 				if (compactHeightfield.areas[spanIndex] == RC_NULL_AREA)
@@ -321,9 +321,9 @@ bool rcMedianFilterWalkableArea(rcContext* context, rcCompactHeightfield& compac
 				}
 
 				unsigned char neighborAreas[9];
-				for (int neighborIndex = 0; neighborIndex < 9; ++neighborIndex)
+				for (unsigned char & neighborArea : neighborAreas)
 				{
-					neighborAreas[neighborIndex] = compactHeightfield.areas[spanIndex];
+					neighborArea = compactHeightfield.areas[spanIndex];
 				}
 
 				for (int dir = 0; dir < 4; ++dir)
@@ -335,7 +335,7 @@ bool rcMedianFilterWalkableArea(rcContext* context, rcCompactHeightfield& compac
 					
 					const int aX = x + rcGetDirOffsetX(dir);
 					const int aZ = z + rcGetDirOffsetY(dir);
-					const int aIndex = (int)compactHeightfield.cells[aX + aZ * zStride].index + rcGetCon(span, dir);
+					const int aIndex = static_cast<int>(compactHeightfield.cells[aX + aZ * zStride].index) + rcGetCon(span, dir);
 					if (compactHeightfield.areas[aIndex] != RC_NULL_AREA)
 					{
 						neighborAreas[dir * 2 + 0] = compactHeightfield.areas[aIndex];
@@ -348,7 +348,7 @@ bool rcMedianFilterWalkableArea(rcContext* context, rcCompactHeightfield& compac
 					{
 						const int bX = aX + rcGetDirOffsetX(dir2);
 						const int bZ = aZ + rcGetDirOffsetY(dir2);
-						const int bIndex = (int)compactHeightfield.cells[bX + bZ * zStride].index + neighborConnection2;
+						const int bIndex = static_cast<int>(compactHeightfield.cells[bX + bZ * zStride].index) + neighborConnection2;
 						if (compactHeightfield.areas[bIndex] != RC_NULL_AREA)
 						{
 							neighborAreas[dir * 2 + 1] = compactHeightfield.areas[bIndex];
@@ -368,8 +368,8 @@ bool rcMedianFilterWalkableArea(rcContext* context, rcCompactHeightfield& compac
 	return true;
 }
 
-void rcMarkBoxArea(rcContext* context, const float* boxMinBounds, const float* boxMaxBounds, unsigned char areaId,
-                   rcCompactHeightfield& compactHeightfield)
+void rcMarkBoxArea(rcContext* context, const float* boxMinBounds, const float* boxMaxBounds, const unsigned char areaId,
+                   const rcCompactHeightfield& compactHeightfield)
 {
 	rcAssert(context);
 
@@ -380,12 +380,12 @@ void rcMarkBoxArea(rcContext* context, const float* boxMinBounds, const float* b
 	const int zStride = xSize; // For readability
 
 	// Find the footprint of the box area in grid cell coordinates. 
-	int minX = (int)((boxMinBounds[0] - compactHeightfield.bmin[0]) / compactHeightfield.cs);
-	int minY = (int)((boxMinBounds[1] - compactHeightfield.bmin[1]) / compactHeightfield.ch);
-	int minZ = (int)((boxMinBounds[2] - compactHeightfield.bmin[2]) / compactHeightfield.cs);
-	int maxX = (int)((boxMaxBounds[0] - compactHeightfield.bmin[0]) / compactHeightfield.cs);
-	int maxY = (int)((boxMaxBounds[1] - compactHeightfield.bmin[1]) / compactHeightfield.ch);
-	int maxZ = (int)((boxMaxBounds[2] - compactHeightfield.bmin[2]) / compactHeightfield.cs);
+	int minX = static_cast<int>((boxMinBounds[0] - compactHeightfield.bmin[0]) / compactHeightfield.cs);
+	const int minY = static_cast<int>((boxMinBounds[1] - compactHeightfield.bmin[1]) / compactHeightfield.ch);
+	int minZ = static_cast<int>((boxMinBounds[2] - compactHeightfield.bmin[2]) / compactHeightfield.cs);
+	int maxX = static_cast<int>((boxMaxBounds[0] - compactHeightfield.bmin[0]) / compactHeightfield.cs);
+	const int maxY = static_cast<int>((boxMaxBounds[1] - compactHeightfield.bmin[1]) / compactHeightfield.ch);
+	int maxZ = static_cast<int>((boxMaxBounds[2] - compactHeightfield.bmin[2]) / compactHeightfield.cs);
 
 	// Early-out if the box is outside the bounds of the grid.
 	if (maxX < 0) { return; }
@@ -405,13 +405,13 @@ void rcMarkBoxArea(rcContext* context, const float* boxMinBounds, const float* b
 		for (int x = minX; x <= maxX; ++x)
 		{
 			const rcCompactCell& cell = compactHeightfield.cells[x + z * zStride];
-			const int maxSpanIndex = (int)(cell.index + cell.count);
-			for (int spanIndex = (int)cell.index; spanIndex < maxSpanIndex; ++spanIndex)
+			const int maxSpanIndex = static_cast<int>(cell.index + cell.count);
+			for (int spanIndex = static_cast<int>(cell.index); spanIndex < maxSpanIndex; ++spanIndex)
 			{
-				rcCompactSpan& span = compactHeightfield.spans[spanIndex];
+				const rcCompactSpan& span = compactHeightfield.spans[spanIndex];
 
 				// Skip if the span is outside the box extents.
-				if ((int)span.y < minY || (int)span.y > maxY)
+				if (static_cast<int>(span.y) < minY || static_cast<int>(span.y) > maxY)
 				{
 					continue;
 				}
@@ -430,8 +430,8 @@ void rcMarkBoxArea(rcContext* context, const float* boxMinBounds, const float* b
 }
 
 void rcMarkConvexPolyArea(rcContext* context, const float* verts, const int numVerts,
-						  const float minY, const float maxY, unsigned char areaId,
-						  rcCompactHeightfield& compactHeightfield)
+						  const float minY, const float maxY, const unsigned char areaId,
+						  const rcCompactHeightfield& compactHeightfield)
 {
 	rcAssert(context);
 
@@ -455,12 +455,12 @@ void rcMarkConvexPolyArea(rcContext* context, const float* verts, const int numV
 	bmax[1] = maxY;
 
 	// Compute the grid footprint of the polygon 
-	int minx = (int)((bmin[0] - compactHeightfield.bmin[0]) / compactHeightfield.cs);
-	int miny = (int)((bmin[1] - compactHeightfield.bmin[1]) / compactHeightfield.ch);
-	int minz = (int)((bmin[2] - compactHeightfield.bmin[2]) / compactHeightfield.cs);
-	int maxx = (int)((bmax[0] - compactHeightfield.bmin[0]) / compactHeightfield.cs);
-	int maxy = (int)((bmax[1] - compactHeightfield.bmin[1]) / compactHeightfield.ch);
-	int maxz = (int)((bmax[2] - compactHeightfield.bmin[2]) / compactHeightfield.cs);
+	int minx = static_cast<int>((bmin[0] - compactHeightfield.bmin[0]) / compactHeightfield.cs);
+	const int miny = static_cast<int>((bmin[1] - compactHeightfield.bmin[1]) / compactHeightfield.ch);
+	int minz = static_cast<int>((bmin[2] - compactHeightfield.bmin[2]) / compactHeightfield.cs);
+	int maxx = static_cast<int>((bmax[0] - compactHeightfield.bmin[0]) / compactHeightfield.cs);
+	const int maxy = static_cast<int>((bmax[1] - compactHeightfield.bmin[1]) / compactHeightfield.ch);
+	int maxz = static_cast<int>((bmax[2] - compactHeightfield.bmin[2]) / compactHeightfield.cs);
 
 	// Early-out if the polygon lies entirely outside the grid.
 	if (maxx < 0) { return; }
@@ -480,10 +480,10 @@ void rcMarkConvexPolyArea(rcContext* context, const float* verts, const int numV
 		for (int x = minx; x <= maxx; ++x)
 		{
 			const rcCompactCell& cell = compactHeightfield.cells[x + z * zStride];
-			const int maxSpanIndex = (int)(cell.index + cell.count);
-			for (int spanIndex = (int)cell.index; spanIndex < maxSpanIndex; ++spanIndex)
+			const int maxSpanIndex = static_cast<int>(cell.index + cell.count);
+			for (int spanIndex = static_cast<int>(cell.index); spanIndex < maxSpanIndex; ++spanIndex)
 			{
-				rcCompactSpan& span = compactHeightfield.spans[spanIndex];
+				const rcCompactSpan& span = compactHeightfield.spans[spanIndex];
 
 				// Skip if span is removed.
 				if (compactHeightfield.areas[spanIndex] == RC_NULL_AREA)
@@ -492,15 +492,15 @@ void rcMarkConvexPolyArea(rcContext* context, const float* verts, const int numV
 				}
 
 				// Skip if y extents don't overlap.
-				if ((int)span.y < miny || (int)span.y > maxy)
+				if (static_cast<int>(span.y) < miny || static_cast<int>(span.y) > maxy)
 				{
 					continue;
 				}
 
 				const float point[] = {
-					compactHeightfield.bmin[0] + ((float)x + 0.5f) * compactHeightfield.cs,
+					compactHeightfield.bmin[0] + (static_cast<float>(x) + 0.5f) * compactHeightfield.cs,
 					0,
-					compactHeightfield.bmin[2] + ((float)z + 0.5f) * compactHeightfield.cs
+					compactHeightfield.bmin[2] + (static_cast<float>(z) + 0.5f) * compactHeightfield.cs
 				};
 				
 				if (pointInPoly(numVerts, verts, point))
@@ -512,7 +512,7 @@ void rcMarkConvexPolyArea(rcContext* context, const float* verts, const int numV
 	}
 }
 
-static const float EPSILON = 1e-6f;
+static constexpr float EPSILON = 1e-6f;
 
 /// Normalizes the vector if the length is greater than zero.
 /// If the magnitude is zero, the vector is unchanged.
@@ -533,13 +533,13 @@ int rcOffsetPoly(const float* verts, const int numVerts, const float offset, flo
 {
 	// Defines the limit at which a miter becomes a bevel.
 	// Similar in behavior to https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-miterlimit
-	const float MITER_LIMIT = 1.20f;
 
 	int numOutVerts = 0;
 
 	for (int vertIndex = 0; vertIndex < numVerts; vertIndex++)
 	{
-        // Grab three vertices of the polygon.
+		// Grab three vertices of the polygon.
+		constexpr float MITER_LIMIT = 1.20f;
 		const int vertIndexA = (vertIndex + numVerts - 1) % numVerts;
 		const int vertIndexB = vertIndex;
 		const int vertIndexC = (vertIndex + 1) % numVerts;
@@ -562,7 +562,7 @@ int rcOffsetPoly(const float* verts, const int numVerts, const float offset, flo
         // The y component of the cross product of the two normalized segment directions.
         // The X and Z components of the cross product are both zero because the two
         // segment direction vectors fall within the x/z plane.
-        float cross = currSegmentDir[0] * prevSegmentDir[2] - prevSegmentDir[0] * currSegmentDir[2];
+        const float cross = currSegmentDir[0] * prevSegmentDir[2] - prevSegmentDir[0] * currSegmentDir[2];
 
         // CCW perpendicular vector to AB.  The segment normal.
 		const float prevSegmentNormX = -prevSegmentDir[2];
@@ -600,7 +600,7 @@ int rcOffsetPoly(const float* verts, const int numVerts, const float offset, flo
 
             // Generate two bevel vertices at a distances from B proportional to the angle between the two segments.
             // Move each bevel vertex out proportional to the given offset.
-			float d = (1.0f - (prevSegmentDir[0] * currSegmentDir[0] + prevSegmentDir[2] * currSegmentDir[2])) * 0.5f;
+			const float d = (1.0f - (prevSegmentDir[0] * currSegmentDir[0] + prevSegmentDir[2] * currSegmentDir[2])) * 0.5f;
 
 			outVerts[numOutVerts * 3 + 0] = vertB[0] + (-prevSegmentNormX + prevSegmentDir[0] * d) * offset;
 			outVerts[numOutVerts * 3 + 1] = vertB[1];
@@ -631,7 +631,7 @@ int rcOffsetPoly(const float* verts, const int numVerts, const float offset, flo
 }
 
 void rcMarkCylinderArea(rcContext* context, const float* position, const float radius, const float height,
-                        unsigned char areaId, rcCompactHeightfield& compactHeightfield)
+                        const unsigned char areaId, const rcCompactHeightfield& compactHeightfield)
 {
 	rcAssert(context);
 
@@ -656,12 +656,12 @@ void rcMarkCylinderArea(rcContext* context, const float* position, const float r
 	};
 
 	// Compute the grid footprint of the cylinder
-	int minx = (int)((cylinderBBMin[0] - compactHeightfield.bmin[0]) / compactHeightfield.cs);
-	int miny = (int)((cylinderBBMin[1] - compactHeightfield.bmin[1]) / compactHeightfield.ch);
-	int minz = (int)((cylinderBBMin[2] - compactHeightfield.bmin[2]) / compactHeightfield.cs);
-	int maxx = (int)((cylinderBBMax[0] - compactHeightfield.bmin[0]) / compactHeightfield.cs);
-	int maxy = (int)((cylinderBBMax[1] - compactHeightfield.bmin[1]) / compactHeightfield.ch);
-	int maxz = (int)((cylinderBBMax[2] - compactHeightfield.bmin[2]) / compactHeightfield.cs);
+	int minx = static_cast<int>((cylinderBBMin[0] - compactHeightfield.bmin[0]) / compactHeightfield.cs);
+	const int miny = static_cast<int>((cylinderBBMin[1] - compactHeightfield.bmin[1]) / compactHeightfield.ch);
+	int minz = static_cast<int>((cylinderBBMin[2] - compactHeightfield.bmin[2]) / compactHeightfield.cs);
+	int maxx = static_cast<int>((cylinderBBMax[0] - compactHeightfield.bmin[0]) / compactHeightfield.cs);
+	const int maxy = static_cast<int>((cylinderBBMax[1] - compactHeightfield.bmin[1]) / compactHeightfield.ch);
+	int maxz = static_cast<int>((cylinderBBMax[2] - compactHeightfield.bmin[2]) / compactHeightfield.cs);
 
 	// Early-out if the cylinder is completely outside the grid bounds.
     if (maxx < 0) { return; }
@@ -682,10 +682,10 @@ void rcMarkCylinderArea(rcContext* context, const float* position, const float r
 		for (int x = minx; x <= maxx; ++x)
 		{
 			const rcCompactCell& cell = compactHeightfield.cells[x + z * zStride];
-			const int maxSpanIndex = (int)(cell.index + cell.count);
+			const int maxSpanIndex = static_cast<int>(cell.index + cell.count);
 
-			const float cellX = compactHeightfield.bmin[0] + ((float)x + 0.5f) * compactHeightfield.cs;
-			const float cellZ = compactHeightfield.bmin[2] + ((float)z + 0.5f) * compactHeightfield.cs;
+			const float cellX = compactHeightfield.bmin[0] + (static_cast<float>(x) + 0.5f) * compactHeightfield.cs;
+			const float cellZ = compactHeightfield.bmin[2] + (static_cast<float>(z) + 0.5f) * compactHeightfield.cs;
 			const float deltaX = cellX - position[0];
             const float deltaZ = cellZ - position[2];
 
@@ -696,9 +696,9 @@ void rcMarkCylinderArea(rcContext* context, const float* position, const float r
             }
 
 			// Mark all overlapping spans
-			for (int spanIndex = (int)cell.index; spanIndex < maxSpanIndex; ++spanIndex)
+			for (int spanIndex = static_cast<int>(cell.index); spanIndex < maxSpanIndex; ++spanIndex)
 			{
-				rcCompactSpan& span = compactHeightfield.spans[spanIndex];
+				const rcCompactSpan& span = compactHeightfield.spans[spanIndex];
 
 				// Skip if span is removed.
 				if (compactHeightfield.areas[spanIndex] == RC_NULL_AREA)
@@ -707,7 +707,7 @@ void rcMarkCylinderArea(rcContext* context, const float* position, const float r
 				}
 
 				// Mark if y extents overlap.
-				if ((int)span.y >= miny && (int)span.y <= maxy)
+				if (static_cast<int>(span.y) >= miny && static_cast<int>(span.y) <= maxy)
 				{
 					compactHeightfield.areas[spanIndex] = areaId;
 				}

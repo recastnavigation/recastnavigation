@@ -16,7 +16,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <string.h>
+#include <cstring>
 #include "DetourPathQueue.h"
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"
@@ -28,10 +28,10 @@ dtPathQueue::dtPathQueue() :
 	m_nextHandle(1),
 	m_maxPathSize(0),
 	m_queueHead(0),
-	m_navquery(0)
+	m_navquery(nullptr)
 {
-	for (int i = 0; i < MAX_QUEUE; ++i)
-		m_queue[i].path = 0;
+	for (auto & i : m_queue)
+		i.path = nullptr;
 }
 
 dtPathQueue::~dtPathQueue()
@@ -42,15 +42,15 @@ dtPathQueue::~dtPathQueue()
 void dtPathQueue::purge()
 {
 	dtFreeNavMeshQuery(m_navquery);
-	m_navquery = 0;
-	for (int i = 0; i < MAX_QUEUE; ++i)
+	m_navquery = nullptr;
+	for (auto & i : m_queue)
 	{
-		dtFree(m_queue[i].path);
-		m_queue[i].path = 0;
+		dtFree(i.path);
+		i.path = nullptr;
 	}
 }
 
-bool dtPathQueue::init(const int maxPathSize, const int maxSearchNodeCount, dtNavMesh* nav)
+bool dtPathQueue::init(const int maxPathSize, const int maxSearchNodeCount, const dtNavMesh* nav)
 {
 	purge();
 
@@ -61,11 +61,11 @@ bool dtPathQueue::init(const int maxPathSize, const int maxSearchNodeCount, dtNa
 		return false;
 	
 	m_maxPathSize = maxPathSize;
-	for (int i = 0; i < MAX_QUEUE; ++i)
+	for (auto & i : m_queue)
 	{
-		m_queue[i].ref = DT_PATHQ_INVALID;
-		m_queue[i].path = (dtPolyRef*)dtAlloc(sizeof(dtPolyRef)*m_maxPathSize, DT_ALLOC_PERM);
-		if (!m_queue[i].path)
+		i.ref = DT_PATHQ_INVALID;
+		i.path = static_cast<dtPolyRef*>(dtAlloc(sizeof(dtPolyRef) * m_maxPathSize, DT_ALLOC_PERM));
+		if (!i.path)
 			return false;
 	}
 	
@@ -76,7 +76,7 @@ bool dtPathQueue::init(const int maxPathSize, const int maxSearchNodeCount, dtNa
 
 void dtPathQueue::update(const int maxIters)
 {
-	static const int MAX_KEEP_ALIVE = 2; // in update ticks.
+	static constexpr int MAX_KEEP_ALIVE = 2; // in update ticks.
 
 	// Update path request until there is nothing to update
 	// or upto maxIters pathfinder iterations has been consumed.
@@ -132,9 +132,9 @@ void dtPathQueue::update(const int maxIters)
 	}
 }
 
-dtPathQueueRef dtPathQueue::request(dtPolyRef startRef, dtPolyRef endRef,
-									const float* startPos, const float* endPos,
-									const dtQueryFilter* filter)
+dtPathQueueRef dtPathQueue::request(const dtPolyRef startRef, const dtPolyRef endRef,
+                                    const float* startPos, const float* endPos,
+                                    const dtQueryFilter* filter)
 {
 	// Find empty slot
 	int slot = -1;
@@ -149,8 +149,8 @@ dtPathQueueRef dtPathQueue::request(dtPolyRef startRef, dtPolyRef endRef,
 	// Could not find slot.
 	if (slot == -1)
 		return DT_PATHQ_INVALID;
-	
-	dtPathQueueRef ref = m_nextHandle++;
+
+	const dtPathQueueRef ref = m_nextHandle++;
 	if (m_nextHandle == DT_PATHQ_INVALID) m_nextHandle++;
 	
 	PathQuery& q = m_queue[slot];
@@ -168,29 +168,29 @@ dtPathQueueRef dtPathQueue::request(dtPolyRef startRef, dtPolyRef endRef,
 	return ref;
 }
 
-dtStatus dtPathQueue::getRequestStatus(dtPathQueueRef ref) const
+dtStatus dtPathQueue::getRequestStatus(const dtPathQueueRef ref) const
 {
-	for (int i = 0; i < MAX_QUEUE; ++i)
+	for (const auto & i : m_queue)
 	{
-		if (m_queue[i].ref == ref)
-			return m_queue[i].status;
+		if (i.ref == ref)
+			return i.status;
 	}
 	return DT_FAILURE;
 }
 
-dtStatus dtPathQueue::getPathResult(dtPathQueueRef ref, dtPolyRef* path, int* pathSize, const int maxPath)
+dtStatus dtPathQueue::getPathResult(const dtPathQueueRef ref, dtPolyRef* path, int* pathSize, const int maxPath)
 {
-	for (int i = 0; i < MAX_QUEUE; ++i)
+	for (auto & i : m_queue)
 	{
-		if (m_queue[i].ref == ref)
+		if (i.ref == ref)
 		{
-			PathQuery& q = m_queue[i];
-			dtStatus details = q.status & DT_STATUS_DETAIL_MASK;
+			PathQuery& q = i;
+			const dtStatus details = q.status & DT_STATUS_DETAIL_MASK;
 			// Free request for reuse.
 			q.ref = DT_PATHQ_INVALID;
 			q.status = 0;
 			// Copy path
-			int n = dtMin(q.npath, maxPath);
+			const int n = dtMin(q.npath, maxPath);
 			memcpy(path, q.path, sizeof(dtPolyRef)*n);
 			*pathSize = n;
 			return details | DT_SUCCESS;

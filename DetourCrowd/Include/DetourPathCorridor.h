@@ -25,8 +25,8 @@
 /// @ingroup crowd, detour
 class dtPathCorridor
 {
-	float m_pos[3];
-	float m_target[3];
+	float m_pos[3]{};
+	float m_target[3]{};
 	
 	dtPolyRef* m_path;
 	int m_npath;
@@ -39,7 +39,7 @@ public:
 	/// Allocates the corridor's path buffer. 
 	///  @param[in]		maxPath		The maximum path size the corridor can handle.
 	/// @return True if the initialization succeeded.
-	bool init(const int maxPath);
+	bool init(int maxPath);
 	
 	/// Resets the path corridor to the specified position.
 	///  @param[in]		ref		The polygon reference containing the position.
@@ -56,16 +56,16 @@ public:
 	///  @param[in]		filter			The filter to apply to the operation.
 	/// @return The number of corners returned in the corner buffers. [0 <= value <= @p maxCorners]
 	int findCorners(float* cornerVerts, unsigned char* cornerFlags,
-					dtPolyRef* cornerPolys, const int maxCorners,
-					dtNavMeshQuery* navquery, const dtQueryFilter* filter);
+					dtPolyRef* cornerPolys, int maxCorners,
+					const dtNavMeshQuery* navquery, const dtQueryFilter* filter)const;
 	
 	/// Attempts to optimize the path if the specified point is visible from the current position.
 	///  @param[in]		next					The point to search toward. [(x, y, z])
 	///  @param[in]		pathOptimizationRange	The maximum range to search. [Limit: > 0]
 	///  @param[in]		navquery				The query object used to build the corridor.
 	///  @param[in]		filter					The filter to apply to the operation.			
-	void optimizePathVisibility(const float* next, const float pathOptimizationRange,
-								dtNavMeshQuery* navquery, const dtQueryFilter* filter);
+	void optimizePathVisibility(const float* next, float pathOptimizationRange,
+	                            const dtNavMeshQuery* navquery, const dtQueryFilter* filter);
 	
 	/// Attempts to optimize the path using a local area search. (Partial replanning.) 
 	///  @param[in]		navquery	The query object used to build the corridor.
@@ -74,18 +74,18 @@ public:
 	
 	bool moveOverOffmeshConnection(dtPolyRef offMeshConRef, dtPolyRef* refs,
 								   float* startPos, float* endPos,
-								   dtNavMeshQuery* navquery);
+								   const dtNavMeshQuery* navquery);
 
 	bool fixPathStart(dtPolyRef safeRef, const float* safePos);
 
 	bool trimInvalidPath(dtPolyRef safeRef, const float* safePos,
-						 dtNavMeshQuery* navquery, const dtQueryFilter* filter);
+	                     const dtNavMeshQuery* navquery, const dtQueryFilter* filter);
 	
 	/// Checks the current corridor path to see if its polygon references remain valid. 
 	///  @param[in]		maxLookAhead	The number of polygons from the beginning of the corridor to search.
 	///  @param[in]		navquery		The query object used to build the corridor.
 	///  @param[in]		filter			The filter to apply to the operation.	
-	bool isValid(const int maxLookAhead, dtNavMeshQuery* navquery, const dtQueryFilter* filter);
+	bool isValid(int maxLookAhead, const dtNavMeshQuery* navquery, const dtQueryFilter* filter) const;
 	
 	/// Moves the position from the current location to the desired location, adjusting the corridor 
 	/// as needed to reflect the change.
@@ -93,7 +93,7 @@ public:
 	///  @param[in]		navquery	The query object used to build the corridor.
 	///  @param[in]		filter		The filter to apply to the operation.
 	/// @return Returns true if move succeeded.
-	bool movePosition(const float* npos, dtNavMeshQuery* navquery, const dtQueryFilter* filter);
+	bool movePosition(const float* npos, const dtNavMeshQuery* navquery, const dtQueryFilter* filter);
 
 	/// Moves the target from the curent location to the desired location, adjusting the corridor
 	/// as needed to reflect the change. 
@@ -101,37 +101,37 @@ public:
 	///  @param[in]		navquery	The query object used to build the corridor.
 	///  @param[in]		filter		The filter to apply to the operation.
 	/// @return Returns true if move succeeded.
-	bool moveTargetPosition(const float* npos, dtNavMeshQuery* navquery, const dtQueryFilter* filter);
+	bool moveTargetPosition(const float* npos, const dtNavMeshQuery* navquery, const dtQueryFilter* filter);
 	
 	/// Loads a new path and target into the corridor.
 	///  @param[in]		target		The target location within the last polygon of the path. [(x, y, z)]
 	///  @param[in]		path		The path corridor. [(polyRef) * @p npolys]
 	///  @param[in]		npath		The number of polygons in the path.
-	void setCorridor(const float* target, const dtPolyRef* polys, const int npath);
+	void setCorridor(const float* target, const dtPolyRef* path, int npath);
 	
 	/// Gets the current position within the corridor. (In the first polygon.)
 	/// @return The current position within the corridor.
-	inline const float* getPos() const { return m_pos; }
+	const float* getPos() const { return m_pos; }
 
 	/// Gets the current target within the corridor. (In the last polygon.)
 	/// @return The current target within the corridor.
-	inline const float* getTarget() const { return m_target; }
+	const float* getTarget() const { return m_target; }
 	
 	/// The polygon reference id of the first polygon in the corridor, the polygon containing the position.
 	/// @return The polygon reference id of the first polygon in the corridor. (Or zero if there is no path.)
-	inline dtPolyRef getFirstPoly() const { return m_npath ? m_path[0] : 0; }
+	dtPolyRef getFirstPoly() const { return m_npath ? m_path[0] : 0; }
 
 	/// The polygon reference id of the last polygon in the corridor, the polygon containing the target.
 	/// @return The polygon reference id of the last polygon in the corridor. (Or zero if there is no path.)
-	inline dtPolyRef getLastPoly() const { return m_npath ? m_path[m_npath-1] : 0; }
+	dtPolyRef getLastPoly() const { return m_npath ? m_path[m_npath-1] : 0; }
 	
 	/// The corridor's path.
 	/// @return The corridor's path. [(polyRef) * #getPathCount()]
-	inline const dtPolyRef* getPath() const { return m_path; }
+	const dtPolyRef* getPath() const { return m_path; }
 
 	/// The number of polygons in the current corridor path.
 	/// @return The number of polygons in the current corridor path.
-	inline int getPathCount() const { return m_npath; }
+	int getPathCount() const { return m_npath; }
 
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.
@@ -139,13 +139,13 @@ private:
 	dtPathCorridor& operator=(const dtPathCorridor&);
 };
 
-int dtMergeCorridorStartMoved(dtPolyRef* path, const int npath, const int maxPath,
-							  const dtPolyRef* visited, const int nvisited);
+int dtMergeCorridorStartMoved(dtPolyRef* path, int npath, int maxPath,
+							  const dtPolyRef* visited, int nvisited);
 
-int dtMergeCorridorEndMoved(dtPolyRef* path, const int npath, const int maxPath,
-							const dtPolyRef* visited, const int nvisited);
+int dtMergeCorridorEndMoved(dtPolyRef* path, int npath, int maxPath,
+							const dtPolyRef* visited, int nvisited);
 
-int dtMergeCorridorStartShortcut(dtPolyRef* path, const int npath, const int maxPath,
-								 const dtPolyRef* visited, const int nvisited);
+int dtMergeCorridorStartShortcut(dtPolyRef* path, int npath, int maxPath,
+								 const dtPolyRef* visited, int nvisited);
 
 #endif // DETOUTPATHCORRIDOR_H

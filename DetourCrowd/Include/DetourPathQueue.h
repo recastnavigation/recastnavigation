@@ -22,7 +22,7 @@
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"
 
-static const unsigned int DT_PATHQ_INVALID = 0;
+static constexpr unsigned int DT_PATHQ_INVALID = 0;
 
 typedef unsigned int dtPathQueueRef;
 
@@ -43,8 +43,8 @@ class dtPathQueue
 		const dtQueryFilter* filter; ///< TODO: This is potentially dangerous!
 	};
 	
-	static const int MAX_QUEUE = 8;
-	PathQuery m_queue[MAX_QUEUE];
+	static constexpr int MAX_QUEUE = 8;
+	PathQuery m_queue[MAX_QUEUE]{};
 	dtPathQueueRef m_nextHandle;
 	int m_maxPathSize;
 	int m_queueHead;
@@ -56,9 +56,9 @@ public:
 	dtPathQueue();
 	~dtPathQueue();
 	
-	bool init(const int maxPathSize, const int maxSearchNodeCount, dtNavMesh* nav);
+	bool init(int maxPathSize, int maxSearchNodeCount, const dtNavMesh* nav);
 	
-	void update(const int maxIters);
+	void update(int maxIters);
 	
 	dtPathQueueRef request(dtPolyRef startRef, dtPolyRef endRef,
 						   const float* startPos, const float* endPos, 
@@ -66,9 +66,9 @@ public:
 	
 	dtStatus getRequestStatus(dtPathQueueRef ref) const;
 	
-	dtStatus getPathResult(dtPathQueueRef ref, dtPolyRef* path, int* pathSize, const int maxPath);
-	
-	inline const dtNavMeshQuery* getNavQuery() const { return m_navquery; }
+	dtStatus getPathResult(dtPathQueueRef ref, dtPolyRef* path, int* pathSize, int maxPath);
+
+	const dtNavMeshQuery* getNavQuery() const { return m_navquery; }
 
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.

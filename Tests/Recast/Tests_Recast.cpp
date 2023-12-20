@@ -1,5 +1,5 @@
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 
 #include "catch2/catch_all.hpp"
 
@@ -120,17 +120,17 @@ TEST_CASE("rcVdot", "[recast]")
 {
 	SECTION("Dot normalized vector with itself")
 	{
-		float v1[] = { 1, 0, 0 };
-		float result = rcVdot(v1, v1);
+		constexpr float v1[] = { 1, 0, 0 };
+		const float result = rcVdot(v1, v1);
 		REQUIRE(result == Catch::Approx(1));
 	}
 
 	SECTION("Dot zero vector with anything is zero")
 	{
-		float v1[] = { 1, 2, 3 };
-		float v2[] = { 0, 0, 0 };
+		constexpr float v1[] = { 1, 2, 3 };
+		constexpr float v2[] = { 0, 0, 0 };
 
-		float result = rcVdot(v1, v2);
+		const float result = rcVdot(v1, v2);
 		REQUIRE(result == Catch::Approx(0));
 	}
 }
@@ -164,8 +164,8 @@ TEST_CASE("rcVadd", "[recast]")
 {
 	SECTION("add two vectors")
 	{
-		float v1[3] = {1, 2, 3};
-		float v2[3] = {5, 6, 7};
+		constexpr float v1[3] = {1, 2, 3};
+		constexpr float v2[3] = {5, 6, 7};
 		float result[3];
 		rcVadd(result, v1, v2);
 		REQUIRE(result[0] == Catch::Approx(6));
@@ -178,8 +178,8 @@ TEST_CASE("rcVsub", "[recast]")
 {
 	SECTION("subtract two vectors")
 	{
-		float v1[3] = {5, 4, 3};
-		float v2[3] = {1, 2, 3};
+		constexpr float v1[3] = {5, 4, 3};
+		constexpr float v2[3] = {1, 2, 3};
 		float result[3];
 		rcVsub(result, v1, v2);
 		REQUIRE(result[0] == Catch::Approx(4));
@@ -274,19 +274,19 @@ TEST_CASE("rcVdist", "[recast]")
 {
 	SECTION("distance between two vectors")
 	{
-		float v1[3] = {3, 1, 3};
-		float v2[3] = {1, 3, 1};
-		float result = rcVdist(v1, v2);
+		constexpr float v1[3] = {3, 1, 3};
+		constexpr float v2[3] = {1, 3, 1};
+		const float result = rcVdist(v1, v2);
 
 		REQUIRE(result == Catch::Approx(3.4641f));
 	}
 
 	SECTION("Distance from zero is magnitude")
 	{
-		float v1[3] = {3, 1, 3};
-		float v2[3] = {0, 0, 0};
-		float distance = rcVdist(v1, v2);
-		float magnitude = rcSqrt(rcSqr(v1[0]) + rcSqr(v1[1]) + rcSqr(v1[2]));
+		constexpr float v1[3] = {3, 1, 3};
+		constexpr float v2[3] = {0, 0, 0};
+		const float distance = rcVdist(v1, v2);
+		const float magnitude = rcSqrt(rcSqr(v1[0]) + rcSqr(v1[1]) + rcSqr(v1[2]));
 		REQUIRE(distance == Catch::Approx(magnitude));
 	}
 }
@@ -295,19 +295,19 @@ TEST_CASE("rcVdistSqr", "[recast]")
 {
 	SECTION("squared distance between two vectors")
 	{
-		float v1[3] = {3, 1, 3};
-		float v2[3] = {1, 3, 1};
-		float result = rcVdistSqr(v1, v2);
+		constexpr float v1[3] = {3, 1, 3};
+		constexpr float v2[3] = {1, 3, 1};
+		const float result = rcVdistSqr(v1, v2);
 
 		REQUIRE(result == Catch::Approx(12));
 	}
 
 	SECTION("squared distance from zero is squared magnitude")
 	{
-		float v1[3] = {3, 1, 3};
-		float v2[3] = {0, 0, 0};
-		float distance = rcVdistSqr(v1, v2);
-		float magnitude = rcSqr(v1[0]) + rcSqr(v1[1]) + rcSqr(v1[2]);
+		constexpr float v1[3] = {3, 1, 3};
+		constexpr float v2[3] = {0, 0, 0};
+		const float distance = rcVdistSqr(v1, v2);
+		const float magnitude = rcSqr(v1[0]) + rcSqr(v1[1]) + rcSqr(v1[2]);
 		REQUIRE(distance == Catch::Approx(magnitude));
 	}
 }
@@ -321,7 +321,7 @@ TEST_CASE("rcVnormalize", "[recast]")
 		REQUIRE(v[0] == Catch::Approx(rcSqrt(1.0f / 3.0f)));
 		REQUIRE(v[1] == Catch::Approx(rcSqrt(1.0f / 3.0f)));
 		REQUIRE(v[2] == Catch::Approx(rcSqrt(1.0f / 3.0f)));
-		float magnitude = rcSqrt(rcSqr(v[0]) + rcSqr(v[1]) + rcSqr(v[2]));
+		const float magnitude = rcSqrt(rcSqr(v[0]) + rcSqr(v[1]) + rcSqr(v[2]));
 		REQUIRE(magnitude == Catch::Approx(1));
 	}
 }
@@ -368,7 +368,7 @@ TEST_CASE("rcCalcGridSize", "[recast]")
 {
 	SECTION("computes the size of an x & z axis grid")
 	{
-		float verts[] = {
+		const float verts[] = {
 			1, 2, 3,
 			0, 2, 6
 		};
@@ -376,7 +376,7 @@ TEST_CASE("rcCalcGridSize", "[recast]")
 		float bmax[3];
 		rcCalcBounds(verts, 2, bmin, bmax);
 
-		float cellSize = 1.5f;
+		constexpr float cellSize = 1.5f;
 
 		int width;
 		int height;
@@ -410,7 +410,7 @@ TEST_CASE("rcCreateHeightfield", "[recast]")
 
 		rcHeightfield heightfield;
 
-		bool result = rcCreateHeightfield(0, heightfield, width, height, bmin, bmax, cellSize, cellHeight);
+		bool result = rcCreateHeightfield(nullptr, heightfield, width, height, bmin, bmax, cellSize, cellHeight);
 
 		REQUIRE(result);
 
@@ -436,17 +436,17 @@ TEST_CASE("rcCreateHeightfield", "[recast]")
 
 TEST_CASE("rcMarkWalkableTriangles", "[recast]")
 {
-	rcContext* ctx = 0;
+	rcContext* ctx = nullptr;
 	float walkableSlopeAngle = 45;
-	float verts[] = {
+	constexpr float verts[] = {
 		0, 0, 0,
 		1, 0, 0,
 		0, 0, -1
 	};
-	int nv = 3;
-	int walkable_tri[] = { 0, 1, 2 };
-	int unwalkable_tri[] = { 0, 2, 1 };
-	int nt = 1;
+	constexpr int nv = 3;
+	constexpr int walkable_tri[] = { 0, 1, 2 };
+	constexpr int unwalkable_tri[] = { 0, 2, 1 };
+	constexpr int nt = 1;
 	unsigned char areas[] = { RC_NULL_AREA };
 
 	SECTION("One walkable triangle")
@@ -478,17 +478,17 @@ TEST_CASE("rcMarkWalkableTriangles", "[recast]")
 
 TEST_CASE("rcClearUnwalkableTriangles", "[recast]")
 {
-	rcContext* ctx = 0;
+	rcContext* ctx = nullptr;
 	float walkableSlopeAngle = 45;
-	float verts[] = {
+	constexpr float verts[] = {
 		0, 0, 0,
 		1, 0, 0,
 		0, 0, -1
 	};
-	int nv = 3;
-	int walkable_tri[] = { 0, 1, 2 };
-	int unwalkable_tri[] = { 0, 2, 1 };
-	int nt = 1;
+	constexpr int nv = 3;
+	constexpr int walkable_tri[] = { 0, 1, 2 };
+	constexpr int unwalkable_tri[] = { 0, 2, 1 };
+	constexpr int nt = 1;
 	unsigned char areas[] = { 42 };
 
 	SECTION("Sets area ID of unwalkable triangle to RC_NULL_AREA")
@@ -623,11 +623,10 @@ TEST_CASE("rcRasterizeTriangle", "[recast]")
 	rcHeightfield solid;
 	REQUIRE(rcCreateHeightfield(&ctx, solid, width, height, bmin, bmax, cellSize, cellHeight));
 
-	unsigned char area = 42;
-	int flagMergeThr = 1;
-
 	SECTION("Rasterize a triangle")
 	{
+		int flagMergeThr = 1;
+		unsigned char area = 42;
 		REQUIRE(rcRasterizeTriangle(&ctx, &verts[0], &verts[3], &verts[6], area, solid, flagMergeThr));
 
 		REQUIRE(solid.spans[0 + 0 * width]);
@@ -658,19 +657,19 @@ TEST_CASE("rcRasterizeTriangle overlapping bb but non-overlapping triangle", "[r
     rcContext ctx;
 
 	// create a heightfield
-    float cellSize = 1;
-    float cellHeight = 1;
-    int width = 10;
-    int height = 10;
-    float bmin[] = { 0, 0, 0 };
-    float bmax[] = { 10, 10, 10 };
+	constexpr float cellSize = 1;
+	constexpr float cellHeight = 1;
+	constexpr int width = 10;
+	constexpr int height = 10;
+	constexpr float bmin[] = { 0, 0, 0 };
+	constexpr float bmax[] = { 10, 10, 10 };
     rcHeightfield heightfield;
     REQUIRE(rcCreateHeightfield(&ctx, heightfield, width, height, bmin, bmax, cellSize, cellHeight));
 
 	// rasterize a triangle outside of the heightfield.
-    unsigned char area = 42;
-    int flagMergeThr = 1;
-    float verts[] =
+	constexpr unsigned char area = 42;
+	constexpr int flagMergeThr = 1;
+	constexpr float verts[] =
 	{
         -10.0, 5.5, -10.0,
         -10.0, 5.5, 3,

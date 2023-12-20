@@ -32,9 +32,9 @@ enum imguiTextAlign
 	IMGUI_ALIGN_RIGHT
 };
 
-inline unsigned int imguiRGBA(unsigned char r, unsigned char g, unsigned char b, unsigned char a=255)
+inline unsigned int imguiRGBA(const unsigned char r, const unsigned char g, const unsigned char b, const unsigned char a=255)
 {
-	return (r) | (g << 8) | (b << 16) | (a << 24);
+	return r | g << 8 | b << 16 | a << 24;
 }
 
 void imguiBeginFrame(int mx, int my, unsigned char mbut, int scroll);

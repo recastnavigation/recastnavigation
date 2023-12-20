@@ -17,16 +17,16 @@
 //
 
 #include "MeshLoaderObj.h"
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <cstring>
-#include <math.h>
+#include <cmath>
 
 rcMeshLoaderObj::rcMeshLoaderObj() :
 	m_scale(1.0f),
-	m_verts(0),
-	m_tris(0),
-	m_normals(0),
+	m_verts(nullptr),
+	m_tris(nullptr),
+	m_normals(nullptr),
 	m_vertCount(0),
 	m_triCount(0)
 {
@@ -39,12 +39,12 @@ rcMeshLoaderObj::~rcMeshLoaderObj()
 	delete [] m_tris;
 }
 		
-void rcMeshLoaderObj::addVertex(float x, float y, float z, int& cap)
+void rcMeshLoaderObj::addVertex(const float x, const float y, const float z, int& cap)
 {
 	if (m_vertCount+1 > cap)
 	{
 		cap = !cap ? 8 : cap*2;
-		float* nv = new float[cap*3];
+		const auto nv = new float[cap*3];
 		if (m_vertCount)
 			memcpy(nv, m_verts, m_vertCount*3*sizeof(float));
 		delete [] m_verts;
@@ -53,16 +53,16 @@ void rcMeshLoaderObj::addVertex(float x, float y, float z, int& cap)
 	float* dst = &m_verts[m_vertCount*3];
 	*dst++ = x*m_scale;
 	*dst++ = y*m_scale;
-	*dst++ = z*m_scale;
+	*dst = z*m_scale;
 	m_vertCount++;
 }
 
-void rcMeshLoaderObj::addTriangle(int a, int b, int c, int& cap)
+void rcMeshLoaderObj::addTriangle(const int a, const int b, const int c, int& cap)
 {
 	if (m_triCount+1 > cap)
 	{
 		cap = !cap ? 8 : cap*2;
-		int* nv = new int[cap*3];
+		const auto nv = new int[cap*3];
 		if (m_triCount)
 			memcpy(nv, m_tris, m_triCount*3*sizeof(int));
 		delete [] m_tris;
@@ -71,18 +71,18 @@ void rcMeshLoaderObj::addTriangle(int a, int b, int c, int& cap)
 	int* dst = &m_tris[m_triCount*3];
 	*dst++ = a;
 	*dst++ = b;
-	*dst++ = c;
+	*dst = c;
 	m_triCount++;
 }
 
-static char* parseRow(char* buf, char* bufEnd, char* row, int len)
+static char* parseRow(char* buf, const char* bufEnd, char* row, const int len)
 {
 	bool start = true;
 	bool done = false;
 	int n = 0;
 	while (!done && buf < bufEnd)
 	{
-		char c = *buf;
+		const char c = *buf;
 		buf++;
 		// multirow
 		switch (c)
@@ -111,7 +111,7 @@ static char* parseRow(char* buf, char* bufEnd, char* row, int len)
 	return buf;
 }
 
-static int parseFace(char* row, int* data, int n, int vcnt)
+static int parseFace(char* row, int* data, const int n, const int vcnt)
 {
 	int j = 0;
 	while (*row != '\0')
@@ -119,7 +119,7 @@ static int parseFace(char* row, int* data, int n, int vcnt)
 		// Skip initial white space
 		while (*row != '\0' && (*row == ' ' || *row == '\t'))
 			row++;
-		char* s = row;
+		const char* s = row;
 		// Find vertex delimiter and terminated the string there for conversion.
 		while (*row != '\0' && *row != ' ' && *row != '\t')
 		{
@@ -128,17 +128,17 @@ static int parseFace(char* row, int* data, int n, int vcnt)
 		}
 		if (*s == '\0')
 			continue;
-		int vi = atoi(s);
+		const int vi = std::stoi(s);
 		data[j++] = vi < 0 ? vi+vcnt : vi-1;
 		if (j >= n) return j;
 	}
 	return j;
 }
 
-bool rcMeshLoaderObj::load(const std::string& filename)
+bool rcMeshLoaderObj::load(const std::string& fileName)
 {
-	char* buf = 0;
-	FILE* fp = fopen(filename.c_str(), "rb");
+	FILE* fp;
+	fopen_s(&fp,fileName.c_str(), "rb");
 	if (!fp)
 		return false;
 	if (fseek(fp, 0, SEEK_END) != 0)
@@ -146,7 +146,7 @@ bool rcMeshLoaderObj::load(const std::string& filename)
 		fclose(fp);
 		return false;
 	}
-	long bufSize = ftell(fp);
+	const long bufSize = ftell(fp);
 	if (bufSize < 0)
 	{
 		fclose(fp);
@@ -157,13 +157,13 @@ bool rcMeshLoaderObj::load(const std::string& filename)
 		fclose(fp);
 		return false;
 	}
-	buf = new char[bufSize];
+	const auto buf = new char[bufSize];
 	if (!buf)
 	{
 		fclose(fp);
 		return false;
 	}
-	size_t readLen = fread(buf, bufSize, 1, fp);
+	const size_t readLen = fread(buf, bufSize, 1, fp);
 	fclose(fp);
 
 	if (readLen != 1)
@@ -173,11 +173,9 @@ bool rcMeshLoaderObj::load(const std::string& filename)
 	}
 
 	char* src = buf;
-	char* srcEnd = buf + bufSize;
+	const char* srcEnd = buf + bufSize;
 	char row[512];
-	int face[32];
 	float x,y,z;
-	int nv;
 	int vcap = 0;
 	int tcap = 0;
 	
@@ -191,13 +189,14 @@ bool rcMeshLoaderObj::load(const std::string& filename)
 		if (row[0] == 'v' && row[1] != 'n' && row[1] != 't')
 		{
 			// Vertex pos
-			sscanf(row+1, "%f %f %f", &x, &y, &z);
+			sscanf_s(row+1, "%f %f %f", &x, &y, &z);
 			addVertex(x, y, z, vcap);
 		}
 		if (row[0] == 'f')
 		{
+			int face[32];
 			// Faces
-			nv = parseFace(row+1, face, 32, m_vertCount);
+			const int nv = parseFace(row + 1, face, 32, m_vertCount);
 			for (int i = 2; i < nv; ++i)
 			{
 				const int a = face[0];
@@ -239,6 +238,6 @@ bool rcMeshLoaderObj::load(const std::string& filename)
 		}
 	}
 	
-	m_filename = filename;
+	m_filename = fileName;
 	return true;
 }
