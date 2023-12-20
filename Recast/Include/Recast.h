@@ -365,6 +365,7 @@ struct rcCompactHeightfield
 	int borderSize;				///< The AABB border size used during the build of the field. (See: rcConfig::borderSize)
 	unsigned short maxDistance;	///< The maximum distance value of any span within the field. 
 	unsigned short maxRegions;	///< The maximum region id of any span within the field. 
+    unsigned short maxSobel;
 	float bmin[3];				///< The minimum bounds in world space. [(x, y, z)]
 	float bmax[3];				///< The maximum bounds in world space. [(x, y, z)]
 	float cs;					///< The size of each cell. (On the xz-plane.)
@@ -426,6 +427,7 @@ struct rcContour
 	int nrverts;		///< The number of vertices in the raw contour. 
 	unsigned short reg;	///< The region id of the contour.
 	unsigned char area;	///< The area id of the contour.
+    float size;
 };
 
 /// Represents a group of related contours.
@@ -464,6 +466,7 @@ struct rcPolyMesh
 	unsigned short* regs;	///< The region id assigned to each polygon. [Length: #maxpolys]
 	unsigned short* flags;	///< The user defined flags for each polygon. [Length: #maxpolys]
 	unsigned char* areas;	///< The area id assigned to each polygon. [Length: #maxpolys]
+    float* regionSize;
 	int nverts;				///< The number of vertices.
 	int npolys;				///< The number of polygons.
 	int maxpolys;			///< The number of allocated polygons.

@@ -1110,7 +1110,6 @@ static bool mergeAndFilterLayerRegions(rcContext* ctx, const int minRegionArea,
 					continue;
 				// Skip if different area type, do not connect regions with different area type.
 				if (reg.areaType != regn.areaType)
-					continue;
 
                 reg.ymin = rcMin(reg.ymin, s.y);
                 reg.ymax = rcMax(reg.ymax, s.y);

@@ -52,7 +52,6 @@ void rcFilterLowHangingWalkableObstacles(rcContext* context, const int walkableC
 				// is small enough for the agent to walk over, mark the current span as walkable too.
 				if (!walkable && previousWasWalkable && (int)span->smax - (int)previousSpan->smax <= walkableClimb)
 				{
-					if (rcAbs((int)span->smax - (int)previousSpan->smax) <= walkableClimb)
 					{
 						span->area = previousArea;
 					}
