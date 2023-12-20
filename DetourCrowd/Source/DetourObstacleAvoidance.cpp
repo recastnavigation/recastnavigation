@@ -21,27 +21,27 @@
 #include "DetourMath.h"
 #include "DetourAlloc.h"
 #include "DetourAssert.h"
-#include <string.h>
-#include <float.h>
+#include <cstring>
+#include <cfloat>
 #include <new>
 
-static const float DT_PI = 3.14159265f;
+static constexpr float DT_PI = 3.14159265f;
 
 static int sweepCircleCircle(const float* c0, const float r0, const float* v,
 							 const float* c1, const float r1,
 							 float& tmin, float& tmax)
 {
-	static const float EPS = 0.0001f;
+	static constexpr float EPS = 0.0001f;
 	float s[3];
 	dtVsub(s,c1,c0);
-	float r = r0+r1;
-	float c = dtVdot2D(s,s) - r*r;
+	const float r = r0+r1;
+	const float c = dtVdot2D(s,s) - r*r;
 	float a = dtVdot2D(v,v);
 	if (a < EPS) return 0;	// not moving
 	
 	// Overlap, calc time to exit.
-	float b = dtVdot2D(v,s);
-	float d = b*b - a*c;
+	const float b = dtVdot2D(v,s);
+	const float d = b*b - a*c;
 	if (d < 0.0f) return 0; // no intersection.
 	a = 1.0f / a;
 	const float rd = dtMathSqrtf(d);
@@ -62,7 +62,7 @@ static int isectRaySeg(const float* ap, const float* u,
 	d = 1.0f/d;
 	t = dtVperp2D(v,w) * d;
 	if (t < 0 || t > 1) return 0;
-	float s = dtVperp2D(u,w) * d;
+	const float s = dtVperp2D(u,w) * d;
 	if (s < 0 || s > 1) return 0;
 	return 1;
 }
@@ -72,7 +72,7 @@ static int isectRaySeg(const float* ap, const float* u,
 dtObstacleAvoidanceDebugData* dtAllocObstacleAvoidanceDebugData()
 {
 	void* mem = dtAlloc(sizeof(dtObstacleAvoidanceDebugData), DT_ALLOC_PERM);
-	if (!mem) return 0;
+	if (!mem) return nullptr;
 	return new(mem) dtObstacleAvoidanceDebugData;
 }
 
@@ -87,13 +87,13 @@ void dtFreeObstacleAvoidanceDebugData(dtObstacleAvoidanceDebugData* ptr)
 dtObstacleAvoidanceDebugData::dtObstacleAvoidanceDebugData() :
 	m_nsamples(0),
 	m_maxSamples(0),
-	m_vel(0),
-	m_ssize(0),
-	m_pen(0),
-	m_vpen(0),
-	m_vcpen(0),
-	m_spen(0),
-	m_tpen(0)
+	m_vel(nullptr),
+	m_ssize(nullptr),
+	m_pen(nullptr),
+	m_vpen(nullptr),
+	m_vcpen(nullptr),
+	m_spen(nullptr),
+	m_tpen(nullptr)
 {
 }
 
@@ -113,25 +113,25 @@ bool dtObstacleAvoidanceDebugData::init(const int maxSamples)
 	dtAssert(maxSamples);
 	m_maxSamples = maxSamples;
 
-	m_vel = (float*)dtAlloc(sizeof(float)*3*m_maxSamples, DT_ALLOC_PERM);
+	m_vel = static_cast<float*>(dtAlloc(sizeof(float) * 3 * m_maxSamples, DT_ALLOC_PERM));
 	if (!m_vel)
 		return false;
-	m_pen = (float*)dtAlloc(sizeof(float)*m_maxSamples, DT_ALLOC_PERM);
+	m_pen = static_cast<float*>(dtAlloc(sizeof(float) * m_maxSamples, DT_ALLOC_PERM));
 	if (!m_pen)
 		return false;
-	m_ssize = (float*)dtAlloc(sizeof(float)*m_maxSamples, DT_ALLOC_PERM);
+	m_ssize = static_cast<float*>(dtAlloc(sizeof(float) * m_maxSamples, DT_ALLOC_PERM));
 	if (!m_ssize)
 		return false;
-	m_vpen = (float*)dtAlloc(sizeof(float)*m_maxSamples, DT_ALLOC_PERM);
+	m_vpen = static_cast<float*>(dtAlloc(sizeof(float) * m_maxSamples, DT_ALLOC_PERM));
 	if (!m_vpen)
 		return false;
-	m_vcpen = (float*)dtAlloc(sizeof(float)*m_maxSamples, DT_ALLOC_PERM);
+	m_vcpen = static_cast<float*>(dtAlloc(sizeof(float) * m_maxSamples, DT_ALLOC_PERM));
 	if (!m_vcpen)
 		return false;
-	m_spen = (float*)dtAlloc(sizeof(float)*m_maxSamples, DT_ALLOC_PERM);
+	m_spen = static_cast<float*>(dtAlloc(sizeof(float) * m_maxSamples, DT_ALLOC_PERM));
 	if (!m_spen)
 		return false;
-	m_tpen = (float*)dtAlloc(sizeof(float)*m_maxSamples, DT_ALLOC_PERM);
+	m_tpen = static_cast<float*>(dtAlloc(sizeof(float) * m_maxSamples, DT_ALLOC_PERM));
 	if (!m_tpen)
 		return false;
 	
@@ -181,7 +181,7 @@ static void normalizeArray(float* arr, const int n)
 		arr[i] = dtClamp((arr[i]-minPen)*s, 0.0f, 1.0f);
 }
 
-void dtObstacleAvoidanceDebugData::normalizeSamples()
+void dtObstacleAvoidanceDebugData::normalizeSamples() const
 {
 	normalizeArray(m_pen, m_nsamples);
 	normalizeArray(m_vpen, m_nsamples);
@@ -194,7 +194,7 @@ void dtObstacleAvoidanceDebugData::normalizeSamples()
 dtObstacleAvoidanceQuery* dtAllocObstacleAvoidanceQuery()
 {
 	void* mem = dtAlloc(sizeof(dtObstacleAvoidanceQuery), DT_ALLOC_PERM);
-	if (!mem) return 0;
+	if (!mem) return nullptr;
 	return new(mem) dtObstacleAvoidanceQuery;
 }
 
@@ -211,10 +211,10 @@ dtObstacleAvoidanceQuery::dtObstacleAvoidanceQuery() :
 	m_vmax(0),
 	m_invVmax(0),
 	m_maxCircles(0),
-	m_circles(0),
+	m_circles(nullptr),
 	m_ncircles(0),
 	m_maxSegments(0),
-	m_segments(0),
+	m_segments(nullptr),
 	m_nsegments(0)
 {
 }
@@ -229,14 +229,14 @@ bool dtObstacleAvoidanceQuery::init(const int maxCircles, const int maxSegments)
 {
 	m_maxCircles = maxCircles;
 	m_ncircles = 0;
-	m_circles = (dtObstacleCircle*)dtAlloc(sizeof(dtObstacleCircle)*m_maxCircles, DT_ALLOC_PERM);
+	m_circles = static_cast<dtObstacleCircle*>(dtAlloc(sizeof(dtObstacleCircle) * m_maxCircles, DT_ALLOC_PERM));
 	if (!m_circles)
 		return false;
 	memset(m_circles, 0, sizeof(dtObstacleCircle)*m_maxCircles);
 
 	m_maxSegments = maxSegments;
 	m_nsegments = 0;
-	m_segments = (dtObstacleSegment*)dtAlloc(sizeof(dtObstacleSegment)*m_maxSegments, DT_ALLOC_PERM);
+	m_segments = static_cast<dtObstacleSegment*>(dtAlloc(sizeof(dtObstacleSegment) * m_maxSegments, DT_ALLOC_PERM));
 	if (!m_segments)
 		return false;
 	memset(m_segments, 0, sizeof(dtObstacleSegment)*m_maxSegments);
@@ -273,7 +273,7 @@ void dtObstacleAvoidanceQuery::addSegment(const float* p, const float* q)
 	dtVcopy(seg->q, q);
 }
 
-void dtObstacleAvoidanceQuery::prepare(const float* pos, const float* dvel)
+void dtObstacleAvoidanceQuery::prepare(const float* pos, const float* dvel) const
 {
 	// Prepare obstacles
 	for (int i = 0; i < m_ncircles; ++i)
@@ -283,8 +283,8 @@ void dtObstacleAvoidanceQuery::prepare(const float* pos, const float* dvel)
 		// Side
 		const float* pa = pos;
 		const float* pb = cir->p;
-		
-		const float orig[3] = {0,0,0};
+
+		constexpr float orig[3] = {0,0,0};
 		float dv[3];
 		dtVsub(cir->dp,pb,pa);
 		dtVnormalize(cir->dp);
@@ -308,7 +308,7 @@ void dtObstacleAvoidanceQuery::prepare(const float* pos, const float* dvel)
 		dtObstacleSegment* seg = &m_segments[i];
 		
 		// Precalc if the agent is really close to the segment.
-		const float r = 0.01f;
+		constexpr float r = 0.01f;
 		float t;
 		seg->touch = dtDistancePtSegSqr2D(pos, seg->p, seg->q, t) < dtSqr(r);
 	}	
@@ -325,7 +325,7 @@ float dtObstacleAvoidanceQuery::processSample(const float* vcand, const float cs
 											  const float* pos, const float rad,
 											  const float* vel, const float* dvel,
 											  const float minPenalty,
-											  dtObstacleAvoidanceDebugData* debug)
+											  dtObstacleAvoidanceDebugData* debug) const
 {
 	// penalty for straying away from the desired and current velocities
 	const float vpen = m_params.weightDesVel * (dtVdist2D(vcand, dvel) * m_invVmax);
@@ -333,8 +333,8 @@ float dtObstacleAvoidanceQuery::processSample(const float* vcand, const float cs
 
 	// find the threshold hit time to bail out based on the early out penalty
 	// (see how the penalty is calculated below to understand)
-	float minPen = minPenalty - vpen - vcpen;
-	float tThresold = (m_params.weightToi / minPen - 0.1f) * m_params.horizTime;
+	const float minPen = minPenalty - vpen - vcpen;
+	const float tThresold = (m_params.weightToi / minPen - 0.1f) * m_params.horizTime;
 	if (tThresold - m_params.horizTime > -FLT_EPSILON)
 		return minPenalty; // already too much
 
@@ -418,7 +418,7 @@ float dtObstacleAvoidanceQuery::processSample(const float* vcand, const float cs
 	
 	// Normalize side bias, to prevent it dominating too much.
 	if (nside)
-		side /= nside;
+		side /= static_cast<float>(nside);
 	
 	const float spen = m_params.weightSide * side;
 	const float tpen = m_params.weightToi * (1.0f/(0.1f+tmin*m_invHorizTime));
@@ -451,8 +451,8 @@ int dtObstacleAvoidanceQuery::sampleVelocityGrid(const float* pos, const float r
 
 	const float cvx = dvel[0] * m_params.velBias;
 	const float cvz = dvel[2] * m_params.velBias;
-	const float cs = vmax * 2 * (1 - m_params.velBias) / (float)(m_params.gridSize-1);
-	const float half = (m_params.gridSize-1)*cs*0.5f;
+	const float cs = vmax * 2 * (1 - m_params.velBias) / static_cast<float>(m_params.gridSize - 1);
+	const float half = static_cast<float>(m_params.gridSize - 1)*cs*0.5f;
 		
 	float minPenalty = FLT_MAX;
 	int ns = 0;
@@ -462,9 +462,9 @@ int dtObstacleAvoidanceQuery::sampleVelocityGrid(const float* pos, const float r
 		for (int x = 0; x < m_params.gridSize; ++x)
 		{
 			float vcand[3];
-			vcand[0] = cvx + x*cs - half;
+			vcand[0] = cvx + static_cast<float>(x)*cs - half;
 			vcand[1] = 0;
-			vcand[2] = cvz + y*cs - half;
+			vcand[2] = cvz + static_cast<float>(y)*cs - half;
 			
 			if (dtSqr(vcand[0])+dtSqr(vcand[2]) > dtSqr(vmax+cs/2)) continue;
 			
@@ -494,10 +494,10 @@ inline void dtNormalize2D(float* v)
 }
 
 // vector normalization that ignores the y-component.
-inline void dtRorate2D(float* dest, const float* v, float ang)
+inline void dtRorate2D(float* dest, const float* v, const float ang)
 {
-	float c = cosf(ang);
-	float s = sinf(ang);
+	const float c = cosf(ang);
+	const float s = sinf(ang);
 	dest[0] = v[0]*c - v[2]*s;
 	dest[2] = v[0]*s + v[2]*c;
 	dest[1] = v[1];
@@ -525,13 +525,13 @@ int dtObstacleAvoidanceQuery::sampleVelocityAdaptive(const float* pos, const flo
 	float pat[(DT_MAX_PATTERN_DIVS*DT_MAX_PATTERN_RINGS+1)*2];
 	int npat = 0;
 
-	const int ndivs = (int)m_params.adaptiveDivs;
-	const int nrings= (int)m_params.adaptiveRings;
-	const int depth = (int)m_params.adaptiveDepth;
+	const int ndivs = m_params.adaptiveDivs;
+	const int nrings= m_params.adaptiveRings;
+	const int depth = m_params.adaptiveDepth;
 	
 	const int nd = dtClamp(ndivs, 1, DT_MAX_PATTERN_DIVS);
 	const int nr = dtClamp(nrings, 1, DT_MAX_PATTERN_RINGS);
-	const float da = (1.0f/nd) * DT_PI*2;
+	const float da = (1.0f/static_cast<float>(nd)) * DT_PI*2;
 	const float ca = cosf(da);
 	const float sa = sinf(da);
 
@@ -548,11 +548,11 @@ int dtObstacleAvoidanceQuery::sampleVelocityAdaptive(const float* pos, const flo
 	
 	for (int j = 0; j < nr; ++j)
 	{
-		const float r = (float)(nr-j)/(float)nr;
+		const float r = static_cast<float>(nr - j)/static_cast<float>(nr);
 		pat[npat*2+0] = ddir[(j%2)*3] * r;
 		pat[npat*2+1] = ddir[(j%2)*3+2] * r;
-		float* last1 = pat + npat*2;
-		float* last2 = last1;
+		const float* last1 = pat + npat*2;
+		const float* last2 = last1;
 		npat++;
 
 		for (int i = 1; i < nd-1; i+=2)

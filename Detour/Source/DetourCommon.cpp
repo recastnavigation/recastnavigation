@@ -29,8 +29,8 @@ void dtClosestPtPointTriangle(float* closest, const float* p,
 	dtVsub(ab, b, a);
 	dtVsub(ac, c, a);
 	dtVsub(ap, p, a);
-	float d1 = dtVdot(ab, ap);
-	float d2 = dtVdot(ac, ap);
+	const float d1 = dtVdot(ab, ap);
+	const float d2 = dtVdot(ac, ap);
 	if (d1 <= 0.0f && d2 <= 0.0f)
 	{
 		// barycentric coordinates (1,0,0)
@@ -41,8 +41,8 @@ void dtClosestPtPointTriangle(float* closest, const float* p,
 	// Check if P in vertex region outside B
 	float bp[3];
 	dtVsub(bp, p, b);
-	float d3 = dtVdot(ab, bp);
-	float d4 = dtVdot(ac, bp);
+	const float d3 = dtVdot(ab, bp);
+	const float d4 = dtVdot(ac, bp);
 	if (d3 >= 0.0f && d4 <= d3)
 	{
 		// barycentric coordinates (0,1,0)
@@ -51,11 +51,11 @@ void dtClosestPtPointTriangle(float* closest, const float* p,
 	}
 	
 	// Check if P in edge region of AB, if so return projection of P onto AB
-	float vc = d1*d4 - d3*d2;
+	const float vc = d1*d4 - d3*d2;
 	if (vc <= 0.0f && d1 >= 0.0f && d3 <= 0.0f)
 	{
 		// barycentric coordinates (1-v,v,0)
-		float v = d1 / (d1 - d3);
+		const float v = d1 / (d1 - d3);
 		closest[0] = a[0] + v * ab[0];
 		closest[1] = a[1] + v * ab[1];
 		closest[2] = a[2] + v * ab[2];
@@ -65,8 +65,8 @@ void dtClosestPtPointTriangle(float* closest, const float* p,
 	// Check if P in vertex region outside C
 	float cp[3];
 	dtVsub(cp, p, c);
-	float d5 = dtVdot(ab, cp);
-	float d6 = dtVdot(ac, cp);
+	const float d5 = dtVdot(ab, cp);
+	const float d6 = dtVdot(ac, cp);
 	if (d6 >= 0.0f && d5 <= d6)
 	{
 		// barycentric coordinates (0,0,1)
@@ -75,11 +75,11 @@ void dtClosestPtPointTriangle(float* closest, const float* p,
 	}
 	
 	// Check if P in edge region of AC, if so return projection of P onto AC
-	float vb = d5*d2 - d1*d6;
+	const float vb = d5*d2 - d1*d6;
 	if (vb <= 0.0f && d2 >= 0.0f && d6 <= 0.0f)
 	{
 		// barycentric coordinates (1-w,0,w)
-		float w = d2 / (d2 - d6);
+		const float w = d2 / (d2 - d6);
 		closest[0] = a[0] + w * ac[0];
 		closest[1] = a[1] + w * ac[1];
 		closest[2] = a[2] + w * ac[2];
@@ -87,11 +87,11 @@ void dtClosestPtPointTriangle(float* closest, const float* p,
 	}
 	
 	// Check if P in edge region of BC, if so return projection of P onto BC
-	float va = d3*d6 - d5*d4;
+	const float va = d3*d6 - d5*d4;
 	if (va <= 0.0f && (d4 - d3) >= 0.0f && (d5 - d6) >= 0.0f)
 	{
 		// barycentric coordinates (0,1-w,w)
-		float w = (d4 - d3) / ((d4 - d3) + (d5 - d6));
+		const float w = (d4 - d3) / ((d4 - d3) + (d5 - d6));
 		closest[0] = b[0] + w * (c[0] - b[0]);
 		closest[1] = b[1] + w * (c[1] - b[1]);
 		closest[2] = b[2] + w * (c[2] - b[2]);
@@ -99,20 +99,20 @@ void dtClosestPtPointTriangle(float* closest, const float* p,
 	}
 	
 	// P inside face region. Compute Q through its barycentric coordinates (u,v,w)
-	float denom = 1.0f / (va + vb + vc);
-	float v = vb * denom;
-	float w = vc * denom;
+	const float denom = 1.0f / (va + vb + vc);
+	const float v = vb * denom;
+	const float w = vc * denom;
 	closest[0] = a[0] + ab[0] * v + ac[0] * w;
 	closest[1] = a[1] + ab[1] * v + ac[1] * w;
 	closest[2] = a[2] + ab[2] * v + ac[2] * w;
 }
 
 bool dtIntersectSegmentPoly2D(const float* p0, const float* p1,
-							  const float* verts, int nverts,
+							  const float* verts, const int nverts,
 							  float& tmin, float& tmax,
 							  int& segMin, int& segMax)
 {
-	static const float EPS = 0.000001f;
+	static constexpr float EPS = 0.000001f;
 	
 	tmin = 0;
 	tmax = 1;
@@ -134,8 +134,7 @@ bool dtIntersectSegmentPoly2D(const float* p0, const float* p1,
 			// S is nearly parallel to this edge
 			if (n < 0)
 				return false;
-			else
-				continue;
+			continue;
 		}
 		const float t = n / d;
 		if (d < 0)
@@ -169,11 +168,11 @@ bool dtIntersectSegmentPoly2D(const float* p0, const float* p1,
 
 float dtDistancePtSegSqr2D(const float* pt, const float* p, const float* q, float& t)
 {
-	float pqx = q[0] - p[0];
-	float pqz = q[2] - p[2];
+	const float pqx = q[0] - p[0];
+	const float pqz = q[2] - p[2];
 	float dx = pt[0] - p[0];
 	float dz = pt[2] - p[2];
-	float d = pqx*pqx + pqz*pqz;
+	const float d = pqx*pqx + pqz*pqz;
 	t = pqx*dx + pqz*dz;
 	if (d > 0) t /= d;
 	if (t < 0) t = 0;
@@ -183,7 +182,7 @@ float dtDistancePtSegSqr2D(const float* pt, const float* p, const float* q, floa
 	return dx*dx + dz*dz;
 }
 
-void dtCalcPolyCenter(float* tc, const unsigned short* idx, int nidx, const float* verts)
+void dtCalcPolyCenter(float* tc, const unsigned short* idx, const int nidx, const float* verts)
 {
 	tc[0] = 0.0f;
 	tc[1] = 0.0f;
@@ -195,7 +194,7 @@ void dtCalcPolyCenter(float* tc, const unsigned short* idx, int nidx, const floa
 		tc[1] += v[1];
 		tc[2] += v[2];
 	}
-	const float s = 1.0f / nidx;
+	const float s = 1.0f / static_cast<float>(nidx);
 	tc[0] *= s;
 	tc[1] *= s;
 	tc[2] *= s;
@@ -203,7 +202,7 @@ void dtCalcPolyCenter(float* tc, const unsigned short* idx, int nidx, const floa
 
 bool dtClosestHeightPointTriangle(const float* p, const float* a, const float* b, const float* c, float& h)
 {
-	const float EPS = 1e-6f;
+	constexpr float EPS = 1e-6f;
 	float v0[3], v1[3], v2[3];
 
 	dtVsub(v0, c, a);
@@ -285,7 +284,7 @@ inline bool overlapRange(const float amin, const float amax,
 						 const float bmin, const float bmax,
 						 const float eps)
 {
-	return ((amin+eps) > bmax || (amax-eps) < bmin) ? false : true;
+	return (amin+eps <= bmax && amax-eps >= bmin);
 }
 
 /// @par
@@ -294,7 +293,7 @@ inline bool overlapRange(const float amin, const float amax,
 bool dtOverlapPolyPoly2D(const float* polya, const int npolya,
 						 const float* polyb, const int npolyb)
 {
-	const float eps = 1e-4f;
+	constexpr float eps = 1e-4f;
 	
 	for (int i = 0, j = npolya-1; i < npolya; j=i++)
 	{
@@ -353,8 +352,8 @@ void dtRandomPointInConvexPoly(const float* pts, const int npts, float* areas,
 		}
 		acc += dacc;
 	}
-	
-	float v = dtMathSqrtf(t);
+
+	const float v = dtMathSqrtf(t);
 	
 	const float a = 1 - v;
 	const float b = (1 - u) * v;
@@ -378,7 +377,7 @@ bool dtIntersectSegSeg2D(const float* ap, const float* aq,
 	dtVsub(u,aq,ap);
 	dtVsub(v,bq,bp);
 	dtVsub(w,ap,bp);
-	float d = vperpXZ(u,v);
+	const float d = vperpXZ(u,v);
 	if (fabsf(d) < 1e-6f) return false;
 	s = vperpXZ(v,w) / d;
 	t = vperpXZ(u,w) / d;

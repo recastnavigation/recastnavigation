@@ -16,10 +16,10 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <stdlib.h>
+#include <cstdlib>
 #include "DetourAlloc.h"
 
-static void *dtAllocDefault(size_t size, dtAllocHint)
+static void *dtAllocDefault(const size_t size, dtAllocHint)
 {
 	return malloc(size);
 }
@@ -38,7 +38,7 @@ void dtAllocSetCustom(dtAllocFunc *allocFunc, dtFreeFunc *freeFunc)
 	sFreeFunc = freeFunc ? freeFunc : dtFreeDefault;
 }
 
-void* dtAlloc(size_t size, dtAllocHint hint)
+void* dtAlloc(const size_t size, const dtAllocHint hint)
 {
 	return sAllocFunc(size, hint);
 }

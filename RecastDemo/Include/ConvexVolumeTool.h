@@ -23,7 +23,7 @@
 
 // Tool to create convex volumess for InputGeom
 
-class ConvexVolumeTool : public SampleTool
+class ConvexVolumeTool final : public SampleTool
 {
 	Sample* m_sample;
 	int m_areaType;
@@ -31,7 +31,7 @@ class ConvexVolumeTool : public SampleTool
 	float m_boxHeight;
 	float m_boxDescent;
 	
-	static const int MAX_PTS = 12;
+	static constexpr int MAX_PTS = 12;
 	float m_pts[MAX_PTS*3];
 	int m_npts;
 	int m_hull[MAX_PTS];
@@ -40,16 +40,16 @@ class ConvexVolumeTool : public SampleTool
 public:
 	ConvexVolumeTool();
 	
-	virtual int type() { return TOOL_CONVEX_VOLUME; }
-	virtual void init(Sample* sample);
-	virtual void reset();
-	virtual void handleMenu();
-	virtual void handleClick(const float* s, const float* p, bool shift);
-	virtual void handleToggle();
-	virtual void handleStep();
-	virtual void handleUpdate(const float dt);
-	virtual void handleRender();
-	virtual void handleRenderOverlay(double* proj, double* model, int* view);
+	int type() override { return TOOL_CONVEX_VOLUME; }
+	void init(Sample* sample) override;
+	void reset() override;
+	void handleMenu() override;
+	void handleClick(const float* s, const float* p, bool shift) override;
+	void handleToggle() override;
+	void handleStep() override;
+	void handleUpdate(float dt) override;
+	void handleRender() override;
+	void handleRenderOverlay(double* proj, double* model, int* view) override;
 };
 
 #endif // CONVEXVOLUMETOOL_H

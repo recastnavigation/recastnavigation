@@ -1,5 +1,5 @@
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 
 #include "catch2/catch_all.hpp"
 
@@ -8,7 +8,6 @@
 #include "RecastAssert.h"
 
 // For comparing to rcVector in benchmarks.
-#include <vector>
 
 TEST_CASE("rcSwap")
 {
@@ -125,17 +124,17 @@ TEST_CASE("rcVdot")
 {
 	SECTION("Dot normalized vector with itself")
 	{
-		float v1[] = { 1, 0, 0 };
-		float result = rcVdot(v1, v1);
+		constexpr float v1[] = { 1, 0, 0 };
+		const float result = rcVdot(v1, v1);
 		REQUIRE(result == Catch::Approx(1));
 	}
 
 	SECTION("Dot zero vector with anything is zero")
 	{
-		float v1[] = { 1, 2, 3 };
-		float v2[] = { 0, 0, 0 };
+		constexpr float v1[] = { 1, 2, 3 };
+		constexpr float v2[] = { 0, 0, 0 };
 
-		float result = rcVdot(v1, v2);
+		const float result = rcVdot(v1, v2);
 		REQUIRE(result == Catch::Approx(0));
 	}
 }
@@ -169,8 +168,8 @@ TEST_CASE("rcVadd")
 {
 	SECTION("add two vectors")
 	{
-		float v1[3] = {1, 2, 3};
-		float v2[3] = {5, 6, 7};
+		constexpr float v1[3] = {1, 2, 3};
+		constexpr float v2[3] = {5, 6, 7};
 		float result[3];
 		rcVadd(result, v1, v2);
 		REQUIRE(result[0] == Catch::Approx(6));
@@ -183,8 +182,8 @@ TEST_CASE("rcVsub")
 {
 	SECTION("subtract two vectors")
 	{
-		float v1[3] = {5, 4, 3};
-		float v2[3] = {1, 2, 3};
+		constexpr float v1[3] = {5, 4, 3};
+		constexpr float v2[3] = {1, 2, 3};
 		float result[3];
 		rcVsub(result, v1, v2);
 		REQUIRE(result[0] == Catch::Approx(4));
@@ -279,19 +278,19 @@ TEST_CASE("rcVdist")
 {
 	SECTION("distance between two vectors")
 	{
-		float v1[3] = {3, 1, 3};
-		float v2[3] = {1, 3, 1};
-		float result = rcVdist(v1, v2);
+		constexpr float v1[3] = {3, 1, 3};
+		constexpr float v2[3] = {1, 3, 1};
+		const float result = rcVdist(v1, v2);
 
 		REQUIRE(result == Catch::Approx(3.4641f));
 	}
 
 	SECTION("Distance from zero is magnitude")
 	{
-		float v1[3] = {3, 1, 3};
-		float v2[3] = {0, 0, 0};
-		float distance = rcVdist(v1, v2);
-		float magnitude = rcSqrt(rcSqr(v1[0]) + rcSqr(v1[1]) + rcSqr(v1[2]));
+		constexpr float v1[3] = {3, 1, 3};
+		constexpr float v2[3] = {0, 0, 0};
+		const float distance = rcVdist(v1, v2);
+		const float magnitude = rcSqrt(rcSqr(v1[0]) + rcSqr(v1[1]) + rcSqr(v1[2]));
 		REQUIRE(distance == Catch::Approx(magnitude));
 	}
 }
@@ -300,19 +299,19 @@ TEST_CASE("rcVdistSqr")
 {
 	SECTION("squared distance between two vectors")
 	{
-		float v1[3] = {3, 1, 3};
-		float v2[3] = {1, 3, 1};
-		float result = rcVdistSqr(v1, v2);
+		constexpr float v1[3] = {3, 1, 3};
+		constexpr float v2[3] = {1, 3, 1};
+		const float result = rcVdistSqr(v1, v2);
 
 		REQUIRE(result == Catch::Approx(12));
 	}
 
 	SECTION("squared distance from zero is squared magnitude")
 	{
-		float v1[3] = {3, 1, 3};
-		float v2[3] = {0, 0, 0};
-		float distance = rcVdistSqr(v1, v2);
-		float magnitude = rcSqr(v1[0]) + rcSqr(v1[1]) + rcSqr(v1[2]);
+		constexpr float v1[3] = {3, 1, 3};
+		constexpr float v2[3] = {0, 0, 0};
+		const float distance = rcVdistSqr(v1, v2);
+		const float magnitude = rcSqr(v1[0]) + rcSqr(v1[1]) + rcSqr(v1[2]);
 		REQUIRE(distance == Catch::Approx(magnitude));
 	}
 }
@@ -326,7 +325,7 @@ TEST_CASE("rcVnormalize")
 		REQUIRE(v[0] == Catch::Approx(rcSqrt(1.0f / 3.0f)));
 		REQUIRE(v[1] == Catch::Approx(rcSqrt(1.0f / 3.0f)));
 		REQUIRE(v[2] == Catch::Approx(rcSqrt(1.0f / 3.0f)));
-		float magnitude = rcSqrt(rcSqr(v[0]) + rcSqr(v[1]) + rcSqr(v[2]));
+		const float magnitude = rcSqrt(rcSqr(v[0]) + rcSqr(v[1]) + rcSqr(v[2]));
 		REQUIRE(magnitude == Catch::Approx(1));
 	}
 }
@@ -373,7 +372,7 @@ TEST_CASE("rcCalcGridSize")
 {
 	SECTION("computes the size of an x & z axis grid")
 	{
-		float verts[] = {
+		const float verts[] = {
 			1, 2, 3,
 			0, 2, 6
 		};
@@ -381,7 +380,7 @@ TEST_CASE("rcCalcGridSize")
 		float bmax[3];
 		rcCalcBounds(verts, 2, bmin, bmax);
 
-		float cellSize = 1.5f;
+		constexpr float cellSize = 1.5f;
 
 		int width;
 		int height;
@@ -415,7 +414,7 @@ TEST_CASE("rcCreateHeightfield")
 
 		rcHeightfield heightfield;
 
-		bool result = rcCreateHeightfield(0, heightfield, width, height, bmin, bmax, cellSize, cellHeight);
+		bool result = rcCreateHeightfield(nullptr, heightfield, width, height, bmin, bmax, cellSize, cellHeight);
 
 		REQUIRE(result);
 
@@ -441,17 +440,17 @@ TEST_CASE("rcCreateHeightfield")
 
 TEST_CASE("rcMarkWalkableTriangles")
 {
-	rcContext* ctx = 0;
+	rcContext* ctx = nullptr;
 	float walkableSlopeAngle = 45;
-	float verts[] = {
+	constexpr float verts[] = {
 		0, 0, 0,
 		1, 0, 0,
 		0, 0, -1
 	};
-	int nv = 3;
-	int walkable_tri[] = { 0, 1, 2 };
-	int unwalkable_tri[] = { 0, 2, 1 };
-	int nt = 1;
+	constexpr int nv = 3;
+	constexpr int walkable_tri[] = { 0, 1, 2 };
+	constexpr int unwalkable_tri[] = { 0, 2, 1 };
+	constexpr int nt = 1;
 	unsigned char areas[] = { RC_NULL_AREA };
 
 	SECTION("One walkable triangle")
@@ -483,17 +482,17 @@ TEST_CASE("rcMarkWalkableTriangles")
 
 TEST_CASE("rcClearUnwalkableTriangles")
 {
-	rcContext* ctx = 0;
+	rcContext* ctx = nullptr;
 	float walkableSlopeAngle = 45;
-	float verts[] = {
+	constexpr float verts[] = {
 		0, 0, 0,
 		1, 0, 0,
 		0, 0, -1
 	};
-	int nv = 3;
-	int walkable_tri[] = { 0, 1, 2 };
-	int unwalkable_tri[] = { 0, 2, 1 };
-	int nt = 1;
+	constexpr int nv = 3;
+	constexpr int walkable_tri[] = { 0, 1, 2 };
+	constexpr int unwalkable_tri[] = { 0, 2, 1 };
+	constexpr int nt = 1;
 	unsigned char areas[] = { 42 };
 
 	SECTION("Sets area ID of unwalkable triangle to RC_NULL_AREA")
@@ -628,11 +627,10 @@ TEST_CASE("rcRasterizeTriangle")
 	rcHeightfield solid;
 	REQUIRE(rcCreateHeightfield(&ctx, solid, width, height, bmin, bmax, cellSize, cellHeight));
 
-	unsigned char area = 42;
-	int flagMergeThr = 1;
-
 	SECTION("Rasterize a triangle")
 	{
+		int flagMergeThr = 1;
+		unsigned char area = 42;
 		REQUIRE(rcRasterizeTriangle(&ctx, &verts[0], &verts[3], &verts[6], area, solid, flagMergeThr));
 
 		REQUIRE(solid.spans[0 + 0 * width]);
@@ -663,19 +661,19 @@ TEST_CASE("rcRasterizeTriangle overlapping bb but non-overlapping triangle")
     rcContext ctx;
 
 	// create a heightfield
-    float cellSize = 1;
-    float cellHeight = 1;
-    int width = 10;
-    int height = 10;
-    float bmin[] = { 0, 0, 0 };
-    float bmax[] = { 10, 10, 10 };
+	constexpr float cellSize = 1;
+	constexpr float cellHeight = 1;
+	constexpr int width = 10;
+	constexpr int height = 10;
+	constexpr float bmin[] = { 0, 0, 0 };
+	constexpr float bmax[] = { 10, 10, 10 };
     rcHeightfield heightfield;
     REQUIRE(rcCreateHeightfield(&ctx, heightfield, width, height, bmin, bmax, cellSize, cellHeight));
 
 	// rasterize a triangle outside of the heightfield.
-    unsigned char area = 42;
-    int flagMergeThr = 1;
-    float verts[] =
+	constexpr unsigned char area = 42;
+	constexpr int flagMergeThr = 1;
+	constexpr float verts[] =
 	{
         -10.0, 5.5, -10.0,
         -10.0, 5.5, 3,
@@ -961,10 +959,10 @@ int Incrementor::constructions = 0;
 int Incrementor::destructions = 0;
 int Incrementor::copies = 0;
 
-const int kMaxAllocSize = 1024;
-const unsigned char kClearValue = 0xff;
+constexpr int kMaxAllocSize = 1024;
+constexpr unsigned char kClearValue = 0xff;
 // Simple alloc/free that clears the memory on free..
-void* AllocAndInit(size_t size, rcAllocHint) {
+void* AllocAndInit(const size_t size, rcAllocHint) {
 	rcAssert(kMaxAllocSize >= size);
 	return memset(malloc(kMaxAllocSize), 0, kMaxAllocSize);
 }
@@ -997,7 +995,7 @@ const int Copier::kAlive = 0x1f;
 const int Copier::kDead = 0xde;
 
 struct NotDefaultConstructible {
-	NotDefaultConstructible(int) {}
+	explicit NotDefaultConstructible(int) {}
 };
 
 TEST_CASE("rcVector")
@@ -1005,7 +1003,7 @@ TEST_CASE("rcVector")
 	SECTION("Vector basics.")
 	{
 		rcTempVector<int> vec;
-		REQUIRE(vec.size() == 0);
+		REQUIRE(vec.empty());
 		vec.push_back(10);
 		vec.push_back(12);
 		REQUIRE(vec.size() == 2);
@@ -1016,7 +1014,7 @@ TEST_CASE("rcVector")
 		REQUIRE(vec.size() == 1);
 		REQUIRE(vec[0] == 10);
 		vec.pop_back();
-		REQUIRE(vec.size() == 0);
+		REQUIRE(vec.empty());
 		vec.resize(100, 5);
 		REQUIRE(vec.size() == 100);
 		for (int i = 0; i < 100; i++) {
@@ -1093,14 +1091,14 @@ TEST_CASE("rcVector")
 
 	SECTION("Swap")
 	{
-		rcTempVector<int> a(10, 0xa);
+		rcTempVector a(10, 0xa);
 		rcTempVector<int> b;
 
 		int* a_data = a.data();
 		int* b_data = b.data();
 
 		a.swap(b);
-		REQUIRE(a.size() == 0);
+		REQUIRE(a.empty());
 		REQUIRE(b.size() == 10);
 		REQUIRE(b[0] == 0xa);
 		REQUIRE(b[9] == 0xa);
@@ -1120,7 +1118,7 @@ TEST_CASE("rcVector")
 
 		// Don't crash.
 		vec.push_back(vec[0]);
-		rcAllocSetCustom(NULL, NULL);
+		rcAllocSetCustom(nullptr, nullptr);
 	}
 
 	SECTION("Vector Destructor")
@@ -1135,7 +1133,7 @@ TEST_CASE("rcVector")
 
 	SECTION("Assign")
 	{
-		rcTempVector<int> a(10, 0xa);
+		rcTempVector a(10, 0xa);
 		a.assign(5, 0xb);
 		REQUIRE(a.size() == 5);
 		REQUIRE(a[0] == 0xb);
@@ -1153,25 +1151,25 @@ TEST_CASE("rcVector")
 
 	SECTION("Copy")
 	{
-		rcTempVector<int> a(10, 0xa);
-		rcTempVector<int> b(a);
+		rcTempVector a(10, 0xa);
+		rcTempVector b(a);
 		REQUIRE(a.size() == 10);
 		REQUIRE(a.size() == b.size());
 		REQUIRE(a[0] == b[0]);
 		REQUIRE(a.data() != b.data());
-		rcTempVector<int> c(a.data(), a.data() + a.size());
+		rcTempVector c(a.data(), a.data() + a.size());
 		REQUIRE(c.size() == a.size());
 		REQUIRE(c[0] == a[0]);
 
 		rcTempVector<Incrementor> d(10);
 		Incrementor::Reset();
-		rcTempVector<Incrementor> e(d);
+		rcTempVector e(d);
 		REQUIRE(Incrementor::constructions == 0);
 		REQUIRE(Incrementor::destructions == 0);
 		REQUIRE(Incrementor::copies == 10);
 
 		Incrementor::Reset();
-		rcTempVector<Incrementor> f(d.data(), d.data() + d.size());
+		rcTempVector f(d.data(), d.data() + d.size());
 		REQUIRE(Incrementor::constructions == 0);
 		REQUIRE(Incrementor::destructions == 0);
 		REQUIRE(Incrementor::copies == 10);

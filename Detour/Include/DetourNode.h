@@ -29,10 +29,10 @@ enum dtNodeFlags
 };
 
 typedef unsigned short dtNodeIndex;
-static const dtNodeIndex DT_NULL_IDX = (dtNodeIndex)~0;
+static constexpr dtNodeIndex DT_NULL_IDX = static_cast<dtNodeIndex>(~0);
 
-static const int DT_NODE_PARENT_BITS = 24;
-static const int DT_NODE_STATE_BITS = 2;
+static constexpr int DT_NODE_PARENT_BITS = 24;
+static constexpr int DT_NODE_STATE_BITS = 2;
 struct dtNode
 {
 	float pos[3];								///< Position of the node.
@@ -44,7 +44,7 @@ struct dtNode
 	dtPolyRef id;								///< Polygon ref the node corresponds to.
 };
 
-static const int DT_MAX_STATES_PER_NODE = 1 << DT_NODE_STATE_BITS;	// number of extra states per node. See dtNode::state
+static constexpr int DT_MAX_STATES_PER_NODE = 1 << DT_NODE_STATE_BITS;	// number of extra states per node. See dtNode::state
 
 class dtNodePool
 {
@@ -56,41 +56,41 @@ public:
 	// Get a dtNode by ref and extra state information. If there is none then - allocate
 	// There can be more than one node for the same polyRef but with different extra state information
 	dtNode* getNode(dtPolyRef id, unsigned char state=0);	
-	dtNode* findNode(dtPolyRef id, unsigned char state);
-	unsigned int findNodes(dtPolyRef id, dtNode** nodes, const int maxNodes);
+	dtNode* findNode(dtPolyRef id, unsigned char state) const;
+	unsigned int findNodes(dtPolyRef id, dtNode** nodes, int maxNodes) const;
 
-	inline unsigned int getNodeIdx(const dtNode* node) const
+	unsigned int getNodeIdx(const dtNode* node) const
 	{
 		if (!node) return 0;
-		return (unsigned int)(node - m_nodes) + 1;
+		return static_cast<unsigned int>(node - m_nodes) + 1;
 	}
 
-	inline dtNode* getNodeAtIdx(unsigned int idx)
+	dtNode* getNodeAtIdx(const unsigned int idx)
 	{
-		if (!idx) return 0;
+		if (!idx) return nullptr;
 		return &m_nodes[idx - 1];
 	}
 
-	inline const dtNode* getNodeAtIdx(unsigned int idx) const
+	const dtNode* getNodeAtIdx(const unsigned int idx) const
 	{
-		if (!idx) return 0;
+		if (!idx) return nullptr;
 		return &m_nodes[idx - 1];
 	}
-	
-	inline int getMemUsed() const
+
+	int getMemUsed() const
 	{
-		return sizeof(*this) +
+		return static_cast<int>(sizeof(*this) +
 			sizeof(dtNode)*m_maxNodes +
 			sizeof(dtNodeIndex)*m_maxNodes +
-			sizeof(dtNodeIndex)*m_hashSize;
+			sizeof(dtNodeIndex)*m_hashSize);
 	}
-	
-	inline int getMaxNodes() const { return m_maxNodes; }
-	
-	inline int getHashSize() const { return m_hashSize; }
-	inline dtNodeIndex getFirst(int bucket) const { return m_first[bucket]; }
-	inline dtNodeIndex getNext(int i) const { return m_next[i]; }
-	inline int getNodeCount() const { return m_nodeCount; }
+
+	int getMaxNodes() const { return m_maxNodes; }
+
+	int getHashSize() const { return m_hashSize; }
+	dtNodeIndex getFirst(const int bucket) const { return m_first[bucket]; }
+	dtNodeIndex getNext(const int i) const { return m_next[i]; }
+	int getNodeCount() const { return m_nodeCount; }
 	
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.
@@ -108,28 +108,28 @@ private:
 class dtNodeQueue
 {
 public:
-	dtNodeQueue(int n);
+	explicit dtNodeQueue(int n);
 	~dtNodeQueue();
-	
-	inline void clear() { m_size = 0; }
-	
-	inline dtNode* top() { return m_heap[0]; }
-	
-	inline dtNode* pop()
+
+	void clear() { m_size = 0; }
+
+	dtNode* top() const { return m_heap[0]; }
+
+	dtNode* pop()
 	{
 		dtNode* result = m_heap[0];
 		m_size--;
 		trickleDown(0, m_heap[m_size]);
 		return result;
 	}
-	
-	inline void push(dtNode* node)
+
+	void push(dtNode* node)
 	{
 		m_size++;
 		bubbleUp(m_size-1, node);
 	}
-	
-	inline void modify(dtNode* node)
+
+	void modify(dtNode* node) const
 	{
 		for (int i = 0; i < m_size; ++i)
 		{
@@ -140,24 +140,24 @@ public:
 			}
 		}
 	}
-	
-	inline bool empty() const { return m_size == 0; }
-	
-	inline int getMemUsed() const
+
+	bool empty() const { return m_size == 0; }
+
+	int getMemUsed() const
 	{
-		return sizeof(*this) +
-		sizeof(dtNode*) * (m_capacity + 1);
+		return static_cast<int>(sizeof(*this) +
+			sizeof(dtNode*) * (m_capacity + 1));
 	}
-	
-	inline int getCapacity() const { return m_capacity; }
+
+	int getCapacity() const { return m_capacity; }
 	
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.
 	dtNodeQueue(const dtNodeQueue&);
 	dtNodeQueue& operator=(const dtNodeQueue&);
 
-	void bubbleUp(int i, dtNode* node);
-	void trickleDown(int i, dtNode* node);
+	void bubbleUp(int i, dtNode* node) const;
+	void trickleDown(int i, dtNode* node) const;
 	
 	dtNode** m_heap;
 	const int m_capacity;

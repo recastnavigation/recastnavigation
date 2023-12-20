@@ -42,14 +42,14 @@ class TestCase
 			includeFlags(0),
 			excludeFlags(0),
 			expand(false),
-			straight(0),
+			straight(nullptr),
 			nstraight(0),
-			polys(0),
+			polys(nullptr),
 			npolys(0),
 			findNearestPolyTime(0),
 			findPathTime(0),
 			findStraightPathTime(0),
-			next(0)
+			next(nullptr)
 		{
 		}
 
@@ -58,7 +58,9 @@ class TestCase
 			delete [] straight;
 			delete [] polys;
 		}
-		
+		Test(const Test&) = delete;
+		Test& operator=(const Test&) = delete;
+
 		TestType type;
 		float spos[3];
 		float epos[3];
@@ -68,28 +70,24 @@ class TestCase
 		unsigned short includeFlags;
 		unsigned short excludeFlags;
 		bool expand;
-		
+
 		float* straight;
 		int nstraight;
 		dtPolyRef* polys;
 		int npolys;
-		
+
 		int findNearestPolyTime;
 		int findPathTime;
 		int findStraightPathTime;
-		
+
 		Test* next;
-	private:
-		// Explicitly disabled copy constructor and copy assignment operator.
-		Test(const Test&);
-		Test& operator=(const Test&);
 	};
 
 	std::string m_sampleName;
 	std::string m_geomFileName;
 	Test* m_tests;
 	
-	void resetTimes();
+	void resetTimes()const;
 	
 public:
 	TestCase();
@@ -100,10 +98,10 @@ public:
 	const std::string& getSampleName() const { return m_sampleName; }
 	const std::string& getGeomFileName() const { return m_geomFileName; }
 	
-	void doTests(class dtNavMesh* navmesh, class dtNavMeshQuery* navquery);
+	void doTests(const dtNavMesh* navmesh, const dtNavMeshQuery* navquery) const;
 	
-	void handleRender();
-	bool handleRenderOverlay(double* proj, double* model, int* view);
+	void handleRender() const;
+	bool handleRenderOverlay(const double* proj, const double* model, const int* view) const;
 
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.

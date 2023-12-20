@@ -16,8 +16,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <math.h>
-#include <stdio.h>
+#include <cstdio>
 #include "Sample.h"
 #include "InputGeom.h"
 #include "Recast.h"
@@ -27,24 +26,13 @@
 #include "DetourNavMeshQuery.h"
 #include "DetourCrowd.h"
 #include "imgui.h"
-#include "SDL.h"
 #include "SDL_opengl.h"
 
 #ifdef WIN32
 #	define snprintf _snprintf
 #endif
 
-SampleTool::~SampleTool()
-{
-	// Defined out of line to fix the weak v-tables warning
-}
-
-SampleToolState::~SampleToolState()
-{
-	// Defined out of line to fix the weak v-tables warning
-}
-
-unsigned int SampleDebugDraw::areaToCol(unsigned int area)
+unsigned int SampleDebugDraw::areaToCol(const unsigned int area)
 {
 	switch(area)
 	{
@@ -66,23 +54,23 @@ unsigned int SampleDebugDraw::areaToCol(unsigned int area)
 }
 
 Sample::Sample() :
-	m_geom(0),
-	m_navMesh(0),
-	m_navQuery(0),
-	m_crowd(0),
+	m_geom(nullptr),
+	m_navMesh(nullptr),
+	m_navQuery(nullptr),
+	m_crowd(nullptr),
 	m_navMeshDrawFlags(DU_DRAWNAVMESH_OFFMESHCONS|DU_DRAWNAVMESH_CLOSEDLIST),
 	m_filterLowHangingObstacles(true),
 	m_filterLedgeSpans(true),
 	m_filterWalkableLowHeightSpans(true),
-	m_tool(0),
-	m_ctx(0)
+	m_tool(nullptr),
+	m_ctx(nullptr)
 {
 	resetCommonSettings();
 	m_navQuery = dtAllocNavMeshQuery();
 	m_crowd = dtAllocCrowd();
 
-	for (int i = 0; i < MAX_TOOLS; i++)
-		m_toolStates[i] = 0;
+	for (auto & m_toolState : m_toolStates)
+		m_toolState = nullptr;
 }
 
 Sample::~Sample()
@@ -91,8 +79,8 @@ Sample::~Sample()
 	dtFreeNavMesh(m_navMesh);
 	dtFreeCrowd(m_crowd);
 	delete m_tool;
-	for (int i = 0; i < MAX_TOOLS; i++)
-		delete m_toolStates[i];
+	for (const auto & m_toolState : m_toolStates)
+		delete m_toolState;
 }
 
 void Sample::setTool(SampleTool* tool)
@@ -122,7 +110,7 @@ void Sample::handleRender()
 	
 	// Draw mesh
 	duDebugDrawTriMesh(&m_dd, m_geom->getMesh()->getVerts(), m_geom->getMesh()->getVertCount(),
-					   m_geom->getMesh()->getTris(), m_geom->getMesh()->getNormals(), m_geom->getMesh()->getTriCount(), 0, 1.0f);
+					   m_geom->getMesh()->getTris(), m_geom->getMesh()->getNormals(), m_geom->getMesh()->getTriCount(), nullptr, 1.0f);
 	// Draw bounds
 	const float* bmin = m_geom->getMeshBoundsMin();
 	const float* bmax = m_geom->getMeshBoundsMax();
@@ -207,7 +195,7 @@ void Sample::handleCommonSettings()
 		int gw = 0, gh = 0;
 		rcCalcGridSize(bmin, bmax, m_cellSize, &gw, &gh);
 		char text[64];
-		snprintf(text, 64, "Voxels  %d x %d", gw, gh);
+		_snprintf_s(text, 64, "Voxels  %d x %d", gw, gh);
 		imguiValue(text);
 	}
 	
@@ -255,7 +243,7 @@ void Sample::handleCommonSettings()
 	imguiSeparator();
 }
 
-void Sample::handleClick(const float* s, const float* p, bool shift)
+void Sample::handleClick(const float* s, const float* p, const bool shift)
 {
 	if (m_tool)
 		m_tool->handleClick(s, p, shift);
@@ -286,53 +274,53 @@ void Sample::handleUpdate(const float dt)
 }
 
 
-void Sample::updateToolStates(const float dt)
+void Sample::updateToolStates(const float dt) const
 {
-	for (int i = 0; i < MAX_TOOLS; i++)
+	for (const auto m_toolState : m_toolStates)
 	{
-		if (m_toolStates[i])
-			m_toolStates[i]->handleUpdate(dt);
+		if (m_toolState)
+			m_toolState->handleUpdate(dt);
 	}
 }
 
-void Sample::initToolStates(Sample* sample)
+void Sample::initToolStates(Sample* sample) const
 {
-	for (int i = 0; i < MAX_TOOLS; i++)
+	for (const auto m_toolState : m_toolStates)
 	{
-		if (m_toolStates[i])
-			m_toolStates[i]->init(sample);
+		if (m_toolState)
+			m_toolState->init(sample);
 	}
 }
 
-void Sample::resetToolStates()
+void Sample::resetToolStates() const
 {
-	for (int i = 0; i < MAX_TOOLS; i++)
+	for (const auto m_toolState : m_toolStates)
 	{
-		if (m_toolStates[i])
-			m_toolStates[i]->reset();
+		if (m_toolState)
+			m_toolState->reset();
 	}
 }
 
-void Sample::renderToolStates()
+void Sample::renderToolStates() const
 {
-	for (int i = 0; i < MAX_TOOLS; i++)
+	for (const auto m_toolState : m_toolStates)
 	{
-		if (m_toolStates[i])
-			m_toolStates[i]->handleRender();
+		if (m_toolState)
+			m_toolState->handleRender();
 	}
 }
 
-void Sample::renderOverlayToolStates(double* proj, double* model, int* view)
+void Sample::renderOverlayToolStates(double* proj, double* model, int* view) const
 {
-	for (int i = 0; i < MAX_TOOLS; i++)
+	for (const auto m_toolState : m_toolStates)
 	{
-		if (m_toolStates[i])
-			m_toolStates[i]->handleRenderOverlay(proj, model, view);
+		if (m_toolState)
+			m_toolState->handleRenderOverlay(proj, model, view);
 	}
 }
 
-static const int NAVMESHSET_MAGIC = 'M'<<24 | 'S'<<16 | 'E'<<8 | 'T'; //'MSET';
-static const int NAVMESHSET_VERSION = 1;
+static constexpr int NAVMESHSET_MAGIC = 'M'<<24 | 'S'<<16 | 'E'<<8 | 'T'; //'MSET';
+static constexpr int NAVMESHSET_VERSION = 1;
 
 struct NavMeshSetHeader
 {
@@ -350,56 +338,57 @@ struct NavMeshTileHeader
 
 dtNavMesh* Sample::loadAll(const char* path)
 {
-	FILE* fp = fopen(path, "rb");
-	if (!fp) return 0;
+	FILE* fp;
+	fopen_s(&fp, path, "rb");
+	if (!fp) return nullptr;
 
 	// Read header.
-	NavMeshSetHeader header;
+	NavMeshSetHeader header{};
 	size_t readLen = fread(&header, sizeof(NavMeshSetHeader), 1, fp);
 	if (readLen != 1)
 	{
 		fclose(fp);
-		return 0;
+		return nullptr;
 	}
 	if (header.magic != NAVMESHSET_MAGIC)
 	{
 		fclose(fp);
-		return 0;
+		return nullptr;
 	}
 	if (header.version != NAVMESHSET_VERSION)
 	{
 		fclose(fp);
-		return 0;
+		return nullptr;
 	}
 
 	dtNavMesh* mesh = dtAllocNavMesh();
 	if (!mesh)
 	{
 		fclose(fp);
-		return 0;
+		return nullptr;
 	}
-	dtStatus status = mesh->init(&header.params);
+	const dtStatus status = mesh->init(&header.params);
 	if (dtStatusFailed(status))
 	{
 		fclose(fp);
-		return 0;
+		return nullptr;
 	}
 
 	// Read tiles.
 	for (int i = 0; i < header.numTiles; ++i)
 	{
-		NavMeshTileHeader tileHeader;
+		NavMeshTileHeader tileHeader{};
 		readLen = fread(&tileHeader, sizeof(tileHeader), 1, fp);
 		if (readLen != 1)
 		{
 			fclose(fp);
-			return 0;
+			return nullptr;
 		}
 
 		if (!tileHeader.tileRef || !tileHeader.dataSize)
 			break;
 
-		unsigned char* data = (unsigned char*)dtAlloc(tileHeader.dataSize, DT_ALLOC_PERM);
+		auto* data = static_cast<unsigned char*>(dtAlloc(tileHeader.dataSize, DT_ALLOC_PERM));
 		if (!data) break;
 		memset(data, 0, tileHeader.dataSize);
 		readLen = fread(data, tileHeader.dataSize, 1, fp);
@@ -407,10 +396,10 @@ dtNavMesh* Sample::loadAll(const char* path)
 		{
 			dtFree(data);
 			fclose(fp);
-			return 0;
+			return nullptr;
 		}
 
-		mesh->addTile(data, tileHeader.dataSize, DT_TILE_FREE_DATA, tileHeader.tileRef, 0);
+		mesh->addTile(data, tileHeader.dataSize, DT_TILE_FREE_DATA, tileHeader.tileRef, nullptr);
 	}
 
 	fclose(fp);
@@ -422,12 +411,13 @@ void Sample::saveAll(const char* path, const dtNavMesh* mesh)
 {
 	if (!mesh) return;
 
-	FILE* fp = fopen(path, "wb");
+	FILE* fp;
+	fopen_s(&fp, path, "wb");
 	if (!fp)
 		return;
 
 	// Store header.
-	NavMeshSetHeader header;
+	NavMeshSetHeader header{};
 	header.magic = NAVMESHSET_MAGIC;
 	header.version = NAVMESHSET_VERSION;
 	header.numTiles = 0;
@@ -446,7 +436,7 @@ void Sample::saveAll(const char* path, const dtNavMesh* mesh)
 		const dtMeshTile* tile = mesh->getTile(i);
 		if (!tile || !tile->header || !tile->dataSize) continue;
 
-		NavMeshTileHeader tileHeader;
+		NavMeshTileHeader tileHeader{};
 		tileHeader.tileRef = mesh->getTileRef(tile);
 		tileHeader.dataSize = tile->dataSize;
 		fwrite(&tileHeader, sizeof(tileHeader), 1, fp);

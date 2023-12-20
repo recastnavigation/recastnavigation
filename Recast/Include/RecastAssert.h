@@ -40,7 +40,7 @@ void rcAssertFailSetCustom(rcAssertFailFunc* assertFailFunc);
 /// Gets the base custom assertion failure function to be used by Recast.
 rcAssertFailFunc* rcAssertFailGetCustom();
 
-#	include <assert.h> 
+#	include <cassert>
 #	define rcAssert(expression) \
 		{ \
 			rcAssertFailFunc* failFunc = rcAssertFailGetCustom(); \

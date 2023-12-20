@@ -3,24 +3,24 @@
 
 class ValueHistory
 {
-	static const int MAX_HISTORY = 256;
-	float m_samples[MAX_HISTORY];
+	static constexpr int MAX_HISTORY = 256;
+	float m_samples[MAX_HISTORY]{};
 	int m_hsamples;
 public:
 	ValueHistory();
 
-	inline void addSample(const float val)
+	void addSample(const float val)
 	{
 		m_hsamples = (m_hsamples+MAX_HISTORY-1) % MAX_HISTORY;
 		m_samples[m_hsamples] = val;
 	}
-	
-	inline int getSampleCount() const
+
+	static int getSampleCount()
 	{
 		return MAX_HISTORY;
 	}
-	
-	inline float getSample(const int i) const
+
+	float getSample(const int i) const
 	{
 		return m_samples[(m_hsamples+i) % MAX_HISTORY];
 	}
@@ -44,7 +44,7 @@ struct GraphParams
 void drawGraphBackground(const GraphParams* p);
 
 void drawGraph(const GraphParams* p, const ValueHistory* graph,
-			   int idx, const char* label, const unsigned int col);
+			   int idx, const char* label, unsigned int col);
 
 
 #endif // VALUEHISTORY_H

@@ -16,19 +16,13 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <math.h>
-#include <stdio.h>
-#include <stdarg.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdarg>
+#include <cstring>
 #include "Recast.h"
 #include "RecastAlloc.h"
 #include "RecastDump.h"
 
-duFileIO::~duFileIO()
-{
-	// Defined out of line to fix the weak v-tables warning
-}
-	
 static void ioprintf(duFileIO* io, const char* format, ...)
 {
 	char line[256];
@@ -40,7 +34,7 @@ static void ioprintf(duFileIO* io, const char* format, ...)
 		io->write(line, sizeof(char)*n);
 }
 
-bool duDumpPolyMeshToObj(rcPolyMesh& pmesh, duFileIO* io)
+bool duDumpPolyMeshToObj(const rcPolyMesh& pmesh, duFileIO* io)
 {
 	if (!io)
 	{
@@ -66,9 +60,9 @@ bool duDumpPolyMeshToObj(rcPolyMesh& pmesh, duFileIO* io)
 	for (int i = 0; i < pmesh.nverts; ++i)
 	{
 		const unsigned short* v = &pmesh.verts[i*3];
-		const float x = orig[0] + v[0]*cs;
-		const float y = orig[1] + (v[1]+1)*ch + 0.1f;
-		const float z = orig[2] + v[2]*cs;
+		const float x = orig[0] + static_cast<float>(v[0])*cs;
+		const float y = orig[1] + static_cast<float>(v[1] + 1)*ch + 0.1f;
+		const float z = orig[2] + static_cast<float>(v[2])*cs;
 		ioprintf(io, "v %f %f %f\n", x,y,z);
 	}
 
@@ -87,7 +81,7 @@ bool duDumpPolyMeshToObj(rcPolyMesh& pmesh, duFileIO* io)
 	return true;
 }
 
-bool duDumpPolyMeshDetailToObj(rcPolyMeshDetail& dmesh, duFileIO* io)
+bool duDumpPolyMeshDetailToObj(const rcPolyMeshDetail& dmesh, duFileIO* io)
 {
 	if (!io)
 	{
@@ -123,19 +117,19 @@ bool duDumpPolyMeshDetailToObj(rcPolyMeshDetail& dmesh, duFileIO* io)
 		for (unsigned int j = 0; j < ntris; ++j)
 		{
 			ioprintf(io, "f %d %d %d\n",
-					(int)(bverts+tris[j*4+0])+1,
-					(int)(bverts+tris[j*4+1])+1,
-					(int)(bverts+tris[j*4+2])+1);
+					static_cast<int>(bverts + tris[j * 4 + 0])+1,
+					static_cast<int>(bverts + tris[j * 4 + 1])+1,
+					static_cast<int>(bverts + tris[j * 4 + 2])+1);
 		}
 	}
 	
 	return true;
 }
 
-static const int CSET_MAGIC = ('c' << 24) | ('s' << 16) | ('e' << 8) | 't';
-static const int CSET_VERSION = 2;
+static constexpr int CSET_MAGIC = ('c' << 24) | ('s' << 16) | ('e' << 8) | 't';
+static constexpr int CSET_VERSION = 2;
 
-bool duDumpContourSet(struct rcContourSet& cset, duFileIO* io)
+bool duDumpContourSet(const rcContourSet& cset, duFileIO* io)
 {
 	if (!io)
 	{
@@ -177,7 +171,7 @@ bool duDumpContourSet(struct rcContourSet& cset, duFileIO* io)
 	return true;
 }
 
-bool duReadContourSet(struct rcContourSet& cset, duFileIO* io)
+bool duReadContourSet(rcContourSet& cset, duFileIO* io)
 {
 	if (!io)
 	{
@@ -209,7 +203,7 @@ bool duReadContourSet(struct rcContourSet& cset, duFileIO* io)
 	
 	io->read(&cset.nconts, sizeof(cset.nconts));
 
-	cset.conts = (rcContour*)rcAlloc(sizeof(rcContour)*cset.nconts, RC_ALLOC_PERM);
+	cset.conts = static_cast<rcContour*>(rcAlloc(sizeof(rcContour) * cset.nconts, RC_ALLOC_PERM));
 	if (!cset.conts)
 	{
 		printf("duReadContourSet: Could not alloc contours (%d)\n", cset.nconts);
@@ -235,13 +229,13 @@ bool duReadContourSet(struct rcContourSet& cset, duFileIO* io)
 		io->read(&cont.reg, sizeof(cont.reg));
 		io->read(&cont.area, sizeof(cont.area));
 
-		cont.verts = (int*)rcAlloc(sizeof(int)*4*cont.nverts, RC_ALLOC_PERM);
+		cont.verts = static_cast<int*>(rcAlloc(sizeof(int) * 4 * cont.nverts, RC_ALLOC_PERM));
 		if (!cont.verts)
 		{
 			printf("duReadContourSet: Could not alloc contour verts (%d)\n", cont.nverts);
 			return false;
 		}
-		cont.rverts = (int*)rcAlloc(sizeof(int)*4*cont.nrverts, RC_ALLOC_PERM);
+		cont.rverts = static_cast<int*>(rcAlloc(sizeof(int) * 4 * cont.nrverts, RC_ALLOC_PERM));
 		if (!cont.rverts)
 		{
 			printf("duReadContourSet: Could not alloc contour rverts (%d)\n", cont.nrverts);
@@ -256,10 +250,10 @@ bool duReadContourSet(struct rcContourSet& cset, duFileIO* io)
 }
 	
 
-static const int CHF_MAGIC = ('r' << 24) | ('c' << 16) | ('h' << 8) | 'f';
-static const int CHF_VERSION = 3;
+static constexpr int CHF_MAGIC = ('r' << 24) | ('c' << 16) | ('h' << 8) | 'f';
+static constexpr int CHF_VERSION = 3;
 
-bool duDumpCompactHeightfield(struct rcCompactHeightfield& chf, duFileIO* io)
+bool duDumpCompactHeightfield(const rcCompactHeightfield& chf, duFileIO* io)
 {
 	if (!io)
 	{
@@ -312,7 +306,7 @@ bool duDumpCompactHeightfield(struct rcCompactHeightfield& chf, duFileIO* io)
 	return true;
 }
 
-bool duReadCompactHeightfield(struct rcCompactHeightfield& chf, duFileIO* io)
+bool duReadCompactHeightfield(rcCompactHeightfield& chf, duFileIO* io)
 {
 	if (!io)
 	{
@@ -364,7 +358,7 @@ bool duReadCompactHeightfield(struct rcCompactHeightfield& chf, duFileIO* io)
 	
 	if (tmp & 1)
 	{
-		chf.cells = (rcCompactCell*)rcAlloc(sizeof(rcCompactCell)*chf.width*chf.height, RC_ALLOC_PERM);
+		chf.cells = static_cast<rcCompactCell*>(rcAlloc(sizeof(rcCompactCell) * chf.width * chf.height, RC_ALLOC_PERM));
 		if (!chf.cells)
 		{
 			printf("duReadCompactHeightfield: Could not alloc cells (%d)\n", chf.width*chf.height);
@@ -374,7 +368,7 @@ bool duReadCompactHeightfield(struct rcCompactHeightfield& chf, duFileIO* io)
 	}
 	if (tmp & 2)
 	{
-		chf.spans = (rcCompactSpan*)rcAlloc(sizeof(rcCompactSpan)*chf.spanCount, RC_ALLOC_PERM);
+		chf.spans = static_cast<rcCompactSpan*>(rcAlloc(sizeof(rcCompactSpan) * chf.spanCount, RC_ALLOC_PERM));
 		if (!chf.spans)
 		{
 			printf("duReadCompactHeightfield: Could not alloc spans (%d)\n", chf.spanCount);
@@ -384,7 +378,7 @@ bool duReadCompactHeightfield(struct rcCompactHeightfield& chf, duFileIO* io)
 	}
 	if (tmp & 4)
 	{
-		chf.dist = (unsigned short*)rcAlloc(sizeof(unsigned short)*chf.spanCount, RC_ALLOC_PERM);
+		chf.dist = static_cast<unsigned short*>(rcAlloc(sizeof(unsigned short) * chf.spanCount, RC_ALLOC_PERM));
 		if (!chf.dist)
 		{
 			printf("duReadCompactHeightfield: Could not alloc dist (%d)\n", chf.spanCount);
@@ -394,7 +388,7 @@ bool duReadCompactHeightfield(struct rcCompactHeightfield& chf, duFileIO* io)
 	}
 	if (tmp & 8)
 	{
-		chf.areas = (unsigned char*)rcAlloc(sizeof(unsigned char)*chf.spanCount, RC_ALLOC_PERM);
+		chf.areas = static_cast<unsigned char*>(rcAlloc(sizeof(unsigned char) * chf.spanCount, RC_ALLOC_PERM));
 		if (!chf.areas)
 		{
 			printf("duReadCompactHeightfield: Could not alloc areas (%d)\n", chf.spanCount);
@@ -407,16 +401,16 @@ bool duReadCompactHeightfield(struct rcCompactHeightfield& chf, duFileIO* io)
 }
 
 
-static void logLine(rcContext& ctx, rcTimerLabel label, const char* name, const float pc)
+static void logLine(rcContext& ctx, const rcTimerLabel label, const char* name, const float pc)
 {
 	const int t = ctx.getAccumulatedTime(label);
 	if (t < 0) return;
-	ctx.log(RC_LOG_PROGRESS, "%s:\t%.2fms\t(%.1f%%)", name, t/1000.0f, t*pc);
+	ctx.log(RC_LOG_PROGRESS, "%s:\t%.2fms\t(%.1f%%)", name, static_cast<float>(t)/1000.0f, static_cast<float>(t)*pc);
 }
 
 void duLogBuildTimes(rcContext& ctx, const int totalTimeUsec)
 {
-	const float pc = 100.0f / totalTimeUsec;
+	const float pc = 100.0f / static_cast<float>(totalTimeUsec);
  
 	ctx.log(RC_LOG_PROGRESS, "Build Times");
 	logLine(ctx, RC_TIMER_RASTERIZE_TRIANGLES,		"- Rasterize", pc);
@@ -436,6 +430,7 @@ void duLogBuildTimes(rcContext& ctx, const int totalTimeUsec)
 	logLine(ctx, RC_TIMER_BUILD_REGIONS_EXPAND,		"      - Expand", pc);
 	logLine(ctx, RC_TIMER_BUILD_REGIONS_FLOOD,		"      - Find Basins", pc);
 	logLine(ctx, RC_TIMER_BUILD_REGIONS_FILTER,		"    - Filter", pc);
+    logLine(ctx, RC_TIMER_BUILD_DISTANCE_PER_REGION, "- Extract Min Region Distance", pc);
 	logLine(ctx, RC_TIMER_BUILD_LAYERS,				"- Build Layers", pc);
 	logLine(ctx, RC_TIMER_BUILD_CONTOURS,			"- Build Contours", pc);
 	logLine(ctx, RC_TIMER_BUILD_CONTOURS_TRACE,		"    - Trace", pc);
@@ -444,6 +439,6 @@ void duLogBuildTimes(rcContext& ctx, const int totalTimeUsec)
 	logLine(ctx, RC_TIMER_BUILD_POLYMESHDETAIL,		"- Build Polymesh Detail", pc);
 	logLine(ctx, RC_TIMER_MERGE_POLYMESH,			"- Merge Polymeshes", pc);
 	logLine(ctx, RC_TIMER_MERGE_POLYMESHDETAIL,		"- Merge Polymesh Details", pc);
-	ctx.log(RC_LOG_PROGRESS, "=== TOTAL:\t%.2fms", totalTimeUsec/1000.0f);
+	ctx.log(RC_LOG_PROGRESS, "=== TOTAL:\t%.2fms", static_cast<float>(totalTimeUsec)/1000.0f);
 }
 

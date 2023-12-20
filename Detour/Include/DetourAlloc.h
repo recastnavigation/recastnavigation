@@ -19,8 +19,6 @@
 #ifndef DETOURALLOCATOR_H
 #define DETOURALLOCATOR_H
 
-#include <stddef.h>
-
 /// Provides hint values to the memory allocator on how long the
 /// memory is expected to be used.
 enum dtAllocHint

@@ -16,18 +16,13 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <math.h>
-#include <stdio.h>
+#include <cstdio>
 #include "Sample_Debug.h"
-#include "InputGeom.h"
 #include "Recast.h"
 #include "DetourNavMesh.h"
 #include "RecastDebugDraw.h"
 #include "DetourDebugDraw.h"
 #include "RecastDump.h"
-#include "imgui.h"
-#include "SDL.h"
-#include "SDL_opengl.h"
 
 #ifdef WIN32
 #	define snprintf _snprintf
@@ -49,9 +44,9 @@ static int loadBin(const char* path, unsigned char** data)
 */
 
 Sample_Debug::Sample_Debug() :
-	m_chf(0),
-	m_cset(0),
-	m_pmesh(0)
+	m_chf(nullptr),
+	m_cset(nullptr),
+	m_pmesh(nullptr)
 {
 	resetCommonSettings();
 
@@ -326,7 +321,7 @@ void Sample_Debug::handleMeshChanged(InputGeom* geom)
 	m_geom = geom;
 }
 
-const float* Sample_Debug::getBoundsMin()
+const float* Sample_Debug::getBoundsMin() const
 {
 	if (m_cset)
 		return m_cset->bmin;
@@ -334,10 +329,10 @@ const float* Sample_Debug::getBoundsMin()
 		return m_chf->bmin;
 	if (m_navMesh)
 		return m_bmin;
-	return 0;
+	return nullptr;
 }
 
-const float* Sample_Debug::getBoundsMax()
+const float* Sample_Debug::getBoundsMax() const
 {
 	if (m_cset)
 		return m_cset->bmax;
@@ -345,10 +340,10 @@ const float* Sample_Debug::getBoundsMax()
 		return m_chf->bmax;
 	if (m_navMesh)
 		return m_bmax;
-	return 0;
+	return nullptr;
 }
 
-void Sample_Debug::handleClick(const float* s, const float* p, bool shift)
+void Sample_Debug::handleClick(const float* s, const float* p, const bool shift)
 {
 	if (m_tool)
 		m_tool->handleClick(s, p, shift);
@@ -366,7 +361,7 @@ bool Sample_Debug::handleBuild()
 	if (m_chf)
 	{
 		rcFreeContourSet(m_cset);
-		m_cset = 0;
+		m_cset = nullptr;
 		
 		// Create contours.
 		m_cset = rcAllocContourSet();

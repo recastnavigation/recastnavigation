@@ -34,10 +34,11 @@
 #include "imguiRenderGL.h"
 
 #include "Recast.h"
-#include "RecastDebugDraw.h"
 #include "InputGeom.h"
 #include "TestCase.h"
 #include "Filelist.h"
+#include "Sample_SizeFromLocalMinimaMesh.h"
+#include "Sample_SizeFromPortalEdgeMesh.h"
 #include "Sample_SoloMesh.h"
 #include "Sample_TileMesh.h"
 #include "Sample_TempObstacles.h"
@@ -56,17 +57,21 @@ struct SampleItem
 	Sample* (*create)();
 	const string name;
 };
+Sample* createSizeFromLocalMinima() { return new Sample_SizeFromLocalMinimaMesh(); }
+Sample* createSizeFromPortalEdge() { return new Sample_SizeFromPortalEdgeMesh (); }
 Sample* createSolo() { return new Sample_SoloMesh(); }
 Sample* createTile() { return new Sample_TileMesh(); }
 Sample* createTempObstacle() { return new Sample_TempObstacles(); }
 Sample* createDebug() { return new Sample_Debug(); }
 static SampleItem g_samples[] =
 {
+    { createSizeFromLocalMinima, "Size from Local Minima Mesh" },
+    { createSizeFromPortalEdge, "Size from  Mesh" },
 	{ createSolo, "Solo Mesh" },
 	{ createTile, "Tile Mesh" },
 	{ createTempObstacle, "Temp Obstacles" },
 };
-static const int g_nsamples = sizeof(g_samples) / sizeof(SampleItem);
+static constexpr int g_nsamples = sizeof(g_samples) / sizeof(SampleItem);
 
 int main(int /*argc*/, char** /*argv*/)
 {
@@ -111,7 +116,7 @@ int main(int /*argc*/, char** /*argv*/)
 	else
 	{
 		float aspect = 16.0f / 9.0f;
-		width = rcMin(displayMode.w, (int)(displayMode.h * aspect)) - 80;
+		width = rcMin(displayMode.w, static_cast<int>((float)displayMode.h * aspect)) - 80;
 		height = displayMode.h - 80;
 	}
 	
@@ -174,11 +179,11 @@ int main(int /*argc*/, char** /*argv*/)
 	float markerPosition[3] = {0, 0, 0};
 	bool markerPositionSet = false;
 	
-	InputGeom* geom = 0;
-	Sample* sample = 0;
+	InputGeom* geom = nullptr;
+	Sample* sample = nullptr;
 
 	const string testCasesFolder = "TestCases";
-	TestCase* test = 0;
+	TestCase* test = nullptr;
 
 	BuildContext ctx;
 	
@@ -238,8 +243,7 @@ int main(int /*argc*/, char** /*argv*/)
 						if (sample && geom)
 						{
 							string savePath = meshesFolder + "/";
-							BuildSettings settings;
-							memset(&settings, 0, sizeof(settings));
+							BuildSettings settings = {};
 
 							rcVcopy(settings.navMeshBMin, geom->getNavMeshBoundsMin());
 							rcVcopy(settings.navMeshBMax, geom->getNavMeshBoundsMax());
@@ -325,8 +329,8 @@ int main(int /*argc*/, char** /*argv*/)
 					{
 						int dx = mousePos[0] - origMousePos[0];
 						int dy = mousePos[1] - origMousePos[1];
-						cameraEulers[0] = origCameraEulers[0] - dy * 0.25f;
-						cameraEulers[1] = origCameraEulers[1] + dx * 0.25f;
+						cameraEulers[0] = origCameraEulers[0] - (float)dy * 0.25f;
+						cameraEulers[1] = origCameraEulers[1] + (float)dx * 0.25f;
 						if (dx * dx + dy * dy > 3 * 3)
 						{
 							movedDuringRotate = true;
@@ -344,13 +348,13 @@ int main(int /*argc*/, char** /*argv*/)
 		}
 
 		unsigned char mouseButtonMask = 0;
-		if (SDL_GetMouseState(0, 0) & SDL_BUTTON_LMASK)
+		if (SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON_LMASK)
 			mouseButtonMask |= IMGUI_MBUT_LEFT;
-		if (SDL_GetMouseState(0, 0) & SDL_BUTTON_RMASK)
+		if (SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON_RMASK)
 			mouseButtonMask |= IMGUI_MBUT_RIGHT;
 		
 		Uint32 time = SDL_GetTicks();
-		float dt = (time - prevFrameTime) / 1000.0f;
+		float dt = (float)(time - prevFrameTime) / 1000.0f;
 		prevFrameTime = time;
 
 		// Hit test mesh.
@@ -389,8 +393,8 @@ int main(int /*argc*/, char** /*argv*/)
 		}
 		
 		// Update sample simulation.
-		const float SIM_RATE = 20;
-		const float DELTA_TIME = 1.0f / SIM_RATE;
+		constexpr float SIM_RATE = 20;
+		constexpr float DELTA_TIME = 1.0f / SIM_RATE;
 		timeAcc = rcClamp(timeAcc + dt, -1.0f, 1.0f);
 		int simIter = 0;
 		while (timeAcc > DELTA_TIME)
@@ -404,10 +408,10 @@ int main(int /*argc*/, char** /*argv*/)
 		}
 
 		// Clamp the framerate so that we do not hog all the CPU.
-		const float MIN_FRAME_TIME = 1.0f / 40.0f;
+		constexpr float MIN_FRAME_TIME = 1.0f / 40.0f;
 		if (dt < MIN_FRAME_TIME)
 		{
-			int ms = (int)((MIN_FRAME_TIME - dt) * 1000.0f);
+			int ms = static_cast<int>((MIN_FRAME_TIME - dt) * 1000.0f);
 			if (ms > 10) ms = 10;
 			if (ms >= 0) SDL_Delay(ms);
 		}
@@ -428,7 +432,7 @@ int main(int /*argc*/, char** /*argv*/)
 		// Compute the projection matrix.
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		gluPerspective(50.0f, (float)width/(float)height, 1.0f, camr);
+		gluPerspective(50.0f, static_cast<float>(width)/static_cast<float>(height), 1.0f, camr);
 		GLdouble projectionMatrix[16];
 		glGetDoublev(GL_PROJECTION_MATRIX, projectionMatrix);
 		
@@ -444,22 +448,22 @@ int main(int /*argc*/, char** /*argv*/)
 		// Get hit ray position and direction.
 		GLdouble x, y, z;
 		gluUnProject(mousePos[0], mousePos[1], 0.0f, modelviewMatrix, projectionMatrix, viewport, &x, &y, &z);
-		rayStart[0] = (float)x;
-		rayStart[1] = (float)y;
-		rayStart[2] = (float)z;
+		rayStart[0] = static_cast<float>(x);
+		rayStart[1] = static_cast<float>(y);
+		rayStart[2] = static_cast<float>(z);
 		gluUnProject(mousePos[0], mousePos[1], 1.0f, modelviewMatrix, projectionMatrix, viewport, &x, &y, &z);
-		rayEnd[0] = (float)x;
-		rayEnd[1] = (float)y;
-		rayEnd[2] = (float)z;
+		rayEnd[0] = static_cast<float>(x);
+		rayEnd[1] = static_cast<float>(y);
+		rayEnd[2] = static_cast<float>(z);
 		
 		// Handle keyboard movement.
-		const Uint8* keystate = SDL_GetKeyboardState(NULL);
-		moveFront	= rcClamp(moveFront	+ dt * 4 * ((keystate[SDL_SCANCODE_W] || keystate[SDL_SCANCODE_UP		]) ? 1 : -1), 0.0f, 1.0f);
-		moveLeft	= rcClamp(moveLeft	+ dt * 4 * ((keystate[SDL_SCANCODE_A] || keystate[SDL_SCANCODE_LEFT		]) ? 1 : -1), 0.0f, 1.0f);
-		moveBack	= rcClamp(moveBack	+ dt * 4 * ((keystate[SDL_SCANCODE_S] || keystate[SDL_SCANCODE_DOWN		]) ? 1 : -1), 0.0f, 1.0f);
-		moveRight	= rcClamp(moveRight	+ dt * 4 * ((keystate[SDL_SCANCODE_D] || keystate[SDL_SCANCODE_RIGHT	]) ? 1 : -1), 0.0f, 1.0f);
-		moveUp		= rcClamp(moveUp	+ dt * 4 * ((keystate[SDL_SCANCODE_Q] || keystate[SDL_SCANCODE_PAGEUP	]) ? 1 : -1), 0.0f, 1.0f);
-		moveDown	= rcClamp(moveDown	+ dt * 4 * ((keystate[SDL_SCANCODE_E] || keystate[SDL_SCANCODE_PAGEDOWN	]) ? 1 : -1), 0.0f, 1.0f);
+		const Uint8* keystate = SDL_GetKeyboardState(nullptr);
+		moveFront	= rcClamp(moveFront	+ dt * 4.f * ((keystate[SDL_SCANCODE_W] || keystate[SDL_SCANCODE_UP		]) ? 1.f : -1.f), 0.0f, 1.0f);
+		moveLeft	= rcClamp(moveLeft	+ dt * 4.f * ((keystate[SDL_SCANCODE_A] || keystate[SDL_SCANCODE_LEFT		]) ? 1.f : -1.f), 0.0f, 1.0f);
+		moveBack	= rcClamp(moveBack	+ dt * 4.f * ((keystate[SDL_SCANCODE_S] || keystate[SDL_SCANCODE_DOWN		]) ? 1.f : -1.f), 0.0f, 1.0f);
+		moveRight	= rcClamp(moveRight	+ dt * 4.f * ((keystate[SDL_SCANCODE_D] || keystate[SDL_SCANCODE_RIGHT	]) ? 1.f : -1.f), 0.0f, 1.0f);
+		moveUp		= rcClamp(moveUp	+ dt * 4.f * ((keystate[SDL_SCANCODE_Q] || keystate[SDL_SCANCODE_PAGEUP	]) ? 1.f : -1.f), 0.0f, 1.0f);
+		moveDown	= rcClamp(moveDown	+ dt * 4.f * ((keystate[SDL_SCANCODE_E] || keystate[SDL_SCANCODE_PAGEDOWN	]) ? 1.f : -1.f), 0.0f, 1.0f);
 		
 		float keybSpeed = 22.0f;
 		if (SDL_GetModState() & KMOD_SHIFT)
@@ -471,13 +475,13 @@ int main(int /*argc*/, char** /*argv*/)
 		float movey = (moveBack - moveFront) * keybSpeed * dt + scrollZoom * 2.0f;
 		scrollZoom = 0;
 		
-		cameraPos[0] += movex * (float)modelviewMatrix[0];
-		cameraPos[1] += movex * (float)modelviewMatrix[4];
-		cameraPos[2] += movex * (float)modelviewMatrix[8];
+		cameraPos[0] += movex * static_cast<float>(modelviewMatrix[0]);
+		cameraPos[1] += movex * static_cast<float>(modelviewMatrix[4]);
+		cameraPos[2] += movex * static_cast<float>(modelviewMatrix[8]);
 		
-		cameraPos[0] += movey * (float)modelviewMatrix[2];
-		cameraPos[1] += movey * (float)modelviewMatrix[6];
-		cameraPos[2] += movey * (float)modelviewMatrix[10];
+		cameraPos[0] += movey * static_cast<float>(modelviewMatrix[2]);
+		cameraPos[1] += movey * static_cast<float>(modelviewMatrix[6]);
+		cameraPos[2] += movey * static_cast<float>(modelviewMatrix[10]);
 
 		cameraPos[1] += (moveUp - moveDown) * keybSpeed * dt;
 
@@ -504,18 +508,18 @@ int main(int /*argc*/, char** /*argv*/)
 		
 		if (sample)
 		{
-			sample->handleRenderOverlay((double*)projectionMatrix, (double*)modelviewMatrix, (int*)viewport);
+			sample->handleRenderOverlay(projectionMatrix, modelviewMatrix, viewport);
 		}
 		if (test)
 		{
-			if (test->handleRenderOverlay((double*)projectionMatrix, (double*)modelviewMatrix, (int*)viewport))
+			if (test->handleRenderOverlay(projectionMatrix, modelviewMatrix, viewport))
 				mouseOverMenu = true;
 		}
 
 		// Help text.
 		if (showMenu)
 		{
-			const char msg[] = "W/S/A/D: Move  RMB: Rotate";
+			constexpr char msg[] = "W/S/A/D: Move  RMB: Rotate";
 			imguiDrawText(280, height-20, IMGUI_ALIGN_LEFT, msg, imguiRGBA(255,255,255,128));
 		}
 		
@@ -565,7 +569,7 @@ int main(int /*argc*/, char** /*argv*/)
 			if (geom)
 			{
 				char text[64];
-				snprintf(text, 64, "Verts: %.1fk  Tris: %.1fk",
+				_snprintf_s(text, 64, "Verts: %.1fk  Tris: %.1fk",
 						 geom->getMesh()->getVertCount()/1000.0f,
 						 geom->getMesh()->getTriCount()/1000.0f);
 				imguiValue(text);
@@ -590,7 +594,7 @@ int main(int /*argc*/, char** /*argv*/)
 					
 					// Clear test.
 					delete test;
-					test = 0;
+					test = nullptr;
 				}
 
 				imguiSeparator();
@@ -612,14 +616,14 @@ int main(int /*argc*/, char** /*argv*/)
 			if (imguiBeginScrollArea("Choose Sample", width-10-250-10-200, height-10-250, 200, 250, &levelScroll))
 				mouseOverMenu = true;
 
-			Sample* newSample = 0;
-			for (int i = 0; i < g_nsamples; ++i)
+			Sample* newSample = nullptr;
+			for (auto & g_sample : g_samples)
 			{
-				if (imguiItem(g_samples[i].name.c_str()))
+				if (imguiItem(g_sample.name.c_str()))
 				{
-					newSample = g_samples[i].create();
+					newSample = g_sample.create();
 					if (newSample)
-						sampleName = g_samples[i].name;
+						sampleName = g_sample.name;
 				}
 			}
 			if (newSample)
@@ -636,8 +640,8 @@ int main(int /*argc*/, char** /*argv*/)
 
 			if (geom || sample)
 			{
-				const float* bmin = 0;
-				const float* bmax = 0;
+				const float* bmin = nullptr;
+				const float* bmax = nullptr;
 				if (geom)
 				{
 					bmin = geom->getNavMeshBoundsMin();
@@ -648,14 +652,14 @@ int main(int /*argc*/, char** /*argv*/)
 				{
 					camr = sqrtf(rcSqr(bmax[0]-bmin[0]) +
 								 rcSqr(bmax[1]-bmin[1]) +
-								 rcSqr(bmax[2]-bmin[2])) / 2;
-					cameraPos[0] = (bmax[0] + bmin[0]) / 2 + camr;
+								 rcSqr(bmax[2]-bmin[2]));
+					cameraPos[0] = (bmax[0] + bmin[0]) / 2 /*+ camr*/;
 					cameraPos[1] = (bmax[1] + bmin[1]) / 2 + camr;
-					cameraPos[2] = (bmax[2] + bmin[2]) / 2 + camr;
+					cameraPos[2] = (bmax[2] + bmin[2]) / 2 /*+ camr*/;
 					camr *= 3;
 				}
-				cameraEulers[0] = 45;
-				cameraEulers[1] = -45;
+				cameraEulers[0] = 90;
+				cameraEulers[1] = 0;
 				glFogf(GL_FOG_START, camr*0.1f);
 				glFogf(GL_FOG_END, camr*1.25f);
 			}
@@ -672,7 +676,7 @@ int main(int /*argc*/, char** /*argv*/)
 			
 			vector<string>::const_iterator fileIter = files.begin();
 			vector<string>::const_iterator filesEnd = files.end();
-			vector<string>::const_iterator levelToLoad = filesEnd;
+			auto levelToLoad = filesEnd;
 			for (; fileIter != filesEnd; ++fileIter)
 			{
 				if (imguiItem(fileIter->c_str()))
@@ -687,21 +691,20 @@ int main(int /*argc*/, char** /*argv*/)
 				showLevels = false;
 				
 				delete geom;
-				geom = 0;
-				
-				string path = meshesFolder + "/" + meshName;
+
+				string path = (meshesFolder + "/").append(meshName);
 				
 				geom = new InputGeom;
 				if (!geom->load(&ctx, path))
 				{
 					delete geom;
-					geom = 0;
+					geom = nullptr;
 
 					// Destroy the sample if it already had geometry loaded, as we've just deleted it!
 					if (sample && sample->getInputGeom())
 					{
 						delete sample;
-						sample = 0;
+						sample = nullptr;
 					}
 					
 					showLog = true;
@@ -715,8 +718,8 @@ int main(int /*argc*/, char** /*argv*/)
 
 				if (geom || sample)
 				{
-					const float* bmin = 0;
-					const float* bmax = 0;
+					const float* bmin = nullptr;
+					const float* bmax = nullptr;
 					if (geom)
 					{
 						bmin = geom->getNavMeshBoundsMin();
@@ -727,14 +730,14 @@ int main(int /*argc*/, char** /*argv*/)
 					{
 						camr = sqrtf(rcSqr(bmax[0]-bmin[0]) +
 									 rcSqr(bmax[1]-bmin[1]) +
-									 rcSqr(bmax[2]-bmin[2])) / 2;
-						cameraPos[0] = (bmax[0] + bmin[0]) / 2 + camr;
+									 rcSqr(bmax[2]-bmin[2]));
+						cameraPos[0] = (bmax[0] + bmin[0]) / 2 /*+ camr*/;
 						cameraPos[1] = (bmax[1] + bmin[1]) / 2 + camr;
-						cameraPos[2] = (bmax[2] + bmin[2]) / 2 + camr;
+						cameraPos[2] = (bmax[2] + bmin[2]) / 2 /*+ camr*/;
 						camr *= 3;
 					}
-					cameraEulers[0] = 45;
-					cameraEulers[1] = -45;
+					cameraEulers[0] = 90;
+					cameraEulers[1] = 0;
 					glFogf(GL_FOG_START, camr * 0.1f);
 					glFogf(GL_FOG_END, camr * 1.25f);
 				}
@@ -753,7 +756,7 @@ int main(int /*argc*/, char** /*argv*/)
 
 			vector<string>::const_iterator fileIter = files.begin();
 			vector<string>::const_iterator filesEnd = files.end();
-			vector<string>::const_iterator testToLoad = filesEnd;
+			auto testToLoad = filesEnd;
 			for (; fileIter != filesEnd; ++fileIter)
 			{
 				if (imguiItem(fileIter->c_str()))
@@ -772,18 +775,18 @@ int main(int /*argc*/, char** /*argv*/)
 					if (!test->load(path))
 					{
 						delete test;
-						test = 0;
+						test = nullptr;
 					}
 
 					// Create sample
-					Sample* newSample = 0;
-					for (int i = 0; i < g_nsamples; ++i)
+					Sample* newSample = nullptr;
+					for (auto & g_sample : g_samples)
 					{
-						if (g_samples[i].name == test->getSampleName())
+						if (g_sample.name == test->getSampleName())
 						{
-							newSample = g_samples[i].create();
+							newSample = g_sample.create();
 							if (newSample)
-								sampleName = g_samples[i].name;
+								sampleName = g_sample.name;
 						}
 					}
 
@@ -800,16 +803,16 @@ int main(int /*argc*/, char** /*argv*/)
 					meshName = test->getGeomFileName();
 					
 					
-					path = meshesFolder + "/" + meshName;
+					path = (meshesFolder + "/").append(meshName);
 					
 					delete geom;
 					geom = new InputGeom;
 					if (!geom || !geom->load(&ctx, path))
 					{
 						delete geom;
-						geom = 0;
+						geom = nullptr;
 						delete sample;
-						sample = 0;
+						sample = nullptr;
 						showLog = true;
 						logScroll = 0;
 						ctx.dumpLog("Geom load log %s:", meshName.c_str());
@@ -831,8 +834,8 @@ int main(int /*argc*/, char** /*argv*/)
 					
 					if (geom || sample)
 					{
-						const float* bmin = 0;
-						const float* bmax = 0;
+						const float* bmin = nullptr;
+						const float* bmax = nullptr;
 						if (geom)
 						{
 							bmin = geom->getNavMeshBoundsMin();
@@ -888,19 +891,19 @@ int main(int /*argc*/, char** /*argv*/)
 		}
 		
 		// Marker
-		if (markerPositionSet && gluProject((GLdouble)markerPosition[0], (GLdouble)markerPosition[1], (GLdouble)markerPosition[2],
+		if (markerPositionSet && gluProject(markerPosition[0], markerPosition[1], markerPosition[2],
 								  modelviewMatrix, projectionMatrix, viewport, &x, &y, &z))
 		{
 			// Draw marker circle
 			glLineWidth(5.0f);
 			glColor4ub(240,220,0,196);
 			glBegin(GL_LINE_LOOP);
-			const float r = 25.0f;
 			for (int i = 0; i < 20; ++i)
 			{
-				const float a = (float)i / 20.0f * RC_PI*2;
-				const float fx = (float)x + cosf(a)*r;
-				const float fy = (float)y + sinf(a)*r;
+				constexpr float r = 25.0f;
+				const float a = static_cast<float>(i) / 20.0f * RC_PI*2;
+				const float fx = static_cast<float>(x) + cosf(a)*r;
+				const float fy = static_cast<float>(y) + sinf(a)*r;
 				glVertex2f(fx,fy);
 			}
 			glEnd();
