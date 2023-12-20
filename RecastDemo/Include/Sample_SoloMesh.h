@@ -20,10 +20,9 @@
 #define RECASTSAMPLESOLOMESH_H
 
 #include "Sample.h"
-#include "DetourNavMesh.h"
 #include "Recast.h"
 
-class Sample_SoloMesh : public Sample
+class Sample_SoloMesh final : public Sample
 {
 protected:
 	bool m_keepInterResults;
@@ -34,7 +33,7 @@ protected:
 	rcCompactHeightfield* m_chf;
 	rcContourSet* m_cset;
 	rcPolyMesh* m_pmesh;
-	rcConfig m_cfg;	
+	rcConfig m_cfg{};
 	rcPolyMeshDetail* m_dmesh;
 	
 	enum DrawMode
@@ -65,16 +64,16 @@ protected:
 
 public:
 	Sample_SoloMesh();
-	virtual ~Sample_SoloMesh();
-	
-	virtual void handleSettings();
-	virtual void handleTools();
-	virtual void handleDebugMode();
-	
-	virtual void handleRender();
-	virtual void handleRenderOverlay(double* proj, double* model, int* view);
-	virtual void handleMeshChanged(class InputGeom* geom);
-	virtual bool handleBuild();
+	~Sample_SoloMesh() override;
+
+	void handleSettings() override;
+	void handleTools() override;
+	void handleDebugMode() override;
+
+	void handleRender() override;
+	void handleRenderOverlay(double* proj, double* model, int* view) override;
+	void handleMeshChanged(class InputGeom* geom) override;
+	bool handleBuild() override;
 
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.

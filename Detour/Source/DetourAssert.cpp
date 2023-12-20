@@ -20,7 +20,7 @@
 
 #ifndef RC_DISABLE_ASSERTS
 
-static dtAssertFailFunc* sAssertFailFunc = 0;
+static dtAssertFailFunc* sAssertFailFunc = nullptr;
 
 void dtAssertFailSetCustom(dtAssertFailFunc *assertFailFunc)
 {

@@ -16,10 +16,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <math.h>
-#include <stdio.h>
-#include <string.h>
-#include <float.h>
+#include <cfloat>
 #include "SDL.h"
 #include "SDL_opengl.h"
 #ifdef __APPLE__
@@ -32,7 +29,6 @@
 #include "InputGeom.h"
 #include "Sample.h"
 #include "Recast.h"
-#include "RecastDebugDraw.h"
 #include "DetourDebugDraw.h"
 
 #ifdef WIN32
@@ -40,8 +36,8 @@
 #endif
 
 OffMeshConnectionTool::OffMeshConnectionTool() :
-	m_sample(0),
-	m_hitPosSet(0),
+	m_sample(nullptr), m_hitPos{},
+	m_hitPosSet(false),
 	m_bidir(true),
 	m_oldFlags(0)
 {
@@ -78,7 +74,7 @@ void OffMeshConnectionTool::handleMenu()
 		m_bidir = true;
 }
 
-void OffMeshConnectionTool::handleClick(const float* /*s*/, const float* p, bool shift)
+void OffMeshConnectionTool::handleClick(const float* /*s*/, const float* p, const bool shift)
 {
 	if (!m_sample) return;
 	InputGeom* geom = m_sample->getInputGeom();
@@ -94,7 +90,7 @@ void OffMeshConnectionTool::handleClick(const float* /*s*/, const float* p, bool
 		for (int i = 0; i < geom->getOffMeshConnectionCount()*2; ++i)
 		{
 			const float* v = &verts[i*3];
-			float d = rcVdistSqr(p, v);
+			const float d = rcVdistSqr(p, v);
 			if (d < nearestDist)
 			{
 				nearestDist = d;
@@ -118,8 +114,8 @@ void OffMeshConnectionTool::handleClick(const float* /*s*/, const float* p, bool
 		}
 		else
 		{
-			const unsigned char area = SAMPLE_POLYAREA_JUMP;
-			const unsigned short flags = SAMPLE_POLYFLAGS_JUMP; 
+			constexpr unsigned char area = SAMPLE_POLYAREA_JUMP;
+			constexpr unsigned short flags = SAMPLE_POLYFLAGS_JUMP; 
 			geom->addOffMeshConnection(m_hitPos, p, m_sample->getAgentRadius(), m_bidir ? 1 : 0, area, flags);
 			m_hitPosSet = false;
 		}
@@ -147,7 +143,7 @@ void OffMeshConnectionTool::handleRender()
 	if (m_hitPosSet)
 		duDebugDrawCross(&dd, m_hitPos[0],m_hitPos[1]+0.1f,m_hitPos[2], s, duRGBA(0,0,0,128), 2.0f);
 
-	InputGeom* geom = m_sample->getInputGeom();
+	const InputGeom* geom = m_sample->getInputGeom();
 	if (geom)
 		geom->drawOffMeshConnections(&dd, true);
 }
@@ -157,10 +153,10 @@ void OffMeshConnectionTool::handleRenderOverlay(double* proj, double* model, int
 	GLdouble x, y, z;
 	
 	// Draw start and end point labels
-	if (m_hitPosSet && gluProject((GLdouble)m_hitPos[0], (GLdouble)m_hitPos[1], (GLdouble)m_hitPos[2],
+	if (m_hitPosSet && gluProject(m_hitPos[0], m_hitPos[1], m_hitPos[2],
 								model, proj, view, &x, &y, &z))
 	{
-		imguiDrawText((int)x, (int)(y-25), IMGUI_ALIGN_CENTER, "Start", imguiRGBA(0,0,0,220));
+		imguiDrawText(static_cast<int>(x), static_cast<int>(y - 25), IMGUI_ALIGN_CENTER, "Start", imguiRGBA(0,0,0,220));
 	}
 	
 	// Tool help

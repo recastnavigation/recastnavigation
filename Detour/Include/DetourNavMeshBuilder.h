@@ -19,7 +19,6 @@
 #ifndef DETOURNAVMESHBUILDER_H
 #define DETOURNAVMESHBUILDER_H
 
-#include "DetourAlloc.h"
 
 /// Represents the source data used to build an navigation mesh tile.
 /// @ingroup detour
@@ -36,6 +35,7 @@ struct dtNavMeshCreateParams
 	const unsigned short* polys;			///< The polygon data. [Size: #polyCount * 2 * #nvp]
 	const unsigned short* polyFlags;		///< The user defined flags assigned to each polygon. [Size: #polyCount]
 	const unsigned char* polyAreas;			///< The user defined area ids assigned to each polygon. [Size: #polyCount]
+        const float* regionSizes;			///< The region sized generated depending on region and border sizes. [Size: #polyCount]
 	int polyCount;							///< Number of polygons in the mesh. [Limit: >= 1]
 	int nvp;								///< Number maximum number of vertices per polygon. [Limit: >= 3]
 
@@ -112,15 +112,23 @@ struct dtNavMeshCreateParams
 /// @return True if the tile data was successfully created.
 bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData, int* outDataSize);
 
+/// Builds navigation mesh tile data from the provided tile creation data.
+/// @ingroup detour
+///  @param[in]		params		Tile creation data.
+///  @param[out]	outData		The resulting tile data.
+///  @param[out]	outDataSize	The size of the tile data array.
+/// @return True if the tile data was successfully created.
+bool dtCreateNavMeshDataWithSize(dtNavMeshCreateParams* params, unsigned char** outData, int* outDataSize);
+
 /// Swaps the endianess of the tile data's header (#dtMeshHeader).
 ///  @param[in,out]	data		The tile data array.
 ///  @param[in]		dataSize	The size of the data array.
-bool dtNavMeshHeaderSwapEndian(unsigned char* data, const int dataSize);
+bool dtNavMeshHeaderSwapEndian(unsigned char* data, int dataSize);
 
 /// Swaps endianess of the tile data.
 ///  @param[in,out]	data		The tile data array.
 ///  @param[in]		dataSize	The size of the data array.
-bool dtNavMeshDataSwapEndian(unsigned char* data, const int dataSize);
+bool dtNavMeshDataSwapEndian(unsigned char* data, int dataSize);
 
 #endif // DETOURNAVMESHBUILDER_H
 

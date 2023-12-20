@@ -23,7 +23,7 @@
 
 // Prune navmesh to accessible locations from a point.
 
-class NavMeshPruneTool : public SampleTool
+class NavMeshPruneTool final : public SampleTool
 {
 	Sample* m_sample;
 	
@@ -34,23 +34,20 @@ class NavMeshPruneTool : public SampleTool
 	
 public:
 	NavMeshPruneTool();
-	virtual ~NavMeshPruneTool();
-	
-	virtual int type() { return TOOL_NAVMESH_PRUNE; }
-	virtual void init(Sample* sample);
-	virtual void reset();
-	virtual void handleMenu();
-	virtual void handleClick(const float* s, const float* p, bool shift);
-	virtual void handleToggle();
-	virtual void handleStep();
-	virtual void handleUpdate(const float dt);
-	virtual void handleRender();
-	virtual void handleRenderOverlay(double* proj, double* model, int* view);
+	~NavMeshPruneTool() override;
+	NavMeshPruneTool(const NavMeshPruneTool&)=delete;
+	NavMeshPruneTool& operator=(const NavMeshPruneTool&)=delete;
 
-private:
-	// Explicitly disabled copy constructor and copy assignment operator.
-	NavMeshPruneTool(const NavMeshPruneTool&);
-	NavMeshPruneTool& operator=(const NavMeshPruneTool&);
+	int type() override { return TOOL_NAVMESH_PRUNE; }
+	void init(Sample* sample) override;
+	void reset() override;
+	void handleMenu() override;
+	void handleClick(const float* s, const float* p, bool shift) override;
+	void handleToggle() override;
+	void handleStep() override;
+	void handleUpdate(float dt) override;
+	void handleRender() override;
+	void handleRenderOverlay(double* proj, double* model, int* view) override;
 };
 
 #endif // NAVMESHPRUNETOOL_H

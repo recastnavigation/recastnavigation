@@ -54,7 +54,7 @@ struct CrowdToolParams
 	float m_separationWeight;
 };
 
-class CrowdToolState : public SampleToolState
+class CrowdToolState final : public SampleToolState
 {
 	Sample* m_sample;
 	dtNavMesh* m_nav;
@@ -63,47 +63,47 @@ class CrowdToolState : public SampleToolState
 	float m_targetPos[3];
 	dtPolyRef m_targetRef;
 
-	dtCrowdAgentDebugInfo m_agentDebug;
+	dtCrowdAgentDebugInfo m_agentDebug{};
 	dtObstacleAvoidanceDebugData* m_vod;
 	
-	static const int AGENT_MAX_TRAIL = 64;
-	static const int MAX_AGENTS = 128;
+	static constexpr int AGENT_MAX_TRAIL = 64;
+	static constexpr int MAX_AGENTS = 128;
 	struct AgentTrail
 	{
 		float trail[AGENT_MAX_TRAIL*3];
 		int htrail;
 	};
-	AgentTrail m_trails[MAX_AGENTS];
+	AgentTrail m_trails[MAX_AGENTS]{};
 	
-	ValueHistory m_crowdTotalTime;
-	ValueHistory m_crowdSampleCount;
+	ValueHistory m_crowdTotalTime{};
+	ValueHistory m_crowdSampleCount{};
 
-	CrowdToolParams m_toolParams;
+	CrowdToolParams m_toolParams{};
 
 	bool m_run;
 
 public:
 	CrowdToolState();
-	virtual ~CrowdToolState();
-	
-	virtual void init(class Sample* sample);
-	virtual void reset();
-	virtual void handleRender();
-	virtual void handleRenderOverlay(double* proj, double* model, int* view);
-	virtual void handleUpdate(const float dt);
+	~CrowdToolState() override;
 
-	inline bool isRunning() const { return m_run; }
-	inline void setRunning(const bool s) { m_run = s; }
+	void init(Sample* sample) override;
+	void reset() override;
+	void handleRender() override;
+	void handleRenderOverlay(double* proj, double* model, int* view) override;
+	void handleUpdate(float dt) override;
+
+	bool isRunning() const { return m_run; }
+	void setRunning(const bool s) { m_run = s; }
 	
 	void addAgent(const float* pos);
-	void removeAgent(const int idx);
-	void hilightAgent(const int idx);
-	void updateAgentParams();
-	int hitTestAgents(const float* s, const float* p);
+	void removeAgent(int idx);
+	void hilightAgent(int idx);
+	void updateAgentParams()const;
+	int hitTestAgents(const float* s, const float* p)const;
 	void setMoveTarget(const float* p, bool adjust);
-	void updateTick(const float dt);
+	void updateTick(float dt);
 
-	inline CrowdToolParams* getToolParams() { return &m_toolParams; }
+	CrowdToolParams* getToolParams() { return &m_toolParams; }
 	
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.
@@ -112,7 +112,7 @@ private:
 };
 
 
-class CrowdTool : public SampleTool
+class CrowdTool final : public SampleTool
 {
 	Sample* m_sample;
 	CrowdToolState* m_state;
@@ -128,17 +128,17 @@ class CrowdTool : public SampleTool
 	
 public:
 	CrowdTool();
-	
-	virtual int type() { return TOOL_CROWD; }
-	virtual void init(Sample* sample);
-	virtual void reset();
-	virtual void handleMenu();
-	virtual void handleClick(const float* s, const float* p, bool shift);
-	virtual void handleToggle();
-	virtual void handleStep();
-	virtual void handleUpdate(const float dt);
-	virtual void handleRender();
-	virtual void handleRenderOverlay(double* proj, double* model, int* view);
+
+	int type() override { return TOOL_CROWD; }
+	void init(Sample* sample) override;
+	void reset() override;
+	void handleMenu() override;
+	void handleClick(const float* s, const float* p, bool shift) override;
+	void handleToggle() override;
+	void handleStep() override;
+	void handleUpdate(float dt) override;
+	void handleRender() override;
+	void handleRenderOverlay(double* proj, double* model, int* view) override;
 };
 
 #endif // CROWDTOOL_H

@@ -20,11 +20,9 @@
 #define RECASTSAMPLETILEMESH_H
 
 #include "Sample.h"
-#include "DetourNavMesh.h"
 #include "Recast.h"
-#include "ChunkyTriMesh.h"
 
-class Sample_TileMesh : public Sample
+class Sample_TileMesh final : public Sample
 {
 protected:
 	bool m_keepInterResults;
@@ -37,7 +35,7 @@ protected:
 	rcContourSet* m_cset;
 	rcPolyMesh* m_pmesh;
 	rcPolyMeshDetail* m_dmesh;
-	rcConfig m_cfg;	
+	rcConfig m_cfg{};
 	
 	enum DrawMode
 	{
@@ -69,13 +67,13 @@ protected:
 	float m_tileSize;
 	
 	unsigned int m_tileCol;
-	float m_lastBuiltTileBmin[3];
-	float m_lastBuiltTileBmax[3];
+	float m_lastBuiltTileBmin[3]{};
+	float m_lastBuiltTileBmax[3]{};
 	float m_tileBuildTime;
 	float m_tileMemUsage;
 	int m_tileTriCount;
 
-	unsigned char* buildTileMesh(const int tx, const int ty, const float* bmin, const float* bmax, int& dataSize);
+	unsigned char* buildTileMesh(int tx, int ty, const float* bmin, const float* bmax, int& dataSize);
 	
 	void cleanup();
 	
@@ -84,23 +82,23 @@ protected:
 	
 public:
 	Sample_TileMesh();
-	virtual ~Sample_TileMesh();
+	~Sample_TileMesh() override;
+
+	void handleSettings() override;
+	void handleTools() override;
+	void handleDebugMode() override;
+	void handleRender() override;
+	void handleRenderOverlay(double* proj, double* model, int* view) override;
+	void handleMeshChanged(InputGeom* geom) override;
+	bool handleBuild() override;
+	void collectSettings(BuildSettings& settings) override;
 	
-	virtual void handleSettings();
-	virtual void handleTools();
-	virtual void handleDebugMode();
-	virtual void handleRender();
-	virtual void handleRenderOverlay(double* proj, double* model, int* view);
-	virtual void handleMeshChanged(class InputGeom* geom);
-	virtual bool handleBuild();
-	virtual void collectSettings(struct BuildSettings& settings);
-	
-	void getTilePos(const float* pos, int& tx, int& ty);
+	void getTilePos(const float* pos, int& tx, int& ty)const;
 	
 	void buildTile(const float* pos);
 	void removeTile(const float* pos);
 	void buildAllTiles();
-	void removeAllTiles();
+	void removeAllTiles() const;
 
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.

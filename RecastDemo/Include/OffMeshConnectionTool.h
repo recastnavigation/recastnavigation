@@ -23,7 +23,7 @@
 
 // Tool to create off-mesh connection for InputGeom
 
-class OffMeshConnectionTool : public SampleTool
+class OffMeshConnectionTool final : public SampleTool
 {
 	Sample* m_sample;
 	float m_hitPos[3];
@@ -33,18 +33,18 @@ class OffMeshConnectionTool : public SampleTool
 	
 public:
 	OffMeshConnectionTool();
-	~OffMeshConnectionTool();
-	
-	virtual int type() { return TOOL_OFFMESH_CONNECTION; }
-	virtual void init(Sample* sample);
-	virtual void reset();
-	virtual void handleMenu();
-	virtual void handleClick(const float* s, const float* p, bool shift);
-	virtual void handleToggle();
-	virtual void handleStep();
-	virtual void handleUpdate(const float dt);
-	virtual void handleRender();
-	virtual void handleRenderOverlay(double* proj, double* model, int* view);
+	~OffMeshConnectionTool() override;
+
+	int type() override { return TOOL_OFFMESH_CONNECTION; }
+	void init(Sample* sample) override;
+	void reset() override;
+	void handleMenu() override;
+	void handleClick(const float* s, const float* p, bool shift) override;
+	void handleToggle() override;
+	void handleStep() override;
+	void handleUpdate(float dt) override;
+	void handleRender() override;
+	void handleRenderOverlay(double* proj, double* model, int* view) override;
 };
 
 #endif // OFFMESHCONNECTIONTOOL_H

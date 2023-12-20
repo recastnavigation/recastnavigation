@@ -21,22 +21,22 @@
 
 struct duFileIO
 {
-	virtual ~duFileIO();
+	virtual ~duFileIO() =default;
 	virtual bool isWriting() const = 0;
 	virtual bool isReading() const = 0;
-	virtual bool write(const void* ptr, const size_t size) = 0;
-	virtual bool read(void* ptr, const size_t size) = 0;
+	virtual bool write(const void* ptr, size_t size) = 0;
+	virtual bool read(void* ptr, size_t size) = 0;
 };
 
-bool duDumpPolyMeshToObj(struct rcPolyMesh& pmesh, duFileIO* io);
-bool duDumpPolyMeshDetailToObj(struct rcPolyMeshDetail& dmesh, duFileIO* io);
+bool duDumpPolyMeshToObj(const rcPolyMesh& pmesh, duFileIO* io);
+bool duDumpPolyMeshDetailToObj(const rcPolyMeshDetail& dmesh, duFileIO* io);
 
-bool duDumpContourSet(struct rcContourSet& cset, duFileIO* io);
-bool duReadContourSet(struct rcContourSet& cset, duFileIO* io);
+bool duDumpContourSet(const rcContourSet& cset, duFileIO* io);
+bool duReadContourSet(rcContourSet& cset, duFileIO* io);
 
-bool duDumpCompactHeightfield(struct rcCompactHeightfield& chf, duFileIO* io);
-bool duReadCompactHeightfield(struct rcCompactHeightfield& chf, duFileIO* io);
+bool duDumpCompactHeightfield(const rcCompactHeightfield& chf, duFileIO* io);
+bool duReadCompactHeightfield(rcCompactHeightfield& chf, duFileIO* io);
 
-void duLogBuildTimes(rcContext& ctx, const int totalTileUsec);
+void duLogBuildTimes(rcContext& ctx, int totalTimeUsec);
 
 #endif // RECAST_DUMP_H

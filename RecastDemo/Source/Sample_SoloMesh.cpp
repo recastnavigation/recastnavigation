@@ -16,9 +16,9 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <math.h>
-#include <stdio.h>
-#include <string.h>
+#include <cmath>
+#include <cstdio>
+#include <cstring>
 #include "SDL.h"
 #include "SDL_opengl.h"
 #include "imgui.h"
@@ -45,12 +45,12 @@
 Sample_SoloMesh::Sample_SoloMesh() :
 	m_keepInterResults(true),
 	m_totalBuildTimeMs(0),
-	m_triareas(0),
-	m_solid(0),
-	m_chf(0),
-	m_cset(0),
-	m_pmesh(0),
-	m_dmesh(0),
+	m_triareas(nullptr),
+	m_solid(nullptr),
+	m_chf(nullptr),
+	m_cset(nullptr),
+	m_pmesh(nullptr),
+	m_dmesh(nullptr),
 	m_drawMode(DRAWMODE_NAVMESH)
 {
 	setTool(new NavMeshTesterTool);
@@ -64,24 +64,24 @@ Sample_SoloMesh::~Sample_SoloMesh()
 void Sample_SoloMesh::cleanup()
 {
 	delete [] m_triareas;
-	m_triareas = 0;
+	m_triareas = nullptr;
 	rcFreeHeightField(m_solid);
-	m_solid = 0;
+	m_solid = nullptr;
 	rcFreeCompactHeightfield(m_chf);
-	m_chf = 0;
+	m_chf = nullptr;
 	rcFreeContourSet(m_cset);
-	m_cset = 0;
+	m_cset = nullptr;
 	rcFreePolyMesh(m_pmesh);
-	m_pmesh = 0;
+	m_pmesh = nullptr;
 	rcFreePolyMeshDetail(m_dmesh);
-	m_dmesh = 0;
+	m_dmesh = nullptr;
 	dtFreeNavMesh(m_navMesh);
-	m_navMesh = 0;
+	m_navMesh = nullptr;
 }
 
 void Sample_SoloMesh::handleSettings()
 {
-	Sample::handleCommonSettings();
+	handleCommonSettings();
 
 	if (imguiCheck("Keep Itermediate Results", m_keepInterResults))
 		m_keepInterResults = !m_keepInterResults;
@@ -93,13 +93,13 @@ void Sample_SoloMesh::handleSettings()
 
 	if (imguiButton("Save"))
 	{
-		Sample::saveAll("solo_navmesh.bin", m_navMesh);
+		saveAll("solo_navmesh.bin", m_navMesh);
 	}
 
 	if (imguiButton("Load"))
 	{
 		dtFreeNavMesh(m_navMesh);
-		m_navMesh = Sample::loadAll("solo_navmesh.bin");
+		m_navMesh = loadAll("solo_navmesh.bin");
 		m_navQuery->init(m_navMesh, 2048);
 	}
 
@@ -107,7 +107,7 @@ void Sample_SoloMesh::handleSettings()
 	imguiUnindent();
 	
 	char msg[64];
-	snprintf(msg, 64, "Build Time: %.1fms", m_totalBuildTimeMs);
+	_snprintf_s(msg, 64, "Build Time: %.1fms", m_totalBuildTimeMs);
 	imguiLabel(msg);
 
 	imguiSeparator();
@@ -115,7 +115,7 @@ void Sample_SoloMesh::handleSettings()
 
 void Sample_SoloMesh::handleTools()
 {
-	int type = !m_tool ? TOOL_NONE : m_tool->type();
+	const int type = !m_tool ? TOOL_NONE : m_tool->type();
 	
 	if (imguiCheck("Test Navmesh", type == TOOL_NAVMESH_TESTER))
 	{
@@ -153,33 +153,33 @@ void Sample_SoloMesh::handleDebugMode()
 {
 	// Check which modes are valid.
 	bool valid[MAX_DRAWMODE];
-	for (int i = 0; i < MAX_DRAWMODE; ++i)
-		valid[i] = false;
+	for (bool & i : valid)
+		i = false;
 
 	if (m_geom)
 	{
-		valid[DRAWMODE_NAVMESH] = m_navMesh != 0;
-		valid[DRAWMODE_NAVMESH_TRANS] = m_navMesh != 0;
-		valid[DRAWMODE_NAVMESH_BVTREE] = m_navMesh != 0;
-		valid[DRAWMODE_NAVMESH_NODES] = m_navQuery != 0;
-		valid[DRAWMODE_NAVMESH_INVIS] = m_navMesh != 0;
+		valid[DRAWMODE_NAVMESH] = m_navMesh != nullptr;
+		valid[DRAWMODE_NAVMESH_TRANS] = m_navMesh != nullptr;
+		valid[DRAWMODE_NAVMESH_BVTREE] = m_navMesh != nullptr;
+		valid[DRAWMODE_NAVMESH_NODES] = m_navQuery != nullptr;
+		valid[DRAWMODE_NAVMESH_INVIS] = m_navMesh != nullptr;
 		valid[DRAWMODE_MESH] = true;
-		valid[DRAWMODE_VOXELS] = m_solid != 0;
-		valid[DRAWMODE_VOXELS_WALKABLE] = m_solid != 0;
-		valid[DRAWMODE_COMPACT] = m_chf != 0;
-		valid[DRAWMODE_COMPACT_DISTANCE] = m_chf != 0;
-		valid[DRAWMODE_COMPACT_REGIONS] = m_chf != 0;
-		valid[DRAWMODE_REGION_CONNECTIONS] = m_cset != 0;
-		valid[DRAWMODE_RAW_CONTOURS] = m_cset != 0;
-		valid[DRAWMODE_BOTH_CONTOURS] = m_cset != 0;
-		valid[DRAWMODE_CONTOURS] = m_cset != 0;
-		valid[DRAWMODE_POLYMESH] = m_pmesh != 0;
-		valid[DRAWMODE_POLYMESH_DETAIL] = m_dmesh != 0;
+		valid[DRAWMODE_VOXELS] = m_solid != nullptr;
+		valid[DRAWMODE_VOXELS_WALKABLE] = m_solid != nullptr;
+		valid[DRAWMODE_COMPACT] = m_chf != nullptr;
+		valid[DRAWMODE_COMPACT_DISTANCE] = m_chf != nullptr;
+		valid[DRAWMODE_COMPACT_REGIONS] = m_chf != nullptr;
+		valid[DRAWMODE_REGION_CONNECTIONS] = m_cset != nullptr;
+		valid[DRAWMODE_RAW_CONTOURS] = m_cset != nullptr;
+		valid[DRAWMODE_BOTH_CONTOURS] = m_cset != nullptr;
+		valid[DRAWMODE_CONTOURS] = m_cset != nullptr;
+		valid[DRAWMODE_POLYMESH] = m_pmesh != nullptr;
+		valid[DRAWMODE_POLYMESH_DETAIL] = m_dmesh != nullptr;
 	}
 	
 	int unavail = 0;
-	for (int i = 0; i < MAX_DRAWMODE; ++i)
-		if (!valid[i]) unavail++;
+	for (const bool i : valid)
+		if (!i) unavail++;
 
 	if (unavail == MAX_DRAWMODE)
 		return;
@@ -350,12 +350,12 @@ void Sample_SoloMesh::handleRenderOverlay(double* proj, double* model, int* view
 	renderOverlayToolStates(proj, model, view);
 }
 
-void Sample_SoloMesh::handleMeshChanged(class InputGeom* geom)
+void Sample_SoloMesh::handleMeshChanged(InputGeom* geom)
 {
 	Sample::handleMeshChanged(geom);
 
 	dtFreeNavMesh(m_navMesh);
-	m_navMesh = 0;
+	m_navMesh = nullptr;
 
 	if (m_tool)
 	{
@@ -393,14 +393,14 @@ bool Sample_SoloMesh::handleBuild()
 	m_cfg.cs = m_cellSize;
 	m_cfg.ch = m_cellHeight;
 	m_cfg.walkableSlopeAngle = m_agentMaxSlope;
-	m_cfg.walkableHeight = (int)ceilf(m_agentHeight / m_cfg.ch);
-	m_cfg.walkableClimb = (int)floorf(m_agentMaxClimb / m_cfg.ch);
-	m_cfg.walkableRadius = (int)ceilf(m_agentRadius / m_cfg.cs);
-	m_cfg.maxEdgeLen = (int)(m_edgeMaxLen / m_cellSize);
+	m_cfg.walkableHeight = static_cast<int>(ceilf(m_agentHeight / m_cfg.ch));
+	m_cfg.walkableClimb = static_cast<int>(floorf(m_agentMaxClimb / m_cfg.ch));
+	m_cfg.walkableRadius = static_cast<int>(ceilf(m_agentRadius / m_cfg.cs));
+	m_cfg.maxEdgeLen = static_cast<int>(m_edgeMaxLen / m_cellSize);
 	m_cfg.maxSimplificationError = m_edgeMaxError;
-	m_cfg.minRegionArea = (int)rcSqr(m_regionMinSize);		// Note: area = size*size
-	m_cfg.mergeRegionArea = (int)rcSqr(m_regionMergeSize);	// Note: area = size*size
-	m_cfg.maxVertsPerPoly = (int)m_vertsPerPoly;
+	m_cfg.minRegionArea = static_cast<int>(rcSqr(m_regionMinSize));		// Note: area = size*size
+	m_cfg.mergeRegionArea = static_cast<int>(rcSqr(m_regionMergeSize));	// Note: area = size*size
+	m_cfg.maxVertsPerPoly = static_cast<int>(m_vertsPerPoly);
 	m_cfg.detailSampleDist = m_detailSampleDist < 0.9f ? 0 : m_cellSize * m_detailSampleDist;
 	m_cfg.detailSampleMaxError = m_cellHeight * m_detailSampleMaxError;
 	
@@ -419,7 +419,7 @@ bool Sample_SoloMesh::handleBuild()
 	
 	m_ctx->log(RC_LOG_PROGRESS, "Building navigation:");
 	m_ctx->log(RC_LOG_PROGRESS, " - %d x %d cells", m_cfg.width, m_cfg.height);
-	m_ctx->log(RC_LOG_PROGRESS, " - %.1fK verts, %.1fK tris", nverts/1000.0f, ntris/1000.0f);
+	m_ctx->log(RC_LOG_PROGRESS, " - %.1fK verts, %.1fK tris", static_cast<float>(nverts)/1000.0f, static_cast<float>(ntris)/1000.0f);
 	
 	//
 	// Step 2. Rasterize input polygon soup.
@@ -462,7 +462,7 @@ bool Sample_SoloMesh::handleBuild()
 	if (!m_keepInterResults)
 	{
 		delete [] m_triareas;
-		m_triareas = 0;
+		m_triareas = nullptr;
 	}
 	
 	//
@@ -502,7 +502,7 @@ bool Sample_SoloMesh::handleBuild()
 	if (!m_keepInterResults)
 	{
 		rcFreeHeightField(m_solid);
-		m_solid = 0;
+		m_solid = nullptr;
 	}
 		
 	// Erode the walkable area by agent radius.
@@ -515,7 +515,7 @@ bool Sample_SoloMesh::handleBuild()
 	// (Optional) Mark areas.
 	const ConvexVolume* vols = m_geom->getConvexVolumes();
 	for (int i  = 0; i < m_geom->getConvexVolumeCount(); ++i)
-		rcMarkConvexPolyArea(m_ctx, vols[i].verts, vols[i].nverts, vols[i].hmin, vols[i].hmax, (unsigned char)vols[i].area, *m_chf);
+		rcMarkConvexPolyArea(m_ctx, vols[i].verts, vols[i].nverts, vols[i].hmin, vols[i].hmax, static_cast<unsigned char>(vols[i].area), *m_chf);
 
 	
 	// Partition the heightfield so that we can use simple algorithm later to triangulate the walkable areas.
@@ -634,9 +634,9 @@ bool Sample_SoloMesh::handleBuild()
 	if (!m_keepInterResults)
 	{
 		rcFreeCompactHeightfield(m_chf);
-		m_chf = 0;
+		m_chf = nullptr;
 		rcFreeContourSet(m_cset);
-		m_cset = 0;
+		m_cset = nullptr;
 	}
 
 	// At this point the navigation mesh data is ready, you can access it from m_pmesh.
@@ -650,7 +650,7 @@ bool Sample_SoloMesh::handleBuild()
 	// Only build the detour navmesh if we do not exceed the limit.
 	if (m_cfg.maxVertsPerPoly <= DT_VERTS_PER_POLYGON)
 	{
-		unsigned char* navData = 0;
+		unsigned char* navData = nullptr;
 		int navDataSize = 0;
 
 		// Update poly flags from areas.
@@ -676,8 +676,7 @@ bool Sample_SoloMesh::handleBuild()
 		}
 
 
-		dtNavMeshCreateParams params;
-		memset(&params, 0, sizeof(params));
+		dtNavMeshCreateParams params = {};
 		params.verts = m_pmesh->verts;
 		params.vertCount = m_pmesh->nverts;
 		params.polys = m_pmesh->polys;
@@ -719,10 +718,8 @@ bool Sample_SoloMesh::handleBuild()
 			m_ctx->log(RC_LOG_ERROR, "Could not create Detour navmesh");
 			return false;
 		}
-		
-		dtStatus status;
-		
-		status = m_navMesh->init(navData, navDataSize, DT_TILE_FREE_DATA);
+
+		dtStatus status = m_navMesh->init(navData, navDataSize, DT_TILE_FREE_DATA);
 		if (dtStatusFailed(status))
 		{
 			dtFree(navData);
@@ -744,7 +741,7 @@ bool Sample_SoloMesh::handleBuild()
 	duLogBuildTimes(*m_ctx, m_ctx->getAccumulatedTime(RC_TIMER_TOTAL));
 	m_ctx->log(RC_LOG_PROGRESS, ">> Polymesh: %d vertices  %d polygons", m_pmesh->nverts, m_pmesh->npolys);
 	
-	m_totalBuildTimeMs = m_ctx->getAccumulatedTime(RC_TIMER_TOTAL)/1000.0f;
+	m_totalBuildTimeMs = static_cast<float>(m_ctx->getAccumulatedTime(RC_TIMER_TOTAL))/1000.0f;
 	
 	if (m_tool)
 		m_tool->init(this);

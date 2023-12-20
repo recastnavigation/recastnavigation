@@ -43,22 +43,22 @@ public:
 	dtProximityGrid();
 	~dtProximityGrid();
 	
-	bool init(const int poolSize, const float cellSize);
+	bool init(int poolSize, float cellSize);
 	
 	void clear();
 	
-	void addItem(const unsigned short id,
-				 const float minx, const float miny,
-				 const float maxx, const float maxy);
+	void addItem(unsigned short id,
+	             float minx, float miny,
+	             float maxx, float maxy);
 	
-	int queryItems(const float minx, const float miny,
-				   const float maxx, const float maxy,
-				   unsigned short* ids, const int maxIds) const;
+	int queryItems(float minx, float miny,
+	               float maxx, float maxy,
+	               unsigned short* ids, int maxIds) const;
 	
-	int getItemCountAt(const int x, const int y) const;
-	
-	inline const int* getBounds() const { return m_bounds; }
-	inline float getCellSize() const { return m_cellSize; }
+	int getItemCountAt(int x, int y) const;
+
+	const int* getBounds() const { return m_bounds; }
+	float getCellSize() const { return m_cellSize; }
 
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.
