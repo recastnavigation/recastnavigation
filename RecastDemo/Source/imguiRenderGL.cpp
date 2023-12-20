@@ -21,6 +21,7 @@
 #include "imgui.h"
 #include "SDL.h"
 #include "SDL_opengl.h"
+#include "imguiRenderGL.h"
 
 // Some math headers don't have PI defined.
 static const float PI = 3.14159265f;
@@ -278,7 +279,7 @@ bool imguiRenderGLInit(const char* fontpath)
 		return false;
 	}
 
-	fp = 0;
+	fp = RC_NULL;
 	
 	unsigned char* bmap = (unsigned char*)malloc(512*512);
 	if (!bmap)

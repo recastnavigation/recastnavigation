@@ -33,18 +33,18 @@ class OffMeshConnectionTool : public SampleTool
 	
 public:
 	OffMeshConnectionTool();
-	~OffMeshConnectionTool();
+	~OffMeshConnectionTool() RC_OVERRIDE;
 	
-	virtual int type() { return TOOL_OFFMESH_CONNECTION; }
-	virtual void init(Sample* sample);
-	virtual void reset();
-	virtual void handleMenu();
-	virtual void handleClick(const float* s, const float* p, bool shift);
-	virtual void handleToggle();
-	virtual void handleStep();
-	virtual void handleUpdate(const float dt);
-	virtual void handleRender();
-	virtual void handleRenderOverlay(double* proj, double* model, int* view);
+	virtual int type() RC_OVERRIDE { return TOOL_OFFMESH_CONNECTION; }
+	virtual void init(Sample* sample) RC_OVERRIDE;
+	virtual void reset() RC_OVERRIDE;
+	virtual void handleMenu() RC_OVERRIDE;
+	virtual void handleClick(const float* s, const float* p, bool shift) RC_OVERRIDE;
+	virtual void handleToggle() RC_OVERRIDE;
+	virtual void handleStep() RC_OVERRIDE;
+	virtual void handleUpdate(const float dt) RC_OVERRIDE;
+	virtual void handleRender() RC_OVERRIDE;
+	virtual void handleRenderOverlay(double* proj, double* model, int* view) RC_OVERRIDE;
 };
 
 #endif // OFFMESHCONNECTIONTOOL_H

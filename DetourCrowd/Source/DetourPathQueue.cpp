@@ -22,16 +22,17 @@
 #include "DetourNavMeshQuery.h"
 #include "DetourAlloc.h"
 #include "DetourCommon.h"
+#include "DetourModernCpp.h"
 
 
 dtPathQueue::dtPathQueue() :
 	m_nextHandle(1),
 	m_maxPathSize(0),
 	m_queueHead(0),
-	m_navquery(0)
+	m_navquery(DT_NULL)
 {
 	for (int i = 0; i < MAX_QUEUE; ++i)
-		m_queue[i].path = 0;
+		m_queue[i].path = DT_NULL;
 }
 
 dtPathQueue::~dtPathQueue()
@@ -42,11 +43,11 @@ dtPathQueue::~dtPathQueue()
 void dtPathQueue::purge()
 {
 	dtFreeNavMeshQuery(m_navquery);
-	m_navquery = 0;
+	m_navquery = DT_NULL;
 	for (int i = 0; i < MAX_QUEUE; ++i)
 	{
 		dtFree(m_queue[i].path);
-		m_queue[i].path = 0;
+		m_queue[i].path = DT_NULL;
 	}
 }
 

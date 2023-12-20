@@ -23,6 +23,7 @@
 #include "Recast.h"
 #include "RecastDump.h"
 #include "PerfTimer.h"
+#include "RecastModernCpp.h"
 
 // These are example implementations of various interfaces used in Recast and Detour.
 
@@ -52,12 +53,12 @@ public:
 protected:	
 	/// Virtual functions for custom implementations.
 	///@{
-	virtual void doResetLog();
-	virtual void doLog(const rcLogCategory category, const char* msg, const int len);
-	virtual void doResetTimers();
-	virtual void doStartTimer(const rcTimerLabel label);
-	virtual void doStopTimer(const rcTimerLabel label);
-	virtual int doGetAccumulatedTime(const rcTimerLabel label) const;
+	virtual void doResetLog() RC_OVERRIDE;
+	virtual void doLog(const rcLogCategory category, const char* msg, const int len) RC_OVERRIDE;
+	virtual void doResetTimers() RC_OVERRIDE;
+	virtual void doStartTimer(const rcTimerLabel label) RC_OVERRIDE;
+	virtual void doStopTimer(const rcTimerLabel label) RC_OVERRIDE;
+	virtual int doGetAccumulatedTime(const rcTimerLabel label) const RC_OVERRIDE;
 	///@}
 };
 
@@ -65,14 +66,14 @@ protected:
 class DebugDrawGL : public duDebugDraw
 {
 public:
-	virtual void depthMask(bool state);
-	virtual void texture(bool state);
-	virtual void begin(duDebugDrawPrimitives prim, float size = 1.0f);
-	virtual void vertex(const float* pos, unsigned int color);
-	virtual void vertex(const float x, const float y, const float z, unsigned int color);
-	virtual void vertex(const float* pos, unsigned int color, const float* uv);
-	virtual void vertex(const float x, const float y, const float z, unsigned int color, const float u, const float v);
-	virtual void end();
+	virtual void depthMask(bool state) RC_OVERRIDE;
+	virtual void texture(bool state) RC_OVERRIDE;
+	virtual void begin(duDebugDrawPrimitives prim, float size = 1.0f) RC_OVERRIDE;
+	virtual void vertex(const float* pos, unsigned int color) RC_OVERRIDE;
+	virtual void vertex(const float x, const float y, const float z, unsigned int color) RC_OVERRIDE;
+	virtual void vertex(const float* pos, unsigned int color, const float* uv) RC_OVERRIDE;
+	virtual void vertex(const float x, const float y, const float z, unsigned int color, const float u, const float v) RC_OVERRIDE;
+	virtual void end() RC_OVERRIDE;
 };
 
 /// stdio file implementation.
@@ -82,13 +83,13 @@ class FileIO : public duFileIO
 	int m_mode;
 public:
 	FileIO();
-	virtual ~FileIO();
+	virtual ~FileIO() RC_OVERRIDE;
 	bool openForWrite(const char* path);
 	bool openForRead(const char* path);
-	virtual bool isWriting() const;
-	virtual bool isReading() const;
-	virtual bool write(const void* ptr, const size_t size);
-	virtual bool read(void* ptr, const size_t size);
+	virtual bool isWriting() const RC_OVERRIDE;
+	virtual bool isReading() const RC_OVERRIDE;
+	virtual bool write(const void* ptr, const size_t size) RC_OVERRIDE;
+	virtual bool read(void* ptr, const size_t size) RC_OVERRIDE;
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.
 	FileIO(const FileIO&);

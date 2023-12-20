@@ -95,9 +95,9 @@ static void getAgentBounds(const dtCrowdAgent* ag, float* bmin, float* bmax)
 }
 
 CrowdToolState::CrowdToolState() :
-	m_sample(0),
-	m_nav(0),
-	m_crowd(0),
+	m_sample(RC_NULL),
+	m_nav(RC_NULL),
+	m_crowd(RC_NULL),
 	m_targetRef(0),
 	m_run(true)
 {
@@ -858,8 +858,8 @@ void CrowdToolState::updateTick(const float dt)
 
 
 CrowdTool::CrowdTool() :
-	m_sample(0),
-	m_state(0),
+	m_sample(RC_NULL),
+	m_state(RC_NULL),
 	m_mode(TOOLMODE_CREATE)
 {
 }
@@ -904,7 +904,7 @@ void CrowdTool::handleMenu()
 	
 	imguiSeparatorLine();
 		
-	if (imguiCollapse("Options", 0, params->m_expandOptions))
+	if (imguiCollapse("Options", RC_NULL, params->m_expandOptions))
 		params->m_expandOptions = !params->m_expandOptions;
 	
 	if (params->m_expandOptions)
@@ -947,7 +947,7 @@ void CrowdTool::handleMenu()
 		imguiUnindent();
 	}
 
-	if (imguiCollapse("Selected Debug Draw", 0, params->m_expandSelectedDebugDraw))
+	if (imguiCollapse("Selected Debug Draw", RC_NULL, params->m_expandSelectedDebugDraw))
 		params->m_expandSelectedDebugDraw = !params->m_expandSelectedDebugDraw;
 		
 	if (params->m_expandSelectedDebugDraw)
@@ -968,7 +968,7 @@ void CrowdTool::handleMenu()
 		imguiUnindent();
 	}
 		
-	if (imguiCollapse("Debug Draw", 0, params->m_expandDebugDraw))
+	if (imguiCollapse("Debug Draw", RC_NULL, params->m_expandDebugDraw))
 		params->m_expandDebugDraw = !params->m_expandDebugDraw;
 	
 	if (params->m_expandDebugDraw)

@@ -52,7 +52,7 @@ class NavmeshFlags
 
 public:
 	NavmeshFlags() :
-		m_nav(0), m_tiles(0), m_ntiles(0)
+		m_nav(RC_NULL), m_tiles(RC_NULL), m_ntiles(0)
 	{
 	}
 	
@@ -147,8 +147,8 @@ static void floodNavmesh(dtNavMesh* nav, NavmeshFlags* flags, dtPolyRef start, u
 
 		// Get current poly and tile.
 		// The API input has been checked already, skip checking internal data.
-		const dtMeshTile* tile = 0;
-		const dtPoly* poly = 0;
+		const dtMeshTile* tile = RC_NULL;
+		const dtPoly* poly = RC_NULL;
 		nav->getTileAndPolyByRefUnsafe(ref, &tile, &poly);
 
 		// Visit linked polygons.
@@ -187,8 +187,8 @@ static void disableUnvisitedPolys(dtNavMesh* nav, NavmeshFlags* flags)
 }
 
 NavMeshPruneTool::NavMeshPruneTool() :
-	m_sample(0),
-	m_flags(0),
+	m_sample(RC_NULL),
+	m_flags(RC_NULL),
 	m_hitPosSet(false)
 {
 }
@@ -207,7 +207,7 @@ void NavMeshPruneTool::reset()
 {
 	m_hitPosSet = false;
 	delete m_flags;
-	m_flags = 0;
+	m_flags = RC_NULL;
 }
 
 void NavMeshPruneTool::handleMenu()
@@ -225,7 +225,7 @@ void NavMeshPruneTool::handleMenu()
 	{
 		disableUnvisitedPolys(nav, m_flags);
 		delete m_flags;
-		m_flags = 0;
+		m_flags = RC_NULL;
 	}
 }
 
@@ -254,7 +254,7 @@ void NavMeshPruneTool::handleClick(const float* s, const float* p, bool shift)
 	const float halfExtents[3] = { 2, 4, 2 };
 	dtQueryFilter filter;
 	dtPolyRef ref = 0;
-	query->findNearestPoly(p, halfExtents, &filter, &ref, 0);
+	query->findNearestPoly(p, halfExtents, &filter, &ref, RC_NULL);
 
 	floodNavmesh(nav, m_flags, ref, 1);
 }

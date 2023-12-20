@@ -74,7 +74,7 @@ static bool pointInPoly(int numVerts, const float* verts, const float* point)
 
 bool rcErodeWalkableArea(rcContext* context, const int erosionRadius, rcCompactHeightfield& compactHeightfield)
 {
-	rcAssert(context != NULL);
+	rcAssert(context != RC_NULL);
 
 	const int xSize = compactHeightfield.width;
 	const int zSize = compactHeightfield.height;

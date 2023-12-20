@@ -40,7 +40,7 @@
 #endif
 
 OffMeshConnectionTool::OffMeshConnectionTool() :
-	m_sample(0),
+	m_sample(RC_NULL),
 	m_hitPosSet(0),
 	m_bidir(true),
 	m_oldFlags(0)
