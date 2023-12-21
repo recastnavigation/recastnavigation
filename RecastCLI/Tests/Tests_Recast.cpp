@@ -38,8 +38,8 @@ TEST_CASE("Watershed")
     rcConfig config{};
     config.ch = cellHeight;
     config.walkableSlopeAngle = agentMaxSlope;
-    config.walkableHeight = static_cast<int>(ceilf(agentHeight / config.ch));
-    config.walkableClimb = static_cast<int>(floorf(agentMaxClimb / config.ch));
+    config.walkableHeight = static_cast<int>(std::ceil(agentHeight / config.ch));
+    config.walkableClimb = static_cast<int>(std::floor(agentMaxClimb / config.ch));
     config.maxSimplificationError = edgeMaxError;
     config.maxVertsPerPoly = static_cast<int>(vertsPerPoly);
     config.detailSampleMaxError = cellHeight * detailSampleMaxError;
@@ -62,7 +62,7 @@ TEST_CASE("Watershed")
 
         config.cs = cellS;
         config.maxEdgeLen = static_cast<int>(edgeMaxLen / cellS);
-        config.walkableRadius = static_cast<int>(ceilf(agentR / config.cs));
+        config.walkableRadius = static_cast<int>(std::ceil(agentR / config.cs));
         config.minRegionArea = static_cast<int>(rcSqr(minS));
         config.mergeRegionArea = static_cast<int>(rcSqr(mergeS));
         config.detailSampleDist = cellS * detailSampleDist;

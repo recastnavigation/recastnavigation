@@ -650,7 +650,7 @@ int main(int /*argc*/, char** /*argv*/)
 				// Reset camera and fog to match the mesh bounds.
 				if (bmin && bmax)
 				{
-					camr = sqrtf(rcSqr(bmax[0]-bmin[0]) +
+					camr = std::sqrt(rcSqr(bmax[0]-bmin[0]) +
 								 rcSqr(bmax[1]-bmin[1]) +
 								 rcSqr(bmax[2]-bmin[2]));
 					cameraPos[0] = (bmax[0] + bmin[0]) / 2 /*+ camr*/;
@@ -728,7 +728,7 @@ int main(int /*argc*/, char** /*argv*/)
 					// Reset camera and fog to match the mesh bounds.
 					if (bmin && bmax)
 					{
-						camr = sqrtf(rcSqr(bmax[0]-bmin[0]) +
+						camr = std::sqrt(rcSqr(bmax[0]-bmin[0]) +
 									 rcSqr(bmax[1]-bmin[1]) +
 									 rcSqr(bmax[2]-bmin[2]));
 						cameraPos[0] = (bmax[0] + bmin[0]) / 2 /*+ camr*/;
@@ -844,7 +844,7 @@ int main(int /*argc*/, char** /*argv*/)
 						// Reset camera and fog to match the mesh bounds.
 						if (bmin && bmax)
 						{
-							camr = sqrtf(rcSqr(bmax[0] - bmin[0]) +
+							camr = std::sqrt(rcSqr(bmax[0] - bmin[0]) +
 										 rcSqr(bmax[1] - bmin[1]) +
 										 rcSqr(bmax[2] - bmin[2])) / 2;
 							cameraPos[0] = (bmax[0] + bmin[0]) / 2 + camr;

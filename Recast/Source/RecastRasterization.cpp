@@ -15,7 +15,7 @@
 //    misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 //
-
+#include <cmath>
 #include "Recast.h"
 #include "RecastAlloc.h"
 #include "RecastAssert.h"
@@ -440,8 +440,8 @@ static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
 			}
 
 			// Snap the span to the heightfield height grid.
-			const auto spanMinCellIndex = static_cast<unsigned short>(rcClamp(static_cast<int>(floorf(spanMin * inverseCellHeight)), 0, RC_SPAN_MAX_HEIGHT));
-			const auto spanMaxCellIndex = static_cast<unsigned short>(rcClamp(static_cast<int>(ceilf(spanMax * inverseCellHeight)), static_cast<int>(spanMinCellIndex) + 1,
+			const auto spanMinCellIndex = static_cast<unsigned short>(rcClamp(static_cast<int>(std::floor(spanMin * inverseCellHeight)), 0, RC_SPAN_MAX_HEIGHT));
+			const auto spanMaxCellIndex = static_cast<unsigned short>(rcClamp(static_cast<int>(std::ceil(spanMax * inverseCellHeight)), static_cast<int>(spanMinCellIndex) + 1,
 				RC_SPAN_MAX_HEIGHT));
 
 			if (!addSpan(heightfield, x, z, spanMinCellIndex, spanMaxCellIndex, areaID, flagMergeThreshold))

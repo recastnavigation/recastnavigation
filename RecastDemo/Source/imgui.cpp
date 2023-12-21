@@ -592,7 +592,7 @@ bool imguiSlider(const char* text, float* val, const float vmin, const float vma
 			if (u < 0) u = 0;
 			if (u > 1) u = 1;
 			*val = vmin + u*(vmax-vmin);
-			*val = floorf(*val/vinc+0.5f)*vinc; // Snap to vinc
+			*val = std::floor(*val/vinc+0.5f)*vinc; // Snap to vinc
 			m = static_cast<int>(u * static_cast<float>(range));
 			valChanged = true;
 		}
@@ -604,7 +604,7 @@ bool imguiSlider(const char* text, float* val, const float vmin, const float vma
 		addGfxCmdRoundedRect(static_cast<float>(x + m), static_cast<float>(y), static_cast<float>(SLIDER_MARKER_WIDTH), static_cast<float>(SLIDER_HEIGHT), 4.0f, isHot(id) ? imguiRGBA(255,196,0,128) : imguiRGBA(255,255,255,64));
 
 	// TODO: fix this, take a look at 'nicenum'.
-	const int digits = static_cast<int>(ceilf(log10f(vinc)));
+	const int digits = static_cast<int>(std::ceil(log10f(vinc)));
 	char fmt[16];
 	_snprintf_s(fmt, 16, "%%.%df", digits >= 0 ? 0 : -digits);
 	char msg[128];

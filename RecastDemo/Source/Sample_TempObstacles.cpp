@@ -68,7 +68,7 @@ static bool isectSegAABB(const float* sp, const float* sq,
     // For all three slabs
     for (int i = 0; i < 3; i++)
     {
-        if (fabsf(d[i]) < EPS)
+        if (std::abs(d[i]) < EPS)
         {
             // Ray is parallel to slab. No hit if origin not within slab
             if (sp[i] < amin[i] || sp[i] > amax[i])
@@ -1233,9 +1233,9 @@ bool Sample_TempObstacles::handleBuild()
     cfg.cs = m_cellSize;
     cfg.ch = m_cellHeight;
     cfg.walkableSlopeAngle = m_agentMaxSlope;
-    cfg.walkableHeight = static_cast<int>(ceilf(m_agentHeight / cfg.ch));
-    cfg.walkableClimb = static_cast<int>(floorf(m_agentMaxClimb / cfg.ch));
-    cfg.walkableRadius = static_cast<int>(ceilf(m_agentRadius / cfg.cs));
+    cfg.walkableHeight = static_cast<int>(std::ceil(m_agentHeight / cfg.ch));
+    cfg.walkableClimb = static_cast<int>(std::floor(m_agentMaxClimb / cfg.ch));
+    cfg.walkableRadius = static_cast<int>(std::ceil(m_agentRadius / cfg.cs));
     cfg.maxEdgeLen = static_cast<int>(m_edgeMaxLen / m_cellSize);
     cfg.maxSimplificationError = m_edgeMaxError;
     cfg.minRegionArea = static_cast<int>(rcSqr(m_regionMinSize)); // Note: area = size*size

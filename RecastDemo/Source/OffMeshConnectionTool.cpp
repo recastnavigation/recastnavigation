@@ -17,6 +17,7 @@
 //
 
 #include <cfloat>
+#include <cmath>
 #include "SDL.h"
 #include "SDL_opengl.h"
 #ifdef __APPLE__
@@ -99,7 +100,7 @@ void OffMeshConnectionTool::handleClick(const float* /*s*/, const float* p, cons
 		}
 		// If end point close enough, delete it.
 		if (nearestIndex != -1 &&
-			sqrtf(nearestDist) < m_sample->getAgentRadius())
+			std::sqrt(nearestDist) < m_sample->getAgentRadius())
 		{
 			geom->deleteOffMeshConnection(nearestIndex);
 		}
