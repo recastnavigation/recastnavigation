@@ -769,9 +769,9 @@ static bool removeVertex(rcContext* ctx, rcPolyMesh& mesh, const unsigned short 
 
 	// Start with one vertex, keep appending connected
 	// segments to the start and end of the hole.
-	pushBack(edges[0], hole, nhole);
-	pushBack(edges[2], hreg, nhreg);
-	pushBack(edges[3], harea, nharea);
+	pushBack(edges[0], static_cast<int*>(hole), nhole);
+	pushBack(edges[2], static_cast<int*>(hreg), nhreg);
+	pushBack(edges[3], static_cast<int*>(harea), nharea);
 	
 	while (nedges)
 	{
@@ -787,17 +787,17 @@ static bool removeVertex(rcContext* ctx, rcPolyMesh& mesh, const unsigned short 
 			if (hole[0] == eb)
 			{
 				// The segment matches the beginning of the hole boundary.
-				pushFront(ea, hole, nhole);
-				pushFront(r, hreg, nhreg);
-				pushFront(a, harea, nharea);
+				pushFront(ea, static_cast<int*>(hole), nhole);
+				pushFront(r, static_cast<int*>(hreg), nhreg);
+				pushFront(a, static_cast<int*>(harea), nharea);
 				add = true;
 			}
 			else if (hole[nhole-1] == ea)
 			{
 				// The segment matches the end of the hole boundary.
-				pushBack(eb, hole, nhole);
-				pushBack(r, hreg, nhreg);
-				pushBack(a, harea, nharea);
+				pushBack(eb, static_cast<int*>(hole), nhole);
+				pushBack(r, static_cast<int*>(hreg), nhreg);
+				pushBack(a, static_cast<int*>(harea), nharea);
 				add = true;
 			}
 			if (add)
@@ -850,7 +850,7 @@ static bool removeVertex(rcContext* ctx, rcPolyMesh& mesh, const unsigned short 
 	}
 
 	// Triangulate the hole.
-	int ntris = triangulate(nhole, &tverts[0], &thole[0], tris);
+	int ntris = triangulate(nhole, &tverts[0], &thole[0], static_cast<int*>(tris));
 	if (ntris < 0)
 	{
 		ntris = -ntris;
@@ -881,7 +881,7 @@ static bool removeVertex(rcContext* ctx, rcPolyMesh& mesh, const unsigned short 
 			
 	// Build initial polygons.
 	int npolys = 0;
-	memset(polys, 0xff, ntris*nvp*sizeof(unsigned short));
+	memset(static_cast<void*>(polys), 0xff, ntris*nvp*sizeof(unsigned short));
 	for (int j = 0; j < ntris; ++j)
 	{
 		int* t = &tris[j*3];
@@ -1021,7 +1021,7 @@ bool rcBuildPolyMesh(rcContext* ctx, const rcContourSet& cset, const int nvp, rc
 		ctx->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'vflags' (%d).", maxVertices);
 		return false;
 	}
-	memset(vflags, 0, maxVertices);
+	memset(static_cast<void*>(vflags), 0, maxVertices);
 	
 	mesh.verts = static_cast<unsigned short*>(rcAlloc(sizeof(unsigned short) * maxVertices * 3, RC_ALLOC_PERM));
 	if (!mesh.verts)
@@ -1064,7 +1064,7 @@ bool rcBuildPolyMesh(rcContext* ctx, const rcContourSet& cset, const int nvp, rc
 		ctx->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'nextVert' (%d).", maxVertices);
 		return false;
 	}
-	memset(nextVert, 0, sizeof(int)*maxVertices);
+	memset(static_cast<void*>(nextVert), 0, sizeof(int)*maxVertices);
 	
 	rcScopedDelete<int> firstVert(static_cast<int*>(rcAlloc(sizeof(int) * VERTEX_BUCKET_COUNT, RC_ALLOC_TEMP)));
 	if (!firstVert)
@@ -1130,7 +1130,7 @@ bool rcBuildPolyMesh(rcContext* ctx, const rcContourSet& cset, const int nvp, rc
 		{
 			const int* v = &cont.verts[j*4];
 			indices[j] = addVertex(static_cast<unsigned short>(v[0]), static_cast<unsigned short>(v[1]), static_cast<unsigned short>(v[2]),
-								   mesh.verts, firstVert, nextVert, mesh.nverts);
+								   mesh.verts, static_cast<int*>(firstVert), static_cast<int*>(nextVert), mesh.nverts);
 			if (v[3] & RC_BORDER_VERTEX)
 			{
 				// This vertex should be removed.
@@ -1140,7 +1140,7 @@ bool rcBuildPolyMesh(rcContext* ctx, const rcContourSet& cset, const int nvp, rc
 
 		// Build initial polygons.
 		int npolys = 0;
-		memset(polys, 0xff, maxVertsPerCont*nvp*sizeof(unsigned short));
+		memset(static_cast<void*>(polys), 0xff, maxVertsPerCont*nvp*sizeof(unsigned short));
 		for (int j = 0; j < ntris; ++j)
 		{
 			int* t = &tris[j*3];
@@ -1345,7 +1345,7 @@ bool rcBuildPolyMeshWithSize(rcContext* ctx, const rcContourSet& cset, const int
     ctx->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'vflags' (%d).", maxVertices);
     return false;
   }
-  memset(vflags, 0, maxVertices);
+  memset(static_cast<void*>(vflags), 0, maxVertices);
 
   mesh.verts = static_cast<unsigned short*>(rcAlloc(sizeof(unsigned short) * maxVertices * 3, RC_ALLOC_PERM));
   if (!mesh.verts)
@@ -1395,7 +1395,7 @@ bool rcBuildPolyMeshWithSize(rcContext* ctx, const rcContourSet& cset, const int
     ctx->log(RC_LOG_ERROR, "rcBuildPolyMesh: Out of memory 'nextVert' (%d).", maxVertices);
     return false;
   }
-  memset(nextVert, 0, sizeof(int)*maxVertices);
+  memset(static_cast<void*>(nextVert), 0, sizeof(int)*maxVertices);
 
   rcScopedDelete<int> firstVert(static_cast<int*>(rcAlloc(sizeof(int) * VERTEX_BUCKET_COUNT, RC_ALLOC_TEMP)));
   if (!firstVert)
@@ -1461,7 +1461,7 @@ bool rcBuildPolyMeshWithSize(rcContext* ctx, const rcContourSet& cset, const int
     {
       const int* v = &cont.verts[j*4];
       indices[j] = addVertex(static_cast<unsigned short>(v[0]), static_cast<unsigned short>(v[1]), static_cast<unsigned short>(v[2]),
-                             mesh.verts, firstVert, nextVert, mesh.nverts);
+                             mesh.verts, static_cast<int*>(firstVert), static_cast<int*>(nextVert), mesh.nverts);
       if (v[3] & RC_BORDER_VERTEX)
       {
         // This vertex should be removed.
@@ -1471,7 +1471,7 @@ bool rcBuildPolyMeshWithSize(rcContext* ctx, const rcContourSet& cset, const int
 
     // Build initial polygons.
     int npolys = 0;
-    memset(polys, 0xff, maxVertsPerCont*nvp*sizeof(unsigned short));
+    memset(static_cast<void*>(polys), 0xff, maxVertsPerCont*nvp*sizeof(unsigned short));
     for (int j = 0; j < ntris; ++j)
     {
       int* t = &tris[j*3];
@@ -1702,14 +1702,14 @@ bool rcMergePolyMeshes(rcContext* ctx, rcPolyMesh** meshes, const int nmeshes, r
 		return false;
 	}
 	memset(mesh.flags, 0, sizeof(unsigned short)*maxPolys);
-	
-	rcScopedDelete<int> nextVert(static_cast<int*>(rcAlloc(sizeof(int) * maxVerts, RC_ALLOC_TEMP)));
+
+	const rcScopedDelete<int> nextVert(static_cast<int*>(rcAlloc(sizeof(int) * maxVerts, RC_ALLOC_TEMP)));
 	if (!nextVert)
 	{
 		ctx->log(RC_LOG_ERROR, "rcMergePolyMeshes: Out of memory 'nextVert' (%d).", maxVerts);
 		return false;
 	}
-	memset(nextVert, 0, sizeof(int)*maxVerts);
+	memset(static_cast<void*>(nextVert), 0, sizeof(int)*maxVerts);
 	
 	rcScopedDelete<int> firstVert(static_cast<int*>(rcAlloc(sizeof(int) * VERTEX_BUCKET_COUNT, RC_ALLOC_TEMP)));
 	if (!firstVert)
@@ -1726,7 +1726,7 @@ bool rcMergePolyMeshes(rcContext* ctx, rcPolyMesh** meshes, const int nmeshes, r
 		ctx->log(RC_LOG_ERROR, "rcMergePolyMeshes: Out of memory 'vremap' (%d).", maxVertsPerMesh);
 		return false;
 	}
-	memset(vremap, 0, sizeof(unsigned short)*maxVertsPerMesh);
+	memset(static_cast<void*>(vremap), 0, sizeof(unsigned short)*maxVertsPerMesh);
 	
 	for (int i = 0; i < nmeshes; ++i)
 	{
@@ -1745,7 +1745,7 @@ bool rcMergePolyMeshes(rcContext* ctx, rcPolyMesh** meshes, const int nmeshes, r
 		{
 			const unsigned short* v = &pmesh->verts[j*3];
 			vremap[j] = addVertex(v[0]+ox, v[1], v[2]+oz,
-								  mesh.verts, firstVert, nextVert, mesh.nverts);
+								  mesh.verts, static_cast<int*>(firstVert), static_cast<int*>(nextVert), mesh.nverts);
 		}
 		
 		for (int j = 0; j < pmesh->npolys; ++j)

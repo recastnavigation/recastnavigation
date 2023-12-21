@@ -768,7 +768,7 @@ static void mergeRegionHoles(rcContext* ctx, const rcContourRegion& region)
 				}
 			}
 			// Sort potential diagonals by distance, we want to make the connection as short as possible.
-			qsort(diags, ndiags, sizeof(rcPotentialDiagonal), compareDiagDist);
+			qsort(static_cast<void*>(diags), ndiags, sizeof(rcPotentialDiagonal), compareDiagDist);
 			
 			// Find a diagonal that is not intersecting the outline not the remaining holes.
 			index = -1;
@@ -921,7 +921,7 @@ bool rcBuildContours(rcContext* ctx, const rcCompactHeightfield& chf,
 				simplified.clear();
 				
 				ctx->startTimer(RC_TIMER_BUILD_CONTOURS_TRACE);
-				walkContour(x, y, i, chf, flags, verts);
+				walkContour(x, y, i, chf, static_cast<unsigned char*>(flags), verts);
 				ctx->stopTimer(RC_TIMER_BUILD_CONTOURS_TRACE);
 				
 				ctx->startTimer(RC_TIMER_BUILD_CONTOURS_SIMPLIFY);
@@ -1032,7 +1032,7 @@ bool rcBuildContours(rcContext* ctx, const rcCompactHeightfield& chf,
 				ctx->log(RC_LOG_ERROR, "rcBuildContours: Out of memory 'regions' (%d).", nregions);
 				return false;
 			}
-			memset(regions, 0, sizeof(rcContourRegion)*nregions);
+			memset(static_cast<void*>(regions), 0, sizeof(rcContourRegion)*nregions);
 			
 			rcScopedDelete<rcContourHole> holes(static_cast<rcContourHole*>(rcAlloc(sizeof(rcContourHole) * cset.nconts, RC_ALLOC_TEMP)));
 			if (!holes)
@@ -1040,7 +1040,7 @@ bool rcBuildContours(rcContext* ctx, const rcCompactHeightfield& chf,
 				ctx->log(RC_LOG_ERROR, "rcBuildContours: Out of memory 'holes' (%d).", cset.nconts);
 				return false;
 			}
-			memset(holes, 0, sizeof(rcContourHole)*cset.nconts);
+			memset(static_cast<void*>(holes), 0, sizeof(rcContourHole)*cset.nconts);
 			
 			for (int i = 0; i < cset.nconts; ++i)
 			{
@@ -1216,7 +1216,7 @@ bool rcBuildContoursWithSize(rcContext* ctx, const rcCompactHeightfield& chf,
         simplified.clear();
 
         ctx->startTimer(RC_TIMER_BUILD_CONTOURS_TRACE);
-        walkContour(x, y, i, chf, flags, verts);
+        walkContour(x, y, i, chf, static_cast<unsigned char*>(flags), verts);
         ctx->stopTimer(RC_TIMER_BUILD_CONTOURS_TRACE);
 
         ctx->startTimer(RC_TIMER_BUILD_CONTOURS_SIMPLIFY);
@@ -1328,7 +1328,7 @@ bool rcBuildContoursWithSize(rcContext* ctx, const rcCompactHeightfield& chf,
         ctx->log(RC_LOG_ERROR, "rcBuildContours: Out of memory 'regions' (%d).", nregions);
         return false;
       }
-      memset(regions, 0, sizeof(rcContourRegion)*nregions);
+      memset(static_cast<void*>(regions), 0, sizeof(rcContourRegion)*nregions);
 
       rcScopedDelete<rcContourHole> holes(static_cast<rcContourHole*>(rcAlloc(sizeof(rcContourHole) * cset.nconts, RC_ALLOC_TEMP)));
       if (!holes)
@@ -1336,7 +1336,7 @@ bool rcBuildContoursWithSize(rcContext* ctx, const rcCompactHeightfield& chf,
         ctx->log(RC_LOG_ERROR, "rcBuildContours: Out of memory 'holes' (%d).", cset.nconts);
         return false;
       }
-      memset(holes, 0, sizeof(rcContourHole)*cset.nconts);
+      memset(static_cast<void*>(holes), 0, sizeof(rcContourHole)*cset.nconts);
 
       for (int i = 0; i < cset.nconts; ++i)
       {
