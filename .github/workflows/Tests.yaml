@@ -102,8 +102,8 @@ jobs:
 
     - name: Build
       working-directory: RecastDemo/Build/vs2022
-      run: msbuild Tests.vcxproj -property:Configuration=Debug
+      run: msbuild TestsLCI.vcxproj -property:Configuration=Debug
 
     - name: Run Tests
       working-directory: RecastDemo/Bin/
-      run: ./Tests.exe --verbosity high --success
+      run: ./TestsCLI.exe --verbosity high --success
