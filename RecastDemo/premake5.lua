@@ -19,7 +19,7 @@ workspace "recastnavigation"
 	rtti "Off"
 	symbols "On"
 	flags { "FatalCompileWarnings" }
-	cppdialect "C++98"
+	cppdialect "C++17"
 
 	-- debug configs
 	filter "configurations:Debug"
