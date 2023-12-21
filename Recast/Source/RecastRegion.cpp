@@ -1055,13 +1055,8 @@ static bool mergeAndFilterLayerRegions(rcContext* ctx, const int minRegionArea,
     const int w = chf.width;
     const int h = chf.height;
 
-			lregs.clear();
-			
-			for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
-			{
-				const rcCompactSpan& s = chf.spans[i];
-				const unsigned char area = chf.areas[i];
-				reg.areaType = area;
+    const int nreg = maxRegionId + 1;
+    rcTempVector<rcRegion> regions;
 
     // Construct regions
     if (!regions.reserve(nreg))
@@ -1089,28 +1084,7 @@ static bool mergeAndFilterLayerRegions(rcContext* ctx, const int minRegionArea,
                 if (ri == 0 || ri >= nreg) continue;
                 rcRegion& reg = regions[ri];
 
-		stack.clear();
-		stack.push(i);
-		
-		while (stack.size() > 0)
-		{
-			// Pop front
-			rcRegion& reg = regions[stack[0]];
-			for (int j = 0; j < stack.size()-1; ++j)
-				stack[j] = stack[j+1];
-			stack.resize(stack.size()-1);
-			
-			const int ncons = (int)reg.connections.size();
-			for (int j = 0; j < ncons; ++j)
-			{
-				const int nei = reg.connections[j];
-				rcRegion& regn = regions[nei];
-				// Skip already visited.
-				if (regn.id != 0)
-					continue;
-				// Skip if different area type, do not connect regions with different area type.
-				if (reg.areaType != regn.areaType)
-					continue;
+                reg.spanCount++;
 
                 reg.ymin = rcMin(reg.ymin, s.y);
                 reg.ymax = rcMax(reg.ymax, s.y);
