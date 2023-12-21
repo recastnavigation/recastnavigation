@@ -2004,12 +2004,12 @@ dtStatus dtMarkBoxArea(const dtTileCacheLayer& layer, const float* orig, const f
 	const float ics = 1.0f/cs;
 	const float ich = 1.0f/ch;
 
-	int minx = static_cast<int>(floorf((bmin[0] - orig[0]) * ics));
-	const int miny = static_cast<int>(floorf((bmin[1] - orig[1]) * ich));
-	int minz = static_cast<int>(floorf((bmin[2] - orig[2]) * ics));
-	int maxx = static_cast<int>(floorf((bmax[0] - orig[0]) * ics));
-	const int maxy = static_cast<int>(floorf((bmax[1] - orig[1]) * ich));
-	int maxz = static_cast<int>(floorf((bmax[2] - orig[2]) * ics));
+	int minx = static_cast<int>(std::floor((bmin[0] - orig[0]) * ics));
+	const int miny = static_cast<int>(std::floor((bmin[1] - orig[1]) * ich));
+	int minz = static_cast<int>(std::floor((bmin[2] - orig[2]) * ics));
+	int maxx = static_cast<int>(std::floor((bmax[0] - orig[0]) * ics));
+	const int maxy = static_cast<int>(std::floor((bmax[1] - orig[1]) * ich));
+	int maxz = static_cast<int>(std::floor((bmax[2] - orig[2]) * ics));
 
 	if (maxx < 0) return DT_SUCCESS;
 	if (minx >= w) return DT_SUCCESS;
@@ -2047,12 +2047,12 @@ dtStatus dtMarkBoxArea(const dtTileCacheLayer& layer, const float* orig, const f
 	const float cz = (center[2] - orig[2])*ics;
 
 	const float maxr = 1.41f*dtMax(halfExtents[0], halfExtents[2]);
-	int minx = static_cast<int>(floorf(cx - maxr * ics));
-	int maxx = static_cast<int>(floorf(cx + maxr * ics));
-	int minz = static_cast<int>(floorf(cz - maxr * ics));
-	int maxz = static_cast<int>(floorf(cz + maxr * ics));
-	const int miny = static_cast<int>(floorf((center[1] - halfExtents[1] - orig[1]) * ich));
-	const int maxy = static_cast<int>(floorf((center[1] + halfExtents[1] - orig[1]) * ich));
+	int minx = static_cast<int>(std::floor(cx - maxr * ics));
+	int maxx = static_cast<int>(std::floor(cx + maxr * ics));
+	int minz = static_cast<int>(std::floor(cz - maxr * ics));
+	int maxz = static_cast<int>(std::floor(cz + maxr * ics));
+	const int miny = static_cast<int>(std::floor((center[1] - halfExtents[1] - orig[1]) * ich));
+	const int maxy = static_cast<int>(std::floor((center[1] + halfExtents[1] - orig[1]) * ich));
 
 	if (maxx < 0) return DT_SUCCESS;
 	if (minx >= w) return DT_SUCCESS;

@@ -54,7 +54,7 @@ inline bool inRange(const float* v1, const float* v2, const float r, const float
 	const float dx = v2[0] - v1[0];
 	const float dy = v2[1] - v1[1];
 	const float dz = v2[2] - v1[2];
-	return (dx*dx + dz*dz) < r*r && fabsf(dy) < h;
+	return (dx*dx + dz*dz) < r*r && std::abs(dy) < h;
 }
 
 // This function checks if the path has a small U-turn, that is,
@@ -500,7 +500,7 @@ void NavMeshTesterTool::handleToggle()
 	// Find movement delta.
 	float delta[3];
 	dtVsub(delta, steerPos, m_iterPos);
-	float len = sqrtf(dtVdot(delta, delta));
+	float len = std::sqrt(dtVdot(delta, delta));
 	// If the steer target is end of path or off-mesh link, do not move past the location.
 	if ((endOfPath || offMeshConnection) && len < STEP_SIZE)
 		len = 1;
@@ -901,7 +901,7 @@ void NavMeshTesterTool::recalc()
 		{
 			const float dx = m_epos[0] - m_spos[0];
 			const float dz = m_epos[2] - m_spos[2];
-			const float dist = sqrtf(dx*dx + dz*dz);
+			const float dist = std::sqrt(dx*dx + dz*dz);
 #ifdef DUMP_REQS
 			printf("fpc  %f %f %f  %f  0x%x 0x%x\n",
 				   m_spos[0],m_spos[1],m_spos[2], dist,
@@ -1195,7 +1195,7 @@ void NavMeshTesterTool::handleRender()
 			dd.depthMask(false);
 			const float dx = m_epos[0] - m_spos[0];
 			const float dz = m_epos[2] - m_spos[2];
-			const float dist = sqrtf(dx*dx + dz*dz);
+			const float dist = std::sqrt(dx*dx + dz*dz);
 			duDebugDrawCircle(&dd, m_spos[0], m_spos[1]+agentHeight/2, m_spos[2], dist, duRGBA(64,16,0,220), 2.0f);
 			dd.depthMask(true);
 		}
@@ -1439,7 +1439,7 @@ void UnitedSizeNavMeshTesterTool::handleToggle() {
   // Find movement delta.
   float delta[3];
   dtVsub(delta, steerPos, m_iterPos);
-  float len = sqrtf(dtVdot(delta, delta));
+  float len = std::sqrt(dtVdot(delta, delta));
   // If the steer target is end of path or off-mesh link, do not move past the location.
   if ((endOfPath || offMeshConnection) && len < STEP_SIZE)
     len = 1;
@@ -1795,7 +1795,7 @@ void UnitedSizeNavMeshTesterTool::recalc()
 		{
 			const float dx = m_epos[0] - m_spos[0];
 			const float dz = m_epos[2] - m_spos[2];
-			const float dist = sqrtf(dx*dx + dz*dz);
+			const float dist = std::sqrt(dx*dx + dz*dz);
 #ifdef DUMP_REQS
 			printf("fpc  %f %f %f  %f  0x%x 0x%x\n",
 				   m_spos[0],m_spos[1],m_spos[2], dist,

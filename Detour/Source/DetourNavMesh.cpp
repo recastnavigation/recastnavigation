@@ -1186,8 +1186,8 @@ const dtMeshTile* dtNavMesh::getTile(const int i) const
 
 void dtNavMesh::calcTileLoc(const float* pos, int* tx, int* ty) const
 {
-	*tx = static_cast<int>(floorf((pos[0] - m_orig[0]) / m_tileWidth));
-	*ty = static_cast<int>(floorf((pos[2] - m_orig[2]) / m_tileHeight));
+	*tx = static_cast<int>(std::floor((pos[0] - m_orig[0]) / m_tileWidth));
+	*ty = static_cast<int>(std::floor((pos[2] - m_orig[2]) / m_tileHeight));
 }
 
 dtStatus dtNavMesh::getTileAndPolyByRef(const dtPolyRef ref, const dtMeshTile** tile, const dtPoly** poly) const

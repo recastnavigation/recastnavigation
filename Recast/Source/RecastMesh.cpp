@@ -17,6 +17,7 @@
 //
 
 #include <cstring>
+#include <cmath>
 #include "Recast.h"
 #include "RecastAlloc.h"
 #include "RecastAssert.h"
@@ -1732,13 +1733,13 @@ bool rcMergePolyMeshes(rcContext* ctx, rcPolyMesh** meshes, const int nmeshes, r
 	{
 		const rcPolyMesh* pmesh = meshes[i];
 		
-		const auto ox = static_cast<unsigned short>(floorf((pmesh->bmin[0] - mesh.bmin[0]) / mesh.cs + 0.5f));
-		const auto oz = static_cast<unsigned short>(floorf((pmesh->bmin[2] - mesh.bmin[2]) / mesh.cs + 0.5f));
+		const auto ox = static_cast<unsigned short>(std::floor((pmesh->bmin[0] - mesh.bmin[0]) / mesh.cs + 0.5f));
+		const auto oz = static_cast<unsigned short>(std::floor((pmesh->bmin[2] - mesh.bmin[2]) / mesh.cs + 0.5f));
 
 		const bool isMinX = ox == 0;
 		const bool isMinZ = oz == 0;
-		const bool isMaxX = static_cast<unsigned short>(floorf((mesh.bmax[0] - pmesh->bmax[0]) / mesh.cs + 0.5f)) == 0;
-		const bool isMaxZ = static_cast<unsigned short>(floorf((mesh.bmax[2] - pmesh->bmax[2]) / mesh.cs + 0.5f)) == 0;
+		const bool isMaxX = static_cast<unsigned short>(std::floor((mesh.bmax[0] - pmesh->bmax[0]) / mesh.cs + 0.5f)) == 0;
+		const bool isMaxZ = static_cast<unsigned short>(std::floor((mesh.bmax[2] - pmesh->bmax[2]) / mesh.cs + 0.5f)) == 0;
 		const bool isOnBorder = isMinX || isMinZ || isMaxX || isMaxZ;
 
 		for (int j = 0; j < pmesh->nverts; ++j)

@@ -398,7 +398,7 @@ static bool isectSegAABB(const float* sp, const float* sq,
 
     for (int i = 0; i < 3; i++)
     {
-        if (fabsf(d[i]) < EPS)
+        if (std::abs(d[i]) < EPS)
         {
             if (sp[i] < amin[i] || sp[i] > amax[i])
                 return false;

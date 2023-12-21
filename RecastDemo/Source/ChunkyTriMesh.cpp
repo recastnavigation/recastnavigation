@@ -258,7 +258,7 @@ static bool checkOverlapSegment(const float p[2], const float q[2],
 	
 	for (int i = 0; i < 2; i++)
 	{
-		if (fabsf(d[i]) < EPSILON)
+		if (std::abs(d[i]) < EPSILON)
 		{
 			// Ray is parallel to slab. No hit if origin not within slab
 			if (p[i] < bmin[i] || p[i] > bmax[i])

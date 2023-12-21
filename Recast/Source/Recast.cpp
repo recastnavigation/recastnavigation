@@ -52,7 +52,7 @@ namespace
 
 float rcSqrt(const float x)
 {
-    return sqrtf(x);
+    return std::sqrt(x);
 }
 
 void rcContext::log(const rcLogCategory category, const char* format, ...)

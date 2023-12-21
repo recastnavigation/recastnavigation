@@ -398,9 +398,9 @@ bool Sample_SizeFromLocalMinimaMesh::handleBuild()
 	m_cfg.cs = m_cellSize;
 	m_cfg.ch = m_cellHeight;
 	m_cfg.walkableSlopeAngle = m_agentMaxSlope;
-	m_cfg.walkableHeight = static_cast<int>(ceilf(m_agentHeight / m_cfg.ch));
-	m_cfg.walkableClimb = static_cast<int>(floorf(m_agentMaxClimb / m_cfg.ch));
-	m_cfg.walkableRadius = static_cast<int>(ceilf(m_agentRadius / m_cfg.cs));
+	m_cfg.walkableHeight = static_cast<int>(std::ceil(m_agentHeight / m_cfg.ch));
+	m_cfg.walkableClimb = static_cast<int>(std::floor(m_agentMaxClimb / m_cfg.ch));
+	m_cfg.walkableRadius = static_cast<int>(std::ceil(m_agentRadius / m_cfg.cs));
 	m_cfg.maxEdgeLen = static_cast<int>(m_edgeMaxLen / m_cellSize);
 	m_cfg.maxSimplificationError = m_edgeMaxError;
 	m_cfg.minRegionArea = static_cast<int>(rcSqr(m_regionMinSize));		// Note: area = size*size

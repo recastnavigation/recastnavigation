@@ -68,7 +68,7 @@ static void drawPolygon(const float* coords, unsigned numCoords, const float r, 
 		const float* v1 = &coords[i*2];
 		float dx = v1[0] - v0[0];
 		float dy = v1[1] - v0[1];
-		float d = sqrtf(dx*dx+dy*dy);
+		float d = std::sqrt(dx*dx+dy*dy);
 		if (d > 0)
 		{
 			d = 1.0f/d;
@@ -200,7 +200,7 @@ static void drawLine(const float x0, const float y0, const float x1, const float
 {
 	float dx = x1-x0;
 	float dy = y1-y0;
-	float d = sqrtf(dx*dx+dy*dy);
+	float d = std::sqrt(dx*dx+dy*dy);
 	if (d > 0.0001f)
 	{
 		d = 1.0f/d;

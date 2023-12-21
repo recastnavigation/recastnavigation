@@ -197,9 +197,9 @@ int main(const int argc, char* argv[])
     config.cs = cellSize;
     config.ch = m_cellHeight;
     config.walkableSlopeAngle = m_agentMaxSlope;
-    config.walkableHeight = static_cast<int>(ceilf(m_agentHeight / config.ch));
-    config.walkableClimb = static_cast<int>(floorf(m_agentMaxClimb / config.ch));
-    config.walkableRadius = static_cast<int>(ceilf(m_agentRadius / config.cs));
+    config.walkableHeight = static_cast<int>(std::ceil(m_agentHeight / config.ch));
+    config.walkableClimb = static_cast<int>(std::floor(m_agentMaxClimb / config.ch));
+    config.walkableRadius = static_cast<int>(std::ceil(m_agentRadius / config.cs));
     config.maxEdgeLen = static_cast<int>(m_edgeMaxLen / cellSize);
     config.maxSimplificationError = m_edgeMaxError;
     config.minRegionArea = static_cast<int>(rcSqr(m_regionMinSize));
