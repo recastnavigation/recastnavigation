@@ -2,8 +2,6 @@
 file(GLOB TESTS_SOURCES ../Source/*.cpp ../Contrib/fastlz/fastlz.c Tests_Recast.cpp)
 set(FILE_TO_REMOVE "${CMAKE_CURRENT_SOURCE_DIR}/../Source/main.cpp")
 list(REMOVE_ITEM TESTS_SOURCES ${FILE_TO_REMOVE})
-message(${TESTS_SOURCES})
-message(${FILE_TO_REMOVE})
 add_executable(CLITests ${TESTS_SOURCES})
 
 set_property(TARGET CLITests PROPERTY CXX_STANDARD 17)
