@@ -1371,7 +1371,7 @@ bool rcBuildRegionsMonotone(rcContext* ctx, rcCompactHeightfield& chf,
         ctx->log(RC_LOG_ERROR, "rcBuildRegionsMonotone: Out of memory 'src' (%d).", chf.spanCount);
         return false;
     }
-    memset(srcReg, 0, sizeof(unsigned short) * chf.spanCount);
+    memset(static_cast<void*>(srcReg), 0, sizeof(unsigned short) * chf.spanCount);
 
     const int nsweeps = rcMax(chf.width, chf.height);
     rcScopedDelete<rcSweepSpan>
@@ -1390,13 +1390,13 @@ bool rcBuildRegionsMonotone(rcContext* ctx, rcCompactHeightfield& chf,
         const int bw = rcMin(w, borderSize);
         const int bh = rcMin(h, borderSize);
         // Paint regions
-        paintRectRegion(0, bw, 0, h, id | RC_BORDER_REG, chf, srcReg);
+        paintRectRegion(0, bw, 0, h, id | RC_BORDER_REG, chf, static_cast<unsigned short*>(srcReg));
         id++;
-        paintRectRegion(w - bw, w, 0, h, id | RC_BORDER_REG, chf, srcReg);
+        paintRectRegion(w - bw, w, 0, h, id | RC_BORDER_REG, chf,static_cast<unsigned short*>(srcReg));
         id++;
-        paintRectRegion(0, w, 0, bh, id | RC_BORDER_REG, chf, srcReg);
+        paintRectRegion(0, w, 0, bh, id | RC_BORDER_REG, chf,static_cast<unsigned short*>(srcReg));
         id++;
-        paintRectRegion(0, w, h - bh, h, id | RC_BORDER_REG, chf, srcReg);
+        paintRectRegion(0, w, h - bh, h, id | RC_BORDER_REG, chf,static_cast<unsigned short*>(srcReg));
         id++;
     }
 
@@ -1500,7 +1500,7 @@ bool rcBuildRegionsMonotone(rcContext* ctx, rcCompactHeightfield& chf,
         // Merge regions and filter out small regions.
         rcIntArray overlaps;
         chf.maxRegions = id;
-        if (!mergeAndFilterRegions(ctx, minRegionArea, mergeRegionArea, chf.maxRegions, chf, srcReg, overlaps))
+        if (!mergeAndFilterRegions(ctx, minRegionArea, mergeRegionArea, chf.maxRegions, chf, static_cast<unsigned short*>(srcReg), overlaps))
             return false;
 
         // Monotone partitioning does not generate overlapping regions.
@@ -1542,7 +1542,7 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
     const int w = chf.width;
     const int h = chf.height;
 
-    rcScopedDelete<unsigned short> buf(
+    const rcScopedDelete<unsigned short> buf(
         static_cast<unsigned short*>(rcAlloc(sizeof(unsigned short) * chf.spanCount * 2, RC_ALLOC_TEMP)));
     if (!buf)
     {
@@ -1561,8 +1561,8 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
     rcTempVector<LevelStackEntry> stack;
     stack.reserve(256);
 
-    unsigned short* srcReg = buf;
-    unsigned short* srcDist = buf + chf.spanCount;
+    auto* srcReg = static_cast<unsigned short*>(buf);
+    unsigned short* srcDist = static_cast<unsigned short*>(buf) + chf.spanCount;
 
     memset(srcReg, 0, sizeof(unsigned short) * chf.spanCount);
     memset(srcDist, 0, sizeof(unsigned short) * chf.spanCount);
@@ -1690,7 +1690,7 @@ bool rcBuildLayerRegions(rcContext* ctx, rcCompactHeightfield& chf,
         ctx->log(RC_LOG_ERROR, "rcBuildLayerRegions: Out of memory 'src' (%d).", chf.spanCount);
         return false;
     }
-    memset(srcReg, 0, sizeof(unsigned short) * chf.spanCount);
+    memset(static_cast<void*>(srcReg), 0, sizeof(unsigned short) * chf.spanCount);
 
     const int nsweeps = rcMax(chf.width, chf.height);
     rcScopedDelete<rcSweepSpan>
@@ -1709,13 +1709,13 @@ bool rcBuildLayerRegions(rcContext* ctx, rcCompactHeightfield& chf,
         const int bw = rcMin(w, borderSize);
         const int bh = rcMin(h, borderSize);
         // Paint regions
-        paintRectRegion(0, bw, 0, h, id | RC_BORDER_REG, chf, srcReg);
+        paintRectRegion(0, bw, 0, h, id | RC_BORDER_REG, chf, static_cast<unsigned short*>(srcReg));
         id++;
-        paintRectRegion(w - bw, w, 0, h, id | RC_BORDER_REG, chf, srcReg);
+        paintRectRegion(w - bw, w, 0, h, id | RC_BORDER_REG, chf, static_cast<unsigned short*>(srcReg));
         id++;
-        paintRectRegion(0, w, 0, bh, id | RC_BORDER_REG, chf, srcReg);
+        paintRectRegion(0, w, 0, bh, id | RC_BORDER_REG, chf, static_cast<unsigned short*>(srcReg));
         id++;
-        paintRectRegion(0, w, h - bh, h, id | RC_BORDER_REG, chf, srcReg);
+        paintRectRegion(0, w, h - bh, h, id | RC_BORDER_REG, chf, static_cast<unsigned short*>(srcReg));
         id++;
     }
 
@@ -1818,7 +1818,7 @@ bool rcBuildLayerRegions(rcContext* ctx, rcCompactHeightfield& chf,
 
         // Merge monotone regions to layers and remove small regions.
         chf.maxRegions = id;
-        if (!mergeAndFilterLayerRegions(ctx, minRegionArea, chf.maxRegions, chf, srcReg))
+        if (!mergeAndFilterLayerRegions(ctx, minRegionArea, chf.maxRegions, chf, static_cast<unsigned short*>(srcReg)))
             return false;
     }
 
@@ -1954,7 +1954,7 @@ bool rcBuildRegionsWithSize(rcContext* ctx, rcCompactHeightfield& chf, const int
                         const int ai = dirty.x + dirty.y * w;
                         const rcCompactCell& c = chf.cells[ai];
                         const rcCompactSpan& a = chf.spans[dirty.index];
-                        for (int j = c.index; j < c.index + c.count; ++j)
+                        for (unsigned int j = c.index; j < c.index + c.count; ++j)
                         {
                             const rcCompactSpan& as = chf.spans[j];
                             if (as.y + as.h < a.y || a.y + a.h < as.y)
@@ -1962,7 +1962,7 @@ bool rcBuildRegionsWithSize(rcContext* ctx, rcCompactHeightfield& chf, const int
                                 continue;
                             }
                             regions[j] = regions[dirty.index];
-                            seeds.push_back({dirty.x, dirty.y, j});
+                            seeds.push_back({dirty.x, dirty.y, static_cast<int>(j)});
                             break;
                         }
                     }
@@ -1991,7 +1991,7 @@ bool rcBuildRegionsWithSize(rcContext* ctx, rcCompactHeightfield& chf, const int
 
                 const rcCompactCell& c = chf.cells[ai];
                 const rcCompactSpan& s = chf.spans[pending.index];
-                for (int j = c.index; j < c.index + c.count; ++j)
+                for (unsigned int j = c.index; j < c.index + c.count; ++j)
                 {
                     const rcCompactSpan& as = chf.spans[j];
                     if (as.y + as.h < s.y || s.y + s.h < as.y)
@@ -2004,7 +2004,7 @@ bool rcBuildRegionsWithSize(rcContext* ctx, rcCompactHeightfield& chf, const int
                         break;
                     }
                     regions[j] = regions[pending.index];
-                    seeds.push_back({pending.x, pending.y, j});
+                    seeds.push_back({pending.x, pending.y, static_cast<int>(j)});
                     break;
                 }
             }
@@ -2125,7 +2125,7 @@ bool RideLine(const rcCompactHeightfield& chf, const rcTempVector<int>& gx, cons
 
         const rcCompactSpan& as = chf.spans[i];
         unsigned short neighbourDistances[8];
-#pragma unroll
+
         for (int dir = 0; dir < 4; ++dir)
         {
             if (rcGetCon(as, dir) == RC_NOT_CONNECTED)
@@ -2374,7 +2374,7 @@ bool rcCalculateDistancePerRegion(rcContext* ctx, rcCompactHeightfield& chf)
                 if (src[i])
                     continue;
                 unsigned short neighbourDistances[8]{};
-#pragma unroll
+
                 for (int dir = 0; dir < 4; ++dir)
                 {
                     if (rcGetCon(s, dir) != RC_NOT_CONNECTED)

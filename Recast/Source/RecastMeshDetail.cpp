@@ -629,7 +629,7 @@ inline float getJitterY(const int i)
 	return static_cast<float>(i * 0xd8163841 & 0xffff) / 65535.0f * 2.0f - 1.0f;
 }
 
-static bool onHull(int a, int b, int nhull, int* hull)
+static bool onHull(const int a, const int b, const int nhull, const int* hull)
 {
 	// All internal sampled points come after the hull so we can early out for those.
 	if (a >= nhull || b >= nhull)
@@ -645,21 +645,21 @@ static bool onHull(int a, int b, int nhull, int* hull)
 }
 
 // Find edges that lie on hull and mark them as such.
-static void setTriFlags(rcIntArray& tris, int nhull, int* hull)
+static void setTriFlags(rcIntArray& tris, const int nhull, const int* hull)
 {
 	// Matches DT_DETAIL_EDGE_BOUNDARY
-	const int DETAIL_EDGE_BOUNDARY = 0x1;
 
 	for (int i = 0; i < tris.size(); i += 4)
 	{
-		int a = tris[i + 0];
-		int b = tris[i + 1];
-		int c = tris[i + 2];
+		constexpr int DETAIL_EDGE_BOUNDARY = 0x1;
+		const int a = tris[i + 0];
+		const int b = tris[i + 1];
+		const int c = tris[i + 2];
 		unsigned short flags = 0;
 		flags |= (onHull(a, b, nhull, hull) ? DETAIL_EDGE_BOUNDARY : 0) << 0;
 		flags |= (onHull(b, c, nhull, hull) ? DETAIL_EDGE_BOUNDARY : 0) << 2;
 		flags |= (onHull(c, a, nhull, hull) ? DETAIL_EDGE_BOUNDARY : 0) << 4;
-		tris[i + 3] = (int)flags;
+		tris[i + 3] = static_cast<int>(flags);
 	}
 }
 
@@ -1304,7 +1304,7 @@ bool rcBuildPolyMeshDetail(rcContext* ctx, const rcPolyMesh& mesh, const rcCompa
 		
 		// Build detail mesh.
 		int nverts = 0;
-		if (!buildPolyDetail(ctx, poly, npoly,
+		if (!buildPolyDetail(ctx, static_cast<const float*>(poly), npoly,
 							 sampleDist, sampleMaxError,
 							 heightSearchRadius, chf, hp,
 							 verts, nverts, tris,
@@ -1383,7 +1383,7 @@ bool rcBuildPolyMeshDetail(rcContext* ctx, const rcPolyMesh& mesh, const rcCompa
 			dmesh.tris[dmesh.ntris*4+0] = static_cast<unsigned char>(t[0]);
 			dmesh.tris[dmesh.ntris*4+1] = static_cast<unsigned char>(t[1]);
 			dmesh.tris[dmesh.ntris*4+2] = static_cast<unsigned char>(t[2]);
-			dmesh.tris[dmesh.ntris*4+3] = (unsigned char)t[3];
+			dmesh.tris[dmesh.ntris*4+3] = static_cast<unsigned char>(t[3]);
 			dmesh.ntris++;
 		}
 	}

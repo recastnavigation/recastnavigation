@@ -20,7 +20,6 @@
 #define SAMPLEINTERFACES_H
 
 #include <cstdio>
-#include "DebugDraw.h"
 #include "Recast.h"
 #include "RecastDump.h"
 #include "PerfTimer.h"
@@ -46,9 +45,9 @@ public:
 	/// Dumps the log to stdout.
 	void dumpLog(const char* format, ...)const;
 	/// Returns number of log messages.
-	int getLogCount() const;
+	[[nodiscard]] int getLogCount() const;
 	/// Returns log message text.
-	const char* getLogText(int i) const;
+	[[nodiscard]] const char* getLogText(int i) const;
 	
 protected:	
 	/// Virtual functions for custom implementations.
@@ -58,22 +57,8 @@ protected:
 	void doResetTimers() override;
 	void doStartTimer(rcTimerLabel label) override;
 	void doStopTimer(rcTimerLabel label) override;
-	int doGetAccumulatedTime(rcTimerLabel label) const override;
+	[[nodiscard]] int doGetAccumulatedTime(rcTimerLabel label) const override;
 	///@}
-};
-
-/// OpenGL debug draw implementation.
-class DebugDrawGL : public duDebugDraw
-{
-public:
-	void depthMask(bool state) override;
-	void texture(bool state) override;
-	void begin(duDebugDrawPrimitives prim, float size = 1.0f) override;
-	void vertex(const float* pos, unsigned int color) override;
-	void vertex(float x, float y, float z, unsigned int color) override;
-	void vertex(const float* pos, unsigned int color, const float* uv) override;
-	void vertex(float x, float y, float z, unsigned int color, float u, float v) override;
-	void end() override;
 };
 
 /// stdio file implementation.
@@ -86,8 +71,8 @@ public:
 	~FileIO() override;
 	bool openForWrite(const char* path);
 	bool openForRead(const char* path);
-	bool isWriting() const override;
-	bool isReading() const override;
+	[[nodiscard]] bool isWriting() const override;
+	[[nodiscard]] bool isReading() const override;
 	bool write(const void* ptr, size_t size) override;
 	bool read(void* ptr, size_t size) override;
 private:
