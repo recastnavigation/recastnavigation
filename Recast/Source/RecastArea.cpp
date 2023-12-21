@@ -512,7 +512,7 @@ void rcMarkConvexPolyArea(rcContext* context, const float* verts, const int numV
 	}
 }
 
-static constexpr float EPSILON = 1e-6f;
+static const float EPSILON = 1e-6f;
 
 /// Normalizes the vector if the length is greater than zero.
 /// If the magnitude is zero, the vector is unchanged.
@@ -539,7 +539,7 @@ int rcOffsetPoly(const float* verts, const int numVerts, const float offset, flo
 	for (int vertIndex = 0; vertIndex < numVerts; vertIndex++)
 	{
 		// Grab three vertices of the polygon.
-		constexpr float MITER_LIMIT = 1.20f;
+		const float MITER_LIMIT = 1.20f;
 		const int vertIndexA = (vertIndex + numVerts - 1) % numVerts;
 		const int vertIndexB = vertIndex;
 		const int vertIndexC = (vertIndex + 1) % numVerts;

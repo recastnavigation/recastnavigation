@@ -110,8 +110,8 @@ static void calcSlabEndPoints(const float* va, const float* vb, float* bmin, flo
 
 inline int computeTileHash(const int x, const int y, const int mask)
 {
-	constexpr unsigned int h1 = 0x8da6b343; // Large multiplicative constants;
-	constexpr unsigned int h2 = 0xd8163841; // here arbitrarily chosen primes
+	const unsigned int h1 = 0x8da6b343; // Large multiplicative constants;
+	const unsigned int h2 = 0xd8163841; // here arbitrarily chosen primes
 	const unsigned int n = h1 * x + h2 * y;
 	return static_cast<int>(n & mask);
 }
@@ -630,7 +630,7 @@ namespace
 		for (int i = 0; i < pd->triCount; i++)
 		{
 			const unsigned char* tris = &tile->detailTris[(pd->triBase + i) * 4];
-			constexpr int ANY_BOUNDARY_EDGE =
+			const int ANY_BOUNDARY_EDGE =
 				DT_DETAIL_EDGE_BOUNDARY << 0 |
 				DT_DETAIL_EDGE_BOUNDARY << 2 |
 				DT_DETAIL_EDGE_BOUNDARY << 4;
@@ -1014,7 +1014,7 @@ dtStatus dtNavMesh::addTile(unsigned char* data, const int dataSize, const int f
 	connectExtOffMeshLinks(tile, tile, -1);
 
 	// Create connections with neighbour tiles.
-	static constexpr int MAX_NEIS = 32;
+	static const int MAX_NEIS = 32;
 	dtMeshTile* neis[MAX_NEIS];
 
 	// Connect with layers in current tile.
@@ -1264,7 +1264,7 @@ dtStatus dtNavMesh::removeTile(const dtTileRef ref, unsigned char** data, int* d
 	}
 	
 	// Remove connections to neighbour tiles.
-	static constexpr int MAX_NEIS = 32;
+	static const int MAX_NEIS = 32;
 	dtMeshTile* neis[MAX_NEIS];
 
 	// Disconnect from other layers in current tile.

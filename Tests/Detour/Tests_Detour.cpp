@@ -11,7 +11,7 @@ TEST_CASE("dtRandomPointInConvexPoly")
 			0, 0, 1,
 			1, 0, 0,
 		};
-		constexpr int npts = 3;
+		const int npts = 3;
 		float areas[6];
 		float out[3];
 

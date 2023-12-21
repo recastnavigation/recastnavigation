@@ -255,7 +255,7 @@ int dtPathCorridor::findCorners(float* cornerVerts, unsigned char* cornerFlags,
 	dtAssert(m_path);
 	dtAssert(m_npath);
 	
-	static constexpr float MIN_TARGET_DIST = 0.01f;
+	static const float MIN_TARGET_DIST = 0.01f;
 	
 	int ncorners = 0;
 	navquery->findStraightPath(m_pos, m_target, m_path, m_npath,
@@ -329,7 +329,7 @@ void dtPathCorridor::optimizePathVisibility(const float* next, const float pathO
 	dtVsub(delta, goal, m_pos);
 	dtVmad(goal, m_pos, delta, pathOptimizationRange/dist);
 	
-	static constexpr int MAX_RES = 32;
+	static const int MAX_RES = 32;
 	dtPolyRef res[MAX_RES];
 	float t, norm[3];
 	int nres = 0;
@@ -359,8 +359,8 @@ bool dtPathCorridor::optimizePathTopology(dtNavMeshQuery* navquery, const dtQuer
 	if (m_npath < 3)
 		return false;
 	
-	static constexpr int MAX_ITER = 32;
-	static constexpr int MAX_RES = 32;
+	static const int MAX_ITER = 32;
+	static const int MAX_RES = 32;
 	
 	dtPolyRef res[MAX_RES];
 	int nres = 0;
@@ -443,7 +443,7 @@ bool dtPathCorridor::movePosition(const float* npos, const dtNavMeshQuery* navqu
 	
 	// Move along navmesh and update new position.
 	float result[3];
-	static constexpr int MAX_VISITED = 16;
+	static const int MAX_VISITED = 16;
 	dtPolyRef visited[MAX_VISITED];
 	int nvisited = 0;
 	const dtStatus status = navquery->moveAlongSurface(m_path[0], m_pos, npos, filter,
@@ -481,7 +481,7 @@ bool dtPathCorridor::moveTargetPosition(const float* npos, const dtNavMeshQuery*
 	
 	// Move along navmesh and update new position.
 	float result[3];
-	static constexpr int MAX_VISITED = 16;
+	static const int MAX_VISITED = 16;
 	dtPolyRef visited[MAX_VISITED];
 	int nvisited = 0;
 	const dtStatus status = navquery->moveAlongSurface(m_path[m_npath-1], m_target, npos, filter,

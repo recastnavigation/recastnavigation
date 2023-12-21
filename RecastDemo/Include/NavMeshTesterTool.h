@@ -51,8 +51,8 @@ protected:
 
     int m_straightPathOptions;
 
-    static constexpr int MAX_POLYS = 256;
-    static constexpr int MAX_SMOOTH = 2048;
+    static const int MAX_POLYS = 256;
+    static const int MAX_SMOOTH = 2048;
 
     dtPolyRef m_startRef;
     dtPolyRef m_endRef;
@@ -68,7 +68,7 @@ protected:
     int m_nsmoothPath;
     float m_queryPoly[4 * 3];
 
-    static constexpr int MAX_RAND_POINTS = 64;
+    static const int MAX_RAND_POINTS = 64;
     float m_randPoints[MAX_RAND_POINTS * 3];
     int m_nrandPoints;
     bool m_randPointsInCircle;
@@ -89,7 +89,7 @@ protected:
     int m_pathIterPolyCount;
     float m_prevIterPos[3], m_iterPos[3], m_steerPos[3], m_targetPos[3];
 
-    static constexpr int MAX_STEER_POINTS = 10;
+    static const int MAX_STEER_POINTS = 10;
     float m_steerPoints[MAX_STEER_POINTS * 3];
     int m_steerPointCount;
 

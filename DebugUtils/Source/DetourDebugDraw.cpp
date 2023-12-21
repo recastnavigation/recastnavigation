@@ -44,7 +44,7 @@ static void drawPolyBoundaries(duDebugDraw* dd, const dtMeshTile* tile,
 							   const unsigned int col, const float linew,
 							   const bool inner)
 {
-	static constexpr float thr = 0.01f*0.01f;
+	static const float thr = 0.01f*0.01f;
 
 	dd->begin(DU_DRAW_LINES, linew);
 
@@ -270,7 +270,7 @@ void duDebugDrawNavMeshNodes(duDebugDraw* dd, const dtNavMeshQuery& query)
 	const dtNodePool* pool = query.getNodePool();
 	if (pool)
 	{
-		constexpr float off = 0.5f;
+		const float off = 0.5f;
 		dd->begin(DU_DRAW_POINTS, 4.0f);
 		for (int i = 0; i < pool->getHashSize(); ++i)
 		{
@@ -354,7 +354,7 @@ static void drawMeshTilePortal(duDebugDraw* dd, const dtMeshTile* tile)
 			const int nv = poly->vertCount;
 			for (int j = 0; j < nv; ++j)
 			{
-				constexpr float padx = 0.04f;
+				const float padx = 0.04f;
 				// Skip edges which do not point to the right side.
 				if (poly->neis[j] != m)
 					continue;
@@ -653,9 +653,9 @@ void duDebugDrawTileCacheContours(duDebugDraw* dd, const dtTileCacheContourSet& 
 {
 	if (!dd) return;
 
-	constexpr unsigned char a = 255;// (unsigned char)(alpha*255.0f);
+	const unsigned char a = 255;// (unsigned char)(alpha*255.0f);
 
-	constexpr int offs[2*4] = {-1,0, 0,1, 1,0, 0,-1};
+	const int offs[2*4] = {-1,0, 0,1, 1,0, 0,-1};
 
 	dd->begin(DU_DRAW_LINES, 2.0f);
 
@@ -732,7 +732,7 @@ void duDebugDrawTileCachePolyMesh(duDebugDraw* dd, const dtTileCachePolyMesh& lm
 
 	const int nvp = lmesh.nvp;
 
-	constexpr int offs[2*4] = {-1,0, 0,1, 1,0, 0,-1};
+	const int offs[2*4] = {-1,0, 0,1, 1,0, 0,-1};
 
 	dd->begin(DU_DRAW_TRIS);
 

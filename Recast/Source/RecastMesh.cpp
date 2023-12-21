@@ -120,13 +120,13 @@ static bool buildMeshAdjacency(unsigned short* polys, const int npolys,
 }
 
 
-static constexpr int VERTEX_BUCKET_COUNT = 1<<12;
+static const int VERTEX_BUCKET_COUNT = 1<<12;
 
 inline int computeVertexHash(const int x, const int y, const int z)
 {
-	constexpr unsigned int h1 = 0x8da6b343; // Large multiplicative constants;
-	constexpr unsigned int h2 = 0xd8163841; // here arbitrarily chosen primes
-	constexpr unsigned int h3 = 0xcb1ab31f;
+	const unsigned int h1 = 0x8da6b343; // Large multiplicative constants;
+	const unsigned int h2 = 0xd8163841; // here arbitrarily chosen primes
+	const unsigned int h3 = 0xcb1ab31f;
 	const unsigned int n = h1 * x + h2 * y + h3 * z;
 	return static_cast<int>(n & VERTEX_BUCKET_COUNT - 1);
 }

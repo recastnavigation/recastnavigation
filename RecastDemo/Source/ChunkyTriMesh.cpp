@@ -248,7 +248,7 @@ int rcGetChunksOverlappingRect(const rcChunkyTriMesh* cm,
 static bool checkOverlapSegment(const float p[2], const float q[2],
 								const float bmin[2], const float bmax[2])
 {
-	static constexpr float EPSILON = 1e-6f;
+	static const float EPSILON = 1e-6f;
 
 	float tmin = 0;
 	float tmax = 1;

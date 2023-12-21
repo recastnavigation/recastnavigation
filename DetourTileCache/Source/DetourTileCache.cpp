@@ -33,8 +33,8 @@ static bool contains(const dtCompressedTileRef* a, const int n, const dtCompress
 
 inline int computeTileHash(const int x, const int y, const int mask)
 {
-	constexpr unsigned int h1 = 0x8da6b343; // Large multiplicative constants;
-	constexpr unsigned int h2 = 0xd8163841; // here arbitrarily chosen primes
+	const unsigned int h1 = 0x8da6b343; // Large multiplicative constants;
+	const unsigned int h2 = 0xd8163841; // here arbitrarily chosen primes
 	const unsigned int n = h1 * x + h2 * y;
 	return static_cast<int>(n & mask);
 }
@@ -491,7 +491,7 @@ dtStatus dtTileCache::queryTiles(const float* bmin, const float* bmax,
 	{
 		for (int tx = tx0; tx <= tx1; ++tx)
 		{
-			constexpr int MAX_TILES = 32;
+			const int MAX_TILES = 32;
 			dtCompressedTileRef tiles[MAX_TILES];
 			const int ntiles = getTilesAt(tx,ty,tiles,MAX_TILES);
 			
@@ -635,7 +635,7 @@ dtStatus dtTileCache::update(const float /*dt*/, dtNavMesh* navmesh,
 
 dtStatus dtTileCache::buildNavMeshTilesAt(const int tx, const int ty, dtNavMesh* navmesh) const
 {
-	constexpr int MAX_TILES = 32;
+	const int MAX_TILES = 32;
 	dtCompressedTileRef tiles[MAX_TILES];
 	const int ntiles = getTilesAt(tx,ty,tiles,MAX_TILES);
 	

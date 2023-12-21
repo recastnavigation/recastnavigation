@@ -24,8 +24,8 @@
 
 class dtLocalBoundary
 {
-	static constexpr int MAX_LOCAL_SEGS = 8;
-	static constexpr int MAX_LOCAL_POLYS = 16;
+	static const int MAX_LOCAL_SEGS = 8;
+	static const int MAX_LOCAL_POLYS = 16;
 	
 	struct Segment
 	{

@@ -114,8 +114,8 @@ void OffMeshConnectionTool::handleClick(const float* /*s*/, const float* p, cons
 		}
 		else
 		{
-			constexpr unsigned char area = SAMPLE_POLYAREA_JUMP;
-			constexpr unsigned short flags = SAMPLE_POLYFLAGS_JUMP; 
+			const unsigned char area = SAMPLE_POLYAREA_JUMP;
+			const unsigned short flags = SAMPLE_POLYFLAGS_JUMP;
 			geom->addOffMeshConnection(m_hitPos, p, m_sample->getAgentRadius(), m_bidir ? 1 : 0, area, flags);
 			m_hitPosSet = false;
 		}

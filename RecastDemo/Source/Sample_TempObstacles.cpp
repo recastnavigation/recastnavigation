@@ -51,14 +51,14 @@
 
 
 // This value specifies how many layers (or "floors") each navmesh tile is expected to have.
-static constexpr int EXPECTED_LAYERS_PER_TILE = 4;
+static const int EXPECTED_LAYERS_PER_TILE = 4;
 
 
 static bool isectSegAABB(const float* sp, const float* sq,
                          const float* amin, const float* amax,
                          float& tmin, float& tmax)
 {
-    static constexpr float EPS = 1e-6f;
+    static const float EPS = 1e-6f;
 
     float d[3];
     rcVsub(d, sq, sp);
@@ -229,7 +229,7 @@ struct MeshProcess final : dtTileCacheMeshProcess
     }
 };
 
-static constexpr int MAX_LAYERS = 32;
+static const int MAX_LAYERS = 32;
 
 struct TileCacheData
 {
@@ -1395,8 +1395,8 @@ void Sample_TempObstacles::getTilePos(const float* pos, int& tx, int& ty) const
     ty = static_cast<int>((pos[2] - bmin[2]) / ts);
 }
 
-static constexpr int TILECACHESET_MAGIC = 'T' << 24 | 'S' << 16 | 'E' << 8 | 'T'; //'TSET';
-static constexpr int TILECACHESET_VERSION = 1;
+static const int TILECACHESET_MAGIC = 'T' << 24 | 'S' << 16 | 'E' << 8 | 'T'; //'TSET';
+static const int TILECACHESET_VERSION = 1;
 
 struct TileCacheSetHeader
 {

@@ -31,7 +31,7 @@ class ConvexVolumeTool final : public SampleTool
 	float m_boxHeight;
 	float m_boxDescent;
 	
-	static constexpr int MAX_PTS = 12;
+	static const int MAX_PTS = 12;
 	float m_pts[MAX_PTS*3];
 	int m_npts;
 	int m_hull[MAX_PTS];

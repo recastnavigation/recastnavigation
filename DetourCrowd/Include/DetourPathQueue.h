@@ -22,7 +22,7 @@
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"
 
-static constexpr unsigned int DT_PATHQ_INVALID = 0;
+static const unsigned int DT_PATHQ_INVALID = 0;
 
 typedef unsigned int dtPathQueueRef;
 
@@ -43,7 +43,7 @@ class dtPathQueue
 		const dtQueryFilter* filter; ///< TODO: This is potentially dangerous!
 	};
 	
-	static constexpr int MAX_QUEUE = 8;
+	static const int MAX_QUEUE = 8;
 	PathQuery m_queue[MAX_QUEUE]{};
 	dtPathQueueRef m_nextHandle;
 	int m_maxPathSize;

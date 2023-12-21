@@ -44,10 +44,10 @@ void dtFreeCrowd(dtCrowd* ptr)
 }
 
 
-static constexpr int MAX_ITERS_PER_UPDATE = 100;
+static const int MAX_ITERS_PER_UPDATE = 100;
 
-static constexpr int MAX_PATHQUEUE_NODES = 4096;
-static constexpr int MAX_COMMON_NODES = 512;
+static const int MAX_PATHQUEUE_NODES = 4096;
+static const int MAX_COMMON_NODES = 512;
 
 inline float tween(const float t, const float t0, const float t1)
 {
@@ -108,7 +108,7 @@ static void calcSmoothSteerDirection(const dtCrowdAgent* ag, float* dir)
 		return;
 	}
 
-	constexpr int ip0 = 0;
+	const int ip0 = 0;
 	const int ip1 = dtMin(1, ag->ncorners-1);
 	const float* p0 = &ag->cornerVerts[ip0*3];
 	const float* p1 = &ag->cornerVerts[ip1*3];
@@ -189,7 +189,7 @@ static int getNeighbours(const float* pos, const float height, const float range
 {
 	int n = 0;
 	
-	static constexpr int MAX_NEIS = 32;
+	static const int MAX_NEIS = 32;
 	unsigned short ids[MAX_NEIS];
 	const int nids = grid->queryItems(pos[0]-range, pos[2]-range,
 	                                  pos[0]+range, pos[2]+range,
@@ -675,7 +675,7 @@ int dtCrowd::getActiveAgents(dtCrowdAgent** agents, const int maxAgents) const
 
 void dtCrowd::updateMoveRequest(const float /*dt*/)
 {
-	constexpr int PATH_MAX_AGENTS = 8;
+	const int PATH_MAX_AGENTS = 8;
 	dtCrowdAgent* queue[PATH_MAX_AGENTS];
 	int nqueue = 0;
 	
@@ -696,13 +696,13 @@ void dtCrowd::updateMoveRequest(const float /*dt*/)
 			const int npath = ag->corridor.getPathCount();
 			dtAssert(npath);
 
-			static constexpr int MAX_RES = 32;
+			static const int MAX_RES = 32;
 			float reqPos[3];
 			dtPolyRef reqPath[MAX_RES];	// The path to the request location
 			int reqPathCount = 0;
 
 			// Quick search towards the goal.
-			static constexpr int MAX_ITER = 20;
+			static const int MAX_ITER = 20;
 			m_navquery->initSlicedFindPath(path[0], ag->targetRef, ag->npos, ag->targetPos, &m_filters[ag->params.queryFilterType]);
 			m_navquery->updateSlicedFindPath(MAX_ITER, nullptr);
 			dtStatus status;
@@ -906,13 +906,13 @@ void dtCrowd::updateTopologyOptimization(dtCrowdAgent** agents, const int nagent
 	if (!nagents)
 		return;
 
-	constexpr int OPT_MAX_AGENTS = 1;
+	const int OPT_MAX_AGENTS = 1;
 	dtCrowdAgent* queue[OPT_MAX_AGENTS];
 	int nqueue = 0;
 	
 	for (int i = 0; i < nagents; ++i)
 	{
-		constexpr float OPT_TIME_THR = 0.5f;
+		const float OPT_TIME_THR = 0.5f;
 		dtCrowdAgent* ag = agents[i];
 		if (ag->state != DT_CROWDAGENT_STATE_WALKING)
 			continue;
@@ -936,8 +936,8 @@ void dtCrowd::updateTopologyOptimization(dtCrowdAgent** agents, const int nagent
 
 void dtCrowd::checkPathValidity(dtCrowdAgent** agents, const int nagents, const float dt) const
 {
-	static constexpr int CHECK_LOOKAHEAD = 10;
-	static constexpr float TARGET_REPLAN_DELAY = 1.0; // seconds
+	static const int CHECK_LOOKAHEAD = 10;
+	static const float TARGET_REPLAN_DELAY = 1.0; // seconds
 	
 	for (int i = 0; i < nagents; ++i)
 	{
@@ -1313,7 +1313,7 @@ void dtCrowd::update(const float dt, dtCrowdAgentDebugInfo* debug)
 	}
 	
 	// Handle collisions.
-	static constexpr float COLLISION_RESOLVE_FACTOR = 0.7f;
+	static const float COLLISION_RESOLVE_FACTOR = 0.7f;
 	
 	for (int iter = 0; iter < 4; ++iter)
 	{

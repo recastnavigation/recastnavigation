@@ -25,13 +25,13 @@
 #include <cfloat>
 #include <new>
 
-static constexpr float DT_PI = 3.14159265f;
+static const float DT_PI = 3.14159265f;
 
 static int sweepCircleCircle(const float* c0, const float r0, const float* v,
 							 const float* c1, const float r1,
 							 float& tmin, float& tmax)
 {
-	static constexpr float EPS = 0.0001f;
+	static const float EPS = 0.0001f;
 	float s[3];
 	dtVsub(s,c1,c0);
 	const float r = r0+r1;
@@ -284,7 +284,7 @@ void dtObstacleAvoidanceQuery::prepare(const float* pos, const float* dvel) cons
 		const float* pa = pos;
 		const float* pb = cir->p;
 
-		constexpr float orig[3] = {0,0,0};
+		const float orig[3] = {0,0,0};
 		float dv[3];
 		dtVsub(cir->dp,pb,pa);
 		dtVnormalize(cir->dp);
@@ -308,7 +308,7 @@ void dtObstacleAvoidanceQuery::prepare(const float* pos, const float* dvel) cons
 		dtObstacleSegment* seg = &m_segments[i];
 		
 		// Precalc if the agent is really close to the segment.
-		constexpr float r = 0.01f;
+		const float r = 0.01f;
 		float t;
 		seg->touch = dtDistancePtSegSqr2D(pos, seg->p, seg->q, t) < dtSqr(r);
 	}	

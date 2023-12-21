@@ -24,7 +24,7 @@
 #include "RecastAssert.h"
 
 
-static constexpr unsigned RC_UNSET_HEIGHT = 0xffff;
+static const unsigned RC_UNSET_HEIGHT = 0xffff;
 
 struct rcHeightPatch
 {
@@ -64,9 +64,9 @@ inline float vcross2(const float* p1, const float* p2, const float* p3)
 static bool circumCircle(const float* p1, const float* p2, const float* p3,
 						 float* c, float& r)
 {
-	static constexpr float EPS = 1e-6f;
+	static const float EPS = 1e-6f;
 	// Calculate the circle relative to p1, to avoid some precision issues.
-	constexpr float v1[3] = {0,0,0};
+	const float v1[3] = {0,0,0};
 	float v2[3], v3[3];
 	rcVsub(v2, p2,p1);
 	rcVsub(v3, p3,p1);
@@ -109,7 +109,7 @@ static float distPtTri(const float* p, const float* a, const float* b, const flo
 	const float v = (dot00 * dot12 - dot01 * dot02) * invDenom;
 	
 	// If point lies inside the triangle, return interpolated y-coord.
-	static constexpr float EPS = 1e-4f;
+	static const float EPS = 1e-4f;
 	if (u >= -EPS && v >= -EPS && u+v <= 1+EPS)
 	{
 		const float y = a[1] + v0[1]*u + v1[1]*v;
@@ -356,7 +356,7 @@ static bool overlapEdges(const float* pts, const int* edges, const int nedges, c
 
 static void completeFacet(rcContext* ctx, const float* pts, const int npts, int* edges, int& nedges, const int maxEdges, int& nfaces, int e)
 {
-	static constexpr float EPS = 1e-5f;
+	static const float EPS = 1e-5f;
 
 	const int* edge = &edges[e*4];
 	
@@ -395,7 +395,7 @@ static void completeFacet(rcContext* ctx, const float* pts, const int npts, int*
 				continue;
 			}
 			const float d = vdist2(c, &pts[u*3]);
-			constexpr float tol = 0.001f;
+			const float tol = 0.001f;
 			if (d > r*(1+tol))
 			{
 				// Outside current circumcircle, skip.
@@ -651,7 +651,7 @@ static void setTriFlags(rcIntArray& tris, const int nhull, const int* hull)
 
 	for (int i = 0; i < tris.size(); i += 4)
 	{
-		constexpr int DETAIL_EDGE_BOUNDARY = 0x1;
+		const int DETAIL_EDGE_BOUNDARY = 0x1;
 		const int a = tris[i + 0];
 		const int b = tris[i + 1];
 		const int c = tris[i + 2];
@@ -669,9 +669,9 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 							const rcHeightPatch& hp, float* verts, int& nverts,
 							rcIntArray& tris, rcIntArray& edges, rcIntArray& samples)
 {
-	static constexpr int MAX_VERTS = 127;
-	static constexpr int MAX_TRIS = 255;	// Max tris for delaunay is 2n-2-k (n=num verts, k=num hull verts).
-	static constexpr int MAX_VERTS_PER_EDGE = 32;
+	static const int MAX_VERTS = 127;
+	static const int MAX_TRIS = 255;	// Max tris for delaunay is 2n-2-k (n=num verts, k=num hull verts).
+	static const int MAX_VERTS_PER_EDGE = 32;
 	float edge[(MAX_VERTS_PER_EDGE+1)*3];
 	int hull[MAX_VERTS];
 	int nhull = 0;
@@ -919,7 +919,7 @@ static void seedArrayWithPolyCenter(rcContext* ctx, const rcCompactHeightfield& 
 	// Note: Reads to the compact heightfield are offset by border size (bs)
 	// since border size offset is already removed from the polymesh vertices.
 	
-	static constexpr int offset[9*2] =
+	static const int offset[9*2] =
 	{
 		0,0, -1,-1, 0,-1, 1,-1, 1,0, 1,1, 0,1, -1,1, -1,0,
 	};
@@ -1122,7 +1122,7 @@ static void getHeightData(rcContext* ctx, const rcCompactHeightfield& chf,
 	if (empty)
 		seedArrayWithPolyCenter(ctx, chf, poly, npoly, verts, bs, hp, queue);
 	
-	static constexpr int RETRACT_SIZE = 256;
+	static const int RETRACT_SIZE = 256;
 	int head = 0;
 	
 	// We assume the seed is centered in the polygon, so a BFS to collect

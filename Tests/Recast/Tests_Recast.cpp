@@ -124,15 +124,15 @@ TEST_CASE("rcVdot")
 {
 	SECTION("Dot normalized vector with itself")
 	{
-		constexpr float v1[] = { 1, 0, 0 };
+		const float v1[] = { 1, 0, 0 };
 		const float result = rcVdot(v1, v1);
 		REQUIRE(result == Catch::Approx(1));
 	}
 
 	SECTION("Dot zero vector with anything is zero")
 	{
-		constexpr float v1[] = { 1, 2, 3 };
-		constexpr float v2[] = { 0, 0, 0 };
+		const float v1[] = { 1, 2, 3 };
+		const float v2[] = { 0, 0, 0 };
 
 		const float result = rcVdot(v1, v2);
 		REQUIRE(result == Catch::Approx(0));
@@ -168,8 +168,8 @@ TEST_CASE("rcVadd")
 {
 	SECTION("add two vectors")
 	{
-		constexpr float v1[3] = {1, 2, 3};
-		constexpr float v2[3] = {5, 6, 7};
+		const float v1[3] = {1, 2, 3};
+		const float v2[3] = {5, 6, 7};
 		float result[3];
 		rcVadd(result, v1, v2);
 		REQUIRE(result[0] == Catch::Approx(6));
@@ -182,8 +182,8 @@ TEST_CASE("rcVsub")
 {
 	SECTION("subtract two vectors")
 	{
-		constexpr float v1[3] = {5, 4, 3};
-		constexpr float v2[3] = {1, 2, 3};
+		const float v1[3] = {5, 4, 3};
+		const float v2[3] = {1, 2, 3};
 		float result[3];
 		rcVsub(result, v1, v2);
 		REQUIRE(result[0] == Catch::Approx(4));
@@ -278,8 +278,8 @@ TEST_CASE("rcVdist")
 {
 	SECTION("distance between two vectors")
 	{
-		constexpr float v1[3] = {3, 1, 3};
-		constexpr float v2[3] = {1, 3, 1};
+		const float v1[3] = {3, 1, 3};
+		const float v2[3] = {1, 3, 1};
 		const float result = rcVdist(v1, v2);
 
 		REQUIRE(result == Catch::Approx(3.4641f));
@@ -287,8 +287,8 @@ TEST_CASE("rcVdist")
 
 	SECTION("Distance from zero is magnitude")
 	{
-		constexpr float v1[3] = {3, 1, 3};
-		constexpr float v2[3] = {0, 0, 0};
+		const float v1[3] = {3, 1, 3};
+		const float v2[3] = {0, 0, 0};
 		const float distance = rcVdist(v1, v2);
 		const float magnitude = rcSqrt(rcSqr(v1[0]) + rcSqr(v1[1]) + rcSqr(v1[2]));
 		REQUIRE(distance == Catch::Approx(magnitude));
@@ -299,8 +299,8 @@ TEST_CASE("rcVdistSqr")
 {
 	SECTION("squared distance between two vectors")
 	{
-		constexpr float v1[3] = {3, 1, 3};
-		constexpr float v2[3] = {1, 3, 1};
+		const float v1[3] = {3, 1, 3};
+		const float v2[3] = {1, 3, 1};
 		const float result = rcVdistSqr(v1, v2);
 
 		REQUIRE(result == Catch::Approx(12));
@@ -308,8 +308,8 @@ TEST_CASE("rcVdistSqr")
 
 	SECTION("squared distance from zero is squared magnitude")
 	{
-		constexpr float v1[3] = {3, 1, 3};
-		constexpr float v2[3] = {0, 0, 0};
+		const float v1[3] = {3, 1, 3};
+		const float v2[3] = {0, 0, 0};
 		const float distance = rcVdistSqr(v1, v2);
 		const float magnitude = rcSqr(v1[0]) + rcSqr(v1[1]) + rcSqr(v1[2]);
 		REQUIRE(distance == Catch::Approx(magnitude));
@@ -380,7 +380,7 @@ TEST_CASE("rcCalcGridSize")
 		float bmax[3];
 		rcCalcBounds(verts, 2, bmin, bmax);
 
-		constexpr float cellSize = 1.5f;
+		const float cellSize = 1.5f;
 
 		int width;
 		int height;
@@ -442,15 +442,15 @@ TEST_CASE("rcMarkWalkableTriangles")
 {
 	rcContext* ctx = nullptr;
 	float walkableSlopeAngle = 45;
-	constexpr float verts[] = {
+	const float verts[] = {
 		0, 0, 0,
 		1, 0, 0,
 		0, 0, -1
 	};
-	constexpr int nv = 3;
-	constexpr int walkable_tri[] = { 0, 1, 2 };
-	constexpr int unwalkable_tri[] = { 0, 2, 1 };
-	constexpr int nt = 1;
+	const int nv = 3;
+	const int walkable_tri[] = { 0, 1, 2 };
+	const int unwalkable_tri[] = { 0, 2, 1 };
+	const int nt = 1;
 	unsigned char areas[] = { RC_NULL_AREA };
 
 	SECTION("One walkable triangle")
@@ -484,15 +484,15 @@ TEST_CASE("rcClearUnwalkableTriangles")
 {
 	rcContext* ctx = nullptr;
 	float walkableSlopeAngle = 45;
-	constexpr float verts[] = {
+	const float verts[] = {
 		0, 0, 0,
 		1, 0, 0,
 		0, 0, -1
 	};
-	constexpr int nv = 3;
-	constexpr int walkable_tri[] = { 0, 1, 2 };
-	constexpr int unwalkable_tri[] = { 0, 2, 1 };
-	constexpr int nt = 1;
+	const int nv = 3;
+	const int walkable_tri[] = { 0, 1, 2 };
+	const int unwalkable_tri[] = { 0, 2, 1 };
+	const int nt = 1;
 	unsigned char areas[] = { 42 };
 
 	SECTION("Sets area ID of unwalkable triangle to RC_NULL_AREA")
@@ -661,19 +661,19 @@ TEST_CASE("rcRasterizeTriangle overlapping bb but non-overlapping triangle")
     rcContext ctx;
 
 	// create a heightfield
-	constexpr float cellSize = 1;
-	constexpr float cellHeight = 1;
-	constexpr int width = 10;
-	constexpr int height = 10;
-	constexpr float bmin[] = { 0, 0, 0 };
-	constexpr float bmax[] = { 10, 10, 10 };
+	const float cellSize = 1;
+	const float cellHeight = 1;
+	const int width = 10;
+	const int height = 10;
+	const float bmin[] = { 0, 0, 0 };
+	const float bmax[] = { 10, 10, 10 };
     rcHeightfield heightfield;
     REQUIRE(rcCreateHeightfield(&ctx, heightfield, width, height, bmin, bmax, cellSize, cellHeight));
 
 	// rasterize a triangle outside of the heightfield.
-	constexpr unsigned char area = 42;
-	constexpr int flagMergeThr = 1;
-	constexpr float verts[] =
+	const unsigned char area = 42;
+	const int flagMergeThr = 1;
+	const float verts[] =
 	{
         -10.0, 5.5, -10.0,
         -10.0, 5.5, 3,
@@ -959,8 +959,8 @@ int Incrementor::constructions = 0;
 int Incrementor::destructions = 0;
 int Incrementor::copies = 0;
 
-constexpr int kMaxAllocSize = 1024;
-constexpr unsigned char kClearValue = 0xff;
+const int kMaxAllocSize = 1024;
+const unsigned char kClearValue = 0xff;
 // Simple alloc/free that clears the memory on free..
 void* AllocAndInit(const size_t size, rcAllocHint) {
 	rcAssert(kMaxAllocSize >= size);

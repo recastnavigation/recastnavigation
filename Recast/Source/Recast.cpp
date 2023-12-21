@@ -61,7 +61,7 @@ void rcContext::log(const rcLogCategory category, const char* format, ...)
     {
         return;
     }
-    static constexpr int MSG_SIZE = 512;
+    static const int MSG_SIZE = 512;
     char msg[MSG_SIZE];
     va_list argList;
     va_start(argList, format);
@@ -467,7 +467,7 @@ bool rcBuildCompactHeightfield(rcContext* context, const int walkableHeight, con
         {
             if (span->area != RC_NULL_AREA)
             {
-                constexpr int MAX_HEIGHT = 0xffff;
+                const int MAX_HEIGHT = 0xffff;
                 const int bot = static_cast<int>(span->smax);
                 const int top = span->next ? static_cast<int>(span->next->smin) : MAX_HEIGHT;
                 compactHeightfield.spans[currentCellIndex].y = static_cast<unsigned short>(rcClamp(bot, 0, 0xffff));
@@ -480,7 +480,7 @@ bool rcBuildCompactHeightfield(rcContext* context, const int walkableHeight, con
     }
 
     // Find neighbour connections.
-    constexpr int MAX_LAYERS = RC_NOT_CONNECTED - 1;
+    const int MAX_LAYERS = RC_NOT_CONNECTED - 1;
     int maxLayerIndex = 0;
     const int zStride = xSize; // for readability
     for (int z = 0; z < zSize; ++z)

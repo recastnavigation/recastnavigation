@@ -27,7 +27,7 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-static constexpr unsigned TEXT_POOL_SIZE = 50000;
+static const unsigned TEXT_POOL_SIZE = 50000;
 static char g_textPool[TEXT_POOL_SIZE];
 static unsigned g_textPoolSize = 0;
 static const char* allocText(const char* text)
@@ -41,7 +41,7 @@ static const char* allocText(const char* text)
 	return dst;
 }
 
-static constexpr unsigned GFXCMD_QUEUE_SIZE = 5000;
+static const unsigned GFXCMD_QUEUE_SIZE = 5000;
 static imguiGfxCmd g_gfxCmdQueue[GFXCMD_QUEUE_SIZE];
 static unsigned g_gfxCmdQueueSize = 0;
 
@@ -300,15 +300,15 @@ int imguiGetRenderQueueSize()
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-static constexpr int BUTTON_HEIGHT = 20;
-static constexpr int SLIDER_HEIGHT = 20;
-static constexpr int SLIDER_MARKER_WIDTH = 10;
-static constexpr int CHECK_SIZE = 8;
-static constexpr int DEFAULT_SPACING = 4;
-static constexpr int TEXT_HEIGHT = 8;
-static constexpr int SCROLL_AREA_PADDING = 6;
-static constexpr int INDENT_SIZE = 16;
-static constexpr int AREA_HEADER = 28;
+static const int BUTTON_HEIGHT = 20;
+static const int SLIDER_HEIGHT = 20;
+static const int SLIDER_MARKER_WIDTH = 10;
+static const int CHECK_SIZE = 8;
+static const int DEFAULT_SPACING = 4;
+static const int TEXT_HEIGHT = 8;
+static const int SCROLL_AREA_PADDING = 6;
+static const int INDENT_SIZE = 16;
+static const int AREA_HEADER = 28;
 
 static int g_scrollTop = 0;
 static int g_scrollBottom = 0;
@@ -359,7 +359,7 @@ void imguiEndScrollArea()
 	// Draw scroll bar
 	const int x = g_scrollRight+SCROLL_AREA_PADDING/2;
 	const int y = g_scrollBottom;
-	constexpr int w = SCROLL_AREA_PADDING*2;
+	const int w = SCROLL_AREA_PADDING*2;
 	const int h = g_scrollTop - g_scrollBottom;
 
 	const int stop = g_scrollAreaTop;
@@ -378,7 +378,7 @@ void imguiEndScrollArea()
 		const unsigned int hid = g_scrollId;
 		const int hx = x;
 		const int hy = y + static_cast<int>(barY * static_cast<float>(h));
-		constexpr int hw = w;
+		const int hw = w;
 		const int hh = static_cast<int>(barHeight * static_cast<float>(h));
 		
 		const int range = h - (hh-1);
@@ -431,7 +431,7 @@ bool imguiButton(const char* text, const bool enabled)
 	const int x = g_state.widgetX;
 	const int y = g_state.widgetY - BUTTON_HEIGHT;
 	const int w = g_state.widgetW;
-	constexpr int h = BUTTON_HEIGHT;
+	const int h = BUTTON_HEIGHT;
 	g_state.widgetY -= BUTTON_HEIGHT + DEFAULT_SPACING;
 
 	const bool over = enabled && inRect(x, y, w, h);
@@ -454,7 +454,7 @@ bool imguiItem(const char* text, const bool enabled)
 	const int x = g_state.widgetX;
 	const int y = g_state.widgetY - BUTTON_HEIGHT;
 	const int w = g_state.widgetW;
-	constexpr int h = BUTTON_HEIGHT;
+	const int h = BUTTON_HEIGHT;
 	g_state.widgetY -= BUTTON_HEIGHT + DEFAULT_SPACING;
 
 	const bool over = enabled && inRect(x, y, w, h);
@@ -479,7 +479,7 @@ bool imguiCheck(const char* text, const bool checked, const bool enabled)
 	const int x = g_state.widgetX;
 	const int y = g_state.widgetY - BUTTON_HEIGHT;
 	const int w = g_state.widgetW;
-	constexpr int h = BUTTON_HEIGHT;
+	const int h = BUTTON_HEIGHT;
 	g_state.widgetY -= BUTTON_HEIGHT + DEFAULT_SPACING;
 
 	const bool over = enabled && inRect(x, y, w, h);
@@ -512,7 +512,7 @@ bool imguiCollapse(const char* text, const char* subtext, const bool checked, co
 	const int x = g_state.widgetX;
 	const int y = g_state.widgetY - BUTTON_HEIGHT;
 	const int w = g_state.widgetW;
-	constexpr int h = BUTTON_HEIGHT;
+	const int h = BUTTON_HEIGHT;
 	g_state.widgetY -= BUTTON_HEIGHT; // + DEFAULT_SPACING;
 
 	const int cx = x+BUTTON_HEIGHT/2-CHECK_SIZE/2;
@@ -563,7 +563,7 @@ bool imguiSlider(const char* text, float* val, const float vmin, const float vma
 	const int x = g_state.widgetX;
 	const int y = g_state.widgetY - BUTTON_HEIGHT;
 	const int w = g_state.widgetW;
-	constexpr int h = SLIDER_HEIGHT;
+	const int h = SLIDER_HEIGHT;
 	g_state.widgetY -= SLIDER_HEIGHT + DEFAULT_SPACING;
 
 	addGfxCmdRoundedRect(static_cast<float>(x), static_cast<float>(y), static_cast<float>(w), static_cast<float>(h), 4.0f, imguiRGBA(0,0,0,128));
@@ -647,7 +647,7 @@ void imguiSeparatorLine()
 	const int x = g_state.widgetX;
 	const int y = g_state.widgetY - DEFAULT_SPACING*2;
 	const int w = g_state.widgetW;
-	constexpr int h = 1;
+	const int h = 1;
 	g_state.widgetY -= DEFAULT_SPACING*4;
 
 	addGfxCmdRect(static_cast<float>(x), static_cast<float>(y), static_cast<float>(w), static_cast<float>(h), imguiRGBA(255,255,255,32));

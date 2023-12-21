@@ -88,7 +88,7 @@ void BuildContext::dumpLog(const char* format, ...) const
 	printf("\n");
 	
 	// Print messages
-	constexpr int TAB_STOPS[4] = { 28, 36, 44, 52 };
+	const int TAB_STOPS[4] = { 28, 36, 44, 52 };
 	for (int i = 0; i < m_messageCount; ++i)
 	{
 		const char* msg = m_messages[i]+1;

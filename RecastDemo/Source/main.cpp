@@ -71,7 +71,7 @@ static SampleItem g_samples[] =
 	{ createTile, "Tile Mesh" },
 	{ createTempObstacle, "Temp Obstacles" },
 };
-static constexpr int g_nsamples = sizeof(g_samples) / sizeof(SampleItem);
+static const int g_nsamples = sizeof(g_samples) / sizeof(SampleItem);
 
 int main(int /*argc*/, char** /*argv*/)
 {
@@ -393,8 +393,8 @@ int main(int /*argc*/, char** /*argv*/)
 		}
 		
 		// Update sample simulation.
-		constexpr float SIM_RATE = 20;
-		constexpr float DELTA_TIME = 1.0f / SIM_RATE;
+		const float SIM_RATE = 20;
+		const float DELTA_TIME = 1.0f / SIM_RATE;
 		timeAcc = rcClamp(timeAcc + dt, -1.0f, 1.0f);
 		int simIter = 0;
 		while (timeAcc > DELTA_TIME)
@@ -408,7 +408,7 @@ int main(int /*argc*/, char** /*argv*/)
 		}
 
 		// Clamp the framerate so that we do not hog all the CPU.
-		constexpr float MIN_FRAME_TIME = 1.0f / 40.0f;
+		const float MIN_FRAME_TIME = 1.0f / 40.0f;
 		if (dt < MIN_FRAME_TIME)
 		{
 			int ms = static_cast<int>((MIN_FRAME_TIME - dt) * 1000.0f);
@@ -519,7 +519,7 @@ int main(int /*argc*/, char** /*argv*/)
 		// Help text.
 		if (showMenu)
 		{
-			constexpr char msg[] = "W/S/A/D: Move  RMB: Rotate";
+			const char msg[] = "W/S/A/D: Move  RMB: Rotate";
 			imguiDrawText(280, height-20, IMGUI_ALIGN_LEFT, msg, imguiRGBA(255,255,255,128));
 		}
 		
@@ -900,7 +900,7 @@ int main(int /*argc*/, char** /*argv*/)
 			glBegin(GL_LINE_LOOP);
 			for (int i = 0; i < 20; ++i)
 			{
-				constexpr float r = 25.0f;
+				const float r = 25.0f;
 				const float a = static_cast<float>(i) / 20.0f * RC_PI*2;
 				const float fx = static_cast<float>(x) + cosf(a)*r;
 				const float fy = static_cast<float>(y) + sinf(a)*r;

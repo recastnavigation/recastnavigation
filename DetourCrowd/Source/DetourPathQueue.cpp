@@ -76,7 +76,7 @@ bool dtPathQueue::init(const int maxPathSize, const int maxSearchNodeCount, cons
 
 void dtPathQueue::update(const int maxIters)
 {
-	static constexpr int MAX_KEEP_ALIVE = 2; // in update ticks.
+	static const int MAX_KEEP_ALIVE = 2; // in update ticks.
 
 	// Update path request until there is nothing to update
 	// or upto maxIters pathfinder iterations has been consumed.

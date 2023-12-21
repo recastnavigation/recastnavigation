@@ -59,7 +59,7 @@ struct dtObstacleOrientedBox
 	float rotAux[ 2 ]; //{ cos(0.5f*angle)*sin(-0.5f*angle); cos(0.5f*angle)*cos(0.5f*angle) - 0.5 }
 };
 
-static constexpr int DT_MAX_TOUCHED_TILES = 8;
+static const int DT_MAX_TOUCHED_TILES = 8;
 struct dtTileCacheObstacle
 {
 	union
@@ -193,14 +193,14 @@ public:
 	/// Decodes an obstacle salt.
 	static unsigned int decodeObstacleIdSalt(const dtObstacleRef ref)
 	{
-		constexpr dtObstacleRef saltMask = (static_cast<dtObstacleRef>(1)<<16)-1;
+		const dtObstacleRef saltMask = (static_cast<dtObstacleRef>(1)<<16)-1;
 		return ref >> 16 & saltMask;
 	}
 	
 	/// Decodes an obstacle id.
 	static unsigned int decodeObstacleIdObstacle(const dtObstacleRef ref)
 	{
-		constexpr dtObstacleRef tileMask = (static_cast<dtObstacleRef>(1)<<16)-1;
+		const dtObstacleRef tileMask = (static_cast<dtObstacleRef>(1)<<16)-1;
 		return ref & tileMask;
 	}
 	
@@ -241,11 +241,11 @@ private:
 	dtTileCacheObstacle* m_obstacles;
 	dtTileCacheObstacle* m_nextFreeObstacle;
 	
-	static constexpr int MAX_REQUESTS = 64;
+	static const int MAX_REQUESTS = 64;
 	ObstacleRequest m_reqs[MAX_REQUESTS]{};
 	int m_nreqs;
 	
-	static constexpr int MAX_UPDATE = 64;
+	static const int MAX_UPDATE = 64;
 	dtCompressedTileRef m_update[MAX_UPDATE];
 	int m_nupdate;
 };

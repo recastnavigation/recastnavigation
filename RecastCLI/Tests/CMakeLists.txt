@@ -16,7 +16,7 @@ if (Catch2_FOUND)
     target_link_libraries(CLITests Catch2::Catch2WithMain)
 else()
     include_directories(../Contrib)
-#    target_sources(CLITests PRIVATE ../Contrib/catch2/catch_amalgamated.cpp)
+    target_sources(CLITests PRIVATE ../Contrib/catch2/catch_amalgamated.cpp)
 endif()
 
 add_test(CLITests CLITests)

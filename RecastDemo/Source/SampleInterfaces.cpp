@@ -87,7 +87,7 @@ void BuildContext::dumpLog(const char* format, ...) const
 	printf("\n");
 	
 	// Print messages
-	constexpr int TAB_STOPS[4] = { 28, 36, 44, 52 };
+	const int TAB_STOPS[4] = { 28, 36, 44, 52 };
 	for (int i = 0; i < m_messageCount; ++i)
 	{
 		const char* msg = m_messages[i]+1;
@@ -154,7 +154,7 @@ public:
 			// Create checker pattern.
 			const unsigned int col0 = duRGBA(215,215,215,255);
 			const unsigned int col1 = duRGBA(255,255,255,255);
-			static constexpr int TSIZE = 64;
+			static const int TSIZE = 64;
 			unsigned int data[TSIZE*TSIZE];
 			
 			glGenTextures(1, &m_texId);

@@ -1324,7 +1324,7 @@ static void paintRectRegion(const int minx, const int maxx, const int miny, cons
 }
 
 
-static constexpr unsigned short RC_NULL_NEI = 0xffff;
+static const unsigned short RC_NULL_NEI = 0xffff;
 
 struct rcSweepSpan
 {
@@ -1552,8 +1552,8 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 
     ctx->startTimer(RC_TIMER_BUILD_REGIONS_WATERSHED);
 
-    constexpr int LOG_NB_STACKS = 3;
-    constexpr int NB_STACKS = 1 << LOG_NB_STACKS;
+    const int LOG_NB_STACKS = 3;
+    const int NB_STACKS = 1 << LOG_NB_STACKS;
     rcTempVector<LevelStackEntry> lvlStacks[NB_STACKS];
     for (auto& lvlStack : lvlStacks)
         lvlStack.reserve(256);
@@ -1574,7 +1574,7 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
     // watershed "overflows" and simplifies the regions. Tying it to
     // agent radius was usually good indication how greedy it could be.
     //	const int expandIters = 4 + walkableRadius * 2;
-    constexpr int expandIters = 8;
+    const int expandIters = 8;
 
     if (borderSize > 0)
     {
@@ -1854,9 +1854,9 @@ bool rcBuildRegionsWithSize(rcContext* ctx, rcCompactHeightfield& chf, const int
     const int w = chf.width;
     const int h = chf.height;
 
-    constexpr int NOT_EVALUATED{-4};
-    constexpr int DIRTY{-3};
-    constexpr int PENDING{-2};
+    const int NOT_EVALUATED{-4};
+    const int DIRTY{-3};
+    const int PENDING{-2};
 
     rcTempVector<unsigned short> regions(chf.spanCount, NOT_EVALUATED);
     rcTempVector<LevelStackEntry> levelStack;
@@ -2053,7 +2053,7 @@ void CalculateSampleIndices(const int gx, const int gy, const int gz,
         tx = vx;
         ty = vy;
     }
-    constexpr double M_PI = 3.141592653589793238462643383279502884;
+    const double M_PI = 3.141592653589793238462643383279502884;
     double a = atan2(ty, tx);
     if (a < 0)
         a += M_PI * 2;
@@ -2083,8 +2083,8 @@ bool RideLine(const rcCompactHeightfield& chf, const rcTempVector<int>& gx, cons
     {
         if (chf.areas[i] == RC_NULL_AREA)
             return false;
-        static constexpr int offsetX[8]{-1, -1, 0, 1, 1, 1, 0, -1};
-        static constexpr int offsetY[8]{0, 1, 1, 1, 0, -1, 1, -1};
+        static const int offsetX[8]{-1, -1, 0, 1, 1, 1, 0, -1};
+        static const int offsetY[8]{0, 1, 1, 1, 0, -1, 1, -1};
         const int w = chf.width;
 
         const float dx = static_cast<float>(offsetX[first]) * w1 + static_cast<float>(offsetX[second]) * w2 +

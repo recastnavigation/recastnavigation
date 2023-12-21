@@ -3,7 +3,7 @@
 
 class ValueHistory
 {
-	static constexpr int MAX_HISTORY = 256;
+	static const int MAX_HISTORY = 256;
 	float m_samples[MAX_HISTORY]{};
 	int m_hsamples;
 public:
