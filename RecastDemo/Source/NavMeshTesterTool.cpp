@@ -74,7 +74,7 @@ static int fixupShortcuts(dtPolyRef* path, int npath, const dtNavMeshQuery* navQ
 		return npath;
 
 	// Get connected polygons
-	static constexpr int maxNeis = 16;
+	static const int maxNeis = 16;
 	dtPolyRef neis[maxNeis];
 	int nneis = 0;
 
@@ -95,7 +95,7 @@ static int fixupShortcuts(dtPolyRef* path, int npath, const dtNavMeshQuery* navQ
 
 	// If any of the neighbour polygons is within the next few polygons
 	// in the path, short cut to that polygon directly.
-	static constexpr int maxLookAhead = 6;
+	static const int maxLookAhead = 6;
 	int cut = 0;
 	for (int i = dtMin(maxLookAhead, npath) - 1; i > 1 && cut == 0; i--) {
 		for (int j = 0; j < nneis; j++)
@@ -124,7 +124,7 @@ static bool getSteerTarget(const dtNavMeshQuery* navQuery, const float* startPos
                            float* outPoints = nullptr, int* outPointCount = nullptr)
 {
 	// Find steer target.
-	static constexpr int MAX_STEER_POINTS = 3;
+	static const int MAX_STEER_POINTS = 3;
 	float steerPath[MAX_STEER_POINTS*3];
 	unsigned char steerPathFlags[MAX_STEER_POINTS];
 	dtPolyRef steerPathPolys[MAX_STEER_POINTS];
@@ -444,8 +444,8 @@ void NavMeshTesterTool::handleToggle()
 	if (!m_sposSet || !m_eposSet || !m_startRef || !m_endRef)
 		return;
 		
-	static constexpr float STEP_SIZE = 0.5f;
-	static constexpr float SLOP = 0.01f;
+	static const float STEP_SIZE = 0.5f;
+	static const float SLOP = 0.01f;
 
 	if (m_pathIterNum == 0)
 	{
@@ -672,8 +672,8 @@ void NavMeshTesterTool::recalc()
 				m_navQuery->closestPointOnPoly(m_startRef, m_spos, iterPos, nullptr);
 				m_navQuery->closestPointOnPoly(polys[npolys-1], m_epos, targetPos, nullptr);
 				
-				static constexpr float STEP_SIZE = 0.5f;
-				static constexpr float SLOP = 0.01f;
+				static const float STEP_SIZE = 0.5f;
+				static const float SLOP = 0.01f;
 				
 				m_nsmoothPath = 0;
 				
@@ -1250,7 +1250,7 @@ void NavMeshTesterTool::handleRender()
 				dd.depthMask(true);
 			}
 
-			static constexpr int MAX_SEGS = DT_VERTS_PER_POLYGON*4;
+			static const int MAX_SEGS = DT_VERTS_PER_POLYGON*4;
 			float segs[MAX_SEGS*6];
 			dtPolyRef refs[MAX_SEGS] = {};
 			int nsegs = 0;
@@ -1383,8 +1383,8 @@ void UnitedSizeNavMeshTesterTool::handleToggle() {
   if (!m_sposSet || !m_eposSet || !m_startRef || !m_endRef)
     return;
 
-  static constexpr float STEP_SIZE = 0.5f;
-  static constexpr float SLOP = 0.01f;
+  static const float STEP_SIZE = 0.5f;
+  static const float SLOP = 0.01f;
 
   if (m_pathIterNum == 0)
   {
@@ -1566,8 +1566,8 @@ void UnitedSizeNavMeshTesterTool::recalc()
 				m_navQuery->closestPointOnPoly(m_startRef, m_spos, iterPos, nullptr);
 				m_navQuery->closestPointOnPoly(polys[npolys-1], m_epos, targetPos, nullptr);
 
-				static constexpr float STEP_SIZE = 0.5f;
-				static constexpr float SLOP = 0.01f;
+				static const float STEP_SIZE = 0.5f;
+				static const float SLOP = 0.01f;
 
 				m_nsmoothPath = 0;
 

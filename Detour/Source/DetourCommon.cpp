@@ -112,7 +112,7 @@ bool dtIntersectSegmentPoly2D(const float* p0, const float* p1,
 							  float& tmin, float& tmax,
 							  int& segMin, int& segMax)
 {
-	static constexpr float EPS = 0.000001f;
+	static const float EPS = 0.000001f;
 	
 	tmin = 0;
 	tmax = 1;
@@ -202,7 +202,7 @@ void dtCalcPolyCenter(float* tc, const unsigned short* idx, const int nidx, cons
 
 bool dtClosestHeightPointTriangle(const float* p, const float* a, const float* b, const float* c, float& h)
 {
-	constexpr float EPS = 1e-6f;
+	const float EPS = 1e-6f;
 	float v0[3], v1[3], v2[3];
 
 	dtVsub(v0, c, a);
@@ -293,7 +293,7 @@ inline bool overlapRange(const float amin, const float amax,
 bool dtOverlapPolyPoly2D(const float* polya, const int npolya,
 						 const float* polyb, const int npolyb)
 {
-	constexpr float eps = 1e-4f;
+	const float eps = 1e-4f;
 	
 	for (int i = 0, j = npolya-1; i < npolya; j=i++)
 	{

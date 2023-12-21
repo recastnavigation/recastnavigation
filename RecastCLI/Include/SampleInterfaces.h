@@ -32,10 +32,10 @@ class BuildContext final : public rcContext
 	TimeVal m_startTime[RC_MAX_TIMERS]{};
 	TimeVal m_accTime[RC_MAX_TIMERS]{};
 
-	static constexpr int MAX_MESSAGES = 1000;
+	static const int MAX_MESSAGES = 1000;
 	const char* m_messages[MAX_MESSAGES]{};
 	int m_messageCount;
-	static constexpr int TEXT_POOL_SIZE = 8000;
+	static const int TEXT_POOL_SIZE = 8000;
 	char m_textPool[TEXT_POOL_SIZE]{};
 	int m_textPoolSize;
 	
@@ -45,9 +45,9 @@ public:
 	/// Dumps the log to stdout.
 	void dumpLog(const char* format, ...)const;
 	/// Returns number of log messages.
-	[[nodiscard]] int getLogCount() const;
+	 int getLogCount() const;
 	/// Returns log message text.
-	[[nodiscard]] const char* getLogText(int i) const;
+	 const char* getLogText(int i) const;
 	
 protected:	
 	/// Virtual functions for custom implementations.
@@ -57,7 +57,7 @@ protected:
 	void doResetTimers() override;
 	void doStartTimer(rcTimerLabel label) override;
 	void doStopTimer(rcTimerLabel label) override;
-	[[nodiscard]] int doGetAccumulatedTime(rcTimerLabel label) const override;
+	 int doGetAccumulatedTime(rcTimerLabel label) const override;
 	///@}
 };
 
@@ -71,8 +71,8 @@ public:
 	~FileIO() override;
 	bool openForWrite(const char* path);
 	bool openForRead(const char* path);
-	[[nodiscard]] bool isWriting() const override;
-	[[nodiscard]] bool isReading() const override;
+	 bool isWriting() const override;
+	 bool isReading() const override;
 	bool write(const void* ptr, size_t size) override;
 	bool read(void* ptr, size_t size) override;
 private:

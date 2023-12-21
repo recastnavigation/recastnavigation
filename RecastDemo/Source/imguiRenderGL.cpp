@@ -23,7 +23,7 @@
 #include "SDL_opengl.h"
 
 // Some math headers don't have PI defined.
-static constexpr float PI = 3.14159265f;
+static const float PI = 3.14159265f;
 
 void imguifree(void* ptr, void* userptr);
 void* imguimalloc(size_t size, void* userptr);
@@ -43,11 +43,11 @@ void* imguimalloc(const size_t size, void* /*userptr*/)
 	return malloc(size);
 }
 
-static constexpr unsigned TEMP_COORD_COUNT = 100;
+static const unsigned TEMP_COORD_COUNT = 100;
 static float g_tempCoords[TEMP_COORD_COUNT*2];
 static float g_tempNormals[TEMP_COORD_COUNT*2];
 
-static constexpr int CIRCLE_VERTS = 8*4;
+static const int CIRCLE_VERTS = 8*4;
 static float g_circleVerts[CIRCLE_VERTS*2];
 
 static stbtt_bakedchar g_cdata[96]; // ASCII 32..126 is 95 glyphs
@@ -161,7 +161,7 @@ static void drawEllipse(float x, float y, float w, float h, float fth, unsigned 
 
 static void drawRoundedRect(const float x, const float y, const float w, const float h, const float r, const float fth, const unsigned int col)
 {
-	constexpr unsigned n = CIRCLE_VERTS/4;
+	const unsigned n = CIRCLE_VERTS/4;
 	float verts[(n+1)*4*2];
 	const float* cverts = g_circleVerts;
 	float* v = verts;
@@ -330,7 +330,7 @@ static void getBakedQuad(const stbtt_bakedchar *chardata, const int pw, const in
 	*xpos += b->xadvance;
 }
 
-static constexpr float g_tabStops[4] = {150, 210, 270, 330};
+static const float g_tabStops[4] = {150, 210, 270, 330};
 
 static float getTextLength(const stbtt_bakedchar *chardata, const char* text)
 {
@@ -429,7 +429,7 @@ void imguiRenderGLDraw()
 	const imguiGfxCmd* q = imguiGetRenderQueue();
 	const int nq = imguiGetRenderQueueSize();
 
-	constexpr float s = 1.0f/8.0f;
+	const float s = 1.0f/8.0f;
 
 	glDisable(GL_SCISSOR_TEST);
 	for (int i = 0; i < nq; ++i)

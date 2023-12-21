@@ -126,8 +126,8 @@ bool duDumpPolyMeshDetailToObj(const rcPolyMeshDetail& dmesh, duFileIO* io)
 	return true;
 }
 
-static constexpr int CSET_MAGIC = ('c' << 24) | ('s' << 16) | ('e' << 8) | 't';
-static constexpr int CSET_VERSION = 2;
+static const int CSET_MAGIC = ('c' << 24) | ('s' << 16) | ('e' << 8) | 't';
+static const int CSET_VERSION = 2;
 
 bool duDumpContourSet(const rcContourSet& cset, duFileIO* io)
 {
@@ -250,8 +250,8 @@ bool duReadContourSet(rcContourSet& cset, duFileIO* io)
 }
 	
 
-static constexpr int CHF_MAGIC = ('r' << 24) | ('c' << 16) | ('h' << 8) | 'f';
-static constexpr int CHF_VERSION = 3;
+static const int CHF_MAGIC = ('r' << 24) | ('c' << 16) | ('h' << 8) | 'f';
+static const int CHF_VERSION = 3;
 
 bool duDumpCompactHeightfield(const rcCompactHeightfield& chf, duFileIO* io)
 {

@@ -57,7 +57,7 @@ typedef unsigned int dtTileRef;
 
 /// The maximum number of vertices per navigation polygon.
 /// @ingroup detour
-static constexpr int DT_VERTS_PER_POLYGON = 6;
+static const int DT_VERTS_PER_POLYGON = 6;
 
 /// @{
 /// @name Tile Serialization Constants
@@ -66,32 +66,32 @@ static constexpr int DT_VERTS_PER_POLYGON = 6;
 ///
 
 /// A magic number used to detect compatibility of navigation tile data.
-static constexpr int DT_NAVMESH_MAGIC = 'D'<<24 | 'N'<<16 | 'A'<<8 | 'V';
+static const int DT_NAVMESH_MAGIC = 'D'<<24 | 'N'<<16 | 'A'<<8 | 'V';
 
 /// A version number used to detect compatibility of navigation tile data.
-static constexpr int DT_NAVMESH_VERSION = 7;
+static const int DT_NAVMESH_VERSION = 7;
 
 /// A magic number used to detect the compatibility of navigation tile states.
-static constexpr int DT_NAVMESH_STATE_MAGIC = 'D'<<24 | 'N'<<16 | 'M'<<8 | 'S';
+static const int DT_NAVMESH_STATE_MAGIC = 'D'<<24 | 'N'<<16 | 'M'<<8 | 'S';
 
 /// A version number used to detect compatibility of navigation tile states.
-static constexpr int DT_NAVMESH_STATE_VERSION = 1;
+static const int DT_NAVMESH_STATE_VERSION = 1;
 
 /// @}
 
 /// A flag that indicates that an entity links to an external entity.
 /// (E.g. A polygon edge is a portal that links to another polygon.)
-static constexpr unsigned short DT_EXT_LINK = 0x8000;
+static const unsigned short DT_EXT_LINK = 0x8000;
 
 /// A value that indicates the entity does not link to anything.
-static constexpr unsigned int DT_NULL_LINK = 0xffffffff;
+static const unsigned int DT_NULL_LINK = 0xffffffff;
 
 /// A flag that indicates that an off-mesh connection can be traversed in both directions. (Is bidirectional.)
-static constexpr unsigned int DT_OFFMESH_CON_BIDIR = 1;
+static const unsigned int DT_OFFMESH_CON_BIDIR = 1;
 
 /// The maximum number of user defined area ids.
 /// @ingroup detour
-static constexpr int DT_MAX_AREAS = 64;
+static const int DT_MAX_AREAS = 64;
 
 /// Tile flags used for various functions and fields.
 /// For an example, see dtNavMesh::addTile().
@@ -137,7 +137,7 @@ enum dtDetailTriEdgeFlags
 
 /// Limit raycasting during any angle pahfinding
 /// The limit is given as a multiple of the character radius
-static constexpr float DT_RAY_CAST_LIMIT_PROPORTIONS = 50.0f;
+static const float DT_RAY_CAST_LIMIT_PROPORTIONS = 50.0f;
 
 /// Flags representing the type of a navigation mesh polygon.
 enum dtPolyTypes

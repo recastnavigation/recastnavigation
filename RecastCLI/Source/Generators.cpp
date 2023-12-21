@@ -81,7 +81,7 @@ bool GenerateTheses(rcContext* pCtx, const InputGeom* pGeom, rcConfig& config, c
         return false;
     }
 
-    constexpr bool m_keepInterResults = false;
+    const bool m_keepInterResults = false;
     if (!m_keepInterResults)
     {
         delete [] m_triareas;
@@ -310,7 +310,7 @@ bool GenerateSingleMeshWaterShed(rcContext* pCtx, const InputGeom* pGeom, rcConf
         return false;
     }
 
-    constexpr bool m_keepInterResults = false;
+    const bool m_keepInterResults = false;
     if (!m_keepInterResults)
     {
         delete [] m_triareas;

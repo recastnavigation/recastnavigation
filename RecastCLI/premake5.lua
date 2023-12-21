@@ -7,7 +7,7 @@ local action = _ACTION or ""
 local todir = "Build/" .. action
 
 workspace "recastnavigation"
-	configurations { 
+	configurations {
 		"Debug",
 		"Release"
 	}
@@ -25,7 +25,7 @@ workspace "recastnavigation"
 	filter "configurations:Debug"
 		defines { "DEBUG" }
 		targetdir ( todir .. "/lib/Debug" )
- 
+
  	-- release configs
 	filter "configurations:Release"
 		defines { "RC_DISABLE_ASSERTS" }
@@ -53,20 +53,26 @@ workspace "recastnavigation"
 project "DebugUtils"
 	language "C++"
 	kind "StaticLib"
-	includedirs { 
+	includedirs {
+		"../DebugUtils/Include",
 		"../Detour/Include",
 		"../DetourTileCache/Include",
 		"../Recast/Include"
 	}
+	files {
+		"../DebugUtils/Include/*.h",
+		"../DebugUtils/Source/*.cpp"
+	}
+
 project "Detour"
 	language "C++"
 	kind "StaticLib"
-	includedirs { 
-		"../Detour/Include" 
+	includedirs {
+		"../Detour/Include"
 	}
-	files { 
-		"../Detour/Include/*.h", 
-		"../Detour/Source/*.cpp" 
+	files {
+		"../Detour/Include/*.h",
+		"../Detour/Source/*.cpp"
 	}
 	-- linux library cflags and libs
 	filter {"system:linux", "toolset:gcc"}
@@ -104,18 +110,18 @@ project "DetourTileCache"
 project "Recast"
 	language "C++"
 	kind "StaticLib"
-	includedirs { 
-		"../Recast/Include" 
+	includedirs {
+		"../Recast/Include"
 	}
-	files { 
+	files {
 		"../Recast/Include/*.h",
-		"../Recast/Source/*.cpp" 
+		"../Recast/Source/*.cpp"
 	}
 
 project "RecastCLI"
 	language "C++"
-	kind "WindowedApp"
-	includedirs { 
+	kind "ConsoleApp"
+	includedirs {
 		"../RecastCLI/Include",
 		"../RecastCLI/Contrib",
 		"../RecastCLI/Contrib/fastlz",
@@ -146,15 +152,8 @@ project "RecastCLI"
 
 	-- linux library cflags and libs
 	filter "system:linux"
-		buildoptions { 
-			"`pkg-config --cflags gl`",
-			"`pkg-config --cflags glu`",
+		buildoptions {
 			"-Wno-ignored-qualifiers",
-		}
-		linkoptions { 
-			"`pkg-config --libs sdl2`",
-			"`pkg-config --libs gl`",
-			"`pkg-config --libs glu`" 
 		}
 
 	filter { "system:linux", "toolset:gcc", "files:*.c" }
@@ -179,7 +178,8 @@ project "Tests"
 	exceptionhandling "On"
 	rtti "On"
 
-	includedirs { 
+	includedirs {
+		"../DebugUtils/Include",
 		"../Detour/Include",
 		"../DetourCrowd/Include",
 		"../DetourTileCache/Include",
@@ -189,7 +189,7 @@ project "Tests"
 		"../Tests",
 		"../Tests/Contrib"
 	}
-	files { 
+	files {
 		"../Tests/*.h",
 		"../Tests/*.hpp",
 		"../Tests/*.cpp",
@@ -198,47 +198,6 @@ project "Tests"
 		"../Tests/Detour/*.h",
 		"../Tests/Detour/*.cpp",
 		"../Tests/Contrib/catch2/*.cpp"
-	}
-
-	-- project dependencies
-	links { 
-		"DebugUtils",
-		"Detour",
-		"DetourCrowd",
-		"DetourTileCache",
-		"Recast",
-	}
-
-	-- distribute executable in RecastCLI/Bin directory
-	targetdir "Bin"
-
-	-- enable ubsan and asan when compiling with clang
-	filter "toolset:clang"
-			buildoptions { "-fsanitize=undefined", "-fsanitize=address" } -- , "-fsanitize=memory" }
-			linkoptions { "-fsanitize=undefined", "-fsanitize=address" } --, "-fsanitize=memory" }
-
-project "TestsCLI"
-	language "C++"
-	kind "ConsoleApp"
-	cppdialect "C++14" -- Catch requires newer C++ features
-
-	-- Catch requires RTTI and exceptions
-	exceptionhandling "On"
-	rtti "On"
-
-	includedirs {
-		"../Detour/Include",
-		"../DetourCrowd/Include",
-		"../DetourTileCache/Include",
-		"../Recast/Include",
-		"../Recast/Source",
-		"Tests",
-		"Contrib",
-		"Include",
-	}
-	files {
-		"Tests/*.cpp",
-		"Source/*.cpp",
 	}
 
 	-- project dependencies
@@ -257,3 +216,62 @@ project "TestsCLI"
 	filter "toolset:clang"
 			buildoptions { "-fsanitize=undefined", "-fsanitize=address" } -- , "-fsanitize=memory" }
 			linkoptions { "-fsanitize=undefined", "-fsanitize=address" } --, "-fsanitize=memory" }
+
+	-- linux library cflags and libs
+	filter "system:linux"
+		buildoptions {
+			"-Wno-parentheses" -- Disable parentheses warning for the Tests target, as Catch's macros generate this everywhere.
+		}
+		linkoptions {
+			"-lpthread"
+		}
+project "TestsCLI"
+	language "C++"
+	kind "ConsoleApp"
+	cppdialect "C++14" -- Catch requires newer C++ features
+
+	-- Catch requires RTTI and exceptions
+	exceptionhandling "On"
+	rtti "On"
+
+	includedirs {
+		"../Detour/Include",
+		"../DetourCrowd/Include",
+		"../DetourTileCache/Include",
+		"../DebugUtils/Include",
+		"../Recast/Include",
+		"../Recast/Source",
+		"Tests",
+		"Contrib",
+		"Include",
+	}
+	files {
+		"Tests/*.cpp",
+		"Source/*.cpp",
+		"Contrib/catch2/*.cpp"
+	}
+
+	-- project dependencies
+	links {
+		"DebugUtils",
+		"Detour",
+		"DetourCrowd",
+		"DetourTileCache",
+		"Recast",
+	}
+
+	-- distribute executable in RecastCLI/Bin directory
+	targetdir "Bin"
+
+	-- enable ubsan and asan when compiling with clang
+	filter "toolset:clang"
+			buildoptions { "-fsanitize=undefined", "-fsanitize=address" } -- , "-fsanitize=memory" }
+			linkoptions { "-fsanitize=undefined", "-fsanitize=address" } --, "-fsanitize=memory" }
+
+    filter "system:linux"
+		buildoptions {
+			"-Wno-parentheses" -- Disable parentheses warning for the Tests target, as Catch's macros generate this everywhere.
+		}
+		linkoptions {
+			"-lpthread"
+		}

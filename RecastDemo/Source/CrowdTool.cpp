@@ -46,7 +46,7 @@ static bool isectSegAABB(const float* sp, const float* sq,
 						 const float* amin, const float* amax,
 						 float& tmin, float& tmax)
 {
-	static constexpr float EPS = 1e-6f;
+	static const float EPS = 1e-6f;
 	
 	float d[3];
 	dtVsub(d, sq, sp);
@@ -544,7 +544,7 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 				{
 					for (dtNodeIndex j = pool->getFirst(i); j != DT_NULL_IDX; j = pool->getNext(j))
 					{
-						constexpr float off = 0.5f;
+						const float off = 0.5f;
 						const dtNode* node = pool->getNodeAtIdx(j+1);
 						if (!node) continue;
 
@@ -1049,7 +1049,7 @@ void CrowdTool::handleStep()
 {
 	if (!m_state) return;
 
-	constexpr float dt = 1.0f/20.0f;
+	const float dt = 1.0f/20.0f;
 	m_state->updateTick(dt);
 
 	m_state->setRunning(false);

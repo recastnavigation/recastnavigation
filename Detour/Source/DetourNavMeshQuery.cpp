@@ -102,7 +102,7 @@ inline float dtQueryFilter::getCost(const float* pa, const float* pb,
 }
 #endif
 
-static constexpr float H_SCALE = 0.999f; // Search heuristic scale.
+static const float H_SCALE = 0.999f; // Search heuristic scale.
 
 
 dtNavMeshQuery* dtAllocNavMeshQuery()
@@ -238,7 +238,7 @@ dtStatus dtNavMeshQuery::findRandomPoint(const dtQueryFilter* filter, float (*fr
         if (!t || !t->header) continue;
 
         // Choose random tile using reservoir sampling.
-        constexpr float area = 1.0f; // Could be tile area too.
+        const float area = 1.0f; // Could be tile area too.
         tsum += area;
         const float u = frand();
         if (u * tsum <= area)
@@ -729,7 +729,7 @@ void dtNavMeshQuery::queryPolygonsInTile(const dtMeshTile* tile, const float* qm
                                          const dtQueryFilter* filter, dtPolyQuery* query) const
 {
     dtAssert(m_nav);
-    static constexpr int batchSize = 32;
+    static const int batchSize = 32;
     dtPolyRef polyRefs[batchSize];
     dtPoly* polys[batchSize];
     int n = 0;
@@ -933,7 +933,7 @@ dtStatus dtNavMeshQuery::queryPolygons(const float* center, const float* halfExt
     m_nav->calcTileLoc(bmin, &minx, &miny);
     m_nav->calcTileLoc(bmax, &maxx, &maxy);
 
-    static constexpr int MAX_NEIS = 32;
+    static const int MAX_NEIS = 32;
 
     for (int y = miny; y <= maxy; ++y)
     {
@@ -2273,7 +2273,7 @@ dtStatus dtNavMeshQuery::moveAlongSurface(const dtPolyRef startRef, const float*
 
     dtStatus status = DT_SUCCESS;
 
-    static constexpr int MAX_STACK = 48;
+    static const int MAX_STACK = 48;
     dtNode* stack[MAX_STACK];
     int nstack = 0;
 
@@ -2331,7 +2331,7 @@ dtStatus dtNavMeshQuery::moveAlongSurface(const dtPolyRef startRef, const float*
         for (int i = 0, j = static_cast<int>(curPoly->vertCount) - 1; i < static_cast<int>(curPoly->vertCount); j = i++)
         {
             // Find links to neighbours.
-            static constexpr int MAX_NEIS = 8;
+            static const int MAX_NEIS = 8;
             int nneis = 0;
             dtPolyRef neis[MAX_NEIS];
 
@@ -2537,7 +2537,7 @@ dtStatus dtNavMeshQuery::getPortalPoints(const dtPolyRef from, const dtPoly* fro
         // Unpack portal limits.
         if (link->bmin != 0 || link->bmax != 255)
         {
-            constexpr float s = 1.0f / 255.0f;
+            const float s = 1.0f / 255.0f;
             const float tmin = static_cast<float>(link->bmin) * s;
             const float tmax = static_cast<float>(link->bmax) * s;
             dtVlerp(left, &fromTile->verts[v0 * 3], &fromTile->verts[v1 * 3], tmin);
@@ -2813,7 +2813,7 @@ dtStatus dtNavMeshQuery::raycast(const dtPolyRef startRef, const float* startPos
             if (link->side == 0 || link->side == 4)
             {
                 // Calculate link size.
-                constexpr float s = 1.0f / 255.0f;
+                const float s = 1.0f / 255.0f;
                 float lmin = left[2] + (right[2] - left[2]) * (static_cast<float>(link->bmin) * s);
                 float lmax = left[2] + (right[2] - left[2]) * (static_cast<float>(link->bmax) * s);
                 if (lmin > lmax) dtSwap(lmin, lmax);
@@ -2829,7 +2829,7 @@ dtStatus dtNavMeshQuery::raycast(const dtPolyRef startRef, const float* startPos
             else if (link->side == 2 || link->side == 6)
             {
                 // Calculate link size.
-                constexpr float s = 1.0f / 255.0f;
+                const float s = 1.0f / 255.0f;
                 float lmin = left[0] + (right[0] - left[0]) * (static_cast<float>(link->bmin) * s);
                 float lmax = left[0] + (right[0] - left[0]) * (static_cast<float>(link->bmax) * s);
                 if (lmin > lmax) dtSwap(lmin, lmax);
@@ -3321,7 +3321,7 @@ dtStatus dtNavMeshQuery::findLocalNeighbourhood(const dtPolyRef startRef, const 
         return DT_FAILURE | DT_INVALID_PARAM;
     }
 
-    static constexpr int MAX_STACK = 48;
+    static const int MAX_STACK = 48;
     dtNode* stack[MAX_STACK];
     int nstack = 0;
 
@@ -3542,7 +3542,7 @@ dtStatus dtNavMeshQuery::getPolyWallSegments(const dtPolyRef ref, const dtQueryF
         return DT_FAILURE | DT_INVALID_PARAM;
 
     int n = 0;
-    static constexpr int MAX_INTERVAL = 16;
+    static const int MAX_INTERVAL = 16;
 
     const bool storePortals = segmentRefs != nullptr;
 

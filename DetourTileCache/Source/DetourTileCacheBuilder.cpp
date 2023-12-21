@@ -38,18 +38,18 @@ public:
 
 inline int getDirOffsetX(const int dir)
 {
-	constexpr int offset[4] = { -1, 0, 1, 0, };
+	const int offset[4] = { -1, 0, 1, 0, };
 	return offset[dir&0x03];
 }
 
 inline int getDirOffsetY(const int dir)
 {
-	constexpr int offset[4] = { 0, 1, 0, -1 };
+	const int offset[4] = { 0, 1, 0, -1 };
 	return offset[dir&0x03];
 }
 
-static constexpr int MAX_VERTS_PER_POLY = 6;	// TODO: use the DT_VERTS_PER_POLYGON
-static constexpr int MAX_REM_EDGES = 48;		// TODO: make this an expression.
+static const int MAX_VERTS_PER_POLY = 6;	// TODO: use the DT_VERTS_PER_POLYGON
+static const int MAX_REM_EDGES = 48;		// TODO: make this an expression.
 
 
 
@@ -103,7 +103,7 @@ struct dtLayerSweepSpan
 	unsigned char nei;	// neighbour id
 };
 
-static constexpr int DT_LAYER_MAX_NEIS = 16;
+static const int DT_LAYER_MAX_NEIS = 16;
 
 struct dtLayerMonotoneRegion
 {
@@ -829,13 +829,13 @@ dtStatus dtBuildTileCacheContours(dtTileCacheAlloc* alloc,
 
 
 
-static constexpr int VERTEX_BUCKET_COUNT2 = (1<<8);
+static const int VERTEX_BUCKET_COUNT2 = (1<<8);
 
 inline int computeVertexHash2(const int x, const int y, const int z)
 {
-	constexpr unsigned int h1 = 0x8da6b343; // Large multiplicative constants;
-	constexpr unsigned int h2 = 0xd8163841; // here arbitrarily chosen primes
-	constexpr unsigned int h3 = 0xcb1ab31f;
+	const unsigned int h1 = 0x8da6b343; // Large multiplicative constants;
+	const unsigned int h2 = 0xd8163841; // here arbitrarily chosen primes
+	const unsigned int h3 = 0xcb1ab31f;
 	const unsigned int n = h1 * x + h2 * y + h3 * z;
 	return static_cast<int>(n & (VERTEX_BUCKET_COUNT2 - 1));
 }
@@ -1668,7 +1668,7 @@ static dtStatus removeVertex(dtTileCachePolyMesh& mesh, const unsigned short rem
 		return DT_SUCCESS;
 
 	// Merge polygons.
-	constexpr int maxVertsPerPoly = MAX_VERTS_PER_POLY;
+	const int maxVertsPerPoly = MAX_VERTS_PER_POLY;
 	if (maxVertsPerPoly > 3)
 	{
 		for (;;)
@@ -1856,7 +1856,7 @@ dtStatus dtBuildTileCachePolyMesh(dtTileCacheAlloc* alloc,
 			continue;
 
 		// Merge polygons.
-		constexpr int maxVertsPerPoly =MAX_VERTS_PER_POLY ;
+		const int maxVertsPerPoly =MAX_VERTS_PER_POLY ;
 		if (maxVertsPerPoly > 3)
 		{
 			for(;;)

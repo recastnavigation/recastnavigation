@@ -3,7 +3,9 @@
 #include <string>
 
 #define CATCH_CONFIG_MAIN
-#include "catch2/catch.hpp"
+#include <iostream>
+
+#include "catch2/catch_all.hpp"
 
 #include "Recast.h"
 #include "InputGeom.h"
@@ -12,24 +14,24 @@
 
 // For comparing to rcVector in benchmarks.
 const std::string environments[3]{"Meshes/zelda.obj", "Meshes/zelda2x2.obj", "Meshes/zelda4x4.obj"};
-constexpr float cellSizes[]{0.1f, 0.15f, 0.2f, 0.25f, 0.3f, 0.35f, 0.4f, 0.45f, 0.5f, 0.55f, 0.6};
-constexpr float agentRadii[]{0.0f, 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f};
-constexpr float regionMinSizes[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50};
-constexpr float regionMergeSizes[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50};
-constexpr float cellHeight = 0.2f;
-constexpr float agentHeight = 2.0f;
-constexpr float agentMaxClimb = 0.9f;
-constexpr float agentMaxSlope = 45.0f;
-constexpr float edgeMaxLen = 12.0f;
-constexpr float edgeMaxError = 1.3f;
-constexpr float vertsPerPoly = 6.0f;
-constexpr float detailSampleDist = 6.0f;
-constexpr float detailSampleMaxError = 1.0f;
-constexpr bool filterLedgeSpans = true;
-constexpr bool filterWalkableLowHeightSpans = true;
-constexpr bool filterLowHangingObstacles = true;
+const float cellSizes[]{0.1f, 0.15f, 0.2f, 0.25f, 0.3f, 0.35f, 0.4f, 0.45f, 0.5f, 0.55f, 0.6};
+const float agentRadii[]{0.0f, 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f};
+const float regionMinSizes[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50};
+const float regionMergeSizes[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50};
+const float cellHeight = 0.2f;
+const float agentHeight = 2.0f;
+const float agentMaxClimb = 0.9f;
+const float agentMaxSlope = 45.0f;
+const float edgeMaxLen = 12.0f;
+const float edgeMaxError = 1.3f;
+const float vertsPerPoly = 6.0f;
+const float detailSampleDist = 6.0f;
+const float detailSampleMaxError = 1.0f;
+const bool filterLedgeSpans = true;
+const bool filterWalkableLowHeightSpans = true;
+const bool filterLowHangingObstacles = true;
 
-constexpr int LOOP_COUNT = 10;
+const int LOOP_COUNT = 10;
 
 TEST_CASE("Watershed")
 {
@@ -94,5 +96,6 @@ TEST_CASE("Watershed")
         std::ofstream csvFile{"output.csv", std::ios::in | std::ios::app};
         csvFile << ss.str() << std::endl;
         csvFile.close();
+        std::cout << env  << ";\t" << cellS << ";\t" << agentR << ";\t" << minS << ";\t" << mergeS << std::endl;
     }
 }

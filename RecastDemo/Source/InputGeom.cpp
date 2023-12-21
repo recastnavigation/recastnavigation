@@ -387,7 +387,7 @@ static bool isectSegAABB(const float* sp, const float* sq,
                          const float* amin, const float* amax,
                          float& tmin, float& tmax)
 {
-    static constexpr float EPS = 1e-6f;
+    static const float EPS = 1e-6f;
 
     float d[3];
     d[0] = sq[0] - sp[0];

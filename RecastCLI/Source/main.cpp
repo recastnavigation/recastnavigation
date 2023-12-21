@@ -163,9 +163,9 @@ int main(const int argc, char* argv[])
     float m_vertsPerPoly = 6.0f;
     float m_detailSampleDist = 6.0f;
     float m_detailSampleMaxError = 1.0f;
-    constexpr bool filterLedgeSpans = true;
-    constexpr bool filterWalkableLowHeightSpans = true;
-    constexpr bool filterLowHangingObstacles = true;
+    const bool filterLedgeSpans = true;
+    const bool filterWalkableLowHeightSpans = true;
+    const bool filterLowHangingObstacles = true;
     if (parser.cmdOptionExists("-cs;--cellsize"))
         cellSize = std::stof(parser.getCmdOption("-cs;--cellsize"));
     if (parser.cmdOptionExists("-ch;--cellheight"))

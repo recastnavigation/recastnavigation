@@ -23,7 +23,7 @@
 #include "MeshLoaderObj.h"
 #include "Recast.h"
 
-static constexpr int MAX_CONVEXVOL_PTS = 12;
+static const int MAX_CONVEXVOL_PTS = 12;
 struct ConvexVolume
 {
 	float verts[MAX_CONVEXVOL_PTS*3];
@@ -80,7 +80,7 @@ class InputGeom
 	
 	/// @name Off-Mesh connections.
 	///@{
-	static constexpr int MAX_OFFMESH_CONNECTIONS = 256;
+	static const int MAX_OFFMESH_CONNECTIONS = 256;
 	float m_offMeshConVerts[MAX_OFFMESH_CONNECTIONS*3*2];
 	float m_offMeshConRads[MAX_OFFMESH_CONNECTIONS];
 	unsigned char m_offMeshConDirs[MAX_OFFMESH_CONNECTIONS];
@@ -92,7 +92,7 @@ class InputGeom
 
 	/// @name Convex Volumes.
 	///@{
-	static constexpr int MAX_VOLUMES = 256;
+	static const int MAX_VOLUMES = 256;
 	ConvexVolume m_volumes[MAX_VOLUMES];
 	int m_volumeCount;
 	///@}
