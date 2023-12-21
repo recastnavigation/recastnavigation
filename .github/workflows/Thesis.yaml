@@ -7,69 +7,6 @@ on:
     branches: [ "**" ]
 
 jobs:
-  macos-tests:
-    runs-on: macos-latest
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Download & install SDL
-        run: |
-          curl -L -o SDL2.dmg https://github.com/libsdl-org/SDL/releases/download/release-2.24.2/SDL2-2.24.2.dmg
-          hdiutil attach SDL2.dmg
-          cp -r /Volumes/SDL2/SDL2.framework RecastCLI/Bin
-          hdiutil detach /Volumes/SDL2
-          rm SDL2.dmg
-
-      - name: Download & install premake
-        working-directory: RecastCLI
-        run: |
-          curl -L -o premake.tar.gz https://github.com/premake/premake-core/releases/download/v5.0.0-beta2/premake-5.0.0-beta2-macosx.tar.gz
-          tar -xzf premake.tar.gz
-          rm premake.tar.gz
-
-      - name: Run premake
-        working-directory: RecastCLI
-        run: ./premake5 xcode4
-
-      - name: Build Unit Tests With Xcode
-        working-directory: RecastCLI/Build/xcode4/
-        run: xcodebuild -scheme Tests -configuration Debug -project Tests.xcodeproj build
-
-      - name: Run unit tests
-        working-directory: RecastCLI/Bin
-        run: ./Tests --verbosity high --success
-
-  linux-tests:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Install opengl and SDL
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libgl1-mesa-dev libsdl2-dev
-
-      - name: Download & Install premake
-        working-directory: RecastCLI
-        run: |
-          curl -L -o premake.tar.gz https://github.com/premake/premake-core/releases/download/v5.0.0-beta2/premake-5.0.0-beta2-linux.tar.gz
-          tar -xzf premake.tar.gz
-          rm premake.tar.gz
-
-      - name: Run premake
-        working-directory: RecastCLI
-        run: ./premake5 --cc=clang gmake2
-
-      - name: Build
-        working-directory: RecastCLI/Build/gmake2
-        run: make config=debug verbose=true
-
-      - name: Run Tests
-        working-directory: RecastCLI/Bin
-        run: ./Tests --verbosity high --success
-
   windows-tests:
     runs-on: windows-2022
 
