@@ -1,4 +1,4 @@
-<div style="text-align: center">
+<div style="text-align: center" align="center">
     <a href="https://recastnav.com"><img src="https://recastnav.s3.amazonaws.com/logo.png" /></a>
     <h3><b>Recast Navigation</b></h3>
     <i>State-of-the-art navmesh generation and navigation for games.</i><br />
