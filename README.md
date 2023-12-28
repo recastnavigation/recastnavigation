@@ -1,5 +1,5 @@
 <p align="center">
-    <a href="recastnav.com"><img src="/recastnavigation/recastnavigation/raw/main/Docs/Images/logo.png" /></a>
+    <a href="recastnav.com"><img src="https://github.com/recastnavigation/recastnavigation/blob/main/Docs/Images/logo.png" /></a>
 </p>
 
 <h3 align="center"><b>Recast Navigation</b></h3>
