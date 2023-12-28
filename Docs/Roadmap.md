@@ -49,26 +49,26 @@ There's enough cases where we pass around object pointers in API calls that may 
 
 # New Recast/Detour Functionality
 
-### Nav Volumes & 3D Navigation
+## Nav Volumes & 3D Navigation
 Obviously a big feature that would enable flying agents. Probably not terribly difficult to integrate due to the voxelization process, but it's probably a lot of detailed geometric processes and challenges. We'd at least need to retain unwalkable polygons longer in the process (they get thrown away pretty early) so we should ensure it doesn't have any adversarial affects to the perf or capabilities of the normal navmesh process.  3d navigation should be a separate set of APIs, as the considerations and use cases are quite different than normal navmesh navigation.
 
-### Climbing Markup & Navigation
+## Climbing Markup & Navigation
 This is a common problem with many modern games.  There's a number of ways to solve this, so we should make sure to consult with people who are actively using Recast and building games with climbing to understand their needs. 
 
-### Tooling
+## Tooling
 Recast Demo already has a number of sample tools to explore and test the generated navmesh data. There's a number of middleware providers that tout workflow features and tooling for generating and manipulating navmesh data. RecastDemo could be expanded (and maybe re-named) to be a more fully fleshed out standalone tool, rather than be mostly focused as an integration demo and feature showcase. There's almost certainly a ton of custom data and markup most people will want to add to the generated navmeshes, so there should be a reasonable way for people to integrate their customizations and markup with any tooling Recast provide.
 
-### More spatial querying abilities
+## More spatial querying abilities
 There's already a number of spatial query functions, and fleshing out that set some more is likely quite easy and useful.
 
-### Auto-markup system
+## Auto-markup system
 This is something recast already gives you access to add yourself, thanks to its low-level API and how each step in the process is explicit.  It is worthwhile to consider what kind of help other middleware systems provide in this process. For example, are other navigation middleware solutions providing a structured way to define spatial queries that result in nav markup? Some easy examples of useful features here might be automatic jump point or cover annotations. It would be good to talk to people in the AAA FPS space to see what markup types are most useful to them.
 
-### Formations, Group behaviors
+## Formations, Group behaviors
 Extending DetourCrowd to support formations, group navigation, group behaviors and similar beyond what's it's already capable of.
 
-### Vehicle Navigation & Movement
+## Vehicle Navigation & Movement
 A feature set centered on pathfinding and movement planning for characters with kinematic movement constraints.
 
-### Crowd Simulation and Flowfield movement systems
+## Crowd Simulation and Flowfield movement systems
 Movement systems for large crowds that leverage flowfields or other highly-scalable navigation and movement approaches.
