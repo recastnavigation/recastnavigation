@@ -1,156 +1,67 @@
-# Contributing to Recast and Detour
+# Contribution Guidelines
 
-We'd love for you to contribute to our source code and to make Recast and Detour even better than they are
-today! Here are the guidelines we'd like you to follow:
+We'd love for you to contribute to Recast and Detour and help make them even better than they are today! Here are the guidelines we'd like you to follow:
 
 ## Code of Conduct
-This project adheres to the [Contributor Covenant code of conduct][code-of-conduct].
-By participating, you are expected to honor this code.
 
-## Got a Question or Problem?
+This project adheres to the [Contributor Covenant Code of Conduct][code-of-conduct].  By participating in the Recast community, you are required to adhere to this code.
 
-If you have questions about how to use Recast or Detour, please direct these to the [Google Group][groups]
-discussion list. We are also available on [Gitter][gitter].
+## Have a Question or Problem?
 
-## Have a question?
-Questions about how to best use Recast, what it's capable of, and other inquiries should be directed to the [Q&A section of Github Discussions][q-and-a].  Questions submitted as Github issues will be converted to discussions.
+Questions about how to best use Recast, what it's capable of, and other inquiries should be directed to the [Q&A section of Github Discussions][q-and-a].  Questions submitted as Github issues will be converted to discussions.  
 
-## Found an Issue?
-If you find a bug in the source code or a mistake in the documentation, you can help us by
-submitting an issue to our [GitHub Repository][github]. Even better you can submit a Pull Request
-with a fix.
+You can also submit questions to the older Recast [Google Group][groups] discussion list, or chat on [Gitter][gitter].
 
-**Please see the Submission Guidelines below**.
+## Want a New Feature?
 
-## Want a Feature?
-You can request a new feature by submitting an issue to our [GitHub Repository][github]. If you
-would like to implement a new feature then consider what kind of change it is:
+Check out our [development roadmap](Docs/Roadmap.md) to see what new features are already planned.  The roadmap is a great resource if you're looking to help out with Recast but aren't sure where to start.
 
-* **Major Changes** that you wish to contribute to the project should be discussed first on our
-[Google Group][groups] or in [GitHub Issues][github-issues] so that we can better coordinate our efforts, prevent
-duplication of work, and help you to craft the change so that it is successfully accepted into the
-project.
-* **Small Changes** can be crafted and submitted to the [GitHub Repository][github] as a Pull Request.
+You can request a new feature by submitting a github issue.  See below for guidelines on submitting issues.
 
-## Submission Guidelines
+If you would like to implement a new feature then consider what category of change it is:
+* **Major Changes** that you wish to contribute to the project should be discussed first in a [GitHub Issue][github-issues] or in our [Google Group][groups] so that we can coordinate efforts, prevent duplication of work, and help you to craft the change so that it is successfully accepted.
+* **Small Changes** can be submitted as pull requests on [GitHub][github].
+
+## Found a Bug?
+
+If you've found a bug or an issue with the documentation you can help us by submitting an issue to our [GitHub Repository][github]. Even better you can submit a Pull Request with a fix.
 
 ### Submitting an Issue
-Before you submit your issue search the [GitHub Issues][github-issues] and [Github Discussions][q-and-a] archives,
-maybe your question was already answered.
 
-If your issue appears to be a bug, and hasn't been reported, open a new issue.
-Help us to maximize the effort we can spend fixing issues and adding new
-features, by not reporting duplicate issues. Providing the following information will increase the
-chances of your issue being dealt with quickly:
+Before you submit your issue search the [GitHub Issues][github-issues] and [Github Discussions][q-and-a] archives, maybe your question was already answered.
+
+If your issue is a bug and hasn't been reported, open a new issue. Providing the following information will increase the chances of your issue being dealt with quickly:
 
 * **Overview of the Issue** - what type of issue is it, and why is it an issue for you?
 * **Callstack** - if it's a crash or other runtime error, a callstack will help diagnosis
-* **Screenshots** - for navmesh generation problems, a picture really is worth a thousand words.
-    Implement `duDebugDraw` and call some methods from DetourDebugDraw.h. Seriously, just do it, we'll definitely ask you to if you haven't!
+* **Screenshots** - for navmesh generation problems, a picture really is worth a thousand words. Implement `duDebugDraw` and call some methods from DetourDebugDraw.h. Seriously, just do it, we'll definitely ask you to if you haven't!
 * **Logs** - stdout and stderr from the console, or log files if there are any.
     If integrating into your own codebase, be sure to implement the log callbacks in `rcContext`.
-* **Reproduction steps** - a minimal, unambiguous set of steps including input, that causes the error for you.
-    e.g. input geometry and settings you can use to input into RecastDemo to get it to fail.
-	Note: These can be saved by pressing the 9 key in RecastDemo, and the resulting .gset file can be shared (with the .obj if it is not one of the default ones).
-* **Recast version(s) and/or git commit hash** - particularly if you can find the point at which the error first started happening
+* **Reproduction steps** - a minimal, unambiguous set of steps including input, that causes the error for you. e.g. input geometry and settings you can use to input into RecastDemo to get it to fail.
+	  * Note: In RecastDemo you can save the intput parameters to Recast by pressing the `9` key.  The resulting `.gset` file can be shared with the `.obj` (if it is not one of the default ones) which will help tremendously in getting your bug repro'd and fixed.
+* **Recast version(s) and/or git commit hashes** - particularly if you can find the point at which the error first started happening
 * **Environment** - operating system, compiler etc.
-* **Related issues** - has a similar issue been reported before?
-* **Suggest a Fix** - if you can't fix the bug yourself, perhaps you can point to what might be
-  causing the problem (line of code or commit)
+* **Related issues** - have similar issues been reported before?
+* **Suggest a Fix** - if you can't fix the bug yourself, perhaps you can point to what might be causing the problem (line of code or commit)
 
 Here is a great example of a well defined issue: https://github.com/recastnavigation/recastnavigation/issues/12
 
 **If you get help, help others. Good karma rulez!**
 
 ### Submitting a Pull Request
-Before you submit your pull request consider the following guidelines:
 
-* Search [GitHub Pull Requests][github-pulls] for an open or closed Pull Request
-  that relates to your submission. You don't want to duplicate effort.
-* Make your changes in a new git branch:
+Check out [Github's official documentation](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request) on how best to crete, work with and submit pull requests.
 
-     ```shell
-     git checkout -b my-fix-branch master
-     ```
+Before you submit your pull request consider the following:
 
-* Implement your changes, **including appropriate tests if appropriate/possible**.
-* Commit your changes using a descriptive commit message that follows our commit message conventions (see below).
-
-     ```shell
-     git commit -a
-     ```
-  Note: the optional commit `-a` command line option will automatically "add" and "rm" edited files.
-
-* Squash any work-in-progress commits (by rebasing) to form a series of commits that make sense individually.
-  Ideally the pull request will be small and focused enough that it fits sensibly in one commit.
-
-     ```shell
-     git rebase -i origin/master
-     ```
-
-* Push your branch to GitHub:
-
-    ```shell
-    git push origin my-fix-branch
-    ```
-
-* In GitHub, send a pull request to `recastnavigation:master`.
-* If we suggest changes then:
-  * Make the required updates.
-  * Commit your changes to your branch (e.g. `my-fix-branch`).
-  * Squash the changes, overwriting history in your fix branch - we don't want history to include incomplete work.
-  * Push the changes to your GitHub repository (this will update your Pull Request).
-
-If you have rebased to squash commits together, you will need to force push to update the PR:
-
-```shell
-git rebase master -i
-git push origin my-fix-branch -f
-```
-
-That's it! Thank you for your contribution!
-
-#### After your pull request is merged
-
-After your pull request is merged, you can safely delete your branch and pull the changes
-from the main (upstream) repository:
-
-* Delete the remote branch on GitHub either through the GitHub web UI or your local shell as follows:
-
-    ```shell
-    git push origin --delete my-fix-branch
-    ```
-
-* Check out the master branch:
-
-    ```shell
-    git checkout master -f
-    ```
-
-* Delete the local branch:
-
-    ```shell
-    git branch -D my-fix-branch
-    ```
-
-* Update your master with the latest upstream version:
-
-    ```shell
-    git pull --ff upstream master
-    ```
-
-## Git Commit Guidelines
-
-### Commit content
-
-Do your best to factor commits appropriately, i.e not too large with unrelated
-things in the same commit, and not too small with the same small change applied N
-times in N different commits. If there was some accidental reformatting or whitespace
-changes during the course of your commits, please rebase them away before submitting
-the PR.
+* Search [GitHub Pull Requests][github-pulls] for an open or closed Pull Request that relates to your submission. You don't want to duplicate effort.
+* Do your best to factor commits appropriately.  It's better to submit multiple pull separate requests than include every change in a single one. For example, if you're cleaning up some code and submitting a bug fix, it's best to submit a PR for the cleanup work separately from the bugfix.  This helps ensure your PR's are reviewed and merged quickly, and that an issue with some part of your changes doesn't hold back all of them.
+* If applicable, please try to include some unit tests that test the issue and fix that you're submitting.
+* Ensure your PR is rebased onto the head of `main`.  If you don't do this, you'll have some issues when github does it for 
+you.
 
 ### Commit Message Format
-Please format commit messages as follows (based on this [excellent post](http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html)):
+Please format PR messages as follows (based on this [excellent post](http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html)):
 
 ```
 Summarize change in 50 characters or less
@@ -162,15 +73,13 @@ If the change fixes an issue, leave another blank line after the final
 paragraph and indicate which issue is fixed in the specific format
 below.
 
-Fix #42
+Fixes #42
 ```
 
-Important things you should try to include in commit messages include:
+Important things you should try to include in PR messages include:
 * Motivation for the change
-* Difference from previous behaviour
-* Whether the change alters the public API, or affects existing behaviour significantly
-
-
+* Differences from previous behaviour
+* Whether the change alters the public API, or meaningfully affects existing behaviour
 
 [code-of-conduct]: https://github.com/recastnavigation/recastnavigation/blob/main/CODE_OF_CONDUCT.md
 [q-and-a]: https://github.com/recastnavigation/recastnavigation/discussions/categories/q-a
