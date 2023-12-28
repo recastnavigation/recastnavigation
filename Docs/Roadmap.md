@@ -47,7 +47,7 @@ This would help tremendously with adoption. There are a number of integrations o
 
 There's enough cases where we pass around object pointers in API calls that may cause this to be a bit more work than it seems.
 
-# Roadmap for New Recast/Detour Functionality
+# New Recast/Detour Functionality
 
 ### Nav Volumes & 3D Navigation
 Obviously a big feature that would enable flying agents. Probably not terribly difficult to integrate due to the voxelization process, but it's probably a lot of detailed geometric processes and challenges. We'd at least need to retain unwalkable polygons longer in the process (they get thrown away pretty early) so we should ensure it doesn't have any adversarial affects to the perf or capabilities of the normal navmesh process.  3d navigation should be a separate set of APIs, as the considerations and use cases are quite different than normal navmesh navigation.
