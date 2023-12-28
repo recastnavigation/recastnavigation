@@ -27,13 +27,13 @@ Recast Navigation is divided into multiple modules, each contained in its own fo
 - `DetourCrowd/` - Agent movement, collision avoidance, and crowd simulation
 - `DebugUtils/` - API for drawing debug visualizations of navigation data and behavior
 - `Tess/` - Unit tests
-- `RecastDemo/` - Standalone demo app showcasing Recast & Detour's functionality
+- `RecastDemo/` - Standalone, comprehensive demo app showcasing all aspects of Recast & Detour's functionality
 
 ## ⚡ Getting Started
 
-You can find a comprehensive demo project in the `RecastDemo` folder. Check out [BuildingAndIntegrating.md](Docs/BuildingAndIntegrating.md) for instructions on how to build it.
+Check out [BuildingAndIntegrating.md](Docs/BuildingAndIntegrating.md) for information on how to build the comprehensive RecastDemo project, as well as guidance on integrating Recast & Detour into your own project.
 
-If you are new to Recast & Detour, check out [Sample_SoloMesh.cpp](/RecastDemo/Source/Sample_SoloMesh.cpp) to get started with building navmeshes and [NavMeshTesterTool.cpp](/RecastDemo/Source/NavMeshTesterTool.cpp) to see how to find paths with Detour.
+If you are new to Recast & Detour, check out [Sample_SoloMesh.cpp](/RecastDemo/Source/Sample_SoloMesh.cpp) in RecastDemo to get started with building navmeshes and [NavMeshTesterTool.cpp](/RecastDemo/Source/NavMeshTesterTool.cpp) for building paths with Detour.
 
 ## ⚙ How it Works
 
@@ -62,7 +62,7 @@ Docs are generated via [Doxygen](https://www.doxygen.nl/) from source file comme
 
 ## ❤ Community
 
-You can ask questions, voice ideas, or request new features through [Github Discussions](https://github.com/recastnavigation/recastnavigation/discussions) or on our old [Google Group](http://groups.google.com/group/recastnavigation) list.
+Ask questions, voice ideas, or request new features over on [Github Discussions](https://github.com/recastnavigation/recastnavigation/discussions) or on our old [Google Group](http://groups.google.com/group/recastnavigation) list.
 
 Check out the [Development Roadmap](Docs/Roadmap.md) to see what features and functionality you might be able to help with, and the [Contribution Guidelines](CONTRIBUTING.md) for information on how to make contributions.
 
@@ -70,4 +70,4 @@ Our [Code of Conduct](CODE_OF_CONDUCT.md) applies to all Recast Navigation commu
 
 ## ⚖ License
 
-Recast & Detour is licensed under ZLib license. See [License.txt](License.txt) for more.
+Recast & Detour is licensed under the ZLib license. See [License.txt](License.txt) for more.
