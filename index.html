@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Recast Navigation: Recast &amp; Detour</title>
+<title>Recast Navigation: Main Page</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -85,87 +85,69 @@ $(document).ready(function(){initNavTree('index.html',''); initResizable(); });
 
 <div class="PageDoc"><div class="header">
   <div class="headertitle">
-<div class="title">Recast &amp; Detour </div>  </div>
+<div class="title">Recast Navigation Documentation</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p><a class="anchor" id="md_README"></a></p>
-<p><a href="https://github.com/recastnavigation/recastnavigation/actions/workflows/Build.yaml"><img src="https://github.com/recastnavigation/recastnavigation/actions/workflows/Build.yaml/badge.svg" alt="Build" style="pointer-events: none;" class="inline"/></a> <a href="https://github.com/recastnavigation/recastnavigation/actions/workflows/Tests.yaml"><img src="https://github.com/recastnavigation/recastnavigation/actions/workflows/Tests.yaml/badge.svg" alt="Tests" style="pointer-events: none;" class="inline"/></a></p>
-<p><img src="screenshot.png" alt="" class="inline" title="screenshot of a navmesh baked with the sample program"/></p>
-<h1><a class="anchor" id="autotoc_md0"></a>
-Recast</h1>
-<p>Recast is state of the art navigation mesh construction toolset for games.</p>
-<p>Recast is...</p><ul>
-<li>🤖 <b>Automatic</b> - throw any level geometry at it and you will get a robust navmesh out</li>
+<div class="textblock"><p align="center"><a class="anchor" id="md_README"></a> </p>
+<p><a href="recastnav.com"><img src="/recastnavigation/recastnavigation/raw/main/Docs/Images/logo.png" alt="" class="inline"/></a> </p>
+<h3 align="center"><b>Recast Navigation</b></h3>
+<p align="center"></p>
+<p><em>State-of-the-art navmesh generation and navigation for games.</em><br  />
+<br  />
+ <a href="https://github.com/recastnavigation/recastnavigation/actions/workflows/Build.yaml"><img src="https://github.com/recastnavigation/recastnavigation/actions/workflows/Build.yaml/badge.svg" alt="" style="pointer-events: none;" class="inline"/></a> <a href="https://github.com/recastnavigation/recastnavigation/actions/workflows/Tests.yaml"><img src="https://github.com/recastnavigation/recastnavigation/actions/workflows/Tests.yaml/badge.svg" alt="" style="pointer-events: none;" class="inline"/></a> </p>
+<p><img src="screenshot.png" alt="" class="inline" title="Recast Demo"/></p>
+<h2><a class="anchor" id="autotoc_md63"></a>
+🚀 Features</h2>
+<ul>
+<li>🤖 <b>Automatic</b> - Recast can generate a navmesh from any level geometry you throw at it</li>
 <li>🏎️ <b>Fast</b> - swift turnaround times for level designers</li>
-<li>🧘 <b>Flexible</b> - easily customize the navmesh generation and runtime navigation systems to suit your specific game's needs.</li>
+<li>🧘 <b>Flexible</b> - detailed customization options and modular design let you tailor functionality to your specific needs</li>
+<li>🚫 <b>Depency-Free</b> - building Recast &amp; Detour only requires a C++ compiler</li>
+<li>💪 <b>Industry Standard</b> - Recast powers AI navigation features in Unity, Unreal, Godot, O3DE and countless AAA and indie games and engines</li>
 </ul>
-<p>Recast constructs a navmesh through a multi-step rasterization process:</p>
+<p>Recast Navigation is divided into multiple modules, each contained in its own folder:</p>
+<ul>
+<li><code>Recast/</code> - Navmesh generation</li>
+<li><code>Detour/</code> - Runtime loading of navmesh data, pathfinding, navmesh queries</li>
+<li><code>DetourTileCache/</code> - Navmesh streaming. Useful for large levels and open-world games</li>
+<li><code>DetourCrowd/</code> - Agent movement, collision avoidance, and crowd simulation</li>
+<li><code>DebugUtils/</code> - API for drawing debug visualizations of navigation data and behavior</li>
+<li><code>Tess/</code> - Unit tests</li>
+<li><code>RecastDemo/</code> - Standalone, comprehensive demo app showcasing all aspects of Recast &amp; Detour's functionality</li>
+</ul>
+<h2><a class="anchor" id="autotoc_md64"></a>
+⚡ Getting Started</h2>
+<p>Check out <a class="el" href="md_Docs_BuildingAndIntegrating.html">BuildingAndIntegrating.md</a> for information on how to build the comprehensive RecastDemo project, as well as guidance on integrating Recast &amp; Detour into your own project.</p>
+<p>If you are new to Recast &amp; Detour, check out <a href="/RecastDemo/Source/Sample_SoloMesh.cpp">Sample_SoloMesh.cpp</a> in RecastDemo to get started with building navmeshes and <a href="/RecastDemo/Source/NavMeshTesterTool.cpp">NavMeshTesterTool.cpp</a> for building paths with Detour.</p>
+<h2><a class="anchor" id="autotoc_md65"></a>
+⚙ How it Works</h2>
+<p>Recast constructs a navmesh through a multi-step mesh rasterization process.</p>
 <ol type="1">
-<li>First Recast voxelizes the input triangle mesh by rasterizing the triangles into a multi-layer heightfield.</li>
-<li>Voxels in areas where the character would not be able to move are removed by applying simple voxel data filters.</li>
-<li>The walkable areas described by the voxel grid are then divided into sets of 2D polygonal regions.</li>
-<li>The navigation polygons are generated by triangulating and stiching together the generated 2d polygonal regions.</li>
+<li>First Recast rasterizes the input triangle meshes into voxels.</li>
+<li>Voxels in areas where agents would not be able to move are filtered and removed.</li>
+<li>The walkable areas described by the voxel grid are then divided into sets of polygonal regions.</li>
+<li>The navigation polygons are generated by re-triangulating the generated polygonal regions into a navmesh.</li>
 </ol>
-<h1><a class="anchor" id="autotoc_md1"></a>
-Detour</h1>
-<p>Recast is accompanied by Detour, a path-finding and spatial reasoning toolkit. You can use any navigation mesh with Detour, but of course the data generated with Recast fits perfectly.</p>
-<p>Detour offers a simple static navmesh data representation which is suitable for many simple cases. It also provides a tiled navigation mesh representation, which allows you to stream of navigation data in and out as the player progresses through the world and regenerate sections of the navmesh data as the world changes.</p>
-<h1><a class="anchor" id="autotoc_md2"></a>
-RecastDemo</h1>
-<p>You can find a comprehensive demo project in the <code>RecastDemo</code> folder. It's a kitchen sink demo showcasing all the functionality of the library. If you are new to Recast &amp; Detour, check out <a href="/RecastDemo/Source/Sample_SoloMesh.cpp">Sample_SoloMesh.cpp</a> to get started with building navmeshes and <a href="/RecastDemo/Source/NavMeshTesterTool.cpp">NavMeshTesterTool.cpp</a> to see how Detour can be used to find paths.</p>
-<h2><a class="anchor" id="autotoc_md3"></a>
-Building RecastDemo</h2>
-<p>RecastDemo uses <a href="http://premake.github.io/">premake5</a> to build platform specific projects. Download it and make sure it's available on your path, or specify the path to it.</p>
-<h3><a class="anchor" id="autotoc_md4"></a>
-Linux</h3>
+<p>You can use Recast to build a single navmesh, or a tiled navmesh. Single meshes are suitable for many simple, static cases and are easy to work with. Tiled navmeshes are more complex to work with but better support larger, more dynamic environments. Tiled meshes enable advance Detour features like re-baking, heirarchical path-planning, and navmesh data-streaming.</p>
+<h2><a class="anchor" id="autotoc_md66"></a>
+📚 Documentation &amp; Links</h2>
+<p>Official documentation is available at <a href="https://recastnav.com">recastnav.com</a></p>
+<p>Docs are generated via <a href="https://www.doxygen.nl/">Doxygen</a> from source file comments and from markdown files in the <code>Docs/</code> directory.</p>
 <ul>
-<li>Install SDL2 and its dependencies according to your distro's guidelines.</li>
-<li>Navigate to the <code>RecastDemo</code> folder and run <code>premake5 gmake2</code></li>
-<li>Navigate to <code>RecastDemo/Build/gmake2</code> and run <code>make</code></li>
-<li>Navigate to <code>RecastDemo/Bin</code> and run <code>./RecastDemo</code></li>
+<li><a class="el" href="md_Docs_Roadmap.html">Development Roadmap</a></li>
+<li><a class="el" href="md_CHANGELOG.html">Changelog</a></li>
+<li><a class="el" href="md_CONTRIBUTING.html">Contribution Guidelines</a></li>
+<li><a class="el" href="md_CODE_OF_CONDUCT.html">Code of Conduct</a></li>
+<li><a href="https://github.com/recastnavigation/recastnavigation">Github</a></li>
 </ul>
-<h3><a class="anchor" id="autotoc_md5"></a>
-macOS</h3>
-<ul>
-<li>Grab the latest SDL2 development library dmg from <a href="https://github.com/libsdl-org/SDL">here</a> and place <code>SDL2.framework</code> in <code>RecastDemo/Bin</code></li>
-<li>Navigate to the <code>RecastDemo</code> folder and run <code>premake5 xcode4</code></li>
-<li>Open <code>Build/xcode4/recastnavigation.xcworkspace</code></li>
-<li>Set the RecastDemo project as the target and build.</li>
-</ul>
-<h3><a class="anchor" id="autotoc_md6"></a>
-Windows</h3>
-<ul>
-<li>Grab the latest SDL2 development library release from <a href="https://github.com/libsdl-org/SDL">here</a> and unzip it <code>RecastDemo\Contrib</code>. Rename the SDL folder such that the path <code>RecastDemo\Contrib\SDL\lib\x86</code> is valid.</li>
-<li>Navigate to the <code>RecastDemo</code> folder and run <code>premake5 vs2022</code></li>
-<li>Open <code>Build/vs2022/recastnavigation.sln</code>.</li>
-<li>Set <code>RecastDemo</code> as the startup project, build, and run.</li>
-</ul>
-<h2><a class="anchor" id="autotoc_md7"></a>
-Running Unit tests</h2>
-<ul>
-<li>Follow the instructions to build RecastDemo above. Premake should generate another build target called "Tests".</li>
-<li>Build the "Tests" project. This will generate an executable named "Tests" in <code>RecastDemo/Bin/</code></li>
-<li>Run the "Tests" executable. It will execute all the unit tests, indicate those that failed, and display a count of those that succeeded.</li>
-</ul>
-<h1><a class="anchor" id="autotoc_md8"></a>
-Integrating with your game or engine</h1>
-<ul>
-<li>See Integration.md</li>
-<li>See <a href="https://recastnav.com">official docs</a></li>
-<li>See <a href="https://github.com/recastnavigation/recastnavigation">official repo</a></li>
-</ul>
-<h1><a class="anchor" id="autotoc_md9"></a>
-Contribute</h1>
-<p>Check out the <a class="el" href="md_Roadmap.html">Project Roadmap</a> to see what features and functionality you might be able to help with, and the <a class="el" href="md_CONTRIBUTING.html">Contributing doc</a> for guidance on making contributions.</p>
-<h1><a class="anchor" id="autotoc_md10"></a>
-Discuss</h1>
-<ul>
-<li>Discuss Recast &amp; Detour: <a href="http://groups.google.com/group/recastnavigation">http://groups.google.com/group/recastnavigation</a></li>
-<li>Development blog: <a href="http://digestingduck.blogspot.com/">http://digestingduck.blogspot.com/</a></li>
-</ul>
-<h1><a class="anchor" id="autotoc_md11"></a>
-License</h1>
-<p>Recast &amp; Detour is licensed under ZLib license, see License.txt for more information. </p>
+<h2><a class="anchor" id="autotoc_md67"></a>
+❤ Community</h2>
+<p>Ask questions, voice ideas, or request new features over on <a href="https://github.com/recastnavigation/recastnavigation/discussions">Github Discussions</a> or on our old <a href="http://groups.google.com/group/recastnavigation">Google Group</a> list.</p>
+<p>Check out the <a class="el" href="md_Docs_Roadmap.html">Development Roadmap</a> to see what features and functionality you might be able to help with, and the <a class="el" href="md_CONTRIBUTING.html">Contribution Guidelines</a> for information on how to make contributions.</p>
+<p>Our <a class="el" href="md_CODE_OF_CONDUCT.html">Code of Conduct</a> applies to all Recast Navigation community channels.</p>
+<h2><a class="anchor" id="autotoc_md68"></a>
+⚖ License</h2>
+<p>Recast &amp; Detour is licensed under the ZLib license. See <a href="License.txt">License.txt</a> for more. </p>
 </div></div><!-- PageDoc -->
 </div><!-- contents -->
 </div><!-- doc-content -->

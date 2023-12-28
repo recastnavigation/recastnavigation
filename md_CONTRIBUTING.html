@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Recast Navigation: Contributing to Recast and Detour</title>
+<title>Recast Navigation: Contribution Guidelines</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -85,105 +85,62 @@ $(document).ready(function(){initNavTree('md_CONTRIBUTING.html',''); initResizab
 
 <div class="PageDoc"><div class="header">
   <div class="headertitle">
-<div class="title">Contributing to Recast and Detour </div>  </div>
+<div class="title">Contribution Guidelines </div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p>We'd love for you to contribute to our source code and to make Recast and Detour even better than they are today! Here are the guidelines we'd like you to follow:</p>
-<h1><a class="anchor" id="autotoc_md13"></a>
+<div class="textblock"><p>We'd love for you to contribute to Recast and Detour and help make them even better than they are today! Here are the guidelines we'd like you to follow:</p>
+<h1><a class="anchor" id="autotoc_md21"></a>
 Code of Conduct</h1>
-<p>This project adheres to the <a href="https://github.com/recastnavigation/recastnavigation/blob/main/CODE_OF_CONDUCT.md">Contributor Covenant code of conduct</a>. By participating, you are expected to honor this code.</p>
-<h1><a class="anchor" id="autotoc_md14"></a>
-Got a Question or Problem?</h1>
-<p>If you have questions about how to use Recast or Detour, please direct these to the <a href="https://groups.google.com/forum/?fromgroups#!forum/recastnavigation">Google Group</a> discussion list. We are also available on <a href="https://gitter.im/recastnavigation/chat">Gitter</a>.</p>
-<h1><a class="anchor" id="autotoc_md15"></a>
-Have a question?</h1>
-<p>Questions about how to best use Recast, what it's capable of, and other inquiries should be directed to the <a href="https://github.com/recastnavigation/recastnavigation/discussions/categories/q-a">Q&amp;A section of Github Discussions</a>. Questions submitted as Github issues will be converted to discussions.</p>
-<h1><a class="anchor" id="autotoc_md16"></a>
-Found an Issue?</h1>
-<p>If you find a bug in the source code or a mistake in the documentation, you can help us by submitting an issue to our <a href="https://github.com/recastnavigation/recastnavigation">GitHub Repository</a>. Even better you can submit a Pull Request with a fix.</p>
-<p><b>Please see the Submission Guidelines below</b>.</p>
-<h1><a class="anchor" id="autotoc_md17"></a>
-Want a Feature?</h1>
-<p>You can request a new feature by submitting an issue to our <a href="https://github.com/recastnavigation/recastnavigation">GitHub Repository</a>. If you would like to implement a new feature then consider what kind of change it is:</p>
-<ul>
-<li><b>Major Changes</b> that you wish to contribute to the project should be discussed first on our <a href="https://groups.google.com/forum/?fromgroups#!forum/recastnavigation">Google Group</a> or in <a href="https://github.com/recastnavigation/recastnavigation/issues">GitHub Issues</a> so that we can better coordinate our efforts, prevent duplication of work, and help you to craft the change so that it is successfully accepted into the project.</li>
-<li><b>Small Changes</b> can be crafted and submitted to the <a href="https://github.com/recastnavigation/recastnavigation">GitHub Repository</a> as a Pull Request.</li>
+<p>This project adheres to the <a href="https://github.com/recastnavigation/recastnavigation/blob/main/CODE_OF_CONDUCT.md">Contributor Covenant Code of Conduct</a>. By participating in the Recast community, you are required to adhere to this code.</p>
+<h1><a class="anchor" id="autotoc_md22"></a>
+Have a Question or Problem?</h1>
+<p>Questions about how to best use Recast, what it's capable of, and other inquiries should be directed to the <a href="https://github.com/recastnavigation/recastnavigation/discussions/categories/q-a">Q&amp;A section of Github Discussions</a>. Questions submitted as Github issues will be converted to discussions. <br  />
+</p>
+<p>You can also submit questions to the older Recast <a href="https://groups.google.com/forum/?fromgroups#!forum/recastnavigation">Google Group</a> discussion list, or chat on <a href="https://gitter.im/recastnavigation/chat">Gitter</a>.</p>
+<h1><a class="anchor" id="autotoc_md23"></a>
+Want a New Feature?</h1>
+<p>Check out our <a class="el" href="md_Docs_Roadmap.html">development roadmap</a> to see what new features are already planned. The roadmap is a great resource if you're looking to help out with Recast but aren't sure where to start.</p>
+<p>You can request a new feature by submitting a github issue. See below for guidelines on submitting issues.</p>
+<p>If you would like to implement a new feature then consider what category of change it is:</p><ul>
+<li><b>Major Changes</b> that you wish to contribute to the project should be discussed first in a <a href="https://github.com/recastnavigation/recastnavigation/issues">GitHub Issue</a> or in our <a href="https://groups.google.com/forum/?fromgroups#!forum/recastnavigation">Google Group</a> so that we can coordinate efforts, prevent duplication of work, and help you to craft the change so that it is successfully accepted.</li>
+<li><b>Small Changes</b> can be submitted as pull requests on <a href="https://github.com/recastnavigation/recastnavigation">GitHub</a>.</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md18"></a>
-Submission Guidelines</h1>
-<h2><a class="anchor" id="autotoc_md19"></a>
+<h1><a class="anchor" id="autotoc_md24"></a>
+Found a Bug?</h1>
+<p>If you've found a bug or an issue with the documentation you can help us by submitting an issue to our <a href="https://github.com/recastnavigation/recastnavigation">GitHub Repository</a>. Even better you can submit a Pull Request with a fix.</p>
+<h2><a class="anchor" id="autotoc_md25"></a>
 Submitting an Issue</h2>
 <p>Before you submit your issue search the <a href="https://github.com/recastnavigation/recastnavigation/issues">GitHub Issues</a> and <a href="https://github.com/recastnavigation/recastnavigation/discussions/categories/q-a">Github Discussions</a> archives, maybe your question was already answered.</p>
-<p>If your issue appears to be a bug, and hasn't been reported, open a new issue. Help us to maximize the effort we can spend fixing issues and adding new features, by not reporting duplicate issues. Providing the following information will increase the chances of your issue being dealt with quickly:</p>
+<p>If your issue is a bug and hasn't been reported, open a new issue. Providing the following information will increase the chances of your issue being dealt with quickly:</p>
 <ul>
 <li><b>Overview of the Issue</b> - what type of issue is it, and why is it an issue for you?</li>
 <li><b>Callstack</b> - if it's a crash or other runtime error, a callstack will help diagnosis</li>
 <li><b>Screenshots</b> - for navmesh generation problems, a picture really is worth a thousand words. Implement <code><a class="el" href="structduDebugDraw.html" title="Abstract debug draw interface.">duDebugDraw</a></code> and call some methods from <a class="el" href="DetourDebugDraw_8h.html">DetourDebugDraw.h</a>. Seriously, just do it, we'll definitely ask you to if you haven't!</li>
 <li><b>Logs</b> - stdout and stderr from the console, or log files if there are any. If integrating into your own codebase, be sure to implement the log callbacks in <code><a class="el" href="classrcContext.html" title="Provides an interface for optional logging and performance tracking of the Recast build process.">rcContext</a></code>.</li>
-<li><b>Reproduction steps</b> - a minimal, unambiguous set of steps including input, that causes the error for you. e.g. input geometry and settings you can use to input into RecastDemo to get it to fail. Note: These can be saved by pressing the 9 key in RecastDemo, and the resulting .gset file can be shared (with the .obj if it is not one of the default ones).</li>
-<li><b>Recast version(s) and/or git commit hash</b> - particularly if you can find the point at which the error first started happening</li>
+<li><b>Reproduction steps</b> - a minimal, unambiguous set of steps including input, that causes the error for you. e.g. input geometry and settings you can use to input into RecastDemo to get it to fail.<ul>
+<li>Note: In RecastDemo you can save the intput parameters to Recast by pressing the <code>9</code> key. The resulting <code>.gset</code> file can be shared with the <code>.obj</code> (if it is not one of the default ones) which will help tremendously in getting your bug repro'd and fixed.</li>
+</ul>
+</li>
+<li><b>Recast version(s) and/or git commit hashes</b> - particularly if you can find the point at which the error first started happening</li>
 <li><b>Environment</b> - operating system, compiler etc.</li>
-<li><b>Related issues</b> - has a similar issue been reported before?</li>
+<li><b>Related issues</b> - have similar issues been reported before?</li>
 <li><b>Suggest a Fix</b> - if you can't fix the bug yourself, perhaps you can point to what might be causing the problem (line of code or commit)</li>
 </ul>
 <p>Here is a great example of a well defined issue: <a href="https://github.com/recastnavigation/recastnavigation/issues/12">https://github.com/recastnavigation/recastnavigation/issues/12</a></p>
 <p><b>If you get help, help others. Good karma rulez!</b></p>
-<h2><a class="anchor" id="autotoc_md20"></a>
+<h2><a class="anchor" id="autotoc_md26"></a>
 Submitting a Pull Request</h2>
-<p>Before you submit your pull request consider the following guidelines:</p>
+<p>Check out <a href="https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request">Github's official documentation</a> on how best to crete, work with and submit pull requests.</p>
+<p>Before you submit your pull request consider the following:</p>
 <ul>
 <li>Search <a href="https://github.com/recastnavigation/recastnavigation/pulls">GitHub Pull Requests</a> for an open or closed Pull Request that relates to your submission. You don't want to duplicate effort.</li>
-<li><p class="startli">Make your changes in a new git branch:</p>
-<p class="startli">```shell git checkout -b my-fix-branch master ```</p>
-</li>
-<li>Implement your changes, <b>including appropriate tests if appropriate/possible</b>.</li>
-<li><p class="startli">Commit your changes using a descriptive commit message that follows our commit message conventions (see below).</p>
-<p class="startli">```shell git commit -a ``<code> Note: the optional commit</code>-a` command line option will automatically "add" and "rm" edited files.</p>
-</li>
-<li><p class="startli">Squash any work-in-progress commits (by rebasing) to form a series of commits that make sense individually. Ideally the pull request will be small and focused enough that it fits sensibly in one commit.</p>
-<p class="startli">```shell git rebase -i origin/master ```</p>
-</li>
-<li><p class="startli">Push your branch to GitHub:</p>
-<p class="startli">```shell git push origin my-fix-branch ```</p>
-</li>
-<li>In GitHub, send a pull request to <code>recastnavigation:master</code>.</li>
-<li>If we suggest changes then:<ul>
-<li>Make the required updates.</li>
-<li>Commit your changes to your branch (e.g. <code>my-fix-branch</code>).</li>
-<li>Squash the changes, overwriting history in your fix branch - we don't want history to include incomplete work.</li>
-<li>Push the changes to your GitHub repository (this will update your Pull Request).</li>
+<li>Do your best to factor commits appropriately. It's better to submit multiple pull separate requests than include every change in a single one. For example, if you're cleaning up some code and submitting a bug fix, it's best to submit a PR for the cleanup work separately from the bugfix. This helps ensure your PR's are reviewed and merged quickly, and that an issue with some part of your changes doesn't hold back all of them.</li>
+<li>If applicable, please try to include some unit tests that test the issue and fix that you're submitting.</li>
+<li>Ensure your PR is rebased onto the head of <code>main</code>. If you don't do this, you'll have some issues when github does it for you.</li>
 </ul>
-</li>
-</ul>
-<p>If you have rebased to squash commits together, you will need to force push to update the PR:</p>
-<div class="fragment"><div class="line">git rebase master -i</div>
-<div class="line">git push origin my-fix-branch -f</div>
-</div><!-- fragment --><p>That's it! Thank you for your contribution!</p>
-<h3><a class="anchor" id="autotoc_md21"></a>
-After your pull request is merged</h3>
-<p>After your pull request is merged, you can safely delete your branch and pull the changes from the main (upstream) repository:</p>
-<ul>
-<li><p class="startli">Delete the remote branch on GitHub either through the GitHub web UI or your local shell as follows:</p>
-<p class="startli">```shell git push origin &ndash;delete my-fix-branch ```</p>
-</li>
-<li><p class="startli">Check out the master branch:</p>
-<p class="startli">```shell git checkout master -f ```</p>
-</li>
-<li><p class="startli">Delete the local branch:</p>
-<p class="startli">```shell git branch -D my-fix-branch ```</p>
-</li>
-<li><p class="startli">Update your master with the latest upstream version:</p>
-<p class="startli">```shell git pull &ndash;ff upstream master ```</p>
-</li>
-</ul>
-<h1><a class="anchor" id="autotoc_md22"></a>
-Git Commit Guidelines</h1>
-<h2><a class="anchor" id="autotoc_md23"></a>
-Commit content</h2>
-<p>Do your best to factor commits appropriately, i.e not too large with unrelated things in the same commit, and not too small with the same small change applied N times in N different commits. If there was some accidental reformatting or whitespace changes during the course of your commits, please rebase them away before submitting the PR.</p>
-<h2><a class="anchor" id="autotoc_md24"></a>
+<h2><a class="anchor" id="autotoc_md27"></a>
 Commit Message Format</h2>
-<p>Please format commit messages as follows (based on this <a href="http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html">excellent post</a>):</p>
+<p>Please format PR messages as follows (based on this <a href="http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html">excellent post</a>):</p>
 <div class="fragment"><div class="line">Summarize change in 50 characters or less</div>
 <div class="line"> </div>
 <div class="line">Provide more detail after the first line. Leave one blank line below the</div>
@@ -193,11 +150,11 @@ Commit Message Format</h2>
 <div class="line">paragraph and indicate which issue is fixed in the specific format</div>
 <div class="line">below.</div>
 <div class="line"> </div>
-<div class="line">Fix #42</div>
-</div><!-- fragment --><p>Important things you should try to include in commit messages include:</p><ul>
+<div class="line">Fixes #42</div>
+</div><!-- fragment --><p>Important things you should try to include in PR messages include:</p><ul>
 <li>Motivation for the change</li>
-<li>Difference from previous behaviour</li>
-<li>Whether the change alters the public API, or affects existing behaviour significantly </li>
+<li>Differences from previous behaviour</li>
+<li>Whether the change alters the public API, or meaningfully affects existing behaviour </li>
 </ul>
 </div></div><!-- contents -->
 </div><!-- PageDoc -->
