@@ -97,7 +97,16 @@ var NAVTREE =
         [ "Higher-Level APIs", "md_Docs_Roadmap.html#autotoc_md52", null ],
         [ "C API", "md_Docs_Roadmap.html#autotoc_md53", null ]
       ] ],
-      [ "New Recast/Detour Functionality", "md_Docs_Roadmap.html#autotoc_md54", null ]
+      [ "New Recast/Detour Functionality", "md_Docs_Roadmap.html#autotoc_md54", [
+        [ "Nav Volumes & 3D Navigation", "md_Docs_Roadmap.html#autotoc_md55", null ],
+        [ "Climbing Markup & Navigation", "md_Docs_Roadmap.html#autotoc_md56", null ],
+        [ "Tooling", "md_Docs_Roadmap.html#autotoc_md57", null ],
+        [ "More spatial querying abilities", "md_Docs_Roadmap.html#autotoc_md58", null ],
+        [ "Auto-markup system", "md_Docs_Roadmap.html#autotoc_md59", null ],
+        [ "Formations, Group behaviors", "md_Docs_Roadmap.html#autotoc_md60", null ],
+        [ "Vehicle Navigation & Movement", "md_Docs_Roadmap.html#autotoc_md61", null ],
+        [ "Crowd Simulation and Flowfield movement systems", "md_Docs_Roadmap.html#autotoc_md62", null ]
+      ] ]
     ] ],
     [ "Modules", "modules.html", "modules" ],
     [ "Classes", "annotated.html", [

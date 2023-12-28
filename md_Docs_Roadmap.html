@@ -26,6 +26,7 @@
 <table cellspacing="0" cellpadding="0">
  <tbody>
  <tr style="height: 56px;">
+  <td id="projectlogo"><img alt="Logo" src="logo.png"/></td>
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Recast Navigation
    </div>
@@ -136,29 +137,29 @@ C API</h2>
 <p>There's enough cases where we pass around object pointers in API calls that may cause this to be a bit more work than it seems.</p>
 <h1><a class="anchor" id="autotoc_md54"></a>
 New Recast/Detour Functionality</h1>
-<h3><a class="anchor" id="autotoc_md55"></a>
-Nav Volumes &amp; 3D Navigation</h3>
+<h2><a class="anchor" id="autotoc_md55"></a>
+Nav Volumes &amp; 3D Navigation</h2>
 <p>Obviously a big feature that would enable flying agents. Probably not terribly difficult to integrate due to the voxelization process, but it's probably a lot of detailed geometric processes and challenges. We'd at least need to retain unwalkable polygons longer in the process (they get thrown away pretty early) so we should ensure it doesn't have any adversarial affects to the perf or capabilities of the normal navmesh process. 3d navigation should be a separate set of APIs, as the considerations and use cases are quite different than normal navmesh navigation.</p>
-<h3><a class="anchor" id="autotoc_md56"></a>
-Climbing Markup &amp; Navigation</h3>
+<h2><a class="anchor" id="autotoc_md56"></a>
+Climbing Markup &amp; Navigation</h2>
 <p>This is a common problem with many modern games. There's a number of ways to solve this, so we should make sure to consult with people who are actively using Recast and building games with climbing to understand their needs.</p>
-<h3><a class="anchor" id="autotoc_md57"></a>
-Tooling</h3>
+<h2><a class="anchor" id="autotoc_md57"></a>
+Tooling</h2>
 <p>Recast Demo already has a number of sample tools to explore and test the generated navmesh data. There's a number of middleware providers that tout workflow features and tooling for generating and manipulating navmesh data. RecastDemo could be expanded (and maybe re-named) to be a more fully fleshed out standalone tool, rather than be mostly focused as an integration demo and feature showcase. There's almost certainly a ton of custom data and markup most people will want to add to the generated navmeshes, so there should be a reasonable way for people to integrate their customizations and markup with any tooling Recast provide.</p>
-<h3><a class="anchor" id="autotoc_md58"></a>
-More spatial querying abilities</h3>
+<h2><a class="anchor" id="autotoc_md58"></a>
+More spatial querying abilities</h2>
 <p>There's already a number of spatial query functions, and fleshing out that set some more is likely quite easy and useful.</p>
-<h3><a class="anchor" id="autotoc_md59"></a>
-Auto-markup system</h3>
+<h2><a class="anchor" id="autotoc_md59"></a>
+Auto-markup system</h2>
 <p>This is something recast already gives you access to add yourself, thanks to its low-level API and how each step in the process is explicit. It is worthwhile to consider what kind of help other middleware systems provide in this process. For example, are other navigation middleware solutions providing a structured way to define spatial queries that result in nav markup? Some easy examples of useful features here might be automatic jump point or cover annotations. It would be good to talk to people in the AAA FPS space to see what markup types are most useful to them.</p>
-<h3><a class="anchor" id="autotoc_md60"></a>
-Formations, Group behaviors</h3>
+<h2><a class="anchor" id="autotoc_md60"></a>
+Formations, Group behaviors</h2>
 <p>Extending DetourCrowd to support formations, group navigation, group behaviors and similar beyond what's it's already capable of.</p>
-<h3><a class="anchor" id="autotoc_md61"></a>
-Vehicle Navigation &amp; Movement</h3>
+<h2><a class="anchor" id="autotoc_md61"></a>
+Vehicle Navigation &amp; Movement</h2>
 <p>A feature set centered on pathfinding and movement planning for characters with kinematic movement constraints.</p>
-<h3><a class="anchor" id="autotoc_md62"></a>
-Crowd Simulation and Flowfield movement systems</h3>
+<h2><a class="anchor" id="autotoc_md62"></a>
+Crowd Simulation and Flowfield movement systems</h2>
 <p>Movement systems for large crowds that leverage flowfields or other highly-scalable navigation and movement approaches. </p>
 </div></div><!-- contents -->
 </div><!-- PageDoc -->
