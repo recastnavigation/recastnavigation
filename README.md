@@ -55,7 +55,7 @@ You can use Recast to build a single navmesh, or a tiled navmesh.  Single meshes
 - [API Reference](https://recastnav.com)
 - [Project Github](https://github.com/recastnavigation/recastnavigation)
 
-## ♥ Community
+## ❤ Community
 
 You can ask questions, voice ideas, or request new features through [Github Discussions](https://github.com/recastnavigation/recastnavigation/discussions) or our old [Google Group](http://groups.google.com/group/recastnavigation) list.
 
