@@ -1,20 +1,20 @@
-# Recast Development Roadmap
+# Development Roadmap
 
-This document describes the current development roadmap for Recast and Detour.  It is initially focused on maintaining and polishing the current functionality in a way that makes it more appealing and easier to use.  There are a number of large areas of new functionality that are appealing as well.  
+This document describes the current development roadmap for Recast and Detour.  It is initially focused on maintaining and polishing the current functionality in a way that makes it more appealing and easier to use, but also covers a few large pieces of new functionality.
 
 If you're excited about contributing to Recast or want to understand what its future looks like, this roadmap is a great place to start.
 
 ## Short Term
 
-### Documentation & Web Presence
--   **Project website** (GitHub pages). A home for docs, info, tutorials, etc. that's easy to find and navigate. There's stuff like the wiki system in GitHub that can serve this purpose, but it's not the greatest.
--   **Hosted API Reference**: We have extensive doxygen docs that we should also host on github pages.  Ideally this would be implemented as a job for the CI process.
+### Documentation & Web Presence (WIP)
+-   ✅ **Project website** (GitHub pages). A home for docs, info, tutorials, etc. that's easy to find and navigate. There's stuff like the wiki system in GitHub that can serve this purpose, but it's not the greatest.
+-   ✅**Hosted API Reference**: We have extensive doxygen docs that we should also host on github pages.  Ideally this would be implemented as a job for the CI process.
 -   **High-level design/overview**. Basically taking a lot of the "how does Recast work?" docs we have (and stuff on Mikko's blog) and surfacing them in a place that's easier to find.  e.g. [this information](http://digestingduck.blogspot.com/2010/02/slides-from-past.html) should be integrated to the documentation.
 -   **FAQ** to include answers to common questions like "can I use Recast on a spherical world?" etc. The small group of questions that come up often.
 -   **Expand on configuration parameter docstrings**. Expand on the docstrings for the fields in `rcConfig`.
 -   **Projects using recast page**. A place to show off integrations of Recast into different games and engines. Having this visible will help give people confidence in the quality of Recast.
 
-### More explicit variable names
+### More explicit variable names (WIP)
 There's quite a few variables that are single-letter or very condensed acronyms. Stuff like `u`, `v`, `cs`, `nnei` etc. These are certainly easier to type than more descriptive names, and can allow for some nice code formatting, but the readability gains of less condensed names outweigh that.  These should be updated to be more easily maintainable and less of a hurdle for newcomers.
 
 ### Opt-in config value validation system
@@ -31,7 +31,7 @@ Currently Recast provides no specific threading support.  Many aspects of navmes
 ### More Tests
 This is a good place to start when making any changes to the internals or fixing bugs. It's important to have a way to validate that bugfixes or enhancements are not adversely affecting the base Recast functionality. Lots of parts of the code are fairly simple to test, but some would require some extra effort with mocking data or similar.
 
-### More POD structs for clarity in internals
+### More POD structs for clarity in internals (WIP)
 Small structs like a simple 3-float POD vector would go a long way to help clarify a lot of the internals. Any changes here shouldn't impact performance or functionality. They should just be simple POD structs that get optimized away but make the code a bit clearer to read and work with.
 
 ### Revisit structural organization
@@ -47,7 +47,7 @@ This would help tremendously with adoption. There are a number of integrations o
 
 There's enough cases where we pass around object pointers in API calls that may cause this to be a bit more work than it seems.
 
-# Roadmap for New Recast/Detour Functionality
+# New Recast/Detour Functionality
 
 ### Nav Volumes & 3D Navigation
 Obviously a big feature that would enable flying agents. Probably not terribly difficult to integrate due to the voxelization process, but it's probably a lot of detailed geometric processes and challenges. We'd at least need to retain unwalkable polygons longer in the process (they get thrown away pretty early) so we should ensure it doesn't have any adversarial affects to the perf or capabilities of the normal navmesh process.  3d navigation should be a separate set of APIs, as the considerations and use cases are quite different than normal navmesh navigation.
