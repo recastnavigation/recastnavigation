@@ -959,7 +959,8 @@ INPUT_FILE_ENCODING    =
 FILE_PATTERNS          = *.cpp \
                          *.h \
                          *_c.txt \
-                         *_api.txt
+                         *_api.txt \
+                         *.md
 
 # The RECURSIVE tag can be used to specify whether or not subdirectories should
 # be searched for input files as well.
@@ -976,12 +977,12 @@ RECURSIVE              = YES
 
 EXCLUDE                = Doxyfile \
                          License.txt \
-                         Readme.txt \
-                         TODO.txt \
+                         Docs/Readme.md \
                          RecastDemo/Contrib \
                          RecastDemo/Build \
                          RecastDemo/Bin \
-                         Tests
+                         Tests \
+                         Docs/doxygen-awesome-css
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded
