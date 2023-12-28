@@ -1,13 +1,10 @@
-<p align="center">
-    <a href="recastnav.com"><img src="https://github.com/recastnavigation/recastnavigation/blob/main/Docs/Images/logo.png" /></a>
-</p>
-
-<h3 align="center"><b>Recast Navigation</b></h3>
-<p align="center">
-    <i>State-of-the-art navmesh generation and navigation for games.</i><br /><br />
+<div style="text-align: center">
+    <a href="https://recastnav.com"><img src="https://recastnav.s3.amazonaws.com/logo.png" /></a>
+    <h3><b>Recast Navigation</b></h3>
+    <i>State-of-the-art navmesh generation and navigation for games.</i><br />
     <a href="https://github.com/recastnavigation/recastnavigation/actions/workflows/Build.yaml"><img src="https://github.com/recastnavigation/recastnavigation/actions/workflows/Build.yaml/badge.svg"></a>
     <a href="https://github.com/recastnavigation/recastnavigation/actions/workflows/Tests.yaml"><img src="https://github.com/recastnavigation/recastnavigation/actions/workflows/Tests.yaml/badge.svg"></a>
-</p>
+</div>
 
 ![Recast Demo](/Docs/Images/screenshot.png)
 
