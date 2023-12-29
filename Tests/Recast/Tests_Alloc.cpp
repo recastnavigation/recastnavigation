@@ -70,7 +70,7 @@ struct NotDefaultConstructible {
 	NotDefaultConstructible(int) {}
 };
 
-TEST_CASE("rcVector")
+TEST_CASE("rcVector", "[recast, alloc]")
 {
 	SECTION("Vector basics.")
 	{

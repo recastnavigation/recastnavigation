@@ -5,7 +5,7 @@
 
 #include "Recast.h"
 
-TEST_CASE("rcSwap")
+TEST_CASE("rcSwap", "[recast]")
 {
 	SECTION("Swap two values")
 	{
@@ -17,7 +17,7 @@ TEST_CASE("rcSwap")
 	}
 }
 
-TEST_CASE("rcMin")
+TEST_CASE("rcMin", "[recast]")
 {
 	SECTION("Min returns the lowest value.")
 	{
@@ -31,7 +31,7 @@ TEST_CASE("rcMin")
 	}
 }
 
-TEST_CASE("rcMax")
+TEST_CASE("rcMax", "[recast]")
 {
 	SECTION("Max returns the greatest value.")
 	{
@@ -45,7 +45,7 @@ TEST_CASE("rcMax")
 	}
 }
 
-TEST_CASE("rcAbs")
+TEST_CASE("rcAbs", "[recast]")
 {
 	SECTION("Abs returns the absolute value.")
 	{
@@ -55,7 +55,7 @@ TEST_CASE("rcAbs")
 	}
 }
 
-TEST_CASE("rcSqr")
+TEST_CASE("rcSqr", "[recast]")
 {
 	SECTION("Sqr squares a number")
 	{
@@ -65,7 +65,7 @@ TEST_CASE("rcSqr")
 	}
 }
 
-TEST_CASE("rcClamp")
+TEST_CASE("rcClamp", "[recast]")
 {
 	SECTION("Higher than range")
 	{
@@ -83,7 +83,7 @@ TEST_CASE("rcClamp")
 	}
 }
 
-TEST_CASE("rcSqrt")
+TEST_CASE("rcSqrt", "[recast]")
 {
 	SECTION("Sqrt gets the sqrt of a number")
 	{
@@ -92,7 +92,7 @@ TEST_CASE("rcSqrt")
 	}
 }
 
-TEST_CASE("rcVcross")
+TEST_CASE("rcVcross", "[recast]")
 {
 	SECTION("Computes cross product")
 	{
@@ -116,7 +116,7 @@ TEST_CASE("rcVcross")
 	}
 }
 
-TEST_CASE("rcVdot")
+TEST_CASE("rcVdot", "[recast]")
 {
 	SECTION("Dot normalized vector with itself")
 	{
@@ -135,7 +135,7 @@ TEST_CASE("rcVdot")
 	}
 }
 
-TEST_CASE("rcVmad")
+TEST_CASE("rcVmad", "[recast]")
 {
 	SECTION("scaled add two vectors")
 	{
@@ -160,7 +160,7 @@ TEST_CASE("rcVmad")
 	}
 }
 
-TEST_CASE("rcVadd")
+TEST_CASE("rcVadd", "[recast]")
 {
 	SECTION("add two vectors")
 	{
@@ -174,7 +174,7 @@ TEST_CASE("rcVadd")
 	}
 }
 
-TEST_CASE("rcVsub")
+TEST_CASE("rcVsub", "[recast]")
 {
 	SECTION("subtract two vectors")
 	{
@@ -188,7 +188,7 @@ TEST_CASE("rcVsub")
 	}
 }
 
-TEST_CASE("rcVmin")
+TEST_CASE("rcVmin", "[recast]")
 {
 	SECTION("selects the min component from the vectors")
 	{
@@ -221,7 +221,7 @@ TEST_CASE("rcVmin")
 	}
 }
 
-TEST_CASE("rcVmax")
+TEST_CASE("rcVmax", "[recast]")
 {
 	SECTION("selects the max component from the vectors")
 	{
@@ -254,7 +254,7 @@ TEST_CASE("rcVmax")
 	}
 }
 
-TEST_CASE("rcVcopy")
+TEST_CASE("rcVcopy", "[recast]")
 {
 	SECTION("copies a vector into another vector")
 	{
@@ -270,7 +270,7 @@ TEST_CASE("rcVcopy")
 	}
 }
 
-TEST_CASE("rcVdist")
+TEST_CASE("rcVdist", "[recast]")
 {
 	SECTION("distance between two vectors")
 	{
@@ -291,7 +291,7 @@ TEST_CASE("rcVdist")
 	}
 }
 
-TEST_CASE("rcVdistSqr")
+TEST_CASE("rcVdistSqr", "[recast]")
 {
 	SECTION("squared distance between two vectors")
 	{
@@ -312,7 +312,7 @@ TEST_CASE("rcVdistSqr")
 	}
 }
 
-TEST_CASE("rcVnormalize")
+TEST_CASE("rcVnormalize", "[recast]")
 {
 	SECTION("normalizing reduces magnitude to 1")
 	{
@@ -326,7 +326,7 @@ TEST_CASE("rcVnormalize")
 	}
 }
 
-TEST_CASE("rcCalcBounds")
+TEST_CASE("rcCalcBounds", "[recast]")
 {
 	SECTION("bounds of one vector")
 	{
@@ -364,7 +364,7 @@ TEST_CASE("rcCalcBounds")
 	}
 }
 
-TEST_CASE("rcCalcGridSize")
+TEST_CASE("rcCalcGridSize", "[recast]")
 {
 	SECTION("computes the size of an x & z axis grid")
 	{
@@ -388,7 +388,7 @@ TEST_CASE("rcCalcGridSize")
 	}
 }
 
-TEST_CASE("rcCreateHeightfield")
+TEST_CASE("rcCreateHeightfield", "[recast]")
 {
 	SECTION("create a heightfield")
 	{
@@ -434,7 +434,7 @@ TEST_CASE("rcCreateHeightfield")
 	}
 }
 
-TEST_CASE("rcMarkWalkableTriangles")
+TEST_CASE("rcMarkWalkableTriangles", "[recast]")
 {
 	rcContext* ctx = 0;
 	float walkableSlopeAngle = 45;
@@ -476,7 +476,7 @@ TEST_CASE("rcMarkWalkableTriangles")
 	}
 }
 
-TEST_CASE("rcClearUnwalkableTriangles")
+TEST_CASE("rcClearUnwalkableTriangles", "[recast]")
 {
 	rcContext* ctx = 0;
 	float walkableSlopeAngle = 45;
@@ -511,7 +511,7 @@ TEST_CASE("rcClearUnwalkableTriangles")
 	}
 }
 
-TEST_CASE("rcAddSpan")
+TEST_CASE("rcAddSpan", "[recast]")
 {
 	rcContext ctx(false);
 
@@ -600,7 +600,7 @@ TEST_CASE("rcAddSpan")
 	}
 }
 
-TEST_CASE("rcRasterizeTriangle")
+TEST_CASE("rcRasterizeTriangle", "[recast]")
 {
 	rcContext ctx;
 	float verts[] = {
@@ -652,7 +652,7 @@ TEST_CASE("rcRasterizeTriangle")
 	}
 }
 
-TEST_CASE("rcRasterizeTriangle overlapping bb but non-overlapping triangle")
+TEST_CASE("rcRasterizeTriangle overlapping bb but non-overlapping triangle", "[recast]")
 {
 	// This is a minimal repro case for the issue fixed in PR #476 (https://github.com/recastnavigation/recastnavigation/pull/476)
     rcContext ctx;
@@ -689,7 +689,7 @@ TEST_CASE("rcRasterizeTriangle overlapping bb but non-overlapping triangle")
     }
 }
 
-TEST_CASE("rcRasterizeTriangle smaller than half a voxel size in x")
+TEST_CASE("rcRasterizeTriangle smaller than half a voxel size in x", "[recast]")
 {
 	SECTION("Skinny triangle along x axis")
 	{
@@ -756,7 +756,7 @@ TEST_CASE("rcRasterizeTriangle smaller than half a voxel size in x")
 	}
 }
 
-TEST_CASE("rcRasterizeTriangles")
+TEST_CASE("rcRasterizeTriangles", "[recast]")
 {
 	rcContext ctx;
 	float verts[] = {
