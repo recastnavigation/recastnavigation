@@ -144,14 +144,12 @@ void rcFilterLedgeSpans(rcContext* context, const int walkableHeight, const int 
 					}
 				}
 
-				// The current span is close to a ledge if the drop to any
-				// neighbour span is less than the walkableClimb.
+				// The current span is close to a ledge if the drop to any neighbour span is less than the walkableClimb.
 				if (minNeighborHeight < -walkableClimb)
 				{
 					span->area = RC_NULL_AREA;
 				}
-				// If the difference between all neighbours is too large,
-				// we are at steep slope, mark the span as ledge.
+				// If the difference between all neighbours is too large, we are at steep slope, mark the span as ledge.
 				else if ((accessibleNeighborMaxHeight - accessibleNeighborMinHeight) > walkableClimb)
 				{
 					span->area = RC_NULL_AREA;

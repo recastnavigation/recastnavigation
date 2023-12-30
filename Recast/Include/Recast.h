@@ -1000,23 +1000,21 @@ bool rcRasterizeTriangles(rcContext* context,
                           const float* verts, const unsigned char* triAreaIDs, int numTris,
                           rcHeightfield& heightfield, int flagMergeThreshold = 1);
 
-/// Marks non-walkable spans as walkable if their maximum is within @p walkableClimb of a walkable neighbor.
+/// Marks non-walkable spans as walkable if their maximum is within @p walkableClimb of the span below them.
 ///
-/// Allows the formation of walkable regions that will flow over low lying 
-/// objects such as curbs, and up structures such as stairways. 
+/// This removes small obstacles that the agent would be able to walk over such as curbs, and also allows agents to move up structures such as stairs.
 /// 
-/// Two neighboring spans are walkable if: <tt>rcAbs(currentSpan.smax - neighborSpan.smax) < walkableClimb</tt>
+/// Obstacle spans are marked walkable if: <tt>obstacleSpan.smax - walkableSpan.smax < walkableClimb</tt>
 /// 
-/// @warning Will override the effect of #rcFilterLedgeSpans.  So if both filters are used, call
-/// #rcFilterLedgeSpans after calling this filter. 
+/// @warning Will override the effect of #rcFilterLedgeSpans.  If both filters are used, call #rcFilterLedgeSpans only after applying this filter.
 ///
 /// @see rcHeightfield, rcConfig
 /// 
 /// @ingroup recast
-/// @param[in,out]	context				The build context to use during the operation.
+/// @param[in,out]	context			The build context to use during the operation.
 /// @param[in]		walkableClimb	Maximum ledge height that is considered to still be traversable. 
 /// 								[Limit: >=0] [Units: vx]
-/// @param[in,out]	heightfield			A fully built heightfield.  (All spans have been added.)
+/// @param[in,out]	heightfield		A fully built heightfield.  (All spans have been added.)
 void rcFilterLowHangingWalkableObstacles(rcContext* context, int walkableClimb, rcHeightfield& heightfield);
 
 /// Marks spans that are ledges as not-walkable.
