@@ -155,3 +155,80 @@ TEST_CASE("rcFilterLowHangingWalkableObstacles", "[recast, filtering]")
 		}
 	}
 }
+
+TEST_CASE("rcFilterWalkableLowHeightSpans", "[recast, filtering]")
+{
+	rcContext context;
+	int walkableHeight = 5;
+
+	rcHeightfield heightfield;
+	heightfield.width = 1;
+	heightfield.height = 1;
+	heightfield.bmin[0] = 0;
+	heightfield.bmin[1] = 0;
+	heightfield.bmin[2] = 0;
+	heightfield.bmax[0] = 1;
+	heightfield.bmax[1] = 1;
+	heightfield.bmax[2] = 1;
+	heightfield.cs = 1;
+	heightfield.ch = 1;
+	heightfield.spans = (rcSpan**)rcAlloc(heightfield.width * heightfield.height * sizeof(rcSpan*), RC_ALLOC_PERM);
+	heightfield.pools = NULL;
+	heightfield.freelist = NULL;
+
+	SECTION("span nothing above is unchanged")
+	{
+		rcSpan* span = (rcSpan*)rcAlloc(sizeof(rcSpan), RC_ALLOC_PERM);
+		span->area = 1;
+		span->next = NULL;
+		span->smin = 0;
+		span->smax = 1;
+		heightfield.spans[0] = span;
+
+		rcFilterWalkableLowHeightSpans(&context, walkableHeight, heightfield);
+
+		REQUIRE(heightfield.spans[0]->area == 1);
+	}
+
+	SECTION("span with lots of room above is unchanged")
+	{
+		rcSpan* overheadSpan = (rcSpan*)rcAlloc(sizeof(rcSpan), RC_ALLOC_PERM);
+		overheadSpan->area = RC_NULL_AREA;
+		overheadSpan->next = NULL;
+		overheadSpan->smin = 10;
+		overheadSpan->smax = 11;
+
+		rcSpan* span = (rcSpan*)rcAlloc(sizeof(rcSpan), RC_ALLOC_PERM);
+		span->area = 1;
+		span->next = overheadSpan;
+		span->smin = 0;
+		span->smax = 1;
+		heightfield.spans[0] = span;
+
+		rcFilterWalkableLowHeightSpans(&context, walkableHeight, heightfield);
+
+		REQUIRE(heightfield.spans[0]->area == 1);
+		REQUIRE(heightfield.spans[0]->next->area == RC_NULL_AREA);
+	}
+
+	SECTION("Span with low hanging obstacle is marked as unwalkable")
+	{
+		rcSpan* overheadSpan = (rcSpan*)rcAlloc(sizeof(rcSpan), RC_ALLOC_PERM);
+		overheadSpan->area = RC_NULL_AREA;
+		overheadSpan->next = NULL;
+		overheadSpan->smin = 3;
+		overheadSpan->smax = 4;
+
+		rcSpan* span = (rcSpan*)rcAlloc(sizeof(rcSpan), RC_ALLOC_PERM);
+		span->area = 1;
+		span->next = overheadSpan;
+		span->smin = 0;
+		span->smax = 1;
+		heightfield.spans[0] = span;
+
+		rcFilterWalkableLowHeightSpans(&context, walkableHeight, heightfield);
+
+		REQUIRE(heightfield.spans[0]->area == RC_NULL_AREA);
+		REQUIRE(heightfield.spans[0]->next->area == RC_NULL_AREA);
+	}
+}
