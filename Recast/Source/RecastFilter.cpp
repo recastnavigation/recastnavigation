@@ -72,84 +72,98 @@ void rcFilterLedgeSpans(rcContext* context, const int walkableHeight, const int 
 	const int xSize = heightfield.width;
 	const int zSize = heightfield.height;
 	
-	// Mark border spans.
+	// Mark spans that are adjacent to a ledge as unwalkable..
 	for (int z = 0; z < zSize; ++z)
 	{
 		for (int x = 0; x < xSize; ++x)
 		{
 			for (rcSpan* span = heightfield.spans[x + z * xSize]; span; span = span->next)
 			{
-				// Skip non walkable spans.
+				// Skip non-walkable spans.
 				if (span->area == RC_NULL_AREA)
 				{
 					continue;
 				}
 
-				const int bot = (int)(span->smax);
-				const int top = span->next ? (int)(span->next->smin) : MAX_HEIGHTFIELD_HEIGHT;
+				const int floor = (int)(span->smax);
+				const int ceiling = span->next ? (int)(span->next->smin) : MAX_HEIGHTFIELD_HEIGHT;
 
-				// Find neighbours minimum height.
-				int minNeighborHeight = MAX_HEIGHTFIELD_HEIGHT;
+				// The difference between this walkable area and the lowest neighbor walkable area.
+				// This is the difference between the current span and all neighbor spans that have
+				// enough space for an agent to move between, but not accounting at all for surface slope.
+				int lowestNeighborFloorDifference = MAX_HEIGHTFIELD_HEIGHT;
 
 				// Min and max height of accessible neighbours.
-				int accessibleNeighborMinHeight = span->smax;
-				int accessibleNeighborMaxHeight = span->smax;
+				int lowestTraversableNeighborFloor = span->smax;
+				int highestTraversableNeighborFloor = span->smax;
 
 				for (int direction = 0; direction < 4; ++direction)
 				{
-					int dx = x + rcGetDirOffsetX(direction);
-					int dz = z + rcGetDirOffsetY(direction);
+					const int neighborX = x + rcGetDirOffsetX(direction);
+					const int neighborZ = z + rcGetDirOffsetY(direction);
+
 					// Skip neighbours which are out of bounds.
-					if (dx < 0 || dz < 0 || dx >= xSize || dz >= zSize)
+					if (neighborX < 0 || neighborZ < 0 || neighborX >= xSize || neighborZ >= zSize)
 					{
-						minNeighborHeight = (-walkableClimb - 1) ;
+						lowestNeighborFloorDifference = -walkableClimb - 1;
 						break;
 					}
 
-					// From minus infinity to the first span.
-					const rcSpan* neighborSpan = heightfield.spans[dx + dz * xSize];
-					int neighborTop = neighborSpan ? (int)neighborSpan->smin : MAX_HEIGHTFIELD_HEIGHT;
-					
+					const rcSpan* neighborSpan = heightfield.spans[neighborX + neighborZ * xSize];
+
+					// The most we can step down to the neighbor is the walkableClimb distance.
+					// Start with the area under the neighbor span
+					int neighborCeiling = neighborSpan ? (int)neighborSpan->smin : MAX_HEIGHTFIELD_HEIGHT;
+
 					// Skip neighbour if the gap between the spans is too small.
-					if (rcMin(top, neighborTop) - bot >= walkableHeight)
+					if (rcMin(ceiling, neighborCeiling) - floor >= walkableHeight)
 					{
-						minNeighborHeight = (-walkableClimb - 1);
+						lowestNeighborFloorDifference = (-walkableClimb - 1);
 						break;
 					}
 
-					// Rest of the spans.
-					for (neighborSpan = heightfield.spans[dx + dz * xSize]; neighborSpan; neighborSpan = neighborSpan->next)
+					// For each span in the neighboring column...
+					for (; neighborSpan != NULL; neighborSpan = neighborSpan->next)
 					{
-						int neighborBot = (int)neighborSpan->smax;
-						neighborTop = neighborSpan->next ? (int)neighborSpan->next->smin : MAX_HEIGHTFIELD_HEIGHT;
-						
-						// Skip neighbour if the gap between the spans is too small.
-						if (rcMin(top, neighborTop) - rcMax(bot, neighborBot) >= walkableHeight)
-						{
-							int accessibleNeighbourHeight = neighborBot - bot;
-							minNeighborHeight = rcMin(minNeighborHeight, accessibleNeighbourHeight);
+						const int neighborFloor = (int)neighborSpan->smax;
+						neighborCeiling = neighborSpan->next ? (int)neighborSpan->next->smin : MAX_HEIGHTFIELD_HEIGHT;
 
-							// Find min/max accessible neighbour height. 
-							if (rcAbs(accessibleNeighbourHeight) <= walkableClimb)
-							{
-								if (neighborBot < accessibleNeighborMinHeight) accessibleNeighborMinHeight = neighborBot;
-								if (neighborBot > accessibleNeighborMaxHeight) accessibleNeighborMaxHeight = neighborBot;
-							}
-							else if (accessibleNeighbourHeight < -walkableClimb)
-							{
-								break;
-							}
+						// Only consider neighboring areas that have enough overlap to be potentially traversable.
+						if (rcMin(ceiling, neighborCeiling) - rcMax(floor, neighborFloor) < walkableHeight)
+						{
+							// No space to traverse between them.
+							continue;
+						}
+
+						const int neighborFloorDifference = neighborFloor - floor;
+						lowestNeighborFloorDifference = rcMin(lowestNeighborFloorDifference, neighborFloorDifference);
+
+						// Find min/max accessible neighbor height.
+						// Only consider neighbors that are at most walkableClimb away.
+						if (rcAbs(neighborFloorDifference) <= walkableClimb)
+						{
+							// There is space to move to the neighbor cell and the slope isn't too much.
+							lowestTraversableNeighborFloor = rcMin(lowestTraversableNeighborFloor, neighborFloor);
+							highestTraversableNeighborFloor = rcMax(highestTraversableNeighborFloor, neighborFloor);
+						}
+						else if (neighborFloorDifference < -walkableClimb)
+						{
+							// We already know this will be considered a ledge span so we can early-out
+							break;
 						}
 					}
 				}
 
-				// The current span is close to a ledge if the drop to any neighbour span is less than the walkableClimb.
-				if (minNeighborHeight < -walkableClimb)
+				// The current span is close to a ledge if the magnitude of the drop to any neighbour span is greater than the walkableClimb distance.
+				// That is, there is a gap that is large enough to let an agent move between them, but the drop (surface slope) is too large to allow it.
+				// (If this is the case, then biggestNeighborStepDown will be negative, so compare against the negative walkableClimb as a means of checking
+				// the magnitude of the delta)
+				if (lowestNeighborFloorDifference < -walkableClimb)
 				{
 					span->area = RC_NULL_AREA;
 				}
-				// If the difference between all neighbours is too large, we are at steep slope, mark the span as ledge.
-				else if ((accessibleNeighborMaxHeight - accessibleNeighborMinHeight) > walkableClimb)
+				// If the difference between all neighbor floors is too large, this is a steep slope, so mark the span as an unwalkable ledge.
+				else if (highestTraversableNeighborFloor - lowestTraversableNeighborFloor > walkableClimb)
 				{
 					span->area = RC_NULL_AREA;
 				}
