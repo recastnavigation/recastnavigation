@@ -38,6 +38,8 @@ TEST_CASE("rcFilterLowHangingWalkableObstacles", "[recast, filtering]")
 		rcFilterLowHangingWalkableObstacles(&context, walkableHeight, heightfield);
 
 		REQUIRE(heightfield.spans[0]->area == 1);
+
+		rcFree(span);
 	}
 
 	SECTION("Span with span above that is higher than walkableHeight is unchanged")
@@ -72,6 +74,9 @@ TEST_CASE("rcFilterLowHangingWalkableObstacles", "[recast, filtering]")
 		// Check that nothing has changed.
 		REQUIRE(heightfield.spans[0]->area == 1);
 		REQUIRE(heightfield.spans[0]->next->area == 1);
+
+		rcFree(span);
+		rcFree(secondSpan);
 	}
 
 	SECTION("Marks low obstacles walkable if they're below the walkableClimb")
@@ -96,6 +101,9 @@ TEST_CASE("rcFilterLowHangingWalkableObstacles", "[recast, filtering]")
 		// Check that the second span was changed to walkable.
 		REQUIRE(heightfield.spans[0]->area == 1);
 		REQUIRE(heightfield.spans[0]->next->area == 1);
+
+		rcFree(span);
+		rcFree(secondSpan);
 	}
 
 	SECTION("Low obstacle that overlaps the walkableClimb distance is not changed")
@@ -120,6 +128,9 @@ TEST_CASE("rcFilterLowHangingWalkableObstacles", "[recast, filtering]")
 		// Check that the second span was changed to walkable.
 		REQUIRE(heightfield.spans[0]->area == 1);
 		REQUIRE(heightfield.spans[0]->next->area == RC_NULL_AREA);
+
+		rcFree(span);
+		rcFree(secondSpan);
 	}
 
 	SECTION("Only the first of multiple, low obstacles are marked walkable")
@@ -152,6 +163,12 @@ TEST_CASE("rcFilterLowHangingWalkableObstacles", "[recast, filtering]")
 			// only the first and second spans should be marked as walkabl
 			REQUIRE(currentSpan->area == (i <= 1 ? 1 : RC_NULL_AREA));
 			currentSpan = currentSpan->next;
+		}
+
+		while (span != NULL)
+		{
+			rcFree(span);
+			span = span->next;
 		}
 	}
 }
@@ -216,6 +233,15 @@ TEST_CASE("rcFilterLedgeSpans", "[recast, filtering]")
 				REQUIRE(span->smax == 1);
 			}
 		}
+
+		// Free all the heightfield spans
+		for (int x = 0; x < heightfield.width; ++x)
+		{
+			for (int z = 0; z < heightfield.height; ++z)
+			{
+				rcFree(heightfield.spans[x + z * heightfield.width]);
+			}
+		}
 	}
 
 	SECTION("Edge spans are marked unwalkable")
@@ -257,6 +283,15 @@ TEST_CASE("rcFilterLedgeSpans", "[recast, filtering]")
 				REQUIRE(span->smax == 1);
 			}
 		}
+
+		// Free all the heightfield spans
+		for (int x = 0; x < heightfield.width; ++x)
+		{
+			for (int z = 0; z < heightfield.height; ++z)
+			{
+				rcFree(heightfield.spans[x + z * heightfield.width]);
+			}
+		}
 	}
 }
 
@@ -292,6 +327,8 @@ TEST_CASE("rcFilterWalkableLowHeightSpans", "[recast, filtering]")
 		rcFilterWalkableLowHeightSpans(&context, walkableHeight, heightfield);
 
 		REQUIRE(heightfield.spans[0]->area == 1);
+
+		rcFree(span);
 	}
 
 	SECTION("span with lots of room above is unchanged")
@@ -313,6 +350,9 @@ TEST_CASE("rcFilterWalkableLowHeightSpans", "[recast, filtering]")
 
 		REQUIRE(heightfield.spans[0]->area == 1);
 		REQUIRE(heightfield.spans[0]->next->area == RC_NULL_AREA);
+
+		rcFree(overheadSpan);
+		rcFree(span);
 	}
 
 	SECTION("Span with low hanging obstacle is marked as unwalkable")
@@ -334,5 +374,10 @@ TEST_CASE("rcFilterWalkableLowHeightSpans", "[recast, filtering]")
 
 		REQUIRE(heightfield.spans[0]->area == RC_NULL_AREA);
 		REQUIRE(heightfield.spans[0]->next->area == RC_NULL_AREA);
+
+		rcFree(overheadSpan);
+		rcFree(span);
 	}
+
+	rcFree(heightfield.spans);
 }
