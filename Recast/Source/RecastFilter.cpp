@@ -41,24 +41,23 @@ void rcFilterLowHangingWalkableObstacles(rcContext* context, const int walkableC
 		{
 			rcSpan* previousSpan = NULL;
 			bool previousWasWalkable = false;
-			unsigned char previousArea = RC_NULL_AREA;
+			unsigned char previousAreaID = RC_NULL_AREA;
 
+			// For each span in the column...
 			for (rcSpan* span = heightfield.spans[x + z * xSize]; span != NULL; previousSpan = span, span = span->next)
 			{
 				const bool walkable = span->area != RC_NULL_AREA;
-				// If current span is not walkable, but there is walkable
-				// span just below it, mark the span above it walkable too.
-				if (!walkable && previousWasWalkable)
+				// If current span is not walkable, but there is walkable span just below it and the height difference
+				// is small enough for the agent to walk over, mark the current span as walkable too.
+				if (!walkable && previousWasWalkable && rcAbs((int)span->smax - (int)previousSpan->smax) <= walkableClimb)
 				{
-					if (rcAbs((int)span->smax - (int)previousSpan->smax) <= walkableClimb)
-					{
-						span->area = previousArea;
-					}
+					span->area = previousAreaID;
 				}
-				// Copy walkable flag so that it cannot propagate
-				// past multiple non-walkable objects.
+
+				// Copy the original walkable value regardless of whether we changed it.
+				// This prevents multiple consecutive non-walkable spans from being erroneously marked as walkable.
 				previousWasWalkable = walkable;
-				previousArea = span->area;
+				previousAreaID = span->area;
 			}
 		}
 	}
