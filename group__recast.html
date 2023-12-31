@@ -197,13 +197,13 @@ Classes</h2></td></tr>
 <tr class="memdesc:gaebc5f38893ede7ee5d107a9ad2dbd369"><td class="mdescLeft">&#160;</td><td class="mdescRight">Rasterizes a triangle list into the specified heightfield.  <a href="group__recast.html#gaebc5f38893ede7ee5d107a9ad2dbd369">More...</a><br /></td></tr>
 <tr class="separator:gaebc5f38893ede7ee5d107a9ad2dbd369"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga009f5e462077cc2f6d1f5fff57f2e412"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__recast.html#ga009f5e462077cc2f6d1f5fff57f2e412">rcFilterLowHangingWalkableObstacles</a> (<a class="el" href="classrcContext.html">rcContext</a> *context, int walkableClimb, <a class="el" href="structrcHeightfield.html">rcHeightfield</a> &amp;heightfield)</td></tr>
-<tr class="memdesc:ga009f5e462077cc2f6d1f5fff57f2e412"><td class="mdescLeft">&#160;</td><td class="mdescRight">Marks non-walkable spans as walkable if their maximum is within <code>walkableClimb</code> of a walkable neighbor.  <a href="group__recast.html#ga009f5e462077cc2f6d1f5fff57f2e412">More...</a><br /></td></tr>
+<tr class="memdesc:ga009f5e462077cc2f6d1f5fff57f2e412"><td class="mdescLeft">&#160;</td><td class="mdescRight">Marks non-walkable spans as walkable if their maximum is within <code>walkableClimb</code> of the span below them.  <a href="group__recast.html#ga009f5e462077cc2f6d1f5fff57f2e412">More...</a><br /></td></tr>
 <tr class="separator:ga009f5e462077cc2f6d1f5fff57f2e412"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gad40c996631bc70091d7355dc4c950655"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__recast.html#gad40c996631bc70091d7355dc4c950655">rcFilterLedgeSpans</a> (<a class="el" href="classrcContext.html">rcContext</a> *context, int walkableHeight, int walkableClimb, <a class="el" href="structrcHeightfield.html">rcHeightfield</a> &amp;heightfield)</td></tr>
 <tr class="memdesc:gad40c996631bc70091d7355dc4c950655"><td class="mdescLeft">&#160;</td><td class="mdescRight">Marks spans that are ledges as not-walkable.  <a href="group__recast.html#gad40c996631bc70091d7355dc4c950655">More...</a><br /></td></tr>
 <tr class="separator:gad40c996631bc70091d7355dc4c950655"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga0dbfbeebd642c1b79323ba7723d91a49"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__recast.html#ga0dbfbeebd642c1b79323ba7723d91a49">rcFilterWalkableLowHeightSpans</a> (<a class="el" href="classrcContext.html">rcContext</a> *context, int walkableHeight, <a class="el" href="structrcHeightfield.html">rcHeightfield</a> &amp;heightfield)</td></tr>
-<tr class="memdesc:ga0dbfbeebd642c1b79323ba7723d91a49"><td class="mdescLeft">&#160;</td><td class="mdescRight">Marks walkable spans as not walkable if the clearance above the span is less than the specified height.  <a href="group__recast.html#ga0dbfbeebd642c1b79323ba7723d91a49">More...</a><br /></td></tr>
+<tr class="memdesc:ga0dbfbeebd642c1b79323ba7723d91a49"><td class="mdescLeft">&#160;</td><td class="mdescRight">Marks walkable spans as not walkable if the clearance above the span is less than the specified walkableHeight.  <a href="group__recast.html#ga0dbfbeebd642c1b79323ba7723d91a49">More...</a><br /></td></tr>
 <tr class="separator:ga0dbfbeebd642c1b79323ba7723d91a49"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gabade813042a8c79ddb2f4ecf84620cf8"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__recast.html#gabade813042a8c79ddb2f4ecf84620cf8">rcGetHeightFieldSpanCount</a> (<a class="el" href="classrcContext.html">rcContext</a> *context, const <a class="el" href="structrcHeightfield.html">rcHeightfield</a> &amp;heightfield)</td></tr>
 <tr class="memdesc:gabade813042a8c79ddb2f4ecf84620cf8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of spans contained in the specified heightfield.  <a href="group__recast.html#gabade813042a8c79ddb2f4ecf84620cf8">More...</a><br /></td></tr>
@@ -1507,10 +1507,10 @@ Classes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Marks non-walkable spans as walkable if their maximum is within <code>walkableClimb</code> of a walkable neighbor. </p>
-<p>Allows the formation of walkable regions that will flow over low lying objects such as curbs, and up structures such as stairways.</p>
-<p>Two neighboring spans are walkable if: <code>rcAbs(currentSpan.smax - neighborSpan.smax) &lt; walkableClimb</code></p>
-<dl class="section warning"><dt>Warning</dt><dd>Will override the effect of <a class="el" href="group__recast.html#gad40c996631bc70091d7355dc4c950655" title="Marks spans that are ledges as not-walkable.">rcFilterLedgeSpans</a>. So if both filters are used, call <a class="el" href="group__recast.html#gad40c996631bc70091d7355dc4c950655" title="Marks spans that are ledges as not-walkable.">rcFilterLedgeSpans</a> after calling this filter.</dd></dl>
+<p>Marks non-walkable spans as walkable if their maximum is within <code>walkableClimb</code> of the span below them. </p>
+<p>This removes small obstacles that the agent would be able to walk over such as curbs, and also allows agents to move up structures such as stairs.</p>
+<p>Obstacle spans are marked walkable if: <code>obstacleSpan.smax - walkableSpan.smax &lt; walkableClimb</code></p>
+<dl class="section warning"><dt>Warning</dt><dd>Will override the effect of <a class="el" href="group__recast.html#gad40c996631bc70091d7355dc4c950655" title="Marks spans that are ledges as not-walkable.">rcFilterLedgeSpans</a>. If both filters are used, call <a class="el" href="group__recast.html#gad40c996631bc70091d7355dc4c950655" title="Marks spans that are ledges as not-walkable.">rcFilterLedgeSpans</a> only after applying this filter.</dd></dl>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="structrcHeightfield.html" title="A dynamic heightfield representing obstructed space.">rcHeightfield</a>, <a class="el" href="structrcConfig.html" title="Specifies a configuration to use when performing Recast builds.">rcConfig</a></dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -1555,8 +1555,8 @@ Classes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Marks walkable spans as not walkable if the clearance above the span is less than the specified height. </p>
-<p>For this filter, the clearance above the span is the distance from the span's maximum to the next higher span's minimum. (Same grid column.)</p>
+<p>Marks walkable spans as not walkable if the clearance above the span is less than the specified walkableHeight. </p>
+<p>For this filter, the clearance above the span is the distance from the span's maximum to the minimum of the next higher span in the same column. If there is no higher span in the column, the clearance is computed as the distance from the top of the span to the maximum heightfield height.</p>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="structrcHeightfield.html" title="A dynamic heightfield representing obstructed space.">rcHeightfield</a>, <a class="el" href="structrcConfig.html" title="Specifies a configuration to use when performing Recast builds.">rcConfig</a></dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
