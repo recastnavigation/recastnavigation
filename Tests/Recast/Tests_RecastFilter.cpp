@@ -143,7 +143,7 @@ TEST_CASE("rcFilterLowHangingWalkableObstacles", "[recast, filtering]")
 		heightfield.spans[0] = span;
 
 		rcSpan* previousSpan = span;
-		for (int i = 0; i < 10; ++i)
+		for (int i = 0; i < 9; ++i)
 		{
 			rcSpan* nextSpan = (rcSpan*)rcAlloc(sizeof(rcSpan), RC_ALLOC_PERM);
 			nextSpan->area = RC_NULL_AREA;
