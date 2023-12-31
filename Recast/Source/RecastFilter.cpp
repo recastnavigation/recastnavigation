@@ -21,6 +21,11 @@
 
 #include <stdlib.h>
 
+namespace
+{
+	const int MAX_HEIGHTFIELD_HEIGHT = 0xffff; // TODO (graham): Move this to a more visible constant and update usages.
+}
+
 void rcFilterLowHangingWalkableObstacles(rcContext* context, const int walkableClimb, rcHeightfield& heightfield)
 {
 	rcAssert(context);
@@ -59,8 +64,7 @@ void rcFilterLowHangingWalkableObstacles(rcContext* context, const int walkableC
 	}
 }
 
-void rcFilterLedgeSpans(rcContext* context, const int walkableHeight, const int walkableClimb,
-                        rcHeightfield& heightfield)
+void rcFilterLedgeSpans(rcContext* context, const int walkableHeight, const int walkableClimb, rcHeightfield& heightfield)
 {
 	rcAssert(context);
 	
@@ -68,7 +72,6 @@ void rcFilterLedgeSpans(rcContext* context, const int walkableHeight, const int 
 
 	const int xSize = heightfield.width;
 	const int zSize = heightfield.height;
-	const int MAX_HEIGHT = 0xffff; // TODO (graham): Move this to a more visible constant and update usages.
 	
 	// Mark border spans.
 	for (int z = 0; z < zSize; ++z)
@@ -84,10 +87,10 @@ void rcFilterLedgeSpans(rcContext* context, const int walkableHeight, const int 
 				}
 
 				const int bot = (int)(span->smax);
-				const int top = span->next ? (int)(span->next->smin) : MAX_HEIGHT;
+				const int top = span->next ? (int)(span->next->smin) : MAX_HEIGHTFIELD_HEIGHT;
 
 				// Find neighbours minimum height.
-				int minNeighborHeight = MAX_HEIGHT;
+				int minNeighborHeight = MAX_HEIGHTFIELD_HEIGHT;
 
 				// Min and max height of accessible neighbours.
 				int accessibleNeighborMinHeight = span->smax;
@@ -106,7 +109,7 @@ void rcFilterLedgeSpans(rcContext* context, const int walkableHeight, const int 
 
 					// From minus infinity to the first span.
 					const rcSpan* neighborSpan = heightfield.spans[dx + dz * xSize];
-					int neighborTop = neighborSpan ? (int)neighborSpan->smin : MAX_HEIGHT;
+					int neighborTop = neighborSpan ? (int)neighborSpan->smin : MAX_HEIGHTFIELD_HEIGHT;
 					
 					// Skip neighbour if the gap between the spans is too small.
 					if (rcMin(top, neighborTop) - bot >= walkableHeight)
@@ -119,7 +122,7 @@ void rcFilterLedgeSpans(rcContext* context, const int walkableHeight, const int 
 					for (neighborSpan = heightfield.spans[dx + dz * xSize]; neighborSpan; neighborSpan = neighborSpan->next)
 					{
 						int neighborBot = (int)neighborSpan->smax;
-						neighborTop = neighborSpan->next ? (int)neighborSpan->next->smin : MAX_HEIGHT;
+						neighborTop = neighborSpan->next ? (int)neighborSpan->next->smin : MAX_HEIGHTFIELD_HEIGHT;
 						
 						// Skip neighbour if the gap between the spans is too small.
 						if (rcMin(top, neighborTop) - rcMax(bot, neighborBot) >= walkableHeight)
@@ -137,19 +140,16 @@ void rcFilterLedgeSpans(rcContext* context, const int walkableHeight, const int 
 							{
 								break;
 							}
-
 						}
 					}
 				}
 
-				// The current span is close to a ledge if the drop to any
-				// neighbour span is less than the walkableClimb.
+				// The current span is close to a ledge if the drop to any neighbour span is less than the walkableClimb.
 				if (minNeighborHeight < -walkableClimb)
 				{
 					span->area = RC_NULL_AREA;
 				}
-				// If the difference between all neighbours is too large,
-				// we are at steep slope, mark the span as ledge.
+				// If the difference between all neighbours is too large, we are at steep slope, mark the span as ledge.
 				else if ((accessibleNeighborMaxHeight - accessibleNeighborMinHeight) > walkableClimb)
 				{
 					span->area = RC_NULL_AREA;
@@ -162,13 +162,11 @@ void rcFilterLedgeSpans(rcContext* context, const int walkableHeight, const int 
 void rcFilterWalkableLowHeightSpans(rcContext* context, const int walkableHeight, rcHeightfield& heightfield)
 {
 	rcAssert(context);
-	
 	rcScopedTimer timer(context, RC_TIMER_FILTER_WALKABLE);
-	
+
 	const int xSize = heightfield.width;
 	const int zSize = heightfield.height;
-	const int MAX_HEIGHT = 0xffff;
-	
+
 	// Remove walkable flag from spans which do not have enough
 	// space above them for the agent to stand there.
 	for (int z = 0; z < zSize; ++z)
@@ -178,7 +176,7 @@ void rcFilterWalkableLowHeightSpans(rcContext* context, const int walkableHeight
 			for (rcSpan* span = heightfield.spans[x + z*xSize]; span; span = span->next)
 			{
 				const int bot = (int)(span->smax);
-				const int top = span->next ? (int)(span->next->smin) : MAX_HEIGHT;
+				const int top = span->next ? (int)(span->next->smin) : MAX_HEIGHTFIELD_HEIGHT;
 				if ((top - bot) < walkableHeight)
 				{
 					span->area = RC_NULL_AREA;

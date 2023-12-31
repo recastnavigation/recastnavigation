@@ -321,6 +321,8 @@ struct rcHeightfield
 	float cs;			///< The size of each cell. (On the xz-plane.)
 	float ch;			///< The height of each cell. (The minimum increment along the y-axis.)
 	rcSpan** spans;		///< Heightfield of spans (width*height).
+
+	// memory pool for rcSpan instances.
 	rcSpanPool* pools;	///< Linked list of span pools.
 	rcSpan* freelist;	///< The next free span.
 
@@ -998,23 +1000,21 @@ bool rcRasterizeTriangles(rcContext* context,
                           const float* verts, const unsigned char* triAreaIDs, int numTris,
                           rcHeightfield& heightfield, int flagMergeThreshold = 1);
 
-/// Marks non-walkable spans as walkable if their maximum is within @p walkableClimb of a walkable neighbor.
+/// Marks non-walkable spans as walkable if their maximum is within @p walkableClimb of the span below them.
 ///
-/// Allows the formation of walkable regions that will flow over low lying 
-/// objects such as curbs, and up structures such as stairways. 
+/// This removes small obstacles that the agent would be able to walk over such as curbs, and also allows agents to move up structures such as stairs.
 /// 
-/// Two neighboring spans are walkable if: <tt>rcAbs(currentSpan.smax - neighborSpan.smax) < walkableClimb</tt>
+/// Obstacle spans are marked walkable if: <tt>obstacleSpan.smax - walkableSpan.smax < walkableClimb</tt>
 /// 
-/// @warning Will override the effect of #rcFilterLedgeSpans.  So if both filters are used, call
-/// #rcFilterLedgeSpans after calling this filter. 
+/// @warning Will override the effect of #rcFilterLedgeSpans.  If both filters are used, call #rcFilterLedgeSpans only after applying this filter.
 ///
 /// @see rcHeightfield, rcConfig
 /// 
 /// @ingroup recast
-/// @param[in,out]	context				The build context to use during the operation.
+/// @param[in,out]	context			The build context to use during the operation.
 /// @param[in]		walkableClimb	Maximum ledge height that is considered to still be traversable. 
 /// 								[Limit: >=0] [Units: vx]
-/// @param[in,out]	heightfield			A fully built heightfield.  (All spans have been added.)
+/// @param[in,out]	heightfield		A fully built heightfield.  (All spans have been added.)
 void rcFilterLowHangingWalkableObstacles(rcContext* context, int walkableClimb, rcHeightfield& heightfield);
 
 /// Marks spans that are ledges as not-walkable.
@@ -1037,10 +1037,12 @@ void rcFilterLowHangingWalkableObstacles(rcContext* context, int walkableClimb, 
 /// @param[in,out]	heightfield			A fully built heightfield.  (All spans have been added.)
 void rcFilterLedgeSpans(rcContext* context, int walkableHeight, int walkableClimb, rcHeightfield& heightfield);
 
-/// Marks walkable spans as not walkable if the clearance above the span is less than the specified height.
+/// Marks walkable spans as not walkable if the clearance above the span is less than the specified walkableHeight.
 /// 
 /// For this filter, the clearance above the span is the distance from the span's 
-/// maximum to the next higher span's minimum. (Same grid column.)
+/// maximum to the minimum of the next higher span in the same column.
+/// If there is no higher span in the column, the clearance is computed as the
+/// distance from the top of the span to the maximum heightfield height.
 /// 
 /// @see rcHeightfield, rcConfig
 /// @ingroup recast
