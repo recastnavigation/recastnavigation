@@ -378,6 +378,4 @@ TEST_CASE("rcFilterWalkableLowHeightSpans", "[recast, filtering]")
 		rcFree(overheadSpan);
 		rcFree(span);
 	}
-
-	rcFree(heightfield.spans);
 }
