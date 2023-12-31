@@ -1,5 +1,6 @@
 ﻿#include <stdio.h>
 #include <string.h>
+#include <vector>
 
 #include "catch2/catch_all.hpp"
 
@@ -165,10 +166,17 @@ TEST_CASE("rcFilterLowHangingWalkableObstacles", "[recast, filtering]")
 			currentSpan = currentSpan->next;
 		}
 
-		while (span != NULL)
+		std::vector<rcSpan*> toFree;
+		span = heightfield.spans[0];
+		for (int i = 0; i < 10; ++i)
 		{
-			rcFree(span);
+			toFree.push_back(span);
 			span = span->next;
+		}
+
+		for (int i = 0; i < 10; ++i)
+		{
+			rcFree(toFree[i]);
 		}
 	}
 }
