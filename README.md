@@ -13,7 +13,7 @@
 * 🤖 **Automatic** - Recast can generate a navmesh from any level geometry you throw at it
 * 🏎️ **Fast** - swift turnaround times for level designers
 * 🧘 **Flexible** - detailed customization options and modular design let you tailor functionality to your specific needs
-* 🚫 **Dependency-Free** - building Recast & Detour only requires a C++ compiler
+* 🚫 **Dependency-Free** - building Recast & Detour only requires a C++98-compliant compiler
 * 💪 **Industry Standard** - Recast powers AI navigation features in Unity, Unreal, Godot, O3DE and countless AAA and indie games and engines
 
 Recast Navigation is divided into multiple modules, each contained in its own folder:
