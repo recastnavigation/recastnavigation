@@ -1508,7 +1508,7 @@ Classes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Marks non-walkable spans as walkable if their maximum is within <code>walkableClimb</code> of the span below them. </p>
-<p>This removes small obstacles that the agent would be able to walk over such as curbs, and also allows agents to move up structures such as stairs.</p>
+<p>This removes small obstacles and rasterization artifacts that the agent would be able to walk over such as curbs. It also allows agents to move up terraced structures like stairs.</p>
 <p>Obstacle spans are marked walkable if: <code>obstacleSpan.smax - walkableSpan.smax &lt; walkableClimb</code></p>
 <dl class="section warning"><dt>Warning</dt><dd>Will override the effect of <a class="el" href="group__recast.html#gad40c996631bc70091d7355dc4c950655" title="Marks spans that are ledges as not-walkable.">rcFilterLedgeSpans</a>. If both filters are used, call <a class="el" href="group__recast.html#gad40c996631bc70091d7355dc4c950655" title="Marks spans that are ledges as not-walkable.">rcFilterLedgeSpans</a> only after applying this filter.</dd></dl>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="structrcHeightfield.html" title="A dynamic heightfield representing obstructed space.">rcHeightfield</a>, <a class="el" href="structrcConfig.html" title="Specifies a configuration to use when performing Recast builds.">rcConfig</a></dd></dl>
