@@ -47,9 +47,10 @@ void rcFilterLowHangingWalkableObstacles(rcContext* context, const int walkableC
 			for (rcSpan* span = heightfield.spans[x + z * xSize]; span != NULL; previousSpan = span, span = span->next)
 			{
 				const bool walkable = span->area != RC_NULL_AREA;
+
 				// If current span is not walkable, but there is walkable span just below it and the height difference
 				// is small enough for the agent to walk over, mark the current span as walkable too.
-				if (!walkable && previousWasWalkable && rcAbs((int)span->smax - (int)previousSpan->smax) <= walkableClimb)
+				if (!walkable && previousWasWalkable && (int)span->smax - (int)previousSpan->smax <= walkableClimb)
 				{
 					span->area = previousAreaID;
 				}
@@ -188,9 +189,9 @@ void rcFilterWalkableLowHeightSpans(rcContext* context, const int walkableHeight
 		{
 			for (rcSpan* span = heightfield.spans[x + z*xSize]; span; span = span->next)
 			{
-				const int bot = (int)(span->smax);
-				const int top = span->next ? (int)(span->next->smin) : MAX_HEIGHTFIELD_HEIGHT;
-				if ((top - bot) < walkableHeight)
+				const int floor = (int)(span->smax);
+				const int ceiling = span->next ? (int)(span->next->smin) : MAX_HEIGHTFIELD_HEIGHT;
+				if (ceiling - floor < walkableHeight)
 				{
 					span->area = RC_NULL_AREA;
 				}
