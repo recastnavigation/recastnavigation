@@ -47,7 +47,7 @@ TEST_CASE("rcFilterLowHangingWalkableObstacles", "[recast, filtering]")
 	{
 		// Put the second span just above the first one.
 		rcSpan* secondSpan = (rcSpan*)rcAlloc(sizeof(rcSpan), RC_ALLOC_PERM);
-		secondSpan->area = 1;
+		secondSpan->area = RC_NULL_AREA;
 		secondSpan->next = NULL;
 		secondSpan->smin = 1 + walkableHeight;
 		secondSpan->smax = secondSpan->smin + 1;
@@ -64,7 +64,7 @@ TEST_CASE("rcFilterLowHangingWalkableObstacles", "[recast, filtering]")
 
 		// Check that nothing has changed.
 		REQUIRE(heightfield.spans[0]->area == 1);
-		REQUIRE(heightfield.spans[0]->next->area == 1);
+		REQUIRE(heightfield.spans[0]->next->area == RC_NULL_AREA);
 
 		// Check again but with a more clearance
 		secondSpan->smin += 10;
@@ -74,7 +74,7 @@ TEST_CASE("rcFilterLowHangingWalkableObstacles", "[recast, filtering]")
 
 		// Check that nothing has changed.
 		REQUIRE(heightfield.spans[0]->area == 1);
-		REQUIRE(heightfield.spans[0]->next->area == 1);
+		REQUIRE(heightfield.spans[0]->next->area == RC_NULL_AREA);
 
 		rcFree(span);
 		rcFree(secondSpan);
