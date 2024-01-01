@@ -47,7 +47,7 @@ TEST_CASE("rcFilterLowHangingWalkableObstacles", "[recast, filtering]")
 	{
 		// Put the second span just above the first one.
 		rcSpan* secondSpan = (rcSpan*)rcAlloc(sizeof(rcSpan), RC_ALLOC_PERM);
-		secondSpan->area = 1;
+		secondSpan->area = RC_NULL_AREA;
 		secondSpan->next = NULL;
 		secondSpan->smin = 1 + walkableHeight;
 		secondSpan->smax = secondSpan->smin + 1;
@@ -64,7 +64,7 @@ TEST_CASE("rcFilterLowHangingWalkableObstacles", "[recast, filtering]")
 
 		// Check that nothing has changed.
 		REQUIRE(heightfield.spans[0]->area == 1);
-		REQUIRE(heightfield.spans[0]->next->area == 1);
+		REQUIRE(heightfield.spans[0]->next->area == RC_NULL_AREA);
 
 		// Check again but with a more clearance
 		secondSpan->smin += 10;
@@ -74,7 +74,7 @@ TEST_CASE("rcFilterLowHangingWalkableObstacles", "[recast, filtering]")
 
 		// Check that nothing has changed.
 		REQUIRE(heightfield.spans[0]->area == 1);
-		REQUIRE(heightfield.spans[0]->next->area == 1);
+		REQUIRE(heightfield.spans[0]->next->area == RC_NULL_AREA);
 
 		rcFree(span);
 		rcFree(secondSpan);
@@ -201,56 +201,6 @@ TEST_CASE("rcFilterLedgeSpans", "[recast, filtering]")
 	heightfield.spans = (rcSpan**)rcAlloc(heightfield.width * heightfield.height * sizeof(rcSpan*), RC_ALLOC_PERM);
 	heightfield.pools = NULL;
 	heightfield.freelist = NULL;
-
-	SECTION("Edge spans are marked unwalkable")
-	{
-		// Create a flat plane.
-		for (int x = 0; x < heightfield.width; ++x)
-		{
-			for (int z = 0; z < heightfield.height; ++z)
-			{
-				rcSpan* span = (rcSpan*)rcAlloc(sizeof(rcSpan), RC_ALLOC_PERM);
-				span->area = 1;
-				span->next = NULL;
-				span->smin = 0;
-				span->smax = 1;
-				heightfield.spans[x + z * heightfield.width] = span;
-			}
-		}
-
-		rcFilterLedgeSpans(&context, walkableHeight, walkableClimb, heightfield);
-
-		for (int x = 0; x < heightfield.width; ++x)
-		{
-			for (int z = 0; z < heightfield.height; ++z)
-			{
-				rcSpan* span = heightfield.spans[x + z * heightfield.width];
-				REQUIRE(span != NULL);
-
-				if (x == 0 || z == 0 || x == 9 || z == 9)
-				{
-					REQUIRE(span->area == RC_NULL_AREA);
-				}
-				else
-				{
-					REQUIRE(span->area == 1);
-				}
-
-				REQUIRE(span->next == NULL);
-				REQUIRE(span->smin == 0);
-				REQUIRE(span->smax == 1);
-			}
-		}
-
-		// Free all the heightfield spans
-		for (int x = 0; x < heightfield.width; ++x)
-		{
-			for (int z = 0; z < heightfield.height; ++z)
-			{
-				rcFree(heightfield.spans[x + z * heightfield.width]);
-			}
-		}
-	}
 
 	SECTION("Edge spans are marked unwalkable")
 	{
