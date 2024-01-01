@@ -1003,7 +1003,7 @@ bool rcRasterizeTriangles(rcContext* context,
 /// Marks non-walkable spans as walkable if their maximum is within @p walkableClimb of the span below them.
 ///
 /// This removes small obstacles and rasterization artifacts that the agent would be able to walk over
-/// such as curbs, and also allows agents to move up terraced structures like stairs.
+/// such as curbs.  It also allows agents to move up terraced structures like stairs.
 /// 
 /// Obstacle spans are marked walkable if: <tt>obstacleSpan.smax - walkableSpan.smax < walkableClimb</tt>
 /// 
