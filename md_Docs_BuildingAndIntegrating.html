@@ -91,12 +91,12 @@ $(document).ready(function(){initNavTree('md_Docs_BuildingAndIntegrating.html','
 <div class="contents">
 <div class="textblock"><p>Recast is designed to be integrated into your project as source files and built with whatever build system you use.</p>
 <p>For building RecastDemo and for Recast library development there are <a href="http://premake.github.io/">premake5</a> and <a href="https://cmake.org/">cmake</a> build scripts. Premake5 is recommended unless you're already familiar with cmake.</p>
-<h1><a class="anchor" id="autotoc_md29"></a>
+<h1><a class="anchor" id="autotoc_md36"></a>
 Building RecastDemo</h1>
 <p>While Recast and Detour don't require any dependencies, RecastDemo requires SDL (not included), and the unit tests rely on Catch2 (included in the repository).</p>
 <p>The following steps outline the process to install SDL2 in the appropriate location and build RecastDemo with Premake and your local . Before you begin, you'll need to <a href="https://github.com/premake/premake-core/releases">download</a> and install premake5 and ensure that the <code>premake5</code> executable location is included in your system path.</p>
 <p>You can also reference the github actions build script <code>.github/Build.yaml</code> for examples of building with specific platform and toolchain combinations.</p>
-<h2><a class="anchor" id="autotoc_md30"></a>
+<h2><a class="anchor" id="autotoc_md37"></a>
 Windows</h2>
 <ul>
 <li>Grab the latest SDL2 development library release from <a href="https://github.com/libsdl-org/SDL">here</a> and unzip it into <code>RecastDemo/Contrib</code>. Rename the SDL folder such that the path <code>RecastDemo/Contrib/SDL/lib/x86</code> is valid.</li>
@@ -104,7 +104,7 @@ Windows</h2>
 <li>Open <code>Build/vs2022/recastnavigation.sln</code> in Visual Studio 2022 or Jetbrains Rider.</li>
 <li>Set <code>RecastDemo</code> as the startup project, build, and run.</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md31"></a>
+<h2><a class="anchor" id="autotoc_md38"></a>
 macOS</h2>
 <ul>
 <li>Grab the latest SDL2 development library dmg from <a href="https://github.com/libsdl-org/SDL">here</a> and place <code>SDL2.framework</code> in <code>RecastDemo/Bin</code></li>
@@ -112,7 +112,7 @@ macOS</h2>
 <li>Open <code>Build/xcode4/recastnavigation.xcworkspace</code> in XCode</li>
 <li>Set the RecastDemo project as the target and build.</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md32"></a>
+<h2><a class="anchor" id="autotoc_md39"></a>
 Linux</h2>
 <ul>
 <li>Install SDL2 and its dependencies according to your distro's guidelines.</li>
@@ -120,7 +120,7 @@ Linux</h2>
 <li>Navigate to <code>RecastDemo/Build/gmake2</code> and run <code>make</code></li>
 <li>Navigate to <code>RecastDemo/Bin</code> and run <code>./RecastDemo</code></li>
 </ul>
-<h1><a class="anchor" id="autotoc_md33"></a>
+<h1><a class="anchor" id="autotoc_md40"></a>
 Preprocessor Defines</h1>
 <p>There are a few symbols you may wish to define when building Recast.</p>
 <table class="markdownTable">
@@ -133,17 +133,17 @@ Preprocessor Defines</h1>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>DT_VIRTUAL_QUERYFILTER</code>   </td><td class="markdownTableBodyNone">Define this if you plan to sub-class <code><a class="el" href="classdtQueryFilter.html" title="Defines polygon filtering and traversal costs for navigation mesh query operations.">dtQueryFilter</a></code>. Enables the virtual destructor in <code><a class="el" href="classdtQueryFilter.html" title="Defines polygon filtering and traversal costs for navigation mesh query operations.">dtQueryFilter</a></code>.   </td></tr>
 </table>
-<h1><a class="anchor" id="autotoc_md34"></a>
+<h1><a class="anchor" id="autotoc_md41"></a>
 Running Unit tests</h1>
 <ul>
 <li>Follow the instructions to build RecastDemo above. Premake should generate another build target called "Tests".</li>
 <li>Build the "Tests" project. This will generate an executable named "Tests" in <code>RecastDemo/Bin/</code></li>
 <li>Run the "Tests" executable. It will execute all the unit tests, indicate those that failed, and display a count of those that succeeded. Check out the <a href="https://github.com/catchorg/Catch2/blob/devel/docs/command-line.md#top">Catch2 documentation</a> for information on additional command line options.</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md35"></a>
+<h1><a class="anchor" id="autotoc_md42"></a>
 Integration</h1>
 <p>There are a few ways to integrate Recast and Detour into your project. Source integration is the most popular and most flexible, and is what the project was designed for from the beginning.</p>
-<h2><a class="anchor" id="autotoc_md36"></a>
+<h2><a class="anchor" id="autotoc_md43"></a>
 Source Integration</h2>
 <p>It is recommended to add the source directories <code>DebugUtils</code>, <code>Detour</code>, <code>DetourCrowd</code>, <code>DetourTileCache</code>, and <code>Recast</code> directly into your project depending on which parts of the project you need. For example your level building tool could include <code>DebugUtils</code>, <code>Recast</code>, and <code>Detour</code>, and your game runtime could just include <code>Detour</code>.</p>
 <ul>
@@ -152,16 +152,16 @@ Source Integration</h2>
 <li><em>DetourCrowd</em>: Runtime movement, obstacle avoidance and crowd sim systems</li>
 <li><em>DetourTileCache</em>: Runtime navmesh dynamic obstacle and re-baking system</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md37"></a>
+<h2><a class="anchor" id="autotoc_md44"></a>
 Installation through vcpkg</h2>
 <p>If you are using the <a href="https://github.com/Microsoft/vcpkg/">vcpkg</a> dependency manager you can alternatively download, build, and install Recast with:</p>
 <div class="fragment"><div class="line">vcpkg install recast</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md38"></a>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md45"></a>
 Customizing Allocation Behavior</h1>
 <p>Recast and Detour strive to avoid heap allocations whenever possible. In the cases where they are needed, all allocations are routed through allocation functions that by default just wrap <code>malloc</code> and <code>free</code>. Additionally, the <code>rcAllocHint</code> enum gives some coarse-grained information about the intended lifetime of the allocation. <br  />
 </p>
 <p>You can specify your own <code>rcAlloocFunc</code> and <code>rcFreeFunc</code> in <code><a class="el" href="RecastAlloc_8cpp.html">RecastAlloc.cpp</a></code> (and similarly in <code><a class="el" href="DetourAlloc_8cpp.html">DetourAlloc.cpp</a></code>) to tune heap usage to your specific needs.</p>
-<h1><a class="anchor" id="autotoc_md39"></a>
+<h1><a class="anchor" id="autotoc_md46"></a>
 A Note on DLL exports and C API</h1>
 <p>Recast does not yet provide a stable C API for use in a DLL or as bindings for another language. The design of Recast relies on some C++ specific features, so providing a stable API is not easy without a few significant changes to Recast. <br  />
 </p>

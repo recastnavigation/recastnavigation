@@ -144,6 +144,54 @@ Removed</h2>
 </ul>
 <h1><a class="anchor" id="autotoc_md7"></a>
 &lt;a href="https://github.com/recastnavigation/recastnavigation/compare/1.5.0...1.5.1"&gt;1.5.1&lt;/a&gt; - 2016-02-22</h1>
+<p>Patch release; one bug has been fixed, which would cause silent failure if too many nodes were requested and used in a <a class="el" href="classdtNavMeshQuery.html" title="Provides the ability to perform pathfinding related queries against a navigation mesh.">dtNavMeshQuery</a>.</p>
+<ul>
+<li>Fail when too many nodes are requested (#179)</li>
+</ul>
+<h1><a class="anchor" id="autotoc_md8"></a>
+[1.5.0] - 2016-01-24</h1>
+<p>This is the first release of the Recast and Detour libraries since August 2009, containing all fixes and enhancements made since then. As you can imagine, this includes a huge number of commits, so we will forego the list of changes for this release - future releases will contain at least a summary of changes.</p>
+<p>We have decided to use Semantic Versioning for version numbers from now onwards - beginning at 1.5.0 rather than 1.0.0 since the last old release on Google Code was 1.4.</p>
+<h1><a class="anchor" id="autotoc_md9"></a>
+[1.4] - 2009-08-24</h1>
+<p>(Release 1.4 and earlier can be found on the old <a href="https://code.google.com/archive/p/recastnavigation/">archived google code repository</a>)</p>
+<ul>
+<li>Added detail height mesh generation (RecastDetailMesh.cpp) for single, tiled statmeshes as well as tilemesh.</li>
+<li>Added feature to contour tracing which detects extra vertices along tile edges which should be removed later.</li>
+<li>Changed the tiled stat mesh preprocess, so that it first generated polymeshes per tile and finally combines them.</li>
+<li>Fixed bug in the GUI code where invisible buttons could be pressed.</li>
+</ul>
+<h1><a class="anchor" id="autotoc_md10"></a>
+[1.3.1] - 2009-07-24</h1>
+<ul>
+<li>Better cost and heuristic functions.</li>
+<li>Fixed tile navmesh raycast on tile borders.</li>
+</ul>
+<h1><a class="anchor" id="autotoc_md11"></a>
+[1.3.1] - 2009-07-14</h1>
+<ul>
+<li>Added dtTileNavMesh which allows dynamically adding and removing navmesh pieces at runtime.</li>
+<li>Renamed stat navmesh types to dtStat* (i.e. <a class="el" href="structdtPoly.html" title="Defines a polygon within a dtMeshTile object.">dtPoly</a> is now dtStatPoly).</li>
+<li>Moved common code used by tile and stat navmesh to <a class="el" href="DetourNode_8h.html">DetourNode.h</a>/cpp and <a class="el" href="DetourCommon_8h.html">DetourCommon.h</a>/cpp.</li>
+<li>Refactor the demo code.</li>
+</ul>
+<h1><a class="anchor" id="autotoc_md12"></a>
+[1.2.0] - 2009-06-17</h1>
+<ul>
+<li>Added tiled mesh generation. The tiled generation allows to generate navigation for much larger worlds, it removes some of the artifacts that comes from distance fields in open areas, and allows later streaming and dynamic runtime generation</li>
+<li>Improved and added some debug draw modes</li>
+<li>API change: The helper function rcBuildNavMesh does not exists anymore, had to change few internal things to cope with the tiled processing, similar API functionality will be added later once the tiled process matures</li>
+<li>The demo is getting way too complicated, need to split demos</li>
+<li>Fixed several filtering functions so that the mesh is tighter to the geometry, sometimes there could be up error up to tow voxel units close to walls, now it should be just one.</li>
+</ul>
+<h1><a class="anchor" id="autotoc_md13"></a>
+[1.1.0] - 2009-04-11</h1>
+<p>This is the first release of Detour.</p>
+<h1><a class="anchor" id="autotoc_md14"></a>
+[1.0.0] - 2009-03-29</h1>
+<p>This is the first release of Recast.</p>
+<p>The process is not always as robust as I would wish. The watershed phase sometimes swallows tiny islands which are close to edges. These droppings are handled in rcBuildContours, but the code is not particularly robust either.</p>
+<p>Another non-robust case is when portal contours (contours shared between two regions) are always assumed to be straight. That can lead to overlapping contours specially when the level has large open areas. </p>
 </div></div><!-- contents -->
 </div><!-- PageDoc -->
 </div><!-- doc-content -->
