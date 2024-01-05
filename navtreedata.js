@@ -26,12 +26,12 @@ var NAVTREE =
 [
   [ "Recast Navigation", "index.html", [
     [ "Changelog", "md_CHANGELOG.html", [
-      [ "🚀 Features", "index.html#autotoc_md70", null ],
-      [ "⚡ Getting Started", "index.html#autotoc_md71", null ],
-      [ "⚙ How it Works", "index.html#autotoc_md72", null ],
-      [ "📚 Documentation & Links", "index.html#autotoc_md73", null ],
-      [ "❤ Community", "index.html#autotoc_md74", null ],
-      [ "⚖ License", "index.html#autotoc_md75", null ],
+      [ "🚀 Features", "index.html#autotoc_md77", null ],
+      [ "⚡ Getting Started", "index.html#autotoc_md78", null ],
+      [ "⚙ How it Works", "index.html#autotoc_md79", null ],
+      [ "📚 Documentation & Links", "index.html#autotoc_md80", null ],
+      [ "❤ Community", "index.html#autotoc_md81", null ],
+      [ "⚖ License", "index.html#autotoc_md82", null ],
       [ "<a href=\"https://github.com/recastnavigation/recastnavigation/compare/1.6.0...HEAD\"", "md_CHANGELOG.html#autotoc_md1", null ],
       [ "<a href=\"https://github.com/recastnavigation/recastnavigation/compare/1.5.1...1.6.0\">1.6.0</a> - 2023-05-21", "md_CHANGELOG.html#autotoc_md2", [
         [ "Added", "md_CHANGELOG.html#autotoc_md3", null ],
@@ -87,32 +87,40 @@ var NAVTREE =
       [ "Customizing Allocation Behavior", "md_Docs_BuildingAndIntegrating.html#autotoc_md45", null ],
       [ "A Note on DLL exports and C API", "md_Docs_BuildingAndIntegrating.html#autotoc_md46", null ]
     ] ],
+    [ "FAQ", "md_Docs_FAQ.html", [
+      [ "Which C++ version and features do Recast use?", "md_Docs_FAQ.html#autotoc_md48", null ],
+      [ "Why doesn't Recast use STL/Exceptions/RTTI/C++11/my favorite C++ feature?", "md_Docs_FAQ.html#autotoc_md49", null ],
+      [ "How do I use Recast to build a navmesh?", "md_Docs_FAQ.html#autotoc_md50", null ],
+      [ "How do Recast and Detour handle memory allocations?", "md_Docs_FAQ.html#autotoc_md51", null ],
+      [ "Does Recast do any logging?", "md_Docs_FAQ.html#autotoc_md52", null ],
+      [ "What are the dependencies for RecastDemo?", "md_Docs_FAQ.html#autotoc_md53", null ]
+    ] ],
     [ "Development Roadmap", "md_Docs_Roadmap.html", [
-      [ "Short Term", "md_Docs_Roadmap.html#autotoc_md48", [
-        [ "Documentation & Web Presence (WIP)", "md_Docs_Roadmap.html#autotoc_md49", null ],
-        [ "More explicit variable names (WIP)", "md_Docs_Roadmap.html#autotoc_md50", null ],
-        [ "Opt-in config value validation system", "md_Docs_Roadmap.html#autotoc_md51", null ]
+      [ "Short Term", "md_Docs_Roadmap.html#autotoc_md55", [
+        [ "Documentation & Web Presence (WIP)", "md_Docs_Roadmap.html#autotoc_md56", null ],
+        [ "More explicit variable names (WIP)", "md_Docs_Roadmap.html#autotoc_md57", null ],
+        [ "Opt-in config value validation system", "md_Docs_Roadmap.html#autotoc_md58", null ]
       ] ],
-      [ "Medium Term", "md_Docs_Roadmap.html#autotoc_md52", [
-        [ "STB-Style Single-Header Release Packaging", "md_Docs_Roadmap.html#autotoc_md53", null ],
-        [ "Ensure there's a good threading story", "md_Docs_Roadmap.html#autotoc_md54", null ],
-        [ "More Tests", "md_Docs_Roadmap.html#autotoc_md55", null ],
-        [ "More POD structs for clarity in internals (WIP)", "md_Docs_Roadmap.html#autotoc_md56", null ],
-        [ "Revisit structural organization", "md_Docs_Roadmap.html#autotoc_md57", null ]
+      [ "Medium Term", "md_Docs_Roadmap.html#autotoc_md59", [
+        [ "STB-Style Single-Header Release Packaging", "md_Docs_Roadmap.html#autotoc_md60", null ],
+        [ "Ensure there's a good threading story", "md_Docs_Roadmap.html#autotoc_md61", null ],
+        [ "More Tests", "md_Docs_Roadmap.html#autotoc_md62", null ],
+        [ "More POD structs for clarity in internals (WIP)", "md_Docs_Roadmap.html#autotoc_md63", null ],
+        [ "Revisit structural organization", "md_Docs_Roadmap.html#autotoc_md64", null ]
       ] ],
-      [ "Longer-Term", "md_Docs_Roadmap.html#autotoc_md58", [
-        [ "Higher-Level APIs", "md_Docs_Roadmap.html#autotoc_md59", null ],
-        [ "C API", "md_Docs_Roadmap.html#autotoc_md60", null ]
+      [ "Longer-Term", "md_Docs_Roadmap.html#autotoc_md65", [
+        [ "Higher-Level APIs", "md_Docs_Roadmap.html#autotoc_md66", null ],
+        [ "C API", "md_Docs_Roadmap.html#autotoc_md67", null ]
       ] ],
-      [ "New Recast/Detour Functionality", "md_Docs_Roadmap.html#autotoc_md61", [
-        [ "Nav Volumes & 3D Navigation", "md_Docs_Roadmap.html#autotoc_md62", null ],
-        [ "Climbing Markup & Navigation", "md_Docs_Roadmap.html#autotoc_md63", null ],
-        [ "Tooling", "md_Docs_Roadmap.html#autotoc_md64", null ],
-        [ "More spatial querying abilities", "md_Docs_Roadmap.html#autotoc_md65", null ],
-        [ "Auto-markup system", "md_Docs_Roadmap.html#autotoc_md66", null ],
-        [ "Formations, Group behaviors", "md_Docs_Roadmap.html#autotoc_md67", null ],
-        [ "Vehicle Navigation & Movement", "md_Docs_Roadmap.html#autotoc_md68", null ],
-        [ "Crowd Simulation and Flowfield movement systems", "md_Docs_Roadmap.html#autotoc_md69", null ]
+      [ "New Recast/Detour Functionality", "md_Docs_Roadmap.html#autotoc_md68", [
+        [ "Nav Volumes & 3D Navigation", "md_Docs_Roadmap.html#autotoc_md69", null ],
+        [ "Climbing Markup & Navigation", "md_Docs_Roadmap.html#autotoc_md70", null ],
+        [ "Tooling", "md_Docs_Roadmap.html#autotoc_md71", null ],
+        [ "More spatial querying abilities", "md_Docs_Roadmap.html#autotoc_md72", null ],
+        [ "Auto-markup system", "md_Docs_Roadmap.html#autotoc_md73", null ],
+        [ "Formations, Group behaviors", "md_Docs_Roadmap.html#autotoc_md74", null ],
+        [ "Vehicle Navigation & Movement", "md_Docs_Roadmap.html#autotoc_md75", null ],
+        [ "Crowd Simulation and Flowfield movement systems", "md_Docs_Roadmap.html#autotoc_md76", null ]
       ] ]
     ] ],
     [ "Modules", "modules.html", "modules" ],
@@ -157,9 +165,9 @@ var NAVTREEINDEX =
 "functions_c.html",
 "group__recast.html#ga6ef022fcf6dabdb0437b979304c0defe",
 "md_CONTRIBUTING.html",
-"structdtCrowdAgent.html#a924fad92f7bfcf396a3340d0e518bedf",
-"structdtTileCacheLayerHeader.html#a8c7b27ed53bf0189ccc94c67d6820e2f",
-"structrcPolyMesh.html#ab91ec949432297f7d0341a6ba9c88288"
+"structdtCrowdAgent.html#a6300c91130b2690ac64e327e8909d2c8",
+"structdtTileCacheLayerHeader.html#a020f2fc8488811b19c7d1c70f854bee9",
+"structrcPolyMesh.html#a9ae584e99de152fb89d957d43b7becd8"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';
