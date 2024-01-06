@@ -126,8 +126,8 @@ bool duDumpPolyMeshDetailToObj(const rcPolyMeshDetail& dmesh, duFileIO* io)
 	return true;
 }
 
-static const int CSET_MAGIC = ('c' << 24) | ('s' << 16) | ('e' << 8) | 't';
-static const int CSET_VERSION = 2;
+static constexpr int CSET_MAGIC = ('c' << 24) | ('s' << 16) | ('e' << 8) | 't';
+static constexpr int CSET_VERSION = 2;
 
 bool duDumpContourSet(const rcContourSet& cset, duFileIO* io)
 {
@@ -250,8 +250,8 @@ bool duReadContourSet(rcContourSet& cset, duFileIO* io)
 }
 	
 
-static const int CHF_MAGIC = ('r' << 24) | ('c' << 16) | ('h' << 8) | 'f';
-static const int CHF_VERSION = 3;
+static constexpr int CHF_MAGIC = ('r' << 24) | ('c' << 16) | ('h' << 8) | 'f';
+static constexpr int CHF_VERSION = 3;
 
 bool duDumpCompactHeightfield(const rcCompactHeightfield& chf, duFileIO* io)
 {
@@ -430,7 +430,6 @@ void duLogBuildTimes(rcContext& ctx, const int totalTimeUsec)
 	logLine(ctx, RC_TIMER_BUILD_REGIONS_EXPAND,		"      - Expand", pc);
 	logLine(ctx, RC_TIMER_BUILD_REGIONS_FLOOD,		"      - Find Basins", pc);
 	logLine(ctx, RC_TIMER_BUILD_REGIONS_FILTER,		"    - Filter", pc);
-    logLine(ctx, RC_TIMER_BUILD_DISTANCE_PER_REGION, "- Extract Min Region Distance", pc);
 	logLine(ctx, RC_TIMER_BUILD_LAYERS,				"- Build Layers", pc);
 	logLine(ctx, RC_TIMER_BUILD_CONTOURS,			"- Build Contours", pc);
 	logLine(ctx, RC_TIMER_BUILD_CONTOURS_TRACE,		"    - Trace", pc);

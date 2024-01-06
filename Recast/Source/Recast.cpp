@@ -61,7 +61,7 @@ void rcContext::log(const rcLogCategory category, const char* format, ...)
     {
         return;
     }
-    static const int MSG_SIZE = 512;
+    static constexpr int MSG_SIZE = 512;
     char msg[MSG_SIZE];
     va_list argList;
     va_start(argList, format);
@@ -145,7 +145,7 @@ rcCompactHeightfield::rcCompactHeightfield()
       , cells()
       , spans()
       , dist()
-      , areas(), sizes(nullptr)
+      , areas()
 {
 }
 
@@ -235,7 +235,7 @@ rcPolyMesh::rcPolyMesh()
       , regs()
       , flags()
       , areas()
-      , regionSize(nullptr), nverts()
+      , nverts()
       , npolys()
       , maxpolys()
       , nvp()
@@ -404,6 +404,8 @@ bool rcBuildCompactHeightfield(rcContext* context, const int walkableHeight, con
                                const rcHeightfield& heightfield, rcCompactHeightfield& compactHeightfield)
 {
     rcAssert(context);
+    if (!context)
+        return false;
 
     rcScopedTimer timer(context, RC_TIMER_BUILD_COMPACTHEIGHTFIELD);
 
@@ -467,7 +469,7 @@ bool rcBuildCompactHeightfield(rcContext* context, const int walkableHeight, con
         {
             if (span->area != RC_NULL_AREA)
             {
-                const int MAX_HEIGHT = 0xffff;
+                constexpr int MAX_HEIGHT = 0xffff;
                 const int bot = static_cast<int>(span->smax);
                 const int top = span->next ? static_cast<int>(span->next->smin) : MAX_HEIGHT;
                 compactHeightfield.spans[currentCellIndex].y = static_cast<unsigned short>(rcClamp(bot, 0, 0xffff));
@@ -480,7 +482,7 @@ bool rcBuildCompactHeightfield(rcContext* context, const int walkableHeight, con
     }
 
     // Find neighbour connections.
-    const int MAX_LAYERS = RC_NOT_CONNECTED - 1;
+    constexpr int MAX_LAYERS = RC_NOT_CONNECTED - 1;
     int maxLayerIndex = 0;
     const int zStride = xSize; // for readability
     for (int z = 0; z < zSize; ++z)

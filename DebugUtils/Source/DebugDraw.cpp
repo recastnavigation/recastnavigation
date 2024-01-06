@@ -179,7 +179,7 @@ void duAppendCylinderWire(duDebugDraw* dd, const float minx, const float miny, c
 {
     if (!dd) return;
 
-    static const int NUM_SEG = 16;
+    static constexpr int NUM_SEG = 16;
     static float dir[NUM_SEG * 2];
     static bool init = false;
     if (!init)
@@ -316,7 +316,7 @@ void duAppendCylinder(duDebugDraw* dd, const float minx, const float miny, const
 {
     if (!dd) return;
 
-    static const int NUM_SEG = 16;
+    static constexpr int NUM_SEG = 16;
     static float dir[NUM_SEG * 2];
     static bool init = false;
     if (!init)
@@ -408,7 +408,7 @@ inline float vdistSqr(const float* v1, const float* v2)
 void appendArrowHead(duDebugDraw* dd, const float* p, const float* q,
                      const float s, const unsigned int col)
 {
-    const float eps = 0.001f;
+    constexpr float eps = 0.001f;
     if (!dd) return;
     if (vdistSqr(p, q) < eps * eps) return;
     float ax[3], ay[3] = {0, 1, 0}, az[3];
@@ -434,9 +434,9 @@ void duAppendArc(duDebugDraw* dd, const float x0, const float y0, const float z0
                  const float as0, const float as1, const unsigned int col)
 {
     if (!dd) return;
-    static const int NUM_ARC_PTS = 8;
-    static const float PAD = 0.05f;
-    static const float ARC_PTS_SCALE = (1.0f - PAD * 2) / static_cast<float>(NUM_ARC_PTS);
+    static constexpr int NUM_ARC_PTS = 8;
+    static constexpr float PAD = 0.05f;
+    static constexpr float ARC_PTS_SCALE = (1.0f - PAD * 2) / static_cast<float>(NUM_ARC_PTS);
     const float dx = x1 - x0;
     const float dy = y1 - y0;
     const float dz = z1 - z0;
@@ -494,7 +494,7 @@ void duAppendCircle(duDebugDraw* dd, const float x, const float y, const float z
                     const float r, const unsigned int col)
 {
     if (!dd) return;
-    static const int NUM_SEG = 40;
+    static constexpr int NUM_SEG = 40;
     static float dir[40 * 2];
     static bool init = false;
     if (!init)

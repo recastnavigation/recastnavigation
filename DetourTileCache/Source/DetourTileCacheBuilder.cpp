@@ -38,18 +38,18 @@ public:
 
 inline int getDirOffsetX(const int dir)
 {
-	const int offset[4] = { -1, 0, 1, 0, };
+	constexpr int offset[4] = { -1, 0, 1, 0, };
 	return offset[dir&0x03];
 }
 
 inline int getDirOffsetY(const int dir)
 {
-	const int offset[4] = { 0, 1, 0, -1 };
+	constexpr int offset[4] = { 0, 1, 0, -1 };
 	return offset[dir&0x03];
 }
 
-static const int MAX_VERTS_PER_POLY = 6;	// TODO: use the DT_VERTS_PER_POLYGON
-static const int MAX_REM_EDGES = 48;		// TODO: make this an expression.
+static constexpr int MAX_VERTS_PER_POLY = 6;	// TODO: use the DT_VERTS_PER_POLYGON
+static constexpr int MAX_REM_EDGES = 48;		// TODO: make this an expression.
 
 
 
@@ -66,7 +66,7 @@ void dtFreeTileCacheContourSet(dtTileCacheAlloc* alloc, dtTileCacheContourSet* c
 {
 	dtAssert(alloc);
 
-	if (!cset) return;
+	if (!cset || !alloc) return;
 	for (int i = 0; i < cset->nconts; ++i)
 		alloc->free(cset->conts[i].verts);
 	alloc->free(cset->conts);
@@ -85,8 +85,8 @@ dtTileCachePolyMesh* dtAllocTileCachePolyMesh(dtTileCacheAlloc* alloc)
 void dtFreeTileCachePolyMesh(dtTileCacheAlloc* alloc, dtTileCachePolyMesh* lmesh)
 {
 	dtAssert(alloc);
-	
-	if (!lmesh) return;
+
+	if (!lmesh||!alloc) return;
 	alloc->free(lmesh->verts);
 	alloc->free(lmesh->polys);
 	alloc->free(lmesh->flags);
@@ -103,7 +103,7 @@ struct dtLayerSweepSpan
 	unsigned char nei;	// neighbour id
 };
 
-static const int DT_LAYER_MAX_NEIS = 16;
+static constexpr int DT_LAYER_MAX_NEIS = 16;
 
 struct dtLayerMonotoneRegion
 {
@@ -119,7 +119,7 @@ struct dtTempContour
 	dtTempContour(unsigned char* vbuf, const int nvbuf,
 	              unsigned short* pbuf, const int npbuf) :
 		verts(vbuf), nverts(0), cverts(nvbuf),
-		poly(pbuf), npoly(0), cpoly(npbuf) 
+		poly(pbuf), npoly(0), cpoly(npbuf)
 	{
 	}
 	unsigned char* verts;
@@ -829,13 +829,13 @@ dtStatus dtBuildTileCacheContours(dtTileCacheAlloc* alloc,
 
 
 
-static const int VERTEX_BUCKET_COUNT2 = (1<<8);
+static constexpr int VERTEX_BUCKET_COUNT2 = (1<<8);
 
 inline int computeVertexHash2(const int x, const int y, const int z)
 {
-	const unsigned int h1 = 0x8da6b343; // Large multiplicative constants;
-	const unsigned int h2 = 0xd8163841; // here arbitrarily chosen primes
-	const unsigned int h3 = 0xcb1ab31f;
+	constexpr unsigned int h1 = 0x8da6b343; // Large multiplicative constants;
+	constexpr unsigned int h2 = 0xd8163841; // here arbitrarily chosen primes
+	constexpr unsigned int h3 = 0xcb1ab31f;
 	const unsigned int n = h1 * x + h2 * y + h3 * z;
 	return static_cast<int>(n & (VERTEX_BUCKET_COUNT2 - 1));
 }
@@ -1668,7 +1668,7 @@ static dtStatus removeVertex(dtTileCachePolyMesh& mesh, const unsigned short rem
 		return DT_SUCCESS;
 
 	// Merge polygons.
-	const int maxVertsPerPoly = MAX_VERTS_PER_POLY;
+	constexpr int maxVertsPerPoly = MAX_VERTS_PER_POLY;
 	if (maxVertsPerPoly > 3)
 	{
 		for (;;)
@@ -1856,7 +1856,7 @@ dtStatus dtBuildTileCachePolyMesh(dtTileCacheAlloc* alloc,
 			continue;
 
 		// Merge polygons.
-		const int maxVertsPerPoly =MAX_VERTS_PER_POLY ;
+		constexpr int maxVertsPerPoly =MAX_VERTS_PER_POLY ;
 		if (maxVertsPerPoly > 3)
 		{
 			for(;;)
@@ -2103,10 +2103,10 @@ dtStatus dtBuildTileCacheLayer(dtTileCacheCompressor* comp,
 	if (!data)
 		return DT_FAILURE | DT_OUT_OF_MEMORY;
 	memset(data, 0, maxDataSize);
-	
+
 	// Store header
 	memcpy(data, header, sizeof(dtTileCacheLayerHeader));
-	
+
 	// Concatenate grid data for compression.
 	const int bufferSize = gridSize*3;
 	auto* buffer = static_cast<unsigned char*>(dtAlloc(bufferSize, DT_ALLOC_TEMP));
@@ -2119,7 +2119,7 @@ dtStatus dtBuildTileCacheLayer(dtTileCacheCompressor* comp,
 	memcpy(buffer, heights, gridSize);
 	memcpy(buffer+gridSize, areas, gridSize);
 	memcpy(buffer+gridSize*2, cons, gridSize);
-	
+
 	// Compress
 	unsigned char* compressed = data + headerSize;
 	const int maxCompressedSize = maxDataSize - headerSize;
@@ -2134,15 +2134,16 @@ dtStatus dtBuildTileCacheLayer(dtTileCacheCompressor* comp,
 
 	*outData = data;
 	*outDataSize = headerSize + compressedSize;
-	
+
 	dtFree(buffer);
-	
+
 	return DT_SUCCESS;
 }
 
 void dtFreeTileCacheLayer(dtTileCacheAlloc* alloc, dtTileCacheLayer* layer)
 {
 	dtAssert(alloc);
+	if(!alloc)return;
 	// The layer is allocated as one conitguous blob of data.
 	alloc->free(layer);
 }
@@ -2153,10 +2154,7 @@ dtStatus dtDecompressTileCacheLayer(dtTileCacheAlloc* alloc, dtTileCacheCompress
 {
 	dtAssert(alloc);
 	dtAssert(comp);
-
-	if (!layerOut)
-		return DT_FAILURE | DT_INVALID_PARAM;
-	if (!compressed)
+	if(!alloc || !comp || !layerOut || !compressed)
 		return DT_FAILURE | DT_INVALID_PARAM;
 
 	*layerOut = nullptr;
@@ -2166,12 +2164,12 @@ dtStatus dtDecompressTileCacheLayer(dtTileCacheAlloc* alloc, dtTileCacheCompress
 		return DT_FAILURE | DT_WRONG_MAGIC;
 	if (compressedHeader->version != DT_TILECACHE_VERSION)
 		return DT_FAILURE | DT_WRONG_VERSION;
-	
+
 	const int layerSize = dtAlign4(sizeof(dtTileCacheLayer));
 	const int headerSize = dtAlign4(sizeof(dtTileCacheLayerHeader));
 	const int gridSize = static_cast<int>(compressedHeader->width) * static_cast<int>(compressedHeader->height);
 	const int bufferSize = layerSize + headerSize + gridSize*4;
-	
+
 	auto* buffer = static_cast<unsigned char*>(alloc->alloc(bufferSize));
 	if (!buffer)
 		return DT_FAILURE | DT_OUT_OF_MEMORY;
@@ -2180,8 +2178,8 @@ dtStatus dtDecompressTileCacheLayer(dtTileCacheAlloc* alloc, dtTileCacheCompress
 	auto* layer = reinterpret_cast<dtTileCacheLayer*>(buffer);
 	const auto header = reinterpret_cast<dtTileCacheLayerHeader*>(buffer + layerSize);
 	unsigned char* grids = buffer + layerSize + headerSize;
-	const int gridsSize = bufferSize - (layerSize + headerSize); 
-	
+	const int gridsSize = bufferSize - (layerSize + headerSize);
+
 	// Copy header
 	memcpy(header, compressedHeader, headerSize);
 	// Decompress grid.
@@ -2193,15 +2191,15 @@ dtStatus dtDecompressTileCacheLayer(dtTileCacheAlloc* alloc, dtTileCacheCompress
 		alloc->free(buffer);
 		return status;
 	}
-	
+
 	layer->header = header;
 	layer->heights = grids;
 	layer->areas = grids + gridSize;
 	layer->cons = grids + gridSize*2;
 	layer->regs = grids + gridSize*3;
-	
+
 	*layerOut = layer;
-	
+
 	return DT_SUCCESS;
 }
 
@@ -2211,18 +2209,18 @@ bool dtTileCacheHeaderSwapEndian(unsigned char* data, const int dataSize)
 {
 	dtIgnoreUnused(dataSize);
 	auto* header = reinterpret_cast<dtTileCacheLayerHeader*>(data);
-	
+
 	int swappedMagic = DT_TILECACHE_MAGIC;
 	int swappedVersion = DT_TILECACHE_VERSION;
 	dtSwapEndian(&swappedMagic);
 	dtSwapEndian(&swappedVersion);
-	
+
 	if ((header->magic != DT_TILECACHE_MAGIC || header->version != DT_TILECACHE_VERSION) &&
 		(header->magic != swappedMagic || header->version != swappedVersion))
 	{
 		return false;
 	}
-	
+
 	dtSwapEndian(&header->magic);
 	dtSwapEndian(&header->version);
 	dtSwapEndian(&header->tx);
@@ -2236,9 +2234,9 @@ bool dtTileCacheHeaderSwapEndian(unsigned char* data, const int dataSize)
 	dtSwapEndian(&header->bmax[2]);
 	dtSwapEndian(&header->hmin);
 	dtSwapEndian(&header->hmax);
-	
+
 	// width, height, minx, maxx, miny, maxy are unsigned char, no need to swap.
-	
+
 	return true;
 }
 

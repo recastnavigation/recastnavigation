@@ -46,7 +46,7 @@ static bool isectSegAABB(const float* sp, const float* sq,
 						 const float* amin, const float* amax,
 						 float& tmin, float& tmax)
 {
-	static const float EPS = 1e-6f;
+	static constexpr float EPS = 1e-6f;
 	
 	float d[3];
 	dtVsub(d, sq, sp);
@@ -286,7 +286,7 @@ void CrowdToolState::handleRender()
 		{
 			const int idx = (trail->htrail + AGENT_MAX_TRAIL-j) % AGENT_MAX_TRAIL;
 			const float* v = &trail->trail[idx*3];
-			float a = 1 - j/static_cast<float>(AGENT_MAX_TRAIL);
+			float a = 1 - static_cast<float>(j)/static_cast<float>(AGENT_MAX_TRAIL);
 			dd.vertex(prev[0],prev[1]+0.1f,prev[2], duRGBA(0,0,0,static_cast<int>(128 * preva)));
 			dd.vertex(v[0],v[1]+0.1f,v[2], duRGBA(0,0,0,static_cast<int>(128 * a)));
 			preva = a;
@@ -544,7 +544,7 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 				{
 					for (dtNodeIndex j = pool->getFirst(i); j != DT_NULL_IDX; j = pool->getNext(j))
 					{
-						const float off = 0.5f;
+						constexpr float off = 0.5f;
 						const dtNode* node = pool->getNodeAtIdx(j+1);
 						if (!node) continue;
 
@@ -666,7 +666,8 @@ void CrowdToolState::addAgent(const float* pos)
 	if (idx != -1)
 	{
 		if (m_targetRef)
-			crowd->requestMoveTarget(idx, m_targetRef, m_targetPos);
+			if(crowd->requestMoveTarget(idx, m_targetRef, m_targetPos))
+				return;
 		
 		// Init trail
 		AgentTrail* trail = &m_trails[idx];
@@ -720,11 +721,10 @@ void CrowdToolState::setMoveTarget(const float* p, const bool adjust)
 			if (ag && ag->active)
 			{
 				calcVel(vel, ag->npos, p, ag->params.maxSpeed);
-				crowd->requestMoveVelocity(m_agentDebug.idx, vel);
+				if(crowd->requestMoveVelocity(m_agentDebug.idx, vel))
+					return;
 			}
 		}
-		else
-		{
 			for (int i = 0; i < crowd->getAgentCount(); ++i)
 			{
 				const dtCrowdAgent* ag = crowd->getAgent(i);
@@ -732,7 +732,6 @@ void CrowdToolState::setMoveTarget(const float* p, const bool adjust)
 				calcVel(vel, ag->npos, p, ag->params.maxSpeed);
 				crowd->requestMoveVelocity(i, vel);
 			}
-		}
 	}
 	else
 	{
@@ -849,7 +848,7 @@ void CrowdToolState::updateTick(const float dt)
 	m_agentDebug.vod->normalizeSamples();
 	
 	m_crowdSampleCount.addSample(static_cast<float>(crowd->getVelocitySampleCount()));
-	m_crowdTotalTime.addSample(getPerfTimeUsec(endTime - startTime) / 1000.0f);
+	m_crowdTotalTime.addSample(static_cast<float>(getPerfTimeUsec(endTime - startTime)) * 1e-3f);
 }
 
 
@@ -1049,7 +1048,7 @@ void CrowdTool::handleStep()
 {
 	if (!m_state) return;
 
-	const float dt = 1.0f/20.0f;
+	constexpr float dt = 1.0f/20.0f;
 	m_state->updateTick(dt);
 
 	m_state->setRunning(false);

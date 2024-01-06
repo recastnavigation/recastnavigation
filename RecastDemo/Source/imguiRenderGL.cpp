@@ -23,7 +23,7 @@
 #include "SDL_opengl.h"
 
 // Some math headers don't have PI defined.
-static const float PI = 3.14159265f;
+static constexpr float PI = 3.14159265f;
 
 void imguifree(void* ptr, void* userptr);
 void* imguimalloc(size_t size, void* userptr);
@@ -43,11 +43,11 @@ void* imguimalloc(const size_t size, void* /*userptr*/)
 	return malloc(size);
 }
 
-static const unsigned TEMP_COORD_COUNT = 100;
+static constexpr unsigned TEMP_COORD_COUNT = 100;
 static float g_tempCoords[TEMP_COORD_COUNT*2];
 static float g_tempNormals[TEMP_COORD_COUNT*2];
 
-static const int CIRCLE_VERTS = 8*4;
+static constexpr int CIRCLE_VERTS = 8*4;
 static float g_circleVerts[CIRCLE_VERTS*2];
 
 static stbtt_bakedchar g_cdata[96]; // ASCII 32..126 is 95 glyphs
@@ -161,7 +161,7 @@ static void drawEllipse(float x, float y, float w, float h, float fth, unsigned 
 
 static void drawRoundedRect(const float x, const float y, const float w, const float h, const float r, const float fth, const unsigned int col)
 {
-	const unsigned n = CIRCLE_VERTS/4;
+	constexpr unsigned n = CIRCLE_VERTS/4;
 	float verts[(n+1)*4*2];
 	const float* cverts = g_circleVerts;
 	float* v = verts;
@@ -330,7 +330,7 @@ static void getBakedQuad(const stbtt_bakedchar *chardata, const int pw, const in
 	*xpos += b->xadvance;
 }
 
-static const float g_tabStops[4] = {150, 210, 270, 330};
+static constexpr float g_tabStops[4] = {150, 210, 270, 330};
 
 static float getTextLength(const stbtt_bakedchar *chardata, const char* text)
 {
@@ -354,7 +354,7 @@ static float getTextLength(const stbtt_bakedchar *chardata, const char* text)
 		{
 			const stbtt_bakedchar *b = chardata + c-32;
 			const int round_x = STBTT_ifloor((xpos + b->xoff) + 0.5);
-			len = static_cast<float>(round_x) + b->x1 - b->x0 + 0.5f;
+			len = static_cast<float>(round_x + b->x1 - b->x0) + 0.5f;
 			xpos += b->xadvance;
 		}
 		++text;
@@ -429,7 +429,7 @@ void imguiRenderGLDraw()
 	const imguiGfxCmd* q = imguiGetRenderQueue();
 	const int nq = imguiGetRenderQueueSize();
 
-	const float s = 1.0f/8.0f;
+	constexpr float s = 1.0f/8.0f;
 
 	glDisable(GL_SCISSOR_TEST);
 	for (int i = 0; i < nq; ++i)

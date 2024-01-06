@@ -118,7 +118,7 @@ bool TestCase::load(const std::string& filePath)
         fclose(fp);
         return false;
     }
-    const auto buf = new char[bufSize];
+    const auto buf = new (std::nothrow) char[bufSize];
     if (!buf)
     {
         fclose(fp);
@@ -200,8 +200,8 @@ void TestCase::doTests(const dtNavMesh* navmesh, const dtNavMeshQuery* navquery)
 
     resetTimes();
 
-    static const int MAX_POLYS = 256;
-    const float polyPickExt[3] = {2, 4, 2};
+    static constexpr int MAX_POLYS = 256;
+    constexpr float polyPickExt[3] = {2, 4, 2};
 
     for (Test* iter = m_tests; iter; iter = iter->next)
     {
@@ -345,7 +345,7 @@ void TestCase::handleRender() const
 
         if (iter->expand)
         {
-            const float s = 0.1f;
+            constexpr float s = 0.1f;
             glColor4ub(255, 32, 0, 128);
             glVertex3f(iter->spos[0] - s, iter->spos[1], iter->spos[2]);
             glVertex3f(iter->spos[0] + s, iter->spos[1], iter->spos[2]);
@@ -391,7 +391,7 @@ bool TestCase::handleRenderOverlay(const double* proj, const double* model, cons
     char text[64];
     int n = 0;
 
-    static const float LABEL_DIST = 1.0f;
+    static constexpr float LABEL_DIST = 1.0f;
 
     for (const Test* iter = m_tests; iter; iter = iter->next)
     {

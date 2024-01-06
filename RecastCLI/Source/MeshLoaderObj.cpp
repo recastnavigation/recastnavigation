@@ -128,7 +128,7 @@ static int parseFace(char* row, int* data, const int n, const int vcnt)
 		}
 		if (*s == '\0')
 			continue;
-		const int vi = std::atoi(s);
+		const int vi = std::stoi(s);
 		data[j++] = vi < 0 ? vi+vcnt : vi-1;
 		if (j >= n) return j;
 	}
@@ -157,7 +157,7 @@ bool rcMeshLoaderObj::load(const std::string& fileName)
 		fclose(fp);
 		return false;
 	}
-	const auto buf = new char[bufSize];
+	const auto buf = new (std::nothrow) char[bufSize];
 	if (!buf)
 	{
 		fclose(fp);
@@ -228,8 +228,7 @@ bool rcMeshLoaderObj::load(const std::string& fileName)
 		n[0] = e0[1]*e1[2] - e0[2]*e1[1];
 		n[1] = e0[2]*e1[0] - e0[0]*e1[2];
 		n[2] = e0[0]*e1[1] - e0[1]*e1[0];
-		float d = std::sqrt(n[0]*n[0] + n[1]*n[1] + n[2]*n[2]);
-		if (d > 0)
+		if (float d = std::sqrt(n[0]*n[0] + n[1]*n[1] + n[2]*n[2]); d > 0)
 		{
 			d = 1.0f/d;
 			n[0] *= d;

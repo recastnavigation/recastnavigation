@@ -87,7 +87,7 @@ void BuildContext::dumpLog(const char* format, ...) const
 	printf("\n");
 	
 	// Print messages
-	const int TAB_STOPS[4] = { 28, 36, 44, 52 };
+	constexpr int TAB_STOPS[4] = { 28, 36, 44, 52 };
 	for (int i = 0; i < m_messageCount; ++i)
 	{
 		const char* msg = m_messages[i]+1;
@@ -154,7 +154,7 @@ public:
 			// Create checker pattern.
 			const unsigned int col0 = duRGBA(215,215,215,255);
 			const unsigned int col1 = duRGBA(255,255,255,255);
-			static const int TSIZE = 64;
+			static constexpr int TSIZE = 64;
 			unsigned int data[TSIZE*TSIZE];
 			
 			glGenTextures(1, &m_texId);
@@ -272,8 +272,7 @@ FileIO::~FileIO()
 bool FileIO::openForWrite(const char* path)
 {
 	if (m_fp) return false;
-	FILE* fp;
-	fopen_s(&fp, path, "wb");
+	fopen_s(&m_fp, path, "wb");
 	if (!m_fp) return false;
 	m_mode = 1;
 	return true;
@@ -282,8 +281,7 @@ bool FileIO::openForWrite(const char* path)
 bool FileIO::openForRead(const char* path)
 {
 	if (m_fp) return false;
-	FILE* fp;
-	fopen_s(&fp, path, "rb");
+	fopen_s(&m_fp, path, "rb");
 	if (!m_fp) return false;
 	m_mode = 2;
 	return true;

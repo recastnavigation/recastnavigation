@@ -240,10 +240,10 @@ static int createBVTree(const dtNavMeshCreateParams* params, dtBVNode* nodes, in
 
 static unsigned char classifyOffMeshPoint(const float* pt, const float* bmin, const float* bmax)
 {
-	static const unsigned char XP = 1<<0;
-	static const unsigned char ZP = 1<<1;
-	static const unsigned char XM = 1<<2;
-	static const unsigned char ZM = 1<<3;
+	static constexpr unsigned char XP = 1<<0;
+	static constexpr unsigned char ZP = 1<<1;
+	static constexpr unsigned char XM = 1<<2;
+	static constexpr unsigned char ZM = 1<<3;
 
 	unsigned char outcode = 0; 
 	outcode |= (pt[0] >= bmax[0]) ? XP : 0;

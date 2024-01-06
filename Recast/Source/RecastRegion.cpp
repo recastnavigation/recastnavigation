@@ -1283,6 +1283,8 @@ static bool mergeAndFilterLayerRegions(rcContext* ctx, const int minRegionArea,
 bool rcBuildDistanceField(rcContext* ctx, rcCompactHeightfield& chf)
 {
     rcAssert(ctx);
+    if (!ctx)
+        return false;
 
     rcScopedTimer timer(ctx, RC_TIMER_BUILD_DISTANCEFIELD);
 
@@ -1349,7 +1351,7 @@ static void paintRectRegion(const int minx, const int maxx, const int miny, cons
 }
 
 
-static const unsigned short RC_NULL_NEI = 0xffff;
+static constexpr unsigned short RC_NULL_NEI = 0xffff;
 
 struct rcSweepSpan
 {
@@ -1382,6 +1384,8 @@ bool rcBuildRegionsMonotone(rcContext* ctx, rcCompactHeightfield& chf,
                             const int borderSize, const int minRegionArea, const int mergeRegionArea)
 {
     rcAssert(ctx);
+    if (!ctx)
+        return false;
 
     rcScopedTimer timer(ctx, RC_TIMER_BUILD_REGIONS);
 
@@ -1417,11 +1421,11 @@ bool rcBuildRegionsMonotone(rcContext* ctx, rcCompactHeightfield& chf,
         // Paint regions
         paintRectRegion(0, bw, 0, h, id | RC_BORDER_REG, chf, static_cast<unsigned short*>(srcReg));
         id++;
-        paintRectRegion(w - bw, w, 0, h, id | RC_BORDER_REG, chf,static_cast<unsigned short*>(srcReg));
+        paintRectRegion(w - bw, w, 0, h, id | RC_BORDER_REG, chf, static_cast<unsigned short*>(srcReg));
         id++;
-        paintRectRegion(0, w, 0, bh, id | RC_BORDER_REG, chf,static_cast<unsigned short*>(srcReg));
+        paintRectRegion(0, w, 0, bh, id | RC_BORDER_REG, chf, static_cast<unsigned short*>(srcReg));
         id++;
-        paintRectRegion(0, w, h - bh, h, id | RC_BORDER_REG, chf,static_cast<unsigned short*>(srcReg));
+        paintRectRegion(0, w, h - bh, h, id | RC_BORDER_REG, chf, static_cast<unsigned short*>(srcReg));
         id++;
     }
 
@@ -1525,7 +1529,8 @@ bool rcBuildRegionsMonotone(rcContext* ctx, rcCompactHeightfield& chf,
         // Merge regions and filter out small regions.
         rcIntArray overlaps;
         chf.maxRegions = id;
-        if (!mergeAndFilterRegions(ctx, minRegionArea, mergeRegionArea, chf.maxRegions, chf, static_cast<unsigned short*>(srcReg), overlaps))
+        if (!mergeAndFilterRegions(ctx, minRegionArea, mergeRegionArea, chf.maxRegions, chf,
+                                   static_cast<unsigned short*>(srcReg), overlaps))
             return false;
 
         // Monotone partitioning does not generate overlapping regions.
@@ -1561,6 +1566,8 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
                     const int borderSize, const int minRegionArea, const int mergeRegionArea)
 {
     rcAssert(ctx);
+    if (!ctx)
+        return false;
 
     rcScopedTimer timer(ctx, RC_TIMER_BUILD_REGIONS);
 
@@ -1577,8 +1584,8 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 
     ctx->startTimer(RC_TIMER_BUILD_REGIONS_WATERSHED);
 
-    const int LOG_NB_STACKS = 3;
-    const int NB_STACKS = 1 << LOG_NB_STACKS;
+    constexpr int LOG_NB_STACKS = 3;
+    constexpr int NB_STACKS = 1 << LOG_NB_STACKS;
     rcTempVector<LevelStackEntry> lvlStacks[NB_STACKS];
     for (auto& lvlStack : lvlStacks)
         lvlStack.reserve(256);
@@ -1599,7 +1606,7 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
     // watershed "overflows" and simplifies the regions. Tying it to
     // agent radius was usually good indication how greedy it could be.
     //	const int expandIters = 4 + walkableRadius * 2;
-    const int expandIters = 8;
+    constexpr int expandIters = 8;
 
     if (borderSize > 0)
     {
@@ -1701,6 +1708,8 @@ bool rcBuildLayerRegions(rcContext* ctx, rcCompactHeightfield& chf,
                          const int borderSize, const int minRegionArea)
 {
     rcAssert(ctx);
+    if (!ctx)
+        return false;
 
     rcScopedTimer timer(ctx, RC_TIMER_BUILD_REGIONS);
 
@@ -1873,15 +1882,17 @@ bool rcBuildRegionsWithSize(rcContext* ctx, rcCompactHeightfield& chf, const int
                             const int mergeRegionArea)
 {
     rcAssert(ctx);
+    if (!ctx)
+        return false;
 
     rcScopedTimer timer(ctx, RC_TIMER_BUILD_REGIONS);
 
     const int w = chf.width;
     const int h = chf.height;
 
-    const int NOT_EVALUATED{-4};
-    const int DIRTY{-3};
-    const int PENDING{-2};
+    constexpr int NOT_EVALUATED{-4};
+    constexpr int DIRTY{-3};
+    constexpr int PENDING{-2};
 
     rcTempVector<unsigned short> regions(chf.spanCount, NOT_EVALUATED);
     rcTempVector<LevelStackEntry> levelStack;
@@ -1893,6 +1904,8 @@ bool rcBuildRegionsWithSize(rcContext* ctx, rcCompactHeightfield& chf, const int
             const rcCompactCell& c = chf.cells[x + y * w];
             for (int i = static_cast<int>(c.index), ni = static_cast<int>(c.index + c.count); i < ni; ++i)
             {
+                if (chf.spans[i].reg != 0 || chf.areas[i] == RC_NULL_AREA)
+                    continue;
                 levelStack.push_back({x, y, i});
             }
         }
@@ -2059,567 +2072,7 @@ bool rcBuildRegionsWithSize(rcContext* ctx, rcCompactHeightfield& chf, const int
 
     for (int i = 0; i < chf.spanCount; ++i)
     {
-        chf.spans[i].reg = regions[i];
+        chf.spans[i].reg = regions[i] == static_cast<unsigned short>(NOT_EVALUATED) ? 0 : regions[i];
     }
-    return true;
-}
-
-void CalculateSampleIndices(const int gx, const int gy, const int gz,
-                            unsigned short& first, unsigned short& second, float& w1, float& w2)
-{
-    const double lambda = 0.5 * (gy + gx + sqrt(gy * gy - 2.0 * gx * gy + gx * gx + 4.0 * gz * gz));
-    const double vx = lambda - gx;
-    const double vy = -gz;
-    const double leng = vx * vx + vy * vy;
-    double tx = 0;
-    double ty = 1;
-    if (leng > 1e-5)
-    {
-        tx = vx;
-        ty = vy;
-    }
-    const double M_PI = 3.141592653589793238462643383279502884;
-    double a = atan2(ty, tx);
-    if (a < 0)
-        a += M_PI * 2;
-    a = 4 * a / M_PI;
-    first = static_cast<unsigned short>(a) & 7;
-    second = first + 1 & 7;
-
-    double full;
-    w2 = static_cast<float>(modf(a, &full));
-    w1 = 1 - w2;
-}
-
-void CalculateSampleValues(const unsigned short* distances, const unsigned short first, const unsigned short second,
-                           const float w1, const float w2, float& front, float& back, float& left, float& right)
-{
-    front = static_cast<float>(distances[first]) * w1 + static_cast<float>(distances[second]) * w2;
-    back = static_cast<float>(distances[first + 4 & 7]) * w1 + static_cast<float>(distances[second + 4 & 7]) * w2;
-    left = static_cast<float>(distances[first + 6 & 7]) * w1 + static_cast<float>(distances[second + 6 & 7]) * w2;
-    right = static_cast<float>(distances[first + 2 & 7]) * w1 + static_cast<float>(distances[second + 2 & 7]) * w2;
-}
-
-bool RideLine(const rcCompactHeightfield& chf, const rcTempVector<int>& gx, const rcTempVector<int>& gy,
-              const rcTempVector<int>& gz, unsigned short first, unsigned short second, float w1, float w2,
-              int x, int y, int& i, float mantissaX, float mantissaY)
-{
-    while (true)
-    {
-        if (chf.areas[i] == RC_NULL_AREA)
-            return false;
-        static const int offsetX[8]{-1, -1, 0, 1, 1, 1, 0, -1};
-        static const int offsetY[8]{0, 1, 1, 1, 0, -1, 1, -1};
-        const int w = chf.width;
-
-        const float dx = static_cast<float>(offsetX[first]) * w1 + static_cast<float>(offsetX[second]) * w2 +
-            mantissaX;
-        const float dy = static_cast<float>(offsetY[first]) * w1 + static_cast<float>(offsetY[second]) * w2 +
-            mantissaY;
-
-        mantissaX = dx - static_cast<float>(static_cast<int>(dx));
-        mantissaY = dy - static_cast<float>(static_cast<int>(dy));
-
-        const rcCompactSpan& s = chf.spans[i];
-        const int dir1 = dx < 0 ? 0 : dx > 0 ? 2 : dy > 0 ? 1 : 3;
-        if (rcGetCon(s, dir1) == RC_NOT_CONNECTED)
-        {
-            return false;
-        }
-
-        x += rcGetDirOffsetX(dir1);
-        y += rcGetDirOffsetY(dir1);
-        i = static_cast<int>(chf.cells[x + y * w].index) + rcGetCon(s, dir1);
-        if (chf.areas[i] == RC_NULL_AREA)
-            return false;
-
-        if (dx != 0 && dy != 0)
-        {
-            const rcCompactSpan& as = chf.spans[i];
-            const int dir2 = dir1 + 1 & 3;
-            if (rcGetCon(as, dir2) == RC_NOT_CONNECTED)
-            {
-                return false;
-            }
-            x += rcGetDirOffsetX(dir2);
-            y += rcGetDirOffsetY(dir2);
-            i = static_cast<int>(chf.cells[x + y * w].index) + rcGetCon(as, dir2);
-            if (chf.areas[i] == RC_NULL_AREA)
-                return false;
-        }
-
-        const rcCompactSpan& as = chf.spans[i];
-        unsigned short neighbourDistances[8];
-
-        for (int dir = 0; dir < 4; ++dir)
-        {
-            if (rcGetCon(as, dir) == RC_NOT_CONNECTED)
-            {
-                continue;
-            }
-            const int bx = x + rcGetDirOffsetX(dir);
-            const int by = y + rcGetDirOffsetY(dir);
-            const int bi = static_cast<int>(chf.cells[bx + by * w].index) + rcGetCon(as, dir);
-            const rcCompactSpan& bs = chf.spans[bi];
-            neighbourDistances[dir * 2] = chf.dist[bi];
-            const int dir2 = dir + 1 ^ 3;
-            if (rcGetCon(bs, dir2) == RC_NOT_CONNECTED)
-            {
-                continue;
-            }
-            if (chf.areas[bi] == RC_NULL_AREA)
-            {
-                continue;
-            }
-            const int cx = bx + rcGetDirOffsetX(dir2);
-            const int cy = by + rcGetDirOffsetY(dir2);
-
-            const int ci = static_cast<int>(chf.cells[cx + cy * w].index) + rcGetCon(bs, dir2);
-            neighbourDistances[dir * 2 + 1] = chf.dist[ci];
-        }
-
-        float front;
-        float back;
-        float right;
-        float left;
-        CalculateSampleIndices(gx[i], gy[i], gz[i], first, second, w1, w2);
-        CalculateSampleValues(neighbourDistances, first, second, w1, w2, front, back, left, right);
-        const auto dist = static_cast<float>(chf.dist[i]);
-
-        const bool isSegment = front == dist && right == dist &&
-        ((left < dist && right < dist) ||
-            (left < dist && right == dist) ||
-            (left == dist && right < dist));
-        if (isSegment)
-            continue;
-
-        return front > dist &&
-        ((back == dist && ((left > dist && right < dist) || (left < dist && right > dist))) ||
-            (back < dist && ((left != dist && right != dist) || right == dist || left == dist)));
-    }
-}
-
-bool rcCalculateDistancePerRegion(rcContext* ctx, rcCompactHeightfield& chf)
-{
-    rcAssert(ctx);
-
-    rcScopedTimer timer(ctx, RC_TIMER_BUILD_DISTANCE_PER_REGION);
-
-    const int w = chf.width;
-    const int h = chf.height;
-    auto* src = static_cast<unsigned short*>(rcAlloc(sizeof(unsigned short) * chf.spanCount, RC_ALLOC_TEMP));
-    if (!src)
-    {
-        ctx->log(RC_LOG_ERROR, "rcBuildLayerRegions: Out of memory 'src' (%d).", chf.spanCount);
-        return false;
-    }
-    memset(src, 0, sizeof(unsigned short) * chf.spanCount);
-
-    chf.maxSobel = 2;
-
-    rcTempVector<int> gx(chf.spanCount, 0);
-    rcTempVector<int> gy(chf.spanCount, 0);
-    rcTempVector<int> gz(chf.spanCount, 0);
-    rcTempVector<int> tmpx(chf.spanCount, 0);
-    rcTempVector<int> tmpy(chf.spanCount, 0);
-    rcTempVector<int> tmpz(chf.spanCount, 0);
-
-#if 1
-    // Sobel Operator first pass
-    for (int y = 0; y < h; ++y)
-    {
-        for (int x = 0; x < w; ++x)
-        {
-            const rcCompactCell& c = chf.cells[x + y * w];
-            for (unsigned i = c.index, ni = c.index + c.count; i < ni; ++i)
-            {
-                const rcCompactSpan& s = chf.spans[i];
-
-                tmpx[i] = 0;
-                tmpy[i] = chf.dist[i] * 2ui8;
-
-                if (chf.areas[i] == RC_NULL_AREA)
-                    continue;
-                // vertical scan
-                if (rcGetCon(s, 0) != RC_NOT_CONNECTED)
-                {
-                    const int ax = x + rcGetDirOffsetX(0);
-                    const int ay = y + rcGetDirOffsetY(0);
-                    const int ai = static_cast<int>(chf.cells[ax + ay * w].index) + rcGetCon(s, 0);
-                    const int dis2 = chf.dist[ai];
-                    tmpx[i] += dis2;
-                    tmpy[i] += dis2;
-                }
-                if (rcGetCon(s, 2) != RC_NOT_CONNECTED)
-                {
-                    const int ax = x + rcGetDirOffsetX(2);
-                    const int ay = y + rcGetDirOffsetY(2);
-                    const int ai = static_cast<int>(chf.cells[ax + ay * w].index) + rcGetCon(s, 2);
-                    const int dis2 = chf.dist[ai];
-                    tmpx[i] -= dis2;
-                    tmpy[i] += dis2;
-                }
-            }
-        }
-    }
-    // Sobel Operator second pass
-    for (int y = 0; y < h; ++y)
-    {
-        for (int x = 0; x < w; ++x)
-        {
-            const rcCompactCell& c = chf.cells[x + y * w];
-            for (unsigned i = c.index, ni = c.index + c.count; i < ni; ++i)
-            {
-                const rcCompactSpan& s = chf.spans[i];
-
-                gx[i] = tmpx[i] * 2;
-                gy[i] = 0;
-
-                if (chf.areas[i] == RC_NULL_AREA)
-                    continue;
-                // horizontal scan
-                if (rcGetCon(s, 1) != RC_NOT_CONNECTED)
-                {
-                    const int ax = x + rcGetDirOffsetX(1);
-                    const int ay = y + rcGetDirOffsetY(1);
-                    const int ai = static_cast<int>(chf.cells[ax + ay * w].index) + rcGetCon(s, 1);
-                    gx[i] += tmpx[ai];
-                    gy[i] += tmpy[ai];
-                }
-                if (rcGetCon(s, 3) != RC_NOT_CONNECTED)
-                {
-                    const int ax = x + rcGetDirOffsetX(3);
-                    const int ay = y + rcGetDirOffsetY(3);
-                    const int ai = static_cast<int>(chf.cells[ax + ay * w].index) + rcGetCon(s, 3);
-                    gx[i] += tmpx[ai];
-                    gy[i] -= tmpy[ai];
-                }
-                gx[i] /= 4;
-                gy[i] /= 4;
-                gz[i] = gx[i] * gy[i];
-                gx[i] *= gx[i];
-                gy[i] *= gy[i];
-            }
-        }
-    }
-
-    // Gaussian blur first pass
-    for (int y = 0; y < h; ++y)
-    {
-        for (int x = 0; x < w; ++x)
-        {
-            const rcCompactCell& c = chf.cells[x + y * w];
-            for (unsigned i = c.index, ni = c.index + c.count; i < ni; ++i)
-            {
-                tmpx[i] = gx[i] * 2;
-                tmpy[i] = gy[i] * 2;
-                tmpz[i] = gz[i] * 2;
-
-                const rcCompactSpan& s = chf.spans[i];
-                if (chf.areas[i] == RC_NULL_AREA)
-                    continue;
-
-                if (rcGetCon(s, 0) != RC_NOT_CONNECTED)
-                {
-                    const int ax = x + rcGetDirOffsetX(0);
-                    const int ay = y + rcGetDirOffsetY(0);
-                    const int ai = static_cast<int>(chf.cells[ax + ay * w].index) + rcGetCon(s, 0);
-                    tmpx[i] += gx[ai];
-                    tmpy[i] += gy[ai];
-                    tmpz[i] += gz[ai];
-                }
-                if (rcGetCon(s, 2) != RC_NOT_CONNECTED)
-                {
-                    const int ax = x + rcGetDirOffsetX(2);
-                    const int ay = y + rcGetDirOffsetY(2);
-                    const int ai = static_cast<int>(chf.cells[ax + ay * w].index) + rcGetCon(s, 2);
-                    tmpx[i] += gx[ai];
-                    tmpy[i] += gy[ai];
-                    tmpz[i] += gz[ai];
-                }
-            }
-        }
-    }
-    // Gaussian blur second pass
-    for (int y = 0; y < h; ++y)
-    {
-        for (int x = 0; x < w; ++x)
-        {
-            const rcCompactCell& c = chf.cells[x + y * w];
-            for (unsigned i = c.index, ni = c.index + c.count; i < ni; ++i)
-            {
-                gx[i] = tmpx[i] * 2;
-                gy[i] = tmpy[i] * 2;
-                gz[i] = tmpz[i] * 2;
-
-                const rcCompactSpan& s = chf.spans[i];
-                if (chf.areas[i] == RC_NULL_AREA)
-                    continue;
-
-                // horizontal scan
-                if (rcGetCon(s, 1) != RC_NOT_CONNECTED)
-                {
-                    const int ax = x + rcGetDirOffsetX(1);
-                    const int ay = y + rcGetDirOffsetY(1);
-                    const int ai = static_cast<int>(chf.cells[ax + ay * w].index) + rcGetCon(s, 1);
-                    gx[i] += tmpx[ai];
-                    gy[i] += tmpy[ai];
-                    gz[i] += tmpz[ai];
-                }
-                if (rcGetCon(s, 3) != RC_NOT_CONNECTED)
-                {
-                    const int ax = x + rcGetDirOffsetX(3);
-                    const int ay = y + rcGetDirOffsetY(3);
-                    const int ai = static_cast<int>(chf.cells[ax + ay * w].index) + rcGetCon(s, 3);
-                    gx[i] += tmpx[ai];
-                    gy[i] += tmpy[ai];
-                    gz[i] += tmpz[ai];
-                }
-                gx[i] /= 16;
-                gy[i] /= 16;
-                gz[i] /= 16;
-            }
-        }
-    }
-
-
-    // DAngels
-    for (int y = 0; y < h; ++y)
-    {
-        for (int x = 0; x < w; ++x)
-        {
-            const rcCompactCell& c = chf.cells[x + y * w];
-            for (unsigned i = c.index, ni = c.index + c.count; i < ni; ++i)
-            {
-                const rcCompactSpan& s = chf.spans[i];
-                if (chf.areas[i] == RC_NULL_AREA)
-                    continue;
-                if (chf.dist[i] == 0)
-                    continue;
-                if (src[i])
-                    continue;
-                unsigned short neighbourDistances[8]{};
-
-                for (int dir = 0; dir < 4; ++dir)
-                {
-                    if (rcGetCon(s, dir) != RC_NOT_CONNECTED)
-                    {
-                        const int ax = x + rcGetDirOffsetX(dir);
-                        const int ay = y + rcGetDirOffsetY(dir);
-                        const int ai = static_cast<int>(chf.cells[ax + ay * w].index) + rcGetCon(s, dir);
-                        const rcCompactSpan& as = chf.spans[ai];
-                        neighbourDistances[dir * 2] = chf.dist[ai];
-                        const int dir2 = dir + 1 ^ 3;
-                        if (rcGetCon(as, dir2) != RC_NOT_CONNECTED)
-                        {
-                            const int bx = ax + rcGetDirOffsetX(dir2);
-                            const int by = ay + rcGetDirOffsetY(dir2);
-                            const int bi = static_cast<int>(chf.cells[bx + by * w].index) + rcGetCon(as, dir2);
-                            neighbourDistances[dir * 2 + 1] = chf.dist[bi];
-                        }
-                    }
-                }
-
-
-                // Compute the weighted sum
-                const auto dist = static_cast<float>(chf.dist[i]);
-                float front;
-                float back;
-                float right;
-                float w1;
-                float left;
-                float w2;
-                unsigned short first;
-                unsigned short second;
-                CalculateSampleIndices(gx[i], gy[i], gz[i], first, second, w1, w2);
-                CalculateSampleValues(neighbourDistances, first, second, w1, w2, front, back, left, right);
-
-                bool saddlePoint = front > dist && back > dist && right < dist && left < dist;
-                src[i] = saddlePoint;
-                if (back > dist &&
-                    ((front == dist && ((left > dist && right < dist) || (left < dist && right > dist))) ||
-                        (front < dist && ((left != dist && right != dist) || right == dist || left == dist))))
-                {
-                    int oi{static_cast<int>(i)};
-                    if (RideLine(chf, gx, gy, gz, first, second, w1, w2, x, y, oi, 0, 0))
-                    {
-                        src[i] = 1;
-                        src[oi] = 2;
-                    }
-                }
-            }
-        }
-    }
-#else
-    // Sobel Operator first pass
-    for (int y = 0; y < h; ++y) {
-        for (int x = 0; x < w; ++x) {
-            const rcCompactCell &c = chf.cells[x + y * w];
-            for (unsigned i = c.index, ni = c.index + c.count; i < ni; ++i) {
-                const rcCompactSpan &s = chf.spans[i];
-
-                tmpx[i] = 0;
-                tmpy[i] = chf.dist[i] * 2;
-
-                if (chf.areas[i] == RC_NULL_AREA)
-                    continue;
-                // vertical scan
-                if (rcGetCon(s, 0) != RC_NOT_CONNECTED) {
-                    const int ax = x + rcGetDirOffsetX(0);
-                    const int ay = y + rcGetDirOffsetY(0);
-                    const int ai = (int) chf.cells[ax + ay * w].index + rcGetCon(s, 0);
-                    const int dis2 = chf.dist[ai];
-                    tmpx[i] += dis2;
-                    tmpy[i] += dis2;
-                }
-                if (rcGetCon(s, 2) != RC_NOT_CONNECTED) {
-                    const int ax = x + rcGetDirOffsetX(2);
-                    const int ay = y + rcGetDirOffsetY(2);
-                    const int ai = (int) chf.cells[ax + ay * w].index + rcGetCon(s, 2);
-                    const int dis2 = chf.dist[ai];
-                    tmpx[i] -= dis2;
-                    tmpy[i] += dis2;
-                }
-            }
-        }
-    }
-    // Sobel Operator second pass
-    for (int y = 0; y < h; ++y) {
-        for (int x = 0; x < w; ++x) {
-            const rcCompactCell &c = chf.cells[x + y * w];
-            for (unsigned i = c.index, ni = c.index + c.count; i < ni; ++i) {
-                const rcCompactSpan &s = chf.spans[i];
-
-                gx[i] = tmpx[i] * 2;
-                gy[i] = 0;
-
-                if (chf.areas[i] == RC_NULL_AREA)
-                    continue;
-                // horizontal scan
-                if (rcGetCon(s, 1) != RC_NOT_CONNECTED) {
-                    const int ax = x + rcGetDirOffsetX(1);
-                    const int ay = y + rcGetDirOffsetY(1);
-                    const int ai = (int) chf.cells[ax + ay * w].index + rcGetCon(s, 1);
-                    gx[i] += tmpx[ai];
-                    gy[i] += tmpy[ai];
-                }
-                if (rcGetCon(s, 3) != RC_NOT_CONNECTED) {
-                    const int ax = x + rcGetDirOffsetX(3);
-                    const int ay = y + rcGetDirOffsetY(3);
-                    const int ai = (int) chf.cells[ax + ay * w].index + rcGetCon(s, 3);
-                    gx[i] += tmpx[ai];
-                    gy[i] -= tmpy[ai];
-                }
-                gx[i] /= 4;
-                gy[i] /= 4;
-                gz[i] = gx[i] * gy[i];
-                gx[i] *= gx[i];
-                gy[i] *= gy[i];
-            }
-        }
-    }
-#if 1
-    // Gaussian blur first pass
-    for (int y = 0; y < h; ++y) {
-        for (int x = 0; x < w; ++x) {
-            const rcCompactCell &c = chf.cells[x + y * w];
-            for (unsigned i = c.index, ni = c.index + c.count; i < ni; ++i) {
-                tmpx[i] = gx[i] * 2;
-                tmpy[i] = gy[i] * 2;
-                tmpz[i] = gz[i] * 2;
-
-                const rcCompactSpan &s = chf.spans[i];
-                if (chf.areas[i] == RC_NULL_AREA)
-                    continue;
-
-                if (rcGetCon(s, 0) != RC_NOT_CONNECTED) {
-                    const int ax = x + rcGetDirOffsetX(0);
-                    const int ay = y + rcGetDirOffsetY(0);
-                    const int ai = (int) chf.cells[ax + ay * w].index + rcGetCon(s, 0);
-                    tmpx[i] += gx[ai];
-                    tmpy[i] += gy[ai];
-                    tmpz[i] += gz[ai];
-                }
-                if (rcGetCon(s, 2) != RC_NOT_CONNECTED) {
-                    const int ax = x + rcGetDirOffsetX(2);
-                    const int ay = y + rcGetDirOffsetY(2);
-                    const int ai = (int) chf.cells[ax + ay * w].index + rcGetCon(s, 2);
-                    tmpx[i] += gx[ai];
-                    tmpy[i] += gy[ai];
-                    tmpz[i] += gz[ai];
-                }
-            }
-        }
-    }
-    // Gaussian blur second pass
-    for (int y = 0; y < h; ++y) {
-        for (int x = 0; x < w; ++x) {
-            const rcCompactCell &c = chf.cells[x + y * w];
-            for (unsigned i = c.index, ni = c.index + c.count; i < ni; ++i) {
-                gx[i] = tmpx[i] * 2;
-                gy[i] = tmpy[i] * 2;
-                gz[i] = tmpz[i] * 2;
-
-                const rcCompactSpan &s = chf.spans[i];
-                if (chf.areas[i] == RC_NULL_AREA)
-                    continue;
-
-                // horizontal scan
-                if (rcGetCon(s, 1) != RC_NOT_CONNECTED) {
-                    const int ax = x + rcGetDirOffsetX(1);
-                    const int ay = y + rcGetDirOffsetY(1);
-                    const int ai = (int) chf.cells[ax + ay * w].index + rcGetCon(s, 1);
-                    gx[i] += tmpx[ai];
-                    gy[i] += tmpy[ai];
-                    gz[i] += tmpz[ai];
-                }
-                if (rcGetCon(s, 3) != RC_NOT_CONNECTED) {
-                    const int ax = x + rcGetDirOffsetX(3);
-                    const int ay = y + rcGetDirOffsetY(3);
-                    const int ai = (int) chf.cells[ax + ay * w].index + rcGetCon(s, 3);
-                    gx[i] += tmpx[ai];
-                    gy[i] += tmpy[ai];
-                    gz[i] += tmpz[ai];
-                }
-                gx[i] /= 16;
-                gy[i] /= 16;
-                gz[i] /= 16;
-            }
-        }
-    }
-#endif
-    for (int y = 0; y < h; ++y) {
-        for (int x = 0; x < w; ++x) {
-            const rcCompactCell &c = chf.cells[x + y * w];
-            for (unsigned i = c.index, ni = c.index + c.count; i < ni; ++i) {
-                if (chf.areas[i] == RC_NULL_AREA)
-                    continue;
-                const unsigned short dist = chf.dist[i];
-                if (dist == 0)
-                    continue;
-                double lambda = 0.5 * (gy[i] + gx[i] +
-                                       sqrt(gy[i] * gy[i] - 2.0 * gx[i] * gy[i] + gx[i] * gx[i] + 4.0 * gz[i] * gz[i]));
-                double vx = lambda - gx[i];
-                double vy = -gz[i];
-                double tx = 0.0;
-                double ty = 1.0;
-                double len = vx * vx + vy * vy;
-                if (len > 0.0) {
-                    tx = vx;
-                    ty = vy;
-                }
-                double M_PI = 3.141592653589793238462643383279502884;
-                double radians = atan2(ty, tx);
-                double degrees = radians * (180.0 / M_PI);
-                while (degrees < 0.0)
-                    degrees += 360.0;
-                src[i] = (short) degrees;
-                chf.maxSobel = 360;
-            }
-        }
-    }
-#endif
-
-    chf.sizes = src;
     return true;
 }

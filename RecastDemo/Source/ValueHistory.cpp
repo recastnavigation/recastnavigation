@@ -99,8 +99,8 @@ void drawGraph(const GraphParams* p, const ValueHistory* graph,
 	}
 	
 	// Label
-	const int size = 15;
-	const int spacing = 10;
+	constexpr int size = 15;
+	constexpr int spacing = 10;
 	const int ix = p->x + p->w + 5;
 	const int iy = p->y + p->h - (idx+1)*(size+spacing);
 	

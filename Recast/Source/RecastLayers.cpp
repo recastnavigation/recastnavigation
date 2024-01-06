@@ -38,8 +38,8 @@
 #endif
 
 // Keep type checking.
-static const int RC_MAX_LAYERS = RC_MAX_LAYERS_DEF;
-static const int RC_MAX_NEIS = RC_MAX_NEIS_DEF;
+static constexpr int RC_MAX_LAYERS = RC_MAX_LAYERS_DEF;
+static constexpr int RC_MAX_NEIS = RC_MAX_NEIS_DEF;
 
 struct rcLayerRegion
 {
@@ -103,6 +103,8 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, const rcCompactHeightfield& chf,
 							  rcHeightfieldLayerSet& lset)
 {
 	rcAssert(ctx);
+	if(!ctx)
+		return false;
 	
 	rcScopedTimer timer(ctx, RC_TIMER_BUILD_LAYERS);
 	
@@ -313,7 +315,7 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, const rcCompactHeightfield& chf,
 	// Create 2D layers from regions.
 	unsigned char layerId = 0;
 	
-	static const int MAX_STACK = 64;
+	static constexpr int MAX_STACK = 64;
 	unsigned char stack[MAX_STACK];
 	int nstack;
 	

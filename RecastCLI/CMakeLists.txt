@@ -11,6 +11,7 @@ include_directories(../Recast/Include)
 include_directories(Include)
 
 add_executable(RecastCLI ${SOURCES})
+set_property(TARGET RecastCLI PROPERTY CXX_STANDARD 17)
 
 if( WIN32 )
   if ( "${CMAKE_MAKE_PROGRAM}" MATCHES "MSBuild" )

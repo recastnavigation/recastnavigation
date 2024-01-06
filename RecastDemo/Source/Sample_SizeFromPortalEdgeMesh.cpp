@@ -441,7 +441,7 @@ bool Sample_SizeFromPortalEdgeMesh::handleBuild()
 	// Allocate array that can hold triangle area types.
 	// If you have multiple meshes you need to process, allocate
 	// and array which can hold the max number of triangles you need to process.
-	m_triareas = new unsigned char[ntris];
+	m_triareas = new (std::nothrow) unsigned char[ntris];
 	if (!m_triareas)
 	{
 		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'm_triareas' (%d).", ntris);
