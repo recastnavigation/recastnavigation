@@ -43,4 +43,10 @@ jobs:
 
       - name: Run Tests
         working-directory: RecastCLI/Bin/
-        run: ./TestsCLI.exe -f
+        run: ./TestsCLI.exe --verbosity high --success
+
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: dist-without-markdown
+          path: RecastCLI/Bin/Data
