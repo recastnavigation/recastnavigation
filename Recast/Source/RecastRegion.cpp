@@ -1965,7 +1965,7 @@ bool rcBuildRegionsWithSize(rcContext* ctx, rcCompactHeightfield& chf, const int
                     }
 
                     const rcCompactSpan as = chf.spans[ai];
-                    const int dir2 = dir + 1 ^ 3;
+                    const int dir2 = dir + 1 & 3;
                     if (rcGetCon(as, dir2) == RC_NOT_CONNECTED)
                         continue;
                     const int bx = ax + rcGetDirOffsetX(dir2);

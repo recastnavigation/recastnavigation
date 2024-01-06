@@ -23,6 +23,8 @@ constexpr float edgeMaxError = 1.3f;
 constexpr float vertsPerPoly = 6.0f;
 constexpr float detailSampleDist = 6.0f;
 constexpr float detailSampleMaxError = 1.0f;
+constexpr float mergeS = 20.f;
+constexpr float minS = 8.f;
 constexpr bool filterLedgeSpans = true;
 constexpr bool filterWalkableLowHeightSpans = true;
 constexpr bool filterLowHangingObstacles = true;
@@ -31,14 +33,18 @@ constexpr int LOOP_COUNT = 10;
 
 TEST_CASE("Watershed")
 {
-    rcConfig config{};
-    config.ch = cellHeight;
-    config.walkableSlopeAngle = agentMaxSlope;
-    config.walkableHeight = static_cast<int>(std::ceil(agentHeight / config.ch));
-    config.walkableClimb = static_cast<int>(std::floor(agentMaxClimb / config.ch));
-    config.maxSimplificationError = edgeMaxError;
-    config.maxVertsPerPoly = static_cast<int>(vertsPerPoly);
-    config.detailSampleMaxError = cellHeight * detailSampleMaxError;
+    rcConfig config{
+        .ch = cellHeight,
+        .walkableSlopeAngle = agentMaxSlope,
+        .walkableHeight = static_cast<int>(std::ceil(agentHeight / cellHeight)),
+        .walkableClimb = static_cast<int>(std::floor(agentMaxClimb / cellHeight)),
+        .maxSimplificationError = edgeMaxError,
+        .maxVertsPerPoly = static_cast<int>(vertsPerPoly),
+        .detailSampleMaxError = cellHeight * detailSampleMaxError,
+        .minRegionArea = static_cast<int>(rcSqr(minS)),
+        .mergeRegionArea = static_cast<int>(rcSqr(mergeS)),
+
+    };
 
     auto env = GENERATE(
         Catch::Generators::values<std::string>({
@@ -50,16 +56,18 @@ TEST_CASE("Watershed")
             "Meshes/zelda2x2.obj",
             "Meshes/zelda4x4.obj"
             }));
-    auto cellS = GENERATE(
-        Catch::Generators::values<float>({0.1f, 0.15f, 0.2f, 0.25f, 0.3f, 0.35f, 0.4f, 0.45f, 0.5f, 0.6f}));
-    auto agentR = GENERATE(
-        Catch::Generators::values<float>({0.0f, 0.25f, 0.5f}));
+    const float cellS = GENERATE(
+    Catch::Generators::values<float>({0.1f, 0.15f, 0.2f, 0.25f, 0.3f, 0.35f, 0.4f, 0.45f, 0.5f, 0.6f}));
+    const float agentR = GENERATE(
+    Catch::Generators::values<float>({0.0f, 0.25f, 0.5f}));
+
+    // constexpr float cellS = 0.1f;
+    // constexpr float agentR = 0.0f;
+
     SECTION("Thesis")
     {
-        float mergeS = 20.f;
-        float minS = 8.f;
         BuildContext context{};
-        auto pGeom{new(std::nothrow) InputGeom};
+        auto pGeom{new(std::nothrow) InputGeom{}};
         REQUIRE(pGeom != nullptr);
         bool success = pGeom->load(&context, env);
         REQUIRE(success);
@@ -67,8 +75,6 @@ TEST_CASE("Watershed")
         config.cs = cellS;
         config.maxEdgeLen = static_cast<int>(edgeMaxLen / cellS);
         config.walkableRadius = static_cast<int>(std::ceil(agentR / config.cs));
-        config.minRegionArea = static_cast<int>(rcSqr(minS));
-        config.mergeRegionArea = static_cast<int>(rcSqr(mergeS));
         config.detailSampleDist = cellS * detailSampleDist;
         float totalBuildTimeMs{};
         std::stringstream ssDefault{};
