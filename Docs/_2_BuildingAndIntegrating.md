@@ -74,7 +74,7 @@ vcpkg install recast
 
 Recast and Detour strive to avoid heap allocations whenever possible.  In the cases where they are needed, all allocations are routed through allocation functions that by default just wrap `malloc` and `free`.  Additionally, the `rcAllocHint` enum gives some coarse-grained information about the intended lifetime of the allocation.  
 
-You can specify your own `rcAlloocFunc` and `rcFreeFunc` in `RecastAlloc.cpp` (and similarly in `DetourAlloc.cpp`) to tune heap usage to your specific needs.
+You can specify your own `rcAllocFunc` and `rcFreeFunc` in `RecastAlloc.cpp` (and similarly in `DetourAlloc.cpp`) to tune heap usage to your specific needs.
 
 ## A Note on DLL exports and C API
 

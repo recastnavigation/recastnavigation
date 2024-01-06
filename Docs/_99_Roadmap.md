@@ -8,7 +8,7 @@ If you're excited about contributing to Recast or want to understand what its fu
 
 ### Documentation & Web Presence (WIP)
 -   ✅ **Project website** (GitHub pages). A home for docs, info, tutorials, etc. that's easy to find and navigate. There's stuff like the wiki system in GitHub that can serve this purpose, but it's not the greatest.
--   ✅**Hosted API Reference**: We have extensive doxygen docs that we should also host on github pages.  Ideally this would be implemented as a job for the CI process.
+-   ✅ **Hosted API Reference**: We have extensive doxygen docs that we should also host on github pages.  Ideally this would be implemented as a job for the CI process.
 -   **High-level design/overview**. Basically taking a lot of the "how does Recast work?" docs we have (and stuff on Mikko's blog) and surfacing them in a place that's easier to find.  e.g. [this information](http://digestingduck.blogspot.com/2010/02/slides-from-past.html) should be integrated to the documentation.
 -   **FAQ** to include answers to common questions like "can I use Recast on a spherical world?" etc. The small group of questions that come up often.
 -   **Expand on configuration parameter docstrings**. Expand on the docstrings for the fields in `rcConfig`.
