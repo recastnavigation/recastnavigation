@@ -53,13 +53,13 @@ Patch release; one bug has been fixed, which would cause silent failure if too m
 
 - Fail when too many nodes are requested (#179)
 
-## [1.5.0] - 2016-01-24
+## 1.5.0 - 2016-01-24
 
 This is the first release of the Recast and Detour libraries since August 2009, containing all fixes and enhancements made since then. As you can imagine, this includes a huge number of commits, so we will forego the list of changes for this release - future releases will contain at least a summary of changes.
 
 We have decided to use Semantic Versioning for version numbers from now onwards - beginning at 1.5.0 rather than 1.0.0 since the last old release on Google Code was 1.4.
 
-## [1.4] - 2009-08-24
+## 1.4.0 - 2009-08-24
 
 (Release 1.4 and earlier can be found on the old [archived google code repository](https://code.google.com/archive/p/recastnavigation/))
 
@@ -68,19 +68,19 @@ We have decided to use Semantic Versioning for version numbers from now onwards 
 - Changed the tiled stat mesh preprocess, so that it first generated polymeshes per tile and finally combines them.
 - Fixed bug in the GUI code where invisible buttons could be pressed.
 
-## [1.3.1] - 2009-07-24
+## 1.3.1 - 2009-07-24
 
 - Better cost and heuristic functions.
 - Fixed tile navmesh raycast on tile borders.
 
-## [1.3.1] - 2009-07-14
+## 1.3.1 - 2009-07-14
 
 - Added dtTileNavMesh which allows dynamically adding and removing navmesh pieces at runtime.
 - Renamed stat navmesh types to dtStat* (i.e. dtPoly is now dtStatPoly).
 - Moved common code used by tile and stat navmesh to DetourNode.h/cpp and DetourCommon.h/cpp.
 - Refactor the demo code.
 
-## [1.2.0] - 2009-06-17
+## 1.2.0 - 2009-06-17
 
 - Added tiled mesh generation. The tiled generation allows to generate navigation for much larger worlds, it removes some of the artifacts that comes from distance fields in open areas, and allows later streaming and dynamic runtime generation
 - Improved and added some debug draw modes
@@ -88,11 +88,11 @@ We have decided to use Semantic Versioning for version numbers from now onwards 
 - The demo is getting way too complicated, need to split demos
 - Fixed several filtering functions so that the mesh is tighter to the geometry, sometimes there could be up error up to tow voxel units close to walls, now it should be just one.
 
-## [1.1.0] - 2009-04-11
+## 1.1.0 - 2009-04-11
 
 This is the first release of Detour.
 
-## [1.0.0] - 2009-03-29
+## 1.0.0 - 2009-03-29
 
 This is the first release of Recast.
 
