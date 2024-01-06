@@ -71,7 +71,6 @@ static SampleItem g_samples[] =
 	{ createTile, "Tile Mesh" },
 	{ createTempObstacle, "Temp Obstacles" },
 };
-static const int g_nsamples = sizeof(g_samples) / sizeof(SampleItem);
 
 int main(int /*argc*/, char** /*argv*/)
 {
@@ -116,7 +115,7 @@ int main(int /*argc*/, char** /*argv*/)
 	else
 	{
 		float aspect = 16.0f / 9.0f;
-		width = rcMin(displayMode.w, static_cast<int>((float)displayMode.h * aspect)) - 80;
+		width = rcMin(displayMode.w, static_cast<int>(static_cast<float>(displayMode.h) * aspect)) - 80;
 		height = displayMode.h - 80;
 	}
 	
@@ -329,8 +328,8 @@ int main(int /*argc*/, char** /*argv*/)
 					{
 						int dx = mousePos[0] - origMousePos[0];
 						int dy = mousePos[1] - origMousePos[1];
-						cameraEulers[0] = origCameraEulers[0] - (float)dy * 0.25f;
-						cameraEulers[1] = origCameraEulers[1] + (float)dx * 0.25f;
+						cameraEulers[0] = origCameraEulers[0] - static_cast<float>(dy) * 0.25f;
+						cameraEulers[1] = origCameraEulers[1] + static_cast<float>(dx) * 0.25f;
 						if (dx * dx + dy * dy > 3 * 3)
 						{
 							movedDuringRotate = true;
@@ -354,7 +353,7 @@ int main(int /*argc*/, char** /*argv*/)
 			mouseButtonMask |= IMGUI_MBUT_RIGHT;
 		
 		Uint32 time = SDL_GetTicks();
-		float dt = (float)(time - prevFrameTime) / 1000.0f;
+		float dt = static_cast<float>(time - prevFrameTime) / 1000.0f;
 		prevFrameTime = time;
 
 		// Hit test mesh.
@@ -393,8 +392,8 @@ int main(int /*argc*/, char** /*argv*/)
 		}
 		
 		// Update sample simulation.
-		const float SIM_RATE = 20;
-		const float DELTA_TIME = 1.0f / SIM_RATE;
+		constexpr float SIM_RATE = 20;
+		constexpr float DELTA_TIME = 1.0f / SIM_RATE;
 		timeAcc = rcClamp(timeAcc + dt, -1.0f, 1.0f);
 		int simIter = 0;
 		while (timeAcc > DELTA_TIME)
@@ -408,7 +407,7 @@ int main(int /*argc*/, char** /*argv*/)
 		}
 
 		// Clamp the framerate so that we do not hog all the CPU.
-		const float MIN_FRAME_TIME = 1.0f / 40.0f;
+		constexpr float MIN_FRAME_TIME = 1.0f / 40.0f;
 		if (dt < MIN_FRAME_TIME)
 		{
 			int ms = static_cast<int>((MIN_FRAME_TIME - dt) * 1000.0f);
@@ -519,7 +518,7 @@ int main(int /*argc*/, char** /*argv*/)
 		// Help text.
 		if (showMenu)
 		{
-			const char msg[] = "W/S/A/D: Move  RMB: Rotate";
+			constexpr char msg[] = "W/S/A/D: Move  RMB: Rotate";
 			imguiDrawText(280, height-20, IMGUI_ALIGN_LEFT, msg, imguiRGBA(255,255,255,128));
 		}
 		
@@ -570,8 +569,8 @@ int main(int /*argc*/, char** /*argv*/)
 			{
 				char text[64];
 				_snprintf_s(text, 64, "Verts: %.1fk  Tris: %.1fk",
-						 geom->getMesh()->getVertCount()/1000.0f,
-						 geom->getMesh()->getTriCount()/1000.0f);
+						 static_cast<float>(geom->getMesh()->getVertCount())*1e-3f,
+						 static_cast<float>(geom->getMesh()->getTriCount())*1e-3f);
 				imguiValue(text);
 			}
 			imguiSeparator();
@@ -694,7 +693,7 @@ int main(int /*argc*/, char** /*argv*/)
 
 				string path = (meshesFolder + "/").append(meshName);
 				
-				geom = new InputGeom;
+				geom = new (std::nothrow) InputGeom;
 				if (!geom->load(&ctx, path))
 				{
 					delete geom;
@@ -768,7 +767,7 @@ int main(int /*argc*/, char** /*argv*/)
 			if (testToLoad != filesEnd)
 			{
 				string path = testCasesFolder + "/" + *testToLoad;
-				test = new TestCase;
+				test = new (std::nothrow) TestCase{};
 				if (test)
 				{
 					// Load the test.
@@ -806,7 +805,7 @@ int main(int /*argc*/, char** /*argv*/)
 					path = (meshesFolder + "/").append(meshName);
 					
 					delete geom;
-					geom = new InputGeom;
+					geom = new (std::nothrow) InputGeom;
 					if (!geom || !geom->load(&ctx, path))
 					{
 						delete geom;
@@ -900,7 +899,7 @@ int main(int /*argc*/, char** /*argv*/)
 			glBegin(GL_LINE_LOOP);
 			for (int i = 0; i < 20; ++i)
 			{
-				const float r = 25.0f;
+				constexpr float r = 25.0f;
 				const float a = static_cast<float>(i) / 20.0f * RC_PI*2;
 				const float fx = static_cast<float>(x) + cosf(a)*r;
 				const float fy = static_cast<float>(y) + sinf(a)*r;

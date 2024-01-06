@@ -111,27 +111,27 @@ public:
 	
 	/// Gets the current position within the corridor. (In the first polygon.)
 	/// @return The current position within the corridor.
-	const float* getPos() const { return m_pos; }
+	[[nodiscard]] const float* getPos() const { return m_pos; }
 
 	/// Gets the current target within the corridor. (In the last polygon.)
 	/// @return The current target within the corridor.
-	const float* getTarget() const { return m_target; }
+	[[nodiscard]] const float* getTarget() const { return m_target; }
 	
 	/// The polygon reference id of the first polygon in the corridor, the polygon containing the position.
 	/// @return The polygon reference id of the first polygon in the corridor. (Or zero if there is no path.)
-	dtPolyRef getFirstPoly() const { return m_npath ? m_path[0] : 0; }
+	[[nodiscard]] dtPolyRef getFirstPoly() const { return m_npath ? m_path[0] : 0; }
 
 	/// The polygon reference id of the last polygon in the corridor, the polygon containing the target.
 	/// @return The polygon reference id of the last polygon in the corridor. (Or zero if there is no path.)
-	dtPolyRef getLastPoly() const { return m_npath ? m_path[m_npath-1] : 0; }
+	[[nodiscard]] dtPolyRef getLastPoly() const { return m_npath ? m_path[m_npath-1] : 0; }
 	
 	/// The corridor's path.
 	/// @return The corridor's path. [(polyRef) * #getPathCount()]
-	const dtPolyRef* getPath() const { return m_path; }
+	[[nodiscard]] const dtPolyRef* getPath() const { return m_path; }
 
 	/// The number of polygons in the current corridor path.
 	/// @return The number of polygons in the current corridor path.
-	int getPathCount() const { return m_npath; }
+	[[nodiscard]] int getPathCount() const { return m_npath; }
 
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.

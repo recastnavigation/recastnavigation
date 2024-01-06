@@ -143,18 +143,18 @@ bool rcCreateChunkyTriMesh(const float* verts, const int* tris, const int ntris,
 {
 	const int nchunks = (ntris + trisPerChunk-1) / trisPerChunk;
 
-	cm->nodes = new rcChunkyTriMeshNode[nchunks*4];
+	cm->nodes = new (std::nothrow) rcChunkyTriMeshNode[nchunks*4];
 	if (!cm->nodes)
 		return false;
 		
-	cm->tris = new int[ntris*3];
+	cm->tris = new (std::nothrow) int[ntris*3];
 	if (!cm->tris)
 		return false;
 		
 	cm->ntris = ntris;
 
 	// Build tree
-	auto* items = new BoundsItem[ntris];
+	auto* items = new (std::nothrow) BoundsItem[ntris];
 	if (!items)
 		return false;
 
@@ -248,7 +248,7 @@ int rcGetChunksOverlappingRect(const rcChunkyTriMesh* cm,
 static bool checkOverlapSegment(const float p[2], const float q[2],
 								const float bmin[2], const float bmax[2])
 {
-	static const float EPSILON = 1e-6f;
+	static constexpr float EPSILON = 1e-6f;
 
 	float tmin = 0;
 	float tmax = 1;

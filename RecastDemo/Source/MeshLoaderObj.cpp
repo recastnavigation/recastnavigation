@@ -157,7 +157,7 @@ bool rcMeshLoaderObj::load(const std::string& fileName)
 		fclose(fp);
 		return false;
 	}
-	const auto buf = new char[bufSize];
+	const auto buf = new (std::nothrow) char[bufSize];
 	if (!buf)
 	{
 		fclose(fp);

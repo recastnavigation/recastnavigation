@@ -1025,7 +1025,7 @@ namespace Catch {
 namespace Catch {
 
     namespace {
-        const int MaxExitCode = 255;
+        constexpr int MaxExitCode = 255;
 
         IEventListenerPtr createReporter(std::string const& reporterName, ReporterConfig&& config) {
             auto reporter = Catch::getRegistryHub().getReporterRegistry().create(reporterName, CATCH_MOVE(config));
@@ -1459,7 +1459,7 @@ namespace Catch {
         // Returns the upper bound on size of extra tags ([#file]+[.])
         size_t sizeOfExtraTags(StringRef filepath) {
             // [.] is 3, [#] is another 3
-            const size_t extras = 3 + 3;
+            constexpr size_t extras = 3 + 3;
             return extractFilenamePart(filepath).size() + extras;
         }
     } // end unnamed namespace
@@ -1796,7 +1796,7 @@ namespace Catch {
 namespace Detail {
 
     namespace {
-        const int hexThreshold = 255;
+        constexpr int hexThreshold = 255;
 
         struct Endianness {
             enum Arch { Big, Little };
@@ -4691,7 +4691,7 @@ namespace {
 #endif
         // Safe rotr implementation thanks to John Regehr
         uint32_t rotate_right(uint32_t val, uint32_t count) {
-            const uint32_t mask = 31;
+            constexpr uint32_t mask = 31;
             count &= mask;
             return (val >> count) | (val << (-count & mask));
         }
@@ -6108,7 +6108,7 @@ namespace Catch {
 
     uint32_t TestCaseInfoHasher::operator()( TestCaseInfo const& t ) const {
         // FNV-1a hash algorithm that is designed for uniqueness:
-        const hash_t prime = 1099511628211u;
+        constexpr hash_t prime = 1099511628211u;
         hash_t hash = 14695981039346656037u;
         for ( const char c : t.name ) {
             hash ^= c;
@@ -6836,12 +6836,12 @@ namespace {
     }
 
     bool isBreakableBefore( char c ) {
-        static const char chars[] = "[({<|";
+        static constexpr char chars[] = "[({<|";
         return std::memchr( chars, c, sizeof( chars ) - 1 ) != nullptr;
     }
 
     bool isBreakableAfter( char c ) {
-        static const char chars[] = "])}>.,:;*+-=&/\\";
+        static constexpr char chars[] = "])}>.,:;*+-=&/\\";
         return std::memchr( chars, c, sizeof( chars ) - 1 ) != nullptr;
     }
 
@@ -8471,10 +8471,10 @@ class Duration {
         Seconds,
         Minutes
     };
-    static const uint64_t s_nanosecondsInAMicrosecond = 1000;
-    static const uint64_t s_nanosecondsInAMillisecond = 1000 * s_nanosecondsInAMicrosecond;
-    static const uint64_t s_nanosecondsInASecond = 1000 * s_nanosecondsInAMillisecond;
-    static const uint64_t s_nanosecondsInAMinute = 60 * s_nanosecondsInASecond;
+    static constexpr uint64_t s_nanosecondsInAMicrosecond = 1000;
+    static constexpr uint64_t s_nanosecondsInAMillisecond = 1000 * s_nanosecondsInAMicrosecond;
+    static constexpr uint64_t s_nanosecondsInASecond = 1000 * s_nanosecondsInAMillisecond;
+    static constexpr uint64_t s_nanosecondsInAMinute = 60 * s_nanosecondsInASecond;
 
     double m_inNanoseconds;
     Unit m_units;
@@ -9122,7 +9122,7 @@ namespace Catch {
         // + 1 for decimal point
         // + 3 for the 3 decimal places
         // + 1 for null terminator
-        const std::size_t maxDoubleSize = DBL_MAX_10_EXP + 1 + 1 + 3 + 1;
+        constexpr std::size_t maxDoubleSize = DBL_MAX_10_EXP + 1 + 1 + 3 + 1;
         char buffer[maxDoubleSize];
 
         // Save previous errno, to prevent sprintf from overwriting it
@@ -9438,7 +9438,7 @@ namespace Catch {
             gmtime_r(&rawtime, &timeInfo);
 #endif
 
-            auto const timeStampSize = sizeof("2017-01-16T17:06:45Z");
+            constexpr auto timeStampSize = sizeof("2017-01-16T17:06:45Z");
             char timeStamp[timeStampSize];
             const char * const fmt = "%Y-%m-%dT%H:%M:%SZ";
 

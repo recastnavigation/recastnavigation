@@ -39,8 +39,8 @@ jobs:
 
       - name: Build
         working-directory: RecastCLI/Build/vs2022
-        run: msbuild Tests.vcxproj -property:Configuration=Debug
+        run: msbuild TestsCLI.vcxproj -property:Configuration=Debug
 
       - name: Run Tests
         working-directory: RecastCLI/Bin/
-        run: ./Tests.exe --verbosity high --success
+        run: ./TestsCLI.exe --verbosity high --success

@@ -1,10 +1,9 @@
 #include <cmath>
 #include <cstdio>
 #include <cstdarg>
-#include "SampleInterfaces.h"
-
 #include <cstring>
 
+#include "BuildContext.h"
 #include "Recast.h"
 #include "PerfTimer.h"
 
@@ -88,7 +87,7 @@ void BuildContext::dumpLog(const char* format, ...) const
 	printf("\n");
 	
 	// Print messages
-	const int TAB_STOPS[4] = { 28, 36, 44, 52 };
+	constexpr int TAB_STOPS[4] = { 28, 36, 44, 52 };
 	for (int i = 0; i < m_messageCount; ++i)
 	{
 		const char* msg = m_messages[i]+1;
@@ -132,60 +131,4 @@ const char* BuildContext::getLogText(const int i) const
 {
 	return m_messages[i]+1;
 }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-FileIO::FileIO() :
-	m_fp(nullptr),
-	m_mode(-1)
-{
-}
-
-FileIO::~FileIO()
-{
-	if (m_fp) fclose(m_fp);
-}
-
-bool FileIO::openForWrite(const char* path)
-{
-	if (m_fp) return false;
-	fopen_s(&m_fp, path, "wb");
-	if (!m_fp) return false;
-	m_mode = 1;
-	return true;
-}
-
-bool FileIO::openForRead(const char* path)
-{
-	if (m_fp) return false;
-	fopen_s(&m_fp , path, "rb");
-	if (!m_fp) return false;
-	m_mode = 2;
-	return true;
-}
-
-bool FileIO::isWriting() const
-{
-	return m_mode == 1;
-}
-
-bool FileIO::isReading() const
-{
-	return m_mode == 2;
-}
-
-bool FileIO::write(const void* ptr, const size_t size)
-{
-	if (!m_fp || m_mode != 1) return false;
-	fwrite(ptr, size, 1, m_fp);
-	return true;
-}
-
-bool FileIO::read(void* ptr, const size_t size)
-{
-	if (!m_fp || m_mode != 2) return false;
-	const size_t readLen = fread(ptr, size, 1, m_fp);
-	return readLen == 1;
-}
-
 

@@ -327,44 +327,6 @@ void duDebugDrawCompactHeightfieldDistance(duDebugDraw* dd, const rcCompactHeigh
     dd->end();
 }
 
-void duDebugDrawCompactHeightfieldRegionDistance(duDebugDraw* dd, const rcCompactHeightfield& chf)
-{
-    if (!dd) return;
-    if (!chf.sizes) return;
-
-    const float cs = chf.cs;
-    const float ch = chf.ch;
-
-    float maxd = chf.maxSobel;
-    if (maxd < 1.0f) maxd = 1;
-    const float dscale = 255.0f / maxd;
-
-    dd->begin(DU_DRAW_QUADS);
-
-    for (int y = 0; y < chf.height; ++y)
-    {
-        for (int x = 0; x < chf.width; ++x)
-        {
-            const float fx = chf.bmin[0] + static_cast<float>(x) * cs;
-            const float fz = chf.bmin[2] + static_cast<float>(y) * cs;
-            const rcCompactCell& c = chf.cells[x + y * chf.width];
-
-            for (unsigned i = c.index, ni = c.index + c.count; i < ni; ++i)
-            {
-                const rcCompactSpan& s = chf.spans[i];
-                const float fy = chf.bmin[1] + static_cast<float>(s.y + 1) * ch;
-                const auto cd = static_cast<unsigned char>(static_cast<float>(chf.sizes[i]) * dscale);
-                const unsigned int color = duRGBA(cd, cd, cd, 255);
-                dd->vertex(fx, fy, fz, color);
-                dd->vertex(fx, fy, fz + cs, color);
-                dd->vertex(fx + cs, fy, fz + cs, color);
-                dd->vertex(fx + cs, fy, fz, color);
-            }
-        }
-    }
-    dd->end();
-}
-
 static void drawLayerPortals(duDebugDraw* dd, const rcHeightfieldLayer* layer)
 {
     const float cs = layer->cs;

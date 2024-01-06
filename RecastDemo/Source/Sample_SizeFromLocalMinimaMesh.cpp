@@ -179,7 +179,7 @@ void Sample_SizeFromLocalMinimaMesh::handleDebugMode()
 	}
 	
 	int unavail = 0;
-	for (bool i : valid)
+	for (const bool i : valid)
 		if (!i) unavail++;
 
 	if (unavail == MAX_DRAWMODE)
@@ -446,7 +446,7 @@ bool Sample_SizeFromLocalMinimaMesh::handleBuild()
 	// Allocate array that can hold triangle area types.
 	// If you have multiple meshes you need to process, allocate
 	// and array which can hold the max number of triangles you need to process.
-	m_triareas = new unsigned char[ntris];
+	m_triareas = new (std::nothrow) unsigned char[ntris];
 	if (!m_triareas)
 	{
 		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'm_triareas' (%d).", ntris);
@@ -566,7 +566,7 @@ bool Sample_SizeFromLocalMinimaMesh::handleBuild()
 		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'cset'.");
 		return false;
 	}
-	if (!rcBuildContoursWithSize(m_ctx, *m_chf, m_cfg.maxSimplificationError, m_cfg.maxEdgeLen, *m_cset))
+	if (!rcBuildContours(m_ctx, *m_chf, m_cfg.maxSimplificationError, m_cfg.maxEdgeLen, *m_cset))
 	{
 		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Could not create contours.");
 		return false;
@@ -583,7 +583,7 @@ bool Sample_SizeFromLocalMinimaMesh::handleBuild()
 		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'pmesh'.");
 		return false;
 	}
-	if (!rcBuildPolyMeshWithSize(m_ctx, *m_cset, m_cfg.maxVertsPerPoly, *m_pmesh))
+	if (!rcBuildPolyMesh(m_ctx, *m_cset, m_cfg.maxVertsPerPoly, *m_pmesh))
 	{
 		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Could not triangulate contours.");
 		return false;
@@ -656,7 +656,6 @@ bool Sample_SizeFromLocalMinimaMesh::handleBuild()
 		params.vertCount = m_pmesh->nverts;
 		params.polys = m_pmesh->polys;
 		params.polyAreas = m_pmesh->areas;
-        params.regionSizes = m_pmesh->regionSize;
 		params.polyFlags = m_pmesh->flags;
 		params.polyCount = m_pmesh->npolys;
 		params.nvp = m_pmesh->nvp;

@@ -29,12 +29,12 @@ public:
 	
 	bool load(const std::string& fileName);
 
-	const float* getVerts() const { return m_verts; }
-	const float* getNormals() const { return m_normals; }
-	const int* getTris() const { return m_tris; }
-	int getVertCount() const { return m_vertCount; }
-	int getTriCount() const { return m_triCount; }
-	const std::string& getFileName() const { return m_filename; }
+	[[nodiscard]] const float* getVerts() const { return m_verts; }
+	[[nodiscard]] const float* getNormals() const { return m_normals; }
+	[[nodiscard]] const int* getTris() const { return m_tris; }
+	[[nodiscard]] int getVertCount() const { return m_vertCount; }
+	[[nodiscard]] int getTriCount() const { return m_triCount; }
+	[[nodiscard]] const std::string& getFileName() const { return m_filename; }
 
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.

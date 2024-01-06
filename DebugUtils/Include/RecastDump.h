@@ -22,8 +22,8 @@
 struct duFileIO
 {
 	virtual ~duFileIO() =default;
-	virtual bool isWriting() const = 0;
-	virtual bool isReading() const = 0;
+	[[nodiscard]] virtual bool isWriting() const = 0;
+	[[nodiscard]] virtual bool isReading() const = 0;
 	virtual bool write(const void* ptr, size_t size) = 0;
 	virtual bool read(void* ptr, size_t size) = 0;
 };

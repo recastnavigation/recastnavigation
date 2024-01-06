@@ -56,7 +56,7 @@ dtNodePool::dtNodePool(const int maxNodes, const int hashSize) :
 	m_hashSize(hashSize),
 	m_nodeCount(0)
 {
-	dtAssert(dtNextPow2(m_hashSize) == (unsigned int)m_hashSize);
+	dtAssert(dtNextPow2(m_hashSize) == static_cast<unsigned int>(m_hashSize));
 	// pidx is special as 0 means "none" and 1 is the first node. For that reason
 	// we have 1 fewer nodes available than the number of values it can contain.
 	dtAssert(m_maxNodes > 0 && m_maxNodes <= DT_NULL_IDX && m_maxNodes <= (1 << DT_NODE_PARENT_BITS) - 1);

@@ -6,10 +6,11 @@
 
 #include <InputGeom.h>
 #include <Recast.h>
-#include <SampleInterfaces.h>
+#include <RecastDump.h>
 
 bool GenerateTheses(rcContext* pCtx, const InputGeom* pGeom, rcConfig& config, const bool filterLowHangingObstacles,
-                    const bool filterLedgeSpans, const bool filterWalkableLowHeightSpans, float& totalBuildTimeMs)
+                    const bool filterLedgeSpans, const bool filterWalkableLowHeightSpans, float& totalBuildTimeMs,
+                    rcPolyMesh*& m_pmesh, rcPolyMeshDetail*& m_dmesh)
 {
     if (!pGeom || !pGeom->getMesh())
     {
@@ -63,7 +64,7 @@ bool GenerateTheses(rcContext* pCtx, const InputGeom* pGeom, rcConfig& config, c
     // Allocate array that can hold triangle area types.
     // If you have multiple meshes you need to process, allocate
     // and array which can hold the max number of triangles you need to process.
-    auto* m_triareas = new unsigned char[ntris];
+    auto* m_triareas = new(std::nothrow) unsigned char[ntris];
     if (!m_triareas)
     {
         pCtx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'm_triareas' (%d).", ntris);
@@ -81,8 +82,8 @@ bool GenerateTheses(rcContext* pCtx, const InputGeom* pGeom, rcConfig& config, c
         return false;
     }
 
-    const bool m_keepInterResults = false;
-    if (!m_keepInterResults)
+    constexpr bool m_keepInterResults = false;
+    if constexpr (!m_keepInterResults)
     {
         delete [] m_triareas;
     }
@@ -121,7 +122,7 @@ bool GenerateTheses(rcContext* pCtx, const InputGeom* pGeom, rcConfig& config, c
         return false;
     }
 
-    if (!m_keepInterResults)
+    if constexpr (!m_keepInterResults)
     {
         rcFreeHeightField(m_solid);
     }
@@ -188,7 +189,7 @@ bool GenerateTheses(rcContext* pCtx, const InputGeom* pGeom, rcConfig& config, c
     //
 
     // Build polygon navmesh from the contours.
-    rcPolyMesh* m_pmesh = rcAllocPolyMesh();
+    m_pmesh = rcAllocPolyMesh();
     if (!m_pmesh)
     {
         pCtx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'pmesh'.");
@@ -204,7 +205,7 @@ bool GenerateTheses(rcContext* pCtx, const InputGeom* pGeom, rcConfig& config, c
     // Step 7. Create detail mesh which allows to access approximate height on each polygon.
     //
 
-    rcPolyMeshDetail* m_dmesh = rcAllocPolyMeshDetail();
+    m_dmesh = rcAllocPolyMeshDetail();
     if (!m_dmesh)
     {
         pCtx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'pmdtl'.");
@@ -217,7 +218,7 @@ bool GenerateTheses(rcContext* pCtx, const InputGeom* pGeom, rcConfig& config, c
         return false;
     }
 
-    if (!m_keepInterResults)
+    if constexpr (!m_keepInterResults)
     {
         rcFreeCompactHeightfield(m_chf);
         rcFreeContourSet(m_cset);
@@ -235,7 +236,8 @@ bool GenerateTheses(rcContext* pCtx, const InputGeom* pGeom, rcConfig& config, c
 
 bool GenerateSingleMeshWaterShed(rcContext* pCtx, const InputGeom* pGeom, rcConfig& config,
                                  const bool filterLowHangingObstacles, const bool filterLedgeSpans,
-                                 const bool filterWalkableLowHeightSpans, float& totalBuildTimeMs)
+                                 const bool filterWalkableLowHeightSpans, float& totalBuildTimeMs, rcPolyMesh*& m_pmesh,
+                                 rcPolyMeshDetail*& m_dmesh)
 {
     if (!pGeom || !pGeom->getMesh())
     {
@@ -269,7 +271,8 @@ bool GenerateSingleMeshWaterShed(rcContext* pCtx, const InputGeom* pGeom, rcConf
 
     pCtx->log(RC_LOG_PROGRESS, "Building navigation:");
     pCtx->log(RC_LOG_PROGRESS, " - %d x %d cells", config.width, config.height);
-    pCtx->log(RC_LOG_PROGRESS, " - %.1fK verts, %.1fK tris",static_cast<float>(nverts) / 1000.0f, static_cast<float>(ntris) / 1000.0f);
+    pCtx->log(RC_LOG_PROGRESS, " - %.1fK verts, %.1fK tris", static_cast<float>(nverts) / 1000.0f,
+              static_cast<float>(ntris) / 1000.0f);
 
     //
     // Step 2. Rasterize input polygon soup.
@@ -292,7 +295,7 @@ bool GenerateSingleMeshWaterShed(rcContext* pCtx, const InputGeom* pGeom, rcConf
     // Allocate array that can hold triangle area types.
     // If you have multiple meshes you need to process, allocate
     // and array which can hold the max number of triangles you need to process.
-    const auto m_triareas = new unsigned char[ntris];
+    const auto m_triareas = new(std::nothrow) unsigned char[ntris];
     if (!m_triareas)
     {
         pCtx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'm_triareas' (%d).", ntris);
@@ -310,8 +313,8 @@ bool GenerateSingleMeshWaterShed(rcContext* pCtx, const InputGeom* pGeom, rcConf
         return false;
     }
 
-    const bool m_keepInterResults = false;
-    if (!m_keepInterResults)
+    constexpr bool m_keepInterResults = false;
+    if constexpr (!m_keepInterResults)
     {
         delete [] m_triareas;
     }
@@ -351,7 +354,7 @@ bool GenerateSingleMeshWaterShed(rcContext* pCtx, const InputGeom* pGeom, rcConf
         return false;
     }
 
-    if (!m_keepInterResults)
+    if constexpr (!m_keepInterResults)
     {
         rcFreeHeightField(m_solid);
     }
@@ -367,7 +370,8 @@ bool GenerateSingleMeshWaterShed(rcContext* pCtx, const InputGeom* pGeom, rcConf
     // (Optional) Mark areas.
     const ConvexVolume* vols = pGeom->getConvexVolumes();
     for (int i = 0; i < pGeom->getConvexVolumeCount(); ++i)
-        rcMarkConvexPolyArea(pCtx, vols[i].verts, vols[i].nverts, vols[i].hmin, vols[i].hmax, static_cast<unsigned char>(vols[i].area), *m_chf);
+        rcMarkConvexPolyArea(pCtx, vols[i].verts, vols[i].nverts, vols[i].hmin, vols[i].hmax,
+                             static_cast<unsigned char>(vols[i].area), *m_chf);
 
 
     // Partition the heightfield so that we can use simple algorithm later to triangulate the walkable areas.
@@ -405,8 +409,7 @@ bool GenerateSingleMeshWaterShed(rcContext* pCtx, const InputGeom* pGeom, rcConf
     }
 
     // Partition the walkable surface into simple regions without holes.
-    if (!rcBuildRegions(pCtx, *m_chf, 0, config.minRegionArea, config.mergeRegionArea)
-    )
+    if (!rcBuildRegions(pCtx, *m_chf, 0, config.minRegionArea, config.mergeRegionArea))
     {
         pCtx->log(RC_LOG_ERROR, "buildNavigation: Could not build watershed regions.");
         return false;
@@ -435,7 +438,7 @@ bool GenerateSingleMeshWaterShed(rcContext* pCtx, const InputGeom* pGeom, rcConf
     //
 
     // Build polygon navmesh from the contours.
-    rcPolyMesh* m_pmesh = rcAllocPolyMesh();
+    m_pmesh = rcAllocPolyMesh();
     if (!m_pmesh)
     {
         pCtx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'pmesh'.");
@@ -452,7 +455,7 @@ bool GenerateSingleMeshWaterShed(rcContext* pCtx, const InputGeom* pGeom, rcConf
     // Step 7. Create detail mesh which allows to access approximate height on each polygon.
     //
 
-    rcPolyMeshDetail* m_dmesh = rcAllocPolyMeshDetail();
+    m_dmesh = rcAllocPolyMeshDetail();
     if (!m_dmesh)
     {
         pCtx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'pmdtl'.");
@@ -465,7 +468,7 @@ bool GenerateSingleMeshWaterShed(rcContext* pCtx, const InputGeom* pGeom, rcConf
         return false;
     }
 
-    if (!m_keepInterResults)
+    if constexpr (!m_keepInterResults)
     {
         rcFreeCompactHeightfield(m_chf);
         rcFreeContourSet(m_cset);

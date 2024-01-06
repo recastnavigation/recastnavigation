@@ -76,7 +76,7 @@ void rcFilterLedgeSpans(rcContext* context, const int walkableHeight, const int 
 		{
 			for (rcSpan* span = heightfield.spans[x + z * xSize]; span; span = span->next)
 			{
-				const int MAX_HEIGHT = 0xffff;
+				constexpr int MAX_HEIGHT = 0xffff;
 				// Skip non walkable spans.
 				if (span->area == RC_NULL_AREA)
 				{
@@ -166,7 +166,7 @@ void rcFilterWalkableLowHeightSpans(rcContext* context, const int walkableHeight
 		{
 			for (rcSpan* span = heightfield.spans[x + z*xSize]; span; span = span->next)
 			{
-				const int MAX_HEIGHT = 0xffff;
+				constexpr int MAX_HEIGHT = 0xffff;
 				const int bot = static_cast<int>(span->smax);
 				const int top = span->next ? static_cast<int>(span->next->smin) : MAX_HEIGHT;
 				if (top - bot < walkableHeight)

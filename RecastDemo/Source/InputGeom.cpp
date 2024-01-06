@@ -130,7 +130,7 @@ bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath)
     m_offMeshConCount = 0;
     m_volumeCount = 0;
 
-    m_mesh = new rcMeshLoaderObj;
+    m_mesh = new (std::nothrow) rcMeshLoaderObj;
     if (!m_mesh)
     {
         ctx->log(RC_LOG_ERROR, "loadMesh: Out of memory 'm_mesh'.");
@@ -144,7 +144,7 @@ bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath)
 
     rcCalcBounds(m_mesh->getVerts(), m_mesh->getVertCount(), m_meshBMin, m_meshBMax);
 
-    m_chunkyMesh = new rcChunkyTriMesh;
+    m_chunkyMesh = new (std::nothrow) rcChunkyTriMesh;
     if (!m_chunkyMesh)
     {
         ctx->log(RC_LOG_ERROR, "buildTiledNavigation: Out of memory 'm_chunkyMesh'.");
@@ -184,7 +184,7 @@ bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath)
         fclose(fp);
         return false;
     }
-    const auto buf = new char[bufSize];
+    const auto buf = new (std::nothrow) char[bufSize];
     if (!buf)
     {
         fclose(fp);
@@ -387,7 +387,7 @@ static bool isectSegAABB(const float* sp, const float* sq,
                          const float* amin, const float* amax,
                          float& tmin, float& tmax)
 {
-    static const float EPS = 1e-6f;
+    static constexpr float EPS = 1e-6f;
 
     float d[3];
     d[0] = sq[0] - sp[0];

@@ -116,7 +116,7 @@ class rcVectorBase {
 	T* allocate_and_copy(rcSizeType size);
 	void resize_impl(rcSizeType size, const T* value);
 	// Requires: min_capacity > m_cap.
-	 rcSizeType get_new_capacity(rcSizeType min_capacity) const;
+	 [[nodiscard]] rcSizeType get_new_capacity(rcSizeType min_capacity) const;
  public:
 	typedef rcSizeType size_type;
 	typedef T value_type;
@@ -142,24 +142,24 @@ class rcVectorBase {
 	void push_back(const T& value);
 	void pop_back() { rcAssert(m_size > 0); back().~T(); m_size--; }
 
-	 rcSizeType size() const { return m_size; }
-	 rcSizeType capacity() const { return m_cap; }
-	 bool empty() const { return size() == 0; }
+	 [[nodiscard]] rcSizeType size() const { return m_size; }
+	 [[nodiscard]] rcSizeType capacity() const { return m_cap; }
+	 [[nodiscard]] bool empty() const { return size() == 0; }
 
 	const T& operator[](rcSizeType i) const { rcAssert(i >= 0 && i < m_size); return m_data[i]; }
 	T& operator[](rcSizeType i) { rcAssert(i >= 0 && i < m_size); return m_data[i]; }
 
-	 const T& front() const { rcAssert(m_size); return m_data[0]; }
+	 [[nodiscard]] const T& front() const { rcAssert(m_size); return m_data[0]; }
 	T& front() { rcAssert(m_size); return m_data[0]; }
-	 const T& back() const { rcAssert(m_size); return m_data[m_size - 1]; }
+	 [[nodiscard]] const T& back() const { rcAssert(m_size); return m_data[m_size - 1]; }
 	T& back() { rcAssert(m_size); return m_data[m_size - 1]; }
-	 const T* data() const { return m_data; }
+	 [[nodiscard]] const T* data() const { return m_data; }
 	T* data() { return m_data; }
 
 	T* begin() { return m_data; }
 	T* end() { return m_data + m_size; }
-	 const T* begin() const { return m_data; }
-	 const T* end() const { return m_data + m_size; }
+	 [[nodiscard]] const T* begin() const { return m_data; }
+	 [[nodiscard]] const T* end() const { return m_data + m_size; }
 
 	void swap(rcVectorBase& other) noexcept;
 
@@ -341,7 +341,7 @@ public:
 		m_impl.pop_back();
 		return v;
 	}
-	 int size() const { return static_cast<int>(m_impl.size()); }
+	[[nodiscard]] int size() const { return static_cast<int>(m_impl.size()); }
 	int& operator[](const int index) { return m_impl[index]; }
 	int operator[](const int index) const { return m_impl[index]; }
 };

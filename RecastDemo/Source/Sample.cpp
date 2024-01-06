@@ -319,8 +319,8 @@ void Sample::renderOverlayToolStates(double* proj, double* model, int* view) con
 	}
 }
 
-static const int NAVMESHSET_MAGIC = 'M'<<24 | 'S'<<16 | 'E'<<8 | 'T'; //'MSET';
-static const int NAVMESHSET_VERSION = 1;
+static constexpr int NAVMESHSET_MAGIC = 'M'<<24 | 'S'<<16 | 'E'<<8 | 'T'; //'MSET';
+static constexpr int NAVMESHSET_VERSION = 1;
 
 struct NavMeshSetHeader
 {
