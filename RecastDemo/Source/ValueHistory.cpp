@@ -71,7 +71,7 @@ void drawGraphBackground(const GraphParams* p)
 		char text[64];
 		const float u = static_cast<float>(i)/static_cast<float>(p->ndiv);
 		const float v = p->vmin + (p->vmax-p->vmin)*u;
-		_snprintf_s(text, 64, "%.2f %s", v, p->units);
+		sprintf_s(text, 64, "%.2f %s", v, p->units);
 		const float fy = oy + v*sy;
 		imguiDrawText(p->x + p->w - p->pad, static_cast<int>(fy)-4, IMGUI_ALIGN_RIGHT, text, imguiRGBA(0,0,0,255));
 		imguiDrawLine(static_cast<float>(p->x) + static_cast<float>(p->pad), fy, static_cast<float>(p->x) + static_cast<float>(p->w) - static_cast<float>(p->pad) - 50, fy, 1.0f, imguiRGBA(0,0,0,64)); 
@@ -107,7 +107,7 @@ void drawGraph(const GraphParams* p, const ValueHistory* graph,
 	imguiDrawRoundedRect(static_cast<float>(ix), static_cast<float>(iy), static_cast<float>(size), static_cast<float>(size), 2.0f, col);
 	
 	char text[64];
-	_snprintf_s(text, 64, "%.2f %s", graph->getAverage(), p->units);
+	sprintf_s(text, 64, "%.2f %s", graph->getAverage(), p->units);
 	imguiDrawText(ix+size+5, iy+3, IMGUI_ALIGN_LEFT, label, imguiRGBA(255,255,255,192));
 	imguiDrawText(ix+size+150, iy+3, IMGUI_ALIGN_RIGHT, text, imguiRGBA(255,255,255,128));
 }

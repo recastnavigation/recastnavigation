@@ -43,4 +43,4 @@ jobs:
 
       - name: Run Tests
         working-directory: RecastCLI/Bin/
-        run: ./TestsCLI.exe --verbosity high --success
+        run: ./TestsCLI.exe -f

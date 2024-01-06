@@ -107,7 +107,7 @@ void Sample_SizeFromLocalMinimaMesh::handleSettings()
 	imguiUnindent();
 	
 	char msg[64];
-	_snprintf_s(msg, 64, "Build Time: %.1fms", m_totalBuildTimeMs);
+	sprintf_s(msg, 64, "Build Time: %.1fms", m_totalBuildTimeMs);
 	imguiLabel(msg);
 
 	imguiSeparator();
