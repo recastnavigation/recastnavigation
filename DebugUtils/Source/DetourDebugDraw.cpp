@@ -19,8 +19,6 @@
 #include "DebugDraw.h"
 #include "DetourDebugDraw.h"
 
-#include <DetourNavMeshQuery.h>
-
 #include "DetourNavMesh.h"
 #include "DetourCommon.h"
 #include "DetourNode.h"

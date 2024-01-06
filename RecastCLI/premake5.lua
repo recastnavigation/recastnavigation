@@ -250,6 +250,7 @@ project "TestsCLI"
 		"Source/*.cpp",
 		"Contrib/catch2/*.cpp"
 	}
+	removefiles{"Source/main.cpp"}
 
 	-- project dependencies
 	links {
