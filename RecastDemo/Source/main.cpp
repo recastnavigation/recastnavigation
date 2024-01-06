@@ -568,7 +568,7 @@ int main(int /*argc*/, char** /*argv*/)
 			if (geom)
 			{
 				char text[64];
-				_snprintf_s(text, 64, "Verts: %.1fk  Tris: %.1fk",
+				sprintf_s(text, 64, "Verts: %.1fk  Tris: %.1fk",
 						 static_cast<float>(geom->getMesh()->getVertCount())*1e-3f,
 						 static_cast<float>(geom->getMesh()->getTriCount())*1e-3f);
 				imguiValue(text);

@@ -41,7 +41,15 @@ TEST_CASE("Watershed")
     config.detailSampleMaxError = cellHeight * detailSampleMaxError;
 
     auto env = GENERATE(
-        Catch::Generators::values<std::string>({"Meshes/zelda.obj", "Meshes/zelda2x2.obj", "Meshes/zelda4x4.obj"}));
+        Catch::Generators::values<std::string>({
+            "Meshes/City.obj",
+            "Meshes/military.obj",
+            "Meshes/Simple.obj",
+            "Meshes/univerity.obj",
+            "Meshes/zelda.obj",
+            "Meshes/zelda2x2.obj",
+            "Meshes/zelda4x4.obj"
+            }));
     auto cellS = GENERATE(
         Catch::Generators::values<float>({0.1f, 0.15f, 0.2f, 0.25f, 0.3f, 0.35f, 0.4f, 0.45f, 0.5f, 0.6f}));
     auto agentR = GENERATE(

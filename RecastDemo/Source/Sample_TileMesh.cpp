@@ -157,7 +157,7 @@ public:
 			int tx=0, ty=0;
 			m_sample->getTilePos(m_hitPos, tx, ty);
 			char text[32];
-			_snprintf_s(text,32,"(%d,%d)", tx,ty);
+			sprintf_s(text,32,"(%d,%d)", tx,ty);
 			imguiDrawText(static_cast<int>(x), static_cast<int>(y)-25, IMGUI_ALIGN_CENTER, text, imguiRGBA(0,0,0,220));
 		}
 		
@@ -239,7 +239,7 @@ void Sample_TileMesh::handleSettings()
 		const int ts = static_cast<int>(m_tileSize);
 		const int tw = (gw + ts-1) / ts;
 		const int th = (gh + ts-1) / ts;
-		_snprintf_s(text, 64, "Tiles  %d x %d", tw, th);
+		sprintf_s(text, 64, "Tiles  %d x %d", tw, th);
 		imguiValue(text);
 
 		// Max tiles and max polys affect how the tile IDs are caculated.
@@ -249,9 +249,9 @@ void Sample_TileMesh::handleSettings()
 		const int polyBits = 22 - tileBits;
 		m_maxTiles = 1 << tileBits;
 		m_maxPolysPerTile = 1 << polyBits;
-		_snprintf_s(text, 64, "Max Tiles  %d", m_maxTiles);
+		sprintf_s(text, 64, "Max Tiles  %d", m_maxTiles);
 		imguiValue(text);
-		_snprintf_s(text, 64, "Max Polys  %d", m_maxPolysPerTile);
+		sprintf_s(text, 64, "Max Polys  %d", m_maxPolysPerTile);
 		imguiValue(text);
 	}
 	else
@@ -281,7 +281,7 @@ void Sample_TileMesh::handleSettings()
 	imguiUnindent();
 	
 	char msg[64];
-	_snprintf_s(msg, 64, "Build Time: %.1fms", m_totalBuildTimeMs);
+	sprintf_s(msg, 64, "Build Time: %.1fms", m_totalBuildTimeMs);
 	imguiLabel(msg);
 	
 	imguiSeparator();
@@ -548,7 +548,7 @@ void Sample_TileMesh::handleRenderOverlay(double* proj, double* model, int* view
 											 model, proj, view, &x, &y, &z))
 	{
 		char text[32];
-		_snprintf_s(text,32,"%.3fms / %dTris / %.1fkB", m_tileBuildTime, m_tileTriCount, m_tileMemUsage);
+		sprintf_s(text,32,"%.3fms / %dTris / %.1fkB", m_tileBuildTime, m_tileTriCount, m_tileMemUsage);
 		imguiDrawText(static_cast<int>(x), static_cast<int>(y)-25, IMGUI_ALIGN_CENTER, text, imguiRGBA(0,0,0,220));
 	}
 	

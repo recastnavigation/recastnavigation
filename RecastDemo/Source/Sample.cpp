@@ -195,7 +195,7 @@ void Sample::handleCommonSettings()
 		int gw = 0, gh = 0;
 		rcCalcGridSize(bmin, bmax, m_cellSize, &gw, &gh);
 		char text[64];
-		_snprintf_s(text, 64, "Voxels  %d x %d", gw, gh);
+		sprintf_s(text, 64, "Voxels  %d x %d", gw, gh);
 		imguiValue(text);
 	}
 	
