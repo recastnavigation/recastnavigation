@@ -1521,7 +1521,8 @@ const dtOffMeshConnection* dtNavMesh::getOffMeshConnectionByRef(const dtPolyRef 
 
 dtStatus dtNavMesh::setPolyFlags(const dtPolyRef ref, const unsigned short flags) const
 {
-	if (!ref) return DT_FAILURE;
+	if (!ref) return DT_FAILURE | DT_INVALID_PARAM;
+
 	unsigned int salt, it, ip;
 	decodePolyId(ref, salt, it, ip);
 	if (it >= static_cast<unsigned int>(m_maxTiles)) return DT_FAILURE | DT_INVALID_PARAM;
