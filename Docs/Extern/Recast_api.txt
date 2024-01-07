@@ -650,14 +650,14 @@ if (((flags >> 2) & 0x3) != 0)
 }
 @endcode
 
-@fn void rcSetCon(rcCompactSpan &s, int dir, int i)
+@fn void rcSetCon(rcCompactSpan &span, int direction, int neighborIndex)
 @par
 
 This function is used by the build process. It is rarely of use to end users.
 
 @see #rcCompactHeightfield, #rcCompactSpan
 
-@fn int rcGetCon(const rcCompactSpan &s, int dir)
+@fn int rcGetCon(const rcCompactSpan &span, int direction)
 @par
 
 Can be used to locate neighbor spans in a compact heightfield. See the 
@@ -665,14 +665,14 @@ Can be used to locate neighbor spans in a compact heightfield. See the
 
 @see #rcCompactHeightfield, #rcCompactSpan
 
-@fn int rcGetDirOffsetX(int dir)
+@fn int rcGetDirOffsetX(int direction)
 @par
 
 The value of @p dir will be automatically wrapped. So a value of 6 will be interpreted as 2.
 
 See the #rcCompactHeightfield documentation for usage details.
 
-@fn int rcGetDirOffsetY(int dir)
+@fn int rcGetDirOffsetY(int direction)
 @par
 
 The value of @p dir will be automatically wrapped. So a value of 6 will be interpreted as 2.
