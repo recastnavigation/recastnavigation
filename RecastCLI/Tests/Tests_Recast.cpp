@@ -31,8 +31,7 @@ constexpr bool filterLowHangingObstacles = true;
 
 constexpr int LOOP_COUNT = 10;
 
-TEST_CASE("Watershed")
-{
+TEST_CASE("Watershed") {
     rcConfig config{
         .ch = cellHeight,
         .walkableSlopeAngle = agentMaxSlope,
@@ -51,25 +50,20 @@ TEST_CASE("Watershed")
             "Meshes/military.obj",
             "Meshes/Simple.obj",
             "Meshes/univerity.obj",
-            "Meshes/zelda.obj",
-            "Meshes/zelda2x2.obj",
-            "Meshes/zelda4x4.obj"
+            "Meshes/Zelda.obj",
+            "Meshes/Zelda2x2.obj",
+            "Meshes/Zelda4x4.obj"
             }));
-    const float cellS = GENERATE(
-    Catch::Generators::values<float>({0.1f, 0.15f, 0.2f, 0.25f, 0.3f, 0.35f, 0.4f, 0.45f, 0.5f, 0.6f}));
-    const float agentR = GENERATE(
-    Catch::Generators::values<float>({0.0f, 0.25f, 0.5f}));
 
-    // constexpr float cellS = 0.1f;
-    // constexpr float agentR = 0.0f;
+    BuildContext context{};
+    auto pGeom{new(std::nothrow) InputGeom{}};
+    REQUIRE(pGeom != nullptr);
+    bool success = pGeom->load(&context, env);
+    REQUIRE(success);
 
-    SECTION("Thesis")
-    {
-        BuildContext context{};
-        auto pGeom{new(std::nothrow) InputGeom{}};
-        REQUIRE(pGeom != nullptr);
-        bool success = pGeom->load(&context, env);
-        REQUIRE(success);
+    SECTION("Thesis") {
+        const float cellS = GENERATE(0.1f, 0.15f, 0.2f, 0.25f, 0.3f, 0.35f, 0.4f, 0.45f, 0.5f, 0.6f);
+        const float agentR = GENERATE(0.0f, 0.25f, 0.5f);
 
         config.cs = cellS;
         config.maxEdgeLen = static_cast<int>(edgeMaxLen / cellS);
@@ -78,28 +72,25 @@ TEST_CASE("Watershed")
         float totalBuildTimeMs{};
         std::stringstream ssDefault{};
         std::stringstream ssThesis{};
-        for (int i{}; i < LOOP_COUNT; i++)
-        {
-            rcPolyMesh* m_pmesh{nullptr};
-            rcPolyMeshDetail* m_dmesh{nullptr};
+        for (int i{}; i < LOOP_COUNT; i++) {
+            rcPolyMesh *m_pmesh{nullptr};
+            rcPolyMeshDetail *m_dmesh{nullptr};
             GenerateSingleMeshWaterShed(&context, pGeom, config, filterLowHangingObstacles, filterLedgeSpans,
                                         filterWalkableLowHeightSpans,
                                         totalBuildTimeMs, m_pmesh, m_dmesh);
             // todo : extract / process / save portal edges
             delete m_pmesh;
             delete m_dmesh;
-            for (int j = 0; j < RC_MAX_TIMERS; ++j)
-            {
+            for (int j = 0; j < RC_MAX_TIMERS; ++j) {
                 ssDefault << static_cast<float>(context.getAccumulatedTime(static_cast<rcTimerLabel>(j))) * 1e-3f <<
-                    ',';
+                        ',';
             }
             ssDefault << std::endl;
         }
 
-        for (int i{}; i < LOOP_COUNT; i++)
-        {
-            rcPolyMesh* m_pmesh{nullptr};
-            rcPolyMeshDetail* m_dmesh{nullptr};
+        for (int i{}; i < LOOP_COUNT; i++) {
+            rcPolyMesh *m_pmesh{nullptr};
+            rcPolyMeshDetail *m_dmesh{nullptr};
             GenerateTheses(&context, pGeom, config, filterLowHangingObstacles, filterLedgeSpans,
                            filterWalkableLowHeightSpans,
                            totalBuildTimeMs, m_pmesh, m_dmesh);
@@ -107,8 +98,7 @@ TEST_CASE("Watershed")
             delete m_pmesh;
             delete m_dmesh;
 
-            for (int j = 0; j < RC_MAX_TIMERS; ++j)
-            {
+            for (int j = 0; j < RC_MAX_TIMERS; ++j) {
                 ssThesis << static_cast<float>(context.getAccumulatedTime(static_cast<rcTimerLabel>(j))) * 1e-3f << ',';
             }
             ssThesis << std::endl;
@@ -149,12 +139,12 @@ TEST_CASE("Watershed")
         std::ofstream csvFileDefault{std::string(output) + "/output_default.csv", std::ios::out};
         std::ofstream csvFileThesis{std::string(output) + "/output_thesis.csv", std::ios::out};
         csvFileDefault.write(header, sizeof header).write("\n", 1)
-                      .write(ssDefault.str().c_str(), ssDefault.gcount())
-                      .flush();
+                .write(ssDefault.str().c_str(), ssDefault.gcount())
+                .flush();
         csvFileThesis.write(header, sizeof header)
-                     .write("\n", 1)
-                     .write(ssDefault.str().c_str(), ssDefault.gcount())
-                     .flush();
+                .write("\n", 1)
+                .write(ssDefault.str().c_str(), ssDefault.gcount())
+                .flush();
         csvFileDefault.close();
         csvFileThesis.close();
     }
