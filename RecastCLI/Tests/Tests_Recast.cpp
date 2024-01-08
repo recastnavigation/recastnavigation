@@ -39,11 +39,10 @@ TEST_CASE("Watershed")
         .walkableHeight = static_cast<int>(std::ceil(agentHeight / cellHeight)),
         .walkableClimb = static_cast<int>(std::floor(agentMaxClimb / cellHeight)),
         .maxSimplificationError = edgeMaxError,
-        .maxVertsPerPoly = static_cast<int>(vertsPerPoly),
-        .detailSampleMaxError = cellHeight * detailSampleMaxError,
         .minRegionArea = static_cast<int>(rcSqr(minS)),
         .mergeRegionArea = static_cast<int>(rcSqr(mergeS)),
-
+        .maxVertsPerPoly = static_cast<int>(vertsPerPoly),
+        .detailSampleMaxError = cellHeight * detailSampleMaxError,
     };
 
     auto env = GENERATE(
