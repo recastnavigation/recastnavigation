@@ -37,7 +37,6 @@
 #include "InputGeom.h"
 #include "TestCase.h"
 #include "Filelist.h"
-#include "Sample_SizeFromLocalMinimaMesh.h"
 #include "Sample_SizeFromPortalEdgeMesh.h"
 #include "Sample_SoloMesh.h"
 #include "Sample_TileMesh.h"
@@ -57,7 +56,6 @@ struct SampleItem
 	Sample* (*create)();
 	const string name;
 };
-Sample* createSizeFromLocalMinima() { return new Sample_SizeFromLocalMinimaMesh(); }
 Sample* createSizeFromPortalEdge() { return new Sample_SizeFromPortalEdgeMesh (); }
 Sample* createSolo() { return new Sample_SoloMesh(); }
 Sample* createTile() { return new Sample_TileMesh(); }
@@ -65,8 +63,7 @@ Sample* createTempObstacle() { return new Sample_TempObstacles(); }
 Sample* createDebug() { return new Sample_Debug(); }
 static SampleItem g_samples[] =
 {
-    { createSizeFromLocalMinima, "Size from Local Minima Mesh" },
-    { createSizeFromPortalEdge, "Size from  Mesh" },
+    { createSizeFromPortalEdge, "Solo Mesh Custom Watershed" },
 	{ createSolo, "Solo Mesh" },
 	{ createTile, "Tile Mesh" },
 	{ createTempObstacle, "Temp Obstacles" },
