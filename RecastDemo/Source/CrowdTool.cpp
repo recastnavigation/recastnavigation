@@ -38,10 +38,6 @@
 #include "DetourNode.h"
 #include "SampleInterfaces.h"
 
-#ifdef WIN32
-#	define snprintf _snprintf
-#endif
-
 static bool isectSegAABB(const float* sp, const float* sq,
 						 const float* amin, const float* amax,
 						 float& tmin, float& tmax)
@@ -552,7 +548,7 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 									   model, proj, view, &x, &y, &z))
 						{
 							const float heuristic = node->total;// - node->cost;
-							sprintf_s(label, 32, "%.2f", heuristic);
+							sprintf_s(label, "%.2f", heuristic);
 							imguiDrawText(static_cast<int>(x), static_cast<int>(y)+15, IMGUI_ALIGN_CENTER, label, imguiRGBA(0,0,0,220));
 						}
 					}
@@ -575,7 +571,7 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 				if (gluProject(pos[0], static_cast<GLdouble>(pos[1])+h, pos[2],
 							   model, proj, view, &x, &y, &z))
 				{
-					sprintf_s(label, 32, "%d", i);
+					sprintf_s(label, "%d", i);
 					imguiDrawText(static_cast<int>(x), static_cast<int>(y)+15, IMGUI_ALIGN_CENTER, label, imguiRGBA(0,0,0,220));
 				}
 			}
@@ -604,7 +600,7 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 						if (gluProject(nei->npos[0], static_cast<GLdouble>(nei->npos[1])+radius, nei->npos[2],
 									   model, proj, view, &x, &y, &z))
 						{
-							sprintf_s(label, 32, "%.3f", ag->neis[j].dist);
+							sprintf_s(label, "%.3f", ag->neis[j].dist);
 							imguiDrawText(static_cast<int>(x), static_cast<int>(y)+15, IMGUI_ALIGN_CENTER, label, imguiRGBA(255,255,255,220));
 						}
 					}

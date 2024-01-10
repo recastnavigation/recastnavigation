@@ -5,6 +5,7 @@
 #define CATCH_CONFIG_MAIN
 
 #include <filesystem>
+#include <iostream>
 
 #include "catch2/catch_all.hpp"
 
@@ -56,8 +57,10 @@ TEST_CASE("Watershed") {
             }));
 
     BuildContext context{};
+    std::cout << "Creating Geometry" << std::endl;
     auto pGeom{new(std::nothrow) InputGeom{}};
     REQUIRE(pGeom != nullptr);
+    std::cout << "Loading Geometry: " << env << std::endl;
     bool success = pGeom->load(&context, env);
     REQUIRE(success);
 
@@ -89,14 +92,17 @@ TEST_CASE("Watershed") {
         }
 
         for (int i{}; i < LOOP_COUNT; i++) {
-            rcPolyMesh *m_pmesh{nullptr};
-            rcPolyMeshDetail *m_dmesh{nullptr};
+            rcPolyMesh *pMesh{nullptr};
+            rcPolyMeshDetail *pDMesh{nullptr};
+            int *pEdges{nullptr};
+            int edgesSize{};
             GenerateTheses(&context, pGeom, config, filterLowHangingObstacles, filterLedgeSpans,
                            filterWalkableLowHeightSpans,
-                           totalBuildTimeMs, m_pmesh, m_dmesh);
+                           totalBuildTimeMs, pMesh, pDMesh, pEdges, edgesSize);
             // todo : extract / process / save portal edges
-            delete m_pmesh;
-            delete m_dmesh;
+            delete pMesh;
+            delete pDMesh;
+            delete pEdges;
 
             for (int j = 0; j < RC_MAX_TIMERS; ++j) {
                 ssThesis << static_cast<float>(context.getAccumulatedTime(static_cast<rcTimerLabel>(j))) * 1e-3f << ',';
@@ -148,4 +154,7 @@ TEST_CASE("Watershed") {
         csvFileDefault.close();
         csvFileThesis.close();
     }
+
+    std::cout << "Deleting Geometry" << std::endl;
+    delete pGeom;
 }
