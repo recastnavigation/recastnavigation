@@ -10,11 +10,11 @@ struct rcConfig;
 class InputGeom;
 class rcContext;
 
-bool GenerateTheses(rcContext* pCtx, const InputGeom* pGeom, rcConfig& config, bool filterLowHangingObstacles,
-                    bool filterLedgeSpans, bool filterWalkableLowHeightSpans, float& totalBuildTimeMs,
-                    rcPolyMesh*& m_pmesh, rcPolyMeshDetail*& m_dmesh);
+bool GenerateTheses(rcContext *pCtx, const InputGeom *pGeom, rcConfig &config, bool filterLowHangingObstacles,
+                    bool filterLedgeSpans, bool filterWalkableLowHeightSpans, float &totalBuildTimeMs,
+                    rcPolyMesh *&m_pmesh, rcPolyMeshDetail *&m_dmesh, int *&bounderies, int &bounderyElementCount);
 
-bool GenerateSingleMeshWaterShed(rcContext* pCtx, const InputGeom* pGeom, rcConfig& config,
+bool GenerateSingleMeshWaterShed(rcContext *pCtx, const InputGeom *pGeom, rcConfig &config,
                                  bool filterLowHangingObstacles, bool filterLedgeSpans,
-                                 bool filterWalkableLowHeightSpans, float& totalBuildTimeMs,
-                                 rcPolyMesh*& m_pmesh, rcPolyMeshDetail*& m_dmesh);
+                                 bool filterWalkableLowHeightSpans, float &totalBuildTimeMs,
+                                 rcPolyMesh *&m_pmesh, rcPolyMeshDetail *&m_dmesh);

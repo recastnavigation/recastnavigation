@@ -107,7 +107,7 @@ void Sample_SizeFromPortalEdgeMesh::handleSettings()
 	imguiUnindent();
 	
 	char msg[64];
-	sprintf_s(msg, 64, "Build Time: %.1fms", m_totalBuildTimeMs);
+	sprintf_s(msg, "Build Time: %.1fms", m_totalBuildTimeMs);
 	imguiLabel(msg);
 
 	imguiSeparator();

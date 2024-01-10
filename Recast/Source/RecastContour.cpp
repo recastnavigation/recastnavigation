@@ -1213,9 +1213,9 @@ bool rcBuildContours(rcContext *ctx, const rcCompactHeightfield &chf,
     return true;
 }
 
-bool rcBuildContoursWithPortals(rcContext *ctx, const rcCompactHeightfield &chf, int *&portalEdges,
+bool rcBuildContoursWithPortals(rcContext *ctx, const rcCompactHeightfield &chf,
                                 float maxError, int maxEdgeLen,
-                                rcContourSet &cset, int buildFlags) {
+                                rcContourSet &cset, int *&portalEdges, int& portalEdgeSize, int buildFlags) {
     rcAssert(ctx);
     if (!ctx)
         return false;
@@ -1380,7 +1380,9 @@ bool rcBuildContoursWithPortals(rcContext *ctx, const rcCompactHeightfield &chf,
             }
         }
     }
+    portalEdgeSize = portalEdgesArray.size();
     portalEdges = static_cast<int *>(rcAlloc(sizeof(int) * portalEdgesArray.size(), RC_ALLOC_PERM));
+    memcpy(portalEdges, &portalEdgesArray[0], portalEdgeSize * sizeof(int));
 
     // Merge holes if needed.
     if (cset.nconts > 0) {

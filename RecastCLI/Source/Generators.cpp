@@ -10,7 +10,7 @@
 
 bool GenerateTheses(rcContext* pCtx, const InputGeom* pGeom, rcConfig& config, const bool filterLowHangingObstacles,
                     const bool filterLedgeSpans, const bool filterWalkableLowHeightSpans, float& totalBuildTimeMs,
-                    rcPolyMesh*& m_pmesh, rcPolyMeshDetail*& m_dmesh)
+                    rcPolyMesh*& m_pmesh, rcPolyMeshDetail*& m_dmesh, int*& bounderies, int& bounderyElementCount)
 {
     if (!pGeom || !pGeom->getMesh())
     {
@@ -178,7 +178,7 @@ bool GenerateTheses(rcContext* pCtx, const InputGeom* pGeom, rcConfig& config, c
         pCtx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'cset'.");
         return false;
     }
-    if (!rcBuildContours(pCtx, *m_chf, config.maxSimplificationError, config.maxEdgeLen, *m_cset))
+    if (!rcBuildContoursWithPortals(pCtx, *m_chf, config.maxSimplificationError, config.maxEdgeLen, *m_cset, bounderies, bounderyElementCount))
     {
         pCtx->log(RC_LOG_ERROR, "buildNavigation: Could not create contours.");
         return false;

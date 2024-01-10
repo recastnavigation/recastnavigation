@@ -1332,17 +1332,17 @@ bool rcBuildContours(rcContext* ctx, const rcCompactHeightfield& chf,
 /// @ingroup recast
 /// @param[in,out]	ctx			The build context to use during the operation.
 /// @param[in]		chf			A fully built compact heightfield.
-/// @param[out]     pe			A buffer tracking the portal edges.
 /// @param[in]		maxError	The maximum distance a simplified contour's border edges should deviate
 /// 							the original raw contour. [Limit: >=0] [Units: wu]
 /// @param[in]		maxEdgeLen	The maximum allowed length for contour edges along the border of the mesh.
 /// 							[Limit: >=0] [Units: vx]
 /// @param[out]		cset		The resulting contour set. (Must be pre-allocated.)
+/// @param[out]     pe			A buffer tracking the portal edges.
 /// @param[in]		buildFlags	The build flags. (See: #rcBuildContoursFlags)
 /// @returns True if the operation completed successfully.
-bool rcBuildContoursWithPortals(rcContext* ctx, const rcCompactHeightfield& chf, int *& pe,
+bool rcBuildContoursWithPortals(rcContext* ctx, const rcCompactHeightfield& chf,
 					 float maxError, int maxEdgeLen,
-					 rcContourSet& cset, int buildFlags = RC_CONTOUR_TESS_WALL_EDGES);
+					 rcContourSet& cset, int *&pe, int& pSize, int buildFlags = RC_CONTOUR_TESS_WALL_EDGES);
 
 /// Builds a polygon mesh from the provided contours.
 /// @ingroup recast
