@@ -73,6 +73,7 @@ TEST_CASE("Watershed") {
     config.walkableRadius = static_cast<int>(std::ceil(agentR / config.cs));
     config.detailSampleDist = cellS * detailSampleDist;
 
+    std::cout << "starting builds with: Cell size = " << cellS << " and agend radius = " << agentR << std::endl;
     float totalBuildTimeMs{};
     std::stringstream ssDefault{};
     std::stringstream ssThesis{};
