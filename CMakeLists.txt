@@ -7,7 +7,7 @@ SET(SOVERSION 1)
 set(LIB_VERSION 1.6.0)
 string(REPLACE "." "," LIB_VERSION_NUM "${LIB_VERSION}.0")
 
-set_property(GLOBAL PROPERTY CXX_STANDARD 17)
+set_property(GLOBAL PROPERTY CXX_STANDARD 20)
 
 option(RECASTNAVIGATION_CLI "Build command line interface" ON)
 option(RECASTNAVIGATION_DEMO "Build demo" ON)

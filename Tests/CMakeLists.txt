@@ -10,7 +10,7 @@ add_executable(Tests
 	DetourCrowd/Tests_DetourPathCorridor.cpp
 )
 
-set_property(TARGET Tests PROPERTY CXX_STANDARD 17)
+set_property(TARGET Tests PROPERTY CXX_STANDARD 20)
 
 add_dependencies(Tests Recast Detour DetourCrowd)
 target_link_libraries(Tests Recast Detour DetourCrowd)

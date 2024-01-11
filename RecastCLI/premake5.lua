@@ -276,3 +276,7 @@ project "TestsCLI"
 		linkoptions {
 			"-lpthread"
 		}
+
+    postbuildcommands {
+			'{COPY} "%{path.getabsolute("Bin/Meshes/**")}" "%{cfg.targetdir}/Meshes"'
+	}

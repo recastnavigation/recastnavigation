@@ -45,8 +45,8 @@ TEST_CASE("Watershed") {
         .detailSampleMaxError = cellHeight * detailSampleMaxError,
     };
 
-    auto env = GENERATE(
-        Catch::Generators::values<std::string>({
+    std::string env{
+        GENERATE(Catch::Generators::values<std::string>({
             "Meshes/City.obj",
             "Meshes/military.obj",
             "Meshes/Simple.obj",
@@ -54,107 +54,109 @@ TEST_CASE("Watershed") {
             "Meshes/Zelda.obj",
             "Meshes/Zelda2x2.obj",
             "Meshes/Zelda4x4.obj"
-            }));
+            }))
+    };
 
     BuildContext context{};
     std::cout << "Creating Geometry" << std::endl;
-    auto pGeom{new(std::nothrow) InputGeom{}};
+    std::unique_ptr<InputGeom> pGeom{new(std::nothrow) InputGeom{}};
     REQUIRE(pGeom != nullptr);
     std::cout << "Loading Geometry: " << env << std::endl;
     bool success = pGeom->load(&context, env);
     REQUIRE(success);
 
-    SECTION("Thesis") {
-        const float cellS = GENERATE(0.1f, 0.15f, 0.2f, 0.25f, 0.3f, 0.35f, 0.4f, 0.45f, 0.5f, 0.6f);
-        const float agentR = GENERATE(0.0f, 0.25f, 0.5f);
+    const float cellS{GENERATE(Catch::Generators::range(0.1f,0.5f,0.1f))};
+    const float agentR{GENERATE(Catch::Generators::range(0.f,0.5f,0.25f))};
 
-        config.cs = cellS;
-        config.maxEdgeLen = static_cast<int>(edgeMaxLen / cellS);
-        config.walkableRadius = static_cast<int>(std::ceil(agentR / config.cs));
-        config.detailSampleDist = cellS * detailSampleDist;
-        float totalBuildTimeMs{};
-        std::stringstream ssDefault{};
-        std::stringstream ssThesis{};
-        for (int i{}; i < LOOP_COUNT; i++) {
-            rcPolyMesh *m_pmesh{nullptr};
-            rcPolyMeshDetail *m_dmesh{nullptr};
-            GenerateSingleMeshWaterShed(&context, pGeom, config, filterLowHangingObstacles, filterLedgeSpans,
-                                        filterWalkableLowHeightSpans,
-                                        totalBuildTimeMs, m_pmesh, m_dmesh);
-            // todo : extract / process / save portal edges
-            delete m_pmesh;
-            delete m_dmesh;
-            for (int j = 0; j < RC_MAX_TIMERS; ++j) {
-                ssDefault << static_cast<float>(context.getAccumulatedTime(static_cast<rcTimerLabel>(j))) * 1e-3f <<
-                        ',';
-            }
-            ssDefault << std::endl;
+    config.cs = cellS;
+    config.maxEdgeLen = static_cast<int>(edgeMaxLen / cellS);
+    config.walkableRadius = static_cast<int>(std::ceil(agentR / config.cs));
+    config.detailSampleDist = cellS * detailSampleDist;
+
+    float totalBuildTimeMs{};
+    std::stringstream ssDefault{};
+    std::stringstream ssThesis{};
+
+    for (int i{}; i < LOOP_COUNT; i++) {
+        std::unique_ptr<rcPolyMesh> pMesh;
+        std::unique_ptr<rcPolyMeshDetail> pDMesh;
+
+        rcPolyMesh *pPolyTemp{pMesh.get()};
+        rcPolyMeshDetail *pPolyDetailTemp{pDMesh.get()};
+        GenerateSingleMeshWaterShed(&context, pGeom.get(), config, filterLowHangingObstacles, filterLedgeSpans,
+                                    filterWalkableLowHeightSpans, totalBuildTimeMs, pPolyTemp, pPolyDetailTemp);
+
+        for (int j = 0; j < RC_MAX_TIMERS; ++j) {
+            ssDefault << static_cast<float>(context.getAccumulatedTime(static_cast<rcTimerLabel>(j))) * 1e-3f << ',';
         }
-
-        for (int i{}; i < LOOP_COUNT; i++) {
-            rcPolyMesh *pMesh{nullptr};
-            rcPolyMeshDetail *pDMesh{nullptr};
-            int *pEdges{nullptr};
-            int edgesSize{};
-            GenerateTheses(&context, pGeom, config, filterLowHangingObstacles, filterLedgeSpans,
-                           filterWalkableLowHeightSpans,
-                           totalBuildTimeMs, pMesh, pDMesh, pEdges, edgesSize);
-            // todo : extract / process / save portal edges
-            delete pMesh;
-            delete pDMesh;
-            delete pEdges;
-
-            for (int j = 0; j < RC_MAX_TIMERS; ++j) {
-                ssThesis << static_cast<float>(context.getAccumulatedTime(static_cast<rcTimerLabel>(j))) * 1e-3f << ',';
-            }
-            ssThesis << std::endl;
-        }
-        constexpr auto header
-        {
-            "Total (ms),"
-            "Temp (ms),"
-            "Rasterize Triangles (ms),"
-            "Build Compact Height Field (ms),"
-            "Build Contours (ms),"
-            "Build Contours Trace (ms),"
-            "Build Contours Simplify (ms),"
-            "Filter Border (ms),"
-            "Filter Walkable (ms),"
-            "Median Area (ms),"
-            "Filter Low Obstacles (ms),"
-            "Build Polymesh (ms),"
-            "Merge Polymeshes (ms),"
-            "Erode Area (ms),"
-            "Mark Box Area (ms),"
-            "Mark Cylinder Area (ms),"
-            "Mark Convex Area (ms),"
-            "Build Distance Field (ms),"
-            "Build Distance Field Distance (ms),"
-            "Build Distance Field Blur (ms),"
-            "Build Regions (ms),"
-            "Build Regions Watershed (ms),"
-            "Build Regions Expand (ms),"
-            "Build Regions Flood (ms),"
-            "Build Regions Filter (ms),"
-            "Build Layers (ms),"
-            "Build Polymesh Detail (ms),"
-            "Merge Polymesh Details (ms),"
-        };
-        constexpr auto output{"Data"};
-        std::filesystem::create_directories(output);
-        std::ofstream csvFileDefault{std::string(output) + "/output_default.csv", std::ios::out};
-        std::ofstream csvFileThesis{std::string(output) + "/output_thesis.csv", std::ios::out};
-        csvFileDefault.write(header, sizeof header).write("\n", 1)
-                .write(ssDefault.str().c_str(), ssDefault.gcount())
-                .flush();
-        csvFileThesis.write(header, sizeof header)
-                .write("\n", 1)
-                .write(ssDefault.str().c_str(), ssDefault.gcount())
-                .flush();
-        csvFileDefault.close();
-        csvFileThesis.close();
+        ssDefault << std::endl;
     }
 
-    std::cout << "Deleting Geometry" << std::endl;
-    delete pGeom;
+    for (int i{}; i < LOOP_COUNT; i++) {
+        std::unique_ptr<rcPolyMesh> pMesh;
+        std::unique_ptr<rcPolyMeshDetail> pDMesh;
+        std::unique_ptr<int[]> pEdges;
+
+        rcPolyMesh *pPolyTemp{pMesh.get()};
+        rcPolyMeshDetail *pPolyDetailTemp{pDMesh.get()};
+        int *pPedgesTemp{pEdges.get()};
+        int edgesSize{};
+        GenerateTheses(&context, pGeom.get(), config, filterLowHangingObstacles, filterLedgeSpans,
+                       filterWalkableLowHeightSpans, totalBuildTimeMs, pPolyTemp, pPolyDetailTemp, pPedgesTemp,
+                       edgesSize);
+
+        for (int j = 0; j < RC_MAX_TIMERS; ++j) {
+            ssThesis << static_cast<float>(context.getAccumulatedTime(static_cast<rcTimerLabel>(j))) * 1e-3f << ',';
+        }
+        ssThesis << std::endl;
+    }
+
+    constexpr char header[]
+    {
+        "Total (ms),"
+        "Temp (ms),"
+        "Rasterize Triangles (ms),"
+        "Build Compact Height Field (ms),"
+        "Build Contours (ms),"
+        "Build Contours Trace (ms),"
+        "Build Contours Simplify (ms),"
+        "Filter Border (ms),"
+        "Filter Walkable (ms),"
+        "Median Area (ms),"
+        "Filter Low Obstacles (ms),"
+        "Build Polymesh (ms),"
+        "Merge Polymeshes (ms),"
+        "Erode Area (ms),"
+        "Mark Box Area (ms),"
+        "Mark Cylinder Area (ms),"
+        "Mark Convex Area (ms),"
+        "Build Distance Field (ms),"
+        "Build Distance Field Distance (ms),"
+        "Build Distance Field Blur (ms),"
+        "Build Regions (ms),"
+        "Build Regions Watershed (ms),"
+        "Build Regions Expand (ms),"
+        "Build Regions Flood (ms),"
+        "Build Regions Filter (ms),"
+        "Build Layers (ms),"
+        "Build Polymesh Detail (ms),"
+        "Merge Polymesh Details (ms),"
+    };
+    constexpr auto output{"Data"};
+    const std::string prefix{env + std::to_string(cellS) + "_" + std::to_string(agentR) + "_"};
+    std::filesystem::create_directories(output);
+    std::ofstream csvFileDefault{std::string(output) + '/' + prefix + "_output_default.csv", std::ios::out};
+    std::ofstream csvFileThesis{std::string(output) + '/' + prefix + "_output_thesis.csv", std::ios::out};
+
+    csvFileDefault.write(header, sizeof header).write("\n", 1)
+            .write(ssDefault.str().c_str(), ssDefault.gcount())
+            .flush();
+
+    csvFileThesis.write(header, sizeof header)
+            .write("\n", 1)
+            .write(ssDefault.str().c_str(), ssDefault.gcount())
+            .flush();
+
+    csvFileDefault.close();
+    csvFileThesis.close();
 }

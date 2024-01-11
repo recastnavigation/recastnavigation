@@ -26,7 +26,7 @@ public:
 
     /// @author iain
     [[nodiscard]] const std::string &getCmdOption(const std::string &option) const {
-        if (const auto &itr = std::find_if(m_tokens.begin(), m_tokens.end(), [option](const std::string &token) {
+        if (const auto &itr = std::ranges::find_if(m_tokens, [option](const std::string &token) {
             std::stringstream ss{option};
             std::string s;
             while (std::getline(ss, s, ';')) {
@@ -42,7 +42,7 @@ public:
 
     /// @author iain
     [[nodiscard]] bool cmdOptionExists(const std::string &option) const {
-        const auto &iter = std::find_if(m_tokens.begin(), m_tokens.end(), [option](const std::string &token) {
+        const auto &iter = std::ranges::find_if(m_tokens, [option](const std::string &token) {
             std::stringstream ss{option};
             std::string s;
             while (std::getline(ss, s, ';')) {
@@ -89,9 +89,9 @@ void printOptions() {
             std::endl;
 }
 
-constexpr int LOOP_COUNT = 10;
+constexpr int LOOP_COUNT = 1000;
 
-inline void RunThesis(BuildContext context, const InputGeom *pGeom, const bool filterLedgeSpans,
+inline void RunThesis(BuildContext &context, const InputGeom *pGeom, const bool filterLedgeSpans,
                       const bool filterWalkableLowHeightSpans, const bool filterLowHangingObstacles, rcConfig &config,
                       int *&pEdges, int &edgesSize) {
     rcPolyMesh *pMesh{nullptr};
@@ -105,13 +105,10 @@ inline void RunThesis(BuildContext context, const InputGeom *pGeom, const bool f
 }
 
 inline std::array<float, LOOP_COUNT * RC_MAX_TIMERS> GenerateThesisTimes(
-    const BuildContext &context, const InputGeom *pGeom,
-    const bool filterLedgeSpans,
-    const bool filterWalkableLowHeightSpans,
-    const bool filterLowHangingObstacles,
-    rcConfig &config) {
+    BuildContext &context, const InputGeom *pGeom, const bool filterLedgeSpans, const bool filterWalkableLowHeightSpans,
+    const bool filterLowHangingObstacles, rcConfig &config) {
     std::array<float, LOOP_COUNT * RC_MAX_TIMERS> times{};
-    for (int i{}; i < LOOP_COUNT - 1; i++) {
+    for (int i{}; i < LOOP_COUNT; i++) {
         int *pEdges{nullptr};
         int edgesSize{};
         RunThesis(context, pGeom, filterLedgeSpans, filterWalkableLowHeightSpans, filterLowHangingObstacles, config,
@@ -127,13 +124,13 @@ inline std::array<float, LOOP_COUNT * RC_MAX_TIMERS> GenerateThesisTimes(
 }
 
 inline std::array<float, LOOP_COUNT * RC_MAX_TIMERS> GenerateSingleMeshTimes(
-    BuildContext context, const InputGeom *pGeom,
+    BuildContext &context, const InputGeom *pGeom,
     const bool filterLedgeSpans,
     const bool filterWalkableLowHeightSpans,
     const bool filterLowHangingObstacles,
     rcConfig &config) {
     std::array<float, LOOP_COUNT * RC_MAX_TIMERS> times{};
-    for (int i{}; i < LOOP_COUNT - 1; i++) {
+    for (int i{}; i < LOOP_COUNT; i++) {
         rcPolyMesh *pMesh{nullptr};
         rcPolyMeshDetail *pDMesh{nullptr};
         float totalBuildTimeMs{};
@@ -151,19 +148,19 @@ inline std::array<float, LOOP_COUNT * RC_MAX_TIMERS> GenerateSingleMeshTimes(
 }
 
 inline void writeCsvFile(const std::string &filePath, const std::array<float, LOOP_COUNT * RC_MAX_TIMERS> &timerData,
-                         const char *header) {
+                         const char *header, const int headerSize) {
     std::ofstream csvFile{filePath, std::ios::out};
-    csvFile.write(header, sizeof (header)).put('\n');
+    csvFile.write(header, headerSize).put('\n');
     for (int i{}; i < LOOP_COUNT; ++i) {
         for (int j{}; j < RC_MAX_TIMERS; ++j) {
             csvFile << timerData[i * RC_MAX_TIMERS + j] << ',';
         }
+        csvFile << std::endl;
     }
-    csvFile << std::endl;
     csvFile.close();
 }
 
-inline void GenerateTimes(const std::string &output, const BuildContext &context, const InputGeom *pGeom,
+inline void GenerateTimes(const std::string &output, BuildContext &context, const InputGeom *pGeom,
                           const bool filterLedgeSpans, const bool filterWalkableLowHeightSpans,
                           const bool filterLowHangingObstacles, rcConfig config) {
     const std::array defaultTimes{
@@ -204,13 +201,14 @@ inline void GenerateTimes(const std::string &output, const BuildContext &context
         "Build Regions Expand (ms),"
         "Build Regions Flood (ms),"
         "Build Regions Filter (ms),"
+        "Extract Region Portal (ms)"
         "Build Layers (ms),"
         "Build Polymesh Detail (ms),"
-        "Merge Polymesh Details (ms)"
+        "Merge Polymesh Details (ms),"
     };
     std::filesystem::create_directories(output);
-    writeCsvFile(output + "/output_default.csv", defaultTimes, header);
-    writeCsvFile(output + "/output_thesis.csv", thesisTimes, header);
+    writeCsvFile(output + "/output_default.csv", defaultTimes, header, sizeof header);
+    writeCsvFile(output + "/output_thesis.csv", thesisTimes, header, sizeof header);
 }
 
 struct Edge {
@@ -226,7 +224,7 @@ inline bool compareEdges(const Edge &edge1, const Edge &edge2) {
     return false; // The edges are equal
 }
 
-inline void ProcessBourderEdges(const std::string &output, const BuildContext &context, const InputGeom *pGeom,
+inline void ProcessBourderEdges(const std::string &output, BuildContext &context, const InputGeom *pGeom,
                                 const bool filterLedgeSpans, const bool filterWalkableLowHeightSpans,
                                 const bool filterLowHangingObstacles, rcConfig config) {
     int *pEdges{nullptr};
