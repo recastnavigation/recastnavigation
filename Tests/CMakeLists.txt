@@ -5,7 +5,7 @@ include_directories(../Recast/Include)
 
 add_executable(Tests ${TESTS_SOURCES})
 
-set_property(TARGET Tests PROPERTY CXX_STANDARD 17)
+set_property(TARGET Tests PROPERTY CXX_STANDARD 20)
 
 add_dependencies(Tests Recast Detour)
 target_link_libraries(Tests Recast Detour)

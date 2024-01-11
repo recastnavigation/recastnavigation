@@ -4,7 +4,7 @@ set(FILE_TO_REMOVE "${CMAKE_CURRENT_SOURCE_DIR}/../Source/main.cpp")
 list(REMOVE_ITEM TESTS_SOURCES ${FILE_TO_REMOVE})
 add_executable(CLITests ${TESTS_SOURCES})
 
-set_property(TARGET CLITests PROPERTY CXX_STANDARD 17)
+set_property(TARGET CLITests PROPERTY CXX_STANDARD 20)
 
 add_dependencies(CLITests  DebugUtils Detour DetourCrowd DetourTileCache Recast)
 target_link_libraries(CLITests  DebugUtils Detour DetourCrowd DetourTileCache Recast)
