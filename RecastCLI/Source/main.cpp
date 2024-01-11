@@ -73,18 +73,7 @@ void printOptions() {
     std::cout << "------------------------------------------------------------------------------------------------" <<
             std::endl;
     std::cout << "-cs;--cellsize\t\t\t(optional) cell size (float)" << std::endl;
-    std::cout << "-ch;--cellheight\t\t(optional) cell height (float)" << std::endl;
-    std::cout << "-ah;--agentheight\t\t(optional) agent height (float)" << std::endl;
     std::cout << "-ar;--agentradius\t\t(optional) agent radius (float)" << std::endl;
-    std::cout << "-amc;--agentmaxclimb\t\t(optional) agent max climb (float)" << std::endl;
-    std::cout << "-ams;--agentmaxslope\t\t(optional) agent max slope (float)" << std::endl;
-    std::cout << "-rms;--regionminsize\t\t(optional) region min size (float)" << std::endl;
-    std::cout << "-rmms;--regionmergesize\t\t(optional) region merge size (float)" << std::endl;
-    std::cout << "-eml;--edgemaxlen\t\t(optional) edge max length (float)" << std::endl;
-    std::cout << "-eme;--edgemaxerror\t\t(optional) edge max error (float)" << std::endl;
-    std::cout << "-vpp;--vertsperpoly\t\t(optional) vertices per polygon (float)" << std::endl;
-    std::cout << "-dsd;--detailsampledist\t\t(optional) detail sample distance (float)" << std::endl;
-    std::cout << "-dsme;--detailsamplemaxerror\t(optional) detail sample max error (float)" << std::endl;
     std::cout << "------------------------------------------------------------------------------------------------" <<
             std::endl;
 }
@@ -321,8 +310,8 @@ int main(const int argc, char *argv[]) {
     bool aqquireLCM{};
     if (parser.cmdOptionExists("-cs;--cellsize"))
         cellSize = std::stof(parser.getCmdOption("-cs;--cellsize"));
-    if (parser.cmdOptionExists("-amc;--agentmaxclimb"))
-        agentMaxClimb = std::stof(parser.getCmdOption("-amc;--agentmaxclimb"));
+    if (parser.cmdOptionExists("-ar;--agentradius"))
+        agentMaxClimb = std::stof(parser.getCmdOption("-ar;--agentradius"));
     if (parser.cmdOptionExists("-lcm;--localclearanceminimum"))
         aqquireLCM = true;
 
