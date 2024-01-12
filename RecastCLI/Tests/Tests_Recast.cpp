@@ -50,7 +50,7 @@ TEST_CASE("Watershed") {
             "Meshes/City.obj",
             "Meshes/military.obj",
             "Meshes/Simple.obj",
-            "Meshes/Univerity.obj",
+            "Meshes/University.obj",
             "Meshes/Zelda.obj",
             "Meshes/Zelda2x2.obj",
             "Meshes/Zelda4x4.obj"
