@@ -277,4 +277,4 @@ project "TestsCLI"
 			"-lpthread"
 		}
     filter "system:windows"
-        postbuildcommands { "{COPY} %{cfg.objdir}/Bin/Meshes/** %{cfg.targetdir}" }
+        postbuildcommands { '{COPY} "%{path.getabsolute("Bin/Meshes/*.obj")}" "%{cfg.targetdir}"' }
