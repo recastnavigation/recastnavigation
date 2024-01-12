@@ -78,7 +78,7 @@ void printOptions() {
             std::endl;
 }
 
-constexpr int LOOP_COUNT = 1000;
+constexpr int LOOP_COUNT = 100;
 
 inline void RunThesis(BuildContext &context, const InputGeom *pGeom, const bool filterLedgeSpans,
                       const bool filterWalkableLowHeightSpans, const bool filterLowHangingObstacles, rcConfig &config,
@@ -262,6 +262,21 @@ inline void ProcessBourderEdges(const std::string &output, BuildContext &context
     delete pEdges;
 }
 
+constexpr float cellHeight = 0.2f;
+constexpr float agentHeight = 2.0f;
+constexpr float agentMaxClimb = 0.9f;
+constexpr float agentMaxSlope = 45.0f;
+constexpr float edgeMaxLen = 12.0f;
+constexpr float regionMinSize = 8.0f;
+constexpr float regionMergeSize = 20.0f;
+constexpr float edgeMaxError = 1.3f;
+constexpr float vertsPerPoly = 6.0f;
+constexpr float detailSampleDist = 6.0f;
+constexpr float detailSampleMaxError = 1.0f;
+constexpr bool filterLedgeSpans = true;
+constexpr bool filterWalkableLowHeightSpans = true;
+constexpr bool filterLowHangingObstacles = true;
+
 int main(const int argc, char *argv[]) {
     const InputParser parser(argc, argv);
     if (parser.cmdOptionExists("-h;--help")) {
@@ -291,27 +306,13 @@ int main(const int argc, char *argv[]) {
         return 1;
 
     float cellSize = 0.3f;
-    float agentMaxClimb = 0.9f;
-    constexpr float cellHeight = 0.2f;
-    constexpr float agentRadius = 0.6f;
-    constexpr float agentHeight = 2.0f;
-    constexpr float agentMaxSlope = 45.0f;
-    constexpr float edgeMaxLen = 12.0f;
-    constexpr float regionMinSize = 8.0f;
-    constexpr float regionMergeSize = 20.0f;
-    constexpr float edgeMaxError = 1.3f;
-    constexpr float vertsPerPoly = 6.0f;
-    constexpr float detailSampleDist = 6.0f;
-    constexpr float detailSampleMaxError = 1.0f;
-    constexpr bool filterLedgeSpans = true;
-    constexpr bool filterWalkableLowHeightSpans = true;
-    constexpr bool filterLowHangingObstacles = true;
+    float agentRadius = 0.6f;
 
     bool aqquireLCM{};
     if (parser.cmdOptionExists("-cs;--cellsize"))
         cellSize = std::stof(parser.getCmdOption("-cs;--cellsize"));
     if (parser.cmdOptionExists("-ar;--agentradius"))
-        agentMaxClimb = std::stof(parser.getCmdOption("-ar;--agentradius"));
+        agentRadius = std::stof(parser.getCmdOption("-ar;--agentradius"));
     if (parser.cmdOptionExists("-lcm;--localclearanceminimum"))
         aqquireLCM = true;
 
