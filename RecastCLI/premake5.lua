@@ -277,4 +277,4 @@ project "TestsCLI"
 			"-lpthread"
 		}
     filter "system:windows"
-        postbuildcommands { "copy %{cfg.objdir}/Bin/Meshes/** %{cfg.targetdir}" }
+        postbuildcommands { "{COPY} %{cfg.objdir}/Bin/Meshes/** %{cfg.targetdir}" }
