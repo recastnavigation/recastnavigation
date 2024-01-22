@@ -221,42 +221,22 @@ inline void ProcessBourderEdges(const std::string &output, BuildContext &context
     RunThesis(context, pGeom, filterLedgeSpans, filterWalkableLowHeightSpans, filterLowHangingObstacles, config,
               pEdges,
               edgesSize);
-    if (edgesSize & 7)
+    if (edgesSize & 3)
         return;
 
-    for (int i{}; i < edgesSize; i += 8) {
-        if (pEdges[0] > pEdges[4]) {
-            std::swap(pEdges[0], pEdges[4]);
-            std::swap(pEdges[1], pEdges[5]);
-            std::swap(pEdges[2], pEdges[6]);
-            std::swap(pEdges[3], pEdges[7]);
-        } else if (pEdges[0] == pEdges[4]) {
-            if (pEdges[1] < pEdges[5]) {
-                std::swap(pEdges[0], pEdges[4]);
-                std::swap(pEdges[1], pEdges[5]);
-                std::swap(pEdges[2], pEdges[6]);
-                std::swap(pEdges[3], pEdges[7]);
-            } else if (pEdges[1] == pEdges[5]) {
-                if (pEdges[2] < pEdges[6]) {
-                    std::swap(pEdges[0], pEdges[4]);
-                    std::swap(pEdges[1], pEdges[5]);
-                    std::swap(pEdges[2], pEdges[6]);
-                    std::swap(pEdges[3], pEdges[7]);
-                }
-            }
-        }
-    }
     const auto edgeArray = reinterpret_cast<Edge *>(pEdges);
-    if (!pEdges) { return; }
+    if (!edgeArray) { return; }
 
     std::sort(edgeArray, edgeArray + (edgesSize >> 3), compareEdges);
 
     std::filesystem::create_directories(output);
     std::ofstream csvFile{output + "/output_edges.csv", std::ios::out};
-    for (int i{}; i < edgesSize; ++i) {
-        if (!(i & 7) && i != 0)
-            csvFile << std::endl;
-        csvFile << pEdges[i] << ',';
+    const float *min = pGeom->getNavMeshBoundsMin();
+    for (int i{}; i < edgesSize / 8; ++i) {
+        csvFile << static_cast<float>(pEdges[i * 8 + 0]) * config.cs + min[0] << ','
+        << static_cast<float>(pEdges[i * 8 + 2]) * config.cs + min[2] << ','
+        << static_cast<float>(pEdges[i * 8 + 4]) * config.cs + min[0] << ','
+        << static_cast<float>(pEdges[i * 8 + 6]) * config.cs + min[2] << std::endl;
     }
     csvFile.close();
     delete pEdges;
@@ -336,7 +316,8 @@ int main(const int argc, char *argv[]) {
         ProcessBourderEdges(output, context, pGeom, filterLedgeSpans, filterWalkableLowHeightSpans,
                             filterLowHangingObstacles, config);
     else
-        GenerateTimes(output, context, pGeom, filterLedgeSpans, filterWalkableLowHeightSpans, filterLowHangingObstacles,
+        GenerateTimes(output, context, pGeom, filterLedgeSpans, filterWalkableLowHeightSpans,
+                      filterLowHangingObstacles,
                       config);
 
     return 0;
