@@ -430,17 +430,13 @@ static void simplifyContourWithPortals(rcIntArray &points, rcIntArray &simplifie
                 simplified.push(points[i * 4 + 1]);
                 simplified.push(points[i * 4 + 2]);
                 simplified.push(i);
-
+            }
+            if (differentRegs) {
                 // Store the portal edge
                 portalEdges.push(points[i * 4 + 0]);
                 portalEdges.push(points[i * 4 + 1]);
                 portalEdges.push(points[i * 4 + 2]);
-                portalEdges.push(points[i * 4 + 3]); // Store the index for reference
-
-                portalEdges.push(points[ii * 4 + 0]);
-                portalEdges.push(points[ii * 4 + 1]);
-                portalEdges.push(points[ii * 4 + 2]);
-                portalEdges.push(points[ii * 4 + 3]); // Store the index for reference
+                portalEdges.push(i);
             }
         }
     }
@@ -1215,7 +1211,7 @@ bool rcBuildContours(rcContext *ctx, const rcCompactHeightfield &chf,
 
 bool rcBuildContoursWithPortals(rcContext *ctx, const rcCompactHeightfield &chf,
                                 float maxError, int maxEdgeLen,
-                                rcContourSet &cset, int *&portalEdges, int& portalEdgeSize, int buildFlags) {
+                                rcContourSet &cset, int *&portalEdges, int &portalEdgeSize, int buildFlags) {
     rcAssert(ctx);
     if (!ctx)
         return false;
@@ -1291,6 +1287,7 @@ bool rcBuildContoursWithPortals(rcContext *ctx, const rcCompactHeightfield &chf,
     rcIntArray portalEdgesArray(128);
     rcIntArray simplified(64);
 
+    portalEdgesArray.clear();
     for (int y = 0; y < h; ++y) {
         for (int x = 0; x < w; ++x) {
             const rcCompactCell &c = chf.cells[x + y * w];

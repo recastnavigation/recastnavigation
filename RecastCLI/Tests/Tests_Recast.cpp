@@ -16,6 +16,7 @@
 
 // For comparing to rcVector in benchmarks.
 constexpr float cellHeight = 0.2f;
+constexpr float agentRadius = 0.0f;
 constexpr float agentHeight = 2.0f;
 constexpr float agentMaxClimb = 0.9f;
 constexpr float agentMaxSlope = 45.0f;
@@ -24,8 +25,8 @@ constexpr float edgeMaxError = 1.3f;
 constexpr float vertsPerPoly = 6.0f;
 constexpr float detailSampleDist = 6.0f;
 constexpr float detailSampleMaxError = 1.0f;
-constexpr float mergeS = 20.f;
-constexpr float minS = 8.f;
+constexpr float mergeS = 20.0f;
+constexpr float minS = 8.0f;
 constexpr bool filterLedgeSpans = true;
 constexpr bool filterWalkableLowHeightSpans = true;
 constexpr bool filterLowHangingObstacles = true;
@@ -66,14 +67,13 @@ TEST_CASE("Watershed") {
     REQUIRE(success);
 
     const float cellS{GENERATE(Catch::Generators::range(0.1f,0.5f,0.1f))};
-    const float agentR{GENERATE(Catch::Generators::range(0.f,0.5f,0.25f))};
 
     config.cs = cellS;
     config.maxEdgeLen = static_cast<int>(edgeMaxLen / cellS);
-    config.walkableRadius = static_cast<int>(std::ceil(agentR / config.cs));
+    config.walkableRadius = static_cast<int>(std::ceil(agentRadius / config.cs));
     config.detailSampleDist = cellS * detailSampleDist;
 
-    std::cout << "starting builds with: Cell size = " << cellS << " and agend radius = " << agentR << std::endl;
+    std::cout << "starting builds with: Cell size = " << cellS << std::endl;
     float totalBuildTimeMs{};
     std::stringstream ssDefault{};
     std::stringstream ssThesis{};
@@ -144,7 +144,7 @@ TEST_CASE("Watershed") {
         "Merge Polymesh Details (ms),"
     };
     constexpr auto output{"Data"};
-    const std::string prefix{env + std::to_string(cellS) + "_" + std::to_string(agentR) + "_"};
+    const std::string prefix{env + std::to_string(cellS) + "_"};
     std::filesystem::create_directories(output);
     std::ofstream csvFileDefault{std::string(output) + '/' + prefix + "_output_default.csv", std::ios::out};
     std::ofstream csvFileThesis{std::string(output) + '/' + prefix + "_output_thesis.csv", std::ios::out};
