@@ -223,14 +223,15 @@ project "Tests"
 		"../Tests/Recast/*.cpp",
 		"../Tests/Detour/*.h",
 		"../Tests/Detour/*.cpp",
+		"../Tests/DetourCrowd/*.cpp",
 		"../Tests/Contrib/catch2/*.cpp"
 	}
 
 	-- project dependencies
 	links { 
 		"DebugUtils",
-		"Detour",
 		"DetourCrowd",
+		"Detour",
 		"DetourTileCache",
 		"Recast",
 	}
