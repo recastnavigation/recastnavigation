@@ -17,11 +17,11 @@ jobs:
     runs-on: macos-latest
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Download & install SDL
       run: |
-        curl -L -o SDL2.dmg https://github.com/libsdl-org/SDL/releases/download/release-2.24.2/SDL2-2.24.2.dmg
+        curl -L -o SDL2.dmg https://github.com/libsdl-org/SDL/releases/download/release-2.30.0/SDL2-2.30.0.dmg
         hdiutil attach SDL2.dmg
         cp -r /Volumes/SDL2/SDL2.framework RecastDemo/Bin
         hdiutil detach /Volumes/SDL2
@@ -56,10 +56,10 @@ jobs:
     runs-on: macos-latest
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Download & install SDL
       run: |
-        curl -L -o SDL2.dmg https://github.com/libsdl-org/SDL/releases/download/release-2.24.2/SDL2-2.24.2.dmg
+        curl -L -o SDL2.dmg https://github.com/libsdl-org/SDL/releases/download/release-2.30.0/SDL2-2.30.0.dmg
         hdiutil attach SDL2.dmg
         cp -r /Volumes/SDL2/SDL2.framework ${{github.workspace}}/RecastDemo/Bin/
         hdiutil detach /Volumes/SDL2
@@ -86,7 +86,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Install opengl and SDL
       run: |
@@ -118,7 +118,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Install opengl and SDL
       run: |
@@ -151,10 +151,10 @@ jobs:
     runs-on: ${{matrix.runner}}
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Add msbuild to PATH
-      uses: microsoft/setup-msbuild@v1.1
+      uses: microsoft/setup-msbuild@v2
       with:
         vs-version: ${{matrix.version-range}}
 
@@ -162,9 +162,9 @@ jobs:
       working-directory: RecastDemo/Contrib
       shell: pwsh
       run: |
-        (new-object System.Net.WebClient).DownloadFile("https://github.com/libsdl-org/SDL/releases/download/release-2.24.2/SDL2-devel-2.24.2-VC.zip","${{github.workspace}}/RecastDemo/Contrib/SDL.zip")
+        (new-object System.Net.WebClient).DownloadFile("https://github.com/libsdl-org/SDL/releases/download/release-2.30.0/SDL2-devel-2.30.0-VC.zip","${{github.workspace}}/RecastDemo/Contrib/SDL.zip")
         tar -xf SDL.zip
-        ren SDL2-2.24.2 SDL
+        ren SDL2-2.30.0 SDL
         del SDL.zip
 
     - name: Download and Install Premake
@@ -203,15 +203,15 @@ jobs:
     runs-on: ${{matrix.runner}}
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Download and Install SDL
       working-directory: RecastDemo/Contrib
       shell: pwsh
       run: |
-        (new-object System.Net.WebClient).DownloadFile("https://github.com/libsdl-org/SDL/releases/download/release-2.24.2/SDL2-devel-2.24.2-VC.zip","${{github.workspace}}/RecastDemo/Contrib/SDL.zip")
+        (new-object System.Net.WebClient).DownloadFile("https://github.com/libsdl-org/SDL/releases/download/release-2.30.0/SDL2-devel-2.30.0-VC.zip","${{github.workspace}}/RecastDemo/Contrib/SDL.zip")
         tar -xf SDL.zip
-        ren SDL2-2.24.2 SDL
+        ren SDL2-2.30.0 SDL
         del SDL.zip
 
     - name: Configure CMake
