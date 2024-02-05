@@ -33,6 +33,84 @@ constexpr bool filterLowHangingObstacles = true;
 
 constexpr int LOOP_COUNT = 10;
 
+inline bool RunThesis(BuildContext &context, const InputGeom *pGeom, const bool filterLedgeSpans,
+                      const bool filterWalkableLowHeightSpans, const bool filterLowHangingObstacles, rcConfig &config,
+                      int *&pEdges, int &edgesSize) {
+    rcPolyMesh *pMesh{nullptr};
+    rcPolyMeshDetail *pDMesh{nullptr};
+    float totalBuildTimeMs{};
+    const bool success{
+        GenerateTheses(&context, pGeom, config, filterLowHangingObstacles, filterLedgeSpans,
+                       filterWalkableLowHeightSpans,
+                       totalBuildTimeMs, pMesh, pDMesh, pEdges, edgesSize)
+    };
+    delete pMesh;
+    delete pDMesh;
+    return success;
+}
+
+inline std::array<float, LOOP_COUNT * RC_MAX_TIMERS> GenerateThesisTimes(
+    BuildContext &context, const InputGeom *pGeom, const bool filterLedgeSpans, const bool filterWalkableLowHeightSpans,
+    const bool filterLowHangingObstacles, rcConfig &config) {
+    std::array<float, LOOP_COUNT * RC_MAX_TIMERS> times{};
+    for (int i{}; i < LOOP_COUNT; i++) {
+        int *pEdges{nullptr};
+        int edgesSize{};
+        bool succes{
+            RunThesis(context, pGeom, filterLedgeSpans, filterWalkableLowHeightSpans, filterLowHangingObstacles, config,
+                      pEdges,
+                      edgesSize)
+        };
+        REQUIRE(succes);
+        delete pEdges;
+        const int offset{i * RC_MAX_TIMERS};
+        for (int j = 0; j < RC_MAX_TIMERS; ++j) {
+            times[offset + j] = static_cast<float>(context.getAccumulatedTime(static_cast<rcTimerLabel>(j))) * 1e-3f;
+        }
+    }
+    return times;
+}
+
+inline std::array<float, LOOP_COUNT * RC_MAX_TIMERS> GenerateSingleMeshTimes(
+    BuildContext &context, const InputGeom *pGeom,
+    const bool filterLedgeSpans,
+    const bool filterWalkableLowHeightSpans,
+    const bool filterLowHangingObstacles,
+    rcConfig &config) {
+    std::array<float, LOOP_COUNT * RC_MAX_TIMERS> times{};
+    for (int i{}; i < LOOP_COUNT; i++) {
+        rcPolyMesh *pMesh{nullptr};
+        rcPolyMeshDetail *pDMesh{nullptr};
+        float totalBuildTimeMs{};
+        bool succes{
+            GenerateSingleMeshWaterShed(&context, pGeom, config, filterLowHangingObstacles, filterLedgeSpans,
+                                        filterWalkableLowHeightSpans,
+                                        totalBuildTimeMs, pMesh, pDMesh)
+        };
+        REQUIRE(succes);
+        delete pMesh;
+        delete pDMesh;
+        const int offset{i * RC_MAX_TIMERS};
+        for (int j = 0; j < RC_MAX_TIMERS; ++j) {
+            times[offset + j] = static_cast<float>(context.getAccumulatedTime(static_cast<rcTimerLabel>(j))) * 1e-3f;
+        }
+    }
+    return times;
+}
+
+inline void WriteTimeToCSV(const std::string &filePath, const std::array<float, LOOP_COUNT * RC_MAX_TIMERS> &timerData,
+                           const char *header, const int headerSize) {
+    std::ofstream csvFile{filePath, std::ios::out};
+    csvFile.write(header, headerSize).put('\n');
+    for (int i{}; i < LOOP_COUNT; ++i) {
+        for (int j{}; j < RC_MAX_TIMERS; ++j) {
+            csvFile << timerData[i * RC_MAX_TIMERS + j] << ',';
+        }
+        csvFile << std::endl;
+    }
+    csvFile.close();
+}
+
 TEST_CASE("Watershed") {
     rcConfig config{
         .ch = cellHeight,
@@ -46,7 +124,7 @@ TEST_CASE("Watershed") {
         .detailSampleMaxError = cellHeight * detailSampleMaxError,
     };
 
-    std::string env{
+    const std::string env{
         GENERATE(Catch::Generators::values<std::string>({
             "Meshes/City.obj",
             "Meshes/military.obj",
@@ -60,7 +138,7 @@ TEST_CASE("Watershed") {
 
     BuildContext context{};
     std::cout << "Creating Geometry" << std::endl;
-    std::unique_ptr<InputGeom> pGeom{new(std::nothrow) InputGeom{}};
+    auto pGeom{new(std::nothrow) InputGeom{}};
     REQUIRE(pGeom != nullptr);
     std::cout << "Loading Geometry: " << env << std::endl;
     bool success = pGeom->load(&context, env);
@@ -68,49 +146,18 @@ TEST_CASE("Watershed") {
 
     const float cellS{GENERATE(Catch::Generators::range(0.1f,0.5f,0.1f))};
 
-    config.cs = cellS;
-    config.maxEdgeLen = static_cast<int>(edgeMaxLen / cellS);
-    config.walkableRadius = static_cast<int>(std::ceil(agentRadius / config.cs));
-    config.detailSampleDist = cellS * detailSampleDist;
 
-    std::cout << "starting builds with: Cell size = " << cellS << std::endl;
-    float totalBuildTimeMs{};
-    std::stringstream ssDefault{};
-    std::stringstream ssThesis{};
-
-    for (int i{}; i < LOOP_COUNT; i++) {
-        std::unique_ptr<rcPolyMesh> pMesh;
-        std::unique_ptr<rcPolyMeshDetail> pDMesh;
-
-        rcPolyMesh *pPolyTemp{pMesh.get()};
-        rcPolyMeshDetail *pPolyDetailTemp{pDMesh.get()};
-        GenerateSingleMeshWaterShed(&context, pGeom.get(), config, filterLowHangingObstacles, filterLedgeSpans,
-                                    filterWalkableLowHeightSpans, totalBuildTimeMs, pPolyTemp, pPolyDetailTemp);
-
-        for (int j = 0; j < RC_MAX_TIMERS; ++j) {
-            ssDefault << static_cast<float>(context.getAccumulatedTime(static_cast<rcTimerLabel>(j))) * 1e-3f << ',';
-        }
-        ssDefault << std::endl;
-    }
-
-    for (int i{}; i < LOOP_COUNT; i++) {
-        std::unique_ptr<rcPolyMesh> pMesh;
-        std::unique_ptr<rcPolyMeshDetail> pDMesh;
-        std::unique_ptr<int[]> pEdges;
-
-        rcPolyMesh *pPolyTemp{pMesh.get()};
-        rcPolyMeshDetail *pPolyDetailTemp{pDMesh.get()};
-        int *pPedgesTemp{pEdges.get()};
-        int edgesSize{};
-        GenerateTheses(&context, pGeom.get(), config, filterLowHangingObstacles, filterLedgeSpans,
-                       filterWalkableLowHeightSpans, totalBuildTimeMs, pPolyTemp, pPolyDetailTemp, pPedgesTemp,
-                       edgesSize);
-
-        for (int j = 0; j < RC_MAX_TIMERS; ++j) {
-            ssThesis << static_cast<float>(context.getAccumulatedTime(static_cast<rcTimerLabel>(j))) * 1e-3f << ',';
-        }
-        ssThesis << std::endl;
-    }
+    const std::array defaultTimes{
+        GenerateSingleMeshTimes(context, pGeom, filterLedgeSpans, filterWalkableLowHeightSpans,
+                                filterLowHangingObstacles,
+                                config)
+    };
+    const std::array thesisTimes{
+        GenerateThesisTimes(context, pGeom, filterLedgeSpans, filterWalkableLowHeightSpans,
+                            filterLowHangingObstacles,
+                            config)
+    };
+    delete pGeom;
 
     constexpr char header[]
     {
@@ -139,6 +186,7 @@ TEST_CASE("Watershed") {
         "Build Regions Expand (ms),"
         "Build Regions Flood (ms),"
         "Build Regions Filter (ms),"
+        "Extract Region Portal (ms)"
         "Build Layers (ms),"
         "Build Polymesh Detail (ms),"
         "Merge Polymesh Details (ms),"
@@ -146,18 +194,6 @@ TEST_CASE("Watershed") {
     constexpr auto output{"Data"};
     const std::string prefix{env + std::to_string(cellS) + "_"};
     std::filesystem::create_directories(output);
-    std::ofstream csvFileDefault{std::string(output) + '/' + prefix + "_output_default.csv", std::ios::out};
-    std::ofstream csvFileThesis{std::string(output) + '/' + prefix + "_output_thesis.csv", std::ios::out};
-
-    csvFileDefault.write(header, sizeof header).write("\n", 1)
-            .write(ssDefault.str().c_str(), ssDefault.gcount())
-            .flush();
-
-    csvFileThesis.write(header, sizeof header)
-            .write("\n", 1)
-            .write(ssDefault.str().c_str(), ssDefault.gcount())
-            .flush();
-
-    csvFileDefault.close();
-    csvFileThesis.close();
+    WriteTimeToCSV(output + '/' + prefix + "default.csv", defaultTimes, header, sizeof header);
+    WriteTimeToCSV(output + '/' + prefix + "thesis.csv", thesisTimes, header, sizeof header);
 }
