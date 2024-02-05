@@ -11,18 +11,18 @@ jobs:
     runs-on: windows-2022
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v1.1
+        uses: microsoft/setup-msbuild@v2
 
       - name: Download and Install SDL
         working-directory: RecastCLI/Contrib
         shell: pwsh
         run: |
-          (new-object System.Net.WebClient).DownloadFile("https://github.com/libsdl-org/SDL/releases/download/release-2.24.2/SDL2-devel-2.24.2-VC.zip","${{github.workspace}}/RecastCLI/Contrib/SDL.zip")
+          (new-object System.Net.WebClient).DownloadFile("https://github.com/libsdl-org/SDL/releases/download/release-2.30.0/SDL2-devel-2.30.0-VC.zip","${{github.workspace}}/RecastCLI/Contrib/SDL.zip")
           tar -xf SDL.zip
-          ren SDL2-2.24.2 SDL
+          ren SDL2-2.30.0 SDL
           del SDL.zip
 
       - name: Download and Install Premake
@@ -46,7 +46,7 @@ jobs:
         run: ./TestsCLI.exe --verbosity high --success
 
       - name: Archive production artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: dist-without-markdown
           path: RecastCLI/Bin/Data
