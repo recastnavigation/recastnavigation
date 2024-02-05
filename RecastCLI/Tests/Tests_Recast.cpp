@@ -33,34 +33,25 @@ constexpr bool filterLowHangingObstacles = true;
 
 constexpr int LOOP_COUNT = 10;
 
-inline bool RunThesis(BuildContext &context, const InputGeom *pGeom, const bool filterLedgeSpans,
-                      const bool filterWalkableLowHeightSpans, const bool filterLowHangingObstacles, rcConfig &config,
-                      int *&pEdges, int &edgesSize) {
+inline bool RunThesis(BuildContext &context, const InputGeom *pGeom, const bool filterLedgeSpans, const bool filterWalkableLowHeightSpans, const bool filterLowHangingObstacles, rcConfig &config, int *&pEdges, int &edgesSize) {
     rcPolyMesh *pMesh{nullptr};
     rcPolyMeshDetail *pDMesh{nullptr};
     float totalBuildTimeMs{};
-    const bool success{
-        GenerateTheses(&context, pGeom, config, filterLowHangingObstacles, filterLedgeSpans,
-                       filterWalkableLowHeightSpans,
-                       totalBuildTimeMs, pMesh, pDMesh, pEdges, edgesSize)
-    };
-    delete pMesh;
-    delete pDMesh;
+    const bool success{ GenerateTheses(&context, pGeom, config, filterLowHangingObstacles, filterLedgeSpans, filterWalkableLowHeightSpans, totalBuildTimeMs, pMesh, pDMesh, pEdges, edgesSize) };
+    rcFreePolyMesh(pMesh);
+    rcFreePolyMeshDetail(pDMesh);
+    pMesh = nullptr;
+    pDMesh = nullptr;
+
     return success;
 }
 
-inline std::array<float, LOOP_COUNT * RC_MAX_TIMERS> GenerateThesisTimes(
-    BuildContext &context, const InputGeom *pGeom, const bool filterLedgeSpans, const bool filterWalkableLowHeightSpans,
-    const bool filterLowHangingObstacles, rcConfig &config) {
+inline std::array<float, LOOP_COUNT * RC_MAX_TIMERS> GenerateThesisTimes(BuildContext &context, const InputGeom *pGeom, const bool filterLedgeSpans, const bool filterWalkableLowHeightSpans, const bool filterLowHangingObstacles, rcConfig &config) {
     std::array<float, LOOP_COUNT * RC_MAX_TIMERS> times{};
     for (int i{}; i < LOOP_COUNT; i++) {
         int *pEdges{nullptr};
         int edgesSize{};
-        bool succes{
-            RunThesis(context, pGeom, filterLedgeSpans, filterWalkableLowHeightSpans, filterLowHangingObstacles, config,
-                      pEdges,
-                      edgesSize)
-        };
+        bool succes{ RunThesis(context, pGeom, filterLedgeSpans, filterWalkableLowHeightSpans, filterLowHangingObstacles, config, pEdges, edgesSize) };
         REQUIRE(succes);
         delete pEdges;
         const int offset{i * RC_MAX_TIMERS};
@@ -71,12 +62,7 @@ inline std::array<float, LOOP_COUNT * RC_MAX_TIMERS> GenerateThesisTimes(
     return times;
 }
 
-inline std::array<float, LOOP_COUNT * RC_MAX_TIMERS> GenerateSingleMeshTimes(
-    BuildContext &context, const InputGeom *pGeom,
-    const bool filterLedgeSpans,
-    const bool filterWalkableLowHeightSpans,
-    const bool filterLowHangingObstacles,
-    rcConfig &config) {
+inline std::array<float, LOOP_COUNT * RC_MAX_TIMERS> GenerateSingleMeshTimes(BuildContext &context, const InputGeom *pGeom, const bool filterLedgeSpans, const bool filterWalkableLowHeightSpans, const bool filterLowHangingObstacles, rcConfig &config) {
     std::array<float, LOOP_COUNT * RC_MAX_TIMERS> times{};
     for (int i{}; i < LOOP_COUNT; i++) {
         rcPolyMesh *pMesh{nullptr};
@@ -88,8 +74,11 @@ inline std::array<float, LOOP_COUNT * RC_MAX_TIMERS> GenerateSingleMeshTimes(
                                         totalBuildTimeMs, pMesh, pDMesh)
         };
         REQUIRE(succes);
-        delete pMesh;
-        delete pDMesh;
+        rcFreePolyMesh(pMesh);
+        rcFreePolyMeshDetail(pDMesh);
+        pMesh = nullptr;
+        pDMesh = nullptr;
+
         const int offset{i * RC_MAX_TIMERS};
         for (int j = 0; j < RC_MAX_TIMERS; ++j) {
             times[offset + j] = static_cast<float>(context.getAccumulatedTime(static_cast<rcTimerLabel>(j))) * 1e-3f;
