@@ -2,8 +2,6 @@
 #include <sstream>
 #include <string>
 
-#define CATCH_CONFIG_MAIN
-
 #include <filesystem>
 #include <iostream>
 

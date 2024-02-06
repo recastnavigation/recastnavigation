@@ -1,29 +1,30 @@
+project(DebugUtils)
 file(GLOB SOURCES Source/*.cpp)
-add_library(DebugUtils ${SOURCES})
+add_library(${PROJECT_NAME} ${SOURCES})
 
-add_library(RecastNavigation::DebugUtils ALIAS DebugUtils)
-set_target_properties(DebugUtils PROPERTIES DEBUG_POSTFIX -d)
+add_library(RecastNavigation::DebugUtils ALIAS ${PROJECT_NAME})
+set_target_properties(${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX -d)
 
 set(DebugUtils_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Include")
 
-target_include_directories(DebugUtils PUBLIC
+target_include_directories(${PROJECT_NAME} PUBLIC
     "$<BUILD_INTERFACE:${DebugUtils_INCLUDE_DIR}>"
 )
 
-target_link_libraries(DebugUtils
+target_link_libraries(${PROJECT_NAME}
     Recast
     Detour
     DetourTileCache
 )
 
-set_target_properties(DebugUtils PROPERTIES
+set_target_properties(${PROJECT_NAME} PROPERTIES
         SOVERSION ${SOVERSION}
         VERSION ${LIB_VERSION}
         COMPILE_PDB_OUTPUT_DIRECTORY .
         COMPILE_PDB_NAME "DebugUtils-d"
         )
 
-install(TARGETS DebugUtils
+install(TARGETS ${PROJECT_NAME}
         EXPORT recastnavigation-targets
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
