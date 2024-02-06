@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 #include <array>
+#include <set>
 
 #include "BuildContext.h"
 #include "Generators.h"
@@ -24,7 +25,6 @@ public:
         }
     }
 
-    /// @author iain
     [[nodiscard]] const std::string &getCmdOption(const std::string &option) const {
         if (const auto &itr = std::ranges::find_if(m_tokens, [option](const std::string &token) {
             std::stringstream ss{option};
@@ -40,7 +40,6 @@ public:
         return empty;
     }
 
-    /// @author iain
     [[nodiscard]] bool cmdOptionExists(const std::string &option) const {
         const auto &iter = std::ranges::find_if(m_tokens, [option](const std::string &token) {
             std::stringstream ss{option};
@@ -89,8 +88,10 @@ inline void RunThesis(BuildContext &context, const InputGeom *pGeom, const bool 
     GenerateTheses(&context, pGeom, config, filterLowHangingObstacles, filterLedgeSpans,
                    filterWalkableLowHeightSpans,
                    totalBuildTimeMs, pMesh, pDMesh, pEdges, edgesSize);
-    delete pMesh;
-    delete pDMesh;
+    rcFreePolyMesh(pMesh);
+    rcFreePolyMeshDetail(pDMesh);
+    pMesh = nullptr;
+    pDMesh = nullptr;
 }
 
 inline std::array<float, LOOP_COUNT * RC_MAX_TIMERS> GenerateThesisTimes(
@@ -126,8 +127,11 @@ inline std::array<float, LOOP_COUNT * RC_MAX_TIMERS> GenerateSingleMeshTimes(
         GenerateSingleMeshWaterShed(&context, pGeom, config, filterLowHangingObstacles, filterLedgeSpans,
                                     filterWalkableLowHeightSpans,
                                     totalBuildTimeMs, pMesh, pDMesh);
-        delete pMesh;
-        delete pDMesh;
+        rcFreePolyMesh(pMesh);
+        rcFreePolyMeshDetail(pDMesh);
+        pMesh = nullptr;
+        pDMesh = nullptr;
+
         const int offset{i * RC_MAX_TIMERS};
         for (int j = 0; j < RC_MAX_TIMERS; ++j) {
             times[offset + j] = static_cast<float>(context.getAccumulatedTime(static_cast<rcTimerLabel>(j))) * 1e-3f;
@@ -200,20 +204,32 @@ inline void GenerateTimes(const std::string &output, BuildContext &context, cons
     writeCsvFile(output + "/output_thesis.csv", thesisTimes, header, sizeof header);
 }
 
-struct Edge {
-    int vertices[8];
+struct Vertex {
+    int x;
+    int y;
 };
 
-inline bool compareEdges(const Edge &edge1, const Edge &edge2) {
-    for (int i = 0; i < 4; ++i) {
-        if (edge1.vertices[i] != edge2.vertices[i]) {
-            return edge1.vertices[i] < edge2.vertices[i];
-        }
-    }
-    return false; // The edges are equal
+struct Edge {
+    Vertex v1{};
+    Vertex v2{};
+};
+
+inline bool compareVertex(const Vertex &v1, const Vertex &v2) {
+    if (v1.x == v2.x)
+        return v1.y < v2.y;
+    return v1.x < v2.x;
 }
 
-inline void ProcessBourderEdges(const std::string &output, BuildContext &context, const InputGeom *pGeom,
+inline bool compareEdges(const Edge &edge1, const Edge &edge2) {
+    if (edge1.v1.x == edge2.v1.x)
+        return edge1.v1.y < edge2.v1.y;
+    return edge1.v1.x < edge2.v1.x;
+}
+
+inline bool operator<(const Edge &e1, const Edge &e2) { return compareEdges(e1, e2); }
+
+inline void ProcessBourderEdges(const std::string &input, const std::string &output, BuildContext &context,
+                                const InputGeom *pGeom,
                                 const bool filterLedgeSpans, const bool filterWalkableLowHeightSpans,
                                 const bool filterLowHangingObstacles, rcConfig config) {
     int *pEdges{nullptr};
@@ -221,25 +237,128 @@ inline void ProcessBourderEdges(const std::string &output, BuildContext &context
     RunThesis(context, pGeom, filterLedgeSpans, filterWalkableLowHeightSpans, filterLowHangingObstacles, config,
               pEdges,
               edgesSize);
-    if (edgesSize & 3)
+    if (edgesSize & 1)
         return;
 
-    const auto edgeArray = reinterpret_cast<Edge *>(pEdges);
-    if (!edgeArray) { return; }
 
-    std::sort(edgeArray, edgeArray + (edgesSize >> 3), compareEdges);
+    // load in actual svg file
+    const float *min = pGeom->getMeshBoundsMin();
+    const float inverseSellSize{1.0f / config.cs};
+    std::set<Edge> referenceEdgesSet;
+    std::ifstream csfFileRef{input};
+
+    std::string line;
+    // Read each line from the file
+    while (std::getline(csfFileRef, line)) {
+        std::stringstream ss(line);
+        std::string cell;
+        std::vector<int> row{};
+        // Split the line into cells using a comma as a delimiter and convert to integers
+        while (std::getline(ss, cell, ',')) {
+            float value = std::stof(cell);
+            if ((row.size() & 3u) == 0u || (row.size() & 3u) == 2u) {
+                value -= min[0];
+            } else {
+                value -= min[2];
+            }
+            row.push_back(static_cast<int>(value * inverseSellSize));
+        }
+        if (row[0] > row[2] || (row[0] == row[2] && row[1] > row[3])) {
+            std::swap(row[0], row[2]);
+            std::swap(row[1], row[3]);
+        }
+        referenceEdgesSet.emplace(Edge{Vertex{row[0], config.height - row[1]}, Vertex{row[2], config.height - row[3]}});
+    }
+    csfFileRef.close();
+    std::set<Edge> resultEdgesSet{};
+    for (int i = 0; i < edgesSize / 2; ++i) {
+        int ii = (i + 1) % (edgesSize / 2);
+        if (pEdges[i * 2] == -1 || pEdges[ii * 2] == -1)
+            continue;
+
+        if (pEdges[i * 2 + 0] > pEdges[ii * 2 + 0] || (
+                pEdges[i * 2 + 0] == pEdges[ii * 2 + 0] && pEdges[ii * 2 + 1] > pEdges[ii * 2 + 1])) {
+            resultEdgesSet.emplace(Edge{
+                {pEdges[ii * 2 + 0], pEdges[ii * 2 + 1]}, {pEdges[i * 2 + 0], pEdges[i * 2 + 1]}
+            });
+        } else {
+            resultEdgesSet.emplace(Edge{
+                {pEdges[i * 2 + 0], pEdges[i * 2 + 1]}, {pEdges[ii * 2 + 0], pEdges[ii * 2 + 1]}
+            });
+        }
+    }
+    // std::memcpy(resultEdges.data(), pEdges, edgesSize * sizeof(int));
+    delete pEdges;
+
+    std::vector<Edge> referenceEdges{};
+    std::vector<Edge> resultEdges{};
+    std::ranges::copy(referenceEdgesSet, std::back_inserter(referenceEdges));
+    std::ranges::copy(resultEdgesSet, std::back_inserter(resultEdges));
+
+    // std::ranges::for_each(referenceEdges, [](Edge &edge) {
+    //     if (edge.v1.x > edge.v2.x || (
+    //             edge.v1.x == edge.v2.x && edge.v1.y > edge.v2.y)) {
+    //     }
+    // });
+    // std::ranges::for_each(resultEdges, [](Edge &edge) {
+    //     if (edge.v1.x > edge.v2.x || (
+    //             edge.v1.x == edge.v2.x && edge.v1.y > edge.v2.y)) {
+    //         std::swap(edge.v1.x, edge.v2.x);
+    //         std::swap(edge.v1.y, edge.v2.y);
+    //     }
+    // });
+    // std::ranges::sort(referenceEdges, compareEdges);
+    // std::ranges::sort(resultEdges, compareEdges);
 
     std::filesystem::create_directories(output);
-    std::ofstream csvFile{output + "/output_edges.csv", std::ios::out};
-    const float *min = pGeom->getNavMeshBoundsMin();
-    for (int i{}; i < edgesSize / 8; ++i) {
-        csvFile << static_cast<float>(pEdges[i * 8 + 0]) * config.cs + min[0] << ','
-        << static_cast<float>(pEdges[i * 8 + 2]) * config.cs + min[2] << ','
-        << static_cast<float>(pEdges[i * 8 + 4]) * config.cs + min[0] << ','
-        << static_cast<float>(pEdges[i * 8 + 6]) * config.cs + min[2] << std::endl;
+    std::ofstream resultSvg{output + "/output_edges_result.svg"};
+    std::ofstream referenceSvg{output + "/output_edges_ref.svg"};
+    resultSvg << std::format(R"(<svg width="{}" height="{}" xmlns="http://www.w3.org/2000/svg">)", config.width,
+                             config.height);
+    referenceSvg << std::format(R"(<svg width="{}" height="{}" xmlns="http://www.w3.org/2000/svg">)", config.width,
+                                config.height);
+    resultSvg.put(resultSvg.widen('\n'));
+    referenceSvg.put(referenceSvg.widen('\n'));
+    const size_t maximum{std::max(referenceEdges.size(), resultEdges.size())};
+    for (int i = 0; i < maximum; ++i) {
+        if (i < resultEdges.size()) {
+            const auto &[v1, v2]{resultEdges[i]};
+            resultSvg << std::format(
+                R"(<line x1="{}" y1="{}" x2="{}" y2="{}" style="stroke: black; stroke-width: 2;" />)",
+                v1.x, v1.y, v2.x, v2.y) << '\n';
+        }
+        if (i < referenceEdges.size()) {
+            const auto &[v1, v2]{referenceEdges[i]};
+            referenceSvg << std::format(
+                R"(<line x1="{}" y1="{}" x2="{}" y2="{}" style="stroke: black; stroke-width: 2;" />)",
+                v1.x, v1.y, v2.x, v2.y) << '\n';
+        }
     }
-    csvFile.close();
-    delete pEdges;
+    resultSvg << R"(</svg>)";
+    referenceSvg << R"(</svg>)";
+    resultSvg.close();
+    referenceSvg.close();
+
+    uint32_t tp{};
+    uint32_t fp{};
+    for (const auto &[resultV1, resultV2]: resultEdges) {
+        bool found = false;
+        for (const auto &[refV1, refV2]: referenceEdges) {
+            if (resultV1.x == refV1.x && resultV1.y == refV1.y && resultV2.x == refV2.x && resultV2.y == refV2.y) {
+                found = true;
+                break;
+            }
+        }
+        if (found) {
+            ++tp;
+        } else {
+            ++fp;
+        }
+    }
+
+    float precision = static_cast<float>(tp) / static_cast<float>(tp + fp);
+    float recall = static_cast<float>(tp) / static_cast<float>(referenceEdges.size());
+    std::cout << "precision: " << precision << "\t recal: " << recall << std::endl;
 }
 
 constexpr float cellHeight = 0.2f;
@@ -265,6 +384,7 @@ int main(const int argc, char *argv[]) {
     }
     const std::string &fileName = parser.getCmdOption("-f;--file");
     const std::string &output = parser.getCmdOption("-o;--output");
+    std::string lcmRef{};
     bool shouldFial{};
     if (fileName.empty()) {
         std::cout << "An input file model is required (-f;--file)" << std::endl;
@@ -276,9 +396,8 @@ int main(const int argc, char *argv[]) {
     }
 
     BuildContext context{};
-    auto pGeom{new(std::nothrow) InputGeom};
+    auto pGeom{ std::make_unique<InputGeom>()};
     if (!pGeom || !pGeom->load(&context, fileName)) {
-        delete pGeom;
         pGeom = nullptr;
         context.dumpLog("Geom load log %s:", fileName.c_str());
     }
@@ -293,8 +412,10 @@ int main(const int argc, char *argv[]) {
         cellSize = std::stof(parser.getCmdOption("-cs;--cellsize"));
     if (parser.cmdOptionExists("-ar;--agentradius"))
         agentRadius = std::stof(parser.getCmdOption("-ar;--agentradius"));
-    if (parser.cmdOptionExists("-lcm;--localclearanceminimum"))
+    if (parser.cmdOptionExists("-lcm;--localclearanceminimum")) {
         aqquireLCM = true;
+        lcmRef = parser.getCmdOption("-lcmr;--localclearanceminimumrefference");
+    }
 
     const rcConfig config{
         .cs = cellSize,
@@ -313,10 +434,10 @@ int main(const int argc, char *argv[]) {
     };
 
     if (aqquireLCM)
-        ProcessBourderEdges(output, context, pGeom, filterLedgeSpans, filterWalkableLowHeightSpans,
+        ProcessBourderEdges(lcmRef, output, context, pGeom.get(), filterLedgeSpans, filterWalkableLowHeightSpans,
                             filterLowHangingObstacles, config);
     else
-        GenerateTimes(output, context, pGeom, filterLedgeSpans, filterWalkableLowHeightSpans,
+        GenerateTimes(output, context, pGeom.get(), filterLedgeSpans, filterWalkableLowHeightSpans,
                       filterLowHangingObstacles,
                       config);
 

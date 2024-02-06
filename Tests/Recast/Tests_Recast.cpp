@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <cstring>
 
-#include "catch2/catch_all.hpp"
+#include <catch2/catch_all.hpp>
 
 #include "Recast.h"
 

@@ -37,5 +37,3 @@ install(TARGETS RecastCLI
         RUNTIME DESTINATION bin
         BUNDLE DESTINATION bin)
 install(DIRECTORY Meshes DESTINATION bin)
-
-add_subdirectory(Tests)

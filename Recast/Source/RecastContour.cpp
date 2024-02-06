@@ -16,6 +16,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
+#include <array>
 #include <cmath>
 #include <cstring>
 #include <cstdlib>
@@ -405,228 +406,6 @@ static void simplifyContour(rcIntArray &points, rcIntArray &simplified,
                                     points[bi * 4 + 3] & RC_BORDER_VERTEX);
     }
 }
-
-static void simplifyContourWithPortals(rcIntArray &points, rcIntArray &simplified, rcIntArray &portalEdges,
-                                       const float maxError, const int maxEdgeLen, const int buildFlags) {
-    // Add initial points.
-    bool hasConnections = false;
-    for (int i = 0; i < points.size(); i += 4) {
-        if ((points[i + 3] & RC_CONTOUR_REG_MASK) != 0) {
-            hasConnections = true;
-            break;
-        }
-    }
-
-    if (hasConnections) {
-        // The contour has some portals to other regions.
-        // Add a new point to every location where the region changes.
-        for (int i = 0, ni = points.size() / 4; i < ni; ++i) {
-            const int ii = (i + 1) % ni;
-            const bool differentRegs = (points[i * 4 + 3] & RC_CONTOUR_REG_MASK) != (points[ii * 4 + 3] &
-                                           RC_CONTOUR_REG_MASK);
-            const bool areaBorders = (points[i * 4 + 3] & RC_AREA_BORDER) != (points[ii * 4 + 3] & RC_AREA_BORDER);
-            if (differentRegs || areaBorders) {
-                simplified.push(points[i * 4 + 0]);
-                simplified.push(points[i * 4 + 1]);
-                simplified.push(points[i * 4 + 2]);
-                simplified.push(i);
-            }
-            if (differentRegs) {
-                // Store the portal edge
-                portalEdges.push(points[i * 4 + 0]);
-                portalEdges.push(points[i * 4 + 1]);
-                portalEdges.push(points[i * 4 + 2]);
-                portalEdges.push(i);
-            }
-        }
-    }
-
-    if (simplified.size() == 0) {
-        // If there is no connections at all,
-        // create some initial points for the simplification process.
-        // Find lower-left and upper-right vertices of the contour.
-        int llx = points[0];
-        int lly = points[1];
-        int llz = points[2];
-        int lli = 0;
-        int urx = points[0];
-        int ury = points[1];
-        int urz = points[2];
-        int uri = 0;
-        for (int i = 0; i < points.size(); i += 4) {
-            const int x = points[i + 0];
-            const int y = points[i + 1];
-            const int z = points[i + 2];
-            if (x < llx || (x == llx && z < llz)) {
-                llx = x;
-                lly = y;
-                llz = z;
-                lli = i / 4;
-            }
-            if (x > urx || (x == urx && z > urz)) {
-                urx = x;
-                ury = y;
-                urz = z;
-                uri = i / 4;
-            }
-        }
-        simplified.push(llx);
-        simplified.push(lly);
-        simplified.push(llz);
-        simplified.push(lli);
-
-        simplified.push(urx);
-        simplified.push(ury);
-        simplified.push(urz);
-        simplified.push(uri);
-    }
-
-    // Add points until all raw points are within
-    // error tolerance to the simplified shape.
-    const int pn = points.size() / 4;
-    for (int i = 0; i < simplified.size() / 4;) {
-        const int ii = (i + 1) % (simplified.size() / 4);
-
-        int ax = simplified[i * 4 + 0];
-        int az = simplified[i * 4 + 2];
-        const int ai = simplified[i * 4 + 3];
-
-        int bx = simplified[ii * 4 + 0];
-        int bz = simplified[ii * 4 + 2];
-        const int bi = simplified[ii * 4 + 3];
-
-        // Find maximum deviation from the segment.
-        float maxd = 0;
-        int maxi = -1;
-        int ci, cinc, endi;
-
-        // Traverse the segment in lexilogical order so that the
-        // max deviation is calculated similarly when traversing
-        // opposite segments.
-        if (bx > ax || (bx == ax && bz > az)) {
-            cinc = 1;
-            ci = (ai + cinc) % pn;
-            endi = bi;
-        } else {
-            cinc = pn - 1;
-            ci = (bi + cinc) % pn;
-            endi = ai;
-            rcSwap(ax, bx);
-            rcSwap(az, bz);
-        }
-
-        // Tessellate only outer edges or edges between areas.
-        if ((points[ci * 4 + 3] & RC_CONTOUR_REG_MASK) == 0 ||
-            points[ci * 4 + 3] & RC_AREA_BORDER) {
-            while (ci != endi) {
-                const float d = distancePtSeg(points[ci * 4 + 0], points[ci * 4 + 2], ax, az, bx, bz);
-                if (d > maxd) {
-                    maxd = d;
-                    maxi = ci;
-                }
-                ci = (ci + cinc) % pn;
-            }
-        }
-
-
-        // If the max deviation is larger than accepted error,
-        // add new point, else continue to next segment.
-        if (maxi != -1 && maxd > maxError * maxError) {
-            // Add space for the new point.
-            simplified.resize(simplified.size() + 4);
-            const int n = simplified.size() / 4;
-            for (int j = n - 1; j > i; --j) {
-                simplified[j * 4 + 0] = simplified[(j - 1) * 4 + 0];
-                simplified[j * 4 + 1] = simplified[(j - 1) * 4 + 1];
-                simplified[j * 4 + 2] = simplified[(j - 1) * 4 + 2];
-                simplified[j * 4 + 3] = simplified[(j - 1) * 4 + 3];
-            }
-            // Add the point.
-            simplified[(i + 1) * 4 + 0] = points[maxi * 4 + 0];
-            simplified[(i + 1) * 4 + 1] = points[maxi * 4 + 1];
-            simplified[(i + 1) * 4 + 2] = points[maxi * 4 + 2];
-            simplified[(i + 1) * 4 + 3] = maxi;
-        } else {
-            ++i;
-        }
-    }
-
-    // Split too long edges.
-    if (maxEdgeLen > 0 && (buildFlags & (RC_CONTOUR_TESS_WALL_EDGES | RC_CONTOUR_TESS_AREA_EDGES)) != 0) {
-        for (int i = 0; i < simplified.size() / 4;) {
-            const int ii = (i + 1) % (simplified.size() / 4);
-
-            const int ax = simplified[i * 4 + 0];
-            const int az = simplified[i * 4 + 2];
-            const int ai = simplified[i * 4 + 3];
-
-            const int bx = simplified[ii * 4 + 0];
-            const int bz = simplified[ii * 4 + 2];
-            const int bi = simplified[ii * 4 + 3];
-
-            // Find maximum deviation from the segment.
-            int maxi = -1;
-            const int ci = (ai + 1) % pn;
-
-            // Tessellate only outer edges or edges between areas.
-            bool tess = false;
-            // Wall edges.
-            if (buildFlags & RC_CONTOUR_TESS_WALL_EDGES && (points[ci * 4 + 3] & RC_CONTOUR_REG_MASK) == 0)
-                tess = true;
-            // Edges between areas.
-            if (buildFlags & RC_CONTOUR_TESS_AREA_EDGES && points[ci * 4 + 3] & RC_AREA_BORDER)
-                tess = true;
-
-            if (tess) {
-                const int dx = bx - ax;
-                const int dz = bz - az;
-                if (dx * dx + dz * dz > maxEdgeLen * maxEdgeLen) {
-                    // Round based on the segments in lexilogical order so that the
-                    // max tesselation is consistent regardless in which direction
-                    // segments are traversed.
-                    const int n = bi < ai ? bi + pn - ai : bi - ai;
-                    if (n > 1) {
-                        if (bx > ax || (bx == ax && bz > az))
-                            maxi = (ai + n / 2) % pn;
-                        else
-                            maxi = (ai + (n + 1) / 2) % pn;
-                    }
-                }
-            }
-
-            // If the max deviation is larger than accepted error,
-            // add new point, else continue to next segment.
-            if (maxi != -1) {
-                // Add space for the new point.
-                simplified.resize(simplified.size() + 4);
-                const int n = simplified.size() / 4;
-                for (int j = n - 1; j > i; --j) {
-                    simplified[j * 4 + 0] = simplified[(j - 1) * 4 + 0];
-                    simplified[j * 4 + 1] = simplified[(j - 1) * 4 + 1];
-                    simplified[j * 4 + 2] = simplified[(j - 1) * 4 + 2];
-                    simplified[j * 4 + 3] = simplified[(j - 1) * 4 + 3];
-                }
-                // Add the point.
-                simplified[(i + 1) * 4 + 0] = points[maxi * 4 + 0];
-                simplified[(i + 1) * 4 + 1] = points[maxi * 4 + 1];
-                simplified[(i + 1) * 4 + 2] = points[maxi * 4 + 2];
-                simplified[(i + 1) * 4 + 3] = maxi;
-            } else {
-                ++i;
-            }
-        }
-    }
-
-    for (int i = 0; i < simplified.size() / 4; ++i) {
-        // The edge vertex flag is take from the current raw point,
-        // and the neighbour region is take from the next raw point.
-        const int ai = (simplified[i * 4 + 3] + 1) % pn;
-        const int bi = simplified[i * 4 + 3];
-        simplified[i * 4 + 3] = (points[ai * 4 + 3] & (RC_CONTOUR_REG_MASK | RC_AREA_BORDER)) | (points[bi * 4 + 3] &
-                                    RC_BORDER_VERTEX);
-    }
-}
-
 
 static int calcAreaOfPolygon2D(const int *verts, const int nverts) {
     int area = 0;
@@ -1284,10 +1063,8 @@ bool rcBuildContoursWithPortals(rcContext *ctx, const rcCompactHeightfield &chf,
     ctx->stopTimer(RC_TIMER_BUILD_CONTOURS_TRACE);
 
     rcIntArray verts(256);
-    rcIntArray portalEdgesArray(128);
     rcIntArray simplified(64);
 
-    portalEdgesArray.clear();
     for (int y = 0; y < h; ++y) {
         for (int x = 0; x < w; ++x) {
             const rcCompactCell &c = chf.cells[x + y * w];
@@ -1309,7 +1086,7 @@ bool rcBuildContoursWithPortals(rcContext *ctx, const rcCompactHeightfield &chf,
                 ctx->stopTimer(RC_TIMER_BUILD_CONTOURS_TRACE);
 
                 ctx->startTimer(RC_TIMER_BUILD_CONTOURS_SIMPLIFY);
-                simplifyContourWithPortals(verts, simplified, portalEdgesArray, maxError, maxEdgeLen, buildFlags);
+                simplifyContour(verts, simplified, maxError, maxEdgeLen, buildFlags);
                 removeDegenerateSegments(simplified);
                 ctx->stopTimer(RC_TIMER_BUILD_CONTOURS_SIMPLIFY);
 
@@ -1377,9 +1154,6 @@ bool rcBuildContoursWithPortals(rcContext *ctx, const rcCompactHeightfield &chf,
             }
         }
     }
-    portalEdgeSize = portalEdgesArray.size();
-    portalEdges = static_cast<int *>(rcAlloc(sizeof(int) * portalEdgesArray.size(), RC_ALLOC_PERM));
-    memcpy(portalEdges, &portalEdgesArray[0], portalEdgeSize * sizeof(int));
 
     // Merge holes if needed.
     if (cset.nconts > 0) {
@@ -1464,5 +1238,29 @@ bool rcBuildContoursWithPortals(rcContext *ctx, const rcCompactHeightfield &chf,
         }
     }
 
+    // extract bourder edges
+    rcIntArray bourders{};
+    for (int i = 0; i < cset.nconts; ++i) {
+        const rcContour &c = cset.conts[i];
+        if (!c.nverts)
+            continue;
+
+        for (int j = 0, k = c.nverts - 1; j < c.nverts; k = j++) {
+            const bool differentRegs = (chf.areas[j * 4 + 3] & RC_CONTOUR_REG_MASK) && (
+                                           chf.areas[k * 4 + 3] & RC_CONTOUR_REG_MASK);
+            const bool areaBorders = (chf.areas[j * 4 + 3] & RC_AREA_BORDER) && (chf.areas[k * 4 + 3] & RC_AREA_BORDER);
+            if (!(!differentRegs && areaBorders)) {
+                const int *va = &c.verts[k * 4];
+                const int *vb = &c.verts[j * 4];
+                bourders.push(va[0]);
+                bourders.push(va[2]);
+                bourders.push(vb[0]);
+                bourders.push(vb[2]);
+            }
+        }
+    }
+    portalEdgeSize = bourders.size();
+    portalEdges = static_cast<int *>(rcAlloc(sizeof(int) * bourders.size(), RC_ALLOC_PERM));
+    memcpy(portalEdges, &bourders[0], portalEdgeSize * sizeof(int));
     return true;
 }
