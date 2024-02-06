@@ -1,27 +1,28 @@
+project(DetourCrowd)
 file(GLOB SOURCES Source/*.cpp)
-add_library(DetourCrowd ${SOURCES})
+add_library(${PROJECT_NAME} ${SOURCES})
 
-add_library(RecastNavigation::DetourCrowd ALIAS DetourCrowd)
-set_target_properties(DetourCrowd PROPERTIES DEBUG_POSTFIX -d)
+add_library(RecastNavigation::DetourCrowd ALIAS ${PROJECT_NAME})
+set_target_properties(${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX -d)
 
 set(DetourCrowd_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Include")
 
-target_include_directories(DetourCrowd PUBLIC
+target_include_directories(${PROJECT_NAME} PUBLIC
     "$<BUILD_INTERFACE:${DetourCrowd_INCLUDE_DIR}>"
 )
 
-target_link_libraries(DetourCrowd
+target_link_libraries(${PROJECT_NAME}
     Detour
 )
 
-set_target_properties(DetourCrowd PROPERTIES
+set_target_properties(${PROJECT_NAME} PROPERTIES
         SOVERSION ${SOVERSION}
         VERSION ${LIB_VERSION}
         COMPILE_PDB_OUTPUT_DIRECTORY .
         COMPILE_PDB_NAME "DetourCrowd-d"
         )
 
-install(TARGETS DetourCrowd
+install(TARGETS ${PROJECT_NAME}
         EXPORT recastnavigation-targets
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}

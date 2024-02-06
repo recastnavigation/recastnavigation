@@ -1,20 +1,21 @@
+project(DetourTileCache)
 file(GLOB SOURCES Source/*.cpp)
-add_library(DetourTileCache ${SOURCES})
+add_library(${PROJECT_NAME} ${SOURCES})
 
-add_library(RecastNavigation::DetourTileCache ALIAS DetourTileCache)
-set_target_properties(DetourTileCache PROPERTIES DEBUG_POSTFIX -d)
+add_library(RecastNavigation::DetourTileCache ALIAS ${PROJECT_NAME})
+set_target_properties(${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX -d)
 
 set(DetourTileCache_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Include")
 
-target_include_directories(DetourTileCache PUBLIC
+target_include_directories(${PROJECT_NAME} PUBLIC
     "$<BUILD_INTERFACE:${DetourTileCache_INCLUDE_DIR}>"
 )
 
-target_link_libraries(DetourTileCache
+target_link_libraries(${PROJECT_NAME}
     Detour
 )
 
-set_target_properties(DetourTileCache PROPERTIES
+set_target_properties(${PROJECT_NAME} PROPERTIES
         SOVERSION ${SOVERSION}
         VERSION ${LIB_VERSION}
         COMPILE_PDB_OUTPUT_DIRECTORY .
@@ -22,7 +23,7 @@ set_target_properties(DetourTileCache PROPERTIES
         )
 
 
-install(TARGETS DetourTileCache
+install(TARGETS ${PROJECT_NAME}
         EXPORT recastnavigation-targets
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}

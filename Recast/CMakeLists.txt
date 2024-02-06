@@ -1,23 +1,24 @@
+project(Recast)
 file(GLOB SOURCES Source/*.cpp)
-add_library(Recast ${SOURCES})
+add_library(${PROJECT_NAME} ${SOURCES})
 
-add_library(RecastNavigation::Recast ALIAS Recast)
-set_target_properties(Recast PROPERTIES DEBUG_POSTFIX -d)
+add_library(RecastNavigation::Recast ALIAS ${PROJECT_NAME})
+set_target_properties(${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX -d)
 
 set(Recast_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Include")
 
-target_include_directories(Recast PUBLIC
+target_include_directories(${PROJECT_NAME} PUBLIC
     "$<BUILD_INTERFACE:${Recast_INCLUDE_DIR}>"
 )
 
-set_target_properties(Recast PROPERTIES
+set_target_properties(${PROJECT_NAME} PROPERTIES
         SOVERSION ${SOVERSION}
         VERSION ${LIB_VERSION}
         COMPILE_PDB_OUTPUT_DIRECTORY .
         COMPILE_PDB_NAME "Recast-d"
         )
 
-install(TARGETS Recast
+install(TARGETS ${PROJECT_NAME}
         EXPORT recastnavigation-targets
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
