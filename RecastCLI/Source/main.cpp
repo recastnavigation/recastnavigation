@@ -394,6 +394,8 @@ int main(const int argc, char *argv[]) {
         std::cout << "An output path required (-o;--output)" << std::endl;
         shouldFial = true;
     }
+    if (shouldFial)
+        return 1;
 
     BuildContext context{};
     auto pGeom{ std::make_unique<InputGeom>()};

@@ -180,7 +180,7 @@ TEST_CASE("Watershed") {
         "Build Polymesh Detail (ms),"
         "Merge Polymesh Details (ms),"
     };
-    constexpr auto output{"Data"};
+    std::string output{"Data"};
     const std::string prefix{env + std::to_string(cellS) + "_"};
     std::filesystem::create_directories(output);
     WriteTimeToCSV(output + '/' + prefix + "default.csv", defaultTimes, header, sizeof header);
