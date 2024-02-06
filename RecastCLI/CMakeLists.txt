@@ -1,39 +1,58 @@
-file(GLOB SOURCES Source/*.cpp Contrib/fastlz/fastlz.c)
-
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-
-include_directories(SYSTEM Contrib/fastlz)
-include_directories(SYSTEM Contrib)
-include_directories(../Detour/Include)
-include_directories(../DetourCrowd/Include)
-include_directories(../DetourTileCache/Include)
-include_directories(../Recast/Include)
-include_directories(Include)
-
-add_executable(RecastCLI ${SOURCES})
-set_property(TARGET RecastCLI PROPERTY CXX_STANDARD 20)
-
-if( WIN32 )
-  if ( "${CMAKE_MAKE_PROGRAM}" MATCHES "MSBuild" )
-    add_custom_command(TARGET RecastCLI
-            POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/Bin/Meshes ${CMAKE_BINARY_DIR}/RecastCLI/$(ConfigurationName)/Meshes
-    )
-  elseif ( MINGW )
-    add_custom_command(TARGET RecastCLI
-      POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/Bin/Meshes ${CMAKE_BINARY_DIR}/RecastCLI/Meshes
-    )
-  endif()
-else()
-  file(COPY Bin/Meshes DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-endif()
+project(RecastCLI)
+file(GLOB SOURCES Source/*.cpp)
 
 
-add_dependencies(RecastCLI DebugUtils Detour DetourCrowd DetourTileCache Recast)
-target_link_libraries(RecastCLI DebugUtils Detour DetourCrowd DetourTileCache Recast)
 
-install(TARGETS RecastCLI
+
+add_executable(${PROJECT_NAME} ${SOURCES})
+add_dependencies(RecastCLI
+        DebugUtils
+        DetourTileCache
+        Recast
+)
+
+# Use target_include_directories instead of include_directories
+target_include_directories(${PROJECT_NAME} PRIVATE
+        ../DebugUtils/Include
+        ../Recast/Include
+        Include
+)
+
+# Link libraries using target_link_libraries
+target_link_libraries(${PROJECT_NAME} PRIVATE
+        DebugUtils
+        Recast
+)
+
+# Set C++ standard directly on the target
+target_compile_features(
+        ${PROJECT_NAME} PRIVATE
+        cxx_std_20
+)
+
+# Copy meshes directory to build directory
+if (WIN32)
+    if ("${CMAKE_MAKE_PROGRAM}" MATCHES "MSBuild")
+        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_directory
+                ${CMAKE_CURRENT_SOURCE_DIR}/Bin/Meshes
+                ${CMAKE_BINARY_DIR}/${PROJECT_NAME}/$(ConfigurationName)/Meshes)
+    elseif (MINGW)
+        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_directory
+                ${CMAKE_CURRENT_SOURCE_DIR}/Bin/Meshes
+                ${CMAKE_BINARY_DIR}/${PROJECT_NAME}/Meshes)
+    endif ()
+else ()
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_CURRENT_SOURCE_DIR}/Bin/Meshes
+            ${CMAKE_CURRENT_BINARY_DIR}/Meshes)
+endif ()
+
+# Install targets and directories
+install(TARGETS ${PROJECT_NAME}
         RUNTIME DESTINATION bin
-        BUNDLE DESTINATION bin)
+        BUNDLE DESTINATION bin
+)
 install(DIRECTORY Meshes DESTINATION bin)
