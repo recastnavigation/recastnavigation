@@ -53,3 +53,5 @@ build
 ## IDE files
 .idea/
 cmake-build-*/
+
+premake/
