@@ -20,8 +20,8 @@
 #include <cstdio>
 #include <cstring>
 #include <cfloat>
-#include "SDL.h"
-#include "SDL_opengl.h"
+#include <SDL.h>
+#include <SDL_opengl.h>
 #ifdef __APPLE__
 #	include <OpenGL/glu.h>
 #else
@@ -255,10 +255,10 @@ struct RasterizationContext
         delete [] triareas;
         rcFreeHeightfieldLayerSet(lset);
         rcFreeCompactHeightfield(chf);
-        for (auto & tile : tiles)
+        for (auto &[data, dataSize] : tiles)
         {
-            dtFree(tile.data);
-            tile.data = nullptr;
+            dtFree(data);
+            data = nullptr;
         }
     }
 
@@ -343,9 +343,9 @@ int Sample_TempObstacles::rasterizeTileLayers(
 
     for (int i = 0; i < ncid; ++i)
     {
-        const rcChunkyTriMeshNode& node = chunkyMesh->nodes[cid[i]];
-        const int* tris = &chunkyMesh->tris[node.i * 3];
-        const int ntris = node.n;
+        const auto&[bmin, bmax, index, number] = chunkyMesh->nodes[cid[i]];
+        const int* tris = &chunkyMesh->tris[index * 3];
+        const int ntris = number;
 
         memset(rc.triareas, 0, ntris * sizeof(unsigned char));
         rcMarkWalkableTriangles(m_ctx, tcfg.walkableSlopeAngle,
@@ -434,9 +434,7 @@ int Sample_TempObstacles::rasterizeTileLayers(
         header.hmin = static_cast<unsigned short>(layer->hmin);
         header.hmax = static_cast<unsigned short>(layer->hmax);
 
-        const dtStatus status = dtBuildTileCacheLayer(&comp, &header, layer->heights, layer->areas, layer->cons,
-                                                      &tile->data, &tile->dataSize);
-        if (dtStatusFailed(status))
+        if (dtStatusFailed(dtBuildTileCacheLayer(&comp, &header, layer->heights, layer->areas, layer->cons, &tile->data, &tile->dataSize)))
         {
             return 0;
         }
@@ -631,10 +629,12 @@ dtObstacleRef hitTestObstacle(const dtTileCache* tc, const float* sp, const floa
         if (ob->state == DT_OBSTACLE_EMPTY)
             continue;
 
-        float bmin[3], bmax[3], t0, t1;
+        float bmin[3];
+        float bmax[3];
+        float t0;
         dtTileCache::getObstacleBounds(ob, bmin, bmax);
 
-        if (isectSegAABB(sp, sq, bmin, bmax, t0, t1))
+        if (float t1; isectSegAABB(sp, sq, bmin, bmax, t0, t1))
         {
             if (t0 < tmin)
             {
@@ -1358,8 +1358,7 @@ bool Sample_TempObstacles::handleBuild()
     int navmeshMemUsage = 0;
     for (int i = 0; i < nav->getMaxTiles(); ++i)
     {
-        const dtMeshTile* tile = nav->getTile(i);
-        if (tile->header)
+        if (const dtMeshTile* tile = nav->getTile(i); tile->header)
             navmeshMemUsage += tile->dataSize;
     }
     printf("navmeshMemUsage = %.1f kB", static_cast<float>(navmeshMemUsage) / 1024.0f);
@@ -1429,8 +1428,7 @@ void Sample_TempObstacles::saveAll(const char* path) const
     header.numTiles = 0;
     for (int i = 0; i < m_tileCache->getTileCount(); ++i)
     {
-        const dtCompressedTile* tile = m_tileCache->getTile(i);
-        if (!tile || !tile->header || !tile->dataSize) continue;
+        if (const dtCompressedTile* tile = m_tileCache->getTile(i); !tile || !tile->header || !tile->dataSize) continue;
         header.numTiles++;
     }
     memcpy(&header.cacheParams, m_tileCache->getParams(), sizeof(dtTileCacheParams));
@@ -1462,8 +1460,7 @@ void Sample_TempObstacles::loadAll(const char* path)
 
     // Read header.
     TileCacheSetHeader header{};
-    const size_t headerReadReturnCode = fread(&header, sizeof(TileCacheSetHeader), 1, fp);
-    if (headerReadReturnCode != 1)
+    if (fread(&header, sizeof(TileCacheSetHeader), 1, fp) != 1)
     {
         // Error or early EOF
         fclose(fp);
@@ -1510,8 +1507,7 @@ void Sample_TempObstacles::loadAll(const char* path)
     for (int i = 0; i < header.numTiles; ++i)
     {
         TileCacheTileHeader tileHeader{};
-        const size_t tileHeaderReadReturnCode = fread(&tileHeader, sizeof(tileHeader), 1, fp);
-        if (tileHeaderReadReturnCode != 1)
+        if (fread(&tileHeader, sizeof(tileHeader), 1, fp) != 1)
         {
             // Error or early EOF
             fclose(fp);
@@ -1523,8 +1519,7 @@ void Sample_TempObstacles::loadAll(const char* path)
         const auto data = static_cast<unsigned char*>(dtAlloc(tileHeader.dataSize, DT_ALLOC_PERM));
         if (!data) break;
         memset(data, 0, tileHeader.dataSize);
-        const size_t tileDataReadReturnCode = fread(data, tileHeader.dataSize, 1, fp);
-        if (tileDataReadReturnCode != 1)
+        if (fread(data, tileHeader.dataSize, 1, fp) != 1)
         {
             // Error or early EOF
             dtFree(data);
@@ -1533,9 +1528,7 @@ void Sample_TempObstacles::loadAll(const char* path)
         }
 
         dtCompressedTileRef tile = 0;
-        const dtStatus addTileStatus = m_tileCache->addTile(data, tileHeader.dataSize, DT_COMPRESSEDTILE_FREE_DATA,
-                                                            &tile);
-        if (dtStatusFailed(addTileStatus))
+        if (dtStatusFailed(m_tileCache->addTile(data, tileHeader.dataSize, DT_COMPRESSEDTILE_FREE_DATA, &tile)))
         {
             dtFree(data);
         }

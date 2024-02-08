@@ -56,7 +56,7 @@ public:
 	// Get a dtNode by ref and extra state information. If there is none then - allocate
 	// There can be more than one node for the same polyRef but with different extra state information
 	dtNode* getNode(dtPolyRef id, unsigned char state=0);	
-	[[nodiscard]] dtNode* findNode(dtPolyRef id, unsigned char state) const;
+	dtNode* findNode(dtPolyRef id, unsigned char state) const;
 	unsigned int findNodes(dtPolyRef id, dtNode** nodes, int maxNodes) const;
 
 	unsigned int getNodeIdx(const dtNode* node) const
@@ -71,13 +71,13 @@ public:
 		return &m_nodes[idx - 1];
 	}
 
-	[[nodiscard]] const dtNode* getNodeAtIdx(const unsigned int idx) const
+	const dtNode* getNodeAtIdx(const unsigned int idx) const
 	{
 		if (!idx) return nullptr;
 		return &m_nodes[idx - 1];
 	}
 
-	[[nodiscard]] int getMemUsed() const
+	int getMemUsed() const
 	{
 		return static_cast<int>(sizeof(*this) +
 			sizeof(dtNode)*m_maxNodes +
@@ -85,12 +85,12 @@ public:
 			sizeof(dtNodeIndex)*m_hashSize);
 	}
 
-	[[nodiscard]] int getMaxNodes() const { return m_maxNodes; }
+	int getMaxNodes() const { return m_maxNodes; }
 
-	[[nodiscard]] int getHashSize() const { return m_hashSize; }
-	[[nodiscard]] dtNodeIndex getFirst(const int bucket) const { return m_first[bucket]; }
-	[[nodiscard]] dtNodeIndex getNext(const int i) const { return m_next[i]; }
-	[[nodiscard]] int getNodeCount() const { return m_nodeCount; }
+	int getHashSize() const { return m_hashSize; }
+	dtNodeIndex getFirst(const int bucket) const { return m_first[bucket]; }
+	dtNodeIndex getNext(const int i) const { return m_next[i]; }
+	int getNodeCount() const { return m_nodeCount; }
 	
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.
@@ -113,7 +113,7 @@ public:
 
 	void clear() { m_size = 0; }
 
-	[[nodiscard]] dtNode* top() const { return m_heap[0]; }
+	dtNode* top() const { return m_heap[0]; }
 
 	dtNode* pop()
 	{
@@ -141,15 +141,15 @@ public:
 		}
 	}
 
-	[[nodiscard]] bool empty() const { return m_size == 0; }
+	bool empty() const { return m_size == 0; }
 
-	[[nodiscard]] int getMemUsed() const
+	int getMemUsed() const
 	{
 		return static_cast<int>(sizeof(*this) +
 			sizeof(dtNode*) * (m_capacity + 1));
 	}
 
-	[[nodiscard]] int getCapacity() const { return m_capacity; }
+	int getCapacity() const { return m_capacity; }
 	
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.

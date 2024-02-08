@@ -24,31 +24,12 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         Recast
 )
 
-# Set C++ standard directly on the target
-target_compile_features(
-        ${PROJECT_NAME} PRIVATE
-        cxx_std_20
-)
-
 # Copy meshes directory to build directory
-if (WIN32)
-    if ("${CMAKE_MAKE_PROGRAM}" MATCHES "MSBuild")
-        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy_directory
-                ${CMAKE_CURRENT_SOURCE_DIR}/Bin/Meshes
-                ${CMAKE_BINARY_DIR}/${PROJECT_NAME}/$(ConfigurationName)/Meshes)
-    elseif (MINGW)
-        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy_directory
-                ${CMAKE_CURRENT_SOURCE_DIR}/Bin/Meshes
-                ${CMAKE_BINARY_DIR}/${PROJECT_NAME}/Meshes)
-    endif ()
-else ()
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_directory
-            ${CMAKE_CURRENT_SOURCE_DIR}/Bin/Meshes
-            ${CMAKE_CURRENT_BINARY_DIR}/Meshes)
-endif ()
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_CURRENT_SOURCE_DIR}/Bin
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>
+)
 
 # Install targets and directories
 install(TARGETS ${PROJECT_NAME}

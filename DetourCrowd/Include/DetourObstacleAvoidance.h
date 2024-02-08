@@ -48,14 +48,14 @@ public:
 	
 	void normalizeSamples()const;
 
-	[[nodiscard]] int getSampleCount() const { return m_nsamples; }
-	[[nodiscard]] const float* getSampleVelocity(const int i) const { return &m_vel[i*3]; }
-	[[nodiscard]] float getSampleSize(const int i) const { return m_ssize[i]; }
-	[[nodiscard]] float getSamplePenalty(const int i) const { return m_pen[i]; }
-	[[nodiscard]] float getSampleDesiredVelocityPenalty(const int i) const { return m_vpen[i]; }
-	[[nodiscard]] float getSampleCurrentVelocityPenalty(const int i) const { return m_vcpen[i]; }
-	[[nodiscard]] float getSamplePreferredSidePenalty(const int i) const { return m_spen[i]; }
-	[[nodiscard]] float getSampleCollisionTimePenalty(const int i) const { return m_tpen[i]; }
+	int getSampleCount() const { return m_nsamples; }
+	const float* getSampleVelocity(const int i) const { return &m_vel[i*3]; }
+	float getSampleSize(const int i) const { return m_ssize[i]; }
+	float getSamplePenalty(const int i) const { return m_pen[i]; }
+	float getSampleDesiredVelocityPenalty(const int i) const { return m_vpen[i]; }
+	float getSampleCurrentVelocityPenalty(const int i) const { return m_vcpen[i]; }
+	float getSamplePreferredSidePenalty(const int i) const { return m_spen[i]; }
+	float getSampleCollisionTimePenalty(const int i) const { return m_tpen[i]; }
 
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.
@@ -119,11 +119,11 @@ public:
 							   const dtObstacleAvoidanceParams* params, 
 							   dtObstacleAvoidanceDebugData* debug = nullptr);
 
-	[[nodiscard]] int getObstacleCircleCount() const { return m_ncircles; }
-	[[nodiscard]] const dtObstacleCircle* getObstacleCircle(const int i) const { return &m_circles[i]; }
+	int getObstacleCircleCount() const { return m_ncircles; }
+	const dtObstacleCircle* getObstacleCircle(const int i) const { return &m_circles[i]; }
 
-	[[nodiscard]] int getObstacleSegmentCount() const { return m_nsegments; }
-	[[nodiscard]] const dtObstacleSegment* getObstacleSegment(const int i) const { return &m_segments[i]; }
+	int getObstacleSegmentCount() const { return m_nsegments; }
+	const dtObstacleSegment* getObstacleSegment(const int i) const { return &m_segments[i]; }
 
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.

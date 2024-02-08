@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 #include <array>
+#include <RecastAlloc.h>
 #include <set>
 
 #include "BuildContext.h"
@@ -25,7 +26,7 @@ public:
         }
     }
 
-    [[nodiscard]] const std::string &getCmdOption(const std::string &option) const {
+    const std::string &getCmdOption(const std::string &option) const {
         if (const auto &itr = std::ranges::find_if(m_tokens, [option](const std::string &token) {
             std::stringstream ss{option};
             std::string s;
@@ -40,7 +41,7 @@ public:
         return empty;
     }
 
-    [[nodiscard]] bool cmdOptionExists(const std::string &option) const {
+    bool cmdOptionExists(const std::string &option) const {
         const auto &iter = std::ranges::find_if(m_tokens, [option](const std::string &token) {
             std::stringstream ss{option};
             std::string s;
@@ -104,7 +105,7 @@ inline std::array<float, LOOP_COUNT * RC_MAX_TIMERS> GenerateThesisTimes(
         RunThesis(context, pGeom, filterLedgeSpans, filterWalkableLowHeightSpans, filterLowHangingObstacles, config,
                   pEdges,
                   edgesSize);
-        delete pEdges;
+        rcFree(pEdges);
         const int offset{i * RC_MAX_TIMERS};
         for (int j = 0; j < RC_MAX_TIMERS; ++j) {
             times[offset + j] = static_cast<float>(context.getAccumulatedTime(static_cast<rcTimerLabel>(j))) * 1e-3f;
@@ -288,7 +289,7 @@ inline void ProcessBourderEdges(const std::string &input, const std::string &out
         }
     }
     // std::memcpy(resultEdges.data(), pEdges, edgesSize * sizeof(int));
-    delete pEdges;
+    rcFree(pEdges);
 
     std::vector<Edge> referenceEdges{};
     std::vector<Edge> resultEdges{};
@@ -398,10 +399,10 @@ int main(const int argc, char *argv[]) {
         return 1;
 
     BuildContext context{};
-    auto pGeom{ std::make_unique<InputGeom>()};
+    const auto pGeom{ std::make_unique<InputGeom>()};
     if (!pGeom || !pGeom->load(&context, fileName)) {
-        pGeom = nullptr;
         context.dumpLog("Geom load log %s:", fileName.c_str());
+        shouldFial = true;
     }
     if (shouldFial)
         return 1;

@@ -22,9 +22,8 @@
 #include "InputGeom.h"
 #include "Recast.h"
 #include "Sample.h"
-#include "SDL.h"
-#include "SDL_opengl.h"
-
+#include <SDL.h>
+#include <SDL_opengl.h>
 #ifdef WIN32
 #	define snprintf _snprintf
 #endif
@@ -83,9 +82,8 @@ static int pointInPoly(const int nvert, const float* verts, const float* p)
 	for (i = 0, j = nvert-1; i < nvert; j = i++)
 	{
 		const float* vi = &verts[i*3];
-		const float* vj = &verts[j*3];
-		if (((vi[2] > p[2]) != (vj[2] > p[2])) &&
-			(p[0] < (vj[0]-vi[0]) * (p[2]-vi[2]) / (vj[2]-vi[2]) + vi[0]) )
+		if (const float* vj = &verts[j*3]; ((vi[2] > p[2]) != (vj[2] > p[2])) &&
+		                                   (p[0] < (vj[0]-vi[0]) * (p[2]-vi[2]) / (vj[2]-vi[2]) + vi[0]) )
 			c = !c;
 	}
 	return c;
@@ -195,8 +193,7 @@ void ConvexVolumeTool::handleClick(const float* /*s*/, const float* p, const boo
 				if (m_polyOffset > 0.01f)
 				{
 					float offset[MAX_PTS*2*3];
-					const int noffset = rcOffsetPoly(verts, m_nhull, m_polyOffset, offset, MAX_PTS*2);
-					if (noffset > 0)
+					if (const int noffset = rcOffsetPoly(verts, m_nhull, m_polyOffset, offset, MAX_PTS*2); noffset > 0)
 						geom->addConvexVolume(offset, noffset, minh, maxh, static_cast<unsigned char>(m_areaType));
 				}
 				else

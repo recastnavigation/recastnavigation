@@ -106,17 +106,17 @@ public:
     dtTileCache();
     ~dtTileCache();
 
-    [[nodiscard]] struct dtTileCacheAlloc* getAlloc() const { return m_talloc; }
-    [[nodiscard]] struct dtTileCacheCompressor* getCompressor() const { return m_tcomp; }
-    [[nodiscard]] const dtTileCacheParams* getParams() const { return &m_params; }
+    struct dtTileCacheAlloc* getAlloc() const { return m_talloc; }
+    struct dtTileCacheCompressor* getCompressor() const { return m_tcomp; }
+    const dtTileCacheParams* getParams() const { return &m_params; }
 
-    [[nodiscard]] int getTileCount() const { return m_params.maxTiles; }
-    [[nodiscard]] const dtCompressedTile* getTile(const int i) const { return &m_tiles[i]; }
+    int getTileCount() const { return m_params.maxTiles; }
+    const dtCompressedTile* getTile(const int i) const { return &m_tiles[i]; }
 
-    [[nodiscard]] int getObstacleCount() const { return m_params.maxObstacles; }
-    [[nodiscard]] const dtTileCacheObstacle* getObstacle(const int i) const { return &m_obstacles[i]; }
+    int getObstacleCount() const { return m_params.maxObstacles; }
+    const dtTileCacheObstacle* getObstacle(const int i) const { return &m_obstacles[i]; }
 
-    [[nodiscard]] const dtTileCacheObstacle* getObstacleByRef(dtObstacleRef ref) const;
+    const dtTileCacheObstacle* getObstacleByRef(dtObstacleRef ref) const;
 
     dtObstacleRef getObstacleRef(const dtTileCacheObstacle* obmin) const;
 
@@ -127,9 +127,9 @@ public:
 
     int getTilesAt(int tx, int ty, dtCompressedTileRef* tiles, int maxTiles) const;
 
-    [[nodiscard]] dtCompressedTile* getTileAt(int tx, int ty, int tlayer) const;
+    dtCompressedTile* getTileAt(int tx, int ty, int tlayer) const;
     dtCompressedTileRef getTileRef(const dtCompressedTile* tile) const;
-    [[nodiscard]] const dtCompressedTile* getTileByRef(dtCompressedTileRef ref) const;
+    const dtCompressedTile* getTileByRef(dtCompressedTileRef ref) const;
 
     dtStatus addTile(unsigned char* data, int dataSize, unsigned char flags, dtCompressedTileRef* result);
 
@@ -167,20 +167,20 @@ public:
 
 
     /// Encodes a tile id.
-    [[nodiscard]] dtCompressedTileRef encodeTileId(const unsigned int salt, const unsigned int it) const
+    dtCompressedTileRef encodeTileId(const unsigned int salt, const unsigned int it) const
     {
         return (salt << m_tileBits) | it;
     }
 
     /// Decodes a tile salt.
-    [[nodiscard]] unsigned int decodeTileIdSalt(const dtCompressedTileRef ref) const
+    unsigned int decodeTileIdSalt(const dtCompressedTileRef ref) const
     {
         const dtCompressedTileRef saltMask = (static_cast<dtCompressedTileRef>(1) << m_saltBits) - 1;
         return ref >> m_tileBits & saltMask;
     }
 
     /// Decodes a tile id.
-    [[nodiscard]] unsigned int decodeTileIdTile(const dtCompressedTileRef ref) const
+    unsigned int decodeTileIdTile(const dtCompressedTileRef ref) const
     {
         const dtCompressedTileRef tileMask = (static_cast<dtCompressedTileRef>(1) << m_tileBits) - 1;
         return ref & tileMask;

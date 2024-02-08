@@ -4,6 +4,7 @@
 
 #include <filesystem>
 #include <iostream>
+#include <RecastAlloc.h>
 
 #include <catch2/catch_all.hpp>
 
@@ -51,7 +52,7 @@ inline std::array<float, LOOP_COUNT * RC_MAX_TIMERS> GenerateThesisTimes(BuildCo
         int edgesSize{};
         bool succes{ RunThesis(context, pGeom, filterLedgeSpans, filterWalkableLowHeightSpans, filterLowHangingObstacles, config, pEdges, edgesSize) };
         REQUIRE(succes);
-        delete pEdges;
+        rcFree(pEdges);
         const int offset{i * RC_MAX_TIMERS};
         for (int j = 0; j < RC_MAX_TIMERS; ++j) {
             times[offset + j] = static_cast<float>(context.getAccumulatedTime(static_cast<rcTimerLabel>(j))) * 1e-3f;
@@ -132,6 +133,7 @@ TEST_CASE("Watershed") {
     REQUIRE(success);
 
     const float cellS{GENERATE(Catch::Generators::range(0.1f,0.5f,0.1f))};
+    config.cs = cellS;
 
 
     const std::array defaultTimes{

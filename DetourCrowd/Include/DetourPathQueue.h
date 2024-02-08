@@ -64,11 +64,11 @@ public:
 						   const float* startPos, const float* endPos, 
 						   const dtQueryFilter* filter);
 	
-	[[nodiscard]] dtStatus getRequestStatus(dtPathQueueRef ref) const;
+	dtStatus getRequestStatus(dtPathQueueRef ref) const;
 	
 	dtStatus getPathResult(dtPathQueueRef ref, dtPolyRef* path, int* pathSize, int maxPath);
 
-	[[nodiscard]] const dtNavMeshQuery* getNavQuery() const { return m_navquery; }
+	const dtNavMeshQuery* getNavQuery() const { return m_navquery; }
 
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.
