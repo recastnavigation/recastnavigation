@@ -2,6 +2,9 @@
 #include <cstdio>
 #include <cstdarg>
 #include "SampleInterfaces.h"
+
+#include <iostream>
+
 #include "Recast.h"
 #include "PerfTimer.h"
 #include "SDL.h"
@@ -80,42 +83,33 @@ void BuildContext::dumpLog(const char* format, ...) const
 	va_start(ap, format);
 	vprintf(format, ap);
 	va_end(ap);
-	printf("\n");
-	
+	std::cout << std::endl;
+
 	// Print messages
 	constexpr int TAB_STOPS[4] = { 28, 36, 44, 52 };
-	for (int i = 0; i < m_messageCount; ++i)
-	{
-		const char* msg = m_messages[i]+1;
+	for (const auto& message : m_messages) {
 		int n = 0;
-		while (*msg)
-		{
-			if (*msg == '\t')
-			{
+		for (const char ch : message) {
+			if (ch == '\t') {
 				int count = 1;
-				for (const int j : TAB_STOPS)
-				{
-					if (n < j)
-					{
+				for (const int j : TAB_STOPS) {
+					if (n < j) {
 						count = j - n;
 						break;
 					}
 				}
-				while (--count)
-				{
-					putchar(' ');
+				while (count-- > 0) {
+					std::cout << ' ';
 					n++;
 				}
-			}
-			else
-			{
-				putchar(*msg);
+			} else {
+				std::cout << ch;
 				n++;
 			}
-			msg++;
 		}
-		putchar('\n');
+		std::cout << '\n';
 	}
+	std::cout << std::flush;
 }
 
 int BuildContext::getLogCount() const

@@ -18,7 +18,6 @@ jobs:
         cxx:
           - g++-10
           - g++-11
-          - clang++-10
           - clang++
           - cl
         build_type: [Debug, Release]
@@ -29,8 +28,7 @@ jobs:
             cxx: g++-10
             other_pkgs: g++-10
           - os: ubuntu-latest
-            cxx: clang++-10
-            other_pkgs: clang-10
+            cxx: clang++
           - os: windows-latest
             cxx: cl
           - os: macos-latest
@@ -54,8 +52,6 @@ jobs:
             cxx: clang++
           - os: macos-latest
             cxx: g++-10
-          - os: macos-latest
-            cxx: clang++-10
           - os: macos-latest
             cxx: cl
 

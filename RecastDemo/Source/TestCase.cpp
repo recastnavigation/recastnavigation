@@ -31,6 +31,7 @@
 #	include <GL/glu.h>
 #endif
 #include <fstream>
+#include <iostream>
 #include <sstream>
 
 #include "imgui.h"
@@ -305,18 +306,18 @@ void TestCase::doTests(const dtNavMesh* navmesh, const dtNavMeshQuery* navquery)
         }
     }
 
-
-    printf("Test Results:\n");
+    std::cout << "Test Results:\n";
     int n = 0;
     for (const Test* iter = m_tests; iter; iter = iter->next)
     {
         const int total = iter->findNearestPolyTime + iter->findPathTime + iter->findStraightPathTime;
-        printf(" - Path %02d:     %.4f ms\n", n, static_cast<float>(total) / 1000.0f);
-        printf("    - poly:     %.4f ms\n", static_cast<float>(iter->findNearestPolyTime) / 1000.0f);
-        printf("    - path:     %.4f ms\n", static_cast<float>(iter->findPathTime) / 1000.0f);
-        printf("    - straight: %.4f ms\n", static_cast<float>(iter->findStraightPathTime) / 1000.0f);
+        std::cout << " - Path %02d:   " << static_cast<float>(total) * 1e-3f << " ms\n";
+        std::cout << "    - poly:     " << static_cast<float>(iter->findNearestPolyTime) * 1e-3f << " ms\n";
+        std::cout << "    - path:     " << static_cast<float>(iter->findPathTime) * 1e-3f << " ms\n";
+        std::cout << "    - straight: " << static_cast<float>(iter->findStraightPathTime) * 1e-3f << " ms\n";
         n++;
     }
+    std::cout << std::flush;
 }
 
 void TestCase::handleRender() const

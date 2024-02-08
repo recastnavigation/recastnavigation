@@ -29,6 +29,11 @@
 #endif
 #include "imgui.h"
 #include "NavMeshTesterTool.h"
+
+#include <format>
+#include <iomanip>
+#include <iostream>
+
 #include "Sample.h"
 #include "DetourNavMesh.h"
 #include "DetourDebugDraw.h"
@@ -81,8 +86,7 @@ static int fixupShortcuts(dtPolyRef* path, int npath, const dtNavMeshQuery* navQ
 	
 	for (unsigned int k = poly->firstLink; k != DT_NULL_LINK; k = tile->links[k].next)
 	{
-		const dtLink* link = &tile->links[k];
-		if (link->ref != 0)
+		if (const dtLink* link = &tile->links[k]; link->ref != 0)
 		{
 			if (nneis < maxNeis)
 				neis[nneis++] = link->ref;
@@ -297,8 +301,7 @@ void NavMeshTesterTool::handleMenu()
 	
 	if (imguiButton("Set Random Start"))
 	{
-		const dtStatus status = m_navQuery->findRandomPoint(&m_filter, frand, &m_startRef, m_spos);
-		if (dtStatusSucceed(status))
+		if (dtStatusSucceed(m_navQuery->findRandomPoint(&m_filter, frand, &m_startRef, m_spos)))
 		{
 			m_sposSet = true;
 			recalc();
@@ -308,8 +311,7 @@ void NavMeshTesterTool::handleMenu()
 	{
 		if (m_sposSet)
 		{
-			const dtStatus status = m_navQuery->findRandomPointAroundCircle(m_startRef, m_spos, m_randomRadius, &m_filter, frand, &m_endRef, m_epos);
-			if (dtStatusSucceed(status))
+			if (dtStatusSucceed(m_navQuery->findRandomPointAroundCircle(m_startRef, m_spos, m_randomRadius, &m_filter, frand, &m_endRef, m_epos)))
 			{
 				m_eposSet = true;
 				recalc();
@@ -325,10 +327,8 @@ void NavMeshTesterTool::handleMenu()
 		m_nrandPoints = 0;
 		for (int i = 0; i < MAX_RAND_POINTS; i++)
 		{
-			float pt[3];
 			dtPolyRef ref;
-			const dtStatus status = m_navQuery->findRandomPoint(&m_filter, frand, &ref, pt);
-			if (dtStatusSucceed(status))
+			if (float pt[3]; dtStatusSucceed( m_navQuery->findRandomPoint(&m_filter, frand, &ref, pt)))
 			{
 				dtVcopy(&m_randPoints[m_nrandPoints*3], pt);
 				m_nrandPoints++;
@@ -343,10 +343,8 @@ void NavMeshTesterTool::handleMenu()
 			m_randPointsInCircle = true;
 			for (int i = 0; i < MAX_RAND_POINTS; i++)
 			{
-				float pt[3];
 				dtPolyRef ref;
-				const dtStatus status = m_navQuery->findRandomPointAroundCircle(m_startRef, m_spos, m_randomRadius, &m_filter, frand, &ref, pt);
-				if (dtStatusSucceed(status))
+				if (float pt[3]; dtStatusSucceed(m_navQuery->findRandomPointAroundCircle(m_startRef, m_spos, m_randomRadius, &m_filter, frand, &ref, pt)))
 				{
 					dtVcopy(&m_randPoints[m_nrandPoints*3], pt);
 					m_nrandPoints++;
@@ -534,9 +532,6 @@ void NavMeshTesterTool::handleToggle()
 	}
 	if (offMeshConnection && inRange(m_iterPos, steerPos, SLOP, 1.0f))
 	{
-		// Reached off-mesh connection.
-		float startPos[3], endPos[3];
-		
 		// Advance the path up to and over the off-mesh connection.
 		dtPolyRef prevRef = 0, polyRef = m_pathIterPolys[0];
 		int npos = 0;
@@ -551,8 +546,8 @@ void NavMeshTesterTool::handleToggle()
 		m_pathIterPolyCount -= npos;
 				
 		// Handle the connection.
-		const dtStatus status = m_navMesh->getOffMeshConnectionPolyEndPoints(prevRef, polyRef, startPos, endPos);
-		if (dtStatusSucceed(status))
+		float startPos[3];
+		if (float endPos[3]; dtStatusSucceed(m_navMesh->getOffMeshConnectionPolyEndPoints(prevRef, polyRef, startPos, endPos)))
 		{
 			if (m_nsmoothPath < MAX_SMOOTH)
 			{
@@ -648,9 +643,13 @@ void NavMeshTesterTool::recalc()
 		if (m_sposSet && m_eposSet && m_startRef && m_endRef)
 		{
 #ifdef DUMP_REQS
-			printf("pi  %f %f %f  %f %f %f  0x%x 0x%x\n",
-				   m_spos[0],m_spos[1],m_spos[2], m_epos[0],m_epos[1],m_epos[2],
-				   m_filter.getIncludeFlags(), m_filter.getExcludeFlags()); 
+    std::cout << std::fixed << std::setprecision(6); // Adjust precision as needed
+
+    std::cout << "pi  "
+              << m_spos[0] << " " << m_spos[1] << " " << m_spos[2] << "  "
+              << m_epos[0] << " " << m_epos[1] << " " << m_epos[2] << "  "
+              << std::hex << "0x" << m_filter.getIncludeFlags() << " 0x" << m_filter.getExcludeFlags() << std::dec
+              << std::endl;
 #endif
 
 			m_navQuery->findPath(m_startRef, m_endRef, m_spos, m_epos, &m_filter, m_polys, &m_npolys, MAX_POLYS);
@@ -733,11 +732,8 @@ void NavMeshTesterTool::recalc()
 					}
 					if (offMeshConnection && inRange(iterPos, steerPos, SLOP, 1.0f))
 					{
-						// Reached off-mesh connection.
-						float startPos[3], endPos[3];
-						
-						// Advance the path up to and over the off-mesh connection.
-						dtPolyRef prevRef = 0, polyRef = polys[0];
+						dtPolyRef prevRef = 0;
+						dtPolyRef polyRef = polys[0];
 						int npos = 0;
 						while (npos < npolys && polyRef != steerPosRef)
 						{
@@ -748,10 +744,10 @@ void NavMeshTesterTool::recalc()
 						for (int i = npos; i < npolys; ++i)
 							polys[i-npos] = polys[i];
 						npolys -= npos;
-						
+
+						float startPos[3];
 						// Handle the connection.
-						const dtStatus status = m_navMesh->getOffMeshConnectionPolyEndPoints(prevRef, polyRef, startPos, endPos);
-						if (dtStatusSucceed(status))
+						if (float endPos[3]; dtStatusSucceed(m_navMesh->getOffMeshConnectionPolyEndPoints(prevRef, polyRef, startPos, endPos)))
 						{
 							if (m_nsmoothPath < MAX_SMOOTH)
 							{
@@ -793,9 +789,13 @@ void NavMeshTesterTool::recalc()
 		if (m_sposSet && m_eposSet && m_startRef && m_endRef)
 		{
 #ifdef DUMP_REQS
-			printf("ps  %f %f %f  %f %f %f  0x%x 0x%x\n",
-				   m_spos[0],m_spos[1],m_spos[2], m_epos[0],m_epos[1],m_epos[2],
-				   m_filter.getIncludeFlags(), m_filter.getExcludeFlags()); 
+    std::cout << std::fixed << std::setprecision(6); // Adjust precision as needed
+
+    std::cout << "ps  "
+              << m_spos[0] << " " << m_spos[1] << " " << m_spos[2] << "  "
+              << m_epos[0] << " " << m_epos[1] << " " << m_epos[2] << "  "
+              << std::hex << "0x" << m_filter.getIncludeFlags() << " 0x" << m_filter.getExcludeFlags() << std::dec
+              << std::endl;
 #endif
 			m_navQuery->findPath(m_startRef, m_endRef, m_spos, m_epos, &m_filter, m_polys, &m_npolys, MAX_POLYS);
 			m_nstraightPath = 0;
@@ -823,9 +823,14 @@ void NavMeshTesterTool::recalc()
 		if (m_sposSet && m_eposSet && m_startRef && m_endRef)
 		{
 #ifdef DUMP_REQS
-			printf("ps  %f %f %f  %f %f %f  0x%x 0x%x\n",
-				   m_spos[0],m_spos[1],m_spos[2], m_epos[0],m_epos[1],m_epos[2],
-				   m_filter.getIncludeFlags(), m_filter.getExcludeFlags()); 
+    std::cout << std::fixed << std::setprecision(6); // Adjust precision as needed
+
+    std::cout << "ps  "
+              << m_spos[0] << " " << m_spos[1] << " " << m_spos[2] << "  "
+              << m_epos[0] << " " << m_epos[1] << " " << m_epos[2] << "  "
+              << std::hex << "0x" << m_filter.getIncludeFlags() << " 0x" << m_filter.getExcludeFlags() << std::dec
+              << std::endl;
+
 #endif
 			m_npolys = 0;
 			m_nstraightPath = 0;
@@ -844,9 +849,14 @@ void NavMeshTesterTool::recalc()
 		if (m_sposSet && m_eposSet && m_startRef)
 		{
 #ifdef DUMP_REQS
-			printf("rc  %f %f %f  %f %f %f  0x%x 0x%x\n",
-				   m_spos[0],m_spos[1],m_spos[2], m_epos[0],m_epos[1],m_epos[2],
-				   m_filter.getIncludeFlags(), m_filter.getExcludeFlags()); 
+    std::cout << std::fixed << std::setprecision(6); // Adjust precision as needed
+
+    std::cout << "rc  "
+              << m_spos[0] << " " << m_spos[1] << " " << m_spos[2] << "  "
+              << m_epos[0] << " " << m_epos[1] << " " << m_epos[2] << "  "
+              << std::hex << "0x" << m_filter.getIncludeFlags() << " 0x" << m_filter.getExcludeFlags() << std::dec
+              << std::endl;
+
 #endif
 			float t = 0;
 			m_npolys = 0;
@@ -883,9 +893,13 @@ void NavMeshTesterTool::recalc()
 		if (m_sposSet && m_startRef)
 		{
 #ifdef DUMP_REQS
-			printf("dw  %f %f %f  %f  0x%x 0x%x\n",
-				   m_spos[0],m_spos[1],m_spos[2], 100.0f,
-				   m_filter.getIncludeFlags(), m_filter.getExcludeFlags()); 
+    std::cout << std::fixed << std::setprecision(6); // Adjust precision as needed
+
+    std::cout << "dw  "
+              << m_spos[0] << " " << m_spos[1] << " " << m_spos[2] << "  "
+              << 100.0f << "  "
+              << std::hex << "0x" << m_filter.getIncludeFlags() << " 0x" << m_filter.getExcludeFlags() << std::dec
+              << std::endl;
 #endif
 			m_distanceToWall = 0.0f;
 			m_navQuery->findDistanceToWall(m_startRef, m_spos, 100.0f, &m_filter, &m_distanceToWall, m_hitPos, m_hitNormal);
@@ -899,9 +913,13 @@ void NavMeshTesterTool::recalc()
 			const float dz = m_epos[2] - m_spos[2];
 			const float dist = std::sqrt(dx*dx + dz*dz);
 #ifdef DUMP_REQS
-			printf("fpc  %f %f %f  %f  0x%x 0x%x\n",
-				   m_spos[0],m_spos[1],m_spos[2], dist,
-				   m_filter.getIncludeFlags(), m_filter.getExcludeFlags());
+    std::cout << std::fixed << std::setprecision(6); // Adjust precision as needed
+
+    std::cout << "fpc  "
+              << m_spos[0] << " " << m_spos[1] << " " << m_spos[2] << "  "
+              << dist << "  "
+              << std::hex << "0x" << m_filter.getIncludeFlags() << " 0x" << m_filter.getExcludeFlags() << std::dec
+              << std::endl;
 #endif
 			m_navQuery->findPolysAroundCircle(m_startRef, m_spos, dist, &m_filter,
 											  m_polys, m_parent, nullptr, &m_npolys, MAX_POLYS);
@@ -933,12 +951,15 @@ void NavMeshTesterTool::recalc()
 			m_queryPoly[11] = m_epos[2] + nz;
 			
 #ifdef DUMP_REQS
-			printf("fpp  %f %f %f  %f %f %f  %f %f %f  %f %f %f  0x%x 0x%x\n",
-				   m_queryPoly[0],m_queryPoly[1],m_queryPoly[2],
-				   m_queryPoly[3],m_queryPoly[4],m_queryPoly[5],
-				   m_queryPoly[6],m_queryPoly[7],m_queryPoly[8],
-				   m_queryPoly[9],m_queryPoly[10],m_queryPoly[11],
-				   m_filter.getIncludeFlags(), m_filter.getExcludeFlags());
+    std::cout << std::fixed << std::setprecision(6); // Adjust precision as needed
+
+    std::cout << "fpp  "
+              << m_queryPoly[0] << " " << m_queryPoly[1] << " " << m_queryPoly[2] << "  "
+              << m_queryPoly[3] << " " << m_queryPoly[4] << " " << m_queryPoly[5] << "  "
+              << m_queryPoly[6] << " " << m_queryPoly[7] << " " << m_queryPoly[8] << "  "
+              << m_queryPoly[9] << " " << m_queryPoly[10] << " " << m_queryPoly[11] << "  "
+              << std::hex << "0x" << m_filter.getIncludeFlags() << " 0x" << m_filter.getExcludeFlags() << std::dec
+              << std::endl;
 #endif
 			m_navQuery->findPolysAroundShape(m_startRef, m_queryPoly, 4, &m_filter,
 											 m_polys, m_parent, nullptr, &m_npolys, MAX_POLYS);
@@ -949,9 +970,13 @@ void NavMeshTesterTool::recalc()
 		if (m_sposSet && m_startRef)
 		{
 #ifdef DUMP_REQS
-			printf("fln  %f %f %f  %f  0x%x 0x%x\n",
-				   m_spos[0],m_spos[1],m_spos[2], m_neighbourhoodRadius,
-				   m_filter.getIncludeFlags(), m_filter.getExcludeFlags());
+    std::cout << std::fixed << std::setprecision(6); // Adjust precision as needed
+
+    std::cout << "fln  "
+              << m_spos[0] << " " << m_spos[1] << " " << m_spos[2] << "  "
+              << m_neighbourhoodRadius << "  "
+              << std::hex << "0x" << m_filter.getIncludeFlags() << " 0x" << m_filter.getExcludeFlags() << std::dec
+              << std::endl;
 #endif
 			m_navQuery->findLocalNeighbourhood(m_startRef, m_spos, m_neighbourhoodRadius, &m_filter,
 											   m_polys, m_parent, &m_npolys, MAX_POLYS);
@@ -967,8 +992,7 @@ static void getPolyCenter(const dtNavMesh* navMesh, const dtPolyRef ref, float* 
 	
 	const dtMeshTile* tile = nullptr;
 	const dtPoly* poly = nullptr;
-	const dtStatus status = navMesh->getTileAndPolyByRef(ref, &tile, &poly);
-	if (dtStatusFailed(status))
+	if (dtStatusFailed(navMesh->getTileAndPolyByRef(ref, &tile, &poly)))
 		return;
 		
 	for (int i = 0; i < static_cast<int>(poly->vertCount); ++i)
@@ -1257,9 +1281,7 @@ void NavMeshTesterTool::handleRender()
 				const float* s = &segs[j*6];
 				
 				// Skip too distant segments.
-				float tseg;
-				const float distSqr = dtDistancePtSegSqr2D(m_spos, s, s+3, tseg);
-				if (distSqr > dtSqr(m_neighbourhoodRadius))
+				if (float tseg; dtDistancePtSegSqr2D(m_spos, s, s+3, tseg) > dtSqr(m_neighbourhoodRadius))
 					continue;
 				
 				float delta[3], norm[3], p0[3], p1[3];
@@ -1474,7 +1496,6 @@ void UnitedSizeNavMeshTesterTool::handleToggle() {
   if (offMeshConnection && inRange(m_iterPos, steerPos, SLOP, 1.0f))
   {
     // Reached off-mesh connection.
-    float startPos[3], endPos[3];
 
     // Advance the path up to and over the off-mesh connection.
     dtPolyRef prevRef = 0, polyRef = m_pathIterPolys[0];
@@ -1489,9 +1510,9 @@ void UnitedSizeNavMeshTesterTool::handleToggle() {
       m_pathIterPolys[i-npos] = m_pathIterPolys[i];
     m_pathIterPolyCount -= npos;
 
+    float startPos[3];
     // Handle the connection.
-    const dtStatus status = m_navMesh->getOffMeshConnectionPolyEndPoints(prevRef, polyRef, startPos, endPos);
-    if (dtStatusSucceed(status))
+    if (float endPos[3]; dtStatusSucceed(m_navMesh->getOffMeshConnectionPolyEndPoints(prevRef, polyRef, startPos, endPos)))
     {
       if (m_nsmoothPath < MAX_SMOOTH)
       {
@@ -1542,9 +1563,13 @@ void UnitedSizeNavMeshTesterTool::recalc()
 		if (m_sposSet && m_eposSet && m_startRef && m_endRef)
 		{
 #ifdef DUMP_REQS
-			printf("pi  %f %f %f  %f %f %f  0x%x 0x%x\n",
-				   m_spos[0],m_spos[1],m_spos[2], m_epos[0],m_epos[1],m_epos[2],
-				   m_filter.getIncludeFlags(), m_filter.getExcludeFlags());
+    std::cout << std::fixed << std::setprecision(6); // Adjust precision as needed
+
+    std::cout << "pi  "
+              << m_spos[0] << " " << m_spos[1] << " " << m_spos[2] << "  "
+              << m_epos[0] << " " << m_epos[1] << " " << m_epos[2] << "  "
+              << std::hex << "0x" << m_filter.getIncludeFlags() << " 0x" << m_filter.getExcludeFlags() << std::dec
+              << std::endl;
 #endif
 
 			m_navQuery->findPathWithSize(m_startRef, m_endRef, m_spos, m_epos, &m_filter, m_polys, &m_npolys, MAX_POLYS, agentSize);
@@ -1628,7 +1653,6 @@ void UnitedSizeNavMeshTesterTool::recalc()
 					if (offMeshConnection && inRange(iterPos, steerPos, SLOP, 1.0f))
 					{
 						// Reached off-mesh connection.
-						float startPos[3], endPos[3];
 
 						// Advance the path up to and over the off-mesh connection.
 						dtPolyRef prevRef = 0, polyRef = polys[0];
@@ -1644,8 +1668,8 @@ void UnitedSizeNavMeshTesterTool::recalc()
 						npolys -= npos;
 
 						// Handle the connection.
-						const dtStatus status = m_navMesh->getOffMeshConnectionPolyEndPoints(prevRef, polyRef, startPos, endPos);
-						if (dtStatusSucceed(status))
+						float startPos[3];
+						if (float endPos[3]; dtStatusSucceed(m_navMesh->getOffMeshConnectionPolyEndPoints(prevRef, polyRef, startPos, endPos)))
 						{
 							if (m_nsmoothPath < MAX_SMOOTH)
 							{
@@ -1687,9 +1711,13 @@ void UnitedSizeNavMeshTesterTool::recalc()
 		if (m_sposSet && m_eposSet && m_startRef && m_endRef)
 		{
 #ifdef DUMP_REQS
-			printf("ps  %f %f %f  %f %f %f  0x%x 0x%x\n",
-				   m_spos[0],m_spos[1],m_spos[2], m_epos[0],m_epos[1],m_epos[2],
-				   m_filter.getIncludeFlags(), m_filter.getExcludeFlags());
+    std::cout << std::fixed << std::setprecision(6); // Adjust precision as needed
+
+    std::cout << "ps  "
+              << m_spos[0] << " " << m_spos[1] << " " << m_spos[2] << "  "
+              << m_epos[0] << " " << m_epos[1] << " " << m_epos[2] << "  "
+              << std::hex << "0x" << m_filter.getIncludeFlags() << " 0x" << m_filter.getExcludeFlags() << std::dec
+              << std::endl;
 #endif
 			m_navQuery->findPathWithSize(m_startRef, m_endRef, m_spos, m_epos, &m_filter, m_polys, &m_npolys, MAX_POLYS, agentSize);
 			m_nstraightPath = 0;
@@ -1717,9 +1745,13 @@ void UnitedSizeNavMeshTesterTool::recalc()
 		if (m_sposSet && m_eposSet && m_startRef && m_endRef)
 		{
 #ifdef DUMP_REQS
-			printf("ps  %f %f %f  %f %f %f  0x%x 0x%x\n",
-				   m_spos[0],m_spos[1],m_spos[2], m_epos[0],m_epos[1],m_epos[2],
-				   m_filter.getIncludeFlags(), m_filter.getExcludeFlags());
+    std::cout << std::fixed << std::setprecision(6); // Adjust precision as needed
+
+    std::cout << "ps  "
+              << m_spos[0] << " " << m_spos[1] << " " << m_spos[2] << "  "
+              << m_epos[0] << " " << m_epos[1] << " " << m_epos[2] << "  "
+              << std::hex << "0x" << m_filter.getIncludeFlags() << " 0x" << m_filter.getExcludeFlags() << std::dec
+              << std::endl;
 #endif
 			m_npolys = 0;
 			m_nstraightPath = 0;
@@ -1738,9 +1770,13 @@ void UnitedSizeNavMeshTesterTool::recalc()
 		if (m_sposSet && m_eposSet && m_startRef)
 		{
 #ifdef DUMP_REQS
-			printf("rc  %f %f %f  %f %f %f  0x%x 0x%x\n",
-				   m_spos[0],m_spos[1],m_spos[2], m_epos[0],m_epos[1],m_epos[2],
-				   m_filter.getIncludeFlags(), m_filter.getExcludeFlags());
+    std::cout << std::fixed << std::setprecision(6); // Adjust precision as needed
+
+    std::cout << "rc  "
+              << m_spos[0] << " " << m_spos[1] << " " << m_spos[2] << "  "
+              << m_epos[0] << " " << m_epos[1] << " " << m_epos[2] << "  "
+              << std::hex << "0x" << m_filter.getIncludeFlags() << " 0x" << m_filter.getExcludeFlags() << std::dec
+              << std::endl;
 #endif
 			float t = 0;
 			m_npolys = 0;
@@ -1777,9 +1813,13 @@ void UnitedSizeNavMeshTesterTool::recalc()
 		if (m_sposSet && m_startRef)
 		{
 #ifdef DUMP_REQS
-			printf("dw  %f %f %f  %f  0x%x 0x%x\n",
-				   m_spos[0],m_spos[1],m_spos[2], 100.0f,
-				   m_filter.getIncludeFlags(), m_filter.getExcludeFlags());
+    std::cout << std::fixed << std::setprecision(6); // Adjust precision as needed
+
+    std::cout << "dw  "
+              << m_spos[0] << " " << m_spos[1] << " " << m_spos[2] << "  "
+              << 100.0f << "  "
+              << std::hex << "0x" << m_filter.getIncludeFlags() << " 0x" << m_filter.getExcludeFlags() << std::dec
+              << std::endl;
 #endif
 			m_distanceToWall = 0.0f;
 			m_navQuery->findDistanceToWall(m_startRef, m_spos, 100.0f, &m_filter, &m_distanceToWall, m_hitPos, m_hitNormal);
@@ -1793,9 +1833,13 @@ void UnitedSizeNavMeshTesterTool::recalc()
 			const float dz = m_epos[2] - m_spos[2];
 			const float dist = std::sqrt(dx*dx + dz*dz);
 #ifdef DUMP_REQS
-			printf("fpc  %f %f %f  %f  0x%x 0x%x\n",
-				   m_spos[0],m_spos[1],m_spos[2], dist,
-				   m_filter.getIncludeFlags(), m_filter.getExcludeFlags());
+    std::cout << std::fixed << std::setprecision(6); // Adjust precision as needed
+
+    std::cout << "fpc  "
+              << m_spos[0] << " " << m_spos[1] << " " << m_spos[2] << "  "
+              << dist << "  "
+              << std::hex << "0x" << m_filter.getIncludeFlags() << " 0x" << m_filter.getExcludeFlags() << std::dec
+              << std::endl;
 #endif
 			m_navQuery->findPolysAroundCircle(m_startRef, m_spos, dist, &m_filter,
 											  m_polys, m_parent, nullptr, &m_npolys, MAX_POLYS);
@@ -1827,12 +1871,15 @@ void UnitedSizeNavMeshTesterTool::recalc()
 			m_queryPoly[11] = m_epos[2] + nz;
 
 #ifdef DUMP_REQS
-			printf("fpp  %f %f %f  %f %f %f  %f %f %f  %f %f %f  0x%x 0x%x\n",
-				   m_queryPoly[0],m_queryPoly[1],m_queryPoly[2],
-				   m_queryPoly[3],m_queryPoly[4],m_queryPoly[5],
-				   m_queryPoly[6],m_queryPoly[7],m_queryPoly[8],
-				   m_queryPoly[9],m_queryPoly[10],m_queryPoly[11],
-				   m_filter.getIncludeFlags(), m_filter.getExcludeFlags());
+			std::cout << std::fixed << std::setprecision(6); // Adjust precision as needed
+
+			std::cout << "fpp  "
+					  << m_queryPoly[0] << " " << m_queryPoly[1] << " " << m_queryPoly[2] << "  "
+					  << m_queryPoly[3] << " " << m_queryPoly[4] << " " << m_queryPoly[5] << "  "
+					  << m_queryPoly[6] << " " << m_queryPoly[7] << " " << m_queryPoly[8] << "  "
+					  << m_queryPoly[9] << " " << m_queryPoly[10] << " " << m_queryPoly[11] << "  "
+					  << std::hex << "0x" << m_filter.getIncludeFlags() << " 0x" << m_filter.getExcludeFlags() << std::dec
+					  << std::endl;
 #endif
 			m_navQuery->findPolysAroundShape(m_startRef, m_queryPoly, 4, &m_filter,
 											 m_polys, m_parent, nullptr, &m_npolys, MAX_POLYS);
@@ -1843,9 +1890,13 @@ void UnitedSizeNavMeshTesterTool::recalc()
 		if (m_sposSet && m_startRef)
 		{
 #ifdef DUMP_REQS
-			printf("fln  %f %f %f  %f  0x%x 0x%x\n",
-				   m_spos[0],m_spos[1],m_spos[2], m_neighbourhoodRadius,
-				   m_filter.getIncludeFlags(), m_filter.getExcludeFlags());
+    std::cout << std::fixed << std::setprecision(6); // Adjust precision as needed
+
+    std::cout << "fln  "
+              << m_spos[0] << " " << m_spos[1] << " " << m_spos[2] << "  "
+              << m_neighbourhoodRadius << "  "
+              << std::hex << "0x" << m_filter.getIncludeFlags() << " 0x" << m_filter.getExcludeFlags() << std::dec
+              << std::endl;
 #endif
 			m_navQuery->findLocalNeighbourhood(m_startRef, m_spos, m_neighbourhoodRadius, &m_filter,
 											   m_polys, m_parent, &m_npolys, MAX_POLYS);

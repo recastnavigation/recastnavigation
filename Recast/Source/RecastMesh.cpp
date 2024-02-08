@@ -1120,16 +1120,6 @@ bool rcBuildPolyMesh(rcContext* ctx, const rcContourSet& cset, const int nvp, rc
         if (ntris <= 0)
         {
             // Bad triangulation, should not happen.
-            /*			printf("\tconst float bmin[3] = {%ff,%ff,%ff};\n", cset.bmin[0], cset.bmin[1], cset.bmin[2]);
-                        printf("\tconst float cs = %ff;\n", cset.cs);
-                        printf("\tconst float ch = %ff;\n", cset.ch);
-                        printf("\tconst int verts[] = {\n");
-                        for (int k = 0; k < cont.nverts; ++k)
-                        {
-                            const int* v = &cont.verts[k*4];
-                            printf("\t\t%d,%d,%d,%d,\n", v[0], v[1], v[2], v[3]);
-                        }
-                        printf("\t};\n\tconst int nverts = sizeof(verts)/(sizeof(int)*4);\n");*/
             ctx->log(RC_LOG_WARNING, "rcBuildPolyMesh: Bad triangulation Contour %d.", i);
             ntris = -ntris;
         }

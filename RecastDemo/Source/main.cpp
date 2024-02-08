@@ -27,6 +27,7 @@
 #	include <GL/glu.h>
 #endif
 
+#include <iostream>
 #include <vector>
 #include <string>
 
@@ -68,7 +69,7 @@ static SampleItem g_samples[] =
 int main(int argc, char * argv[]) {
     // Init SDL
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
-        printf("Could not initialise SDL.\nError: %s\n", SDL_GetError());
+        std::cout << "Could not initialise SDL.\nError: " << SDL_GetError() << std::endl;
         return -1;
     }
 
@@ -112,14 +113,14 @@ int main(int argc, char * argv[]) {
     SDL_Renderer *renderer;
 
     if (SDL_CreateWindowAndRenderer(width, height, flags, &window, &renderer) != 0 || !window || !renderer) {
-        printf("Could not initialise SDL opengl\nError: %s\n", SDL_GetError());
+        std::cout << "Could not initialise SDL opengl\nError: " << SDL_GetError() << std::endl;
         return -1;
     }
 
     SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 
     if (!imguiRenderGLInit("DroidSans.ttf")) {
-        printf("Could not init GUI renderer.\n");
+        std::cout << "Could not init GUI renderer" << std::endl;
         SDL_Quit();
         return -1;
     }
