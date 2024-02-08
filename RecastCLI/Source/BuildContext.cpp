@@ -54,7 +54,7 @@ void BuildContext::doLog(const rcLogCategory category, const char* msg, const in
 void BuildContext::doResetTimers()
 {
 	for (long long & i : m_accTime)
-		i = -1;
+		i = -1ll;
 }
 
 void BuildContext::doStartTimer(const rcTimerLabel label)
