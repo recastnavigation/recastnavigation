@@ -1368,7 +1368,7 @@ bool rcBuildRegionsMonotone(rcContext* ctx, rcCompactHeightfield& chf,
     const int h = chf.height;
     unsigned short id = 1;
 
-    rcScopedDelete<unsigned short> srcReg(
+    rcScopedDelete srcReg(
         static_cast<unsigned short*>(rcAlloc(sizeof(unsigned short) * chf.spanCount, RC_ALLOC_TEMP)));
     if (!srcReg)
     {
@@ -1378,7 +1378,7 @@ bool rcBuildRegionsMonotone(rcContext* ctx, rcCompactHeightfield& chf,
     memset(static_cast<void*>(srcReg), 0, sizeof(unsigned short) * chf.spanCount);
 
     const int nsweeps = rcMax(chf.width, chf.height);
-    rcScopedDelete<rcSweepSpan>
+    rcScopedDelete
         sweeps(static_cast<rcSweepSpan*>(rcAlloc(sizeof(rcSweepSpan) * nsweeps, RC_ALLOC_TEMP)));
     if (!sweeps)
     {
@@ -1549,7 +1549,7 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
     const int w = chf.width;
     const int h = chf.height;
 
-    const rcScopedDelete<unsigned short> buf(
+    const rcScopedDelete buf(
         static_cast<unsigned short*>(rcAlloc(sizeof(unsigned short) * chf.spanCount * 2, RC_ALLOC_TEMP)));
     if (!buf)
     {
@@ -1692,7 +1692,7 @@ bool rcBuildLayerRegions(rcContext* ctx, rcCompactHeightfield& chf,
     const int h = chf.height;
     unsigned short id = 1;
 
-    rcScopedDelete<unsigned short> srcReg(
+    rcScopedDelete srcReg(
         static_cast<unsigned short*>(rcAlloc(sizeof(unsigned short) * chf.spanCount, RC_ALLOC_TEMP)));
     if (!srcReg)
     {
@@ -1702,7 +1702,7 @@ bool rcBuildLayerRegions(rcContext* ctx, rcCompactHeightfield& chf,
     memset(static_cast<void*>(srcReg), 0, sizeof(unsigned short) * chf.spanCount);
 
     const int nsweeps = rcMax(chf.width, chf.height);
-    rcScopedDelete<rcSweepSpan>
+    rcScopedDelete
         sweeps(static_cast<rcSweepSpan*>(rcAlloc(sizeof(rcSweepSpan) * nsweeps, RC_ALLOC_TEMP)));
     if (!sweeps)
     {

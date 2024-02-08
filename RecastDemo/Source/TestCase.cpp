@@ -30,6 +30,9 @@
 #else
 #	include <GL/glu.h>
 #endif
+#include <fstream>
+#include <sstream>
+
 #include "imgui.h"
 #include "PerfTimer.h"
 
@@ -98,34 +101,28 @@ static void copyName(std::string& dst, const char* src)
 
 bool TestCase::load(const std::string& filePath)
 {
-    FILE* fp;
-    fopen_s(&fp, filePath.c_str(), "rb");
-    if (!fp)
-        return false;
-    if (fseek(fp, 0, SEEK_END) != 0)
-    {
-        fclose(fp);
+    std::ifstream file(filePath, std::ios::in | std::ios::binary | std::ios::ate);
+
+    if (!file.is_open()) {
         return false;
     }
-    const long bufSize = ftell(fp);
-    if (bufSize < 0)
-    {
-        fclose(fp);
+
+    const std::streamsize fileSize = file.tellg();
+    file.seekg(0, std::ios::beg);
+
+    if (fileSize < 0) {
         return false;
     }
-    if (fseek(fp, 0, SEEK_SET) != 0)
-    {
-        fclose(fp);
-        return false;
-    }
-    const auto buf = new (std::nothrow) char[bufSize];
+
+    const auto buf = new (std::nothrow) char[fileSize];
     if (!buf)
     {
-        fclose(fp);
+        file.close();
         return false;
     }
-    const size_t readLen = fread(buf, bufSize, 1, fp);
-    fclose(fp);
+    file.read(buf, fileSize);
+    const size_t readLen = file.gcount();
+    file.close();
     if (readLen != 1)
     {
         delete[] buf;
@@ -133,7 +130,7 @@ bool TestCase::load(const std::string& filePath)
     }
 
     char* src = buf;
-    const char* srcEnd = buf + bufSize;
+    const char* srcEnd = buf + fileSize;
     char row[512];
     while (src < srcEnd)
     {
@@ -158,10 +155,10 @@ bool TestCase::load(const std::string& filePath)
             test->expand = false;
             test->next = m_tests;
             m_tests = test;
-            sscanf_s(row + 2, "%f %f %f %f %f %f %hx %hx",
-                     &test->spos[0], &test->spos[1], &test->spos[2],
-                     &test->epos[0], &test->epos[1], &test->epos[2],
-                     &test->includeFlags, &test->excludeFlags);
+            std::istringstream rowStream(row + 2);
+            rowStream >> test->spos[0] >> test->spos[1] >> test->spos[2]
+                      >> test->epos[0] >> test->epos[1] >> test->epos[2]
+                      >> std::hex >> test->includeFlags >> test->excludeFlags;
         }
         else if (row[0] == 'r' && row[1] == 'c')
         {
@@ -171,10 +168,11 @@ bool TestCase::load(const std::string& filePath)
             test->expand = false;
             test->next = m_tests;
             m_tests = test;
-            sscanf_s(row + 2, "%f %f %f %f %f %f %hx %hx",
-                     &test->spos[0], &test->spos[1], &test->spos[2],
-                     &test->epos[0], &test->epos[1], &test->epos[2],
-                     &test->includeFlags, &test->excludeFlags);
+
+            std::istringstream rowStream(row + 2);
+            rowStream >> test->spos[0] >> test->spos[1] >> test->spos[2]
+                      >> test->epos[0] >> test->epos[1] >> test->epos[2]
+                      >> std::hex >> test->includeFlags >> test->excludeFlags;
         }
     }
 

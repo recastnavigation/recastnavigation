@@ -21,6 +21,8 @@
 #include <cstdlib>
 #include <cstring>
 #include <cmath>
+#include <fstream>
+#include <sstream>
 
 rcMeshLoaderObj::rcMeshLoaderObj() :
 	m_scale(1.0f),
@@ -137,43 +139,36 @@ static int parseFace(char* row, int* data, const int n, const int vcnt)
 
 bool rcMeshLoaderObj::load(const std::string& fileName)
 {
-	FILE* fp;
-	fopen_s(&fp, fileName.c_str(), "rb");
-	if (!fp)
-		return false;
-	if (fseek(fp, 0, SEEK_END) != 0)
-	{
-		fclose(fp);
-		return false;
-	}
-	const long bufSize = ftell(fp);
-	if (bufSize < 0)
-	{
-		fclose(fp);
-		return false;
-	}
-	if (fseek(fp, 0, SEEK_SET) != 0)
-	{
-		fclose(fp);
-		return false;
-	}
-	const auto buf = new (std::nothrow) char[bufSize];
-	if (!buf)
-	{
-		fclose(fp);
-		return false;
-	}
-	const size_t readLen = fread(buf, bufSize, 1, fp);
-	fclose(fp);
+    std::ifstream file(fileName, std::ios::binary | std::ios::ate);
 
-	if (readLen != 1)
-	{
-		delete[] buf;
-		return false;
-	}
+    if (!file.is_open()) {
+        return false;
+    }
+
+    const std::streamsize fileSize = file.tellg();
+    file.seekg(0, std::ios::beg);
+
+    if (fileSize < 0) {
+        return false;
+    }
+
+    const auto buf = new (std::nothrow) char[fileSize];
+    if (!buf)
+    {
+        file.close();
+        return false;
+    }
+    file.read(buf, fileSize);
+    const size_t readLen = file.gcount();
+    file.close();
+    if (readLen != 1)
+    {
+        delete[] buf;
+        return false;
+    }
 
 	char* src = buf;
-	const char* srcEnd = buf + bufSize;
+	const char* srcEnd = buf + fileSize;
 	char row[512];
 	float x,y,z;
 	int vcap = 0;
@@ -189,7 +184,8 @@ bool rcMeshLoaderObj::load(const std::string& fileName)
 		if (row[0] == 'v' && row[1] != 'n' && row[1] != 't')
 		{
 			// Vertex pos
-			sscanf_s(row+1, "%f %f %f", &x, &y, &z);
+            std::istringstream rowStream(row + 1);
+			rowStream >> x >> y >> z;
 			addVertex(x, y, z, vcap);
 		}
 		if (row[0] == 'f')

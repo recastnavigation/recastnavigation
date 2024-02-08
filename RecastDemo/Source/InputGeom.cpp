@@ -23,6 +23,10 @@
 #include <algorithm>
 #include "Recast.h"
 #include "InputGeom.h"
+
+#include <fstream>
+#include <sstream>
+
 #include "ChunkyTriMesh.h"
 #include "MeshLoaderObj.h"
 #include "DebugDraw.h"
@@ -158,39 +162,30 @@ bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath)
     return true;
 }
 
-bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath)
+bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filePath)
 {
-    FILE* fp;
-	fopen_s(&fp, filepath.c_str(), "rb");
-    if (!fp)
-    {
-        return false;
-    }
-    if (fseek(fp, 0, SEEK_END) != 0)
-    {
-        fclose(fp);
+    std::ifstream file(filePath, std::ios::binary | std::ios::ate);
+
+    if (!file.is_open()) {
         return false;
     }
 
-    const long bufSize = ftell(fp);
-    if (bufSize < 0)
-    {
-        fclose(fp);
+    const std::streamsize fileSize = file.tellg();
+    file.seekg(0, std::ios::beg);
+
+    if (fileSize < 0) {
         return false;
     }
-    if (fseek(fp, 0, SEEK_SET) != 0)
-    {
-        fclose(fp);
-        return false;
-    }
-    const auto buf = new (std::nothrow) char[bufSize];
+
+    const auto buf = new (std::nothrow) char[fileSize];
     if (!buf)
     {
-        fclose(fp);
+        file.close();
         return false;
     }
-    const size_t readLen = fread(buf, bufSize, 1, fp);
-    fclose(fp);
+    file.read(buf, fileSize);
+    const size_t readLen = file.gcount();
+    file.close();
     if (readLen != 1)
     {
         delete[] buf;
@@ -203,87 +198,79 @@ bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath)
     m_mesh = nullptr;
 
     char* src = buf;
-    const char* srcEnd = buf + bufSize;
+    const char* srcEnd = buf + fileSize;
     char row[512];
     while (src < srcEnd)
     {
         // Parse one row
         row[0] = '\0';
         src = parseRow(src, srcEnd, row, sizeof(row) / sizeof(char));
-        if (row[0] == 'f')
+        char command = row[0];
+        std::istringstream rowStream(row + 1);
+        switch (command)
         {
-            // File name.
-            const char* name = row + 1;
-            // Skip white spaces
-            while (*name && isspace(*name))
-                name++;
-            if (*name)
-            {
-                if (!loadMesh(ctx, name))
+            case 'f': {
+                // File name
+                std::string name;
+                rowStream >> name;
+                if (!name.empty())
                 {
-                    delete [] buf;
-                    return false;
+                    if (!loadMesh(ctx, name))
+                    {
+                        delete[] buf;
+                        return false;
+                    }
                 }
+                break;
             }
-        }
-        else if (row[0] == 'c')
-        {
-            // Off-mesh connection
-            if (m_offMeshConCount < MAX_OFFMESH_CONNECTIONS)
-            {
-                float* v = &m_offMeshConVerts[m_offMeshConCount * 3 * 2];
-                int bidir, area = 0, flags = 0;
-                float rad;
-                sscanf_s(row + 1, "%f %f %f  %f %f %f %f %d %d %d",
-                       &v[0], &v[1], &v[2], &v[3], &v[4], &v[5], &rad, &bidir, &area, &flags);
-                m_offMeshConRads[m_offMeshConCount] = rad;
-                m_offMeshConDirs[m_offMeshConCount] = static_cast<unsigned char>(bidir);
-                m_offMeshConAreas[m_offMeshConCount] = static_cast<unsigned char>(area);
-                m_offMeshConFlags[m_offMeshConCount] = static_cast<unsigned short>(flags);
-                m_offMeshConCount++;
-            }
-        }
-        else if (row[0] == 'v')
-        {
-            // Convex volumes
-            if (m_volumeCount < MAX_VOLUMES)
-            {
-                ConvexVolume* vol = &m_volumes[m_volumeCount++];
-                sscanf_s(row + 1, "%d %d %f %f", &vol->nverts, &vol->area, &vol->hmin, &vol->hmax);
-                for (int i = 0; i < vol->nverts; ++i)
+            case 'c': {
+                // Off-mesh connection
+                if (m_offMeshConCount < MAX_OFFMESH_CONNECTIONS)
                 {
-                    row[0] = '\0';
-                    src = parseRow(src, srcEnd, row, sizeof(row) / sizeof(char));
-                    sscanf_s(row, "%f %f %f", &vol->verts[i * 3 + 0], &vol->verts[i * 3 + 1], &vol->verts[i * 3 + 2]);
+                    float* v = &m_offMeshConVerts[m_offMeshConCount * 3 * 2];
+                    int bidir, area = 0, flags = 0;
+                    float rad;
+                    rowStream >> v[0] >> v[1] >> v[2] >> v[3] >> v[4] >> v[5] >> rad >> bidir >> area >> flags;
+                    m_offMeshConRads[m_offMeshConCount] = rad;
+                    m_offMeshConDirs[m_offMeshConCount] = static_cast<unsigned char>(bidir);
+                    m_offMeshConAreas[m_offMeshConCount] = static_cast<unsigned char>(area);
+                    m_offMeshConFlags[m_offMeshConCount] = static_cast<unsigned short>(flags);
+                    m_offMeshConCount++;
                 }
+                break;
             }
-        }
-        else if (row[0] == 's')
-        {
-            // Settings
-            m_hasBuildSettings = true;
-            sscanf_s(row + 1, "%f %f %f %f %f %f %f %f %f %f %f %f %f %d %f %f %f %f %f %f %f",
-                   &m_buildSettings.cellSize,
-                   &m_buildSettings.cellHeight,
-                   &m_buildSettings.agentHeight,
-                   &m_buildSettings.agentRadius,
-                   &m_buildSettings.agentMaxClimb,
-                   &m_buildSettings.agentMaxSlope,
-                   &m_buildSettings.regionMinSize,
-                   &m_buildSettings.regionMergeSize,
-                   &m_buildSettings.edgeMaxLen,
-                   &m_buildSettings.edgeMaxError,
-                   &m_buildSettings.vertsPerPoly,
-                   &m_buildSettings.detailSampleDist,
-                   &m_buildSettings.detailSampleMaxError,
-                   &m_buildSettings.partitionType,
-                   &m_buildSettings.navMeshBMin[0],
-                   &m_buildSettings.navMeshBMin[1],
-                   &m_buildSettings.navMeshBMin[2],
-                   &m_buildSettings.navMeshBMax[0],
-                   &m_buildSettings.navMeshBMax[1],
-                   &m_buildSettings.navMeshBMax[2],
-                   &m_buildSettings.tileSize);
+            case 'v': {
+                // Convex volumes
+                if (m_volumeCount < MAX_VOLUMES) {
+                    auto&[verts, hmin, hmax, nverts, area] = m_volumes[m_volumeCount++];
+                    rowStream >> nverts >> area >> hmin >> hmax;
+                    for (int i = 0; i < nverts; ++i)
+                    {
+                        row[0] = '\0';
+                        src = parseRow(src, srcEnd, row, sizeof(row) / sizeof(char));
+                        std::istringstream vertStream(row);
+                        vertStream >> verts[0] >>verts[1] >> verts[2];
+                    }
+                }
+                break;
+            }
+            case 's': {
+                m_hasBuildSettings = true;
+                rowStream >> m_buildSettings.cellSize >> m_buildSettings.cellHeight
+                          >> m_buildSettings.agentHeight >> m_buildSettings.agentRadius
+                          >> m_buildSettings.agentMaxClimb >> m_buildSettings.agentMaxSlope
+                          >> m_buildSettings.regionMinSize >> m_buildSettings.regionMergeSize
+                          >> m_buildSettings.edgeMaxLen >> m_buildSettings.edgeMaxError
+                          >> m_buildSettings.vertsPerPoly >> m_buildSettings.detailSampleDist
+                          >> m_buildSettings.detailSampleMaxError >> m_buildSettings.partitionType
+                          >> m_buildSettings.navMeshBMin[0] >> m_buildSettings.navMeshBMin[1] >> m_buildSettings.navMeshBMin[2]
+                          >> m_buildSettings.navMeshBMax[0] >> m_buildSettings.navMeshBMax[1] >> m_buildSettings.navMeshBMax[2]
+                          >> m_buildSettings.tileSize;
+                break;
+            }
+            default: {
+                break;
+            }
         }
     }
 
@@ -320,63 +307,61 @@ bool InputGeom::saveGeomSet(const BuildSettings* settings) const
 
     filepath += ".gset";
 
-    FILE* fp;
-	fopen_s(&fp, filepath.c_str(), "w");
-    if (!fp) return false;
+    std::ofstream file(filepath, std::ios::out);
+    if (!file.is_open()) {
+        return false;
+    }
 
     // Store mesh filename.
-    fprintf(fp, "f %s\n", m_mesh->getFileName().c_str());
+    file << "f " << m_mesh->getFileName() << "\n";
 
     // Store settings if any
-    if (settings)
-    {
-        fprintf(fp,
-                "s %f %f %f %f %f %f %f %f %f %f %f %f %f %d %f %f %f %f %f %f %f\n",
-                settings->cellSize,
-                settings->cellHeight,
-                settings->agentHeight,
-                settings->agentRadius,
-                settings->agentMaxClimb,
-                settings->agentMaxSlope,
-                settings->regionMinSize,
-                settings->regionMergeSize,
-                settings->edgeMaxLen,
-                settings->edgeMaxError,
-                settings->vertsPerPoly,
-                settings->detailSampleDist,
-                settings->detailSampleMaxError,
-                settings->partitionType,
-                settings->navMeshBMin[0],
-                settings->navMeshBMin[1],
-                settings->navMeshBMin[2],
-                settings->navMeshBMax[0],
-                settings->navMeshBMax[1],
-                settings->navMeshBMax[2],
-                settings->tileSize);
+    if (settings) {
+        file << "s "
+             << settings->cellSize << " "
+             << settings->cellHeight << " "
+             << settings->agentHeight << " "
+             << settings->agentRadius << " "
+             << settings->agentMaxClimb << " "
+             << settings->agentMaxSlope << " "
+             << settings->regionMinSize << " "
+             << settings->regionMergeSize << " "
+             << settings->edgeMaxLen << " "
+             << settings->edgeMaxError << " "
+             << settings->vertsPerPoly << " "
+             << settings->detailSampleDist << " "
+             << settings->detailSampleMaxError << " "
+             << settings->partitionType << " "
+             << settings->navMeshBMin[0] << " "
+             << settings->navMeshBMin[1] << " "
+             << settings->navMeshBMin[2] << " "
+             << settings->navMeshBMax[0] << " "
+             << settings->navMeshBMax[1] << " "
+             << settings->navMeshBMax[2] << " "
+             << settings->tileSize << "\n";
     }
 
     // Store off-mesh links.
-    for (int i = 0; i < m_offMeshConCount; ++i)
-    {
+    for (int i = 0; i < m_offMeshConCount; ++i) {
         const float* v = &m_offMeshConVerts[i * 3 * 2];
         const float rad = m_offMeshConRads[i];
         const int bidir = m_offMeshConDirs[i];
         const int area = m_offMeshConAreas[i];
         const int flags = m_offMeshConFlags[i];
-        fprintf(fp, "c %f %f %f  %f %f %f  %f %d %d %d\n",
-                v[0], v[1], v[2], v[3], v[4], v[5], rad, bidir, area, flags);
+        file << "c " << v[0] << " " << v[1] << " " << v[2] << " "
+             << v[3] << " " << v[4] << " " << v[5] << " "
+             << rad << " " << bidir << " " << area << " " << flags << "\n";
     }
 
     // Convex volumes
-    for (int i = 0; i < m_volumeCount; ++i)
-    {
-        const ConvexVolume* vol = &m_volumes[i];
-        fprintf(fp, "v %d %d %f %f\n", vol->nverts, vol->area, vol->hmin, vol->hmax);
-        for (int j = 0; j < vol->nverts; ++j)
-            fprintf(fp, "%f %f %f\n", vol->verts[j * 3 + 0], vol->verts[j * 3 + 1], vol->verts[j * 3 + 2]);
+    for (const auto&[verts, hmin, hmax, nverts, area] : m_volumes) {
+        file << "v " << nverts << " " << area << " " << hmin << " " << hmax << "\n";
+        for (int j = 0; j < nverts; ++j) {
+            file << verts[j * 3 + 0] << " " << verts[j * 3 + 1] << " " << verts[j * 3 + 2] << "\n";
+        }
     }
 
-    fclose(fp);
+    file.close();
 
     return true;
 }

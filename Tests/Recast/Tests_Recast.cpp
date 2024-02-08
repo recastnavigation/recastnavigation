@@ -1091,7 +1091,7 @@ TEST_CASE("rcVector")
 
 	SECTION("Swap")
 	{
-		rcTempVector<int> a(10, 0xa);
+		rcTempVector a(10, 0xa);
 		rcTempVector<int> b;
 
 		int* a_data = a.data();
@@ -1133,7 +1133,7 @@ TEST_CASE("rcVector")
 
 	SECTION("Assign")
 	{
-		rcTempVector<int> a(10, 0xa);
+		rcTempVector a(10, 0xa);
 		a.assign(5, 0xb);
 		REQUIRE(a.size() == 5);
 		REQUIRE(a[0] == 0xb);
@@ -1151,25 +1151,25 @@ TEST_CASE("rcVector")
 
 	SECTION("Copy")
 	{
-		rcTempVector<int> a(10, 0xa);
-		rcTempVector<int> b(a);
+		rcTempVector a(10, 0xa);
+		rcTempVector b(a);
 		REQUIRE(a.size() == 10);
 		REQUIRE(a.size() == b.size());
 		REQUIRE(a[0] == b[0]);
 		REQUIRE(a.data() != b.data());
-		rcTempVector<int> c(a.data(), a.data() + a.size());
+		rcTempVector c(a.data(), a.data() + a.size());
 		REQUIRE(c.size() == a.size());
 		REQUIRE(c[0] == a[0]);
 
 		rcTempVector<Incrementor> d(10);
 		Incrementor::Reset();
-		rcTempVector<Incrementor> e(d);
+		rcTempVector e(d);
 		REQUIRE(Incrementor::constructions == 0);
 		REQUIRE(Incrementor::destructions == 0);
 		REQUIRE(Incrementor::copies == 10);
 
 		Incrementor::Reset();
-		rcTempVector<Incrementor> f(d.data(), d.data() + d.size());
+		rcTempVector f(d.data(), d.data() + d.size());
 		REQUIRE(Incrementor::constructions == 0);
 		REQUIRE(Incrementor::destructions == 0);
 		REQUIRE(Incrementor::copies == 10);
