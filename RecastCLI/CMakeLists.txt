@@ -1,9 +1,6 @@
 project(RecastCLI)
 file(GLOB SOURCES Source/*.cpp)
 
-
-
-
 add_executable(${PROJECT_NAME} ${SOURCES})
 add_dependencies(RecastCLI
         DebugUtils
@@ -36,4 +33,5 @@ install(TARGETS ${PROJECT_NAME}
         RUNTIME DESTINATION bin
         BUNDLE DESTINATION bin
 )
+
 install(DIRECTORY Meshes DESTINATION bin)

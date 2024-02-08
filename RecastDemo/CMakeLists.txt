@@ -6,15 +6,18 @@ add_dependencies(${PROJECT_NAME} DebugUtils Detour DetourCrowd DetourTileCache R
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 target_include_directories(${PROJECT_NAME} PRIVATE
-        SYSTEM ${OPENGL_INCLUDE_DIR}
-        SYSTEM Contrib/fastlz
-        SYSTEM Contrib
         ../DebugUtils/Include
         ../Detour/Include
         ../DetourCrowd/Include
         ../DetourTileCache/Include
         ../Recast/Include
         Include
+)
+
+target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE
+         ${OPENGL_INCLUDE_DIR}
+        Contrib/fastlz
+        Contrib
 )
 
 find_package(OpenGL REQUIRED)

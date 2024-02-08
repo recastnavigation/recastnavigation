@@ -30,16 +30,13 @@ jobs:
             other_pkgs: g++-10
           - os: ubuntu-latest
             cxx: clang++-10
-            other_pkgs: clang++-10
+            other_pkgs: clang-10
           - os: windows-latest
             cxx: cl
-            other_pkgs: cl
           - os: macos-latest
-            cxx: gxx++-11
-            other_pkgs: clang++-11
+            cxx: g++-11
           - os: macos-latest
             cxx: clang++
-            other_pkgs: clang++
         exclude:
           - os: ubuntu-latest
             cxx: g++-11
@@ -56,11 +53,11 @@ jobs:
           - os: windows-latest
             cxx: clang++
           - os: macos-latest
-            cxx: cl
-          - os: macos-latest
             cxx: g++-10
           - os: macos-latest
-            cxx: clang++10
+            cxx: clang++-10
+          - os: macos-latest
+            cxx: cl
 
     steps:
     - uses: actions/checkout@v4
