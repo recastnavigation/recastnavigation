@@ -542,7 +542,7 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 						                                           model, proj, view, &x, &y, &z))
 						{
 							const float heuristic = node->total;// - node->cost;
-							sprintf_s(label, "%.2f", heuristic);
+							std::snprintf(label, sizeof(label), "%.2f", heuristic);
 							imguiDrawText(static_cast<int>(x), static_cast<int>(y)+15, IMGUI_ALIGN_CENTER, label, imguiRGBA(0,0,0,220));
 						}
 					}
@@ -562,7 +562,7 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 				if (gluProject(ag->npos[0], static_cast<GLdouble>(ag->npos[1])+ ag->params.height, ag->npos[2],
 							   model, proj, view, &x, &y, &z))
 				{
-					sprintf_s(label, "%d", i);
+					std::snprintf(label, sizeof(label), "%d", i);
 					imguiDrawText(static_cast<int>(x), static_cast<int>(y)+15, IMGUI_ALIGN_CENTER, label, imguiRGBA(0,0,0,220));
 				}
 			}
@@ -590,7 +590,7 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 						if (gluProject(nei->npos[0], static_cast<GLdouble>(nei->npos[1])+radius, nei->npos[2],
 									   model, proj, view, &x, &y, &z))
 						{
-							sprintf_s(label, "%.3f", ag->neis[j].dist);
+							std::snprintf(label, sizeof(label), "%.3f", ag->neis[j].dist);
 							imguiDrawText(static_cast<int>(x), static_cast<int>(y)+15, IMGUI_ALIGN_CENTER, label, imguiRGBA(255,255,255,220));
 						}
 					}

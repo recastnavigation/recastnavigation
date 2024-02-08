@@ -36,10 +36,6 @@
 #include "imgui.h"
 #include "PerfTimer.h"
 
-#ifdef WIN32
-#define snprintf _snprintf
-#endif
-
 TestCase::TestCase() :
     m_tests(nullptr)
 {
@@ -123,7 +119,7 @@ bool TestCase::load(const std::string& filePath)
     file.read(buf, fileSize);
     const size_t readLen = file.gcount();
     file.close();
-    if (readLen != 1)
+    if (readLen != fileSize)
     {
         delete[] buf;
         return false;
@@ -416,7 +412,7 @@ bool TestCase::handleRenderOverlay(const double* proj, const double* model, cons
         if (gluProject(pt[0], pt[1], pt[2],
                        model, proj, view, &x, &y, &z))
         {
-            sprintf_s(text, "Path %d\n", n);
+            std::snprintf(text, sizeof(text), "Path %d\n", n);
             unsigned int col = imguiRGBA(0, 0, 0, 128);
             if (iter->expand)
                 col = imguiRGBA(255, 192, 0, 220);
@@ -434,20 +430,20 @@ bool TestCase::handleRenderOverlay(const double* proj, const double* model, cons
     {
         char subtext[64];
         const int total = iter->findNearestPolyTime + iter->findPathTime + iter->findStraightPathTime;
-        sprintf_s(subtext, "%.4f ms", static_cast<float>(total) / 1000.0f);
-        sprintf_s(text, "Path %d", n);
+        std::snprintf(subtext, sizeof(subtext), "%.4f ms", static_cast<float>(total) / 1000.0f);
+        std::snprintf(text, sizeof(text), "Path %d", n);
 
         if (imguiCollapse(text, subtext, iter->expand))
             iter->expand = !iter->expand;
         if (iter->expand)
         {
-            sprintf_s(text, "Poly: %.4f ms", static_cast<float>(iter->findNearestPolyTime) / 1000.0f);
+            std::snprintf(text, sizeof(text), "Poly: %.4f ms", static_cast<float>(iter->findNearestPolyTime) / 1000.0f);
             imguiValue(text);
 
-            sprintf_s(text, "Path: %.4f ms", static_cast<float>(iter->findPathTime) / 1000.0f);
+            std::snprintf(text, sizeof(text), "Path: %.4f ms", static_cast<float>(iter->findPathTime) / 1000.0f);
             imguiValue(text);
 
-            sprintf_s(text, "Straight: %.4f ms", static_cast<float>(iter->findStraightPathTime) / 1000.0f);
+            std::snprintf(text, sizeof(text), "Straight: %.4f ms", static_cast<float>(iter->findStraightPathTime) / 1000.0f);
             imguiValue(text);
 
             imguiSeparator();

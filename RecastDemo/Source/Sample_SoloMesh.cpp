@@ -37,11 +37,6 @@
 #include "ConvexVolumeTool.h"
 #include "CrowdTool.h"
 
-#ifdef WIN32
-#	define snprintf _snprintf
-#endif
-
-
 Sample_SoloMesh::Sample_SoloMesh() :
 	m_keepInterResults(true),
 	m_totalBuildTimeMs(0),
@@ -107,7 +102,7 @@ void Sample_SoloMesh::handleSettings()
 	imguiUnindent();
 	
 	char msg[64];
-	sprintf_s(msg, "Build Time: %.1fms", m_totalBuildTimeMs);
+	std::snprintf(msg, sizeof(msg), "Build Time: %.1fms", m_totalBuildTimeMs);
 	imguiLabel(msg);
 
 	imguiSeparator();

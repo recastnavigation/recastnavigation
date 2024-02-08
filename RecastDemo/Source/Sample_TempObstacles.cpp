@@ -45,11 +45,6 @@
 #include "RecastAlloc.h"
 #include "fastlz.h"
 
-#ifdef WIN32
-#	define snprintf _snprintf
-#endif
-
-
 // This value specifies how many layers (or "floors") each navmesh tile is expected to have.
 static constexpr int EXPECTED_LAYERS_PER_TILE = 4;
 
@@ -606,13 +601,13 @@ void drawDetailOverlay(const dtTileCache* tc, const int tx, const int ty, const 
                        model, proj, view, &x, &y, &z))
         {
             char text[128];
-            sprintf_s(text, "(%d,%d)/%d", tile->header->tx, tile->header->ty, tile->header->tlayer);
+            std::snprintf(text, sizeof(text), "(%d,%d)/%d", tile->header->tx, tile->header->ty, tile->header->tlayer);
             imguiDrawText(static_cast<int>(x), static_cast<int>(y) - 25, IMGUI_ALIGN_CENTER, text,
                           imguiRGBA(0, 0, 0, 220));
-            sprintf_s(text, "Compressed: %.1f kB", static_cast<float>(tile->dataSize) / 1024.0f);
+            std::snprintf(text, sizeof(text), "Compressed: %.1f kB", static_cast<float>(tile->dataSize) / 1024.0f);
             imguiDrawText(static_cast<int>(x), static_cast<int>(y) - 45, IMGUI_ALIGN_CENTER, text,
                           imguiRGBA(0, 0, 0, 128));
-            sprintf_s(text, "Raw:%.1fkB", static_cast<float>(rawSize) / 1024.0f);
+            std::snprintf(text, sizeof(text), "Raw:%.1fkB", static_cast<float>(rawSize) / 1024.0f);
             imguiDrawText(static_cast<int>(x), static_cast<int>(y) - 65, IMGUI_ALIGN_CENTER, text,
                           imguiRGBA(0, 0, 0, 128));
         }
@@ -885,7 +880,7 @@ void Sample_TempObstacles::handleSettings()
         const int ts = static_cast<int>(m_tileSize);
         const int tw = (gw + ts - 1) / ts;
         const int th = (gh + ts - 1) / ts;
-        sprintf_s(text, "Tiles  %d x %d", tw, th);
+        std::snprintf(text, sizeof(text), "Tiles  %d x %d", tw, th);
         imguiValue(text);
 
         // Max tiles and max polys affect how the tile IDs are caculated.
@@ -895,9 +890,9 @@ void Sample_TempObstacles::handleSettings()
         const int polyBits = 22 - tileBits;
         m_maxTiles = 1 << tileBits;
         m_maxPolysPerTile = 1 << polyBits;
-        sprintf_s(text, "Max Tiles  %d", m_maxTiles);
+        std::snprintf(text, sizeof(text), "Max Tiles  %d", m_maxTiles);
         imguiValue(text);
-        sprintf_s(text, "Max Polys  %d", m_maxPolysPerTile);
+        std::snprintf(text, sizeof(text), "Max Polys  %d", m_maxPolysPerTile);
         imguiValue(text);
         gridSize = tw * th;
     }
@@ -914,17 +909,17 @@ void Sample_TempObstacles::handleSettings()
 
     const float compressionRatio = static_cast<float>(m_cacheCompressedSize) / static_cast<float>(m_cacheRawSize + 1);
 
-    sprintf_s(msg, "Layers  %d", m_cacheLayerCount);
+    std::snprintf(msg, sizeof(msg), "Layers  %d", m_cacheLayerCount);
     imguiValue(msg);
-    sprintf_s(msg, "Layers (per tile)  %.1f", static_cast<float>(m_cacheLayerCount) / static_cast<float>(gridSize));
+    std::snprintf(msg, sizeof(msg), "Layers (per tile)  %.1f", static_cast<float>(m_cacheLayerCount) / static_cast<float>(gridSize));
     imguiValue(msg);
 
-    sprintf_s(msg, "Memory  %.1f kB / %.1f kB (%.1f%%)", static_cast<float>(m_cacheCompressedSize) / 1024.0f, static_cast<float>(m_cacheRawSize) / 1024.0f,
+    std::snprintf(msg, sizeof(msg), "Memory  %.1f kB / %.1f kB (%.1f%%)", static_cast<float>(m_cacheCompressedSize) / 1024.0f, static_cast<float>(m_cacheRawSize) / 1024.0f,
              compressionRatio * 100.0f);
     imguiValue(msg);
-    sprintf_s(msg, "Navmesh Build Time  %.1f ms", m_cacheBuildTimeMs);
+    std::snprintf(msg, sizeof(msg), "Navmesh Build Time  %.1f ms", m_cacheBuildTimeMs);
     imguiValue(msg);
-    sprintf_s(msg, "Build Peak Mem Usage  %.1f kB", static_cast<float>(m_cacheBuildMemUsage) / 1024.0f);
+    std::snprintf(msg, sizeof(msg), "Build Peak Mem Usage  %.1f kB", static_cast<float>(m_cacheBuildMemUsage) / 1024.0f);
     imguiValue(msg);
 
     imguiSeparator();

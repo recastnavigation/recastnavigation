@@ -43,11 +43,6 @@
 #include "Sample_TempObstacles.h"
 #include "Sample_Debug.h"
 
-#ifdef WIN32
-#	define snprintf _snprintf
-#	define putenv _putenv
-#endif
-
 using std::string;
 using std::vector;
 
@@ -504,7 +499,7 @@ int main(int argc, char * argv[]) {
             }
             if (geom) {
                 char text[64];
-                sprintf_s(text, "Verts: %.1fk  Tris: %.1fk",
+                std::snprintf(text, sizeof(text), "Verts: %.1fk  Tris: %.1fk",
                           static_cast<float>(geom->getMesh()->getVertCount()) * 1e-3f,
                           static_cast<float>(geom->getMesh()->getTriCount()) * 1e-3f);
                 imguiValue(text);

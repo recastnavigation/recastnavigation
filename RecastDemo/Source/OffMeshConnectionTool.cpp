@@ -32,10 +32,6 @@
 #include "Recast.h"
 #include "DetourDebugDraw.h"
 
-#ifdef WIN32
-#	define snprintf _snprintf
-#endif
-
 OffMeshConnectionTool::OffMeshConnectionTool() :
 	m_sample(nullptr), m_hitPos{},
 	m_hitPosSet(false),

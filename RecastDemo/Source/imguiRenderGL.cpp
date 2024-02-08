@@ -268,7 +268,7 @@ bool imguiRenderGLInit(const char* fontPath)
     file.read(reinterpret_cast<char *>(ttfBuffer), fileSize);
     const size_t readLen = file.gcount();
     file.close();
-    if (readLen != 1)
+    if (readLen != fileSize)
     {
         delete[] ttfBuffer;
         return false;
