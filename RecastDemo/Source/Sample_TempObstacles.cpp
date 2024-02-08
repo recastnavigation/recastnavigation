@@ -1416,9 +1416,8 @@ void Sample_TempObstacles::saveAll(const char* path) const
 {
     if (!m_tileCache) return;
 
-	FILE* fp;
-	fopen_s(&fp, path, "wb");
-    if (!fp)
+    std::ofstream file(path, std::ios::out | std::ios::binary);
+    if (!file.is_open())
         return;
 
     // Store header.
@@ -1433,7 +1432,7 @@ void Sample_TempObstacles::saveAll(const char* path) const
     }
     memcpy(&header.cacheParams, m_tileCache->getParams(), sizeof(dtTileCacheParams));
     memcpy(&header.meshParams, m_navMesh->getParams(), sizeof(dtNavMeshParams));
-    fwrite(&header, sizeof(TileCacheSetHeader), 1, fp);
+    file.write(reinterpret_cast<const char *>(&header), sizeof(TileCacheSetHeader));
 
     // Store tiles.
     for (int i = 0; i < m_tileCache->getTileCount(); ++i)
@@ -1444,62 +1443,62 @@ void Sample_TempObstacles::saveAll(const char* path) const
         TileCacheTileHeader tileHeader{};
         tileHeader.tileRef = m_tileCache->getTileRef(tile);
         tileHeader.dataSize = tile->dataSize;
-        fwrite(&tileHeader, sizeof(tileHeader), 1, fp);
+        file.write(reinterpret_cast<const char *>(&tileHeader), sizeof(tileHeader));
 
-        fwrite(tile->data, tile->dataSize, 1, fp);
+        file.write(reinterpret_cast<const char *>(tile->data), tile->dataSize);
     }
 
-    fclose(fp);
+    file.close();
 }
 
 void Sample_TempObstacles::loadAll(const char* path)
 {
-	FILE* fp;
-	fopen_s(&fp, path, "wb");
-    if (!fp) return;
+    std::ifstream file(path, std::ios::in | std::ios::binary);
+    if (!file.is_open())
+        return;
 
     // Read header.
     TileCacheSetHeader header{};
-    if (fread(&header, sizeof(TileCacheSetHeader), 1, fp) != 1)
+    if (file.read(reinterpret_cast<char *>(&header), sizeof(TileCacheSetHeader)).gcount() != 1)
     {
         // Error or early EOF
-        fclose(fp);
+        file.close();
         return;
     }
     if (header.magic != TILECACHESET_MAGIC)
     {
-        fclose(fp);
+        file.close();
         return;
     }
     if (header.version != TILECACHESET_VERSION)
     {
-        fclose(fp);
+        file.close();
         return;
     }
 
     m_navMesh = dtAllocNavMesh();
     if (!m_navMesh)
     {
-        fclose(fp);
+        file.close();
         return;
     }
     dtStatus status = m_navMesh->init(&header.meshParams);
     if (dtStatusFailed(status))
     {
-        fclose(fp);
+        file.close();
         return;
     }
 
     m_tileCache = dtAllocTileCache();
     if (!m_tileCache)
     {
-        fclose(fp);
+        file.close();
         return;
     }
     status = m_tileCache->init(&header.cacheParams, m_talloc, m_tcomp, m_tmproc);
     if (dtStatusFailed(status))
     {
-        fclose(fp);
+        file.close();
         return;
     }
 
@@ -1507,10 +1506,10 @@ void Sample_TempObstacles::loadAll(const char* path)
     for (int i = 0; i < header.numTiles; ++i)
     {
         TileCacheTileHeader tileHeader{};
-        if (fread(&tileHeader, sizeof(tileHeader), 1, fp) != 1)
+        if (file.read(reinterpret_cast<char *>(&tileHeader), sizeof(tileHeader)).gcount() != 1)
         {
             // Error or early EOF
-            fclose(fp);
+            file.close();
             return;
         }
         if (!tileHeader.tileRef || !tileHeader.dataSize)
@@ -1519,11 +1518,11 @@ void Sample_TempObstacles::loadAll(const char* path)
         const auto data = static_cast<unsigned char*>(dtAlloc(tileHeader.dataSize, DT_ALLOC_PERM));
         if (!data) break;
         memset(data, 0, tileHeader.dataSize);
-        if (fread(data, tileHeader.dataSize, 1, fp) != 1)
+        if (file.read(reinterpret_cast<char *>(data), tileHeader.dataSize).gcount() != 1)
         {
             // Error or early EOF
             dtFree(data);
-            fclose(fp);
+            file.close();
             return;
         }
 
@@ -1537,5 +1536,5 @@ void Sample_TempObstacles::loadAll(const char* path)
             m_tileCache->buildNavMeshTile(tile, m_navMesh);
     }
 
-    fclose(fp);
+    file.close();
 }

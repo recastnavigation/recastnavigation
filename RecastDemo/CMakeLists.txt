@@ -15,7 +15,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 )
 
 target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE
-         ${OPENGL_INCLUDE_DIR}
         Contrib/fastlz
         Contrib
 )
@@ -36,6 +35,8 @@ FetchContent_MakeAvailable(SDL2)
 
 add_dependencies(${PROJECT_NAME} SDL2::SDL2main)
 target_include_directories(${PROJECT_NAME} PRIVATE
+        ${OPENGL_INCLUDE_DIR}
+        ${SDL2_INCLUDE_DIR}
         ${SDL2_BINARY_DIR}/include-config-$<LOWER_CASE:$<CONFIG>>/SDL2
         ${SDL2_BINARY_DIR}/include/SDL2
         ${SDL2_SOURCE_DIR}/include

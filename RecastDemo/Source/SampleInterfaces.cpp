@@ -258,22 +258,16 @@ void DebugDrawGL::end()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-FileIO::FileIO() :
-	m_fp(nullptr),
-	m_mode(-1)
-{
-}
-
 FileIO::~FileIO()
 {
-	if (m_fp) fclose(m_fp);
+	if (m_fp.is_open()) m_fp.close();
 }
 
 bool FileIO::openForWrite(const char* path)
 {
 	if (m_fp) return false;
-	fopen_s(&m_fp, path, "wb");
-	if (!m_fp) return false;
+	m_fp.open(path, std::ios::out | std::ios::binary);
+	if (!m_fp.is_open()) return false;
 	m_mode = 1;
 	return true;
 }
@@ -281,8 +275,8 @@ bool FileIO::openForWrite(const char* path)
 bool FileIO::openForRead(const char* path)
 {
 	if (m_fp) return false;
-	fopen_s(&m_fp, path, "rb");
-	if (!m_fp) return false;
+	m_fp.open(path, std::ios::in | std::ios::binary);
+	if (!m_fp.is_open()) return false;
 	m_mode = 2;
 	return true;
 }
@@ -299,15 +293,15 @@ bool FileIO::isReading() const
 
 bool FileIO::write(const void* ptr, const size_t size)
 {
-	if (!m_fp || m_mode != 1) return false;
-	fwrite(ptr, size, 1, m_fp);
+	if (!m_fp.is_open() || m_mode != 1) return false;
+	m_fp.write(static_cast<const char *>(ptr), size);
 	return true;
 }
 
 bool FileIO::read(void* ptr, const size_t size)
 {
 	if (!m_fp || m_mode != 2) return false;
-	const size_t readLen = fread(ptr, size, 1, m_fp);
+	const size_t readLen = m_fp.read(static_cast<char *>(ptr), size).gcount();
 	return readLen == 1;
 }
 

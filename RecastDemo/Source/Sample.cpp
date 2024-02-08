@@ -18,6 +18,10 @@
 
 #include <cstdio>
 #include "Sample.h"
+
+#include <fstream>
+#include <ios>
+
 #include "InputGeom.h"
 #include "Recast.h"
 #include "RecastDebugDraw.h"
@@ -125,8 +129,7 @@ void Sample::handleMeshChanged(InputGeom* geom)
 {
 	m_geom = geom;
 
-	const BuildSettings* buildSettings = geom->getBuildSettings();
-	if (buildSettings)
+	if (const BuildSettings* buildSettings = geom->getBuildSettings())
 	{
 		m_cellSize = buildSettings->cellSize;
 		m_cellHeight = buildSettings->cellHeight;
@@ -338,39 +341,39 @@ struct NavMeshTileHeader
 
 dtNavMesh* Sample::loadAll(const char* path)
 {
-	FILE* fp;
-	fopen_s(&fp, path, "rb");
-	if (!fp) return nullptr;
+	std::ifstream file{path, std::ios::in | std::ios::binary};
+	if(!file.is_open())
+		return nullptr;
 
 	// Read header.
 	NavMeshSetHeader header{};
-	size_t readLen = fread(&header, sizeof(NavMeshSetHeader), 1, fp);
+	size_t readLen = file.read(reinterpret_cast<char *>(&header), sizeof(NavMeshSetHeader)).gcount();
 	if (readLen != 1)
 	{
-		fclose(fp);
+		file.close();
 		return nullptr;
 	}
 	if (header.magic != NAVMESHSET_MAGIC)
 	{
-		fclose(fp);
+		file.close();
 		return nullptr;
 	}
 	if (header.version != NAVMESHSET_VERSION)
 	{
-		fclose(fp);
+		file.close();
 		return nullptr;
 	}
 
 	dtNavMesh* mesh = dtAllocNavMesh();
 	if (!mesh)
 	{
-		fclose(fp);
+		file.close();
 		return nullptr;
 	}
 	const dtStatus status = mesh->init(&header.params);
 	if (dtStatusFailed(status))
 	{
-		fclose(fp);
+		file.close();
 		return nullptr;
 	}
 
@@ -378,10 +381,10 @@ dtNavMesh* Sample::loadAll(const char* path)
 	for (int i = 0; i < header.numTiles; ++i)
 	{
 		NavMeshTileHeader tileHeader{};
-		readLen = fread(&tileHeader, sizeof(tileHeader), 1, fp);
+		readLen = file.read(reinterpret_cast<char *>(&tileHeader), sizeof(tileHeader)).gcount();
 		if (readLen != 1)
 		{
-			fclose(fp);
+		file.close();
 			return nullptr;
 		}
 
@@ -391,18 +394,18 @@ dtNavMesh* Sample::loadAll(const char* path)
 		auto* data = static_cast<unsigned char*>(dtAlloc(tileHeader.dataSize, DT_ALLOC_PERM));
 		if (!data) break;
 		memset(data, 0, tileHeader.dataSize);
-		readLen = fread(data, tileHeader.dataSize, 1, fp);
+		readLen = file.read(reinterpret_cast<char *>(data), tileHeader.dataSize).gcount();
 		if (readLen != 1)
 		{
 			dtFree(data);
-			fclose(fp);
+			file.close();
 			return nullptr;
 		}
 
 		mesh->addTile(data, tileHeader.dataSize, DT_TILE_FREE_DATA, tileHeader.tileRef, nullptr);
 	}
 
-	fclose(fp);
+	file.close();
 
 	return mesh;
 }
@@ -411,9 +414,8 @@ void Sample::saveAll(const char* path, const dtNavMesh* mesh)
 {
 	if (!mesh) return;
 
-	FILE* fp;
-	fopen_s(&fp, path, "wb");
-	if (!fp)
+	std::ofstream file{path, std::ios::out | std::ios::binary};
+	if (!file.is_open())
 		return;
 
 	// Store header.
@@ -423,12 +425,11 @@ void Sample::saveAll(const char* path, const dtNavMesh* mesh)
 	header.numTiles = 0;
 	for (int i = 0; i < mesh->getMaxTiles(); ++i)
 	{
-		const dtMeshTile* tile = mesh->getTile(i);
-		if (!tile || !tile->header || !tile->dataSize) continue;
+		if (const dtMeshTile* tile = mesh->getTile(i); !tile || !tile->header || !tile->dataSize) continue;
 		header.numTiles++;
 	}
 	memcpy(&header.params, mesh->getParams(), sizeof(dtNavMeshParams));
-	fwrite(&header, sizeof(NavMeshSetHeader), 1, fp);
+	file.write(reinterpret_cast<const char *>(&header), sizeof(NavMeshSetHeader));
 
 	// Store tiles.
 	for (int i = 0; i < mesh->getMaxTiles(); ++i)
@@ -439,10 +440,10 @@ void Sample::saveAll(const char* path, const dtNavMesh* mesh)
 		NavMeshTileHeader tileHeader{};
 		tileHeader.tileRef = mesh->getTileRef(tile);
 		tileHeader.dataSize = tile->dataSize;
-		fwrite(&tileHeader, sizeof(tileHeader), 1, fp);
+		file.write(reinterpret_cast<const char *>(&tileHeader), sizeof(tileHeader));
 
-		fwrite(tile->data, tile->dataSize, 1, fp);
+		file.write(reinterpret_cast<const char *>(tile->data), tile->dataSize);
 	}
 
-	fclose(fp);
+	file.close();
 }

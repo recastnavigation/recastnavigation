@@ -18,6 +18,8 @@
 
 #include <cmath>
 #include <cstdio>
+#include <fstream>
+
 #include "imgui.h"
 #include "SDL.h"
 #include "SDL_opengl.h"
@@ -234,7 +236,7 @@ static void drawLine(const float x0, const float y0, const float x1, const float
 }
 
 
-bool imguiRenderGLInit(const char* fontpath)
+bool imguiRenderGLInit(const char* fontPath)
 {
 	for (int i = 0; i < CIRCLE_VERTS; ++i)
 	{
@@ -244,40 +246,33 @@ bool imguiRenderGLInit(const char* fontpath)
 	}
 
 	// Load font.
-	FILE* fp;
-	fopen_s(&fp, fontpath, "rb");
-	if (!fp) return false;
-	if (fseek(fp, 0, SEEK_END) != 0)
-	{
-		fclose(fp);
-		return false;
-	}
-	const long size = ftell(fp);
-	if (size < 0)
-	{
-		fclose(fp);
-		return false;
-	}
-	if (fseek(fp, 0, SEEK_SET) != 0)
-	{
-		fclose(fp);
-		return false;
-	}
-	
-	auto* ttfBuffer = static_cast<unsigned char*>(malloc(size));
-	if (!ttfBuffer)
-	{
-		fclose(fp);
-		return false;
-	}
+    std::ifstream file(fontPath, std::ios::binary | std::ios::ate);
 
-	const size_t readLen = fread(ttfBuffer, 1, size, fp);
-	fclose(fp);
-	if (readLen != static_cast<size_t>(size))
-	{
-		free(ttfBuffer);
-		return false;
-	}
+    if (!file.is_open()) {
+        return false;
+    }
+
+    const std::streamsize fileSize = file.tellg();
+    file.seekg(0, std::ios::beg);
+
+    if (fileSize < 0) {
+        return false;
+    }
+
+    const auto ttfBuffer = new (std::nothrow) unsigned char[fileSize];
+    if (!ttfBuffer)
+    {
+        file.close();
+        return false;
+    }
+    file.read(reinterpret_cast<char *>(ttfBuffer), fileSize);
+    const size_t readLen = file.gcount();
+    file.close();
+    if (readLen != 1)
+    {
+        delete[] ttfBuffer;
+        return false;
+    }
 
 	const auto bmap = static_cast<unsigned char*>(malloc(512 * 512));
 	if (!bmap)

@@ -21,6 +21,8 @@
 #include <cstdlib>
 #include <cstring>
 #include <cmath>
+#include <fstream>
+#include <sstream>
 
 rcMeshLoaderObj::rcMeshLoaderObj() :
 	m_scale(1.0f),
@@ -137,34 +139,25 @@ static int parseFace(char* row, int* data, const int n, const int vcnt)
 
 bool rcMeshLoaderObj::load(const std::string& fileName)
 {
-	FILE* fp;
-	fopen_s(&fp,fileName.c_str(), "rb");
-	if (!fp)
+	std::fstream file{fileName, std::ios::in | std::ios::binary | std::ios::ate};
+	if (!file.is_open())
 		return false;
-	if (fseek(fp, 0, SEEK_END) != 0)
-	{
-		fclose(fp);
-		return false;
-	}
-	const long bufSize = ftell(fp);
-	if (bufSize < 0)
-	{
-		fclose(fp);
-		return false;
-	}
-	if (fseek(fp, 0, SEEK_SET) != 0)
-	{
-		fclose(fp);
-		return false;
-	}
-	const auto buf = new (std::nothrow) char[bufSize];
+
+    const std::streamsize fileSize = file.tellg();
+    file.seekg(0, std::ios::beg);
+
+    if (fileSize < 0) {
+        return false;
+    }
+
+	const auto buf = new (std::nothrow) char[fileSize];
 	if (!buf)
 	{
-		fclose(fp);
+		file.close();
 		return false;
 	}
-	const size_t readLen = fread(buf, bufSize, 1, fp);
-	fclose(fp);
+	const size_t readLen = file.read(buf, fileSize).gcount();
+	file.close();
 
 	if (readLen != 1)
 	{
@@ -173,7 +166,7 @@ bool rcMeshLoaderObj::load(const std::string& fileName)
 	}
 
 	char* src = buf;
-	const char* srcEnd = buf + bufSize;
+	const char* srcEnd = buf + fileSize;
 	char row[512];
 	float x,y,z;
 	int vcap = 0;
@@ -189,7 +182,8 @@ bool rcMeshLoaderObj::load(const std::string& fileName)
 		if (row[0] == 'v' && row[1] != 'n' && row[1] != 't')
 		{
 			// Vertex pos
-			sscanf_s(row+1, "%f %f %f", &x, &y, &z);
+            std::istringstream rowStream(row + 1);
+			rowStream >> x >> y >> z;
 			addVertex(x, y, z, vcap);
 		}
 		if (row[0] == 'f')
@@ -228,8 +222,7 @@ bool rcMeshLoaderObj::load(const std::string& fileName)
 		n[0] = e0[1]*e1[2] - e0[2]*e1[1];
 		n[1] = e0[2]*e1[0] - e0[0]*e1[2];
 		n[2] = e0[0]*e1[1] - e0[1]*e1[0];
-		float d = std::sqrt(n[0]*n[0] + n[1]*n[1] + n[2]*n[2]);
-		if (d > 0)
+		if (float d = std::sqrt(n[0]*n[0] + n[1]*n[1] + n[2]*n[2]); d > 0)
 		{
 			d = 1.0f/d;
 			n[0] *= d;

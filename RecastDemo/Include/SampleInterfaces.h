@@ -20,6 +20,8 @@
 #define SAMPLEINTERFACES_H
 
 #include <cstdio>
+#include <fstream>
+
 #include "DebugDraw.h"
 #include "Recast.h"
 #include "RecastDump.h"
@@ -79,10 +81,10 @@ public:
 /// stdio file implementation.
 class FileIO final : public duFileIO
 {
-	FILE* m_fp;
-	int m_mode;
+	std::fstream m_fp{};
+	int m_mode{-1};
 public:
-	FileIO();
+	FileIO() = default;
 	~FileIO() override;
 	bool openForWrite(const char* path);
 	bool openForRead(const char* path);
