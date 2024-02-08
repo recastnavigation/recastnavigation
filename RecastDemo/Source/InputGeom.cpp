@@ -186,7 +186,7 @@ bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filePath)
     file.read(buf, fileSize);
     const size_t readLen = file.gcount();
     file.close();
-    if (readLen != 1)
+    if (readLen != fileSize)
     {
         delete[] buf;
         return false;

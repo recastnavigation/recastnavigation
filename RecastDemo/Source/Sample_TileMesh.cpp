@@ -41,12 +41,6 @@
 #include "ConvexVolumeTool.h"
 #include "CrowdTool.h"
 
-
-#ifdef WIN32
-#	define snprintf _snprintf
-#endif
-
-
 inline unsigned int nextPow2(unsigned int v)
 {
 	v--;
@@ -157,7 +151,7 @@ public:
 			int tx=0, ty=0;
 			m_sample->getTilePos(m_hitPos, tx, ty);
 			char text[32];
-			sprintf_s(text,"(%d,%d)", tx,ty);
+			std::snprintf(text, sizeof(text),"(%d,%d)", tx,ty);
 			imguiDrawText(static_cast<int>(x), static_cast<int>(y)-25, IMGUI_ALIGN_CENTER, text, imguiRGBA(0,0,0,220));
 		}
 
@@ -239,7 +233,7 @@ void Sample_TileMesh::handleSettings()
 		const int ts = static_cast<int>(m_tileSize);
 		const int tw = (gw + ts-1) / ts;
 		const int th = (gh + ts-1) / ts;
-		sprintf_s(text, "Tiles  %d x %d", tw, th);
+		std::snprintf(text, sizeof(text), "Tiles  %d x %d", tw, th);
 		imguiValue(text);
 
 		// Max tiles and max polys affect how the tile IDs are caculated.
@@ -249,9 +243,9 @@ void Sample_TileMesh::handleSettings()
 		const int polyBits = 22 - tileBits;
 		m_maxTiles = 1 << tileBits;
 		m_maxPolysPerTile = 1 << polyBits;
-		sprintf_s(text, "Max Tiles  %d", m_maxTiles);
+		std::snprintf(text, sizeof(text), "Max Tiles  %d", m_maxTiles);
 		imguiValue(text);
-		sprintf_s(text, "Max Polys  %d", m_maxPolysPerTile);
+		std::snprintf(text, sizeof(text), "Max Polys  %d", m_maxPolysPerTile);
 		imguiValue(text);
 	}
 	else
@@ -281,7 +275,7 @@ void Sample_TileMesh::handleSettings()
 	imguiUnindent();
 
 	char msg[64];
-	sprintf_s(msg, "Build Time: %.1fms", m_totalBuildTimeMs);
+	std::snprintf(msg, sizeof(msg), "Build Time: %.1fms", m_totalBuildTimeMs);
 	imguiLabel(msg);
 
 	imguiSeparator();
@@ -548,7 +542,7 @@ void Sample_TileMesh::handleRenderOverlay(double* proj, double* model, int* view
 											 model, proj, view, &x, &y, &z))
 	{
 		char text[32];
-		sprintf_s(text,"%.3fms / %dTris / %.1fkB", m_tileBuildTime, m_tileTriCount, m_tileMemUsage);
+		std::snprintf(text, sizeof(text),"%.3fms / %dTris / %.1fkB", m_tileBuildTime, m_tileTriCount, m_tileMemUsage);
 		imguiDrawText(static_cast<int>(x), static_cast<int>(y)-25, IMGUI_ALIGN_CENTER, text, imguiRGBA(0,0,0,220));
 	}
 

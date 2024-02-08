@@ -32,10 +32,6 @@
 #include "imgui.h"
 #include "SDL_opengl.h"
 
-#ifdef WIN32
-#	define snprintf _snprintf
-#endif
-
 unsigned int SampleDebugDraw::areaToCol(const unsigned int area)
 {
 	switch(area)
@@ -198,7 +194,7 @@ void Sample::handleCommonSettings()
 		int gw = 0, gh = 0;
 		rcCalcGridSize(bmin, bmax, m_cellSize, &gw, &gh);
 		char text[64];
-		sprintf_s(text, "Voxels  %d x %d", gw, gh);
+		std::snprintf(text, sizeof(text), "Voxels  %d x %d", gw, gh);
 		imguiValue(text);
 	}
 	
@@ -348,7 +344,7 @@ dtNavMesh* Sample::loadAll(const char* path)
 	// Read header.
 	NavMeshSetHeader header{};
 	size_t readLen = file.read(reinterpret_cast<char *>(&header), sizeof(NavMeshSetHeader)).gcount();
-	if (readLen != 1)
+	if (readLen != sizeof(NavMeshSetHeader))
 	{
 		file.close();
 		return nullptr;
@@ -370,8 +366,7 @@ dtNavMesh* Sample::loadAll(const char* path)
 		file.close();
 		return nullptr;
 	}
-	const dtStatus status = mesh->init(&header.params);
-	if (dtStatusFailed(status))
+	if (dtStatusFailed(mesh->init(&header.params)))
 	{
 		file.close();
 		return nullptr;
@@ -382,7 +377,7 @@ dtNavMesh* Sample::loadAll(const char* path)
 	{
 		NavMeshTileHeader tileHeader{};
 		readLen = file.read(reinterpret_cast<char *>(&tileHeader), sizeof(tileHeader)).gcount();
-		if (readLen != 1)
+		if (readLen != sizeof(tileHeader))
 		{
 		file.close();
 			return nullptr;
@@ -395,7 +390,7 @@ dtNavMesh* Sample::loadAll(const char* path)
 		if (!data) break;
 		memset(data, 0, tileHeader.dataSize);
 		readLen = file.read(reinterpret_cast<char *>(data), tileHeader.dataSize).gcount();
-		if (readLen != 1)
+		if (readLen != tileHeader.dataSize)
 		{
 			dtFree(data);
 			file.close();

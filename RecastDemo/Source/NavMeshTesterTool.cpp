@@ -35,10 +35,6 @@
 #include "DetourCommon.h"
 #include "DetourPathCorridor.h"
 
-#ifdef WIN32
-#	define snprintf _snprintf
-#endif
-
 // Uncomment this to dump all the requests in stdout.
 #define DUMP_REQS
 

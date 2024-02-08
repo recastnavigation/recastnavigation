@@ -21,10 +21,6 @@
 #include <cmath>
 #include "imgui.h"
 
-#ifdef WIN32
-#	define snprintf _snprintf
-#endif
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 static constexpr unsigned TEXT_POOL_SIZE = 50000;
@@ -366,9 +362,7 @@ void imguiEndScrollArea()
 	const int sbot = g_state.widgetY;
 	const int sh = stop - sbot; // The scrollable area height.
 
-	const float barHeight = static_cast<float>(h)/static_cast<float>(sh);
-	
-	if (barHeight < 1)
+	if (const float barHeight = static_cast<float>(h)/static_cast<float>(sh); barHeight < 1)
 	{
 		float barY = static_cast<float>(y - sbot)/static_cast<float>(sh);
 		if (barY < 0) barY = 0;
@@ -606,9 +600,9 @@ bool imguiSlider(const char* text, float* val, const float vmin, const float vma
 	// TODO: fix this, take a look at 'nicenum'.
 	const int digits = static_cast<int>(std::ceil(log10f(vinc)));
 	char fmt[16];
-	sprintf_s(fmt, "%%.%df", digits >= 0 ? 0 : -digits);
+	std::snprintf(fmt, sizeof(fmt), "%%.%df", digits >= 0 ? 0 : -digits);
 	char msg[128];
-	sprintf_s(msg, fmt, *val);
+	std::snprintf(msg, sizeof(msg), fmt, *val);
 	
 	if (enabled)
 	{

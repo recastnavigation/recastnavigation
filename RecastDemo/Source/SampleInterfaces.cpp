@@ -7,10 +7,6 @@
 #include "SDL.h"
 #include "SDL_opengl.h"
 
-#ifdef WIN32
-#	define snprintf _snprintf
-#endif
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 BuildContext::BuildContext() :

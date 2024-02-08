@@ -24,10 +24,6 @@
 #include "DetourDebugDraw.h"
 #include "RecastDump.h"
 
-#ifdef WIN32
-#	define snprintf _snprintf
-#endif
-
 /*
 static int loadBin(const char* path, unsigned char** data)
 {
