@@ -23,12 +23,14 @@
 #include "RecastAlloc.h"
 #include "RecastDump.h"
 
+#include <iostream>
+
 static void ioprintf(duFileIO* io, const char* format, ...)
 {
 	char line[256];
 	va_list ap;
 	va_start(ap, format);
-	const int n = vsnprintf(line, sizeof(line), format, ap);
+	const int n = std::vsnprintf(line, sizeof(line), format, ap);
 	va_end(ap);
 	if (n > 0)
 		io->write(line, sizeof(char)*n);
@@ -38,12 +40,12 @@ bool duDumpPolyMeshToObj(const rcPolyMesh& pmesh, duFileIO* io)
 {
 	if (!io)
 	{
-		printf("duDumpPolyMeshToObj: input IO is null.\n"); 
+		std::cout << "duDumpPolyMeshToObj: input IO is null." << std::endl;
 		return false;
 	}
 	if (!io->isWriting())
 	{
-		printf("duDumpPolyMeshToObj: input IO not writing.\n"); 
+		std::cout << "duDumpPolyMeshToObj: input IO not writing." << std::endl;
 		return false;
 	}
 	
@@ -85,12 +87,12 @@ bool duDumpPolyMeshDetailToObj(const rcPolyMeshDetail& dmesh, duFileIO* io)
 {
 	if (!io)
 	{
-		printf("duDumpPolyMeshDetailToObj: input IO is null.\n"); 
+		std::cout << "duDumpPolyMeshDetailToObj: input IO is null." << std::endl;
 		return false;
 	}
 	if (!io->isWriting())
 	{
-		printf("duDumpPolyMeshDetailToObj: input IO not writing.\n"); 
+		std::cout << "duDumpPolyMeshDetailToObj: input IO not writing." << std::endl;
 		return false;
 	}
 	
@@ -133,12 +135,12 @@ bool duDumpContourSet(const rcContourSet& cset, duFileIO* io)
 {
 	if (!io)
 	{
-		printf("duDumpContourSet: input IO is null.\n"); 
+		std::cout << "duDumpContourSet: input IO is null." << std::endl;
 		return false;
 	}
 	if (!io->isWriting())
 	{
-		printf("duDumpContourSet: input IO not writing.\n"); 
+		std::cout << "duDumpContourSet: input IO not writing." << std::endl;
 		return false;
 	}
 	
@@ -159,13 +161,13 @@ bool duDumpContourSet(const rcContourSet& cset, duFileIO* io)
 
 	for (int i = 0; i < cset.nconts; ++i)
 	{
-		const rcContour& cont = cset.conts[i];
-		io->write(&cont.nverts, sizeof(cont.nverts));
-		io->write(&cont.nrverts, sizeof(cont.nrverts));
-		io->write(&cont.reg, sizeof(cont.reg));
-		io->write(&cont.area, sizeof(cont.area));
-		io->write(cont.verts, sizeof(int)*4*cont.nverts);
-		io->write(cont.rverts, sizeof(int)*4*cont.nrverts);
+		const auto&[verts, nverts, rverts, nrverts, reg, area] = cset.conts[i];
+		io->write(&nverts, sizeof(nverts));
+		io->write(&nrverts, sizeof(nrverts));
+		io->write(&reg, sizeof(reg));
+		io->write(&area, sizeof(area));
+		io->write(verts, sizeof(int)*4*nverts);
+		io->write(rverts, sizeof(int)*4*nrverts);
 	}
 
 	return true;
@@ -175,12 +177,12 @@ bool duReadContourSet(rcContourSet& cset, duFileIO* io)
 {
 	if (!io)
 	{
-		printf("duReadContourSet: input IO is null.\n"); 
+		std::cout << "duReadContourSet: input IO is null." << std::endl;
 		return false;
 	}
 	if (!io->isReading())
 	{
-		printf("duReadContourSet: input IO not reading.\n"); 
+		std::cout << "duReadContourSet: input IO not reading." << std::endl;
 		return false;
 	}
 	
@@ -192,12 +194,12 @@ bool duReadContourSet(rcContourSet& cset, duFileIO* io)
 	
 	if (magic != CSET_MAGIC)
 	{
-		printf("duReadContourSet: Bad voodoo.\n");
+		std::cout << "duReadContourSet: Bad voodoo." << std::endl;
 		return false;
 	}
 	if (version != CSET_VERSION)
 	{
-		printf("duReadContourSet: Bad version.\n");
+		std::cout << "duReadContourSet: Bad version." << std::endl;
 		return false;
 	}
 	
@@ -206,7 +208,7 @@ bool duReadContourSet(rcContourSet& cset, duFileIO* io)
 	cset.conts = static_cast<rcContour*>(rcAlloc(sizeof(rcContour) * cset.nconts, RC_ALLOC_PERM));
 	if (!cset.conts)
 	{
-		printf("duReadContourSet: Could not alloc contours (%d)\n", cset.nconts);
+		std::cout << "duReadContourSet: Could not alloc contours (" << cset.nconts << ")." << std::endl;
 		return false;
 	}
 	memset(cset.conts, 0, sizeof(rcContour)*cset.nconts);
@@ -223,27 +225,27 @@ bool duReadContourSet(rcContourSet& cset, duFileIO* io)
 	
 	for (int i = 0; i < cset.nconts; ++i)
 	{
-		rcContour& cont = cset.conts[i];
-		io->read(&cont.nverts, sizeof(cont.nverts));
-		io->read(&cont.nrverts, sizeof(cont.nrverts));
-		io->read(&cont.reg, sizeof(cont.reg));
-		io->read(&cont.area, sizeof(cont.area));
+		auto&[verts, nverts, rverts, nrverts, reg, area] = cset.conts[i];
+		io->read(&nverts, sizeof(nverts));
+		io->read(&nrverts, sizeof(nrverts));
+		io->read(&reg, sizeof(reg));
+		io->read(&area, sizeof(area));
 
-		cont.verts = static_cast<int*>(rcAlloc(sizeof(int) * 4 * cont.nverts, RC_ALLOC_PERM));
-		if (!cont.verts)
+		verts = static_cast<int*>(rcAlloc(sizeof(int) * 4 * nverts, RC_ALLOC_PERM));
+		if (!verts)
 		{
-			printf("duReadContourSet: Could not alloc contour verts (%d)\n", cont.nverts);
+			std::cout << "duReadContourSet: Could not alloc contours verts (" << nverts << ")." << std::endl;
 			return false;
 		}
-		cont.rverts = static_cast<int*>(rcAlloc(sizeof(int) * 4 * cont.nrverts, RC_ALLOC_PERM));
-		if (!cont.rverts)
+		rverts = static_cast<int*>(rcAlloc(sizeof(int) * 4 * nrverts, RC_ALLOC_PERM));
+		if (!rverts)
 		{
-			printf("duReadContourSet: Could not alloc contour rverts (%d)\n", cont.nrverts);
+			std::cout << "duReadContourSet: Could not alloc contours rverts (" << nrverts << ")." << std::endl;
 			return false;
 		}
-		
-		io->read(cont.verts, sizeof(int)*4*cont.nverts);
-		io->read(cont.rverts, sizeof(int)*4*cont.nrverts);
+
+		io->read(verts, sizeof(int)*4*nverts);
+		io->read(rverts, sizeof(int)*4*nrverts);
 	}
 	
 	return true;
@@ -257,12 +259,12 @@ bool duDumpCompactHeightfield(const rcCompactHeightfield& chf, duFileIO* io)
 {
 	if (!io)
 	{
-		printf("duDumpCompactHeightfield: input IO is null.\n"); 
+		std::cout << "duDumpCompactHeightfield: input IO is null." << std::endl;
 		return false;
 	}
 	if (!io->isWriting())
 	{
-		printf("duDumpCompactHeightfield: input IO not writing.\n"); 
+		std::cout << "duDumpCompactHeightfield: input IO not writing." << std::endl;
 		return false;
 	}
 	
@@ -310,12 +312,12 @@ bool duReadCompactHeightfield(rcCompactHeightfield& chf, duFileIO* io)
 {
 	if (!io)
 	{
-		printf("duReadCompactHeightfield: input IO is null.\n"); 
+		std::cout << "duReadCompactHeightfield: input IO is null." << std::endl;
 		return false;
 	}
 	if (!io->isReading())
 	{
-		printf("duReadCompactHeightfield: input IO not reading.\n"); 
+		std::cout << "duReadCompactHeightfield: input IO not reading." << std::endl;
 		return false;
 	}
 
@@ -327,12 +329,12 @@ bool duReadCompactHeightfield(rcCompactHeightfield& chf, duFileIO* io)
 	
 	if (magic != CHF_MAGIC)
 	{
-		printf("duReadCompactHeightfield: Bad voodoo.\n");
+		std::cout << "duReadCompactHeightfield: Bad voodoo." << std::endl;
 		return false;
 	}
 	if (version != CHF_VERSION)
 	{
-		printf("duReadCompactHeightfield: Bad version.\n");
+		std::cout << "duReadCompactHeightfield: Bad version." << std::endl;
 		return false;
 	}
 	
@@ -361,7 +363,7 @@ bool duReadCompactHeightfield(rcCompactHeightfield& chf, duFileIO* io)
 		chf.cells = static_cast<rcCompactCell*>(rcAlloc(sizeof(rcCompactCell) * chf.width * chf.height, RC_ALLOC_PERM));
 		if (!chf.cells)
 		{
-			printf("duReadCompactHeightfield: Could not alloc cells (%d)\n", chf.width*chf.height);
+			std::cout << "duReadCompactHeightfield: Could not alloc cells (" << chf.width*chf.height << ")." << std::endl;
 			return false;
 		}
 		io->read(chf.cells, sizeof(rcCompactCell)*chf.width*chf.height);
@@ -371,7 +373,7 @@ bool duReadCompactHeightfield(rcCompactHeightfield& chf, duFileIO* io)
 		chf.spans = static_cast<rcCompactSpan*>(rcAlloc(sizeof(rcCompactSpan) * chf.spanCount, RC_ALLOC_PERM));
 		if (!chf.spans)
 		{
-			printf("duReadCompactHeightfield: Could not alloc spans (%d)\n", chf.spanCount);
+			std::cout << "duReadCompactHeightfield: Could not alloc spans (" << chf.spanCount << ")." << std::endl;
 			return false;
 		}
 		io->read(chf.spans, sizeof(rcCompactSpan)*chf.spanCount);
@@ -381,7 +383,7 @@ bool duReadCompactHeightfield(rcCompactHeightfield& chf, duFileIO* io)
 		chf.dist = static_cast<unsigned short*>(rcAlloc(sizeof(unsigned short) * chf.spanCount, RC_ALLOC_PERM));
 		if (!chf.dist)
 		{
-			printf("duReadCompactHeightfield: Could not alloc dist (%d)\n", chf.spanCount);
+			std::cout << "duReadCompactHeightfield: Could not alloc dist (" <<  chf.spanCount << ")." << std::endl;
 			return false;
 		}
 		io->read(chf.dist, sizeof(unsigned short)*chf.spanCount);
@@ -391,7 +393,7 @@ bool duReadCompactHeightfield(rcCompactHeightfield& chf, duFileIO* io)
 		chf.areas = static_cast<unsigned char*>(rcAlloc(sizeof(unsigned char) * chf.spanCount, RC_ALLOC_PERM));
 		if (!chf.areas)
 		{
-			printf("duReadCompactHeightfield: Could not alloc areas (%d)\n", chf.spanCount);
+			std::cout << "duReadCompactHeightfield: Could not alloc areas (" << chf.spanCount << ")." << std::endl;
 			return false;
 		}
 		io->read(chf.areas, sizeof(unsigned char)*chf.spanCount);

@@ -31,6 +31,9 @@
 #include "InputGeom.h"
 #include "Sample.h"
 #include "Sample_TempObstacles.h"
+
+#include <iostream>
+
 #include "Recast.h"
 #include "RecastDebugDraw.h"
 #include "DetourNavMesh.h"
@@ -1356,8 +1359,7 @@ bool Sample_TempObstacles::handleBuild()
         if (const dtMeshTile* tile = nav->getTile(i); tile->header)
             navmeshMemUsage += tile->dataSize;
     }
-    printf("navmeshMemUsage = %.1f kB", static_cast<float>(navmeshMemUsage) / 1024.0f);
-
+    std::cout << "navmeshMemUsage = " << static_cast<float>(navmeshMemUsage) / 1024.0f << " kB" << std::endl;
 
     if (m_tool)
         m_tool->init(this);

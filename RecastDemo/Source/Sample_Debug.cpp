@@ -18,6 +18,10 @@
 
 #include <cstdio>
 #include "Sample_Debug.h"
+
+#include <format>
+#include <iostream>
+
 #include "Recast.h"
 #include "DetourNavMesh.h"
 #include "RecastDebugDraw.h"
@@ -47,82 +51,6 @@ Sample_Debug::Sample_Debug() :
 	resetCommonSettings();
 
 	// Test
-/*	m_chf = rcAllocCompactHeightfield();
-	FileIO io;
-	if (!io.openForRead("test.chf"))
-	{
-		delete m_chf;
-		m_chf = 0;
-	}
-	else
-	{
-		if (!duReadCompactHeightfield(*m_chf, &io))
-		{
-			delete m_chf;
-			m_chf = 0;
-		}
-	}*/
-	
-/*	if (m_chf)
-	{
-		unsigned short ymin = 0xffff;
-		unsigned short ymax = 0;
-		for (int i = 0; i < m_chf->spanCount; ++i)
-		{
-			const rcCompactSpan& s = m_chf->spans[i];
-			if (s.y < ymin) ymin = s.y;
-			if (s.y > ymax) ymax = s.y;
-		}
-		printf("ymin=%d ymax=%d\n", (int)ymin, (int)ymax);
-		
-		int maxSpans = 0;
-		for (int i = 0; i < m_chf->width*m_chf->height; ++i)
-		{
-			maxSpans = rcMax(maxSpans, (int)m_chf->cells[i].count);
-		}
-		printf("maxSpans = %d\n", maxSpans);
-	}*/
-	
-
-/*	const float orig[3] = {0,0,0};
-	m_navMesh = new dtNavMesh;
-	m_navMesh->init(orig, 133.333f,133.333f, 2048, 4096, 4096);
-
-	unsigned char* data = 0;
-	int dataSize = 0;
-	
-	// Tile_-13_-14.bin is basically just the bytes that was output by Detour. It should be loaded at X: -13 and Y: -14.
-	
-	dataSize = loadBin("Tile_-13_-13.bin", &data);
-	if (dataSize > 0)
-	{
-		m_navMesh->addTileAt(-13,-13, data, dataSize, true);
-		dtMeshHeader* header = (dtMeshHeader*)data;
-		vcopy(m_bmin, header->bmin);
-		vcopy(m_bmax, header->bmax);
-	}
-
-	dataSize = loadBin("Tile_-13_-14.bin", &data);
-	if (dataSize > 0)
-	{
-		m_navMesh->addTileAt(-13,-14, data, dataSize, true);
-	}
-
-	dataSize = loadBin("Tile_-14_-14.bin", &data);
-	if (dataSize > 0)
-	{
-		m_navMesh->addTileAt(-14,-14, data, dataSize, true);
-	}
-	
-	const float halfExtents[3] = {40,100,40};
-	const float center[3] = { -1667.9491f, 135.52649f, -1680.6149f };
-	dtQueryFilter filter;
-	m_ref = m_navMesh->findNearestPoly(center, halfExtents, &filter, 0);
-
-	vcopy(m_halfExtents, halfExtents);
-	vcopy(m_center, center);*/
-	
-
 	{
 		m_cset = rcAllocContourSet();
 		if (m_cset)
@@ -131,33 +59,21 @@ Sample_Debug::Sample_Debug() :
 			if (io.openForRead("PathSet_TMP_NA_PathingTestAReg1_1_2_CS.rc"))
 			{
 				duReadContourSet(*m_cset, &io);
-				
-				printf("bmin=(%f,%f,%f) bmax=(%f,%f,%f)\n",
-					   m_cset->bmin[0], m_cset->bmin[1], m_cset->bmin[2],
-					   m_cset->bmax[0], m_cset->bmax[1], m_cset->bmax[2]);
-				printf("cs=%f ch=%f\n", m_cset->cs, m_cset->ch);
+				std::cout << std::format("bmin=({},{},{}) bmax=({},{},{})\n",
+					m_cset->bmin[0], m_cset->bmin[1], m_cset->bmin[2],
+					   m_cset->bmax[0], m_cset->bmax[1], m_cset->bmax[2])
+				<< std::format("cs=%f ch=%f\n", m_cset->cs, m_cset->ch) << std::endl;
 			}
 			else
 			{
-				printf("could not open test.cset\n");
+				std::cout << "could not open test.cset" << std::endl;
 			}
 		}
 		else
 		{
-			printf("Could not alloc cset\n");
+			std::cout << "Could not alloc cset" << std::endl;
 		}
-
-
-/*		if (m_cset)
-		{
-			m_pmesh = rcAllocPolyMesh();
-			if (m_pmesh)
-			{
-				rcBuildPolyMesh(m_ctx, *m_cset, 6, *m_pmesh);
-			}
-		}*/
 	}
-	
 }
 
 Sample_Debug::~Sample_Debug()

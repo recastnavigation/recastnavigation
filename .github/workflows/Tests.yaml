@@ -29,7 +29,6 @@ jobs:
             other_pkgs: g++-10
           - os: ubuntu-latest
             cxx: clang++
-            other_pkgs: clang
           - os: windows-latest
             cxx: cl
           - os: macos-latest

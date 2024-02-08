@@ -29,6 +29,9 @@
 #endif
 #include "imgui.h"
 #include "CrowdTool.h"
+
+#include <iostream>
+
 #include "InputGeom.h"
 #include "Sample.h"
 #include "DetourCrowd.h"
@@ -1016,7 +1019,7 @@ void CrowdTool::handleClick(const float* s, const float* p, const bool shift)
 				{
 					flags ^= SAMPLE_POLYFLAGS_DISABLED;
 					if(dtStatusFailed(m_sample->getNavMesh()->setPolyFlags(ref, flags)))
-						printf_s("seting flag failed");
+						std::cout<<"seting flag failed" << std::endl;
 				}
 			}
 		}

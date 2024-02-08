@@ -1234,12 +1234,6 @@ static int triangulate(int n, const unsigned char* verts, unsigned short* indice
 		if (mini == -1)
 		{
 			// Should not happen.
-			/*			printf("mini == -1 ntris=%d n=%d\n", ntris, n);
-			 for (int i = 0; i < n; i++)
-			 {
-			 printf("%d ", indices[i] & 0x0fffffff);
-			 }
-			 printf("\n");*/
 			return -ntris;
 		}
 
