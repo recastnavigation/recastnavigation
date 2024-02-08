@@ -53,6 +53,7 @@ inline bool RunThesis(BuildContext &context, const InputGeom *pGeom, const bool 
 inline std::array<float, LOOP_COUNT * RC_MAX_TIMERS> GenerateThesisTimes(
     BuildContext &context, const InputGeom *pGeom, const bool filterLedgeSpans, const bool filterWalkableLowHeightSpans,
     const bool filterLowHangingObstacles, rcConfig &config) {
+    context.resetLog();
     std::array<float, LOOP_COUNT * RC_MAX_TIMERS> times{};
     for (int i{}; i < LOOP_COUNT; i++) {
         int *pEdges{nullptr};
@@ -76,6 +77,7 @@ inline std::array<float, LOOP_COUNT * RC_MAX_TIMERS> GenerateThesisTimes(
 inline std::array<float, LOOP_COUNT * RC_MAX_TIMERS> GenerateSingleMeshTimes(
     BuildContext &context, const InputGeom *pGeom, const bool filterLedgeSpans, const bool filterWalkableLowHeightSpans,
     const bool filterLowHangingObstacles, rcConfig &config) {
+    context.resetLog();
     std::array<float, LOOP_COUNT * RC_MAX_TIMERS> times{};
     for (int i{}; i < LOOP_COUNT; i++) {
         rcPolyMesh *pMesh{nullptr};
