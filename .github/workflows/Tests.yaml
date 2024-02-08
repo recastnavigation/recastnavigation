@@ -24,7 +24,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         build_type: [Release]
-        c_compiler: [gcc, clang, cl, xcode4]
+        c_compiler: [gcc, clang, cl, xcodebuild]
         std: [20]
         include:
           - os: windows-latest
@@ -37,19 +37,19 @@ jobs:
             c_compiler: clang
             cpp_compiler: clang++
           - os: macos-latest
-            c_compiler: xcode4
-            cpp_compiler: xcode4
+            c_compiler: xcodebuild
+            cpp_compiler: xcodebuild
         exclude:
           - os: windows-latest
             c_compiler: gcc
           - os: windows-latest
             c_compiler: clang
           - os: windows-latest
-            c_compiler: xcode4
+            c_compiler: xcodebuild
           - os: ubuntu-latest
             c_compiler: cl
           - os: ubuntu-latest
-            c_compiler: xcode4
+            c_compiler: xcodebuild
           - os: macos-latest
             c_compiler: cl
           - os: macos-latest
@@ -73,10 +73,10 @@ jobs:
 
     - name: Build
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
-      run: cmake --build ${{ github.workspace }}/build --config ${{ matrix.build_type }}
+      run: cmake --build ${{ github.workspace }}/build --config ${{ matrix.build_type }} --target Tests
 
     - name: Test
       working-directory: ${{ github.workspace }}/build
       # Execute tests defined by the CMake configuration. Note that --build-config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-      run: ctest --build-config ${{ matrix.build_type }}
+      run: ctest --build-config ${{ matrix.build_type }} --debug
