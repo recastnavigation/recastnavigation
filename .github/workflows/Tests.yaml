@@ -23,9 +23,9 @@ jobs:
       # To add more build types (Release, Debug, RelWithDebInfo, etc.) customize the build_type list.
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        build_type: [Release]
-        c_compiler: [gcc, clang, cl, xcodebuild]
         std: [20]
+        build_type: [Release]
+        c_compiler: [gcc, clang, cl]
         include:
           - os: windows-latest
             c_compiler: cl
@@ -37,28 +37,28 @@ jobs:
             c_compiler: clang
             cpp_compiler: clang++
           - os: macos-latest
-            c_compiler: xcodebuild
-            cpp_compiler: xcodebuild
+            c_compiler: clang
+            cpp_compiler: clang++
         exclude:
           - os: windows-latest
             c_compiler: gcc
           - os: windows-latest
             c_compiler: clang
-          - os: windows-latest
-            c_compiler: xcodebuild
           - os: ubuntu-latest
             c_compiler: cl
-          - os: ubuntu-latest
-            c_compiler: xcodebuild
           - os: macos-latest
             c_compiler: cl
-          - os: macos-latest
-            c_compiler: clang
           - os: macos-latest
             c_compiler: gcc
 
     steps:
     - uses: actions/checkout@v4
+
+    - name: Install opengl
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libgl1-mesa-dev
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
