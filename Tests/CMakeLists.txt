@@ -58,7 +58,7 @@ catch_discover_tests(${PROJECT_NAME})
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_CURRENT_SOURCE_DIR}/Bin
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>
+        ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 # Install targets and directories
