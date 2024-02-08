@@ -4,6 +4,7 @@
 
 #include "Generators.h"
 
+#include <cstring>
 #include <InputGeom.h>
 #include <Recast.h>
 #include <RecastDump.h>
