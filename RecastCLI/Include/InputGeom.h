@@ -110,33 +110,33 @@ public:
     bool saveGeomSet(const BuildSettings* settings) const;
 
     /// Method to return static mesh data.
-    [[nodiscard]] const rcMeshLoaderObj* getMesh() const { return m_mesh; }
-    [[nodiscard]] const float* getMeshBoundsMin() const { return m_meshBMin; }
-    [[nodiscard]] const float* getMeshBoundsMax() const { return m_meshBMax; }
+    const rcMeshLoaderObj* getMesh() const { return m_mesh; }
+    const float* getMeshBoundsMin() const { return m_meshBMin; }
+    const float* getMeshBoundsMax() const { return m_meshBMax; }
 
-    [[nodiscard]] const float* getNavMeshBoundsMin() const
+    const float* getNavMeshBoundsMin() const
     {
         return m_hasBuildSettings ? m_buildSettings.navMeshBMin : m_meshBMin;
     }
 
-    [[nodiscard]] const float* getNavMeshBoundsMax() const
+    const float* getNavMeshBoundsMax() const
     {
         return m_hasBuildSettings ? m_buildSettings.navMeshBMax : m_meshBMax;
     }
 
-    [[nodiscard]] const rcChunkyTriMesh* getChunkyMesh() const { return m_chunkyMesh; }
-    [[nodiscard]] const BuildSettings* getBuildSettings() const { return m_hasBuildSettings ? &m_buildSettings : nullptr; }
+    const rcChunkyTriMesh* getChunkyMesh() const { return m_chunkyMesh; }
+    const BuildSettings* getBuildSettings() const { return m_hasBuildSettings ? &m_buildSettings : nullptr; }
     bool raycastMesh(const float* src, const float* dst, float& tmin) const;
 
     /// @name Off-Mesh connections.
     ///@{
-    [[nodiscard]] int getOffMeshConnectionCount() const { return m_offMeshConCount; }
-    [[nodiscard]] const float* getOffMeshConnectionVerts() const { return m_offMeshConVerts; }
-    [[nodiscard]] const float* getOffMeshConnectionRads() const { return m_offMeshConRads; }
-    [[nodiscard]] const unsigned char* getOffMeshConnectionDirs() const { return m_offMeshConDirs; }
-    [[nodiscard]] const unsigned char* getOffMeshConnectionAreas() const { return m_offMeshConAreas; }
-    [[nodiscard]] const unsigned short* getOffMeshConnectionFlags() const { return m_offMeshConFlags; }
-    [[nodiscard]] const unsigned int* getOffMeshConnectionId() const { return m_offMeshConId; }
+    int getOffMeshConnectionCount() const { return m_offMeshConCount; }
+    const float* getOffMeshConnectionVerts() const { return m_offMeshConVerts; }
+    const float* getOffMeshConnectionRads() const { return m_offMeshConRads; }
+    const unsigned char* getOffMeshConnectionDirs() const { return m_offMeshConDirs; }
+    const unsigned char* getOffMeshConnectionAreas() const { return m_offMeshConAreas; }
+    const unsigned short* getOffMeshConnectionFlags() const { return m_offMeshConFlags; }
+    const unsigned int* getOffMeshConnectionId() const { return m_offMeshConId; }
     void addOffMeshConnection(const float* spos, const float* epos, float rad,
                                             unsigned char bidir, unsigned char area, unsigned short flags);
     void deleteOffMeshConnection(int i);
@@ -145,8 +145,8 @@ public:
 
     /// @name Box Volumes.
     ///@{
-    [[nodiscard]] int getConvexVolumeCount() const { return m_volumeCount; }
-    [[nodiscard]] const ConvexVolume* getConvexVolumes() const { return m_volumes; }
+    int getConvexVolumeCount() const { return m_volumeCount; }
+    const ConvexVolume* getConvexVolumes() const { return m_volumes; }
     void addConvexVolume(const float* verts, int nverts,
                          float minh, float maxh, unsigned char area);
     void deleteConvexVolume(int i);

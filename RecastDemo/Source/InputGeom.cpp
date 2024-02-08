@@ -57,8 +57,7 @@ static bool intersectSegmentTriangle(const float* sp, const float* sq,
     rcVcross(e, qp, ap);
     const float v = rcVdot(ac, e);
     if (v < 0.0f || v > d) return false;
-    const float w = -rcVdot(ab, e);
-    if (w < 0.0f || v + w > d) return false;
+    if (const float w = -rcVdot(ab, e); w < 0.0f || v + w > d) return false;
 
     // Segment/ray intersects triangle. Perform delayed division
     t /= d;
@@ -300,7 +299,7 @@ bool InputGeom::load(rcContext* ctx, const std::string& filepath)
         return false;
 
     std::string extension = filepath.substr(extensionPos);
-    std::transform(extension.begin(), extension.end(), extension.begin(), tolower);
+    std::ranges::transform(extension, extension.begin(), tolower);
 
     if (extension == ".gset")
         return loadGeomSet(ctx, filepath);
@@ -316,8 +315,7 @@ bool InputGeom::saveGeomSet(const BuildSettings* settings) const
 
     // Change extension
     std::string filepath = m_mesh->getFileName();
-    const size_t extPos = filepath.find_last_of('.');
-    if (extPos != std::string::npos)
+    if (const size_t extPos = filepath.find_last_of('.'); extPos != std::string::npos)
         filepath = filepath.substr(0, extPos);
 
     filepath += ".gset";
@@ -447,17 +445,16 @@ bool InputGeom::raycastMesh(const float* src, const float* dst, float& tmin) con
 
     for (int i = 0; i < ncid; ++i)
     {
-        const rcChunkyTriMeshNode& node = m_chunkyMesh->nodes[cid[i]];
-        const int* tris = &m_chunkyMesh->tris[node.i * 3];
-        const int ntris = node.n;
+        const auto&[bmin, bmax, index, number] = m_chunkyMesh->nodes[cid[i]];
+        const int* tris = &m_chunkyMesh->tris[index * 3];
+        const int ntris = number;
 
         for (int j = 0; j < ntris * 3; j += 3)
         {
-            float t = 1;
-            if (intersectSegmentTriangle(src, dst,
-                                         &verts[tris[j] * 3],
-                                         &verts[tris[j + 1] * 3],
-                                         &verts[tris[j + 2] * 3], t))
+            if (float t = 1; intersectSegmentTriangle(src, dst,
+                                                      &verts[tris[j] * 3],
+                                                      &verts[tris[j + 1] * 3],
+                                                      &verts[tris[j + 2] * 3], t))
             {
                 if (t < tmin)
                     tmin = t;

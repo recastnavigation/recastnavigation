@@ -55,10 +55,10 @@ public:
 	               float maxx, float maxy,
 	               unsigned short* ids, int maxIds) const;
 	
-	[[nodiscard]] int getItemCountAt(int x, int y) const;
+	int getItemCountAt(int x, int y) const;
 
-	[[nodiscard]] const int* getBounds() const { return m_bounds; }
-	[[nodiscard]] float getCellSize() const { return m_cellSize; }
+	const int* getBounds() const { return m_bounds; }
+	float getCellSize() const { return m_cellSize; }
 
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.

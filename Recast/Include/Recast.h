@@ -160,7 +160,7 @@ public:
 	/// Returns the total accumulated time of the specified performance timer.
 	/// @param	label	The category of the timer.
 	/// @return The accumulated time of the timer, or -1 if timers are disabled or the timer has never been started.
-	 [[nodiscard]] int getAccumulatedTime(const rcTimerLabel label) const { return m_timerEnabled ? doGetAccumulatedTime(label) : -1; }
+	 int getAccumulatedTime(const rcTimerLabel label) const { return m_timerEnabled ? doGetAccumulatedTime(label) : -1; }
 
 protected:
 	/// Clears all log entries.
@@ -186,7 +186,7 @@ protected:
 	/// Returns the total accumulated time of the specified performance timer.
 	/// @param[in]		label	The category of the timer.
 	/// @return The accumulated time of the timer, or -1 if timers are disabled or the timer has never been started.
-	 [[nodiscard]] virtual int doGetAccumulatedTime(const rcTimerLabel label) const { rcIgnoreUnused(label); return -1; }
+	 virtual int doGetAccumulatedTime(const rcTimerLabel label) const { rcIgnoreUnused(label); return -1; }
 	
 	/// True if logging is enabled.
 	bool m_logEnabled;

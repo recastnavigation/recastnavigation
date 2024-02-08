@@ -42,9 +42,9 @@ public:
 	/// Dumps the log to stdout.
 	void dumpLog(const char* format, ...)const;
 	/// Returns number of log messages.
-	[[nodiscard]] int getLogCount() const;
+	int getLogCount() const;
 	/// Returns log message text.
-	[[nodiscard]] const char* getLogText(int i) const;
+	const char* getLogText(int i) const;
 	
 protected:	
 	/// Virtual functions for custom implementations.
@@ -54,7 +54,7 @@ protected:
 	void doResetTimers() override;
 	void doStartTimer(rcTimerLabel label) override;
 	void doStopTimer(rcTimerLabel label) override;
-	[[nodiscard]] int doGetAccumulatedTime(rcTimerLabel label) const override;
+	int doGetAccumulatedTime(rcTimerLabel label) const override;
 	///@}
 };
 #endif // SAMPLEINTERFACES_H

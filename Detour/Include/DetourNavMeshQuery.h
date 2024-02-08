@@ -90,7 +90,7 @@ public:
 	/// Returns the traversal cost of the area.
 	///  @param[in]		i		The id of the area.
 	/// @returns The traversal cost of the area.
-	[[nodiscard]] float getAreaCost(const int i) const { return m_areaCost[i]; }
+	float getAreaCost(const int i) const { return m_areaCost[i]; }
 
 	/// Sets the traversal cost of the area.
 	///  @param[in]		i		The id of the area.
@@ -100,7 +100,7 @@ public:
 	/// Returns the include flags for the filter.
 	/// Any polygons that include one or more of these flags will be
 	/// included in the operation.
-	[[nodiscard]] unsigned short getIncludeFlags() const { return m_includeFlags; }
+	unsigned short getIncludeFlags() const { return m_includeFlags; }
 
 	/// Sets the include flags for the filter.
 	/// @param[in]		flags	The new flags.
@@ -109,7 +109,7 @@ public:
 	/// Returns the exclude flags for the filter.
 	/// Any polygons that include one ore more of these flags will be
 	/// excluded from the operation.
-	[[nodiscard]] unsigned short getExcludeFlags() const { return m_excludeFlags; }
+	unsigned short getExcludeFlags() const { return m_excludeFlags; }
 
 	/// Sets the exclude flags for the filter.
 	/// @param[in]		flags		The new flags.
@@ -526,15 +526,15 @@ public:
 	/// Returns true if the polygon reference is in the closed list.
 	///  @param[in]		ref		The reference id of the polygon to check.
 	/// @returns True if the polygon is in closed list.
-	[[nodiscard]] bool isInClosedList(dtPolyRef ref) const;
+	bool isInClosedList(dtPolyRef ref) const;
 
 	/// Gets the node pool.
 	/// @returns The node pool.
-	[[nodiscard]] class dtNodePool* getNodePool() const { return m_nodePool; }
+	class dtNodePool* getNodePool() const { return m_nodePool; }
 
 	/// Gets the navigation mesh the query object is using.
 	/// @return The navigation mesh the query object is using.
-	[[nodiscard]] const dtNavMesh* getAttachedNavMesh() const { return m_nav; }
+	const dtNavMesh* getAttachedNavMesh() const { return m_nav; }
 
 	/// @}
 

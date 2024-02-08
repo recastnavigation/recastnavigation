@@ -183,10 +183,10 @@ struct dtPoly
 	void setType(const unsigned char t) { areaAndtype = (areaAndtype & 0x3f) | (t << 6); }
 
 	/// Gets the user defined area id.
-	[[nodiscard]] unsigned char getArea() const { return areaAndtype & 0x3f; }
+	unsigned char getArea() const { return areaAndtype & 0x3f; }
 
 	/// Gets the polygon type. (See: #dtPolyTypes)
-	[[nodiscard]] unsigned char getType() const { return areaAndtype >> 6; }
+	unsigned char getType() const { return areaAndtype >> 6; }
 };
 
 /// Defines the location of detail sub-mesh data within a dtMeshTile.
@@ -360,7 +360,7 @@ public:
 	dtStatus init(unsigned char* data, int dataSize, int flags);
 	
 	/// The navigation mesh initialization params.
-	[[nodiscard]] const dtNavMeshParams* getParams() const;
+	const dtNavMeshParams* getParams() const;
 
 	/// Adds a tile to the navigation mesh.
 	///  @param[in]		data		Data for the new tile mesh. (See: #dtCreateNavMeshData)
@@ -394,7 +394,7 @@ public:
 	///  @param[in]	y		The tile's y-location. (x, y, layer)
 	///  @param[in]	layer	The tile's layer. (x, y, layer)
 	/// @return The tile, or null if the tile does not exist.
-	[[nodiscard]] const dtMeshTile* getTileAt(int x, int y, int layer) const;
+	const dtMeshTile* getTileAt(int x, int y, int layer) const;
 
 	/// Gets all tiles at the specified grid location. (All layers.)
 	///  @param[in]		x			The tile's x-location. (x, y)
@@ -410,27 +410,27 @@ public:
 	///  @param[in]	y		The tile's y-location. (x, y, layer)
 	///  @param[in]	layer	The tile's layer. (x, y, layer)
 	/// @return The tile reference of the tile, or 0 if there is none.
-	[[nodiscard]] dtTileRef getTileRefAt(int x, int y, int layer) const;
+	dtTileRef getTileRefAt(int x, int y, int layer) const;
 
 	/// Gets the tile reference for the specified tile.
 	///  @param[in]	tile	The tile.
 	/// @return The tile reference of the tile.
-	[[nodiscard]] dtTileRef getTileRef(const dtMeshTile* tile) const;
+	dtTileRef getTileRef(const dtMeshTile* tile) const;
 
 	/// Gets the tile for the specified tile reference.
 	///  @param[in]	ref		The tile reference of the tile to retrieve.
 	/// @return The tile for the specified reference, or null if the 
 	///		reference is invalid.
-	[[nodiscard]] const dtMeshTile* getTileByRef(dtTileRef ref) const;
+	const dtMeshTile* getTileByRef(dtTileRef ref) const;
 	
 	/// The maximum number of tiles supported by the navigation mesh.
 	/// @return The maximum number of tiles supported by the navigation mesh.
-	[[nodiscard]] int getMaxTiles() const;
+	int getMaxTiles() const;
 	
 	/// Gets the tile at the specified index.
 	///  @param[in]	i		The tile index. [Limit: 0 >= index < #getMaxTiles()]
 	/// @return The tile at the specified index.
-	[[nodiscard]] const dtMeshTile* getTile(int i) const;
+	const dtMeshTile* getTile(int i) const;
 
 	/// Gets the tile and polygon for the specified polygon reference.
 	///  @param[in]		ref		The reference for the a polygon.
@@ -448,7 +448,7 @@ public:
 	/// Checks the validity of a polygon reference.
 	///  @param[in]	ref		The polygon reference to check.
 	/// @return True if polygon reference is valid for the navigation mesh.
-	[[nodiscard]] bool isValidPolyRef(dtPolyRef ref) const;
+	bool isValidPolyRef(dtPolyRef ref) const;
 	
 	/// Gets the polygon reference for the tile's base polygon.
 	///  @param[in]	tile		The tile.
@@ -466,7 +466,7 @@ public:
 	/// Gets the specified off-mesh connection.
 	///  @param[in]	ref		The polygon reference of the off-mesh connection.
 	/// @return The specified off-mesh connection, or null if the polygon reference is not valid.
-	[[nodiscard]] const dtOffMeshConnection* getOffMeshConnectionByRef(dtPolyRef ref) const;
+	const dtOffMeshConnection* getOffMeshConnectionByRef(dtPolyRef ref) const;
 	
 	/// @}
 
@@ -478,19 +478,19 @@ public:
 	///  @param[in]	ref		The polygon reference.
 	///  @param[in]	flags	The new flags for the polygon.
 	/// @return The status flags for the operation.
-	[[nodiscard]] dtStatus setPolyFlags(dtPolyRef ref, unsigned short flags) const;
+	dtStatus setPolyFlags(dtPolyRef ref, unsigned short flags) const;
 
 	/// Gets the user defined flags for the specified polygon.
 	///  @param[in]		ref				The polygon reference.
 	///  @param[out]	resultFlags		The polygon flags.
 	/// @return The status flags for the operation.
-	[[nodiscard]] dtStatus getPolyFlags(dtPolyRef ref, unsigned short* resultFlags) const;
+	dtStatus getPolyFlags(dtPolyRef ref, unsigned short* resultFlags) const;
 
 	/// Sets the user defined area for the specified polygon.
 	///  @param[in]	ref		The polygon reference.
 	///  @param[in]	area	The new area id for the polygon. [Limit: < #DT_MAX_AREAS]
 	/// @return The status flags for the operation.
-	[[nodiscard]] dtStatus setPolyArea(dtPolyRef ref, unsigned char area) const;
+	dtStatus setPolyArea(dtPolyRef ref, unsigned char area) const;
 
 	/// Gets the user defined area for the specified polygon.
 	///  @param[in]		ref			The polygon reference.
@@ -528,7 +528,7 @@ public:
 	///  @param[in]	salt	The tile's salt value.
 	///  @param[in]	it		The index of the tile.
 	///  @param[in]	ip		The index of the polygon within the tile.
-	[[nodiscard]] dtPolyRef encodePolyId(unsigned int salt, unsigned int it, unsigned int ip) const
+	dtPolyRef encodePolyId(unsigned int salt, unsigned int it, unsigned int ip) const
 	{
 #ifdef DT_POLYREF64
 		return ((dtPolyRef)salt << (DT_POLY_BITS+DT_TILE_BITS)) | ((dtPolyRef)it << DT_POLY_BITS) | (dtPolyRef)ip;
@@ -567,7 +567,7 @@ public:
 	///  @note This function is generally meant for internal use only.
 	///  @param[in]	ref		The polygon reference.
 	///  @see #encodePolyId
-	[[nodiscard]] unsigned int decodePolyIdSalt(dtPolyRef ref) const
+	unsigned int decodePolyIdSalt(dtPolyRef ref) const
 	{
 #ifdef DT_POLYREF64
 		const dtPolyRef saltMask = ((dtPolyRef)1<<DT_SALT_BITS)-1;
@@ -582,7 +582,7 @@ public:
 	///  @note This function is generally meant for internal use only.
 	///  @param[in]	ref		The polygon reference.
 	///  @see #encodePolyId
-	[[nodiscard]] unsigned int decodePolyIdTile(dtPolyRef ref) const
+	unsigned int decodePolyIdTile(dtPolyRef ref) const
 	{
 #ifdef DT_POLYREF64
 		const dtPolyRef tileMask = ((dtPolyRef)1<<DT_TILE_BITS)-1;
@@ -597,7 +597,7 @@ public:
 	///  @note This function is generally meant for internal use only.
 	///  @param[in]	ref		The polygon reference.
 	///  @see #encodePolyId
-	[[nodiscard]] unsigned int decodePolyIdPoly(dtPolyRef ref) const
+	unsigned int decodePolyIdPoly(dtPolyRef ref) const
 	{
 #ifdef DT_POLYREF64
 		const dtPolyRef polyMask = ((dtPolyRef)1<<DT_POLY_BITS)-1;

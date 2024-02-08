@@ -257,21 +257,21 @@ public:
 	///  @param[in]		idx		The index of the configuration to retreive. 
 	///							[Limits:  0 <= value < #DT_CROWD_MAX_OBSTAVOIDANCE_PARAMS]
 	/// @return The requested configuration.
-	[[nodiscard]] const dtObstacleAvoidanceParams* getObstacleAvoidanceParams(int idx) const;
+	const dtObstacleAvoidanceParams* getObstacleAvoidanceParams(int idx) const;
 	
 	/// Gets the specified agent from the pool.
 	///	 @param[in]		idx		The agent index. [Limits: 0 <= value < #getAgentCount()]
 	/// @return The requested agent.
-	[[nodiscard]] const dtCrowdAgent* getAgent(int idx)const;
+	const dtCrowdAgent* getAgent(int idx)const;
 
 	/// Gets the specified agent from the pool.
 	///	 @param[in]		idx		The agent index. [Limits: 0 <= value < #getAgentCount()]
 	/// @return The requested agent.
-	[[nodiscard]] dtCrowdAgent* getEditableAgent(int idx) const;
+	dtCrowdAgent* getEditableAgent(int idx) const;
 
 	/// The maximum number of agents that can be managed by the object.
 	/// @return The maximum number of agents.
-	[[nodiscard]] int getAgentCount() const;
+	int getAgentCount() const;
 	
 	/// Adds a new agent to the crowd.
 	///  @param[in]		pos		The requested position of the agent. [(x, y, z)]
@@ -304,7 +304,7 @@ public:
 	/// Resets any request for the specified agent.
 	///  @param[in]		idx		The agent index. [Limits: 0 <= value < #getAgentCount()]
 	/// @return True if the request was successfully reseted.
-	[[nodiscard]] bool resetMoveTarget(int idx) const;
+	bool resetMoveTarget(int idx) const;
 
 	/// Gets the active agents int the agent pool.
 	///  @param[out]	agents		An array of agent pointers. [(#dtCrowdAgent *) * maxAgents]
@@ -319,7 +319,7 @@ public:
 	
 	/// Gets the filter used by the crowd.
 	/// @return The filter used by the crowd.
-	[[nodiscard]] const dtQueryFilter* getFilter(const int i) const { return (i >= 0 && i < DT_CROWD_MAX_QUERY_FILTER_TYPE) ? &m_filters[i] : nullptr; }
+	const dtQueryFilter* getFilter(const int i) const { return (i >= 0 && i < DT_CROWD_MAX_QUERY_FILTER_TYPE) ? &m_filters[i] : nullptr; }
 	
 	/// Gets the filter used by the crowd.
 	/// @return The filter used by the crowd.
@@ -327,26 +327,26 @@ public:
 
 	/// Gets the search halfExtents [(x, y, z)] used by the crowd for query operations. 
 	/// @return The search halfExtents used by the crowd. [(x, y, z)]
-	[[nodiscard]] const float* getQueryHalfExtents() const { return m_agentPlacementHalfExtents; }
+	const float* getQueryHalfExtents() const { return m_agentPlacementHalfExtents; }
 
 	/// Same as getQueryHalfExtents. Left to maintain backwards compatibility.
 	/// @return The search halfExtents used by the crowd. [(x, y, z)]
-	[[nodiscard]] const float* getQueryExtents() const { return m_agentPlacementHalfExtents; }
+	const float* getQueryExtents() const { return m_agentPlacementHalfExtents; }
 	
 	/// Gets the velocity sample count.
 	/// @return The velocity sample count.
-	[[nodiscard]] int getVelocitySampleCount() const { return m_velocitySampleCount; }
+	int getVelocitySampleCount() const { return m_velocitySampleCount; }
 	
 	/// Gets the crowd's proximity grid.
 	/// @return The crowd's proximity grid.
-	[[nodiscard]] const dtProximityGrid* getGrid() const { return m_grid; }
+	const dtProximityGrid* getGrid() const { return m_grid; }
 
 	/// Gets the crowd's path request queue.
 	/// @return The crowd's path request queue.
-	[[nodiscard]] const dtPathQueue* getPathQueue() const { return &m_pathq; }
+	const dtPathQueue* getPathQueue() const { return &m_pathq; }
 
 	/// Gets the query object used by the crowd.
-	[[nodiscard]] const dtNavMeshQuery* getNavMeshQuery() const { return m_navquery; }
+	const dtNavMeshQuery* getNavMeshQuery() const { return m_navquery; }
 
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.
