@@ -15,45 +15,8 @@ jobs:
 
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        cxx:
-          - g++-10
-          - g++-11
-          - clang++
-          - cl
         build_type: [Debug, Release]
         std: [20]
-
-        include:
-          - os: ubuntu-latest
-            cxx: g++-10
-            other_pkgs: g++-10
-          - os: ubuntu-latest
-            cxx: clang++
-          - os: windows-latest
-            cxx: cl
-          - os: macos-latest
-            cxx: g++-11
-          - os: macos-latest
-            cxx: clang++
-        exclude:
-          - os: ubuntu-latest
-            cxx: g++-11
-          - os: ubuntu-latest
-            cxx: clang++
-          - os: ubuntu-latest
-            cxx: cl
-          - os: windows-latest
-            cxx: g++-10
-          - os: windows-latest
-            cxx: g++-11
-          - os: windows-latest
-            cxx: clang++-10
-          - os: windows-latest
-            cxx: clang++
-          - os: macos-latest
-            cxx: g++-10
-          - os: macos-latest
-            cxx: cl
 
     steps:
       - uses: actions/checkout@v4
@@ -65,9 +28,6 @@ jobs:
           sudo apt-get install -y libgl1-mesa-dev
 
       - name: Configure CMake
-        env:
-          CXX: ${{matrix.cxx}}
-          CXXFLAGS: ${{matrix.cxxflags}}
         run: >
           cmake -B ${{ github.workspace }}/build
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}

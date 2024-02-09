@@ -15,69 +15,29 @@ jobs:
 
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        cxx:
-          - g++-10
-          - g++-11
-          - clang++
-          - cl
         build_type: [Release]
         std: [20]
 
-        include:
-          - os: ubuntu-latest
-            cxx: g++-10
-            other_pkgs: g++-10
-          - os: ubuntu-latest
-            cxx: clang++
-          - os: windows-latest
-            cxx: cl
-          - os: macos-latest
-            cxx: g++-11
-          - os: macos-latest
-            cxx: clang++
-        exclude:
-          - os: ubuntu-latest
-            cxx: g++-11
-          - os: ubuntu-latest
-            cxx: clang++
-          - os: ubuntu-latest
-            cxx: cl
-          - os: windows-latest
-            cxx: g++-10
-          - os: windows-latest
-            cxx: g++-11
-          - os: windows-latest
-            cxx: clang++-10
-          - os: windows-latest
-            cxx: clang++
-          - os: macos-latest
-            cxx: g++-10
-          - os: macos-latest
-            cxx: cl
-
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Install opengl
-      if: matrix.os == 'ubuntu-latest'
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y libgl1-mesa-dev
+      - name: Install opengl
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgl1-mesa-dev
 
-    - name: Configure CMake
-      env:
-        CXX: ${{matrix.cxx}}
-        CXXFLAGS: ${{matrix.cxxflags}}
-      run: >
-        cmake -B ${{ github.workspace }}/build
-        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-        -DCMAKE_CXX_STANDARD=${{ matrix.std }}
-        -DCMAKE_CXX_STANDARD_REQUIRED=ON
-        -S ${{ github.workspace }}
+      - name: Configure CMake
+        run: >
+          cmake -B ${{ github.workspace }}/build
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DCMAKE_CXX_STANDARD=${{ matrix.std }}
+          -DCMAKE_CXX_STANDARD_REQUIRED=ON
+          -S ${{ github.workspace }}
 
-    - name: Build
-      run: cmake --build ${{ github.workspace }}/build --config ${{ matrix.build_type }} --target Tests
+      - name: Build
+        run: cmake --build ${{ github.workspace }}/build --config ${{ matrix.build_type }} --target Tests
 
-    - name: Test
-      working-directory: ${{ github.workspace }}/build
-      run: ctest --build-config ${{ matrix.build_type }} --debug
+      - name: Test
+        working-directory: ${{ github.workspace }}/build
+        run: ctest --build-config ${{ matrix.build_type }} --debug
