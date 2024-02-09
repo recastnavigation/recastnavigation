@@ -19,10 +19,11 @@
 #include <cmath>
 #include <cstdio>
 #include <fstream>
+#include <new>
 
 #include "imgui.h"
-#include "SDL.h"
-#include "SDL_opengl.h"
+#include <SDL.h>
+#include <SDL_opengl.h>
 
 // Some math headers don't have PI defined.
 static constexpr float PI = 3.14159265f;

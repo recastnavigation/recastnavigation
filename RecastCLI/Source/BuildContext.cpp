@@ -53,7 +53,7 @@ void BuildContext::doLog(const rcLogCategory category, const char* msg, const in
 void BuildContext::doResetTimers()
 {
 	for (int i = 0; i < RC_MAX_TIMERS; ++i) {
-		m_accTime[i] == -1ll;
+		m_accTime[i] = -1ll;
 	}
 }
 
@@ -89,10 +89,10 @@ void BuildContext::dumpLog(const char* format, ...) const
 	// Print messages
 	constexpr int TAB_STOPS[4] = { 28, 36, 44, 52 };
 	for (int i = 0; i < MAX_MESSAGES; ++i) {
-		const auto& message = m_messages[i];
+		const char* message = m_messages[i];
 		int n = 0;
-		for (const char ch : message) {
-			if (ch == '\t') {
+		while(*message){
+			if (*message == '\t') {
 				int count = 1;
 				for (const int j : TAB_STOPS) {
 					if (n < j) {
@@ -100,12 +100,12 @@ void BuildContext::dumpLog(const char* format, ...) const
 						break;
 					}
 				}
-				while (count-- > 0) {
+				while (--count) {
 					std::cout << ' ';
 					n++;
 				}
 			} else {
-				std::cout << ch;
+				std::cout << *message;
 				n++;
 			}
 		}

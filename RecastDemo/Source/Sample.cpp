@@ -30,7 +30,7 @@
 #include "DetourNavMeshQuery.h"
 #include "DetourCrowd.h"
 #include "imgui.h"
-#include "SDL_opengl.h"
+#include <SDL_opengl.h>
 
 unsigned int SampleDebugDraw::areaToCol(const unsigned int area)
 {

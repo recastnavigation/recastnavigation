@@ -20,7 +20,7 @@
 #include <cstdio>
 #include <cstring>
 #include <vector>
-#include "SDL.h"
+#include <SDL.h>
 #include "imgui.h"
 #include "NavMeshPruneTool.h"
 

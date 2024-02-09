@@ -19,6 +19,7 @@
 #include "ChunkyTriMesh.h"
 #include <cstdlib>
 #include <cmath>
+#include <new>
 
 struct BoundsItem
 {

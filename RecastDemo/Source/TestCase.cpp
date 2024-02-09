@@ -19,6 +19,7 @@
 #include <cstdio>
 #include <cctype>
 #include <cstring>
+#include <new>
 #include "TestCase.h"
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"

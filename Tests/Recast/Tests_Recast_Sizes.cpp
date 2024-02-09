@@ -4,6 +4,7 @@
 
 #include <filesystem>
 #include <iostream>
+#include <new>
 #include <RecastAlloc.h>
 
 #include <catch2/catch_all.hpp>

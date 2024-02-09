@@ -30,6 +30,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <new>
 
 #include "imgui.h"
 #include "imguiRenderGL.h"

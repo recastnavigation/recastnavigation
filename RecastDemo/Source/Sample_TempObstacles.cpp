@@ -20,6 +20,7 @@
 #include <cstdio>
 #include <cstring>
 #include <cfloat>
+#include <new>
 #include <SDL.h>
 #include <SDL_opengl.h>
 #ifdef __APPLE__

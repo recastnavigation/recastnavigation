@@ -21,6 +21,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <cmath>
+#include <new>
 #include <fstream>
 #include <sstream>
 
