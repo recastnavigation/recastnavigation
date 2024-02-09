@@ -61,14 +61,14 @@ void scanDirectoryAppend(const string& path, const string& ext, vector<string>& 
 		size_t len = strlen(current->d_name);
 		if (len > extLen && strncmp(current->d_name + len - extLen, ext.c_str(), extLen) == 0)
 		{
-			filelist.push_back(current->d_name);
+			fileList.push_back(current->d_name);
 		}
 	}
 	closedir(dp);
 #endif
 	
 	// Sort the list of files alphabetically.
-	std::sort(fileList.begin(), fileList.end());
+	std::ranges::sort(fileList);
 }
 
 void scanDirectory(const string& path, const string& ext, vector<string>& fileList)

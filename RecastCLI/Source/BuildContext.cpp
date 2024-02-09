@@ -52,8 +52,9 @@ void BuildContext::doLog(const rcLogCategory category, const char* msg, const in
 
 void BuildContext::doResetTimers()
 {
-	for (long long & i : m_accTime)
-		i = -1ll;
+	for (int i = 0; i < RC_MAX_TIMERS; ++i) {
+		m_accTime[i] == -1ll;
+	}
 }
 
 void BuildContext::doStartTimer(const rcTimerLabel label)
@@ -87,7 +88,8 @@ void BuildContext::dumpLog(const char* format, ...) const
 
 	// Print messages
 	constexpr int TAB_STOPS[4] = { 28, 36, 44, 52 };
-	for (const auto& message : m_messages) {
+	for (int i = 0; i < MAX_MESSAGES; ++i) {
+		const auto& message = m_messages[i];
 		int n = 0;
 		for (const char ch : message) {
 			if (ch == '\t') {
