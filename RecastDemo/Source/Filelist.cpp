@@ -19,6 +19,8 @@
 #include "Filelist.h"
 
 #include <algorithm>
+#include <ranges>
+
 #ifdef WIN32
 #	include <io.h>
 #else
