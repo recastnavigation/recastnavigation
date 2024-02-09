@@ -16,13 +16,14 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
+#include <algorithm>
+#include <cctype>
 #include <cmath>
 #include <cstdio>
-#include <cctype>
 #include <cstring>
-#include <algorithm>
-#include <new>
 #include <fstream>
+#include <new>
+#include <ranges>
 #include <sstream>
 
 #include "Recast.h"
