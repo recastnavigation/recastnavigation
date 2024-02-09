@@ -19,8 +19,11 @@
 #include <cmath>
 #include <cstdio>
 #include <cstring>
-#include "SDL.h"
-#include "SDL_opengl.h"
+#include <new>
+
+#include <SDL.h>
+#include <SDL_opengl.h>
+
 #include "imgui.h"
 #include "InputGeom.h"
 #include "Sample.h"

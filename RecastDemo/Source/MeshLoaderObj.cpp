@@ -22,6 +22,7 @@
 #include <cstring>
 #include <cmath>
 #include <fstream>
+#include <new>
 #include <sstream>
 
 rcMeshLoaderObj::rcMeshLoaderObj() :

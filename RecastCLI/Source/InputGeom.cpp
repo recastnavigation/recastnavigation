@@ -21,11 +21,12 @@
 #include <cctype>
 #include <cstring>
 #include <algorithm>
-#include "Recast.h"
-#include "InputGeom.h"
-
+#include <new>
 #include <fstream>
 #include <sstream>
+
+#include "Recast.h"
+#include "InputGeom.h"
 
 #include "ChunkyTriMesh.h"
 #include "MeshLoaderObj.h"

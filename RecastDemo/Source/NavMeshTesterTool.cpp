@@ -20,8 +20,8 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include "SDL.h"
-#include "SDL_opengl.h"
+#include <SDL.h>
+#include <SDL_opengl.h>
 #ifdef __APPLE__
 #	include <OpenGL/glu.h>
 #else

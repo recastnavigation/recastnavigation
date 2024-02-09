@@ -19,6 +19,7 @@
 #include <cmath>
 #include <cstdio>
 #include <cstring>
+#include <new>
 #include <SDL.h>
 #include <SDL_opengl.h>
 #ifdef __APPLE__
