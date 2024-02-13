@@ -238,8 +238,8 @@ inline void ProcessBourderEdges(const std::string &input, const std::string &out
     RunThesis(context, pGeom, filterLedgeSpans, filterWalkableLowHeightSpans, filterLowHangingObstacles, config,
               pEdges,
               edgesSize);
-    if (edgesSize & 1)
-        return;
+    // if (edgesSize & 1)
+    // return;
 
 
     // load in actual svg file
@@ -272,11 +272,8 @@ inline void ProcessBourderEdges(const std::string &input, const std::string &out
     }
     csfFileRef.close();
     std::set<Edge> resultEdgesSet{};
-    for (int i = 0; i < edgesSize / 2; ++i) {
-        int ii = (i + 1) % (edgesSize / 2);
-        if (pEdges[i * 2] == -1 || pEdges[ii * 2] == -1)
-            continue;
-
+    for (int i = 0; i < edgesSize / 2 - 1; i += 2) {
+        const int ii = i + 1;
         if (pEdges[i * 2 + 0] > pEdges[ii * 2 + 0] || (
                 pEdges[i * 2 + 0] == pEdges[ii * 2 + 0] && pEdges[ii * 2 + 1] > pEdges[ii * 2 + 1])) {
             resultEdgesSet.emplace(Edge{
@@ -295,21 +292,6 @@ inline void ProcessBourderEdges(const std::string &input, const std::string &out
     std::vector<Edge> resultEdges{};
     std::ranges::copy(referenceEdgesSet, std::back_inserter(referenceEdges));
     std::ranges::copy(resultEdgesSet, std::back_inserter(resultEdges));
-
-    // std::ranges::for_each(referenceEdges, [](Edge &edge) {
-    //     if (edge.v1.x > edge.v2.x || (
-    //             edge.v1.x == edge.v2.x && edge.v1.y > edge.v2.y)) {
-    //     }
-    // });
-    // std::ranges::for_each(resultEdges, [](Edge &edge) {
-    //     if (edge.v1.x > edge.v2.x || (
-    //             edge.v1.x == edge.v2.x && edge.v1.y > edge.v2.y)) {
-    //         std::swap(edge.v1.x, edge.v2.x);
-    //         std::swap(edge.v1.y, edge.v2.y);
-    //     }
-    // });
-    // std::ranges::sort(referenceEdges, compareEdges);
-    // std::ranges::sort(resultEdges, compareEdges);
 
     std::filesystem::create_directories(output);
     std::ofstream resultSvg{output + "/output_edges_result.svg"};
@@ -342,11 +324,61 @@ inline void ProcessBourderEdges(const std::string &input, const std::string &out
 
     uint32_t tp{};
     uint32_t fp{};
-    for (const auto &[resultV1, resultV2]: resultEdges) {
+    constexpr uint8_t epsilon{1};
+    const auto edgeCompare{
+        [epsilon](const Edge &e1, const Edge &e2)-> bool {
+            if (e1.v1.x == e2.v1.x && e1.v1.y == e2.v1.y &&
+                e1.v2.x == e2.v2.x && e1.v2.y == e2.v2.y)
+                return true;
+
+            const int diffX = e1.v1.x - e2.v1.x;
+            const int diffY = e1.v1.y - e2.v1.y;
+
+            // Compare the squared length of the difference with the squared epsilon
+            if(diffX * diffX + diffY * diffY <= epsilon * epsilon)
+                return true;
+
+            // Calculate the direction vectors for e1 and e2
+            const Vertex e2Direction{e2.v2.x - e2.v1.x, e2.v2.y - e2.v1.y};
+
+            // Calculate the normal of e2
+            Vertex e2Normal{e2Direction.y, -e2Direction.x}; // Assuming 2D
+
+            // Normalize the normal vector
+            const auto e2NormalLength = static_cast<float>(
+                std::sqrt(e2Normal.x * e2Normal.x + e2Normal.y * e2Normal.y));
+            e2Normal.x = static_cast<int>(static_cast<float>(e2Normal.x) / e2NormalLength);
+            e2Normal.y = static_cast<int>(static_cast<float>(e2Normal.y) / e2NormalLength);
+
+            // Project e2.v1 onto e1 using the normal of e2
+            const int dotProduct1 = e2Normal.x * (e2.v1.x - e1.v1.x) + e2Normal.y * (e2.v1.y - e1.v1.y);
+            const Vertex projectedPoint1{e2.v1.x - dotProduct1 * e2Normal.x, e2.v1.y - dotProduct1 * e2Normal.y};
+
+            // Project e2.v2 onto e1 using the normal of e2
+            const int dotProduct2 = e2Normal.x * (e2.v2.x - e1.v1.x) + e2Normal.y * (e2.v2.y - e1.v1.y);
+            const Vertex projectedPoint2{e2.v2.x - dotProduct2 * e2Normal.x, e2.v2.y - dotProduct2 * e2Normal.y};
+
+            // Create a new edge using the projected points
+            const Edge projectedEdge{projectedPoint1.x, projectedPoint1.y, projectedPoint2.x, projectedPoint2.y};
+
+            // Calculate the difference between the projected edge and e1
+            const int projectedDiffX = projectedEdge.v1.x - e1.v1.x;
+            const int projectedDiffY = projectedEdge.v1.y - e1.v1.y;
+
+            // Compare the squared length of the difference with the squared epsilon
+            return projectedDiffX * projectedDiffX + projectedDiffY * projectedDiffY <= epsilon * epsilon;
+        }
+    };
+
+    for (const auto &edge1: resultEdges) {
         bool found = false;
-        for (const auto &[refV1, refV2]: referenceEdges) {
-            if (resultV1.x == refV1.x && resultV1.y == refV1.y && resultV2.x == refV2.x && resultV2.y == refV2.y) {
+
+        for (const auto &edge2: referenceEdges) {
+            if (edgeCompare(edge2, edge1)) {
                 found = true;
+                std::erase_if(referenceEdges, [edge2](const Edge& edge) {
+                    return edge.v1.x == edge2.v1.x && edge.v1.y == edge2.v1.y && edge.v2.x == edge2.v2.x && edge.v2.y == edge2.v2.y;
+                });
                 break;
             }
         }
@@ -399,7 +431,7 @@ int main(const int argc, char *argv[]) {
         return 1;
 
     BuildContext context{};
-    const auto pGeom{ std::make_unique<InputGeom>()};
+    const auto pGeom{std::make_unique<InputGeom>()};
     if (!pGeom || !pGeom->load(&context, fileName)) {
         context.dumpLog("Geom load log %s:", fileName.c_str());
         shouldFial = true;

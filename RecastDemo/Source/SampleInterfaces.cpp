@@ -1,10 +1,9 @@
 #include <cmath>
 #include <cstdio>
 #include <cstdarg>
-#include "SampleInterfaces.h"
-
 #include <iostream>
 
+#include "SampleInterfaces.h"
 #include "Recast.h"
 #include "PerfTimer.h"
 #include <SDL.h>
@@ -87,25 +86,32 @@ void BuildContext::dumpLog(const char* format, ...) const
 
 	// Print messages
 	constexpr int TAB_STOPS[4] = { 28, 36, 44, 52 };
-	for (const auto& message : m_messages) {
+	for (int i = 0; i < m_messageCount; ++i)
+	{
+		const char* msg = m_messages[i]+1;
 		int n = 0;
-		for (const char ch : message) {
-			if (ch == '\t') {
+		while (*msg)
+		{
+			if (*msg == '\t')
+			{
 				int count = 1;
-				for (const int j : TAB_STOPS) {
-					if (n < j) {
+				for (const int j : TAB_STOPS)
+				{
+					if (n < j)
+					{
 						count = j - n;
 						break;
 					}
 				}
-				while (count-- > 0) {
+				while (--count > 0) {
 					std::cout << ' ';
 					n++;
 				}
 			} else {
-				std::cout << ch;
+				std::cout << *msg;
 				n++;
 			}
+			msg++;
 		}
 		std::cout << '\n';
 	}

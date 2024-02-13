@@ -1240,27 +1240,39 @@ bool rcBuildContoursWithPortals(rcContext *ctx, const rcCompactHeightfield &chf,
 
     // extract bourder edges
     rcIntArray bourders{};
-    for (int i = 0; i < cset.nconts; ++i) {
-        const rcContour &c = cset.conts[i];
-        if (!c.nverts)
+    for (int i = 0; i < cset.nconts - 1; ++i) {
+        const auto &[verts1, nverts1, rverts1, nrverts1, reg1, area1] = cset.conts[i];
+        if (!nverts1)
             continue;
+        for (int j = i + 1; j < cset.nconts; ++j) {
+            const auto &[verts2, nverts2, rverts2, nrverts2, reg2, area2] = cset.conts[j];
+            if (!nverts2 || reg1 == reg2)
+                continue;
+            for (int k = 0; k < nverts1 ; ++k) {
+                int *firstVertex1 = &verts1[k * 4];
+                int *firstVertex2 = &verts1[(k + 1) % nverts1 * 4];
 
-        for (int j = 0, k = c.nverts - 1; j < c.nverts; k = j++) {
-            const bool differentRegs = (chf.areas[j * 4 + 3] & RC_CONTOUR_REG_MASK) && (
-                                           chf.areas[k * 4 + 3] & RC_CONTOUR_REG_MASK);
-            const bool areaBorders = (chf.areas[j * 4 + 3] & RC_AREA_BORDER) && (chf.areas[k * 4 + 3] & RC_AREA_BORDER);
-            if (!(!differentRegs && areaBorders)) {
-                const int *va = &c.verts[k * 4];
-                const int *vb = &c.verts[j * 4];
-                bourders.push(va[0]);
-                bourders.push(va[2]);
-                bourders.push(vb[0]);
-                bourders.push(vb[2]);
+                for (int l = 0; l < nverts2; ++l) {
+                    int *secondVertex1 = &verts2[l * 4];
+                    int *secondVertex2 = &verts2[(l + 1) % nverts2 * 4 ];
+
+                    // Check if edges are equal (only need to check the index)
+                    if (firstVertex1[0] == secondVertex2[0] && firstVertex1[1] == secondVertex2[1] && firstVertex1[2] == secondVertex2[2]
+                        &&
+                        firstVertex2[0] == secondVertex1[0] && firstVertex2[1] == secondVertex1[1] && firstVertex2[2] == secondVertex1[2]) {
+                        bourders.push(firstVertex1[0]);
+                        bourders.push(firstVertex1[2]);
+                        bourders.push(firstVertex2[0]);
+                        bourders.push(firstVertex2[2]);
+                    }
+                }
             }
         }
     }
+
     portalEdgeSize = bourders.size();
     portalEdges = static_cast<int *>(rcAlloc(sizeof(int) * bourders.size(), RC_ALLOC_PERM));
-    memcpy(portalEdges, &bourders[0], portalEdgeSize * sizeof(int));
+    if(bourders.size())
+        memcpy(portalEdges, &bourders[0], portalEdgeSize * sizeof(int));
     return true;
 }
