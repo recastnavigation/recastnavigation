@@ -329,10 +329,8 @@ struct rcHeightfield
 	rcSpanPool* pools;	///< Linked list of span pools.
 	rcSpan* freelist;	///< The next free span.
 
-private:
-	// Explicitly-disabled copy constructor and copy assignment operator.
-	rcHeightfield(const rcHeightfield&);
-	rcHeightfield& operator=(const rcHeightfield&);
+	rcHeightfield(const rcHeightfield&) = delete;
+	rcHeightfield& operator=(const rcHeightfield&) = delete;
 };
 
 /// Provides information on the content of a cell column in a compact heightfield. 
@@ -375,10 +373,9 @@ struct rcCompactHeightfield
 	rcCompactSpan* spans;		///< Array of spans. [Size: #spanCount]
 	unsigned short* dist;		///< Array containing border distance data. [Size: #spanCount]
 	unsigned char* areas;		///< Array containing area id data. [Size: #spanCount]
-private:
-	// Explicitly-disabled copy constructor and copy assignment operator.
-	rcCompactHeightfield(const rcCompactHeightfield&);
-	rcCompactHeightfield& operator=(const rcCompactHeightfield&);
+
+	rcCompactHeightfield(const rcCompactHeightfield&) = delete;
+	rcCompactHeightfield& operator=(const rcCompactHeightfield&) = delete;
 };
 
 /// Represents a heightfield layer within a layer set.
@@ -413,10 +410,8 @@ struct rcHeightfieldLayerSet
 	rcHeightfieldLayer* layers;			///< The layers in the set. [Size: #nlayers]
 	int nlayers;						///< The number of layers in the set.
 	
-private:
-	// Explicitly-disabled copy constructor and copy assignment operator.
-	rcHeightfieldLayerSet(const rcHeightfieldLayerSet&);
-	rcHeightfieldLayerSet& operator=(const rcHeightfieldLayerSet&);
+	rcHeightfieldLayerSet(const rcHeightfieldLayerSet&) = delete;
+	rcHeightfieldLayerSet& operator=(const rcHeightfieldLayerSet&) = delete;
 };
 
 /// Represents a simple, non-overlapping contour in field space.
@@ -448,10 +443,8 @@ struct rcContourSet
 	int borderSize;		///< The AABB border size used to generate the source data from which the contours were derived.
 	float maxError;		///< The max edge error that this contour set was simplified with.
 	
-private:
-	// Explicitly-disabled copy constructor and copy assignment operator.
-	rcContourSet(const rcContourSet&);
-	rcContourSet& operator=(const rcContourSet&);
+	rcContourSet(const rcContourSet&) = delete;
+	rcContourSet& operator=(const rcContourSet&) = delete;
 };
 
 /// Represents a polygon mesh suitable for use in building a navigation mesh. 
@@ -477,10 +470,8 @@ struct rcPolyMesh
 	int borderSize;			///< The AABB border size used to generate the source data from which the mesh was derived.
 	float maxEdgeError;		///< The max error of the polygon edges in the mesh.
 	
-private:
-	// Explicitly-disabled copy constructor and copy assignment operator.
-	rcPolyMesh(const rcPolyMesh&);
-	rcPolyMesh& operator=(const rcPolyMesh&);
+	rcPolyMesh(const rcPolyMesh&) = delete;
+	rcPolyMesh& operator=(const rcPolyMesh&) = delete;
 };
 
 /// Contains triangle meshes that represent detailed height data associated 
@@ -497,10 +488,8 @@ struct rcPolyMeshDetail
 	int nverts;				///< The number of vertices in #verts.
 	int ntris;				///< The number of triangles in #tris.
 	
-private:
-	// Explicitly-disabled copy constructor and copy assignment operator.
-	rcPolyMeshDetail(const rcPolyMeshDetail&);
-	rcPolyMeshDetail& operator=(const rcPolyMeshDetail&);
+	rcPolyMeshDetail(const rcPolyMeshDetail&) = delete;
+	rcPolyMeshDetail& operator=(const rcPolyMeshDetail&) = delete;
 };
 
 /// @name Allocation Functions
