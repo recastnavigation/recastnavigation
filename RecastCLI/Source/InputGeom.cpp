@@ -16,14 +16,16 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
+#include <algorithm>
+#include <cctype>
 #include <cmath>
 #include <cstdio>
-#include <cctype>
 #include <cstring>
-#include <algorithm>
-#include <new>
 #include <fstream>
+#include <new>
+#include <ranges>
 #include <sstream>
+
 
 #include "Recast.h"
 #include "InputGeom.h"
@@ -122,7 +124,7 @@ InputGeom::~InputGeom()
     delete m_mesh;
 }
 
-bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath)
+bool InputGeom::loadMesh(rcContext* ctx, const std::string& filePath)
 {
     if (m_mesh)
     {
@@ -140,9 +142,9 @@ bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath)
         ctx->log(RC_LOG_ERROR, "loadMesh: Out of memory 'm_mesh'.");
         return false;
     }
-    if (!m_mesh->load(filepath))
+    if (!m_mesh->load(filePath))
     {
-        ctx->log(RC_LOG_ERROR, "buildTiledNavigation: Could not load '%s'", filepath.c_str());
+        ctx->log(RC_LOG_ERROR, "buildTiledNavigation: Could not load '%s'", filePath.c_str());
         return false;
     }
 
