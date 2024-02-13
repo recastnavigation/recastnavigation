@@ -15,23 +15,23 @@
 #include "../../RecastCLI/Include/BuildContext.h"
 
 // For comparing to rcVector in benchmarks.
-constexpr float cellHeight = 0.2f;
+constexpr float g_cellHeight = 0.2f;
 constexpr float agentRadius = 0.0f;
-constexpr float agentHeight = 2.0f;
-constexpr float agentMaxClimb = 0.9f;
-constexpr float agentMaxSlope = 45.0f;
-constexpr float edgeMaxLen = 12.0f;
-constexpr float edgeMaxError = 1.3f;
-constexpr float vertsPerPoly = 6.0f;
-constexpr float detailSampleDist = 6.0f;
-constexpr float detailSampleMaxError = 1.0f;
+constexpr float g_agentHeight = 2.0f;
+constexpr float g_agentMaxClimb = 0.9f;
+constexpr float g_agentMaxSlope = 45.0f;
+constexpr float g_edgeMaxLen = 12.0f;
+constexpr float g_edgeMaxError = 1.3f;
+constexpr float g_vertsPerPoly = 6.0f;
+constexpr float g_detailSampleDist = 6.0f;
+constexpr float g_detailSampleMaxError = 1.0f;
 constexpr float mergeS = 20.0f;
 constexpr float minS = 8.0f;
-constexpr bool filterLedgeSpans = true;
-constexpr bool filterWalkableLowHeightSpans = true;
-constexpr bool filterLowHangingObstacles = true;
+constexpr bool g_filterLedgeSpans = true;
+constexpr bool g_filterWalkableLowHeightSpans = true;
+constexpr bool g_filterLowHangingObstacles = true;
 
-constexpr int LOOP_COUNT = 10;
+constexpr int g_loopCount = 10;
 
 inline bool RunThesis(BuildContext &context, const InputGeom *pGeom, const bool filterLedgeSpans,
                       const bool filterWalkableLowHeightSpans, const bool filterLowHangingObstacles, rcConfig &config,
@@ -51,12 +51,12 @@ inline bool RunThesis(BuildContext &context, const InputGeom *pGeom, const bool 
     return success;
 }
 
-inline std::array<float, LOOP_COUNT * RC_MAX_TIMERS> GenerateThesisTimes(
+inline std::array<float, g_loopCount * RC_MAX_TIMERS> GenerateThesisTimes(
     BuildContext &context, const InputGeom *pGeom, const bool filterLedgeSpans, const bool filterWalkableLowHeightSpans,
     const bool filterLowHangingObstacles, rcConfig &config) {
     context.resetLog();
-    std::array<float, LOOP_COUNT * RC_MAX_TIMERS> times{};
-    for (int i{}; i < LOOP_COUNT; i++) {
+    std::array<float, g_loopCount * RC_MAX_TIMERS> times{};
+    for (int i{}; i < g_loopCount; i++) {
         int *pEdges{nullptr};
         int edgesSize{};
         const bool succes{
@@ -75,12 +75,12 @@ inline std::array<float, LOOP_COUNT * RC_MAX_TIMERS> GenerateThesisTimes(
     return times;
 }
 
-inline std::array<float, LOOP_COUNT * RC_MAX_TIMERS> GenerateSingleMeshTimes(
+inline std::array<float, g_loopCount * RC_MAX_TIMERS> GenerateSingleMeshTimes(
     BuildContext &context, const InputGeom *pGeom, const bool filterLedgeSpans, const bool filterWalkableLowHeightSpans,
     const bool filterLowHangingObstacles, rcConfig &config) {
     context.resetLog();
-    std::array<float, LOOP_COUNT * RC_MAX_TIMERS> times{};
-    for (int i{}; i < LOOP_COUNT; i++) {
+    std::array<float, g_loopCount * RC_MAX_TIMERS> times{};
+    for (int i{}; i < g_loopCount; i++) {
         rcPolyMesh *pMesh{nullptr};
         rcPolyMeshDetail *pDMesh{nullptr};
         float totalBuildTimeMs{};
@@ -105,11 +105,11 @@ inline std::array<float, LOOP_COUNT * RC_MAX_TIMERS> GenerateSingleMeshTimes(
     return times;
 }
 
-inline void WriteTimeToCSV(const std::string &filePath, const std::array<float, LOOP_COUNT * RC_MAX_TIMERS> &timerData,
+inline void WriteTimeToCSV(const std::string &filePath, const std::array<float, g_loopCount * RC_MAX_TIMERS> &timerData,
                            const char *header, const int headerSize) {
     std::ofstream csvFile{filePath, std::ios::out};
     csvFile.write(header, headerSize).put('\n');
-    for (int i{}; i < LOOP_COUNT; ++i) {
+    for (int i{}; i < g_loopCount; ++i) {
         for (int j{}; j < RC_MAX_TIMERS; ++j) {
             csvFile << timerData[i * RC_MAX_TIMERS + j] << ',';
         }
@@ -120,21 +120,26 @@ inline void WriteTimeToCSV(const std::string &filePath, const std::array<float, 
 
 TEST_CASE("Watershed") {
     rcConfig config{
-        .ch = cellHeight,
-        .walkableSlopeAngle = agentMaxSlope,
-        .walkableHeight = static_cast<int>(std::ceil(agentHeight / cellHeight)),
-        .walkableClimb = static_cast<int>(std::floor(agentMaxClimb / cellHeight)),
-        .maxSimplificationError = edgeMaxError,
+        .ch = g_cellHeight,
+        .walkableSlopeAngle = g_agentMaxSlope,
+        .walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight)),
+        .walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight)),
+        .maxSimplificationError = g_edgeMaxError,
         .minRegionArea = static_cast<int>(rcSqr(minS)),
         .mergeRegionArea = static_cast<int>(rcSqr(mergeS)),
-        .maxVertsPerPoly = static_cast<int>(vertsPerPoly),
-        .detailSampleMaxError = cellHeight * detailSampleMaxError,
+        .maxVertsPerPoly = static_cast<int>(g_vertsPerPoly),
+        .detailSampleMaxError = g_cellHeight * g_detailSampleMaxError,
     };
 
     const std::string env{
         GENERATE(Catch::Generators::values<std::string>({
             "Meshes/City.obj",
-            "Meshes/military.obj",
+            "MeshesMaze8.obj",
+            "MeshesMaze16.obj",
+            "MeshesMaze32.obj",
+            "MeshesMaze64.obj",
+            "MeshesMaze128.obj",
+            "Meshes/Military.obj",
             "Meshes/Simple.obj",
             "Meshes/University.obj",
             "Meshes/Zelda.obj",
@@ -156,13 +161,13 @@ TEST_CASE("Watershed") {
 
 
     const std::array defaultTimes{
-        GenerateSingleMeshTimes(context, pGeom, filterLedgeSpans, filterWalkableLowHeightSpans,
-                                filterLowHangingObstacles,
+        GenerateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans,
+                                g_filterLowHangingObstacles,
                                 config)
     };
     const std::array thesisTimes{
-        GenerateThesisTimes(context, pGeom, filterLedgeSpans, filterWalkableLowHeightSpans,
-                            filterLowHangingObstacles,
+        GenerateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans,
+                            g_filterLowHangingObstacles,
                             config)
     };
     delete pGeom;

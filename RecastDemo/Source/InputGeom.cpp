@@ -123,7 +123,7 @@ InputGeom::~InputGeom()
     delete m_mesh;
 }
 
-bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath)
+bool InputGeom::loadMesh(rcContext* ctx, const std::string& filePath)
 {
     if (m_mesh)
     {
@@ -141,9 +141,9 @@ bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath)
         ctx->log(RC_LOG_ERROR, "loadMesh: Out of memory 'm_mesh'.");
         return false;
     }
-    if (!m_mesh->load(filepath))
+    if (!m_mesh->load(filePath))
     {
-        ctx->log(RC_LOG_ERROR, "buildTiledNavigation: Could not load '%s'", filepath.c_str());
+        ctx->log(RC_LOG_ERROR, "buildTiledNavigation: Could not load '%s'", filePath.c_str());
         return false;
     }
 
