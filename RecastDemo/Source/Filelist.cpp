@@ -70,7 +70,7 @@ void scanDirectoryAppend(const string& path, const string& ext, vector<string>& 
 #endif
 	
 	// Sort the list of files alphabetically.
-	std::sort(fileList.begin(), fileList.end());
+	std::ranges::sort(fileList);
 }
 
 void scanDirectory(const string& path, const string& ext, vector<string>& fileList)
