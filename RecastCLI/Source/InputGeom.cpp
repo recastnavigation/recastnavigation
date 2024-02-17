@@ -19,7 +19,6 @@
 #include <algorithm>
 #include <cctype>
 #include <cmath>
-#include <cstdio>
 #include <cstring>
 #include <fstream>
 #include <new>
@@ -286,7 +285,7 @@ bool InputGeom::load(rcContext* ctx, const std::string& filepath)
         return false;
 
     std::string extension = filepath.substr(extensionPos);
-    std::transform(extension.begin(), extension.end(), extension.begin(), tolower);
+    std::ranges::transform(extension, extension.begin(), tolower);
 
     if (extension == ".gset")
         return loadGeomSet(ctx, filepath);

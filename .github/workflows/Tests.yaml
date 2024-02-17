@@ -16,7 +16,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         build_type: [Release]
-        std: [20]
+        std: [23]
 
     steps:
       - uses: actions/checkout@v4
