@@ -23,7 +23,6 @@
 #include <cstring>
 #include <fstream>
 #include <new>
-#include <ranges>
 #include <sstream>
 
 
@@ -287,7 +286,7 @@ bool InputGeom::load(rcContext* ctx, const std::string& filepath)
         return false;
 
     std::string extension = filepath.substr(extensionPos);
-    std::ranges::transform(extension, extension.begin(), tolower);
+    std::transform(extension.begin(), extension.end(), extension.begin(), tolower);
 
     if (extension == ".gset")
         return loadGeomSet(ctx, filepath);
