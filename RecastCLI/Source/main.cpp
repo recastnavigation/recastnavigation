@@ -2,15 +2,18 @@
 // Created by joran on 14/12/2023.
 //
 #include <algorithm>
+#include <array>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <ranges>
+#include <set>
 #include <sstream>
 #include <string>
 #include <vector>
-#include <array>
+#include <cmath>
+
 #include <RecastAlloc.h>
-#include <set>
 
 #include "BuildContext.h"
 #include "Generators.h"
@@ -23,6 +26,7 @@ public:
         for (int i = 1; i < argc; ++i) {
             m_tokens.emplace_back(argv[i]);
             if (m_tokens.back()[0] == '-') for (char &ch: m_tokens.back()) ch = static_cast<char>(tolower(ch));
+            else std::erase(m_tokens.back(), '\"');
         }
     }
 
@@ -46,7 +50,7 @@ public:
             std::stringstream ss{option};
             std::string s;
             while (std::getline(ss, s, ';')) {
-                return s.find(token) != std::string::npos;
+                return s == token;
             }
             return false;
         });
@@ -322,65 +326,107 @@ inline void ProcessBourderEdges(const std::string &input, const std::string &out
     resultSvg.close();
     referenceSvg.close();
 
-    uint32_t tp{};
-    uint32_t fp{};
     constexpr uint8_t epsilon{2};
-    const auto edgeCompare{
+    const auto projectMatch{
         [epsilon](const Edge &e1, const Edge &e2)-> bool {
             if (e1.v1.x == e2.v1.x && e1.v1.y == e2.v1.y &&
                 e1.v2.x == e2.v2.x && e1.v2.y == e2.v2.y)
                 return true;
 
-            const int diffX = e1.v1.x - e2.v1.x;
-            const int diffY = e1.v1.y - e2.v1.y;
+            const int diffX1{e1.v1.x - e2.v1.x};
+            const int diffY1{e1.v1.y - e2.v1.y};
+            const int diffX2{e1.v2.x - e2.v2.x};
+            const int diffY2{e1.v2.y - e2.v2.y};
 
             // Compare the squared length of the difference with the squared epsilon
-            if(diffX * diffX + diffY * diffY <= epsilon * epsilon)
+            if (diffX1 * diffX1 + diffY1 * diffY1 <= epsilon * epsilon && diffX2 * diffX2 + diffY2 * diffY2 <= epsilon *
+                epsilon)
                 return true;
 
-            // Calculate the direction vectors for e1 and e2
-            const Vertex e2Direction{e2.v2.x - e2.v1.x, e2.v2.y - e2.v1.y};
+            const Vertex vertex1{e1.v2.x - e1.v1.x, e1.v2.y - e1.v1.y};
+            const Vertex vertex2{e2.v2.x - e2.v1.x, e2.v2.y - e2.v1.y};
+            const auto dot{
+                [](const Vertex &v1, const Vertex &v2)-> int {
+                    return v1.x * v2.x + v1.y * v2.y;
+                }
+            };
+            const float e2Length{
+                std::sqrtf(dot(vertex2, vertex2))
+            };
+            const float size{static_cast<float>(dot(vertex1, vertex2)) / e2Length};
+            const Vertex b{static_cast<int>(vertex1.x * size), static_cast<int>(vertex1.y * size)};
+            const Vertex v2Normalized{
+                static_cast<int>(vertex2.x / e2Length), static_cast<int>(vertex2.y / e2Length)
+            };
+            const Edge projected{b.x, b.y, b.x + v2Normalized.x, b.y + v2Normalized.x};
 
-            // Calculate the normal of e2
-            Vertex e2Normal{e2Direction.y, -e2Direction.x}; // Assuming 2D
-
-            // Normalize the normal vector
-            const auto e2NormalLength = static_cast<float>(
-                std::sqrt(e2Normal.x * e2Normal.x + e2Normal.y * e2Normal.y));
-            e2Normal.x = static_cast<int>(static_cast<float>(e2Normal.x) / e2NormalLength);
-            e2Normal.y = static_cast<int>(static_cast<float>(e2Normal.y) / e2NormalLength);
-
-            // Project e2.v1 onto e1 using the normal of e2
-            const int dotProduct1 = e2Normal.x * (e2.v1.x - e1.v1.x) + e2Normal.y * (e2.v1.y - e1.v1.y);
-            const Vertex projectedPoint1{e2.v1.x - dotProduct1 * e2Normal.x, e2.v1.y - dotProduct1 * e2Normal.y};
-
-            // Project e2.v2 onto e1 using the normal of e2
-            const int dotProduct2 = e2Normal.x * (e2.v2.x - e1.v1.x) + e2Normal.y * (e2.v2.y - e1.v1.y);
-            const Vertex projectedPoint2{e2.v2.x - dotProduct2 * e2Normal.x, e2.v2.y - dotProduct2 * e2Normal.y};
-
-            // Create a new edge using the projected points
-            const Edge projectedEdge{projectedPoint1.x, projectedPoint1.y, projectedPoint2.x, projectedPoint2.y};
-
-            // Calculate the difference between the projected edge and e1
-            const int projectedDiffX1 = projectedEdge.v1.x - e1.v1.x;
-            const int projectedDiffY1 = projectedEdge.v1.y - e1.v1.y;
-
-            const int projectedDiffX2 = projectedEdge.v2.x - e1.v2.x;
-            const int projectedDiffY2 = projectedEdge.v2.y - e1.v2.y;
+            const int movedDiffX1 = e1.v1.x - projected.v1.x;
+            const int movedDiffY1 = e1.v1.y - projected.v1.y;
+            const int movedDiffX2 = e1.v2.x - projected.v2.x;
+            const int movedDiffY2 = e1.v2.y - projected.v2.y;
             // Compare the squared length of the difference with the squared epsilon
-            return (projectedDiffX1 * projectedDiffX1 + projectedDiffY1 * projectedDiffY1 <= epsilon * epsilon)&&(projectedDiffX2 * projectedDiffX2 + projectedDiffY2 * projectedDiffY2 <= epsilon * epsilon);
+            if (movedDiffX1 * movedDiffX1 + movedDiffY1 * movedDiffY1 <= epsilon * epsilon && movedDiffX2 * movedDiffX2
+                + movedDiffY2 * movedDiffY2 <= epsilon * epsilon)
+                return true;
+            return false;
         }
     };
+    const auto moveMatch{
+        [epsilon](const Edge &e1, const Edge &e2) -> bool {
+            if (e1.v1.x == e2.v1.x && e1.v1.y == e2.v1.y &&
+                e1.v2.x == e2.v2.x && e1.v2.y == e2.v2.y)
+                return true;
 
+            const int diffX1 = e1.v1.x - e2.v1.x;
+            const int diffY1 = e1.v1.y - e2.v1.y;
+            const int diffX2 = e1.v2.x - e2.v2.x;
+            const int diffY2 = e1.v2.y - e2.v2.y;
+            // Compare the squared length of the difference with the squared epsilon
+            if (diffX1 * diffX1 + diffY1 * diffY1 <= epsilon * epsilon && diffX2 * diffX2 + diffY2 * diffY2 <= epsilon *
+                epsilon)
+                return true;
+
+            const int halfDiffX = (diffX1 + diffX2) / 2;
+            const int halfDiffY = (diffY1 + diffY2) / 2;
+            const Edge moved{e2.v1.x + halfDiffX, e2.v1.y + halfDiffY, e2.v2.x + halfDiffX, e2.v2.y + halfDiffY};
+
+
+            const int movedDiffX1 = e1.v1.x - moved.v1.x;
+            const int movedDiffY1 = e1.v1.y - moved.v1.y;
+            const int movedDiffX2 = e1.v2.x - moved.v2.x;
+            const int movedDiffY2 = e1.v2.y - moved.v2.y;
+            // Compare the squared length of the difference with the squared epsilon
+            if (movedDiffX1 * movedDiffX1 + movedDiffY1 * movedDiffY1 <= epsilon * epsilon && movedDiffX2 * movedDiffX2
+                + movedDiffY2 * movedDiffY2 <= epsilon * epsilon)
+                return true;
+            return false;
+        }
+    };
     std::size_t referenceEdgesSize = referenceEdges.size();
+    uint32_t tp{};
+    uint32_t fp{};
     for (const auto &edge1: resultEdges) {
         bool found = false;
-
+        std::ranges::sort(referenceEdges, [edge1](const Edge &edgeA, const Edge &edgeB)-> bool {
+            const auto distance{
+                [](const Edge &e1, const Edge &e2)-> int32_t {
+                    const int diffX1 = e1.v1.x - e2.v1.x;
+                    const int diffY1 = e1.v1.y - e2.v1.y;
+                    const int diffX2 = e1.v2.x - e2.v2.x;
+                    const int diffY2 = e1.v2.y - e2.v2.y;
+                    const int halfDiffX = (diffX1 + diffX2) / 2;
+                    const int halfDiffY = (diffY1 + diffY2) / 2;
+                    return halfDiffX * halfDiffX + halfDiffY + halfDiffY;
+                }
+            };
+            return distance(edge1, edgeA) < distance(edge1, edgeB);
+        });
         for (const auto &edge2: referenceEdges) {
-            if (edgeCompare(edge2, edge1)) {
+            if (moveMatch(edge1, edge2)) {
                 found = true;
-                std::erase_if(referenceEdges, [edge2](const Edge& edge) {
-                    return edge.v1.x == edge2.v1.x && edge.v1.y == edge2.v1.y && edge.v2.x == edge2.v2.x && edge.v2.y == edge2.v2.y;
+                std::erase_if(referenceEdges, [edge2](const Edge &edge) {
+                    return edge.v1.x == edge2.v1.x && edge.v1.y == edge2.v1.y && edge.v2.x == edge2.v2.x && edge.v2.y ==
+                           edge2.v2.y;
                 });
                 break;
             }
@@ -395,6 +441,19 @@ inline void ProcessBourderEdges(const std::string &input, const std::string &out
     float precision = static_cast<float>(tp) / static_cast<float>(tp + fp);
     float recall = static_cast<float>(tp) / static_cast<float>(referenceEdgesSize);
     std::cout << "precision: " << precision << "\t recal: " << recall << std::endl;
+
+    std::ofstream leftoverSvg{output + "/output_edges_leftover.svg"};
+    leftoverSvg << std::format(R"(<svg width="{}" height="{}" xmlns="http://www.w3.org/2000/svg">)", config.width,
+                                config.height);
+    leftoverSvg.put(leftoverSvg.widen('\n'));
+    for (int i = 0; i < referenceEdges.size(); ++i) {
+        const auto &[v1, v2]{referenceEdges[i]};
+        leftoverSvg << std::format(
+            R"(<line x1="{}" y1="{}" x2="{}" y2="{}" style="stroke: black; stroke-width: 2;" />)",
+            v1.x, v1.y, v2.x, v2.y) << '\n';
+    }
+    leftoverSvg << R"(</svg>)";
+    leftoverSvg.close();
 }
 
 constexpr float g_cellHeight = 0.2f;
@@ -421,26 +480,14 @@ int main(const int argc, char *argv[]) {
     const std::string &fileName = parser.GetCmdOption("-f;--file");
     const std::string &output = parser.GetCmdOption("-o;--output");
     std::string lcmRef{};
-    bool shouldFial{};
     if (fileName.empty()) {
         std::cout << "An input file model is required (-f;--file)" << std::endl;
-        shouldFial = true;
+        return 1;
     }
     if (output.empty()) {
         std::cout << "An output path required (-o;--output)" << std::endl;
-        shouldFial = true;
-    }
-    if (shouldFial)
         return 1;
-
-    BuildContext context{};
-    const auto pGeom{std::make_unique<InputGeom>()};
-    if (!pGeom || !pGeom->load(&context, fileName)) {
-        context.dumpLog("Geom load log %s:", fileName.c_str());
-        shouldFial = true;
     }
-    if (shouldFial)
-        return 1;
 
     float cellSize = 0.3f;
     float agentRadius = 0.6f;
@@ -451,10 +498,20 @@ int main(const int argc, char *argv[]) {
     if (parser.CmdOptionExists("-ar;--agentradius"))
         agentRadius = std::stof(parser.GetCmdOption("-ar;--agentradius"));
     if (parser.CmdOptionExists("-lcm;--localclearanceminimum")) {
+        if (!parser.CmdOptionExists("-lcmr;--localclearanceminimumrefference")) {
+            return 1;
+        }
         aqquireLcm = true;
         lcmRef = parser.GetCmdOption("-lcmr;--localclearanceminimumrefference");
+        std::cout << "comparing \"" << fileName << "\" with \"" << lcmRef << '\"' << std::endl;
     }
 
+    BuildContext context{};
+    const auto pGeom{std::make_unique<InputGeom>()};
+    if (!pGeom || !pGeom->load(&context, fileName)) {
+        context.dumpLog("Geom load log %s:", fileName.c_str());
+        return 1;
+    }
     const rcConfig config{
         .cs = cellSize,
         .ch = g_cellHeight,
