@@ -19,11 +19,12 @@
 #include <algorithm>
 #include <cctype>
 #include <cmath>
+#include <cstdio>
 #include <cstring>
 #include <fstream>
 #include <new>
+#include <ranges>
 #include <sstream>
-
 
 #include "Recast.h"
 #include "InputGeom.h"
