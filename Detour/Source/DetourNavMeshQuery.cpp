@@ -58,6 +58,7 @@
 
 #include <cfloat>
 #include <cstring>
+#include <new>
 
 dtQueryFilter::dtQueryFilter() : m_includeFlags(0xffff),
                                  m_excludeFlags(0) {
