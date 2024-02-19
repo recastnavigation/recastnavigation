@@ -29,8 +29,8 @@
 #include "InputGeom.h"
 
 #include "ChunkyTriMesh.h"
-#include "MeshLoaderObj.h"
 #include "DebugDraw.h"
+#include "MeshLoaderObj.h"
 
 static bool intersectSegmentTriangle(const float* sp, const float* sq,
                                      const float* a, const float* b, const float* c,
@@ -178,14 +178,14 @@ bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filePath)
         return false;
     }
 
-    const auto buf = new (std::nothrow) char[fileSize];
+    auto *const buf = new (std::nothrow) char[fileSize];
     if (!buf)
     {
         file.close();
         return false;
     }
     file.read(buf, fileSize);
-    const size_t readLen = file.gcount();
+    const std::size_t readLen = file.gcount();
     file.close();
     if (readLen != fileSize)
     {
@@ -280,7 +280,7 @@ bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filePath)
 
 bool InputGeom::load(rcContext* ctx, const std::string& filepath)
 {
-    const size_t extensionPos = filepath.find_last_of('.');
+    const std::size_t extensionPos = filepath.find_last_of('.');
     if (extensionPos == std::string::npos)
         return false;
 
@@ -301,7 +301,7 @@ bool InputGeom::saveGeomSet(const BuildSettings* settings) const
 
     // Change extension
     std::string filepath = m_mesh->getFileName();
-    if (const size_t extPos = filepath.find_last_of('.'); extPos != std::string::npos)
+    if (const std::size_t extPos = filepath.find_last_of('.'); extPos != std::string::npos)
         filepath = filepath.substr(0, extPos);
 
     filepath += ".gset";

@@ -17,12 +17,13 @@
 //
 
 #include "MeshLoaderObj.h"
+
+#include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <cmath>
-#include <new>
 #include <fstream>
+#include <new>
 #include <sstream>
 
 rcMeshLoaderObj::rcMeshLoaderObj() :
@@ -47,7 +48,7 @@ void rcMeshLoaderObj::addVertex(const float x, const float y, const float z, int
 	if (m_vertCount+1 > cap)
 	{
 		cap = !cap ? 8 : cap*2;
-		const auto nv = new float[cap*3];
+		auto *const nv = new float[cap*3];
 		if (m_vertCount)
 			std::memcpy(nv, m_verts, m_vertCount*3*sizeof(float));
 		delete [] m_verts;
@@ -65,7 +66,7 @@ void rcMeshLoaderObj::addTriangle(const int a, const int b, const int c, int& ca
 	if (m_triCount+1 > cap)
 	{
 		cap = !cap ? 8 : cap*2;
-		const auto nv = new int[cap*3];
+		auto *const nv = new int[cap*3];
 		if (m_triCount)
 			std::memcpy(nv, m_tris, m_triCount*3*sizeof(int));
 		delete [] m_tris;
@@ -153,14 +154,14 @@ bool rcMeshLoaderObj::load(const std::string& fileName)
         return false;
     }
 
-    const auto buf = new (std::nothrow) char[fileSize];
+    auto *const buf = new (std::nothrow) char[fileSize];
     if (!buf)
     {
         file.close();
         return false;
     }
     file.read(buf, fileSize);
-    const size_t readLen = file.gcount();
+    const std::size_t readLen = file.gcount();
     file.close();
     if (readLen != fileSize)
     {

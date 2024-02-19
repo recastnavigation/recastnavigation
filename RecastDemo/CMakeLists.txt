@@ -15,6 +15,9 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 )
 
 find_package(OpenGL REQUIRED)
+if (NOT OpenGL_FOUND)
+    message(FATAL_ERROR "OpenGL not found")
+endif ()
 
 include(FetchContent)
 Set(FETCHCONTENT_QUIET FALSE)

@@ -21,6 +21,7 @@
 #include "RecastAssert.h"
 
 #include <cstdint>
+#include <cstdlib>
 
 /// Provides hint values to the memory allocator on how long the
 /// memory is expected to be used.
@@ -34,7 +35,7 @@ enum rcAllocHint {
 //  @param[in]		rcAllocHint	A hint to the allocator on how long the memory is expected to be in use.
 //  @return A pointer to the beginning of the allocated memory block, or null if the allocation failed.
 ///  @see rcAllocSetCustom
-typedef void *(rcAllocFunc)(size_t size, rcAllocHint hint);
+typedef void *(rcAllocFunc)(std::size_t size, rcAllocHint hint);
 
 /// A memory deallocation function.
 ///  @param[in]		ptr		A pointer to a memory block previously allocated using #rcAllocFunc.
@@ -55,7 +56,7 @@ void rcAllocSetCustom(rcAllocFunc *allocFunc, rcFreeFunc *freeFunc);
 /// @return A pointer to the beginning of the allocated memory block, or null if the allocation failed.
 ///
 /// @see rcFree, rcAllocSetCustom
-void *rcAlloc(size_t size, rcAllocHint hint);
+void *rcAlloc(std::size_t size, rcAllocHint hint);
 
 /// Deallocates a memory block.  If @p ptr is NULL, this does nothing.
 ///
@@ -71,7 +72,7 @@ void rcFree(void *ptr);
 /// rcNewTag is a dummy type used to differentiate our operator from the STL one, in case users import both Recast
 /// and STL.
 struct rcNewTag {};
-inline void *operator new(size_t, const rcNewTag &, void *p) { return p; }
+inline void *operator new(std::size_t, const rcNewTag &, void *p) { return p; }
 inline void operator delete(void *, const rcNewTag &, void *) {}
 
 /// Signed to avoid warnings when comparing to int loop indexes, and common error with comparing to zero.
@@ -92,7 +93,7 @@ typedef intptr_t rcSizeType;
 /// Variable-sized storage type. Mimics the interface of std::vector<T> with some notable differences:
 ///  * Uses rcAlloc()/rcFree() to handle storage.
 ///  * No support for a custom allocator.
-///  * Uses signed size instead of size_t to avoid warnings in for loops: "for (int i = 0; i < foo.size(); i++)"
+///  * Uses signed size instead of std::size_t to avoid warnings in for loops: "for (int i = 0; i < foo.size(); i++)"
 ///  * Omits methods of limited utility: insert/erase, (bad performance), at (we don't use exceptions), operator=.
 ///  * assign() and the pre-sizing constructor follow C++11 semantics -- they don't construct a temporary if no value is provided.
 ///  * push_back() and resize() support adding values from the current vector. Range-based constructors and assign(begin, end) do not.

@@ -108,10 +108,10 @@ void subdivide(BoundsItem *items, const int nitems, const int imin, const int im
 
     if (axis == 0) {
       // Sort along x-axis
-      std::qsort(items + imin, static_cast<size_t>(inum), sizeof(BoundsItem), compareItemX);
+      std::qsort(items + imin, static_cast<std::size_t>(inum), sizeof(BoundsItem), compareItemX);
     } else if (axis == 1) {
       // Sort along y-axis
-      std::qsort(items + imin, static_cast<size_t>(inum), sizeof(BoundsItem), compareItemY);
+      std::qsort(items + imin, static_cast<std::size_t>(inum), sizeof(BoundsItem), compareItemY);
     }
 
     const int isplit = imin + inum / 2;

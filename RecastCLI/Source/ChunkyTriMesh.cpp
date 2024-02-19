@@ -17,8 +17,9 @@
 //
 
 #include "ChunkyTriMesh.h"
-#include <cstdlib>
+
 #include <cmath>
+#include <cstdlib>
 #include <new>
 
 struct BoundsItem
@@ -116,12 +117,12 @@ static void subdivide(BoundsItem* items, const int nitems, const int imin, const
 		                                 itBmax[1] - itBmin[1]); axis == 0)
 		{
 			// Sort along x-axis
-			std::qsort(items+imin, static_cast<size_t>(inum), sizeof(BoundsItem), compareItemX);
+			std::qsort(items+imin, static_cast<std::size_t>(inum), sizeof(BoundsItem), compareItemX);
 		}
 		else if (axis == 1)
 		{
 			// Sort along y-axis
-			std::qsort(items+imin, static_cast<size_t>(inum), sizeof(BoundsItem), compareItemY);
+			std::qsort(items+imin, static_cast<std::size_t>(inum), sizeof(BoundsItem), compareItemY);
 		}
 
 		const int isplit = imin+inum/2;

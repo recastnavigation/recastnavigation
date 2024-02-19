@@ -86,8 +86,8 @@ public:
   bool openForRead(const char *path);
   bool isWriting() const override;
   bool isReading() const override;
-  bool write(const void *ptr, size_t size) override;
-  bool read(void *ptr, size_t size) override;
+  bool write(const void *ptr, std::size_t size) override;
+  bool read(void *ptr, std::size_t size) override;
 
 private:
   // Explicitly disabled copy constructor and copy assignment operator.

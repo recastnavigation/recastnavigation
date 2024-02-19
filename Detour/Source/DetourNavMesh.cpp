@@ -19,6 +19,7 @@
 
 #include <cfloat>
 #include <cstring>
+#include <new>
 
 #include <DetourAlloc.h>
 #include <DetourAssert.h>

@@ -110,7 +110,7 @@ bool TestCase::load(const std::string &filePath) {
     return false;
   }
   file.read(buf, fileSize);
-  const size_t readLen = file.gcount();
+  const std::size_t readLen = file.gcount();
   file.close();
   if (readLen != fileSize) {
     delete[] buf;
