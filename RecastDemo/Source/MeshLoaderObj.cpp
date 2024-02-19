@@ -49,7 +49,7 @@ void rcMeshLoaderObj::addVertex(const float x, const float y, const float z, int
 		cap = !cap ? 8 : cap*2;
 		const auto nv = new float[cap*3];
 		if (m_vertCount)
-			memcpy(nv, m_verts, m_vertCount*3*sizeof(float));
+			std::memcpy(nv, m_verts, m_vertCount*3*sizeof(float));
 		delete [] m_verts;
 		m_verts = nv;
 	}
@@ -67,7 +67,7 @@ void rcMeshLoaderObj::addTriangle(const int a, const int b, const int c, int& ca
 		cap = !cap ? 8 : cap*2;
 		const auto nv = new int[cap*3];
 		if (m_triCount)
-			memcpy(nv, m_tris, m_triCount*3*sizeof(int));
+			std::memcpy(nv, m_tris, m_triCount*3*sizeof(int));
 		delete [] m_tris;
 		m_tris = nv;
 	}

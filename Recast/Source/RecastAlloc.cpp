@@ -18,34 +18,33 @@
 
 #include "RecastAlloc.h"
 
-static void* rcAllocDefault(const size_t size, rcAllocHint)
-{
-	return malloc(size);
+#include <memory>
+
+namespace {
+void *rcAllocDefault(const size_t size, rcAllocHint) {
+  return malloc(size);
 }
 
-static void rcFreeDefault(void *ptr)
-{
-	free(ptr);
+void rcFreeDefault(void *ptr) {
+  free(ptr);
 }
 
-static rcAllocFunc* sRecastAllocFunc = rcAllocDefault;
-static rcFreeFunc* sRecastFreeFunc = rcFreeDefault;
+rcAllocFunc *sRecastAllocFunc = rcAllocDefault;
+rcFreeFunc *sRecastFreeFunc = rcFreeDefault;
 
-void rcAllocSetCustom(rcAllocFunc* allocFunc, rcFreeFunc* freeFunc)
-{
-	sRecastAllocFunc = allocFunc ? allocFunc : rcAllocDefault;
-	sRecastFreeFunc = freeFunc ? freeFunc : rcFreeDefault;
+} // namespace
+
+void rcAllocSetCustom(rcAllocFunc *allocFunc, rcFreeFunc *freeFunc) {
+  sRecastAllocFunc = allocFunc ? allocFunc : rcAllocDefault;
+  sRecastFreeFunc = freeFunc ? freeFunc : rcFreeDefault;
 }
 
-void* rcAlloc(const size_t size, const rcAllocHint hint)
-{
-	return sRecastAllocFunc(size, hint);
+void *rcAlloc(const size_t size, const rcAllocHint hint) {
+  return sRecastAllocFunc(size, hint);
 }
 
-void rcFree(void* ptr)
-{
-	if (ptr != nullptr)
-	{
-		sRecastFreeFunc(ptr);
-	}
+void rcFree(void *ptr) {
+  if (ptr != nullptr) {
+    sRecastFreeFunc(ptr);
+  }
 }

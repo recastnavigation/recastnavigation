@@ -32,7 +32,7 @@ static const char* allocText(const char* text)
 	if (g_textPoolSize + len >= TEXT_POOL_SIZE)
 		return nullptr;
 	char* dst = &g_textPool[g_textPoolSize]; 
-	memcpy(dst, text, len);
+	std::memcpy(dst, text, len);
 	g_textPoolSize += len;
 	return dst;
 }
@@ -61,7 +61,7 @@ static void addGfxCmdScissor(const int x, const int y, const int w, const int h)
 	cmd.rect.h = static_cast<short>(h);
 }
 
-static void addGfxCmdRect(const float x, const float y, const float w, const float h, const unsigned int color)
+static void addGfxCmdRect(const float x, const float y, const float w, const float h, const uint32_t color)
 {
 	if (g_gfxCmdQueueSize >= GFXCMD_QUEUE_SIZE)
 		return;
@@ -76,7 +76,7 @@ static void addGfxCmdRect(const float x, const float y, const float w, const flo
 	cmd.rect.r = 0;
 }
 
-static void addGfxCmdLine(const float x0, const float y0, const float x1, const float y1, const float r, const unsigned int color)
+static void addGfxCmdLine(const float x0, const float y0, const float x1, const float y1, const float r, const uint32_t color)
 {
 	if (g_gfxCmdQueueSize >= GFXCMD_QUEUE_SIZE)
 		return;
@@ -91,7 +91,7 @@ static void addGfxCmdLine(const float x0, const float y0, const float x1, const 
 	cmd.line.r = static_cast<short>(r * 8.0f);
 }
 
-static void addGfxCmdRoundedRect(const float x, const float y, const float w, const float h, const float r, const unsigned int color)
+static void addGfxCmdRoundedRect(const float x, const float y, const float w, const float h, const float r, const uint32_t color)
 {
 	if (g_gfxCmdQueueSize >= GFXCMD_QUEUE_SIZE)
 		return;
@@ -106,7 +106,7 @@ static void addGfxCmdRoundedRect(const float x, const float y, const float w, co
 	cmd.rect.r = static_cast<short>(r * 8.0f);
 }
 
-static void addGfxCmdTriangle(const int x, const int y, const int w, const int h, const int flags, const unsigned int color)
+static void addGfxCmdTriangle(const int x, const int y, const int w, const int h, const int flags, const uint32_t color)
 {
 	if (g_gfxCmdQueueSize >= GFXCMD_QUEUE_SIZE)
 		return;
@@ -120,7 +120,7 @@ static void addGfxCmdTriangle(const int x, const int y, const int w, const int h
 	cmd.rect.h = static_cast<short>(static_cast<float>(h) * 8.0f);
 }
 
-static void addGfxCmdText(const int x, const int y, const int align, const char* text, const unsigned int color)
+static void addGfxCmdText(const int x, const int y, const int align, const char* text, const uint32_t color)
 {
 	if (g_gfxCmdQueueSize >= GFXCMD_QUEUE_SIZE)
 		return;
@@ -150,9 +150,9 @@ struct GuiState
 	bool leftPressed, leftReleased;
 	int mx,my;
 	int scroll;
-	unsigned int active;
-	unsigned int hot;
-	unsigned int hotToBe;
+	uint32_t active;
+	uint32_t hot;
+	uint32_t hotToBe;
 	bool isHot;
 	bool isActive;
 	bool wentActive;
@@ -161,8 +161,8 @@ struct GuiState
 	int widgetX, widgetY, widgetW;
 	bool insideCurrentScroll;
 	
-	unsigned int areaId;
-	unsigned int widgetId;
+	uint32_t areaId;
+	uint32_t widgetId;
 };
 
 static GuiState g_state;
@@ -172,12 +172,12 @@ inline bool anyActive()
 	return g_state.active != 0;
 }
 
-inline bool isActive(const unsigned int id)
+inline bool isActive(const uint32_t id)
 {
 	return g_state.active == id;
 }
 
-inline bool isHot(const unsigned int id)
+inline bool isHot(const uint32_t id)
 {
 	return g_state.hot == id;
 }
@@ -201,19 +201,19 @@ inline void clearActive()
 	clearInput();
 }
 
-inline void setActive(const unsigned int id)
+inline void setActive(const uint32_t id)
 {
 	g_state.active = id;
 	g_state.wentActive = true;
 }
 
-inline void setHot(const unsigned int id)
+inline void setHot(const uint32_t id)
 {
    g_state.hotToBe = id;
 }
 
 
-static bool buttonLogic(const unsigned int id, const bool over)
+static bool buttonLogic(const uint32_t id, const bool over)
 {
 	bool res = false;
 	// process down
@@ -313,7 +313,7 @@ static int g_scrollAreaTop = 0;
 static int* g_scrollVal = nullptr;
 static int g_focusTop = 0;
 static int g_focusBottom = 0;
-static unsigned int g_scrollId = 0;
+static uint32_t g_scrollId = 0;
 static bool g_insideScrollArea = false;
 
 bool imguiBeginScrollArea(const char* name, const int x, const int y, const int w, const int h, int* scroll)
@@ -369,7 +369,7 @@ void imguiEndScrollArea()
 		if (barY > 1) barY = 1;
 		
 		// Handle scroll bar logic.
-		const unsigned int hid = g_scrollId;
+		const uint32_t hid = g_scrollId;
 		const int hx = x;
 		const int hy = y + static_cast<int>(barY * static_cast<float>(h));
 		constexpr int hw = w;
@@ -420,7 +420,7 @@ void imguiEndScrollArea()
 bool imguiButton(const char* text, const bool enabled)
 {
 	g_state.widgetId++;
-	const unsigned int id = (g_state.areaId<<16) | g_state.widgetId;
+	const uint32_t id = (g_state.areaId<<16) | g_state.widgetId;
 
 	const int x = g_state.widgetX;
 	const int y = g_state.widgetY - BUTTON_HEIGHT;
@@ -443,7 +443,7 @@ bool imguiButton(const char* text, const bool enabled)
 bool imguiItem(const char* text, const bool enabled)
 {
 	g_state.widgetId++;
-	const unsigned int id = (g_state.areaId<<16) | g_state.widgetId;
+	const uint32_t id = (g_state.areaId<<16) | g_state.widgetId;
 
 	const int x = g_state.widgetX;
 	const int y = g_state.widgetY - BUTTON_HEIGHT;
@@ -468,7 +468,7 @@ bool imguiItem(const char* text, const bool enabled)
 bool imguiCheck(const char* text, const bool checked, const bool enabled)
 {
 	g_state.widgetId++;
-	const unsigned int id = (g_state.areaId<<16) | g_state.widgetId;
+	const uint32_t id = (g_state.areaId<<16) | g_state.widgetId;
 
 	const int x = g_state.widgetX;
 	const int y = g_state.widgetY - BUTTON_HEIGHT;
@@ -501,7 +501,7 @@ bool imguiCheck(const char* text, const bool checked, const bool enabled)
 bool imguiCollapse(const char* text, const char* subtext, const bool checked, const bool enabled)
 {
 	g_state.widgetId++;
-	const unsigned int id = (g_state.areaId<<16) | g_state.widgetId;
+	const uint32_t id = (g_state.areaId<<16) | g_state.widgetId;
 
 	const int x = g_state.widgetX;
 	const int y = g_state.widgetY - BUTTON_HEIGHT;
@@ -552,7 +552,7 @@ void imguiValue(const char* text)
 bool imguiSlider(const char* text, float* val, const float vmin, const float vmax, const float vinc, const bool enabled)
 {
 	g_state.widgetId++;
-	const unsigned int id = (g_state.areaId<<16) | g_state.widgetId;
+	const uint32_t id = (g_state.areaId<<16) | g_state.widgetId;
 
 	const int x = g_state.widgetX;
 	const int y = g_state.widgetY - BUTTON_HEIGHT;
@@ -647,22 +647,22 @@ void imguiSeparatorLine()
 	addGfxCmdRect(static_cast<float>(x), static_cast<float>(y), static_cast<float>(w), static_cast<float>(h), imguiRGBA(255,255,255,32));
 }
 
-void imguiDrawText(const int x, const int y, const int align, const char* text, const unsigned int color)
+void imguiDrawText(const int x, const int y, const int align, const char* text, const uint32_t color)
 {
 	addGfxCmdText(x, y, align, text, color);
 }
 
-void imguiDrawLine(const float x0, const float y0, const float x1, const float y1, const float r, const unsigned int color)
+void imguiDrawLine(const float x0, const float y0, const float x1, const float y1, const float r, const uint32_t color)
 {
 	addGfxCmdLine(x0, y0, x1, y1, r, color);
 }
 
-void imguiDrawRect(const float x, const float y, const float w, const float h, const unsigned int color)
+void imguiDrawRect(const float x, const float y, const float w, const float h, const uint32_t color)
 {
 	addGfxCmdRect(x, y, w, h, color);
 }
 
-void imguiDrawRoundedRect(const float x, const float y, const float w, const float h, const float r, const unsigned int color)
+void imguiDrawRoundedRect(const float x, const float y, const float w, const float h, const float r, const uint32_t color)
 {
 	addGfxCmdRoundedRect(x, y, w, h, r, color);
 }

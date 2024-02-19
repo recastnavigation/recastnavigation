@@ -16,40 +16,36 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#ifndef CONVEXVOLUMETOOL_H
-#define CONVEXVOLUMETOOL_H
+#pragma once
 
-#include "Sample.h"
+#include <Sample.h>
 
 // Tool to create convex volumess for InputGeom
 
-class ConvexVolumeTool final : public SampleTool
-{
-	Sample* m_sample;
-	int m_areaType;
-	float m_polyOffset;
-	float m_boxHeight;
-	float m_boxDescent;
-	
-	static constexpr int MAX_PTS = 12;
-	float m_pts[MAX_PTS*3];
-	int m_npts;
-	int m_hull[MAX_PTS];
-	int m_nhull;
-	
-public:
-	ConvexVolumeTool();
-	
-	int type() override { return TOOL_CONVEX_VOLUME; }
-	void init(Sample* sample) override;
-	void reset() override;
-	void handleMenu() override;
-	void handleClick(const float* s, const float* p, bool shift) override;
-	void handleToggle() override;
-	void handleStep() override;
-	void handleUpdate(float dt) override;
-	void handleRender() override;
-	void handleRenderOverlay(double* proj, double* model, int* view) override;
-};
+class ConvexVolumeTool final : public SampleTool {
+  Sample *m_sample;
+  int m_areaType;
+  float m_polyOffset;
+  float m_boxHeight;
+  float m_boxDescent;
 
-#endif // CONVEXVOLUMETOOL_H
+  static constexpr int MAX_PTS = 12;
+  float m_pts[MAX_PTS * 3];
+  int m_npts;
+  int m_hull[MAX_PTS];
+  int m_nhull;
+
+public:
+  ConvexVolumeTool();
+
+  int type() override { return TOOL_CONVEX_VOLUME; }
+  void init(Sample *sample) override;
+  void reset() override;
+  void handleMenu() override;
+  void handleClick(const float *s, const float *p, bool shift) override;
+  void handleToggle() override;
+  void handleStep() override;
+  void handleUpdate(float dt) override;
+  void handleRender() override;
+  void handleRenderOverlay(double *proj, double *model, int *view) override;
+};

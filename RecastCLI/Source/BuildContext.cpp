@@ -14,9 +14,9 @@
 
 BuildContext::BuildContext() : m_messageCount(0),
                                m_textPoolSize(0) {
-    memset(m_messages, 0, sizeof(char *) * MAX_MESSAGES);
+  std::memset(m_messages, 0, sizeof(char *) * MAX_MESSAGES);
 
-    resetTimers();
+  resetTimers();
 }
 
 // Virtual functions for custom implementations.
@@ -40,7 +40,7 @@ void BuildContext::doLog(const rcLogCategory category, const char *msg, const in
     *cat = static_cast<char>(category);
     // Store message
     const int count = rcMin(len + 1, maxtext);
-    memcpy(text, msg, count);
+    std::memcpy(text, msg, count);
     text[count - 1] = '\0';
     m_textPoolSize += 1 + count;
     m_messages[m_messageCount++] = dst;

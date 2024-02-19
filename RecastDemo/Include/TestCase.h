@@ -15,98 +15,91 @@
 //    misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 //
+#pragma once
 
-#ifndef TESTCASE_H
-#define TESTCASE_H
-
+#include <DetourNavMesh.h>
 #include <string>
-#include "DetourNavMesh.h"
 
-class TestCase
-{
-	enum TestType
-	{
-		TEST_PATHFIND,
-		TEST_RAYCAST
-	};
-	
-	struct Test
-	{
-		Test() :
-			type(),
-			spos(),
-			epos(),
-			nspos(),
-			nepos(),
-			radius(0),
-			includeFlags(0),
-			excludeFlags(0),
-			expand(false),
-			straight(nullptr),
-			nstraight(0),
-			polys(nullptr),
-			npolys(0),
-			findNearestPolyTime(0),
-			findPathTime(0),
-			findStraightPathTime(0),
-			next(nullptr)
-		{
-		}
+class dtNavMeshQuery;
+class dtNavMesh;
 
-		~Test()
-		{
-			delete [] straight;
-			delete [] polys;
-		}
-		Test(const Test&) = delete;
-		Test& operator=(const Test&) = delete;
+class TestCase {
+  enum TestType {
+    TEST_PATHFIND,
+    TEST_RAYCAST
+  };
 
-		TestType type;
-		float spos[3];
-		float epos[3];
-		float nspos[3];
-		float nepos[3];
-		float radius;
-		unsigned short includeFlags;
-		unsigned short excludeFlags;
-		bool expand;
+  struct Test {
+    Test() : type(),
+             spos(),
+             epos(),
+             nspos(),
+             nepos(),
+             radius(0),
+             includeFlags(0),
+             excludeFlags(0),
+             expand(false),
+             straight(nullptr),
+             nstraight(0),
+             polys(nullptr),
+             npolys(0),
+             findNearestPolyTime(0),
+             findPathTime(0),
+             findStraightPathTime(0),
+             next(nullptr) {
+    }
 
-		float* straight;
-		int nstraight;
-		dtPolyRef* polys;
-		int npolys;
+    ~Test() {
+      delete[] straight;
+      delete[] polys;
+    }
+    Test(const Test &) = delete;
+    Test &operator=(const Test &) = delete;
 
-		int findNearestPolyTime;
-		int findPathTime;
-		int findStraightPathTime;
+    TestType type;
+    float spos[3];
+    float epos[3];
+    float nspos[3];
+    float nepos[3];
+    float radius;
+    unsigned short includeFlags;
+    unsigned short excludeFlags;
+    bool expand;
 
-		Test* next;
-	};
+    float *straight;
+    int nstraight;
+    dtPolyRef *polys;
+    int npolys;
 
-	std::string m_sampleName;
-	std::string m_geomFileName;
-	Test* m_tests;
-	
-	void resetTimes()const;
-	
+    int findNearestPolyTime;
+    int findPathTime;
+    int findStraightPathTime;
+
+    Test *next;
+  };
+
+  std::string m_sampleName;
+  std::string m_geomFileName;
+  Test *m_tests;
+
+  void resetTimes() const;
+
 public:
-	TestCase();
-	~TestCase();
+  TestCase();
+  ~TestCase();
 
-	bool load(const std::string& filePath);
-	
-	const std::string& getSampleName() const { return m_sampleName; }
-	const std::string& getGeomFileName() const { return m_geomFileName; }
-	
-	void doTests(const dtNavMesh* navmesh, const dtNavMeshQuery* navquery) const;
-	
-	void handleRender() const;
-	bool handleRenderOverlay(const double* proj, const double* model, const int* view) const;
+  bool load(const std::string &filePath);
+
+  const std::string &getSampleName() const { return m_sampleName; }
+  const std::string &getGeomFileName() const { return m_geomFileName; }
+
+  void doTests(const dtNavMesh *navmesh, const dtNavMeshQuery *navquery) const;
+
+  void handleRender() const;
+  bool handleRenderOverlay(const double *proj, const double *model, const int *view) const;
 
 private:
-	// Explicitly disabled copy constructor and copy assignment operator.
-	TestCase(const TestCase&);
-	TestCase& operator=(const TestCase&);
+  // Explicitly disabled copy constructor and copy assignment operator.
+  TestCase(const TestCase &);
+  TestCase &operator=(const TestCase &);
 };
-
-#endif // TESTCASE_H

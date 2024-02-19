@@ -15,36 +15,31 @@
 //    misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 //
+#pragma once
 
-#ifndef OFFMESHCONNECTIONTOOL_H
-#define OFFMESHCONNECTIONTOOL_H
-
-#include "Sample.h"
+#include <Sample.h>
 
 // Tool to create off-mesh connection for InputGeom
 
-class OffMeshConnectionTool final : public SampleTool
-{
-	Sample* m_sample;
-	float m_hitPos[3];
-	bool m_hitPosSet;
-	bool m_bidir;
-	unsigned char m_oldFlags;
-	
+class OffMeshConnectionTool final : public SampleTool {
+  Sample *m_sample;
+  float m_hitPos[3];
+  bool m_hitPosSet;
+  bool m_bidir;
+  unsigned char m_oldFlags;
+
 public:
-	OffMeshConnectionTool();
-	~OffMeshConnectionTool() override;
+  OffMeshConnectionTool();
+  ~OffMeshConnectionTool() override;
 
-	int type() override { return TOOL_OFFMESH_CONNECTION; }
-	void init(Sample* sample) override;
-	void reset() override;
-	void handleMenu() override;
-	void handleClick(const float* s, const float* p, bool shift) override;
-	void handleToggle() override;
-	void handleStep() override;
-	void handleUpdate(float dt) override;
-	void handleRender() override;
-	void handleRenderOverlay(double* proj, double* model, int* view) override;
+  int type() override { return TOOL_OFFMESH_CONNECTION; }
+  void init(Sample *sample) override;
+  void reset() override;
+  void handleMenu() override;
+  void handleClick(const float *s, const float *p, bool shift) override;
+  void handleToggle() override;
+  void handleStep() override;
+  void handleUpdate(float dt) override;
+  void handleRender() override;
+  void handleRenderOverlay(double *proj, double *model, int *view) override;
 };
-
-#endif // OFFMESHCONNECTIONTOOL_H

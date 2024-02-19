@@ -687,7 +687,7 @@ TEST_CASE("rcRasterizeTriangle overlapping bb but non-overlapping triangle")
         for (int z = 0; z < height; ++z)
 		{
             rcSpan* span = heightfield.spans[x + z * heightfield.width];
-			REQUIRE(span == NULL);
+			REQUIRE(span == nullptr);
         }
     }
 }
@@ -964,11 +964,11 @@ constexpr unsigned char kClearValue = 0xff;
 // Simple alloc/free that clears the memory on free..
 void* AllocAndInit(const size_t size, rcAllocHint) {
 	rcAssert(kMaxAllocSize >= size);
-	return memset(malloc(kMaxAllocSize), 0, kMaxAllocSize);
+	return std::memset(malloc(kMaxAllocSize), 0, kMaxAllocSize);
 }
 void FreeAndClear(void* mem) {
 	if (mem) {
-	  memset(mem, kClearValue, kMaxAllocSize);
+	  std::memset(mem, kClearValue, kMaxAllocSize);
 	}
 	free(mem);
 }
@@ -1235,7 +1235,7 @@ BM(FlatArray_Push, kNumLoops)
 		if (j == cap) {
 			cap *= 2;
 			int* tmp  = (int*)rcAlloc(sizeof(int) * cap, RC_ALLOC_TEMP);
-			memcpy(tmp, v, j * sizeof(int));
+			std::memcpy(tmp, v, j * sizeof(int));
 			rcFree(v);
 			v = tmp;
 		}
@@ -1258,7 +1258,7 @@ BM(FlatArray_Fill, kNumLoops)
 BM(FlatArray_Memset, kNumLoops)
 {
 	int* v = (int*)rcAlloc(sizeof(int) * kNumInserts, RC_ALLOC_TEMP);
-	memset(v, 0, kNumInserts * sizeof(int));
+	std::memset(v, 0, kNumInserts * sizeof(int));
 
 	DoNotOptimize(v);
 	rcFree(v);

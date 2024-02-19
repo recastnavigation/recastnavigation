@@ -16,38 +16,34 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#ifndef NAVMESHPRUNETOOL_H
-#define NAVMESHPRUNETOOL_H
+#pragma once
 
-#include "Sample.h"
+#include <Sample.h>
 
 // Prune navmesh to accessible locations from a point.
 
-class NavMeshPruneTool final : public SampleTool
-{
-	Sample* m_sample;
-	
-	class NavmeshFlags* m_flags;
+class NavMeshPruneTool final : public SampleTool {
+  Sample *m_sample;
 
-	float m_hitPos[3];
-	bool m_hitPosSet;
-	
+  class NavmeshFlags *m_flags;
+
+  float m_hitPos[3];
+  bool m_hitPosSet;
+
 public:
-	NavMeshPruneTool();
-	~NavMeshPruneTool() override;
-	NavMeshPruneTool(const NavMeshPruneTool&)=delete;
-	NavMeshPruneTool& operator=(const NavMeshPruneTool&)=delete;
+  NavMeshPruneTool();
+  ~NavMeshPruneTool() override;
+  NavMeshPruneTool(const NavMeshPruneTool &) = delete;
+  NavMeshPruneTool &operator=(const NavMeshPruneTool &) = delete;
 
-	int type() override { return TOOL_NAVMESH_PRUNE; }
-	void init(Sample* sample) override;
-	void reset() override;
-	void handleMenu() override;
-	void handleClick(const float* s, const float* p, bool shift) override;
-	void handleToggle() override;
-	void handleStep() override;
-	void handleUpdate(float dt) override;
-	void handleRender() override;
-	void handleRenderOverlay(double* proj, double* model, int* view) override;
+  int type() override { return TOOL_NAVMESH_PRUNE; }
+  void init(Sample *sample) override;
+  void reset() override;
+  void handleMenu() override;
+  void handleClick(const float *s, const float *p, bool shift) override;
+  void handleToggle() override;
+  void handleStep() override;
+  void handleUpdate(float dt) override;
+  void handleRender() override;
+  void handleRenderOverlay(double *proj, double *model, int *view) override;
 };
-
-#endif // NAVMESHPRUNETOOL_H

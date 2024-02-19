@@ -26,12 +26,14 @@
 
 #include <DetourNavMeshQuery.h>
 
+#include "DetourAssert.h"
+#include "DetourCommon.h"
+#include "DetourDebugDraw.h"
+#include "DetourNavMesh.h"
 #include "InputGeom.h"
 #include "Sample.h"
-#include "DetourNavMesh.h"
-#include "DetourCommon.h"
-#include "DetourAssert.h"
-#include "DetourDebugDraw.h"
+
+#include <DetourAlloc.h>
 
 class NavmeshFlags
 {
@@ -70,7 +72,7 @@ public:
         {
             return false;
         }
-        memset(m_tiles, 0, sizeof(TileFlags) * m_ntiles);
+        std::memset(m_tiles, 0, sizeof(TileFlags) * m_ntiles);
 
         // Alloc flags for each tile.
         for (int i = 0; i < nav->getMaxTiles(); ++i)
@@ -111,7 +113,7 @@ public:
         if (!m_nav)
             return 0;
         // Assume the ref is valid, no bounds checks.
-        unsigned int salt, it, ip;
+        uint32_t salt, it, ip;
         m_nav->decodePolyId(ref, salt, it, ip);
         return m_tiles[it].flags[ip];
     }
@@ -123,7 +125,7 @@ public:
         if (!m_nav)
             return;
         // Assume the ref is valid, no bounds checks.
-        unsigned int salt, it, ip;
+        uint32_t salt, it, ip;
         m_nav->decodePolyId(ref, salt, it, ip);
         m_tiles[it].flags[ip] = flags;
     }
@@ -153,7 +155,7 @@ static void floodNavmesh(const dtNavMesh* nav, const NavmeshFlags* flags, const 
         nav->getTileAndPolyByRefUnsafe(ref, &tile, &poly);
 
         // Visit linked polygons.
-        for (unsigned int i = poly->firstLink; i != DT_NULL_LINK; i = tile->links[i].next)
+        for (uint32_t i = poly->firstLink; i != DT_NULL_LINK; i = tile->links[i].next)
         {
             const dtPolyRef neiRef = tile->links[i].ref;
             // Skip invalid and already visited.
@@ -176,7 +178,7 @@ static void disableUnvisitedPolys(const dtNavMesh* nav, const NavmeshFlags* flag
         const dtPolyRef base = nav->getPolyRefBase(tile);
         for (int j = 0; j < tile->header->polyCount; ++j)
         {
-            const dtPolyRef ref = base | static_cast<unsigned int>(j);
+            const dtPolyRef ref = base | static_cast<uint32_t>(j);
             if (!flags->getFlags(ref))
             {
                 unsigned short f = 0;
@@ -279,7 +281,7 @@ void NavMeshPruneTool::handleRender()
     if (m_hitPosSet)
     {
         const float s = m_sample->getAgentRadius();
-        const unsigned int col = duRGBA(255, 255, 255, 255);
+        const uint32_t col = duRGBA(255, 255, 255, 255);
         dd.begin(DU_DRAW_LINES);
         dd.vertex(m_hitPos[0] - s, m_hitPos[1], m_hitPos[2], col);
         dd.vertex(m_hitPos[0] + s, m_hitPos[1], m_hitPos[2], col);
@@ -300,7 +302,7 @@ void NavMeshPruneTool::handleRender()
             const dtPolyRef base = nav->getPolyRefBase(tile);
             for (int j = 0; j < tile->header->polyCount; ++j)
             {
-                const dtPolyRef ref = base | static_cast<unsigned int>(j);
+                const dtPolyRef ref = base | static_cast<uint32_t>(j);
                 if (m_flags->getFlags(ref))
                 {
                     duDebugDrawNavMeshPoly(&dd, *nav, ref, duRGBA(255, 255, 255, 128));

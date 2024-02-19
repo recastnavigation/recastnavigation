@@ -4,8 +4,7 @@
 Members in this module are wrappers around the standard math library
 */
 
-#ifndef DETOURMATH_H
-#define DETOURMATH_H
+#pragma once
 
 #include <cmath>
 
@@ -17,5 +16,3 @@ inline float dtMathCosf(const float x) { return std::cos(x); }
 inline float dtMathSinf(const float x) { return std::sin(x); }
 inline float dtMathAtan2f(const float y, const float x) { return std::atan2(y, x); }
 inline bool dtMathIsfinite(const float x) { return std::isfinite(x); }
-
-#endif

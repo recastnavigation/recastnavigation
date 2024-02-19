@@ -16,13 +16,10 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#ifndef FILELIST_H
-#define FILELIST_H
+#pragma once
 
-#include <vector>
 #include <string>
+#include <vector>
 
 void scanDirectoryAppend(const std::string& path, const std::string& ext, std::vector<std::string>& fileList);
 void scanDirectory(const std::string& path, const std::string& ext, std::vector<std::string>& fileList);
-
-#endif // FILELIST_H

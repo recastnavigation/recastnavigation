@@ -16,8 +16,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#ifndef DETOURASSERT_H
-#define DETOURASSERT_H
+#pragma once
 
 // Note: This header file's only purpose is to include define assert.
 // Feel free to change the file and include your own implementation instead.
@@ -25,7 +24,10 @@
 #ifdef RC_DISABLE_ASSERTS
 
 // From https://web.archive.org/web/20210117002833/http://cnicholson.net/2009/02/stupid-c-tricks-adventures-in-assert/
-#	define dtAssert(x) do { (void)sizeof(x); } while((void)(__LINE__==-1),false)  
+#define dtAssert(x)  \
+  do {               \
+    (void)sizeof(x); \
+  } while ((void)(__LINE__ == -1), false)
 
 #else
 
@@ -34,23 +36,24 @@
 //  @param[in]		file  Filename of the failed assertion.
 //  @param[in]		line  Line number of the failed assertion.
 ///  @see dtAssertFailSetCustom
-typedef void (dtAssertFailFunc)(const char* expression, const char* file, int line);
+typedef void(dtAssertFailFunc)(const char *expression, const char *file, int line);
 
 /// Sets the base custom assertion failure function to be used by Detour.
 ///  @param[in]		assertFailFunc	The function to be invoked in case of failure of #dtAssert
 void dtAssertFailSetCustom(dtAssertFailFunc *assertFailFunc);
 
 /// Gets the base custom assertion failure function to be used by Detour.
-dtAssertFailFunc* dtAssertFailGetCustom();
+dtAssertFailFunc *dtAssertFailGetCustom();
 
-#	include <cassert>
-#	define dtAssert(expression) \
-		{ \
-			dtAssertFailFunc* failFunc = dtAssertFailGetCustom(); \
-			if(failFunc == NULL) { assert(expression); } \
-			else if(!(expression)) { (*failFunc)(#expression, __FILE__, __LINE__); } \
-		}
+#include <cassert>
+#define dtAssert(expression)                              \
+  {                                                       \
+    dtAssertFailFunc *failFunc = dtAssertFailGetCustom(); \
+    if (failFunc == NULL) {                               \
+      assert(expression);                                 \
+    } else if (!(expression)) {                           \
+      (*failFunc)(#expression, __FILE__, __LINE__);       \
+    }                                                     \
+  }
 
 #endif
-
-#endif // DETOURASSERT_H

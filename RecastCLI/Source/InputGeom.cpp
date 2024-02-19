@@ -234,7 +234,7 @@ bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filePath)
                     m_offMeshConRads[m_offMeshConCount] = rad;
                     m_offMeshConDirs[m_offMeshConCount] = static_cast<unsigned char>(bidir);
                     m_offMeshConAreas[m_offMeshConCount] = static_cast<unsigned char>(area);
-                    m_offMeshConFlags[m_offMeshConCount] = static_cast<unsigned short>(flags);
+                    m_offMeshConFlags[m_offMeshConCount] = static_cast<uint16_t>(flags);
                     m_offMeshConCount++;
                 }
                 break;
@@ -450,7 +450,7 @@ bool InputGeom::raycastMesh(const float* src, const float* dst, float& tmin) con
 }
 
 void InputGeom::addOffMeshConnection(const float* spos, const float* epos, const float rad,
-                                     const unsigned char bidir, const unsigned char area, const unsigned short flags)
+                                     const unsigned char bidir, const unsigned char area, const uint16_t flags)
 {
     if (m_offMeshConCount >= MAX_OFFMESH_CONNECTIONS) return;
     float* v = &m_offMeshConVerts[m_offMeshConCount * 3 * 2];
@@ -479,8 +479,8 @@ void InputGeom::deleteOffMeshConnection(const int i)
 
 void InputGeom::drawOffMeshConnections(duDebugDraw* dd, const bool hilight) const
 {
-    const unsigned int conColor = duRGBA(192, 0, 128, 192);
-    const unsigned int baseColor = duRGBA(0, 0, 0, 64);
+    const uint32_t conColor = duRGBA(192, 0, 128, 192);
+    const uint32_t baseColor = duRGBA(0, 0, 0, 64);
     dd->depthMask(false);
 
     dd->begin(DU_DRAW_LINES, 2.0f);
@@ -513,8 +513,8 @@ void InputGeom::addConvexVolume(const float* verts, const int nverts,
 {
     if (m_volumeCount >= MAX_VOLUMES) return;
     ConvexVolume* vol = &m_volumes[m_volumeCount++];
-    memset(vol, 0, sizeof(ConvexVolume));
-    memcpy(vol->verts, verts, sizeof(float) * 3 * nverts);
+    std::memset(vol, 0, sizeof(ConvexVolume));
+    std::memcpy(vol->verts, verts, sizeof(float) * 3 * nverts);
     vol->hmin = minh;
     vol->hmax = maxh;
     vol->nverts = nverts;
@@ -536,7 +536,7 @@ void InputGeom::drawConvexVolumes(duDebugDraw* dd, bool /*hilight*/) const
     for (int i = 0; i < m_volumeCount; ++i)
     {
         const ConvexVolume* vol = &m_volumes[i];
-        const unsigned int col = duTransCol(dd->areaToCol(vol->area), 32);
+        const uint32_t col = duTransCol(dd->areaToCol(vol->area), 32);
         for (int j = 0, k = vol->nverts - 1; j < vol->nverts; k = j++)
         {
             const float* va = &vol->verts[k * 3];
@@ -562,7 +562,7 @@ void InputGeom::drawConvexVolumes(duDebugDraw* dd, bool /*hilight*/) const
     for (int i = 0; i < m_volumeCount; ++i)
     {
         const ConvexVolume* vol = &m_volumes[i];
-        const unsigned int col = duTransCol(dd->areaToCol(vol->area), 220);
+        const uint32_t col = duTransCol(dd->areaToCol(vol->area), 220);
         for (int j = 0, k = vol->nverts - 1; j < vol->nverts; k = j++)
         {
             const float* va = &vol->verts[k * 3];
@@ -581,7 +581,7 @@ void InputGeom::drawConvexVolumes(duDebugDraw* dd, bool /*hilight*/) const
     for (int i = 0; i < m_volumeCount; ++i)
     {
         const ConvexVolume* vol = &m_volumes[i];
-        const unsigned int col = duDarkenCol(duTransCol(dd->areaToCol(vol->area), 220));
+        const uint32_t col = duDarkenCol(duTransCol(dd->areaToCol(vol->area), 220));
         for (int j = 0; j < vol->nverts; ++j)
         {
             dd->vertex(vol->verts[j * 3 + 0], vol->verts[j * 3 + 1] + 0.1f, vol->verts[j * 3 + 2], col);
