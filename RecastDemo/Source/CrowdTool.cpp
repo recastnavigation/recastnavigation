@@ -16,22 +16,22 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <SDL.h>
-#include <SDL_opengl.h>
+#include "CrowdTool.h"
 #include <cfloat>
 #include <cmath>
 #include <cstdio>
 #include <cstring>
+#include <iostream>
 #ifdef __APPLE__
 #include <OpenGL/glu.h>
 #else
 #include <GL/glu.h>
 #endif
-#include "CrowdTool.h"
+
+#include <SDL.h>
+#include <SDL_opengl.h>
+
 #include "imgui.h"
-
-#include <iostream>
-
 #include "DetourCommon.h"
 #include "DetourCrowd.h"
 #include "DetourDebugDraw.h"
