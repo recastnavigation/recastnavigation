@@ -16,11 +16,10 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#ifndef DETOURTILECACHEBUILDER_H
-#define DETOURTILECACHEBUILDER_H
+#pragma once
 
-#include "DetourAlloc.h"
-#include "DetourStatus.h"
+#include <DetourAlloc.h>
+#include <DetourStatus.h>
 
 static constexpr int DT_TILECACHE_MAGIC = 'D'<<24 | 'T'<<16 | 'L'<<8 | 'R'; ///< 'DTLR';
 static constexpr int DT_TILECACHE_VERSION = 1;
@@ -151,6 +150,3 @@ dtStatus dtBuildTileCachePolyMesh(dtTileCacheAlloc* alloc,
 ///  @param[in,out]	data		The tile data array.
 ///  @param[in]		dataSize	The size of the data array.
 bool dtTileCacheHeaderSwapEndian(unsigned char* data, int dataSize);
-
-
-#endif // DETOURTILECACHEBUILDER_H

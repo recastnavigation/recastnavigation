@@ -16,8 +16,12 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <cstdio>
 #include <cmath>
+#include <cstdio>
+#include <iostream>
+#include <new>
+#include <string>
+#include <vector>
 
 #include <SDL.h>
 #include <SDL_opengl.h>
@@ -27,23 +31,20 @@
 #	include <GL/glu.h>
 #endif
 
-#include <iostream>
-#include <vector>
-#include <string>
-#include <new>
 
 #include "imgui.h"
 #include "imguiRenderGL.h"
 
-#include "Recast.h"
-#include "InputGeom.h"
-#include "TestCase.h"
 #include "Filelist.h"
+#include "InputGeom.h"
+#include "MeshLoaderObj.h"
+#include "Recast.h"
+#include "Sample_Debug.h"
 #include "Sample_SizeFromPortalEdgeMesh.h"
 #include "Sample_SoloMesh.h"
-#include "Sample_TileMesh.h"
 #include "Sample_TempObstacles.h"
-#include "Sample_Debug.h"
+#include "Sample_TileMesh.h"
+#include "TestCase.h"
 
 using std::string;
 using std::vector;

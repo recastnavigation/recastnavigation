@@ -75,7 +75,7 @@ void drawGraphBackground(const GraphParams* p)
 }
 
 void drawGraph(const GraphParams* p, const ValueHistory* graph,
-               const int idx, const char* label, const unsigned int col)
+               const int idx, const char* label, const uint32_t col)
 {
 	const float sx = static_cast<float>(p->w - p->pad * 2) / static_cast<float>(ValueHistory::getSampleCount());
 	const float sy = static_cast<float>(p->h - p->pad * 2) / (p->vmax - p->vmin);

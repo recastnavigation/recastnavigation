@@ -16,429 +16,395 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <cstdio>
 #include "Sample.h"
+#include <cstdio>
 
+#include <cstring>
 #include <fstream>
 #include <ios>
 
-#include "InputGeom.h"
-#include "Recast.h"
-#include "RecastDebugDraw.h"
+#include "DetourCrowd.h"
 #include "DetourDebugDraw.h"
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"
-#include "DetourCrowd.h"
+#include "InputGeom.h"
+#include "MeshLoaderObj.h"
+#include "Recast.h"
+#include "RecastDebugDraw.h"
 #include "imgui.h"
+
+#include <DetourAlloc.h>
 #include <SDL_opengl.h>
 
-unsigned int SampleDebugDraw::areaToCol(const unsigned int area)
-{
-	switch(area)
-	{
-	// Ground (0) : light blue
-	case SAMPLE_POLYAREA_GROUND: return duRGBA(0, 192, 255, 255);
-	// Water : blue
-	case SAMPLE_POLYAREA_WATER: return duRGBA(0, 0, 255, 255);
-	// Road : brown
-	case SAMPLE_POLYAREA_ROAD: return duRGBA(50, 20, 12, 255);
-	// Door : cyan
-	case SAMPLE_POLYAREA_DOOR: return duRGBA(0, 255, 255, 255);
-	// Grass : green
-	case SAMPLE_POLYAREA_GRASS: return duRGBA(0, 255, 0, 255);
-	// Jump : yellow
-	case SAMPLE_POLYAREA_JUMP: return duRGBA(255, 255, 0, 255);
-	// Unexpected : red
-	default: return duRGBA(255, 0, 0, 255);
-	}
+uint32_t SampleDebugDraw::areaToCol(const uint32_t area) {
+  switch (area) {
+  // Ground (0) : light blue
+  case SAMPLE_POLYAREA_GROUND:
+    return duRGBA(0, 192, 255, 255);
+  // Water : blue
+  case SAMPLE_POLYAREA_WATER:
+    return duRGBA(0, 0, 255, 255);
+  // Road : brown
+  case SAMPLE_POLYAREA_ROAD:
+    return duRGBA(50, 20, 12, 255);
+  // Door : cyan
+  case SAMPLE_POLYAREA_DOOR:
+    return duRGBA(0, 255, 255, 255);
+  // Grass : green
+  case SAMPLE_POLYAREA_GRASS:
+    return duRGBA(0, 255, 0, 255);
+  // Jump : yellow
+  case SAMPLE_POLYAREA_JUMP:
+    return duRGBA(255, 255, 0, 255);
+  // Unexpected : red
+  default:
+    return duRGBA(255, 0, 0, 255);
+  }
 }
 
-Sample::Sample() :
-	m_geom(nullptr),
-	m_navMesh(nullptr),
-	m_navQuery(nullptr),
-	m_crowd(nullptr),
-	m_navMeshDrawFlags(DU_DRAWNAVMESH_OFFMESHCONS|DU_DRAWNAVMESH_CLOSEDLIST),
-	m_filterLowHangingObstacles(true),
-	m_filterLedgeSpans(true),
-	m_filterWalkableLowHeightSpans(true),
-	m_tool(nullptr),
-	m_ctx(nullptr)
-{
-	resetCommonSettings();
-	m_navQuery = dtAllocNavMeshQuery();
-	m_crowd = dtAllocCrowd();
+Sample::Sample() : m_geom(nullptr),
+                   m_navMesh(nullptr),
+                   m_navQuery(nullptr),
+                   m_crowd(nullptr),
+                   m_navMeshDrawFlags(DU_DRAWNAVMESH_OFFMESHCONS | DU_DRAWNAVMESH_CLOSEDLIST),
+                   m_filterLowHangingObstacles(true),
+                   m_filterLedgeSpans(true),
+                   m_filterWalkableLowHeightSpans(true),
+                   m_tool(nullptr),
+                   m_ctx(nullptr) {
+  resetCommonSettings();
+  m_navQuery = dtAllocNavMeshQuery();
+  m_crowd = dtAllocCrowd();
 
-	for (auto & m_toolState : m_toolStates)
-		m_toolState = nullptr;
+  for (auto &m_toolState : m_toolStates)
+    m_toolState = nullptr;
 }
 
-Sample::~Sample()
-{
-	dtFreeNavMeshQuery(m_navQuery);
-	dtFreeNavMesh(m_navMesh);
-	dtFreeCrowd(m_crowd);
-	delete m_tool;
-	for (const auto & m_toolState : m_toolStates)
-		delete m_toolState;
+Sample::~Sample() {
+  dtFreeNavMeshQuery(m_navQuery);
+  dtFreeNavMesh(m_navMesh);
+  dtFreeCrowd(m_crowd);
+  delete m_tool;
+  for (const auto &m_toolState : m_toolStates)
+    delete m_toolState;
 }
 
-void Sample::setTool(SampleTool* tool)
-{
-	delete m_tool;
-	m_tool = tool;
-	if (tool)
-		m_tool->init(this);
+void Sample::setTool(SampleTool *tool) {
+  delete m_tool;
+  m_tool = tool;
+  if (tool)
+    m_tool->init(this);
 }
 
-void Sample::handleSettings()
-{
+void Sample::handleSettings() {
 }
 
-void Sample::handleTools()
-{
+void Sample::handleTools() {
 }
 
-void Sample::handleDebugMode()
-{
+void Sample::handleDebugMode() {
 }
 
-void Sample::handleRender()
-{
-	if (!m_geom)
-		return;
-	
-	// Draw mesh
-	duDebugDrawTriMesh(&m_dd, m_geom->getMesh()->getVerts(), m_geom->getMesh()->getVertCount(),
-					   m_geom->getMesh()->getTris(), m_geom->getMesh()->getNormals(), m_geom->getMesh()->getTriCount(), nullptr, 1.0f);
-	// Draw bounds
-	const float* bmin = m_geom->getMeshBoundsMin();
-	const float* bmax = m_geom->getMeshBoundsMax();
-	duDebugDrawBoxWire(&m_dd, bmin[0],bmin[1],bmin[2], bmax[0],bmax[1],bmax[2], duRGBA(255,255,255,128), 1.0f);
+void Sample::handleRender() {
+  if (!m_geom)
+    return;
+
+  // Draw mesh
+  duDebugDrawTriMesh(&m_dd, m_geom->getMesh()->getVerts(), m_geom->getMesh()->getVertCount(), m_geom->getMesh()->getTris(), m_geom->getMesh()->getNormals(), m_geom->getMesh()->getTriCount(), nullptr, 1.0f);
+  // Draw bounds
+  const float *bmin = m_geom->getMeshBoundsMin();
+  const float *bmax = m_geom->getMeshBoundsMax();
+  duDebugDrawBoxWire(&m_dd, bmin[0], bmin[1], bmin[2], bmax[0], bmax[1], bmax[2], duRGBA(255, 255, 255, 128), 1.0f);
 }
 
-void Sample::handleRenderOverlay(double* /*proj*/, double* /*model*/, int* /*view*/)
-{
+void Sample::handleRenderOverlay(double * /*proj*/, double * /*model*/, int * /*view*/) {
 }
 
-void Sample::handleMeshChanged(InputGeom* geom)
-{
-	m_geom = geom;
+void Sample::handleMeshChanged(InputGeom *geom) {
+  m_geom = geom;
 
-	if (const BuildSettings* buildSettings = geom->getBuildSettings())
-	{
-		m_cellSize = buildSettings->cellSize;
-		m_cellHeight = buildSettings->cellHeight;
-		m_agentHeight = buildSettings->agentHeight;
-		m_agentRadius = buildSettings->agentRadius;
-		m_agentMaxClimb = buildSettings->agentMaxClimb;
-		m_agentMaxSlope = buildSettings->agentMaxSlope;
-		m_regionMinSize = buildSettings->regionMinSize;
-		m_regionMergeSize = buildSettings->regionMergeSize;
-		m_edgeMaxLen = buildSettings->edgeMaxLen;
-		m_edgeMaxError = buildSettings->edgeMaxError;
-		m_vertsPerPoly = buildSettings->vertsPerPoly;
-		m_detailSampleDist = buildSettings->detailSampleDist;
-		m_detailSampleMaxError = buildSettings->detailSampleMaxError;
-		m_partitionType = buildSettings->partitionType;
-	}
+  if (const BuildSettings *buildSettings = geom->getBuildSettings()) {
+    m_cellSize = buildSettings->cellSize;
+    m_cellHeight = buildSettings->cellHeight;
+    m_agentHeight = buildSettings->agentHeight;
+    m_agentRadius = buildSettings->agentRadius;
+    m_agentMaxClimb = buildSettings->agentMaxClimb;
+    m_agentMaxSlope = buildSettings->agentMaxSlope;
+    m_regionMinSize = buildSettings->regionMinSize;
+    m_regionMergeSize = buildSettings->regionMergeSize;
+    m_edgeMaxLen = buildSettings->edgeMaxLen;
+    m_edgeMaxError = buildSettings->edgeMaxError;
+    m_vertsPerPoly = buildSettings->vertsPerPoly;
+    m_detailSampleDist = buildSettings->detailSampleDist;
+    m_detailSampleMaxError = buildSettings->detailSampleMaxError;
+    m_partitionType = buildSettings->partitionType;
+  }
 }
 
-void Sample::collectSettings(BuildSettings& settings)
-{
-	settings.cellSize = m_cellSize;
-	settings.cellHeight = m_cellHeight;
-	settings.agentHeight = m_agentHeight;
-	settings.agentRadius = m_agentRadius;
-	settings.agentMaxClimb = m_agentMaxClimb;
-	settings.agentMaxSlope = m_agentMaxSlope;
-	settings.regionMinSize = m_regionMinSize;
-	settings.regionMergeSize = m_regionMergeSize;
-	settings.edgeMaxLen = m_edgeMaxLen;
-	settings.edgeMaxError = m_edgeMaxError;
-	settings.vertsPerPoly = m_vertsPerPoly;
-	settings.detailSampleDist = m_detailSampleDist;
-	settings.detailSampleMaxError = m_detailSampleMaxError;
-	settings.partitionType = m_partitionType;
+void Sample::collectSettings(BuildSettings &settings) {
+  settings.cellSize = m_cellSize;
+  settings.cellHeight = m_cellHeight;
+  settings.agentHeight = m_agentHeight;
+  settings.agentRadius = m_agentRadius;
+  settings.agentMaxClimb = m_agentMaxClimb;
+  settings.agentMaxSlope = m_agentMaxSlope;
+  settings.regionMinSize = m_regionMinSize;
+  settings.regionMergeSize = m_regionMergeSize;
+  settings.edgeMaxLen = m_edgeMaxLen;
+  settings.edgeMaxError = m_edgeMaxError;
+  settings.vertsPerPoly = m_vertsPerPoly;
+  settings.detailSampleDist = m_detailSampleDist;
+  settings.detailSampleMaxError = m_detailSampleMaxError;
+  settings.partitionType = m_partitionType;
 }
 
-
-void Sample::resetCommonSettings()
-{
-	m_cellSize = 0.3f;
-	m_cellHeight = 0.2f;
-	m_agentHeight = 2.0f;
-	m_agentRadius = 0.6f;
-	m_agentMaxClimb = 0.9f;
-	m_agentMaxSlope = 45.0f;
-	m_regionMinSize = 8;
-	m_regionMergeSize = 20;
-	m_edgeMaxLen = 12.0f;
-	m_edgeMaxError = 1.3f;
-	m_vertsPerPoly = 6.0f;
-	m_detailSampleDist = 6.0f;
-	m_detailSampleMaxError = 1.0f;
-	m_partitionType = SAMPLE_PARTITION_WATERSHED;
+void Sample::resetCommonSettings() {
+  m_cellSize = 0.3f;
+  m_cellHeight = 0.2f;
+  m_agentHeight = 2.0f;
+  m_agentRadius = 0.6f;
+  m_agentMaxClimb = 0.9f;
+  m_agentMaxSlope = 45.0f;
+  m_regionMinSize = 8;
+  m_regionMergeSize = 20;
+  m_edgeMaxLen = 12.0f;
+  m_edgeMaxError = 1.3f;
+  m_vertsPerPoly = 6.0f;
+  m_detailSampleDist = 6.0f;
+  m_detailSampleMaxError = 1.0f;
+  m_partitionType = SAMPLE_PARTITION_WATERSHED;
 }
 
-void Sample::handleCommonSettings()
-{
-	imguiLabel("Rasterization");
-	imguiSlider("Cell Size", &m_cellSize, 0.1f, 1.0f, 0.01f);
-	imguiSlider("Cell Height", &m_cellHeight, 0.1f, 1.0f, 0.01f);
-	
-	if (m_geom)
-	{
-		const float* bmin = m_geom->getNavMeshBoundsMin();
-		const float* bmax = m_geom->getNavMeshBoundsMax();
-		int gw = 0, gh = 0;
-		rcCalcGridSize(bmin, bmax, m_cellSize, &gw, &gh);
-		char text[64];
-		std::snprintf(text, sizeof(text), "Voxels  %d x %d", gw, gh);
-		imguiValue(text);
-	}
-	
-	imguiSeparator();
-	imguiLabel("Agent");
-	imguiSlider("Height", &m_agentHeight, 0.1f, 5.0f, 0.1f);
-	imguiSlider("Radius", &m_agentRadius, 0.0f, 5.0f, 0.1f);
-	imguiSlider("Max Climb", &m_agentMaxClimb, 0.1f, 5.0f, 0.1f);
-	imguiSlider("Max Slope", &m_agentMaxSlope, 0.0f, 90.0f, 1.0f);
-	
-	imguiSeparator();
-	imguiLabel("Region");
-	imguiSlider("Min Region Size", &m_regionMinSize, 0.0f, 150.0f, 1.0f);
-	imguiSlider("Merged Region Size", &m_regionMergeSize, 0.0f, 150.0f, 1.0f);
+void Sample::handleCommonSettings() {
+  imguiLabel("Rasterization");
+  imguiSlider("Cell Size", &m_cellSize, 0.1f, 1.0f, 0.01f);
+  imguiSlider("Cell Height", &m_cellHeight, 0.1f, 1.0f, 0.01f);
 
-	imguiSeparator();
-	imguiLabel("Partitioning");
-	if (imguiCheck("Watershed", m_partitionType == SAMPLE_PARTITION_WATERSHED))
-		m_partitionType = SAMPLE_PARTITION_WATERSHED;
-	if (imguiCheck("Monotone", m_partitionType == SAMPLE_PARTITION_MONOTONE))
-		m_partitionType = SAMPLE_PARTITION_MONOTONE;
-	if (imguiCheck("Layers", m_partitionType == SAMPLE_PARTITION_LAYERS))
-		m_partitionType = SAMPLE_PARTITION_LAYERS;
-	
-	imguiSeparator();
-	imguiLabel("Filtering");
-	if (imguiCheck("Low Hanging Obstacles", m_filterLowHangingObstacles))
-		m_filterLowHangingObstacles = !m_filterLowHangingObstacles;
-	if (imguiCheck("Ledge Spans", m_filterLedgeSpans))
-		m_filterLedgeSpans= !m_filterLedgeSpans;
-	if (imguiCheck("Walkable Low Height Spans", m_filterWalkableLowHeightSpans))
-		m_filterWalkableLowHeightSpans = !m_filterWalkableLowHeightSpans;
+  if (m_geom) {
+    const float *bmin = m_geom->getNavMeshBoundsMin();
+    const float *bmax = m_geom->getNavMeshBoundsMax();
+    int gw = 0, gh = 0;
+    rcCalcGridSize(bmin, bmax, m_cellSize, &gw, &gh);
+    char text[64];
+    std::snprintf(text, sizeof(text), "Voxels  %d x %d", gw, gh);
+    imguiValue(text);
+  }
 
-	imguiSeparator();
-	imguiLabel("Polygonization");
-	imguiSlider("Max Edge Length", &m_edgeMaxLen, 0.0f, 50.0f, 1.0f);
-	imguiSlider("Max Edge Error", &m_edgeMaxError, 0.1f, 3.0f, 0.1f);
-	imguiSlider("Verts Per Poly", &m_vertsPerPoly, 3.0f, 12.0f, 1.0f);		
+  imguiSeparator();
+  imguiLabel("Agent");
+  imguiSlider("Height", &m_agentHeight, 0.1f, 5.0f, 0.1f);
+  imguiSlider("Radius", &m_agentRadius, 0.0f, 5.0f, 0.1f);
+  imguiSlider("Max Climb", &m_agentMaxClimb, 0.1f, 5.0f, 0.1f);
+  imguiSlider("Max Slope", &m_agentMaxSlope, 0.0f, 90.0f, 1.0f);
 
-	imguiSeparator();
-	imguiLabel("Detail Mesh");
-	imguiSlider("Sample Distance", &m_detailSampleDist, 0.0f, 16.0f, 1.0f);
-	imguiSlider("Max Sample Error", &m_detailSampleMaxError, 0.0f, 16.0f, 1.0f);
-	
-	imguiSeparator();
+  imguiSeparator();
+  imguiLabel("Region");
+  imguiSlider("Min Region Size", &m_regionMinSize, 0.0f, 150.0f, 1.0f);
+  imguiSlider("Merged Region Size", &m_regionMergeSize, 0.0f, 150.0f, 1.0f);
+
+  imguiSeparator();
+  imguiLabel("Partitioning");
+  if (imguiCheck("Watershed", m_partitionType == SAMPLE_PARTITION_WATERSHED))
+    m_partitionType = SAMPLE_PARTITION_WATERSHED;
+  if (imguiCheck("Monotone", m_partitionType == SAMPLE_PARTITION_MONOTONE))
+    m_partitionType = SAMPLE_PARTITION_MONOTONE;
+  if (imguiCheck("Layers", m_partitionType == SAMPLE_PARTITION_LAYERS))
+    m_partitionType = SAMPLE_PARTITION_LAYERS;
+
+  imguiSeparator();
+  imguiLabel("Filtering");
+  if (imguiCheck("Low Hanging Obstacles", m_filterLowHangingObstacles))
+    m_filterLowHangingObstacles = !m_filterLowHangingObstacles;
+  if (imguiCheck("Ledge Spans", m_filterLedgeSpans))
+    m_filterLedgeSpans = !m_filterLedgeSpans;
+  if (imguiCheck("Walkable Low Height Spans", m_filterWalkableLowHeightSpans))
+    m_filterWalkableLowHeightSpans = !m_filterWalkableLowHeightSpans;
+
+  imguiSeparator();
+  imguiLabel("Polygonization");
+  imguiSlider("Max Edge Length", &m_edgeMaxLen, 0.0f, 50.0f, 1.0f);
+  imguiSlider("Max Edge Error", &m_edgeMaxError, 0.1f, 3.0f, 0.1f);
+  imguiSlider("Verts Per Poly", &m_vertsPerPoly, 3.0f, 12.0f, 1.0f);
+
+  imguiSeparator();
+  imguiLabel("Detail Mesh");
+  imguiSlider("Sample Distance", &m_detailSampleDist, 0.0f, 16.0f, 1.0f);
+  imguiSlider("Max Sample Error", &m_detailSampleMaxError, 0.0f, 16.0f, 1.0f);
+
+  imguiSeparator();
 }
 
-void Sample::handleClick(const float* s, const float* p, const bool shift)
-{
-	if (m_tool)
-		m_tool->handleClick(s, p, shift);
+void Sample::handleClick(const float *s, const float *p, const bool shift) {
+  if (m_tool)
+    m_tool->handleClick(s, p, shift);
 }
 
-void Sample::handleToggle()
-{
-	if (m_tool)
-		m_tool->handleToggle();
+void Sample::handleToggle() {
+  if (m_tool)
+    m_tool->handleToggle();
 }
 
-void Sample::handleStep()
-{
-	if (m_tool)
-		m_tool->handleStep();
+void Sample::handleStep() {
+  if (m_tool)
+    m_tool->handleStep();
 }
 
-bool Sample::handleBuild()
-{
-	return true;
+bool Sample::handleBuild() {
+  return true;
 }
 
-void Sample::handleUpdate(const float dt)
-{
-	if (m_tool)
-		m_tool->handleUpdate(dt);
-	updateToolStates(dt);
+void Sample::handleUpdate(const float dt) {
+  if (m_tool)
+    m_tool->handleUpdate(dt);
+  updateToolStates(dt);
 }
 
-
-void Sample::updateToolStates(const float dt) const
-{
-	for (const auto m_toolState : m_toolStates)
-	{
-		if (m_toolState)
-			m_toolState->handleUpdate(dt);
-	}
+void Sample::updateToolStates(const float dt) const {
+  for (auto *const m_toolState : m_toolStates) {
+    if (m_toolState)
+      m_toolState->handleUpdate(dt);
+  }
 }
 
-void Sample::initToolStates(Sample* sample) const
-{
-	for (const auto m_toolState : m_toolStates)
-	{
-		if (m_toolState)
-			m_toolState->init(sample);
-	}
+void Sample::initToolStates(Sample *sample) const {
+  for (auto *const m_toolState : m_toolStates) {
+    if (m_toolState)
+      m_toolState->init(sample);
+  }
 }
 
-void Sample::resetToolStates() const
-{
-	for (const auto m_toolState : m_toolStates)
-	{
-		if (m_toolState)
-			m_toolState->reset();
-	}
+void Sample::resetToolStates() const {
+  for (auto *const m_toolState : m_toolStates) {
+    if (m_toolState)
+      m_toolState->reset();
+  }
 }
 
-void Sample::renderToolStates() const
-{
-	for (const auto m_toolState : m_toolStates)
-	{
-		if (m_toolState)
-			m_toolState->handleRender();
-	}
+void Sample::renderToolStates() const {
+  for (auto *const m_toolState : m_toolStates) {
+    if (m_toolState)
+      m_toolState->handleRender();
+  }
 }
 
-void Sample::renderOverlayToolStates(double* proj, double* model, int* view) const
-{
-	for (const auto m_toolState : m_toolStates)
-	{
-		if (m_toolState)
-			m_toolState->handleRenderOverlay(proj, model, view);
-	}
+void Sample::renderOverlayToolStates(double *proj, double *model, int *view) const {
+  for (auto *const m_toolState : m_toolStates) {
+    if (m_toolState)
+      m_toolState->handleRenderOverlay(proj, model, view);
+  }
 }
 
-static constexpr int NAVMESHSET_MAGIC = 'M'<<24 | 'S'<<16 | 'E'<<8 | 'T'; //'MSET';
+static constexpr int NAVMESHSET_MAGIC = 'M' << 24 | 'S' << 16 | 'E' << 8 | 'T'; //'MSET';
 static constexpr int NAVMESHSET_VERSION = 1;
 
-struct NavMeshSetHeader
-{
-	int magic;
-	int version;
-	int numTiles;
-	dtNavMeshParams params;
+struct NavMeshSetHeader {
+  int magic;
+  int version;
+  int numTiles;
+  dtNavMeshParams params;
 };
 
-struct NavMeshTileHeader
-{
-	dtTileRef tileRef;
-	int dataSize;
+struct NavMeshTileHeader {
+  dtTileRef tileRef;
+  int dataSize;
 };
 
-dtNavMesh* Sample::loadAll(const char* path)
-{
-	std::ifstream file{path, std::ios::in | std::ios::binary};
-	if(!file.is_open())
-		return nullptr;
+dtNavMesh *Sample::loadAll(const char *path) {
+  std::ifstream file{path, std::ios::in | std::ios::binary};
+  if (!file.is_open())
+    return nullptr;
 
-	// Read header.
-	NavMeshSetHeader header{};
-	size_t readLen = file.read(reinterpret_cast<char *>(&header), sizeof(NavMeshSetHeader)).gcount();
-	if (readLen != sizeof(NavMeshSetHeader))
-	{
-		file.close();
-		return nullptr;
-	}
-	if (header.magic != NAVMESHSET_MAGIC)
-	{
-		file.close();
-		return nullptr;
-	}
-	if (header.version != NAVMESHSET_VERSION)
-	{
-		file.close();
-		return nullptr;
-	}
+  // Read header.
+  NavMeshSetHeader header{};
+  size_t readLen = file.read(reinterpret_cast<char *>(&header), sizeof(NavMeshSetHeader)).gcount();
+  if (readLen != sizeof(NavMeshSetHeader)) {
+    file.close();
+    return nullptr;
+  }
+  if (header.magic != NAVMESHSET_MAGIC) {
+    file.close();
+    return nullptr;
+  }
+  if (header.version != NAVMESHSET_VERSION) {
+    file.close();
+    return nullptr;
+  }
 
-	dtNavMesh* mesh = dtAllocNavMesh();
-	if (!mesh)
-	{
-		file.close();
-		return nullptr;
-	}
-	if (dtStatusFailed(mesh->init(&header.params)))
-	{
-		file.close();
-		return nullptr;
-	}
+  dtNavMesh *mesh = dtAllocNavMesh();
+  if (!mesh) {
+    file.close();
+    return nullptr;
+  }
+  if (dtStatusFailed(mesh->init(&header.params))) {
+    file.close();
+    return nullptr;
+  }
 
-	// Read tiles.
-	for (int i = 0; i < header.numTiles; ++i)
-	{
-		NavMeshTileHeader tileHeader{};
-		readLen = file.read(reinterpret_cast<char *>(&tileHeader), sizeof(tileHeader)).gcount();
-		if (readLen != sizeof(tileHeader))
-		{
-		file.close();
-			return nullptr;
-		}
+  // Read tiles.
+  for (int i = 0; i < header.numTiles; ++i) {
+    NavMeshTileHeader tileHeader{};
+    readLen = file.read(reinterpret_cast<char *>(&tileHeader), sizeof(tileHeader)).gcount();
+    if (readLen != sizeof(tileHeader)) {
+      file.close();
+      return nullptr;
+    }
 
-		if (!tileHeader.tileRef || !tileHeader.dataSize)
-			break;
+    if (!tileHeader.tileRef || !tileHeader.dataSize)
+      break;
 
-		auto* data = static_cast<unsigned char*>(dtAlloc(tileHeader.dataSize, DT_ALLOC_PERM));
-		if (!data) break;
-		memset(data, 0, tileHeader.dataSize);
-		readLen = file.read(reinterpret_cast<char *>(data), tileHeader.dataSize).gcount();
-		if (readLen != tileHeader.dataSize)
-		{
-			dtFree(data);
-			file.close();
-			return nullptr;
-		}
+    auto *data = static_cast<unsigned char *>(dtAlloc(tileHeader.dataSize, DT_ALLOC_PERM));
+    if (!data)
+      break;
+    std::memset(data, 0, tileHeader.dataSize);
+    readLen = file.read(reinterpret_cast<char *>(data), tileHeader.dataSize).gcount();
+    if (readLen != tileHeader.dataSize) {
+      dtFree(data);
+      file.close();
+      return nullptr;
+    }
 
-		mesh->addTile(data, tileHeader.dataSize, DT_TILE_FREE_DATA, tileHeader.tileRef, nullptr);
-	}
+    mesh->addTile(data, tileHeader.dataSize, DT_TILE_FREE_DATA, tileHeader.tileRef, nullptr);
+  }
 
-	file.close();
+  file.close();
 
-	return mesh;
+  return mesh;
 }
 
-void Sample::saveAll(const char* path, const dtNavMesh* mesh)
-{
-	if (!mesh) return;
+void Sample::saveAll(const char *path, const dtNavMesh *mesh) {
+  if (!mesh)
+    return;
 
-	std::ofstream file{path, std::ios::out | std::ios::binary};
-	if (!file.is_open())
-		return;
+  std::ofstream file{path, std::ios::out | std::ios::binary};
+  if (!file.is_open())
+    return;
 
-	// Store header.
-	NavMeshSetHeader header{};
-	header.magic = NAVMESHSET_MAGIC;
-	header.version = NAVMESHSET_VERSION;
-	header.numTiles = 0;
-	for (int i = 0; i < mesh->getMaxTiles(); ++i)
-	{
-		if (const dtMeshTile* tile = mesh->getTile(i); !tile || !tile->header || !tile->dataSize) continue;
-		header.numTiles++;
-	}
-	memcpy(&header.params, mesh->getParams(), sizeof(dtNavMeshParams));
-	file.write(reinterpret_cast<const char *>(&header), sizeof(NavMeshSetHeader));
+  // Store header.
+  NavMeshSetHeader header{};
+  header.magic = NAVMESHSET_MAGIC;
+  header.version = NAVMESHSET_VERSION;
+  header.numTiles = 0;
+  for (int i = 0; i < mesh->getMaxTiles(); ++i) {
+    if (const dtMeshTile *tile = mesh->getTile(i); !tile || !tile->header || !tile->dataSize)
+      continue;
+    header.numTiles++;
+  }
+  std::memcpy(&header.params, mesh->getParams(), sizeof(dtNavMeshParams));
+  file.write(reinterpret_cast<const char *>(&header), sizeof(NavMeshSetHeader));
 
-	// Store tiles.
-	for (int i = 0; i < mesh->getMaxTiles(); ++i)
-	{
-		const dtMeshTile* tile = mesh->getTile(i);
-		if (!tile || !tile->header || !tile->dataSize) continue;
+  // Store tiles.
+  for (int i = 0; i < mesh->getMaxTiles(); ++i) {
+    const dtMeshTile *tile = mesh->getTile(i);
+    if (!tile || !tile->header || !tile->dataSize)
+      continue;
 
-		NavMeshTileHeader tileHeader{};
-		tileHeader.tileRef = mesh->getTileRef(tile);
-		tileHeader.dataSize = tile->dataSize;
-		file.write(reinterpret_cast<const char *>(&tileHeader), sizeof(tileHeader));
+    NavMeshTileHeader tileHeader{};
+    tileHeader.tileRef = mesh->getTileRef(tile);
+    tileHeader.dataSize = tile->dataSize;
+    file.write(reinterpret_cast<const char *>(&tileHeader), sizeof(tileHeader));
 
-		file.write(reinterpret_cast<const char *>(tile->data), tile->dataSize);
-	}
+    file.write(reinterpret_cast<const char *>(tile->data), tile->dataSize);
+  }
 
-	file.close();
+  file.close();
 }

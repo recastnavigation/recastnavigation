@@ -6,9 +6,12 @@
 
 #include <cstring>
 #include <new>
+
 #include <InputGeom.h>
 #include <Recast.h>
 #include <RecastDump.h>
+
+#include "MeshLoaderObj.h"
 
 bool GenerateTheses(rcContext* pCtx, const InputGeom* pGeom, rcConfig& config, const bool filterLowHangingObstacles,
                     const bool filterLedgeSpans, const bool filterWalkableLowHeightSpans, float& totalBuildTimeMs,
@@ -76,7 +79,7 @@ bool GenerateTheses(rcContext* pCtx, const InputGeom* pGeom, rcConfig& config, c
     // Find triangles which are walkable based on their slope and rasterize them.
     // If your input data is multiple meshes, you can transform them here, calculate
     // the are type for each of the meshes and rasterize them.
-    memset(m_triareas, 0, ntris * sizeof(unsigned char));
+    std::memset(m_triareas, 0, ntris * sizeof(unsigned char));
     rcMarkWalkableTriangles(pCtx, config.walkableSlopeAngle, verts, nverts, tris, ntris, m_triareas);
     if (!rcRasterizeTriangles(pCtx, verts, nverts, tris, m_triareas, ntris, *m_solid, config.walkableClimb))
     {
@@ -297,7 +300,7 @@ bool GenerateSingleMeshWaterShed(rcContext* pCtx, const InputGeom* pGeom, rcConf
     // Allocate array that can hold triangle area types.
     // If you have multiple meshes you need to process, allocate
     // and array which can hold the max number of triangles you need to process.
-    const auto m_triareas = new(std::nothrow) unsigned char[ntris];
+    auto *const m_triareas = new(std::nothrow) unsigned char[ntris];
     if (!m_triareas)
     {
         pCtx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'm_triareas' (%d).", ntris);
@@ -307,7 +310,7 @@ bool GenerateSingleMeshWaterShed(rcContext* pCtx, const InputGeom* pGeom, rcConf
     // Find triangles which are walkable based on their slope and rasterize them.
     // If your input data is multiple meshes, you can transform them here, calculate
     // the are type for each of the meshes and rasterize them.
-    memset(m_triareas, 0, ntris * sizeof(unsigned char));
+    std::memset(m_triareas, 0, ntris * sizeof(unsigned char));
     rcMarkWalkableTriangles(pCtx, config.walkableSlopeAngle, verts, nverts, tris, ntris, m_triareas);
     if (!rcRasterizeTriangles(pCtx, verts, nverts, tris, m_triareas, ntris, *m_solid, config.walkableClimb))
     {

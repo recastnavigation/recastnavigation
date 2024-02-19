@@ -12,6 +12,7 @@
 #include <string>
 #include <vector>
 #include <cmath>
+#include <format>
 
 #include <RecastAlloc.h>
 
@@ -351,12 +352,12 @@ inline void ProcessBourderEdges(const std::string &input, const std::string &out
                 }
             };
             const float e2Length{
-                std::sqrtf(dot(vertex2, vertex2))
+                std::sqrt(static_cast<float>(dot(vertex2, vertex2)))
             };
             const float size{static_cast<float>(dot(vertex1, vertex2)) / e2Length};
-            const Vertex b{static_cast<int>(vertex1.x * size), static_cast<int>(vertex1.y * size)};
+            const Vertex b{static_cast<int>(static_cast<float>(vertex1.x) * size), static_cast<int>(static_cast<float>(vertex1.y) * size)};
             const Vertex v2Normalized{
-                static_cast<int>(vertex2.x / e2Length), static_cast<int>(vertex2.y / e2Length)
+                static_cast<int>(static_cast<float>(vertex2.x) / e2Length), static_cast<int>(static_cast<float>(vertex2.y) / e2Length)
             };
             const Edge projected{b.x, b.y, b.x + v2Normalized.x, b.y + v2Normalized.x};
 
@@ -446,8 +447,8 @@ inline void ProcessBourderEdges(const std::string &input, const std::string &out
     leftoverSvg << std::format(R"(<svg width="{}" height="{}" xmlns="http://www.w3.org/2000/svg">)", config.width,
                                 config.height);
     leftoverSvg.put(leftoverSvg.widen('\n'));
-    for (int i = 0; i < referenceEdges.size(); ++i) {
-        const auto &[v1, v2]{referenceEdges[i]};
+    for (auto & referenceEdge : referenceEdges) {
+        const auto &[v1, v2]{referenceEdge};
         leftoverSvg << std::format(
             R"(<line x1="{}" y1="{}" x2="{}" y2="{}" style="stroke: black; stroke-width: 2;" />)",
             v1.x, v1.y, v2.x, v2.y) << '\n';

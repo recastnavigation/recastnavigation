@@ -19,9 +19,8 @@
 #ifndef SAMPLEINTERFACES_H
 #define SAMPLEINTERFACES_H
 
-#include "Recast.h"
-#include "PerfTimer.h"
-
+#include <Recast.h>
+#include <PerfTimer.h>
 
 /// Recast build context.
 class BuildContext final : public rcContext

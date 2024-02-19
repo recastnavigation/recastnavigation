@@ -30,10 +30,10 @@ void rcFilterLowHangingWalkableObstacles(rcContext* context, const int walkableC
 {
 	rcAssert(context);
 
-	rcScopedTimer timer(context, RC_TIMER_FILTER_LOW_OBSTACLES);
+  rcScopedTimer timer(context, RC_TIMER_FILTER_LOW_OBSTACLES);
 
-	const int xSize = heightfield.width;
-	const int zSize = heightfield.height;
+  const int xSize = heightfield.width;
+  const int zSize = heightfield.height;
 
 	for (int z = 0; z < zSize; ++z)
 	{
@@ -72,13 +72,21 @@ void rcFilterLowHangingWalkableObstacles(rcContext* context, const int walkableC
 }
 
 void rcFilterLedgeSpans(rcContext* context, const int walkableHeight, const int walkableClimb, const rcHeightfield& heightfield)
-{
-	rcAssert(context);
-	
-	rcScopedTimer timer(context, RC_TIMER_FILTER_BORDER);
 
-	const int xSize = heightfield.width;
-	const int zSize = heightfield.height;
+  rcScopedTimer timer(context, RC_TIMER_FILTER_BORDER);
+
+  const int xSize = heightfield.width;
+  const int zSize = heightfield.height;
+
+  // Mark border spans.
+  for (int z = 0; z < zSize; ++z) {
+    for (int x = 0; x < xSize; ++x) {
+      for (rcSpan *span = heightfield.spans[x + z * xSize]; span; span = span->next) {
+        constexpr int MAX_HEIGHT = 0xffff;
+        // Skip non walkable spans.
+        if (span->area == RC_NULL_AREA) {
+          continue;
+        }
 	
 	// Mark spans that are adjacent to a ledge as unwalkable..
 	for (int z = 0; z < zSize; ++z)
@@ -183,10 +191,8 @@ void rcFilterLedgeSpans(rcContext* context, const int walkableHeight, const int 
 void rcFilterWalkableLowHeightSpans(rcContext* context, const int walkableHeight, const rcHeightfield& heightfield)
 {
 	rcAssert(context);
-	rcScopedTimer timer(context, RC_TIMER_FILTER_WALKABLE);
 
-	const int xSize = heightfield.width;
-	const int zSize = heightfield.height;
+  rcScopedTimer timer(context, RC_TIMER_FILTER_WALKABLE);
 
 	// Remove walkable flag from spans which do not have enough
 	// space above them for the agent to stand there.

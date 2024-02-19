@@ -16,59 +16,48 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#ifndef DETOURPROXIMITYGRID_H
-#define DETOURPROXIMITYGRID_H
+#pragma once
 
-class dtProximityGrid
-{
-	float m_cellSize;
-	float m_invCellSize;
-	
-	struct Item
-	{
-		unsigned short id;
-		short x,y;
-		unsigned short next;
-	};
-	Item* m_pool;
-	int m_poolHead;
-	int m_poolSize;
-	
-	unsigned short* m_buckets;
-	int m_bucketsSize;
-	
-	int m_bounds[4];
-	
+class dtProximityGrid {
+  float m_cellSize;
+  float m_invCellSize;
+
+  struct Item {
+    unsigned short id;
+    short x, y;
+    unsigned short next;
+  };
+  Item *m_pool;
+  int m_poolHead;
+  int m_poolSize;
+
+  unsigned short *m_buckets;
+  int m_bucketsSize;
+
+  int m_bounds[4];
+
 public:
-	dtProximityGrid();
-	~dtProximityGrid();
-	
-	bool init(int poolSize, float cellSize);
-	
-	void clear();
-	
-	void addItem(unsigned short id,
-	             float minx, float miny,
-	             float maxx, float maxy);
-	
-	int queryItems(float minx, float miny,
-	               float maxx, float maxy,
-	               unsigned short* ids, int maxIds) const;
-	
-	int getItemCountAt(int x, int y) const;
+  dtProximityGrid();
+  ~dtProximityGrid();
 
-	const int* getBounds() const { return m_bounds; }
-	float getCellSize() const { return m_cellSize; }
+  bool init(int poolSize, float cellSize);
+
+  void clear();
+
+  void addItem(unsigned short id, float minx, float miny, float maxx, float maxy);
+
+  int queryItems(float minx, float miny, float maxx, float maxy, unsigned short *ids, int maxIds) const;
+
+  int getItemCountAt(int x, int y) const;
+
+  const int *getBounds() const { return m_bounds; }
+  float getCellSize() const { return m_cellSize; }
 
 private:
-	// Explicitly disabled copy constructor and copy assignment operator.
-	dtProximityGrid(const dtProximityGrid&);
-	dtProximityGrid& operator=(const dtProximityGrid&);
+  // Explicitly disabled copy constructor and copy assignment operator.
+  dtProximityGrid(const dtProximityGrid &);
+  dtProximityGrid &operator=(const dtProximityGrid &);
 };
 
-dtProximityGrid* dtAllocProximityGrid();
-void dtFreeProximityGrid(dtProximityGrid* ptr);
-
-
-#endif // DETOURPROXIMITYGRID_H
-
+dtProximityGrid *dtAllocProximityGrid();
+void dtFreeProximityGrid(dtProximityGrid *ptr);

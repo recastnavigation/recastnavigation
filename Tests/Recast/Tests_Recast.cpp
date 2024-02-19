@@ -683,7 +683,7 @@ TEST_CASE("rcRasterizeTriangle overlapping bb but non-overlapping triangle", "[r
         for (int z = 0; z < height; ++z)
 		{
             rcSpan* span = heightfield.spans[x + z * heightfield.width];
-			REQUIRE(span == NULL);
+			REQUIRE(span == nullptr);
         }
     }
 }

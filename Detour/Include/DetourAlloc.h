@@ -16,16 +16,14 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#ifndef DETOURALLOCATOR_H
-#define DETOURALLOCATOR_H
+#pragma once
 #include <cstddef>
 
 /// Provides hint values to the memory allocator on how long the
 /// memory is expected to be used.
-enum dtAllocHint
-{
-	DT_ALLOC_PERM,		///< Memory persist after a function call.
-	DT_ALLOC_TEMP		///< Memory used temporarily within a function.
+enum dtAllocHint {
+  DT_ALLOC_PERM, ///< Memory persist after a function call.
+  DT_ALLOC_TEMP  ///< Memory used temporarily within a function.
 };
 
 /// A memory allocation function.
@@ -33,12 +31,12 @@ enum dtAllocHint
 //  @param[in]		rcAllocHint	A hint to the allocator on how long the memory is expected to be in use.
 //  @return A pointer to the beginning of the allocated memory block, or null if the allocation failed.
 ///  @see dtAllocSetCustom
-typedef void* (dtAllocFunc)(size_t size, dtAllocHint hint);
+typedef void *(dtAllocFunc)(std::size_t size, dtAllocHint hint);
 
 /// A memory deallocation function.
 ///  @param[in]		ptr		A pointer to a memory block previously allocated using #dtAllocFunc.
 /// @see dtAllocSetCustom
-typedef void (dtFreeFunc)(void* ptr);
+typedef void(dtFreeFunc)(void *ptr);
 
 /// Sets the base custom allocation functions to be used by Detour.
 ///  @param[in]		allocFunc	The memory allocation function to be used by #dtAlloc
@@ -50,11 +48,9 @@ void dtAllocSetCustom(dtAllocFunc *allocFunc, dtFreeFunc *freeFunc);
 ///  @param[in]		hint	A hint to the allocator on how long the memory is expected to be in use.
 ///  @return A pointer to the beginning of the allocated memory block, or null if the allocation failed.
 /// @see dtFree
-void* dtAlloc(size_t size, dtAllocHint hint);
+void *dtAlloc(std::size_t size, dtAllocHint hint);
 
 /// Deallocates a memory block.
 ///  @param[in]		ptr		A pointer to a memory block previously allocated using #dtAlloc.
 /// @see dtAlloc
-void dtFree(void* ptr);
-
-#endif
+void dtFree(void *ptr);

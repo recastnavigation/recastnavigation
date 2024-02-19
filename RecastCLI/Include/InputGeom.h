@@ -15,13 +15,11 @@
 //    misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 //
+#pragma once
+#include <string>
 
-#ifndef INPUTGEOM_H
-#define INPUTGEOM_H
-
-#include "ChunkyTriMesh.h"
-#include "MeshLoaderObj.h"
-#include "Recast.h"
+class rcMeshLoaderObj;
+struct rcChunkyTriMesh;
 
 static constexpr int MAX_CONVEXVOL_PTS = 12;
 
@@ -87,7 +85,7 @@ class InputGeom
     unsigned char m_offMeshConDirs[MAX_OFFMESH_CONNECTIONS];
     unsigned char m_offMeshConAreas[MAX_OFFMESH_CONNECTIONS];
     unsigned short m_offMeshConFlags[MAX_OFFMESH_CONNECTIONS];
-    unsigned int m_offMeshConId[MAX_OFFMESH_CONNECTIONS];
+    uint32_t m_offMeshConId[MAX_OFFMESH_CONNECTIONS];
     int m_offMeshConCount;
     ///@}
 
@@ -136,7 +134,7 @@ public:
     const unsigned char* getOffMeshConnectionDirs() const { return m_offMeshConDirs; }
     const unsigned char* getOffMeshConnectionAreas() const { return m_offMeshConAreas; }
     const unsigned short* getOffMeshConnectionFlags() const { return m_offMeshConFlags; }
-    const unsigned int* getOffMeshConnectionId() const { return m_offMeshConId; }
+    const uint32_t* getOffMeshConnectionId() const { return m_offMeshConId; }
     void addOffMeshConnection(const float* spos, const float* epos, float rad,
                                             unsigned char bidir, unsigned char area, unsigned short flags);
     void deleteOffMeshConnection(int i);
@@ -158,5 +156,3 @@ private:
     InputGeom(const InputGeom&);
     InputGeom& operator=(const InputGeom&);
 };
-
-#endif // INPUTGEOM_H

@@ -15,12 +15,10 @@
 //    misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 //
-
-#ifndef PERFTIMER_H
-#define PERFTIMER_H
+#pragma once
 
 #ifdef __GNUC__
-#include <stdint.h>
+#include <cstdint>
 typedef int64_t TimeVal;
 #else
 typedef __int64 TimeVal;
@@ -28,6 +26,3 @@ typedef __int64 TimeVal;
 
 TimeVal getPerfTime();
 int getPerfTimeUsec(TimeVal duration);
-
-#endif // PERFTIMER_H
-
