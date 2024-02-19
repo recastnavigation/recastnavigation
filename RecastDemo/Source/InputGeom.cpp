@@ -23,14 +23,15 @@
 #include <cstring>
 #include <fstream>
 #include <new>
+#include <ranges>
 #include <sstream>
 
 #include "Recast.h"
 #include "InputGeom.h"
 
 #include "ChunkyTriMesh.h"
-#include "MeshLoaderObj.h"
 #include "DebugDraw.h"
+#include "MeshLoaderObj.h"
 
 static bool intersectSegmentTriangle(const float* sp, const float* sq,
                                      const float* a, const float* b, const float* c,
