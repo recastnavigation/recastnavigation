@@ -21,7 +21,7 @@
 #include <memory>
 
 namespace {
-void *rcAllocDefault(const size_t size, rcAllocHint) {
+void *rcAllocDefault(const std::size_t size, rcAllocHint) {
   return malloc(size);
 }
 
@@ -39,7 +39,7 @@ void rcAllocSetCustom(rcAllocFunc *allocFunc, rcFreeFunc *freeFunc) {
   sRecastFreeFunc = freeFunc ? freeFunc : rcFreeDefault;
 }
 
-void *rcAlloc(const size_t size, const rcAllocHint hint) {
+void *rcAlloc(const std::size_t size, const rcAllocHint hint) {
   return sRecastAllocFunc(size, hint);
 }
 

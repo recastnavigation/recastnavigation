@@ -157,7 +157,7 @@ bool rcMeshLoaderObj::load(const std::string& fileName)
 		file.close();
 		return false;
 	}
-	const size_t readLen = file.read(buf, fileSize).gcount();
+	const std::size_t readLen = file.read(buf, fileSize).gcount();
 	file.close();
 
 	if (readLen != fileSize)

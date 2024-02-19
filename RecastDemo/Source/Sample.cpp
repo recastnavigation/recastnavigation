@@ -316,7 +316,7 @@ dtNavMesh *Sample::loadAll(const char *path) {
 
   // Read header.
   NavMeshSetHeader header{};
-  size_t readLen = file.read(reinterpret_cast<char *>(&header), sizeof(NavMeshSetHeader)).gcount();
+  std::size_t readLen = file.read(reinterpret_cast<char *>(&header), sizeof(NavMeshSetHeader)).gcount();
   if (readLen != sizeof(NavMeshSetHeader)) {
     file.close();
     return nullptr;

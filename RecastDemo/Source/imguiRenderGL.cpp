@@ -29,7 +29,7 @@
 static constexpr float PI = 3.14159265f;
 
 void imguifree(void *ptr, void *userptr);
-void *imguimalloc(size_t size, void *userptr);
+void *imguimalloc(std::size_t size, void *userptr);
 
 #define STBTT_malloc(x, y) imguimalloc(x, y)
 #define STBTT_free(x, y) imguifree(x, y)

@@ -121,17 +121,17 @@ struct FastLZCompressor final : dtTileCacheCompressor {
 
 struct LinearAllocator final : dtTileCacheAlloc {
   unsigned char *buffer;
-  size_t capacity;
-  size_t top;
-  size_t high;
+  std::size_t capacity;
+  std::size_t top;
+  std::size_t high;
 
-  explicit LinearAllocator(const size_t cap) : buffer(nullptr), capacity(0), top(0), high(0) {
+  explicit LinearAllocator(const std::size_t cap) : buffer(nullptr), capacity(0), top(0), high(0) {
     resize(cap);
   }
 
   ~LinearAllocator() override;
 
-  void resize(const size_t cap) {
+  void resize(const std::size_t cap) {
     if (buffer)
       dtFree(buffer);
     buffer = static_cast<unsigned char *>(dtAlloc(cap, DT_ALLOC_PERM));
@@ -143,7 +143,7 @@ struct LinearAllocator final : dtTileCacheAlloc {
     top = 0;
   }
 
-  void *alloc(const size_t size) override {
+  void *alloc(const std::size_t size) override {
     if (!buffer)
       return nullptr;
     if (top + size > capacity)

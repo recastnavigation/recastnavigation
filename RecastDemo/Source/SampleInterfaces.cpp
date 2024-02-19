@@ -255,16 +255,16 @@ bool FileIO::isReading() const {
   return m_mode == 2;
 }
 
-bool FileIO::write(const void *ptr, const size_t size) {
+bool FileIO::write(const void *ptr, const std::size_t size) {
   if (!m_fp.is_open() || m_mode != 1)
     return false;
   m_fp.write(static_cast<const char *>(ptr), size);
   return true;
 }
 
-bool FileIO::read(void *ptr, const size_t size) {
+bool FileIO::read(void *ptr, const std::size_t size) {
   if (!m_fp || m_mode != 2)
     return false;
-  const size_t readLen = m_fp.read(static_cast<char *>(ptr), size).gcount();
+  const std::size_t readLen = m_fp.read(static_cast<char *>(ptr), size).gcount();
   return readLen == 1;
 }

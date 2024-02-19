@@ -14,9 +14,9 @@ jobs:
       fail-fast: false
 
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        build_type: [Debug, Release]
-        std: [23]
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
+        build_type: [ Debug, Release ]
+        std: [ 23 ]
 
     steps:
       - uses: actions/checkout@v4
@@ -28,12 +28,12 @@ jobs:
           sudo apt-get install -y libgl1-mesa-dev
 
       - name: Configure CMake
-        run: >
-          cmake -B ${{ github.workspace }}/build
-          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-          -DCMAKE_CXX_STANDARD=${{ matrix.std }}
-          -DCMAKE_CXX_STANDARD_REQUIRED=ON
-          -S ${{ github.workspace }}
+        run: |
+          cmake -B ${{github.workspace}}/build \
+                -DCMAKE_BUILD_TYPE=${{matrix.build_type}} \
+                -DCMAKE_CXX_STANDARD=${{matrix.std}} \
+                -DCMAKE_CXX_STANDARD_REQUIRED=ON \
+                -S ${{github.workspace}} \
 
       - name: Build
         run: cmake --build ${{ github.workspace }}/build --config ${{ matrix.build_type }}

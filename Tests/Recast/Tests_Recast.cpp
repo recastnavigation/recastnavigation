@@ -962,7 +962,7 @@ int Incrementor::copies = 0;
 constexpr int kMaxAllocSize = 1024;
 constexpr unsigned char kClearValue = 0xff;
 // Simple alloc/free that clears the memory on free..
-void* AllocAndInit(const size_t size, rcAllocHint) {
+void* AllocAndInit(const std::size_t size, rcAllocHint) {
 	rcAssert(kMaxAllocSize >= size);
 	return std::memset(malloc(kMaxAllocSize), 0, kMaxAllocSize);
 }

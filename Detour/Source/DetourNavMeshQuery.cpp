@@ -792,7 +792,7 @@ public:
       toCopy = numLeft;
     }
 
-    std::memcpy(m_polys + m_numCollected, refs, static_cast<size_t>(toCopy) * sizeof(dtPolyRef));
+    std::memcpy(m_polys + m_numCollected, refs, static_cast<std::size_t>(toCopy) * sizeof(dtPolyRef));
     m_numCollected += toCopy;
   }
 };

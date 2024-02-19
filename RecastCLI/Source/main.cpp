@@ -3,7 +3,9 @@
 //
 #include <algorithm>
 #include <array>
+#include <cmath>
 #include <filesystem>
+#include <format>
 #include <fstream>
 #include <iostream>
 #include <ranges>
@@ -11,8 +13,6 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include <cmath>
-#include <format>
 
 #include <RecastAlloc.h>
 
@@ -307,7 +307,7 @@ inline void ProcessBourderEdges(const std::string &input, const std::string &out
                                 config.height);
     resultSvg.put(resultSvg.widen('\n'));
     referenceSvg.put(referenceSvg.widen('\n'));
-    const size_t maximum{std::max(referenceEdges.size(), resultEdges.size())};
+    const std::size_t maximum{std::max(referenceEdges.size(), resultEdges.size())};
     for (int i = 0; i < maximum; ++i) {
         if (i < resultEdges.size()) {
             const auto &[v1, v2]{resultEdges[i]};
