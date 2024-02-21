@@ -25,13 +25,12 @@
 #ifdef __APPLE__
 #include <OpenGL/glu.h>
 #else
-#include <GL/glu.h>
+#include <gl/GLU.h>
 #endif
 
 #include <SDL.h>
 #include <SDL_opengl.h>
 
-#include "imgui.h"
 #include "DetourCommon.h"
 #include "DetourCrowd.h"
 #include "DetourDebugDraw.h"
@@ -40,6 +39,7 @@
 #include "InputGeom.h"
 #include "Sample.h"
 #include "SampleInterfaces.h"
+#include "imgui.h"
 
 #include <DetourProximityGrid.h>
 

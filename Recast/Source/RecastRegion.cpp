@@ -19,10 +19,13 @@
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
+#include <algorithm>
+#include <ranges>
 
 #include "Recast.h"
 #include "RecastAlloc.h"
 #include "RecastAssert.h"
+
 
 namespace {
 struct LevelStackEntry {
@@ -1582,18 +1585,6 @@ bool rcBuildLayerRegions(rcContext *ctx, rcCompactHeightfield &chf, const int bo
   return true;
 }
 
-struct Comparator {
-  static const unsigned short *dist;
-
-  static int compare(const void *a, const void *b) {
-    const LevelStackEntry &l1 = *static_cast<const LevelStackEntry *>(a);
-    const LevelStackEntry &l2 = *static_cast<const LevelStackEntry *>(b);
-    return dist[l1.index] - dist[l2.index];
-  }
-};
-
-const unsigned short *Comparator::dist{nullptr};
-
 bool rcBuildRegionsWithSize(rcContext *ctx, rcCompactHeightfield &chf, const int borderSize, const int minRegionArea, const int mergeRegionArea) {
   rcAssert(ctx);
   if (!ctx)
@@ -1622,8 +1613,9 @@ bool rcBuildRegionsWithSize(rcContext *ctx, rcCompactHeightfield &chf, const int
     }
   }
   // Then use it in qsort
-  Comparator::dist = chf.dist;
-  std::qsort(levelStack.data(), levelStack.size(), sizeof(LevelStackEntry), Comparator::compare);
+  std::ranges::sort(levelStack, [&dist = chf.dist](const LevelStackEntry &l1, const LevelStackEntry &l2) {
+    return dist[l1.index] < dist[l2.index];
+  });
 
   unsigned short level = chf.maxDistance;
   unsigned short regionId = 1;
