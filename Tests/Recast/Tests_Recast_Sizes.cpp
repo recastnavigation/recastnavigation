@@ -58,7 +58,7 @@ inline std::array<float, g_loopCount * RC_MAX_TIMERS> generateThesisTimes(BuildC
                   pEdges, edgesSize)
     };
     if (!succes)
-      context.dumpLog("Error: ");
+      context.dumpLog("Thesis Error: ");
     REQUIRE(succes);
     rcFree(pEdges);
     const int offset{i * RC_MAX_TIMERS};
@@ -82,7 +82,7 @@ inline std::array<float, g_loopCount * RC_MAX_TIMERS> generateSingleMeshTimes(Bu
                                     totalBuildTimeMs, pMesh, pDMesh)
     };
     if (!succes)
-      context.dumpLog("Error: ");
+      context.dumpLog("Defualt Error: ");
     REQUIRE(succes);
     rcFreePolyMesh(pMesh);
     rcFreePolyMeshDetail(pDMesh);
@@ -140,11 +140,12 @@ TEST_CASE("Watershed") {
   };
 
   BuildContext context{};
-  std::cout << "Creating Geometry" << std::endl;
   auto *pGeom{new(std::nothrow) InputGeom{}};
   REQUIRE(pGeom != nullptr);
-  std::cout << "Loading Geometry: " << env << std::endl;
   bool success = pGeom->load(&context, env);
+  if(!success)
+    context.dumpLog("Geom load log %s:", env.c_str());
+
   REQUIRE(success);
 
   config.cs = 0.1f;
