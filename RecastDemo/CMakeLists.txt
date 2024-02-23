@@ -3,8 +3,6 @@ file(GLOB SOURCES Source/*.cpp Contrib/fastlz/fastlz.c)
 add_executable(${PROJECT_NAME} ${SOURCES})
 add_dependencies(${PROJECT_NAME} DebugUtils Detour DetourCrowd DetourTileCache Recast)
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-
 target_include_directories(${PROJECT_NAME} PRIVATE
         ../DebugUtils/Include
         ../Detour/Include

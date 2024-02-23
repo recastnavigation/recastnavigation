@@ -217,7 +217,7 @@ inline bool compareEdges(const Edge &edge1, const Edge &edge2) {
 
 inline bool operator<(const Edge &e1, const Edge &e2) { return compareEdges(e1, e2); }
 
-inline void processBourderEdges(const std::string &input, const std::string &output, BuildContext &context, const InputGeom *pGeom, const bool filterLedgeSpans, const bool filterWalkableLowHeightSpans, const bool filterLowHangingObstacles, rcConfig config) {
+inline void processBourderEdges(const std::string &input, const std::string &output, const std::string &name, BuildContext &context, const InputGeom *pGeom, const bool filterLedgeSpans, const bool filterWalkableLowHeightSpans, const bool filterLowHangingObstacles, rcConfig config) {
   int *pEdges{nullptr};
   int edgesSize{};
   runThesis(context, pGeom, filterLedgeSpans, filterWalkableLowHeightSpans, filterLowHangingObstacles, config,
@@ -275,29 +275,21 @@ inline void processBourderEdges(const std::string &input, const std::string &out
   std::ranges::copy(resultEdgesSet, std::back_inserter(resultEdges));
 
   std::filesystem::create_directories(output);
-  std::ofstream resultSvg{output + "/output_edges_result.svg"};
-  std::ofstream referenceSvg{output + "/output_edges_ref.svg"};
-  resultSvg << std::format(R"(<svg width="{}" height="{}" xmlns="http://www.w3.org/2000/svg">)", config.width,
-                           config.height);
-  referenceSvg << std::format(R"(<svg width="{}" height="{}" xmlns="http://www.w3.org/2000/svg">)", config.width,
-                              config.height);
+  std::ofstream resultSvg{output + "/edges_" + name + "_result.svg"};
+  std::ofstream referenceSvg{output + "/edges_" + name + "_reference.svg"};
+  resultSvg << std::format(R"(<svg width="{}" height="{}" xmlns="http://www.w3.org/2000/svg">)", config.width, config.height);
+  referenceSvg << std::format(R"(<svg width="{}" height="{}" xmlns="http://www.w3.org/2000/svg">)", config.width, config.height);
   resultSvg.put(resultSvg.widen('\n'));
   referenceSvg.put(referenceSvg.widen('\n'));
   const std::size_t maximum{std::max(referenceEdges.size(), resultEdges.size())};
   for (int i = 0; i < maximum; ++i) {
     if (i < resultEdges.size()) {
       const auto &[v1, v2]{resultEdges[i]};
-      resultSvg << std::format(
-                       R"(<line x1="{}" y1="{}" x2="{}" y2="{}" style="stroke: black; stroke-width: 2;" />)",
-                       v1.x, v1.y, v2.x, v2.y)
-                << '\n';
+      resultSvg << std::format(R"(<line x1="{}" y1="{}" x2="{}" y2="{}" style="stroke: black; stroke-width: 2;" />)", v1.x, v1.y, v2.x, v2.y) << '\n';
     }
     if (i < referenceEdges.size()) {
       const auto &[v1, v2]{referenceEdges[i]};
-      referenceSvg << std::format(
-                          R"(<line x1="{}" y1="{}" x2="{}" y2="{}" style="stroke: black; stroke-width: 2;" />)",
-                          v1.x, v1.y, v2.x, v2.y)
-                   << '\n';
+      referenceSvg << std::format(R"(<line x1="{}" y1="{}" x2="{}" y2="{}" style="stroke: black; stroke-width: 2;" />)", v1.x, v1.y, v2.x, v2.y) << '\n';
     }
   }
   resultSvg << R"(</svg>)";
@@ -411,16 +403,12 @@ inline void processBourderEdges(const std::string &input, const std::string &out
   float recall = static_cast<float>(tp) / static_cast<float>(referenceEdgesSize);
   std::cout << "precision: " << precision << "\t recal: " << recall << std::endl;
 
-  std::ofstream leftoverSvg{output + "/output_edges_leftover.svg"};
-  leftoverSvg << std::format(R"(<svg width="{}" height="{}" xmlns="http://www.w3.org/2000/svg">)", config.width,
-                             config.height);
+  std::ofstream leftoverSvg{output + "/edges_" + name + "_leftover.svg"};
+  leftoverSvg << std::format(R"(<svg width="{}" height="{}" xmlns="http://www.w3.org/2000/svg">)", config.width, config.height);
   leftoverSvg.put(leftoverSvg.widen('\n'));
   for (auto &referenceEdge : referenceEdges) {
     const auto &[v1, v2]{referenceEdge};
-    leftoverSvg << std::format(
-                       R"(<line x1="{}" y1="{}" x2="{}" y2="{}" style="stroke: black; stroke-width: 2;" />)",
-                       v1.x, v1.y, v2.x, v2.y)
-                << '\n';
+    leftoverSvg << std::format(R"(<line x1="{}" y1="{}" x2="{}" y2="{}" style="stroke: black; stroke-width: 2;" />)", v1.x, v1.y, v2.x, v2.y) << '\n';
   }
   leftoverSvg << R"(</svg>)";
   leftoverSvg.close();
@@ -442,85 +430,107 @@ constexpr bool g_filterWalkableLowHeightSpans = true;
 constexpr bool g_filterLowHangingObstacles = true;
 
 int main(const int argc, char *argv[]) {
-  // const InputParser parser(argc, argv);
-  // if (parser.CmdOptionExists("-h;--help")) {
-  //     PrintOptions();
-  //     return 0;
-  // }
-  // const std::string &fileName = parser.GetCmdOption("-f;--file");
-  // const std::string &output = parser.GetCmdOption("-o;--output");
-  // std::string lcmRef{};
-  // if (fileName.empty()) {
-  //     std::cout << "An input file model is required (-f;--file)" << std::endl;
-  //     return 1;
-  // }
-  // if (output.empty()) {
-  //     std::cout << "An output path required (-o;--output)" << std::endl;
-  //     return 1;
-  // }
-  //
-  // float cellSize = 0.3f;
-  // float agentRadius = 0.6f;
-  //
-  // bool aqquireLcm{};
-  // if (parser.CmdOptionExists("-cs;--cellsize"))
-  //     cellSize = std::stof(parser.GetCmdOption("-cs;--cellsize"));
-  // if (parser.CmdOptionExists("-ar;--agentradius"))
-  //     agentRadius = std::stof(parser.GetCmdOption("-ar;--agentradius"));
-  // if (parser.CmdOptionExists("-lcm;--localclearanceminimum")) {
-  //     if (!parser.CmdOptionExists("-lcmr;--localclearanceminimumrefference")) {
-  //         return 1;
-  //     }
-  //     aqquireLcm = true;
-  //     lcmRef = parser.GetCmdOption("-lcmr;--localclearanceminimumrefference");
-  //     std::cout << "comparing \"" << fileName << "\" with \"" << lcmRef << '\"' << std::endl;
-  // }
-
-  // if (aqquireLcm)
-  //     ProcessBourderEdges(lcmRef, output, context, pGeom.get(), g_filterLedgeSpans, g_filterWalkableLowHeightSpans,
-  //                         g_filterLowHangingObstacles, config);
-  // else
-  //     GenerateTimes(output, context, pGeom.get(), g_filterLedgeSpans, g_filterWalkableLowHeightSpans,
-  //                   g_filterLowHangingObstacles,
-  //                   config);
-  ThreadPool pool{};
-  const std::array<std::string, 12> meshes{"City.obj", "Maze8.obj", "Maze16.obj", "Maze32.obj", "Maze64.obj", "Maze128.obj", "Military.obj", "Simple.obj", "University.obj", "Zelda.obj", "Zelda2x2.obj", "Zelda4x4.obj"};
-  std::ranges::for_each(meshes, [&pool](const std::string &mesh) {
-    for (uint32_t i{1}; i < 6; ++i) {
-      pool.queueJob([mesh, i] {
-        const float cellSize = static_cast<float>(i) / 10.f;
-        constexpr float agentRadius = 0.0f;
-        const std::string output{"Data"};
-        BuildContext context{};
-
-        const auto pGeom{std::make_unique<InputGeom>()};
-        if (!pGeom || !pGeom->load(&context, "Meshes/" + mesh)) {
-          context.dumpLog("Geom load log %s:", mesh.c_str());
-          return;
-        }
-        const rcConfig config{
-            .cs = cellSize,
-            .ch = g_cellHeight,
-            .walkableSlopeAngle = g_agentMaxSlope,
-            .walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight)),
-            .walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight)),
-            .walkableRadius = static_cast<int>(std::ceil(agentRadius / g_cellHeight)),
-            .maxEdgeLen = static_cast<int>(g_edgeMaxLen / cellSize),
-            .maxSimplificationError = g_edgeMaxError,
-            .minRegionArea = static_cast<int>(rcSqr(g_regionMinSize)),
-            .mergeRegionArea = static_cast<int>(rcSqr(g_regionMergeSize)),
-            .maxVertsPerPoly = static_cast<int>(g_vertsPerPoly),
-            .detailSampleDist = cellSize * g_detailSampleDist,
-            .detailSampleMaxError = g_cellHeight * g_detailSampleMaxError,
-        };
-        generateTimes(output, mesh.substr(0,mesh.size()-4) + "_" + std::to_string(i), context, pGeom.get(), g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config);
-      });
-    }
-  });
-  while (pool.busy()) {
-    std::this_thread::yield();
-    using namespace std::chrono_literals;
-    std::this_thread::sleep_for(500ms);
+  const InputParser parser(argc, argv);
+  if (parser.CmdOptionExists("-h;--help")) {
+    printOptions();
+    return 0;
   }
+  const std::string &fileName = parser.GetCmdOption("-f;--file");
+  const std::string &output = parser.GetCmdOption("-o;--output");
+  std::string lcmRef{};
+  if (fileName.empty()) {
+    std::cout << "An input file model is required (-f;--file)" << std::endl;
+    return 1;
+  }
+  if (output.empty()) {
+    std::cout << "An output path required (-o;--output)" << std::endl;
+    return 1;
+  }
+
+  float cellSize = 0.3f;
+  float agentRadius = 0.6f;
+
+  BuildContext context{};
+  const auto pGeom{std::make_unique<InputGeom>()};
+  if (!pGeom || !pGeom->load(&context, fileName)) {
+    context.dumpLog("Geom load log %s:", fileName.c_str());
+    return 1;
+  }
+
+  bool aqquireLcm{};
+  if (parser.CmdOptionExists("-cs;--cellsize"))
+    cellSize = std::stof(parser.GetCmdOption("-cs;--cellsize"));
+  if (parser.CmdOptionExists("-ar;--agentradius"))
+    agentRadius = std::stof(parser.GetCmdOption("-ar;--agentradius"));
+  if (parser.CmdOptionExists("-lcm;--localclearanceminimum")) {
+    if (!parser.CmdOptionExists("-lcmr;--localclearanceminimumrefference")) {
+      return 1;
+    }
+    aqquireLcm = true;
+    lcmRef = parser.GetCmdOption("-lcmr;--localclearanceminimumrefference");
+    std::cout << "comparing \"" << fileName << "\" with \"" << lcmRef << '\"' << std::endl;
+  }
+
+  const rcConfig config{
+      .cs = cellSize,
+      .ch = g_cellHeight,
+      .walkableSlopeAngle = g_agentMaxSlope,
+      .walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight)),
+      .walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight)),
+      .walkableRadius = static_cast<int>(std::ceil(agentRadius / g_cellHeight)),
+      .maxEdgeLen = static_cast<int>(g_edgeMaxLen / cellSize),
+      .maxSimplificationError = g_edgeMaxError,
+      .minRegionArea = static_cast<int>(rcSqr(g_regionMinSize)),
+      .mergeRegionArea = static_cast<int>(rcSqr(g_regionMergeSize)),
+      .maxVertsPerPoly = static_cast<int>(g_vertsPerPoly),
+      .detailSampleDist = cellSize * g_detailSampleDist,
+      .detailSampleMaxError = g_cellHeight * g_detailSampleMaxError,
+  };
+  if (aqquireLcm)
+    processBourderEdges(lcmRef, output, fileName.substr(7, fileName.size() - 11) + "_" + std::to_string(static_cast<int>(cellSize * 10)), context, pGeom.get(), g_filterLedgeSpans, g_filterWalkableLowHeightSpans,
+                        g_filterLowHangingObstacles, config);
+  else
+    generateTimes(output, fileName.substr(0, fileName.size() - 4) + "_" + std::to_string(static_cast<int>(cellSize * 10)), context, pGeom.get(), g_filterLedgeSpans, g_filterWalkableLowHeightSpans,
+                  g_filterLowHangingObstacles,
+                  config);
+  // ThreadPool pool{};
+  // const std::array<std::string, 12> meshes{"City.obj", "Maze8.obj", "Maze16.obj", "Maze32.obj", "Maze64.obj", "Maze128.obj", "Military.obj", "Simple.obj", "University.obj", "Zelda.obj", "Zelda2x2.obj", "Zelda4x4.obj"};
+  // std::ranges::for_each(meshes, [&pool](const std::string &mesh) {
+  //   for (uint32_t i{1}; i < 6; ++i) {
+  //     pool.queueJob([mesh, i] {
+  //       const float cellSize = static_cast<float>(i) / 10.f;
+  //       constexpr float agentRadius = 0.0f;
+  //       const std::string output{"Data"};
+
+  //
+  //       const auto pGeom{std::make_unique<InputGeom>()};
+  //       if (!pGeom || !pGeom->load(&context, "Meshes/" + mesh)) {
+  //         context.dumpLog("Geom load log %s:", mesh.c_str());
+  //         return;
+  //       }
+  //       const rcConfig config{
+  //           .cs = cellSize,
+  //           .ch = g_cellHeight,
+  //           .walkableSlopeAngle = g_agentMaxSlope,
+  //           .walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight)),
+  //           .walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight)),
+  //           .walkableRadius = static_cast<int>(std::ceil(agentRadius / g_cellHeight)),
+  //           .maxEdgeLen = static_cast<int>(g_edgeMaxLen / cellSize),
+  //           .maxSimplificationError = g_edgeMaxError,
+  //           .minRegionArea = static_cast<int>(rcSqr(g_regionMinSize)),
+  //           .mergeRegionArea = static_cast<int>(rcSqr(g_regionMergeSize)),
+  //           .maxVertsPerPoly = static_cast<int>(g_vertsPerPoly),
+  //           .detailSampleDist = cellSize * g_detailSampleDist,
+  //           .detailSampleMaxError = g_cellHeight * g_detailSampleMaxError,
+  //       };
+  //       generateTimes(output, mesh.substr(0,mesh.size()-4) + "_" + std::to_string(i), context, pGeom.get(), g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config);
+  //     });
+  //   }
+  // });
+  // while (pool.busy()) {
+  //   std::this_thread::yield();
+  //   using namespace std::chrono_literals;
+  //   std::this_thread::sleep_for(500ms);
+  // }
   return 0;
 }

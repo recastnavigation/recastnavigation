@@ -1108,8 +1108,7 @@ bool rcBuildContoursWithPortals(rcContext *ctx, const rcCompactHeightfield &chf,
             rcFree(cset.conts);
             cset.conts = newConts;
 
-            ctx->log(RC_LOG_WARNING, "rcBuildContours: Expanding max contours from %d to %d.", oldMax,
-                     maxContours);
+            ctx->log(RC_LOG_WARNING, "rcBuildContours: Expanding max contours from %d to %d.", oldMax,maxContours);
           }
 
           rcContour *cont = &cset.conts[cset.nconts++];
