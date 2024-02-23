@@ -18,7 +18,6 @@
 
 #include "Recast.h"
 
-#include <array>
 #include <cmath>
 #include <cstdlib>
 #include <cstring>

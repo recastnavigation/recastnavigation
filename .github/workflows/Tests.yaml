@@ -42,4 +42,4 @@ jobs:
         env:
           CTEST_OUTPUT_ON_FAILURE: 1
         working-directory: ${{github.workspace}}/build
-        run: ctest -build-config ${{matrix.build_type}} -j `nproc`
+        run: ctest --build-config ${{matrix.build_type}} --progress --parallel `nproc`
