@@ -42,7 +42,7 @@ Sample_Debug::Sample_Debug() : m_chf(nullptr),
         std::cout << std::format("bmin=({},{},{}) bmax=({},{},{})\n",
                                  m_cset->bmin[0], m_cset->bmin[1], m_cset->bmin[2],
                                  m_cset->bmax[0], m_cset->bmax[1], m_cset->bmax[2])
-                  << std::format("cs=%f ch=%f\n", m_cset->cs, m_cset->ch) << std::endl;
+                  << std::format("cs={} ch={}\n", m_cset->cs, m_cset->ch) << std::endl;
       } else {
         std::cout << "could not open test.cset" << std::endl;
       }

@@ -31,7 +31,6 @@
 #	include <GL/glu.h>
 #endif
 
-
 #include "imgui.h"
 #include "imguiRenderGL.h"
 

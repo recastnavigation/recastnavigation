@@ -17,19 +17,20 @@
 //
 
 #include "CrowdTool.h"
+
 #include <cfloat>
 #include <cmath>
 #include <cstdio>
 #include <cstring>
 #include <iostream>
+
+#include <SDL.h>
+#include <SDL_opengl.h>
 #ifdef __APPLE__
 #include <OpenGL/glu.h>
 #else
 #include <gl/GLU.h>
 #endif
-
-#include <SDL.h>
-#include <SDL_opengl.h>
 
 #include "DetourCommon.h"
 #include "DetourCrowd.h"

@@ -447,15 +447,15 @@ int main(const int argc, char *argv[]) {
     return 1;
   }
 
-  float cellSize = 0.3f;
-  float agentRadius = 0.6f;
-
   BuildContext context{};
   const auto pGeom{std::make_unique<InputGeom>()};
   if (!pGeom || !pGeom->load(&context, fileName)) {
     context.dumpLog("Geom load log %s:", fileName.c_str());
     return 1;
   }
+
+  float cellSize = 0.3f;
+  float agentRadius = 0.6f;
 
   bool aqquireLcm{};
   if (parser.CmdOptionExists("-cs;--cellsize"))

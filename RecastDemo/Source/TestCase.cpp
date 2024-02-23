@@ -20,20 +20,22 @@
 #include "DetourCommon.h"
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"
-#include <SDL.h>
-#include <SDL_opengl.h>
+
 #include <cctype>
 #include <cstdio>
 #include <cstring>
+#include <fstream>
+#include <iostream>
 #include <new>
+#include <sstream>
+
+#include <SDL.h>
+#include <SDL_opengl.h>
 #ifdef __APPLE__
 #include <OpenGL/glu.h>
 #else
-#include <GL/glu.h>
+#include <gl/GLU.h>
 #endif
-#include <fstream>
-#include <iostream>
-#include <sstream>
 
 #include "PerfTimer.h"
 #include "imgui.h"

@@ -23,8 +23,9 @@
 #ifdef __APPLE__
 #include <OpenGL/glu.h>
 #else
-#include <GL/glu.h>
+#include <gl/GLU.h>
 #endif
+
 #include "DetourDebugDraw.h"
 #include "InputGeom.h"
 #include "OffMeshConnectionTool.h"
