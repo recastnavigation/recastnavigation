@@ -5,7 +5,7 @@
 #include "ThreadPool.hpp"
 
 ThreadPool::ThreadPool(): should_terminate(false) {
-  const uint32_t num_threads = std::thread::hardware_concurrency();
+  const uint32_t num_threads = std::thread::hardware_concurrency()-1;
   for (uint32_t ii = 0; ii < num_threads; ++ii) {
     threads.emplace_back(&ThreadPool::threadLoop, this);
   }

@@ -7,6 +7,13 @@ set_target_properties(${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX -d)
 
 set(DebugUtils_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Include")
 
+target_compile_options(${PROJECT_NAME} PRIVATE
+        $<$<NOT:$<CONFIG:Debug>>:
+        $<$<CXX_COMPILER_ID:Clang,GNU>:-Ofast>
+        $<$<CXX_COMPILER_ID:MSVC>:/Ox>
+        >
+)
+
 target_include_directories(${PROJECT_NAME} PUBLIC
     "$<BUILD_INTERFACE:${DebugUtils_INCLUDE_DIR}>"
 )

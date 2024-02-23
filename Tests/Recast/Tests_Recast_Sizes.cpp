@@ -147,17 +147,14 @@ TEST_CASE("Watershed") {
   bool success = pGeom->load(&context, env);
   REQUIRE(success);
 
-  config.cs = GENERATE(Catch::Generators::range(0.1f,0.5f,0.1f));
+  const int size =GENERATE(Catch::Generators::range(1,5));
+  config.cs = size * 0.1f;
 
   const std::array defaultTimes{
-      generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans,
-                              g_filterLowHangingObstacles,
-                              config)
+      generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans,g_filterLowHangingObstacles,config)
   };
   const std::array thesisTimes{
-      generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans,
-                          g_filterLowHangingObstacles,
-                          config)
+      generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans,g_filterLowHangingObstacles,config)
   };
   delete pGeom;
 
