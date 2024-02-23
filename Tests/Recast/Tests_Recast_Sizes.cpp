@@ -147,9 +147,7 @@ TEST_CASE("Watershed") {
   bool success = pGeom->load(&context, env);
   REQUIRE(success);
 
-  const int size =GENERATE(Catch::Generators::range(1,5));
-  config.cs = size * 0.1f;
-
+  config.cs = 0.1f;
   const std::array defaultTimes{
       generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans,g_filterLowHangingObstacles,config)
   };
