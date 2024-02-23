@@ -8,6 +8,13 @@ add_dependencies(RecastCLI
         Recast
 )
 
+target_compile_options(${PROJECT_NAME} PRIVATE
+    $<$<NOT:$<CONFIG:Debug>>:
+        $<$<CXX_COMPILER_ID:Clang,GNU>:-Ofast>
+        $<$<CXX_COMPILER_ID:MSVC>:/Ox>
+    >
+)
+
 # Use target_include_directories instead of include_directories
 target_include_directories(${PROJECT_NAME} PRIVATE
         ../DebugUtils/Include

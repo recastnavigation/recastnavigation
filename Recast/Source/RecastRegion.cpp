@@ -16,10 +16,8 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <cmath>
-#include <cstdlib>
-#include <cstring>
 #include <algorithm>
+#include <cstring>
 #include <ranges>
 
 #include "Recast.h"
@@ -29,7 +27,7 @@
 
 namespace {
 struct LevelStackEntry {
-  LevelStackEntry(const int x_, const int y_, const int index_) : x(x_), y(y_), index(index_) {
+  LevelStackEntry(const int x_, const int y_, const int index_) : x{x_}, y{y_}, index{index_} {
   }
 
   int x;
@@ -1638,7 +1636,7 @@ bool rcBuildRegionsWithSize(rcContext *ctx, rcCompactHeightfield &chf, const int
     }
   }
   // Then use it in qsort
-  std::ranges::sort(levelStack, [&dist = chf.dist](const LevelStackEntry &l1, const LevelStackEntry &l2) {
+  std::sort(levelStack.begin(), levelStack.end(), [&dist = chf.dist](const LevelStackEntry &l1, const LevelStackEntry &l2) {
     return dist[l1.index] < dist[l2.index];
   });
 
