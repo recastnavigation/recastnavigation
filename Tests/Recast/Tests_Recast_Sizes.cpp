@@ -103,7 +103,7 @@ inline void writeTimeToCsv(const std::string &filePath, const std::array<float, 
 
 TEST_CASE("Watershed") {
   rcConfig config{
-      .cs = 0.1f,
+      .cs = 0.5f,
       .ch = g_cellHeight,
       .walkableSlopeAngle = g_agentMaxSlope,
       .walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight)),
