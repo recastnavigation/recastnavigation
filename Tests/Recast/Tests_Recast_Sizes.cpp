@@ -182,23 +182,23 @@ TEST_CASE("Watershed") {
     writeTimeToCsv(output + '/' + prefix + "default.csv", defaultTimes, header, sizeof header);
     writeTimeToCsv(output + '/' + prefix + "thesis.csv", thesisTimes, header, sizeof header);
   }
-  // SECTION("Maze16") {
-  //   BuildContext context{};
-  //   auto *pGeom{new (std::nothrow) InputGeom{}};
-  //   REQUIRE(pGeom != nullptr);
-  //   bool success = pGeom->load(&context, "Meshes/Maze16.obj");
-  //   if (!success)
-  //     context.dumpLog("Geom load log %s:", "Meshes/Maze16.obj");
-  //   REQUIRE(success);
-  //
-  //   const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
-  //   const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
-  //   delete pGeom;
-  //
-  //   const std::string prefix{"Maze16" + std::to_string(config.cs) + "_"};
-  //   writeTimeToCsv(output + '/' + prefix + "default.csv", defaultTimes, header, sizeof header);
-  //   writeTimeToCsv(output + '/' + prefix + "thesis.csv", thesisTimes, header, sizeof header);
-  // }
+  SECTION("Maze16") {
+    BuildContext context{};
+    auto *pGeom{new (std::nothrow) InputGeom{}};
+    REQUIRE(pGeom != nullptr);
+    bool success = pGeom->load(&context, "Meshes/Maze16.obj");
+    if (!success)
+      context.dumpLog("Geom load log %s:", "Meshes/Maze16.obj");
+    REQUIRE(success);
+
+    const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
+    const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
+    delete pGeom;
+
+    const std::string prefix{"Maze16" + std::to_string(config.cs) + "_"};
+    writeTimeToCsv(output + '/' + prefix + "default.csv", defaultTimes, header, sizeof header);
+    writeTimeToCsv(output + '/' + prefix + "thesis.csv", thesisTimes, header, sizeof header);
+  }
   // SECTION("Maze32") {
   //   BuildContext context{};
   //   auto *pGeom{new (std::nothrow) InputGeom{}};
@@ -267,57 +267,57 @@ TEST_CASE("Watershed") {
   //   writeTimeToCsv(output + '/' + prefix + "default.csv", defaultTimes, header, sizeof header);
   //   writeTimeToCsv(output + '/' + prefix + "thesis.csv", thesisTimes, header, sizeof header);
   // }
-  // SECTION("Simple") {
-  //   BuildContext context{};
-  //   auto *pGeom{new (std::nothrow) InputGeom{}};
-  //   REQUIRE(pGeom != nullptr);
-  //   bool success = pGeom->load(&context, "Meshes/Simple.obj");
-  //   if (!success)
-  //     context.dumpLog("Geom load log %s:", "Meshes/Simple.obj");
-  //   REQUIRE(success);
-  //
-  //   const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
-  //   const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
-  //   delete pGeom;
-  //
-  //   const std::string prefix{"Simple" + std::to_string(config.cs) + "_"};
-  //   writeTimeToCsv(output + '/' + prefix + "default.csv", defaultTimes, header, sizeof header);
-  //   writeTimeToCsv(output + '/' + prefix + "thesis.csv", thesisTimes, header, sizeof header);
-  // }
-  // SECTION("University") {
-  //   BuildContext context{};
-  //   auto *pGeom{new (std::nothrow) InputGeom{}};
-  //   REQUIRE(pGeom != nullptr);
-  //   bool success = pGeom->load(&context, "Meshes/University.obj");
-  //   if (!success)
-  //     context.dumpLog("Geom load log %s:", "Meshes/University.obj");
-  //   REQUIRE(success);
-  //
-  //   const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
-  //   const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
-  //   delete pGeom;
-  //
-  //   const std::string prefix{"University" + std::to_string(config.cs) + "_"};
-  //   writeTimeToCsv(output + '/' + prefix + "default.csv", defaultTimes, header, sizeof header);
-  //   writeTimeToCsv(output + '/' + prefix + "thesis.csv", thesisTimes, header, sizeof header);
-  // }
-  // SECTION("Zelda") {
-  //   BuildContext context{};
-  //   auto *pGeom{new (std::nothrow) InputGeom{}};
-  //   REQUIRE(pGeom != nullptr);
-  //   bool success = pGeom->load(&context, "Meshes/Zelda.obj");
-  //   if (!success)
-  //     context.dumpLog("Geom load log %s:", "Meshes/Zelda.obj");
-  //   REQUIRE(success);
-  //
-  //   const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
-  //   const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
-  //   delete pGeom;
-  //
-  //   const std::string prefix{"Zelda" + std::to_string(config.cs) + "_"};
-  //   writeTimeToCsv(output + '/' + prefix + "default.csv", defaultTimes, header, sizeof header);
-  //   writeTimeToCsv(output + '/' + prefix + "thesis.csv", thesisTimes, header, sizeof header);
-  // }
+  SECTION("Simple") {
+    BuildContext context{};
+    auto *pGeom{new (std::nothrow) InputGeom{}};
+    REQUIRE(pGeom != nullptr);
+    bool success = pGeom->load(&context, "Meshes/Simple.obj");
+    if (!success)
+      context.dumpLog("Geom load log %s:", "Meshes/Simple.obj");
+    REQUIRE(success);
+
+    const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
+    const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
+    delete pGeom;
+
+    const std::string prefix{"Simple" + std::to_string(config.cs) + "_"};
+    writeTimeToCsv(output + '/' + prefix + "default.csv", defaultTimes, header, sizeof header);
+    writeTimeToCsv(output + '/' + prefix + "thesis.csv", thesisTimes, header, sizeof header);
+  }
+  SECTION("University") {
+    BuildContext context{};
+    auto *pGeom{new (std::nothrow) InputGeom{}};
+    REQUIRE(pGeom != nullptr);
+    bool success = pGeom->load(&context, "Meshes/University.obj");
+    if (!success)
+      context.dumpLog("Geom load log %s:", "Meshes/University.obj");
+    REQUIRE(success);
+
+    const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
+    const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
+    delete pGeom;
+
+    const std::string prefix{"University" + std::to_string(config.cs) + "_"};
+    writeTimeToCsv(output + '/' + prefix + "default.csv", defaultTimes, header, sizeof header);
+    writeTimeToCsv(output + '/' + prefix + "thesis.csv", thesisTimes, header, sizeof header);
+  }
+  SECTION("Zelda") {
+    BuildContext context{};
+    auto *pGeom{new (std::nothrow) InputGeom{}};
+    REQUIRE(pGeom != nullptr);
+    bool success = pGeom->load(&context, "Meshes/Zelda.obj");
+    if (!success)
+      context.dumpLog("Geom load log %s:", "Meshes/Zelda.obj");
+    REQUIRE(success);
+
+    const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
+    const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
+    delete pGeom;
+
+    const std::string prefix{"Zelda" + std::to_string(config.cs) + "_"};
+    writeTimeToCsv(output + '/' + prefix + "default.csv", defaultTimes, header, sizeof header);
+    writeTimeToCsv(output + '/' + prefix + "thesis.csv", thesisTimes, header, sizeof header);
+  }
   // SECTION("Zelda2x2") {
   //   BuildContext context{};
   //   auto *pGeom{new (std::nothrow) InputGeom{}};
