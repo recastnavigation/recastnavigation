@@ -35,23 +35,23 @@ public:
     }
   }
 
-  const std::string &GetCmdOption(const std::string &option) const {
+  const std::string &getCmdOption(const std::string &option) const {
     if (const auto &itr = std::ranges::find_if(m_tokens, [option](const std::string &token) {
-          std::stringstream ss{option};
-          std::string s;
-          while (std::getline(ss, s, ';')) {
-            return s == token;
-          }
-          return false;
-        });
-        itr != m_tokens.cend() && itr + 1 != m_tokens.cend()) {
+        std::stringstream ss{option};
+        std::string s;
+        while (std::getline(ss, s, ';')) {
+          return s == token;
+        }
+        return false;
+      });
+      itr != m_tokens.cend() && itr + 1 != m_tokens.cend()) {
       return *(itr + 1);
     }
     static std::string empty{};
     return empty;
   }
 
-  bool CmdOptionExists(const std::string &option) const {
+  bool cmdOptionExists(const std::string &option) const {
     const auto &iter = std::ranges::find_if(m_tokens, [option](const std::string &token) {
       std::stringstream ss{option};
       std::string s;
@@ -94,27 +94,23 @@ struct Edge {
   Vertex v2{};
 };
 
-inline void runThesis(BuildContext &context, const InputGeom *pGeom, const bool filterLedgeSpans, const bool filterWalkableLowHeightSpans, const bool filterLowHangingObstacles, rcConfig &config, int *&pEdges, int &edgesSize) {
+inline void runThesis(BuildContext &context, const InputGeom &pGeom, const bool filterLedgeSpans, const bool filterWalkableLowHeightSpans, const bool filterLowHangingObstacles, rcConfig &config, int *&pEdges, int &edgesSize) {
   rcPolyMesh *pMesh{nullptr};
   rcPolyMeshDetail *pDMesh{nullptr};
   float totalBuildTimeMs{};
-  GenerateTheses(&context, pGeom, config, filterLowHangingObstacles, filterLedgeSpans,
-                 filterWalkableLowHeightSpans,
-                 totalBuildTimeMs, pMesh, pDMesh, pEdges, edgesSize);
+  generateTheses(context, pGeom, config, filterLowHangingObstacles, filterLedgeSpans, filterWalkableLowHeightSpans, totalBuildTimeMs, pMesh, pDMesh, pEdges, edgesSize);
   rcFreePolyMesh(pMesh);
   rcFreePolyMeshDetail(pDMesh);
   pMesh = nullptr;
   pDMesh = nullptr;
 }
 
-inline std::array<float, g_loopCount * RC_MAX_TIMERS> generateThesisTimes(BuildContext &context, const InputGeom *pGeom, const bool filterLedgeSpans, const bool filterWalkableLowHeightSpans, const bool filterLowHangingObstacles, rcConfig &config) {
+inline std::array<float, g_loopCount * RC_MAX_TIMERS> generateThesisTimes(BuildContext &context, const InputGeom &pGeom, const bool filterLedgeSpans, const bool filterWalkableLowHeightSpans, const bool filterLowHangingObstacles, rcConfig &config) {
   std::array<float, g_loopCount * RC_MAX_TIMERS> times{};
   for (int i{}; i < g_loopCount; i++) {
     int *pEdges{nullptr};
     int edgesSize{};
-    runThesis(context, pGeom, filterLedgeSpans, filterWalkableLowHeightSpans, filterLowHangingObstacles, config,
-              pEdges,
-              edgesSize);
+    runThesis(context, pGeom, filterLedgeSpans, filterWalkableLowHeightSpans, filterLowHangingObstacles, config, pEdges, edgesSize);
     rcFree(pEdges);
     const int offset{i * RC_MAX_TIMERS};
     for (int j = 0; j < RC_MAX_TIMERS; ++j) {
@@ -124,15 +120,12 @@ inline std::array<float, g_loopCount * RC_MAX_TIMERS> generateThesisTimes(BuildC
   return times;
 }
 
-inline std::array<float, g_loopCount * RC_MAX_TIMERS> generateSingleMeshTimes(BuildContext &context, const InputGeom *pGeom, const bool filterLedgeSpans, const bool filterWalkableLowHeightSpans, const bool filterLowHangingObstacles, rcConfig &config) {
+inline std::array<float, g_loopCount * RC_MAX_TIMERS> generateSingleMeshTimes(BuildContext &context, const InputGeom &pGeom, const bool filterLedgeSpans, const bool filterWalkableLowHeightSpans, const bool filterLowHangingObstacles, rcConfig &config) {
   std::array<float, g_loopCount * RC_MAX_TIMERS> times{};
   for (int i{}; i < g_loopCount; i++) {
     rcPolyMesh *pMesh{nullptr};
     rcPolyMeshDetail *pDMesh{nullptr};
-    float totalBuildTimeMs{};
-    GenerateSingleMeshWaterShed(&context, pGeom, config, filterLowHangingObstacles, filterLedgeSpans,
-                                filterWalkableLowHeightSpans,
-                                totalBuildTimeMs, pMesh, pDMesh);
+    generateSingle(context, pGeom, config, filterLowHangingObstacles, filterLedgeSpans, filterWalkableLowHeightSpans, pMesh, pDMesh);
     rcFreePolyMesh(pMesh);
     rcFreePolyMeshDetail(pDMesh);
     pMesh = nullptr;
@@ -158,15 +151,9 @@ inline void writeCsvFile(const std::string &filePath, const std::array<float, g_
   csvFile.close();
 }
 
-inline void generateTimes(const std::string &output, const std::string &fileName, BuildContext &context, const InputGeom *pGeom, const bool filterLedgeSpans, const bool filterWalkableLowHeightSpans, const bool filterLowHangingObstacles, rcConfig config) {
-  const std::array defaultTimes{
-      generateSingleMeshTimes(context, pGeom, filterLedgeSpans, filterWalkableLowHeightSpans,
-                              filterLowHangingObstacles,
-                              config)};
-  const std::array thesisTimes{
-      generateThesisTimes(context, pGeom, filterLedgeSpans, filterWalkableLowHeightSpans,
-                          filterLowHangingObstacles,
-                          config)};
+inline void generateTimes(const std::string &output, const std::string &fileName, BuildContext &context, const InputGeom &pGeom, const bool filterLedgeSpans, const bool filterWalkableLowHeightSpans, const bool filterLowHangingObstacles, rcConfig config) {
+  const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, filterLedgeSpans, filterWalkableLowHeightSpans, filterLowHangingObstacles, config)};
+  const std::array thesisTimes{generateThesisTimes(context, pGeom, filterLedgeSpans, filterWalkableLowHeightSpans, filterLowHangingObstacles, config)};
 
   constexpr char header[]{
       "Total (ms),"
@@ -217,17 +204,15 @@ inline bool compareEdges(const Edge &edge1, const Edge &edge2) {
 
 inline bool operator<(const Edge &e1, const Edge &e2) { return compareEdges(e1, e2); }
 
-inline void processBourderEdges(const std::string &input, const std::string &output, const std::string &name, BuildContext &context, const InputGeom *pGeom, const bool filterLedgeSpans, const bool filterWalkableLowHeightSpans, const bool filterLowHangingObstacles, rcConfig config) {
+inline void processBourderEdges(const std::string &input, const std::string &output, const std::string &name, BuildContext &context, const InputGeom &pGeom, const bool filterLedgeSpans, const bool filterWalkableLowHeightSpans, const bool filterLowHangingObstacles, rcConfig config) {
   int *pEdges{nullptr};
   int edgesSize{};
-  runThesis(context, pGeom, filterLedgeSpans, filterWalkableLowHeightSpans, filterLowHangingObstacles, config,
-            pEdges,
-            edgesSize);
+  runThesis(context, pGeom, filterLedgeSpans, filterWalkableLowHeightSpans, filterLowHangingObstacles, config, pEdges, edgesSize);
   // if (edgesSize & 1)
   // return;
 
   // load in actual svg file
-  const float *min = pGeom->getMeshBoundsMin();
+  const float *min = pGeom.getMeshBoundsMin();
   const float inverseSellSize{1.0f / config.cs};
   std::set<Edge> referenceEdgesSet;
   std::ifstream csfFileRef{input};
@@ -257,13 +242,10 @@ inline void processBourderEdges(const std::string &input, const std::string &out
   csfFileRef.close();
   std::set<Edge> resultEdgesSet{};
   for (int i = 0; i < edgesSize / 2 - 1; i += 2) {
-    const int ii = i + 1;
-    if (pEdges[i * 2 + 0] > pEdges[ii * 2 + 0] || (pEdges[i * 2 + 0] == pEdges[ii * 2 + 0] && pEdges[ii * 2 + 1] > pEdges[ii * 2 + 1])) {
-      resultEdgesSet.emplace(Edge{
-          {pEdges[ii * 2 + 0], pEdges[ii * 2 + 1]}, {pEdges[i * 2 + 0], pEdges[i * 2 + 1]}});
+    if (const int ii = i + 1; pEdges[i * 2 + 0] > pEdges[ii * 2 + 0] || (pEdges[i * 2 + 0] == pEdges[ii * 2 + 0] && pEdges[i * 2 + 1] > pEdges[ii * 2 + 1])) {
+      resultEdgesSet.emplace(Edge{{pEdges[ii * 2 + 0], pEdges[ii * 2 + 1]}, {pEdges[i * 2 + 0], pEdges[i * 2 + 1]}});
     } else {
-      resultEdgesSet.emplace(Edge{
-          {pEdges[i * 2 + 0], pEdges[i * 2 + 1]}, {pEdges[ii * 2 + 0], pEdges[ii * 2 + 1]}});
+      resultEdgesSet.emplace(Edge{{pEdges[i * 2 + 0], pEdges[i * 2 + 1]}, {pEdges[ii * 2 + 0], pEdges[ii * 2 + 1]}});
     }
   }
   // std::memcpy(resultEdges.data(), pEdges, edgesSize * sizeof(int));
@@ -298,45 +280,44 @@ inline void processBourderEdges(const std::string &input, const std::string &out
   referenceSvg.close();
 
   constexpr uint8_t epsilon{2};
-  const auto projectMatch{
-      [epsilon](const Edge &e1, const Edge &e2) -> bool {
-        if (e1.v1.x == e2.v1.x && e1.v1.y == e2.v1.y &&
-            e1.v2.x == e2.v2.x && e1.v2.y == e2.v2.y)
-          return true;
+  [epsilon](const Edge &e1, const Edge &e2) -> bool {
+    if (e1.v1.x == e2.v1.x && e1.v1.y == e2.v1.y &&
+        e1.v2.x == e2.v2.x && e1.v2.y == e2.v2.y)
+      return true;
 
-        const int diffX1{e1.v1.x - e2.v1.x};
-        const int diffY1{e1.v1.y - e2.v1.y};
-        const int diffX2{e1.v2.x - e2.v2.x};
-        const int diffY2{e1.v2.y - e2.v2.y};
+    const int diffX1{e1.v1.x - e2.v1.x};
+    const int diffY1{e1.v1.y - e2.v1.y};
+    const int diffX2{e1.v2.x - e2.v2.x};
+    const int diffY2{e1.v2.y - e2.v2.y};
 
-        // Compare the squared length of the difference with the squared epsilon
-        if (diffX1 * diffX1 + diffY1 * diffY1 <= epsilon * epsilon && diffX2 * diffX2 + diffY2 * diffY2 <= epsilon *
-                                                                                                               epsilon)
-          return true;
+    // Compare the squared length of the difference with the squared epsilon
+    if (diffX1 * diffX1 + diffY1 * diffY1 <= epsilon * epsilon && diffX2 * diffX2 + diffY2 * diffY2 <= epsilon *
+        epsilon)
+      return true;
 
-        const Vertex vertex1{e1.v2.x - e1.v1.x, e1.v2.y - e1.v1.y};
-        const Vertex vertex2{e2.v2.x - e2.v1.x, e2.v2.y - e2.v1.y};
-        const auto dot{
-            [](const Vertex &v1, const Vertex &v2) -> int {
-              return v1.x * v2.x + v1.y * v2.y;
-            }};
-        const float e2Length{
-            std::sqrt(static_cast<float>(dot(vertex2, vertex2)))};
-        const float size{static_cast<float>(dot(vertex1, vertex2)) / e2Length};
-        const Vertex b{static_cast<int>(static_cast<float>(vertex1.x) * size), static_cast<int>(static_cast<float>(vertex1.y) * size)};
-        const Vertex v2Normalized{
-            static_cast<int>(static_cast<float>(vertex2.x) / e2Length), static_cast<int>(static_cast<float>(vertex2.y) / e2Length)};
-        const Edge projected{b.x, b.y, b.x + v2Normalized.x, b.y + v2Normalized.x};
+    const Vertex vertex1{e1.v2.x - e1.v1.x, e1.v2.y - e1.v1.y};
+    const Vertex vertex2{e2.v2.x - e2.v1.x, e2.v2.y - e2.v1.y};
+    const auto dot{
+        [](const Vertex &v1, const Vertex &v2) -> int {
+          return v1.x * v2.x + v1.y * v2.y;
+        }};
+    const float e2Length{
+        std::sqrt(static_cast<float>(dot(vertex2, vertex2)))};
+    const float size{static_cast<float>(dot(vertex1, vertex2)) / e2Length};
+    const Vertex b{static_cast<int>(static_cast<float>(vertex1.x) * size), static_cast<int>(static_cast<float>(vertex1.y) * size)};
+    const Vertex v2Normalized{
+        static_cast<int>(static_cast<float>(vertex2.x) / e2Length), static_cast<int>(static_cast<float>(vertex2.y) / e2Length)};
+    const Edge projected{b.x, b.y, b.x + v2Normalized.x, b.y + v2Normalized.x};
 
-        const int movedDiffX1 = e1.v1.x - projected.v1.x;
-        const int movedDiffY1 = e1.v1.y - projected.v1.y;
-        const int movedDiffX2 = e1.v2.x - projected.v2.x;
-        const int movedDiffY2 = e1.v2.y - projected.v2.y;
-        // Compare the squared length of the difference with the squared epsilon
-        if (movedDiffX1 * movedDiffX1 + movedDiffY1 * movedDiffY1 <= epsilon * epsilon && movedDiffX2 * movedDiffX2 + movedDiffY2 * movedDiffY2 <= epsilon * epsilon)
-          return true;
-        return false;
-      }};
+    const int movedDiffX1 = e1.v1.x - projected.v1.x;
+    const int movedDiffY1 = e1.v1.y - projected.v1.y;
+    const int movedDiffX2 = e1.v2.x - projected.v2.x;
+    const int movedDiffY2 = e1.v2.y - projected.v2.y;
+    // Compare the squared length of the difference with the squared epsilon
+    if (movedDiffX1 * movedDiffX1 + movedDiffY1 * movedDiffY1 <= epsilon * epsilon && movedDiffX2 * movedDiffX2 + movedDiffY2 * movedDiffY2 <= epsilon * epsilon)
+      return true;
+    return false;
+  };
   const auto moveMatch{
       [epsilon](const Edge &e1, const Edge &e2) -> bool {
         if (e1.v1.x == e2.v1.x && e1.v1.y == e2.v1.y &&
@@ -349,7 +330,7 @@ inline void processBourderEdges(const std::string &input, const std::string &out
         const int diffY2 = e1.v2.y - e2.v2.y;
         // Compare the squared length of the difference with the squared epsilon
         if (diffX1 * diffX1 + diffY1 * diffY1 <= epsilon * epsilon && diffX2 * diffX2 + diffY2 * diffY2 <= epsilon *
-                                                                                                               epsilon)
+            epsilon)
           return true;
 
         const int halfDiffX = (diffX1 + diffX2) / 2;
@@ -431,12 +412,12 @@ constexpr bool g_filterLowHangingObstacles = true;
 
 int main(const int argc, char *argv[]) {
   const InputParser parser(argc, argv);
-  if (parser.CmdOptionExists("-h;--help")) {
+  if (parser.cmdOptionExists("-h;--help")) {
     printOptions();
     return 0;
   }
-  const std::string &fileName = parser.GetCmdOption("-f;--file");
-  const std::string &output = parser.GetCmdOption("-o;--output");
+  const std::string &fileName = parser.getCmdOption("-f;--file");
+  const std::string &output = parser.getCmdOption("-o;--output");
   std::string lcmRef{};
   if (fileName.empty()) {
     std::cout << "An input file model is required (-f;--file)" << std::endl;
@@ -448,8 +429,8 @@ int main(const int argc, char *argv[]) {
   }
 
   BuildContext context{};
-  const auto pGeom{std::make_unique<InputGeom>()};
-  if (!pGeom || !pGeom->load(&context, fileName)) {
+  InputGeom pGeom{};
+  if (!pGeom.load(&context, fileName)) {
     context.dumpLog("Geom load log %s:", fileName.c_str());
     return 1;
   }
@@ -458,16 +439,16 @@ int main(const int argc, char *argv[]) {
   float agentRadius = 0.6f;
 
   bool aqquireLcm{};
-  if (parser.CmdOptionExists("-cs;--cellsize"))
-    cellSize = std::stof(parser.GetCmdOption("-cs;--cellsize"));
-  if (parser.CmdOptionExists("-ar;--agentradius"))
-    agentRadius = std::stof(parser.GetCmdOption("-ar;--agentradius"));
-  if (parser.CmdOptionExists("-lcm;--localclearanceminimum")) {
-    if (!parser.CmdOptionExists("-lcmr;--localclearanceminimumrefference")) {
+  if (parser.cmdOptionExists("-cs;--cellsize"))
+    cellSize = std::stof(parser.getCmdOption("-cs;--cellsize"));
+  if (parser.cmdOptionExists("-ar;--agentradius"))
+    agentRadius = std::stof(parser.getCmdOption("-ar;--agentradius"));
+  if (parser.cmdOptionExists("-lcm;--localclearanceminimum")) {
+    if (!parser.cmdOptionExists("-lcmr;--localclearanceminimumrefference")) {
       return 1;
     }
     aqquireLcm = true;
-    lcmRef = parser.GetCmdOption("-lcmr;--localclearanceminimumrefference");
+    lcmRef = parser.getCmdOption("-lcmr;--localclearanceminimumrefference");
     std::cout << "comparing \"" << fileName << "\" with \"" << lcmRef << '\"' << std::endl;
   }
 
@@ -487,11 +468,9 @@ int main(const int argc, char *argv[]) {
       .detailSampleMaxError = g_cellHeight * g_detailSampleMaxError,
   };
   if (aqquireLcm)
-    processBourderEdges(lcmRef, output, fileName.substr(7, fileName.size() - 11) + "_" + std::to_string(static_cast<int>(cellSize * 10)), context, pGeom.get(), g_filterLedgeSpans, g_filterWalkableLowHeightSpans,
-                        g_filterLowHangingObstacles, config);
+    processBourderEdges(lcmRef, output, fileName.substr(7, fileName.size() - 11) + "_" + std::to_string(static_cast<int>(cellSize * 10)), context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config);
   else
-    generateTimes(output, fileName.substr(0, fileName.size() - 4) + "_" + std::to_string(static_cast<int>(cellSize * 10)), context, pGeom.get(), g_filterLedgeSpans, g_filterWalkableLowHeightSpans,
-                  g_filterLowHangingObstacles,
+    generateTimes(output, fileName.substr(0, fileName.size() - 4) + "_" + std::to_string(static_cast<int>(cellSize * 10)), context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles,
                   config);
   // ThreadPool pool{};
   // const std::array<std::string, 12> meshes{"City.obj", "Maze8.obj", "Maze16.obj", "Maze32.obj", "Maze64.obj", "Maze128.obj", "Military.obj", "Simple.obj", "University.obj", "Zelda.obj", "Zelda2x2.obj", "Zelda4x4.obj"};
