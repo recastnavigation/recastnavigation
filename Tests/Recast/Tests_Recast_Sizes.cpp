@@ -97,19 +97,6 @@ inline void writeTimeToCsv(const std::string &filePath, const std::array<float, 
 }
 
 TEST_CASE("Watershed") {
-  rcConfig config{
-      .cs = 0.5f,
-      .ch = g_cellHeight,
-      .walkableSlopeAngle = g_agentMaxSlope,
-      .walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight)),
-      .walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight)),
-      .maxSimplificationError = g_edgeMaxError,
-      .minRegionArea = static_cast<int>(rcSqr(minS)),
-      .mergeRegionArea = static_cast<int>(rcSqr(mergeS)),
-      .maxVertsPerPoly = static_cast<int>(g_vertsPerPoly),
-      .detailSampleMaxError = g_cellHeight * g_detailSampleMaxError,
-  };
-
   constexpr char header[]{
       "Total (ms),"
       "Temp (ms),"
@@ -144,6 +131,18 @@ TEST_CASE("Watershed") {
   std::filesystem::create_directories(output);
 
   SECTION("City") {
+    rcConfig config{
+        .cs = 0.5f,
+        .ch = g_cellHeight,
+        .walkableSlopeAngle = g_agentMaxSlope,
+        .walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight)),
+        .walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight)),
+        .maxSimplificationError = g_edgeMaxError,
+        .minRegionArea = static_cast<int>(rcSqr(minS)),
+        .mergeRegionArea = static_cast<int>(rcSqr(mergeS)),
+        .maxVertsPerPoly = static_cast<int>(g_vertsPerPoly),
+        .detailSampleMaxError = g_cellHeight * g_detailSampleMaxError,
+    };
     BuildContext context{};
     InputGeom pGeom{};
     bool success = pGeom.load(&context, "Meshes/Maze8.obj");
@@ -161,6 +160,18 @@ TEST_CASE("Watershed") {
     }
   }
   SECTION("Maze8") {
+    rcConfig config{
+        .cs = 0.5f,
+        .ch = g_cellHeight,
+        .walkableSlopeAngle = g_agentMaxSlope,
+        .walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight)),
+        .walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight)),
+        .maxSimplificationError = g_edgeMaxError,
+        .minRegionArea = static_cast<int>(rcSqr(minS)),
+        .mergeRegionArea = static_cast<int>(rcSqr(mergeS)),
+        .maxVertsPerPoly = static_cast<int>(g_vertsPerPoly),
+        .detailSampleMaxError = g_cellHeight * g_detailSampleMaxError,
+    };
     BuildContext context{};
     InputGeom pGeom{};
     bool success = pGeom.load(&context, "Meshes/Maze8.obj");
@@ -179,6 +190,18 @@ TEST_CASE("Watershed") {
     }
   }
   SECTION("Maze16") {
+    rcConfig config{
+        .cs = 0.5f,
+        .ch = g_cellHeight,
+        .walkableSlopeAngle = g_agentMaxSlope,
+        .walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight)),
+        .walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight)),
+        .maxSimplificationError = g_edgeMaxError,
+        .minRegionArea = static_cast<int>(rcSqr(minS)),
+        .mergeRegionArea = static_cast<int>(rcSqr(mergeS)),
+        .maxVertsPerPoly = static_cast<int>(g_vertsPerPoly),
+        .detailSampleMaxError = g_cellHeight * g_detailSampleMaxError,
+    };
     BuildContext context{};
     InputGeom pGeom{};
     bool success = pGeom.load(&context, "Meshes/Maze8.obj");
@@ -197,6 +220,18 @@ TEST_CASE("Watershed") {
     }
   }
   SECTION("Maze32") {
+    rcConfig config{
+        .cs = 0.5f,
+        .ch = g_cellHeight,
+        .walkableSlopeAngle = g_agentMaxSlope,
+        .walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight)),
+        .walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight)),
+        .maxSimplificationError = g_edgeMaxError,
+        .minRegionArea = static_cast<int>(rcSqr(minS)),
+        .mergeRegionArea = static_cast<int>(rcSqr(mergeS)),
+        .maxVertsPerPoly = static_cast<int>(g_vertsPerPoly),
+        .detailSampleMaxError = g_cellHeight * g_detailSampleMaxError,
+    };
     BuildContext context{};
     InputGeom pGeom{};
     bool success = pGeom.load(&context, "Meshes/Maze8.obj");
@@ -216,6 +251,18 @@ TEST_CASE("Watershed") {
   }
 
   SECTION("Maze64") {
+    rcConfig config{
+        .cs = 0.5f,
+        .ch = g_cellHeight,
+        .walkableSlopeAngle = g_agentMaxSlope,
+        .walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight)),
+        .walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight)),
+        .maxSimplificationError = g_edgeMaxError,
+        .minRegionArea = static_cast<int>(rcSqr(minS)),
+        .mergeRegionArea = static_cast<int>(rcSqr(mergeS)),
+        .maxVertsPerPoly = static_cast<int>(g_vertsPerPoly),
+        .detailSampleMaxError = g_cellHeight * g_detailSampleMaxError,
+    };
     BuildContext context{};
     InputGeom pGeom{};
     bool success = pGeom.load(&context, "Meshes/Maze8.obj");
@@ -234,6 +281,18 @@ TEST_CASE("Watershed") {
     }
   }
   SECTION("Maze128") {
+    rcConfig config{
+        .cs = 0.5f,
+        .ch = g_cellHeight,
+        .walkableSlopeAngle = g_agentMaxSlope,
+        .walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight)),
+        .walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight)),
+        .maxSimplificationError = g_edgeMaxError,
+        .minRegionArea = static_cast<int>(rcSqr(minS)),
+        .mergeRegionArea = static_cast<int>(rcSqr(mergeS)),
+        .maxVertsPerPoly = static_cast<int>(g_vertsPerPoly),
+        .detailSampleMaxError = g_cellHeight * g_detailSampleMaxError,
+    };
     BuildContext context{};
     InputGeom pGeom{};
     bool success = pGeom.load(&context, "Meshes/Maze8.obj");
@@ -252,6 +311,18 @@ TEST_CASE("Watershed") {
     }
   }
   SECTION("Military") {
+    rcConfig config{
+        .cs = 0.5f,
+        .ch = g_cellHeight,
+        .walkableSlopeAngle = g_agentMaxSlope,
+        .walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight)),
+        .walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight)),
+        .maxSimplificationError = g_edgeMaxError,
+        .minRegionArea = static_cast<int>(rcSqr(minS)),
+        .mergeRegionArea = static_cast<int>(rcSqr(mergeS)),
+        .maxVertsPerPoly = static_cast<int>(g_vertsPerPoly),
+        .detailSampleMaxError = g_cellHeight * g_detailSampleMaxError,
+    };
     BuildContext context{};
     InputGeom pGeom{};
     bool success = pGeom.load(&context, "Meshes/Maze8.obj");
@@ -270,6 +341,18 @@ TEST_CASE("Watershed") {
     }
   }
   SECTION("Simple") {
+    rcConfig config{
+        .cs = 0.5f,
+        .ch = g_cellHeight,
+        .walkableSlopeAngle = g_agentMaxSlope,
+        .walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight)),
+        .walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight)),
+        .maxSimplificationError = g_edgeMaxError,
+        .minRegionArea = static_cast<int>(rcSqr(minS)),
+        .mergeRegionArea = static_cast<int>(rcSqr(mergeS)),
+        .maxVertsPerPoly = static_cast<int>(g_vertsPerPoly),
+        .detailSampleMaxError = g_cellHeight * g_detailSampleMaxError,
+    };
     BuildContext context{};
     InputGeom pGeom{};
     bool success = pGeom.load(&context, "Meshes/Maze8.obj");
@@ -288,6 +371,18 @@ TEST_CASE("Watershed") {
     }
   }
   SECTION("University") {
+    rcConfig config{
+        .cs = 0.5f,
+        .ch = g_cellHeight,
+        .walkableSlopeAngle = g_agentMaxSlope,
+        .walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight)),
+        .walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight)),
+        .maxSimplificationError = g_edgeMaxError,
+        .minRegionArea = static_cast<int>(rcSqr(minS)),
+        .mergeRegionArea = static_cast<int>(rcSqr(mergeS)),
+        .maxVertsPerPoly = static_cast<int>(g_vertsPerPoly),
+        .detailSampleMaxError = g_cellHeight * g_detailSampleMaxError,
+    };
     BuildContext context{};
     InputGeom pGeom{};
     bool success = pGeom.load(&context, "Meshes/Maze8.obj");
@@ -306,6 +401,18 @@ TEST_CASE("Watershed") {
     }
   }
   SECTION("Zelda") {
+    rcConfig config{
+        .cs = 0.5f,
+        .ch = g_cellHeight,
+        .walkableSlopeAngle = g_agentMaxSlope,
+        .walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight)),
+        .walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight)),
+        .maxSimplificationError = g_edgeMaxError,
+        .minRegionArea = static_cast<int>(rcSqr(minS)),
+        .mergeRegionArea = static_cast<int>(rcSqr(mergeS)),
+        .maxVertsPerPoly = static_cast<int>(g_vertsPerPoly),
+        .detailSampleMaxError = g_cellHeight * g_detailSampleMaxError,
+    };
     BuildContext context{};
     InputGeom pGeom{};
     bool success = pGeom.load(&context, "Meshes/Maze8.obj");
@@ -324,6 +431,18 @@ TEST_CASE("Watershed") {
     }
   }
   SECTION("Zelda2x2") {
+    rcConfig config{
+        .cs = 0.5f,
+        .ch = g_cellHeight,
+        .walkableSlopeAngle = g_agentMaxSlope,
+        .walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight)),
+        .walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight)),
+        .maxSimplificationError = g_edgeMaxError,
+        .minRegionArea = static_cast<int>(rcSqr(minS)),
+        .mergeRegionArea = static_cast<int>(rcSqr(mergeS)),
+        .maxVertsPerPoly = static_cast<int>(g_vertsPerPoly),
+        .detailSampleMaxError = g_cellHeight * g_detailSampleMaxError,
+    };
     BuildContext context{};
     InputGeom pGeom{};
     bool success = pGeom.load(&context, "Meshes/Maze8.obj");
@@ -342,6 +461,18 @@ TEST_CASE("Watershed") {
     }
   }
   SECTION("Zelda4x4") {
+    rcConfig config{
+        .cs = 0.5f,
+        .ch = g_cellHeight,
+        .walkableSlopeAngle = g_agentMaxSlope,
+        .walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight)),
+        .walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight)),
+        .maxSimplificationError = g_edgeMaxError,
+        .minRegionArea = static_cast<int>(rcSqr(minS)),
+        .mergeRegionArea = static_cast<int>(rcSqr(mergeS)),
+        .maxVertsPerPoly = static_cast<int>(g_vertsPerPoly),
+        .detailSampleMaxError = g_cellHeight * g_detailSampleMaxError,
+    };
     BuildContext context{};
     InputGeom pGeom{};
     bool success = pGeom.load(&context, "Meshes/Maze8.obj");

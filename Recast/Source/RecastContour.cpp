@@ -127,7 +127,7 @@ void walkContour(int x, int y, int i,
       case 2:
         px++;
         break;
-      default:;
+      default: ;
       }
       int r = 0;
       const rcCompactSpan &s = chf.spans[i];
@@ -149,7 +149,7 @@ void walkContour(int x, int y, int i,
       points.push(r);
 
       flags[i] &= ~(1 << dir); // Remove visited edges
-      dir = dir + 1 & 0x3;     // Rotate CW
+      dir = dir + 1 & 0x3; // Rotate CW
     } else {
       int ni = -1;
       const int nx = x + rcGetDirOffsetX(dir);
@@ -733,9 +733,7 @@ void mergeRegionHoles(rcContext *ctx, const rcContourRegion &region) {
 /// See the #rcConfig documentation for more information on the configuration parameters.
 ///
 /// @see rcAllocContourSet, rcCompactHeightfield, rcContourSet, rcConfig
-bool rcBuildContours(rcContext *ctx, const rcCompactHeightfield &chf,
-                     const float maxError, const int maxEdgeLen,
-                     rcContourSet &cset, const int buildFlags) {
+bool rcBuildContours(rcContext *ctx, const rcCompactHeightfield &chf, const float maxError, const int maxEdgeLen, rcContourSet &cset, const int buildFlags) {
   rcAssert(ctx);
   if (!ctx)
     return false;
@@ -986,9 +984,7 @@ bool rcBuildContours(rcContext *ctx, const rcCompactHeightfield &chf,
   return true;
 }
 
-bool rcBuildContoursWithPortals(rcContext *ctx, const rcCompactHeightfield &chf,
-                                float maxError, int maxEdgeLen,
-                                rcContourSet &cset, int *&portalEdges, int &portalEdgeSize, int buildFlags) {
+bool rcBuildContoursWithPortals(rcContext *ctx, const rcCompactHeightfield &chf, float maxError, int maxEdgeLen, rcContourSet &cset, int *&portalEdges, int &portalEdgeSize, int buildFlags) {
   rcAssert(ctx);
   if (!ctx)
     return false;
@@ -1107,7 +1103,7 @@ bool rcBuildContoursWithPortals(rcContext *ctx, const rcCompactHeightfield &chf,
             rcFree(cset.conts);
             cset.conts = newConts;
 
-            ctx->log(RC_LOG_WARNING, "rcBuildContours: Expanding max contours from %d to %d.", oldMax,maxContours);
+            ctx->log(RC_LOG_WARNING, "rcBuildContours: Expanding max contours from %d to %d.", oldMax, maxContours);
           }
 
           rcContour *cont = &cset.conts[cset.nconts++];
