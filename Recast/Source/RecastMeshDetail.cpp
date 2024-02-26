@@ -811,26 +811,26 @@ void seedArrayWithPolyCenter(rcContext *ctx, const rcCompactHeightfield &chf, co
   // since border size offset is already removed from the polymesh vertices.
 
   static constexpr int offset[9 * 2] =
-      {
-          0,
-          0,
-          -1,
-          -1,
-          0,
-          -1,
-          1,
-          -1,
-          1,
-          0,
-          1,
-          1,
-          0,
-          1,
-          -1,
-          1,
-          -1,
-          0,
-      };
+  {
+      0,
+      0,
+      -1,
+      -1,
+      0,
+      -1,
+      1,
+      -1,
+      1,
+      0,
+      1,
+      1,
+      0,
+      1,
+      -1,
+      1,
+      -1,
+      0,
+  };
 
   // Find cell closest to a poly vertex
   int startCellX = 0, startCellY = 0, startSpanIndex = -1;
@@ -1037,7 +1037,7 @@ void getHeightData(rcContext *ctx, const rcCompactHeightfield &chf, const unsign
       const int hy = ay - hp.ymin - bs;
 
       if (static_cast<uint32_t>(hx) >= static_cast<uint32_t>(hp.width) || static_cast<uint32_t>(hy) >=
-                                                                                      static_cast<uint32_t>(hp.height))
+          static_cast<uint32_t>(hp.height))
         continue;
 
       if (hp.data[hx + hy * hp.width] != RC_UNSET_HEIGHT)
@@ -1182,11 +1182,7 @@ bool rcBuildPolyMeshDetail(rcContext *ctx, const rcPolyMesh &mesh, const rcCompa
 
     // Build detail mesh.
     int nverts = 0;
-    if (!buildPolyDetail(ctx, static_cast<const float *>(poly), npoly,
-                         sampleDist, sampleMaxError,
-                         heightSearchRadius, chf, hp,
-                         verts, nverts, tris,
-                         edges, samples)) {
+    if (!buildPolyDetail(ctx, static_cast<const float *>(poly), npoly, sampleDist, sampleMaxError, heightSearchRadius, chf, hp, verts, nverts, tris, edges, samples)) {
       return false;
     }
 

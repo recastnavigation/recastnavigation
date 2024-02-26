@@ -13,20 +13,18 @@
 
 #include "MeshLoaderObj.h"
 
-bool GenerateTheses(rcContext *pCtx, const InputGeom *pGeom, rcConfig &config, const bool filterLowHangingObstacles,
-                    const bool filterLedgeSpans, const bool filterWalkableLowHeightSpans, float &totalBuildTimeMs,
-                    rcPolyMesh *&m_pmesh, rcPolyMeshDetail *&m_dmesh, int *&bounderies, int &bounderyElementCount) {
-  if (!pGeom || !pGeom->getMesh()) {
-    pCtx->log(RC_LOG_ERROR, "buildNavigation: Input mesh is not specified.");
+bool generateTheses(rcContext& context,const InputGeom& pGeom, rcConfig &config, const bool filterLowHangingObstacles, const bool filterLedgeSpans, const bool filterWalkableLowHeightSpans, float &totalBuildTimeMs,rcPolyMesh *&pMesh, rcPolyMeshDetail *&pDetailedMesh, int *&bounderies, int &bounderyElementCount) {
+  if (!pGeom.getMesh()) {
+    context.log(RC_LOG_ERROR, "buildNavigation: Input mesh is not specified.");
     return false;
   }
 
-  const float *bmin = pGeom->getNavMeshBoundsMin();
-  const float *bmax = pGeom->getNavMeshBoundsMax();
-  const float *verts = pGeom->getMesh()->getVerts();
-  const int nverts = pGeom->getMesh()->getVertCount();
-  const int *tris = pGeom->getMesh()->getTris();
-  const int ntris = pGeom->getMesh()->getTriCount();
+  const float *bmin = pGeom.getNavMeshBoundsMin();
+  const float *bmax = pGeom.getNavMeshBoundsMax();
+  const float *verts = pGeom.getMesh()->getVerts();
+  const int nverts = pGeom.getMesh()->getVertCount();
+  const int *tris = pGeom.getMesh()->getTris();
+  const int ntris = pGeom.getMesh()->getTriCount();
 
   // Set the area where the navigation will be build.
   // Here the bounds of the input mesh are used, but the
@@ -36,15 +34,14 @@ bool GenerateTheses(rcContext *pCtx, const InputGeom *pGeom, rcConfig &config, c
   rcCalcGridSize(config.bmin, config.bmax, config.cs, &config.width, &config.height);
 
   // Reset build times gathering.
-  pCtx->resetTimers();
+  context.resetTimers();
 
   // Start the build process.
-  pCtx->startTimer(RC_TIMER_TOTAL);
+  context.startTimer(RC_TIMER_TOTAL);
 
-  pCtx->log(RC_LOG_PROGRESS, "Building navigation:");
-  pCtx->log(RC_LOG_PROGRESS, " - %d x %d cells", config.width, config.height);
-  pCtx->log(RC_LOG_PROGRESS, " - %.1fK verts, %.1fK tris", static_cast<float>(nverts) / 1000.0f,
-            static_cast<float>(ntris) / 1000.0f);
+  context.log(RC_LOG_PROGRESS, "Building navigation:");
+  context.log(RC_LOG_PROGRESS, " - %d x %d cells", config.width, config.height);
+  context.log(RC_LOG_PROGRESS, " - %.1fK verts, %.1fK tris", static_cast<float>(nverts) / 1000.0f,static_cast<float>(ntris) / 1000.0f);
 
   //
   // Step 2. Rasterize input polygon soup.
@@ -53,12 +50,11 @@ bool GenerateTheses(rcContext *pCtx, const InputGeom *pGeom, rcConfig &config, c
   // Allocate voxel heightfield where we rasterize our input data to.
   rcHeightfield *m_solid = rcAllocHeightfield();
   if (!m_solid) {
-    pCtx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'solid'.");
+    context.log(RC_LOG_ERROR, "buildNavigation: Out of memory 'solid'.");
     return false;
   }
-  if (!rcCreateHeightfield(pCtx, *m_solid, config.width, config.height, config.bmin, config.bmax, config.cs,
-                           config.ch)) {
-    pCtx->log(RC_LOG_ERROR, "buildNavigation: Could not create solid heightfield.");
+  if (!rcCreateHeightfield(&context, *m_solid, config.width, config.height, config.bmin, config.bmax, config.cs,config.ch)) {
+    context.log(RC_LOG_ERROR, "buildNavigation: Could not create solid heightfield.");
     return false;
   }
 
@@ -67,7 +63,7 @@ bool GenerateTheses(rcContext *pCtx, const InputGeom *pGeom, rcConfig &config, c
   // and array which can hold the max number of triangles you need to process.
   auto *m_triareas = new(std::nothrow) unsigned char[ntris];
   if (!m_triareas) {
-    pCtx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'm_triareas' (%d).", ntris);
+    context.log(RC_LOG_ERROR, "buildNavigation: Out of memory 'm_triareas' (%d).", ntris);
     return false;
   }
 
@@ -75,9 +71,9 @@ bool GenerateTheses(rcContext *pCtx, const InputGeom *pGeom, rcConfig &config, c
   // If your input data is multiple meshes, you can transform them here, calculate
   // the are type for each of the meshes and rasterize them.
   std::memset(m_triareas, 0, ntris * sizeof(unsigned char));
-  rcMarkWalkableTriangles(pCtx, config.walkableSlopeAngle, verts, nverts, tris, ntris, m_triareas);
-  if (!rcRasterizeTriangles(pCtx, verts, nverts, tris, m_triareas, ntris, *m_solid, config.walkableClimb)) {
-    pCtx->log(RC_LOG_ERROR, "buildNavigation: Could not rasterize triangles.");
+  rcMarkWalkableTriangles(&context, config.walkableSlopeAngle, verts, nverts, tris, ntris, m_triareas);
+  if (!rcRasterizeTriangles(&context, verts, nverts, tris, m_triareas, ntris, *m_solid, config.walkableClimb)) {
+    context.log(RC_LOG_ERROR, "buildNavigation: Could not rasterize triangles.");
     return false;
   }
 
@@ -94,11 +90,11 @@ bool GenerateTheses(rcContext *pCtx, const InputGeom *pGeom, rcConfig &config, c
   // remove unwanted overhangs caused by the conservative rasterization
   // as well as filter spans where the character cannot possibly stand.
   if (filterLowHangingObstacles)
-    rcFilterLowHangingWalkableObstacles(pCtx, config.walkableClimb, *m_solid);
+    rcFilterLowHangingWalkableObstacles(&context, config.walkableClimb, *m_solid);
   if (filterLedgeSpans)
-    rcFilterLedgeSpans(pCtx, config.walkableHeight, config.walkableClimb, *m_solid);
+    rcFilterLedgeSpans(&context, config.walkableHeight, config.walkableClimb, *m_solid);
   if (filterWalkableLowHeightSpans)
-    rcFilterWalkableLowHeightSpans(pCtx, config.walkableHeight, *m_solid);
+    rcFilterWalkableLowHeightSpans(&context, config.walkableHeight, *m_solid);
 
   //
   // Step 4. Partition walkable surface to simple regions.
@@ -109,11 +105,11 @@ bool GenerateTheses(rcContext *pCtx, const InputGeom *pGeom, rcConfig &config, c
   // between walkable cells will be calculated.
   rcCompactHeightfield *m_chf = rcAllocCompactHeightfield();
   if (!m_chf) {
-    pCtx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'chf'.");
+    context.log(RC_LOG_ERROR, "buildNavigation: Out of memory 'chf'.");
     return false;
   }
-  if (!rcBuildCompactHeightfield(pCtx, config.walkableHeight, config.walkableClimb, *m_solid, *m_chf)) {
-    pCtx->log(RC_LOG_ERROR, "buildNavigation: Could not build compact data.");
+  if (!rcBuildCompactHeightfield(&context, config.walkableHeight, config.walkableClimb, *m_solid, *m_chf)) {
+    context.log(RC_LOG_ERROR, "buildNavigation: Could not build compact data.");
     return false;
   }
 
@@ -122,16 +118,15 @@ bool GenerateTheses(rcContext *pCtx, const InputGeom *pGeom, rcConfig &config, c
   }
 
   // Erode the walkable area by agent radius.
-  if (!rcErodeWalkableArea(pCtx, config.walkableRadius, *m_chf)) {
-    pCtx->log(RC_LOG_ERROR, "buildNavigation: Could not erode.");
+  if (!rcErodeWalkableArea(&context, config.walkableRadius, *m_chf)) {
+    context.log(RC_LOG_ERROR, "buildNavigation: Could not erode.");
     return false;
   }
 
   // (Optional) Mark areas.
-  const ConvexVolume *vols = pGeom->getConvexVolumes();
-  for (int i = 0; i < pGeom->getConvexVolumeCount(); ++i)
-    rcMarkConvexPolyArea(pCtx, vols[i].verts, vols[i].nverts, vols[i].hmin, vols[i].hmax,
-                         static_cast<unsigned char>(vols[i].area), *m_chf);
+  const ConvexVolume *vols = pGeom.getConvexVolumes();
+  for (int i = 0; i < pGeom.getConvexVolumeCount(); ++i)
+    rcMarkConvexPolyArea(&context, vols[i].verts, vols[i].nverts, vols[i].hmin, vols[i].hmax, static_cast<unsigned char>(vols[i].area), *m_chf);
 
   // Partition the heightfield so that we can use simple algorithm later to triangulate the walkable areas.
   // There are 3 partitioning methods, each with some pros and cons:
@@ -146,14 +141,14 @@ bool GenerateTheses(rcContext *pCtx, const InputGeom *pGeom, rcConfig &config, c
   //   * generally the best choice if you precompute the navmesh, use this if you have large open areas
 
   // Prepare for region partitioning, by calculating distance field along the walkable surface.
-  if (!rcBuildDistanceField(pCtx, *m_chf)) {
-    pCtx->log(RC_LOG_ERROR, "buildNavigation: Could not build distance field.");
+  if (!rcBuildDistanceField(&context, *m_chf)) {
+    context.log(RC_LOG_ERROR, "buildNavigation: Could not build distance field.");
     return false;
   }
 
   // Partition the walkable surface into simple regions without holes.
-  if (!rcBuildRegionsWithSize(pCtx, *m_chf, 0, config.minRegionArea, config.mergeRegionArea)) {
-    pCtx->log(RC_LOG_ERROR, "buildNavigation: Could not build watershed regions.");
+  if (!rcBuildRegionsWithSize(&context, *m_chf, 0, config.minRegionArea, config.mergeRegionArea)) {
+    context.log(RC_LOG_ERROR, "buildNavigation: Could not build watershed regions.");
     return false;
   }
 
@@ -164,11 +159,11 @@ bool GenerateTheses(rcContext *pCtx, const InputGeom *pGeom, rcConfig &config, c
   // Create contours.
   rcContourSet *m_cset = rcAllocContourSet();
   if (!m_cset) {
-    pCtx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'cset'.");
+    context.log(RC_LOG_ERROR, "buildNavigation: Out of memory 'cset'.");
     return false;
   }
-  if (!rcBuildContoursWithPortals(pCtx, *m_chf, config.maxSimplificationError, config.maxEdgeLen, *m_cset, bounderies, bounderyElementCount)) {
-    pCtx->log(RC_LOG_ERROR, "buildNavigation: Could not create contours.");
+  if (!rcBuildContoursWithPortals(&context, *m_chf, config.maxSimplificationError, config.maxEdgeLen, *m_cset, bounderies, bounderyElementCount)) {
+    context.log(RC_LOG_ERROR, "buildNavigation: Could not create contours.");
     return false;
   }
 
@@ -177,13 +172,13 @@ bool GenerateTheses(rcContext *pCtx, const InputGeom *pGeom, rcConfig &config, c
   //
 
   // Build polygon navmesh from the contours.
-  m_pmesh = rcAllocPolyMesh();
-  if (!m_pmesh) {
-    pCtx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'pmesh'.");
+  pMesh = rcAllocPolyMesh();
+  if (!pMesh) {
+    context.log(RC_LOG_ERROR, "buildNavigation: Out of memory 'pmesh'.");
     return false;
   }
-  if (!rcBuildPolyMesh(pCtx, *m_cset, config.maxVertsPerPoly, *m_pmesh)) {
-    pCtx->log(RC_LOG_ERROR, "buildNavigation: Could not triangulate contours.");
+  if (!rcBuildPolyMesh(&context, *m_cset, config.maxVertsPerPoly, *pMesh)) {
+    context.log(RC_LOG_ERROR, "buildNavigation: Could not triangulate contours.");
     return false;
   }
 
@@ -191,14 +186,14 @@ bool GenerateTheses(rcContext *pCtx, const InputGeom *pGeom, rcConfig &config, c
   // Step 7. Create detail mesh which allows to access approximate height on each polygon.
   //
 
-  m_dmesh = rcAllocPolyMeshDetail();
-  if (!m_dmesh) {
-    pCtx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'pmdtl'.");
+  pDetailedMesh = rcAllocPolyMeshDetail();
+  if (!pDetailedMesh) {
+    context.log(RC_LOG_ERROR, "buildNavigation: Out of memory 'pmdtl'.");
     return false;
   }
 
-  if (!rcBuildPolyMeshDetail(pCtx, *m_pmesh, *m_chf, config.detailSampleDist, config.detailSampleMaxError, *m_dmesh)) {
-    pCtx->log(RC_LOG_ERROR, "buildNavigation: Could not build detail mesh.");
+  if (!rcBuildPolyMeshDetail(&context, *pMesh, *m_chf, config.detailSampleDist, config.detailSampleMaxError, *pDetailedMesh)) {
+    context.log(RC_LOG_ERROR, "buildNavigation: Could not build detail mesh.");
     return false;
   }
 
@@ -207,31 +202,28 @@ bool GenerateTheses(rcContext *pCtx, const InputGeom *pGeom, rcConfig &config, c
     rcFreeContourSet(m_cset);
   }
 
-  pCtx->stopTimer(RC_TIMER_TOTAL);
+  context.stopTimer(RC_TIMER_TOTAL);
 
   // Show performance stats.
-  duLogBuildTimes(*pCtx, pCtx->getAccumulatedTime(RC_TIMER_TOTAL));
-  pCtx->log(RC_LOG_PROGRESS, ">> Polymesh: %d vertices  %d polygons", m_pmesh->nverts, m_pmesh->npolys);
+  duLogBuildTimes(context, context.getAccumulatedTime(RC_TIMER_TOTAL));
+  context.log(RC_LOG_PROGRESS, ">> Polymesh: %d vertices  %d polygons", pMesh->nverts, pMesh->npolys);
 
-  totalBuildTimeMs = static_cast<float>(pCtx->getAccumulatedTime(RC_TIMER_TOTAL)) / 1000.0f;
+  totalBuildTimeMs = static_cast<float>(context.getAccumulatedTime(RC_TIMER_TOTAL)) / 1000.0f;
   return true;
 }
 
-bool GenerateSingleMeshWaterShed(rcContext *pCtx, const InputGeom *pGeom, rcConfig &config,
-                                 const bool filterLowHangingObstacles, const bool filterLedgeSpans,
-                                 const bool filterWalkableLowHeightSpans, float &totalBuildTimeMs, rcPolyMesh *&m_pmesh,
-                                 rcPolyMeshDetail *&m_dmesh) {
-  if (!pGeom || !pGeom->getMesh()) {
-    pCtx->log(RC_LOG_ERROR, "buildNavigation: Input mesh is not specified.");
+bool generateSingle(rcContext& context, const InputGeom& pGeom, rcConfig& config, const bool filterLowHangingObstacles, const bool filterLedgeSpans, const bool filterWalkableLowHeightSpans, rcPolyMesh*& pMesh, rcPolyMeshDetail*& pDetailedMesh) {
+  if ( !pGeom.getMesh()) {
+    context.log(RC_LOG_ERROR, "buildNavigation: Input mesh is not specified.");
     return false;
   }
 
-  const float *bmin = pGeom->getNavMeshBoundsMin();
-  const float *bmax = pGeom->getNavMeshBoundsMax();
-  const float *verts = pGeom->getMesh()->getVerts();
-  const int nverts = pGeom->getMesh()->getVertCount();
-  const int *tris = pGeom->getMesh()->getTris();
-  const int ntris = pGeom->getMesh()->getTriCount();
+  const float *bmin = pGeom.getNavMeshBoundsMin();
+  const float *bmax = pGeom.getNavMeshBoundsMax();
+  const float *verts = pGeom.getMesh()->getVerts();
+  const int nverts = pGeom.getMesh()->getVertCount();
+  const int *tris = pGeom.getMesh()->getTris();
+  const int ntris = pGeom.getMesh()->getTriCount();
 
   //
   // Step 1. Initialize build config.
@@ -245,14 +237,14 @@ bool GenerateSingleMeshWaterShed(rcContext *pCtx, const InputGeom *pGeom, rcConf
   rcCalcGridSize(config.bmin, config.bmax, config.cs, &config.width, &config.height);
 
   // Reset build times gathering.
-  pCtx->resetTimers();
+  context.resetTimers();
 
   // Start the build process.
-  pCtx->startTimer(RC_TIMER_TOTAL);
+  context.startTimer(RC_TIMER_TOTAL);
 
-  pCtx->log(RC_LOG_PROGRESS, "Building navigation:");
-  pCtx->log(RC_LOG_PROGRESS, " - %d x %d cells", config.width, config.height);
-  pCtx->log(RC_LOG_PROGRESS, " - %.1fK verts, %.1fK tris", static_cast<float>(nverts) / 1000.0f,
+  context.log(RC_LOG_PROGRESS, "Building navigation:");
+  context.log(RC_LOG_PROGRESS, " - %d x %d cells", config.width, config.height);
+  context.log(RC_LOG_PROGRESS, " - %.1fK verts, %.1fK tris", static_cast<float>(nverts) / 1000.0f,
             static_cast<float>(ntris) / 1000.0f);
 
   //
@@ -262,37 +254,37 @@ bool GenerateSingleMeshWaterShed(rcContext *pCtx, const InputGeom *pGeom, rcConf
   // Allocate voxel heightfield where we rasterize our input data to.
   rcHeightfield *m_solid = rcAllocHeightfield();
   if (!m_solid) {
-    pCtx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'solid'.");
+    context.log(RC_LOG_ERROR, "buildNavigation: Out of memory 'solid'.");
     return false;
   }
-  if (!rcCreateHeightfield(pCtx, *m_solid, config.width, config.height, config.bmin, config.bmax, config.cs,
+  if (!rcCreateHeightfield(&context, *m_solid, config.width, config.height, config.bmin, config.bmax, config.cs,
                            config.ch)) {
-    pCtx->log(RC_LOG_ERROR, "buildNavigation: Could not create solid heightfield.");
+    context.log(RC_LOG_ERROR, "buildNavigation: Could not create solid heightfield.");
     return false;
   }
 
   // Allocate array that can hold triangle area types.
   // If you have multiple meshes you need to process, allocate
   // and array which can hold the max number of triangles you need to process.
-  auto *const m_triareas = new(std::nothrow) unsigned char[ntris];
-  if (!m_triareas) {
-    pCtx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'm_triareas' (%d).", ntris);
+  auto *triareas = new(std::nothrow) unsigned char[ntris];
+  if (!triareas) {
+    context.log(RC_LOG_ERROR, "buildNavigation: Out of memory 'm_triareas' (%d).", ntris);
     return false;
   }
 
   // Find triangles which are walkable based on their slope and rasterize them.
   // If your input data is multiple meshes, you can transform them here, calculate
   // the are type for each of the meshes and rasterize them.
-  std::memset(m_triareas, 0, ntris * sizeof(unsigned char));
-  rcMarkWalkableTriangles(pCtx, config.walkableSlopeAngle, verts, nverts, tris, ntris, m_triareas);
-  if (!rcRasterizeTriangles(pCtx, verts, nverts, tris, m_triareas, ntris, *m_solid, config.walkableClimb)) {
-    pCtx->log(RC_LOG_ERROR, "buildNavigation: Could not rasterize triangles.");
+  std::memset(triareas, 0, ntris * sizeof(unsigned char));
+  rcMarkWalkableTriangles(&context, config.walkableSlopeAngle, verts, nverts, tris, ntris, triareas);
+  if (!rcRasterizeTriangles(&context, verts, nverts, tris, triareas, ntris, *m_solid, config.walkableClimb)) {
+    context.log(RC_LOG_ERROR, "buildNavigation: Could not rasterize triangles.");
     return false;
   }
 
   constexpr bool m_keepInterResults = false;
   if constexpr (!m_keepInterResults) {
-    delete [] m_triareas;
+    delete [] triareas;
   }
 
   //
@@ -303,11 +295,11 @@ bool GenerateSingleMeshWaterShed(rcContext *pCtx, const InputGeom *pGeom, rcConf
   // remove unwanted overhangs caused by the conservative rasterization
   // as well as filter spans where the character cannot possibly stand.
   if (filterLowHangingObstacles)
-    rcFilterLowHangingWalkableObstacles(pCtx, config.walkableClimb, *m_solid);
+    rcFilterLowHangingWalkableObstacles(&context, config.walkableClimb, *m_solid);
   if (filterLedgeSpans)
-    rcFilterLedgeSpans(pCtx, config.walkableHeight, config.walkableClimb, *m_solid);
+    rcFilterLedgeSpans(&context, config.walkableHeight, config.walkableClimb, *m_solid);
   if (filterWalkableLowHeightSpans)
-    rcFilterWalkableLowHeightSpans(pCtx, config.walkableHeight, *m_solid);
+    rcFilterWalkableLowHeightSpans(&context, config.walkableHeight, *m_solid);
 
   //
   // Step 4. Partition walkable surface to simple regions.
@@ -316,14 +308,13 @@ bool GenerateSingleMeshWaterShed(rcContext *pCtx, const InputGeom *pGeom, rcConf
   // Compact the heightfield so that it is faster to handle from now on.
   // This will result more cache coherent data as well as the neighbours
   // between walkable cells will be calculated.
-  rcCompactHeightfield *m_chf = rcAllocCompactHeightfield();
-  if (!m_chf) {
-    pCtx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'chf'.");
+  rcCompactHeightfield *compactHeightField = rcAllocCompactHeightfield();
+  if (!compactHeightField) {
+    context.log(RC_LOG_ERROR, "buildNavigation: Out of memory 'chf'.");
     return false;
   }
-  if (!rcBuildCompactHeightfield(pCtx, config.walkableHeight, config.walkableClimb, *m_solid, *m_chf)
-  ) {
-    pCtx->log(RC_LOG_ERROR, "buildNavigation: Could not build compact data.");
+  if (!rcBuildCompactHeightfield(&context, config.walkableHeight, config.walkableClimb, *m_solid, *compactHeightField)) {
+    context.log(RC_LOG_ERROR, "buildNavigation: Could not build compact data.");
     return false;
   }
 
@@ -332,17 +323,16 @@ bool GenerateSingleMeshWaterShed(rcContext *pCtx, const InputGeom *pGeom, rcConf
   }
 
   // Erode the walkable area by agent radius.
-  if (!rcErodeWalkableArea(pCtx, config.walkableRadius, *m_chf)
+  if (!rcErodeWalkableArea(&context, config.walkableRadius, *compactHeightField)
   ) {
-    pCtx->log(RC_LOG_ERROR, "buildNavigation: Could not erode.");
+    context.log(RC_LOG_ERROR, "buildNavigation: Could not erode.");
     return false;
   }
 
   // (Optional) Mark areas.
-  const ConvexVolume *vols = pGeom->getConvexVolumes();
-  for (int i = 0; i < pGeom->getConvexVolumeCount(); ++i)
-    rcMarkConvexPolyArea(pCtx, vols[i].verts, vols[i].nverts, vols[i].hmin, vols[i].hmax,
-                         static_cast<unsigned char>(vols[i].area), *m_chf);
+  const ConvexVolume *vols = pGeom.getConvexVolumes();
+  for (int i = 0; i < pGeom.getConvexVolumeCount(); ++i)
+    rcMarkConvexPolyArea(&context, vols[i].verts, vols[i].nverts, vols[i].hmin, vols[i].hmax, static_cast<unsigned char>(vols[i].area), *compactHeightField);
 
   // Partition the heightfield so that we can use simple algorithm later to triangulate the walkable areas.
   // There are 3 partitioning methods, each with some pros and cons:
@@ -371,15 +361,14 @@ bool GenerateSingleMeshWaterShed(rcContext *pCtx, const InputGeom *pGeom, rcConf
   //   * good choice to use for tiled navmesh with medium and small sized tiles
 
   // Prepare for region partitioning, by calculating distance field along the walkable surface.
-  if (!rcBuildDistanceField(pCtx, *m_chf)
-  ) {
-    pCtx->log(RC_LOG_ERROR, "buildNavigation: Could not build distance field.");
+  if (!rcBuildDistanceField(&context, *compactHeightField)) {
+    context.log(RC_LOG_ERROR, "buildNavigation: Could not build distance field.");
     return false;
   }
 
   // Partition the walkable surface into simple regions without holes.
-  if (!rcBuildRegions(pCtx, *m_chf, 0, config.minRegionArea, config.mergeRegionArea)) {
-    pCtx->log(RC_LOG_ERROR, "buildNavigation: Could not build watershed regions.");
+  if (!rcBuildRegions(&context, *compactHeightField, 0, config.minRegionArea, config.mergeRegionArea)) {
+    context.log(RC_LOG_ERROR, "buildNavigation: Could not build watershed regions.");
     return false;
   }
 
@@ -390,12 +379,11 @@ bool GenerateSingleMeshWaterShed(rcContext *pCtx, const InputGeom *pGeom, rcConf
   // Create contours.
   rcContourSet *m_cset = rcAllocContourSet();
   if (!m_cset) {
-    pCtx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'cset'.");
+    context.log(RC_LOG_ERROR, "buildNavigation: Out of memory 'cset'.");
     return false;
   }
-  if (!rcBuildContours(pCtx, *m_chf, config.maxSimplificationError, config.maxEdgeLen, *m_cset)
-  ) {
-    pCtx->log(RC_LOG_ERROR, "buildNavigation: Could not create contours.");
+  if (!rcBuildContours(&context, *compactHeightField, config.maxSimplificationError, config.maxEdgeLen, *m_cset)) {
+    context.log(RC_LOG_ERROR, "buildNavigation: Could not create contours.");
     return false;
   }
 
@@ -404,14 +392,13 @@ bool GenerateSingleMeshWaterShed(rcContext *pCtx, const InputGeom *pGeom, rcConf
   //
 
   // Build polygon navmesh from the contours.
-  m_pmesh = rcAllocPolyMesh();
-  if (!m_pmesh) {
-    pCtx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'pmesh'.");
+  pMesh = rcAllocPolyMesh();
+  if (!pMesh) {
+    context.log(RC_LOG_ERROR, "buildNavigation: Out of memory 'pmesh'.");
     return false;
   }
-  if (!rcBuildPolyMesh(pCtx, *m_cset, config.maxVertsPerPoly, *m_pmesh)
-  ) {
-    pCtx->log(RC_LOG_ERROR, "buildNavigation: Could not triangulate contours.");
+  if (!rcBuildPolyMesh(&context, *m_cset, config.maxVertsPerPoly, *pMesh)) {
+    context.log(RC_LOG_ERROR, "buildNavigation: Could not triangulate contours.");
     return false;
   }
 
@@ -419,19 +406,19 @@ bool GenerateSingleMeshWaterShed(rcContext *pCtx, const InputGeom *pGeom, rcConf
   // Step 7. Create detail mesh which allows to access approximate height on each polygon.
   //
 
-  m_dmesh = rcAllocPolyMeshDetail();
-  if (!m_dmesh) {
-    pCtx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'pmdtl'.");
+  pDetailedMesh = rcAllocPolyMeshDetail();
+  if (!pDetailedMesh) {
+    context.log(RC_LOG_ERROR, "buildNavigation: Out of memory 'pmdtl'.");
     return false;
   }
 
-  if (!rcBuildPolyMeshDetail(pCtx, *m_pmesh, *m_chf, config.detailSampleDist, config.detailSampleMaxError, *m_dmesh)) {
-    pCtx->log(RC_LOG_ERROR, "buildNavigation: Could not build detail mesh.");
+  if (!rcBuildPolyMeshDetail(&context, *pMesh, *compactHeightField, config.detailSampleDist, config.detailSampleMaxError, *pDetailedMesh)) {
+    context.log(RC_LOG_ERROR, "buildNavigation: Could not build detail mesh.");
     return false;
   }
 
   if constexpr (!m_keepInterResults) {
-    rcFreeCompactHeightfield(m_chf);
+    rcFreeCompactHeightfield(compactHeightField);
     rcFreeContourSet(m_cset);
   }
 
@@ -442,13 +429,10 @@ bool GenerateSingleMeshWaterShed(rcContext *pCtx, const InputGeom *pGeom, rcConf
   // (Optional) Step 8. Create Detour data from Recast poly mesh.
   //
 
-  pCtx->stopTimer(RC_TIMER_TOTAL);
+  context.stopTimer(RC_TIMER_TOTAL);
 
   // Show performance stats.
-  duLogBuildTimes(*pCtx, pCtx->getAccumulatedTime(RC_TIMER_TOTAL));
-  pCtx->log(RC_LOG_PROGRESS, ">> Polymesh: %d vertices  %d polygons", m_pmesh->nverts, m_pmesh->npolys);
-
-  totalBuildTimeMs = static_cast<float>(pCtx->getAccumulatedTime(RC_TIMER_TOTAL)) / 1000.0f;
-
+  duLogBuildTimes(context, context.getAccumulatedTime(RC_TIMER_TOTAL));
+  context.log(RC_LOG_PROGRESS, ">> Polymesh: %d vertices  %d polygons", pMesh->nverts, pMesh->npolys);
   return true;
 }
