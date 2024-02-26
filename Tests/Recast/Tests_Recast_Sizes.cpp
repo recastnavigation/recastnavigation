@@ -143,23 +143,21 @@ TEST_CASE("Watershed") {
   std::string output{"Data"};
   std::filesystem::create_directories(output);
 
-  // SECTION("City") {
-  //   BuildContext context{};
-  //   auto *pGeom{new (std::nothrow) InputGeom{}};
-  //   REQUIRE(pGeom != nullptr);
-  //   bool success = pGeom->load(&context, "Meshes/City.obj");
-  //   if (!success)
-  //     context.dumpLog("Geom load log %s:", "Meshes/City.obj");
-  //   REQUIRE(success);
-  //
-  //   const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
-  //   const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
-  //   delete pGeom;
-  //
-  //   const std::string prefix{"City" + std::to_string(config.cs) + "_"};
-  //   writeTimeToCsv(output + '/' + prefix + "default.csv", defaultTimes, header, sizeof header);
-  //   writeTimeToCsv(output + '/' + prefix + "thesis.csv", thesisTimes, header, sizeof header);
-  // }
+  SECTION("City") {
+    BuildContext context{};
+    InputGeom pGeom{};
+    bool success = pGeom.load(&context, "Meshes/Maze8.obj");
+    if (!success)
+      context.dumpLog("Geom load log %s:", "Meshes/Maze8.obj");
+    REQUIRE(success);
+
+    const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
+    const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
+
+    const std::string prefix{"City" + std::to_string(config.cs) + "_"};
+    writeTimeToCsv(output + '/' + prefix + "default.csv", defaultTimes, header, sizeof header);
+    writeTimeToCsv(output + '/' + prefix + "thesis.csv", thesisTimes, header, sizeof header);
+  }
   SECTION("Maze8") {
     BuildContext context{};
     InputGeom pGeom{};
@@ -220,23 +218,21 @@ TEST_CASE("Watershed") {
     writeTimeToCsv(output + '/' + prefix + "default.csv", defaultTimes, header, sizeof header);
     writeTimeToCsv(output + '/' + prefix + "thesis.csv", thesisTimes, header, sizeof header);
   }
-  // SECTION("Maze128") {
-  //   BuildContext context{};
-  //   auto *pGeom{new (std::nothrow) InputGeom{}};
-  //   REQUIRE(pGeom != nullptr);
-  //   bool success = pGeom->load(&context, "Meshes/Maze128.obj");
-  //   if (!success)
-  //     context.dumpLog("Geom load log %s:", "Meshes/Maze128.obj");
-  //   REQUIRE(success);
-  //
-  //   const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
-  //   const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
-  //   delete pGeom;
-  //
-  //   const std::string prefix{"Maze128" + std::to_string(config.cs) + "_"};
-  //   writeTimeToCsv(output + '/' + prefix + "default.csv", defaultTimes, header, sizeof header);
-  //   writeTimeToCsv(output + '/' + prefix + "thesis.csv", thesisTimes, header, sizeof header);
-  // }
+  SECTION("Maze128") {
+    BuildContext context{};
+    InputGeom pGeom{};
+    bool success = pGeom.load(&context, "Meshes/Maze8.obj");
+    if (!success)
+      context.dumpLog("Geom load log %s:", "Meshes/Maze8.obj");
+    REQUIRE(success);
+
+    const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
+    const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
+
+    const std::string prefix{"Maze128" + std::to_string(config.cs) + "_"};
+    writeTimeToCsv(output + '/' + prefix + "default.csv", defaultTimes, header, sizeof header);
+    writeTimeToCsv(output + '/' + prefix + "thesis.csv", thesisTimes, header, sizeof header);
+  }
   SECTION("Military") {
     BuildContext context{};
     InputGeom pGeom{};
