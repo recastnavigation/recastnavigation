@@ -98,7 +98,7 @@ inline void writeTimeToCsv(const std::string &filePath, const std::array<float, 
 
 TEST_CASE("Watershed") {
   rcConfig config{
-      .cs = GENERATE(0.5f,0.4f,0.3f,0.2f,0.1f),
+      .cs = 0.5f,
       .ch = g_cellHeight,
       .walkableSlopeAngle = g_agentMaxSlope,
       .walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight)),
@@ -150,13 +150,15 @@ TEST_CASE("Watershed") {
     if (!success)
       context.dumpLog("Geom load log %s:", "Meshes/Maze8.obj");
     REQUIRE(success);
+    for (int i{5}; i > 0; --i) {
+      config.cs = static_cast<float>(i) * 0.1f;
+      const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
+      const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
 
-    const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
-    const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
-
-    const std::string prefix{"City" + std::to_string(config.cs) + "_"};
-    writeTimeToCsv(output + '/' + prefix + "default.csv", defaultTimes, header, sizeof header);
-    writeTimeToCsv(output + '/' + prefix + "thesis.csv", thesisTimes, header, sizeof header);
+      const std::string prefix{"City" + std::to_string(i) + "_"};
+      writeTimeToCsv(output + '/' + prefix + "default.csv", defaultTimes, header, sizeof header);
+      writeTimeToCsv(output + '/' + prefix + "thesis.csv", thesisTimes, header, sizeof header);
+    }
   }
   SECTION("Maze8") {
     BuildContext context{};
@@ -166,12 +168,15 @@ TEST_CASE("Watershed") {
       context.dumpLog("Geom load log %s:", "Meshes/Maze8.obj");
     REQUIRE(success);
 
-    const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
-    const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
+    for (int i{5}; i > 0; --i) {
+      config.cs = static_cast<float>(i) * 0.1f;
+      const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
+      const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
 
-    const std::string prefix{"Maze8" + std::to_string(config.cs) + "_"};
-    writeTimeToCsv(output + '/' + prefix + "default.csv", defaultTimes, header, sizeof header);
-    writeTimeToCsv(output + '/' + prefix + "thesis.csv", thesisTimes, header, sizeof header);
+      const std::string prefix{"Maze8" + std::to_string(i) + "_"};
+      writeTimeToCsv(output + '/' + prefix + "default.csv", defaultTimes, header, sizeof header);
+      writeTimeToCsv(output + '/' + prefix + "thesis.csv", thesisTimes, header, sizeof header);
+    }
   }
   SECTION("Maze16") {
     BuildContext context{};
@@ -181,12 +186,15 @@ TEST_CASE("Watershed") {
       context.dumpLog("Geom load log %s:", "Meshes/Maze8.obj");
     REQUIRE(success);
 
-    const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
-    const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
+    for (int i{5}; i > 0; --i) {
+      config.cs = static_cast<float>(i) * 0.1f;
+      const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
+      const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
 
-    const std::string prefix{"Maze16" + std::to_string(config.cs) + "_"};
-    writeTimeToCsv(output + '/' + prefix + "default.csv", defaultTimes, header, sizeof header);
-    writeTimeToCsv(output + '/' + prefix + "thesis.csv", thesisTimes, header, sizeof header);
+      const std::string prefix{"Maze16" + std::to_string(i) + "_"};
+      writeTimeToCsv(output + '/' + prefix + "default.csv", defaultTimes, header, sizeof header);
+      writeTimeToCsv(output + '/' + prefix + "thesis.csv", thesisTimes, header, sizeof header);
+    }
   }
   SECTION("Maze32") {
     BuildContext context{};
@@ -196,13 +204,17 @@ TEST_CASE("Watershed") {
       context.dumpLog("Geom load log %s:", "Meshes/Maze8.obj");
     REQUIRE(success);
 
-    const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
-    const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
+    for (int i{5}; i > 0; --i) {
+      config.cs = static_cast<float>(i) * 0.1f;
+      const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
+      const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
 
-    const std::string prefix{"Maze32" + std::to_string(config.cs) + "_"};
-    writeTimeToCsv(output + '/' + prefix + "default.csv", defaultTimes, header, sizeof header);
-    writeTimeToCsv(output + '/' + prefix + "thesis.csv", thesisTimes, header, sizeof header);
+      const std::string prefix{"Maze32" + std::to_string(i) + "_"};
+      writeTimeToCsv(output + '/' + prefix + "default.csv", defaultTimes, header, sizeof header);
+      writeTimeToCsv(output + '/' + prefix + "thesis.csv", thesisTimes, header, sizeof header);
+    }
   }
+
   SECTION("Maze64") {
     BuildContext context{};
     InputGeom pGeom{};
@@ -211,12 +223,15 @@ TEST_CASE("Watershed") {
       context.dumpLog("Geom load log %s:", "Meshes/Maze8.obj");
     REQUIRE(success);
 
-    const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
-    const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
+    for (int i{5}; i > 0; --i) {
+      config.cs = static_cast<float>(i) * 0.1f;
+      const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
+      const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
 
-    const std::string prefix{"Maze64" + std::to_string(config.cs) + "_"};
-    writeTimeToCsv(output + '/' + prefix + "default.csv", defaultTimes, header, sizeof header);
-    writeTimeToCsv(output + '/' + prefix + "thesis.csv", thesisTimes, header, sizeof header);
+      const std::string prefix{"Maze64" + std::to_string(i) + "_"};
+      writeTimeToCsv(output + '/' + prefix + "default.csv", defaultTimes, header, sizeof header);
+      writeTimeToCsv(output + '/' + prefix + "thesis.csv", thesisTimes, header, sizeof header);
+    }
   }
   SECTION("Maze128") {
     BuildContext context{};
@@ -226,12 +241,15 @@ TEST_CASE("Watershed") {
       context.dumpLog("Geom load log %s:", "Meshes/Maze8.obj");
     REQUIRE(success);
 
-    const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
-    const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
+    for (int i{5}; i > 0; --i) {
+      config.cs = static_cast<float>(i) * 0.1f;
+      const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
+      const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
 
-    const std::string prefix{"Maze128" + std::to_string(config.cs) + "_"};
-    writeTimeToCsv(output + '/' + prefix + "default.csv", defaultTimes, header, sizeof header);
-    writeTimeToCsv(output + '/' + prefix + "thesis.csv", thesisTimes, header, sizeof header);
+      const std::string prefix{"Maze128" + std::to_string(i) + "_"};
+      writeTimeToCsv(output + '/' + prefix + "default.csv", defaultTimes, header, sizeof header);
+      writeTimeToCsv(output + '/' + prefix + "thesis.csv", thesisTimes, header, sizeof header);
+    }
   }
   SECTION("Military") {
     BuildContext context{};
@@ -241,12 +259,15 @@ TEST_CASE("Watershed") {
       context.dumpLog("Geom load log %s:", "Meshes/Maze8.obj");
     REQUIRE(success);
 
-    const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
-    const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
+    for (int i{5}; i > 0; --i) {
+      config.cs = static_cast<float>(i) * 0.1f;
+      const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
+      const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
 
-    const std::string prefix{"Military" + std::to_string(config.cs) + "_"};
-    writeTimeToCsv(output + '/' + prefix + "default.csv", defaultTimes, header, sizeof header);
-    writeTimeToCsv(output + '/' + prefix + "thesis.csv", thesisTimes, header, sizeof header);
+      const std::string prefix{"Military" + std::to_string(i) + "_"};
+      writeTimeToCsv(output + '/' + prefix + "default.csv", defaultTimes, header, sizeof header);
+      writeTimeToCsv(output + '/' + prefix + "thesis.csv", thesisTimes, header, sizeof header);
+    }
   }
   SECTION("Simple") {
     BuildContext context{};
@@ -256,12 +277,15 @@ TEST_CASE("Watershed") {
       context.dumpLog("Geom load log %s:", "Meshes/Maze8.obj");
     REQUIRE(success);
 
-    const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
-    const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
+    for (int i{5}; i > 0; --i) {
+      config.cs = static_cast<float>(i) * 0.1f;
+      const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
+      const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
 
-    const std::string prefix{"Simple" + std::to_string(config.cs) + "_"};
-    writeTimeToCsv(output + '/' + prefix + "default.csv", defaultTimes, header, sizeof header);
-    writeTimeToCsv(output + '/' + prefix + "thesis.csv", thesisTimes, header, sizeof header);
+      const std::string prefix{"Simple" + std::to_string(i) + "_"};
+      writeTimeToCsv(output + '/' + prefix + "default.csv", defaultTimes, header, sizeof header);
+      writeTimeToCsv(output + '/' + prefix + "thesis.csv", thesisTimes, header, sizeof header);
+    }
   }
   SECTION("University") {
     BuildContext context{};
@@ -271,12 +295,15 @@ TEST_CASE("Watershed") {
       context.dumpLog("Geom load log %s:", "Meshes/Maze8.obj");
     REQUIRE(success);
 
-    const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
-    const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
+    for (int i{5}; i > 0; --i) {
+      config.cs = static_cast<float>(i) * 0.1f;
+      const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
+      const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
 
-    const std::string prefix{"University" + std::to_string(config.cs) + "_"};
-    writeTimeToCsv(output + '/' + prefix + "default.csv", defaultTimes, header, sizeof header);
-    writeTimeToCsv(output + '/' + prefix + "thesis.csv", thesisTimes, header, sizeof header);
+      const std::string prefix{"University" + std::to_string(i) + "_"};
+      writeTimeToCsv(output + '/' + prefix + "default.csv", defaultTimes, header, sizeof header);
+      writeTimeToCsv(output + '/' + prefix + "thesis.csv", thesisTimes, header, sizeof header);
+    }
   }
   SECTION("Zelda") {
     BuildContext context{};
@@ -286,12 +313,15 @@ TEST_CASE("Watershed") {
       context.dumpLog("Geom load log %s:", "Meshes/Maze8.obj");
     REQUIRE(success);
 
-    const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
-    const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
+    for (int i{5}; i > 0; --i) {
+      config.cs = static_cast<float>(i) * 0.1f;
+      const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
+      const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
 
-    const std::string prefix{"Zelda" + std::to_string(config.cs) + "_"};
-    writeTimeToCsv(output + '/' + prefix + "default.csv", defaultTimes, header, sizeof header);
-    writeTimeToCsv(output + '/' + prefix + "thesis.csv", thesisTimes, header, sizeof header);
+      const std::string prefix{"Zelda" + std::to_string(i) + "_"};
+      writeTimeToCsv(output + '/' + prefix + "default.csv", defaultTimes, header, sizeof header);
+      writeTimeToCsv(output + '/' + prefix + "thesis.csv", thesisTimes, header, sizeof header);
+    }
   }
   SECTION("Zelda2x2") {
     BuildContext context{};
@@ -301,12 +331,15 @@ TEST_CASE("Watershed") {
       context.dumpLog("Geom load log %s:", "Meshes/Maze8.obj");
     REQUIRE(success);
 
-    const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
-    const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
+    for (int i{5}; i > 0; --i) {
+      config.cs = static_cast<float>(i) * 0.1f;
+      const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
+      const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
 
-    const std::string prefix{"Zelda2x2" + std::to_string(config.cs) + "_"};
-    writeTimeToCsv(output + '/' + prefix + "default.csv", defaultTimes, header, sizeof header);
-    writeTimeToCsv(output + '/' + prefix + "thesis.csv", thesisTimes, header, sizeof header);
+      const std::string prefix{"Zelda2x2" + std::to_string(i) + "_"};
+      writeTimeToCsv(output + '/' + prefix + "default.csv", defaultTimes, header, sizeof header);
+      writeTimeToCsv(output + '/' + prefix + "thesis.csv", thesisTimes, header, sizeof header);
+    }
   }
   SECTION("Zelda4x4") {
     BuildContext context{};
@@ -316,11 +349,14 @@ TEST_CASE("Watershed") {
       context.dumpLog("Geom load log %s:", "Meshes/Maze8.obj");
     REQUIRE(success);
 
-    const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
-    const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
+    for (int i{5}; i > 0; --i) {
+      config.cs = static_cast<float>(i) * 0.1f;
+      const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
+      const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
 
-    const std::string prefix{"Zelda4x4" + std::to_string(config.cs) + "_"};
-    writeTimeToCsv(output + '/' + prefix + "default.csv", defaultTimes, header, sizeof header);
-    writeTimeToCsv(output + '/' + prefix + "thesis.csv", thesisTimes, header, sizeof header);
+      const std::string prefix{"Zelda4x4" + std::to_string(i) + "_"};
+      writeTimeToCsv(output + '/' + prefix + "default.csv", defaultTimes, header, sizeof header);
+      writeTimeToCsv(output + '/' + prefix + "thesis.csv", thesisTimes, header, sizeof header);
+    }
   }
 }
