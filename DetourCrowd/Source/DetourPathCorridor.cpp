@@ -25,44 +25,23 @@
 
 #include <cstring>
 
-int dtMergeCorridorStartMoved(dtPolyRef* path, const int npath, const int maxPath,
-                              const dtPolyRef* visited, const int nvisited)
-{
-	int furthestPath = -1;
-	int furthestVisited = -1;
-	
-	// Find furthest common polygon.
-	for (int i = npath-1; i >= 0; --i)
-	{
-		bool found = false;
-		for (int j = nvisited-1; j >= 0; --j)
-		{
-			if (path[i] == visited[j])
-			{
-				furthestPath = i;
-				furthestVisited = j;
-				found = true;
-			}
-		}
-		if (found)
-			break;
-	}
-	
-	// If no intersection found just return current path. 
-	if (furthestPath == -1 || furthestVisited == -1)
-		return npath;
-	
-	// Concatenate paths.	
-	
-	// Adjust beginning of the buffer to include the visited.
-	const int req = nvisited - furthestVisited;
-	const int orig = dtMin(furthestPath+1, npath);
-	int size = dtMax(0, npath-orig);
-	if (req+size > maxPath)
-		size = maxPath-req;
 	if (size > 0)
 
-	// Store visited
+		memmove(path+req, path+orig, size*sizeof(dtPolyRef));
+	
+  // Find furthest common polygon.
+  for (int i = npath - 1; i >= 0; --i) {
+    bool found = false;
+    for (int j = nvisited - 1; j >= 0; --j) {
+      if (path[i] == visited[j]) {
+        furthestPath = i;
+        furthestVisited = j;
+        found = true;
+      }
+    }
+    if (found)
+      break;
+  }
 	for (int i = 0, n = dtMin(req, maxPath); i < n; ++i)
 		path[i] = visited[(nvisited-1)-i];
 

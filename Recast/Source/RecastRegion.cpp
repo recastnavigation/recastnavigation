@@ -897,6 +897,79 @@ bool mergeAndFilterLayerRegions(rcContext *ctx, const int minRegionArea, unsigne
   const int w = chf.width;
   const int h = chf.height;
 
+  const int nreg = maxRegionId + 1;
+  rcTempVector<rcRegion> regions;
+
+  // Construct regions
+  if (!regions.reserve(nreg)) {
+    ctx->log(RC_LOG_ERROR, "mergeAndFilterLayerRegions: Out of memory 'regions' (%d).", nreg);
+    return false;
+  }
+  for (int i = 0; i < nreg; ++i)
+    regions.push_back(rcRegion(static_cast<unsigned short>(i)));
+
+  // Find region neighbours and overlapping regions.
+  rcIntArray lregs(32);
+  for (int y = 0; y < h; ++y) {
+    for (int x = 0; x < w; ++x) {
+      const rcCompactCell &c = chf.cells[x + y * w];
+
+      lregs.clear();
+
+      for (int i = static_cast<int>(c.index), ni = static_cast<int>(c.index + c.count); i < ni; ++i) {
+        const rcCompactSpan &s = chf.spans[i];
+        const unsigned short ri = srcReg[i];
+        if (ri == 0 || ri >= nreg)
+          continue;
+        rcRegion &reg = regions[ri];
+
+        reg.spanCount++;
+
+        reg.ymin = rcMin(reg.ymin, s.y);
+        reg.ymax = rcMax(reg.ymax, s.y);
+
+        // Collect all region layers.
+        lregs.push(ri);
+
+        // Update neighbours
+        for (int dir = 0; dir < 4; ++dir) {
+          if (rcGetCon(s, dir) != RC_NOT_CONNECTED) {
+            const int ax = x + rcGetDirOffsetX(dir);
+            const int ay = y + rcGetDirOffsetY(dir);
+            const int ai = static_cast<int>(chf.cells[ax + ay * w].index) + rcGetCon(s, dir);
+            const unsigned short rai = srcReg[ai];
+            if (rai > 0 && rai < nreg && rai != ri)
+              addUniqueConnection(reg, rai);
+            if (rai & RC_BORDER_REG)
+              reg.connectsToBorder = true;
+          }
+        }
+      }
+
+      // Update overlapping regions.
+      for (int i = 0; i < lregs.size() - 1; ++i) {
+        for (int j = i + 1; j < lregs.size(); ++j) {
+          if (lregs[i] != lregs[j]) {
+            rcRegion &ri = regions[lregs[i]];
+            rcRegion &rj = regions[lregs[j]];
+            addUniqueFloorRegion(ri, lregs[j]);
+            addUniqueFloorRegion(rj, lregs[i]);
+          }
+        }
+      }
+    }
+  }
+
+  // Create 2D layers from regions.
+  unsigned short layerId = 1;
+
+  for (int i = 0; i < nreg; ++i)
+    regions[i].id = 0;
+
+bool mergeAndFilterLayerRegions(rcContext *ctx, const int minRegionArea, unsigned short &maxRegionId, const rcCompactHeightfield &chf, unsigned short *srcReg) {
+  const int w = chf.width;
+  const int h = chf.height;
+
 			lregs.clear();
 			
 			for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)

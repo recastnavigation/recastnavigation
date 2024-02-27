@@ -78,28 +78,8 @@ void rcFilterLedgeSpans(rcContext* context, const int walkableHeight, const int 
   const int xSize = heightfield.width;
   const int zSize = heightfield.height;
 
-  // Mark border spans.
-  for (int z = 0; z < zSize; ++z) {
-    for (int x = 0; x < xSize; ++x) {
-      for (rcSpan *span = heightfield.spans[x + z * xSize]; span; span = span->next) {
-        constexpr int MAX_HEIGHT = 0xffff;
-        // Skip non walkable spans.
-        if (span->area == RC_NULL_AREA) {
-          continue;
-        }
-	
 	// Mark spans that are adjacent to a ledge as unwalkable..
-	for (int z = 0; z < zSize; ++z)
-	{
-		for (int x = 0; x < xSize; ++x)
-		{
-			for (rcSpan* span = heightfield.spans[x + z * xSize]; span; span = span->next)
-			{
 				// Skip non-walkable spans.
-				if (span->area == RC_NULL_AREA)
-				{
-					continue;
-				}
 
 				const int floor = (int)(span->smax);
 				const int ceiling = span->next ? (int)(span->next->smin) : MAX_HEIGHTFIELD_HEIGHT;
@@ -131,7 +111,6 @@ void rcFilterLedgeSpans(rcContext* context, const int walkableHeight, const int 
 					// Start with the area under the neighbor span
 					int neighborCeiling = neighborSpan ? (int)neighborSpan->smin : MAX_HEIGHTFIELD_HEIGHT;
 
-					// Skip neighbour if the gap between the spans is too small.
 					if (rcMin(ceiling, neighborCeiling) - floor >= walkableHeight)
 					{
 						lowestNeighborFloorDifference = (-walkableClimb - 1);
@@ -146,7 +125,6 @@ void rcFilterLedgeSpans(rcContext* context, const int walkableHeight, const int 
 
 						// Only consider neighboring areas that have enough overlap to be potentially traversable.
 						if (rcMin(ceiling, neighborCeiling) - rcMax(floor, neighborFloor) < walkableHeight)
-						{
 							// No space to traverse between them.
 							continue;
 						}
@@ -189,11 +167,6 @@ void rcFilterLedgeSpans(rcContext* context, const int walkableHeight, const int 
 }
 
 void rcFilterWalkableLowHeightSpans(rcContext* context, const int walkableHeight, const rcHeightfield& heightfield)
-{
-	rcAssert(context);
-
-  rcScopedTimer timer(context, RC_TIMER_FILTER_WALKABLE);
-
 	// Remove walkable flag from spans which do not have enough
 	// space above them for the agent to stand there.
 	for (int z = 0; z < zSize; ++z)
