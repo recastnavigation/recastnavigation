@@ -14,9 +14,9 @@ jobs:
       fail-fast: false
 
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        build_type: [Release]
-        std: [23]
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
+        build_type: [ Release ]
+        std: [ 23 ]
 
     steps:
       - uses: actions/checkout@v4
@@ -43,3 +43,19 @@ jobs:
           CTEST_OUTPUT_ON_FAILURE: 1
         working-directory: ${{github.workspace}}/build
         run: ctest --build-config ${{matrix.build_type}} --progress --parallel `nproc`
+
+      - uses: actions/upload-artifact@v4
+        with:
+          # Name of the artifact to upload.
+          # Optional. Default is 'artifact'
+          name: Timings
+
+          # A file, directory or wildcard pattern that describes what to upload
+          # Required.
+          path:  ${{ github.workspace }}/build/Data
+
+          # Duration after which artifact will expire in days. 0 means using default retention.
+          # Minimum 1 day.
+          # Maximum 90 days unless changed from the repository settings page.
+          # Optional. Defaults to repository settings.
+          retention-days: 1

@@ -98,7 +98,8 @@ inline void runThesis(BuildContext &context, const InputGeom &pGeom, const bool 
   rcPolyMesh *pMesh{nullptr};
   rcPolyMeshDetail *pDMesh{nullptr};
   float totalBuildTimeMs{};
-  generateTheses(context, pGeom, config, filterLowHangingObstacles, filterLedgeSpans, filterWalkableLowHeightSpans, totalBuildTimeMs, pMesh, pDMesh, pEdges, edgesSize);
+  if (!generateTheses(context, pGeom, config, filterLowHangingObstacles, filterLedgeSpans, filterWalkableLowHeightSpans, totalBuildTimeMs, pMesh, pDMesh, pEdges, edgesSize))
+    context.dumpLog("Error Thesis:");
   rcFreePolyMesh(pMesh);
   rcFreePolyMeshDetail(pDMesh);
   pMesh = nullptr;
