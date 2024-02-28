@@ -16,14 +16,20 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
+#include <cfloat>
+
+#include <SDL.h>
+#include <SDL_opengl.h>
+
 #include "ConvexVolumeTool.h"
 #include "InputGeom.h"
 #include "Recast.h"
 #include "Sample.h"
 #include "imgui.h"
-#include <SDL.h>
-#include <SDL_opengl.h>
-#include <cfloat>
+
+#ifdef WIN32
+#define snprintf _snprintf
+#endif
 
 // Quick and dirty convex hull.
 
@@ -76,20 +82,12 @@ static int pointInPoly(const int nvert, const float *verts, const float *p) {
   int i, j, c = 0;
   for (i = 0, j = nvert - 1; i < nvert; j = i++) {
     const float *vi = &verts[i * 3];
-    if (const float *vj = &verts[j * 3]; ((vi[2] > p[2]) != (vj[2] > p[2])) &&
-                                         (p[0] < (vj[0] - vi[0]) * (p[2] - vi[2]) / (vj[2] - vi[2]) + vi[0]))
+    const float *vj = &verts[j * 3];
+    if (((vi[2] > p[2]) != (vj[2] > p[2])) &&
+        (p[0] < (vj[0] - vi[0]) * (p[2] - vi[2]) / (vj[2] - vi[2]) + vi[0]))
       c = !c;
   }
   return c;
-}
-
-ConvexVolumeTool::ConvexVolumeTool() : m_sample(nullptr),
-                                       m_areaType(SAMPLE_POLYAREA_GRASS),
-                                       m_polyOffset(0.0f),
-                                       m_boxHeight(6.0f),
-                                       m_boxDescent(1.0f), m_pts{},
-                                       m_npts(0), m_hull{},
-                                       m_nhull(0) {
 }
 
 void ConvexVolumeTool::init(Sample *sample) {
@@ -168,11 +166,12 @@ void ConvexVolumeTool::handleClick(const float * /*s*/, const float *p, const bo
         for (int i = 0; i < m_nhull; ++i)
           minh = rcMin(minh, verts[i * 3 + 1]);
         minh -= m_boxDescent;
-        const float maxh = minh + m_boxHeight;
 
+        const float maxh = minh + m_boxHeight;
         if (m_polyOffset > 0.01f) {
           float offset[MAX_PTS * 2 * 3];
-          if (const int noffset = rcOffsetPoly(verts, m_nhull, m_polyOffset, offset, MAX_PTS * 2); noffset > 0)
+          const int noffset = rcOffsetPoly(verts, m_nhull, m_polyOffset, offset, MAX_PTS * 2);
+          if (noffset > 0)
             geom->addConvexVolume(offset, noffset, minh, maxh, static_cast<unsigned char>(m_areaType));
         } else {
           geom->addConvexVolume(verts, m_nhull, minh, maxh, static_cast<unsigned char>(m_areaType));
@@ -208,7 +207,6 @@ void ConvexVolumeTool::handleUpdate(const float /*dt*/) {
 void ConvexVolumeTool::handleRender() {
   duDebugDraw &dd = m_sample->getDebugDraw();
 
-  // Find height extent of the shape.
   float minh = FLT_MAX;
   for (int i = 0; i < m_npts; ++i)
     minh = rcMin(minh, m_pts[i * 3 + 1]);
@@ -217,7 +215,7 @@ void ConvexVolumeTool::handleRender() {
 
   dd.begin(DU_DRAW_POINTS, 4.0f);
   for (int i = 0; i < m_npts; ++i) {
-    uint32_t col = duRGBA(255, 255, 255, 255);
+    unsigned int col = duRGBA(255, 255, 255, 255);
     if (i == m_npts - 1)
       col = duRGBA(240, 32, 16, 255);
     dd.vertex(m_pts[i * 3 + 0], m_pts[i * 3 + 1] + 0.1f, m_pts[i * 3 + 2], col);

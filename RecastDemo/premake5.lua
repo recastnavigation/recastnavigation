@@ -19,7 +19,7 @@ workspace "recastnavigation"
 	rtti "Off"
 	symbols "On"
 	flags { "FatalCompileWarnings" }
-	cppdialect "C++20"
+	cppdialect "C++98"
 
 	-- debug configs
 	filter "configurations:Debug"
@@ -198,7 +198,7 @@ project "RecastDemo"
 project "Tests"
 	language "C++"
 	kind "ConsoleApp"
-	cppdialect "C++20" -- Catch requires newer C++ features
+	cppdialect "C++14" -- Catch requires newer C++ features
 
 	-- Catch requires RTTI and exceptions
 	exceptionhandling "On"

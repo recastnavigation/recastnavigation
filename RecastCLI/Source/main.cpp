@@ -280,44 +280,6 @@ inline void processBourderEdges(const std::string &input, const std::string &out
   referenceSvg.close();
 
   constexpr uint8_t epsilon{2};
-  [epsilon](const Edge &e1, const Edge &e2) -> bool {
-    if (e1.v1.x == e2.v1.x && e1.v1.y == e2.v1.y &&
-        e1.v2.x == e2.v2.x && e1.v2.y == e2.v2.y)
-      return true;
-
-    const int diffX1{e1.v1.x - e2.v1.x};
-    const int diffY1{e1.v1.y - e2.v1.y};
-    const int diffX2{e1.v2.x - e2.v2.x};
-    const int diffY2{e1.v2.y - e2.v2.y};
-
-    // Compare the squared length of the difference with the squared epsilon
-    if (diffX1 * diffX1 + diffY1 * diffY1 <= epsilon * epsilon && diffX2 * diffX2 + diffY2 * diffY2 <= epsilon *
-        epsilon)
-      return true;
-
-    const Vertex vertex1{e1.v2.x - e1.v1.x, e1.v2.y - e1.v1.y};
-    const Vertex vertex2{e2.v2.x - e2.v1.x, e2.v2.y - e2.v1.y};
-    const auto dot{
-        [](const Vertex &v1, const Vertex &v2) -> int {
-          return v1.x * v2.x + v1.y * v2.y;
-        }};
-    const float e2Length{
-        std::sqrt(static_cast<float>(dot(vertex2, vertex2)))};
-    const float size{static_cast<float>(dot(vertex1, vertex2)) / e2Length};
-    const Vertex b{static_cast<int>(static_cast<float>(vertex1.x) * size), static_cast<int>(static_cast<float>(vertex1.y) * size)};
-    const Vertex v2Normalized{
-        static_cast<int>(static_cast<float>(vertex2.x) / e2Length), static_cast<int>(static_cast<float>(vertex2.y) / e2Length)};
-    const Edge projected{b.x, b.y, b.x + v2Normalized.x, b.y + v2Normalized.x};
-
-    const int movedDiffX1 = e1.v1.x - projected.v1.x;
-    const int movedDiffY1 = e1.v1.y - projected.v1.y;
-    const int movedDiffX2 = e1.v2.x - projected.v2.x;
-    const int movedDiffY2 = e1.v2.y - projected.v2.y;
-    // Compare the squared length of the difference with the squared epsilon
-    if (movedDiffX1 * movedDiffX1 + movedDiffY1 * movedDiffY1 <= epsilon * epsilon && movedDiffX2 * movedDiffX2 + movedDiffY2 * movedDiffY2 <= epsilon * epsilon)
-      return true;
-    return false;
-  };
   const auto moveMatch{
       [epsilon](const Edge &e1, const Edge &e2) -> bool {
         if (e1.v1.x == e2.v1.x && e1.v1.y == e2.v1.y &&

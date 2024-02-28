@@ -141,16 +141,18 @@ TEST_CASE("Watershed") {
         .minRegionArea = static_cast<int>(rcSqr(minS)),
         .mergeRegionArea = static_cast<int>(rcSqr(mergeS)),
         .maxVertsPerPoly = static_cast<int>(g_vertsPerPoly),
+        .detailSampleDist = 0.5f * g_detailSampleDist,
         .detailSampleMaxError = g_cellHeight * g_detailSampleMaxError,
     };
     BuildContext context{};
     InputGeom pGeom{};
-    bool success = pGeom.load(&context, "Meshes/Maze8.obj");
+    bool success = pGeom.load(&context, "Meshes/City.obj");
     if (!success)
-      context.dumpLog("Geom load log %s:", "Meshes/Maze8.obj");
+      context.dumpLog("Geom load log %s:", "Meshes/City.obj");
     REQUIRE(success);
     for (int i{5}; i > 0; --i) {
       config.cs = static_cast<float>(i) * 0.1f;
+      config.detailSampleDist = static_cast<float>(i) * 0.1f * g_detailSampleDist;
       const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
       const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
 
@@ -170,6 +172,7 @@ TEST_CASE("Watershed") {
         .minRegionArea = static_cast<int>(rcSqr(minS)),
         .mergeRegionArea = static_cast<int>(rcSqr(mergeS)),
         .maxVertsPerPoly = static_cast<int>(g_vertsPerPoly),
+        .detailSampleDist = 0.5f * g_detailSampleDist,
         .detailSampleMaxError = g_cellHeight * g_detailSampleMaxError,
     };
     BuildContext context{};
@@ -181,6 +184,7 @@ TEST_CASE("Watershed") {
 
     for (int i{5}; i > 0; --i) {
       config.cs = static_cast<float>(i) * 0.1f;
+      config.detailSampleDist = static_cast<float>(i) * 0.1f * g_detailSampleDist;
       const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
       const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
 
@@ -200,6 +204,7 @@ TEST_CASE("Watershed") {
         .minRegionArea = static_cast<int>(rcSqr(minS)),
         .mergeRegionArea = static_cast<int>(rcSqr(mergeS)),
         .maxVertsPerPoly = static_cast<int>(g_vertsPerPoly),
+        .detailSampleDist = 0.5f * g_detailSampleDist,
         .detailSampleMaxError = g_cellHeight * g_detailSampleMaxError,
     };
     BuildContext context{};
@@ -211,6 +216,7 @@ TEST_CASE("Watershed") {
 
     for (int i{5}; i > 0; --i) {
       config.cs = static_cast<float>(i) * 0.1f;
+      config.detailSampleDist = static_cast<float>(i) * 0.1f * g_detailSampleDist;
       const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
       const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
 
@@ -230,6 +236,7 @@ TEST_CASE("Watershed") {
         .minRegionArea = static_cast<int>(rcSqr(minS)),
         .mergeRegionArea = static_cast<int>(rcSqr(mergeS)),
         .maxVertsPerPoly = static_cast<int>(g_vertsPerPoly),
+        .detailSampleDist = 0.5f * g_detailSampleDist,
         .detailSampleMaxError = g_cellHeight * g_detailSampleMaxError,
     };
     BuildContext context{};
@@ -241,6 +248,7 @@ TEST_CASE("Watershed") {
 
     for (int i{5}; i > 0; --i) {
       config.cs = static_cast<float>(i) * 0.1f;
+      config.detailSampleDist = static_cast<float>(i) * 0.1f * g_detailSampleDist;
       const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
       const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
 
@@ -249,7 +257,6 @@ TEST_CASE("Watershed") {
       writeTimeToCsv(output + '/' + prefix + "thesis.csv", thesisTimes, header, sizeof header);
     }
   }
-
   SECTION("Maze64") {
     rcConfig config{
         .cs = 0.5f,
@@ -261,6 +268,7 @@ TEST_CASE("Watershed") {
         .minRegionArea = static_cast<int>(rcSqr(minS)),
         .mergeRegionArea = static_cast<int>(rcSqr(mergeS)),
         .maxVertsPerPoly = static_cast<int>(g_vertsPerPoly),
+        .detailSampleDist = 0.5f * g_detailSampleDist,
         .detailSampleMaxError = g_cellHeight * g_detailSampleMaxError,
     };
     BuildContext context{};
@@ -272,6 +280,7 @@ TEST_CASE("Watershed") {
 
     for (int i{5}; i > 0; --i) {
       config.cs = static_cast<float>(i) * 0.1f;
+      config.detailSampleDist = static_cast<float>(i) * 0.1f * g_detailSampleDist;
       const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
       const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
 
@@ -291,6 +300,7 @@ TEST_CASE("Watershed") {
         .minRegionArea = static_cast<int>(rcSqr(minS)),
         .mergeRegionArea = static_cast<int>(rcSqr(mergeS)),
         .maxVertsPerPoly = static_cast<int>(g_vertsPerPoly),
+        .detailSampleDist = 0.5f * g_detailSampleDist,
         .detailSampleMaxError = g_cellHeight * g_detailSampleMaxError,
     };
     BuildContext context{};
@@ -302,6 +312,7 @@ TEST_CASE("Watershed") {
 
     for (int i{5}; i > 0; --i) {
       config.cs = static_cast<float>(i) * 0.1f;
+      config.detailSampleDist = static_cast<float>(i) * 0.1f * g_detailSampleDist;
       const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
       const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
 
@@ -321,6 +332,7 @@ TEST_CASE("Watershed") {
         .minRegionArea = static_cast<int>(rcSqr(minS)),
         .mergeRegionArea = static_cast<int>(rcSqr(mergeS)),
         .maxVertsPerPoly = static_cast<int>(g_vertsPerPoly),
+        .detailSampleDist = 0.5f * g_detailSampleDist,
         .detailSampleMaxError = g_cellHeight * g_detailSampleMaxError,
     };
     BuildContext context{};
@@ -332,6 +344,7 @@ TEST_CASE("Watershed") {
 
     for (int i{5}; i > 0; --i) {
       config.cs = static_cast<float>(i) * 0.1f;
+      config.detailSampleDist = static_cast<float>(i) * 0.1f * g_detailSampleDist;
       const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
       const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
 
@@ -351,6 +364,7 @@ TEST_CASE("Watershed") {
         .minRegionArea = static_cast<int>(rcSqr(minS)),
         .mergeRegionArea = static_cast<int>(rcSqr(mergeS)),
         .maxVertsPerPoly = static_cast<int>(g_vertsPerPoly),
+        .detailSampleDist = 0.5f * g_detailSampleDist,
         .detailSampleMaxError = g_cellHeight * g_detailSampleMaxError,
     };
     BuildContext context{};
@@ -362,6 +376,7 @@ TEST_CASE("Watershed") {
 
     for (int i{5}; i > 0; --i) {
       config.cs = static_cast<float>(i) * 0.1f;
+      config.detailSampleDist = static_cast<float>(i) * 0.1f * g_detailSampleDist;
       const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
       const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
 
@@ -381,6 +396,7 @@ TEST_CASE("Watershed") {
         .minRegionArea = static_cast<int>(rcSqr(minS)),
         .mergeRegionArea = static_cast<int>(rcSqr(mergeS)),
         .maxVertsPerPoly = static_cast<int>(g_vertsPerPoly),
+        .detailSampleDist = 0.5f * g_detailSampleDist,
         .detailSampleMaxError = g_cellHeight * g_detailSampleMaxError,
     };
     BuildContext context{};
@@ -392,6 +408,7 @@ TEST_CASE("Watershed") {
 
     for (int i{5}; i > 0; --i) {
       config.cs = static_cast<float>(i) * 0.1f;
+      config.detailSampleDist = static_cast<float>(i) * 0.1f * g_detailSampleDist;
       const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
       const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
 
@@ -411,6 +428,7 @@ TEST_CASE("Watershed") {
         .minRegionArea = static_cast<int>(rcSqr(minS)),
         .mergeRegionArea = static_cast<int>(rcSqr(mergeS)),
         .maxVertsPerPoly = static_cast<int>(g_vertsPerPoly),
+        .detailSampleDist = 0.5f * g_detailSampleDist,
         .detailSampleMaxError = g_cellHeight * g_detailSampleMaxError,
     };
     BuildContext context{};
@@ -422,6 +440,7 @@ TEST_CASE("Watershed") {
 
     for (int i{5}; i > 0; --i) {
       config.cs = static_cast<float>(i) * 0.1f;
+      config.detailSampleDist = static_cast<float>(i) * 0.1f * g_detailSampleDist;
       const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
       const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
 
@@ -441,6 +460,7 @@ TEST_CASE("Watershed") {
         .minRegionArea = static_cast<int>(rcSqr(minS)),
         .mergeRegionArea = static_cast<int>(rcSqr(mergeS)),
         .maxVertsPerPoly = static_cast<int>(g_vertsPerPoly),
+        .detailSampleDist = 0.5f * g_detailSampleDist,
         .detailSampleMaxError = g_cellHeight * g_detailSampleMaxError,
     };
     BuildContext context{};
@@ -452,6 +472,7 @@ TEST_CASE("Watershed") {
 
     for (int i{5}; i > 0; --i) {
       config.cs = static_cast<float>(i) * 0.1f;
+      config.detailSampleDist = static_cast<float>(i) * 0.1f * g_detailSampleDist;
       const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
       const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
 
@@ -471,6 +492,7 @@ TEST_CASE("Watershed") {
         .minRegionArea = static_cast<int>(rcSqr(minS)),
         .mergeRegionArea = static_cast<int>(rcSqr(mergeS)),
         .maxVertsPerPoly = static_cast<int>(g_vertsPerPoly),
+        .detailSampleDist = 0.5f * g_detailSampleDist,
         .detailSampleMaxError = g_cellHeight * g_detailSampleMaxError,
     };
     BuildContext context{};
@@ -482,6 +504,7 @@ TEST_CASE("Watershed") {
 
     for (int i{5}; i > 0; --i) {
       config.cs = static_cast<float>(i) * 0.1f;
+      config.detailSampleDist = static_cast<float>(i) * 0.1f * g_detailSampleDist;
       const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
       const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
 

@@ -15,21 +15,23 @@
 //    misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 //
-#pragma once
 
-#include <DetourNavMesh.h>
-#include <Sample.h>
+#pragma once
+#include "DetourNavMesh.h"
+#include "Recast.h"
+#include "Sample.h"
 
 /// Sample used for random debugging.
 class Sample_Debug final : public Sample {
 protected:
-  rcCompactHeightfield *m_chf;
-  rcContourSet *m_cset;
-  rcPolyMesh *m_pmesh;
+  rcCompactHeightfield *m_chf{};
+  rcContourSet *m_cset{};
+  rcPolyMesh *m_pmesh{};
 
   float m_halfExtents[3]{};
   float m_center[3]{};
-  float m_bmin[3]{}, m_bmax[3]{};
+  float m_bmin[3]{};
+  float m_bmax[3]{};
   dtPolyRef m_ref{};
 
 public:
@@ -49,8 +51,7 @@ public:
   const float *getBoundsMin() const;
   const float *getBoundsMax() const;
 
-private:
   // Explicitly disabled copy constructor and copy assignment operator.
-  Sample_Debug(const Sample_Debug &);
-  Sample_Debug &operator=(const Sample_Debug &);
+  Sample_Debug(const Sample_Debug &) = delete;
+  Sample_Debug &operator=(const Sample_Debug &) = delete;
 };

@@ -16,14 +16,14 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "Recast.h"
-#include "RecastAlloc.h"
-#include "RecastAssert.h"
-
 #include <cmath>
 #include <cstdarg>
 #include <cstdio>
 #include <cstring>
+
+#include "Recast.h"
+#include "RecastAlloc.h"
+#include "RecastAssert.h"
 
 namespace {
 /// Allocates and constructs an object of the given type, returning a pointer.
@@ -47,7 +47,7 @@ void rcDelete(T *ptr) {
 } // anonymous namespace
 
 float rcSqrt(const float x) {
-  return std::sqrt(x);
+  return sqrtf(x);
 }
 
 void rcContext::log(const rcLogCategory category, const char *format, ...) {
@@ -63,7 +63,7 @@ void rcContext::log(const rcLogCategory category, const char *format, ...) {
     len = MSG_SIZE - 1;
     msg[MSG_SIZE - 1] = '\0';
 
-    const auto *errorMessage = "Log message was truncated";
+    const auto *const errorMessage = "Log message was truncated";
     doLog(RC_LOG_ERROR, errorMessage, static_cast<int>(strlen(errorMessage)));
   }
   va_end(argList);
@@ -103,10 +103,6 @@ rcCompactHeightfield *rcAllocCompactHeightfield() {
 
 void rcFreeCompactHeightfield(rcCompactHeightfield *compactHeightfield) {
   rcDelete(compactHeightfield);
-}
-
-rcCompactHeightfield::rcCompactHeightfield()
-    : width(), height(), spanCount(), walkableHeight(), walkableClimb(), borderSize(), maxDistance(), maxRegions(), maxSobel(0), bmin(), bmax(), cs(), ch(), cells(), spans(), dist(), areas() {
 }
 
 rcCompactHeightfield::~rcCompactHeightfield() {
@@ -207,11 +203,13 @@ void rcCalcBounds(const float *verts, const int numVerts, float *minBounds, floa
 }
 
 void rcCalcGridSize(const float *minBounds, const float *maxBounds, const float cellSize, int *sizeX, int *sizeZ) {
-  *sizeX = lroundf((maxBounds[0] - minBounds[0]) / cellSize);
-  *sizeZ = lroundf((maxBounds[2] - minBounds[2]) / cellSize);
+  *sizeX = static_cast<int>((maxBounds[0] - minBounds[0]) / cellSize + 0.5f);
+  *sizeZ = static_cast<int>((maxBounds[2] - minBounds[2]) / cellSize + 0.5f);
 }
 
-bool rcCreateHeightfield(rcContext *context, rcHeightfield &heightfield, const int sizeX, const int sizeZ, const float *minBounds, const float *maxBounds, const float cellSize, const float cellHeight) {
+bool rcCreateHeightfield(rcContext *context, rcHeightfield &heightfield, const int sizeX, const int sizeZ,
+                         const float *minBounds, const float *maxBounds,
+                         const float cellSize, const float cellHeight) {
   rcIgnoreUnused(context);
 
   heightfield.width = sizeX;
@@ -224,25 +222,27 @@ bool rcCreateHeightfield(rcContext *context, rcHeightfield &heightfield, const i
   if (!heightfield.spans) {
     return false;
   }
-  std::memset(heightfield.spans, 0, sizeof(rcSpan *) * heightfield.width * heightfield.height);
+  memset(heightfield.spans, 0, sizeof(rcSpan *) * heightfield.width * heightfield.height);
   return true;
 }
 
-namespace {
-void calcTriNormal(const float *v0, const float *v1, const float *v2, float *faceNormal) {
+static void calcTriNormal(const float *v0, const float *v1, const float *v2, float *faceNormal) {
   float e0[3], e1[3];
   rcVsub(e0, v1, v0);
   rcVsub(e1, v2, v0);
   rcVcross(faceNormal, e0, e1);
   rcVnormalize(faceNormal);
 }
-} // namespace
 
-void rcMarkWalkableTriangles(rcContext *context, const float walkableSlopeAngle, const float *verts, const int numVerts, const int *tris, const int numTris, unsigned char *triAreaIDs) {
+void rcMarkWalkableTriangles(rcContext *context, const float walkableSlopeAngle,
+                             const float *verts, const int numVerts,
+                             const int *tris, const int numTris,
+                             unsigned char *triAreaIDs) {
   rcIgnoreUnused(context);
   rcIgnoreUnused(numVerts);
 
   const float walkableThr = cosf(walkableSlopeAngle / 180.0f * RC_PI);
+
 
   for (int i = 0; i < numTris; ++i) {
     float norm[3];
@@ -255,7 +255,10 @@ void rcMarkWalkableTriangles(rcContext *context, const float walkableSlopeAngle,
   }
 }
 
-void rcClearUnwalkableTriangles(rcContext *context, const float walkableSlopeAngle, const float *verts, const int numVerts, const int *tris, const int numTris, unsigned char *triAreaIDs) {
+void rcClearUnwalkableTriangles(rcContext *context, const float walkableSlopeAngle,
+                                const float *verts, const int numVerts,
+                                const int *tris, const int numTris,
+                                unsigned char *triAreaIDs) {
   rcIgnoreUnused(context);
   rcIgnoreUnused(numVerts);
 
@@ -288,9 +291,10 @@ int rcGetHeightFieldSpanCount(rcContext *context, const rcHeightfield &heightfie
   return spanCount;
 }
 
-bool rcBuildCompactHeightfield(rcContext *context, const int walkableHeight, const int walkableClimb, const rcHeightfield &heightfield, rcCompactHeightfield &compactHeightfield) {
+bool rcBuildCompactHeightfield(rcContext *context, const int walkableHeight, const int walkableClimb,
+                               const rcHeightfield &heightfield, rcCompactHeightfield &compactHeightfield) {
   rcAssert(context);
-  if (!context)
+  if(!context)
     return false;
 
   rcScopedTimer timer(context, RC_TIMER_BUILD_COMPACTHEIGHTFIELD);
@@ -308,28 +312,27 @@ bool rcBuildCompactHeightfield(rcContext *context, const int walkableHeight, con
   compactHeightfield.maxRegions = 0;
   rcVcopy(compactHeightfield.bmin, heightfield.bmin);
   rcVcopy(compactHeightfield.bmax, heightfield.bmax);
-  compactHeightfield.bmax[1] += static_cast<float>(walkableHeight) * heightfield.ch;
+  compactHeightfield.bmax[1] += walkableHeight * heightfield.ch;
   compactHeightfield.cs = heightfield.cs;
   compactHeightfield.ch = heightfield.ch;
-  compactHeightfield.cells = static_cast<rcCompactCell *>(
-      rcAlloc(sizeof(rcCompactCell) * xSize * zSize, RC_ALLOC_PERM));
+  compactHeightfield.cells = static_cast<rcCompactCell *>(rcAlloc(sizeof(rcCompactCell) * xSize * zSize, RC_ALLOC_PERM));
   if (!compactHeightfield.cells) {
     context->log(RC_LOG_ERROR, "rcBuildCompactHeightfield: Out of memory 'chf.cells' (%d)", xSize * zSize);
     return false;
   }
-  std::memset(compactHeightfield.cells, 0, sizeof(rcCompactCell) * xSize * zSize);
+  memset(compactHeightfield.cells, 0, sizeof(rcCompactCell) * xSize * zSize);
   compactHeightfield.spans = static_cast<rcCompactSpan *>(rcAlloc(sizeof(rcCompactSpan) * spanCount, RC_ALLOC_PERM));
   if (!compactHeightfield.spans) {
     context->log(RC_LOG_ERROR, "rcBuildCompactHeightfield: Out of memory 'chf.spans' (%d)", spanCount);
     return false;
   }
-  std::memset(compactHeightfield.spans, 0, sizeof(rcCompactSpan) * spanCount);
+  memset(compactHeightfield.spans, 0, sizeof(rcCompactSpan) * spanCount);
   compactHeightfield.areas = static_cast<unsigned char *>(rcAlloc(sizeof(unsigned char) * spanCount, RC_ALLOC_PERM));
   if (!compactHeightfield.areas) {
     context->log(RC_LOG_ERROR, "rcBuildCompactHeightfield: Out of memory 'chf.areas' (%d)", spanCount);
     return false;
   }
-  std::memset(compactHeightfield.areas, RC_NULL_AREA, sizeof(unsigned char) * spanCount);
+  memset(compactHeightfield.areas, RC_NULL_AREA, sizeof(unsigned char) * spanCount);
 
   // Fill in cells and spans.
   int currentCellIndex = 0;
@@ -342,20 +345,20 @@ bool rcBuildCompactHeightfield(rcContext *context, const int walkableHeight, con
       continue;
     }
 
-    auto &[index, count] = compactHeightfield.cells[columnIndex];
-    index = currentCellIndex;
-    count = 0;
+    rcCompactCell &cell = compactHeightfield.cells[columnIndex];
+    cell.index = currentCellIndex;
+    cell.count = 0;
 
     for (; span != nullptr; span = span->next) {
       if (span->area != RC_NULL_AREA) {
         constexpr int MAX_HEIGHT = 0xffff;
         const int bot = static_cast<int>(span->smax);
         const int top = span->next ? static_cast<int>(span->next->smin) : MAX_HEIGHT;
-        compactHeightfield.spans[currentCellIndex].y = static_cast<uint16_t>(rcClamp(bot, 0, 0xffff));
+        compactHeightfield.spans[currentCellIndex].y = static_cast<unsigned short>(rcClamp(bot, 0, 0xffff));
         compactHeightfield.spans[currentCellIndex].h = static_cast<unsigned char>(rcClamp(top - bot, 0, 0xff));
         compactHeightfield.areas[currentCellIndex] = span->area;
         currentCellIndex++;
-        count++;
+        cell.count++;
       }
     }
   }
@@ -366,8 +369,8 @@ bool rcBuildCompactHeightfield(rcContext *context, const int walkableHeight, con
   const int zStride = xSize; // for readability
   for (int z = 0; z < zSize; ++z) {
     for (int x = 0; x < xSize; ++x) {
-      const auto &[index, count] = compactHeightfield.cells[x + z * zStride];
-      for (int i = static_cast<int>(index), ni = static_cast<int>(index + count); i < ni; ++i) {
+      const rcCompactCell &cell = compactHeightfield.cells[x + z * zStride];
+      for (int i = static_cast<int>(cell.index), ni = static_cast<int>(cell.index + cell.count); i < ni; ++i) {
         rcCompactSpan &span = compactHeightfield.spans[i];
 
         for (int dir = 0; dir < 4; ++dir) {
@@ -381,14 +384,17 @@ bool rcBuildCompactHeightfield(rcContext *context, const int walkableHeight, con
 
           // Iterate over all neighbour spans and check if any of the is
           // accessible from current cell.
-          const auto &[index1, count1] = compactHeightfield.cells[neighborX + neighborZ * zStride];
-          for (int k = static_cast<int>(index1), nk = static_cast<int>(index1 + count1); k < nk; ++k) {
+          const rcCompactCell &neighborCell = compactHeightfield.cells[neighborX + neighborZ * zStride];
+          for (int k = static_cast<int>(neighborCell.index), nk = static_cast<int>(neighborCell.index + neighborCell.count); k < nk; ++k) {
+            const rcCompactSpan &neighborSpan = compactHeightfield.spans[k];
+            const int bot = rcMax(span.y, neighborSpan.y);
+            const int top = rcMin(span.y + span.h, neighborSpan.y + neighborSpan.h);
+
             // Check that the gap between the spans is walkable,
             // and that the climb height between the gaps is not too high.
-            if (const auto &[y, reg, con, h] = compactHeightfield.spans[k];
-                (rcMin(span.y + span.h, static_cast<uint16_t>(y) + h) - rcMax(span.y, y)) >= walkableHeight && rcAbs(static_cast<int>(y) - static_cast<int>(span.y)) <= walkableClimb) {
+            if (top - bot >= walkableHeight && rcAbs(static_cast<int>(neighborSpan.y) - static_cast<int>(span.y)) <= walkableClimb) {
               // Mark direction as walkable.
-              const int layerIndex = k - static_cast<int>(index1);
+              const int layerIndex = k - static_cast<int>(neighborCell.index);
               if (layerIndex < 0 || layerIndex > MAX_LAYERS) {
                 maxLayerIndex = rcMax(maxLayerIndex, layerIndex);
                 continue;

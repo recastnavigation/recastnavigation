@@ -368,27 +368,27 @@ struct rcCompactSpan {
 /// A compact, static heightfield representing unobstructed space.
 /// @ingroup recast
 struct rcCompactHeightfield {
-    rcCompactHeightfield();
+    rcCompactHeightfield()=default;
 
     ~rcCompactHeightfield();
 
-    int width; ///< The width of the heightfield. (Along the x-axis in cell units.)
-    int height; ///< The height of the heightfield. (Along the z-axis in cell units.)
-    int spanCount; ///< The number of spans in the heightfield.
-    int walkableHeight; ///< The walkable height used during the build of the field.  (See: rcConfig::walkableHeight)
-    int walkableClimb; ///< The walkable climb used during the build of the field. (See: rcConfig::walkableClimb)
-    int borderSize; ///< The AABB border size used during the build of the field. (See: rcConfig::borderSize)
-    uint16_t maxDistance; ///< The maximum distance value of any span within the field.
-    uint16_t maxRegions; ///< The maximum region id of any span within the field.
-    uint16_t maxSobel;
-    float bmin[3]; ///< The minimum bounds in world space. [(x, y, z)]
-    float bmax[3]; ///< The maximum bounds in world space. [(x, y, z)]
-    float cs; ///< The size of each cell. (On the xz-plane.)
-    float ch; ///< The height of each cell. (The minimum increment along the y-axis.)
-    rcCompactCell *cells; ///< Array of cells. [Size: #width*#height]
-    rcCompactSpan *spans; ///< Array of spans. [Size: #spanCount]
-    uint16_t *dist; ///< Array containing border distance data. [Size: #spanCount]
-    unsigned char *areas; ///< Array containing area id data. [Size: #spanCount]
+    int width{}; ///< The width of the heightfield. (Along the x-axis in cell units.)
+    int height{}; ///< The height of the heightfield. (Along the z-axis in cell units.)
+    int spanCount{}; ///< The number of spans in the heightfield.
+    int walkableHeight{}; ///< The walkable height used during the build of the field.  (See: rcConfig::walkableHeight)
+    int walkableClimb{}; ///< The walkable climb used during the build of the field. (See: rcConfig::walkableClimb)
+    int borderSize{}; ///< The AABB border size used during the build of the field. (See: rcConfig::borderSize)
+    uint16_t maxDistance{}; ///< The maximum distance value of any span within the field.
+    uint16_t maxRegions{}; ///< The maximum region id of any span within the field.
+    uint16_t maxSobel{};
+    float bmin[3]{}; ///< The minimum bounds in world space. [(x, y, z)]
+    float bmax[3]{}; ///< The maximum bounds in world space. [(x, y, z)]
+    float cs{}; ///< The size of each cell. (On the xz-plane.)
+    float ch{}; ///< The height of each cell. (The minimum increment along the y-axis.)
+    rcCompactCell *cells{}; ///< Array of cells. [Size: #width*#height]
+    rcCompactSpan *spans{}; ///< Array of spans. [Size: #spanCount]
+    uint16_t *dist{}; ///< Array containing border distance data. [Size: #spanCount]
+    unsigned char *areas{}; ///< Array containing area id data. [Size: #spanCount]
 
     rcCompactHeightfield(const rcCompactHeightfield &) = delete;
 
@@ -1009,11 +1009,12 @@ bool rcRasterizeTriangles(rcContext *context,
                           const float *verts, const unsigned char *triAreaIDs, int numTris,
                           rcHeightfield &heightfield, int flagMergeThreshold = 1);
 
-/// Marks non-walkable spans as walkable if their maximum is within @p walkableClimb of the span below them.
+/// Marks non-walkable spans as walkable if their maximum is within @p walkableClimb of a walkable neighbor.
 ///
 /// Allows the formation of walkable regions that will flow over low lying
 /// objects such as curbs, and up structures such as stairways.
 ///
+/// Two neighboring spans are walkable if: <tt>rcAbs(currentSpan.smax - neighborSpan.smax) < walkableClimb</tt>
 ///
 /// @warning Will override the effect of #rcFilterLedgeSpans.  So if both filters are used, call
 /// #rcFilterLedgeSpans after calling this filter.
@@ -1025,6 +1026,7 @@ bool rcRasterizeTriangles(rcContext *context,
 /// @param[in]		walkableClimb	Maximum ledge height that is considered to still be traversable.
 /// 								[Limit: >=0] [Units: vx]
 /// @param[in,out]	heightfield			A fully built heightfield.  (All spans have been added.)
+void rcFilterLowHangingWalkableObstacles(rcContext *context, int walkableClimb, const rcHeightfield &heightfield);
 
 /// Marks spans that are ledges as not-walkable.
 ///
@@ -1217,8 +1219,7 @@ bool rcBuildRegions(rcContext *ctx, rcCompactHeightfield &chf, int borderSize, i
 /// @param[in]		mergeRegionArea	Any regions with a span count smaller than this value will, if possible,
 /// 								be merged with larger regions. [Limit: >=0] [Units: vx]
 /// @returns True if the operation completed successfully.
-bool rcBuildRegionsWithSize(rcContext *ctx, rcCompactHeightfield &chf, int borderSize, int minRegionArea,
-                            int mergeRegionArea);
+bool rcBuildRegionsWithSize(rcContext *ctx, rcCompactHeightfield &chf, int borderSize, int minRegionArea, int mergeRegionArea);
 
 /// Builds region data for the heightfield by partitioning the heightfield in non-overlapping layers.
 /// @ingroup recast
@@ -1252,7 +1253,7 @@ bool rcBuildRegionsMonotone(rcContext *ctx, rcCompactHeightfield &chf,
 inline void rcSetCon(rcCompactSpan &span, const int direction, const int neighborIndex) {
     const uint32_t shift = static_cast<uint32_t>(direction) * 6;
     const uint32_t con = span.con;
-    span.con = (con & ~(0x3f << shift)) | (static_cast<uint32_t>(neighborIndex) & 0x3f) << shift;
+    span.con = con & ~(0x3f << shift) | (static_cast<uint32_t>(neighborIndex) & 0x3f) << shift;
 }
 
 /// Gets neighbor connection data for the specified direction.
@@ -1338,12 +1339,11 @@ bool rcBuildContours(rcContext *ctx, const rcCompactHeightfield &chf,
 /// @param[in]		maxEdgeLen	The maximum allowed length for contour edges along the border of the mesh.
 /// 					    [Limit: >=0] [Units: vx]
 /// @param[out]		cset		The resulting contour set. (Must be pre-allocated.)
-/// @param[out]         pe	        A buffer tracking the portal edges.
-/// @param[out]         pSize           Size of the buffer tracking the portal edges.
+/// @param[out]         portalEdges	        A buffer tracking the portal edges.
+/// @param[out]         portalEdgeSize           Size of the buffer tracking the portal edges.
 /// @param[in]		buildFlags	The build flags. (See: #rcBuildContoursFlags)
 /// @returns True if the operation completed successfully.
-bool rcBuildContoursWithPortals(rcContext *ctx, const rcCompactHeightfield &chf, float maxError, int maxEdgeLen,
-                                rcContourSet &cset, int *&pe, int &pSize, int buildFlags = RC_CONTOUR_TESS_WALL_EDGES);
+bool rcBuildContoursWithPortals(rcContext *ctx, const rcCompactHeightfield &chf, float maxError, int maxEdgeLen, rcContourSet &cset, int *&portalEdges, int &portalEdgeSize, int buildFlags = RC_CONTOUR_TESS_WALL_EDGES);
 
 /// Builds a polygon mesh from the provided contours.
 /// @ingroup recast

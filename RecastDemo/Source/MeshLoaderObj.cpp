@@ -16,222 +16,207 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "MeshLoaderObj.h"
-#include <cstdio>
+#include <cmath>
 #include <cstdlib>
 #include <cstring>
-#include <cmath>
 #include <fstream>
-#include <new>
 #include <sstream>
 
-rcMeshLoaderObj::rcMeshLoaderObj() :
-	m_scale(1.0f),
-	m_verts(nullptr),
-	m_tris(nullptr),
-	m_normals(nullptr),
-	m_vertCount(0),
-	m_triCount(0)
-{
+#include "MeshLoaderObj.h"
+
+
+rcMeshLoaderObj::rcMeshLoaderObj() : m_scale(1.0f),
+                                     m_verts(nullptr),
+                                     m_tris(nullptr),
+                                     m_normals(nullptr),
+                                     m_vertCount(0),
+                                     m_triCount(0) {
 }
 
-rcMeshLoaderObj::~rcMeshLoaderObj()
-{
-	delete [] m_verts;
-	delete [] m_normals;
-	delete [] m_tris;
-}
-		
-void rcMeshLoaderObj::addVertex(const float x, const float y, const float z, int& cap)
-{
-	if (m_vertCount+1 > cap)
-	{
-		cap = !cap ? 8 : cap*2;
-		const auto nv = new float[cap*3];
-		if (m_vertCount)
-			std::memcpy(nv, m_verts, m_vertCount*3*sizeof(float));
-		delete [] m_verts;
-		m_verts = nv;
-	}
-	float* dst = &m_verts[m_vertCount*3];
-	*dst++ = x*m_scale;
-	*dst++ = y*m_scale;
-	*dst = z*m_scale;
-	m_vertCount++;
+rcMeshLoaderObj::~rcMeshLoaderObj() {
+  delete[] m_verts;
+  delete[] m_normals;
+  delete[] m_tris;
 }
 
-void rcMeshLoaderObj::addTriangle(const int a, const int b, const int c, int& cap)
-{
-	if (m_triCount+1 > cap)
-	{
-		cap = !cap ? 8 : cap*2;
-		const auto nv = new int[cap*3];
-		if (m_triCount)
-			std::memcpy(nv, m_tris, m_triCount*3*sizeof(int));
-		delete [] m_tris;
-		m_tris = nv;
-	}
-	int* dst = &m_tris[m_triCount*3];
-	*dst++ = a;
-	*dst++ = b;
-	*dst = c;
-	m_triCount++;
+void rcMeshLoaderObj::addVertex(const float x, const float y, const float z, int &cap) {
+  if (m_vertCount + 1 > cap) {
+    cap = !cap ? 8 : cap * 2;
+    auto *const nv = new float[cap * 3];
+    if (m_vertCount)
+      memcpy(nv, m_verts, m_vertCount * 3 * sizeof(float));
+    delete[] m_verts;
+    m_verts = nv;
+  }
+  float *dst = &m_verts[m_vertCount * 3];
+  *dst++ = x * m_scale;
+  *dst++ = y * m_scale;
+  *dst = z * m_scale;
+  m_vertCount++;
 }
 
-static char* parseRow(char* buf, const char* bufEnd, char* row, const int len)
-{
-	bool start = true;
-	bool done = false;
-	int n = 0;
-	while (!done && buf < bufEnd)
-	{
-		const char c = *buf;
-		buf++;
-		// multirow
-		switch (c)
-		{
-			case '\\':
-				break;
-			case '\n':
-				if (start) break;
-				done = true;
-				break;
-			case '\r':
-				break;
-			case '\t':
-			case ' ':
-				if (start) break;
-				// else falls through
-			default:
-				start = false;
-				row[n++] = c;
-				if (n >= len-1)
-					done = true;
-				break;
-		}
-	}
-	row[n] = '\0';
-	return buf;
+void rcMeshLoaderObj::addTriangle(const int a, const int b, const int c, int &cap) {
+  if (m_triCount + 1 > cap) {
+    cap = !cap ? 8 : cap * 2;
+    auto *const nv = new int[cap * 3];
+    if (m_triCount)
+      memcpy(nv, m_tris, m_triCount * 3 * sizeof(int));
+    delete[] m_tris;
+    m_tris = nv;
+  }
+  int *dst = &m_tris[m_triCount * 3];
+  *dst++ = a;
+  *dst++ = b;
+  *dst = c;
+  m_triCount++;
 }
 
-static int parseFace(char* row, int* data, const int n, const int vcnt)
-{
-	int j = 0;
-	while (*row != '\0')
-	{
-		// Skip initial white space
-		while (*row != '\0' && (*row == ' ' || *row == '\t'))
-			row++;
-		const char* s = row;
-		// Find vertex delimiter and terminated the string there for conversion.
-		while (*row != '\0' && *row != ' ' && *row != '\t')
-		{
-			if (*row == '/') *row = '\0';
-			row++;
-		}
-		if (*s == '\0')
-			continue;
-		const int vi = std::stoi(s);
-		data[j++] = vi < 0 ? vi+vcnt : vi-1;
-		if (j >= n) return j;
-	}
-	return j;
-}
-
-bool rcMeshLoaderObj::load(const std::string& fileName)
-{
-	std::fstream file{fileName, std::ios::in | std::ios::binary | std::ios::ate};
-	if (!file.is_open())
-		return false;
-
-    const std::streamsize fileSize = file.tellg();
-    file.seekg(0, std::ios::beg);
-
-    if (fileSize < 0) {
-        return false;
+static char *parseRow(char *buf, const char *bufEnd, char *row, const int len) {
+  bool start = true;
+  bool done = false;
+  int n = 0;
+  while (!done && buf < bufEnd) {
+    const char c = *buf;
+    buf++;
+    // multirow
+    switch (c) {
+    case '\\':
+      break;
+    case '\n':
+      if (start)
+        break;
+      done = true;
+      break;
+    case '\r':
+      break;
+    case '\t':
+    case ' ':
+      if (start)
+        break;
+      // else falls through
+    default:
+      start = false;
+      row[n++] = c;
+      if (n >= len - 1)
+        done = true;
+      break;
     }
+  }
+  row[n] = '\0';
+  return buf;
+}
 
-	const auto buf = new (std::nothrow) char[fileSize];
-	if (!buf)
-	{
-		file.close();
-		return false;
-	}
-	const std::size_t readLen = file.read(buf, fileSize).gcount();
-	file.close();
+static int parseFace(char *row, int *data, const int n, const int vcnt) {
+  int j = 0;
+  while (*row != '\0') {
+    // Skip initial white space
+    while (*row != '\0' && (*row == ' ' || *row == '\t'))
+      row++;
+    const char *s = row;
+    // Find vertex delimiter and terminated the string there for conversion.
+    while (*row != '\0' && *row != ' ' && *row != '\t') {
+      if (*row == '/')
+        *row = '\0';
+      row++;
+    }
+    if (*s == '\0')
+      continue;
+    const int vi = atoi(s);
+    data[j++] = vi < 0 ? vi + vcnt : vi - 1;
+    if (j >= n)
+      return j;
+  }
+  return j;
+}
 
-	if (readLen != fileSize)
-	{
-		delete[] buf;
-		return false;
-	}
+bool rcMeshLoaderObj::load(const std::string &fileName) {
+  std::ifstream file(fileName, std::ios::in | std::ios::binary | std::ios::ate);
 
-	char* src = buf;
-	const char* srcEnd = buf + fileSize;
-	char row[512];
-	float x,y,z;
-	int vcap = 0;
-	int tcap = 0;
-	
-	while (src < srcEnd)
-	{
-		// Parse one row
-		row[0] = '\0';
-		src = parseRow(src, srcEnd, row, sizeof(row)/sizeof(char));
-		// Skip comments
-		if (row[0] == '#') continue;
-		if (row[0] == 'v' && row[1] != 'n' && row[1] != 't')
-		{
-			// Vertex pos
-            std::istringstream rowStream(row + 1);
-			rowStream >> x >> y >> z;
-			addVertex(x, y, z, vcap);
-		}
-		if (row[0] == 'f')
-		{
-			int face[32];
-			// Faces
-			const int nv = parseFace(row + 1, face, 32, m_vertCount);
-			for (int i = 2; i < nv; ++i)
-			{
-				const int a = face[0];
-				const int b = face[i-1];
-				const int c = face[i];
-				if (a < 0 || a >= m_vertCount || b < 0 || b >= m_vertCount || c < 0 || c >= m_vertCount)
-					continue;
-				addTriangle(a, b, c, tcap);
-			}
-		}
-	}
+  if (!file.is_open()) {
+    return false;
+  }
 
-	delete [] buf;
+  const std::streamsize fileSize = file.tellg();
+  file.seekg(0, std::ios::beg);
 
-	// Calculate normals.
-	m_normals = new float[m_triCount*3];
-	for (int i = 0; i < m_triCount*3; i += 3)
-	{
-		const float* v0 = &m_verts[m_tris[i]*3];
-		const float* v1 = &m_verts[m_tris[i+1]*3];
-		const float* v2 = &m_verts[m_tris[i+2]*3];
-		float e0[3], e1[3];
-		for (int j = 0; j < 3; ++j)
-		{
-			e0[j] = v1[j] - v0[j];
-			e1[j] = v2[j] - v0[j];
-		}
-		float* n = &m_normals[i];
-		n[0] = e0[1]*e1[2] - e0[2]*e1[1];
-		n[1] = e0[2]*e1[0] - e0[0]*e1[2];
-		n[2] = e0[0]*e1[1] - e0[1]*e1[0];
-		if (float d = std::sqrt(n[0]*n[0] + n[1]*n[1] + n[2]*n[2]); d > 0)
-		{
-			d = 1.0f/d;
-			n[0] *= d;
-			n[1] *= d;
-			n[2] *= d;
-		}
-	}
-	
-	m_filename = fileName;
-	return true;
+  if (fileSize < 0) {
+    return false;
+  }
+
+  auto *const buf = new (std::nothrow) char[fileSize];
+  if (!buf) {
+    file.close();
+    return false;
+  }
+  file.read(buf, fileSize);
+  const std::size_t readLen = file.gcount();
+  file.close();
+  if (readLen != fileSize) {
+    delete[] buf;
+    return false;
+  }
+
+  char *src = buf;
+  const char *srcEnd = buf + fileSize;
+  char row[512];
+  float x, y, z;
+  int vcap = 0;
+  int tcap = 0;
+
+  while (src < srcEnd) {
+    // Parse one row
+    row[0] = '\0';
+    src = parseRow(src, srcEnd, row, sizeof(row) / sizeof(char));
+    // Skip comments
+    if (row[0] == '#')
+      continue;
+    if (row[0] == 'v' && row[1] != 'n' && row[1] != 't') {
+      // Vertex pos
+      std::istringstream rowStream(row + 1);
+      rowStream >> x >> y >> z;
+      addVertex(x, y, z, vcap);
+    }
+    if (row[0] == 'f') {
+      int face[32];
+      // Faces
+      const int nv = parseFace(row + 1, face, 32, m_vertCount);
+      for (int i = 2; i < nv; ++i) {
+        const int a = face[0];
+        const int b = face[i - 1];
+        const int c = face[i];
+        if (a < 0 || a >= m_vertCount || b < 0 || b >= m_vertCount || c < 0 || c >= m_vertCount)
+          continue;
+        addTriangle(a, b, c, tcap);
+      }
+    }
+  }
+
+  delete[] buf;
+
+  // Calculate normals.
+  m_normals = new float[m_triCount * 3];
+  for (int i = 0; i < m_triCount * 3; i += 3) {
+    const float *v0 = &m_verts[m_tris[i] * 3];
+    const float *v1 = &m_verts[m_tris[i + 1] * 3];
+    const float *v2 = &m_verts[m_tris[i + 2] * 3];
+    float e0[3], e1[3];
+    for (int j = 0; j < 3; ++j) {
+      e0[j] = v1[j] - v0[j];
+      e1[j] = v2[j] - v0[j];
+    }
+    float *n = &m_normals[i];
+    n[0] = e0[1] * e1[2] - e0[2] * e1[1];
+    n[1] = e0[2] * e1[0] - e0[0] * e1[2];
+    n[2] = e0[0] * e1[1] - e0[1] * e1[0];
+    float d = std::sqrt(n[0] * n[0] + n[1] * n[1] + n[2] * n[2]);
+    if (d > 0) {
+      d = 1.0f / d;
+      n[0] *= d;
+      n[1] *= d;
+      n[2] *= d;
+    }
+  }
+
+  m_filename = fileName;
+  return true;
 }

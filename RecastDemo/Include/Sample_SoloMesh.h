@@ -15,20 +15,23 @@
 //    misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 //
+
 #pragma once
+#include "Recast.h"
+#include "Sample.h"
 
 class Sample_SoloMesh final : public Sample {
 protected:
-  bool m_keepInterResults;
-  float m_totalBuildTimeMs;
+  bool m_keepInterResults{};
+  float m_totalBuildTimeMs{};
 
-  unsigned char *m_triareas;
-  rcHeightfield *m_solid;
-  rcCompactHeightfield *m_chf;
-  rcContourSet *m_cset;
-  rcPolyMesh *m_pmesh;
+  unsigned char *m_triareas{};
+  rcHeightfield *m_solid{};
+  rcCompactHeightfield *m_chf{};
+  rcContourSet *m_cset{};
+  rcPolyMesh *m_pmesh{};
   rcConfig m_cfg{};
-  rcPolyMeshDetail *m_dmesh;
+  rcPolyMeshDetail *m_dmesh{};
 
   enum DrawMode {
     DRAWMODE_NAVMESH,
@@ -51,7 +54,7 @@ protected:
     MAX_DRAWMODE
   };
 
-  DrawMode m_drawMode;
+  DrawMode m_drawMode{};
 
   void cleanup();
 
@@ -65,11 +68,10 @@ public:
 
   void handleRender() override;
   void handleRenderOverlay(double *proj, double *model, int *view) override;
-  void handleMeshChanged(class InputGeom *geom) override;
+  void handleMeshChanged(InputGeom *geom) override;
   bool handleBuild() override;
 
-private:
   // Explicitly disabled copy constructor and copy assignment operator.
-  Sample_SoloMesh(const Sample_SoloMesh &);
-  Sample_SoloMesh &operator=(const Sample_SoloMesh &);
+  Sample_SoloMesh(const Sample_SoloMesh &) = delete;
+  Sample_SoloMesh &operator=(const Sample_SoloMesh &) = delete;
 };

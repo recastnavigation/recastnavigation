@@ -252,7 +252,7 @@ bool generateSingle(rcContext& context, const InputGeom& pGeom, rcConfig& config
   //
 
   // Allocate voxel heightfield where we rasterize our input data to.
-  rcHeightfield *m_solid = rcAllocHeightfield();
+rcHeightfield *m_solid = rcAllocHeightfield();
   if (!m_solid) {
     context.log(RC_LOG_ERROR, "buildNavigation: Out of memory 'solid'.");
     return false;

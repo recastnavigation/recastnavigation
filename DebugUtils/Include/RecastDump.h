@@ -17,27 +17,23 @@
 //
 
 #pragma once
-#include <cstddef>
 
-class rcContext;
-struct rcCompactHeightfield;
-struct rcContourSet;
-struct rcPolyMeshDetail;
-struct rcPolyMesh;
-
-struct duFileIO {
-  virtual ~duFileIO() = default;
-
-  virtual bool isWriting() const = 0;
-  virtual bool isReading() const = 0;
-  virtual bool write(const void *ptr, std::size_t size) = 0;
-  virtual bool read(void *ptr, std::size_t size) = 0;
+struct duFileIO
+{
+	virtual ~duFileIO();
+	virtual bool isWriting() const = 0;
+	virtual bool isReading() const = 0;
+	virtual bool write(const void *ptr, size_t size) = 0;
+	virtual bool read(void *ptr, size_t size) = 0;
 };
 
-bool duDumpPolyMeshToObj(const rcPolyMesh &pmesh, duFileIO *io);
-bool duDumpPolyMeshDetailToObj(const rcPolyMeshDetail &dmesh, duFileIO *io);
-bool duDumpContourSet(const rcContourSet &cset, duFileIO *io);
-bool duReadContourSet(rcContourSet &cset, duFileIO *io);
-bool duDumpCompactHeightfield(const rcCompactHeightfield &chf, duFileIO *io);
-bool duReadCompactHeightfield(rcCompactHeightfield &chf, duFileIO *io);
-void duLogBuildTimes(rcContext &ctx, int totalTimeUsec);
+bool duDumpPolyMeshToObj(struct rcPolyMesh& pmesh, duFileIO* io);
+bool duDumpPolyMeshDetailToObj(struct rcPolyMeshDetail& dmesh, duFileIO* io);
+
+bool duDumpContourSet(struct rcContourSet& cset, duFileIO* io);
+bool duReadContourSet(struct rcContourSet& cset, duFileIO* io);
+
+bool duDumpCompactHeightfield(struct rcCompactHeightfield& chf, duFileIO* io);
+bool duReadCompactHeightfield(struct rcCompactHeightfield& chf, duFileIO* io);
+
+void duLogBuildTimes(rcContext& ctx, int totalTimeUsec);

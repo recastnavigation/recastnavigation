@@ -5,7 +5,6 @@ Members in this module are wrappers around the standard math library
 */
 
 #pragma once
-
 #include <cmath>
 
 inline float dtMathFabsf(const float x) { return std::abs(x); }

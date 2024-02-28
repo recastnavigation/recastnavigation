@@ -16,19 +16,18 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "DetourPathCorridor.h"
+#include <cstring>
 
 #include "DetourAlloc.h"
 #include "DetourAssert.h"
 #include "DetourCommon.h"
 #include "DetourNavMeshQuery.h"
+#include "DetourPathCorridor.h"
 
-#include <cstring>
-
-	if (size > 0)
-
-		memmove(path+req, path+orig, size*sizeof(dtPolyRef));
-	
+int dtMergeCorridorStartMoved(dtPolyRef *path, const int npath, const int maxPath,
+                              const dtPolyRef *visited, const int nvisited) {
+  int furthestPath = -1;
+  int furthestVisited = -1;
   // Find furthest common polygon.
   for (int i = npath - 1; i >= 0; --i) {
     bool found = false;
@@ -42,9 +41,6 @@
     if (found)
       break;
   }
-	for (int i = 0, n = dtMin(req, maxPath); i < n; ++i)
-		path[i] = visited[(nvisited-1)-i];
-
   // If no intersection found just return current path.
   if (furthestPath == -1 || furthestVisited == -1)
     return npath;
@@ -57,17 +53,18 @@
   int size = dtMax(0, npath - orig);
   if (req + size > maxPath)
     size = maxPath - req;
-  if (size)
-    std::memmove(path + req, path + orig, size * sizeof(dtPolyRef));
+  if (size > 0)
+    memmove(path + req, path + orig, size * sizeof(dtPolyRef));
 
   // Store visited
-  for (int i = 0; i < req; ++i)
+  for (int i = 0, n = dtMin(req, maxPath); i < n; ++i)
     path[i] = visited[(nvisited - 1) - i];
 
   return req + size;
 }
 
-int dtMergeCorridorEndMoved(dtPolyRef *path, const int npath, const int maxPath, const dtPolyRef *visited, const int nvisited) {
+int dtMergeCorridorEndMoved(dtPolyRef *path, const int npath, const int maxPath,
+                            const dtPolyRef *visited, const int nvisited) {
   int furthestPath = -1;
   int furthestVisited = -1;
 
@@ -95,12 +92,13 @@ int dtMergeCorridorEndMoved(dtPolyRef *path, const int npath, const int maxPath,
   const int count = dtMin(nvisited - vpos, maxPath - ppos);
   dtAssert(ppos + count <= maxPath);
   if (count)
-    std::memcpy(path + ppos, visited + vpos, sizeof(dtPolyRef) * count);
+    memcpy(path + ppos, visited + vpos, sizeof(dtPolyRef) * count);
 
   return ppos + count;
 }
 
-int dtMergeCorridorStartShortcut(dtPolyRef *path, const int npath, const int maxPath, const dtPolyRef *visited, const int nvisited) {
+int dtMergeCorridorStartShortcut(dtPolyRef *path, const int npath, const int maxPath,
+                                 const dtPolyRef *visited, const int nvisited) {
   int furthestPath = -1;
   int furthestVisited = -1;
 
@@ -134,7 +132,7 @@ int dtMergeCorridorStartShortcut(dtPolyRef *path, const int npath, const int max
   if (req + size > maxPath)
     size = maxPath - req;
   if (size)
-    std::memmove(path + req, path + orig, size * sizeof(dtPolyRef));
+    memmove(path + req, path + orig, size * sizeof(dtPolyRef));
 
   // Store visited
   for (int i = 0; i < req; ++i)
@@ -185,11 +183,6 @@ may be needed.  E.g. If you move the target, check #getLastPoly() to see if it i
 
 */
 
-dtPathCorridor::dtPathCorridor() : m_path(nullptr),
-                                   m_npath(0),
-                                   m_maxPath(0) {
-}
-
 dtPathCorridor::~dtPathCorridor() {
   dtFree(m_path);
 }
@@ -233,9 +226,13 @@ So if 10 corners are needed, the buffers should be sized for 11 corners.
 
 If the target is within range, it will be the last corner and have a polygon reference id of zero.
 */
-int dtPathCorridor::findCorners(float *cornerVerts, unsigned char *cornerFlags, dtPolyRef *cornerPolys, const int maxCorners, const dtNavMeshQuery *navquery, const dtQueryFilter * /*filter*/) const {
+int dtPathCorridor::findCorners(float *cornerVerts, unsigned char *cornerFlags,
+                                dtPolyRef *cornerPolys, const int maxCorners,
+                                const dtNavMeshQuery *navquery, const dtQueryFilter * /*filter*/) const {
   dtAssert(m_path);
   dtAssert(m_npath);
+  if (!m_path || !m_npath)
+    return 0;
 
   static constexpr float MIN_TARGET_DIST = 0.01f;
 
@@ -250,9 +247,9 @@ int dtPathCorridor::findCorners(float *cornerVerts, unsigned char *cornerFlags, 
       break;
     ncorners--;
     if (ncorners) {
-      std::memmove(cornerFlags, cornerFlags + 1, sizeof(unsigned char) * ncorners);
-      std::memmove(cornerPolys, cornerPolys + 1, sizeof(dtPolyRef) * ncorners);
-      std::memmove(cornerVerts, cornerVerts + 3, sizeof(float) * 3 * ncorners);
+      memmove(cornerFlags, cornerFlags + 1, sizeof(unsigned char) * ncorners);
+      memmove(cornerPolys, cornerPolys + 1, sizeof(dtPolyRef) * ncorners);
+      memmove(cornerVerts, cornerVerts + 3, sizeof(float) * 3 * ncorners);
     }
   }
 
@@ -285,7 +282,8 @@ of the call to match the needs to the agent.
 
 This function is not suitable for long distance searches.
 */
-void dtPathCorridor::optimizePathVisibility(const float *next, const float pathOptimizationRange, const dtNavMeshQuery *navquery, const dtQueryFilter *filter) {
+void dtPathCorridor::optimizePathVisibility(const float *next, const float pathOptimizationRange,
+                                            const dtNavMeshQuery *navquery, const dtQueryFilter *filter) {
   dtAssert(m_path);
   if (!m_path)
     return;
@@ -331,22 +329,21 @@ bool dtPathCorridor::optimizePathTopology(dtNavMeshQuery *navquery, const dtQuer
   dtAssert(navquery);
   dtAssert(filter);
   dtAssert(m_path);
-  if (!filter || !navquery || !m_path)
-    return false;
 
+  if (!m_path || !filter || !navquery)
+    return false;
   if (m_npath < 3)
     return false;
 
   static constexpr int MAX_ITER = 32;
   static constexpr int MAX_RES = 32;
 
-  dtPolyRef res[MAX_RES];
   int nres = 0;
   navquery->initSlicedFindPath(m_path[0], m_path[m_npath - 1], m_pos, m_target, filter);
   navquery->updateSlicedFindPath(MAX_ITER, nullptr);
-  const dtStatus status = navquery->finalizeSlicedFindPathPartial(m_path, m_npath, res, &nres, MAX_RES);
 
-  if (dtStatusSucceed(status) && nres > 0) {
+  dtPolyRef res[MAX_RES];
+  if (dtStatusSucceed(navquery->finalizeSlicedFindPathPartial(m_path, m_npath, res, &nres, MAX_RES)) && nres > 0) {
     m_npath = dtMergeCorridorStartShortcut(m_path, m_npath, m_maxPath, res, nres);
     return true;
   }
@@ -354,11 +351,13 @@ bool dtPathCorridor::optimizePathTopology(dtNavMeshQuery *navquery, const dtQuer
   return false;
 }
 
-bool dtPathCorridor::moveOverOffmeshConnection(const dtPolyRef offMeshConRef, dtPolyRef *refs, float *startPos, float *endPos, const dtNavMeshQuery *navquery) {
+bool dtPathCorridor::moveOverOffmeshConnection(const dtPolyRef offMeshConRef, dtPolyRef *refs,
+                                               float *startPos, float *endPos,
+                                               const dtNavMeshQuery *navquery) {
   dtAssert(navquery);
   dtAssert(m_path);
   dtAssert(m_npath);
-  if (!m_npath || !navquery || !m_path)
+  if (!m_path || !m_npath || !navquery)
     return false;
 
   // Advance the path up to and over the off-mesh connection.
@@ -387,8 +386,7 @@ bool dtPathCorridor::moveOverOffmeshConnection(const dtPolyRef offMeshConRef, dt
   if (!nav)
     return false;
 
-  const dtStatus status = nav->getOffMeshConnectionPolyEndPoints(refs[0], refs[1], startPos, endPos);
-  if (dtStatusSucceed(status)) {
+  if (dtStatusSucceed(nav->getOffMeshConnectionPolyEndPoints(refs[0], refs[1], startPos, endPos))) {
     dtVcopy(m_pos, endPos);
     return true;
   }
@@ -414,17 +412,15 @@ or it can't be reached using a local search.
 bool dtPathCorridor::movePosition(const float *npos, const dtNavMeshQuery *navquery, const dtQueryFilter *filter) {
   dtAssert(m_path);
   dtAssert(m_npath);
-  if (!m_npath || !m_path)
+  if(!m_path || !m_npath)
     return false;
 
   // Move along navmesh and update new position.
-  float result[3];
   static constexpr int MAX_VISITED = 16;
+  float result[3];
   dtPolyRef visited[MAX_VISITED];
   int nvisited = 0;
-  const dtStatus status = navquery->moveAlongSurface(m_path[0], m_pos, npos, filter,
-                                                     result, visited, &nvisited, MAX_VISITED);
-  if (dtStatusSucceed(status)) {
+  if (dtStatusSucceed(navquery->moveAlongSurface(m_path[0], m_pos, npos, filter, result, visited, &nvisited, MAX_VISITED))) {
     m_npath = dtMergeCorridorStartMoved(m_path, m_npath, m_maxPath, visited, nvisited);
 
     // Adjust the position to stay on top of the navmesh.
@@ -453,7 +449,7 @@ The resulting target will differ from the desired target if the desired target i
 bool dtPathCorridor::moveTargetPosition(const float *npos, const dtNavMeshQuery *navquery, const dtQueryFilter *filter) {
   dtAssert(m_path);
   dtAssert(m_npath);
-  if (!m_npath || !m_path)
+  if(!m_path || !m_npath)
     return false;
 
   // Move along navmesh and update new position.
@@ -461,9 +457,7 @@ bool dtPathCorridor::moveTargetPosition(const float *npos, const dtNavMeshQuery 
   static constexpr int MAX_VISITED = 16;
   dtPolyRef visited[MAX_VISITED];
   int nvisited = 0;
-  const dtStatus status = navquery->moveAlongSurface(m_path[m_npath - 1], m_target, npos, filter,
-                                                     result, visited, &nvisited, MAX_VISITED);
-  if (dtStatusSucceed(status)) {
+  if (dtStatusSucceed(navquery->moveAlongSurface(m_path[m_npath - 1], m_target, npos, filter, result, visited, &nvisited, MAX_VISITED))) {
     m_npath = dtMergeCorridorEndMoved(m_path, m_npath, m_maxPath, visited, nvisited);
     // TODO: should we do that?
     // Adjust the position to stay on top of the navmesh.
@@ -488,15 +482,17 @@ void dtPathCorridor::setCorridor(const float *target, const dtPolyRef *path, con
   dtAssert(m_path);
   dtAssert(npath > 0);
   dtAssert(npath <= m_maxPath);
+  if(!m_path || npath < 0 || npath > m_maxPath)
+    return ;
 
   dtVcopy(m_target, target);
-  std::memcpy(m_path, path, sizeof(dtPolyRef) * npath);
+  memcpy(m_path, path, sizeof(dtPolyRef) * npath);
   m_npath = npath;
 }
 
 bool dtPathCorridor::fixPathStart(const dtPolyRef safeRef, const float *safePos) {
   dtAssert(m_path);
-  if (!m_path)
+  if(!m_path)
     return false;
 
   dtVcopy(m_pos, safePos);
@@ -513,11 +509,12 @@ bool dtPathCorridor::fixPathStart(const dtPolyRef safeRef, const float *safePos)
   return true;
 }
 
-auto dtPathCorridor::trimInvalidPath(const dtPolyRef safeRef, const float *safePos, const dtNavMeshQuery *navquery, const dtQueryFilter *filter) -> bool {
+bool dtPathCorridor::trimInvalidPath(const dtPolyRef safeRef, const float *safePos,
+                                     const dtNavMeshQuery *navquery, const dtQueryFilter *filter) {
   dtAssert(navquery);
   dtAssert(filter);
   dtAssert(m_path);
-  if (!navquery || !filter || !m_path)
+  if(!m_path || !filter || !navquery)
     return false;
 
   // Keep valid path as far as possible.

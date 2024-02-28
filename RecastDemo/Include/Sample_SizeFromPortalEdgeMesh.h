@@ -68,8 +68,7 @@ public:
   void handleMeshChanged(InputGeom *geom) override;
   bool handleBuild() override;
 
-private:
   // Explicitly disabled copy constructor and copy assignment operator.
-  Sample_SizeFromPortalEdgeMesh(const Sample_SizeFromPortalEdgeMesh &);
-  Sample_SizeFromPortalEdgeMesh &operator=(const Sample_SizeFromPortalEdgeMesh &);
+  Sample_SizeFromPortalEdgeMesh(const Sample_SizeFromPortalEdgeMesh &)=delete;
+  Sample_SizeFromPortalEdgeMesh &operator=(const Sample_SizeFromPortalEdgeMesh &)=delete;
 };

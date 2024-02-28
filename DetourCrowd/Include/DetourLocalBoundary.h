@@ -17,45 +17,44 @@
 //
 
 #pragma once
+#include "DetourNavMeshQuery.h"
 
-#include <DetourNavMesh.h>
 
-class dtQueryFilter;
-class dtNavMeshQuery;
+class dtLocalBoundary
+{
+	static constexpr int MAX_LOCAL_SEGS = 8;
+	static constexpr int MAX_LOCAL_POLYS = 16;
+	
+	struct Segment
+	{
+		float s[6]{};	///< Segment start/end
+		float d{};	///< Distance for pruning.
+	};
+	
+	float m_center[3]{};
+	Segment m_segs[MAX_LOCAL_SEGS]{};
+	int m_nsegs{};
+	
+	dtPolyRef m_polys[MAX_LOCAL_POLYS]{};
+	int m_npolys{};
 
-class dtLocalBoundary {
-  static constexpr int MAX_LOCAL_SEGS = 8;
-  static constexpr int MAX_LOCAL_POLYS = 16;
-
-  struct Segment {
-    float s[6]; ///< Segment start/end
-    float d;    ///< Distance for pruning.
-  };
-
-  float m_center[3]{};
-  Segment m_segs[MAX_LOCAL_SEGS];
-  int m_nsegs;
-
-  dtPolyRef m_polys[MAX_LOCAL_POLYS];
-  int m_npolys;
-
-  void addSegment(float dist, const float *s);
-
+	void addSegment(float dist, const float* s);
+	
 public:
-  dtLocalBoundary();
-  ~dtLocalBoundary() = default;
+	dtLocalBoundary();
+	~dtLocalBoundary();
+	
+	void reset();
+	
+	void update(dtPolyRef ref, const float* pos, float collisionQueryRange, const dtNavMeshQuery* navquery, const dtQueryFilter* filter);
+	
+	bool isValid(const dtNavMeshQuery* navquery, const dtQueryFilter* filter) const;
 
-  void reset();
+        const float* getCenter() const { return m_center; }
+        int getSegmentCount() const { return m_nsegs; }
+        const float* getSegment(const int i) const { return m_segs[i].s; }
 
-  void update(dtPolyRef ref, const float *pos, float collisionQueryRange,const dtNavMeshQuery *navquery, const dtQueryFilter *filter);
-  bool isValid(const dtNavMeshQuery *navquery, const dtQueryFilter *filter) const;
-
-  const float *getCenter() const { return m_center; }
-  int getSegmentCount() const { return m_nsegs; }
-  const float *getSegment(const int i) const { return m_segs[i].s; }
-
-private:
-  // Explicitly disabled copy constructor and copy assignment operator.
-  dtLocalBoundary(const dtLocalBoundary &);
-  dtLocalBoundary &operator=(const dtLocalBoundary &);
+	// Explicitly disabled copy constructor and copy assignment operator.
+	dtLocalBoundary(const dtLocalBoundary&) = delete;
+	dtLocalBoundary& operator=(const dtLocalBoundary&) = delete;
 };

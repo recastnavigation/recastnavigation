@@ -17,19 +17,18 @@
 //
 
 #include <cmath>
-#include <cstdio>
 #include <fstream>
-#include <new>
 
-#include "imgui.h"
 #include <SDL.h>
 #include <SDL_opengl.h>
+
+#include "imgui.h"
 
 // Some math headers don't have PI defined.
 static constexpr float PI = 3.14159265f;
 
 void imguifree(void *ptr, void *userptr);
-void *imguimalloc(std::size_t size, void *userptr);
+void *imguimalloc(size_t size, void *userptr);
 
 #define STBTT_malloc(x, y) imguimalloc(x, y)
 #define STBTT_free(x, y) imguifree(x, y)
@@ -54,11 +53,11 @@ static float g_circleVerts[CIRCLE_VERTS * 2];
 static stbtt_bakedchar g_cdata[96]; // ASCII 32..126 is 95 glyphs
 static GLuint g_ftex = 0;
 
-inline uint32_t RGBA(const unsigned char r, const unsigned char g, const unsigned char b, const unsigned char a) {
+inline unsigned int RGBA(const unsigned char r, const unsigned char g, const unsigned char b, const unsigned char a) {
   return (r) | (g << 8) | (b << 16) | (a << 24);
 }
 
-static void drawPolygon(const float *coords, unsigned numCoords, const float r, uint32_t col) {
+static void drawPolygon(const float *coords, unsigned numCoords, const float r, unsigned int col) {
   if (numCoords > TEMP_COORD_COUNT)
     numCoords = TEMP_COORD_COUNT;
 
@@ -67,7 +66,7 @@ static void drawPolygon(const float *coords, unsigned numCoords, const float r, 
     const float *v1 = &coords[i * 2];
     float dx = v1[0] - v0[0];
     float dy = v1[1] - v0[1];
-    float d = std::sqrt(dx * dx + dy * dy);
+    float d = sqrtf(dx * dx + dy * dy);
     if (d > 0) {
       d = 1.0f / d;
       dx *= d;
@@ -96,7 +95,7 @@ static void drawPolygon(const float *coords, unsigned numCoords, const float r, 
     g_tempCoords[i * 2 + 1] = coords[i * 2 + 1] + dmy * r;
   }
 
-  uint32_t colTrans = RGBA(col & 0xff, (col >> 8) & 0xff, (col >> 16) & 0xff, 0);
+  unsigned int colTrans = RGBA(col & 0xff, (col >> 8) & 0xff, (col >> 16) & 0xff, 0);
 
   glBegin(GL_TRIANGLES);
 
@@ -125,7 +124,7 @@ static void drawPolygon(const float *coords, unsigned numCoords, const float r, 
   glEnd();
 }
 
-static void drawRect(const float x, const float y, const float w, const float h, const float fth, const uint32_t col) {
+static void drawRect(const float x, const float y, const float w, const float h, const float fth, const unsigned int col) {
   const float verts[4 * 2] =
       {
           x + 0.5f,
@@ -141,7 +140,7 @@ static void drawRect(const float x, const float y, const float w, const float h,
 }
 
 /*
-static void drawEllipse(float x, float y, float w, float h, float fth, uint32_t col)
+static void drawEllipse(float x, float y, float w, float h, float fth, unsigned int col)
 {
         float verts[CIRCLE_VERTS*2];
         const float* cverts = g_circleVerts;
@@ -157,7 +156,7 @@ static void drawEllipse(float x, float y, float w, float h, float fth, uint32_t 
 }
 */
 
-static void drawRoundedRect(const float x, const float y, const float w, const float h, const float r, const float fth, const uint32_t col) {
+static void drawRoundedRect(const float x, const float y, const float w, const float h, const float r, const float fth, const unsigned int col) {
   constexpr unsigned n = CIRCLE_VERTS / 4;
   float verts[(n + 1) * 4 * 2];
   const float *cverts = g_circleVerts;
@@ -188,10 +187,10 @@ static void drawRoundedRect(const float x, const float y, const float w, const f
   drawPolygon(verts, (n + 1) * 4, fth, col);
 }
 
-static void drawLine(const float x0, const float y0, const float x1, const float y1, float r, const float fth, const uint32_t col) {
+static void drawLine(const float x0, const float y0, const float x1, const float y1, float r, const float fth, const unsigned int col) {
   float dx = x1 - x0;
   float dy = y1 - y0;
-  float d = std::sqrt(dx * dx + dy * dy);
+  float d = sqrtf(dx * dx + dy * dy);
   if (d > 0.0001f) {
     d = 1.0f / d;
     dx *= d;
@@ -245,7 +244,7 @@ bool imguiRenderGLInit(const char *fontPath) {
     return false;
   }
 
-  const auto ttfBuffer = new (std::nothrow) unsigned char[fileSize];
+  auto *const ttfBuffer = new (std::nothrow) unsigned char[fileSize];
   if (!ttfBuffer) {
     file.close();
     return false;
@@ -258,7 +257,7 @@ bool imguiRenderGLInit(const char *fontPath) {
     return false;
   }
 
-  const auto bmap = static_cast<unsigned char *>(malloc(512 * 512));
+  auto *const bmap = static_cast<unsigned char *>(malloc(512 * 512));
   if (!bmap) {
     free(ttfBuffer);
     return false;
@@ -294,13 +293,13 @@ static void getBakedQuad(const stbtt_bakedchar *chardata, const int pw, const in
 
   q->x0 = static_cast<float>(round_x);
   q->y0 = static_cast<float>(round_y);
-  q->x1 = static_cast<float>(round_x) + static_cast<float>(b->x1) - static_cast<float>(b->x0);
-  q->y1 = static_cast<float>(round_y) - static_cast<float>(b->y1) + static_cast<float>(b->y0);
+  q->x1 = static_cast<float>(round_x) + b->x1 - b->x0;
+  q->y1 = static_cast<float>(round_y) - b->y1 + b->y0;
 
-  q->s0 = static_cast<float>(b->x0) / static_cast<float>(pw);
-  q->t0 = static_cast<float>(b->y0) / static_cast<float>(pw);
-  q->s1 = static_cast<float>(b->x1) / static_cast<float>(ph);
-  q->t1 = static_cast<float>(b->y1) / static_cast<float>(ph);
+  q->s0 = b->x0 / static_cast<float>(pw);
+  q->t0 = b->y0 / static_cast<float>(pw);
+  q->s1 = b->x1 / static_cast<float>(ph);
+  q->t1 = b->y1 / static_cast<float>(ph);
 
   *xpos += b->xadvance;
 }
@@ -313,16 +312,16 @@ static float getTextLength(const stbtt_bakedchar *chardata, const char *text) {
   while (*text) {
     const int c = static_cast<unsigned char>(*text);
     if (c == '\t') {
-      for (const float g_tabStop : g_tabStops) {
-        if (xpos < g_tabStop) {
-          xpos = g_tabStop;
+      for (int i = 0; i < 4; ++i) {
+        if (xpos < g_tabStops[i]) {
+          xpos = g_tabStops[i];
           break;
         }
       }
     } else if (c >= 32 && c < 128) {
       const stbtt_bakedchar *b = chardata + c - 32;
       const int round_x = STBTT_ifloor((xpos + b->xoff) + 0.5);
-      len = static_cast<float>(round_x + b->x1 - b->x0) + 0.5f;
+      len = round_x + b->x1 - b->x0 + 0.5f;
       xpos += b->xadvance;
     }
     ++text;
@@ -330,7 +329,7 @@ static float getTextLength(const stbtt_bakedchar *chardata, const char *text) {
   return len;
 }
 
-static void drawText(float x, const float y, const char *text, const int align, const uint32_t col) {
+static void drawText(float x, const float y, const char *text, const int align, const unsigned int col) {
   if (!g_ftex)
     return;
   if (!text)
@@ -355,9 +354,9 @@ static void drawText(float x, const float y, const char *text, const int align, 
   while (*text) {
     const int c = static_cast<unsigned char>(*text);
     if (c == '\t') {
-      for (const float g_tabStop : g_tabStops) {
-        if (x < g_tabStop + ox) {
-          x = g_tabStop + ox;
+      for (int i = 0; i < 4; ++i) {
+        if (x < g_tabStops[i] + ox) {
+          x = g_tabStops[i] + ox;
           break;
         }
       }
@@ -406,7 +405,7 @@ void imguiRenderGLDraw() {
                         static_cast<float>(cmd.rect.r) * s, 1.0f, cmd.col);
       }
     } else if (cmd.type == IMGUI_GFXCMD_LINE) {
-      drawLine(static_cast<float>(cmd.line.x0) * s, static_cast<float>(cmd.line.y0) * s, static_cast<float>(cmd.line.x1) * s, static_cast<float>(cmd.line.y1) * s, static_cast<float>(cmd.line.r) * s, 1.0f, cmd.col);
+      drawLine(cmd.line.x0 * s, cmd.line.y0 * s, cmd.line.x1 * s, cmd.line.y1 * s, cmd.line.r * s, 1.0f, cmd.col);
     } else if (cmd.type == IMGUI_GFXCMD_TRIANGLE) {
       if (cmd.flags == 1) {
         const float verts[3 * 2] =

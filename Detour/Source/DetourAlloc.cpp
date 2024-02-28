@@ -16,32 +16,36 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
+#include <cstdlib>
+
 #include "DetourAlloc.h"
 
-#include <memory>
-namespace {
-void *dtAllocDefault(const std::size_t size, dtAllocHint) {
-  return malloc(size);
+static void *dtAllocDefault(const size_t size, dtAllocHint)
+{
+	return malloc(size);
 }
 
-void dtFreeDefault(void *ptr) {
-  free(ptr);
+static void dtFreeDefault(void *ptr)
+{
+	free(ptr);
 }
 
-dtAllocFunc *sAllocFunc = dtAllocDefault;
-dtFreeFunc *sFreeFunc = dtFreeDefault;
-} // namespace
+static dtAllocFunc* sAllocFunc = dtAllocDefault;
+static dtFreeFunc* sFreeFunc = dtFreeDefault;
 
-void dtAllocSetCustom(dtAllocFunc *allocFunc, dtFreeFunc *freeFunc) {
-  sAllocFunc = allocFunc ? allocFunc : dtAllocDefault;
-  sFreeFunc = freeFunc ? freeFunc : dtFreeDefault;
+void dtAllocSetCustom(dtAllocFunc *allocFunc, dtFreeFunc *freeFunc)
+{
+	sAllocFunc = allocFunc ? allocFunc : dtAllocDefault;
+	sFreeFunc = freeFunc ? freeFunc : dtFreeDefault;
 }
 
-void *dtAlloc(const std::size_t size, const dtAllocHint hint) {
-  return sAllocFunc(size, hint);
+void* dtAlloc(const size_t size, const dtAllocHint hint)
+{
+	return sAllocFunc(size, hint);
 }
 
-void dtFree(void *ptr) {
-  if (ptr)
-    sFreeFunc(ptr);
+void dtFree(void* ptr)
+{
+	if (ptr)
+		sFreeFunc(ptr);
 }

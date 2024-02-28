@@ -16,22 +16,20 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "CrowdTool.h"
-
 #include <cfloat>
 #include <cmath>
 #include <cstdio>
 #include <cstring>
-#include <iostream>
 
-#include <SDL.h>
-#include <SDL_opengl.h>
+#include "SDL.h"
+#include "SDL_opengl.h"
 #ifdef __APPLE__
 #include <OpenGL/glu.h>
 #else
-#include <gl/GLU.h>
+#include <GL/glu.h>
 #endif
 
+#include "CrowdTool.h"
 #include "DetourCommon.h"
 #include "DetourCrowd.h"
 #include "DetourDebugDraw.h"
@@ -42,7 +40,9 @@
 #include "SampleInterfaces.h"
 #include "imgui.h"
 
-#include <DetourProximityGrid.h>
+#ifdef WIN32
+#define snprintf _snprintf
+#endif
 
 static bool isectSegAABB(const float *sp, const float *sq,
                          const float *amin, const float *amax,
@@ -56,7 +56,7 @@ static bool isectSegAABB(const float *sp, const float *sq,
 
   // For all three slabs
   for (int i = 0; i < 3; i++) {
-    if (std::abs(d[i]) < EPS) {
+    if (fabsf(d[i]) < EPS) {
       // Ray is parallel to slab. No hit if origin not within slab
       if (sp[i] < amin[i] || sp[i] > amax[i])
         return false;
@@ -94,11 +94,7 @@ static void getAgentBounds(const dtCrowdAgent *ag, float *bmin, float *bmax) {
   bmax[2] = p[2] + r;
 }
 
-CrowdToolState::CrowdToolState() : m_sample(nullptr),
-                                   m_nav(nullptr),
-                                   m_crowd(nullptr), m_targetPos{},
-                                   m_targetRef(0),
-                                   m_run(true) {
+CrowdToolState::CrowdToolState() {
   m_toolParams.m_expandSelectedDebugDraw = true;
   m_toolParams.m_showCorners = false;
   m_toolParams.m_showCollisionSegments = false;
@@ -121,12 +117,12 @@ CrowdToolState::CrowdToolState() : m_sample(nullptr),
   m_toolParams.m_separation = false;
   m_toolParams.m_separationWeight = 2.0f;
 
-  std::memset(m_trails, 0, sizeof(m_trails));
+  memset(m_trails, 0, sizeof(m_trails));
 
   m_vod = dtAllocObstacleAvoidanceDebugData();
   m_vod->init(2048);
 
-  std::memset(&m_agentDebug, 0, sizeof(m_agentDebug));
+  memset(&m_agentDebug, 0, sizeof(m_agentDebug));
   m_agentDebug.idx = -1;
   m_agentDebug.vod = m_vod;
 }
@@ -135,14 +131,15 @@ CrowdToolState::~CrowdToolState() {
   dtFreeObstacleAvoidanceDebugData(m_vod);
 }
 
-void CrowdToolState::init(Sample *sample) {
+void CrowdToolState::init(class Sample *sample) {
   if (m_sample != sample) {
     m_sample = sample;
   }
 
   dtNavMesh *nav = m_sample->getNavMesh();
+  dtCrowd *crowd = m_sample->getCrowd();
 
-  if (dtCrowd *crowd = m_sample->getCrowd(); nav && crowd && (m_nav != nav || m_crowd != crowd)) {
+  if (nav && crowd && (m_nav != nav || m_crowd != crowd)) {
     m_nav = nav;
     m_crowd = crowd;
 
@@ -152,9 +149,9 @@ void CrowdToolState::init(Sample *sample) {
     crowd->getEditableFilter(0)->setExcludeFlags(SAMPLE_POLYFLAGS_DISABLED);
 
     // Setup local avoidance params to different qualities.
-    dtObstacleAvoidanceParams params{};
+    dtObstacleAvoidanceParams params;
     // Use mostly default settings, copy from dtCrowd.
-    std::memcpy(&params, crowd->getObstacleAvoidanceParams(0), sizeof(dtObstacleAvoidanceParams));
+    memcpy(&params, crowd->getObstacleAvoidanceParams(0), sizeof(dtObstacleAvoidanceParams));
 
     // Low (11)
     params.velBias = 0.5f;
@@ -245,11 +242,11 @@ void CrowdToolState::handleRender() {
         const int count = grid->getItemCountAt(x, y);
         if (!count)
           continue;
-        uint32_t col = duRGBA(128, 0, 0, dtMin(count * 40, 255));
-        dd.vertex(static_cast<float>(x) * cs, gridy, static_cast<float>(y) * cs, col);
-        dd.vertex(static_cast<float>(x) * cs, gridy, static_cast<float>(y) * cs + cs, col);
-        dd.vertex(static_cast<float>(x) * cs + cs, gridy, static_cast<float>(y) * cs + cs, col);
-        dd.vertex(static_cast<float>(x) * cs + cs, gridy, static_cast<float>(y) * cs, col);
+        unsigned int col = duRGBA(128, 0, 0, dtMin(count * 40, 255));
+        dd.vertex(x * cs, gridy, y * cs, col);
+        dd.vertex(x * cs, gridy, y * cs + cs, col);
+        dd.vertex(x * cs + cs, gridy, y * cs + cs, col);
+        dd.vertex(x * cs + cs, gridy, y * cs, col);
       }
     }
     dd.end();
@@ -270,7 +267,7 @@ void CrowdToolState::handleRender() {
     for (int j = 0; j < AGENT_MAX_TRAIL - 1; ++j) {
       const int idx = (trail->htrail + AGENT_MAX_TRAIL - j) % AGENT_MAX_TRAIL;
       const float *v = &trail->trail[idx * 3];
-      float a = 1 - static_cast<float>(j) / static_cast<float>(AGENT_MAX_TRAIL);
+      float a = 1 - j / static_cast<float>(AGENT_MAX_TRAIL);
       dd.vertex(prev[0], prev[1] + 0.1f, prev[2], duRGBA(0, 0, 0, static_cast<int>(128 * preva)));
       dd.vertex(v[0], v[1] + 0.1f, v[2], duRGBA(0, 0, 0, static_cast<int>(128 * a)));
       preva = a;
@@ -340,7 +337,7 @@ void CrowdToolState::handleRender() {
       dd.begin(DU_DRAW_LINES, 3.0f);
       for (int j = 0; j < ag->boundary.getSegmentCount(); ++j) {
         const float *s = ag->boundary.getSegment(j);
-        uint32_t col = duRGBA(192, 0, 128, 192);
+        unsigned int col = duRGBA(192, 0, 128, 192);
         if (dtTriArea2D(pos, s, s + 3) < 0.0f)
           col = duDarkenCol(col);
 
@@ -382,7 +379,7 @@ void CrowdToolState::handleRender() {
     const float radius = ag->params.radius;
     const float *pos = ag->npos;
 
-    uint32_t col = duRGBA(0, 0, 0, 32);
+    unsigned int col = duRGBA(0, 0, 0, 32);
     if (m_agentDebug.idx == i)
       col = duRGBA(255, 0, 0, 128);
 
@@ -398,7 +395,7 @@ void CrowdToolState::handleRender() {
     const float radius = ag->params.radius;
     const float *pos = ag->npos;
 
-    uint32_t col = duRGBA(220, 220, 220, 128);
+    unsigned int col = duRGBA(220, 220, 220, 128);
     if (ag->targetState == DT_CROWDAGENT_TARGET_REQUESTING || ag->targetState == DT_CROWDAGENT_TARGET_WAITING_FOR_QUEUE)
       col = duLerpCol(col, duRGBA(128, 0, 255, 128), 32);
     else if (ag->targetState == DT_CROWDAGENT_TARGET_WAITING_FOR_PATH)
@@ -435,7 +432,7 @@ void CrowdToolState::handleRender() {
         const float sr = vod->getSampleSize(j);
         const float pen = vod->getSamplePenalty(j);
         const float pen2 = vod->getSamplePreferredSidePenalty(j);
-        uint32_t col = duLerpCol(duRGBA(255, 255, 255, 220), duRGBA(128, 96, 0, 220), static_cast<int>(pen * 255));
+        unsigned int col = duLerpCol(duRGBA(255, 255, 255, 220), duRGBA(128, 96, 0, 220), static_cast<int>(pen * 255));
         col = duLerpCol(col, duRGBA(128, 0, 0, 220), static_cast<int>(pen2 * 128));
         dd.vertex(dx + p[0] - sr, dy, dz + p[2] - sr, col);
         dd.vertex(dx + p[0] - sr, dy, dz + p[2] + sr, col);
@@ -458,7 +455,7 @@ void CrowdToolState::handleRender() {
     const float *vel = ag->vel;
     const float *dvel = ag->dvel;
 
-    uint32_t col = duRGBA(220, 220, 220, 192);
+    unsigned int col = duRGBA(220, 220, 220, 192);
     if (ag->targetState == DT_CROWDAGENT_TARGET_REQUESTING || ag->targetState == DT_CROWDAGENT_TARGET_WAITING_FOR_QUEUE)
       col = duLerpCol(col, duRGBA(128, 0, 255, 192), 32);
     else if (ag->targetState == DT_CROWDAGENT_TARGET_WAITING_FOR_PATH)
@@ -494,19 +491,21 @@ void CrowdToolState::handleRenderOverlay(double *proj, double *model, int *view)
   char label[32];
 
   if (m_toolParams.m_showNodes) {
-    if (const dtCrowd *crowd = m_sample->getCrowd(); crowd && crowd->getPathQueue()) {
+    const dtCrowd *crowd = m_sample->getCrowd();
+    if (crowd && crowd->getPathQueue()) {
       const dtNavMeshQuery *navquery = crowd->getPathQueue()->getNavQuery();
       if (const dtNodePool *pool = navquery->getNodePool()) {
+        constexpr float off = 0.5f;
         for (int i = 0; i < pool->getHashSize(); ++i) {
           for (dtNodeIndex j = pool->getFirst(i); j != DT_NULL_IDX; j = pool->getNext(j)) {
             const dtNode *node = pool->getNodeAtIdx(j + 1);
             if (!node)
               continue;
 
-            if (gluProject(node->pos[0], static_cast<GLdouble>(node->pos[1]) + 0.5f, node->pos[2],
+            if (gluProject(node->pos[0], static_cast<GLdouble>(node->pos[1]) + off, node->pos[2],
                            model, proj, view, &x, &y, &z)) {
               const float heuristic = node->total; // - node->cost;
-              std::snprintf(label, sizeof(label), "%.2f", heuristic);
+              snprintf(label, 32, "%.2f", heuristic);
               imguiDrawText(static_cast<int>(x), static_cast<int>(y) + 15, IMGUI_ALIGN_CENTER, label, imguiRGBA(0, 0, 0, 220));
             }
           }
@@ -521,9 +520,11 @@ void CrowdToolState::handleRenderOverlay(double *proj, double *model, int *view)
         const dtCrowdAgent *ag = crowd->getAgent(i);
         if (!ag->active)
           continue;
-        if (gluProject(ag->npos[0], static_cast<GLdouble>(ag->npos[1]) + ag->params.height, ag->npos[2],
+        const float *pos = ag->npos;
+        const float h = ag->params.height;
+        if (gluProject(pos[0], static_cast<GLdouble>(pos[1]) + h, pos[2],
                        model, proj, view, &x, &y, &z)) {
-          std::snprintf(label, sizeof(label), "%d", i);
+          snprintf(label, 32, "%d", i);
           imguiDrawText(static_cast<int>(x), static_cast<int>(y) + 15, IMGUI_ALIGN_CENTER, label, imguiRGBA(0, 0, 0, 220));
         }
       }
@@ -546,7 +547,7 @@ void CrowdToolState::handleRenderOverlay(double *proj, double *model, int *view)
 
             if (gluProject(nei->npos[0], static_cast<GLdouble>(nei->npos[1]) + radius, nei->npos[2],
                            model, proj, view, &x, &y, &z)) {
-              std::snprintf(label, sizeof(label), "%.3f", ag->neis[j].dist);
+              snprintf(label, 32, "%.3f", ag->neis[j].dist);
               imguiDrawText(static_cast<int>(x), static_cast<int>(y) + 15, IMGUI_ALIGN_CENTER, label, imguiRGBA(255, 255, 255, 220));
             }
           }
@@ -556,7 +557,7 @@ void CrowdToolState::handleRenderOverlay(double *proj, double *model, int *view)
   }
 
   if (m_toolParams.m_showPerfGraph) {
-    GraphParams gp{};
+    GraphParams gp;
     gp.setRect(300, 10, 500, 200, 8);
     gp.setValueRange(0.0f, 2.0f, 4, "ms");
 
@@ -574,7 +575,7 @@ void CrowdToolState::handleUpdate(const float dt) {
     updateTick(dt);
 }
 
-void CrowdToolState::addAgent(const float *pos) {
+void CrowdToolState::addAgent(const float *p) {
   if (!m_sample)
     return;
   const dtCrowd *crowd = m_sample->getCrowd();
@@ -600,15 +601,15 @@ void CrowdToolState::addAgent(const float *pos) {
   ap.obstacleAvoidanceType = static_cast<unsigned char>(m_toolParams.m_obstacleAvoidanceType);
   ap.separationWeight = m_toolParams.m_separationWeight;
 
-  if (const int idx = crowd->addAgent(pos, &ap); idx != -1) {
+  const int idx = crowd->addAgent(p, &ap);
+  if (idx != -1) {
     if (m_targetRef)
-      if (crowd->requestMoveTarget(idx, m_targetRef, m_targetPos))
-        return;
+      crowd->requestMoveTarget(idx, m_targetRef, m_targetPos);
 
     // Init trail
     AgentTrail *trail = &m_trails[idx];
     for (int i = 0; i < AGENT_MAX_TRAIL; ++i)
-      dtVcopy(&trail->trail[i * 3], pos);
+      dtVcopy(&trail->trail[i * 3], p);
     trail->htrail = 0;
   }
 }
@@ -650,15 +651,15 @@ void CrowdToolState::setMoveTarget(const float *p, const bool adjust) {
     // Request velocity
     if (m_agentDebug.idx != -1) {
       const dtCrowdAgent *ag = crowd->getAgent(m_agentDebug.idx);
-      if (!(ag && ag->active))
-        return;
-      calcVel(vel, ag->npos, p, ag->params.maxSpeed);
-      crowd->requestMoveVelocity(m_agentDebug.idx, vel);
+      if (ag && ag->active) {
+        calcVel(vel, ag->npos, p, ag->params.maxSpeed);
+        crowd->requestMoveVelocity(m_agentDebug.idx, vel);
+      }
     } else {
       for (int i = 0; i < crowd->getAgentCount(); ++i) {
         const dtCrowdAgent *ag = crowd->getAgent(i);
-        if (!(ag && ag->active))
-          return;
+        if (!ag->active)
+          continue;
         calcVel(vel, ag->npos, p, ag->params.maxSpeed);
         crowd->requestMoveVelocity(i, vel);
       }
@@ -667,13 +668,14 @@ void CrowdToolState::setMoveTarget(const float *p, const bool adjust) {
     navquery->findNearestPoly(p, halfExtents, filter, &m_targetRef, m_targetPos);
 
     if (m_agentDebug.idx != -1) {
-      if (const dtCrowdAgent *ag = crowd->getAgent(m_agentDebug.idx); (ag && ag->active))
-        return;
-      crowd->requestMoveTarget(m_agentDebug.idx, m_targetRef, m_targetPos);
+      const dtCrowdAgent *ag = crowd->getAgent(m_agentDebug.idx);
+      if (ag && ag->active)
+        crowd->requestMoveTarget(m_agentDebug.idx, m_targetRef, m_targetPos);
     } else {
       for (int i = 0; i < crowd->getAgentCount(); ++i) {
-        if (const dtCrowdAgent *ag = crowd->getAgent(i); !(ag && ag->active))
-          return;
+        const dtCrowdAgent *ag = crowd->getAgent(i);
+        if (!ag->active)
+          continue;
         crowd->requestMoveTarget(i, m_targetRef, m_targetPos);
       }
     }
@@ -694,8 +696,8 @@ int CrowdToolState::hitTestAgents(const float *s, const float *p) const {
       continue;
     float bmin[3], bmax[3];
     getAgentBounds(ag, bmin, bmax);
-    float tmin;
-    if (float tmax; isectSegAABB(s, p, bmin, bmax, tmin, tmax)) {
+    float tmin, tmax;
+    if (isectSegAABB(s, p, bmin, bmax, tmin, tmax)) {
       if (tmin > 0 && tmin < tsel) {
         isel = i;
         tsel = tmin;
@@ -728,17 +730,15 @@ void CrowdToolState::updateAgentParams() const {
   if (m_toolParams.m_separation)
     updateFlags |= DT_CROWD_SEPARATION;
 
-  const auto obstacleAvoidanceType = static_cast<unsigned char>(m_toolParams.m_obstacleAvoidanceType);
-
-  dtCrowdAgentParams params{};
+  dtCrowdAgentParams params;
 
   for (int i = 0; i < crowd->getAgentCount(); ++i) {
     const dtCrowdAgent *ag = crowd->getAgent(i);
     if (!ag->active)
       continue;
-    std::memcpy(&params, &ag->params, sizeof(dtCrowdAgentParams));
+    memcpy(&params, &ag->params, sizeof(dtCrowdAgentParams));
     params.updateFlags = updateFlags;
-    params.obstacleAvoidanceType = obstacleAvoidanceType;
+    params.obstacleAvoidanceType = static_cast<unsigned char>(m_toolParams.m_obstacleAvoidanceType);
     params.separationWeight = m_toolParams.m_separationWeight;
     crowd->updateAgentParameters(i, &params);
   }
@@ -772,7 +772,7 @@ void CrowdToolState::updateTick(const float dt) {
   m_agentDebug.vod->normalizeSamples();
 
   m_crowdSampleCount.addSample(static_cast<float>(crowd->getVelocitySampleCount()));
-  m_crowdTotalTime.addSample(static_cast<float>(getPerfTimeUsec(endTime - startTime)) * 1e-3f);
+  m_crowdTotalTime.addSample(getPerfTimeUsec(endTime - startTime) / 1000.0f);
 }
 
 CrowdTool::CrowdTool() : m_sample(nullptr),
@@ -788,7 +788,7 @@ void CrowdTool::init(Sample *sample) {
   if (!sample)
     return;
 
-  m_state = dynamic_cast<CrowdToolState *>(sample->getToolState(type()));
+  m_state = static_cast<CrowdToolState *>(sample->getToolState(type()));
   if (!m_state) {
     m_state = new CrowdToolState();
     sample->setToolState(type(), m_state);
@@ -894,7 +894,8 @@ void CrowdTool::handleClick(const float *s, const float *p, const bool shift) {
     return;
   if (!m_state)
     return;
-  if (!m_sample->getInputGeom())
+  const InputGeom *geom = m_sample->getInputGeom();
+  if (!geom)
     return;
   const dtCrowd *crowd = m_sample->getCrowd();
   if (!crowd)
@@ -903,7 +904,8 @@ void CrowdTool::handleClick(const float *s, const float *p, const bool shift) {
   if (m_mode == TOOLMODE_CREATE) {
     if (shift) {
       // Delete
-      if (const int ahit = m_state->hitTestAgents(s, p); ahit != -1)
+      const int ahit = m_state->hitTestAgents(s, p);
+      if (ahit != -1)
         m_state->removeAgent(ahit);
     } else {
       // Add
@@ -916,18 +918,19 @@ void CrowdTool::handleClick(const float *s, const float *p, const bool shift) {
     const int ahit = m_state->hitTestAgents(s, p);
     m_state->hilightAgent(ahit);
   } else if (m_mode == TOOLMODE_TOGGLE_POLYS) {
-    if (m_sample->getNavMesh() && m_sample->getNavMeshQuery()) {
+    const dtNavMesh *nav = m_sample->getNavMesh();
+    const dtNavMeshQuery *navquery = m_sample->getNavMeshQuery();
+    if (nav && navquery) {
       const dtQueryFilter filter;
       const float *halfExtents = crowd->getQueryExtents();
       float tgt[3];
       dtPolyRef ref;
-      m_sample->getNavMeshQuery()->findNearestPoly(p, halfExtents, &filter, &ref, tgt);
+      navquery->findNearestPoly(p, halfExtents, &filter, &ref, tgt);
       if (ref) {
-        uint16_t flags = 0;
-        if (dtStatusSucceed(m_sample->getNavMesh()->getPolyFlags(ref, &flags))) {
+        unsigned short flags = 0;
+        if (dtStatusSucceed(nav->getPolyFlags(ref, &flags))) {
           flags ^= SAMPLE_POLYFLAGS_DISABLED;
-          if (dtStatusFailed(m_sample->getNavMesh()->setPolyFlags(ref, flags)))
-            std::cout << "seting flag failed" << std::endl;
+          nav->setPolyFlags(ref, flags);
         }
       }
     }

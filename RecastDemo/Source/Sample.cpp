@@ -16,27 +16,35 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "Sample.h"
 #include <cstdio>
 
-#include <cstring>
-#include <fstream>
-#include <ios>
+#include <SDL_opengl.h>
 
 #include "DetourCrowd.h"
 #include "DetourDebugDraw.h"
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"
 #include "InputGeom.h"
-#include "MeshLoaderObj.h"
 #include "Recast.h"
 #include "RecastDebugDraw.h"
+#include "Sample.h"
 #include "imgui.h"
 
 #include <DetourAlloc.h>
-#include <SDL_opengl.h>
 
-uint32_t SampleDebugDraw::areaToCol(const uint32_t area) {
+#ifdef WIN32
+#define snprintf _snprintf
+#endif
+
+SampleTool::~SampleTool() {
+  // Defined out of line to fix the weak v-tables warning
+}
+
+SampleToolState::~SampleToolState() {
+  // Defined out of line to fix the weak v-tables warning
+}
+
+unsigned int SampleDebugDraw::areaToCol(const unsigned int area) {
   switch (area) {
   // Ground (0) : light blue
   case SAMPLE_POLYAREA_GROUND:
@@ -76,8 +84,8 @@ Sample::Sample() : m_geom(nullptr),
   m_navQuery = dtAllocNavMeshQuery();
   m_crowd = dtAllocCrowd();
 
-  for (auto &m_toolState : m_toolStates)
-    m_toolState = nullptr;
+  for (int i = 0; i < MAX_TOOLS; i++)
+    m_toolStates[i] = nullptr;
 }
 
 Sample::~Sample() {
@@ -85,8 +93,8 @@ Sample::~Sample() {
   dtFreeNavMesh(m_navMesh);
   dtFreeCrowd(m_crowd);
   delete m_tool;
-  for (const auto &m_toolState : m_toolStates)
-    delete m_toolState;
+  for (int i = 0; i < MAX_TOOLS; i++)
+    delete m_toolStates[i];
 }
 
 void Sample::setTool(SampleTool *tool) {
@@ -110,7 +118,8 @@ void Sample::handleRender() {
     return;
 
   // Draw mesh
-  duDebugDrawTriMesh(&m_dd, m_geom->getMesh()->getVerts(), m_geom->getMesh()->getVertCount(), m_geom->getMesh()->getTris(), m_geom->getMesh()->getNormals(), m_geom->getMesh()->getTriCount(), nullptr, 1.0f);
+  duDebugDrawTriMesh(&m_dd, m_geom->getMesh()->getVerts(), m_geom->getMesh()->getVertCount(),
+                     m_geom->getMesh()->getTris(), m_geom->getMesh()->getNormals(), m_geom->getMesh()->getTriCount(), nullptr, 1.0f);
   // Draw bounds
   const float *bmin = m_geom->getMeshBoundsMin();
   const float *bmax = m_geom->getMeshBoundsMax();
@@ -186,7 +195,7 @@ void Sample::handleCommonSettings() {
     int gw = 0, gh = 0;
     rcCalcGridSize(bmin, bmax, m_cellSize, &gw, &gh);
     char text[64];
-    std::snprintf(text, sizeof(text), "Voxels  %d x %d", gw, gh);
+    snprintf(text, 64, "Voxels  %d x %d", gw, gh);
     imguiValue(text);
   }
 
@@ -260,37 +269,37 @@ void Sample::handleUpdate(const float dt) {
 }
 
 void Sample::updateToolStates(const float dt) const {
-  for (auto *const m_toolState : m_toolStates) {
-    if (m_toolState)
-      m_toolState->handleUpdate(dt);
+  for (int i = 0; i < MAX_TOOLS; i++) {
+    if (m_toolStates[i])
+      m_toolStates[i]->handleUpdate(dt);
   }
 }
 
 void Sample::initToolStates(Sample *sample) const {
-  for (auto *const m_toolState : m_toolStates) {
-    if (m_toolState)
-      m_toolState->init(sample);
+  for (int i = 0; i < MAX_TOOLS; i++) {
+    if (m_toolStates[i])
+      m_toolStates[i]->init(sample);
   }
 }
 
 void Sample::resetToolStates() const {
-  for (auto *const m_toolState : m_toolStates) {
-    if (m_toolState)
-      m_toolState->reset();
+  for (int i = 0; i < MAX_TOOLS; i++) {
+    if (m_toolStates[i])
+      m_toolStates[i]->reset();
   }
 }
 
 void Sample::renderToolStates() const {
-  for (auto *const m_toolState : m_toolStates) {
-    if (m_toolState)
-      m_toolState->handleRender();
+  for (int i = 0; i < MAX_TOOLS; i++) {
+    if (m_toolStates[i])
+      m_toolStates[i]->handleRender();
   }
 }
 
 void Sample::renderOverlayToolStates(double *proj, double *model, int *view) const {
-  for (auto *const m_toolState : m_toolStates) {
-    if (m_toolState)
-      m_toolState->handleRenderOverlay(proj, model, view);
+  for (int i = 0; i < MAX_TOOLS; i++) {
+    if (m_toolStates[i])
+      m_toolStates[i]->handleRenderOverlay(proj, model, view);
   }
 }
 
@@ -315,9 +324,9 @@ dtNavMesh *Sample::loadAll(const char *path) {
     return nullptr;
 
   // Read header.
-  NavMeshSetHeader header{};
-  std::size_t readLen = file.read(reinterpret_cast<char *>(&header), sizeof(NavMeshSetHeader)).gcount();
-  if (readLen != sizeof(NavMeshSetHeader)) {
+  NavMeshSetHeader header;
+  size_t readLen = file.read(reinterpret_cast<char *>(&header), sizeof(NavMeshSetHeader)).gcount();
+  if (readLen != sizeof(NavMeshTileHeader)) {
     file.close();
     return nullptr;
   }
@@ -342,9 +351,9 @@ dtNavMesh *Sample::loadAll(const char *path) {
 
   // Read tiles.
   for (int i = 0; i < header.numTiles; ++i) {
-    NavMeshTileHeader tileHeader{};
-    readLen = file.read(reinterpret_cast<char *>(&tileHeader), sizeof(tileHeader)).gcount();
-    if (readLen != sizeof(tileHeader)) {
+    NavMeshTileHeader tileHeader;
+    readLen = file.read(reinterpret_cast<char *>(&tileHeader), sizeof(NavMeshTileHeader)).gcount();
+    if (readLen !=sizeof(NavMeshTileHeader)) {
       file.close();
       return nullptr;
     }
@@ -352,10 +361,10 @@ dtNavMesh *Sample::loadAll(const char *path) {
     if (!tileHeader.tileRef || !tileHeader.dataSize)
       break;
 
-    auto *data = static_cast<unsigned char *>(dtAlloc(tileHeader.dataSize, DT_ALLOC_PERM));
+    auto *const data = static_cast<unsigned char *>(dtAlloc(tileHeader.dataSize, DT_ALLOC_PERM));
     if (!data)
       break;
-    std::memset(data, 0, tileHeader.dataSize);
+    memset(data, 0, tileHeader.dataSize);
     readLen = file.read(reinterpret_cast<char *>(data), tileHeader.dataSize).gcount();
     if (readLen != tileHeader.dataSize) {
       dtFree(data);
@@ -367,7 +376,6 @@ dtNavMesh *Sample::loadAll(const char *path) {
   }
 
   file.close();
-
   return mesh;
 }
 
@@ -380,16 +388,17 @@ void Sample::saveAll(const char *path, const dtNavMesh *mesh) {
     return;
 
   // Store header.
-  NavMeshSetHeader header{};
+  NavMeshSetHeader header;
   header.magic = NAVMESHSET_MAGIC;
   header.version = NAVMESHSET_VERSION;
   header.numTiles = 0;
   for (int i = 0; i < mesh->getMaxTiles(); ++i) {
-    if (const dtMeshTile *tile = mesh->getTile(i); !tile || !tile->header || !tile->dataSize)
+    const dtMeshTile *tile = mesh->getTile(i);
+    if (!tile || !tile->header || !tile->dataSize)
       continue;
     header.numTiles++;
   }
-  std::memcpy(&header.params, mesh->getParams(), sizeof(dtNavMeshParams));
+  memcpy(&header.params, mesh->getParams(), sizeof(dtNavMeshParams));
   file.write(reinterpret_cast<const char *>(&header), sizeof(NavMeshSetHeader));
 
   // Store tiles.
@@ -398,12 +407,12 @@ void Sample::saveAll(const char *path, const dtNavMesh *mesh) {
     if (!tile || !tile->header || !tile->dataSize)
       continue;
 
-    NavMeshTileHeader tileHeader{};
+    NavMeshTileHeader tileHeader;
     tileHeader.tileRef = mesh->getTileRef(tile);
     tileHeader.dataSize = tile->dataSize;
-    file.write(reinterpret_cast<const char *>(&tileHeader), sizeof(tileHeader));
+    file.write(reinterpret_cast<const char *>(&tileHeader), sizeof(NavMeshTileHeader));
 
-    file.write(reinterpret_cast<const char *>(tile->data), tile->dataSize);
+    file.write(reinterpret_cast<const char *>(tile->data), sizeof(tile->dataSize));
   }
 
   file.close();

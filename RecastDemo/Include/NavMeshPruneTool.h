@@ -17,24 +17,22 @@
 //
 
 #pragma once
-
-#include <Sample.h>
+#include "Sample.h"
 
 // Prune navmesh to accessible locations from a point.
 
-class NavMeshPruneTool final : public SampleTool {
-  Sample *m_sample;
+class NavMeshPruneTool final : public SampleTool
+{
+	Sample* m_sample{};
+	
+	class NavmeshFlags* m_flags{};
 
-  class NavmeshFlags *m_flags;
-
-  float m_hitPos[3];
-  bool m_hitPosSet;
-
+	float m_hitPos[3]{};
+	bool m_hitPosSet{};
+	
 public:
-  NavMeshPruneTool();
+	NavMeshPruneTool()=default;
   ~NavMeshPruneTool() override;
-  NavMeshPruneTool(const NavMeshPruneTool &) = delete;
-  NavMeshPruneTool &operator=(const NavMeshPruneTool &) = delete;
 
   int type() override { return TOOL_NAVMESH_PRUNE; }
   void init(Sample *sample) override;
@@ -46,4 +44,8 @@ public:
   void handleUpdate(float dt) override;
   void handleRender() override;
   void handleRenderOverlay(double *proj, double *model, int *view) override;
+
+	// Explicitly disabled copy constructor and copy assignment operator.
+	NavMeshPruneTool(const NavMeshPruneTool&) = delete;
+	NavMeshPruneTool& operator=(const NavMeshPruneTool&) = delete;
 };

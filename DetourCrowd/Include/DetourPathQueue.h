@@ -17,39 +17,35 @@
 //
 
 #pragma once
+#include "DetourNavMesh.h"
+#include "DetourNavMeshQuery.h"
 
-#include <DetourNavMesh.h>
-#include <DetourStatus.h>
+static constexpr unsigned int DT_PATHQ_INVALID = 0;
 
-class dtNavMesh;
-class dtNavMeshQuery;
-class dtQueryFilter;
-
-static constexpr uint32_t DT_PATHQ_INVALID = 0;
-
-typedef uint32_t dtPathQueueRef;
+typedef unsigned int dtPathQueueRef;
 
 class dtPathQueue {
   struct PathQuery {
-    dtPathQueueRef ref;
-    /// Path find start and end location.
-    float startPos[3], endPos[3];
-    dtPolyRef startRef, endRef;
+    dtPathQueueRef ref{};
+    float startPos[3]{};
+    float endPos[3]{};
+    dtPolyRef startRef{};
+    dtPolyRef endRef{};
     /// Result.
-    dtPolyRef *path;
-    int npath;
+    dtPolyRef *path{};
+    int npath{};
     /// State.
-    dtStatus status;
-    int keepAlive;
-    const dtQueryFilter *filter; ///< TODO: This is potentially dangerous!
+    dtStatus status{};
+    int keepAlive{};
+    const dtQueryFilter *filter{}; ///< TODO: This is potentially dangerous!
   };
 
   static constexpr int MAX_QUEUE = 8;
   PathQuery m_queue[MAX_QUEUE]{};
-  dtPathQueueRef m_nextHandle;
-  int m_maxPathSize;
-  int m_queueHead;
-  dtNavMeshQuery *m_navquery;
+  dtPathQueueRef m_nextHandle{1};
+  int m_maxPathSize{};
+  int m_queueHead{};
+  dtNavMeshQuery *m_navquery{};
 
   void purge();
 
@@ -61,7 +57,9 @@ public:
 
   void update(int maxIters);
 
-  dtPathQueueRef request(dtPolyRef startRef, dtPolyRef endRef, const float *startPos, const float *endPos, const dtQueryFilter *filter);
+  dtPathQueueRef request(dtPolyRef startRef, dtPolyRef endRef,
+                         const float *startPos, const float *endPos,
+                         const dtQueryFilter *filter);
 
   dtStatus getRequestStatus(dtPathQueueRef ref) const;
 
@@ -69,8 +67,7 @@ public:
 
   const dtNavMeshQuery *getNavQuery() const { return m_navquery; }
 
-private:
   // Explicitly disabled copy constructor and copy assignment operator.
-  dtPathQueue(const dtPathQueue &);
-  dtPathQueue &operator=(const dtPathQueue &);
+  dtPathQueue(const dtPathQueue &) = delete;
+  dtPathQueue &operator=(const dtPathQueue &) = delete;
 };

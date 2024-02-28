@@ -36,11 +36,11 @@ public:
 	int getTriCount() const { return m_triCount; }
 	const std::string& getFileName() const { return m_filename; }
 
-private:
 	// Explicitly disabled copy constructor and copy assignment operator.
-	rcMeshLoaderObj(const rcMeshLoaderObj&);
-	rcMeshLoaderObj& operator=(const rcMeshLoaderObj&);
-	
+	rcMeshLoaderObj(const rcMeshLoaderObj&) = delete;
+	rcMeshLoaderObj& operator=(const rcMeshLoaderObj&) = delete;
+private:
+
 	void addVertex(float x, float y, float z, int& cap);
 	void addTriangle(int a, int b, int c, int& cap);
 	

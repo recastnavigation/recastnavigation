@@ -16,32 +16,32 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "TestCase.h"
-#include "DetourCommon.h"
-#include "DetourNavMesh.h"
-#include "DetourNavMeshQuery.h"
-
 #include <cctype>
+#include <cmath>
 #include <cstdio>
 #include <cstring>
-#include <fstream>
-#include <iostream>
-#include <new>
-#include <sstream>
 
 #include <SDL.h>
 #include <SDL_opengl.h>
+
 #ifdef __APPLE__
 #include <OpenGL/glu.h>
 #else
-#include <gl/GLU.h>
+#include <GL/glu.h>
 #endif
-
+#include "DetourCommon.h"
+#include "DetourNavMesh.h"
+#include "DetourNavMeshQuery.h"
 #include "PerfTimer.h"
+#include "TestCase.h"
 #include "imgui.h"
 
-TestCase::TestCase() : m_tests(nullptr) {
-}
+#include <fstream>
+#include <sstream>
+
+#ifdef WIN32
+#define snprintf _snprintf
+#endif
 
 TestCase::~TestCase() {
   const Test *iter = m_tests;
@@ -72,7 +72,7 @@ static char *parseRow(char *buf, const char *bufEnd, char *row, const int len) {
     case ' ':
       if (start)
         break;
-    // else falls through
+      // else falls through
     default:
       start = false;
       row[n++] = c;
@@ -93,7 +93,7 @@ static void copyName(std::string &dst, const char *src) {
 }
 
 bool TestCase::load(const std::string &filePath) {
-  std::ifstream file(filePath, std::ios::in | std::ios::binary | std::ios::ate);
+   std::ifstream file(filePath, std::ios::in | std::ios::binary | std::ios::ate);
 
   if (!file.is_open()) {
     return false;
@@ -106,7 +106,7 @@ bool TestCase::load(const std::string &filePath) {
     return false;
   }
 
-  const auto buf = new (std::nothrow) char[fileSize];
+  auto *const buf = new (std::nothrow) char[fileSize];
   if (!buf) {
     file.close();
     return false;
@@ -134,7 +134,7 @@ bool TestCase::load(const std::string &filePath) {
       copyName(m_geomFileName, row + 1);
     } else if (row[0] == 'p' && row[1] == 'f') {
       // Pathfind test.
-      const auto test = new Test();
+      auto *const test = new Test();
       test->type = TEST_PATHFIND;
       test->expand = false;
       test->next = m_tests;
@@ -143,7 +143,7 @@ bool TestCase::load(const std::string &filePath) {
       rowStream >> test->spos[0] >> test->spos[1] >> test->spos[2] >> test->epos[0] >> test->epos[1] >> test->epos[2] >> std::hex >> test->includeFlags >> test->excludeFlags;
     } else if (row[0] == 'r' && row[1] == 'c') {
       // Pathfind test.
-      const auto test = new Test();
+      auto *const test = new Test();
       test->type = TEST_RAYCAST;
       test->expand = false;
       test->next = m_tests;
@@ -225,11 +225,11 @@ void TestCase::doTests(const dtNavMesh *navmesh, const dtNavMeshQuery *navquery)
       // Copy results
       if (iter->npolys) {
         iter->polys = new dtPolyRef[iter->npolys];
-        std::memcpy(iter->polys, polys, sizeof(dtPolyRef) * iter->npolys);
+        memcpy(iter->polys, polys, sizeof(dtPolyRef) * iter->npolys);
       }
       if (iter->nstraight) {
         iter->straight = new float[iter->nstraight * 3];
-        std::memcpy(iter->straight, straight, sizeof(float) * 3 * iter->nstraight);
+        memcpy(iter->straight, straight, sizeof(float) * 3 * iter->nstraight);
       }
     } else if (iter->type == TEST_RAYCAST) {
       float t = 0;
@@ -244,8 +244,7 @@ void TestCase::doTests(const dtNavMesh *navmesh, const dtNavMeshQuery *navquery)
 
       const TimeVal findPathStart = getPerfTime();
 
-      navquery->raycast(startRef, iter->spos, iter->epos, &filter, &t, hitNormal, polys, &iter->npolys,
-                        MAX_POLYS);
+      navquery->raycast(startRef, iter->spos, iter->epos, &filter, &t, hitNormal, polys, &iter->npolys, MAX_POLYS);
 
       const TimeVal findPathEnd = getPerfTime();
       iter->findPathTime += getPerfTimeUsec(findPathEnd - findPathStart);
@@ -267,22 +266,21 @@ void TestCase::doTests(const dtNavMesh *navmesh, const dtNavMeshQuery *navquery)
 
       if (iter->npolys) {
         iter->polys = new dtPolyRef[iter->npolys];
-        std::memcpy(iter->polys, polys, sizeof(dtPolyRef) * iter->npolys);
+        memcpy(iter->polys, polys, sizeof(dtPolyRef) * iter->npolys);
       }
     }
   }
 
-  std::cout << "Test Results:\n";
+  printf("Test Results:\n");
   int n = 0;
   for (const Test *iter = m_tests; iter; iter = iter->next) {
     const int total = iter->findNearestPolyTime + iter->findPathTime + iter->findStraightPathTime;
-    std::cout << " - Path %02d:   " << static_cast<float>(total) * 1e-3f << " ms\n";
-    std::cout << "    - poly:     " << static_cast<float>(iter->findNearestPolyTime) * 1e-3f << " ms\n";
-    std::cout << "    - path:     " << static_cast<float>(iter->findPathTime) * 1e-3f << " ms\n";
-    std::cout << "    - straight: " << static_cast<float>(iter->findStraightPathTime) * 1e-3f << " ms\n";
+    printf(" - Path %02d:     %.4f ms\n", n, static_cast<float>(total) / 1000.0f);
+    printf("    - poly:     %.4f ms\n", static_cast<float>(iter->findNearestPolyTime) / 1000.0f);
+    printf("    - path:     %.4f ms\n", static_cast<float>(iter->findPathTime) / 1000.0f);
+    printf("    - straight: %.4f ms\n", static_cast<float>(iter->findStraightPathTime) / 1000.0f);
     n++;
   }
-  std::cout << std::flush;
 }
 
 void TestCase::handleRender() const {
@@ -333,8 +331,7 @@ void TestCase::handleRender() const {
 
     for (int i = 0; i < iter->nstraight - 1; ++i) {
       glVertex3f(iter->straight[i * 3 + 0], iter->straight[i * 3 + 1] + 0.3f, iter->straight[i * 3 + 2]);
-      glVertex3f(iter->straight[(i + 1) * 3 + 0], iter->straight[(i + 1) * 3 + 1] + 0.3f,
-                 iter->straight[(i + 1) * 3 + 2]);
+      glVertex3f(iter->straight[(i + 1) * 3 + 0], iter->straight[(i + 1) * 3 + 1] + 0.3f, iter->straight[(i + 1) * 3 + 2]);
     }
   }
   glEnd();
@@ -365,10 +362,10 @@ bool TestCase::handleRenderOverlay(const double *proj, const double *model, cons
       pt[1] += 0.5f;
     }
 
-    if (gluProject(pt[0], pt[1], pt[2],
+    if (gluProject((GLdouble)pt[0], (GLdouble)pt[1], (GLdouble)pt[2],
                    model, proj, view, &x, &y, &z)) {
-      std::snprintf(text, sizeof(text), "Path %d\n", n);
-      uint32_t col = imguiRGBA(0, 0, 0, 128);
+      snprintf(text, 64, "Path %d\n", n);
+      unsigned int col = imguiRGBA(0, 0, 0, 128);
       if (iter->expand)
         col = imguiRGBA(255, 192, 0, 220);
       imguiDrawText(static_cast<int>(x), static_cast<int>(y - 25), IMGUI_ALIGN_CENTER, text, col);
@@ -384,19 +381,19 @@ bool TestCase::handleRenderOverlay(const double *proj, const double *model, cons
   for (Test *iter = m_tests; iter; iter = iter->next) {
     char subtext[64];
     const int total = iter->findNearestPolyTime + iter->findPathTime + iter->findStraightPathTime;
-    std::snprintf(subtext, sizeof(subtext), "%.4f ms", static_cast<float>(total) / 1000.0f);
-    std::snprintf(text, sizeof(text), "Path %d", n);
+    snprintf(subtext, 64, "%.4f ms", static_cast<float>(total) / 1000.0f);
+    snprintf(text, 64, "Path %d", n);
 
     if (imguiCollapse(text, subtext, iter->expand))
       iter->expand = !iter->expand;
     if (iter->expand) {
-      std::snprintf(text, sizeof(text), "Poly: %.4f ms", static_cast<float>(iter->findNearestPolyTime) / 1000.0f);
+      snprintf(text, 64, "Poly: %.4f ms", static_cast<float>(iter->findNearestPolyTime) / 1000.0f);
       imguiValue(text);
 
-      std::snprintf(text, sizeof(text), "Path: %.4f ms", static_cast<float>(iter->findPathTime) / 1000.0f);
+      snprintf(text, 64, "Path: %.4f ms", static_cast<float>(iter->findPathTime) / 1000.0f);
       imguiValue(text);
 
-      std::snprintf(text, sizeof(text), "Straight: %.4f ms", static_cast<float>(iter->findStraightPathTime) / 1000.0f);
+      snprintf(text, 64, "Straight: %.4f ms", static_cast<float>(iter->findStraightPathTime) / 1000.0f);
       imguiValue(text);
 
       imguiSeparator();

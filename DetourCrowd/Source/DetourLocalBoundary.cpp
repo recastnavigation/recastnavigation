@@ -16,104 +16,119 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "DetourLocalBoundary.h"
-
 #include <cfloat>
 #include <cstring>
 
+#include "DetourLocalBoundary.h"
 #include "DetourAssert.h"
 #include "DetourCommon.h"
 #include "DetourNavMeshQuery.h"
 
-dtLocalBoundary::dtLocalBoundary() : m_segs{},
-                                     m_nsegs(0), m_polys{},
-                                     m_npolys(0) {
-  dtVset(m_center, FLT_MAX, FLT_MAX, FLT_MAX);
+dtLocalBoundary::dtLocalBoundary()
+{
+	dtVset(m_center, FLT_MAX,FLT_MAX,FLT_MAX);
 }
 
-void dtLocalBoundary::reset() {
-  dtVset(m_center, FLT_MAX, FLT_MAX, FLT_MAX);
-  m_npolys = 0;
-  m_nsegs = 0;
+dtLocalBoundary::~dtLocalBoundary()
+{
 }
 
-void dtLocalBoundary::addSegment(const float dist, const float *s) {
-  // Insert neighbour based on the distance.
-  Segment *seg;
-  if (!m_nsegs) {
-    // First, trivial accept.
-    seg = &m_segs[0];
-  } else if (dist >= m_segs[m_nsegs - 1].d) {
-    // Further than the last segment, skip.
-    if (m_nsegs >= MAX_LOCAL_SEGS)
-      return;
-    // Last, trivial accept.
-    seg = &m_segs[m_nsegs];
-  } else {
-    // Insert inbetween.
-    int i;
-    for (i = 0; i < m_nsegs; ++i)
-      if (dist <= m_segs[i].d)
-        break;
-    const int tgt = i + 1;
-    const int n = dtMin(m_nsegs - i, MAX_LOCAL_SEGS - tgt);
-    dtAssert(tgt + n <= MAX_LOCAL_SEGS);
-    if (n > 0)
-      std::memmove(&m_segs[tgt], &m_segs[i], sizeof(Segment) * n);
-    seg = &m_segs[i];
-  }
-
-  seg->d = dist;
-  std::memcpy(seg->s, s, sizeof(float) * 6);
-
-  if (m_nsegs < MAX_LOCAL_SEGS)
-    m_nsegs++;
+void dtLocalBoundary::reset()
+{
+	dtVset(m_center, FLT_MAX,FLT_MAX,FLT_MAX);
+	m_npolys = 0;
+	m_nsegs = 0;
 }
 
-void dtLocalBoundary::update(const dtPolyRef ref, const float *pos, const float collisionQueryRange,
-                             const dtNavMeshQuery *navquery, const dtQueryFilter *filter) {
-  static constexpr int MAX_SEGS_PER_POLY = DT_VERTS_PER_POLYGON * 3;
-
-  if (!ref) {
-    dtVset(m_center, FLT_MAX, FLT_MAX, FLT_MAX);
-    m_nsegs = 0;
-    m_npolys = 0;
-    return;
-  }
-
-  dtVcopy(m_center, pos);
-
-  // First query non-overlapping polygons.
-  navquery->findLocalNeighbourhood(ref, pos, collisionQueryRange,
-                                   filter, m_polys, nullptr, &m_npolys, MAX_LOCAL_POLYS);
-
-  // Secondly, store all polygon edges.
-  m_nsegs = 0;
-  float segs[MAX_SEGS_PER_POLY * 6];
-  int nsegs = 0;
-  for (int j = 0; j < m_npolys; ++j) {
-    navquery->getPolyWallSegments(m_polys[j], filter, segs, nullptr, &nsegs, MAX_SEGS_PER_POLY);
-    for (int k = 0; k < nsegs; ++k) {
-      const float *s = &segs[k * 6];
-      // Skip too distant segments.
-      float tseg;
-      const float distSqr = dtDistancePtSegSqr2D(pos, s, s + 3, tseg);
-      if (distSqr > dtSqr(collisionQueryRange))
-        continue;
-      addSegment(distSqr, s);
-    }
-  }
+void dtLocalBoundary::addSegment(const float dist, const float* s)
+{
+	// Insert neighbour based on the distance.
+	Segment* seg;
+	if (!m_nsegs)
+	{
+		// First, trivial accept.
+		seg = &m_segs[0];
+	}
+	else if (dist >= m_segs[m_nsegs-1].d)
+	{
+		// Further than the last segment, skip.
+		if (m_nsegs >= MAX_LOCAL_SEGS)
+			return;
+		// Last, trivial accept.
+		seg = &m_segs[m_nsegs];
+	}
+	else
+	{
+		// Insert inbetween.
+		int i;
+		for (i = 0; i < m_nsegs; ++i)
+			if (dist <= m_segs[i].d)
+				break;
+		const int tgt = i+1;
+		const int n = dtMin(m_nsegs-i, MAX_LOCAL_SEGS-tgt);
+		dtAssert(tgt+n <= MAX_LOCAL_SEGS);
+		if (n > 0)
+			memmove(&m_segs[tgt], &m_segs[i], sizeof(Segment)*n);
+		seg = &m_segs[i];
+	}
+	
+	seg->d = dist;
+	memcpy(seg->s, s, sizeof(float)*6);
+	
+	if (m_nsegs < MAX_LOCAL_SEGS)
+		m_nsegs++;
 }
 
-bool dtLocalBoundary::isValid(const dtNavMeshQuery *navquery, const dtQueryFilter *filter) const {
-  if (!m_npolys)
-    return false;
-
-  // Check that all polygons still pass query filter.
-  for (int i = 0; i < m_npolys; ++i) {
-    if (!navquery->isValidPolyRef(m_polys[i], filter))
-      return false;
-  }
-
-  return true;
+void dtLocalBoundary::update(const dtPolyRef ref, const float* pos, const float collisionQueryRange,
+                             const dtNavMeshQuery* navquery, const dtQueryFilter* filter)
+{
+	static constexpr int MAX_SEGS_PER_POLY = DT_VERTS_PER_POLYGON*3;
+	
+	if (!ref)
+	{
+		dtVset(m_center, FLT_MAX,FLT_MAX,FLT_MAX);
+		m_nsegs = 0;
+		m_npolys = 0;
+		return;
+	}
+	
+	dtVcopy(m_center, pos);
+	
+	// First query non-overlapping polygons.
+	navquery->findLocalNeighbourhood(ref, pos, collisionQueryRange,
+									 filter, m_polys, nullptr, &m_npolys, MAX_LOCAL_POLYS);
+	
+	// Secondly, store all polygon edges.
+	m_nsegs = 0;
+	float segs[MAX_SEGS_PER_POLY*6];
+	int nsegs = 0;
+	for (int j = 0; j < m_npolys; ++j)
+	{
+		navquery->getPolyWallSegments(m_polys[j], filter, segs, nullptr, &nsegs, MAX_SEGS_PER_POLY);
+		for (int k = 0; k < nsegs; ++k)
+		{
+			const float* s = &segs[k*6];
+			// Skip too distant segments.
+			float tseg;
+			const float distSqr = dtDistancePtSegSqr2D(pos, s, s+3, tseg);
+			if (distSqr > dtSqr(collisionQueryRange))
+				continue;
+			addSegment(distSqr, s);
+		}
+	}
 }
+
+bool dtLocalBoundary::isValid(const dtNavMeshQuery* navquery, const dtQueryFilter* filter) const {
+	if (!m_npolys)
+		return false;
+	
+	// Check that all polygons still pass query filter.
+	for (int i = 0; i < m_npolys; ++i)
+	{
+		if (!navquery->isValidPolyRef(m_polys[i], filter))
+			return false;
+	}
+	
+	return true;
+}
+

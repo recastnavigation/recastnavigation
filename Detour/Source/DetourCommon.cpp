@@ -16,20 +16,13 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-//////////////////////////////////////////////////////////////////////////////////////////
 #include "DetourCommon.h"
-namespace {
-void projectPoly(const float *axis, const float *poly, const int npoly,float &rmin, float &rmax) {
-  rmin = rmax = dtVdot2D(axis, &poly[0]);
-  for (int i = 1; i < npoly; ++i) {
-    const float d = dtVdot2D(axis, &poly[i * 3]);
-    rmin = dtMin(rmin, d);
-    rmax = dtMax(rmax, d);
-  }
-}
-} // namespace
+#include "DetourMath.h"
 
-void dtClosestPtPointTriangle(float *closest, const float *p, const float *a, const float *b, const float *c) {
+//////////////////////////////////////////////////////////////////////////////////////////
+
+void dtClosestPtPointTriangle(float *closest, const float *p,
+                              const float *a, const float *b, const float *c) {
   // Check if P in vertex region outside A
   float ab[3], ac[3], ap[3];
   dtVsub(ab, b, a);
@@ -107,7 +100,10 @@ void dtClosestPtPointTriangle(float *closest, const float *p, const float *a, co
   closest[2] = a[2] + ab[2] * v + ac[2] * w;
 }
 
-bool dtIntersectSegmentPoly2D(const float *p0, const float *p1,const float *verts, const int nverts,float &tmin, float &tmax,int &segMin, int &segMax) {
+bool dtIntersectSegmentPoly2D(const float *p0, const float *p1,
+                              const float *verts, const int nverts,
+                              float &tmin, float &tmax,
+                              int &segMin, int &segMax) {
   static constexpr float EPS = 0.000001f;
 
   tmin = 0;
@@ -124,7 +120,7 @@ bool dtIntersectSegmentPoly2D(const float *p0, const float *p1,const float *vert
     dtVsub(diff, p0, &verts[j * 3]);
     const float n = dtVperp2D(edge, diff);
     const float d = dtVperp2D(dir, edge);
-    if (std::abs(d) < EPS) {
+    if (fabsf(d) < EPS) {
       // S is nearly parallel to this edge
       if (n < 0)
         return false;
@@ -166,8 +162,9 @@ float dtDistancePtSegSqr2D(const float *pt, const float *p, const float *q, floa
     t /= d;
   if (t < 0)
     t = 0;
-  else if (t > 1)
-    t = 1;
+  else
+    if (t > 1)
+      t = 1;
   dx = p[0] + t * pqx - pt[0];
   dz = p[2] + t * pqz - pt[2];
   return dx * dx + dz * dz;
@@ -183,7 +180,7 @@ void dtCalcPolyCenter(float *tc, const unsigned short *idx, const int nidx, cons
     tc[1] += v[1];
     tc[2] += v[2];
   }
-  const float s = 1.0f / static_cast<float>(nidx);
+  const float s = 1.0f / nidx;
   tc[0] *= s;
   tc[1] *= s;
   tc[2] *= s;
@@ -198,7 +195,7 @@ bool dtClosestHeightPointTriangle(const float *p, const float *a, const float *b
 
   // Compute scaled barycentric coordinates
   float denom = v0[0] * v1[2] - v0[2] * v1[0];
-  if (std::abs(denom) < 1e-6)
+  if (fabsf(denom) <  1e-6f)
     return false;
 
   float u = v1[2] * v2[0] - v1[0] * v2[2];
@@ -235,7 +232,8 @@ bool dtPointInPolygon(const float *pt, const float *verts, const int nverts) {
   return c;
 }
 
-bool dtDistancePtPolyEdgesSqr(const float *pt, const float *verts, const int nverts,float *ed, float *et) {
+bool dtDistancePtPolyEdgesSqr(const float *pt, const float *verts, const int nverts,
+                              float *ed, float *et) {
   // TODO: Replace pnpoly with triArea2D tests?
   int i, j;
   bool c = false;
@@ -250,14 +248,27 @@ bool dtDistancePtPolyEdgesSqr(const float *pt, const float *verts, const int nve
   return c;
 }
 
-inline bool overlapRange(const float amin, const float amax,const float bmin, const float bmax,const float eps) {
+static void projectPoly(const float *axis, const float *poly, const int npoly,
+                        float &rmin, float &rmax) {
+  rmin = rmax = dtVdot2D(axis, &poly[0]);
+  for (int i = 1; i < npoly; ++i) {
+    const float d = dtVdot2D(axis, &poly[i * 3]);
+    rmin = dtMin(rmin, d);
+    rmax = dtMax(rmax, d);
+  }
+}
+
+inline bool overlapRange(const float amin, const float amax,
+                         const float bmin, const float bmax,
+                         const float eps) {
   return amin + eps <= bmax && amax - eps >= bmin;
 }
 
 /// @par
 ///
 /// All vertices are projected onto the xz-plane, so the y-values are ignored.
-bool dtOverlapPolyPoly2D(const float *polya, const int npolya,const float *polyb, const int npolyb) {
+bool dtOverlapPolyPoly2D(const float *polya, const int npolya,
+                         const float *polyb, const int npolyb) {
   constexpr float eps = 1e-4f;
 
   for (int i = 0, j = npolya - 1; i < npolya; j = i++) {
@@ -289,7 +300,8 @@ bool dtOverlapPolyPoly2D(const float *polya, const int npolya,const float *polyb
 
 // Returns a random point in a convex polygon.
 // Adapted from Graphics Gems article.
-void dtRandomPointInConvexPoly(const float *pts, const int npts, float *areas,const float s, const float t, float *out) {
+void dtRandomPointInConvexPoly(const float *pts, const int npts, float *areas,
+                               const float s, const float t, float *out) {
   // Calc triangle araes
   float areasum = 0.0f;
   for (int i = 2; i < npts; i++) {
@@ -327,13 +339,15 @@ void dtRandomPointInConvexPoly(const float *pts, const int npts, float *areas,co
 
 inline float vperpXZ(const float *a, const float *b) { return a[0] * b[2] - a[2] * b[0]; }
 
-bool dtIntersectSegSeg2D(const float *ap, const float *aq,const float *bp, const float *bq,float &s, float &t) {
+bool dtIntersectSegSeg2D(const float *ap, const float *aq,
+                         const float *bp, const float *bq,
+                         float &s, float &t) {
   float u[3], v[3], w[3];
   dtVsub(u, aq, ap);
   dtVsub(v, bq, bp);
   dtVsub(w, ap, bp);
   const float d = vperpXZ(u, v);
-  if (std::abs(d) < 1e-6f)
+  if (fabsf(d) < 1e-6f)
     return false;
   s = vperpXZ(v, w) / d;
   t = vperpXZ(u, w) / d;

@@ -19,24 +19,21 @@
 #include <cmath>
 #include <cstdio>
 #include <cstring>
-#include <new>
 
 #include <SDL.h>
 #include <SDL_opengl.h>
 #ifdef __APPLE__
 #include <OpenGL/glu.h>
 #else
-#include <gl/GLU.h>
+#include <GL/glu.h>
 #endif
 
-#include "ChunkyTriMesh.h"
 #include "ConvexVolumeTool.h"
 #include "CrowdTool.h"
 #include "DetourDebugDraw.h"
 #include "DetourNavMesh.h"
 #include "DetourNavMeshBuilder.h"
 #include "InputGeom.h"
-#include "MeshLoaderObj.h"
 #include "NavMeshPruneTool.h"
 #include "NavMeshTesterTool.h"
 #include "OffMeshConnectionTool.h"
@@ -48,7 +45,11 @@
 
 #include <DetourAlloc.h>
 
-inline uint32_t nextPow2(uint32_t v) {
+#ifdef WIN32
+#define snprintf _snprintf
+#endif
+
+inline unsigned int nextPow2(unsigned int v) {
   v--;
   v |= v >> 1;
   v |= v >> 2;
@@ -59,10 +60,10 @@ inline uint32_t nextPow2(uint32_t v) {
   return v;
 }
 
-inline uint32_t ilog2(uint32_t v) {
-  uint32_t r = (v > 0xffff) << 4;
+inline unsigned int ilog2(unsigned int v) {
+  unsigned int r = (v > 0xffff) << 4;
   v >>= r;
-  uint32_t shift = (v > 0xff) << 3;
+  unsigned int shift = (v > 0xff) << 3;
   v >>= shift;
   r |= shift;
   shift = (v > 0xf) << 2;
@@ -75,9 +76,9 @@ inline uint32_t ilog2(uint32_t v) {
   return r;
 }
 
-class NavMeshTileTool final : public SampleTool {
+class NavMeshTileTool : public SampleTool {
   Sample_TileMesh *m_sample;
-  float m_hitPos[3]{};
+  float m_hitPos[3];
   bool m_hitPosSet;
 
 public:
@@ -86,12 +87,12 @@ public:
     m_hitPos[0] = m_hitPos[1] = m_hitPos[2] = 0;
   }
 
-  ~NavMeshTileTool() override = default;
+  ~NavMeshTileTool() override;
 
   int type() override { return TOOL_TILE_EDIT; }
 
   void init(Sample *sample) override {
-    m_sample = dynamic_cast<Sample_TileMesh *>(sample);
+    m_sample = static_cast<Sample_TileMesh *>(sample);
   }
 
   void reset() override {}
@@ -144,12 +145,12 @@ public:
 
   void handleRenderOverlay(double *proj, double *model, int *view) override {
     GLdouble x, y, z;
-    if (m_hitPosSet && gluProject(m_hitPos[0], m_hitPos[1], m_hitPos[2],
+    if (m_hitPosSet && gluProject((GLdouble)m_hitPos[0], (GLdouble)m_hitPos[1], (GLdouble)m_hitPos[2],
                                   model, proj, view, &x, &y, &z)) {
       int tx = 0, ty = 0;
       m_sample->getTilePos(m_hitPos, tx, ty);
       char text[32];
-      std::snprintf(text, sizeof(text), "(%d,%d)", tx, ty);
+      snprintf(text, 32, "(%d,%d)", tx, ty);
       imguiDrawText(static_cast<int>(x), static_cast<int>(y) - 25, IMGUI_ALIGN_CENTER, text, imguiRGBA(0, 0, 0, 220));
     }
 
@@ -158,6 +159,10 @@ public:
     imguiDrawText(280, h - 40, IMGUI_ALIGN_LEFT, "LMB: Rebuild hit tile.  Shift+LMB: Clear hit tile.", imguiRGBA(255, 255, 255, 192));
   }
 };
+
+NavMeshTileTool::~NavMeshTileTool() {
+  // Defined out of line to fix the weak v-tables warning
+}
 
 Sample_TileMesh::Sample_TileMesh() : m_keepInterResults(false),
                                      m_buildAll(true),
@@ -177,8 +182,8 @@ Sample_TileMesh::Sample_TileMesh() : m_keepInterResults(false),
                                      m_tileMemUsage(0),
                                      m_tileTriCount(0) {
   resetCommonSettings();
-  std::memset(m_lastBuiltTileBmin, 0, sizeof(m_lastBuiltTileBmin));
-  std::memset(m_lastBuiltTileBmax, 0, sizeof(m_lastBuiltTileBmax));
+  memset(m_lastBuiltTileBmin, 0, sizeof(m_lastBuiltTileBmin));
+  memset(m_lastBuiltTileBmax, 0, sizeof(m_lastBuiltTileBmax));
 
   setTool(new NavMeshTileTool);
 }
@@ -205,7 +210,7 @@ void Sample_TileMesh::cleanup() {
 }
 
 void Sample_TileMesh::handleSettings() {
-  handleCommonSettings();
+  Sample::handleCommonSettings();
 
   if (imguiCheck("Keep Itermediate Results", m_keepInterResults))
     m_keepInterResults = !m_keepInterResults;
@@ -225,7 +230,7 @@ void Sample_TileMesh::handleSettings() {
     const int ts = static_cast<int>(m_tileSize);
     const int tw = (gw + ts - 1) / ts;
     const int th = (gh + ts - 1) / ts;
-    std::snprintf(text, sizeof(text), "Tiles  %d x %d", tw, th);
+    snprintf(text, 64, "Tiles  %d x %d", tw, th);
     imguiValue(text);
 
     // Max tiles and max polys affect how the tile IDs are caculated.
@@ -236,9 +241,9 @@ void Sample_TileMesh::handleSettings() {
     const int polyBits = 22 - tileBits;
     m_maxTiles = 1 << tileBits;
     m_maxPolysPerTile = 1 << polyBits;
-    std::snprintf(text, sizeof(text), "Max Tiles  %d", m_maxTiles);
+    snprintf(text, 64, "Max Tiles  %d", m_maxTiles);
     imguiValue(text);
-    std::snprintf(text, sizeof(text), "Max Polys  %d", m_maxPolysPerTile);
+    snprintf(text, 64, "Max Polys  %d", m_maxPolysPerTile);
     imguiValue(text);
   } else {
     m_maxTiles = 0;
@@ -264,7 +269,7 @@ void Sample_TileMesh::handleSettings() {
   imguiUnindent();
 
   char msg[64];
-  std::snprintf(msg, sizeof(msg), "Build Time: %.1fms", m_totalBuildTimeMs);
+  snprintf(msg, 64, "Build Time: %.1fms", m_totalBuildTimeMs);
   imguiLabel(msg);
 
   imguiSeparator();
@@ -307,8 +312,8 @@ void Sample_TileMesh::handleTools() {
 void Sample_TileMesh::handleDebugMode() {
   // Check which modes are valid.
   bool valid[MAX_DRAWMODE];
-  for (bool &i : valid)
-    i = false;
+  for (int i = 0; i < MAX_DRAWMODE; ++i)
+    valid[i] = false;
 
   if (m_geom) {
     valid[DRAWMODE_NAVMESH] = m_navMesh != nullptr;
@@ -332,8 +337,8 @@ void Sample_TileMesh::handleDebugMode() {
   }
 
   int unavail = 0;
-  for (const bool i : valid)
-    if (!i)
+  for (int i = 0; i < MAX_DRAWMODE; ++i)
+    if (!valid[i])
       unavail++;
 
   if (unavail == MAX_DRAWMODE)
@@ -507,7 +512,7 @@ void Sample_TileMesh::handleRenderOverlay(double *proj, double *model, int *view
   if (m_tileBuildTime > 0.0f && gluProject(static_cast<GLdouble>(m_lastBuiltTileBmin[0] + m_lastBuiltTileBmax[0]) / 2, static_cast<GLdouble>(m_lastBuiltTileBmin[1] + m_lastBuiltTileBmax[1]) / 2, static_cast<GLdouble>(m_lastBuiltTileBmin[2] + m_lastBuiltTileBmax[2]) / 2,
                                            model, proj, view, &x, &y, &z)) {
     char text[32];
-    std::snprintf(text, sizeof(text), "%.3fms / %dTris / %.1fkB", m_tileBuildTime, m_tileTriCount, m_tileMemUsage);
+    snprintf(text, 32, "%.3fms / %dTris / %.1fkB", m_tileBuildTime, m_tileTriCount, m_tileMemUsage);
     imguiDrawText(static_cast<int>(x), static_cast<int>(y) - 25, IMGUI_ALIGN_CENTER, text, imguiRGBA(0, 0, 0, 220));
   }
 
@@ -519,7 +524,8 @@ void Sample_TileMesh::handleRenderOverlay(double *proj, double *model, int *view
 void Sample_TileMesh::handleMeshChanged(InputGeom *geom) {
   Sample::handleMeshChanged(geom);
 
-  if (const BuildSettings *buildSettings = geom->getBuildSettings(); buildSettings && buildSettings->tileSize > 0)
+  const BuildSettings *buildSettings = geom->getBuildSettings();
+  if (buildSettings && buildSettings->tileSize > 0)
     m_tileSize = buildSettings->tileSize;
 
   cleanup();
@@ -549,7 +555,7 @@ bool Sample_TileMesh::handleBuild() {
     return false;
   }
 
-  dtNavMeshParams params{};
+  dtNavMeshParams params;
   rcVcopy(params.orig, m_geom->getNavMeshBoundsMin());
   params.tileWidth = m_tileSize * m_cellSize;
   params.tileHeight = m_tileSize * m_cellSize;
@@ -597,13 +603,13 @@ void Sample_TileMesh::buildTile(const float *pos) {
   const int tx = static_cast<int>((pos[0] - bmin[0]) / ts);
   const int ty = static_cast<int>((pos[2] - bmin[2]) / ts);
 
-  m_lastBuiltTileBmin[0] = bmin[0] + static_cast<float>(tx) * ts;
+  m_lastBuiltTileBmin[0] = bmin[0] + tx * ts;
   m_lastBuiltTileBmin[1] = bmin[1];
-  m_lastBuiltTileBmin[2] = bmin[2] + static_cast<float>(ty) * ts;
+  m_lastBuiltTileBmin[2] = bmin[2] + ty * ts;
 
-  m_lastBuiltTileBmax[0] = bmin[0] + static_cast<float>(tx + 1) * ts;
+  m_lastBuiltTileBmax[0] = bmin[0] + (tx + 1) * ts;
   m_lastBuiltTileBmax[1] = bmax[1];
-  m_lastBuiltTileBmax[2] = bmin[2] + static_cast<float>(ty + 1) * ts;
+  m_lastBuiltTileBmax[2] = bmin[2] + (ty + 1) * ts;
 
   m_tileCol = duRGBA(255, 255, 255, 64);
 
@@ -649,13 +655,13 @@ void Sample_TileMesh::removeTile(const float *pos) {
   const int tx = static_cast<int>((pos[0] - bmin[0]) / ts);
   const int ty = static_cast<int>((pos[2] - bmin[2]) / ts);
 
-  m_lastBuiltTileBmin[0] = bmin[0] + static_cast<float>(tx) * ts;
+  m_lastBuiltTileBmin[0] = bmin[0] + tx * ts;
   m_lastBuiltTileBmin[1] = bmin[1];
-  m_lastBuiltTileBmin[2] = bmin[2] + static_cast<float>(ty) * ts;
+  m_lastBuiltTileBmin[2] = bmin[2] + ty * ts;
 
-  m_lastBuiltTileBmax[0] = bmin[0] + static_cast<float>(tx + 1) * ts;
+  m_lastBuiltTileBmax[0] = bmin[0] + (tx + 1) * ts;
   m_lastBuiltTileBmax[1] = bmax[1];
-  m_lastBuiltTileBmax[2] = bmin[2] + static_cast<float>(ty + 1) * ts;
+  m_lastBuiltTileBmax[2] = bmin[2] + (ty + 1) * ts;
 
   m_tileCol = duRGBA(128, 32, 16, 64);
 
@@ -682,16 +688,17 @@ void Sample_TileMesh::buildAllTiles() {
 
   for (int y = 0; y < th; ++y) {
     for (int x = 0; x < tw; ++x) {
-      m_lastBuiltTileBmin[0] = bmin[0] + static_cast<float>(x) * tcs;
+      m_lastBuiltTileBmin[0] = bmin[0] + x * tcs;
       m_lastBuiltTileBmin[1] = bmin[1];
-      m_lastBuiltTileBmin[2] = bmin[2] + static_cast<float>(y) * tcs;
+      m_lastBuiltTileBmin[2] = bmin[2] + y * tcs;
 
-      m_lastBuiltTileBmax[0] = bmin[0] + static_cast<float>(x + 1) * tcs;
+      m_lastBuiltTileBmax[0] = bmin[0] + (x + 1) * tcs;
       m_lastBuiltTileBmax[1] = bmax[1];
-      m_lastBuiltTileBmax[2] = bmin[2] + static_cast<float>(y + 1) * tcs;
+      m_lastBuiltTileBmax[2] = bmin[2] + (y + 1) * tcs;
 
       int dataSize = 0;
-      if (unsigned char *data = buildTileMesh(x, y, m_lastBuiltTileBmin, m_lastBuiltTileBmax, dataSize)) {
+      auto *const data = buildTileMesh(x, y, m_lastBuiltTileBmin, m_lastBuiltTileBmax, dataSize);
+      if (data) {
         // Remove any previous data (navmesh owns and deletes the data).
         m_navMesh->removeTile(m_navMesh->getTileRefAt(x, y, 0), nullptr, nullptr);
         // Let the navmesh own the data.
@@ -704,7 +711,7 @@ void Sample_TileMesh::buildAllTiles() {
   // Start the build process.
   m_ctx->stopTimer(RC_TIMER_TEMP);
 
-  m_totalBuildTimeMs = static_cast<float>(m_ctx->getAccumulatedTime(RC_TIMER_TEMP)) / 1000.0f;
+  m_totalBuildTimeMs = m_ctx->getAccumulatedTime(RC_TIMER_TEMP) / 1000.0f;
 }
 
 void Sample_TileMesh::removeAllTiles() const {
@@ -741,13 +748,13 @@ unsigned char *Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
   const rcChunkyTriMesh *chunkyMesh = m_geom->getChunkyMesh();
 
   // Init build configuration from GUI
-  std::memset(&m_cfg, 0, sizeof(m_cfg));
+  memset(&m_cfg, 0, sizeof(m_cfg));
   m_cfg.cs = m_cellSize;
   m_cfg.ch = m_cellHeight;
   m_cfg.walkableSlopeAngle = m_agentMaxSlope;
-  m_cfg.walkableHeight = static_cast<int>(std::ceil(m_agentHeight / m_cfg.ch));
-  m_cfg.walkableClimb = static_cast<int>(std::floor(m_agentMaxClimb / m_cfg.ch));
-  m_cfg.walkableRadius = static_cast<int>(std::ceil(m_agentRadius / m_cfg.cs));
+  m_cfg.walkableHeight = static_cast<int>(ceilf(m_agentHeight / m_cfg.ch));
+  m_cfg.walkableClimb = static_cast<int>(floorf(m_agentMaxClimb / m_cfg.ch));
+  m_cfg.walkableRadius = static_cast<int>(ceilf(m_agentRadius / m_cfg.cs));
   m_cfg.maxEdgeLen = static_cast<int>(m_edgeMaxLen / m_cellSize);
   m_cfg.maxSimplificationError = m_edgeMaxError;
   m_cfg.minRegionArea = static_cast<int>(rcSqr(m_regionMinSize));     // Note: area = size*size
@@ -783,10 +790,10 @@ unsigned char *Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
   // or use the bounding box below to only pass in a sliver of each of the 8 neighbours.
   rcVcopy(m_cfg.bmin, bmin);
   rcVcopy(m_cfg.bmax, bmax);
-  m_cfg.bmin[0] -= static_cast<float>(m_cfg.borderSize) * m_cfg.cs;
-  m_cfg.bmin[2] -= static_cast<float>(m_cfg.borderSize) * m_cfg.cs;
-  m_cfg.bmax[0] += static_cast<float>(m_cfg.borderSize) * m_cfg.cs;
-  m_cfg.bmax[2] += static_cast<float>(m_cfg.borderSize) * m_cfg.cs;
+  m_cfg.bmin[0] -= m_cfg.borderSize * m_cfg.cs;
+  m_cfg.bmin[2] -= m_cfg.borderSize * m_cfg.cs;
+  m_cfg.bmax[0] += m_cfg.borderSize * m_cfg.cs;
+  m_cfg.bmax[2] += m_cfg.borderSize * m_cfg.cs;
 
   // Reset build times gathering.
   m_ctx->resetTimers();
@@ -796,7 +803,7 @@ unsigned char *Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 
   m_ctx->log(RC_LOG_PROGRESS, "Building navigation:");
   m_ctx->log(RC_LOG_PROGRESS, " - %d x %d cells", m_cfg.width, m_cfg.height);
-  m_ctx->log(RC_LOG_PROGRESS, " - %.1fK verts, %.1fK tris", static_cast<float>(nverts) / 1000.0f, static_cast<float>(ntris) / 1000.0f);
+  m_ctx->log(RC_LOG_PROGRESS, " - %.1fK verts, %.1fK tris", nverts / 1000.0f, ntris / 1000.0f);
 
   // Allocate voxel heightfield where we rasterize our input data to.
   m_solid = rcAllocHeightfield();
@@ -812,7 +819,7 @@ unsigned char *Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
   // Allocate array that can hold triangle flags.
   // If you have multiple meshes you need to process, allocate
   // and array which can hold the max number of triangles you need to process.
-  m_triareas = new (std::nothrow) unsigned char[chunkyMesh->maxTrisPerChunk];
+  m_triareas = new unsigned char[chunkyMesh->maxTrisPerChunk];
   if (!m_triareas) {
     m_ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'm_triareas' (%d).", chunkyMesh->maxTrisPerChunk);
     return nullptr;
@@ -831,13 +838,13 @@ unsigned char *Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
   m_tileTriCount = 0;
 
   for (int i = 0; i < ncid; ++i) {
-    const auto &[bmin, bmax, index, number] = chunkyMesh->nodes[cid[i]];
-    const int *ctris = &chunkyMesh->tris[index * 3];
-    const int nctris = number;
+    const rcChunkyTriMeshNode &node = chunkyMesh->nodes[cid[i]];
+    const int *ctris = &chunkyMesh->tris[node.i * 3];
+    const int nctris = node.n;
 
     m_tileTriCount += nctris;
 
-    std::memset(m_triareas, 0, nctris * sizeof(unsigned char));
+    memset(m_triareas, 0, nctris * sizeof(unsigned char));
     rcMarkWalkableTriangles(m_ctx, m_cfg.walkableSlopeAngle,
                             verts, nverts, ctris, nctris, m_triareas);
 
@@ -1052,7 +1059,7 @@ unsigned char *Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
       return nullptr;
     }
   }
-  m_tileMemUsage = static_cast<float>(navDataSize) / 1024.0f;
+  m_tileMemUsage = navDataSize / 1024.0f;
 
   m_ctx->stopTimer(RC_TIMER_TOTAL);
 
@@ -1060,7 +1067,7 @@ unsigned char *Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
   duLogBuildTimes(*m_ctx, m_ctx->getAccumulatedTime(RC_TIMER_TOTAL));
   m_ctx->log(RC_LOG_PROGRESS, ">> Polymesh: %d vertices  %d polygons", m_pmesh->nverts, m_pmesh->npolys);
 
-  m_tileBuildTime = static_cast<float>(m_ctx->getAccumulatedTime(RC_TIMER_TOTAL)) / 1000.0f;
+  m_tileBuildTime = m_ctx->getAccumulatedTime(RC_TIMER_TOTAL) / 1000.0f;
 
   dataSize = navDataSize;
   return navData;

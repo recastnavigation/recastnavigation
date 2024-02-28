@@ -16,7 +16,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <cstdlib>
+#include <cmath>
 #include <cstring>
 
 #include "Recast.h"
@@ -51,8 +51,7 @@ struct rcLayerRegion {
   unsigned char base;    // Flag indicating if the region is the base of merged regions.
 };
 
-namespace {
-bool contains(const unsigned char *a, const unsigned char an, const unsigned char v) {
+static bool contains(const unsigned char *a, const unsigned char an, const unsigned char v) {
   const int n = an;
   for (int i = 0; i < n; ++i) {
     if (a[i] == v)
@@ -61,7 +60,7 @@ bool contains(const unsigned char *a, const unsigned char an, const unsigned cha
   return false;
 }
 
-bool addUnique(unsigned char *a, unsigned char &an, const int anMax, const unsigned char v) {
+static bool addUnique(unsigned char *a, unsigned char &an, const int anMax, const unsigned char v) {
   if (contains(a, an, v))
     return true;
 
@@ -73,10 +72,9 @@ bool addUnique(unsigned char *a, unsigned char &an, const int anMax, const unsig
   return true;
 }
 
-} // namespace
-
-inline bool overlapRange(const unsigned short amin, const unsigned short amax, const unsigned short bmin, const unsigned short bmax) {
-  return (amin <= bmax && amax >= bmin);
+inline bool overlapRange(const unsigned short amin, const unsigned short amax,
+                         const unsigned short bmin, const unsigned short bmax) {
+  return amin <= bmax && amax >= bmin;
 }
 
 struct rcLayerSweepSpan {
@@ -90,7 +88,9 @@ struct rcLayerSweepSpan {
 /// See the #rcConfig documentation for more information on the configuration parameters.
 ///
 /// @see rcAllocHeightfieldLayerSet, rcCompactHeightfield, rcHeightfieldLayerSet, rcConfig
-bool rcBuildHeightfieldLayers(rcContext *ctx, const rcCompactHeightfield &chf, const int borderSize, const int walkableHeight, rcHeightfieldLayerSet &lset) {
+bool rcBuildHeightfieldLayers(rcContext *ctx, const rcCompactHeightfield &chf,
+                              const int borderSize, const int walkableHeight,
+                              rcHeightfieldLayerSet &lset) {
   rcAssert(ctx);
   if (!ctx)
     return false;
@@ -105,7 +105,7 @@ bool rcBuildHeightfieldLayers(rcContext *ctx, const rcCompactHeightfield &chf, c
     ctx->log(RC_LOG_ERROR, "rcBuildHeightfieldLayers: Out of memory 'srcReg' (%d).", chf.spanCount);
     return false;
   }
-  std::memset(static_cast<void *>(srcReg), 0xff, sizeof(unsigned char) * chf.spanCount);
+  memset(srcReg, 0xff, sizeof(unsigned char) * chf.spanCount);
 
   const int nsweeps = chf.width;
   rcScopedDelete sweeps(static_cast<rcLayerSweepSpan *>(rcAlloc(sizeof(rcLayerSweepSpan) * nsweeps, RC_ALLOC_TEMP)));
@@ -119,7 +119,7 @@ bool rcBuildHeightfieldLayers(rcContext *ctx, const rcCompactHeightfield &chf, c
   unsigned char regId = 0;
 
   for (int y = borderSize; y < h - borderSize; ++y) {
-    std::memset(prevCount, 0, sizeof(int) * regId);
+    memset(prevCount, 0, sizeof(int) * regId);
     unsigned char sweepId = 0;
 
     for (int x = borderSize; x < w - borderSize; ++x) {
@@ -206,7 +206,7 @@ bool rcBuildHeightfieldLayers(rcContext *ctx, const rcCompactHeightfield &chf, c
     ctx->log(RC_LOG_ERROR, "rcBuildHeightfieldLayers: Out of memory 'regs' (%d).", nregs);
     return false;
   }
-  std::memset(static_cast<void *>(regs), 0, sizeof(rcLayerRegion) * nregs);
+  memset(regs, 0, sizeof(rcLayerRegion) * nregs);
   for (int i = 0; i < nregs; ++i) {
     regs[i].layerId = 0xff;
     regs[i].ymin = 0xffff;
@@ -309,7 +309,7 @@ bool rcBuildHeightfieldLayers(rcContext *ctx, const rcCompactHeightfield &chf, c
         // Skip if the height range would become too large.
         const int ymin = rcMin(root.ymin, regn.ymin);
         const int ymax = rcMax(root.ymax, regn.ymax);
-        if ((ymax - ymin) >= 255)
+        if (ymax - ymin >= 255)
           continue;
 
         if (nstack < MAX_STACK) {
@@ -360,7 +360,7 @@ bool rcBuildHeightfieldLayers(rcContext *ctx, const rcCompactHeightfield &chf, c
         // Skip if the height range would become too large.
         const int ymin = rcMin(ri.ymin, rj.ymin);
         const int ymax = rcMax(ri.ymax, rj.ymax);
-        if ((ymax - ymin) >= 255)
+        if (ymax - ymin >= 255)
           continue;
 
         // Make sure that there is no overlap when merging 'ri' and 'rj'.
@@ -419,11 +419,11 @@ bool rcBuildHeightfieldLayers(rcContext *ctx, const rcCompactHeightfield &chf, c
   layerId = 0;
   for (int i = 0; i < nregs; ++i)
     remap[regs[i].layerId] = 1;
-  for (unsigned char &i : remap) {
-    if (i)
-      i = layerId++;
+  for (int i = 0; i < 256; ++i) {
+    if (remap[i])
+      remap[i] = layerId++;
     else
-      i = 0xff;
+      remap[i] = 0xff;
   }
   // Remap ids.
   for (int i = 0; i < nregs; ++i)
@@ -434,7 +434,7 @@ bool rcBuildHeightfieldLayers(rcContext *ctx, const rcCompactHeightfield &chf, c
     return true;
 
   // Create layers.
-  rcAssert(lset.layers == nullptr);
+  rcAssert(lset.layers == 0);
 
   const int lw = w - borderSize * 2;
   const int lh = h - borderSize * 2;
@@ -443,10 +443,10 @@ bool rcBuildHeightfieldLayers(rcContext *ctx, const rcCompactHeightfield &chf, c
   float bmin[3], bmax[3];
   rcVcopy(bmin, chf.bmin);
   rcVcopy(bmax, chf.bmax);
-  bmin[0] += static_cast<float>(borderSize) * chf.cs;
-  bmin[2] += static_cast<float>(borderSize) * chf.cs;
-  bmax[0] -= static_cast<float>(borderSize) * chf.cs;
-  bmax[2] -= static_cast<float>(borderSize) * chf.cs;
+  bmin[0] += borderSize * chf.cs;
+  bmin[2] += borderSize * chf.cs;
+  bmax[0] -= borderSize * chf.cs;
+  bmax[2] -= borderSize * chf.cs;
 
   lset.nlayers = static_cast<int>(layerId);
 
@@ -455,36 +455,36 @@ bool rcBuildHeightfieldLayers(rcContext *ctx, const rcCompactHeightfield &chf, c
     ctx->log(RC_LOG_ERROR, "rcBuildHeightfieldLayers: Out of memory 'layers' (%d).", lset.nlayers);
     return false;
   }
-  std::memset(lset.layers, 0, sizeof(rcHeightfieldLayer) * lset.nlayers);
+  memset(lset.layers, 0, sizeof(rcHeightfieldLayer) * lset.nlayers);
 
   // Store layers.
   for (int i = 0; i < lset.nlayers; ++i) {
-    auto curId = static_cast<unsigned char>(i);
+    unsigned char curId = static_cast<unsigned char>(i);
 
     rcHeightfieldLayer *layer = &lset.layers[i];
 
-    const int gridSize = static_cast<int>(sizeof(unsigned char)) * lw * lh;
+    const int gridSize = sizeof(unsigned char) * lw * lh;
 
     layer->heights = static_cast<unsigned char *>(rcAlloc(gridSize, RC_ALLOC_PERM));
     if (!layer->heights) {
       ctx->log(RC_LOG_ERROR, "rcBuildHeightfieldLayers: Out of memory 'heights' (%d).", gridSize);
       return false;
     }
-    std::memset(layer->heights, 0xff, gridSize);
+    memset(layer->heights, 0xff, gridSize);
 
     layer->areas = static_cast<unsigned char *>(rcAlloc(gridSize, RC_ALLOC_PERM));
     if (!layer->areas) {
       ctx->log(RC_LOG_ERROR, "rcBuildHeightfieldLayers: Out of memory 'areas' (%d).", gridSize);
       return false;
     }
-    std::memset(layer->areas, 0, gridSize);
+    memset(layer->areas, 0, gridSize);
 
     layer->cons = static_cast<unsigned char *>(rcAlloc(gridSize, RC_ALLOC_PERM));
     if (!layer->cons) {
       ctx->log(RC_LOG_ERROR, "rcBuildHeightfieldLayers: Out of memory 'cons' (%d).", gridSize);
       return false;
     }
-    std::memset(layer->cons, 0, gridSize);
+    memset(layer->cons, 0, gridSize);
 
     // Find layer height bounds.
     int hmin = 0, hmax = 0;
@@ -503,8 +503,8 @@ bool rcBuildHeightfieldLayers(rcContext *ctx, const rcCompactHeightfield &chf, c
     // Adjust the bbox to fit the heightfield.
     rcVcopy(layer->bmin, bmin);
     rcVcopy(layer->bmax, bmax);
-    layer->bmin[1] = bmin[1] + static_cast<float>(hmin) * chf.ch;
-    layer->bmax[1] = bmin[1] + static_cast<float>(hmax) * chf.ch;
+    layer->bmin[1] = bmin[1] + hmin * chf.ch;
+    layer->bmax[1] = bmin[1] + hmax * chf.ch;
     layer->hmin = hmin;
     layer->hmax = hmax;
 
@@ -568,7 +568,7 @@ bool rcBuildHeightfieldLayers(rcContext *ctx, const rcCompactHeightfield &chf, c
             }
           }
 
-          layer->cons[idx] = (portal << 4) | con;
+          layer->cons[idx] = portal << 4 | con;
         }
       }
     }

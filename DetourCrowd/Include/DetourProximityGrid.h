@@ -19,44 +19,48 @@
 #pragma once
 
 class dtProximityGrid {
-  float m_cellSize;
-  float m_invCellSize;
+  float m_cellSize{};
+  float m_invCellSize{};
 
   struct Item {
-    unsigned short id;
-    short x, y;
-    unsigned short next;
+    unsigned short id{};
+    short x{};
+    short y{};
+    unsigned short next{};
   };
-  Item *m_pool;
-  int m_poolHead;
-  int m_poolSize;
+  Item *m_pool{};
+  int m_poolHead{};
+  int m_poolSize{};
 
-  unsigned short *m_buckets;
-  int m_bucketsSize;
+  unsigned short *m_buckets{};
+  int m_bucketsSize{};
 
-  int m_bounds[4];
+  int m_bounds[4]{};
 
 public:
-  dtProximityGrid();
+  dtProximityGrid() = default;
   ~dtProximityGrid();
 
   bool init(int poolSize, float cellSize);
 
   void clear();
 
-  void addItem(unsigned short id, float minx, float miny, float maxx, float maxy);
+  void addItem(unsigned short id,
+               float minx, float miny,
+               float maxx, float maxy);
 
-  int queryItems(float minx, float miny, float maxx, float maxy, unsigned short *ids, int maxIds) const;
+  int queryItems(float minx, float miny,
+                 float maxx, float maxy,
+                 unsigned short *ids, int maxIds) const;
 
   int getItemCountAt(int x, int y) const;
 
   const int *getBounds() const { return m_bounds; }
   float getCellSize() const { return m_cellSize; }
 
-private:
   // Explicitly disabled copy constructor and copy assignment operator.
-  dtProximityGrid(const dtProximityGrid &);
-  dtProximityGrid &operator=(const dtProximityGrid &);
+  dtProximityGrid(const dtProximityGrid &) = delete;
+  dtProximityGrid &operator=(const dtProximityGrid &) = delete;
 };
 
 dtProximityGrid *dtAllocProximityGrid();

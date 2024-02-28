@@ -16,16 +16,15 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
+#include <cfloat>
+
 #include <SDL.h>
 #include <SDL_opengl.h>
-#include <cfloat>
-#include <cmath>
 #ifdef __APPLE__
 #include <OpenGL/glu.h>
 #else
-#include <gl/GLU.h>
+#include <GL/glu.h>
 #endif
-
 #include "DetourDebugDraw.h"
 #include "InputGeom.h"
 #include "OffMeshConnectionTool.h"
@@ -33,11 +32,9 @@
 #include "Sample.h"
 #include "imgui.h"
 
-OffMeshConnectionTool::OffMeshConnectionTool() : m_sample(nullptr), m_hitPos{},
-                                                 m_hitPosSet(false),
-                                                 m_bidir(true),
-                                                 m_oldFlags(0) {
-}
+#ifdef WIN32
+#define snprintf _snprintf
+#endif
 
 OffMeshConnectionTool::~OffMeshConnectionTool() {
   if (m_sample) {
@@ -87,7 +84,7 @@ void OffMeshConnectionTool::handleClick(const float * /*s*/, const float *p, con
     }
     // If end point close enough, delete it.
     if (nearestIndex != -1 &&
-        std::sqrt(nearestDist) < m_sample->getAgentRadius()) {
+        sqrtf(nearestDist) < m_sample->getAgentRadius()) {
       geom->deleteOffMeshConnection(nearestIndex);
     }
   } else {
@@ -97,7 +94,7 @@ void OffMeshConnectionTool::handleClick(const float * /*s*/, const float *p, con
       m_hitPosSet = true;
     } else {
       constexpr unsigned char area = SAMPLE_POLYAREA_JUMP;
-      constexpr uint16_t flags = SAMPLE_POLYFLAGS_JUMP;
+      constexpr unsigned short flags = SAMPLE_POLYFLAGS_JUMP;
       geom->addOffMeshConnection(m_hitPos, p, m_sample->getAgentRadius(), m_bidir ? 1 : 0, area, flags);
       m_hitPosSet = false;
     }
@@ -120,7 +117,7 @@ void OffMeshConnectionTool::handleRender() {
   if (m_hitPosSet)
     duDebugDrawCross(&dd, m_hitPos[0], m_hitPos[1] + 0.1f, m_hitPos[2], s, duRGBA(0, 0, 0, 128), 2.0f);
 
-  const InputGeom *geom = m_sample->getInputGeom();
+  InputGeom *geom = m_sample->getInputGeom();
   if (geom)
     geom->drawOffMeshConnections(&dd, true);
 }

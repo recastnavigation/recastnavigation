@@ -17,28 +17,29 @@
 //
 
 #pragma once
-
 struct rcChunkyTriMeshNode {
-  float bmin[2];
-  float bmax[2];
-  int i;
-  int n;
+  float bmin[2]{};
+  float bmax[2]{};
+  int i{};
+  int n{};
 };
 
 struct rcChunkyTriMesh {
-  rcChunkyTriMesh() : nodes(nullptr), nnodes(0), tris(nullptr), ntris(0), maxTrisPerChunk(0) {}
+  rcChunkyTriMesh() = default;
   ~rcChunkyTriMesh() {
     delete[] nodes;
     delete[] tris;
   }
+
+  rcChunkyTriMeshNode *nodes{};
+  int nnodes{};
+  int *tris{};
+  int ntris{};
+  int maxTrisPerChunk{};
+
+  // Explicitly disabled copy constructor and copy assignment operator.
   rcChunkyTriMesh(const rcChunkyTriMesh &) = delete;
   rcChunkyTriMesh &operator=(const rcChunkyTriMesh &) = delete;
-
-  rcChunkyTriMeshNode *nodes;
-  int nnodes;
-  int *tris;
-  int ntris;
-  int maxTrisPerChunk;
 };
 
 /// Creates partitioned triangle mesh (AABB tree),

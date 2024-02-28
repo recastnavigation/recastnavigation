@@ -15,20 +15,23 @@
 //    misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 //
+
 #pragma once
+#include "Recast.h"
+#include "Sample.h"
 
 class Sample_TileMesh final : public Sample {
 protected:
-  bool m_keepInterResults;
-  bool m_buildAll;
-  float m_totalBuildTimeMs;
+  bool m_keepInterResults{};
+  bool m_buildAll{};
+  float m_totalBuildTimeMs{};
 
-  unsigned char *m_triareas;
-  rcHeightfield *m_solid;
-  rcCompactHeightfield *m_chf;
-  rcContourSet *m_cset;
-  rcPolyMesh *m_pmesh;
-  rcPolyMeshDetail *m_dmesh;
+  unsigned char *m_triareas{};
+  rcHeightfield *m_solid{};
+  rcCompactHeightfield *m_chf{};
+  rcContourSet *m_cset{};
+  rcPolyMesh *m_pmesh{};
+  rcPolyMeshDetail *m_dmesh{};
   rcConfig m_cfg{};
 
   enum DrawMode {
@@ -53,18 +56,18 @@ protected:
     MAX_DRAWMODE
   };
 
-  DrawMode m_drawMode;
+  DrawMode m_drawMode{};
 
-  int m_maxTiles;
-  int m_maxPolysPerTile;
-  float m_tileSize;
+  int m_maxTiles{};
+  int m_maxPolysPerTile{};
+  float m_tileSize{};
 
-  uint32_t m_tileCol;
+  unsigned int m_tileCol{};
   float m_lastBuiltTileBmin[3]{};
   float m_lastBuiltTileBmax[3]{};
-  float m_tileBuildTime;
-  float m_tileMemUsage;
-  int m_tileTriCount;
+  float m_tileBuildTime{};
+  float m_tileMemUsage{};
+  int m_tileTriCount{};
 
   unsigned char *buildTileMesh(int tx, int ty, const float *bmin, const float *bmax, int &dataSize);
 
@@ -93,8 +96,7 @@ public:
   void buildAllTiles();
   void removeAllTiles() const;
 
-private:
   // Explicitly disabled copy constructor and copy assignment operator.
-  Sample_TileMesh(const Sample_TileMesh &);
-  Sample_TileMesh &operator=(const Sample_TileMesh &);
+  Sample_TileMesh(const Sample_TileMesh &) = delete;
+  Sample_TileMesh &operator=(const Sample_TileMesh &) = delete;
 };

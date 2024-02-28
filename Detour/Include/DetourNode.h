@@ -17,13 +17,13 @@
 //
 
 #pragma once
-
 #include "DetourNavMesh.h"
 
-enum dtNodeFlags {
-  DT_NODE_OPEN = 0x01,
-  DT_NODE_CLOSED = 0x02,
-  DT_NODE_PARENT_DETACHED = 0x04 // parent of the node is not adjacent. Found using raycast.
+enum dtNodeFlags
+{
+    DT_NODE_OPEN = 0x01,
+    DT_NODE_CLOSED = 0x02,
+    DT_NODE_PARENT_DETACHED = 0x04 // parent of the node is not adjacent. Found using raycast.
 };
 
 typedef unsigned short dtNodeIndex;
@@ -31,123 +31,136 @@ static constexpr dtNodeIndex DT_NULL_IDX = static_cast<dtNodeIndex>(~0);
 
 static constexpr int DT_NODE_PARENT_BITS = 24;
 static constexpr int DT_NODE_STATE_BITS = 2;
-struct dtNode {
-  float pos[3];                        ///< Position of the node.
-  float cost;                          ///< Cost from previous node to current node.
-  float total;                         ///< Cost up to the node.
-  uint32_t pidx : DT_NODE_PARENT_BITS; ///< Index to parent node.
-  uint32_t state : DT_NODE_STATE_BITS; ///< extra state information. A polyRef can have multiple nodes with different extra info. see DT_MAX_STATES_PER_NODE
-  uint32_t flags : 3;                  ///< Node flags. A combination of dtNodeFlags.
-  dtPolyRef id;                        ///< Polygon ref the node corresponds to.
+
+struct dtNode
+{
+    float pos[3]; ///< Position of the node.
+    float cost; ///< Cost from previous node to current node.
+    float total; ///< Cost up to the node.
+    unsigned int pidx : DT_NODE_PARENT_BITS; ///< Index to parent node.
+    unsigned int state : DT_NODE_STATE_BITS;
+    ///< extra state information. A polyRef can have multiple nodes with different extra info. see DT_MAX_STATES_PER_NODE
+    unsigned int flags : 3; ///< Node flags. A combination of dtNodeFlags.
+    dtPolyRef id; ///< Polygon ref the node corresponds to.
 };
 
-static constexpr int DT_MAX_STATES_PER_NODE = 1 << DT_NODE_STATE_BITS; // number of extra states per node. See dtNode::state
+static constexpr int DT_MAX_STATES_PER_NODE = 1 << DT_NODE_STATE_BITS;
+// number of extra states per node. See dtNode::state
 
-class dtNodePool {
+class dtNodePool
+{
 public:
-  dtNodePool(int maxNodes, int hashSize);
-  ~dtNodePool();
-  void clear();
+    dtNodePool(int maxNodes, int hashSize);
+    ~dtNodePool();
+    void clear();
 
-  // Get a dtNode by ref and extra state information. If there is none then - allocate
-  // There can be more than one node for the same polyRef but with different extra state information
-  dtNode *getNode(dtPolyRef id, unsigned char state = 0);
-  dtNode *findNode(dtPolyRef id, unsigned char state) const;
-  uint32_t findNodes(dtPolyRef id, dtNode **nodes, int maxNodes) const;
+    // Get a dtNode by ref and extra state information. If there is none then - allocate
+    // There can be more than one node for the same polyRef but with different extra state information
+    dtNode* getNode(dtPolyRef id, unsigned char state = 0);
+    dtNode* findNode(dtPolyRef id, unsigned char state) const;
+    unsigned int findNodes(dtPolyRef id, dtNode** nodes, int maxNodes) const;
 
-  uint32_t getNodeIdx(const dtNode *node) const {
-    if (!node)
-      return 0;
-    return static_cast<uint32_t>(node - m_nodes) + 1;
-  }
-
-  dtNode *getNodeAtIdx(const uint32_t idx) {
-    if (!idx)
-      return nullptr;
-    return &m_nodes[idx - 1];
-  }
-
-  const dtNode *getNodeAtIdx(const uint32_t idx) const {
-    if (!idx)
-      return nullptr;
-    return &m_nodes[idx - 1];
-  }
-
-  int getMemUsed() const {
-    return static_cast<int>(sizeof(*this) +
-                            sizeof(dtNode) * m_maxNodes +
-                            sizeof(dtNodeIndex) * m_maxNodes +
-                            sizeof(dtNodeIndex) * m_hashSize);
-  }
-
-  int getMaxNodes() const { return m_maxNodes; }
-
-  int getHashSize() const { return m_hashSize; }
-  dtNodeIndex getFirst(const int bucket) const { return m_first[bucket]; }
-  dtNodeIndex getNext(const int i) const { return m_next[i]; }
-  int getNodeCount() const { return m_nodeCount; }
-
-private:
-  // Explicitly disabled copy constructor and copy assignment operator.
-  dtNodePool(const dtNodePool &);
-  dtNodePool &operator=(const dtNodePool &);
-
-  dtNode *m_nodes;
-  dtNodeIndex *m_first;
-  dtNodeIndex *m_next;
-  const int m_maxNodes;
-  const int m_hashSize;
-  int m_nodeCount;
-};
-
-class dtNodeQueue {
-public:
-  explicit dtNodeQueue(int n);
-  ~dtNodeQueue();
-
-  void clear() { m_size = 0; }
-
-  dtNode *top() const { return m_heap[0]; }
-
-  dtNode *pop() {
-    dtNode *result = m_heap[0];
-    m_size--;
-    trickleDown(0, m_heap[m_size]);
-    return result;
-  }
-
-  void push(dtNode *node) {
-    m_size++;
-    bubbleUp(m_size - 1, node);
-  }
-
-  void modify(dtNode *node) const {
-    for (int i = 0; i < m_size; ++i) {
-      if (m_heap[i] == node) {
-        bubbleUp(i, node);
-        return;
-      }
+    unsigned int getNodeIdx(const dtNode* node) const
+    {
+        if (!node) return 0;
+        return static_cast<unsigned int>(node - m_nodes) + 1;
     }
-  }
 
-  bool empty() const { return m_size == 0; }
+    dtNode* getNodeAtIdx(const unsigned int idx)
+    {
+        if (!idx) return nullptr;
+        return &m_nodes[idx - 1];
+    }
 
-  int getMemUsed() const {
-    return static_cast<int>(sizeof(*this) +
-                            sizeof(dtNode *) * (m_capacity + 1));
-  }
+    const dtNode* getNodeAtIdx(const unsigned int idx) const
+    {
+        if (!idx) return nullptr;
+        return &m_nodes[idx - 1];
+    }
 
-  int getCapacity() const { return m_capacity; }
+    int getMemUsed() const
+    {
+        return sizeof(*this) +
+            sizeof(dtNode) * m_maxNodes +
+            sizeof(dtNodeIndex) * m_maxNodes +
+            sizeof(dtNodeIndex) * m_hashSize;
+    }
+
+    int getMaxNodes() const { return m_maxNodes; }
+
+    int getHashSize() const { return m_hashSize; }
+    dtNodeIndex getFirst(const int bucket) const { return m_first[bucket]; }
+    dtNodeIndex getNext(const int i) const { return m_next[i]; }
+    int getNodeCount() const { return m_nodeCount; }
+
+    // Explicitly disabled copy constructor and copy assignment operator.
+    dtNodePool(const dtNodePool&) = delete;
+    dtNodePool& operator=(const dtNodePool&) = delete;
+private:
+
+    dtNode* m_nodes;
+    dtNodeIndex* m_first;
+    dtNodeIndex* m_next;
+    const int m_maxNodes;
+    const int m_hashSize;
+    int m_nodeCount;
+};
+
+class dtNodeQueue
+{
+public:
+    explicit dtNodeQueue(int n);
+    ~dtNodeQueue();
+
+    void clear() { m_size = 0; }
+
+    dtNode* top() const { return m_heap[0]; }
+
+    dtNode* pop()
+    {
+        dtNode* result = m_heap[0];
+        m_size--;
+        trickleDown(0, m_heap[m_size]);
+        return result;
+    }
+
+    void push(dtNode* node)
+    {
+        m_size++;
+        bubbleUp(m_size - 1, node);
+    }
+
+    void modify(dtNode* node)
+    {
+        for (int i = 0; i < m_size; ++i)
+        {
+            if (m_heap[i] == node)
+            {
+                bubbleUp(i, node);
+                return;
+            }
+        }
+    }
+
+    bool empty() const { return m_size == 0; }
+
+    int getMemUsed() const
+    {
+        return sizeof(*this) +
+            sizeof(dtNode*) * (m_capacity + 1);
+    }
+
+    int getCapacity() const { return m_capacity; }
+
+    // Explicitly disabled copy constructor and copy assignment operator.
+    dtNodeQueue(const dtNodeQueue&) = delete;
+    dtNodeQueue& operator=(const dtNodeQueue&) = delete;
 
 private:
-  // Explicitly disabled copy constructor and copy assignment operator.
-  dtNodeQueue(const dtNodeQueue &);
-  dtNodeQueue &operator=(const dtNodeQueue &);
+    void bubbleUp(int i, dtNode* node) const;
+    void trickleDown(int i, dtNode* node) const;
 
-  void bubbleUp(int i, dtNode *node) const;
-  void trickleDown(int i, dtNode *node) const;
-
-  dtNode **m_heap;
-  const int m_capacity;
-  int m_size;
+    dtNode** m_heap;
+    const int m_capacity;
+    int m_size;
 };

@@ -15,14 +15,14 @@
 //    misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 //
-#pragma once
 
+#pragma once
 #ifdef __GNUC__
-#include <cstdint>
+#include <stdint.h>
 typedef int64_t TimeVal;
 #else
 typedef __int64 TimeVal;
 #endif
 
 TimeVal getPerfTime();
-int getPerfTimeUsec(TimeVal duration);
+int getPerfTimeUsec(const TimeVal duration);

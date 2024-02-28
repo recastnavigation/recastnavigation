@@ -17,18 +17,13 @@
 //
 
 #pragma once
-
-#include <DetourCrowd.h>
-#include <DetourNavMesh.h>
-#include <Sample.h>
-#include <ValueHistory.h>
+#include "DetourCrowd.h"
+#include "DetourNavMesh.h"
+#include "DetourObstacleAvoidance.h"
+#include "Sample.h"
+#include "ValueHistory.h"
 
 // Tool to create crowds.
-
-class dtObstacleAvoidanceDebugData;
-class dtCrowd;
-class dtNavMesh;
-class Sample;
 
 struct CrowdToolParams {
   bool m_expandSelectedDebugDraw;
@@ -57,21 +52,21 @@ struct CrowdToolParams {
 };
 
 class CrowdToolState final : public SampleToolState {
-  Sample *m_sample;
-  dtNavMesh *m_nav;
-  dtCrowd *m_crowd;
+  Sample *m_sample{};
+  dtNavMesh *m_nav{};
+  dtCrowd *m_crowd{};
 
-  float m_targetPos[3];
-  dtPolyRef m_targetRef;
+  float m_targetPos[3]{};
+  dtPolyRef m_targetRef{};
 
   dtCrowdAgentDebugInfo m_agentDebug{};
-  dtObstacleAvoidanceDebugData *m_vod;
+  dtObstacleAvoidanceDebugData *m_vod{};
 
   static constexpr int AGENT_MAX_TRAIL = 64;
   static constexpr int MAX_AGENTS = 128;
   struct AgentTrail {
-    float trail[AGENT_MAX_TRAIL * 3];
-    int htrail;
+    float trail[AGENT_MAX_TRAIL * 3]{};
+    int htrail{};
   };
   AgentTrail m_trails[MAX_AGENTS]{};
 
@@ -80,7 +75,7 @@ class CrowdToolState final : public SampleToolState {
 
   CrowdToolParams m_toolParams{};
 
-  bool m_run;
+  bool m_run{true};
 
 public:
   CrowdToolState();
@@ -105,10 +100,9 @@ public:
 
   CrowdToolParams *getToolParams() { return &m_toolParams; }
 
-private:
   // Explicitly disabled copy constructor and copy assignment operator.
-  CrowdToolState(const CrowdToolState &);
-  CrowdToolState &operator=(const CrowdToolState &);
+  CrowdToolState(const CrowdToolState &) = delete;
+  CrowdToolState &operator=(const CrowdToolState &) = delete;
 };
 
 class CrowdTool final : public SampleTool {

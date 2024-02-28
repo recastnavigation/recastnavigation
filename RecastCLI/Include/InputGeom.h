@@ -16,6 +16,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 #pragma once
+#include <cstdint>
 #include <string>
 
 class rcMeshLoaderObj;
@@ -96,8 +97,8 @@ class InputGeom
     int m_volumeCount;
     ///@}
 
-    bool loadMesh(rcContext* ctx, const std::string& filepath);
-    bool loadGeomSet(rcContext* ctx, const std::string& filepath);
+    bool loadMesh(rcContext* ctx, const std::string& filePath);
+    bool loadGeomSet(rcContext* ctx, const std::string& filePath);
 
 public:
     InputGeom();
@@ -151,8 +152,7 @@ public:
     void drawConvexVolumes(duDebugDraw* dd, bool hilight = false) const;
     ///@}
 
-private:
     // Explicitly disabled copy constructor and copy assignment operator.
-    InputGeom(const InputGeom&);
-    InputGeom& operator=(const InputGeom&);
+    InputGeom(const InputGeom&) = delete;
+    InputGeom& operator=(const InputGeom&) = delete;
 };

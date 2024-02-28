@@ -15,28 +15,27 @@
 //    misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 //
+
 #pragma once
+#include "DebugDraw.h"
+#include "PerfTimer.h"
+#include "Recast.h"
+#include "RecastDump.h"
 
 #include <fstream>
-
-#include <DebugDraw.h>
-#include <Recast.h>
-#include <RecastDump.h>
-
-#include "PerfTimer.h"
 
 // These are example implementations of various interfaces used in Recast and Detour.
 
 /// Recast build context.
 class BuildContext final : public rcContext {
-  TimeVal m_startTime[RC_MAX_TIMERS]{};
-  TimeVal m_accTime[RC_MAX_TIMERS]{};
+  TimeVal m_startTime[RC_MAX_TIMERS];
+  TimeVal m_accTime[RC_MAX_TIMERS];
 
   static constexpr int MAX_MESSAGES = 1000;
-  const char *m_messages[MAX_MESSAGES]{};
+  const char *m_messages[MAX_MESSAGES];
   int m_messageCount;
   static constexpr int TEXT_POOL_SIZE = 8000;
-  char m_textPool[TEXT_POOL_SIZE]{};
+  char m_textPool[TEXT_POOL_SIZE];
   int m_textPoolSize;
 
 public:
@@ -67,30 +66,28 @@ public:
   void depthMask(bool state) override;
   void texture(bool state) override;
   void begin(duDebugDrawPrimitives prim, float size = 1.0f) override;
-  void vertex(const float *pos, uint32_t color) override;
-  void vertex(float x, float y, float z, uint32_t color) override;
-  void vertex(const float *pos, uint32_t color, const float *uv) override;
-  void vertex(float x, float y, float z, uint32_t color, float u, float v) override;
+  void vertex(const float *pos, unsigned int color) override;
+  void vertex(float x, float y, float z, unsigned int color) override;
+  void vertex(const float *pos, unsigned int color, const float *uv) override;
+  void vertex(float x, float y, float z, unsigned int color, float u, float v) override;
   void end() override;
 };
 
 /// stdio file implementation.
 class FileIO final : public duFileIO {
   std::fstream m_fp{};
-  int m_mode{-1};
+  int m_mode{};
 
 public:
-  FileIO() = default;
+  FileIO()=default;
   ~FileIO() override;
   bool openForWrite(const char *path);
   bool openForRead(const char *path);
   bool isWriting() const override;
   bool isReading() const override;
-  bool write(const void *ptr, std::size_t size) override;
-  bool read(void *ptr, std::size_t size) override;
-
-private:
+  bool write(const void *ptr, size_t size) override;
+  bool read( void *ptr,  size_t size) override;
   // Explicitly disabled copy constructor and copy assignment operator.
-  FileIO(const FileIO &);
-  FileIO &operator=(const FileIO &);
+  FileIO(const FileIO &) = delete;
+  FileIO &operator=(const FileIO &) = delete;
 };

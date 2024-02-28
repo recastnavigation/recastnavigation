@@ -31,7 +31,7 @@ const int kMaxAllocSize = 1024;
 const unsigned char kClearValue = 0xff;
 
 /// Simple alloc/free that clears the memory on free..
-void* AllocAndInit(size_t size, rcAllocHint) {
+void* AllocAndInit(const size_t size, rcAllocHint) {
 	rcAssert(kMaxAllocSize >= size);
 	return memset(malloc(kMaxAllocSize), 0, kMaxAllocSize);
 }
@@ -190,7 +190,7 @@ TEST_CASE("rcVector", "[recast, alloc]")
 
 		// Don't crash.
 		vec.push_back(vec[0]);
-		rcAllocSetCustom(NULL, NULL);
+		rcAllocSetCustom(nullptr, nullptr);
 	}
 
 	SECTION("Vector Destructor")

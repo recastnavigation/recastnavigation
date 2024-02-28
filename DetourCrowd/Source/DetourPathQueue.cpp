@@ -16,20 +16,17 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "DetourPathQueue.h"
+#include <cstring>
+
 #include "DetourAlloc.h"
 #include "DetourCommon.h"
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"
+#include "DetourPathQueue.h"
 
-#include <cstring>
-
-dtPathQueue::dtPathQueue() : m_nextHandle(1),
-                             m_maxPathSize(0),
-                             m_queueHead(0),
-                             m_navquery(nullptr) {
-  for (auto &i : m_queue)
-    i.path = nullptr;
+dtPathQueue::dtPathQueue() {
+  for (int i = 0; i < MAX_QUEUE; ++i)
+    m_queue[i].path = nullptr;
 }
 
 dtPathQueue::~dtPathQueue() {
@@ -39,9 +36,9 @@ dtPathQueue::~dtPathQueue() {
 void dtPathQueue::purge() {
   dtFreeNavMeshQuery(m_navquery);
   m_navquery = nullptr;
-  for (auto &i : m_queue) {
-    dtFree(i.path);
-    i.path = nullptr;
+  for (int i = 0; i < MAX_QUEUE; ++i) {
+    dtFree(m_queue[i].path);
+    m_queue[i].path = nullptr;
   }
 }
 
@@ -55,10 +52,10 @@ bool dtPathQueue::init(const int maxPathSize, const int maxSearchNodeCount, cons
     return false;
 
   m_maxPathSize = maxPathSize;
-  for (auto &i : m_queue) {
-    i.ref = DT_PATHQ_INVALID;
-    i.path = static_cast<dtPolyRef *>(dtAlloc(sizeof(dtPolyRef) * m_maxPathSize, DT_ALLOC_PERM));
-    if (!i.path)
+  for (int i = 0; i < MAX_QUEUE; ++i) {
+    m_queue[i].ref = DT_PATHQ_INVALID;
+    m_queue[i].path = static_cast<dtPolyRef *>(dtAlloc(sizeof(dtPolyRef) * m_maxPathSize, DT_ALLOC_PERM));
+    if (!m_queue[i].path)
       return false;
   }
 
@@ -152,24 +149,24 @@ dtPathQueueRef dtPathQueue::request(const dtPolyRef startRef, const dtPolyRef en
 }
 
 dtStatus dtPathQueue::getRequestStatus(const dtPathQueueRef ref) const {
-  for (const auto &i : m_queue) {
-    if (i.ref == ref)
-      return i.status;
+  for (int i = 0; i < MAX_QUEUE; ++i) {
+    if (m_queue[i].ref == ref)
+      return m_queue[i].status;
   }
   return DT_FAILURE;
 }
 
 dtStatus dtPathQueue::getPathResult(const dtPathQueueRef ref, dtPolyRef *path, int *pathSize, const int maxPath) {
-  for (auto &i : m_queue) {
-    if (i.ref == ref) {
-      PathQuery &q = i;
+  for (int i = 0; i < MAX_QUEUE; ++i) {
+    if (m_queue[i].ref == ref) {
+      PathQuery &q = m_queue[i];
       const dtStatus details = q.status & DT_STATUS_DETAIL_MASK;
       // Free request for reuse.
       q.ref = DT_PATHQ_INVALID;
       q.status = 0;
       // Copy path
       const int n = dtMin(q.npath, maxPath);
-      std::memcpy(path, q.path, sizeof(dtPolyRef) * n);
+      memcpy(path, q.path, sizeof(dtPolyRef) * n);
       *pathSize = n;
       return details | DT_SUCCESS;
     }

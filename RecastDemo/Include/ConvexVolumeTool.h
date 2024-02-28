@@ -17,26 +17,26 @@
 //
 
 #pragma once
-
-#include <Sample.h>
+#include "Sample.h"
 
 // Tool to create convex volumess for InputGeom
 
-class ConvexVolumeTool final : public SampleTool {
-  Sample *m_sample;
-  int m_areaType;
-  float m_polyOffset;
-  float m_boxHeight;
-  float m_boxDescent;
-
-  static constexpr int MAX_PTS = 12;
-  float m_pts[MAX_PTS * 3];
-  int m_npts;
-  int m_hull[MAX_PTS];
-  int m_nhull;
-
+class ConvexVolumeTool final : public SampleTool
+{
+	Sample* m_sample{};
+	int m_areaType{SAMPLE_POLYAREA_GRASS};
+	float m_polyOffset{};
+	float m_boxHeight{0.6f};
+	float m_boxDescent{0.1f};
+	
+	static constexpr int MAX_PTS = 12;
+	float m_pts[MAX_PTS*3]{};
+	int m_npts{};
+	int m_hull[MAX_PTS]{};
+	int m_nhull{};
+	
 public:
-  ConvexVolumeTool();
+	ConvexVolumeTool()=default;
 
   int type() override { return TOOL_CONVEX_VOLUME; }
   void init(Sample *sample) override;

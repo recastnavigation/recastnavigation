@@ -132,7 +132,7 @@ static FASTLZ_INLINE int FASTLZ_COMPRESSOR(const void* input, int length, void* 
 static FASTLZ_INLINE int FASTLZ_DECOMPRESSOR(const void* input, int length, void* output, int maxout);
 #include "fastlz.c"
 
-int fastlz_compress(const void* input, int length, void* output)
+int fastlz_compress(const void* input, const int length, void* output)
 {
   /* for short block, choose fastlz1 */
   if(length < 65536)
@@ -142,10 +142,10 @@ int fastlz_compress(const void* input, int length, void* output)
   return fastlz2_compress(input, length, output);
 }
 
-int fastlz_decompress(const void* input, int length, void* output, int maxout)
+int fastlz_decompress(const void* input, const int length, void* output, const int maxout)
 {
   /* magic identifier for compression level */
-  int level = ((*(const flzuint8*)input) >> 5) + 1;
+  const int level = ((*(const flzuint8*)input) >> 5) + 1;
 
   if(level == 1)
     return fastlz1_decompress(input, length, output, maxout);
@@ -156,7 +156,7 @@ int fastlz_decompress(const void* input, int length, void* output, int maxout)
   return 0;
 }
 
-int fastlz_compress_level(int level, const void* input, int length, void* output)
+int fastlz_compress_level(const int level, const void* input, const int length, void* output)
 {
   if(level == 1)
     return fastlz1_compress(input, length, output);

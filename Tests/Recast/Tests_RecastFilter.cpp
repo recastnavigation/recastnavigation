@@ -24,14 +24,14 @@ TEST_CASE("rcFilterLowHangingWalkableObstacles", "[recast, filtering]")
 	heightfield.cs = 1;
 	heightfield.ch = 1;
 	heightfield.spans = (rcSpan**)rcAlloc(heightfield.width * heightfield.height * sizeof(rcSpan*), RC_ALLOC_PERM);
-	heightfield.pools = NULL;
-	heightfield.freelist = NULL;
+	heightfield.pools = nullptr;
+	heightfield.freelist = nullptr;
 
 	SECTION("Span with no spans above it is unchanged")
 	{
 		rcSpan* span = (rcSpan*)rcAlloc(sizeof(rcSpan), RC_ALLOC_PERM);
 		span->area = 1;
-		span->next = NULL;
+		span->next = nullptr;
 		span->smin = 0;
 		span->smax = 1;
 		heightfield.spans[0] = span;
@@ -48,7 +48,7 @@ TEST_CASE("rcFilterLowHangingWalkableObstacles", "[recast, filtering]")
 		// Put the second span just above the first one.
 		rcSpan* secondSpan = (rcSpan*)rcAlloc(sizeof(rcSpan), RC_ALLOC_PERM);
 		secondSpan->area = RC_NULL_AREA;
-		secondSpan->next = NULL;
+		secondSpan->next = nullptr;
 		secondSpan->smin = 1 + walkableHeight;
 		secondSpan->smax = secondSpan->smin + 1;
 
@@ -85,7 +85,7 @@ TEST_CASE("rcFilterLowHangingWalkableObstacles", "[recast, filtering]")
 		// Put the second span just above the first one.
 		rcSpan* secondSpan = (rcSpan*)rcAlloc(sizeof(rcSpan), RC_ALLOC_PERM);
 		secondSpan->area = RC_NULL_AREA;
-		secondSpan->next = NULL;
+		secondSpan->next = nullptr;
 		secondSpan->smin = 1 + (walkableHeight - 1);
 		secondSpan->smax = secondSpan->smin + 1;
 
@@ -112,7 +112,7 @@ TEST_CASE("rcFilterLowHangingWalkableObstacles", "[recast, filtering]")
 		// Put the second span just above the first one.
 		rcSpan* secondSpan = (rcSpan*)rcAlloc(sizeof(rcSpan), RC_ALLOC_PERM);
 		secondSpan->area = RC_NULL_AREA;
-		secondSpan->next = NULL;
+		secondSpan->next = nullptr;
 		secondSpan->smin = 2 + (walkableHeight - 1);
 		secondSpan->smax = secondSpan->smin + 1;
 
@@ -138,7 +138,7 @@ TEST_CASE("rcFilterLowHangingWalkableObstacles", "[recast, filtering]")
 	{
 		rcSpan* span = (rcSpan*)rcAlloc(sizeof(rcSpan), RC_ALLOC_PERM);
 		span->area = 1;
-		span->next = NULL;
+		span->next = nullptr;
 		span->smin = 0;
 		span->smax = 1;
 		heightfield.spans[0] = span;
@@ -148,7 +148,7 @@ TEST_CASE("rcFilterLowHangingWalkableObstacles", "[recast, filtering]")
 		{
 			rcSpan* nextSpan = (rcSpan*)rcAlloc(sizeof(rcSpan), RC_ALLOC_PERM);
 			nextSpan->area = RC_NULL_AREA;
-			nextSpan->next = NULL;
+			nextSpan->next = nullptr;
 			nextSpan->smin = previousSpan->smax + (walkableHeight - 1);
 			nextSpan->smax = nextSpan->smin + 1;
 			previousSpan->next = nextSpan;
@@ -160,7 +160,7 @@ TEST_CASE("rcFilterLowHangingWalkableObstacles", "[recast, filtering]")
 		rcSpan* currentSpan = heightfield.spans[0];
 		for (int i = 0; i < 10; ++i)
 		{
-			REQUIRE(currentSpan != NULL);
+			REQUIRE(currentSpan != nullptr);
 			// only the first and second spans should be marked as walkabl
 			REQUIRE(currentSpan->area == (i <= 1 ? 1 : RC_NULL_AREA));
 			currentSpan = currentSpan->next;
@@ -199,8 +199,8 @@ TEST_CASE("rcFilterLedgeSpans", "[recast, filtering]")
 	heightfield.cs = 1;
 	heightfield.ch = 1;
 	heightfield.spans = (rcSpan**)rcAlloc(heightfield.width * heightfield.height * sizeof(rcSpan*), RC_ALLOC_PERM);
-	heightfield.pools = NULL;
-	heightfield.freelist = NULL;
+	heightfield.pools = nullptr;
+	heightfield.freelist = nullptr;
 
 	SECTION("Edge spans are marked unwalkable")
 	{
@@ -211,7 +211,7 @@ TEST_CASE("rcFilterLedgeSpans", "[recast, filtering]")
 			{
 				rcSpan* span = (rcSpan*)rcAlloc(sizeof(rcSpan), RC_ALLOC_PERM);
 				span->area = 1;
-				span->next = NULL;
+				span->next = nullptr;
 				span->smin = 0;
 				span->smax = 1;
 				heightfield.spans[x + z * heightfield.width] = span;
@@ -225,7 +225,7 @@ TEST_CASE("rcFilterLedgeSpans", "[recast, filtering]")
 			for (int z = 0; z < heightfield.height; ++z)
 			{
 				rcSpan* span = heightfield.spans[x + z * heightfield.width];
-				REQUIRE(span != NULL);
+				REQUIRE(span != nullptr);
 
 				if (x == 0 || z == 0 || x == 9 || z == 9)
 				{
@@ -236,7 +236,7 @@ TEST_CASE("rcFilterLedgeSpans", "[recast, filtering]")
 					REQUIRE(span->area == 1);
 				}
 
-				REQUIRE(span->next == NULL);
+				REQUIRE(span->next == nullptr);
 				REQUIRE(span->smin == 0);
 				REQUIRE(span->smax == 1);
 			}
@@ -270,14 +270,14 @@ TEST_CASE("rcFilterWalkableLowHeightSpans", "[recast, filtering]")
 	heightfield.cs = 1;
 	heightfield.ch = 1;
 	heightfield.spans = (rcSpan**)rcAlloc(heightfield.width * heightfield.height * sizeof(rcSpan*), RC_ALLOC_PERM);
-	heightfield.pools = NULL;
-	heightfield.freelist = NULL;
+	heightfield.pools = nullptr;
+	heightfield.freelist = nullptr;
 
 	SECTION("span nothing above is unchanged")
 	{
 		rcSpan* span = (rcSpan*)rcAlloc(sizeof(rcSpan), RC_ALLOC_PERM);
 		span->area = 1;
-		span->next = NULL;
+		span->next = nullptr;
 		span->smin = 0;
 		span->smax = 1;
 		heightfield.spans[0] = span;
@@ -293,7 +293,7 @@ TEST_CASE("rcFilterWalkableLowHeightSpans", "[recast, filtering]")
 	{
 		rcSpan* overheadSpan = (rcSpan*)rcAlloc(sizeof(rcSpan), RC_ALLOC_PERM);
 		overheadSpan->area = RC_NULL_AREA;
-		overheadSpan->next = NULL;
+		overheadSpan->next = nullptr;
 		overheadSpan->smin = 10;
 		overheadSpan->smax = 11;
 
@@ -317,7 +317,7 @@ TEST_CASE("rcFilterWalkableLowHeightSpans", "[recast, filtering]")
 	{
 		rcSpan* overheadSpan = (rcSpan*)rcAlloc(sizeof(rcSpan), RC_ALLOC_PERM);
 		overheadSpan->area = RC_NULL_AREA;
-		overheadSpan->next = NULL;
+		overheadSpan->next = nullptr;
 		overheadSpan->smin = 3;
 		overheadSpan->smax = 4;
 

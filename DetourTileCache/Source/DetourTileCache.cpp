@@ -1,5 +1,3 @@
-#include "DetourTileCache.h"
-
 #include <cstring>
 #include <new>
 
@@ -9,6 +7,7 @@
 #include "DetourMath.h"
 #include "DetourNavMesh.h"
 #include "DetourNavMeshBuilder.h"
+#include "DetourTileCache.h"
 #include "DetourTileCacheBuilder.h"
 
 dtTileCache *dtAllocTileCache() {
@@ -25,23 +24,22 @@ void dtFreeTileCache(dtTileCache *tc) {
   dtFree(tc);
 }
 
-namespace {
-bool contains(const dtCompressedTileRef *a, const int n, const dtCompressedTileRef v) {
+static bool contains(const dtCompressedTileRef *a, const int n, const dtCompressedTileRef v) {
   for (int i = 0; i < n; ++i)
     if (a[i] == v)
       return true;
   return false;
 }
-} // namespace
+
 inline int computeTileHash(const int x, const int y, const int mask) {
-  constexpr uint32_t h1 = 0x8da6b343; // Large multiplicative constants;
-  constexpr uint32_t h2 = 0xd8163841; // here arbitrarily chosen primes
-  const uint32_t n = h1 * x + h2 * y;
+  constexpr unsigned int h1 = 0x8da6b343; // Large multiplicative constants;
+  constexpr unsigned int h2 = 0xd8163841; // here arbitrarily chosen primes
+  const unsigned int n = h1 * x + h2 * y;
   return static_cast<int>(n & mask);
 }
 
 struct NavMeshTileBuildContext {
-  explicit NavMeshTileBuildContext(dtTileCacheAlloc *a) : layer(nullptr), lcset(nullptr), lmesh(nullptr), alloc(a) {}
+  explicit NavMeshTileBuildContext(dtTileCacheAlloc *a) : alloc{a} {}
   ~NavMeshTileBuildContext() { purge(); }
   void purge() {
     dtFreeTileCacheLayer(alloc, layer);
@@ -51,29 +49,15 @@ struct NavMeshTileBuildContext {
     dtFreeTileCachePolyMesh(alloc, lmesh);
     lmesh = nullptr;
   }
-
-  dtTileCacheLayer *layer;
-  dtTileCacheContourSet *lcset;
-  dtTileCachePolyMesh *lmesh;
+  dtTileCacheLayer *layer{};
+  dtTileCacheContourSet *lcset{};
+  dtTileCachePolyMesh *lmesh{};
   dtTileCacheAlloc *alloc;
 };
 
-dtTileCache::dtTileCache() : m_tileLutSize(0),
-                             m_tileLutMask(0),
-                             m_posLookup(nullptr),
-                             m_nextFreeTile(nullptr),
-                             m_tiles(nullptr),
-                             m_saltBits(0),
-                             m_tileBits(0),
-                             m_talloc(nullptr),
-                             m_tcomp(nullptr),
-                             m_tmproc(nullptr),
-                             m_obstacles(nullptr),
-                             m_nextFreeObstacle(nullptr),
-                             m_nreqs(0), m_update{},
-                             m_nupdate(0) {
-  std::memset(&m_params, 0, sizeof(m_params));
-  std::memset(m_reqs, 0, sizeof(ObstacleRequest) * MAX_REQUESTS);
+dtTileCache::dtTileCache() {
+  memset(&m_params, 0, sizeof(m_params));
+  memset(m_reqs, 0, sizeof(ObstacleRequest) * MAX_REQUESTS);
 }
 
 dtTileCache::~dtTileCache() {
@@ -96,8 +80,8 @@ dtTileCache::~dtTileCache() {
 const dtCompressedTile *dtTileCache::getTileByRef(const dtCompressedTileRef ref) const {
   if (!ref)
     return nullptr;
-  const uint32_t tileIndex = decodeTileIdTile(ref);
-  const uint32_t tileSalt = decodeTileIdSalt(ref);
+  const unsigned int tileIndex = decodeTileIdTile(ref);
+  const unsigned int tileSalt = decodeTileIdSalt(ref);
   if (static_cast<int>(tileIndex) >= m_params.maxTiles)
     return nullptr;
   const dtCompressedTile *tile = &m_tiles[tileIndex];
@@ -106,18 +90,21 @@ const dtCompressedTile *dtTileCache::getTileByRef(const dtCompressedTileRef ref)
   return tile;
 }
 
-dtStatus dtTileCache::init(const dtTileCacheParams *params, dtTileCacheAlloc *talloc, dtTileCacheCompressor *tcomp, dtTileCacheMeshProcess *tmproc) {
+dtStatus dtTileCache::init(const dtTileCacheParams *params,
+                           dtTileCacheAlloc *talloc,
+                           dtTileCacheCompressor *tcomp,
+                           dtTileCacheMeshProcess *tmproc) {
   m_talloc = talloc;
   m_tcomp = tcomp;
   m_tmproc = tmproc;
   m_nreqs = 0;
-  std::memcpy(&m_params, params, sizeof(m_params));
+  memcpy(&m_params, params, sizeof(m_params));
 
   // Alloc space for obstacles.
   m_obstacles = static_cast<dtTileCacheObstacle *>(dtAlloc(sizeof(dtTileCacheObstacle) * m_params.maxObstacles, DT_ALLOC_PERM));
   if (!m_obstacles)
     return DT_FAILURE | DT_OUT_OF_MEMORY;
-  std::memset(m_obstacles, 0, sizeof(dtTileCacheObstacle) * m_params.maxObstacles);
+  memset(m_obstacles, 0, sizeof(dtTileCacheObstacle) * m_params.maxObstacles);
   m_nextFreeObstacle = nullptr;
   for (int i = m_params.maxObstacles - 1; i >= 0; --i) {
     m_obstacles[i].salt = 1;
@@ -126,7 +113,7 @@ dtStatus dtTileCache::init(const dtTileCacheParams *params, dtTileCacheAlloc *ta
   }
 
   // Init tiles
-  m_tileLutSize = static_cast<int>(dtNextPow2(m_params.maxTiles / 4));
+  m_tileLutSize = dtNextPow2(m_params.maxTiles / 4);
   if (!m_tileLutSize)
     m_tileLutSize = 1;
   m_tileLutMask = m_tileLutSize - 1;
@@ -147,9 +134,9 @@ dtStatus dtTileCache::init(const dtTileCacheParams *params, dtTileCacheAlloc *ta
   }
 
   // Init ID generator values.
-  m_tileBits = dtIlog2(dtNextPow2(static_cast<uint32_t>(m_params.maxTiles)));
+  m_tileBits = dtIlog2(dtNextPow2(static_cast<unsigned int>(m_params.maxTiles)));
   // Only allow 31 salt bits, since the salt mask is calculated using 32bit uint and it will overflow.
-  m_saltBits = dtMin(static_cast<uint32_t>(31), 32 - m_tileBits);
+  m_saltBits = dtMin(static_cast<unsigned int>(31), 32 - m_tileBits);
   if (m_saltBits < 10)
     return DT_FAILURE | DT_INVALID_PARAM;
 
@@ -194,28 +181,31 @@ dtCompressedTile *dtTileCache::getTileAt(const int tx, const int ty, const int t
 dtCompressedTileRef dtTileCache::getTileRef(const dtCompressedTile *tile) const {
   if (!tile)
     return 0;
-  const auto it = static_cast<uint32_t>(tile - m_tiles);
+  const unsigned int it = static_cast<unsigned int>(tile - m_tiles);
   return encodeTileId(tile->salt, it);
 }
 
-dtObstacleRef dtTileCache::getObstacleRef(const dtTileCacheObstacle *obmin) const {
-  if (!obmin)
+dtObstacleRef dtTileCache::getObstacleRef(const dtTileCacheObstacle *ob) const {
+  if (!ob)
     return 0;
-  const auto idx = static_cast<uint32_t>(obmin - m_obstacles);
-  return encodeObstacleId(obmin->salt, idx);
+  const unsigned int idx = static_cast<unsigned int>(ob - m_obstacles);
+  return encodeObstacleId(ob->salt, idx);
 }
 
 const dtTileCacheObstacle *dtTileCache::getObstacleByRef(const dtObstacleRef ref) const {
   if (!ref)
     return nullptr;
-  const uint32_t idx = decodeObstacleIdObstacle(ref);
+  const unsigned int idx = decodeObstacleIdObstacle(ref);
   if (static_cast<int>(idx) >= m_params.maxObstacles)
     return nullptr;
   const dtTileCacheObstacle *ob = &m_obstacles[idx];
-  const uint32_t salt = decodeObstacleIdSalt(ref);
-  if (ob->salt != salt)
+  if (ob->salt != decodeObstacleIdSalt(ref))
     return nullptr;
   return ob;
+}
+
+dtTileCacheMeshProcess::~dtTileCacheMeshProcess() {
+  // Defined out of line to fix the weak v-tables warning
 }
 
 dtStatus dtTileCache::addTile(unsigned char *data, const int dataSize, const unsigned char flags, dtCompressedTileRef *result) {
@@ -265,8 +255,8 @@ dtStatus dtTileCache::addTile(unsigned char *data, const int dataSize, const uns
 dtStatus dtTileCache::removeTile(const dtCompressedTileRef ref, unsigned char **data, int *dataSize) {
   if (!ref)
     return DT_FAILURE | DT_INVALID_PARAM;
-  const uint32_t tileIndex = decodeTileIdTile(ref);
-  const uint32_t tileSalt = decodeTileIdSalt(ref);
+  const unsigned int tileIndex = decodeTileIdTile(ref);
+  const unsigned int tileSalt = decodeTileIdSalt(ref);
   if (static_cast<int>(tileIndex) >= m_params.maxTiles)
     return DT_FAILURE | DT_INVALID_PARAM;
   dtCompressedTile *tile = &m_tiles[tileIndex];
@@ -441,11 +431,12 @@ dtStatus dtTileCache::removeObstacle(const dtObstacleRef ref) {
   return DT_SUCCESS;
 }
 
-dtStatus dtTileCache::queryTiles(const float *bmin, const float *bmax, dtCompressedTileRef *results, int *resultCount, const int maxResults) const {
+dtStatus dtTileCache::queryTiles(const float *bmin, const float *bmax,
+                                 dtCompressedTileRef *results, int *resultCount, const int maxResults) const {
   int n = 0;
 
-  const float tw = static_cast<float>(m_params.width) * m_params.cs;
-  const float th = static_cast<float>(m_params.height) * m_params.cs;
+  const float tw = m_params.width * m_params.cs;
+  const float th = m_params.height * m_params.cs;
   const int tx0 = static_cast<int>(dtMathFloorf((bmin[0] - m_params.orig[0]) / tw));
   const int tx1 = static_cast<int>(dtMathFloorf((bmax[0] - m_params.orig[0]) / tw));
   const int ty0 = static_cast<int>(dtMathFloorf((bmin[2] - m_params.orig[2]) / th));
@@ -475,18 +466,18 @@ dtStatus dtTileCache::queryTiles(const float *bmin, const float *bmax, dtCompres
   return DT_SUCCESS;
 }
 
-dtStatus dtTileCache::update(const float /*dt*/, dtNavMesh *navmesh, bool *upToDate) {
+dtStatus dtTileCache::update(const float /*dt*/, dtNavMesh *navmesh,
+                             bool *upToDate) {
   if (m_nupdate == 0) {
     // Process requests.
     for (int i = 0; i < m_nreqs; ++i) {
       const ObstacleRequest *req = &m_reqs[i];
 
-      const uint32_t idx = decodeObstacleIdObstacle(req->ref);
+      const unsigned int idx = decodeObstacleIdObstacle(req->ref);
       if (static_cast<int>(idx) >= m_params.maxObstacles)
         continue;
       dtTileCacheObstacle *ob = &m_obstacles[idx];
-      const uint32_t salt = decodeObstacleIdSalt(req->ref);
-      if (ob->salt != salt)
+      if (ob->salt != decodeObstacleIdSalt(req->ref))
         continue;
 
       if (req->action == REQUEST_ADD) {
@@ -532,7 +523,7 @@ dtStatus dtTileCache::update(const float /*dt*/, dtNavMesh *navmesh, bool *upToD
     status = buildNavMeshTile(ref, navmesh);
     m_nupdate--;
     if (m_nupdate > 0)
-      std::memmove(m_update, m_update + 1, m_nupdate * sizeof(dtCompressedTileRef));
+      memmove(m_update, m_update + 1, m_nupdate * sizeof(dtCompressedTileRef));
 
     // Update obstacle states.
     for (int i = 0; i < m_params.maxObstacles; ++i) {
@@ -589,13 +580,14 @@ dtStatus dtTileCache::buildNavMeshTilesAt(const int tx, const int ty, dtNavMesh 
 dtStatus dtTileCache::buildNavMeshTile(const dtCompressedTileRef ref, dtNavMesh *navmesh) const {
   dtAssert(m_talloc);
   dtAssert(m_tcomp);
+  if (!m_talloc || !m_tcomp)
+    return DT_FAILURE | DT_INVALID_PARAM;
 
-  const uint32_t idx = decodeTileIdTile(ref);
-  if (idx > static_cast<uint32_t>(m_params.maxTiles))
+  const unsigned int idx = decodeTileIdTile(ref);
+  if (idx > static_cast<unsigned int>(m_params.maxTiles))
     return DT_FAILURE | DT_INVALID_PARAM;
   const dtCompressedTile *tile = &m_tiles[idx];
-  const uint32_t salt = decodeTileIdSalt(ref);
-  if (tile->salt != salt)
+  if (tile->salt != decodeTileIdSalt(ref))
     return DT_FAILURE | DT_INVALID_PARAM;
 
   m_talloc->reset();
@@ -654,8 +646,7 @@ dtStatus dtTileCache::buildNavMeshTile(const dtCompressedTileRef ref, dtNavMesh 
     return DT_SUCCESS;
   }
 
-  dtNavMeshCreateParams params{};
-  memset(&params, 0, sizeof(params));
+  dtNavMeshCreateParams params = {};
   params.verts = bc.lmesh->verts;
   params.vertCount = bc.lmesh->nverts;
   params.polys = bc.lmesh->polys;
@@ -702,18 +693,17 @@ dtStatus dtTileCache::buildNavMeshTile(const dtCompressedTileRef ref, dtNavMesh 
 
 void dtTileCache::calcTightTileBounds(const dtTileCacheLayerHeader *header, float *bmin, float *bmax) const {
   const float cs = m_params.cs;
-  bmin[0] = header->bmin[0] + static_cast<float>(header->minx) * cs;
+  bmin[0] = header->bmin[0] + header->minx * cs;
   bmin[1] = header->bmin[1];
-  bmin[2] = header->bmin[2] + static_cast<float>(header->miny) * cs;
-  bmax[0] = header->bmin[0] + static_cast<float>(header->maxx + 1) * cs;
+  bmin[2] = header->bmin[2] + header->miny * cs;
+  bmax[0] = header->bmin[0] + (header->maxx + 1) * cs;
   bmax[1] = header->bmax[1];
-  bmax[2] = header->bmin[2] + static_cast<float>(header->maxy + 1) * cs;
+  bmax[2] = header->bmin[2] + (header->maxy + 1) * cs;
 }
 
 void dtTileCache::getObstacleBounds(const dtTileCacheObstacle *ob, float *bmin, float *bmax) {
   if (ob->type == DT_OBSTACLE_CYLINDER) {
     const dtObstacleCylinder &cl = ob->cylinder;
-
     bmin[0] = cl.pos[0] - cl.radius;
     bmin[1] = cl.pos[1];
     bmin[2] = cl.pos[2] - cl.radius;
@@ -725,7 +715,6 @@ void dtTileCache::getObstacleBounds(const dtTileCacheObstacle *ob, float *bmin, 
     dtVcopy(bmax, ob->box.bmax);
   } else if (ob->type == DT_OBSTACLE_ORIENTED_BOX) {
     const dtObstacleOrientedBox &orientedBox = ob->orientedBox;
-
     const float maxr = 1.41f * dtMax(orientedBox.halfExtents[0], orientedBox.halfExtents[2]);
     bmin[0] = orientedBox.center[0] - maxr;
     bmax[0] = orientedBox.center[0] + maxr;
