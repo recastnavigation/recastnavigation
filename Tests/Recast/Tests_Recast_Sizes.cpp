@@ -147,13 +147,13 @@ TEST_CASE("Watershed") {
       .detailSampleMaxError = g_cellHeight * g_detailSampleMaxError,
   };
   SECTION("City") {
-
     BuildContext context{};
     InputGeom pGeom{};
     bool success = pGeom.load(&context, "Meshes/City.obj");
     if (!success)
       context.dumpLog("Geom load log %s:", "Meshes/City.obj");
     REQUIRE(success);
+
     const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
     const std::array thesisTimes{generateThesisTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
 
@@ -179,9 +179,9 @@ TEST_CASE("Watershed") {
   SECTION("Maze16") {
     BuildContext context{};
     InputGeom pGeom{};
-    bool success = pGeom.load(&context, "Meshes/Maze8.obj");
+    bool success = pGeom.load(&context, "Meshes/Maze16.obj");
     if (!success)
-      context.dumpLog("Geom load log %s:", "Meshes/Maze8.obj");
+      context.dumpLog("Geom load log %s:", "Meshes/Maze16.obj");
     REQUIRE(success);
 
     const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
@@ -194,9 +194,9 @@ TEST_CASE("Watershed") {
   SECTION("Maze32") {
     BuildContext context{};
     InputGeom pGeom{};
-    bool success = pGeom.load(&context, "Meshes/Maze8.obj");
+    bool success = pGeom.load(&context, "Meshes/Maze32.obj");
     if (!success)
-      context.dumpLog("Geom load log %s:", "Meshes/Maze8.obj");
+      context.dumpLog("Geom load log %s:", "Meshes/Maze32.obj");
     REQUIRE(success);
 
     const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
@@ -209,9 +209,9 @@ TEST_CASE("Watershed") {
   SECTION("Maze64") {
     BuildContext context{};
     InputGeom pGeom{};
-    bool success = pGeom.load(&context, "Meshes/Maze8.obj");
+    bool success = pGeom.load(&context, "Meshes/Maze64.obj");
     if (!success)
-      context.dumpLog("Geom load log %s:", "Meshes/Maze8.obj");
+      context.dumpLog("Geom load log %s:", "Meshes/Maze64.obj");
     REQUIRE(success);
 
     const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
@@ -225,9 +225,9 @@ TEST_CASE("Watershed") {
 
     BuildContext context{};
     InputGeom pGeom{};
-    bool success = pGeom.load(&context, "Meshes/Maze8.obj");
+    bool success = pGeom.load(&context, "Meshes/Maze128.obj");
     if (!success)
-      context.dumpLog("Geom load log %s:", "Meshes/Maze8.obj");
+      context.dumpLog("Geom load log %s:", "Meshes/Maze128.obj");
     REQUIRE(success);
 
     const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
@@ -240,9 +240,9 @@ TEST_CASE("Watershed") {
   SECTION("Military") {
     BuildContext context{};
     InputGeom pGeom{};
-    bool success = pGeom.load(&context, "Meshes/Maze8.obj");
+    bool success = pGeom.load(&context, "Meshes/Military.obj");
     if (!success)
-      context.dumpLog("Geom load log %s:", "Meshes/Maze8.obj");
+      context.dumpLog("Geom load log %s:", "Meshes/Military.obj");
     REQUIRE(success);
 
     const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
@@ -255,9 +255,9 @@ TEST_CASE("Watershed") {
   SECTION("Simple") {
     BuildContext context{};
     InputGeom pGeom{};
-    bool success = pGeom.load(&context, "Meshes/Maze8.obj");
+    bool success = pGeom.load(&context, "Meshes/Simple.obj");
     if (!success)
-      context.dumpLog("Geom load log %s:", "Meshes/Maze8.obj");
+      context.dumpLog("Geom load log %s:", "Meshes/Simple.obj");
     REQUIRE(success);
 
     const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
@@ -270,9 +270,9 @@ TEST_CASE("Watershed") {
   SECTION("University") {
     BuildContext context{};
     InputGeom pGeom{};
-    bool success = pGeom.load(&context, "Meshes/Maze8.obj");
+    bool success = pGeom.load(&context, "Meshes/University.obj");
     if (!success)
-      context.dumpLog("Geom load log %s:", "Meshes/Maze8.obj");
+      context.dumpLog("Geom load log %s:", "Meshes/University.obj");
     REQUIRE(success);
 
     const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
@@ -285,9 +285,9 @@ TEST_CASE("Watershed") {
   SECTION("Zelda") {
     BuildContext context{};
     InputGeom pGeom{};
-    bool success = pGeom.load(&context, "Meshes/Maze8.obj");
+    bool success = pGeom.load(&context, "Meshes/Zelda.obj");
     if (!success)
-      context.dumpLog("Geom load log %s:", "Meshes/Maze8.obj");
+      context.dumpLog("Geom load log %s:", "Meshes/Zelda.obj");
     REQUIRE(success);
 
     const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
@@ -300,9 +300,9 @@ TEST_CASE("Watershed") {
   SECTION("Zelda2x2") {
     BuildContext context{};
     InputGeom pGeom{};
-    bool success = pGeom.load(&context, "Meshes/Maze8.obj");
+    bool success = pGeom.load(&context, "Meshes/Zelda2x2.obj");
     if (!success)
-      context.dumpLog("Geom load log %s:", "Meshes/Maze8.obj");
+      context.dumpLog("Geom load log %s:", "Meshes/Zelda2x2.obj");
     REQUIRE(success);
 
     const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
@@ -315,9 +315,9 @@ TEST_CASE("Watershed") {
   SECTION("Zelda4x4") {
     BuildContext context{};
     InputGeom pGeom{};
-    bool success = pGeom.load(&context, "Meshes/Maze8.obj");
+    bool success = pGeom.load(&context, "Meshes/Zelda4x4.obj");
     if (!success)
-      context.dumpLog("Geom load log %s:", "Meshes/Maze8.obj");
+      context.dumpLog("Geom load log %s:", "Meshes/Zelda4x4.obj");
     REQUIRE(success);
 
     const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config)};
