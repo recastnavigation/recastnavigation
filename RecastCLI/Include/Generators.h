@@ -10,6 +10,6 @@ struct rcConfig;
 class InputGeom;
 class rcContext;
 
-bool generateTheses(rcContext& context,const InputGeom& pGeom, rcConfig &config, bool filterLowHangingObstacles,bool filterLedgeSpans, bool filterWalkableLowHeightSpans, float &totalBuildTimeMs,rcPolyMesh *&pMesh, rcPolyMeshDetail *&pDetailedMesh, int *&bounderies, int &bounderyElementCount);
+bool generateTheses(rcContext& context,const InputGeom& pGeom, rcConfig &config, bool filterLowHangingObstacles,bool filterLedgeSpans, bool filterWalkableLowHeightSpans, rcPolyMesh *&pMesh, rcPolyMeshDetail *&pDetailedMesh, int *&bounderies, int &bounderyElementCount);
 
 bool generateSingle(rcContext& context, const InputGeom& pGeom, rcConfig& config, bool filterLowHangingObstacles, bool filterLedgeSpans, bool filterWalkableLowHeightSpans, rcPolyMesh*& pMesh, rcPolyMeshDetail*& pDetailedMesh);

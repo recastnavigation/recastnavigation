@@ -21,14 +21,13 @@
 #include <cstdlib>
 #include <cstring>
 
-#include "DetourNavMesh.h"
 #include "DetourAlloc.h"
 #include "DetourCommon.h"
 #include "DetourMath.h"
+#include "DetourNavMesh.h"
 #include "DetourNavMeshBuilder.h"
 
-static unsigned short MESH_NULL_IDX = 0xffff;
-
+static constexpr unsigned short MESH_NULL_IDX = 0xffff;
 
 struct BVItem {
   unsigned short bmin[3];
@@ -255,7 +254,8 @@ static unsigned char classifyOffMeshPoint(const float *pt, const float *bmin, co
     return 6;
   case XP | ZM:
     return 7;
-  default: break;
+  default:
+    break;
   }
 
   return 0xff;
@@ -470,9 +470,9 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams *params, unsigned char **outData,
   }
   // Off-mesh link vertices.
   int n = 0;
-  if(!offMeshConClass)
-    return false;
   for (int i = 0; i < params->offMeshConCount; ++i) {
+    if (!offMeshConClass)
+      return false;
     // Only store connections which start from this tile.
     if (offMeshConClass[i * 2 + 0] == 0xff) {
       const float *linkv = &params->offMeshConVerts[i * 2 * 3];
@@ -498,7 +498,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams *params, unsigned char **outData,
       p->verts[j] = src[j];
       if (src[nvp + j] & 0x8000) {
         // Border or portal edge.
-        const unsigned short dir = src[nvp + j] & 0xf;
+        unsigned short dir = src[nvp + j] & 0xf;
         if (dir == 0xf) // Border
           p->neis[j] = 0;
         else if (dir == 0) // Portal x-
@@ -521,6 +521,8 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams *params, unsigned char **outData,
   // Off-mesh connection vertices.
   n = 0;
   for (int i = 0; i < params->offMeshConCount; ++i) {
+    if (!offMeshConClass)
+      return false;
     // Only store connections which start from this tile.
     if (offMeshConClass[i * 2 + 0] == 0xff) {
       dtPoly *p = &navPolys[offMeshPolyBase + n];
@@ -591,6 +593,8 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams *params, unsigned char **outData,
   // Store Off-Mesh connections.
   n = 0;
   for (int i = 0; i < params->offMeshConCount; ++i) {
+    if (!offMeshConClass)
+      return false;
     // Only store connections which start from this tile.
     if (offMeshConClass[i * 2 + 0] == 0xff) {
       dtOffMeshConnection *con = &offMeshCons[n];
@@ -689,11 +693,11 @@ bool dtNavMeshDataSwapEndian(unsigned char *data, const int /*dataSize*/) {
   float *verts = dtGetThenAdvanceBufferPointer<float>(d, vertsSize);
   dtPoly *polys = dtGetThenAdvanceBufferPointer<dtPoly>(d, polysSize);
   d += linksSize; // Ignore links; they technically should be endian-swapped but all their data is overwritten on load anyway.
-  //dtLink* links = dtGetThenAdvanceBufferPointer<dtLink>(d, linksSize);
+  // dtLink* links = dtGetThenAdvanceBufferPointer<dtLink>(d, linksSize);
   dtPolyDetail *detailMeshes = dtGetThenAdvanceBufferPointer<dtPolyDetail>(d, detailMeshesSize);
   float *detailVerts = dtGetThenAdvanceBufferPointer<float>(d, detailVertsSize);
   d += detailTrisSize; // Ignore detail tris; single bytes can't be endian-swapped.
-  //unsigned char* detailTris = dtGetThenAdvanceBufferPointer<unsigned char>(d, detailTrisSize);
+  // unsigned char* detailTris = dtGetThenAdvanceBufferPointer<unsigned char>(d, detailTrisSize);
   dtBVNode *bvTree = dtGetThenAdvanceBufferPointer<dtBVNode>(d, bvtreeSize);
   dtOffMeshConnection *offMeshCons = dtGetThenAdvanceBufferPointer<dtOffMeshConnection>(d, offMeshLinksSize);
 

@@ -16,9 +16,10 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 #pragma once
-#include <cstdint>
-#include <string>
+#include "ChunkyTriMesh.h"
+#include "MeshLoaderObj.h"
 
+class rcContext;
 class rcMeshLoaderObj;
 struct rcChunkyTriMesh;
 
@@ -70,38 +71,38 @@ struct BuildSettings
     float tileSize;
 };
 
-class InputGeom
-{
-    rcChunkyTriMesh* m_chunkyMesh;
-    rcMeshLoaderObj* m_mesh;
-    float m_meshBMin[3], m_meshBMax[3];
-    BuildSettings m_buildSettings;
-    bool m_hasBuildSettings;
+class InputGeom {
+    rcChunkyTriMesh* m_chunkyMesh{};
+    rcMeshLoaderObj *m_mesh{};
+    float m_meshBMin[3]{};
+    float m_meshBMax[3]{};
+    BuildSettings m_buildSettings{};
+    bool m_hasBuildSettings{};
 
     /// @name Off-Mesh connections.
     ///@{
     static constexpr int MAX_OFFMESH_CONNECTIONS = 256;
-    float m_offMeshConVerts[MAX_OFFMESH_CONNECTIONS * 3 * 2];
-    float m_offMeshConRads[MAX_OFFMESH_CONNECTIONS];
-    unsigned char m_offMeshConDirs[MAX_OFFMESH_CONNECTIONS];
-    unsigned char m_offMeshConAreas[MAX_OFFMESH_CONNECTIONS];
-    unsigned short m_offMeshConFlags[MAX_OFFMESH_CONNECTIONS];
-    uint32_t m_offMeshConId[MAX_OFFMESH_CONNECTIONS];
-    int m_offMeshConCount;
+    float m_offMeshConVerts[MAX_OFFMESH_CONNECTIONS * 3 * 2]{};
+    float m_offMeshConRads[MAX_OFFMESH_CONNECTIONS]{};
+    unsigned char m_offMeshConDirs[MAX_OFFMESH_CONNECTIONS]{};
+    unsigned char m_offMeshConAreas[MAX_OFFMESH_CONNECTIONS]{};
+    unsigned short m_offMeshConFlags[MAX_OFFMESH_CONNECTIONS]{};
+    uint32_t m_offMeshConId[MAX_OFFMESH_CONNECTIONS]{};
+    int m_offMeshConCount{};
     ///@}
 
     /// @name Convex Volumes.
     ///@{
     static constexpr int MAX_VOLUMES = 256;
-    ConvexVolume m_volumes[MAX_VOLUMES];
-    int m_volumeCount;
+    ConvexVolume m_volumes[MAX_VOLUMES]{};
+    int m_volumeCount{};
     ///@}
 
     bool loadMesh(rcContext* ctx, const std::string& filePath);
     bool loadGeomSet(rcContext* ctx, const std::string& filePath);
 
 public:
-    InputGeom();
+    InputGeom()=default;
     ~InputGeom();
 
 

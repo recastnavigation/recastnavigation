@@ -19,14 +19,13 @@
 #include <algorithm>
 #include <cctype>
 #include <cmath>
-#include <cstdio>
 #include <cstring>
 #include <fstream>
 #include <sstream>
 
+#include "InputGeom.h"
 #include "ChunkyTriMesh.h"
 #include "DebugDraw.h"
-#include "InputGeom.h"
 #include "MeshLoaderObj.h"
 #include "Recast.h"
 
@@ -61,8 +60,7 @@ static bool intersectSegmentTriangle(const float *sp, const float *sq, const flo
   const float v = rcVdot(ac, e);
   if (v < 0.0f || v > d)
     return false;
-  const float w = -rcVdot(ab, e);
-  if (w < 0.0f || v + w > d)
+  if (const float w = -rcVdot(ab, e); w < 0.0f || v + w > d)
     return false;
 
   // Segment/ray intersects triangle. Perform delayed division
@@ -109,7 +107,7 @@ InputGeom::~InputGeom() {
   delete m_mesh;
 }
 
-bool InputGeom::loadMesh(rcContext* ctx, const std::string& filePath) {
+bool InputGeom::loadMesh(rcContext *ctx, const std::string &filePath) {
   if (m_mesh) {
     delete m_chunkyMesh;
     m_chunkyMesh = nullptr;
@@ -119,7 +117,7 @@ bool InputGeom::loadMesh(rcContext* ctx, const std::string& filePath) {
   m_offMeshConCount = 0;
   m_volumeCount = 0;
 
-  m_mesh = new rcMeshLoaderObj;
+  m_mesh = new (std::nothrow) rcMeshLoaderObj;
   if (!m_mesh) {
     ctx->log(RC_LOG_ERROR, "loadMesh: Out of memory 'm_mesh'.");
     return false;
@@ -131,7 +129,7 @@ bool InputGeom::loadMesh(rcContext* ctx, const std::string& filePath) {
 
   rcCalcBounds(m_mesh->getVerts(), m_mesh->getVertCount(), m_meshBMin, m_meshBMax);
 
-  m_chunkyMesh = new rcChunkyTriMesh;
+  m_chunkyMesh = new (std::nothrow) rcChunkyTriMesh;
   if (!m_chunkyMesh) {
     ctx->log(RC_LOG_ERROR, "buildTiledNavigation: Out of memory 'm_chunkyMesh'.");
     return false;
@@ -144,8 +142,110 @@ bool InputGeom::loadMesh(rcContext* ctx, const std::string& filePath) {
   return true;
 }
 
+bool InputGeom::loadGeomSet(rcContext *ctx, const std::string &filePath) {
+  std::ifstream file(filePath, std::ios::binary | std::ios::ate);
+
+  if (!file.is_open()) {
+    return false;
+  }
+
+  const std::streamsize fileSize = file.tellg();
+  file.seekg(0, std::ios::beg);
+
+  if (fileSize < 0) {
+    return false;
+  }
+
+  auto *const buf = new (std::nothrow) char[fileSize];
+  if (!buf) {
+    file.close();
+    return false;
+  }
+  file.read(buf, fileSize);
+  const std::size_t readLen = file.gcount();
+  file.close();
+  if (readLen != fileSize) {
+    delete[] buf;
+    return false;
+  }
+
+  m_offMeshConCount = 0;
+  m_volumeCount = 0;
+  delete m_mesh;
+  m_mesh = nullptr;
+
+  char *src = buf;
+  const char *srcEnd = buf + fileSize;
+  char row[512];
+  while (src < srcEnd) {
+    // Parse one row
+    row[0] = '\0';
+    src = parseRow(src, srcEnd, row, sizeof(row) / sizeof(char));
+    char command = row[0];
+    std::istringstream rowStream(row + 1);
+    switch (command) {
+    case 'f': {
+      // File name
+      const char *name = row + 1;
+      // Skip white spaces
+      while (*name && isspace(*name))
+        name++;
+      if (*name) {
+        if (!loadMesh(ctx, name)) {
+          delete[] buf;
+          return false;
+        }
+      }
+      break;
+    }
+    case 'c': {
+      // Off-mesh connection
+      if (m_offMeshConCount < MAX_OFFMESH_CONNECTIONS) {
+        float *v = &m_offMeshConVerts[m_offMeshConCount * 3 * 2];
+        float rad = 0.0f;
+        int bidir = 0;
+        int area = 0;
+        int flags = 0;
+        rowStream >> v[0] >> v[1] >> v[2] >> v[3] >> v[4] >> v[5] >> rad >> bidir >> area >> flags;
+        m_offMeshConRads[m_offMeshConCount] = rad;
+        m_offMeshConDirs[m_offMeshConCount] = static_cast<unsigned char>(bidir);
+        m_offMeshConAreas[m_offMeshConCount] = static_cast<unsigned char>(area);
+        m_offMeshConFlags[m_offMeshConCount] = static_cast<uint16_t>(flags);
+        ++m_offMeshConCount;
+      }
+      break;
+    }
+    case 'v': {
+      // Convex volumes
+      if (m_volumeCount < MAX_VOLUMES) {
+        auto &[verts, hmin, hmax, nverts, area] = m_volumes[m_volumeCount++];
+        rowStream >> nverts >> area >> hmin >> hmax;
+        for (int i = 0; i < nverts; ++i) {
+          row[0] = '\0';
+          src = parseRow(src, srcEnd, row, sizeof(row) / sizeof(char));
+          std::istringstream vertStream(row);
+          vertStream >> verts[0] >> verts[1] >> verts[2];
+        }
+      }
+      break;
+    }
+    case 's': {
+      m_hasBuildSettings = true;
+      rowStream >> m_buildSettings.cellSize >> m_buildSettings.cellHeight >> m_buildSettings.agentHeight >> m_buildSettings.agentRadius >> m_buildSettings.agentMaxClimb >> m_buildSettings.agentMaxSlope >> m_buildSettings.regionMinSize >> m_buildSettings.regionMergeSize >> m_buildSettings.edgeMaxLen >> m_buildSettings.edgeMaxError >> m_buildSettings.vertsPerPoly >> m_buildSettings.detailSampleDist >> m_buildSettings.detailSampleMaxError >> m_buildSettings.partitionType >> m_buildSettings.navMeshBMin[0] >> m_buildSettings.navMeshBMin[1] >> m_buildSettings.navMeshBMin[2] >> m_buildSettings.navMeshBMax[0] >> m_buildSettings.navMeshBMax[1] >> m_buildSettings.navMeshBMax[2] >> m_buildSettings.tileSize;
+      break;
+    }
+    default: {
+      break;
+    }
+    }
+  }
+  delete[] buf;
+
+  return true;
+}
+
 bool InputGeom::load(rcContext *ctx, const std::string &filepath) {
-  const size_t extensionPos = filepath.find_last_of('.');
+  const std::size_t extensionPos = filepath.find_last_of('.');
   if (extensionPos == std::string::npos)
     return false;
 
@@ -160,192 +260,74 @@ bool InputGeom::load(rcContext *ctx, const std::string &filepath) {
   return false;
 }
 
-bool InputGeom::loadGeomSet(rcContext *ctx, const std::string &filePath) {
-  std::ifstream file(filePath, std::ios::binary | std::ios::ate);
+bool InputGeom::saveGeomSet(const BuildSettings *settings) const {
+  if (!m_mesh)
+    return false;
 
-    if (!file.is_open()) {
-        return false;
+  // Change extension
+  std::string filepath = m_mesh->getFileName();
+  if (const std::size_t extPos = filepath.find_last_of('.'); extPos != std::string::npos)
+    filepath = filepath.substr(0, extPos);
+
+  filepath += ".gset";
+
+  std::ofstream file{filepath};
+  if (!file.is_open())
+    return false;
+
+  // Store mesh filename.
+  file << "f " << m_mesh->getFileName() << "\n";
+
+  // Store settings if any
+  if (settings) {
+    file << "s "
+         << settings->cellSize << " "
+         << settings->cellHeight << " "
+         << settings->agentHeight << " "
+         << settings->agentRadius << " "
+         << settings->agentMaxClimb << " "
+         << settings->agentMaxSlope << " "
+         << settings->regionMinSize << " "
+         << settings->regionMergeSize << " "
+         << settings->edgeMaxLen << " "
+         << settings->edgeMaxError << " "
+         << settings->vertsPerPoly << " "
+         << settings->detailSampleDist << " "
+         << settings->detailSampleMaxError << " "
+         << settings->partitionType << " "
+         << settings->navMeshBMin[0] << " "
+         << settings->navMeshBMin[1] << " "
+         << settings->navMeshBMin[2] << " "
+         << settings->navMeshBMax[0] << " "
+         << settings->navMeshBMax[1] << " "
+         << settings->navMeshBMax[2] << " "
+         << settings->tileSize << "\n";
+  }
+
+  // Store off-mesh links.
+  for (int i = 0; i < m_offMeshConCount; ++i) {
+    const float *v = &m_offMeshConVerts[i * 3 * 2];
+    const float rad = m_offMeshConRads[i];
+    const int bidir = m_offMeshConDirs[i];
+    const int area = m_offMeshConAreas[i];
+    const int flags = m_offMeshConFlags[i];
+    file << "c " << v[0] << " " << v[1] << " " << v[2] << " "
+         << v[3] << " " << v[4] << " " << v[5] << " "
+         << rad << " " << bidir << " " << area << " " << flags << "\n";
+  }
+
+  // Convex volumes
+  for (const auto &[verts, hmin, hmax, nverts, area] : m_volumes) {
+    file << "v " << nverts << " " << area << " " << hmin << " " << hmax << "\n";
+    for (int j = 0; j < nverts; ++j) {
+      file << verts[j * 3 + 0] << " " << verts[j * 3 + 1] << " " << verts[j * 3 + 2] << "\n";
     }
+  }
 
-    const std::streamsize fileSize = file.tellg();
-    file.seekg(0, std::ios::beg);
+  file.close();
 
-    if (fileSize < 0) {
-        return false;
-    }
-
-    auto *const buf = new (std::nothrow) char[fileSize];
-    if (!buf)
-    {
-        file.close();
-        return false;
-    }
-    file.read(buf, fileSize);
-    const std::size_t readLen = file.gcount();
-    file.close();
-    if (readLen != fileSize)
-    {
-        delete[] buf;
-        return false;
-    }
-
-    m_offMeshConCount = 0;
-    m_volumeCount = 0;
-    delete m_mesh;
-    m_mesh = nullptr;
-
-    char* src = buf;
-    const char* srcEnd = buf + fileSize;
-    char row[512];
-    while (src < srcEnd)
-    {
-        // Parse one row
-        row[0] = '\0';
-        src = parseRow(src, srcEnd, row, sizeof(row) / sizeof(char));
-        char command = row[0];
-        std::istringstream rowStream(row + 1);
-        switch (command)
-        {
-            case 'f': {
-                // File name
-                std::string name;
-                rowStream >> name;
-                if (!name.empty())
-                {
-                    if (!loadMesh(ctx, name))
-                    {
-                        delete[] buf;
-                        return false;
-                    }
-                }
-                break;
-            }
-            case 'c': {
-                // Off-mesh connection
-                if (m_offMeshConCount < MAX_OFFMESH_CONNECTIONS)
-                {
-                    float* v = &m_offMeshConVerts[m_offMeshConCount * 3 * 2];
-                    int bidir, area = 0, flags = 0;
-                    float rad;
-                    rowStream >> v[0] >> v[1] >> v[2] >> v[3] >> v[4] >> v[5] >> rad >> bidir >> area >> flags;
-                    m_offMeshConRads[m_offMeshConCount] = rad;
-                    m_offMeshConDirs[m_offMeshConCount] = static_cast<unsigned char>(bidir);
-                    m_offMeshConAreas[m_offMeshConCount] = static_cast<unsigned char>(area);
-                    m_offMeshConFlags[m_offMeshConCount] = static_cast<uint16_t>(flags);
-                    m_offMeshConCount++;
-                }
-                break;
-            }
-            case 'v': {
-                // Convex volumes
-                if (m_volumeCount < MAX_VOLUMES) {
-                    auto&[verts, hmin, hmax, nverts, area] = m_volumes[m_volumeCount++];
-                    rowStream >> nverts >> area >> hmin >> hmax;
-                    for (int i = 0; i < nverts; ++i)
-                    {
-                        row[0] = '\0';
-                        src = parseRow(src, srcEnd, row, sizeof(row) / sizeof(char));
-                        std::istringstream vertStream(row);
-                        vertStream >> verts[0] >>verts[1] >> verts[2];
-                    }
-                }
-                break;
-            }
-            case 's': {
-                m_hasBuildSettings = true;
-                rowStream >> m_buildSettings.cellSize >> m_buildSettings.cellHeight
-                          >> m_buildSettings.agentHeight >> m_buildSettings.agentRadius
-                          >> m_buildSettings.agentMaxClimb >> m_buildSettings.agentMaxSlope
-                          >> m_buildSettings.regionMinSize >> m_buildSettings.regionMergeSize
-                          >> m_buildSettings.edgeMaxLen >> m_buildSettings.edgeMaxError
-                          >> m_buildSettings.vertsPerPoly >> m_buildSettings.detailSampleDist
-                          >> m_buildSettings.detailSampleMaxError >> m_buildSettings.partitionType
-                          >> m_buildSettings.navMeshBMin[0] >> m_buildSettings.navMeshBMin[1] >> m_buildSettings.navMeshBMin[2]
-                          >> m_buildSettings.navMeshBMax[0] >> m_buildSettings.navMeshBMax[1] >> m_buildSettings.navMeshBMax[2]
-                          >> m_buildSettings.tileSize;
-                break;
-            }
-            default: {
-                break;
-            }
-        }
-    }
-
-    delete [] buf;
-
-    return true;
+  return true;
 }
-
-bool InputGeom::saveGeomSet(const BuildSettings* settings) const
-{
-    if (!m_mesh) return false;
-
-    // Change extension
-    std::string filepath = m_mesh->getFileName();
-    if (const std::size_t extPos = filepath.find_last_of('.'); extPos != std::string::npos)
-        filepath = filepath.substr(0, extPos);
-
-    filepath += ".gset";
-
-    std::ofstream file(filepath, std::ios::out);
-    if (!file.is_open()) {
-        return false;
-    }
-
-    // Store mesh filename.
-    file << "f " << m_mesh->getFileName() << "\n";
-
-    // Store settings if any
-    if (settings) {
-        file << "s "
-             << settings->cellSize << " "
-             << settings->cellHeight << " "
-             << settings->agentHeight << " "
-             << settings->agentRadius << " "
-             << settings->agentMaxClimb << " "
-             << settings->agentMaxSlope << " "
-             << settings->regionMinSize << " "
-             << settings->regionMergeSize << " "
-             << settings->edgeMaxLen << " "
-             << settings->edgeMaxError << " "
-             << settings->vertsPerPoly << " "
-             << settings->detailSampleDist << " "
-             << settings->detailSampleMaxError << " "
-             << settings->partitionType << " "
-             << settings->navMeshBMin[0] << " "
-             << settings->navMeshBMin[1] << " "
-             << settings->navMeshBMin[2] << " "
-             << settings->navMeshBMax[0] << " "
-             << settings->navMeshBMax[1] << " "
-             << settings->navMeshBMax[2] << " "
-             << settings->tileSize << "\n";
-    }
-
-    // Store off-mesh links.
-    for (int i = 0; i < m_offMeshConCount; ++i) {
-        const float* v = &m_offMeshConVerts[i * 3 * 2];
-        const float rad = m_offMeshConRads[i];
-        const int bidir = m_offMeshConDirs[i];
-        const int area = m_offMeshConAreas[i];
-        const int flags = m_offMeshConFlags[i];
-        file << "c " << v[0] << " " << v[1] << " " << v[2] << " "
-             << v[3] << " " << v[4] << " " << v[5] << " "
-             << rad << " " << bidir << " " << area << " " << flags << "\n";
-    }
-
-    // Convex volumes
-    for (const auto&[verts, hmin, hmax, nverts, area] : m_volumes) {
-        file << "v " << nverts << " " << area << " " << hmin << " " << hmax << "\n";
-        for (int j = 0; j < nverts; ++j) {
-            file << verts[j * 3 + 0] << " " << verts[j * 3 + 1] << " " << verts[j * 3 + 2] << "\n";
-        }
-    }
-
-    file.close();
-
-    return true;
-}
-
 
 static bool isectSegAABB(const float *sp, const float *sq,
                          const float *amin, const float *amax,
@@ -360,7 +342,7 @@ static bool isectSegAABB(const float *sp, const float *sq,
   tmax = 1.0f;
 
   for (int i = 0; i < 3; i++) {
-    if (fabsf(d[i]) < EPS) {
+    if (std::abs(d[i]) < EPS) {
       if (sp[i] < amin[i] || sp[i] > amax[i])
         return false;
     } else {
@@ -384,7 +366,7 @@ static bool isectSegAABB(const float *sp, const float *sq,
   return true;
 }
 
-bool InputGeom::raycastMesh(const float * src, const float * dst, float& tmin) const {
+bool InputGeom::raycastMesh(const float *src, const float *dst, float &tmin) const {
   // Prune hit ray.
   float btmin, btmax;
   if (!isectSegAABB(src, dst, m_meshBMin, m_meshBMax, btmin, btmax))
@@ -405,16 +387,15 @@ bool InputGeom::raycastMesh(const float * src, const float * dst, float& tmin) c
   const float *verts = m_mesh->getVerts();
 
   for (int i = 0; i < ncid; ++i) {
-    const rcChunkyTriMeshNode &node = m_chunkyMesh->nodes[cid[i]];
-    const int *tris = &m_chunkyMesh->tris[node.i * 3];
-    const int ntris = node.n;
+    const auto &[bmin, bmax, index, n]{m_chunkyMesh->nodes[cid[i]]};
+    const int *tris = &m_chunkyMesh->tris[index * 3];
+    const int ntris = n;
 
     for (int j = 0; j < ntris * 3; j += 3) {
-      float t = 1;
-      if (intersectSegmentTriangle(src, dst,
-                                   &verts[tris[j] * 3],
-                                   &verts[tris[j + 1] * 3],
-                                   &verts[tris[j + 2] * 3], t)) {
+      if (float t = 1; intersectSegmentTriangle(src, dst,
+                                                &verts[tris[j] * 3],
+                                                &verts[tris[j + 1] * 3],
+                                                &verts[tris[j + 2] * 3], t)) {
         if (t < tmin)
           tmin = t;
         hit = true;
@@ -485,8 +466,8 @@ void InputGeom::addConvexVolume(const float *verts, const int nverts,
   if (m_volumeCount >= MAX_VOLUMES)
     return;
   ConvexVolume *vol = &m_volumes[m_volumeCount++];
-  memset(vol, 0, sizeof(ConvexVolume));
-  memcpy(vol->verts, verts, sizeof(float) * 3 * nverts);
+  std::memset(vol, 0, sizeof(ConvexVolume));
+  std::memcpy(vol->verts, verts, sizeof(float) * 3 * nverts);
   vol->hmin = minh;
   vol->hmax = maxh;
   vol->nverts = nverts;

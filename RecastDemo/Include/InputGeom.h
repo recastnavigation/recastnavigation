@@ -20,7 +20,7 @@
 #include "ChunkyTriMesh.h"
 #include "MeshLoaderObj.h"
 
-#include <Recast.h>
+class rcContext;
 struct duDebugDraw;
 
 static constexpr int MAX_CONVEXVOL_PTS = 12;
@@ -93,11 +93,11 @@ class InputGeom
 	/// @name Convex Volumes.
 	///@{
 	static constexpr int MAX_VOLUMES = 256;
-	ConvexVolume m_volumes[MAX_VOLUMES];
-	int m_volumeCount;
+	ConvexVolume m_volumes[MAX_VOLUMES]{};
+	int m_volumeCount{};
 	///@}
 	
-	bool loadMesh(rcContext* ctx, const std::string& filepath);
+	bool loadMesh(rcContext* ctx, const std::string& filePath);
 	bool loadGeomSet(rcContext* ctx, const std::string& filepath);
 public:
 	InputGeom()=default;

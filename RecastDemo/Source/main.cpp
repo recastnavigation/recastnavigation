@@ -34,6 +34,7 @@
 #include "InputGeom.h"
 #include "Recast.h"
 #include "Sample_Debug.h"
+#include "Sample_SizeFromPortalEdgeMesh.h"
 #include "Sample_SoloMesh.h"
 #include "Sample_TempObstacles.h"
 #include "Sample_TileMesh.h"
@@ -41,21 +42,18 @@
 #include "imgui.h"
 #include "imguiRenderGL.h"
 
-#ifdef WIN32
-#define snprintf _snprintf
-#define putenv _putenv
-#endif
-
 struct SampleItem {
   Sample *(*create)();
   const std::string name;
 };
+Sample *createSoloLacalMinimum() { return new Sample_SizeFromPortalEdgeMesh(); }
 Sample *createSolo() { return new Sample_SoloMesh(); }
 Sample *createTile() { return new Sample_TileMesh(); }
 Sample *createTempObstacle() { return new Sample_TempObstacles(); }
 Sample *createDebug() { return new Sample_Debug(); }
-static SampleItem g_samples[] =
+const static SampleItem g_samples[] =
     {
+        {createSoloLacalMinimum, "Solo Mesh From Local Minimum"},
         {createSolo, "Solo Mesh"},
         {createTile, "Tile Mesh"},
         {createTempObstacle, "Temp Obstacles"},
@@ -89,11 +87,11 @@ int main(int /*argc*/, char ** /*argv*/) {
   SDL_DisplayMode displayMode;
   SDL_GetCurrentDisplayMode(0, &displayMode);
 
-  constexpr bool presentationMode = false;
   Uint32 flags = SDL_WINDOW_OPENGL;
   int width;
   int height;
-  if (presentationMode) {
+  constexpr bool presentationMode { false};
+  if constexpr (presentationMode) {
     // Create a fullscreen window at the native resolution.
     width = displayMode.w;
     height = displayMode.h;
@@ -106,7 +104,7 @@ int main(int /*argc*/, char ** /*argv*/) {
 
   SDL_Window *window;
   SDL_Renderer *renderer;
-  int errorCode = SDL_CreateWindowAndRenderer(width, height, flags, &window, &renderer);
+  const int errorCode = SDL_CreateWindowAndRenderer(width, height, flags, &window, &renderer);
 
   if (errorCode != 0 || !window || !renderer) {
     printf("Could not initialise SDL opengl\nError: %s\n", SDL_GetError());
@@ -217,7 +215,8 @@ int main(int /*argc*/, char ** /*argv*/) {
 
             sample->collectSettings(settings);
 
-            geom->saveGeomSet(&settings);
+            if(!geom->saveGeomSet(&settings))
+              ctx.log(RC_LOG_WARNING, "Cound not save geometry");
           }
         }
         break;
@@ -492,7 +491,7 @@ int main(int /*argc*/, char ** /*argv*/) {
       }
       if (geom) {
         char text[64];
-        snprintf(text, 64, "Verts: %.1fk  Tris: %.1fk",
+        std::snprintf(text, 64, "Verts: %.1fk  Tris: %.1fk",
                  geom->getMesh()->getVertCount() / 1000.0f,
                  geom->getMesh()->getTriCount() / 1000.0f);
         imguiValue(text);

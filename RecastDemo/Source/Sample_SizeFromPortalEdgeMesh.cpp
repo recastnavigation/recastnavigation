@@ -42,6 +42,7 @@
 #include "imgui.h"
 
 #include <DetourAlloc.h>
+#include <RecastAlloc.h>
 
 Sample_SizeFromPortalEdgeMesh::Sample_SizeFromPortalEdgeMesh() : m_keepInterResults(true),
                                                                  m_totalBuildTimeMs(0),
@@ -539,11 +540,13 @@ bool Sample_SizeFromPortalEdgeMesh::handleBuild() {
     m_ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'cset'.");
     return false;
   }
-  if (!rcBuildContours(m_ctx, *m_chf, m_cfg.maxSimplificationError, m_cfg.maxEdgeLen, *m_cset)) {
+  int* pEdges{nullptr};
+  int edgeSize{};
+  if (!rcBuildContoursWithPortals(m_ctx, *m_chf, m_cfg.maxSimplificationError, m_cfg.maxEdgeLen, *m_cset, pEdges, edgeSize)) {
     m_ctx->log(RC_LOG_ERROR, "buildNavigation: Could not create contours.");
     return false;
   }
-
+  rcFree(pEdges);
   //
   // Step 6. Build polygons mesh from contours.
   //

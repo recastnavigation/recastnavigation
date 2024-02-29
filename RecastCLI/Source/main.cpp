@@ -37,14 +37,14 @@ public:
 
   const std::string &getCmdOption(const std::string &option) const {
     if (const auto &itr = std::ranges::find_if(m_tokens, [option](const std::string &token) {
-        std::stringstream ss{option};
-        std::string s;
-        while (std::getline(ss, s, ';')) {
-          return s == token;
-        }
-        return false;
-      });
-      itr != m_tokens.cend() && itr + 1 != m_tokens.cend()) {
+          std::stringstream ss{option};
+          std::string s;
+          while (std::getline(ss, s, ';')) {
+            return s == token;
+          }
+          return false;
+        });
+        itr != m_tokens.cend() && itr + 1 != m_tokens.cend()) {
       return *(itr + 1);
     }
     static std::string empty{};
@@ -83,6 +83,20 @@ void printOptions() {
 }
 
 constexpr int g_loopCount = 100;
+constexpr float g_cellHeight = 0.2f;
+constexpr float g_agentHeight = 2.0f;
+constexpr float g_agentMaxClimb = 0.9f;
+constexpr float g_agentMaxSlope = 45.0f;
+constexpr float g_edgeMaxLen = 12.0f;
+constexpr float g_regionMinSize = 8.0f;
+constexpr float g_regionMergeSize = 20.0f;
+constexpr float g_edgeMaxError = 1.3f;
+constexpr float g_vertsPerPoly = 6.0f;
+constexpr float g_detailSampleDist = 6.0f;
+constexpr float g_detailSampleMaxError = 1.0f;
+constexpr bool g_filterLedgeSpans = true;
+constexpr bool g_filterWalkableLowHeightSpans = true;
+constexpr bool g_filterLowHangingObstacles = true;
 
 struct Vertex {
   int x;
@@ -94,25 +108,20 @@ struct Edge {
   Vertex v2{};
 };
 
-inline void runThesis(BuildContext &context, const InputGeom &pGeom, const bool filterLedgeSpans, const bool filterWalkableLowHeightSpans, const bool filterLowHangingObstacles, rcConfig &config, int *&pEdges, int &edgesSize) {
-  rcPolyMesh *pMesh{nullptr};
-  rcPolyMeshDetail *pDMesh{nullptr};
-  float totalBuildTimeMs{};
-  if (!generateTheses(context, pGeom, config, filterLowHangingObstacles, filterLedgeSpans, filterWalkableLowHeightSpans, totalBuildTimeMs, pMesh, pDMesh, pEdges, edgesSize))
-    context.dumpLog("Error Thesis:");
-  rcFreePolyMesh(pMesh);
-  rcFreePolyMeshDetail(pDMesh);
-  pMesh = nullptr;
-  pDMesh = nullptr;
-}
-
-inline std::array<float, g_loopCount * RC_MAX_TIMERS> generateThesisTimes(BuildContext &context, const InputGeom &pGeom, const bool filterLedgeSpans, const bool filterWalkableLowHeightSpans, const bool filterLowHangingObstacles, rcConfig &config) {
+inline std::array<float, g_loopCount * RC_MAX_TIMERS> generateThesisTimes(BuildContext &context, const InputGeom &pGeom, rcConfig &config, int *&pEdges, int &edgeCount) {
   std::array<float, g_loopCount * RC_MAX_TIMERS> times{};
   for (int i{}; i < g_loopCount; i++) {
-    int *pEdges{nullptr};
-    int edgesSize{};
-    runThesis(context, pGeom, filterLedgeSpans, filterWalkableLowHeightSpans, filterLowHangingObstacles, config, pEdges, edgesSize);
-    rcFree(pEdges);
+    rcPolyMesh *pMesh{nullptr};
+    rcPolyMeshDetail *pDMesh{nullptr};
+    if (!generateTheses(context, pGeom, config, g_filterLowHangingObstacles, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, pMesh, pDMesh, pEdges, edgeCount))
+      context.dumpLog("Error Thesis:");
+    rcFreePolyMesh(pMesh);
+    rcFreePolyMeshDetail(pDMesh);
+    pMesh = nullptr;
+    pDMesh = nullptr;
+    if (i != g_loopCount - 1) {
+      rcFree(pEdges);
+    }
     const int offset{i * RC_MAX_TIMERS};
     for (int j = 0; j < RC_MAX_TIMERS; ++j) {
       times[offset + j] = static_cast<float>(context.getAccumulatedTime(static_cast<rcTimerLabel>(j))) * 1e-3f;
@@ -121,12 +130,12 @@ inline std::array<float, g_loopCount * RC_MAX_TIMERS> generateThesisTimes(BuildC
   return times;
 }
 
-inline std::array<float, g_loopCount * RC_MAX_TIMERS> generateSingleMeshTimes(BuildContext &context, const InputGeom &pGeom, const bool filterLedgeSpans, const bool filterWalkableLowHeightSpans, const bool filterLowHangingObstacles, rcConfig &config) {
+inline std::array<float, g_loopCount * RC_MAX_TIMERS> generateSingleMeshTimes(BuildContext &context, const InputGeom &pGeom, rcConfig &config) {
   std::array<float, g_loopCount * RC_MAX_TIMERS> times{};
   for (int i{}; i < g_loopCount; i++) {
     rcPolyMesh *pMesh{nullptr};
     rcPolyMeshDetail *pDMesh{nullptr};
-    generateSingle(context, pGeom, config, filterLowHangingObstacles, filterLedgeSpans, filterWalkableLowHeightSpans, pMesh, pDMesh);
+    generateSingle(context, pGeom, config, g_filterLowHangingObstacles, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, pMesh, pDMesh);
     rcFreePolyMesh(pMesh);
     rcFreePolyMeshDetail(pDMesh);
     pMesh = nullptr;
@@ -152,9 +161,9 @@ inline void writeCsvFile(const std::string &filePath, const std::array<float, g_
   csvFile.close();
 }
 
-inline void generateTimes(const std::string &output, const std::string &fileName, BuildContext &context, const InputGeom &pGeom, const bool filterLedgeSpans, const bool filterWalkableLowHeightSpans, const bool filterLowHangingObstacles, rcConfig config) {
-  const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, filterLedgeSpans, filterWalkableLowHeightSpans, filterLowHangingObstacles, config)};
-  const std::array thesisTimes{generateThesisTimes(context, pGeom, filterLedgeSpans, filterWalkableLowHeightSpans, filterLowHangingObstacles, config)};
+inline void generateTimes(const std::string &output, const std::string &fileName, BuildContext &context, const InputGeom &pGeom, rcConfig config, int *&pEdge, int &edgeCount) {
+  const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, config)};
+  const std::array thesisTimes{generateThesisTimes(context, pGeom, config, pEdge, edgeCount)};
 
   constexpr char header[]{
       "Total (ms),"
@@ -205,13 +214,7 @@ inline bool compareEdges(const Edge &edge1, const Edge &edge2) {
 
 inline bool operator<(const Edge &e1, const Edge &e2) { return compareEdges(e1, e2); }
 
-inline void processBourderEdges(const std::string &input, const std::string &output, const std::string &name, BuildContext &context, const InputGeom &pGeom, const bool filterLedgeSpans, const bool filterWalkableLowHeightSpans, const bool filterLowHangingObstacles, rcConfig config) {
-  int *pEdges{nullptr};
-  int edgesSize{};
-  runThesis(context, pGeom, filterLedgeSpans, filterWalkableLowHeightSpans, filterLowHangingObstacles, config, pEdges, edgesSize);
-  // if (edgesSize & 1)
-  // return;
-
+inline void processBourderEdges(const std::string &input, const std::string &output, const std::string &name, const InputGeom &pGeom, rcConfig config, int *const pEdges, const int edgeSize) {
   // load in actual svg file
   const float *min = pGeom.getMeshBoundsMin();
   const float inverseSellSize{1.0f / config.cs};
@@ -242,14 +245,13 @@ inline void processBourderEdges(const std::string &input, const std::string &out
   }
   csfFileRef.close();
   std::set<Edge> resultEdgesSet{};
-  for (int i = 0; i < edgesSize / 2 - 1; i += 2) {
+  for (int i = 0; i < edgeSize / 2 - 1; i += 2) {
     if (const int ii = i + 1; pEdges[i * 2 + 0] > pEdges[ii * 2 + 0] || (pEdges[i * 2 + 0] == pEdges[ii * 2 + 0] && pEdges[i * 2 + 1] > pEdges[ii * 2 + 1])) {
       resultEdgesSet.emplace(Edge{{pEdges[ii * 2 + 0], pEdges[ii * 2 + 1]}, {pEdges[i * 2 + 0], pEdges[i * 2 + 1]}});
     } else {
       resultEdgesSet.emplace(Edge{{pEdges[i * 2 + 0], pEdges[i * 2 + 1]}, {pEdges[ii * 2 + 0], pEdges[ii * 2 + 1]}});
     }
   }
-  // std::memcpy(resultEdges.data(), pEdges, edgesSize * sizeof(int));
   rcFree(pEdges);
 
   std::vector<Edge> referenceEdges{};
@@ -291,21 +293,36 @@ inline void processBourderEdges(const std::string &input, const std::string &out
         const int diffY1 = e1.v1.y - e2.v1.y;
         const int diffX2 = e1.v2.x - e2.v2.x;
         const int diffY2 = e1.v2.y - e2.v2.y;
+        const int diffX3 = e1.v1.x - e2.v2.x;
+        const int diffY3 = e1.v1.y - e2.v2.y;
+        const int diffX4 = e1.v2.x - e2.v1.x;
+        const int diffY4 = e1.v2.y - e2.v1.y;
+        const int smallestDiffX1 = std::abs(diffX1) < std::abs(diffX3)? diffX1 : diffX3;
+        const int smallestDiffX2 = std::abs(diffX2) < std::abs(diffX4)? diffX2 : diffX4;
+        const int smallestDiffY1 = std::abs(diffY1) < std::abs(diffY3)? diffY1 : diffY3;
+        const int smallestDiffY2 = std::abs(diffY2) < std::abs(diffY4)? diffY2 : diffY4;
         // Compare the squared length of the difference with the squared epsilon
-        if (diffX1 * diffX1 + diffY1 * diffY1 <= epsilon * epsilon && diffX2 * diffX2 + diffY2 * diffY2 <= epsilon *
-            epsilon)
+        if (smallestDiffX1 * smallestDiffX1 + smallestDiffY1 * smallestDiffY1 <= epsilon * epsilon && smallestDiffX2 * smallestDiffX2 + smallestDiffY2 * smallestDiffY2 <= epsilon * epsilon)
           return true;
 
-        const int halfDiffX = (diffX1 + diffX2) / 2;
-        const int halfDiffY = (diffY1 + diffY2) / 2;
+        const int halfDiffX = (smallestDiffX1 + smallestDiffX2) / 2;
+        const int halfDiffY = (smallestDiffY1 + smallestDiffY2) / 2;
         const Edge moved{e2.v1.x + halfDiffX, e2.v1.y + halfDiffY, e2.v2.x + halfDiffX, e2.v2.y + halfDiffY};
 
         const int movedDiffX1 = e1.v1.x - moved.v1.x;
         const int movedDiffY1 = e1.v1.y - moved.v1.y;
         const int movedDiffX2 = e1.v2.x - moved.v2.x;
         const int movedDiffY2 = e1.v2.y - moved.v2.y;
+        const int movedDiffX3 = e1.v1.x - moved.v2.x;
+        const int movedDiffY3 = e1.v1.y - moved.v2.y;
+        const int movedDiffX4 = e1.v2.x - moved.v1.x;
+        const int movedDiffY4 = e1.v2.y - moved.v1.y;
+        const int smallestMoveDiffX1 = std::abs(movedDiffX1) < std::abs(movedDiffX3)? movedDiffX1 : movedDiffX3;
+        const int smallestMoveDiffX2 = std::abs(movedDiffX2) < std::abs(movedDiffX4)? movedDiffX2 : movedDiffX4;
+        const int smallestMoveDiffY1 = std::abs(movedDiffY1) < std::abs(movedDiffY3)? movedDiffY1 : movedDiffY3;
+        const int smallestMoveDiffY2 = std::abs(movedDiffY2) < std::abs(movedDiffY4)? movedDiffY2 : movedDiffY4;
         // Compare the squared length of the difference with the squared epsilon
-        if (movedDiffX1 * movedDiffX1 + movedDiffY1 * movedDiffY1 <= epsilon * epsilon && movedDiffX2 * movedDiffX2 + movedDiffY2 * movedDiffY2 <= epsilon * epsilon)
+        if (smallestMoveDiffX1 * smallestMoveDiffX1 + smallestMoveDiffY1 * smallestMoveDiffY1 <= epsilon * epsilon && smallestMoveDiffX2 * smallestMoveDiffX2 + smallestMoveDiffY2 * smallestMoveDiffY2 <= epsilon * epsilon)
           return true;
         return false;
       }};
@@ -358,21 +375,6 @@ inline void processBourderEdges(const std::string &input, const std::string &out
   leftoverSvg.close();
 }
 
-constexpr float g_cellHeight = 0.2f;
-constexpr float g_agentHeight = 2.0f;
-constexpr float g_agentMaxClimb = 0.9f;
-constexpr float g_agentMaxSlope = 45.0f;
-constexpr float g_edgeMaxLen = 12.0f;
-constexpr float g_regionMinSize = 8.0f;
-constexpr float g_regionMergeSize = 20.0f;
-constexpr float g_edgeMaxError = 1.3f;
-constexpr float g_vertsPerPoly = 6.0f;
-constexpr float g_detailSampleDist = 6.0f;
-constexpr float g_detailSampleMaxError = 1.0f;
-constexpr bool g_filterLedgeSpans = true;
-constexpr bool g_filterWalkableLowHeightSpans = true;
-constexpr bool g_filterLowHangingObstacles = true;
-
 int main(const int argc, char *argv[]) {
   const InputParser parser(argc, argv);
   if (parser.cmdOptionExists("-h;--help")) {
@@ -399,21 +401,14 @@ int main(const int argc, char *argv[]) {
   }
 
   float cellSize = 0.3f;
-  float agentRadius = 0.6f;
+  constexpr float agentRadius = 0.0f;
 
-  bool aqquireLcm{};
   if (parser.cmdOptionExists("-cs;--cellsize"))
     cellSize = std::stof(parser.getCmdOption("-cs;--cellsize"));
-  if (parser.cmdOptionExists("-ar;--agentradius"))
-    agentRadius = std::stof(parser.getCmdOption("-ar;--agentradius"));
-  if (parser.cmdOptionExists("-lcm;--localclearanceminimum")) {
-    if (!parser.cmdOptionExists("-lcmr;--localclearanceminimumrefference")) {
-      return 1;
-    }
-    aqquireLcm = true;
-    lcmRef = parser.getCmdOption("-lcmr;--localclearanceminimumrefference");
-    std::cout << "comparing \"" << fileName << "\" with \"" << lcmRef << '\"' << std::endl;
+  if (!parser.cmdOptionExists("-lcmr;--localclearanceminimumrefference")) {
+    return 1;
   }
+  lcmRef = parser.getCmdOption("-lcmr;--localclearanceminimumrefference");
 
   const rcConfig config{
       .cs = cellSize,
@@ -430,49 +425,8 @@ int main(const int argc, char *argv[]) {
       .detailSampleDist = cellSize * g_detailSampleDist,
       .detailSampleMaxError = g_cellHeight * g_detailSampleMaxError,
   };
-  if (aqquireLcm)
-    processBourderEdges(lcmRef, output, fileName.substr(7, fileName.size() - 11) + "_" + std::to_string(static_cast<int>(cellSize * 10)), context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config);
-  else
-    generateTimes(output, fileName.substr(0, fileName.size() - 4) + "_" + std::to_string(static_cast<int>(cellSize * 10)), context, pGeom, g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles,
-                  config);
-  // ThreadPool pool{};
-  // const std::array<std::string, 12> meshes{"City.obj", "Maze8.obj", "Maze16.obj", "Maze32.obj", "Maze64.obj", "Maze128.obj", "Military.obj", "Simple.obj", "University.obj", "Zelda.obj", "Zelda2x2.obj", "Zelda4x4.obj"};
-  // std::ranges::for_each(meshes, [&pool](const std::string &mesh) {
-  //   for (uint32_t i{1}; i < 6; ++i) {
-  //     pool.queueJob([mesh, i] {
-  //       const float cellSize = static_cast<float>(i) / 10.f;
-  //       constexpr float agentRadius = 0.0f;
-  //       const std::string output{"Data"};
-
-  //
-  //       const auto pGeom{std::make_unique<InputGeom>()};
-  //       if (!pGeom || !pGeom->load(&context, "Meshes/" + mesh)) {
-  //         context.dumpLog("Geom load log %s:", mesh.c_str());
-  //         return;
-  //       }
-  //       const rcConfig config{
-  //           .cs = cellSize,
-  //           .ch = g_cellHeight,
-  //           .walkableSlopeAngle = g_agentMaxSlope,
-  //           .walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight)),
-  //           .walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight)),
-  //           .walkableRadius = static_cast<int>(std::ceil(agentRadius / g_cellHeight)),
-  //           .maxEdgeLen = static_cast<int>(g_edgeMaxLen / cellSize),
-  //           .maxSimplificationError = g_edgeMaxError,
-  //           .minRegionArea = static_cast<int>(rcSqr(g_regionMinSize)),
-  //           .mergeRegionArea = static_cast<int>(rcSqr(g_regionMergeSize)),
-  //           .maxVertsPerPoly = static_cast<int>(g_vertsPerPoly),
-  //           .detailSampleDist = cellSize * g_detailSampleDist,
-  //           .detailSampleMaxError = g_cellHeight * g_detailSampleMaxError,
-  //       };
-  //       generateTimes(output, mesh.substr(0,mesh.size()-4) + "_" + std::to_string(i), context, pGeom.get(), g_filterLedgeSpans, g_filterWalkableLowHeightSpans, g_filterLowHangingObstacles, config);
-  //     });
-  //   }
-  // });
-  // while (pool.busy()) {
-  //   std::this_thread::yield();
-  //   using namespace std::chrono_literals;
-  //   std::this_thread::sleep_for(500ms);
-  // }
-  return 0;
+  int *pEdges{nullptr};
+  int edgeCount{};
+  generateTimes(output, fileName.substr(0, fileName.size() - 4) + "_" + std::to_string(static_cast<int>(cellSize * 10)), context, pGeom, config, pEdges, edgeCount);
+  processBourderEdges(lcmRef, output, fileName.substr(0, fileName.size() - 4) + "_" + std::to_string(static_cast<int>(cellSize * 10)), pGeom, config, pEdges, edgeCount);
 }

@@ -2,7 +2,6 @@
 // Created by joran on 15/12/2023.
 //
 
-#include "Generators.h"
 
 #include <cstring>
 #include <new>
@@ -12,8 +11,9 @@
 #include <RecastDump.h>
 
 #include "MeshLoaderObj.h"
+#include "Generators.h"
 
-bool generateTheses(rcContext& context,const InputGeom& pGeom, rcConfig &config, const bool filterLowHangingObstacles, const bool filterLedgeSpans, const bool filterWalkableLowHeightSpans, float &totalBuildTimeMs,rcPolyMesh *&pMesh, rcPolyMeshDetail *&pDetailedMesh, int *&bounderies, int &bounderyElementCount) {
+bool generateTheses(rcContext &context, const InputGeom &pGeom, rcConfig &config, const bool filterLowHangingObstacles, const bool filterLedgeSpans, const bool filterWalkableLowHeightSpans, rcPolyMesh *&pMesh, rcPolyMeshDetail *&pDetailedMesh, int *&bounderies, int &bounderyElementCount) {
   if (!pGeom.getMesh()) {
     context.log(RC_LOG_ERROR, "buildNavigation: Input mesh is not specified.");
     return false;
@@ -208,7 +208,6 @@ bool generateTheses(rcContext& context,const InputGeom& pGeom, rcConfig &config,
   duLogBuildTimes(context, context.getAccumulatedTime(RC_TIMER_TOTAL));
   context.log(RC_LOG_PROGRESS, ">> Polymesh: %d vertices  %d polygons", pMesh->nverts, pMesh->npolys);
 
-  totalBuildTimeMs = static_cast<float>(context.getAccumulatedTime(RC_TIMER_TOTAL)) / 1000.0f;
   return true;
 }
 
