@@ -82,7 +82,7 @@ void printOptions() {
   std::cout << "------------------------------------------------------------------------------------------------" << std::endl;
 }
 
-constexpr int g_loopCount = 100;
+constexpr int g_loopCount = 1;
 constexpr float g_cellHeight = 0.2f;
 constexpr float g_agentHeight = 2.0f;
 constexpr float g_agentMaxClimb = 0.9f;
@@ -371,6 +371,7 @@ inline void processBourderEdges(const std::string &input, const std::string &out
     const auto &[v1, v2]{referenceEdge};
     leftoverSvg << std::format(R"(<line x1="{}" y1="{}" x2="{}" y2="{}" style="stroke: black; stroke-width: 2;" />)", v1.x, v1.y, v2.x, v2.y) << '\n';
   }
+  leftoverSvg << "<text x=\"5\" y=\"15\" fill=\"black\"> true positives: " << tp << "    false positives: " << fp << "    precistion: " << precision << "    recall: " << recall << "</text>" << std::endl;
   leftoverSvg << R"(</svg>)";
   leftoverSvg.close();
 }

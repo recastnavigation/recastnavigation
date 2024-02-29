@@ -724,7 +724,7 @@ static void mergeRegionHoles(rcContext *ctx, const rcContourRegion &region) {
 /// @see rcAllocContourSet, rcCompactHeightfield, rcContourSet, rcConfig
 bool rcBuildContours(rcContext *ctx, const rcCompactHeightfield &chf, const float maxError, const int maxEdgeLen, rcContourSet &cset, const int buildFlags) {
   rcAssert(ctx);
-  if(!ctx)
+  if (!ctx)
     return false;
 
   const int w = chf.width;
@@ -964,9 +964,7 @@ bool rcBuildContours(rcContext *ctx, const rcCompactHeightfield &chf, const floa
 
   return true;
 }
-bool rcBuildContoursWithPortals(rcContext *ctx, const rcCompactHeightfield &chf,
-                                float maxError, int maxEdgeLen,
-                                rcContourSet &cset, int *&portalEdges, int &portalEdgeSize, int buildFlags) {
+bool rcBuildContoursWithPortals(rcContext *ctx, const rcCompactHeightfield &chf, float maxError, int maxEdgeLen, rcContourSet &cset, int *&portalEdges, int &portalEdgeSize, int buildFlags) {
   rcAssert(ctx);
   if (!ctx)
     return false;
@@ -1215,35 +1213,36 @@ bool rcBuildContoursWithPortals(rcContext *ctx, const rcCompactHeightfield &chf,
 
   // extract bourder edges
   rcIntArray bourders{};
+  const auto findContourFromSet = [&cset](const unsigned short reg) -> const rcContour * {
+    for (int i = 0; i < cset.nconts; ++i) {
+      if (cset.conts[i].reg == reg)
+        return &cset.conts[i];
+    }
+    return nullptr;
+  };
   for (int i = 0; i < cset.nconts - 1; ++i) {
     const auto &[verts1, nverts1, rverts1, nrverts1, reg1, area1] = cset.conts[i];
     if (!nverts1)
       continue;
-    for (int j = i + 1; j < cset.nconts; ++j) {
-      const auto &[verts2, nverts2, rverts2, nrverts2, reg2, area2] = cset.conts[j];
-      if (!nverts2 || reg1 == reg2)
+    for (int j1 = 0, j2 = nverts1 - 1; j1 < nverts1; j2 = j1++) {
+      const int *va1 = &verts1[j2 * 4];
+      const int *va2 = &verts1[j1 * 4];
+      if (va1[3] == 0 || static_cast<unsigned short>(va1[3]) < reg1)
         continue;
-      for (int k = 0; k < nverts1; ++k) {
-        int *firstVertex1 = &verts1[k * 4];
-        int *firstVertex2 = &verts1[(k + 1) % nverts1 * 4];
-
-        for (int l = 0; l < nverts2; ++l) {
-          int *secondVertex1 = &verts2[l * 4];
-          int *secondVertex2 = &verts2[(l + 1) % nverts2 * 4];
-
-          // Check if edges are equal (only need to check the index)
-          if (firstVertex1[0] == secondVertex2[0] && firstVertex1[1] == secondVertex2[1] && firstVertex1[2] == secondVertex2[2] &&
-              firstVertex2[0] == secondVertex1[0] && firstVertex2[1] == secondVertex1[1] && firstVertex2[2] == secondVertex1[2]) {
-            bourders.push(firstVertex1[0]);
-            bourders.push(firstVertex1[2]);
-            bourders.push(firstVertex2[0]);
-            bourders.push(firstVertex2[2]);
+      if (const rcContour *cont2 = findContourFromSet(static_cast<unsigned short>(va1[3]))) {
+        for (int k1 = 0, k2 = cont2->nverts - 1; k1 < cont2->nverts; k2 = k1++) {
+          const int *vb1 = &cont2->verts[k1 * 4];
+          const int *vb2 = &cont2->verts[k2 * 4];
+          if (va1[0] == vb1[0] && va1[1] == vb1[1] && va1[2] == vb1[2] && va2[0] == vb2[0] && va2[1] == vb2[1] && va2[2] == vb2[2]) {
+            bourders.push(va1[0]);
+            bourders.push(va1[2]);
+            bourders.push(vb1[0]);
+            bourders.push(vb2[2]);
           }
         }
       }
     }
   }
-
   portalEdgeSize = bourders.size();
   portalEdges = static_cast<int *>(rcAlloc(sizeof(int) * bourders.size(), RC_ALLOC_PERM));
   if (bourders.size())
