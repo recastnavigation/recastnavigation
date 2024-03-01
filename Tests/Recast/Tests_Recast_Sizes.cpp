@@ -1,6 +1,12 @@
+#include <algorithm>
+#include <array>
 #include <filesystem>
+#include <format>
 #include <fstream>
+#include <ranges>
+#include <span>
 #include <string>
+#include <vector>
 
 #include <RecastAlloc.h>
 #include <catch2/catch_all.hpp>
@@ -9,6 +15,8 @@
 #include "../../RecastCLI/Include/BuildContext.h"
 #include "../../RecastCLI/Include/Generators.h"
 #include "../../RecastCLI/Include/InputGeom.h"
+
+#include <iostream>
 
 // For comparing to rcVector in benchmarks.
 constexpr float g_cellHeight = 0.2f;
@@ -315,7 +323,7 @@ inline void processBourderEdges(const std::string &input, const std::string &out
 TEST_CASE("Watershed") {
   std::string output{"Data"};
   std::filesystem::create_directories(output);
-
+  std::cout << std::filesystem::current_path() << std::endl;
   const float cellSize{GENERATE(range(0.2f, 0.5f, 0.1f))};
   constexpr float agentRadius{0.0f};
   rcConfig config{
