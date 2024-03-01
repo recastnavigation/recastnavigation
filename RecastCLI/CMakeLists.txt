@@ -1,5 +1,5 @@
 project(RecastCLI)
-file(GLOB SOURCES Source/*.cpp)
+file(GLOB SOURCES Source/*.cpp include/*.h)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 add_dependencies(RecastCLI

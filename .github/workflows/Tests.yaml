@@ -52,7 +52,7 @@ jobs:
 
           # A file, directory or wildcard pattern that describes what to upload
           # Required.
-          path:  ${{ github.workspace }}/build/Data
+          path:  ${{ github.workspace }}/build/Tests/Data
 
           # Duration after which artifact will expire in days. 0 means using default retention.
           # Minimum 1 day.

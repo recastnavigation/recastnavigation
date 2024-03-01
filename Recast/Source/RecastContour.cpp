@@ -1236,8 +1236,8 @@ bool rcBuildContoursWithPortals(rcContext *ctx, const rcCompactHeightfield &chf,
           if (va1[0] == vb1[0] && va1[1] == vb1[1] && va1[2] == vb1[2] && va2[0] == vb2[0] && va2[1] == vb2[1] && va2[2] == vb2[2]) {
             bourders.push(va1[0]);
             bourders.push(va1[2]);
-            bourders.push(vb1[0]);
-            bourders.push(vb2[2]);
+            bourders.push(va2[0]);
+            bourders.push(va2[2]);
           }
         }
       }
