@@ -1,15 +1,18 @@
+#include <BuildContext.h>
+#include <Generators.h>
+#include <InputGeom.h>
 #include <Recast.h>
 #include <RecastAlloc.h>
-#include <BuildContext.h>
-#include <InputGeom.h>
-#include <Generators.h>
 
-#include <fstream>
 #include <array>
-#include <iostream>
 #include <filesystem>
+#include <format>
+#include <fstream>
+#include <iostream>
+#include <ranges>
 
 #include <catch2/catch_all.hpp>
+
 // For comparing to rcVector in benchmarks.
 constexpr float g_cellHeight = 0.2f;
 constexpr float g_agentHeight = 2.0f;

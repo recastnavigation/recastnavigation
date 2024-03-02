@@ -36,6 +36,7 @@
 #include <SDL_opengl.h>
 #include <cmath>
 #include <cstring>
+#include <new>
 
 Sample_SizeFromPortalEdgeMesh::Sample_SizeFromPortalEdgeMesh() : m_keepInterResults(true),
                                                                  m_totalBuildTimeMs(0),

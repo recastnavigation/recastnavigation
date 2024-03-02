@@ -18,6 +18,7 @@
 
 #pragma once
 #include <Recast.h>
+#include <cstddef>
 
 struct duFileIO
 {

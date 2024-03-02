@@ -13,6 +13,8 @@
 #include "MeshLoaderObj.h"
 #include "Generators.h"
 
+#include <new>
+
 bool generateTheses(rcContext &context, const InputGeom &pGeom, rcConfig &config, const bool filterLowHangingObstacles, const bool filterLedgeSpans, const bool filterWalkableLowHeightSpans, rcPolyMesh *&pMesh, rcPolyMeshDetail *&pDetailedMesh, int *&bounderies, int &bounderyElementCount) {
   if (!pGeom.getMesh()) {
     context.log(RC_LOG_ERROR, "buildNavigation: Input mesh is not specified.");

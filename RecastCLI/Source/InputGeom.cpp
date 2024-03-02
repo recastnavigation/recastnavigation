@@ -21,6 +21,7 @@
 #include <cmath>
 #include <cstring>
 #include <fstream>
+#include <new>
 #include <sstream>
 
 #include "ChunkyTriMesh.h"

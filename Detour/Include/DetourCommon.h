@@ -19,6 +19,7 @@
 #pragma once
 #include "DetourMath.h"
 #include <cstdint>
+#include <cstddef>
 
 /**
 @defgroup detour Detour

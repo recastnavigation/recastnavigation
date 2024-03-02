@@ -35,6 +35,7 @@
 #include <SDL_opengl.h>
 #include <cmath>
 #include <cstring>
+#include <new>
 
 Sample_SoloMesh::Sample_SoloMesh() :
 	m_keepInterResults(true),

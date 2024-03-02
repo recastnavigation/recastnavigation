@@ -20,6 +20,7 @@
 #include <DetourAlloc.h>
 #include <DetourStatus.h>
 
+#include <cstddef>
 #include <cstdint>
 
 static constexpr int DT_TILECACHE_MAGIC = 'D' << 24 | 'T' << 16 | 'L' << 8 | 'R'; ///< 'DTLR';

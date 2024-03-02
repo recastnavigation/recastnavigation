@@ -14,6 +14,7 @@
 
 #include <fstream>
 #include <imgui.h>
+#include <new>
 #include <sstream>
 
 TestCase::~TestCase() {

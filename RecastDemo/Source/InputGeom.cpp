@@ -26,6 +26,7 @@
 
 #include <cstring>
 #include <fstream>
+#include <new>
 #include <sstream>
 
 namespace {

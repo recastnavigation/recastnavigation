@@ -20,6 +20,7 @@
 
 #include <cmath>
 #include <fstream>
+#include <new>
 #include <sstream>
 
 rcMeshLoaderObj::rcMeshLoaderObj() : m_scale(1.0f),
