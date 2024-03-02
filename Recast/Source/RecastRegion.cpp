@@ -22,6 +22,7 @@
 
 #include <algorithm>
 #include <cstring>
+#include <ranges>
 
 namespace {
 struct LevelStackEntry {

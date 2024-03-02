@@ -17,6 +17,8 @@
 //
 
 #include "RecastAlloc.h"
+#include <cstdlib>
+
 namespace {
 void *rcAllocDefault(const std::size_t size, rcAllocHint) {
   return malloc(size);

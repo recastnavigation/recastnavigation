@@ -18,6 +18,7 @@
 #include "Recast.h"
 #include "RecastAlloc.h"
 
+#include <cstdlib>
 #include <cstring>
 
 namespace {
