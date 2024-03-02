@@ -16,13 +16,22 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 #pragma once
+#include "Sample.h"
 
+#include <Recast.h>
+#include <cstdint>
+
+struct rcPolyMeshDetail;
+struct rcPolyMesh;
+struct rcContourSet;
+struct rcCompactHeightfield;
+struct rcHeightfield;
 class Sample_SizeFromPortalEdgeMesh final : public Sample {
 protected:
   bool m_keepInterResults;
   float m_totalBuildTimeMs;
 
-  unsigned char *m_triareas;
+  uint8_t *m_triareas;
   rcHeightfield *m_solid;
   rcCompactHeightfield *m_chf;
   rcContourSet *m_cset;

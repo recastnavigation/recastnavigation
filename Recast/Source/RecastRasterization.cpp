@@ -16,12 +16,12 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
+#include "Recast.h"
+
+#include <RecastAlloc.h>
 #include <cmath>
 
-#include "Recast.h"
-#include "RecastAlloc.h"
-#include "RecastAssert.h"
-
+namespace {
 /// Check whether two bounding boxes overlap
 ///
 /// @param[in]	aMin	Min axis extents of bounding box A
@@ -29,7 +29,7 @@
 /// @param[in]	bMin	Min axis extents of bounding box B
 /// @param[in]	bMax	Max axis extents of bounding box B
 /// @returns true if the two bounding boxes overlap.  False otherwise.
-static bool overlapBounds(const float *aMin, const float *aMax, const float *bMin, const float *bMax) {
+bool overlapBounds(const float *aMin, const float *aMax, const float *bMin, const float *bMax) {
   return aMin[0] <= bMax[0] && aMax[0] >= bMin[0] &&
          aMin[1] <= bMax[1] && aMax[1] >= bMin[1] &&
          aMin[2] <= bMax[2] && aMax[2] >= bMin[2];
@@ -40,7 +40,7 @@ static bool overlapBounds(const float *aMin, const float *aMax, const float *bMi
 ///
 /// @param[in]	heightfield		The heightfield
 /// @returns A pointer to the allocated or re-used span memory.
-static rcSpan *allocSpan(rcHeightfield &heightfield) {
+rcSpan *allocSpan(rcHeightfield &heightfield) {
   // If necessary, allocate new page and update the freelist.
   if (heightfield.freelist == nullptr || heightfield.freelist->next == nullptr) {
     // Create new page.
@@ -75,7 +75,7 @@ static rcSpan *allocSpan(rcHeightfield &heightfield) {
 /// Releases the memory used by the span back to the heightfield, so it can be re-used for new spans.
 /// @param[in]	heightfield		The heightfield.
 /// @param[in]	span	A pointer to the span to free
-static void freeSpan(rcHeightfield &heightfield, rcSpan *span) {
+void freeSpan(rcHeightfield &heightfield, rcSpan *span) {
   if (span == nullptr) {
     return;
   }
@@ -94,10 +94,10 @@ static void freeSpan(rcHeightfield &heightfield, rcSpan *span) {
 /// @param[in]	max					The new span's maximum cell index
 /// @param[in]	areaID				The new span's area type ID
 /// @param[in]	flagMergeThreshold	How close two spans maximum extents need to be to merge area type IDs
-static bool addSpan(rcHeightfield &heightfield,
+bool addSpan(rcHeightfield &heightfield,
                     const int x, const int z,
-                    const unsigned short min, const unsigned short max,
-                    const unsigned char areaID, const int flagMergeThreshold) {
+                    const uint16_t min, const uint16_t max,
+                    const uint8_t areaID, const int flagMergeThreshold) {
   // Create the new span.
   rcSpan *newSpan = allocSpan(heightfield);
   if (newSpan == nullptr) {
@@ -164,22 +164,6 @@ static bool addSpan(rcHeightfield &heightfield,
   return true;
 }
 
-bool rcAddSpan(rcContext *context, rcHeightfield &heightfield,
-               const int x, const int z,
-               const unsigned short spanMin, const unsigned short spanMax,
-               const unsigned char areaID, const int flagMergeThreshold) {
-  rcAssert(context);
-  if (!context)
-    return false;
-
-  if (!addSpan(heightfield, x, z, spanMin, spanMax, areaID, flagMergeThreshold)) {
-    context->log(RC_LOG_ERROR, "rcAddSpan: Out of memory.");
-    return false;
-  }
-
-  return true;
-}
-
 enum rcAxis {
   RC_AXIS_X = 0,
   RC_AXIS_Y = 1,
@@ -197,7 +181,7 @@ enum rcAxis {
 /// @param[out]	outVerts2Count	The number of resulting polygon 2 vertices
 /// @param[in]	axisOffset		THe offset along the specified axis
 /// @param[in]	axis			The separating axis
-static void dividePoly(const float *inVerts, const int inVertsCount,
+void dividePoly(const float *inVerts, const int inVertsCount,
                        float *outVerts1, int *outVerts1Count,
                        float *outVerts2, int *outVerts2Count,
                        const float axisOffset, const rcAxis axis) {
@@ -266,8 +250,8 @@ static void dividePoly(const float *inVerts, const int inVertsCount,
 /// @param[in] 	inverseCellHeight	1 / cellHeight
 /// @param[in] 	flagMergeThreshold	The threshold in which area flags will be merged
 /// @returns true if the operation completes successfully.  false if there was an error adding spans to the heightfield.
-static bool rasterizeTri(const float *v0, const float *v1, const float *v2,
-                         const unsigned char areaID, rcHeightfield &heightfield,
+bool rasterizeTri(const float *v0, const float *v1, const float *v2,
+                         const uint8_t areaID, rcHeightfield &heightfield,
                          const float *heightfieldBBMin, const float *heightfieldBBMax,
                          const float cellSize, const float inverseCellSize, const float inverseCellHeight,
                          const int flagMergeThreshold) {
@@ -387,8 +371,8 @@ static bool rasterizeTri(const float *v0, const float *v1, const float *v2,
       }
 
       // Snap the span to the heightfield height grid.
-      const unsigned short spanMinCellIndex = static_cast<unsigned short>(rcClamp(static_cast<int>(floorf(spanMin * inverseCellHeight)), 0, RC_SPAN_MAX_HEIGHT));
-      const unsigned short spanMaxCellIndex = static_cast<unsigned short>(rcClamp(static_cast<int>(ceilf(spanMax * inverseCellHeight)), static_cast<int>(spanMinCellIndex) + 1, RC_SPAN_MAX_HEIGHT));
+      const uint16_t spanMinCellIndex = static_cast<uint16_t>(rcClamp(static_cast<int>(std::floor(spanMin * inverseCellHeight)), 0, RC_SPAN_MAX_HEIGHT));
+      const uint16_t spanMaxCellIndex = static_cast<uint16_t>(rcClamp(static_cast<int>(std::ceil(spanMax * inverseCellHeight)), static_cast<int>(spanMinCellIndex) + 1, RC_SPAN_MAX_HEIGHT));
 
       if (!addSpan(heightfield, x, z, spanMinCellIndex, spanMaxCellIndex, areaID, flagMergeThreshold)) {
         return false;
@@ -398,10 +382,27 @@ static bool rasterizeTri(const float *v0, const float *v1, const float *v2,
 
   return true;
 }
+} // namespace
+
+bool rcAddSpan(rcContext *context, rcHeightfield &heightfield,
+               const int x, const int z,
+               const uint16_t spanMin, const uint16_t spanMax,
+               const uint8_t areaID, const int flagMergeThreshold) {
+  rcAssert(context);
+  if (!context)
+    return false;
+
+  if (!addSpan(heightfield, x, z, spanMin, spanMax, areaID, flagMergeThreshold)) {
+    context->log(RC_LOG_ERROR, "rcAddSpan: Out of memory.");
+    return false;
+  }
+
+  return true;
+}
 
 bool rcRasterizeTriangle(rcContext *context,
                          const float *v0, const float *v1, const float *v2,
-                         const unsigned char areaID, rcHeightfield &heightfield, const int flagMergeThreshold) {
+                         const uint8_t areaID, rcHeightfield &heightfield, const int flagMergeThreshold) {
   rcAssert(context != nullptr);
   if (!context)
     return false;
@@ -419,7 +420,7 @@ bool rcRasterizeTriangle(rcContext *context,
 
 bool rcRasterizeTriangles(rcContext *context,
                           const float *verts, const int /*nv*/,
-                          const int *tris, const unsigned char *triAreaIDs, const int numTris,
+                          const int *tris, const uint8_t *triAreaIDs, const int numTris,
                           rcHeightfield &heightfield, const int flagMergeThreshold) {
   rcAssert(context != nullptr);
   if (!context)
@@ -445,7 +446,7 @@ bool rcRasterizeTriangles(rcContext *context,
 
 bool rcRasterizeTriangles(rcContext *context,
                           const float *verts, const int /*nv*/,
-                          const unsigned short *tris, const unsigned char *triAreaIDs, const int numTris,
+                          const uint16_t *tris, const uint8_t *triAreaIDs, const int numTris,
                           rcHeightfield &heightfield, const int flagMergeThreshold) {
   rcAssert(context != nullptr);
   if (!context)
@@ -470,7 +471,7 @@ bool rcRasterizeTriangles(rcContext *context,
 }
 
 bool rcRasterizeTriangles(rcContext *context,
-                          const float *verts, const unsigned char *triAreaIDs, const int numTris,
+                          const float *verts, const uint8_t *triAreaIDs, const int numTris,
                           rcHeightfield &heightfield, const int flagMergeThreshold) {
   rcAssert(context != nullptr);
   if (!context)

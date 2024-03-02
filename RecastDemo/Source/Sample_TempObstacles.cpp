@@ -16,48 +16,43 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <cfloat>
-#include <cmath>
-#include <cstdio>
-#include <cstring>
-#include <new>
+#include "Sample_TempObstacles.h"
 
-#include <SDL.h>
+#include "ChunkyTriMesh.h"
+#include "InputGeom.h"
+#include "MeshLoaderObj.h"
+#include "NavMeshTesterTool.h"
+#include "OffMeshConnectionTool.h"
+#include "imgui.h"
+
+#include <ConvexVolumeTool.h>
+#include <CrowdTool.h>
+#include <DetourAlloc.h>
+#include <DetourCommon.h>
+#include <DetourDebugDraw.h>
+#include <DetourNavMeshBuilder.h>
+#include <DetourTileCache.h>
+#include <DetourTileCacheBuilder.h>
+#include <RecastDebugDraw.h>
+
 #include <SDL_opengl.h>
-
-#ifdef __APPLE__
+#if __APPLE__
 #include <OpenGL/glu.h>
 #else
 #include <GL/glu.h>
 #endif
+#include <fastlz.h>
 
-#include "ConvexVolumeTool.h"
-#include "CrowdTool.h"
-#include "DetourAssert.h"
-#include "DetourCommon.h"
-#include "DetourDebugDraw.h"
-#include "DetourNavMesh.h"
-#include "DetourNavMeshBuilder.h"
-#include "DetourTileCache.h"
-#include "InputGeom.h"
-#include "NavMeshTesterTool.h"
-#include "OffMeshConnectionTool.h"
-#include "Recast.h"
-#include "RecastDebugDraw.h"
-#include "Sample_TempObstacles.h"
-#include "fastlz.h"
-#include "imgui.h"
-
-#include <DetourTileCacheBuilder.h>
-
-#ifdef WIN32
-#define snprintf _snprintf
-#endif
+#include <cfloat>
+#include <cmath>
+#include <cstring>
+#include <new>
 
 // This value specifies how many layers (or "floors") each navmesh tile is expected to have.
 static constexpr int EXPECTED_LAYERS_PER_TILE = 4;
 
-static bool isectSegAABB(const float *sp, const float *sq,
+namespace {
+bool isectSegAABB(const float *sp, const float *sq,
                          const float *amin, const float *amax,
                          float &tmin, float &tmax) {
   static constexpr float EPS = 1e-6f;
@@ -95,11 +90,12 @@ static bool isectSegAABB(const float *sp, const float *sq,
   return true;
 }
 
-static int calcLayerBufferSize(const int gridWidth, const int gridHeight) {
+int calcLayerBufferSize(const int gridWidth, const int gridHeight) {
   const int headerSize = dtAlign4(sizeof(dtTileCacheLayerHeader));
   const int gridSize = gridWidth * gridHeight;
   return headerSize + gridSize * 4;
 }
+} // namespace
 
 struct FastLZCompressor final : dtTileCacheCompressor {
   ~FastLZCompressor() override;
@@ -108,14 +104,14 @@ struct FastLZCompressor final : dtTileCacheCompressor {
     return static_cast<int>(bufferSize * 1.05f);
   }
 
-  dtStatus compress(const unsigned char *buffer, const int bufferSize,
-                    unsigned char *compressed, const int /*maxCompressedSize*/, int *compressedSize) override {
+  dtStatus compress(const uint8_t *buffer, const int bufferSize,
+                    uint8_t *compressed, const int /*maxCompressedSize*/, int *compressedSize) override {
     *compressedSize = fastlz_compress(buffer, bufferSize, compressed);
     return DT_SUCCESS;
   }
 
-  dtStatus decompress(const unsigned char *compressed, const int compressedSize,
-                      unsigned char *buffer, const int maxBufferSize, int *bufferSize) override {
+  dtStatus decompress(const uint8_t *compressed, const int compressedSize,
+                      uint8_t *buffer, const int maxBufferSize, int *bufferSize) override {
     *bufferSize = fastlz_decompress(compressed, compressedSize, buffer, maxBufferSize);
     return *bufferSize < 0 ? DT_FAILURE : DT_SUCCESS;
   }
@@ -126,7 +122,7 @@ FastLZCompressor::~FastLZCompressor() {
 }
 
 struct LinearAllocator : public dtTileCacheAlloc {
-  unsigned char *buffer;
+  uint8_t *buffer;
   size_t capacity;
   size_t top;
   size_t high;
@@ -140,7 +136,7 @@ struct LinearAllocator : public dtTileCacheAlloc {
   void resize(const size_t cap) {
     if (buffer)
       dtFree(buffer);
-    buffer = static_cast<unsigned char *>(dtAlloc(cap, DT_ALLOC_PERM));
+    buffer = static_cast<uint8_t *>(dtAlloc(cap, DT_ALLOC_PERM));
     capacity = cap;
   }
 
@@ -154,7 +150,7 @@ struct LinearAllocator : public dtTileCacheAlloc {
       return nullptr;
     if (top + size > capacity)
       return nullptr;
-    unsigned char *mem = &buffer[top];
+    uint8_t *mem = &buffer[top];
     top += size;
     return mem;
   }
@@ -181,8 +177,7 @@ struct MeshProcess : public dtTileCacheMeshProcess {
     m_geom = geom;
   }
 
-  void process(dtNavMeshCreateParams *params,
-               unsigned char *polyAreas, unsigned short *polyFlags) override {
+  void process(dtNavMeshCreateParams *params, uint8_t *polyAreas, uint16_t *polyFlags) override {
     // Update poly flags from areas.
     for (int i = 0; i < params->polyCount; ++i) {
       if (polyAreas[i] == DT_TILECACHE_WALKABLE_AREA)
@@ -219,7 +214,7 @@ MeshProcess::~MeshProcess() {
 static constexpr int MAX_LAYERS = 32;
 
 struct TileCacheData {
-  unsigned char *data;
+  uint8_t *data;
   int dataSize;
 };
 
@@ -244,7 +239,7 @@ struct RasterizationContext {
   }
 
   rcHeightfield *solid;
-  unsigned char *triareas;
+  uint8_t *triareas;
   rcHeightfieldLayerSet *lset;
   rcCompactHeightfield *chf;
   TileCacheData tiles[MAX_LAYERS];
@@ -299,7 +294,7 @@ int Sample_TempObstacles::rasterizeTileLayers(
   // Allocate array that can hold triangle flags.
   // If you have multiple meshes you need to process, allocate
   // and array which can hold the max number of triangles you need to process.
-  rc.triareas = new unsigned char[chunkyMesh->maxTrisPerChunk];
+  rc.triareas = new (std::nothrow) uint8_t[chunkyMesh->maxTrisPerChunk];
   if (!rc.triareas) {
     m_ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'm_triareas' (%d).", chunkyMesh->maxTrisPerChunk);
     return 0;
@@ -321,7 +316,7 @@ int Sample_TempObstacles::rasterizeTileLayers(
     const int *tris = &chunkyMesh->tris[node.i * 3];
     const int ntris = node.n;
 
-    memset(rc.triareas, 0, ntris * sizeof(unsigned char));
+    memset(rc.triareas, 0, ntris * sizeof(uint8_t));
     rcMarkWalkableTriangles(m_ctx, tcfg.walkableSlopeAngle,
                             verts, nverts, tris, ntris, rc.triareas);
 
@@ -360,7 +355,7 @@ int Sample_TempObstacles::rasterizeTileLayers(
   for (int i = 0; i < m_geom->getConvexVolumeCount(); ++i) {
     rcMarkConvexPolyArea(m_ctx, vols[i].verts, vols[i].nverts,
                          vols[i].hmin, vols[i].hmax,
-                         static_cast<unsigned char>(vols[i].area), *rc.chf);
+                         static_cast<uint8_t>(vols[i].area), *rc.chf);
   }
 
   rc.lset = rcAllocHeightfieldLayerSet();
@@ -391,14 +386,14 @@ int Sample_TempObstacles::rasterizeTileLayers(
     dtVcopy(header.bmax, layer->bmax);
 
     // Tile info.
-    header.width = static_cast<unsigned char>(layer->width);
-    header.height = static_cast<unsigned char>(layer->height);
-    header.minx = static_cast<unsigned char>(layer->minx);
-    header.maxx = static_cast<unsigned char>(layer->maxx);
-    header.miny = static_cast<unsigned char>(layer->miny);
-    header.maxy = static_cast<unsigned char>(layer->maxy);
-    header.hmin = static_cast<unsigned short>(layer->hmin);
-    header.hmax = static_cast<unsigned short>(layer->hmax);
+    header.width = static_cast<uint8_t>(layer->width);
+    header.height = static_cast<uint8_t>(layer->height);
+    header.minx = static_cast<uint8_t>(layer->minx);
+    header.maxx = static_cast<uint8_t>(layer->maxx);
+    header.miny = static_cast<uint8_t>(layer->miny);
+    header.maxy = static_cast<uint8_t>(layer->maxy);
+    header.hmin = static_cast<uint16_t>(layer->hmin);
+    header.hmax = static_cast<uint16_t>(layer->hmax);
 
     if (dtStatusFailed(dtBuildTileCacheLayer(&comp, &header, layer->heights, layer->areas, layer->cons, &tile->data, &tile->dataSize))) {
       return 0;
@@ -420,14 +415,14 @@ void drawTiles(duDebugDraw *dd, const dtTileCache *tc) {
   float bmin[3], bmax[3];
 
   for (int i = 0; i < tc->getTileCount(); ++i) {
-    unsigned int fcol[6];
+    uint32_t fcol[6];
     const dtCompressedTile *tile = tc->getTile(i);
     if (!tile->header)
       continue;
 
     tc->calcTightTileBounds(tile->header, bmin, bmax);
 
-    const unsigned int col = duIntToCol(i, 64);
+    const uint32_t col = duIntToCol(i, 64);
     duCalcBoxColors(fcol, col, col);
     duDebugDrawBox(dd, bmin[0], bmin[1], bmin[2], bmax[0], bmax[1], bmax[2], fcol);
   }
@@ -439,7 +434,7 @@ void drawTiles(duDebugDraw *dd, const dtTileCache *tc) {
 
     tc->calcTightTileBounds(tile->header, bmin, bmax);
 
-    const unsigned int col = duIntToCol(i, 255);
+    const uint32_t col = duIntToCol(i, 255);
     const float pad = tc->getParams()->cs * 0.1f;
     duDebugDrawBoxWire(dd, bmin[0] - pad, bmin[1] - pad, bmin[2] - pad,
                        bmax[0] + pad, bmax[1] + pad, bmax[2] + pad, col, 2.0f);
@@ -589,7 +584,7 @@ void drawObstacles(duDebugDraw *dd, const dtTileCache *tc) {
     float bmin[3], bmax[3];
     tc->getObstacleBounds(ob, bmin, bmax);
 
-    unsigned int col = 0;
+    uint32_t col = 0;
     if (ob->state == DT_OBSTACLE_PROCESSING)
       col = duRGBA(255, 255, 0, 128);
     else if (ob->state == DT_OBSTACLE_PROCESSED)
@@ -1205,7 +1200,7 @@ bool Sample_TempObstacles::handleBuild() {
   m_ctx->stopTimer(RC_TIMER_TOTAL);
 
   m_cacheBuildTimeMs = m_ctx->getAccumulatedTime(RC_TIMER_TOTAL) / 1000.0f;
-  m_cacheBuildMemUsage = static_cast<unsigned int>(m_talloc->high);
+  m_cacheBuildMemUsage = static_cast<uint32_t>(m_talloc->high);
 
   const dtNavMesh *nav = m_navMesh;
   int navmeshMemUsage = 0;
@@ -1354,7 +1349,7 @@ void Sample_TempObstacles::loadAll(const char *path) {
     if (!tileHeader.tileRef || !tileHeader.dataSize)
       break;
 
-    auto *const data = static_cast<unsigned char *>(dtAlloc(tileHeader.dataSize, DT_ALLOC_PERM));
+    auto *const data = static_cast<uint8_t *>(dtAlloc(tileHeader.dataSize, DT_ALLOC_PERM));
     if (!data)
       break;
     std::memset(data, 0, tileHeader.dataSize);

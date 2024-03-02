@@ -17,19 +17,20 @@
 //
 
 #include "DetourObstacleAvoidance.h"
-#include "DetourAlloc.h"
-#include "DetourAssert.h"
-#include "DetourCommon.h"
-#include "DetourMath.h"
-#include <float.h>
-#include <new>
-#include <string.h>
 
-static constexpr float DT_PI = 3.14159265f;
+#include <DetourAlloc.h>
+#include <DetourAssert.h>
+#include <DetourCommon.h>
 
-static int sweepCircleCircle(const float *c0, const float r0, const float *v,
-                             const float *c1, const float r1,
-                             float &tmin, float &tmax) {
+#include <cfloat>
+#include <cstring>
+
+namespace {
+constexpr float DT_PI = 3.14159265f;
+
+int sweepCircleCircle(const float *c0, const float r0, const float *v,
+                      const float *c1, const float r1,
+                      float &tmin, float &tmax) {
   static constexpr float EPS = 0.0001f;
   float s[3];
   dtVsub(s, c1, c0);
@@ -51,9 +52,9 @@ static int sweepCircleCircle(const float *c0, const float r0, const float *v,
   return 1;
 }
 
-static int isectRaySeg(const float *ap, const float *u,
-                       const float *bp, const float *bq,
-                       float &t) {
+int isectRaySeg(const float *ap, const float *u,
+                const float *bp, const float *bq,
+                float &t) {
   float v[3], w[3];
   dtVsub(v, bq, bp);
   dtVsub(w, ap, bp);
@@ -69,6 +70,21 @@ static int isectRaySeg(const float *ap, const float *u,
     return 0;
   return 1;
 }
+void normalizeArray(float *arr, const int n) {
+  // Normalize penaly range.
+  float minPen = FLT_MAX;
+  float maxPen = -FLT_MAX;
+  for (int i = 0; i < n; ++i) {
+    minPen = dtMin(minPen, arr[i]);
+    maxPen = dtMax(maxPen, arr[i]);
+  }
+  const float penRange = maxPen - minPen;
+  const float s = penRange > 0.001f ? (1.0f / penRange) : 1;
+  for (int i = 0; i < n; ++i)
+    arr[i] = dtClamp((arr[i] - minPen) * s, 0.0f, 1.0f);
+}
+
+} // namespace
 
 dtObstacleAvoidanceDebugData *dtAllocObstacleAvoidanceDebugData() {
   void *mem = dtAlloc(sizeof(dtObstacleAvoidanceDebugData), DT_ALLOC_PERM);
@@ -149,7 +165,7 @@ void dtObstacleAvoidanceDebugData::addSample(const float *vel, const float ssize
   dtAssert(m_vcpen);
   dtAssert(m_spen);
   dtAssert(m_tpen);
-  if(!m_vel || !m_ssize || !m_pen || !m_vpen || !m_vcpen || !m_spen || !m_tpen)
+  if (!m_vel || !m_ssize || !m_pen || !m_vpen || !m_vcpen || !m_spen || !m_tpen)
     return;
   dtVcopy(&m_vel[m_nsamples * 3], vel);
   m_ssize[m_nsamples] = ssize;
@@ -159,20 +175,6 @@ void dtObstacleAvoidanceDebugData::addSample(const float *vel, const float ssize
   m_spen[m_nsamples] = spen;
   m_tpen[m_nsamples] = tpen;
   m_nsamples++;
-}
-
-static void normalizeArray(float *arr, const int n) {
-  // Normalize penaly range.
-  float minPen = FLT_MAX;
-  float maxPen = -FLT_MAX;
-  for (int i = 0; i < n; ++i) {
-    minPen = dtMin(minPen, arr[i]);
-    maxPen = dtMax(maxPen, arr[i]);
-  }
-  const float penRange = maxPen - minPen;
-  const float s = penRange > 0.001f ? (1.0f / penRange) : 1;
-  for (int i = 0; i < n; ++i)
-    arr[i] = dtClamp((arr[i] - minPen) * s, 0.0f, 1.0f);
 }
 
 void dtObstacleAvoidanceDebugData::normalizeSamples() const {
@@ -207,14 +209,14 @@ bool dtObstacleAvoidanceQuery::init(const int maxCircles, const int maxSegments)
   m_circles = static_cast<dtObstacleCircle *>(dtAlloc(sizeof(dtObstacleCircle) * m_maxCircles, DT_ALLOC_PERM));
   if (!m_circles)
     return false;
-  memset(m_circles, 0, sizeof(dtObstacleCircle) * m_maxCircles);
+  std::memset(m_circles, 0, sizeof(dtObstacleCircle) * m_maxCircles);
 
   m_maxSegments = maxSegments;
   m_nsegments = 0;
   m_segments = static_cast<dtObstacleSegment *>(dtAlloc(sizeof(dtObstacleSegment) * m_maxSegments, DT_ALLOC_PERM));
   if (!m_segments)
     return false;
-  memset(m_segments, 0, sizeof(dtObstacleSegment) * m_maxSegments);
+  std::memset(m_segments, 0, sizeof(dtObstacleSegment) * m_maxSegments);
 
   return true;
 }
@@ -260,7 +262,7 @@ void dtObstacleAvoidanceQuery::prepare(const float *pos, const float *dvel) cons
     dtVnormalize(cir->dp);
     dtVsub(dv, cir->dvel, dvel);
 
-    if (dtTriArea2D(orig, cir->dp, dv)< 0.01f) {
+    if (dtTriArea2D(orig, cir->dp, dv) < 0.01f) {
       cir->np[0] = -cir->dp[2];
       cir->np[2] = cir->dp[0];
     } else {
@@ -392,7 +394,7 @@ int dtObstacleAvoidanceQuery::sampleVelocityGrid(const float *pos, const float r
                                                  dtObstacleAvoidanceDebugData *debug) {
   prepare(pos, dvel);
 
-  memcpy(&m_params, params, sizeof(dtObstacleAvoidanceParams));
+  std::memcpy(&m_params, params, sizeof(dtObstacleAvoidanceParams));
   m_invHorizTime = 1.0f / m_params.horizTime;
   m_vmax = vmax;
   m_invVmax = vmax > 0 ? 1.0f / vmax : FLT_MAX;
@@ -457,7 +459,7 @@ int dtObstacleAvoidanceQuery::sampleVelocityAdaptive(const float *pos, const flo
                                                      dtObstacleAvoidanceDebugData *debug) {
   prepare(pos, dvel);
 
-  memcpy(&m_params, params, sizeof(dtObstacleAvoidanceParams));
+  std::memcpy(&m_params, params, sizeof(dtObstacleAvoidanceParams));
   m_invHorizTime = 1.0f / m_params.horizTime;
   m_vmax = vmax;
   m_invVmax = vmax > 0 ? 1.0f / vmax : FLT_MAX;

@@ -16,35 +16,25 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <cmath>
-#include <cstdio>
-#include <cstring>
-
-#include <SDL.h>
-#include <SDL_opengl.h>
-
-#include "ConvexVolumeTool.h"
-#include "CrowdTool.h"
-#include "DetourDebugDraw.h"
-#include "DetourNavMesh.h"
-#include "DetourNavMeshBuilder.h"
-#include "InputGeom.h"
-#include "NavMeshPruneTool.h"
-#include "NavMeshTesterTool.h"
-#include "OffMeshConnectionTool.h"
-#include "Recast.h"
-#include "RecastDebugDraw.h"
-#include "RecastDump.h"
-#include "Sample.h"
 #include "Sample_SoloMesh.h"
+
+#include "InputGeom.h"
+#include "MeshLoaderObj.h"
 #include "imgui.h"
 
+#include <ConvexVolumeTool.h>
+#include <CrowdTool.h>
 #include <DetourAlloc.h>
+#include <DetourDebugDraw.h>
+#include <DetourNavMeshBuilder.h>
+#include <NavMeshPruneTool.h>
+#include <NavMeshTesterTool.h>
+#include <OffMeshConnectionTool.h>
+#include <RecastDebugDraw.h>
 
-#ifdef WIN32
-#	define snprintf _snprintf
-#endif
-
+#include <SDL_opengl.h>
+#include <cmath>
+#include <cstring>
 
 Sample_SoloMesh::Sample_SoloMesh() :
 	m_keepInterResults(true),
@@ -438,7 +428,7 @@ bool Sample_SoloMesh::handleBuild()
 	// Allocate array that can hold triangle area types.
 	// If you have multiple meshes you need to process, allocate
 	// and array which can hold the max number of triangles you need to process.
-	m_triareas = new (std::nothrow) unsigned char[ntris];
+	m_triareas = new (std::nothrow) uint8_t[ntris];
 	if (!m_triareas)
 	{
 		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'm_triareas' (%d).", ntris);
@@ -448,7 +438,7 @@ bool Sample_SoloMesh::handleBuild()
 	// Find triangles which are walkable based on their slope and rasterize them.
 	// If your input data is multiple meshes, you can transform them here, calculate
 	// the are type for each of the meshes and rasterize them.
-	memset(m_triareas, 0, ntris*sizeof(unsigned char));
+	memset(m_triareas, 0, ntris*sizeof(uint8_t));
 	rcMarkWalkableTriangles(m_ctx, m_cfg.walkableSlopeAngle, verts, nverts, tris, ntris, m_triareas);
 	if (!rcRasterizeTriangles(m_ctx, verts, nverts, tris, m_triareas, ntris, *m_solid, m_cfg.walkableClimb))
 	{
@@ -512,7 +502,7 @@ bool Sample_SoloMesh::handleBuild()
 	// (Optional) Mark areas.
 	const ConvexVolume* vols = m_geom->getConvexVolumes();
 	for (int i  = 0; i < m_geom->getConvexVolumeCount(); ++i)
-		rcMarkConvexPolyArea(m_ctx, vols[i].verts, vols[i].nverts, vols[i].hmin, vols[i].hmax, static_cast<unsigned char>(vols[i].area), *m_chf);
+		rcMarkConvexPolyArea(m_ctx, vols[i].verts, vols[i].nverts, vols[i].hmin, vols[i].hmax, static_cast<uint8_t>(vols[i].area), *m_chf);
 
 	
 	// Partition the heightfield so that we can use simple algorithm later to triangulate the walkable areas.
@@ -647,7 +637,7 @@ bool Sample_SoloMesh::handleBuild()
 	// Only build the detour navmesh if we do not exceed the limit.
 	if (m_cfg.maxVertsPerPoly <= DT_VERTS_PER_POLYGON)
 	{
-		unsigned char* navData = nullptr;
+		uint8_t* navData = nullptr;
 		int navDataSize = 0;
 
 		// Update poly flags from areas.

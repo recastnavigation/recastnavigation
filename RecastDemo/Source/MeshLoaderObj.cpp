@@ -16,14 +16,11 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <cmath>
-#include <cstdlib>
-#include <cstring>
-#include <fstream>
-#include <sstream>
-
 #include "MeshLoaderObj.h"
 
+#include <cmath>
+#include <fstream>
+#include <sstream>
 
 rcMeshLoaderObj::rcMeshLoaderObj() : m_scale(1.0f),
                                      m_verts(nullptr),
@@ -71,7 +68,8 @@ void rcMeshLoaderObj::addTriangle(const int a, const int b, const int c, int &ca
   m_triCount++;
 }
 
-static char *parseRow(char *buf, const char *bufEnd, char *row, const int len) {
+namespace {
+char *parseRow(char *buf, const char *bufEnd, char *row, const int len) {
   bool start = true;
   bool done = false;
   int n = 0;
@@ -106,7 +104,7 @@ static char *parseRow(char *buf, const char *bufEnd, char *row, const int len) {
   return buf;
 }
 
-static int parseFace(char *row, int *data, const int n, const int vcnt) {
+int parseFace(char *row, int *data, const int n, const int vcnt) {
   int j = 0;
   while (*row != '\0') {
     // Skip initial white space
@@ -128,6 +126,7 @@ static int parseFace(char *row, int *data, const int n, const int vcnt) {
   }
   return j;
 }
+} // namespace
 
 bool rcMeshLoaderObj::load(const std::string &fileName) {
   std::ifstream file(fileName, std::ios::in | std::ios::binary | std::ios::ate);

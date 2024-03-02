@@ -17,10 +17,13 @@
 //
 
 #pragma once
-#include "DetourNavMesh.h"
-#include "Recast.h"
 #include "Sample.h"
 
+#include <DetourNavMesh.h>
+
+struct rcPolyMesh;
+struct rcContourSet;
+struct rcCompactHeightfield;
 /// Sample used for random debugging.
 class Sample_Debug final : public Sample {
 protected:

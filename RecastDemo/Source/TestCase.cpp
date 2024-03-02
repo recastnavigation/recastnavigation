@@ -1,47 +1,20 @@
-//
-// Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
-//
-// This software is provided 'as-is', without any express or implied
-// warranty.  In no event will the authors be held liable for any damages
-// arising from the use of this software.
-// Permission is granted to anyone to use this software for any purpose,
-// including commercial applications, and to alter it and redistribute it
-// freely, subject to the following restrictions:
-// 1. The origin of this software must not be misrepresented; you must not
-//    claim that you wrote the original software. If you use this software
-//    in a product, an acknowledgment in the product documentation would be
-//    appreciated but is not required.
-// 2. Altered source versions must be plainly marked as such, and must not be
-//    misrepresented as being the original software.
-// 3. This notice may not be removed or altered from any source distribution.
-//
 
-#include <cctype>
-#include <cmath>
-#include <cstdio>
-#include <cstring>
+#include "TestCase.h"
+#include "PerfTimer.h"
 
-#include <SDL.h>
+#include <DetourCommon.h>
+#include <DetourNavMeshQuery.h>
+
 #include <SDL_opengl.h>
-
-#ifdef __APPLE__
+#if __APPLE__
 #include <OpenGL/glu.h>
 #else
 #include <GL/glu.h>
 #endif
-#include "DetourCommon.h"
-#include "DetourNavMesh.h"
-#include "DetourNavMeshQuery.h"
-#include "PerfTimer.h"
-#include "TestCase.h"
-#include "imgui.h"
 
 #include <fstream>
+#include <imgui.h>
 #include <sstream>
-
-#ifdef WIN32
-#define snprintf _snprintf
-#endif
 
 TestCase::~TestCase() {
   const Test *iter = m_tests;
@@ -52,7 +25,8 @@ TestCase::~TestCase() {
   }
 }
 
-static char *parseRow(char *buf, const char *bufEnd, char *row, const int len) {
+namespace {
+char *parseRow(char *buf, const char *bufEnd, char *row, const int len) {
   bool start = true;
   bool done = false;
   int n = 0;
@@ -85,12 +59,13 @@ static char *parseRow(char *buf, const char *bufEnd, char *row, const int len) {
   return buf;
 }
 
-static void copyName(std::string &dst, const char *src) {
+void copyName(std::string &dst, const char *src) {
   // Skip white spaces
   while (*src && isspace(*src))
     src++;
   dst = src;
 }
+} // namespace
 
 bool TestCase::load(const std::string &filePath) {
    std::ifstream file(filePath, std::ios::in | std::ios::binary | std::ios::ate);
@@ -365,7 +340,7 @@ bool TestCase::handleRenderOverlay(const double *proj, const double *model, cons
     if (gluProject((GLdouble)pt[0], (GLdouble)pt[1], (GLdouble)pt[2],
                    model, proj, view, &x, &y, &z)) {
       snprintf(text, 64, "Path %d\n", n);
-      unsigned int col = imguiRGBA(0, 0, 0, 128);
+      uint32_t col = imguiRGBA(0, 0, 0, 128);
       if (iter->expand)
         col = imguiRGBA(255, 192, 0, 220);
       imguiDrawText(static_cast<int>(x), static_cast<int>(y - 25), IMGUI_ALIGN_CENTER, text, col);

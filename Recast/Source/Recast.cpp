@@ -16,14 +16,13 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
+#include "Recast.h"
+#include "RecastAlloc.h"
+
 #include <cmath>
 #include <cstdarg>
 #include <cstdio>
 #include <cstring>
-
-#include "Recast.h"
-#include "RecastAlloc.h"
-#include "RecastAssert.h"
 
 namespace {
 /// Allocates and constructs an object of the given type, returning a pointer.
@@ -44,10 +43,18 @@ void rcDelete(T *ptr) {
     rcFree(static_cast<void *>(ptr));
   }
 }
+
+void calcTriNormal(const float *v0, const float *v1, const float *v2, float *faceNormal) {
+  float e0[3], e1[3];
+  rcVsub(e0, v1, v0);
+  rcVsub(e1, v2, v0);
+  rcVcross(faceNormal, e0, e1);
+  rcVnormalize(faceNormal);
+}
 } // anonymous namespace
 
 float rcSqrt(const float x) {
-  return sqrtf(x);
+  return std::sqrt(x);
 }
 
 void rcContext::log(const rcLogCategory category, const char *format, ...) {
@@ -226,18 +233,10 @@ bool rcCreateHeightfield(rcContext *context, rcHeightfield &heightfield, const i
   return true;
 }
 
-static void calcTriNormal(const float *v0, const float *v1, const float *v2, float *faceNormal) {
-  float e0[3], e1[3];
-  rcVsub(e0, v1, v0);
-  rcVsub(e1, v2, v0);
-  rcVcross(faceNormal, e0, e1);
-  rcVnormalize(faceNormal);
-}
-
 void rcMarkWalkableTriangles(rcContext *context, const float walkableSlopeAngle,
                              const float *verts, const int numVerts,
                              const int *tris, const int numTris,
-                             unsigned char *triAreaIDs) {
+                             uint8_t *triAreaIDs) {
   rcIgnoreUnused(context);
   rcIgnoreUnused(numVerts);
 
@@ -258,7 +257,7 @@ void rcMarkWalkableTriangles(rcContext *context, const float walkableSlopeAngle,
 void rcClearUnwalkableTriangles(rcContext *context, const float walkableSlopeAngle,
                                 const float *verts, const int numVerts,
                                 const int *tris, const int numTris,
-                                unsigned char *triAreaIDs) {
+                                uint8_t *triAreaIDs) {
   rcIgnoreUnused(context);
   rcIgnoreUnused(numVerts);
 
@@ -327,12 +326,12 @@ bool rcBuildCompactHeightfield(rcContext *context, const int walkableHeight, con
     return false;
   }
   memset(compactHeightfield.spans, 0, sizeof(rcCompactSpan) * spanCount);
-  compactHeightfield.areas = static_cast<unsigned char *>(rcAlloc(sizeof(unsigned char) * spanCount, RC_ALLOC_PERM));
+  compactHeightfield.areas = static_cast<uint8_t *>(rcAlloc(sizeof(uint8_t) * spanCount, RC_ALLOC_PERM));
   if (!compactHeightfield.areas) {
     context->log(RC_LOG_ERROR, "rcBuildCompactHeightfield: Out of memory 'chf.areas' (%d)", spanCount);
     return false;
   }
-  memset(compactHeightfield.areas, RC_NULL_AREA, sizeof(unsigned char) * spanCount);
+  memset(compactHeightfield.areas, RC_NULL_AREA, sizeof(uint8_t) * spanCount);
 
   // Fill in cells and spans.
   int currentCellIndex = 0;
@@ -354,8 +353,8 @@ bool rcBuildCompactHeightfield(rcContext *context, const int walkableHeight, con
         constexpr int MAX_HEIGHT = 0xffff;
         const int bot = static_cast<int>(span->smax);
         const int top = span->next ? static_cast<int>(span->next->smin) : MAX_HEIGHT;
-        compactHeightfield.spans[currentCellIndex].y = static_cast<unsigned short>(rcClamp(bot, 0, 0xffff));
-        compactHeightfield.spans[currentCellIndex].h = static_cast<unsigned char>(rcClamp(top - bot, 0, 0xff));
+        compactHeightfield.spans[currentCellIndex].y = static_cast<uint16_t>(rcClamp(bot, 0, 0xffff));
+        compactHeightfield.spans[currentCellIndex].h = static_cast<uint8_t>(rcClamp(top - bot, 0, 0xff));
         compactHeightfield.areas[currentCellIndex] = span->area;
         currentCellIndex++;
         cell.count++;

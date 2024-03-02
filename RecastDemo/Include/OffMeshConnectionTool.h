@@ -17,19 +17,19 @@
 //
 
 #pragma once
-
-
 #include "Sample.h"
+#include <cstdint>
 
 // Tool to create off-mesh connection for InputGeom
 
+class Sample;
 class OffMeshConnectionTool final : public SampleTool
 {
 	Sample* m_sample{};
 	float m_hitPos[3]{};
 	bool m_hitPosSet{};
 	bool m_bidir{};
-	unsigned char m_oldFlags{};
+	uint8_t m_oldFlags{};
 	
 public:
 	OffMeshConnectionTool()=default;

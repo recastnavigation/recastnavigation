@@ -17,11 +17,10 @@
 //
 
 #pragma once
+#include <cstddef>
+#include <cstdint>
 
 #include "RecastAssert.h"
-
-#include <cstdint>
-#include <cstdlib>
 
 /// Provides hint values to the memory allocator on how long the
 /// memory is expected to be used.
@@ -35,7 +34,7 @@ enum rcAllocHint {
 //  @param[in]		rcAllocHint	A hint to the allocator on how long the memory is expected to be in use.
 //  @return A pointer to the beginning of the allocated memory block, or null if the allocation failed.
 ///  @see rcAllocSetCustom
-typedef void *(rcAllocFunc)(size_t size, rcAllocHint hint);
+typedef void *(rcAllocFunc)(std::size_t size, rcAllocHint hint);
 
 /// A memory deallocation function.
 ///  @param[in]		ptr		A pointer to a memory block previously allocated using #rcAllocFunc.
@@ -56,7 +55,7 @@ void rcAllocSetCustom(rcAllocFunc *allocFunc, rcFreeFunc *freeFunc);
 /// @return A pointer to the beginning of the allocated memory block, or null if the allocation failed.
 ///
 /// @see rcFree, rcAllocSetCustom
-void *rcAlloc(size_t size, rcAllocHint hint);
+void *rcAlloc(std::size_t size, rcAllocHint hint);
 
 /// Deallocates a memory block.  If @p ptr is nullptr, this does nothing.
 ///
@@ -72,11 +71,11 @@ void rcFree(void *ptr);
 /// rcNewTag is a dummy type used to differentiate our operator from the STL one, in case users import both Recast
 /// and STL.
 struct rcNewTag {};
-inline void *operator new(size_t, const rcNewTag &, void *p) { return p; }
+inline void *operator new(std::size_t, const rcNewTag &, void *p) { return p; }
 inline void operator delete(void *, const rcNewTag &, void *) {}
 
 /// Signed to avoid warnings when comparing to int loop indexes, and common error with comparing to zero.
-/// MSVC2010 has a bug where ssize_t is unsigned (!!!).
+/// MSVC2010 has a bug where ssize_t is uint32_t (!!!).
 typedef intptr_t rcSizeType;
 #define RC_SIZE_MAX INTPTR_MAX
 

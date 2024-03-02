@@ -19,6 +19,7 @@
 #pragma once
 #include "SampleInterfaces.h"
 
+#include <cstdint>
 
 /// Tool types.
 enum SampleToolType
@@ -59,7 +60,7 @@ enum SamplePolyFlags
 class SampleDebugDraw final : public DebugDrawGL
 {
 public:
-  unsigned int areaToCol(unsigned int area) override;
+  uint32_t areaToCol(uint32_t area) override;
 };
 
 enum SamplePartitionType
@@ -101,7 +102,7 @@ protected:
 	class dtNavMeshQuery* m_navQuery;
 	class dtCrowd* m_crowd;
 
-	unsigned char m_navMeshDrawFlags;
+	uint8_t m_navMeshDrawFlags;
 
 	float m_cellSize;
 	float m_cellHeight;
@@ -165,8 +166,8 @@ public:
 	virtual float getAgentHeight() { return m_agentHeight; }
 	virtual float getAgentClimb() { return m_agentMaxClimb; }
 	
-	unsigned char getNavMeshDrawFlags() const { return m_navMeshDrawFlags; }
-	void setNavMeshDrawFlags(const unsigned char flags) { m_navMeshDrawFlags = flags; }
+	uint8_t getNavMeshDrawFlags() const { return m_navMeshDrawFlags; }
+	void setNavMeshDrawFlags(const uint8_t flags) { m_navMeshDrawFlags = flags; }
 
 	void updateToolStates(float dt) const;
 	void initToolStates(Sample* sample) const;

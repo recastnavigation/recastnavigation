@@ -16,12 +16,12 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
+#include "Recast.h"
+
+#include "RecastAlloc.h"
+
 #include <algorithm>
 #include <cstring>
-
-#include "Recast.h"
-#include "RecastAlloc.h"
-#include "RecastAssert.h"
 
 namespace {
 struct LevelStackEntry {
@@ -30,9 +30,8 @@ struct LevelStackEntry {
   int y;
   int index;
 };
-} // namespace
 
-static void calculateDistanceField(const rcCompactHeightfield &chf, unsigned short *src, unsigned short &maxDist) {
+void calculateDistanceField(const rcCompactHeightfield &chf, uint16_t *src, uint16_t &maxDist) {
   const int w = chf.width;
   const int h = chf.height;
 
@@ -46,7 +45,7 @@ static void calculateDistanceField(const rcCompactHeightfield &chf, unsigned sho
       const rcCompactCell &c = chf.cells[x + y * w];
       for (int i = static_cast<int>(c.index), ni = static_cast<int>(c.index + c.count); i < ni; ++i) {
         const rcCompactSpan &s = chf.spans[i];
-        const unsigned char area = chf.areas[i];
+        const uint8_t area = chf.areas[i];
 
         int nc = 0;
         for (int dir = 0; dir < 4; ++dir) {
@@ -163,7 +162,7 @@ static void calculateDistanceField(const rcCompactHeightfield &chf, unsigned sho
     maxDist = rcMax(src[i], maxDist);
 }
 
-static unsigned short *boxBlur(const rcCompactHeightfield &chf, int thr, const unsigned short *src, unsigned short *dst) {
+uint16_t *boxBlur(const rcCompactHeightfield &chf, int thr, const uint16_t *src, uint16_t *dst) {
   const int w = chf.width;
   const int h = chf.height;
 
@@ -174,7 +173,7 @@ static unsigned short *boxBlur(const rcCompactHeightfield &chf, int thr, const u
       const rcCompactCell &c = chf.cells[x + y * w];
       for (int i = static_cast<int>(c.index), ni = static_cast<int>(c.index + c.count); i < ni; ++i) {
         const rcCompactSpan &s = chf.spans[i];
-        const unsigned short cd = src[i];
+        const uint16_t cd = src[i];
         if (cd <= thr) {
           dst[i] = cd;
           continue;
@@ -202,21 +201,21 @@ static unsigned short *boxBlur(const rcCompactHeightfield &chf, int thr, const u
             d += cd * 2;
           }
         }
-        dst[i] = static_cast<unsigned short>((d + 5) / 9);
+        dst[i] = static_cast<uint16_t>((d + 5) / 9);
       }
     }
   }
   return dst;
 }
 
-static bool floodRegion(const int x, const int y, const int i,
-                        const unsigned short level, const unsigned short r,
+bool floodRegion(const int x, const int y, const int i,
+                        const uint16_t level, const uint16_t r,
                         const rcCompactHeightfield &chf,
-                        unsigned short *srcReg, unsigned short *srcDist,
+                        uint16_t *srcReg, uint16_t *srcDist,
                         rcTempVector<LevelStackEntry> &stack) {
   const int w = chf.width;
 
-  const unsigned char area = chf.areas[i];
+  const uint8_t area = chf.areas[i];
 
   // Flood fill mark region.
   stack.clear();
@@ -224,7 +223,7 @@ static bool floodRegion(const int x, const int y, const int i,
   srcReg[i] = r;
   srcDist[i] = 0;
 
-  const unsigned short lev = level >= 2 ? level - 2 : 0;
+  const uint16_t lev = level >= 2 ? level - 2 : 0;
   int count = 0;
 
   while (stack.size() > 0) {
@@ -237,7 +236,7 @@ static bool floodRegion(const int x, const int y, const int i,
     const rcCompactSpan &cs = chf.spans[ci];
 
     // Check if any of the neighbours already have a valid region set.
-    unsigned short ar = 0;
+    uint16_t ar = 0;
     for (int dir = 0; dir < 4; ++dir) {
       // 8 connected
       if (rcGetCon(cs, dir) != RC_NOT_CONNECTED) {
@@ -246,7 +245,7 @@ static bool floodRegion(const int x, const int y, const int i,
         const int ai = static_cast<int>(chf.cells[ax + ay * w].index) + rcGetCon(cs, dir);
         if (chf.areas[ai] != area)
           continue;
-        const unsigned short nr = srcReg[ai];
+        const uint16_t nr = srcReg[ai];
         if (nr & RC_BORDER_REG) // Do not take borders into account.
           continue;
         if (nr != 0 && nr != r) {
@@ -263,7 +262,7 @@ static bool floodRegion(const int x, const int y, const int i,
           const int ai2 = static_cast<int>(chf.cells[ax2 + ay2 * w].index) + rcGetCon(as, dir2);
           if (chf.areas[ai2] != area)
             continue;
-          const unsigned short nr2 = srcReg[ai2];
+          const uint16_t nr2 = srcReg[ai2];
           if (nr2 != 0 && nr2 != r) {
             ar = nr2;
             break;
@@ -300,15 +299,15 @@ static bool floodRegion(const int x, const int y, const int i,
 
 // Struct to keep track of entries in the region table that have been changed.
 struct DirtyEntry {
-  DirtyEntry(const int index_, const unsigned short region_, const unsigned short distance2_)
+  DirtyEntry(const int index_, const uint16_t region_, const uint16_t distance2_)
       : index(index_), region(region_), distance2(distance2_) {}
   int index;
-  unsigned short region;
-  unsigned short distance2;
+  uint16_t region;
+  uint16_t distance2;
 };
-static void expandRegions(const int maxIter, const unsigned short level,
+void expandRegions(const int maxIter, const uint16_t level,
                           const rcCompactHeightfield &chf,
-                          unsigned short *srcReg, unsigned short *srcDist,
+                          uint16_t *srcReg, uint16_t *srcDist,
                           rcTempVector<LevelStackEntry> &stack,
                           const bool fillStack) {
   const int w = chf.width;
@@ -352,9 +351,9 @@ static void expandRegions(const int maxIter, const unsigned short level,
         continue;
       }
 
-      unsigned short r = srcReg[i];
-      unsigned short d2 = 0xffff;
-      const unsigned char area = chf.areas[i];
+      uint16_t r = srcReg[i];
+      uint16_t d2 = 0xffff;
+      const uint8_t area = chf.areas[i];
       const rcCompactSpan &s = chf.spans[i];
       for (int dir = 0; dir < 4; ++dir) {
         if (rcGetCon(s, dir) == RC_NOT_CONNECTED)
@@ -397,17 +396,17 @@ static void expandRegions(const int maxIter, const unsigned short level,
   }
 }
 
-static void sortCellsByLevel(unsigned short startLevel,
+void sortCellsByLevel(uint16_t startLevel,
                              const rcCompactHeightfield &chf,
-                             const unsigned short *srcReg,
-                             const unsigned int nbStacks, rcTempVector<LevelStackEntry> *stacks,
-                             const unsigned short loglevelsPerStack) // the levels per stack (2 in our case) as a bit shift
+                             const uint16_t *srcReg,
+                             const uint32_t nbStacks, rcTempVector<LevelStackEntry> *stacks,
+                             const uint16_t loglevelsPerStack) // the levels per stack (2 in our case) as a bit shift
 {
   const int w = chf.width;
   const int h = chf.height;
   startLevel = startLevel >> loglevelsPerStack;
 
-  for (unsigned int j = 0; j < nbStacks; ++j)
+  for (uint32_t j = 0; j < nbStacks; ++j)
     stacks[j].clear();
 
   // put all cells in the level range into the appropriate stacks
@@ -431,9 +430,9 @@ static void sortCellsByLevel(unsigned short startLevel,
   }
 }
 
-static void appendStacks(const rcTempVector<LevelStackEntry> &srcStack,
+void appendStacks(const rcTempVector<LevelStackEntry> &srcStack,
                          rcTempVector<LevelStackEntry> &dstStack,
-                         const unsigned short *srcReg) {
+                         const uint16_t *srcReg) {
   for (int j = 0; j < srcStack.size(); j++) {
     const int i = srcStack[j].index;
     if ((i < 0) || (srcReg[i] != 0))
@@ -443,22 +442,22 @@ static void appendStacks(const rcTempVector<LevelStackEntry> &srcStack,
 }
 
 struct rcRegion {
-  explicit rcRegion(const unsigned short i) : id(i),
+  explicit rcRegion(const uint16_t i) : id(i),
                                             ymin(0xffff) {}
 
   int spanCount{};          // Number of spans belonging to this region
-  unsigned short id{};      // ID of the region
-  unsigned char areaType{}; // Are type.
+  uint16_t id{};      // ID of the region
+  uint8_t areaType{}; // Are type.
   bool remap{};
   bool visited{};
   bool overlap{};
   bool connectsToBorder{};
-  unsigned short ymin, ymax{};
+  uint16_t ymin, ymax{};
   rcIntArray connections{};
   rcIntArray floors{};
 };
 
-static void removeAdjacentNeighbours(rcRegion &reg) {
+void removeAdjacentNeighbours(rcRegion &reg) {
   // Remove adjacent duplicates.
   for (int i = 0; i < reg.connections.size() && reg.connections.size() > 1;) {
     const int ni = (i + 1) % reg.connections.size();
@@ -472,7 +471,7 @@ static void removeAdjacentNeighbours(rcRegion &reg) {
   }
 }
 
-static void replaceNeighbour(rcRegion &reg, const unsigned short oldId, const unsigned short newId) {
+void replaceNeighbour(rcRegion &reg, const uint16_t oldId, const uint16_t newId) {
   bool neiChanged = false;
   for (int i = 0; i < reg.connections.size(); ++i) {
     if (reg.connections[i] == oldId) {
@@ -488,7 +487,7 @@ static void replaceNeighbour(rcRegion &reg, const unsigned short oldId, const un
     removeAdjacentNeighbours(reg);
 }
 
-static bool canMergeWithRegion(const rcRegion &rega, const rcRegion &regb) {
+bool canMergeWithRegion(const rcRegion &rega, const rcRegion &regb) {
   if (rega.areaType != regb.areaType)
     return false;
   int n = 0;
@@ -505,16 +504,16 @@ static bool canMergeWithRegion(const rcRegion &rega, const rcRegion &regb) {
   return true;
 }
 
-static void addUniqueFloorRegion(rcRegion &reg, const int n) {
+void addUniqueFloorRegion(rcRegion &reg, const int n) {
   for (int i = 0; i < reg.floors.size(); ++i)
     if (reg.floors[i] == n)
       return;
   reg.floors.push(n);
 }
 
-static bool mergeRegions(rcRegion &rega, rcRegion &regb) {
-  const unsigned short aid = rega.id;
-  const unsigned short bid = regb.id;
+bool mergeRegions(rcRegion &rega, rcRegion &regb) {
+  const uint16_t aid = rega.id;
+  const uint16_t bid = regb.id;
 
   // Duplicate current neighbourhood.
   rcIntArray acon;
@@ -564,7 +563,7 @@ static bool mergeRegions(rcRegion &rega, rcRegion &regb) {
   return true;
 }
 
-static bool isRegionConnectedToBorder(const rcRegion &reg) {
+bool isRegionConnectedToBorder(const rcRegion &reg) {
   // Region is connected to border if
   // one of the neighbours is null id.
   for (int i = 0; i < reg.connections.size(); ++i) {
@@ -574,10 +573,10 @@ static bool isRegionConnectedToBorder(const rcRegion &reg) {
   return false;
 }
 
-static bool isSolidEdge(const rcCompactHeightfield &chf, const unsigned short *srcReg,
+bool isSolidEdge(const rcCompactHeightfield &chf, const uint16_t *srcReg,
                         const int x, const int y, const int i, const int dir) {
   const rcCompactSpan &s = chf.spans[i];
-  unsigned short r = 0;
+  uint16_t r = 0;
   if (rcGetCon(s, dir) != RC_NOT_CONNECTED) {
     const int ax = x + rcGetDirOffsetX(dir);
     const int ay = y + rcGetDirOffsetY(dir);
@@ -589,15 +588,15 @@ static bool isSolidEdge(const rcCompactHeightfield &chf, const unsigned short *s
   return true;
 }
 
-static void walkContour(int x, int y, int i, int dir,
+void walkContour(int x, int y, int i, int dir,
                         const rcCompactHeightfield &chf,
-                        const unsigned short *srcReg,
+                        const uint16_t *srcReg,
                         rcIntArray &cont) {
   const int startDir = dir;
   const int starti = i;
 
   const rcCompactSpan &ss = chf.spans[i];
-  unsigned short curReg = 0;
+  uint16_t curReg = 0;
   if (rcGetCon(ss, dir) != RC_NOT_CONNECTED) {
     const int ax = x + rcGetDirOffsetX(dir);
     const int ay = y + rcGetDirOffsetY(dir);
@@ -612,7 +611,7 @@ static void walkContour(int x, int y, int i, int dir,
 
     if (isSolidEdge(chf, srcReg, x, y, i, dir)) {
       // Choose the edge corner
-      unsigned short r = 0;
+      uint16_t r = 0;
       if (rcGetCon(s, dir) != RC_NOT_CONNECTED) {
         const int ax = x + rcGetDirOffsetX(dir);
         const int ay = y + rcGetDirOffsetY(dir);
@@ -662,10 +661,10 @@ static void walkContour(int x, int y, int i, int dir,
   }
 }
 
-static bool mergeAndFilterRegions(rcContext *ctx, const int minRegionArea, const int mergeRegionSize,
-                                  unsigned short &maxRegionId,
+bool mergeAndFilterRegions(rcContext *ctx, const int minRegionArea, const int mergeRegionSize,
+                                  uint16_t &maxRegionId,
                                   const rcCompactHeightfield &chf,
-                                  unsigned short *srcReg, rcIntArray &overlaps) {
+                                  uint16_t *srcReg, rcIntArray &overlaps) {
   const int w = chf.width;
   const int h = chf.height;
 
@@ -678,14 +677,14 @@ static bool mergeAndFilterRegions(rcContext *ctx, const int minRegionArea, const
 
   // Construct regions
   for (int i = 0; i < nreg; ++i)
-    regions.push_back(rcRegion(static_cast<unsigned short>(i)));
+    regions.push_back(rcRegion(static_cast<uint16_t>(i)));
 
   // Find edge of a region and find connections around the contour.
   for (int y = 0; y < h; ++y) {
     for (int x = 0; x < w; ++x) {
       const rcCompactCell &c = chf.cells[x + y * w];
       for (int i = static_cast<int>(c.index), ni = static_cast<int>(c.index + c.count); i < ni; ++i) {
-        const unsigned short r = srcReg[i];
+        const uint16_t r = srcReg[i];
         if (r == 0 || r >= nreg)
           continue;
 
@@ -696,7 +695,7 @@ static bool mergeAndFilterRegions(rcContext *ctx, const int minRegionArea, const
         for (int j = static_cast<int>(c.index); j < ni; ++j) {
           if (i == j)
             continue;
-          const unsigned short floorId = srcReg[j];
+          const uint16_t floorId = srcReg[j];
           if (floorId == 0 || floorId >= nreg)
             continue;
           if (floorId == r)
@@ -809,7 +808,7 @@ static bool mergeAndFilterRegions(rcContext *ctx, const int minRegionArea, const
       // Or region which is not connected to a border at all.
       // Find smallest neighbour region that connects to this one.
       int smallest = 0xfffffff;
-      unsigned short mergeId = reg.id;
+      uint16_t mergeId = reg.id;
       for (int j = 0; j < reg.connections.size(); ++j) {
         if (reg.connections[j] & RC_BORDER_REG)
           continue;
@@ -825,7 +824,7 @@ static bool mergeAndFilterRegions(rcContext *ctx, const int minRegionArea, const
       }
       // Found new id.
       if (mergeId != reg.id) {
-        const unsigned short oldId = reg.id;
+        const uint16_t oldId = reg.id;
 
         // Merge neighbours.
         if (mergeRegions(regions[mergeId], reg)) {
@@ -857,12 +856,12 @@ static bool mergeAndFilterRegions(rcContext *ctx, const int minRegionArea, const
     regions[i].remap = true;
   }
 
-  unsigned short regIdGen = 0;
+  uint16_t regIdGen = 0;
   for (int i = 0; i < nreg; ++i) {
     if (!regions[i].remap)
       continue;
-    const unsigned short oldId = regions[i].id;
-    const unsigned short newId = ++regIdGen;
+    const uint16_t oldId = regions[i].id;
+    const uint16_t newId = ++regIdGen;
     for (int j = i; j < nreg; ++j) {
       if (regions[j].id == oldId) {
         regions[j].id = newId;
@@ -886,14 +885,31 @@ static bool mergeAndFilterRegions(rcContext *ctx, const int minRegionArea, const
   return true;
 }
 
-static void addUniqueConnection(rcRegion &reg, const int n) {
+void addUniqueConnection(rcRegion &reg, const int n) {
   for (int i = 0; i < reg.connections.size(); ++i)
     if (reg.connections[i] == n)
       return;
   reg.connections.push(n);
 }
 
-bool mergeAndFilterLayerRegions(rcContext *ctx, const int minRegionArea, unsigned short &maxRegionId, const rcCompactHeightfield &chf, unsigned short *srcReg) {
+void paintRectRegion(const int minx, const int maxx, const int miny, const int maxy, const uint16_t regId,
+                            const rcCompactHeightfield &chf, uint16_t *srcReg) {
+  const int w = chf.width;
+  for (int y = miny; y < maxy; ++y) {
+    for (int x = minx; x < maxx; ++x) {
+      const rcCompactCell &c = chf.cells[x + y * w];
+      for (int i = static_cast<int>(c.index), ni = static_cast<int>(c.index + c.count); i < ni; ++i) {
+        if (chf.areas[i] != RC_NULL_AREA)
+          srcReg[i] = regId;
+      }
+    }
+  }
+}
+
+constexpr uint16_t RC_NULL_NEI = 0xffff;
+
+} // namespace
+bool mergeAndFilterLayerRegions(rcContext *ctx, const int minRegionArea, uint16_t &maxRegionId, const rcCompactHeightfield &chf, uint16_t *srcReg) {
   const int w = chf.width;
   const int h = chf.height;
 
@@ -906,7 +922,7 @@ bool mergeAndFilterLayerRegions(rcContext *ctx, const int minRegionArea, unsigne
     return false;
   }
   for (int i = 0; i < nreg; ++i)
-    regions.push_back(rcRegion(static_cast<unsigned short>(i)));
+    regions.push_back(rcRegion(static_cast<uint16_t>(i)));
 
   // Find region neighbours and overlapping regions.
   rcIntArray lregs(32);
@@ -918,8 +934,8 @@ bool mergeAndFilterLayerRegions(rcContext *ctx, const int minRegionArea, unsigne
 
       for (int i = static_cast<int>(c.index), ni = static_cast<int>(c.index + c.count); i < ni; ++i) {
         const rcCompactSpan &s = chf.spans[i];
-        const unsigned char area = chf.areas[i];
-        const unsigned short ri = srcReg[i];
+        const uint8_t area = chf.areas[i];
+        const uint16_t ri = srcReg[i];
         if (ri == 0 || ri >= nreg)
           continue;
         rcRegion &reg = regions[ri];
@@ -939,7 +955,7 @@ bool mergeAndFilterLayerRegions(rcContext *ctx, const int minRegionArea, unsigne
             const int ax = x + rcGetDirOffsetX(dir);
             const int ay = y + rcGetDirOffsetY(dir);
             const int ai = static_cast<int>(chf.cells[ax + ay * w].index) + rcGetCon(s, dir);
-            const unsigned short rai = srcReg[ai];
+            const uint16_t rai = srcReg[ai];
             if (rai > 0 && rai < nreg && rai != ri)
               addUniqueConnection(reg, rai);
             if (rai & RC_BORDER_REG)
@@ -963,7 +979,7 @@ bool mergeAndFilterLayerRegions(rcContext *ctx, const int minRegionArea, unsigne
   }
 
   // Create 2D layers from regions.
-  unsigned short layerId = 1;
+  uint16_t layerId = 1;
 
   for (int i = 0; i < nreg; ++i)
     regions[i].id = 0;
@@ -1032,7 +1048,7 @@ bool mergeAndFilterLayerRegions(rcContext *ctx, const int minRegionArea, unsigne
   // Remove small regions
   for (int i = 0; i < nreg; ++i) {
     if (regions[i].spanCount > 0 && regions[i].spanCount < minRegionArea && !regions[i].connectsToBorder) {
-      const unsigned short reg = regions[i].id;
+      const uint16_t reg = regions[i].id;
       for (int j = 0; j < nreg; ++j)
         if (regions[j].id == reg)
           regions[j].id = 0;
@@ -1049,12 +1065,12 @@ bool mergeAndFilterLayerRegions(rcContext *ctx, const int minRegionArea, unsigne
     regions[i].remap = true;
   }
 
-  unsigned short regIdGen = 0;
+  uint16_t regIdGen = 0;
   for (int i = 0; i < nreg; ++i) {
     if (!regions[i].remap)
       continue;
-    const unsigned short oldId = regions[i].id;
-    const unsigned short newId = ++regIdGen;
+    const uint16_t oldId = regions[i].id;
+    const uint16_t newId = ++regIdGen;
     for (int j = i; j < nreg; ++j) {
       if (regions[j].id == oldId) {
         regions[j].id = newId;
@@ -1095,12 +1111,12 @@ bool rcBuildDistanceField(rcContext *ctx, rcCompactHeightfield &chf) {
     chf.dist = nullptr;
   }
 
-  auto *src = static_cast<unsigned short *>(rcAlloc(sizeof(unsigned short) * chf.spanCount, RC_ALLOC_TEMP));
+  auto *src = static_cast<uint16_t *>(rcAlloc(sizeof(uint16_t) * chf.spanCount, RC_ALLOC_TEMP));
   if (!src) {
     ctx->log(RC_LOG_ERROR, "rcBuildDistanceField: Out of memory 'src' (%d).", chf.spanCount);
     return false;
   }
-  auto *dst = static_cast<unsigned short *>(rcAlloc(sizeof(unsigned short) * chf.spanCount, RC_ALLOC_TEMP));
+  auto *dst = static_cast<uint16_t *>(rcAlloc(sizeof(uint16_t) * chf.spanCount, RC_ALLOC_TEMP));
   if (!dst) {
     ctx->log(RC_LOG_ERROR, "rcBuildDistanceField: Out of memory 'dst' (%d).", chf.spanCount);
     rcFree(src);
@@ -1110,7 +1126,7 @@ bool rcBuildDistanceField(rcContext *ctx, rcCompactHeightfield &chf) {
   {
     rcScopedTimer timerDist(ctx, RC_TIMER_BUILD_DISTANCEFIELD_DIST);
 
-    unsigned short maxDist = 0;
+    uint16_t maxDist = 0;
     calculateDistanceField(chf, src, maxDist);
     chf.maxDistance = maxDist;
   }
@@ -1130,28 +1146,11 @@ bool rcBuildDistanceField(rcContext *ctx, rcCompactHeightfield &chf) {
 
   return true;
 }
-
-static void paintRectRegion(const int minx, const int maxx, const int miny, const int maxy, const unsigned short regId,
-                            const rcCompactHeightfield &chf, unsigned short *srcReg) {
-  const int w = chf.width;
-  for (int y = miny; y < maxy; ++y) {
-    for (int x = minx; x < maxx; ++x) {
-      const rcCompactCell &c = chf.cells[x + y * w];
-      for (int i = static_cast<int>(c.index), ni = static_cast<int>(c.index + c.count); i < ni; ++i) {
-        if (chf.areas[i] != RC_NULL_AREA)
-          srcReg[i] = regId;
-      }
-    }
-  }
-}
-
-static constexpr unsigned short RC_NULL_NEI = 0xffff;
-
 struct rcSweepSpan {
-  unsigned short rid; // row id
-  unsigned short id;  // region id
-  unsigned short ns;  // number samples
-  unsigned short nei; // neighbour id
+  uint16_t rid; // row id
+  uint16_t id;  // region id
+  uint16_t ns;  // number samples
+  uint16_t nei; // neighbour id
 };
 
 /// @par
@@ -1183,14 +1182,14 @@ bool rcBuildRegionsMonotone(rcContext *ctx, rcCompactHeightfield &chf,
 
   const int w = chf.width;
   const int h = chf.height;
-  unsigned short id = 1;
+  uint16_t id = 1;
 
-  rcScopedDelete srcReg(static_cast<unsigned short *>(rcAlloc(sizeof(unsigned short) * chf.spanCount, RC_ALLOC_TEMP)));
+  rcScopedDelete srcReg(static_cast<uint16_t *>(rcAlloc(sizeof(uint16_t) * chf.spanCount, RC_ALLOC_TEMP)));
   if (!srcReg) {
     ctx->log(RC_LOG_ERROR, "rcBuildRegionsMonotone: Out of memory 'src' (%d).", chf.spanCount);
     return false;
   }
-  memset(srcReg, 0, sizeof(unsigned short) * chf.spanCount);
+  std::memset(srcReg, 0, sizeof(uint16_t) * chf.spanCount);
 
   const int nsweeps = rcMax(chf.width, chf.height);
   rcScopedDelete sweeps(static_cast<rcSweepSpan *>(rcAlloc(sizeof(rcSweepSpan) * nsweeps, RC_ALLOC_TEMP)));
@@ -1223,8 +1222,8 @@ bool rcBuildRegionsMonotone(rcContext *ctx, rcCompactHeightfield &chf,
   for (int y = borderSize; y < h - borderSize; ++y) {
     // Collect spans from this row.
     prev.resize(id + 1);
-    memset(&prev[0], 0, sizeof(int) * id);
-    unsigned short rid = 1;
+    std::memset(&prev[0], 0, sizeof(int) * id);
+    uint16_t rid = 1;
 
     for (int x = borderSize; x < w - borderSize; ++x) {
       const rcCompactCell &c = chf.cells[x + y * w];
@@ -1235,7 +1234,7 @@ bool rcBuildRegionsMonotone(rcContext *ctx, rcCompactHeightfield &chf,
           continue;
 
         // -x
-        unsigned short previd = 0;
+        uint16_t previd = 0;
         if (rcGetCon(s, 0) != RC_NOT_CONNECTED) {
           const int ax = x + rcGetDirOffsetX(0);
           const int ay = y + rcGetDirOffsetY(0);
@@ -1257,7 +1256,7 @@ bool rcBuildRegionsMonotone(rcContext *ctx, rcCompactHeightfield &chf,
           const int ay = y + rcGetDirOffsetY(3);
           const int ai = static_cast<int>(chf.cells[ax + ay * w].index) + rcGetCon(s, 3);
           if (srcReg[ai] && (srcReg[ai] & RC_BORDER_REG) == 0 && chf.areas[i] == chf.areas[ai]) {
-            const unsigned short nr = srcReg[ai];
+            const uint16_t nr = srcReg[ai];
             if (!sweeps[previd].nei || sweeps[previd].nei == nr) {
               sweeps[previd].nei = nr;
               sweeps[previd].ns++;
@@ -1342,7 +1341,7 @@ bool rcBuildRegions(rcContext *ctx, rcCompactHeightfield &chf,
   const int w = chf.width;
   const int h = chf.height;
 
-  rcScopedDelete buf(static_cast<unsigned short *>(rcAlloc(sizeof(unsigned short) * chf.spanCount * 2, RC_ALLOC_TEMP)));
+  rcScopedDelete buf(static_cast<uint16_t *>(rcAlloc(sizeof(uint16_t) * chf.spanCount * 2, RC_ALLOC_TEMP)));
   if (!buf) {
     ctx->log(RC_LOG_ERROR, "rcBuildRegions: Out of memory 'tmp' (%d).", chf.spanCount * 4);
     return false;
@@ -1359,14 +1358,14 @@ bool rcBuildRegions(rcContext *ctx, rcCompactHeightfield &chf,
   rcTempVector<LevelStackEntry> stack;
   stack.reserve(256);
 
-  unsigned short *srcReg = buf;
-  unsigned short *srcDist = buf + chf.spanCount;
+  uint16_t *srcReg = buf;
+  uint16_t *srcDist = buf + chf.spanCount;
 
-  memset(srcReg, 0, sizeof(unsigned short) * chf.spanCount);
-  memset(srcDist, 0, sizeof(unsigned short) * chf.spanCount);
+  std::memset(srcReg, 0, sizeof(uint16_t) * chf.spanCount);
+  std::memset(srcDist, 0, sizeof(uint16_t) * chf.spanCount);
 
-  unsigned short regionId = 1;
-  unsigned short level = (chf.maxDistance + 1) & ~1;
+  uint16_t regionId = 1;
+  uint16_t level = (chf.maxDistance + 1) & ~1;
 
   // TODO: Figure better formula, expandIters defines how much the
   // watershed "overflows" and simplifies the regions. Tying it to
@@ -1473,14 +1472,14 @@ bool rcBuildLayerRegions(rcContext *ctx, rcCompactHeightfield &chf,
 
   const int w = chf.width;
   const int h = chf.height;
-  unsigned short id = 1;
+  uint16_t id = 1;
 
-  rcScopedDelete srcReg(static_cast<unsigned short *>(rcAlloc(sizeof(unsigned short) * chf.spanCount, RC_ALLOC_TEMP)));
+  rcScopedDelete srcReg(static_cast<uint16_t *>(rcAlloc(sizeof(uint16_t) * chf.spanCount, RC_ALLOC_TEMP)));
   if (!srcReg) {
     ctx->log(RC_LOG_ERROR, "rcBuildLayerRegions: Out of memory 'src' (%d).", chf.spanCount);
     return false;
   }
-  memset(srcReg, 0, sizeof(unsigned short) * chf.spanCount);
+  std::memset(srcReg, 0, sizeof(uint16_t) * chf.spanCount);
 
   const int nsweeps = rcMax(chf.width, chf.height);
   rcScopedDelete sweeps(static_cast<rcSweepSpan *>(rcAlloc(sizeof(rcSweepSpan) * nsweeps, RC_ALLOC_TEMP)));
@@ -1513,8 +1512,8 @@ bool rcBuildLayerRegions(rcContext *ctx, rcCompactHeightfield &chf,
   for (int y = borderSize; y < h - borderSize; ++y) {
     // Collect spans from this row.
     prev.resize(id + 1);
-    memset(&prev[0], 0, sizeof(int) * id);
-    unsigned short rid = 1;
+    std::memset(&prev[0], 0, sizeof(int) * id);
+    uint16_t rid = 1;
 
     for (int x = borderSize; x < w - borderSize; ++x) {
       const rcCompactCell &c = chf.cells[x + y * w];
@@ -1525,7 +1524,7 @@ bool rcBuildLayerRegions(rcContext *ctx, rcCompactHeightfield &chf,
           continue;
 
         // -x
-        unsigned short previd = 0;
+        uint16_t previd = 0;
         if (rcGetCon(s, 0) != RC_NOT_CONNECTED) {
           const int ax = x + rcGetDirOffsetX(0);
           const int ay = y + rcGetDirOffsetY(0);
@@ -1547,7 +1546,7 @@ bool rcBuildLayerRegions(rcContext *ctx, rcCompactHeightfield &chf,
           const int ay = y + rcGetDirOffsetY(3);
           const int ai = static_cast<int>(chf.cells[ax + ay * w].index) + rcGetCon(s, 3);
           if (srcReg[ai] && (srcReg[ai] & RC_BORDER_REG) == 0 && chf.areas[i] == chf.areas[ai]) {
-            const unsigned short nr = srcReg[ai];
+            const uint16_t nr = srcReg[ai];
             if (!sweeps[previd].nei || sweeps[previd].nei == nr) {
               sweeps[previd].nei = nr;
               sweeps[previd].ns++;
@@ -1612,7 +1611,7 @@ bool rcBuildRegionsWithSize(rcContext *ctx, rcCompactHeightfield &chf, const int
   constexpr int DIRTY{-3};
   constexpr int PENDING{-2};
 
-  rcTempVector<unsigned short> regions(chf.spanCount, NOT_EVALUATED);
+  rcTempVector<uint16_t> regions(chf.spanCount, NOT_EVALUATED);
   rcTempVector<LevelStackEntry> levelStack;
   levelStack.reserve(chf.spanCount);
   for (int y = borderSize; y < h - borderSize; ++y) {
@@ -1626,12 +1625,12 @@ bool rcBuildRegionsWithSize(rcContext *ctx, rcCompactHeightfield &chf, const int
     }
   }
   // Then use it in qsort
-  std::sort(levelStack.begin(), levelStack.end(), [&dist = chf.dist](const LevelStackEntry &l1, const LevelStackEntry &l2) {
+  std::ranges::sort(levelStack, [&dist = chf.dist](const LevelStackEntry &l1, const LevelStackEntry &l2) {
     return dist[l1.index] < dist[l2.index];
   });
 
-  unsigned short level = chf.maxDistance;
-  unsigned short regionId = 1;
+  uint16_t level = chf.maxDistance;
+  uint16_t regionId = 1;
   int lastLevelStackIndex = static_cast<int>(levelStack.size() - 1);
   regions[levelStack.back().index] = regionId;
   rcTempVector<LevelStackEntry> seeds;
@@ -1647,7 +1646,7 @@ bool rcBuildRegionsWithSize(rcContext *ctx, rcCompactHeightfield &chf, const int
         const rcCompactSpan &s = chf.spans[back.index];
         if (chf.dist[back.index] == 0)
           continue;
-        if (regions[back.index] == static_cast<unsigned short>(NOT_EVALUATED))
+        if (regions[back.index] == static_cast<uint16_t>(NOT_EVALUATED))
           continue;
         if (chf.spans[back.index].reg == RC_BORDER_REG)
           continue;
@@ -1662,7 +1661,7 @@ bool rcBuildRegionsWithSize(rcContext *ctx, rcCompactHeightfield &chf, const int
           const int ai = static_cast<int>(chf.cells[ax + ay * w].index) + rcGetCon(s, dir);
           if (chf.spans[ai].reg == RC_BORDER_REG || chf.areas[ai] == RC_NULL_AREA)
             continue;
-          if (regions[ai] == static_cast<unsigned short>(NOT_EVALUATED)) {
+          if (regions[ai] == static_cast<uint16_t>(NOT_EVALUATED)) {
             if (chf.dist[ai] < level) {
               regions[ai] = PENDING;
               pendingSeeds.push_back({ax, ay, back.index});
@@ -1681,7 +1680,7 @@ bool rcBuildRegionsWithSize(rcContext *ctx, rcCompactHeightfield &chf, const int
           const int bi = static_cast<int>(chf.cells[bx + by * w].index) + rcGetCon(as, dir2);
           if (chf.spans[bi].reg == RC_BORDER_REG || chf.areas[ai] == RC_NULL_AREA)
             continue;
-          if (regions[bi] == static_cast<unsigned short>(NOT_EVALUATED)) {
+          if (regions[bi] == static_cast<uint16_t>(NOT_EVALUATED)) {
             if (chf.dist[bi] < level) {
               regions[bi] = PENDING;
               pendingSeeds.push_back({bx, by, back.index});
@@ -1713,7 +1712,7 @@ bool rcBuildRegionsWithSize(rcContext *ctx, rcCompactHeightfield &chf, const int
       while (seeds.empty() && lastLevelStackIndex != 0 &&
              chf.dist[levelStack[lastLevelStackIndex].index] >= level) {
         const int i{lastLevelStackIndex--};
-        if (regions[levelStack[i].index] == static_cast<unsigned short>(NOT_EVALUATED)) {
+        if (regions[levelStack[i].index] == static_cast<uint16_t>(NOT_EVALUATED)) {
           regions[levelStack[i].index] = ++regionId;
           seeds.push_back(levelStack[i]);
         }
@@ -1763,7 +1762,7 @@ bool rcBuildRegionsWithSize(rcContext *ctx, rcCompactHeightfield &chf, const int
   }
 
   for (int i = 0; i < chf.spanCount; ++i) {
-    chf.spans[i].reg = regions[i] == static_cast<unsigned short>(NOT_EVALUATED) ? 0 : regions[i];
+    chf.spans[i].reg = regions[i] == static_cast<uint16_t>(NOT_EVALUATED) ? 0 : regions[i];
   }
   return true;
 }

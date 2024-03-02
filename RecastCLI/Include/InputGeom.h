@@ -16,12 +16,13 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 #pragma once
-#include "ChunkyTriMesh.h"
-#include "MeshLoaderObj.h"
+#include <cstdint>
+#include <string>
 
 class rcContext;
 class rcMeshLoaderObj;
 struct rcChunkyTriMesh;
+struct duDebugDraw;
 
 static constexpr int MAX_CONVEXVOL_PTS = 12;
 
@@ -86,7 +87,7 @@ class InputGeom {
     float m_offMeshConRads[MAX_OFFMESH_CONNECTIONS]{};
     unsigned char m_offMeshConDirs[MAX_OFFMESH_CONNECTIONS]{};
     unsigned char m_offMeshConAreas[MAX_OFFMESH_CONNECTIONS]{};
-    unsigned short m_offMeshConFlags[MAX_OFFMESH_CONNECTIONS]{};
+    uint16_t m_offMeshConFlags[MAX_OFFMESH_CONNECTIONS]{};
     uint32_t m_offMeshConId[MAX_OFFMESH_CONNECTIONS]{};
     int m_offMeshConCount{};
     ///@}
@@ -135,12 +136,12 @@ public:
     const float* getOffMeshConnectionRads() const { return m_offMeshConRads; }
     const unsigned char* getOffMeshConnectionDirs() const { return m_offMeshConDirs; }
     const unsigned char* getOffMeshConnectionAreas() const { return m_offMeshConAreas; }
-    const unsigned short* getOffMeshConnectionFlags() const { return m_offMeshConFlags; }
+    const uint16_t* getOffMeshConnectionFlags() const { return m_offMeshConFlags; }
     const uint32_t* getOffMeshConnectionId() const { return m_offMeshConId; }
     void addOffMeshConnection(const float* spos, const float* epos, float rad,
-                                            unsigned char bidir, unsigned char area, unsigned short flags);
+                                            unsigned char bidir, unsigned char area, uint16_t flags);
     void deleteOffMeshConnection(int i);
-    void drawOffMeshConnections(struct duDebugDraw* dd, bool hilight = false) const;
+    void drawOffMeshConnections(duDebugDraw * dd, bool hilight = false) const;
     ///@}
 
     /// @name Box Volumes.

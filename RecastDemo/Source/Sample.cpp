@@ -16,25 +16,19 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <cstdio>
-
-#include <SDL_opengl.h>
-
-#include "DetourCrowd.h"
-#include "DetourDebugDraw.h"
-#include "DetourNavMesh.h"
-#include "DetourNavMeshQuery.h"
-#include "InputGeom.h"
-#include "Recast.h"
-#include "RecastDebugDraw.h"
 #include "Sample.h"
+
+#include "InputGeom.h"
+#include "MeshLoaderObj.h"
 #include "imgui.h"
 
 #include <DetourAlloc.h>
+#include <DetourCrowd.h>
+#include <DetourDebugDraw.h>
+#include <DetourNavMeshQuery.h>
+#include <RecastDebugDraw.h>
 
-#ifdef WIN32
-#define snprintf _snprintf
-#endif
+#include <cstring>
 
 SampleTool::~SampleTool() {
   // Defined out of line to fix the weak v-tables warning
@@ -44,7 +38,7 @@ SampleToolState::~SampleToolState() {
   // Defined out of line to fix the weak v-tables warning
 }
 
-unsigned int SampleDebugDraw::areaToCol(const unsigned int area) {
+uint32_t SampleDebugDraw::areaToCol(const uint32_t area) {
   switch (area) {
   // Ground (0) : light blue
   case SAMPLE_POLYAREA_GROUND:
@@ -361,10 +355,10 @@ dtNavMesh *Sample::loadAll(const char *path) {
     if (!tileHeader.tileRef || !tileHeader.dataSize)
       break;
 
-    auto *const data = static_cast<unsigned char *>(dtAlloc(tileHeader.dataSize, DT_ALLOC_PERM));
+    auto *const data = static_cast<uint8_t *>(dtAlloc(tileHeader.dataSize, DT_ALLOC_PERM));
     if (!data)
       break;
-    memset(data, 0, tileHeader.dataSize);
+    std::memset(data, 0, tileHeader.dataSize);
     readLen = file.read(reinterpret_cast<char *>(data), tileHeader.dataSize).gcount();
     if (readLen != tileHeader.dataSize) {
       dtFree(data);

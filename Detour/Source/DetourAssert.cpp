@@ -20,16 +20,16 @@
 
 #ifndef RC_DISABLE_ASSERTS
 
-static dtAssertFailFunc* sAssertFailFunc = nullptr;
+namespace {
+dtAssertFailFunc *sAssertFailFunc = nullptr;
+} // namespace
 
-void dtAssertFailSetCustom(dtAssertFailFunc *assertFailFunc)
-{
-	sAssertFailFunc = assertFailFunc;
+void dtAssertFailSetCustom(dtAssertFailFunc *assertFailFunc) {
+  sAssertFailFunc = assertFailFunc;
 }
 
-dtAssertFailFunc* dtAssertFailGetCustom()
-{
-	return sAssertFailFunc;
+dtAssertFailFunc *dtAssertFailGetCustom() {
+  return sAssertFailFunc;
 }
 
 #endif

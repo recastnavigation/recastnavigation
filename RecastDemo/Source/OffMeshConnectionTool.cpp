@@ -16,25 +16,21 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <cfloat>
+#include "OffMeshConnectionTool.h"
+#include "InputGeom.h"
+#include "imgui.h"
 
-#include <SDL.h>
+#include <DetourDebugDraw.h>
+
 #include <SDL_opengl.h>
-#ifdef __APPLE__
+#if __APPLE__
 #include <OpenGL/glu.h>
 #else
 #include <GL/glu.h>
 #endif
-#include "DetourDebugDraw.h"
-#include "InputGeom.h"
-#include "OffMeshConnectionTool.h"
-#include "Recast.h"
-#include "Sample.h"
-#include "imgui.h"
 
-#ifdef WIN32
-#define snprintf _snprintf
-#endif
+#include <cfloat>
+#include <cmath>
 
 OffMeshConnectionTool::~OffMeshConnectionTool() {
   if (m_sample) {
@@ -84,7 +80,7 @@ void OffMeshConnectionTool::handleClick(const float * /*s*/, const float *p, con
     }
     // If end point close enough, delete it.
     if (nearestIndex != -1 &&
-        sqrtf(nearestDist) < m_sample->getAgentRadius()) {
+        std::sqrt(nearestDist) < m_sample->getAgentRadius()) {
       geom->deleteOffMeshConnection(nearestIndex);
     }
   } else {
@@ -93,8 +89,8 @@ void OffMeshConnectionTool::handleClick(const float * /*s*/, const float *p, con
       rcVcopy(m_hitPos, p);
       m_hitPosSet = true;
     } else {
-      constexpr unsigned char area = SAMPLE_POLYAREA_JUMP;
-      constexpr unsigned short flags = SAMPLE_POLYFLAGS_JUMP;
+      constexpr uint8_t area = SAMPLE_POLYAREA_JUMP;
+      constexpr uint16_t flags = SAMPLE_POLYFLAGS_JUMP;
       geom->addOffMeshConnection(m_hitPos, p, m_sample->getAgentRadius(), m_bidir ? 1 : 0, area, flags);
       m_hitPosSet = false;
     }
@@ -117,8 +113,7 @@ void OffMeshConnectionTool::handleRender() {
   if (m_hitPosSet)
     duDebugDrawCross(&dd, m_hitPos[0], m_hitPos[1] + 0.1f, m_hitPos[2], s, duRGBA(0, 0, 0, 128), 2.0f);
 
-  InputGeom *geom = m_sample->getInputGeom();
-  if (geom)
+  if (const InputGeom *geom = m_sample->getInputGeom())
     geom->drawOffMeshConnections(&dd, true);
 }
 

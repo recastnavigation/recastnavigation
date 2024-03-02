@@ -16,25 +16,17 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <cfloat>
-
-#include <SDL.h>
-#include <SDL_opengl.h>
-
 #include "ConvexVolumeTool.h"
+
 #include "InputGeom.h"
-#include "Recast.h"
-#include "Sample.h"
 #include "imgui.h"
 
-#ifdef WIN32
-#define snprintf _snprintf
-#endif
+#include <cfloat>
 
 // Quick and dirty convex hull.
-
+namespace {
 // Returns true if 'c' is left of line 'a'-'b'.
-inline bool left(const float *a, const float *b, const float *c) {
+bool left(const float *a, const float *b, const float *c) {
   const float u1 = b[0] - a[0];
   const float v1 = b[2] - a[2];
   const float u2 = c[0] - a[0];
@@ -43,7 +35,7 @@ inline bool left(const float *a, const float *b, const float *c) {
 }
 
 // Returns true if 'a' is more lower-left than 'b'.
-inline bool cmppt(const float *a, const float *b) {
+bool cmppt(const float *a, const float *b) {
   if (a[0] < b[0])
     return true;
   if (a[0] > b[0])
@@ -57,7 +49,7 @@ inline bool cmppt(const float *a, const float *b) {
 // Calculates convex hull on xz-plane of points on 'pts',
 // stores the indices of the resulting hull in 'out' and
 // returns number of points on hull.
-static int convexhull(const float *pts, const int npts, int *out) {
+int convexhull(const float *pts, const int npts, int *out) {
   // Find lower-leftmost point.
   int hull = 0;
   for (int i = 1; i < npts; ++i)
@@ -78,7 +70,7 @@ static int convexhull(const float *pts, const int npts, int *out) {
   return i;
 }
 
-static int pointInPoly(const int nvert, const float *verts, const float *p) {
+int pointInPoly(const int nvert, const float *verts, const float *p) {
   int i, j, c = 0;
   for (i = 0, j = nvert - 1; i < nvert; j = i++) {
     const float *vi = &verts[i * 3];
@@ -89,6 +81,7 @@ static int pointInPoly(const int nvert, const float *verts, const float *p) {
   }
   return c;
 }
+} // namespace
 
 void ConvexVolumeTool::init(Sample *sample) {
   m_sample = sample;
@@ -172,9 +165,9 @@ void ConvexVolumeTool::handleClick(const float * /*s*/, const float *p, const bo
           float offset[MAX_PTS * 2 * 3];
           const int noffset = rcOffsetPoly(verts, m_nhull, m_polyOffset, offset, MAX_PTS * 2);
           if (noffset > 0)
-            geom->addConvexVolume(offset, noffset, minh, maxh, static_cast<unsigned char>(m_areaType));
+            geom->addConvexVolume(offset, noffset, minh, maxh, static_cast<uint8_t>(m_areaType));
         } else {
-          geom->addConvexVolume(verts, m_nhull, minh, maxh, static_cast<unsigned char>(m_areaType));
+          geom->addConvexVolume(verts, m_nhull, minh, maxh, static_cast<uint8_t>(m_areaType));
         }
       }
 
@@ -215,7 +208,7 @@ void ConvexVolumeTool::handleRender() {
 
   dd.begin(DU_DRAW_POINTS, 4.0f);
   for (int i = 0; i < m_npts; ++i) {
-    unsigned int col = duRGBA(255, 255, 255, 255);
+    uint32_t col = duRGBA(255, 255, 255, 255);
     if (i == m_npts - 1)
       col = duRGBA(240, 32, 16, 255);
     dd.vertex(m_pts[i * 3 + 0], m_pts[i * 3 + 1] + 0.1f, m_pts[i * 3 + 2], col);

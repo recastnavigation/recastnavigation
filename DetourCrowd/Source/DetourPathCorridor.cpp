@@ -15,14 +15,14 @@
 //    misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 //
+#include "DetourPathCorridor.h"
+
+#include <DetourAlloc.h>
+#include <DetourAssert.h>
+#include <DetourCommon.h>
+#include <DetourNavMeshQuery.h>
 
 #include <cstring>
-
-#include "DetourAlloc.h"
-#include "DetourAssert.h"
-#include "DetourCommon.h"
-#include "DetourNavMeshQuery.h"
-#include "DetourPathCorridor.h"
 
 int dtMergeCorridorStartMoved(dtPolyRef *path, const int npath, const int maxPath,
                               const dtPolyRef *visited, const int nvisited) {
@@ -54,7 +54,7 @@ int dtMergeCorridorStartMoved(dtPolyRef *path, const int npath, const int maxPat
   if (req + size > maxPath)
     size = maxPath - req;
   if (size > 0)
-    memmove(path + req, path + orig, size * sizeof(dtPolyRef));
+    std::memmove(path + req, path + orig, size * sizeof(dtPolyRef));
 
   // Store visited
   for (int i = 0, n = dtMin(req, maxPath); i < n; ++i)
@@ -92,7 +92,7 @@ int dtMergeCorridorEndMoved(dtPolyRef *path, const int npath, const int maxPath,
   const int count = dtMin(nvisited - vpos, maxPath - ppos);
   dtAssert(ppos + count <= maxPath);
   if (count)
-    memcpy(path + ppos, visited + vpos, sizeof(dtPolyRef) * count);
+    std::memcpy(path + ppos, visited + vpos, sizeof(dtPolyRef) * count);
 
   return ppos + count;
 }
@@ -132,7 +132,7 @@ int dtMergeCorridorStartShortcut(dtPolyRef *path, const int npath, const int max
   if (req + size > maxPath)
     size = maxPath - req;
   if (size)
-    memmove(path + req, path + orig, size * sizeof(dtPolyRef));
+    std::memmove(path + req, path + orig, size * sizeof(dtPolyRef));
 
   // Store visited
   for (int i = 0; i < req; ++i)
@@ -226,7 +226,7 @@ So if 10 corners are needed, the buffers should be sized for 11 corners.
 
 If the target is within range, it will be the last corner and have a polygon reference id of zero.
 */
-int dtPathCorridor::findCorners(float *cornerVerts, unsigned char *cornerFlags,
+int dtPathCorridor::findCorners(float *cornerVerts, uint8_t *cornerFlags,
                                 dtPolyRef *cornerPolys, const int maxCorners,
                                 const dtNavMeshQuery *navquery, const dtQueryFilter * /*filter*/) const {
   dtAssert(m_path);
@@ -247,9 +247,9 @@ int dtPathCorridor::findCorners(float *cornerVerts, unsigned char *cornerFlags,
       break;
     ncorners--;
     if (ncorners) {
-      memmove(cornerFlags, cornerFlags + 1, sizeof(unsigned char) * ncorners);
-      memmove(cornerPolys, cornerPolys + 1, sizeof(dtPolyRef) * ncorners);
-      memmove(cornerVerts, cornerVerts + 3, sizeof(float) * 3 * ncorners);
+      std::memmove(cornerFlags, cornerFlags + 1, sizeof(uint8_t) * ncorners);
+      std::memmove(cornerPolys, cornerPolys + 1, sizeof(dtPolyRef) * ncorners);
+      std::memmove(cornerVerts, cornerVerts + 3, sizeof(float) * 3 * ncorners);
     }
   }
 
@@ -486,7 +486,7 @@ void dtPathCorridor::setCorridor(const float *target, const dtPolyRef *path, con
     return ;
 
   dtVcopy(m_target, target);
-  memcpy(m_path, path, sizeof(dtPolyRef) * npath);
+  std::memcpy(m_path, path, sizeof(dtPolyRef) * npath);
   m_npath = npath;
 }
 

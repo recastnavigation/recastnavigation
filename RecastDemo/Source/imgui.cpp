@@ -16,41 +16,38 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
+#include "imgui.h"
+
 #include <cmath>
 #include <cstdio>
 #include <cstring>
 
-#include "imgui.h"
-
-#ifdef WIN32
-#define snprintf _snprintf
-#endif
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-static constexpr unsigned TEXT_POOL_SIZE = 50000;
-static char g_textPool[TEXT_POOL_SIZE];
-static unsigned g_textPoolSize = 0;
-static const char *allocText(const char *text) {
-  const unsigned len = static_cast<unsigned>(strlen(text) + 1);
+namespace {
+constexpr unsigned TEXT_POOL_SIZE = 50000;
+char g_textPool[TEXT_POOL_SIZE];
+unsigned g_textPoolSize = 0;
+const char *allocText(const char *text) {
+  const unsigned len = static_cast<unsigned>(std::strlen(text) + 1);
   if (g_textPoolSize + len >= TEXT_POOL_SIZE)
     return nullptr;
   char *dst = &g_textPool[g_textPoolSize];
-  memcpy(dst, text, len);
+  std::memcpy(dst, text, len);
   g_textPoolSize += len;
   return dst;
 }
 
-static constexpr unsigned GFXCMD_QUEUE_SIZE = 5000;
-static imguiGfxCmd g_gfxCmdQueue[GFXCMD_QUEUE_SIZE];
-static unsigned g_gfxCmdQueueSize = 0;
+constexpr unsigned GFXCMD_QUEUE_SIZE = 5000;
+imguiGfxCmd g_gfxCmdQueue[GFXCMD_QUEUE_SIZE];
+unsigned g_gfxCmdQueueSize = 0;
 
-static void resetGfxCmdQueue() {
+void resetGfxCmdQueue() {
   g_gfxCmdQueueSize = 0;
   g_textPoolSize = 0;
 }
 
-static void addGfxCmdScissor(const int x, const int y, const int w, const int h) {
+void addGfxCmdScissor(const int x, const int y, const int w, const int h) {
   if (g_gfxCmdQueueSize >= GFXCMD_QUEUE_SIZE)
     return;
   imguiGfxCmd &cmd = g_gfxCmdQueue[g_gfxCmdQueueSize++];
@@ -63,7 +60,7 @@ static void addGfxCmdScissor(const int x, const int y, const int w, const int h)
   cmd.rect.h = static_cast<short>(h);
 }
 
-static void addGfxCmdRect(const float x, const float y, const float w, const float h, const unsigned int color) {
+void addGfxCmdRect(const float x, const float y, const float w, const float h, const uint32_t color) {
   if (g_gfxCmdQueueSize >= GFXCMD_QUEUE_SIZE)
     return;
   imguiGfxCmd &cmd = g_gfxCmdQueue[g_gfxCmdQueueSize++];
@@ -77,7 +74,7 @@ static void addGfxCmdRect(const float x, const float y, const float w, const flo
   cmd.rect.r = 0;
 }
 
-static void addGfxCmdLine(const float x0, const float y0, const float x1, const float y1, const float r, const unsigned int color) {
+void addGfxCmdLine(const float x0, const float y0, const float x1, const float y1, const float r, const uint32_t color) {
   if (g_gfxCmdQueueSize >= GFXCMD_QUEUE_SIZE)
     return;
   imguiGfxCmd &cmd = g_gfxCmdQueue[g_gfxCmdQueueSize++];
@@ -91,7 +88,7 @@ static void addGfxCmdLine(const float x0, const float y0, const float x1, const 
   cmd.line.r = static_cast<short>(r * 8.0f);
 }
 
-static void addGfxCmdRoundedRect(const float x, const float y, const float w, const float h, const float r, const unsigned int color) {
+void addGfxCmdRoundedRect(const float x, const float y, const float w, const float h, const float r, const uint32_t color) {
   if (g_gfxCmdQueueSize >= GFXCMD_QUEUE_SIZE)
     return;
   imguiGfxCmd &cmd = g_gfxCmdQueue[g_gfxCmdQueueSize++];
@@ -105,7 +102,7 @@ static void addGfxCmdRoundedRect(const float x, const float y, const float w, co
   cmd.rect.r = static_cast<short>(r * 8.0f);
 }
 
-static void addGfxCmdTriangle(const int x, const int y, const int w, const int h, const int flags, const unsigned int color) {
+void addGfxCmdTriangle(const int x, const int y, const int w, const int h, const int flags, const uint32_t color) {
   if (g_gfxCmdQueueSize >= GFXCMD_QUEUE_SIZE)
     return;
   imguiGfxCmd &cmd = g_gfxCmdQueue[g_gfxCmdQueueSize++];
@@ -118,7 +115,7 @@ static void addGfxCmdTriangle(const int x, const int y, const int w, const int h
   cmd.rect.h = static_cast<short>(h * 8.0f);
 }
 
-static void addGfxCmdText(const int x, const int y, const int align, const char *text, const unsigned int color) {
+void addGfxCmdText(const int x, const int y, const int align, const char *text, const uint32_t color) {
   if (g_gfxCmdQueueSize >= GFXCMD_QUEUE_SIZE)
     return;
   imguiGfxCmd &cmd = g_gfxCmdQueue[g_gfxCmdQueueSize++];
@@ -141,9 +138,9 @@ struct GuiState {
   int mx{-1};
   int my{-1};
   int scroll{};
-  unsigned int active{};
-  unsigned int hot{};
-  unsigned int hotToBe{};
+  uint32_t active{};
+  uint32_t hot{};
+  uint32_t hotToBe{};
   bool isHot{};
   bool isActive{};
   bool wentActive{};
@@ -155,50 +152,50 @@ struct GuiState {
   int widgetW{100};
   bool insideCurrentScroll{};
 
-  unsigned int areaId{};
-  unsigned int widgetId{};
+  uint32_t areaId{};
+  uint32_t widgetId{};
 };
 
-static GuiState g_state;
+GuiState g_state;
 
-inline bool anyActive() {
+bool anyActive() {
   return g_state.active != 0;
 }
 
-inline bool isActive(const unsigned int id) {
+bool isActive(const uint32_t id) {
   return g_state.active == id;
 }
 
-inline bool isHot(const unsigned int id) {
+bool isHot(const uint32_t id) {
   return g_state.hot == id;
 }
 
-inline bool inRect(const int x, const int y, const int w, const int h, const bool checkScroll = true) {
+bool inRect(const int x, const int y, const int w, const int h, const bool checkScroll = true) {
   return (!checkScroll || g_state.insideCurrentScroll) && g_state.mx >= x && g_state.mx <= x + w && g_state.my >= y && g_state.my <= y + h;
 }
 
-inline void clearInput() {
+void clearInput() {
   g_state.leftPressed = false;
   g_state.leftReleased = false;
   g_state.scroll = 0;
 }
 
-inline void clearActive() {
+void clearActive() {
   g_state.active = 0;
   // mark all UI for this frame as processed
   clearInput();
 }
 
-inline void setActive(const unsigned int id) {
+void setActive(const uint32_t id) {
   g_state.active = id;
   g_state.wentActive = true;
 }
 
-inline void setHot(const unsigned int id) {
+void setHot(const uint32_t id) {
   g_state.hotToBe = id;
 }
 
-static bool buttonLogic(const unsigned int id, const bool over) {
+bool buttonLogic(const uint32_t id, const bool over) {
   bool res = false;
   // process down
   if (!anyActive()) {
@@ -226,7 +223,7 @@ static bool buttonLogic(const unsigned int id, const bool over) {
   return res;
 }
 
-static void updateInput(const int mx, const int my, const unsigned char mbut, const int scroll) {
+void updateInput(const int mx, const int my, const uint8_t mbut, const int scroll) {
   const bool left = (mbut & IMGUI_MBUT_LEFT) != 0;
 
   g_state.mx = mx;
@@ -237,8 +234,9 @@ static void updateInput(const int mx, const int my, const unsigned char mbut, co
 
   g_state.scroll = scroll;
 }
+} // namespace
 
-void imguiBeginFrame(const int mx, const int my, const unsigned char mbut, const int scroll) {
+void imguiBeginFrame(const int mx, const int my, const uint8_t mbut, const int scroll) {
   updateInput(mx, my, mbut, scroll);
 
   g_state.hot = g_state.hotToBe;
@@ -281,15 +279,17 @@ static constexpr int SCROLL_AREA_PADDING = 6;
 static constexpr int INDENT_SIZE = 16;
 static constexpr int AREA_HEADER = 28;
 
-static int g_scrollTop = 0;
-static int g_scrollBottom = 0;
-static int g_scrollRight = 0;
-static int g_scrollAreaTop = 0;
-static int *g_scrollVal = nullptr;
-static int g_focusTop = 0;
-static int g_focusBottom = 0;
-static unsigned int g_scrollId = 0;
-static bool g_insideScrollArea = false;
+namespace {
+int g_scrollTop = 0;
+int g_scrollBottom = 0;
+int g_scrollRight = 0;
+int g_scrollAreaTop = 0;
+int *g_scrollVal = nullptr;
+int g_focusTop = 0;
+int g_focusBottom = 0;
+uint32_t g_scrollId = 0;
+bool g_insideScrollArea = false;
+} // namespace
 
 bool imguiBeginScrollArea(const char *name, const int x, const int y, const int w, const int h, int *scroll) {
   g_state.areaId++;
@@ -344,7 +344,7 @@ void imguiEndScrollArea() {
       barY = 1;
 
     // Handle scroll bar logic.
-    const unsigned int hid = g_scrollId;
+    const uint32_t hid = g_scrollId;
     const int hx = x;
     const int hy = y + static_cast<int>(barY * h);
     constexpr int hw = w;
@@ -394,7 +394,7 @@ void imguiEndScrollArea() {
 
 bool imguiButton(const char *text, const bool enabled) {
   g_state.widgetId++;
-  const unsigned int id = (g_state.areaId << 16) | g_state.widgetId;
+  const uint32_t id = (g_state.areaId << 16) | g_state.widgetId;
 
   const int x = g_state.widgetX;
   const int y = g_state.widgetY - BUTTON_HEIGHT;
@@ -416,7 +416,7 @@ bool imguiButton(const char *text, const bool enabled) {
 
 bool imguiItem(const char *text, const bool enabled) {
   g_state.widgetId++;
-  const unsigned int id = (g_state.areaId << 16) | g_state.widgetId;
+  const uint32_t id = (g_state.areaId << 16) | g_state.widgetId;
 
   const int x = g_state.widgetX;
   const int y = g_state.widgetY - BUTTON_HEIGHT;
@@ -440,7 +440,7 @@ bool imguiItem(const char *text, const bool enabled) {
 
 bool imguiCheck(const char *text, const bool checked, const bool enabled) {
   g_state.widgetId++;
-  const unsigned int id = (g_state.areaId << 16) | g_state.widgetId;
+  const uint32_t id = (g_state.areaId << 16) | g_state.widgetId;
 
   const int x = g_state.widgetX;
   const int y = g_state.widgetY - BUTTON_HEIGHT;
@@ -471,7 +471,7 @@ bool imguiCheck(const char *text, const bool checked, const bool enabled) {
 
 bool imguiCollapse(const char *text, const char *subtext, const bool checked, const bool enabled) {
   g_state.widgetId++;
-  const unsigned int id = (g_state.areaId << 16) | g_state.widgetId;
+  const uint32_t id = (g_state.areaId << 16) | g_state.widgetId;
 
   const int x = g_state.widgetX;
   const int y = g_state.widgetY - BUTTON_HEIGHT;
@@ -519,7 +519,7 @@ void imguiValue(const char *text) {
 
 bool imguiSlider(const char *text, float *val, const float vmin, const float vmax, const float vinc, const bool enabled) {
   g_state.widgetId++;
-  const unsigned int id = (g_state.areaId << 16) | g_state.widgetId;
+  const uint32_t id = (g_state.areaId << 16) | g_state.widgetId;
 
   const int x = g_state.widgetX;
   const int y = g_state.widgetY - BUTTON_HEIGHT;
@@ -554,7 +554,7 @@ bool imguiSlider(const char *text, float *val, const float vmin, const float vma
       if (u > 1)
         u = 1;
       *val = vmin + u * (vmax - vmin);
-      *val = floorf(*val / vinc + 0.5f) * vinc; // Snap to vinc
+      *val = std::floor(*val / vinc + 0.5f) * vinc; // Snap to vinc
       m = static_cast<int>(u * range);
       valChanged = true;
     }
@@ -566,11 +566,11 @@ bool imguiSlider(const char *text, float *val, const float vmin, const float vma
     addGfxCmdRoundedRect(static_cast<float>(x + m), static_cast<float>(y), static_cast<float>(SLIDER_MARKER_WIDTH), static_cast<float>(SLIDER_HEIGHT), 4.0f, isHot(id) ? imguiRGBA(255, 196, 0, 128) : imguiRGBA(255, 255, 255, 64));
 
   // TODO: fix this, take a look at 'nicenum'.
-  const int digits = static_cast<int>(ceilf(log10f(vinc)));
+  const int digits = static_cast<int>(std::ceil(std::log10(vinc)));
   char fmt[16];
-  snprintf(fmt, 16, "%%.%df", digits >= 0 ? 0 : -digits);
+  std::snprintf(fmt, 16, "%%.%df", digits >= 0 ? 0 : -digits);
   char msg[128];
-  snprintf(msg, 128, fmt, *val);
+  std::snprintf(msg, 128, fmt, *val);
 
   if (enabled) {
     addGfxCmdText(x + SLIDER_HEIGHT / 2, y + SLIDER_HEIGHT / 2 - TEXT_HEIGHT / 2, IMGUI_ALIGN_LEFT, text, isHot(id) ? imguiRGBA(255, 196, 0, 255) : imguiRGBA(255, 255, 255, 200));
@@ -607,18 +607,18 @@ void imguiSeparatorLine() {
   addGfxCmdRect(static_cast<float>(x), static_cast<float>(y), static_cast<float>(w), static_cast<float>(h), imguiRGBA(255, 255, 255, 32));
 }
 
-void imguiDrawText(const int x, const int y, const int align, const char *text, const unsigned int color) {
+void imguiDrawText(const int x, const int y, const int align, const char *text, const uint32_t color) {
   addGfxCmdText(x, y, align, text, color);
 }
 
-void imguiDrawLine(const float x0, const float y0, const float x1, const float y1, const float r, const unsigned int color) {
+void imguiDrawLine(const float x0, const float y0, const float x1, const float y1, const float r, const uint32_t color) {
   addGfxCmdLine(x0, y0, x1, y1, r, color);
 }
 
-void imguiDrawRect(const float x, const float y, const float w, const float h, const unsigned int color) {
+void imguiDrawRect(const float x, const float y, const float w, const float h, const uint32_t color) {
   addGfxCmdRect(x, y, w, h, color);
 }
 
-void imguiDrawRoundedRect(const float x, const float y, const float w, const float h, const float r, const unsigned int color) {
+void imguiDrawRoundedRect(const float x, const float y, const float w, const float h, const float r, const uint32_t color) {
   addGfxCmdRoundedRect(x, y, w, h, r, color);
 }

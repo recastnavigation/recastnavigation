@@ -17,11 +17,13 @@
 //
 
 #pragma once
-#include "DebugDraw.h"
 #include "PerfTimer.h"
-#include "Recast.h"
-#include "RecastDump.h"
 
+#include <DebugDraw.h>
+#include <Recast.h>
+#include <RecastDump.h>
+
+#include <cstdint>
 #include <fstream>
 
 // These are example implementations of various interfaces used in Recast and Detour.
@@ -66,10 +68,10 @@ public:
   void depthMask(bool state) override;
   void texture(bool state) override;
   void begin(duDebugDrawPrimitives prim, float size = 1.0f) override;
-  void vertex(const float *pos, unsigned int color) override;
-  void vertex(float x, float y, float z, unsigned int color) override;
-  void vertex(const float *pos, unsigned int color, const float *uv) override;
-  void vertex(float x, float y, float z, unsigned int color, float u, float v) override;
+  void vertex(const float *pos, uint32_t color) override;
+  void vertex(float x, float y, float z, uint32_t color) override;
+  void vertex(const float *pos, uint32_t color, const float *uv) override;
+  void vertex(float x, float y, float z, uint32_t color, float u, float v) override;
   void end() override;
 };
 

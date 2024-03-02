@@ -1,4 +1,5 @@
 #pragma once
+#include <cstdint>
 
 class ValueHistory
 {
@@ -45,5 +46,4 @@ struct GraphParams
 
 void drawGraphBackground(const GraphParams* p);
 
-void drawGraph(const GraphParams* p, const ValueHistory* graph,
-			   int idx, const char* label, unsigned int col);
+void drawGraph(const GraphParams* p, const ValueHistory* graph, int idx, const char* label, uint32_t col);

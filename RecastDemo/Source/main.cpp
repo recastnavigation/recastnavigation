@@ -16,23 +16,9 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <cmath>
-#include <cstdio>
-#include <new>
-#include <string>
-#include <vector>
-
-#include <SDL.h>
-#include <SDL_opengl.h>
-#ifdef __APPLE__
-#include <OpenGL/glu.h>
-#else
-#include <GL/glu.h>
-#endif
-
 #include "Filelist.h"
 #include "InputGeom.h"
-#include "Recast.h"
+#include "MeshLoaderObj.h"
 #include "Sample_Debug.h"
 #include "Sample_SizeFromPortalEdgeMesh.h"
 #include "Sample_SoloMesh.h"
@@ -41,6 +27,16 @@
 #include "TestCase.h"
 #include "imgui.h"
 #include "imguiRenderGL.h"
+
+#include <SDL.h>
+#include <SDL_opengl.h>
+#if __APPLE__
+#include <OpenGL/glu.h>
+#else
+#include <GL/glu.h>
+#endif
+#include <string>
+#include <vector>
 
 struct SampleItem {
   Sample *(*create)();
@@ -90,7 +86,7 @@ int main(int /*argc*/, char ** /*argv*/) {
   Uint32 flags = SDL_WINDOW_OPENGL;
   int width;
   int height;
-  constexpr bool presentationMode { false};
+  constexpr bool presentationMode{false};
   if constexpr (presentationMode) {
     // Create a fullscreen window at the native resolution.
     width = displayMode.w;
@@ -104,9 +100,7 @@ int main(int /*argc*/, char ** /*argv*/) {
 
   SDL_Window *window;
   SDL_Renderer *renderer;
-  const int errorCode = SDL_CreateWindowAndRenderer(width, height, flags, &window, &renderer);
-
-  if (errorCode != 0 || !window || !renderer) {
+  if (SDL_CreateWindowAndRenderer(width, height, flags, &window, &renderer) != 0 || !window || !renderer) {
     printf("Could not initialise SDL opengl\nError: %s\n", SDL_GetError());
     return -1;
   }
@@ -215,7 +209,7 @@ int main(int /*argc*/, char ** /*argv*/) {
 
             sample->collectSettings(settings);
 
-            if(!geom->saveGeomSet(&settings))
+            if (!geom->saveGeomSet(&settings))
               ctx.log(RC_LOG_WARNING, "Cound not save geometry");
           }
         }
@@ -294,7 +288,7 @@ int main(int /*argc*/, char ** /*argv*/) {
       }
     }
 
-    unsigned char mouseButtonMask = 0;
+    uint8_t mouseButtonMask = 0;
     if (SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON_LMASK)
       mouseButtonMask |= IMGUI_MBUT_LEFT;
     if (SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON_RMASK)
@@ -307,7 +301,7 @@ int main(int /*argc*/, char ** /*argv*/) {
     // Hit test mesh.
     if (processHitTest && geom && sample) {
       float hitTime;
-      if ( geom->raycastMesh(rayStart, rayEnd, hitTime)) {
+      if (geom->raycastMesh(rayStart, rayEnd, hitTime)) {
         if (SDL_GetModState() & KMOD_CTRL) {
           // Marker
           markerPositionSet = true;
@@ -492,8 +486,8 @@ int main(int /*argc*/, char ** /*argv*/) {
       if (geom) {
         char text[64];
         std::snprintf(text, 64, "Verts: %.1fk  Tris: %.1fk",
-                 geom->getMesh()->getVertCount() / 1000.0f,
-                 geom->getMesh()->getTriCount() / 1000.0f);
+                      geom->getMesh()->getVertCount() / 1000.0f,
+                      geom->getMesh()->getTriCount() / 1000.0f);
         imguiValue(text);
       }
       imguiSeparator();
@@ -584,8 +578,8 @@ int main(int /*argc*/, char ** /*argv*/) {
       if (imguiBeginScrollArea("Choose Level", width - 10 - 250 - 10 - 200, height - 10 - 450, 200, 450, &levelScroll))
         mouseOverMenu = true;
 
-     std::vector<std::string>::const_iterator fileIter = files.begin();
-     std::vector<std::string>::const_iterator filesEnd = files.end();
+      std::vector<std::string>::const_iterator fileIter = files.begin();
+      std::vector<std::string>::const_iterator filesEnd = files.end();
       auto levelToLoad = filesEnd;
       for (; fileIter != filesEnd; ++fileIter) {
         if (imguiItem(fileIter->c_str())) {

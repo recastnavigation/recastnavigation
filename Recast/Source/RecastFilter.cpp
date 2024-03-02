@@ -19,8 +19,6 @@
 #include "Recast.h"
 #include "RecastAssert.h"
 
-#include <cstdlib>
-
 namespace {
 constexpr int MAX_HEIGHTFIELD_HEIGHT = 0xffff; // TODO (graham): Move this to a more visible constant and update usages.
 } // namespace
@@ -39,7 +37,7 @@ void rcFilterLowHangingWalkableObstacles(rcContext *context, const int walkableC
     for (int x = 0; x < xSize; ++x) {
       const rcSpan *previousSpan = nullptr;
       bool previousWasWalkable = false;
-      unsigned char previousAreaID = RC_NULL_AREA;
+      uint8_t previousAreaID = RC_NULL_AREA;
 
       // For each span in the column...
       for (rcSpan *span = heightfield.spans[x + z * xSize]; span != nullptr; previousSpan = span, span = span->next) {

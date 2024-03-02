@@ -17,12 +17,17 @@
 //
 
 #pragma once
-#include "DetourNavMesh.h"
-#include "DetourNavMeshQuery.h"
+#include <DetourNavMesh.h>
+#include <DetourStatus.h>
 
-static constexpr unsigned int DT_PATHQ_INVALID = 0;
+#include <cstdint>
 
-typedef unsigned int dtPathQueueRef;
+class dtNavMesh;
+class dtNavMeshQuery;
+class dtQueryFilter;
+static constexpr uint32_t DT_PATHQ_INVALID = 0;
+
+typedef uint32_t dtPathQueueRef;
 
 class dtPathQueue {
   struct PathQuery {

@@ -17,14 +17,14 @@
 //
 
 #pragma once
-#include "DetourCrowd.h"
-#include "DetourNavMesh.h"
-#include "DetourObstacleAvoidance.h"
 #include "Sample.h"
 #include "ValueHistory.h"
 
+#include <DetourCrowd.h>
+
 // Tool to create crowds.
 
+class dtObstacleAvoidanceDebugData;
 struct CrowdToolParams {
   bool m_expandSelectedDebugDraw;
   bool m_showCorners;

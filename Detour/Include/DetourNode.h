@@ -18,6 +18,7 @@
 
 #pragma once
 #include "DetourNavMesh.h"
+#include <cstdint>
 
 enum dtNodeFlags
 {
@@ -26,7 +27,7 @@ enum dtNodeFlags
     DT_NODE_PARENT_DETACHED = 0x04 // parent of the node is not adjacent. Found using raycast.
 };
 
-typedef unsigned short dtNodeIndex;
+typedef uint16_t dtNodeIndex;
 static constexpr dtNodeIndex DT_NULL_IDX = static_cast<dtNodeIndex>(~0);
 
 static constexpr int DT_NODE_PARENT_BITS = 24;
@@ -37,10 +38,10 @@ struct dtNode
     float pos[3]; ///< Position of the node.
     float cost; ///< Cost from previous node to current node.
     float total; ///< Cost up to the node.
-    unsigned int pidx : DT_NODE_PARENT_BITS; ///< Index to parent node.
-    unsigned int state : DT_NODE_STATE_BITS;
+    uint32_t pidx : DT_NODE_PARENT_BITS; ///< Index to parent node.
+    uint32_t state : DT_NODE_STATE_BITS;
     ///< extra state information. A polyRef can have multiple nodes with different extra info. see DT_MAX_STATES_PER_NODE
-    unsigned int flags : 3; ///< Node flags. A combination of dtNodeFlags.
+    uint32_t flags : 3; ///< Node flags. A combination of dtNodeFlags.
     dtPolyRef id; ///< Polygon ref the node corresponds to.
 };
 
@@ -56,23 +57,23 @@ public:
 
     // Get a dtNode by ref and extra state information. If there is none then - allocate
     // There can be more than one node for the same polyRef but with different extra state information
-    dtNode* getNode(dtPolyRef id, unsigned char state = 0);
-    dtNode* findNode(dtPolyRef id, unsigned char state) const;
-    unsigned int findNodes(dtPolyRef id, dtNode** nodes, int maxNodes) const;
+    dtNode* getNode(dtPolyRef id, uint8_t state = 0);
+    dtNode* findNode(dtPolyRef id, uint8_t state) const;
+    uint32_t findNodes(dtPolyRef id, dtNode** nodes, int maxNodes) const;
 
-    unsigned int getNodeIdx(const dtNode* node) const
+    uint32_t getNodeIdx(const dtNode* node) const
     {
         if (!node) return 0;
-        return static_cast<unsigned int>(node - m_nodes) + 1;
+        return static_cast<uint32_t>(node - m_nodes) + 1;
     }
 
-    dtNode* getNodeAtIdx(const unsigned int idx)
+    dtNode* getNodeAtIdx(const uint32_t idx)
     {
         if (!idx) return nullptr;
         return &m_nodes[idx - 1];
     }
 
-    const dtNode* getNodeAtIdx(const unsigned int idx) const
+    const dtNode* getNodeAtIdx(const uint32_t idx) const
     {
         if (!idx) return nullptr;
         return &m_nodes[idx - 1];
@@ -130,8 +131,7 @@ public:
         bubbleUp(m_size - 1, node);
     }
 
-    void modify(dtNode* node)
-    {
+    void modify(dtNode* node) const {
         for (int i = 0; i < m_size; ++i)
         {
             if (m_heap[i] == node)

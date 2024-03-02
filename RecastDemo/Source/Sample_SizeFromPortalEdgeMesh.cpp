@@ -16,33 +16,26 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <cmath>
-#include <cstdio>
-#include <cstring>
-#include <new>
+#include "Sample_SizeFromPortalEdgeMesh.h"
 
-#include <SDL.h>
-#include <SDL_opengl.h>
-
-#include "ConvexVolumeTool.h"
-#include "CrowdTool.h"
-#include "DetourDebugDraw.h"
-#include "DetourNavMesh.h"
-#include "DetourNavMeshBuilder.h"
 #include "InputGeom.h"
 #include "MeshLoaderObj.h"
-#include "NavMeshPruneTool.h"
-#include "NavMeshTesterTool.h"
-#include "OffMeshConnectionTool.h"
-#include "Recast.h"
-#include "RecastDebugDraw.h"
-#include "RecastDump.h"
-#include "Sample.h"
-#include "Sample_SizeFromPortalEdgeMesh.h"
 #include "imgui.h"
 
+#include <ConvexVolumeTool.h>
+#include <CrowdTool.h>
 #include <DetourAlloc.h>
+#include <DetourDebugDraw.h>
+#include <DetourNavMeshBuilder.h>
+#include <NavMeshPruneTool.h>
+#include <NavMeshTesterTool.h>
+#include <OffMeshConnectionTool.h>
 #include <RecastAlloc.h>
+#include <RecastDebugDraw.h>
+
+#include <SDL_opengl.h>
+#include <cmath>
+#include <cstring>
 
 Sample_SizeFromPortalEdgeMesh::Sample_SizeFromPortalEdgeMesh() : m_keepInterResults(true),
                                                                  m_totalBuildTimeMs(0),
@@ -408,7 +401,7 @@ bool Sample_SizeFromPortalEdgeMesh::handleBuild() {
   // Allocate array that can hold triangle area types.
   // If you have multiple meshes you need to process, allocate
   // and array which can hold the max number of triangles you need to process.
-  m_triareas = new (std::nothrow) unsigned char[ntris];
+  m_triareas = new (std::nothrow) uint8_t[ntris];
   if (!m_triareas) {
     m_ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'm_triareas' (%d).", ntris);
     return false;
@@ -417,7 +410,7 @@ bool Sample_SizeFromPortalEdgeMesh::handleBuild() {
   // Find triangles which are walkable based on their slope and rasterize them.
   // If your input data is multiple meshes, you can transform them here, calculate
   // the are type for each of the meshes and rasterize them.
-  std::memset(m_triareas, 0, ntris * sizeof(unsigned char));
+  std::memset(m_triareas, 0, ntris * sizeof(uint8_t));
   rcMarkWalkableTriangles(m_ctx, m_cfg.walkableSlopeAngle, verts, nverts, tris, ntris, m_triareas);
   if (!rcRasterizeTriangles(m_ctx, verts, nverts, tris, m_triareas, ntris, *m_solid, m_cfg.walkableClimb)) {
     m_ctx->log(RC_LOG_ERROR, "buildNavigation: Could not rasterize triangles.");
@@ -474,7 +467,7 @@ bool Sample_SizeFromPortalEdgeMesh::handleBuild() {
   // (Optional) Mark areas.
   const ConvexVolume *vols = m_geom->getConvexVolumes();
   for (int i = 0; i < m_geom->getConvexVolumeCount(); ++i)
-    rcMarkConvexPolyArea(m_ctx, vols[i].verts, vols[i].nverts, vols[i].hmin, vols[i].hmax, static_cast<unsigned char>(vols[i].area), *m_chf);
+    rcMarkConvexPolyArea(m_ctx, vols[i].verts, vols[i].nverts, vols[i].hmin, vols[i].hmax, static_cast<uint8_t>(vols[i].area), *m_chf);
 
   // Partition the heightfield so that we can use simple algorithm later to triangulate the walkable areas.
   // There are 3 partitioning methods, each with some pros and cons:
@@ -594,7 +587,7 @@ bool Sample_SizeFromPortalEdgeMesh::handleBuild() {
   // The GUI may allow more max points per polygon than Detour can handle.
   // Only build the detour navmesh if we do not exceed the limit.
   if (m_cfg.maxVertsPerPoly <= DT_VERTS_PER_POLYGON) {
-    unsigned char *navData = nullptr;
+    uint8_t *navData = nullptr;
     int navDataSize = 0;
 
     // Update poly flags from areas.

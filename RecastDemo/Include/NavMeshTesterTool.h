@@ -18,9 +18,15 @@
 
 #pragma once
 #include "Sample.h"
-#include "DetourNavMesh.h"
-#include "DetourNavMeshQuery.h"
 
+#include <DetourNavMeshQuery.h>
+#include <DetourStatus.h>
+
+#include <cstdint>
+
+class dtNavMeshQuery;
+class dtNavMesh;
+class Sample;
 class NavMeshTesterTool final : public SampleTool
 {
 	Sample* m_sample{};
@@ -57,7 +63,7 @@ class NavMeshTesterTool final : public SampleTool
 	dtPolyRef m_parent[MAX_POLYS]{};
 	int m_npolys{};
 	float m_straightPath[MAX_POLYS*3]{};
-	unsigned char m_straightPathFlags[MAX_POLYS]{};
+	uint8_t m_straightPathFlags[MAX_POLYS]{};
 	dtPolyRef m_straightPathPolys[MAX_POLYS]{};
 	int m_nstraightPath{};
 	float m_polyPickExt[3]{};
@@ -108,5 +114,5 @@ public:
   void handleRenderOverlay(double *proj, double *model, int *view) override;
 
 	void recalc();
-	void drawAgent(const float* pos, float r, float h, float c, unsigned int col) const;
+	void drawAgent(const float* pos, float r, float h, float c, uint32_t col) const;
 };

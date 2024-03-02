@@ -211,7 +211,7 @@ inline bool operator<(const Edge &e1, const Edge &e2) { return compareEdges(e1, 
 std::ofstream &startSvg(std::ofstream &file, const std::string_view path, uint32_t width, uint32_t height) {
   if (file.is_open())
     return file;
-  file.open(path);
+  file.open(path.data());
   if (!file.is_open())
     return file;
   file << std::format(R"(<svg width="{}" height="{}" xmlns="http://www.w3.org/2000/svg">)", width, height) << '\n';

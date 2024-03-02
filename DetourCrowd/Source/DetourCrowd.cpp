@@ -16,19 +16,14 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <float.h>
-#include <new>
-#include <stdlib.h>
-#include <string.h>
-
 #include "DetourCrowd.h"
-#include "DetourAlloc.h"
-#include "DetourAssert.h"
-#include "DetourCommon.h"
-#include "DetourMath.h"
-#include "DetourNavMesh.h"
-#include "DetourNavMeshQuery.h"
-#include "DetourObstacleAvoidance.h"
+#include "DetourProximityGrid.h"
+
+#include <DetourAlloc.h>
+#include <DetourAssert.h>
+#include <DetourCommon.h>
+
+#include <cstring>
 
 dtCrowd *dtAllocCrowd() {
   void *mem = dtAlloc(sizeof(dtCrowd), DT_ALLOC_PERM);
@@ -44,16 +39,17 @@ void dtFreeCrowd(dtCrowd *ptr) {
   dtFree(ptr);
 }
 
-static constexpr int MAX_ITERS_PER_UPDATE = 100;
+namespace {
+constexpr int MAX_ITERS_PER_UPDATE = 100;
 
-static constexpr int MAX_PATHQUEUE_NODES = 4096;
-static constexpr int MAX_COMMON_NODES = 512;
+constexpr int MAX_PATHQUEUE_NODES = 4096;
+constexpr int MAX_COMMON_NODES = 512;
 
-inline float tween(const float t, const float t0, const float t1) {
+float tween(const float t, const float t0, const float t1) {
   return dtClamp((t - t0) / (t1 - t0), 0.0f, 1.0f);
 }
 
-static void integrate(dtCrowdAgent *ag, const float dt) {
+void integrate(dtCrowdAgent *ag, const float dt) {
   // Fake dynamic constraint.
   const float maxDelta = ag->params.maxAcceleration * dt;
   float dv[3];
@@ -70,11 +66,11 @@ static void integrate(dtCrowdAgent *ag, const float dt) {
     dtVset(ag->vel, 0, 0, 0);
 }
 
-static bool overOffmeshConnection(const dtCrowdAgent *ag, const float radius) {
+bool overOffmeshConnection(const dtCrowdAgent *ag, const float radius) {
   if (!ag->ncorners)
     return false;
 
-  if ( ag->cornerFlags[ag->ncorners - 1] & DT_STRAIGHTPATH_OFFMESH_CONNECTION) {
+  if (ag->cornerFlags[ag->ncorners - 1] & DT_STRAIGHTPATH_OFFMESH_CONNECTION) {
     if (dtVdist2DSqr(ag->npos, &ag->cornerVerts[(ag->ncorners - 1) * 3]) < radius * radius)
       return true;
   }
@@ -82,7 +78,7 @@ static bool overOffmeshConnection(const dtCrowdAgent *ag, const float radius) {
   return false;
 }
 
-static float getDistanceToGoal(const dtCrowdAgent *ag, const float range) {
+float getDistanceToGoal(const dtCrowdAgent *ag, const float range) {
   if (!ag->ncorners)
     return range;
 
@@ -92,7 +88,7 @@ static float getDistanceToGoal(const dtCrowdAgent *ag, const float range) {
   return range;
 }
 
-static void calcSmoothSteerDirection(const dtCrowdAgent *ag, float *dir) {
+void calcSmoothSteerDirection(const dtCrowdAgent *ag, float *dir) {
   if (!ag->ncorners) {
     dtVset(dir, 0, 0, 0);
     return;
@@ -121,7 +117,7 @@ static void calcSmoothSteerDirection(const dtCrowdAgent *ag, float *dir) {
   dtVnormalize(dir);
 }
 
-static void calcStraightSteerDirection(const dtCrowdAgent *ag, float *dir) {
+void calcStraightSteerDirection(const dtCrowdAgent *ag, float *dir) {
   if (!ag->ncorners) {
     dtVset(dir, 0, 0, 0);
     return;
@@ -131,7 +127,7 @@ static void calcStraightSteerDirection(const dtCrowdAgent *ag, float *dir) {
   dtVnormalize(dir);
 }
 
-static int addNeighbour(const int idx, const float dist, dtCrowdNeighbour *neis, const int nneis, const int maxNeis) {
+int addNeighbour(const int idx, const float dist, dtCrowdNeighbour *neis, const int nneis, const int maxNeis) {
   // Insert neighbour based on the distance.
   dtCrowdNeighbour *nei;
   if (!nneis) {
@@ -152,11 +148,11 @@ static int addNeighbour(const int idx, const float dist, dtCrowdNeighbour *neis,
     dtAssert(tgt + n <= maxNeis);
 
     if (n > 0)
-      memmove(&neis[tgt], &neis[i], sizeof(dtCrowdNeighbour) * n);
+      std::memmove(&neis[tgt], &neis[i], sizeof(dtCrowdNeighbour) * n);
     nei = &neis[i];
   }
 
-  memset(nei, 0, sizeof(dtCrowdNeighbour));
+  std::memset(nei, 0, sizeof(dtCrowdNeighbour));
 
   nei->idx = idx;
   nei->dist = dist;
@@ -164,13 +160,13 @@ static int addNeighbour(const int idx, const float dist, dtCrowdNeighbour *neis,
   return dtMin(nneis + 1, maxNeis);
 }
 
-static int getNeighbours(const float *pos, const float height, const float range,
+int getNeighbours(const float *pos, const float height, const float range,
                          const dtCrowdAgent *skip, dtCrowdNeighbour *result, const int maxResult,
                          dtCrowdAgent **agents, const int /*nagents*/, const dtProximityGrid *grid) {
   int n = 0;
 
   static constexpr int MAX_NEIS = 32;
-  unsigned short ids[MAX_NEIS];
+  uint16_t ids[MAX_NEIS];
   const int nids = grid->queryItems(pos[0] - range, pos[2] - range,
                                     pos[0] + range, pos[2] + range,
                                     ids, MAX_NEIS);
@@ -196,7 +192,7 @@ static int getNeighbours(const float *pos, const float height, const float range
   return n;
 }
 
-static int addToOptQueue(dtCrowdAgent *newag, dtCrowdAgent **agents, const int nagents, const int maxAgents) {
+int addToOptQueue(dtCrowdAgent *newag, dtCrowdAgent **agents, const int nagents, const int maxAgents) {
   // Insert neighbour based on greatest time.
   int slot;
   if (!nagents) {
@@ -217,7 +213,7 @@ static int addToOptQueue(dtCrowdAgent *newag, dtCrowdAgent **agents, const int n
     dtAssert(tgt + n <= maxAgents);
 
     if (n > 0)
-      memmove(&agents[tgt], &agents[i], sizeof(dtCrowdAgent *) * n);
+      std::memmove(&agents[tgt], &agents[i], sizeof(dtCrowdAgent *) * n);
     slot = i;
   }
 
@@ -226,7 +222,7 @@ static int addToOptQueue(dtCrowdAgent *newag, dtCrowdAgent **agents, const int n
   return dtMin(nagents + 1, maxAgents);
 }
 
-static int addToPathQueue(dtCrowdAgent *newag, dtCrowdAgent **agents, const int nagents, const int maxAgents) {
+int addToPathQueue(dtCrowdAgent *newag, dtCrowdAgent **agents, const int nagents, const int maxAgents) {
   // Insert neighbour based on greatest time.
   int slot;
   if (!nagents) {
@@ -247,7 +243,7 @@ static int addToPathQueue(dtCrowdAgent *newag, dtCrowdAgent **agents, const int 
     dtAssert(tgt + n <= maxAgents);
 
     if (n > 0)
-      memmove(&agents[tgt], &agents[i], sizeof(dtCrowdAgent *) * n);
+      std::memmove(&agents[tgt], &agents[i], sizeof(dtCrowdAgent *) * n);
     slot = i;
   }
 
@@ -255,6 +251,8 @@ static int addToPathQueue(dtCrowdAgent *newag, dtCrowdAgent **agents, const int 
 
   return dtMin(nagents + 1, maxAgents);
 }
+
+} // namespace
 
 /**
 @class dtCrowd
@@ -298,10 +296,12 @@ dtCrowd::dtCrowd() : m_maxAgents(0),
                      m_agents(nullptr),
                      m_activeAgents(nullptr),
                      m_agentAnims(nullptr),
+                     m_obstacleQueryParams{},
                      m_obstacleQuery(nullptr),
                      m_grid(nullptr),
                      m_pathResult(nullptr),
                      m_maxPathResult(0),
+                     m_agentPlacementHalfExtents{},
                      m_maxAgentRadius(0),
                      m_velocitySampleCount(0),
                      m_navquery(nullptr) {
@@ -340,7 +340,7 @@ void dtCrowd::purge() {
 /// @par
 ///
 /// May be called more than once to purge and re-initialize the crowd.
-bool dtCrowd::init(const int maxAgents, const float maxAgentRadius, dtNavMesh *nav) {
+bool dtCrowd::init(const int maxAgents, const float maxAgentRadius, const dtNavMesh *nav) {
   purge();
 
   m_maxAgents = maxAgents;
@@ -362,7 +362,7 @@ bool dtCrowd::init(const int maxAgents, const float maxAgentRadius, dtNavMesh *n
     return false;
 
   // Init obstacle query params.
-  memset(m_obstacleQueryParams, 0, sizeof(m_obstacleQueryParams));
+  std::memset(m_obstacleQueryParams, 0, sizeof(m_obstacleQueryParams));
   for (int i = 0; i < DT_CROWD_MAX_OBSTAVOIDANCE_PARAMS; ++i) {
     dtObstacleAvoidanceParams *params = &m_obstacleQueryParams[i];
     params->velBias = 0.4f;
@@ -421,7 +421,7 @@ bool dtCrowd::init(const int maxAgents, const float maxAgentRadius, dtNavMesh *n
 
 void dtCrowd::setObstacleAvoidanceParams(const int idx, const dtObstacleAvoidanceParams *params) {
   if (idx >= 0 && idx < DT_CROWD_MAX_OBSTAVOIDANCE_PARAMS)
-    memcpy(&m_obstacleQueryParams[idx], params, sizeof(dtObstacleAvoidanceParams));
+    std::memcpy(&m_obstacleQueryParams[idx], params, sizeof(dtObstacleAvoidanceParams));
 }
 
 const dtObstacleAvoidanceParams *dtCrowd::getObstacleAvoidanceParams(const int idx) const {
@@ -454,7 +454,7 @@ dtCrowdAgent *dtCrowd::getEditableAgent(const int idx) const {
 void dtCrowd::updateAgentParameters(const int idx, const dtCrowdAgentParams *params) const {
   if (idx < 0 || idx >= m_maxAgents)
     return;
-  memcpy(&m_agents[idx].params, params, sizeof(dtCrowdAgentParams));
+  std::memcpy(&m_agents[idx].params, params, sizeof(dtCrowdAgentParams));
 }
 
 /// @par
@@ -760,16 +760,16 @@ void dtCrowd::updateMoveRequest(const float /*dt*/) {
             if ((npath - 1) + nres > m_maxPathResult)
               nres = m_maxPathResult - (npath - 1);
 
-            memmove(res + npath - 1, res, sizeof(dtPolyRef) * nres);
+            std::memmove(res + npath - 1, res, sizeof(dtPolyRef) * nres);
             // Copy old path in the beginning.
-            memcpy(res, path, sizeof(dtPolyRef) * (npath - 1));
+            std::memcpy(res, path, sizeof(dtPolyRef) * (npath - 1));
             nres += npath - 1;
 
             // Remove trackbacks
             for (int j = 0; j < nres; ++j) {
               if (j - 1 >= 0 && j + 1 < nres) {
                 if (res[j - 1] == res[j + 1]) {
-                  memmove(res + (j - 1), res + (j + 1), sizeof(dtPolyRef) * (nres - (j + 1)));
+                  std::memmove(res + (j - 1), res + (j + 1), sizeof(dtPolyRef) * (nres - (j + 1)));
                   nres -= 2;
                   j -= 2;
                 }
@@ -930,7 +930,7 @@ void dtCrowd::checkPathValidity(dtCrowdAgent **agents, const int nagents, const 
 }
 
 void dtCrowd::update(const float dt, dtCrowdAgentDebugInfo *debug) {
-  if(!debug)
+  if (!debug)
     return;
   m_velocitySampleCount = 0;
   const int debugIdx = debug->idx;
@@ -953,7 +953,7 @@ void dtCrowd::update(const float dt, dtCrowdAgentDebugInfo *debug) {
     dtCrowdAgent *ag = agents[i];
     const float *p = ag->npos;
     const float r = ag->params.radius;
-    m_grid->addItem(static_cast<unsigned short>(i), p[0] - r, p[2] - r, p[0] + r, p[2] + r);
+    m_grid->addItem(static_cast<uint16_t>(i), p[0] - r, p[2] - r, p[0] + r, p[2] + r);
   }
 
   // Get nearby navmesh segments and agents to collide with.

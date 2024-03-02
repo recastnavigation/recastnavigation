@@ -16,13 +16,12 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <cstring>
-
-#include "DetourAssert.h"
-#include "DetourCommon.h"
-#include "DetourMath.h"
-#include "DetourStatus.h"
 #include "DetourTileCacheBuilder.h"
+
+#include <DetourAssert.h>
+#include <DetourCommon.h>
+
+#include <cstring>
 
 dtTileCacheAlloc::~dtTileCacheAlloc() {
   // Defined out of line to fix the weak v-tables warning
@@ -71,7 +70,7 @@ dtTileCacheContourSet *dtAllocTileCacheContourSet(dtTileCacheAlloc *alloc) {
   dtAssert(alloc);
 
   auto *const cset = static_cast<dtTileCacheContourSet *>(alloc->alloc(sizeof(dtTileCacheContourSet)));
-  memset(cset, 0, sizeof(dtTileCacheContourSet));
+  std::memset(cset, 0, sizeof(dtTileCacheContourSet));
   return cset;
 }
 
@@ -90,7 +89,7 @@ dtTileCachePolyMesh *dtAllocTileCachePolyMesh(dtTileCacheAlloc *alloc) {
   dtAssert(alloc);
 
   auto *const lmesh = static_cast<dtTileCachePolyMesh *>(alloc->alloc(sizeof(dtTileCachePolyMesh)));
-  memset(lmesh, 0, sizeof(dtTileCachePolyMesh));
+  std::memset(lmesh, 0, sizeof(dtTileCachePolyMesh));
   return lmesh;
 }
 
@@ -107,48 +106,49 @@ void dtFreeTileCachePolyMesh(dtTileCacheAlloc *alloc, dtTileCachePolyMesh *lmesh
 }
 
 struct dtLayerSweepSpan {
-  unsigned short ns; // number samples
-  unsigned char id;  // region id
-  unsigned char nei; // neighbour id
+  uint16_t ns; // number samples
+  uint8_t id;  // region id
+  uint8_t nei; // neighbour id
 };
+namespace {
 
-static constexpr int DT_LAYER_MAX_NEIS = 16;
+constexpr int DT_LAYER_MAX_NEIS = 16;
 
 struct dtLayerMonotoneRegion {
   int area;
-  unsigned char neis[DT_LAYER_MAX_NEIS];
-  unsigned char nneis;
-  unsigned char regId;
-  unsigned char areaId;
+  uint8_t neis[DT_LAYER_MAX_NEIS];
+  uint8_t nneis;
+  uint8_t regId;
+  uint8_t areaId;
 };
 
 struct dtTempContour {
-  dtTempContour(unsigned char *vbuf, const int nvbuf,
-                unsigned short *pbuf, const int npbuf) : verts(vbuf), nverts(0), cverts(nvbuf),
-                                                         poly(pbuf), npoly(0), cpoly(npbuf) {
+  dtTempContour(uint8_t *vbuf, const int nvbuf,
+                uint16_t *pbuf, const int npbuf) : verts(vbuf), nverts(0), cverts(nvbuf),
+                                                   poly(pbuf), npoly(0), cpoly(npbuf) {
   }
-  unsigned char *verts;
+  uint8_t *verts;
   int nverts;
   int cverts;
-  unsigned short *poly;
+  uint16_t *poly;
   int npoly;
   int cpoly;
 };
 
-inline bool overlapRangeExl(const unsigned short amin, const unsigned short amax,
-                            const unsigned short bmin, const unsigned short bmax) {
+bool overlapRangeExl(const uint16_t amin, const uint16_t amax,
+                     const uint16_t bmin, const uint16_t bmax) {
   return amin < bmax && amax > bmin;
 }
 
-static void addUniqueLast(unsigned char *a, unsigned char &an, const unsigned char v) {
+void addUniqueLast(uint8_t *a, uint8_t &an, const uint8_t v) {
   if (an > 0 && a[an - 1] == v)
     return;
   a[an] = v;
   an++;
 }
 
-inline bool isConnected(const dtTileCacheLayer &layer,
-                        const int ia, const int ib, const int walkableClimb) {
+bool isConnected(const dtTileCacheLayer &layer,
+                 const int ia, const int ib, const int walkableClimb) {
   if (layer.areas[ia] != layer.areas[ib])
     return false;
   if (dtAbs(static_cast<int>(layer.heights[ia]) - static_cast<int>(layer.heights[ib])) > walkableClimb)
@@ -156,7 +156,7 @@ inline bool isConnected(const dtTileCacheLayer &layer,
   return true;
 }
 
-static bool canMerge(const unsigned char oldRegId, const unsigned char newRegId, const dtLayerMonotoneRegion *regs, const int nregs) {
+bool canMerge(const uint8_t oldRegId, const uint8_t newRegId, const dtLayerMonotoneRegion *regs, const int nregs) {
   if (!regs)
     return false;
 
@@ -174,202 +174,22 @@ static bool canMerge(const unsigned char oldRegId, const unsigned char newRegId,
   return count == 1;
 }
 
-dtStatus dtBuildTileCacheRegions(dtTileCacheAlloc *alloc,
-                                 dtTileCacheLayer &layer,
-                                 const int walkableClimb) {
-  dtAssert(alloc);
-
-  const int w = layer.header->width;
-  const int h = layer.header->height;
-
-  memset(layer.regs, 0xff, sizeof(unsigned char) * w * h);
-
-  const int nsweeps = w;
-  dtFixedArray<dtLayerSweepSpan> sweeps(alloc, nsweeps);
-  if (!sweeps)
-    return DT_FAILURE | DT_OUT_OF_MEMORY;
-  memset(sweeps, 0, sizeof(dtLayerSweepSpan) * nsweeps);
-
-  // Partition walkable area into monotone regions.
-  unsigned char prevCount[256];
-  unsigned char regId = 0;
-
-  for (int y = 0; y < h; ++y) {
-    if (regId > 0)
-      memset(prevCount, 0, sizeof(unsigned char) * regId);
-    unsigned char sweepId = 0;
-
-    for (int x = 0; x < w; ++x) {
-      const int idx = x + y * w;
-      if (layer.areas[idx] == DT_TILECACHE_NULL_AREA)
-        continue;
-
-      unsigned char sid = 0xff;
-
-      // -x
-      const int xidx = x - 1 + y * w;
-      if (x > 0 && isConnected(layer, idx, xidx, walkableClimb)) {
-        if (layer.regs[xidx] != 0xff)
-          sid = layer.regs[xidx];
-      }
-
-      if (sid == 0xff) {
-        sid = sweepId++;
-        sweeps[sid].nei = 0xff;
-        sweeps[sid].ns = 0;
-      }
-
-      // -y
-      const int yidx = x + (y - 1) * w;
-      if (y > 0 && isConnected(layer, idx, yidx, walkableClimb)) {
-        const unsigned char nr = layer.regs[yidx];
-        if (nr != 0xff) {
-          // Set neighbour when first valid neighbour is encoutered.
-          if (sweeps[sid].ns == 0)
-            sweeps[sid].nei = nr;
-
-          if (sweeps[sid].nei == nr) {
-            // Update existing neighbour
-            sweeps[sid].ns++;
-            prevCount[nr]++;
-          } else {
-            // This is hit if there is nore than one neighbour.
-            // Invalidate the neighbour.
-            sweeps[sid].nei = 0xff;
-          }
-        }
-      }
-
-      layer.regs[idx] = sid;
-    }
-
-    // Create unique ID.
-    for (int i = 0; i < sweepId; ++i) {
-      // If the neighbour is set and there is only one continuous connection to it,
-      // the sweep will be merged with the previous one, else new region is created.
-      if (sweeps[i].nei != 0xff && static_cast<unsigned short>(prevCount[sweeps[i].nei]) == sweeps[i].ns) {
-        sweeps[i].id = sweeps[i].nei;
-      } else {
-        if (regId == 255) {
-          // Region ID's overflow.
-          return DT_FAILURE | DT_BUFFER_TOO_SMALL;
-        }
-        sweeps[i].id = regId++;
-      }
-    }
-
-    // Remap local sweep ids to region ids.
-    for (int x = 0; x < w; ++x) {
-      const int idx = x + y * w;
-      if (layer.regs[idx] != 0xff)
-        layer.regs[idx] = sweeps[layer.regs[idx]].id;
-    }
-  }
-
-  // Allocate and init layer regions.
-  const int nregs = regId;
-  dtFixedArray<dtLayerMonotoneRegion> regs(alloc, nregs);
-  if (!regs)
-    return DT_FAILURE | DT_OUT_OF_MEMORY;
-
-  memset(regs, 0, sizeof(dtLayerMonotoneRegion) * nregs);
-  for (int i = 0; i < nregs; ++i)
-    regs[i].regId = 0xff;
-
-  // Find region neighbours.
-  for (int y = 0; y < h; ++y) {
-    for (int x = 0; x < w; ++x) {
-      const int idx = x + y * w;
-      const unsigned char ri = layer.regs[idx];
-      if (ri == 0xff)
-        continue;
-
-      // Update area.
-      regs[ri].area++;
-      regs[ri].areaId = layer.areas[idx];
-
-      // Update neighbours
-      const int ymi = x + (y - 1) * w;
-      if (y > 0 && isConnected(layer, idx, ymi, walkableClimb)) {
-        const unsigned char rai = layer.regs[ymi];
-        if (rai != 0xff && rai != ri) {
-          addUniqueLast(regs[ri].neis, regs[ri].nneis, rai);
-          addUniqueLast(regs[rai].neis, regs[rai].nneis, ri);
-        }
-      }
-    }
-  }
-
-  for (int i = 0; i < nregs; ++i)
-    regs[i].regId = static_cast<unsigned char>(i);
-
-  for (int i = 0; i < nregs; ++i) {
-    const dtLayerMonotoneRegion &reg = regs[i];
-
-    int merge = -1;
-    int mergea = 0;
-    for (int j = 0; j < static_cast<int>(reg.nneis); ++j) {
-      const unsigned char nei = reg.neis[j];
-      const dtLayerMonotoneRegion &regn = regs[nei];
-      if (reg.regId == regn.regId)
-        continue;
-      if (reg.areaId != regn.areaId)
-        continue;
-      if (regn.area > mergea) {
-        if (canMerge(reg.regId, regn.regId, regs, nregs)) {
-          mergea = regn.area;
-          merge = static_cast<int>(nei);
-        }
-      }
-    }
-    if (merge != -1) {
-      const unsigned char oldId = reg.regId;
-      const unsigned char newId = regs[merge].regId;
-      for (int j = 0; j < nregs; ++j)
-        if (regs[j].regId == oldId)
-          regs[j].regId = newId;
-    }
-  }
-
-  // Compact ids.
-  unsigned char remap[256] = {};
-  // Find number of unique regions.
-  regId = 0;
-  for (int i = 0; i < nregs; ++i)
-    remap[regs[i].regId] = 1;
-  for (int i = 0; i < 256; ++i)
-    if (remap[i])
-      remap[i] = regId++;
-  // Remap ids.
-  for (int i = 0; i < nregs; ++i)
-    regs[i].regId = remap[regs[i].regId];
-
-  layer.regCount = regId;
-
-  for (int i = 0; i < w * h; ++i) {
-    if (layer.regs[i] != 0xff)
-      layer.regs[i] = regs[layer.regs[i]].regId;
-  }
-
-  return DT_SUCCESS;
-}
-
-static bool appendVertex(dtTempContour &cont, const int x, const int y, const int z, const int r) {
+bool appendVertex(dtTempContour &cont, const int x, const int y, const int z, const int r) {
   // Try to merge with existing segments.
   if (cont.nverts > 1) {
-    const unsigned char *pa = &cont.verts[(cont.nverts - 2) * 4];
-    unsigned char *pb = &cont.verts[(cont.nverts - 1) * 4];
+    const uint8_t *pa = &cont.verts[(cont.nverts - 2) * 4];
+    uint8_t *pb = &cont.verts[(cont.nverts - 1) * 4];
     if (static_cast<int>(pb[3]) == r) {
       if (pa[0] == pb[0] && static_cast<int>(pb[0]) == x) {
         // The verts are aligned aling x-axis, update z.
-        pb[1] = static_cast<unsigned char>(y);
-        pb[2] = static_cast<unsigned char>(z);
+        pb[1] = static_cast<uint8_t>(y);
+        pb[2] = static_cast<uint8_t>(z);
         return true;
       }
       if (pa[2] == pb[2] && static_cast<int>(pb[2]) == z) {
         // The verts are aligned aling z-axis, update x.
-        pb[0] = static_cast<unsigned char>(x);
-        pb[1] = static_cast<unsigned char>(y);
+        pb[0] = static_cast<uint8_t>(x);
+        pb[1] = static_cast<uint8_t>(y);
         return true;
       }
     }
@@ -379,29 +199,29 @@ static bool appendVertex(dtTempContour &cont, const int x, const int y, const in
   if (cont.nverts + 1 > cont.cverts)
     return false;
 
-  unsigned char *v = &cont.verts[cont.nverts * 4];
-  v[0] = static_cast<unsigned char>(x);
-  v[1] = static_cast<unsigned char>(y);
-  v[2] = static_cast<unsigned char>(z);
-  v[3] = static_cast<unsigned char>(r);
+  uint8_t *v = &cont.verts[cont.nverts * 4];
+  v[0] = static_cast<uint8_t>(x);
+  v[1] = static_cast<uint8_t>(y);
+  v[2] = static_cast<uint8_t>(z);
+  v[3] = static_cast<uint8_t>(r);
   cont.nverts++;
 
   return true;
 }
 
-static unsigned char getNeighbourReg(const dtTileCacheLayer &layer,
-                                     const int ax, const int ay, const int dir) {
+uint8_t getNeighbourReg(const dtTileCacheLayer &layer,
+                        const int ax, const int ay, const int dir) {
   const int w = layer.header->width;
   const int ia = ax + ay * w;
 
-  const unsigned char con = layer.cons[ia] & 0xf;
-  const unsigned char portal = layer.cons[ia] >> 4;
-  const unsigned char mask = static_cast<unsigned char>(1 << dir);
+  const uint8_t con = layer.cons[ia] & 0xf;
+  const uint8_t portal = layer.cons[ia] >> 4;
+  const uint8_t mask = static_cast<uint8_t>(1 << dir);
 
   if ((con & mask) == 0) {
     // No connection, return portal or hard edge.
     if (portal & mask)
-      return 0xf8 + static_cast<unsigned char>(dir);
+      return 0xf8 + static_cast<uint8_t>(dir);
     return 0xff;
   }
 
@@ -412,7 +232,7 @@ static unsigned char getNeighbourReg(const dtTileCacheLayer &layer,
   return layer.regs[ib];
 }
 
-static bool walkContour(const dtTileCacheLayer &layer, int x, int y, dtTempContour &cont) {
+bool walkContour(const dtTileCacheLayer &layer, int x, int y, dtTempContour &cont) {
   const int w = layer.header->width;
   const int h = layer.header->height;
 
@@ -437,7 +257,7 @@ static bool walkContour(const dtTileCacheLayer &layer, int x, int y, dtTempConto
 
   int iter = 0;
   while (iter < maxIter) {
-    const unsigned char rn = getNeighbourReg(layer, x, y, dir);
+    const uint8_t rn = getNeighbourReg(layer, x, y, dir);
 
     int nx = x;
     int ny = y;
@@ -485,17 +305,17 @@ static bool walkContour(const dtTileCacheLayer &layer, int x, int y, dtTempConto
   }
 
   // Remove last vertex if it is duplicate of the first one.
-  const unsigned char *pa = &cont.verts[(cont.nverts - 1) * 4];
-  const unsigned char *pb = &cont.verts[0];
+  const uint8_t *pa = &cont.verts[(cont.nverts - 1) * 4];
+  const uint8_t *pb = &cont.verts[0];
   if (pa[0] == pb[0] && pa[2] == pb[2])
     cont.nverts--;
 
   return true;
 }
 
-static float distancePtSeg(const int x, const int z,
-                           const int px, const int pz,
-                           const int qx, const int qz) {
+float distancePtSeg(const int x, const int z,
+                    const int px, const int pz,
+                    const int qx, const int qz) {
   const float pqx = static_cast<float>(qx - px);
   const float pqz = static_cast<float>(qz - pz);
   float dx = static_cast<float>(x - px);
@@ -515,7 +335,7 @@ static float distancePtSeg(const int x, const int z,
   return dx * dx + dz * dz;
 }
 
-static void simplifyContour(dtTempContour &cont, const float maxError) {
+void simplifyContour(dtTempContour &cont, const float maxError) {
   if (!cont.verts || !cont.poly)
     return;
   cont.npoly = 0;
@@ -524,7 +344,7 @@ static void simplifyContour(dtTempContour &cont, const float maxError) {
     const int j = (i + 1) % cont.nverts;
     // Check for start of a wall segment.
     if (cont.verts[i * 4 + 3] != cont.verts[j * 4 + 3])
-      cont.poly[cont.npoly++] = static_cast<unsigned short>(i);
+      cont.poly[cont.npoly++] = static_cast<uint16_t>(i);
   }
   if (cont.npoly < 2) {
     // If there is no transitions at all,
@@ -551,8 +371,8 @@ static void simplifyContour(dtTempContour &cont, const float maxError) {
       }
     }
     cont.npoly = 0;
-    cont.poly[cont.npoly++] = static_cast<unsigned short>(lli);
-    cont.poly[cont.npoly++] = static_cast<unsigned short>(uri);
+    cont.poly[cont.npoly++] = static_cast<uint16_t>(lli);
+    cont.poly[cont.npoly++] = static_cast<uint16_t>(uri);
   }
 
   // Add points until all raw points are within
@@ -602,7 +422,7 @@ static void simplifyContour(dtTempContour &cont, const float maxError) {
       cont.npoly++;
       for (int j = cont.npoly - 1; j > i; --j)
         cont.poly[j] = cont.poly[j - 1];
-      cont.poly[i + 1] = static_cast<unsigned short>(maxi);
+      cont.poly[i + 1] = static_cast<uint16_t>(maxi);
     } else {
       ++i;
     }
@@ -617,8 +437,8 @@ static void simplifyContour(dtTempContour &cont, const float maxError) {
   cont.nverts = 0;
   for (int i = 0; i < cont.npoly; ++i) {
     const int j = (start + i) % cont.npoly;
-    const unsigned char *src = &cont.verts[cont.poly[j] * 4];
-    unsigned char *dst = &cont.verts[cont.nverts * 4];
+    const uint8_t *src = &cont.verts[cont.poly[j] * 4];
+    uint8_t *dst = &cont.verts[cont.nverts * 4];
     dst[0] = src[0];
     dst[1] = src[1];
     dst[2] = src[2];
@@ -627,18 +447,18 @@ static void simplifyContour(dtTempContour &cont, const float maxError) {
   }
 }
 
-static unsigned char getCornerHeight(const dtTileCacheLayer &layer,
-                                     const int x, const int y, const int z,
-                                     const int walkableClimb,
-                                     bool &shouldRemove) {
+uint8_t getCornerHeight(const dtTileCacheLayer &layer,
+                        const int x, const int y, const int z,
+                        const int walkableClimb,
+                        bool &shouldRemove) {
   const int w = layer.header->width;
   const int h = layer.header->height;
 
   int n = 0;
 
-  unsigned char portal = 0xf;
-  unsigned char height = 0;
-  unsigned char preg = 0xff;
+  uint8_t portal = 0xf;
+  uint8_t height = 0;
+  uint8_t preg = 0xff;
   bool allSameReg = true;
 
   for (int dz = -1; dz <= 0; ++dz) {
@@ -649,7 +469,7 @@ static unsigned char getCornerHeight(const dtTileCacheLayer &layer,
         const int idx = px + pz * w;
         const int lh = layer.heights[idx];
         if (dtAbs(lh - y) <= walkableClimb && layer.areas[idx] != DT_TILECACHE_NULL_AREA) {
-          height = dtMax(height, static_cast<unsigned char>(lh));
+          height = dtMax(height, static_cast<uint8_t>(lh));
           portal &= layer.cons[idx] >> 4;
           if (preg != 0xff && preg != layer.regs[idx])
             allSameReg = false;
@@ -673,120 +493,31 @@ static unsigned char getCornerHeight(const dtTileCacheLayer &layer,
   return height;
 }
 
-// TODO: move this somewhere else, once the layer meshing is done.
-dtStatus dtBuildTileCacheContours(dtTileCacheAlloc *alloc,
-                                  const dtTileCacheLayer &layer,
-                                  const int walkableClimb, const float maxError,
-                                  dtTileCacheContourSet &lcset) {
-  dtAssert(alloc);
-  if (!alloc)
-    return DT_FAILURE | DT_INVALID_PARAM;
+constexpr int VERTEX_BUCKET_COUNT2 = 1 << 8;
 
-  const int w = layer.header->width;
-  const int h = layer.header->height;
-
-  lcset.nconts = layer.regCount;
-  lcset.conts = static_cast<dtTileCacheContour *>(alloc->alloc(sizeof(dtTileCacheContour) * lcset.nconts));
-  if (!lcset.conts)
-    return DT_FAILURE | DT_OUT_OF_MEMORY;
-  memset(lcset.conts, 0, sizeof(dtTileCacheContour) * lcset.nconts);
-
-  // Allocate temp buffer for contour tracing.
-  const int maxTempVerts = (w + h) * 2 * 2; // Twice around the layer.
-
-  dtFixedArray<unsigned char> tempVerts(alloc, maxTempVerts * 4);
-  if (!tempVerts)
-    return DT_FAILURE | DT_OUT_OF_MEMORY;
-
-  dtFixedArray<unsigned short> tempPoly(alloc, maxTempVerts);
-  if (!tempPoly)
-    return DT_FAILURE | DT_OUT_OF_MEMORY;
-
-  dtTempContour temp(tempVerts, maxTempVerts, tempPoly, maxTempVerts);
-
-  // Find contours.
-  for (int y = 0; y < h; ++y) {
-    for (int x = 0; x < w; ++x) {
-      const int idx = x + y * w;
-      const unsigned char ri = layer.regs[idx];
-      if (ri == 0xff)
-        continue;
-
-      dtTileCacheContour &cont = lcset.conts[ri];
-
-      if (cont.nverts > 0)
-        continue;
-
-      cont.reg = ri;
-      cont.area = layer.areas[idx];
-
-      if (!walkContour(layer, x, y, temp)) {
-        // Too complex contour.
-        // Note: If you hit here ofte, try increasing 'maxTempVerts'.
-        return DT_FAILURE | DT_BUFFER_TOO_SMALL;
-      }
-
-      simplifyContour(temp, maxError);
-
-      // Store contour.
-      cont.nverts = temp.nverts;
-      if (cont.nverts > 0) {
-        cont.verts = static_cast<unsigned char *>(alloc->alloc(sizeof(unsigned char) * 4 * temp.nverts));
-        if (!cont.verts)
-          return DT_FAILURE | DT_OUT_OF_MEMORY;
-
-        for (int i = 0, j = temp.nverts - 1; i < temp.nverts; j = i++) {
-          unsigned char *dst = &cont.verts[j * 4];
-          const unsigned char *v = &temp.verts[j * 4];
-          const unsigned char *vn = &temp.verts[i * 4];
-          const unsigned char nei = vn[3]; // The neighbour reg is stored at segment vertex of a segment.
-          bool shouldRemove = false;
-          const unsigned char lh = getCornerHeight(layer, v[0], v[1], v[2],
-                                                   walkableClimb, shouldRemove);
-
-          dst[0] = v[0];
-          dst[1] = lh;
-          dst[2] = v[2];
-
-          // Store portal direction and remove status to the fourth component.
-          dst[3] = 0x0f;
-          if (nei != 0xff && nei >= 0xf8)
-            dst[3] = nei - 0xf8;
-          if (shouldRemove)
-            dst[3] |= 0x80;
-        }
-      }
-    }
-  }
-
-  return DT_SUCCESS;
-}
-
-static constexpr int VERTEX_BUCKET_COUNT2 = 1 << 8;
-
-inline int computeVertexHash2(const int x, const int y, const int z) {
-  constexpr unsigned int h1 = 0x8da6b343; // Large multiplicative constants;
-  constexpr unsigned int h2 = 0xd8163841; // here arbitrarily chosen primes
-  constexpr unsigned int h3 = 0xcb1ab31f;
-  const unsigned int n = h1 * x + h2 * y + h3 * z;
+int computeVertexHash2(const int x, const int y, const int z) {
+  constexpr uint32_t h1 = 0x8da6b343; // Large multiplicative constants;
+  constexpr uint32_t h2 = 0xd8163841; // here arbitrarily chosen primes
+  constexpr uint32_t h3 = 0xcb1ab31f;
+  const uint32_t n = h1 * x + h2 * y + h3 * z;
   return static_cast<int>(n & VERTEX_BUCKET_COUNT2 - 1);
 }
 
-static unsigned short addVertex(const unsigned short x, const unsigned short y, const unsigned short z, unsigned short *verts, unsigned short *firstVert, unsigned short *nextVert, int &nv) {
+uint16_t addVertex(const uint16_t x, const uint16_t y, const uint16_t z, uint16_t *verts, uint16_t *firstVert, uint16_t *nextVert, int &nv) {
   const int bucket = computeVertexHash2(x, 0, z);
-  unsigned short i = firstVert[bucket];
+  uint16_t i = firstVert[bucket];
 
   while (i != DT_TILECACHE_NULL_IDX) {
-    const unsigned short *v = &verts[i * 3];
+    const uint16_t *v = &verts[i * 3];
     if (v[0] == x && v[2] == z && dtAbs(v[1] - y) <= 2)
       return i;
     i = nextVert[i]; // next
   }
 
   // Could not find, create new.
-  i = static_cast<unsigned short>(nv);
+  i = static_cast<uint16_t>(nv);
   nv++;
-  unsigned short *v = &verts[i * 3];
+  uint16_t *v = &verts[i * 3];
   v[0] = x;
   v[1] = y;
   v[2] = z;
@@ -797,23 +528,23 @@ static unsigned short addVertex(const unsigned short x, const unsigned short y, 
 }
 
 struct rcEdge {
-  unsigned short vert[2];
-  unsigned short polyEdge[2];
-  unsigned short poly[2];
+  uint16_t vert[2];
+  uint16_t polyEdge[2];
+  uint16_t poly[2];
 };
 
-static bool buildMeshAdjacency(dtTileCacheAlloc *alloc,
-                               unsigned short *polys, const int npolys,
-                               const unsigned short *verts, const int nverts,
-                               const dtTileCacheContourSet &lcset) {
+bool buildMeshAdjacency(dtTileCacheAlloc *alloc,
+                        uint16_t *polys, const int npolys,
+                        const uint16_t *verts, const int nverts,
+                        const dtTileCacheContourSet &lcset) {
   // Based on code by Eric Lengyel from:
   // https://web.archive.org/web/20080704083314/http://www.terathon.com/code/edges.php
 
   const int maxEdgeCount = npolys * MAX_VERTS_PER_POLY;
-  dtFixedArray<unsigned short> firstEdge(alloc, nverts + maxEdgeCount);
+  dtFixedArray<uint16_t> firstEdge(alloc, nverts + maxEdgeCount);
   if (!firstEdge)
     return false;
-  unsigned short *nextEdge = firstEdge + nverts;
+  uint16_t *nextEdge = firstEdge + nverts;
   int edgeCount = 0;
 
   dtFixedArray<rcEdge> edges(alloc, maxEdgeCount);
@@ -824,42 +555,42 @@ static bool buildMeshAdjacency(dtTileCacheAlloc *alloc,
     firstEdge[i] = DT_TILECACHE_NULL_IDX;
 
   for (int i = 0; i < npolys; ++i) {
-    const unsigned short *t = &polys[i * MAX_VERTS_PER_POLY * 2];
+    const uint16_t *t = &polys[i * MAX_VERTS_PER_POLY * 2];
     for (int j = 0; j < MAX_VERTS_PER_POLY; ++j) {
       if (t[j] == DT_TILECACHE_NULL_IDX)
         break;
-      const unsigned short v0 = t[j];
-      const unsigned short v1 = j + 1 >= MAX_VERTS_PER_POLY || t[j + 1] == DT_TILECACHE_NULL_IDX ? t[0] : t[j + 1];
+      const uint16_t v0 = t[j];
+      const uint16_t v1 = j + 1 >= MAX_VERTS_PER_POLY || t[j + 1] == DT_TILECACHE_NULL_IDX ? t[0] : t[j + 1];
       if (v0 < v1) {
         rcEdge &edge = edges[edgeCount];
         edge.vert[0] = v0;
         edge.vert[1] = v1;
-        edge.poly[0] = static_cast<unsigned short>(i);
-        edge.polyEdge[0] = static_cast<unsigned short>(j);
-        edge.poly[1] = static_cast<unsigned short>(i);
+        edge.poly[0] = static_cast<uint16_t>(i);
+        edge.polyEdge[0] = static_cast<uint16_t>(j);
+        edge.poly[1] = static_cast<uint16_t>(i);
         edge.polyEdge[1] = 0xff;
         // Insert edge
         nextEdge[edgeCount] = firstEdge[v0];
-        firstEdge[v0] = static_cast<unsigned short>(edgeCount);
+        firstEdge[v0] = static_cast<uint16_t>(edgeCount);
         edgeCount++;
       }
     }
   }
 
   for (int i = 0; i < npolys; ++i) {
-    const unsigned short *t = &polys[i * MAX_VERTS_PER_POLY * 2];
+    const uint16_t *t = &polys[i * MAX_VERTS_PER_POLY * 2];
     for (int j = 0; j < MAX_VERTS_PER_POLY; ++j) {
       if (t[j] == DT_TILECACHE_NULL_IDX)
         break;
-      const unsigned short v0 = t[j];
-      const unsigned short v1 = j + 1 >= MAX_VERTS_PER_POLY || t[j + 1] == DT_TILECACHE_NULL_IDX ? t[0] : t[j + 1];
+      const uint16_t v0 = t[j];
+      const uint16_t v1 = j + 1 >= MAX_VERTS_PER_POLY || t[j + 1] == DT_TILECACHE_NULL_IDX ? t[0] : t[j + 1];
       if (v0 > v1) {
         bool found = false;
-        for (unsigned short e = firstEdge[v1]; e != DT_TILECACHE_NULL_IDX; e = nextEdge[e]) {
+        for (uint16_t e = firstEdge[v1]; e != DT_TILECACHE_NULL_IDX; e = nextEdge[e]) {
           rcEdge &edge = edges[e];
           if (edge.vert[1] == v0 && edge.poly[0] == edge.poly[1]) {
-            edge.poly[1] = static_cast<unsigned short>(i);
-            edge.polyEdge[1] = static_cast<unsigned short>(j);
+            edge.poly[1] = static_cast<uint16_t>(i);
+            edge.polyEdge[1] = static_cast<uint16_t>(j);
             found = true;
             break;
           }
@@ -869,13 +600,13 @@ static bool buildMeshAdjacency(dtTileCacheAlloc *alloc,
           rcEdge &edge = edges[edgeCount];
           edge.vert[0] = v1;
           edge.vert[1] = v0;
-          edge.poly[0] = static_cast<unsigned short>(i);
-          edge.polyEdge[0] = static_cast<unsigned short>(j);
-          edge.poly[1] = static_cast<unsigned short>(i);
+          edge.poly[0] = static_cast<uint16_t>(i);
+          edge.polyEdge[0] = static_cast<uint16_t>(j);
+          edge.poly[1] = static_cast<uint16_t>(i);
           edge.polyEdge[1] = 0xff;
           // Insert edge
           nextEdge[edgeCount] = firstEdge[v1];
-          firstEdge[v1] = static_cast<unsigned short>(edgeCount);
+          firstEdge[v1] = static_cast<uint16_t>(edgeCount);
           edgeCount++;
         }
       }
@@ -889,17 +620,17 @@ static bool buildMeshAdjacency(dtTileCacheAlloc *alloc,
       continue;
 
     for (int j = 0, k = cont.nverts - 1; j < cont.nverts; k = j++) {
-      const unsigned char *va = &cont.verts[k * 4];
-      const unsigned char *vb = &cont.verts[j * 4];
-      const unsigned char dir = va[3] & 0xf;
+      const uint8_t *va = &cont.verts[k * 4];
+      const uint8_t *vb = &cont.verts[j * 4];
+      const uint8_t dir = va[3] & 0xf;
       if (dir == 0xf)
         continue;
 
       if (dir == 0 || dir == 2) {
         // Find matching vertical edge
-        const unsigned short x = va[0];
-        unsigned short zmin = va[2];
-        unsigned short zmax = vb[2];
+        const uint16_t x = va[0];
+        uint16_t zmin = va[2];
+        uint16_t zmax = vb[2];
         if (zmin > zmax)
           dtSwap(zmin, zmax);
 
@@ -908,11 +639,11 @@ static bool buildMeshAdjacency(dtTileCacheAlloc *alloc,
           // Skip connected edges.
           if (e.poly[0] != e.poly[1])
             continue;
-          const unsigned short *eva = &verts[e.vert[0] * 3];
-          const unsigned short *evb = &verts[e.vert[1] * 3];
+          const uint16_t *eva = &verts[e.vert[0] * 3];
+          const uint16_t *evb = &verts[e.vert[1] * 3];
           if (eva[0] == x && evb[0] == x) {
-            unsigned short ezmin = eva[2];
-            unsigned short ezmax = evb[2];
+            uint16_t ezmin = eva[2];
+            uint16_t ezmax = evb[2];
             if (ezmin > ezmax)
               dtSwap(ezmin, ezmax);
             if (overlapRangeExl(zmin, zmax, ezmin, ezmax)) {
@@ -923,9 +654,9 @@ static bool buildMeshAdjacency(dtTileCacheAlloc *alloc,
         }
       } else {
         // Find matching vertical edge
-        const unsigned short z = va[2];
-        unsigned short xmin = va[0];
-        unsigned short xmax = vb[0];
+        const uint16_t z = va[2];
+        uint16_t xmin = va[0];
+        uint16_t xmax = vb[0];
         if (xmin > xmax)
           dtSwap(xmin, xmax);
         for (int m = 0; m < edgeCount; ++m) {
@@ -933,11 +664,11 @@ static bool buildMeshAdjacency(dtTileCacheAlloc *alloc,
           // Skip connected edges.
           if (e.poly[0] != e.poly[1])
             continue;
-          const unsigned short *eva = &verts[e.vert[0] * 3];
-          const unsigned short *evb = &verts[e.vert[1] * 3];
+          const uint16_t *eva = &verts[e.vert[0] * 3];
+          const uint16_t *evb = &verts[e.vert[1] * 3];
           if (eva[2] == z && evb[2] == z) {
-            unsigned short exmin = eva[0];
-            unsigned short exmax = evb[0];
+            uint16_t exmin = eva[0];
+            uint16_t exmax = evb[0];
             if (exmin > exmax)
               dtSwap(exmin, exmax);
             if (overlapRangeExl(xmin, xmax, exmin, exmax)) {
@@ -954,13 +685,13 @@ static bool buildMeshAdjacency(dtTileCacheAlloc *alloc,
   for (int i = 0; i < edgeCount; ++i) {
     const rcEdge &e = edges[i];
     if (e.poly[0] != e.poly[1]) {
-      unsigned short *p0 = &polys[e.poly[0] * MAX_VERTS_PER_POLY * 2];
-      unsigned short *p1 = &polys[e.poly[1] * MAX_VERTS_PER_POLY * 2];
+      uint16_t *p0 = &polys[e.poly[0] * MAX_VERTS_PER_POLY * 2];
+      uint16_t *p1 = &polys[e.poly[1] * MAX_VERTS_PER_POLY * 2];
       p0[MAX_VERTS_PER_POLY + e.polyEdge[0]] = e.poly[1];
       p1[MAX_VERTS_PER_POLY + e.polyEdge[1]] = e.poly[0];
     } else if (e.polyEdge[1] != 0xff) {
-      unsigned short *p0 = &polys[e.poly[0] * MAX_VERTS_PER_POLY * 2];
-      p0[MAX_VERTS_PER_POLY + e.polyEdge[0]] = 0x8000 | static_cast<unsigned short>(e.polyEdge[1]);
+      uint16_t *p0 = &polys[e.poly[0] * MAX_VERTS_PER_POLY * 2];
+      p0[MAX_VERTS_PER_POLY + e.polyEdge[0]] = 0x8000 | static_cast<uint16_t>(e.polyEdge[1]);
     }
   }
 
@@ -968,10 +699,10 @@ static bool buildMeshAdjacency(dtTileCacheAlloc *alloc,
 }
 
 // Last time I checked the if version got compiled using cmov, which was a lot faster than module (with idiv).
-inline int prev(const int i, const int n) { return i - 1 >= 0 ? i - 1 : n - 1; }
-inline int next(const int i, const int n) { return i + 1 < n ? i + 1 : 0; }
+int prev(const int i, const int n) { return i - 1 >= 0 ? i - 1 : n - 1; }
+int next(const int i, const int n) { return i + 1 < n ? i + 1 : 0; }
 
-inline int area2(const unsigned char *a, const unsigned char *b, const unsigned char *c) {
+int area2(const uint8_t *a, const uint8_t *b, const uint8_t *c) {
   return (static_cast<int>(b[0]) - static_cast<int>(a[0])) * (static_cast<int>(c[2]) - static_cast<int>(a[2])) - (static_cast<int>(c[0]) - static_cast<int>(a[0])) * (static_cast<int>(b[2]) - static_cast<int>(a[2]));
 }
 
@@ -979,29 +710,29 @@ inline int area2(const unsigned char *a, const unsigned char *b, const unsigned 
 //	The arguments are negated to ensure that they are 0/1
 //	values.  Then the bitwise Xor operator may apply.
 //	(This idea is due to Michael Baldwin.)
-inline bool xorb(const bool x, const bool y) {
+bool xorb(const bool x, const bool y) {
   return !x ^ !y;
 }
 
 // Returns true iff c is strictly to the left of the directed
 // line through a to b.
-inline bool left(const unsigned char *a, const unsigned char *b, const unsigned char *c) {
+bool left(const uint8_t *a, const uint8_t *b, const uint8_t *c) {
   return area2(a, b, c) < 0;
 }
 
-inline bool leftOn(const unsigned char *a, const unsigned char *b, const unsigned char *c) {
+bool leftOn(const uint8_t *a, const uint8_t *b, const uint8_t *c) {
   return area2(a, b, c) <= 0;
 }
 
-inline bool collinear(const unsigned char *a, const unsigned char *b, const unsigned char *c) {
+bool collinear(const uint8_t *a, const uint8_t *b, const uint8_t *c) {
   return area2(a, b, c) == 0;
 }
 
 //	Returns true iff ab properly intersects cd: they share
 //	a point interior to both segments.  The properness of the
 //	intersection is ensured by using strict leftness.
-static bool intersectProp(const unsigned char *a, const unsigned char *b,
-                          const unsigned char *c, const unsigned char *d) {
+bool intersectProp(const uint8_t *a, const uint8_t *b,
+                   const uint8_t *c, const uint8_t *d) {
   // Eliminate improper cases.
   if (collinear(a, b, c) || collinear(a, b, d) ||
       collinear(c, d, a) || collinear(c, d, b))
@@ -1012,7 +743,7 @@ static bool intersectProp(const unsigned char *a, const unsigned char *b,
 
 // Returns T iff (a,b,c) are collinear and point c lies
 // on the closed segement ab.
-static bool between(const unsigned char *a, const unsigned char *b, const unsigned char *c) {
+bool between(const uint8_t *a, const uint8_t *b, const uint8_t *c) {
   if (!collinear(a, b, c))
     return false;
   // If ab not vertical, check betweenness on x; else on y.
@@ -1022,8 +753,8 @@ static bool between(const unsigned char *a, const unsigned char *b, const unsign
 }
 
 // Returns true iff segments ab and cd intersect, properly or improperly.
-static bool intersect(const unsigned char *a, const unsigned char *b,
-                      const unsigned char *c, const unsigned char *d) {
+bool intersect(const uint8_t *a, const uint8_t *b,
+               const uint8_t *c, const uint8_t *d) {
   if (intersectProp(a, b, c, d))
     return true;
   if (between(a, b, c) || between(a, b, d) ||
@@ -1032,23 +763,23 @@ static bool intersect(const unsigned char *a, const unsigned char *b,
   return false;
 }
 
-static bool vequal(const unsigned char *a, const unsigned char *b) {
+bool vequal(const uint8_t *a, const uint8_t *b) {
   return a[0] == b[0] && a[2] == b[2];
 }
 
 // Returns T iff (v_i, v_j) is a proper internal *or* external
 // diagonal of P, *ignoring edges incident to v_i and v_j*.
-static bool diagonalie(const int i, const int j, const int n, const unsigned char *verts, const unsigned short *indices) {
-  const unsigned char *d0 = &verts[(indices[i] & 0x7fff) * 4];
-  const unsigned char *d1 = &verts[(indices[j] & 0x7fff) * 4];
+bool diagonalie(const int i, const int j, const int n, const uint8_t *verts, const uint16_t *indices) {
+  const uint8_t *d0 = &verts[(indices[i] & 0x7fff) * 4];
+  const uint8_t *d1 = &verts[(indices[j] & 0x7fff) * 4];
 
   // For each edge (k,k+1) of P
   for (int k = 0; k < n; k++) {
     const int k1 = next(k, n);
     // Skip edges incident to i or j
     if (!(k == i || k1 == i || k == j || k1 == j)) {
-      const unsigned char *p0 = &verts[(indices[k] & 0x7fff) * 4];
-      const unsigned char *p1 = &verts[(indices[k1] & 0x7fff) * 4];
+      const uint8_t *p0 = &verts[(indices[k] & 0x7fff) * 4];
+      const uint8_t *p1 = &verts[(indices[k1] & 0x7fff) * 4];
 
       if (vequal(d0, p0) || vequal(d1, p0) || vequal(d0, p1) || vequal(d1, p1))
         continue;
@@ -1062,11 +793,11 @@ static bool diagonalie(const int i, const int j, const int n, const unsigned cha
 
 // Returns true iff the diagonal (i,j) is strictly internal to the
 // polygon P in the neighborhood of the i endpoint.
-static bool inCone(const int i, const int j, const int n, const unsigned char *verts, const unsigned short *indices) {
-  const unsigned char *pi = &verts[(indices[i] & 0x7fff) * 4];
-  const unsigned char *pj = &verts[(indices[j] & 0x7fff) * 4];
-  const unsigned char *pi1 = &verts[(indices[next(i, n)] & 0x7fff) * 4];
-  const unsigned char *pin1 = &verts[(indices[prev(i, n)] & 0x7fff) * 4];
+bool inCone(const int i, const int j, const int n, const uint8_t *verts, const uint16_t *indices) {
+  const uint8_t *pi = &verts[(indices[i] & 0x7fff) * 4];
+  const uint8_t *pj = &verts[(indices[j] & 0x7fff) * 4];
+  const uint8_t *pi1 = &verts[(indices[next(i, n)] & 0x7fff) * 4];
+  const uint8_t *pin1 = &verts[(indices[prev(i, n)] & 0x7fff) * 4];
 
   // If P[i] is a convex vertex [ i+1 left or on (i-1,i) ].
   if (leftOn(pin1, pi, pi1))
@@ -1078,13 +809,13 @@ static bool inCone(const int i, const int j, const int n, const unsigned char *v
 
 // Returns T iff (v_i, v_j) is a proper internal
 // diagonal of P.
-static bool diagonal(const int i, const int j, const int n, const unsigned char *verts, const unsigned short *indices) {
+bool diagonal(const int i, const int j, const int n, const uint8_t *verts, const uint16_t *indices) {
   return inCone(i, j, n, verts, indices) && diagonalie(i, j, n, verts, indices);
 }
 
-static int triangulate(int n, const unsigned char *verts, unsigned short *indices, unsigned short *tris) {
+int triangulate(int n, const uint8_t *verts, uint16_t *indices, uint16_t *tris) {
   int ntris = 0;
-  unsigned short *dst = tris;
+  uint16_t *dst = tris;
 
   // The last bit of the index is used to indicate if the vertex can be removed.
   for (int i = 0; i < n; i++) {
@@ -1100,8 +831,8 @@ static int triangulate(int n, const unsigned char *verts, unsigned short *indice
     for (int i = 0; i < n; i++) {
       const int i1 = next(i, n);
       if (indices[i1] & 0x8000) {
-        const unsigned char *p0 = &verts[(indices[i] & 0x7fff) * 4];
-        const unsigned char *p2 = &verts[(indices[next(i1, n)] & 0x7fff) * 4];
+        const uint8_t *p0 = &verts[(indices[i] & 0x7fff) * 4];
+        const uint8_t *p2 = &verts[(indices[next(i1, n)] & 0x7fff) * 4];
 
         const int dx = static_cast<int>(p2[0]) - static_cast<int>(p0[0]);
         const int dz = static_cast<int>(p2[2]) - static_cast<int>(p0[2]);
@@ -1162,21 +893,21 @@ static int triangulate(int n, const unsigned char *verts, unsigned short *indice
   return ntris;
 }
 
-static int countPolyVerts(const unsigned short *p) {
+int countPolyVerts(const uint16_t *p) {
   for (int i = 0; i < MAX_VERTS_PER_POLY; ++i)
     if (p[i] == DT_TILECACHE_NULL_IDX)
       return i;
   return MAX_VERTS_PER_POLY;
 }
 
-inline bool uleft(const unsigned short *a, const unsigned short *b, const unsigned short *c) {
+bool uleft(const uint16_t *a, const uint16_t *b, const uint16_t *c) {
   return (static_cast<int>(b[0]) - static_cast<int>(a[0])) * (static_cast<int>(c[2]) - static_cast<int>(a[2])) -
              (static_cast<int>(c[0]) - static_cast<int>(a[0])) * (static_cast<int>(b[2]) - static_cast<int>(a[2])) <
          0;
 }
 
-static int getPolyMergeValue(const unsigned short *pa, const unsigned short *pb,
-                             const unsigned short *verts, int &ea, int &eb) {
+int getPolyMergeValue(const uint16_t *pa, const uint16_t *pb,
+                      const uint16_t *verts, int &ea, int &eb) {
   const int na = countPolyVerts(pa);
   const int nb = countPolyVerts(pb);
 
@@ -1189,13 +920,13 @@ static int getPolyMergeValue(const unsigned short *pa, const unsigned short *pb,
   eb = -1;
 
   for (int i = 0; i < na; ++i) {
-    unsigned short va0 = pa[i];
-    unsigned short va1 = pa[(i + 1) % na];
+    uint16_t va0 = pa[i];
+    uint16_t va1 = pa[(i + 1) % na];
     if (va0 > va1)
       dtSwap(va0, va1);
     for (int j = 0; j < nb; ++j) {
-      unsigned short vb0 = pb[j];
-      unsigned short vb1 = pb[(j + 1) % nb];
+      uint16_t vb0 = pb[j];
+      uint16_t vb1 = pb[(j + 1) % nb];
       if (vb0 > vb1)
         dtSwap(vb0, vb1);
       if (va0 == vb0 && va1 == vb1) {
@@ -1212,9 +943,9 @@ static int getPolyMergeValue(const unsigned short *pa, const unsigned short *pb,
 
   // Check to see if the merged polygon would be convex.
 
-  unsigned short va = pa[(ea + na - 1) % na];
-  unsigned short vb = pa[ea];
-  unsigned short vc = pb[(eb + 2) % nb];
+  uint16_t va = pa[(ea + na - 1) % na];
+  uint16_t vb = pa[ea];
+  uint16_t vc = pb[(eb + 2) % nb];
   if (!uleft(&verts[va * 3], &verts[vb * 3], &verts[vc * 3]))
     return -1;
 
@@ -1233,14 +964,14 @@ static int getPolyMergeValue(const unsigned short *pa, const unsigned short *pb,
   return dx * dx + dy * dy;
 }
 
-static void mergePolys(unsigned short *pa, const unsigned short *pb, const int ea, const int eb) {
-  unsigned short tmp[MAX_VERTS_PER_POLY * 2];
+void mergePolys(uint16_t *pa, const uint16_t *pb, const int ea, const int eb) {
+  uint16_t tmp[MAX_VERTS_PER_POLY * 2];
 
   const int na = countPolyVerts(pa);
   const int nb = countPolyVerts(pb);
 
   // Merge polygons.
-  memset(tmp, 0xff, sizeof(unsigned short) * MAX_VERTS_PER_POLY * 2);
+  std::memset(tmp, 0xff, sizeof(uint16_t) * MAX_VERTS_PER_POLY * 2);
   int n = 0;
   // Add pa
   for (int i = 0; i < na - 1; ++i)
@@ -1249,27 +980,27 @@ static void mergePolys(unsigned short *pa, const unsigned short *pb, const int e
   for (int i = 0; i < nb - 1; ++i)
     tmp[n++] = pb[(eb + 1 + i) % nb];
 
-  memcpy(pa, tmp, sizeof(unsigned short) * MAX_VERTS_PER_POLY);
+  std::memcpy(pa, tmp, sizeof(uint16_t) * MAX_VERTS_PER_POLY);
 }
 
-static void pushFront(const unsigned short v, unsigned short *arr, int &an) {
+void pushFront(const uint16_t v, uint16_t *arr, int &an) {
   an++;
   for (int i = an - 1; i > 0; --i)
     arr[i] = arr[i - 1];
   arr[0] = v;
 }
 
-static void pushBack(const unsigned short v, unsigned short *arr, int &an) {
+void pushBack(const uint16_t v, uint16_t *arr, int &an) {
   arr[an] = v;
   an++;
 }
 
-static bool canRemoveVertex(const dtTileCachePolyMesh &mesh, const unsigned short rem) {
+bool canRemoveVertex(const dtTileCachePolyMesh &mesh, const uint16_t rem) {
   // Count number of polygons to remove.
   int numTouchedVerts = 0;
   int numRemainingEdges = 0;
   for (int i = 0; i < mesh.npolys; ++i) {
-    const unsigned short *p = &mesh.polys[i * MAX_VERTS_PER_POLY * 2];
+    const uint16_t *p = &mesh.polys[i * MAX_VERTS_PER_POLY * 2];
     const int nv = countPolyVerts(p);
     int numRemoved = 0;
     int numVerts = 0;
@@ -1298,11 +1029,11 @@ static bool canRemoveVertex(const dtTileCachePolyMesh &mesh, const unsigned shor
     return false;
 
   // Find edges which share the removed vertex.
-  unsigned short edges[MAX_REM_EDGES];
+  uint16_t edges[MAX_REM_EDGES];
   int nedges = 0;
 
   for (int i = 0; i < mesh.npolys; ++i) {
-    const unsigned short *p = &mesh.polys[i * MAX_VERTS_PER_POLY * 2];
+    const uint16_t *p = &mesh.polys[i * MAX_VERTS_PER_POLY * 2];
     const int nv = countPolyVerts(p);
 
     // Collect edges which touches the removed vertex.
@@ -1316,7 +1047,7 @@ static bool canRemoveVertex(const dtTileCachePolyMesh &mesh, const unsigned shor
         // Check if the edge exists
         bool exists = false;
         for (int m = 0; m < nedges; ++m) {
-          unsigned short *e = &edges[m * 3];
+          uint16_t *e = &edges[m * 3];
           if (e[1] == b) {
             // Exists, increment vertex share count.
             e[2]++;
@@ -1325,9 +1056,9 @@ static bool canRemoveVertex(const dtTileCachePolyMesh &mesh, const unsigned shor
         }
         // Add new edge.
         if (!exists) {
-          unsigned short *e = &edges[nedges * 3];
-          e[0] = static_cast<unsigned short>(a);
-          e[1] = static_cast<unsigned short>(b);
+          uint16_t *e = &edges[nedges * 3];
+          e[0] = static_cast<uint16_t>(a);
+          e[1] = static_cast<uint16_t>(b);
           e[2] = 1;
           nedges++;
         }
@@ -1349,11 +1080,11 @@ static bool canRemoveVertex(const dtTileCachePolyMesh &mesh, const unsigned shor
   return true;
 }
 
-static dtStatus removeVertex(dtTileCachePolyMesh &mesh, const unsigned short rem, const int maxTris) {
+dtStatus removeVertex(dtTileCachePolyMesh &mesh, const uint16_t rem, const int maxTris) {
   // Count number of polygons to remove.
   int numRemovedVerts = 0;
   for (int i = 0; i < mesh.npolys; ++i) {
-    unsigned short *p = &mesh.polys[i * MAX_VERTS_PER_POLY * 2];
+    uint16_t *p = &mesh.polys[i * MAX_VERTS_PER_POLY * 2];
     const int nv = countPolyVerts(p);
     for (int j = 0; j < nv; ++j) {
       if (p[j] == rem)
@@ -1362,14 +1093,14 @@ static dtStatus removeVertex(dtTileCachePolyMesh &mesh, const unsigned short rem
   }
 
   int nedges = 0;
-  unsigned short edges[MAX_REM_EDGES * 3];
+  uint16_t edges[MAX_REM_EDGES * 3];
   int nhole = 0;
-  unsigned short hole[MAX_REM_EDGES];
+  uint16_t hole[MAX_REM_EDGES];
   int nharea = 0;
-  unsigned short harea[MAX_REM_EDGES];
+  uint16_t harea[MAX_REM_EDGES];
 
   for (int i = 0; i < mesh.npolys; ++i) {
-    unsigned short *p = &mesh.polys[i * MAX_VERTS_PER_POLY * 2];
+    uint16_t *p = &mesh.polys[i * MAX_VERTS_PER_POLY * 2];
     const int nv = countPolyVerts(p);
     bool hasRem = false;
     for (int j = 0; j < nv; ++j)
@@ -1381,7 +1112,7 @@ static dtStatus removeVertex(dtTileCachePolyMesh &mesh, const unsigned short rem
         if (p[j] != rem && p[k] != rem) {
           if (nedges >= MAX_REM_EDGES)
             return DT_FAILURE | DT_BUFFER_TOO_SMALL;
-          unsigned short *e = &edges[nedges * 3];
+          uint16_t *e = &edges[nedges * 3];
           e[0] = p[k];
           e[1] = p[j];
           e[2] = mesh.areas[i];
@@ -1389,9 +1120,9 @@ static dtStatus removeVertex(dtTileCachePolyMesh &mesh, const unsigned short rem
         }
       }
       // Remove the polygon.
-      unsigned short *p2 = &mesh.polys[(mesh.npolys - 1) * MAX_VERTS_PER_POLY * 2];
-      memcpy(p, p2, sizeof(unsigned short) * MAX_VERTS_PER_POLY);
-      memset(p + MAX_VERTS_PER_POLY, 0xff, sizeof(unsigned short) * MAX_VERTS_PER_POLY);
+      uint16_t *p2 = &mesh.polys[(mesh.npolys - 1) * MAX_VERTS_PER_POLY * 2];
+      std::memcpy(p, p2, sizeof(uint16_t) * MAX_VERTS_PER_POLY);
+      std::memset(p + MAX_VERTS_PER_POLY, 0xff, sizeof(uint16_t) * MAX_VERTS_PER_POLY);
       mesh.areas[i] = mesh.areas[mesh.npolys - 1];
       mesh.npolys--;
       --i;
@@ -1408,7 +1139,7 @@ static dtStatus removeVertex(dtTileCachePolyMesh &mesh, const unsigned short rem
 
   // Adjust indices to match the removed vertex layout.
   for (int i = 0; i < mesh.npolys; ++i) {
-    unsigned short *p = &mesh.polys[i * MAX_VERTS_PER_POLY * 2];
+    uint16_t *p = &mesh.polys[i * MAX_VERTS_PER_POLY * 2];
     const int nv = countPolyVerts(p);
     for (int j = 0; j < nv; ++j)
       if (p[j] > rem)
@@ -1433,9 +1164,9 @@ static dtStatus removeVertex(dtTileCachePolyMesh &mesh, const unsigned short rem
     bool match = false;
 
     for (int i = 0; i < nedges; ++i) {
-      const unsigned short ea = edges[i * 3 + 0];
-      const unsigned short eb = edges[i * 3 + 1];
-      const unsigned short a = edges[i * 3 + 2];
+      const uint16_t ea = edges[i * 3 + 0];
+      const uint16_t eb = edges[i * 3 + 1];
+      const uint16_t a = edges[i * 3 + 2];
       bool add = false;
       if (hole[0] == eb) {
         // The segment matches the beginning of the hole boundary.
@@ -1467,18 +1198,18 @@ static dtStatus removeVertex(dtTileCachePolyMesh &mesh, const unsigned short rem
       break;
   }
 
-  unsigned short tris[MAX_REM_EDGES * 3];
-  unsigned char tverts[MAX_REM_EDGES * 3];
-  unsigned short tpoly[MAX_REM_EDGES * 3];
+  uint16_t tris[MAX_REM_EDGES * 3];
+  uint8_t tverts[MAX_REM_EDGES * 3];
+  uint16_t tpoly[MAX_REM_EDGES * 3];
 
   // Generate temp vertex array for triangulation.
   for (int i = 0; i < nhole; ++i) {
-    const unsigned short pi = hole[i];
-    tverts[i * 4 + 0] = static_cast<unsigned char>(mesh.verts[pi * 3 + 0]);
-    tverts[i * 4 + 1] = static_cast<unsigned char>(mesh.verts[pi * 3 + 1]);
-    tverts[i * 4 + 2] = static_cast<unsigned char>(mesh.verts[pi * 3 + 2]);
+    const uint16_t pi = hole[i];
+    tverts[i * 4 + 0] = static_cast<uint8_t>(mesh.verts[pi * 3 + 0]);
+    tverts[i * 4 + 1] = static_cast<uint8_t>(mesh.verts[pi * 3 + 1]);
+    tverts[i * 4 + 2] = static_cast<uint8_t>(mesh.verts[pi * 3 + 2]);
     tverts[i * 4 + 3] = 0;
-    tpoly[i] = static_cast<unsigned short>(i);
+    tpoly[i] = static_cast<uint16_t>(i);
   }
 
   // Triangulate the hole.
@@ -1491,19 +1222,19 @@ static dtStatus removeVertex(dtTileCachePolyMesh &mesh, const unsigned short rem
   if (ntris > MAX_REM_EDGES)
     return DT_FAILURE | DT_BUFFER_TOO_SMALL;
 
-  unsigned short polys[MAX_REM_EDGES * MAX_VERTS_PER_POLY];
-  unsigned char pareas[MAX_REM_EDGES];
+  uint16_t polys[MAX_REM_EDGES * MAX_VERTS_PER_POLY];
+  uint8_t pareas[MAX_REM_EDGES];
 
   // Build initial polygons.
   int npolys = 0;
-  memset(polys, 0xff, ntris * MAX_VERTS_PER_POLY * sizeof(unsigned short));
+  std::memset(polys, 0xff, ntris * MAX_VERTS_PER_POLY * sizeof(uint16_t));
   for (int j = 0; j < ntris; ++j) {
-    unsigned short *t = &tris[j * 3];
+    uint16_t *t = &tris[j * 3];
     if (t[0] != t[1] && t[0] != t[2] && t[1] != t[2]) {
       polys[npolys * MAX_VERTS_PER_POLY + 0] = hole[t[0]];
       polys[npolys * MAX_VERTS_PER_POLY + 1] = hole[t[1]];
       polys[npolys * MAX_VERTS_PER_POLY + 2] = hole[t[2]];
-      pareas[npolys] = static_cast<unsigned char>(harea[t[0]]);
+      pareas[npolys] = static_cast<uint8_t>(harea[t[0]]);
       npolys++;
     }
   }
@@ -1518,9 +1249,9 @@ static dtStatus removeVertex(dtTileCachePolyMesh &mesh, const unsigned short rem
       int bestPa = 0, bestPb = 0, bestEa = 0, bestEb = 0;
 
       for (int j = 0; j < npolys - 1; ++j) {
-        unsigned short *pj = &polys[j * MAX_VERTS_PER_POLY];
+        uint16_t *pj = &polys[j * MAX_VERTS_PER_POLY];
         for (int k = j + 1; k < npolys; ++k) {
-          unsigned short *pk = &polys[k * MAX_VERTS_PER_POLY];
+          uint16_t *pk = &polys[k * MAX_VERTS_PER_POLY];
           int ea, eb;
           const int v = getPolyMergeValue(pj, pk, mesh.verts, ea, eb);
           if (v > bestMergeVal) {
@@ -1535,10 +1266,10 @@ static dtStatus removeVertex(dtTileCachePolyMesh &mesh, const unsigned short rem
 
       if (bestMergeVal > 0) {
         // Found best, merge.
-        unsigned short *pa = &polys[bestPa * MAX_VERTS_PER_POLY];
-        unsigned short *pb = &polys[bestPb * MAX_VERTS_PER_POLY];
+        uint16_t *pa = &polys[bestPa * MAX_VERTS_PER_POLY];
+        uint16_t *pb = &polys[bestPb * MAX_VERTS_PER_POLY];
         mergePolys(pa, pb, bestEa, bestEb);
-        memcpy(pb, &polys[(npolys - 1) * MAX_VERTS_PER_POLY], sizeof(unsigned short) * MAX_VERTS_PER_POLY);
+        std::memcpy(pb, &polys[(npolys - 1) * MAX_VERTS_PER_POLY], sizeof(uint16_t) * MAX_VERTS_PER_POLY);
         pareas[bestPb] = pareas[npolys - 1];
         npolys--;
       } else {
@@ -1552,8 +1283,8 @@ static dtStatus removeVertex(dtTileCachePolyMesh &mesh, const unsigned short rem
   for (int i = 0; i < npolys; ++i) {
     if (mesh.npolys >= maxTris)
       break;
-    unsigned short *p = &mesh.polys[mesh.npolys * MAX_VERTS_PER_POLY * 2];
-    memset(p, 0xff, sizeof(unsigned short) * MAX_VERTS_PER_POLY * 2);
+    uint16_t *p = &mesh.polys[mesh.npolys * MAX_VERTS_PER_POLY * 2];
+    std::memset(p, 0xff, sizeof(uint16_t) * MAX_VERTS_PER_POLY * 2);
     for (int j = 0; j < MAX_VERTS_PER_POLY; ++j)
       p[j] = polys[i * MAX_VERTS_PER_POLY + j];
     mesh.areas[mesh.npolys] = pareas[i];
@@ -1565,6 +1296,275 @@ static dtStatus removeVertex(dtTileCachePolyMesh &mesh, const unsigned short rem
   return DT_SUCCESS;
 }
 
+} // namespace
+
+dtStatus dtBuildTileCacheRegions(dtTileCacheAlloc *alloc,
+                                 dtTileCacheLayer &layer,
+                                 const int walkableClimb) {
+  dtAssert(alloc);
+
+  const int w = layer.header->width;
+  const int h = layer.header->height;
+
+  std::memset(layer.regs, 0xff, sizeof(uint8_t) * w * h);
+
+  const int nsweeps = w;
+  dtFixedArray<dtLayerSweepSpan> sweeps(alloc, nsweeps);
+  if (!sweeps)
+    return DT_FAILURE | DT_OUT_OF_MEMORY;
+  std::memset(sweeps, 0, sizeof(dtLayerSweepSpan) * nsweeps);
+
+  // Partition walkable area into monotone regions.
+  uint8_t prevCount[256];
+  uint8_t regId = 0;
+
+  for (int y = 0; y < h; ++y) {
+    if (regId > 0)
+      std::memset(prevCount, 0, sizeof(uint8_t) * regId);
+    uint8_t sweepId = 0;
+
+    for (int x = 0; x < w; ++x) {
+      const int idx = x + y * w;
+      if (layer.areas[idx] == DT_TILECACHE_NULL_AREA)
+        continue;
+
+      uint8_t sid = 0xff;
+
+      // -x
+      const int xidx = x - 1 + y * w;
+      if (x > 0 && isConnected(layer, idx, xidx, walkableClimb)) {
+        if (layer.regs[xidx] != 0xff)
+          sid = layer.regs[xidx];
+      }
+
+      if (sid == 0xff) {
+        sid = sweepId++;
+        sweeps[sid].nei = 0xff;
+        sweeps[sid].ns = 0;
+      }
+
+      // -y
+      const int yidx = x + (y - 1) * w;
+      if (y > 0 && isConnected(layer, idx, yidx, walkableClimb)) {
+        const uint8_t nr = layer.regs[yidx];
+        if (nr != 0xff) {
+          // Set neighbour when first valid neighbour is encoutered.
+          if (sweeps[sid].ns == 0)
+            sweeps[sid].nei = nr;
+
+          if (sweeps[sid].nei == nr) {
+            // Update existing neighbour
+            sweeps[sid].ns++;
+            prevCount[nr]++;
+          } else {
+            // This is hit if there is nore than one neighbour.
+            // Invalidate the neighbour.
+            sweeps[sid].nei = 0xff;
+          }
+        }
+      }
+
+      layer.regs[idx] = sid;
+    }
+
+    // Create unique ID.
+    for (int i = 0; i < sweepId; ++i) {
+      // If the neighbour is set and there is only one continuous connection to it,
+      // the sweep will be merged with the previous one, else new region is created.
+      if (sweeps[i].nei != 0xff && static_cast<uint16_t>(prevCount[sweeps[i].nei]) == sweeps[i].ns) {
+        sweeps[i].id = sweeps[i].nei;
+      } else {
+        if (regId == 255) {
+          // Region ID's overflow.
+          return DT_FAILURE | DT_BUFFER_TOO_SMALL;
+        }
+        sweeps[i].id = regId++;
+      }
+    }
+
+    // Remap local sweep ids to region ids.
+    for (int x = 0; x < w; ++x) {
+      const int idx = x + y * w;
+      if (layer.regs[idx] != 0xff)
+        layer.regs[idx] = sweeps[layer.regs[idx]].id;
+    }
+  }
+
+  // Allocate and init layer regions.
+  const int nregs = regId;
+  dtFixedArray<dtLayerMonotoneRegion> regs(alloc, nregs);
+  if (!regs)
+    return DT_FAILURE | DT_OUT_OF_MEMORY;
+
+  std::memset(regs, 0, sizeof(dtLayerMonotoneRegion) * nregs);
+  for (int i = 0; i < nregs; ++i)
+    regs[i].regId = 0xff;
+
+  // Find region neighbours.
+  for (int y = 0; y < h; ++y) {
+    for (int x = 0; x < w; ++x) {
+      const int idx = x + y * w;
+      const uint8_t ri = layer.regs[idx];
+      if (ri == 0xff)
+        continue;
+
+      // Update area.
+      regs[ri].area++;
+      regs[ri].areaId = layer.areas[idx];
+
+      // Update neighbours
+      const int ymi = x + (y - 1) * w;
+      if (y > 0 && isConnected(layer, idx, ymi, walkableClimb)) {
+        const uint8_t rai = layer.regs[ymi];
+        if (rai != 0xff && rai != ri) {
+          addUniqueLast(regs[ri].neis, regs[ri].nneis, rai);
+          addUniqueLast(regs[rai].neis, regs[rai].nneis, ri);
+        }
+      }
+    }
+  }
+
+  for (int i = 0; i < nregs; ++i)
+    regs[i].regId = static_cast<uint8_t>(i);
+
+  for (int i = 0; i < nregs; ++i) {
+    const dtLayerMonotoneRegion &reg = regs[i];
+
+    int merge = -1;
+    int mergea = 0;
+    for (int j = 0; j < static_cast<int>(reg.nneis); ++j) {
+      const uint8_t nei = reg.neis[j];
+      const dtLayerMonotoneRegion &regn = regs[nei];
+      if (reg.regId == regn.regId)
+        continue;
+      if (reg.areaId != regn.areaId)
+        continue;
+      if (regn.area > mergea) {
+        if (canMerge(reg.regId, regn.regId, regs, nregs)) {
+          mergea = regn.area;
+          merge = static_cast<int>(nei);
+        }
+      }
+    }
+    if (merge != -1) {
+      const uint8_t oldId = reg.regId;
+      const uint8_t newId = regs[merge].regId;
+      for (int j = 0; j < nregs; ++j)
+        if (regs[j].regId == oldId)
+          regs[j].regId = newId;
+    }
+  }
+
+  // Compact ids.
+  uint8_t remap[256] = {};
+  // Find number of unique regions.
+  regId = 0;
+  for (int i = 0; i < nregs; ++i)
+    remap[regs[i].regId] = 1;
+  for (int i = 0; i < 256; ++i)
+    if (remap[i])
+      remap[i] = regId++;
+  // Remap ids.
+  for (int i = 0; i < nregs; ++i)
+    regs[i].regId = remap[regs[i].regId];
+
+  layer.regCount = regId;
+
+  for (int i = 0; i < w * h; ++i) {
+    if (layer.regs[i] != 0xff)
+      layer.regs[i] = regs[layer.regs[i]].regId;
+  }
+
+  return DT_SUCCESS;
+}
+// TODO: move this somewhere else, once the layer meshing is done.
+dtStatus dtBuildTileCacheContours(dtTileCacheAlloc *alloc,
+                                  const dtTileCacheLayer &layer,
+                                  const int walkableClimb, const float maxError,
+                                  dtTileCacheContourSet &lcset) {
+  dtAssert(alloc);
+  if (!alloc)
+    return DT_FAILURE | DT_INVALID_PARAM;
+
+  const int w = layer.header->width;
+  const int h = layer.header->height;
+
+  lcset.nconts = layer.regCount;
+  lcset.conts = static_cast<dtTileCacheContour *>(alloc->alloc(sizeof(dtTileCacheContour) * lcset.nconts));
+  if (!lcset.conts)
+    return DT_FAILURE | DT_OUT_OF_MEMORY;
+  std::memset(lcset.conts, 0, sizeof(dtTileCacheContour) * lcset.nconts);
+
+  // Allocate temp buffer for contour tracing.
+  const int maxTempVerts = (w + h) * 2 * 2; // Twice around the layer.
+
+  dtFixedArray<uint8_t> tempVerts(alloc, maxTempVerts * 4);
+  if (!tempVerts)
+    return DT_FAILURE | DT_OUT_OF_MEMORY;
+
+  dtFixedArray<uint16_t> tempPoly(alloc, maxTempVerts);
+  if (!tempPoly)
+    return DT_FAILURE | DT_OUT_OF_MEMORY;
+
+  dtTempContour temp(tempVerts, maxTempVerts, tempPoly, maxTempVerts);
+
+  // Find contours.
+  for (int y = 0; y < h; ++y) {
+    for (int x = 0; x < w; ++x) {
+      const int idx = x + y * w;
+      const uint8_t ri = layer.regs[idx];
+      if (ri == 0xff)
+        continue;
+
+      dtTileCacheContour &cont = lcset.conts[ri];
+
+      if (cont.nverts > 0)
+        continue;
+
+      cont.reg = ri;
+      cont.area = layer.areas[idx];
+
+      if (!walkContour(layer, x, y, temp)) {
+        // Too complex contour.
+        // Note: If you hit here ofte, try increasing 'maxTempVerts'.
+        return DT_FAILURE | DT_BUFFER_TOO_SMALL;
+      }
+
+      simplifyContour(temp, maxError);
+
+      // Store contour.
+      cont.nverts = temp.nverts;
+      if (cont.nverts > 0) {
+        cont.verts = static_cast<uint8_t *>(alloc->alloc(sizeof(uint8_t) * 4 * temp.nverts));
+        if (!cont.verts)
+          return DT_FAILURE | DT_OUT_OF_MEMORY;
+
+        for (int i = 0, j = temp.nverts - 1; i < temp.nverts; j = i++) {
+          uint8_t *dst = &cont.verts[j * 4];
+          const uint8_t *v = &temp.verts[j * 4];
+          const uint8_t *vn = &temp.verts[i * 4];
+          const uint8_t nei = vn[3]; // The neighbour reg is stored at segment vertex of a segment.
+          bool shouldRemove = false;
+          const uint8_t lh = getCornerHeight(layer, v[0], v[1], v[2],
+                                             walkableClimb, shouldRemove);
+
+          dst[0] = v[0];
+          dst[1] = lh;
+          dst[2] = v[2];
+
+          // Store portal direction and remove status to the fourth component.
+          dst[3] = 0x0f;
+          if (nei != 0xff && nei >= 0xf8)
+            dst[3] = nei - 0xf8;
+          if (shouldRemove)
+            dst[3] |= 0x80;
+        }
+      }
+    }
+  }
+
+  return DT_SUCCESS;
+}
 dtStatus dtBuildTileCachePolyMesh(dtTileCacheAlloc *alloc,
                                   const dtTileCacheContourSet &lcset,
                                   dtTileCachePolyMesh &mesh) {
@@ -1586,55 +1586,55 @@ dtStatus dtBuildTileCachePolyMesh(dtTileCacheAlloc *alloc,
 
   mesh.nvp = MAX_VERTS_PER_POLY;
 
-  dtFixedArray<unsigned char> vflags(alloc, maxVertices);
+  dtFixedArray<uint8_t> vflags(alloc, maxVertices);
   if (!vflags)
     return DT_FAILURE | DT_OUT_OF_MEMORY;
-  memset(vflags, 0, maxVertices);
+  std::memset(vflags, 0, maxVertices);
 
-  mesh.verts = static_cast<unsigned short *>(alloc->alloc(sizeof(unsigned short) * maxVertices * 3));
+  mesh.verts = static_cast<uint16_t *>(alloc->alloc(sizeof(uint16_t) * maxVertices * 3));
   if (!mesh.verts)
     return DT_FAILURE | DT_OUT_OF_MEMORY;
 
-  mesh.polys = static_cast<unsigned short *>(alloc->alloc(sizeof(unsigned short) * maxTris * MAX_VERTS_PER_POLY * 2));
+  mesh.polys = static_cast<uint16_t *>(alloc->alloc(sizeof(uint16_t) * maxTris * MAX_VERTS_PER_POLY * 2));
   if (!mesh.polys)
     return DT_FAILURE | DT_OUT_OF_MEMORY;
 
-  mesh.areas = static_cast<unsigned char *>(alloc->alloc(sizeof(unsigned char) * maxTris));
+  mesh.areas = static_cast<uint8_t *>(alloc->alloc(sizeof(uint8_t) * maxTris));
   if (!mesh.areas)
     return DT_FAILURE | DT_OUT_OF_MEMORY;
 
-  mesh.flags = static_cast<unsigned short *>(alloc->alloc(sizeof(unsigned short) * maxTris));
+  mesh.flags = static_cast<uint16_t *>(alloc->alloc(sizeof(uint16_t) * maxTris));
   if (!mesh.flags)
     return DT_FAILURE | DT_OUT_OF_MEMORY;
 
   // Just allocate and clean the mesh flags array. The user is resposible for filling it.
-  memset(mesh.flags, 0, sizeof(unsigned short) * maxTris);
+  std::memset(mesh.flags, 0, sizeof(uint16_t) * maxTris);
 
   mesh.nverts = 0;
   mesh.npolys = 0;
 
-  memset(mesh.verts, 0, sizeof(unsigned short) * maxVertices * 3);
-  memset(mesh.polys, 0xff, sizeof(unsigned short) * maxTris * MAX_VERTS_PER_POLY * 2);
-  memset(mesh.areas, 0, sizeof(unsigned char) * maxTris);
+  std::memset(mesh.verts, 0, sizeof(uint16_t) * maxVertices * 3);
+  std::memset(mesh.polys, 0xff, sizeof(uint16_t) * maxTris * MAX_VERTS_PER_POLY * 2);
+  std::memset(mesh.areas, 0, sizeof(uint8_t) * maxTris);
 
-  unsigned short firstVert[VERTEX_BUCKET_COUNT2];
+  uint16_t firstVert[VERTEX_BUCKET_COUNT2];
   for (int i = 0; i < VERTEX_BUCKET_COUNT2; ++i)
     firstVert[i] = DT_TILECACHE_NULL_IDX;
 
-  dtFixedArray<unsigned short> nextVert(alloc, maxVertices);
+  dtFixedArray<uint16_t> nextVert(alloc, maxVertices);
   if (!nextVert)
     return DT_FAILURE | DT_OUT_OF_MEMORY;
-  memset(nextVert, 0, sizeof(unsigned short) * maxVertices);
+  std::memset(nextVert, 0, sizeof(uint16_t) * maxVertices);
 
-  dtFixedArray<unsigned short> indices(alloc, maxVertsPerCont);
+  dtFixedArray<uint16_t> indices(alloc, maxVertsPerCont);
   if (!indices)
     return DT_FAILURE | DT_OUT_OF_MEMORY;
 
-  dtFixedArray<unsigned short> tris(alloc, maxVertsPerCont * 3);
+  dtFixedArray<uint16_t> tris(alloc, maxVertsPerCont * 3);
   if (!tris)
     return DT_FAILURE | DT_OUT_OF_MEMORY;
 
-  dtFixedArray<unsigned short> polys(alloc, maxVertsPerCont * MAX_VERTS_PER_POLY);
+  dtFixedArray<uint16_t> polys(alloc, maxVertsPerCont * MAX_VERTS_PER_POLY);
   if (!polys)
     return DT_FAILURE | DT_OUT_OF_MEMORY;
 
@@ -1647,7 +1647,7 @@ dtStatus dtBuildTileCachePolyMesh(dtTileCacheAlloc *alloc,
 
     // Triangulate contour
     for (int j = 0; j < cont.nverts; ++j)
-      indices[j] = static_cast<unsigned short>(j);
+      indices[j] = static_cast<uint16_t>(j);
 
     int ntris = triangulate(cont.nverts, cont.verts, &indices[0], &tris[0]);
     if (ntris <= 0) {
@@ -1657,7 +1657,7 @@ dtStatus dtBuildTileCachePolyMesh(dtTileCacheAlloc *alloc,
 
     // Add and merge vertices.
     for (int j = 0; j < cont.nverts; ++j) {
-      const unsigned char *v = &cont.verts[j * 4];
+      const uint8_t *v = &cont.verts[j * 4];
       indices[j] = addVertex(v[0], v[1], v[2],
                              mesh.verts, firstVert, nextVert, mesh.nverts);
       if (v[3] & 0x80) {
@@ -1668,9 +1668,9 @@ dtStatus dtBuildTileCachePolyMesh(dtTileCacheAlloc *alloc,
 
     // Build initial polygons.
     int npolys = 0;
-    memset(polys, 0xff, sizeof(unsigned short) * maxVertsPerCont * MAX_VERTS_PER_POLY);
+    std::memset(polys, 0xff, sizeof(uint16_t) * maxVertsPerCont * MAX_VERTS_PER_POLY);
     for (int j = 0; j < ntris; ++j) {
-      const unsigned short *t = &tris[j * 3];
+      const uint16_t *t = &tris[j * 3];
       if (t[0] != t[1] && t[0] != t[2] && t[1] != t[2]) {
         polys[npolys * MAX_VERTS_PER_POLY + 0] = indices[t[0]];
         polys[npolys * MAX_VERTS_PER_POLY + 1] = indices[t[1]];
@@ -1689,9 +1689,9 @@ dtStatus dtBuildTileCachePolyMesh(dtTileCacheAlloc *alloc,
         int bestPa = 0, bestPb = 0, bestEa = 0, bestEb = 0;
 
         for (int j = 0; j < npolys - 1; ++j) {
-          const unsigned short *pj = &polys[j * MAX_VERTS_PER_POLY];
+          const uint16_t *pj = &polys[j * MAX_VERTS_PER_POLY];
           for (int k = j + 1; k < npolys; ++k) {
-            const unsigned short *pk = &polys[k * MAX_VERTS_PER_POLY];
+            const uint16_t *pk = &polys[k * MAX_VERTS_PER_POLY];
             int ea, eb;
             const int v = getPolyMergeValue(pj, pk, mesh.verts, ea, eb);
             if (v > bestMergeVal) {
@@ -1706,10 +1706,10 @@ dtStatus dtBuildTileCachePolyMesh(dtTileCacheAlloc *alloc,
 
         if (bestMergeVal > 0) {
           // Found best, merge.
-          unsigned short *pa = &polys[bestPa * MAX_VERTS_PER_POLY];
-          unsigned short *pb = &polys[bestPb * MAX_VERTS_PER_POLY];
+          uint16_t *pa = &polys[bestPa * MAX_VERTS_PER_POLY];
+          uint16_t *pb = &polys[bestPb * MAX_VERTS_PER_POLY];
           mergePolys(pa, pb, bestEa, bestEb);
-          memcpy(pb, &polys[(npolys - 1) * MAX_VERTS_PER_POLY], sizeof(unsigned short) * MAX_VERTS_PER_POLY);
+          std::memcpy(pb, &polys[(npolys - 1) * MAX_VERTS_PER_POLY], sizeof(uint16_t) * MAX_VERTS_PER_POLY);
           npolys--;
         } else {
           // Could not merge any polygons, stop.
@@ -1720,8 +1720,8 @@ dtStatus dtBuildTileCachePolyMesh(dtTileCacheAlloc *alloc,
 
     // Store polygons.
     for (int j = 0; j < npolys; ++j) {
-      unsigned short *p = &mesh.polys[mesh.npolys * MAX_VERTS_PER_POLY * 2];
-      const unsigned short *q = &polys[j * MAX_VERTS_PER_POLY];
+      uint16_t *p = &mesh.polys[mesh.npolys * MAX_VERTS_PER_POLY * 2];
+      const uint16_t *q = &polys[j * MAX_VERTS_PER_POLY];
       for (int k = 0; k < MAX_VERTS_PER_POLY; ++k)
         p[k] = q[k];
       mesh.areas[mesh.npolys] = cont.area;
@@ -1734,9 +1734,9 @@ dtStatus dtBuildTileCachePolyMesh(dtTileCacheAlloc *alloc,
   // Remove edge vertices.
   for (int i = 0; i < mesh.nverts; ++i) {
     if (vflags[i]) {
-      if (!canRemoveVertex(mesh, static_cast<unsigned short>(i)))
+      if (!canRemoveVertex(mesh, static_cast<uint16_t>(i)))
         continue;
-      const dtStatus status = removeVertex(mesh, static_cast<unsigned short>(i), maxTris);
+      const dtStatus status = removeVertex(mesh, static_cast<uint16_t>(i), maxTris);
       if (dtStatusFailed(status))
         return status;
       // Remove vertex
@@ -1754,8 +1754,8 @@ dtStatus dtBuildTileCachePolyMesh(dtTileCacheAlloc *alloc,
   return DT_SUCCESS;
 }
 
-dtStatus dtMarkCylinderArea(const dtTileCacheLayer &layer, const float *orig, float cs, float ch,
-                            const float *pos, float radius, float height, unsigned char areaId) {
+dtStatus dtMarkCylinderArea(const dtTileCacheLayer &layer, const float *orig, const float cs, const float ch,
+                            const float *pos, const float radius, const float height, const uint8_t areaId) {
   float bmin[3], bmax[3];
   bmin[0] = pos[0] - radius;
   bmin[1] = pos[1];
@@ -1815,7 +1815,7 @@ dtStatus dtMarkCylinderArea(const dtTileCacheLayer &layer, const float *orig, fl
 }
 
 dtStatus dtMarkBoxArea(const dtTileCacheLayer &layer, const float *orig, const float cs, const float ch,
-                       const float *bmin, const float *bmax, const unsigned char areaId) {
+                       const float *bmin, const float *bmax, const uint8_t areaId) {
   const int w = layer.header->width;
   const int h = layer.header->height;
   const float ics = 1.0f / cs;
@@ -1859,7 +1859,7 @@ dtStatus dtMarkBoxArea(const dtTileCacheLayer &layer, const float *orig, const f
 }
 
 dtStatus dtMarkBoxArea(const dtTileCacheLayer &layer, const float *orig, const float cs, const float ch,
-                       const float *center, const float *halfExtents, const float *rotAux, const unsigned char areaId) {
+                       const float *center, const float *halfExtents, const float *rotAux, const uint8_t areaId) {
   const int w = layer.header->width;
   const int h = layer.header->height;
   const float ics = 1.0f / cs;
@@ -1919,35 +1919,35 @@ dtStatus dtMarkBoxArea(const dtTileCacheLayer &layer, const float *orig, const f
 
 dtStatus dtBuildTileCacheLayer(dtTileCacheCompressor *comp,
                                const dtTileCacheLayerHeader *header,
-                               const unsigned char *heights,
-                               const unsigned char *areas,
-                               const unsigned char *cons,
-                               unsigned char **outData, int *outDataSize) {
+                               const uint8_t *heights,
+                               const uint8_t *areas,
+                               const uint8_t *cons,
+                               uint8_t **outData, int *outDataSize) {
   const int headerSize = dtAlign4(sizeof(dtTileCacheLayerHeader));
   const int gridSize = static_cast<int>(header->width) * static_cast<int>(header->height);
   const int maxDataSize = headerSize + comp->maxCompressedSize(gridSize * 3);
-  auto *const data = static_cast<unsigned char *>(dtAlloc(maxDataSize, DT_ALLOC_PERM));
+  auto *const data = static_cast<uint8_t *>(dtAlloc(maxDataSize, DT_ALLOC_PERM));
   if (!data)
     return DT_FAILURE | DT_OUT_OF_MEMORY;
-  memset(data, 0, maxDataSize);
+  std::memset(data, 0, maxDataSize);
 
   // Store header
-  memcpy(data, header, sizeof(dtTileCacheLayerHeader));
+  std::memcpy(data, header, sizeof(dtTileCacheLayerHeader));
 
   // Concatenate grid data for compression.
   const int bufferSize = gridSize * 3;
-  auto *const buffer = static_cast<unsigned char *>(dtAlloc(bufferSize, DT_ALLOC_TEMP));
+  auto *const buffer = static_cast<uint8_t *>(dtAlloc(bufferSize, DT_ALLOC_TEMP));
   if (!buffer) {
     dtFree(data);
     return DT_FAILURE | DT_OUT_OF_MEMORY;
   }
 
-  memcpy(buffer, heights, gridSize);
-  memcpy(buffer + gridSize, areas, gridSize);
-  memcpy(buffer + gridSize * 2, cons, gridSize);
+  std::memcpy(buffer, heights, gridSize);
+  std::memcpy(buffer + gridSize, areas, gridSize);
+  std::memcpy(buffer + gridSize * 2, cons, gridSize);
 
   // Compress
-  unsigned char *compressed = data + headerSize;
+  uint8_t *compressed = data + headerSize;
   const int maxCompressedSize = maxDataSize - headerSize;
   int compressedSize = 0;
   const dtStatus status = comp->compress(buffer, bufferSize, compressed, maxCompressedSize, &compressedSize);
@@ -1967,18 +1967,18 @@ dtStatus dtBuildTileCacheLayer(dtTileCacheCompressor *comp,
 
 void dtFreeTileCacheLayer(dtTileCacheAlloc *alloc, dtTileCacheLayer *layer) {
   dtAssert(alloc);
-  if(!alloc)
+  if (!alloc)
     return;
   // The layer is allocated as one conitguous blob of data.
   alloc->free(layer);
 }
 
 dtStatus dtDecompressTileCacheLayer(dtTileCacheAlloc *alloc, dtTileCacheCompressor *comp,
-                                    unsigned char *compressed, const int compressedSize,
+                                    uint8_t *compressed, const int compressedSize,
                                     dtTileCacheLayer **layerOut) {
   dtAssert(alloc);
   dtAssert(comp);
-  if(!alloc || !comp)
+  if (!alloc || !comp)
     return DT_FAILURE | DT_INVALID_PARAM;
 
   if (!layerOut)
@@ -1999,18 +1999,18 @@ dtStatus dtDecompressTileCacheLayer(dtTileCacheAlloc *alloc, dtTileCacheCompress
   const int gridSize = static_cast<int>(compressedHeader->width) * static_cast<int>(compressedHeader->height);
   const int bufferSize = layerSize + headerSize + gridSize * 4;
 
-  auto *const buffer = static_cast<unsigned char *>(alloc->alloc(bufferSize));
+  auto *const buffer = static_cast<uint8_t *>(alloc->alloc(bufferSize));
   if (!buffer)
     return DT_FAILURE | DT_OUT_OF_MEMORY;
-  memset(buffer, 0, bufferSize);
+  std::memset(buffer, 0, bufferSize);
 
   auto *const layer = reinterpret_cast<dtTileCacheLayer *>(buffer);
   auto *const header = reinterpret_cast<dtTileCacheLayerHeader *>(buffer + layerSize);
-  unsigned char *grids = buffer + layerSize + headerSize;
+  uint8_t *grids = buffer + layerSize + headerSize;
   const int gridsSize = bufferSize - (layerSize + headerSize);
 
   // Copy header
-  memcpy(header, compressedHeader, headerSize);
+  std::memcpy(header, compressedHeader, headerSize);
   // Decompress grid.
   int size = 0;
   const dtStatus status = comp->decompress(compressed + headerSize, compressedSize - headerSize,
@@ -2031,7 +2031,7 @@ dtStatus dtDecompressTileCacheLayer(dtTileCacheAlloc *alloc, dtTileCacheCompress
   return DT_SUCCESS;
 }
 
-bool dtTileCacheHeaderSwapEndian(unsigned char *data, const int dataSize) {
+bool dtTileCacheHeaderSwapEndian(uint8_t *data, const int dataSize) {
   dtIgnoreUnused(dataSize);
   auto *const header = reinterpret_cast<dtTileCacheLayerHeader *>(data);
 
@@ -2059,7 +2059,7 @@ bool dtTileCacheHeaderSwapEndian(unsigned char *data, const int dataSize) {
   dtSwapEndian(&header->hmin);
   dtSwapEndian(&header->hmax);
 
-  // width, height, minx, maxx, miny, maxy are unsigned char, no need to swap.
+  // width, height, minx, maxx, miny, maxy are uint8_t, no need to swap.
 
   return true;
 }

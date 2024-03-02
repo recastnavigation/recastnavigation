@@ -15,21 +15,21 @@
 //    misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 //
+#include "InputGeom.h"
 
+#include "MeshLoaderObj.h"
+
+#include <ChunkyTriMesh.h>
+#include <DebugDraw.h>
+#include <Recast.h>
 #include <algorithm>
-#include <cctype>
-#include <cmath>
+
 #include <cstring>
 #include <fstream>
 #include <sstream>
 
-#include "InputGeom.h"
-#include "ChunkyTriMesh.h"
-#include "DebugDraw.h"
-#include "MeshLoaderObj.h"
-#include "Recast.h"
-
-static bool intersectSegmentTriangle(const float *sp, const float *sq, const float *a, const float *b, const float *c, float &t) {
+namespace {
+bool intersectSegmentTriangle(const float *sp, const float *sq, const float *a, const float *b, const float *c, float &t) {
   float ab[3], ac[3], qp[3], ap[3], norm[3], e[3];
   rcVsub(ab, b, a);
   rcVsub(ac, c, a);
@@ -69,7 +69,7 @@ static bool intersectSegmentTriangle(const float *sp, const float *sq, const flo
   return true;
 }
 
-static char *parseRow(char *buf, const char *bufEnd, char *row, const int len) {
+char *parseRow(char *buf, const char *bufEnd, char *row, const int len) {
   bool start = true;
   bool done = false;
   int n = 0;
@@ -101,6 +101,44 @@ static char *parseRow(char *buf, const char *bufEnd, char *row, const int len) {
   row[n] = '\0';
   return buf;
 }
+
+bool isectSegAABB(const float *sp, const float *sq,
+                         const float *amin, const float *amax,
+                         float &tmin, float &tmax) {
+  static constexpr float EPS = 1e-6f;
+
+  float d[3];
+  d[0] = sq[0] - sp[0];
+  d[1] = sq[1] - sp[1];
+  d[2] = sq[2] - sp[2];
+  tmin = 0.0;
+  tmax = 1.0f;
+
+  for (int i = 0; i < 3; i++) {
+    if (std::abs(d[i]) < EPS) {
+      if (sp[i] < amin[i] || sp[i] > amax[i])
+        return false;
+    } else {
+      const float ood = 1.0f / d[i];
+      float t1 = (amin[i] - sp[i]) * ood;
+      float t2 = (amax[i] - sp[i]) * ood;
+      if (t1 > t2) {
+        const float tmp = t1;
+        t1 = t2;
+        t2 = tmp;
+      }
+      if (t1 > tmin)
+        tmin = t1;
+      if (t2 < tmax)
+        tmax = t2;
+      if (tmin > tmax)
+        return false;
+    }
+  }
+
+  return true;
+}
+} // namespace
 
 InputGeom::~InputGeom() {
   delete m_chunkyMesh;
@@ -208,8 +246,8 @@ bool InputGeom::loadGeomSet(rcContext *ctx, const std::string &filePath) {
         int flags = 0;
         rowStream >> v[0] >> v[1] >> v[2] >> v[3] >> v[4] >> v[5] >> rad >> bidir >> area >> flags;
         m_offMeshConRads[m_offMeshConCount] = rad;
-        m_offMeshConDirs[m_offMeshConCount] = static_cast<unsigned char>(bidir);
-        m_offMeshConAreas[m_offMeshConCount] = static_cast<unsigned char>(area);
+        m_offMeshConDirs[m_offMeshConCount] = static_cast<uint8_t>(bidir);
+        m_offMeshConAreas[m_offMeshConCount] = static_cast<uint8_t>(area);
         m_offMeshConFlags[m_offMeshConCount] = static_cast<uint16_t>(flags);
         ++m_offMeshConCount;
       }
@@ -329,43 +367,6 @@ bool InputGeom::saveGeomSet(const BuildSettings *settings) const {
   return true;
 }
 
-static bool isectSegAABB(const float *sp, const float *sq,
-                         const float *amin, const float *amax,
-                         float &tmin, float &tmax) {
-  static constexpr float EPS = 1e-6f;
-
-  float d[3];
-  d[0] = sq[0] - sp[0];
-  d[1] = sq[1] - sp[1];
-  d[2] = sq[2] - sp[2];
-  tmin = 0.0;
-  tmax = 1.0f;
-
-  for (int i = 0; i < 3; i++) {
-    if (std::abs(d[i]) < EPS) {
-      if (sp[i] < amin[i] || sp[i] > amax[i])
-        return false;
-    } else {
-      const float ood = 1.0f / d[i];
-      float t1 = (amin[i] - sp[i]) * ood;
-      float t2 = (amax[i] - sp[i]) * ood;
-      if (t1 > t2) {
-        const float tmp = t1;
-        t1 = t2;
-        t2 = tmp;
-      }
-      if (t1 > tmin)
-        tmin = t1;
-      if (t2 < tmax)
-        tmax = t2;
-      if (tmin > tmax)
-        return false;
-    }
-  }
-
-  return true;
-}
-
 bool InputGeom::raycastMesh(const float *src, const float *dst, float &tmin) const {
   // Prune hit ray.
   float btmin, btmax;
@@ -407,7 +408,7 @@ bool InputGeom::raycastMesh(const float *src, const float *dst, float &tmin) con
 }
 
 void InputGeom::addOffMeshConnection(const float *spos, const float *epos, const float rad,
-                                     const unsigned char bidir, const unsigned char area, const unsigned short flags) {
+                                     const uint8_t bidir, const uint8_t area, const uint16_t flags) {
   if (m_offMeshConCount >= MAX_OFFMESH_CONNECTIONS)
     return;
   float *v = &m_offMeshConVerts[m_offMeshConCount * 3 * 2];
@@ -434,8 +435,8 @@ void InputGeom::deleteOffMeshConnection(const int i) {
 }
 
 void InputGeom::drawOffMeshConnections(duDebugDraw *dd, const bool hilight) const {
-  const unsigned int conColor = duRGBA(192, 0, 128, 192);
-  const unsigned int baseColor = duRGBA(0, 0, 0, 64);
+  const uint32_t conColor = duRGBA(192, 0, 128, 192);
+  const uint32_t baseColor = duRGBA(0, 0, 0, 64);
   dd->depthMask(false);
 
   dd->begin(DU_DRAW_LINES, 2.0f);
@@ -462,7 +463,7 @@ void InputGeom::drawOffMeshConnections(duDebugDraw *dd, const bool hilight) cons
 }
 
 void InputGeom::addConvexVolume(const float *verts, const int nverts,
-                                const float minh, const float maxh, const unsigned char area) {
+                                const float minh, const float maxh, const uint8_t area) {
   if (m_volumeCount >= MAX_VOLUMES)
     return;
   ConvexVolume *vol = &m_volumes[m_volumeCount++];
@@ -486,7 +487,7 @@ void InputGeom::drawConvexVolumes(duDebugDraw *dd, bool /*hilight*/) const {
 
   for (int i = 0; i < m_volumeCount; ++i) {
     const ConvexVolume *vol = &m_volumes[i];
-    const unsigned int col = duTransCol(dd->areaToCol(vol->area), 32);
+    const uint32_t col = duTransCol(dd->areaToCol(vol->area), 32);
     for (int j = 0, k = vol->nverts - 1; j < vol->nverts; k = j++) {
       const float *va = &vol->verts[k * 3];
       const float *vb = &vol->verts[j * 3];
@@ -510,7 +511,7 @@ void InputGeom::drawConvexVolumes(duDebugDraw *dd, bool /*hilight*/) const {
   dd->begin(DU_DRAW_LINES, 2.0f);
   for (int i = 0; i < m_volumeCount; ++i) {
     const ConvexVolume *vol = &m_volumes[i];
-    const unsigned int col = duTransCol(dd->areaToCol(vol->area), 220);
+    const uint32_t col = duTransCol(dd->areaToCol(vol->area), 220);
     for (int j = 0, k = vol->nverts - 1; j < vol->nverts; k = j++) {
       const float *va = &vol->verts[k * 3];
       const float *vb = &vol->verts[j * 3];
@@ -527,7 +528,7 @@ void InputGeom::drawConvexVolumes(duDebugDraw *dd, bool /*hilight*/) const {
   dd->begin(DU_DRAW_POINTS, 3.0f);
   for (int i = 0; i < m_volumeCount; ++i) {
     const ConvexVolume *vol = &m_volumes[i];
-    const unsigned int col = duDarkenCol(duTransCol(dd->areaToCol(vol->area), 220));
+    const uint32_t col = duDarkenCol(duTransCol(dd->areaToCol(vol->area), 220));
     for (int j = 0; j < vol->nverts; ++j) {
       dd->vertex(vol->verts[j * 3 + 0], vol->verts[j * 3 + 1] + 0.1f, vol->verts[j * 3 + 2], col);
       dd->vertex(vol->verts[j * 3 + 0], vol->hmin, vol->verts[j * 3 + 2], col);

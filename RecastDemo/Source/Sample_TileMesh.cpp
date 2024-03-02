@@ -16,40 +16,36 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <cmath>
-#include <cstdio>
-#include <cstring>
+#include "Sample_TileMesh.h"
 
-#include <SDL.h>
+#include "ChunkyTriMesh.h"
+#include "ConvexVolumeTool.h"
+#include "CrowdTool.h"
+#include "InputGeom.h"
+#include "MeshLoaderObj.h"
+#include "NavMeshPruneTool.h"
+#include "NavMeshTesterTool.h"
+#include "OffMeshConnectionTool.h"
+#include "imgui.h"
+
+#include <DetourAlloc.h>
+#include <DetourDebugDraw.h>
+#include <DetourNavMesh.h>
+#include <DetourNavMeshBuilder.h>
+#include <DetourNavMeshQuery.h>
+#include <RecastDebugDraw.h>
+
 #include <SDL_opengl.h>
-#ifdef __APPLE__
+#if __APPLE__
 #include <OpenGL/glu.h>
 #else
 #include <GL/glu.h>
 #endif
 
-#include "ConvexVolumeTool.h"
-#include "CrowdTool.h"
-#include "DetourDebugDraw.h"
-#include "DetourNavMesh.h"
-#include "DetourNavMeshBuilder.h"
-#include "InputGeom.h"
-#include "NavMeshPruneTool.h"
-#include "NavMeshTesterTool.h"
-#include "OffMeshConnectionTool.h"
-#include "Recast.h"
-#include "RecastDebugDraw.h"
-#include "Sample.h"
-#include "Sample_TileMesh.h"
-#include "imgui.h"
+#include <cmath>
 
-#include <DetourAlloc.h>
-
-#ifdef WIN32
-#define snprintf _snprintf
-#endif
-
-inline unsigned int nextPow2(unsigned int v) {
+struct rcChunkyTriMesh;
+inline uint32_t nextPow2(uint32_t v) {
   v--;
   v |= v >> 1;
   v |= v >> 2;
@@ -60,10 +56,10 @@ inline unsigned int nextPow2(unsigned int v) {
   return v;
 }
 
-inline unsigned int ilog2(unsigned int v) {
-  unsigned int r = (v > 0xffff) << 4;
+inline uint32_t ilog2(uint32_t v) {
+  uint32_t r = (v > 0xffff) << 4;
   v >>= r;
-  unsigned int shift = (v > 0xff) << 3;
+  uint32_t shift = (v > 0xff) << 3;
   v >>= shift;
   r |= shift;
   shift = (v > 0xf) << 2;
@@ -616,7 +612,7 @@ void Sample_TileMesh::buildTile(const float *pos) {
   m_ctx->resetLog();
 
   int dataSize = 0;
-  unsigned char *data = buildTileMesh(tx, ty, m_lastBuiltTileBmin, m_lastBuiltTileBmax, dataSize);
+  uint8_t *data = buildTileMesh(tx, ty, m_lastBuiltTileBmin, m_lastBuiltTileBmax, dataSize);
 
   // Remove any previous data (navmesh owns and deletes the data).
   m_navMesh->removeTile(m_navMesh->getTileRefAt(tx, ty, 0), nullptr, nullptr);
@@ -697,8 +693,7 @@ void Sample_TileMesh::buildAllTiles() {
       m_lastBuiltTileBmax[2] = bmin[2] + (y + 1) * tcs;
 
       int dataSize = 0;
-      auto *const data = buildTileMesh(x, y, m_lastBuiltTileBmin, m_lastBuiltTileBmax, dataSize);
-      if (data) {
+      if (auto *const data = buildTileMesh(x, y, m_lastBuiltTileBmin, m_lastBuiltTileBmax, dataSize)) {
         // Remove any previous data (navmesh owns and deletes the data).
         m_navMesh->removeTile(m_navMesh->getTileRefAt(x, y, 0), nullptr, nullptr);
         // Let the navmesh own the data.
@@ -731,7 +726,7 @@ void Sample_TileMesh::removeAllTiles() const {
       m_navMesh->removeTile(m_navMesh->getTileRefAt(x, y, 0), nullptr, nullptr);
 }
 
-unsigned char *Sample_TileMesh::buildTileMesh(const int tx, const int ty, const float *bmin, const float *bmax, int &dataSize) {
+uint8_t *Sample_TileMesh::buildTileMesh(const int tx, const int ty, const float *bmin, const float *bmax, int &dataSize) {
   if (!m_geom || !m_geom->getMesh() || !m_geom->getChunkyMesh()) {
     m_ctx->log(RC_LOG_ERROR, "buildNavigation: Input mesh is not specified.");
     return nullptr;
@@ -752,9 +747,9 @@ unsigned char *Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
   m_cfg.cs = m_cellSize;
   m_cfg.ch = m_cellHeight;
   m_cfg.walkableSlopeAngle = m_agentMaxSlope;
-  m_cfg.walkableHeight = static_cast<int>(ceilf(m_agentHeight / m_cfg.ch));
-  m_cfg.walkableClimb = static_cast<int>(floorf(m_agentMaxClimb / m_cfg.ch));
-  m_cfg.walkableRadius = static_cast<int>(ceilf(m_agentRadius / m_cfg.cs));
+  m_cfg.walkableHeight = static_cast<int>(std::ceil(m_agentHeight / m_cfg.ch));
+  m_cfg.walkableClimb = static_cast<int>(std::floor(m_agentMaxClimb / m_cfg.ch));
+  m_cfg.walkableRadius = static_cast<int>(std::ceil(m_agentRadius / m_cfg.cs));
   m_cfg.maxEdgeLen = static_cast<int>(m_edgeMaxLen / m_cellSize);
   m_cfg.maxSimplificationError = m_edgeMaxError;
   m_cfg.minRegionArea = static_cast<int>(rcSqr(m_regionMinSize));     // Note: area = size*size
@@ -819,7 +814,7 @@ unsigned char *Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
   // Allocate array that can hold triangle flags.
   // If you have multiple meshes you need to process, allocate
   // and array which can hold the max number of triangles you need to process.
-  m_triareas = new unsigned char[chunkyMesh->maxTrisPerChunk];
+  m_triareas = new uint8_t[chunkyMesh->maxTrisPerChunk];
   if (!m_triareas) {
     m_ctx->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'm_triareas' (%d).", chunkyMesh->maxTrisPerChunk);
     return nullptr;
@@ -844,7 +839,7 @@ unsigned char *Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 
     m_tileTriCount += nctris;
 
-    memset(m_triareas, 0, nctris * sizeof(unsigned char));
+    memset(m_triareas, 0, nctris * sizeof(uint8_t));
     rcMarkWalkableTriangles(m_ctx, m_cfg.walkableSlopeAngle,
                             verts, nverts, ctris, nctris, m_triareas);
 
@@ -894,7 +889,7 @@ unsigned char *Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
   // (Optional) Mark areas.
   const ConvexVolume *vols = m_geom->getConvexVolumes();
   for (int i = 0; i < m_geom->getConvexVolumeCount(); ++i)
-    rcMarkConvexPolyArea(m_ctx, vols[i].verts, vols[i].nverts, vols[i].hmin, vols[i].hmax, static_cast<unsigned char>(vols[i].area), *m_chf);
+    rcMarkConvexPolyArea(m_ctx, vols[i].verts, vols[i].nverts, vols[i].hmin, vols[i].hmax, static_cast<uint8_t>(vols[i].area), *m_chf);
 
   // Partition the heightfield so that we can use simple algorithm later to triangulate the walkable areas.
   // There are 3 martitioning methods, each with some pros and cons:
@@ -997,7 +992,7 @@ unsigned char *Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
     m_cset = nullptr;
   }
 
-  unsigned char *navData = nullptr;
+  uint8_t *navData = nullptr;
   int navDataSize = 0;
   if (m_cfg.maxVertsPerPoly <= DT_VERTS_PER_POLYGON) {
     if (m_pmesh->nverts >= 0xffff) {

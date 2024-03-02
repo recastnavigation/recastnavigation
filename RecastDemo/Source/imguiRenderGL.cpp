@@ -16,13 +16,13 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <cmath>
-#include <fstream>
+#include "imguiRenderGL.h"
+#include "imgui.h"
 
-#include <SDL.h>
 #include <SDL_opengl.h>
 
-#include "imgui.h"
+#include <cstdint>
+#include <fstream>
 
 // Some math headers don't have PI defined.
 static constexpr float PI = 3.14159265f;
@@ -43,21 +43,22 @@ void *imguimalloc(const size_t size, void * /*userptr*/) {
   return malloc(size);
 }
 
-static constexpr unsigned TEMP_COORD_COUNT = 100;
-static float g_tempCoords[TEMP_COORD_COUNT * 2];
-static float g_tempNormals[TEMP_COORD_COUNT * 2];
+namespace {
+constexpr unsigned TEMP_COORD_COUNT = 100;
+float g_tempCoords[TEMP_COORD_COUNT * 2];
+float g_tempNormals[TEMP_COORD_COUNT * 2];
 
-static constexpr int CIRCLE_VERTS = 8 * 4;
-static float g_circleVerts[CIRCLE_VERTS * 2];
+constexpr int CIRCLE_VERTS = 8 * 4;
+float g_circleVerts[CIRCLE_VERTS * 2];
 
-static stbtt_bakedchar g_cdata[96]; // ASCII 32..126 is 95 glyphs
-static GLuint g_ftex = 0;
+stbtt_bakedchar g_cdata[96]; // ASCII 32..126 is 95 glyphs
+GLuint g_ftex = 0;
 
-inline unsigned int RGBA(const unsigned char r, const unsigned char g, const unsigned char b, const unsigned char a) {
+uint32_t RGBA(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a) {
   return (r) | (g << 8) | (b << 16) | (a << 24);
 }
 
-static void drawPolygon(const float *coords, unsigned numCoords, const float r, unsigned int col) {
+void drawPolygon(const float *coords, unsigned numCoords, const float r, uint32_t col) {
   if (numCoords > TEMP_COORD_COUNT)
     numCoords = TEMP_COORD_COUNT;
 
@@ -95,7 +96,7 @@ static void drawPolygon(const float *coords, unsigned numCoords, const float r, 
     g_tempCoords[i * 2 + 1] = coords[i * 2 + 1] + dmy * r;
   }
 
-  unsigned int colTrans = RGBA(col & 0xff, (col >> 8) & 0xff, (col >> 16) & 0xff, 0);
+  uint32_t colTrans = RGBA(col & 0xff, (col >> 8) & 0xff, (col >> 16) & 0xff, 0);
 
   glBegin(GL_TRIANGLES);
 
@@ -124,7 +125,7 @@ static void drawPolygon(const float *coords, unsigned numCoords, const float r, 
   glEnd();
 }
 
-static void drawRect(const float x, const float y, const float w, const float h, const float fth, const unsigned int col) {
+void drawRect(const float x, const float y, const float w, const float h, const float fth, const uint32_t col) {
   const float verts[4 * 2] =
       {
           x + 0.5f,
@@ -140,7 +141,7 @@ static void drawRect(const float x, const float y, const float w, const float h,
 }
 
 /*
-static void drawEllipse(float x, float y, float w, float h, float fth, unsigned int col)
+static void drawEllipse(float x, float y, float w, float h, float fth, uint32_t col)
 {
         float verts[CIRCLE_VERTS*2];
         const float* cverts = g_circleVerts;
@@ -156,7 +157,7 @@ static void drawEllipse(float x, float y, float w, float h, float fth, unsigned 
 }
 */
 
-static void drawRoundedRect(const float x, const float y, const float w, const float h, const float r, const float fth, const unsigned int col) {
+void drawRoundedRect(const float x, const float y, const float w, const float h, const float r, const float fth, const uint32_t col) {
   constexpr unsigned n = CIRCLE_VERTS / 4;
   float verts[(n + 1) * 4 * 2];
   const float *cverts = g_circleVerts;
@@ -187,7 +188,7 @@ static void drawRoundedRect(const float x, const float y, const float w, const f
   drawPolygon(verts, (n + 1) * 4, fth, col);
 }
 
-static void drawLine(const float x0, const float y0, const float x1, const float y1, float r, const float fth, const unsigned int col) {
+void drawLine(const float x0, const float y0, const float x1, const float y1, float r, const float fth, const uint32_t col) {
   float dx = x1 - x0;
   float dy = y1 - y0;
   float d = sqrtf(dx * dx + dy * dy);
@@ -223,70 +224,8 @@ static void drawLine(const float x0, const float y0, const float x1, const float
   drawPolygon(verts, 4, fth, col);
 }
 
-bool imguiRenderGLInit(const char *fontPath) {
-  for (int i = 0; i < CIRCLE_VERTS; ++i) {
-    const float a = static_cast<float>(i) / static_cast<float>(CIRCLE_VERTS) * PI * 2;
-    g_circleVerts[i * 2 + 0] = cosf(a);
-    g_circleVerts[i * 2 + 1] = sinf(a);
-  }
-
-  // Load font.
-  std::ifstream file(fontPath, std::ios::binary | std::ios::ate);
-
-  if (!file.is_open()) {
-    return false;
-  }
-
-  const std::streamsize fileSize = file.tellg();
-  file.seekg(0, std::ios::beg);
-
-  if (fileSize < 0) {
-    return false;
-  }
-
-  auto *const ttfBuffer = new (std::nothrow) unsigned char[fileSize];
-  if (!ttfBuffer) {
-    file.close();
-    return false;
-  }
-  file.read(reinterpret_cast<char *>(ttfBuffer), fileSize);
-  const size_t readLen = file.gcount();
-  file.close();
-  if (readLen != fileSize) {
-    delete[] ttfBuffer;
-    return false;
-  }
-
-  auto *const bmap = static_cast<unsigned char *>(malloc(512 * 512));
-  if (!bmap) {
-    free(ttfBuffer);
-    return false;
-  }
-
-  stbtt_BakeFontBitmap(ttfBuffer, 0, 15.0f, bmap, 512, 512, 32, 96, g_cdata);
-
-  // can free ttf_buffer at this point
-  glGenTextures(1, &g_ftex);
-  glBindTexture(GL_TEXTURE_2D, g_ftex);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, 512, 512, 0, GL_ALPHA, GL_UNSIGNED_BYTE, bmap);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-  free(ttfBuffer);
-  free(bmap);
-
-  return true;
-}
-
-void imguiRenderGLDestroy() {
-  if (g_ftex) {
-    glDeleteTextures(1, &g_ftex);
-    g_ftex = 0;
-  }
-}
-
-static void getBakedQuad(const stbtt_bakedchar *chardata, const int pw, const int ph, const int char_index,
-                         float *xpos, const float *ypos, stbtt_aligned_quad *q) {
+void getBakedQuad(const stbtt_bakedchar *chardata, const int pw, const int ph, const int char_index,
+                  float *xpos, const float *ypos, stbtt_aligned_quad *q) {
   const stbtt_bakedchar *b = chardata + char_index;
   const int round_x = STBTT_ifloor(*xpos + b->xoff);
   const int round_y = STBTT_ifloor(*ypos - b->yoff);
@@ -304,13 +243,13 @@ static void getBakedQuad(const stbtt_bakedchar *chardata, const int pw, const in
   *xpos += b->xadvance;
 }
 
-static constexpr float g_tabStops[4] = {150, 210, 270, 330};
+constexpr float g_tabStops[4] = {150, 210, 270, 330};
 
-static float getTextLength(const stbtt_bakedchar *chardata, const char *text) {
+float getTextLength(const stbtt_bakedchar *chardata, const char *text) {
   float xpos = 0;
   float len = 0;
   while (*text) {
-    const int c = static_cast<unsigned char>(*text);
+    const int c = static_cast<uint8_t>(*text);
     if (c == '\t') {
       for (int i = 0; i < 4; ++i) {
         if (xpos < g_tabStops[i]) {
@@ -329,7 +268,7 @@ static float getTextLength(const stbtt_bakedchar *chardata, const char *text) {
   return len;
 }
 
-static void drawText(float x, const float y, const char *text, const int align, const unsigned int col) {
+void drawText(float x, const float y, const char *text, const int align, const uint32_t col) {
   if (!g_ftex)
     return;
   if (!text)
@@ -352,7 +291,7 @@ static void drawText(float x, const float y, const char *text, const int align, 
   const float ox = x;
 
   while (*text) {
-    const int c = static_cast<unsigned char>(*text);
+    const int c = static_cast<uint8_t>(*text);
     if (c == '\t') {
       for (int i = 0; i < 4; ++i) {
         if (x < g_tabStops[i] + ox) {
@@ -383,6 +322,69 @@ static void drawText(float x, const float y, const char *text, const int align, 
 
   glEnd();
   glDisable(GL_TEXTURE_2D);
+}
+} // namespace
+
+bool imguiRenderGLInit(const char *fontPath) {
+  for (int i = 0; i < CIRCLE_VERTS; ++i) {
+    const float a = static_cast<float>(i) / static_cast<float>(CIRCLE_VERTS) * PI * 2;
+    g_circleVerts[i * 2 + 0] = cosf(a);
+    g_circleVerts[i * 2 + 1] = sinf(a);
+  }
+
+  // Load font.
+  std::ifstream file(fontPath, std::ios::binary | std::ios::ate);
+
+  if (!file.is_open()) {
+    return false;
+  }
+
+  const std::streamsize fileSize = file.tellg();
+  file.seekg(0, std::ios::beg);
+
+  if (fileSize < 0) {
+    return false;
+  }
+
+  auto *const ttfBuffer = new (std::nothrow) uint8_t[fileSize];
+  if (!ttfBuffer) {
+    file.close();
+    return false;
+  }
+  file.read(reinterpret_cast<char *>(ttfBuffer), fileSize);
+  const size_t readLen = file.gcount();
+  file.close();
+  if (readLen != fileSize) {
+    delete[] ttfBuffer;
+    return false;
+  }
+
+  auto *const bmap = static_cast<uint8_t *>(malloc(512 * 512));
+  if (!bmap) {
+    free(ttfBuffer);
+    return false;
+  }
+
+  stbtt_BakeFontBitmap(ttfBuffer, 0, 15.0f, bmap, 512, 512, 32, 96, g_cdata);
+
+  // can free ttf_buffer at this point
+  glGenTextures(1, &g_ftex);
+  glBindTexture(GL_TEXTURE_2D, g_ftex);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, 512, 512, 0, GL_ALPHA, GL_UNSIGNED_BYTE, bmap);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+  free(ttfBuffer);
+  free(bmap);
+
+  return true;
+}
+
+void imguiRenderGLDestroy() {
+  if (g_ftex) {
+    glDeleteTextures(1, &g_ftex);
+    g_ftex = 0;
+  }
 }
 
 void imguiRenderGLDraw() {

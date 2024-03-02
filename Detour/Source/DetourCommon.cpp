@@ -17,10 +17,19 @@
 //
 
 #include "DetourCommon.h"
-#include "DetourMath.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
-
+namespace {
+void projectPoly(const float *axis, const float *poly, const int npoly,
+                 float &rmin, float &rmax) {
+  rmin = rmax = dtVdot2D(axis, &poly[0]);
+  for (int i = 1; i < npoly; ++i) {
+    const float d = dtVdot2D(axis, &poly[i * 3]);
+    rmin = dtMin(rmin, d);
+    rmax = dtMax(rmax, d);
+  }
+}
+} // namespace
 void dtClosestPtPointTriangle(float *closest, const float *p,
                               const float *a, const float *b, const float *c) {
   // Check if P in vertex region outside A
@@ -162,15 +171,14 @@ float dtDistancePtSegSqr2D(const float *pt, const float *p, const float *q, floa
     t /= d;
   if (t < 0)
     t = 0;
-  else
-    if (t > 1)
-      t = 1;
+  else if (t > 1)
+    t = 1;
   dx = p[0] + t * pqx - pt[0];
   dz = p[2] + t * pqz - pt[2];
   return dx * dx + dz * dz;
 }
 
-void dtCalcPolyCenter(float *tc, const unsigned short *idx, const int nidx, const float *verts) {
+void dtCalcPolyCenter(float *tc, const uint16_t *idx, const int nidx, const float *verts) {
   tc[0] = 0.0f;
   tc[1] = 0.0f;
   tc[2] = 0.0f;
@@ -195,7 +203,7 @@ bool dtClosestHeightPointTriangle(const float *p, const float *a, const float *b
 
   // Compute scaled barycentric coordinates
   float denom = v0[0] * v1[2] - v0[2] * v1[0];
-  if (fabsf(denom) <  1e-6f)
+  if (fabsf(denom) < 1e-6f)
     return false;
 
   float u = v1[2] * v2[0] - v1[0] * v2[2];
@@ -247,17 +255,6 @@ bool dtDistancePtPolyEdgesSqr(const float *pt, const float *verts, const int nve
   }
   return c;
 }
-
-static void projectPoly(const float *axis, const float *poly, const int npoly,
-                        float &rmin, float &rmax) {
-  rmin = rmax = dtVdot2D(axis, &poly[0]);
-  for (int i = 1; i < npoly; ++i) {
-    const float d = dtVdot2D(axis, &poly[i * 3]);
-    rmin = dtMin(rmin, d);
-    rmax = dtMax(rmax, d);
-  }
-}
-
 inline bool overlapRange(const float amin, const float amax,
                          const float bmin, const float bmax,
                          const float eps) {

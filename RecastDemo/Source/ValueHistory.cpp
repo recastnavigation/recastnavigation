@@ -1,8 +1,9 @@
+#include "ValueHistory.h"
+
+#include "imgui.h"
+
 #include <cstdio>
 #include <cstring>
-
-#include "ValueHistory.h"
-#include "imgui.h"
 
 ValueHistory::ValueHistory() : m_hsamples(0) {
   for (int i = 0; i < MAX_HISTORY; ++i)
@@ -67,7 +68,7 @@ void drawGraphBackground(const GraphParams *p) {
 }
 
 void drawGraph(const GraphParams *p, const ValueHistory *graph,
-               const int idx, const char *label, const unsigned int col) {
+               const int idx, const char *label, const uint32_t col) {
   const float sx = (p->w - p->pad * 2) / static_cast<float>(graph->getSampleCount());
   const float sy = (p->h - p->pad * 2) / (p->vmax - p->vmin);
   const float ox = static_cast<float>(p->x) + static_cast<float>(p->pad);

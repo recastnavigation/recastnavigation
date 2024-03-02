@@ -17,16 +17,25 @@
 //
 
 #pragma once
-#include "Recast.h"
 #include "Sample.h"
 
+#include <Recast.h>
+#include <cstdint>
+
+struct BuildSettings;
+class InputGeom;
+class dtNavMesh;
+struct rcPolyMesh;
+struct rcContourSet;
+struct rcCompactHeightfield;
+struct rcHeightfield;
 class Sample_TileMesh final : public Sample {
 protected:
   bool m_keepInterResults{};
   bool m_buildAll{};
   float m_totalBuildTimeMs{};
 
-  unsigned char *m_triareas{};
+  uint8_t *m_triareas{};
   rcHeightfield *m_solid{};
   rcCompactHeightfield *m_chf{};
   rcContourSet *m_cset{};
@@ -62,14 +71,14 @@ protected:
   int m_maxPolysPerTile{};
   float m_tileSize{};
 
-  unsigned int m_tileCol{};
+  uint32_t m_tileCol{};
   float m_lastBuiltTileBmin[3]{};
   float m_lastBuiltTileBmax[3]{};
   float m_tileBuildTime{};
   float m_tileMemUsage{};
   int m_tileTriCount{};
 
-  unsigned char *buildTileMesh(int tx, int ty, const float *bmin, const float *bmax, int &dataSize);
+  uint8_t *buildTileMesh(int tx, int ty, const float *bmin, const float *bmax, int &dataSize);
 
   void cleanup();
 

@@ -18,47 +18,49 @@
 
 #pragma once
 #include "Sample.h"
-#include "Recast.h"
+#include <cstdint>
 
-
-class Sample_TempObstacles final : public Sample
-{
+struct rcConfig;
+class dtTileCache;
+struct MeshProcess;
+struct FastLZCompressor;
+struct LinearAllocator;
+class Sample_TempObstacles final : public Sample {
 protected:
-	bool m_keepInterResults{};
+  bool m_keepInterResults{};
 
-	struct LinearAllocator* m_talloc{};
-	struct FastLZCompressor* m_tcomp{};
-	struct MeshProcess* m_tmproc{};
+  LinearAllocator *m_talloc{};
+  FastLZCompressor *m_tcomp{};
+  MeshProcess *m_tmproc{};
 
-	class dtTileCache* m_tileCache{};
-	
-	float m_cacheBuildTimeMs{};
-	int m_cacheCompressedSize{};
-	int m_cacheRawSize{};
-	int m_cacheLayerCount{};
-	unsigned int m_cacheBuildMemUsage{};
-	
-	enum DrawMode
-	{
-		DRAWMODE_NAVMESH,
-		DRAWMODE_NAVMESH_TRANS,
-		DRAWMODE_NAVMESH_BVTREE,
-		DRAWMODE_NAVMESH_NODES,
-		DRAWMODE_NAVMESH_PORTALS,
-		DRAWMODE_NAVMESH_INVIS,
-		DRAWMODE_MESH,
-		DRAWMODE_CACHE_BOUNDS,
-		MAX_DRAWMODE
-	};
-	
-	DrawMode m_drawMode{};
-	
-	int m_maxTiles{};
-	int m_maxPolysPerTile{};
-	float m_tileSize{};
-	
+  dtTileCache *m_tileCache{};
+
+  float m_cacheBuildTimeMs{};
+  int m_cacheCompressedSize{};
+  int m_cacheRawSize{};
+  int m_cacheLayerCount{};
+  uint32_t m_cacheBuildMemUsage{};
+
+  enum DrawMode {
+    DRAWMODE_NAVMESH,
+    DRAWMODE_NAVMESH_TRANS,
+    DRAWMODE_NAVMESH_BVTREE,
+    DRAWMODE_NAVMESH_NODES,
+    DRAWMODE_NAVMESH_PORTALS,
+    DRAWMODE_NAVMESH_INVIS,
+    DRAWMODE_MESH,
+    DRAWMODE_CACHE_BOUNDS,
+    MAX_DRAWMODE
+  };
+
+  DrawMode m_drawMode{};
+
+  int m_maxTiles{};
+  int m_maxPolysPerTile{};
+  float m_tileSize{};
+
 public:
-	Sample_TempObstacles();
+  Sample_TempObstacles();
   ~Sample_TempObstacles() override;
 
   void handleSettings() override;
@@ -70,22 +72,22 @@ public:
   bool handleBuild() override;
   void handleUpdate(float dt) override;
 
-	void getTilePos(const float* pos, int& tx, int& ty) const;
-	
-	void renderCachedTile(int tx, int ty, int type);
-	void renderCachedTileOverlay(int tx, int ty, const double * proj, const double * model, const int * view) const;
+  void getTilePos(const float *pos, int &tx, int &ty) const;
 
-	void addTempObstacle(const float* pos) const;
-	void removeTempObstacle(const float* sp, const float* sq) const;
-	void clearAllTempObstacles() const;
+  void renderCachedTile(int tx, int ty, int type);
+  void renderCachedTileOverlay(int tx, int ty, const double *proj, const double *model, const int *view) const;
 
-	void saveAll(const char* path) const;
-	void loadAll(const char* path);
+  void addTempObstacle(const float *pos) const;
+  void removeTempObstacle(const float *sp, const float *sq) const;
+  void clearAllTempObstacles() const;
 
-	// Explicitly disabled copy constructor and copy assignment operator.
-	Sample_TempObstacles(const Sample_TempObstacles&) = delete;
-	Sample_TempObstacles& operator=(const Sample_TempObstacles&) = delete;
+  void saveAll(const char *path) const;
+  void loadAll(const char *path);
+
+  // Explicitly disabled copy constructor and copy assignment operator.
+  Sample_TempObstacles(const Sample_TempObstacles &) = delete;
+  Sample_TempObstacles &operator=(const Sample_TempObstacles &) = delete;
 
 private:
-	int rasterizeTileLayers(int tx, int ty, const rcConfig& cfg, struct TileCacheData* tiles, int maxTiles) const;
+  int rasterizeTileLayers(int tx, int ty, const rcConfig &cfg, struct TileCacheData *tiles, int maxTiles) const;
 };

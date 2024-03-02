@@ -1,23 +1,15 @@
-#include <algorithm>
-#include <array>
-#include <filesystem>
-#include <format>
-#include <fstream>
-#include <ranges>
-#include <span>
-#include <string>
-#include <vector>
-
+#include <Recast.h>
 #include <RecastAlloc.h>
-#include <catch2/catch_all.hpp>
+#include <BuildContext.h>
+#include <InputGeom.h>
+#include <Generators.h>
 
-#include "../../Recast/Include/Recast.h"
-#include "../../RecastCLI/Include/BuildContext.h"
-#include "../../RecastCLI/Include/Generators.h"
-#include "../../RecastCLI/Include/InputGeom.h"
-
+#include <fstream>
+#include <array>
 #include <iostream>
+#include <filesystem>
 
+#include <catch2/catch_all.hpp>
 // For comparing to rcVector in benchmarks.
 constexpr float g_cellHeight = 0.2f;
 constexpr float g_agentHeight = 2.0f;
@@ -148,7 +140,7 @@ inline bool operator<(const Edge &e1, const Edge &e2) { return compareEdges(e1, 
 std::ofstream &startSvg(std::ofstream &file, const std::string_view path, uint32_t width, uint32_t height) {
   if (file.is_open())
     return file;
-  file.open(path);
+  file.open(path.data());
   if (!file.is_open())
     return file;
   file << std::format(R"(<svg width="{}" height="{}" xmlns="http://www.w3.org/2000/svg">)", width, height) << '\n';
@@ -248,26 +240,6 @@ inline void processBourderEdges(const std::string &input, const std::string &out
         // Compare the squared length of the difference with the squared epsilon
         if (smallestDiffX1 * smallestDiffX1 + smallestDiffY1 * smallestDiffY1 <= epsilon * epsilon && smallestDiffX2 * smallestDiffX2 + smallestDiffY2 * smallestDiffY2 <= epsilon * epsilon)
           return true;
-
-        // const int halfDiffX = (smallestDiffX1 + smallestDiffX2) / 2;
-        // const int halfDiffY = (smallestDiffY1 + smallestDiffY2) / 2;
-        // const Edge moved{e2.v1.x + halfDiffX, e2.v1.y + halfDiffY, e2.v2.x + halfDiffX, e2.v2.y + halfDiffY};
-        //
-        // const int movedDiffX1 = e1.v1.x - moved.v1.x;
-        // const int movedDiffY1 = e1.v1.y - moved.v1.y;
-        // const int movedDiffX2 = e1.v2.x - moved.v2.x;
-        // const int movedDiffY2 = e1.v2.y - moved.v2.y;
-        // const int movedDiffX3 = e1.v1.x - moved.v2.x;
-        // const int movedDiffY3 = e1.v1.y - moved.v2.y;
-        // const int movedDiffX4 = e1.v2.x - moved.v1.x;
-        // const int movedDiffY4 = e1.v2.y - moved.v1.y;
-        // const int smallestMoveDiffX1 = std::abs(movedDiffX1) < std::abs(movedDiffX3)? movedDiffX1 : movedDiffX3;
-        // const int smallestMoveDiffX2 = std::abs(movedDiffX2) < std::abs(movedDiffX4)? movedDiffX2 : movedDiffX4;
-        // const int smallestMoveDiffY1 = std::abs(movedDiffY1) < std::abs(movedDiffY3)? movedDiffY1 : movedDiffY3;
-        // const int smallestMoveDiffY2 = std::abs(movedDiffY2) < std::abs(movedDiffY4)? movedDiffY2 : movedDiffY4;
-        // // Compare the squared length of the difference with the squared epsilon
-        // if (smallestMoveDiffX1 * smallestMoveDiffX1 + smallestMoveDiffY1 * smallestMoveDiffY1 <= epsilon * epsilon && smallestMoveDiffX2 * smallestMoveDiffX2 + smallestMoveDiffY2 * smallestMoveDiffY2 <= epsilon * epsilon)
-        //   return true;
         return false;
       }};
   std::size_t referenceEdgesSize = referenceEdges.size();
@@ -354,7 +326,7 @@ TEST_CASE("Watershed") {
     int edgeCount{};
     std::string name = fileName.substr(7, fileName.size() - 11) + "_" + std::to_string(static_cast<int>(cellSize * 10));
     generateTimes(output, name, context, pGeom, config, pEdges, edgeCount);
-    processBourderEdges("CSV/minima-City.svg", output, name, pGeom, config, pEdges, edgeCount);
+    processBourderEdges("CSV/minima-City.csv", output, name, pGeom, config, pEdges, edgeCount);
   }
   SECTION("Maze8") {
     const std::string fileName{"Meshes/Maze8.obj"};
@@ -439,7 +411,7 @@ TEST_CASE("Watershed") {
     int edgeCount{};
     std::string name = fileName.substr(7, fileName.size() - 11) + "_" + std::to_string(static_cast<int>(cellSize * 10));
     generateTimes(output, name, context, pGeom, config, pEdges, edgeCount);
-    processBourderEdges("CSV/minima-Military.svg", output, name, pGeom, config, pEdges, edgeCount);
+    processBourderEdges("CSV/minima-Military.csv", output, name, pGeom, config, pEdges, edgeCount);
   }
   SECTION("Simple") {
     const std::string fileName{"Meshes/Simple.obj"};
@@ -482,7 +454,7 @@ TEST_CASE("Watershed") {
     int edgeCount{};
     std::string name = fileName.substr(7, fileName.size() - 11) + "_" + std::to_string(static_cast<int>(cellSize * 10));
     generateTimes(output, name, context, pGeom, config, pEdges, edgeCount);
-    processBourderEdges("CSV/minima-Zelda.svg", output, name, pGeom, config, pEdges, edgeCount);
+    processBourderEdges("CSV/minima-Zelda.csv", output, name, pGeom, config, pEdges, edgeCount);
   }
   SECTION("Zelda2x2") {
     const std::string fileName{"Meshes/Zelda2x2.obj"};

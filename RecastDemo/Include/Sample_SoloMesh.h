@@ -17,15 +17,22 @@
 //
 
 #pragma once
-#include "Recast.h"
 #include "Sample.h"
 
+#include <Recast.h>
+#include <cstdint>
+
+struct rcPolyMeshDetail;
+struct rcPolyMesh;
+struct rcContourSet;
+struct rcCompactHeightfield;
+struct rcHeightfield;
 class Sample_SoloMesh final : public Sample {
 protected:
   bool m_keepInterResults{};
   float m_totalBuildTimeMs{};
 
-  unsigned char *m_triareas{};
+  uint8_t *m_triareas{};
   rcHeightfield *m_solid{};
   rcCompactHeightfield *m_chf{};
   rcContourSet *m_cset{};

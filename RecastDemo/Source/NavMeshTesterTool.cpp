@@ -16,45 +16,38 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <cmath>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
+#include "NavMeshTesterTool.h"
 
-#include <SDL.h>
+#include "imgui.h"
+
+#include <DetourCommon.h>
+#include <DetourDebugDraw.h>
+#include <DetourPathCorridor.h>
+
 #include <SDL_opengl.h>
-#ifdef __APPLE__
+#if __APPLE__
 #include <OpenGL/glu.h>
 #else
 #include <GL/glu.h>
 #endif
-
-#include "DetourCommon.h"
-#include "DetourDebugDraw.h"
-#include "DetourNavMesh.h"
-#include "DetourPathCorridor.h"
-#include "NavMeshTesterTool.h"
-#include "Sample.h"
-#include "imgui.h"
-
-#ifdef WIN32
-#define snprintf _snprintf
-#endif
+#include <cmath>
+#include <cstring>
 
 // Uncomment this to dump all the requests in stdout.
 #define DUMP_REQS
 
 // Returns a random number [0..1]
-static float frand() {
+namespace {
+float frand() {
   //	return ((float)(rand() & 0xffff)/(float)0xffff);
   return static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
 }
 
-inline bool inRange(const float *v1, const float *v2, const float r, const float h) {
+bool inRange(const float *v1, const float *v2, const float r, const float h) {
   const float dx = v2[0] - v1[0];
   const float dy = v2[1] - v1[1];
   const float dz = v2[2] - v1[2];
-  return (dx * dx + dz * dz) < r * r && fabsf(dy) < h;
+  return (dx * dx + dz * dz) < r * r && std::abs(dy) < h;
 }
 
 // This function checks if the path has a small U-turn, that is,
@@ -68,7 +61,7 @@ inline bool inRange(const float *v1, const float *v2, const float r, const float
 //  +-S-+-T-+
 //  |:::|   | <-- the step can end up in here, resulting U-turn path.
 //  +---+---+
-static int fixupShortcuts(dtPolyRef *path, int npath, const dtNavMeshQuery *navQuery) {
+int fixupShortcuts(dtPolyRef *path, int npath, const dtNavMeshQuery *navQuery) {
   if (npath < 3)
     return npath;
 
@@ -82,7 +75,7 @@ static int fixupShortcuts(dtPolyRef *path, int npath, const dtNavMeshQuery *navQ
   if (dtStatusFailed(navQuery->getAttachedNavMesh()->getTileAndPolyByRef(path[0], &tile, &poly)))
     return npath;
 
-  for (unsigned int k = poly->firstLink; k != DT_NULL_LINK; k = tile->links[k].next) {
+  for (uint32_t k = poly->firstLink; k != DT_NULL_LINK; k = tile->links[k].next) {
     const dtLink *link = &tile->links[k];
     if (link->ref != 0) {
       if (nneis < maxNeis)
@@ -112,15 +105,15 @@ static int fixupShortcuts(dtPolyRef *path, int npath, const dtNavMeshQuery *navQ
   return npath;
 }
 
-static bool getSteerTarget(const dtNavMeshQuery *navQuery, const float *startPos, const float *endPos,
+bool getSteerTarget(const dtNavMeshQuery *navQuery, const float *startPos, const float *endPos,
                            const float minTargetDist,
                            const dtPolyRef *path, const int pathSize,
-                           float *steerPos, unsigned char &steerPosFlag, dtPolyRef &steerPosRef,
+                           float *steerPos, uint8_t &steerPosFlag, dtPolyRef &steerPosRef,
                            float *outPoints = nullptr, int *outPointCount = nullptr) {
   // Find steer target.
   static constexpr int MAX_STEER_POINTS = 3;
   float steerPath[MAX_STEER_POINTS * 3];
-  unsigned char steerPathFlags[MAX_STEER_POINTS];
+  uint8_t steerPathFlags[MAX_STEER_POINTS];
   dtPolyRef steerPathPolys[MAX_STEER_POINTS];
   int nsteerPath = 0;
   navQuery->findStraightPath(startPos, endPos, path, pathSize,
@@ -154,6 +147,29 @@ static bool getSteerTarget(const dtNavMeshQuery *navQuery, const float *startPos
 
   return true;
 }
+
+void getPolyCenter(const dtNavMesh *navMesh, const dtPolyRef ref, float *center) {
+  center[0] = 0;
+  center[1] = 0;
+  center[2] = 0;
+
+  const dtMeshTile *tile = nullptr;
+  const dtPoly *poly = nullptr;
+  if (dtStatusFailed(navMesh->getTileAndPolyByRef(ref, &tile, &poly)))
+    return;
+
+  for (int i = 0; i < static_cast<int>(poly->vertCount); ++i) {
+    const float *v = &tile->verts[poly->verts[i] * 3];
+    center[0] += v[0];
+    center[1] += v[1];
+    center[2] += v[2];
+  }
+  const float s = 1.0f / poly->vertCount;
+  center[0] *= s;
+  center[1] *= s;
+  center[2] *= s;
+}
+} // namespace
 
 NavMeshTesterTool::NavMeshTesterTool() {
   m_filter.setIncludeFlags(SAMPLE_POLYFLAGS_ALL ^ SAMPLE_POLYFLAGS_DISABLED);
@@ -405,12 +421,10 @@ void NavMeshTesterTool::handleToggle() {
 
   // Find location to steer towards.
   float steerPos[3];
-  unsigned char steerPosFlag;
+  uint8_t steerPosFlag;
   dtPolyRef steerPosRef;
 
-  if (!getSteerTarget(m_navQuery, m_iterPos, m_targetPos, SLOP,
-                      m_pathIterPolys, m_pathIterPolyCount, steerPos, steerPosFlag, steerPosRef,
-                      m_steerPoints, &m_steerPointCount))
+  if (!getSteerTarget(m_navQuery, m_iterPos, m_targetPos, SLOP, m_pathIterPolys, m_pathIterPolyCount, steerPos, steerPosFlag, steerPosRef, m_steerPoints, &m_steerPointCount))
     return;
 
   dtVcopy(m_steerPos, steerPos);
@@ -454,9 +468,8 @@ void NavMeshTesterTool::handleToggle() {
       m_nsmoothPath++;
     }
     return;
-  } else if (offMeshConnection && inRange(m_iterPos, steerPos, SLOP, 1.0f)) {
-    // Reached off-mesh connection.
-    float startPos[3], endPos[3];
+  }
+  if (offMeshConnection && inRange(m_iterPos, steerPos, SLOP, 1.0f)) {
 
     // Advance the path up to and over the off-mesh connection.
     dtPolyRef prevRef = 0, polyRef = m_pathIterPolys[0];
@@ -470,6 +483,8 @@ void NavMeshTesterTool::handleToggle() {
       m_pathIterPolys[i - npos] = m_pathIterPolys[i];
     m_pathIterPolyCount -= npos;
 
+    float startPos[3];
+    float endPos[3];
     // Handle the connection.
     if (dtStatusSucceed(m_navMesh->getOffMeshConnectionPolyEndPoints(prevRef, polyRef, startPos, endPos))) {
       if (m_nsmoothPath < MAX_SMOOTH) {
@@ -527,8 +542,8 @@ void NavMeshTesterTool::reset() {
   m_npolys = 0;
   m_nstraightPath = 0;
   m_nsmoothPath = 0;
-  memset(m_hitPos, 0, sizeof(m_hitPos));
-  memset(m_hitNormal, 0, sizeof(m_hitNormal));
+  std::memset(m_hitPos, 0, sizeof(m_hitPos));
+  std::memset(m_hitNormal, 0, sizeof(m_hitNormal));
   m_distanceToWall = 0;
 }
 
@@ -584,11 +599,10 @@ void NavMeshTesterTool::recalc() {
         while (npolys && m_nsmoothPath < MAX_SMOOTH) {
           // Find location to steer towards.
           float steerPos[3];
-          unsigned char steerPosFlag;
+          uint8_t steerPosFlag;
           dtPolyRef steerPosRef;
 
-          if (!getSteerTarget(m_navQuery, iterPos, targetPos, SLOP,
-                              polys, npolys, steerPos, steerPosFlag, steerPosRef))
+          if (!getSteerTarget(m_navQuery, iterPos, targetPos, SLOP, polys, npolys, steerPos, steerPosFlag, steerPosRef))
             break;
 
           const bool endOfPath = (steerPosFlag & DT_STRAIGHTPATH_END) ? true : false;
@@ -630,9 +644,9 @@ void NavMeshTesterTool::recalc() {
               m_nsmoothPath++;
             }
             break;
-          } else if (offMeshConnection && inRange(iterPos, steerPos, SLOP, 1.0f)) {
+          }
+          if (offMeshConnection && inRange(iterPos, steerPos, SLOP, 1.0f)) {
             // Reached off-mesh connection.
-            float startPos[3], endPos[3];
 
             // Advance the path up to and over the off-mesh connection.
             dtPolyRef prevRef = 0, polyRef = polys[0];
@@ -646,6 +660,8 @@ void NavMeshTesterTool::recalc() {
               polys[i - npos] = polys[i];
             npolys -= npos;
 
+            float startPos[3];
+            float endPos[3];
             // Handle the connection.
             if (dtStatusSucceed(m_navMesh->getOffMeshConnectionPolyEndPoints(prevRef, polyRef, startPos, endPos))) {
               if (m_nsmoothPath < MAX_SMOOTH) {
@@ -818,34 +834,12 @@ void NavMeshTesterTool::recalc() {
   }
 }
 
-static void getPolyCenter(const dtNavMesh *navMesh, const dtPolyRef ref, float *center) {
-  center[0] = 0;
-  center[1] = 0;
-  center[2] = 0;
-
-  const dtMeshTile *tile = nullptr;
-  const dtPoly *poly = nullptr;
-  if (dtStatusFailed(navMesh->getTileAndPolyByRef(ref, &tile, &poly)))
-    return;
-
-  for (int i = 0; i < static_cast<int>(poly->vertCount); ++i) {
-    const float *v = &tile->verts[poly->verts[i] * 3];
-    center[0] += v[0];
-    center[1] += v[1];
-    center[2] += v[2];
-  }
-  const float s = 1.0f / poly->vertCount;
-  center[0] *= s;
-  center[1] *= s;
-  center[2] *= s;
-}
-
 void NavMeshTesterTool::handleRender() {
   duDebugDraw &dd = m_sample->getDebugDraw();
 
-  static const unsigned int startCol = duRGBA(128, 25, 0, 192);
-  static const unsigned int endCol = duRGBA(51, 102, 0, 129);
-  static const unsigned int pathCol = duRGBA(0, 0, 0, 64);
+  static const uint32_t startCol = duRGBA(128, 25, 0, 192);
+  static const uint32_t endCol = duRGBA(51, 102, 0, 129);
+  static const uint32_t pathCol = duRGBA(0, 0, 0, 64);
 
   const float agentRadius = m_sample->getAgentRadius();
   const float agentHeight = m_sample->getAgentHeight();
@@ -876,7 +870,7 @@ void NavMeshTesterTool::handleRender() {
 
     if (m_nsmoothPath) {
       dd.depthMask(false);
-      const unsigned int spathCol = duRGBA(0, 0, 0, 220);
+      const uint32_t spathCol = duRGBA(0, 0, 0, 220);
       dd.begin(DU_DRAW_LINES, 3.0f);
       for (int i = 0; i < m_nsmoothPath; ++i)
         dd.vertex(m_smoothPath[i * 3], m_smoothPath[i * 3 + 1] + 0.1f, m_smoothPath[i * 3 + 2], spathCol);
@@ -890,9 +884,9 @@ void NavMeshTesterTool::handleRender() {
       dd.depthMask(false);
       dd.begin(DU_DRAW_LINES, 1.0f);
 
-      const unsigned int prevCol = duRGBA(255, 192, 0, 220);
-      const unsigned int curCol = duRGBA(255, 255, 255, 220);
-      const unsigned int steerCol = duRGBA(0, 192, 255, 220);
+      const uint32_t prevCol = duRGBA(255, 192, 0, 220);
+      const uint32_t curCol = duRGBA(255, 255, 255, 220);
+      const uint32_t steerCol = duRGBA(0, 192, 255, 220);
 
       dd.vertex(m_prevIterPos[0], m_prevIterPos[1] - 0.3f, m_prevIterPos[2], prevCol);
       dd.vertex(m_prevIterPos[0], m_prevIterPos[1] + 0.3f, m_prevIterPos[2], prevCol);
@@ -929,11 +923,11 @@ void NavMeshTesterTool::handleRender() {
 
     if (m_nstraightPath) {
       dd.depthMask(false);
-      const unsigned int spathCol = duRGBA(64, 16, 0, 220);
-      const unsigned int offMeshCol = duRGBA(128, 96, 0, 220);
+      const uint32_t spathCol = duRGBA(64, 16, 0, 220);
+      const uint32_t offMeshCol = duRGBA(128, 96, 0, 220);
       dd.begin(DU_DRAW_LINES, 2.0f);
       for (int i = 0; i < m_nstraightPath - 1; ++i) {
-        unsigned int col;
+        uint32_t col;
         if (m_straightPathFlags[i] & DT_STRAIGHTPATH_OFFMESH_CONNECTION)
           col = offMeshCol;
         else
@@ -945,7 +939,7 @@ void NavMeshTesterTool::handleRender() {
       dd.end();
       dd.begin(DU_DRAW_POINTS, 6.0f);
       for (int i = 0; i < m_nstraightPath; ++i) {
-        unsigned int col;
+        uint32_t col;
         if (m_straightPathFlags[i] & DT_STRAIGHTPATH_START)
           col = startCol;
         else if (m_straightPathFlags[i] & DT_STRAIGHTPATH_END)
@@ -967,7 +961,7 @@ void NavMeshTesterTool::handleRender() {
         duDebugDrawNavMeshPoly(&dd, *m_navMesh, m_polys[i], pathCol);
 
       dd.depthMask(false);
-      const unsigned int spathCol = m_hitResult ? duRGBA(64, 16, 0, 220) : duRGBA(240, 240, 240, 220);
+      const uint32_t spathCol = m_hitResult ? duRGBA(64, 16, 0, 220) : duRGBA(240, 240, 240, 220);
       dd.begin(DU_DRAW_LINES, 2.0f);
       for (int i = 0; i < m_nstraightPath - 1; ++i) {
         dd.vertex(m_straightPath[i * 3], m_straightPath[i * 3 + 1] + 0.4f, m_straightPath[i * 3 + 2], spathCol);
@@ -980,7 +974,7 @@ void NavMeshTesterTool::handleRender() {
       dd.end();
 
       if (m_hitResult) {
-        const unsigned int hitCol = duRGBA(0, 0, 0, 128);
+        const uint32_t hitCol = duRGBA(0, 0, 0, 128);
         dd.begin(DU_DRAW_LINES, 2.0f);
         dd.vertex(m_hitPos[0], m_hitPos[1] + 0.4f, m_hitPos[2], hitCol);
         dd.vertex(m_hitPos[0] + m_hitNormal[0] * agentRadius,
@@ -1039,7 +1033,7 @@ void NavMeshTesterTool::handleRender() {
 
     if (m_sposSet && m_eposSet) {
       dd.depthMask(false);
-      const unsigned int col = duRGBA(64, 16, 0, 220);
+      const uint32_t col = duRGBA(64, 16, 0, 220);
       dd.begin(DU_DRAW_LINES, 2.0f);
       for (int i = 0, j = 3; i < 4; j = i++) {
         const float *p0 = &m_queryPoly[j * 3];
@@ -1088,11 +1082,11 @@ void NavMeshTesterTool::handleRender() {
 
         // Skip backfacing segments.
         if (refs[j]) {
-          const unsigned int col = duRGBA(255, 255, 255, 32);
+          const uint32_t col = duRGBA(255, 255, 255, 32);
           dd.vertex(s[0], s[1] + agentClimb, s[2], col);
           dd.vertex(s[3], s[4] + agentClimb, s[5], col);
         } else {
-          unsigned int col = duRGBA(192, 32, 16, 192);
+          uint32_t col = duRGBA(192, 32, 16, 192);
           if (dtTriArea2D(m_spos, s, s + 3) < 0.0f)
             col = duRGBA(96, 32, 16, 192);
 
@@ -1147,7 +1141,7 @@ void NavMeshTesterTool::handleRenderOverlay(double *proj, double *model, int *vi
   imguiDrawText(280, h - 40, IMGUI_ALIGN_LEFT, "LMB+SHIFT: Set start location  LMB: Set end location", imguiRGBA(255, 255, 255, 192));
 }
 
-void NavMeshTesterTool::drawAgent(const float *pos, const float r, const float h, const float c, const unsigned int col) const {
+void NavMeshTesterTool::drawAgent(const float *pos, const float r, const float h, const float c, const uint32_t col) const {
   duDebugDraw &dd = m_sample->getDebugDraw();
 
   dd.depthMask(false);
@@ -1157,7 +1151,7 @@ void NavMeshTesterTool::drawAgent(const float *pos, const float r, const float h
 
   duDebugDrawCircle(&dd, pos[0], pos[1] + c, pos[2], r, duRGBA(0, 0, 0, 64), 1.0f);
 
-  const unsigned int colb = duRGBA(0, 0, 0, 196);
+  const uint32_t colb = duRGBA(0, 0, 0, 196);
   dd.begin(DU_DRAW_LINES);
   dd.vertex(pos[0], pos[1] - c, pos[2], colb);
   dd.vertex(pos[0], pos[1] + c, pos[2], colb);

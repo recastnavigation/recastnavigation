@@ -16,18 +16,20 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
+#include "ChunkyTriMesh.h"
+
 #include <cmath>
 #include <cstdlib>
-
-#include "ChunkyTriMesh.h"
+#include <new>
 
 struct BoundsItem {
   float bmin[2];
   float bmax[2];
   int i;
 };
+namespace {
 
-static int compareItemX(const void *va, const void *vb) {
+int compareItemX(const void *va, const void *vb) {
   const auto *const a = static_cast<const BoundsItem *>(va);
   const auto *const b = static_cast<const BoundsItem *>(vb);
   if (a->bmin[0] < b->bmin[0])
@@ -37,7 +39,7 @@ static int compareItemX(const void *va, const void *vb) {
   return 0;
 }
 
-static int compareItemY(const void *va, const void *vb) {
+int compareItemY(const void *va, const void *vb) {
   const auto *const a = static_cast<const BoundsItem *>(va);
   const auto *const b = static_cast<const BoundsItem *>(vb);
   if (a->bmin[1] < b->bmin[1])
@@ -47,9 +49,9 @@ static int compareItemY(const void *va, const void *vb) {
   return 0;
 }
 
-static void calcExtends(const BoundsItem *items, const int /*nitems*/,
-                        const int imin, const int imax,
-                        float *bmin, float *bmax) {
+void calcExtends(const BoundsItem *items, const int /*nitems*/,
+                 const int imin, const int imax,
+                 float *bmin, float *bmax) {
   bmin[0] = items[imin].bmin[0];
   bmin[1] = items[imin].bmin[1];
 
@@ -70,13 +72,13 @@ static void calcExtends(const BoundsItem *items, const int /*nitems*/,
   }
 }
 
-inline int longestAxis(const float x, const float y) {
+int longestAxis(const float x, const float y) {
   return y > x ? 1 : 0;
 }
 
-static void subdivide(BoundsItem *items, const int nitems, const int imin, const int imax, const int trisPerChunk,
-                      int &curNode, rcChunkyTriMeshNode *nodes, const int maxNodes,
-                      int &curTri, int *outTris, const int *inTris) {
+void subdivide(BoundsItem *items, const int nitems, const int imin, const int imax, const int trisPerChunk,
+               int &curNode, rcChunkyTriMeshNode *nodes, const int maxNodes,
+               int &curTri, int *outTris, const int *inTris) {
   const int inum = imax - imin;
   const int icur = curNode;
 
@@ -129,22 +131,58 @@ static void subdivide(BoundsItem *items, const int nitems, const int imin, const
   }
 }
 
+bool checkOverlapSegment(const float p[2], const float q[2],
+                         const float bmin[2], const float bmax[2]) {
+  float tmin = 0;
+  float tmax = 1;
+  float d[2];
+  d[0] = q[0] - p[0];
+  d[1] = q[1] - p[1];
+
+  for (int i = 0; i < 2; i++) {
+    if (std::abs(d[i]) < 1e-6f) {
+      // Ray is parallel to slab. No hit if origin not within slab
+      if (p[i] < bmin[i] || p[i] > bmax[i])
+        return false;
+    } else {
+      // Compute intersection t value of ray with near and far plane of slab
+      const float ood = 1.0f / d[i];
+      float t1 = (bmin[i] - p[i]) * ood;
+      float t2 = (bmax[i] - p[i]) * ood;
+      if (t1 > t2) {
+        const float tmp = t1;
+        t1 = t2;
+        t2 = tmp;
+      }
+      if (t1 > tmin)
+        tmin = t1;
+      if (t2 < tmax)
+        tmax = t2;
+      if (tmin > tmax)
+        return false;
+    }
+  }
+  return true;
+}
+
+} // namespace
+
 bool rcCreateChunkyTriMesh(const float *verts, const int *tris, const int ntris,
                            const int trisPerChunk, rcChunkyTriMesh *cm) {
   const int nchunks = (ntris + trisPerChunk - 1) / trisPerChunk;
 
-  cm->nodes = new rcChunkyTriMeshNode[nchunks * 4];
+  cm->nodes = new (std::nothrow) rcChunkyTriMeshNode[nchunks * 4];
   if (!cm->nodes)
     return false;
 
-  cm->tris = new int[ntris * 3];
+  cm->tris = new (std::nothrow) int[ntris * 3];
   if (!cm->tris)
     return false;
 
   cm->ntris = ntris;
 
   // Build tree
-  const auto items = new BoundsItem[ntris];
+  auto *const items = new (std::nothrow) BoundsItem[ntris];
   if (!items)
     return false;
 
@@ -225,40 +263,6 @@ int rcGetChunksOverlappingRect(const rcChunkyTriMesh *cm,
   }
 
   return n;
-}
-
-static bool checkOverlapSegment(const float p[2], const float q[2],
-                                const float bmin[2], const float bmax[2]) {
-  float tmin = 0;
-  float tmax = 1;
-  float d[2];
-  d[0] = q[0] - p[0];
-  d[1] = q[1] - p[1];
-
-  for (int i = 0; i < 2; i++) {
-    if (fabsf(d[i]) < 1e-6f) {
-      // Ray is parallel to slab. No hit if origin not within slab
-      if (p[i] < bmin[i] || p[i] > bmax[i])
-        return false;
-    } else {
-      // Compute intersection t value of ray with near and far plane of slab
-      const float ood = 1.0f / d[i];
-      float t1 = (bmin[i] - p[i]) * ood;
-      float t2 = (bmax[i] - p[i]) * ood;
-      if (t1 > t2) {
-        const float tmp = t1;
-        t1 = t2;
-        t2 = tmp;
-      }
-      if (t1 > tmin)
-        tmin = t1;
-      if (t2 < tmax)
-        tmax = t2;
-      if (tmin > tmax)
-        return false;
-    }
-  }
-  return true;
 }
 
 int rcGetChunksOverlappingSegment(const rcChunkyTriMesh *cm,

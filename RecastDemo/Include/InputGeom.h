@@ -17,9 +17,11 @@
 //
 
 #pragma once
-#include "ChunkyTriMesh.h"
-#include "MeshLoaderObj.h"
+#include <cstdint>
+#include <string>
 
+class rcMeshLoaderObj;
+struct rcChunkyTriMesh;
 class rcContext;
 struct duDebugDraw;
 
@@ -83,10 +85,10 @@ class InputGeom
 	static constexpr int MAX_OFFMESH_CONNECTIONS = 256;
 	float m_offMeshConVerts[MAX_OFFMESH_CONNECTIONS*3*2]{};
 	float m_offMeshConRads[MAX_OFFMESH_CONNECTIONS]{};
-	unsigned char m_offMeshConDirs[MAX_OFFMESH_CONNECTIONS]{};
-	unsigned char m_offMeshConAreas[MAX_OFFMESH_CONNECTIONS]{};
-	unsigned short m_offMeshConFlags[MAX_OFFMESH_CONNECTIONS]{};
-	unsigned int m_offMeshConId[MAX_OFFMESH_CONNECTIONS]{};
+	uint8_t m_offMeshConDirs[MAX_OFFMESH_CONNECTIONS]{};
+	uint8_t m_offMeshConAreas[MAX_OFFMESH_CONNECTIONS]{};
+	uint16_t m_offMeshConFlags[MAX_OFFMESH_CONNECTIONS]{};
+	uint32_t m_offMeshConId[MAX_OFFMESH_CONNECTIONS]{};
 	int m_offMeshConCount{};
 	///@}
 
@@ -122,12 +124,12 @@ public:
 	int getOffMeshConnectionCount() const { return m_offMeshConCount; }
 	const float* getOffMeshConnectionVerts() const { return m_offMeshConVerts; }
 	const float* getOffMeshConnectionRads() const { return m_offMeshConRads; }
-	const unsigned char* getOffMeshConnectionDirs() const { return m_offMeshConDirs; }
-	const unsigned char* getOffMeshConnectionAreas() const { return m_offMeshConAreas; }
-	const unsigned short* getOffMeshConnectionFlags() const { return m_offMeshConFlags; }
-	const unsigned int* getOffMeshConnectionId() const { return m_offMeshConId; }
+	const uint8_t* getOffMeshConnectionDirs() const { return m_offMeshConDirs; }
+	const uint8_t* getOffMeshConnectionAreas() const { return m_offMeshConAreas; }
+	const uint16_t* getOffMeshConnectionFlags() const { return m_offMeshConFlags; }
+	const uint32_t* getOffMeshConnectionId() const { return m_offMeshConId; }
 	void addOffMeshConnection(const float* spos, const float* epos, float rad,
-							  unsigned char bidir, unsigned char area, unsigned short flags);
+							  uint8_t bidir, uint8_t area, uint16_t flags);
 	void deleteOffMeshConnection(int i);
 	void drawOffMeshConnections(duDebugDraw* dd, bool hilight = false) const;
 	///@}
@@ -137,7 +139,7 @@ public:
 	int getConvexVolumeCount() const { return m_volumeCount; }
 	const ConvexVolume* getConvexVolumes() const { return m_volumes; }
 	void addConvexVolume(const float* verts, int nverts,
-	                     float minh, float maxh, unsigned char area);
+	                     float minh, float maxh, uint8_t area);
 	void deleteConvexVolume(int i);
 	void drawConvexVolumes(duDebugDraw* dd, bool hilight = false) const;
 	///@}

@@ -17,73 +17,71 @@
 //
 
 #pragma once
+#include <DetourNavMesh.h>
+
+#include <cstdint>
 #include <string>
 
-#include "DetourNavMesh.h"
+class dtNavMeshQuery;
+class TestCase {
+  enum TestType {
+    TEST_PATHFIND,
+    TEST_RAYCAST
+  };
 
-class TestCase
-{
-	enum TestType
-	{
-		TEST_PATHFIND,
-		TEST_RAYCAST
-	};
-	
-	struct Test
-	{
-		Test() =default;
-		~Test()
-		{
-			delete [] straight;
-			delete [] polys;
-		}
-		
-		TestType type{};
-		float spos[3]{};
-		float epos[3]{};
-		float nspos[3]{};
-		float nepos[3]{};
-		float radius{};
-		unsigned short includeFlags{};
-		unsigned short excludeFlags{};
-		bool expand{};
-		
-		float* straight{};
-		int nstraight{};
-		dtPolyRef* polys{};
-		int npolys{};
-		
-		int findNearestPolyTime{};
-		int findPathTime{};
-		int findStraightPathTime{};
-		
-		Test* next{};
-		// Explicitly disabled copy constructor and copy assignment operator.
-		Test(const Test&) = delete;
-		Test& operator=(const Test&) = delete;
-	};
+  struct Test {
+    Test() = default;
+    ~Test() {
+      delete[] straight;
+      delete[] polys;
+    }
 
-	std::string m_sampleName{};
-	std::string m_geomFileName{};
-	Test* m_tests{};
-	
-	void resetTimes() const;
-	
+    TestType type{};
+    float spos[3]{};
+    float epos[3]{};
+    float nspos[3]{};
+    float nepos[3]{};
+    float radius{};
+    uint16_t includeFlags{};
+    uint16_t excludeFlags{};
+    bool expand{};
+
+    float *straight{};
+    int nstraight{};
+    dtPolyRef *polys{};
+    int npolys{};
+
+    int findNearestPolyTime{};
+    int findPathTime{};
+    int findStraightPathTime{};
+
+    Test *next{};
+    // Explicitly disabled copy constructor and copy assignment operator.
+    Test(const Test &) = delete;
+    Test &operator=(const Test &) = delete;
+  };
+
+  std::string m_sampleName{};
+  std::string m_geomFileName{};
+  Test *m_tests{};
+
+  void resetTimes() const;
+
 public:
-	TestCase()=default;
-	~TestCase();
+  TestCase() = default;
+  ~TestCase();
 
-	bool load(const std::string& filePath);
-	
-	const std::string& getSampleName() const { return m_sampleName; }
-	const std::string& getGeomFileName() const { return m_geomFileName; }
-	
-	void doTests(const dtNavMesh * navmesh, const dtNavMeshQuery * navquery)const;
-	
-	void handleRender() const;
-	bool handleRenderOverlay(const double *proj, const double *model, const int *view) const;
+  bool load(const std::string &filePath);
 
-	// Explicitly disabled copy constructor and copy assignment operator.
-	TestCase(const TestCase&) = delete;
-	TestCase& operator=(const TestCase&) = delete;
+  const std::string &getSampleName() const { return m_sampleName; }
+  const std::string &getGeomFileName() const { return m_geomFileName; }
+
+  void doTests(const dtNavMesh *navmesh, const dtNavMeshQuery *navquery) const;
+
+  void handleRender() const;
+  bool handleRenderOverlay(const double *proj, const double *model, const int *view) const;
+
+  // Explicitly disabled copy constructor and copy assignment operator.
+  TestCase(const TestCase &) = delete;
+  TestCase &operator=(const TestCase &) = delete;
 };

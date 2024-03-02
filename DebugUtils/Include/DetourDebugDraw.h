@@ -18,6 +18,7 @@
 
 #pragma once
 #include <DetourNavMesh.h>
+#include <cstdint>
 
 struct dtTileCachePolyMesh;
 struct dtTileCacheContourSet;
@@ -25,7 +26,6 @@ struct dtTileCacheLayer;
 class dtNavMeshQuery;
 class dtNavMesh;
 struct duDebugDraw;
-
 enum DrawNavMeshFlags
 {
 	DU_DRAWNAVMESH_OFFMESHCONS = 0x01,
@@ -33,17 +33,15 @@ enum DrawNavMeshFlags
 	DU_DRAWNAVMESH_COLOR_TILES = 0x04
 };
 
-void duDebugDrawNavMesh(duDebugDraw* dd, const dtNavMesh& mesh, unsigned char flags);
-void duDebugDrawNavMeshWithClosedList(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMeshQuery& query, unsigned char flags);
+void duDebugDrawNavMesh(duDebugDraw* dd, const dtNavMesh& mesh, uint8_t flags);
+void duDebugDrawNavMeshWithClosedList(duDebugDraw* dd, const dtNavMesh& mesh, const dtNavMeshQuery& query, uint8_t flags);
 void duDebugDrawNavMeshNodes(duDebugDraw* dd, const dtNavMeshQuery& query);
 void duDebugDrawNavMeshBVTree(duDebugDraw* dd, const dtNavMesh& mesh);
 void duDebugDrawNavMeshPortals(duDebugDraw* dd, const dtNavMesh& mesh);
-void duDebugDrawNavMeshPolysWithFlags(duDebugDraw* dd, const dtNavMesh& mesh, unsigned short polyFlags, unsigned int col);
-void duDebugDrawNavMeshPoly(duDebugDraw* dd, const dtNavMesh& mesh, dtPolyRef ref, unsigned int col);
+void duDebugDrawNavMeshPolysWithFlags(duDebugDraw* dd, const dtNavMesh& mesh, uint16_t polyFlags, uint32_t col);
+void duDebugDrawNavMeshPoly(duDebugDraw* dd, const dtNavMesh& mesh, dtPolyRef ref, uint32_t col);
 
 void duDebugDrawTileCacheLayerAreas(duDebugDraw* dd, const dtTileCacheLayer& layer, float cs, float ch);
 void duDebugDrawTileCacheLayerRegions(duDebugDraw* dd, const dtTileCacheLayer& layer, float cs, float ch);
-void duDebugDrawTileCacheContours(duDebugDraw* dd, const dtTileCacheContourSet& lcset,
-								  const float* orig, float cs, float ch);
-void duDebugDrawTileCachePolyMesh(duDebugDraw* dd, const dtTileCachePolyMesh& lmesh,
-								  const float* orig, float cs, float ch);
+void duDebugDrawTileCacheContours(duDebugDraw* dd, const dtTileCacheContourSet& lcset, const float* orig, float cs, float ch);
+void duDebugDrawTileCachePolyMesh(duDebugDraw* dd, const dtTileCachePolyMesh& lmesh, const float* orig, float cs, float ch);

@@ -16,13 +16,13 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <cstring>
-
-#include "DetourAlloc.h"
-#include "DetourCommon.h"
-#include "DetourNavMesh.h"
-#include "DetourNavMeshQuery.h"
 #include "DetourPathQueue.h"
+
+#include <DetourAlloc.h>
+#include <DetourCommon.h>
+#include <DetourNavMeshQuery.h>
+
+#include <cstring>
 
 dtPathQueue::dtPathQueue() {
   for (int i = 0; i < MAX_QUEUE; ++i)
@@ -166,7 +166,7 @@ dtStatus dtPathQueue::getPathResult(const dtPathQueueRef ref, dtPolyRef *path, i
       q.status = 0;
       // Copy path
       const int n = dtMin(q.npath, maxPath);
-      memcpy(path, q.path, sizeof(dtPolyRef) * n);
+      std::memcpy(path, q.path, sizeof(dtPolyRef) * n);
       *pathSize = n;
       return details | DT_SUCCESS;
     }
