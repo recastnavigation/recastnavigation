@@ -149,23 +149,28 @@ inline std::array<float, g_loopCount * RC_MAX_TIMERS> generateSingleMeshTimes(Bu
   return times;
 }
 
-inline void writeCsvFile(const std::string &filePath, const std::array<float, g_loopCount * RC_MAX_TIMERS> &timerData, const char *header, const int headerSize) {
-  std::ofstream csvFile{filePath, std::ios::out};
+inline void writeCsvFile(const std::string &filePath, const std::string &environmentName, const float gridSize, const std::array<float, g_loopCount * RC_MAX_TIMERS> &timerData, const char *header, const int headerSize) {
+  std::ofstream csvFile{filePath+"/timing.csv", std::ios::out | std::ios::ate};
   csvFile.write(header, headerSize).put('\n');
   for (int i{}; i < g_loopCount; ++i) {
+    csvFile << environmentName << ',' << gridSize << ',';
     for (int j{}; j < RC_MAX_TIMERS; ++j) {
-      csvFile << timerData[i * RC_MAX_TIMERS + j] << ',';
+      csvFile << timerData[i * RC_MAX_TIMERS + j];
+      if(j!=RC_MAX_TIMERS-1)
+        csvFile << ',';
     }
     csvFile << std::endl;
   }
   csvFile.close();
 }
 
-inline void generateTimes(const std::string &output, const std::string &fileName, BuildContext &context, const InputGeom &pGeom, rcConfig &config, int *&pEdge, int &edgeCount) {
+inline void generateTimes(const std::string &output, const std::string &environmentName, const float gridSize, BuildContext &context, const InputGeom &pGeom, rcConfig &config, int *&pEdge, int &edgeCount) {
   const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, config)};
   const std::array thesisTimes{generateThesisTimes(context, pGeom, config, pEdge, edgeCount)};
 
   constexpr char header[]{
+      "Environment,"
+      "Grid Size,"
       "Total (ms),"
       "Temp (ms),"
       "Rasterize Triangles (ms),"
@@ -196,8 +201,8 @@ inline void generateTimes(const std::string &output, const std::string &fileName
       "Build Polymesh Detail (ms),"
       "Merge Polymesh Details (ms),"};
   std::filesystem::create_directories(output);
-  writeCsvFile(output + "/default_" + fileName + ".csv", defaultTimes, header, sizeof header);
-  writeCsvFile(output + "/thesis_" + fileName + ".csv", thesisTimes, header, sizeof header);
+  writeCsvFile(output, environmentName, gridSize, defaultTimes, header, sizeof header);
+  writeCsvFile(output, environmentName, gridSize, thesisTimes, header, sizeof header);
 }
 
 inline bool compareEdges(const Edge &edge1, const Edge &edge2) {
@@ -311,26 +316,6 @@ inline void processBourderEdges(const std::string &input, const std::string &out
         // Compare the squared length of the difference with the squared epsilon
         if (smallestDiffX1 * smallestDiffX1 + smallestDiffY1 * smallestDiffY1 <= epsilon * epsilon && smallestDiffX2 * smallestDiffX2 + smallestDiffY2 * smallestDiffY2 <= epsilon * epsilon)
           return true;
-
-        // const int halfDiffX = (smallestDiffX1 + smallestDiffX2) / 2;
-        // const int halfDiffY = (smallestDiffY1 + smallestDiffY2) / 2;
-        // const Edge moved{e2.v1.x + halfDiffX, e2.v1.y + halfDiffY, e2.v2.x + halfDiffX, e2.v2.y + halfDiffY};
-        //
-        // const int movedDiffX1 = e1.v1.x - moved.v1.x;
-        // const int movedDiffY1 = e1.v1.y - moved.v1.y;
-        // const int movedDiffX2 = e1.v2.x - moved.v2.x;
-        // const int movedDiffY2 = e1.v2.y - moved.v2.y;
-        // const int movedDiffX3 = e1.v1.x - moved.v2.x;
-        // const int movedDiffY3 = e1.v1.y - moved.v2.y;
-        // const int movedDiffX4 = e1.v2.x - moved.v1.x;
-        // const int movedDiffY4 = e1.v2.y - moved.v1.y;
-        // const int smallestMoveDiffX1 = std::abs(movedDiffX1) < std::abs(movedDiffX3)? movedDiffX1 : movedDiffX3;
-        // const int smallestMoveDiffX2 = std::abs(movedDiffX2) < std::abs(movedDiffX4)? movedDiffX2 : movedDiffX4;
-        // const int smallestMoveDiffY1 = std::abs(movedDiffY1) < std::abs(movedDiffY3)? movedDiffY1 : movedDiffY3;
-        // const int smallestMoveDiffY2 = std::abs(movedDiffY2) < std::abs(movedDiffY4)? movedDiffY2 : movedDiffY4;
-        // // Compare the squared length of the difference with the squared epsilon
-        // if (smallestMoveDiffX1 * smallestMoveDiffX1 + smallestMoveDiffY1 * smallestMoveDiffY1 <= epsilon * epsilon && smallestMoveDiffX2 * smallestMoveDiffX2 + smallestMoveDiffY2 * smallestMoveDiffY2 <= epsilon * epsilon)
-        //   return true;
         return false;
       }};
   std::size_t referenceEdgesSize = referenceEdges.size();
@@ -436,7 +421,7 @@ int main(const int argc, char *argv[]) {
   };
   int *pEdges{nullptr};
   int edgeCount{};
-  const std::string name{fileName.substr(7, fileName.size() - 11) + "_" + std::to_string(static_cast<int>(cellSize * 10))};
-  generateTimes(output, name, context, pGeom, config, pEdges, edgeCount);
-  processBourderEdges(lcmRef, output, name, pGeom, config, pEdges, edgeCount);
+  const std::string name{fileName.substr(7, fileName.size() - 11)};
+  generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
+  processBourderEdges(lcmRef, output, name + "_" + std::to_string(static_cast<int>(cellSize * 10)), pGeom, config, pEdges, edgeCount);
 }

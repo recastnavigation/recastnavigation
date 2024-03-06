@@ -81,23 +81,28 @@ inline std::array<float, g_loopCount * RC_MAX_TIMERS> generateSingleMeshTimes(Bu
   return times;
 }
 
-inline void writeCsvFile(const std::string &filePath, const std::array<float, g_loopCount * RC_MAX_TIMERS> &timerData, const char *header, const int headerSize) {
-  std::ofstream csvFile{filePath, std::ios::out};
+inline void writeCsvFile(const std::string &filePath, const std::string &environmentName, const float gridSize, const std::array<float, g_loopCount * RC_MAX_TIMERS> &timerData, const char *header, const int headerSize) {
+  std::ofstream csvFile{filePath+"/timing.csv", std::ios::out | std::ios::ate};
   csvFile.write(header, headerSize).put('\n');
   for (int i{}; i < g_loopCount; ++i) {
+    csvFile << environmentName << ',' << gridSize << ',';
     for (int j{}; j < RC_MAX_TIMERS; ++j) {
-      csvFile << timerData[i * RC_MAX_TIMERS + j] << ',';
+      csvFile << timerData[i * RC_MAX_TIMERS + j];
+      if(j!=RC_MAX_TIMERS-1)
+        csvFile << ',';
     }
     csvFile << std::endl;
   }
   csvFile.close();
 }
 
-inline void generateTimes(const std::string &output, const std::string &fileName, BuildContext &context, const InputGeom &pGeom, rcConfig &config, int *&pEdge, int &edgeCount) {
+inline void generateTimes(const std::string &output, const std::string &environmentName, const float gridSize, BuildContext &context, const InputGeom &pGeom, rcConfig &config, int *&pEdge, int &edgeCount) {
   const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, config)};
   const std::array thesisTimes{generateThesisTimes(context, pGeom, config, pEdge, edgeCount)};
 
   constexpr char header[]{
+      "Environment,"
+      "Grid Size,"
       "Total (ms),"
       "Temp (ms),"
       "Rasterize Triangles (ms),"
@@ -128,8 +133,8 @@ inline void generateTimes(const std::string &output, const std::string &fileName
       "Build Polymesh Detail (ms),"
       "Merge Polymesh Details (ms),"};
   std::filesystem::create_directories(output);
-  writeCsvFile(output + "/default_" + fileName + ".csv", defaultTimes, header, sizeof header);
-  writeCsvFile(output + "/thesis_" + fileName + ".csv", thesisTimes, header, sizeof header);
+  writeCsvFile(output, environmentName, gridSize, defaultTimes, header, sizeof header);
+  writeCsvFile(output, environmentName, gridSize, thesisTimes, header, sizeof header);
 }
 
 inline bool compareEdges(const Edge &edge1, const Edge &edge2) {
@@ -327,9 +332,9 @@ TEST_CASE("Watershed") {
 
     int *pEdges{nullptr};
     int edgeCount{};
-    std::string name = fileName.substr(7, fileName.size() - 11) + "_" + std::to_string(static_cast<int>(cellSize * 10));
-    generateTimes(output, name, context, pGeom, config, pEdges, edgeCount);
-    processBourderEdges("CSV/minima-City.csv", output, name, pGeom, config, pEdges, edgeCount);
+    const std::string name{fileName.substr(7, fileName.size() - 11)};
+    generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
+    processBourderEdges("CSV/minima-City.csv", output, name + "_" + std::to_string(static_cast<int>(cellSize * 10)), pGeom, config, pEdges, edgeCount);
   }
   SECTION("Maze8") {
     const std::string fileName{"Meshes/Maze8.obj"};
@@ -342,7 +347,8 @@ TEST_CASE("Watershed") {
 
     int *pEdges{nullptr};
     int edgeCount{};
-    generateTimes(output, fileName.substr(7, fileName.size() - 11) + "_" + std::to_string(static_cast<int>(cellSize * 10)), context, pGeom, config, pEdges, edgeCount);
+    const std::string name{fileName.substr(7, fileName.size() - 11)};
+    generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
     rcFree(pEdges);
   }
   SECTION("Maze16") {
@@ -356,7 +362,8 @@ TEST_CASE("Watershed") {
 
     int *pEdges{nullptr};
     int edgeCount{};
-    generateTimes(output, fileName.substr(7, fileName.size() - 11) + "_" + std::to_string(static_cast<int>(cellSize * 10)), context, pGeom, config, pEdges, edgeCount);
+    const std::string name{fileName.substr(7, fileName.size() - 11)};
+    generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
     rcFree(pEdges);
   }
   SECTION("Maze32") {
@@ -370,7 +377,8 @@ TEST_CASE("Watershed") {
 
     int *pEdges{nullptr};
     int edgeCount{};
-    generateTimes(output, fileName.substr(7, fileName.size() - 11) + "_" + std::to_string(static_cast<int>(cellSize * 10)), context, pGeom, config, pEdges, edgeCount);
+    const std::string name{fileName.substr(7, fileName.size() - 11)};
+    generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
     rcFree(pEdges);
   }
   SECTION("Maze64") {
@@ -384,7 +392,8 @@ TEST_CASE("Watershed") {
 
     int *pEdges{nullptr};
     int edgeCount{};
-    generateTimes(output, fileName.substr(7, fileName.size() - 11) + "_" + std::to_string(static_cast<int>(cellSize * 10)), context, pGeom, config, pEdges, edgeCount);
+    const std::string name{fileName.substr(7, fileName.size() - 11)};
+    generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
     rcFree(pEdges);
   }
   SECTION("Maze128") {
@@ -398,7 +407,8 @@ TEST_CASE("Watershed") {
 
     int *pEdges{nullptr};
     int edgeCount{};
-    generateTimes(output, fileName.substr(7, fileName.size() - 11) + "_" + std::to_string(static_cast<int>(cellSize * 10)), context, pGeom, config, pEdges, edgeCount);
+    const std::string name{fileName.substr(7, fileName.size() - 11)};
+    generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
     rcFree(pEdges);
   }
   SECTION("Military") {
@@ -412,9 +422,9 @@ TEST_CASE("Watershed") {
 
     int *pEdges{nullptr};
     int edgeCount{};
-    std::string name = fileName.substr(7, fileName.size() - 11) + "_" + std::to_string(static_cast<int>(cellSize * 10));
-    generateTimes(output, name, context, pGeom, config, pEdges, edgeCount);
-    processBourderEdges("CSV/minima-Military.csv", output, name, pGeom, config, pEdges, edgeCount);
+    const std::string name{fileName.substr(7, fileName.size() - 11)};
+    generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
+    processBourderEdges("CSV/minima-Military.csv", output, name + "_" + std::to_string(static_cast<int>(cellSize * 10)), pGeom, config, pEdges, edgeCount);
   }
   SECTION("Simple") {
     const std::string fileName{"Meshes/Simple.obj"};
@@ -427,7 +437,8 @@ TEST_CASE("Watershed") {
 
     int *pEdges{nullptr};
     int edgeCount{};
-    generateTimes(output, fileName.substr(7, fileName.size() - 11) + "_" + std::to_string(static_cast<int>(cellSize * 10)), context, pGeom, config, pEdges, edgeCount);
+    const std::string name{fileName.substr(7, fileName.size() - 11)};
+    generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
     rcFree(pEdges);
   }
   SECTION("University") {
@@ -441,7 +452,8 @@ TEST_CASE("Watershed") {
 
     int *pEdges{nullptr};
     int edgeCount{};
-    generateTimes(output, fileName.substr(7, fileName.size() - 11) + "_" + std::to_string(static_cast<int>(cellSize * 10)), context, pGeom, config, pEdges, edgeCount);
+    const std::string name{fileName.substr(7, fileName.size() - 11)};
+    generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
     rcFree(pEdges);
   }
   SECTION("Zelda") {
@@ -455,9 +467,9 @@ TEST_CASE("Watershed") {
 
     int *pEdges{nullptr};
     int edgeCount{};
-    std::string name = fileName.substr(7, fileName.size() - 11) + "_" + std::to_string(static_cast<int>(cellSize * 10));
-    generateTimes(output, name, context, pGeom, config, pEdges, edgeCount);
-    processBourderEdges("CSV/minima-Zelda.csv", output, name, pGeom, config, pEdges, edgeCount);
+    const std::string name{fileName.substr(7, fileName.size() - 11)};
+    generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
+    processBourderEdges("CSV/minima-Zelda.csv", output + "_" + std::to_string(static_cast<int>(cellSize * 10)), name, pGeom, config, pEdges, edgeCount);
   }
   SECTION("Zelda2x2") {
     const std::string fileName{"Meshes/Zelda2x2.obj"};
@@ -470,7 +482,8 @@ TEST_CASE("Watershed") {
 
     int *pEdges{nullptr};
     int edgeCount{};
-    generateTimes(output, fileName.substr(7, fileName.size() - 11) + "_" + std::to_string(static_cast<int>(cellSize * 10)), context, pGeom, config, pEdges, edgeCount);
+    const std::string name{fileName.substr(7, fileName.size() - 11)};
+    generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
     rcFree(pEdges);
   }
   SECTION("Zelda4x4") {
@@ -484,7 +497,8 @@ TEST_CASE("Watershed") {
 
     int *pEdges{nullptr};
     int edgeCount{};
-    generateTimes(output, fileName.substr(7, fileName.size() - 11) + "_" + std::to_string(static_cast<int>(cellSize * 10)), context, pGeom, config, pEdges, edgeCount);
+    const std::string name{fileName.substr(7, fileName.size() - 11)};
+    generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
     rcFree(pEdges);
   }
 }
