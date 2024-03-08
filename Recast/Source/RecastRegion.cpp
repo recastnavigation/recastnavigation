@@ -210,10 +210,10 @@ uint16_t *boxBlur(const rcCompactHeightfield &chf, int thr, const uint16_t *src,
 }
 
 bool floodRegion(const int x, const int y, const int i,
-                        const uint16_t level, const uint16_t r,
-                        const rcCompactHeightfield &chf,
-                        uint16_t *srcReg, uint16_t *srcDist,
-                        rcTempVector<LevelStackEntry> &stack) {
+                 const uint16_t level, const uint16_t r,
+                 const rcCompactHeightfield &chf,
+                 uint16_t *srcReg, uint16_t *srcDist,
+                 rcTempVector<LevelStackEntry> &stack) {
   const int w = chf.width;
 
   const uint8_t area = chf.areas[i];
@@ -307,10 +307,10 @@ struct DirtyEntry {
   uint16_t distance2;
 };
 void expandRegions(const int maxIter, const uint16_t level,
-                          const rcCompactHeightfield &chf,
-                          uint16_t *srcReg, uint16_t *srcDist,
-                          rcTempVector<LevelStackEntry> &stack,
-                          const bool fillStack) {
+                   const rcCompactHeightfield &chf,
+                   uint16_t *srcReg, uint16_t *srcDist,
+                   rcTempVector<LevelStackEntry> &stack,
+                   const bool fillStack) {
   const int w = chf.width;
   const int h = chf.height;
 
@@ -398,10 +398,10 @@ void expandRegions(const int maxIter, const uint16_t level,
 }
 
 void sortCellsByLevel(uint16_t startLevel,
-                             const rcCompactHeightfield &chf,
-                             const uint16_t *srcReg,
-                             const uint32_t nbStacks, rcTempVector<LevelStackEntry> *stacks,
-                             const uint16_t loglevelsPerStack) // the levels per stack (2 in our case) as a bit shift
+                      const rcCompactHeightfield &chf,
+                      const uint16_t *srcReg,
+                      const uint32_t nbStacks, rcTempVector<LevelStackEntry> *stacks,
+                      const uint16_t loglevelsPerStack) // the levels per stack (2 in our case) as a bit shift
 {
   const int w = chf.width;
   const int h = chf.height;
@@ -432,8 +432,8 @@ void sortCellsByLevel(uint16_t startLevel,
 }
 
 void appendStacks(const rcTempVector<LevelStackEntry> &srcStack,
-                         rcTempVector<LevelStackEntry> &dstStack,
-                         const uint16_t *srcReg) {
+                  rcTempVector<LevelStackEntry> &dstStack,
+                  const uint16_t *srcReg) {
   for (int j = 0; j < srcStack.size(); j++) {
     const int i = srcStack[j].index;
     if ((i < 0) || (srcReg[i] != 0))
@@ -444,9 +444,9 @@ void appendStacks(const rcTempVector<LevelStackEntry> &srcStack,
 
 struct rcRegion {
   explicit rcRegion(const uint16_t i) : id(i),
-                                            ymin(0xffff) {}
+                                        ymin(0xffff) {}
 
-  int spanCount{};          // Number of spans belonging to this region
+  int spanCount{};    // Number of spans belonging to this region
   uint16_t id{};      // ID of the region
   uint8_t areaType{}; // Are type.
   bool remap{};
@@ -575,7 +575,7 @@ bool isRegionConnectedToBorder(const rcRegion &reg) {
 }
 
 bool isSolidEdge(const rcCompactHeightfield &chf, const uint16_t *srcReg,
-                        const int x, const int y, const int i, const int dir) {
+                 const int x, const int y, const int i, const int dir) {
   const rcCompactSpan &s = chf.spans[i];
   uint16_t r = 0;
   if (rcGetCon(s, dir) != RC_NOT_CONNECTED) {
@@ -590,9 +590,9 @@ bool isSolidEdge(const rcCompactHeightfield &chf, const uint16_t *srcReg,
 }
 
 void walkContour(int x, int y, int i, int dir,
-                        const rcCompactHeightfield &chf,
-                        const uint16_t *srcReg,
-                        rcIntArray &cont) {
+                 const rcCompactHeightfield &chf,
+                 const uint16_t *srcReg,
+                 rcIntArray &cont) {
   const int startDir = dir;
   const int starti = i;
 
@@ -663,9 +663,9 @@ void walkContour(int x, int y, int i, int dir,
 }
 
 bool mergeAndFilterRegions(rcContext *ctx, const int minRegionArea, const int mergeRegionSize,
-                                  uint16_t &maxRegionId,
-                                  const rcCompactHeightfield &chf,
-                                  uint16_t *srcReg, rcIntArray &overlaps) {
+                           uint16_t &maxRegionId,
+                           const rcCompactHeightfield &chf,
+                           uint16_t *srcReg, rcIntArray &overlaps) {
   const int w = chf.width;
   const int h = chf.height;
 
@@ -894,7 +894,7 @@ void addUniqueConnection(rcRegion &reg, const int n) {
 }
 
 void paintRectRegion(const int minx, const int maxx, const int miny, const int maxy, const uint16_t regId,
-                            const rcCompactHeightfield &chf, uint16_t *srcReg) {
+                     const rcCompactHeightfield &chf, uint16_t *srcReg) {
   const int w = chf.width;
   for (int y = miny; y < maxy; ++y) {
     for (int x = minx; x < maxx; ++x) {
@@ -1102,7 +1102,7 @@ bool mergeAndFilterLayerRegions(rcContext *ctx, const int minRegionArea, uint16_
 /// @see rcCompactHeightfield, rcBuildRegions, rcBuildRegionsMonotone
 bool rcBuildDistanceField(rcContext *ctx, rcCompactHeightfield &chf) {
   rcAssert(ctx);
-  if(!ctx)
+  if (!ctx)
     return false;
 
   rcScopedTimer timer(ctx, RC_TIMER_BUILD_DISTANCEFIELD);
@@ -1176,7 +1176,7 @@ struct rcSweepSpan {
 bool rcBuildRegionsMonotone(rcContext *ctx, rcCompactHeightfield &chf,
                             const int borderSize, const int minRegionArea, const int mergeRegionArea) {
   rcAssert(ctx);
-  if(!ctx)
+  if (!ctx)
     return false;
 
   rcScopedTimer timer(ctx, RC_TIMER_BUILD_REGIONS);
@@ -1334,7 +1334,7 @@ bool rcBuildRegionsMonotone(rcContext *ctx, rcCompactHeightfield &chf,
 bool rcBuildRegions(rcContext *ctx, rcCompactHeightfield &chf,
                     const int borderSize, const int minRegionArea, const int mergeRegionArea) {
   rcAssert(ctx);
-  if(!ctx)
+  if (!ctx)
     return false;
 
   rcScopedTimer timer(ctx, RC_TIMER_BUILD_REGIONS);
@@ -1466,7 +1466,7 @@ bool rcBuildRegions(rcContext *ctx, rcCompactHeightfield &chf,
 bool rcBuildLayerRegions(rcContext *ctx, rcCompactHeightfield &chf,
                          const int borderSize, const int minRegionArea) {
   rcAssert(ctx);
-  if(!ctx)
+  if (!ctx)
     return false;
 
   rcScopedTimer timer(ctx, RC_TIMER_BUILD_REGIONS);
@@ -1691,8 +1691,9 @@ bool rcBuildRegionsWithSize(rcContext *ctx, rcCompactHeightfield &chf, const int
             dirtySeeds.push_back({bx, by, back.index});
           }
         }
-        if (seeds.empty() && !dirtySeeds.empty()) {
-          for (const auto &dirty : dirtySeeds) {
+        if (seeds.empty()) {
+          while (!dirtySeeds.empty()) {
+            const auto &dirty = dirtySeeds.back();
             const int ai = dirty.x + dirty.y * w;
             const rcCompactCell &c = chf.cells[ai];
             const rcCompactSpan &a = chf.spans[dirty.index];
@@ -1705,8 +1706,8 @@ bool rcBuildRegionsWithSize(rcContext *ctx, rcCompactHeightfield &chf, const int
               seeds.push_back({dirty.x, dirty.y, static_cast<int>(j)});
               break;
             }
+            dirtySeeds.pop_back();
           }
-          dirtySeeds.clear();
         }
       }
       // mark new spots
@@ -1722,12 +1723,13 @@ bool rcBuildRegionsWithSize(rcContext *ctx, rcCompactHeightfield &chf, const int
     --level;
     if (!pendingSeeds.empty()) {
       rcTempVector<LevelStackEntry> tmp;
-      for (const auto &pending : pendingSeeds) {
+      while (!pendingSeeds.empty()) {
+        const auto &pending = pendingSeeds.back();
         const int ai = pending.x + pending.y * w;
 
         const rcCompactCell &c = chf.cells[ai];
         for (uint32_t j = c.index; j < c.index + c.count; ++j) {
-        const rcCompactSpan &s = chf.spans[pending.index];
+          const rcCompactSpan &s = chf.spans[pending.index];
           const rcCompactSpan &as = chf.spans[j];
           if (as.y + as.h < s.y || s.y + s.h < as.y) {
             continue;
@@ -1740,8 +1742,8 @@ bool rcBuildRegionsWithSize(rcContext *ctx, rcCompactHeightfield &chf, const int
           seeds.push_back({pending.x, pending.y, static_cast<int>(j)});
           break;
         }
+        pendingSeeds.pop_back();
       }
-      pendingSeeds.clear();
       for (auto i : tmp) {
         pendingSeeds.push_back(i);
       }
