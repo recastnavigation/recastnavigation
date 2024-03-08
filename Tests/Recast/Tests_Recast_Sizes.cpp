@@ -81,14 +81,13 @@ inline std::array<float, g_loopCount * RC_MAX_TIMERS> generateSingleMeshTimes(Bu
   return times;
 }
 
-inline void writeCsvFile(const bool isThesis, const std::string &filePath, const std::string &environmentName, const float gridSize, const std::array<float, g_loopCount * RC_MAX_TIMERS> &timerData, const char *header, const int headerSize) {
-  std::ofstream csvFile{filePath+"/timing.csv", std::ios::out | std::ios::ate};
-  csvFile.write(header, headerSize).put('\n');
+inline void writeCsvFile(const bool isThesis, const std::string &filePath, const std::string &environmentName, const float gridSize, const std::array<float, g_loopCount * RC_MAX_TIMERS> &timerData) {
+  std::ofstream csvFile{filePath + "/timing.csv", std::ios::out | std::ios::app};
   for (int i{}; i < g_loopCount; ++i) {
-    csvFile << (isThesis? "Thesis,":"Default,") << environmentName << ',' << gridSize << ',';
+    csvFile << (isThesis ? "Thesis," : "Default,") << environmentName << ',' << gridSize << ',';
     for (int j{}; j < RC_MAX_TIMERS; ++j) {
       csvFile << timerData[i * RC_MAX_TIMERS + j];
-      if(j!=RC_MAX_TIMERS-1)
+      if (j != RC_MAX_TIMERS - 1)
         csvFile << ',';
     }
     csvFile << std::endl;
@@ -100,41 +99,8 @@ inline void generateTimes(const std::string &output, const std::string &environm
   const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, config)};
   const std::array thesisTimes{generateThesisTimes(context, pGeom, config, pEdge, edgeCount)};
 
-  constexpr char header[]{
-      "Environment,"
-      "Grid Size,"
-      "Total (ms),"
-      "Temp (ms),"
-      "Rasterize Triangles (ms),"
-      "Build Compact Height Field (ms),"
-      "Build Contours (ms),"
-      "Build Contours Trace (ms),"
-      "Build Contours Simplify (ms),"
-      "Filter Border (ms),"
-      "Filter Walkable (ms),"
-      "Median Area (ms),"
-      "Filter Low Obstacles (ms),"
-      "Build Polymesh (ms),"
-      "Merge Polymeshes (ms),"
-      "Erode Area (ms),"
-      "Mark Box Area (ms),"
-      "Mark Cylinder Area (ms),"
-      "Mark Convex Area (ms),"
-      "Build Distance Field (ms),"
-      "Build Distance Field Distance (ms),"
-      "Build Distance Field Blur (ms),"
-      "Build Regions (ms),"
-      "Build Regions Watershed (ms),"
-      "Build Regions Expand (ms),"
-      "Build Regions Flood (ms),"
-      "Build Regions Filter (ms),"
-      "Extract Region Portal (ms)"
-      "Build Layers (ms),"
-      "Build Polymesh Detail (ms),"
-      "Merge Polymesh Details (ms),"};
-  std::filesystem::create_directories(output);
-  writeCsvFile(false, output, environmentName, gridSize, defaultTimes, header, sizeof header);
-  writeCsvFile(false, output, environmentName, gridSize, thesisTimes, header, sizeof header);
+  writeCsvFile(false, output, environmentName, gridSize, defaultTimes);
+  writeCsvFile(true, output, environmentName, gridSize, thesisTimes);
 }
 
 inline bool compareEdges(const Edge &edge1, const Edge &edge2) {
@@ -303,7 +269,6 @@ inline void processBourderEdges(const std::string &input, const std::string &out
 TEST_CASE("Watershed") {
   std::string output{"Data"};
   std::filesystem::create_directories(output);
-  std::cout << std::filesystem::current_path() << std::endl;
   const float cellSize{GENERATE(range(0.2f, 0.5f, 0.1f))};
   constexpr float agentRadius{0.0f};
   rcConfig config{
@@ -321,6 +286,42 @@ TEST_CASE("Watershed") {
       .detailSampleDist = cellSize * g_detailSampleDist,
       .detailSampleMaxError = g_cellHeight * g_detailSampleMaxError,
   };
+
+  constexpr char header[]{
+      "Environment,"
+      "Grid Size,"
+      "Total (ms),"
+      "Temp (ms),"
+      "Rasterize Triangles (ms),"
+      "Build Compact Height Field (ms),"
+      "Build Contours (ms),"
+      "Build Contours Trace (ms),"
+      "Build Contours Simplify (ms),"
+      "Filter Border (ms),"
+      "Filter Walkable (ms),"
+      "Median Area (ms),"
+      "Filter Low Obstacles (ms),"
+      "Build Polymesh (ms),"
+      "Merge Polymeshes (ms),"
+      "Erode Area (ms),"
+      "Mark Box Area (ms),"
+      "Mark Cylinder Area (ms),"
+      "Mark Convex Area (ms),"
+      "Build Distance Field (ms),"
+      "Build Distance Field Distance (ms),"
+      "Build Distance Field Blur (ms),"
+      "Build Regions (ms),"
+      "Build Regions Watershed (ms),"
+      "Build Regions Expand (ms),"
+      "Build Regions Flood (ms),"
+      "Build Regions Filter (ms),"
+      "Extract Region Portal (ms)"
+      "Build Layers (ms),"
+      "Build Polymesh Detail (ms),"
+      "Merge Polymesh Details (ms),"};
+  std::ofstream csvFile{output + "/timing.csv", std::ios::out};
+  csvFile.write(header, sizeof(header)).put('\n');
+  csvFile.close();
   SECTION("City") {
     const std::string fileName{"Meshes/City.obj"};
     BuildContext context{};
