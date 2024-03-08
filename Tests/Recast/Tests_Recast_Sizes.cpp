@@ -81,11 +81,11 @@ inline std::array<float, g_loopCount * RC_MAX_TIMERS> generateSingleMeshTimes(Bu
   return times;
 }
 
-inline void writeCsvFile(const std::string &filePath, const std::string &environmentName, const float gridSize, const std::array<float, g_loopCount * RC_MAX_TIMERS> &timerData, const char *header, const int headerSize) {
+inline void writeCsvFile(const bool isThesis, const std::string &filePath, const std::string &environmentName, const float gridSize, const std::array<float, g_loopCount * RC_MAX_TIMERS> &timerData, const char *header, const int headerSize) {
   std::ofstream csvFile{filePath+"/timing.csv", std::ios::out | std::ios::ate};
   csvFile.write(header, headerSize).put('\n');
   for (int i{}; i < g_loopCount; ++i) {
-    csvFile << environmentName << ',' << gridSize << ',';
+    csvFile << (isThesis? "Thesis,":"Default,") << environmentName << ',' << gridSize << ',';
     for (int j{}; j < RC_MAX_TIMERS; ++j) {
       csvFile << timerData[i * RC_MAX_TIMERS + j];
       if(j!=RC_MAX_TIMERS-1)
@@ -133,8 +133,8 @@ inline void generateTimes(const std::string &output, const std::string &environm
       "Build Polymesh Detail (ms),"
       "Merge Polymesh Details (ms),"};
   std::filesystem::create_directories(output);
-  writeCsvFile(output, environmentName, gridSize, defaultTimes, header, sizeof header);
-  writeCsvFile(output, environmentName, gridSize, thesisTimes, header, sizeof header);
+  writeCsvFile(false, output, environmentName, gridSize, defaultTimes, header, sizeof header);
+  writeCsvFile(false, output, environmentName, gridSize, thesisTimes, header, sizeof header);
 }
 
 inline bool compareEdges(const Edge &edge1, const Edge &edge2) {
