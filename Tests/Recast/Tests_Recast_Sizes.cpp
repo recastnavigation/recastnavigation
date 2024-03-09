@@ -82,7 +82,7 @@ inline std::array<float, g_loopCount * RC_MAX_TIMERS> generateSingleMeshTimes(Bu
 }
 
 inline void writeCsvFile(const bool isThesis, const std::string &filePath, const std::string &environmentName, const float gridSize, const std::array<float, g_loopCount * RC_MAX_TIMERS> &timerData) {
-  std::ofstream csvFile{filePath + "/timing.csv", std::ios::out | std::ios::app};
+  std::ofstream csvFile{filePath + "/" + environmentName + ".csv", std::ios::out | std::ios::app};
   for (int i{}; i < g_loopCount; ++i) {
     csvFile << (isThesis ? "Thesis," : "Default,") << environmentName << ',' << gridSize << ',';
     for (int j{}; j < RC_MAX_TIMERS; ++j) {
@@ -319,10 +319,11 @@ TEST_CASE("Watershed") {
       "Build Layers (ms),"
       "Build Polymesh Detail (ms),"
       "Merge Polymesh Details (ms),"};
-  std::ofstream csvFile{output + "/timing.csv", std::ios::out};
-  csvFile.write(header, sizeof(header)).put('\n');
-  csvFile.close();
+
   SECTION("City") {
+    std::ofstream csvFile{output + "/City.csv", std::ios::out};
+    csvFile.write(header, sizeof(header)).put('\n');
+    csvFile.close();
     const std::string fileName{"Meshes/City.obj"};
     BuildContext context{};
     InputGeom pGeom{};
@@ -338,6 +339,9 @@ TEST_CASE("Watershed") {
     processBourderEdges("CSV/minima-City.csv", output, name + "_" + std::to_string(static_cast<int>(cellSize * 10)), pGeom, config, pEdges, edgeCount);
   }
   SECTION("Maze8") {
+    std::ofstream csvFile{output + "/Maze8.csv", std::ios::out};
+    csvFile.write(header, sizeof(header)).put('\n');
+    csvFile.close();
     const std::string fileName{"Meshes/Maze8.obj"};
     BuildContext context{};
     InputGeom pGeom{};
@@ -353,6 +357,9 @@ TEST_CASE("Watershed") {
     rcFree(pEdges);
   }
   SECTION("Maze16") {
+    std::ofstream csvFile{output + "/Maze16.csv", std::ios::out};
+    csvFile.write(header, sizeof(header)).put('\n');
+    csvFile.close();
     const std::string fileName{"Meshes/Maze16.obj"};
     BuildContext context{};
     InputGeom pGeom{};
@@ -368,6 +375,9 @@ TEST_CASE("Watershed") {
     rcFree(pEdges);
   }
   SECTION("Maze32") {
+    std::ofstream csvFile{output + "/Maze32.csv", std::ios::out};
+    csvFile.write(header, sizeof(header)).put('\n');
+    csvFile.close();
     const std::string fileName{"Meshes/Maze32.obj"};
     BuildContext context{};
     InputGeom pGeom{};
@@ -383,6 +393,9 @@ TEST_CASE("Watershed") {
     rcFree(pEdges);
   }
   SECTION("Maze64") {
+    std::ofstream csvFile{output + "/Maze64.csv", std::ios::out};
+    csvFile.write(header, sizeof(header)).put('\n');
+    csvFile.close();
     const std::string fileName{"Meshes/Maze64.obj"};
     BuildContext context{};
     InputGeom pGeom{};
@@ -398,6 +411,9 @@ TEST_CASE("Watershed") {
     rcFree(pEdges);
   }
   SECTION("Maze128") {
+    std::ofstream csvFile{output + "/Maze128.csv", std::ios::out};
+    csvFile.write(header, sizeof(header)).put('\n');
+    csvFile.close();
     const std::string fileName{"Meshes/Maze128.obj"};
     BuildContext context{};
     InputGeom pGeom{};
@@ -413,6 +429,9 @@ TEST_CASE("Watershed") {
     rcFree(pEdges);
   }
   SECTION("Military") {
+    std::ofstream csvFile{output + "/Military.csv", std::ios::out};
+    csvFile.write(header, sizeof(header)).put('\n');
+    csvFile.close();
     const std::string fileName{"Meshes/Military.obj"};
     BuildContext context{};
     InputGeom pGeom{};
@@ -428,6 +447,9 @@ TEST_CASE("Watershed") {
     processBourderEdges("CSV/minima-Military.csv", output, name + "_" + std::to_string(static_cast<int>(cellSize * 10)), pGeom, config, pEdges, edgeCount);
   }
   SECTION("Simple") {
+    std::ofstream csvFile{output + "/Simple.csv", std::ios::out};
+    csvFile.write(header, sizeof(header)).put('\n');
+    csvFile.close();
     const std::string fileName{"Meshes/Simple.obj"};
     BuildContext context{};
     InputGeom pGeom{};
@@ -443,6 +465,9 @@ TEST_CASE("Watershed") {
     rcFree(pEdges);
   }
   SECTION("University") {
+    std::ofstream csvFile{output + "/University.csv", std::ios::out};
+    csvFile.write(header, sizeof(header)).put('\n');
+    csvFile.close();
     const std::string fileName{"Meshes/University.obj"};
     BuildContext context{};
     InputGeom pGeom{};
@@ -458,6 +483,9 @@ TEST_CASE("Watershed") {
     rcFree(pEdges);
   }
   SECTION("Zelda") {
+    std::ofstream csvFile{output + "/Zelda.csv", std::ios::out};
+    csvFile.write(header, sizeof(header)).put('\n');
+    csvFile.close();
     const std::string fileName{"Meshes/Zelda.obj"};
     BuildContext context{};
     InputGeom pGeom{};
@@ -473,6 +501,9 @@ TEST_CASE("Watershed") {
     processBourderEdges("CSV/minima-Zelda.csv", output + "_" + std::to_string(static_cast<int>(cellSize * 10)), name, pGeom, config, pEdges, edgeCount);
   }
   SECTION("Zelda2x2") {
+    std::ofstream csvFile{output + "/Zelda2x2.csv", std::ios::out};
+    csvFile.write(header, sizeof(header)).put('\n');
+    csvFile.close();
     const std::string fileName{"Meshes/Zelda2x2.obj"};
     BuildContext context{};
     InputGeom pGeom{};
@@ -488,6 +519,9 @@ TEST_CASE("Watershed") {
     rcFree(pEdges);
   }
   SECTION("Zelda4x4") {
+    std::ofstream csvFile{output + "/Zelda4X4.csv", std::ios::out};
+    csvFile.write(header, sizeof(header)).put('\n');
+    csvFile.close();
     const std::string fileName{"Meshes/Zelda4x4.obj"};
     BuildContext context{};
     InputGeom pGeom{};
