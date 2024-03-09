@@ -82,7 +82,7 @@ inline std::array<float, g_loopCount * RC_MAX_TIMERS> generateSingleMeshTimes(Bu
 }
 
 inline void writeCsvFile(const bool isThesis, const std::string &filePath, const std::string &environmentName, const float gridSize, const std::array<float, g_loopCount * RC_MAX_TIMERS> &timerData) {
-  std::ofstream csvFile{filePath + "/" + environmentName + ".csv", std::ios::out | std::ios::app};
+  std::ofstream csvFile{filePath + "/Timings.csv", std::ios::out | std::ios::app};
   for (int i{}; i < g_loopCount; ++i) {
     csvFile << (isThesis ? "Thesis," : "Default,") << environmentName << ',' << gridSize << ',';
     for (int j{}; j < RC_MAX_TIMERS; ++j) {
@@ -269,24 +269,6 @@ inline void processBourderEdges(const std::string &input, const std::string &out
 TEST_CASE("Watershed") {
   std::string output{"Data"};
   std::filesystem::create_directories(output);
-  const float cellSize{GENERATE(range(0.2f, 0.5f, 0.1f))};
-  constexpr float agentRadius{0.0f};
-  rcConfig config{
-      .cs = cellSize,
-      .ch = g_cellHeight,
-      .walkableSlopeAngle = g_agentMaxSlope,
-      .walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight)),
-      .walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight)),
-      .walkableRadius = static_cast<int>(std::ceil(agentRadius / g_cellHeight)),
-      .maxEdgeLen = static_cast<int>(g_edgeMaxLen / cellSize),
-      .maxSimplificationError = g_edgeMaxError,
-      .minRegionArea = static_cast<int>(rcSqr(g_regionMinSize)),
-      .mergeRegionArea = static_cast<int>(rcSqr(g_regionMergeSize)),
-      .maxVertsPerPoly = static_cast<int>(g_vertsPerPoly),
-      .detailSampleDist = cellSize * g_detailSampleDist,
-      .detailSampleMaxError = g_cellHeight * g_detailSampleMaxError,
-  };
-
   constexpr char header[]{
       "Environment,"
       "Grid Size,"
@@ -319,12 +301,28 @@ TEST_CASE("Watershed") {
       "Build Layers (ms),"
       "Build Polymesh Detail (ms),"
       "Merge Polymesh Details (ms),"};
-
-  SECTION("City") {
-    std::ofstream csvFile{output + "/City.csv", std::ios::out};
-    csvFile.write(header, sizeof(header)).put('\n');
-    csvFile.close();
-    const std::string fileName{"Meshes/City.obj"};
+  std::ofstream csvFile{output + "/Timings.csv", std::ios::out | std::ios::app};
+  csvFile.write(header, sizeof(header)).put('\n');
+  csvFile.close();
+  SECTION("Generate") {
+    const float cellSize{GENERATE(0.2f, 0.3f, 0.4f, 0.5f)};
+    const std::string fileName{GENERATE(as<std::string>{}, "Meshes/City.obj", "Meshes/Maze8.obj", "Meshes/Maze16.obj", "Meshes/Maze32.obj", "Meshes/Maze64.obj", "Meshes/Maze128.obj", "Meshes/Military.obj", "Meshes/Simple.obj", "Meshes/University.obj", "Meshes/Zelda.obj", "Meshes/Zelda2x2.obj", "Meshes/Zelda4x4.obj")};
+    constexpr float agentRadius{0.0f};
+    rcConfig config{
+        .cs = cellSize,
+        .ch = g_cellHeight,
+        .walkableSlopeAngle = g_agentMaxSlope,
+        .walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight)),
+        .walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight)),
+        .walkableRadius = static_cast<int>(std::ceil(agentRadius / g_cellHeight)),
+        .maxEdgeLen = static_cast<int>(g_edgeMaxLen / cellSize),
+        .maxSimplificationError = g_edgeMaxError,
+        .minRegionArea = static_cast<int>(rcSqr(g_regionMinSize)),
+        .mergeRegionArea = static_cast<int>(rcSqr(g_regionMergeSize)),
+        .maxVertsPerPoly = static_cast<int>(g_vertsPerPoly),
+        .detailSampleDist = cellSize * g_detailSampleDist,
+        .detailSampleMaxError = g_cellHeight * g_detailSampleMaxError,
+    };
     BuildContext context{};
     InputGeom pGeom{};
     bool success = pGeom.load(&context, fileName);
@@ -336,204 +334,13 @@ TEST_CASE("Watershed") {
     int edgeCount{};
     const std::string name{fileName.substr(7, fileName.size() - 11)};
     generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
-    processBourderEdges("CSV/minima-City.csv", output, name + "_" + std::to_string(static_cast<int>(cellSize * 10)), pGeom, config, pEdges, edgeCount);
-  }
-  SECTION("Maze8") {
-    std::ofstream csvFile{output + "/Maze8.csv", std::ios::out};
-    csvFile.write(header, sizeof(header)).put('\n');
-    csvFile.close();
-    const std::string fileName{"Meshes/Maze8.obj"};
-    BuildContext context{};
-    InputGeom pGeom{};
-    bool success = pGeom.load(&context, fileName);
-    if (!success)
-      context.dumpLog("Geom load log %s:", fileName.c_str());
-    REQUIRE(success);
-
-    int *pEdges{nullptr};
-    int edgeCount{};
-    const std::string name{fileName.substr(7, fileName.size() - 11)};
-    generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
-    rcFree(pEdges);
-  }
-  SECTION("Maze16") {
-    std::ofstream csvFile{output + "/Maze16.csv", std::ios::out};
-    csvFile.write(header, sizeof(header)).put('\n');
-    csvFile.close();
-    const std::string fileName{"Meshes/Maze16.obj"};
-    BuildContext context{};
-    InputGeom pGeom{};
-    bool success = pGeom.load(&context, fileName);
-    if (!success)
-      context.dumpLog("Geom load log %s:", fileName.c_str());
-    REQUIRE(success);
-
-    int *pEdges{nullptr};
-    int edgeCount{};
-    const std::string name{fileName.substr(7, fileName.size() - 11)};
-    generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
-    rcFree(pEdges);
-  }
-  SECTION("Maze32") {
-    std::ofstream csvFile{output + "/Maze32.csv", std::ios::out};
-    csvFile.write(header, sizeof(header)).put('\n');
-    csvFile.close();
-    const std::string fileName{"Meshes/Maze32.obj"};
-    BuildContext context{};
-    InputGeom pGeom{};
-    bool success = pGeom.load(&context, fileName);
-    if (!success)
-      context.dumpLog("Geom load log %s:", fileName.c_str());
-    REQUIRE(success);
-
-    int *pEdges{nullptr};
-    int edgeCount{};
-    const std::string name{fileName.substr(7, fileName.size() - 11)};
-    generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
-    rcFree(pEdges);
-  }
-  SECTION("Maze64") {
-    std::ofstream csvFile{output + "/Maze64.csv", std::ios::out};
-    csvFile.write(header, sizeof(header)).put('\n');
-    csvFile.close();
-    const std::string fileName{"Meshes/Maze64.obj"};
-    BuildContext context{};
-    InputGeom pGeom{};
-    bool success = pGeom.load(&context, fileName);
-    if (!success)
-      context.dumpLog("Geom load log %s:", fileName.c_str());
-    REQUIRE(success);
-
-    int *pEdges{nullptr};
-    int edgeCount{};
-    const std::string name{fileName.substr(7, fileName.size() - 11)};
-    generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
-    rcFree(pEdges);
-  }
-  SECTION("Maze128") {
-    std::ofstream csvFile{output + "/Maze128.csv", std::ios::out};
-    csvFile.write(header, sizeof(header)).put('\n');
-    csvFile.close();
-    const std::string fileName{"Meshes/Maze128.obj"};
-    BuildContext context{};
-    InputGeom pGeom{};
-    bool success = pGeom.load(&context, fileName);
-    if (!success)
-      context.dumpLog("Geom load log %s:", fileName.c_str());
-    REQUIRE(success);
-
-    int *pEdges{nullptr};
-    int edgeCount{};
-    const std::string name{fileName.substr(7, fileName.size() - 11)};
-    generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
-    rcFree(pEdges);
-  }
-  SECTION("Military") {
-    std::ofstream csvFile{output + "/Military.csv", std::ios::out};
-    csvFile.write(header, sizeof(header)).put('\n');
-    csvFile.close();
-    const std::string fileName{"Meshes/Military.obj"};
-    BuildContext context{};
-    InputGeom pGeom{};
-    bool success = pGeom.load(&context, fileName);
-    if (!success)
-      context.dumpLog("Geom load log %s:", fileName.c_str());
-    REQUIRE(success);
-
-    int *pEdges{nullptr};
-    int edgeCount{};
-    const std::string name{fileName.substr(7, fileName.size() - 11)};
-    generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
-    processBourderEdges("CSV/minima-Military.csv", output, name + "_" + std::to_string(static_cast<int>(cellSize * 10)), pGeom, config, pEdges, edgeCount);
-  }
-  SECTION("Simple") {
-    std::ofstream csvFile{output + "/Simple.csv", std::ios::out};
-    csvFile.write(header, sizeof(header)).put('\n');
-    csvFile.close();
-    const std::string fileName{"Meshes/Simple.obj"};
-    BuildContext context{};
-    InputGeom pGeom{};
-    bool success = pGeom.load(&context, fileName);
-    if (!success)
-      context.dumpLog("Geom load log %s:", fileName.c_str());
-    REQUIRE(success);
-
-    int *pEdges{nullptr};
-    int edgeCount{};
-    const std::string name{fileName.substr(7, fileName.size() - 11)};
-    generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
-    rcFree(pEdges);
-  }
-  SECTION("University") {
-    std::ofstream csvFile{output + "/University.csv", std::ios::out};
-    csvFile.write(header, sizeof(header)).put('\n');
-    csvFile.close();
-    const std::string fileName{"Meshes/University.obj"};
-    BuildContext context{};
-    InputGeom pGeom{};
-    bool success = pGeom.load(&context, fileName);
-    if (!success)
-      context.dumpLog("Geom load log %s:", fileName.c_str());
-    REQUIRE(success);
-
-    int *pEdges{nullptr};
-    int edgeCount{};
-    const std::string name{fileName.substr(7, fileName.size() - 11)};
-    generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
-    rcFree(pEdges);
-  }
-  SECTION("Zelda") {
-    std::ofstream csvFile{output + "/Zelda.csv", std::ios::out};
-    csvFile.write(header, sizeof(header)).put('\n');
-    csvFile.close();
-    const std::string fileName{"Meshes/Zelda.obj"};
-    BuildContext context{};
-    InputGeom pGeom{};
-    bool success = pGeom.load(&context, fileName);
-    if (!success)
-      context.dumpLog("Geom load log %s:", fileName.c_str());
-    REQUIRE(success);
-
-    int *pEdges{nullptr};
-    int edgeCount{};
-    const std::string name{fileName.substr(7, fileName.size() - 11)};
-    generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
-    processBourderEdges("CSV/minima-Zelda.csv", output + "_" + std::to_string(static_cast<int>(cellSize * 10)), name, pGeom, config, pEdges, edgeCount);
-  }
-  SECTION("Zelda2x2") {
-    std::ofstream csvFile{output + "/Zelda2x2.csv", std::ios::out};
-    csvFile.write(header, sizeof(header)).put('\n');
-    csvFile.close();
-    const std::string fileName{"Meshes/Zelda2x2.obj"};
-    BuildContext context{};
-    InputGeom pGeom{};
-    bool success = pGeom.load(&context, fileName);
-    if (!success)
-      context.dumpLog("Geom load log %s:", fileName.c_str());
-    REQUIRE(success);
-
-    int *pEdges{nullptr};
-    int edgeCount{};
-    const std::string name{fileName.substr(7, fileName.size() - 11)};
-    generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
-    rcFree(pEdges);
-  }
-  SECTION("Zelda4x4") {
-    std::ofstream csvFile{output + "/Zelda4X4.csv", std::ios::out};
-    csvFile.write(header, sizeof(header)).put('\n');
-    csvFile.close();
-    const std::string fileName{"Meshes/Zelda4x4.obj"};
-    BuildContext context{};
-    InputGeom pGeom{};
-    bool success = pGeom.load(&context, fileName);
-    if (!success)
-      context.dumpLog("Geom load log %s:", fileName.c_str());
-    REQUIRE(success);
-
-    int *pEdges{nullptr};
-    int edgeCount{};
-    const std::string name{fileName.substr(7, fileName.size() - 11)};
-    generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
-    rcFree(pEdges);
+    if (fileName.contains("City"))
+      processBourderEdges("CSV/minima-City.csv", output, name + "_" + std::to_string(static_cast<int>(cellSize * 10)), pGeom, config, pEdges, edgeCount);
+    else if (fileName.contains("Military"))
+      processBourderEdges("CSV/minima-Military.csv", output, name + "_" + std::to_string(static_cast<int>(cellSize * 10)), pGeom, config, pEdges, edgeCount);
+    else if (fileName.contains("Zelda"))
+      processBourderEdges("CSV/minima-Zelda.csv", output, name + "_" + std::to_string(static_cast<int>(cellSize * 10)), pGeom, config, pEdges, edgeCount);
+    else
+      rcFree(pEdges);
   }
 }
