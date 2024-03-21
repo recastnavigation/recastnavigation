@@ -357,6 +357,30 @@ void rcMarkWalkableTriangles(rcContext* context, const float walkableSlopeAngle,
 	}
 }
 
+void rcMarkWalkableTriangles(rcContext* context, const float walkableSlopeAngle,
+                             const float* verts, const int numVerts,
+                             const uint16_t* tris, const int numTris,
+                             unsigned char* triAreaIDs)
+{
+	rcIgnoreUnused(context);
+	rcIgnoreUnused(numVerts);
+
+	const float walkableThr = cosf(walkableSlopeAngle / 180.0f * RC_PI);
+
+	float norm[3];
+
+	for (int i = 0; i < numTris; ++i)
+	{
+		const uint16_t* tri = &tris[i * 3];
+		calcTriNormal(&verts[tri[0] * 3], &verts[tri[1] * 3], &verts[tri[2] * 3], norm);
+		// Check if the face is walkable.
+		if (norm[1] > walkableThr)
+		{
+			triAreaIDs[i] = RC_WALKABLE_AREA;
+		}
+	}
+}
+
 void rcClearUnwalkableTriangles(rcContext* context, const float walkableSlopeAngle,
                                 const float* verts, int numVerts,
                                 const int* tris, int numTris,
