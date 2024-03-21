@@ -1173,8 +1173,7 @@ struct rcSweepSpan {
 /// @warning The distance field must be created using #rcBuildDistanceField before attempting to build regions.
 ///
 /// @see rcCompactHeightfield, rcCompactSpan, rcBuildDistanceField, rcBuildRegionsMonotone, rcConfig
-bool rcBuildRegionsMonotone(rcContext *ctx, rcCompactHeightfield &chf,
-                            const int borderSize, const int minRegionArea, const int mergeRegionArea) {
+bool rcBuildRegionsMonotone(rcContext *ctx, rcCompactHeightfield &chf, const int borderSize, const int minRegionArea, const int mergeRegionArea) {
   rcAssert(ctx);
   if (!ctx)
     return false;
@@ -1331,8 +1330,7 @@ bool rcBuildRegionsMonotone(rcContext *ctx, rcCompactHeightfield &chf,
 /// @warning The distance field must be created using #rcBuildDistanceField before attempting to build regions.
 ///
 /// @see rcCompactHeightfield, rcCompactSpan, rcBuildDistanceField, rcBuildRegionsMonotone, rcConfig
-bool rcBuildRegions(rcContext *ctx, rcCompactHeightfield &chf,
-                    const int borderSize, const int minRegionArea, const int mergeRegionArea) {
+bool rcBuildRegions(rcContext *ctx, rcCompactHeightfield &chf, const int borderSize, const int minRegionArea, const int mergeRegionArea) {
   rcAssert(ctx);
   if (!ctx)
     return false;
@@ -1463,8 +1461,7 @@ bool rcBuildRegions(rcContext *ctx, rcCompactHeightfield &chf,
   return true;
 }
 
-bool rcBuildLayerRegions(rcContext *ctx, rcCompactHeightfield &chf,
-                         const int borderSize, const int minRegionArea) {
+bool rcBuildLayerRegions(rcContext *ctx, rcCompactHeightfield &chf, const int borderSize, const int minRegionArea) {
   rcAssert(ctx);
   if (!ctx)
     return false;
@@ -1619,7 +1616,7 @@ bool rcBuildRegionsWithSize(rcContext *ctx, rcCompactHeightfield &chf, const int
     for (int x = borderSize; x < w - borderSize; ++x) {
       const rcCompactCell &c = chf.cells[x + y * w];
       for (int i = static_cast<int>(c.index), ni = static_cast<int>(c.index + c.count); i < ni; ++i) {
-        if (chf.spans[i].reg != 0 || chf.areas[i] == RC_NULL_AREA)
+        if (chf.spans[i].reg != 0 || chf.areas[i] == RC_NULL_AREA || chf.dist[i] <= 0)
           continue;
         levelStack.push_back({x, y, i});
       }
@@ -1639,80 +1636,71 @@ bool rcBuildRegionsWithSize(rcContext *ctx, rcCompactHeightfield &chf, const int
   rcTempVector<LevelStackEntry> dirtySeeds;
   seeds.push_back(levelStack.back());
   while (level > 0) {
-    // expand existing regions
     while (!seeds.empty()) {
-      while (!seeds.empty()) {
-        LevelStackEntry &back = seeds.back();
-        seeds.pop_back();
-        const rcCompactSpan &s = chf.spans[back.index];
-        if (chf.dist[back.index] == 0)
+      // expand existing regions
+      LevelStackEntry &back = seeds.back();
+      seeds.pop_back();
+      if (chf.dist[back.index] == 0 || regions[back.index] == static_cast<uint16_t>(NOT_EVALUATED) || chf.spans[back.index].reg == RC_BORDER_REG || chf.areas[back.index] == RC_NULL_AREA)
+        continue;
+      const rcCompactSpan &s = chf.spans[back.index];
+      for (int dir = 0; dir < 4; ++dir) {
+        if (rcGetCon(s, dir) == RC_NOT_CONNECTED)
           continue;
-        if (regions[back.index] == static_cast<uint16_t>(NOT_EVALUATED))
+        // 8 connected
+        const int ax = back.x + rcGetDirOffsetX(dir);
+        const int ay = back.y + rcGetDirOffsetY(dir);
+        const int ai = static_cast<int>(chf.cells[ax + ay * w].index) + rcGetCon(s, dir);
+        if (chf.spans[ai].reg == RC_BORDER_REG || chf.areas[ai] == RC_NULL_AREA)
           continue;
-        if (chf.spans[back.index].reg == RC_BORDER_REG)
-          continue;
-        if (chf.areas[back.index] == RC_NULL_AREA)
-          continue;
-        for (int dir = 0; dir < 4; ++dir) {
-          if (rcGetCon(s, dir) == RC_NOT_CONNECTED)
-            continue;
-          // 8 connected
-          const int ax = back.x + rcGetDirOffsetX(dir);
-          const int ay = back.y + rcGetDirOffsetY(dir);
-          const int ai = static_cast<int>(chf.cells[ax + ay * w].index) + rcGetCon(s, dir);
-          if (chf.spans[ai].reg == RC_BORDER_REG || chf.areas[ai] == RC_NULL_AREA)
-            continue;
-          if (regions[ai] == static_cast<uint16_t>(NOT_EVALUATED)) {
-            if (chf.dist[ai] < level) {
-              regions[ai] = PENDING;
-              pendingSeeds.push_back({ax, ay, back.index});
-            } else {
-              regions[ai] = DIRTY;
-              dirtySeeds.push_back({ax, ay, back.index});
-            }
-          }
-
-          const rcCompactSpan as = chf.spans[ai];
-          const int dir2 = dir + 1 & 3;
-          if (rcGetCon(as, dir2) == RC_NOT_CONNECTED)
-            continue;
-          const int bx = ax + rcGetDirOffsetX(dir2);
-          const int by = ay + rcGetDirOffsetY(dir2);
-          const int bi = static_cast<int>(chf.cells[bx + by * w].index) + rcGetCon(as, dir2);
-          if (chf.spans[bi].reg == RC_BORDER_REG || chf.areas[ai] == RC_NULL_AREA)
-            continue;
-          if (regions[bi] == static_cast<uint16_t>(NOT_EVALUATED)) {
-            if (chf.dist[bi] < level) {
-              regions[bi] = PENDING;
-              pendingSeeds.push_back({bx, by, back.index});
-              continue;
-            }
-            regions[bi] = DIRTY;
-            dirtySeeds.push_back({bx, by, back.index});
+        if (regions[ai] == static_cast<uint16_t>(NOT_EVALUATED)) {
+          if (chf.dist[ai] < level) {
+            regions[ai] = PENDING;
+            pendingSeeds.push_back({ax, ay, back.index});
+          } else if (chf.dist[ai] <= chf.dist[back.index]) {
+            regions[ai] = DIRTY;
+            dirtySeeds.push_back({ax, ay, back.index});
           }
         }
-        if (seeds.empty()) {
-          while (!dirtySeeds.empty()) {
-            const auto &dirty = dirtySeeds.back();
-            const int ai = dirty.x + dirty.y * w;
-            const rcCompactCell &c = chf.cells[ai];
-            const rcCompactSpan &a = chf.spans[dirty.index];
-            for (uint32_t j = c.index; j < c.index + c.count; ++j) {
-              const rcCompactSpan &as = chf.spans[j];
-              if (as.y + as.h < a.y || a.y + a.h < as.y) {
-                continue;
-              }
-              regions[j] = regions[dirty.index];
-              seeds.push_back({dirty.x, dirty.y, static_cast<int>(j)});
-              break;
-            }
-            dirtySeeds.pop_back();
-          }
+
+        const rcCompactSpan as = chf.spans[ai];
+        const int dir2 = dir + 1 & 3;
+        if (rcGetCon(as, dir2) == RC_NOT_CONNECTED)
+          continue;
+        const int bx = ax + rcGetDirOffsetX(dir2);
+        const int by = ay + rcGetDirOffsetY(dir2);
+        const int bi = static_cast<int>(chf.cells[bx + by * w].index) + rcGetCon(as, dir2);
+        if (chf.spans[bi].reg == RC_BORDER_REG || chf.areas[bi] == RC_NULL_AREA)
+          continue;
+        if (regions[bi] != static_cast<uint16_t>(NOT_EVALUATED))
+          continue;
+        if (chf.dist[bi] < level) {
+          regions[bi] = PENDING;
+          pendingSeeds.push_back({bx, by, back.index});
+        } else if (chf.dist[bi] <= chf.dist[back.index]) {
+          regions[bi] = DIRTY;
+          dirtySeeds.push_back({bx, by, back.index});
         }
       }
-      // mark new spots
-      while (seeds.empty() && lastLevelStackIndex != 0 &&
-             chf.dist[levelStack[lastLevelStackIndex].index] >= level) {
+      if (seeds.empty()) {
+        while (!dirtySeeds.empty()) {
+          const auto &dirty = dirtySeeds.back();
+          const int ai = dirty.x + dirty.y * w;
+          const rcCompactCell &c = chf.cells[ai];
+          const rcCompactSpan &a = chf.spans[dirty.index];
+          for (uint32_t j = c.index; j < c.index + c.count; ++j) {
+            const rcCompactSpan &as = chf.spans[j];
+            if (as.y + as.h < a.y || a.y + a.h < as.y) {
+              continue;
+            }
+            regions[j] = regions[dirty.index];
+            seeds.push_back({dirty.x, dirty.y, static_cast<int>(j)});
+            break;
+          }
+          dirtySeeds.pop_back();
+        }
+      }
+      // mark new start points
+      while (seeds.empty() && lastLevelStackIndex != 0 && chf.dist[levelStack[lastLevelStackIndex].index] >= level) {
         const int i{lastLevelStackIndex--};
         if (regions[levelStack[i].index] == static_cast<uint16_t>(NOT_EVALUATED)) {
           regions[levelStack[i].index] = ++regionId;
@@ -1744,7 +1732,7 @@ bool rcBuildRegionsWithSize(rcContext *ctx, rcCompactHeightfield &chf, const int
         }
         pendingSeeds.pop_back();
       }
-      for (auto i : tmp) {
+      for (const auto &i : tmp) {
         pendingSeeds.push_back(i);
       }
     }

@@ -82,9 +82,10 @@ inline std::array<float, g_loopCount * RC_MAX_TIMERS> generateSingleMeshTimes(Bu
 }
 
 inline void writeCsvFile(const bool isThesis, const std::string &filePath, const std::string &environmentName, const float gridSize, const std::array<float, g_loopCount * RC_MAX_TIMERS> &timerData) {
+  static int count{};
   std::ofstream csvFile{filePath + "/Timings.csv", std::ios::out | std::ios::app};
   for (int i{}; i < g_loopCount; ++i) {
-    csvFile << (isThesis ? "Thesis," : "Default,") << environmentName << ',' << gridSize << ',';
+    csvFile << count++ << (isThesis ? ",Thesis," : ",Default,") << environmentName << ',' << gridSize << ',';
     for (int j{}; j < RC_MAX_TIMERS; ++j) {
       csvFile << timerData[i * RC_MAX_TIMERS + j];
       if (j != RC_MAX_TIMERS - 1)
@@ -239,7 +240,6 @@ inline void processBourderEdges(const std::string &input, const std::string &out
     for (const auto &edge2 : referenceEdges) {
       if (moveMatch(edge1, edge2)) {
         found = true;
-        truePositive.push_back(edge2);
         std::erase_if(referenceEdges, [edge2](const Edge &edge) {
           return edge.v1.x == edge2.v1.x && edge.v1.y == edge2.v1.y && edge.v2.x == edge2.v2.x && edge.v2.y == edge2.v2.y;
         });
@@ -270,6 +270,8 @@ TEST_CASE("Watershed") {
   std::string output{"Data"};
   std::filesystem::create_directories(output);
   constexpr char header[]{
+      "ID,"
+      "Method,"
       "Environment,"
       "Grid Size,"
       "Total (ms),"
@@ -297,10 +299,10 @@ TEST_CASE("Watershed") {
       "Build Regions Expand (ms),"
       "Build Regions Flood (ms),"
       "Build Regions Filter (ms),"
-      "Extract Region Portal (ms)"
+      "Extract Region Portal (ms),"
       "Build Layers (ms),"
       "Build Polymesh Detail (ms),"
-      "Merge Polymesh Details (ms),"};
+      "Merge Polymesh Details (ms)"};
   std::ofstream csvFile{output + "/Timings.csv", std::ios::out | std::ios::app};
   csvFile.write(header, sizeof(header)).put('\n');
   csvFile.close();
