@@ -202,6 +202,10 @@ static int getNeighbours(const float* pos, const float height, const float range
 		
 		if (ag == skip) continue;
 		
+		// Ninja Kiwi: Check for ignore group
+		if (skip && ((unsigned char)skip->params.groupIgnoreFlags & (unsigned char)ag->params.agentsGroupFlag))
+			continue;
+
 		// Check for overlap.
 		float diff[3];
 		dtVsub(diff, pos, ag->npos);
