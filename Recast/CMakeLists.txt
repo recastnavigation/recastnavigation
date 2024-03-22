@@ -15,6 +15,7 @@ set_target_properties(Recast PROPERTIES
         VERSION ${LIB_VERSION}
         COMPILE_PDB_OUTPUT_DIRECTORY .
         COMPILE_PDB_NAME "Recast-d"
+        CXX_STANDARD 14 CXX_STANDARD_REQUIRED ON
         )
 
 install(TARGETS Recast
