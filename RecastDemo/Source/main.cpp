@@ -559,9 +559,9 @@ int main(int /*argc*/, char ** /*argv*/) {
           camr = sqrtf(rcSqr(bmax[0] - bmin[0]) +
                        rcSqr(bmax[1] - bmin[1]) +
                        rcSqr(bmax[2] - bmin[2]));
-          // cameraPos[0] = (bmax[0] + bmin[0]) / 2 + camr;
-          cameraPos[1] = (bmax[1] + bmin[1]) + camr;
-          // cameraPos[2] = (bmax[2] + bmin[2]) / 2 + camr;
+          cameraPos[0] = (bmax[0] + bmin[0]) / 2;
+          cameraPos[1] = (bmax[1] + bmin[1]) / 2 + camr;
+          cameraPos[2] = (bmax[2] + bmin[2]) / 2;
           camr *= 3;
         }
         cameraEulers[0] = 90;
@@ -627,9 +627,9 @@ int main(int /*argc*/, char ** /*argv*/) {
             camr = sqrtf(rcSqr(bmax[0] - bmin[0]) +
                          rcSqr(bmax[1] - bmin[1]) +
                          rcSqr(bmax[2] - bmin[2]));
-            // cameraPos[0] = (bmax[0] + bmin[0]) / 2 + camr;
-            cameraPos[1] = (bmax[1] + bmin[1]) + camr;
-            // cameraPos[2] = (bmax[2] + bmin[2]) / 2 + camr;
+            cameraPos[0] = (bmax[0] + bmin[0]) / 2;
+            cameraPos[1] = (bmax[1] + bmin[1]) / 2 + camr;
+            cameraPos[2] = (bmax[2] + bmin[2]) / 2;
             camr *= 3;
           }
           cameraEulers[0] = 90;
@@ -727,9 +727,9 @@ int main(int /*argc*/, char ** /*argv*/) {
               camr = sqrtf(rcSqr(bmax[0] - bmin[0]) +
                            rcSqr(bmax[1] - bmin[1]) +
                            rcSqr(bmax[2] - bmin[2]));
-              // cameraPos[0] = (bmax[0] + bmin[0]) / 2 + camr;
-              cameraPos[1] = (bmax[1] + bmin[1]) + camr;
-              // cameraPos[2] = (bmax[2] + bmin[2]) / 2 + camr;
+              cameraPos[0] = (bmax[0] + bmin[0]) / 2;
+              cameraPos[1] = (bmax[1] + bmin[1]) / 2 + camr;
+              cameraPos[2] = (bmax[2] + bmin[2]) / 2;
               camr *= 3;
             }
             cameraEulers[0] = 90;
