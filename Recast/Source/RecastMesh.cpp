@@ -985,7 +985,7 @@ bool rcBuildPolyMesh(rcContext *ctx, const rcContourSet &cset, const int nvp, rc
   uint16_t *tmpPoly = &polys[maxVertsPerCont * nvp];
 
   for (int i = 0; i < cset.nconts; ++i) {
-    rcContour &cont = cset.conts[i];
+    const rcContour &cont = cset.conts[i];
 
     // Skip null contours.
     if (cont.nverts < 3)

@@ -150,13 +150,13 @@ inline std::array<float, g_loopCount * RC_MAX_TIMERS> generateSingleMeshTimes(Bu
 }
 
 inline void writeCsvFile(const std::string &filePath, const std::string &environmentName, const float gridSize, const std::array<float, g_loopCount * RC_MAX_TIMERS> &timerData, const char *header, const int headerSize) {
-  std::ofstream csvFile{filePath+"/timing.csv", std::ios::out | std::ios::ate};
+  std::ofstream csvFile{filePath + "/timing.csv", std::ios::out | std::ios::ate};
   csvFile.write(header, headerSize).put('\n');
   for (int i{}; i < g_loopCount; ++i) {
     csvFile << environmentName << ',' << gridSize << ',';
     for (int j{}; j < RC_MAX_TIMERS; ++j) {
       csvFile << timerData[i * RC_MAX_TIMERS + j];
-      if(j!=RC_MAX_TIMERS-1)
+      if (j != RC_MAX_TIMERS - 1)
         csvFile << ',';
     }
     csvFile << std::endl;
@@ -332,16 +332,24 @@ inline void processBourderEdges(const std::string &input, const std::string &out
             const int diffY1 = e1.v1.y - e2.v1.y;
             const int diffX2 = e1.v2.x - e2.v2.x;
             const int diffY2 = e1.v2.y - e2.v2.y;
-            const int halfDiffX = (diffX1 + diffX2) / 2;
-            const int halfDiffY = (diffY1 + diffY2) / 2;
-            return halfDiffX * halfDiffX + halfDiffY + halfDiffY;
+            const int diffX3 = e1.v1.x - e2.v2.x;
+            const int diffY3 = e1.v1.y - e2.v2.y;
+            const int diffX4 = e1.v2.x - e2.v1.x;
+            const int diffY4 = e1.v2.y - e2.v1.y;
+            const int smallestDiffX1 = std::abs(diffX1) < std::abs(diffX3) ? diffX1 : diffX3;
+            const int smallestDiffX2 = std::abs(diffX2) < std::abs(diffX4) ? diffX2 : diffX4;
+            const int smallestDiffY1 = std::abs(diffY1) < std::abs(diffY3) ? diffY1 : diffY3;
+            const int smallestDiffY2 = std::abs(diffY2) < std::abs(diffY4) ? diffY2 : diffY4;
+
+            const int halfDiffX = (smallestDiffX1 + smallestDiffX2) / 2;
+            const int halfDiffY = (smallestDiffY1 + smallestDiffY2) / 2;
+            return halfDiffX * halfDiffX + halfDiffY * halfDiffY;
           }};
       return distance(edge1, edgeA) < distance(edge1, edgeB);
     });
     for (const auto &edge2 : referenceEdges) {
       if (moveMatch(edge1, edge2)) {
         found = true;
-        truePositive.push_back(edge2);
         std::erase_if(referenceEdges, [edge2](const Edge &edge) {
           return edge.v1.x == edge2.v1.x && edge.v1.y == edge2.v1.y && edge.v2.x == edge2.v2.x && edge.v2.y == edge2.v2.y;
         });

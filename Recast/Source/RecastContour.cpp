@@ -1210,7 +1210,7 @@ bool rcBuildContoursWithPortals(rcContext *ctx, const rcCompactHeightfield &chf,
     }
   }
 
-  // extract bourder edges
+  // extract border edges
   rcIntArray bourders{};
   const auto findContourFromSet = [&cset](const uint16_t reg) -> const rcContour * {
     for (int i = 0; i < cset.nconts; ++i) {
@@ -1219,7 +1219,7 @@ bool rcBuildContoursWithPortals(rcContext *ctx, const rcCompactHeightfield &chf,
     }
     return nullptr;
   };
-  for (int i = 0; i < cset.nconts - 1; ++i) {
+  for (int i = 0; i < cset.nconts; ++i) {
     const auto &[verts1, nverts1, rverts1, nrverts1, reg1, area1] = cset.conts[i];
     if (!nverts1)
       continue;
