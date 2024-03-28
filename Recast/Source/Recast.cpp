@@ -23,6 +23,7 @@
 #include <cstdarg>
 #include <cstdio>
 #include <cstring>
+#include <new>
 
 namespace {
 /// Allocates and constructs an object of the given type, returning a pointer.

@@ -25,6 +25,7 @@
 
 #include <cfloat>
 #include <cstring>
+#include <new>
 
 /// @class dtQueryFilter
 ///

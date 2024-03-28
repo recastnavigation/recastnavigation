@@ -24,6 +24,7 @@
 
 #include <cfloat>
 #include <cstring>
+#include <new>
 
 namespace {
 constexpr float DT_PI = 3.14159265f;

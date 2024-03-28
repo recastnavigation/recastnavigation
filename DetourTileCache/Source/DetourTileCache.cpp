@@ -8,6 +8,7 @@
 #include <DetourTileCacheBuilder.h>
 
 #include <cstring>
+#include <new>
 
 dtTileCache *dtAllocTileCache() {
   void *mem = dtAlloc(sizeof(dtTileCache), DT_ALLOC_PERM);

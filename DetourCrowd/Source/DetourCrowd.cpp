@@ -24,6 +24,7 @@
 #include <DetourCommon.h>
 
 #include <cstring>
+#include <new>
 
 dtCrowd *dtAllocCrowd() {
   void *mem = dtAlloc(sizeof(dtCrowd), DT_ALLOC_PERM);
