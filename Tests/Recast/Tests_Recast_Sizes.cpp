@@ -6,10 +6,8 @@
 
 #include <array>
 #include <filesystem>
-#include <format>
 #include <fstream>
 #include <iostream>
-#include <ranges>
 
 #include <catch2/catch_all.hpp>
 
@@ -112,21 +110,21 @@ inline bool compareEdges(const Edge &edge1, const Edge &edge2) {
 
 inline bool operator<(const Edge &e1, const Edge &e2) { return compareEdges(e1, e2); }
 
-std::ofstream &startSvg(std::ofstream &file, const std::string_view path, uint32_t width, uint32_t height) {
+std::ofstream &startSvg(std::ofstream &file, const std::string_view path, const uint32_t width, const uint32_t height) {
   if (file.is_open())
     return file;
   file.open(path.data());
   if (!file.is_open())
     return file;
-  file << std::format(R"(<svg width="{}" height="{}" xmlns="http://www.w3.org/2000/svg">)", width, height) << '\n';
+  file << "<svg width=\"" << width << "\" height=\"" << height << "\" xmlns=\"http://www.w3.org/2000/svg\">\n";
   return file;
 }
 std::ofstream &writeSvgLine(std::ofstream &file, const std::vector<Edge> &edges, std::string_view color) {
   if (!file.is_open())
     return file;
-  std::ranges::for_each(edges, [&file, &color](const Edge &edge) {
+  std::for_each(edges.cbegin(), edges.cend(), [&file, &color](const Edge &edge) {
     const auto &[v1, v2]{edge};
-    file << std::format(R"(<line x1="{}" y1="{}" x2="{}" y2="{}" style="stroke: {}; stroke-width: 2;" />)", v1.x, v1.y, v2.x, v2.y, color.data()) << '\n';
+    file << "<line x1=\"" << v1.x << "\" y1=\"" << v1.y << "\" x2=\"" << v2.x << "\" y2=\"" << v2.y << "\" style=\"stroke: " << color << "; stroke-width: 2;\" />\n";
   });
   return file;
 }
@@ -179,8 +177,8 @@ inline void processBourderEdges(const std::string &input, const std::string &out
 
   std::vector<Edge> referenceEdges{};
   std::vector<Edge> resultEdges{};
-  std::ranges::copy(referenceEdgesSet, std::back_inserter(referenceEdges));
-  std::ranges::copy(resultEdgesSet, std::back_inserter(resultEdges));
+  std::copy(referenceEdgesSet.cbegin(), referenceEdgesSet.cend(), std::back_inserter(referenceEdges));
+  std::copy(resultEdgesSet.cbegin(), resultEdgesSet.cend(), std::back_inserter(resultEdges));
 
   std::filesystem::create_directories(output);
   std::ofstream svg;
@@ -224,7 +222,7 @@ inline void processBourderEdges(const std::string &input, const std::string &out
   std::vector<Edge> truePositive{};
   for (const auto &edge1 : resultEdges) {
     bool found = false;
-    std::ranges::sort(referenceEdges, [edge1](const Edge &edgeA, const Edge &edgeB) -> bool {
+    std::sort(referenceEdges.begin(), referenceEdges.end(), [edge1](const Edge &edgeA, const Edge &edgeB) -> bool {
       const auto distance{
           [](const Edge &e1, const Edge &e2) -> int32_t {
             const int diffX1 = e1.v1.x - e2.v1.x;

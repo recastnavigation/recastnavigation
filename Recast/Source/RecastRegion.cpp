@@ -22,7 +22,6 @@
 
 #include <algorithm>
 #include <cstring>
-#include <ranges>
 
 namespace {
 struct LevelStackEntry {
@@ -1625,7 +1624,7 @@ bool rcBuildRegionsWithSize(rcContext *ctx, rcCompactHeightfield &chf, const int
   if(levelStack.empty())
     return false;
   // Then use it in qsort
-  std::ranges::sort(levelStack, [&dist = chf.dist](const LevelStackEntry &l1, const LevelStackEntry &l2) {
+  std::sort(levelStack.begin(), levelStack.end(), [&dist = chf.dist](const LevelStackEntry &l1, const LevelStackEntry &l2) {
     return dist[l1.index] < dist[l2.index];
   });
 
