@@ -24,6 +24,7 @@
 
 #include <cfloat>
 #include <cstring>
+#include <new>
 
 inline bool overlapSlabs(const float *amin, const float *amax,
                          const float *bmin, const float *bmax,

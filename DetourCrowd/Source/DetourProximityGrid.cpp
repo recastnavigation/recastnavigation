@@ -23,6 +23,7 @@
 #include <DetourCommon.h>
 
 #include <cstring>
+#include <new>
 
 dtProximityGrid * dtAllocProximityGrid()
 {
