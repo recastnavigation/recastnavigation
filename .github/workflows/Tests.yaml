@@ -42,7 +42,7 @@ jobs:
         env:
           CTEST_OUTPUT_ON_FAILURE: 1
         working-directory: ${{github.workspace}}/build
-        run: ctest --build-config ${{matrix.build_type}} --parallel `nproc`
+        run: ctest --build-config ${{ matrix.build_type }} --parallel ${{ env.NUMBER_OF_PROCESSORS }}
 
       - uses: actions/upload-artifact@v4
         with:
