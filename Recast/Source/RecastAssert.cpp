@@ -19,16 +19,17 @@
 #include "RecastAssert.h"
 
 #ifndef RC_DISABLE_ASSERTS
-namespace {
-rcAssertFailFunc *sRecastAssertFailFunc{nullptr};
-} // namespace
 
-void rcAssertFailSetCustom(rcAssertFailFunc *assertFailFunc) {
-  sRecastAssertFailFunc = assertFailFunc;
+static rcAssertFailFunc* sRecastAssertFailFunc = 0;
+
+void rcAssertFailSetCustom(rcAssertFailFunc* assertFailFunc)
+{
+	sRecastAssertFailFunc = assertFailFunc;
 }
 
-rcAssertFailFunc *rcAssertFailGetCustom() {
-  return sRecastAssertFailFunc;
+rcAssertFailFunc* rcAssertFailGetCustom()
+{
+	return sRecastAssertFailFunc;
 }
 
 #endif

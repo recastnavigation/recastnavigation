@@ -16,129 +16,144 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#pragma once
-#include <cstdint>
-struct dtObstacleCircle {
-  float p[3];         ///< Position of the obstacle
-  float vel[3];       ///< Velocity of the obstacle
-  float dvel[3];      ///< Velocity of the obstacle
-  float rad;          ///< Radius of the obstacle
-  float dp[3], np[3]; ///< Use for side selection during sampling.
+#ifndef DETOUROBSTACLEAVOIDANCE_H
+#define DETOUROBSTACLEAVOIDANCE_H
+
+struct dtObstacleCircle
+{
+	float p[3];				///< Position of the obstacle
+	float vel[3];			///< Velocity of the obstacle
+	float dvel[3];			///< Velocity of the obstacle
+	float rad;				///< Radius of the obstacle
+	float dp[3], np[3];		///< Use for side selection during sampling.
 };
 
-struct dtObstacleSegment {
-  float p[3], q[3]; ///< End points of the obstacle segment
-  bool touch;
+struct dtObstacleSegment
+{
+	float p[3], q[3];		///< End points of the obstacle segment
+	bool touch;
 };
 
-class dtObstacleAvoidanceDebugData {
+
+class dtObstacleAvoidanceDebugData
+{
 public:
-  dtObstacleAvoidanceDebugData();
-  ~dtObstacleAvoidanceDebugData();
-
-  bool init(int maxSamples);
-  void reset();
-  void addSample(const float *vel, float ssize, float pen,
-                 float vpen, float vcpen, float spen, float tpen);
-
-  void normalizeSamples() const;
-
-  int getSampleCount() const { return m_nsamples; }
-  const float *getSampleVelocity(const int i) const { return &m_vel[i * 3]; }
-  float getSampleSize(const int i) const { return m_ssize[i]; }
-  float getSamplePenalty(const int i) const { return m_pen[i]; }
-  float getSampleDesiredVelocityPenalty(const int i) const { return m_vpen[i]; }
-  float getSampleCurrentVelocityPenalty(const int i) const { return m_vcpen[i]; }
-  float getSamplePreferredSidePenalty(const int i) const { return m_spen[i]; }
-  float getSampleCollisionTimePenalty(const int i) const { return m_tpen[i]; }
-
-  // Explicitly disabled copy constructor and copy assignment operator.
-  dtObstacleAvoidanceDebugData(const dtObstacleAvoidanceDebugData &) = delete;
-  dtObstacleAvoidanceDebugData &operator=(const dtObstacleAvoidanceDebugData &) = delete;
+	dtObstacleAvoidanceDebugData();
+	~dtObstacleAvoidanceDebugData();
+	
+	bool init(const int maxSamples);
+	void reset();
+	void addSample(const float* vel, const float ssize, const float pen,
+				   const float vpen, const float vcpen, const float spen, const float tpen);
+	
+	void normalizeSamples();
+	
+	inline int getSampleCount() const { return m_nsamples; }
+	inline const float* getSampleVelocity(const int i) const { return &m_vel[i*3]; }
+	inline float getSampleSize(const int i) const { return m_ssize[i]; }
+	inline float getSamplePenalty(const int i) const { return m_pen[i]; }
+	inline float getSampleDesiredVelocityPenalty(const int i) const { return m_vpen[i]; }
+	inline float getSampleCurrentVelocityPenalty(const int i) const { return m_vcpen[i]; }
+	inline float getSamplePreferredSidePenalty(const int i) const { return m_spen[i]; }
+	inline float getSampleCollisionTimePenalty(const int i) const { return m_tpen[i]; }
 
 private:
-  int m_nsamples;
-  int m_maxSamples;
-  float *m_vel;
-  float *m_ssize;
-  float *m_pen;
-  float *m_vpen;
-  float *m_vcpen;
-  float *m_spen;
-  float *m_tpen;
+	// Explicitly disabled copy constructor and copy assignment operator.
+	dtObstacleAvoidanceDebugData(const dtObstacleAvoidanceDebugData&);
+	dtObstacleAvoidanceDebugData& operator=(const dtObstacleAvoidanceDebugData&);
+
+	int m_nsamples;
+	int m_maxSamples;
+	float* m_vel;
+	float* m_ssize;
+	float* m_pen;
+	float* m_vpen;
+	float* m_vcpen;
+	float* m_spen;
+	float* m_tpen;
 };
 
-dtObstacleAvoidanceDebugData *dtAllocObstacleAvoidanceDebugData();
-void dtFreeObstacleAvoidanceDebugData(dtObstacleAvoidanceDebugData *ptr);
+dtObstacleAvoidanceDebugData* dtAllocObstacleAvoidanceDebugData();
+void dtFreeObstacleAvoidanceDebugData(dtObstacleAvoidanceDebugData* ptr);
 
-static constexpr int DT_MAX_PATTERN_DIVS = 32; ///< Max numver of adaptive divs.
-static constexpr int DT_MAX_PATTERN_RINGS = 4; ///< Max number of adaptive rings.
 
-struct dtObstacleAvoidanceParams {
-  float velBias;
-  float weightDesVel;
-  float weightCurVel;
-  float weightSide;
-  float weightToi;
-  float horizTime;
-  uint8_t gridSize;      ///< grid
-  uint8_t adaptiveDivs;  ///< adaptive
-  uint8_t adaptiveRings; ///< adaptive
-  uint8_t adaptiveDepth; ///< adaptive
+static const int DT_MAX_PATTERN_DIVS = 32;	///< Max numver of adaptive divs.
+static const int DT_MAX_PATTERN_RINGS = 4;	///< Max number of adaptive rings.
+
+struct dtObstacleAvoidanceParams
+{
+	float velBias;
+	float weightDesVel;
+	float weightCurVel;
+	float weightSide;
+	float weightToi;
+	float horizTime;
+	unsigned char gridSize;	///< grid
+	unsigned char adaptiveDivs;	///< adaptive
+	unsigned char adaptiveRings;	///< adaptive
+	unsigned char adaptiveDepth;	///< adaptive
 };
 
-class dtObstacleAvoidanceQuery {
+class dtObstacleAvoidanceQuery
+{
 public:
-  dtObstacleAvoidanceQuery() = default;
-  ~dtObstacleAvoidanceQuery();
+	dtObstacleAvoidanceQuery();
+	~dtObstacleAvoidanceQuery();
+	
+	bool init(const int maxCircles, const int maxSegments);
+	
+	void reset();
 
-  bool init(int maxCircles, int maxSegments);
+	void addCircle(const float* pos, const float rad,
+				   const float* vel, const float* dvel);
+				   
+	void addSegment(const float* p, const float* q);
 
-  void reset();
+	int sampleVelocityGrid(const float* pos, const float rad, const float vmax,
+						   const float* vel, const float* dvel, float* nvel,
+						   const dtObstacleAvoidanceParams* params,
+						   dtObstacleAvoidanceDebugData* debug = 0);
 
-  void addCircle(const float *pos, float rad,
-                 const float *vel, const float *dvel);
+	int sampleVelocityAdaptive(const float* pos, const float rad, const float vmax,
+							   const float* vel, const float* dvel, float* nvel,
+							   const dtObstacleAvoidanceParams* params, 
+							   dtObstacleAvoidanceDebugData* debug = 0);
+	
+	inline int getObstacleCircleCount() const { return m_ncircles; }
+	const dtObstacleCircle* getObstacleCircle(const int i) { return &m_circles[i]; }
 
-  void addSegment(const float *p, const float *q);
-
-  int sampleVelocityGrid(const float *pos, float rad, float vmax,
-                         const float *vel, const float *dvel, float *nvel,
-                         const dtObstacleAvoidanceParams *params,
-                         dtObstacleAvoidanceDebugData *debug = nullptr);
-
-  int sampleVelocityAdaptive(const float *pos, float rad, float vmax,
-                             const float *vel, const float *dvel, float *nvel,
-                             const dtObstacleAvoidanceParams *params,
-                             dtObstacleAvoidanceDebugData *debug = nullptr);
-
-  int getObstacleCircleCount() const { return m_ncircles; }
-  const dtObstacleCircle *getObstacleCircle(const int i) const { return &m_circles[i]; }
-
-  int getObstacleSegmentCount() const { return m_nsegments; }
-  const dtObstacleSegment *getObstacleSegment(const int i) const { return &m_segments[i]; }
-
-  // Explicitly disabled copy constructor and copy assignment operator.
-  dtObstacleAvoidanceQuery(const dtObstacleAvoidanceQuery &) = delete;
-  dtObstacleAvoidanceQuery &operator=(const dtObstacleAvoidanceQuery &) = delete;
+	inline int getObstacleSegmentCount() const { return m_nsegments; }
+	const dtObstacleSegment* getObstacleSegment(const int i) { return &m_segments[i]; }
 
 private:
-  void prepare(const float *pos, const float *dvel) const;
+	// Explicitly disabled copy constructor and copy assignment operator.
+	dtObstacleAvoidanceQuery(const dtObstacleAvoidanceQuery&);
+	dtObstacleAvoidanceQuery& operator=(const dtObstacleAvoidanceQuery&);
 
-  float processSample(const float *vcand, float cs, const float *pos, float rad, const float *vel, const float *dvel, float minPenalty, dtObstacleAvoidanceDebugData *debug) const;
+	void prepare(const float* pos, const float* dvel);
 
-  dtObstacleAvoidanceParams m_params{};
-  float m_invHorizTime{};
-  float m_vmax{};
-  float m_invVmax{};
+	float processSample(const float* vcand, const float cs,
+						const float* pos, const float rad,
+						const float* vel, const float* dvel,
+						const float minPenalty,
+						dtObstacleAvoidanceDebugData* debug);
 
-  int m_maxCircles{};
-  dtObstacleCircle *m_circles{nullptr};
-  int m_ncircles{};
+	dtObstacleAvoidanceParams m_params;
+	float m_invHorizTime;
+	float m_vmax;
+	float m_invVmax;
 
-  int m_maxSegments{};
-  dtObstacleSegment *m_segments{nullptr};
-  int m_nsegments{};
+	int m_maxCircles;
+	dtObstacleCircle* m_circles;
+	int m_ncircles;
+
+	int m_maxSegments;
+	dtObstacleSegment* m_segments;
+	int m_nsegments;
 };
 
-dtObstacleAvoidanceQuery *dtAllocObstacleAvoidanceQuery();
-void dtFreeObstacleAvoidanceQuery(dtObstacleAvoidanceQuery *ptr);
+dtObstacleAvoidanceQuery* dtAllocObstacleAvoidanceQuery();
+void dtFreeObstacleAvoidanceQuery(dtObstacleAvoidanceQuery* ptr);
+
+
+#endif // DETOUROBSTACLEAVOIDANCE_H

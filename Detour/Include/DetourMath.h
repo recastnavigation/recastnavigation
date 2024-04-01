@@ -4,14 +4,18 @@
 Members in this module are wrappers around the standard math library
 */
 
-#pragma once
-#include <cmath>
+#ifndef DETOURMATH_H
+#define DETOURMATH_H
 
-inline float dtMathFabsf(const float x) { return std::abs(x); }
-inline float dtMathSqrtf(const float x) { return std::sqrt(x); }
-inline float dtMathFloorf(const float x) { return std::floor(x); }
-inline float dtMathCeilf(const float x) { return std::ceil(x); }
-inline float dtMathCosf(const float x) { return std::cos(x); }
-inline float dtMathSinf(const float x) { return std::sin(x); }
-inline float dtMathAtan2f(const float y, const float x) { return std::atan2(y, x); }
-inline bool dtMathIsfinite(const float x) { return std::isfinite(x); }
+#include <math.h>
+
+inline float dtMathFabsf(float x) { return fabsf(x); }
+inline float dtMathSqrtf(float x) { return sqrtf(x); }
+inline float dtMathFloorf(float x) { return floorf(x); }
+inline float dtMathCeilf(float x) { return ceilf(x); }
+inline float dtMathCosf(float x) { return cosf(x); }
+inline float dtMathSinf(float x) { return sinf(x); }
+inline float dtMathAtan2f(float y, float x) { return atan2f(y, x); }
+inline bool dtMathIsfinite(float x) { return isfinite(x); }
+
+#endif

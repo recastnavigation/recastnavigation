@@ -16,8 +16,8 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#pragma once
-#include <Recast.h>
+#ifndef RECAST_DUMP_H
+#define RECAST_DUMP_H
 #include <cstddef>
 
 struct duFileIO
@@ -25,17 +25,19 @@ struct duFileIO
 	virtual ~duFileIO();
 	virtual bool isWriting() const = 0;
 	virtual bool isReading() const = 0;
-	virtual bool write(const void *ptr, std::size_t size) = 0;
-	virtual bool read(void *ptr, std::size_t size) = 0;
+	virtual bool write(const void* ptr, const size_t size) = 0;
+	virtual bool read(void* ptr, const size_t size) = 0;
 };
 
-bool duDumpPolyMeshToObj(rcPolyMesh & pmesh, duFileIO* io);
-bool duDumpPolyMeshDetailToObj(rcPolyMeshDetail & dmesh, duFileIO* io);
+bool duDumpPolyMeshToObj(struct rcPolyMesh& pmesh, duFileIO* io);
+bool duDumpPolyMeshDetailToObj(struct rcPolyMeshDetail& dmesh, duFileIO* io);
 
-bool duDumpContourSet(rcContourSet & cset, duFileIO* io);
-bool duReadContourSet(rcContourSet & cset, duFileIO* io);
+bool duDumpContourSet(struct rcContourSet& cset, duFileIO* io);
+bool duReadContourSet(struct rcContourSet& cset, duFileIO* io);
 
-bool duDumpCompactHeightfield(rcCompactHeightfield & chf, duFileIO* io);
-bool duReadCompactHeightfield(rcCompactHeightfield & chf, duFileIO* io);
+bool duDumpCompactHeightfield(struct rcCompactHeightfield& chf, duFileIO* io);
+bool duReadCompactHeightfield(struct rcCompactHeightfield& chf, duFileIO* io);
 
-void duLogBuildTimes(rcContext& ctx, int totalTimeUsec);
+void duLogBuildTimes(rcContext& ctx, const int totalTileUsec);
+
+#endif // RECAST_DUMP_H

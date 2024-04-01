@@ -16,7 +16,9 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#pragma once
+#ifndef DETOURASSERT_H
+#define DETOURASSERT_H
+
 // Note: This header file's only purpose is to include define assert.
 // Feel free to change the file and include your own implementation instead.
 
@@ -41,12 +43,14 @@ void dtAssertFailSetCustom(dtAssertFailFunc *assertFailFunc);
 /// Gets the base custom assertion failure function to be used by Detour.
 dtAssertFailFunc* dtAssertFailGetCustom();
 
-#	include <assert.h> 
+#	include <cassert>
 #	define dtAssert(expression) \
 		{ \
 			dtAssertFailFunc* failFunc = dtAssertFailGetCustom(); \
-			if(failFunc == nullptr) { assert(expression); } \
+			if(failFunc == NULL) { assert(expression); } \
 			else if(!(expression)) { (*failFunc)(#expression, __FILE__, __LINE__); } \
 		}
 
 #endif
+
+#endif // DETOURASSERT_H

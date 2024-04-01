@@ -16,27 +16,43 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
+#include <math.h>
+#include <stdio.h>
 #include "Sample_Debug.h"
+#include "InputGeom.h"
+#include "Recast.h"
+#include "DetourNavMesh.h"
+#include "RecastDebugDraw.h"
+#include "DetourDebugDraw.h"
+#include "RecastDump.h"
+#include "imgui.h"
+#include "SDL.h"
+#include "SDL_opengl.h"
 
-#include <DetourDebugDraw.h>
-#include <RecastDebugDraw.h>
+#ifdef WIN32
+#	define snprintf _snprintf
+#endif
 
 /*
-static int loadBin(const char* path, uint8_t** data)
+static int loadBin(const char* path, unsigned char** data)
 {
-        FILE* fp = fopen(path, "rb");
-        if (!fp) return 0;
-        fseek(fp, 0, SEEK_END);
-        int size = ftell(fp);
-        fseek(fp, 0, SEEK_SET);
-        *data = new uint8_t[size];
-        fread(*data, size, 1, fp);
-        fclose(fp);
-        return size;
-}
+	FILE* fp = fopen(path, "rb");
+	if (!fp) return 0;
+	fseek(fp, 0, SEEK_END);
+	int size = ftell(fp);
+	fseek(fp, 0, SEEK_SET);
+	*data = new unsigned char[size];
+	fread(*data, size, 1, fp);
+	fclose(fp);
+	return size;
+} 
 */
 
-Sample_Debug::Sample_Debug() {
+Sample_Debug::Sample_Debug() :
+	m_chf(0),
+	m_cset(0),
+	m_pmesh(0)
+{
 	resetCommonSettings();
 
 	// Test
@@ -58,8 +74,8 @@ Sample_Debug::Sample_Debug() {
 	
 /*	if (m_chf)
 	{
-		uint16_t ymin = 0xffff;
-		uint16_t ymax = 0;
+		unsigned short ymin = 0xffff;
+		unsigned short ymax = 0;
 		for (int i = 0; i < m_chf->spanCount; ++i)
 		{
 			const rcCompactSpan& s = m_chf->spans[i];
@@ -81,7 +97,7 @@ Sample_Debug::Sample_Debug() {
 	m_navMesh = new dtNavMesh;
 	m_navMesh->init(orig, 133.333f,133.333f, 2048, 4096, 4096);
 
-	uint8_t* data = 0;
+	unsigned char* data = 0;
 	int dataSize = 0;
 	
 	// Tile_-13_-14.bin is basically just the bytes that was output by Detour. It should be loaded at X: -13 and Y: -14.
@@ -254,7 +270,7 @@ void Sample_Debug::handleRender()
 		};
 		const int nverts = sizeof(verts)/(sizeof(int)*4);
 
-		const uint32_t colln = duRGBA(255,255,255,128);
+		const unsigned int colln = duRGBA(255,255,255,128);
 		dd.begin(DU_DRAW_LINES, 1.0f);
 		for (int i = 0, j = nverts-1; i < nverts; j=i++)
 		{
@@ -265,7 +281,7 @@ void Sample_Debug::handleRender()
 		}
 		dd.end();
 
-		const uint32_t colpt = duRGBA(255,255,255,255);
+		const unsigned int colpt = duRGBA(255,255,255,255);
 		dd.begin(DU_DRAW_POINTS, 3.0f);
 		for (int i = 0, j = nverts-1; i < nverts; j=i++)
 		{
@@ -288,7 +304,7 @@ void Sample_Debug::handleRender()
 			if (ntris < 0) ntris = -ntris;
 		}
 				
-		const uint32_t coltri = duRGBA(255,255,255,64);
+		const unsigned int coltri = duRGBA(255,255,255,64);
 		dd.begin(DU_DRAW_TRIS);
 		for (int i = 0; i < ntris*3; ++i)
 		{
@@ -310,27 +326,29 @@ void Sample_Debug::handleMeshChanged(InputGeom* geom)
 	m_geom = geom;
 }
 
-const float* Sample_Debug::getBoundsMin() const {
+const float* Sample_Debug::getBoundsMin()
+{
 	if (m_cset)
 		return m_cset->bmin;
 	if (m_chf)
 		return m_chf->bmin;
 	if (m_navMesh)
 		return m_bmin;
-	return nullptr;
+	return 0;
 }
 
-const float* Sample_Debug::getBoundsMax() const {
+const float* Sample_Debug::getBoundsMax()
+{
 	if (m_cset)
 		return m_cset->bmax;
 	if (m_chf)
 		return m_chf->bmax;
 	if (m_navMesh)
 		return m_bmax;
-	return nullptr;
+	return 0;
 }
 
-void Sample_Debug::handleClick(const float* s, const float* p, const bool shift)
+void Sample_Debug::handleClick(const float* s, const float* p, bool shift)
 {
 	if (m_tool)
 		m_tool->handleClick(s, p, shift);
@@ -348,7 +366,7 @@ bool Sample_Debug::handleBuild()
 	if (m_chf)
 	{
 		rcFreeContourSet(m_cset);
-		m_cset = nullptr;
+		m_cset = 0;
 		
 		// Create contours.
 		m_cset = rcAllocContourSet();

@@ -5,9 +5,11 @@
 #include <RecastAlloc.h>
 
 #include <array>
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <vector>
 
 #include <catch2/catch_all.hpp>
 
@@ -248,9 +250,10 @@ inline void processBourderEdges(const std::string &input, const std::string &out
     for (const auto &edge2 : referenceEdges) {
       if (moveMatch(edge1, edge2)) {
         found = true;
-        std::erase_if(referenceEdges, [edge2](const Edge &edge) {
+        auto it = std::find_if(referenceEdges.begin(), referenceEdges.end(), [edge2](const Edge &edge) {
           return edge.v1.x == edge2.v1.x && edge.v1.y == edge2.v1.y && edge.v2.x == edge2.v2.x && edge.v2.y == edge2.v2.y;
         });
+        referenceEdges.erase(it);
         break;
       }
     }

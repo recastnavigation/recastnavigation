@@ -16,7 +16,9 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#pragma once
+#ifndef MESHLOADER_OBJ
+#define MESHLOADER_OBJ
+
 #include <string>
 
 class rcMeshLoaderObj
@@ -34,11 +36,11 @@ public:
 	int getTriCount() const { return m_triCount; }
 	const std::string& getFileName() const { return m_filename; }
 
-	// Explicitly disabled copy constructor and copy assignment operator.
-	rcMeshLoaderObj(const rcMeshLoaderObj&)=delete;
-	rcMeshLoaderObj& operator=(const rcMeshLoaderObj&)=delete;
 private:
-
+	// Explicitly disabled copy constructor and copy assignment operator.
+	rcMeshLoaderObj(const rcMeshLoaderObj&);
+	rcMeshLoaderObj& operator=(const rcMeshLoaderObj&);
+	
 	void addVertex(float x, float y, float z, int& cap);
 	void addTriangle(int a, int b, int c, int& cap);
 	
@@ -50,3 +52,5 @@ private:
 	int m_vertCount;
 	int m_triCount;
 };
+
+#endif // MESHLOADER_OBJ

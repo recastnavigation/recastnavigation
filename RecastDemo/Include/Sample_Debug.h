@@ -16,45 +16,48 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#pragma once
+#ifndef RECASTSAMPLEDEBUG_H
+#define RECASTSAMPLEDEBUG_H
+
 #include "Sample.h"
+#include "DetourNavMesh.h"
+#include "Recast.h"
 
-#include <DetourNavMesh.h>
-
-struct rcPolyMesh;
-struct rcContourSet;
-struct rcCompactHeightfield;
 /// Sample used for random debugging.
-class Sample_Debug final : public Sample {
+class Sample_Debug : public Sample
+{
 protected:
-  rcCompactHeightfield *m_chf{};
-  rcContourSet *m_cset{};
-  rcPolyMesh *m_pmesh{};
+	rcCompactHeightfield* m_chf;
+	rcContourSet* m_cset;
+	rcPolyMesh* m_pmesh;
 
-  float m_halfExtents[3]{};
-  float m_center[3]{};
-  float m_bmin[3]{};
-  float m_bmax[3]{};
-  dtPolyRef m_ref{};
-
+	float m_halfExtents[3];
+	float m_center[3];
+	float m_bmin[3], m_bmax[3];
+	dtPolyRef m_ref;
+	
 public:
-  Sample_Debug();
-  ~Sample_Debug() override;
+	Sample_Debug();
+	virtual ~Sample_Debug();
+	
+	virtual void handleSettings();
+	virtual void handleTools();
+	virtual void handleDebugMode();
+	virtual void handleClick(const float* s, const float* p, bool shift);
+	virtual void handleToggle();
+	virtual void handleRender();
+	virtual void handleRenderOverlay(double* proj, double* model, int* view);
+	virtual void handleMeshChanged(class InputGeom* geom);
+	virtual bool handleBuild();
 
-  void handleSettings() override;
-  void handleTools() override;
-  void handleDebugMode() override;
-  void handleClick(const float *s, const float *p, bool shift) override;
-  void handleToggle() override;
-  void handleRender() override;
-  void handleRenderOverlay(double *proj, double *model, int *view) override;
-  void handleMeshChanged(InputGeom *geom) override;
-  bool handleBuild() override;
+	virtual const float* getBoundsMin();
+	virtual const float* getBoundsMax();
 
-  const float *getBoundsMin() const;
-  const float *getBoundsMax() const;
-
-  // Explicitly disabled copy constructor and copy assignment operator.
-  Sample_Debug(const Sample_Debug &) = delete;
-  Sample_Debug &operator=(const Sample_Debug &) = delete;
+private:
+	// Explicitly disabled copy constructor and copy assignment operator.
+	Sample_Debug(const Sample_Debug&);
+	Sample_Debug& operator=(const Sample_Debug&);
 };
+
+
+#endif // RECASTSAMPLE_H

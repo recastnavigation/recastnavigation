@@ -575,9 +575,9 @@ Example of iterating the triangles in a sub-mesh.
 // Iterate the sub-meshes. (One for each source polygon.)
 for (int i = 0; i < dmesh.nmeshes; ++i)
 {
-	const uint32_t* meshDef = &dmesh.meshes[i*4];
-	const uint32_t baseVerts = meshDef[0];
-	const uint32_t baseTri = meshDef[2];
+	const unsigned int* meshDef = &dmesh.meshes[i*4];
+	const unsigned int baseVerts = meshDef[0];
+	const unsigned int baseTri = meshDef[2];
 	const int ntris = (int)meshDef[3];	
 	
 	const float* verts = &dmesh.verts[baseVerts*3];

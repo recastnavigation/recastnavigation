@@ -16,19 +16,19 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "DetourProximityGrid.h"
-
-#include <DetourAlloc.h>
-#include <DetourAssert.h>
-#include <DetourCommon.h>
-
-#include <cstring>
+#include <string.h>
 #include <new>
+#include "DetourProximityGrid.h"
+#include "DetourCommon.h"
+#include "DetourMath.h"
+#include "DetourAlloc.h"
+#include "DetourAssert.h"
 
-dtProximityGrid * dtAllocProximityGrid()
+
+dtProximityGrid* dtAllocProximityGrid()
 {
 	void* mem = dtAlloc(sizeof(dtProximityGrid), DT_ALLOC_PERM);
-	if (!mem) return nullptr;
+	if (!mem) return 0;
 	return new(mem) dtProximityGrid;
 }
 
@@ -40,9 +40,21 @@ void dtFreeProximityGrid(dtProximityGrid* ptr)
 }
 
 
-inline int hashPos2(const int x, const int y, const int n)
+inline int hashPos2(int x, int y, int n)
 {
 	return ((x*73856093) ^ (y*19349663)) & (n-1);
+}
+
+
+dtProximityGrid::dtProximityGrid() :
+	m_cellSize(0),
+	m_invCellSize(0),
+	m_pool(0),
+	m_poolHead(0),
+	m_poolSize(0),
+	m_buckets(0),
+	m_bucketsSize(0)
+{
 }
 
 dtProximityGrid::~dtProximityGrid()
@@ -61,14 +73,14 @@ bool dtProximityGrid::init(const int poolSize, const float cellSize)
 	
 	// Allocate hashs buckets
 	m_bucketsSize = dtNextPow2(poolSize);
-	m_buckets = static_cast<uint16_t *>(dtAlloc(sizeof(uint16_t) * m_bucketsSize, DT_ALLOC_PERM));
+	m_buckets = (unsigned short*)dtAlloc(sizeof(unsigned short)*m_bucketsSize, DT_ALLOC_PERM);
 	if (!m_buckets)
 		return false;
 	
 	// Allocate pool of items.
 	m_poolSize = poolSize;
 	m_poolHead = 0;
-	m_pool = static_cast<Item *>(dtAlloc(sizeof(Item) * m_poolSize, DT_ALLOC_PERM));
+	m_pool = (Item*)dtAlloc(sizeof(Item)*m_poolSize, DT_ALLOC_PERM);
 	if (!m_pool)
 		return false;
 	
@@ -79,7 +91,7 @@ bool dtProximityGrid::init(const int poolSize, const float cellSize)
 
 void dtProximityGrid::clear()
 {
-	std::memset(m_buckets, 0xff, sizeof(uint16_t)*m_bucketsSize);
+	memset(m_buckets, 0xff, sizeof(unsigned short)*m_bucketsSize);
 	m_poolHead = 0;
 	m_bounds[0] = 0xffff;
 	m_bounds[1] = 0xffff;
@@ -87,14 +99,14 @@ void dtProximityGrid::clear()
 	m_bounds[3] = -0xffff;
 }
 
-void dtProximityGrid::addItem(const uint16_t id,
+void dtProximityGrid::addItem(const unsigned short id,
 							  const float minx, const float miny,
 							  const float maxx, const float maxy)
 {
-	const int iminx = static_cast<int>(dtMathFloorf(minx * m_invCellSize));
-	const int iminy = static_cast<int>(dtMathFloorf(miny * m_invCellSize));
-	const int imaxx = static_cast<int>(dtMathFloorf(maxx * m_invCellSize));
-	const int imaxy = static_cast<int>(dtMathFloorf(maxy * m_invCellSize));
+	const int iminx = (int)dtMathFloorf(minx * m_invCellSize);
+	const int iminy = (int)dtMathFloorf(miny * m_invCellSize);
+	const int imaxx = (int)dtMathFloorf(maxx * m_invCellSize);
+	const int imaxy = (int)dtMathFloorf(maxy * m_invCellSize);
 	
 	m_bounds[0] = dtMin(m_bounds[0], iminx);
 	m_bounds[1] = dtMin(m_bounds[1], iminy);
@@ -108,11 +120,11 @@ void dtProximityGrid::addItem(const uint16_t id,
 			if (m_poolHead < m_poolSize)
 			{
 				const int h = hashPos2(x, y, m_bucketsSize);
-				const uint16_t idx = static_cast<uint16_t>(m_poolHead);
+				const unsigned short idx = (unsigned short)m_poolHead;
 				m_poolHead++;
 				Item& item = m_pool[idx];
-				item.x = static_cast<short>(x);
-				item.y = static_cast<short>(y);
+				item.x = (short)x;
+				item.y = (short)y;
 				item.id = id;
 				item.next = m_buckets[h];
 				m_buckets[h] = idx;
@@ -123,12 +135,12 @@ void dtProximityGrid::addItem(const uint16_t id,
 
 int dtProximityGrid::queryItems(const float minx, const float miny,
 								const float maxx, const float maxy,
-								uint16_t* ids, const int maxIds) const
+								unsigned short* ids, const int maxIds) const
 {
-	const int iminx = static_cast<int>(dtMathFloorf(minx * m_invCellSize));
-	const int iminy = static_cast<int>(dtMathFloorf(miny * m_invCellSize));
-	const int imaxx = static_cast<int>(dtMathFloorf(maxx * m_invCellSize));
-	const int imaxy = static_cast<int>(dtMathFloorf(maxy * m_invCellSize));
+	const int iminx = (int)dtMathFloorf(minx * m_invCellSize);
+	const int iminy = (int)dtMathFloorf(miny * m_invCellSize);
+	const int imaxx = (int)dtMathFloorf(maxx * m_invCellSize);
+	const int imaxy = (int)dtMathFloorf(maxy * m_invCellSize);
 	
 	int n = 0;
 	
@@ -137,15 +149,15 @@ int dtProximityGrid::queryItems(const float minx, const float miny,
 		for (int x = iminx; x <= imaxx; ++x)
 		{
 			const int h = hashPos2(x, y, m_bucketsSize);
-			uint16_t idx = m_buckets[h];
+			unsigned short idx = m_buckets[h];
 			while (idx != 0xffff)
 			{
-                          const Item& item = m_pool[idx];
-				if (static_cast<int>(item.x) == x && static_cast<int>(item.y) == y)
+				Item& item = m_pool[idx];
+				if ((int)item.x == x && (int)item.y == y)
 				{
 					// Check if the id exists already.
-					const uint16_t* end = ids + n;
-                                        const uint16_t* i = ids;
+					const unsigned short* end = ids + n;
+					unsigned short* i = ids;
 					while (i != end && *i != item.id)
 						++i;
 					// Item not found, add it.
@@ -169,11 +181,11 @@ int dtProximityGrid::getItemCountAt(const int x, const int y) const
 	int n = 0;
 	
 	const int h = hashPos2(x, y, m_bucketsSize);
-	uint16_t idx = m_buckets[h];
+	unsigned short idx = m_buckets[h];
 	while (idx != 0xffff)
 	{
-          const Item& item = m_pool[idx];
-		if (static_cast<int>(item.x) == x && static_cast<int>(item.y) == y)
+		Item& item = m_pool[idx];
+		if ((int)item.x == x && (int)item.y == y)
 			n++;
 		idx = item.next;
 	}

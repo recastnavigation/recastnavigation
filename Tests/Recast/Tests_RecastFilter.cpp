@@ -24,14 +24,14 @@ TEST_CASE("rcFilterLowHangingWalkableObstacles", "[recast, filtering]")
 	heightfield.cs = 1;
 	heightfield.ch = 1;
 	heightfield.spans = (rcSpan**)rcAlloc(heightfield.width * heightfield.height * sizeof(rcSpan*), RC_ALLOC_PERM);
-	heightfield.pools = nullptr;
-	heightfield.freelist = nullptr;
+	heightfield.pools = NULL;
+	heightfield.freelist = NULL;
 
 	SECTION("Span with no spans above it is unchanged")
 	{
 		rcSpan* span = (rcSpan*)rcAlloc(sizeof(rcSpan), RC_ALLOC_PERM);
 		span->area = 1;
-		span->next = nullptr;
+		span->next = NULL;
 		span->smin = 0;
 		span->smax = 1;
 		heightfield.spans[0] = span;
@@ -48,7 +48,7 @@ TEST_CASE("rcFilterLowHangingWalkableObstacles", "[recast, filtering]")
 		// Put the second span just above the first one.
 		rcSpan* secondSpan = (rcSpan*)rcAlloc(sizeof(rcSpan), RC_ALLOC_PERM);
 		secondSpan->area = RC_NULL_AREA;
-		secondSpan->next = nullptr;
+		secondSpan->next = NULL;
 		secondSpan->smin = 1 + walkableHeight;
 		secondSpan->smax = secondSpan->smin + 1;
 
@@ -85,7 +85,7 @@ TEST_CASE("rcFilterLowHangingWalkableObstacles", "[recast, filtering]")
 		// Put the second span just above the first one.
 		rcSpan* secondSpan = (rcSpan*)rcAlloc(sizeof(rcSpan), RC_ALLOC_PERM);
 		secondSpan->area = RC_NULL_AREA;
-		secondSpan->next = nullptr;
+		secondSpan->next = NULL;
 		secondSpan->smin = 1 + (walkableHeight - 1);
 		secondSpan->smax = secondSpan->smin + 1;
 
@@ -112,7 +112,7 @@ TEST_CASE("rcFilterLowHangingWalkableObstacles", "[recast, filtering]")
 		// Put the second span just above the first one.
 		rcSpan* secondSpan = (rcSpan*)rcAlloc(sizeof(rcSpan), RC_ALLOC_PERM);
 		secondSpan->area = RC_NULL_AREA;
-		secondSpan->next = nullptr;
+		secondSpan->next = NULL;
 		secondSpan->smin = 2 + (walkableHeight - 1);
 		secondSpan->smax = secondSpan->smin + 1;
 
@@ -138,7 +138,7 @@ TEST_CASE("rcFilterLowHangingWalkableObstacles", "[recast, filtering]")
 	{
 		rcSpan* span = (rcSpan*)rcAlloc(sizeof(rcSpan), RC_ALLOC_PERM);
 		span->area = 1;
-		span->next = nullptr;
+		span->next = NULL;
 		span->smin = 0;
 		span->smax = 1;
 		heightfield.spans[0] = span;
@@ -148,7 +148,7 @@ TEST_CASE("rcFilterLowHangingWalkableObstacles", "[recast, filtering]")
 		{
 			rcSpan* nextSpan = (rcSpan*)rcAlloc(sizeof(rcSpan), RC_ALLOC_PERM);
 			nextSpan->area = RC_NULL_AREA;
-			nextSpan->next = nullptr;
+			nextSpan->next = NULL;
 			nextSpan->smin = previousSpan->smax + (walkableHeight - 1);
 			nextSpan->smax = nextSpan->smin + 1;
 			previousSpan->next = nextSpan;
@@ -199,8 +199,8 @@ TEST_CASE("rcFilterLedgeSpans", "[recast, filtering]")
 	heightfield.cs = 1;
 	heightfield.ch = 1;
 	heightfield.spans = (rcSpan**)rcAlloc(heightfield.width * heightfield.height * sizeof(rcSpan*), RC_ALLOC_PERM);
-	heightfield.pools = nullptr;
-	heightfield.freelist = nullptr;
+	heightfield.pools = NULL;
+	heightfield.freelist = NULL;
 
 	SECTION("Edge spans are marked unwalkable")
 	{
@@ -211,7 +211,7 @@ TEST_CASE("rcFilterLedgeSpans", "[recast, filtering]")
 			{
 				rcSpan* span = (rcSpan*)rcAlloc(sizeof(rcSpan), RC_ALLOC_PERM);
 				span->area = 1;
-				span->next = nullptr;
+				span->next = NULL;
 				span->smin = 0;
 				span->smax = 1;
 				heightfield.spans[x + z * heightfield.width] = span;
@@ -270,14 +270,14 @@ TEST_CASE("rcFilterWalkableLowHeightSpans", "[recast, filtering]")
 	heightfield.cs = 1;
 	heightfield.ch = 1;
 	heightfield.spans = (rcSpan**)rcAlloc(heightfield.width * heightfield.height * sizeof(rcSpan*), RC_ALLOC_PERM);
-	heightfield.pools = nullptr;
-	heightfield.freelist = nullptr;
+	heightfield.pools = NULL;
+	heightfield.freelist = NULL;
 
 	SECTION("span nothing above is unchanged")
 	{
 		rcSpan* span = (rcSpan*)rcAlloc(sizeof(rcSpan), RC_ALLOC_PERM);
 		span->area = 1;
-		span->next = nullptr;
+		span->next = NULL;
 		span->smin = 0;
 		span->smax = 1;
 		heightfield.spans[0] = span;
@@ -293,7 +293,7 @@ TEST_CASE("rcFilterWalkableLowHeightSpans", "[recast, filtering]")
 	{
 		rcSpan* overheadSpan = (rcSpan*)rcAlloc(sizeof(rcSpan), RC_ALLOC_PERM);
 		overheadSpan->area = RC_NULL_AREA;
-		overheadSpan->next = nullptr;
+		overheadSpan->next = NULL;
 		overheadSpan->smin = 10;
 		overheadSpan->smax = 11;
 
@@ -317,7 +317,7 @@ TEST_CASE("rcFilterWalkableLowHeightSpans", "[recast, filtering]")
 	{
 		rcSpan* overheadSpan = (rcSpan*)rcAlloc(sizeof(rcSpan), RC_ALLOC_PERM);
 		overheadSpan->area = RC_NULL_AREA;
-		overheadSpan->next = nullptr;
+		overheadSpan->next = NULL;
 		overheadSpan->smin = 3;
 		overheadSpan->smax = 4;
 

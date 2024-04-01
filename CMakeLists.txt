@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 3.5)
 
 project(RecastNavigation)
 
@@ -7,7 +7,8 @@ SET(SOVERSION 1)
 set(LIB_VERSION 1.6.0)
 string(REPLACE "." "," LIB_VERSION_NUM "${LIB_VERSION}.0")
 
-option(RECASTNAVIGATION_CLI "Build command line interface" ON)
+set_property(GLOBAL PROPERTY CXX_STANDARD 98)
+
 option(RECASTNAVIGATION_DEMO "Build demo" ON)
 option(RECASTNAVIGATION_TESTS "Build tests" ON)
 option(RECASTNAVIGATION_EXAMPLES "Build examples" ON)
@@ -30,9 +31,9 @@ install(FILES "${RecastNavigation_BINARY_DIR}/version.h" DESTINATION
 # Needed for recastnavigation.pc.in
 set(prefix ${CMAKE_INSTALL_PREFIX})
 set(exec_prefix "\${prefix}")
-set(libdir "\${exec_prefix}/${CMAKE_INSTALL_LIBDIR}")
-set(bindir "\${exec_prefix}/${CMAKE_INSTALL_BINDIR}")
-set(includedir "\${prefix}/${CMAKE_INSTALL_INCLUDEDIR}")
+set(libdir "${CMAKE_INSTALL_FULL_LIBDIR}")
+set(bindir "${CMAKE_INSTALL_FULL_BINDIR}")
+set(includedir "${CMAKE_INSTALL_FULL_INCLUDEDIR}")
 set(PACKAGE_VERSION "${LIB_VERSION}")
 if(RECASTNAVIGATION_DT_POLYREF64)
     set(PKG_CONFIG_CFLAGS "${PKG_CONFIG_CFLAGS} -DDT_POLYREF64")
@@ -88,9 +89,7 @@ install(
 if (RECASTNAVIGATION_DEMO)
     add_subdirectory(RecastDemo)
 endif ()
-if (RECASTNAVIGATION_CLI)
-    add_subdirectory(RecastCLI)
-endif ()
+add_subdirectory(RecastCLI)
 
 if (RECASTNAVIGATION_TESTS)
     enable_testing()

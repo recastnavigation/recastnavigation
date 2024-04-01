@@ -16,7 +16,9 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#pragma once
+#ifndef DETOURALLOCATOR_H
+#define DETOURALLOCATOR_H
+
 #include <cstddef>
 
 /// Provides hint values to the memory allocator on how long the
@@ -32,7 +34,7 @@ enum dtAllocHint
 //  @param[in]		rcAllocHint	A hint to the allocator on how long the memory is expected to be in use.
 //  @return A pointer to the beginning of the allocated memory block, or null if the allocation failed.
 ///  @see dtAllocSetCustom
-typedef void* (dtAllocFunc)(std::size_t size, dtAllocHint hint);
+typedef void* (dtAllocFunc)(size_t size, dtAllocHint hint);
 
 /// A memory deallocation function.
 ///  @param[in]		ptr		A pointer to a memory block previously allocated using #dtAllocFunc.
@@ -49,9 +51,11 @@ void dtAllocSetCustom(dtAllocFunc *allocFunc, dtFreeFunc *freeFunc);
 ///  @param[in]		hint	A hint to the allocator on how long the memory is expected to be in use.
 ///  @return A pointer to the beginning of the allocated memory block, or null if the allocation failed.
 /// @see dtFree
-void* dtAlloc(std::size_t size, dtAllocHint hint);
+void* dtAlloc(size_t size, dtAllocHint hint);
 
 /// Deallocates a memory block.
 ///  @param[in]		ptr		A pointer to a memory block previously allocated using #dtAlloc.
 /// @see dtAlloc
 void dtFree(void* ptr);
+
+#endif

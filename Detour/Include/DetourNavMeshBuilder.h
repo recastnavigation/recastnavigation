@@ -16,8 +16,10 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#pragma once
-#include <cstdint>
+#ifndef DETOURNAVMESHBUILDER_H
+#define DETOURNAVMESHBUILDER_H
+
+#include "DetourAlloc.h"
 
 /// Represents the source data used to build an navigation mesh tile.
 /// @ingroup detour
@@ -29,11 +31,11 @@ struct dtNavMeshCreateParams
 	/// See #rcPolyMesh for details related to these attributes.
 	/// @{
 
-	const uint16_t* verts;			///< The polygon mesh vertices. [(x, y, z) * #vertCount] [Unit: vx]
+	const unsigned short* verts;			///< The polygon mesh vertices. [(x, y, z) * #vertCount] [Unit: vx]
 	int vertCount;							///< The number vertices in the polygon mesh. [Limit: >= 3]
-	const uint16_t* polys;			///< The polygon data. [Size: #polyCount * 2 * #nvp]
-	const uint16_t* polyFlags;		///< The user defined flags assigned to each polygon. [Size: #polyCount]
-	const uint8_t* polyAreas;			///< The user defined area ids assigned to each polygon. [Size: #polyCount]
+	const unsigned short* polys;			///< The polygon data. [Size: #polyCount * 2 * #nvp]
+	const unsigned short* polyFlags;		///< The user defined flags assigned to each polygon. [Size: #polyCount]
+	const unsigned char* polyAreas;			///< The user defined area ids assigned to each polygon. [Size: #polyCount]
 	int polyCount;							///< Number of polygons in the mesh. [Limit: >= 1]
 	int nvp;								///< Number maximum number of vertices per polygon. [Limit: >= 3]
 
@@ -42,10 +44,10 @@ struct dtNavMeshCreateParams
 	/// See #rcPolyMeshDetail for details related to these attributes.
 	/// @{
 
-	const uint32_t* detailMeshes;		///< The height detail sub-mesh data. [Size: 4 * #polyCount]
+	const unsigned int* detailMeshes;		///< The height detail sub-mesh data. [Size: 4 * #polyCount]
 	const float* detailVerts;				///< The detail mesh vertices. [Size: 3 * #detailVertsCount] [Unit: wu]
 	int detailVertsCount;					///< The number of vertices in the detail mesh.
-	const uint8_t* detailTris;		///< The detail mesh triangles. [Size: 4 * #detailTriCount]
+	const unsigned char* detailTris;		///< The detail mesh triangles. [Size: 4 * #detailTriCount]
 	int detailTriCount;						///< The number of triangles in the detail mesh.
 
 	/// @}
@@ -60,16 +62,16 @@ struct dtNavMeshCreateParams
 	/// Off-mesh connection radii. [Size: #offMeshConCount] [Unit: wu]
 	const float* offMeshConRad;
 	/// User defined flags assigned to the off-mesh connections. [Size: #offMeshConCount]
-	const uint16_t* offMeshConFlags;
+	const unsigned short* offMeshConFlags;
 	/// User defined area ids assigned to the off-mesh connections. [Size: #offMeshConCount]
-	const uint8_t* offMeshConAreas;
+	const unsigned char* offMeshConAreas;
 	/// The permitted travel direction of the off-mesh connections. [Size: #offMeshConCount]
 	///
 	/// 0 = Travel only from endpoint A to endpoint B.<br/>
 	/// #DT_OFFMESH_CON_BIDIR = Bidirectional travel.
-	const uint8_t* offMeshConDir;
+	const unsigned char* offMeshConDir;	
 	/// The user defined ids of the off-mesh connection. [Size: #offMeshConCount]
-	const uint32_t* offMeshConUserID;
+	const unsigned int* offMeshConUserID;
 	/// The number of off-mesh connections. [Limit: >= 0]
 	int offMeshConCount;
 
@@ -78,7 +80,7 @@ struct dtNavMeshCreateParams
 	/// @note The tile grid/layer data can be left at zero if the destination is a single tile mesh.
 	/// @{
 
-	uint32_t userId;	///< The user defined id of the tile.
+	unsigned int userId;	///< The user defined id of the tile.
 	int tileX;				///< The tile's x-grid location within the multi-tile destination mesh. (Along the x-axis.)
 	int tileY;				///< The tile's y-grid location within the multi-tile destination mesh. (Along the z-axis.)
 	int tileLayer;			///< The tile's layer within the layered destination mesh. [Limit: >= 0] (Along the y-axis.)
@@ -108,17 +110,19 @@ struct dtNavMeshCreateParams
 ///  @param[out]	outData		The resulting tile data.
 ///  @param[out]	outDataSize	The size of the tile data array.
 /// @return True if the tile data was successfully created.
-bool dtCreateNavMeshData(dtNavMeshCreateParams* params, uint8_t** outData, int* outDataSize);
+bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData, int* outDataSize);
 
 /// Swaps the endianess of the tile data's header (#dtMeshHeader).
 ///  @param[in,out]	data		The tile data array.
 ///  @param[in]		dataSize	The size of the data array.
-bool dtNavMeshHeaderSwapEndian(uint8_t* data, int dataSize);
+bool dtNavMeshHeaderSwapEndian(unsigned char* data, const int dataSize);
 
 /// Swaps endianess of the tile data.
 ///  @param[in,out]	data		The tile data array.
 ///  @param[in]		dataSize	The size of the data array.
-bool dtNavMeshDataSwapEndian(uint8_t* data, int dataSize);
+bool dtNavMeshDataSwapEndian(unsigned char* data, const int dataSize);
+
+#endif // DETOURNAVMESHBUILDER_H
 
 // This section contains detailed documentation for members that don't have
 // a source file. It reduces clutter in the main section of the header.

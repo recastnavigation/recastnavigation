@@ -16,63 +16,64 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#pragma once
-#include <DetourNavMesh.h>
-#include <DetourStatus.h>
+#ifndef DETOURPATHQUEUE_H
+#define DETOURPATHQUEUE_H
 
-#include <cstdint>
+#include "DetourNavMesh.h"
+#include "DetourNavMeshQuery.h"
 
-class dtNavMesh;
-class dtNavMeshQuery;
-class dtQueryFilter;
-static constexpr uint32_t DT_PATHQ_INVALID = 0;
+static const unsigned int DT_PATHQ_INVALID = 0;
 
-typedef uint32_t dtPathQueueRef;
+typedef unsigned int dtPathQueueRef;
 
-class dtPathQueue {
-  struct PathQuery {
-    dtPathQueueRef ref{};
-    float startPos[3]{};
-    float endPos[3]{};
-    dtPolyRef startRef{};
-    dtPolyRef endRef{};
-    /// Result.
-    dtPolyRef *path{};
-    int npath{};
-    /// State.
-    dtStatus status{};
-    int keepAlive{};
-    const dtQueryFilter *filter{}; ///< TODO: This is potentially dangerous!
-  };
-
-  static constexpr int MAX_QUEUE = 8;
-  PathQuery m_queue[MAX_QUEUE]{};
-  dtPathQueueRef m_nextHandle{1};
-  int m_maxPathSize{};
-  int m_queueHead{};
-  dtNavMeshQuery *m_navquery{};
-
-  void purge();
-
+class dtPathQueue
+{
+	struct PathQuery
+	{
+		dtPathQueueRef ref;
+		/// Path find start and end location.
+		float startPos[3], endPos[3];
+		dtPolyRef startRef, endRef;
+		/// Result.
+		dtPolyRef* path;
+		int npath;
+		/// State.
+		dtStatus status;
+		int keepAlive;
+		const dtQueryFilter* filter; ///< TODO: This is potentially dangerous!
+	};
+	
+	static const int MAX_QUEUE = 8;
+	PathQuery m_queue[MAX_QUEUE];
+	dtPathQueueRef m_nextHandle;
+	int m_maxPathSize;
+	int m_queueHead;
+	dtNavMeshQuery* m_navquery;
+	
+	void purge();
+	
 public:
-  dtPathQueue();
-  ~dtPathQueue();
+	dtPathQueue();
+	~dtPathQueue();
+	
+	bool init(const int maxPathSize, const int maxSearchNodeCount, dtNavMesh* nav);
+	
+	void update(const int maxIters);
+	
+	dtPathQueueRef request(dtPolyRef startRef, dtPolyRef endRef,
+						   const float* startPos, const float* endPos, 
+						   const dtQueryFilter* filter);
+	
+	dtStatus getRequestStatus(dtPathQueueRef ref) const;
+	
+	dtStatus getPathResult(dtPathQueueRef ref, dtPolyRef* path, int* pathSize, const int maxPath);
+	
+	inline const dtNavMeshQuery* getNavQuery() const { return m_navquery; }
 
-  bool init(int maxPathSize, int maxSearchNodeCount, const dtNavMesh *nav);
-
-  void update(int maxIters);
-
-  dtPathQueueRef request(dtPolyRef startRef, dtPolyRef endRef,
-                         const float *startPos, const float *endPos,
-                         const dtQueryFilter *filter);
-
-  dtStatus getRequestStatus(dtPathQueueRef ref) const;
-
-  dtStatus getPathResult(dtPathQueueRef ref, dtPolyRef *path, int *pathSize, int maxPath);
-
-  const dtNavMeshQuery *getNavQuery() const { return m_navquery; }
-
-  // Explicitly disabled copy constructor and copy assignment operator.
-  dtPathQueue(const dtPathQueue &) = delete;
-  dtPathQueue &operator=(const dtPathQueue &) = delete;
+private:
+	// Explicitly disabled copy constructor and copy assignment operator.
+	dtPathQueue(const dtPathQueue&);
+	dtPathQueue& operator=(const dtPathQueue&);
 };
+
+#endif // DETOURPATHQUEUE_H

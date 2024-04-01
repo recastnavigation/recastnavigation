@@ -16,8 +16,12 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#pragma once
+#ifndef IMGUI_RENDER_GL_H
+#define IMGUI_RENDER_GL_H
 
 bool imguiRenderGLInit(const char* fontpath);
 void imguiRenderGLDestroy();
 void imguiRenderGLDraw();
+
+#endif // IMGUI_RENDER_GL_H
+

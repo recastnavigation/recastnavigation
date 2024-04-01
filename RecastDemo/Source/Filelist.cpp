@@ -19,7 +19,6 @@
 #include "Filelist.h"
 
 #include <algorithm>
-
 #ifdef WIN32
 #	include <io.h>
 #else
@@ -27,13 +26,16 @@
 #	include <cstring>
 #endif
 
-void scanDirectoryAppend(const std::string& path, const std::string& ext, std::vector<std::string>& fileList)
+using std::vector;
+using std::string;
+
+void scanDirectoryAppend(const string& path, const string& ext, vector<string>& filelist)
 {
 #ifdef WIN32
-  const std::string pathWithExt = path + "/*" + ext;
+	string pathWithExt = path + "/*" + ext;
 	
 	_finddata_t dir;
-  const intptr_t fh = _findfirst(pathWithExt.c_str(), &dir);
+	intptr_t fh = _findfirst(pathWithExt.c_str(), &dir);
 	if (fh == -1L)
 	{
 		return;
@@ -41,7 +43,7 @@ void scanDirectoryAppend(const std::string& path, const std::string& ext, std::v
 	
 	do
 	{
-		fileList.push_back(dir.name);
+		filelist.push_back(dir.name);
 	}
 	while (_findnext(fh, &dir) == 0);
 	_findclose(fh);
@@ -66,11 +68,11 @@ void scanDirectoryAppend(const std::string& path, const std::string& ext, std::v
 #endif
 	
 	// Sort the list of files alphabetically.
-	std::sort(fileList.begin(), fileList.end());
+	std::sort(filelist.begin(), filelist.end());
 }
 
-void scanDirectory(const std::string& path, const std::string& ext, std::vector<std::string>& fileList)
+void scanDirectory(const string& path, const string& ext, vector<string>& filelist)
 {
-	fileList.clear();
-	scanDirectoryAppend(path, ext, fileList);
+	filelist.clear();
+	scanDirectoryAppend(path, ext, filelist);
 }

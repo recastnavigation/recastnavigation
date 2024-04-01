@@ -16,69 +16,71 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#pragma once
+#ifndef RECASTSAMPLESOLOMESH_H
+#define RECASTSAMPLESOLOMESH_H
+
 #include "Sample.h"
+#include "DetourNavMesh.h"
+#include "Recast.h"
 
-#include <Recast.h>
-#include <cstdint>
-
-struct rcPolyMeshDetail;
-struct rcPolyMesh;
-struct rcContourSet;
-struct rcCompactHeightfield;
-struct rcHeightfield;
-class Sample_SoloMesh final : public Sample {
+class Sample_SoloMesh : public Sample
+{
 protected:
-  bool m_keepInterResults{};
-  float m_totalBuildTimeMs{};
+	bool m_keepInterResults;
+	float m_totalBuildTimeMs;
 
-  uint8_t *m_triareas{};
-  rcHeightfield *m_solid{};
-  rcCompactHeightfield *m_chf{};
-  rcContourSet *m_cset{};
-  rcPolyMesh *m_pmesh{};
-  rcConfig m_cfg{};
-  rcPolyMeshDetail *m_dmesh{};
-
-  enum DrawMode {
-    DRAWMODE_NAVMESH,
-    DRAWMODE_NAVMESH_TRANS,
-    DRAWMODE_NAVMESH_BVTREE,
-    DRAWMODE_NAVMESH_NODES,
-    DRAWMODE_NAVMESH_INVIS,
-    DRAWMODE_MESH,
-    DRAWMODE_VOXELS,
-    DRAWMODE_VOXELS_WALKABLE,
-    DRAWMODE_COMPACT,
-    DRAWMODE_COMPACT_DISTANCE,
-    DRAWMODE_COMPACT_REGIONS,
-    DRAWMODE_REGION_CONNECTIONS,
-    DRAWMODE_RAW_CONTOURS,
-    DRAWMODE_BOTH_CONTOURS,
-    DRAWMODE_CONTOURS,
-    DRAWMODE_POLYMESH,
-    DRAWMODE_POLYMESH_DETAIL,
-    MAX_DRAWMODE
-  };
-
-  DrawMode m_drawMode{};
-
-  void cleanup();
+	unsigned char* m_triareas;
+	rcHeightfield* m_solid;
+	rcCompactHeightfield* m_chf;
+	rcContourSet* m_cset;
+	rcPolyMesh* m_pmesh;
+	rcConfig m_cfg;	
+	rcPolyMeshDetail* m_dmesh;
+	
+	enum DrawMode
+	{
+		DRAWMODE_NAVMESH,
+		DRAWMODE_NAVMESH_TRANS,
+		DRAWMODE_NAVMESH_BVTREE,
+		DRAWMODE_NAVMESH_NODES,
+		DRAWMODE_NAVMESH_INVIS,
+		DRAWMODE_MESH,
+		DRAWMODE_VOXELS,
+		DRAWMODE_VOXELS_WALKABLE,
+		DRAWMODE_COMPACT,
+		DRAWMODE_COMPACT_DISTANCE,
+		DRAWMODE_COMPACT_REGIONS,
+		DRAWMODE_REGION_CONNECTIONS,
+		DRAWMODE_RAW_CONTOURS,
+		DRAWMODE_BOTH_CONTOURS,
+		DRAWMODE_CONTOURS,
+		DRAWMODE_POLYMESH,
+		DRAWMODE_POLYMESH_DETAIL,
+		MAX_DRAWMODE
+	};
+	
+	DrawMode m_drawMode;
+	
+	void cleanup();
 
 public:
-  Sample_SoloMesh();
-  ~Sample_SoloMesh() override;
+	Sample_SoloMesh();
+	virtual ~Sample_SoloMesh();
+	
+	virtual void handleSettings();
+	virtual void handleTools();
+	virtual void handleDebugMode();
+	
+	virtual void handleRender();
+	virtual void handleRenderOverlay(double* proj, double* model, int* view);
+	virtual void handleMeshChanged(class InputGeom* geom);
+	virtual bool handleBuild();
 
-  void handleSettings() override;
-  void handleTools() override;
-  void handleDebugMode() override;
-
-  void handleRender() override;
-  void handleRenderOverlay(double *proj, double *model, int *view) override;
-  void handleMeshChanged(InputGeom *geom) override;
-  bool handleBuild() override;
-
-  // Explicitly disabled copy constructor and copy assignment operator.
-  Sample_SoloMesh(const Sample_SoloMesh &) = delete;
-  Sample_SoloMesh &operator=(const Sample_SoloMesh &) = delete;
+private:
+	// Explicitly disabled copy constructor and copy assignment operator.
+	Sample_SoloMesh(const Sample_SoloMesh&);
+	Sample_SoloMesh& operator=(const Sample_SoloMesh&);
 };
+
+
+#endif // RECASTSAMPLESOLOMESHSIMPLE_H

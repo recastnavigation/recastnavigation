@@ -16,10 +16,11 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#pragma once
+#ifndef DETOURCOMMON_H
+#define DETOURCOMMON_H
+
 #include "DetourMath.h"
-#include <cstdint>
-#include <cstddef>
+#include <stddef.h>
 
 /**
 @defgroup detour Detour
@@ -41,42 +42,36 @@ template<class T> void dtIgnoreUnused(const T&) { }
 /// Swaps the values of the two parameters.
 ///  @param[in,out]	a	Value A
 ///  @param[in,out]	b	Value B
-template<class T>
-void dtSwap(T& a, T& b) { T t = a; a = b; b = t; }
+template<class T> inline void dtSwap(T& a, T& b) { T t = a; a = b; b = t; }
 
 /// Returns the minimum of two values.
 ///  @param[in]		a	Value A
 ///  @param[in]		b	Value B
 ///  @return The minimum of the two values.
-template<class T>
-T dtMin(T a, T b) { return a < b ? a : b; }
+template<class T> inline T dtMin(T a, T b) { return a < b ? a : b; }
 
 /// Returns the maximum of two values.
 ///  @param[in]		a	Value A
 ///  @param[in]		b	Value B
 ///  @return The maximum of the two values.
-template<class T>
-T dtMax(T a, T b) { return a > b ? a : b; }
+template<class T> inline T dtMax(T a, T b) { return a > b ? a : b; }
 
 /// Returns the absolute value.
 ///  @param[in]		a	The value.
 ///  @return The absolute value of the specified value.
-template<class T>
-T dtAbs(T a) { return a < 0 ? -a : a; }
+template<class T> inline T dtAbs(T a) { return a < 0 ? -a : a; }
 
 /// Returns the square of the value.
 ///  @param[in]		a	The value.
 ///  @return The square of the value.
-template<class T>
-T dtSqr(T a) { return a*a; }
+template<class T> inline T dtSqr(T a) { return a*a; }
 
 /// Clamps the value to the specified range.
 ///  @param[in]		v	The value to clamp.
 ///  @param[in]		mn	The minimum permitted return value.
 ///  @param[in]		mx	The maximum permitted return value.
 ///  @return The value, clamped to the specified range.
-template<class T>
-T dtClamp(T v, T mn, T mx) { return v < mn ? mn : v > mx ? mx : v; }
+template<class T> inline T dtClamp(T v, T mn, T mx) { return v < mn ? mn : (v > mx ? mx : v); }
 
 /// @}
 /// @name Vector helper functions.
@@ -267,7 +262,7 @@ inline float dtVdist2DSqr(const float* v1, const float* v2)
 ///  @param[in,out]	v	The vector to normalize. [(x, y, z)]
 inline void dtVnormalize(float* v)
 {
-	const float d = 1.0f / dtMathSqrtf(dtSqr(v[0]) + dtSqr(v[1]) + dtSqr(v[2]));
+	float d = 1.0f / dtMathSqrtf(dtSqr(v[0]) + dtSqr(v[1]) + dtSqr(v[2]));
 	v[0] *= d;
 	v[1] *= d;
 	v[2] *= d;
@@ -293,7 +288,7 @@ inline bool dtVequal(const float* p0, const float* p1)
 /// or any of the infinities.
 inline bool dtVisfinite(const float* v)
 {
-	const bool result =
+	bool result =
 		dtMathIsfinite(v[0]) &&
 		dtMathIsfinite(v[1]) &&
 		dtMathIsfinite(v[2]);
@@ -305,7 +300,7 @@ inline bool dtVisfinite(const float* v)
 ///  @param[in]		v	A point. [(x, y, z)]
 inline bool dtVisfinite2D(const float* v)
 {
-	const bool result = dtMathIsfinite(v[0]) && dtMathIsfinite(v[2]);
+	bool result = dtMathIsfinite(v[0]) && dtMathIsfinite(v[2]);
 	return result;
 }
 
@@ -356,13 +351,13 @@ inline float dtTriArea2D(const float* a, const float* b, const float* c)
 ///  @param[in]		bmax	Maximum bounds of box B. [(x, y, z)]
 /// @return True if the two AABB's overlap.
 /// @see dtOverlapBounds
-inline bool dtOverlapQuantBounds(const uint16_t amin[3], const uint16_t amax[3],
-								 const uint16_t bmin[3], const uint16_t bmax[3])
+inline bool dtOverlapQuantBounds(const unsigned short amin[3], const unsigned short amax[3],
+								 const unsigned short bmin[3], const unsigned short bmax[3])
 {
 	bool overlap = true;
-	overlap = amin[0] > bmax[0] || amax[0] < bmin[0] ? false : overlap;
-	overlap = amin[1] > bmax[1] || amax[1] < bmin[1] ? false : overlap;
-	overlap = amin[2] > bmax[2] || amax[2] < bmin[2] ? false : overlap;
+	overlap = (amin[0] > bmax[0] || amax[0] < bmin[0]) ? false : overlap;
+	overlap = (amin[1] > bmax[1] || amax[1] < bmin[1]) ? false : overlap;
+	overlap = (amin[2] > bmax[2] || amax[2] < bmin[2]) ? false : overlap;
 	return overlap;
 }
 
@@ -377,9 +372,9 @@ inline bool dtOverlapBounds(const float* amin, const float* amax,
 							const float* bmin, const float* bmax)
 {
 	bool overlap = true;
-	overlap = amin[0] > bmax[0] || amax[0] < bmin[0] ? false : overlap;
-	overlap = amin[1] > bmax[1] || amax[1] < bmin[1] ? false : overlap;
-	overlap = amin[2] > bmax[2] || amax[2] < bmin[2] ? false : overlap;
+	overlap = (amin[0] > bmax[0] || amax[0] < bmin[0]) ? false : overlap;
+	overlap = (amin[1] > bmax[1] || amax[1] < bmin[1]) ? false : overlap;
+	overlap = (amin[2] > bmax[2] || amax[2] < bmin[2]) ? false : overlap;
 	return overlap;
 }
 
@@ -414,9 +409,9 @@ bool dtIntersectSegSeg2D(const float* ap, const float* aq,
 ///  @param[in]		verts	The polygon vertices. [(x, y, z) * @p nverts]
 ///  @param[in]		nverts	The number of vertices. [Limit: >= 3]
 /// @return True if the point is inside the polygon.
-bool dtPointInPolygon(const float* pt, const float* verts, int nverts);
+bool dtPointInPolygon(const float* pt, const float* verts, const int nverts);
 
-bool dtDistancePtPolyEdgesSqr(const float* pt, const float* verts, int nverts,
+bool dtDistancePtPolyEdgesSqr(const float* pt, const float* verts, const int nverts,
 							float* ed, float* et);
 
 float dtDistancePtSegSqr2D(const float* pt, const float* p, const float* q, float& t);
@@ -426,7 +421,7 @@ float dtDistancePtSegSqr2D(const float* pt, const float* p, const float* q, floa
 ///  @param[in]		idx		The polygon indices. [(vertIndex) * @p nidx]
 ///  @param[in]		nidx	The number of indices in the polygon. [Limit: >= 3]
 ///  @param[in]		verts	The polygon vertices. [(x, y, z) * vertCount]
-void dtCalcPolyCenter(float* tc, const uint16_t* idx, int nidx, const float* verts);
+void dtCalcPolyCenter(float* tc, const unsigned short* idx, int nidx, const float* verts);
 
 /// Determines if the two convex polygons overlap on the xz-plane.
 ///  @param[in]		polya		Polygon A vertices.	[(x, y, z) * @p npolya]
@@ -434,14 +429,14 @@ void dtCalcPolyCenter(float* tc, const uint16_t* idx, int nidx, const float* ver
 ///  @param[in]		polyb		Polygon B vertices.	[(x, y, z) * @p npolyb]
 ///  @param[in]		npolyb		The number of vertices in polygon B.
 /// @return True if the two polygons overlap.
-bool dtOverlapPolyPoly2D(const float* polya, int npolya,
-						 const float* polyb, int npolyb);
+bool dtOverlapPolyPoly2D(const float* polya, const int npolya,
+						 const float* polyb, const int npolyb);
 
 /// @}
 /// @name Miscellanious functions.
 /// @{
 
-inline uint32_t dtNextPow2(uint32_t v)
+inline unsigned int dtNextPow2(unsigned int v)
 {
 	v--;
 	v |= v >> 1;
@@ -453,62 +448,64 @@ inline uint32_t dtNextPow2(uint32_t v)
 	return v;
 }
 
-inline uint32_t dtIlog2(uint32_t v)
+inline unsigned int dtIlog2(unsigned int v)
 {
-	uint32_t r = (v > 0xffff) << 4; v >>= r;
-	uint32_t shift = (v > 0xff) << 3; v >>= shift; r |= shift;
+	unsigned int r;
+	unsigned int shift;
+	r = (v > 0xffff) << 4; v >>= r;
+	shift = (v > 0xff) << 3; v >>= shift; r |= shift;
 	shift = (v > 0xf) << 2; v >>= shift; r |= shift;
 	shift = (v > 0x3) << 1; v >>= shift; r |= shift;
-	r |= v >> 1;
+	r |= (v >> 1);
 	return r;
 }
 
-inline int dtAlign4(const int x) { return x+3 & ~3; }
+inline int dtAlign4(int x) { return (x+3) & ~3; }
 
-inline int dtOppositeTile(const int side) { return side+4 & 0x7; }
+inline int dtOppositeTile(int side) { return (side+4) & 0x7; }
 
-inline void dtSwapByte(uint8_t* a, uint8_t* b)
+inline void dtSwapByte(unsigned char* a, unsigned char* b)
 {
-	const uint8_t tmp = *a;
+	unsigned char tmp = *a;
 	*a = *b;
 	*b = tmp;
 }
 
-inline void dtSwapEndian(uint16_t* v)
+inline void dtSwapEndian(unsigned short* v)
 {
-	auto *x = reinterpret_cast<uint8_t*>(v);
+	unsigned char* x = (unsigned char*)v;
 	dtSwapByte(x+0, x+1);
 }
 
 inline void dtSwapEndian(short* v)
 {
-	auto *x = reinterpret_cast<uint8_t*>(v);
+	unsigned char* x = (unsigned char*)v;
 	dtSwapByte(x+0, x+1);
 }
 
-inline void dtSwapEndian(uint32_t* v)
+inline void dtSwapEndian(unsigned int* v)
 {
-	auto *x = reinterpret_cast<uint8_t*>(v);
+	unsigned char* x = (unsigned char*)v;
 	dtSwapByte(x+0, x+3); dtSwapByte(x+1, x+2);
 }
 
 inline void dtSwapEndian(int* v)
 {
-	auto *x = reinterpret_cast<uint8_t*>(v);
+	unsigned char* x = (unsigned char*)v;
 	dtSwapByte(x+0, x+3); dtSwapByte(x+1, x+2);
 }
 
 inline void dtSwapEndian(float* v)
 {
-	auto *x = reinterpret_cast<uint8_t*>(v);
+	unsigned char* x = (unsigned char*)v;
 	dtSwapByte(x+0, x+3); dtSwapByte(x+1, x+2);
 }
 
-void dtRandomPointInConvexPoly(const float* pts, int npts, float* areas,
-                               float s, float t, float* out);
+void dtRandomPointInConvexPoly(const float* pts, const int npts, float* areas,
+							   const float s, const float t, float* out);
 
 template<typename TypeToRetrieveAs>
-TypeToRetrieveAs* dtGetThenAdvanceBufferPointer(const uint8_t*& buffer, const std::size_t distanceToAdvance)
+TypeToRetrieveAs* dtGetThenAdvanceBufferPointer(const unsigned char*& buffer, const size_t distanceToAdvance)
 {
 	TypeToRetrieveAs* returnPointer = reinterpret_cast<TypeToRetrieveAs*>(buffer);
 	buffer += distanceToAdvance;
@@ -516,7 +513,7 @@ TypeToRetrieveAs* dtGetThenAdvanceBufferPointer(const uint8_t*& buffer, const st
 }
 
 template<typename TypeToRetrieveAs>
-TypeToRetrieveAs* dtGetThenAdvanceBufferPointer(uint8_t*& buffer, const std::size_t distanceToAdvance)
+TypeToRetrieveAs* dtGetThenAdvanceBufferPointer(unsigned char*& buffer, const size_t distanceToAdvance)
 {
 	TypeToRetrieveAs* returnPointer = reinterpret_cast<TypeToRetrieveAs*>(buffer);
 	buffer += distanceToAdvance;
@@ -525,6 +522,8 @@ TypeToRetrieveAs* dtGetThenAdvanceBufferPointer(uint8_t*& buffer, const std::siz
 
 
 /// @}
+
+#endif // DETOURCOMMON_H
 
 ///////////////////////////////////////////////////////////////////////////
 

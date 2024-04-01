@@ -16,8 +16,8 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#pragma once
-#include <cstdint>
+#ifndef IMGUI_H
+#define IMGUI_H
 
 enum imguiMouseButton
 {
@@ -32,12 +32,12 @@ enum imguiTextAlign
 	IMGUI_ALIGN_RIGHT
 };
 
-inline uint32_t imguiRGBA(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a=255)
+inline unsigned int imguiRGBA(unsigned char r, unsigned char g, unsigned char b, unsigned char a=255)
 {
 	return (r) | (g << 8) | (b << 16) | (a << 24);
 }
 
-void imguiBeginFrame(int mx, int my, uint8_t mbut, int scroll);
+void imguiBeginFrame(int mx, int my, unsigned char mbut, int scroll);
 void imguiEndFrame();
 
 bool imguiBeginScrollArea(const char* name, int x, int y, int w, int h, int* scroll);
@@ -56,10 +56,10 @@ void imguiLabel(const char* text);
 void imguiValue(const char* text);
 bool imguiSlider(const char* text, float* val, float vmin, float vmax, float vinc, bool enabled = true);
 
-void imguiDrawText(int x, int y, int align, const char* text, uint32_t color);
-void imguiDrawLine(float x0, float y0, float x1, float y1, float r, uint32_t color);
-void imguiDrawRoundedRect(float x, float y, float w, float h, float r, uint32_t color);
-void imguiDrawRect(float x, float y, float w, float h, uint32_t color);
+void imguiDrawText(int x, int y, int align, const char* text, unsigned int color);
+void imguiDrawLine(float x0, float y0, float x1, float y1, float r, unsigned int color);
+void imguiDrawRoundedRect(float x, float y, float w, float h, float r, unsigned int color);
+void imguiDrawRect(float x, float y, float w, float h, unsigned int color);
 
 // Pull render interface.
 enum imguiGfxCmdType
@@ -92,7 +92,7 @@ struct imguiGfxCmd
 	char type;
 	char flags;
 	char pad[2];
-	uint32_t col;
+	unsigned int col;
 	union
 	{
 		imguiGfxLine line;
@@ -103,3 +103,6 @@ struct imguiGfxCmd
 
 const imguiGfxCmd* imguiGetRenderQueue();
 int imguiGetRenderQueueSize();
+
+
+#endif // IMGUI_H
