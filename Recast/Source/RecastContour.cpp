@@ -1102,6 +1102,14 @@ bool rcBuildContours(rcContext* ctx, const rcCompactHeightfield& chf,
 	
 	return true;
 }
+
+const rcContour* findContourFromSet(const rcContourSet& cset, const uint16_t reg) {
+    for (int i = 0; i < cset.nconts; ++i) {
+        if (cset.conts[i].reg == reg)
+            return &cset.conts[i];
+    }
+    return nullptr;
+};
 bool rcBuildContoursWithPortals(rcContext *ctx, const rcCompactHeightfield &chf, float maxError, int maxEdgeLen, rcContourSet &cset, int *&portalEdges, int &portalEdgeSize, int buildFlags) {
     rcAssert(ctx);
 
@@ -1380,13 +1388,7 @@ bool rcBuildContoursWithPortals(rcContext *ctx, const rcCompactHeightfield &chf,
 
     // extract border edges
     rcIntArray bourders{};
-    const auto findContourFromSet = [&cset](const uint16_t reg) -> const rcContour * {
-        for (int i = 0; i < cset.nconts; ++i) {
-            if (cset.conts[i].reg == reg)
-                return &cset.conts[i];
-        }
-        return nullptr;
-    };
+
     for (int i = 0; i < cset.nconts; ++i) {
         const auto &con1 = cset.conts[i];
         if (!con1.nverts)
@@ -1396,7 +1398,7 @@ bool rcBuildContoursWithPortals(rcContext *ctx, const rcCompactHeightfield &chf,
             const int *va2 = &con1.verts[j1 * 4];
             if (va1[3] == 0 || static_cast<uint16_t>(va1[3]) < con1.reg)
                 continue;
-            if (const rcContour *cont2 = findContourFromSet(static_cast<uint16_t>(va1[3]))) {
+            if (const rcContour *cont2 = findContourFromSet(cset, static_cast<uint16_t>(va1[3]))) {
                 for (int k1 = 0, k2 = cont2->nverts - 1; k1 < cont2->nverts; k2 = k1++) {
                     const int *vb1 = &cont2->verts[k1 * 4];
                     const int *vb2 = &cont2->verts[k2 * 4];

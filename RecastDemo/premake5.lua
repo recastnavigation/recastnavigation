@@ -211,11 +211,13 @@ project "Tests"
 		"../DetourTileCache/Include",
 		"../Recast/Include",
 		"../Recast/Source",
+		"../RecastCLI/Include",
 		"../Tests/Recast",
 		"../Tests",
 		"../Tests/Contrib"
 	}
 	files { 
+		"../RecastCLI/Source/*.cpp",
 		"../Tests/*.h",
 		"../Tests/*.hpp",
 		"../Tests/*.cpp",
@@ -226,9 +228,10 @@ project "Tests"
 		"../Tests/DetourCrowd/*.cpp",
 		"../Tests/Contrib/catch2/*.cpp"
 	}
+	removefiles{"../RecastCLI/Source/main.cpp"}
 
 	-- project dependencies
-	links { 
+	links {
 		"DebugUtils",
 		"DetourCrowd",
 		"Detour",

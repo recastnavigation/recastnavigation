@@ -1,6 +1,6 @@
-#include <BuildContext.h>
-#include <Generators.h>
-#include <InputGeom.h>
+#include "BuildContext.h"
+#include "Generators.h"
+#include "InputGeom.h"
 #include <Recast.h>
 #include <RecastAlloc.h>
 
@@ -8,12 +8,10 @@
 #include <array>
 #include <cstddef>
 #include <cstdlib>
-#include <filesystem>
 #include <fstream>
 #include <ios>
 #include <ostream>
 #include <string>
-#include <string_view>
 #include <vector>
 
 #include <catch2/catch_all.hpp>
@@ -88,6 +86,7 @@ inline std::array<float, g_loopCount * RC_MAX_TIMERS> generateSingleMeshTimes(Bu
 
 inline void writeCsvFile(const bool isThesis, const std::string &filePath, const std::string &environmentName, const float gridSize, const std::array<float, g_loopCount * RC_MAX_TIMERS> &timerData) {
   static int count{};
+  system(("mkdir " + filePath).c_str());
   std::ofstream csvFile{filePath + "/Timings.csv", std::ios::out | std::ios::app};
   for (int i{}; i < g_loopCount; ++i) {
     csvFile << count++ << (isThesis ? ",Thesis," : ",Default,") << environmentName << ',' << gridSize << ',';
@@ -102,8 +101,8 @@ inline void writeCsvFile(const bool isThesis, const std::string &filePath, const
 }
 
 inline void generateTimes(const std::string &output, const std::string &environmentName, const float gridSize, BuildContext &context, const InputGeom &pGeom, rcConfig &config, int *&pEdge, int &edgeCount) {
-  const std::array defaultTimes{generateSingleMeshTimes(context, pGeom, config)};
-  const std::array thesisTimes{generateThesisTimes(context, pGeom, config, pEdge, edgeCount)};
+  const std::array<float, g_loopCount * RC_MAX_TIMERS> defaultTimes{generateSingleMeshTimes(context, pGeom, config)};
+  const std::array<float, g_loopCount * RC_MAX_TIMERS> thesisTimes{generateThesisTimes(context, pGeom, config, pEdge, edgeCount)};
 
   writeCsvFile(false, output, environmentName, gridSize, defaultTimes);
   writeCsvFile(true, output, environmentName, gridSize, thesisTimes);
@@ -117,7 +116,7 @@ inline bool compareEdges(const Edge &edge1, const Edge &edge2) {
 
 inline bool operator<(const Edge &e1, const Edge &e2) { return compareEdges(e1, e2); }
 
-std::ofstream &startSvg(std::ofstream &file, const std::string_view path, const uint32_t width, const uint32_t height) {
+std::ofstream &startSvg(std::ofstream &file, const std::string& path, const uint32_t width, const uint32_t height) {
   if (file.is_open())
     return file;
   file.open(path.data());
@@ -126,12 +125,11 @@ std::ofstream &startSvg(std::ofstream &file, const std::string_view path, const 
   file << "<svg width=\"" << width << "\" height=\"" << height << "\" xmlns=\"http://www.w3.org/2000/svg\">\n";
   return file;
 }
-std::ofstream &writeSvgLine(std::ofstream &file, const std::vector<Edge> &edges, std::string_view color) {
+std::ofstream &writeSvgLine(std::ofstream &file, const std::vector<Edge> &edges, const std::string& color) {
   if (!file.is_open())
     return file;
   std::for_each(edges.cbegin(), edges.cend(), [&file, &color](const Edge &edge) {
-    const auto &[v1, v2]{edge};
-    file << "<line x1=\"" << v1.x << "\" y1=\"" << v1.y << "\" x2=\"" << v2.x << "\" y2=\"" << v2.y << "\" style=\"stroke: " << color << "; stroke-width: 2;\" />\n";
+    file << "<line x1=\"" << edge.v1.x << "\" y1=\"" << edge.v1.y << "\" x2=\"" << edge.v2.x << "\" y2=\"" << edge.v2.y << "\" style=\"stroke: " << color << "; stroke-width: 2;\" />\n";
   });
   return file;
 }
@@ -174,7 +172,8 @@ inline void processBourderEdges(const std::string &input, const std::string &out
   csfFileRef.close();
   std::set<Edge> resultEdgesSet{};
   for (int i = 0; i < edgeSize / 2 - 1; i += 2) {
-    if (const int ii = i + 1; pEdges[i * 2 + 0] > pEdges[ii * 2 + 0] || (pEdges[i * 2 + 0] == pEdges[ii * 2 + 0] && pEdges[i * 2 + 1] > pEdges[ii * 2 + 1])) {
+    const int ii = i + 1;
+    if (pEdges[i * 2 + 0] > pEdges[ii * 2 + 0] || (pEdges[i * 2 + 0] == pEdges[ii * 2 + 0] && pEdges[i * 2 + 1] > pEdges[ii * 2 + 1])) {
       resultEdgesSet.emplace(Edge{{pEdges[ii * 2 + 0], pEdges[ii * 2 + 1]}, {pEdges[i * 2 + 0], pEdges[i * 2 + 1]}});
     } else {
       resultEdgesSet.emplace(Edge{{pEdges[i * 2 + 0], pEdges[i * 2 + 1]}, {pEdges[ii * 2 + 0], pEdges[ii * 2 + 1]}});
@@ -187,7 +186,6 @@ inline void processBourderEdges(const std::string &input, const std::string &out
   std::copy(referenceEdgesSet.cbegin(), referenceEdgesSet.cend(), std::back_inserter(referenceEdges));
   std::copy(resultEdgesSet.cbegin(), resultEdgesSet.cend(), std::back_inserter(resultEdges));
 
-  std::filesystem::create_directories(output);
   std::ofstream svg;
   startSvg(svg, output + "/edges_" + name + "_result.svg", config.width, config.height);
   writeSvgLine(svg, resultEdges, "black");
@@ -320,7 +318,6 @@ const char header[]{
 // const std::string fileName{ "Meshes/Military.obj", "Meshes/Simple.obj", "Meshes/University.obj", "Meshes/Zelda.obj", "Meshes/Zelda2x2.obj", "Meshes/Zelda4x4.obj")};
 TEST_CASE("Watershed - City") {
   std::string const output{"Data"};
-  std::filesystem::create_directories(output);
 
   std::ofstream csvFile{output + "/Timings.csv", std::ios::out | std::ios::app};
   csvFile.write(header, sizeof(header)).put('\n');
@@ -359,7 +356,6 @@ TEST_CASE("Watershed - City") {
 }
 TEST_CASE("Watershed - Maze8") {
   std::string const output{"Data"};
-  std::filesystem::create_directories(output);
 
   std::ofstream csvFile{output + "/Timings.csv", std::ios::out | std::ios::app};
   csvFile.write(header, sizeof(header)).put('\n');
@@ -397,8 +393,7 @@ TEST_CASE("Watershed - Maze8") {
   }
 }
 TEST_CASE("Watershed - Maze16") {
-  std::string const output{"Data"};
-  std::filesystem::create_directories(output);
+  std::string const output{"Data"};;
 
   std::ofstream csvFile{output + "/Timings.csv", std::ios::out | std::ios::app};
   csvFile.write(header, sizeof(header)).put('\n');
@@ -437,7 +432,6 @@ TEST_CASE("Watershed - Maze16") {
 }
 TEST_CASE("Watershed - Maze32") {
   std::string const output{"Data"};
-  std::filesystem::create_directories(output);
 
   std::ofstream csvFile{output + "/Timings.csv", std::ios::out | std::ios::app};
   csvFile.write(header, sizeof(header)).put('\n');
@@ -476,7 +470,6 @@ TEST_CASE("Watershed - Maze32") {
 }
 TEST_CASE("Watershed - Maze64") {
   std::string const output{"Data"};
-  std::filesystem::create_directories(output);
 
   std::ofstream csvFile{output + "/Timings.csv", std::ios::out | std::ios::app};
   csvFile.write(header, sizeof(header)).put('\n');
@@ -515,7 +508,6 @@ TEST_CASE("Watershed - Maze64") {
 }
 TEST_CASE("Watershed - Maze128") {
   std::string const output{"Data"};
-  std::filesystem::create_directories(output);
 
   std::ofstream csvFile{output + "/Timings.csv", std::ios::out | std::ios::app};
   csvFile.write(header, sizeof(header)).put('\n');
@@ -555,7 +547,6 @@ TEST_CASE("Watershed - Maze128") {
 
 TEST_CASE("Watershed - Military") {
   std::string const output{"Data"};
-  std::filesystem::create_directories(output);
 
   std::ofstream csvFile{output + "/Timings.csv", std::ios::out | std::ios::app};
   csvFile.write(header, sizeof(header)).put('\n');
@@ -594,7 +585,6 @@ TEST_CASE("Watershed - Military") {
 }
 TEST_CASE("Watershed - Simple") {
   std::string const output{"Data"};
-  std::filesystem::create_directories(output);
 
   std::ofstream csvFile{output + "/Timings.csv", std::ios::out | std::ios::app};
   csvFile.write(header, sizeof(header)).put('\n');
@@ -633,7 +623,6 @@ TEST_CASE("Watershed - Simple") {
 }
 TEST_CASE("Watershed - University") {
   std::string const output{"Data"};
-  std::filesystem::create_directories(output);
 
   std::ofstream csvFile{output + "/Timings.csv", std::ios::out | std::ios::app};
   csvFile.write(header, sizeof(header)).put('\n');
@@ -672,7 +661,6 @@ TEST_CASE("Watershed - University") {
 }
 TEST_CASE("Watershed - Zelda") {
   std::string const output{"Data"};
-  std::filesystem::create_directories(output);
 
   std::ofstream csvFile{output + "/Timings.csv", std::ios::out | std::ios::app};
   csvFile.write(header, sizeof(header)).put('\n');
@@ -711,7 +699,6 @@ TEST_CASE("Watershed - Zelda") {
 }
 TEST_CASE("Watershed - Zelda2x2") {
   std::string const output{"Data"};
-  std::filesystem::create_directories(output);
 
   std::ofstream csvFile{output + "/Timings.csv", std::ios::out | std::ios::app};
   csvFile.write(header, sizeof(header)).put('\n');
@@ -750,7 +737,6 @@ TEST_CASE("Watershed - Zelda2x2") {
 }
 TEST_CASE("Watershed - Zelda4x4") {
   std::string const output{"Data"};
-  std::filesystem::create_directories(output);
 
   std::ofstream csvFile{output + "/Timings.csv", std::ios::out | std::ios::app};
   csvFile.write(header, sizeof(header)).put('\n');

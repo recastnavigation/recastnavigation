@@ -1825,9 +1825,9 @@ bool rcBuildRegionsWithSize(rcContext *ctx, rcCompactHeightfield &chf, const int
     const int w = chf.width;
     const int h = chf.height;
 
-    constexpr int NOT_EVALUATED{-4};
-    constexpr int DIRTY{-3};
-    constexpr int PENDING{-2};
+    const static int NOT_EVALUATED{-4};
+    const static int DIRTY{-3};
+    const static int PENDING{-2};
 
     rcTempVector<uint16_t> regions(chf.spanCount, NOT_EVALUATED);
     rcTempVector<LevelStackEntry> levelStack;
@@ -1838,7 +1838,7 @@ bool rcBuildRegionsWithSize(rcContext *ctx, rcCompactHeightfield &chf, const int
             for (int i = static_cast<int>(c.index), ni = static_cast<int>(c.index + c.count); i < ni; ++i) {
                 if (chf.spans[i].reg != 0 || chf.areas[i] == RC_NULL_AREA || chf.dist[i] <= 0)
                     continue;
-                levelStack.push_back({x, y, i});
+                levelStack.push_back(LevelStackEntry{x, y, i});
             }
         }
     }
@@ -1877,10 +1877,10 @@ bool rcBuildRegionsWithSize(rcContext *ctx, rcCompactHeightfield &chf, const int
                 if (regions[ai] == static_cast<uint16_t>(NOT_EVALUATED)) {
                     if (chf.dist[ai] < level) {
                         regions[ai] = PENDING;
-                        pendingSeeds.push_back({ax, ay, back.index});
+                        pendingSeeds.push_back(LevelStackEntry{ax, ay, back.index});
                     } else if (chf.dist[ai] <= chf.dist[back.index]) {
                         regions[ai] = DIRTY;
-                        dirtySeeds.push_back({ax, ay, back.index});
+                        dirtySeeds.push_back(LevelStackEntry{ax, ay, back.index});
                     }
                 }
 
@@ -1897,10 +1897,10 @@ bool rcBuildRegionsWithSize(rcContext *ctx, rcCompactHeightfield &chf, const int
                     continue;
                 if (chf.dist[bi] < level) {
                     regions[bi] = PENDING;
-                    pendingSeeds.push_back({bx, by, back.index});
+                    pendingSeeds.push_back(LevelStackEntry{bx, by, back.index});
                 } else if (chf.dist[bi] <= chf.dist[back.index]) {
                     regions[bi] = DIRTY;
-                    dirtySeeds.push_back({bx, by, back.index});
+                    dirtySeeds.push_back(LevelStackEntry{bx, by, back.index});
                 }
             }
             if (seeds.empty()) {
@@ -1915,7 +1915,7 @@ bool rcBuildRegionsWithSize(rcContext *ctx, rcCompactHeightfield &chf, const int
                             continue;
                         }
                         regions[j] = regions[dirty.index];
-                        seeds.push_back({dirty.x, dirty.y, static_cast<int>(j)});
+                        seeds.push_back(LevelStackEntry{dirty.x, dirty.y, static_cast<int>(j)});
                         break;
                     }
                     dirtySeeds.pop_back();
@@ -1949,7 +1949,7 @@ bool rcBuildRegionsWithSize(rcContext *ctx, rcCompactHeightfield &chf, const int
                         break;
                     }
                     regions[j] = regions[pending.index];
-                    seeds.push_back({pending.x, pending.y, static_cast<int>(j)});
+                    seeds.push_back(LevelStackEntry{pending.x, pending.y, static_cast<int>(j)});
                     break;
                 }
                 pendingSeeds.pop_back();
