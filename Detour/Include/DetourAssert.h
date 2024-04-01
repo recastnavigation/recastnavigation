@@ -43,7 +43,7 @@ void dtAssertFailSetCustom(dtAssertFailFunc *assertFailFunc);
 /// Gets the base custom assertion failure function to be used by Detour.
 dtAssertFailFunc* dtAssertFailGetCustom();
 
-#	include <cassert>
+#	include <assert.h> 
 #	define dtAssert(expression) \
 		{ \
 			dtAssertFailFunc* failFunc = dtAssertFailGetCustom(); \

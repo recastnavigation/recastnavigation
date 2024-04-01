@@ -16,10 +16,10 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <cmath>
-#include <cstdio>
-#include <cstdarg>
-#include <cstring>
+#include <math.h>
+#include <stdio.h>
+#include <stdarg.h>
+#include <string.h>
 #include "Recast.h"
 #include "RecastAlloc.h"
 #include "RecastDump.h"

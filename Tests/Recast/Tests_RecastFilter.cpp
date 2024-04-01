@@ -160,7 +160,7 @@ TEST_CASE("rcFilterLowHangingWalkableObstacles", "[recast, filtering]")
 		rcSpan* currentSpan = heightfield.spans[0];
 		for (int i = 0; i < 10; ++i)
 		{
-			REQUIRE(currentSpan != nullptr);
+			REQUIRE(currentSpan != NULL);
 			// only the first and second spans should be marked as walkabl
 			REQUIRE(currentSpan->area == (i <= 1 ? 1 : RC_NULL_AREA));
 			currentSpan = currentSpan->next;
@@ -225,7 +225,7 @@ TEST_CASE("rcFilterLedgeSpans", "[recast, filtering]")
 			for (int z = 0; z < heightfield.height; ++z)
 			{
 				rcSpan* span = heightfield.spans[x + z * heightfield.width];
-				REQUIRE(span != nullptr);
+				REQUIRE(span != NULL);
 
 				if (x == 0 || z == 0 || x == 9 || z == 9)
 				{
@@ -236,7 +236,7 @@ TEST_CASE("rcFilterLedgeSpans", "[recast, filtering]")
 					REQUIRE(span->area == 1);
 				}
 
-				REQUIRE(span->next == nullptr);
+				REQUIRE(span->next == NULL);
 				REQUIRE(span->smin == 0);
 				REQUIRE(span->smax == 1);
 			}

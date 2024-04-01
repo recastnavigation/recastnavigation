@@ -15,69 +15,72 @@
 //    misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 //
-#pragma once
+
+#ifndef RECASTSAMPLESIZEMESH_H
+#define RECASTSAMPLESIZEMESH_H
+
 #include "Sample.h"
+#include "DetourNavMesh.h"
+#include "Recast.h"
 
-#include <Recast.h>
-#include <cstdint>
-
-struct rcPolyMeshDetail;
-struct rcPolyMesh;
-struct rcContourSet;
-struct rcCompactHeightfield;
-struct rcHeightfield;
-class Sample_SizeFromPortalEdgeMesh final : public Sample {
+class Sample_SizeFromPortalEdgeMesh : public Sample
+{
 protected:
-  bool m_keepInterResults;
-  float m_totalBuildTimeMs;
+	bool m_keepInterResults;
+	float m_totalBuildTimeMs;
 
-  uint8_t *m_triareas;
-  rcHeightfield *m_solid;
-  rcCompactHeightfield *m_chf;
-  rcContourSet *m_cset;
-  rcPolyMesh *m_pmesh;
-  rcConfig m_cfg{};
-  rcPolyMeshDetail *m_dmesh;
+	unsigned char* m_triareas;
+	rcHeightfield* m_solid;
+	rcCompactHeightfield* m_chf;
+	rcContourSet* m_cset;
+	rcPolyMesh* m_pmesh;
+	rcConfig m_cfg;
+	rcPolyMeshDetail* m_dmesh;
 
-  enum DrawMode {
-    DRAWMODE_NAVMESH,
-    DRAWMODE_NAVMESH_TRANS,
-    DRAWMODE_NAVMESH_BVTREE,
-    DRAWMODE_NAVMESH_NODES,
-    DRAWMODE_NAVMESH_INVIS,
-    DRAWMODE_MESH,
-    DRAWMODE_VOXELS,
-    DRAWMODE_VOXELS_WALKABLE,
-    DRAWMODE_COMPACT,
-    DRAWMODE_COMPACT_DISTANCE,
-    DRAWMODE_COMPACT_REGIONS,
-    DRAWMODE_REGION_CONNECTIONS,
-    DRAWMODE_RAW_CONTOURS,
-    DRAWMODE_BOTH_CONTOURS,
-    DRAWMODE_CONTOURS,
-    DRAWMODE_POLYMESH,
-    DRAWMODE_POLYMESH_DETAIL,
-    MAX_DRAWMODE
-  };
+	enum DrawMode
+	{
+		DRAWMODE_NAVMESH,
+		DRAWMODE_NAVMESH_TRANS,
+		DRAWMODE_NAVMESH_BVTREE,
+		DRAWMODE_NAVMESH_NODES,
+		DRAWMODE_NAVMESH_INVIS,
+		DRAWMODE_MESH,
+		DRAWMODE_VOXELS,
+		DRAWMODE_VOXELS_WALKABLE,
+		DRAWMODE_COMPACT,
+		DRAWMODE_COMPACT_DISTANCE,
+		DRAWMODE_COMPACT_REGIONS,
+		DRAWMODE_REGION_CONNECTIONS,
+		DRAWMODE_RAW_CONTOURS,
+		DRAWMODE_BOTH_CONTOURS,
+		DRAWMODE_CONTOURS,
+		DRAWMODE_POLYMESH,
+		DRAWMODE_POLYMESH_DETAIL,
+		MAX_DRAWMODE
+	};
 
-  DrawMode m_drawMode;
+	DrawMode m_drawMode;
 
-  void cleanup();
+	void cleanup();
 
 public:
-  Sample_SizeFromPortalEdgeMesh();
-  ~Sample_SizeFromPortalEdgeMesh() override;
+	Sample_SizeFromPortalEdgeMesh();
+	virtual ~Sample_SizeFromPortalEdgeMesh();
 
-  void handleSettings() override;
-  void handleTools() override;
-  void handleDebugMode() override;
+	virtual void handleSettings();
+	virtual void handleTools();
+	virtual void handleDebugMode();
 
-  void handleRender() override;
-  void handleRenderOverlay(double *proj, double *model, int *view) override;
-  void handleMeshChanged(InputGeom *geom) override;
-  bool handleBuild() override;
+	virtual void handleRender();
+	virtual void handleRenderOverlay(double* proj, double* model, int* view);
+	virtual void handleMeshChanged(class InputGeom* geom);
+	virtual bool handleBuild();
 
-  // Explicitly disabled copy constructor and copy assignment operator.
-  Sample_SizeFromPortalEdgeMesh(const Sample_SizeFromPortalEdgeMesh &)=delete;
-  Sample_SizeFromPortalEdgeMesh &operator=(const Sample_SizeFromPortalEdgeMesh &)=delete;
+private:
+    // Explicitly disabled copy constructor and copy assignment operator.
+    Sample_SizeFromPortalEdgeMesh(const Sample_SizeFromPortalEdgeMesh&);
+    Sample_SizeFromPortalEdgeMesh& operator=(const Sample_SizeFromPortalEdgeMesh&);
 };
+
+
+#endif // RECASTSAMPLESIZEMESH_H

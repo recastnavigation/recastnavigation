@@ -33,16 +33,16 @@
 #include "imgui.h"
 #include "imguiRenderGL.h"
 
-#include "Filelist.h"
-#include "InputGeom.h"
 #include "Recast.h"
 #include "RecastDebugDraw.h"
-#include "Sample_Debug.h"
+#include "InputGeom.h"
+#include "TestCase.h"
+#include "Filelist.h"
 #include "Sample_SizeFromPortalEdgeMesh.h"
 #include "Sample_SoloMesh.h"
-#include "Sample_TempObstacles.h"
 #include "Sample_TileMesh.h"
-#include "TestCase.h"
+#include "Sample_TempObstacles.h"
+#include "Sample_Debug.h"
 
 #ifdef WIN32
 #	define snprintf _snprintf
@@ -58,16 +58,16 @@ struct SampleItem
 	const string name;
 };
 Sample *createSoloLacalMinimum() { return new Sample_SizeFromPortalEdgeMesh(); }
-Sample *createSolo() { return new Sample_SoloMesh(); }
-Sample *createTile() { return new Sample_TileMesh(); }
-Sample *createTempObstacle() { return new Sample_TempObstacles(); }
-Sample *createDebug() { return new Sample_Debug(); }
-const static SampleItem g_samples[] =
-    {
-        {createSoloLacalMinimum, "Solo Mesh From Local Minimum"},
-        {createSolo, "Solo Mesh"},
-        {createTile, "Tile Mesh"},
-        {createTempObstacle, "Temp Obstacles"},
+Sample* createSolo() { return new Sample_SoloMesh(); }
+Sample* createTile() { return new Sample_TileMesh(); }
+Sample* createTempObstacle() { return new Sample_TempObstacles(); }
+Sample* createDebug() { return new Sample_Debug(); }
+static SampleItem g_samples[] =
+{
+    {createSoloLacalMinimum, "Solo Mesh From Local Minimum"},
+	{ createSolo, "Solo Mesh" },
+	{ createTile, "Tile Mesh" },
+	{ createTempObstacle, "Temp Obstacles" },
 };
 static const int g_nsamples = sizeof(g_samples) / sizeof(SampleItem);
 
@@ -647,21 +647,22 @@ int main(int /*argc*/, char** /*argv*/)
 					bmax = geom->getNavMeshBoundsMax();
 				}
 				// Reset camera and fog to match the mesh bounds.
-                if (bmin && bmax) {
-                  camr = sqrtf(rcSqr(bmax[0] - bmin[0]) +
-                               rcSqr(bmax[1] - bmin[1]) +
-                               rcSqr(bmax[2] - bmin[2]));
-                  cameraPos[0] = (bmax[0] + bmin[0]) / 2;
-                  cameraPos[1] = (bmax[1] + bmin[1]) / 2 + camr;
-                  cameraPos[2] = (bmax[2] + bmin[2]) / 2;
-                  camr *= 3;
-                }
-                cameraEulers[0] = 90;
-                cameraEulers[1] = 0;
-                glFogf(GL_FOG_START, camr * 0.1f);
-                glFogf(GL_FOG_END, camr * 1.25f);
-            }
-
+				if (bmin && bmax)
+				{
+					camr = sqrtf(rcSqr(bmax[0]-bmin[0]) +
+								 rcSqr(bmax[1]-bmin[1]) +
+								 rcSqr(bmax[2]-bmin[2])) / 2;
+					cameraPos[0] = (bmax[0] + bmin[0]) / 2 + camr;
+					cameraPos[1] = (bmax[1] + bmin[1]) / 2 + camr;
+					cameraPos[2] = (bmax[2] + bmin[2]) / 2 + camr;
+					camr *= 3;
+				}
+				cameraEulers[0] = 45;
+				cameraEulers[1] = -45;
+				glFogf(GL_FOG_START, camr*0.1f);
+				glFogf(GL_FOG_END, camr*1.25f);
+			}
+			
 			imguiEndScrollArea();
 		}
 		
@@ -725,18 +726,18 @@ int main(int /*argc*/, char** /*argv*/)
 						bmax = geom->getNavMeshBoundsMax();
 					}
 					// Reset camera and fog to match the mesh bounds.
-                    if (bmin && bmax) {
-                        camr = sqrtf(rcSqr(bmax[0] - bmin[0]) +
-                                     rcSqr(bmax[1] - bmin[1]) +
-                                     rcSqr(bmax[2] - bmin[2]));
-                        cameraPos[0] = (bmax[0] + bmin[0]) / 2;
-                        cameraPos[1] = (bmax[1] + bmin[1]) / 2 + camr;
-                        cameraPos[2] = (bmax[2] + bmin[2]) / 2;
-                        camr *= 3;
-                    }
-                    cameraEulers[0] = 90;
-                    cameraEulers[1] = 0;
-
+					if (bmin && bmax)
+					{
+						camr = sqrtf(rcSqr(bmax[0]-bmin[0]) +
+									 rcSqr(bmax[1]-bmin[1]) +
+									 rcSqr(bmax[2]-bmin[2])) / 2;
+						cameraPos[0] = (bmax[0] + bmin[0]) / 2 + camr;
+						cameraPos[1] = (bmax[1] + bmin[1]) / 2 + camr;
+						cameraPos[2] = (bmax[2] + bmin[2]) / 2 + camr;
+						camr *= 3;
+					}
+					cameraEulers[0] = 45;
+					cameraEulers[1] = -45;
 					glFogf(GL_FOG_START, camr * 0.1f);
 					glFogf(GL_FOG_END, camr * 1.25f);
 				}
@@ -841,18 +842,18 @@ int main(int /*argc*/, char** /*argv*/)
 							bmax = geom->getNavMeshBoundsMax();
 						}
 						// Reset camera and fog to match the mesh bounds.
-                        if (bmin && bmax) {
-                            camr = sqrtf(rcSqr(bmax[0] - bmin[0]) +
-                                         rcSqr(bmax[1] - bmin[1]) +
-                                         rcSqr(bmax[2] - bmin[2]));
-                            cameraPos[0] = (bmax[0] + bmin[0]) / 2;
-                            cameraPos[1] = (bmax[1] + bmin[1]) / 2 + camr;
-                            cameraPos[2] = (bmax[2] + bmin[2]) / 2;
-                            camr *= 3;
-                        }
-                        cameraEulers[0] = 90;
-                        cameraEulers[1] = 0;
-
+						if (bmin && bmax)
+						{
+							camr = sqrtf(rcSqr(bmax[0] - bmin[0]) +
+										 rcSqr(bmax[1] - bmin[1]) +
+										 rcSqr(bmax[2] - bmin[2])) / 2;
+							cameraPos[0] = (bmax[0] + bmin[0]) / 2 + camr;
+							cameraPos[1] = (bmax[1] + bmin[1]) / 2 + camr;
+							cameraPos[2] = (bmax[2] + bmin[2]) / 2 + camr;
+							camr *= 3;
+						}
+						cameraEulers[0] = 45;
+						cameraEulers[1] = -45;
 						glFogf(GL_FOG_START, camr * 0.2f);
 						glFogf(GL_FOG_END, camr * 1.25f);
 					}

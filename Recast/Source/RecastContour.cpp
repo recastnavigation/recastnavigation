@@ -1104,8 +1104,6 @@ bool rcBuildContours(rcContext* ctx, const rcCompactHeightfield& chf,
 }
 bool rcBuildContoursWithPortals(rcContext *ctx, const rcCompactHeightfield &chf, float maxError, int maxEdgeLen, rcContourSet &cset, int *&portalEdges, int &portalEdgeSize, int buildFlags) {
     rcAssert(ctx);
-    if (!ctx)
-        return false;
 
     const int w = chf.width;
     const int h = chf.height;
@@ -1115,9 +1113,10 @@ bool rcBuildContoursWithPortals(rcContext *ctx, const rcCompactHeightfield &chf,
 
     rcVcopy(cset.bmin, chf.bmin);
     rcVcopy(cset.bmax, chf.bmax);
-    if (borderSize > 0) {
+    if (borderSize > 0)
+    {
         // If the heightfield was build with bordersize, remove the offset.
-        const float pad = static_cast<float>(borderSize) * chf.cs;
+        const float pad = borderSize*chf.cs;
         cset.bmin[0] += pad;
         cset.bmin[2] += pad;
         cset.bmax[0] -= pad;
@@ -1125,20 +1124,20 @@ bool rcBuildContoursWithPortals(rcContext *ctx, const rcCompactHeightfield &chf,
     }
     cset.cs = chf.cs;
     cset.ch = chf.ch;
-    cset.width = chf.width - chf.borderSize * 2;
-    cset.height = chf.height - chf.borderSize * 2;
+    cset.width = chf.width - chf.borderSize*2;
+    cset.height = chf.height - chf.borderSize*2;
     cset.borderSize = chf.borderSize;
     cset.maxError = maxError;
 
-    int maxContours = rcMax(static_cast<int>(chf.maxRegions), 8);
-    cset.conts = static_cast<rcContour *>(rcAlloc(sizeof(rcContour) * maxContours, RC_ALLOC_PERM));
+    int maxContours = rcMax((int)chf.maxRegions, 8);
+    cset.conts = (rcContour*)rcAlloc(sizeof(rcContour)*maxContours, RC_ALLOC_PERM);
     if (!cset.conts)
         return false;
     cset.nconts = 0;
 
-    rcScopedDelete flags(
-            static_cast<uint8_t *>(rcAlloc(sizeof(uint8_t) * chf.spanCount, RC_ALLOC_TEMP)));
-    if (!flags) {
+    rcScopedDelete<unsigned char> flags((unsigned char*)rcAlloc(sizeof(unsigned char)*chf.spanCount, RC_ALLOC_TEMP));
+    if (!flags)
+    {
         ctx->log(RC_LOG_ERROR, "rcBuildContours: Out of memory 'flags' (%d).", chf.spanCount);
         return false;
     }
@@ -1146,26 +1145,32 @@ bool rcBuildContoursWithPortals(rcContext *ctx, const rcCompactHeightfield &chf,
     ctx->startTimer(RC_TIMER_BUILD_CONTOURS_TRACE);
 
     // Mark boundaries.
-    for (int y = 0; y < h; ++y) {
-        for (int x = 0; x < w; ++x) {
-            const rcCompactCell &c = chf.cells[x + y * w];
-            for (int i = static_cast<int>(c.index), ni = static_cast<int>(c.index + c.count); i < ni; ++i) {
-                uint8_t res = 0;
-                const rcCompactSpan &s = chf.spans[i];
-                if (!chf.spans[i].reg || chf.spans[i].reg & RC_BORDER_REG) {
+    for (int y = 0; y < h; ++y)
+    {
+        for (int x = 0; x < w; ++x)
+        {
+            const rcCompactCell& c = chf.cells[x+y*w];
+            for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
+            {
+                unsigned char res = 0;
+                const rcCompactSpan& s = chf.spans[i];
+                if (!chf.spans[i].reg || (chf.spans[i].reg & RC_BORDER_REG))
+                {
                     flags[i] = 0;
                     continue;
                 }
-                for (int dir = 0; dir < 4; ++dir) {
-                    uint16_t r = 0;
-                    if (rcGetCon(s, dir) != RC_NOT_CONNECTED) {
+                for (int dir = 0; dir < 4; ++dir)
+                {
+                    unsigned short r = 0;
+                    if (rcGetCon(s, dir) != RC_NOT_CONNECTED)
+                    {
                         const int ax = x + rcGetDirOffsetX(dir);
                         const int ay = y + rcGetDirOffsetY(dir);
-                        const int ai = static_cast<int>(chf.cells[ax + ay * w].index) + rcGetCon(s, dir);
+                        const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(s, dir);
                         r = chf.spans[ai].reg;
                     }
                     if (r == chf.spans[i].reg)
-                        res |= 1 << dir;
+                        res |= (1 << dir);
                 }
                 flags[i] = res ^ 0xf; // Inverse, mark non connected edges.
             }
@@ -1177,18 +1182,22 @@ bool rcBuildContoursWithPortals(rcContext *ctx, const rcCompactHeightfield &chf,
     rcIntArray verts(256);
     rcIntArray simplified(64);
 
-    for (int y = 0; y < h; ++y) {
-        for (int x = 0; x < w; ++x) {
-            const rcCompactCell &c = chf.cells[x + y * w];
-            for (int i = static_cast<int>(c.index), ni = static_cast<int>(c.index + c.count); i < ni; ++i) {
-                if (flags[i] == 0 || flags[i] == 0xf) {
+    for (int y = 0; y < h; ++y)
+    {
+        for (int x = 0; x < w; ++x)
+        {
+            const rcCompactCell& c = chf.cells[x+y*w];
+            for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
+            {
+                if (flags[i] == 0 || flags[i] == 0xf)
+                {
                     flags[i] = 0;
                     continue;
                 }
-                const uint16_t reg = chf.spans[i].reg;
-                if (!reg || reg & RC_BORDER_REG)
+                const unsigned short reg = chf.spans[i].reg;
+                if (!reg || (reg & RC_BORDER_REG))
                     continue;
-                const uint8_t area = chf.areas[i];
+                const unsigned char area = chf.areas[i];
 
                 verts.clear();
                 simplified.clear();
@@ -1202,21 +1211,24 @@ bool rcBuildContoursWithPortals(rcContext *ctx, const rcCompactHeightfield &chf,
                 removeDegenerateSegments(simplified);
                 ctx->stopTimer(RC_TIMER_BUILD_CONTOURS_SIMPLIFY);
 
+
                 // Store region->contour remap info.
                 // Create contour.
-                if (simplified.size() / 4 >= 3) {
-                    if (cset.nconts >= maxContours) {
+                if (simplified.size()/4 >= 3)
+                {
+                    if (cset.nconts >= maxContours)
+                    {
                         // Allocate more contours.
                         // This happens when a region has holes.
                         const int oldMax = maxContours;
                         maxContours *= 2;
-                        auto *newConts = static_cast<rcContour *>(rcAlloc(
-                                sizeof(rcContour) * maxContours, RC_ALLOC_PERM));
-                        for (int j = 0; j < cset.nconts; ++j) {
+                        rcContour* newConts = (rcContour*)rcAlloc(sizeof(rcContour)*maxContours, RC_ALLOC_PERM);
+                        for (int j = 0; j < cset.nconts; ++j)
+                        {
                             newConts[j] = cset.conts[j];
                             // Reset source pointers to prevent data deletion.
-                            cset.conts[j].verts = nullptr;
-                            cset.conts[j].rverts = nullptr;
+                            cset.conts[j].verts = 0;
+                            cset.conts[j].rverts = 0;
                         }
                         rcFree(cset.conts);
                         cset.conts = newConts;
@@ -1224,35 +1236,41 @@ bool rcBuildContoursWithPortals(rcContext *ctx, const rcCompactHeightfield &chf,
                         ctx->log(RC_LOG_WARNING, "rcBuildContours: Expanding max contours from %d to %d.", oldMax, maxContours);
                     }
 
-                    rcContour *cont = &cset.conts[cset.nconts++];
+                    rcContour* cont = &cset.conts[cset.nconts++];
 
-                    cont->nverts = simplified.size() / 4;
-                    cont->verts = static_cast<int *>(rcAlloc(sizeof(int) * cont->nverts * 4, RC_ALLOC_PERM));
-                    if (!cont->verts) {
+                    cont->nverts = simplified.size()/4;
+                    cont->verts = (int*)rcAlloc(sizeof(int)*cont->nverts*4, RC_ALLOC_PERM);
+                    if (!cont->verts)
+                    {
                         ctx->log(RC_LOG_ERROR, "rcBuildContours: Out of memory 'verts' (%d).", cont->nverts);
                         return false;
                     }
-                    memcpy(cont->verts, &simplified[0], sizeof(int) * cont->nverts * 4);
-                    if (borderSize > 0) {
+                    memcpy(cont->verts, &simplified[0], sizeof(int)*cont->nverts*4);
+                    if (borderSize > 0)
+                    {
                         // If the heightfield was build with bordersize, remove the offset.
-                        for (int j = 0; j < cont->nverts; ++j) {
-                            int *v = &cont->verts[j * 4];
+                        for (int j = 0; j < cont->nverts; ++j)
+                        {
+                            int* v = &cont->verts[j*4];
                             v[0] -= borderSize;
                             v[2] -= borderSize;
                         }
                     }
 
-                    cont->nrverts = verts.size() / 4;
-                    cont->rverts = static_cast<int *>(rcAlloc(sizeof(int) * cont->nrverts * 4, RC_ALLOC_PERM));
-                    if (!cont->rverts) {
+                    cont->nrverts = verts.size()/4;
+                    cont->rverts = (int*)rcAlloc(sizeof(int)*cont->nrverts*4, RC_ALLOC_PERM);
+                    if (!cont->rverts)
+                    {
                         ctx->log(RC_LOG_ERROR, "rcBuildContours: Out of memory 'rverts' (%d).", cont->nrverts);
                         return false;
                     }
-                    memcpy(cont->rverts, &verts[0], sizeof(int) * cont->nrverts * 4);
-                    if (borderSize > 0) {
+                    memcpy(cont->rverts, &verts[0], sizeof(int)*cont->nrverts*4);
+                    if (borderSize > 0)
+                    {
                         // If the heightfield was build with bordersize, remove the offset.
-                        for (int j = 0; j < cont->nrverts; ++j) {
-                            int *v = &cont->rverts[j * 4];
+                        for (int j = 0; j < cont->nrverts; ++j)
+                        {
+                            int* v = &cont->rverts[j*4];
                             v[0] -= borderSize;
                             v[2] -= borderSize;
                         }
@@ -1266,84 +1284,95 @@ bool rcBuildContoursWithPortals(rcContext *ctx, const rcCompactHeightfield &chf,
     }
 
     // Merge holes if needed.
-    if (cset.nconts > 0) {
+    if (cset.nconts > 0)
+    {
         // Calculate winding of all polygons.
-        rcScopedDelete winding(
-                static_cast<signed char *>(rcAlloc(sizeof(signed char) * cset.nconts, RC_ALLOC_TEMP)));
-        if (!winding) {
+        rcScopedDelete<signed char> winding((signed char*)rcAlloc(sizeof(signed char)*cset.nconts, RC_ALLOC_TEMP));
+        if (!winding)
+        {
             ctx->log(RC_LOG_ERROR, "rcBuildContours: Out of memory 'hole' (%d).", cset.nconts);
             return false;
         }
         int nholes = 0;
-        for (int i = 0; i < cset.nconts; ++i) {
-            const rcContour &cont = cset.conts[i];
+        for (int i = 0; i < cset.nconts; ++i)
+        {
+            rcContour& cont = cset.conts[i];
             // If the contour is wound backwards, it is a hole.
             winding[i] = calcAreaOfPolygon2D(cont.verts, cont.nverts) < 0 ? -1 : 1;
             if (winding[i] < 0)
                 nholes++;
         }
 
-        if (nholes > 0) {
+        if (nholes > 0)
+        {
             // Collect outline contour and holes contours per region.
             // We assume that there is one outline and multiple holes.
-            const int nregions = chf.maxRegions + 1;
-            rcScopedDelete regions(
-                    static_cast<rcContourRegion *>(rcAlloc(sizeof(rcContourRegion) * nregions, RC_ALLOC_TEMP)));
-            if (!regions) {
+            const int nregions = chf.maxRegions+1;
+            rcScopedDelete<rcContourRegion> regions((rcContourRegion*)rcAlloc(sizeof(rcContourRegion)*nregions, RC_ALLOC_TEMP));
+            if (!regions)
+            {
                 ctx->log(RC_LOG_ERROR, "rcBuildContours: Out of memory 'regions' (%d).", nregions);
                 return false;
             }
-            memset(regions, 0, sizeof(rcContourRegion) * nregions);
+            memset(regions, 0, sizeof(rcContourRegion)*nregions);
 
-            rcScopedDelete holes(
-                    static_cast<rcContourHole *>(rcAlloc(sizeof(rcContourHole) * cset.nconts, RC_ALLOC_TEMP)));
-            if (!holes) {
+            rcScopedDelete<rcContourHole> holes((rcContourHole*)rcAlloc(sizeof(rcContourHole)*cset.nconts, RC_ALLOC_TEMP));
+            if (!holes)
+            {
                 ctx->log(RC_LOG_ERROR, "rcBuildContours: Out of memory 'holes' (%d).", cset.nconts);
                 return false;
             }
-            memset(holes, 0, sizeof(rcContourHole) * cset.nconts);
+            memset(holes, 0, sizeof(rcContourHole)*cset.nconts);
 
-            for (int i = 0; i < cset.nconts; ++i) {
-                rcContour &cont = cset.conts[i];
+            for (int i = 0; i < cset.nconts; ++i)
+            {
+                rcContour& cont = cset.conts[i];
                 // Positively would contours are outlines, negative holes.
-                if (winding[i] > 0) {
+                if (winding[i] > 0)
+                {
                     if (regions[cont.reg].outline)
                         ctx->log(RC_LOG_ERROR, "rcBuildContours: Multiple outlines for region %d.", cont.reg);
                     regions[cont.reg].outline = &cont;
-                } else {
+                }
+                else
+                {
                     regions[cont.reg].nholes++;
                 }
             }
             int index = 0;
-            for (int i = 0; i < nregions; i++) {
-                if (regions[i].nholes > 0) {
+            for (int i = 0; i < nregions; i++)
+            {
+                if (regions[i].nholes > 0)
+                {
                     regions[i].holes = &holes[index];
                     index += regions[i].nholes;
                     regions[i].nholes = 0;
                 }
             }
-            for (int i = 0; i < cset.nconts; ++i) {
-                rcContour &cont = cset.conts[i];
-                rcContourRegion &reg = regions[cont.reg];
+            for (int i = 0; i < cset.nconts; ++i)
+            {
+                rcContour& cont = cset.conts[i];
+                rcContourRegion& reg = regions[cont.reg];
                 if (winding[i] < 0)
                     reg.holes[reg.nholes++].contour = &cont;
             }
 
             // Finally merge each regions holes into the outline.
-            for (int i = 0; i < nregions; i++) {
-                rcContourRegion &reg = regions[i];
-                if (!reg.nholes)
-                    continue;
+            for (int i = 0; i < nregions; i++)
+            {
+                rcContourRegion& reg = regions[i];
+                if (!reg.nholes) continue;
 
-                if (reg.outline) {
+                if (reg.outline)
+                {
                     mergeRegionHoles(ctx, reg);
-                } else {
+                }
+                else
+                {
                     // The region does not have an outline.
                     // This can happen if the contour becaomes selfoverlapping because of
                     // too aggressive simplification settings.
-                    ctx->log(RC_LOG_ERROR,
-                             "rcBuildContours: Bad outline for region %d, contour simplification is likely too aggressive.",
-                             i);
+                    ctx->log(RC_LOG_ERROR, "rcBuildContours: Bad outline for region %d, contour simplification is likely too aggressive.", i);
                 }
             }
         }
@@ -1359,13 +1388,13 @@ bool rcBuildContoursWithPortals(rcContext *ctx, const rcCompactHeightfield &chf,
         return nullptr;
     };
     for (int i = 0; i < cset.nconts; ++i) {
-        const auto &[verts1, nverts1, rverts1, nrverts1, reg1, area1] = cset.conts[i];
-        if (!nverts1)
+        const auto &con1 = cset.conts[i];
+        if (!con1.nverts)
             continue;
-        for (int j1 = 0, j2 = nverts1 - 1; j1 < nverts1; j2 = j1++) {
-            const int *va1 = &verts1[j2 * 4];
-            const int *va2 = &verts1[j1 * 4];
-            if (va1[3] == 0 || static_cast<uint16_t>(va1[3]) < reg1)
+        for (int j1 = 0, j2 =con1.nverts - 1; j1 < con1.nverts; j2 = j1++) {
+            const int *va1 = &con1.verts[j2 * 4];
+            const int *va2 = &con1.verts[j1 * 4];
+            if (va1[3] == 0 || static_cast<uint16_t>(va1[3]) < con1.reg)
                 continue;
             if (const rcContour *cont2 = findContourFromSet(static_cast<uint16_t>(va1[3]))) {
                 for (int k1 = 0, k2 = cont2->nverts - 1; k1 < cont2->nverts; k2 = k1++) {

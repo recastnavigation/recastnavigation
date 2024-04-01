@@ -79,8 +79,8 @@ bool generateTheses(rcContext &context, const InputGeom &pGeom, rcConfig &config
     return false;
   }
 
-  constexpr bool m_keepInterResults = false;
-  if constexpr (!m_keepInterResults) {
+  const bool m_keepInterResults = false;
+  if  (!m_keepInterResults) {
     delete [] m_triareas;
   }
 
@@ -115,7 +115,7 @@ bool generateTheses(rcContext &context, const InputGeom &pGeom, rcConfig &config
     return false;
   }
 
-  if constexpr (!m_keepInterResults) {
+  if  (!m_keepInterResults) {
     rcFreeHeightField(m_solid);
   }
 
@@ -199,7 +199,7 @@ bool generateTheses(rcContext &context, const InputGeom &pGeom, rcConfig &config
     return false;
   }
 
-  if constexpr (!m_keepInterResults) {
+  if  (!m_keepInterResults) {
     rcFreeCompactHeightfield(m_chf);
     rcFreeContourSet(m_cset);
   }
@@ -283,8 +283,8 @@ rcHeightfield *m_solid = rcAllocHeightfield();
     return false;
   }
 
-  constexpr bool m_keepInterResults = false;
-  if constexpr (!m_keepInterResults) {
+  const bool m_keepInterResults = false;
+  if  (!m_keepInterResults) {
     delete [] triareas;
   }
 
@@ -319,7 +319,7 @@ rcHeightfield *m_solid = rcAllocHeightfield();
     return false;
   }
 
-  if constexpr (!m_keepInterResults) {
+  if  (!m_keepInterResults) {
     rcFreeHeightField(m_solid);
   }
 
@@ -418,7 +418,7 @@ rcHeightfield *m_solid = rcAllocHeightfield();
     return false;
   }
 
-  if constexpr (!m_keepInterResults) {
+  if  (!m_keepInterResults) {
     rcFreeCompactHeightfield(compactHeightField);
     rcFreeContourSet(m_cset);
   }

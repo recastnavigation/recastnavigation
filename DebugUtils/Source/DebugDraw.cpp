@@ -16,7 +16,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <cstring>
+#include <string.h>
 #include "DebugDraw.h"
 #include "DetourMath.h"
 #include "DetourNavMesh.h"

@@ -24,7 +24,6 @@
 #include "RecastDump.h"
 #include "PerfTimer.h"
 
-#include <cstdio>
 // These are example implementations of various interfaces used in Recast and Detour.
 
 /// Recast build context.
