@@ -242,6 +242,10 @@ project "Tests"
 	-- distribute executable in RecastDemo/Bin directory
 	targetdir "Bin"
 
+	postbuildcommands {
+		-- Copy the SDL2 dll to the Bin folder.
+		'{COPY} "%{path.getabsolute("../Tests/Bin/")}" "%{cfg.targetdir}"'
+	}
 	-- enable ubsan and asan when compiling with clang
 	filter "toolset:clang"
 			buildoptions { "-fsanitize=undefined", "-fsanitize=address" } -- , "-fsanitize=memory" }

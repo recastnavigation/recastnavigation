@@ -227,7 +227,7 @@ inline void processBourderEdges(const std::string &input, const std::string &out
   uint32_t fp{};
   std::vector<Edge> falsePositive{};
   std::vector<Edge> truePositive{};
-  for (const auto &edge1 : resultEdges) {
+  for (const Edge &edge1 : resultEdges) {
     bool found = false;
     std::sort(referenceEdges.begin(), referenceEdges.end(), [edge1](const Edge &edgeA, const Edge &edgeB) -> bool {
       const auto distance{
@@ -252,7 +252,7 @@ inline void processBourderEdges(const std::string &input, const std::string &out
 
       return distance(edge1, edgeA) < distance(edge1, edgeB);
     });
-    for (const auto &edge2 : referenceEdges) {
+    for (const Edge &edge2 : referenceEdges) {
       if (moveMatch(edge1, edge2)) {
         found = true;
         auto it = std::find_if(referenceEdges.begin(), referenceEdges.end(), [edge2](const Edge &edge) {

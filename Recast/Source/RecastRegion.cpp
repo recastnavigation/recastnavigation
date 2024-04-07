@@ -1846,7 +1846,8 @@ bool rcBuildRegionsWithSize(rcContext *ctx, rcCompactHeightfield &chf, const int
     if(levelStack.empty())
         return false;
     // Then use it in qsort
-    std::sort(levelStack.begin(), levelStack.end(), [&dist = chf.dist](const LevelStackEntry &l1, const LevelStackEntry &l2) {
+    const unsigned short* dist = chf.dist;
+    std::sort(levelStack.begin(), levelStack.end(), [dist](const LevelStackEntry &l1, const LevelStackEntry &l2) {
         return dist[l1.index] < dist[l2.index];
     });
 
@@ -1902,7 +1903,7 @@ bool rcBuildRegionsWithSize(rcContext *ctx, rcCompactHeightfield &chf, const int
             }
             if (seeds.empty()) {
                 while (!dirtySeeds.empty()) {
-                    const auto &dirty = dirtySeeds.back();
+                    const LevelStackEntry &dirty = dirtySeeds.back();
                     const int ai = dirty.x + dirty.y * w;
                     const rcCompactCell &c = chf.cells[ai];
                     const rcCompactSpan &a = chf.spans[dirty.index];
@@ -1931,7 +1932,7 @@ bool rcBuildRegionsWithSize(rcContext *ctx, rcCompactHeightfield &chf, const int
         if (!pendingSeeds.empty()) {
             rcTempVector<LevelStackEntry> tmp;
             while (!pendingSeeds.empty()) {
-                const auto &pending = pendingSeeds.back();
+                const LevelStackEntry &pending = pendingSeeds.back();
                 const int ai = pending.x + pending.y * w;
 
                 const rcCompactCell &c = chf.cells[ai];
@@ -1951,7 +1952,7 @@ bool rcBuildRegionsWithSize(rcContext *ctx, rcCompactHeightfield &chf, const int
                 }
                 pendingSeeds.pop_back();
             }
-            for (const auto &i : tmp) {
+            for (const LevelStackEntry &i : tmp) {
                 pendingSeeds.push_back(i);
             }
         }
