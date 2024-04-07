@@ -1108,7 +1108,7 @@ const rcContour* findContourFromSet(const rcContourSet& cset, const uint16_t reg
         if (cset.conts[i].reg == reg)
             return &cset.conts[i];
     }
-    return nullptr;
+    return NULL;
 };
 bool rcBuildContoursWithPortals(rcContext *ctx, const rcCompactHeightfield &chf, float maxError, int maxEdgeLen, rcContourSet &cset, int *&portalEdges, int &portalEdgeSize, int buildFlags) {
     rcAssert(ctx);
@@ -1117,7 +1117,7 @@ bool rcBuildContoursWithPortals(rcContext *ctx, const rcCompactHeightfield &chf,
     const int h = chf.height;
     const int borderSize = chf.borderSize;
 
-    rcScopedTimer timer(ctx, RC_TIMER_BUILD_CONTOURS);
+    const rcScopedTimer timer(ctx, RC_TIMER_BUILD_CONTOURS);
 
     rcVcopy(cset.bmin, chf.bmin);
     rcVcopy(cset.bmax, chf.bmax);
@@ -1387,10 +1387,10 @@ bool rcBuildContoursWithPortals(rcContext *ctx, const rcCompactHeightfield &chf,
     }
 
     // extract border edges
-    rcIntArray bourders{};
+    rcIntArray borders(32);
 
     for (int i = 0; i < cset.nconts; ++i) {
-        const auto &con1 = cset.conts[i];
+        const rcContour&con1 = cset.conts[i];
         if (!con1.nverts)
             continue;
         for (int j1 = 0, j2 =con1.nverts - 1; j1 < con1.nverts; j2 = j1++) {
@@ -1398,23 +1398,24 @@ bool rcBuildContoursWithPortals(rcContext *ctx, const rcCompactHeightfield &chf,
             const int *va2 = &con1.verts[j1 * 4];
             if (va1[3] == 0 || static_cast<uint16_t>(va1[3]) < con1.reg)
                 continue;
-            if (const rcContour *cont2 = findContourFromSet(cset, static_cast<uint16_t>(va1[3]))) {
+            const rcContour *cont2 = findContourFromSet(cset, static_cast<uint16_t>(va1[3]));
+            if (cont2) {
                 for (int k1 = 0, k2 = cont2->nverts - 1; k1 < cont2->nverts; k2 = k1++) {
                     const int *vb1 = &cont2->verts[k1 * 4];
                     const int *vb2 = &cont2->verts[k2 * 4];
                     if (va1[0] == vb1[0] && va1[1] == vb1[1] && va1[2] == vb1[2] && va2[0] == vb2[0] && va2[1] == vb2[1] && va2[2] == vb2[2]) {
-                        bourders.push(va1[0]);
-                        bourders.push(va1[2]);
-                        bourders.push(va2[0]);
-                        bourders.push(va2[2]);
+                      borders.push(va1[0]);
+                      borders.push(va1[2]);
+                      borders.push(va2[0]);
+                      borders.push(va2[2]);
                     }
                 }
             }
         }
     }
-    portalEdgeSize = bourders.size();
-    portalEdges = static_cast<int *>(rcAlloc(sizeof(int) * bourders.size(), RC_ALLOC_PERM));
-    if (bourders.size())
-        memcpy(portalEdges, &bourders[0], portalEdgeSize * sizeof(int));
+    portalEdgeSize = borders.size();
+    portalEdges = static_cast<int *>(rcAlloc(sizeof(int) * borders.size(), RC_ALLOC_PERM));
+    if (borders.size())
+        memcpy(portalEdges, &borders[0], portalEdgeSize * sizeof(int));
     return true;
 }

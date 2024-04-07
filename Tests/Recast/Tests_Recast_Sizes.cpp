@@ -86,7 +86,9 @@ inline std::array<float, g_loopCount * RC_MAX_TIMERS> generateSingleMeshTimes(Bu
 
 inline void writeCsvFile(const bool isThesis, const std::string &filePath, const std::string &environmentName, const float gridSize, const std::array<float, g_loopCount * RC_MAX_TIMERS> &timerData) {
   static int count{};
-  system(("mkdir " + filePath).c_str());
+  try{
+      system(("mkdir " + filePath).c_str());
+  }catch(std::exception&){}
   std::ofstream csvFile{filePath + "/Timings.csv", std::ios::out | std::ios::app};
   for (int i{}; i < g_loopCount; ++i) {
     csvFile << count++ << (isThesis ? ",Thesis," : ",Default,") << environmentName << ',' << gridSize << ',';
