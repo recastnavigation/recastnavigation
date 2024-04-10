@@ -4,7 +4,7 @@ $RecastCLIDirectory = Split-Path -Path $RecastCLIPath -Parent
 Set-Location -Path $RecastCLIDirectory
 
 $sizes = @(0.1, 0.2, 0.3, 0.4, 0.5)
-$meshes = @("Zelda", "Military", "City")
+$meshes = @("Zelda", "Zelda2x2", "Zelda4x4", "Military", "City")
 foreach ($size in $sizes)
 {
     Write-Host "Grid Size: " $size
