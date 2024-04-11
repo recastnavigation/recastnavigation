@@ -69,24 +69,6 @@ enum CrowdAgentState
 	DT_CROWDAGENT_STATE_OFFMESH 		///< The agent is traversing an off-mesh connection.
 };
 
-/// Ninja Kiwi Crowd agent group flags.
-/// @ingroup crowd
-enum class [[za::GenerateInterop(annotations = [Flags])]] NkCrowdGroupFlags : unsigned char
-{
-	NK_CROWD_GROUP_NONE = 0,
-
-	NK_CROWD_GROUP_1 = 1 << 0,
-	NK_CROWD_GROUP_2 = 1 << 1,
-	NK_CROWD_GROUP_3 = 1 << 2,
-	NK_CROWD_GROUP_4 = 1 << 3,
-	NK_CROWD_GROUP_5 = 1 << 4,
-	NK_CROWD_GROUP_6 = 1 << 5,
-	NK_CROWD_GROUP_7 = 1 << 6,
-	NK_CROWD_GROUP_8 = 1 << 7,
-
-	NK_CROWD_GROUP_ALL = 0xFF
-};
-
 /// Configuration parameters for a crowd agent.
 /// @ingroup crowd
 struct dtCrowdAgentParams
@@ -114,9 +96,9 @@ struct dtCrowdAgentParams
 	/// The index of the query filter used by this agent.
 	unsigned char queryFilterType;
 
-	/// Ninja Kiwi: Neighbour filter flags
-	NkCrowdGroupFlags agentsGroupFlag;
-	NkCrowdGroupFlags groupIgnoreFlags;
+	/// Neighbouring agent filter flags
+	unsigned char agentsGroupFlag;
+	unsigned char groupIgnoreFlags;
 
 	/// User defined data attached to the agent.
 	void* userData;
