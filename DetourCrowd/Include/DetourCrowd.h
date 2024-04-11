@@ -97,8 +97,8 @@ struct dtCrowdAgentParams
 	unsigned char queryFilterType;
 
 	/// Neighbouring agent filter flags
-	unsigned char agentsGroupFlag;
-	unsigned char groupIgnoreFlags;
+	unsigned char agentGroupFlags;
+	unsigned char ignoreGroupFlags;
 
 	/// User defined data attached to the agent.
 	void* userData;

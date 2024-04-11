@@ -196,15 +196,16 @@ static int getNeighbours(const float* pos, const float height, const float range
 								pos[0]+range, pos[2]+range,
 								ids, MAX_NEIS);
 	
+	unsigned char ignoreGroupMask = skip ? skip->params.ignoreGroupFlags : 0u;
+
 	for (int i = 0; i < nids; ++i)
 	{
 		const dtCrowdAgent* ag = agents[ids[i]];
 		
 		if (ag == skip) continue;
 		
-		// Ninja Kiwi: Check for ignore group
-		if (skip && ((unsigned char)skip->params.groupIgnoreFlags & (unsigned char)ag->params.agentsGroupFlag))
-			continue;
+		// Should `skip` ignore their neighbour `ag`?
+		if ((ag->params.agentGroupFlags & ignoreGroupMask) != 0) continue;
 
 		// Check for overlap.
 		float diff[3];
