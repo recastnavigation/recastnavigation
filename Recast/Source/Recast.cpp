@@ -357,7 +357,7 @@ void rcMarkWalkableTriangles(rcContext* context, const float walkableSlopeAngle,
 	}
 }
 
-void rcMarkWalkableTriangles(rcContext* context, const float walkableSlopeAngle,
+void rcMarkWalkableTriangles(rcContext* context, float walkableSlopeAngle,
                              const float* verts, const int numVerts,
                              const uint16_t* tris, const int numTris,
                              unsigned char* triAreaIDs)
