@@ -22,7 +22,6 @@ set_target_properties(Detour PROPERTIES
         VERSION ${LIB_VERSION}
         COMPILE_PDB_OUTPUT_DIRECTORY .
         COMPILE_PDB_NAME "Detour-d"
-        CXX_STANDARD 14 CXX_STANDARD_REQUIRED ON
         )
 
 install(TARGETS Detour

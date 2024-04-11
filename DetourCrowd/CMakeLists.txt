@@ -19,7 +19,6 @@ set_target_properties(DetourCrowd PROPERTIES
         VERSION ${LIB_VERSION}
         COMPILE_PDB_OUTPUT_DIRECTORY .
         COMPILE_PDB_NAME "DetourCrowd-d"
-        CXX_STANDARD 14 CXX_STANDARD_REQUIRED ON
         )
 
 install(TARGETS DetourCrowd

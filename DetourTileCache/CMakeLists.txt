@@ -19,7 +19,6 @@ set_target_properties(DetourTileCache PROPERTIES
         VERSION ${LIB_VERSION}
         COMPILE_PDB_OUTPUT_DIRECTORY .
         COMPILE_PDB_NAME "DetourTileCache-d"
-        CXX_STANDARD 14 CXX_STANDARD_REQUIRED ON
         )
 
 
