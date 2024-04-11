@@ -873,8 +873,11 @@ bool rcCreateHeightfield(rcContext* context, rcHeightfield& heightfield, int siz
 void rcMarkWalkableTriangles(rcContext* context, float walkableSlopeAngle, const float* verts, int numVerts,
 							 const int* tris, int numTris, unsigned char* triAreaIDs); 
 void rcMarkWalkableTriangles(rcContext* ctx, float walkableSlopeAngle, const float* verts, int numVerts,
-							 const unsigned short* tris, int nt, unsigned char* areas); 
-
+							 const unsigned short* tris, int numTris, unsigned char* triAreaIDs);
+void rcMarkWalkableTrianglesCosAngle(rcContext* context, float walkableSlopeCosAngle, const float* verts, int numVerts,
+									 const int* tris, int numTris, unsigned char* triAreaIDs); 
+void rcMarkWalkableTrianglesCosAngle(rcContext* ctx, float walkableSlopeCosAngle, const float* verts, int numVerts,
+									 const unsigned short* tris, int numTris, unsigned char* triAreaIDs);
 /// Sets the area id of all triangles with a slope greater than or equal to the specified value to #RC_NULL_AREA.
 /// 
 /// Only sets the area id's for the un-walkable triangles.  Does not alter the

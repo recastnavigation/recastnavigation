@@ -333,15 +333,15 @@ static void calcTriNormal(const float* v0, const float* v1, const float* v2, flo
 	rcVnormalize(faceNormal);
 }
 
-void rcMarkWalkableTriangles(rcContext* context, const float walkableSlopeAngle,
-                             const float* verts, const int numVerts,
-                             const int* tris, const int numTris,
-                             unsigned char* triAreaIDs)
+void rcMarkWalkableTrianglesCosAngle(rcContext* context, float walkableSlopeCosAngle,
+									 const float* verts, int numVerts,
+									 const int* tris, int numTris,
+									 unsigned char* triAreaIDs)
 {
 	rcIgnoreUnused(context);
 	rcIgnoreUnused(numVerts);
 
-	const float walkableThr = cosf(walkableSlopeAngle / 180.0f * RC_PI);
+	const float walkableThr = walkableSlopeCosAngle;
 
 	float norm[3];
 
@@ -357,15 +357,26 @@ void rcMarkWalkableTriangles(rcContext* context, const float walkableSlopeAngle,
 	}
 }
 
-void rcMarkWalkableTriangles(rcContext* context, float walkableSlopeAngle,
+void rcMarkWalkableTriangles(rcContext* context, const float walkableSlopeAngle,
                              const float* verts, const int numVerts,
-                             const uint16_t* tris, const int numTris,
+                             const int* tris, const int numTris,
                              unsigned char* triAreaIDs)
+{
+	rcMarkWalkableTrianglesCosAngle(context, cosf(walkableSlopeAngle / 180.0f * RC_PI),
+									verts, numVerts,
+									tris, numTris,
+									triAreaIDs);
+}
+
+void rcMarkWalkableTrianglesCosAngle(rcContext* context, float walkableSlopeCosAngle,
+									 const float* verts, int numVerts,
+									 const unsigned short* tris, int numTris,
+									 unsigned char* triAreaIDs)
 {
 	rcIgnoreUnused(context);
 	rcIgnoreUnused(numVerts);
 
-	const float walkableThr = cosf(walkableSlopeAngle / 180.0f * RC_PI);
+	const float walkableThr = walkableSlopeCosAngle;
 
 	float norm[3];
 
@@ -379,6 +390,17 @@ void rcMarkWalkableTriangles(rcContext* context, float walkableSlopeAngle,
 			triAreaIDs[i] = RC_WALKABLE_AREA;
 		}
 	}
+}
+
+void rcMarkWalkableTriangles(rcContext* context, float walkableSlopeAngle,
+                             const float* verts, const int numVerts,
+                             const uint16_t* tris, const int numTris,
+                             unsigned char* triAreaIDs)
+{
+	rcMarkWalkableTrianglesCosAngle(context, cosf(walkableSlopeAngle / 180.0f * RC_PI),
+									verts, numVerts,
+									tris, numTris,
+									triAreaIDs);
 }
 
 void rcClearUnwalkableTriangles(rcContext* context, const float walkableSlopeAngle,
