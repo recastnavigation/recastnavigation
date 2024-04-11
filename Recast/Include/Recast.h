@@ -898,6 +898,12 @@ void rcMarkWalkableTrianglesCosAngle(rcContext* ctx, float walkableSlopeCosAngle
 /// @param[out]		triAreaIDs			The triangle area ids. [Length: >= @p nt]
 void rcClearUnwalkableTriangles(rcContext* context, float walkableSlopeAngle, const float* verts, int numVerts,
 								const int* tris, int numTris, unsigned char* triAreaIDs); 
+void rcClearUnwalkableTriangles(rcContext* context, float walkableSlopeAngle, const float* verts, int numVerts,
+								const unsigned short* tris, int numTris, unsigned char* triAreaIDs); 
+void rcClearUnwalkableTrianglesCosAngle(rcContext* context, float walkableSlopeCosAngle, const float* verts, int numVerts,
+										const int* tris, int numTris, unsigned char* triAreaIDs); 
+void rcClearUnwalkableTrianglesCosAngle(rcContext* context, float walkableSlopeCosAngle, const float* verts, int numVerts,
+										const unsigned short* tris, int numTris, unsigned char* triAreaIDs);
 
 /// Adds a span to the specified heightfield.
 /// 
