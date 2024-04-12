@@ -131,10 +131,10 @@ Functions</h2></td></tr>
 <tr class="memdesc:gaf56ac19e79e5948fdb1051158577e648"><td class="mdescLeft">&#160;</td><td class="mdescRight">Builds navigation mesh tile data from the provided tile creation data.  <a href="group__detour.html#gaf56ac19e79e5948fdb1051158577e648">More...</a><br /></td></tr>
 <tr class="separator:gaf56ac19e79e5948fdb1051158577e648"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ace48ade47c4974b02f054b9f5c46f9e3"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="DetourNavMeshBuilder_8cpp.html#ace48ade47c4974b02f054b9f5c46f9e3">dtNavMeshHeaderSwapEndian</a> (unsigned char *data, const int)</td></tr>
-<tr class="memdesc:ace48ade47c4974b02f054b9f5c46f9e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Swaps the endianess of the tile data's header (<a class="el" href="structdtMeshHeader.html" title="Provides high level information related to a dtMeshTile object.">dtMeshHeader</a>).  <a href="DetourNavMeshBuilder_8cpp.html#ace48ade47c4974b02f054b9f5c46f9e3">More...</a><br /></td></tr>
+<tr class="memdesc:ace48ade47c4974b02f054b9f5c46f9e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Swaps the endianness of the tile data's header (<a class="el" href="structdtMeshHeader.html" title="Provides high level information related to a dtMeshTile object.">dtMeshHeader</a>).  <a href="DetourNavMeshBuilder_8cpp.html#ace48ade47c4974b02f054b9f5c46f9e3">More...</a><br /></td></tr>
 <tr class="separator:ace48ade47c4974b02f054b9f5c46f9e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4a05bdb40ab3e0ea33220421ed049d15"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="DetourNavMeshBuilder_8cpp.html#a4a05bdb40ab3e0ea33220421ed049d15">dtNavMeshDataSwapEndian</a> (unsigned char *data, const int)</td></tr>
-<tr class="memdesc:a4a05bdb40ab3e0ea33220421ed049d15"><td class="mdescLeft">&#160;</td><td class="mdescRight">Swaps endianess of the tile data.  <a href="DetourNavMeshBuilder_8cpp.html#a4a05bdb40ab3e0ea33220421ed049d15">More...</a><br /></td></tr>
+<tr class="memdesc:a4a05bdb40ab3e0ea33220421ed049d15"><td class="mdescLeft">&#160;</td><td class="mdescRight">Swaps endianness of the tile data.  <a href="DetourNavMeshBuilder_8cpp.html#a4a05bdb40ab3e0ea33220421ed049d15">More...</a><br /></td></tr>
 <tr class="separator:a4a05bdb40ab3e0ea33220421ed049d15"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
@@ -421,9 +421,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Swaps endianess of the tile data. </p>
+<p>Swaps endianness of the tile data. </p>
 <dl class="section user"><dt></dt><dd></dd></dl>
-<dl class="section warning"><dt>Warning</dt><dd>This function assumes that the header is in the correct endianess already. Call <a class="el" href="DetourNavMeshBuilder_8cpp.html#ace48ade47c4974b02f054b9f5c46f9e3" title="Swaps the endianess of the tile data&#39;s header (dtMeshHeader).">dtNavMeshHeaderSwapEndian()</a> first on the data if the data is expected to be in wrong endianess to start with. Call <a class="el" href="DetourNavMeshBuilder_8cpp.html#ace48ade47c4974b02f054b9f5c46f9e3" title="Swaps the endianess of the tile data&#39;s header (dtMeshHeader).">dtNavMeshHeaderSwapEndian()</a> after the data has been swapped if converting from native to foreign endianess. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>This function assumes that the header is in the correct endianness already. Call <a class="el" href="DetourNavMeshBuilder_8cpp.html#ace48ade47c4974b02f054b9f5c46f9e3" title="Swaps the endianness of the tile data&#39;s header (dtMeshHeader).">dtNavMeshHeaderSwapEndian()</a> first on the data if the data is expected to be in wrong endianness to start with. Call <a class="el" href="DetourNavMeshBuilder_8cpp.html#ace48ade47c4974b02f054b9f5c46f9e3" title="Swaps the endianness of the tile data&#39;s header (dtMeshHeader).">dtNavMeshHeaderSwapEndian()</a> after the data has been swapped if converting from native to foreign endianness. </dd></dl>
 
 </div>
 </div>
@@ -453,7 +453,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Swaps the endianess of the tile data's header (<a class="el" href="structdtMeshHeader.html" title="Provides high level information related to a dtMeshTile object.">dtMeshHeader</a>). </p>
+<p>Swaps the endianness of the tile data's header (<a class="el" href="structdtMeshHeader.html" title="Provides high level information related to a dtMeshTile object.">dtMeshHeader</a>). </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in,out]</td><td class="paramname">data</td><td>The tile data array. </td></tr>
