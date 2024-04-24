@@ -1816,17 +1816,6 @@ bool rcBuildLayerRegions(rcContext* ctx, rcCompactHeightfield& chf,
 	
 	return true;
 }
-struct CompareEntries {
-  CompareEntries(const unsigned short* d) : dist(d) {}
-
-  static unsigned short* dist;
-  static int Compare(const void* p1, const void* p2){
-    const LevelStackEntry* l1 = (const LevelStackEntry*)p1;
-    const LevelStackEntry* l2 = (const LevelStackEntry*)p2;
-    return dist[l1->index] - dist[l2->index];
-  }
-private:
-};
 bool rcBuildRegionsWithSize(rcContext *ctx, rcCompactHeightfield &chf, const int borderSize, const int minRegionArea, const int mergeRegionArea) {
     rcAssert(ctx);
     if (!ctx)
