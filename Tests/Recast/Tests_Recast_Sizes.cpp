@@ -28,7 +28,7 @@ const float g_edgeMaxError = 1.3f;
 const float g_vertsPerPoly = 6.0f;
 const float g_detailSampleDist = 6.0f;
 const float g_detailSampleMaxError = 1.0f;
-const int g_loopCount = 100;
+const int g_loopCount = 10;
 const bool g_filterLedgeSpans = true;
 const bool g_filterWalkableLowHeightSpans = true;
 const bool g_filterLowHangingObstacles = true;
@@ -318,82 +318,965 @@ const char header[]{
     "Build Polymesh Detail (ms),"
     "Merge Polymesh Details (ms)"};
 
-TEST_CASE("Watershed") {
+TEST_CASE("Watershed - City") {
   std::string const output{"Data"};
   std::ofstream csvFile{output + "/Timings.csv", std::ios::out | std::ios::app};
-  if (csvFile.tellp() == 0) {
+  if (csvFile.tellp() == 1) {
     csvFile.write(header, sizeof(header)).put('\n');
   }
   csvFile.close();
-  SECTION("Generate") {
-    const std::string fileName{GENERATE(as<std::string>{},
-//                                        "Meshes/City.obj",
-//                                        "Meshes/Maze8.obj",
-//                                        "Meshes/Maze16.obj",
-//                                        "Meshes/Maze32.obj",
-//                                        "Meshes/Maze64.obj",
-//                                        "Meshes/Maze128.obj",
-//                                        "Meshes/Military.obj",
-//                                        "Meshes/Simple.obj",
-//                                        "Meshes/University.obj",
-//                                        "Meshes/Zelda.obj",
-//                                        "Meshes/Zelda2x2.obj",
-//                                        "Meshes/Zelda4x4.obj",
-                                        "Meshes/as_oilrig.obj",
-                                        "Meshes/BigCity.obj",
-                                        "Meshes/cs_assault.obj",
-                                        "Meshes/cs_siege.obj",
-                                        "Meshes/de_dust.obj",
-                                        "Meshes/Dungeon.obj",
-                                        "Meshes/Jardin.obj",
-                                        "Meshes/Library.obj",
-                                        "Meshes/NavTest.obj",
-                                        "Meshes/Neogen1.obj",
-                                        "Meshes/Neogen2.obj",
-                                        "Meshes/Neogen3.obj",
-                                        "Meshes/ParkingLot.obj",
-                                        "Meshes/Tower.obj"
-                                        )};
-    const float cellSize{GENERATE(0.1f, 0.2f, 0.3f, 0.4f, 0.5f)};
-    if (!(fileName == "City" && cellSize == 0.1f)) {
-      const float agentRadius{0.0f};
-      rcConfig config{};
-      config.cs = cellSize;
-      config.ch = g_cellHeight;
-      config.walkableSlopeAngle = g_agentMaxSlope;
-      config.walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight));
-      config.walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight));
-      config.walkableRadius = static_cast<int>(std::ceil(agentRadius / g_cellHeight));
-      config.maxEdgeLen = static_cast<int>(g_edgeMaxLen / cellSize);
-      config.maxSimplificationError = g_edgeMaxError;
-      config.minRegionArea = static_cast<int>(rcSqr(g_regionMinSize));
-      config.mergeRegionArea = static_cast<int>(rcSqr(g_regionMergeSize));
-      config.maxVertsPerPoly = static_cast<int>(g_vertsPerPoly);
-      config.detailSampleDist = cellSize * g_detailSampleDist;
+  const std::string fileName{"Meshes/City.obj"};
+  const float cellSize{GENERATE(0.2f, 0.3f, 0.4f, 0.5f)};
+  const std::string name{fileName.substr(7, fileName.size() - 11)};
+  const float agentRadius{0.0f};
+  rcConfig config{};
+  config.cs = cellSize;
+  config.ch = g_cellHeight;
+  config.walkableSlopeAngle = g_agentMaxSlope;
+  config.walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight));
+  config.walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight));
+  config.walkableRadius = static_cast<int>(std::ceil(agentRadius / g_cellHeight));
+  config.maxEdgeLen = static_cast<int>(g_edgeMaxLen / cellSize);
+  config.maxSimplificationError = g_edgeMaxError;
+  config.minRegionArea = static_cast<int>(rcSqr(g_regionMinSize));
+  config.mergeRegionArea = static_cast<int>(rcSqr(g_regionMergeSize));
+  config.maxVertsPerPoly = static_cast<int>(g_vertsPerPoly);
+  config.detailSampleDist = cellSize * g_detailSampleDist;
 
-      BuildContext context{};
-      InputGeom pGeom{};
-      bool const success = pGeom.load(&context, fileName);
-      if (!success)
-        context.dumpLog("Geom load log %s:", fileName.c_str());
-      REQUIRE(success);
+  BuildContext context{};
+  InputGeom pGeom{};
+  bool const success = pGeom.load(&context, fileName);
+  if (!success)
+    context.dumpLog("Geom load log %s:", fileName.c_str());
+  REQUIRE(success);
 
-      int *pEdges{nullptr};
-      int edgeCount{};
-      const std::string name{fileName.substr(7, fileName.size() - 11)};
-      generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
-      if (name == "City")
-        processBourderEdges("CSV/minima-City.csv", output, name + "_" + std::to_string(static_cast<int>(cellSize * 10)), pGeom, config, pEdges, edgeCount);
-      else if (name == "Military")
-        processBourderEdges("CSV/minima-Military.csv", output, name + "_" + std::to_string(static_cast<int>(cellSize * 10)), pGeom, config, pEdges, edgeCount);
-      else if (name == "Zelda")
-        processBourderEdges("CSV/minima-Zelda.csv", output, name + "_" + std::to_string(static_cast<int>(cellSize * 10)), pGeom, config, pEdges, edgeCount);
-      else if (name == "Zelda2x2")
-          processBourderEdges("CSV/minima-Zelda2x2.csv", output, name + "_" + std::to_string(static_cast<int>(cellSize * 10)), pGeom, config, pEdges, edgeCount);
-      else if (name == "Zelda4x4")
-          processBourderEdges("CSV/minima-Zelda4x4.csv", output, name + "_" + std::to_string(static_cast<int>(cellSize * 10)), pGeom, config, pEdges, edgeCount);
-      else
-        rcFree(pEdges);
-    }
+  int *pEdges{nullptr};
+  int edgeCount{};
+  generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
+  processBourderEdges("CSV/minima-City.csv", output, name + "_" + std::to_string(static_cast<int>(cellSize * 10)), pGeom, config, pEdges, edgeCount);
+}
+TEST_CASE("Watershed - Maze 8") {
+  std::string const output{"Data"};
+  std::ofstream csvFile{output + "/Timings.csv", std::ios::out | std::ios::app};
+  if (csvFile.tellp() == 1) {
+    csvFile.write(header, sizeof(header)).put('\n');
   }
+  csvFile.close();
+  const std::string fileName{"Meshes/Maze8.obj"};
+  const float cellSize{GENERATE(0.1f, 0.2f, 0.3f, 0.4f, 0.5f)};
+  const std::string name{fileName.substr(7, fileName.size() - 11)};
+  const float agentRadius{0.0f};
+  rcConfig config{};
+  config.cs = cellSize;
+  config.ch = g_cellHeight;
+  config.walkableSlopeAngle = g_agentMaxSlope;
+  config.walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight));
+  config.walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight));
+  config.walkableRadius = static_cast<int>(std::ceil(agentRadius / g_cellHeight));
+  config.maxEdgeLen = static_cast<int>(g_edgeMaxLen / cellSize);
+  config.maxSimplificationError = g_edgeMaxError;
+  config.minRegionArea = static_cast<int>(rcSqr(g_regionMinSize));
+  config.mergeRegionArea = static_cast<int>(rcSqr(g_regionMergeSize));
+  config.maxVertsPerPoly = static_cast<int>(g_vertsPerPoly);
+  config.detailSampleDist = cellSize * g_detailSampleDist;
+
+  BuildContext context{};
+  InputGeom pGeom{};
+  bool const success = pGeom.load(&context, fileName);
+  if (!success)
+    context.dumpLog("Geom load log %s:", fileName.c_str());
+  REQUIRE(success);
+
+  int *pEdges{nullptr};
+  int edgeCount{};
+  generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
+  rcFree(pEdges);
+}
+TEST_CASE("Watershed - Maze 16") {
+  std::string const output{"Data"};
+  std::ofstream csvFile{output + "/Timings.csv", std::ios::out | std::ios::app};
+  if (csvFile.tellp() == 1) {
+    csvFile.write(header, sizeof(header)).put('\n');
+  }
+  csvFile.close();
+  const std::string fileName{"Meshes/Maze16.obj"};
+  const float cellSize{GENERATE(0.1f, 0.2f, 0.3f, 0.4f, 0.5f)};
+  const std::string name{fileName.substr(7, fileName.size() - 11)};
+  const float agentRadius{0.0f};
+  rcConfig config{};
+  config.cs = cellSize;
+  config.ch = g_cellHeight;
+  config.walkableSlopeAngle = g_agentMaxSlope;
+  config.walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight));
+  config.walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight));
+  config.walkableRadius = static_cast<int>(std::ceil(agentRadius / g_cellHeight));
+  config.maxEdgeLen = static_cast<int>(g_edgeMaxLen / cellSize);
+  config.maxSimplificationError = g_edgeMaxError;
+  config.minRegionArea = static_cast<int>(rcSqr(g_regionMinSize));
+  config.mergeRegionArea = static_cast<int>(rcSqr(g_regionMergeSize));
+  config.maxVertsPerPoly = static_cast<int>(g_vertsPerPoly);
+  config.detailSampleDist = cellSize * g_detailSampleDist;
+
+  BuildContext context{};
+  InputGeom pGeom{};
+  bool const success = pGeom.load(&context, fileName);
+  if (!success)
+    context.dumpLog("Geom load log %s:", fileName.c_str());
+  REQUIRE(success);
+
+  int *pEdges{nullptr};
+  int edgeCount{};
+  generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
+  rcFree(pEdges);
+}
+TEST_CASE("Watershed - Maze 32") {
+  std::string const output{"Data"};
+  std::ofstream csvFile{output + "/Timings.csv", std::ios::out | std::ios::app};
+  if (csvFile.tellp() == 1) {
+    csvFile.write(header, sizeof(header)).put('\n');
+  }
+  csvFile.close();
+  const std::string fileName{"Meshes/Maze32.obj"};
+  const float cellSize{GENERATE(0.1f, 0.2f, 0.3f, 0.4f, 0.5f)};
+  const std::string name{fileName.substr(7, fileName.size() - 11)};
+  const float agentRadius{0.0f};
+  rcConfig config{};
+  config.cs = cellSize;
+  config.ch = g_cellHeight;
+  config.walkableSlopeAngle = g_agentMaxSlope;
+  config.walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight));
+  config.walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight));
+  config.walkableRadius = static_cast<int>(std::ceil(agentRadius / g_cellHeight));
+  config.maxEdgeLen = static_cast<int>(g_edgeMaxLen / cellSize);
+  config.maxSimplificationError = g_edgeMaxError;
+  config.minRegionArea = static_cast<int>(rcSqr(g_regionMinSize));
+  config.mergeRegionArea = static_cast<int>(rcSqr(g_regionMergeSize));
+  config.maxVertsPerPoly = static_cast<int>(g_vertsPerPoly);
+  config.detailSampleDist = cellSize * g_detailSampleDist;
+
+  BuildContext context{};
+  InputGeom pGeom{};
+  bool const success = pGeom.load(&context, fileName);
+  if (!success)
+    context.dumpLog("Geom load log %s:", fileName.c_str());
+  REQUIRE(success);
+
+  int *pEdges{nullptr};
+  int edgeCount{};
+  generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
+  rcFree(pEdges);
+}
+TEST_CASE("Watershed - Maze 64") {
+  std::string const output{"Data"};
+  std::ofstream csvFile{output + "/Timings.csv", std::ios::out | std::ios::app};
+  if (csvFile.tellp() == 1) {
+    csvFile.write(header, sizeof(header)).put('\n');
+  }
+  csvFile.close();
+  const std::string fileName{"Meshes/Maze64.obj"};
+  const float cellSize{GENERATE(0.1f, 0.2f, 0.3f, 0.4f, 0.5f)};
+  const std::string name{fileName.substr(7, fileName.size() - 11)};
+  const float agentRadius{0.0f};
+  rcConfig config{};
+  config.cs = cellSize;
+  config.ch = g_cellHeight;
+  config.walkableSlopeAngle = g_agentMaxSlope;
+  config.walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight));
+  config.walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight));
+  config.walkableRadius = static_cast<int>(std::ceil(agentRadius / g_cellHeight));
+  config.maxEdgeLen = static_cast<int>(g_edgeMaxLen / cellSize);
+  config.maxSimplificationError = g_edgeMaxError;
+  config.minRegionArea = static_cast<int>(rcSqr(g_regionMinSize));
+  config.mergeRegionArea = static_cast<int>(rcSqr(g_regionMergeSize));
+  config.maxVertsPerPoly = static_cast<int>(g_vertsPerPoly);
+  config.detailSampleDist = cellSize * g_detailSampleDist;
+
+  BuildContext context{};
+  InputGeom pGeom{};
+  bool const success = pGeom.load(&context, fileName);
+  if (!success)
+    context.dumpLog("Geom load log %s:", fileName.c_str());
+  REQUIRE(success);
+
+  int *pEdges{nullptr};
+  int edgeCount{};
+  generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
+  rcFree(pEdges);
+}
+TEST_CASE("Watershed - Maze 128") {
+  std::string const output{"Data"};
+  std::ofstream csvFile{output + "/Timings.csv", std::ios::out | std::ios::app};
+  if (csvFile.tellp() == 1) {
+    csvFile.write(header, sizeof(header)).put('\n');
+  }
+  csvFile.close();
+  const std::string fileName{"Meshes/Maze128.obj"};
+  const float cellSize{GENERATE(0.1f, 0.2f, 0.3f, 0.4f, 0.5f)};
+  const std::string name{fileName.substr(7, fileName.size() - 11)};
+  const float agentRadius{0.0f};
+  rcConfig config{};
+  config.cs = cellSize;
+  config.ch = g_cellHeight;
+  config.walkableSlopeAngle = g_agentMaxSlope;
+  config.walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight));
+  config.walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight));
+  config.walkableRadius = static_cast<int>(std::ceil(agentRadius / g_cellHeight));
+  config.maxEdgeLen = static_cast<int>(g_edgeMaxLen / cellSize);
+  config.maxSimplificationError = g_edgeMaxError;
+  config.minRegionArea = static_cast<int>(rcSqr(g_regionMinSize));
+  config.mergeRegionArea = static_cast<int>(rcSqr(g_regionMergeSize));
+  config.maxVertsPerPoly = static_cast<int>(g_vertsPerPoly);
+  config.detailSampleDist = cellSize * g_detailSampleDist;
+
+  BuildContext context{};
+  InputGeom pGeom{};
+  bool const success = pGeom.load(&context, fileName);
+  if (!success)
+    context.dumpLog("Geom load log %s:", fileName.c_str());
+  REQUIRE(success);
+
+  int *pEdges{nullptr};
+  int edgeCount{};
+  generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
+  rcFree(pEdges);
+}
+TEST_CASE("Watershed - Military") {
+  std::string const output{"Data"};
+  std::ofstream csvFile{output + "/Timings.csv", std::ios::out | std::ios::app};
+  if (csvFile.tellp() == 1) {
+    csvFile.write(header, sizeof(header)).put('\n');
+  }
+  csvFile.close();
+  const std::string fileName{"Meshes/Military.obj"};
+  const float cellSize{GENERATE(0.1f, 0.2f, 0.3f, 0.4f, 0.5f)};
+  const std::string name{fileName.substr(7, fileName.size() - 11)};
+  const float agentRadius{0.0f};
+  rcConfig config{};
+  config.cs = cellSize;
+  config.ch = g_cellHeight;
+  config.walkableSlopeAngle = g_agentMaxSlope;
+  config.walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight));
+  config.walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight));
+  config.walkableRadius = static_cast<int>(std::ceil(agentRadius / g_cellHeight));
+  config.maxEdgeLen = static_cast<int>(g_edgeMaxLen / cellSize);
+  config.maxSimplificationError = g_edgeMaxError;
+  config.minRegionArea = static_cast<int>(rcSqr(g_regionMinSize));
+  config.mergeRegionArea = static_cast<int>(rcSqr(g_regionMergeSize));
+  config.maxVertsPerPoly = static_cast<int>(g_vertsPerPoly);
+  config.detailSampleDist = cellSize * g_detailSampleDist;
+
+  BuildContext context{};
+  InputGeom pGeom{};
+  bool const success = pGeom.load(&context, fileName);
+  if (!success)
+    context.dumpLog("Geom load log %s:", fileName.c_str());
+  REQUIRE(success);
+
+  int *pEdges{nullptr};
+  int edgeCount{};
+  generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
+  processBourderEdges("CSV/minima-Military.csv", output, name + "_" + std::to_string(static_cast<int>(cellSize * 10)), pGeom, config, pEdges, edgeCount);
+}
+TEST_CASE("Watershed - Simple") {
+  std::string const output{"Data"};
+  std::ofstream csvFile{output + "/Timings.csv", std::ios::out | std::ios::app};
+  if (csvFile.tellp() == 1) {
+    csvFile.write(header, sizeof(header)).put('\n');
+  }
+  csvFile.close();
+  const std::string fileName{"Meshes/Simple.obj"};
+  const float cellSize{GENERATE(0.1f, 0.2f, 0.3f, 0.4f, 0.5f)};
+  const std::string name{fileName.substr(7, fileName.size() - 11)};
+  const float agentRadius{0.0f};
+  rcConfig config{};
+  config.cs = cellSize;
+  config.ch = g_cellHeight;
+  config.walkableSlopeAngle = g_agentMaxSlope;
+  config.walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight));
+  config.walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight));
+  config.walkableRadius = static_cast<int>(std::ceil(agentRadius / g_cellHeight));
+  config.maxEdgeLen = static_cast<int>(g_edgeMaxLen / cellSize);
+  config.maxSimplificationError = g_edgeMaxError;
+  config.minRegionArea = static_cast<int>(rcSqr(g_regionMinSize));
+  config.mergeRegionArea = static_cast<int>(rcSqr(g_regionMergeSize));
+  config.maxVertsPerPoly = static_cast<int>(g_vertsPerPoly);
+  config.detailSampleDist = cellSize * g_detailSampleDist;
+
+  BuildContext context{};
+  InputGeom pGeom{};
+  bool const success = pGeom.load(&context, fileName);
+  if (!success)
+    context.dumpLog("Geom load log %s:", fileName.c_str());
+  REQUIRE(success);
+
+  int *pEdges{nullptr};
+  int edgeCount{};
+  generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
+  rcFree(pEdges);
+}
+TEST_CASE("Watershed - University") {
+  std::string const output{"Data"};
+  std::ofstream csvFile{output + "/Timings.csv", std::ios::out | std::ios::app};
+  if (csvFile.tellp() == 1) {
+    csvFile.write(header, sizeof(header)).put('\n');
+  }
+  csvFile.close();
+  const std::string fileName{"Meshes/University.obj"};
+  const float cellSize{GENERATE(0.1f, 0.2f, 0.3f, 0.4f, 0.5f)};
+  const std::string name{fileName.substr(7, fileName.size() - 11)};
+  const float agentRadius{0.0f};
+  rcConfig config{};
+  config.cs = cellSize;
+  config.ch = g_cellHeight;
+  config.walkableSlopeAngle = g_agentMaxSlope;
+  config.walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight));
+  config.walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight));
+  config.walkableRadius = static_cast<int>(std::ceil(agentRadius / g_cellHeight));
+  config.maxEdgeLen = static_cast<int>(g_edgeMaxLen / cellSize);
+  config.maxSimplificationError = g_edgeMaxError;
+  config.minRegionArea = static_cast<int>(rcSqr(g_regionMinSize));
+  config.mergeRegionArea = static_cast<int>(rcSqr(g_regionMergeSize));
+  config.maxVertsPerPoly = static_cast<int>(g_vertsPerPoly);
+  config.detailSampleDist = cellSize * g_detailSampleDist;
+
+  BuildContext context{};
+  InputGeom pGeom{};
+  bool const success = pGeom.load(&context, fileName);
+  if (!success)
+    context.dumpLog("Geom load log %s:", fileName.c_str());
+  REQUIRE(success);
+
+  int *pEdges{nullptr};
+  int edgeCount{};
+  generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
+  rcFree(pEdges);
+}
+TEST_CASE("Watershed - Zelda") {
+  std::string const output{"Data"};
+  std::ofstream csvFile{output + "/Timings.csv", std::ios::out | std::ios::app};
+  if (csvFile.tellp() == 1) {
+    csvFile.write(header, sizeof(header)).put('\n');
+  }
+  csvFile.close();
+  const std::string fileName{"Meshes/Zelda.obj"};
+  const float cellSize{GENERATE(0.1f, 0.2f, 0.3f, 0.4f, 0.5f)};
+  const std::string name{fileName.substr(7, fileName.size() - 11)};
+  const float agentRadius{0.0f};
+  rcConfig config{};
+  config.cs = cellSize;
+  config.ch = g_cellHeight;
+  config.walkableSlopeAngle = g_agentMaxSlope;
+  config.walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight));
+  config.walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight));
+  config.walkableRadius = static_cast<int>(std::ceil(agentRadius / g_cellHeight));
+  config.maxEdgeLen = static_cast<int>(g_edgeMaxLen / cellSize);
+  config.maxSimplificationError = g_edgeMaxError;
+  config.minRegionArea = static_cast<int>(rcSqr(g_regionMinSize));
+  config.mergeRegionArea = static_cast<int>(rcSqr(g_regionMergeSize));
+  config.maxVertsPerPoly = static_cast<int>(g_vertsPerPoly);
+  config.detailSampleDist = cellSize * g_detailSampleDist;
+
+  BuildContext context{};
+  InputGeom pGeom{};
+  bool const success = pGeom.load(&context, fileName);
+  if (!success)
+    context.dumpLog("Geom load log %s:", fileName.c_str());
+  REQUIRE(success);
+
+  int *pEdges{nullptr};
+  int edgeCount{};
+  generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
+  processBourderEdges("CSV/minima-Zelda.csv", output, name + "_" + std::to_string(static_cast<int>(cellSize * 10)), pGeom, config, pEdges, edgeCount);
+}
+TEST_CASE("Watershed - Zelda 2x2") {
+  std::string const output{"Data"};
+  std::ofstream csvFile{output + "/Timings.csv", std::ios::out | std::ios::app};
+  if (csvFile.tellp() == 1) {
+    csvFile.write(header, sizeof(header)).put('\n');
+  }
+  csvFile.close();
+  const std::string fileName{"Meshes/Zelda2x2.obj"};
+  const float cellSize{GENERATE(0.1f, 0.2f, 0.3f, 0.4f, 0.5f)};
+  const std::string name{fileName.substr(7, fileName.size() - 11)};
+  const float agentRadius{0.0f};
+  rcConfig config{};
+  config.cs = cellSize;
+  config.ch = g_cellHeight;
+  config.walkableSlopeAngle = g_agentMaxSlope;
+  config.walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight));
+  config.walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight));
+  config.walkableRadius = static_cast<int>(std::ceil(agentRadius / g_cellHeight));
+  config.maxEdgeLen = static_cast<int>(g_edgeMaxLen / cellSize);
+  config.maxSimplificationError = g_edgeMaxError;
+  config.minRegionArea = static_cast<int>(rcSqr(g_regionMinSize));
+  config.mergeRegionArea = static_cast<int>(rcSqr(g_regionMergeSize));
+  config.maxVertsPerPoly = static_cast<int>(g_vertsPerPoly);
+  config.detailSampleDist = cellSize * g_detailSampleDist;
+
+  BuildContext context{};
+  InputGeom pGeom{};
+  bool const success = pGeom.load(&context, fileName);
+  if (!success)
+    context.dumpLog("Geom load log %s:", fileName.c_str());
+  REQUIRE(success);
+
+  int *pEdges{nullptr};
+  int edgeCount{};
+  generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
+  processBourderEdges("CSV/minima-Zelda2x2.csv", output, name + "_" + std::to_string(static_cast<int>(cellSize * 10)), pGeom, config, pEdges, edgeCount);
+}
+TEST_CASE("Watershed - Zelda 4x4") {
+  std::string const output{"Data"};
+  std::ofstream csvFile{output + "/Timings.csv", std::ios::out | std::ios::app};
+  if (csvFile.tellp() == 1) {
+    csvFile.write(header, sizeof(header)).put('\n');
+  }
+  csvFile.close();
+  const std::string fileName{"Meshes/Zelda4x4.obj"};
+  const float cellSize{GENERATE(0.1f, 0.2f, 0.3f, 0.4f, 0.5f)};
+  const std::string name{fileName.substr(7, fileName.size() - 11)};
+  const float agentRadius{0.0f};
+  rcConfig config{};
+  config.cs = cellSize;
+  config.ch = g_cellHeight;
+  config.walkableSlopeAngle = g_agentMaxSlope;
+  config.walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight));
+  config.walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight));
+  config.walkableRadius = static_cast<int>(std::ceil(agentRadius / g_cellHeight));
+  config.maxEdgeLen = static_cast<int>(g_edgeMaxLen / cellSize);
+  config.maxSimplificationError = g_edgeMaxError;
+  config.minRegionArea = static_cast<int>(rcSqr(g_regionMinSize));
+  config.mergeRegionArea = static_cast<int>(rcSqr(g_regionMergeSize));
+  config.maxVertsPerPoly = static_cast<int>(g_vertsPerPoly);
+  config.detailSampleDist = cellSize * g_detailSampleDist;
+
+  BuildContext context{};
+  InputGeom pGeom{};
+  bool const success = pGeom.load(&context, fileName);
+  if (!success)
+    context.dumpLog("Geom load log %s:", fileName.c_str());
+  REQUIRE(success);
+
+  int *pEdges{nullptr};
+  int edgeCount{};
+  generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
+  processBourderEdges("CSV/minima-Zelda4x4.csv", output, name + "_" + std::to_string(static_cast<int>(cellSize * 10)), pGeom, config, pEdges, edgeCount);
+}
+TEST_CASE("Watershed - as_oilrig") {
+  std::string const output{"Data"};
+  std::ofstream csvFile{output + "/Timings.csv", std::ios::out | std::ios::app};
+  if (csvFile.tellp() == 1) {
+    csvFile.write(header, sizeof(header)).put('\n');
+  }
+  csvFile.close();
+  const std::string fileName{"Meshes/as_oilrig.obj"};
+  const float cellSize{GENERATE(0.1f, 0.2f, 0.3f, 0.4f, 0.5f)};
+  const std::string name{fileName.substr(7, fileName.size() - 11)};
+  const float agentRadius{0.0f};
+  rcConfig config{};
+  config.cs = cellSize;
+  config.ch = g_cellHeight;
+  config.walkableSlopeAngle = g_agentMaxSlope;
+  config.walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight));
+  config.walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight));
+  config.walkableRadius = static_cast<int>(std::ceil(agentRadius / g_cellHeight));
+  config.maxEdgeLen = static_cast<int>(g_edgeMaxLen / cellSize);
+  config.maxSimplificationError = g_edgeMaxError;
+  config.minRegionArea = static_cast<int>(rcSqr(g_regionMinSize));
+  config.mergeRegionArea = static_cast<int>(rcSqr(g_regionMergeSize));
+  config.maxVertsPerPoly = static_cast<int>(g_vertsPerPoly);
+  config.detailSampleDist = cellSize * g_detailSampleDist;
+
+  BuildContext context{};
+  InputGeom pGeom{};
+  bool const success = pGeom.load(&context, fileName);
+  if (!success)
+    context.dumpLog("Geom load log %s:", fileName.c_str());
+  REQUIRE(success);
+
+  int *pEdges{nullptr};
+  int edgeCount{};
+  generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
+  rcFree(pEdges);
+}
+TEST_CASE("Watershed - BigCity") {
+  std::string const output{"Data"};
+  std::ofstream csvFile{output + "/Timings.csv", std::ios::out | std::ios::app};
+  if (csvFile.tellp() == 1) {
+    csvFile.write(header, sizeof(header)).put('\n');
+  }
+  csvFile.close();
+  const std::string fileName{"Meshes/BigCity.obj"};
+  const float cellSize{GENERATE(0.2f, 0.3f, 0.4f, 0.5f)};
+  const std::string name{fileName.substr(7, fileName.size() - 11)};
+  const float agentRadius{0.0f};
+  rcConfig config{};
+  config.cs = cellSize;
+  config.ch = g_cellHeight;
+  config.walkableSlopeAngle = g_agentMaxSlope;
+  config.walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight));
+  config.walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight));
+  config.walkableRadius = static_cast<int>(std::ceil(agentRadius / g_cellHeight));
+  config.maxEdgeLen = static_cast<int>(g_edgeMaxLen / cellSize);
+  config.maxSimplificationError = g_edgeMaxError;
+  config.minRegionArea = static_cast<int>(rcSqr(g_regionMinSize));
+  config.mergeRegionArea = static_cast<int>(rcSqr(g_regionMergeSize));
+  config.maxVertsPerPoly = static_cast<int>(g_vertsPerPoly);
+  config.detailSampleDist = cellSize * g_detailSampleDist;
+
+  BuildContext context{};
+  InputGeom pGeom{};
+  bool const success = pGeom.load(&context, fileName);
+  if (!success)
+    context.dumpLog("Geom load log %s:", fileName.c_str());
+  REQUIRE(success);
+
+  int *pEdges{nullptr};
+  int edgeCount{};
+  generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
+  rcFree(pEdges);
+}
+TEST_CASE("Watershed - cs_assault") {
+  std::string const output{"Data"};
+  std::ofstream csvFile{output + "/Timings.csv", std::ios::out | std::ios::app};
+  if (csvFile.tellp() == 1) {
+    csvFile.write(header, sizeof(header)).put('\n');
+  }
+  csvFile.close();
+  const std::string fileName{"Meshes/cs_assault.obj"};
+  const float cellSize{GENERATE(0.1f, 0.2f, 0.3f, 0.4f, 0.5f)};
+  const std::string name{fileName.substr(7, fileName.size() - 11)};
+  const float agentRadius{0.0f};
+  rcConfig config{};
+  config.cs = cellSize;
+  config.ch = g_cellHeight;
+  config.walkableSlopeAngle = g_agentMaxSlope;
+  config.walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight));
+  config.walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight));
+  config.walkableRadius = static_cast<int>(std::ceil(agentRadius / g_cellHeight));
+  config.maxEdgeLen = static_cast<int>(g_edgeMaxLen / cellSize);
+  config.maxSimplificationError = g_edgeMaxError;
+  config.minRegionArea = static_cast<int>(rcSqr(g_regionMinSize));
+  config.mergeRegionArea = static_cast<int>(rcSqr(g_regionMergeSize));
+  config.maxVertsPerPoly = static_cast<int>(g_vertsPerPoly);
+  config.detailSampleDist = cellSize * g_detailSampleDist;
+
+  BuildContext context{};
+  InputGeom pGeom{};
+  bool const success = pGeom.load(&context, fileName);
+  if (!success)
+    context.dumpLog("Geom load log %s:", fileName.c_str());
+  REQUIRE(success);
+
+  int *pEdges{nullptr};
+  int edgeCount{};
+  generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
+  rcFree(pEdges);
+}
+TEST_CASE("Watershed - cs_siege") {
+  std::string const output{"Data"};
+  std::ofstream csvFile{output + "/Timings.csv", std::ios::out | std::ios::app};
+  if (csvFile.tellp() == 1) {
+    csvFile.write(header, sizeof(header)).put('\n');
+  }
+  csvFile.close();
+  const std::string fileName{"Meshes/cs_siege.obj"};
+  const float cellSize{GENERATE(0.1f, 0.2f, 0.3f, 0.4f, 0.5f)};
+  const std::string name{fileName.substr(7, fileName.size() - 11)};
+  const float agentRadius{0.0f};
+  rcConfig config{};
+  config.cs = cellSize;
+  config.ch = g_cellHeight;
+  config.walkableSlopeAngle = g_agentMaxSlope;
+  config.walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight));
+  config.walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight));
+  config.walkableRadius = static_cast<int>(std::ceil(agentRadius / g_cellHeight));
+  config.maxEdgeLen = static_cast<int>(g_edgeMaxLen / cellSize);
+  config.maxSimplificationError = g_edgeMaxError;
+  config.minRegionArea = static_cast<int>(rcSqr(g_regionMinSize));
+  config.mergeRegionArea = static_cast<int>(rcSqr(g_regionMergeSize));
+  config.maxVertsPerPoly = static_cast<int>(g_vertsPerPoly);
+  config.detailSampleDist = cellSize * g_detailSampleDist;
+
+  BuildContext context{};
+  InputGeom pGeom{};
+  bool const success = pGeom.load(&context, fileName);
+  if (!success)
+    context.dumpLog("Geom load log %s:", fileName.c_str());
+  REQUIRE(success);
+
+  int *pEdges{nullptr};
+  int edgeCount{};
+  generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
+  rcFree(pEdges);
+}
+TEST_CASE("Watershed - de_dust") {
+  std::string const output{"Data"};
+  std::ofstream csvFile{output + "/Timings.csv", std::ios::out | std::ios::app};
+  if (csvFile.tellp() == 1) {
+    csvFile.write(header, sizeof(header)).put('\n');
+  }
+  csvFile.close();
+  const std::string fileName{"Meshes/de_dust.obj"};
+  const float cellSize{GENERATE(0.1f, 0.2f, 0.3f, 0.4f, 0.5f)};
+  const std::string name{fileName.substr(7, fileName.size() - 11)};
+  const float agentRadius{0.0f};
+  rcConfig config{};
+  config.cs = cellSize;
+  config.ch = g_cellHeight;
+  config.walkableSlopeAngle = g_agentMaxSlope;
+  config.walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight));
+  config.walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight));
+  config.walkableRadius = static_cast<int>(std::ceil(agentRadius / g_cellHeight));
+  config.maxEdgeLen = static_cast<int>(g_edgeMaxLen / cellSize);
+  config.maxSimplificationError = g_edgeMaxError;
+  config.minRegionArea = static_cast<int>(rcSqr(g_regionMinSize));
+  config.mergeRegionArea = static_cast<int>(rcSqr(g_regionMergeSize));
+  config.maxVertsPerPoly = static_cast<int>(g_vertsPerPoly);
+  config.detailSampleDist = cellSize * g_detailSampleDist;
+
+  BuildContext context{};
+  InputGeom pGeom{};
+  bool const success = pGeom.load(&context, fileName);
+  if (!success)
+    context.dumpLog("Geom load log %s:", fileName.c_str());
+  REQUIRE(success);
+
+  int *pEdges{nullptr};
+  int edgeCount{};
+  generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
+  rcFree(pEdges);
+}
+TEST_CASE("Watershed - Dungeon") {
+  std::string const output{"Data"};
+  std::ofstream csvFile{output + "/Timings.csv", std::ios::out | std::ios::app};
+  if (csvFile.tellp() == 1) {
+    csvFile.write(header, sizeof(header)).put('\n');
+  }
+  csvFile.close();
+  const std::string fileName{"Meshes/Dungeon.obj"};
+  const float cellSize{GENERATE(0.1f, 0.2f, 0.3f, 0.4f, 0.5f)};
+  const std::string name{fileName.substr(7, fileName.size() - 11)};
+  const float agentRadius{0.0f};
+  rcConfig config{};
+  config.cs = cellSize;
+  config.ch = g_cellHeight;
+  config.walkableSlopeAngle = g_agentMaxSlope;
+  config.walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight));
+  config.walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight));
+  config.walkableRadius = static_cast<int>(std::ceil(agentRadius / g_cellHeight));
+  config.maxEdgeLen = static_cast<int>(g_edgeMaxLen / cellSize);
+  config.maxSimplificationError = g_edgeMaxError;
+  config.minRegionArea = static_cast<int>(rcSqr(g_regionMinSize));
+  config.mergeRegionArea = static_cast<int>(rcSqr(g_regionMergeSize));
+  config.maxVertsPerPoly = static_cast<int>(g_vertsPerPoly);
+  config.detailSampleDist = cellSize * g_detailSampleDist;
+
+  BuildContext context{};
+  InputGeom pGeom{};
+  bool const success = pGeom.load(&context, fileName);
+  if (!success)
+    context.dumpLog("Geom load log %s:", fileName.c_str());
+  REQUIRE(success);
+
+  int *pEdges{nullptr};
+  int edgeCount{};
+  generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
+  rcFree(pEdges);
+}
+TEST_CASE("Watershed - Jardin") {
+  std::string const output{"Data"};
+  std::ofstream csvFile{output + "/Timings.csv", std::ios::out | std::ios::app};
+  if (csvFile.tellp() == 1) {
+    csvFile.write(header, sizeof(header)).put('\n');
+  }
+  csvFile.close();
+  const std::string fileName{"Meshes/Jardin.obj"};
+  const float cellSize{GENERATE(0.1f, 0.2f, 0.3f, 0.4f, 0.5f)};
+  const std::string name{fileName.substr(7, fileName.size() - 11)};
+  const float agentRadius{0.0f};
+  rcConfig config{};
+  config.cs = cellSize;
+  config.ch = g_cellHeight;
+  config.walkableSlopeAngle = g_agentMaxSlope;
+  config.walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight));
+  config.walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight));
+  config.walkableRadius = static_cast<int>(std::ceil(agentRadius / g_cellHeight));
+  config.maxEdgeLen = static_cast<int>(g_edgeMaxLen / cellSize);
+  config.maxSimplificationError = g_edgeMaxError;
+  config.minRegionArea = static_cast<int>(rcSqr(g_regionMinSize));
+  config.mergeRegionArea = static_cast<int>(rcSqr(g_regionMergeSize));
+  config.maxVertsPerPoly = static_cast<int>(g_vertsPerPoly);
+  config.detailSampleDist = cellSize * g_detailSampleDist;
+
+  BuildContext context{};
+  InputGeom pGeom{};
+  bool const success = pGeom.load(&context, fileName);
+  if (!success)
+    context.dumpLog("Geom load log %s:", fileName.c_str());
+  REQUIRE(success);
+
+  int *pEdges{nullptr};
+  int edgeCount{};
+  generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
+  rcFree(pEdges);
+}
+TEST_CASE("Watershed - Library") {
+  std::string const output{"Data"};
+  std::ofstream csvFile{output + "/Timings.csv", std::ios::out | std::ios::app};
+  if (csvFile.tellp() == 1) {
+    csvFile.write(header, sizeof(header)).put('\n');
+  }
+  csvFile.close();
+  const std::string fileName{"Meshes/Library.obj"};
+  const float cellSize{GENERATE(0.1f, 0.2f, 0.3f, 0.4f, 0.5f)};
+  const std::string name{fileName.substr(7, fileName.size() - 11)};
+  const float agentRadius{0.0f};
+  rcConfig config{};
+  config.cs = cellSize;
+  config.ch = g_cellHeight;
+  config.walkableSlopeAngle = g_agentMaxSlope;
+  config.walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight));
+  config.walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight));
+  config.walkableRadius = static_cast<int>(std::ceil(agentRadius / g_cellHeight));
+  config.maxEdgeLen = static_cast<int>(g_edgeMaxLen / cellSize);
+  config.maxSimplificationError = g_edgeMaxError;
+  config.minRegionArea = static_cast<int>(rcSqr(g_regionMinSize));
+  config.mergeRegionArea = static_cast<int>(rcSqr(g_regionMergeSize));
+  config.maxVertsPerPoly = static_cast<int>(g_vertsPerPoly);
+  config.detailSampleDist = cellSize * g_detailSampleDist;
+
+  BuildContext context{};
+  InputGeom pGeom{};
+  bool const success = pGeom.load(&context, fileName);
+  if (!success)
+    context.dumpLog("Geom load log %s:", fileName.c_str());
+  REQUIRE(success);
+
+  int *pEdges{nullptr};
+  int edgeCount{};
+  generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
+  rcFree(pEdges);
+}
+TEST_CASE("Watershed - Nav Test") {
+  std::string const output{"Data"};
+  std::ofstream csvFile{output + "/Timings.csv", std::ios::out | std::ios::app};
+  if (csvFile.tellp() == 1) {
+    csvFile.write(header, sizeof(header)).put('\n');
+  }
+  csvFile.close();
+  const std::string fileName{"Meshes/NavTest.obj"};
+  const float cellSize{GENERATE(0.1f, 0.2f, 0.3f, 0.4f, 0.5f)};
+  const std::string name{fileName.substr(7, fileName.size() - 11)};
+  const float agentRadius{0.0f};
+  rcConfig config{};
+  config.cs = cellSize;
+  config.ch = g_cellHeight;
+  config.walkableSlopeAngle = g_agentMaxSlope;
+  config.walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight));
+  config.walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight));
+  config.walkableRadius = static_cast<int>(std::ceil(agentRadius / g_cellHeight));
+  config.maxEdgeLen = static_cast<int>(g_edgeMaxLen / cellSize);
+  config.maxSimplificationError = g_edgeMaxError;
+  config.minRegionArea = static_cast<int>(rcSqr(g_regionMinSize));
+  config.mergeRegionArea = static_cast<int>(rcSqr(g_regionMergeSize));
+  config.maxVertsPerPoly = static_cast<int>(g_vertsPerPoly);
+  config.detailSampleDist = cellSize * g_detailSampleDist;
+
+  BuildContext context{};
+  InputGeom pGeom{};
+  bool const success = pGeom.load(&context, fileName);
+  if (!success)
+    context.dumpLog("Geom load log %s:", fileName.c_str());
+  REQUIRE(success);
+
+  int *pEdges{nullptr};
+  int edgeCount{};
+  generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
+  rcFree(pEdges);
+}
+TEST_CASE("Watershed - Neogen 1") {
+  std::string const output{"Data"};
+  std::ofstream csvFile{output + "/Timings.csv", std::ios::out | std::ios::app};
+  if (csvFile.tellp() == 1) {
+    csvFile.write(header, sizeof(header)).put('\n');
+  }
+  csvFile.close();
+  const std::string fileName{"Meshes/Neogen1.obj"};
+  const float cellSize{GENERATE(0.1f, 0.2f, 0.3f, 0.4f, 0.5f)};
+  const std::string name{fileName.substr(7, fileName.size() - 11)};
+  const float agentRadius{0.0f};
+  rcConfig config{};
+  config.cs = cellSize;
+  config.ch = g_cellHeight;
+  config.walkableSlopeAngle = g_agentMaxSlope;
+  config.walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight));
+  config.walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight));
+  config.walkableRadius = static_cast<int>(std::ceil(agentRadius / g_cellHeight));
+  config.maxEdgeLen = static_cast<int>(g_edgeMaxLen / cellSize);
+  config.maxSimplificationError = g_edgeMaxError;
+  config.minRegionArea = static_cast<int>(rcSqr(g_regionMinSize));
+  config.mergeRegionArea = static_cast<int>(rcSqr(g_regionMergeSize));
+  config.maxVertsPerPoly = static_cast<int>(g_vertsPerPoly);
+  config.detailSampleDist = cellSize * g_detailSampleDist;
+
+  BuildContext context{};
+  InputGeom pGeom{};
+  bool const success = pGeom.load(&context, fileName);
+  if (!success)
+    context.dumpLog("Geom load log %s:", fileName.c_str());
+  REQUIRE(success);
+
+  int *pEdges{nullptr};
+  int edgeCount{};
+  generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
+  rcFree(pEdges);
+}
+TEST_CASE("Watershed - Neogen 2") {
+  std::string const output{"Data"};
+  std::ofstream csvFile{output + "/Timings.csv", std::ios::out | std::ios::app};
+  if (csvFile.tellp() == 1) {
+    csvFile.write(header, sizeof(header)).put('\n');
+  }
+  csvFile.close();
+  const std::string fileName{"Meshes/Neogen2.obj"};
+  const float cellSize{GENERATE(0.1f, 0.2f, 0.3f, 0.4f, 0.5f)};
+  const std::string name{fileName.substr(7, fileName.size() - 11)};
+  const float agentRadius{0.0f};
+  rcConfig config{};
+  config.cs = cellSize;
+  config.ch = g_cellHeight;
+  config.walkableSlopeAngle = g_agentMaxSlope;
+  config.walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight));
+  config.walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight));
+  config.walkableRadius = static_cast<int>(std::ceil(agentRadius / g_cellHeight));
+  config.maxEdgeLen = static_cast<int>(g_edgeMaxLen / cellSize);
+  config.maxSimplificationError = g_edgeMaxError;
+  config.minRegionArea = static_cast<int>(rcSqr(g_regionMinSize));
+  config.mergeRegionArea = static_cast<int>(rcSqr(g_regionMergeSize));
+  config.maxVertsPerPoly = static_cast<int>(g_vertsPerPoly);
+  config.detailSampleDist = cellSize * g_detailSampleDist;
+
+  BuildContext context{};
+  InputGeom pGeom{};
+  bool const success = pGeom.load(&context, fileName);
+  if (!success)
+    context.dumpLog("Geom load log %s:", fileName.c_str());
+  REQUIRE(success);
+
+  int *pEdges{nullptr};
+  int edgeCount{};
+  generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
+  rcFree(pEdges);
+}
+TEST_CASE("Watershed - Neogen 3") {
+  std::string const output{"Data"};
+  std::ofstream csvFile{output + "/Timings.csv", std::ios::out | std::ios::app};
+  if (csvFile.tellp() == 1) {
+    csvFile.write(header, sizeof(header)).put('\n');
+  }
+  csvFile.close();
+  const std::string fileName{"Meshes/Neogen3.obj"};
+  const float cellSize{GENERATE(0.1f, 0.2f, 0.3f, 0.4f, 0.5f)};
+  const std::string name{fileName.substr(7, fileName.size() - 11)};
+  const float agentRadius{0.0f};
+  rcConfig config{};
+  config.cs = cellSize;
+  config.ch = g_cellHeight;
+  config.walkableSlopeAngle = g_agentMaxSlope;
+  config.walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight));
+  config.walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight));
+  config.walkableRadius = static_cast<int>(std::ceil(agentRadius / g_cellHeight));
+  config.maxEdgeLen = static_cast<int>(g_edgeMaxLen / cellSize);
+  config.maxSimplificationError = g_edgeMaxError;
+  config.minRegionArea = static_cast<int>(rcSqr(g_regionMinSize));
+  config.mergeRegionArea = static_cast<int>(rcSqr(g_regionMergeSize));
+  config.maxVertsPerPoly = static_cast<int>(g_vertsPerPoly);
+  config.detailSampleDist = cellSize * g_detailSampleDist;
+
+  BuildContext context{};
+  InputGeom pGeom{};
+  bool const success = pGeom.load(&context, fileName);
+  if (!success)
+    context.dumpLog("Geom load log %s:", fileName.c_str());
+  REQUIRE(success);
+
+  int *pEdges{nullptr};
+  int edgeCount{};
+  generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
+  rcFree(pEdges);
+}
+TEST_CASE("Watershed - Parking Lot") {
+  std::string const output{"Data"};
+  std::ofstream csvFile{output + "/Timings.csv", std::ios::out | std::ios::app};
+  if (csvFile.tellp() == 1) {
+    csvFile.write(header, sizeof(header)).put('\n');
+  }
+  csvFile.close();
+  const std::string fileName{"Meshes/ParkingLot.obj"};
+  const float cellSize{GENERATE(0.1f, 0.2f, 0.3f, 0.4f, 0.5f)};
+  const std::string name{fileName.substr(7, fileName.size() - 11)};
+  const float agentRadius{0.0f};
+  rcConfig config{};
+  config.cs = cellSize;
+  config.ch = g_cellHeight;
+  config.walkableSlopeAngle = g_agentMaxSlope;
+  config.walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight));
+  config.walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight));
+  config.walkableRadius = static_cast<int>(std::ceil(agentRadius / g_cellHeight));
+  config.maxEdgeLen = static_cast<int>(g_edgeMaxLen / cellSize);
+  config.maxSimplificationError = g_edgeMaxError;
+  config.minRegionArea = static_cast<int>(rcSqr(g_regionMinSize));
+  config.mergeRegionArea = static_cast<int>(rcSqr(g_regionMergeSize));
+  config.maxVertsPerPoly = static_cast<int>(g_vertsPerPoly);
+  config.detailSampleDist = cellSize * g_detailSampleDist;
+
+  BuildContext context{};
+  InputGeom pGeom{};
+  bool const success = pGeom.load(&context, fileName);
+  if (!success)
+    context.dumpLog("Geom load log %s:", fileName.c_str());
+  REQUIRE(success);
+
+  int *pEdges{nullptr};
+  int edgeCount{};
+  generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
+  rcFree(pEdges);
+}
+TEST_CASE("Watershed - Tower") {
+  std::string const output{"Data"};
+  std::ofstream csvFile{output + "/Timings.csv", std::ios::out | std::ios::app};
+  if (csvFile.tellp() == 1) {
+    csvFile.write(header, sizeof(header)).put('\n');
+  }
+  csvFile.close();
+  const std::string fileName{"Meshes/Tower.obj"};
+  const float cellSize{GENERATE(0.1f, 0.2f, 0.3f, 0.4f, 0.5f)};
+  const std::string name{fileName.substr(7, fileName.size() - 11)};
+  const float agentRadius{0.0f};
+  rcConfig config{};
+  config.cs = cellSize;
+  config.ch = g_cellHeight;
+  config.walkableSlopeAngle = g_agentMaxSlope;
+  config.walkableHeight = static_cast<int>(std::ceil(g_agentHeight / g_cellHeight));
+  config.walkableClimb = static_cast<int>(std::floor(g_agentMaxClimb / g_cellHeight));
+  config.walkableRadius = static_cast<int>(std::ceil(agentRadius / g_cellHeight));
+  config.maxEdgeLen = static_cast<int>(g_edgeMaxLen / cellSize);
+  config.maxSimplificationError = g_edgeMaxError;
+  config.minRegionArea = static_cast<int>(rcSqr(g_regionMinSize));
+  config.mergeRegionArea = static_cast<int>(rcSqr(g_regionMergeSize));
+  config.maxVertsPerPoly = static_cast<int>(g_vertsPerPoly);
+  config.detailSampleDist = cellSize * g_detailSampleDist;
+
+  BuildContext context{};
+  InputGeom pGeom{};
+  bool const success = pGeom.load(&context, fileName);
+  if (!success)
+    context.dumpLog("Geom load log %s:", fileName.c_str());
+  REQUIRE(success);
+
+  int *pEdges{nullptr};
+  int edgeCount{};
+  generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
+  rcFree(pEdges);
 }

@@ -41,6 +41,7 @@
 #include "Sample_SizeFromPortalEdgeMesh.h"
 #include "Sample_SoloMesh.h"
 #include "Sample_TileMesh.h"
+#include "Sample_TileMeshLCM.h"
 #include "Sample_TempObstacles.h"
 #include "Sample_Debug.h"
 
@@ -57,16 +58,18 @@ struct SampleItem
 	Sample* (*create)();
 	const string name;
 };
-Sample *createSoloLacalMinimum() { return new Sample_SizeFromPortalEdgeMesh(); }
 Sample* createSolo() { return new Sample_SoloMesh(); }
+Sample *createSoloLCM() { return new Sample_SizeFromPortalEdgeMesh(); }
 Sample* createTile() { return new Sample_TileMesh(); }
+Sample* createTileLCM() { return new Sample_TileMeshLCM(); }
 Sample* createTempObstacle() { return new Sample_TempObstacles(); }
 Sample* createDebug() { return new Sample_Debug(); }
 static SampleItem g_samples[] =
 {
-    {createSoloLacalMinimum, "Solo Mesh From Local Minimum"},
 	{ createSolo, "Solo Mesh" },
+    { createSoloLCM, "Solo Mesh LCM"},
 	{ createTile, "Tile Mesh" },
+    { createTileLCM, "Tile Mesh LCM" },
 	{ createTempObstacle, "Temp Obstacles" },
 };
 static const int g_nsamples = sizeof(g_samples) / sizeof(SampleItem);

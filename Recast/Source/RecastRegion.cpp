@@ -1816,6 +1816,17 @@ bool rcBuildLayerRegions(rcContext* ctx, rcCompactHeightfield& chf,
 	
 	return true;
 }
+struct CompareEntries {
+  CompareEntries(const unsigned short* d) : dist(d) {}
+
+  static unsigned short* dist;
+  static int Compare(const void* p1, const void* p2){
+    const LevelStackEntry* l1 = (const LevelStackEntry*)p1;
+    const LevelStackEntry* l2 = (const LevelStackEntry*)p2;
+    return dist[l1->index] - dist[l2->index];
+  }
+private:
+};
 bool rcBuildRegionsWithSize(rcContext *ctx, rcCompactHeightfield &chf, const int borderSize, const int minRegionArea, const int mergeRegionArea) {
     rcAssert(ctx);
     if (!ctx)
@@ -1829,6 +1840,8 @@ bool rcBuildRegionsWithSize(rcContext *ctx, rcCompactHeightfield &chf, const int
     const static short NOT_EVALUATED = -4;
     const static short DIRTY = -3;
     const static short PENDING = -2;
+    if(chf.maxDistance == 0)
+      return true;
 
     rcTempVector<uint16_t> regions(chf.spanCount, NOT_EVALUATED);
     rcTempVector<LevelStackEntry> levelStack;
@@ -1837,21 +1850,21 @@ bool rcBuildRegionsWithSize(rcContext *ctx, rcCompactHeightfield &chf, const int
         for (int x = borderSize; x < w - borderSize; ++x) {
             const rcCompactCell &c = chf.cells[x + y * w];
             for (int i = static_cast<int>(c.index), ni = static_cast<int>(c.index + c.count); i < ni; ++i) {
-                if (chf.spans[i].reg != 0 || chf.areas[i] == RC_NULL_AREA || chf.dist[i] == 0)
+                if (chf.spans[i].reg != 0 || chf.areas[i] == RC_NULL_AREA)
                     continue;
                 levelStack.push_back(LevelStackEntry(x, y, i));
             }
         }
     }
-    if(levelStack.empty())
-        return false;
+    if(levelStack.size() == 0)
+        return true;
     // Then use it in qsort
     const unsigned short* dist = chf.dist;
     std::sort(levelStack.begin(), levelStack.end(), [dist](const LevelStackEntry &l1, const LevelStackEntry &l2) {
         return dist[l1.index] < dist[l2.index];
     });
 
-    uint16_t level = chf.maxDistance;
+    int16_t level = chf.maxDistance;
     uint16_t regionId = 1;
     int lastLevelStackIndex = static_cast<int>(levelStack.size() - 1);
     regions[levelStack.back().index] = regionId;
@@ -1859,7 +1872,7 @@ bool rcBuildRegionsWithSize(rcContext *ctx, rcCompactHeightfield &chf, const int
     rcTempVector<LevelStackEntry> pendingSeeds;
     rcTempVector<LevelStackEntry> dirtySeeds;
     seeds.push_back(levelStack.back());
-    while (level > 0) {
+    while (level >= 0) {
         while (!seeds.empty()) {
             // expand existing regions
             const LevelStackEntry &back = seeds.back();
