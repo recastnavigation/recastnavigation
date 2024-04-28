@@ -1,5 +1,6 @@
 var NAVTREEINDEX12 =
 {
+"structrcNewTag.html":[8,0,111],
 "structrcPolyMesh.html":[7,0,6],
 "structrcPolyMesh.html#a219af1d7c18ebc7cea0d845c76166123":[7,0,6,0],
 "structrcPolyMesh.html#a414a3bc052e13abf77d731da160823d4":[7,0,6,1],

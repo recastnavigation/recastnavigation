@@ -1,5 +1,6 @@
 var NAVTREEINDEX11 =
 {
+"structdtTileCacheLayer.html#a2c1f0dc1d5b1b0c5770fdd49aa0cb634":[8,0,60,5],
 "structdtTileCacheLayer.html#aa81a7e641ccfb8e00f0072efae4d74fd":[8,0,60,1],
 "structdtTileCacheLayer.html#ab9bd3001111fc4512c2ef7f225a4466d":[8,0,60,4],
 "structdtTileCacheLayer.html#ad5671088121159f5f4f39d52f6c3d42f":[8,0,60,3],
@@ -248,6 +249,5 @@ var NAVTREEINDEX11 =
 "structrcLayerSweepSpan.html":[8,0,109],
 "structrcLayerSweepSpan.html#a16f6f61547ed2e1c6f22b6e17810785e":[8,0,109,0],
 "structrcLayerSweepSpan.html#a7106ea090c417b32ef87c78a3940b997":[8,0,109,2],
-"structrcLayerSweepSpan.html#ae002a2c1f59bcd05df6661734ba7e466":[8,0,109,1],
-"structrcNewTag.html":[8,0,111]
+"structrcLayerSweepSpan.html#ae002a2c1f59bcd05df6661734ba7e466":[8,0,109,1]
 };
