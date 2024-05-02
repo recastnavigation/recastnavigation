@@ -964,9 +964,31 @@ void rcClearUnwalkableTrianglesCosAngle(rcContext* context, float walkableSlopeC
 /// @param[in]		flagMergeThreshold	The merge threshold. [Limit: >= 0] [Units: vx]
 /// @returns True if the operation completed successfully.
 bool rcAddSpan(rcContext* context, rcHeightfield& heightfield,
-	           int x, int z,
+               int x, int z,
                unsigned short spanMin, unsigned short spanMax,
                unsigned char areaID, int flagMergeThreshold);
+
+///	Rasterize a single triangle to the heightfield.
+///
+///	This code is extremely hot, so much care should be given to maintaining maximum perf here.
+/// 
+/// @param[in] 	v0					Triangle vertex 0
+/// @param[in] 	v1					Triangle vertex 1
+/// @param[in] 	v2					Triangle vertex 2
+/// @param[in] 	areaID				The area ID to assign to the rasterized spans
+/// @param[in] 	heightfield			Heightfield to rasterize into
+/// @param[in] 	heightfieldBBMin	The min extents of the heightfield bounding box
+/// @param[in] 	heightfieldBBMax	The max extents of the heightfield bounding box
+/// @param[in] 	cellSize			The x and z axis size of a voxel in the heightfield
+/// @param[in] 	inverseCellSize		1 / cellSize
+/// @param[in] 	inverseCellHeight	1 / cellHeight
+/// @param[in] 	flagMergeThreshold	The threshold in which area flags will be merged 
+/// @returns true if the operation completes successfully.  false if there was an error adding spans to the heightfield.
+bool rasterizeTri(const float* v0, const float* v1, const float* v2,
+                  const unsigned char areaID, rcHeightfield& heightfield,
+                  const float* heightfieldBBMin, const float* heightfieldBBMax,
+                  const float cellSize, const float inverseCellSize, const float inverseCellHeight,
+                  const int flagMergeThreshold);
 
 /// Rasterizes a single triangle into the specified heightfield.
 ///

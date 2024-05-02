@@ -303,11 +303,11 @@ static void dividePoly(const float* inVerts, int inVertsCount,
 /// @param[in] 	inverseCellHeight	1 / cellHeight
 /// @param[in] 	flagMergeThreshold	The threshold in which area flags will be merged 
 /// @returns true if the operation completes successfully.  false if there was an error adding spans to the heightfield.
-static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
-                         const unsigned char areaID, rcHeightfield& heightfield,
-                         const float* heightfieldBBMin, const float* heightfieldBBMax,
-                         const float cellSize, const float inverseCellSize, const float inverseCellHeight,
-                         const int flagMergeThreshold)
+bool rasterizeTri(const float* v0, const float* v1, const float* v2,
+                  const unsigned char areaID, rcHeightfield& heightfield,
+                  const float* heightfieldBBMin, const float* heightfieldBBMax,
+                  const float cellSize, const float inverseCellSize, const float inverseCellHeight,
+                  const int flagMergeThreshold)
 {
 	// Calculate the bounding box of the triangle.
 	float triBBMin[3];
