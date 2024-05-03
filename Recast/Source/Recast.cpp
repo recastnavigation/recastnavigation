@@ -303,12 +303,10 @@ void rcCalcGridSize(const float* minBounds, const float* maxBounds, const float 
 	*sizeZ = (int)((maxBounds[2] - minBounds[2]) / cellSize + 0.5f);
 }
 
-bool rcCreateHeightfield(rcContext* context, rcHeightfield& heightfield, int sizeX, int sizeZ,
+bool rcCreateHeightfield(rcHeightfield& heightfield, int sizeX, int sizeZ,
                          const float* minBounds, const float* maxBounds,
                          float cellSize, float cellHeight)
 {
-	rcIgnoreUnused(context);
-
 	heightfield.width = sizeX;
 	heightfield.height = sizeZ;
 	rcVcopy(heightfield.bmin, minBounds);
@@ -333,12 +331,11 @@ static void calcTriNormal(const float* v0, const float* v1, const float* v2, flo
 	rcVnormalize(faceNormal);
 }
 
-void rcMarkWalkableTrianglesCosAngle(rcContext* context, float walkableSlopeCosAngle,
+void rcMarkWalkableTrianglesCosAngle(float walkableSlopeCosAngle,
 									 const float* verts, int numVerts,
 									 const int* tris, int numTris,
 									 unsigned char* triAreaIDs)
 {
-	rcIgnoreUnused(context);
 	rcIgnoreUnused(numVerts);
 
 	const float walkableThr = walkableSlopeCosAngle;
@@ -357,23 +354,22 @@ void rcMarkWalkableTrianglesCosAngle(rcContext* context, float walkableSlopeCosA
 	}
 }
 
-void rcMarkWalkableTriangles(rcContext* context, const float walkableSlopeAngle,
-                             const float* verts, const int numVerts,
-                             const int* tris, const int numTris,
-                             unsigned char* triAreaIDs)
+void rcMarkWalkableTriangles(const float walkableSlopeAngle,
+							 const float* verts, const int numVerts,
+							 const int* tris, const int numTris,
+							 unsigned char* triAreaIDs)
 {
-	rcMarkWalkableTrianglesCosAngle(context, cosf(walkableSlopeAngle / 180.0f * RC_PI),
+	rcMarkWalkableTrianglesCosAngle(cosf(walkableSlopeAngle / 180.0f * RC_PI),
 									verts, numVerts,
 									tris, numTris,
 									triAreaIDs);
 }
 
-void rcMarkWalkableTrianglesCosAngle(rcContext* context, float walkableSlopeCosAngle,
+void rcMarkWalkableTrianglesCosAngle(float walkableSlopeCosAngle,
 									 const float* verts, int numVerts,
 									 const unsigned short* tris, int numTris,
 									 unsigned char* triAreaIDs)
 {
-	rcIgnoreUnused(context);
 	rcIgnoreUnused(numVerts);
 
 	const float walkableThr = walkableSlopeCosAngle;
@@ -392,23 +388,22 @@ void rcMarkWalkableTrianglesCosAngle(rcContext* context, float walkableSlopeCosA
 	}
 }
 
-void rcMarkWalkableTriangles(rcContext* context, float walkableSlopeAngle,
+void rcMarkWalkableTriangles(float walkableSlopeAngle,
                              const float* verts, const int numVerts,
                              const unsigned short* tris, const int numTris,
                              unsigned char* triAreaIDs)
 {
-	rcMarkWalkableTrianglesCosAngle(context, cosf(walkableSlopeAngle / 180.0f * RC_PI),
+	rcMarkWalkableTrianglesCosAngle(cosf(walkableSlopeAngle / 180.0f * RC_PI),
 									verts, numVerts,
 									tris, numTris,
 									triAreaIDs);
 }
 
-void rcClearUnwalkableTrianglesCosAngle(rcContext* context, const float walkableSlopeCosAngle,
+void rcClearUnwalkableTrianglesCosAngle(const float walkableSlopeCosAngle,
 										const float* verts, int numVerts,
 										const int* tris, int numTris,
 										unsigned char* triAreaIDs)
 {
-	rcIgnoreUnused(context);
 	rcIgnoreUnused(numVerts);
 
 	// The minimum Y value for a face normal of a triangle with a walkable slope.
@@ -427,23 +422,22 @@ void rcClearUnwalkableTrianglesCosAngle(rcContext* context, const float walkable
 	}
 }
 
-void rcClearUnwalkableTriangles(rcContext* context, const float walkableSlopeAngle,
+void rcClearUnwalkableTriangles(const float walkableSlopeAngle,
                                 const float* verts, int numVerts,
                                 const int* tris, int numTris,
                                 unsigned char* triAreaIDs)
 {
-	rcClearUnwalkableTrianglesCosAngle(context, cosf(walkableSlopeAngle / 180.0f * RC_PI),
+	rcClearUnwalkableTrianglesCosAngle(cosf(walkableSlopeAngle / 180.0f * RC_PI),
 									   verts, numVerts,
 									   tris, numTris,
 									   triAreaIDs);
 }
 
-void rcClearUnwalkableTrianglesCosAngle(rcContext* context, const float walkableSlopeCosAngle,
+void rcClearUnwalkableTrianglesCosAngle(const float walkableSlopeCosAngle,
 										const float* verts, int numVerts,
 										const unsigned short* tris, int numTris,
 										unsigned char* triAreaIDs)
 {
-	rcIgnoreUnused(context);
 	rcIgnoreUnused(numVerts);
 
 	// The minimum Y value for a face normal of a triangle with a walkable slope.
@@ -462,12 +456,12 @@ void rcClearUnwalkableTrianglesCosAngle(rcContext* context, const float walkable
 	}
 }
 
-void rcClearUnwalkableTriangles(rcContext* context, const float walkableSlopeAngle,
+void rcClearUnwalkableTriangles(const float walkableSlopeAngle,
                                 const float* verts, int numVerts,
                                 const unsigned short* tris, int numTris,
                                 unsigned char* triAreaIDs)
 {
-	rcClearUnwalkableTrianglesCosAngle(context, cosf(walkableSlopeAngle / 180.0f * RC_PI),
+	rcClearUnwalkableTrianglesCosAngle(cosf(walkableSlopeAngle / 180.0f * RC_PI),
 									   verts, numVerts,
 									   tris, numTris,
 									   triAreaIDs);
