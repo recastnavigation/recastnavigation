@@ -28,7 +28,12 @@ enum dtNodeFlags
 	DT_NODE_PARENT_DETACHED = 0x04 // parent of the node is not adjacent. Found using raycast.
 };
 
+#ifdef DT_POLYREF64
+typedef unsigned int dtNodeIndex;
+#else 
 typedef unsigned short dtNodeIndex;
+#endif
+
 static const dtNodeIndex DT_NULL_IDX = (dtNodeIndex)~0;
 
 static const int DT_NODE_PARENT_BITS = 24;
