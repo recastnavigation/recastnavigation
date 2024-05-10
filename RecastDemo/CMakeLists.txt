@@ -34,6 +34,22 @@ if(APPLE)
   include_directories(${SDL2_LIBRARY}/Headers)
 endif()
 
+file(GLOB DEBUG_UTILS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/../DebugUtils/Source/*.cpp")
+add_library(DebugUtils SHARED ${DEBUG_UTILS_SRC})
+
+file(GLOB RECAST_SRC "${CMAKE_CURRENT_SOURCE_DIR}/../Recast/Source/*.cpp")
+add_library(Recast SHARED ${RECAST_SRC})
+
+file(GLOB RECAST_DETOUR_SRC "${CMAKE_CURRENT_SOURCE_DIR}/../Detour/Source/*.cpp")
+add_library(Detour SHARED ${RECAST_DETOUR_SRC})
+
+file(GLOB RECAST_DETOUR_CROWD_SRC "${CMAKE_CURRENT_SOURCE_DIR}/../DetourCrowd/Source/*.cpp")
+add_library(DetourCrowd SHARED ${RECAST_DETOUR_CROWD_SRC})
+
+file(GLOB RECAST_DETOUR_TILE_CACHE_SRC "${CMAKE_CURRENT_SOURCE_DIR}/../DetourTileCache/Source/*.cpp")
+add_library(DetourTileCache SHARED ${RECAST_DETOUR_TILE_CACHE_SRC})
+
+
 if (WIN32)
     add_executable(RecastDemo WIN32 ${SOURCES})
 elseif(APPLE)
