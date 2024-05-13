@@ -69,7 +69,7 @@ jobs:
     - name: Run Tests
       working-directory: RecastDemo/Bin
       run: ./Tests --verbosity high --success
-  
+
   windows-tests:
     runs-on: windows-2022
 

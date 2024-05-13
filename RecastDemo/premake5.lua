@@ -211,13 +211,11 @@ project "Tests"
 		"../DetourTileCache/Include",
 		"../Recast/Include",
 		"../Recast/Source",
-		"../RecastCLI/Include",
 		"../Tests/Recast",
 		"../Tests",
 		"../Tests/Contrib"
 	}
 	files { 
-		"../RecastCLI/Source/*.cpp",
 		"../Tests/*.h",
 		"../Tests/*.hpp",
 		"../Tests/*.cpp",
@@ -228,7 +226,6 @@ project "Tests"
 		"../Tests/DetourCrowd/*.cpp",
 		"../Tests/Contrib/catch2/*.cpp"
 	}
-	removefiles{"../RecastCLI/Source/main.cpp"}
 
 	-- project dependencies
 	links {
@@ -272,6 +269,174 @@ project "Tests"
 		libdirs { "../RecastDemo/Contrib/SDL/lib/%{cfg.architecture:gsub('x86_64', 'x64')}" }
 		debugdir "../RecastDemo/Bin/"
 		links { 
+			"glu32",
+			"opengl32",
+			"SDL2",
+			"SDL2main",
+		}
+
+	-- mac includes and libs
+	filter "system:macosx"
+		kind "ConsoleApp"
+		links {
+			"Cocoa.framework",
+		}
+
+project "TestsLCM2D"
+	language "C++"
+	kind "ConsoleApp"
+	cppdialect "C++14" -- Catch requires newer C++ features
+
+	-- Catch requires RTTI and exceptions
+	exceptionhandling "On"
+	rtti "On"
+
+	includedirs {
+		"../DebugUtils/Include",
+		"../Detour/Include",
+		"../DetourCrowd/Include",
+		"../DetourTileCache/Include",
+		"../Recast/Include",
+		"../Recast/Source",
+		"../RecastCLI/Include",
+		"../Tests/Recast",
+		"../Tests",
+		"../Tests/Contrib"
+	}
+	files {
+		"../RecastCLI/Source/*.cpp",
+		"../Tests/Contrib/catch2/*.cpp",
+		"../Tests/RecastLCM/Tests_Recast_LCM.h",
+		"../Tests/RecastLCM/Tests_Recast_LCM_2D.cpp"
+	}
+	removefiles{"../RecastCLI/Source/main.cpp"}
+
+	-- project dependencies
+	links {
+		"DebugUtils",
+		"DetourCrowd",
+		"Detour",
+		"DetourTileCache",
+		"Recast",
+	}
+
+	-- distribute executable in RecastDemo/Bin directory
+	targetdir "Bin"
+
+	postbuildcommands {
+		-- Copy the SDL2 dll to the Bin folder.
+		'{COPY} "%{path.getabsolute("../Tests/Bin/")}" "%{cfg.targetdir}"'
+	}
+	-- enable ubsan and asan when compiling with clang
+	filter "toolset:clang"
+			buildoptions { "-fsanitize=undefined", "-fsanitize=address" } -- , "-fsanitize=memory" }
+			linkoptions { "-fsanitize=undefined", "-fsanitize=address" } --, "-fsanitize=memory" }
+
+	-- linux library cflags and libs
+	filter "system:linux"
+		buildoptions {
+			"`pkg-config --cflags sdl2`",
+			"`pkg-config --cflags gl`",
+			"`pkg-config --cflags glu`",
+			"-Wno-parentheses" -- Disable parentheses warning for the Tests target, as Catch's macros generate this everywhere.
+		}
+		linkoptions {
+			"`pkg-config --libs sdl2`",
+			"`pkg-config --libs gl`",
+			"`pkg-config --libs glu`",
+			"-lpthread"
+		}
+
+	-- windows library cflags and libs
+	filter "system:windows"
+		includedirs { "../RecastDemo/Contrib/SDL/include" }
+		libdirs { "../RecastDemo/Contrib/SDL/lib/%{cfg.architecture:gsub('x86_64', 'x64')}" }
+		debugdir "../RecastDemo/Bin/"
+		links {
+			"glu32",
+			"opengl32",
+			"SDL2",
+			"SDL2main",
+		}
+
+	-- mac includes and libs
+	filter "system:macosx"
+		kind "ConsoleApp"
+		links {
+			"Cocoa.framework",
+		}
+
+project "TestsLCM3D"
+	language "C++"
+	kind "ConsoleApp"
+	cppdialect "C++14" -- Catch requires newer C++ features
+
+	-- Catch requires RTTI and exceptions
+	exceptionhandling "On"
+	rtti "On"
+
+	includedirs {
+		"../DebugUtils/Include",
+		"../Detour/Include",
+		"../DetourCrowd/Include",
+		"../DetourTileCache/Include",
+		"../Recast/Include",
+		"../Recast/Source",
+		"../RecastCLI/Include",
+		"../Tests/Recast",
+		"../Tests",
+		"../Tests/Contrib"
+	}
+	files {
+		"../RecastCLI/Source/*.cpp",
+		"../Tests/Contrib/catch2/*.cpp",
+		"../Tests/RecastLCM/Tests_Recast_LCM.h",
+		"../Tests/RecastLCM/Tests_Recast_LCM_3D.cpp"
+	}
+	removefiles{"../RecastCLI/Source/main.cpp"}
+
+	-- project dependencies
+	links {
+		"DebugUtils",
+		"DetourCrowd",
+		"Detour",
+		"DetourTileCache",
+		"Recast",
+	}
+
+	-- distribute executable in RecastDemo/Bin directory
+	targetdir "Bin"
+
+	postbuildcommands {
+		-- Copy the SDL2 dll to the Bin folder.
+		'{COPY} "%{path.getabsolute("../Tests/Bin/")}" "%{cfg.targetdir}"'
+	}
+	-- enable ubsan and asan when compiling with clang
+	filter "toolset:clang"
+			buildoptions { "-fsanitize=undefined", "-fsanitize=address" } -- , "-fsanitize=memory" }
+			linkoptions { "-fsanitize=undefined", "-fsanitize=address" } --, "-fsanitize=memory" }
+
+	-- linux library cflags and libs
+	filter "system:linux"
+		buildoptions {
+			"`pkg-config --cflags sdl2`",
+			"`pkg-config --cflags gl`",
+			"`pkg-config --cflags glu`",
+			"-Wno-parentheses" -- Disable parentheses warning for the Tests target, as Catch's macros generate this everywhere.
+		}
+		linkoptions {
+			"`pkg-config --libs sdl2`",
+			"`pkg-config --libs gl`",
+			"`pkg-config --libs glu`",
+			"-lpthread"
+		}
+
+	-- windows library cflags and libs
+	filter "system:windows"
+		includedirs { "../RecastDemo/Contrib/SDL/include" }
+		libdirs { "../RecastDemo/Contrib/SDL/lib/%{cfg.architecture:gsub('x86_64', 'x64')}" }
+		debugdir "../RecastDemo/Bin/"
+		links {
 			"glu32",
 			"opengl32",
 			"SDL2",

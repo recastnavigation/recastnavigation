@@ -30,8 +30,8 @@ struct BoundsItem
 
 static int compareItemX(const void* va, const void* vb)
 {
-    const BoundsItem* a = (const BoundsItem*)va;
-    const BoundsItem* b = (const BoundsItem*)vb;
+    const BoundsItem* a = static_cast<const BoundsItem *>(va);
+    const BoundsItem* b = static_cast<const BoundsItem *>(vb);
     if (a->bmin[0] < b->bmin[0])
         return -1;
     if (a->bmin[0] > b->bmin[0])
@@ -41,8 +41,8 @@ static int compareItemX(const void* va, const void* vb)
 
 static int compareItemY(const void* va, const void* vb)
 {
-    const BoundsItem* a = (const BoundsItem*)va;
-    const BoundsItem* b = (const BoundsItem*)vb;
+    const BoundsItem* a = static_cast<const BoundsItem *>(va);
+    const BoundsItem* b = static_cast<const BoundsItem *>(vb);
     if (a->bmin[1] < b->bmin[1])
         return -1;
     if (a->bmin[1] > b->bmin[1])

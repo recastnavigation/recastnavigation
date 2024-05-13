@@ -13,10 +13,6 @@ All code in Recast and Detour strictly adheres to the following:
 
 RecastDemo is a bit looser with these requirements, as it's only meant to showcase Recast usage and functionality, not be part of a shipped product.
 
-## What coordinate system and triangle winding order does Recast use?
-
-Recast expects clockwise-winding triangles and uses a right-handed, Y-up coordinate system.
-
 ## Why doesn't Recast use STL/Exceptions/RTTI/C++11/my favorite C++ feature?
 
 Recast has always strived to maximize its ease of integration into an existing codebase, its portability to unique platforms, and its runtime performance.  Recast was forged in the fires of game development, and as such follows the cultural norms of the games industry.

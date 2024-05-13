@@ -1,0 +1,125 @@
+name: Tests_LCM_3D
+
+on:
+    push:
+        branches: [ "**" ]
+    pull_request:
+        branches: [ "**" ]
+
+jobs:
+    macos-tests:
+        runs-on: macos-latest
+
+        steps:
+            -   uses: actions/checkout@v3
+
+            -   name: Download & install SDL
+                run: |
+                    curl -L -o SDL2.dmg https://github.com/libsdl-org/SDL/releases/download/release-2.24.2/SDL2-2.24.2.dmg
+                    hdiutil attach SDL2.dmg
+                    cp -r /Volumes/SDL2/SDL2.framework RecastDemo/Bin
+                    hdiutil detach /Volumes/SDL2
+                    rm SDL2.dmg
+
+            -   name: Download & install premake
+                working-directory: RecastDemo
+                run: |
+                    curl -L -o premake.tar.gz https://github.com/premake/premake-core/releases/download/v5.0.0-beta2/premake-5.0.0-beta2-macosx.tar.gz
+                    tar -xzf premake.tar.gz
+                    rm premake.tar.gz
+
+            -   name: Run premake
+                working-directory: RecastDemo
+                run: ./premake5 xcode4
+
+            -   name: Build LCM 2D Unit Tests With Xcode
+                working-directory: RecastDemo/Build/xcode4/
+                run: xcodebuild -scheme Tests -configuration Debug -project TestsLCM3D.xcodeproj build
+
+            -   name: Run unit tests
+                working-directory: RecastDemo/Bin
+                run: ./TestsLCM3D --verbosity high --success
+
+    linux-tests:
+        runs-on: ubuntu-latest
+
+        steps:
+            -   uses: actions/checkout@v3
+
+            -   name: Install opengl and SDL
+                run: |
+                    sudo apt-get update
+                    sudo apt-get install -y libgl1-mesa-dev libsdl2-dev
+
+            -   name: Download & Install premake
+                working-directory: RecastDemo
+                run: |
+                    curl -L -o premake.tar.gz https://github.com/premake/premake-core/releases/download/v5.0.0-beta2/premake-5.0.0-beta2-linux.tar.gz
+                    tar -xzf premake.tar.gz
+                    rm premake.tar.gz
+
+            -   name: Run premake
+                working-directory: RecastDemo
+                run: ./premake5 --cc=clang gmake2
+
+            -   name: Build
+                working-directory: RecastDemo/Build/gmake2
+                run: make config=debug verbose=true
+
+            -   name: Run Tests
+                working-directory: RecastDemo/Bin
+                run: ./TestsLCM3D --verbosity high --success
+
+    windows-tests:
+        runs-on: windows-2022
+
+        steps:
+            -   uses: actions/checkout@v3
+
+            -   name: Add msbuild to PATH
+                uses: microsoft/setup-msbuild@v1.1
+
+            -   name: Download and Install SDL
+                working-directory: RecastDemo/Contrib
+                shell: pwsh
+                run: |
+                    (new-object System.Net.WebClient).DownloadFile("https://github.com/libsdl-org/SDL/releases/download/release-2.24.2/SDL2-devel-2.24.2-VC.zip","${{github.workspace}}/RecastDemo/Contrib/SDL.zip")
+                    tar -xf SDL.zip
+                    ren SDL2-2.24.2 SDL
+                    del SDL.zip
+
+            -   name: Download and Install Premake
+                working-directory: RecastDemo
+                shell: pwsh
+                run: |
+                    (new-object System.Net.WebClient).DownloadFile("https://github.com/premake/premake-core/releases/download/v5.0.0-beta2/premake-5.0.0-beta2-windows.zip","${{github.workspace}}/RecastDemo/premake.zip")
+                    tar -xf premake.zip
+                    del premake.zip
+
+            -   name: Run Premake
+                working-directory: RecastDemo
+                run: ./premake5.exe vs2022
+
+            -   name: Build
+                working-directory: RecastDemo/Build/vs2022
+                run: msbuild TestsLCM3D.vcxproj -property:Configuration=Release
+
+            -   name: Run Tests
+                working-directory: RecastDemo/Bin/
+                run: ./TestsLCM3D.exe --verbosity high --success
+
+            -   uses: actions/upload-artifact@v4
+                with:
+                    # Name of the artifact to upload.
+                    # Optional. Default is 'artifact'
+                    name: Timings
+
+                    # A file, directory or wildcard pattern that describes what to upload
+                    # Required.
+                    path: ${{ github.workspace }}/RecastDemo/Bin/Data
+
+                    # Duration after which artifact will expire in days. 0 means using default retention.
+                    # Minimum 1 day.
+                    # Maximum 90 days unless changed from the repository settings page.
+                    # Optional. Defaults to repository settings.
+                    retention-days: 1

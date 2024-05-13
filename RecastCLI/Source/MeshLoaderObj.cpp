@@ -75,7 +75,7 @@ void rcMeshLoaderObj::addTriangle(int a, int b, int c, int& cap)
     m_triCount++;
 }
 
-static char* parseRow(char* buf, char* bufEnd, char* row, int len)
+static char* parseRow(char* buf, const char * bufEnd, char* row, int len)
 {
     bool start = true;
     bool done = false;

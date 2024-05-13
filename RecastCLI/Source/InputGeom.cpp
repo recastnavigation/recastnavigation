@@ -69,7 +69,7 @@ static bool intersectSegmentTriangle(const float* sp, const float* sq,
     return true;
 }
 
-static char* parseRow(char* buf, char* bufEnd, char* row, int len)
+static char* parseRow(char* buf, const char * bufEnd, char* row, int len)
 {
     bool start = true;
     bool done = false;
@@ -240,9 +240,9 @@ bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath)
                 sscanf(row+1, "%f %f %f  %f %f %f %f %d %d %d",
                        &v[0], &v[1], &v[2], &v[3], &v[4], &v[5], &rad, &bidir, &area, &flags);
                 m_offMeshConRads[m_offMeshConCount] = rad;
-                m_offMeshConDirs[m_offMeshConCount] = (unsigned char)bidir;
-                m_offMeshConAreas[m_offMeshConCount] = (unsigned char)area;
-                m_offMeshConFlags[m_offMeshConCount] = (unsigned short)flags;
+                m_offMeshConDirs[m_offMeshConCount] = static_cast<unsigned char>(bidir);
+                m_offMeshConAreas[m_offMeshConCount] = static_cast<unsigned char>(area);
+                m_offMeshConFlags[m_offMeshConCount] = static_cast<unsigned short>(flags);
                 m_offMeshConCount++;
             }
         }
@@ -420,7 +420,7 @@ static bool isectSegAABB(const float* sp, const float* sq,
 }
 
 
-bool InputGeom::raycastMesh(float* src, float* dst, float& tmin)
+bool InputGeom::raycastMesh(const float * src, const float * dst, float& tmin)
 {
     // Prune hit ray.
     float btmin, btmax;

@@ -33,17 +33,17 @@
 #include "imgui.h"
 #include "imguiRenderGL.h"
 
+#include "Filelist.h"
+#include "InputGeom.h"
 #include "Recast.h"
 #include "RecastDebugDraw.h"
-#include "InputGeom.h"
-#include "TestCase.h"
-#include "Filelist.h"
-#include "Sample_SizeFromPortalEdgeMesh.h"
+#include "Sample_Debug.h"
 #include "Sample_SoloMesh.h"
+#include "Sample_SoloMeshLCM.h"
+#include "Sample_TempObstacles.h"
 #include "Sample_TileMesh.h"
 #include "Sample_TileMeshLCM.h"
-#include "Sample_TempObstacles.h"
-#include "Sample_Debug.h"
+#include "TestCase.h"
 
 #ifdef WIN32
 #	define snprintf _snprintf
@@ -59,7 +59,7 @@ struct SampleItem
 	const string name;
 };
 Sample* createSolo() { return new Sample_SoloMesh(); }
-Sample *createSoloLCM() { return new Sample_SizeFromPortalEdgeMesh(); }
+Sample *createSoloLCM() { return new Sample_SoloMeshLCM(); }
 Sample* createTile() { return new Sample_TileMesh(); }
 Sample* createTileLCM() { return new Sample_TileMeshLCM(); }
 Sample* createTempObstacle() { return new Sample_TempObstacles(); }
