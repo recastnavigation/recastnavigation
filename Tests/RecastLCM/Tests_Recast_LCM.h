@@ -4,6 +4,22 @@
 //
 
 #pragma once
+#include "Generators.h"
+
+#include <Recast.h>
+#include <RecastAlloc.h>
+
+#include <algorithm>
+#include <array>
+#include <cmath>
+#include <cstddef>
+#include <cstdint>
+#include <exception>
+#include <fstream>
+#include <span>
+#include <sstream>
+#include <string>
+#include <vector>
 
 // For comparing to rcVector in benchmarks.
 const float g_cellHeight = 0.2f;

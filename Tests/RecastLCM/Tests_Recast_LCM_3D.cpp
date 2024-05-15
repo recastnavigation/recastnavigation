@@ -1,19 +1,12 @@
 #include "BuildContext.h"
-#include "Generators.h"
 #include "InputGeom.h"
 #include <Recast.h>
 #include <RecastAlloc.h>
 
-#include <algorithm>
-#include <array>
-#include <cstddef>
-#include <cstdlib>
-#include <exception>
 #include <fstream>
 #include <ios>
 #include <ostream>
 #include <string>
-#include <vector>
 
 #include <catch2/catch_all.hpp>
 

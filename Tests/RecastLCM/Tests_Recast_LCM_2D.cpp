@@ -1,19 +1,11 @@
 #include "BuildContext.h"
-#include "Generators.h"
 #include "InputGeom.h"
 #include <Recast.h>
-#include <RecastAlloc.h>
 
-#include <algorithm>
-#include <array>
-#include <cstddef>
-#include <cstdlib>
-#include <exception>
 #include <fstream>
 #include <ios>
 #include <ostream>
 #include <string>
-#include <vector>
 
 #include <catch2/catch_all.hpp>
 
@@ -91,7 +83,7 @@ TEST_CASE("Watershed - Maze 8") {
   int *pEdges{nullptr};
   int edgeCount{};
   generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
-  rcFree(pEdges);
+  processBourderEdges("CSV/minima-Maxe8.csv", output, name + "_" + std::to_string(static_cast<int>(cellSize * 10)), pGeom, config, pEdges, edgeCount);
 }
 TEST_CASE("Watershed - Maze 16") {
   std::string const output{"Data"};
@@ -128,7 +120,7 @@ TEST_CASE("Watershed - Maze 16") {
   int *pEdges{nullptr};
   int edgeCount{};
   generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
-  rcFree(pEdges);
+  processBourderEdges("CSV/minima-Maxe16.csv", output, name + "_" + std::to_string(static_cast<int>(cellSize * 10)), pGeom, config, pEdges, edgeCount);
 }
 TEST_CASE("Watershed - Maze 32") {
   std::string const output{"Data"};
@@ -165,7 +157,7 @@ TEST_CASE("Watershed - Maze 32") {
   int *pEdges{nullptr};
   int edgeCount{};
   generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
-  rcFree(pEdges);
+  processBourderEdges("CSV/minima-Maxe32.csv", output, name + "_" + std::to_string(static_cast<int>(cellSize * 10)), pGeom, config, pEdges, edgeCount);
 }
 TEST_CASE("Watershed - Maze 64") {
   std::string const output{"Data"};
@@ -202,7 +194,7 @@ TEST_CASE("Watershed - Maze 64") {
   int *pEdges{nullptr};
   int edgeCount{};
   generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
-  rcFree(pEdges);
+  processBourderEdges("CSV/minima-Maxe64.csv", output, name + "_" + std::to_string(static_cast<int>(cellSize * 10)), pGeom, config, pEdges, edgeCount);
 }
 TEST_CASE("Watershed - Maze 128") {
   std::string const output{"Data"};
@@ -239,7 +231,7 @@ TEST_CASE("Watershed - Maze 128") {
   int *pEdges{nullptr};
   int edgeCount{};
   generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
-  rcFree(pEdges);
+  processBourderEdges("CSV/minima-Maxe128.csv", output, name + "_" + std::to_string(static_cast<int>(cellSize * 10)), pGeom, config, pEdges, edgeCount);
 }
 TEST_CASE("Watershed - Military") {
   std::string const output{"Data"};
@@ -313,7 +305,7 @@ TEST_CASE("Watershed - Simple") {
   int *pEdges{nullptr};
   int edgeCount{};
   generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
-  rcFree(pEdges);
+  processBourderEdges("CSV/minima-Simple.csv", output, name + "_" + std::to_string(static_cast<int>(cellSize * 10)), pGeom, config, pEdges, edgeCount);
 }
 TEST_CASE("Watershed - University") {
   std::string const output{"Data"};
@@ -350,7 +342,7 @@ TEST_CASE("Watershed - University") {
   int *pEdges{nullptr};
   int edgeCount{};
   generateTimes(output, name, cellSize, context, pGeom, config, pEdges, edgeCount);
-  rcFree(pEdges);
+  processBourderEdges("CSV/minima-University.csv", output, name + "_" + std::to_string(static_cast<int>(cellSize * 10)), pGeom, config, pEdges, edgeCount);
 }
 TEST_CASE("Watershed - Zelda") {
   std::string const output{"Data"};

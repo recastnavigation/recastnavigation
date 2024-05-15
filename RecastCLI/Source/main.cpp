@@ -81,7 +81,7 @@ void printOptions() {
   std::cout << "------------------------------------------------------------------------------------------------" << std::endl;
 }
 
-const int g_loopCount = 1;
+// For comparing to rcVector in benchmarks.
 const float g_cellHeight = 0.2f;
 const float g_agentRadius = 0.0f;
 const float g_agentHeight = 2.0f;
@@ -94,9 +94,47 @@ const float g_edgeMaxError = 1.3f;
 const float g_vertsPerPoly = 6.0f;
 const float g_detailSampleDist = 6.0f;
 const float g_detailSampleMaxError = 1.0f;
+const int g_loopCount = 1;
 const bool g_filterLedgeSpans = true;
 const bool g_filterWalkableLowHeightSpans = true;
 const bool g_filterLowHangingObstacles = true;
+
+const char header[] =
+    "ID,"
+    "Method,"
+    "Environment,"
+    "Grid Size,"
+    "Environment Size,"
+    "Cell Count,"
+    "Total (ms),"
+    "Temp (ms),"
+    "Rasterize Triangles (ms),"
+    "Build Compact Height Field (ms),"
+    "Build Contours (ms),"
+    "Build Contours Trace (ms),"
+    "Build Contours Simplify (ms),"
+    "Filter Border (ms),"
+    "Filter Walkable (ms),"
+    "Median Area (ms),"
+    "Filter Low Obstacles (ms),"
+    "Build Polymesh (ms),"
+    "Merge Polymeshes (ms),"
+    "Erode Area (ms),"
+    "Mark Box Area (ms),"
+    "Mark Cylinder Area (ms),"
+    "Mark Convex Area (ms),"
+    "Build Distance Field (ms),"
+    "Build Distance Field Distance (ms),"
+    "Build Distance Field Blur (ms),"
+    "Build Regions (ms),"
+    "Build Regions Watershed (ms),"
+    "Build Regions Expand (ms),"
+    "Build Regions Flood (ms),"
+    "Build Regions Filter (ms),"
+    "Extract Region Portal (ms),"
+    "Build Layers (ms),"
+    "Build Polymesh Detail (ms),"
+    "Merge Polymesh Details (ms)";
 
 struct Vertex {
   int x;
@@ -106,9 +144,6 @@ struct Vertex {
 struct Edge {
   Vertex v1{};
   Vertex v2{};
-  bool operator==(const Edge &edge) const {
-    return v1.x == edge.v1.x && v1.y == edge.v1.y && v2.x == edge.v2.x && v2.y == edge.v2.y;
-  }
 };
 
 inline std::array<float, g_loopCount * RC_MAX_TIMERS> generateThesisTimes(BuildContext &context, const InputGeom &pGeom, rcConfig &config, int *&pEdges, int &edgeCount) {
@@ -152,11 +187,24 @@ inline std::array<float, g_loopCount * RC_MAX_TIMERS> generateSingleMeshTimes(Bu
   return times;
 }
 
-inline void writeCsvFile(const std::string &filePath, const std::string &environmentName, const float gridSize, const std::array<float, g_loopCount * RC_MAX_TIMERS> &timerData, const char *header, const int headerSize) {
-  std::ofstream csvFile{filePath + "/timing.csv", std::ios::out | std::ios::ate};
-  csvFile.write(header, headerSize).put('\n');
+inline void writeCsvFile(const bool isThesis, const std::string &filePath, const std::string &environmentName, const InputGeom &pGeom, rcConfig &config, const float gridSize, const std::array<float, g_loopCount * RC_MAX_TIMERS> &timerData) {
+  static int count{};
+  try {
+    system(("mkdir " + filePath).c_str());
+  } catch (std::exception &) {
+  }
+  const float width = pGeom.getMeshBoundsMax()[0] - pGeom.getMeshBoundsMin()[0];
+  const float depth = pGeom.getMeshBoundsMax()[2] - pGeom.getMeshBoundsMin()[2];
+  float height = pGeom.getMeshBoundsMax()[1] - pGeom.getMeshBoundsMin()[1];
+
+  if (height < 1e-3f)
+    height = 1.f;
+  std::ofstream csvFile{filePath + "/Timings.csv", std::ios::out | std::ios::app};
+  csvFile.write(header, sizeof(header)).put('\n');
   for (int i{}; i < g_loopCount; ++i) {
-    csvFile << environmentName << ',' << gridSize << ',';
+    csvFile << count++ << (isThesis ? ",Thesis," : ",Default,") << environmentName << ',' << gridSize << ',';
+    csvFile << (int)(width * height * depth) << ',';
+    csvFile << config.width * config.height << ',';
     for (int j{}; j < RC_MAX_TIMERS; ++j) {
       csvFile << timerData[i * RC_MAX_TIMERS + j];
       if (j != RC_MAX_TIMERS - 1)
@@ -171,40 +219,8 @@ inline void generateTimes(const std::string &output, const std::string &environm
   const std::array<float, g_loopCount * RC_MAX_TIMERS> defaultTimes{generateSingleMeshTimes(context, pGeom, config)};
   const std::array<float, g_loopCount * RC_MAX_TIMERS> thesisTimes{generateThesisTimes(context, pGeom, config, pEdge, edgeCount)};
 
-  const char header[]{
-      "Environment,"
-      "Grid Size,"
-      "Total (ms),"
-      "Temp (ms),"
-      "Rasterize Triangles (ms),"
-      "Build Compact Height Field (ms),"
-      "Build Contours (ms),"
-      "Build Contours Trace (ms),"
-      "Build Contours Simplify (ms),"
-      "Filter Border (ms),"
-      "Filter Walkable (ms),"
-      "Median Area (ms),"
-      "Filter Low Obstacles (ms),"
-      "Build Polymesh (ms),"
-      "Merge Polymeshes (ms),"
-      "Erode Area (ms),"
-      "Mark Box Area (ms),"
-      "Mark Cylinder Area (ms),"
-      "Mark Convex Area (ms),"
-      "Build Distance Field (ms),"
-      "Build Distance Field Distance (ms),"
-      "Build Distance Field Blur (ms),"
-      "Build Regions (ms),"
-      "Build Regions Watershed (ms),"
-      "Build Regions Expand (ms),"
-      "Build Regions Flood (ms),"
-      "Build Regions Filter (ms),"
-      "Extract Region Portal (ms)"
-      "Build Layers (ms),"
-      "Build Polymesh Detail (ms),"
-      "Merge Polymesh Details (ms),"};
-  writeCsvFile(output, environmentName, gridSize, defaultTimes, header, sizeof header);
-  writeCsvFile(output, environmentName, gridSize, thesisTimes, header, sizeof header);
+  writeCsvFile(false, output, environmentName, pGeom, config, gridSize, defaultTimes);
+  writeCsvFile(true, output, environmentName, pGeom, config, gridSize, thesisTimes);
 }
 
 inline bool compareEdges(const Edge &edge1, const Edge &edge2) {
@@ -215,7 +231,7 @@ inline bool compareEdges(const Edge &edge1, const Edge &edge2) {
 
 inline bool operator<(const Edge &e1, const Edge &e2) { return compareEdges(e1, e2); }
 
-std::ofstream &startSvg(std::ofstream &file, const std::string &path, uint32_t width, uint32_t height) {
+inline std::ofstream &startSvg(std::ofstream &file, const std::string &path, const uint32_t width, const uint32_t height) {
   if (file.is_open())
     return file;
   file.open(path.data());
@@ -224,7 +240,7 @@ std::ofstream &startSvg(std::ofstream &file, const std::string &path, uint32_t w
   file << "<svg width=\"" << width << "\" height=\"" << height << "\" xmlns=\"http://www.w3.org/2000/svg\">\n";
   return file;
 }
-std::ofstream &writeSvgLine(std::ofstream &file, const std::vector<Edge> &edges, const std::string &color) {
+inline std::ofstream &writeSvgLine(std::ofstream &file, const std::vector<Edge> &edges, const std::string &color) {
   if (!file.is_open())
     return file;
   std::for_each(edges.cbegin(), edges.cend(), [&file, &color](const Edge &edge) {
@@ -232,7 +248,7 @@ std::ofstream &writeSvgLine(std::ofstream &file, const std::vector<Edge> &edges,
   });
   return file;
 }
-std::ofstream &endSvg(std::ofstream &file) {
+inline std::ofstream &endSvg(std::ofstream &file) {
   if (!file.is_open())
     return file;
   file << R"(</svg>)" << std::endl;
@@ -266,19 +282,7 @@ inline void processBourderEdges(const std::string &input, const std::string &out
       std::swap(row[0], row[2]);
       std::swap(row[1], row[3]);
     }
-    int y1 = config.height - row[1];
-    int y2 = config.height - row[3];
-    if(y1 > config.height || y2 < config.height)
-    {
-      y1 = y1 - config.height;
-      y2 = y2 - config.height;
-    }
-    if(y1 < 0 || y2 < 0)
-    {
-      y1 = config.height - abs(y1);
-      y2 = config.height - abs(y2);
-    }
-    referenceEdgesSet.emplace(Edge{Vertex{row[0], y1}, Vertex{row[2], y2}});
+    referenceEdgesSet.emplace(Edge{Vertex{row[0], config.height - row[1]}, Vertex{row[2], config.height - row[3]}});
   }
   csfFileRef.close();
   std::set<Edge> resultEdgesSet{};
@@ -332,12 +336,12 @@ inline void processBourderEdges(const std::string &input, const std::string &out
           return true;
         return false;
       }};
-  std::size_t const referenceEdgesSize = referenceEdges.size();
+  const std::size_t referenceEdgesSize = referenceEdges.size();
   uint32_t tp{};
   uint32_t fp{};
   std::vector<Edge> falsePositive{};
   std::vector<Edge> truePositive{};
-  for (const auto &edge1 : resultEdges) {
+  for (const Edge &edge1 : resultEdges) {
     bool found = false;
     std::sort(referenceEdges.begin(), referenceEdges.end(), [edge1](const Edge &edgeA, const Edge &edgeB) -> bool {
       const auto distance{
@@ -361,10 +365,13 @@ inline void processBourderEdges(const std::string &input, const std::string &out
           }};
       return distance(edge1, edgeA) < distance(edge1, edgeB);
     });
-    for (const auto &edge2 : referenceEdges) {
+    for (const Edge &edge2 : referenceEdges) {
       if (moveMatch(edge1, edge2)) {
         found = true;
-        referenceEdges.erase(std::find(referenceEdges.begin(), referenceEdges.end(), edge2));
+        auto it = std::find_if(referenceEdges.begin(), referenceEdges.end(), [edge2](const Edge &edge) {
+          return edge.v1.x == edge2.v1.x && edge.v1.y == edge2.v1.y && edge.v2.x == edge2.v2.x && edge.v2.y == edge2.v2.y;
+        });
+        referenceEdges.erase(it);
         break;
       }
     }
@@ -379,7 +386,6 @@ inline void processBourderEdges(const std::string &input, const std::string &out
 
   float const precision = static_cast<float>(tp) / static_cast<float>(tp + fp);
   float const recall = static_cast<float>(tp) / static_cast<float>(referenceEdgesSize);
-  std::cout << "precision: " << precision << "\t recall: " << recall << std::endl;
 
   startSvg(svg, output + "/edges_" + name + "_leftover.svg", config.width, config.height);
   writeSvgLine(svg, referenceEdges, "black");
