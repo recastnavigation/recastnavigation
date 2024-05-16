@@ -282,7 +282,19 @@ inline void processBourderEdges(const std::string &input, const std::string &out
       std::swap(row[0], row[2]);
       std::swap(row[1], row[3]);
     }
-    referenceEdgesSet.emplace(Edge{Vertex{row[0], config.height - row[1]}, Vertex{row[2], config.height - row[3]}});
+    int y1 = config.height - row[1];
+    int y2 = config.height - row[3];
+    if(y1 > config.height || y2 > config.height)
+    {
+      y1 = y1 - config.height;
+      y2 = y2 - config.height;
+    }
+    if(y1 < 0 || y2 < 0)
+    {
+      y1 = config.height - abs(y1);
+      y2 = config.height - abs(y2);
+    }
+    referenceEdgesSet.emplace(Edge{Vertex{row[0], y1}, Vertex{row[2], y2}});
   }
   csfFileRef.close();
   std::set<Edge> resultEdgesSet{};
@@ -292,7 +304,7 @@ inline void processBourderEdges(const std::string &input, const std::string &out
       resultEdgesSet.emplace(Edge{{pEdges[ii * 2 + 0], pEdges[ii * 2 + 1]}, {pEdges[i * 2 + 0], pEdges[i * 2 + 1]}});
     } else {
       resultEdgesSet.emplace(Edge{{pEdges[i * 2 + 0], pEdges[i * 2 + 1]}, {pEdges[ii * 2 + 0], pEdges[ii * 2 + 1]}});
-    }
+  }
   }
   rcFree(pEdges);
 
