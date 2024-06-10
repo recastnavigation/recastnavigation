@@ -703,6 +703,65 @@ dtStatus dtTileCache::buildNavMeshTile(const dtCompressedTileRef ref, dtNavMesh*
 			}
 		}
 	}
+
+	// Mark DISABLED polygons in navmesh
+	if (auto const* navmesh_tile = navmesh->getTileAt(tile->header->tx, tile->header->ty, tile->header->tlayer))
+	{
+		unsigned short constexpr DISABLED_FLAG = 1 << 3;
+		unsigned short constexpr AI_DO_NOT_ENTER_ZONE_FLAG = 1 << 4;
+
+		unsigned short constexpr AI_UNWALKABLE_AREA = 59;
+		unsigned short constexpr AI_DO_NOT_ENTER_AREA = 60;
+
+		if (navmesh_tile->header != nullptr)
+		{
+			for (int i = 0; i < navmesh_tile->header->polyCount; ++i)
+			{
+				const dtPoly* p = &navmesh_tile->polys[i];
+
+				if (p->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
+					continue;
+
+				const dtPolyDetail* pd = &navmesh_tile->detailMeshes[i];
+				
+				unsigned char areaId = 0;
+				if ((p->flags & DISABLED_FLAG) != 0)
+					areaId = AI_UNWALKABLE_AREA;
+				else if ((p->flags & AI_DO_NOT_ENTER_ZONE_FLAG) != 0)
+					areaId = AI_DO_NOT_ENTER_AREA;
+				else
+					continue;
+
+				for (int j = 0; j < pd->triCount; ++j)
+				{
+					const unsigned char* t = &navmesh_tile->detailTris[(pd->triBase + j) * 4];
+
+					float vertices[9];
+
+					for (int k = 0; k < 3; ++k)
+					{
+						float* v = nullptr;
+
+						if (t[k] < p->vertCount)
+						{
+							v = &navmesh_tile->verts[p->verts[t[k]] * 3];
+						}
+						else
+						{
+							v = &navmesh_tile->detailVerts[(pd->vertBase + t[k] - p->vertCount) * 3];
+						}
+
+						vertices[k * 3 + 0] = v[0];
+						vertices[k * 3 + 1] = v[1];
+						vertices[k * 3 + 2] = v[2];
+					}
+
+					dtMarkConvexPolyArea(*bc.layer, tile->header->bmin, m_params.cs, m_params.ch, 
+										 vertices, 3, 2.f, areaId);
+				}
+			}
+		}
+	}
 	
 	// Build navmesh
 	status = dtBuildTileCacheRegions(m_talloc, *bc.layer, walkableClimbVx);
