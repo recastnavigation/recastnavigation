@@ -2102,6 +2102,73 @@ dtStatus dtMarkBoxArea(dtTileCacheLayer& layer, const float* orig, const float c
 	return DT_SUCCESS;
 }
 
+dtStatus dtMarkConvexPolyArea(dtTileCacheLayer& layer, const float* orig, const float cs, const float ch,
+							  const float* verts, const unsigned short numVerts, const float height, const unsigned char areaId)
+{
+	float bmin[3], bmax[3];
+	bmin[0] = bmax[0] = verts[0];
+	bmin[1] = bmax[1] = verts[1];
+	bmin[2] = bmax[2] = verts[2];
+
+	bmax[1] += height;
+
+	for (unsigned short i = 1; i < numVerts; ++i)
+	{
+		bmin[0] = dtMin(bmin[0], verts[i * 3 + 0]);
+		bmin[1] = dtMin(bmin[1], verts[i * 3 + 1]);
+		bmin[2] = dtMin(bmin[2], verts[i * 3 + 2]);
+
+		bmax[0] = dtMax(bmax[0], verts[i * 3 + 0]);
+		bmax[1] = dtMax(bmax[1], verts[i * 3 + 1] + height);
+		bmax[2] = dtMax(bmax[2], verts[i * 3 + 2]);
+	}
+
+	const int w = (int)layer.header->width;
+	const int h = (int)layer.header->height;
+	const float ics = 1.0f / cs;
+	const float ich = 1.0f / ch;
+
+	int minx = (int)dtMathFloorf((bmin[0] - orig[0]) * ics);
+	int miny = (int)dtMathFloorf((bmin[1] - orig[1]) * ich);
+	int minz = (int)dtMathFloorf((bmin[2] - orig[2]) * ics);
+	int maxx = (int)dtMathFloorf((bmax[0] - orig[0]) * ics);
+	int maxy = (int)dtMathFloorf((bmax[1] - orig[1]) * ich);
+	int maxz = (int)dtMathFloorf((bmax[2] - orig[2]) * ics);
+
+	if (maxx < 0) return DT_SUCCESS;
+	if (minx >= w) return DT_SUCCESS;
+	if (maxz < 0) return DT_SUCCESS;
+	if (minz >= h) return DT_SUCCESS;
+
+	if (minx < 0) minx = 0;
+	if (maxx >= w) maxx = w - 1;
+	if (minz < 0) minz = 0;
+	if (maxz >= h) maxz = h - 1;
+
+	float point[3] = { 0.f, 0.f, 0.f };
+
+	for (int z = minz; z <= maxz; ++z)
+	{
+		point[2] = orig[2] + (z + 0.5f) * cs;
+
+		for (int x = minx; x <= maxx; ++x)
+		{
+			point[0] = orig[0] + (x + 0.5f) * cs;
+
+			if (dtPointInPolygon(point, verts, numVerts) == false)
+				continue;
+
+			const int y = layer.heights[x + z * w];
+			if (y < miny || y > maxy)
+				continue;
+
+			layer.areas[x + z * w] = areaId;
+		}
+	}
+
+	return DT_SUCCESS;
+}
+
 dtStatus dtBuildTileCacheLayer(dtTileCacheCompressor* comp,
 							   dtTileCacheLayerHeader* header,
 							   const unsigned char* heights,

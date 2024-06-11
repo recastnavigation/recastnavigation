@@ -703,7 +703,7 @@ dtStatus dtTileCache::buildNavMeshTile(const dtCompressedTileRef ref, dtNavMesh*
 			}
 		}
 	}
-	
+
 	// Build navmesh
 	status = dtBuildTileCacheRegions(m_talloc, *bc.layer, walkableClimbVx);
 	if (dtStatusFailed(status))
