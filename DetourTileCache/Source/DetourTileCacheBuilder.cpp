@@ -2105,35 +2105,37 @@ dtStatus dtMarkBoxArea(dtTileCacheLayer& layer, const float* orig, const float c
 dtStatus dtMarkConvexPolyArea(dtTileCacheLayer& layer, const float* orig, const float cs, const float ch,
 							  const float* verts, const unsigned short numVerts, const float height, const unsigned char areaId)
 {
-	float bmin[3], bmax[3];
-	bmin[0] = bmax[0] = verts[0];
-	bmin[1] = bmax[1] = verts[1];
-	bmin[2] = bmax[2] = verts[2];
-
-	bmax[1] += height;
+	float bmin[3], bmax[3], avg[3];
+	bmin[0] = bmax[0] = avg[0] = verts[0];
+	bmin[1] = bmax[1] = avg[1] = verts[1];
+	bmin[2] = bmax[2] = avg[2] = verts[2];
 
 	for (unsigned short i = 1; i < numVerts; ++i)
 	{
-		bmin[0] = dtMin(bmin[0], verts[i * 3 + 0]);
-		bmin[1] = dtMin(bmin[1], verts[i * 3 + 1]);
-		bmin[2] = dtMin(bmin[2], verts[i * 3 + 2]);
-
-		bmax[0] = dtMax(bmax[0], verts[i * 3 + 0]);
-		bmax[1] = dtMax(bmax[1], verts[i * 3 + 1] + height);
-		bmax[2] = dtMax(bmax[2], verts[i * 3 + 2]);
+		dtVmin(bmin, verts + (i * 3));
+		dtVmax(bmax, verts + (i * 3));
+		dtVadd(avg, avg, verts + (i * 3));
 	}
+
+	dtVscale(avg, avg, 3.f);
+
+	bmin[1] -= height * 0.5f;
+	bmax[1] += height * 0.5f;
+
+	dtVsub(bmin, bmin, orig);
+	dtVsub(bmax, bmax, orig);
 
 	const int w = (int)layer.header->width;
 	const int h = (int)layer.header->height;
 	const float ics = 1.0f / cs;
 	const float ich = 1.0f / ch;
 
-	int minx = (int)dtMathFloorf((bmin[0] - orig[0]) * ics);
-	int miny = (int)dtMathFloorf((bmin[1] - orig[1]) * ich);
-	int minz = (int)dtMathFloorf((bmin[2] - orig[2]) * ics);
-	int maxx = (int)dtMathFloorf((bmax[0] - orig[0]) * ics);
-	int maxy = (int)dtMathFloorf((bmax[1] - orig[1]) * ich);
-	int maxz = (int)dtMathFloorf((bmax[2] - orig[2]) * ics);
+	int minx = (int)dtMathFloorf(bmin[0] * ics);
+	int miny = (int)dtMathFloorf(bmin[1] * ich);
+	int minz = (int)dtMathFloorf(bmin[2] * ics);
+	int maxx = (int)dtMathFloorf(bmax[0] * ics);
+	int maxy = (int)dtMathFloorf(bmax[1] * ich);
+	int maxz = (int)dtMathFloorf(bmax[2] * ics);
 
 	if (maxx < 0) return DT_SUCCESS;
 	if (minx >= w) return DT_SUCCESS;
