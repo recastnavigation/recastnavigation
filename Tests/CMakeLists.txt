@@ -12,7 +12,7 @@ add_executable(Tests ${EXTERNAL_SOURCES}
 	Recast/Bench_rcVector.cpp
 	Recast/Tests_Alloc.cpp
 	Recast/Tests_Recast.cpp
-	Recast/Tests_Recast_LCM.h
+	RecastLCM/Tests_Recast_LCM.h
     RecastLCM/Tests_Recast_LCM_2D.cpp
     RecastLCM/Tests_Recast_LCM_3D.cpp
 	DetourCrowd/Tests_DetourPathCorridor.cpp
