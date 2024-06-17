@@ -554,7 +554,7 @@ bool Sample_SoloMeshLCM::handleBuild()
     }
 
     // Partition the walkable surface into simple regions without holes.
-    if (!rcBuildRegionsWithSize(m_ctx, *m_chf, 0, m_cfg.minRegionArea, m_cfg.mergeRegionArea))
+    if (!rcBuildRegionsLCM(m_ctx, *m_chf, 0, m_cfg.minRegionArea, m_cfg.mergeRegionArea))
     {
         m_ctx->log(RC_LOG_ERROR, "buildNavigation: Could not build watershed regions.");
         return false;
@@ -573,7 +573,7 @@ bool Sample_SoloMeshLCM::handleBuild()
 	}
     int* pEdges{nullptr};
     int edgeSize{};
-    if (!rcBuildContoursWithPortals(m_ctx, *m_chf, m_cfg.maxSimplificationError, m_cfg.maxEdgeLen, *m_cset, pEdges, edgeSize)) {
+    if (!rcBuildContoursLCM(m_ctx, *m_chf, m_cfg.maxSimplificationError, m_cfg.maxEdgeLen, *m_cset, pEdges, edgeSize)) {
       m_ctx->log(RC_LOG_ERROR, "buildNavigation: Could not create contours.");
       return false;
     }

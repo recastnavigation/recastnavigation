@@ -1212,7 +1212,7 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf, int borderSize, i
 /// @param[in]		mergeRegionArea	Any regions with a span count smaller than this value will, if possible,
 /// 								be merged with larger regions. [Limit: >=0] [Units: vx]
 /// @returns True if the operation completed successfully.
-bool rcBuildRegionsWithSize(rcContext *ctx, rcCompactHeightfield &chf, int borderSize, int minRegionArea, int mergeRegionArea);
+bool rcBuildRegionsLCM(rcContext *ctx, rcCompactHeightfield &chf, int borderSize, int minRegionArea, int mergeRegionArea);
 
 /// Builds region data for the heightfield by partitioning the heightfield in non-overlapping layers.
 /// @ingroup recast
@@ -1336,7 +1336,7 @@ bool rcBuildContours(rcContext* ctx, const rcCompactHeightfield& chf,
 /// @param[out]         portalEdgeSize           Size of the buffer tracking the portal edges.
 /// @param[in]		buildFlags	The build flags. (See: #rcBuildContoursFlags)
 /// @returns True if the operation completed successfully.
-bool rcBuildContoursWithPortals(rcContext *ctx, const rcCompactHeightfield &chf, float maxError, int maxEdgeLen, rcContourSet &cset, int *&portalEdges, int &portalEdgeSize, int buildFlags = RC_CONTOUR_TESS_WALL_EDGES);
+bool rcBuildContoursLCM(rcContext *ctx, const rcCompactHeightfield &chf, float maxError, int maxEdgeLen, rcContourSet &cset, int *&portalEdges, int &portalEdgeSize, int buildFlags = RC_CONTOUR_TESS_WALL_EDGES);
 
 /// Builds a polygon mesh from the provided contours.
 /// @ingroup recast

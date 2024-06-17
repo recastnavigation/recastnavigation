@@ -149,7 +149,7 @@ bool generateTheses(rcContext &context, const InputGeom &pGeom, rcConfig &config
   }
 
   // Partition the walkable surface into simple regions without holes.
-  if (!rcBuildRegionsWithSize(&context, *m_chf, 0, config.minRegionArea, config.mergeRegionArea)) {
+  if (!rcBuildRegionsLCM(&context, *m_chf, 0, config.minRegionArea, config.mergeRegionArea)) {
     context.log(RC_LOG_ERROR, "buildNavigation: Could not build watershed regions.");
     return false;
   }
@@ -164,7 +164,7 @@ bool generateTheses(rcContext &context, const InputGeom &pGeom, rcConfig &config
     context.log(RC_LOG_ERROR, "buildNavigation: Out of memory 'cset'.");
     return false;
   }
-  if (!rcBuildContoursWithPortals(&context, *m_chf, config.maxSimplificationError, config.maxEdgeLen, *m_cset, bounderies, bounderyElementCount)) {
+  if (!rcBuildContoursLCM(&context, *m_chf, config.maxSimplificationError, config.maxEdgeLen, *m_cset, bounderies, bounderyElementCount)) {
     context.log(RC_LOG_ERROR, "buildNavigation: Could not create contours.");
     return false;
   }

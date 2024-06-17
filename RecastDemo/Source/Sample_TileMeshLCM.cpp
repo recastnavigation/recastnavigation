@@ -1002,7 +1002,7 @@ unsigned char* Sample_TileMeshLCM::buildTileMesh(const int tx, const int ty, con
     }
 
     // Partition the walkable surface into simple regions without holes.
-    if (!rcBuildRegionsWithSize(m_ctx, *m_chf, m_cfg.borderSize, m_cfg.minRegionArea, m_cfg.mergeRegionArea))
+    if (!rcBuildRegionsLCM(m_ctx, *m_chf, m_cfg.borderSize, m_cfg.minRegionArea, m_cfg.mergeRegionArea))
     {
         m_ctx->log(RC_LOG_ERROR, "buildNavigation: Could not build watershed regions.");
         return 0;
@@ -1017,7 +1017,7 @@ unsigned char* Sample_TileMeshLCM::buildTileMesh(const int tx, const int ty, con
 	}
     int* pEdges{nullptr};
     int edgeSize{};
-	if (!rcBuildContoursWithPortals(m_ctx, *m_chf, m_cfg.maxSimplificationError, m_cfg.maxEdgeLen, *m_cset, pEdges, edgeSize))
+	if (!rcBuildContoursLCM(m_ctx, *m_chf, m_cfg.maxSimplificationError, m_cfg.maxEdgeLen, *m_cset, pEdges, edgeSize))
 	{
 		m_ctx->log(RC_LOG_ERROR, "buildNavigation: Could not create contours.");
 		return 0;

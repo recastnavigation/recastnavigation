@@ -71,7 +71,6 @@ const char header[] =
     "Build Regions Expand (ms),"
     "Build Regions Flood (ms),"
     "Build Regions Filter (ms),"
-    "Extract Region Portal (ms),"
     "Build Layers (ms),"
     "Build Polymesh Detail (ms),"
     "Merge Polymesh Details (ms)";
@@ -342,6 +341,6 @@ inline void processBourderEdges(const std::string &input, const std::string &out
   writeSvgLine(svg, referenceEdges, "black");
   writeSvgLine(svg, falsePositive, "red");
   writeSvgLine(svg, truePositive, "green");
-  svg << "<text x=\"5\" y=\"15\" fill=\"black\"> True Positives: " << tp << "    False Positives: " << fp << "    Precistion: " << precision << "    Recall: " << recall << "</text>\n";
+  svg << "<text x=\"5\" y=\"15\" fill=\"black\"> True Positives: " << tp << "    False Positives: " << fp << "    Precision: " << precision << "    Recall: " << recall << "</text>\n";
   endSvg(svg);
 }

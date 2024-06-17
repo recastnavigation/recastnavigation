@@ -1110,7 +1110,7 @@ const rcContour* findContourFromSet(const rcContourSet& cset, const uint16_t reg
     }
     return NULL;
 };
-bool rcBuildContoursWithPortals(rcContext *ctx, const rcCompactHeightfield &chf, float maxError, int maxEdgeLen, rcContourSet &cset, int *&portalEdges, int &portalEdgeSize, int buildFlags) {
+bool rcBuildContoursLCM(rcContext *ctx, const rcCompactHeightfield &chf, float maxError, int maxEdgeLen, rcContourSet &cset, int *&portalEdges, int &portalEdgeSize, int buildFlags) {
     rcAssert(ctx);
 
     const int w = chf.width;
