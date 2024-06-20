@@ -21,6 +21,7 @@
 
 #include <string>
 #include "DetourNavMesh.h"
+#include "RecastModernCpp.h"
 
 class TestCase
 {
@@ -42,14 +43,14 @@ class TestCase
 			includeFlags(0),
 			excludeFlags(0),
 			expand(false),
-			straight(0),
+			straight(RC_NULL),
 			nstraight(0),
-			polys(0),
+			polys(RC_NULL),
 			npolys(0),
 			findNearestPolyTime(0),
 			findPathTime(0),
 			findStraightPathTime(0),
-			next(0)
+			next(RC_NULL)
 		{
 		}
 

@@ -49,9 +49,9 @@ static int loadBin(const char* path, unsigned char** data)
 */
 
 Sample_Debug::Sample_Debug() :
-	m_chf(0),
-	m_cset(0),
-	m_pmesh(0)
+	m_chf(RC_NULL),
+	m_cset(RC_NULL),
+	m_pmesh(RC_NULL)
 {
 	resetCommonSettings();
 
@@ -334,7 +334,7 @@ const float* Sample_Debug::getBoundsMin()
 		return m_chf->bmin;
 	if (m_navMesh)
 		return m_bmin;
-	return 0;
+	return RC_NULL;
 }
 
 const float* Sample_Debug::getBoundsMax()
@@ -345,7 +345,7 @@ const float* Sample_Debug::getBoundsMax()
 		return m_chf->bmax;
 	if (m_navMesh)
 		return m_bmax;
-	return 0;
+	return RC_NULL;
 }
 
 void Sample_Debug::handleClick(const float* s, const float* p, bool shift)
@@ -366,7 +366,7 @@ bool Sample_Debug::handleBuild()
 	if (m_chf)
 	{
 		rcFreeContourSet(m_cset);
-		m_cset = 0;
+		m_cset = RC_NULL;
 		
 		// Create contours.
 		m_cset = rcAllocContourSet();

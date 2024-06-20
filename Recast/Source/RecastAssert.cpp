@@ -17,10 +17,11 @@
 //
 
 #include "RecastAssert.h"
+#include "RecastModernCpp.h"
 
 #ifndef RC_DISABLE_ASSERTS
 
-static rcAssertFailFunc* sRecastAssertFailFunc = 0;
+static rcAssertFailFunc* sRecastAssertFailFunc = RC_NULL;
 
 void rcAssertFailSetCustom(rcAssertFailFunc* assertFailFunc)
 {

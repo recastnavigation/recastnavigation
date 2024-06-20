@@ -21,7 +21,7 @@
 
 #include "Recast.h"
 #include "SampleInterfaces.h"
-
+#include "RecastModernCpp.h"
 
 /// Tool types.
 enum SampleToolType
@@ -62,7 +62,7 @@ enum SamplePolyFlags
 class SampleDebugDraw : public DebugDrawGL
 {
 public:
-	virtual unsigned int areaToCol(unsigned int area);
+	virtual unsigned int areaToCol(unsigned int area) RC_OVERRIDE;
 };
 
 enum SamplePartitionType

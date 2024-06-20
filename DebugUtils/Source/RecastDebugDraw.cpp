@@ -20,6 +20,7 @@
 #include "DebugDraw.h"
 #include "RecastDebugDraw.h"
 #include "Recast.h"
+#include "DetourModernCpp.h"
 
 void duDebugDrawTriMesh(duDebugDraw* dd, const float* verts, int /*nverts*/,
 						const int* tris, const float* normals, int ntris,
@@ -675,7 +676,7 @@ static const rcContour* findContourFromSet(const rcContourSet& cset, unsigned sh
 		if (cset.conts[i].reg == reg)
 			return &cset.conts[i];
 	}
-	return 0;
+	return DT_NULL;
 }
 
 void duDebugDrawRegionConnections(duDebugDraw* dd, const rcContourSet& cset, const float alpha)

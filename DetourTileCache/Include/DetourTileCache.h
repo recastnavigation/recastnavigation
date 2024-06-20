@@ -2,6 +2,7 @@
 #define DETOURTILECACHE_H
 
 #include "DetourStatus.h"
+#include "DetourModernCpp.h"
 
 typedef unsigned int dtObstacleRef;
 typedef unsigned int dtCompressedTileRef;
@@ -153,7 +154,7 @@ public:
 	///  @param[out]	upToDate	Whether the tile cache is fully up to date with obstacle requests and tile rebuilds.
 	///  							If the tile cache is up to date another (immediate) call to update will have no effect;
 	///  							otherwise another call will continue processing obstacle requests and tile rebuilds.
-	dtStatus update(const float dt, class dtNavMesh* navmesh, bool* upToDate = 0);
+	dtStatus update(const float dt, class dtNavMesh* navmesh, bool* upToDate = DT_NULL);
 	
 	dtStatus buildNavMeshTilesAt(const int tx, const int ty, class dtNavMesh* navmesh);
 	

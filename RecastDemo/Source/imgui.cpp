@@ -20,6 +20,7 @@
 #include <string.h>
 #include <math.h>
 #include "imgui.h"
+#include "RecastModernCpp.h"
 
 #ifdef WIN32
 #	define snprintf _snprintf
@@ -34,7 +35,7 @@ static const char* allocText(const char* text)
 {
 	unsigned len = static_cast<unsigned>(strlen(text)+1);
 	if (g_textPoolSize + len >= TEXT_POOL_SIZE)
-		return 0;
+		return RC_NULL;
 	char* dst = &g_textPool[g_textPoolSize]; 
 	memcpy(dst, text, len);
 	g_textPoolSize += len;
@@ -314,7 +315,7 @@ static int g_scrollTop = 0;
 static int g_scrollBottom = 0;
 static int g_scrollRight = 0;
 static int g_scrollAreaTop = 0;
-static int* g_scrollVal = 0;
+static int* g_scrollVal = RC_NULL;
 static int g_focusTop = 0;
 static int g_focusBottom = 0;
 static unsigned int g_scrollId = 0;

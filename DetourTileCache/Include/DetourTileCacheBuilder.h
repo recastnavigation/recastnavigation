@@ -79,6 +79,13 @@ struct dtTileCachePolyMesh
 struct dtTileCacheAlloc
 {
 	virtual ~dtTileCacheAlloc();
+#if defined(__cplusplus) && __cplusplus >= 201103L
+	dtTileCacheAlloc() = default;
+	dtTileCacheAlloc( dtTileCacheAlloc const& ) = default;
+	dtTileCacheAlloc& operator=( dtTileCacheAlloc const& ) = default;
+	dtTileCacheAlloc( dtTileCacheAlloc && ) = default;
+	dtTileCacheAlloc& operator=( dtTileCacheAlloc && ) = default;
+#endif
 
 	virtual void reset() {}
 	

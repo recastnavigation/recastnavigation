@@ -24,6 +24,7 @@
 #include <string.h>
 #include <float.h>
 #include <new>
+#include "DetourModernCpp.h"
 
 static const float DT_PI = 3.14159265f;
 
@@ -72,7 +73,7 @@ static int isectRaySeg(const float* ap, const float* u,
 dtObstacleAvoidanceDebugData* dtAllocObstacleAvoidanceDebugData()
 {
 	void* mem = dtAlloc(sizeof(dtObstacleAvoidanceDebugData), DT_ALLOC_PERM);
-	if (!mem) return 0;
+	if (!mem) return DT_NULL;
 	return new(mem) dtObstacleAvoidanceDebugData;
 }
 
@@ -87,13 +88,13 @@ void dtFreeObstacleAvoidanceDebugData(dtObstacleAvoidanceDebugData* ptr)
 dtObstacleAvoidanceDebugData::dtObstacleAvoidanceDebugData() :
 	m_nsamples(0),
 	m_maxSamples(0),
-	m_vel(0),
-	m_ssize(0),
-	m_pen(0),
-	m_vpen(0),
-	m_vcpen(0),
-	m_spen(0),
-	m_tpen(0)
+	m_vel(DT_NULL),
+	m_ssize(DT_NULL),
+	m_pen(DT_NULL),
+	m_vpen(DT_NULL),
+	m_vcpen(DT_NULL),
+	m_spen(DT_NULL),
+	m_tpen(DT_NULL)
 {
 }
 
@@ -194,7 +195,7 @@ void dtObstacleAvoidanceDebugData::normalizeSamples()
 dtObstacleAvoidanceQuery* dtAllocObstacleAvoidanceQuery()
 {
 	void* mem = dtAlloc(sizeof(dtObstacleAvoidanceQuery), DT_ALLOC_PERM);
-	if (!mem) return 0;
+	if (!mem) return DT_NULL;
 	return new(mem) dtObstacleAvoidanceQuery;
 }
 
@@ -211,10 +212,10 @@ dtObstacleAvoidanceQuery::dtObstacleAvoidanceQuery() :
 	m_vmax(0),
 	m_invVmax(0),
 	m_maxCircles(0),
-	m_circles(0),
+	m_circles(DT_NULL),
 	m_ncircles(0),
 	m_maxSegments(0),
-	m_segments(0),
+	m_segments(DT_NULL),
 	m_nsegments(0)
 {
 }

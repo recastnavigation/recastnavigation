@@ -63,16 +63,16 @@ protected:
 	
 public:
 	Sample_TempObstacles();
-	virtual ~Sample_TempObstacles();
+	virtual ~Sample_TempObstacles() RC_OVERRIDE;
 	
-	virtual void handleSettings();
-	virtual void handleTools();
-	virtual void handleDebugMode();
-	virtual void handleRender();
-	virtual void handleRenderOverlay(double* proj, double* model, int* view);
-	virtual void handleMeshChanged(class InputGeom* geom);
-	virtual bool handleBuild();
-	virtual void handleUpdate(const float dt);
+	virtual void handleSettings() RC_OVERRIDE;
+	virtual void handleTools() RC_OVERRIDE;
+	virtual void handleDebugMode() RC_OVERRIDE;
+	virtual void handleRender() RC_OVERRIDE;
+	virtual void handleRenderOverlay(double* proj, double* model, int* view) RC_OVERRIDE;
+	virtual void handleMeshChanged(class InputGeom* geom) RC_OVERRIDE;
+	virtual bool handleBuild() RC_OVERRIDE;
+	virtual void handleUpdate(const float dt) RC_OVERRIDE;
 
 	void getTilePos(const float* pos, int& tx, int& ty);
 	

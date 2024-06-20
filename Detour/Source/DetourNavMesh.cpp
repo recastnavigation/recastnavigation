@@ -138,7 +138,7 @@ inline void freeLink(dtMeshTile* tile, unsigned int link)
 dtNavMesh* dtAllocNavMesh()
 {
 	void* mem = dtAlloc(sizeof(dtNavMesh), DT_ALLOC_PERM);
-	if (!mem) return 0;
+	if (!mem) return DT_NULL;
 	return new(mem) dtNavMesh;
 }
 
@@ -191,9 +191,9 @@ dtNavMesh::dtNavMesh() :
 	m_maxTiles(0),
 	m_tileLutSize(0),
 	m_tileLutMask(0),
-	m_posLookup(0),
-	m_nextFree(0),
-	m_tiles(0)
+	m_posLookup(DT_NULL),
+	m_nextFree(DT_NULL),
+	m_tiles(DT_NULL)
 {
 #ifndef DT_POLYREF64
 	m_saltBits = 0;
@@ -213,7 +213,7 @@ dtNavMesh::~dtNavMesh()
 		if (m_tiles[i].flags & DT_TILE_FREE_DATA)
 		{
 			dtFree(m_tiles[i].data);
-			m_tiles[i].data = 0;
+			m_tiles[i].data = DT_NULL;
 			m_tiles[i].dataSize = 0;
 		}
 	}
@@ -242,7 +242,7 @@ dtStatus dtNavMesh::init(const dtNavMeshParams* params)
 		return DT_FAILURE | DT_OUT_OF_MEMORY;
 	memset(m_tiles, 0, sizeof(dtMeshTile)*m_maxTiles);
 	memset(m_posLookup, 0, sizeof(dtMeshTile*)*m_tileLutSize);
-	m_nextFree = 0;
+	m_nextFree = DT_NULL;
 	for (int i = m_maxTiles-1; i >= 0; --i)
 	{
 		m_tiles[i].salt = 1;
@@ -284,7 +284,7 @@ dtStatus dtNavMesh::init(unsigned char* data, const int dataSize, const int flag
 	if (dtStatusFailed(status))
 		return status;
 
-	return addTile(data, dataSize, flags, 0, 0);
+	return addTile(data, dataSize, flags, 0, DT_NULL);
 }
 
 /// @par
@@ -626,8 +626,8 @@ namespace
 
 		float dmin = FLT_MAX;
 		float tmin = 0;
-		const float* pmin = 0;
-		const float* pmax = 0;
+		const float* pmin = DT_NULL;
+		const float* pmax = DT_NULL;
 
 		for (int i = 0; i < pd->triCount; i++)
 		{
@@ -727,8 +727,8 @@ bool dtNavMesh::getPolyHeight(const dtMeshTile* tile, const dtPoly* poly, const 
 
 void dtNavMesh::closestPointOnPoly(dtPolyRef ref, const float* pos, float* closest, bool* posOverPoly) const
 {
-	const dtMeshTile* tile = 0;
-	const dtPoly* poly = 0;
+	const dtMeshTile* tile = DT_NULL;
+	const dtPoly* poly = DT_NULL;
 	getTileAndPolyByRefUnsafe(ref, &tile, &poly);
 
 	dtVcopy(closest, pos);
@@ -927,14 +927,14 @@ dtStatus dtNavMesh::addTile(unsigned char* data, int dataSize, int flags,
 		return DT_FAILURE | DT_ALREADY_OCCUPIED;
 		
 	// Allocate a tile.
-	dtMeshTile* tile = 0;
+	dtMeshTile* tile = DT_NULL;
 	if (!lastRef)
 	{
 		if (m_nextFree)
 		{
 			tile = m_nextFree;
 			m_nextFree = tile->next;
-			tile->next = 0;
+			tile->next = DT_NULL;
 		}
 	}
 	else
@@ -945,7 +945,7 @@ dtStatus dtNavMesh::addTile(unsigned char* data, int dataSize, int flags,
 			return DT_FAILURE | DT_OUT_OF_MEMORY;
 		// Try to find the specific tile id from the free list.
 		dtMeshTile* target = &m_tiles[tileIndex];
-		dtMeshTile* prev = 0;
+		dtMeshTile* prev = DT_NULL;
 		tile = m_nextFree;
 		while (tile && tile != target)
 		{
@@ -997,7 +997,7 @@ dtStatus dtNavMesh::addTile(unsigned char* data, int dataSize, int flags,
 
 	// If there are no items in the bvtree, reset the tree pointer.
 	if (!bvtreeSize)
-		tile->bvTree = 0;
+		tile->bvTree = DT_NULL;
 
 	// Build links freelist
 	tile->linksFreeList = 0;
@@ -1070,7 +1070,7 @@ const dtMeshTile* dtNavMesh::getTileAt(const int x, const int y, const int layer
 		}
 		tile = tile->next;
 	}
-	return 0;
+	return DT_NULL;
 }
 
 int dtNavMesh::getNeighbourTilesAt(const int x, const int y, const int side, dtMeshTile** tiles, const int maxTiles) const
@@ -1162,14 +1162,14 @@ dtTileRef dtNavMesh::getTileRefAt(const int x, const int y, const int layer) con
 const dtMeshTile* dtNavMesh::getTileByRef(dtTileRef ref) const
 {
 	if (!ref)
-		return 0;
+		return DT_NULL;
 	unsigned int tileIndex = decodePolyIdTile((dtPolyRef)ref);
 	unsigned int tileSalt = decodePolyIdSalt((dtPolyRef)ref);
 	if ((int)tileIndex >= m_maxTiles)
-		return 0;
+		return DT_NULL;
 	const dtMeshTile* tile = &m_tiles[tileIndex];
 	if (tile->salt != tileSalt)
-		return 0;
+		return DT_NULL;
 	return tile;
 }
 
@@ -1200,7 +1200,7 @@ dtStatus dtNavMesh::getTileAndPolyByRef(const dtPolyRef ref, const dtMeshTile** 
 	unsigned int salt, it, ip;
 	decodePolyId(ref, salt, it, ip);
 	if (it >= (unsigned int)m_maxTiles) return DT_FAILURE | DT_INVALID_PARAM;
-	if (m_tiles[it].salt != salt || m_tiles[it].header == 0) return DT_FAILURE | DT_INVALID_PARAM;
+	if (m_tiles[it].salt != salt || m_tiles[it].header == DT_NULL) return DT_FAILURE | DT_INVALID_PARAM;
 	if (ip >= (unsigned int)m_tiles[it].header->polyCount) return DT_FAILURE | DT_INVALID_PARAM;
 	*tile = &m_tiles[it];
 	*poly = &m_tiles[it].polys[ip];
@@ -1226,7 +1226,7 @@ bool dtNavMesh::isValidPolyRef(dtPolyRef ref) const
 	unsigned int salt, it, ip;
 	decodePolyId(ref, salt, it, ip);
 	if (it >= (unsigned int)m_maxTiles) return false;
-	if (m_tiles[it].salt != salt || m_tiles[it].header == 0) return false;
+	if (m_tiles[it].salt != salt || m_tiles[it].header == DT_NULL) return false;
 	if (ip >= (unsigned int)m_tiles[it].header->polyCount) return false;
 	return true;
 }
@@ -1251,7 +1251,7 @@ dtStatus dtNavMesh::removeTile(dtTileRef ref, unsigned char** data, int* dataSiz
 	
 	// Remove tile from hash lookup.
 	int h = computeTileHash(tile->header->x,tile->header->y,m_tileLutMask);
-	dtMeshTile* prev = 0;
+	dtMeshTile* prev = DT_NULL;
 	dtMeshTile* cur = m_posLookup[h];
 	while (cur)
 	{
@@ -1293,9 +1293,9 @@ dtStatus dtNavMesh::removeTile(dtTileRef ref, unsigned char** data, int* dataSiz
 	{
 		// Owns data
 		dtFree(tile->data);
-		tile->data = 0;
+		tile->data = DT_NULL;
 		tile->dataSize = 0;
-		if (data) *data = 0;
+		if (data) *data = DT_NULL;
 		if (dataSize) *dataSize = 0;
 	}
 	else
@@ -1304,17 +1304,17 @@ dtStatus dtNavMesh::removeTile(dtTileRef ref, unsigned char** data, int* dataSiz
 		if (dataSize) *dataSize = tile->dataSize;
 	}
 
-	tile->header = 0;
+	tile->header = DT_NULL;
 	tile->flags = 0;
 	tile->linksFreeList = 0;
-	tile->polys = 0;
-	tile->verts = 0;
-	tile->links = 0;
-	tile->detailMeshes = 0;
-	tile->detailVerts = 0;
-	tile->detailTris = 0;
-	tile->bvTree = 0;
-	tile->offMeshCons = 0;
+	tile->polys = DT_NULL;
+	tile->verts = DT_NULL;
+	tile->links = DT_NULL;
+	tile->detailMeshes = DT_NULL;
+	tile->detailVerts = DT_NULL;
+	tile->detailTris = DT_NULL;
+	tile->bvTree = DT_NULL;
+	tile->offMeshCons = DT_NULL;
 
 	// Update salt, salt should never be zero.
 #ifdef DT_POLYREF64
@@ -1466,7 +1466,7 @@ dtStatus dtNavMesh::getOffMeshConnectionPolyEndPoints(dtPolyRef prevRef, dtPolyR
 	// Get current polygon
 	decodePolyId(polyRef, salt, it, ip);
 	if (it >= (unsigned int)m_maxTiles) return DT_FAILURE | DT_INVALID_PARAM;
-	if (m_tiles[it].salt != salt || m_tiles[it].header == 0) return DT_FAILURE | DT_INVALID_PARAM;
+	if (m_tiles[it].salt != salt || m_tiles[it].header == DT_NULL) return DT_FAILURE | DT_INVALID_PARAM;
 	const dtMeshTile* tile = &m_tiles[it];
 	if (ip >= (unsigned int)tile->header->polyCount) return DT_FAILURE | DT_INVALID_PARAM;
 	const dtPoly* poly = &tile->polys[ip];
@@ -1504,19 +1504,19 @@ const dtOffMeshConnection* dtNavMesh::getOffMeshConnectionByRef(dtPolyRef ref) c
 	unsigned int salt, it, ip;
 	
 	if (!ref)
-		return 0;
+		return DT_NULL;
 	
 	// Get current polygon
 	decodePolyId(ref, salt, it, ip);
-	if (it >= (unsigned int)m_maxTiles) return 0;
-	if (m_tiles[it].salt != salt || m_tiles[it].header == 0) return 0;
+	if (it >= (unsigned int)m_maxTiles) return DT_NULL;
+	if (m_tiles[it].salt != salt || m_tiles[it].header == DT_NULL) return DT_NULL;
 	const dtMeshTile* tile = &m_tiles[it];
-	if (ip >= (unsigned int)tile->header->polyCount) return 0;
+	if (ip >= (unsigned int)tile->header->polyCount) return DT_NULL;
 	const dtPoly* poly = &tile->polys[ip];
 	
 	// Make sure that the current poly is indeed off-mesh link.
 	if (poly->getType() != DT_POLYTYPE_OFFMESH_CONNECTION)
-		return 0;
+		return DT_NULL;
 
 	const unsigned int idx =  ip - tile->header->offMeshBase;
 	dtAssert(idx < (unsigned int)tile->header->offMeshConCount);
@@ -1530,7 +1530,7 @@ dtStatus dtNavMesh::setPolyFlags(dtPolyRef ref, unsigned short flags)
 	unsigned int salt, it, ip;
 	decodePolyId(ref, salt, it, ip);
 	if (it >= (unsigned int)m_maxTiles) return DT_FAILURE | DT_INVALID_PARAM;
-	if (m_tiles[it].salt != salt || m_tiles[it].header == 0) return DT_FAILURE | DT_INVALID_PARAM;
+	if (m_tiles[it].salt != salt || m_tiles[it].header == DT_NULL) return DT_FAILURE | DT_INVALID_PARAM;
 	dtMeshTile* tile = &m_tiles[it];
 	if (ip >= (unsigned int)tile->header->polyCount) return DT_FAILURE | DT_INVALID_PARAM;
 	dtPoly* poly = &tile->polys[ip];
@@ -1547,7 +1547,7 @@ dtStatus dtNavMesh::getPolyFlags(dtPolyRef ref, unsigned short* resultFlags) con
 	unsigned int salt, it, ip;
 	decodePolyId(ref, salt, it, ip);
 	if (it >= (unsigned int)m_maxTiles) return DT_FAILURE | DT_INVALID_PARAM;
-	if (m_tiles[it].salt != salt || m_tiles[it].header == 0) return DT_FAILURE | DT_INVALID_PARAM;
+	if (m_tiles[it].salt != salt || m_tiles[it].header == DT_NULL) return DT_FAILURE | DT_INVALID_PARAM;
 	const dtMeshTile* tile = &m_tiles[it];
 	if (ip >= (unsigned int)tile->header->polyCount) return DT_FAILURE | DT_INVALID_PARAM;
 	const dtPoly* poly = &tile->polys[ip];
@@ -1563,7 +1563,7 @@ dtStatus dtNavMesh::setPolyArea(dtPolyRef ref, unsigned char area)
 	unsigned int salt, it, ip;
 	decodePolyId(ref, salt, it, ip);
 	if (it >= (unsigned int)m_maxTiles) return DT_FAILURE | DT_INVALID_PARAM;
-	if (m_tiles[it].salt != salt || m_tiles[it].header == 0) return DT_FAILURE | DT_INVALID_PARAM;
+	if (m_tiles[it].salt != salt || m_tiles[it].header == DT_NULL) return DT_FAILURE | DT_INVALID_PARAM;
 	dtMeshTile* tile = &m_tiles[it];
 	if (ip >= (unsigned int)tile->header->polyCount) return DT_FAILURE | DT_INVALID_PARAM;
 	dtPoly* poly = &tile->polys[ip];
@@ -1579,7 +1579,7 @@ dtStatus dtNavMesh::getPolyArea(dtPolyRef ref, unsigned char* resultArea) const
 	unsigned int salt, it, ip;
 	decodePolyId(ref, salt, it, ip);
 	if (it >= (unsigned int)m_maxTiles) return DT_FAILURE | DT_INVALID_PARAM;
-	if (m_tiles[it].salt != salt || m_tiles[it].header == 0) return DT_FAILURE | DT_INVALID_PARAM;
+	if (m_tiles[it].salt != salt || m_tiles[it].header == DT_NULL) return DT_FAILURE | DT_INVALID_PARAM;
 	const dtMeshTile* tile = &m_tiles[it];
 	if (ip >= (unsigned int)tile->header->polyCount) return DT_FAILURE | DT_INVALID_PARAM;
 	const dtPoly* poly = &tile->polys[ip];

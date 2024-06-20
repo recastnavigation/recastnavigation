@@ -19,6 +19,8 @@
 #ifndef DETOUROBSTACLEAVOIDANCE_H
 #define DETOUROBSTACLEAVOIDANCE_H
 
+#include "DetourModernCpp.h"
+
 struct dtObstacleCircle
 {
 	float p[3];				///< Position of the obstacle
@@ -112,12 +114,12 @@ public:
 	int sampleVelocityGrid(const float* pos, const float rad, const float vmax,
 						   const float* vel, const float* dvel, float* nvel,
 						   const dtObstacleAvoidanceParams* params,
-						   dtObstacleAvoidanceDebugData* debug = 0);
+						   dtObstacleAvoidanceDebugData* debug = DT_NULL);
 
 	int sampleVelocityAdaptive(const float* pos, const float rad, const float vmax,
 							   const float* vel, const float* dvel, float* nvel,
 							   const dtObstacleAvoidanceParams* params, 
-							   dtObstacleAvoidanceDebugData* debug = 0);
+							   dtObstacleAvoidanceDebugData* debug = DT_NULL);
 	
 	inline int getObstacleCircleCount() const { return m_ncircles; }
 	const dtObstacleCircle* getObstacleCircle(const int i) { return &m_circles[i]; }

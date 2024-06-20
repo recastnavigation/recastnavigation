@@ -45,12 +45,12 @@
 Sample_SoloMesh::Sample_SoloMesh() :
 	m_keepInterResults(true),
 	m_totalBuildTimeMs(0),
-	m_triareas(0),
-	m_solid(0),
-	m_chf(0),
-	m_cset(0),
-	m_pmesh(0),
-	m_dmesh(0),
+	m_triareas(RC_NULL),
+	m_solid(RC_NULL),
+	m_chf(RC_NULL),
+	m_cset(RC_NULL),
+	m_pmesh(RC_NULL),
+	m_dmesh(RC_NULL),
 	m_drawMode(DRAWMODE_NAVMESH)
 {
 	setTool(new NavMeshTesterTool);
@@ -64,19 +64,19 @@ Sample_SoloMesh::~Sample_SoloMesh()
 void Sample_SoloMesh::cleanup()
 {
 	delete [] m_triareas;
-	m_triareas = 0;
+	m_triareas = RC_NULL;
 	rcFreeHeightField(m_solid);
-	m_solid = 0;
+	m_solid = RC_NULL;
 	rcFreeCompactHeightfield(m_chf);
-	m_chf = 0;
+	m_chf = RC_NULL;
 	rcFreeContourSet(m_cset);
-	m_cset = 0;
+	m_cset = RC_NULL;
 	rcFreePolyMesh(m_pmesh);
-	m_pmesh = 0;
+	m_pmesh = RC_NULL;
 	rcFreePolyMeshDetail(m_dmesh);
-	m_dmesh = 0;
+	m_dmesh = RC_NULL;
 	dtFreeNavMesh(m_navMesh);
-	m_navMesh = 0;
+	m_navMesh = RC_NULL;
 }
 
 void Sample_SoloMesh::handleSettings()
@@ -158,23 +158,23 @@ void Sample_SoloMesh::handleDebugMode()
 
 	if (m_geom)
 	{
-		valid[DRAWMODE_NAVMESH] = m_navMesh != 0;
-		valid[DRAWMODE_NAVMESH_TRANS] = m_navMesh != 0;
-		valid[DRAWMODE_NAVMESH_BVTREE] = m_navMesh != 0;
-		valid[DRAWMODE_NAVMESH_NODES] = m_navQuery != 0;
-		valid[DRAWMODE_NAVMESH_INVIS] = m_navMesh != 0;
+		valid[DRAWMODE_NAVMESH] = m_navMesh != RC_NULL;
+		valid[DRAWMODE_NAVMESH_TRANS] = m_navMesh != RC_NULL;
+		valid[DRAWMODE_NAVMESH_BVTREE] = m_navMesh != RC_NULL;
+		valid[DRAWMODE_NAVMESH_NODES] = m_navQuery != RC_NULL;
+		valid[DRAWMODE_NAVMESH_INVIS] = m_navMesh != RC_NULL;
 		valid[DRAWMODE_MESH] = true;
-		valid[DRAWMODE_VOXELS] = m_solid != 0;
-		valid[DRAWMODE_VOXELS_WALKABLE] = m_solid != 0;
-		valid[DRAWMODE_COMPACT] = m_chf != 0;
-		valid[DRAWMODE_COMPACT_DISTANCE] = m_chf != 0;
-		valid[DRAWMODE_COMPACT_REGIONS] = m_chf != 0;
-		valid[DRAWMODE_REGION_CONNECTIONS] = m_cset != 0;
-		valid[DRAWMODE_RAW_CONTOURS] = m_cset != 0;
-		valid[DRAWMODE_BOTH_CONTOURS] = m_cset != 0;
-		valid[DRAWMODE_CONTOURS] = m_cset != 0;
-		valid[DRAWMODE_POLYMESH] = m_pmesh != 0;
-		valid[DRAWMODE_POLYMESH_DETAIL] = m_dmesh != 0;
+		valid[DRAWMODE_VOXELS] = m_solid != RC_NULL;
+		valid[DRAWMODE_VOXELS_WALKABLE] = m_solid != RC_NULL;
+		valid[DRAWMODE_COMPACT] = m_chf != RC_NULL;
+		valid[DRAWMODE_COMPACT_DISTANCE] = m_chf != RC_NULL;
+		valid[DRAWMODE_COMPACT_REGIONS] = m_chf != RC_NULL;
+		valid[DRAWMODE_REGION_CONNECTIONS] = m_cset != RC_NULL;
+		valid[DRAWMODE_RAW_CONTOURS] = m_cset != RC_NULL;
+		valid[DRAWMODE_BOTH_CONTOURS] = m_cset != RC_NULL;
+		valid[DRAWMODE_CONTOURS] = m_cset != RC_NULL;
+		valid[DRAWMODE_POLYMESH] = m_pmesh != RC_NULL;
+		valid[DRAWMODE_POLYMESH_DETAIL] = m_dmesh != RC_NULL;
 	}
 	
 	int unavail = 0;
@@ -355,7 +355,7 @@ void Sample_SoloMesh::handleMeshChanged(class InputGeom* geom)
 	Sample::handleMeshChanged(geom);
 
 	dtFreeNavMesh(m_navMesh);
-	m_navMesh = 0;
+	m_navMesh = RC_NULL;
 
 	if (m_tool)
 	{
@@ -462,7 +462,7 @@ bool Sample_SoloMesh::handleBuild()
 	if (!m_keepInterResults)
 	{
 		delete [] m_triareas;
-		m_triareas = 0;
+		m_triareas = RC_NULL;
 	}
 	
 	//
@@ -502,7 +502,7 @@ bool Sample_SoloMesh::handleBuild()
 	if (!m_keepInterResults)
 	{
 		rcFreeHeightField(m_solid);
-		m_solid = 0;
+		m_solid = RC_NULL;
 	}
 		
 	// Erode the walkable area by agent radius.
@@ -634,9 +634,9 @@ bool Sample_SoloMesh::handleBuild()
 	if (!m_keepInterResults)
 	{
 		rcFreeCompactHeightfield(m_chf);
-		m_chf = 0;
+		m_chf = RC_NULL;
 		rcFreeContourSet(m_cset);
-		m_cset = 0;
+		m_cset = RC_NULL;
 	}
 
 	// At this point the navigation mesh data is ready, you can access it from m_pmesh.
@@ -650,7 +650,7 @@ bool Sample_SoloMesh::handleBuild()
 	// Only build the detour navmesh if we do not exceed the limit.
 	if (m_cfg.maxVertsPerPoly <= DT_VERTS_PER_POLYGON)
 	{
-		unsigned char* navData = 0;
+		unsigned char* navData = RC_NULL;
 		int navDataSize = 0;
 
 		// Update poly flags from areas.

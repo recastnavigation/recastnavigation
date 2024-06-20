@@ -84,13 +84,13 @@ class CrowdToolState : public SampleToolState
 
 public:
 	CrowdToolState();
-	virtual ~CrowdToolState();
+	virtual ~CrowdToolState() RC_OVERRIDE;
 	
-	virtual void init(class Sample* sample);
-	virtual void reset();
-	virtual void handleRender();
-	virtual void handleRenderOverlay(double* proj, double* model, int* view);
-	virtual void handleUpdate(const float dt);
+	virtual void init(class Sample* sample) RC_OVERRIDE;
+	virtual void reset() RC_OVERRIDE;
+	virtual void handleRender() RC_OVERRIDE;
+	virtual void handleRenderOverlay(double* proj, double* model, int* view) RC_OVERRIDE;
+	virtual void handleUpdate(const float dt) RC_OVERRIDE;
 
 	inline bool isRunning() const { return m_run; }
 	inline void setRunning(const bool s) { m_run = s; }
@@ -129,16 +129,16 @@ class CrowdTool : public SampleTool
 public:
 	CrowdTool();
 	
-	virtual int type() { return TOOL_CROWD; }
-	virtual void init(Sample* sample);
-	virtual void reset();
-	virtual void handleMenu();
-	virtual void handleClick(const float* s, const float* p, bool shift);
-	virtual void handleToggle();
-	virtual void handleStep();
-	virtual void handleUpdate(const float dt);
-	virtual void handleRender();
-	virtual void handleRenderOverlay(double* proj, double* model, int* view);
+	virtual int type() RC_OVERRIDE { return TOOL_CROWD; }
+	virtual void init(Sample* sample) RC_OVERRIDE;
+	virtual void reset() RC_OVERRIDE;
+	virtual void handleMenu() RC_OVERRIDE;
+	virtual void handleClick(const float* s, const float* p, bool shift) RC_OVERRIDE;
+	virtual void handleToggle() RC_OVERRIDE;
+	virtual void handleStep() RC_OVERRIDE;
+	virtual void handleUpdate(const float dt) RC_OVERRIDE;
+	virtual void handleRender() RC_OVERRIDE;
+	virtual void handleRenderOverlay(double* proj, double* model, int* view) RC_OVERRIDE;
 };
 
 #endif // CROWDTOOL_H

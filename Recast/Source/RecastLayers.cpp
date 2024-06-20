@@ -492,7 +492,7 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, const rcCompactHeightfield& chf,
 		return true;
 	
 	// Create layers.
-	rcAssert(lset.layers == 0);
+	rcAssert(lset.layers == RC_NULL);
 	
 	const int lw = w - borderSize*2;
 	const int lh = h - borderSize*2;

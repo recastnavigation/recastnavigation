@@ -19,6 +19,13 @@
 #ifndef DETOURNAVMESH_H
 #define DETOURNAVMESH_H
 
+#ifdef DT_POLYREF64
+// TODO: figure out a multiplatform version of uint64_t
+// - maybe: https://code.google.com/p/msinttypes/
+// - or: http://www.azillionmonkeys.com/qed/pstdint.h
+#include <stdint.h>
+#endif
+
 #include "DetourAlloc.h"
 #include "DetourStatus.h"
 
@@ -26,13 +33,6 @@
 // Generally not needed, useful for very large worlds.
 // Note: tiles build using 32bit refs are not compatible with 64bit refs!
 //#define DT_POLYREF64 1
-
-#ifdef DT_POLYREF64
-// TODO: figure out a multiplatform version of uint64_t
-// - maybe: https://code.google.com/p/msinttypes/
-// - or: http://www.azillionmonkeys.com/qed/pstdint.h
-#include <stdint.h>
-#endif
 
 // Note: If you want to use 64-bit refs, change the types of both dtPolyRef & dtTileRef.
 // It is also recommended that you change dtHashRef() to a proper 64-bit hash.

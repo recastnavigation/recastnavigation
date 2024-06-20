@@ -26,6 +26,7 @@
 #include "DetourNavMeshBuilder.h"
 #include "DetourAlloc.h"
 #include "DetourAssert.h"
+#include "DetourModernCpp.h"
 
 static unsigned short MESH_NULL_IDX = 0xffff;
 
@@ -292,7 +293,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 	
 	// Classify off-mesh connection points. We store only the connections
 	// whose start point is inside the tile.
-	unsigned char* offMeshConClass = 0;
+	unsigned char* offMeshConClass = DT_NULL;
 	int storedOffMeshConCount = 0;
 	int offMeshConLinkCount = 0;
 	

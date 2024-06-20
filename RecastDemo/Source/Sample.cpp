@@ -66,23 +66,23 @@ unsigned int SampleDebugDraw::areaToCol(unsigned int area)
 }
 
 Sample::Sample() :
-	m_geom(0),
-	m_navMesh(0),
-	m_navQuery(0),
-	m_crowd(0),
+	m_geom(RC_NULL),
+	m_navMesh(RC_NULL),
+	m_navQuery(RC_NULL),
+	m_crowd(RC_NULL),
 	m_navMeshDrawFlags(DU_DRAWNAVMESH_OFFMESHCONS|DU_DRAWNAVMESH_CLOSEDLIST),
 	m_filterLowHangingObstacles(true),
 	m_filterLedgeSpans(true),
 	m_filterWalkableLowHeightSpans(true),
-	m_tool(0),
-	m_ctx(0)
+	m_tool(RC_NULL),
+	m_ctx(RC_NULL)
 {
 	resetCommonSettings();
 	m_navQuery = dtAllocNavMeshQuery();
 	m_crowd = dtAllocCrowd();
 
 	for (int i = 0; i < MAX_TOOLS; i++)
-		m_toolStates[i] = 0;
+		m_toolStates[i] = RC_NULL;
 }
 
 Sample::~Sample()
@@ -122,7 +122,7 @@ void Sample::handleRender()
 	
 	// Draw mesh
 	duDebugDrawTriMesh(&m_dd, m_geom->getMesh()->getVerts(), m_geom->getMesh()->getVertCount(),
-					   m_geom->getMesh()->getTris(), m_geom->getMesh()->getNormals(), m_geom->getMesh()->getTriCount(), 0, 1.0f);
+					   m_geom->getMesh()->getTris(), m_geom->getMesh()->getNormals(), m_geom->getMesh()->getTriCount(), RC_NULL, 1.0f);
 	// Draw bounds
 	const float* bmin = m_geom->getMeshBoundsMin();
 	const float* bmax = m_geom->getMeshBoundsMax();
@@ -351,7 +351,7 @@ struct NavMeshTileHeader
 dtNavMesh* Sample::loadAll(const char* path)
 {
 	FILE* fp = fopen(path, "rb");
-	if (!fp) return 0;
+	if (!fp) return RC_NULL;
 
 	// Read header.
 	NavMeshSetHeader header;
@@ -359,30 +359,30 @@ dtNavMesh* Sample::loadAll(const char* path)
 	if (readLen != 1)
 	{
 		fclose(fp);
-		return 0;
+		return RC_NULL;
 	}
 	if (header.magic != NAVMESHSET_MAGIC)
 	{
 		fclose(fp);
-		return 0;
+		return RC_NULL;
 	}
 	if (header.version != NAVMESHSET_VERSION)
 	{
 		fclose(fp);
-		return 0;
+		return RC_NULL;
 	}
 
 	dtNavMesh* mesh = dtAllocNavMesh();
 	if (!mesh)
 	{
 		fclose(fp);
-		return 0;
+		return RC_NULL;
 	}
 	dtStatus status = mesh->init(&header.params);
 	if (dtStatusFailed(status))
 	{
 		fclose(fp);
-		return 0;
+		return RC_NULL;
 	}
 
 	// Read tiles.
@@ -393,7 +393,7 @@ dtNavMesh* Sample::loadAll(const char* path)
 		if (readLen != 1)
 		{
 			fclose(fp);
-			return 0;
+			return RC_NULL;
 		}
 
 		if (!tileHeader.tileRef || !tileHeader.dataSize)
@@ -407,10 +407,10 @@ dtNavMesh* Sample::loadAll(const char* path)
 		{
 			dtFree(data);
 			fclose(fp);
-			return 0;
+			return RC_NULL;
 		}
 
-		mesh->addTile(data, tileHeader.dataSize, DT_TILE_FREE_DATA, tileHeader.tileRef, 0);
+		mesh->addTile(data, tileHeader.dataSize, DT_TILE_FREE_DATA, tileHeader.tileRef, RC_NULL);
 	}
 
 	fclose(fp);

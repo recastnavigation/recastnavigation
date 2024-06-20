@@ -107,8 +107,8 @@ static char* parseRow(char* buf, char* bufEnd, char* row, int len)
 
 
 InputGeom::InputGeom() :
-	m_chunkyMesh(0),
-	m_mesh(0),
+	m_chunkyMesh(RC_NULL),
+	m_mesh(RC_NULL),
 	m_hasBuildSettings(false),
 	m_offMeshConCount(0),
 	m_volumeCount(0)
@@ -126,9 +126,9 @@ bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath)
 	if (m_mesh)
 	{
 		delete m_chunkyMesh;
-		m_chunkyMesh = 0;
+		m_chunkyMesh = RC_NULL;
 		delete m_mesh;
-		m_mesh = 0;
+		m_mesh = RC_NULL;
 	}
 	m_offMeshConCount = 0;
 	m_volumeCount = 0;
@@ -164,7 +164,7 @@ bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath)
 
 bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath)
 {
-	char* buf = 0;
+	char* buf = RC_NULL;
 	FILE* fp = fopen(filepath.c_str(), "rb");
 	if (!fp)
 	{
@@ -204,7 +204,7 @@ bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath)
 	m_offMeshConCount = 0;
 	m_volumeCount = 0;
 	delete m_mesh;
-	m_mesh = 0;
+	m_mesh = RC_NULL;
 
 	char* src = buf;
 	char* srcEnd = buf + bufSize;

@@ -20,7 +20,7 @@
 #include "DebugDraw.h"
 #include "DetourMath.h"
 #include "DetourNavMesh.h"
-
+#include "DetourModernCpp.h"
 
 duDebugDraw::~duDebugDraw()
 {
@@ -405,7 +405,7 @@ inline float vdistSqr(const float* v1, const float* v2)
 }
 
 
-void appendArrowHead(struct duDebugDraw* dd, const float* p, const float* q,
+static void appendArrowHead(struct duDebugDraw* dd, const float* p, const float* q,
 					 const float s, unsigned int col)
 {
 	const float eps = 0.001f;
@@ -525,8 +525,8 @@ void duAppendCross(struct duDebugDraw* dd, const float x, const float y, const f
 }
 
 duDisplayList::duDisplayList(int cap) :
-	m_pos(0),
-	m_color(0),
+	m_pos(DT_NULL),
+	m_color(DT_NULL),
 	m_size(0),
 	m_cap(0),
 	m_prim(DU_DRAW_LINES),

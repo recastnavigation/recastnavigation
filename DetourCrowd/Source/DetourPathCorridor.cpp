@@ -22,6 +22,7 @@
 #include "DetourCommon.h"
 #include "DetourAssert.h"
 #include "DetourAlloc.h"
+#include "DetourModernCpp.h"
 
 
 int dtMergeCorridorStartMoved(dtPolyRef* path, const int npath, const int maxPath,
@@ -198,7 +199,7 @@ may be needed.  E.g. If you move the target, check #getLastPoly() to see if it i
 */
 
 dtPathCorridor::dtPathCorridor() :
-	m_path(0),
+	m_path(DT_NULL),
 	m_npath(0),
 	m_maxPath(0)
 {
@@ -365,7 +366,7 @@ bool dtPathCorridor::optimizePathTopology(dtNavMeshQuery* navquery, const dtQuer
 	dtPolyRef res[MAX_RES];
 	int nres = 0;
 	navquery->initSlicedFindPath(m_path[0], m_path[m_npath-1], m_pos, m_target, filter);
-	navquery->updateSlicedFindPath(MAX_ITER, 0);
+	navquery->updateSlicedFindPath(MAX_ITER, DT_NULL);
 	dtStatus status = navquery->finalizeSlicedFindPathPartial(m_path, m_npath, res, &nres, MAX_RES);
 	
 	if (dtStatusSucceed(status) && nres > 0)

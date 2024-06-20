@@ -49,9 +49,9 @@ inline unsigned int dtHashRef(dtPolyRef a)
 
 //////////////////////////////////////////////////////////////////////////////////////////
 dtNodePool::dtNodePool(int maxNodes, int hashSize) :
-	m_nodes(0),
-	m_first(0),
-	m_next(0),
+	m_nodes(DT_NULL),
+	m_first(DT_NULL),
+	m_next(DT_NULL),
 	m_maxNodes(maxNodes),
 	m_hashSize(hashSize),
 	m_nodeCount(0)
@@ -115,14 +115,14 @@ dtNode* dtNodePool::findNode(dtPolyRef id, unsigned char state)
 			return &m_nodes[i];
 		i = m_next[i];
 	}
-	return 0;
+	return DT_NULL;
 }
 
 dtNode* dtNodePool::getNode(dtPolyRef id, unsigned char state)
 {
 	unsigned int bucket = dtHashRef(id) & (m_hashSize-1);
 	dtNodeIndex i = m_first[bucket];
-	dtNode* node = 0;
+	dtNode* node = DT_NULL;
 	while (i != DT_NULL_IDX)
 	{
 		if (m_nodes[i].id == id && m_nodes[i].state == state)
@@ -131,7 +131,7 @@ dtNode* dtNodePool::getNode(dtPolyRef id, unsigned char state)
 	}
 	
 	if (m_nodeCount >= m_maxNodes)
-		return 0;
+		return DT_NULL;
 	
 	i = (dtNodeIndex)m_nodeCount;
 	m_nodeCount++;
@@ -154,7 +154,7 @@ dtNode* dtNodePool::getNode(dtPolyRef id, unsigned char state)
 
 //////////////////////////////////////////////////////////////////////////////////////////
 dtNodeQueue::dtNodeQueue(int n) :
-	m_heap(0),
+	m_heap(DT_NULL),
 	m_capacity(n),
 	m_size(0)
 {

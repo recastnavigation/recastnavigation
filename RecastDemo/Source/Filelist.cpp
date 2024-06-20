@@ -26,6 +26,8 @@
 #	include <cstring>
 #endif
 
+#include "RecastModernCpp.h"
+
 using std::vector;
 using std::string;
 
@@ -48,7 +50,7 @@ void scanDirectoryAppend(const string& path, const string& ext, vector<string>& 
 	while (_findnext(fh, &dir) == 0);
 	_findclose(fh);
 #else
-	dirent* current = 0;
+	dirent* current = RC_NULL;
 	DIR* dp = opendir(path.c_str());
 	if (!dp)
 	{
@@ -56,7 +58,7 @@ void scanDirectoryAppend(const string& path, const string& ext, vector<string>& 
 	}
 	
 	size_t extLen = strlen(ext.c_str());
-	while ((current = readdir(dp)) != 0)
+	while ((current = readdir(dp)) != RC_NULL)
 	{
 		size_t len = strlen(current->d_name);
 		if (len > extLen && strncmp(current->d_name + len - extLen, ext.c_str(), extLen) == 0)

@@ -47,7 +47,7 @@ dtAssertFailFunc* dtAssertFailGetCustom();
 #	define dtAssert(expression) \
 		{ \
 			dtAssertFailFunc* failFunc = dtAssertFailGetCustom(); \
-			if(failFunc == NULL) { assert(expression); } \
+			if(failFunc == DT_NULL) { assert(expression); } \
 			else if(!(expression)) { (*failFunc)(#expression, __FILE__, __LINE__); } \
 		}
 

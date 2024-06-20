@@ -28,12 +28,13 @@
 #include "DetourMath.h"
 #include "DetourAssert.h"
 #include "DetourAlloc.h"
+#include "DetourModernCpp.h"
 
 
 dtCrowd* dtAllocCrowd()
 {
 	void* mem = dtAlloc(sizeof(dtCrowd), DT_ALLOC_PERM);
-	if (!mem) return 0;
+	if (!mem) return DT_NULL;
 	return new(mem) dtCrowd;
 }
 
@@ -148,7 +149,7 @@ static int addNeighbour(const int idx, const float dist,
 						dtCrowdNeighbour* neis, const int nneis, const int maxNeis)
 {
 	// Insert neighbour based on the distance.
-	dtCrowdNeighbour* nei = 0;
+	dtCrowdNeighbour* nei = DT_NULL;
 	if (!nneis)
 	{
 		nei = &neis[nneis];
@@ -330,16 +331,16 @@ Notes:
 
 dtCrowd::dtCrowd() :
 	m_maxAgents(0),
-	m_agents(0),
-	m_activeAgents(0),
-	m_agentAnims(0),
-	m_obstacleQuery(0),
-	m_grid(0),
-	m_pathResult(0),
+	m_agents(DT_NULL),
+	m_activeAgents(DT_NULL),
+	m_agentAnims(DT_NULL),
+	m_obstacleQuery(DT_NULL),
+	m_grid(DT_NULL),
+	m_pathResult(DT_NULL),
 	m_maxPathResult(0),
 	m_maxAgentRadius(0),
 	m_velocitySampleCount(0),
-	m_navquery(0)
+	m_navquery(DT_NULL)
 {
 }
 
@@ -353,26 +354,26 @@ void dtCrowd::purge()
 	for (int i = 0; i < m_maxAgents; ++i)
 		m_agents[i].~dtCrowdAgent();
 	dtFree(m_agents);
-	m_agents = 0;
+	m_agents = DT_NULL;
 	m_maxAgents = 0;
 	
 	dtFree(m_activeAgents);
-	m_activeAgents = 0;
+	m_activeAgents = DT_NULL;
 
 	dtFree(m_agentAnims);
-	m_agentAnims = 0;
+	m_agentAnims = DT_NULL;
 	
 	dtFree(m_pathResult);
-	m_pathResult = 0;
+	m_pathResult = DT_NULL;
 	
 	dtFreeProximityGrid(m_grid);
-	m_grid = 0;
+	m_grid = DT_NULL;
 
 	dtFreeObstacleAvoidanceQuery(m_obstacleQuery);
-	m_obstacleQuery = 0;
+	m_obstacleQuery = DT_NULL;
 	
 	dtFreeNavMeshQuery(m_navquery);
-	m_navquery = 0;
+	m_navquery = DT_NULL;
 }
 
 /// @par
@@ -471,7 +472,7 @@ const dtObstacleAvoidanceParams* dtCrowd::getObstacleAvoidanceParams(const int i
 {
 	if (idx >= 0 && idx < DT_CROWD_MAX_OBSTAVOIDANCE_PARAMS)
 		return &m_obstacleQueryParams[idx];
-	return 0;
+	return DT_NULL;
 }
 
 int dtCrowd::getAgentCount() const
@@ -485,7 +486,7 @@ int dtCrowd::getAgentCount() const
 const dtCrowdAgent* dtCrowd::getAgent(const int idx)
 {
 	if (idx < 0 || idx >= m_maxAgents)
-		return 0;
+		return DT_NULL;
 	return &m_agents[idx];
 }
 
@@ -494,7 +495,7 @@ const dtCrowdAgent* dtCrowd::getAgent(const int idx)
 dtCrowdAgent* dtCrowd::getEditableAgent(const int idx)
 {
 	if (idx < 0 || idx >= m_maxAgents)
-		return 0;
+		return DT_NULL;
 	return &m_agents[idx];
 }
 
@@ -705,7 +706,7 @@ void dtCrowd::updateMoveRequest(const float /*dt*/)
 			// Quick search towards the goal.
 			static const int MAX_ITER = 20;
 			m_navquery->initSlicedFindPath(path[0], ag->targetRef, ag->npos, ag->targetPos, &m_filters[ag->params.queryFilterType]);
-			m_navquery->updateSlicedFindPath(MAX_ITER, 0);
+			m_navquery->updateSlicedFindPath(MAX_ITER, DT_NULL);
 			dtStatus status = 0;
 			if (ag->targetReplan) // && npath > 10)
 			{
@@ -724,7 +725,7 @@ void dtCrowd::updateMoveRequest(const float /*dt*/)
 				if (reqPath[reqPathCount-1] != ag->targetRef)
 				{
 					// Partial path, constrain target position inside the last polygon.
-					status = m_navquery->closestPointOnPoly(reqPath[reqPathCount-1], ag->targetPos, reqPos, 0);
+					status = m_navquery->closestPointOnPoly(reqPath[reqPathCount-1], ag->targetPos, reqPos, DT_NULL);
 					if (dtStatusFailed(status))
 						reqPathCount = 0;
 				}
@@ -874,7 +875,7 @@ void dtCrowd::updateMoveRequest(const float /*dt*/)
 					{
 						// Partial path, constrain target position inside the last polygon.
 						float nearest[3];
-						status = m_navquery->closestPointOnPoly(res[nres-1], targetPos, nearest, 0);
+						status = m_navquery->closestPointOnPoly(res[nres-1], targetPos, nearest, DT_NULL);
 						if (dtStatusSucceed(status))
 							dtVcopy(targetPos, nearest);
 						else
@@ -1282,7 +1283,7 @@ void dtCrowd::update(const float dt, dtCrowdAgentDebugInfo* debug)
 				m_obstacleQuery->addSegment(s, s+3);
 			}
 
-			dtObstacleAvoidanceDebugData* vod = 0;
+			dtObstacleAvoidanceDebugData* vod = DT_NULL;
 			if (debugIdx == i) 
 				vod = debug->vod;
 			
