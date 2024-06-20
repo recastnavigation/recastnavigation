@@ -65,6 +65,7 @@ static SampleItem g_samples[] =
 	{ createSolo, "Solo Mesh" },
 	{ createTile, "Tile Mesh" },
 	{ createTempObstacle, "Temp Obstacles" },
+	{ createDebug, "Debug" },
 };
 static const int g_nsamples = sizeof(g_samples) / sizeof(SampleItem);
 
