@@ -78,6 +78,10 @@ struct dtCrowdAgentParams
 	float maxAcceleration;				///< Maximum allowed acceleration. [Limit: >= 0]
 	float maxSpeed;						///< Maximum allowed speed. [Limit: >= 0]
 
+    float liftingSpeed;
+    float altitude;
+    float maxAltitude;
+
 	/// Defines how close a collision element must be before it is considered for steering behaviors. [Limits: > 0]
 	float collisionQueryRange;
 
@@ -192,7 +196,8 @@ enum UpdateFlags
 	DT_CROWD_OBSTACLE_AVOIDANCE = 2,
 	DT_CROWD_SEPARATION = 4,
 	DT_CROWD_OPTIMIZE_VIS = 8,			///< Use #dtPathCorridor::optimizePathVisibility() to optimize the agent path.
-	DT_CROWD_OPTIMIZE_TOPO = 16 		///< Use dtPathCorridor::optimizePathTopology() to optimize the agent path.
+	DT_CROWD_OPTIMIZE_TOPO = 16, 		///< Use dtPathCorridor::optimizePathTopology() to optimize the agent path.
+    DT_CROWD_FLYOVER = 32
 };
 
 struct dtCrowdAgentDebugInfo

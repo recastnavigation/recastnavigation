@@ -1402,6 +1402,10 @@ void dtCrowd::update(const float dt, dtCrowdAgentDebugInfo* debug)
 		ag->corridor.movePosition(ag->npos, m_navquery, &m_filters[ag->params.queryFilterType]);
 		// Get valid constrained position back.
 		dtVcopy(ag->npos, ag->corridor.getPos());
+        if (ag->params.updateFlags & DT_CROWD_FLYOVER)
+        {
+            ag->npos[1] += ag->params.altitude;
+        }
 
 		// If not using path, truncate the corridor to just one poly.
 		if (ag->targetState == DT_CROWDAGENT_TARGET_NONE || ag->targetState == DT_CROWDAGENT_TARGET_VELOCITY)
