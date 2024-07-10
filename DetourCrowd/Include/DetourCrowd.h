@@ -79,7 +79,6 @@ struct dtCrowdAgentParams
 	float maxSpeed;						///< Maximum allowed speed. [Limit: >= 0]
 
     float liftingSpeed;
-    float altitude;
     float maxAltitude;
 
 	/// Defines how close a collision element must be before it is considered for steering behaviors. [Limits: > 0]
@@ -155,6 +154,7 @@ struct dtCrowdAgent
 	float dvel[3];		///< The desired velocity of the agent. Based on the current path, calculated from scratch each frame. [(x, y, z)]
 	float nvel[3];		///< The desired velocity adjusted by obstacle avoidance, calculated from scratch each frame. [(x, y, z)]
 	float vel[3];		///< The actual velocity of the agent. The change from nvel -> vel is constrained by max acceleration. [(x, y, z)]
+    float altitude;
 
 	/// The agent's configuration parameters.
 	dtCrowdAgentParams params;

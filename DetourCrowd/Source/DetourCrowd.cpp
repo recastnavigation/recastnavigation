@@ -1404,7 +1404,7 @@ void dtCrowd::update(const float dt, dtCrowdAgentDebugInfo* debug)
 		dtVcopy(ag->npos, ag->corridor.getPos());
         if (ag->params.updateFlags & DT_CROWD_FLYOVER)
         {
-            ag->npos[1] += ag->params.altitude;
+            ag->npos[1] += ag->altitude;
         }
 
 		// If not using path, truncate the corridor to just one poly.
