@@ -433,9 +433,9 @@ static int triangulate(int n, const int* verts, int* indices, int* tris)
 			int i1 = next(i, n);
 			int i2 = next(i1, n);
 			if (diagonal(i, i2, n, verts, indices))
-				indices[i1] |= 0x8000;
+				indices[i1] |= 0x80000000;
 			else
-				indices[i1] &= 0x7fff;
+				indices[i1] &= 0x0fffffff;
 		}
 	}
 	
