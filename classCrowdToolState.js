@@ -3,7 +3,7 @@ var classCrowdToolState =
     [ "CrowdToolState", "classCrowdToolState.html#a27c76b496c852259d7f13cba5d3486a2", null ],
     [ "~CrowdToolState", "classCrowdToolState.html#a565655ca9441a3df105c266743937f8b", null ],
     [ "addAgent", "classCrowdToolState.html#aa9104be644522ca092091108506ca29c", null ],
-    [ "getToolParams", "classCrowdToolState.html#a7b1674127e1b1a0020ea471c78ae0809", null ],
+    [ "getToolParams", "classCrowdToolState.html#a248935d7933d330dd13f1ee4e9c6d953", null ],
     [ "handleRender", "classCrowdToolState.html#a127ea871607dd8ca52c254100be1e0af", null ],
     [ "handleRenderOverlay", "classCrowdToolState.html#aaaf12376476f0e109150ce7b0e618357", null ],
     [ "handleUpdate", "classCrowdToolState.html#a5533329be79b7cc61a18dcc5dfe11ecd", null ],

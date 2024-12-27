@@ -6,7 +6,7 @@ var RecastRegion_8cpp =
     [ "addUniqueConnection", "RecastRegion_8cpp.html#abc58499e6aeb21a4cd58d048c06f2ec0", null ],
     [ "addUniqueFloorRegion", "RecastRegion_8cpp.html#a2c802a2c5fc0d5e7e5d95a19539ff9a6", null ],
     [ "appendStacks", "RecastRegion_8cpp.html#acae78c0a97b367d4ace3294d6dcb8216", null ],
-    [ "boxBlur", "RecastRegion_8cpp.html#a68b94f221565ed5b4e80e34272f43ef0", null ],
+    [ "boxBlur", "RecastRegion_8cpp.html#a8c7b71f11f9de3d25eb66d09206bb40a", null ],
     [ "calculateDistanceField", "RecastRegion_8cpp.html#af63d2a9505ebfbbf63efc02531af5153", null ],
     [ "canMergeWithRegion", "RecastRegion_8cpp.html#a9b19ff33ed5153482d1b80b285209e54", null ],
     [ "expandRegions", "RecastRegion_8cpp.html#a019a1b335b38abce33594128c4806a04", null ],

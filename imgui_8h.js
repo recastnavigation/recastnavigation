@@ -31,7 +31,7 @@ var imgui_8h =
     [ "imguiDrawText", "imgui_8h.html#abdd0d158d1fcab4dbfcf9ea50f202136", null ],
     [ "imguiEndFrame", "imgui_8h.html#afd1f5eaee9f7475255c6fba75ff5123c", null ],
     [ "imguiEndScrollArea", "imgui_8h.html#ac2bccc89a7e0b94592623961cb21b257", null ],
-    [ "imguiGetRenderQueue", "imgui_8h.html#ad73e6a0f683a0a8e8f303ad61580c32d", null ],
+    [ "imguiGetRenderQueue", "imgui_8h.html#a0c979d18442edb31e3e6d422e64361ee", null ],
     [ "imguiGetRenderQueueSize", "imgui_8h.html#ab99959262f3e219c6a0f18aeafd432b0", null ],
     [ "imguiIndent", "imgui_8h.html#ae3d00934ccb219ffa9316b252d8afba0", null ],
     [ "imguiItem", "imgui_8h.html#a7175c05bac766e0145e4cf30c295bfbd", null ],

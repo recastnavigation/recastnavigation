@@ -11,8 +11,8 @@ var classdtNodePool =
     [ "getMemUsed", "classdtNodePool.html#a30a089ded0f298f4dd4654f39cd808d4", null ],
     [ "getNext", "classdtNodePool.html#af4651c815c5cb0aa9779188094d4a488", null ],
     [ "getNode", "classdtNodePool.html#a9642659acf1f7fbfcd408b4c3da8a885", null ],
-    [ "getNodeAtIdx", "classdtNodePool.html#a5f6d20bd49d338b03885909b0c13ccea", null ],
-    [ "getNodeAtIdx", "classdtNodePool.html#af5fa2f9dcde54a5d487fef4575d5130b", null ],
+    [ "getNodeAtIdx", "classdtNodePool.html#a4ea40fcf28b7f85b287714aacaeb92b8", null ],
+    [ "getNodeAtIdx", "classdtNodePool.html#a59791698ee3f6b0c0b160dff15311290", null ],
     [ "getNodeCount", "classdtNodePool.html#a5f1217cd13ee7e57ab29f05f451927f9", null ],
     [ "getNodeIdx", "classdtNodePool.html#a5b223e8441b2d202fb1a18022228d6e1", null ]
 ];

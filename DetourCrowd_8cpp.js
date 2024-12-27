@@ -5,7 +5,7 @@ var DetourCrowd_8cpp =
     [ "addToPathQueue", "DetourCrowd_8cpp.html#ad6e17a3fb0a88bbdb9f36d4d1eb483e8", null ],
     [ "calcSmoothSteerDirection", "DetourCrowd_8cpp.html#abfe93834630c322a9a508de9c9a1bbb8", null ],
     [ "calcStraightSteerDirection", "DetourCrowd_8cpp.html#a13aa5147e130f02757fc14ad317d5dff", null ],
-    [ "dtAllocCrowd", "group__crowd.html#ga01a53c9d76d1b61678ab1944dfbfac55", null ],
+    [ "dtAllocCrowd", "group__crowd.html#gaba06193b7d19b13c640186f753461ef3", null ],
     [ "dtFreeCrowd", "group__crowd.html#ga9475313642645070e78c359e0fc02b7a", null ],
     [ "getDistanceToGoal", "DetourCrowd_8cpp.html#aa1c9aee7599d23c1b1b5db2363cc3a1c", null ],
     [ "getNeighbours", "DetourCrowd_8cpp.html#a5fcc526c98bb123bbcb22c103d5f736b", null ],

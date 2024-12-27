@@ -31,7 +31,7 @@ var DetourNavMesh_8h =
     [ "dtTileFlags", "DetourNavMesh_8h.html#ace45ee22124392a9026eb6266000ca1c", [
       [ "DT_TILE_FREE_DATA", "DetourNavMesh_8h.html#ace45ee22124392a9026eb6266000ca1ca454ad5984fddf654fc291123ada94d1b", null ]
     ] ],
-    [ "dtAllocNavMesh", "group__detour.html#ga73648d53c5a414855a2aa264aab9263c", null ],
+    [ "dtAllocNavMesh", "group__detour.html#ga1a513a8c21db0913249b28bfdfd673bf", null ],
     [ "dtFreeNavMesh", "group__detour.html#gad938af5675a2f62c7c3830b38ea9a184", null ],
     [ "dtGetDetailTriEdgeFlags", "DetourNavMesh_8h.html#a5368111c9ec95da8fd3ad0c45b90c902", null ],
     [ "DT_EXT_LINK", "DetourNavMesh_8h.html#aa2d400dcfaef68b62c1f1118de13e87e", null ],

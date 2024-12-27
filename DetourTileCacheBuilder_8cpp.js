@@ -1,6 +1,6 @@
 var DetourTileCacheBuilder_8cpp =
 [
-    [ "dtFixedArray", "classdtFixedArray.html", "classdtFixedArray" ],
+    [ "dtFixedArray< T >", "classdtFixedArray.html", "classdtFixedArray" ],
     [ "dtLayerSweepSpan", "structdtLayerSweepSpan.html", "structdtLayerSweepSpan" ],
     [ "dtLayerMonotoneRegion", "structdtLayerMonotoneRegion.html", "structdtLayerMonotoneRegion" ],
     [ "dtTempContour", "structdtTempContour.html", "structdtTempContour" ],
@@ -19,8 +19,8 @@ var DetourTileCacheBuilder_8cpp =
     [ "diagonal", "DetourTileCacheBuilder_8cpp.html#ad1596ed1900fd9c42527f5016c47bcd4", null ],
     [ "diagonalie", "DetourTileCacheBuilder_8cpp.html#ad37c515eb8572e663a72d93dba26692f", null ],
     [ "distancePtSeg", "DetourTileCacheBuilder_8cpp.html#a95bb2b54ba0f6d1cee48278a1ba4980d", null ],
-    [ "dtAllocTileCacheContourSet", "DetourTileCacheBuilder_8cpp.html#ac56fd75ce61e6791ab64e1acc013e290", null ],
-    [ "dtAllocTileCachePolyMesh", "DetourTileCacheBuilder_8cpp.html#ad0aff6c472d0b05eb355467290740ac2", null ],
+    [ "dtAllocTileCacheContourSet", "DetourTileCacheBuilder_8cpp.html#a7ae319714b536347e4e9e1912e55be8a", null ],
+    [ "dtAllocTileCachePolyMesh", "DetourTileCacheBuilder_8cpp.html#a1c5d6b1aaf7fd7e4b4cf2530fc55b64d", null ],
     [ "dtBuildTileCacheContours", "DetourTileCacheBuilder_8cpp.html#a35744562caae9f2aa05e02d3ec242433", null ],
     [ "dtBuildTileCacheLayer", "DetourTileCacheBuilder_8cpp.html#ab894d05678218a7c3a1cff480958395d", null ],
     [ "dtBuildTileCachePolyMesh", "DetourTileCacheBuilder_8cpp.html#a09f7cfe18183529c3d88726a3a522d38", null ],

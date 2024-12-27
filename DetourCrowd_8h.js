@@ -23,7 +23,7 @@ var DetourCrowd_8h =
       [ "DT_CROWD_OPTIMIZE_VIS", "group__crowd.html#ggaa94b67d2fdcc390690c523f28019e52fad11f447facf1bf42c09de64e9483f3aa", null ],
       [ "DT_CROWD_OPTIMIZE_TOPO", "group__crowd.html#ggaa94b67d2fdcc390690c523f28019e52fa89c6f7f2e49254e775cb2b85259a0a93", null ]
     ] ],
-    [ "dtAllocCrowd", "group__crowd.html#ga01a53c9d76d1b61678ab1944dfbfac55", null ],
+    [ "dtAllocCrowd", "group__crowd.html#gaba06193b7d19b13c640186f753461ef3", null ],
     [ "dtFreeCrowd", "group__crowd.html#ga9475313642645070e78c359e0fc02b7a", null ],
     [ "DT_CROWD_MAX_OBSTAVOIDANCE_PARAMS", "group__crowd.html#gaca1e1a9395fd4406de712dc4330c60c5", null ],
     [ "DT_CROWD_MAX_QUERY_FILTER_TYPE", "group__crowd.html#ga1686003d07121541db2ee11074e1b3af", null ],

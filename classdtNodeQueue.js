@@ -7,7 +7,7 @@ var classdtNodeQueue =
     [ "getCapacity", "classdtNodeQueue.html#a3bd1e5d3450e90384d8d8ce7f59080de", null ],
     [ "getMemUsed", "classdtNodeQueue.html#a024e0d15d235157f79bd6a386e090804", null ],
     [ "modify", "classdtNodeQueue.html#a8be783bde0911bdf92503a2e111f2a1a", null ],
-    [ "pop", "classdtNodeQueue.html#a4fa10be8cbf65dcdf2284f18a3e949d3", null ],
+    [ "pop", "classdtNodeQueue.html#ad5b359ea0f59143fbc4687d6de38dd09", null ],
     [ "push", "classdtNodeQueue.html#a76d83f497e1a5bcf72a6cc902a696a2a", null ],
-    [ "top", "classdtNodeQueue.html#ad76eefdf18096e14f67c579c20a506af", null ]
+    [ "top", "classdtNodeQueue.html#ae2d92990e88f6a99daed25a0399382ed", null ]
 ];

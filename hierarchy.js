@@ -126,6 +126,7 @@ var hierarchy =
     [ "rcVectorBase< T, H >", "classrcVectorBase.html", [
       [ "rcTempVector< int >", "classrcTempVector.html", null ]
     ] ],
+    [ "rcVectorBase< int, RC_ALLOC_TEMP >", "classrcVectorBase.html", null ],
     [ "rcVectorBase< T, RC_ALLOC_PERM >", "classrcVectorBase.html", [
       [ "rcPermVector< T >", "classrcPermVector.html", null ]
     ] ],

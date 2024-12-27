@@ -24,7 +24,7 @@ var DetourTileCache_8h =
       [ "DT_OBSTACLE_BOX", "DetourTileCache_8h.html#a9852a22595ceae4debd70f078e037971ab654da18354a922d963354e55469a66b", null ],
       [ "DT_OBSTACLE_ORIENTED_BOX", "DetourTileCache_8h.html#a9852a22595ceae4debd70f078e037971ab58715685be1dff92c88c3e008f16b04", null ]
     ] ],
-    [ "dtAllocTileCache", "DetourTileCache_8h.html#abbf86fa9f52a802f0a1005b9dfd31b53", null ],
+    [ "dtAllocTileCache", "DetourTileCache_8h.html#a3dd576e3215b42cfe5b1e4604addd9d5", null ],
     [ "dtFreeTileCache", "DetourTileCache_8h.html#ac7924ac4ce94c94affdfbe6a07cea976", null ],
     [ "DT_MAX_TOUCHED_TILES", "DetourTileCache_8h.html#a3d05fd569d4f9cb51f3c99cbbdf97e22", null ]
 ];

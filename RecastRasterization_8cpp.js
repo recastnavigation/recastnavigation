@@ -6,7 +6,7 @@ var RecastRasterization_8cpp =
       [ "RC_AXIS_Z", "RecastRasterization_8cpp.html#a62b583caa984b1e6c218932f3218789ba5b56c442d066db5cc6e612ae9bcadcf4", null ]
     ] ],
     [ "addSpan", "RecastRasterization_8cpp.html#aa4ff34a2ddb3783399f347167e294fb3", null ],
-    [ "allocSpan", "RecastRasterization_8cpp.html#a184c1116c5c370cb0b1fe76974a26940", null ],
+    [ "allocSpan", "RecastRasterization_8cpp.html#afe4a4f775822e89230ebda67d4046989", null ],
     [ "dividePoly", "RecastRasterization_8cpp.html#af54026b5ecdfeabb867b7147d8730303", null ],
     [ "freeSpan", "RecastRasterization_8cpp.html#a173b706a0029e34cb5ff8dd702918527", null ],
     [ "overlapBounds", "RecastRasterization_8cpp.html#ad16e8ad5fc4ebec8d71d58217215ff60", null ],

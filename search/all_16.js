@@ -1,8 +1,10 @@
 var searchData=
 [
-  ['x_1786',['x',['../structdtMeshHeader.html#ae577ca0c9fba95254b699a51483e374c',1,'dtMeshHeader::x()'],['../structimguiGfxRect.html#ab702cb223baf33e949741d5bbc8778dd',1,'imguiGfxRect::x()'],['../structimguiGfxText.html#ad7bf3cc0e24e63d997c335b7a5e15d25',1,'imguiGfxText::x()'],['../structGraphParams.html#ace7d34643e947127db99c65dbbff03e1',1,'GraphParams::x()']]],
-  ['x0_1787',['x0',['../structimguiGfxLine.html#a77dee23b2e6f3582591b197b157276b4',1,'imguiGfxLine']]],
-  ['x1_1788',['x1',['../structimguiGfxLine.html#ae3ced14f8ccc697421abfbb8c45a8b9b',1,'imguiGfxLine']]],
-  ['xmin_1789',['xmin',['../structrcHeightPatch.html#ac8af7bf8fa73d87c84ba155fd48be28a',1,'rcHeightPatch']]],
-  ['xorb_1790',['xorb',['../DetourTileCacheBuilder_8cpp.html#a82c11ae489473adcaa21b9944f3553fd',1,'xorb(bool x, bool y):&#160;DetourTileCacheBuilder.cpp'],['../RecastContour_8cpp.html#a82c11ae489473adcaa21b9944f3553fd',1,'xorb(bool x, bool y):&#160;RecastContour.cpp'],['../RecastMesh_8cpp.html#a82c11ae489473adcaa21b9944f3553fd',1,'xorb(bool x, bool y):&#160;RecastMesh.cpp']]]
+  ['q_0',['q',['../structdtObstacleSegment.html#a3282730543d772664692b32c15576ee9',1,'dtObstacleSegment']]],
+  ['queryfiltertype_1',['queryFilterType',['../structdtCrowdAgentParams.html#af5d15cba10237592b1766d7d82da1420',1,'dtCrowdAgentParams']]],
+  ['querying_20abilities_2',['More spatial querying abilities',['../md_Docs_2__99__Roadmap.html#more-spatial-querying-abilities',1,'']]],
+  ['queryitems_3',['queryItems',['../classdtProximityGrid.html#a4ee1269c36500bb20d3891a2363c5ea8',1,'dtProximityGrid']]],
+  ['querypolygons_4',['querypolygons',['../classdtNavMeshQuery.html#a06e46d57afad3f07380d82bb8d4a6720',1,'dtNavMeshQuery::queryPolygons(const float *center, const float *halfExtents, const dtQueryFilter *filter, dtPolyRef *polys, int *polyCount, const int maxPolys) const'],['../classdtNavMeshQuery.html#aed2fc9071ca182a548baf5158cd4f441',1,'dtNavMeshQuery::queryPolygons(const float *center, const float *halfExtents, const dtQueryFilter *filter, dtPolyQuery *query) const']]],
+  ['querytiles_5',['queryTiles',['../classdtTileCache.html#afa3fb52e3082723c52a2048698a26cb3',1,'dtTileCache']]],
+  ['question_20or_20problem_6',['Have a Question or Problem?',['../md_CONTRIBUTING.html#have-a-question-or-problem',1,'']]]
 ];
