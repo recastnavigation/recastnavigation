@@ -91,8 +91,9 @@ jobs:
     - name: Install opengl and SDL
       run: |
         sudo apt-get update
-        sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev libsdl2-dev clang
+        sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev libsdl2-dev clang gcc
         clang --version
+        gcc --version
 
     - name: Download & Install premake
       working-directory: RecastDemo
