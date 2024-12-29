@@ -98,7 +98,7 @@ int main(int /*argc*/, char** /*argv*/)
 	SDL_GetCurrentDisplayMode(0, &displayMode);
 
 	bool presentationMode = false;
-	Uint32 flags = SDL_WINDOW_OPENGL;
+	Uint32 flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
 	int width;
 	int height;
 	if (presentationMode)
@@ -333,7 +333,22 @@ int main(int /*argc*/, char** /*argv*/)
 						}
 					}
 					break;
-					
+				case SDL_WINDOWEVENT:
+					{
+						if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
+							// Get the new window size
+							width = event.window.data1;
+							height = event.window.data2;
+
+							// Update OpenGL viewport
+							glViewport(0, 0, width, height);
+
+							glMatrixMode(GL_PROJECTION);
+							glLoadIdentity();
+							gluPerspective(50.0f, (float)width/(float)height, 1.0f, camr);
+						}
+					}
+					break;
 				case SDL_QUIT:
 					done = true;
 					break;
