@@ -17,10 +17,11 @@
 //
 
 #include "DetourAssert.h"
+#include "DetourModernCpp.h"
 
 #ifndef RC_DISABLE_ASSERTS
 
-static dtAssertFailFunc* sAssertFailFunc = 0;
+static dtAssertFailFunc* sAssertFailFunc = DT_NULL;
 
 void dtAssertFailSetCustom(dtAssertFailFunc *assertFailFunc)
 {

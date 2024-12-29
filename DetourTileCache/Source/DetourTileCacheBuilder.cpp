@@ -22,6 +22,7 @@
 #include "DetourAssert.h"
 #include "DetourTileCacheBuilder.h"
 #include <string.h>
+#include "DetourModernCpp.h"
 
 dtTileCacheAlloc::~dtTileCacheAlloc()
 {
@@ -2159,7 +2160,7 @@ dtStatus dtDecompressTileCacheLayer(dtTileCacheAlloc* alloc, dtTileCacheCompress
 	if (!compressed)
 		return DT_FAILURE | DT_INVALID_PARAM;
 
-	*layerOut = 0;
+	*layerOut = DT_NULL;
 
 	dtTileCacheLayerHeader* compressedHeader = (dtTileCacheLayerHeader*)compressed;
 	if (compressedHeader->magic != DT_TILECACHE_MAGIC)
