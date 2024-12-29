@@ -247,8 +247,11 @@ project "Tests"
 
 	-- enable ubsan and asan when compiling with clang
 	filter "toolset:clang"
-			buildoptions { "-fsanitize=undefined", "-fsanitize=address" } -- , "-fsanitize=memory" }
-			linkoptions { "-fsanitize=undefined", "-fsanitize=address" } --, "-fsanitize=memory" }
+		-- Disable `-Wnan-infinity-disabled` because Catch uses functions like std::isnan() that
+		-- generate warnings when compiled with -ffast-math.
+		buildoptions { "-Wno-nan-infinity-disabled" }
+		buildoptions { "-fsanitize=undefined", "-fsanitize=address" } -- , "-fsanitize=memory" }
+		linkoptions { "-fsanitize=undefined", "-fsanitize=address" } --, "-fsanitize=memory" }
 
 	-- linux library cflags and libs
 	filter "system:linux"
