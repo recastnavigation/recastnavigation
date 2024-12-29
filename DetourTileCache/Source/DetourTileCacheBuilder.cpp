@@ -1504,19 +1504,6 @@ static bool canRemoveVertex(dtTileCachePolyMesh& mesh, const unsigned short rem)
 
 static dtStatus removeVertex(dtTileCachePolyMesh& mesh, const unsigned short rem, const int maxTris)
 {
-	// Count number of polygons to remove.
-	int numRemovedVerts = 0;
-	for (int i = 0; i < mesh.npolys; ++i)
-	{
-		unsigned short* p = &mesh.polys[i*MAX_VERTS_PER_POLY*2];
-		const int nv = countPolyVerts(p);
-		for (int j = 0; j < nv; ++j)
-		{
-			if (p[j] == rem)
-				numRemovedVerts++;
-		}
-	}
-	
 	int nedges = 0;
 	unsigned short edges[MAX_REM_EDGES*3];
 	int nhole = 0;

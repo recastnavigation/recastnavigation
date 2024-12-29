@@ -14,7 +14,13 @@ workspace "recastnavigation"
 
 	location (todir)
 
+	-- Use fast math operations.  This is not required, but it speeds up some calculations 
+	-- at the expense of accuracy.  Because there are some functions like dtMathIsfinite 
+	-- that use floating point functions that become undefined behavior when compiled with
+	-- fast-math, we need to conditionally short-circuit these functions.
 	floatingpoint "Fast"
+	defines { "RC_FAST_MATH" }
+
 	exceptionhandling "Off"
 	rtti "Off"
 	symbols "On"
@@ -241,8 +247,11 @@ project "Tests"
 
 	-- enable ubsan and asan when compiling with clang
 	filter "toolset:clang"
-			buildoptions { "-fsanitize=undefined", "-fsanitize=address" } -- , "-fsanitize=memory" }
-			linkoptions { "-fsanitize=undefined", "-fsanitize=address" } --, "-fsanitize=memory" }
+		-- Disable `-Wnan-infinity-disabled` because Catch uses functions like std::isnan() that
+		-- generate warnings when compiled with -ffast-math.
+		buildoptions { "-Wno-nan-infinity-disabled" }
+		buildoptions { "-fsanitize=undefined", "-fsanitize=address" } -- , "-fsanitize=memory" }
+		linkoptions { "-fsanitize=undefined", "-fsanitize=address" } --, "-fsanitize=memory" }
 
 	-- linux library cflags and libs
 	filter "system:linux"
