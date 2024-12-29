@@ -22,6 +22,7 @@ inline bool dtMathIsfinite(float x)
 	return isfinite(x);
 #else
 	// Infinity and NaN are disabled when compiling with -ffast-math
+	(void)x;
 	return true;
 #endif
 }
