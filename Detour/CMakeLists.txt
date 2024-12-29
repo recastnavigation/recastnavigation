@@ -13,6 +13,10 @@ if(RECASTNAVIGATION_DT_VIRTUAL_QUERYFILTER)
     target_compile_definitions(Detour PUBLIC DT_VIRTUAL_QUERYFILTER)
 endif()
 
+if(NOT RECASTNAVIGATION_ENABLE_ASSERTS)
+    target_compile_definitions(Detour PUBLIC RC_DISABLE_ASSERTS)
+endif()
+
 target_include_directories(Detour PUBLIC
     "$<BUILD_INTERFACE:${Detour_INCLUDE_DIR}>"
 )
