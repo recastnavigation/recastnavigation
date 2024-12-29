@@ -14,7 +14,13 @@ workspace "recastnavigation"
 
 	location (todir)
 
+	-- Use fast math operations.  This is not required, but it speeds up some calculations 
+	-- at the expense of accuracy.  Because there are some functions like dtMathIsfinite 
+	-- that use floating point functions that become undefined behavior when compiled with
+	-- fast-math, we need to conditionally short-circuit these functions.
 	floatingpoint "Fast"
+	defines { "RC_FAST_MATH" }
+
 	exceptionhandling "Off"
 	rtti "Off"
 	symbols "On"
