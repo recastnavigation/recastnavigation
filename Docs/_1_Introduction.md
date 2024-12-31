@@ -6,7 +6,7 @@ Most modern, complex 3D games rely on [navmeshes](https://en.wikipedia.org/wiki/
 
 A navmesh is a simplified view of the traversable area of a game world, optimized for AI pathfiding and movement calculations.  Navmeshes are usually built from the physics colliders of the world, since they define the areas an AI can legally exist.
 
-Triangles in a navmesh represent nodes in the pathfinding graph, and edges between adjacent polygons define connections between these nodes.  Pathfinding queries first construct a path consisting of a strip of adjacent polygons.  This represents the "corridor" of space that leads the agent to their goal.  That polygonal path is refined into sequence of line-segments through a [string-pulling algorithm](http://idm-lab.org/bib/abstracts/papers/socs20c.pdfZ).  Agents can then follow this sequence of waypoints to reach their goal.
+Triangles in a navmesh represent nodes in the pathfinding graph, and edges between adjacent polygons define connections between these nodes.  Pathfinding queries first construct a path consisting of a strip of adjacent polygons.  This represents the "corridor" of space that leads the agent to their goal.  That polygonal path is refined into sequence of line-segments through a [string-pulling algorithm](http://idm-lab.org/bib/abstracts/papers/socs20c.pdf).  Agents can then follow this sequence of waypoints to reach their goal.
 
 ### Agent Attributes
 
