@@ -67,7 +67,7 @@ $(function() {
 </div>
 <script type="text/javascript">
 /* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
-$(document).ready(function(){initNavTree('md_Docs_2__1__Introducation.html',''); initResizable(); });
+$(document).ready(function(){initNavTree('md_Docs_2__1__Introduction.html',''); initResizable(); });
 /* @license-end */
 </script>
 <div id="doc-content">
@@ -102,7 +102,7 @@ What is a Navmesh and how does it work?</h1>
 <p>Most modern, complex 3D games rely on <a href="https://en.wikipedia.org/wiki/Navigation_mesh">navmeshes</a> to drive their pathfinding and AI agent movement and navigation. <br  />
 </p>
 <p>A navmesh is a simplified view of the traversable area of a game world, optimized for AI pathfiding and movement calculations. Navmeshes are usually built from the physics colliders of the world, since they define the areas an AI can legally exist.</p>
-<p>Triangles in a navmesh represent nodes in the pathfinding graph, and edges between adjacent polygons define connections between these nodes. Pathfinding queries first construct a path consisting of a strip of adjacent polygons. This represents the "corridor" of space that leads the agent to their goal. That polygonal path is refined into sequence of line-segments through a <a href="http://idm-lab.org/bib/abstracts/papers/socs20c.pdfZ">string-pulling algorithm</a>. Agents can then follow this sequence of waypoints to reach their goal.</p>
+<p>Triangles in a navmesh represent nodes in the pathfinding graph, and edges between adjacent polygons define connections between these nodes. Pathfinding queries first construct a path consisting of a strip of adjacent polygons. This represents the "corridor" of space that leads the agent to their goal. That polygonal path is refined into sequence of line-segments through a <a href="http://idm-lab.org/bib/abstracts/papers/socs20c.pdf">string-pulling algorithm</a>. Agents can then follow this sequence of waypoints to reach their goal.</p>
 <h2><a class="anchor" id="agent-attributes"></a>
 Agent Attributes</h2>
 <p>A navmesh is usually tailored to a specific type of AI agent with a specific size and set of movement capabilities. After all, the areas that a huge ogre, or a medium human, or a tiny mouse can move in are very different. Because of this, it's often necessary to build multiple navmeshes for the same environment to accommodate different agent types.</p>

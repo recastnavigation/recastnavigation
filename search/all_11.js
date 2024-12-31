@@ -10,7 +10,7 @@ var searchData=
   ['leftpressed_7',['leftPressed',['../structGuiState.html#a4eca6767d38228c41e82a56b66ce4853',1,'GuiState']]],
   ['leftreleased_8',['leftReleased',['../structGuiState.html#a8a64eb781d05dd4561d1100a6e3c759f',1,'GuiState']]],
   ['level_20apis_9',['Higher-Level APIs',['../md_Docs_2__99__Roadmap.html#higher-level-apis',1,'']]],
-  ['level_20overview_20of_20the_20recast_20navmesh_20building_20process_10',['High-level overview of the Recast Navmesh-Building Process',['../md_Docs_2__1__Introducation.html#high-level-overview-of-the-recast-navmesh-building-process',1,'']]],
+  ['level_20overview_20of_20the_20recast_20navmesh_20building_20process_10',['High-level overview of the Recast Navmesh-Building Process',['../md_Docs_2__1__Introduction.html#high-level-overview-of-the-recast-navmesh-building-process',1,'']]],
   ['license_11',['⚖ License',['../index.html#autotoc_md-license',1,'']]],
   ['line_12',['line',['../structimguiGfxCmd.html#a7cc3675a387e8714dd2a2f6d6303a12d',1,'imguiGfxCmd']]],
   ['linearallocator_13',['linearallocator',['../structLinearAllocator.html#ab3e8483fa7f6899695aa338a14bc0a67',1,'LinearAllocator::LinearAllocator()'],['../structLinearAllocator.html',1,'LinearAllocator']]],

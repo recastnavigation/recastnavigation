@@ -25,19 +25,19 @@
 var NAVTREE =
 [
   [ "Recast Navigation", "index.html", [
-    [ "Introduction", "md_Docs_2__1__Introducation.html", [
+    [ "Introduction", "md_Docs_2__1__Introduction.html", [
       [ "🚀 Features", "index.html#autotoc_md-features", null ],
       [ "⚡ Getting Started", "index.html#autotoc_md-getting-started", null ],
       [ "⚙ How it Works", "index.html#autotoc_md-how-it-works", null ],
       [ "📚 Documentation & Links", "index.html#autotoc_md-documentation--links", null ],
       [ "❤ Community", "index.html#autotoc_md-community", null ],
       [ "⚖ License", "index.html#autotoc_md-license", null ],
-      [ "What is a Navmesh and how does it work?", "md_Docs_2__1__Introducation.html#what-is-a-navmesh-and-how-does-it-work", [
-        [ "Agent Attributes", "md_Docs_2__1__Introducation.html#agent-attributes", null ]
+      [ "What is a Navmesh and how does it work?", "md_Docs_2__1__Introduction.html#what-is-a-navmesh-and-how-does-it-work", [
+        [ "Agent Attributes", "md_Docs_2__1__Introduction.html#agent-attributes", null ]
       ] ],
-      [ "What is a Navmesh not?", "md_Docs_2__1__Introducation.html#what-is-a-navmesh-not", null ],
-      [ "What is Recast Navigation?", "md_Docs_2__1__Introducation.html#what-is-recast-navigation", null ],
-      [ "High-level overview of the Recast Navmesh-Building Process", "md_Docs_2__1__Introducation.html#high-level-overview-of-the-recast-navmesh-building-process", null ]
+      [ "What is a Navmesh not?", "md_Docs_2__1__Introduction.html#what-is-a-navmesh-not", null ],
+      [ "What is Recast Navigation?", "md_Docs_2__1__Introduction.html#what-is-recast-navigation", null ],
+      [ "High-level overview of the Recast Navmesh-Building Process", "md_Docs_2__1__Introduction.html#high-level-overview-of-the-recast-navmesh-building-process", null ]
     ] ],
     [ "Building & Integrating", "md_Docs_2__2__BuildingAndIntegrating.html", [
       [ "Building RecastDemo", "md_Docs_2__2__BuildingAndIntegrating.html#building-recastdemo", [

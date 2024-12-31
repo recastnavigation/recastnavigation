@@ -93,7 +93,7 @@ var searchData=
   ['do_20recast_20use_90',['Which C++ version and features do Recast use?',['../md_Docs_2__3__FAQ.html#which-c-version-and-features-do-recast-use',1,'']]],
   ['documentation_20links_91',['📚 Documentation &amp; Links',['../index.html#autotoc_md-documentation--links',1,'']]],
   ['documentation_20web_20presence_20wip_92',['Documentation &amp; Web Presence (WIP)',['../md_Docs_2__99__Roadmap.html#documentation--web-presence-wip',1,'']]],
-  ['does_20it_20work_93',['What is a Navmesh and how does it work?',['../md_Docs_2__1__Introducation.html#what-is-a-navmesh-and-how-does-it-work',1,'']]],
+  ['does_20it_20work_93',['What is a Navmesh and how does it work?',['../md_Docs_2__1__Introduction.html#what-is-a-navmesh-and-how-does-it-work',1,'']]],
   ['does_20recast_20do_20any_20logging_94',['Does Recast do any logging?',['../md_Docs_2__3__FAQ.html#does-recast-do-any-logging',1,'']]],
   ['does_20recast_20use_95',['What coordinate system and triangle winding order does Recast use?',['../md_Docs_2__3__FAQ.html#what-coordinate-system-and-triangle-winding-order-does-recast-use',1,'']]],
   ['doesn_20t_20recast_20use_20stl_20exceptions_20rtti_20c_2011_20my_20favorite_20c_20feature_96',['Why doesn&apos;t Recast use STL/Exceptions/RTTI/C++11/my favorite C++ feature?',['../md_Docs_2__3__FAQ.html#why-doesnt-recast-use-stlexceptionsrttic11my-favorite-c-feature',1,'']]],

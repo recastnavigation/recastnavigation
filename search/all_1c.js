@@ -16,9 +16,9 @@ var searchData=
   ['wentactive_13',['wentActive',['../structGuiState.html#a781a53ecc27ed89de4b0a425a5452792',1,'GuiState']]],
   ['what_20are_20the_20dependencies_20for_20recastdemo_14',['What are the dependencies for RecastDemo?',['../md_Docs_2__3__FAQ.html#what-are-the-dependencies-for-recastdemo',1,'']]],
   ['what_20coordinate_20system_20and_20triangle_20winding_20order_20does_20recast_20use_15',['What coordinate system and triangle winding order does Recast use?',['../md_Docs_2__3__FAQ.html#what-coordinate-system-and-triangle-winding-order-does-recast-use',1,'']]],
-  ['what_20is_20a_20navmesh_20and_20how_20does_20it_20work_16',['What is a Navmesh and how does it work?',['../md_Docs_2__1__Introducation.html#what-is-a-navmesh-and-how-does-it-work',1,'']]],
-  ['what_20is_20a_20navmesh_20not_17',['What is a Navmesh not?',['../md_Docs_2__1__Introducation.html#what-is-a-navmesh-not',1,'']]],
-  ['what_20is_20recast_20navigation_18',['What is Recast Navigation?',['../md_Docs_2__1__Introducation.html#what-is-recast-navigation',1,'']]],
+  ['what_20is_20a_20navmesh_20and_20how_20does_20it_20work_16',['What is a Navmesh and how does it work?',['../md_Docs_2__1__Introduction.html#what-is-a-navmesh-and-how-does-it-work',1,'']]],
+  ['what_20is_20a_20navmesh_20not_17',['What is a Navmesh not?',['../md_Docs_2__1__Introduction.html#what-is-a-navmesh-not',1,'']]],
+  ['what_20is_20recast_20navigation_18',['What is Recast Navigation?',['../md_Docs_2__1__Introduction.html#what-is-recast-navigation',1,'']]],
   ['which_20c_20version_20and_20features_20do_20recast_20use_19',['Which C++ version and features do Recast use?',['../md_Docs_2__3__FAQ.html#which-c-version-and-features-do-recast-use',1,'']]],
   ['why_20doesn_20t_20recast_20use_20stl_20exceptions_20rtti_20c_2011_20my_20favorite_20c_20feature_20',['Why doesn&apos;t Recast use STL/Exceptions/RTTI/C++11/my favorite C++ feature?',['../md_Docs_2__3__FAQ.html#why-doesnt-recast-use-stlexceptionsrttic11my-favorite-c-feature',1,'']]],
   ['widgetid_21',['widgetId',['../structGuiState.html#adbb0ec177af2c0beaf4471339952d522',1,'GuiState']]],
@@ -29,7 +29,7 @@ var searchData=
   ['winding_20order_20does_20recast_20use_26',['What coordinate system and triangle winding order does Recast use?',['../md_Docs_2__3__FAQ.html#what-coordinate-system-and-triangle-winding-order-does-recast-use',1,'']]],
   ['windows_27',['Windows',['../md_Docs_2__2__BuildingAndIntegrating.html#windows',1,'']]],
   ['wip_28',['wip',['../md_Docs_2__99__Roadmap.html#documentation--web-presence-wip',1,'Documentation &amp; Web Presence (WIP)'],['../md_Docs_2__99__Roadmap.html#more-explicit-variable-names-wip',1,'More explicit variable names (WIP)'],['../md_Docs_2__99__Roadmap.html#more-pod-structs-for-clarity-in-internals-wip',1,'More POD structs for clarity in internals (WIP)']]],
-  ['work_29',['What is a Navmesh and how does it work?',['../md_Docs_2__1__Introducation.html#what-is-a-navmesh-and-how-does-it-work',1,'']]],
+  ['work_29',['What is a Navmesh and how does it work?',['../md_Docs_2__1__Introduction.html#what-is-a-navmesh-and-how-does-it-work',1,'']]],
   ['works_30',['⚙ How it Works',['../index.html#autotoc_md-how-it-works',1,'']]],
   ['write_31',['write',['../classFileIO.html#aa2ff5f1db6c224a0fa15f3b039a6009d',1,'FileIO::write()'],['../structduFileIO.html#aec33f1c0d1d0d1ec464fc1a5c135cb00',1,'duFileIO::write()']]]
 ];

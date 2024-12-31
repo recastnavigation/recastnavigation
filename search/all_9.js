@@ -23,7 +23,7 @@ var searchData=
   ['buildbvtree_20',['buildBvTree',['../structdtNavMeshCreateParams.html#a3c0dab8176f42294bd87c07a4fcce519',1,'dtNavMeshCreateParams']]],
   ['buildcontext_21',['buildcontext',['../classBuildContext.html',1,'BuildContext'],['../classBuildContext.html#a3103b5538cfde15052e20019018fb3de',1,'BuildContext::BuildContext()']]],
   ['building_20integrating_22',['Building &amp; Integrating',['../md_Docs_2__2__BuildingAndIntegrating.html',1,'']]],
-  ['building_20process_23',['High-level overview of the Recast Navmesh-Building Process',['../md_Docs_2__1__Introducation.html#high-level-overview-of-the-recast-navmesh-building-process',1,'']]],
+  ['building_20process_23',['High-level overview of the Recast Navmesh-Building Process',['../md_Docs_2__1__Introduction.html#high-level-overview-of-the-recast-navmesh-building-process',1,'']]],
   ['building_20recastdemo_24',['Building RecastDemo',['../md_Docs_2__2__BuildingAndIntegrating.html#building-recastdemo',1,'']]],
   ['buildmeshadjacency_25',['buildmeshadjacency',['../DetourTileCacheBuilder_8cpp.html#a3cb207997a33b83726f260fe5f0715d4',1,'buildMeshAdjacency(dtTileCacheAlloc *alloc, unsigned short *polys, const int npolys, const unsigned short *verts, const int nverts, const dtTileCacheContourSet &amp;lcset):&#160;DetourTileCacheBuilder.cpp'],['../RecastMesh_8cpp.html#a256e19cca110edc31cb96adf9a52521d',1,'buildMeshAdjacency(unsigned short *polys, const int npolys, const int nverts, const int vertsPerPoly):&#160;RecastMesh.cpp']]],
   ['buildnavmeshtile_26',['buildNavMeshTile',['../classdtTileCache.html#a58de8a233915bc3aa553d4cf4e10084d',1,'dtTileCache']]],
