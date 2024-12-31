@@ -5,9 +5,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/recastnavigation/recastnavigation/compare/1.6.0...HEAD)
-
-## [1.6.0](https://github.com/recastnavigation/recastnavigation/compare/1.5.1...1.6.0) - 2023-05-21
+<h2>[Unreleased](https://github.com/recastnavigation/recastnavigation/compare/1.6.0...HEAD)</h2>
+<h2>[1.6.0](https://github.com/recastnavigation/recastnavigation/compare/1.5.1...1.6.0) - 2023-05-21</h2>
 
 ### Added
 - CMake build support
