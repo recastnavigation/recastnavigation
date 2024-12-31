@@ -241,6 +241,14 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>A memory allocation function. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">size</td><td>The size, in bytes of memory, to allocate. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">hint</td><td>A hint to the allocator on how long the memory is expected to be in use. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A pointer to the beginning of the allocated memory block, or null if the allocation failed. </dd></dl>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="RecastAlloc_8h.html#ae3f9da3566ad0877b9e4c9e92f8e1a15" title="Sets the base custom allocation functions to be used by Recast.">rcAllocSetCustom</a> </dd></dl>
 
 </div>
@@ -427,7 +435,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>A pointer to the beginning of the allocated memory block, or null if the allocation failed.</dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>A pointer to the beginning of the allocated memory block, or null if the allocation failed. </dd></dl>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="RecastAlloc_8h.html#a6fc4cfee655e24f94bad226f915ac397" title="Deallocates a memory block.">rcFree</a>, <a class="el" href="RecastAlloc_8h.html#ae3f9da3566ad0877b9e4c9e92f8e1a15" title="Sets the base custom allocation functions to be used by Recast.">rcAllocSetCustom</a> </dd></dl>
 
 </div>
@@ -462,7 +470,7 @@ Functions</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">allocFunc</td><td>The memory allocation function to be used by <a class="el" href="RecastAlloc_8h.html#a23d42b8202457d252efde3042cac102a" title="Allocates a memory block.">rcAlloc</a> </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">freeFunc</td><td>The memory de-allocation function to be used by <a class="el" href="RecastAlloc_8h.html#a6fc4cfee655e24f94bad226f915ac397" title="Deallocates a memory block.">rcFree</a></td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">freeFunc</td><td>The memory de-allocation function to be used by <a class="el" href="RecastAlloc_8h.html#a6fc4cfee655e24f94bad226f915ac397" title="Deallocates a memory block.">rcFree</a> </td></tr>
   </table>
   </dd>
 </dl>
@@ -487,11 +495,10 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Deallocates a memory block. </p>
-<p>If <code>ptr</code> is NULL, this does nothing.</p>
-<dl class="section warning"><dt>Warning</dt><dd>This function leaves the value of <code>ptr</code> unchanged. So it still points to the same (now invalid) location, and not to null.</dd></dl>
+<p>If <code>ptr</code> is NULL, this does nothing. </p><dl class="section warning"><dt>Warning</dt><dd>This function leaves the value of <code>ptr</code> unchanged. So it still points to the same (now invalid) location, and not to null. </dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">ptr</td><td>A pointer to a memory block previously allocated using <a class="el" href="RecastAlloc_8h.html#a23d42b8202457d252efde3042cac102a" title="Allocates a memory block.">rcAlloc</a>.</td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">ptr</td><td>A pointer to a memory block previously allocated using <a class="el" href="RecastAlloc_8h.html#a23d42b8202457d252efde3042cac102a" title="Allocates a memory block.">rcAlloc</a>. </td></tr>
   </table>
   </dd>
 </dl>
