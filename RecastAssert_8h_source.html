@@ -122,38 +122,31 @@ $(document).ready(function(){initNavTree('RecastAssert_8h_source.html',''); init
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="preprocessor">#ifndef RECASTASSERT_H</span></div>
 <div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="preprocessor">#define RECASTASSERT_H</span></div>
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span> </div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="preprocessor">#ifdef RC_DISABLE_ASSERTS</span></div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span> </div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="comment">// From https://web.archive.org/web/20210117002833/http://cnicholson.net/2009/02/stupid-c-tricks-adventures-in-assert/</span></div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="preprocessor">#   define rcAssert(x) do { (void)sizeof(x); } while ((void)(__LINE__==-1), false)</span></div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span> </div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span><span class="preprocessor">#else</span></div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno"><a class="line" href="RecastAssert_8h.html#a56d4bc754448f291c6bf5f444c3c11e3">   27</a></span><span class="keyword">typedef</span> void (<a class="code hl_typedef" href="RecastAssert_8h.html#a56d4bc754448f291c6bf5f444c3c11e3">rcAssertFailFunc</a>)(<span class="keyword">const</span> <span class="keywordtype">char</span>* expression, <span class="keyword">const</span> <span class="keywordtype">char</span>* file, <span class="keywordtype">int</span> line);</div>
 <div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span> </div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span><span class="comment">//  @param[in]      expression  asserted expression.</span></div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span><span class="comment">//  @param[in]      file  Filename of the failed assertion.</span></div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span><span class="comment">//  @param[in]      line  Line number of the failed assertion.</span></div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno"><a class="line" href="RecastAssert_8h.html#a56d4bc754448f291c6bf5f444c3c11e3">   34</a></span><span class="keyword">typedef</span> void (<a class="code hl_typedef" href="RecastAssert_8h.html#a56d4bc754448f291c6bf5f444c3c11e3">rcAssertFailFunc</a>)(<span class="keyword">const</span> <span class="keywordtype">char</span>* expression, <span class="keyword">const</span> <span class="keywordtype">char</span>* file, <span class="keywordtype">int</span> line);</div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span><span class="keywordtype">void</span> <a class="code hl_function" href="RecastAssert_8h.html#a9fba2f1f45778f706f4478a73ba69e91">rcAssertFailSetCustom</a>(<a class="code hl_typedef" href="RecastAssert_8h.html#a56d4bc754448f291c6bf5f444c3c11e3">rcAssertFailFunc</a>* assertFailFunc);</div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span> </div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span><a class="code hl_typedef" href="RecastAssert_8h.html#a56d4bc754448f291c6bf5f444c3c11e3">rcAssertFailFunc</a>* <a class="code hl_function" href="RecastAssert_8h.html#a6e7fa7885e611b26d57736c33df11771">rcAssertFailGetCustom</a>();</div>
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span> </div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span><span class="keywordtype">void</span> <a class="code hl_function" href="RecastAssert_8h.html#a9fba2f1f45778f706f4478a73ba69e91">rcAssertFailSetCustom</a>(<a class="code hl_typedef" href="RecastAssert_8h.html#a56d4bc754448f291c6bf5f444c3c11e3">rcAssertFailFunc</a>* assertFailFunc);</div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span> </div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span><a class="code hl_typedef" href="RecastAssert_8h.html#a56d4bc754448f291c6bf5f444c3c11e3">rcAssertFailFunc</a>* <a class="code hl_function" href="RecastAssert_8h.html#a6e7fa7885e611b26d57736c33df11771">rcAssertFailGetCustom</a>();</div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span> </div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span><span class="preprocessor">#   include &lt;assert.h&gt;</span> </div>
-<div class="foldopen" id="foldopen00044" data-start="" data-end="">
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno"><a class="line" href="RecastAssert_8h.html#a857ec26f725d5a8d341fedca5a32f649">   44</a></span><span class="preprocessor">#   define rcAssert(expression) \</span></div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span><span class="preprocessor">        { \</span></div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span><span class="preprocessor">            rcAssertFailFunc* failFunc = rcAssertFailGetCustom(); \</span></div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span><span class="preprocessor">            if (failFunc == NULL) { assert(expression); } \</span></div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span><span class="preprocessor">            else if (!(expression)) { (*failFunc)(#expression, __FILE__, __LINE__); } \</span></div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span><span class="preprocessor">        }</span></div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span><span class="preprocessor">#ifdef RC_DISABLE_ASSERTS</span></div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span><span class="comment">// From https://web.archive.org/web/20210117002833/http://cnicholson.net/2009/02/stupid-c-tricks-adventures-in-assert/</span></div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span><span class="preprocessor">#   define rcAssert(x) do { (void)sizeof(x); } while ((void)(__LINE__==-1), false)</span></div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span><span class="preprocessor">#else</span></div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span><span class="preprocessor">#   include &lt;assert.h&gt;</span> </div>
+<div class="foldopen" id="foldopen00041" data-start="" data-end="">
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno"><a class="line" href="RecastAssert_8h.html#a857ec26f725d5a8d341fedca5a32f649">   41</a></span><span class="preprocessor">#   define rcAssert(expression) \</span></div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span><span class="preprocessor">        { \</span></div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span><span class="preprocessor">            rcAssertFailFunc* failFunc = rcAssertFailGetCustom(); \</span></div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span><span class="preprocessor">            if (failFunc == NULL) { assert(expression); } \</span></div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span><span class="preprocessor">            else if (!(expression)) { (*failFunc)(#expression, __FILE__, __LINE__); } \</span></div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span><span class="preprocessor">        }</span></div>
 </div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span> </div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span><span class="preprocessor">#endif</span></div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span> </div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span><span class="preprocessor">#endif </span><span class="comment">// RECASTASSERT_H</span></div>
-<div class="ttc" id="aRecastAssert_8h_html_a56d4bc754448f291c6bf5f444c3c11e3"><div class="ttname"><a href="RecastAssert_8h.html#a56d4bc754448f291c6bf5f444c3c11e3">rcAssertFailFunc</a></div><div class="ttdeci">void() rcAssertFailFunc(const char *expression, const char *file, int line)</div><div class="ttdoc">An assertion failure function.</div><div class="ttdef"><b>Definition</b> RecastAssert.h:34</div></div>
-<div class="ttc" id="aRecastAssert_8h_html_a6e7fa7885e611b26d57736c33df11771"><div class="ttname"><a href="RecastAssert_8h.html#a6e7fa7885e611b26d57736c33df11771">rcAssertFailGetCustom</a></div><div class="ttdeci">rcAssertFailFunc * rcAssertFailGetCustom()</div><div class="ttdoc">Gets the base custom assertion failure function to be used by Recast.</div><div class="ttdef"><b>Definition</b> RecastAssert.cpp:30</div></div>
-<div class="ttc" id="aRecastAssert_8h_html_a9fba2f1f45778f706f4478a73ba69e91"><div class="ttname"><a href="RecastAssert_8h.html#a9fba2f1f45778f706f4478a73ba69e91">rcAssertFailSetCustom</a></div><div class="ttdeci">void rcAssertFailSetCustom(rcAssertFailFunc *assertFailFunc)</div><div class="ttdoc">Sets the base custom assertion failure function to be used by Recast.</div><div class="ttdef"><b>Definition</b> RecastAssert.cpp:25</div></div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span><span class="preprocessor">#endif </span><span class="comment">// !defined(RC_DISABLE_ASSERTS)</span></div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span> </div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span><span class="preprocessor">#endif </span><span class="comment">// RECASTASSERT_H</span></div>
+<div class="ttc" id="aRecastAssert_8h_html_a56d4bc754448f291c6bf5f444c3c11e3"><div class="ttname"><a href="RecastAssert_8h.html#a56d4bc754448f291c6bf5f444c3c11e3">rcAssertFailFunc</a></div><div class="ttdeci">void() rcAssertFailFunc(const char *expression, const char *file, int line)</div><div class="ttdoc">An assertion failure callback function.</div><div class="ttdef"><b>Definition</b> RecastAssert.h:27</div></div>
+<div class="ttc" id="aRecastAssert_8h_html_a6e7fa7885e611b26d57736c33df11771"><div class="ttname"><a href="RecastAssert_8h.html#a6e7fa7885e611b26d57736c33df11771">rcAssertFailGetCustom</a></div><div class="ttdeci">rcAssertFailFunc * rcAssertFailGetCustom()</div><div class="ttdoc">Gets the base custom assertion failure function to be used by Recast.</div><div class="ttdef"><b>Definition</b> RecastAssert.cpp:28</div></div>
+<div class="ttc" id="aRecastAssert_8h_html_a9fba2f1f45778f706f4478a73ba69e91"><div class="ttname"><a href="RecastAssert_8h.html#a9fba2f1f45778f706f4478a73ba69e91">rcAssertFailSetCustom</a></div><div class="ttdeci">void rcAssertFailSetCustom(rcAssertFailFunc *assertFailFunc)</div><div class="ttdoc">Sets the base custom assertion failure callback function to be used by Recast.</div><div class="ttdef"><b>Definition</b> RecastAssert.cpp:23</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- HTML footer for doxygen 1.8.6-->

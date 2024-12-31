@@ -112,13 +112,13 @@ Macros</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
 <tr class="memitem:a56d4bc754448f291c6bf5f444c3c11e3" id="r_a56d4bc754448f291c6bf5f444c3c11e3"><td class="memItemLeft" align="right" valign="top">typedef void()&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="RecastAssert_8h.html#a56d4bc754448f291c6bf5f444c3c11e3">rcAssertFailFunc</a>(const char *expression, const char *file, int line)</td></tr>
-<tr class="memdesc:a56d4bc754448f291c6bf5f444c3c11e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">An assertion failure function.  <br /></td></tr>
+<tr class="memdesc:a56d4bc754448f291c6bf5f444c3c11e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">An assertion failure callback function.  <br /></td></tr>
 <tr class="separator:a56d4bc754448f291c6bf5f444c3c11e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:a9fba2f1f45778f706f4478a73ba69e91" id="r_a9fba2f1f45778f706f4478a73ba69e91"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="RecastAssert_8h.html#a9fba2f1f45778f706f4478a73ba69e91">rcAssertFailSetCustom</a> (<a class="el" href="RecastAssert_8h.html#a56d4bc754448f291c6bf5f444c3c11e3">rcAssertFailFunc</a> *assertFailFunc)</td></tr>
-<tr class="memdesc:a9fba2f1f45778f706f4478a73ba69e91"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the base custom assertion failure function to be used by Recast.  <br /></td></tr>
+<tr class="memdesc:a9fba2f1f45778f706f4478a73ba69e91"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the base custom assertion failure callback function to be used by Recast.  <br /></td></tr>
 <tr class="separator:a9fba2f1f45778f706f4478a73ba69e91"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6e7fa7885e611b26d57736c33df11771" id="r_a6e7fa7885e611b26d57736c33df11771"><td class="memItemLeft" align="right" valign="top"><a class="el" href="RecastAssert_8h.html#a56d4bc754448f291c6bf5f444c3c11e3">rcAssertFailFunc</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="RecastAssert_8h.html#a6e7fa7885e611b26d57736c33df11771">rcAssertFailGetCustom</a> ()</td></tr>
 <tr class="memdesc:a6e7fa7885e611b26d57736c33df11771"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the base custom assertion failure function to be used by Recast.  <br /></td></tr>
@@ -145,8 +145,8 @@ Functions</h2></td></tr>
 <div class="line">            if (failFunc == NULL) { assert(expression); } \</div>
 <div class="line">            <span class="keywordflow">else</span> <span class="keywordflow">if</span> (!(expression)) { (*failFunc)(#expression, __FILE__, __LINE__); } \</div>
 <div class="line">        }</div>
-<div class="ttc" id="aRecastAssert_8h_html_a56d4bc754448f291c6bf5f444c3c11e3"><div class="ttname"><a href="RecastAssert_8h.html#a56d4bc754448f291c6bf5f444c3c11e3">rcAssertFailFunc</a></div><div class="ttdeci">void() rcAssertFailFunc(const char *expression, const char *file, int line)</div><div class="ttdoc">An assertion failure function.</div><div class="ttdef"><b>Definition</b> RecastAssert.h:34</div></div>
-<div class="ttc" id="aRecastAssert_8h_html_a6e7fa7885e611b26d57736c33df11771"><div class="ttname"><a href="RecastAssert_8h.html#a6e7fa7885e611b26d57736c33df11771">rcAssertFailGetCustom</a></div><div class="ttdeci">rcAssertFailFunc * rcAssertFailGetCustom()</div><div class="ttdoc">Gets the base custom assertion failure function to be used by Recast.</div><div class="ttdef"><b>Definition</b> RecastAssert.cpp:30</div></div>
+<div class="ttc" id="aRecastAssert_8h_html_a56d4bc754448f291c6bf5f444c3c11e3"><div class="ttname"><a href="RecastAssert_8h.html#a56d4bc754448f291c6bf5f444c3c11e3">rcAssertFailFunc</a></div><div class="ttdeci">void() rcAssertFailFunc(const char *expression, const char *file, int line)</div><div class="ttdoc">An assertion failure callback function.</div><div class="ttdef"><b>Definition</b> RecastAssert.h:27</div></div>
+<div class="ttc" id="aRecastAssert_8h_html_a6e7fa7885e611b26d57736c33df11771"><div class="ttname"><a href="RecastAssert_8h.html#a6e7fa7885e611b26d57736c33df11771">rcAssertFailGetCustom</a></div><div class="ttdeci">rcAssertFailFunc * rcAssertFailGetCustom()</div><div class="ttdoc">Gets the base custom assertion failure function to be used by Recast.</div><div class="ttdef"><b>Definition</b> RecastAssert.cpp:28</div></div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -163,8 +163,16 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>An assertion failure function. </p>
-<dl class="section see"><dt>See also</dt><dd><a class="el" href="RecastAssert_8h.html#a9fba2f1f45778f706f4478a73ba69e91" title="Sets the base custom assertion failure function to be used by Recast.">rcAssertFailSetCustom</a> </dd></dl>
+<p>An assertion failure callback function. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">expression</td><td>Asserted expression. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">file</td><td>Filename of the failed assertion. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">line</td><td>Line number of the failed assertion. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="RecastAssert_8h.html#a9fba2f1f45778f706f4478a73ba69e91" title="Sets the base custom assertion failure callback function to be used by Recast.">rcAssertFailSetCustom</a> </dd></dl>
 
 </div>
 </div>
@@ -204,7 +212,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Sets the base custom assertion failure function to be used by Recast. </p>
+<p>Sets the base custom assertion failure callback function to be used by Recast. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">assertFailFunc</td><td>The function to be used in case of failure of <a class="el" href="DetourAssert_8h.html#ad9878e9fa0121ff8d1390e21dc086951">dtAssert</a> </td></tr>
