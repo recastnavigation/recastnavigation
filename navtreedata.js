@@ -92,13 +92,6 @@ var NAVTREE =
       ] ]
     ] ],
     [ "Changelog", "md_CHANGELOG.html", [
-      [ "<a href=\"https://github.com/recastnavigation/recastnavigation/compare/1.6.0...HEAD\" >Unreleased</a>", "md_CHANGELOG.html#unreleasedhttpsgithubcomrecastnavigationrecastnavigationcompare160head", null ],
-      [ "<a href=\"https://github.com/recastnavigation/recastnavigation/compare/1.5.1...1.6.0\" >1.6.0</a> - 2023-05-21", "md_CHANGELOG.html#autotoc_md160httpsgithubcomrecastnavigationrecastnavigationcompare151160---2023-05-21", [
-        [ "Added", "md_CHANGELOG.html#added", null ],
-        [ "Fixed", "md_CHANGELOG.html#fixed", null ],
-        [ "Changed", "md_CHANGELOG.html#changed", null ],
-        [ "Removed", "md_CHANGELOG.html#removed", null ]
-      ] ],
       [ "<a href=\"https://github.com/recastnavigation/recastnavigation/compare/1.5.0...1.5.1\" >1.5.1</a> - 2016-02-22", "md_CHANGELOG.html#autotoc_md151httpsgithubcomrecastnavigationrecastnavigationcompare150151---2016-02-22", null ],
       [ "1.5.0 - 2016-01-24", "md_CHANGELOG.html#autotoc_md150---2016-01-24", null ],
       [ "1.4.0 - 2009-08-24", "md_CHANGELOG.html#autotoc_md140---2009-08-24", null ],
@@ -171,8 +164,8 @@ var NAVTREEINDEX =
 "classSample__TempObstacles.html#ac778775311b1bbadbc0e03b0df4f177c",
 "classduDisplayList.html#a841869a8b7db7c4c67470578e3f2e050",
 "imguiRenderGL_8cpp.html#ae718683d9ce63c75123ec0c2305c006b",
-"structCrowdToolParams.html#a40ea83734142dd59c92cb695631eee4a",
-"structdtTileCacheAlloc.html#afc894a69df9f38eee8431762983f571d"
+"structCrowdToolParams.html#a85e1edfba62c2a2e5315ad05a0eaf0f9",
+"structdtTileCacheContour.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

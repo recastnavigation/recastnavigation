@@ -10,9 +10,7 @@ var searchData=
   ['2009_2008_2024_7',['1.4.0 - 2009-08-24',['../md_CHANGELOG.html#autotoc_md140---2009-08-24',1,'']]],
   ['2016_2001_2024_8',['1.5.0 - 2016-01-24',['../md_CHANGELOG.html#autotoc_md150---2016-01-24',1,'']]],
   ['2016_2002_2022_9',['&lt;a href=&quot;https://github.com/recastnavigation/recastnavigation/compare/1.5.0...1.5.1&quot; &gt;1.5.1&lt;/a&gt; - 2016-02-22',['../md_CHANGELOG.html#autotoc_md151httpsgithubcomrecastnavigationrecastnavigationcompare150151---2016-02-22',1,'']]],
-  ['2023_2005_2021_10',['&lt;a href=&quot;https://github.com/recastnavigation/recastnavigation/compare/1.5.1...1.6.0&quot; &gt;1.6.0&lt;/a&gt; - 2023-05-21',['../md_CHANGELOG.html#autotoc_md160httpsgithubcomrecastnavigationrecastnavigationcompare151160---2023-05-21',1,'']]],
-  ['21_11',['&lt;a href=&quot;https://github.com/recastnavigation/recastnavigation/compare/1.5.1...1.6.0&quot; &gt;1.6.0&lt;/a&gt; - 2023-05-21',['../md_CHANGELOG.html#autotoc_md160httpsgithubcomrecastnavigationrecastnavigationcompare151160---2023-05-21',1,'']]],
-  ['22_12',['&lt;a href=&quot;https://github.com/recastnavigation/recastnavigation/compare/1.5.0...1.5.1&quot; &gt;1.5.1&lt;/a&gt; - 2016-02-22',['../md_CHANGELOG.html#autotoc_md151httpsgithubcomrecastnavigationrecastnavigationcompare150151---2016-02-22',1,'']]],
-  ['24_13',['24',['../md_CHANGELOG.html#autotoc_md131---2009-07-24',1,'1.3.1 - 2009-07-24'],['../md_CHANGELOG.html#autotoc_md140---2009-08-24',1,'1.4.0 - 2009-08-24'],['../md_CHANGELOG.html#autotoc_md150---2016-01-24',1,'1.5.0 - 2016-01-24']]],
-  ['29_14',['1.0.0 - 2009-03-29',['../md_CHANGELOG.html#autotoc_md100---2009-03-29',1,'']]]
+  ['22_10',['&lt;a href=&quot;https://github.com/recastnavigation/recastnavigation/compare/1.5.0...1.5.1&quot; &gt;1.5.1&lt;/a&gt; - 2016-02-22',['../md_CHANGELOG.html#autotoc_md151httpsgithubcomrecastnavigationrecastnavigationcompare150151---2016-02-22',1,'']]],
+  ['24_11',['24',['../md_CHANGELOG.html#autotoc_md131---2009-07-24',1,'1.3.1 - 2009-07-24'],['../md_CHANGELOG.html#autotoc_md140---2009-08-24',1,'1.4.0 - 2009-08-24'],['../md_CHANGELOG.html#autotoc_md150---2016-01-24',1,'1.5.0 - 2016-01-24']]],
+  ['29_12',['1.0.0 - 2009-03-29',['../md_CHANGELOG.html#autotoc_md100---2009-03-29',1,'']]]
 ];
