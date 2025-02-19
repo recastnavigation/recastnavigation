@@ -74,6 +74,7 @@ struct dtTileCacheObstacle
 	unsigned short salt;
 	unsigned char type;
 	unsigned char state;
+	unsigned char areaId;
 	unsigned char ntouched;
 	unsigned char npending;
 	dtTileCacheObstacle* next;
@@ -134,13 +135,13 @@ public:
 	dtStatus removeTile(dtCompressedTileRef ref, unsigned char** data, int* dataSize);
 	
 	// Cylinder obstacle.
-	dtStatus addObstacle(const float* pos, const float radius, const float height, dtObstacleRef* result);
+	dtStatus addObstacle(const float* pos, const float radius, const float height, const unsigned char areaId, dtObstacleRef* result);
 
 	// Aabb obstacle.
-	dtStatus addBoxObstacle(const float* bmin, const float* bmax, dtObstacleRef* result);
+	dtStatus addBoxObstacle(const float* bmin, const float* bmax, const unsigned char areaId, dtObstacleRef* result);
 
 	// Box obstacle: can be rotated in Y.
-	dtStatus addBoxObstacle(const float* center, const float* halfExtents, const float yRadians, dtObstacleRef* result);
+	dtStatus addBoxObstacle(const float* center, const float* halfExtents, const float yRadians, const unsigned char areaId, dtObstacleRef* result);
 	
 	dtStatus removeObstacle(const dtObstacleRef ref);
 	
