@@ -395,14 +395,10 @@ dtStatus dtNavMeshQuery::findRandomPointAroundCircle(dtPolyRef startRef, const f
 		}
 		
 		
-		// Get parent poly and tile.
+		// Get parent poly ref.
 		dtPolyRef parentRef = 0;
-		const dtMeshTile* parentTile = 0;
-		const dtPoly* parentPoly = 0;
 		if (bestNode->pidx)
 			parentRef = m_nodePool->getNodeAtIdx(bestNode->pidx)->id;
-		if (parentRef)
-			m_nav->getTileAndPolyByRefUnsafe(parentRef, &parentTile, &parentPoly);
 		
 		for (unsigned int i = bestPoly->firstLink; i != DT_NULL_LINK; i = bestTile->links[i].next)
 		{
