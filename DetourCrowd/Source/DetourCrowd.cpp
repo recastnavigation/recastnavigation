@@ -689,17 +689,16 @@ int dtCrowd::getActiveAgents(dtCrowdAgent** agents, const int maxAgents)
 	return n;
 }
 
-
-void dtCrowd::updateMoveRequest(const float /*dt*/)
+void dtCrowd::updateMoveRequest(dtCrowdAgent** agents, const int nagents, const float /*dt*/)
 {
 	const int PATH_MAX_AGENTS = 8;
 	dtCrowdAgent* queue[PATH_MAX_AGENTS];
 	int nqueue = 0;
 	
 	// Fire off new requests.
-	for (int i = 0; i < m_maxAgents; ++i)
+	for (int i = 0; i < nagents; ++i)
 	{
-		dtCrowdAgent* ag = &m_agents[i];
+		dtCrowdAgent* ag = agents[i];
 		if (!ag->active)
 			continue;
 		if (ag->state == DT_CROWDAGENT_STATE_INVALID)
@@ -800,9 +799,9 @@ void dtCrowd::updateMoveRequest(const float /*dt*/)
 	dtStatus status;
 
 	// Process path results.
-	for (int i = 0; i < m_maxAgents; ++i)
+	for (int i = 0; i < nagents; ++i)
 	{
-		dtCrowdAgent* ag = &m_agents[i];
+		dtCrowdAgent* ag = agents[i];
 		if (!ag->active)
 			continue;
 		if (ag->targetState == DT_CROWDAGENT_TARGET_NONE || ag->targetState == DT_CROWDAGENT_TARGET_VELOCITY)
@@ -1072,7 +1071,7 @@ void dtCrowd::update(const float dt, dtCrowdAgentDebugInfo* debug)
 	checkPathValidity(agents, nagents, dt);
 	
 	// Update async move request and path finder.
-	updateMoveRequest(dt);
+	updateMoveRequest(agents, nagents, dt);
 
 	// Optimize path topology.
 	updateTopologyOptimization(agents, nagents, dt);
@@ -1114,7 +1113,7 @@ void dtCrowd::update(const float dt, dtCrowdAgentDebugInfo* debug)
 	// Find next corner to steer to.
 	for (int i = 0; i < nagents; ++i)
 	{
-		dtCrowdAgent* ag = agents[i];
+		dtCrowdAgent* ag = agents[i];		
 		
 		if (ag->state != DT_CROWDAGENT_STATE_WALKING)
 			continue;
