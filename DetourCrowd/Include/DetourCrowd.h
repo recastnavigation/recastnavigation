@@ -197,7 +197,7 @@ enum UpdateFlags
 	DT_CROWD_SEPARATION = 4,
 	DT_CROWD_OPTIMIZE_VIS = 8,			///< Use #dtPathCorridor::optimizePathVisibility() to optimize the agent path.
 	DT_CROWD_OPTIMIZE_TOPO = 16, 		///< Use dtPathCorridor::optimizePathTopology() to optimize the agent path.
-    DT_CROWD_FLYOVER = 32
+	DT_CROWD_FLYOVER = 32
 };
 
 struct dtCrowdAgentDebugInfo
@@ -213,9 +213,10 @@ class dtCrowd
 {
 	int m_maxAgents;
 	dtCrowdAgent* m_agents;
+	bool* m_agentActiveFlags;
 	dtCrowdAgent** m_activeAgents;
 	dtCrowdAgentAnimation* m_agentAnims;
-	
+
 	dtPathQueue m_pathq;
 
 	dtObstacleAvoidanceParams m_obstacleQueryParams[DT_CROWD_MAX_OBSTAVOIDANCE_PARAMS];
@@ -237,7 +238,7 @@ class dtCrowd
 	dtNavMeshQuery* m_navquery;
 
 	void updateTopologyOptimization(dtCrowdAgent** agents, const int nagents, const float dt);
-	void updateMoveRequest(const float dt);
+	void updateMoveRequest(dtCrowdAgent** agents, const int nagents, const float dt);
 	void checkPathValidity(dtCrowdAgent** agents, const int nagents, const float dt);
 
 	inline int getAgentIndex(const dtCrowdAgent* agent) const  { return (int)(agent - m_agents); }

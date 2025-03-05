@@ -336,6 +336,7 @@ Notes:
 dtCrowd::dtCrowd() :
 	m_maxAgents(0),
 	m_agents(0),
+	m_agentActiveFlags(0),
 	m_activeAgents(0),
 	m_agentAnims(0),
 	m_obstacleQuery(0),
@@ -357,6 +358,7 @@ void dtCrowd::purge()
 {
 	for (int i = 0; i < m_maxAgents; ++i)
 		m_agents[i].~dtCrowdAgent();
+	dtFree(m_agentActiveFlags);
 	dtFree(m_agents);
 	m_agents = 0;
 	m_maxAgents = 0;
@@ -434,6 +436,10 @@ bool dtCrowd::init(const int maxAgents, const float maxAgentRadius, dtNavMesh* n
 	m_agents = (dtCrowdAgent*)dtAlloc(sizeof(dtCrowdAgent)*m_maxAgents, DT_ALLOC_PERM);
 	if (!m_agents)
 		return false;
+
+	m_agentActiveFlags = (bool*)dtAlloc(sizeof(bool) * m_maxAgents, DT_ALLOC_PERM);
+	if (!m_agentActiveFlags)
+		return false;
 	
 	m_activeAgents = (dtCrowdAgent**)dtAlloc(sizeof(dtCrowdAgent*)*m_maxAgents, DT_ALLOC_PERM);
 	if (!m_activeAgents)
@@ -447,6 +453,7 @@ bool dtCrowd::init(const int maxAgents, const float maxAgentRadius, dtNavMesh* n
 	{
 		new(&m_agents[i]) dtCrowdAgent();
 		m_agents[i].active = false;
+		m_agentActiveFlags[i] = false;
 		if (!m_agents[i].corridor.init(m_maxPathResult))
 			return false;
 	}
@@ -519,7 +526,7 @@ int dtCrowd::addAgent(const float* pos, const dtCrowdAgentParams* params)
 	int idx = -1;
 	for (int i = 0; i < m_maxAgents; ++i)
 	{
-		if (!m_agents[i].active)
+		if (!m_agentActiveFlags[i])
 		{
 			idx = i;
 			break;
@@ -528,7 +535,7 @@ int dtCrowd::addAgent(const float* pos, const dtCrowdAgentParams* params)
 	if (idx == -1)
 		return -1;
 	
-	dtCrowdAgent* ag = &m_agents[idx];		
+	dtCrowdAgent* ag = &m_agents[idx];
 
 	updateAgentParameters(idx, params);
 	
@@ -566,6 +573,7 @@ int dtCrowd::addAgent(const float* pos, const dtCrowdAgentParams* params)
 	ag->targetState = DT_CROWDAGENT_TARGET_NONE;
 	
 	ag->active = true;
+	m_agentActiveFlags[idx] = true;
 
 	return idx;
 }
@@ -579,6 +587,7 @@ void dtCrowd::removeAgent(const int idx)
 	if (idx >= 0 && idx < m_maxAgents)
 	{
 		m_agents[idx].active = false;
+		m_agentActiveFlags[idx] = false;
 	}
 }
 
@@ -669,12 +678,14 @@ bool dtCrowd::resetMoveTarget(const int idx)
 int dtCrowd::getActiveAgents(dtCrowdAgent** agents, const int maxAgents)
 {
 	int n = 0;
-	for (int i = 0; i < m_maxAgents; ++i)
+
+	for (int i = 0; i < m_maxAgents && n < maxAgents; ++i )
 	{
-		if (!m_agents[i].active) continue;
-		if (n < maxAgents)
-			agents[n++] = &m_agents[i];
+		agents[n] = m_agents + i;
+
+		n += m_agentActiveFlags[i];
 	}
+
 	return n;
 }
 
