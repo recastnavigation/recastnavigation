@@ -363,27 +363,6 @@ public:
 	rcPermVector(const T* begin, const T* end) : Base(begin, end) {}
 };
 
-/// Legacy class. Prefer rcVector<int>.
-class rcIntArray
-{
-	rcTempVector<int> m_impl;
-public:
-	rcIntArray() {}
-	rcIntArray(int n) : m_impl(n, 0) {}
-	void push(int item) { m_impl.push_back(item); }
-	void resize(int size) { m_impl.resize(size); }
-	void clear() { m_impl.clear(); }
-	int pop()
-	{
-		int v = m_impl.back();
-		m_impl.pop_back();
-		return v;
-	}
-	int size() const { return static_cast<int>(m_impl.size()); }
-	int& operator[](int index) { return m_impl[index]; }
-	int operator[](int index) const { return m_impl[index]; }
-};
-
 /// A simple helper class used to delete an array when it goes out of scope.
 /// @note This class is rarely if ever used by the end user.
 template<class T> class rcScopedDelete
