@@ -120,12 +120,12 @@ Classes</h2></td></tr>
 Functions</h2></td></tr>
 <tr class="memitem:a10f7bbb90e6028365b2637249b6bb29a" id="r_a10f7bbb90e6028365b2637249b6bb29a"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="RecastContour_8cpp.html#a10f7bbb90e6028365b2637249b6bb29a">getCornerHeight</a> (int x, int y, int i, int dir, const <a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a> &amp;chf, bool &amp;isBorderVertex)</td></tr>
 <tr class="separator:a10f7bbb90e6028365b2637249b6bb29a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad5bc73ac319eae14a8b137a1bb4c9778" id="r_ad5bc73ac319eae14a8b137a1bb4c9778"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="RecastContour_8cpp.html#ad5bc73ac319eae14a8b137a1bb4c9778">walkContour</a> (int x, int y, int i, const <a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a> &amp;chf, unsigned char *flags, <a class="el" href="classrcIntArray.html">rcIntArray</a> &amp;points)</td></tr>
-<tr class="separator:ad5bc73ac319eae14a8b137a1bb4c9778"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac435e88c8f839e21e4f6f3c6b5a72f10" id="r_ac435e88c8f839e21e4f6f3c6b5a72f10"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="RecastContour_8cpp.html#ac435e88c8f839e21e4f6f3c6b5a72f10">walkContour</a> (int x, int y, int i, const <a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a> &amp;chf, unsigned char *flags, <a class="el" href="classrcTempVector.html">rcTempVector</a>&lt; int &gt; &amp;points)</td></tr>
+<tr class="separator:ac435e88c8f839e21e4f6f3c6b5a72f10"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a95bb2b54ba0f6d1cee48278a1ba4980d" id="r_a95bb2b54ba0f6d1cee48278a1ba4980d"><td class="memItemLeft" align="right" valign="top">static float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="RecastContour_8cpp.html#a95bb2b54ba0f6d1cee48278a1ba4980d">distancePtSeg</a> (const int x, const int z, const int px, const int pz, const int qx, const int qz)</td></tr>
 <tr class="separator:a95bb2b54ba0f6d1cee48278a1ba4980d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa7cef37578da730d57670d60132da73f" id="r_aa7cef37578da730d57670d60132da73f"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="RecastContour_8cpp.html#aa7cef37578da730d57670d60132da73f">simplifyContour</a> (<a class="el" href="classrcIntArray.html">rcIntArray</a> &amp;points, <a class="el" href="classrcIntArray.html">rcIntArray</a> &amp;simplified, const float maxError, const int maxEdgeLen, const int buildFlags)</td></tr>
-<tr class="separator:aa7cef37578da730d57670d60132da73f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aecb2564a5993454561026b4c19734228" id="r_aecb2564a5993454561026b4c19734228"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="RecastContour_8cpp.html#aecb2564a5993454561026b4c19734228">simplifyContour</a> (<a class="el" href="classrcTempVector.html">rcTempVector</a>&lt; int &gt; &amp;points, <a class="el" href="classrcTempVector.html">rcTempVector</a>&lt; int &gt; &amp;simplified, const float maxError, const int maxEdgeLen, const int buildFlags)</td></tr>
+<tr class="separator:aecb2564a5993454561026b4c19734228"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a538aea06d768e3c175b9b8e47f254b52" id="r_a538aea06d768e3c175b9b8e47f254b52"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="RecastContour_8cpp.html#a538aea06d768e3c175b9b8e47f254b52">calcAreaOfPolygon2D</a> (const int *verts, const int nverts)</td></tr>
 <tr class="separator:a538aea06d768e3c175b9b8e47f254b52"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6f1109916123abdff2b46675c13307e3" id="r_a6f1109916123abdff2b46675c13307e3"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="RecastContour_8cpp.html#a6f1109916123abdff2b46675c13307e3">prev</a> (int i, int n)</td></tr>
@@ -152,8 +152,8 @@ Functions</h2></td></tr>
 <tr class="separator:a7a82a0c3b7877d57e1f159b703847aa1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab93a3b7adad67c6fe99536760f60da7b" id="r_ab93a3b7adad67c6fe99536760f60da7b"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="RecastContour_8cpp.html#ab93a3b7adad67c6fe99536760f60da7b">inCone</a> (int i, int n, const int *verts, const int *pj)</td></tr>
 <tr class="separator:ab93a3b7adad67c6fe99536760f60da7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4e79138985b8e7443e813250a17d3f71" id="r_a4e79138985b8e7443e813250a17d3f71"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="RecastContour_8cpp.html#a4e79138985b8e7443e813250a17d3f71">removeDegenerateSegments</a> (<a class="el" href="classrcIntArray.html">rcIntArray</a> &amp;simplified)</td></tr>
-<tr class="separator:a4e79138985b8e7443e813250a17d3f71"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abaacb0537c4a2f06f50517ffc1cea349" id="r_abaacb0537c4a2f06f50517ffc1cea349"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="RecastContour_8cpp.html#abaacb0537c4a2f06f50517ffc1cea349">removeDegenerateSegments</a> (<a class="el" href="classrcTempVector.html">rcTempVector</a>&lt; int &gt; &amp;simplified)</td></tr>
+<tr class="separator:abaacb0537c4a2f06f50517ffc1cea349"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1b37a039e4a04535bcddcb219ca7945b" id="r_a1b37a039e4a04535bcddcb219ca7945b"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="RecastContour_8cpp.html#a1b37a039e4a04535bcddcb219ca7945b">mergeContours</a> (<a class="el" href="structrcContour.html">rcContour</a> &amp;ca, <a class="el" href="structrcContour.html">rcContour</a> &amp;cb, int ia, int ib)</td></tr>
 <tr class="separator:a1b37a039e4a04535bcddcb219ca7945b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adc1ece72b40b8cca1718d9c32ab9abe6" id="r_adc1ece72b40b8cca1718d9c32ab9abe6"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="RecastContour_8cpp.html#adc1ece72b40b8cca1718d9c32ab9abe6">findLeftMostVertex</a> (<a class="el" href="structrcContour.html">rcContour</a> *contour, int *minx, int *minz, int *leftmost)</td></tr>
@@ -1009,8 +1009,8 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a4e79138985b8e7443e813250a17d3f71" name="a4e79138985b8e7443e813250a17d3f71"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4e79138985b8e7443e813250a17d3f71">&#9670;&#160;</a></span>removeDegenerateSegments()</h2>
+<a id="abaacb0537c4a2f06f50517ffc1cea349" name="abaacb0537c4a2f06f50517ffc1cea349"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abaacb0537c4a2f06f50517ffc1cea349">&#9670;&#160;</a></span>removeDegenerateSegments()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1021,7 +1021,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">static void removeDegenerateSegments </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classrcIntArray.html">rcIntArray</a> &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="classrcTempVector.html">rcTempVector</a>&lt; int &gt; &amp;&#160;</td>
           <td class="paramname"><em>simplified</em></td><td>)</td>
           <td></td>
         </tr>
@@ -1035,8 +1035,8 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="aa7cef37578da730d57670d60132da73f" name="aa7cef37578da730d57670d60132da73f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa7cef37578da730d57670d60132da73f">&#9670;&#160;</a></span>simplifyContour()</h2>
+<a id="aecb2564a5993454561026b4c19734228" name="aecb2564a5993454561026b4c19734228"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aecb2564a5993454561026b4c19734228">&#9670;&#160;</a></span>simplifyContour()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1047,13 +1047,13 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">static void simplifyContour </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classrcIntArray.html">rcIntArray</a> &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="classrcTempVector.html">rcTempVector</a>&lt; int &gt; &amp;&#160;</td>
           <td class="paramname"><em>points</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classrcIntArray.html">rcIntArray</a> &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="classrcTempVector.html">rcTempVector</a>&lt; int &gt; &amp;&#160;</td>
           <td class="paramname"><em>simplified</em>, </td>
         </tr>
         <tr>
@@ -1125,8 +1125,8 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="ad5bc73ac319eae14a8b137a1bb4c9778" name="ad5bc73ac319eae14a8b137a1bb4c9778"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad5bc73ac319eae14a8b137a1bb4c9778">&#9670;&#160;</a></span>walkContour()</h2>
+<a id="ac435e88c8f839e21e4f6f3c6b5a72f10" name="ac435e88c8f839e21e4f6f3c6b5a72f10"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac435e88c8f839e21e4f6f3c6b5a72f10">&#9670;&#160;</a></span>walkContour()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1167,7 +1167,7 @@ Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classrcIntArray.html">rcIntArray</a> &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="classrcTempVector.html">rcTempVector</a>&lt; int &gt; &amp;&#160;</td>
           <td class="paramname"><em>points</em>&#160;</td>
         </tr>
         <tr>

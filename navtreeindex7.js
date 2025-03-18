@@ -1,15 +1,5 @@
 var NAVTREEINDEX7 =
 {
-"imguiRenderGL_8h.html#a516f5ccccb1ddc6bcea43fba89f1fd57":[8,0,6,0,5,2],
-"imguiRenderGL_8h.html#aa62b85e5def48a3e96598436d1895ebf":[8,0,6,0,5,0],
-"imguiRenderGL_8h_source.html":[8,0,6,0,5],
-"imgui_8cpp.html":[8,0,6,1,4],
-"imgui_8cpp.html#a03b57ae9b56748416c59dbebd15b6897":[8,0,6,1,4,43],
-"imgui_8cpp.html#a0c979d18442edb31e3e6d422e64361ee":[8,0,6,1,4,23],
-"imgui_8cpp.html#a19d012d43ace20552ff625a6bf7d7552":[8,0,6,1,4,37],
-"imgui_8cpp.html#a1e10295502683256e4b84177f0631ba1":[8,0,6,1,4,47],
-"imgui_8cpp.html#a224cbb3648a6d4ff641cf31bc84f2573":[8,0,6,1,4,56],
-"imgui_8cpp.html#a3128854184c44a3ee570bea05290cdbb":[8,0,6,1,4,30],
 "imgui_8cpp.html#a323f894b86639f571ec7e44fb20fbfea":[8,0,6,1,4,10],
 "imgui_8cpp.html#a3cbb6cb470c5eb82ca27461c33e38bd7":[8,0,6,1,4,53],
 "imgui_8cpp.html#a454a21faadb504d01fa808a26d088e8f":[8,0,6,1,4,15],
@@ -249,5 +239,15 @@ var NAVTREEINDEX7 =
 "structCrowdToolParams.html#a9627c513e79f26b6024c8d01843bc528":[7,0,7,5],
 "structCrowdToolParams.html#aa7340bfdeed7994d7899f8161744a3f6":[7,0,7,12],
 "structCrowdToolParams.html#aaf7a605017a4343c0536704cf0a4f1b0":[7,0,7,15],
-"structCrowdToolParams.html#abb28bf8b771767150348b0264c649991":[7,0,7,17]
+"structCrowdToolParams.html#abb28bf8b771767150348b0264c649991":[7,0,7,17],
+"structCrowdToolParams.html#abd5dd62a05171d60b075e10d9290e7b3":[7,0,7,4],
+"structCrowdToolParams.html#ad4a5ed9be39d3f974e5fae65ced6c7b1":[7,0,7,0],
+"structCrowdToolParams.html#ae078b3f35f3d5b2865139b3960708426":[7,0,7,14],
+"structDirtyEntry.html":[7,0,10],
+"structDirtyEntry.html#a6efa59792bbe3b1feea05da8110151dd":[7,0,10,0],
+"structDirtyEntry.html#a9634e49527d7bdcacc925fe7124b07d1":[7,0,10,1],
+"structDirtyEntry.html#ad3c4712adccfb24f1a7ab8d75f42ab1e":[7,0,10,3],
+"structDirtyEntry.html#af570257530906e231345aa1e4debbfa7":[7,0,10,2],
+"structFastLZCompressor.html":[7,0,70],
+"structFastLZCompressor.html#a61828cd2e21041b21b8e545efbe1da57":[7,0,70,2]
 };

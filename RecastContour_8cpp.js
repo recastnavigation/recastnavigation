@@ -23,8 +23,8 @@ var RecastContour_8cpp =
     [ "next", "RecastContour_8cpp.html#af019d68006e1f2d7b24c8f09051424cc", null ],
     [ "prev", "RecastContour_8cpp.html#a6f1109916123abdff2b46675c13307e3", null ],
     [ "rcBuildContours", "group__recast.html#gae211dbabbd2a9e3e3e374452f3fa4dfc", null ],
-    [ "removeDegenerateSegments", "RecastContour_8cpp.html#a4e79138985b8e7443e813250a17d3f71", null ],
-    [ "simplifyContour", "RecastContour_8cpp.html#aa7cef37578da730d57670d60132da73f", null ],
+    [ "removeDegenerateSegments", "RecastContour_8cpp.html#abaacb0537c4a2f06f50517ffc1cea349", null ],
+    [ "simplifyContour", "RecastContour_8cpp.html#aecb2564a5993454561026b4c19734228", null ],
     [ "vequal", "RecastContour_8cpp.html#ac36ef53201f5b44be2f321d65ae01987", null ],
-    [ "walkContour", "RecastContour_8cpp.html#ad5bc73ac319eae14a8b137a1bb4c9778", null ]
+    [ "walkContour", "RecastContour_8cpp.html#ac435e88c8f839e21e4f6f3c6b5a72f10", null ]
 ];

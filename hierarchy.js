@@ -109,7 +109,6 @@ var hierarchy =
     [ "rcHeightfieldLayer", "structrcHeightfieldLayer.html", null ],
     [ "rcHeightfieldLayerSet", "structrcHeightfieldLayerSet.html", null ],
     [ "rcHeightPatch", "structrcHeightPatch.html", null ],
-    [ "rcIntArray", "classrcIntArray.html", null ],
     [ "rcLayerRegion", "structrcLayerRegion.html", null ],
     [ "rcLayerSweepSpan", "structrcLayerSweepSpan.html", null ],
     [ "rcMeshLoaderObj", "classrcMeshLoaderObj.html", null ],

@@ -14,7 +14,7 @@ var RecastRegion_8cpp =
     [ "isRegionConnectedToBorder", "RecastRegion_8cpp.html#a362976ffc8da436099d6ce5d2a8e8996", null ],
     [ "isSolidEdge", "RecastRegion_8cpp.html#a48ba7bc4cd4b13a577c07dadf1361d76", null ],
     [ "mergeAndFilterLayerRegions", "RecastRegion_8cpp.html#a25912e8836b3489f54fecd65d850beff", null ],
-    [ "mergeAndFilterRegions", "RecastRegion_8cpp.html#a5725fdd6c9d2c932db4686ba6d411dac", null ],
+    [ "mergeAndFilterRegions", "RecastRegion_8cpp.html#abd46c685c34317694a2c7bc29caa3494", null ],
     [ "mergeRegions", "RecastRegion_8cpp.html#aa6ad7bc5d6c9f39726a4574813bce7ec", null ],
     [ "paintRectRegion", "RecastRegion_8cpp.html#abc80f3a23c09dd8f6570fa5b3d30792a", null ],
     [ "rcBuildDistanceField", "group__recast.html#ga255c830cc0d30fa0229a05033242e77d", null ],
@@ -24,6 +24,6 @@ var RecastRegion_8cpp =
     [ "removeAdjacentNeighbours", "RecastRegion_8cpp.html#acee28f21b593f1ff6a235c444fafc59c", null ],
     [ "replaceNeighbour", "RecastRegion_8cpp.html#a5b2ece2d7931891cdb3fe0b7b41de1b4", null ],
     [ "sortCellsByLevel", "RecastRegion_8cpp.html#a02ba6d0e792550e0ce791fa42ef865d1", null ],
-    [ "walkContour", "RecastRegion_8cpp.html#ad83298fca0661c495cf8316ffac5dd3c", null ],
+    [ "walkContour", "RecastRegion_8cpp.html#ab5b409f4205cd02ac7714e606e6e5882", null ],
     [ "RC_NULL_NEI", "RecastRegion_8cpp.html#ae985981f9a0039f8584d8c165959c817", null ]
 ];

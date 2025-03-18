@@ -25,7 +25,7 @@ var searchData=
   ['operator_20new_22',['operator new',['../RecastAlloc_8h.html#a54afc8f7a7342283d7b432565335ae6f',1,'RecastAlloc.h']]],
   ['operator_20t_2a_23',['operator t*',['../classrcScopedDelete.html#a842c6cc65c3811faead9717aa53166dd',1,'rcScopedDelete::operator T*()'],['../classdtFixedArray.html#a787d42a579a87d3fe763717576d9dac0',1,'dtFixedArray::operator T*()']]],
   ['operator_3d_24',['operator=',['../classrcVectorBase.html#ab7b3e941a3bf4d34e6bb3b28819cf503',1,'rcVectorBase']]],
-  ['operator_5b_5d_25',['operator[]',['../classrcIntArray.html#ac4b2d9f20fe072c3ef856afc861d2230',1,'rcIntArray::operator[](int index) const'],['../classrcIntArray.html#a81eecc51478f3f93747bc10e336ce0c4',1,'rcIntArray::operator[](int index)'],['../classrcVectorBase.html#a8b2da2b2b4bd8e76104278afa6903e5c',1,'rcVectorBase::operator[](rcSizeType i)'],['../classrcVectorBase.html#a597c6378bc55de8cd21be8a839667ec0',1,'rcVectorBase::operator[](rcSizeType i) const']]],
+  ['operator_5b_5d_25',['operator[]',['../classrcVectorBase.html#a8b2da2b2b4bd8e76104278afa6903e5c',1,'rcVectorBase::operator[](rcSizeType i)'],['../classrcVectorBase.html#a597c6378bc55de8cd21be8a839667ec0',1,'rcVectorBase::operator[](rcSizeType i) const']]],
   ['opt_20in_20config_20value_20validation_20system_26',['Opt-in config value validation system',['../md_Docs_2__99__Roadmap.html#opt-in-config-value-validation-system',1,'']]],
   ['optend_27',['optEnd',['../structdtCrowdAgentDebugInfo.html#a2c3da33772d29888a52162695eaf37f8',1,'dtCrowdAgentDebugInfo']]],
   ['optimizepathtopology_28',['optimizePathTopology',['../classdtPathCorridor.html#a69288d28ab5d23b2c2654e45c5a33c25',1,'dtPathCorridor']]],

@@ -4,7 +4,6 @@ var RecastAlloc_8h =
     [ "rcVectorBase< T, H >", "classrcVectorBase.html", "classrcVectorBase" ],
     [ "rcTempVector< T >", "classrcTempVector.html", "classrcTempVector" ],
     [ "rcPermVector< T >", "classrcPermVector.html", "classrcPermVector" ],
-    [ "rcIntArray", "classrcIntArray.html", "classrcIntArray" ],
     [ "rcScopedDelete< T >", "classrcScopedDelete.html", "classrcScopedDelete" ],
     [ "RC_SIZE_MAX", "RecastAlloc_8h.html#a76aa1cda643d12fb282dffdd127c1bac", null ],
     [ "rcLikely", "RecastAlloc_8h.html#ae2660587d43aff9382684c2410bf2dc5", null ],

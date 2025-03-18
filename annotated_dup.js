@@ -107,7 +107,6 @@ var annotated_dup =
     [ "rcHeightfieldLayer", "structrcHeightfieldLayer.html", "structrcHeightfieldLayer" ],
     [ "rcHeightfieldLayerSet", "structrcHeightfieldLayerSet.html", "structrcHeightfieldLayerSet" ],
     [ "rcHeightPatch", "structrcHeightPatch.html", "structrcHeightPatch" ],
-    [ "rcIntArray", "classrcIntArray.html", "classrcIntArray" ],
     [ "rcLayerRegion", "structrcLayerRegion.html", "structrcLayerRegion" ],
     [ "rcLayerSweepSpan", "structrcLayerSweepSpan.html", "structrcLayerSweepSpan" ],
     [ "rcMeshLoaderObj", "classrcMeshLoaderObj.html", "classrcMeshLoaderObj" ],

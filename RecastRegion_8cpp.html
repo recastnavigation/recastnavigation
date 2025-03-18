@@ -146,10 +146,10 @@ Functions</h2></td></tr>
 <tr class="separator:a362976ffc8da436099d6ce5d2a8e8996"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a48ba7bc4cd4b13a577c07dadf1361d76" id="r_a48ba7bc4cd4b13a577c07dadf1361d76"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="RecastRegion_8cpp.html#a48ba7bc4cd4b13a577c07dadf1361d76">isSolidEdge</a> (<a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a> &amp;chf, const unsigned short *srcReg, int x, int y, int i, int dir)</td></tr>
 <tr class="separator:a48ba7bc4cd4b13a577c07dadf1361d76"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad83298fca0661c495cf8316ffac5dd3c" id="r_ad83298fca0661c495cf8316ffac5dd3c"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="RecastRegion_8cpp.html#ad83298fca0661c495cf8316ffac5dd3c">walkContour</a> (int x, int y, int i, int dir, <a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a> &amp;chf, const unsigned short *srcReg, <a class="el" href="classrcIntArray.html">rcIntArray</a> &amp;cont)</td></tr>
-<tr class="separator:ad83298fca0661c495cf8316ffac5dd3c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5725fdd6c9d2c932db4686ba6d411dac" id="r_a5725fdd6c9d2c932db4686ba6d411dac"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="RecastRegion_8cpp.html#a5725fdd6c9d2c932db4686ba6d411dac">mergeAndFilterRegions</a> (<a class="el" href="classrcContext.html">rcContext</a> *ctx, int minRegionArea, int mergeRegionSize, unsigned short &amp;maxRegionId, <a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a> &amp;chf, unsigned short *srcReg, <a class="el" href="classrcIntArray.html">rcIntArray</a> &amp;overlaps)</td></tr>
-<tr class="separator:a5725fdd6c9d2c932db4686ba6d411dac"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab5b409f4205cd02ac7714e606e6e5882" id="r_ab5b409f4205cd02ac7714e606e6e5882"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="RecastRegion_8cpp.html#ab5b409f4205cd02ac7714e606e6e5882">walkContour</a> (int x, int y, int i, int dir, <a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a> &amp;chf, const unsigned short *srcReg, <a class="el" href="classrcTempVector.html">rcTempVector</a>&lt; int &gt; &amp;cont)</td></tr>
+<tr class="separator:ab5b409f4205cd02ac7714e606e6e5882"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abd46c685c34317694a2c7bc29caa3494" id="r_abd46c685c34317694a2c7bc29caa3494"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="RecastRegion_8cpp.html#abd46c685c34317694a2c7bc29caa3494">mergeAndFilterRegions</a> (<a class="el" href="classrcContext.html">rcContext</a> *ctx, int minRegionArea, int mergeRegionSize, unsigned short &amp;maxRegionId, <a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a> &amp;chf, unsigned short *srcReg, <a class="el" href="classrcTempVector.html">rcTempVector</a>&lt; int &gt; &amp;overlaps)</td></tr>
+<tr class="separator:abd46c685c34317694a2c7bc29caa3494"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abc58499e6aeb21a4cd58d048c06f2ec0" id="r_abc58499e6aeb21a4cd58d048c06f2ec0"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="RecastRegion_8cpp.html#abc58499e6aeb21a4cd58d048c06f2ec0">addUniqueConnection</a> (<a class="el" href="structrcRegion.html">rcRegion</a> &amp;reg, int n)</td></tr>
 <tr class="separator:abc58499e6aeb21a4cd58d048c06f2ec0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a25912e8836b3489f54fecd65d850beff" id="r_a25912e8836b3489f54fecd65d850beff"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="RecastRegion_8cpp.html#a25912e8836b3489f54fecd65d850beff">mergeAndFilterLayerRegions</a> (<a class="el" href="classrcContext.html">rcContext</a> *ctx, int minRegionArea, unsigned short &amp;maxRegionId, <a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a> &amp;chf, unsigned short *srcReg)</td></tr>
@@ -699,8 +699,8 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a id="a5725fdd6c9d2c932db4686ba6d411dac" name="a5725fdd6c9d2c932db4686ba6d411dac"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5725fdd6c9d2c932db4686ba6d411dac">&#9670;&#160;</a></span>mergeAndFilterRegions()</h2>
+<a id="abd46c685c34317694a2c7bc29caa3494" name="abd46c685c34317694a2c7bc29caa3494"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abd46c685c34317694a2c7bc29caa3494">&#9670;&#160;</a></span>mergeAndFilterRegions()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -747,7 +747,7 @@ Variables</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classrcIntArray.html">rcIntArray</a> &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="classrcTempVector.html">rcTempVector</a>&lt; int &gt; &amp;&#160;</td>
           <td class="paramname"><em>overlaps</em>&#160;</td>
         </tr>
         <tr>
@@ -995,8 +995,8 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a id="ad83298fca0661c495cf8316ffac5dd3c" name="ad83298fca0661c495cf8316ffac5dd3c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad83298fca0661c495cf8316ffac5dd3c">&#9670;&#160;</a></span>walkContour()</h2>
+<a id="ab5b409f4205cd02ac7714e606e6e5882" name="ab5b409f4205cd02ac7714e606e6e5882"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab5b409f4205cd02ac7714e606e6e5882">&#9670;&#160;</a></span>walkContour()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1043,7 +1043,7 @@ Variables</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classrcIntArray.html">rcIntArray</a> &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="classrcTempVector.html">rcTempVector</a>&lt; int &gt; &amp;&#160;</td>
           <td class="paramname"><em>cont</em>&#160;</td>
         </tr>
         <tr>

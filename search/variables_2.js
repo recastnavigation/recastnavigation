@@ -17,7 +17,7 @@ var searchData=
   ['compressed_14',['compressed',['../structdtCompressedTile.html#a1dc4612b07c4fea0b4df5065345bec31',1,'dtCompressedTile']]],
   ['compressedsize_15',['compressedSize',['../structdtCompressedTile.html#a27134afd3e266ece7c7465bf04f04b8d',1,'dtCompressedTile']]],
   ['con_16',['con',['../structrcCompactSpan.html#ac01d1dafd150efc71de4ee671edb8539',1,'rcCompactSpan']]],
-  ['connections_17',['connections',['../structrcRegion.html#ac6cbe80ad7da2858aa3f463079bc391e',1,'rcRegion']]],
+  ['connections_17',['connections',['../structrcRegion.html#aa0da5a9f568cd5b4fd5d336f6f44eb7a',1,'rcRegion']]],
   ['connectstoborder_18',['connectsToBorder',['../structrcRegion.html#a4ddce7919ddb139fe21ac4c05b5c3f79',1,'rcRegion']]],
   ['cons_19',['cons',['../structdtTileCacheLayer.html#aa81a7e641ccfb8e00f0072efae4d74fd',1,'dtTileCacheLayer::cons'],['../structrcHeightfieldLayer.html#a48ca9f0db5708d03fe043e54bc515199',1,'rcHeightfieldLayer::cons']]],
   ['contour_20',['contour',['../structrcContourHole.html#a11fb23a6bba9ccc948b8779aa78f6b54',1,'rcContourHole']]],
