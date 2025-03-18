@@ -26,6 +26,5 @@ var RecastContour_8cpp =
     [ "removeDegenerateSegments", "RecastContour_8cpp.html#a4e79138985b8e7443e813250a17d3f71", null ],
     [ "simplifyContour", "RecastContour_8cpp.html#aa7cef37578da730d57670d60132da73f", null ],
     [ "vequal", "RecastContour_8cpp.html#ac36ef53201f5b44be2f321d65ae01987", null ],
-    [ "walkContour", "RecastContour_8cpp.html#ad5bc73ac319eae14a8b137a1bb4c9778", null ],
-    [ "xorb", "RecastContour_8cpp.html#a82c11ae489473adcaa21b9944f3553fd", null ]
+    [ "walkContour", "RecastContour_8cpp.html#ad5bc73ac319eae14a8b137a1bb4c9778", null ]
 ];

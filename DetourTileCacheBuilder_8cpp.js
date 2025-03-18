@@ -56,7 +56,6 @@ var DetourTileCacheBuilder_8cpp =
     [ "uleft", "DetourTileCacheBuilder_8cpp.html#a7779e8ce95da76bac3631db6b39436db", null ],
     [ "vequal", "DetourTileCacheBuilder_8cpp.html#aa4f62c267a38a721dda8c1b1f6c76a9d", null ],
     [ "walkContour", "DetourTileCacheBuilder_8cpp.html#a45f592986513acd34a53381dc61c8340", null ],
-    [ "xorb", "DetourTileCacheBuilder_8cpp.html#a82c11ae489473adcaa21b9944f3553fd", null ],
     [ "DT_LAYER_MAX_NEIS", "DetourTileCacheBuilder_8cpp.html#ae4329c19c9328b4a0d083e8182359621", null ],
     [ "MAX_REM_EDGES", "DetourTileCacheBuilder_8cpp.html#a5131aaaa744669c5e9418ecffa6e64f5", null ],
     [ "MAX_VERTS_PER_POLY", "DetourTileCacheBuilder_8cpp.html#a765f17c1f40a919b5a17a9701a0c9f52", null ],

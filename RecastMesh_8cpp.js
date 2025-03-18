@@ -32,6 +32,5 @@ var RecastMesh_8cpp =
     [ "triangulate", "RecastMesh_8cpp.html#af19401e5d7d90391fe30c6d31de5a533", null ],
     [ "uleft", "RecastMesh_8cpp.html#a7779e8ce95da76bac3631db6b39436db", null ],
     [ "vequal", "RecastMesh_8cpp.html#ac36ef53201f5b44be2f321d65ae01987", null ],
-    [ "xorb", "RecastMesh_8cpp.html#a82c11ae489473adcaa21b9944f3553fd", null ],
     [ "VERTEX_BUCKET_COUNT", "RecastMesh_8cpp.html#a3a4e01616a89d8ef01154d9dd46e0ccc", null ]
 ];
