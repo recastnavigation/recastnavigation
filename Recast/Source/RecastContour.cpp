@@ -102,7 +102,7 @@ static int getCornerHeight(int x, int y, int i, int dir,
 
 static void walkContour(int x, int y, int i,
 						const rcCompactHeightfield& chf,
-						unsigned char* flags, rcIntArray& points)
+						unsigned char* flags, rcTempVector<int>& points)
 {
 	// Choose the first non-connected edge
 	unsigned char dir = 0;
@@ -146,10 +146,10 @@ static void walkContour(int x, int y, int i,
 				r |= RC_BORDER_VERTEX;
 			if (isAreaBorder)
 				r |= RC_AREA_BORDER;
-			points.push(px);
-			points.push(py);
-			points.push(pz);
-			points.push(r);
+			points.push_back(px);
+			points.push_back(py);
+			points.push_back(pz);
+			points.push_back(r);
 			
 			flags[i] &= ~(1 << dir); // Remove visited edges
 			dir = (dir+1) & 0x3;  // Rotate CW
@@ -206,7 +206,7 @@ static float distancePtSeg(const int x, const int z,
 	return dx*dx + dz*dz;
 }
 
-static void simplifyContour(rcIntArray& points, rcIntArray& simplified,
+static void simplifyContour(rcTempVector<int>& points, rcTempVector<int>& simplified,
 							const float maxError, const int maxEdgeLen, const int buildFlags)
 {
 	// Add initial points.
@@ -231,10 +231,10 @@ static void simplifyContour(rcIntArray& points, rcIntArray& simplified,
 			const bool areaBorders = (points[i*4+3] & RC_AREA_BORDER) != (points[ii*4+3] & RC_AREA_BORDER);
 			if (differentRegs || areaBorders)
 			{
-				simplified.push(points[i*4+0]);
-				simplified.push(points[i*4+1]);
-				simplified.push(points[i*4+2]);
-				simplified.push(i);
+				simplified.push_back(points[i*4+0]);
+				simplified.push_back(points[i*4+1]);
+				simplified.push_back(points[i*4+2]);
+				simplified.push_back(i);
 			}
 		}
 	}
@@ -272,15 +272,15 @@ static void simplifyContour(rcIntArray& points, rcIntArray& simplified,
 				uri = i/4;
 			}
 		}
-		simplified.push(llx);
-		simplified.push(lly);
-		simplified.push(llz);
-		simplified.push(lli);
+		simplified.push_back(llx);
+		simplified.push_back(lly);
+		simplified.push_back(llz);
+		simplified.push_back(lli);
 		
-		simplified.push(urx);
-		simplified.push(ury);
-		simplified.push(urz);
-		simplified.push(uri);
+		simplified.push_back(urx);
+		simplified.push_back(ury);
+		simplified.push_back(urz);
+		simplified.push_back(uri);
 	}
 	
 	// Add points until all raw points are within
@@ -567,7 +567,7 @@ static bool	inCone(int i, int n, const int* verts, const int* pj)
 }
 
 
-static void removeDegenerateSegments(rcIntArray& simplified)
+static void removeDegenerateSegments(rcTempVector<int>& simplified)
 {
 	// Remove adjacent vertices which are equal on xz-plane,
 	// or else the triangulator will get confused.
@@ -891,8 +891,8 @@ bool rcBuildContours(rcContext* ctx, const rcCompactHeightfield& chf,
 	
 	ctx->stopTimer(RC_TIMER_BUILD_CONTOURS_TRACE);
 	
-	rcIntArray verts(256);
-	rcIntArray simplified(64);
+	rcTempVector<int> verts(256);
+	rcTempVector<int> simplified(64);
 	
 	for (int y = 0; y < h; ++y)
 	{
