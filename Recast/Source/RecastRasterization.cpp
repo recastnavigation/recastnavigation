@@ -331,8 +331,8 @@ static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
 	const float by = heightfieldBBMax[1] - heightfieldBBMin[1];
 
 	// Calculate the footprint of the triangle on the grid's z-axis
-	int z0 = (int)((triBBMin[2] - heightfieldBBMin[2]) * inverseCellSize);
-	int z1 = (int)((triBBMax[2] - heightfieldBBMin[2]) * inverseCellSize);
+	int z0 = (int)floorf((triBBMin[2] - heightfieldBBMin[2]) * inverseCellSize);
+	int z1 = (int)floorf((triBBMax[2] - heightfieldBBMin[2]) * inverseCellSize);
 
 	// use -1 rather than 0 to cut the polygon properly at the start of the tile
 	z0 = rcClamp(z0, -1, h - 1);
@@ -381,8 +381,8 @@ static bool rasterizeTri(const float* v0, const float* v1, const float* v2,
 				maxX = inRow[vert * 3];
 			}
 		}
-		int x0 = (int)((minX - heightfieldBBMin[0]) * inverseCellSize);
-		int x1 = (int)((maxX - heightfieldBBMin[0]) * inverseCellSize);
+		int x0 = (int)floorf((minX - heightfieldBBMin[0]) * inverseCellSize);
+		int x1 = (int)floorf((maxX - heightfieldBBMin[0]) * inverseCellSize);
 		if (x1 < 0 || x0 >= w)
 		{
 			continue;
