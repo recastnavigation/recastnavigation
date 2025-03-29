@@ -19,7 +19,6 @@
 #ifndef RECASTSAMPLE_H
 #define RECASTSAMPLE_H
 
-#include "Recast.h"
 #include "SampleInterfaces.h"
 
 
@@ -72,11 +71,13 @@ enum SamplePartitionType
 	SAMPLE_PARTITION_LAYERS
 };
 
+class Sample;
+
 struct SampleTool
 {
 	virtual ~SampleTool();
 	virtual int type() = 0;
-	virtual void init(class Sample* sample) = 0;
+	virtual void init(Sample* sample) = 0;
 	virtual void reset() = 0;
 	virtual void handleMenu() = 0;
 	virtual void handleClick(const float* s, const float* p, bool shift) = 0;
@@ -84,16 +85,16 @@ struct SampleTool
 	virtual void handleRenderOverlay(double* proj, double* model, int* view) = 0;
 	virtual void handleToggle() = 0;
 	virtual void handleStep() = 0;
-	virtual void handleUpdate(const float dt) = 0;
+	virtual void handleUpdate(float dt) = 0;
 };
 
 struct SampleToolState {
 	virtual ~SampleToolState();
-	virtual void init(class Sample* sample) = 0;
+	virtual void init(Sample* sample) = 0;
 	virtual void reset() = 0;
 	virtual void handleRender() = 0;
 	virtual void handleRenderOverlay(double* proj, double* model, int* view) = 0;
-	virtual void handleUpdate(const float dt) = 0;
+	virtual void handleUpdate(float dt) = 0;
 };
 
 class Sample
@@ -142,8 +143,8 @@ public:
 	void setContext(BuildContext* ctx) { m_ctx = ctx; }
 	
 	void setTool(SampleTool* tool);
-	SampleToolState* getToolState(int type) { return m_toolStates[type]; }
-	void setToolState(int type, SampleToolState* s) { m_toolStates[type] = s; }
+	SampleToolState* getToolState(const int type) const { return m_toolStates[type]; }
+	void setToolState(const int type, SampleToolState* s) { m_toolStates[type] = s; }
 
 	SampleDebugDraw& getDebugDraw() { return m_dd; }
 
@@ -155,15 +156,15 @@ public:
 	virtual void handleStep();
 	virtual void handleRender();
 	virtual void handleRenderOverlay(double* proj, double* model, int* view);
-	virtual void handleMeshChanged(class InputGeom* geom);
+	virtual void handleMeshChanged(InputGeom* geom);
 	virtual bool handleBuild();
-	virtual void handleUpdate(const float dt);
+	virtual void handleUpdate(float dt);
 	virtual void collectSettings(struct BuildSettings& settings);
 
-	virtual class InputGeom* getInputGeom() { return m_geom; }
-	virtual class dtNavMesh* getNavMesh() { return m_navMesh; }
-	virtual class dtNavMeshQuery* getNavMeshQuery() { return m_navQuery; }
-	virtual class dtCrowd* getCrowd() { return m_crowd; }
+	virtual InputGeom* getInputGeom() { return m_geom; }
+	virtual dtNavMesh* getNavMesh() { return m_navMesh; }
+	virtual dtNavMeshQuery* getNavMeshQuery() { return m_navQuery; }
+	virtual dtCrowd* getCrowd() { return m_crowd; }
 	virtual float getAgentRadius() { return m_agentRadius; }
 	virtual float getAgentHeight() { return m_agentHeight; }
 	virtual float getAgentClimb() { return m_agentMaxClimb; }
@@ -171,7 +172,7 @@ public:
 	unsigned char getNavMeshDrawFlags() const { return m_navMeshDrawFlags; }
 	void setNavMeshDrawFlags(unsigned char flags) { m_navMeshDrawFlags = flags; }
 
-	void updateToolStates(const float dt);
+	void updateToolStates(float dt);
 	void initToolStates(Sample* sample);
 	void resetToolStates();
 	void renderToolStates();
