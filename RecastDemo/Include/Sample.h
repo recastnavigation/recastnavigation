@@ -21,6 +21,11 @@
 
 #include "SampleInterfaces.h"
 
+class Sample;
+class InputGeom;
+class dtNavMesh;
+class dtNavMeshQuery;
+class dtCrowd;
 
 /// Tool types.
 enum SampleToolType
@@ -71,8 +76,6 @@ enum SamplePartitionType
 	SAMPLE_PARTITION_LAYERS
 };
 
-class Sample;
-
 struct SampleTool
 {
 	virtual ~SampleTool();
@@ -100,10 +103,10 @@ struct SampleToolState {
 class Sample
 {
 protected:
-	class InputGeom* m_geom;
-	class dtNavMesh* m_navMesh;
-	class dtNavMeshQuery* m_navQuery;
-	class dtCrowd* m_crowd;
+	InputGeom* m_geom;
+	dtNavMesh* m_navMesh;
+	dtNavMeshQuery* m_navQuery;
+	dtCrowd* m_crowd;
 
 	unsigned char m_navMeshDrawFlags;
 
