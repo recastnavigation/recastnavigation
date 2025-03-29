@@ -139,6 +139,10 @@ protected:
 public:
 	Sample();
 	virtual ~Sample();
+	Sample(const Sample&) = delete;
+	Sample(const Sample&&) = delete;
+	Sample& operator=(const Sample&) = delete;
+	Sample& operator=(const Sample&&) = delete;
 	
 	void setContext(BuildContext* ctx) { m_ctx = ctx; }
 	
@@ -180,11 +184,6 @@ public:
 
 	void resetCommonSettings();
 	void handleCommonSettings();
-
-private:
-	// Explicitly disabled copy constructor and copy assignment operator.
-	Sample(const Sample&);
-	Sample& operator=(const Sample&);
 };
 
 
