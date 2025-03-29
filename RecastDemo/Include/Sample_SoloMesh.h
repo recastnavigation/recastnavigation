@@ -26,16 +26,17 @@
 class Sample_SoloMesh : public Sample
 {
 protected:
-	bool m_keepInterResults = true;
+	bool m_keepIntermediateResults = true;
 	float m_totalBuildTimeMs = 0;
 
+	rcConfig m_config {};
+
 	unsigned char* m_triareas = nullptr;
-	rcHeightfield* m_solid = nullptr;
-	rcCompactHeightfield* m_chf = nullptr;
-	rcContourSet* m_cset = nullptr;
-	rcPolyMesh* m_pmesh = nullptr;
-	rcConfig m_cfg {};
-	rcPolyMeshDetail* m_dmesh = nullptr;
+	rcHeightfield* m_heightfield = nullptr;
+	rcCompactHeightfield* m_compactHeightfield = nullptr;
+	rcContourSet* m_contourSet = nullptr;
+	rcPolyMesh* m_polyMesh = nullptr;
+	rcPolyMeshDetail* m_detailMesh = nullptr;
 	
 	enum class DrawMode : uint8_t
 	{
@@ -77,4 +78,7 @@ public:
 	void handleRenderOverlay(double* proj, double* model, int* view) override;
 	void handleMeshChanged(class InputGeom* geom) override;
 	bool handleBuild() override;
+
+private:
+	void UI_DrawModeOption(const char* name, DrawMode drawMode, bool enabled);
 };
