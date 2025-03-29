@@ -16,26 +16,24 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#ifndef RECASTSAMPLESOLOMESH_H
-#define RECASTSAMPLESOLOMESH_H
+#pragma once
 
-#include "Sample.h"
-#include "DetourNavMesh.h"
 #include "Recast.h"
+#include "Sample.h"
 
 class Sample_SoloMesh : public Sample
 {
 protected:
-	bool m_keepInterResults;
-	float m_totalBuildTimeMs;
+	bool m_keepInterResults = true;
+	float m_totalBuildTimeMs = 0;
 
-	unsigned char* m_triareas;
-	rcHeightfield* m_solid;
-	rcCompactHeightfield* m_chf;
-	rcContourSet* m_cset;
-	rcPolyMesh* m_pmesh;
-	rcConfig m_cfg;	
-	rcPolyMeshDetail* m_dmesh;
+	unsigned char* m_triareas = nullptr;
+	rcHeightfield* m_solid = nullptr;
+	rcCompactHeightfield* m_chf = nullptr;
+	rcContourSet* m_cset = nullptr;
+	rcPolyMesh* m_pmesh = nullptr;
+	rcConfig m_cfg {};
+	rcPolyMeshDetail* m_dmesh = nullptr;
 	
 	enum DrawMode
 	{
@@ -59,28 +57,24 @@ protected:
 		MAX_DRAWMODE
 	};
 	
-	DrawMode m_drawMode;
+	DrawMode m_drawMode = DRAWMODE_NAVMESH;
 	
 	void cleanup();
 
 public:
 	Sample_SoloMesh();
-	virtual ~Sample_SoloMesh();
-	
-	virtual void handleSettings();
-	virtual void handleTools();
-	virtual void handleDebugMode();
-	
-	virtual void handleRender();
-	virtual void handleRenderOverlay(double* proj, double* model, int* view);
-	virtual void handleMeshChanged(class InputGeom* geom);
-	virtual bool handleBuild();
+	~Sample_SoloMesh() override;
+	Sample_SoloMesh(const Sample_SoloMesh&) = delete;
+	Sample_SoloMesh& operator=(const Sample_SoloMesh&) = delete;
+	Sample_SoloMesh(const Sample_SoloMesh&&) = delete;
+	Sample_SoloMesh& operator=(const Sample_SoloMesh&&) = delete;
 
-private:
-	// Explicitly disabled copy constructor and copy assignment operator.
-	Sample_SoloMesh(const Sample_SoloMesh&);
-	Sample_SoloMesh& operator=(const Sample_SoloMesh&);
+	void handleSettings() override;
+	void handleTools() override;
+	void handleDebugMode() override;
+
+	void handleRender() override;
+	void handleRenderOverlay(double* proj, double* model, int* view) override;
+	void handleMeshChanged(class InputGeom* geom) override;
+	bool handleBuild() override;
 };
-
-
-#endif // RECASTSAMPLESOLOMESHSIMPLE_H

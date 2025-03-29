@@ -16,42 +16,34 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <math.h>
-#include <stdio.h>
-#include <string.h>
-#include "SDL.h"
-#include "SDL_opengl.h"
+#include "Sample_SoloMesh.h"
+
+#include <cmath>
+#include <cstdio>
+#include <cstring>
+
+#include "ConvexVolumeTool.h"
+#include "CrowdTool.h"
+#include "DetourDebugDraw.h"
+#include "DetourNavMesh.h"
+#include "DetourNavMeshBuilder.h"
 #include "imgui.h"
 #include "InputGeom.h"
-#include "Sample.h"
-#include "Sample_SoloMesh.h"
+#include "NavMeshPruneTool.h"
+#include "NavMeshTesterTool.h"
+#include "OffMeshConnectionTool.h"
 #include "Recast.h"
 #include "RecastDebugDraw.h"
 #include "RecastDump.h"
-#include "DetourNavMesh.h"
-#include "DetourNavMeshBuilder.h"
-#include "DetourDebugDraw.h"
-#include "NavMeshTesterTool.h"
-#include "NavMeshPruneTool.h"
-#include "OffMeshConnectionTool.h"
-#include "ConvexVolumeTool.h"
-#include "CrowdTool.h"
+#include "Sample.h"
+#include "SDL.h"
+#include "SDL_opengl.h"
 
 #ifdef WIN32
 #	define snprintf _snprintf
 #endif
 
-
-Sample_SoloMesh::Sample_SoloMesh() :
-	m_keepInterResults(true),
-	m_totalBuildTimeMs(0),
-	m_triareas(0),
-	m_solid(0),
-	m_chf(0),
-	m_cset(0),
-	m_pmesh(0),
-	m_dmesh(0),
-	m_drawMode(DRAWMODE_NAVMESH)
+Sample_SoloMesh::Sample_SoloMesh()
 {
 	setTool(new NavMeshTesterTool);
 }
@@ -63,20 +55,13 @@ Sample_SoloMesh::~Sample_SoloMesh()
 	
 void Sample_SoloMesh::cleanup()
 {
-	delete [] m_triareas;
-	m_triareas = 0;
-	rcFreeHeightField(m_solid);
-	m_solid = 0;
-	rcFreeCompactHeightfield(m_chf);
-	m_chf = 0;
-	rcFreeContourSet(m_cset);
-	m_cset = 0;
-	rcFreePolyMesh(m_pmesh);
-	m_pmesh = 0;
-	rcFreePolyMeshDetail(m_dmesh);
-	m_dmesh = 0;
-	dtFreeNavMesh(m_navMesh);
-	m_navMesh = 0;
+	delete [] m_triareas; m_triareas = 0;
+	rcFreeHeightField(m_solid); m_solid = 0;
+	rcFreeCompactHeightfield(m_chf); m_chf = 0;
+	rcFreeContourSet(m_cset); m_cset = 0;
+	rcFreePolyMesh(m_pmesh); m_pmesh = 0;
+	rcFreePolyMeshDetail(m_dmesh); m_dmesh = 0;
+	dtFreeNavMesh(m_navMesh); m_navMesh = 0;
 }
 
 void Sample_SoloMesh::handleSettings()
@@ -84,7 +69,9 @@ void Sample_SoloMesh::handleSettings()
 	Sample::handleCommonSettings();
 
 	if (imguiCheck("Keep Itermediate Results", m_keepInterResults))
+	{
 		m_keepInterResults = !m_keepInterResults;
+	}
 
 	imguiSeparator();
 
@@ -105,7 +92,7 @@ void Sample_SoloMesh::handleSettings()
 
 	imguiUnindent();
 	imguiUnindent();
-	
+
 	char msg[64];
 	snprintf(msg, 64, "Build Time: %.1fms", m_totalBuildTimeMs);
 	imguiLabel(msg);
@@ -115,123 +102,57 @@ void Sample_SoloMesh::handleSettings()
 
 void Sample_SoloMesh::handleTools()
 {
-	int type = !m_tool ? TOOL_NONE : m_tool->type();
-	
-	if (imguiCheck("Test Navmesh", type == TOOL_NAVMESH_TESTER))
-	{
-		setTool(new NavMeshTesterTool);
-	}
-	if (imguiCheck("Prune Navmesh", type == TOOL_NAVMESH_PRUNE))
-	{
-		setTool(new NavMeshPruneTool);
-	}
-	if (imguiCheck("Create Off-Mesh Connections", type == TOOL_OFFMESH_CONNECTION))
-	{
-		setTool(new OffMeshConnectionTool);
-	}
-	if (imguiCheck("Create Convex Volumes", type == TOOL_CONVEX_VOLUME))
-	{
-		setTool(new ConvexVolumeTool);
-	}
-	if (imguiCheck("Create Crowds", type == TOOL_CROWD))
-	{
-		setTool(new CrowdTool);
-	}
-	
+	const int type = !m_tool ? TOOL_NONE : m_tool->type();
+
+	if (imguiCheck("Test Navmesh", type == TOOL_NAVMESH_TESTER)) { setTool(new NavMeshTesterTool); }
+	if (imguiCheck("Prune Navmesh", type == TOOL_NAVMESH_PRUNE)) { setTool(new NavMeshPruneTool); }
+	if (imguiCheck("Create Off-Mesh Connections", type == TOOL_OFFMESH_CONNECTION)) { setTool(new OffMeshConnectionTool); }
+	if (imguiCheck("Create Convex Volumes", type == TOOL_CONVEX_VOLUME)) { setTool(new ConvexVolumeTool); }
+	if (imguiCheck("Create Crowds", type == TOOL_CROWD)) { setTool(new CrowdTool); }
+
 	imguiSeparatorLine();
 
 	imguiIndent();
 
 	if (m_tool)
+	{
 		m_tool->handleMenu();
+	}
 
 	imguiUnindent();
-
 }
 
 void Sample_SoloMesh::handleDebugMode()
 {
-	// Check which modes are valid.
-	bool valid[MAX_DRAWMODE];
-	for (int i = 0; i < MAX_DRAWMODE; ++i)
-		valid[i] = false;
-
-	if (m_geom)
-	{
-		valid[DRAWMODE_NAVMESH] = m_navMesh != 0;
-		valid[DRAWMODE_NAVMESH_TRANS] = m_navMesh != 0;
-		valid[DRAWMODE_NAVMESH_BVTREE] = m_navMesh != 0;
-		valid[DRAWMODE_NAVMESH_NODES] = m_navQuery != 0;
-		valid[DRAWMODE_NAVMESH_INVIS] = m_navMesh != 0;
-		valid[DRAWMODE_MESH] = true;
-		valid[DRAWMODE_VOXELS] = m_solid != 0;
-		valid[DRAWMODE_VOXELS_WALKABLE] = m_solid != 0;
-		valid[DRAWMODE_COMPACT] = m_chf != 0;
-		valid[DRAWMODE_COMPACT_DISTANCE] = m_chf != 0;
-		valid[DRAWMODE_COMPACT_REGIONS] = m_chf != 0;
-		valid[DRAWMODE_REGION_CONNECTIONS] = m_cset != 0;
-		valid[DRAWMODE_RAW_CONTOURS] = m_cset != 0;
-		valid[DRAWMODE_BOTH_CONTOURS] = m_cset != 0;
-		valid[DRAWMODE_CONTOURS] = m_cset != 0;
-		valid[DRAWMODE_POLYMESH] = m_pmesh != 0;
-		valid[DRAWMODE_POLYMESH_DETAIL] = m_dmesh != 0;
-	}
-	
-	int unavail = 0;
-	for (int i = 0; i < MAX_DRAWMODE; ++i)
-		if (!valid[i]) unavail++;
-
-	if (unavail == MAX_DRAWMODE)
-		return;
-
 	imguiLabel("Draw");
-	if (imguiCheck("Input Mesh", m_drawMode == DRAWMODE_MESH, valid[DRAWMODE_MESH]))
-		m_drawMode = DRAWMODE_MESH;
-	if (imguiCheck("Navmesh", m_drawMode == DRAWMODE_NAVMESH, valid[DRAWMODE_NAVMESH]))
-		m_drawMode = DRAWMODE_NAVMESH;
-	if (imguiCheck("Navmesh Invis", m_drawMode == DRAWMODE_NAVMESH_INVIS, valid[DRAWMODE_NAVMESH_INVIS]))
-		m_drawMode = DRAWMODE_NAVMESH_INVIS;
-	if (imguiCheck("Navmesh Trans", m_drawMode == DRAWMODE_NAVMESH_TRANS, valid[DRAWMODE_NAVMESH_TRANS]))
-		m_drawMode = DRAWMODE_NAVMESH_TRANS;
-	if (imguiCheck("Navmesh BVTree", m_drawMode == DRAWMODE_NAVMESH_BVTREE, valid[DRAWMODE_NAVMESH_BVTREE]))
-		m_drawMode = DRAWMODE_NAVMESH_BVTREE;
-	if (imguiCheck("Navmesh Nodes", m_drawMode == DRAWMODE_NAVMESH_NODES, valid[DRAWMODE_NAVMESH_NODES]))
-		m_drawMode = DRAWMODE_NAVMESH_NODES;
-	if (imguiCheck("Voxels", m_drawMode == DRAWMODE_VOXELS, valid[DRAWMODE_VOXELS]))
-		m_drawMode = DRAWMODE_VOXELS;
-	if (imguiCheck("Walkable Voxels", m_drawMode == DRAWMODE_VOXELS_WALKABLE, valid[DRAWMODE_VOXELS_WALKABLE]))
-		m_drawMode = DRAWMODE_VOXELS_WALKABLE;
-	if (imguiCheck("Compact", m_drawMode == DRAWMODE_COMPACT, valid[DRAWMODE_COMPACT]))
-		m_drawMode = DRAWMODE_COMPACT;
-	if (imguiCheck("Compact Distance", m_drawMode == DRAWMODE_COMPACT_DISTANCE, valid[DRAWMODE_COMPACT_DISTANCE]))
-		m_drawMode = DRAWMODE_COMPACT_DISTANCE;
-	if (imguiCheck("Compact Regions", m_drawMode == DRAWMODE_COMPACT_REGIONS, valid[DRAWMODE_COMPACT_REGIONS]))
-		m_drawMode = DRAWMODE_COMPACT_REGIONS;
-	if (imguiCheck("Region Connections", m_drawMode == DRAWMODE_REGION_CONNECTIONS, valid[DRAWMODE_REGION_CONNECTIONS]))
-		m_drawMode = DRAWMODE_REGION_CONNECTIONS;
-	if (imguiCheck("Raw Contours", m_drawMode == DRAWMODE_RAW_CONTOURS, valid[DRAWMODE_RAW_CONTOURS]))
-		m_drawMode = DRAWMODE_RAW_CONTOURS;
-	if (imguiCheck("Both Contours", m_drawMode == DRAWMODE_BOTH_CONTOURS, valid[DRAWMODE_BOTH_CONTOURS]))
-		m_drawMode = DRAWMODE_BOTH_CONTOURS;
-	if (imguiCheck("Contours", m_drawMode == DRAWMODE_CONTOURS, valid[DRAWMODE_CONTOURS]))
-		m_drawMode = DRAWMODE_CONTOURS;
-	if (imguiCheck("Poly Mesh", m_drawMode == DRAWMODE_POLYMESH, valid[DRAWMODE_POLYMESH]))
-		m_drawMode = DRAWMODE_POLYMESH;
-	if (imguiCheck("Poly Mesh Detail", m_drawMode == DRAWMODE_POLYMESH_DETAIL, valid[DRAWMODE_POLYMESH_DETAIL]))
-		m_drawMode = DRAWMODE_POLYMESH_DETAIL;
-		
-	if (unavail)
-	{
-		imguiValue("Tick 'Keep Itermediate Results'");
-		imguiValue("to see more debug mode options.");
-	}
+#define DRAW_OPTION(name, value, condition) if (imguiCheck(name, m_drawMode == (value), (condition))) { m_drawMode = value; }
+	DRAW_OPTION("Input Mesh", DRAWMODE_MESH, true)
+	DRAW_OPTION("Navmesh", DRAWMODE_NAVMESH, m_navMesh != nullptr)
+	DRAW_OPTION("Navmesh Invis", DRAWMODE_NAVMESH_INVIS, m_navMesh != nullptr)
+	DRAW_OPTION("Navmesh Trans", DRAWMODE_NAVMESH_TRANS, m_navMesh != nullptr)
+	DRAW_OPTION("Navmesh BVTree", DRAWMODE_NAVMESH_BVTREE, m_navMesh != nullptr)
+	DRAW_OPTION("Navmesh Nodes", DRAWMODE_NAVMESH_NODES, m_navQuery != nullptr)
+	DRAW_OPTION("Voxels", DRAWMODE_VOXELS, m_solid != nullptr)
+	DRAW_OPTION("Walkable Voxels", DRAWMODE_VOXELS_WALKABLE, m_solid != nullptr)
+	DRAW_OPTION("Compact", DRAWMODE_COMPACT, m_chf != nullptr)
+	DRAW_OPTION("Compact Distance", DRAWMODE_COMPACT_DISTANCE, m_chf != nullptr)
+	DRAW_OPTION("Compact Regions", DRAWMODE_COMPACT_REGIONS, m_chf != nullptr)
+	DRAW_OPTION("Region Connections", DRAWMODE_REGION_CONNECTIONS, m_cset != nullptr)
+	DRAW_OPTION("Raw Contours", DRAWMODE_RAW_CONTOURS, m_cset != nullptr)
+	DRAW_OPTION("Both Contours", DRAWMODE_BOTH_CONTOURS, m_cset != nullptr)
+	DRAW_OPTION("Contours", DRAWMODE_CONTOURS, m_cset != nullptr)
+	DRAW_OPTION("Poly Mesh", DRAWMODE_POLYMESH, m_pmesh != nullptr)
+	DRAW_OPTION("Poly Mesh Detail", DRAWMODE_POLYMESH_DETAIL, m_dmesh != nullptr)
+#undef DRAW_OPTION
 }
 
 void Sample_SoloMesh::handleRender()
 {
 	if (!m_geom || !m_geom->getMesh())
+	{
 		return;
-	
+	}
+
 	glEnable(GL_FOG);
 	glDepthMask(GL_TRUE);
 
@@ -265,23 +186,35 @@ void Sample_SoloMesh::handleRender()
 		m_drawMode == DRAWMODE_NAVMESH_INVIS))
 	{
 		if (m_drawMode != DRAWMODE_NAVMESH_INVIS)
+		{
 			duDebugDrawNavMeshWithClosedList(&m_dd, *m_navMesh, *m_navQuery, m_navMeshDrawFlags);
+		}
 		if (m_drawMode == DRAWMODE_NAVMESH_BVTREE)
+		{
 			duDebugDrawNavMeshBVTree(&m_dd, *m_navMesh);
+		}
 		if (m_drawMode == DRAWMODE_NAVMESH_NODES)
+		{
 			duDebugDrawNavMeshNodes(&m_dd, *m_navQuery);
+		}
 		duDebugDrawNavMeshPolysWithFlags(&m_dd, *m_navMesh, SAMPLE_POLYFLAGS_DISABLED, duRGBA(0,0,0,128));
 	}
 		
 	glDepthMask(GL_TRUE);
 	
 	if (m_chf && m_drawMode == DRAWMODE_COMPACT)
+	{
 		duDebugDrawCompactHeightfieldSolid(&m_dd, *m_chf);
+	}
 
 	if (m_chf && m_drawMode == DRAWMODE_COMPACT_DISTANCE)
+	{
 		duDebugDrawCompactHeightfieldDistance(&m_dd, *m_chf);
+	}
 	if (m_chf && m_drawMode == DRAWMODE_COMPACT_REGIONS)
+	{
 		duDebugDrawCompactHeightfieldRegions(&m_dd, *m_chf);
+	}
 	if (m_solid && m_drawMode == DRAWMODE_VOXELS)
 	{
 		glEnable(GL_FOG);
@@ -337,7 +270,9 @@ void Sample_SoloMesh::handleRender()
 	m_geom->drawConvexVolumes(&m_dd);
 
 	if (m_tool)
+	{
 		m_tool->handleRender();
+	}
 	renderToolStates();
 
 	glDepthMask(GL_TRUE);
@@ -346,7 +281,9 @@ void Sample_SoloMesh::handleRender()
 void Sample_SoloMesh::handleRenderOverlay(double* proj, double* model, int* view)
 {
 	if (m_tool)
+	{
 		m_tool->handleRenderOverlay(proj, model, view);
+	}
 	renderOverlayToolStates(proj, model, view);
 }
 
@@ -419,7 +356,7 @@ bool Sample_SoloMesh::handleBuild()
 	
 	m_ctx->log(RC_LOG_PROGRESS, "Building navigation:");
 	m_ctx->log(RC_LOG_PROGRESS, " - %d x %d cells", m_cfg.width, m_cfg.height);
-	m_ctx->log(RC_LOG_PROGRESS, " - %.1fK verts, %.1fK tris", nverts/1000.0f, ntris/1000.0f);
+	m_ctx->log(RC_LOG_PROGRESS, " - %.1fK verts, %.1fK tris", static_cast<float>(nverts) / 1000.0f, static_cast<float>(ntris) / 1000.0f);
 	
 	//
 	// Step 2. Rasterize input polygon soup.
@@ -473,12 +410,17 @@ bool Sample_SoloMesh::handleBuild()
 	// remove unwanted overhangs caused by the conservative rasterization
 	// as well as filter spans where the character cannot possibly stand.
 	if (m_filterLowHangingObstacles)
+	{
 		rcFilterLowHangingWalkableObstacles(m_ctx, m_cfg.walkableClimb, *m_solid);
+	}
 	if (m_filterLedgeSpans)
+	{
 		rcFilterLedgeSpans(m_ctx, m_cfg.walkableHeight, m_cfg.walkableClimb, *m_solid);
+	}
 	if (m_filterWalkableLowHeightSpans)
+	{
 		rcFilterWalkableLowHeightSpans(m_ctx, m_cfg.walkableHeight, *m_solid);
-
+	}
 
 	//
 	// Step 4. Partition walkable surface to simple regions.
@@ -515,9 +457,10 @@ bool Sample_SoloMesh::handleBuild()
 	// (Optional) Mark areas.
 	const ConvexVolume* vols = m_geom->getConvexVolumes();
 	for (int i  = 0; i < m_geom->getConvexVolumeCount(); ++i)
+	{
 		rcMarkConvexPolyArea(m_ctx, vols[i].verts, vols[i].nverts, vols[i].hmin, vols[i].hmax, (unsigned char)vols[i].area, *m_chf);
+	}
 
-	
 	// Partition the heightfield so that we can use simple algorithm later to triangulate the walkable areas.
 	// There are 3 partitioning methods, each with some pros and cons:
 	// 1) Watershed partitioning
@@ -657,11 +600,13 @@ bool Sample_SoloMesh::handleBuild()
 		for (int i = 0; i < m_pmesh->npolys; ++i)
 		{
 			if (m_pmesh->areas[i] == RC_WALKABLE_AREA)
+			{
 				m_pmesh->areas[i] = SAMPLE_POLYAREA_GROUND;
-				
+			}
+
 			if (m_pmesh->areas[i] == SAMPLE_POLYAREA_GROUND ||
-				m_pmesh->areas[i] == SAMPLE_POLYAREA_GRASS ||
-				m_pmesh->areas[i] == SAMPLE_POLYAREA_ROAD)
+			    m_pmesh->areas[i] == SAMPLE_POLYAREA_GRASS ||
+			    m_pmesh->areas[i] == SAMPLE_POLYAREA_ROAD)
 			{
 				m_pmesh->flags[i] = SAMPLE_POLYFLAGS_WALK;
 			}
@@ -674,7 +619,6 @@ bool Sample_SoloMesh::handleBuild()
 				m_pmesh->flags[i] = SAMPLE_POLYFLAGS_WALK | SAMPLE_POLYFLAGS_DOOR;
 			}
 		}
-
 
 		dtNavMeshCreateParams params;
 		memset(&params, 0, sizeof(params));
@@ -719,10 +663,8 @@ bool Sample_SoloMesh::handleBuild()
 			m_ctx->log(RC_LOG_ERROR, "Could not create Detour navmesh");
 			return false;
 		}
-		
-		dtStatus status;
-		
-		status = m_navMesh->init(navData, navDataSize, DT_TILE_FREE_DATA);
+
+		dtStatus status = m_navMesh->init(navData, navDataSize, DT_TILE_FREE_DATA);
 		if (dtStatusFailed(status))
 		{
 			dtFree(navData);
@@ -744,10 +686,12 @@ bool Sample_SoloMesh::handleBuild()
 	duLogBuildTimes(*m_ctx, m_ctx->getAccumulatedTime(RC_TIMER_TOTAL));
 	m_ctx->log(RC_LOG_PROGRESS, ">> Polymesh: %d vertices  %d polygons", m_pmesh->nverts, m_pmesh->npolys);
 	
-	m_totalBuildTimeMs = m_ctx->getAccumulatedTime(RC_TIMER_TOTAL)/1000.0f;
+	m_totalBuildTimeMs = static_cast<float>(m_ctx->getAccumulatedTime(RC_TIMER_TOTAL)) / 1000.0f;
 	
 	if (m_tool)
+	{
 		m_tool->init(this);
+	}
 	initToolStates(this);
 
 	return true;
