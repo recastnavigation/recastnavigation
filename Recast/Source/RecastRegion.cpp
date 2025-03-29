@@ -650,11 +650,15 @@ static bool mergeRegions(rcRegion& rega, rcRegion& regb)
 	
 	// Merge neighbours.
 	rega.connections.clear();
-	for (int i = 0, ni = acon.size(); i < ni-1; ++i)
+	for (int i = 0, ni = static_cast<int>(acon.size()); i < ni-1; ++i)
+	{
 		rega.connections.push_back(acon[(insa+1+i) % ni]);
+	}
 		
-	for (int i = 0, ni = bcon.size(); i < ni-1; ++i)
+	for (int i = 0, ni = static_cast<int>(bcon.size()); i < ni-1; ++i)
+	{
 		rega.connections.push_back(bcon[(insb+1+i) % ni]);
+	}
 	
 	removeAdjacentNeighbours(rega);
 	

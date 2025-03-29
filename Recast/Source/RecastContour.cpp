@@ -224,7 +224,7 @@ static void simplifyContour(rcTempVector<int>& points, rcTempVector<int>& simpli
 	{
 		// The contour has some portals to other regions.
 		// Add a new point to every location where the region changes.
-		for (int i = 0, ni = points.size()/4; i < ni; ++i)
+		for (int i = 0, ni = static_cast<int>(points.size()) / 4; i < ni; ++i)
 		{
 			int ii = (i+1) % ni;
 			const bool differentRegs = (points[i*4+3] & RC_CONTOUR_REG_MASK) != (points[ii*4+3] & RC_CONTOUR_REG_MASK);
@@ -285,7 +285,7 @@ static void simplifyContour(rcTempVector<int>& points, rcTempVector<int>& simpli
 	
 	// Add points until all raw points are within
 	// error tolerance to the simplified shape.
-	const int pn = points.size()/4;
+	const int pn = static_cast<int>(points.size()) / 4;
 	for (int i = 0; i < simplified.size()/4; )
 	{
 		int ii = (i+1) % (simplified.size()/4);
@@ -344,7 +344,7 @@ static void simplifyContour(rcTempVector<int>& points, rcTempVector<int>& simpli
 		{
 			// Add space for the new point.
 			simplified.resize(simplified.size()+4);
-			const int n = simplified.size()/4;
+			const int n = static_cast<int>(simplified.size()) / 4;
 			for (int j = n-1; j > i; --j)
 			{
 				simplified[j*4+0] = simplified[(j-1)*4+0];
@@ -418,7 +418,7 @@ static void simplifyContour(rcTempVector<int>& points, rcTempVector<int>& simpli
 			{
 				// Add space for the new point.
 				simplified.resize(simplified.size()+4);
-				const int n = simplified.size()/4;
+				const int n = static_cast<int>(simplified.size()) / 4;
 				for (int j = n-1; j > i; --j)
 				{
 					simplified[j*4+0] = simplified[(j-1)*4+0];
@@ -571,7 +571,7 @@ static void removeDegenerateSegments(rcTempVector<int>& simplified)
 {
 	// Remove adjacent vertices which are equal on xz-plane,
 	// or else the triangulator will get confused.
-	int npts = simplified.size()/4;
+	int npts = static_cast<int>(simplified.size()) / 4;
 	for (int i = 0; i < npts; ++i)
 	{
 		int ni = next(i, npts);
@@ -950,7 +950,7 @@ bool rcBuildContours(rcContext* ctx, const rcCompactHeightfield& chf,
 					
 					rcContour* cont = &cset.conts[cset.nconts++];
 					
-					cont->nverts = simplified.size()/4;
+					cont->nverts = static_cast<int>(simplified.size()) / 4;
 					cont->verts = (int*)rcAlloc(sizeof(int)*cont->nverts*4, RC_ALLOC_PERM);
 					if (!cont->verts)
 					{
@@ -969,8 +969,8 @@ bool rcBuildContours(rcContext* ctx, const rcCompactHeightfield& chf,
 						}
 					}
 					
-					cont->nrverts = verts.size()/4;
-					cont->rverts = (int*)rcAlloc(sizeof(int)*cont->nrverts*4, RC_ALLOC_PERM);
+					cont->nrverts = static_cast<int>(verts.size()) / 4;
+					cont->rverts = static_cast<int*>(rcAlloc(sizeof(int) * cont->nrverts * 4, RC_ALLOC_PERM));
 					if (!cont->rverts)
 					{
 						ctx->log(RC_LOG_ERROR, "rcBuildContours: Out of memory 'rverts' (%d).", cont->nrverts);

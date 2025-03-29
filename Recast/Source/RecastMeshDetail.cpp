@@ -858,7 +858,7 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 		// Add the samples starting from the one that has the most
 		// error. The procedure stops when all samples are added
 		// or when the max error is within treshold.
-		const int nsamples = samples.size()/4;
+		const int nsamples = static_cast<int>(samples.size()) / 4;
 		for (int iter = 0; iter < nsamples; ++iter)
 		{
 			if (nverts >= MAX_VERTS)
@@ -878,7 +878,7 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 				pt[0] = s[0]*sampleDist + getJitterX(i)*cs*0.1f;
 				pt[1] = s[1]*chf.ch;
 				pt[2] = s[2]*sampleDist + getJitterY(i)*cs*0.1f;
-				float d = distToTriMesh(pt, verts, nverts, &tris[0], tris.size()/4);
+				float d = distToTriMesh(pt, verts, nverts, &tris[0], static_cast<int>(tris.size()) / 4);
 				if (d < 0) continue; // did not hit the mesh.
 				if (d > bestd)
 				{
@@ -904,7 +904,7 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 		}
 	}
 	
-	const int ntris = tris.size()/4;
+	const int ntris = static_cast<int>(tris.size()) / 4;
 	if (ntris > MAX_TRIS)
 	{
 		tris.resize(MAX_TRIS*4);
@@ -1335,7 +1335,7 @@ bool rcBuildPolyMeshDetail(rcContext* ctx, const rcPolyMesh& mesh, const rcCompa
 		}
 		
 		// Store detail submesh.
-		const int ntris = tris.size()/4;
+		const int ntris = static_cast<int>(tris.size()) / 4;
 		
 		dmesh.meshes[i*4+0] = (unsigned int)dmesh.nverts;
 		dmesh.meshes[i*4+1] = (unsigned int)nverts;
