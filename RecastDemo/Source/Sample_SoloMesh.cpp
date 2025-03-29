@@ -126,23 +126,23 @@ void Sample_SoloMesh::handleDebugMode()
 {
 	imguiLabel("Draw");
 #define DRAW_OPTION(name, value, condition) if (imguiCheck(name, m_drawMode == (value), (condition))) { m_drawMode = value; }
-	DRAW_OPTION("Input Mesh", DRAWMODE_MESH, true)
-	DRAW_OPTION("Navmesh", DRAWMODE_NAVMESH, m_navMesh != nullptr)
-	DRAW_OPTION("Navmesh Invis", DRAWMODE_NAVMESH_INVIS, m_navMesh != nullptr)
-	DRAW_OPTION("Navmesh Trans", DRAWMODE_NAVMESH_TRANS, m_navMesh != nullptr)
-	DRAW_OPTION("Navmesh BVTree", DRAWMODE_NAVMESH_BVTREE, m_navMesh != nullptr)
-	DRAW_OPTION("Navmesh Nodes", DRAWMODE_NAVMESH_NODES, m_navQuery != nullptr)
-	DRAW_OPTION("Voxels", DRAWMODE_VOXELS, m_solid != nullptr)
-	DRAW_OPTION("Walkable Voxels", DRAWMODE_VOXELS_WALKABLE, m_solid != nullptr)
-	DRAW_OPTION("Compact", DRAWMODE_COMPACT, m_chf != nullptr)
-	DRAW_OPTION("Compact Distance", DRAWMODE_COMPACT_DISTANCE, m_chf != nullptr)
-	DRAW_OPTION("Compact Regions", DRAWMODE_COMPACT_REGIONS, m_chf != nullptr)
-	DRAW_OPTION("Region Connections", DRAWMODE_REGION_CONNECTIONS, m_cset != nullptr)
-	DRAW_OPTION("Raw Contours", DRAWMODE_RAW_CONTOURS, m_cset != nullptr)
-	DRAW_OPTION("Both Contours", DRAWMODE_BOTH_CONTOURS, m_cset != nullptr)
-	DRAW_OPTION("Contours", DRAWMODE_CONTOURS, m_cset != nullptr)
-	DRAW_OPTION("Poly Mesh", DRAWMODE_POLYMESH, m_pmesh != nullptr)
-	DRAW_OPTION("Poly Mesh Detail", DRAWMODE_POLYMESH_DETAIL, m_dmesh != nullptr)
+	DRAW_OPTION("Input Mesh", DrawMode::MESH, true)
+	DRAW_OPTION("Navmesh", DrawMode::NAVMESH, m_navMesh != nullptr)
+	DRAW_OPTION("Navmesh Invis", DrawMode::NAVMESH_INVIS, m_navMesh != nullptr)
+	DRAW_OPTION("Navmesh Trans", DrawMode::NAVMESH_TRANS, m_navMesh != nullptr)
+	DRAW_OPTION("Navmesh BVTree", DrawMode::NAVMESH_BVTREE, m_navMesh != nullptr)
+	DRAW_OPTION("Navmesh Nodes", DrawMode::NAVMESH_NODES, m_navQuery != nullptr)
+	DRAW_OPTION("Voxels", DrawMode::VOXELS, m_solid != nullptr)
+	DRAW_OPTION("Walkable Voxels", DrawMode::VOXELS_WALKABLE, m_solid != nullptr)
+	DRAW_OPTION("Compact", DrawMode::COMPACT, m_chf != nullptr)
+	DRAW_OPTION("Compact Distance", DrawMode::COMPACT_DISTANCE, m_chf != nullptr)
+	DRAW_OPTION("Compact Regions", DrawMode::COMPACT_REGIONS, m_chf != nullptr)
+	DRAW_OPTION("Region Connections", DrawMode::REGION_CONNECTIONS, m_cset != nullptr)
+	DRAW_OPTION("Raw Contours", DrawMode::RAW_CONTOURS, m_cset != nullptr)
+	DRAW_OPTION("Both Contours", DrawMode::BOTH_CONTOURS, m_cset != nullptr)
+	DRAW_OPTION("Contours", DrawMode::CONTOURS, m_cset != nullptr)
+	DRAW_OPTION("Poly Mesh", DrawMode::POLYMESH, m_pmesh != nullptr)
+	DRAW_OPTION("Poly Mesh Detail", DrawMode::POLYMESH_DETAIL, m_dmesh != nullptr)
 #undef DRAW_OPTION
 }
 
@@ -158,7 +158,7 @@ void Sample_SoloMesh::handleRender()
 
 	const float texScale = 1.0f / (m_cellSize * 10.0f);
 
-	if (m_drawMode != DRAWMODE_NAVMESH_TRANS)
+	if (m_drawMode != DrawMode::NAVMESH_TRANS)
 	{
 		// Draw mesh
 		duDebugDrawTriMeshSlope(&m_dd, m_geom->getMesh()->getVerts(), m_geom->getMesh()->getVertCount(),
@@ -171,29 +171,29 @@ void Sample_SoloMesh::handleRender()
 	glDepthMask(GL_FALSE);
 
 	// Draw bounds
-	const float* bmin = m_geom->getNavMeshBoundsMin();
-	const float* bmax = m_geom->getNavMeshBoundsMax();
-	duDebugDrawBoxWire(&m_dd, bmin[0],bmin[1],bmin[2], bmax[0],bmax[1],bmax[2], duRGBA(255,255,255,128), 1.0f);
+	const float* navmeshBoundsMin = m_geom->getNavMeshBoundsMin();
+	const float* navmeshBoundsMax = m_geom->getNavMeshBoundsMax();
+	duDebugDrawBoxWire(&m_dd, navmeshBoundsMin[0],navmeshBoundsMin[1],navmeshBoundsMin[2], navmeshBoundsMax[0],navmeshBoundsMax[1],navmeshBoundsMax[2], duRGBA(255,255,255,128), 1.0f);
 	m_dd.begin(DU_DRAW_POINTS, 5.0f);
-	m_dd.vertex(bmin[0],bmin[1],bmin[2],duRGBA(255,255,255,128));
+	m_dd.vertex(navmeshBoundsMin[0],navmeshBoundsMin[1],navmeshBoundsMin[2],duRGBA(255,255,255,128));
 	m_dd.end();
 
 	if (m_navMesh && m_navQuery &&
-		(m_drawMode == DRAWMODE_NAVMESH ||
-		m_drawMode == DRAWMODE_NAVMESH_TRANS ||
-		m_drawMode == DRAWMODE_NAVMESH_BVTREE ||
-		 m_drawMode == DRAWMODE_NAVMESH_NODES ||
-		m_drawMode == DRAWMODE_NAVMESH_INVIS))
+	    (m_drawMode == DrawMode::NAVMESH ||
+	     m_drawMode == DrawMode::NAVMESH_TRANS ||
+	     m_drawMode == DrawMode::NAVMESH_BVTREE ||
+	     m_drawMode == DrawMode::NAVMESH_NODES ||
+	     m_drawMode == DrawMode::NAVMESH_INVIS))
 	{
-		if (m_drawMode != DRAWMODE_NAVMESH_INVIS)
+		if (m_drawMode != DrawMode::NAVMESH_INVIS)
 		{
 			duDebugDrawNavMeshWithClosedList(&m_dd, *m_navMesh, *m_navQuery, m_navMeshDrawFlags);
 		}
-		if (m_drawMode == DRAWMODE_NAVMESH_BVTREE)
+		if (m_drawMode == DrawMode::NAVMESH_BVTREE)
 		{
 			duDebugDrawNavMeshBVTree(&m_dd, *m_navMesh);
 		}
-		if (m_drawMode == DRAWMODE_NAVMESH_NODES)
+		if (m_drawMode == DrawMode::NAVMESH_NODES)
 		{
 			duDebugDrawNavMeshNodes(&m_dd, *m_navQuery);
 		}
@@ -202,51 +202,51 @@ void Sample_SoloMesh::handleRender()
 
 	glDepthMask(GL_TRUE);
 
-	if (m_chf && m_drawMode == DRAWMODE_COMPACT)
+	if (m_chf && m_drawMode == DrawMode::COMPACT)
 	{
 		duDebugDrawCompactHeightfieldSolid(&m_dd, *m_chf);
 	}
 
-	if (m_chf && m_drawMode == DRAWMODE_COMPACT_DISTANCE)
+	if (m_chf && m_drawMode == DrawMode::COMPACT_DISTANCE)
 	{
 		duDebugDrawCompactHeightfieldDistance(&m_dd, *m_chf);
 	}
-	if (m_chf && m_drawMode == DRAWMODE_COMPACT_REGIONS)
+	if (m_chf && m_drawMode == DrawMode::COMPACT_REGIONS)
 	{
 		duDebugDrawCompactHeightfieldRegions(&m_dd, *m_chf);
 	}
-	if (m_solid && m_drawMode == DRAWMODE_VOXELS)
+	if (m_solid && m_drawMode == DrawMode::VOXELS)
 	{
 		glEnable(GL_FOG);
 		duDebugDrawHeightfieldSolid(&m_dd, *m_solid);
 		glDisable(GL_FOG);
 	}
-	if (m_solid && m_drawMode == DRAWMODE_VOXELS_WALKABLE)
+	if (m_solid && m_drawMode == DrawMode::VOXELS_WALKABLE)
 	{
 		glEnable(GL_FOG);
 		duDebugDrawHeightfieldWalkable(&m_dd, *m_solid);
 		glDisable(GL_FOG);
 	}
-	if (m_cset && m_drawMode == DRAWMODE_RAW_CONTOURS)
+	if (m_cset && m_drawMode == DrawMode::RAW_CONTOURS)
 	{
 		glDepthMask(GL_FALSE);
 		duDebugDrawRawContours(&m_dd, *m_cset);
 		glDepthMask(GL_TRUE);
 	}
-	if (m_cset && m_drawMode == DRAWMODE_BOTH_CONTOURS)
+	if (m_cset && m_drawMode == DrawMode::BOTH_CONTOURS)
 	{
 		glDepthMask(GL_FALSE);
 		duDebugDrawRawContours(&m_dd, *m_cset, 0.5f);
 		duDebugDrawContours(&m_dd, *m_cset);
 		glDepthMask(GL_TRUE);
 	}
-	if (m_cset && m_drawMode == DRAWMODE_CONTOURS)
+	if (m_cset && m_drawMode == DrawMode::CONTOURS)
 	{
 		glDepthMask(GL_FALSE);
 		duDebugDrawContours(&m_dd, *m_cset);
 		glDepthMask(GL_TRUE);
 	}
-	if (m_chf && m_cset && m_drawMode == DRAWMODE_REGION_CONNECTIONS)
+	if (m_chf && m_cset && m_drawMode == DrawMode::REGION_CONNECTIONS)
 	{
 		duDebugDrawCompactHeightfieldRegions(&m_dd, *m_chf);
 
@@ -254,13 +254,13 @@ void Sample_SoloMesh::handleRender()
 		duDebugDrawRegionConnections(&m_dd, *m_cset);
 		glDepthMask(GL_TRUE);
 	}
-	if (m_pmesh && m_drawMode == DRAWMODE_POLYMESH)
+	if (m_pmesh && m_drawMode == DrawMode::POLYMESH)
 	{
 		glDepthMask(GL_FALSE);
 		duDebugDrawPolyMesh(&m_dd, *m_pmesh);
 		glDepthMask(GL_TRUE);
 	}
-	if (m_dmesh && m_drawMode == DRAWMODE_POLYMESH_DETAIL)
+	if (m_dmesh && m_drawMode == DrawMode::POLYMESH_DETAIL)
 	{
 		glDepthMask(GL_FALSE);
 		duDebugDrawPolyMeshDetail(&m_dd, *m_dmesh);
@@ -287,12 +287,11 @@ void Sample_SoloMesh::handleRenderOverlay(double* proj, double* model, int* view
 	renderOverlayToolStates(proj, model, view);
 }
 
-void Sample_SoloMesh::handleMeshChanged(class InputGeom* geom)
+void Sample_SoloMesh::handleMeshChanged(InputGeom* geom)
 {
 	Sample::handleMeshChanged(geom);
 
-	dtFreeNavMesh(m_navMesh);
-	m_navMesh = 0;
+	dtFreeNavMesh(m_navMesh); m_navMesh = 0;
 
 	if (m_tool)
 	{
@@ -330,20 +329,20 @@ bool Sample_SoloMesh::handleBuild()
 	m_cfg.cs = m_cellSize;
 	m_cfg.ch = m_cellHeight;
 	m_cfg.walkableSlopeAngle = m_agentMaxSlope;
-	m_cfg.walkableHeight = (int)ceilf(m_agentHeight / m_cfg.ch);
-	m_cfg.walkableClimb = (int)floorf(m_agentMaxClimb / m_cfg.ch);
-	m_cfg.walkableRadius = (int)ceilf(m_agentRadius / m_cfg.cs);
-	m_cfg.maxEdgeLen = (int)(m_edgeMaxLen / m_cellSize);
+	m_cfg.walkableHeight = static_cast<int>(ceilf(m_agentHeight / m_cfg.ch));
+	m_cfg.walkableClimb = static_cast<int>(floorf(m_agentMaxClimb / m_cfg.ch));
+	m_cfg.walkableRadius = static_cast<int>(ceilf(m_agentRadius / m_cfg.cs));
+	m_cfg.maxEdgeLen = static_cast<int>(m_edgeMaxLen / m_cellSize);
 	m_cfg.maxSimplificationError = m_edgeMaxError;
-	m_cfg.minRegionArea = (int)rcSqr(m_regionMinSize);		// Note: area = size*size
-	m_cfg.mergeRegionArea = (int)rcSqr(m_regionMergeSize);	// Note: area = size*size
-	m_cfg.maxVertsPerPoly = (int)m_vertsPerPoly;
+	m_cfg.minRegionArea = static_cast<int>(rcSqr(m_regionMinSize));		// Note: area = size*size
+	m_cfg.mergeRegionArea = static_cast<int>(rcSqr(m_regionMergeSize));	// Note: area = size*size
+	m_cfg.maxVertsPerPoly = static_cast<int>(m_vertsPerPoly);
 	m_cfg.detailSampleDist = m_detailSampleDist < 0.9f ? 0 : m_cellSize * m_detailSampleDist;
 	m_cfg.detailSampleMaxError = m_cellHeight * m_detailSampleMaxError;
 
-	// Set the area where the navigation will be build.
+	// Set the area where the navigation will be built.
 	// Here the bounds of the input mesh are used, but the
-	// area could be specified by an user defined box, etc.
+	// area could be specified by a user defined box, etc.
 	rcVcopy(m_cfg.bmin, bmin);
 	rcVcopy(m_cfg.bmax, bmax);
 	rcCalcGridSize(m_cfg.bmin, m_cfg.bmax, m_cfg.cs, &m_cfg.width, &m_cfg.height);
