@@ -16,8 +16,10 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <cstdio>
 #include <cmath>
+#include <cstdio>
+#include <string>
+#include <vector>
 
 #include "SDL.h"
 #include "SDL_opengl.h"
@@ -27,21 +29,17 @@
 #	include <GL/glu.h>
 #endif
 
-#include <vector>
-#include <string>
-
 #include "imgui.h"
 #include "imguiRenderGL.h"
 
-#include "Recast.h"
-#include "RecastDebugDraw.h"
-#include "InputGeom.h"
-#include "TestCase.h"
 #include "Filelist.h"
-#include "Sample_SoloMesh.h"
-#include "Sample_TileMesh.h"
-#include "Sample_TempObstacles.h"
+#include "InputGeom.h"
+#include "Recast.h"
 #include "Sample_Debug.h"
+#include "Sample_SoloMesh.h"
+#include "Sample_TempObstacles.h"
+#include "Sample_TileMesh.h"
+#include "TestCase.h"
 
 #ifdef WIN32
 #	define snprintf _snprintf
