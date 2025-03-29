@@ -25,7 +25,6 @@ workspace "recastnavigation"
 	rtti "Off"
 	symbols "On"
 	flags { "FatalCompileWarnings" }
-	cppdialect "C++98"
 
 	-- debug configs
 	filter "configurations:Debug"
@@ -58,6 +57,7 @@ workspace "recastnavigation"
 
 project "DebugUtils"
 	language "C++"
+	cppdialect "C++98"
 	kind "StaticLib"
 	includedirs { 
 		"../DebugUtils/Include",
@@ -72,6 +72,7 @@ project "DebugUtils"
 
 project "Detour"
 	language "C++"
+	cppdialect "C++98"
 	kind "StaticLib"
 	includedirs { 
 		"../Detour/Include" 
@@ -89,6 +90,7 @@ project "Detour"
 
 project "DetourCrowd"
 	language "C++"
+	cppdialect "C++98"
 	kind "StaticLib"
 	includedirs {
 		"../DetourCrowd/Include",
@@ -102,6 +104,7 @@ project "DetourCrowd"
 
 project "DetourTileCache"
 	language "C++"
+	cppdialect "C++98"
 	kind "StaticLib"
 	includedirs {
 		"../DetourTileCache/Include",
@@ -115,6 +118,7 @@ project "DetourTileCache"
 
 project "Recast"
 	language "C++"
+	cppdialect "C++98"
 	kind "StaticLib"
 	includedirs { 
 		"../Recast/Include" 
@@ -126,6 +130,7 @@ project "Recast"
 
 project "RecastDemo"
 	language "C++"
+	cppdialect "C++20" -- we don't care about this being compatible in the same way we do with the library code.
 	kind "WindowedApp"
 	includedirs { 
 		"../RecastDemo/Include",
@@ -203,8 +208,8 @@ project "RecastDemo"
 
 project "Tests"
 	language "C++"
+	cppdialect "C++20" -- Catch requires newer C++ features
 	kind "ConsoleApp"
-	cppdialect "C++14" -- Catch requires newer C++ features
 
 	-- Catch requires RTTI and exceptions
 	exceptionhandling "On"
