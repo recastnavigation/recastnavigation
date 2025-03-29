@@ -19,10 +19,12 @@
 #ifndef SAMPLEINTERFACES_H
 #define SAMPLEINTERFACES_H
 
+#include <cstdio>
+
 #include "DebugDraw.h"
+#include "PerfTimer.h"
 #include "Recast.h"
 #include "RecastDump.h"
-#include "PerfTimer.h"
 
 // These are example implementations of various interfaces used in Recast and Detour.
 
@@ -35,6 +37,7 @@ class BuildContext : public rcContext
 	static const int MAX_MESSAGES = 1000;
 	const char* m_messages[MAX_MESSAGES];
 	int m_messageCount;
+
 	static const int TEXT_POOL_SIZE = 8000;
 	char m_textPool[TEXT_POOL_SIZE];
 	int m_textPoolSize;
@@ -53,11 +56,11 @@ protected:
 	/// Virtual functions for custom implementations.
 	///@{
 	virtual void doResetLog();
-	virtual void doLog(const rcLogCategory category, const char* msg, const int len);
+	virtual void doLog(rcLogCategory category, const char* msg, const int len);
 	virtual void doResetTimers();
-	virtual void doStartTimer(const rcTimerLabel label);
-	virtual void doStopTimer(const rcTimerLabel label);
-	virtual int doGetAccumulatedTime(const rcTimerLabel label) const;
+	virtual void doStartTimer(rcTimerLabel label);
+	virtual void doStopTimer(rcTimerLabel label);
+	virtual int doGetAccumulatedTime(rcTimerLabel label) const;
 	///@}
 };
 
@@ -69,9 +72,9 @@ public:
 	virtual void texture(bool state);
 	virtual void begin(duDebugDrawPrimitives prim, float size = 1.0f);
 	virtual void vertex(const float* pos, unsigned int color);
-	virtual void vertex(const float x, const float y, const float z, unsigned int color);
+	virtual void vertex(float x, float y, float z, unsigned int color);
 	virtual void vertex(const float* pos, unsigned int color, const float* uv);
-	virtual void vertex(const float x, const float y, const float z, unsigned int color, const float u, const float v);
+	virtual void vertex(float x, float y, float z, unsigned int color, float u, float v);
 	virtual void end();
 };
 
