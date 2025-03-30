@@ -76,9 +76,6 @@ protected:
 	
 	void cleanup();
 	
-	void saveAll(const char* path, const dtNavMesh* mesh);
-	dtNavMesh* loadAll(const char* path);
-	
 public:
 	Sample_TileMesh();
 	~Sample_TileMesh() override;
@@ -96,7 +93,7 @@ public:
 	bool handleBuild() override;
 	void collectSettings(BuildSettings& settings) override;
 	
-	void getTilePos(const float* pos, int& tx, int& ty);
+	void getTilePos(const float* pos, int& tx, int& ty) const;
 	
 	void buildTile(const float* pos);
 	void removeTile(const float* pos);
