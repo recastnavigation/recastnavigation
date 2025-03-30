@@ -2,8 +2,8 @@ file(GLOB SOURCES Source/*.cpp Contrib/fastlz/fastlz.c)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
-if(NOT SDL2_ROOT_DIR)
-  if(WIN32)
+if (NOT SDL2_ROOT_DIR)
+  if (WIN32)
     set(SDL2_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Contrib/SDL")
   elseif(APPLE)
     set(SDL2_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Bin")
@@ -11,7 +11,7 @@ if(NOT SDL2_ROOT_DIR)
 endif()
 
 find_package(OpenGL REQUIRED)
-if(APPLE)
+if (APPLE)
   find_library(SDL2_LIBRARY 
     NAMES SDL2
     PATHS ${SDL2_ROOT_DIR}
@@ -30,20 +30,26 @@ include_directories(../DetourTileCache/Include)
 include_directories(../Recast/Include)
 include_directories(Include)
 include_directories(Contrib/SDL/include)
-if(APPLE)
+if (APPLE)
   include_directories(${SDL2_LIBRARY}/Headers)
 endif()
 
 if (WIN32)
     add_executable(RecastDemo WIN32 ${SOURCES})
-elseif(APPLE)
+elseif (APPLE)
     add_executable(RecastDemo MACOSX_BUNDLE ${SOURCES})
 else()
     add_executable(RecastDemo ${SOURCES})
 endif()
 
-if( WIN32 )
-  if ( "${CMAKE_MAKE_PROGRAM}" MATCHES "MSBuild" )
+set_target_properties(RecastDemo PROPERTIES
+    CXX_STANDARD 20
+    CXX_STANDARD_REQUIRED ON
+    CXX_EXTENSIONS OFF  # Disable compiler-specific extensions
+)
+
+if (WIN32)
+  if ("${CMAKE_MAKE_PROGRAM}" MATCHES "MSBuild")
     add_custom_command(TARGET RecastDemo
       POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy "${SDL2_RUNTIME_LIBRARY}" ${CMAKE_BINARY_DIR}/RecastDemo/$(ConfigurationName)/
@@ -51,7 +57,7 @@ if( WIN32 )
       COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/Bin/TestCases ${CMAKE_BINARY_DIR}/RecastDemo/$(ConfigurationName)/TestCases
       COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/Bin/DroidSans.ttf ${CMAKE_BINARY_DIR}/RecastDemo/$(ConfigurationName)/
     )
-  elseif ( MINGW )
+  elseif (MINGW)
     add_custom_command(TARGET RecastDemo
       POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy "${SDL2_RUNTIME_LIBRARY}" ${CMAKE_BINARY_DIR}/RecastDemo/
@@ -66,14 +72,12 @@ else()
     file(COPY Bin/DroidSans.ttf DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
-
 add_dependencies(RecastDemo DebugUtils Detour DetourCrowd DetourTileCache Recast)
-if(APPLE)
+if (APPLE)
   target_link_libraries(RecastDemo ${OPENGL_LIBRARIES} ${SDL2_LIBRARY} DebugUtils Detour DetourCrowd DetourTileCache Recast)
 else()
   target_link_libraries(RecastDemo ${OPENGL_LIBRARIES} SDL2::SDL2main DebugUtils Detour DetourCrowd DetourTileCache Recast)
 endif()
-
 
 install(TARGETS RecastDemo
         RUNTIME DESTINATION bin
