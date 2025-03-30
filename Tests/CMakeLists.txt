@@ -19,8 +19,12 @@ set_target_properties(Tests PROPERTIES
 add_dependencies(Tests Recast Detour DetourCrowd)
 target_link_libraries(Tests Recast Detour DetourCrowd)
 
-# Use bundled catch2 rather than a possibly incompatible version installed elsewhere.
-include_directories(./Contrib)
-target_sources(Tests PRIVATE Contrib/catch2/catch_amalgamated.cpp)
+find_package(Catch2 QUIET)
+if (Catch2_FOUND)
+	target_link_libraries(Tests Catch2::Catch2WithMain)
+else()
+	include_directories(./Contrib)
+	target_sources(Tests PRIVATE Contrib/catch2/catch_amalgamated.cpp)
+endif()
 
 add_test(Tests Tests)
