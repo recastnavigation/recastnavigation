@@ -291,24 +291,24 @@ void Sample_TileMesh::UI_DrawModeOption(const char* name, DrawMode drawMode, boo
 void Sample_TileMesh::handleDebugMode()
 {
 	imguiLabel("Draw");
-	UI_DrawModeOption("Input Mesh", DRAWMODE_MESH, true);
-	UI_DrawModeOption("Navmesh", DRAWMODE_NAVMESH, m_navMesh != nullptr);
-	UI_DrawModeOption("Navmesh Invis", DRAWMODE_NAVMESH_INVIS, m_navMesh != nullptr);
-	UI_DrawModeOption("Navmesh Trans", DRAWMODE_NAVMESH_TRANS, m_navMesh != nullptr);
-	UI_DrawModeOption("Navmesh BVTree", DRAWMODE_NAVMESH_BVTREE, m_navMesh != nullptr);
-	UI_DrawModeOption("Navmesh Nodes", DRAWMODE_NAVMESH_NODES, m_navQuery != nullptr);
-	UI_DrawModeOption("Navmesh Portals", DRAWMODE_NAVMESH_PORTALS, m_navMesh != nullptr);
-	UI_DrawModeOption("Voxels", DRAWMODE_VOXELS, m_heightfield != nullptr);
-	UI_DrawModeOption("Walkable Voxels", DRAWMODE_VOXELS_WALKABLE, m_heightfield != nullptr);
-	UI_DrawModeOption("Compact", DRAWMODE_COMPACT, m_compactHeightfield != nullptr);
-	UI_DrawModeOption("Compact Distance", DRAWMODE_COMPACT_DISTANCE, m_compactHeightfield != nullptr);
-	UI_DrawModeOption("Compact Regions", DRAWMODE_COMPACT_REGIONS, m_compactHeightfield != nullptr);
-	UI_DrawModeOption("Region Connections", DRAWMODE_REGION_CONNECTIONS, m_contourSet != nullptr);
-	UI_DrawModeOption("Raw Contours", DRAWMODE_RAW_CONTOURS, m_contourSet != nullptr);
-	UI_DrawModeOption("Both Contours", DRAWMODE_BOTH_CONTOURS, m_contourSet != nullptr);
-	UI_DrawModeOption("Contours", DRAWMODE_CONTOURS, m_contourSet != nullptr);
-	UI_DrawModeOption("Poly Mesh", DRAWMODE_POLYMESH, m_polyMesh != nullptr);
-	UI_DrawModeOption("Poly Mesh Detail", DRAWMODE_POLYMESH_DETAIL, m_detailPolyMesh != nullptr);
+	UI_DrawModeOption("Input Mesh", DrawMode::MESH, true);
+	UI_DrawModeOption("Navmesh", DrawMode::NAVMESH, m_navMesh != nullptr);
+	UI_DrawModeOption("Navmesh Invis", DrawMode::NAVMESH_INVIS, m_navMesh != nullptr);
+	UI_DrawModeOption("Navmesh Trans", DrawMode::NAVMESH_TRANS, m_navMesh != nullptr);
+	UI_DrawModeOption("Navmesh BVTree", DrawMode::NAVMESH_BVTREE, m_navMesh != nullptr);
+	UI_DrawModeOption("Navmesh Nodes", DrawMode::NAVMESH_NODES, m_navQuery != nullptr);
+	UI_DrawModeOption("Navmesh Portals", DrawMode::NAVMESH_PORTALS, m_navMesh != nullptr);
+	UI_DrawModeOption("Voxels", DrawMode::VOXELS, m_heightfield != nullptr);
+	UI_DrawModeOption("Walkable Voxels", DrawMode::VOXELS_WALKABLE, m_heightfield != nullptr);
+	UI_DrawModeOption("Compact", DrawMode::COMPACT, m_compactHeightfield != nullptr);
+	UI_DrawModeOption("Compact Distance", DrawMode::COMPACT_DISTANCE, m_compactHeightfield != nullptr);
+	UI_DrawModeOption("Compact Regions", DrawMode::COMPACT_REGIONS, m_compactHeightfield != nullptr);
+	UI_DrawModeOption("Region Connections", DrawMode::REGION_CONNECTIONS, m_contourSet != nullptr);
+	UI_DrawModeOption("Raw Contours", DrawMode::RAW_CONTOURS, m_contourSet != nullptr);
+	UI_DrawModeOption("Both Contours", DrawMode::BOTH_CONTOURS, m_contourSet != nullptr);
+	UI_DrawModeOption("Contours", DrawMode::CONTOURS, m_contourSet != nullptr);
+	UI_DrawModeOption("Poly Mesh", DrawMode::POLYMESH, m_polyMesh != nullptr);
+	UI_DrawModeOption("Poly Mesh Detail", DrawMode::POLYMESH_DETAIL, m_detailPolyMesh != nullptr);
 }
 
 void Sample_TileMesh::handleRender()
@@ -318,7 +318,7 @@ void Sample_TileMesh::handleRender()
 	const float texScale = 1.0f / (m_cellSize * 10.0f);
 
 	// Draw mesh
-	if (m_drawMode != DRAWMODE_NAVMESH_TRANS)
+	if (m_drawMode != DrawMode::NAVMESH_TRANS)
 	{
 		// Draw mesh
 		duDebugDrawTriMeshSlope(
@@ -367,36 +367,36 @@ void Sample_TileMesh::handleRender()
 	// Draw active tile
 	duDebugDrawBoxWire(
 		&m_dd,
-		m_lastBuiltTileBmin[0],
-		m_lastBuiltTileBmin[1],
-		m_lastBuiltTileBmin[2],
-		m_lastBuiltTileBmax[0],
-		m_lastBuiltTileBmax[1],
-		m_lastBuiltTileBmax[2],
-		m_tileCol,
+		m_lastBuiltTileBoundsMin[0],
+		m_lastBuiltTileBoundsMin[1],
+		m_lastBuiltTileBoundsMin[2],
+		m_lastBuiltTileBoundsMax[0],
+		m_lastBuiltTileBoundsMax[1],
+		m_lastBuiltTileBoundsMax[2],
+		m_tileColor,
 		1.0f);
 
 	if (m_navMesh && m_navQuery &&
-	    (m_drawMode == DRAWMODE_NAVMESH ||
-	     m_drawMode == DRAWMODE_NAVMESH_TRANS ||
-	     m_drawMode == DRAWMODE_NAVMESH_BVTREE ||
-	     m_drawMode == DRAWMODE_NAVMESH_NODES ||
-	     m_drawMode == DRAWMODE_NAVMESH_PORTALS ||
-	     m_drawMode == DRAWMODE_NAVMESH_INVIS))
+	    (m_drawMode == DrawMode::NAVMESH ||
+	     m_drawMode == DrawMode::NAVMESH_TRANS ||
+	     m_drawMode == DrawMode::NAVMESH_BVTREE ||
+	     m_drawMode == DrawMode::NAVMESH_NODES ||
+	     m_drawMode == DrawMode::NAVMESH_PORTALS ||
+	     m_drawMode == DrawMode::NAVMESH_INVIS))
 	{
-		if (m_drawMode != DRAWMODE_NAVMESH_INVIS)
+		if (m_drawMode != DrawMode::NAVMESH_INVIS)
 		{
 			duDebugDrawNavMeshWithClosedList(&m_dd, *m_navMesh, *m_navQuery, m_navMeshDrawFlags);
 		}
-		if (m_drawMode == DRAWMODE_NAVMESH_BVTREE)
+		if (m_drawMode == DrawMode::NAVMESH_BVTREE)
 		{
 			duDebugDrawNavMeshBVTree(&m_dd, *m_navMesh);
 		}
-		if (m_drawMode == DRAWMODE_NAVMESH_PORTALS)
+		if (m_drawMode == DrawMode::NAVMESH_PORTALS)
 		{
 			duDebugDrawNavMeshPortals(&m_dd, *m_navMesh);
 		}
-		if (m_drawMode == DRAWMODE_NAVMESH_NODES)
+		if (m_drawMode == DrawMode::NAVMESH_NODES)
 		{
 			duDebugDrawNavMeshNodes(&m_dd, *m_navQuery);
 		}
@@ -405,53 +405,53 @@ void Sample_TileMesh::handleRender()
 
 	glDepthMask(GL_TRUE);
 
-	if (m_compactHeightfield && m_drawMode == DRAWMODE_COMPACT)
+	if (m_compactHeightfield && m_drawMode == DrawMode::COMPACT)
 	{
 		duDebugDrawCompactHeightfieldSolid(&m_dd, *m_compactHeightfield);
 	}
 
-	if (m_compactHeightfield && m_drawMode == DRAWMODE_COMPACT_DISTANCE)
+	if (m_compactHeightfield && m_drawMode == DrawMode::COMPACT_DISTANCE)
 	{
 		duDebugDrawCompactHeightfieldDistance(&m_dd, *m_compactHeightfield);
 	}
-	if (m_compactHeightfield && m_drawMode == DRAWMODE_COMPACT_REGIONS)
+	if (m_compactHeightfield && m_drawMode == DrawMode::COMPACT_REGIONS)
 	{
 		duDebugDrawCompactHeightfieldRegions(&m_dd, *m_compactHeightfield);
 	}
-	if (m_heightfield && m_drawMode == DRAWMODE_VOXELS)
+	if (m_heightfield && m_drawMode == DrawMode::VOXELS)
 	{
 		glEnable(GL_FOG);
 		duDebugDrawHeightfieldSolid(&m_dd, *m_heightfield);
 		glDisable(GL_FOG);
 	}
-	if (m_heightfield && m_drawMode == DRAWMODE_VOXELS_WALKABLE)
+	if (m_heightfield && m_drawMode == DrawMode::VOXELS_WALKABLE)
 	{
 		glEnable(GL_FOG);
 		duDebugDrawHeightfieldWalkable(&m_dd, *m_heightfield);
 		glDisable(GL_FOG);
 	}
 
-	if (m_contourSet && m_drawMode == DRAWMODE_RAW_CONTOURS)
+	if (m_contourSet && m_drawMode == DrawMode::RAW_CONTOURS)
 	{
 		glDepthMask(GL_FALSE);
 		duDebugDrawRawContours(&m_dd, *m_contourSet);
 		glDepthMask(GL_TRUE);
 	}
 
-	if (m_contourSet && m_drawMode == DRAWMODE_BOTH_CONTOURS)
+	if (m_contourSet && m_drawMode == DrawMode::BOTH_CONTOURS)
 	{
 		glDepthMask(GL_FALSE);
 		duDebugDrawRawContours(&m_dd, *m_contourSet, 0.5f);
 		duDebugDrawContours(&m_dd, *m_contourSet);
 		glDepthMask(GL_TRUE);
 	}
-	if (m_contourSet && m_drawMode == DRAWMODE_CONTOURS)
+	if (m_contourSet && m_drawMode == DrawMode::CONTOURS)
 	{
 		glDepthMask(GL_FALSE);
 		duDebugDrawContours(&m_dd, *m_contourSet);
 		glDepthMask(GL_TRUE);
 	}
-	if (m_compactHeightfield && m_contourSet && m_drawMode == DRAWMODE_REGION_CONNECTIONS)
+	if (m_compactHeightfield && m_contourSet && m_drawMode == DrawMode::REGION_CONNECTIONS)
 	{
 		duDebugDrawCompactHeightfieldRegions(&m_dd, *m_compactHeightfield);
 
@@ -459,13 +459,13 @@ void Sample_TileMesh::handleRender()
 		duDebugDrawRegionConnections(&m_dd, *m_contourSet);
 		glDepthMask(GL_TRUE);
 	}
-	if (m_polyMesh && m_drawMode == DRAWMODE_POLYMESH)
+	if (m_polyMesh && m_drawMode == DrawMode::POLYMESH)
 	{
 		glDepthMask(GL_FALSE);
 		duDebugDrawPolyMesh(&m_dd, *m_polyMesh);
 		glDepthMask(GL_TRUE);
 	}
-	if (m_detailPolyMesh && m_drawMode == DRAWMODE_POLYMESH_DETAIL)
+	if (m_detailPolyMesh && m_drawMode == DrawMode::POLYMESH_DETAIL)
 	{
 		glDepthMask(GL_FALSE);
 		duDebugDrawPolyMeshDetail(&m_dd, *m_detailPolyMesh);
@@ -489,9 +489,9 @@ void Sample_TileMesh::handleRenderOverlay(double* proj, double* model, int* view
 
 	// Draw start and end point labels
 	const int projectResult = gluProject(
-		static_cast<GLdouble>(m_lastBuiltTileBmin[0] + m_lastBuiltTileBmax[0]) / 2,
-		static_cast<GLdouble>(m_lastBuiltTileBmin[1] + m_lastBuiltTileBmax[1]) / 2,
-		static_cast<GLdouble>(m_lastBuiltTileBmin[2] + m_lastBuiltTileBmax[2]) / 2,
+		static_cast<GLdouble>(m_lastBuiltTileBoundsMin[0] + m_lastBuiltTileBoundsMax[0]) / 2,
+		static_cast<GLdouble>(m_lastBuiltTileBoundsMin[1] + m_lastBuiltTileBoundsMax[1]) / 2,
+		static_cast<GLdouble>(m_lastBuiltTileBoundsMin[2] + m_lastBuiltTileBoundsMax[2]) / 2,
 		model,
 		proj,
 		view,
@@ -606,20 +606,20 @@ void Sample_TileMesh::buildTile(const float* pos)
 	const int tileX = static_cast<int>((pos[0] - navMeshBoundsMin[0]) / tileSize);
 	const int tileY = static_cast<int>((pos[2] - navMeshBoundsMin[2]) / tileSize);
 
-	m_lastBuiltTileBmin[0] = navMeshBoundsMin[0] + static_cast<float>(tileX) * tileSize;
-	m_lastBuiltTileBmin[1] = navMeshBoundsMin[1];
-	m_lastBuiltTileBmin[2] = navMeshBoundsMin[2] + static_cast<float>(tileY) * tileSize;
+	m_lastBuiltTileBoundsMin[0] = navMeshBoundsMin[0] + static_cast<float>(tileX) * tileSize;
+	m_lastBuiltTileBoundsMin[1] = navMeshBoundsMin[1];
+	m_lastBuiltTileBoundsMin[2] = navMeshBoundsMin[2] + static_cast<float>(tileY) * tileSize;
 
-	m_lastBuiltTileBmax[0] = navMeshBoundsMin[0] + static_cast<float>(tileX + 1) * tileSize;
-	m_lastBuiltTileBmax[1] = navMeshBoundsMax[1];
-	m_lastBuiltTileBmax[2] = navMeshBoundsMin[2] + static_cast<float>(tileY + 1) * tileSize;
+	m_lastBuiltTileBoundsMax[0] = navMeshBoundsMin[0] + static_cast<float>(tileX + 1) * tileSize;
+	m_lastBuiltTileBoundsMax[1] = navMeshBoundsMax[1];
+	m_lastBuiltTileBoundsMax[2] = navMeshBoundsMin[2] + static_cast<float>(tileY + 1) * tileSize;
 
-	m_tileCol = duRGBA(255, 255, 255, 64);
+	m_tileColor = duRGBA(255, 255, 255, 64);
 
 	m_ctx->resetLog();
 
 	int tileMeshDataSize = 0;
-	unsigned char* tileMeshData = buildTileMesh(tileX, tileY, m_lastBuiltTileBmin, m_lastBuiltTileBmax, tileMeshDataSize);
+	unsigned char* tileMeshData = buildTileMesh(tileX, tileY, m_lastBuiltTileBoundsMin, m_lastBuiltTileBoundsMax, tileMeshDataSize);
 
 	// Remove any previous data (navmesh owns and deletes the data).
 	m_navMesh->removeTile(m_navMesh->getTileRefAt(tileX, tileY, 0), 0, 0);
@@ -638,15 +638,15 @@ void Sample_TileMesh::buildTile(const float* pos)
 	m_ctx->dumpLog("Build Tile (%d,%d):", tileX, tileY);
 }
 
-void Sample_TileMesh::getTilePos(const float* pos, int& tx, int& ty) const
+void Sample_TileMesh::getTilePos(const float* pos, int& tileX, int& tileY) const
 {
 	if (!m_geom) { return; }
 
 	const float* navMeshBoundsMin = m_geom->getNavMeshBoundsMin();
 
 	const float ts = m_tileSize * m_cellSize;
-	tx = static_cast<int>((pos[0] - navMeshBoundsMin[0]) / ts);
-	ty = static_cast<int>((pos[2] - navMeshBoundsMin[2]) / ts);
+	tileX = static_cast<int>((pos[0] - navMeshBoundsMin[0]) / ts);
+	tileY = static_cast<int>((pos[2] - navMeshBoundsMin[2]) / ts);
 }
 
 void Sample_TileMesh::removeTile(const float* pos)
@@ -661,15 +661,15 @@ void Sample_TileMesh::removeTile(const float* pos)
 	const int tileX = static_cast<int>((pos[0] - navMeshBoundsMin[0]) / tileSize);
 	const int tileY = static_cast<int>((pos[2] - navMeshBoundsMin[2]) / tileSize);
 
-	m_lastBuiltTileBmin[0] = navMeshBoundsMin[0] + static_cast<float>(tileX) * tileSize;
-	m_lastBuiltTileBmin[1] = navMeshBoundsMin[1];
-	m_lastBuiltTileBmin[2] = navMeshBoundsMin[2] + static_cast<float>(tileY) * tileSize;
+	m_lastBuiltTileBoundsMin[0] = navMeshBoundsMin[0] + static_cast<float>(tileX) * tileSize;
+	m_lastBuiltTileBoundsMin[1] = navMeshBoundsMin[1];
+	m_lastBuiltTileBoundsMin[2] = navMeshBoundsMin[2] + static_cast<float>(tileY) * tileSize;
 
-	m_lastBuiltTileBmax[0] = navMeshBoundsMin[0] + static_cast<float>(tileX + 1) * tileSize;
-	m_lastBuiltTileBmax[1] = navmeshBoundsMax[1];
-	m_lastBuiltTileBmax[2] = navMeshBoundsMin[2] + static_cast<float>(tileY + 1) * tileSize;
+	m_lastBuiltTileBoundsMax[0] = navMeshBoundsMin[0] + static_cast<float>(tileX + 1) * tileSize;
+	m_lastBuiltTileBoundsMax[1] = navmeshBoundsMax[1];
+	m_lastBuiltTileBoundsMax[2] = navMeshBoundsMin[2] + static_cast<float>(tileY + 1) * tileSize;
 
-	m_tileCol = duRGBA(128, 32, 16, 64);
+	m_tileColor = duRGBA(128, 32, 16, 64);
 
 	m_navMesh->removeTile(m_navMesh->getTileRefAt(tileX, tileY, 0), 0, 0);
 }
@@ -696,16 +696,16 @@ void Sample_TileMesh::buildAllTiles()
 	{
 		for (int x = 0; x < tileWidth; ++x)
 		{
-			m_lastBuiltTileBmin[0] = navMeshBoundsMin[0] + static_cast<float>(x) * tileCellSize;
-			m_lastBuiltTileBmin[1] = navMeshBoundsMin[1];
-			m_lastBuiltTileBmin[2] = navMeshBoundsMin[2] + static_cast<float>(y) * tileCellSize;
+			m_lastBuiltTileBoundsMin[0] = navMeshBoundsMin[0] + static_cast<float>(x) * tileCellSize;
+			m_lastBuiltTileBoundsMin[1] = navMeshBoundsMin[1];
+			m_lastBuiltTileBoundsMin[2] = navMeshBoundsMin[2] + static_cast<float>(y) * tileCellSize;
 
-			m_lastBuiltTileBmax[0] = navMeshBoundsMin[0] + static_cast<float>(x + 1) * tileCellSize;
-			m_lastBuiltTileBmax[1] = navMeshBoundsMax[1];
-			m_lastBuiltTileBmax[2] = navMeshBoundsMin[2] + static_cast<float>(y + 1) * tileCellSize;
+			m_lastBuiltTileBoundsMax[0] = navMeshBoundsMin[0] + static_cast<float>(x + 1) * tileCellSize;
+			m_lastBuiltTileBoundsMax[1] = navMeshBoundsMax[1];
+			m_lastBuiltTileBoundsMax[2] = navMeshBoundsMin[2] + static_cast<float>(y + 1) * tileCellSize;
 
 			int tileMeshDataSize = 0;
-			unsigned char* tileMeshData = buildTileMesh(x, y, m_lastBuiltTileBmin, m_lastBuiltTileBmax, tileMeshDataSize);
+			unsigned char* tileMeshData = buildTileMesh(x, y, m_lastBuiltTileBoundsMin, m_lastBuiltTileBoundsMax, tileMeshDataSize);
 			if (!tileMeshData) { continue; }
 
 			// Remove any previous data (navmesh owns and deletes the data).
@@ -746,7 +746,7 @@ void Sample_TileMesh::removeAllTiles() const
 	}
 }
 
-unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const float* bmin, const float* bmax, int& dataSize)
+unsigned char* Sample_TileMesh::buildTileMesh(const int tileX, const int tileY, const float* boundsMin, const float* boundsMax, int& outDataSize)
 {
 	if (!m_geom || !m_geom->getMesh() || !m_geom->getChunkyMesh())
 	{
@@ -805,8 +805,8 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 	// For example if you build a navmesh for terrain, and want the navmesh tiles to match the terrain tile size
 	// you will need to pass in data from neighbour terrain tiles too! In a simple case, just pass in all the 8 neighbours,
 	// or use the bounding box below to only pass in a sliver of each of the 8 neighbours.
-	rcVcopy(m_config.bmin, bmin);
-	rcVcopy(m_config.bmax, bmax);
+	rcVcopy(m_config.bmin, boundsMin);
+	rcVcopy(m_config.bmax, boundsMax);
 	m_config.bmin[0] -= static_cast<float>(m_config.borderSize) * m_config.cs;
 	m_config.bmin[2] -= static_cast<float>(m_config.borderSize) * m_config.cs;
 	m_config.bmax[0] += static_cast<float>(m_config.borderSize) * m_config.cs;
@@ -1105,8 +1105,8 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 		params.walkableHeight = m_agentHeight;
 		params.walkableRadius = m_agentRadius;
 		params.walkableClimb = m_agentMaxClimb;
-		params.tileX = tx;
-		params.tileY = ty;
+		params.tileX = tileX;
+		params.tileY = tileY;
 		params.tileLayer = 0;
 		rcVcopy(params.bmin, m_polyMesh->bmin);
 		rcVcopy(params.bmax, m_polyMesh->bmax);
@@ -1130,6 +1130,6 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tx, const int ty, const 
 
 	m_tileBuildTime = static_cast<float>(m_ctx->getAccumulatedTime(RC_TIMER_TOTAL)) / 1000.0f;
 
-	dataSize = navDataSize;
+	outDataSize = navDataSize;
 	return navData;
 }

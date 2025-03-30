@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include <cstdint>
+
 #include "Recast.h"
 #include "Sample.h"
 
@@ -36,45 +38,44 @@ protected:
 	rcPolyMeshDetail* m_detailPolyMesh = nullptr;
 	rcConfig m_config {};
 	
-	enum DrawMode
+	enum class DrawMode : uint8_t
 	{
-		DRAWMODE_NAVMESH,
-		DRAWMODE_NAVMESH_TRANS,
-		DRAWMODE_NAVMESH_BVTREE,
-		DRAWMODE_NAVMESH_NODES,
-		DRAWMODE_NAVMESH_PORTALS,
-		DRAWMODE_NAVMESH_INVIS,
-		DRAWMODE_MESH,
-		DRAWMODE_VOXELS,
-		DRAWMODE_VOXELS_WALKABLE,
-		DRAWMODE_COMPACT,
-		DRAWMODE_COMPACT_DISTANCE,
-		DRAWMODE_COMPACT_REGIONS,
-		DRAWMODE_REGION_CONNECTIONS,
-		DRAWMODE_RAW_CONTOURS,
-		DRAWMODE_BOTH_CONTOURS,
-		DRAWMODE_CONTOURS,
-		DRAWMODE_POLYMESH,
-		DRAWMODE_POLYMESH_DETAIL,		
-		MAX_DRAWMODE
+		NAVMESH,
+		NAVMESH_TRANS,
+		NAVMESH_BVTREE,
+		NAVMESH_NODES,
+		NAVMESH_PORTALS,
+		NAVMESH_INVIS,
+		MESH,
+		VOXELS,
+		VOXELS_WALKABLE,
+		COMPACT,
+		COMPACT_DISTANCE,
+		COMPACT_REGIONS,
+		REGION_CONNECTIONS,
+		RAW_CONTOURS,
+		BOTH_CONTOURS,
+		CONTOURS,
+		POLYMESH,
+		POLYMESH_DETAIL
 	};
-		
-	DrawMode m_drawMode = DRAWMODE_NAVMESH;
+	DrawMode m_drawMode = DrawMode::NAVMESH;
 	
 	int m_maxTiles = 0;
 	int m_maxPolysPerTile = 0;
 	float m_tileSize = 32.0f;
 	
-	unsigned int m_tileCol = duRGBA(0,0,0,32);
-	float m_lastBuiltTileBmin[3] = { 0.0f, 0.0f, 0.0f };
-	float m_lastBuiltTileBmax[3] = { 0.0f, 0.0f, 0.0f };
+	unsigned int m_tileColor = duRGBA(0,0,0,32);
+	float m_lastBuiltTileBoundsMin[3] = { 0.0f, 0.0f, 0.0f };
+	float m_lastBuiltTileBoundsMax[3] = { 0.0f, 0.0f, 0.0f };
 	float m_tileBuildTime = 0.0f;
 	float m_tileMemUsage = 0.0f;
 	int m_tileTriCount = 0;
 
-	unsigned char* buildTileMesh(int tx, int ty, const float* bmin, const float* bmax, int& dataSize);
+	unsigned char* buildTileMesh(int tileX, int tileY, const float* boundsMin, const float* boundsMax, int& outDataSize);
 	
 	void cleanup();
+	void UI_DrawModeOption(const char* name, DrawMode drawMode, bool enabled);
 	
 public:
 	Sample_TileMesh();
@@ -93,13 +94,10 @@ public:
 	bool handleBuild() override;
 	void collectSettings(BuildSettings& settings) override;
 	
-	void getTilePos(const float* pos, int& tx, int& ty) const;
+	void getTilePos(const float* pos, int& tileX, int& tileY) const;
 	
 	void buildTile(const float* pos);
 	void removeTile(const float* pos);
 	void buildAllTiles();
 	void removeAllTiles() const;
-
-private:
-	void UI_DrawModeOption(const char* name, DrawMode drawMode, bool enabled);
 };
