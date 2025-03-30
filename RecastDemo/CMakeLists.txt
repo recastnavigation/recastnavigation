@@ -50,6 +50,7 @@ set_target_properties(RecastDemo PROPERTIES
 
 if (WIN32)
   if ("${CMAKE_MAKE_PROGRAM}" MATCHES "MSBuild")
+    target_compile_definitions(RecastDemo PUBLIC _CRT_SECURE_NO_WARNINGS)
     add_custom_command(TARGET RecastDemo
       POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy "${SDL2_RUNTIME_LIBRARY}" ${CMAKE_BINARY_DIR}/RecastDemo/$(ConfigurationName)/
