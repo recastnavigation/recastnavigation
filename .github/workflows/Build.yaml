@@ -192,12 +192,8 @@ jobs:
           - Debug
           - Release
         vs-version:
-          - vs2019
           - vs2022
         include:
-          - vs-version: vs2019
-            cmake-generator: Visual Studio 16 2019
-            runner: windows-2019
           - vs-version: vs2022
             cmake-generator: Visual Studio 17 2022
             runner: windows-2022
