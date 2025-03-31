@@ -16,16 +16,18 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
+#include <math.h>
+#include <stdio.h>
 #include "Sample.h"
-#include <cstdio>
-#include "DetourCrowd.h"
-#include "DetourDebugDraw.h"
-#include "DetourNavMesh.h"
-#include "DetourNavMeshQuery.h"
-#include "imgui.h"
 #include "InputGeom.h"
 #include "Recast.h"
 #include "RecastDebugDraw.h"
+#include "DetourDebugDraw.h"
+#include "DetourNavMesh.h"
+#include "DetourNavMeshQuery.h"
+#include "DetourCrowd.h"
+#include "imgui.h"
+#include "SDL.h"
 #include "SDL_opengl.h"
 
 #ifdef WIN32
