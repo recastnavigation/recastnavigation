@@ -55,18 +55,12 @@ enum SamplePolyAreas
 };
 enum SamplePolyFlags
 {
-	SAMPLE_POLYFLAGS_WALK		= 0x01,		// Ability to walk (ground, grass, road)
-	SAMPLE_POLYFLAGS_SWIM		= 0x02,		// Ability to swim (water).
-	SAMPLE_POLYFLAGS_DOOR		= 0x04,		// Ability to move through doors.
-	SAMPLE_POLYFLAGS_JUMP		= 0x08,		// Ability to jump.
-	SAMPLE_POLYFLAGS_DISABLED	= 0x10,		// Disabled polygon
-	SAMPLE_POLYFLAGS_ALL		= 0xffff	// All abilities.
-};
-
-class SampleDebugDraw : public DebugDrawGL
-{
-public:
-	virtual unsigned int areaToCol(unsigned int area);
+	SAMPLE_POLYFLAGS_WALK		= 1 << 0, //0x01,		// Ability to walk (ground, grass, road)
+	SAMPLE_POLYFLAGS_SWIM		= 1 << 1, //0x02,		// Ability to swim (water).
+	SAMPLE_POLYFLAGS_DOOR		= 1 << 2, //0x04,		// Ability to move through doors.
+	SAMPLE_POLYFLAGS_JUMP		= 1 << 3, //0x08,		// Ability to jump.
+	SAMPLE_POLYFLAGS_DISABLED	= 1 << 4, //0x10,		// Disabled polygon
+	SAMPLE_POLYFLAGS_ALL		= ~0 //0xffff	// All abilities.
 };
 
 enum SamplePartitionType
@@ -74,6 +68,12 @@ enum SamplePartitionType
 	SAMPLE_PARTITION_WATERSHED,
 	SAMPLE_PARTITION_MONOTONE,
 	SAMPLE_PARTITION_LAYERS
+};
+
+class SampleDebugDraw : public DebugDrawGL
+{
+public:
+	virtual unsigned int areaToCol(unsigned int area);
 };
 
 struct SampleTool
@@ -103,7 +103,7 @@ struct SampleToolState {
 class Sample
 {
 protected:
-	InputGeom* m_geom;
+	InputGeom* m_inputGeometry;
 	dtNavMesh* m_navMesh;
 	dtNavMeshQuery* m_navQuery;
 	dtCrowd* m_crowd;
@@ -132,9 +132,9 @@ protected:
 	SampleTool* m_tool;
 	SampleToolState* m_toolStates[MAX_TOOLS];
 	
-	BuildContext* m_ctx;
+	BuildContext* m_buildContext;
 
-	SampleDebugDraw m_dd;
+	SampleDebugDraw m_debugDraw;
 	
 	dtNavMesh* loadAll(const char* path);
 	void saveAll(const char* path, const dtNavMesh* mesh);
@@ -147,13 +147,13 @@ public:
 	Sample& operator=(const Sample&) = delete;
 	Sample& operator=(const Sample&&) = delete;
 	
-	void setContext(BuildContext* ctx) { m_ctx = ctx; }
+	void setContext(BuildContext* ctx) { m_buildContext = ctx; }
 	
 	void setTool(SampleTool* tool);
 	SampleToolState* getToolState(const int type) const { return m_toolStates[type]; }
 	void setToolState(const int type, SampleToolState* s) { m_toolStates[type] = s; }
 
-	SampleDebugDraw& getDebugDraw() { return m_dd; }
+	SampleDebugDraw& getDebugDraw() { return m_debugDraw; }
 
 	virtual void handleSettings();
 	virtual void handleTools();
@@ -168,7 +168,7 @@ public:
 	virtual void handleUpdate(float dt);
 	virtual void collectSettings(struct BuildSettings& settings);
 
-	virtual InputGeom* getInputGeom() { return m_geom; }
+	virtual InputGeom* getInputGeom() { return m_inputGeometry; }
 	virtual dtNavMesh* getNavMesh() { return m_navMesh; }
 	virtual dtNavMeshQuery* getNavMeshQuery() { return m_navQuery; }
 	virtual dtCrowd* getCrowd() { return m_crowd; }

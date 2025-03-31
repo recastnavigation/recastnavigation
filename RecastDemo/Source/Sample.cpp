@@ -16,18 +16,16 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <math.h>
-#include <stdio.h>
 #include "Sample.h"
-#include "InputGeom.h"
-#include "Recast.h"
-#include "RecastDebugDraw.h"
+#include <cstdio>
+#include "DetourCrowd.h"
 #include "DetourDebugDraw.h"
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"
-#include "DetourCrowd.h"
 #include "imgui.h"
-#include "SDL.h"
+#include "InputGeom.h"
+#include "Recast.h"
+#include "RecastDebugDraw.h"
 #include "SDL_opengl.h"
 
 #ifdef WIN32
@@ -66,7 +64,7 @@ unsigned int SampleDebugDraw::areaToCol(unsigned int area)
 }
 
 Sample::Sample() :
-	m_geom(0),
+	m_inputGeometry(0),
 	m_navMesh(0),
 	m_navQuery(0),
 	m_crowd(0),
@@ -75,7 +73,7 @@ Sample::Sample() :
 	m_filterLedgeSpans(true),
 	m_filterWalkableLowHeightSpans(true),
 	m_tool(0),
-	m_ctx(0)
+	m_buildContext(0)
 {
 	resetCommonSettings();
 	m_navQuery = dtAllocNavMeshQuery();
@@ -117,16 +115,16 @@ void Sample::handleDebugMode()
 
 void Sample::handleRender()
 {
-	if (!m_geom)
+	if (!m_inputGeometry)
 		return;
 	
 	// Draw mesh
-	duDebugDrawTriMesh(&m_dd, m_geom->getMesh()->getVerts(), m_geom->getMesh()->getVertCount(),
-					   m_geom->getMesh()->getTris(), m_geom->getMesh()->getNormals(), m_geom->getMesh()->getTriCount(), 0, 1.0f);
+	duDebugDrawTriMesh(&m_debugDraw, m_inputGeometry->getMesh()->getVerts(), m_inputGeometry->getMesh()->getVertCount(),
+					   m_inputGeometry->getMesh()->getTris(), m_inputGeometry->getMesh()->getNormals(), m_inputGeometry->getMesh()->getTriCount(), 0, 1.0f);
 	// Draw bounds
-	const float* bmin = m_geom->getMeshBoundsMin();
-	const float* bmax = m_geom->getMeshBoundsMax();
-	duDebugDrawBoxWire(&m_dd, bmin[0],bmin[1],bmin[2], bmax[0],bmax[1],bmax[2], duRGBA(255,255,255,128), 1.0f);
+	const float* bmin = m_inputGeometry->getMeshBoundsMin();
+	const float* bmax = m_inputGeometry->getMeshBoundsMax();
+	duDebugDrawBoxWire(&m_debugDraw, bmin[0],bmin[1],bmin[2], bmax[0],bmax[1],bmax[2], duRGBA(255,255,255,128), 1.0f);
 }
 
 void Sample::handleRenderOverlay(double* /*proj*/, double* /*model*/, int* /*view*/)
@@ -135,7 +133,7 @@ void Sample::handleRenderOverlay(double* /*proj*/, double* /*model*/, int* /*vie
 
 void Sample::handleMeshChanged(InputGeom* geom)
 {
-	m_geom = geom;
+	m_inputGeometry = geom;
 
 	const BuildSettings* buildSettings = geom->getBuildSettings();
 	if (buildSettings)
@@ -175,7 +173,6 @@ void Sample::collectSettings(BuildSettings& settings)
 	settings.partitionType = m_partitionType;
 }
 
-
 void Sample::resetCommonSettings()
 {
 	m_cellSize = 0.3f;
@@ -200,10 +197,10 @@ void Sample::handleCommonSettings()
 	imguiSlider("Cell Size", &m_cellSize, 0.1f, 1.0f, 0.01f);
 	imguiSlider("Cell Height", &m_cellHeight, 0.1f, 1.0f, 0.01f);
 	
-	if (m_geom)
+	if (m_inputGeometry)
 	{
-		const float* bmin = m_geom->getNavMeshBoundsMin();
-		const float* bmax = m_geom->getNavMeshBoundsMax();
+		const float* bmin = m_inputGeometry->getNavMeshBoundsMin();
+		const float* bmax = m_inputGeometry->getNavMeshBoundsMax();
 		int gw = 0, gh = 0;
 		rcCalcGridSize(bmin, bmax, m_cellSize, &gw, &gh);
 		char text[64];
@@ -359,30 +356,30 @@ dtNavMesh* Sample::loadAll(const char* path)
 	if (readLen != 1)
 	{
 		fclose(fp);
-		return 0;
+		return nullptr;
 	}
 	if (header.magic != NAVMESHSET_MAGIC)
 	{
 		fclose(fp);
-		return 0;
+		return nullptr;
 	}
 	if (header.version != NAVMESHSET_VERSION)
 	{
 		fclose(fp);
-		return 0;
+		return nullptr;
 	}
 
 	dtNavMesh* mesh = dtAllocNavMesh();
 	if (!mesh)
 	{
 		fclose(fp);
-		return 0;
+		return nullptr;
 	}
 	dtStatus status = mesh->init(&header.params);
 	if (dtStatusFailed(status))
 	{
 		fclose(fp);
-		return 0;
+		return nullptr;
 	}
 
 	// Read tiles.
