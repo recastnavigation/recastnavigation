@@ -24,7 +24,6 @@
 #include "Recast.h"
 #include "ChunkyTriMesh.h"
 
-
 class Sample_TempObstacles : public Sample
 {
 protected:
@@ -35,13 +34,13 @@ protected:
 	struct MeshProcess* m_tmproc;
 
 	class dtTileCache* m_tileCache;
-	
+
 	float m_cacheBuildTimeMs;
 	int m_cacheCompressedSize;
 	int m_cacheRawSize;
 	int m_cacheLayerCount;
 	unsigned int m_cacheBuildMemUsage;
-	
+
 	enum DrawMode
 	{
 		DRAWMODE_NAVMESH,
@@ -54,17 +53,17 @@ protected:
 		DRAWMODE_CACHE_BOUNDS,
 		MAX_DRAWMODE
 	};
-	
+
 	DrawMode m_drawMode;
-	
+
 	int m_maxTiles;
 	int m_maxPolysPerTile;
 	float m_tileSize;
-	
+
 public:
 	Sample_TempObstacles();
 	virtual ~Sample_TempObstacles();
-	
+
 	virtual void handleSettings();
 	virtual void handleTools();
 	virtual void handleDebugMode();
@@ -75,7 +74,7 @@ public:
 	virtual void handleUpdate(const float dt);
 
 	void getTilePos(const float* pos, int& tx, int& ty);
-	
+
 	void renderCachedTile(const int tx, const int ty, const int type);
 	void renderCachedTileOverlay(const int tx, const int ty, double* proj, double* model, int* view);
 
