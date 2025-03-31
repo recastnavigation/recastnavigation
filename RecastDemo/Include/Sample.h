@@ -16,9 +16,9 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#ifndef RECASTSAMPLE_H
-#define RECASTSAMPLE_H
+#pragma once
 
+#include <cstdint>
 #include "SampleInterfaces.h"
 
 class Sample;
@@ -28,17 +28,19 @@ class dtNavMeshQuery;
 class dtCrowd;
 
 /// Tool types.
-enum SampleToolType
+enum class SampleToolType : uint8_t
 {
-	TOOL_NONE = 0,
-	TOOL_TILE_EDIT,
-	TOOL_TILE_HIGHLIGHT,
-	TOOL_TEMP_OBSTACLE,
-	TOOL_NAVMESH_TESTER,
-	TOOL_NAVMESH_PRUNE,
-	TOOL_OFFMESH_CONNECTION,
-	TOOL_CONVEX_VOLUME,
-	TOOL_CROWD,
+	NONE = 0,
+
+	TILE_EDIT,
+	TILE_HIGHLIGHT,
+	TEMP_OBSTACLE,
+	NAVMESH_TESTER,
+	NAVMESH_PRUNE,
+	OFFMESH_CONNECTION,
+	CONVEX_VOLUME,
+	CROWD,
+
 	MAX_TOOLS
 };
 
@@ -79,7 +81,8 @@ public:
 struct SampleTool
 {
 	virtual ~SampleTool();
-	virtual int type() = 0;
+
+	virtual SampleToolType type() = 0;
 	virtual void init(Sample* sample) = 0;
 	virtual void reset() = 0;
 	virtual void handleMenu() = 0;
@@ -128,14 +131,14 @@ protected:
 	bool m_filterLowHangingObstacles;
 	bool m_filterLedgeSpans;
 	bool m_filterWalkableLowHeightSpans;
-	
+
 	SampleTool* m_tool;
-	SampleToolState* m_toolStates[MAX_TOOLS];
-	
+	SampleToolState* m_toolStates[static_cast<unsigned long>(SampleToolType::MAX_TOOLS)];
+
 	BuildContext* m_buildContext;
 
 	SampleDebugDraw m_debugDraw;
-	
+
 	dtNavMesh* loadAll(const char* path);
 	void saveAll(const char* path, const dtNavMesh* mesh);
 
@@ -146,9 +149,9 @@ public:
 	Sample(const Sample&&) = delete;
 	Sample& operator=(const Sample&) = delete;
 	Sample& operator=(const Sample&&) = delete;
-	
+
 	void setContext(BuildContext* ctx) { m_buildContext = ctx; }
-	
+
 	void setTool(SampleTool* tool);
 	SampleToolState* getToolState(const int type) const { return m_toolStates[type]; }
 	void setToolState(const int type, SampleToolState* s) { m_toolStates[type] = s; }
@@ -175,7 +178,7 @@ public:
 	virtual float getAgentRadius() { return m_agentRadius; }
 	virtual float getAgentHeight() { return m_agentHeight; }
 	virtual float getAgentClimb() { return m_agentMaxClimb; }
-	
+
 	unsigned char getNavMeshDrawFlags() const { return m_navMeshDrawFlags; }
 	void setNavMeshDrawFlags(unsigned char flags) { m_navMeshDrawFlags = flags; }
 
@@ -188,6 +191,3 @@ public:
 	void resetCommonSettings();
 	void handleCommonSettings();
 };
-
-
-#endif // RECASTSAMPLE_H

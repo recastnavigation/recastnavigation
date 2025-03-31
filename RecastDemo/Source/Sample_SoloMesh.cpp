@@ -102,13 +102,13 @@ void Sample_SoloMesh::handleSettings()
 
 void Sample_SoloMesh::handleTools()
 {
-	const int type = !m_tool ? TOOL_NONE : m_tool->type();
+	const SampleToolType type = !m_tool ? SampleToolType::NONE : m_tool->type();
 
-	if (imguiCheck("Test Navmesh", type == TOOL_NAVMESH_TESTER)) { setTool(new NavMeshTesterTool); }
-	if (imguiCheck("Prune Navmesh", type == TOOL_NAVMESH_PRUNE)) { setTool(new NavMeshPruneTool); }
-	if (imguiCheck("Create Off-Mesh Connections", type == TOOL_OFFMESH_CONNECTION)) { setTool(new OffMeshConnectionTool); }
-	if (imguiCheck("Create Convex Volumes", type == TOOL_CONVEX_VOLUME)) { setTool(new ConvexVolumeTool); }
-	if (imguiCheck("Create Crowds", type == TOOL_CROWD)) { setTool(new CrowdTool); }
+	if (imguiCheck("Test Navmesh", type == SampleToolType::NAVMESH_TESTER)) { setTool(new NavMeshTesterTool); }
+	if (imguiCheck("Prune Navmesh", type == SampleToolType::NAVMESH_PRUNE)) { setTool(new NavMeshPruneTool); }
+	if (imguiCheck("Create Off-Mesh Connections", type == SampleToolType::OFFMESH_CONNECTION)) { setTool(new OffMeshConnectionTool); }
+	if (imguiCheck("Create Convex Volumes", type == SampleToolType::CONVEX_VOLUME)) { setTool(new ConvexVolumeTool); }
+	if (imguiCheck("Create Crowds", type == SampleToolType::CROWD)) { setTool(new CrowdTool); }
 
 	imguiSeparatorLine();
 

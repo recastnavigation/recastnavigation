@@ -35,7 +35,7 @@ public:
 	OffMeshConnectionTool();
 	~OffMeshConnectionTool();
 	
-	virtual int type() { return TOOL_OFFMESH_CONNECTION; }
+	virtual SampleToolType type() { return SampleToolType::OFFMESH_CONNECTION; }
 	virtual void init(Sample* sample);
 	virtual void reset();
 	virtual void handleMenu();

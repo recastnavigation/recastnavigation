@@ -40,7 +40,7 @@ class ConvexVolumeTool : public SampleTool
 public:
 	ConvexVolumeTool();
 	
-	virtual int type() { return TOOL_CONVEX_VOLUME; }
+	virtual SampleToolType type() { return SampleToolType::CONVEX_VOLUME; }
 	virtual void init(Sample* sample);
 	virtual void reset();
 	virtual void handleMenu();

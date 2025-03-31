@@ -699,7 +699,7 @@ public:
 
 	virtual ~TempObstacleHilightTool();
 
-	virtual int type() { return TOOL_TILE_HIGHLIGHT; }
+	virtual SampleToolType type() { return SampleToolType::TILE_HIGHLIGHT; }
 
 	virtual void init(Sample* sample)
 	{
@@ -789,7 +789,7 @@ public:
 	
 	virtual ~TempObstacleCreateTool();
 	
-	virtual int type() { return TOOL_TEMP_OBSTACLE; }
+	virtual SampleToolType type() { return SampleToolType::TEMP_OBSTACLE; }
 	
 	virtual void init(Sample* sample)
 	{
@@ -951,29 +951,29 @@ void Sample_TempObstacles::handleSettings()
 
 void Sample_TempObstacles::handleTools()
 {
-	int type = !m_tool ? TOOL_NONE : m_tool->type();
+	const SampleToolType type = !m_tool ? SampleToolType::NONE : m_tool->type();
 
-	if (imguiCheck("Test Navmesh", type == TOOL_NAVMESH_TESTER))
+	if (imguiCheck("Test Navmesh", type == SampleToolType::NAVMESH_TESTER))
 	{
 		setTool(new NavMeshTesterTool);
 	}
-	if (imguiCheck("Highlight Tile Cache", type == TOOL_TILE_HIGHLIGHT))
+	if (imguiCheck("Highlight Tile Cache", type == SampleToolType::TILE_HIGHLIGHT))
 	{
 		setTool(new TempObstacleHilightTool);
 	}
-	if (imguiCheck("Create Temp Obstacles", type == TOOL_TEMP_OBSTACLE))
+	if (imguiCheck("Create Temp Obstacles", type == SampleToolType::TEMP_OBSTACLE))
 	{
 		setTool(new TempObstacleCreateTool);
 	}
-	if (imguiCheck("Create Off-Mesh Links", type == TOOL_OFFMESH_CONNECTION))
+	if (imguiCheck("Create Off-Mesh Links", type == SampleToolType::OFFMESH_CONNECTION))
 	{
 		setTool(new OffMeshConnectionTool);
 	}
-	if (imguiCheck("Create Convex Volumes", type == TOOL_CONVEX_VOLUME))
+	if (imguiCheck("Create Convex Volumes", type == SampleToolType::CONVEX_VOLUME))
 	{
 		setTool(new ConvexVolumeTool);
 	}
-	if (imguiCheck("Create Crowds", type == TOOL_CROWD))
+	if (imguiCheck("Create Crowds", type == SampleToolType::CROWD))
 	{
 		setTool(new CrowdTool);
 	}

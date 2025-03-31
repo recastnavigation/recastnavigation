@@ -36,7 +36,7 @@ public:
 	NavMeshPruneTool();
 	virtual ~NavMeshPruneTool();
 	
-	virtual int type() { return TOOL_NAVMESH_PRUNE; }
+	virtual SampleToolType type() { return SampleToolType::NAVMESH_PRUNE; }
 	virtual void init(Sample* sample);
 	virtual void reset();
 	virtual void handleMenu();

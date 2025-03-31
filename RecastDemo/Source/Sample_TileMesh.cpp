@@ -82,7 +82,7 @@ class NavMeshTileTool : public SampleTool
 public:
 	~NavMeshTileTool() override = default;
 
-	int type() override { return TOOL_TILE_EDIT; }
+	SampleToolType type() override { return SampleToolType::TILE_EDIT; }
 	void init(Sample* sample) override { m_sample = static_cast<Sample_TileMesh*>(sample); }
 	void reset() override {}
 
@@ -259,14 +259,14 @@ void Sample_TileMesh::handleSettings()
 
 void Sample_TileMesh::handleTools()
 {
-	const int type = !m_tool ? TOOL_NONE : m_tool->type();
+	const SampleToolType type = !m_tool ? SampleToolType::NONE : m_tool->type();
 
-	if (imguiCheck("Test Navmesh", type == TOOL_NAVMESH_TESTER)) { setTool(new NavMeshTesterTool); }
-	if (imguiCheck("Prune Navmesh", type == TOOL_NAVMESH_PRUNE)) { setTool(new NavMeshPruneTool); }
-	if (imguiCheck("Create Tiles", type == TOOL_TILE_EDIT)) { setTool(new NavMeshTileTool); }
-	if (imguiCheck("Create Off-Mesh Links", type == TOOL_OFFMESH_CONNECTION)) { setTool(new OffMeshConnectionTool); }
-	if (imguiCheck("Create Convex Volumes", type == TOOL_CONVEX_VOLUME)) { setTool(new ConvexVolumeTool); }
-	if (imguiCheck("Create Crowds", type == TOOL_CROWD)) { setTool(new CrowdTool); }
+	if (imguiCheck("Test Navmesh", type == SampleToolType::NAVMESH_TESTER)) { setTool(new NavMeshTesterTool); }
+	if (imguiCheck("Prune Navmesh", type == SampleToolType::NAVMESH_PRUNE)) { setTool(new NavMeshPruneTool); }
+	if (imguiCheck("Create Tiles", type == SampleToolType::TILE_EDIT)) { setTool(new NavMeshTileTool); }
+	if (imguiCheck("Create Off-Mesh Links", type == SampleToolType::OFFMESH_CONNECTION)) { setTool(new OffMeshConnectionTool); }
+	if (imguiCheck("Create Convex Volumes", type == SampleToolType::CONVEX_VOLUME)) { setTool(new ConvexVolumeTool); }
+	if (imguiCheck("Create Crowds", type == SampleToolType::CROWD)) { setTool(new CrowdTool); }
 
 	imguiSeparatorLine();
 

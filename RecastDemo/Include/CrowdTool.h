@@ -129,7 +129,7 @@ class CrowdTool : public SampleTool
 public:
 	CrowdTool();
 	
-	virtual int type() { return TOOL_CROWD; }
+	virtual SampleToolType type() { return SampleToolType::CROWD; }
 	virtual void init(Sample* sample);
 	virtual void reset();
 	virtual void handleMenu();

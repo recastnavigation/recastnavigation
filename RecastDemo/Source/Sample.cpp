@@ -79,8 +79,10 @@ Sample::Sample() :
 	m_navQuery = dtAllocNavMeshQuery();
 	m_crowd = dtAllocCrowd();
 
-	for (int i = 0; i < MAX_TOOLS; i++)
+	for (int i = 0; i < static_cast<int>(SampleToolType::MAX_TOOLS); i++)
+	{
 		m_toolStates[i] = 0;
+	}
 }
 
 Sample::~Sample()
@@ -89,8 +91,10 @@ Sample::~Sample()
 	dtFreeNavMesh(m_navMesh);
 	dtFreeCrowd(m_crowd);
 	delete m_tool;
-	for (int i = 0; i < MAX_TOOLS; i++)
+	for (int i = 0; i < static_cast<int>(SampleToolType::MAX_TOOLS); i++)
+	{
 		delete m_toolStates[i];
+	}
 }
 
 void Sample::setTool(SampleTool* tool)
@@ -117,7 +121,7 @@ void Sample::handleRender()
 {
 	if (!m_inputGeometry)
 		return;
-	
+
 	// Draw mesh
 	duDebugDrawTriMesh(&m_debugDraw, m_inputGeometry->getMesh()->getVerts(), m_inputGeometry->getMesh()->getVertCount(),
 					   m_inputGeometry->getMesh()->getTris(), m_inputGeometry->getMesh()->getNormals(), m_inputGeometry->getMesh()->getTriCount(), 0, 1.0f);
@@ -196,7 +200,7 @@ void Sample::handleCommonSettings()
 	imguiLabel("Rasterization");
 	imguiSlider("Cell Size", &m_cellSize, 0.1f, 1.0f, 0.01f);
 	imguiSlider("Cell Height", &m_cellHeight, 0.1f, 1.0f, 0.01f);
-	
+
 	if (m_inputGeometry)
 	{
 		const float* bmin = m_inputGeometry->getNavMeshBoundsMin();
@@ -207,14 +211,14 @@ void Sample::handleCommonSettings()
 		snprintf(text, 64, "Voxels  %d x %d", gw, gh);
 		imguiValue(text);
 	}
-	
+
 	imguiSeparator();
 	imguiLabel("Agent");
 	imguiSlider("Height", &m_agentHeight, 0.1f, 5.0f, 0.1f);
 	imguiSlider("Radius", &m_agentRadius, 0.0f, 5.0f, 0.1f);
 	imguiSlider("Max Climb", &m_agentMaxClimb, 0.1f, 5.0f, 0.1f);
 	imguiSlider("Max Slope", &m_agentMaxSlope, 0.0f, 90.0f, 1.0f);
-	
+
 	imguiSeparator();
 	imguiLabel("Region");
 	imguiSlider("Min Region Size", &m_regionMinSize, 0.0f, 150.0f, 1.0f);
@@ -228,7 +232,7 @@ void Sample::handleCommonSettings()
 		m_partitionType = SAMPLE_PARTITION_MONOTONE;
 	if (imguiCheck("Layers", m_partitionType == SAMPLE_PARTITION_LAYERS))
 		m_partitionType = SAMPLE_PARTITION_LAYERS;
-	
+
 	imguiSeparator();
 	imguiLabel("Filtering");
 	if (imguiCheck("Low Hanging Obstacles", m_filterLowHangingObstacles))
@@ -242,13 +246,13 @@ void Sample::handleCommonSettings()
 	imguiLabel("Polygonization");
 	imguiSlider("Max Edge Length", &m_edgeMaxLen, 0.0f, 50.0f, 1.0f);
 	imguiSlider("Max Edge Error", &m_edgeMaxError, 0.1f, 3.0f, 0.1f);
-	imguiSlider("Verts Per Poly", &m_vertsPerPoly, 3.0f, 12.0f, 1.0f);		
+	imguiSlider("Verts Per Poly", &m_vertsPerPoly, 3.0f, 12.0f, 1.0f);
 
 	imguiSeparator();
 	imguiLabel("Detail Mesh");
 	imguiSlider("Sample Distance", &m_detailSampleDist, 0.0f, 16.0f, 1.0f);
 	imguiSlider("Max Sample Error", &m_detailSampleMaxError, 0.0f, 16.0f, 1.0f);
-	
+
 	imguiSeparator();
 }
 
@@ -285,7 +289,7 @@ void Sample::handleUpdate(const float dt)
 
 void Sample::updateToolStates(const float dt)
 {
-	for (int i = 0; i < MAX_TOOLS; i++)
+	for (int i = 0; i < static_cast<int>(SampleToolType::MAX_TOOLS); i++)
 	{
 		if (m_toolStates[i])
 			m_toolStates[i]->handleUpdate(dt);
@@ -294,7 +298,7 @@ void Sample::updateToolStates(const float dt)
 
 void Sample::initToolStates(Sample* sample)
 {
-	for (int i = 0; i < MAX_TOOLS; i++)
+	for (int i = 0; i < static_cast<int>(SampleToolType::MAX_TOOLS); i++)
 	{
 		if (m_toolStates[i])
 			m_toolStates[i]->init(sample);
@@ -303,7 +307,7 @@ void Sample::initToolStates(Sample* sample)
 
 void Sample::resetToolStates()
 {
-	for (int i = 0; i < MAX_TOOLS; i++)
+	for (int i = 0; i < static_cast<int>(SampleToolType::MAX_TOOLS); i++)
 	{
 		if (m_toolStates[i])
 			m_toolStates[i]->reset();
@@ -312,7 +316,7 @@ void Sample::resetToolStates()
 
 void Sample::renderToolStates()
 {
-	for (int i = 0; i < MAX_TOOLS; i++)
+	for (int i = 0; i < static_cast<int>(SampleToolType::MAX_TOOLS); i++)
 	{
 		if (m_toolStates[i])
 			m_toolStates[i]->handleRender();
@@ -321,7 +325,7 @@ void Sample::renderToolStates()
 
 void Sample::renderOverlayToolStates(double* proj, double* model, int* view)
 {
-	for (int i = 0; i < MAX_TOOLS; i++)
+	for (int i = 0; i < static_cast<int>(SampleToolType::MAX_TOOLS); i++)
 	{
 		if (m_toolStates[i])
 			m_toolStates[i]->handleRenderOverlay(proj, model, view);

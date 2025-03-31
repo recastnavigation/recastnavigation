@@ -874,11 +874,11 @@ void CrowdTool::init(Sample* sample)
 	if (!sample)
 		return;
 		
-	m_state = (CrowdToolState*)sample->getToolState(type());
+	m_state = (CrowdToolState*)sample->getToolState(static_cast<int>(type()));
 	if (!m_state)
 	{
 		m_state = new CrowdToolState();
-		sample->setToolState(type(), m_state);
+		sample->setToolState(static_cast<int>(type()), m_state);
 	}
 	m_state->init(sample);
 }
