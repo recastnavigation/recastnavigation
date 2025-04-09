@@ -59,9 +59,9 @@ protected:
 	};
 	DrawMode m_drawMode = DRAWMODE_NAVMESH;
 
-	int m_maxTiles;
-	int m_maxPolysPerTile;
-	float m_tileSize;
+	int m_maxTiles = 0;
+	int m_maxPolysPerTile = 0;
+	float m_tileSize = 48;
 
 public:
 	Sample_TempObstacles();
