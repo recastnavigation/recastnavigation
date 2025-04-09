@@ -16,41 +16,39 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#ifndef NAVMESHPRUNETOOL_H
-#define NAVMESHPRUNETOOL_H
+#pragma once
 
 #include "Sample.h"
 
-// Prune navmesh to accessible locations from a point.
+class NavmeshFlags;
 
+/**
+ * Prune navmesh to accessible locations from a point.
+*/
 class NavMeshPruneTool : public SampleTool
 {
-	Sample* m_sample;
-	
-	class NavmeshFlags* m_flags;
-
+	Sample* m_sample = nullptr;
+	NavmeshFlags* m_flags = nullptr;
 	float m_hitPos[3];
-	bool m_hitPosSet;
-	
-public:
-	NavMeshPruneTool();
-	virtual ~NavMeshPruneTool();
-	
-	virtual SampleToolType type() { return SampleToolType::NAVMESH_PRUNE; }
-	virtual void init(Sample* sample);
-	virtual void reset();
-	virtual void handleMenu();
-	virtual void handleClick(const float* s, const float* p, bool shift);
-	virtual void handleToggle();
-	virtual void handleStep();
-	virtual void handleUpdate(const float dt);
-	virtual void handleRender();
-	virtual void handleRenderOverlay(double* proj, double* model, int* view);
+	bool m_hitPosSet = false;
 
-private:
-	// Explicitly disabled copy constructor and copy assignment operator.
-	NavMeshPruneTool(const NavMeshPruneTool&);
-	NavMeshPruneTool& operator=(const NavMeshPruneTool&);
+public:
+	NavMeshPruneTool() = default;
+	~NavMeshPruneTool() override;
+	NavMeshPruneTool(const NavMeshPruneTool&) = delete;
+	NavMeshPruneTool& operator=(const NavMeshPruneTool&) = delete;
+	NavMeshPruneTool(const NavMeshPruneTool&&) = delete;
+	NavMeshPruneTool& operator=(const NavMeshPruneTool&&) = delete;
+
+	SampleToolType type() override { return SampleToolType::NAVMESH_PRUNE; }
+	void init(Sample* sample) override { m_sample = sample; }
+	void reset() override;
+	void handleMenu() override;
+	void handleClick(const float* s, const float* p, bool shift) override;
+	void handleToggle() override {}
+	void handleStep() override {}
+	void handleUpdate(const float dt) override {}
+	void handleRender() override;
+	void handleRenderOverlay(double* proj, double* model, int* view) override;
 };
 
-#endif // NAVMESHPRUNETOOL_H

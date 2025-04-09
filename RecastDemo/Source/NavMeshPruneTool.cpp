@@ -75,16 +75,15 @@ public:
 		for (int i = 0; i < nav->getMaxTiles(); ++i)
 		{
 			const dtMeshTile* tile = nav->getTile(i);
-			if (!tile->header) continue;
-			TileFlags* tf = &m_tiles[i];
-			tf->nflags = tile->header->polyCount;
-			tf->base = nav->getPolyRefBase(tile);
-			if (tf->nflags)
+			if (!tile->header) { continue; }
+			TileFlags* tileFlags = &m_tiles[i];
+			tileFlags->nflags = tile->header->polyCount;
+			tileFlags->base = nav->getPolyRefBase(tile);
+			if (tileFlags->nflags)
 			{
-				tf->flags = (unsigned char*)dtAlloc(tf->nflags, DT_ALLOC_TEMP);
-				if (!tf->flags)
-					return false;
-				memset(tf->flags, 0, tf->nflags);
+				tileFlags->flags = (unsigned char*)dtAlloc(tileFlags->nflags, DT_ALLOC_TEMP);
+				if (!tileFlags->flags) { return false; }
+				memset(tileFlags->flags, 0, tileFlags->nflags);
 			}
 		}
 
@@ -97,9 +96,11 @@ public:
 	{
 		for (int i = 0; i < m_ntiles; ++i)
 		{
-			TileFlags* tf = &m_tiles[i];
-			if (tf->nflags)
-				memset(tf->flags, 0, tf->nflags);
+			TileFlags* tileFlags = &m_tiles[i];
+			if (tileFlags->nflags)
+			{
+				memset(tileFlags->flags, 0, tileFlags->nflags);
+			}
 		}
 	}
 
@@ -180,21 +181,9 @@ static void disableUnvisitedPolys(dtNavMesh* nav, NavmeshFlags* flags)
 	}
 }
 
-NavMeshPruneTool::NavMeshPruneTool() :
-	m_sample(0),
-	m_flags(0),
-	m_hitPosSet(false)
-{
-}
-
 NavMeshPruneTool::~NavMeshPruneTool()
 {
 	delete m_flags;
-}
-
-void NavMeshPruneTool::init(Sample* sample)
-{
-	m_sample = sample;
 }
 
 void NavMeshPruneTool::reset()
@@ -251,34 +240,22 @@ void NavMeshPruneTool::handleClick(const float* s, const float* p, bool shift)
 	floodNavmesh(nav, m_flags, ref, 1);
 }
 
-void NavMeshPruneTool::handleToggle()
-{
-}
-
-void NavMeshPruneTool::handleStep()
-{
-}
-
-void NavMeshPruneTool::handleUpdate(const float /*dt*/)
-{
-}
-
 void NavMeshPruneTool::handleRender()
 {
-	duDebugDraw& dd = m_sample->getDebugDraw();
+	duDebugDraw& debugDraw = m_sample->getDebugDraw();
 
 	if (m_hitPosSet)
 	{
 		const float s = m_sample->getAgentRadius();
 		const unsigned int col = duRGBA(255,255,255,255);
-		dd.begin(DU_DRAW_LINES);
-		dd.vertex(m_hitPos[0]-s,m_hitPos[1],m_hitPos[2], col);
-		dd.vertex(m_hitPos[0]+s,m_hitPos[1],m_hitPos[2], col);
-		dd.vertex(m_hitPos[0],m_hitPos[1]-s,m_hitPos[2], col);
-		dd.vertex(m_hitPos[0],m_hitPos[1]+s,m_hitPos[2], col);
-		dd.vertex(m_hitPos[0],m_hitPos[1],m_hitPos[2]-s, col);
-		dd.vertex(m_hitPos[0],m_hitPos[1],m_hitPos[2]+s, col);
-		dd.end();
+		debugDraw.begin(DU_DRAW_LINES);
+		debugDraw.vertex(m_hitPos[0]-s,m_hitPos[1],m_hitPos[2], col);
+		debugDraw.vertex(m_hitPos[0]+s,m_hitPos[1],m_hitPos[2], col);
+		debugDraw.vertex(m_hitPos[0],m_hitPos[1]-s,m_hitPos[2], col);
+		debugDraw.vertex(m_hitPos[0],m_hitPos[1]+s,m_hitPos[2], col);
+		debugDraw.vertex(m_hitPos[0],m_hitPos[1],m_hitPos[2]-s, col);
+		debugDraw.vertex(m_hitPos[0],m_hitPos[1],m_hitPos[2]+s, col);
+		debugDraw.end();
 	}
 
 	const dtNavMesh* nav = m_sample->getNavMesh();
@@ -294,20 +271,19 @@ void NavMeshPruneTool::handleRender()
 				const dtPolyRef ref = base | (unsigned int)j;
 				if (m_flags->getFlags(ref))
 				{
-					duDebugDrawNavMeshPoly(&dd, *nav, ref, duRGBA(255,255,255,128));
+					duDebugDrawNavMeshPoly(&debugDraw, *nav, ref, duRGBA(255,255,255,128));
 				}
 			}
 		}
 	}
 }
 
-void NavMeshPruneTool::handleRenderOverlay(double* proj, double* model, int* view)
+void NavMeshPruneTool::handleRenderOverlay(double* /*proj*/, double* /*model*/, int* view)
 {
-	rcIgnoreUnused(model);
-	rcIgnoreUnused(proj);
-
-	// Tool help
-	const int h = view[3];
-
-	imguiDrawText(280, h-40, IMGUI_ALIGN_LEFT, "LMB: Click fill area.", imguiRGBA(255,255,255,192));
+	imguiDrawText(
+		280,
+		view[3] - 40,
+		IMGUI_ALIGN_LEFT,
+		"LMB: Click fill area.",
+		imguiRGBA(255, 255, 255, 192));
 }
