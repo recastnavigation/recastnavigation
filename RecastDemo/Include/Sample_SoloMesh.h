@@ -37,7 +37,7 @@ protected:
 	rcContourSet* m_contourSet = nullptr;
 	rcPolyMesh* m_polyMesh = nullptr;
 	rcPolyMeshDetail* m_detailMesh = nullptr;
-	
+
 	enum class DrawMode : uint8_t
 	{
 		NAVMESH,
@@ -59,7 +59,7 @@ protected:
 		POLYMESH_DETAIL
 	};
 	DrawMode m_drawMode = DrawMode::NAVMESH;
-	
+
 	void cleanup();
 
 public:
@@ -76,7 +76,7 @@ public:
 
 	void handleRender() override;
 	void handleRenderOverlay(double* proj, double* model, int* view) override;
-	void handleMeshChanged(class InputGeom* geom) override;
+	void handleMeshChanged(InputGeom* geom) override;
 	bool handleBuild() override;
 
 private:

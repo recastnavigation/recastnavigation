@@ -45,36 +45,32 @@ class NavmeshFlags
 		int nflags;
 		dtPolyRef base;
 	};
-	
+
 	const dtNavMesh* m_nav;
 	TileFlags* m_tiles;
 	int m_ntiles;
 
 public:
-	NavmeshFlags() :
-		m_nav(0), m_tiles(0), m_ntiles(0)
-	{
-	}
-	
+	NavmeshFlags() : m_nav(0), m_tiles(0), m_ntiles(0) { }
+
 	~NavmeshFlags()
 	{
 		for (int i = 0; i < m_ntiles; ++i)
+		{
 			m_tiles[i].purge();
+		}
 		dtFree(m_tiles);
 	}
-	
+
 	bool init(const dtNavMesh* nav)
 	{
 		m_ntiles = nav->getMaxTiles();
-		if (!m_ntiles)
-			return true;
+		if (!m_ntiles) { return true; }
+
 		m_tiles = (TileFlags*)dtAlloc(sizeof(TileFlags)*m_ntiles, DT_ALLOC_TEMP);
-		if (!m_tiles)
-		{
-			return false;
-		}
+		if (!m_tiles) { return false; }
 		memset(m_tiles, 0, sizeof(TileFlags)*m_ntiles);
-		
+
 		// Alloc flags for each tile.
 		for (int i = 0; i < nav->getMaxTiles(); ++i)
 		{
@@ -91,12 +87,12 @@ public:
 				memset(tf->flags, 0, tf->nflags);
 			}
 		}
-		
+
 		m_nav = nav;
-		
+
 		return false;
 	}
-	
+
 	inline void clearAllFlags()
 	{
 		for (int i = 0; i < m_ntiles; ++i)
@@ -106,7 +102,7 @@ public:
 				memset(tf->flags, 0, tf->nflags);
 		}
 	}
-	
+
 	inline unsigned char getFlags(dtPolyRef ref)
 	{
 		dtAssert(m_nav);
@@ -126,17 +122,15 @@ public:
 		m_nav->decodePolyId(ref, salt, it, ip);
 		m_tiles[it].flags[ip] = flags;
 	}
-	
 };
 
 static void floodNavmesh(dtNavMesh* nav, NavmeshFlags* flags, dtPolyRef start, unsigned char flag)
 {
 	// If already visited, skip.
-	if (flags->getFlags(start))
-		return;
+	if (flags->getFlags(start)) { return; }
 
 	flags->setFlags(start, flag);
-		
+
 	std::vector<dtPolyRef> openList;
 	openList.push_back(start);
 
@@ -156,8 +150,8 @@ static void floodNavmesh(dtNavMesh* nav, NavmeshFlags* flags, dtPolyRef start, u
 		{
 			const dtPolyRef neiRef = tile->links[i].ref;
 			// Skip invalid and already visited.
-			if (!neiRef || flags->getFlags(neiRef))
-				continue;
+			if (!neiRef || flags->getFlags(neiRef)) { continue; }
+
 			// Mark as visited
 			flags->setFlags(neiRef, flag);
 			// Visit neighbours
@@ -171,7 +165,7 @@ static void disableUnvisitedPolys(dtNavMesh* nav, NavmeshFlags* flags)
 	for (int i = 0; i < nav->getMaxTiles(); ++i)
 	{
 		const dtMeshTile* tile = ((const dtNavMesh*)nav)->getTile(i);
-		if (!tile->header) continue;
+		if (!tile->header) { continue; }
 		const dtPolyRef base = nav->getPolyRefBase(tile);
 		for (int j = 0; j < tile->header->polyCount; ++j)
 		{
@@ -206,26 +200,24 @@ void NavMeshPruneTool::init(Sample* sample)
 void NavMeshPruneTool::reset()
 {
 	m_hitPosSet = false;
-	delete m_flags;
-	m_flags = 0;
+	delete m_flags; m_flags = nullptr;
 }
 
 void NavMeshPruneTool::handleMenu()
 {
 	dtNavMesh* nav = m_sample->getNavMesh();
-	if (!nav) return;
-	if (!m_flags) return;
+	if (!nav) { return; }
+	if (!m_flags) { return; }
 
 	if (imguiButton("Clear Selection"))
 	{
 		m_flags->clearAllFlags();
 	}
-	
+
 	if (imguiButton("Prune Unselected"))
 	{
 		disableUnvisitedPolys(nav, m_flags);
-		delete m_flags;
-		m_flags = 0;
+		delete m_flags; m_flags = nullptr;
 	}
 }
 
@@ -234,23 +226,23 @@ void NavMeshPruneTool::handleClick(const float* s, const float* p, bool shift)
 	rcIgnoreUnused(s);
 	rcIgnoreUnused(shift);
 
-	if (!m_sample) return;
+	if (!m_sample) { return; }
 	InputGeom* geom = m_sample->getInputGeom();
-	if (!geom) return;
+	if (!geom) { return; }
 	dtNavMesh* nav = m_sample->getNavMesh();
-	if (!nav) return;
+	if (!nav) { return; }
 	dtNavMeshQuery* query = m_sample->getNavMeshQuery();
-	if (!query) return;
-	
+	if (!query) { return; }
+
 	dtVcopy(m_hitPos, p);
 	m_hitPosSet = true;
-	
+
 	if (!m_flags)
 	{
 		m_flags = new NavmeshFlags;
 		m_flags->init(nav);
 	}
-	
+
 	const float halfExtents[3] = { 2, 4, 2 };
 	dtQueryFilter filter;
 	dtPolyRef ref = 0;
@@ -295,7 +287,7 @@ void NavMeshPruneTool::handleRender()
 		for (int i = 0; i < nav->getMaxTiles(); ++i)
 		{
 			const dtMeshTile* tile = nav->getTile(i);
-			if (!tile->header) continue;
+			if (!tile->header) { continue; }
 			const dtPolyRef base = nav->getPolyRefBase(tile);
 			for (int j = 0; j < tile->header->polyCount; ++j)
 			{
@@ -307,7 +299,6 @@ void NavMeshPruneTool::handleRender()
 			}
 		}
 	}
-
 }
 
 void NavMeshPruneTool::handleRenderOverlay(double* proj, double* model, int* view)

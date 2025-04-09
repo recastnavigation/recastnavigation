@@ -178,12 +178,12 @@ Sample_TileMesh::~Sample_TileMesh()
 
 void Sample_TileMesh::cleanup()
 {
-	delete[] m_triareas; m_triareas = 0;
-	rcFreeHeightField(m_heightfield); m_heightfield = 0;
-	rcFreeCompactHeightfield(m_compactHeightfield); m_compactHeightfield = 0;
-	rcFreeContourSet(m_contourSet); m_contourSet = 0;
-	rcFreePolyMesh(m_polyMesh); m_polyMesh = 0;
-	rcFreePolyMeshDetail(m_detailPolyMesh); m_detailPolyMesh = 0;
+	delete[] m_triareas; m_triareas = nullptr;
+	rcFreeHeightField(m_heightfield); m_heightfield = nullptr;
+	rcFreeCompactHeightfield(m_compactHeightfield); m_compactHeightfield = nullptr;
+	rcFreeContourSet(m_contourSet); m_contourSet = nullptr;
+	rcFreePolyMesh(m_polyMesh); m_polyMesh = nullptr;
+	rcFreePolyMeshDetail(m_detailPolyMesh); m_detailPolyMesh = nullptr;
 }
 
 void Sample_TileMesh::handleSettings()

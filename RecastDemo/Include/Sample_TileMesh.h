@@ -37,7 +37,7 @@ protected:
 	rcPolyMesh* m_polyMesh = nullptr;
 	rcPolyMeshDetail* m_detailPolyMesh = nullptr;
 	rcConfig m_config {};
-	
+
 	enum class DrawMode : uint8_t
 	{
 		NAVMESH,
@@ -60,11 +60,11 @@ protected:
 		POLYMESH_DETAIL
 	};
 	DrawMode m_drawMode = DrawMode::NAVMESH;
-	
+
 	int m_maxTiles = 0;
 	int m_maxPolysPerTile = 0;
 	float m_tileSize = 32.0f;
-	
+
 	unsigned int m_tileColor = duRGBA(0,0,0,32);
 	float m_lastBuiltTileBoundsMin[3] = { 0.0f, 0.0f, 0.0f };
 	float m_lastBuiltTileBoundsMax[3] = { 0.0f, 0.0f, 0.0f };
@@ -73,10 +73,10 @@ protected:
 	int m_tileTriCount = 0;
 
 	unsigned char* buildTileMesh(int tileX, int tileY, const float* boundsMin, const float* boundsMax, int& outDataSize);
-	
+
 	void cleanup();
 	void UI_DrawModeOption(const char* name, DrawMode drawMode, bool enabled);
-	
+
 public:
 	Sample_TileMesh();
 	~Sample_TileMesh() override;
@@ -93,9 +93,9 @@ public:
 	void handleMeshChanged(InputGeom* geom) override;
 	bool handleBuild() override;
 	void collectSettings(BuildSettings& settings) override;
-	
+
 	void getTilePos(const float* pos, int& tileX, int& tileY) const;
-	
+
 	void buildTile(const float* pos);
 	void removeTile(const float* pos);
 	void buildAllTiles();

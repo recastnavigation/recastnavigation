@@ -571,7 +571,6 @@ bool Sample_SoloMesh::handleBuild()
 		m_buildContext->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'pmdtl'.");
 		return false;
 	}
-
 	if (!rcBuildPolyMeshDetail(m_buildContext, *m_polyMesh, *m_compactHeightfield, m_config.detailSampleDist, m_config.detailSampleMaxError, *m_detailMesh))
 	{
 		m_buildContext->log(RC_LOG_ERROR, "buildNavigation: Could not build detail mesh.");
