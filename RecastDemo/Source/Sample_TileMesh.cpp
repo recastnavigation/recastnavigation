@@ -190,7 +190,6 @@ void Sample_TileMesh::handleSettings()
 {
 	Sample::handleCommonSettings();
 
-	if (imguiCheck("Keep Itermediate Results", m_keepIntermediateResults)) { m_keepIntermediateResults = !m_keepIntermediateResults; }
 	if (imguiCheck("Build All Tiles", m_buildAll)) { m_buildAll = !m_buildAll; }
 
 	imguiLabel("Tiling");
@@ -877,11 +876,6 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tileX, const int tileY, 
 		}
 	}
 
-	if (!m_keepIntermediateResults)
-	{
-		delete [] m_triareas; m_triareas = 0;
-	}
-
 	// Once all geometry is rasterized, we do initial pass of filtering to
 	// remove unwanted overhangs caused by the conservative rasterization
 	// as well as filter spans where the character cannot possibly stand.
@@ -911,12 +905,6 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tileX, const int tileY, 
 	{
 		m_buildContext->log(RC_LOG_ERROR, "buildNavigation: Could not build compact data.");
 		return 0;
-	}
-
-	if (!m_keepIntermediateResults)
-	{
-		rcFreeHeightField(m_heightfield);
-		m_heightfield = 0;
 	}
 
 	// Erode the walkable area by agent radius.
@@ -1038,12 +1026,6 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tileX, const int tileY, 
 	{
 		m_buildContext->log(RC_LOG_ERROR, "buildNavigation: Could build polymesh detail.");
 		return 0;
-	}
-
-	if (!m_keepIntermediateResults)
-	{
-		rcFreeCompactHeightfield(m_compactHeightfield); m_compactHeightfield = 0;
-		rcFreeContourSet(m_contourSet); m_contourSet = 0;
 	}
 
 	unsigned char* navData = 0;

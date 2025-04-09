@@ -26,7 +26,6 @@
 class Sample_TileMesh : public Sample
 {
 protected:
-	bool m_keepIntermediateResults = true;
 	bool m_buildAll = true;
 	float m_totalBuildTimeMs = 0.0f;
 
