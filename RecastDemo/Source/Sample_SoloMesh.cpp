@@ -66,12 +66,7 @@ void Sample_SoloMesh::cleanup()
 
 void Sample_SoloMesh::handleSettings()
 {
-	Sample::handleCommonSettings();
-
-	if (imguiCheck("Keep Itermediate Results", m_keepIntermediateResults))
-	{
-		m_keepIntermediateResults = !m_keepIntermediateResults;
-	}
+	handleCommonSettings();
 
 	imguiSeparator();
 
@@ -80,22 +75,22 @@ void Sample_SoloMesh::handleSettings()
 
 	if (imguiButton("Save"))
 	{
-		Sample::saveAll("solo_navmesh.bin", m_navMesh);
+		saveAll("solo_navmesh.bin", m_navMesh);
 	}
 
 	if (imguiButton("Load"))
 	{
 		dtFreeNavMesh(m_navMesh);
-		m_navMesh = Sample::loadAll("solo_navmesh.bin");
+		m_navMesh = loadAll("solo_navmesh.bin");
 		m_navQuery->init(m_navMesh, 2048);
 	}
 
 	imguiUnindent();
 	imguiUnindent();
 
-	char msg[64];
-	snprintf(msg, 64, "Build Time: %.1fms", m_totalBuildTimeMs);
-	imguiLabel(msg);
+	char message[64];
+	snprintf(message, 64, "Build Time: %.1fms", m_totalBuildTimeMs);
+	imguiLabel(message);
 
 	imguiSeparator();
 }
@@ -122,7 +117,7 @@ void Sample_SoloMesh::handleTools()
 	imguiUnindent();
 }
 
-void Sample_SoloMesh::UI_DrawModeOption(const char* name, DrawMode drawMode, bool enabled)
+void Sample_SoloMesh::UI_DrawModeOption(const char* name, const DrawMode drawMode, const bool enabled)
 {
 	if (imguiCheck(name, m_drawMode == drawMode, enabled))
 	{
@@ -318,12 +313,12 @@ bool Sample_SoloMesh::handleBuild()
 
 	cleanup();
 
-	const float* bmin = m_inputGeometry->getNavMeshBoundsMin();
-	const float* bmax = m_inputGeometry->getNavMeshBoundsMax();
+	const float* boundsMin = m_inputGeometry->getNavMeshBoundsMin();
+	const float* boundsMax = m_inputGeometry->getNavMeshBoundsMax();
 	const float* verts = m_inputGeometry->getMesh()->getVerts();
-	const int nverts = m_inputGeometry->getMesh()->getVertCount();
+	const int numVerts = m_inputGeometry->getMesh()->getVertCount();
 	const int* tris = m_inputGeometry->getMesh()->getTris();
-	const int ntris = m_inputGeometry->getMesh()->getTriCount();
+	const int numTris = m_inputGeometry->getMesh()->getTriCount();
 
 	//
 	// Step 1. Initialize build config.
@@ -348,29 +343,28 @@ bool Sample_SoloMesh::handleBuild()
 	// Set the area where the navigation will be built.
 	// Here the bounds of the input mesh are used, but the
 	// area could be specified by a user defined box, etc.
-	rcVcopy(m_config.bmin, bmin);
-	rcVcopy(m_config.bmax, bmax);
+	rcVcopy(m_config.bmin, boundsMin);
+	rcVcopy(m_config.bmax, boundsMax);
 	rcCalcGridSize(m_config.bmin, m_config.bmax, m_config.cs, &m_config.width, &m_config.height);
 
 	// Reset build times gathering.
 	m_buildContext->resetTimers();
-
-	// Start the build process.
 	m_buildContext->startTimer(RC_TIMER_TOTAL);
 
+	// Start the build process.
 	m_buildContext->log(RC_LOG_PROGRESS, "Building navigation:");
 	m_buildContext->log(RC_LOG_PROGRESS, " - %d x %d cells", m_config.width, m_config.height);
-	m_buildContext->log(RC_LOG_PROGRESS, " - %.1fK verts, %.1fK tris", static_cast<float>(nverts) / 1000.0f, static_cast<float>(ntris) / 1000.0f);
+	m_buildContext->log(RC_LOG_PROGRESS, " - %.1fK verts, %.1fK tris", static_cast<float>(numVerts) / 1000.0f, static_cast<float>(numTris) / 1000.0f);
 
 	//
-	// Step 2. Rasterize input polygon soup.
+	// Step 2. Rasterize input meshes.
 	//
 
-	// Allocate voxel heightfield where we rasterize our input data to.
+	// Allocate voxel heightfield where we will store our rasterized input data.
 	m_heightfield = rcAllocHeightfield();
 	if (!m_heightfield)
 	{
-		m_buildContext->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'solid'.");
+		m_buildContext->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'm_heightfield'.");
 		return false;
 	}
 	if (!rcCreateHeightfield(m_buildContext, *m_heightfield, m_config.width, m_config.height, m_config.bmin, m_config.bmax, m_config.cs, m_config.ch))
@@ -380,30 +374,29 @@ bool Sample_SoloMesh::handleBuild()
 	}
 
 	// Allocate array that can hold triangle area types.
+	// This is used to store terrain type information and to mark
+	// triangles as unwalkable.
 	// If you have multiple meshes you need to process, allocate
-	// and array which can hold the max number of triangles you need to process.
-	m_triareas = new unsigned char[ntris];
+	// an array which can hold the max number of triangles you need to process.
+	m_triareas = new unsigned char[numTris];
 	if (!m_triareas)
 	{
-		m_buildContext->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'm_triareas' (%d).", ntris);
+		m_buildContext->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'm_triareas' (%d).", numTris);
 		return false;
 	}
+	memset(m_triareas, 0, numTris * sizeof(unsigned char));
 
-	// Find triangles which are walkable based on their slope and rasterize them.
-	// If your input data is multiple meshes, you can transform them here, calculate
-	// the type for each mesh, and rasterize them.
-	memset(m_triareas, 0, ntris*sizeof(unsigned char));
-	rcMarkWalkableTriangles(m_buildContext, m_config.walkableSlopeAngle, verts, nverts, tris, ntris, m_triareas);
-	if (!rcRasterizeTriangles(m_buildContext, verts, nverts, tris, m_triareas, ntris, *m_heightfield, m_config.walkableClimb))
+	// Record which triangles in the input mesh are walkable.
+	// This information is recorded in m_triareas
+	rcMarkWalkableTriangles(m_buildContext, m_config.walkableSlopeAngle, verts, numVerts, tris, numTris, m_triareas);
+
+	// Rasterize the input mesh
+	// If your have multiple meshes, you can transform them, calculate the
+	// terrain type for each mesh and rasterize them here.
+	if (!rcRasterizeTriangles(m_buildContext, verts, numVerts, tris, m_triareas, numTris, *m_heightfield, m_config.walkableClimb))
 	{
 		m_buildContext->log(RC_LOG_ERROR, "buildNavigation: Could not rasterize triangles.");
 		return false;
-	}
-
-	if (!m_keepIntermediateResults)
-	{
-		delete [] m_triareas;
-		m_triareas = 0;
 	}
 
 	//
@@ -412,7 +405,7 @@ bool Sample_SoloMesh::handleBuild()
 
 	// Once all geometry is rasterized, we do initial pass of filtering to
 	// remove unwanted overhangs caused by the conservative rasterization
-	// as well as filter spans where the character cannot possibly stand.
+	// as well as spans where the character cannot possibly stand.
 	if (m_filterLowHangingObstacles)
 	{
 		rcFilterLowHangingWalkableObstacles(m_buildContext, m_config.walkableClimb, *m_heightfield);
@@ -427,12 +420,12 @@ bool Sample_SoloMesh::handleBuild()
 	}
 
 	//
-	// Step 4. Partition walkable surface to simple regions.
+	// Step 4. Partition walkable surface into simple regions.
 	//
 
-	// Compact the heightfield so that it is faster to handle from now on.
-	// This will result more cache coherent data as well as the neighbours
-	// between walkable cells will be calculated.
+	// Compact the heightfield so that it is faster to work with.
+	// This will result more cache coherent data.  This step will also
+	// generate neighbor connection information between walkable cells.
 	m_compactHeightfield = rcAllocCompactHeightfield();
 	if (!m_compactHeightfield)
 	{
@@ -445,51 +438,55 @@ bool Sample_SoloMesh::handleBuild()
 		return false;
 	}
 
-	if (!m_keepIntermediateResults)
-	{
-		rcFreeHeightField(m_heightfield);
-		m_heightfield = 0;
-	}
-
 	// Erode the walkable area by agent radius.
+	// This allows us to path an agent through the navmesh as if it was a single point
 	if (!rcErodeWalkableArea(m_buildContext, m_config.walkableRadius, *m_compactHeightfield))
 	{
 		m_buildContext->log(RC_LOG_ERROR, "buildNavigation: Could not erode.");
 		return false;
 	}
 
-	// (Optional) Mark areas.
+	// (Optional) Marks the surface type of voxels in an area defined by a convex volume.
+	// Useful to mark areas of differing cost.
 	const ConvexVolume* vols = m_inputGeometry->getConvexVolumes();
 	for (int i  = 0; i < m_inputGeometry->getConvexVolumeCount(); ++i)
 	{
 		rcMarkConvexPolyArea(m_buildContext, vols[i].verts, vols[i].nverts, vols[i].hmin, vols[i].hmax, (unsigned char)vols[i].area, *m_compactHeightfield);
 	}
 
-	// Partition the heightfield so that we can use simple algorithm later to triangulate the walkable areas.
-	// There are 3 partitioning methods, each with some pros and cons:
+	// Partition the heightfield into contiguous regions that will each be
+	// triangulated into navigation polygons.
+	//
+	// There are 3 partitioning methods, each with their own pros and cons:
 	// 1) Watershed partitioning
 	//   - the classic Recast partitioning
 	//   - creates the nicest tessellation
 	//   - usually slowest
-	//   - partitions the heightfield into nice regions without holes or overlaps
-	//   - the are some corner cases where this method creates produces holes and overlaps
-	//      - holes may appear when a small obstacles is close to large open area (triangulation can handle this)
-	//      - overlaps may occur if you have narrow spiral corridors (i.e stairs), this make triangulation to fail
-	//   * generally the best choice if you precompute the navmesh, use this if you have large open areas
+	//   - the are some corner cases where this method creates holes and
+	//     overlaps in the resulting region data.
+	//      - holes may appear when a small obstacle is close to a large open
+	//        area.  This will not cause triangulation to fail.
+	//      - overlaps may occur if you have narrow spiral corridors
+	//        e.g. spiral stairs.  This will cause triangulation to fail.
+	//   * Generally the best choice if you are precompute the navmesh and/or
+	//     there are large open areas in the input geometry.
 	// 2) Monotone partitioning
 	//   - fastest
-	//   - partitions the heightfield into regions without holes and overlaps (guaranteed)
-	//   - creates long thin polygons, which sometimes causes paths with detours
-	//   * use this if you want fast navmesh generation
-	// 3) Layer partitoining
+	//   - guaranteed to partition the heightfield into regions without holes
+	//     or overlaps
+	//   - Can create long, thin polygons which sometimes cause paths with detours
+	//   * Use this if you want fast navmesh generation
+	// 3) Layer partitioning
 	//   - quite fast
 	//   - partitions the heighfield into non-overlapping regions
-	//   - relies on the triangulation code to cope with holes (thus slower than monotone partitioning)
+	//   - relies on the triangulation code to cope with holes, which makes
+	//     this slower than monotone partitioning
 	//   - produces better triangles than monotone partitioning
 	//   - does not have the corner cases of watershed partitioning
-	//   - can be slow and create a bit ugly tessellation (still better than monotone)
-	//     if you have large open areas with small obstacles (not a problem if you use tiles)
-	//   * good choice to use for tiled navmesh with medium and small sized tiles
+	//   - can be slow and create a slightly ugly tessellation (still better
+	//     than monotone) if you have large open areas with small obstacles.
+	//     This is less of a problem if you use a tiled navmesh.
+	//   * A good choice for a tiled navmesh with small to medium-sized tiles
 
 	if (m_partitionType == SAMPLE_PARTITION_WATERSHED)
 	{
@@ -500,7 +497,7 @@ bool Sample_SoloMesh::handleBuild()
 			return false;
 		}
 
-		// Partition the walkable surface into simple regions without holes.
+		// Partition the walkable surface into contiguous regions.
 		if (!rcBuildRegions(m_buildContext, *m_compactHeightfield, 0, m_config.minRegionArea, m_config.mergeRegionArea))
 		{
 			m_buildContext->log(RC_LOG_ERROR, "buildNavigation: Could not build watershed regions.");
@@ -509,7 +506,7 @@ bool Sample_SoloMesh::handleBuild()
 	}
 	else if (m_partitionType == SAMPLE_PARTITION_MONOTONE)
 	{
-		// Partition the walkable surface into simple regions without holes.
+		// Partition the walkable surface into contiguous regions.
 		// Monotone partitioning does not need distancefield.
 		if (!rcBuildRegionsMonotone(m_buildContext, *m_compactHeightfield, 0, m_config.minRegionArea, m_config.mergeRegionArea))
 		{
@@ -519,7 +516,8 @@ bool Sample_SoloMesh::handleBuild()
 	}
 	else // SAMPLE_PARTITION_LAYERS
 	{
-		// Partition the walkable surface into simple regions without holes.
+		// Partition the walkable surface into contiguous regions.
+		// Layer partitioning does not need distancefield.
 		if (!rcBuildLayerRegions(m_buildContext, *m_compactHeightfield, 0, m_config.minRegionArea))
 		{
 			m_buildContext->log(RC_LOG_ERROR, "buildNavigation: Could not build layer regions.");
@@ -531,7 +529,7 @@ bool Sample_SoloMesh::handleBuild()
 	// Step 5. Trace and simplify region contours.
 	//
 
-	// Create contours.
+	// Create contour.
 	m_contourSet = rcAllocContourSet();
 	if (!m_contourSet)
 	{
@@ -545,10 +543,9 @@ bool Sample_SoloMesh::handleBuild()
 	}
 
 	//
-	// Step 6. Build polygons mesh from contours.
+	// Step 6. Triangulate contours to build navmesh polygons.
 	//
 
-	// Build polygon navmesh from the contours.
 	m_polyMesh = rcAllocPolyMesh();
 	if (!m_polyMesh)
 	{
@@ -562,7 +559,9 @@ bool Sample_SoloMesh::handleBuild()
 	}
 
 	//
-	// Step 7. Create detail mesh which allows to access approximate height on each polygon.
+	// Step 7. Create a navmesh from the triangulated polygons.
+	//
+	// Calculates additional information necessary to run pathing queries.
 	//
 
 	m_detailMesh = rcAllocPolyMeshDetail();
@@ -577,16 +576,9 @@ bool Sample_SoloMesh::handleBuild()
 		return false;
 	}
 
-	if (!m_keepIntermediateResults)
-	{
-		rcFreeCompactHeightfield(m_compactHeightfield);
-		m_compactHeightfield = 0;
-		rcFreeContourSet(m_contourSet);
-		m_contourSet = 0;
-	}
-
-	// At this point the navigation mesh data is ready, you can access it from m_pmesh.
-	// See duDebugDrawPolyMesh or dtCreateNavMeshData as examples how to access the data.
+	// At this point the navigation mesh data is ready to use.
+	// See duDebugDrawPolyMesh or dtCreateNavMeshData as examples how to access
+	// the navmesh data.
 
 	//
 	// (Optional) Step 8. Create Detour data from Recast poly mesh.
@@ -683,13 +675,14 @@ bool Sample_SoloMesh::handleBuild()
 		}
 	}
 
+	// Stop build timers
 	m_buildContext->stopTimer(RC_TIMER_TOTAL);
+	auto totalTime = m_buildContext->getAccumulatedTime(RC_TIMER_TOTAL);
+	m_totalBuildTimeMs = static_cast<float>(totalTime) / 1000.0f;
 
 	// Show performance stats.
-	duLogBuildTimes(*m_buildContext, m_buildContext->getAccumulatedTime(RC_TIMER_TOTAL));
+	duLogBuildTimes(*m_buildContext, totalTime);
 	m_buildContext->log(RC_LOG_PROGRESS, ">> Polymesh: %d vertices  %d polygons", m_polyMesh->nverts, m_polyMesh->npolys);
-
-	m_totalBuildTimeMs = static_cast<float>(m_buildContext->getAccumulatedTime(RC_TIMER_TOTAL)) / 1000.0f;
 
 	if (m_tool)
 	{

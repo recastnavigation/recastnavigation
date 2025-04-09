@@ -26,7 +26,6 @@
 class Sample_SoloMesh : public Sample
 {
 protected:
-	bool m_keepIntermediateResults = true;
 	float m_totalBuildTimeMs = 0;
 
 	rcConfig m_config {};
