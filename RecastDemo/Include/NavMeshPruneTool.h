@@ -47,7 +47,7 @@ public:
 	void handleClick(const float* s, const float* p, bool shift) override;
 	void handleToggle() override {}
 	void handleStep() override {}
-	void handleUpdate(const float dt) override {}
+	void handleUpdate(const float /*dt*/) override {}
 	void handleRender() override;
 	void handleRenderOverlay(double* proj, double* model, int* view) override;
 };
