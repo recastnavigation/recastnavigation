@@ -7,6 +7,24 @@
 #include "Recast.h"
 #include "RecastAlloc.h"
 
+namespace
+{
+	void freeHeightfieldSpans(const rcHeightfield& heightfield)
+	{
+		for (int i = 0; i < heightfield.height * heightfield.width; ++i)
+			rcFree(heightfield.spans[i]);
+	}
+
+	std::vector<unsigned> getAreas(const rcHeightfield& heightfield)
+	{
+		std::vector<unsigned> result(heightfield.height * heightfield.width);
+		for (int i = 0; i < heightfield.height * heightfield.width; ++i)
+			if (const rcSpan* const span = heightfield.spans[i])
+				result[i] = span->area;
+		return result;
+	}
+}
+
 TEST_CASE("rcFilterLowHangingWalkableObstacles", "[recast, filtering]")
 {
 	rcContext context;
@@ -242,14 +260,56 @@ TEST_CASE("rcFilterLedgeSpans", "[recast, filtering]")
 			}
 		}
 
-		// Free all the heightfield spans
-		for (int x = 0; x < heightfield.width; ++x)
+		freeHeightfieldSpans(heightfield);
+	}
+
+	SECTION("Random sample")
+	{
+		heightfield.width = 5;
+		heightfield.height = 5;
+
+		const unsigned smin[] = {
+			0,  0,  0,  0,  0,
+			0,  0, 11,  0,  0,
+			0,  6,  0, 10,  0,
+			0,  0, 11,  0,  0,
+			0,  0,  0,  0,  0,
+		};
+
+		const unsigned smax[] = {
+			1,  1,  1,  1,  1,
+			1,  1, 12,  1,  1,
+			1,  7,  1, 11,  1,
+			1,  1, 12,  1,  1,
+			1,  1,  1,  1,  1,
+		};
+
+		for (int z = 0; z < heightfield.height; ++z)
 		{
-			for (int z = 0; z < heightfield.height; ++z)
+			for (int x = 0; x < heightfield.width; ++x)
 			{
-				rcFree(heightfield.spans[x + z * heightfield.width]);
+				rcSpan* span = (rcSpan*)rcAlloc(sizeof(rcSpan), RC_ALLOC_PERM);
+				span->area = 1;
+				span->smin = smin[x + z * heightfield.width];
+				span->smax = smax[x + z * heightfield.width];
+				span->next = NULL;
+				heightfield.spans[x + z * heightfield.width] = span;
 			}
 		}
+
+		rcFilterLedgeSpans(&context, walkableHeight, walkableClimb, heightfield);
+
+		const std::vector<unsigned> expectedAreas = {
+			0, 0, 0, 0, 0,
+			0, 1, 0, 1, 0,
+			0, 0, 1, 0, 0,
+			0, 1, 0, 1, 0,
+			0, 0, 0, 0, 0,
+		};
+
+		CHECK_THAT(getAreas(heightfield), Catch::Matchers::Equals(expectedAreas));
+
+		freeHeightfieldSpans(heightfield);
 	}
 }
 
