@@ -16,40 +16,35 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#ifndef CONVEXVOLUMETOOL_H
-#define CONVEXVOLUMETOOL_H
+#pragma once
 
 #include "Sample.h"
 
-// Tool to create convex volumess for InputGeom
-
+/// Tool to create convex volumes for InputGeom
 class ConvexVolumeTool : public SampleTool
 {
-	Sample* m_sample;
-	int m_areaType;
-	float m_polyOffset;
-	float m_boxHeight;
-	float m_boxDescent;
-	
-	static const int MAX_PTS = 12;
-	float m_pts[MAX_PTS*3];
-	int m_npts;
+	Sample* m_sample = nullptr;
+	int m_areaType = SAMPLE_POLYAREA_GRASS;
+	float m_polyOffset = 0.0f;
+	float m_boxHeight = 6.0f;
+	float m_boxDescent = 1.0f;
+
+	static constexpr int MAX_PTS = 12;
+	float m_pts[MAX_PTS * 3];
+	int m_npts = 0;
 	int m_hull[MAX_PTS];
-	int m_nhull;
-	
+	int m_nhull = 0;
+
 public:
-	ConvexVolumeTool();
-	
-	virtual SampleToolType type() { return SampleToolType::CONVEX_VOLUME; }
-	virtual void init(Sample* sample);
-	virtual void reset();
-	virtual void handleMenu();
-	virtual void handleClick(const float* s, const float* p, bool shift);
-	virtual void handleToggle();
-	virtual void handleStep();
-	virtual void handleUpdate(const float dt);
-	virtual void handleRender();
-	virtual void handleRenderOverlay(double* proj, double* model, int* view);
+	SampleToolType type() override { return SampleToolType::CONVEX_VOLUME; }
+	void init(Sample* sample) override { m_sample = sample; }
+	void reset() override { m_npts = 0; m_nhull = 0; }
+	void handleMenu() override;
+	void handleClick(const float* s, const float* p, bool shift) override;
+	void handleToggle() override {}
+	void handleStep() override {}
+	void handleUpdate(const float dt) override {}
+	void handleRender() override;
+	void handleRenderOverlay(double* proj, double* model, int* view) override;
 };
 
-#endif // CONVEXVOLUMETOOL_H
