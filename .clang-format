@@ -1,0 +1,66 @@
+---
+Language: Cpp
+BasedOnStyle: LLVM
+
+AccessModifierOffset: -4
+AlignEscapedNewlines: Left
+AllowShortFunctionsOnASingleLine: All
+AllowShortBlocksOnASingleLine: Always
+AllowShortIfStatementsOnASingleLine: Always
+AllowShortLoopsOnASingleLine: true
+AllowShortCaseLabelsOnASingleLine: true
+AlwaysBreakBeforeMultilineStrings: true
+AlwaysBreakTemplateDeclarations: true
+BreakBeforeBraces: Allman
+BreakBeforeTernaryOperators: true
+#BCIS_BeforeComma: true
+#ConstructorInitializerIndentWidth: -4
+#AlignConsecutiveAssignments: Consecutive
+BinPackArguments: false
+BinPackParameters: false
+AlignAfterOpenBracket: DontAlign
+AllowAllParametersOfDeclarationOnNextLine: false
+ContinuationIndentWidth: 4
+IndentCaseLabels: false
+InsertBraces: true
+BreakConstructorInitializers: BeforeComma
+ColumnLimit: 128
+CompactNamespaces: true
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+ForEachMacros:
+  - for
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex:           '.*(PCH).*'
+    Priority: -1
+  - Regex:           '".*"'
+    Priority: 1
+  - Regex:           '^<.*\.(h)>'
+    Priority: 3
+  - Regex:           '^<.*>'
+    Priority: 4
+IncludeIsMainRegex: '([-_](test|unittest))?$'
+IndentPPDirectives: AfterHash
+IndentWidth: 4
+KeepEmptyLinesAtTheStartOfBlocks: false
+PenaltyBreakBeforeFirstCallParameter: 1
+PenaltyReturnTypeOnItsOwnLine: 200
+PointerAlignment: Left
+RawStringFormats:
+  - Language: Cpp
+    Delimiters:
+      - cc
+      - CC
+      - cpp
+      - Cpp
+      - CPP
+      - 'c++'
+      - 'C++'
+    CanonicalDelimiter: ''
+    BasedOnStyle: google
+SpaceAfterCStyleCast: false
+SpacesBeforeTrailingComments: 2
+Standard: Auto
+TabWidth: 4
+UseTab: Always
+...
