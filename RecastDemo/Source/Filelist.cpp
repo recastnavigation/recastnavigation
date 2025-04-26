@@ -33,10 +33,7 @@ void scanDirectoryAppend(const std::string& path, const std::string& ext, std::v
 
 	_finddata_t dir;
 	intptr_t fh = _findfirst(pathWithExt.c_str(), &dir);
-	if (fh == -1L)
-	{
-		return;
-	}
+	if (fh == -1L) { return; }
 
 	do
 	{

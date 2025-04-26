@@ -16,25 +16,29 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#ifndef OFFMESHCONNECTIONTOOL_H
-#define OFFMESHCONNECTIONTOOL_H
+#pragma once
 
 #include "Sample.h"
 
-// Tool to create off-mesh connection for InputGeom
-
+/// Tool to create off-mesh connection for InputGeom
 class OffMeshConnectionTool : public SampleTool
 {
-	Sample* m_sample;
+	Sample* m_sample = nullptr;
 	float m_hitPos[3];
-	bool m_hitPosSet;
-	bool m_bidir;
-	unsigned char m_oldFlags;
-	
+	bool m_hitPosSet = 0;
+	bool m_bidir = true;
+	unsigned char m_oldFlags = 0;
+
 public:
-	OffMeshConnectionTool();
-	~OffMeshConnectionTool();
-	
+	OffMeshConnectionTool() = default;
+	~OffMeshConnectionTool()
+	{
+		if (m_sample)
+		{
+			m_sample->setNavMeshDrawFlags(m_oldFlags);
+		}
+	}
+
 	virtual SampleToolType type() { return SampleToolType::OFFMESH_CONNECTION; }
 	virtual void init(Sample* sample);
 	virtual void reset();
@@ -46,5 +50,3 @@ public:
 	virtual void handleRender();
 	virtual void handleRenderOverlay(double* proj, double* model, int* view);
 };
-
-#endif // OFFMESHCONNECTIONTOOL_H

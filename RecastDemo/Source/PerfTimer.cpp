@@ -21,7 +21,7 @@
 #if defined(WIN32)
 
 // Win32
-#include <windows.h>
+#	include <windows.h>
 
 TimeVal getPerfTime()
 {
@@ -33,27 +33,21 @@ TimeVal getPerfTime()
 int getPerfTimeUsec(const TimeVal duration)
 {
 	static __int64 freq = 0;
-	if (freq == 0)
-		QueryPerformanceFrequency((LARGE_INTEGER*)&freq);
-	return (int)(duration*1000000 / freq);
+	if (freq == 0) { QueryPerformanceFrequency((LARGE_INTEGER*)&freq); }
+	return (int)(duration * 1000000 / freq);
 }
 
-#else
+#else  // Linux, BSD, OSX
 
-// Linux, BSD, OSX
-
-#include <sys/time.h>
+#	include <sys/time.h>
 
 TimeVal getPerfTime()
 {
 	timeval now;
 	gettimeofday(&now, 0);
-	return (TimeVal)now.tv_sec*1000000L + (TimeVal)now.tv_usec;
+	return (TimeVal)now.tv_sec * 1000000L + (TimeVal)now.tv_usec;
 }
 
-int getPerfTimeUsec(const TimeVal duration)
-{
-	return (int)duration;
-}
+int getPerfTimeUsec(const TimeVal duration) { return (int)duration; }
 
 #endif

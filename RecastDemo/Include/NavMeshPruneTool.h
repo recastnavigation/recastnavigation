@@ -24,7 +24,7 @@ class NavmeshFlags;
 
 /**
  * Prune navmesh to accessible locations from a point.
-*/
+ */
 class NavMeshPruneTool : public SampleTool
 {
 	Sample* m_sample = nullptr;
@@ -51,4 +51,3 @@ public:
 	void handleRender() override;
 	void handleRenderOverlay(double* proj, double* model, int* view) override;
 };
-

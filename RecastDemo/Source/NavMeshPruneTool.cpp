@@ -16,21 +16,24 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
+#include "NavMeshPruneTool.h"
+
+#include "DetourAssert.h"
+#include "DetourCommon.h"
+#include "DetourDebugDraw.h"
+#include "DetourNavMesh.h"
+#include "InputGeom.h"
+#include "SDL.h"
+#include "SDL_opengl.h"
+#include "Sample.h"
+#include "imgui.h"
+
+#include <float.h>
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
-#include <float.h>
+
 #include <vector>
-#include "SDL.h"
-#include "SDL_opengl.h"
-#include "imgui.h"
-#include "NavMeshPruneTool.h"
-#include "InputGeom.h"
-#include "Sample.h"
-#include "DetourNavMesh.h"
-#include "DetourCommon.h"
-#include "DetourAssert.h"
-#include "DetourDebugDraw.h"
 
 #ifdef WIN32
 #	define snprintf _snprintf
@@ -46,13 +49,11 @@ class NavmeshFlags
 		dtPolyRef base;
 	};
 
-	const dtNavMesh* m_nav;
-	TileFlags* m_tiles;
-	int m_ntiles;
+	const dtNavMesh* m_nav = nullptr;
+	TileFlags* m_tiles = nullptr;
+	int m_ntiles = 0;
 
 public:
-	NavmeshFlags() : m_nav(0), m_tiles(0), m_ntiles(0) { }
-
 	~NavmeshFlags()
 	{
 		for (int i = 0; i < m_ntiles; ++i)
@@ -67,9 +68,9 @@ public:
 		m_ntiles = nav->getMaxTiles();
 		if (!m_ntiles) { return true; }
 
-		m_tiles = (TileFlags*)dtAlloc(sizeof(TileFlags)*m_ntiles, DT_ALLOC_TEMP);
+		m_tiles = (TileFlags*)dtAlloc(sizeof(TileFlags) * m_ntiles, DT_ALLOC_TEMP);
 		if (!m_tiles) { return false; }
-		memset(m_tiles, 0, sizeof(TileFlags)*m_ntiles);
+		memset(m_tiles, 0, sizeof(TileFlags) * m_ntiles);
 
 		// Alloc flags for each tile.
 		for (int i = 0; i < nav->getMaxTiles(); ++i)
@@ -189,7 +190,8 @@ NavMeshPruneTool::~NavMeshPruneTool()
 void NavMeshPruneTool::reset()
 {
 	m_hitPosSet = false;
-	delete m_flags; m_flags = nullptr;
+	delete m_flags;
+	m_flags = nullptr;
 }
 
 void NavMeshPruneTool::handleMenu()
@@ -206,7 +208,8 @@ void NavMeshPruneTool::handleMenu()
 	if (imguiButton("Prune Unselected"))
 	{
 		disableUnvisitedPolys(nav, m_flags);
-		delete m_flags; m_flags = nullptr;
+		delete m_flags;
+		m_flags = nullptr;
 	}
 }
 
@@ -232,7 +235,7 @@ void NavMeshPruneTool::handleClick(const float* s, const float* p, bool shift)
 		m_flags->init(nav);
 	}
 
-	const float halfExtents[3] = { 2, 4, 2 };
+	const float halfExtents[3] = {2, 4, 2};
 	dtQueryFilter filter;
 	dtPolyRef ref = 0;
 	query->findNearestPoly(p, halfExtents, &filter, &ref, 0);
@@ -247,14 +250,14 @@ void NavMeshPruneTool::handleRender()
 	if (m_hitPosSet)
 	{
 		const float s = m_sample->getAgentRadius();
-		const unsigned int col = duRGBA(255,255,255,255);
+		const unsigned int col = duRGBA(255, 255, 255, 255);
 		debugDraw.begin(DU_DRAW_LINES);
-		debugDraw.vertex(m_hitPos[0]-s,m_hitPos[1],m_hitPos[2], col);
-		debugDraw.vertex(m_hitPos[0]+s,m_hitPos[1],m_hitPos[2], col);
-		debugDraw.vertex(m_hitPos[0],m_hitPos[1]-s,m_hitPos[2], col);
-		debugDraw.vertex(m_hitPos[0],m_hitPos[1]+s,m_hitPos[2], col);
-		debugDraw.vertex(m_hitPos[0],m_hitPos[1],m_hitPos[2]-s, col);
-		debugDraw.vertex(m_hitPos[0],m_hitPos[1],m_hitPos[2]+s, col);
+		debugDraw.vertex(m_hitPos[0] - s, m_hitPos[1], m_hitPos[2], col);
+		debugDraw.vertex(m_hitPos[0] + s, m_hitPos[1], m_hitPos[2], col);
+		debugDraw.vertex(m_hitPos[0], m_hitPos[1] - s, m_hitPos[2], col);
+		debugDraw.vertex(m_hitPos[0], m_hitPos[1] + s, m_hitPos[2], col);
+		debugDraw.vertex(m_hitPos[0], m_hitPos[1], m_hitPos[2] - s, col);
+		debugDraw.vertex(m_hitPos[0], m_hitPos[1], m_hitPos[2] + s, col);
 		debugDraw.end();
 	}
 
@@ -271,7 +274,7 @@ void NavMeshPruneTool::handleRender()
 				const dtPolyRef ref = base | (unsigned int)j;
 				if (m_flags->getFlags(ref))
 				{
-					duDebugDrawNavMeshPoly(&debugDraw, *nav, ref, duRGBA(255,255,255,128));
+					duDebugDrawNavMeshPoly(&debugDraw, *nav, ref, duRGBA(255, 255, 255, 128));
 				}
 			}
 		}
@@ -280,10 +283,5 @@ void NavMeshPruneTool::handleRender()
 
 void NavMeshPruneTool::handleRenderOverlay(double* /*proj*/, double* /*model*/, int* view)
 {
-	imguiDrawText(
-		280,
-		view[3] - 40,
-		IMGUI_ALIGN_LEFT,
-		"LMB: Click fill area.",
-		imguiRGBA(255, 255, 255, 192));
+	imguiDrawText(280, view[3] - 40, IMGUI_ALIGN_LEFT, "LMB: Click fill area.", imguiRGBA(255, 255, 255, 192));
 }
