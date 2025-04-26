@@ -35,7 +35,6 @@
 #include "Filelist.h"
 #include "InputGeom.h"
 #include "Recast.h"
-#include "Sample_Debug.h"
 #include "Sample_SoloMesh.h"
 #include "Sample_TempObstacles.h"
 #include "Sample_TileMesh.h"
@@ -57,7 +56,6 @@ struct SampleItem
 Sample* createSolo() { return new Sample_SoloMesh(); }
 Sample* createTile() { return new Sample_TileMesh(); }
 Sample* createTempObstacle() { return new Sample_TempObstacles(); }
-Sample* createDebug() { return new Sample_Debug(); }
 static SampleItem g_samples[] =
 {
 	{ createSolo, "Solo Mesh" },
