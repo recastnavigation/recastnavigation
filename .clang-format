@@ -4,11 +4,11 @@ BasedOnStyle: LLVM
 
 AccessModifierOffset: -4
 AlignEscapedNewlines: Left
-AllowShortFunctionsOnASingleLine: All
-AllowShortBlocksOnASingleLine: Always
-AllowShortIfStatementsOnASingleLine: Always
-AllowShortLoopsOnASingleLine: true
-AllowShortCaseLabelsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortBlocksOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: false
 AlwaysBreakBeforeMultilineStrings: true
 AlwaysBreakTemplateDeclarations: true
 BreakBeforeBraces: Allman
