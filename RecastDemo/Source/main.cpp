@@ -100,27 +100,12 @@ int main(int /*argc*/, char** /*argv*/)
 	SDL_DisplayMode displayMode;
 	SDL_GetCurrentDisplayMode(0, &displayMode);
 
-	bool presentationMode = false;
-	Uint32 flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
-	int width;
-	int height;
-	if (presentationMode)
-	{
-		// Create a fullscreen window at the native resolution.
-		width = displayMode.w;
-		height = displayMode.h;
-		flags |= SDL_WINDOW_FULLSCREEN;
-	}
-	else
-	{
-		float aspect = 16.0f / 9.0f;
-		width = rcMin(displayMode.w, (int)(displayMode.h * aspect)) - 80;
-		height = displayMode.h - 80;
-	}
+	int width = rcMin(displayMode.w, (int)(displayMode.h * (16.0f / 9.0f))) - 80;
+	int height = displayMode.h - 80;
 
 	SDL_Window* window;
 	SDL_Renderer* renderer;
-	int errorCode = SDL_CreateWindowAndRenderer(width, height, flags, &window, &renderer);
+	int errorCode = SDL_CreateWindowAndRenderer(width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE, &window, &renderer);
 
 	if (errorCode != 0 || !window || !renderer)
 	{
@@ -161,7 +146,7 @@ int main(int /*argc*/, char** /*argv*/)
 	float rayEnd[3];
 	bool mouseOverMenu = false;
 
-	bool showMenu = !presentationMode;
+	bool showMenu = true;
 	bool showLog = false;
 	bool showTools = true;
 	bool showLevels = false;
