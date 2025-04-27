@@ -52,18 +52,9 @@ struct SampleItem
 	Sample* (*create)();
 	const string name;
 };
-Sample* createSolo()
-{
-	return new Sample_SoloMesh();
-}
-Sample* createTile()
-{
-	return new Sample_TileMesh();
-}
-Sample* createTempObstacle()
-{
-	return new Sample_TempObstacles();
-}
+Sample* createSolo() { return new Sample_SoloMesh(); }
+Sample* createTile() { return new Sample_TileMesh(); }
+Sample* createTempObstacle() { return new Sample_TempObstacles(); }
 static SampleItem g_samples[] = {
 	{createSolo, "Solo Mesh"},
 	{createTile, "Tile Mesh"},
@@ -477,17 +468,12 @@ int main(int /*argc*/, char** /*argv*/)
 
 		// Handle keyboard movement.
 		const Uint8* keystate = SDL_GetKeyboardState(NULL);
-		moveFront =
-			rcClamp(moveFront + dt * 4 * ((keystate[SDL_SCANCODE_W] || keystate[SDL_SCANCODE_UP]) ? 1 : -1), 0.0f, 1.0f);
-		moveLeft =
-			rcClamp(moveLeft + dt * 4 * ((keystate[SDL_SCANCODE_A] || keystate[SDL_SCANCODE_LEFT]) ? 1 : -1), 0.0f, 1.0f);
-		moveBack =
-			rcClamp(moveBack + dt * 4 * ((keystate[SDL_SCANCODE_S] || keystate[SDL_SCANCODE_DOWN]) ? 1 : -1), 0.0f, 1.0f);
-		moveRight =
-			rcClamp(moveRight + dt * 4 * ((keystate[SDL_SCANCODE_D] || keystate[SDL_SCANCODE_RIGHT]) ? 1 : -1), 0.0f, 1.0f);
+		moveFront = rcClamp(moveFront + dt * 4 * ((keystate[SDL_SCANCODE_W] || keystate[SDL_SCANCODE_UP]) ? 1 : -1), 0.0f, 1.0f);
+		moveLeft = rcClamp(moveLeft + dt * 4 * ((keystate[SDL_SCANCODE_A] || keystate[SDL_SCANCODE_LEFT]) ? 1 : -1), 0.0f, 1.0f);
+		moveBack = rcClamp(moveBack + dt * 4 * ((keystate[SDL_SCANCODE_S] || keystate[SDL_SCANCODE_DOWN]) ? 1 : -1), 0.0f, 1.0f);
+		moveRight = rcClamp(moveRight + dt * 4 * ((keystate[SDL_SCANCODE_D] || keystate[SDL_SCANCODE_RIGHT]) ? 1 : -1), 0.0f, 1.0f);
 		moveUp = rcClamp(moveUp + dt * 4 * ((keystate[SDL_SCANCODE_Q] || keystate[SDL_SCANCODE_PAGEUP]) ? 1 : -1), 0.0f, 1.0f);
-		moveDown =
-			rcClamp(moveDown + dt * 4 * ((keystate[SDL_SCANCODE_E] || keystate[SDL_SCANCODE_PAGEDOWN]) ? 1 : -1), 0.0f, 1.0f);
+		moveDown = rcClamp(moveDown + dt * 4 * ((keystate[SDL_SCANCODE_E] || keystate[SDL_SCANCODE_PAGEDOWN]) ? 1 : -1), 0.0f, 1.0f);
 
 		float keybSpeed = 22.0f;
 		if (SDL_GetModState() & KMOD_SHIFT)
@@ -605,11 +591,7 @@ int main(int /*argc*/, char** /*argv*/)
 			if (geom)
 			{
 				char text[64];
-				snprintf(text,
-					64,
-					"Verts: %.1fk  Tris: %.1fk",
-					geom->getMesh()->getVertCount() / 1000.0f,
-					geom->getMesh()->getTriCount() / 1000.0f);
+				snprintf(text, 64, "Verts: %.1fk  Tris: %.1fk", geom->getMesh()->getVertCount() / 1000.0f, geom->getMesh()->getTriCount() / 1000.0f);
 				imguiValue(text);
 			}
 			imguiSeparator();
@@ -791,8 +773,7 @@ int main(int /*argc*/, char** /*argv*/)
 		if (showTestCases)
 		{
 			static int testScroll = 0;
-			if (imguiBeginScrollArea(
-					"Choose Test To Run", width - 10 - 250 - 10 - 200, height - 10 - 450, 200, 450, &testScroll))
+			if (imguiBeginScrollArea("Choose Test To Run", width - 10 - 250 - 10 - 200, height - 10 - 450, 200, 450, &testScroll))
 			{
 				mouseOverMenu = true;
 			}
@@ -944,15 +925,7 @@ int main(int /*argc*/, char** /*argv*/)
 		}
 
 		// Marker
-		if (markerPositionSet && gluProject((GLdouble)markerPosition[0],
-									 (GLdouble)markerPosition[1],
-									 (GLdouble)markerPosition[2],
-									 modelviewMatrix,
-									 projectionMatrix,
-									 viewport,
-									 &x,
-									 &y,
-									 &z))
+		if (markerPositionSet && gluProject((GLdouble)markerPosition[0], (GLdouble)markerPosition[1], (GLdouble)markerPosition[2], modelviewMatrix, projectionMatrix, viewport, &x, &y, &z))
 		{
 			// Draw marker circle
 			glLineWidth(5.0f);
