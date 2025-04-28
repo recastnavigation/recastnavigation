@@ -33,8 +33,14 @@ static int compareItemX(const void* va, const void* vb)
 {
 	const BoundsItem* a = (const BoundsItem*)va;
 	const BoundsItem* b = (const BoundsItem*)vb;
-	if (a->bmin[0] < b->bmin[0]) { return -1; }
-	if (a->bmin[0] > b->bmin[0]) { return 1; }
+	if (a->bmin[0] < b->bmin[0])
+	{
+		return -1;
+	}
+	if (a->bmin[0] > b->bmin[0])
+	{
+		return 1;
+	}
 	return 0;
 }
 
@@ -42,8 +48,14 @@ static int compareItemY(const void* va, const void* vb)
 {
 	const BoundsItem* a = (const BoundsItem*)va;
 	const BoundsItem* b = (const BoundsItem*)vb;
-	if (a->bmin[1] < b->bmin[1]) { return -1; }
-	if (a->bmin[1] > b->bmin[1]) { return 1; }
+	if (a->bmin[1] < b->bmin[1])
+	{
+		return -1;
+	}
+	if (a->bmin[1] > b->bmin[1])
+	{
+		return 1;
+	}
 	return 0;
 }
 
@@ -58,15 +70,30 @@ static void calcExtends(const BoundsItem* items, const int /*nitems*/, const int
 	for (int i = imin + 1; i < imax; ++i)
 	{
 		const BoundsItem& it = items[i];
-		if (it.bmin[0] < bmin[0]) { bmin[0] = it.bmin[0]; }
-		if (it.bmin[1] < bmin[1]) { bmin[1] = it.bmin[1]; }
+		if (it.bmin[0] < bmin[0])
+		{
+			bmin[0] = it.bmin[0];
+		}
+		if (it.bmin[1] < bmin[1])
+		{
+			bmin[1] = it.bmin[1];
+		}
 
-		if (it.bmax[0] > bmax[0]) { bmax[0] = it.bmax[0]; }
-		if (it.bmax[1] > bmax[1]) { bmax[1] = it.bmax[1]; }
+		if (it.bmax[0] > bmax[0])
+		{
+			bmax[0] = it.bmax[0];
+		}
+		if (it.bmax[1] > bmax[1])
+		{
+			bmax[1] = it.bmax[1];
+		}
 	}
 }
 
-inline int longestAxis(float x, float y) { return y > x ? 1 : 0; }
+inline int longestAxis(float x, float y)
+{
+	return y > x ? 1 : 0;
+}
 
 static void subdivide(BoundsItem* items,
 	int nitems,
@@ -83,7 +110,10 @@ static void subdivide(BoundsItem* items,
 	int inum = imax - imin;
 	int icur = curNode;
 
-	if (curNode >= maxNodes) { return; }
+	if (curNode >= maxNodes)
+	{
+		return;
+	}
 
 	rcChunkyTriMeshNode& node = nodes[curNode++];
 
@@ -142,16 +172,25 @@ bool rcCreateChunkyTriMesh(const float* verts, const int* tris, int ntris, int t
 	int nchunks = (ntris + trisPerChunk - 1) / trisPerChunk;
 
 	triMesh->nodes = new rcChunkyTriMeshNode[nchunks * 4];
-	if (!triMesh->nodes) { return false; }
+	if (!triMesh->nodes)
+	{
+		return false;
+	}
 
 	triMesh->tris = new int[ntris * 3];
-	if (!triMesh->tris) { return false; }
+	if (!triMesh->tris)
+	{
+		return false;
+	}
 
 	triMesh->ntris = ntris;
 
 	// Build tree
 	BoundsItem* items = new BoundsItem[ntris];
-	if (!items) { return false; }
+	if (!items)
+	{
+		return false;
+	}
 
 	for (int i = 0; i < ntris; i++)
 	{
@@ -164,11 +203,23 @@ bool rcCreateChunkyTriMesh(const float* verts, const int* tris, int ntris, int t
 		for (int j = 1; j < 3; ++j)
 		{
 			const float* v = &verts[t[j] * 3];
-			if (v[0] < it.bmin[0]) { it.bmin[0] = v[0]; }
-			if (v[2] < it.bmin[1]) { it.bmin[1] = v[2]; }
+			if (v[0] < it.bmin[0])
+			{
+				it.bmin[0] = v[0];
+			}
+			if (v[2] < it.bmin[1])
+			{
+				it.bmin[1] = v[2];
+			}
 
-			if (v[0] > it.bmax[0]) { it.bmax[0] = v[0]; }
-			if (v[2] > it.bmax[1]) { it.bmax[1] = v[2]; }
+			if (v[0] > it.bmax[0])
+			{
+				it.bmax[0] = v[0];
+			}
+			if (v[2] > it.bmax[1])
+			{
+				it.bmax[1] = v[2];
+			}
 		}
 	}
 
@@ -186,8 +237,14 @@ bool rcCreateChunkyTriMesh(const float* verts, const int* tris, int ntris, int t
 	{
 		rcChunkyTriMeshNode& node = triMesh->nodes[i];
 		const bool isLeaf = node.i >= 0;
-		if (!isLeaf) { continue; }
-		if (node.n > triMesh->maxTrisPerChunk) { triMesh->maxTrisPerChunk = node.n; }
+		if (!isLeaf)
+		{
+			continue;
+		}
+		if (node.n > triMesh->maxTrisPerChunk)
+		{
+			triMesh->maxTrisPerChunk = node.n;
+		}
 	}
 
 	return true;
@@ -247,7 +304,10 @@ static bool checkOverlapSegment(const float p[2], const float q[2], const float 
 		if (fabsf(d[i]) < EPSILON)
 		{
 			// Ray is parallel to slab. No hit if origin not within slab
-			if (p[i] < bmin[i] || p[i] > bmax[i]) { return false; }
+			if (p[i] < bmin[i] || p[i] > bmax[i])
+			{
+				return false;
+			}
 		}
 		else
 		{
@@ -261,15 +321,28 @@ static bool checkOverlapSegment(const float p[2], const float q[2], const float 
 				t1 = t2;
 				t2 = tmp;
 			}
-			if (t1 > tmin) { tmin = t1; }
-			if (t2 < tmax) { tmax = t2; }
-			if (tmin > tmax) { return false; }
+			if (t1 > tmin)
+			{
+				tmin = t1;
+			}
+			if (t2 < tmax)
+			{
+				tmax = t2;
+			}
+			if (tmin > tmax)
+			{
+				return false;
+			}
 		}
 	}
 	return true;
 }
 
-int rcGetChunksOverlappingSegment(const rcChunkyTriMesh* triMesh, float segmentStart[2], float segmentEnd[2], int* ids, const int maxIds)
+int rcGetChunksOverlappingSegment(const rcChunkyTriMesh* triMesh,
+	float segmentStart[2],
+	float segmentEnd[2],
+	int* ids,
+	const int maxIds)
 {
 	// Traverse tree
 	int i = 0;
@@ -289,7 +362,10 @@ int rcGetChunksOverlappingSegment(const rcChunkyTriMesh* triMesh, float segmentS
 			}
 		}
 
-		if (overlap || isLeafNode) { i++; }
+		if (overlap || isLeafNode)
+		{
+			i++;
+		}
 		else
 		{
 			const int escapeIndex = -node->i;
