@@ -48,10 +48,10 @@ struct rcChunkyTriMesh
 
 /// Creates partitioned triangle mesh (AABB tree),
 /// where each node contains at max trisPerChunk triangles.
-bool rcCreateChunkyTriMesh(const float* verts, const int* tris, int ntris, int trisPerChunk, rcChunkyTriMesh* cm);
+bool rcCreateChunkyTriMesh(const float* verts, const int* tris, int ntris, int trisPerChunk, rcChunkyTriMesh* triMesh);
 
-/// Returns the chunk indices which overlap the input rectable.
-int rcGetChunksOverlappingRect(const rcChunkyTriMesh* cm, float bmin[2], float bmax[2], int* ids, const int maxIds);
+/// Finds the chunk indices that overlap the input rectangle.
+int rcGetChunksOverlappingRect(const rcChunkyTriMesh* triMesh, float bmin[2], float bmax[2], int* ids, int maxIds);
 
 /// Returns the chunk indices which overlap the input segment.
-int rcGetChunksOverlappingSegment(const rcChunkyTriMesh* cm, float p[2], float q[2], int* ids, const int maxIds);
+int rcGetChunksOverlappingSegment(const rcChunkyTriMesh* triMesh, float segmentStart[2], float segmentEnd[2], int* ids, int maxIds);
