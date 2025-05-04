@@ -29,7 +29,11 @@ struct BoundsItem
 	int i;
 };
 
-static int compareItemX(const void* va, const void* vb)
+namespace
+{
+const float EPSILON = 1e-6f;
+
+int compareItemX(const void* va, const void* vb)
 {
 	const BoundsItem* a = (const BoundsItem*)va;
 	const BoundsItem* b = (const BoundsItem*)vb;
@@ -44,7 +48,7 @@ static int compareItemX(const void* va, const void* vb)
 	return 0;
 }
 
-static int compareItemY(const void* va, const void* vb)
+int compareItemY(const void* va, const void* vb)
 {
 	const BoundsItem* a = (const BoundsItem*)va;
 	const BoundsItem* b = (const BoundsItem*)vb;
@@ -59,7 +63,7 @@ static int compareItemY(const void* va, const void* vb)
 	return 0;
 }
 
-static void calcExtends(const BoundsItem* items, const int /*nitems*/, const int imin, const int imax, float* bmin, float* bmax)
+void calcExtends(const BoundsItem* items, const int /*nitems*/, const int imin, const int imax, float* bmin, float* bmax)
 {
 	bmin[0] = items[imin].bmin[0];
 	bmin[1] = items[imin].bmin[1];
@@ -90,12 +94,8 @@ static void calcExtends(const BoundsItem* items, const int /*nitems*/, const int
 	}
 }
 
-inline int longestAxis(float x, float y)
-{
-	return y > x ? 1 : 0;
-}
-
-static void subdivide(BoundsItem* items,
+void subdivide(
+	BoundsItem* items,
 	int nitems,
 	int imin,
 	int imax,
@@ -141,18 +141,11 @@ static void subdivide(BoundsItem* items,
 		// Split
 		calcExtends(items, nitems, imin, imax, node.bmin, node.bmax);
 
-		int axis = longestAxis(node.bmax[0] - node.bmin[0], node.bmax[1] - node.bmin[1]);
+		float xLength = node.bmax[0] - node.bmin[0];
+		float yLength = node.bmax[1] - node.bmin[1];
 
-		if (axis == 0)
-		{
-			// Sort along x-axis
-			qsort(items + imin, static_cast<size_t>(inum), sizeof(BoundsItem), compareItemX);
-		}
-		else if (axis == 1)
-		{
-			// Sort along y-axis
-			qsort(items + imin, static_cast<size_t>(inum), sizeof(BoundsItem), compareItemY);
-		}
+		// Sort along the longest axis
+		qsort(items + imin, static_cast<size_t>(inum), sizeof(BoundsItem), (xLength >= yLength) ? compareItemX : compareItemY);
 
 		int isplit = imin + inum / 2;
 
@@ -166,6 +159,12 @@ static void subdivide(BoundsItem* items,
 		node.i = -iescape;
 	}
 }
+
+inline bool checkOverlapRect(const float amin[2], const float amax[2], const float bmin[2], const float bmax[2])
+{
+	return amin[0] <= bmax[0] && amax[0] >= bmin[0] && amin[1] <= bmax[1] && amax[1] >= bmin[1];
+}
+}  // namespace
 
 bool rcCreateChunkyTriMesh(const float* verts, const int* tris, int ntris, int trisPerChunk, rcChunkyTriMesh* triMesh)
 {
@@ -250,11 +249,6 @@ bool rcCreateChunkyTriMesh(const float* verts, const int* tris, int ntris, int t
 	return true;
 }
 
-inline bool checkOverlapRect(const float amin[2], const float amax[2], const float bmin[2], const float bmax[2])
-{
-	return amin[0] <= bmax[0] && amax[0] >= bmin[0] && amin[1] <= bmax[1] && amax[1] >= bmin[1];
-}
-
 int rcGetChunksOverlappingRect(const rcChunkyTriMesh* triMesh, float bmin[2], float bmax[2], int* ids, const int maxIds)
 {
 	// Traverse tree
@@ -289,10 +283,8 @@ int rcGetChunksOverlappingRect(const rcChunkyTriMesh* triMesh, float bmin[2], fl
 	return n;
 }
 
-static bool checkOverlapSegment(const float p[2], const float q[2], const float bmin[2], const float bmax[2])
+bool checkOverlapSegment(const float p[2], const float q[2], const float bmin[2], const float bmax[2])
 {
-	static const float EPSILON = 1e-6f;
-
 	float tmin = 0;
 	float tmax = 1;
 	float d[2];
@@ -338,7 +330,8 @@ static bool checkOverlapSegment(const float p[2], const float q[2], const float 
 	return true;
 }
 
-int rcGetChunksOverlappingSegment(const rcChunkyTriMesh* triMesh,
+int rcGetChunksOverlappingSegment(
+	const rcChunkyTriMesh* triMesh,
 	float segmentStart[2],
 	float segmentEnd[2],
 	int* ids,
