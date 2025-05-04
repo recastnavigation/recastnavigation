@@ -1,34 +1,62 @@
 ---
+# clang-format settings
 Language: Cpp
 BasedOnStyle: LLVM
+Standard: Auto
+ForEachMacros: [ for ]
 
+# indentation
+TabWidth: 4
+IndentWidth: 4
+UseTab: Always
 AccessModifierOffset: -4
-AlignEscapedNewlines: Left
+ContinuationIndentWidth: 4
+IndentCaseLabels: false
+
+# whitespace
+SpaceAfterCStyleCast: false
+SpacesBeforeTrailingComments: 2
+KeepEmptyLines:
+  AtEndOfFile: false
+  AtStartOfBlock: false
+  AtStartOfFile: false
+
+# line breaks
 AllowShortFunctionsOnASingleLine: Inline
 AllowShortBlocksOnASingleLine: Empty
 AllowShortIfStatementsOnASingleLine: Never
 AllowShortLoopsOnASingleLine: false
 AllowShortCaseLabelsOnASingleLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
 AlwaysBreakBeforeMultilineStrings: true
 AlwaysBreakTemplateDeclarations: true
-BreakBeforeBraces: Allman
-BreakBeforeTernaryOperators: true
-#BCIS_BeforeComma: true
-#ConstructorInitializerIndentWidth: -4
-#AlignConsecutiveAssignments: Consecutive
-BinPackArguments: false
-BinPackParameters: false
-AlignAfterOpenBracket: DontAlign
-AllowAllParametersOfDeclarationOnNextLine: false
-ContinuationIndentWidth: 4
-IndentCaseLabels: false
-InsertBraces: true
+BreakAfterReturnType: Automatic
+PenaltyReturnTypeOnItsOwnLine: 999999
+
+# constructor initializer lists
+PackConstructorInitializers: CurrentLine
 BreakConstructorInitializers: BeforeComma
-ColumnLimit: 128
+ConstructorInitializerIndentWidth: 0
+
+# function calls
+BinPackArguments: false
+AllowAllArgumentsOnNextLine: false
+
+# function declarations
+BinPackParameters: false
+AlignAfterOpenBracket: AlwaysBreak
+BreakBeforeBraces: Allman
+
+# style
+InsertBraces: true
+PointerAlignment: Left
 CompactNamespaces: true
-ConstructorInitializerAllOnOneLineOrOnePerLine: true
-ForEachMacros:
-  - for
+ColumnLimit: 128
+AlignEscapedNewlines: LeftWithLastLine
+AlignArrayOfStructures: Right
+FixNamespaceComments: false
+
+# includes & preprocessor
 IncludeBlocks: Regroup
 IncludeCategories:
   - Regex:           '.*(PCH).*'
@@ -41,11 +69,8 @@ IncludeCategories:
     Priority: 4
 IncludeIsMainRegex: '([-_](test|unittest))?$'
 IndentPPDirectives: AfterHash
-IndentWidth: 4
-KeepEmptyLinesAtTheStartOfBlocks: false
-PenaltyBreakBeforeFirstCallParameter: 1
-PenaltyReturnTypeOnItsOwnLine: 200
-PointerAlignment: Left
+
+# Hints for detecting supported languages code blocks in raw strings
 RawStringFormats:
   - Language: Cpp
     Delimiters:
@@ -58,9 +83,4 @@ RawStringFormats:
       - 'C++'
     CanonicalDelimiter: ''
     BasedOnStyle: google
-SpaceAfterCStyleCast: false
-SpacesBeforeTrailingComments: 2
-Standard: Auto
-TabWidth: 4
-UseTab: Always
 ...
