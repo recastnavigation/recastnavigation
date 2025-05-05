@@ -9,6 +9,10 @@
 *.so
 *.idb
 
+# clangd
+.cache/
+compile_commands.json
+
 ## Linux exes have no extension
 RecastDemo/Bin/RecastDemo
 RecastDemo/Bin/Tests
