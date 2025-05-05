@@ -315,7 +315,7 @@ int Sample_TempObstacles::rasterizeTileLayers(const int tileX, const int tileY, 
 	tbmax[0] = tcfg.bmax[0];
 	tbmax[1] = tcfg.bmax[2];
 	int cid[512];// TODO: Make grow when returning too many items.
-	const int ncid = rcGetChunksOverlappingRect(chunkyMesh, tbmin, tbmax, cid, 512);
+	const int ncid = chunkyMesh->GetChunksOverlappingRect(tbmin, tbmax, cid, 512);
 	if (!ncid)
 	{
 		return 0; // empty

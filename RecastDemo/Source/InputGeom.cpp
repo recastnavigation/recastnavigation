@@ -443,7 +443,7 @@ bool InputGeom::raycastMesh(float* src, float* dst, float& tmin)
 	};
 
 	int cid[512];
-	const int ncid = rcGetChunksOverlappingSegment(m_chunkyMesh, p, q, cid, 512);
+	const int ncid = m_chunkyMesh->GetChunksOverlappingSegment(p, q, cid, 512);
 	if (!ncid) { return false; }
 
 	tmin = 1.0f;

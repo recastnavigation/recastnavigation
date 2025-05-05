@@ -851,7 +851,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(const int tileX, const int tileY, 
 	tbmax[0] = m_config.bmax[0];
 	tbmax[1] = m_config.bmax[2];
 	int overlappingChunkIndexes[512];// TODO: Make grow when returning too many items.
-	const int numOverlappingChunks = rcGetChunksOverlappingRect(chunkyMesh, tbmin, tbmax, overlappingChunkIndexes, 512);
+	const int numOverlappingChunks = chunkyMesh->GetChunksOverlappingRect(tbmin, tbmax, overlappingChunkIndexes, 512);
 	if (!numOverlappingChunks)
 	{
 		return 0;

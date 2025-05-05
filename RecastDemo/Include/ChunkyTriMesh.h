@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include <vector>
+
 struct rcChunkyTriMeshNode
 {
 	float bmin[2];
@@ -28,35 +30,18 @@ struct rcChunkyTriMeshNode
 
 struct rcChunkyTriMesh
 {
-	rcChunkyTriMesh() = default;
-	rcChunkyTriMesh(const rcChunkyTriMesh&) = delete;
-	rcChunkyTriMesh(const rcChunkyTriMesh&&) = delete;
-	rcChunkyTriMesh& operator=(const rcChunkyTriMesh&) = delete;
-	rcChunkyTriMesh& operator=(const rcChunkyTriMesh&&) = delete;
-	~rcChunkyTriMesh()
-	{
-		delete[] nodes;
-		delete[] tris;
-	}
-
-	rcChunkyTriMeshNode* nodes = nullptr;
+	std::vector<rcChunkyTriMeshNode> nodes{};
 	int nnodes = 0;
-	int* tris = nullptr;
-	int ntris = 0;
+	std::vector<int> tris{};
 	int maxTrisPerChunk = 0;
+
+	/// Finds the chunk indices that overlap the input rectangle.
+	int GetChunksOverlappingRect(float bmin[2], float bmax[2], int* ids, int maxIds) const;
+
+	/// Returns the chunk indices which overlap the input segment.
+	int GetChunksOverlappingSegment(float segmentStart[2], float segmentEnd[2], int* ids, int maxIds) const;
 };
 
 /// Creates partitioned triangle mesh (AABB tree),
 /// where each node contains at max trisPerChunk triangles.
 bool rcCreateChunkyTriMesh(const float* verts, const int* tris, int ntris, int trisPerChunk, rcChunkyTriMesh* triMesh);
-
-/// Finds the chunk indices that overlap the input rectangle.
-int rcGetChunksOverlappingRect(const rcChunkyTriMesh* triMesh, float bmin[2], float bmax[2], int* ids, int maxIds);
-
-/// Returns the chunk indices which overlap the input segment.
-int rcGetChunksOverlappingSegment(
-	const rcChunkyTriMesh* triMesh,
-	float segmentStart[2],
-	float segmentEnd[2],
-	int* ids,
-	int maxIds);
