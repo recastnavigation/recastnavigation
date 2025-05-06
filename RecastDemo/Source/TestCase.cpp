@@ -21,7 +21,6 @@
 #include "DetourCommon.h"
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"
-#include "SDL.h"
 #include "SDL_opengl.h"
 
 #include <ctype.h>

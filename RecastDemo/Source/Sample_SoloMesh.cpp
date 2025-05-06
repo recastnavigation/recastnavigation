@@ -36,7 +36,6 @@
 #include "RecastDebugDraw.h"
 #include "RecastDump.h"
 #include "Sample.h"
-#include "SDL.h"
 #include "SDL_opengl.h"
 
 #ifdef WIN32
