@@ -18,10 +18,10 @@
 
 #pragma once
 
-#include <cstdint>
-
 #include "Recast.h"
 #include "Sample.h"
+
+#include <cstdint>
 
 class Sample_TileMesh : public Sample
 {
@@ -29,13 +29,14 @@ protected:
 	bool m_buildAll = true;
 	float m_totalBuildTimeMs = 0.0f;
 
+	// Recast state
+	rcConfig m_config{};
 	unsigned char* m_triareas = nullptr;
 	rcHeightfield* m_heightfield = nullptr;
 	rcCompactHeightfield* m_compactHeightfield = nullptr;
 	rcContourSet* m_contourSet = nullptr;
 	rcPolyMesh* m_polyMesh = nullptr;
 	rcPolyMeshDetail* m_detailPolyMesh = nullptr;
-	rcConfig m_config {};
 
 	enum class DrawMode : uint8_t
 	{
@@ -64,9 +65,9 @@ protected:
 	int m_maxPolysPerTile = 0;
 	float m_tileSize = 32.0f;
 
-	unsigned int m_tileColor = duRGBA(0,0,0,32);
-	float m_lastBuiltTileBoundsMin[3] = { 0.0f, 0.0f, 0.0f };
-	float m_lastBuiltTileBoundsMax[3] = { 0.0f, 0.0f, 0.0f };
+	unsigned int m_tileColor = duRGBA(0, 0, 0, 32);
+	float m_lastBuiltTileBoundsMin[3] = {0.0f, 0.0f, 0.0f};
+	float m_lastBuiltTileBoundsMax[3] = {0.0f, 0.0f, 0.0f};
 	float m_tileBuildTime = 0.0f;
 	float m_tileMemUsage = 0.0f;
 	int m_tileTriCount = 0;
