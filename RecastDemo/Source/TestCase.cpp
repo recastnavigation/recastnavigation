@@ -63,18 +63,28 @@ static char* parseRow(char* buf, char* bufEnd, char* row, int len)
 		switch (c)
 		{
 		case '\n':
-			if (start) { break; }
+			if (start)
+			{
+				break;
+			}
 			done = true;
 			break;
-		case '\r': break;
+		case '\r':
+			break;
 		case '\t':
 		case ' ':
-			if (start) { break; }
+			if (start)
+			{
+				break;
+			}
 			// else falls through
 		default:
 			start = false;
 			row[n++] = c;
-			if (n >= len - 1) { done = true; }
+			if (n >= len - 1)
+			{
+				done = true;
+			}
 			break;
 		}
 	}
@@ -156,7 +166,8 @@ bool TestCase::load(const std::string& filePath)
 			test->expand = false;
 			test->next = m_tests;
 			m_tests = test;
-			sscanf(row + 2,
+			sscanf(
+				row + 2,
 				"%f %f %f %f %f %f %hx %hx",
 				&test->spos[0],
 				&test->spos[1],
@@ -175,7 +186,8 @@ bool TestCase::load(const std::string& filePath)
 			test->expand = false;
 			test->next = m_tests;
 			m_tests = test;
-			sscanf(row + 2,
+			sscanf(
+				row + 2,
 				"%f %f %f %f %f %f %hx %hx",
 				&test->spos[0],
 				&test->spos[1],
@@ -204,7 +216,10 @@ void TestCase::resetTimes()
 
 void TestCase::doTests(dtNavMesh* navmesh, dtNavMeshQuery* navquery)
 {
-	if (!navmesh || !navquery) { return; }
+	if (!navmesh || !navquery)
+	{
+		return;
+	}
 
 	resetTimes();
 
@@ -236,7 +251,10 @@ void TestCase::doTests(dtNavMesh* navmesh, dtNavMeshQuery* navquery)
 		TimeVal findNearestPolyEnd = getPerfTime();
 		iter->findNearestPolyTime += getPerfTimeUsec(findNearestPolyEnd - findNearestPolyStart);
 
-		if (!startRef || !endRef) { continue; }
+		if (!startRef || !endRef)
+		{
+			continue;
+		}
 
 		if (iter->type == TEST_PATHFIND)
 		{
@@ -254,7 +272,15 @@ void TestCase::doTests(dtNavMesh* navmesh, dtNavMeshQuery* navquery)
 				TimeVal findStraightPathStart = getPerfTime();
 
 				navquery->findStraightPath(
-					iter->spos, iter->epos, polys, iter->npolys, straight, 0, 0, &iter->nstraight, MAX_POLYS);
+					iter->spos,
+					iter->epos,
+					polys,
+					iter->npolys,
+					straight,
+					0,
+					0,
+					&iter->nstraight,
+					MAX_POLYS);
 				TimeVal findStraightPathEnd = getPerfTime();
 				iter->findStraightPathTime += getPerfTimeUsec(findStraightPathEnd - findStraightPathStart);
 			}
@@ -374,13 +400,22 @@ void TestCase::handleRender()
 			glVertex3f(iter->nepos[0], iter->nepos[1], iter->nepos[2] + s);
 		}
 
-		if (iter->expand) { glColor4ub(255, 192, 0, 255); }
-		else { glColor4ub(0, 0, 0, 64); }
+		if (iter->expand)
+		{
+			glColor4ub(255, 192, 0, 255);
+		}
+		else
+		{
+			glColor4ub(0, 0, 0, 64);
+		}
 
 		for (int i = 0; i < iter->nstraight - 1; ++i)
 		{
 			glVertex3f(iter->straight[i * 3 + 0], iter->straight[i * 3 + 1] + 0.3f, iter->straight[i * 3 + 2]);
-			glVertex3f(iter->straight[(i + 1) * 3 + 0], iter->straight[(i + 1) * 3 + 1] + 0.3f, iter->straight[(i + 1) * 3 + 2]);
+			glVertex3f(
+				iter->straight[(i + 1) * 3 + 0],
+				iter->straight[(i + 1) * 3 + 1] + 0.3f,
+				iter->straight[(i + 1) * 3 + 2]);
 		}
 	}
 	glEnd();
