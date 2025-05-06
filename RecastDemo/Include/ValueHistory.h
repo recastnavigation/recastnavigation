@@ -1,30 +1,34 @@
-#ifndef VALUEHISTORY_H
-#define VALUEHISTORY_H
+#pragma once
+
+#include <string>
+#include <vector>
 
 class ValueHistory
 {
-	static const int MAX_HISTORY = 256;
-	float m_samples[MAX_HISTORY];
-	int m_hsamples;
+	static constexpr int MAX_HISTORY = 256;
+	std::vector<int> samples{};
+	int nextSampleIndex = 0;
+
 public:
-	ValueHistory();
+	ValueHistory() { samples.reserve(MAX_HISTORY); }
 
 	inline void addSample(const float val)
 	{
-		m_hsamples = (m_hsamples+MAX_HISTORY-1) % MAX_HISTORY;
-		m_samples[m_hsamples] = val;
+		if (samples.size() < MAX_HISTORY)
+		{
+			samples.push_back(val);
+		}
+		else
+		{
+			samples[nextSampleIndex] = val;
+			nextSampleIndex = (nextSampleIndex + 1) % MAX_HISTORY;
+		}
 	}
-	
-	inline int getSampleCount() const
-	{
-		return MAX_HISTORY;
-	}
-	
-	inline float getSample(const int i) const
-	{
-		return m_samples[(m_hsamples+i) % MAX_HISTORY];
-	}
-	
+
+	inline int getSampleCount() const { return samples.size(); }
+
+	inline float getSample(const int i) const { return samples[(nextSampleIndex + i) % MAX_HISTORY]; }
+
 	float getSampleMin() const;
 	float getSampleMax() const;
 	float getAverage() const;
@@ -33,16 +37,20 @@ public:
 struct GraphParams
 {
 	void setRect(int ix, int iy, int iw, int ih, int ipad);
-	void setValueRange(float ivmin, float ivmax, int indiv, const char* iunits);
-	
-	int x, y, w, h, pad;
-	float vmin, vmax;
-	int ndiv;
-	char units[16];
+	void setValueRange(float minValue, float maxValue, int numDivisions, const std::string& units);
+
+	int x;
+	int y;
+	int width;
+	int height;
+	int padding;
+
+	float rangeMin;
+	float rangeMax;
+	int rangeDivisions;
+
+	std::string units;
 };
 
 void drawGraphBackground(const GraphParams* p);
-void drawGraph(const GraphParams* p, const ValueHistory* graph, int idx, const char* label, const unsigned int col);
-
-#endif // VALUEHISTORY_H
-
+void drawGraph(const GraphParams* params, const ValueHistory* graph, int index, const char* label, const unsigned int color);
