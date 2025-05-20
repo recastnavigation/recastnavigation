@@ -18,7 +18,6 @@
 
 #include "Sample_TileMesh.h"
 
-#include "SDL.h"
 #include "SDL_opengl.h"
 
 #include <cmath>
@@ -161,7 +160,8 @@ public:
 		GLdouble x, y, z;
 		if (m_hitPosSet && gluProject(m_hitPos[0], m_hitPos[1], m_hitPos[2], model, proj, view, &x, &y, &z))
 		{
-			int tx = 0, ty = 0;
+			int tx = 0;
+			int ty = 0;
 			m_sample->getTilePos(m_hitPos, tx, ty);
 			char text[32];
 			snprintf(text, 32, "(%d,%d)", tx, ty);
@@ -169,10 +169,9 @@ public:
 		}
 
 		// Tool help
-		const int h = view[3];
 		imguiDrawText(
 			280,
-			h - 40,
+			view[3] - 40,
 			IMGUI_ALIGN_LEFT,
 			"LMB: Rebuild hit tile.  Shift+LMB: Clear hit tile.",
 			imguiRGBA(255, 255, 255, 192));
@@ -691,7 +690,7 @@ void Sample_TileMesh::buildTile(const float* pos)
 	m_buildContext->dumpLog("Build Tile (%d,%d):", tileX, tileY);
 }
 
-void Sample_TileMesh::getTilePos(const float* pos, int& tileX, int& tileY) const
+void Sample_TileMesh::getTilePos(const float* pos, int& outTileX, int& outTileY) const
 {
 	if (!m_inputGeometry)
 	{
@@ -700,9 +699,9 @@ void Sample_TileMesh::getTilePos(const float* pos, int& tileX, int& tileY) const
 
 	const float* navMeshBoundsMin = m_inputGeometry->getNavMeshBoundsMin();
 
-	const float ts = m_tileSize * m_cellSize;
-	tileX = static_cast<int>((pos[0] - navMeshBoundsMin[0]) / ts);
-	tileY = static_cast<int>((pos[2] - navMeshBoundsMin[2]) / ts);
+	const float tileSize = m_tileSize * m_cellSize;
+	outTileX = static_cast<int>((pos[0] - navMeshBoundsMin[0]) / tileSize);
+	outTileY = static_cast<int>((pos[2] - navMeshBoundsMin[2]) / tileSize);
 }
 
 void Sample_TileMesh::removeTile(const float* pos)
@@ -798,7 +797,11 @@ void Sample_TileMesh::buildAllTiles()
 
 void Sample_TileMesh::removeAllTiles() const
 {
-	if (!m_inputGeometry || !m_navMesh)
+	if (m_inputGeometry == nullptr)
+	{
+		return;
+	}
+	if (m_navMesh == nullptr)
 	{
 		return;
 	}
@@ -812,11 +815,11 @@ void Sample_TileMesh::removeAllTiles() const
 	const int tileWidth = (gridWidth + tileSize - 1) / tileSize;
 	const int tileHeight = (gridHeight + tileSize - 1) / tileSize;
 
-	for (int y = 0; y < tileHeight; ++y)
+	for (int tileY = 0; tileY < tileHeight; ++tileY)
 	{
-		for (int x = 0; x < tileWidth; ++x)
+		for (int tileX = 0; tileX < tileWidth; ++tileX)
 		{
-			m_navMesh->removeTile(m_navMesh->getTileRefAt(x, y, 0), 0, 0);
+			m_navMesh->removeTile(m_navMesh->getTileRefAt(tileX, tileY, 0), 0, 0);
 		}
 	}
 }
@@ -937,14 +940,15 @@ unsigned char* Sample_TileMesh::buildTileMesh(
 		return 0;
 	}
 
-	float tbmin[2];
-	float tbmax[2];
-	tbmin[0] = m_config.bmin[0];
-	tbmin[1] = m_config.bmin[2];
-	tbmax[0] = m_config.bmax[0];
-	tbmax[1] = m_config.bmax[2];
+	float tileBoundsMin[2];
+	float tileBoundsMax[2];
+	tileBoundsMin[0] = m_config.bmin[0];
+	tileBoundsMin[1] = m_config.bmin[2];
+	tileBoundsMax[0] = m_config.bmax[0];
+	tileBoundsMax[1] = m_config.bmax[2];
 	int overlappingChunkIndexes[512];  // TODO: Make grow when returning too many items.
-	const int numOverlappingChunks = chunkyMesh->GetChunksOverlappingRect(tbmin, tbmax, overlappingChunkIndexes, 512);
+	const int numOverlappingChunks =
+		chunkyMesh->GetChunksOverlappingRect(tileBoundsMin, tileBoundsMax, overlappingChunkIndexes, 512);
 	if (!numOverlappingChunks)
 	{
 		return 0;

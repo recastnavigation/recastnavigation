@@ -25,7 +25,7 @@
 
 class Sample_TileMesh : public Sample
 {
-protected:
+private:
 	bool m_buildAll = true;
 	float m_totalBuildTimeMs = 0.0f;
 
@@ -63,6 +63,7 @@ protected:
 
 	int m_maxTiles = 0;
 	int m_maxPolysPerTile = 0;
+	/// In cells
 	float m_tileSize = 32.0f;
 
 	unsigned int m_tileColor = duRGBA(0, 0, 0, 32);
@@ -85,6 +86,7 @@ public:
 	Sample_TileMesh(const Sample_TileMesh&&) = delete;
 	Sample_TileMesh& operator=(const Sample_TileMesh&&) = delete;
 
+	// Sample methods
 	void handleSettings() override;
 	void handleTools() override;
 	void handleDebugMode() override;
@@ -94,7 +96,7 @@ public:
 	bool handleBuild() override;
 	void collectSettings(BuildSettings& settings) override;
 
-	void getTilePos(const float* pos, int& tileX, int& tileY) const;
+	void getTilePos(const float* pos, int& outTileX, int& outTileY) const;
 
 	void buildTile(const float* pos);
 	void removeTile(const float* pos);
