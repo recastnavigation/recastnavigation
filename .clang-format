@@ -8,7 +8,7 @@ ForEachMacros: [ for ]
 # indentation
 TabWidth: 4
 IndentWidth: 4
-UseTab: Always
+UseTab: AlignWithSpaces
 AccessModifierOffset: -4
 ContinuationIndentWidth: 4
 IndentCaseLabels: false
@@ -53,7 +53,7 @@ PointerAlignment: Left
 CompactNamespaces: true
 ColumnLimit: 128
 AlignEscapedNewlines: LeftWithLastLine
-AlignArrayOfStructures: Right
+AlignArrayOfStructures: Left
 FixNamespaceComments: false
 
 # includes & preprocessor
