@@ -19,8 +19,11 @@
 #include "SDL.h"
 #include "SDL_opengl.h"
 
+#include <SDL2/SDL_keycode.h>
+
 #include <cmath>
 #include <cstdio>
+#include <functional>
 #include <string>
 #include <vector>
 #ifdef __APPLE__
@@ -41,7 +44,6 @@
 
 #ifdef WIN32
 #	define snprintf _snprintf
-#	define putenv _putenv
 #endif
 
 using std::string;
@@ -49,18 +51,17 @@ using std::vector;
 
 struct SampleItem
 {
-	Sample* (*create)();
 	const string name;
+	std::function<Sample*()> create;
 };
-Sample* createSolo() { return new Sample_SoloMesh(); }
-Sample* createTile() { return new Sample_TileMesh(); }
-Sample* createTempObstacle() { return new Sample_TempObstacles(); }
 static SampleItem g_samples[] = {
-	{createSolo, "Solo Mesh"},
-	{createTile, "Tile Mesh"},
-	{createTempObstacle, "Temp Obstacles"},
+	{"Solo Mesh",      []() { return new Sample_SoloMesh(); }     },
+	{"Tile Mesh",      []() { return new Sample_TileMesh(); }     },
+	{"Temp Obstacles", []() { return new Sample_TempObstacles(); }},
 };
-static const int g_nsamples = sizeof(g_samples) / sizeof(SampleItem);
+static constexpr int g_nsamples = sizeof(g_samples) / sizeof(SampleItem);
+
+static constexpr float fogColor[4] = {0.32f, 0.31f, 0.30f, 1.0f};
 
 struct AppData
 {
@@ -70,7 +71,8 @@ struct AppData
 	SDL_Window* window;
 	SDL_Renderer* renderer;
 
-	// Recast and Samples
+	// Recast data, samples, and test cases
+	BuildContext buildContext;
 	InputGeom* inputGeometry = nullptr;
 	Sample* sample = nullptr;
 	TestCase* testCase = nullptr;
@@ -80,14 +82,14 @@ struct AppData
 	Uint32 prevFrameTime = 0;
 
 	// Input
-	int mousePos[2] {0, 0};
-	int origMousePos[2] {0, 0};  // Used to compute mouse movement totals across frames.
+	int mousePos[2]{0, 0};
+	int origMousePos[2]{0, 0};  // Used to compute mouse movement totals across frames.
 
 	// Camera
-	float cameraEulers[2] {45, -45};
+	float cameraEulers[2]{45, -45};
 	float cameraPos[3] = {0, 0, 0};
 	float camr = 1000;
-	float origCameraEulers[2] = {0, 0};	// Used to compute rotational changes across frames.
+	float origCameraEulers[2] = {0, 0};  // Used to compute rotational changes across frames.
 
 	// Movement
 	float moveFront = 0.0f;
@@ -169,7 +171,12 @@ int main(int /*argc*/, char** /*argv*/)
 	app.width = rcMin(displayMode.w, (int)(displayMode.h * (16.0f / 9.0f))) - 80;
 	app.height = displayMode.h - 80;
 
-	int errorCode = SDL_CreateWindowAndRenderer(app.width, app.height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE, &app.window, &app.renderer);
+	int errorCode = SDL_CreateWindowAndRenderer(
+		app.width,
+		app.height,
+		SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE,
+		&app.window,
+		&app.renderer);
 
 	if (errorCode != 0 || !app.window || !app.renderer)
 	{
@@ -188,14 +195,14 @@ int main(int /*argc*/, char** /*argv*/)
 
 	app.prevFrameTime = SDL_GetTicks();
 
-	// Fog.
-	float fogColor[4] = {0.32f, 0.31f, 0.30f, 1.0f};
+	// Set up fog.
 	glEnable(GL_FOG);
 	glFogi(GL_FOG_MODE, GL_LINEAR);
 	glFogf(GL_FOG_START, app.camr * 0.1f);
 	glFogf(GL_FOG_END, app.camr * 1.25f);
 	glFogfv(GL_FOG_COLOR, fogColor);
 
+	// OpenGL settings
 	glEnable(GL_CULL_FACE);
 	glDepthFunc(GL_LEQUAL);
 
@@ -206,99 +213,75 @@ int main(int /*argc*/, char** /*argv*/)
 		int mouseScroll = 0;
 		bool processHitTest = false;
 		bool processHitTestShift = false;
-		SDL_Event event;
 
+		// Per frame input
+
+		SDL_Event event;
 		while (SDL_PollEvent(&event))
 		{
 			switch (event.type)
 			{
 			case SDL_KEYDOWN:
 				// Handle any key presses here.
-				if (event.key.keysym.sym == SDLK_ESCAPE)
+				switch (event.key.keysym.sym)
 				{
+				case SDLK_ESCAPE:
 					done = true;
-				}
-				else if (event.key.keysym.sym == SDLK_t)
-				{
+					break;
+				case SDLK_t:
 					app.showLevels = false;
 					app.showSample = false;
 					app.showTestCases = true;
 					scanDirectory(app.testCasesFolder, ".txt", app.files);
-				}
-				else if (event.key.keysym.sym == SDLK_TAB)
-				{
+					break;
+				case SDLK_TAB:
 					app.showMenu = !app.showMenu;
-				}
-				else if (event.key.keysym.sym == SDLK_SPACE)
-				{
+					break;
+				case SDLK_SPACE:
 					if (app.sample)
 					{
 						app.sample->handleToggle();
 					}
-				}
-				else if (event.key.keysym.sym == SDLK_1)
-				{
+					break;
+				case SDLK_1:
 					if (app.sample)
 					{
 						app.sample->handleStep();
 					}
-				}
-				else if (event.key.keysym.sym == SDLK_9)
-				{
+					break;
+				case SDLK_9:
 					if (app.sample && app.inputGeometry)
 					{
-						string savePath = app.meshesFolder + "/";
 						BuildSettings settings;
-						memset(&settings, 0, sizeof(settings));
-
 						rcVcopy(settings.navMeshBMin, app.inputGeometry->getNavMeshBoundsMin());
 						rcVcopy(settings.navMeshBMax, app.inputGeometry->getNavMeshBoundsMax());
-
 						app.sample->collectSettings(settings);
-
 						app.inputGeometry->saveGeomSet(&settings);
 					}
+					break;
 				}
 				break;
 
 			case SDL_MOUSEWHEEL:
-				if (event.wheel.y < 0)
+				if (app.mouseOverMenu)
 				{
-					// wheel down
-					if (app.mouseOverMenu)
-					{
-						mouseScroll++;
-					}
-					else
-					{
-						app.scrollZoom += 1.0f;
-					}
+					mouseScroll += event.wheel.y;
 				}
 				else
 				{
-					if (app.mouseOverMenu)
-					{
-						mouseScroll--;
-					}
-					else
-					{
-						app.scrollZoom -= 1.0f;
-					}
+					app.scrollZoom += event.wheel.y;
 				}
 				break;
 			case SDL_MOUSEBUTTONDOWN:
-				if (event.button.button == SDL_BUTTON_RIGHT)
+				if (event.button.button == SDL_BUTTON_RIGHT && !app.mouseOverMenu)
 				{
-					if (!app.mouseOverMenu)
-					{
-						// Rotate view
-						app.isRotatingCamera = true;
-						app.movedDuringRotate = false;
-						app.origMousePos[0] = app.mousePos[0];
-						app.origMousePos[1] = app.mousePos[1];
-						app.origCameraEulers[0] = app.cameraEulers[0];
-						app.origCameraEulers[1] = app.cameraEulers[1];
-					}
+					// Rotate view
+					app.isRotatingCamera = true;
+					app.movedDuringRotate = false;
+					app.origMousePos[0] = app.mousePos[0];
+					app.origMousePos[1] = app.mousePos[1];
+					app.origCameraEulers[0] = app.cameraEulers[0];
+					app.origCameraEulers[1] = app.cameraEulers[1];
 				}
 				break;
 
@@ -617,7 +600,12 @@ int main(int /*argc*/, char** /*argv*/)
 			if (app.inputGeometry)
 			{
 				char text[64];
-				snprintf(text, 64, "Verts: %.1fk  Tris: %.1fk", app.inputGeometry->getMesh()->getVertCount() / 1000.0f, app.inputGeometry->getMesh()->getTriCount() / 1000.0f);
+				snprintf(
+					text,
+					64,
+					"Verts: %.1fk  Tris: %.1fk",
+					app.inputGeometry->getMesh()->getVertCount() / 1000.0f,
+					app.inputGeometry->getMesh()->getTriCount() / 1000.0f);
 				imguiValue(text);
 			}
 			imguiSeparator();
@@ -659,7 +647,13 @@ int main(int /*argc*/, char** /*argv*/)
 		if (app.showSample)
 		{
 			static int levelScroll = 0;
-			if (imguiBeginScrollArea("Choose sample", app.width - 10 - 250 - 10 - 200, app.height - 10 - 250, 200, 250, &levelScroll))
+			if (imguiBeginScrollArea(
+					"Choose sample",
+					app.width - 10 - 250 - 10 - 200,
+					app.height - 10 - 250,
+					200,
+					250,
+					&levelScroll))
 			{
 				app.mouseOverMenu = true;
 			}
@@ -719,7 +713,13 @@ int main(int /*argc*/, char** /*argv*/)
 		if (app.showLevels)
 		{
 			static int levelScroll = 0;
-			if (imguiBeginScrollArea("Choose Level", app.width - 10 - 250 - 10 - 200, app.height - 10 - 450, 200, 450, &levelScroll))
+			if (imguiBeginScrollArea(
+					"Choose Level",
+					app.width - 10 - 250 - 10 - 200,
+					app.height - 10 - 450,
+					200,
+					450,
+					&levelScroll))
 			{
 				app.mouseOverMenu = true;
 			}
@@ -799,7 +799,13 @@ int main(int /*argc*/, char** /*argv*/)
 		if (app.showTestCases)
 		{
 			static int testScroll = 0;
-			if (imguiBeginScrollArea("Choose Test To Run", app.width - 10 - 250 - 10 - 200, app.height - 10 - 450, 200, 450, &testScroll))
+			if (imguiBeginScrollArea(
+					"Choose Test To Run",
+					app.width - 10 - 250 - 10 - 200,
+					app.height - 10 - 450,
+					200,
+					450,
+					&testScroll))
 			{
 				app.mouseOverMenu = true;
 			}
@@ -897,7 +903,8 @@ int main(int /*argc*/, char** /*argv*/)
 						// Reset camera and fog to match the mesh bounds.
 						if (bmin && bmax)
 						{
-							app.camr = sqrtf(rcSqr(bmax[0] - bmin[0]) + rcSqr(bmax[1] - bmin[1]) + rcSqr(bmax[2] - bmin[2])) / 2;
+							app.camr =
+								sqrtf(rcSqr(bmax[0] - bmin[0]) + rcSqr(bmax[1] - bmin[1]) + rcSqr(bmax[2] - bmin[2])) / 2;
 							app.cameraPos[0] = (bmax[0] + bmin[0]) / 2 + app.camr;
 							app.cameraPos[1] = (bmax[1] + bmin[1]) / 2 + app.camr;
 							app.cameraPos[2] = (bmax[2] + bmin[2]) / 2 + app.camr;
