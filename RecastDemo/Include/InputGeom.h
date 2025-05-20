@@ -34,38 +34,38 @@ struct ConvexVolume
 struct BuildSettings
 {
 	/// Cell size in world units
-	float cellSize;
+	float cellSize = 0;
 	/// Cell height in world units
-	float cellHeight;
+	float cellHeight = 0;
 	/// Agent height in world units
-	float agentHeight;
+	float agentHeight = 0;
 	/// Agent radius in world units
-	float agentRadius;
+	float agentRadius = 0;
 	/// Agent max climb in world units
-	float agentMaxClimb;
+	float agentMaxClimb = 0;
 	/// Agent max slope in degrees
-	float agentMaxSlope;
+	float agentMaxSlope = 0;
 	/// Region minimum size in voxels.
 	/// regionMinSize = sqrt(regionMinArea)
-	float regionMinSize;
+	float regionMinSize = 0;
 	/// Region merge size in voxels. regionMergeSize = sqrt(regionMergeArea)
-	float regionMergeSize;
+	float regionMergeSize = 0;
 	/// Edge max length in world units
-	float edgeMaxLen;
+	float edgeMaxLen = 0;
 	/// Edge max error in voxels
-	float edgeMaxError;
-	float vertsPerPoly;
+	float edgeMaxError = 0;
+	float vertsPerPoly = 0;
 	/// Detail sample distance in voxels
-	float detailSampleDist;
+	float detailSampleDist = 0;
 	/// Detail sample max error in voxel heights.
-	float detailSampleMaxError;
+	float detailSampleMaxError = 0;
 	/// Partition type, see SamplePartitionType
-	int partitionType;
+	int partitionType = 0;
 	/// Bounds of the area to mesh
-	float navMeshBMin[3];
-	float navMeshBMax[3];
+	float navMeshBMin[3] {};
+	float navMeshBMax[3] {};
 	/// Size of the tiles in voxels
-	float tileSize;
+	float tileSize = 0;
 };
 
 class InputGeom
