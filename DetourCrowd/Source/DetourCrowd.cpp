@@ -1226,42 +1226,45 @@ void dtCrowd::update(const float dt, dtCrowdAgentDebugInfo* debug)
 		// Separation
 		if (ag->params.updateFlags & DT_CROWD_SEPARATION)
 		{
-			const float separationDist = ag->params.collisionQueryRange; 
-			const float invSeparationDist = 1.0f / separationDist; 
 			const float separationWeight = ag->params.separationWeight;
-			
-			float w = 0;
-			float disp[3] = {0,0,0};
-			
-			for (int j = 0; j < ag->nneis; ++j)
+			if (separationWeight != 0.f)
 			{
-				const dtCrowdAgent* nei = &m_agents[ag->neis[j].idx];
-				
-				float diff[3];
-				dtVsub(diff, ag->npos, nei->npos);
-				diff[1] = 0;
-				
-				const float distSqr = dtVlenSqr(diff);
-				if (distSqr < 0.00001f)
-					continue;
-				if (distSqr > dtSqr(separationDist))
-					continue;
-				const float dist = dtMathSqrtf(distSqr);
-				const float weight = separationWeight * (1.0f - dtSqr(dist*invSeparationDist));
-				
-				dtVmad(disp, disp, diff, weight/dist);
-				w += 1.0f;
-			}
-			
-			if (w > 0.0001f)
-			{
-				// Adjust desired velocity.
-				dtVmad(dvel, dvel, disp, 1.0f/w);
-				// Clamp desired velocity to desired speed.
-				const float speedSqr = dtVlenSqr(dvel);
-				const float desiredSqr = dtSqr(ag->desiredSpeed);
-				if (speedSqr > desiredSqr)
-					dtVscale(dvel, dvel, desiredSqr/speedSqr);
+				const float separationDist = ag->params.collisionQueryRange;
+				const float invSeparationDist = 1.0f / separationDist;
+
+				float w = 0;
+				float disp[3] = { 0,0,0 };
+
+				for (int j = 0; j < ag->nneis; ++j)
+				{
+					const dtCrowdAgent* nei = &m_agents[ag->neis[j].idx];
+
+					float diff[3];
+					dtVsub(diff, ag->npos, nei->npos);
+					diff[1] = 0;
+
+					const float distSqr = dtVlenSqr(diff);
+					if (distSqr < 0.00001f)
+						continue;
+					if (distSqr > dtSqr(separationDist))
+						continue;
+					const float dist = dtMathSqrtf(distSqr);
+					const float weight = separationWeight * (1.0f - dtSqr(dist * invSeparationDist));
+
+					dtVmad(disp, disp, diff, weight / dist);
+					w += 1.0f;
+				}
+
+				if (w > 0.0001f)
+				{
+					// Adjust desired velocity.
+					dtVmad(dvel, dvel, disp, 1.0f / w);
+					// Clamp desired velocity to desired speed.
+					const float speedSqr = dtVlenSqr(dvel);
+					const float desiredSqr = dtSqr(ag->desiredSpeed);
+					if (speedSqr > desiredSqr)
+						dtVscale(dvel, dvel, desiredSqr / speedSqr);
+				}
 			}
 		}
 		
