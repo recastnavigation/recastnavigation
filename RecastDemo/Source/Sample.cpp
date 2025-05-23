@@ -16,19 +16,21 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include <math.h>
-#include <stdio.h>
 #include "Sample.h"
-#include "InputGeom.h"
-#include "Recast.h"
-#include "RecastDebugDraw.h"
+
+#include "DetourCrowd.h"
 #include "DetourDebugDraw.h"
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"
-#include "DetourCrowd.h"
-#include "imgui.h"
+#include "InputGeom.h"
+#include "Recast.h"
+#include "RecastDebugDraw.h"
 #include "SDL.h"
 #include "SDL_opengl.h"
+#include "imgui.h"
+
+#include <math.h>
+#include <stdio.h>
 
 #ifdef WIN32
 #	define snprintf _snprintf
@@ -46,27 +48,33 @@ SampleToolState::~SampleToolState()
 
 unsigned int SampleDebugDraw::areaToCol(unsigned int area)
 {
-	switch(area)
+	switch (area)
 	{
 	// Ground (0) : light blue
-	case SAMPLE_POLYAREA_GROUND: return duRGBA(0, 192, 255, 255);
+	case SAMPLE_POLYAREA_GROUND:
+		return duRGBA(0, 192, 255, 255);
 	// Water : blue
-	case SAMPLE_POLYAREA_WATER: return duRGBA(0, 0, 255, 255);
+	case SAMPLE_POLYAREA_WATER:
+		return duRGBA(0, 0, 255, 255);
 	// Road : brown
-	case SAMPLE_POLYAREA_ROAD: return duRGBA(50, 20, 12, 255);
+	case SAMPLE_POLYAREA_ROAD:
+		return duRGBA(50, 20, 12, 255);
 	// Door : cyan
-	case SAMPLE_POLYAREA_DOOR: return duRGBA(0, 255, 255, 255);
+	case SAMPLE_POLYAREA_DOOR:
+		return duRGBA(0, 255, 255, 255);
 	// Grass : green
-	case SAMPLE_POLYAREA_GRASS: return duRGBA(0, 255, 0, 255);
+	case SAMPLE_POLYAREA_GRASS:
+		return duRGBA(0, 255, 0, 255);
 	// Jump : yellow
-	case SAMPLE_POLYAREA_JUMP: return duRGBA(255, 255, 0, 255);
+	case SAMPLE_POLYAREA_JUMP:
+		return duRGBA(255, 255, 0, 255);
 	// Unexpected : red
-	default: return duRGBA(255, 0, 0, 255);
+	default:
+		return duRGBA(255, 0, 0, 255);
 	}
 }
 
-Sample::Sample()
-: m_navMeshDrawFlags(DU_DRAWNAVMESH_OFFMESHCONS|DU_DRAWNAVMESH_CLOSEDLIST)
+Sample::Sample() : m_navMeshDrawFlags(DU_DRAWNAVMESH_OFFMESHCONS | DU_DRAWNAVMESH_CLOSEDLIST)
 {
 	resetCommonSettings();
 	m_navQuery = dtAllocNavMeshQuery();
@@ -95,38 +103,41 @@ void Sample::setTool(SampleTool* tool)
 	delete m_tool;
 	m_tool = tool;
 	if (tool)
+	{
 		m_tool->init(this);
+	}
 }
 
-void Sample::handleSettings()
-{
-}
+void Sample::handleSettings() {}
 
-void Sample::handleTools()
-{
-}
+void Sample::handleTools() {}
 
-void Sample::handleDebugMode()
-{
-}
+void Sample::handleDebugMode() {}
 
 void Sample::handleRender()
 {
 	if (!m_inputGeometry)
+	{
 		return;
+	}
 
 	// Draw mesh
-	duDebugDrawTriMesh(&m_debugDraw, m_inputGeometry->getMesh()->getVerts(), m_inputGeometry->getMesh()->getVertCount(),
-					   m_inputGeometry->getMesh()->getTris(), m_inputGeometry->getMesh()->getNormals(), m_inputGeometry->getMesh()->getTriCount(), 0, 1.0f);
+	duDebugDrawTriMesh(
+		&m_debugDraw,
+		m_inputGeometry->getMesh()->getVerts(),
+		m_inputGeometry->getMesh()->getVertCount(),
+		m_inputGeometry->getMesh()->getTris(),
+		m_inputGeometry->getMesh()->getNormals(),
+		m_inputGeometry->getMesh()->getTriCount(),
+		0,
+		1.0f);
 	// Draw bounds
 	const float* bmin = m_inputGeometry->getMeshBoundsMin();
 	const float* bmax = m_inputGeometry->getMeshBoundsMax();
-	duDebugDrawBoxWire(&m_debugDraw, bmin[0],bmin[1],bmin[2], bmax[0],bmax[1],bmax[2], duRGBA(255,255,255,128), 1.0f);
+	duDebugDrawBoxWire(&m_debugDraw, bmin[0], bmin[1], bmin[2], bmax[0], bmax[1], bmax[2], duRGBA(255, 255, 255, 128), 1.0f);
 }
 
-void Sample::handleRenderOverlay(double* /*proj*/, double* /*model*/, int* /*view*/)
-{
-}
+void Sample::handleRenderOverlay(double* /*proj*/, double* /*model*/, int* /*view*/) {}
 
 void Sample::handleMeshChanged(InputGeom* geom)
 {
@@ -220,20 +231,32 @@ void Sample::handleCommonSettings()
 	imguiSeparator();
 	imguiLabel("Partitioning");
 	if (imguiCheck("Watershed", m_partitionType == SAMPLE_PARTITION_WATERSHED))
+	{
 		m_partitionType = SAMPLE_PARTITION_WATERSHED;
+	}
 	if (imguiCheck("Monotone", m_partitionType == SAMPLE_PARTITION_MONOTONE))
+	{
 		m_partitionType = SAMPLE_PARTITION_MONOTONE;
+	}
 	if (imguiCheck("Layers", m_partitionType == SAMPLE_PARTITION_LAYERS))
+	{
 		m_partitionType = SAMPLE_PARTITION_LAYERS;
+	}
 
 	imguiSeparator();
 	imguiLabel("Filtering");
 	if (imguiCheck("Low Hanging Obstacles", m_filterLowHangingObstacles))
+	{
 		m_filterLowHangingObstacles = !m_filterLowHangingObstacles;
+	}
 	if (imguiCheck("Ledge Spans", m_filterLedgeSpans))
-		m_filterLedgeSpans= !m_filterLedgeSpans;
+	{
+		m_filterLedgeSpans = !m_filterLedgeSpans;
+	}
 	if (imguiCheck("Walkable Low Height Spans", m_filterWalkableLowHeightSpans))
+	{
 		m_filterWalkableLowHeightSpans = !m_filterWalkableLowHeightSpans;
+	}
 
 	imguiSeparator();
 	imguiLabel("Polygonization");
@@ -252,19 +275,25 @@ void Sample::handleCommonSettings()
 void Sample::handleClick(const float* s, const float* p, bool shift)
 {
 	if (m_tool)
+	{
 		m_tool->handleClick(s, p, shift);
+	}
 }
 
 void Sample::handleToggle()
 {
 	if (m_tool)
+	{
 		m_tool->handleToggle();
+	}
 }
 
 void Sample::handleStep()
 {
 	if (m_tool)
+	{
 		m_tool->handleStep();
+	}
 }
 
 bool Sample::handleBuild()
@@ -275,17 +304,20 @@ bool Sample::handleBuild()
 void Sample::handleUpdate(const float dt)
 {
 	if (m_tool)
+	{
 		m_tool->handleUpdate(dt);
+	}
 	updateToolStates(dt);
 }
-
 
 void Sample::updateToolStates(const float dt)
 {
 	for (int i = 0; i < static_cast<int>(SampleToolType::MAX_TOOLS); i++)
 	{
 		if (m_toolStates[i])
+		{
 			m_toolStates[i]->handleUpdate(dt);
+		}
 	}
 }
 
@@ -294,7 +326,9 @@ void Sample::initToolStates(Sample* sample)
 	for (int i = 0; i < static_cast<int>(SampleToolType::MAX_TOOLS); i++)
 	{
 		if (m_toolStates[i])
+		{
 			m_toolStates[i]->init(sample);
+		}
 	}
 }
 
@@ -303,7 +337,9 @@ void Sample::resetToolStates()
 	for (int i = 0; i < static_cast<int>(SampleToolType::MAX_TOOLS); i++)
 	{
 		if (m_toolStates[i])
+		{
 			m_toolStates[i]->reset();
+		}
 	}
 }
 
@@ -312,7 +348,9 @@ void Sample::renderToolStates()
 	for (int i = 0; i < static_cast<int>(SampleToolType::MAX_TOOLS); i++)
 	{
 		if (m_toolStates[i])
+		{
 			m_toolStates[i]->handleRender();
+		}
 	}
 }
 
@@ -321,11 +359,13 @@ void Sample::renderOverlayToolStates(double* proj, double* model, int* view)
 	for (int i = 0; i < static_cast<int>(SampleToolType::MAX_TOOLS); i++)
 	{
 		if (m_toolStates[i])
+		{
 			m_toolStates[i]->handleRenderOverlay(proj, model, view);
+		}
 	}
 }
 
-static const int NAVMESHSET_MAGIC = 'M'<<24 | 'S'<<16 | 'E'<<8 | 'T'; //'MSET';
+static const int NAVMESHSET_MAGIC = 'M' << 24 | 'S' << 16 | 'E' << 8 | 'T';  //'MSET';
 static const int NAVMESHSET_VERSION = 1;
 
 struct NavMeshSetHeader
@@ -345,7 +385,10 @@ struct NavMeshTileHeader
 dtNavMesh* Sample::loadAll(const char* path)
 {
 	FILE* fp = fopen(path, "rb");
-	if (!fp) return 0;
+	if (!fp)
+	{
+		return 0;
+	}
 
 	// Read header.
 	NavMeshSetHeader header;
@@ -391,10 +434,15 @@ dtNavMesh* Sample::loadAll(const char* path)
 		}
 
 		if (!tileHeader.tileRef || !tileHeader.dataSize)
+		{
 			break;
+		}
 
 		unsigned char* data = (unsigned char*)dtAlloc(tileHeader.dataSize, DT_ALLOC_PERM);
-		if (!data) break;
+		if (!data)
+		{
+			break;
+		}
 		memset(data, 0, tileHeader.dataSize);
 		readLen = fread(data, tileHeader.dataSize, 1, fp);
 		if (readLen != 1)
@@ -414,11 +462,16 @@ dtNavMesh* Sample::loadAll(const char* path)
 
 void Sample::saveAll(const char* path, const dtNavMesh* mesh)
 {
-	if (!mesh) return;
+	if (!mesh)
+	{
+		return;
+	}
 
 	FILE* fp = fopen(path, "wb");
 	if (!fp)
+	{
 		return;
+	}
 
 	// Store header.
 	NavMeshSetHeader header;
@@ -428,7 +481,10 @@ void Sample::saveAll(const char* path, const dtNavMesh* mesh)
 	for (int i = 0; i < mesh->getMaxTiles(); ++i)
 	{
 		const dtMeshTile* tile = mesh->getTile(i);
-		if (!tile || !tile->header || !tile->dataSize) continue;
+		if (!tile || !tile->header || !tile->dataSize)
+		{
+			continue;
+		}
 		header.numTiles++;
 	}
 	memcpy(&header.params, mesh->getParams(), sizeof(dtNavMeshParams));
@@ -438,7 +494,10 @@ void Sample::saveAll(const char* path, const dtNavMesh* mesh)
 	for (int i = 0; i < mesh->getMaxTiles(); ++i)
 	{
 		const dtMeshTile* tile = mesh->getTile(i);
-		if (!tile || !tile->header || !tile->dataSize) continue;
+		if (!tile || !tile->header || !tile->dataSize)
+		{
+			continue;
+		}
 
 		NavMeshTileHeader tileHeader;
 		tileHeader.tileRef = mesh->getTileRef(tile);
