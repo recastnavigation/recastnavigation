@@ -106,10 +106,10 @@ struct SampleToolState {
 class Sample
 {
 protected:
-	InputGeom* m_inputGeometry;
-	dtNavMesh* m_navMesh;
-	dtNavMeshQuery* m_navQuery;
-	dtCrowd* m_crowd;
+	InputGeom* m_inputGeometry = nullptr;
+	dtNavMesh* m_navMesh = nullptr;
+	dtNavMeshQuery* m_navQuery = nullptr;
+	dtCrowd* m_crowd = nullptr;
 
 	unsigned char m_navMeshDrawFlags;
 
@@ -128,14 +128,14 @@ protected:
 	float m_detailSampleMaxError;
 	int m_partitionType;
 
-	bool m_filterLowHangingObstacles;
-	bool m_filterLedgeSpans;
-	bool m_filterWalkableLowHeightSpans;
+	bool m_filterLowHangingObstacles = true;
+	bool m_filterLedgeSpans = true;
+	bool m_filterWalkableLowHeightSpans = true;
 
-	SampleTool* m_tool;
+	SampleTool* m_tool = nullptr;
 	SampleToolState* m_toolStates[static_cast<unsigned long>(SampleToolType::MAX_TOOLS)];
 
-	BuildContext* m_buildContext;
+	BuildContext* m_buildContext = nullptr;
 
 	SampleDebugDraw m_debugDraw;
 

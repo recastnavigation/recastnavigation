@@ -65,17 +65,8 @@ unsigned int SampleDebugDraw::areaToCol(unsigned int area)
 	}
 }
 
-Sample::Sample() :
-	m_inputGeometry(0),
-	m_navMesh(0),
-	m_navQuery(0),
-	m_crowd(0),
-	m_navMeshDrawFlags(DU_DRAWNAVMESH_OFFMESHCONS|DU_DRAWNAVMESH_CLOSEDLIST),
-	m_filterLowHangingObstacles(true),
-	m_filterLedgeSpans(true),
-	m_filterWalkableLowHeightSpans(true),
-	m_tool(0),
-	m_buildContext(0)
+Sample::Sample()
+: m_navMeshDrawFlags(DU_DRAWNAVMESH_OFFMESHCONS|DU_DRAWNAVMESH_CLOSEDLIST)
 {
 	resetCommonSettings();
 	m_navQuery = dtAllocNavMeshQuery();
