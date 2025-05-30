@@ -26,17 +26,17 @@
 class Sample_TileMesh : public Sample
 {
 private:
-	bool m_buildAll = true;
-	float m_totalBuildTimeMs = 0.0f;
+	bool buildAll = true;
+	float totalBuildTimeMs = 0.0f;
 
 	// Recast state
-	rcConfig m_config{};
-	unsigned char* m_triareas = nullptr;
-	rcHeightfield* m_heightfield = nullptr;
-	rcCompactHeightfield* m_compactHeightfield = nullptr;
-	rcContourSet* m_contourSet = nullptr;
-	rcPolyMesh* m_polyMesh = nullptr;
-	rcPolyMeshDetail* m_detailPolyMesh = nullptr;
+	rcConfig config{};
+	unsigned char* triareas = nullptr;
+	rcHeightfield* heightfield = nullptr;
+	rcCompactHeightfield* compactHeightfield = nullptr;
+	rcContourSet* contourSet = nullptr;
+	rcPolyMesh* polyMesh = nullptr;
+	rcPolyMeshDetail* detailPolyMesh = nullptr;
 
 	enum class DrawMode : uint8_t
 	{
@@ -59,19 +59,19 @@ private:
 		POLYMESH,
 		POLYMESH_DETAIL
 	};
-	DrawMode m_drawMode = DrawMode::NAVMESH;
+	DrawMode drawMode = DrawMode::NAVMESH;
 
-	int m_maxTiles = 0;
-	int m_maxPolysPerTile = 0;
+	int maxTiles = 0;
+	int maxPolysPerTile = 0;
 	/// In cells
-	float m_tileSize = 32.0f;
+	float tileSize = 32.0f;
 
-	unsigned int m_tileColor = duRGBA(0, 0, 0, 32);
-	float m_lastBuiltTileBoundsMin[3] = {0.0f, 0.0f, 0.0f};
-	float m_lastBuiltTileBoundsMax[3] = {0.0f, 0.0f, 0.0f};
-	float m_tileBuildTime = 0.0f;
-	float m_tileMemUsage = 0.0f;
-	int m_tileTriCount = 0;
+	unsigned int tileColor = duRGBA(0, 0, 0, 32);
+	float lastBuiltTileBoundsMin[3] = {0.0f, 0.0f, 0.0f};
+	float lastBuiltTileBoundsMax[3] = {0.0f, 0.0f, 0.0f};
+	float tileBuildTime = 0.0f;
+	float tileMemUsage = 0.0f;
+	int tileTriCount = 0;
 
 	unsigned char* buildTileMesh(int tileX, int tileY, const float* boundsMin, const float* boundsMax, int& outDataSize);
 
