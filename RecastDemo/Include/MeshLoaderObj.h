@@ -16,41 +16,28 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#ifndef MESHLOADER_OBJ
-#define MESHLOADER_OBJ
+#pragma once
 
 #include <string>
+#include <vector>
 
-class rcMeshLoaderObj
+class MeshLoaderObj
 {
 public:
-	rcMeshLoaderObj();
-	~rcMeshLoaderObj();
-
 	bool load(const std::string& fileName);
+	void load(char* buf, size_t bufLen);
 
-	const float* getVerts() const { return m_verts; }
-	const float* getNormals() const { return m_normals; }
-	const int* getTris() const { return m_tris; }
-	int getVertCount() const { return m_vertCount; }
-	int getTriCount() const { return m_triCount; }
-	const std::string& getFileName() const { return m_filename; }
+	const float* getVerts() const { return verts.data(); }
+	const float* getNormals() const { return normals.data(); }
+	const int* getTris() const { return tris.data(); }
+	int getVertCount() const { return verts.size() / 3; }
+	int getTriCount() const { return tris.size() / 3; }
+	const std::string& getFileName() const { return filename; }
 
 private:
-	// Explicitly disabled copy constructor and copy assignment operator.
-	rcMeshLoaderObj(const rcMeshLoaderObj&);
-	rcMeshLoaderObj& operator=(const rcMeshLoaderObj&);
+	std::string filename;
 
-	void addVertex(float x, float y, float z, int& cap);
-	void addTriangle(int a, int b, int c, int& cap);
-
-	std::string m_filename;
-	float m_scale;
-	float* m_verts;
-	int* m_tris;
-	float* m_normals;
-	int m_vertCount;
-	int m_triCount;
+	std::vector<float> verts;
+	std::vector<int> tris;
+	std::vector<float> normals;
 };
-
-#endif  // MESHLOADER_OBJ

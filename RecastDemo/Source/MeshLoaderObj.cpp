@@ -18,98 +18,45 @@
 
 #include "MeshLoaderObj.h"
 
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
 #include <cstring>
 
-rcMeshLoaderObj::rcMeshLoaderObj() : m_scale(1.0f), m_verts(0), m_tris(0), m_normals(0), m_vertCount(0), m_triCount(0) {}
-
-rcMeshLoaderObj::~rcMeshLoaderObj()
+namespace
 {
-	delete[] m_verts;
-	delete[] m_normals;
-	delete[] m_tris;
-}
-
-void rcMeshLoaderObj::addVertex(float x, float y, float z, int& cap)
+char* readRow(char* buf, char* bufEnd, char* row, int len)
 {
-	if (m_vertCount + 1 > cap)
-	{
-		cap = !cap ? 8 : cap * 2;
-		float* nv = new float[cap * 3];
-		if (m_vertCount)
-		{
-			memcpy(nv, m_verts, m_vertCount * 3 * sizeof(float));
-		}
-		delete[] m_verts;
-		m_verts = nv;
-	}
-	float* dst = &m_verts[m_vertCount * 3];
-	*dst++ = x * m_scale;
-	*dst++ = y * m_scale;
-	*dst++ = z * m_scale;
-	m_vertCount++;
-}
-
-void rcMeshLoaderObj::addTriangle(int a, int b, int c, int& cap)
-{
-	if (m_triCount + 1 > cap)
-	{
-		cap = !cap ? 8 : cap * 2;
-		int* nv = new int[cap * 3];
-		if (m_triCount)
-		{
-			memcpy(nv, m_tris, m_triCount * 3 * sizeof(int));
-		}
-		delete[] m_tris;
-		m_tris = nv;
-	}
-	int* dst = &m_tris[m_triCount * 3];
-	*dst++ = a;
-	*dst++ = b;
-	*dst++ = c;
-	m_triCount++;
-}
-
-static char* parseRow(char* buf, char* bufEnd, char* row, int len)
-{
-	bool start = true;
-	bool done = false;
-	int n = 0;
-	while (!done && buf < bufEnd)
+	// skip leading whitespace
+	for (; buf < bufEnd; ++buf)
 	{
 		char c = *buf;
-		buf++;
-		// multirow
-		switch (c)
+		if (c != '\\' && c != '\r' && c != '\n' && c != '\t' && c != ' ')
 		{
-		case '\\':
 			break;
-		case '\n':
-			if (start)
-			{
-				break;
-			}
-			done = true;
+		}
+	}
+
+	int n = 0;
+	for (; buf < bufEnd; ++buf)
+	{
+		char c = *buf;
+
+		if (c == '\n')
+		{
 			break;
-		case '\r':
-			break;
-		case '\t':
-		case ' ':
-			if (start)
-			{
-				break;
-			}
-			// else falls through
-		default:
-			start = false;
-			row[n++] = c;
-			if (n >= len - 1)
-			{
-				done = true;
-			}
+		}
+
+		if (c == '\\' || '\r')
+		{
+			// skip
+			continue;
+		}
+
+		// Copy character
+		row[n++] = c;
+		if (n >= len - 1)
+		{
 			break;
 		}
 	}
@@ -117,9 +64,9 @@ static char* parseRow(char* buf, char* bufEnd, char* row, int len)
 	return buf;
 }
 
-static int parseFace(char* row, int* data, int n, int vcnt)
+int readFace(char* row, int* data, int maxDataLen, int vertCount)
 {
-	int j = 0;
+	int numVertices = 0;
 	while (*row != '\0')
 	{
 		// Skip initial white space
@@ -127,8 +74,9 @@ static int parseFace(char* row, int* data, int n, int vcnt)
 		{
 			row++;
 		}
+
 		char* s = row;
-		// Find vertex delimiter and terminated the string there for conversion.
+		// Find vertex delimiter and terminate the string there for conversion.
 		while (*row != '\0' && *row != ' ' && *row != '\t')
 		{
 			if (*row == '/')
@@ -137,21 +85,24 @@ static int parseFace(char* row, int* data, int n, int vcnt)
 			}
 			row++;
 		}
+
 		if (*s == '\0')
 		{
 			continue;
 		}
-		int vi = atoi(s);
-		data[j++] = vi < 0 ? vi + vcnt : vi - 1;
-		if (j >= n)
+
+		int vertexIndex = atoi(s);
+		data[numVertices++] = vertexIndex < 0 ? vertexIndex + vertCount : vertexIndex - 1;
+		if (numVertices >= maxDataLen)
 		{
-			return j;
+			break;
 		}
 	}
-	return j;
+	return numVertices;
+}
 }
 
-bool rcMeshLoaderObj::load(const std::string& filename)
+bool MeshLoaderObj::load(const std::string& fileName)
 {
 	char* buf = 0;
 	FILE* fp = fopen(filename.c_str(), "rb");
@@ -190,78 +141,93 @@ bool rcMeshLoaderObj::load(const std::string& filename)
 		return false;
 	}
 
+	load(buf, bufSize);
+	delete[] buf;
+	filename = fileName;
+	return true;
+}
+
+void MeshLoaderObj::load(char* buf, size_t bufLen)
+{
 	char* src = buf;
-	char* srcEnd = buf + bufSize;
+	char* srcEnd = buf + bufLen;
 	char row[512];
 	int face[32];
 	float x, y, z;
-	int nv;
-	int vcap = 0;
-	int tcap = 0;
+	int numVertices;
 
 	while (src < srcEnd)
 	{
 		// Parse one row
 		row[0] = '\0';
-		src = parseRow(src, srcEnd, row, sizeof(row) / sizeof(char));
-		// Skip comments
+		src = readRow(src, srcEnd, row, sizeof(row) / sizeof(row[0]));
+
 		if (row[0] == '#')
 		{
+			// Comment
 			continue;
 		}
 		if (row[0] == 'v' && row[1] != 'n' && row[1] != 't')
 		{
 			// Vertex pos
 			sscanf(row + 1, "%f %f %f", &x, &y, &z);
-			addVertex(x, y, z, vcap);
+			verts.push_back(x);
+			verts.push_back(y);
+			verts.push_back(z);
 		}
 		if (row[0] == 'f')
 		{
-			// Faces
-			nv = parseFace(row + 1, face, 32, m_vertCount);
-			for (int i = 2; i < nv; ++i)
+			// Face
+			numVertices = readFace(row + 1, face, sizeof(face) / sizeof(face[0]), getVertCount());
+			for (int i = 2; i < numVertices; ++i)
 			{
 				const int a = face[0];
 				const int b = face[i - 1];
 				const int c = face[i];
-				if (a < 0 || a >= m_vertCount || b < 0 || b >= m_vertCount || c < 0 || c >= m_vertCount)
+				if (a < 0 || a >= getVertCount() || b < 0 || b >= getVertCount() || c < 0 || c >= getVertCount())
 				{
 					continue;
 				}
-				addTriangle(a, b, c, tcap);
+
+				tris.push_back(a);
+				tris.push_back(b);
+				tris.push_back(c);
 			}
 		}
 	}
 
-	delete[] buf;
-
 	// Calculate normals.
-	m_normals = new float[m_triCount * 3];
-	for (int i = 0; i < m_triCount * 3; i += 3)
+	normals.resize(getTriCount() * 3);
+	for (int i = 0; i < tris.size(); i += 3)
 	{
-		const float* v0 = &m_verts[m_tris[i] * 3];
-		const float* v1 = &m_verts[m_tris[i + 1] * 3];
-		const float* v2 = &m_verts[m_tris[i + 2] * 3];
-		float e0[3], e1[3];
+		const float* vertex0 = &verts[tris[i + 0] * 3];
+		const float* vertex1 = &verts[tris[i + 1] * 3];
+		const float* vertex2 = &verts[tris[i + 2] * 3];
+
+		// Construct two triangle edges
+		float edge0[3];
+		float edge1[3];
 		for (int j = 0; j < 3; ++j)
 		{
-			e0[j] = v1[j] - v0[j];
-			e1[j] = v2[j] - v0[j];
+			edge0[j] = vertex1[j] - vertex0[j];
+			edge1[j] = vertex2[j] - vertex0[j];
 		}
-		float* n = &m_normals[i];
-		n[0] = e0[1] * e1[2] - e0[2] * e1[1];
-		n[1] = e0[2] * e1[0] - e0[0] * e1[2];
-		n[2] = e0[0] * e1[1] - e0[1] * e1[0];
-		float d = sqrtf(n[0] * n[0] + n[1] * n[1] + n[2] * n[2]);
-		if (d > 0)
+
+		float* normal = &normals[i];
+
+		// Cross product
+		normal[0] = edge0[1] * edge1[2] - edge0[2] * edge1[1];
+		normal[1] = edge0[2] * edge1[0] - edge0[0] * edge1[2];
+		normal[2] = edge0[0] * edge1[1] - edge0[1] * edge1[0];
+
+		// Normalize
+		float normalLength = sqrtf(normal[0] * normal[0] + normal[1] * normal[1] + normal[2] * normal[2]);
+		if (normalLength > 0)
 		{
-			d = 1.0f / d;
-			n[0] *= d;
-			n[1] *= d;
-			n[2] *= d;
+			normalLength = 1.0f / normalLength;
+			normal[0] *= normalLength;
+			normal[1] *= normalLength;
+			normal[2] *= normalLength;
 		}
 	}
-
-	m_filename = filename;
-	return true;
 }

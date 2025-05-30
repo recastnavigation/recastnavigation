@@ -135,37 +135,37 @@ static char* parseRow(char* buf, char* bufEnd, char* row, int len)
 
 bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath)
 {
-	if (m_mesh)
+	if (meshLoader)
 	{
-		delete m_chunkyMesh;
-		m_chunkyMesh = nullptr;
-		delete m_mesh;
-		m_mesh = nullptr;
+		delete chunkyMesh;
+		chunkyMesh = nullptr;
+		delete meshLoader;
+		meshLoader = nullptr;
 	}
-	m_offMeshConCount = 0;
-	m_volumeCount = 0;
+	offMeshConCount = 0;
+	volumeCount = 0;
 
-	m_mesh = new rcMeshLoaderObj;
-	if (!m_mesh)
+	meshLoader = new MeshLoaderObj;
+	if (!meshLoader)
 	{
 		ctx->log(RC_LOG_ERROR, "loadMesh: Out of memory 'm_mesh'.");
 		return false;
 	}
-	if (!m_mesh->load(filepath))
+	if (!meshLoader->load(filepath))
 	{
 		ctx->log(RC_LOG_ERROR, "buildTiledNavigation: Could not load '%s'", filepath.c_str());
 		return false;
 	}
 
-	rcCalcBounds(m_mesh->getVerts(), m_mesh->getVertCount(), m_meshBMin, m_meshBMax);
+	rcCalcBounds(meshLoader->getVerts(), meshLoader->getVertCount(), meshBMin, meshBMax);
 
-	m_chunkyMesh = new rcChunkyTriMesh;
-	if (!m_chunkyMesh)
+	chunkyMesh = new rcChunkyTriMesh;
+	if (!chunkyMesh)
 	{
 		ctx->log(RC_LOG_ERROR, "buildTiledNavigation: Out of memory 'm_chunkyMesh'.");
 		return false;
 	}
-	if (!rcCreateChunkyTriMesh(m_mesh->getVerts(), m_mesh->getTris(), m_mesh->getTriCount(), 256, m_chunkyMesh))
+	if (!rcCreateChunkyTriMesh(meshLoader->getVerts(), meshLoader->getTris(), meshLoader->getTriCount(), 256, chunkyMesh))
 	{
 		ctx->log(RC_LOG_ERROR, "buildTiledNavigation: Failed to build chunky mesh.");
 		return false;
@@ -213,20 +213,29 @@ bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath)
 		return false;
 	}
 
-	m_offMeshConCount = 0;
-	m_volumeCount = 0;
+	bool result = loadGeomSet(ctx, buf, bufSize);
 
-	delete m_mesh;
-	m_mesh = nullptr;
+	delete[] buf;
+	return result;
+}
 
-	char* src = buf;
-	char* srcEnd = buf + bufSize;
+bool InputGeom::loadGeomSet(rcContext* ctx, char* buffer, size_t bufferLen)
+{
+	offMeshConCount = 0;
+	volumeCount = 0;
+
+	delete meshLoader;
+	meshLoader = nullptr;
+
+	char* src = buffer;
+	char* srcEnd = buffer + bufferLen;
 	char row[512];
 	while (src < srcEnd)
 	{
 		// Parse one row
 		row[0] = '\0';
 		src = parseRow(src, srcEnd, row, sizeof(row) / sizeof(char));
+
 		if (row[0] == 'f')
 		{
 			// File name.
@@ -239,7 +248,6 @@ bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath)
 			{
 				if (!loadMesh(ctx, name))
 				{
-					delete[] buf;
 					return false;
 				}
 			}
@@ -247,9 +255,9 @@ bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath)
 		else if (row[0] == 'c')
 		{
 			// Off-mesh connection
-			if (m_offMeshConCount < MAX_OFFMESH_CONNECTIONS)
+			if (offMeshConCount < MAX_OFFMESH_CONNECTIONS)
 			{
-				float* v = &m_offMeshConVerts[m_offMeshConCount * 3 * 2];
+				float* v = &offMeshConVerts[offMeshConCount * 3 * 2];
 				int bidir;
 				int area;
 				int flags;
@@ -267,19 +275,19 @@ bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath)
 					&bidir,
 					&area,
 					&flags);
-				m_offMeshConRads[m_offMeshConCount] = rad;
-				m_offMeshConDirs[m_offMeshConCount] = (unsigned char)bidir;
-				m_offMeshConAreas[m_offMeshConCount] = (unsigned char)area;
-				m_offMeshConFlags[m_offMeshConCount] = (unsigned short)flags;
-				m_offMeshConCount++;
+				offMeshConRads[offMeshConCount] = rad;
+				offMeshConDirs[offMeshConCount] = (unsigned char)bidir;
+				offMeshConAreas[offMeshConCount] = (unsigned char)area;
+				offMeshConFlags[offMeshConCount] = (unsigned short)flags;
+				offMeshConCount++;
 			}
 		}
 		else if (row[0] == 'v')
 		{
 			// Convex volumes
-			if (m_volumeCount < MAX_VOLUMES)
+			if (volumeCount < MAX_VOLUMES)
 			{
-				ConvexVolume* vol = &m_volumes[m_volumeCount++];
+				ConvexVolume* vol = &volumes[volumeCount++];
 				sscanf(row + 1, "%d %d %f %f", &vol->nverts, &vol->area, &vol->hmin, &vol->hmax);
 				for (int i = 0; i < vol->nverts; ++i)
 				{
@@ -292,35 +300,33 @@ bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath)
 		else if (row[0] == 's')
 		{
 			// Settings
-			m_hasBuildSettings = true;
+			hasBuildSettings = true;
 			sscanf(
 				row + 1,
 				"%f %f %f %f %f %f %f %f %f %f %f %f %f %d %f %f %f %f %f %f %f",
-				&m_buildSettings.cellSize,
-				&m_buildSettings.cellHeight,
-				&m_buildSettings.agentHeight,
-				&m_buildSettings.agentRadius,
-				&m_buildSettings.agentMaxClimb,
-				&m_buildSettings.agentMaxSlope,
-				&m_buildSettings.regionMinSize,
-				&m_buildSettings.regionMergeSize,
-				&m_buildSettings.edgeMaxLen,
-				&m_buildSettings.edgeMaxError,
-				&m_buildSettings.vertsPerPoly,
-				&m_buildSettings.detailSampleDist,
-				&m_buildSettings.detailSampleMaxError,
-				&m_buildSettings.partitionType,
-				&m_buildSettings.navMeshBMin[0],
-				&m_buildSettings.navMeshBMin[1],
-				&m_buildSettings.navMeshBMin[2],
-				&m_buildSettings.navMeshBMax[0],
-				&m_buildSettings.navMeshBMax[1],
-				&m_buildSettings.navMeshBMax[2],
-				&m_buildSettings.tileSize);
+				&buildSettings.cellSize,
+				&buildSettings.cellHeight,
+				&buildSettings.agentHeight,
+				&buildSettings.agentRadius,
+				&buildSettings.agentMaxClimb,
+				&buildSettings.agentMaxSlope,
+				&buildSettings.regionMinSize,
+				&buildSettings.regionMergeSize,
+				&buildSettings.edgeMaxLen,
+				&buildSettings.edgeMaxError,
+				&buildSettings.vertsPerPoly,
+				&buildSettings.detailSampleDist,
+				&buildSettings.detailSampleMaxError,
+				&buildSettings.partitionType,
+				&buildSettings.navMeshBMin[0],
+				&buildSettings.navMeshBMin[1],
+				&buildSettings.navMeshBMin[2],
+				&buildSettings.navMeshBMax[0],
+				&buildSettings.navMeshBMax[1],
+				&buildSettings.navMeshBMax[2],
+				&buildSettings.tileSize);
 		}
 	}
-
-	delete[] buf;
 	return true;
 }
 
@@ -349,19 +355,18 @@ bool InputGeom::load(rcContext* ctx, const std::string& filepath)
 
 bool InputGeom::saveGeomSet(const BuildSettings* settings)
 {
-	if (!m_mesh)
+	if (!meshLoader)
 	{
 		return false;
 	}
 
 	// Change extension
-	std::string filepath = m_mesh->getFileName();
+	std::string filepath = meshLoader->getFileName();
 	size_t extPos = filepath.find_last_of('.');
 	if (extPos != std::string::npos)
 	{
 		filepath = filepath.substr(0, extPos);
 	}
-
 	filepath += ".gset";
 
 	FILE* fp = fopen(filepath.c_str(), "w");
@@ -371,7 +376,7 @@ bool InputGeom::saveGeomSet(const BuildSettings* settings)
 	}
 
 	// Store mesh filename.
-	fprintf(fp, "f %s\n", m_mesh->getFileName().c_str());
+	fprintf(fp, "f %s\n", meshLoader->getFileName().c_str());
 
 	// Store settings if any
 	if (settings)
@@ -403,20 +408,20 @@ bool InputGeom::saveGeomSet(const BuildSettings* settings)
 	}
 
 	// Store off-mesh links.
-	for (int i = 0; i < m_offMeshConCount; ++i)
+	for (int i = 0; i < offMeshConCount; ++i)
 	{
-		const float* v = &m_offMeshConVerts[i * 3 * 2];
-		const float rad = m_offMeshConRads[i];
-		const int bidir = m_offMeshConDirs[i];
-		const int area = m_offMeshConAreas[i];
-		const int flags = m_offMeshConFlags[i];
+		const float* v = &offMeshConVerts[i * 3 * 2];
+		const float rad = offMeshConRads[i];
+		const int bidir = offMeshConDirs[i];
+		const int area = offMeshConAreas[i];
+		const int flags = offMeshConFlags[i];
 		fprintf(fp, "c %f %f %f  %f %f %f  %f %d %d %d\n", v[0], v[1], v[2], v[3], v[4], v[5], rad, bidir, area, flags);
 	}
 
 	// Convex volumes
-	for (int i = 0; i < m_volumeCount; ++i)
+	for (int i = 0; i < volumeCount; ++i)
 	{
-		ConvexVolume* vol = &m_volumes[i];
+		ConvexVolume* vol = &volumes[i];
 		fprintf(fp, "v %d %d %f %f\n", vol->nverts, vol->area, vol->hmin, vol->hmax);
 		for (int j = 0; j < vol->nverts; ++j)
 		{
@@ -480,7 +485,7 @@ bool InputGeom::raycastMesh(float* src, float* dst, float& tmin)
 	// Prune hit ray.
 	float btmin;
 	float btmax;
-	if (!isectSegAABB(src, dst, m_meshBMin, m_meshBMax, btmin, btmax))
+	if (!isectSegAABB(src, dst, meshBMin, meshBMax, btmin, btmax))
 	{
 		return false;
 	}
@@ -489,7 +494,7 @@ bool InputGeom::raycastMesh(float* src, float* dst, float& tmin)
 	float q[]{src[0] + (dst[0] - src[0]) * btmax, src[2] + (dst[2] - src[2]) * btmax};
 
 	int cid[512];
-	const int ncid = m_chunkyMesh->GetChunksOverlappingSegment(p, q, cid, 512);
+	const int ncid = chunkyMesh->GetChunksOverlappingSegment(p, q, cid, 512);
 	if (!ncid)
 	{
 		return false;
@@ -497,12 +502,12 @@ bool InputGeom::raycastMesh(float* src, float* dst, float& tmin)
 
 	tmin = 1.0f;
 	bool hit = false;
-	const float* verts = m_mesh->getVerts();
+	const float* verts = meshLoader->getVerts();
 
 	for (int i = 0; i < ncid; ++i)
 	{
-		const rcChunkyTriMeshNode& node = m_chunkyMesh->nodes[cid[i]];
-		const int* tris = &m_chunkyMesh->tris[node.i * 3];
+		const rcChunkyTriMeshNode& node = chunkyMesh->nodes[cid[i]];
+		const int* tris = &chunkyMesh->tris[node.i * 3];
 		const int ntris = node.n;
 
 		for (int j = 0; j < ntris * 3; j += 3)
@@ -530,32 +535,32 @@ void InputGeom::addOffMeshConnection(
 	unsigned char area,
 	unsigned short flags)
 {
-	if (m_offMeshConCount >= MAX_OFFMESH_CONNECTIONS)
+	if (offMeshConCount >= MAX_OFFMESH_CONNECTIONS)
 	{
 		return;
 	}
-	float* v = &m_offMeshConVerts[m_offMeshConCount * 3 * 2];
-	m_offMeshConRads[m_offMeshConCount] = rad;
-	m_offMeshConDirs[m_offMeshConCount] = bidir;
-	m_offMeshConAreas[m_offMeshConCount] = area;
-	m_offMeshConFlags[m_offMeshConCount] = flags;
-	m_offMeshConId[m_offMeshConCount] = 1000 + m_offMeshConCount;
+	float* v = &offMeshConVerts[offMeshConCount * 3 * 2];
+	offMeshConRads[offMeshConCount] = rad;
+	offMeshConDirs[offMeshConCount] = bidir;
+	offMeshConAreas[offMeshConCount] = area;
+	offMeshConFlags[offMeshConCount] = flags;
+	offMeshConId[offMeshConCount] = 1000 + offMeshConCount;
 	rcVcopy(&v[0], spos);
 	rcVcopy(&v[3], epos);
-	m_offMeshConCount++;
+	offMeshConCount++;
 }
 
 void InputGeom::deleteOffMeshConnection(int i)
 {
-	m_offMeshConCount--;
-	float* src = &m_offMeshConVerts[m_offMeshConCount * 3 * 2];
-	float* dst = &m_offMeshConVerts[i * 3 * 2];
+	offMeshConCount--;
+	float* src = &offMeshConVerts[offMeshConCount * 3 * 2];
+	float* dst = &offMeshConVerts[i * 3 * 2];
 	rcVcopy(&dst[0], &src[0]);
 	rcVcopy(&dst[3], &src[3]);
-	m_offMeshConRads[i] = m_offMeshConRads[m_offMeshConCount];
-	m_offMeshConDirs[i] = m_offMeshConDirs[m_offMeshConCount];
-	m_offMeshConAreas[i] = m_offMeshConAreas[m_offMeshConCount];
-	m_offMeshConFlags[i] = m_offMeshConFlags[m_offMeshConCount];
+	offMeshConRads[i] = offMeshConRads[offMeshConCount];
+	offMeshConDirs[i] = offMeshConDirs[offMeshConCount];
+	offMeshConAreas[i] = offMeshConAreas[offMeshConCount];
+	offMeshConFlags[i] = offMeshConFlags[offMeshConCount];
 }
 
 void InputGeom::drawOffMeshConnections(duDebugDraw* dd, bool hilight)
@@ -565,9 +570,9 @@ void InputGeom::drawOffMeshConnections(duDebugDraw* dd, bool hilight)
 	dd->depthMask(false);
 
 	dd->begin(DU_DRAW_LINES, 2.0f);
-	for (int i = 0; i < m_offMeshConCount; ++i)
+	for (int i = 0; i < offMeshConCount; ++i)
 	{
-		float* v = &m_offMeshConVerts[i * 3 * 2];
+		float* v = &offMeshConVerts[i * 3 * 2];
 
 		dd->vertex(v[0], v[1], v[2], baseColor);
 		dd->vertex(v[0], v[1] + 0.2f, v[2], baseColor);
@@ -575,12 +580,12 @@ void InputGeom::drawOffMeshConnections(duDebugDraw* dd, bool hilight)
 		dd->vertex(v[3], v[4], v[5], baseColor);
 		dd->vertex(v[3], v[4] + 0.2f, v[5], baseColor);
 
-		duAppendCircle(dd, v[0], v[1] + 0.1f, v[2], m_offMeshConRads[i], baseColor);
-		duAppendCircle(dd, v[3], v[4] + 0.1f, v[5], m_offMeshConRads[i], baseColor);
+		duAppendCircle(dd, v[0], v[1] + 0.1f, v[2], offMeshConRads[i], baseColor);
+		duAppendCircle(dd, v[3], v[4] + 0.1f, v[5], offMeshConRads[i], baseColor);
 
 		if (hilight)
 		{
-			duAppendArc(dd, v[0], v[1], v[2], v[3], v[4], v[5], 0.25f, (m_offMeshConDirs[i] & 1) ? 0.6f : 0.0f, 0.6f, conColor);
+			duAppendArc(dd, v[0], v[1], v[2], v[3], v[4], v[5], 0.25f, (offMeshConDirs[i] & 1) ? 0.6f : 0.0f, 0.6f, conColor);
 		}
 	}
 	dd->end();
@@ -589,11 +594,11 @@ void InputGeom::drawOffMeshConnections(duDebugDraw* dd, bool hilight)
 
 void InputGeom::addConvexVolume(const float* verts, const int nverts, const float minh, const float maxh, unsigned char area)
 {
-	if (m_volumeCount >= MAX_VOLUMES)
+	if (volumeCount >= MAX_VOLUMES)
 	{
 		return;
 	}
-	ConvexVolume* vol = &m_volumes[m_volumeCount++];
+	ConvexVolume* vol = &volumes[volumeCount++];
 	memset(vol, 0, sizeof(ConvexVolume));
 	memcpy(vol->verts, verts, sizeof(float) * 3 * nverts);
 	vol->hmin = minh;
@@ -604,8 +609,8 @@ void InputGeom::addConvexVolume(const float* verts, const int nverts, const floa
 
 void InputGeom::deleteConvexVolume(int i)
 {
-	m_volumeCount--;
-	m_volumes[i] = m_volumes[m_volumeCount];
+	volumeCount--;
+	volumes[i] = volumes[volumeCount];
 }
 
 void InputGeom::drawConvexVolumes(struct duDebugDraw* dd, bool /*hilight*/)
@@ -613,9 +618,9 @@ void InputGeom::drawConvexVolumes(struct duDebugDraw* dd, bool /*hilight*/)
 	dd->depthMask(false);
 	dd->begin(DU_DRAW_TRIS);
 
-	for (int i = 0; i < m_volumeCount; ++i)
+	for (int i = 0; i < volumeCount; ++i)
 	{
-		const ConvexVolume* vol = &m_volumes[i];
+		const ConvexVolume* vol = &volumes[i];
 		unsigned int col = duTransCol(dd->areaToCol(vol->area), 32);
 		for (int j = 0, k = vol->nverts - 1; j < vol->nverts; k = j++)
 		{
@@ -639,9 +644,9 @@ void InputGeom::drawConvexVolumes(struct duDebugDraw* dd, bool /*hilight*/)
 	dd->end();
 
 	dd->begin(DU_DRAW_LINES, 2.0f);
-	for (int i = 0; i < m_volumeCount; ++i)
+	for (int i = 0; i < volumeCount; ++i)
 	{
-		const ConvexVolume* vol = &m_volumes[i];
+		const ConvexVolume* vol = &volumes[i];
 		unsigned int col = duTransCol(dd->areaToCol(vol->area), 220);
 		for (int j = 0, k = vol->nverts - 1; j < vol->nverts; k = j++)
 		{
@@ -658,9 +663,9 @@ void InputGeom::drawConvexVolumes(struct duDebugDraw* dd, bool /*hilight*/)
 	dd->end();
 
 	dd->begin(DU_DRAW_POINTS, 3.0f);
-	for (int i = 0; i < m_volumeCount; ++i)
+	for (int i = 0; i < volumeCount; ++i)
 	{
-		const ConvexVolume* vol = &m_volumes[i];
+		const ConvexVolume* vol = &volumes[i];
 		unsigned int col = duDarkenCol(duTransCol(dd->areaToCol(vol->area), 220));
 		for (int j = 0; j < vol->nverts; ++j)
 		{

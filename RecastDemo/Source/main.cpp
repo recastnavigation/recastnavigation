@@ -740,22 +740,20 @@ int main(int /*argc*/, char** /*argv*/)
 				app.meshName = *levelToLoad;
 				app.showLevels = false;
 
-				delete app.inputGeometry;
-				app.inputGeometry = 0;
-
 				string path = app.meshesFolder + "/" + app.meshName;
 
+				delete app.inputGeometry;
 				app.inputGeometry = new InputGeom;
 				if (!app.inputGeometry->load(&app.buildContext, path))
 				{
 					delete app.inputGeometry;
-					app.inputGeometry = 0;
+					app.inputGeometry = nullptr;
 
 					// Destroy the sample if it already had geometry loaded, as we've just deleted it!
 					if (app.sample && app.sample->getInputGeom())
 					{
 						delete app.sample;
-						app.sample = 0;
+						app.sample = nullptr;
 					}
 
 					app.showLog = true;
@@ -864,12 +862,12 @@ int main(int /*argc*/, char** /*argv*/)
 
 					delete app.inputGeometry;
 					app.inputGeometry = new InputGeom;
-					if (!app.inputGeometry || !app.inputGeometry->load(&app.buildContext, path))
+					if (!app.inputGeometry->load(&app.buildContext, path))
 					{
 						delete app.inputGeometry;
-						app.inputGeometry = 0;
+						app.inputGeometry = nullptr;
 						delete app.sample;
-						app.sample = 0;
+						app.sample = nullptr;
 						app.showLog = true;
 						app.logScroll = 0;
 						app.buildContext.dumpLog("geom load log %s:", app.meshName.c_str());
