@@ -108,38 +108,38 @@ struct SampleToolState
 class Sample
 {
 protected:
-	InputGeom* m_inputGeometry = nullptr;
-	dtNavMesh* m_navMesh = nullptr;
-	dtNavMeshQuery* m_navQuery = nullptr;
-	dtCrowd* m_crowd = nullptr;
+	InputGeom* inputGeometry = nullptr;
+	dtNavMesh* navMesh = nullptr;
+	dtNavMeshQuery* navQuery = nullptr;
+	dtCrowd* crowd = nullptr;
 
-	unsigned char m_navMeshDrawFlags;
+	unsigned char navMeshDrawFlags;
 
-	float m_cellSize;
-	float m_cellHeight;
-	float m_agentHeight;
-	float m_agentRadius;
-	float m_agentMaxClimb;
-	float m_agentMaxSlope;
-	float m_regionMinSize;
-	float m_regionMergeSize;
-	float m_edgeMaxLen;
-	float m_edgeMaxError;
-	float m_vertsPerPoly;
-	float m_detailSampleDist;
-	float m_detailSampleMaxError;
-	int m_partitionType;
+	float cellSize;
+	float cellHeight;
+	float agentHeight;
+	float agentRadius;
+	float agentMaxClimb;
+	float agentMaxSlope;
+	float regionMinSize;
+	float regionMergeSize;
+	float edgeMaxLen;
+	float edgeMaxError;
+	float vertsPerPoly;
+	float detailSampleDist;
+	float detailSampleMaxError;
+	int partitionType;
 
-	bool m_filterLowHangingObstacles = true;
-	bool m_filterLedgeSpans = true;
-	bool m_filterWalkableLowHeightSpans = true;
+	bool filterLowHangingObstacles = true;
+	bool filterLedgeSpans = true;
+	bool filterWalkableLowHeightSpans = true;
 
-	SampleTool* m_tool = nullptr;
-	SampleToolState* m_toolStates[static_cast<unsigned long>(SampleToolType::MAX_TOOLS)];
+	SampleTool* tool = nullptr;
+	SampleToolState* toolStates[static_cast<unsigned long>(SampleToolType::MAX_TOOLS)];
 
-	BuildContext* m_buildContext = nullptr;
+	BuildContext* buildContext = nullptr;
 
-	SampleDebugDraw m_debugDraw;
+	SampleDebugDraw debugDraw;
 
 	dtNavMesh* loadAll(const char* path);
 	void saveAll(const char* path, const dtNavMesh* mesh);
@@ -152,13 +152,13 @@ public:
 	Sample& operator=(const Sample&) = delete;
 	Sample& operator=(const Sample&&) = delete;
 
-	void setContext(BuildContext* ctx) { m_buildContext = ctx; }
+	void setContext(BuildContext* ctx) { buildContext = ctx; }
 
 	void setTool(SampleTool* tool);
-	SampleToolState* getToolState(const int type) const { return m_toolStates[type]; }
-	void setToolState(const int type, SampleToolState* s) { m_toolStates[type] = s; }
+	SampleToolState* getToolState(const int type) const { return toolStates[type]; }
+	void setToolState(const int type, SampleToolState* s) { toolStates[type] = s; }
 
-	SampleDebugDraw& getDebugDraw() { return m_debugDraw; }
+	SampleDebugDraw& getDebugDraw() { return debugDraw; }
 
 	virtual void handleSettings();
 	virtual void handleTools();
@@ -173,16 +173,16 @@ public:
 	virtual void handleUpdate(float dt);
 	virtual void collectSettings(struct BuildSettings& settings);
 
-	virtual InputGeom* getInputGeom() { return m_inputGeometry; }
-	virtual dtNavMesh* getNavMesh() { return m_navMesh; }
-	virtual dtNavMeshQuery* getNavMeshQuery() { return m_navQuery; }
-	virtual dtCrowd* getCrowd() { return m_crowd; }
-	virtual float getAgentRadius() { return m_agentRadius; }
-	virtual float getAgentHeight() { return m_agentHeight; }
-	virtual float getAgentClimb() { return m_agentMaxClimb; }
+	virtual InputGeom* getInputGeom() { return inputGeometry; }
+	virtual dtNavMesh* getNavMesh() { return navMesh; }
+	virtual dtNavMeshQuery* getNavMeshQuery() { return navQuery; }
+	virtual dtCrowd* getCrowd() { return crowd; }
+	virtual float getAgentRadius() { return agentRadius; }
+	virtual float getAgentHeight() { return agentHeight; }
+	virtual float getAgentClimb() { return agentMaxClimb; }
 
-	unsigned char getNavMeshDrawFlags() const { return m_navMeshDrawFlags; }
-	void setNavMeshDrawFlags(unsigned char flags) { m_navMeshDrawFlags = flags; }
+	unsigned char getNavMeshDrawFlags() const { return navMeshDrawFlags; }
+	void setNavMeshDrawFlags(unsigned char flags) { navMeshDrawFlags = flags; }
 
 	void updateToolStates(float dt);
 	void initToolStates(Sample* sample);
