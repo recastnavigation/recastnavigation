@@ -26,16 +26,16 @@
 class Sample_SoloMesh : public Sample
 {
 protected:
-	float m_totalBuildTimeMs = 0;
+	float totalBuildTimeMs = 0;
 
-	rcConfig m_config {};
+	rcConfig config {};
 
-	unsigned char* m_triareas = nullptr;
-	rcHeightfield* m_heightfield = nullptr;
-	rcCompactHeightfield* m_compactHeightfield = nullptr;
-	rcContourSet* m_contourSet = nullptr;
-	rcPolyMesh* m_polyMesh = nullptr;
-	rcPolyMeshDetail* m_detailMesh = nullptr;
+	unsigned char* triareas = nullptr;
+	rcHeightfield* heightfield = nullptr;
+	rcCompactHeightfield* compactHeightfield = nullptr;
+	rcContourSet* contourSet = nullptr;
+	rcPolyMesh* polyMesh = nullptr;
+	rcPolyMeshDetail* detailMesh = nullptr;
 
 	enum class DrawMode : uint8_t
 	{
@@ -57,7 +57,7 @@ protected:
 		POLYMESH,
 		POLYMESH_DETAIL
 	};
-	DrawMode m_drawMode = DrawMode::NAVMESH;
+	DrawMode currentDrawMode = DrawMode::NAVMESH;
 
 	void cleanup();
 
