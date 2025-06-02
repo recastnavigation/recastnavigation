@@ -41,7 +41,7 @@
 
 TestCase::~TestCase()
 {
-	Test* iter = m_tests;
+	Test* iter = tests;
 	while (iter)
 	{
 		Test* next = iter->next;
@@ -151,12 +151,12 @@ bool TestCase::load(const std::string& filePath)
 		if (row[0] == 's')
 		{
 			// Sample name.
-			copyName(m_sampleName, row + 1);
+			copyName(sampleName, row + 1);
 		}
 		else if (row[0] == 'f')
 		{
 			// File name.
-			copyName(m_geomFileName, row + 1);
+			copyName(geomFileName, row + 1);
 		}
 		else if (row[0] == 'p' && row[1] == 'f')
 		{
@@ -164,8 +164,8 @@ bool TestCase::load(const std::string& filePath)
 			Test* test = new Test();
 			test->type = TEST_PATHFIND;
 			test->expand = false;
-			test->next = m_tests;
-			m_tests = test;
+			test->next = tests;
+			tests = test;
 			sscanf(
 				row + 2,
 				"%f %f %f %f %f %f %hx %hx",
@@ -184,8 +184,8 @@ bool TestCase::load(const std::string& filePath)
 			Test* test = new Test();
 			test->type = TEST_RAYCAST;
 			test->expand = false;
-			test->next = m_tests;
-			m_tests = test;
+			test->next = tests;
+			tests = test;
 			sscanf(
 				row + 2,
 				"%f %f %f %f %f %f %hx %hx",
@@ -206,7 +206,7 @@ bool TestCase::load(const std::string& filePath)
 
 void TestCase::resetTimes()
 {
-	for (Test* iter = m_tests; iter; iter = iter->next)
+	for (Test* iter = tests; iter; iter = iter->next)
 	{
 		iter->findNearestPolyTime = 0;
 		iter->findPathTime = 0;
@@ -228,7 +228,7 @@ void TestCase::doTests(dtNavMesh* navmesh, dtNavMeshQuery* navquery)
 	float straight[MAX_POLYS * 3];
 	const float polyPickExt[3] = {2, 4, 2};
 
-	for (Test* iter = m_tests; iter; iter = iter->next)
+	for (Test* iter = tests; iter; iter = iter->next)
 	{
 		delete[] iter->polys;
 		iter->polys = 0;
@@ -345,7 +345,7 @@ void TestCase::doTests(dtNavMesh* navmesh, dtNavMeshQuery* navquery)
 
 	printf("Test Results:\n");
 	int n = 0;
-	for (Test* iter = m_tests; iter; iter = iter->next)
+	for (Test* iter = tests; iter; iter = iter->next)
 	{
 		const int total = iter->findNearestPolyTime + iter->findPathTime + iter->findStraightPathTime;
 		printf(" - Path %02d:     %.4f ms\n", n, (float)total / 1000.0f);
@@ -360,7 +360,7 @@ void TestCase::handleRender()
 {
 	glLineWidth(2.0f);
 	glBegin(GL_LINES);
-	for (Test* iter = m_tests; iter; iter = iter->next)
+	for (Test* iter = tests; iter; iter = iter->next)
 	{
 		float dir[3];
 		dtVsub(dir, iter->epos, iter->spos);
@@ -431,7 +431,7 @@ bool TestCase::handleRenderOverlay(double* proj, double* model, int* view)
 
 	static constexpr float LABEL_DIST = 1.0f;
 
-	for (Test* iter = m_tests; iter; iter = iter->next)
+	for (Test* iter = tests; iter; iter = iter->next)
 	{
 		float pt[3];
 		float dir[3];
@@ -471,7 +471,7 @@ bool TestCase::handleRenderOverlay(double* proj, double* model, int* view)
 	bool mouseOverMenu = imguiBeginScrollArea("Test Results", 10, view[3] - 10 - 350, 200, 350, &resScroll);
 
 	n = 0;
-	for (Test* iter = m_tests; iter; iter = iter->next, n++)
+	for (Test* iter = tests; iter; iter = iter->next, n++)
 	{
 		const int total = iter->findNearestPolyTime + iter->findPathTime + iter->findStraightPathTime;
 		snprintf(subtext, 64, "%.4f ms", (float)total / 1000.0f);

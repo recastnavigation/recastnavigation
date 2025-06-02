@@ -65,9 +65,9 @@ class TestCase
 		Test* next = nullptr;
 	};
 
-	std::string m_sampleName;
-	std::string m_geomFileName;
-	Test* m_tests = nullptr;
+	std::string sampleName;
+	std::string geomFileName;
+	Test* tests = nullptr;
 
 	void resetTimes();
 
@@ -81,14 +81,11 @@ public:
 
 	bool load(const std::string& filePath);
 
-	const std::string& getSampleName() const { return m_sampleName; }
-	const std::string& getGeomFileName() const { return m_geomFileName; }
+	const std::string& getSampleName() const { return sampleName; }
+	const std::string& getGeomFileName() const { return geomFileName; }
 
 	void doTests(class dtNavMesh* navmesh, class dtNavMeshQuery* navquery);
 
 	void handleRender();
 	bool handleRenderOverlay(double* proj, double* model, int* view);
-
-private:
-	// Explicitly disabled copy constructor and copy assignment operator.
 };
