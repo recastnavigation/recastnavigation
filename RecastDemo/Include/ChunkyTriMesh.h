@@ -20,20 +20,23 @@
 
 #include <vector>
 
-struct rcChunkyTriMeshNode
+/// A partitioned triangle mesh (AABB tree), where each node contains at max trisPerChunk triangles.
+struct ChunkyTriMesh
 {
-	float bmin[2];
-	float bmax[2];
-	int i;
-	int n;
-};
+	struct Node
+	{
+		float bmin[2];
+		float bmax[2];
+		int i;
+		int n;
+	};
 
-struct rcChunkyTriMesh
-{
-	std::vector<rcChunkyTriMeshNode> nodes{};
+	std::vector<Node> nodes{};
 	int nnodes = 0;
 	std::vector<int> tris{};
 	int maxTrisPerChunk = 0;
+
+	bool TryPartitionMesh(const float* verts, const int* tris, int ntris, int trisPerChunk);
 
 	/// Finds the chunk indices that overlap the input rectangle.
 	int GetChunksOverlappingRect(float bmin[2], float bmax[2], int* ids, int maxIds) const;
@@ -41,7 +44,3 @@ struct rcChunkyTriMesh
 	/// Returns the chunk indices which overlap the input segment.
 	int GetChunksOverlappingSegment(float segmentStart[2], float segmentEnd[2], int* ids, int maxIds) const;
 };
-
-/// Creates partitioned triangle mesh (AABB tree),
-/// where each node contains at max trisPerChunk triangles.
-bool rcCreateChunkyTriMesh(const float* verts, const int* tris, int ntris, int trisPerChunk, rcChunkyTriMesh* triMesh);

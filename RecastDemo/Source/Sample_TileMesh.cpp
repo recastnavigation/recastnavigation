@@ -842,7 +842,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(
 	const float* verts = inputGeometry->getMesh()->getVerts();
 	const int numVerts = inputGeometry->getMesh()->getVertCount();
 	const int numTris = inputGeometry->getMesh()->getTriCount();
-	const rcChunkyTriMesh* chunkyMesh = inputGeometry->getChunkyMesh();
+	const ChunkyTriMesh* chunkyMesh = inputGeometry->getChunkyMesh();
 
 	// Init build configuration from GUI
 	memset(&config, 0, sizeof(config));
@@ -955,7 +955,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(
 
 	for (int i = 0; i < numOverlappingChunks; ++i)
 	{
-		const rcChunkyTriMeshNode& node = chunkyMesh->nodes[overlappingChunkIndexes[i]];
+		const ChunkyTriMesh::Node& node = chunkyMesh->nodes[overlappingChunkIndexes[i]];
 		const int* nodeTris = &chunkyMesh->tris[node.i * 3];
 		const int numNodeTris = node.n;
 

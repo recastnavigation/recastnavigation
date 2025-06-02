@@ -159,13 +159,13 @@ bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath)
 
 	rcCalcBounds(meshLoader->getVerts(), meshLoader->getVertCount(), meshBMin, meshBMax);
 
-	chunkyMesh = new rcChunkyTriMesh;
+	chunkyMesh = new ChunkyTriMesh;
 	if (!chunkyMesh)
 	{
 		ctx->log(RC_LOG_ERROR, "buildTiledNavigation: Out of memory 'm_chunkyMesh'.");
 		return false;
 	}
-	if (!rcCreateChunkyTriMesh(meshLoader->getVerts(), meshLoader->getTris(), meshLoader->getTriCount(), 256, chunkyMesh))
+	if (!chunkyMesh->TryPartitionMesh(meshLoader->getVerts(), meshLoader->getTris(), meshLoader->getTriCount(), 256))
 	{
 		ctx->log(RC_LOG_ERROR, "buildTiledNavigation: Failed to build chunky mesh.");
 		return false;
@@ -506,7 +506,7 @@ bool InputGeom::raycastMesh(float* src, float* dst, float& tmin)
 
 	for (int i = 0; i < ncid; ++i)
 	{
-		const rcChunkyTriMeshNode& node = chunkyMesh->nodes[cid[i]];
+		const ChunkyTriMesh::Node& node = chunkyMesh->nodes[cid[i]];
 		const int* tris = &chunkyMesh->tris[node.i * 3];
 		const int ntris = node.n;
 

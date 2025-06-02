@@ -101,7 +101,7 @@ void subdivide(
 	int imax,
 	int trisPerChunk,
 	int& curNode,
-	rcChunkyTriMeshNode* nodes,
+	ChunkyTriMesh::Node* nodes,
 	const int maxNodes,
 	int& curTri,
 	int* outTris,
@@ -115,7 +115,7 @@ void subdivide(
 		return;
 	}
 
-	rcChunkyTriMeshNode& node = nodes[curNode++];
+	ChunkyTriMesh::Node& node = nodes[curNode++];
 
 	if (inum <= trisPerChunk)
 	{
@@ -214,12 +214,12 @@ bool checkOverlapSegment(const float p[2], const float q[2], const float bmin[2]
 
 }
 
-bool rcCreateChunkyTriMesh(const float* verts, const int* tris, int ntris, int trisPerChunk, rcChunkyTriMesh* triMesh)
+bool ChunkyTriMesh::TryPartitionMesh(const float* verts, const int* tris, int ntris, int trisPerChunk)
 {
 	int nchunks = (ntris + trisPerChunk - 1) / trisPerChunk;
 
-	triMesh->nodes.resize(nchunks * 4);
-	triMesh->tris.resize(ntris * 3);
+	this->nodes.resize(nchunks * 4);
+	this->tris.resize(ntris * 3);
 
 	// Build tree
 	BoundsItem* items = new BoundsItem[ntris];
@@ -268,43 +268,43 @@ bool rcCreateChunkyTriMesh(const float* verts, const int* tris, int ntris, int t
 		ntris,
 		trisPerChunk,
 		curNode,
-		triMesh->nodes.data(),
+		this->nodes.data(),
 		nchunks * 4,
 		curTri,
-		triMesh->tris.data(),
+		this->tris.data(),
 		tris);
 
 	delete[] items;
 
-	triMesh->nnodes = curNode;
+	this->nnodes = curNode;
 
 	// Calc max tris per node.
-	triMesh->maxTrisPerChunk = 0;
-	for (int i = 0; i < triMesh->nnodes; ++i)
+	this->maxTrisPerChunk = 0;
+	for (int i = 0; i < this->nnodes; ++i)
 	{
-		rcChunkyTriMeshNode& node = triMesh->nodes[i];
+		Node& node = this->nodes[i];
 		const bool isLeaf = node.i >= 0;
 		if (!isLeaf)
 		{
 			continue;
 		}
-		if (node.n > triMesh->maxTrisPerChunk)
+		if (node.n > this->maxTrisPerChunk)
 		{
-			triMesh->maxTrisPerChunk = node.n;
+			this->maxTrisPerChunk = node.n;
 		}
 	}
 
 	return true;
 }
 
-int rcChunkyTriMesh::GetChunksOverlappingRect(float bmin[2], float bmax[2], int* ids, const int maxIds) const
+int ChunkyTriMesh::GetChunksOverlappingRect(float bmin[2], float bmax[2], int* ids, const int maxIds) const
 {
 	// Traverse tree
 	int i = 0;
 	int n = 0;
 	while (i < this->nnodes)
 	{
-		const rcChunkyTriMeshNode* node = &this->nodes[i];
+		const Node* node = &this->nodes[i];
 		const bool overlap = checkOverlapRect(bmin, bmax, node->bmin, node->bmax);
 		const bool isLeafNode = node->i >= 0;
 
@@ -331,14 +331,14 @@ int rcChunkyTriMesh::GetChunksOverlappingRect(float bmin[2], float bmax[2], int*
 	return n;
 }
 
-int rcChunkyTriMesh::GetChunksOverlappingSegment(float segmentStart[2], float segmentEnd[2], int* ids, const int maxIds) const
+int ChunkyTriMesh::GetChunksOverlappingSegment(float segmentStart[2], float segmentEnd[2], int* ids, const int maxIds) const
 {
 	// Traverse tree
 	int i = 0;
 	int n = 0;
 	while (i < this->nnodes)
 	{
-		const rcChunkyTriMeshNode* node = &this->nodes[i];
+		const Node* node = &this->nodes[i];
 		const bool overlap = checkOverlapSegment(segmentStart, segmentEnd, node->bmin, node->bmax);
 		const bool isLeafNode = node->i >= 0;
 

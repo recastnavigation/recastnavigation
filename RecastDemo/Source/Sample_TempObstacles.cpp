@@ -267,7 +267,7 @@ int Sample_TempObstacles::rasterizeTileLayers(const int tileX, const int tileY, 
 
 	const float* verts = inputGeometry->getMesh()->getVerts();
 	const int nverts = inputGeometry->getMesh()->getVertCount();
-	const rcChunkyTriMesh* chunkyMesh = inputGeometry->getChunkyMesh();
+	const ChunkyTriMesh* chunkyMesh = inputGeometry->getChunkyMesh();
 
 	// Tile bounds.
 	const float tcs = cfg.tileSize * cfg.cs;
@@ -323,7 +323,7 @@ int Sample_TempObstacles::rasterizeTileLayers(const int tileX, const int tileY, 
 
 	for (int i = 0; i < ncid; ++i)
 	{
-		const rcChunkyTriMeshNode& node = chunkyMesh->nodes[cid[i]];
+		const ChunkyTriMesh::Node& node = chunkyMesh->nodes[cid[i]];
 		const int* tris = &chunkyMesh->tris[node.i*3];
 		const int ntris = node.n;
 

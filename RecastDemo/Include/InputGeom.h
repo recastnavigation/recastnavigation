@@ -70,7 +70,7 @@ struct BuildSettings
 
 class InputGeom
 {
-	rcChunkyTriMesh* chunkyMesh = nullptr;
+	ChunkyTriMesh* chunkyMesh = nullptr;
 	MeshLoaderObj* meshLoader = nullptr;
 	float meshBMin[3] = {};
 	float meshBMax[3] = {};
@@ -121,7 +121,7 @@ public:
 	const float* getMeshBoundsMax() const { return meshBMax; }
 	const float* getNavMeshBoundsMin() const { return hasBuildSettings ? buildSettings.navMeshBMin : meshBMin; }
 	const float* getNavMeshBoundsMax() const { return hasBuildSettings ? buildSettings.navMeshBMax : meshBMax; }
-	const rcChunkyTriMesh* getChunkyMesh() const { return chunkyMesh; }
+	const ChunkyTriMesh* getChunkyMesh() const { return chunkyMesh; }
 	const BuildSettings* getBuildSettings() const { return hasBuildSettings ? &buildSettings : 0; }
 	bool raycastMesh(float* src, float* dst, float& tmin);
 
