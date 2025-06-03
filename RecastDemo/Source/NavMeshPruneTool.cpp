@@ -184,32 +184,32 @@ static void disableUnvisitedPolys(dtNavMesh* nav, NavmeshFlags* flags)
 
 NavMeshPruneTool::~NavMeshPruneTool()
 {
-	delete m_flags;
+	delete flags;
 }
 
 void NavMeshPruneTool::reset()
 {
-	m_hitPosSet = false;
-	delete m_flags;
-	m_flags = nullptr;
+	hitPosSet = false;
+	delete flags;
+	flags = nullptr;
 }
 
 void NavMeshPruneTool::handleMenu()
 {
-	dtNavMesh* nav = m_sample->getNavMesh();
+	dtNavMesh* nav = sample->getNavMesh();
 	if (!nav) { return; }
-	if (!m_flags) { return; }
+	if (!flags) { return; }
 
 	if (imguiButton("Clear Selection"))
 	{
-		m_flags->clearAllFlags();
+		flags->clearAllFlags();
 	}
 
 	if (imguiButton("Prune Unselected"))
 	{
-		disableUnvisitedPolys(nav, m_flags);
-		delete m_flags;
-		m_flags = nullptr;
+		disableUnvisitedPolys(nav, flags);
+		delete flags;
+		flags = nullptr;
 	}
 }
 
@@ -218,21 +218,21 @@ void NavMeshPruneTool::handleClick(const float* s, const float* p, bool shift)
 	rcIgnoreUnused(s);
 	rcIgnoreUnused(shift);
 
-	if (!m_sample) { return; }
-	InputGeom* geom = m_sample->getInputGeom();
+	if (!sample) { return; }
+	InputGeom* geom = sample->getInputGeom();
 	if (!geom) { return; }
-	dtNavMesh* nav = m_sample->getNavMesh();
+	dtNavMesh* nav = sample->getNavMesh();
 	if (!nav) { return; }
-	dtNavMeshQuery* query = m_sample->getNavMeshQuery();
+	dtNavMeshQuery* query = sample->getNavMeshQuery();
 	if (!query) { return; }
 
-	dtVcopy(m_hitPos, p);
-	m_hitPosSet = true;
+	dtVcopy(hitPos, p);
+	hitPosSet = true;
 
-	if (!m_flags)
+	if (!flags)
 	{
-		m_flags = new NavmeshFlags;
-		m_flags->init(nav);
+		flags = new NavmeshFlags;
+		flags->init(nav);
 	}
 
 	const float halfExtents[3] = {2, 4, 2};
@@ -240,29 +240,29 @@ void NavMeshPruneTool::handleClick(const float* s, const float* p, bool shift)
 	dtPolyRef ref = 0;
 	query->findNearestPoly(p, halfExtents, &filter, &ref, 0);
 
-	floodNavmesh(nav, m_flags, ref, 1);
+	floodNavmesh(nav, flags, ref, 1);
 }
 
 void NavMeshPruneTool::handleRender()
 {
-	duDebugDraw& debugDraw = m_sample->getDebugDraw();
+	duDebugDraw& debugDraw = sample->getDebugDraw();
 
-	if (m_hitPosSet)
+	if (hitPosSet)
 	{
-		const float s = m_sample->getAgentRadius();
+		const float s = sample->getAgentRadius();
 		const unsigned int col = duRGBA(255, 255, 255, 255);
 		debugDraw.begin(DU_DRAW_LINES);
-		debugDraw.vertex(m_hitPos[0] - s, m_hitPos[1], m_hitPos[2], col);
-		debugDraw.vertex(m_hitPos[0] + s, m_hitPos[1], m_hitPos[2], col);
-		debugDraw.vertex(m_hitPos[0], m_hitPos[1] - s, m_hitPos[2], col);
-		debugDraw.vertex(m_hitPos[0], m_hitPos[1] + s, m_hitPos[2], col);
-		debugDraw.vertex(m_hitPos[0], m_hitPos[1], m_hitPos[2] - s, col);
-		debugDraw.vertex(m_hitPos[0], m_hitPos[1], m_hitPos[2] + s, col);
+		debugDraw.vertex(hitPos[0] - s, hitPos[1], hitPos[2], col);
+		debugDraw.vertex(hitPos[0] + s, hitPos[1], hitPos[2], col);
+		debugDraw.vertex(hitPos[0], hitPos[1] - s, hitPos[2], col);
+		debugDraw.vertex(hitPos[0], hitPos[1] + s, hitPos[2], col);
+		debugDraw.vertex(hitPos[0], hitPos[1], hitPos[2] - s, col);
+		debugDraw.vertex(hitPos[0], hitPos[1], hitPos[2] + s, col);
 		debugDraw.end();
 	}
 
-	const dtNavMesh* nav = m_sample->getNavMesh();
-	if (m_flags && nav)
+	const dtNavMesh* nav = sample->getNavMesh();
+	if (flags && nav)
 	{
 		for (int i = 0; i < nav->getMaxTiles(); ++i)
 		{
@@ -272,7 +272,7 @@ void NavMeshPruneTool::handleRender()
 			for (int j = 0; j < tile->header->polyCount; ++j)
 			{
 				const dtPolyRef ref = base | (unsigned int)j;
-				if (m_flags->getFlags(ref))
+				if (flags->getFlags(ref))
 				{
 					duDebugDrawNavMeshPoly(&debugDraw, *nav, ref, duRGBA(255, 255, 255, 128));
 				}

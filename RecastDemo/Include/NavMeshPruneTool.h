@@ -27,10 +27,10 @@ class NavmeshFlags;
  */
 class NavMeshPruneTool : public SampleTool
 {
-	Sample* m_sample = nullptr;
-	NavmeshFlags* m_flags = nullptr;
-	float m_hitPos[3];
-	bool m_hitPosSet = false;
+	Sample* sample = nullptr;
+	NavmeshFlags* flags = nullptr;
+	float hitPos[3];
+	bool hitPosSet = false;
 
 public:
 	NavMeshPruneTool() = default;
@@ -41,7 +41,7 @@ public:
 	NavMeshPruneTool& operator=(const NavMeshPruneTool&&) = delete;
 
 	SampleToolType type() override { return SampleToolType::NAVMESH_PRUNE; }
-	void init(Sample* sample) override { m_sample = sample; }
+	void init(Sample* newSample) override { sample = newSample; }
 	void reset() override;
 	void handleMenu() override;
 	void handleClick(const float* s, const float* p, bool shift) override;
