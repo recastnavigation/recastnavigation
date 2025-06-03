@@ -98,10 +98,10 @@ Sample::~Sample()
 	}
 }
 
-void Sample::setTool(SampleTool* tool)
+void Sample::setTool(SampleTool* newTool)
 {
 	delete tool;
-	tool = tool;
+	tool = newTool;
 	if (tool)
 	{
 		tool->init(this);

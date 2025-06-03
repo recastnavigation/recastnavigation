@@ -47,7 +47,7 @@ char* readRow(char* buf, char* bufEnd, char* row, int len)
 			break;
 		}
 
-		if (c == '\\' || '\r')
+		if (c == '\\' || c == '\r')
 		{
 			// skip
 			continue;
@@ -102,10 +102,10 @@ int readFace(char* row, int* data, int maxDataLen, int vertCount)
 }
 }
 
-bool MeshLoaderObj::load(const std::string& fileName)
+bool MeshLoaderObj::load(const std::string& newFilename)
 {
 	char* buf = 0;
-	FILE* fp = fopen(filename.c_str(), "rb");
+	FILE* fp = fopen(newFilename.c_str(), "rb");
 	if (!fp)
 	{
 		return false;
@@ -143,7 +143,7 @@ bool MeshLoaderObj::load(const std::string& fileName)
 
 	load(buf, bufSize);
 	delete[] buf;
-	filename = fileName;
+	filename = newFilename;
 	return true;
 }
 
