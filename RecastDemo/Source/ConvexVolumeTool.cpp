@@ -18,19 +18,12 @@
 
 #include "ConvexVolumeTool.h"
 
-#include "DetourDebugDraw.h"
 #include "InputGeom.h"
 #include "Recast.h"
-#include "RecastDebugDraw.h"
-#include "SDL.h"
-#include "SDL_opengl.h"
 #include "Sample.h"
 #include "imgui.h"
 
-#include <float.h>
-#include <math.h>
-#include <stdio.h>
-#include <string.h>
+#include <cfloat>
 
 #ifdef WIN32
 #	define snprintf _snprintf
@@ -51,10 +44,22 @@ inline bool left(const float* a, const float* b, const float* c)
 // Returns true if 'a' is more lower-left than 'b'.
 inline bool cmppt(const float* a, const float* b)
 {
-	if (a[0] < b[0]) { return true; }
-	if (a[0] > b[0]) { return false; }
-	if (a[2] < b[2]) { return true; }
-	if (a[2] > b[2]) { return false; }
+	if (a[0] < b[0])
+	{
+		return true;
+	}
+	if (a[0] > b[0])
+	{
+		return false;
+	}
+	if (a[2] < b[2])
+	{
+		return true;
+	}
+	if (a[2] > b[2])
+	{
+		return false;
+	}
 	return false;
 }
 // Calculates convex hull on xz-plane of points on 'pts',
@@ -74,7 +79,8 @@ static int convexhull(const float* pts, int npts, int* out)
 	// Gift wrap hull.
 	int endpt = 0;
 	int i = 0;
-	do {
+	do
+	{
 		out[i++] = hull;
 		endpt = 0;
 		for (int j = 1; j < npts; ++j)
@@ -107,36 +113,60 @@ static bool pointInPoly(int nvert, const float* verts, const float* p)
 
 void ConvexVolumeTool::handleMenu()
 {
-	imguiSlider("Shape Height", &m_boxHeight, 0.1f, 20.0f, 0.1f);
-	imguiSlider("Shape Descent", &m_boxDescent, 0.1f, 20.0f, 0.1f);
-	imguiSlider("Poly Offset", &m_polyOffset, 0.0f, 10.0f, 0.1f);
+	imguiSlider("Shape Height", &boxHeight, 0.1f, 20.0f, 0.1f);
+	imguiSlider("Shape Descent", &boxDescent, 0.1f, 20.0f, 0.1f);
+	imguiSlider("Poly Offset", &polyOffset, 0.0f, 10.0f, 0.1f);
 
 	imguiSeparator();
 
 	imguiLabel("Area Type");
 	imguiIndent();
-	if (imguiCheck("Ground", m_areaType == SAMPLE_POLYAREA_GROUND)) { m_areaType = SAMPLE_POLYAREA_GROUND; }
-	if (imguiCheck("Water", m_areaType == SAMPLE_POLYAREA_WATER)) { m_areaType = SAMPLE_POLYAREA_WATER; }
-	if (imguiCheck("Road", m_areaType == SAMPLE_POLYAREA_ROAD)) { m_areaType = SAMPLE_POLYAREA_ROAD; }
-	if (imguiCheck("Door", m_areaType == SAMPLE_POLYAREA_DOOR)) { m_areaType = SAMPLE_POLYAREA_DOOR; }
-	if (imguiCheck("Grass", m_areaType == SAMPLE_POLYAREA_GRASS)) { m_areaType = SAMPLE_POLYAREA_GRASS; }
-	if (imguiCheck("Jump", m_areaType == SAMPLE_POLYAREA_JUMP)) { m_areaType = SAMPLE_POLYAREA_JUMP; }
+	if (imguiCheck("Ground", areaType == SAMPLE_POLYAREA_GROUND))
+	{
+		areaType = SAMPLE_POLYAREA_GROUND;
+	}
+	if (imguiCheck("Water", areaType == SAMPLE_POLYAREA_WATER))
+	{
+		areaType = SAMPLE_POLYAREA_WATER;
+	}
+	if (imguiCheck("Road", areaType == SAMPLE_POLYAREA_ROAD))
+	{
+		areaType = SAMPLE_POLYAREA_ROAD;
+	}
+	if (imguiCheck("Door", areaType == SAMPLE_POLYAREA_DOOR))
+	{
+		areaType = SAMPLE_POLYAREA_DOOR;
+	}
+	if (imguiCheck("Grass", areaType == SAMPLE_POLYAREA_GRASS))
+	{
+		areaType = SAMPLE_POLYAREA_GRASS;
+	}
+	if (imguiCheck("Jump", areaType == SAMPLE_POLYAREA_JUMP))
+	{
+		areaType = SAMPLE_POLYAREA_JUMP;
+	}
 	imguiUnindent();
 
 	imguiSeparator();
 
 	if (imguiButton("Clear Shape"))
 	{
-		m_npts = 0;
-		m_nhull = 0;
+		numPoints = 0;
+		numHull = 0;
 	}
 }
 
 void ConvexVolumeTool::handleClick(const float* /*s*/, const float* p, bool shift)
 {
-	if (!m_sample) { return; }
-	InputGeom* geom = m_sample->getInputGeom();
-	if (!geom) { return; }
+	if (!sample)
+	{
+		return;
+	}
+	InputGeom* geom = sample->getInputGeom();
+	if (!geom)
+	{
+		return;
+	}
 
 	if (shift)
 	{
@@ -161,55 +191,58 @@ void ConvexVolumeTool::handleClick(const float* /*s*/, const float* p, bool shif
 		// Create
 
 		// If clicked on that last pt, create the shape.
-		if (m_npts && rcVdistSqr(p, &m_pts[(m_npts - 1) * 3]) < rcSqr(0.2f))
+		if (numPoints && rcVdistSqr(p, &points[(numPoints - 1) * 3]) < rcSqr(0.2f))
 		{
-			if (m_nhull > 2)
+			if (numHull > 2)
 			{
 				// Create shape.
 				float verts[MAX_PTS * 3];
-				for (int i = 0; i < m_nhull; ++i)
+				for (int i = 0; i < numHull; ++i)
 				{
-					rcVcopy(&verts[i * 3], &m_pts[m_hull[i] * 3]);
+					rcVcopy(&verts[i * 3], &points[hull[i] * 3]);
 				}
 
 				float minh = FLT_MAX, maxh = 0;
-				for (int i = 0; i < m_nhull; ++i) { minh = rcMin(minh, verts[i * 3 + 1]); }
-				minh -= m_boxDescent;
-				maxh = minh + m_boxHeight;
+				for (int i = 0; i < numHull; ++i)
+				{
+					minh = rcMin(minh, verts[i * 3 + 1]);
+				}
+				minh -= boxDescent;
+				maxh = minh + boxHeight;
 
-				if (m_polyOffset > 0.01f)
+				if (polyOffset > 0.01f)
 				{
 					float offset[MAX_PTS * 2 * 3];
-					int noffset = rcOffsetPoly(verts, m_nhull, m_polyOffset, offset, MAX_PTS * 2);
+					int noffset = rcOffsetPoly(verts, numHull, polyOffset, offset, MAX_PTS * 2);
 					if (noffset > 0)
 					{
-						geom->addConvexVolume(offset, noffset, minh, maxh, (unsigned char)m_areaType);
+						geom->addConvexVolume(offset, noffset, minh, maxh, (unsigned char)areaType);
 					}
 				}
 				else
 				{
-					geom->addConvexVolume(verts, m_nhull, minh, maxh, (unsigned char)m_areaType);
+					geom->addConvexVolume(verts, numHull, minh, maxh, (unsigned char)areaType);
 				}
 			}
 
-			m_npts = 0;
-			m_nhull = 0;
+			numPoints = 0;
+			numHull = 0;
 		}
 		else
 		{
 			// Add new point
-			if (m_npts < MAX_PTS)
+			if (numPoints < MAX_PTS)
 			{
-				rcVcopy(&m_pts[m_npts * 3], p);
-				m_npts++;
+				rcVcopy(&points[numPoints * 3], p);
+				numPoints++;
 				// Update hull.
-				if (m_npts > 1)
+				if (numPoints > 1)
 				{
-					m_nhull = convexhull(m_pts, m_npts, m_hull);
+					numHull = convexhull(points, numPoints, hull);
 				}
 				else
 				{
-					m_nhull = 0;
+					numHull = 0;
 				}
 			}
 		}
@@ -218,34 +251,34 @@ void ConvexVolumeTool::handleClick(const float* /*s*/, const float* p, bool shif
 
 void ConvexVolumeTool::handleRender()
 {
-	duDebugDraw& dd = m_sample->getDebugDraw();
+	duDebugDraw& dd = sample->getDebugDraw();
 
 	// Find height extent of the shape.
 	float minh = FLT_MAX, maxh = 0;
-	for (int i = 0; i < m_npts; ++i)
+	for (int i = 0; i < numPoints; ++i)
 	{
-		minh = rcMin(minh, m_pts[i * 3 + 1]);
+		minh = rcMin(minh, points[i * 3 + 1]);
 	}
-	minh -= m_boxDescent;
-	maxh = minh + m_boxHeight;
+	minh -= boxDescent;
+	maxh = minh + boxHeight;
 
 	dd.begin(DU_DRAW_POINTS, 4.0f);
-	for (int i = 0; i < m_npts; ++i)
+	for (int i = 0; i < numPoints; ++i)
 	{
 		unsigned int col = duRGBA(255, 255, 255, 255);
-		if (i == m_npts - 1)
+		if (i == numPoints - 1)
 		{
 			col = duRGBA(240, 32, 16, 255);
 		}
-		dd.vertex(m_pts[i * 3 + 0], m_pts[i * 3 + 1] + 0.1f, m_pts[i * 3 + 2], col);
+		dd.vertex(points[i * 3 + 0], points[i * 3 + 1] + 0.1f, points[i * 3 + 2], col);
 	}
 	dd.end();
 
 	dd.begin(DU_DRAW_LINES, 2.0f);
-	for (int i = 0, j = m_nhull - 1; i < m_nhull; j = i++)
+	for (int i = 0, j = numHull - 1; i < numHull; j = i++)
 	{
-		const float* vi = &m_pts[m_hull[j] * 3];
-		const float* vj = &m_pts[m_hull[i] * 3];
+		const float* vi = &points[hull[j] * 3];
+		const float* vj = &points[hull[i] * 3];
 		dd.vertex(vj[0], minh, vj[2], duRGBA(255, 255, 255, 64));
 		dd.vertex(vi[0], minh, vi[2], duRGBA(255, 255, 255, 64));
 		dd.vertex(vj[0], maxh, vj[2], duRGBA(255, 255, 255, 64));
@@ -260,9 +293,10 @@ void ConvexVolumeTool::handleRenderOverlay(double* /*proj*/, double* /*model*/, 
 {
 	// Tool help
 	const int h = view[3];
-	if (!m_npts)
+	if (!numPoints)
 	{
-		imguiDrawText(280,
+		imguiDrawText(
+			280,
 			h - 40,
 			IMGUI_ALIGN_LEFT,
 			"LMB: Create new shape.  SHIFT+LMB: Delete existing shape (click inside a shape).",
@@ -270,11 +304,17 @@ void ConvexVolumeTool::handleRenderOverlay(double* /*proj*/, double* /*model*/, 
 	}
 	else
 	{
-		imguiDrawText(280,
+		imguiDrawText(
+			280,
 			h - 40,
 			IMGUI_ALIGN_LEFT,
 			"Click LMB to add new points. Click on the red point to finish the shape.",
 			imguiRGBA(255, 255, 255, 192));
-		imguiDrawText(280, h - 60, IMGUI_ALIGN_LEFT, "The shape will be convex hull of all added points.", imguiRGBA(255, 255, 255, 192));
+		imguiDrawText(
+			280,
+			h - 60,
+			IMGUI_ALIGN_LEFT,
+			"The shape will be convex hull of all added points.",
+			imguiRGBA(255, 255, 255, 192));
 	}
 }

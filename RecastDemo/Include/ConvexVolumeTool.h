@@ -23,22 +23,26 @@
 /// Tool to create convex volumes for InputGeom
 class ConvexVolumeTool : public SampleTool
 {
-	Sample* m_sample = nullptr;
-	int m_areaType = SAMPLE_POLYAREA_GRASS;
-	float m_polyOffset = 0.0f;
-	float m_boxHeight = 6.0f;
-	float m_boxDescent = 1.0f;
+	Sample* sample = nullptr;
+	int areaType = SAMPLE_POLYAREA_GRASS;
+	float polyOffset = 0.0f;
+	float boxHeight = 6.0f;
+	float boxDescent = 1.0f;
 
 	static constexpr int MAX_PTS = 12;
-	float m_pts[MAX_PTS * 3];
-	int m_npts = 0;
-	int m_hull[MAX_PTS];
-	int m_nhull = 0;
+	float points[MAX_PTS * 3];
+	int numPoints = 0;
+	int hull[MAX_PTS];
+	int numHull = 0;
 
 public:
 	SampleToolType type() override { return SampleToolType::CONVEX_VOLUME; }
-	void init(Sample* sample) override { m_sample = sample; }
-	void reset() override { m_npts = 0; m_nhull = 0; }
+	void init(Sample* sample) override { sample = sample; }
+	void reset() override
+	{
+		numPoints = 0;
+		numHull = 0;
+	}
 	void handleMenu() override;
 	void handleClick(const float* s, const float* p, bool shift) override;
 	void handleToggle() override {}
@@ -47,4 +51,3 @@ public:
 	void handleRender() override;
 	void handleRenderOverlay(double* proj, double* model, int* view) override;
 };
-
