@@ -43,34 +43,34 @@ class NavmeshFlags
 		dtPolyRef base;
 	};
 
-	const dtNavMesh* m_nav = nullptr;
-	TileFlags* m_tiles = nullptr;
-	int m_ntiles = 0;
+	const dtNavMesh* nav = nullptr;
+	TileFlags* tiles = nullptr;
+	int numTiles = 0;
 
 public:
 	~NavmeshFlags()
 	{
-		for (int i = 0; i < m_ntiles; ++i)
+		for (int i = 0; i < numTiles; ++i)
 		{
-			m_tiles[i].purge();
+			tiles[i].purge();
 		}
-		dtFree(m_tiles);
+		dtFree(tiles);
 	}
 
 	bool init(const dtNavMesh* navmesh)
 	{
-		m_ntiles = navmesh->getMaxTiles();
-		if (!m_ntiles)
+		numTiles = navmesh->getMaxTiles();
+		if (!numTiles)
 		{
 			return true;
 		}
 
-		m_tiles = (TileFlags*)dtAlloc(sizeof(TileFlags) * m_ntiles, DT_ALLOC_TEMP);
-		if (!m_tiles)
+		tiles = (TileFlags*)dtAlloc(sizeof(TileFlags) * numTiles, DT_ALLOC_TEMP);
+		if (!tiles)
 		{
 			return false;
 		}
-		memset(m_tiles, 0, sizeof(TileFlags) * m_ntiles);
+		memset(tiles, 0, sizeof(TileFlags) * numTiles);
 
 		// Alloc flags for each tile.
 		for (int i = 0; i < navmesh->getMaxTiles(); ++i)
@@ -80,7 +80,7 @@ public:
 			{
 				continue;
 			}
-			TileFlags* tileFlags = &m_tiles[i];
+			TileFlags* tileFlags = &tiles[i];
 			tileFlags->nflags = tile->header->polyCount;
 			tileFlags->base = navmesh->getPolyRefBase(tile);
 			if (tileFlags->nflags)
@@ -94,16 +94,16 @@ public:
 			}
 		}
 
-		m_nav = navmesh;
+		nav = navmesh;
 
 		return false;
 	}
 
 	inline void clearAllFlags()
 	{
-		for (int i = 0; i < m_ntiles; ++i)
+		for (int i = 0; i < numTiles; ++i)
 		{
-			TileFlags* tileFlags = &m_tiles[i];
+			TileFlags* tileFlags = &tiles[i];
 			if (tileFlags->nflags)
 			{
 				memset(tileFlags->flags, 0, tileFlags->nflags);
@@ -113,22 +113,26 @@ public:
 
 	inline unsigned char getFlags(dtPolyRef ref)
 	{
-		dtAssert(m_nav);
-		dtAssert(m_ntiles);
+		dtAssert(nav);
+		dtAssert(numTiles);
 		// Assume the ref is valid, no bounds checks.
-		unsigned int salt, it, ip;
-		m_nav->decodePolyId(ref, salt, it, ip);
-		return m_tiles[it].flags[ip];
+		unsigned int salt;
+		unsigned int it;
+		unsigned int ip;
+		nav->decodePolyId(ref, salt, it, ip);
+		return tiles[it].flags[ip];
 	}
 
 	inline void setFlags(dtPolyRef ref, unsigned char flags)
 	{
-		dtAssert(m_nav);
-		dtAssert(m_ntiles);
+		dtAssert(nav);
+		dtAssert(numTiles);
 		// Assume the ref is valid, no bounds checks.
-		unsigned int salt, it, ip;
-		m_nav->decodePolyId(ref, salt, it, ip);
-		m_tiles[it].flags[ip] = flags;
+		unsigned int salt;
+		unsigned int it;
+		unsigned int ip;
+		nav->decodePolyId(ref, salt, it, ip);
+		tiles[it].flags[ip] = flags;
 	}
 };
 
