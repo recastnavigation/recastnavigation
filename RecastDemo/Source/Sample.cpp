@@ -272,11 +272,11 @@ void Sample::handleCommonSettings()
 	imguiSeparator();
 }
 
-void Sample::handleClick(const float* s, const float* p, bool shift)
+void Sample::handleClick(const float* rayStartPos, const float* rayHitPos, bool shift)
 {
 	if (tool)
 	{
-		tool->handleClick(s, p, shift);
+		tool->handleClick(rayStartPos, rayHitPos, shift);
 	}
 }
 
