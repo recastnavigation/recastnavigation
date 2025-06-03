@@ -23,16 +23,10 @@
 #include "DetourDebugDraw.h"
 #include "DetourNavMesh.h"
 #include "InputGeom.h"
-#include "SDL.h"
-#include "SDL_opengl.h"
 #include "Sample.h"
 #include "imgui.h"
 
-#include <float.h>
-#include <math.h>
-#include <stdio.h>
-#include <string.h>
-
+#include <cstring>
 #include <vector>
 
 #ifdef WIN32
@@ -63,32 +57,44 @@ public:
 		dtFree(m_tiles);
 	}
 
-	bool init(const dtNavMesh* nav)
+	bool init(const dtNavMesh* navmesh)
 	{
-		m_ntiles = nav->getMaxTiles();
-		if (!m_ntiles) { return true; }
+		m_ntiles = navmesh->getMaxTiles();
+		if (!m_ntiles)
+		{
+			return true;
+		}
 
 		m_tiles = (TileFlags*)dtAlloc(sizeof(TileFlags) * m_ntiles, DT_ALLOC_TEMP);
-		if (!m_tiles) { return false; }
+		if (!m_tiles)
+		{
+			return false;
+		}
 		memset(m_tiles, 0, sizeof(TileFlags) * m_ntiles);
 
 		// Alloc flags for each tile.
-		for (int i = 0; i < nav->getMaxTiles(); ++i)
+		for (int i = 0; i < navmesh->getMaxTiles(); ++i)
 		{
-			const dtMeshTile* tile = nav->getTile(i);
-			if (!tile->header) { continue; }
+			const dtMeshTile* tile = navmesh->getTile(i);
+			if (!tile->header)
+			{
+				continue;
+			}
 			TileFlags* tileFlags = &m_tiles[i];
 			tileFlags->nflags = tile->header->polyCount;
-			tileFlags->base = nav->getPolyRefBase(tile);
+			tileFlags->base = navmesh->getPolyRefBase(tile);
 			if (tileFlags->nflags)
 			{
 				tileFlags->flags = (unsigned char*)dtAlloc(tileFlags->nflags, DT_ALLOC_TEMP);
-				if (!tileFlags->flags) { return false; }
+				if (!tileFlags->flags)
+				{
+					return false;
+				}
 				memset(tileFlags->flags, 0, tileFlags->nflags);
 			}
 		}
 
-		m_nav = nav;
+		m_nav = navmesh;
 
 		return false;
 	}
@@ -129,7 +135,10 @@ public:
 static void floodNavmesh(dtNavMesh* nav, NavmeshFlags* flags, dtPolyRef start, unsigned char flag)
 {
 	// If already visited, skip.
-	if (flags->getFlags(start)) { return; }
+	if (flags->getFlags(start))
+	{
+		return;
+	}
 
 	flags->setFlags(start, flag);
 
@@ -152,7 +161,10 @@ static void floodNavmesh(dtNavMesh* nav, NavmeshFlags* flags, dtPolyRef start, u
 		{
 			const dtPolyRef neiRef = tile->links[i].ref;
 			// Skip invalid and already visited.
-			if (!neiRef || flags->getFlags(neiRef)) { continue; }
+			if (!neiRef || flags->getFlags(neiRef))
+			{
+				continue;
+			}
 
 			// Mark as visited
 			flags->setFlags(neiRef, flag);
@@ -167,7 +179,10 @@ static void disableUnvisitedPolys(dtNavMesh* nav, NavmeshFlags* flags)
 	for (int i = 0; i < nav->getMaxTiles(); ++i)
 	{
 		const dtMeshTile* tile = ((const dtNavMesh*)nav)->getTile(i);
-		if (!tile->header) { continue; }
+		if (!tile->header)
+		{
+			continue;
+		}
 		const dtPolyRef base = nav->getPolyRefBase(tile);
 		for (int j = 0; j < tile->header->polyCount; ++j)
 		{
@@ -197,8 +212,14 @@ void NavMeshPruneTool::reset()
 void NavMeshPruneTool::handleMenu()
 {
 	dtNavMesh* nav = sample->getNavMesh();
-	if (!nav) { return; }
-	if (!flags) { return; }
+	if (!nav)
+	{
+		return;
+	}
+	if (!flags)
+	{
+		return;
+	}
 
 	if (imguiButton("Clear Selection"))
 	{
@@ -218,13 +239,25 @@ void NavMeshPruneTool::handleClick(const float* s, const float* p, bool shift)
 	rcIgnoreUnused(s);
 	rcIgnoreUnused(shift);
 
-	if (!sample) { return; }
+	if (!sample)
+	{
+		return;
+	}
 	InputGeom* geom = sample->getInputGeom();
-	if (!geom) { return; }
+	if (!geom)
+	{
+		return;
+	}
 	dtNavMesh* nav = sample->getNavMesh();
-	if (!nav) { return; }
+	if (!nav)
+	{
+		return;
+	}
 	dtNavMeshQuery* query = sample->getNavMeshQuery();
-	if (!query) { return; }
+	if (!query)
+	{
+		return;
+	}
 
 	dtVcopy(hitPos, p);
 	hitPosSet = true;
@@ -267,7 +300,10 @@ void NavMeshPruneTool::handleRender()
 		for (int i = 0; i < nav->getMaxTiles(); ++i)
 		{
 			const dtMeshTile* tile = nav->getTile(i);
-			if (!tile->header) { continue; }
+			if (!tile->header)
+			{
+				continue;
+			}
 			const dtPolyRef base = nav->getPolyRefBase(tile);
 			for (int j = 0; j < tile->header->polyCount; ++j)
 			{
