@@ -22,7 +22,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-struct BoundsItem
+struct IndexedBounds
 {
 	float bmin[2];
 	float bmax[2];
@@ -31,71 +31,50 @@ struct BoundsItem
 
 namespace
 {
-const float EPSILON = 1e-6f;
-
-int compareItemX(const void* va, const void* vb)
+int compareMinX(const void* va, const void* vb)
 {
-	const BoundsItem* a = (const BoundsItem*)va;
-	const BoundsItem* b = (const BoundsItem*)vb;
-	if (a->bmin[0] < b->bmin[0])
-	{
-		return -1;
-	}
-	if (a->bmin[0] > b->bmin[0])
-	{
-		return 1;
-	}
-	return 0;
+	return ((const IndexedBounds*)va)->bmin[0] - ((const IndexedBounds*)vb)->bmin[0];
 }
 
-int compareItemY(const void* va, const void* vb)
+int compareMinY(const void* va, const void* vb)
 {
-	const BoundsItem* a = (const BoundsItem*)va;
-	const BoundsItem* b = (const BoundsItem*)vb;
-	if (a->bmin[1] < b->bmin[1])
-	{
-		return -1;
-	}
-	if (a->bmin[1] > b->bmin[1])
-	{
-		return 1;
-	}
-	return 0;
+	return ((const IndexedBounds*)va)->bmin[1] - ((const IndexedBounds*)vb)->bmin[1];
 }
 
-void calcExtends(const BoundsItem* items, const int /*nitems*/, const int imin, const int imax, float* bmin, float* bmax)
+/// Calculates the total extent of all bounds in the given index range
+void calcTotalBounds(const IndexedBounds* items, const int startIndex, const int endIndex, float* outBMin, float* outBMax)
 {
-	bmin[0] = items[imin].bmin[0];
-	bmin[1] = items[imin].bmin[1];
+	outBMin[0] = items[startIndex].bmin[0];
+	outBMin[1] = items[startIndex].bmin[1];
 
-	bmax[0] = items[imin].bmax[0];
-	bmax[1] = items[imin].bmax[1];
+	outBMax[0] = items[startIndex].bmax[0];
+	outBMax[1] = items[startIndex].bmax[1];
 
-	for (int i = imin + 1; i < imax; ++i)
+	for (int i = startIndex + 1; i < endIndex; ++i)
 	{
-		const BoundsItem& it = items[i];
-		if (it.bmin[0] < bmin[0])
+		const IndexedBounds& it = items[i];
+		if (it.bmin[0] < outBMin[0])
 		{
-			bmin[0] = it.bmin[0];
+			outBMin[0] = it.bmin[0];
 		}
-		if (it.bmin[1] < bmin[1])
+		if (it.bmin[1] < outBMin[1])
 		{
-			bmin[1] = it.bmin[1];
+			outBMin[1] = it.bmin[1];
 		}
 
-		if (it.bmax[0] > bmax[0])
+		if (it.bmax[0] > outBMax[0])
 		{
-			bmax[0] = it.bmax[0];
+			outBMax[0] = it.bmax[0];
 		}
-		if (it.bmax[1] > bmax[1])
+		if (it.bmax[1] > outBMax[1])
 		{
-			bmax[1] = it.bmax[1];
+			outBMax[1] = it.bmax[1];
 		}
 	}
 }
 
 void subdivide(
-	BoundsItem* items,
+	IndexedBounds* items,
 	int nitems,
 	int imin,
 	int imax,
@@ -120,7 +99,7 @@ void subdivide(
 	if (inum <= trisPerChunk)
 	{
 		// Leaf
-		calcExtends(items, nitems, imin, imax, node.bmin, node.bmax);
+		calcTotalBounds(items, imin, imax, node.bmin, node.bmax);
 
 		// Copy triangles.
 		node.i = curTri;
@@ -139,13 +118,13 @@ void subdivide(
 	else
 	{
 		// Split
-		calcExtends(items, nitems, imin, imax, node.bmin, node.bmax);
+		calcTotalBounds(items, imin, imax, node.bmin, node.bmax);
 
 		float xLength = node.bmax[0] - node.bmin[0];
 		float yLength = node.bmax[1] - node.bmin[1];
 
 		// Sort along the longest axis
-		qsort(items + imin, static_cast<size_t>(inum), sizeof(BoundsItem), (xLength >= yLength) ? compareItemX : compareItemY);
+		qsort(items + imin, static_cast<size_t>(inum), sizeof(IndexedBounds), (xLength >= yLength) ? compareMinX : compareMinY);
 
 		int isplit = imin + inum / 2;
 
@@ -169,12 +148,14 @@ bool checkOverlapSegment(const float p[2], const float q[2], const float bmin[2]
 {
 	float tmin = 0;
 	float tmax = 1;
-	float d[2];
-	d[0] = q[0] - p[0];
-	d[1] = q[1] - p[1];
+	float d[] {
+		q[0] - p[0],
+		q[1] - p[1]
+	};
 
 	for (int i = 0; i < 2; i++)
 	{
+		static const float EPSILON = 1e-6f;
 		if (fabsf(d[i]) < EPSILON)
 		{
 			// Ray is parallel to slab. No hit if origin not within slab
@@ -218,11 +199,11 @@ bool ChunkyTriMesh::TryPartitionMesh(const float* verts, const int* tris, int nt
 {
 	int nchunks = (ntris + trisPerChunk - 1) / trisPerChunk;
 
-	this->nodes.resize(nchunks * 4);
+	nodes.resize(nchunks * 4);
 	this->tris.resize(ntris * 3);
 
 	// Build tree
-	BoundsItem* items = new BoundsItem[ntris];
+	IndexedBounds* items = new IndexedBounds[ntris];
 	if (!items)
 	{
 		return false;
@@ -231,7 +212,7 @@ bool ChunkyTriMesh::TryPartitionMesh(const float* verts, const int* tris, int nt
 	for (int i = 0; i < ntris; i++)
 	{
 		const int* t = &tris[i * 3];
-		BoundsItem& it = items[i];
+		IndexedBounds& it = items[i];
 		it.i = i;
 		// Calc triangle XZ bounds.
 		it.bmin[0] = it.bmax[0] = verts[t[0] * 3 + 0];
@@ -261,36 +242,25 @@ bool ChunkyTriMesh::TryPartitionMesh(const float* verts, const int* tris, int nt
 
 	int curTri = 0;
 	int curNode = 0;
-	subdivide(
-		items,
-		ntris,
-		0,
-		ntris,
-		trisPerChunk,
-		curNode,
-		this->nodes.data(),
-		nchunks * 4,
-		curTri,
-		this->tris.data(),
-		tris);
+	subdivide(items, ntris, 0, ntris, trisPerChunk, curNode, nodes.data(), nchunks * 4, curTri, this->tris.data(), tris);
 
 	delete[] items;
 
-	this->nnodes = curNode;
+	nnodes = curNode;
 
 	// Calc max tris per node.
-	this->maxTrisPerChunk = 0;
-	for (int i = 0; i < this->nnodes; ++i)
+	maxTrisPerChunk = 0;
+	for (int i = 0; i < nnodes; ++i)
 	{
-		Node& node = this->nodes[i];
+		Node& node = nodes[i];
 		const bool isLeaf = node.i >= 0;
 		if (!isLeaf)
 		{
 			continue;
 		}
-		if (node.n > this->maxTrisPerChunk)
+		if (node.n > maxTrisPerChunk)
 		{
-			this->maxTrisPerChunk = node.n;
+			maxTrisPerChunk = node.n;
 		}
 	}
 
