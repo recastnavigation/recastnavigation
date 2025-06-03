@@ -20,33 +20,33 @@
 
 #include "Sample.h"
 
-/// Tool to create off-mesh connection for InputGeom
+/// Tool to create off-mesh connections for InputGeom
 class OffMeshConnectionTool : public SampleTool
 {
-	Sample* m_sample = nullptr;
-	float m_hitPos[3];
-	bool m_hitPosSet = 0;
-	bool m_bidir = true;
-	unsigned char m_oldFlags = 0;
+	Sample* sample = nullptr;
+	float hitPos[3];
+	bool hitPosSet = 0;
+	bool bidir = true;
+	unsigned char oldFlags = 0;
 
 public:
 	OffMeshConnectionTool() = default;
 	~OffMeshConnectionTool()
 	{
-		if (m_sample)
+		if (sample)
 		{
-			m_sample->setNavMeshDrawFlags(m_oldFlags);
+			sample->setNavMeshDrawFlags(oldFlags);
 		}
 	}
 
-	virtual SampleToolType type() { return SampleToolType::OFFMESH_CONNECTION; }
-	virtual void init(Sample* sample);
-	virtual void reset();
-	virtual void handleMenu();
-	virtual void handleClick(const float* s, const float* p, bool shift);
-	virtual void handleToggle();
-	virtual void handleStep();
-	virtual void handleUpdate(const float dt);
-	virtual void handleRender();
-	virtual void handleRenderOverlay(double* proj, double* model, int* view);
+	SampleToolType type() override { return SampleToolType::OFFMESH_CONNECTION; }
+	void init(Sample* sample) override;
+	void reset() override;
+	void handleMenu() override;
+	void handleClick(const float* rayStartTime, const float* rayHitPos, bool shift) override;
+	void handleToggle() override;
+	void handleStep() override;
+	void handleUpdate(const float dt) override;
+	void handleRender() override;
+	void handleRenderOverlay(double* proj, double* model, int* view) override;
 };
