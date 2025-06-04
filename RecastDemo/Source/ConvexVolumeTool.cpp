@@ -31,7 +31,8 @@
 
 // Quick and dirty convex hull.
 
-// Returns true if 'c' is left of line 'a'-'b'.
+namespace {
+/// Returns true if 'c' is left of line 'a'-'b'.
 inline bool left(const float* a, const float* b, const float* c)
 {
 	const float u1 = b[0] - a[0];
@@ -41,8 +42,8 @@ inline bool left(const float* a, const float* b, const float* c)
 	return u1 * v2 - v1 * u2 < 0;
 }
 
-// Returns true if 'a' is more lower-left than 'b'.
-inline bool cmppt(const float* a, const float* b)
+/// Returns true if 'a' is more lower-left than 'b'.
+inline bool comparePoints(const float* a, const float* b)
 {
 	if (a[0] < b[0])
 	{
@@ -62,16 +63,17 @@ inline bool cmppt(const float* a, const float* b)
 	}
 	return false;
 }
-// Calculates convex hull on xz-plane of points on 'pts',
-// stores the indices of the resulting hull in 'out' and
-// returns number of points on hull.
-static int convexhull(const float* pts, int npts, int* out)
+
+/// Calculates convex hull on xz-plane of points on 'pts',
+/// stores the indices of the resulting hull in 'out' and
+/// returns number of points on hull.
+int convexhull(const float* pts, int npts, int* out)
 {
 	// Find lower-leftmost point.
 	int hull = 0;
 	for (int i = 1; i < npts; ++i)
 	{
-		if (cmppt(&pts[i * 3], &pts[hull * 3]))
+		if (comparePoints(&pts[i * 3], &pts[hull * 3]))
 		{
 			hull = i;
 		}
@@ -96,7 +98,7 @@ static int convexhull(const float* pts, int npts, int* out)
 	return i;
 }
 
-static bool pointInPoly(int nvert, const float* verts, const float* p)
+bool pointInPoly(int nvert, const float* verts, const float* p)
 {
 	bool result = false;
 	for (int i = 0, j = nvert - 1; i < nvert; j = i++)
@@ -109,6 +111,7 @@ static bool pointInPoly(int nvert, const float* verts, const float* p)
 		}
 	}
 	return result;
+}
 }
 
 void ConvexVolumeTool::handleMenu()
