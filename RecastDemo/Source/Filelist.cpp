@@ -26,7 +26,7 @@
 #	include <cstring>
 #endif
 
-void scanDirectoryAppend(const std::string& path, const std::string& ext, std::vector<std::string>& filelist)
+void scanDirectory(const std::string& path, const std::string& ext, std::vector<std::string>& filelist)
 {
 #ifdef WIN32
 	std::string pathWithExt = path + "/*" + ext;
@@ -63,10 +63,4 @@ void scanDirectoryAppend(const std::string& path, const std::string& ext, std::v
 
 	// Sort the list of files alphabetically.
 	std::sort(filelist.begin(), filelist.end());
-}
-
-void scanDirectory(const std::string& path, const std::string& ext, std::vector<std::string>& filelist)
-{
-	filelist.clear();
-	scanDirectoryAppend(path, ext, filelist);
 }

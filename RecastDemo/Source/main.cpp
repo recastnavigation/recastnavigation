@@ -232,6 +232,7 @@ int main(int /*argc*/, char** /*argv*/)
 					app.showLevels = false;
 					app.showSample = false;
 					app.showTestCases = true;
+					app.files.clear();
 					scanDirectory(app.testCasesFolder, ".txt", app.files);
 					break;
 				case SDLK_TAB:
@@ -593,8 +594,9 @@ int main(int /*argc*/, char** /*argv*/)
 					app.showSample = false;
 					app.showTestCases = false;
 					app.showLevels = true;
+					app.files.clear();
 					scanDirectory(app.meshesFolder, ".obj", app.files);
-					scanDirectoryAppend(app.meshesFolder, ".gset", app.files);
+					scanDirectory(app.meshesFolder, ".gset", app.files);
 				}
 			}
 			if (app.inputGeometry)
