@@ -18,29 +18,25 @@
 
 #pragma once
 
-#include <cstdio>
-#include <array>
-
 #include "DebugDraw.h"
 #include "PerfTimer.h"
 #include "Recast.h"
 #include "RecastDump.h"
+
+#include <array>
+#include <cstdio>
+#include <string>
+#include <vector>
 
 // These are example implementations of various interfaces used in Recast and Detour.
 
 /// Recast build context.
 class BuildContext : public rcContext
 {
-	std::array<TimeVal, RC_MAX_TIMERS> m_startTime;
-	std::array<TimeVal, RC_MAX_TIMERS> m_accTime;
+	std::array<TimeVal, RC_MAX_TIMERS> startTime;
+	std::array<TimeVal, RC_MAX_TIMERS> accTime;
 
-	static const int MAX_MESSAGES = 1000;
-	const char* m_messages[MAX_MESSAGES];
-	int m_messageCount = 0;
-
-	static const int TEXT_POOL_SIZE = 8000;
-	char m_textPool[TEXT_POOL_SIZE];
-	int m_textPoolSize = 0;
+	std::vector<std::string> logMessages;
 
 public:
 	BuildContext();
@@ -53,15 +49,12 @@ public:
 	const char* getLogText(const int i) const;
 
 protected:
-	/// Virtual functions for custom implementations.
-	///@{
-	virtual void doResetLog();
-	virtual void doLog(rcLogCategory category, const char* msg, const int len);
-	virtual void doResetTimers();
-	virtual void doStartTimer(rcTimerLabel label);
-	virtual void doStopTimer(rcTimerLabel label);
-	virtual int doGetAccumulatedTime(rcTimerLabel label) const;
-	///@}
+	void doResetLog() override;
+	void doLog(rcLogCategory category, const char* msg, const int len) override;
+	void doResetTimers() override;
+	void doStartTimer(rcTimerLabel label) override;
+	void doStopTimer(rcTimerLabel label) override;
+	int doGetAccumulatedTime(rcTimerLabel label) const override;
 };
 
 /// OpenGL debug draw implementation.
@@ -97,6 +90,6 @@ public:
 	virtual bool read(void* ptr, const size_t size);
 
 private:
-	FILE* m_fp = nullptr;
-	int m_mode = -1;
+	FILE* fp = nullptr;
+	int mode = -1;
 };

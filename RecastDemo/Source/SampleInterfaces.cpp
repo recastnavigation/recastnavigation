@@ -1,10 +1,7 @@
 #include "SampleInterfaces.h"
 
-#include "DetourDebugDraw.h"
 #include "PerfTimer.h"
 #include "Recast.h"
-#include "RecastDebugDraw.h"
-#include "SDL.h"
 #include "SDL_opengl.h"
 
 #include <math.h>
@@ -19,57 +16,57 @@
 
 BuildContext::BuildContext()
 {
-	memset(m_messages, 0, sizeof(char*) * MAX_MESSAGES);
 	resetTimers();
 }
 
 void BuildContext::doResetLog()
 {
-	m_messageCount = 0;
-	m_textPoolSize = 0;
+	logMessages.clear();
 }
 
 void BuildContext::doLog(const rcLogCategory category, const char* msg, const int len)
 {
-	if (!len) { return; }
-	if (m_messageCount >= MAX_MESSAGES) { return; }
-	char* dst = &m_textPool[m_textPoolSize];
-	int n = TEXT_POOL_SIZE - m_textPoolSize;
-	if (n < 2) { return; }
-	char* cat = dst;
-	char* text = dst + 1;
-	const int maxtext = n - 1;
-	// Store category
-	*cat = (char)category;
-	// Store message
-	const int count = rcMin(len + 1, maxtext);
-	memcpy(text, msg, count);
-	text[count - 1] = '\0';
-	m_textPoolSize += 1 + count;
-	m_messages[m_messageCount++] = dst;
+	if (len == 0)
+	{
+		return;
+	}
+
+	logMessages.emplace_back();
+	std::string& message = logMessages[logMessages.size() - 1];
+	message.push_back((char)category);
+	message.append(msg);
 }
 
 void BuildContext::doResetTimers()
 {
-	for (int i = 0; i < RC_MAX_TIMERS; ++i) { m_accTime[i] = -1; }
+	for (int i = 0; i < RC_MAX_TIMERS; ++i)
+	{
+		accTime[i] = -1;
+	}
 }
 
 void BuildContext::doStartTimer(const rcTimerLabel label)
 {
-	m_startTime[label] = getPerfTime();
+	startTime[label] = getPerfTime();
 }
 
 void BuildContext::doStopTimer(const rcTimerLabel label)
 {
 	const TimeVal endTime = getPerfTime();
-	const TimeVal deltaTime = endTime - m_startTime[label];
-	if (m_accTime[label] == -1) { m_accTime[label] = deltaTime; }
-	else { m_accTime[label] += deltaTime; }
+	const TimeVal deltaTime = endTime - startTime[label];
+	if (accTime[label] == -1)
+	{
+		accTime[label] = deltaTime;
+	}
+	else
+	{
+		accTime[label] += deltaTime;
+	}
 }
 
 int BuildContext::doGetAccumulatedTime(const rcTimerLabel label) const
 {
-	return getPerfTimeUsec(m_accTime[label]);
+	return getPerfTimeUsec(accTime[label]);
 }
 
 void BuildContext::dumpLog(const char* format, ...)
@@ -83,9 +80,10 @@ void BuildContext::dumpLog(const char* format, ...)
 
 	// Print messages
 	const int TAB_STOPS[4] = {28, 36, 44, 52};
-	for (int i = 0; i < m_messageCount; ++i)
+	for (int i = 0; i < logMessages.size(); ++i)
 	{
-		const char* msg = m_messages[i] + 1;
+		std::string& message = logMessages[i];
+		const char* msg = message.c_str() + 1;
 		int n = 0;
 		while (*msg)
 		{
@@ -119,12 +117,12 @@ void BuildContext::dumpLog(const char* format, ...)
 
 int BuildContext::getLogCount() const
 {
-	return m_messageCount;
+	return static_cast<int>(logMessages.size());
 }
 
 const char* BuildContext::getLogText(const int i) const
 {
-	return m_messages[i] + 1;
+	return logMessages[i].c_str() + 1;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -136,7 +134,8 @@ class GLCheckerTexture
 public:
 	~GLCheckerTexture()
 	{
-		if (m_texId != 0) {
+		if (m_texId != 0)
+		{
 			glDeleteTextures(1, &m_texId);
 		}
 	}
@@ -211,8 +210,12 @@ void DebugDrawGL::begin(duDebugDrawPrimitives prim, float size)
 		glLineWidth(size);
 		glBegin(GL_LINES);
 		break;
-	case DU_DRAW_TRIS: glBegin(GL_TRIANGLES); break;
-	case DU_DRAW_QUADS: glBegin(GL_QUADS); break;
+	case DU_DRAW_TRIS:
+		glBegin(GL_TRIANGLES);
+		break;
+	case DU_DRAW_QUADS:
+		glBegin(GL_QUADS);
+		break;
 	};
 }
 
@@ -253,50 +256,68 @@ void DebugDrawGL::end()
 
 FileIO::~FileIO()
 {
-	if (m_fp)
+	if (fp)
 	{
-		fclose(m_fp);
+		fclose(fp);
 	}
 }
 
 bool FileIO::openForWrite(const char* path)
 {
-	if (m_fp) { return false; }
-	m_fp = fopen(path, "wb");
-	if (!m_fp) { return false; }
-	m_mode = 1;
+	if (fp)
+	{
+		return false;
+	}
+	fp = fopen(path, "wb");
+	if (!fp)
+	{
+		return false;
+	}
+	mode = 1;
 	return true;
 }
 
 bool FileIO::openForRead(const char* path)
 {
-	if (m_fp) { return false; }
-	m_fp = fopen(path, "rb");
-	if (!m_fp) { return false; }
-	m_mode = 2;
+	if (fp)
+	{
+		return false;
+	}
+	fp = fopen(path, "rb");
+	if (!fp)
+	{
+		return false;
+	}
+	mode = 2;
 	return true;
 }
 
 bool FileIO::isWriting() const
 {
-	return m_mode == 1;
+	return mode == 1;
 }
 
 bool FileIO::isReading() const
 {
-	return m_mode == 2;
+	return mode == 2;
 }
 
 bool FileIO::write(const void* ptr, const size_t size)
 {
-	if (!m_fp || m_mode != 1) { return false; }
-	fwrite(ptr, size, 1, m_fp);
+	if (!fp || mode != 1)
+	{
+		return false;
+	}
+	fwrite(ptr, size, 1, fp);
 	return true;
 }
 
 bool FileIO::read(void* ptr, const size_t size)
 {
-	if (!m_fp || m_mode != 2) { return false; }
-	size_t readLen = fread(ptr, size, 1, m_fp);
+	if (!fp || mode != 2)
+	{
+		return false;
+	}
+	size_t readLen = fread(ptr, size, 1, fp);
 	return readLen == 1;
 }
