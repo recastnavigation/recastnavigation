@@ -197,7 +197,8 @@ enum UpdateFlags
 	DT_CROWD_SEPARATION = 4,
 	DT_CROWD_OPTIMIZE_VIS = 8,			///< Use #dtPathCorridor::optimizePathVisibility() to optimize the agent path.
 	DT_CROWD_OPTIMIZE_TOPO = 16, 		///< Use dtPathCorridor::optimizePathTopology() to optimize the agent path.
-	DT_CROWD_FLYOVER = 32
+	DT_CROWD_FLYOVER = 32,
+	DT_CROWD_AGENT_STEP_ASIDE = 64,
 };
 
 struct dtCrowdAgentDebugInfo

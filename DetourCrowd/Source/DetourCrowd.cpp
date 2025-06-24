@@ -294,6 +294,10 @@ static int addToPathQueue(dtCrowdAgent* newag, dtCrowdAgent** agents, const int 
 	return dtMin(nagents+1, maxAgents);
 }
 
+static bool isOnLeftOfAB(const float* a, const float* b, const float* c)
+{
+	return ((b[0] - a[0]) * (c[2] - a[2]) - (b[2] - a[2]) * (c[0] - a[0]) > 0);
+}
 
 /**
 @class dtCrowd
@@ -1341,6 +1345,10 @@ void dtCrowd::update(const float dt, dtCrowdAgentDebugInfo* debug)
 	// Handle collisions.
 	static const float COLLISION_RESOLVE_FACTOR = 0.7f;
 	
+	float agDirection[3] = {};
+	float neiDirection[3] = {};
+	float toNeiDirection[3] = {};
+
 	for (int iter = 0; iter < 4; ++iter)
 	{
 		for (int i = 0; i < nagents; ++i)
@@ -1353,7 +1361,14 @@ void dtCrowd::update(const float dt, dtCrowdAgentDebugInfo* debug)
 
 			dtVset(ag->disp, 0,0,0);
 			
+			if (ag->nneis == 0)
+				continue;
+
 			float w = 0;
+
+			agDirection[0] = ag->vel[0];
+			agDirection[2] = ag->vel[2];
+			dtVnormalize(agDirection);
 
 			for (int j = 0; j < ag->nneis; ++j)
 			{
@@ -1367,6 +1382,7 @@ void dtCrowd::update(const float dt, dtCrowdAgentDebugInfo* debug)
 				float dist = dtVlenSqr(diff);
 				if (dist > dtSqr(ag->params.radius + nei->params.radius))
 					continue;
+
 				dist = dtMathSqrtf(dist);
 				float pen = (ag->params.radius + nei->params.radius) - dist;
 				if (dist < 0.0001f)
@@ -1380,10 +1396,47 @@ void dtCrowd::update(const float dt, dtCrowdAgentDebugInfo* debug)
 				}
 				else
 				{
-					pen = (1.0f/dist) * (pen*0.5f) * COLLISION_RESOLVE_FACTOR;
+					bool hasSteppedAside = false;
+
+					const float inv_dist = 1.f / dist;
+
+					if (dist > 0.5f && ag->params.updateFlags & DT_CROWD_AGENT_STEP_ASIDE)
+					{
+						neiDirection[0] = nei->vel[0];
+						neiDirection[2] = nei->vel[2];
+						dtVnormalize(neiDirection);
+
+						if (dtVdot2D(neiDirection, agDirection) > 0.966)	// Within +/- 15 degrees
+						{
+							dtVscale(toNeiDirection, diff, -inv_dist);
+
+							const bool neiHeadingTowardsAg = (dtVdot2D(neiDirection, toNeiDirection) > 0.f);
+							const bool neiIsFasterThanAg = (nei->desiredSpeed > ag->desiredSpeed);
+
+							if (neiHeadingTowardsAg == neiIsFasterThanAg)
+							{
+								float targetPos[3];
+								dtVadd(targetPos, nei->npos, nei->vel);
+
+								const auto isOnLeft = isOnLeftOfAB(nei->npos, targetPos, ag->npos);
+
+								if (neiHeadingTowardsAg == isOnLeft)
+									dtVset(diff, -nei->dvel[2], 0, nei->dvel[0]);
+								else
+									dtVset(diff, nei->dvel[2], 0, -nei->dvel[0]);
+
+								pen = 0.005f;
+
+								hasSteppedAside = true;
+							}
+						}
+					}
+
+					if (hasSteppedAside == false)
+						pen = inv_dist * (pen * 0.5f) * COLLISION_RESOLVE_FACTOR;
 				}
 				
-				dtVmad(ag->disp, ag->disp, diff, pen);			
+				dtVmad(ag->disp, ag->disp, diff, pen);
 				
 				w += 1.0f;
 			}
