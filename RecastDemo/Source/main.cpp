@@ -18,14 +18,8 @@
 
 #include "SDL.h"
 #include "SDL_opengl.h"
+#include "SDL_keycode.h"
 
-#if WIN32
-#include <SDL_keycode.h>
-#else
-#include <SDL2/SDL_keycode.h>
-#endif
-
-#include <cmath>
 #include <cstdio>
 #include <functional>
 #include <string>
@@ -55,7 +49,7 @@ using std::vector;
 
 struct SampleItem
 {
-	const string name;
+	string name;
 	std::function<Sample*()> create;
 };
 static SampleItem g_samples[] = {
@@ -134,8 +128,8 @@ struct AppData
 
 	// Files
 	vector<string> files;
-	const string meshesFolder = "Meshes";
-	const string testCasesFolder = "TestCases";
+	string meshesFolder = "Meshes";
+	string testCasesFolder = "TestCases";
 
 	// Markers
 	float markerPosition[3] = {0, 0, 0};
@@ -172,7 +166,7 @@ int main(int /*argc*/, char** /*argv*/)
 	SDL_DisplayMode displayMode;
 	SDL_GetCurrentDisplayMode(0, &displayMode);
 
-	app.width = rcMin(displayMode.w, (int)(displayMode.h * (16.0f / 9.0f))) - 80;
+	app.width = rcMin(displayMode.w, static_cast<int>(static_cast<float>(displayMode.h) * (16.0f / 9.0f))) - 80;
 	app.height = displayMode.h - 80;
 
 	int errorCode = SDL_CreateWindowAndRenderer(
@@ -274,7 +268,7 @@ int main(int /*argc*/, char** /*argv*/)
 				}
 				else
 				{
-					app.scrollZoom += event.wheel.y;
+					app.scrollZoom += static_cast<float>(event.wheel.y);
 				}
 				break;
 			case SDL_MOUSEBUTTONDOWN:
@@ -323,8 +317,8 @@ int main(int /*argc*/, char** /*argv*/)
 				{
 					int dx = app.mousePos[0] - app.origMousePos[0];
 					int dy = app.mousePos[1] - app.origMousePos[1];
-					app.cameraEulers[0] = app.origCameraEulers[0] - dy * 0.25f;
-					app.cameraEulers[1] = app.origCameraEulers[1] + dx * 0.25f;
+					app.cameraEulers[0] = app.origCameraEulers[0] - static_cast<float>(dy) * 0.25f;
+					app.cameraEulers[1] = app.origCameraEulers[1] + static_cast<float>(dx) * 0.25f;
 					if (dx * dx + dy * dy > 3 * 3)
 					{
 						app.movedDuringRotate = true;
@@ -372,7 +366,7 @@ int main(int /*argc*/, char** /*argv*/)
 		}
 
 		Uint32 time = SDL_GetTicks();
-		float dt = (time - app.prevFrameTime) / 1000.0f;
+		float dt = static_cast<float>(time - app.prevFrameTime) / 1000.0f;
 		app.prevFrameTime = time;
 
 		// Hit test mesh.
@@ -482,12 +476,12 @@ int main(int /*argc*/, char** /*argv*/)
 
 		// Handle keyboard movement.
 		const Uint8* keystate = SDL_GetKeyboardState(NULL);
-		app.moveFront = rcClamp(app.moveFront + dt * 4 * ((keystate[SDL_SCANCODE_W] || keystate[SDL_SCANCODE_UP]) ? 1 : -1), 0.0f, 1.0f);
-		app.moveLeft = rcClamp(app.moveLeft + dt * 4 * ((keystate[SDL_SCANCODE_A] || keystate[SDL_SCANCODE_LEFT]) ? 1 : -1), 0.0f, 1.0f);
-		app.moveBack = rcClamp(app.moveBack + dt * 4 * ((keystate[SDL_SCANCODE_S] || keystate[SDL_SCANCODE_DOWN]) ? 1 : -1), 0.0f, 1.0f);
-		app.moveRight = rcClamp(app.moveRight + dt * 4 * ((keystate[SDL_SCANCODE_D] || keystate[SDL_SCANCODE_RIGHT]) ? 1 : -1), 0.0f, 1.0f);
-		app.moveUp = rcClamp(app.moveUp + dt * 4 * ((keystate[SDL_SCANCODE_Q] || keystate[SDL_SCANCODE_PAGEUP]) ? 1 : -1), 0.0f, 1.0f);
-		app.moveDown = rcClamp(app.moveDown + dt * 4 * ((keystate[SDL_SCANCODE_E] || keystate[SDL_SCANCODE_PAGEDOWN]) ? 1 : -1), 0.0f, 1.0f);
+		app.moveFront = rcClamp(app.moveFront + dt * 4 * ((keystate[SDL_SCANCODE_W] || keystate[SDL_SCANCODE_UP]) ? 1.0f : -1.0f), 0.0f, 1.0f);
+		app.moveLeft = rcClamp(app.moveLeft + dt * 4 * ((keystate[SDL_SCANCODE_A] || keystate[SDL_SCANCODE_LEFT]) ? 1.0f : -1.0f), 0.0f, 1.0f);
+		app.moveBack = rcClamp(app.moveBack + dt * 4 * ((keystate[SDL_SCANCODE_S] || keystate[SDL_SCANCODE_DOWN]) ? 1.0f : -1.0f), 0.0f, 1.0f);
+		app.moveRight = rcClamp(app.moveRight + dt * 4 * ((keystate[SDL_SCANCODE_D] || keystate[SDL_SCANCODE_RIGHT]) ? 1.0f : -1.0f), 0.0f, 1.0f);
+		app.moveUp = rcClamp(app.moveUp + dt * 4 * ((keystate[SDL_SCANCODE_Q] || keystate[SDL_SCANCODE_PAGEUP]) ? 1.0f : -1.0f), 0.0f, 1.0f);
+		app.moveDown = rcClamp(app.moveDown + dt * 4 * ((keystate[SDL_SCANCODE_E] || keystate[SDL_SCANCODE_PAGEDOWN]) ? 1.0f : -1.0f), 0.0f, 1.0f);
 
 		float keybSpeed = 22.0f;
 		if (SDL_GetModState() & KMOD_SHIFT)
@@ -499,13 +493,13 @@ int main(int /*argc*/, char** /*argv*/)
 		float movey = (app.moveBack - app.moveFront) * keybSpeed * dt + app.scrollZoom * 2.0f;
 		app.scrollZoom = 0;
 
-		app.cameraPos[0] += movex * (float)modelviewMatrix[0];
-		app.cameraPos[1] += movex * (float)modelviewMatrix[4];
-		app.cameraPos[2] += movex * (float)modelviewMatrix[8];
+		app.cameraPos[0] += movex * static_cast<float>(modelviewMatrix[0]);
+		app.cameraPos[1] += movex * static_cast<float>(modelviewMatrix[4]);
+		app.cameraPos[2] += movex * static_cast<float>(modelviewMatrix[8]);
 
-		app.cameraPos[0] += movey * (float)modelviewMatrix[2];
-		app.cameraPos[1] += movey * (float)modelviewMatrix[6];
-		app.cameraPos[2] += movey * (float)modelviewMatrix[10];
+		app.cameraPos[0] += movey * static_cast<float>(modelviewMatrix[2]);
+		app.cameraPos[1] += movey * static_cast<float>(modelviewMatrix[6]);
+		app.cameraPos[2] += movey * static_cast<float>(modelviewMatrix[10]);
 
 		app.cameraPos[1] += (app.moveUp - app.moveDown) * keybSpeed * dt;
 
@@ -610,8 +604,8 @@ int main(int /*argc*/, char** /*argv*/)
 					text,
 					64,
 					"Verts: %.1fk  Tris: %.1fk",
-					app.inputGeometry->getMesh()->getVertCount() / 1000.0f,
-					app.inputGeometry->getMesh()->getTriCount() / 1000.0f);
+					static_cast<float>(app.inputGeometry->getMesh()->getVertCount()) / 1000.0f,
+					static_cast<float>(app.inputGeometry->getMesh()->getTriCount()) / 1000.0f);
 				imguiValue(text);
 			}
 			imguiSeparator();
