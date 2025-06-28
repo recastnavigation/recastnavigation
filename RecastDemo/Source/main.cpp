@@ -19,7 +19,11 @@
 #include "SDL.h"
 #include "SDL_opengl.h"
 
+#if WIN32
+#include <SDL_keycode.h>
+#else
 #include <SDL2/SDL_keycode.h>
+#endif
 
 #include <cmath>
 #include <cstdio>

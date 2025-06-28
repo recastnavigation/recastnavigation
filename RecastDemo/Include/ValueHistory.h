@@ -6,13 +6,13 @@
 class ValueHistory
 {
 	static constexpr int MAX_HISTORY = 256;
-	std::vector<int> samples{};
+	std::vector<float> samples{};
 	int nextSampleIndex = 0;
 
 public:
 	ValueHistory() { samples.reserve(MAX_HISTORY); }
 
-	inline void addSample(const float val)
+	void addSample(const float val)
 	{
 		if (samples.size() < MAX_HISTORY)
 		{
@@ -25,13 +25,13 @@ public:
 		}
 	}
 
-	inline int getSampleCount() const { return samples.size(); }
+	[[nodiscard]] int getSampleCount() const { return static_cast<int>(samples.size()); }
 
-	inline float getSample(const int i) const { return samples[(nextSampleIndex + i) % MAX_HISTORY]; }
+	[[nodiscard]] float getSample(const int i) const { return samples[(nextSampleIndex + i) % MAX_HISTORY]; }
 
-	float getSampleMin() const;
-	float getSampleMax() const;
-	float getAverage() const;
+	[[nodiscard]] float getSampleMin() const;
+	[[nodiscard]] float getSampleMax() const;
+	[[nodiscard]] float getAverage() const;
 };
 
 struct GraphParams

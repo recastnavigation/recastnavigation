@@ -226,7 +226,7 @@ void Sample_TileMesh::handleSettings()
 		int gridWidth = 0;
 		int gridHeight = 0;
 		rcCalcGridSize(navMeshBoundsMin, navMeshBoundsMax, cellSize, &gridWidth, &gridHeight);
-		const int tileSize = static_cast<int>(tileSize);
+		const int tileSize = static_cast<int>(this->tileSize);
 		const int tileWidth = (gridWidth + tileSize - 1) / tileSize;
 		const int tileHeight = (gridHeight + tileSize - 1) / tileSize;
 
@@ -652,7 +652,7 @@ void Sample_TileMesh::buildTile(const float* pos)
 	const float* navMeshBoundsMin = inputGeometry->getNavMeshBoundsMin();
 	const float* navMeshBoundsMax = inputGeometry->getNavMeshBoundsMax();
 
-	const float tileSize = tileSize * cellSize;
+	const float tileSize = this->tileSize * cellSize;
 	const int tileX = static_cast<int>((pos[0] - navMeshBoundsMin[0]) / tileSize);
 	const int tileY = static_cast<int>((pos[2] - navMeshBoundsMin[2]) / tileSize);
 
@@ -697,9 +697,9 @@ void Sample_TileMesh::getTilePos(const float* pos, int& outTileX, int& outTileY)
 
 	const float* navMeshBoundsMin = inputGeometry->getNavMeshBoundsMin();
 
-	const float tileSize = tileSize * cellSize;
-	outTileX = static_cast<int>((pos[0] - navMeshBoundsMin[0]) / tileSize);
-	outTileY = static_cast<int>((pos[2] - navMeshBoundsMin[2]) / tileSize);
+	const float tileWorldSize = tileSize * cellSize;
+	outTileX = static_cast<int>((pos[0] - navMeshBoundsMin[0]) / tileWorldSize);
+	outTileY = static_cast<int>((pos[2] - navMeshBoundsMin[2]) / tileWorldSize);
 }
 
 void Sample_TileMesh::removeTile(const float* pos)
@@ -716,7 +716,7 @@ void Sample_TileMesh::removeTile(const float* pos)
 	const float* navMeshBoundsMin = inputGeometry->getNavMeshBoundsMin();
 	const float* navmeshBoundsMax = inputGeometry->getNavMeshBoundsMax();
 
-	const float tileSize = tileSize * cellSize;
+	const float tileSize = this->tileSize * cellSize;
 	const int tileX = static_cast<int>((pos[0] - navMeshBoundsMin[0]) / tileSize);
 	const int tileY = static_cast<int>((pos[2] - navMeshBoundsMin[2]) / tileSize);
 
@@ -749,7 +749,7 @@ void Sample_TileMesh::buildAllTiles()
 	int gridWidth = 0;
 	int gridHeight = 0;
 	rcCalcGridSize(navMeshBoundsMin, navMeshBoundsMax, cellSize, &gridWidth, &gridHeight);
-	const int tileSize = static_cast<int>(tileSize);
+	const int tileSize = static_cast<int>(this->tileSize);
 	const int tileWidth = (gridWidth + tileSize - 1) / tileSize;
 	const int tileHeight = (gridHeight + tileSize - 1) / tileSize;
 	const float tileCellSize = tileSize * cellSize;
@@ -808,7 +808,7 @@ void Sample_TileMesh::removeAllTiles() const
 	int gridWidth = 0;
 	int gridHeight = 0;
 	rcCalcGridSize(navMeshBoundsMin, navMeshBoundsMax, cellSize, &gridWidth, &gridHeight);
-	const int tileSize = static_cast<int>(tileSize);
+	const int tileSize = static_cast<int>(this->tileSize);
 	const int tileWidth = (gridWidth + tileSize - 1) / tileSize;
 	const int tileHeight = (gridHeight + tileSize - 1) / tileSize;
 
@@ -1071,12 +1071,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(
 		}
 
 		// Partition the walkable surface into simple regions without holes.
-		if (!rcBuildRegions(
-				buildContext,
-				*compactHeightfield,
-				config.borderSize,
-				config.minRegionArea,
-				config.mergeRegionArea))
+		if (!rcBuildRegions(buildContext, *compactHeightfield, config.borderSize, config.minRegionArea, config.mergeRegionArea))
 		{
 			buildContext->log(RC_LOG_ERROR, "buildNavigation: Could not build watershed regions.");
 			return 0;

@@ -27,12 +27,12 @@ public:
 	bool load(const std::string& fileName);
 	void load(char* buf, size_t bufLen);
 
-	const float* getVerts() const { return verts.data(); }
-	const float* getNormals() const { return normals.data(); }
-	const int* getTris() const { return tris.data(); }
-	int getVertCount() const { return verts.size() / 3; }
-	int getTriCount() const { return tris.size() / 3; }
-	const std::string& getFileName() const { return filename; }
+	[[nodiscard]] const float* getVerts() const { return verts.data(); }
+	[[nodiscard]] const float* getNormals() const { return normals.data(); }
+	[[nodiscard]] const int* getTris() const { return tris.data(); }
+	[[nodiscard]] int getVertCount() const { return static_cast<int>(verts.size()) / 3; }
+	[[nodiscard]] int getTriCount() const { return static_cast<int>(tris.size()) / 3; }
+	[[nodiscard]] const std::string& getFileName() const { return filename; }
 
 private:
 	std::string filename;

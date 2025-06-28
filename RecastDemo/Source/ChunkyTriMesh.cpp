@@ -22,6 +22,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <algorithm>
+
 struct IndexedBounds
 {
 	float bmin[2];
@@ -33,12 +35,12 @@ namespace
 {
 int compareMinX(const void* va, const void* vb)
 {
-	return ((const IndexedBounds*)va)->bmin[0] - ((const IndexedBounds*)vb)->bmin[0];
+	return static_cast<int>(static_cast<const IndexedBounds*>(va)->bmin[0] - static_cast<const IndexedBounds*>(vb)->bmin[0]);
 }
 
 int compareMinY(const void* va, const void* vb)
 {
-	return ((const IndexedBounds*)va)->bmin[1] - ((const IndexedBounds*)vb)->bmin[1];
+	return static_cast<int>(static_cast<const IndexedBounds*>(va)->bmin[1] - static_cast<const IndexedBounds*>(vb)->bmin[1]);
 }
 
 /// Calculates the total extent of all bounds in the given index range
@@ -53,23 +55,11 @@ void calcTotalBounds(const IndexedBounds* items, const int startIndex, const int
 	for (int i = startIndex + 1; i < endIndex; ++i)
 	{
 		const IndexedBounds& it = items[i];
-		if (it.bmin[0] < outBMin[0])
-		{
-			outBMin[0] = it.bmin[0];
-		}
-		if (it.bmin[1] < outBMin[1])
-		{
-			outBMin[1] = it.bmin[1];
-		}
+		outBMin[0] = std::min(it.bmin[0], outBMin[0]);
+		outBMin[1] = std::min(it.bmin[1], outBMin[1]);
 
-		if (it.bmax[0] > outBMax[0])
-		{
-			outBMax[0] = it.bmax[0];
-		}
-		if (it.bmax[1] > outBMax[1])
-		{
-			outBMax[1] = it.bmax[1];
-		}
+		outBMax[0] = std::max(it.bmax[0], outBMax[0]);
+		outBMax[1] = std::max(it.bmax[1], outBMax[1]);
 	}
 }
 
@@ -148,10 +138,7 @@ bool checkOverlapSegment(const float p[2], const float q[2], const float bmin[2]
 {
 	float tmin = 0;
 	float tmax = 1;
-	float d[] {
-		q[0] - p[0],
-		q[1] - p[1]
-	};
+	float d[]{q[0] - p[0], q[1] - p[1]};
 
 	for (int i = 0; i < 2; i++)
 	{
