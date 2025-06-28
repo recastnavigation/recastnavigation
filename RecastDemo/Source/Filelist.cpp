@@ -28,35 +28,35 @@
 
 bool tryReadFile(const std::string& path, char** outBuffer, size_t* outBufferLen)
 {
-	FILE* fp = fopen(path.c_str(), "rb");
-	if (!fp)
+	FILE* file = fopen(path.c_str(), "rb");
+	if (!file)
 	{
 		return false;
 	}
 
-	if (fseek(fp, 0, SEEK_END) != 0)
+	if (fseek(file, 0, SEEK_END) != 0)
 	{
-		fclose(fp);
+		(void)fclose(file);
 		return false;
 	}
 
-	*outBufferLen = ftell(fp);
-	if (*outBufferLen < 0)
+	const int fileSize = ftell(file);
+	if (fileSize < 0)
 	{
-		fclose(fp);
+		(void)fclose(file);
 		return false;
 	}
+	*outBufferLen = fileSize;
 
-	if (fseek(fp, 0, SEEK_SET) != 0)
+	if (fseek(file, 0, SEEK_SET) != 0)
 	{
-		fclose(fp);
+		(void)fclose(file);
 		return false;
 	}
 
 	*outBuffer = new char[*outBufferLen];
-	size_t readLen = fread(*outBuffer, *outBufferLen, 1, fp);
-	fclose(fp);
-
+	const size_t readLen = fread(*outBuffer, *outBufferLen, 1, file);
+	(void)fclose(file);
 	if (readLen != 1)
 	{
 		delete[] *outBuffer;
@@ -73,15 +73,17 @@ void scanDirectory(const std::string& path, const std::string& ext, std::vector<
 	std::string pathWithExt = path + "/*" + ext;
 
 	_finddata_t dir;
-	intptr_t fh = _findfirst(pathWithExt.c_str(), &dir);
-	if (fh == -1L) { return; }
+	intptr_t findHandle = _findfirst(pathWithExt.c_str(), &dir);
+	if (findHandle == -1L)
+	{
+		return;
+	}
 
 	do
 	{
-		filelist.push_back(dir.name);
-	}
-	while (_findnext(fh, &dir) == 0);
-	_findclose(fh);
+		filelist.emplace_back(dir.name);
+	} while (_findnext(findHandle, &dir) == 0);
+	_findclose(findHandle);
 #else
 	dirent* current = 0;
 	DIR* dp = opendir(path.c_str());
@@ -96,7 +98,7 @@ void scanDirectory(const std::string& path, const std::string& ext, std::vector<
 		size_t len = strlen(current->d_name);
 		if (len > extLen && strncmp(current->d_name + len - extLen, ext.c_str(), extLen) == 0)
 		{
-			filelist.push_back(current->d_name);
+			filelist.emplace_back(current->d_name);
 		}
 	}
 	closedir(dp);
