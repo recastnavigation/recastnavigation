@@ -30,14 +30,15 @@ class ConvexVolumeTool : public SampleTool
 	float boxDescent = 1.0f;
 
 	static constexpr int MAX_PTS = 12;
-	float points[MAX_PTS * 3];
+	
+	float points[MAX_PTS * 3] {};
 	int numPoints = 0;
-	int hull[MAX_PTS];
+	int hull[MAX_PTS] {};
 	int numHull = 0;
 
 public:
 	SampleToolType type() override { return SampleToolType::CONVEX_VOLUME; }
-	void init(Sample* sample) override { sample = sample; }
+	void init(Sample* sample) override { this->sample = sample; }
 	void reset() override
 	{
 		numPoints = 0;
