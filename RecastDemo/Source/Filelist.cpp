@@ -26,6 +26,47 @@
 #	include <cstring>
 #endif
 
+bool tryReadFile(const std::string& path, char** outBuffer, size_t* outBufferLen)
+{
+	FILE* fp = fopen(path.c_str(), "rb");
+	if (!fp)
+	{
+		return false;
+	}
+
+	if (fseek(fp, 0, SEEK_END) != 0)
+	{
+		fclose(fp);
+		return false;
+	}
+
+	*outBufferLen = ftell(fp);
+	if (*outBufferLen < 0)
+	{
+		fclose(fp);
+		return false;
+	}
+
+	if (fseek(fp, 0, SEEK_SET) != 0)
+	{
+		fclose(fp);
+		return false;
+	}
+
+	*outBuffer = new char[*outBufferLen];
+	size_t readLen = fread(*outBuffer, *outBufferLen, 1, fp);
+	fclose(fp);
+
+	if (readLen != 1)
+	{
+		delete[] *outBuffer;
+		*outBuffer = nullptr;
+		return false;
+	}
+
+	return true;
+}
+
 void scanDirectory(const std::string& path, const std::string& ext, std::vector<std::string>& filelist)
 {
 #ifdef WIN32

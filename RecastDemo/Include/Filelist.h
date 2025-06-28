@@ -21,4 +21,5 @@
 #include <string>
 #include <vector>
 
+bool tryReadFile(const std::string& path, char** outBuffer, size_t* outBufferLen);
 void scanDirectory(const std::string& path, const std::string& ext, std::vector<std::string>& fileList);
