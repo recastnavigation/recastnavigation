@@ -198,7 +198,7 @@ void MeshLoaderObj::load(char* buf, size_t bufLen)
 
 	// Calculate normals.
 	normals.resize(getTriCount() * 3);
-	for (int i = 0; i < tris.size(); i += 3)
+	for (int i = 0; i < static_cast<int>(tris.size()); i += 3)
 	{
 		const float* vertex0 = &verts[tris[i + 0] * 3];
 		const float* vertex1 = &verts[tris[i + 1] * 3];
