@@ -4,9 +4,8 @@
 #include "Recast.h"
 #include "SDL_opengl.h"
 
-#include <math.h>
-#include <stdarg.h>
-#include <stdio.h>
+#include <cstdarg>
+#include <cstdio>
 
 #ifdef WIN32
 #	define snprintf _snprintf
@@ -80,7 +79,7 @@ void BuildContext::dumpLog(const char* format, ...)
 
 	// Print messages
 	const int TAB_STOPS[4] = {28, 36, 44, 52};
-	for (int i = 0; i < logMessages.size(); ++i)
+	for (int i = 0; i < static_cast<int>(logMessages.size()); ++i)
 	{
 		std::string& message = logMessages[i];
 		const char* msg = message.c_str() + 1;
