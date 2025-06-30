@@ -102,51 +102,6 @@ int readFace(char* row, int* data, int maxDataLen, int vertCount)
 }
 }
 
-bool MeshLoaderObj::load(const std::string& newFilename)
-{
-	char* buf = 0;
-	FILE* fp = fopen(newFilename.c_str(), "rb");
-	if (!fp)
-	{
-		return false;
-	}
-	if (fseek(fp, 0, SEEK_END) != 0)
-	{
-		fclose(fp);
-		return false;
-	}
-	long bufSize = ftell(fp);
-	if (bufSize < 0)
-	{
-		fclose(fp);
-		return false;
-	}
-	if (fseek(fp, 0, SEEK_SET) != 0)
-	{
-		fclose(fp);
-		return false;
-	}
-	buf = new char[bufSize];
-	if (!buf)
-	{
-		fclose(fp);
-		return false;
-	}
-	size_t readLen = fread(buf, bufSize, 1, fp);
-	fclose(fp);
-
-	if (readLen != 1)
-	{
-		delete[] buf;
-		return false;
-	}
-
-	load(buf, bufSize);
-	delete[] buf;
-	filename = newFilename;
-	return true;
-}
-
 void MeshLoaderObj::load(char* buf, size_t bufLen)
 {
 	char* src = buf;

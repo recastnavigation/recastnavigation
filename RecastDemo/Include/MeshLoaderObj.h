@@ -24,7 +24,6 @@
 class MeshLoaderObj
 {
 public:
-	bool load(const std::string& fileName);
 	void load(char* buf, size_t bufLen);
 
 	[[nodiscard]] const float* getVerts() const { return verts.data(); }

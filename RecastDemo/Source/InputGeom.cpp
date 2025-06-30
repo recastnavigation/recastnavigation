@@ -20,6 +20,7 @@
 
 #include "ChunkyTriMesh.h"
 #include "DebugDraw.h"
+#include "Filelist.h"
 #include "MeshLoaderObj.h"
 #include "Recast.h"
 #include "Sample.h"
@@ -135,6 +136,14 @@ static char* parseRow(char* buf, char* bufEnd, char* row, int len)
 
 bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath)
 {
+	char* buffer;
+	size_t bufferLen;
+	if (!tryReadFile(filepath, &buffer, &bufferLen))
+	{
+		ctx->log(RC_LOG_ERROR, "buildTiledNavigation: Could not load '%s'", filepath.c_str());
+		return false;
+	}
+
 	if (meshLoader)
 	{
 		delete chunkyMesh;
@@ -146,16 +155,7 @@ bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath)
 	volumeCount = 0;
 
 	meshLoader = new MeshLoaderObj;
-	if (!meshLoader)
-	{
-		ctx->log(RC_LOG_ERROR, "loadMesh: Out of memory 'm_mesh'.");
-		return false;
-	}
-	if (!meshLoader->load(filepath))
-	{
-		ctx->log(RC_LOG_ERROR, "buildTiledNavigation: Could not load '%s'", filepath.c_str());
-		return false;
-	}
+	meshLoader->load(buffer, bufferLen);
 
 	rcCalcBounds(meshLoader->getVerts(), meshLoader->getVertCount(), meshBMin, meshBMax);
 
