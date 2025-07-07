@@ -148,7 +148,7 @@ void Sample_SoloMesh::handleDebugMode()
 
 void Sample_SoloMesh::handleRender()
 {
-	if (!inputGeometry || !inputGeometry->getMesh())
+	if (!inputGeometry)
 	{
 		return;
 	}
@@ -161,9 +161,15 @@ void Sample_SoloMesh::handleRender()
 	if (currentDrawMode != DrawMode::NAVMESH_TRANS)
 	{
 		// Draw mesh
-		duDebugDrawTriMeshSlope(&debugDraw, inputGeometry->getMesh()->getVerts(), inputGeometry->getMesh()->getVertCount(),
-								inputGeometry->getMesh()->getTris(), inputGeometry->getMesh()->getNormals(), inputGeometry->getMesh()->getTriCount(),
-								agentMaxSlope, texScale);
+		duDebugDrawTriMeshSlope(
+			&debugDraw,
+			inputGeometry->verts.data(),
+			static_cast<int>(inputGeometry->verts.size()) / 3,
+			inputGeometry->tris.data(),
+			inputGeometry->normals.data(),
+			static_cast<int>(inputGeometry->tris.size()) / 3,
+			agentMaxSlope,
+			texScale);
 		inputGeometry->drawOffMeshConnections(&debugDraw);
 	}
 
@@ -304,7 +310,7 @@ void Sample_SoloMesh::handleMeshChanged(InputGeom* geom)
 
 bool Sample_SoloMesh::handleBuild()
 {
-	if (!inputGeometry || !inputGeometry->getMesh())
+	if (!inputGeometry || inputGeometry->verts.empty())
 	{
 		buildContext->log(RC_LOG_ERROR, "buildNavigation: Input mesh is not specified.");
 		return false;
@@ -314,10 +320,10 @@ bool Sample_SoloMesh::handleBuild()
 
 	const float* boundsMin = inputGeometry->getNavMeshBoundsMin();
 	const float* boundsMax = inputGeometry->getNavMeshBoundsMax();
-	const float* verts = inputGeometry->getMesh()->getVerts();
-	const int numVerts = inputGeometry->getMesh()->getVertCount();
-	const int* tris = inputGeometry->getMesh()->getTris();
-	const int numTris = inputGeometry->getMesh()->getTriCount();
+	const float* verts = inputGeometry->verts.data();
+	const int numVerts = static_cast<int>(inputGeometry->verts.size()) / 3;
+	const int* tris = inputGeometry->tris.data();
+	const int numTris = static_cast<int>(inputGeometry->tris.size()) / 3;
 
 	//
 	// Step 1. Initialize build config.

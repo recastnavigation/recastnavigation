@@ -604,8 +604,8 @@ int main(int /*argc*/, char** /*argv*/)
 					text,
 					64,
 					"Verts: %.1fk  Tris: %.1fk",
-					static_cast<float>(app.inputGeometry->getMesh()->getVertCount()) / 1000.0f,
-					static_cast<float>(app.inputGeometry->getMesh()->getTriCount()) / 1000.0f);
+					static_cast<float>(app.inputGeometry->getVertCount()) / 1000.0f,
+					static_cast<float>(app.inputGeometry->getTriCount()) / 1000.0f);
 				imguiValue(text);
 			}
 			imguiSeparator();

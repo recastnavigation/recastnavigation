@@ -256,7 +256,7 @@ struct RasterizationContext
 
 int Sample_TempObstacles::rasterizeTileLayers(const int tileX, const int tileY, const rcConfig& cfg, TileCacheData* tiles, const int maxTiles)
 {
-	if (!inputGeometry || !inputGeometry->getMesh() || !inputGeometry->getChunkyMesh())
+	if (!inputGeometry || inputGeometry->getVertCount() == 0 || !inputGeometry->getChunkyMesh())
 	{
 		buildContext->log(RC_LOG_ERROR, "buildTile: Input mesh is not specified.");
 		return 0;
@@ -265,8 +265,8 @@ int Sample_TempObstacles::rasterizeTileLayers(const int tileX, const int tileY, 
 	FastLZCompressor comp;
 	RasterizationContext rasterContext;
 
-	const float* verts = inputGeometry->getMesh()->getVerts();
-	const int nverts = inputGeometry->getMesh()->getVertCount();
+	const float* verts = inputGeometry->verts.data();
+	const int nverts = inputGeometry->getVertCount();
 	const ChunkyTriMesh* chunkyMesh = inputGeometry->getChunkyMesh();
 
 	// Tile bounds.
@@ -1016,7 +1016,7 @@ void Sample_TempObstacles::handleDebugMode()
 
 void Sample_TempObstacles::handleRender()
 {
-	if (!inputGeometry || !inputGeometry->getMesh()) { return; }
+	if (!inputGeometry || inputGeometry->getVertCount() == 0) { return; }
 
 	const float texScale = 1.0f / (cellSize * 10.0f);
 
@@ -1024,9 +1024,15 @@ void Sample_TempObstacles::handleRender()
 	if (m_drawMode != DRAWMODE_NAVMESH_TRANS)
 	{
 		// Draw mesh
-		duDebugDrawTriMeshSlope(&debugDraw, inputGeometry->getMesh()->getVerts(), inputGeometry->getMesh()->getVertCount(),
-								inputGeometry->getMesh()->getTris(), inputGeometry->getMesh()->getNormals(), inputGeometry->getMesh()->getTriCount(),
-								agentMaxSlope, texScale);
+		duDebugDrawTriMeshSlope(
+			&debugDraw,
+			inputGeometry->verts.data(),
+			inputGeometry->getVertCount(),
+			inputGeometry->tris.data(),
+			inputGeometry->normals.data(),
+			inputGeometry->getTriCount(),
+			agentMaxSlope,
+			texScale);
 		inputGeometry->drawOffMeshConnections(&debugDraw);
 	}
 
@@ -1199,7 +1205,7 @@ bool Sample_TempObstacles::handleBuild()
 {
 	dtStatus status;
 
-	if (!inputGeometry || !inputGeometry->getMesh())
+	if (!inputGeometry || inputGeometry->getVertCount() == 0)
 	{
 		buildContext->log(RC_LOG_ERROR, "buildTiledNavigation: No vertices and triangles.");
 		return false;

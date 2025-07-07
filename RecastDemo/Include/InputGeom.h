@@ -70,8 +70,19 @@ struct BuildSettings
 
 class InputGeom
 {
+public:
+	std::string filename;
+
+	// Mesh data
+	std::vector<float> verts;
+	std::vector<int> tris;
+	std::vector<float> normals;
+
+	int getVertCount() const { return static_cast<int>(verts.size()) / 3; }
+	int getTriCount() const { return static_cast<int>(tris.size()) / 3; }
+
+private:
 	ChunkyTriMesh* chunkyMesh = nullptr;
-	MeshLoaderObj* meshLoader = nullptr;
 	float meshBMin[3] = {};
 	float meshBMax[3] = {};
 	BuildSettings buildSettings;
@@ -105,7 +116,6 @@ public:
 	~InputGeom()
 	{
 		delete chunkyMesh;
-		delete meshLoader;
 	}
 	InputGeom(const InputGeom&) = delete;
 	InputGeom& operator=(const InputGeom&) = delete;
@@ -116,7 +126,6 @@ public:
 	bool saveGeomSet(const BuildSettings* settings);
 
 	/// Method to return static mesh data.
-	const MeshLoaderObj* getMesh() const { return meshLoader; }
 	const float* getMeshBoundsMin() const { return meshBMin; }
 	const float* getMeshBoundsMax() const { return meshBMax; }
 	const float* getNavMeshBoundsMin() const { return hasBuildSettings ? buildSettings.navMeshBMin : meshBMin; }

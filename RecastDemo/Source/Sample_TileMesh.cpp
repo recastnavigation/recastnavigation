@@ -354,7 +354,7 @@ void Sample_TileMesh::handleDebugMode()
 
 void Sample_TileMesh::handleRender()
 {
-	if (!inputGeometry || !inputGeometry->getMesh())
+	if (!inputGeometry || inputGeometry->getVertCount() == 0)
 	{
 		return;
 	}
@@ -367,11 +367,11 @@ void Sample_TileMesh::handleRender()
 		// Draw mesh
 		duDebugDrawTriMeshSlope(
 			&debugDraw,
-			inputGeometry->getMesh()->getVerts(),
-			inputGeometry->getMesh()->getVertCount(),
-			inputGeometry->getMesh()->getTris(),
-			inputGeometry->getMesh()->getNormals(),
-			inputGeometry->getMesh()->getTriCount(),
+			inputGeometry->verts.data(),
+			inputGeometry->getVertCount(),
+			inputGeometry->tris.data(),
+			inputGeometry->normals.data(),
+			inputGeometry->getTriCount(),
 			agentMaxSlope,
 			texScale);
 		inputGeometry->drawOffMeshConnections(&debugDraw);
@@ -581,7 +581,7 @@ void Sample_TileMesh::handleMeshChanged(InputGeom* geom)
 
 bool Sample_TileMesh::handleBuild()
 {
-	if (!inputGeometry || !inputGeometry->getMesh())
+	if (!inputGeometry || inputGeometry->getVertCount() == 0)
 	{
 		buildContext->log(RC_LOG_ERROR, "buildTiledNavigation: No vertices and triangles.");
 		return false;
@@ -828,7 +828,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(
 	const float* boundsMax,
 	int& outDataSize)
 {
-	if (!inputGeometry || !inputGeometry->getMesh() || !inputGeometry->getChunkyMesh())
+	if (!inputGeometry || inputGeometry->getVertCount() == 0 || !inputGeometry->getChunkyMesh())
 	{
 		buildContext->log(RC_LOG_ERROR, "buildNavigation: Input mesh is not specified.");
 		return 0;
@@ -839,9 +839,9 @@ unsigned char* Sample_TileMesh::buildTileMesh(
 
 	cleanup();
 
-	const float* verts = inputGeometry->getMesh()->getVerts();
-	const int numVerts = inputGeometry->getMesh()->getVertCount();
-	const int numTris = inputGeometry->getMesh()->getTriCount();
+	const float* verts = inputGeometry->verts.data();
+	const int numVerts = inputGeometry->getVertCount();
+	const int numTris = inputGeometry->getTriCount();
 	const ChunkyTriMesh* chunkyMesh = inputGeometry->getChunkyMesh();
 
 	// Init build configuration from GUI

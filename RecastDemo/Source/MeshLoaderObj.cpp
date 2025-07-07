@@ -102,7 +102,7 @@ int readFace(char* row, int* data, int maxDataLen, int vertCount)
 }
 }
 
-void MeshLoaderObj::load(char* buf, size_t bufLen)
+void parseObjModel(char* buf, size_t bufLen, std::vector<float>& verts, std::vector<int>& tris, std::vector<float>& normals)
 {
 	char* src = buf;
 	char* srcEnd = buf + bufLen;
@@ -133,13 +133,14 @@ void MeshLoaderObj::load(char* buf, size_t bufLen)
 		if (row[0] == 'f')
 		{
 			// Face
-			numVertices = readFace(row + 1, face, sizeof(face) / sizeof(face[0]), getVertCount());
+			const int vertCount = static_cast<int>(verts.size()) / 3;
+			numVertices = readFace(row + 1, face, sizeof(face) / sizeof(face[0]), vertCount);
 			for (int i = 2; i < numVertices; ++i)
 			{
 				const int a = face[0];
 				const int b = face[i - 1];
 				const int c = face[i];
-				if (a < 0 || a >= getVertCount() || b < 0 || b >= getVertCount() || c < 0 || c >= getVertCount())
+				if (a < 0 || a >= vertCount || b < 0 || b >= vertCount || c < 0 || c >= vertCount)
 				{
 					continue;
 				}
@@ -151,8 +152,8 @@ void MeshLoaderObj::load(char* buf, size_t bufLen)
 		}
 	}
 
-	// Calculate normals.
-	normals.resize(getTriCount() * 3);
+	// Calculate face normals.
+	normals.resize(tris.size());
 	for (int i = 0; i < static_cast<int>(tris.size()); i += 3)
 	{
 		const float* vertex0 = &verts[tris[i + 0] * 3];

@@ -143,21 +143,16 @@ bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath)
 		ctx->log(RC_LOG_ERROR, "buildTiledNavigation: Could not load '%s'", filepath.c_str());
 		return false;
 	}
+	filename = filepath;
 
-	if (meshLoader)
-	{
-		delete chunkyMesh;
-		chunkyMesh = nullptr;
-		delete meshLoader;
-		meshLoader = nullptr;
-	}
+	delete chunkyMesh;
+	chunkyMesh = nullptr;
 	offMeshConCount = 0;
 	volumeCount = 0;
 
-	meshLoader = new MeshLoaderObj;
-	meshLoader->load(buffer, bufferLen);
+	parseObjModel(buffer, bufferLen, verts, tris, normals);
 
-	rcCalcBounds(meshLoader->getVerts(), meshLoader->getVertCount(), meshBMin, meshBMax);
+	rcCalcBounds(verts.data(), getVertCount(), meshBMin, meshBMax);
 
 	chunkyMesh = new ChunkyTriMesh;
 	if (!chunkyMesh)
@@ -165,7 +160,7 @@ bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath)
 		ctx->log(RC_LOG_ERROR, "buildTiledNavigation: Out of memory 'm_chunkyMesh'.");
 		return false;
 	}
-	if (!chunkyMesh->TryPartitionMesh(meshLoader->getVerts(), meshLoader->getTris(), meshLoader->getTriCount(), 256))
+	if (!chunkyMesh->TryPartitionMesh(verts.data(), tris.data(), getTriCount(), 256))
 	{
 		ctx->log(RC_LOG_ERROR, "buildTiledNavigation: Failed to build chunky mesh.");
 		return false;
@@ -223,9 +218,6 @@ bool InputGeom::loadGeomSet(rcContext* ctx, char* buffer, size_t bufferLen)
 {
 	offMeshConCount = 0;
 	volumeCount = 0;
-
-	delete meshLoader;
-	meshLoader = nullptr;
 
 	char* src = buffer;
 	char* srcEnd = buffer + bufferLen;
@@ -355,13 +347,13 @@ bool InputGeom::load(rcContext* ctx, const std::string& filepath)
 
 bool InputGeom::saveGeomSet(const BuildSettings* settings)
 {
-	if (!meshLoader)
+	if (verts.empty())
 	{
 		return false;
 	}
 
 	// Change extension
-	std::string filepath = meshLoader->getFileName();
+	std::string filepath = filename;
 	size_t extPos = filepath.find_last_of('.');
 	if (extPos != std::string::npos)
 	{
@@ -376,7 +368,7 @@ bool InputGeom::saveGeomSet(const BuildSettings* settings)
 	}
 
 	// Store mesh filename.
-	fprintf(fp, "f %s\n", meshLoader->getFileName().c_str());
+	fprintf(fp, "f %s\n", filename.c_str());
 
 	// Store settings if any
 	if (settings)
@@ -502,7 +494,6 @@ bool InputGeom::raycastMesh(float* src, float* dst, float& tmin)
 
 	tmin = 1.0f;
 	bool hit = false;
-	const float* verts = meshLoader->getVerts();
 
 	for (int i = 0; i < ncid; ++i)
 	{

@@ -18,25 +18,6 @@
 
 #pragma once
 
-#include <string>
 #include <vector>
 
-class MeshLoaderObj
-{
-public:
-	void load(char* buf, size_t bufLen);
-
-	[[nodiscard]] const float* getVerts() const { return verts.data(); }
-	[[nodiscard]] const float* getNormals() const { return normals.data(); }
-	[[nodiscard]] const int* getTris() const { return tris.data(); }
-	[[nodiscard]] int getVertCount() const { return static_cast<int>(verts.size()) / 3; }
-	[[nodiscard]] int getTriCount() const { return static_cast<int>(tris.size()) / 3; }
-	[[nodiscard]] const std::string& getFileName() const { return filename; }
-
-private:
-	std::string filename;
-
-	std::vector<float> verts;
-	std::vector<int> tris;
-	std::vector<float> normals;
-};
+void parseObjModel(char* buf, size_t bufLen, std::vector<float>& verts, std::vector<int>& tris, std::vector<float>& normals);
