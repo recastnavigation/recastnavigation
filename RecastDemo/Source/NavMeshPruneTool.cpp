@@ -225,6 +225,7 @@ void NavMeshPruneTool::handleMenu()
 		return;
 	}
 
+#if 0
 	if (imguiButton("Clear Selection"))
 	{
 		flags->clearAllFlags();
@@ -236,6 +237,7 @@ void NavMeshPruneTool::handleMenu()
 		delete flags;
 		flags = nullptr;
 	}
+#endif
 }
 
 void NavMeshPruneTool::handleClick(const float* s, const float* p, bool shift)
@@ -323,5 +325,7 @@ void NavMeshPruneTool::handleRender()
 
 void NavMeshPruneTool::handleRenderOverlay(double* /*proj*/, double* /*model*/, int* view)
 {
+#if 0
 	imguiDrawText(280, view[3] - 40, IMGUI_ALIGN_LEFT, "LMB: Click fill area.", imguiRGBA(255, 255, 255, 192));
+#endif
 }

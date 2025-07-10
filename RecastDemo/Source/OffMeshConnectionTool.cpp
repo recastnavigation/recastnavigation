@@ -54,6 +54,7 @@ void OffMeshConnectionTool::reset()
 
 void OffMeshConnectionTool::handleMenu()
 {
+#if 0
 	if (imguiCheck("One Way", !bidir))
 	{
 		bidir = false;
@@ -62,6 +63,7 @@ void OffMeshConnectionTool::handleMenu()
 	{
 		bidir = true;
 	}
+#endif
 }
 
 void OffMeshConnectionTool::handleClick(const float* /*rayStartPos*/, const float* rayHitPos, bool shift)
@@ -145,6 +147,7 @@ void OffMeshConnectionTool::handleRender()
 
 void OffMeshConnectionTool::handleRenderOverlay(double* proj, double* model, int* view)
 {
+#if 0
 	GLdouble x, y, z;
 
 	// Draw start and end point labels
@@ -173,4 +176,5 @@ void OffMeshConnectionTool::handleRenderOverlay(double* proj, double* model, int
 			"LMB: Set connection end point and finish.",
 			imguiRGBA(255, 255, 255, 192));
 	}
+#endif
 }

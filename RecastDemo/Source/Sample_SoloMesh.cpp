@@ -67,6 +67,7 @@ void Sample_SoloMesh::handleSettings()
 {
 	handleCommonSettings();
 
+#if 0
 	imguiSeparator();
 
 	imguiIndent();
@@ -92,10 +93,12 @@ void Sample_SoloMesh::handleSettings()
 	imguiLabel(message);
 
 	imguiSeparator();
+#endif
 }
 
 void Sample_SoloMesh::handleTools()
 {
+#if 0
 	const SampleToolType type = !tool ? SampleToolType::NONE : tool->type();
 
 	if (imguiCheck("Test Navmesh", type == SampleToolType::NAVMESH_TESTER)) { setTool(new NavMeshTesterTool); }
@@ -114,18 +117,22 @@ void Sample_SoloMesh::handleTools()
 	}
 
 	imguiUnindent();
+#endif
 }
 
 void Sample_SoloMesh::UI_DrawModeOption(const char* name, const DrawMode drawMode, const bool enabled)
 {
+#if 0
 	if (imguiCheck(name, currentDrawMode == drawMode, enabled))
 	{
 		currentDrawMode = drawMode;
 	}
+#endif
 }
 
 void Sample_SoloMesh::handleDebugMode()
 {
+#if 0
 	imguiLabel("Draw");
 	UI_DrawModeOption("Input Mesh", DrawMode::MESH, true);
 	UI_DrawModeOption("Navmesh", DrawMode::NAVMESH, navMesh != nullptr);
@@ -144,6 +151,7 @@ void Sample_SoloMesh::handleDebugMode()
 	UI_DrawModeOption("Contours", DrawMode::CONTOURS, contourSet != nullptr);
 	UI_DrawModeOption("Poly Mesh", DrawMode::POLYMESH, polyMesh != nullptr);
 	UI_DrawModeOption("Poly Mesh Detail", DrawMode::POLYMESH_DETAIL, detailMesh != nullptr);
+#endif
 }
 
 void Sample_SoloMesh::handleRender()
@@ -164,10 +172,10 @@ void Sample_SoloMesh::handleRender()
 		duDebugDrawTriMeshSlope(
 			&debugDraw,
 			inputGeometry->verts.data(),
-			static_cast<int>(inputGeometry->verts.size()) / 3,
+			inputGeometry->getVertCount(),
 			inputGeometry->tris.data(),
 			inputGeometry->normals.data(),
-			static_cast<int>(inputGeometry->tris.size()) / 3,
+			inputGeometry->getTriCount(),
 			agentMaxSlope,
 			texScale);
 		inputGeometry->drawOffMeshConnections(&debugDraw);

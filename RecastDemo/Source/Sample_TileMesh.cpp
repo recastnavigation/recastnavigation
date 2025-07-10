@@ -94,6 +94,7 @@ public:
 
 	void handleMenu() override
 	{
+#if 0
 		imguiLabel("Create Tiles");
 		if (imguiButton("Create All"))
 		{
@@ -109,6 +110,7 @@ public:
 				m_sample->removeAllTiles();
 			}
 		}
+#endif
 	}
 
 	void handleClick(const float* /*s*/, const float* p, bool shift) override
@@ -157,6 +159,7 @@ public:
 
 	void handleRenderOverlay(double* proj, double* model, int* view) override
 	{
+#if 0
 		GLdouble x, y, z;
 		if (m_hitPosSet && gluProject(m_hitPos[0], m_hitPos[1], m_hitPos[2], model, proj, view, &x, &y, &z))
 		{
@@ -175,6 +178,7 @@ public:
 			IMGUI_ALIGN_LEFT,
 			"LMB: Rebuild hit tile.  Shift+LMB: Clear hit tile.",
 			imguiRGBA(255, 255, 255, 192));
+#endif
 	}
 };
 
@@ -210,6 +214,7 @@ void Sample_TileMesh::cleanup()
 void Sample_TileMesh::handleSettings()
 {
 	Sample::handleCommonSettings();
+#if 0
 
 	if (imguiCheck("Build All Tiles", buildAll))
 	{
@@ -278,10 +283,12 @@ void Sample_TileMesh::handleSettings()
 
 	imguiSeparator();
 	imguiSeparator();
+#endif
 }
 
 void Sample_TileMesh::handleTools()
 {
+#if 0
 	const SampleToolType type = !tool ? SampleToolType::NONE : tool->type();
 
 	if (imguiCheck("Test Navmesh", type == SampleToolType::NAVMESH_TESTER))
@@ -319,18 +326,22 @@ void Sample_TileMesh::handleTools()
 	}
 
 	imguiUnindent();
+#endif
 }
 
 void Sample_TileMesh::UI_DrawModeOption(const char* name, DrawMode drawMode, bool enabled)
 {
+#if 0
 	if (imguiCheck(name, this->drawMode == drawMode, enabled))
 	{
 		this->drawMode = drawMode;
 	}
+#endif
 }
 
 void Sample_TileMesh::handleDebugMode()
 {
+#if 0
 	imguiLabel("Draw");
 	UI_DrawModeOption("Input Mesh", DrawMode::MESH, true);
 	UI_DrawModeOption("Navmesh", DrawMode::NAVMESH, navMesh != nullptr);
@@ -350,6 +361,7 @@ void Sample_TileMesh::handleDebugMode()
 	UI_DrawModeOption("Contours", DrawMode::CONTOURS, contourSet != nullptr);
 	UI_DrawModeOption("Poly Mesh", DrawMode::POLYMESH, polyMesh != nullptr);
 	UI_DrawModeOption("Poly Mesh Detail", DrawMode::POLYMESH_DETAIL, detailPolyMesh != nullptr);
+#endif
 }
 
 void Sample_TileMesh::handleRender()
@@ -528,6 +540,7 @@ void Sample_TileMesh::handleRender()
 
 void Sample_TileMesh::handleRenderOverlay(double* proj, double* model, int* view)
 {
+#if 0
 	GLdouble x, y, z;
 
 	// Draw start and end point labels
@@ -553,6 +566,7 @@ void Sample_TileMesh::handleRenderOverlay(double* proj, double* model, int* view
 		tool->handleRenderOverlay(proj, model, view);
 	}
 	renderOverlayToolStates(proj, model, view);
+#endif
 }
 
 void Sample_TileMesh::handleMeshChanged(InputGeom* geom)

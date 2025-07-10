@@ -506,7 +506,9 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 	if (m_targetRef &&
 		gluProject((GLdouble)m_targetPos[0], (GLdouble)m_targetPos[1], (GLdouble)m_targetPos[2], model, proj, view, &x, &y, &z))
 	{
+#if 0
 		imguiDrawText((int)x, (int)(y + 25), IMGUI_ALIGN_CENTER, "TARGET", imguiRGBA(0, 0, 0, 220));
+#endif
 	}
 
 	char label[32];
@@ -540,7 +542,9 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 						{
 							const float heuristic = node->total;  // - node->cost;
 							snprintf(label, 32, "%.2f", heuristic);
+#if 0
 							imguiDrawText((int)x, (int)y + 15, IMGUI_ALIGN_CENTER, label, imguiRGBA(0, 0, 0, 220));
+#endif
 						}
 					}
 				}
@@ -562,7 +566,9 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 				if (gluProject((GLdouble)pos[0], (GLdouble)pos[1] + h, (GLdouble)pos[2], model, proj, view, &x, &y, &z))
 				{
 					snprintf(label, 32, "%d", i);
+#if 0
 					imguiDrawText((int)x, (int)y + 15, IMGUI_ALIGN_CENTER, label, imguiRGBA(0, 0, 0, 220));
+#endif
 				}
 			}
 		}
@@ -596,7 +602,9 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 								&z))
 						{
 							snprintf(label, 32, "%.3f", ag->neis[j].dist);
+#if 0
 							imguiDrawText((int)x, (int)y + 15, IMGUI_ALIGN_CENTER, label, imguiRGBA(255, 255, 255, 220));
+#endif
 						}
 					}
 				}
@@ -842,6 +850,7 @@ void CrowdTool::reset() {}
 
 void CrowdTool::handleMenu()
 {
+#if 0
 	if (!m_state) { return; }
 	CrowdToolParams* params = m_state->getToolParams();
 
@@ -923,6 +932,7 @@ void CrowdTool::handleMenu()
 		if (imguiCheck("Show Detail All", params->m_showDetailAll)) { params->m_showDetailAll = !params->m_showDetailAll; }
 		imguiUnindent();
 	}
+#endif
 }
 
 void CrowdTool::handleClick(const float* s, const float* p, bool shift)
@@ -1001,6 +1011,7 @@ void CrowdTool::handleRender() {}
 
 void CrowdTool::handleRenderOverlay(double* proj, double* model, int* view)
 {
+#if 0
 	rcIgnoreUnused(model);
 	rcIgnoreUnused(proj);
 
@@ -1037,4 +1048,5 @@ void CrowdTool::handleRenderOverlay(double* proj, double* model, int* view)
 		imguiDrawText(280, ty, IMGUI_ALIGN_LEFT, "- RUNNING -", imguiRGBA(255, 32, 16, 255));
 	}
 	else { imguiDrawText(280, ty, IMGUI_ALIGN_LEFT, "- PAUSED -", imguiRGBA(255, 255, 255, 128)); }
+#endif
 }

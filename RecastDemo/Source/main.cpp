@@ -17,8 +17,8 @@
 //
 
 #include "SDL.h"
-#include "SDL_opengl.h"
 #include "SDL_keycode.h"
+#include "SDL_opengl.h"
 
 #include <cstdio>
 #include <functional>
@@ -37,8 +37,10 @@
 #include "Sample_TempObstacles.h"
 #include "Sample_TileMesh.h"
 #include "TestCase.h"
-#include "imgui.h"
-#include "imguiRenderGL.h"
+
+#include <imgui.h>
+#include <imgui_impl_opengl2.h>
+#include <imgui_impl_sdl2.h>
 
 #ifdef WIN32
 #	define snprintf _snprintf
@@ -67,7 +69,7 @@ struct AppData
 	int width;
 	int height;
 	SDL_Window* window;
-	SDL_Renderer* renderer;
+	SDL_GLContext glContext;
 
 	// Recast data, samples, and test cases
 	BuildContext buildContext;
@@ -110,21 +112,17 @@ struct AppData
 	float rayEnd[3];
 
 	// UI
-	string sampleName = "Choose Sample...";
+	int sampleIndex = -1;
 	string meshName = "Choose Mesh...";
 
 	// UI state
 	bool showMenu = true;
 	bool showLog = false;
 	bool showTools = true;
-	bool showLevels = false;
-	bool showSample = false;
 	bool showTestCases = false;
 
 	// Window scroll positions.
-	int propScroll = 0;
 	int logScroll = 0;
-	int toolsScroll = 0;
 
 	// Files
 	vector<string> files;
@@ -134,6 +132,30 @@ struct AppData
 	// Markers
 	float markerPosition[3] = {0, 0, 0};
 	bool markerPositionSet = false;
+
+	void resetCamera()
+	{
+		const float* bmin = 0;
+		const float* bmax = 0;
+		if (inputGeometry)
+		{
+			bmin = inputGeometry->getNavMeshBoundsMin();
+			bmax = inputGeometry->getNavMeshBoundsMax();
+		}
+		// Reset camera and fog to match the mesh bounds.
+		if (bmin && bmax)
+		{
+			camr = sqrtf(rcSqr(bmax[0] - bmin[0]) + rcSqr(bmax[1] - bmin[1]) + rcSqr(bmax[2] - bmin[2])) / 2;
+			cameraPos[0] = (bmax[0] + bmin[0]) / 2 + camr;
+			cameraPos[1] = (bmax[1] + bmin[1]) / 2 + camr;
+			cameraPos[2] = (bmax[2] + bmin[2]) / 2 + camr;
+			camr *= 3;
+		}
+		cameraEulers[0] = 45;
+		cameraEulers[1] = -45;
+		glFogf(GL_FOG_START, camr * 0.1f);
+		glFogf(GL_FOG_END, camr * 1.25f);
+	}
 };
 
 int main(int /*argc*/, char** /*argv*/)
@@ -169,27 +191,163 @@ int main(int /*argc*/, char** /*argv*/)
 	app.width = rcMin(displayMode.w, static_cast<int>(static_cast<float>(displayMode.h) * (16.0f / 9.0f))) - 80;
 	app.height = displayMode.h - 80;
 
-	int errorCode = SDL_CreateWindowAndRenderer(
+	// Create the SDL window with OpenGL support
+	app.window = SDL_CreateWindow(
+		"My App",
+		SDL_WINDOWPOS_CENTERED,
+		SDL_WINDOWPOS_CENTERED,
 		app.width,
 		app.height,
-		SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE,
-		&app.window,
-		&app.renderer);
+		SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 
-	if (errorCode != 0 || !app.window || !app.renderer)
+	// Create the OpenGL context
+	app.glContext = SDL_GL_CreateContext(app.window);
+	SDL_GL_MakeCurrent(app.window, app.glContext);
+
+	if (!app.window || !app.glContext)
 	{
-		printf("Could not initialise SDL opengl\nError: %s\n", SDL_GetError());
+		printf("Could not initialize SDL opengl\nError: %s\n", SDL_GetError());
 		return -1;
 	}
 
 	SDL_SetWindowPosition(app.window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 
-	if (!imguiRenderGLInit("DroidSans.ttf"))
-	{
-		printf("Could not init GUI renderer.\n");
-		SDL_Quit();
-		return -1;
-	}
+	// Setup Dear ImGui context
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // Enable Keyboard Controls
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;   // Enable Gamepad Controls
+	io.Fonts->AddFontFromFileTTF("DroidSans.ttf", 16.0f); // Size in pixels
+	ImGui::PushFont(io.Fonts->Fonts[0]);
+	ImGui::StyleColorsDark();
+
+
+
+	// Set style
+	float main_scale = ImGui_ImplSDL2_GetContentScaleForDisplay(0);
+	ImGuiStyle& style = ImGui::GetStyle();
+	style.ScaleAllSizes(main_scale);
+	style.FontScaleDpi = main_scale;
+	style.WindowRounding = 8.0f;
+	style.FrameRounding  = 4.0f;
+	style.WindowPadding  = ImVec2(10, 10);
+	style.FramePadding   = ImVec2(8, 4);
+
+	style.Colors[ImGuiCol_WindowBg] = ImVec4(0.0f, 0.0f, 0.0f, 0.75f);
+	style.Colors[ImGuiCol_Header] = ImVec4(1.0f, 1.0f, 1.0f, 0.5f);
+	style.Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.0f, 0.0f, 0.0f, 0.75f);
+	style.Colors[ImGuiCol_ScrollbarGrab] = ImVec4(1.0f, 1.0f, 1.0f, 0.25f);
+	style.Colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(1.0f, 0.75f, 0, 0.75f);
+	style.Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(1.0f, 0.75f, 0, 0.37f);
+
+	style.Colors[ImGuiCol_Button] = ImVec4(0.5f, 0.5f, 0.5f, 96.0f / 255.0f);
+	style.Colors[ImGuiCol_ButtonActive] = ImVec4(0.5f, 0.5f, 0.5f, 196.0f / 255.0f);
+	//style.Colors[ImGuiCol_ButtonHovered] = ImVec4(1.0f, 196.0f / 255.0f, 0, 96.0f / 255.0f);
+
+	/*
+	/// 0 = FLAT APPEARENCE
+	/// 1 = MORE "3D" LOOK
+	int is3D = 1;
+
+	style.Colors[ImGuiCol_Text]                   = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+	style.Colors[ImGuiCol_TextDisabled]           = ImVec4(0.40f, 0.40f, 0.40f, 1.00f);
+	style.Colors[ImGuiCol_TextSelectedBg]         = ImVec4(0.73f, 0.73f, 0.73f, 0.35f);
+
+	style.Colors[ImGuiCol_ChildBg]                = ImVec4(0.0f, 0.0f, 0.0f, 0.75f);
+	style.Colors[ImGuiCol_WindowBg]               = ImVec4(0.0f, 0.0f, 0.0f, 0.75f);
+	style.Colors[ImGuiCol_PopupBg]                = ImVec4(0.0f, 0.0f, 0.0f, 0.75f);
+
+	style.Colors[ImGuiCol_Border]                 = ImVec4(0.12f, 0.12f, 0.12f, 0.71f);
+	style.Colors[ImGuiCol_BorderShadow]           = ImVec4(1.00f, 1.00f, 1.00f, 0.06f);
+
+	style.Colors[ImGuiCol_FrameBg]                = ImVec4(0.42f, 0.42f, 0.42f, 0.54f);
+	style.Colors[ImGuiCol_FrameBgHovered]         = ImVec4(0.42f, 0.42f, 0.42f, 0.40f);
+	style.Colors[ImGuiCol_FrameBgActive]          = ImVec4(0.56f, 0.56f, 0.56f, 0.67f);
+
+	style.Colors[ImGuiCol_TitleBg]                = ImVec4(0.19f, 0.19f, 0.19f, 1.00f);
+	style.Colors[ImGuiCol_TitleBgActive]          = ImVec4(0.22f, 0.22f, 0.22f, 1.00f);
+	style.Colors[ImGuiCol_TitleBgCollapsed]       = ImVec4(0.17f, 0.17f, 0.17f, 0.90f);
+
+	style.Colors[ImGuiCol_MenuBarBg]              = ImVec4(0.335f, 0.335f, 0.335f, 1.000f);
+
+	style.Colors[ImGuiCol_ScrollbarBg]            = ImVec4(0.24f, 0.24f, 0.24f, 0.53f);
+	style.Colors[ImGuiCol_ScrollbarGrab]          = ImVec4(0.41f, 0.41f, 0.41f, 1.00f);
+	style.Colors[ImGuiCol_ScrollbarGrabHovered]   = ImVec4(0.52f, 0.52f, 0.52f, 1.00f);
+	style.Colors[ImGuiCol_ScrollbarGrabActive]    = ImVec4(0.76f, 0.76f, 0.76f, 1.00f);
+
+	style.Colors[ImGuiCol_CheckMark]              = ImVec4(0.65f, 0.65f, 0.65f, 1.00f);
+
+	style.Colors[ImGuiCol_SliderGrab]             = ImVec4(0.52f, 0.52f, 0.52f, 1.00f);
+	style.Colors[ImGuiCol_SliderGrabActive]       = ImVec4(0.64f, 0.64f, 0.64f, 1.00f);
+
+	style.Colors[ImGuiCol_Button]                 = ImVec4(0.54f, 0.54f, 0.54f, 0.35f);
+	style.Colors[ImGuiCol_ButtonHovered]          = ImVec4(0.52f, 0.52f, 0.52f, 0.59f);
+	style.Colors[ImGuiCol_ButtonActive]           = ImVec4(0.76f, 0.76f, 0.76f, 1.00f);
+
+	style.Colors[ImGuiCol_Header]                 = ImVec4(0.38f, 0.38f, 0.38f, 1.00f);
+	style.Colors[ImGuiCol_HeaderHovered]          = ImVec4(0.47f, 0.47f, 0.47f, 1.00f);
+	style.Colors[ImGuiCol_HeaderActive]           = ImVec4(0.76f, 0.76f, 0.76f, 0.77f);
+
+	style.Colors[ImGuiCol_Separator]              = ImVec4(0.000f, 0.000f, 0.000f, 0.137f);
+	style.Colors[ImGuiCol_SeparatorHovered]       = ImVec4(0.700f, 0.671f, 0.600f, 0.290f);
+	style.Colors[ImGuiCol_SeparatorActive]        = ImVec4(0.702f, 0.671f, 0.600f, 0.674f);
+
+	style.Colors[ImGuiCol_ResizeGrip]             = ImVec4(0.26f, 0.59f, 0.98f, 0.25f);
+	style.Colors[ImGuiCol_ResizeGripHovered]      = ImVec4(0.26f, 0.59f, 0.98f, 0.67f);
+	style.Colors[ImGuiCol_ResizeGripActive]       = ImVec4(0.26f, 0.59f, 0.98f, 0.95f);
+
+	style.Colors[ImGuiCol_PlotLines]              = ImVec4(0.61f, 0.61f, 0.61f, 1.00f);
+	style.Colors[ImGuiCol_PlotLinesHovered]       = ImVec4(1.00f, 0.43f, 0.35f, 1.00f);
+	style.Colors[ImGuiCol_PlotHistogram]          = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
+	style.Colors[ImGuiCol_PlotHistogramHovered]   = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
+
+	style.Colors[ImGuiCol_ModalWindowDimBg]       = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
+	style.Colors[ImGuiCol_DragDropTarget]         = ImVec4(1.00f, 1.00f, 0.00f, 0.90f);
+	style.Colors[ImGuiCol_NavHighlight]           = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+	style.Colors[ImGuiCol_NavWindowingHighlight]  = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
+	style.Colors[ImGuiCol_NavWindowingDimBg]      = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
+
+	style.PopupRounding = 3;
+	style.WindowPadding = ImVec2(4, 4);
+	style.FramePadding  = ImVec2(6, 4);
+	style.ItemSpacing   = ImVec2(6, 2);
+	style.ScrollbarSize = 18;
+	style.WindowBorderSize = 1;
+	style.ChildBorderSize  = 1;
+	style.PopupBorderSize  = 1;
+	style.FrameBorderSize  = is3D;
+	style.WindowRounding    = 3;
+	style.ChildRounding     = 3;
+	style.FrameRounding     = 3;
+	style.ScrollbarRounding = 2;
+	style.GrabRounding      = 3;
+
+	#ifdef IMGUI_HAS_DOCK
+		style.TabBorderSize = is3D;
+		style.TabRounding   = 3;
+
+		colors[ImGuiCol_DockingEmptyBg]     = ImVec4(0.38f, 0.38f, 0.38f, 1.00f);
+		colors[ImGuiCol_Tab]                = ImVec4(0.25f, 0.25f, 0.25f, 1.00f);
+		colors[ImGuiCol_TabHovered]         = ImVec4(0.40f, 0.40f, 0.40f, 1.00f);
+		colors[ImGuiCol_TabActive]          = ImVec4(0.33f, 0.33f, 0.33f, 1.00f);
+		colors[ImGuiCol_TabUnfocused]       = ImVec4(0.25f, 0.25f, 0.25f, 1.00f);
+		colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.33f, 0.33f, 0.33f, 1.00f);
+		colors[ImGuiCol_DockingPreview]     = ImVec4(0.85f, 0.85f, 0.85f, 0.28f);
+
+		if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		{
+			style.WindowRounding = 0.0f;
+			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+		}
+	#endif
+	 */
+
+	// Setup Platform/Renderer backends
+	ImGui_ImplSDL2_InitForOpenGL(app.window, app.glContext);
+    ImGui_ImplOpenGL2_Init();
+
+	ImGuiWindowFlags staticWindowFlags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoCollapse;
 
 	app.prevFrameTime = SDL_GetTicks();
 
@@ -204,19 +362,47 @@ int main(int /*argc*/, char** /*argv*/)
 	glEnable(GL_CULL_FACE);
 	glDepthFunc(GL_LEQUAL);
 
+
+
+	//----------------------------------------------------------------------------
+	scanDirectory(app.meshesFolder, ".obj", app.files);
+	app.meshName = app.files[0];
+	app.inputGeometry = new InputGeom;
+	app.inputGeometry->load(&app.buildContext, app.meshesFolder + "/" + app.meshName);
+
+	app.sampleIndex = 0;
+	app.sample = g_samples[0].create();
+	app.sample->setContext(&app.buildContext);
+	app.sample->handleMeshChanged(app.inputGeometry);
+
+	// Reset camera and fog to match the mesh bounds.
+	const float* bmin = app.inputGeometry->getNavMeshBoundsMin();
+	const float* bmax = app.inputGeometry->getNavMeshBoundsMax();
+	app.camr = sqrtf(rcSqr(bmax[0] - bmin[0]) + rcSqr(bmax[1] - bmin[1]) + rcSqr(bmax[2] - bmin[2])) / 2;
+	app.cameraPos[0] = (bmax[0] + bmin[0]) / 2 + app.camr;
+	app.cameraPos[1] = (bmax[1] + bmin[1]) / 2 + app.camr;
+	app.cameraPos[2] = (bmax[2] + bmin[2]) / 2 + app.camr;
+	app.camr *= 3;
+	app.cameraEulers[0] = 45;
+	app.cameraEulers[1] = -45;
+	glFogf(GL_FOG_START, app.camr * 0.1f);
+	glFogf(GL_FOG_END, app.camr * 1.25f);
+	//----------------------------------------------------------------------------
+
+
 	bool done = false;
 	while (!done)
 	{
 		// Handle input events.
-		int mouseScroll = 0;
 		bool processHitTest = false;
 		bool processHitTestShift = false;
 
 		// Per frame input
-
+		app.mouseOverMenu = ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow);
 		SDL_Event event;
 		while (SDL_PollEvent(&event))
 		{
+			ImGui_ImplSDL2_ProcessEvent(&event);
 			switch (event.type)
 			{
 			case SDL_KEYDOWN:
@@ -227,8 +413,6 @@ int main(int /*argc*/, char** /*argv*/)
 					done = true;
 					break;
 				case SDLK_t:
-					app.showLevels = false;
-					app.showSample = false;
 					app.showTestCases = true;
 					app.files.clear();
 					scanDirectory(app.testCasesFolder, ".txt", app.files);
@@ -262,11 +446,7 @@ int main(int /*argc*/, char** /*argv*/)
 				break;
 
 			case SDL_MOUSEWHEEL:
-				if (app.mouseOverMenu)
-				{
-					mouseScroll += event.wheel.y;
-				}
-				else
+				if (!app.mouseOverMenu)
 				{
 					app.scrollZoom += static_cast<float>(event.wheel.y);
 				}
@@ -353,16 +533,6 @@ int main(int /*argc*/, char** /*argv*/)
 			default:
 				break;
 			}
-		}
-
-		unsigned char mouseButtonMask = 0;
-		if (SDL_GetMouseState(0, 0) & SDL_BUTTON_LMASK)
-		{
-			mouseButtonMask |= IMGUI_MBUT_LEFT;
-		}
-		if (SDL_GetMouseState(0, 0) & SDL_BUTTON_RMASK)
-		{
-			mouseButtonMask |= IMGUI_MBUT_RIGHT;
 		}
 
 		Uint32 time = SDL_GetTicks();
@@ -476,12 +646,30 @@ int main(int /*argc*/, char** /*argv*/)
 
 		// Handle keyboard movement.
 		const Uint8* keystate = SDL_GetKeyboardState(NULL);
-		app.moveFront = rcClamp(app.moveFront + dt * 4 * ((keystate[SDL_SCANCODE_W] || keystate[SDL_SCANCODE_UP]) ? 1.0f : -1.0f), 0.0f, 1.0f);
-		app.moveLeft = rcClamp(app.moveLeft + dt * 4 * ((keystate[SDL_SCANCODE_A] || keystate[SDL_SCANCODE_LEFT]) ? 1.0f : -1.0f), 0.0f, 1.0f);
-		app.moveBack = rcClamp(app.moveBack + dt * 4 * ((keystate[SDL_SCANCODE_S] || keystate[SDL_SCANCODE_DOWN]) ? 1.0f : -1.0f), 0.0f, 1.0f);
-		app.moveRight = rcClamp(app.moveRight + dt * 4 * ((keystate[SDL_SCANCODE_D] || keystate[SDL_SCANCODE_RIGHT]) ? 1.0f : -1.0f), 0.0f, 1.0f);
-		app.moveUp = rcClamp(app.moveUp + dt * 4 * ((keystate[SDL_SCANCODE_Q] || keystate[SDL_SCANCODE_PAGEUP]) ? 1.0f : -1.0f), 0.0f, 1.0f);
-		app.moveDown = rcClamp(app.moveDown + dt * 4 * ((keystate[SDL_SCANCODE_E] || keystate[SDL_SCANCODE_PAGEDOWN]) ? 1.0f : -1.0f), 0.0f, 1.0f);
+		app.moveFront = rcClamp(
+			app.moveFront + dt * 4 * ((keystate[SDL_SCANCODE_W] || keystate[SDL_SCANCODE_UP]) ? 1.0f : -1.0f),
+			0.0f,
+			1.0f);
+		app.moveLeft = rcClamp(
+			app.moveLeft + dt * 4 * ((keystate[SDL_SCANCODE_A] || keystate[SDL_SCANCODE_LEFT]) ? 1.0f : -1.0f),
+			0.0f,
+			1.0f);
+		app.moveBack = rcClamp(
+			app.moveBack + dt * 4 * ((keystate[SDL_SCANCODE_S] || keystate[SDL_SCANCODE_DOWN]) ? 1.0f : -1.0f),
+			0.0f,
+			1.0f);
+		app.moveRight = rcClamp(
+			app.moveRight + dt * 4 * ((keystate[SDL_SCANCODE_D] || keystate[SDL_SCANCODE_RIGHT]) ? 1.0f : -1.0f),
+			0.0f,
+			1.0f);
+		app.moveUp = rcClamp(
+			app.moveUp + dt * 4 * ((keystate[SDL_SCANCODE_Q] || keystate[SDL_SCANCODE_PAGEUP]) ? 1.0f : -1.0f),
+			0.0f,
+			1.0f);
+		app.moveDown = rcClamp(
+			app.moveDown + dt * 4 * ((keystate[SDL_SCANCODE_E] || keystate[SDL_SCANCODE_PAGEDOWN]) ? 1.0f : -1.0f),
+			0.0f,
+			1.0f);
 
 		float keybSpeed = 22.0f;
 		if (SDL_GetModState() & KMOD_SHIFT)
@@ -526,7 +714,10 @@ int main(int /*argc*/, char** /*argv*/)
 
 		app.mouseOverMenu = false;
 
-		imguiBeginFrame(app.mousePos[0], app.mousePos[1], mouseButtonMask, mouseScroll);
+		ImGui_ImplOpenGL2_NewFrame();
+		ImGui_ImplSDL2_NewFrame();
+		ImGui::NewFrame();
+		ImGui::ShowDemoWindow();
 
 		if (app.sample)
 		{
@@ -543,256 +734,150 @@ int main(int /*argc*/, char** /*argv*/)
 		// Help text.
 		if (app.showMenu)
 		{
-			const char msg[] = "W/S/A/D: Move  RMB: Rotate";
-			imguiDrawText(280, app.height - 20, IMGUI_ALIGN_LEFT, msg, imguiRGBA(255, 255, 255, 128));
+			ImDrawList* draw_list = ImGui::GetForegroundDrawList();
+			draw_list->AddText({280.0f, 20.0f}, IM_COL32(255, 255, 255, 128), "W/A/S/D: Move  RMB: Rotate");
 		}
+
+		bool newMeshSelected = false;
+		bool newSampleSelected = false;
 
 		if (app.showMenu)
 		{
-			if (imguiBeginScrollArea("Properties", app.width - 250 - 10, 10, 250, app.height - 20, &app.propScroll))
+			ImGui::SetNextWindowPos(ImVec2(app.width - 250 - 10, 10), ImGuiCond_Always);  // Position in screen space
+			ImGui::SetNextWindowSize(ImVec2(250, app.height - 20), ImGuiCond_Always);     // Size of the window
+			ImGui::Begin("Properties", nullptr, staticWindowFlags);
+
+			ImGui::Checkbox("Show Log", &app.showLog);
+			ImGui::Checkbox("Show Tools", &app.showTools);
+
+			ImGui::SeparatorText("Input Mesh");
+
+			// Level selection dialog.
+			if (ImGui::BeginCombo("##levelCombo", app.meshName.c_str(), 0))
 			{
-				app.mouseOverMenu = true;
+				app.files.clear();
+				scanDirectory(app.meshesFolder, ".obj", app.files);
+				scanDirectory(app.meshesFolder, ".gset", app.files);
+
+				for (const auto& file : app.files)
+				{
+					const bool is_selected = (app.meshName == file);
+					if (ImGui::Selectable(file.c_str(), is_selected) && !is_selected)
+					{
+						app.meshName = file;
+						newMeshSelected = true;
+					}
+
+					// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+					if (is_selected)
+					{
+						ImGui::SetItemDefaultFocus();
+					}
+				}
+				ImGui::EndCombo();
 			}
 
-			if (imguiCheck("Show Log", app.showLog))
-			{
-				app.showLog = !app.showLog;
-			}
-			if (imguiCheck("Show Tools", app.showTools))
-			{
-				app.showTools = !app.showTools;
-			}
-
-			imguiSeparator();
-			imguiLabel("Sample");
-			if (imguiButton(app.sampleName.c_str()))
-			{
-				if (app.showSample)
-				{
-					app.showSample = false;
-				}
-				else
-				{
-					app.showSample = true;
-					app.showLevels = false;
-					app.showTestCases = false;
-				}
-			}
-
-			imguiSeparator();
-			imguiLabel("Input Mesh");
-			if (imguiButton(app.meshName.c_str()))
-			{
-				if (app.showLevels)
-				{
-					app.showLevels = false;
-				}
-				else
-				{
-					app.showSample = false;
-					app.showTestCases = false;
-					app.showLevels = true;
-					app.files.clear();
-					scanDirectory(app.meshesFolder, ".obj", app.files);
-					scanDirectory(app.meshesFolder, ".gset", app.files);
-				}
-			}
 			if (app.inputGeometry)
 			{
-				char text[64];
-				snprintf(
-					text,
-					64,
+				ImGui::Text(
 					"Verts: %.1fk  Tris: %.1fk",
-					static_cast<float>(app.inputGeometry->getVertCount()) / 1000.0f,
-					static_cast<float>(app.inputGeometry->getTriCount()) / 1000.0f);
-				imguiValue(text);
+							static_cast<float>(app.inputGeometry->getVertCount()) / 1000.0f,
+							static_cast<float>(app.inputGeometry->getTriCount()) / 1000.0f);
 			}
-			imguiSeparator();
 
-			if (app.inputGeometry && app.sample)
+			ImGui::SeparatorText("Sample");
+
+			if (ImGui::BeginCombo("##sampleCombo", app.sampleIndex >= 0 ? g_samples[app.sampleIndex].name.c_str() : "Choose Sample...", 0))
 			{
-				imguiSeparatorLine();
-
-				app.sample->handleSettings();
-
-				if (imguiButton("Build"))
+				for (int n = 0; n < IM_ARRAYSIZE(g_samples); n++)
 				{
-					app.buildContext.resetLog();
-					if (!app.sample->handleBuild())
+					const bool is_selected = (app.sampleIndex == n);
+					if (ImGui::Selectable(g_samples[n].name.c_str(), is_selected))
 					{
-						app.showLog = true;
-						app.logScroll = 0;
+						newSampleSelected = !is_selected;
+						app.sampleIndex = n;
 					}
-					app.buildContext.dumpLog("Build log %s:", app.meshName.c_str());
 
-					// Clear test.
-					delete app.testCase;
-					app.testCase = 0;
+					// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+					if (is_selected)
+					{
+						ImGui::SetItemDefaultFocus();
+					}
 				}
-
-				imguiSeparator();
+				ImGui::EndCombo();
 			}
 
 			if (app.sample)
 			{
-				imguiSeparatorLine();
+				if (app.inputGeometry)
+				{
+					app.sample->handleSettings();
+
+					if (ImGui::Button("Build"))
+					{
+						app.buildContext.resetLog();
+						if (!app.sample->handleBuild())
+						{
+							app.showLog = true;
+							app.logScroll = 0;
+						}
+						app.buildContext.dumpLog("Build log %s:", app.meshName.c_str());
+
+						// Clear test.
+						delete app.testCase;
+						app.testCase = 0;
+					}
+				}
+
+				ImGui::SeparatorText("Debug Settings");
 				app.sample->handleDebugMode();
 			}
 
-			imguiEndScrollArea();
+			ImGui::End();
 		}
 
-		// Sample selection dialog.
-		if (app.showSample)
+		if (newSampleSelected)
 		{
-			static int levelScroll = 0;
-			if (imguiBeginScrollArea(
-					"Choose sample",
-					app.width - 10 - 250 - 10 - 200,
-					app.height - 10 - 250,
-					200,
-					250,
-					&levelScroll))
+			delete app.sample;
+			app.sample = g_samples[app.sampleIndex].create();
+			app.sample->setContext(&app.buildContext);
+			if (app.inputGeometry)
 			{
-				app.mouseOverMenu = true;
+				app.sample->handleMeshChanged(app.inputGeometry);
+				app.resetCamera();
 			}
-
-			Sample* newSample = 0;
-			for (int i = 0; i < g_nsamples; ++i)
-			{
-				if (imguiItem(g_samples[i].name.c_str()))
-				{
-					newSample = g_samples[i].create();
-					if (newSample)
-					{
-						app.sampleName = g_samples[i].name;
-					}
-				}
-			}
-			if (newSample)
-			{
-				delete app.sample;
-				app.sample = newSample;
-				app.sample->setContext(&app.buildContext);
-				if (app.inputGeometry)
-				{
-					app.sample->handleMeshChanged(app.inputGeometry);
-				}
-				app.showSample = false;
-			}
-
-			if (app.inputGeometry || app.sample)
-			{
-				const float* bmin = 0;
-				const float* bmax = 0;
-				if (app.inputGeometry)
-				{
-					bmin = app.inputGeometry->getNavMeshBoundsMin();
-					bmax = app.inputGeometry->getNavMeshBoundsMax();
-				}
-				// Reset camera and fog to match the mesh bounds.
-				if (bmin && bmax)
-				{
-					app.camr = sqrtf(rcSqr(bmax[0] - bmin[0]) + rcSqr(bmax[1] - bmin[1]) + rcSqr(bmax[2] - bmin[2])) / 2;
-					app.cameraPos[0] = (bmax[0] + bmin[0]) / 2 + app.camr;
-					app.cameraPos[1] = (bmax[1] + bmin[1]) / 2 + app.camr;
-					app.cameraPos[2] = (bmax[2] + bmin[2]) / 2 + app.camr;
-					app.camr *= 3;
-				}
-				app.cameraEulers[0] = 45;
-				app.cameraEulers[1] = -45;
-				glFogf(GL_FOG_START, app.camr * 0.1f);
-				glFogf(GL_FOG_END, app.camr * 1.25f);
-			}
-
-			imguiEndScrollArea();
 		}
 
-		// Level selection dialog.
-		if (app.showLevels)
+		if (newMeshSelected)
 		{
-			static int levelScroll = 0;
-			if (imguiBeginScrollArea(
-					"Choose Level",
-					app.width - 10 - 250 - 10 - 200,
-					app.height - 10 - 450,
-					200,
-					450,
-					&levelScroll))
+			string path = app.meshesFolder + "/" + app.meshName;
+
+			delete app.inputGeometry;
+			app.inputGeometry = new InputGeom;
+			if (!app.inputGeometry->load(&app.buildContext, path))
 			{
-				app.mouseOverMenu = true;
-			}
-
-			vector<string>::const_iterator fileIter = app.files.begin();
-			vector<string>::const_iterator filesEnd = app.files.end();
-			vector<string>::const_iterator levelToLoad = filesEnd;
-			for (; fileIter != filesEnd; ++fileIter)
-			{
-				if (imguiItem(fileIter->c_str()))
-				{
-					levelToLoad = fileIter;
-				}
-			}
-
-			if (levelToLoad != filesEnd)
-			{
-				app.meshName = *levelToLoad;
-				app.showLevels = false;
-
-				string path = app.meshesFolder + "/" + app.meshName;
-
 				delete app.inputGeometry;
-				app.inputGeometry = new InputGeom;
-				if (!app.inputGeometry->load(&app.buildContext, path))
-				{
-					delete app.inputGeometry;
-					app.inputGeometry = nullptr;
+				app.inputGeometry = nullptr;
 
-					// Destroy the sample if it already had geometry loaded, as we've just deleted it!
-					if (app.sample && app.sample->getInputGeom())
-					{
-						delete app.sample;
-						app.sample = nullptr;
-					}
-
-					app.showLog = true;
-					app.logScroll = 0;
-					app.buildContext.dumpLog("geom load log %s:", app.meshName.c_str());
-				}
-				if (app.sample && app.inputGeometry)
+				// Destroy the sample if it already had geometry loaded, as we've just deleted it!
+				if (app.sample && app.sample->getInputGeom())
 				{
-					app.sample->handleMeshChanged(app.inputGeometry);
+					delete app.sample;
+					app.sample = nullptr;
 				}
 
-				if (app.inputGeometry || app.sample)
-				{
-					const float* bmin = 0;
-					const float* bmax = 0;
-					if (app.inputGeometry)
-					{
-						bmin = app.inputGeometry->getNavMeshBoundsMin();
-						bmax = app.inputGeometry->getNavMeshBoundsMax();
-					}
-					// Reset camera and fog to match the mesh bounds.
-					if (bmin && bmax)
-					{
-						app.camr = sqrtf(rcSqr(bmax[0] - bmin[0]) + rcSqr(bmax[1] - bmin[1]) + rcSqr(bmax[2] - bmin[2])) / 2;
-						app.cameraPos[0] = (bmax[0] + bmin[0]) / 2 + app.camr;
-						app.cameraPos[1] = (bmax[1] + bmin[1]) / 2 + app.camr;
-						app.cameraPos[2] = (bmax[2] + bmin[2]) / 2 + app.camr;
-						app.camr *= 3;
-					}
-					app.cameraEulers[0] = 45;
-					app.cameraEulers[1] = -45;
-					glFogf(GL_FOG_START, app.camr * 0.1f);
-					glFogf(GL_FOG_END, app.camr * 1.25f);
-				}
+				app.showLog = true;
+				app.logScroll = 0;
+				app.buildContext.dumpLog("geom load log %s:", app.meshName.c_str());
 			}
-
-			imguiEndScrollArea();
+			app.resetCamera();
+			if (app.sample)
+			{
+				app.sample->handleMeshChanged(app.inputGeometry);
+			}
 		}
 
+#if 0
 		// Test cases
 		if (app.showTestCases)
 		{
@@ -841,7 +926,7 @@ int main(int /*argc*/, char** /*argv*/)
 							newSample = g_samples[i].create();
 							if (newSample)
 							{
-								app.sampleName = g_samples[i].name;
+								app.sampleIndex = i;
 							}
 						}
 					}
@@ -924,35 +1009,37 @@ int main(int /*argc*/, char** /*argv*/)
 
 			imguiEndScrollArea();
 		}
+#endif
 
 		// Log
+		static bool auto_scroll = true;
 		if (app.showLog && app.showMenu)
 		{
-			if (imguiBeginScrollArea("Log", 250 + 20, 10, app.width - 300 - 250, 200, &app.logScroll))
-			{
-				app.mouseOverMenu = true;
-			}
+			ImGui::SetNextWindowPos(ImVec2(250 + 20, app.height - 200 - 10), ImGuiCond_Always);  // Position in screen space
+			ImGui::SetNextWindowSize(ImVec2(app.width - 250 - 250 - 20 - 20, 200), ImGuiCond_Always);     // Size of the window
+			ImGui::Begin("Log", nullptr, staticWindowFlags);
+
 			for (int i = 0; i < app.buildContext.getLogCount(); ++i)
 			{
-				imguiLabel(app.buildContext.getLogText(i));
+				ImGui::TextUnformatted(app.buildContext.getLogText(i));
 			}
-			imguiEndScrollArea();
+
+			ImGui::End();
 		}
 
 		// Left column tools menu
 		if (!app.showTestCases && app.showTools && app.showMenu)
 		{
-			if (imguiBeginScrollArea("Tools", 10, 10, 250, app.height - 20, &app.toolsScroll))
-			{
-				app.mouseOverMenu = true;
-			}
+			ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_Always);  // Position in screen space
+			ImGui::SetNextWindowSize(ImVec2(250, app.height - 20), ImGuiCond_Always);     // Size of the window
+			ImGui::Begin("Tools", nullptr, staticWindowFlags);
 
 			if (app.sample)
 			{
 				app.sample->handleTools();
 			}
 
-			imguiEndScrollArea();
+			ImGui::End();
 		}
 
 		// Marker
@@ -974,16 +1061,20 @@ int main(int /*argc*/, char** /*argv*/)
 			glLineWidth(1.0f);
 		}
 
-		imguiEndFrame();
-		imguiRenderGLDraw();
-
 		glEnable(GL_DEPTH_TEST);
+
+		ImGui::Render();
+        ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
 		SDL_GL_SwapWindow(app.window);
 	}
 
-	imguiRenderGLDestroy();
+	ImGui_ImplOpenGL2_Shutdown();
+	ImGui_ImplSDL2_Shutdown();
+	ImGui::DestroyContext();
 
-	SDL_Quit();
+	SDL_GL_DeleteContext(app.glContext);
+    SDL_DestroyWindow(app.window);
+    SDL_Quit();
 
 	delete app.sample;
 	delete app.inputGeometry;

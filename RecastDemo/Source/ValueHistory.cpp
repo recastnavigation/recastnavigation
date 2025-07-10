@@ -59,6 +59,7 @@ void GraphParams::setValueRange(float minValue, float maxValue, int numDivisions
 
 void drawGraphBackground(const GraphParams* params)
 {
+#if 0
 	// BG
 	imguiDrawRoundedRect(
 		static_cast<float>(params->x),
@@ -94,10 +95,12 @@ void drawGraphBackground(const GraphParams* params)
 			1.0f,
 			imguiRGBA(0, 0, 0, 64));
 	}
+#endif
 }
 
 void drawGraph(const GraphParams* params, const ValueHistory* graph, int index, const char* label, const unsigned int color)
 {
+#if 0
 	const float sx = static_cast<float>(params->width - params->padding * 2) / static_cast<float>(graph->getSampleCount());
 	const float sy = static_cast<float>(params->height - params->padding * 2) / (params->rangeMax - params->rangeMin);
 	const float ox = static_cast<float>(params->x) + static_cast<float>(params->padding);
@@ -129,4 +132,5 @@ void drawGraph(const GraphParams* params, const ValueHistory* graph, int index, 
 	snprintf(text, 64, "%.2f %s", graph->getAverage(), params->units.c_str());
 	imguiDrawText(ix + size + 5, iy + 3, IMGUI_ALIGN_LEFT, label, imguiRGBA(255, 255, 255, 192));
 	imguiDrawText(ix + size + 150, iy + 3, IMGUI_ALIGN_RIGHT, text, imguiRGBA(255, 255, 255, 128));
+#endif
 }

@@ -201,6 +201,7 @@ void Sample::resetCommonSettings()
 
 void Sample::handleCommonSettings()
 {
+#if 0
 	imguiLabel("Rasterization");
 	imguiSlider("Cell Size", &cellSize, 0.1f, 1.0f, 0.01f);
 	imguiSlider("Cell Height", &cellHeight, 0.1f, 1.0f, 0.01f);
@@ -270,6 +271,7 @@ void Sample::handleCommonSettings()
 	imguiSlider("Max Sample Error", &detailSampleMaxError, 0.0f, 16.0f, 1.0f);
 
 	imguiSeparator();
+#endif
 }
 
 void Sample::handleClick(const float* rayStartPos, const float* rayHitPos, bool shift)

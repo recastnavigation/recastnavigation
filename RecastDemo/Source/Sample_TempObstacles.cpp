@@ -584,12 +584,14 @@ void drawDetailOverlay(const dtTileCache* tileCache, const int tileX, const int 
 		GLdouble x, y, z;
 		if (gluProject(static_cast<GLdouble>(pos[0]), static_cast<GLdouble>(pos[1]), static_cast<GLdouble>(pos[2]), model, proj, view, &x, &y, &z))
 		{
+#if 0
 			snprintf(text, 128, "(%d,%d)/%d", tile->header->tx, tile->header->ty, tile->header->tlayer);
 			imguiDrawText(static_cast<int>(x), static_cast<int>(y) - 25, IMGUI_ALIGN_CENTER, text, imguiRGBA(0, 0, 0, 220));
 			snprintf(text, 128, "Compressed: %.1f kB", tile->dataSize / 1024.0f);
 			imguiDrawText(static_cast<int>(x), static_cast<int>(y) - 45, IMGUI_ALIGN_CENTER, text, imguiRGBA(0, 0, 0, 128));
 			snprintf(text, 128, "Raw:%.1fkB", rawSize / 1024.0f);
 			imguiDrawText(static_cast<int>(x), static_cast<int>(y) - 65, IMGUI_ALIGN_CENTER, text, imguiRGBA(0, 0, 0, 128));
+#endif
 		}
 	}
 }
@@ -670,6 +672,7 @@ public:
 
 	void handleMenu() override
 	{
+#if 0
 		imguiLabel("Highlight Tile Cache");
 		imguiValue("Click LMB to highlight a tile.");
 		imguiSeparator();
@@ -689,6 +692,7 @@ public:
 		{
 			m_drawType = DRAWDETAIL_MESH;
 		}
+#endif
 	}
 
 	void handleClick(const float* /*s*/, const float* p, bool /*shift*/) override
@@ -758,6 +762,7 @@ public:
 
 	void handleMenu() override
 	{
+#if 0
 		imguiLabel("Create Temp Obstacles");
 
 		if (imguiButton("Remove All"))
@@ -767,6 +772,7 @@ public:
 
 		imguiValue("Click LMB to create an obstacle.");
 		imguiValue("Shift+LMB to remove an obstacle.");
+#endif
 	}
 
 	void handleClick(const float* s, const float* p, bool shift) override
@@ -811,7 +817,7 @@ Sample_TempObstacles::~Sample_TempObstacles()
 void Sample_TempObstacles::handleSettings()
 {
 	Sample::handleCommonSettings();
-
+#if 0
 	if (imguiCheck("Keep Itermediate Results", m_keepInterResults))
 	{
 		m_keepInterResults = !m_keepInterResults;
@@ -894,10 +900,12 @@ void Sample_TempObstacles::handleSettings()
 	imguiUnindent();
 
 	imguiSeparator();
+#endif
 }
 
 void Sample_TempObstacles::handleTools()
 {
+#if 0
 	const SampleToolType type = !tool ? SampleToolType::NONE : tool->type();
 
 	if (imguiCheck("Test Navmesh", type == SampleToolType::NAVMESH_TESTER))
@@ -935,6 +943,7 @@ void Sample_TempObstacles::handleTools()
 	}
 
 	imguiUnindent();
+#endif
 }
 
 void Sample_TempObstacles::handleDebugMode()
@@ -972,6 +981,7 @@ void Sample_TempObstacles::handleDebugMode()
 		return;
 	}
 
+#if 0
 	imguiLabel("Draw");
 	if (imguiCheck("Input Mesh", m_drawMode == DRAWMODE_MESH, valid[DRAWMODE_MESH]))
 	{
@@ -1012,6 +1022,7 @@ void Sample_TempObstacles::handleDebugMode()
 		imguiValue("rebuild some tiles to see");
 		imguiValue("more debug mode options.");
 	}
+#endif
 }
 
 void Sample_TempObstacles::handleRender()

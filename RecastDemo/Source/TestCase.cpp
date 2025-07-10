@@ -424,6 +424,7 @@ void TestCase::handleRender()
 
 bool TestCase::handleRenderOverlay(double* proj, double* model, int* view)
 {
+#if 0
 	GLdouble x, y, z;
 	char text[64];
 	char subtext[64];
@@ -464,6 +465,7 @@ bool TestCase::handleRenderOverlay(double* proj, double* model, int* view)
 			}
 			imguiDrawText((int)x, (int)(y - 25), IMGUI_ALIGN_CENTER, text, col);
 		}
+
 		n++;
 	}
 
@@ -500,4 +502,7 @@ bool TestCase::handleRenderOverlay(double* proj, double* model, int* view)
 	imguiEndScrollArea();
 
 	return mouseOverMenu;
+#else
+	return false;
+#endif
 }

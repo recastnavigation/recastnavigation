@@ -116,6 +116,7 @@ bool pointInPoly(int nvert, const float* verts, const float* p)
 
 void ConvexVolumeTool::handleMenu()
 {
+#if 0
 	imguiSlider("Shape Height", &boxHeight, 0.1f, 20.0f, 0.1f);
 	imguiSlider("Shape Descent", &boxDescent, 0.1f, 20.0f, 0.1f);
 	imguiSlider("Poly Offset", &polyOffset, 0.0f, 10.0f, 0.1f);
@@ -157,6 +158,7 @@ void ConvexVolumeTool::handleMenu()
 		numPoints = 0;
 		numHull = 0;
 	}
+#endif
 }
 
 void ConvexVolumeTool::handleClick(const float* /*s*/, const float* p, bool shift)
@@ -294,6 +296,7 @@ void ConvexVolumeTool::handleRender()
 
 void ConvexVolumeTool::handleRenderOverlay(double* /*proj*/, double* /*model*/, int* view)
 {
+#if 0
 	// Tool help
 	const int h = view[3];
 	if (!numPoints)
@@ -320,4 +323,5 @@ void ConvexVolumeTool::handleRenderOverlay(double* /*proj*/, double* /*model*/, 
 			"The shape will be convex hull of all added points.",
 			imguiRGBA(255, 255, 255, 192));
 	}
+#endif
 }
