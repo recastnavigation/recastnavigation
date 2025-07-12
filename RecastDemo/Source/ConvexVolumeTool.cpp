@@ -21,7 +21,9 @@
 #include "InputGeom.h"
 #include "Recast.h"
 #include "Sample.h"
-#include "imgui.h"
+#include "imguiHelpers.h"
+
+#include <imgui.h>
 
 #include <cfloat>
 
@@ -116,49 +118,46 @@ bool pointInPoly(int nvert, const float* verts, const float* p)
 
 void ConvexVolumeTool::handleMenu()
 {
-#if 0
-	imguiSlider("Shape Height", &boxHeight, 0.1f, 20.0f, 0.1f);
-	imguiSlider("Shape Descent", &boxDescent, 0.1f, 20.0f, 0.1f);
-	imguiSlider("Poly Offset", &polyOffset, 0.0f, 10.0f, 0.1f);
+	ImGui::SliderFloat("##Shape Height", &boxHeight, 0.1f, 20.0f, "Shape Height = %f");
+	ImGui::SliderFloat("##Shape Descent", &boxDescent, 0.1f, 20.0f, "Shape Descent = %f");
+	ImGui::SliderFloat("##Poly Offset", &polyOffset, 0.0f, 10.0f, "Poly Offset = %f");
 
-	imguiSeparator();
+	ImGui::Text("Area Type");
 
-	imguiLabel("Area Type");
-	imguiIndent();
-	if (imguiCheck("Ground", areaType == SAMPLE_POLYAREA_GROUND))
+	ImGui::Indent();
+	if (ImGui::RadioButton("Ground", areaType == SAMPLE_POLYAREA_GROUND))
 	{
 		areaType = SAMPLE_POLYAREA_GROUND;
 	}
-	if (imguiCheck("Water", areaType == SAMPLE_POLYAREA_WATER))
+	if (ImGui::RadioButton("Water", areaType == SAMPLE_POLYAREA_WATER))
 	{
 		areaType = SAMPLE_POLYAREA_WATER;
 	}
-	if (imguiCheck("Road", areaType == SAMPLE_POLYAREA_ROAD))
+	if (ImGui::RadioButton("Road", areaType == SAMPLE_POLYAREA_ROAD))
 	{
 		areaType = SAMPLE_POLYAREA_ROAD;
 	}
-	if (imguiCheck("Door", areaType == SAMPLE_POLYAREA_DOOR))
+	if (ImGui::RadioButton("Door", areaType == SAMPLE_POLYAREA_DOOR))
 	{
 		areaType = SAMPLE_POLYAREA_DOOR;
 	}
-	if (imguiCheck("Grass", areaType == SAMPLE_POLYAREA_GRASS))
+	if (ImGui::RadioButton("Grass", areaType == SAMPLE_POLYAREA_GRASS))
 	{
 		areaType = SAMPLE_POLYAREA_GRASS;
 	}
-	if (imguiCheck("Jump", areaType == SAMPLE_POLYAREA_JUMP))
+	if (ImGui::RadioButton("Jump", areaType == SAMPLE_POLYAREA_JUMP))
 	{
 		areaType = SAMPLE_POLYAREA_JUMP;
 	}
-	imguiUnindent();
+	ImGui::Unindent();
 
-	imguiSeparator();
+	ImGui::Separator();
 
-	if (imguiButton("Clear Shape"))
+	if (ImGui::Button("Clear Shape"))
 	{
 		numPoints = 0;
 		numHull = 0;
 	}
-#endif
 }
 
 void ConvexVolumeTool::handleClick(const float* /*s*/, const float* p, bool shift)
@@ -296,32 +295,27 @@ void ConvexVolumeTool::handleRender()
 
 void ConvexVolumeTool::handleRenderOverlay(double* /*proj*/, double* /*model*/, int* view)
 {
-#if 0
 	// Tool help
 	const int h = view[3];
 	if (!numPoints)
 	{
-		imguiDrawText(
-			280,
-			h - 40,
-			IMGUI_ALIGN_LEFT,
-			"LMB: Create new shape.  SHIFT+LMB: Delete existing shape (click inside a shape).",
-			imguiRGBA(255, 255, 255, 192));
+		DrawScreenspaceText(
+			280.0f,
+			static_cast<float>(h) - 40.0f,
+			IM_COL32(255, 255, 255, 192),
+			"LMB: Create new shape.  SHIFT+LMB: Delete existing shape (click inside a shape).");
 	}
 	else
 	{
-		imguiDrawText(
-			280,
-			h - 40,
-			IMGUI_ALIGN_LEFT,
-			"Click LMB to add new points. Click on the red point to finish the shape.",
-			imguiRGBA(255, 255, 255, 192));
-		imguiDrawText(
-			280,
-			h - 60,
-			IMGUI_ALIGN_LEFT,
-			"The shape will be convex hull of all added points.",
-			imguiRGBA(255, 255, 255, 192));
+		DrawScreenspaceText(
+			280.0f,
+			static_cast<float>(h) - 40.0f,
+			IM_COL32(255, 255, 255, 192),
+			"Click LMB to add new points. Click on the red point to finish the shape.");
+		DrawScreenspaceText(
+			280.0f,
+			static_cast<float>(h) - 60.0f,
+			IM_COL32(255, 255, 255, 192),
+			"The shape will be convex hull of all added points.");
 	}
-#endif
 }

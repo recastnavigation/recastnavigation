@@ -28,25 +28,25 @@
 #else
 #	include <GL/glu.h>
 #endif
-#include "imgui.h"
-#include "InputGeom.h"
-#include "Sample.h"
-#include "Sample_TempObstacles.h"
-#include "Recast.h"
-#include "RecastDebugDraw.h"
-#include "DetourAssert.h"
-#include "DetourNavMesh.h"
-#include "DetourNavMeshBuilder.h"
-#include "DetourDebugDraw.h"
-#include "DetourCommon.h"
-#include "DetourTileCache.h"
-#include "NavMeshTesterTool.h"
-#include "OffMeshConnectionTool.h"
 #include "ConvexVolumeTool.h"
 #include "CrowdTool.h"
+#include "DetourAssert.h"
+#include "DetourCommon.h"
+#include "DetourDebugDraw.h"
+#include "DetourNavMesh.h"
+#include "DetourNavMeshBuilder.h"
+#include "DetourTileCache.h"
+#include "InputGeom.h"
+#include "NavMeshTesterTool.h"
+#include "OffMeshConnectionTool.h"
+#include "Recast.h"
 #include "RecastAlloc.h"
 #include "RecastAssert.h"
+#include "RecastDebugDraw.h"
+#include "Sample.h"
+#include "Sample_TempObstacles.h"
 #include "fastlz.h"
+#include "imguiHelpers.h"
 
 #ifdef WIN32
 #	define snprintf _snprintf
@@ -568,9 +568,7 @@ void drawDetailOverlay(const dtTileCache* tileCache, const int tileX, const int 
 	const int ntiles = tileCache->getTilesAt(tileX, tileY, tiles, MAX_LAYERS);
 	if (!ntiles) { return; }
 
-	const int rawSize = calcLayerBufferSize(tileCache->getParams()->width, tileCache->getParams()->height);
-
-	char text[128];
+	//const int rawSize = calcLayerBufferSize(tileCache->getParams()->width, tileCache->getParams()->height);
 
 	for (int i = 0; i < ntiles; ++i)
 	{
@@ -585,6 +583,7 @@ void drawDetailOverlay(const dtTileCache* tileCache, const int tileX, const int 
 		if (gluProject(static_cast<GLdouble>(pos[0]), static_cast<GLdouble>(pos[1]), static_cast<GLdouble>(pos[2]), model, proj, view, &x, &y, &z))
 		{
 #if 0
+			char text[128];
 			snprintf(text, 128, "(%d,%d)/%d", tile->header->tx, tile->header->ty, tile->header->tlayer);
 			imguiDrawText(static_cast<int>(x), static_cast<int>(y) - 25, IMGUI_ALIGN_CENTER, text, imguiRGBA(0, 0, 0, 220));
 			snprintf(text, 128, "Compressed: %.1f kB", tile->dataSize / 1024.0f);

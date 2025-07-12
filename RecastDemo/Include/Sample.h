@@ -125,7 +125,7 @@ protected:
 	float regionMergeSize;
 	float edgeMaxLen;
 	float edgeMaxError;
-	float vertsPerPoly;
+	int vertsPerPoly;
 	float detailSampleDist;
 	float detailSampleMaxError;
 	int partitionType;

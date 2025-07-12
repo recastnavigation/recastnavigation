@@ -27,7 +27,6 @@
 #include "DetourDebugDraw.h"
 #include "DetourNavMesh.h"
 #include "DetourNavMeshBuilder.h"
-#include "imgui.h"
 #include "InputGeom.h"
 #include "NavMeshPruneTool.h"
 #include "NavMeshTesterTool.h"
@@ -37,6 +36,8 @@
 #include "RecastDump.h"
 #include "Sample.h"
 #include "SDL_opengl.h"
+
+#include <imgui.h>
 
 #ifdef WIN32
 #	define snprintf _snprintf
@@ -67,73 +68,65 @@ void Sample_SoloMesh::handleSettings()
 {
 	handleCommonSettings();
 
-#if 0
-	imguiSeparator();
+	ImGui::Separator();
 
-	imguiIndent();
-	imguiIndent();
+	ImGui::Indent();
+	ImGui::Indent();
 
-	if (imguiButton("Save"))
+	if (ImGui::Button("Save"))
 	{
 		saveAll("solo_navmesh.bin", navMesh);
 	}
 
-	if (imguiButton("Load"))
+	if (ImGui::Button("Load"))
 	{
 		dtFreeNavMesh(navMesh);
 		navMesh = loadAll("solo_navmesh.bin");
 		navQuery->init(navMesh, 2048);
 	}
 
-	imguiUnindent();
-	imguiUnindent();
+	ImGui::Unindent();
+	ImGui::Unindent();
 
-	char message[64];
-	snprintf(message, 64, "Build Time: %.1fms", totalBuildTimeMs);
-	imguiLabel(message);
+	ImGui::Text("Build Time: %.1fms", totalBuildTimeMs);
 
-	imguiSeparator();
-#endif
+	ImGui::Separator();
 }
 
 void Sample_SoloMesh::handleTools()
 {
-#if 0
 	const SampleToolType type = !tool ? SampleToolType::NONE : tool->type();
 
-	if (imguiCheck("Test Navmesh", type == SampleToolType::NAVMESH_TESTER)) { setTool(new NavMeshTesterTool); }
-	if (imguiCheck("Prune Navmesh", type == SampleToolType::NAVMESH_PRUNE)) { setTool(new NavMeshPruneTool); }
-	if (imguiCheck("Create Off-Mesh Connections", type == SampleToolType::OFFMESH_CONNECTION)) { setTool(new OffMeshConnectionTool); }
-	if (imguiCheck("Create Convex Volumes", type == SampleToolType::CONVEX_VOLUME)) { setTool(new ConvexVolumeTool); }
-	if (imguiCheck("Create Crowds", type == SampleToolType::CROWD)) { setTool(new CrowdTool); }
+	if (ImGui::RadioButton("Test Navmesh", type == SampleToolType::NAVMESH_TESTER)) { setTool(new NavMeshTesterTool); }
+	if (ImGui::RadioButton("Prune Navmesh", type == SampleToolType::NAVMESH_PRUNE)) { setTool(new NavMeshPruneTool); }
+	if (ImGui::RadioButton("Create Off-Mesh Connections", type == SampleToolType::OFFMESH_CONNECTION)) { setTool(new OffMeshConnectionTool); }
+	if (ImGui::RadioButton("Create Convex Volumes", type == SampleToolType::CONVEX_VOLUME)) { setTool(new ConvexVolumeTool); }
+	if (ImGui::RadioButton("Create Crowds", type == SampleToolType::CROWD)) { setTool(new CrowdTool); }
 
-	imguiSeparatorLine();
+	ImGui::Separator();
 
-	imguiIndent();
-
+	ImGui::Indent();
 	if (tool)
 	{
 		tool->handleMenu();
 	}
-
-	imguiUnindent();
-#endif
+	ImGui::Unindent();
 }
 
 void Sample_SoloMesh::UI_DrawModeOption(const char* name, const DrawMode drawMode, const bool enabled)
 {
-#if 0
-	if (imguiCheck(name, currentDrawMode == drawMode, enabled))
-	{
-		currentDrawMode = drawMode;
-	}
-#endif
+	ImGui::BeginDisabled(!enabled);
+	bool checked = currentDrawMode == drawMode;
+ 	if (ImGui::Checkbox(name, &checked))
+ 	{
+ 		currentDrawMode = drawMode;
+ 	}
+	ImGui::EndDisabled();
 }
 
 void Sample_SoloMesh::handleDebugMode()
 {
-#if 0
-	imguiLabel("Draw");
+	ImGui::Text("Draw Mode");
 	UI_DrawModeOption("Input Mesh", DrawMode::MESH, true);
 	UI_DrawModeOption("Navmesh", DrawMode::NAVMESH, navMesh != nullptr);
 	UI_DrawModeOption("Navmesh Invis", DrawMode::NAVMESH_INVIS, navMesh != nullptr);
@@ -151,7 +144,6 @@ void Sample_SoloMesh::handleDebugMode()
 	UI_DrawModeOption("Contours", DrawMode::CONTOURS, contourSet != nullptr);
 	UI_DrawModeOption("Poly Mesh", DrawMode::POLYMESH, polyMesh != nullptr);
 	UI_DrawModeOption("Poly Mesh Detail", DrawMode::POLYMESH_DETAIL, detailMesh != nullptr);
-#endif
 }
 
 void Sample_SoloMesh::handleRender()
@@ -349,7 +341,7 @@ bool Sample_SoloMesh::handleBuild()
 	config.maxSimplificationError = edgeMaxError;
 	config.minRegionArea = static_cast<int>(rcSqr(regionMinSize));		// Note: area = size*size
 	config.mergeRegionArea = static_cast<int>(rcSqr(regionMergeSize));	// Note: area = size*size
-	config.maxVertsPerPoly = static_cast<int>(vertsPerPoly);
+	config.maxVertsPerPoly = vertsPerPoly;
 	config.detailSampleDist = detailSampleDist < 0.9f ? 0 : cellSize * detailSampleDist;
 	config.detailSampleMaxError = cellHeight * detailSampleMaxError;
 

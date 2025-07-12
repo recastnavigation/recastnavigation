@@ -28,7 +28,6 @@
 
 struct CrowdToolParams
 {
-	bool m_expandSelectedDebugDraw = true;
 	bool m_showCorners = false;
 	bool m_showCollisionSegments = false;
 	bool m_showPath = false;
@@ -36,19 +35,17 @@ struct CrowdToolParams
 	bool m_showOpt = false;
 	bool m_showNeis = false;
 
-	bool m_expandDebugDraw = false;
 	bool m_showLabels = false;
 	bool m_showGrid = false;
 	bool m_showNodes = false;
 	bool m_showPerfGraph = false;
 	bool m_showDetailAll = false;
 
-	bool m_expandOptions = true;
 	bool m_anticipateTurns = true;
 	bool m_optimizeVis = true;
 	bool m_optimizeTopo = true;
 	bool m_obstacleAvoidance = true;
-	float m_obstacleAvoidanceType = 3.0f;
+	int m_obstacleAvoidanceType = 1;
 	bool m_separation = false;
 	float m_separationWeight = 2.0f;
 };

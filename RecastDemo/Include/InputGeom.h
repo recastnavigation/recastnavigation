@@ -21,6 +21,8 @@
 #include "ChunkyTriMesh.h"
 #include "MeshLoaderObj.h"
 
+#include <string>
+
 static constexpr int MAX_CONVEXVOL_PTS = 12;
 struct ConvexVolume
 {
@@ -54,7 +56,7 @@ struct BuildSettings
 	float edgeMaxLen = 0;
 	/// Edge max error in voxels
 	float edgeMaxError = 0;
-	float vertsPerPoly = 0;
+	int vertsPerPoly = 0;
 	/// Detail sample distance in voxels
 	float detailSampleDist = 0;
 	/// Detail sample max error in voxel heights.

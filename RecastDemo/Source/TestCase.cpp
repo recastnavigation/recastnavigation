@@ -33,7 +33,8 @@
 #	include <GL/glu.h>
 #endif
 #include "PerfTimer.h"
-#include "imgui.h"
+
+#include <imgui.h>
 
 #ifdef WIN32
 #	define snprintf _snprintf

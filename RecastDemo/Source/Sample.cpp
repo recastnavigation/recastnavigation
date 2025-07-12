@@ -27,8 +27,8 @@
 #include "RecastDebugDraw.h"
 #include "SDL.h"
 #include "SDL_opengl.h"
-#include "imgui.h"
 
+#include <imgui.h>
 #include <math.h>
 #include <stdio.h>
 
@@ -143,8 +143,7 @@ void Sample::handleMeshChanged(InputGeom* geom)
 {
 	inputGeometry = geom;
 
-	const BuildSettings* buildSettings = geom->getBuildSettings();
-	if (buildSettings)
+	if (const BuildSettings* buildSettings = geom->getBuildSettings())
 	{
 		cellSize = buildSettings->cellSize;
 		cellHeight = buildSettings->cellHeight;
@@ -156,7 +155,6 @@ void Sample::handleMeshChanged(InputGeom* geom)
 		regionMergeSize = buildSettings->regionMergeSize;
 		edgeMaxLen = buildSettings->edgeMaxLen;
 		edgeMaxError = buildSettings->edgeMaxError;
-		vertsPerPoly = buildSettings->vertsPerPoly;
 		detailSampleDist = buildSettings->detailSampleDist;
 		detailSampleMaxError = buildSettings->detailSampleMaxError;
 		partitionType = buildSettings->partitionType;
@@ -175,7 +173,6 @@ void Sample::collectSettings(BuildSettings& settings)
 	settings.regionMergeSize = regionMergeSize;
 	settings.edgeMaxLen = edgeMaxLen;
 	settings.edgeMaxError = edgeMaxError;
-	settings.vertsPerPoly = vertsPerPoly;
 	settings.detailSampleDist = detailSampleDist;
 	settings.detailSampleMaxError = detailSampleMaxError;
 	settings.partitionType = partitionType;
@@ -193,7 +190,7 @@ void Sample::resetCommonSettings()
 	regionMergeSize = 20;
 	edgeMaxLen = 12.0f;
 	edgeMaxError = 1.3f;
-	vertsPerPoly = 6.0f;
+	vertsPerPoly = 6;
 	detailSampleDist = 6.0f;
 	detailSampleMaxError = 1.0f;
 	partitionType = SAMPLE_PARTITION_WATERSHED;
@@ -201,77 +198,62 @@ void Sample::resetCommonSettings()
 
 void Sample::handleCommonSettings()
 {
-#if 0
-	imguiLabel("Rasterization");
-	imguiSlider("Cell Size", &cellSize, 0.1f, 1.0f, 0.01f);
-	imguiSlider("Cell Height", &cellHeight, 0.1f, 1.0f, 0.01f);
+	ImGui::SeparatorText("Rasterization");
+	ImGui::SliderFloat("##Cell Size", &cellSize, 0.1f, 1.0f, "Cell Size = %.3f");
+	ImGui::SliderFloat("##Cell Height", &cellHeight, 0.1f, 1.0f, "Cell Height = %.3f");
 
 	if (inputGeometry)
 	{
-		const float* bmin = inputGeometry->getNavMeshBoundsMin();
-		const float* bmax = inputGeometry->getNavMeshBoundsMax();
-		int gw = 0, gh = 0;
-		rcCalcGridSize(bmin, bmax, cellSize, &gw, &gh);
-		char text[64];
-		snprintf(text, 64, "Voxels  %d x %d", gw, gh);
-		imguiValue(text);
+		int gridWidth = 0;
+		int gridHeight = 0;
+		rcCalcGridSize(
+			inputGeometry->getNavMeshBoundsMin(),
+			inputGeometry->getNavMeshBoundsMax(),
+			cellSize,
+			&gridWidth,
+			&gridHeight);
+		ImGui::Text("Voxels  %d x %d", gridWidth, gridHeight);
 	}
 
-	imguiSeparator();
-	imguiLabel("Agent");
-	imguiSlider("Height", &agentHeight, 0.1f, 5.0f, 0.1f);
-	imguiSlider("Radius", &agentRadius, 0.0f, 5.0f, 0.1f);
-	imguiSlider("Max Climb", &agentMaxClimb, 0.1f, 5.0f, 0.1f);
-	imguiSlider("Max Slope", &agentMaxSlope, 0.0f, 90.0f, 1.0f);
+	ImGui::SeparatorText("Agent");
+	ImGui::SliderFloat("##Height", &agentHeight, 0.1f, 5.0f, "Height = %.3f");
+	ImGui::SliderFloat("##Radius", &agentRadius, 0.0f, 5.0f, "Radius = %.3f");
+	ImGui::SliderFloat("##Max Climb", &agentMaxClimb, 0.1f, 5.0f, "Max Climb = %.3f");
+	ImGui::SliderFloat("##Max Slope", &agentMaxSlope, 0.0f, 90.0f, "Max Slope = %.3f");
 
-	imguiSeparator();
-	imguiLabel("Region");
-	imguiSlider("Min Region Size", &regionMinSize, 0.0f, 150.0f, 1.0f);
-	imguiSlider("Merged Region Size", &regionMergeSize, 0.0f, 150.0f, 1.0f);
+	ImGui::SeparatorText("Region");
+	ImGui::SliderFloat("##Min Region Size", &regionMinSize, 0.0f, 150.0f, "Min Region Size = %.3f");
+	ImGui::SliderFloat("##Merged Region Size", &regionMergeSize, 0.0f, 150.0f, "Merged Region Size = %.3f");
 
-	imguiSeparator();
-	imguiLabel("Partitioning");
-	if (imguiCheck("Watershed", partitionType == SAMPLE_PARTITION_WATERSHED))
+	ImGui::SeparatorText("Partitioning");
+	if (ImGui::RadioButton("Watershed", partitionType == SAMPLE_PARTITION_WATERSHED))
 	{
 		partitionType = SAMPLE_PARTITION_WATERSHED;
 	}
-	if (imguiCheck("Monotone", partitionType == SAMPLE_PARTITION_MONOTONE))
+	if (ImGui::RadioButton("Monotone", partitionType == SAMPLE_PARTITION_MONOTONE))
 	{
 		partitionType = SAMPLE_PARTITION_MONOTONE;
 	}
-	if (imguiCheck("Layers", partitionType == SAMPLE_PARTITION_LAYERS))
+	if (ImGui::RadioButton("Layers", partitionType == SAMPLE_PARTITION_LAYERS))
 	{
 		partitionType = SAMPLE_PARTITION_LAYERS;
 	}
 
-	imguiSeparator();
-	imguiLabel("Filtering");
-	if (imguiCheck("Low Hanging Obstacles", filterLowHangingObstacles))
-	{
-		filterLowHangingObstacles = !filterLowHangingObstacles;
-	}
-	if (imguiCheck("Ledge Spans", filterLedgeSpans))
-	{
-		filterLedgeSpans = !filterLedgeSpans;
-	}
-	if (imguiCheck("Walkable Low Height Spans", filterWalkableLowHeightSpans))
-	{
-		filterWalkableLowHeightSpans = !filterWalkableLowHeightSpans;
-	}
+	ImGui::SeparatorText("Filtering");
+	ImGui::Checkbox("Low Hanging Obstacles", &filterLowHangingObstacles);
+	ImGui::Checkbox("Ledge Spans", &filterLedgeSpans);
+	ImGui::Checkbox("Walkable Low Height Spans", &filterWalkableLowHeightSpans);
 
-	imguiSeparator();
-	imguiLabel("Polygonization");
-	imguiSlider("Max Edge Length", &edgeMaxLen, 0.0f, 50.0f, 1.0f);
-	imguiSlider("Max Edge Error", &edgeMaxError, 0.1f, 3.0f, 0.1f);
-	imguiSlider("Verts Per Poly", &vertsPerPoly, 3.0f, 12.0f, 1.0f);
+	ImGui::SeparatorText("Polygonization");
+	ImGui::SliderFloat("Max Edge Length", &edgeMaxLen, 0.0f, 50.0f);
+	ImGui::SliderFloat("Max Edge Error", &edgeMaxError, 0.1f, 3.0f);
+	ImGui::SliderInt("Verts Per Poly", &vertsPerPoly, 3, 12);
 
-	imguiSeparator();
-	imguiLabel("Detail Mesh");
-	imguiSlider("Sample Distance", &detailSampleDist, 0.0f, 16.0f, 1.0f);
-	imguiSlider("Max Sample Error", &detailSampleMaxError, 0.0f, 16.0f, 1.0f);
+	ImGui::SeparatorText("Detail Mesh");
+	ImGui::SliderFloat("Sample Distance", &detailSampleDist, 0.0f, 16.0f);
+	ImGui::SliderFloat("Max Sample Error", &detailSampleMaxError, 0.0f, 16.0f);
 
-	imguiSeparator();
-#endif
+	ImGui::Separator();
 }
 
 void Sample::handleClick(const float* rayStartPos, const float* rayHitPos, bool shift)

@@ -37,6 +37,7 @@
 #include "Sample_TempObstacles.h"
 #include "Sample_TileMesh.h"
 #include "TestCase.h"
+#include "imguiHelpers.h"
 
 #include <imgui.h>
 #include <imgui_impl_opengl2.h>
@@ -245,109 +246,19 @@ int main(int /*argc*/, char** /*argv*/)
 	style.Colors[ImGuiCol_ButtonActive] = ImVec4(0.5f, 0.5f, 0.5f, 196.0f / 255.0f);
 	//style.Colors[ImGuiCol_ButtonHovered] = ImVec4(1.0f, 196.0f / 255.0f, 0, 96.0f / 255.0f);
 
-	/*
-	/// 0 = FLAT APPEARENCE
-	/// 1 = MORE "3D" LOOK
-	int is3D = 1;
 
-	style.Colors[ImGuiCol_Text]                   = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
-	style.Colors[ImGuiCol_TextDisabled]           = ImVec4(0.40f, 0.40f, 0.40f, 1.00f);
-	style.Colors[ImGuiCol_TextSelectedBg]         = ImVec4(0.73f, 0.73f, 0.73f, 0.35f);
 
-	style.Colors[ImGuiCol_ChildBg]                = ImVec4(0.0f, 0.0f, 0.0f, 0.75f);
-	style.Colors[ImGuiCol_WindowBg]               = ImVec4(0.0f, 0.0f, 0.0f, 0.75f);
-	style.Colors[ImGuiCol_PopupBg]                = ImVec4(0.0f, 0.0f, 0.0f, 0.75f);
 
-	style.Colors[ImGuiCol_Border]                 = ImVec4(0.12f, 0.12f, 0.12f, 0.71f);
-	style.Colors[ImGuiCol_BorderShadow]           = ImVec4(1.00f, 1.00f, 1.00f, 0.06f);
 
-	style.Colors[ImGuiCol_FrameBg]                = ImVec4(0.42f, 0.42f, 0.42f, 0.54f);
-	style.Colors[ImGuiCol_FrameBgHovered]         = ImVec4(0.42f, 0.42f, 0.42f, 0.40f);
-	style.Colors[ImGuiCol_FrameBgActive]          = ImVec4(0.56f, 0.56f, 0.56f, 0.67f);
-
-	style.Colors[ImGuiCol_TitleBg]                = ImVec4(0.19f, 0.19f, 0.19f, 1.00f);
-	style.Colors[ImGuiCol_TitleBgActive]          = ImVec4(0.22f, 0.22f, 0.22f, 1.00f);
-	style.Colors[ImGuiCol_TitleBgCollapsed]       = ImVec4(0.17f, 0.17f, 0.17f, 0.90f);
-
-	style.Colors[ImGuiCol_MenuBarBg]              = ImVec4(0.335f, 0.335f, 0.335f, 1.000f);
-
-	style.Colors[ImGuiCol_ScrollbarBg]            = ImVec4(0.24f, 0.24f, 0.24f, 0.53f);
-	style.Colors[ImGuiCol_ScrollbarGrab]          = ImVec4(0.41f, 0.41f, 0.41f, 1.00f);
-	style.Colors[ImGuiCol_ScrollbarGrabHovered]   = ImVec4(0.52f, 0.52f, 0.52f, 1.00f);
-	style.Colors[ImGuiCol_ScrollbarGrabActive]    = ImVec4(0.76f, 0.76f, 0.76f, 1.00f);
-
-	style.Colors[ImGuiCol_CheckMark]              = ImVec4(0.65f, 0.65f, 0.65f, 1.00f);
-
-	style.Colors[ImGuiCol_SliderGrab]             = ImVec4(0.52f, 0.52f, 0.52f, 1.00f);
-	style.Colors[ImGuiCol_SliderGrabActive]       = ImVec4(0.64f, 0.64f, 0.64f, 1.00f);
-
-	style.Colors[ImGuiCol_Button]                 = ImVec4(0.54f, 0.54f, 0.54f, 0.35f);
-	style.Colors[ImGuiCol_ButtonHovered]          = ImVec4(0.52f, 0.52f, 0.52f, 0.59f);
-	style.Colors[ImGuiCol_ButtonActive]           = ImVec4(0.76f, 0.76f, 0.76f, 1.00f);
-
-	style.Colors[ImGuiCol_Header]                 = ImVec4(0.38f, 0.38f, 0.38f, 1.00f);
-	style.Colors[ImGuiCol_HeaderHovered]          = ImVec4(0.47f, 0.47f, 0.47f, 1.00f);
-	style.Colors[ImGuiCol_HeaderActive]           = ImVec4(0.76f, 0.76f, 0.76f, 0.77f);
-
-	style.Colors[ImGuiCol_Separator]              = ImVec4(0.000f, 0.000f, 0.000f, 0.137f);
-	style.Colors[ImGuiCol_SeparatorHovered]       = ImVec4(0.700f, 0.671f, 0.600f, 0.290f);
-	style.Colors[ImGuiCol_SeparatorActive]        = ImVec4(0.702f, 0.671f, 0.600f, 0.674f);
-
-	style.Colors[ImGuiCol_ResizeGrip]             = ImVec4(0.26f, 0.59f, 0.98f, 0.25f);
-	style.Colors[ImGuiCol_ResizeGripHovered]      = ImVec4(0.26f, 0.59f, 0.98f, 0.67f);
-	style.Colors[ImGuiCol_ResizeGripActive]       = ImVec4(0.26f, 0.59f, 0.98f, 0.95f);
-
-	style.Colors[ImGuiCol_PlotLines]              = ImVec4(0.61f, 0.61f, 0.61f, 1.00f);
-	style.Colors[ImGuiCol_PlotLinesHovered]       = ImVec4(1.00f, 0.43f, 0.35f, 1.00f);
-	style.Colors[ImGuiCol_PlotHistogram]          = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
-	style.Colors[ImGuiCol_PlotHistogramHovered]   = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
-
-	style.Colors[ImGuiCol_ModalWindowDimBg]       = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
-	style.Colors[ImGuiCol_DragDropTarget]         = ImVec4(1.00f, 1.00f, 0.00f, 0.90f);
-	style.Colors[ImGuiCol_NavHighlight]           = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-	style.Colors[ImGuiCol_NavWindowingHighlight]  = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
-	style.Colors[ImGuiCol_NavWindowingDimBg]      = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
-
-	style.PopupRounding = 3;
-	style.WindowPadding = ImVec2(4, 4);
-	style.FramePadding  = ImVec2(6, 4);
-	style.ItemSpacing   = ImVec2(6, 2);
-	style.ScrollbarSize = 18;
-	style.WindowBorderSize = 1;
-	style.ChildBorderSize  = 1;
-	style.PopupBorderSize  = 1;
-	style.FrameBorderSize  = is3D;
-	style.WindowRounding    = 3;
-	style.ChildRounding     = 3;
-	style.FrameRounding     = 3;
-	style.ScrollbarRounding = 2;
-	style.GrabRounding      = 3;
-
-	#ifdef IMGUI_HAS_DOCK
-		style.TabBorderSize = is3D;
-		style.TabRounding   = 3;
-
-		colors[ImGuiCol_DockingEmptyBg]     = ImVec4(0.38f, 0.38f, 0.38f, 1.00f);
-		colors[ImGuiCol_Tab]                = ImVec4(0.25f, 0.25f, 0.25f, 1.00f);
-		colors[ImGuiCol_TabHovered]         = ImVec4(0.40f, 0.40f, 0.40f, 1.00f);
-		colors[ImGuiCol_TabActive]          = ImVec4(0.33f, 0.33f, 0.33f, 1.00f);
-		colors[ImGuiCol_TabUnfocused]       = ImVec4(0.25f, 0.25f, 0.25f, 1.00f);
-		colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.33f, 0.33f, 0.33f, 1.00f);
-		colors[ImGuiCol_DockingPreview]     = ImVec4(0.85f, 0.85f, 0.85f, 0.28f);
-
-		if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-		{
-			style.WindowRounding = 0.0f;
-			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
-		}
-	#endif
-	 */
 
 	// Setup Platform/Renderer backends
 	ImGui_ImplSDL2_InitForOpenGL(app.window, app.glContext);
     ImGui_ImplOpenGL2_Init();
 
-	ImGuiWindowFlags staticWindowFlags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoCollapse;
+	ImGuiWindowFlags staticWindowFlags = ImGuiWindowFlags_NoMove
+		//| ImGuiWindowFlags_NoResize
+		| ImGuiWindowFlags_NoSavedSettings
+		| ImGuiWindowFlags_NoCollapse;
 
 	app.prevFrameTime = SDL_GetTicks();
 
@@ -575,8 +486,8 @@ int main(int /*argc*/, char** /*argv*/)
 		}
 
 		// Update sample simulation.
-		const float SIM_RATE = 20;
-		const float DELTA_TIME = 1.0f / SIM_RATE;
+		constexpr float SIM_RATE = 20;
+		constexpr float DELTA_TIME = 1.0f / SIM_RATE;
 		app.timeAcc = rcClamp(app.timeAcc + dt, -1.0f, 1.0f);
 		int simIter = 0;
 		while (app.timeAcc > DELTA_TIME)
@@ -590,10 +501,10 @@ int main(int /*argc*/, char** /*argv*/)
 		}
 
 		// Clamp the framerate so that we do not hog all the CPU.
-		const float MIN_FRAME_TIME = 1.0f / 40.0f;
+		constexpr float MIN_FRAME_TIME = 1.0f / 40.0f;
 		if (dt < MIN_FRAME_TIME)
 		{
-			int ms = (int)((MIN_FRAME_TIME - dt) * 1000.0f);
+			int ms = static_cast<int>((MIN_FRAME_TIME - dt) * 1000.0f);
 			if (ms > 10)
 			{
 				ms = 10;
@@ -691,8 +602,8 @@ int main(int /*argc*/, char** /*argv*/)
 
 		app.cameraPos[1] += (app.moveUp - app.moveDown) * keybSpeed * dt;
 
+		// Draw the mesh
 		glEnable(GL_FOG);
-
 		if (app.sample)
 		{
 			app.sample->handleRender();
@@ -701,18 +612,15 @@ int main(int /*argc*/, char** /*argv*/)
 		{
 			app.testCase->handleRender();
 		}
-
 		glDisable(GL_FOG);
 
-		// Render GUI
+		// Draw UI
 		glDisable(GL_DEPTH_TEST);
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
 		gluOrtho2D(0, app.width, 0, app.height);
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
-
-		app.mouseOverMenu = false;
 
 		ImGui_ImplOpenGL2_NewFrame();
 		ImGui_ImplSDL2_NewFrame();
@@ -721,21 +629,17 @@ int main(int /*argc*/, char** /*argv*/)
 
 		if (app.sample)
 		{
-			app.sample->handleRenderOverlay((double*)projectionMatrix, (double*)modelviewMatrix, (int*)viewport);
+			app.sample->handleRenderOverlay(projectionMatrix, modelviewMatrix, viewport);
 		}
 		if (app.testCase)
 		{
-			if (app.testCase->handleRenderOverlay((double*)projectionMatrix, (double*)modelviewMatrix, (int*)viewport))
-			{
-				app.mouseOverMenu = true;
-			}
+			app.testCase->handleRenderOverlay(projectionMatrix, modelviewMatrix, viewport);
 		}
 
 		// Help text.
 		if (app.showMenu)
 		{
-			ImDrawList* draw_list = ImGui::GetForegroundDrawList();
-			draw_list->AddText({280.0f, 20.0f}, IM_COL32(255, 255, 255, 128), "W/A/S/D: Move  RMB: Rotate");
+			DrawScreenspaceText(280.0f, 20.0f, IM_COL32(255, 255, 255, 128), "W/A/S/D: Move  RMB: Rotate");
 		}
 
 		bool newMeshSelected = false;
@@ -743,8 +647,8 @@ int main(int /*argc*/, char** /*argv*/)
 
 		if (app.showMenu)
 		{
-			ImGui::SetNextWindowPos(ImVec2(app.width - 250 - 10, 10), ImGuiCond_Always);  // Position in screen space
-			ImGui::SetNextWindowSize(ImVec2(250, app.height - 20), ImGuiCond_Always);     // Size of the window
+			ImGui::SetNextWindowPos(ImVec2(static_cast<float>(app.width - 250 - 10), 10), ImGuiCond_Always);  // Position in screen space
+			ImGui::SetNextWindowSize(ImVec2(350, static_cast<float>(app.height - 20)), ImGuiCond_Always);     // Size of the window
 			ImGui::Begin("Properties", nullptr, staticWindowFlags);
 
 			ImGui::Checkbox("Show Log", &app.showLog);
@@ -1012,11 +916,10 @@ int main(int /*argc*/, char** /*argv*/)
 #endif
 
 		// Log
-		static bool auto_scroll = true;
 		if (app.showLog && app.showMenu)
 		{
-			ImGui::SetNextWindowPos(ImVec2(250 + 20, app.height - 200 - 10), ImGuiCond_Always);  // Position in screen space
-			ImGui::SetNextWindowSize(ImVec2(app.width - 250 - 250 - 20 - 20, 200), ImGuiCond_Always);     // Size of the window
+			ImGui::SetNextWindowPos(ImVec2(250 + 20, static_cast<float>(app.height - 200 - 10)), ImGuiCond_Always);  // Position in screen space
+			ImGui::SetNextWindowSize(ImVec2(static_cast<float>(app.width - 250 - 350 - 20 - 20), 200), ImGuiCond_Always);     // Size of the window
 			ImGui::Begin("Log", nullptr, staticWindowFlags);
 
 			for (int i = 0; i < app.buildContext.getLogCount(); ++i)
@@ -1031,7 +934,7 @@ int main(int /*argc*/, char** /*argv*/)
 		if (!app.showTestCases && app.showTools && app.showMenu)
 		{
 			ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_Always);  // Position in screen space
-			ImGui::SetNextWindowSize(ImVec2(250, app.height - 20), ImGuiCond_Always);     // Size of the window
+			ImGui::SetNextWindowSize(ImVec2(250, static_cast<float>(app.height - 20)), ImGuiCond_Always);     // Size of the window
 			ImGui::Begin("Tools", nullptr, staticWindowFlags);
 
 			if (app.sample)
@@ -1042,8 +945,8 @@ int main(int /*argc*/, char** /*argv*/)
 			ImGui::End();
 		}
 
-		// Marker
-		if (app.markerPositionSet && gluProject((GLdouble)app.markerPosition[0], (GLdouble)app.markerPosition[1], (GLdouble)app.markerPosition[2], modelviewMatrix, projectionMatrix, viewport, &x, &y, &z))
+		// Draw Marker
+		if (app.markerPositionSet && gluProject(app.markerPosition[0], app.markerPosition[1], app.markerPosition[2], modelviewMatrix, projectionMatrix, viewport, &x, &y, &z))
 		{
 			// Draw marker circle
 			glLineWidth(5.0f);
@@ -1052,9 +955,9 @@ int main(int /*argc*/, char** /*argv*/)
 			const float r = 25.0f;
 			for (int i = 0; i < 20; ++i)
 			{
-				const float a = (float)i / 20.0f * RC_PI * 2;
-				const float fx = (float)x + cosf(a) * r;
-				const float fy = (float)y + sinf(a) * r;
+				const float a = static_cast<float>(i) / 20.0f * RC_PI * 2;
+				const float fx = static_cast<float>(x) + cosf(a) * r;
+				const float fy = static_cast<float>(y) + sinf(a) * r;
 				glVertex2f(fx, fy);
 			}
 			glEnd();

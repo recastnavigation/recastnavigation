@@ -295,7 +295,7 @@ bool InputGeom::loadGeomSet(rcContext* ctx, char* buffer, size_t bufferLen)
 			hasBuildSettings = true;
 			sscanf(
 				row + 1,
-				"%f %f %f %f %f %f %f %f %f %f %f %f %f %d %f %f %f %f %f %f %f",
+				"%f %f %f %f %f %f %f %f %f %f %d %f %f %d %f %f %f %f %f %f %f",
 				&buildSettings.cellSize,
 				&buildSettings.cellHeight,
 				&buildSettings.agentHeight,
@@ -375,7 +375,7 @@ bool InputGeom::saveGeomSet(const BuildSettings* settings)
 	{
 		fprintf(
 			fp,
-			"s %f %f %f %f %f %f %f %f %f %f %f %f %f %d %f %f %f %f %f %f %f\n",
+			"s %f %f %f %f %f %f %f %f %f %f %d %f %f %d %f %f %f %f %f %f %f\n",
 			settings->cellSize,
 			settings->cellHeight,
 			settings->agentHeight,

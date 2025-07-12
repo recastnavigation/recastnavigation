@@ -37,7 +37,7 @@
 #include "InputGeom.h"
 #include "Sample.h"
 #include "SampleInterfaces.h"
-#include "imgui.h"
+#include "imguiHelpers.h"
 
 #ifdef WIN32
 #	define snprintf _snprintf
@@ -503,12 +503,9 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 	GLdouble x, y, z;
 
 	// Draw start and end point labels
-	if (m_targetRef &&
-		gluProject((GLdouble)m_targetPos[0], (GLdouble)m_targetPos[1], (GLdouble)m_targetPos[2], model, proj, view, &x, &y, &z))
+	if (m_targetRef && gluProject(m_targetPos[0], m_targetPos[1], m_targetPos[2], model, proj, view, &x, &y, &z))
 	{
-#if 0
-		imguiDrawText((int)x, (int)(y + 25), IMGUI_ALIGN_CENTER, "TARGET", imguiRGBA(0, 0, 0, 220));
-#endif
+		DrawScreenspaceText(static_cast<float>(x), static_cast<float>(y), IM_COL32(0, 0, 0, 220), "TARGET", true);
 	}
 
 	char label[32];
@@ -542,9 +539,7 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 						{
 							const float heuristic = node->total;  // - node->cost;
 							snprintf(label, 32, "%.2f", heuristic);
-#if 0
-							imguiDrawText((int)x, (int)y + 15, IMGUI_ALIGN_CENTER, label, imguiRGBA(0, 0, 0, 220));
-#endif
+							DrawScreenspaceText(static_cast<float>(x), static_cast<float>(y) + 15, IM_COL32(0, 0, 0, 220), label, true);
 						}
 					}
 				}
@@ -560,15 +555,16 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 			for (int i = 0; i < crowd->getAgentCount(); ++i)
 			{
 				const dtCrowdAgent* ag = crowd->getAgent(i);
-				if (!ag->active) { continue; }
+				if (!ag->active)
+				{
+					continue;
+				}
 				const float* pos = ag->npos;
 				const float h = ag->params.height;
-				if (gluProject((GLdouble)pos[0], (GLdouble)pos[1] + h, (GLdouble)pos[2], model, proj, view, &x, &y, &z))
+				if (gluProject(pos[0], static_cast<GLdouble>(pos[1]) + h, pos[2], model, proj, view, &x, &y, &z))
 				{
 					snprintf(label, 32, "%d", i);
-#if 0
-					imguiDrawText((int)x, (int)y + 15, IMGUI_ALIGN_CENTER, label, imguiRGBA(0, 0, 0, 220));
-#endif
+					DrawScreenspaceText(static_cast<float>(x), static_cast<float>(y) + 15, IM_COL32(0, 0, 0, 220), label, true);
 				}
 			}
 		}
@@ -589,11 +585,15 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 					for (int j = 0; j < ag->nneis; ++j)
 					{
 						const dtCrowdAgent* nei = crowd->getAgent(ag->neis[j].idx);
-						if (!nei->active) { continue; }
+						if (!nei->active)
+						{
+							continue;
+						}
 
-						if (gluProject((GLdouble)nei->npos[0],
-								(GLdouble)nei->npos[1] + radius,
-								(GLdouble)nei->npos[2],
+						if (gluProject(
+								nei->npos[0],
+								static_cast<GLdouble>(nei->npos[1]) + radius,
+								nei->npos[2],
 								model,
 								proj,
 								view,
@@ -602,9 +602,7 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 								&z))
 						{
 							snprintf(label, 32, "%.3f", ag->neis[j].dist);
-#if 0
-							imguiDrawText((int)x, (int)y + 15, IMGUI_ALIGN_CENTER, label, imguiRGBA(255, 255, 255, 220));
-#endif
+							DrawScreenspaceText(static_cast<float>(x), static_cast<float>(y) + 15, IM_COL32(255, 255, 255, 220), label, true);
 						}
 					}
 				}
@@ -651,7 +649,7 @@ void CrowdToolState::addAgent(const float* p)
 	if (m_toolParams.m_optimizeTopo) { ap.updateFlags |= DT_CROWD_OPTIMIZE_TOPO; }
 	if (m_toolParams.m_obstacleAvoidance) { ap.updateFlags |= DT_CROWD_OBSTACLE_AVOIDANCE; }
 	if (m_toolParams.m_separation) { ap.updateFlags |= DT_CROWD_SEPARATION; }
-	ap.obstacleAvoidanceType = (unsigned char)m_toolParams.m_obstacleAvoidanceType;
+	ap.obstacleAvoidanceType = static_cast<unsigned char>(m_toolParams.m_obstacleAvoidanceType);
 	ap.separationWeight = m_toolParams.m_separationWeight;
 
 	int idx = crowd->addAgent(p, &ap);
@@ -785,7 +783,7 @@ void CrowdToolState::updateAgentParams()
 	if (m_toolParams.m_obstacleAvoidance) { updateFlags |= DT_CROWD_OBSTACLE_AVOIDANCE; }
 	if (m_toolParams.m_separation) { updateFlags |= DT_CROWD_SEPARATION; }
 
-	obstacleAvoidanceType = (unsigned char)m_toolParams.m_obstacleAvoidanceType;
+	obstacleAvoidanceType = static_cast<unsigned char>(m_toolParams.m_obstacleAvoidanceType);
 
 	dtCrowdAgentParams params;
 
@@ -850,99 +848,92 @@ void CrowdTool::reset() {}
 
 void CrowdTool::handleMenu()
 {
-#if 0
-	if (!m_state) { return; }
+	if (!m_state)
+	{
+		return;
+	}
+
+	if (ImGui::RadioButton("Create Agents", m_mode == ToolMode::CREATE))
+	{
+		m_mode = ToolMode::CREATE;
+	}
+	if (ImGui::RadioButton("Move Target", m_mode == ToolMode::MOVE_TARGET))
+	{
+		m_mode = ToolMode::MOVE_TARGET;
+	}
+	if (ImGui::RadioButton("Select Agent", m_mode == ToolMode::SELECT))
+	{
+		m_mode = ToolMode::SELECT;
+	}
+	if (ImGui::RadioButton("Toggle Polys", m_mode == ToolMode::TOGGLE_POLYS))
+	{
+		m_mode = ToolMode::TOGGLE_POLYS;
+	}
+
+	ImGui::Separator();
+
 	CrowdToolParams* params = m_state->getToolParams();
 
-	if (imguiCheck("Create Agents", m_mode == ToolMode::CREATE)) { m_mode = ToolMode::CREATE; }
-	if (imguiCheck("Move Target", m_mode == ToolMode::MOVE_TARGET)) { m_mode = ToolMode::MOVE_TARGET; }
-	if (imguiCheck("Select Agent", m_mode == ToolMode::SELECT)) { m_mode = ToolMode::SELECT; }
-	if (imguiCheck("Toggle Polys", m_mode == ToolMode::TOGGLE_POLYS)) { m_mode = ToolMode::TOGGLE_POLYS; }
-
-	imguiSeparatorLine();
-
-	if (imguiCollapse("Options", 0, params->m_expandOptions)) { params->m_expandOptions = !params->m_expandOptions; }
-
-	if (params->m_expandOptions)
+	if (ImGui::TreeNode("Options"))
 	{
-		imguiIndent();
-		if (imguiCheck("Optimize Visibility", params->m_optimizeVis))
-		{
-			params->m_optimizeVis = !params->m_optimizeVis;
-			m_state->updateAgentParams();
-		}
-		if (imguiCheck("Optimize Topology", params->m_optimizeTopo))
-		{
-			params->m_optimizeTopo = !params->m_optimizeTopo;
-			m_state->updateAgentParams();
-		}
-		if (imguiCheck("Anticipate Turns", params->m_anticipateTurns))
-		{
-			params->m_anticipateTurns = !params->m_anticipateTurns;
-			m_state->updateAgentParams();
-		}
-		if (imguiCheck("Obstacle Avoidance", params->m_obstacleAvoidance))
-		{
-			params->m_obstacleAvoidance = !params->m_obstacleAvoidance;
-			m_state->updateAgentParams();
-		}
-		if (imguiSlider("Avoidance Quality", &params->m_obstacleAvoidanceType, 0.0f, 3.0f, 1.0f))
-		{
-			m_state->updateAgentParams();
-		}
-		if (imguiCheck("Separation", params->m_separation))
-		{
-			params->m_separation = !params->m_separation;
-			m_state->updateAgentParams();
-		}
-		if (imguiSlider("Separation Weight", &params->m_separationWeight, 0.0f, 20.0f, 0.01f)) { m_state->updateAgentParams(); }
+		bool paramsChanged = false;
+		paramsChanged |= ImGui::Checkbox("Optimize Visibility", &params->m_optimizeVis);
+		paramsChanged |= ImGui::Checkbox("Optimize Topology", &params->m_optimizeTopo);
+		paramsChanged |= ImGui::Checkbox("Anticipate Turns", &params->m_anticipateTurns);
+		paramsChanged |= ImGui::Checkbox("Obstacle Avoidance", &params->m_obstacleAvoidance);
+		paramsChanged |= ImGui::SliderInt("Avoidance Quality", &params->m_obstacleAvoidanceType, 0, 3);
+		paramsChanged |= ImGui::Checkbox("Separation", &params->m_separation);
+		paramsChanged |= ImGui::SliderFloat("Separation Weight", &params->m_separationWeight, 0.0f, 20.0f);
 
-		imguiUnindent();
+		if (paramsChanged)
+		{
+			m_state->updateAgentParams();
+		}
+		ImGui::TreePop();
 	}
 
-	if (imguiCollapse("Selected Debug Draw", 0, params->m_expandSelectedDebugDraw))
+	if (ImGui::TreeNode("Selected Debug Draw"))
 	{
-		params->m_expandSelectedDebugDraw = !params->m_expandSelectedDebugDraw;
+		ImGui::Checkbox("Show Corners", &params->m_showCorners);
+		ImGui::Checkbox("Show Collision Segments", &params->m_showCollisionSegments);
+		ImGui::Checkbox("Show Path", &params->m_showPath);
+		ImGui::Checkbox("Show VO", &params->m_showVO);
+		ImGui::Checkbox("Show Path Optimization", &params->m_showOpt);
+		ImGui::Checkbox("Show Neighbours", &params->m_showNeis);
+		ImGui::TreePop();
 	}
 
-	if (params->m_expandSelectedDebugDraw)
+	if (ImGui::TreeNode("Debug Draw"))
 	{
-		imguiIndent();
-		if (imguiCheck("Show Corners", params->m_showCorners)) { params->m_showCorners = !params->m_showCorners; }
-		if (imguiCheck("Show Collision Segs", params->m_showCollisionSegments))
-		{
-			params->m_showCollisionSegments = !params->m_showCollisionSegments;
-		}
-		if (imguiCheck("Show Path", params->m_showPath)) { params->m_showPath = !params->m_showPath; }
-		if (imguiCheck("Show VO", params->m_showVO)) { params->m_showVO = !params->m_showVO; }
-		if (imguiCheck("Show Path Optimization", params->m_showOpt)) { params->m_showOpt = !params->m_showOpt; }
-		if (imguiCheck("Show Neighbours", params->m_showNeis)) { params->m_showNeis = !params->m_showNeis; }
-		imguiUnindent();
+		ImGui::Checkbox("Show Labels", &params->m_showLabels);
+		ImGui::Checkbox("Show Prox Grid", &params->m_showGrid);
+		ImGui::Checkbox("Show Nodes", &params->m_showNodes);
+		ImGui::Checkbox("Show Perf Graph", &params->m_showPerfGraph);
+		ImGui::Checkbox("Show Detail All", &params->m_showDetailAll);
+		ImGui::TreePop();
 	}
-
-	if (imguiCollapse("Debug Draw", 0, params->m_expandDebugDraw)) { params->m_expandDebugDraw = !params->m_expandDebugDraw; }
-
-	if (params->m_expandDebugDraw)
-	{
-		imguiIndent();
-		if (imguiCheck("Show Labels", params->m_showLabels)) { params->m_showLabels = !params->m_showLabels; }
-		if (imguiCheck("Show Prox Grid", params->m_showGrid)) { params->m_showGrid = !params->m_showGrid; }
-		if (imguiCheck("Show Nodes", params->m_showNodes)) { params->m_showNodes = !params->m_showNodes; }
-		if (imguiCheck("Show Perf Graph", params->m_showPerfGraph)) { params->m_showPerfGraph = !params->m_showPerfGraph; }
-		if (imguiCheck("Show Detail All", params->m_showDetailAll)) { params->m_showDetailAll = !params->m_showDetailAll; }
-		imguiUnindent();
-	}
-#endif
 }
 
 void CrowdTool::handleClick(const float* s, const float* p, bool shift)
 {
-	if (!m_sample) { return; }
-	if (!m_state) { return; }
+	if (!m_sample)
+	{
+		return;
+	}
+	if (!m_state)
+	{
+		return;
+	}
 	InputGeom* geom = m_sample->getInputGeom();
-	if (!geom) { return; }
+	if (!geom)
+	{
+		return;
+	}
 	dtCrowd* crowd = m_sample->getCrowd();
-	if (!crowd) { return; }
+	if (!crowd)
+	{
+		return;
+	}
 
 	if (m_mode == ToolMode::CREATE)
 	{
@@ -1011,9 +1002,8 @@ void CrowdTool::handleRender() {}
 
 void CrowdTool::handleRenderOverlay(double* proj, double* model, int* view)
 {
-#if 0
-	rcIgnoreUnused(model);
-	rcIgnoreUnused(proj);
+	(void)model;
+	(void)proj;
 
 	// Tool help
 	const int h = view[3];
@@ -1021,32 +1011,45 @@ void CrowdTool::handleRenderOverlay(double* proj, double* model, int* view)
 
 	if (m_mode == ToolMode::CREATE)
 	{
-		imguiDrawText(280, ty, IMGUI_ALIGN_LEFT, "LMB: add agent.  Shift+LMB: remove agent.", imguiRGBA(255, 255, 255, 192));
+		DrawScreenspaceText(
+			280,
+			static_cast<float>(ty),
+			IM_COL32(255, 255, 255, 192),
+			"LMB: add agent.  Shift+LMB: remove agent.");
 	}
 	else if (m_mode == ToolMode::MOVE_TARGET)
 	{
-		imguiDrawText(
-			280, ty, IMGUI_ALIGN_LEFT, "LMB: set move target.  Shift+LMB: adjust set velocity.", imguiRGBA(255, 255, 255, 192));
+		DrawScreenspaceText(
+			280,
+			static_cast<float>(ty),
+			IM_COL32(255, 255, 255, 192),
+			"LMB: set move target.  Shift+LMB: adjust set velocity.");
 		ty -= 20;
-		imguiDrawText(280,
-			ty,
-			IMGUI_ALIGN_LEFT,
-			"Setting velocity will move the agents without pathfinder.",
-			imguiRGBA(255, 255, 255, 192));
+		DrawScreenspaceText(
+			280,
+			static_cast<float>(ty),
+			IM_COL32(255, 255, 255, 192),
+			"Setting velocity will move the agents without pathfinder.");
 	}
 	else if (m_mode == ToolMode::SELECT)
 	{
-		imguiDrawText(280, ty, IMGUI_ALIGN_LEFT, "LMB: select agent.", imguiRGBA(255, 255, 255, 192));
+		DrawScreenspaceText(280, static_cast<float>(ty), IM_COL32(255, 255, 255, 192), "LMB: select agent.");
 	}
-	ty -= 20;
-	imguiDrawText(
-		280, ty, IMGUI_ALIGN_LEFT, "SPACE: Run/Pause simulation.  1: Step simulation.", imguiRGBA(255, 255, 255, 192));
-	ty -= 20;
 
+	ty -= 20;
+	DrawScreenspaceText(
+		280,
+		static_cast<float>(ty),
+		IM_COL32(255, 255, 255, 192),
+		"SPACE: Run/Pause simulation.  1: Step simulation.");
+
+	ty -= 20;
 	if (m_state && m_state->isRunning())
 	{
-		imguiDrawText(280, ty, IMGUI_ALIGN_LEFT, "- RUNNING -", imguiRGBA(255, 32, 16, 255));
+		DrawScreenspaceText(280, static_cast<float>(ty), IM_COL32(255, 32, 16, 255), "- RUNNING -");
 	}
-	else { imguiDrawText(280, ty, IMGUI_ALIGN_LEFT, "- PAUSED -", imguiRGBA(255, 255, 255, 128)); }
-#endif
+	else
+	{
+		DrawScreenspaceText(280, static_cast<float>(ty), IM_COL32(255, 255, 255, 128), "- PAUSED -");
+	}
 }

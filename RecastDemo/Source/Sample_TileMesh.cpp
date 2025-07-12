@@ -41,7 +41,8 @@
 #include "Recast.h"
 #include "RecastDebugDraw.h"
 #include "Sample.h"
-#include "imgui.h"
+
+#include <imgui.h>
 
 #ifdef WIN32
 #	define snprintf _snprintf
