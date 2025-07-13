@@ -18,9 +18,6 @@
 
 #pragma once
 
-#include "ChunkyTriMesh.h"
-#include "DetourNavMesh.h"
-#include "Recast.h"
 #include "Sample.h"
 
 struct LinearAllocator;
@@ -31,19 +28,19 @@ class dtTileCache;
 class Sample_TempObstacles : public Sample
 {
 protected:
-	bool m_keepInterResults = false;
+	bool keepIntermediateResults = false;
 
-	LinearAllocator* m_talloc;
-	FastLZCompressor* m_tcomp;
-	MeshProcess* m_tmproc;
+	LinearAllocator* tAllocator;
+	FastLZCompressor* tCompressor;
+	MeshProcess* tMeshProcess;
 
-	dtTileCache* m_tileCache = nullptr;
+	dtTileCache* tileCache = nullptr;
 
-	float m_cacheBuildTimeMs = 0;
-	int m_cacheCompressedSize = 0;
-	int m_cacheRawSize = 0;
-	int m_cacheLayerCount = 0;
-	unsigned int m_cacheBuildMemUsage = 0;
+	float cacheBuildTimeMs = 0;
+	int cacheCompressedSize = 0;
+	int cacheRawSize = 0;
+	int cacheLayerCount = 0;
+	unsigned int cacheBuildMemUsage = 0;
 
 	enum DrawMode
 	{
@@ -57,11 +54,11 @@ protected:
 		DRAWMODE_CACHE_BOUNDS,
 		MAX_DRAWMODE
 	};
-	DrawMode m_drawMode = DRAWMODE_NAVMESH;
+	DrawMode drawMode = DRAWMODE_NAVMESH;
 
-	int m_maxTiles = 0;
-	int m_maxPolysPerTile = 0;
-	int m_tileSize = 48;
+	int maxTiles = 0;
+	int maxPolysPerTile = 0;
+	int tileSize = 48;
 
 public:
 	Sample_TempObstacles();
@@ -76,22 +73,22 @@ public:
 	void handleDebugMode() override;
 	void handleRender() override;
 	void handleRenderOverlay(double* proj, double* model, int* view) override;
-	void handleMeshChanged(class InputGeom* geom) override;
+	void handleMeshChanged(InputGeom* geom) override;
 	bool handleBuild() override;
-	void handleUpdate(const float dt) override;
+	void handleUpdate(float dt) override;
 
 	void getTilePos(const float* pos, int& tx, int& ty);
 
-	void renderCachedTile(const int tx, const int ty, const int type);
-	void renderCachedTileOverlay(const int tx, const int ty, double* proj, double* model, int* view);
+	void renderCachedTile(int tx, int ty, int type);
+	void renderCachedTileOverlay(int tx, int ty, double* proj, double* model, int* view) const;
 
-	void addTempObstacle(const float* pos);
-	void removeTempObstacle(const float* sp, const float* sq);
-	void clearAllTempObstacles();
+	void addTempObstacle(const float* pos) const;
+	void removeTempObstacle(const float* sp, const float* sq) const;
+	void clearAllTempObstacles() const;
 
-	void saveAll(const char* path);
+	void saveAll(const char* path) const;
 	void loadAll(const char* path);
 
 private:
-	int rasterizeTileLayers(const int tx, const int ty, const rcConfig& cfg, struct TileCacheData* tiles, const int maxTiles);
+	int rasterizeTileLayers(int tx, int ty, const rcConfig& cfg, struct TileCacheData* tiles, int maxTiles) const;
 };
