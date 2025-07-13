@@ -17,6 +17,7 @@
 //
 
 #include "SDL_opengl.h"
+#include "imguiHelpers.h"
 
 #include <float.h>
 #include <cmath>
@@ -55,16 +56,14 @@ void OffMeshConnectionTool::reset()
 
 void OffMeshConnectionTool::handleMenu()
 {
-#if 0
-	if (imguiCheck("One Way", !bidir))
+	if (ImGui::RadioButton("One Way", !bidir))
 	{
 		bidir = false;
 	}
-	if (imguiCheck("Bidirectional", bidir))
+	if (ImGui::RadioButton("Bidirectional", bidir))
 	{
 		bidir = true;
 	}
-#endif
 }
 
 void OffMeshConnectionTool::handleClick(const float* /*rayStartPos*/, const float* rayHitPos, bool shift)
@@ -148,34 +147,22 @@ void OffMeshConnectionTool::handleRender()
 
 void OffMeshConnectionTool::handleRenderOverlay(double* proj, double* model, int* view)
 {
-#if 0
 	GLdouble x, y, z;
 
 	// Draw start and end point labels
 	if (hitPosSet && gluProject((GLdouble)hitPos[0], (GLdouble)hitPos[1], (GLdouble)hitPos[2], model, proj, view, &x, &y, &z))
 	{
-		imguiDrawText((int)x, (int)(y - 25), IMGUI_ALIGN_CENTER, "Start", imguiRGBA(0, 0, 0, 220));
+		DrawScreenspaceText(x, y - 25, IM_COL32(0, 0, 0, 220), "Start", true);
 	}
 
 	// Tool help
 	const int h = view[3];
 	if (!hitPosSet)
 	{
-		imguiDrawText(
-			280,
-			h - 40,
-			IMGUI_ALIGN_LEFT,
-			"LMB: Create new connection.  SHIFT+LMB: Delete existing connection, click close to start or end point.",
-			imguiRGBA(255, 255, 255, 192));
+		DrawScreenspaceText(280, h - 40, IM_COL32(255, 255, 255, 192), "LMB: Create new connection.  SHIFT+LMB: Delete existing connection, click near start or end point.");
 	}
 	else
 	{
-		imguiDrawText(
-			280,
-			h - 40,
-			IMGUI_ALIGN_LEFT,
-			"LMB: Set connection end point and finish.",
-			imguiRGBA(255, 255, 255, 192));
+		DrawScreenspaceText(280, h - 40, IM_COL32(255, 255, 255, 192), "LMB: Set connection end point and finish.");
 	}
-#endif
 }

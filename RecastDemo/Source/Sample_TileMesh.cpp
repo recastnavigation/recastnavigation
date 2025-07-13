@@ -19,6 +19,7 @@
 #include "Sample_TileMesh.h"
 
 #include "SDL_opengl.h"
+#include "imguiHelpers.h"
 
 #include <cmath>
 #include <cstdio>
@@ -95,23 +96,21 @@ public:
 
 	void handleMenu() override
 	{
-#if 0
-		imguiLabel("Create Tiles");
-		if (imguiButton("Create All"))
+		ImGui::Text("Create Tiles");
+		if (ImGui::Button("Create All"))
 		{
 			if (m_sample)
 			{
 				m_sample->buildAllTiles();
 			}
 		}
-		if (imguiButton("Remove All"))
+		if (ImGui::Button("Remove All"))
 		{
 			if (m_sample)
 			{
 				m_sample->removeAllTiles();
 			}
 		}
-#endif
 	}
 
 	void handleClick(const float* /*s*/, const float* p, bool shift) override
@@ -160,7 +159,6 @@ public:
 
 	void handleRenderOverlay(double* proj, double* model, int* view) override
 	{
-#if 0
 		GLdouble x, y, z;
 		if (m_hitPosSet && gluProject(m_hitPos[0], m_hitPos[1], m_hitPos[2], model, proj, view, &x, &y, &z))
 		{
@@ -169,17 +167,15 @@ public:
 			m_sample->getTilePos(m_hitPos, tx, ty);
 			char text[32];
 			snprintf(text, 32, "(%d,%d)", tx, ty);
-			imguiDrawText(static_cast<int>(x), static_cast<int>(y) - 25, IMGUI_ALIGN_CENTER, text, imguiRGBA(0, 0, 0, 220));
+			DrawScreenspaceText(x, y, IM_COL32(0, 0, 0, 220), text, true);
 		}
 
 		// Tool help
-		imguiDrawText(
+		DrawScreenspaceText(
 			280,
 			view[3] - 40,
-			IMGUI_ALIGN_LEFT,
-			"LMB: Rebuild hit tile.  Shift+LMB: Clear hit tile.",
-			imguiRGBA(255, 255, 255, 192));
-#endif
+			IM_COL32(255, 255, 255, 192),
+			"LMB: Rebuild hit tile.  Shift+LMB: Clear hit tile.");
 	}
 };
 
@@ -215,15 +211,16 @@ void Sample_TileMesh::cleanup()
 void Sample_TileMesh::handleSettings()
 {
 	Sample::handleCommonSettings();
-#if 0
 
-	if (imguiCheck("Build All Tiles", buildAll))
+	ImGui::Checkbox("Build All Tiles", &buildAll);
+
+	ImGui::Text("Tiling");
+
+	if (ImGui::SliderInt("TileSize", &tileSize, 16, 1024))
 	{
-		buildAll = !buildAll;
+		// Snap to multiples of 16
+		tileSize = static_cast<int>(roundf(static_cast<float>(tileSize) / 16.0f)) * 16;
 	}
-
-	imguiLabel("Tiling");
-	imguiSlider("TileSize", &tileSize, 16.0f, 1024.0f, 16.0f);
 
 	if (inputGeometry)
 	{
@@ -232,13 +229,10 @@ void Sample_TileMesh::handleSettings()
 		int gridWidth = 0;
 		int gridHeight = 0;
 		rcCalcGridSize(navMeshBoundsMin, navMeshBoundsMax, cellSize, &gridWidth, &gridHeight);
-		const int tileSize = static_cast<int>(this->tileSize);
 		const int tileWidth = (gridWidth + tileSize - 1) / tileSize;
 		const int tileHeight = (gridHeight + tileSize - 1) / tileSize;
 
-		char text[64];
-		snprintf(text, 64, "Tiles  %d x %d", tileWidth, tileHeight);
-		imguiValue(text);
+		ImGui::Text("Tiles  %d x %d", tileWidth, tileHeight);
 
 		// Max tiles and max polys affect how the tile IDs are calculated.
 		// There are 22 bits available for identifying a tile and a polygon.
@@ -247,10 +241,8 @@ void Sample_TileMesh::handleSettings()
 		int polyBits = 22 - tileBits;
 		maxTiles = 1 << tileBits;
 		maxPolysPerTile = 1 << polyBits;
-		snprintf(text, 64, "Max Tiles  %d", maxTiles);
-		imguiValue(text);
-		snprintf(text, 64, "Max Polys  %d", maxPolysPerTile);
-		imguiValue(text);
+		ImGui::Text("Max Tiles  %d", maxTiles);
+		ImGui::Text("Max Polys  %d", maxPolysPerTile);
 	}
 	else
 	{
@@ -258,92 +250,84 @@ void Sample_TileMesh::handleSettings()
 		maxPolysPerTile = 0;
 	}
 
-	imguiSeparator();
+	ImGui::Separator();
 
-	imguiIndent();
-	imguiIndent();
+	ImGui::Indent();
 
-	if (imguiButton("Save"))
+	if (ImGui::Button("Save"))
 	{
 		Sample::saveAll("all_tiles_navmesh.bin", navMesh);
 	}
 
-	if (imguiButton("Load"))
+	if (ImGui::Button("Load"))
 	{
 		dtFreeNavMesh(navMesh);
 		navMesh = Sample::loadAll("all_tiles_navmesh.bin");
 		navQuery->init(navMesh, 2048);
 	}
 
-	imguiUnindent();
-	imguiUnindent();
+	ImGui::Unindent();
 
-	char msg[64];
-	snprintf(msg, 64, "Build Time: %.1fms", totalBuildTimeMs);
-	imguiLabel(msg);
+	ImGui::Text("Build Time: %.1fms", totalBuildTimeMs);
 
-	imguiSeparator();
-	imguiSeparator();
-#endif
+	ImGui::Separator();
 }
 
 void Sample_TileMesh::handleTools()
 {
-#if 0
 	const SampleToolType type = !tool ? SampleToolType::NONE : tool->type();
 
-	if (imguiCheck("Test Navmesh", type == SampleToolType::NAVMESH_TESTER))
+	if (ImGui::RadioButton("Test Navmesh", type == SampleToolType::NAVMESH_TESTER))
 	{
 		setTool(new NavMeshTesterTool);
 	}
-	if (imguiCheck("Prune Navmesh", type == SampleToolType::NAVMESH_PRUNE))
+	if (ImGui::RadioButton("Prune Navmesh", type == SampleToolType::NAVMESH_PRUNE))
 	{
 		setTool(new NavMeshPruneTool);
 	}
-	if (imguiCheck("Create Tiles", type == SampleToolType::TILE_EDIT))
+	if (ImGui::RadioButton("Create Tiles", type == SampleToolType::TILE_EDIT))
 	{
 		setTool(new NavMeshTileTool);
 	}
-	if (imguiCheck("Create Off-Mesh Links", type == SampleToolType::OFFMESH_CONNECTION))
+	if (ImGui::RadioButton("Create Off-Mesh Links", type == SampleToolType::OFFMESH_CONNECTION))
 	{
 		setTool(new OffMeshConnectionTool);
 	}
-	if (imguiCheck("Create Convex Volumes", type == SampleToolType::CONVEX_VOLUME))
+	if (ImGui::RadioButton("Create Convex Volumes", type == SampleToolType::CONVEX_VOLUME))
 	{
 		setTool(new ConvexVolumeTool);
 	}
-	if (imguiCheck("Create Crowds", type == SampleToolType::CROWD))
+	if (ImGui::RadioButton("Create Crowds", type == SampleToolType::CROWD))
 	{
 		setTool(new CrowdTool);
 	}
 
-	imguiSeparatorLine();
+	ImGui::Separator();
 
-	imguiIndent();
+	ImGui::Indent();
 
 	if (tool)
 	{
 		tool->handleMenu();
 	}
 
-	imguiUnindent();
-#endif
+	ImGui::Unindent();
 }
 
 void Sample_TileMesh::UI_DrawModeOption(const char* name, DrawMode drawMode, bool enabled)
 {
-#if 0
-	if (imguiCheck(name, this->drawMode == drawMode, enabled))
-	{
+	ImGui::BeginDisabled(!enabled);
+	bool checked = this->drawMode == drawMode;
+ 	if (ImGui::Checkbox(name, &checked))
+ 	{
 		this->drawMode = drawMode;
-	}
-#endif
+ 	}
+	ImGui::EndDisabled();
 }
 
 void Sample_TileMesh::handleDebugMode()
 {
-#if 0
-	imguiLabel("Draw");
+	ImGui::Text("Draw");
 	UI_DrawModeOption("Input Mesh", DrawMode::MESH, true);
 	UI_DrawModeOption("Navmesh", DrawMode::NAVMESH, navMesh != nullptr);
 	UI_DrawModeOption("Navmesh Invis", DrawMode::NAVMESH_INVIS, navMesh != nullptr);
@@ -362,7 +346,6 @@ void Sample_TileMesh::handleDebugMode()
 	UI_DrawModeOption("Contours", DrawMode::CONTOURS, contourSet != nullptr);
 	UI_DrawModeOption("Poly Mesh", DrawMode::POLYMESH, polyMesh != nullptr);
 	UI_DrawModeOption("Poly Mesh Detail", DrawMode::POLYMESH_DETAIL, detailPolyMesh != nullptr);
-#endif
 }
 
 void Sample_TileMesh::handleRender()
@@ -410,8 +393,8 @@ void Sample_TileMesh::handleRender()
 	int gridWith = 0;
 	int gridHeight = 0;
 	rcCalcGridSize(navMeshBoundsMin, navMeshBoundsMax, cellSize, &gridWith, &gridHeight);
-	const int tileWidth = (gridWith + static_cast<int>(tileSize) - 1) / static_cast<int>(tileSize);
-	const int tileHeight = (gridHeight + static_cast<int>(tileSize) - 1) / static_cast<int>(tileSize);
+	const int tileWidth = (gridWith + tileSize - 1) / tileSize;
+	const int tileHeight = (gridHeight + tileSize - 1) / tileSize;
 	const float size = tileSize * cellSize;
 	duDebugDrawGridXZ(
 		&debugDraw,
@@ -541,7 +524,6 @@ void Sample_TileMesh::handleRender()
 
 void Sample_TileMesh::handleRenderOverlay(double* proj, double* model, int* view)
 {
-#if 0
 	GLdouble x, y, z;
 
 	// Draw start and end point labels
@@ -557,9 +539,9 @@ void Sample_TileMesh::handleRenderOverlay(double* proj, double* model, int* view
 		&z);
 	if (tileBuildTime > 0.0f && projectResult == GL_TRUE)
 	{
-		char text[32];
-		snprintf(text, 32, "%.3fms / %dTris / %.1fkB", tileBuildTime, tileTriCount, tileMemUsage);
-		imguiDrawText(static_cast<int>(x), static_cast<int>(y) - 25, IMGUI_ALIGN_CENTER, text, imguiRGBA(0, 0, 0, 220));
+		char text[64];
+		snprintf(text, 64, "%.3fms / %dTris / %.1fkB", tileBuildTime, tileTriCount, tileMemUsage);
+		DrawScreenspaceText(x, y, IM_COL32(0, 0, 0, 220), text);
 	}
 
 	if (tool)
@@ -567,7 +549,6 @@ void Sample_TileMesh::handleRenderOverlay(double* proj, double* model, int* view
 		tool->handleRenderOverlay(proj, model, view);
 	}
 	renderOverlayToolStates(proj, model, view);
-#endif
 }
 
 void Sample_TileMesh::handleMeshChanged(InputGeom* geom)
@@ -667,17 +648,17 @@ void Sample_TileMesh::buildTile(const float* pos)
 	const float* navMeshBoundsMin = inputGeometry->getNavMeshBoundsMin();
 	const float* navMeshBoundsMax = inputGeometry->getNavMeshBoundsMax();
 
-	const float tileSize = this->tileSize * cellSize;
-	const int tileX = static_cast<int>((pos[0] - navMeshBoundsMin[0]) / tileSize);
-	const int tileY = static_cast<int>((pos[2] - navMeshBoundsMin[2]) / tileSize);
+	const float tileWorldSize = tileSize * cellSize;
+	const int tileX = static_cast<int>((pos[0] - navMeshBoundsMin[0]) / tileWorldSize);
+	const int tileY = static_cast<int>((pos[2] - navMeshBoundsMin[2]) / tileWorldSize);
 
-	lastBuiltTileBoundsMin[0] = navMeshBoundsMin[0] + static_cast<float>(tileX) * tileSize;
+	lastBuiltTileBoundsMin[0] = navMeshBoundsMin[0] + static_cast<float>(tileX) * tileWorldSize;
 	lastBuiltTileBoundsMin[1] = navMeshBoundsMin[1];
-	lastBuiltTileBoundsMin[2] = navMeshBoundsMin[2] + static_cast<float>(tileY) * tileSize;
+	lastBuiltTileBoundsMin[2] = navMeshBoundsMin[2] + static_cast<float>(tileY) * tileWorldSize;
 
-	lastBuiltTileBoundsMax[0] = navMeshBoundsMin[0] + static_cast<float>(tileX + 1) * tileSize;
+	lastBuiltTileBoundsMax[0] = navMeshBoundsMin[0] + static_cast<float>(tileX + 1) * tileWorldSize;
 	lastBuiltTileBoundsMax[1] = navMeshBoundsMax[1];
-	lastBuiltTileBoundsMax[2] = navMeshBoundsMin[2] + static_cast<float>(tileY + 1) * tileSize;
+	lastBuiltTileBoundsMax[2] = navMeshBoundsMin[2] + static_cast<float>(tileY + 1) * tileWorldSize;
 
 	tileColor = duRGBA(255, 255, 255, 64);
 
@@ -731,17 +712,17 @@ void Sample_TileMesh::removeTile(const float* pos)
 	const float* navMeshBoundsMin = inputGeometry->getNavMeshBoundsMin();
 	const float* navmeshBoundsMax = inputGeometry->getNavMeshBoundsMax();
 
-	const float tileSize = this->tileSize * cellSize;
-	const int tileX = static_cast<int>((pos[0] - navMeshBoundsMin[0]) / tileSize);
-	const int tileY = static_cast<int>((pos[2] - navMeshBoundsMin[2]) / tileSize);
+	const float tileWorldSize = tileSize * cellSize;
+	const int tileX = static_cast<int>((pos[0] - navMeshBoundsMin[0]) / tileWorldSize);
+	const int tileY = static_cast<int>((pos[2] - navMeshBoundsMin[2]) / tileWorldSize);
 
-	lastBuiltTileBoundsMin[0] = navMeshBoundsMin[0] + static_cast<float>(tileX) * tileSize;
+	lastBuiltTileBoundsMin[0] = navMeshBoundsMin[0] + static_cast<float>(tileX) * tileWorldSize;
 	lastBuiltTileBoundsMin[1] = navMeshBoundsMin[1];
-	lastBuiltTileBoundsMin[2] = navMeshBoundsMin[2] + static_cast<float>(tileY) * tileSize;
+	lastBuiltTileBoundsMin[2] = navMeshBoundsMin[2] + static_cast<float>(tileY) * tileWorldSize;
 
-	lastBuiltTileBoundsMax[0] = navMeshBoundsMin[0] + static_cast<float>(tileX + 1) * tileSize;
+	lastBuiltTileBoundsMax[0] = navMeshBoundsMin[0] + static_cast<float>(tileX + 1) * tileWorldSize;
 	lastBuiltTileBoundsMax[1] = navmeshBoundsMax[1];
-	lastBuiltTileBoundsMax[2] = navMeshBoundsMin[2] + static_cast<float>(tileY + 1) * tileSize;
+	lastBuiltTileBoundsMax[2] = navMeshBoundsMin[2] + static_cast<float>(tileY + 1) * tileWorldSize;
 
 	tileColor = duRGBA(128, 32, 16, 64);
 
@@ -764,7 +745,6 @@ void Sample_TileMesh::buildAllTiles()
 	int gridWidth = 0;
 	int gridHeight = 0;
 	rcCalcGridSize(navMeshBoundsMin, navMeshBoundsMax, cellSize, &gridWidth, &gridHeight);
-	const int tileSize = static_cast<int>(this->tileSize);
 	const int tileWidth = (gridWidth + tileSize - 1) / tileSize;
 	const int tileHeight = (gridHeight + tileSize - 1) / tileSize;
 	const float tileCellSize = tileSize * cellSize;
@@ -823,7 +803,6 @@ void Sample_TileMesh::removeAllTiles() const
 	int gridWidth = 0;
 	int gridHeight = 0;
 	rcCalcGridSize(navMeshBoundsMin, navMeshBoundsMax, cellSize, &gridWidth, &gridHeight);
-	const int tileSize = static_cast<int>(this->tileSize);
 	const int tileWidth = (gridWidth + tileSize - 1) / tileSize;
 	const int tileHeight = (gridHeight + tileSize - 1) / tileSize;
 
@@ -872,7 +851,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(
 	config.minRegionArea = static_cast<int>(rcSqr(regionMinSize));      // Note: area = size*size
 	config.mergeRegionArea = static_cast<int>(rcSqr(regionMergeSize));  // Note: area = size*size
 	config.maxVertsPerPoly = static_cast<int>(vertsPerPoly);
-	config.tileSize = static_cast<int>(tileSize);
+	config.tileSize = tileSize;
 	config.borderSize = config.walkableRadius + 3;  // Reserve enough padding.
 	config.width = config.tileSize + config.borderSize * 2;
 	config.height = config.tileSize + config.borderSize * 2;

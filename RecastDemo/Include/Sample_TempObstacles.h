@@ -61,7 +61,7 @@ protected:
 
 	int m_maxTiles = 0;
 	int m_maxPolysPerTile = 0;
-	float m_tileSize = 48;
+	int m_tileSize = 48;
 
 public:
 	Sample_TempObstacles();

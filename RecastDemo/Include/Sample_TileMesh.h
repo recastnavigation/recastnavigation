@@ -64,7 +64,7 @@ private:
 	int maxTiles = 0;
 	int maxPolysPerTile = 0;
 	/// In cells
-	float tileSize = 32.0f;
+	int tileSize = 32;
 
 	unsigned int tileColor = duRGBA(0, 0, 0, 32);
 	float lastBuiltTileBoundsMin[3] = {0.0f, 0.0f, 0.0f};

@@ -70,13 +70,12 @@ void Sample_SoloMesh::handleSettings()
 
 	ImGui::Separator();
 
-	ImGui::Indent();
-	ImGui::Indent();
-
 	if (ImGui::Button("Save"))
 	{
 		saveAll("solo_navmesh.bin", navMesh);
 	}
+
+	ImGui::SameLine();
 
 	if (ImGui::Button("Load"))
 	{
@@ -84,9 +83,6 @@ void Sample_SoloMesh::handleSettings()
 		navMesh = loadAll("solo_navmesh.bin");
 		navQuery->init(navMesh, 2048);
 	}
-
-	ImGui::Unindent();
-	ImGui::Unindent();
 
 	ImGui::Text("Build Time: %.1fms", totalBuildTimeMs);
 

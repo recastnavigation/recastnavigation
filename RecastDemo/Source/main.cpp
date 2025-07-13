@@ -785,17 +785,9 @@ int main(int /*argc*/, char** /*argv*/)
 		// Test cases
 		if (app.showTestCases)
 		{
-			static int testScroll = 0;
-			if (imguiBeginScrollArea(
-					"Choose Test To Run",
-					app.width - 10 - 250 - 10 - 200,
-					app.height - 10 - 450,
-					200,
-					450,
-					&testScroll))
-			{
-				app.mouseOverMenu = true;
-			}
+			ImGui::SetNextWindowPos(ImVec2(static_cast<float>(app.width - 10 - 250 - 10 - 200), static_cast<float>(app.height - 10 - 450)), ImGuiCond_Always);  // Position in screen space
+			ImGui::SetNextWindowSize(ImVec2(200, 450, ImGuiCond_Always);     // Size of the window
+			ImGui::Begin("Choose Test To Run", nullptr, staticWindowFlags);
 
 			vector<string>::const_iterator fileIter = app.files.begin();
 			vector<string>::const_iterator filesEnd = app.files.end();
@@ -806,6 +798,21 @@ int main(int /*argc*/, char** /*argv*/)
 				{
 					testToLoad = fileIter;
 				}
+			}
+
+			if (ImGui::BeginCombo("Dropdown", items[current_item].c_str()))
+			{
+				for (int i = 0; i < items.size(); i++)
+				{
+					bool is_selected = (current_item == i);
+					if (ImGui::Selectable(items[i].c_str(), is_selected))
+					{
+						current_item = i;
+					}
+					if (is_selected)
+						ImGui::SetItemDefaultFocus();
+				}
+				ImGui::EndCombo();
 			}
 
 			if (testToLoad != filesEnd)

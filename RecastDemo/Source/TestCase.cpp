@@ -22,6 +22,7 @@
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"
 #include "SDL_opengl.h"
+#include "imguiHelpers.h"
 
 #include <ctype.h>
 #include <math.h>
@@ -425,7 +426,6 @@ void TestCase::handleRender()
 
 bool TestCase::handleRenderOverlay(double* proj, double* model, int* view)
 {
-#if 0
 	GLdouble x, y, z;
 	char text[64];
 	char subtext[64];
@@ -459,51 +459,41 @@ bool TestCase::handleRenderOverlay(double* proj, double* model, int* view)
 		if (gluProject((GLdouble)pt[0], (GLdouble)pt[1], (GLdouble)pt[2], model, proj, view, &x, &y, &z))
 		{
 			snprintf(text, 64, "Path %d\n", n);
-			unsigned int col = imguiRGBA(0, 0, 0, 128);
+			unsigned int col = IM_COL32(0, 0, 0, 128);
 			if (iter->expand)
 			{
-				col = imguiRGBA(255, 192, 0, 220);
+				col = IM_COL32(255, 192, 0, 220);
 			}
-			imguiDrawText((int)x, (int)(y - 25), IMGUI_ALIGN_CENTER, text, col);
+			DrawScreenspaceText(x, y - 25, col, text, true);
 		}
 
 		n++;
 	}
 
 	static int resScroll = 0;
-	bool mouseOverMenu = imguiBeginScrollArea("Test Results", 10, view[3] - 10 - 350, 200, 350, &resScroll);
+
+	ImGui::SetNextWindowPos(ImVec2(10, view[3] - 10 - 350), ImGuiCond_Always);  // Position in screen space
+	ImGui::SetNextWindowSize(ImVec2(200, 350), ImGuiCond_Always);     // Size of the window
+	ImGui::Begin("Test Results");
 
 	n = 0;
 	for (Test* iter = tests; iter; iter = iter->next, n++)
 	{
 		const int total = iter->findNearestPolyTime + iter->findPathTime + iter->findStraightPathTime;
-		snprintf(subtext, 64, "%.4f ms", (float)total / 1000.0f);
 		snprintf(text, 64, "Path %d", n);
 
-		if (imguiCollapse(text, subtext, iter->expand))
+		if (ImGui::CollapsingHeader(text, ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			iter->expand = !iter->expand;
-		}
+			ImGui::Text("Total: %.4f ms", (float)total / 1000.0f);
+			ImGui::Text("Poly: %.4f ms", (float)iter->findNearestPolyTime / 1000.0f);
+			ImGui::Text("Path: %.4f ms", (float)iter->findPathTime / 1000.0f);
+			ImGui::Text("Straight: %.4f ms", (float)iter->findStraightPathTime / 1000.0f);
 
-		if (iter->expand)
-		{
-			snprintf(text, 64, "Poly: %.4f ms", (float)iter->findNearestPolyTime / 1000.0f);
-			imguiValue(text);
-
-			snprintf(text, 64, "Path: %.4f ms", (float)iter->findPathTime / 1000.0f);
-			imguiValue(text);
-
-			snprintf(text, 64, "Straight: %.4f ms", (float)iter->findStraightPathTime / 1000.0f);
-			imguiValue(text);
-
-			imguiSeparator();
+			ImGui::Separator();
 		}
 	}
 
-	imguiEndScrollArea();
+	ImGui::End();
 
-	return mouseOverMenu;
-#else
 	return false;
-#endif
 }

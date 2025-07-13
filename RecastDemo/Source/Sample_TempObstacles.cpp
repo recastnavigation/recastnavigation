@@ -568,7 +568,7 @@ void drawDetailOverlay(const dtTileCache* tileCache, const int tileX, const int 
 	const int ntiles = tileCache->getTilesAt(tileX, tileY, tiles, MAX_LAYERS);
 	if (!ntiles) { return; }
 
-	//const int rawSize = calcLayerBufferSize(tileCache->getParams()->width, tileCache->getParams()->height);
+	const int rawSize = calcLayerBufferSize(tileCache->getParams()->width, tileCache->getParams()->height);
 
 	for (int i = 0; i < ntiles; ++i)
 	{
@@ -582,15 +582,13 @@ void drawDetailOverlay(const dtTileCache* tileCache, const int tileX, const int 
 		GLdouble x, y, z;
 		if (gluProject(static_cast<GLdouble>(pos[0]), static_cast<GLdouble>(pos[1]), static_cast<GLdouble>(pos[2]), model, proj, view, &x, &y, &z))
 		{
-#if 0
 			char text[128];
 			snprintf(text, 128, "(%d,%d)/%d", tile->header->tx, tile->header->ty, tile->header->tlayer);
-			imguiDrawText(static_cast<int>(x), static_cast<int>(y) - 25, IMGUI_ALIGN_CENTER, text, imguiRGBA(0, 0, 0, 220));
+			DrawScreenspaceText(x, y - 25, IM_COL32(0, 0, 0, 220), text, true);
 			snprintf(text, 128, "Compressed: %.1f kB", tile->dataSize / 1024.0f);
-			imguiDrawText(static_cast<int>(x), static_cast<int>(y) - 45, IMGUI_ALIGN_CENTER, text, imguiRGBA(0, 0, 0, 128));
+			DrawScreenspaceText(x, y - 45, IM_COL32(0, 0, 0, 128), text, true);
 			snprintf(text, 128, "Raw:%.1fkB", rawSize / 1024.0f);
-			imguiDrawText(static_cast<int>(x), static_cast<int>(y) - 65, IMGUI_ALIGN_CENTER, text, imguiRGBA(0, 0, 0, 128));
-#endif
+			DrawScreenspaceText(x, y - 65, IM_COL32(0, 0, 0, 128), text, true);
 		}
 	}
 }
@@ -671,27 +669,25 @@ public:
 
 	void handleMenu() override
 	{
-#if 0
-		imguiLabel("Highlight Tile Cache");
-		imguiValue("Click LMB to highlight a tile.");
-		imguiSeparator();
-		if (imguiCheck("Draw Areas", m_drawType == DRAWDETAIL_AREAS))
+		ImGui::Text("Highlight Tile Cache");
+		ImGui::Text("Click LMB to highlight a tile.");
+		ImGui::Separator();
+		if (ImGui::RadioButton("Draw Areas", m_drawType == DRAWDETAIL_AREAS))
 		{
 			m_drawType = DRAWDETAIL_AREAS;
 		}
-		if (imguiCheck("Draw Regions", m_drawType == DRAWDETAIL_REGIONS))
+		if (ImGui::RadioButton("Draw Regions", m_drawType == DRAWDETAIL_REGIONS))
 		{
 			m_drawType = DRAWDETAIL_REGIONS;
 		}
-		if (imguiCheck("Draw Contours", m_drawType == DRAWDETAIL_CONTOURS))
+		if (ImGui::RadioButton("Draw Contours", m_drawType == DRAWDETAIL_CONTOURS))
 		{
 			m_drawType = DRAWDETAIL_CONTOURS;
 		}
-		if (imguiCheck("Draw Mesh", m_drawType == DRAWDETAIL_MESH))
+		if (ImGui::RadioButton("Draw Mesh", m_drawType == DRAWDETAIL_MESH))
 		{
 			m_drawType = DRAWDETAIL_MESH;
 		}
-#endif
 	}
 
 	void handleClick(const float* /*s*/, const float* p, bool /*shift*/) override
@@ -761,17 +757,17 @@ public:
 
 	void handleMenu() override
 	{
-#if 0
-		imguiLabel("Create Temp Obstacles");
+		ImGui::Text("Create Temp Obstacles");
 
-		if (imguiButton("Remove All"))
+		if (ImGui::Button("Remove All"))
+		{
 			m_sample->clearAllTempObstacles();
+		}
 
-		imguiSeparator();
+		ImGui::Separator();
 
-		imguiValue("Click LMB to create an obstacle.");
-		imguiValue("Shift+LMB to remove an obstacle.");
-#endif
+		ImGui::Text("Click LMB to create an obstacle.");
+		ImGui::Text("Shift+LMB to remove an obstacle.");
 	}
 
 	void handleClick(const float* s, const float* p, bool shift) override
@@ -816,28 +812,26 @@ Sample_TempObstacles::~Sample_TempObstacles()
 void Sample_TempObstacles::handleSettings()
 {
 	Sample::handleCommonSettings();
-#if 0
-	if (imguiCheck("Keep Itermediate Results", m_keepInterResults))
-	{
-		m_keepInterResults = !m_keepInterResults;
-	}
+	ImGui::Checkbox("Keep Itermediate Results", &m_keepInterResults);
 
-	imguiLabel("Tiling");
-	imguiSlider("TileSize", &m_tileSize, 16.0f, 128.0f, 8.0f);
+	ImGui::Text("Tiling");
+	if (ImGui::SliderInt("TileSize", &m_tileSize, 16, 128))
+	{
+		// Snap to multiples of 8
+		m_tileSize = static_cast<int>(roundf(static_cast<float>(m_tileSize) / 8.0f)) * 8;
+	}
 
 	int gridSize = 1;
 	if (inputGeometry)
 	{
 		const float* bmin = inputGeometry->getNavMeshBoundsMin();
 		const float* bmax = inputGeometry->getNavMeshBoundsMax();
-		char text[64];
-		int gw = 0, gh = 0;
+		int gw = 0;
+		int gh = 0;
 		rcCalcGridSize(bmin, bmax, cellSize, &gw, &gh);
-		const int ts = (int)m_tileSize;
-		const int tw = (gw + ts-1) / ts;
-		const int th = (gh + ts-1) / ts;
-		snprintf(text, 64, "Tiles  %d x %d", tw, th);
-		imguiValue(text);
+		const int tw = (gw + m_tileSize-1) / m_tileSize;
+		const int th = (gh + m_tileSize-1) / m_tileSize;
+		ImGui::Text("Tiles  %d x %d", tw, th);
 
 		// Max tiles and max polys affect how the tile IDs are caculated.
 		// There are 22 bits available for identifying a tile and a polygon.
@@ -846,10 +840,8 @@ void Sample_TempObstacles::handleSettings()
 		int polyBits = 22 - tileBits;
 		m_maxTiles = 1 << tileBits;
 		m_maxPolysPerTile = 1 << polyBits;
-		snprintf(text, 64, "Max Tiles  %d", m_maxTiles);
-		imguiValue(text);
-		snprintf(text, 64, "Max Polys  %d", m_maxPolysPerTile);
-		imguiValue(text);
+		ImGui::Text("Max Tiles  %d", m_maxTiles);
+		ImGui::Text("Max Polys  %d", m_maxPolysPerTile);
 		gridSize = tw*th;
 	}
 	else
@@ -858,36 +850,29 @@ void Sample_TempObstacles::handleSettings()
 		m_maxPolysPerTile = 0;
 	}
 
-	imguiSeparator();
+	ImGui::Separator();
 
-	imguiLabel("Tile Cache");
-	char msg[64];
+	ImGui::Text("Tile Cache");
 
 	const float compressionRatio = (float)m_cacheCompressedSize / (float)(m_cacheRawSize+1);
 
-	snprintf(msg, 64, "Layers  %d", m_cacheLayerCount);
-	imguiValue(msg);
-	snprintf(msg, 64, "Layers (per tile)  %.1f", (float)m_cacheLayerCount/(float)gridSize);
-	imguiValue(msg);
+	ImGui::Text("Layers  %d", m_cacheLayerCount);
+	ImGui::Text("Layers (per tile)  %.1f", (float)m_cacheLayerCount/(float)gridSize);
 
-	snprintf(msg, 64, "Memory  %.1f kB / %.1f kB (%.1f%%)", m_cacheCompressedSize/1024.0f, m_cacheRawSize/1024.0f, compressionRatio*100.0f);
-	imguiValue(msg);
-	snprintf(msg, 64, "Navmesh Build Time  %.1f ms", m_cacheBuildTimeMs);
-	imguiValue(msg);
-	snprintf(msg, 64, "Build Peak Mem Usage  %.1f kB", m_cacheBuildMemUsage/1024.0f);
-	imguiValue(msg);
+	ImGui::Text("Memory  %.1f kB / %.1f kB (%.1f%%)", m_cacheCompressedSize/1024.0f, m_cacheRawSize/1024.0f, compressionRatio*100.0f);
+	ImGui::Text("Navmesh Build Time  %.1f ms", m_cacheBuildTimeMs);
+	ImGui::Text("Build Peak Mem Usage  %.1f kB", m_cacheBuildMemUsage/1024.0f);
 
-	imguiSeparator();
+	ImGui::Separator();
 
-	imguiIndent();
-	imguiIndent();
+	ImGui::Indent();
 
-	if (imguiButton("Save"))
+	if (ImGui::Button("Save"))
 	{
 		saveAll("all_tiles_tilecache.bin");
 	}
 
-	if (imguiButton("Load"))
+	if (ImGui::Button("Load"))
 	{
 		dtFreeNavMesh(navMesh);
 		dtFreeTileCache(m_tileCache);
@@ -895,54 +880,50 @@ void Sample_TempObstacles::handleSettings()
 		navQuery->init(navMesh, 2048);
 	}
 
-	imguiUnindent();
-	imguiUnindent();
+	ImGui::Unindent();
 
-	imguiSeparator();
-#endif
+	ImGui::Separator();
 }
 
 void Sample_TempObstacles::handleTools()
 {
-#if 0
 	const SampleToolType type = !tool ? SampleToolType::NONE : tool->type();
 
-	if (imguiCheck("Test Navmesh", type == SampleToolType::NAVMESH_TESTER))
+	if (ImGui::RadioButton("Test Navmesh", type == SampleToolType::NAVMESH_TESTER))
 	{
 		setTool(new NavMeshTesterTool);
 	}
-	if (imguiCheck("Highlight Tile Cache", type == SampleToolType::TILE_HIGHLIGHT))
+	if (ImGui::RadioButton("Highlight Tile Cache", type == SampleToolType::TILE_HIGHLIGHT))
 	{
 		setTool(new TempObstacleHilightTool);
 	}
-	if (imguiCheck("Create Temp Obstacles", type == SampleToolType::TEMP_OBSTACLE))
+	if (ImGui::RadioButton("Create Temp Obstacles", type == SampleToolType::TEMP_OBSTACLE))
 	{
 		setTool(new TempObstacleCreateTool);
 	}
-	if (imguiCheck("Create Off-Mesh Links", type == SampleToolType::OFFMESH_CONNECTION))
+	if (ImGui::RadioButton("Create Off-Mesh Links", type == SampleToolType::OFFMESH_CONNECTION))
 	{
 		setTool(new OffMeshConnectionTool);
 	}
-	if (imguiCheck("Create Convex Volumes", type == SampleToolType::CONVEX_VOLUME))
+	if (ImGui::RadioButton("Create Convex Volumes", type == SampleToolType::CONVEX_VOLUME))
 	{
 		setTool(new ConvexVolumeTool);
 	}
-	if (imguiCheck("Create Crowds", type == SampleToolType::CROWD))
+	if (ImGui::RadioButton("Create Crowds", type == SampleToolType::CROWD))
 	{
 		setTool(new CrowdTool);
 	}
 
-	imguiSeparatorLine();
+	ImGui::Separator();
 
-	imguiIndent();
+	ImGui::Indent();
 
 	if (tool)
 	{
 		tool->handleMenu();
 	}
 
-	imguiUnindent();
-#endif
+	ImGui::Unindent();
 }
 
 void Sample_TempObstacles::handleDebugMode()
@@ -980,48 +961,62 @@ void Sample_TempObstacles::handleDebugMode()
 		return;
 	}
 
-#if 0
-	imguiLabel("Draw");
-	if (imguiCheck("Input Mesh", m_drawMode == DRAWMODE_MESH, valid[DRAWMODE_MESH]))
+	ImGui::Text("Draw");
+	ImGui::BeginDisabled(!valid[DRAWMODE_MESH]);
+	if (ImGui::RadioButton("Input Mesh", m_drawMode == DRAWMODE_MESH))
 	{
 		m_drawMode = DRAWMODE_MESH;
 	}
-	if (imguiCheck("Navmesh", m_drawMode == DRAWMODE_NAVMESH, valid[DRAWMODE_NAVMESH]))
+	ImGui::EndDisabled();
+	ImGui::BeginDisabled(!valid[DRAWMODE_NAVMESH]);
+	if (ImGui::RadioButton("Navmesh", m_drawMode == DRAWMODE_NAVMESH))
 	{
 		m_drawMode = DRAWMODE_NAVMESH;
 	}
-	if (imguiCheck("Navmesh Invis", m_drawMode == DRAWMODE_NAVMESH_INVIS, valid[DRAWMODE_NAVMESH_INVIS]))
+	ImGui::EndDisabled();
+	ImGui::BeginDisabled(!valid[DRAWMODE_NAVMESH_INVIS]);
+	if (ImGui::RadioButton("Navmesh Invis", m_drawMode == DRAWMODE_NAVMESH_INVIS))
 	{
 		m_drawMode = DRAWMODE_NAVMESH_INVIS;
 	}
-	if (imguiCheck("Navmesh Trans", m_drawMode == DRAWMODE_NAVMESH_TRANS, valid[DRAWMODE_NAVMESH_TRANS]))
+	ImGui::EndDisabled();
+	ImGui::BeginDisabled(!valid[DRAWMODE_NAVMESH_TRANS]);
+	if (ImGui::RadioButton("Navmesh Trans", m_drawMode == DRAWMODE_NAVMESH_TRANS))
 	{
 		m_drawMode = DRAWMODE_NAVMESH_TRANS;
 	}
-	if (imguiCheck("Navmesh BVTree", m_drawMode == DRAWMODE_NAVMESH_BVTREE, valid[DRAWMODE_NAVMESH_BVTREE]))
+	ImGui::EndDisabled();
+	ImGui::BeginDisabled(!valid[DRAWMODE_NAVMESH_BVTREE]);
+	if (ImGui::RadioButton("Navmesh BVTree", m_drawMode == DRAWMODE_NAVMESH_BVTREE))
 	{
 		m_drawMode = DRAWMODE_NAVMESH_BVTREE;
 	}
-	if (imguiCheck("Navmesh Nodes", m_drawMode == DRAWMODE_NAVMESH_NODES, valid[DRAWMODE_NAVMESH_NODES]))
+	ImGui::EndDisabled();
+	ImGui::BeginDisabled(!valid[DRAWMODE_NAVMESH_NODES]);
+	if (ImGui::RadioButton("Navmesh Nodes", m_drawMode == DRAWMODE_NAVMESH_NODES))
 	{
 		m_drawMode = DRAWMODE_NAVMESH_NODES;
 	}
-	if (imguiCheck("Navmesh Portals", m_drawMode == DRAWMODE_NAVMESH_PORTALS, valid[DRAWMODE_NAVMESH_PORTALS]))
+	ImGui::EndDisabled();
+	ImGui::BeginDisabled(!valid[DRAWMODE_NAVMESH_PORTALS]);
+	if (ImGui::RadioButton("Navmesh Portals", m_drawMode == DRAWMODE_NAVMESH_PORTALS))
 	{
 		m_drawMode = DRAWMODE_NAVMESH_PORTALS;
 	}
-	if (imguiCheck("Cache Bounds", m_drawMode == DRAWMODE_CACHE_BOUNDS, valid[DRAWMODE_CACHE_BOUNDS]))
+	ImGui::EndDisabled();
+	ImGui::BeginDisabled(!valid[DRAWMODE_CACHE_BOUNDS]);
+	if (ImGui::RadioButton("Cache Bounds", m_drawMode == DRAWMODE_CACHE_BOUNDS))
 	{
 		m_drawMode = DRAWMODE_CACHE_BOUNDS;
 	}
+	ImGui::EndDisabled();
 
 	if (unavail)
 	{
-		imguiValue("Tick 'Keep Itermediate Results'");
-		imguiValue("rebuild some tiles to see");
-		imguiValue("more debug mode options.");
+		ImGui::Text("Tick 'Keep Itermediate Results'");
+		ImGui::Text("rebuild some tiles to see");
+		ImGui::Text("more debug mode options.");
 	}
-#endif
 }
 
 void Sample_TempObstacles::handleRender()
@@ -1067,8 +1062,8 @@ void Sample_TempObstacles::handleRender()
 	int gw = 0;
 	int gh = 0;
 	rcCalcGridSize(bmin, bmax, cellSize, &gw, &gh);
-	const int tw = (gw + (int)m_tileSize-1) / (int)m_tileSize;
-	const int th = (gh + (int)m_tileSize-1) / (int)m_tileSize;
+	const int tw = (gw + m_tileSize-1) / m_tileSize;
+	const int th = (gh + m_tileSize-1) / m_tileSize;
 	const float s = m_tileSize*cellSize;
 	duDebugDrawGridXZ(&debugDraw, bmin[0],bmin[1],bmin[2], tw,th, s, duRGBA(0,0,0,64), 1.0f);
 
@@ -1228,7 +1223,7 @@ bool Sample_TempObstacles::handleBuild()
 	const float* bmax = inputGeometry->getNavMeshBoundsMax();
 	int gw = 0, gh = 0;
 	rcCalcGridSize(bmin, bmax, cellSize, &gw, &gh);
-	const int ts = (int)m_tileSize;
+	const int ts = m_tileSize;
 	const int tw = (gw + ts-1) / ts;
 	const int th = (gh + ts-1) / ts;
 
@@ -1246,7 +1241,7 @@ bool Sample_TempObstacles::handleBuild()
 	cfg.minRegionArea = (int)rcSqr(regionMinSize);		// Note: area = size*size
 	cfg.mergeRegionArea = (int)rcSqr(regionMergeSize);	// Note: area = size*size
 	cfg.maxVertsPerPoly = (int)vertsPerPoly;
-	cfg.tileSize = (int)m_tileSize;
+	cfg.tileSize = m_tileSize;
 	cfg.borderSize = cfg.walkableRadius + 3; // Reserve enough padding.
 	cfg.width = cfg.tileSize + cfg.borderSize*2;
 	cfg.height = cfg.tileSize + cfg.borderSize*2;
@@ -1261,8 +1256,8 @@ bool Sample_TempObstacles::handleBuild()
 	rcVcopy(tcparams.orig, bmin);
 	tcparams.cs = cellSize;
 	tcparams.ch = cellHeight;
-	tcparams.width = (int)m_tileSize;
-	tcparams.height = (int)m_tileSize;
+	tcparams.width = m_tileSize;
+	tcparams.height = m_tileSize;
 	tcparams.walkableHeight = agentHeight;
 	tcparams.walkableRadius = agentRadius;
 	tcparams.walkableClimb = agentMaxClimb;
