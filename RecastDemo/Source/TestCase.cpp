@@ -428,7 +428,6 @@ bool TestCase::handleRenderOverlay(double* proj, double* model, int* view)
 {
 	GLdouble x, y, z;
 	char text[64];
-	char subtext[64];
 	int n = 0;
 
 	static constexpr float LABEL_DIST = 1.0f;
@@ -456,7 +455,7 @@ bool TestCase::handleRenderOverlay(double* proj, double* model, int* view)
 			pt[1] += 0.5f;
 		}
 
-		if (gluProject((GLdouble)pt[0], (GLdouble)pt[1], (GLdouble)pt[2], model, proj, view, &x, &y, &z))
+		if (gluProject(pt[0], pt[1], pt[2], model, proj, view, &x, &y, &z))
 		{
 			snprintf(text, 64, "Path %d\n", n);
 			unsigned int col = IM_COL32(0, 0, 0, 128);
@@ -464,15 +463,13 @@ bool TestCase::handleRenderOverlay(double* proj, double* model, int* view)
 			{
 				col = IM_COL32(255, 192, 0, 220);
 			}
-			DrawScreenspaceText(x, y - 25, col, text, true);
+			DrawScreenspaceText(static_cast<float>(x), static_cast<float>(y) - 25, col, text, true);
 		}
 
 		n++;
 	}
 
-	static int resScroll = 0;
-
-	ImGui::SetNextWindowPos(ImVec2(10, view[3] - 10 - 350), ImGuiCond_Always);  // Position in screen space
+	ImGui::SetNextWindowPos(ImVec2(10, static_cast<float>(view[3]) - 10 - 350), ImGuiCond_Always);  // Position in screen space
 	ImGui::SetNextWindowSize(ImVec2(200, 350), ImGuiCond_Always);     // Size of the window
 	ImGui::Begin("Test Results");
 
@@ -484,10 +481,10 @@ bool TestCase::handleRenderOverlay(double* proj, double* model, int* view)
 
 		if (ImGui::CollapsingHeader(text, ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			ImGui::Text("Total: %.4f ms", (float)total / 1000.0f);
-			ImGui::Text("Poly: %.4f ms", (float)iter->findNearestPolyTime / 1000.0f);
-			ImGui::Text("Path: %.4f ms", (float)iter->findPathTime / 1000.0f);
-			ImGui::Text("Straight: %.4f ms", (float)iter->findStraightPathTime / 1000.0f);
+			ImGui::Text("Total: %.4f ms", static_cast<float>(total) / 1000.0f);
+			ImGui::Text("Poly: %.4f ms", static_cast<float>(iter->findNearestPolyTime) / 1000.0f);
+			ImGui::Text("Path: %.4f ms", static_cast<float>(iter->findPathTime) / 1000.0f);
+			ImGui::Text("Straight: %.4f ms", static_cast<float>(iter->findStraightPathTime) / 1000.0f);
 
 			ImGui::Separator();
 		}

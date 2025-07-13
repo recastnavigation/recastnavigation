@@ -152,17 +152,17 @@ void OffMeshConnectionTool::handleRenderOverlay(double* proj, double* model, int
 	// Draw start and end point labels
 	if (hitPosSet && gluProject((GLdouble)hitPos[0], (GLdouble)hitPos[1], (GLdouble)hitPos[2], model, proj, view, &x, &y, &z))
 	{
-		DrawScreenspaceText(x, y - 25, IM_COL32(0, 0, 0, 220), "Start", true);
+		DrawScreenspaceText(static_cast<float>(x), static_cast<float>(y) - 25, IM_COL32(0, 0, 0, 220), "Start", true);
 	}
 
 	// Tool help
 	const int h = view[3];
 	if (!hitPosSet)
 	{
-		DrawScreenspaceText(280, h - 40, IM_COL32(255, 255, 255, 192), "LMB: Create new connection.  SHIFT+LMB: Delete existing connection, click near start or end point.");
+		DrawScreenspaceText(280, static_cast<float>(h) - 40, IM_COL32(255, 255, 255, 192), "LMB: Create new connection.  SHIFT+LMB: Delete existing connection, click near start or end point.");
 	}
 	else
 	{
-		DrawScreenspaceText(280, h - 40, IM_COL32(255, 255, 255, 192), "LMB: Set connection end point and finish.");
+		DrawScreenspaceText(280, static_cast<float>(h) - 40, IM_COL32(255, 255, 255, 192), "LMB: Set connection end point and finish.");
 	}
 }

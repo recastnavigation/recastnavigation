@@ -584,11 +584,11 @@ void drawDetailOverlay(const dtTileCache* tileCache, const int tileX, const int 
 		{
 			char text[128];
 			snprintf(text, 128, "(%d,%d)/%d", tile->header->tx, tile->header->ty, tile->header->tlayer);
-			DrawScreenspaceText(x, y - 25, IM_COL32(0, 0, 0, 220), text, true);
-			snprintf(text, 128, "Compressed: %.1f kB", tile->dataSize / 1024.0f);
-			DrawScreenspaceText(x, y - 45, IM_COL32(0, 0, 0, 128), text, true);
-			snprintf(text, 128, "Raw:%.1fkB", rawSize / 1024.0f);
-			DrawScreenspaceText(x, y - 65, IM_COL32(0, 0, 0, 128), text, true);
+			DrawScreenspaceText(static_cast<float>(x), static_cast<float>(y) - 25, IM_COL32(0, 0, 0, 220), text, true);
+			snprintf(text, 128, "Compressed: %.1f kB", static_cast<float>(tile->dataSize) / 1024.0f);
+			DrawScreenspaceText(static_cast<float>(x), static_cast<float>(y) - 45, IM_COL32(0, 0, 0, 128), text, true);
+			snprintf(text, 128, "Raw:%.1fkB", static_cast<float>(rawSize) / 1024.0f);
+			DrawScreenspaceText(static_cast<float>(x), static_cast<float>(y) - 65, IM_COL32(0, 0, 0, 128), text, true);
 		}
 	}
 }

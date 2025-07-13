@@ -167,13 +167,13 @@ public:
 			m_sample->getTilePos(m_hitPos, tx, ty);
 			char text[32];
 			snprintf(text, 32, "(%d,%d)", tx, ty);
-			DrawScreenspaceText(x, y, IM_COL32(0, 0, 0, 220), text, true);
+			DrawScreenspaceText(static_cast<float>(x), static_cast<float>(y), IM_COL32(0, 0, 0, 220), text, true);
 		}
 
 		// Tool help
 		DrawScreenspaceText(
 			280,
-			view[3] - 40,
+			static_cast<float>(view[3]) - 40,
 			IM_COL32(255, 255, 255, 192),
 			"LMB: Rebuild hit tile.  Shift+LMB: Clear hit tile.");
 	}
@@ -541,7 +541,7 @@ void Sample_TileMesh::handleRenderOverlay(double* proj, double* model, int* view
 	{
 		char text[64];
 		snprintf(text, 64, "%.3fms / %dTris / %.1fkB", tileBuildTime, tileTriCount, tileMemUsage);
-		DrawScreenspaceText(x, y, IM_COL32(0, 0, 0, 220), text);
+		DrawScreenspaceText(static_cast<float>(x), static_cast<float>(y), IM_COL32(0, 0, 0, 220), text);
 	}
 
 	if (tool)
@@ -558,7 +558,7 @@ void Sample_TileMesh::handleMeshChanged(InputGeom* geom)
 	const BuildSettings* buildSettings = geom->getBuildSettings();
 	if (buildSettings && buildSettings->tileSize > 0)
 	{
-		tileSize = buildSettings->tileSize;
+		tileSize = static_cast<int>(buildSettings->tileSize);
 	}
 
 	cleanup();
@@ -631,7 +631,7 @@ void Sample_TileMesh::collectSettings(BuildSettings& settings)
 {
 	Sample::collectSettings(settings);
 
-	settings.tileSize = tileSize;
+	settings.tileSize = static_cast<float>(tileSize);
 }
 
 void Sample_TileMesh::buildTile(const float* pos)
