@@ -470,7 +470,7 @@ bool TestCase::handleRenderOverlay(double* proj, double* model, int* view)
 	}
 
 	ImGui::SetNextWindowPos(ImVec2(10, static_cast<float>(view[3]) - 10 - 350), ImGuiCond_Always);  // Position in screen space
-	ImGui::SetNextWindowSize(ImVec2(200, 350), ImGuiCond_Always);     // Size of the window
+	ImGui::SetNextWindowSize(ImVec2(200, 350), ImGuiCond_Always);                                   // Size of the window
 	ImGui::Begin("Test Results");
 
 	n = 0;

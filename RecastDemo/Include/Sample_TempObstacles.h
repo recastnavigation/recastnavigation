@@ -18,10 +18,10 @@
 
 #pragma once
 
-#include "Sample.h"
+#include "ChunkyTriMesh.h"
 #include "DetourNavMesh.h"
 #include "Recast.h"
-#include "ChunkyTriMesh.h"
+#include "Sample.h"
 
 struct LinearAllocator;
 struct FastLZCompressor;
