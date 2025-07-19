@@ -20,6 +20,7 @@
 #include "SDL_keycode.h"
 #include "SDL_opengl.h"
 
+#include <algorithm>
 #include <cstdio>
 #include <functional>
 #include <string>
@@ -30,7 +31,6 @@
 #	include <GL/glu.h>
 #endif
 
-#include "Filelist.h"
 #include "InputGeom.h"
 #include "Recast.h"
 #include "Sample_SoloMesh.h"
@@ -55,14 +55,19 @@ struct SampleItem
 	string name;
 	std::function<Sample*()> create;
 };
-static SampleItem g_samples[] = {
+
+namespace
+{
+SampleItem g_samples[] = {
 	{"Solo Mesh",      []() { return new Sample_SoloMesh(); }     },
 	{"Tile Mesh",      []() { return new Sample_TileMesh(); }     },
 	{"Temp Obstacles", []() { return new Sample_TempObstacles(); }},
 };
-static constexpr int g_nsamples = sizeof(g_samples) / sizeof(SampleItem);
+constexpr int g_nsamples = sizeof(g_samples) / sizeof(SampleItem);
 
-static constexpr float fogColor[4] = {0.32f, 0.31f, 0.30f, 1.0f};
+constexpr float fogColor[4] = {0.32f, 0.31f, 0.30f, 1.0f};
+
+}
 
 struct AppData
 {
@@ -134,6 +139,14 @@ struct AppData
 	float markerPosition[3] = {0, 0, 0};
 	bool markerPositionSet = false;
 
+	~AppData()
+	{
+		delete sample;
+		sample = nullptr;
+		delete inputGeometry;
+		inputGeometry = nullptr;
+	}
+
 	void resetCamera()
 	{
 		const float* bmin = 0;
@@ -162,6 +175,7 @@ struct AppData
 int main(int /*argc*/, char** /*argv*/)
 {
 	AppData app;
+
 	// Init SDL
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
 	{
@@ -505,10 +519,7 @@ int main(int /*argc*/, char** /*argv*/)
 		if (dt < MIN_FRAME_TIME)
 		{
 			int ms = static_cast<int>((MIN_FRAME_TIME - dt) * 1000.0f);
-			if (ms > 10)
-			{
-				ms = 10;
-			}
+			ms = std::min(ms, 10);
 			if (ms >= 0)
 			{
 				SDL_Delay(ms);
@@ -588,17 +599,17 @@ int main(int /*argc*/, char** /*argv*/)
 			keybSpeed *= 4.0f;
 		}
 
-		float movex = (app.moveRight - app.moveLeft) * keybSpeed * dt;
-		float movey = (app.moveBack - app.moveFront) * keybSpeed * dt + app.scrollZoom * 2.0f;
+		float moveX = (app.moveRight - app.moveLeft) * keybSpeed * dt;
+		float moveY = (app.moveBack - app.moveFront) * keybSpeed * dt + app.scrollZoom * 2.0f;
 		app.scrollZoom = 0;
 
-		app.cameraPos[0] += movex * static_cast<float>(modelviewMatrix[0]);
-		app.cameraPos[1] += movex * static_cast<float>(modelviewMatrix[4]);
-		app.cameraPos[2] += movex * static_cast<float>(modelviewMatrix[8]);
+		app.cameraPos[0] += moveX * static_cast<float>(modelviewMatrix[0]);
+		app.cameraPos[1] += moveX * static_cast<float>(modelviewMatrix[4]);
+		app.cameraPos[2] += moveX * static_cast<float>(modelviewMatrix[8]);
 
-		app.cameraPos[0] += movey * static_cast<float>(modelviewMatrix[2]);
-		app.cameraPos[1] += movey * static_cast<float>(modelviewMatrix[6]);
-		app.cameraPos[2] += movey * static_cast<float>(modelviewMatrix[10]);
+		app.cameraPos[0] += moveY * static_cast<float>(modelviewMatrix[2]);
+		app.cameraPos[1] += moveY * static_cast<float>(modelviewMatrix[6]);
+		app.cameraPos[2] += moveY * static_cast<float>(modelviewMatrix[10]);
 
 		app.cameraPos[1] += (app.moveUp - app.moveDown) * keybSpeed * dt;
 
@@ -959,13 +970,13 @@ int main(int /*argc*/, char** /*argv*/)
 			glLineWidth(5.0f);
 			glColor4ub(240, 220, 0, 196);
 			glBegin(GL_LINE_LOOP);
-			const float r = 25.0f;
 			for (int i = 0; i < 20; ++i)
 			{
-				const float a = static_cast<float>(i) / 20.0f * RC_PI * 2;
-				const float fx = static_cast<float>(x) + cosf(a) * r;
-				const float fy = static_cast<float>(y) + sinf(a) * r;
-				glVertex2f(fx, fy);
+				constexpr float radius = 25.0f;
+				const float arc = static_cast<float>(i) / 20.0f * RC_PI * 2;
+				const float vertexX = static_cast<float>(x) + cosf(arc) * radius;
+				const float vertexY = static_cast<float>(y) + sinf(arc) * radius;
+				glVertex2f(vertexX, vertexY);
 			}
 			glEnd();
 			glLineWidth(1.0f);
@@ -985,9 +996,6 @@ int main(int /*argc*/, char** /*argv*/)
 	SDL_GL_DeleteContext(app.glContext);
     SDL_DestroyWindow(app.window);
     SDL_Quit();
-
-	delete app.sample;
-	delete app.inputGeometry;
 
 	return 0;
 }

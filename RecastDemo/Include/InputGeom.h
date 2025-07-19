@@ -18,9 +18,15 @@
 
 #pragma once
 
-#include "ChunkyTriMesh.h"
+//#include "ChunkyTriMesh.h"
+//#include "MeshLoaderObj.h"
 
 #include <string>
+#include <vector>
+
+struct ChunkyTriMesh;
+class rcContext;
+struct duDebugDraw;
 
 static constexpr int MAX_CONVEXVOL_PTS = 12;
 struct ConvexVolume
@@ -79,8 +85,8 @@ public:
 	std::vector<int> tris;
 	std::vector<float> normals;
 
-	int getVertCount() const { return static_cast<int>(verts.size()) / 3; }
-	int getTriCount() const { return static_cast<int>(tris.size()) / 3; }
+	[[nodiscard]] int getVertCount() const { return static_cast<int>(verts.size()) / 3; }
+	[[nodiscard]] int getTriCount() const { return static_cast<int>(tris.size()) / 3; }
 
 private:
 	ChunkyTriMesh* chunkyMesh = nullptr;
@@ -108,56 +114,56 @@ private:
 	int volumeCount = 0;
 	///@}
 
-	bool loadMesh(class rcContext* ctx, const std::string& filepath);
-	bool loadGeomSet(class rcContext* ctx, const std::string& filepath);
+	bool loadMesh(rcContext* ctx, const std::string& filepath);
+	bool loadGeomSet(rcContext* ctx, const std::string& filepath);
 	bool loadGeomSet(rcContext* ctx, char* buffer, size_t bufferLen);
 
 public:
 	InputGeom() = default;
-	~InputGeom() { delete chunkyMesh; }
+	~InputGeom();
 	InputGeom(const InputGeom&) = delete;
 	InputGeom& operator=(const InputGeom&) = delete;
 	InputGeom(InputGeom&&) = delete;
 	InputGeom& operator=(InputGeom&&) = delete;
 
-	bool load(class rcContext* ctx, const std::string& filepath);
+	bool load(rcContext* ctx, const std::string& filepath);
 	bool saveGeomSet(const BuildSettings* settings);
 
 	/// Method to return static mesh data.
-	const float* getMeshBoundsMin() const { return meshBMin; }
-	const float* getMeshBoundsMax() const { return meshBMax; }
-	const float* getNavMeshBoundsMin() const { return hasBuildSettings ? buildSettings.navMeshBMin : meshBMin; }
-	const float* getNavMeshBoundsMax() const { return hasBuildSettings ? buildSettings.navMeshBMax : meshBMax; }
-	const ChunkyTriMesh* getChunkyMesh() const { return chunkyMesh; }
-	const BuildSettings* getBuildSettings() const { return hasBuildSettings ? &buildSettings : 0; }
+	[[nodiscard]] const float* getMeshBoundsMin() const { return meshBMin; }
+	[[nodiscard]] const float* getMeshBoundsMax() const { return meshBMax; }
+	[[nodiscard]] const float* getNavMeshBoundsMin() const { return hasBuildSettings ? buildSettings.navMeshBMin : meshBMin; }
+	[[nodiscard]] const float* getNavMeshBoundsMax() const { return hasBuildSettings ? buildSettings.navMeshBMax : meshBMax; }
+	[[nodiscard]] const ChunkyTriMesh* getChunkyMesh() const { return chunkyMesh; }
+	[[nodiscard]] const BuildSettings* getBuildSettings() const { return hasBuildSettings ? &buildSettings : 0; }
 	bool raycastMesh(float* src, float* dst, float& tmin);
 
 	/// @name Off-Mesh connections.
 	///@{
-	int getOffMeshConnectionCount() const { return offMeshConCount; }
-	const float* getOffMeshConnectionVerts() const { return offMeshConVerts; }
-	const float* getOffMeshConnectionRads() const { return offMeshConRads; }
-	const unsigned char* getOffMeshConnectionDirs() const { return offMeshConDirs; }
-	const unsigned char* getOffMeshConnectionAreas() const { return offMeshConAreas; }
-	const unsigned short* getOffMeshConnectionFlags() const { return offMeshConFlags; }
-	const unsigned int* getOffMeshConnectionId() const { return offMeshConId; }
+	[[nodiscard]] int getOffMeshConnectionCount() const { return offMeshConCount; }
+	[[nodiscard]] const float* getOffMeshConnectionVerts() const { return offMeshConVerts; }
+	[[nodiscard]] const float* getOffMeshConnectionRads() const { return offMeshConRads; }
+	[[nodiscard]] const unsigned char* getOffMeshConnectionDirs() const { return offMeshConDirs; }
+	[[nodiscard]] const unsigned char* getOffMeshConnectionAreas() const { return offMeshConAreas; }
+	[[nodiscard]] const unsigned short* getOffMeshConnectionFlags() const { return offMeshConFlags; }
+	[[nodiscard]] const unsigned int* getOffMeshConnectionId() const { return offMeshConId; }
 	void addOffMeshConnection(
 		const float* spos,
 		const float* epos,
-		const float rad,
+		float rad,
 		unsigned char bidir,
 		unsigned char area,
 		unsigned short flags);
 	void deleteOffMeshConnection(int i);
-	void drawOffMeshConnections(struct duDebugDraw* dd, bool hilight = false);
+	void drawOffMeshConnections(duDebugDraw* dd, bool highlight = false);
 	///@}
 
 	/// @name Box Volumes.
 	///@{
-	int getConvexVolumeCount() const { return volumeCount; }
-	const ConvexVolume* getConvexVolumes() const { return volumes; }
-	void addConvexVolume(const float* verts, const int nverts, const float minh, const float maxh, unsigned char area);
+	[[nodiscard]] int getConvexVolumeCount() const { return volumeCount; }
+	[[nodiscard]] const ConvexVolume* getConvexVolumes() const { return volumes; }
+	void addConvexVolume(const float* verts, int nverts, float minh, float maxh, unsigned char area);
 	void deleteConvexVolume(int i);
-	void drawConvexVolumes(struct duDebugDraw* dd, bool hilight = false);
+	void drawConvexVolumes(duDebugDraw* dd, bool highlight = false);
 	///@}
 };

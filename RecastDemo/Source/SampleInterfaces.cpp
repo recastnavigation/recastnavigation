@@ -326,26 +326,26 @@ bool FileIO::read(void* ptr, const size_t size)
 	return readLen == 1;
 }
 
-size_t FileIO::getFileSize()
+size_t FileIO::getFileSize() const
 {
 	if (!fp || mode != Mode::reading)
 	{
 		return false;
 	}
-	size_t currentPos = ftell(fp);
+	const size_t currentPos = ftell(fp);
 	if (fseek(fp, 0, SEEK_END) != 0)
 	{
 		return 0;
 	}
-	size_t size = ftell(fp);
-	if (fseek(fp, 0, currentPos) != 0)
+	const size_t size = ftell(fp);
+	if (fseek(fp, 0, static_cast<int>(currentPos)) != 0)
 	{
 		return 0;
 	}
 	return size;
 }
 
-void FileIO::scanDirectory(const std::string& path, const std::string& ext, std::vector<std::string>& filelist)
+void FileIO::scanDirectory(const std::string& path, const std::string& ext, std::vector<std::string>& fileList)
 {
 #ifdef WIN32
 	std::string pathWithExt = path + "/*" + ext;
@@ -359,7 +359,7 @@ void FileIO::scanDirectory(const std::string& path, const std::string& ext, std:
 
 	do
 	{
-		filelist.emplace_back(dir.name);
+		fileList.emplace_back(dir.name);
 	} while (_findnext(findHandle, &dir) == 0);
 	_findclose(findHandle);
 #else
@@ -383,5 +383,5 @@ void FileIO::scanDirectory(const std::string& path, const std::string& ext, std:
 #endif
 
 	// Sort the list of files alphabetically.
-	std::sort(filelist.begin(), filelist.end());
+	std::sort(fileList.begin(), fileList.end());
 }

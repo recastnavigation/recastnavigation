@@ -25,25 +25,35 @@
 #include "InputGeom.h"
 #include "Recast.h"
 #include "RecastDebugDraw.h"
-#include "SDL.h"
-#include "SDL_opengl.h"
 
 #include <imgui.h>
-#include <math.h>
-#include <stdio.h>
+
+#include <cstdio>
 
 #ifdef WIN32
 #	define snprintf _snprintf
 #endif
 
-SampleTool::~SampleTool()
+namespace
 {
-	// Defined out of line to fix the weak v-tables warning
-}
 
-SampleToolState::~SampleToolState()
+constexpr int NAVMESHSET_MAGIC = 'M' << 24 | 'S' << 16 | 'E' << 8 | 'T';  //'MSET';
+constexpr int NAVMESHSET_VERSION = 1;
+
+struct NavMeshSetHeader
 {
-	// Defined out of line to fix the weak v-tables warning
+	int magic;
+	int version;
+	int numTiles;
+	dtNavMeshParams params;
+};
+
+struct NavMeshTileHeader
+{
+	dtTileRef tileRef;
+	int dataSize;
+};
+
 }
 
 unsigned int SampleDebugDraw::areaToCol(unsigned int area)
@@ -79,11 +89,6 @@ Sample::Sample() : navMeshDrawFlags(DU_DRAWNAVMESH_OFFMESHCONS | DU_DRAWNAVMESH_
 	resetCommonSettings();
 	navQuery = dtAllocNavMeshQuery();
 	crowd = dtAllocCrowd();
-
-	for (int i = 0; i < static_cast<int>(SampleToolType::MAX_TOOLS); i++)
-	{
-		toolStates[i] = 0;
-	}
 }
 
 Sample::~Sample()
@@ -132,9 +137,9 @@ void Sample::handleRender()
 		0,
 		1.0f);
 	// Draw bounds
-	const float* bmin = inputGeometry->getMeshBoundsMin();
-	const float* bmax = inputGeometry->getMeshBoundsMax();
-	duDebugDrawBoxWire(&debugDraw, bmin[0], bmin[1], bmin[2], bmax[0], bmax[1], bmax[2], duRGBA(255, 255, 255, 128), 1.0f);
+	const float* min = inputGeometry->getMeshBoundsMin();
+	const float* max = inputGeometry->getMeshBoundsMax();
+	duDebugDrawBoxWire(&debugDraw, min[0], min[1], min[2], max[0], max[1], max[2], duRGBA(255, 255, 255, 128), 1.0f);
 }
 
 void Sample::handleRenderOverlay(double* /*proj*/, double* /*model*/, int* /*view*/) {}
@@ -294,7 +299,7 @@ void Sample::handleUpdate(const float dt)
 	updateToolStates(dt);
 }
 
-void Sample::updateToolStates(const float dt)
+void Sample::updateToolStates(const float dt) const
 {
 	for (int i = 0; i < static_cast<int>(SampleToolType::MAX_TOOLS); i++)
 	{
@@ -305,7 +310,7 @@ void Sample::updateToolStates(const float dt)
 	}
 }
 
-void Sample::initToolStates(Sample* sample)
+void Sample::initToolStates(Sample* sample) const
 {
 	for (int i = 0; i < static_cast<int>(SampleToolType::MAX_TOOLS); i++)
 	{
@@ -316,7 +321,7 @@ void Sample::initToolStates(Sample* sample)
 	}
 }
 
-void Sample::resetToolStates()
+void Sample::resetToolStates() const
 {
 	for (int i = 0; i < static_cast<int>(SampleToolType::MAX_TOOLS); i++)
 	{
@@ -327,7 +332,7 @@ void Sample::resetToolStates()
 	}
 }
 
-void Sample::renderToolStates()
+void Sample::renderToolStates() const
 {
 	for (int i = 0; i < static_cast<int>(SampleToolType::MAX_TOOLS); i++)
 	{
@@ -338,7 +343,7 @@ void Sample::renderToolStates()
 	}
 }
 
-void Sample::renderOverlayToolStates(double* proj, double* model, int* view)
+void Sample::renderOverlayToolStates(double* proj, double* model, int* view) const
 {
 	for (int i = 0; i < static_cast<int>(SampleToolType::MAX_TOOLS); i++)
 	{
@@ -348,23 +353,6 @@ void Sample::renderOverlayToolStates(double* proj, double* model, int* view)
 		}
 	}
 }
-
-static const int NAVMESHSET_MAGIC = 'M' << 24 | 'S' << 16 | 'E' << 8 | 'T';  //'MSET';
-static const int NAVMESHSET_VERSION = 1;
-
-struct NavMeshSetHeader
-{
-	int magic;
-	int version;
-	int numTiles;
-	dtNavMeshParams params;
-};
-
-struct NavMeshTileHeader
-{
-	dtTileRef tileRef;
-	int dataSize;
-};
 
 dtNavMesh* Sample::loadAll(const char* path)
 {

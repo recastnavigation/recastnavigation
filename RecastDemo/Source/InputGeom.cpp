@@ -20,7 +20,6 @@
 
 #include "ChunkyTriMesh.h"
 #include "DebugDraw.h"
-#include "Filelist.h"
 #include "MeshLoaderObj.h"
 #include "Recast.h"
 #include "Sample.h"
@@ -32,7 +31,9 @@
 
 #include <algorithm>
 
-static bool intersectSegmentTriangle(const float* sp, const float* sq, const float* a, const float* b, const float* c, float& t)
+namespace
+{
+bool intersectSegmentTriangle(const float* sp, const float* sq, const float* a, const float* b, const float* c, float& t)
 {
 	float v;
 	float w;
@@ -92,7 +93,7 @@ static bool intersectSegmentTriangle(const float* sp, const float* sq, const flo
 	return true;
 }
 
-static char* parseRow(char* buf, char* bufEnd, char* row, int len)
+char* parseRow(char* buf, char* bufEnd, char* row, int len)
 {
 	bool start = true;
 	bool done = false;
@@ -132,6 +133,12 @@ static char* parseRow(char* buf, char* bufEnd, char* row, int len)
 	}
 	row[n] = '\0';
 	return buf;
+}
+}
+
+InputGeom::~InputGeom()
+{
+	delete chunkyMesh;
 }
 
 bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath)
@@ -563,7 +570,7 @@ void InputGeom::deleteOffMeshConnection(int i)
 	offMeshConFlags[i] = offMeshConFlags[offMeshConCount];
 }
 
-void InputGeom::drawOffMeshConnections(duDebugDraw* dd, bool hilight)
+void InputGeom::drawOffMeshConnections(duDebugDraw* dd, bool highlight)
 {
 	unsigned int conColor = duRGBA(192, 0, 128, 192);
 	unsigned int baseColor = duRGBA(0, 0, 0, 64);
@@ -583,7 +590,7 @@ void InputGeom::drawOffMeshConnections(duDebugDraw* dd, bool hilight)
 		duAppendCircle(dd, v[0], v[1] + 0.1f, v[2], offMeshConRads[i], baseColor);
 		duAppendCircle(dd, v[3], v[4] + 0.1f, v[5], offMeshConRads[i], baseColor);
 
-		if (hilight)
+		if (highlight)
 		{
 			duAppendArc(dd, v[0], v[1], v[2], v[3], v[4], v[5], 0.25f, (offMeshConDirs[i] & 1) ? 0.6f : 0.0f, 0.6f, conColor);
 		}

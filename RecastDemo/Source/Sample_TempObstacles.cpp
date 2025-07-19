@@ -27,6 +27,7 @@
 #else
 #	include <GL/glu.h>
 #endif
+#include "ChunkyTriMesh.h"
 #include "ConvexVolumeTool.h"
 #include "CrowdTool.h"
 #include "DetourAssert.h"

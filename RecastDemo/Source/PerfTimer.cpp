@@ -27,8 +27,8 @@
 TimeVal getPerfTime()
 {
 #ifdef WIN32
-	__int64 count;
-	QueryPerformanceCounter((LARGE_INTEGER*)&count);
+	int64_t count;
+	QueryPerformanceCounter(reinterpret_cast<LARGE_INTEGER*>(&count));
 	return count;
 #else
 	timeval now;
@@ -40,13 +40,14 @@ TimeVal getPerfTime()
 int getPerfTimeUsec(const TimeVal duration)
 {
 #ifdef WIN32
-	static __int64 freq = 0;
+	static int64_t freq = 0;
 	if (freq == 0)
 	{
-		QueryPerformanceFrequency((LARGE_INTEGER*)&freq);
+		QueryPerformanceFrequency(reinterpret_cast<LARGE_INTEGER*>(&freq));
 	}
-	return (int)(duration * 1000000 / freq);
+	return static_cast<int>(duration * 1000000 / freq);
 #else
-	return (int)duration;
+	return static_cast<int>(duration);
 #endif
 }
+

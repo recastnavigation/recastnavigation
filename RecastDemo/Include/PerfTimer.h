@@ -22,4 +22,4 @@
 typedef int64_t TimeVal;
 
 TimeVal getPerfTime();
-int getPerfTimeUsec(const TimeVal duration);
+int getPerfTimeUsec(TimeVal duration);

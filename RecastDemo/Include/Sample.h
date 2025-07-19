@@ -76,12 +76,12 @@ enum SamplePartitionType
 class SampleDebugDraw : public DebugDrawGL
 {
 public:
-	virtual unsigned int areaToCol(unsigned int area);
+	unsigned int areaToCol(unsigned int area) override;
 };
 
 struct SampleTool
 {
-	virtual ~SampleTool();
+	virtual ~SampleTool() = default;
 
 	virtual SampleToolType type() = 0;
 	virtual void init(Sample* sample) = 0;
@@ -97,7 +97,7 @@ struct SampleTool
 
 struct SampleToolState
 {
-	virtual ~SampleToolState();
+	virtual ~SampleToolState() = default;
 	virtual void init(Sample* sample) = 0;
 	virtual void reset() = 0;
 	virtual void handleRender() = 0;
@@ -135,7 +135,7 @@ protected:
 	bool filterWalkableLowHeightSpans = true;
 
 	SampleTool* tool = nullptr;
-	SampleToolState* toolStates[static_cast<unsigned long>(SampleToolType::MAX_TOOLS)];
+	SampleToolState* toolStates[static_cast<size_t>(SampleToolType::MAX_TOOLS)] = {};
 
 	BuildContext* buildContext = nullptr;
 
@@ -184,11 +184,11 @@ public:
 	unsigned char getNavMeshDrawFlags() const { return navMeshDrawFlags; }
 	void setNavMeshDrawFlags(unsigned char flags) { navMeshDrawFlags = flags; }
 
-	void updateToolStates(float dt);
-	void initToolStates(Sample* sample);
-	void resetToolStates();
-	void renderToolStates();
-	void renderOverlayToolStates(double* proj, double* model, int* view);
+	void updateToolStates(float dt) const;
+	void initToolStates(Sample* sample) const;
+	void resetToolStates() const;
+	void renderToolStates() const;
+	void renderOverlayToolStates(double* proj, double* model, int* view) const;
 
 	void resetCommonSettings();
 	void handleCommonSettings();

@@ -24,14 +24,13 @@
 #include "RecastDump.h"
 
 #include <array>
-#include <cstdio>
 #include <string>
 #include <vector>
 
 // These are example implementations of various interfaces used in Recast and Detour.
 
 /// Recast build context.
-class BuildContext : public rcContext
+class BuildContext final : public rcContext
 {
 	std::array<TimeVal, RC_MAX_TIMERS> startTime;
 	std::array<TimeVal, RC_MAX_TIMERS> accTime;
@@ -44,9 +43,9 @@ public:
 	/// Dumps the log to stdout.
 	void dumpLog(const char* format, ...);
 	/// Returns number of log messages.
-	int getLogCount() const;
+	[[nodiscard]] int getLogCount() const;
 	/// Returns log message text.
-	const char* getLogText(const int i) const;
+	[[nodiscard]] const char* getLogText(int i) const;
 
 protected:
 	void doResetLog() override;
@@ -54,25 +53,25 @@ protected:
 	void doResetTimers() override;
 	void doStartTimer(rcTimerLabel label) override;
 	void doStopTimer(rcTimerLabel label) override;
-	int doGetAccumulatedTime(rcTimerLabel label) const override;
+	[[nodiscard]] int doGetAccumulatedTime(rcTimerLabel label) const override;
 };
 
 /// OpenGL debug draw implementation.
 class DebugDrawGL : public duDebugDraw
 {
 public:
-	virtual void depthMask(bool state);
-	virtual void texture(bool state);
-	virtual void begin(duDebugDrawPrimitives prim, float size = 1.0f);
-	virtual void vertex(const float* pos, unsigned int color);
-	virtual void vertex(const float* pos, unsigned int color, const float* uv);
-	virtual void vertex(float x, float y, float z, unsigned int color);
-	virtual void vertex(float x, float y, float z, unsigned int color, float u, float v);
-	virtual void end();
+	void depthMask(bool state) override;
+	void texture(bool state) override;
+	void begin(duDebugDrawPrimitives prim, float size = 1.0f) override;
+	void vertex(const float* pos, unsigned int color) override;
+	void vertex(const float* pos, unsigned int color, const float* uv) override;
+	void vertex(float x, float y, float z, unsigned int color) override;
+	void vertex(float x, float y, float z, unsigned int color, float u, float v) override;
+	void end() override;
 };
 
 /// stdio file implementation.
-class FileIO : public duFileIO
+class FileIO final : public duFileIO
 {
 public:
 	FileIO() = default;
@@ -80,15 +79,15 @@ public:
 	FileIO& operator=(const FileIO&) = delete;
 	FileIO(FileIO&&) = default;
 	FileIO& operator=(FileIO&&) = default;
-	virtual ~FileIO();
+	~FileIO() override;
 
 	bool openForWrite(const char* path);
 	bool openForRead(const char* path);
-	virtual bool isWriting() const;
-	virtual bool isReading() const;
-	virtual bool write(const void* ptr, const size_t size);
-	virtual bool read(void* ptr, const size_t size);
-	size_t getFileSize();
+	[[nodiscard]] bool isWriting() const override;
+	[[nodiscard]] bool isReading() const override;
+	bool write(const void* ptr, size_t size) override;
+	bool read(void* ptr, size_t size) override;
+	size_t getFileSize() const;
 
 	static void scanDirectory(const std::string& path, const std::string& ext, std::vector<std::string>& fileList);
 private:
