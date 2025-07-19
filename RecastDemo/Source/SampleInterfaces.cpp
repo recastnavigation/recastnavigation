@@ -4,11 +4,16 @@
 #include "Recast.h"
 #include "SDL_opengl.h"
 
+#include <algorithm>
 #include <cstdarg>
 #include <cstdio>
 
 #ifdef WIN32
 #	define snprintf _snprintf
+#	include <io.h>
+#else
+#	include <dirent.h>
+#	include <cstring>
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -272,7 +277,7 @@ bool FileIO::openForWrite(const char* path)
 	{
 		return false;
 	}
-	mode = 1;
+	mode = Mode::writing;
 	return true;
 }
 
@@ -287,23 +292,23 @@ bool FileIO::openForRead(const char* path)
 	{
 		return false;
 	}
-	mode = 2;
+	mode = Mode::reading;
 	return true;
 }
 
 bool FileIO::isWriting() const
 {
-	return mode == 1;
+	return mode == Mode::writing;
 }
 
 bool FileIO::isReading() const
 {
-	return mode == 2;
+	return mode == Mode::reading;
 }
 
 bool FileIO::write(const void* ptr, const size_t size)
 {
-	if (!fp || mode != 1)
+	if (!fp || mode != Mode::writing)
 	{
 		return false;
 	}
@@ -313,10 +318,70 @@ bool FileIO::write(const void* ptr, const size_t size)
 
 bool FileIO::read(void* ptr, const size_t size)
 {
-	if (!fp || mode != 2)
+	if (!fp || mode != Mode::reading)
 	{
 		return false;
 	}
 	size_t readLen = fread(ptr, size, 1, fp);
 	return readLen == 1;
+}
+
+size_t FileIO::getFileSize()
+{
+	if (!fp || mode != Mode::reading)
+	{
+		return false;
+	}
+	size_t currentPos = ftell(fp);
+	if (fseek(fp, 0, SEEK_END) != 0)
+	{
+		return 0;
+	}
+	size_t size = ftell(fp);
+	if (fseek(fp, 0, currentPos) != 0)
+	{
+		return 0;
+	}
+	return size;
+}
+
+void FileIO::scanDirectory(const std::string& path, const std::string& ext, std::vector<std::string>& filelist)
+{
+#ifdef WIN32
+	std::string pathWithExt = path + "/*" + ext;
+
+	_finddata_t dir;
+	intptr_t findHandle = _findfirst(pathWithExt.c_str(), &dir);
+	if (findHandle == -1L)
+	{
+		return;
+	}
+
+	do
+	{
+		filelist.emplace_back(dir.name);
+	} while (_findnext(findHandle, &dir) == 0);
+	_findclose(findHandle);
+#else
+	dirent* current = 0;
+	DIR* dp = opendir(path.c_str());
+	if (!dp)
+	{
+		return;
+	}
+
+	size_t extLen = strlen(ext.c_str());
+	while ((current = readdir(dp)) != 0)
+	{
+		size_t len = strlen(current->d_name);
+		if (len > extLen && strncmp(current->d_name + len - extLen, ext.c_str(), extLen) == 0)
+		{
+			filelist.emplace_back(current->d_name);
+		}
+	}
+	closedir(dp);
+#endif
+
+	// Sort the list of files alphabetically.
+	std::sort(filelist.begin(), filelist.end());
 }

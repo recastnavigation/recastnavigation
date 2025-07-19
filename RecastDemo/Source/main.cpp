@@ -276,7 +276,7 @@ int main(int /*argc*/, char** /*argv*/)
 
 
 	//----------------------------------------------------------------------------
-	scanDirectory(app.meshesFolder, ".obj", app.files);
+	FileIO::scanDirectory(app.meshesFolder, ".obj", app.files);
 	app.meshName = app.files[0];
 	app.inputGeometry = new InputGeom;
 	app.inputGeometry->load(&app.buildContext, app.meshesFolder + "/" + app.meshName);
@@ -326,7 +326,7 @@ int main(int /*argc*/, char** /*argv*/)
 				case SDLK_t:
 					app.showTestCases = true;
 					app.files.clear();
-					scanDirectory(app.testCasesFolder, ".txt", app.files);
+					FileIO::scanDirectory(app.testCasesFolder, ".txt", app.files);
 					break;
 				case SDLK_TAB:
 					app.showMenu = !app.showMenu;
@@ -660,8 +660,8 @@ int main(int /*argc*/, char** /*argv*/)
 			if (ImGui::BeginCombo("##levelCombo", app.meshName.c_str(), 0))
 			{
 				app.files.clear();
-				scanDirectory(app.meshesFolder, ".obj", app.files);
-				scanDirectory(app.meshesFolder, ".gset", app.files);
+				FileIO::scanDirectory(app.meshesFolder, ".obj", app.files);
+				FileIO::scanDirectory(app.meshesFolder, ".gset", app.files);
 
 				for (const auto& file : app.files)
 				{

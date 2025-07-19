@@ -78,8 +78,8 @@ public:
 	FileIO() = default;
 	FileIO(const FileIO&) = delete;
 	FileIO& operator=(const FileIO&) = delete;
-	FileIO(FileIO&&) = delete;
-	FileIO& operator=(FileIO&&) = delete;
+	FileIO(FileIO&&) = default;
+	FileIO& operator=(FileIO&&) = default;
 	virtual ~FileIO();
 
 	bool openForWrite(const char* path);
@@ -88,8 +88,11 @@ public:
 	virtual bool isReading() const;
 	virtual bool write(const void* ptr, const size_t size);
 	virtual bool read(void* ptr, const size_t size);
+	size_t getFileSize();
 
+	static void scanDirectory(const std::string& path, const std::string& ext, std::vector<std::string>& fileList);
 private:
 	FILE* fp = nullptr;
-	int mode = -1;
+	enum class Mode { none, reading, writing };
+	Mode mode = Mode::none;
 };

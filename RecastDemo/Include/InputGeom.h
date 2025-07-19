@@ -19,7 +19,6 @@
 #pragma once
 
 #include "ChunkyTriMesh.h"
-#include "MeshLoaderObj.h"
 
 #include <string>
 
@@ -115,10 +114,7 @@ private:
 
 public:
 	InputGeom() = default;
-	~InputGeom()
-	{
-		delete chunkyMesh;
-	}
+	~InputGeom() { delete chunkyMesh; }
 	InputGeom(const InputGeom&) = delete;
 	InputGeom& operator=(const InputGeom&) = delete;
 	InputGeom(InputGeom&&) = delete;

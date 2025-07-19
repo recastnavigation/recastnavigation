@@ -136,13 +136,22 @@ static char* parseRow(char* buf, char* bufEnd, char* row, int len)
 
 bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath)
 {
-	char* buffer;
-	size_t bufferLen;
-	if (!tryReadFile(filepath, &buffer, &bufferLen))
+	FileIO file;
+	if (!file.openForRead(filepath.c_str()))
 	{
 		ctx->log(RC_LOG_ERROR, "buildTiledNavigation: Could not load '%s'", filepath.c_str());
 		return false;
 	}
+
+	size_t bufferLen = file.getFileSize();
+	char* buffer = new char[bufferLen];
+
+	if (!file.read(buffer, bufferLen))
+	{
+		ctx->log(RC_LOG_ERROR, "buildTiledNavigation: Could not load '%s'", filepath.c_str());
+		return false;
+	}
+
 	filename = filepath;
 
 	delete chunkyMesh;
