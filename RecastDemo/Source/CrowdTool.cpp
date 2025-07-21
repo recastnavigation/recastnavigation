@@ -848,7 +848,7 @@ void CrowdToolState::setMoveTarget(const float* p, bool adjust)
 	}
 
 	// Find nearest point on navmesh and set move request to that location.
-	dtNavMeshQuery* navquery = sample->getNavMeshQuery();
+	dtNavMeshQuery* navquery = sample->navQuery;
 	dtCrowd* crowd = sample->getCrowd();
 	const dtQueryFilter* filter = crowd->getFilter(0);
 	const float* halfExtents = crowd->getQueryExtents();
@@ -1181,7 +1181,7 @@ void CrowdTool::handleClick(const float* s, const float* p, bool shift)
 	else if (mode == ToolMode::TOGGLE_POLYS)
 	{
 		dtNavMesh* nav = sample->navMesh;
-		dtNavMeshQuery* navquery = sample->getNavMeshQuery();
+		dtNavMeshQuery* navquery = sample->navQuery;
 		if (nav && navquery)
 		{
 			dtQueryFilter filter;

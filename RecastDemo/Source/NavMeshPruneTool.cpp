@@ -260,7 +260,7 @@ void NavMeshPruneTool::handleClick(const float* s, const float* p, bool shift)
 	{
 		return;
 	}
-	dtNavMeshQuery* query = sample->getNavMeshQuery();
+	dtNavMeshQuery* query = sample->navQuery;
 	if (!query)
 	{
 		return;

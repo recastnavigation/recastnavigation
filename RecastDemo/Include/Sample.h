@@ -110,9 +110,9 @@ class Sample
 public:
 	InputGeom* inputGeometry = nullptr;
 	dtNavMesh* navMesh = nullptr;
+	dtNavMeshQuery* navQuery = nullptr;
 
 protected:
-	dtNavMeshQuery* navQuery = nullptr;
 	dtCrowd* crowd = nullptr;
 
 	unsigned char navMeshDrawFlags;
@@ -175,7 +175,6 @@ public:
 	virtual void handleUpdate(float dt);
 	virtual void collectSettings(struct BuildSettings& settings);
 
-	dtNavMeshQuery* getNavMeshQuery() { return navQuery; }
 	dtCrowd* getCrowd() { return crowd; }
 	float getAgentRadius() { return agentRadius; }
 	float getAgentHeight() { return agentHeight; }

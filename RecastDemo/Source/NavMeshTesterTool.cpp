@@ -196,7 +196,7 @@ void NavMeshTesterTool::init(Sample* sample)
 {
 	m_sample = sample;
 	m_navMesh = sample->navMesh;
-	m_navQuery = sample->getNavMeshQuery();
+	m_navQuery = sample->navQuery;
 	recalc();
 
 	if (m_navQuery)
