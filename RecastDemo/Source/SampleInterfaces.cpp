@@ -376,7 +376,7 @@ void FileIO::scanDirectory(const std::string& path, const std::string& ext, std:
 		size_t len = strlen(current->d_name);
 		if (len > extLen && strncmp(current->d_name + len - extLen, ext.c_str(), extLen) == 0)
 		{
-			filelist.emplace_back(current->d_name);
+			fileList.emplace_back(current->d_name);
 		}
 	}
 	closedir(dp);
