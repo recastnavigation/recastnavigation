@@ -124,29 +124,21 @@ CrowdToolState::~CrowdToolState()
 
 void CrowdToolState::init(Sample* newSample)
 {
-	if (newSample != sample)
+	sample = newSample;
+
+	dtNavMesh* navmesh = sample->navMesh;
+	if (!navmesh)
 	{
-		sample = newSample;
+		return;
 	}
 
-	dtNavMesh* navmesh = sample->getNavMesh();
 	dtCrowd* crowd = sample->getCrowd();
-
-	dtNavMesh* newNavmesh = newSample->getNavMesh();
-	if (!newNavmesh || newNavmesh == navmesh)
+	if (!crowd)
 	{
 		return;
 	}
-	navmesh = newNavmesh;
 
-	dtCrowd* newCrowd = newSample->getCrowd();
-	if (!newCrowd || newCrowd == crowd)
-	{
-		return;
-	}
-	crowd = newCrowd;
-
-	crowd->init(MAX_AGENTS, newSample->getAgentRadius(), navmesh);
+	crowd->init(MAX_AGENTS, sample->getAgentRadius(), navmesh);
 
 	// Make polygons with 'disabled' flag invalid.
 	crowd->getEditableFilter(0)->setExcludeFlags(SAMPLE_POLYFLAGS_DISABLED);
@@ -193,7 +185,7 @@ void CrowdToolState::handleRender()
 	duDebugDraw& dd = sample->getDebugDraw();
 	const float rad = sample->getAgentRadius();
 
-	dtNavMesh* nav = sample->getNavMesh();
+	dtNavMesh* nav = sample->navMesh;
 	dtCrowd* crowd = sample->getCrowd();
 	if (!nav || !crowd)
 	{
@@ -1013,7 +1005,7 @@ void CrowdToolState::updateTick(const float dt)
 	{
 		return;
 	}
-	dtNavMesh* nav = sample->getNavMesh();
+	dtNavMesh* nav = sample->navMesh;
 	dtCrowd* crowd = sample->getCrowd();
 	if (!nav || !crowd)
 	{
@@ -1188,7 +1180,7 @@ void CrowdTool::handleClick(const float* s, const float* p, bool shift)
 	}
 	else if (mode == ToolMode::TOGGLE_POLYS)
 	{
-		dtNavMesh* nav = sample->getNavMesh();
+		dtNavMesh* nav = sample->navMesh;
 		dtNavMeshQuery* navquery = sample->getNavMeshQuery();
 		if (nav && navquery)
 		{

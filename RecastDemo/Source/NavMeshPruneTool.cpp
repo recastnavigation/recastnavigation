@@ -222,7 +222,7 @@ void NavMeshPruneTool::handleMenu()
 		return;
 	}
 
-	dtNavMesh* nav = sample->getNavMesh();
+	dtNavMesh* nav = sample->navMesh;
 	if (!nav)
 	{
 		return;
@@ -255,7 +255,7 @@ void NavMeshPruneTool::handleClick(const float* s, const float* p, bool shift)
 	{
 		return;
 	}
-	dtNavMesh* nav = sample->getNavMesh();
+	dtNavMesh* nav = sample->navMesh;
 	if (!nav)
 	{
 		return;
@@ -301,7 +301,7 @@ void NavMeshPruneTool::handleRender()
 		debugDraw.end();
 	}
 
-	const dtNavMesh* nav = sample->getNavMesh();
+	const dtNavMesh* nav = sample->navMesh;
 	if (flags && nav)
 	{
 		for (int i = 0; i < nav->getMaxTiles(); ++i)
