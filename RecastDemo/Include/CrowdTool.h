@@ -51,8 +51,8 @@ class CrowdToolState : public SampleToolState
 {
 	Sample* sample = nullptr;
 
-	float targetPosition[3] {};
-	dtPolyRef targetPolyRef {0};
+	float targetPosition[3]{};
+	dtPolyRef targetPolyRef{0};
 
 	dtCrowdAgentDebugInfo agentDebug;
 	dtObstacleAvoidanceDebugData* obstacleAvoidanceDebugData = nullptr;
