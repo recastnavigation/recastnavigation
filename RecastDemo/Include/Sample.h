@@ -175,12 +175,12 @@ public:
 	virtual void handleUpdate(float dt);
 	virtual void collectSettings(struct BuildSettings& settings);
 
-	virtual dtNavMesh* getNavMesh() { return navMesh; }
-	virtual dtNavMeshQuery* getNavMeshQuery() { return navQuery; }
-	virtual dtCrowd* getCrowd() { return crowd; }
-	virtual float getAgentRadius() { return agentRadius; }
-	virtual float getAgentHeight() { return agentHeight; }
-	virtual float getAgentClimb() { return agentMaxClimb; }
+	dtNavMesh* getNavMesh() { return navMesh; }
+	dtNavMeshQuery* getNavMeshQuery() { return navQuery; }
+	dtCrowd* getCrowd() { return crowd; }
+	float getAgentRadius() { return agentRadius; }
+	float getAgentHeight() { return agentHeight; }
+	float getAgentClimb() { return agentMaxClimb; }
 
 	unsigned char getNavMeshDrawFlags() const { return navMeshDrawFlags; }
 	void setNavMeshDrawFlags(unsigned char flags) { navMeshDrawFlags = flags; }
