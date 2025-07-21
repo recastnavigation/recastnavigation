@@ -107,8 +107,10 @@ struct SampleToolState
 
 class Sample
 {
-protected:
+public:
 	InputGeom* inputGeometry = nullptr;
+
+protected:
 	dtNavMesh* navMesh = nullptr;
 	dtNavMeshQuery* navQuery = nullptr;
 	dtCrowd* crowd = nullptr;
@@ -173,7 +175,6 @@ public:
 	virtual void handleUpdate(float dt);
 	virtual void collectSettings(struct BuildSettings& settings);
 
-	virtual InputGeom* getInputGeom() { return inputGeometry; }
 	virtual dtNavMesh* getNavMesh() { return navMesh; }
 	virtual dtNavMeshQuery* getNavMeshQuery() { return navQuery; }
 	virtual dtCrowd* getCrowd() { return crowd; }

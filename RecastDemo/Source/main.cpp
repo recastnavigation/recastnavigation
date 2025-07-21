@@ -775,7 +775,7 @@ int main(int /*argc*/, char** /*argv*/)
 				app.inputGeometry = nullptr;
 
 				// Destroy the sample if it already had geometry loaded, as we've just deleted it!
-				if (app.sample && app.sample->getInputGeom())
+				if (app.sample && app.sample->inputGeometry)
 				{
 					delete app.sample;
 					app.sample = nullptr;

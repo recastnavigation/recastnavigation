@@ -1148,7 +1148,7 @@ void CrowdTool::handleClick(const float* s, const float* p, bool shift)
 	{
 		return;
 	}
-	InputGeom* geom = sample->getInputGeom();
+	InputGeom* geom = sample->inputGeometry;
 	if (!geom)
 	{
 		return;

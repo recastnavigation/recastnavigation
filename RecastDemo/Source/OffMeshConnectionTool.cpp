@@ -73,7 +73,7 @@ void OffMeshConnectionTool::handleClick(const float* /*rayStartPos*/, const floa
 		return;
 	}
 
-	InputGeom* geom = sample->getInputGeom();
+	InputGeom* geom = sample->inputGeometry;
 	if (!geom)
 	{
 		return;
@@ -139,7 +139,7 @@ void OffMeshConnectionTool::handleRender()
 		duDebugDrawCross(&dd, hitPos[0], hitPos[1] + 0.1f, hitPos[2], sample->getAgentRadius(), duRGBA(0, 0, 0, 128), 2.0f);
 	}
 
-	if (InputGeom* geom = sample->getInputGeom())
+	if (InputGeom* geom = sample->inputGeometry)
 	{
 		geom->drawOffMeshConnections(&dd, true);
 	}

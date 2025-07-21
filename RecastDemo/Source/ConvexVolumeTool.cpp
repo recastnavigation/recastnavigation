@@ -166,7 +166,7 @@ void ConvexVolumeTool::handleClick(const float* /*s*/, const float* p, bool shif
 	{
 		return;
 	}
-	InputGeom* geom = sample->getInputGeom();
+	InputGeom* geom = sample->inputGeometry;
 	if (!geom)
 	{
 		return;
