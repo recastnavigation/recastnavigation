@@ -19,65 +19,60 @@
 #pragma once
 
 #include "DetourCrowd.h"
-#include "DetourNavMesh.h"
-#include "DetourObstacleAvoidance.h"
 #include "Sample.h"
 #include "ValueHistory.h"
 
-#include <cstdint>
-
 struct CrowdToolParams
 {
-	bool m_showCorners = false;
-	bool m_showCollisionSegments = false;
-	bool m_showPath = false;
-	bool m_showVO = false;
-	bool m_showOpt = false;
-	bool m_showNeis = false;
+	bool showCorners = false;
+	bool showCollisionSegments = false;
+	bool showPath = false;
+	bool showVO = false;
+	bool showOpt = false;
+	bool showNeighbors = false;
 
-	bool m_showLabels = false;
-	bool m_showGrid = false;
-	bool m_showNodes = false;
-	bool m_showPerfGraph = false;
-	bool m_showDetailAll = false;
+	bool showLabels = false;
+	bool showGrid = false;
+	bool showNodes = false;
+	bool showPerfGraph = false;
+	bool showDetailAll = false;
 
-	bool m_anticipateTurns = true;
-	bool m_optimizeVis = true;
-	bool m_optimizeTopo = true;
-	bool m_obstacleAvoidance = true;
-	int m_obstacleAvoidanceType = 1;
-	bool m_separation = false;
-	float m_separationWeight = 2.0f;
+	bool anticipateTurns = true;
+	bool optimizeVis = true;
+	bool optimizeTopo = true;
+	bool obstacleAvoidance = true;
+	int obstacleAvoidanceType = 1;
+	bool separation = false;
+	float separationWeight = 2.0f;
 };
 
 /// Tool to create crowds.
 class CrowdToolState : public SampleToolState
 {
-	Sample* m_sample;
-	dtNavMesh* m_nav;
-	dtCrowd* m_crowd;
+	Sample* sample = nullptr;
 
-	float m_targetPos[3];
-	dtPolyRef m_targetRef;
+	float targetPosition[3] {};
+	dtPolyRef targetPolyRef {0};
 
-	dtCrowdAgentDebugInfo m_agentDebug;
-	dtObstacleAvoidanceDebugData* m_vod;
+	dtCrowdAgentDebugInfo agentDebug;
+	dtObstacleAvoidanceDebugData* obstacleAvoidanceDebugData = nullptr;
 
-	static const int AGENT_MAX_TRAIL = 64;
-	static const int MAX_AGENTS = 128;
+	static constexpr int AGENT_MAX_TRAIL = 64;
+	static constexpr int MAX_AGENTS = 128;
+
 	struct AgentTrail
 	{
 		float trail[AGENT_MAX_TRAIL * 3];
 		int htrail;
 	};
-	AgentTrail m_trails[MAX_AGENTS];
+	AgentTrail trails[MAX_AGENTS];
 
-	ValueHistory m_crowdTotalTime;
-	ValueHistory m_crowdSampleCount;
+	ValueHistory crowdTotalTime;
+	ValueHistory crowdSampleCount;
 
-	CrowdToolParams m_toolParams;
+	CrowdToolParams toolParams;
 
-	bool m_run;
+	bool run = true;
 
 public:
 	CrowdToolState();
@@ -87,30 +82,30 @@ public:
 	CrowdToolState& operator=(const CrowdToolState&&) = delete;
 	~CrowdToolState() override;
 
-	void init(class Sample* sample) override;
+	void init(Sample* newSample) override;
 	void reset() override;
 	void handleRender() override;
 	void handleRenderOverlay(double* proj, double* model, int* view) override;
-	void handleUpdate(const float dt) override;
+	void handleUpdate(float dt) override;
 
-	inline bool isRunning() const { return m_run; }
-	inline void setRunning(const bool s) { m_run = s; }
+	[[nodiscard]] bool isRunning() const { return run; }
+	void setRunning(const bool s) { run = s; }
 
 	void addAgent(const float* pos);
-	void removeAgent(const int idx);
-	void hilightAgent(const int idx);
+	void removeAgent(int idx);
+	void highlightAgent(int idx);
 	void updateAgentParams();
 	int hitTestAgents(const float* s, const float* p);
 	void setMoveTarget(const float* p, bool adjust);
-	void updateTick(const float dt);
+	void updateTick(float dt);
 
-	inline CrowdToolParams* getToolParams() { return &m_toolParams; }
+	CrowdToolParams* getToolParams() { return &toolParams; }
 };
 
 class CrowdTool : public SampleTool
 {
-	Sample* m_sample = nullptr;
-	CrowdToolState* m_state = nullptr;
+	Sample* sample = nullptr;
+	CrowdToolState* state = nullptr;
 
 	enum class ToolMode : uint8_t
 	{
@@ -119,7 +114,7 @@ class CrowdTool : public SampleTool
 		SELECT,
 		TOGGLE_POLYS
 	};
-	ToolMode m_mode = ToolMode::CREATE;
+	ToolMode mode = ToolMode::CREATE;
 
 public:
 	SampleToolType type() override { return SampleToolType::CROWD; }
@@ -129,7 +124,7 @@ public:
 	void handleClick(const float* s, const float* p, bool shift) override;
 	void handleToggle() override;
 	void handleStep() override;
-	void handleUpdate(const float dt) override;
+	void handleUpdate(float dt) override;
 	void handleRender() override;
 	void handleRenderOverlay(double* proj, double* model, int* view) override;
 };
