@@ -26,7 +26,6 @@ class NavMeshTesterTool : public SampleTool
 {
 	Sample* sample = nullptr;
 
-	dtNavMesh* navMesh = nullptr;
 	dtNavMeshQuery* navmeshQuery = nullptr;
 
 	dtQueryFilter filter;
