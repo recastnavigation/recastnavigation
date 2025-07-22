@@ -1015,7 +1015,7 @@ void NavMeshTesterTool::recalc()
 		{
 			const float nx = (epos[2] - spos[2]) * 0.25f;
 			const float nz = -(epos[0] - spos[0]) * 0.25f;
-			const float agentHeight = sample ? sample->getAgentHeight() : 0;
+			const float agentHeight = sample ? sample->agentHeight : 0;
 
 			queryPoly[0] = spos[0] + nx * 1.2f;
 			queryPoly[1] = spos[1] + agentHeight / 2;
@@ -1105,7 +1105,7 @@ void NavMeshTesterTool::handleRender()
 	static const unsigned int pathCol = duRGBA(0, 0, 0, 64);
 
 	const float agentRadius = sample->agentRadius;
-	const float agentHeight = sample->getAgentHeight();
+	const float agentHeight = sample->agentHeight;
 	const float agentClimb = sample->getAgentClimb();
 
 	dd.depthMask(false);
