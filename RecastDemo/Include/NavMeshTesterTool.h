@@ -26,8 +26,6 @@ class NavMeshTesterTool : public SampleTool
 {
 	Sample* sample = nullptr;
 
-	dtNavMeshQuery* navmeshQuery = nullptr;
-
 	dtQueryFilter filter;
 
 	dtStatus pathFindStatus = DT_FAILURE;

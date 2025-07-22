@@ -195,10 +195,9 @@ NavMeshTesterTool::NavMeshTesterTool()
 void NavMeshTesterTool::init(Sample* newSample)
 {
 	sample = newSample;
-	navmeshQuery = sample->navQuery;
 	recalc();
 
-	if (navmeshQuery)
+	if (sample->navQuery)
 	{
 		// Change costs.
 		filter.setAreaCost(SAMPLE_POLYAREA_GROUND, 1.0f);
@@ -294,7 +293,7 @@ void NavMeshTesterTool::handleMenu()
 
 	if (ImGui::Button("Set Random Start"))
 	{
-		dtStatus status = navmeshQuery->findRandomPoint(&filter, frand, &startRef, spos);
+		dtStatus status = sample->navQuery->findRandomPoint(&filter, frand, &startRef, spos);
 		if (dtStatusSucceed(status))
 		{
 			sposSet = true;
@@ -307,7 +306,7 @@ void NavMeshTesterTool::handleMenu()
 	{
 		if (sposSet)
 		{
-			dtStatus status = navmeshQuery->findRandomPointAroundCircle(
+			dtStatus status = sample->navQuery->findRandomPointAroundCircle(
 				startRef,
 				spos,
 				randomRadius,
@@ -334,7 +333,7 @@ void NavMeshTesterTool::handleMenu()
 		{
 			float pt[3];
 			dtPolyRef ref;
-			dtStatus status = navmeshQuery->findRandomPoint(&filter, frand, &ref, pt);
+			dtStatus status = sample->navQuery->findRandomPoint(&filter, frand, &ref, pt);
 			if (dtStatusSucceed(status))
 			{
 				dtVcopy(&randPoints[nrandPoints * 3], pt);
@@ -353,7 +352,7 @@ void NavMeshTesterTool::handleMenu()
 			{
 				float pt[3];
 				dtPolyRef ref;
-				dtStatus status = navmeshQuery->findRandomPointAroundCircle(
+				dtStatus status = sample->navQuery->findRandomPointAroundCircle(
 					startRef,
 					spos,
 					randomRadius,
@@ -464,7 +463,7 @@ void NavMeshTesterTool::handleToggle()
 
 	if (pathIterNum == 0)
 	{
-		navmeshQuery->findPath(startRef, endRef, spos, epos, &filter, polys, &npolys, MAX_POLYS);
+		sample->navQuery->findPath(startRef, endRef, spos, epos, &filter, polys, &npolys, MAX_POLYS);
 		nsmoothPath = 0;
 
 		pathIterPolyCount = npolys;
@@ -476,8 +475,8 @@ void NavMeshTesterTool::handleToggle()
 		if (pathIterPolyCount)
 		{
 			// Iterate over the path to find smooth path on the detail mesh surface.
-			navmeshQuery->closestPointOnPoly(startRef, spos, iterPos, 0);
-			navmeshQuery->closestPointOnPoly(pathIterPolys[pathIterPolyCount - 1], epos, targetPos, 0);
+			sample->navQuery->closestPointOnPoly(startRef, spos, iterPos, 0);
+			sample->navQuery->closestPointOnPoly(pathIterPolys[pathIterPolyCount - 1], epos, targetPos, 0);
 
 			nsmoothPath = 0;
 
@@ -503,7 +502,7 @@ void NavMeshTesterTool::handleToggle()
 	dtPolyRef steerPosRef;
 
 	if (!getSteerTarget(
-		navmeshQuery,
+		sample->navQuery,
 		iterPos,
 		targetPos,
 		SLOP,
@@ -543,12 +542,12 @@ void NavMeshTesterTool::handleToggle()
 	float result[3];
 	dtPolyRef visited[16];
 	int nvisited = 0;
-	navmeshQuery->moveAlongSurface(pathIterPolys[0], iterPos, moveTgt, &filter, result, visited, &nvisited, 16);
+	sample->navQuery->moveAlongSurface(pathIterPolys[0], iterPos, moveTgt, &filter, result, visited, &nvisited, 16);
 	pathIterPolyCount = dtMergeCorridorStartMoved(pathIterPolys, pathIterPolyCount, MAX_POLYS, visited, nvisited);
-	pathIterPolyCount = fixupShortcuts(pathIterPolys, pathIterPolyCount, navmeshQuery);
+	pathIterPolyCount = fixupShortcuts(pathIterPolys, pathIterPolyCount, sample->navQuery);
 
 	float h = 0;
-	navmeshQuery->getPolyHeight(pathIterPolys[0], result, &h);
+	sample->navQuery->getPolyHeight(pathIterPolys[0], result, &h);
 	result[1] = h;
 	dtVcopy(iterPos, result);
 
@@ -602,7 +601,7 @@ void NavMeshTesterTool::handleToggle()
 			// Move position at the other side of the off-mesh link.
 			dtVcopy(iterPos, endPos);
 			float eh = 0.0f;
-			navmeshQuery->getPolyHeight(pathIterPolys[0], iterPos, &eh);
+			sample->navQuery->getPolyHeight(pathIterPolys[0], iterPos, &eh);
 			iterPos[1] = eh;
 		}
 	}
@@ -621,11 +620,11 @@ void NavMeshTesterTool::handleUpdate(const float /*dt*/)
 	{
 		if (dtStatusInProgress(pathFindStatus))
 		{
-			pathFindStatus = navmeshQuery->updateSlicedFindPath(1, 0);
+			pathFindStatus = sample->navQuery->updateSlicedFindPath(1, 0);
 		}
 		if (dtStatusSucceed(pathFindStatus))
 		{
-			navmeshQuery->finalizeSlicedFindPath(polys, &npolys, MAX_POLYS);
+			sample->navQuery->finalizeSlicedFindPath(polys, &npolys, MAX_POLYS);
 			nstraightPath = 0;
 			if (npolys)
 			{
@@ -634,10 +633,10 @@ void NavMeshTesterTool::handleUpdate(const float /*dt*/)
 				dtVcopy(epos, epos);
 				if (polys[npolys - 1] != endRef)
 				{
-					navmeshQuery->closestPointOnPoly(polys[npolys - 1], epos, epos, 0);
+					sample->navQuery->closestPointOnPoly(polys[npolys - 1], epos, epos, 0);
 				}
 
-				navmeshQuery->findStraightPath(
+				sample->navQuery->findStraightPath(
 					spos,
 					epos,
 					polys,
@@ -673,7 +672,7 @@ void NavMeshTesterTool::recalc()
 
 	if (sposSet)
 	{
-		navmeshQuery->findNearestPoly(spos, polyPickExt, &filter, &startRef, 0);
+		sample->navQuery->findNearestPoly(spos, polyPickExt, &filter, &startRef, 0);
 	}
 	else
 	{
@@ -682,7 +681,7 @@ void NavMeshTesterTool::recalc()
 
 	if (eposSet)
 	{
-		navmeshQuery->findNearestPoly(epos, polyPickExt, &filter, &endRef, 0);
+		sample->navQuery->findNearestPoly(epos, polyPickExt, &filter, &endRef, 0);
 	}
 	else
 	{
@@ -708,7 +707,7 @@ void NavMeshTesterTool::recalc()
 				filter.getExcludeFlags());
 #endif
 
-			navmeshQuery->findPath(startRef, endRef, spos, epos, &filter, polys, &npolys, MAX_POLYS);
+			sample->navQuery->findPath(startRef, endRef, spos, epos, &filter, polys, &npolys, MAX_POLYS);
 
 			nsmoothPath = 0;
 
@@ -720,8 +719,8 @@ void NavMeshTesterTool::recalc()
 				int npolys = npolys;
 
 				float iterPos[3], targetPos[3];
-				navmeshQuery->closestPointOnPoly(startRef, spos, iterPos, 0);
-				navmeshQuery->closestPointOnPoly(polys[npolys - 1], epos, targetPos, 0);
+				sample->navQuery->closestPointOnPoly(startRef, spos, iterPos, 0);
+				sample->navQuery->closestPointOnPoly(polys[npolys - 1], epos, targetPos, 0);
 
 				static const float STEP_SIZE = 0.5f;
 				static const float SLOP = 0.01f;
@@ -741,7 +740,7 @@ void NavMeshTesterTool::recalc()
 					dtPolyRef steerPosRef;
 
 					if (!getSteerTarget(
-						navmeshQuery,
+						sample->navQuery,
 						iterPos,
 						targetPos,
 						SLOP,
@@ -777,13 +776,13 @@ void NavMeshTesterTool::recalc()
 					float result[3];
 					dtPolyRef visited[16];
 					int nvisited = 0;
-					navmeshQuery->moveAlongSurface(polys[0], iterPos, moveTgt, &filter, result, visited, &nvisited, 16);
+					sample->navQuery->moveAlongSurface(polys[0], iterPos, moveTgt, &filter, result, visited, &nvisited, 16);
 
 					npolys = dtMergeCorridorStartMoved(polys, npolys, MAX_POLYS, visited, nvisited);
-					npolys = fixupShortcuts(polys, npolys, navmeshQuery);
+					npolys = fixupShortcuts(polys, npolys, sample->navQuery);
 
 					float h = 0;
-					navmeshQuery->getPolyHeight(polys[0], result, &h);
+					sample->navQuery->getPolyHeight(polys[0], result, &h);
 					result[1] = h;
 					dtVcopy(iterPos, result);
 
@@ -834,7 +833,7 @@ void NavMeshTesterTool::recalc()
 							// Move position at the other side of the off-mesh link.
 							dtVcopy(iterPos, endPos);
 							float eh = 0.0f;
-							navmeshQuery->getPolyHeight(polys[0], iterPos, &eh);
+							sample->navQuery->getPolyHeight(polys[0], iterPos, &eh);
 							iterPos[1] = eh;
 						}
 					}
@@ -869,7 +868,7 @@ void NavMeshTesterTool::recalc()
 				filter.getIncludeFlags(),
 				filter.getExcludeFlags());
 #endif
-			navmeshQuery->findPath(startRef, endRef, spos, epos, &filter, polys, &npolys, MAX_POLYS);
+			sample->navQuery->findPath(startRef, endRef, spos, epos, &filter, polys, &npolys, MAX_POLYS);
 			nstraightPath = 0;
 			if (npolys)
 			{
@@ -878,10 +877,10 @@ void NavMeshTesterTool::recalc()
 				dtVcopy(epos, epos);
 				if (polys[npolys - 1] != endRef)
 				{
-					navmeshQuery->closestPointOnPoly(polys[npolys - 1], epos, epos, 0);
+					sample->navQuery->closestPointOnPoly(polys[npolys - 1], epos, epos, 0);
 				}
 
-				navmeshQuery->findStraightPath(
+				sample->navQuery->findStraightPath(
 					spos,
 					epos,
 					polys,
@@ -918,7 +917,7 @@ void NavMeshTesterTool::recalc()
 			npolys = 0;
 			nstraightPath = 0;
 
-			pathFindStatus = navmeshQuery->initSlicedFindPath(
+			pathFindStatus = sample->navQuery->initSlicedFindPath(
 				startRef,
 				endRef,
 				spos,
@@ -954,7 +953,7 @@ void NavMeshTesterTool::recalc()
 			straightPath[0] = spos[0];
 			straightPath[1] = spos[1];
 			straightPath[2] = spos[2];
-			navmeshQuery->raycast(startRef, spos, epos, &filter, &t, hitNormal, polys, &npolys, MAX_POLYS);
+			sample->navQuery->raycast(startRef, spos, epos, &filter, &t, hitNormal, polys, &npolys, MAX_POLYS);
 			if (t > 1)
 			{
 				// No hit
@@ -971,7 +970,7 @@ void NavMeshTesterTool::recalc()
 			if (npolys > 0)
 			{
 				float h = 0;
-				navmeshQuery->getPolyHeight(polys[npolys - 1], hitPos, &h);
+				sample->navQuery->getPolyHeight(polys[npolys - 1], hitPos, &h);
 				hitPos[1] = h;
 			}
 			dtVcopy(&straightPath[3], hitPos);
@@ -992,7 +991,7 @@ void NavMeshTesterTool::recalc()
 				filter.getExcludeFlags());
 #endif
 			distanceToWall = 0.0f;
-			navmeshQuery->findDistanceToWall(startRef, spos, 100.0f, &filter, &distanceToWall, hitPos, hitNormal);
+			sample->navQuery->findDistanceToWall(startRef, spos, 100.0f, &filter, &distanceToWall, hitPos, hitNormal);
 		}
 	}
 	else if (toolMode == TOOLMODE_FIND_POLYS_IN_CIRCLE)
@@ -1011,7 +1010,7 @@ void NavMeshTesterTool::recalc()
 				filter.getIncludeFlags(),
 				filter.getExcludeFlags());
 #endif
-			navmeshQuery->findPolysAroundCircle(startRef, spos, dist, &filter, polys, parent, 0, &npolys, MAX_POLYS);
+			sample->navQuery->findPolysAroundCircle(startRef, spos, dist, &filter, polys, parent, 0, &npolys, MAX_POLYS);
 		}
 	}
 	else if (toolMode == TOOLMODE_FIND_POLYS_IN_SHAPE)
@@ -1055,7 +1054,7 @@ void NavMeshTesterTool::recalc()
 				filter.getIncludeFlags(),
 				filter.getExcludeFlags());
 #endif
-			navmeshQuery->findPolysAroundShape(startRef, queryPoly, 4, &filter, polys, parent, 0, &npolys, MAX_POLYS);
+			sample->navQuery->findPolysAroundShape(startRef, queryPoly, 4, &filter, polys, parent, 0, &npolys, MAX_POLYS);
 		}
 	}
 	else if (toolMode == TOOLMODE_FIND_LOCAL_NEIGHBOURHOOD)
@@ -1071,7 +1070,7 @@ void NavMeshTesterTool::recalc()
 				filter.getIncludeFlags(),
 				filter.getExcludeFlags());
 #endif
-			navmeshQuery->findLocalNeighbourhood(
+			sample->navQuery->findLocalNeighbourhood(
 				startRef, spos, neighbourhoodRadius, &filter, polys, parent, &npolys, MAX_POLYS);
 		}
 	}
@@ -1405,7 +1404,7 @@ void NavMeshTesterTool::handleRender()
 			dtPolyRef refs[MAX_SEGS];
 			memset(refs, 0, sizeof(dtPolyRef) * MAX_SEGS);
 			int nsegs = 0;
-			navmeshQuery->getPolyWallSegments(polys[i], &filter, segs, refs, &nsegs, MAX_SEGS);
+			sample->navQuery->getPolyWallSegments(polys[i], &filter, segs, refs, &nsegs, MAX_SEGS);
 			dd.begin(DU_DRAW_LINES, 2.0f);
 			for (int j = 0; j < nsegs; ++j)
 			{
