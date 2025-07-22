@@ -112,10 +112,10 @@ public:
 	dtNavMesh* navMesh = nullptr;
 	dtNavMeshQuery* navQuery = nullptr;
 
+	unsigned char navMeshDrawFlags;
+
 protected:
 	dtCrowd* crowd = nullptr;
-
-	unsigned char navMeshDrawFlags;
 
 	float cellSize;
 	float cellHeight;
@@ -179,9 +179,6 @@ public:
 	float getAgentRadius() { return agentRadius; }
 	float getAgentHeight() { return agentHeight; }
 	float getAgentClimb() { return agentMaxClimb; }
-
-	unsigned char getNavMeshDrawFlags() const { return navMeshDrawFlags; }
-	void setNavMeshDrawFlags(unsigned char flags) { navMeshDrawFlags = flags; }
 
 	void updateToolStates(float dt) const;
 	void initToolStates(Sample* sample) const;

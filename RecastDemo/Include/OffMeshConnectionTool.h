@@ -35,7 +35,7 @@ public:
 	{
 		if (sample)
 		{
-			sample->setNavMeshDrawFlags(oldFlags);
+			sample->navMeshDrawFlags = oldFlags;
 		}
 	}
 

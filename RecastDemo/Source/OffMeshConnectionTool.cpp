@@ -44,8 +44,8 @@ void OffMeshConnectionTool::init(Sample* newSample)
 	if (sample != newSample)
 	{
 		sample = newSample;
-		oldFlags = sample->getNavMeshDrawFlags();
-		sample->setNavMeshDrawFlags(oldFlags & ~DU_DRAWNAVMESH_OFFMESHCONS);
+		oldFlags = sample->navMeshDrawFlags;
+		sample->navMeshDrawFlags &= ~DU_DRAWNAVMESH_OFFMESHCONS;
 	}
 }
 
