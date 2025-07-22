@@ -167,8 +167,6 @@ public:
 	virtual void handleUpdate(float dt);
 	virtual void collectSettings(struct BuildSettings& settings);
 
-	float getAgentClimb() { return agentMaxClimb; }
-
 	void updateToolStates(float dt) const;
 	void initToolStates(Sample* sample) const;
 	void resetToolStates() const;

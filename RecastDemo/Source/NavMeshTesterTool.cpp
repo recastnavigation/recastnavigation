@@ -1106,7 +1106,7 @@ void NavMeshTesterTool::handleRender()
 
 	const float agentRadius = sample->agentRadius;
 	const float agentHeight = sample->agentHeight;
-	const float agentClimb = sample->getAgentClimb();
+	const float agentClimb = sample->agentMaxClimb;
 
 	dd.depthMask(false);
 	if (sposSet) { drawAgent(spos, agentRadius, agentHeight, agentClimb, startCol); }
