@@ -111,12 +111,11 @@ public:
 	InputGeom* inputGeometry = nullptr;
 	dtNavMesh* navMesh = nullptr;
 	dtNavMeshQuery* navQuery = nullptr;
+	dtCrowd* crowd = nullptr;
 
 	unsigned char navMeshDrawFlags;
 
 protected:
-	dtCrowd* crowd = nullptr;
-
 	float cellSize;
 	float cellHeight;
 	float agentHeight;
@@ -175,7 +174,6 @@ public:
 	virtual void handleUpdate(float dt);
 	virtual void collectSettings(struct BuildSettings& settings);
 
-	dtCrowd* getCrowd() { return crowd; }
 	float getAgentRadius() { return agentRadius; }
 	float getAgentHeight() { return agentHeight; }
 	float getAgentClimb() { return agentMaxClimb; }

@@ -132,7 +132,7 @@ void CrowdToolState::init(Sample* newSample)
 		return;
 	}
 
-	dtCrowd* crowd = sample->getCrowd();
+	dtCrowd* crowd = sample->crowd;
 	if (!crowd)
 	{
 		return;
@@ -186,7 +186,7 @@ void CrowdToolState::handleRender()
 	const float rad = sample->getAgentRadius();
 
 	dtNavMesh* nav = sample->navMesh;
-	dtCrowd* crowd = sample->getCrowd();
+	dtCrowd* crowd = sample->crowd;
 	if (!nav || !crowd)
 	{
 		return;
@@ -612,7 +612,7 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 
 	if (toolParams.showNodes)
 	{
-		dtCrowd* crowd = sample->getCrowd();
+		dtCrowd* crowd = sample->crowd;
 		if (crowd && crowd->getPathQueue())
 		{
 			const dtNavMeshQuery* navquery = crowd->getPathQueue()->getNavQuery();
@@ -658,7 +658,7 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 
 	if (toolParams.showLabels)
 	{
-		dtCrowd* crowd = sample->getCrowd();
+		dtCrowd* crowd = sample->crowd;
 		if (crowd)
 		{
 			for (int i = 0; i < crowd->getAgentCount(); ++i)
@@ -680,7 +680,7 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 	}
 	if (agentDebug.idx != -1)
 	{
-		dtCrowd* crowd = sample->getCrowd();
+		dtCrowd* crowd = sample->crowd;
 		if (crowd)
 		{
 			for (int i = 0; i < crowd->getAgentCount(); i++)
@@ -759,7 +759,7 @@ void CrowdToolState::addAgent(const float* p)
 	{
 		return;
 	}
-	dtCrowd* crowd = sample->getCrowd();
+	dtCrowd* crowd = sample->crowd;
 
 	dtCrowdAgentParams ap;
 	memset(&ap, 0, sizeof(ap));
@@ -817,7 +817,7 @@ void CrowdToolState::removeAgent(const int idx)
 	{
 		return;
 	}
-	dtCrowd* crowd = sample->getCrowd();
+	dtCrowd* crowd = sample->crowd;
 
 	crowd->removeAgent(idx);
 
@@ -849,7 +849,7 @@ void CrowdToolState::setMoveTarget(const float* p, bool adjust)
 
 	// Find nearest point on navmesh and set move request to that location.
 	dtNavMeshQuery* navquery = sample->navQuery;
-	dtCrowd* crowd = sample->getCrowd();
+	dtCrowd* crowd = sample->crowd;
 	const dtQueryFilter* filter = crowd->getFilter(0);
 	const float* halfExtents = crowd->getQueryExtents();
 
@@ -913,7 +913,7 @@ int CrowdToolState::hitTestAgents(const float* s, const float* p)
 	{
 		return -1;
 	}
-	dtCrowd* crowd = sample->getCrowd();
+	dtCrowd* crowd = sample->crowd;
 
 	int isel = -1;
 	float tsel = FLT_MAX;
@@ -947,7 +947,7 @@ void CrowdToolState::updateAgentParams()
 	{
 		return;
 	}
-	dtCrowd* crowd = sample->getCrowd();
+	dtCrowd* crowd = sample->crowd;
 	if (!crowd)
 	{
 		return;
@@ -1006,7 +1006,7 @@ void CrowdToolState::updateTick(const float dt)
 		return;
 	}
 	dtNavMesh* nav = sample->navMesh;
-	dtCrowd* crowd = sample->getCrowd();
+	dtCrowd* crowd = sample->crowd;
 	if (!nav || !crowd)
 	{
 		return;
@@ -1145,7 +1145,7 @@ void CrowdTool::handleClick(const float* s, const float* p, bool shift)
 	{
 		return;
 	}
-	dtCrowd* crowd = sample->getCrowd();
+	dtCrowd* crowd = sample->crowd;
 	if (!crowd)
 	{
 		return;
