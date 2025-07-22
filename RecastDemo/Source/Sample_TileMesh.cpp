@@ -144,7 +144,7 @@ public:
 			return;
 		}
 
-		const float s = m_sample->getAgentRadius();
+		const float s = m_sample->agentRadius;
 		glColor4ub(0, 0, 0, 128);
 		glLineWidth(2.0f);
 		glBegin(GL_LINES);

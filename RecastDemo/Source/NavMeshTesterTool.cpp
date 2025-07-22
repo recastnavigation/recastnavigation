@@ -204,8 +204,8 @@ void NavMeshTesterTool::init(Sample* newSample)
 		filter.setAreaCost(SAMPLE_POLYAREA_JUMP, 1.5f);
 	}
 
-	neighbourhoodRadius = sample->getAgentRadius() * 20.0f;
-	randomRadius = sample->getAgentRadius() * 30.0f;
+	neighbourhoodRadius = sample->agentRadius * 20.0f;
+	randomRadius = sample->agentRadius * 30.0f;
 }
 
 void NavMeshTesterTool::handleMenu()
@@ -1104,7 +1104,7 @@ void NavMeshTesterTool::handleRender()
 	static const unsigned int endCol = duRGBA(51, 102, 0, 129);
 	static const unsigned int pathCol = duRGBA(0, 0, 0, 64);
 
-	const float agentRadius = sample->getAgentRadius();
+	const float agentRadius = sample->agentRadius;
 	const float agentHeight = sample->getAgentHeight();
 	const float agentClimb = sample->getAgentClimb();
 

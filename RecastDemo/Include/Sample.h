@@ -116,8 +116,6 @@ public:
 
 	unsigned char navMeshDrawFlags;
 
-	SampleToolState* toolStates[static_cast<size_t>(SampleToolType::MAX_TOOLS)] = {};
-protected:
 	float cellSize;
 	float cellHeight;
 	float agentHeight;
@@ -138,13 +136,13 @@ protected:
 	bool filterWalkableLowHeightSpans = true;
 
 	SampleTool* tool = nullptr;
+	SampleToolState* toolStates[static_cast<size_t>(SampleToolType::MAX_TOOLS)] = {};
 
 	BuildContext* buildContext = nullptr;
 
 	dtNavMesh* loadAll(const char* path);
 	void saveAll(const char* path, const dtNavMesh* mesh);
 
-public:
 	Sample();
 	virtual ~Sample();
 	Sample(const Sample&) = delete;
@@ -169,7 +167,6 @@ public:
 	virtual void handleUpdate(float dt);
 	virtual void collectSettings(struct BuildSettings& settings);
 
-	float getAgentRadius() { return agentRadius; }
 	float getAgentHeight() { return agentHeight; }
 	float getAgentClimb() { return agentMaxClimb; }
 

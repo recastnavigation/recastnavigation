@@ -97,7 +97,7 @@ void OffMeshConnectionTool::handleClick(const float* /*rayStartPos*/, const floa
 		}
 
 		// If end point close enough, delete it.
-		if (nearestIndex != -1 && sqrtf(nearestDist) < sample->getAgentRadius())
+		if (nearestIndex != -1 && sqrtf(nearestDist) < sample->agentRadius)
 		{
 			geom->deleteOffMeshConnection(nearestIndex);
 		}
@@ -115,7 +115,7 @@ void OffMeshConnectionTool::handleClick(const float* /*rayStartPos*/, const floa
 			geom->addOffMeshConnection(
 				hitPos,
 				rayHitPos,
-				sample->getAgentRadius(),
+				sample->agentRadius,
 				bidir ? 1 : 0,
 				SAMPLE_POLYAREA_JUMP,
 				SAMPLE_POLYFLAGS_JUMP);
@@ -136,7 +136,7 @@ void OffMeshConnectionTool::handleRender()
 
 	if (hitPosSet)
 	{
-		duDebugDrawCross(&dd, hitPos[0], hitPos[1] + 0.1f, hitPos[2], sample->getAgentRadius(), duRGBA(0, 0, 0, 128), 2.0f);
+		duDebugDrawCross(&dd, hitPos[0], hitPos[1] + 0.1f, hitPos[2], sample->agentRadius, duRGBA(0, 0, 0, 128), 2.0f);
 	}
 
 	if (InputGeom* geom = sample->inputGeometry)

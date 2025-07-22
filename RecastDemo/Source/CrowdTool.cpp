@@ -138,7 +138,7 @@ void CrowdToolState::init(Sample* newSample)
 		return;
 	}
 
-	crowd->init(MAX_AGENTS, sample->getAgentRadius(), navmesh);
+	crowd->init(MAX_AGENTS, sample->agentRadius, navmesh);
 
 	// Make polygons with 'disabled' flag invalid.
 	crowd->getEditableFilter(0)->setExcludeFlags(SAMPLE_POLYFLAGS_DISABLED);
@@ -183,7 +183,7 @@ void CrowdToolState::reset() {}
 void CrowdToolState::handleRender()
 {
 	duDebugDraw& dd = sample->debugDraw;
-	const float rad = sample->getAgentRadius();
+	const float rad = sample->agentRadius;
 
 	dtNavMesh* nav = sample->navMesh;
 	dtCrowd* crowd = sample->crowd;
@@ -763,7 +763,7 @@ void CrowdToolState::addAgent(const float* p)
 
 	dtCrowdAgentParams ap;
 	memset(&ap, 0, sizeof(ap));
-	ap.radius = sample->getAgentRadius();
+	ap.radius = sample->agentRadius;
 	ap.height = sample->getAgentHeight();
 	ap.maxAcceleration = 8.0f;
 	ap.maxSpeed = 3.5f;

@@ -289,7 +289,7 @@ void NavMeshPruneTool::handleRender()
 
 	if (hitPosSet)
 	{
-		const float s = sample->getAgentRadius();
+		const float s = sample->agentRadius;
 		const unsigned int col = duRGBA(255, 255, 255, 255);
 		debugDraw.begin(DU_DRAW_LINES);
 		debugDraw.vertex(hitPos[0] - s, hitPos[1], hitPos[2], col);
