@@ -16,7 +16,6 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "SDL.h"
 #include "SDL_opengl.h"
 
 #include <math.h>
@@ -31,11 +30,8 @@
 #include "DetourCommon.h"
 #include "DetourDebugDraw.h"
 #include "DetourNavMesh.h"
-#include "DetourNavMeshBuilder.h"
 #include "DetourPathCorridor.h"
 #include "NavMeshTesterTool.h"
-#include "Recast.h"
-#include "RecastDebugDraw.h"
 #include "Sample.h"
 #include "imguiHelpers.h"
 
