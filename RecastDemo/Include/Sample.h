@@ -115,6 +115,7 @@ public:
 
 	unsigned char navMeshDrawFlags;
 
+	SampleToolState* toolStates[static_cast<size_t>(SampleToolType::MAX_TOOLS)] = {};
 protected:
 	float cellSize;
 	float cellHeight;
@@ -136,7 +137,6 @@ protected:
 	bool filterWalkableLowHeightSpans = true;
 
 	SampleTool* tool = nullptr;
-	SampleToolState* toolStates[static_cast<size_t>(SampleToolType::MAX_TOOLS)] = {};
 
 	BuildContext* buildContext = nullptr;
 
@@ -156,8 +156,6 @@ public:
 	void setContext(BuildContext* ctx) { buildContext = ctx; }
 
 	void setTool(SampleTool* tool);
-	SampleToolState* getToolState(const int type) const { return toolStates[type]; }
-	void setToolState(const int type, SampleToolState* s) { toolStates[type] = s; }
 
 	SampleDebugDraw& getDebugDraw() { return debugDraw; }
 

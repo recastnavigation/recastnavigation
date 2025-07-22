@@ -954,31 +954,11 @@ void CrowdToolState::updateAgentParams()
 	}
 
 	unsigned char updateFlags = 0;
-
-	if (toolParams.anticipateTurns)
-	{
-		updateFlags |= DT_CROWD_ANTICIPATE_TURNS;
-	}
-	if (toolParams.optimizeVis)
-	{
-		updateFlags |= DT_CROWD_OPTIMIZE_VIS;
-	}
-	if (toolParams.optimizeTopo)
-	{
-		updateFlags |= DT_CROWD_OPTIMIZE_TOPO;
-	}
-	if (toolParams.obstacleAvoidance)
-	{
-		updateFlags |= DT_CROWD_OBSTACLE_AVOIDANCE;
-	}
-	if (toolParams.obstacleAvoidance)
-	{
-		updateFlags |= DT_CROWD_OBSTACLE_AVOIDANCE;
-	}
-	if (toolParams.separation)
-	{
-		updateFlags |= DT_CROWD_SEPARATION;
-	}
+	updateFlags |= toolParams.anticipateTurns ? DT_CROWD_ANTICIPATE_TURNS : 0;
+	updateFlags |= toolParams.optimizeVis ? DT_CROWD_OPTIMIZE_VIS : 0;
+	updateFlags |= toolParams.optimizeTopo ? DT_CROWD_OPTIMIZE_TOPO : 0;
+	updateFlags |= toolParams.obstacleAvoidance ? DT_CROWD_OBSTACLE_AVOIDANCE : 0;
+	updateFlags |= toolParams.separation ? DT_CROWD_SEPARATION : 0;
 
 	unsigned char obstacleAvoidanceType = static_cast<unsigned char>(toolParams.obstacleAvoidanceType);
 
@@ -1040,23 +1020,19 @@ void CrowdToolState::updateTick(const float dt)
 
 void CrowdTool::init(Sample* newSample)
 {
-	if (this->sample != newSample)
-	{
-		this->sample = newSample;
-	}
-
-	if (!newSample)
+	sample = newSample;
+	if (!sample)
 	{
 		return;
 	}
 
-	state = static_cast<CrowdToolState*>(newSample->getToolState(static_cast<int>(type())));
+	state = static_cast<CrowdToolState*>(sample->toolStates[static_cast<int>(type())]);
 	if (!state)
 	{
 		state = new CrowdToolState();
-		newSample->setToolState(static_cast<int>(type()), state);
+		sample->toolStates[static_cast<int>(type())] = state;
 	}
-	state->init(newSample);
+	state->init(sample);
 }
 
 void CrowdTool::reset() {}
