@@ -255,7 +255,7 @@ void ConvexVolumeTool::handleClick(const float* /*s*/, const float* p, bool shif
 
 void ConvexVolumeTool::handleRender()
 {
-	duDebugDraw& dd = sample->getDebugDraw();
+	duDebugDraw& dd = sample->debugDraw;
 
 	// Find height extent of the shape.
 	float minh = FLT_MAX, maxh = 0;

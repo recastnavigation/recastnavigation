@@ -112,6 +112,7 @@ public:
 	dtNavMesh* navMesh = nullptr;
 	dtNavMeshQuery* navQuery = nullptr;
 	dtCrowd* crowd = nullptr;
+	SampleDebugDraw debugDraw;
 
 	unsigned char navMeshDrawFlags;
 
@@ -140,8 +141,6 @@ protected:
 
 	BuildContext* buildContext = nullptr;
 
-	SampleDebugDraw debugDraw;
-
 	dtNavMesh* loadAll(const char* path);
 	void saveAll(const char* path, const dtNavMesh* mesh);
 
@@ -156,8 +155,6 @@ public:
 	void setContext(BuildContext* ctx) { buildContext = ctx; }
 
 	void setTool(SampleTool* tool);
-
-	SampleDebugDraw& getDebugDraw() { return debugDraw; }
 
 	virtual void handleSettings();
 	virtual void handleTools();

@@ -132,7 +132,7 @@ void OffMeshConnectionTool::handleUpdate(const float /*dt*/) {}
 
 void OffMeshConnectionTool::handleRender()
 {
-	duDebugDraw& dd = sample->getDebugDraw();
+	duDebugDraw& dd = sample->debugDraw;
 
 	if (hitPosSet)
 	{

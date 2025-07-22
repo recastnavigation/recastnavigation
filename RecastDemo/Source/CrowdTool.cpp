@@ -182,7 +182,7 @@ void CrowdToolState::reset() {}
 
 void CrowdToolState::handleRender()
 {
-	duDebugDraw& dd = sample->getDebugDraw();
+	duDebugDraw& dd = sample->debugDraw;
 	const float rad = sample->getAgentRadius();
 
 	dtNavMesh* nav = sample->navMesh;

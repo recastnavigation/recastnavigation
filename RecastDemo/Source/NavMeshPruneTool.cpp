@@ -285,7 +285,7 @@ void NavMeshPruneTool::handleClick(const float* s, const float* p, bool shift)
 
 void NavMeshPruneTool::handleRender()
 {
-	duDebugDraw& debugDraw = sample->getDebugDraw();
+	duDebugDraw& debugDraw = sample->debugDraw;
 
 	if (hitPosSet)
 	{
