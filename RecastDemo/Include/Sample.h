@@ -150,8 +150,6 @@ public:
 	Sample& operator=(const Sample&) = delete;
 	Sample& operator=(const Sample&&) = delete;
 
-	void setContext(BuildContext* ctx) { buildContext = ctx; }
-
 	void setTool(SampleTool* tool);
 
 	virtual void handleSettings();

@@ -297,7 +297,7 @@ int main(int /*argc*/, char** /*argv*/)
 
 	app.sampleIndex = 0;
 	app.sample = g_samples[0].create();
-	app.sample->setContext(&app.buildContext);
+	app.sample->buildContext = &app.buildContext;
 	app.sample->handleMeshChanged(app.inputGeometry);
 
 	// Reset camera and fog to match the mesh bounds.
@@ -755,7 +755,7 @@ int main(int /*argc*/, char** /*argv*/)
 		{
 			delete app.sample;
 			app.sample = g_samples[app.sampleIndex].create();
-			app.sample->setContext(&app.buildContext);
+			app.sample->buildContext = &app.buildContext;
 			if (app.inputGeometry)
 			{
 				app.sample->handleMeshChanged(app.inputGeometry);
