@@ -24,14 +24,14 @@
 
 class NavMeshTesterTool : public SampleTool
 {
-	Sample* m_sample = nullptr;
+	Sample* sample = nullptr;
 
-	dtNavMesh* m_navMesh = nullptr;
-	dtNavMeshQuery* m_navQuery = nullptr;
+	dtNavMesh* navMesh = nullptr;
+	dtNavMeshQuery* navmeshQuery = nullptr;
 
-	dtQueryFilter m_filter;
+	dtQueryFilter filter;
 
-	dtStatus m_pathFindStatus = DT_FAILURE;
+	dtStatus pathFindStatus = DT_FAILURE;
 
 	enum ToolMode
 	{
@@ -44,57 +44,60 @@ class NavMeshTesterTool : public SampleTool
 		TOOLMODE_FIND_POLYS_IN_SHAPE,
 		TOOLMODE_FIND_LOCAL_NEIGHBOURHOOD
 	};
-	ToolMode m_toolMode = TOOLMODE_PATHFIND_FOLLOW;
+	ToolMode toolMode = TOOLMODE_PATHFIND_FOLLOW;
 
-	int m_straightPathOptions = 0;
+	int straightPathOptions = 0;
 
-	static const int MAX_POLYS = 256;
-	static const int MAX_SMOOTH = 2048;
+	static constexpr int MAX_POLYS = 256;
+	static constexpr int MAX_SMOOTH = 2048;
 
-	dtPolyRef m_startRef = 0;
-	dtPolyRef m_endRef = 0;
-	dtPolyRef m_polys[MAX_POLYS];
-	dtPolyRef m_parent[MAX_POLYS];
-	int m_npolys = 0;
-	float m_straightPath[MAX_POLYS * 3];
-	unsigned char m_straightPathFlags[MAX_POLYS];
-	dtPolyRef m_straightPathPolys[MAX_POLYS];
-	int m_nstraightPath = 0;
-	float m_polyPickExt[3] = {2, 4, 2};
-	float m_smoothPath[MAX_SMOOTH * 3];
-	int m_nsmoothPath = 0;
-	float m_queryPoly[4 * 3];
+	dtPolyRef startRef = 0;
+	dtPolyRef endRef = 0;
+	dtPolyRef polys[MAX_POLYS];
+	dtPolyRef parent[MAX_POLYS];
+	int npolys = 0;
+	float straightPath[MAX_POLYS * 3];
+	unsigned char straightPathFlags[MAX_POLYS];
+	dtPolyRef straightPathPolys[MAX_POLYS];
+	int nstraightPath = 0;
+	float polyPickExt[3] = {2, 4, 2};
+	float smoothPath[MAX_SMOOTH * 3];
+	int nsmoothPath = 0;
+	float queryPoly[4 * 3];
 
-	static const int MAX_RAND_POINTS = 64;
-	float m_randPoints[MAX_RAND_POINTS * 3];
-	int m_nrandPoints = 0;
-	bool m_randPointsInCircle = false;
+	static constexpr int MAX_RAND_POINTS = 64;
+	float randPoints[MAX_RAND_POINTS * 3];
+	int nrandPoints = 0;
+	bool randPointsInCircle = false;
 
-	float m_spos[3];
-	float m_epos[3];
-	float m_hitPos[3];
-	float m_hitNormal[3];
-	bool m_hitResult = false;
-	float m_distanceToWall = 0;
-	float m_neighbourhoodRadius = 2.5f;
-	float m_randomRadius = 5.0f;
-	bool m_sposSet = false;
-	bool m_eposSet = false;
+	float spos[3];
+	float epos[3];
+	float hitPos[3];
+	float hitNormal[3];
+	bool hitResult = false;
+	float distanceToWall = 0;
+	float neighbourhoodRadius = 2.5f;
+	float randomRadius = 5.0f;
+	bool sposSet = false;
+	bool eposSet = false;
 
-	int m_pathIterNum = 0;
-	dtPolyRef m_pathIterPolys[MAX_POLYS];
-	int m_pathIterPolyCount = 0;
-	float m_prevIterPos[3], m_iterPos[3], m_steerPos[3], m_targetPos[3];
+	int pathIterNum = 0;
+	dtPolyRef pathIterPolys[MAX_POLYS];
+	int pathIterPolyCount = 0;
+	float prevIterPos[3];
+	float iterPos[3];
+	float steerPos[3];
+	float targetPos[3];
 
-	static const int MAX_STEER_POINTS = 10;
-	float m_steerPoints[MAX_STEER_POINTS * 3];
-	int m_steerPointCount = 0;
+	static constexpr int MAX_STEER_POINTS = 10;
+	float steerPoints[MAX_STEER_POINTS * 3];
+	int steerPointCount = 0;
 
 public:
 	NavMeshTesterTool();
 
 	SampleToolType type() override { return SampleToolType::NAVMESH_TESTER; }
-	void init(Sample* sample) override;
+	void init(Sample* newSample) override;
 	void reset() override;
 	void handleMenu() override;
 	void handleClick(const float* s, const float* p, bool shift) override;
