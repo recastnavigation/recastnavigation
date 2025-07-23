@@ -294,7 +294,9 @@ void dtNavMesh::teardown()
 	}
 	m_maxTiles = 0;
 	dtFree(m_posLookup);
+	m_posLookup = 0;
 	dtFree(m_tiles);
+	m_tiles = 0;
 }
 
 /// @par
