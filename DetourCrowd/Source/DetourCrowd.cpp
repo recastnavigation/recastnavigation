@@ -567,8 +567,6 @@ int dtCrowd::addAgent(const float* pos, const dtCrowdAgentParams* params)
 	dtVset(ag->vel, 0,0,0);
 	dtVcopy(ag->npos, nearest);
 	
-	ag->altitude = 0;
-
 	ag->desiredSpeed = 0;
 
 	if (ref)
@@ -1470,8 +1468,6 @@ void dtCrowd::update(const float dt, dtCrowdAgentDebugInfo* debug)
 		ag->corridor.movePosition(ag->npos, m_navquery, &m_filters[ag->params.queryFilterType]);
 		// Get valid constrained position back.
 		dtVcopy(ag->npos, ag->corridor.getPos());
-
-		ag->npos[1] += ag->altitude;
 
 		// If not using path, truncate the corridor to just one poly.
 		if (ag->targetState == DT_CROWDAGENT_TARGET_NONE || ag->targetState == DT_CROWDAGENT_TARGET_VELOCITY)
