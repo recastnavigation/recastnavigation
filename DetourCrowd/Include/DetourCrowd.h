@@ -77,7 +77,6 @@ struct dtCrowdAgentParams
 	float height;						///< Agent height. [Limit: > 0]
 	float maxAcceleration;				///< Maximum allowed acceleration. [Limit: >= 0]
 	float maxSpeed;						///< Maximum allowed speed. [Limit: >= 0]
-    float liftingSpeed;
 
 	/// Defines how close a collision element must be before it is considered for steering behaviors. [Limits: > 0]
 	float collisionQueryRange;
