@@ -614,108 +614,140 @@ int main(int /*argc*/, char** /*argv*/)
 			app.testCase->handleRenderOverlay(projectionMatrix, modelviewMatrix, viewport);
 		}
 
-		// Help text.
-		if (app.showMenu)
-		{
-			DrawScreenspaceText(280.0f, 20.0f, IM_COL32(255, 255, 255, 128), "W/A/S/D: Move  RMB: Rotate");
-		}
-
 		bool newMeshSelected = false;
 		bool newSampleSelected = false;
-
 		if (app.showMenu)
 		{
-			ImGui::SetNextWindowPos(ImVec2(static_cast<float>(app.width - 250 - 10), 10), ImGuiCond_Always);  // Position in screen space
-			ImGui::SetNextWindowSize(ImVec2(350, static_cast<float>(app.height - 20)), ImGuiCond_Always);     // Size of the window
-			ImGui::Begin("Properties", nullptr, staticWindowFlags);
+			// Help text.
+			DrawScreenspaceText(280.0f, 20.0f, IM_COL32(255, 255, 255, 128), "W/A/S/D: Move  RMB: Rotate");
 
-			ImGui::Checkbox("Show Log", &app.showLog);
-			ImGui::Checkbox("Show Tools", &app.showTools);
-
-			ImGui::SeparatorText("Input Mesh");
-
-			// Level selection dialog.
-			if (ImGui::BeginCombo("##levelCombo", app.meshName.c_str(), 0))
+			// Properties window
 			{
-				app.files.clear();
-				FileIO::scanDirectory(app.meshesFolder, ".obj", app.files);
-				FileIO::scanDirectory(app.meshesFolder, ".gset", app.files);
+				constexpr int width = 250;
+				constexpr int padding = 10;
 
-				for (const auto& file : app.files)
+				ImGui::SetNextWindowPos(ImVec2(static_cast<float>(app.width - width - padding), padding), ImGuiCond_Always);  // Position in screen space
+				ImGui::SetNextWindowSize(ImVec2(width, static_cast<float>(app.height - padding * 2)), ImGuiCond_Always);     // Size of the window
+				ImGui::Begin("Properties", nullptr, staticWindowFlags);
+
+				ImGui::Checkbox("Show Log", &app.showLog);
+				ImGui::Checkbox("Show Tools", &app.showTools);
+
+				ImGui::SeparatorText("Input Mesh");
+
+				// Level selection dialog.
+				if (ImGui::BeginCombo("##levelCombo", app.meshName.c_str(), 0))
 				{
-					const bool is_selected = (app.meshName == file);
-					if (ImGui::Selectable(file.c_str(), is_selected) && !is_selected)
-					{
-						app.meshName = file;
-						newMeshSelected = true;
-					}
+					app.files.clear();
+					FileIO::scanDirectory(app.meshesFolder, ".obj", app.files);
+					FileIO::scanDirectory(app.meshesFolder, ".gset", app.files);
 
-					// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
-					if (is_selected)
+					for (const auto& file : app.files)
 					{
-						ImGui::SetItemDefaultFocus();
+						const bool is_selected = (app.meshName == file);
+						if (ImGui::Selectable(file.c_str(), is_selected) && !is_selected)
+						{
+							app.meshName = file;
+							newMeshSelected = true;
+						}
+
+						// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+						if (is_selected)
+						{
+							ImGui::SetItemDefaultFocus();
+						}
 					}
+					ImGui::EndCombo();
 				}
-				ImGui::EndCombo();
-			}
 
-			if (app.inputGeometry)
-			{
-				ImGui::Text(
-					"Verts: %.1fk  Tris: %.1fk",
-							static_cast<float>(app.inputGeometry->getVertCount()) / 1000.0f,
-							static_cast<float>(app.inputGeometry->getTriCount()) / 1000.0f);
-			}
-
-			ImGui::SeparatorText("Sample");
-
-			if (ImGui::BeginCombo("##sampleCombo", app.sampleIndex >= 0 ? g_samples[app.sampleIndex].name.c_str() : "Choose Sample...", 0))
-			{
-				for (int n = 0; n < IM_ARRAYSIZE(g_samples); n++)
-				{
-					const bool is_selected = (app.sampleIndex == n);
-					if (ImGui::Selectable(g_samples[n].name.c_str(), is_selected))
-					{
-						newSampleSelected = !is_selected;
-						app.sampleIndex = n;
-					}
-
-					// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
-					if (is_selected)
-					{
-						ImGui::SetItemDefaultFocus();
-					}
-				}
-				ImGui::EndCombo();
-			}
-
-			if (app.sample)
-			{
 				if (app.inputGeometry)
 				{
-					app.sample->handleSettings();
-
-					if (ImGui::Button("Build"))
-					{
-						app.buildContext.resetLog();
-						if (!app.sample->handleBuild())
-						{
-							app.showLog = true;
-							app.logScroll = 0;
-						}
-						app.buildContext.dumpLog("Build log %s:", app.meshName.c_str());
-
-						// Clear test.
-						delete app.testCase;
-						app.testCase = 0;
-					}
+					ImGui::Text(
+						"Verts: %.1fk  Tris: %.1fk",
+								static_cast<float>(app.inputGeometry->getVertCount()) / 1000.0f,
+								static_cast<float>(app.inputGeometry->getTriCount()) / 1000.0f);
 				}
 
-				ImGui::SeparatorText("Debug Settings");
-				app.sample->handleDebugMode();
+				ImGui::SeparatorText("Sample");
+
+				if (ImGui::BeginCombo("##sampleCombo", app.sampleIndex >= 0 ? g_samples[app.sampleIndex].name.c_str() : "Choose Sample...", 0))
+				{
+					for (int n = 0; n < IM_ARRAYSIZE(g_samples); n++)
+					{
+						const bool is_selected = (app.sampleIndex == n);
+						if (ImGui::Selectable(g_samples[n].name.c_str(), is_selected))
+						{
+							newSampleSelected = !is_selected;
+							app.sampleIndex = n;
+						}
+
+						// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+						if (is_selected)
+						{
+							ImGui::SetItemDefaultFocus();
+						}
+					}
+					ImGui::EndCombo();
+				}
+
+				if (app.sample)
+				{
+					if (app.inputGeometry)
+					{
+						app.sample->handleSettings();
+
+						if (ImGui::Button("Build"))
+						{
+							app.buildContext.resetLog();
+							if (!app.sample->handleBuild())
+							{
+								app.showLog = true;
+								app.logScroll = 0;
+							}
+							app.buildContext.dumpLog("Build log %s:", app.meshName.c_str());
+
+							// Clear test.
+							delete app.testCase;
+							app.testCase = 0;
+						}
+					}
+
+					ImGui::SeparatorText("Debug Settings");
+					app.sample->handleDebugMode();
+				}
+
+				ImGui::End();
 			}
 
-			ImGui::End();
+			// Log
+			if (app.showLog && app.showMenu)
+			{
+				ImGui::SetNextWindowPos(ImVec2(250 + 20, static_cast<float>(app.height - 200 - 10)), ImGuiCond_Always);  // Position in screen space
+				ImGui::SetNextWindowSize(ImVec2(static_cast<float>(app.width - 250 - 350 - 20 - 20), 200), ImGuiCond_Always);     // Size of the window
+				ImGui::Begin("Log", nullptr, staticWindowFlags);
+
+				for (int i = 0; i < app.buildContext.getLogCount(); ++i)
+				{
+					ImGui::TextUnformatted(app.buildContext.getLogText(i));
+				}
+
+				ImGui::End();
+			}
+
+			// Left column tools menu
+			if (!app.showTestCases && app.showTools && app.showMenu)
+			{
+				ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_Always);  // Position in screen space
+				ImGui::SetNextWindowSize(ImVec2(250, static_cast<float>(app.height - 20)), ImGuiCond_Always);     // Size of the window
+				ImGui::Begin("Tools", nullptr, staticWindowFlags);
+
+				if (app.sample)
+				{
+					app.sample->handleTools();
+				}
+
+				ImGui::End();
+			}
 		}
 
 		if (newSampleSelected)
@@ -899,36 +931,6 @@ int main(int /*argc*/, char** /*argv*/)
 			imguiEndScrollArea();
 		}
 #endif
-
-		// Log
-		if (app.showLog && app.showMenu)
-		{
-			ImGui::SetNextWindowPos(ImVec2(250 + 20, static_cast<float>(app.height - 200 - 10)), ImGuiCond_Always);  // Position in screen space
-			ImGui::SetNextWindowSize(ImVec2(static_cast<float>(app.width - 250 - 350 - 20 - 20), 200), ImGuiCond_Always);     // Size of the window
-			ImGui::Begin("Log", nullptr, staticWindowFlags);
-
-			for (int i = 0; i < app.buildContext.getLogCount(); ++i)
-			{
-				ImGui::TextUnformatted(app.buildContext.getLogText(i));
-			}
-
-			ImGui::End();
-		}
-
-		// Left column tools menu
-		if (!app.showTestCases && app.showTools && app.showMenu)
-		{
-			ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_Always);  // Position in screen space
-			ImGui::SetNextWindowSize(ImVec2(250, static_cast<float>(app.height - 20)), ImGuiCond_Always);     // Size of the window
-			ImGui::Begin("Tools", nullptr, staticWindowFlags);
-
-			if (app.sample)
-			{
-				app.sample->handleTools();
-			}
-
-			ImGui::End();
-		}
 
 		// Draw Marker
 		if (app.markerPositionSet && gluProject(app.markerPosition[0], app.markerPosition[1], app.markerPosition[2], modelviewMatrix, projectionMatrix, viewport, &x, &y, &z))
