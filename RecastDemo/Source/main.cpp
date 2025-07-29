@@ -47,12 +47,9 @@
 #	define snprintf _snprintf
 #endif
 
-using std::string;
-using std::vector;
-
 struct SampleItem
 {
-	string name;
+	std::string name;
 	std::function<Sample*()> create;
 };
 
@@ -66,7 +63,6 @@ SampleItem g_samples[] = {
 constexpr int g_nsamples = sizeof(g_samples) / sizeof(SampleItem);
 
 constexpr float fogColor[4] = {0.32f, 0.31f, 0.30f, 1.0f};
-
 }
 
 struct AppData
@@ -119,7 +115,7 @@ struct AppData
 
 	// UI
 	int sampleIndex = -1;
-	string meshName = "Choose Mesh...";
+	std::string meshName = "Choose Mesh...";
 
 	// UI state
 	bool showMenu = true;
@@ -131,9 +127,9 @@ struct AppData
 	int logScroll = 0;
 
 	// Files
-	vector<string> files;
-	string meshesFolder = "Meshes";
-	string testCasesFolder = "TestCases";
+	std::vector<std::string> files;
+	std::string meshesFolder = "Meshes";
+	std::string testCasesFolder = "TestCases";
 
 	// Markers
 	float markerPosition[3] = {0, 0, 0};
@@ -765,7 +761,7 @@ int main(int /*argc*/, char** /*argv*/)
 
 		if (newMeshSelected)
 		{
-			string path = app.meshesFolder + "/" + app.meshName;
+			std::string path = app.meshesFolder + "/" + app.meshName;
 
 			delete app.inputGeometry;
 			app.inputGeometry = new InputGeom;
@@ -800,9 +796,9 @@ int main(int /*argc*/, char** /*argv*/)
 			ImGui::SetNextWindowSize(ImVec2(200, 450, ImGuiCond_Always);     // Size of the window
 			ImGui::Begin("Choose Test To Run", nullptr, staticWindowFlags);
 
-			vector<string>::const_iterator fileIter = app.files.begin();
-			vector<string>::const_iterator filesEnd = app.files.end();
-			vector<string>::const_iterator testToLoad = filesEnd;
+			std::vector<std::string>::const_iterator fileIter = app.files.begin();
+			std::vector<std::string>::const_iterator filesEnd = app.files.end();
+			std::vector<std::string>::const_iterator testToLoad = filesEnd;
 			for (; fileIter != filesEnd; ++fileIter)
 			{
 				if (imguiItem(fileIter->c_str()))
@@ -828,7 +824,7 @@ int main(int /*argc*/, char** /*argv*/)
 
 			if (testToLoad != filesEnd)
 			{
-				string path = app.testCasesFolder + "/" + *testToLoad;
+				std::string path = app.testCasesFolder + "/" + *testToLoad;
 				app.testCase = new TestCase;
 				if (app.testCase)
 				{
