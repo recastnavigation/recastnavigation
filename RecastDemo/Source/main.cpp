@@ -70,6 +70,8 @@ struct AppData
 	// Window & SDL
 	int width;
 	int height;
+	int drawableWidth;
+	int drawableHeight;
 	SDL_Window* window;
 	SDL_GLContext glContext;
 
@@ -166,6 +168,18 @@ struct AppData
 		glFogf(GL_FOG_START, camr * 0.1f);
 		glFogf(GL_FOG_END, camr * 1.25f);
 	}
+
+	void UpdateWindowSize()
+	{
+		SDL_GetWindowSize(window, &width, &height);
+		SDL_GL_GetDrawableSize(window, &drawableWidth, &drawableHeight);
+
+		ImGuiIO& io = ImGui::GetIO();
+		io.DisplaySize = ImVec2(static_cast<float>(width), static_cast<float>(height));
+		io.DisplayFramebufferScale = ImVec2(
+			static_cast<float>(drawableWidth) / width,
+			static_cast<float>(drawableHeight) / height);
+	}
 };
 
 int main(int /*argc*/, char** /*argv*/)
@@ -175,7 +189,7 @@ int main(int /*argc*/, char** /*argv*/)
 	// Init SDL
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
 	{
-		printf("Could not initialise SDL.\nError: %s\n", SDL_GetError());
+		printf("Could not initialize SDL.\nError: %s\n", SDL_GetError());
 		return -1;
 	}
 
@@ -199,17 +213,18 @@ int main(int /*argc*/, char** /*argv*/)
 	SDL_DisplayMode displayMode;
 	SDL_GetCurrentDisplayMode(0, &displayMode);
 
-	app.width = rcMin(displayMode.w, static_cast<int>(static_cast<float>(displayMode.h) * (16.0f / 9.0f))) - 80;
-	app.height = displayMode.h - 80;
+	constexpr float aspect = 9.0f / 16.0f;
+	app.width = displayMode.w - 100;
+	app.height = static_cast<int>(roundf(static_cast<float>(app.width) * aspect));
 
 	// Create the SDL window with OpenGL support
 	app.window = SDL_CreateWindow(
-		"My App",
+		"Recast Demo",
 		SDL_WINDOWPOS_CENTERED,
 		SDL_WINDOWPOS_CENTERED,
 		app.width,
 		app.height,
-		SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+		SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
 
 	// Create the OpenGL context
 	app.glContext = SDL_GL_CreateContext(app.window);
@@ -226,44 +241,31 @@ int main(int /*argc*/, char** /*argv*/)
 	// Setup Dear ImGui context
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
+	ImGui_ImplSDL2_InitForOpenGL(app.window, app.glContext);
+    ImGui_ImplOpenGL2_Init();
+
+	app.UpdateWindowSize();
+
 	ImGuiIO& io = ImGui::GetIO();
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // Enable Keyboard Controls
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;   // Enable Gamepad Controls
 	io.Fonts->AddFontFromFileTTF("DroidSans.ttf", 16.0f); // Size in pixels
 	ImGui::PushFont(io.Fonts->Fonts[0]);
-	ImGui::StyleColorsDark();
-
-
 
 	// Set style
-	float main_scale = ImGui_ImplSDL2_GetContentScaleForDisplay(0);
+	ImGui::StyleColorsDark();
 	ImGuiStyle& style = ImGui::GetStyle();
-	style.ScaleAllSizes(main_scale);
-	style.FontScaleDpi = main_scale;
 	style.WindowRounding = 8.0f;
 	style.FrameRounding  = 4.0f;
 	style.WindowPadding  = ImVec2(10, 10);
 	style.FramePadding   = ImVec2(8, 4);
-
 	style.Colors[ImGuiCol_WindowBg] = ImVec4(0.0f, 0.0f, 0.0f, 0.75f);
 	style.Colors[ImGuiCol_Header] = ImVec4(1.0f, 1.0f, 1.0f, 0.5f);
 	style.Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.0f, 0.0f, 0.0f, 0.75f);
 	style.Colors[ImGuiCol_ScrollbarGrab] = ImVec4(1.0f, 1.0f, 1.0f, 0.25f);
 	style.Colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(1.0f, 0.75f, 0, 0.75f);
 	style.Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(1.0f, 0.75f, 0, 0.37f);
-
 	style.Colors[ImGuiCol_Button] = ImVec4(0.5f, 0.5f, 0.5f, 96.0f / 255.0f);
 	style.Colors[ImGuiCol_ButtonActive] = ImVec4(0.5f, 0.5f, 0.5f, 196.0f / 255.0f);
 	//style.Colors[ImGuiCol_ButtonHovered] = ImVec4(1.0f, 196.0f / 255.0f, 0, 96.0f / 255.0f);
-
-
-
-
-
-
-	// Setup Platform/Renderer backends
-	ImGui_ImplSDL2_InitForOpenGL(app.window, app.glContext);
-    ImGui_ImplOpenGL2_Init();
 
 	ImGuiWindowFlags staticWindowFlags = ImGuiWindowFlags_NoMove
 		//| ImGuiWindowFlags_NoResize
@@ -282,34 +284,6 @@ int main(int /*argc*/, char** /*argv*/)
 	// OpenGL settings
 	glEnable(GL_CULL_FACE);
 	glDepthFunc(GL_LEQUAL);
-
-
-
-	//----------------------------------------------------------------------------
-	FileIO::scanDirectory(app.meshesFolder, ".obj", app.files);
-	app.meshName = app.files[0];
-	app.inputGeometry = new InputGeom;
-	app.inputGeometry->load(&app.buildContext, app.meshesFolder + "/" + app.meshName);
-
-	app.sampleIndex = 0;
-	app.sample = g_samples[0].create();
-	app.sample->buildContext = &app.buildContext;
-	app.sample->handleMeshChanged(app.inputGeometry);
-
-	// Reset camera and fog to match the mesh bounds.
-	const float* bmin = app.inputGeometry->getNavMeshBoundsMin();
-	const float* bmax = app.inputGeometry->getNavMeshBoundsMax();
-	app.camr = sqrtf(rcSqr(bmax[0] - bmin[0]) + rcSqr(bmax[1] - bmin[1]) + rcSqr(bmax[2] - bmin[2])) / 2;
-	app.cameraPos[0] = (bmax[0] + bmin[0]) / 2 + app.camr;
-	app.cameraPos[1] = (bmax[1] + bmin[1]) / 2 + app.camr;
-	app.cameraPos[2] = (bmax[2] + bmin[2]) / 2 + app.camr;
-	app.camr *= 3;
-	app.cameraEulers[0] = 45;
-	app.cameraEulers[1] = -45;
-	glFogf(GL_FOG_START, app.camr * 0.1f);
-	glFogf(GL_FOG_END, app.camr * 1.25f);
-	//----------------------------------------------------------------------------
-
 
 	bool done = false;
 	while (!done)
@@ -430,17 +404,14 @@ int main(int /*argc*/, char** /*argv*/)
 			{
 				if (event.window.event == SDL_WINDOWEVENT_RESIZED)
 				{
-					// Get the new window size
-					app.width = event.window.data1;
-					app.height = event.window.data2;
-
-					// Update OpenGL viewport
-					glViewport(0, 0, app.width, app.height);
+					// Get the new window size and update the OpenGL viewport
+					app.UpdateWindowSize();
+					glViewport(0, 0, app.drawableWidth, app.drawableHeight);
 
 					glMatrixMode(GL_PROJECTION);
 					glLoadIdentity();
 					constexpr float FOV = 50.0f;
-					const float aspect = (float)app.width / (float)app.height;
+					const float aspect = static_cast<float>(app.width) / static_cast<float>(app.drawableHeight);
 					constexpr float zNear = 1.0f;
 					const float zFar = app.camr;
 					gluPerspective(FOV, aspect, zNear, zFar);
@@ -523,7 +494,7 @@ int main(int /*argc*/, char** /*argv*/)
 		}
 
 		// Set the viewport.
-		glViewport(0, 0, app.width, app.height);
+		glViewport(0, 0, app.drawableWidth, app.drawableHeight);
 		GLint viewport[4];
 		glGetIntegerv(GL_VIEWPORT, viewport);
 
@@ -632,7 +603,7 @@ int main(int /*argc*/, char** /*argv*/)
 		ImGui_ImplOpenGL2_NewFrame();
 		ImGui_ImplSDL2_NewFrame();
 		ImGui::NewFrame();
-		ImGui::ShowDemoWindow();
+		//ImGui::ShowDemoWindow();
 
 		if (app.sample)
 		{
