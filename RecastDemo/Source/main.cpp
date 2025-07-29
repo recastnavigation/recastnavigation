@@ -268,7 +268,7 @@ int main(int /*argc*/, char** /*argv*/)
 	//style.Colors[ImGuiCol_ButtonHovered] = ImVec4(1.0f, 196.0f / 255.0f, 0, 96.0f / 255.0f);
 
 	ImGuiWindowFlags staticWindowFlags = ImGuiWindowFlags_NoMove
-		//| ImGuiWindowFlags_NoResize
+		| ImGuiWindowFlags_NoResize
 		| ImGuiWindowFlags_NoSavedSettings
 		| ImGuiWindowFlags_NoCollapse;
 
@@ -621,13 +621,12 @@ int main(int /*argc*/, char** /*argv*/)
 			// Help text.
 			DrawScreenspaceText(280.0f, 20.0f, IM_COL32(255, 255, 255, 128), "W/A/S/D: Move  RMB: Rotate");
 
+			constexpr int uiColumnWidth = 250;
+			constexpr int uiWindowPadding = 10;
 			// Properties window
 			{
-				constexpr int width = 250;
-				constexpr int padding = 10;
-
-				ImGui::SetNextWindowPos(ImVec2(static_cast<float>(app.width - width - padding), padding), ImGuiCond_Always);  // Position in screen space
-				ImGui::SetNextWindowSize(ImVec2(width, static_cast<float>(app.height - padding * 2)), ImGuiCond_Always);     // Size of the window
+				ImGui::SetNextWindowPos(ImVec2(static_cast<float>(app.width - uiColumnWidth - uiWindowPadding), uiWindowPadding), ImGuiCond_Always);  // Position in screen space
+				ImGui::SetNextWindowSize(ImVec2(uiColumnWidth, static_cast<float>(app.height - uiWindowPadding * 2)), ImGuiCond_Always);     // Size of the window
 				ImGui::Begin("Properties", nullptr, staticWindowFlags);
 
 				ImGui::Checkbox("Show Log", &app.showLog);
@@ -722,8 +721,9 @@ int main(int /*argc*/, char** /*argv*/)
 			// Log
 			if (app.showLog && app.showMenu)
 			{
-				ImGui::SetNextWindowPos(ImVec2(250 + 20, static_cast<float>(app.height - 200 - 10)), ImGuiCond_Always);  // Position in screen space
-				ImGui::SetNextWindowSize(ImVec2(static_cast<float>(app.width - 250 - 350 - 20 - 20), 200), ImGuiCond_Always);     // Size of the window
+				constexpr int logWindowHeight = 200;
+				ImGui::SetNextWindowPos(ImVec2(uiColumnWidth + 2 * uiWindowPadding, static_cast<float>(app.height - logWindowHeight - uiWindowPadding)), ImGuiCond_Always);  // Position in screen space
+				ImGui::SetNextWindowSize(ImVec2(static_cast<float>(app.width - 2 * uiColumnWidth - 4 * uiWindowPadding), logWindowHeight), ImGuiCond_Always);     // Size of the window
 				ImGui::Begin("Log", nullptr, staticWindowFlags);
 
 				for (int i = 0; i < app.buildContext.getLogCount(); ++i)
