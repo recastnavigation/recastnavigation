@@ -145,20 +145,20 @@ struct AppData
 
 	void resetCamera()
 	{
-		const float* bmin = 0;
-		const float* bmax = 0;
+		const float* boundsMin = 0;
+		const float* boundsMax = 0;
 		if (inputGeometry)
 		{
-			bmin = inputGeometry->getNavMeshBoundsMin();
-			bmax = inputGeometry->getNavMeshBoundsMax();
+			boundsMin = inputGeometry->getNavMeshBoundsMin();
+			boundsMax = inputGeometry->getNavMeshBoundsMax();
 		}
 		// Reset camera and fog to match the mesh bounds.
-		if (bmin && bmax)
+		if (boundsMin && boundsMax)
 		{
-			camr = sqrtf(rcSqr(bmax[0] - bmin[0]) + rcSqr(bmax[1] - bmin[1]) + rcSqr(bmax[2] - bmin[2])) / 2;
-			cameraPos[0] = (bmax[0] + bmin[0]) / 2 + camr;
-			cameraPos[1] = (bmax[1] + bmin[1]) / 2 + camr;
-			cameraPos[2] = (bmax[2] + bmin[2]) / 2 + camr;
+			camr = sqrtf(rcSqr(boundsMax[0] - boundsMin[0]) + rcSqr(boundsMax[1] - boundsMin[1]) + rcSqr(boundsMax[2] - boundsMin[2])) / 2;
+			cameraPos[0] = (boundsMax[0] + boundsMin[0]) / 2 + camr;
+			cameraPos[1] = (boundsMax[1] + boundsMin[1]) / 2 + camr;
+			cameraPos[2] = (boundsMax[2] + boundsMin[2]) / 2 + camr;
 			camr *= 3;
 		}
 		cameraEulers[0] = 45;
