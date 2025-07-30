@@ -164,7 +164,7 @@ bool TestCase::load(const std::string& filePath)
 		{
 			// Pathfind test.
 			Test* test = new Test();
-			test->type = TEST_PATHFIND;
+			test->type = TestCase::TestType::PATHFIND;
 			test->expand = false;
 			test->next = tests;
 			tests = test;
@@ -184,7 +184,7 @@ bool TestCase::load(const std::string& filePath)
 		{
 			// Pathfind test.
 			Test* test = new Test();
-			test->type = TEST_RAYCAST;
+			test->type = TestCase::TestType::RAYCAST;
 			test->expand = false;
 			test->next = tests;
 			tests = test;
@@ -258,7 +258,7 @@ void TestCase::doTests(dtNavMesh* navmesh, dtNavMeshQuery* navquery)
 			continue;
 		}
 
-		if (iter->type == TEST_PATHFIND)
+		if (iter->type == TestCase::TestType::PATHFIND)
 		{
 			// Find path
 			TimeVal findPathStart = getPerfTime();
@@ -299,7 +299,7 @@ void TestCase::doTests(dtNavMesh* navmesh, dtNavMeshQuery* navquery)
 				memcpy(iter->straight, straight, sizeof(float) * 3 * iter->nstraight);
 			}
 		}
-		else if (iter->type == TEST_RAYCAST)
+		else if (iter->type == TestCase::TestType::RAYCAST)
 		{
 			float t = 0;
 			float hitNormal[3], hitPos[3];

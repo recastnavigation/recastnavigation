@@ -20,14 +20,15 @@
 
 #include "DetourNavMesh.h"
 
+#include <cstdint>
 #include <string>
 
 class TestCase
 {
-	enum TestType
+	enum class TestType : uint8_t
 	{
-		TEST_PATHFIND,
-		TEST_RAYCAST
+		PATHFIND,
+		RAYCAST
 	};
 
 	struct Test
@@ -43,7 +44,7 @@ class TestCase
 			delete[] polys;
 		}
 
-		TestType type{};
+		TestCase::TestType type{};
 		float spos[3]{};
 		float epos[3]{};
 		float nspos[3]{};
