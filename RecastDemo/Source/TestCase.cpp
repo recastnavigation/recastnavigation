@@ -42,17 +42,6 @@
 #	define snprintf _snprintf
 #endif
 
-TestCase::~TestCase()
-{
-	Test* iter = tests;
-	while (iter)
-	{
-		Test* next = iter->next;
-		delete iter;
-		iter = next;
-	}
-}
-
 static char* parseRow(char* buf, char* bufEnd, char* row, int len)
 {
 	bool start = true;
@@ -144,11 +133,9 @@ bool TestCase::load(const std::string& filePath)
 		else if (row[0] == 'p' && row[1] == 'f')
 		{
 			// Pathfind test.
-			Test* test = new Test();
+			auto test = std::make_unique<Test>();
 			test->type = TestCase::TestType::PATHFIND;
 			test->expand = false;
-			test->next = tests;
-			tests = test;
 			sscanf(
 				row + 2,
 				"%f %f %f %f %f %f %hx %hx",
@@ -160,15 +147,14 @@ bool TestCase::load(const std::string& filePath)
 				&test->epos[2],
 				&test->includeFlags,
 				&test->excludeFlags);
+			tests.emplace_back(std::move(test));
 		}
 		else if (row[0] == 'r' && row[1] == 'c')
 		{
 			// Pathfind test.
-			Test* test = new Test();
+			auto test = std::make_unique<Test>();
 			test->type = TestCase::TestType::RAYCAST;
 			test->expand = false;
-			test->next = tests;
-			tests = test;
 			sscanf(
 				row + 2,
 				"%f %f %f %f %f %f %hx %hx",
@@ -180,6 +166,7 @@ bool TestCase::load(const std::string& filePath)
 				&test->epos[2],
 				&test->includeFlags,
 				&test->excludeFlags);
+			tests.emplace_back(std::move(test));
 		}
 	}
 
@@ -189,11 +176,11 @@ bool TestCase::load(const std::string& filePath)
 
 void TestCase::resetTimes()
 {
-	for (Test* iter = tests; iter; iter = iter->next)
+	for (auto& test : tests)
 	{
-		iter->findNearestPolyTime = 0;
-		iter->findPathTime = 0;
-		iter->findStraightPathTime = 0;
+		test->findNearestPolyTime = 0;
+		test->findPathTime = 0;
+		test->findStraightPathTime = 0;
 	}
 }
 
@@ -211,130 +198,130 @@ void TestCase::doTests(dtNavMesh* navmesh, dtNavMeshQuery* navquery)
 	float straight[MAX_POLYS * 3];
 	const float polyPickExt[3] = {2, 4, 2};
 
-	for (Test* iter = tests; iter; iter = iter->next)
+	for (auto& test : tests)
 	{
-		delete[] iter->polys;
-		iter->polys = 0;
-		iter->npolys = 0;
-		delete[] iter->straight;
-		iter->straight = 0;
-		iter->nstraight = 0;
+		delete[] test->polys;
+		test->polys = 0;
+		test->npolys = 0;
+		delete[] test->straight;
+		test->straight = 0;
+		test->nstraight = 0;
 
 		dtQueryFilter filter;
-		filter.setIncludeFlags(iter->includeFlags);
-		filter.setExcludeFlags(iter->excludeFlags);
+		filter.setIncludeFlags(test->includeFlags);
+		filter.setExcludeFlags(test->excludeFlags);
 
 		// Find start points
 		TimeVal findNearestPolyStart = getPerfTime();
 
 		dtPolyRef startRef, endRef;
-		navquery->findNearestPoly(iter->spos, polyPickExt, &filter, &startRef, iter->nspos);
-		navquery->findNearestPoly(iter->epos, polyPickExt, &filter, &endRef, iter->nepos);
+		navquery->findNearestPoly(test->spos, polyPickExt, &filter, &startRef, test->nspos);
+		navquery->findNearestPoly(test->epos, polyPickExt, &filter, &endRef, test->nepos);
 
 		TimeVal findNearestPolyEnd = getPerfTime();
-		iter->findNearestPolyTime += getPerfTimeUsec(findNearestPolyEnd - findNearestPolyStart);
+		test->findNearestPolyTime += getPerfTimeUsec(findNearestPolyEnd - findNearestPolyStart);
 
 		if (!startRef || !endRef)
 		{
 			continue;
 		}
 
-		if (iter->type == TestCase::TestType::PATHFIND)
+		if (test->type == TestCase::TestType::PATHFIND)
 		{
 			// Find path
 			TimeVal findPathStart = getPerfTime();
 
-			navquery->findPath(startRef, endRef, iter->spos, iter->epos, &filter, polys, &iter->npolys, MAX_POLYS);
+			navquery->findPath(startRef, endRef, test->spos, test->epos, &filter, polys, &test->npolys, MAX_POLYS);
 
 			TimeVal findPathEnd = getPerfTime();
-			iter->findPathTime += getPerfTimeUsec(findPathEnd - findPathStart);
+			test->findPathTime += getPerfTimeUsec(findPathEnd - findPathStart);
 
 			// Find straight path
-			if (iter->npolys)
+			if (test->npolys)
 			{
 				TimeVal findStraightPathStart = getPerfTime();
 
 				navquery->findStraightPath(
-					iter->spos,
-					iter->epos,
+					test->spos,
+					test->epos,
 					polys,
-					iter->npolys,
+					test->npolys,
 					straight,
 					0,
 					0,
-					&iter->nstraight,
+					&test->nstraight,
 					MAX_POLYS);
 				TimeVal findStraightPathEnd = getPerfTime();
-				iter->findStraightPathTime += getPerfTimeUsec(findStraightPathEnd - findStraightPathStart);
+				test->findStraightPathTime += getPerfTimeUsec(findStraightPathEnd - findStraightPathStart);
 			}
 
 			// Copy results
-			if (iter->npolys)
+			if (test->npolys)
 			{
-				iter->polys = new dtPolyRef[iter->npolys];
-				memcpy(iter->polys, polys, sizeof(dtPolyRef) * iter->npolys);
+				test->polys = new dtPolyRef[test->npolys];
+				memcpy(test->polys, polys, sizeof(dtPolyRef) * test->npolys);
 			}
-			if (iter->nstraight)
+			if (test->nstraight)
 			{
-				iter->straight = new float[iter->nstraight * 3];
-				memcpy(iter->straight, straight, sizeof(float) * 3 * iter->nstraight);
+				test->straight = new float[test->nstraight * 3];
+				memcpy(test->straight, straight, sizeof(float) * 3 * test->nstraight);
 			}
 		}
-		else if (iter->type == TestCase::TestType::RAYCAST)
+		else if (test->type == TestCase::TestType::RAYCAST)
 		{
 			float t = 0;
 			float hitNormal[3], hitPos[3];
 
-			iter->straight = new float[2 * 3];
-			iter->nstraight = 2;
+			test->straight = new float[2 * 3];
+			test->nstraight = 2;
 
-			iter->straight[0] = iter->spos[0];
-			iter->straight[1] = iter->spos[1];
-			iter->straight[2] = iter->spos[2];
+			test->straight[0] = test->spos[0];
+			test->straight[1] = test->spos[1];
+			test->straight[2] = test->spos[2];
 
 			TimeVal findPathStart = getPerfTime();
 
-			navquery->raycast(startRef, iter->spos, iter->epos, &filter, &t, hitNormal, polys, &iter->npolys, MAX_POLYS);
+			navquery->raycast(startRef, test->spos, test->epos, &filter, &t, hitNormal, polys, &test->npolys, MAX_POLYS);
 
 			TimeVal findPathEnd = getPerfTime();
-			iter->findPathTime += getPerfTimeUsec(findPathEnd - findPathStart);
+			test->findPathTime += getPerfTimeUsec(findPathEnd - findPathStart);
 
 			if (t > 1)
 			{
 				// No hit
-				dtVcopy(hitPos, iter->epos);
+				dtVcopy(hitPos, test->epos);
 			}
 			else
 			{
 				// Hit
-				dtVlerp(hitPos, iter->spos, iter->epos, t);
+				dtVlerp(hitPos, test->spos, test->epos, t);
 			}
 			// Adjust height.
-			if (iter->npolys > 0)
+			if (test->npolys > 0)
 			{
 				float h = 0;
-				navquery->getPolyHeight(polys[iter->npolys - 1], hitPos, &h);
+				navquery->getPolyHeight(polys[test->npolys - 1], hitPos, &h);
 				hitPos[1] = h;
 			}
-			dtVcopy(&iter->straight[3], hitPos);
+			dtVcopy(&test->straight[3], hitPos);
 
-			if (iter->npolys)
+			if (test->npolys)
 			{
-				iter->polys = new dtPolyRef[iter->npolys];
-				memcpy(iter->polys, polys, sizeof(dtPolyRef) * iter->npolys);
+				test->polys = new dtPolyRef[test->npolys];
+				memcpy(test->polys, polys, sizeof(dtPolyRef) * test->npolys);
 			}
 		}
 	}
 
 	printf("Test Results:\n");
 	int n = 0;
-	for (Test* iter = tests; iter; iter = iter->next)
+	for (auto& test : tests)
 	{
-		const int total = iter->findNearestPolyTime + iter->findPathTime + iter->findStraightPathTime;
+		const int total = test->findNearestPolyTime + test->findPathTime + test->findStraightPathTime;
 		printf(" - Path %02d:     %.4f ms\n", n, (float)total / 1000.0f);
-		printf("    - poly:     %.4f ms\n", (float)iter->findNearestPolyTime / 1000.0f);
-		printf("    - path:     %.4f ms\n", (float)iter->findPathTime / 1000.0f);
-		printf("    - straight: %.4f ms\n", (float)iter->findStraightPathTime / 1000.0f);
+		printf("    - poly:     %.4f ms\n", (float)test->findNearestPolyTime / 1000.0f);
+		printf("    - path:     %.4f ms\n", (float)test->findPathTime / 1000.0f);
+		printf("    - straight: %.4f ms\n", (float)test->findStraightPathTime / 1000.0f);
 		n++;
 	}
 }
@@ -343,47 +330,47 @@ void TestCase::handleRender()
 {
 	glLineWidth(2.0f);
 	glBegin(GL_LINES);
-	for (Test* iter = tests; iter; iter = iter->next)
+	for (auto& test : tests)
 	{
 		float dir[3];
-		dtVsub(dir, iter->epos, iter->spos);
+		dtVsub(dir, test->epos, test->spos);
 		dtVnormalize(dir);
 		glColor4ub(128, 25, 0, 192);
-		glVertex3f(iter->spos[0], iter->spos[1] - 0.3f, iter->spos[2]);
-		glVertex3f(iter->spos[0], iter->spos[1] + 0.3f, iter->spos[2]);
-		glVertex3f(iter->spos[0], iter->spos[1] + 0.3f, iter->spos[2]);
-		glVertex3f(iter->spos[0] + dir[0] * 0.3f, iter->spos[1] + 0.3f + dir[1] * 0.3f, iter->spos[2] + dir[2] * 0.3f);
+		glVertex3f(test->spos[0], test->spos[1] - 0.3f, test->spos[2]);
+		glVertex3f(test->spos[0], test->spos[1] + 0.3f, test->spos[2]);
+		glVertex3f(test->spos[0], test->spos[1] + 0.3f, test->spos[2]);
+		glVertex3f(test->spos[0] + dir[0] * 0.3f, test->spos[1] + 0.3f + dir[1] * 0.3f, test->spos[2] + dir[2] * 0.3f);
 		glColor4ub(51, 102, 0, 129);
-		glVertex3f(iter->epos[0], iter->epos[1] - 0.3f, iter->epos[2]);
-		glVertex3f(iter->epos[0], iter->epos[1] + 0.3f, iter->epos[2]);
+		glVertex3f(test->epos[0], test->epos[1] - 0.3f, test->epos[2]);
+		glVertex3f(test->epos[0], test->epos[1] + 0.3f, test->epos[2]);
 
-		if (iter->expand)
+		if (test->expand)
 		{
 			const float s = 0.1f;
 			glColor4ub(255, 32, 0, 128);
-			glVertex3f(iter->spos[0] - s, iter->spos[1], iter->spos[2]);
-			glVertex3f(iter->spos[0] + s, iter->spos[1], iter->spos[2]);
-			glVertex3f(iter->spos[0], iter->spos[1], iter->spos[2] - s);
-			glVertex3f(iter->spos[0], iter->spos[1], iter->spos[2] + s);
+			glVertex3f(test->spos[0] - s, test->spos[1], test->spos[2]);
+			glVertex3f(test->spos[0] + s, test->spos[1], test->spos[2]);
+			glVertex3f(test->spos[0], test->spos[1], test->spos[2] - s);
+			glVertex3f(test->spos[0], test->spos[1], test->spos[2] + s);
 			glColor4ub(255, 192, 0, 255);
-			glVertex3f(iter->nspos[0] - s, iter->nspos[1], iter->nspos[2]);
-			glVertex3f(iter->nspos[0] + s, iter->nspos[1], iter->nspos[2]);
-			glVertex3f(iter->nspos[0], iter->nspos[1], iter->nspos[2] - s);
-			glVertex3f(iter->nspos[0], iter->nspos[1], iter->nspos[2] + s);
+			glVertex3f(test->nspos[0] - s, test->nspos[1], test->nspos[2]);
+			glVertex3f(test->nspos[0] + s, test->nspos[1], test->nspos[2]);
+			glVertex3f(test->nspos[0], test->nspos[1], test->nspos[2] - s);
+			glVertex3f(test->nspos[0], test->nspos[1], test->nspos[2] + s);
 
 			glColor4ub(255, 32, 0, 128);
-			glVertex3f(iter->epos[0] - s, iter->epos[1], iter->epos[2]);
-			glVertex3f(iter->epos[0] + s, iter->epos[1], iter->epos[2]);
-			glVertex3f(iter->epos[0], iter->epos[1], iter->epos[2] - s);
-			glVertex3f(iter->epos[0], iter->epos[1], iter->epos[2] + s);
+			glVertex3f(test->epos[0] - s, test->epos[1], test->epos[2]);
+			glVertex3f(test->epos[0] + s, test->epos[1], test->epos[2]);
+			glVertex3f(test->epos[0], test->epos[1], test->epos[2] - s);
+			glVertex3f(test->epos[0], test->epos[1], test->epos[2] + s);
 			glColor4ub(255, 192, 0, 255);
-			glVertex3f(iter->nepos[0] - s, iter->nepos[1], iter->nepos[2]);
-			glVertex3f(iter->nepos[0] + s, iter->nepos[1], iter->nepos[2]);
-			glVertex3f(iter->nepos[0], iter->nepos[1], iter->nepos[2] - s);
-			glVertex3f(iter->nepos[0], iter->nepos[1], iter->nepos[2] + s);
+			glVertex3f(test->nepos[0] - s, test->nepos[1], test->nepos[2]);
+			glVertex3f(test->nepos[0] + s, test->nepos[1], test->nepos[2]);
+			glVertex3f(test->nepos[0], test->nepos[1], test->nepos[2] - s);
+			glVertex3f(test->nepos[0], test->nepos[1], test->nepos[2] + s);
 		}
 
-		if (iter->expand)
+		if (test->expand)
 		{
 			glColor4ub(255, 192, 0, 255);
 		}
@@ -392,13 +379,13 @@ void TestCase::handleRender()
 			glColor4ub(0, 0, 0, 64);
 		}
 
-		for (int i = 0; i < iter->nstraight - 1; ++i)
+		for (int i = 0; i < test->nstraight - 1; ++i)
 		{
-			glVertex3f(iter->straight[i * 3 + 0], iter->straight[i * 3 + 1] + 0.3f, iter->straight[i * 3 + 2]);
+			glVertex3f(test->straight[i * 3 + 0], test->straight[i * 3 + 1] + 0.3f, test->straight[i * 3 + 2]);
 			glVertex3f(
-				iter->straight[(i + 1) * 3 + 0],
-				iter->straight[(i + 1) * 3 + 1] + 0.3f,
-				iter->straight[(i + 1) * 3 + 2]);
+				test->straight[(i + 1) * 3 + 0],
+				test->straight[(i + 1) * 3 + 1] + 0.3f,
+				test->straight[(i + 1) * 3 + 2]);
 		}
 	}
 	glEnd();
@@ -413,26 +400,26 @@ bool TestCase::handleRenderOverlay(double* proj, double* model, int* view)
 
 	static constexpr float LABEL_DIST = 1.0f;
 
-	for (Test* iter = tests; iter; iter = iter->next)
+	for (auto& test : tests)
 	{
 		float pt[3];
 		float dir[3];
-		if (iter->nstraight)
+		if (test->nstraight)
 		{
-			dtVcopy(pt, &iter->straight[3]);
-			if (dtVdist(pt, iter->spos) > LABEL_DIST)
+			dtVcopy(pt, &test->straight[3]);
+			if (dtVdist(pt, test->spos) > LABEL_DIST)
 			{
-				dtVsub(dir, pt, iter->spos);
+				dtVsub(dir, pt, test->spos);
 				dtVnormalize(dir);
-				dtVmad(pt, iter->spos, dir, LABEL_DIST);
+				dtVmad(pt, test->spos, dir, LABEL_DIST);
 			}
 			pt[1] += 0.5f;
 		}
 		else
 		{
-			dtVsub(dir, iter->epos, iter->spos);
+			dtVsub(dir, test->epos, test->spos);
 			dtVnormalize(dir);
-			dtVmad(pt, iter->spos, dir, LABEL_DIST);
+			dtVmad(pt, test->spos, dir, LABEL_DIST);
 			pt[1] += 0.5f;
 		}
 
@@ -440,7 +427,7 @@ bool TestCase::handleRenderOverlay(double* proj, double* model, int* view)
 		{
 			snprintf(text, 64, "Path %d\n", n);
 			unsigned int col = IM_COL32(0, 0, 0, 128);
-			if (iter->expand)
+			if (test->expand)
 			{
 				col = IM_COL32(255, 192, 0, 220);
 			}
@@ -455,17 +442,17 @@ bool TestCase::handleRenderOverlay(double* proj, double* model, int* view)
 	ImGui::Begin("Test Results");
 
 	n = 0;
-	for (Test* iter = tests; iter; iter = iter->next, n++)
+	for (auto& test : tests)
 	{
-		const int total = iter->findNearestPolyTime + iter->findPathTime + iter->findStraightPathTime;
+		const int total = test->findNearestPolyTime + test->findPathTime + test->findStraightPathTime;
 		snprintf(text, 64, "Path %d", n);
 
 		if (ImGui::CollapsingHeader(text, ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			ImGui::Text("Total: %.4f ms", static_cast<float>(total) / 1000.0f);
-			ImGui::Text("Poly: %.4f ms", static_cast<float>(iter->findNearestPolyTime) / 1000.0f);
-			ImGui::Text("Path: %.4f ms", static_cast<float>(iter->findPathTime) / 1000.0f);
-			ImGui::Text("Straight: %.4f ms", static_cast<float>(iter->findStraightPathTime) / 1000.0f);
+			ImGui::Text("Poly: %.4f ms", static_cast<float>(test->findNearestPolyTime) / 1000.0f);
+			ImGui::Text("Path: %.4f ms", static_cast<float>(test->findPathTime) / 1000.0f);
+			ImGui::Text("Straight: %.4f ms", static_cast<float>(test->findStraightPathTime) / 1000.0f);
 
 			ImGui::Separator();
 		}

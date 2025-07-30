@@ -22,6 +22,8 @@
 
 #include <cstdint>
 #include <string>
+#include <vector>
+#include <memory>
 
 class TestCase
 {
@@ -62,22 +64,13 @@ class TestCase
 		int findNearestPolyTime = 0;
 		int findPathTime = 0;
 		int findStraightPathTime = 0;
-
-		Test* next = nullptr;
 	};
 
-	Test* tests = nullptr;
+	std::vector<std::unique_ptr<Test>> tests;
 
 	void resetTimes();
 
 public:
-	TestCase() = default;
-	TestCase(const TestCase&) = delete;
-	TestCase(TestCase&&) = delete;
-	TestCase& operator=(const TestCase&) = delete;
-	TestCase& operator=(TestCase&&) = delete;
-	~TestCase();
-
 	bool load(const std::string& filePath);
 
 	std::string sampleName;
