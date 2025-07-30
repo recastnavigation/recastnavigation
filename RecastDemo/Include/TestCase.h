@@ -65,8 +65,6 @@ class TestCase
 		Test* next = nullptr;
 	};
 
-	std::string sampleName;
-	std::string geomFileName;
 	Test* tests = nullptr;
 
 	void resetTimes();
@@ -81,8 +79,8 @@ public:
 
 	bool load(const std::string& filePath);
 
-	const std::string& getSampleName() const { return sampleName; }
-	const std::string& getGeomFileName() const { return geomFileName; }
+	std::string sampleName;
+	std::string geomFileName;
 
 	void doTests(class dtNavMesh* navmesh, class dtNavMeshQuery* navquery);
 

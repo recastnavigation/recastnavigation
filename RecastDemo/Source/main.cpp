@@ -842,7 +842,7 @@ int main(int /*argc*/, char** /*argv*/)
 					Sample* newSample = 0;
 					for (int i = 0; i < g_nsamples; ++i)
 					{
-						if (g_samples[i].name == app.testCase->getSampleName())
+						if (g_samples[i].name == app.testCase->sampleName)
 						{
 							newSample = g_samples[i].create();
 							if (newSample)
@@ -862,7 +862,7 @@ int main(int /*argc*/, char** /*argv*/)
 					}
 
 					// Load geom.
-					app.meshName = app.testCase->getGeomFileName();
+					app.meshName = app.testCase->geomFileName;
 
 					path = app.meshesFolder + "/" + app.meshName;
 
