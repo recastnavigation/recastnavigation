@@ -22,6 +22,7 @@
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"
 #include "SDL_opengl.h"
+#include "SampleInterfaces.h"
 #include "imguiHelpers.h"
 
 #include <ctype.h>
@@ -106,44 +107,24 @@ static void copyName(std::string& dst, const char* src)
 
 bool TestCase::load(const std::string& filePath)
 {
-	char* buf = 0;
-	FILE* fp = fopen(filePath.c_str(), "rb");
-	if (!fp)
+	FileIO file;
+	if (!file.openForRead(filePath.c_str()))
 	{
-		return false;
-	}
-	if (fseek(fp, 0, SEEK_END) != 0)
-	{
-		fclose(fp);
-		return false;
-	}
-	long bufSize = ftell(fp);
-	if (bufSize < 0)
-	{
-		fclose(fp);
-		return false;
-	}
-	if (fseek(fp, 0, SEEK_SET) != 0)
-	{
-		fclose(fp);
-		return false;
-	}
-	buf = new char[bufSize];
-	if (!buf)
-	{
-		fclose(fp);
-		return false;
-	}
-	size_t readLen = fread(buf, bufSize, 1, fp);
-	fclose(fp);
-	if (readLen != 1)
-	{
-		delete[] buf;
+		// ctx->log(RC_LOG_ERROR, "buildTiledNavigation: Could not load '%s'", filePath.c_str());
 		return false;
 	}
 
-	char* src = buf;
-	char* srcEnd = buf + bufSize;
+	size_t bufferLen = file.getFileSize();
+	char* buffer = new char[bufferLen];
+
+	if (!file.read(buffer, bufferLen))
+	{
+		// ctx->log(RC_LOG_ERROR, "buildTiledNavigation: Could not load '%s'", filePath.c_str());
+		return false;
+	}
+
+	char* src = buffer;
+	char* srcEnd = buffer + bufferLen;
 	char row[512];
 	while (src < srcEnd)
 	{
@@ -202,7 +183,7 @@ bool TestCase::load(const std::string& filePath)
 		}
 	}
 
-	delete[] buf;
+	delete[] buffer;
 	return true;
 }
 
