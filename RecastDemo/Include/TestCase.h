@@ -42,7 +42,6 @@ class TestCase
 		Test& operator=(Test&&) = delete;
 		~Test()
 		{
-			delete[] straight;
 			delete[] polys;
 		}
 
@@ -56,8 +55,7 @@ class TestCase
 		unsigned short excludeFlags = 0;
 		bool expand = false;
 
-		float* straight = nullptr;
-		int nstraight = 0;
+		std::vector<float> straight {};
 		dtPolyRef* polys = nullptr;
 		int npolys = 0;
 

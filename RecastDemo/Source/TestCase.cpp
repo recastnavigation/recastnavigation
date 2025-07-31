@@ -203,9 +203,7 @@ void TestCase::doTests(dtNavMesh* navmesh, dtNavMeshQuery* navquery)
 		delete[] test->polys;
 		test->polys = 0;
 		test->npolys = 0;
-		delete[] test->straight;
-		test->straight = 0;
-		test->nstraight = 0;
+		test->straight.clear();
 
 		dtQueryFilter filter;
 		filter.setIncludeFlags(test->includeFlags);
@@ -237,6 +235,7 @@ void TestCase::doTests(dtNavMesh* navmesh, dtNavMeshQuery* navquery)
 			test->findPathTime += getPerfTimeUsec(findPathEnd - findPathStart);
 
 			// Find straight path
+			int numStraight = 0;
 			if (test->npolys)
 			{
 				TimeVal findStraightPathStart = getPerfTime();
@@ -249,7 +248,7 @@ void TestCase::doTests(dtNavMesh* navmesh, dtNavMeshQuery* navquery)
 					straight,
 					0,
 					0,
-					&test->nstraight,
+					&numStraight,
 					MAX_POLYS);
 				TimeVal findStraightPathEnd = getPerfTime();
 				test->findStraightPathTime += getPerfTimeUsec(findStraightPathEnd - findStraightPathStart);
@@ -261,20 +260,19 @@ void TestCase::doTests(dtNavMesh* navmesh, dtNavMeshQuery* navquery)
 				test->polys = new dtPolyRef[test->npolys];
 				memcpy(test->polys, polys, sizeof(dtPolyRef) * test->npolys);
 			}
-			if (test->nstraight)
+			if (numStraight > 0)
 			{
-				test->straight = new float[test->nstraight * 3];
-				memcpy(test->straight, straight, sizeof(float) * 3 * test->nstraight);
+				test->straight.resize(numStraight * 3);
+				memcpy(test->straight.data(), straight, sizeof(float) * 3 * numStraight);
 			}
 		}
 		else if (test->type == TestCase::TestType::RAYCAST)
 		{
 			float t = 0;
-			float hitNormal[3], hitPos[3];
+			float hitNormal[3];
+			float hitPos[3];
 
-			test->straight = new float[2 * 3];
-			test->nstraight = 2;
-
+			test->straight.resize(2 * 3);
 			test->straight[0] = test->spos[0];
 			test->straight[1] = test->spos[1];
 			test->straight[2] = test->spos[2];
@@ -379,7 +377,8 @@ void TestCase::handleRender()
 			glColor4ub(0, 0, 0, 64);
 		}
 
-		for (int i = 0; i < test->nstraight - 1; ++i)
+		int numStraight = test->straight.size() / 3;
+		for (int i = 0; i < numStraight - 1; ++i)
 		{
 			glVertex3f(test->straight[i * 3 + 0], test->straight[i * 3 + 1] + 0.3f, test->straight[i * 3 + 2]);
 			glVertex3f(
@@ -404,7 +403,7 @@ bool TestCase::handleRenderOverlay(double* proj, double* model, int* view)
 	{
 		float pt[3];
 		float dir[3];
-		if (test->nstraight)
+		if (!test->straight.empty())
 		{
 			dtVcopy(pt, &test->straight[3]);
 			if (dtVdist(pt, test->spos) > LABEL_DIST)
