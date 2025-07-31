@@ -200,9 +200,7 @@ void TestCase::doTests(dtNavMesh* navmesh, dtNavMeshQuery* navquery)
 
 	for (auto& test : tests)
 	{
-		delete[] test->polys;
-		test->polys = 0;
-		test->npolys = 0;
+		test->polys.clear();
 		test->straight.clear();
 
 		dtQueryFilter filter;
@@ -229,14 +227,15 @@ void TestCase::doTests(dtNavMesh* navmesh, dtNavMeshQuery* navquery)
 			// Find path
 			TimeVal findPathStart = getPerfTime();
 
-			navquery->findPath(startRef, endRef, test->spos, test->epos, &filter, polys, &test->npolys, MAX_POLYS);
+			int numPolys = 0;
+			navquery->findPath(startRef, endRef, test->spos, test->epos, &filter, polys, &numPolys, MAX_POLYS);
 
 			TimeVal findPathEnd = getPerfTime();
 			test->findPathTime += getPerfTimeUsec(findPathEnd - findPathStart);
 
 			// Find straight path
 			int numStraight = 0;
-			if (test->npolys)
+			if (numPolys)
 			{
 				TimeVal findStraightPathStart = getPerfTime();
 
@@ -244,7 +243,7 @@ void TestCase::doTests(dtNavMesh* navmesh, dtNavMeshQuery* navquery)
 					test->spos,
 					test->epos,
 					polys,
-					test->npolys,
+					numPolys,
 					straight,
 					0,
 					0,
@@ -255,10 +254,10 @@ void TestCase::doTests(dtNavMesh* navmesh, dtNavMeshQuery* navquery)
 			}
 
 			// Copy results
-			if (test->npolys)
+			if (numPolys)
 			{
-				test->polys = new dtPolyRef[test->npolys];
-				memcpy(test->polys, polys, sizeof(dtPolyRef) * test->npolys);
+				test->polys.resize(numPolys);
+				memcpy(test->polys.data(), polys, sizeof(dtPolyRef) * numPolys);
 			}
 			if (numStraight > 0)
 			{
@@ -279,7 +278,8 @@ void TestCase::doTests(dtNavMesh* navmesh, dtNavMeshQuery* navquery)
 
 			TimeVal findPathStart = getPerfTime();
 
-			navquery->raycast(startRef, test->spos, test->epos, &filter, &t, hitNormal, polys, &test->npolys, MAX_POLYS);
+			int numPolys = 0;
+			navquery->raycast(startRef, test->spos, test->epos, &filter, &t, hitNormal, polys, &numPolys, MAX_POLYS);
 
 			TimeVal findPathEnd = getPerfTime();
 			test->findPathTime += getPerfTimeUsec(findPathEnd - findPathStart);
@@ -295,18 +295,18 @@ void TestCase::doTests(dtNavMesh* navmesh, dtNavMeshQuery* navquery)
 				dtVlerp(hitPos, test->spos, test->epos, t);
 			}
 			// Adjust height.
-			if (test->npolys > 0)
+			if (numPolys > 0)
 			{
 				float h = 0;
-				navquery->getPolyHeight(polys[test->npolys - 1], hitPos, &h);
+				navquery->getPolyHeight(polys[numPolys - 1], hitPos, &h);
 				hitPos[1] = h;
 			}
 			dtVcopy(&test->straight[3], hitPos);
 
-			if (test->npolys)
+			if (numPolys)
 			{
-				test->polys = new dtPolyRef[test->npolys];
-				memcpy(test->polys, polys, sizeof(dtPolyRef) * test->npolys);
+				test->polys.resize(numPolys);
+				memcpy(test->polys.data(), polys, sizeof(dtPolyRef) * numPolys);
 			}
 		}
 	}

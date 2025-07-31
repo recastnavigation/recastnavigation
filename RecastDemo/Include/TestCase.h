@@ -35,16 +35,6 @@ class TestCase
 
 	struct Test
 	{
-		Test() = default;
-		Test(const Test&) = delete;
-		Test(Test&&) = delete;
-		Test& operator=(const Test&) = delete;
-		Test& operator=(Test&&) = delete;
-		~Test()
-		{
-			delete[] polys;
-		}
-
 		TestCase::TestType type{};
 		float spos[3]{};
 		float epos[3]{};
@@ -56,8 +46,7 @@ class TestCase
 		bool expand = false;
 
 		std::vector<float> straight {};
-		dtPolyRef* polys = nullptr;
-		int npolys = 0;
+		std::vector<dtPolyRef*> polys {};
 
 		int findNearestPolyTime = 0;
 		int findPathTime = 0;
