@@ -23,7 +23,6 @@
 #include <cstdint>
 #include <string>
 #include <vector>
-#include <memory>
 
 class TestCase
 {
@@ -53,7 +52,7 @@ class TestCase
 		int findStraightPathTime = 0;
 	};
 
-	std::vector<std::unique_ptr<Test>> tests;
+	std::vector<Test> tests;
 
 	void resetTimes();
 
