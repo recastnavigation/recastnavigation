@@ -53,16 +53,19 @@ struct SampleItem
 	std::function<Sample*()> create;
 };
 
+// Constants
 namespace
 {
+constexpr float FRAME_TIME = 1.0f / 20.0f;
+constexpr float MIN_FRAME_TIME = 1.0f / 40.0f;
+constexpr float fogColor[4] = {0.32f, 0.31f, 0.30f, 1.0f};
+
 SampleItem g_samples[] = {
 	{"Solo Mesh",      []() { return new Sample_SoloMesh(); }     },
 	{"Tile Mesh",      []() { return new Sample_TileMesh(); }     },
 	{"Temp Obstacles", []() { return new Sample_TempObstacles(); }},
 };
 constexpr int g_nsamples = sizeof(g_samples) / sizeof(SampleItem);
-
-constexpr float fogColor[4] = {0.32f, 0.31f, 0.30f, 1.0f};
 }
 
 struct AppData
@@ -466,23 +469,22 @@ int main(int /*argc*/, char** /*argv*/)
 			}
 		}
 
-		// Update sample simulation.
-		constexpr float SIM_RATE = 20;
-		constexpr float DELTA_TIME = 1.0f / SIM_RATE;
-		app.timeAcc = rcClamp(app.timeAcc + dt, -1.0f, 1.0f);
-		int simIter = 0;
-		while (app.timeAcc > DELTA_TIME)
+		if (app.sample)
 		{
-			app.timeAcc -= DELTA_TIME;
-			if (simIter < 5 && app.sample)
+			// Update sample simulation.
+			app.timeAcc = rcClamp(app.timeAcc + dt, -1.0f, 1.0f);
+			while (app.timeAcc > FRAME_TIME)
 			{
-				app.sample->handleUpdate(DELTA_TIME);
+				app.timeAcc -= FRAME_TIME;
+				app.sample->handleUpdate(FRAME_TIME);
 			}
-			simIter++;
+		}
+		else
+		{
+			app.timeAcc = 0;
 		}
 
 		// Clamp the framerate so that we do not hog all the CPU.
-		constexpr float MIN_FRAME_TIME = 1.0f / 40.0f;
 		if (dt < MIN_FRAME_TIME)
 		{
 			int ms = static_cast<int>((MIN_FRAME_TIME - dt) * 1000.0f);
