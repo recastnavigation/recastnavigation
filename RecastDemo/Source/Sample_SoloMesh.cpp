@@ -18,10 +18,6 @@
 
 #include "Sample_SoloMesh.h"
 
-#include <cmath>
-#include <cstdio>
-#include <cstring>
-
 #include "ConvexVolumeTool.h"
 #include "CrowdTool.h"
 #include "DetourDebugDraw.h"
@@ -34,16 +30,20 @@
 #include "Recast.h"
 #include "RecastDebugDraw.h"
 #include "RecastDump.h"
-#include "Sample.h"
 #include "SDL_opengl.h"
+#include "Sample.h"
 
 #include <imgui.h>
+
+#include <cmath>
+#include <cstdio>
+#include <cstring>
 
 #ifdef WIN32
 #	define snprintf _snprintf
 #endif
 
-const char* Sample_SoloMesh::drawModeNames[] {
+const char* Sample_SoloMesh::drawModeNames[]{
 	"Navmesh",
 	"Navmesh Trans",
 	"Navmesh BVTree",
@@ -60,8 +60,7 @@ const char* Sample_SoloMesh::drawModeNames[] {
 	"Both Contours",
 	"Contours",
 	"Poly Mesh",
-	"Poly Mesh Detail"
-};
+	"Poly Mesh Detail"};
 
 Sample_SoloMesh::Sample_SoloMesh()
 {
@@ -75,13 +74,20 @@ Sample_SoloMesh::~Sample_SoloMesh()
 
 void Sample_SoloMesh::cleanup()
 {
-	delete [] triareas; triareas = 0;
-	rcFreeHeightField(heightfield); heightfield = 0;
-	rcFreeCompactHeightfield(compactHeightfield); compactHeightfield = 0;
-	rcFreeContourSet(contourSet); contourSet = 0;
-	rcFreePolyMesh(polyMesh); polyMesh = 0;
-	rcFreePolyMeshDetail(detailMesh); detailMesh = 0;
-	dtFreeNavMesh(navMesh); navMesh = 0;
+	delete[] triareas;
+	triareas = nullptr;
+	rcFreeHeightField(heightfield);
+	heightfield = nullptr;
+	rcFreeCompactHeightfield(compactHeightfield);
+	compactHeightfield = nullptr;
+	rcFreeContourSet(contourSet);
+	contourSet = nullptr;
+	rcFreePolyMesh(polyMesh);
+	polyMesh = nullptr;
+	rcFreePolyMeshDetail(detailMesh);
+	detailMesh = nullptr;
+	dtFreeNavMesh(navMesh);
+	navMesh = nullptr;
 }
 
 void Sample_SoloMesh::handleSettings()
@@ -113,7 +119,13 @@ void Sample_SoloMesh::handleTools()
 {
 	const SampleToolType currentType = !tool ? SampleToolType::NONE : tool->type();
 
-#define TOOL(toolType, toolClass) if (ImGui::RadioButton(toolNames[static_cast<uint8_t>(SampleToolType::toolType)], currentType == SampleToolType::toolType)) { setTool(new toolClass{}); }
+#define TOOL(toolType, toolClass)                                      \
+	if (ImGui::RadioButton(                                            \
+			toolNames[static_cast<uint8_t>(SampleToolType::toolType)], \
+			currentType == SampleToolType::toolType))                  \
+	{                                                                  \
+		setTool(new toolClass{});                                      \
+	}
 	TOOL(NAVMESH_TESTER, NavMeshTesterTool)
 	TOOL(NAVMESH_PRUNE, NavMeshPruneTool)
 	TOOL(OFFMESH_CONNECTION, OffMeshConnectionTool)
@@ -132,10 +144,10 @@ void Sample_SoloMesh::handleTools()
 void Sample_SoloMesh::UI_DrawModeOption(const char* name, const DrawMode drawMode, const bool enabled)
 {
 	ImGui::BeginDisabled(!enabled);
- 	if (ImGui::RadioButton(name, currentDrawMode == drawMode))
- 	{
- 		currentDrawMode = drawMode;
- 	}
+	if (ImGui::RadioButton(name, currentDrawMode == drawMode))
+	{
+		currentDrawMode = drawMode;
+	}
 	ImGui::EndDisabled();
 }
 
@@ -194,16 +206,23 @@ void Sample_SoloMesh::handleRender()
 	// Draw bounds
 	const float* navmeshBoundsMin = inputGeometry->getNavMeshBoundsMin();
 	const float* navmeshBoundsMax = inputGeometry->getNavMeshBoundsMax();
-	duDebugDrawBoxWire(&debugDraw, navmeshBoundsMin[0],navmeshBoundsMin[1],navmeshBoundsMin[2], navmeshBoundsMax[0],navmeshBoundsMax[1],navmeshBoundsMax[2], duRGBA(255,255,255,128), 1.0f);
+	duDebugDrawBoxWire(
+		&debugDraw,
+		navmeshBoundsMin[0],
+		navmeshBoundsMin[1],
+		navmeshBoundsMin[2],
+		navmeshBoundsMax[0],
+		navmeshBoundsMax[1],
+		navmeshBoundsMax[2],
+		duRGBA(255, 255, 255, 128),
+		1.0f);
 	debugDraw.begin(DU_DRAW_POINTS, 5.0f);
-	debugDraw.vertex(navmeshBoundsMin[0],navmeshBoundsMin[1],navmeshBoundsMin[2],duRGBA(255,255,255,128));
+	debugDraw.vertex(navmeshBoundsMin[0], navmeshBoundsMin[1], navmeshBoundsMin[2], duRGBA(255, 255, 255, 128));
 	debugDraw.end();
 
 	if (navMesh && navQuery &&
-	    (currentDrawMode == DrawMode::NAVMESH ||
-	     currentDrawMode == DrawMode::NAVMESH_TRANS ||
-	     currentDrawMode == DrawMode::NAVMESH_BVTREE ||
-	     currentDrawMode == DrawMode::NAVMESH_NODES ||
+	    (currentDrawMode == DrawMode::NAVMESH || currentDrawMode == DrawMode::NAVMESH_TRANS ||
+	     currentDrawMode == DrawMode::NAVMESH_BVTREE || currentDrawMode == DrawMode::NAVMESH_NODES ||
 	     currentDrawMode == DrawMode::NAVMESH_INVIS))
 	{
 		if (currentDrawMode != DrawMode::NAVMESH_INVIS)
@@ -218,7 +237,7 @@ void Sample_SoloMesh::handleRender()
 		{
 			duDebugDrawNavMeshNodes(&debugDraw, *navQuery);
 		}
-		duDebugDrawNavMeshPolysWithFlags(&debugDraw, *navMesh, SAMPLE_POLYFLAGS_DISABLED, duRGBA(0,0,0,128));
+		duDebugDrawNavMeshPolysWithFlags(&debugDraw, *navMesh, SAMPLE_POLYFLAGS_DISABLED, duRGBA(0, 0, 0, 128));
 	}
 
 	glDepthMask(GL_TRUE);
@@ -312,7 +331,8 @@ void Sample_SoloMesh::handleMeshChanged(InputGeom* geom)
 {
 	Sample::handleMeshChanged(geom);
 
-	dtFreeNavMesh(navMesh); navMesh = 0;
+	dtFreeNavMesh(navMesh);
+	navMesh = nullptr;
 
 	if (tool)
 	{
@@ -354,8 +374,8 @@ bool Sample_SoloMesh::handleBuild()
 	config.walkableRadius = static_cast<int>(ceilf(agentRadius / config.cs));
 	config.maxEdgeLen = static_cast<int>(edgeMaxLen / cellSize);
 	config.maxSimplificationError = edgeMaxError;
-	config.minRegionArea = static_cast<int>(rcSqr(regionMinSize));		// Note: area = size*size
-	config.mergeRegionArea = static_cast<int>(rcSqr(regionMergeSize));	// Note: area = size*size
+	config.minRegionArea = static_cast<int>(rcSqr(regionMinSize));      // Note: area = size*size
+	config.mergeRegionArea = static_cast<int>(rcSqr(regionMergeSize));  // Note: area = size*size
 	config.maxVertsPerPoly = vertsPerPoly;
 	config.detailSampleDist = detailSampleDist < 0.9f ? 0 : cellSize * detailSampleDist;
 	config.detailSampleMaxError = cellHeight * detailSampleMaxError;
@@ -374,7 +394,11 @@ bool Sample_SoloMesh::handleBuild()
 	// Start the build process.
 	buildContext->log(RC_LOG_PROGRESS, "Building navigation:");
 	buildContext->log(RC_LOG_PROGRESS, " - %d x %d cells", config.width, config.height);
-	buildContext->log(RC_LOG_PROGRESS, " - %.1fK verts, %.1fK tris", static_cast<float>(numVerts) / 1000.0f, static_cast<float>(numTris) / 1000.0f);
+	buildContext->log(
+		RC_LOG_PROGRESS,
+		" - %.1fK verts, %.1fK tris",
+		static_cast<float>(numVerts) / 1000.0f,
+		static_cast<float>(numTris) / 1000.0f);
 
 	//
 	// Step 2. Rasterize input meshes.
@@ -387,7 +411,15 @@ bool Sample_SoloMesh::handleBuild()
 		buildContext->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'heightfield'.");
 		return false;
 	}
-	if (!rcCreateHeightfield(buildContext, *heightfield, config.width, config.height, config.bmin, config.bmax, config.cs, config.ch))
+	if (!rcCreateHeightfield(
+			buildContext,
+			*heightfield,
+			config.width,
+			config.height,
+			config.bmin,
+			config.bmax,
+			config.cs,
+			config.ch))
 	{
 		buildContext->log(RC_LOG_ERROR, "buildNavigation: Could not create solid heightfield.");
 		return false;
@@ -452,7 +484,12 @@ bool Sample_SoloMesh::handleBuild()
 		buildContext->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'chf'.");
 		return false;
 	}
-	if (!rcBuildCompactHeightfield(buildContext, config.walkableHeight, config.walkableClimb, *heightfield, *compactHeightfield))
+	if (!rcBuildCompactHeightfield(
+			buildContext,
+			config.walkableHeight,
+			config.walkableClimb,
+			*heightfield,
+			*compactHeightfield))
 	{
 		buildContext->log(RC_LOG_ERROR, "buildNavigation: Could not build compact data.");
 		return false;
@@ -469,9 +506,16 @@ bool Sample_SoloMesh::handleBuild()
 	// (Optional) Marks the surface type of voxels in an area defined by a convex volume.
 	// Useful to mark areas of differing cost.
 	const ConvexVolume* vols = inputGeometry->getConvexVolumes();
-	for (int i  = 0; i < inputGeometry->getConvexVolumeCount(); ++i)
+	for (int i = 0; i < inputGeometry->getConvexVolumeCount(); ++i)
 	{
-		rcMarkConvexPolyArea(buildContext, vols[i].verts, vols[i].nverts, vols[i].hmin, vols[i].hmax, (unsigned char)vols[i].area, *compactHeightfield);
+		rcMarkConvexPolyArea(
+			buildContext,
+			vols[i].verts,
+			vols[i].nverts,
+			vols[i].hmin,
+			vols[i].hmax,
+			(unsigned char)vols[i].area,
+			*compactHeightfield);
 	}
 
 	// Partition the heightfield into contiguous regions that will each be
@@ -534,7 +578,7 @@ bool Sample_SoloMesh::handleBuild()
 			return false;
 		}
 	}
-	else // SAMPLE_PARTITION_LAYERS
+	else  // SAMPLE_PARTITION_LAYERS
 	{
 		// Partition the walkable surface into contiguous regions.
 		// Layer partitioning does not need distancefield.
@@ -590,7 +634,13 @@ bool Sample_SoloMesh::handleBuild()
 		buildContext->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'pmdtl'.");
 		return false;
 	}
-	if (!rcBuildPolyMeshDetail(buildContext, *polyMesh, *compactHeightfield, config.detailSampleDist, config.detailSampleMaxError, *detailMesh))
+	if (!rcBuildPolyMeshDetail(
+			buildContext,
+			*polyMesh,
+			*compactHeightfield,
+			config.detailSampleDist,
+			config.detailSampleMaxError,
+			*detailMesh))
 	{
 		buildContext->log(RC_LOG_ERROR, "buildNavigation: Could not build detail mesh.");
 		return false;
@@ -619,8 +669,7 @@ bool Sample_SoloMesh::handleBuild()
 				polyMesh->areas[i] = SAMPLE_POLYAREA_GROUND;
 			}
 
-			if (polyMesh->areas[i] == SAMPLE_POLYAREA_GROUND ||
-			    polyMesh->areas[i] == SAMPLE_POLYAREA_GRASS ||
+			if (polyMesh->areas[i] == SAMPLE_POLYAREA_GROUND || polyMesh->areas[i] == SAMPLE_POLYAREA_GRASS ||
 			    polyMesh->areas[i] == SAMPLE_POLYAREA_ROAD)
 			{
 				polyMesh->flags[i] = SAMPLE_POLYFLAGS_WALK;

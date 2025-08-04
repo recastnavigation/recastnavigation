@@ -18,17 +18,17 @@
 
 #pragma once
 
-#include <cstdint>
-
 #include "Recast.h"
 #include "Sample.h"
+
+#include <cstdint>
 
 class Sample_SoloMesh : public Sample
 {
 protected:
 	float totalBuildTimeMs = 0;
 
-	rcConfig config {};
+	rcConfig config{};
 
 	unsigned char* triareas = nullptr;
 	rcHeightfield* heightfield = nullptr;
