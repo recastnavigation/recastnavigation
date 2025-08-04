@@ -485,14 +485,10 @@ int main(int /*argc*/, char** /*argv*/)
 		}
 
 		// Clamp the framerate so that we do not hog all the CPU.
-		if (dt < MIN_FRAME_TIME)
+		int ms = std::min(static_cast<int>((MIN_FRAME_TIME - dt) * 1000.0f), 10);
+		if (ms >= 0)
 		{
-			int ms = static_cast<int>((MIN_FRAME_TIME - dt) * 1000.0f);
-			ms = std::min(ms, 10);
-			if (ms >= 0)
-			{
-				SDL_Delay(ms);
-			}
+			SDL_Delay(ms);
 		}
 
 		// Set the viewport.
@@ -627,8 +623,8 @@ int main(int /*argc*/, char** /*argv*/)
 			constexpr int uiWindowPadding = 10;
 			// Properties window
 			{
-				ImGui::SetNextWindowPos(ImVec2(static_cast<float>(app.width - uiColumnWidth - uiWindowPadding), uiWindowPadding), ImGuiCond_Always);  // Position in screen space
-				ImGui::SetNextWindowSize(ImVec2(uiColumnWidth, static_cast<float>(app.height - uiWindowPadding * 2)), ImGuiCond_Always);     // Size of the window
+				ImGui::SetNextWindowPos(ImVec2(static_cast<float>(app.width - uiColumnWidth - uiWindowPadding), uiWindowPadding), ImGuiCond_Always);
+				ImGui::SetNextWindowSize(ImVec2(uiColumnWidth, static_cast<float>(app.height - uiWindowPadding * 2)), ImGuiCond_Always);
 				ImGui::Begin("Properties", nullptr, staticWindowFlags);
 
 				ImGui::Checkbox("Show Log", &app.showLog);
