@@ -82,7 +82,7 @@ unsigned int ilog2(unsigned int v)
 }
 }
 
-const char* Sample_TileMesh::drawModeNames[] {
+const char* Sample_TileMesh::drawModeNames[]{
 	"Navmesh",
 	"Navmesh Trans",
 	"Navmesh BVTree",
@@ -100,8 +100,7 @@ const char* Sample_TileMesh::drawModeNames[] {
 	"Both Contours",
 	"Contours",
 	"Poly Mesh",
-	"Poly Mesh Detail"
-};
+	"Poly Mesh Detail"};
 
 class NavMeshTileTool : public SampleTool
 {
@@ -298,7 +297,13 @@ void Sample_TileMesh::handleSettings()
 void Sample_TileMesh::handleTools()
 {
 	const SampleToolType currentType = !tool ? SampleToolType::NONE : tool->type();
-#define TOOL(toolType, toolClass) if (ImGui::RadioButton(toolNames[static_cast<uint8_t>(SampleToolType::toolType)], currentType == SampleToolType::toolType)) { setTool(new toolClass{}); }
+#define TOOL(toolType, toolClass)                                      \
+	if (ImGui::RadioButton(                                            \
+			toolNames[static_cast<uint8_t>(SampleToolType::toolType)], \
+			currentType == SampleToolType::toolType))                  \
+	{                                                                  \
+		setTool(new toolClass{});                                      \
+	}
 	TOOL(NAVMESH_TESTER, NavMeshTesterTool)
 	TOOL(NAVMESH_PRUNE, NavMeshPruneTool)
 	TOOL(TILE_EDIT, NavMeshTileTool)
@@ -318,10 +323,10 @@ void Sample_TileMesh::handleTools()
 void Sample_TileMesh::UI_DrawModeOption(DrawMode drawMode, bool enabled)
 {
 	ImGui::BeginDisabled(!enabled);
- 	if (ImGui::RadioButton(drawModeNames[static_cast<int>(drawMode)], this->drawMode == drawMode))
- 	{
+	if (ImGui::RadioButton(drawModeNames[static_cast<int>(drawMode)], this->drawMode == drawMode))
+	{
 		this->drawMode = drawMode;
- 	}
+	}
 	ImGui::EndDisabled();
 }
 
