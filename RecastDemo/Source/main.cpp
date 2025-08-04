@@ -217,8 +217,8 @@ int main(int /*argc*/, char** /*argv*/)
 	SDL_GetCurrentDisplayMode(0, &displayMode);
 
 	constexpr float aspect = 9.0f / 16.0f;
-	app.width = displayMode.w - 100;
-	app.height = static_cast<int>(roundf(static_cast<float>(app.width) * aspect));
+	app.width = displayMode.w - 80;
+	app.height = displayMode.h - 80;
 
 	// Create the SDL window with OpenGL support
 	app.window = SDL_CreateWindow(
@@ -814,12 +814,12 @@ int main(int /*argc*/, char** /*argv*/)
 				}
 				ImGui::EndCombo();
 			}
-			
-			
+
+
 			if (newTest != currentTest)
 			{
 				currentTest = newTest;
-				
+
 				std::string path = app.testCasesFolder + "/" + app.files[currentTest];
 
 				// Load the test.
