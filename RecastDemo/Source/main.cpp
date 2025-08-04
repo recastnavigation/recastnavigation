@@ -213,10 +213,9 @@ int main(int /*argc*/, char** /*argv*/)
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
 
+	// Set the window width & height
 	SDL_DisplayMode displayMode;
 	SDL_GetCurrentDisplayMode(0, &displayMode);
-
-	constexpr float aspect = 9.0f / 16.0f;
 	app.width = displayMode.w - 80;
 	app.height = displayMode.h - 80;
 
@@ -239,8 +238,6 @@ int main(int /*argc*/, char** /*argv*/)
 		return -1;
 	}
 
-	SDL_SetWindowPosition(app.window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
-
 	// Setup Dear ImGui context
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -255,20 +252,6 @@ int main(int /*argc*/, char** /*argv*/)
 
 	// Set style
 	ImGui::StyleColorsDark();
-	ImGuiStyle& style = ImGui::GetStyle();
-	style.WindowRounding = 8.0f;
-	style.FrameRounding  = 4.0f;
-	style.WindowPadding  = ImVec2(10, 10);
-	style.FramePadding   = ImVec2(8, 4);
-	style.Colors[ImGuiCol_WindowBg] = ImVec4(0.0f, 0.0f, 0.0f, 0.75f);
-	style.Colors[ImGuiCol_Header] = ImVec4(1.0f, 1.0f, 1.0f, 0.5f);
-	style.Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.0f, 0.0f, 0.0f, 0.75f);
-	style.Colors[ImGuiCol_ScrollbarGrab] = ImVec4(1.0f, 1.0f, 1.0f, 0.25f);
-	style.Colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(1.0f, 0.75f, 0, 0.75f);
-	style.Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(1.0f, 0.75f, 0, 0.37f);
-	style.Colors[ImGuiCol_Button] = ImVec4(0.5f, 0.5f, 0.5f, 96.0f / 255.0f);
-	style.Colors[ImGuiCol_ButtonActive] = ImVec4(0.5f, 0.5f, 0.5f, 196.0f / 255.0f);
-	//style.Colors[ImGuiCol_ButtonHovered] = ImVec4(1.0f, 196.0f / 255.0f, 0, 96.0f / 255.0f);
 
 	ImGuiWindowFlags staticWindowFlags = ImGuiWindowFlags_NoMove
 		| ImGuiWindowFlags_NoResize
