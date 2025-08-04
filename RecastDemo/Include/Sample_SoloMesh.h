@@ -58,6 +58,7 @@ protected:
 		POLYMESH_DETAIL
 	};
 	DrawMode currentDrawMode = DrawMode::NAVMESH;
+	static const char* drawModeNames[];
 
 	void cleanup();
 

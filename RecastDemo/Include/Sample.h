@@ -33,16 +33,28 @@ enum class SampleToolType : uint8_t
 {
 	NONE = 0,
 
-	TILE_EDIT,
-	TILE_HIGHLIGHT,
-	TEMP_OBSTACLE,
-	NAVMESH_TESTER,
-	NAVMESH_PRUNE,
-	OFFMESH_CONNECTION,
-	CONVEX_VOLUME,
-	CROWD,
+	TILE_EDIT = 1,
+	TILE_HIGHLIGHT = 2,
+	TEMP_OBSTACLE = 3,
+	NAVMESH_TESTER = 4,
+	NAVMESH_PRUNE = 5,
+	OFFMESH_CONNECTION = 6,
+	CONVEX_VOLUME = 7,
+	CROWD = 8,
 
 	MAX_TOOLS
+};
+
+static const char* toolNames[] = {
+	"None",
+	"Create Tiles",
+	"Highlight Tile Cache",
+	"Create Temp Obstacles",
+	"Test Navmesh",
+	"Prune Navmesh",
+	"Create Off-Mesh Connections",
+	"Create Convex Volumes",
+	"Create Crowds",
 };
 
 /// These are just sample areas to use consistent values across the samples.

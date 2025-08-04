@@ -60,6 +60,7 @@ private:
 		POLYMESH_DETAIL
 	};
 	DrawMode drawMode = DrawMode::NAVMESH;
+	static const char* drawModeNames[];
 
 	int maxTiles = 0;
 	int maxPolysPerTile = 0;
@@ -76,7 +77,7 @@ private:
 	unsigned char* buildTileMesh(int tileX, int tileY, const float* boundsMin, const float* boundsMax, int& outDataSize);
 
 	void cleanup();
-	void UI_DrawModeOption(const char* name, DrawMode drawMode, bool enabled);
+	void UI_DrawModeOption(DrawMode drawMode, bool enabled);
 
 public:
 	Sample_TileMesh();

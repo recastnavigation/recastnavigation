@@ -43,6 +43,26 @@
 #	define snprintf _snprintf
 #endif
 
+const char* Sample_SoloMesh::drawModeNames[] {
+	"Navmesh",
+	"Navmesh Trans",
+	"Navmesh BVTree",
+	"Navmesh Nodes",
+	"Navmesh Invis",
+	"Input Mesh",
+	"Voxels",
+	"Walkable Voxels",
+	"Compact",
+	"Compact Distance",
+	"Compact Regions",
+	"Region Connections",
+	"Raw Contours",
+	"Both Contours",
+	"Contours",
+	"Poly Mesh",
+	"Poly Mesh Detail"
+};
+
 Sample_SoloMesh::Sample_SoloMesh()
 {
 	setTool(new NavMeshTesterTool);
@@ -91,29 +111,28 @@ void Sample_SoloMesh::handleSettings()
 
 void Sample_SoloMesh::handleTools()
 {
-	const SampleToolType type = !tool ? SampleToolType::NONE : tool->type();
+	const SampleToolType currentType = !tool ? SampleToolType::NONE : tool->type();
 
-	if (ImGui::RadioButton("Test Navmesh", type == SampleToolType::NAVMESH_TESTER)) { setTool(new NavMeshTesterTool); }
-	if (ImGui::RadioButton("Prune Navmesh", type == SampleToolType::NAVMESH_PRUNE)) { setTool(new NavMeshPruneTool); }
-	if (ImGui::RadioButton("Create Off-Mesh Connections", type == SampleToolType::OFFMESH_CONNECTION)) { setTool(new OffMeshConnectionTool); }
-	if (ImGui::RadioButton("Create Convex Volumes", type == SampleToolType::CONVEX_VOLUME)) { setTool(new ConvexVolumeTool); }
-	if (ImGui::RadioButton("Create Crowds", type == SampleToolType::CROWD)) { setTool(new CrowdTool); }
+#define TOOL(toolType, toolClass) if (ImGui::RadioButton(toolNames[static_cast<uint8_t>(SampleToolType::toolType)], currentType == SampleToolType::toolType)) { setTool(new toolClass{}); }
+	TOOL(NAVMESH_TESTER, NavMeshTesterTool)
+	TOOL(NAVMESH_PRUNE, NavMeshPruneTool)
+	TOOL(OFFMESH_CONNECTION, OffMeshConnectionTool)
+	TOOL(CONVEX_VOLUME, ConvexVolumeTool)
+	TOOL(CROWD, CrowdTool)
+#undef TOOL
 
 	ImGui::Separator();
 
-	ImGui::Indent();
 	if (tool)
 	{
 		tool->handleMenu();
 	}
-	ImGui::Unindent();
 }
 
 void Sample_SoloMesh::UI_DrawModeOption(const char* name, const DrawMode drawMode, const bool enabled)
 {
 	ImGui::BeginDisabled(!enabled);
-	bool checked = currentDrawMode == drawMode;
- 	if (ImGui::Checkbox(name, &checked))
+ 	if (ImGui::RadioButton(name, currentDrawMode == drawMode))
  	{
  		currentDrawMode = drawMode;
  	}

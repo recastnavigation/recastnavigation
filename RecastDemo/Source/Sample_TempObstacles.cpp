@@ -1010,14 +1010,10 @@ void Sample_TempObstacles::handleTools()
 
 	ImGui::Separator();
 
-	ImGui::Indent();
-
 	if (tool)
 	{
 		tool->handleMenu();
 	}
-
-	ImGui::Unindent();
 }
 
 void Sample_TempObstacles::handleDebugMode()
