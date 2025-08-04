@@ -39,12 +39,12 @@ protected:
 
 	enum class DrawMode : uint8_t
 	{
+		MESH,
 		NAVMESH,
+		NAVMESH_INVIS,
 		NAVMESH_TRANS,
 		NAVMESH_BVTREE,
 		NAVMESH_NODES,
-		NAVMESH_INVIS,
-		MESH,
 		VOXELS,
 		VOXELS_WALKABLE,
 		COMPACT,
@@ -80,5 +80,5 @@ public:
 	bool handleBuild() override;
 
 private:
-	void UI_DrawModeOption(const char* name, DrawMode drawMode, bool enabled);
+	void UI_DrawModeOption(DrawMode drawMode, bool enabled);
 };

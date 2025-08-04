@@ -83,17 +83,17 @@ unsigned int ilog2(unsigned int v)
 }
 
 const char* Sample_TileMesh::drawModeNames[]{
+	"Input Mesh",
 	"Navmesh",
+	"Navmesh Invis",
 	"Navmesh Trans",
 	"Navmesh BVTree",
 	"Navmesh Nodes",
 	"Navmesh Portals",
-	"Navmesh Invis",
-	"Input Mesh",
 	"Voxels",
 	"Walkable Voxels",
 	"Compact",
-	"Compact Disatnce",
+	"Compact Distance",
 	"Compact Regions",
 	"Region Connections",
 	"Raw Contours",
@@ -323,9 +323,16 @@ void Sample_TileMesh::handleTools()
 void Sample_TileMesh::UI_DrawModeOption(DrawMode drawMode, bool enabled)
 {
 	ImGui::BeginDisabled(!enabled);
-	if (ImGui::RadioButton(drawModeNames[static_cast<int>(drawMode)], this->drawMode == drawMode))
+	const bool is_selected = this->drawMode == drawMode;
+	if (ImGui::Selectable(drawModeNames[static_cast<int>(drawMode)], is_selected))
 	{
 		this->drawMode = drawMode;
+	}
+
+	// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+	if (is_selected)
+	{
+		ImGui::SetItemDefaultFocus();
 	}
 	ImGui::EndDisabled();
 }
@@ -333,24 +340,28 @@ void Sample_TileMesh::UI_DrawModeOption(DrawMode drawMode, bool enabled)
 void Sample_TileMesh::handleDebugMode()
 {
 	ImGui::Text("Draw");
-	UI_DrawModeOption(DrawMode::MESH, true);
-	UI_DrawModeOption(DrawMode::NAVMESH, navMesh != nullptr);
-	UI_DrawModeOption(DrawMode::NAVMESH_INVIS, navMesh != nullptr);
-	UI_DrawModeOption(DrawMode::NAVMESH_TRANS, navMesh != nullptr);
-	UI_DrawModeOption(DrawMode::NAVMESH_BVTREE, navMesh != nullptr);
-	UI_DrawModeOption(DrawMode::NAVMESH_NODES, navQuery != nullptr);
-	UI_DrawModeOption(DrawMode::NAVMESH_PORTALS, navMesh != nullptr);
-	UI_DrawModeOption(DrawMode::VOXELS, heightfield != nullptr);
-	UI_DrawModeOption(DrawMode::VOXELS_WALKABLE, heightfield != nullptr);
-	UI_DrawModeOption(DrawMode::COMPACT, compactHeightfield != nullptr);
-	UI_DrawModeOption(DrawMode::COMPACT_DISTANCE, compactHeightfield != nullptr);
-	UI_DrawModeOption(DrawMode::COMPACT_REGIONS, compactHeightfield != nullptr);
-	UI_DrawModeOption(DrawMode::REGION_CONNECTIONS, contourSet != nullptr);
-	UI_DrawModeOption(DrawMode::RAW_CONTOURS, contourSet != nullptr);
-	UI_DrawModeOption(DrawMode::BOTH_CONTOURS, contourSet != nullptr);
-	UI_DrawModeOption(DrawMode::CONTOURS, contourSet != nullptr);
-	UI_DrawModeOption(DrawMode::POLYMESH, polyMesh != nullptr);
-	UI_DrawModeOption(DrawMode::POLYMESH_DETAIL, detailPolyMesh != nullptr);
+	if (ImGui::BeginCombo("##drawMode", drawModeNames[static_cast<int>(this->drawMode)], 0))
+	{
+		UI_DrawModeOption(DrawMode::MESH, true);
+		UI_DrawModeOption(DrawMode::NAVMESH, navMesh != nullptr);
+		UI_DrawModeOption(DrawMode::NAVMESH_INVIS, navMesh != nullptr);
+		UI_DrawModeOption(DrawMode::NAVMESH_TRANS, navMesh != nullptr);
+		UI_DrawModeOption(DrawMode::NAVMESH_BVTREE, navMesh != nullptr);
+		UI_DrawModeOption(DrawMode::NAVMESH_NODES, navQuery != nullptr);
+		UI_DrawModeOption(DrawMode::NAVMESH_PORTALS, navMesh != nullptr);
+		UI_DrawModeOption(DrawMode::VOXELS, heightfield != nullptr);
+		UI_DrawModeOption(DrawMode::VOXELS_WALKABLE, heightfield != nullptr);
+		UI_DrawModeOption(DrawMode::COMPACT, compactHeightfield != nullptr);
+		UI_DrawModeOption(DrawMode::COMPACT_DISTANCE, compactHeightfield != nullptr);
+		UI_DrawModeOption(DrawMode::COMPACT_REGIONS, compactHeightfield != nullptr);
+		UI_DrawModeOption(DrawMode::REGION_CONNECTIONS, contourSet != nullptr);
+		UI_DrawModeOption(DrawMode::RAW_CONTOURS, contourSet != nullptr);
+		UI_DrawModeOption(DrawMode::BOTH_CONTOURS, contourSet != nullptr);
+		UI_DrawModeOption(DrawMode::CONTOURS, contourSet != nullptr);
+		UI_DrawModeOption(DrawMode::POLYMESH, polyMesh != nullptr);
+		UI_DrawModeOption(DrawMode::POLYMESH_DETAIL, detailPolyMesh != nullptr);
+		ImGui::EndCombo();
+	}
 }
 
 void Sample_TileMesh::handleRender()
