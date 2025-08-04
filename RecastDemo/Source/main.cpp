@@ -789,146 +789,120 @@ int main(int /*argc*/, char** /*argv*/)
 			}
 		}
 
-#if 0
 		// Test cases
 		if (app.showTestCases)
 		{
 			ImGui::SetNextWindowPos(ImVec2(static_cast<float>(app.width - 10 - 250 - 10 - 200), static_cast<float>(app.height - 10 - 450)), ImGuiCond_Always);  // Position in screen space
-			ImGui::SetNextWindowSize(ImVec2(200, 450, ImGuiCond_Always);     // Size of the window
-			ImGui::Begin("Choose Test To Run", nullptr, staticWindowFlags);
+			ImGui::SetNextWindowSize(ImVec2(200, 450), ImGuiCond_Always);
+			ImGui::Begin("Test Cases", nullptr, staticWindowFlags);
 
-			std::vector<std::string>::const_iterator fileIter = app.files.begin();
-			std::vector<std::string>::const_iterator filesEnd = app.files.end();
-			std::vector<std::string>::const_iterator testToLoad = filesEnd;
-			for (; fileIter != filesEnd; ++fileIter)
+            static int currentTest = 0;
+			int newTest = currentTest;
+			if (ImGui::BeginCombo("Choose Test", app.files[0].c_str()))
 			{
-				if (imguiItem(fileIter->c_str()))
+				for (int i = 0; i < static_cast<int>(app.files.size()); ++i)
 				{
-					testToLoad = fileIter;
-				}
-			}
-
-			if (ImGui::BeginCombo("Dropdown", items[current_item].c_str()))
-			{
-				for (int i = 0; i < items.size(); i++)
-				{
-					bool is_selected = (current_item == i);
-					if (ImGui::Selectable(items[i].c_str(), is_selected))
+					if (ImGui::Selectable(app.files[i].c_str(), currentTest == i))
 					{
-						current_item = i;
+						newTest = i;
 					}
-					if (is_selected)
-						ImGui::SetItemDefaultFocus();
+
+					if (currentTest == i)
+					{
+						ImGui::SetItemDefaultFocus(); // Sets keyboard focus
+					}
 				}
 				ImGui::EndCombo();
 			}
-
-			if (testToLoad != filesEnd)
+			
+			
+			if (newTest != currentTest)
 			{
-				std::string path = app.testCasesFolder + "/" + *testToLoad;
-				app.testCase = new TestCase;
-				if (app.testCase)
-				{
-					// Load the test.
-					if (!app.testCase->load(path))
-					{
-						delete app.testCase;
-						app.testCase = 0;
-					}
+				currentTest = newTest;
+				
+				std::string path = app.testCasesFolder + "/" + app.files[currentTest];
 
-					// Create sample
-					Sample* newSample = 0;
-					for (int i = 0; i < g_nsamples; ++i)
+				// Load the test.
+				app.testCase = new TestCase{};
+				if (!app.testCase->load(path))
+				{
+					delete app.testCase;
+					app.testCase = 0;
+				}
+
+				// Create sample
+				Sample* newSample = nullptr;
+				for (int i = 0; i < g_nsamples; ++i)
+				{
+					if (g_samples[i].name == app.testCase->sampleName)
 					{
-						if (g_samples[i].name == app.testCase->sampleName)
+						newSample = g_samples[i].create();
+						if (newSample)
 						{
-							newSample = g_samples[i].create();
-							if (newSample)
-							{
-								app.sampleIndex = i;
-							}
+							app.sampleIndex = i;
 						}
 					}
+				}
+
+				delete app.sample;
+				app.sample = newSample;
+
+				if (app.sample)
+				{
+					app.sample->buildContext = &app.buildContext;
+				}
+
+				// Load geom.
+				app.meshName = app.testCase->geomFileName;
+
+				path = app.meshesFolder + "/" + app.meshName;
+
+				delete app.inputGeometry;
+				app.inputGeometry = new InputGeom{};
+				if (!app.inputGeometry->load(&app.buildContext, path))
+				{
+					delete app.inputGeometry;
+					app.inputGeometry = nullptr;
 
 					delete app.sample;
-					app.sample = newSample;
+					app.sample = nullptr;
 
-					if (app.sample)
-					{
-						app.sample->setContext(&app.buildContext);
-						app.showSample = false;
-					}
+					app.showLog = true;
+					app.logScroll = 0;
+					app.buildContext.dumpLog("geom load log %s:", app.meshName.c_str());
+				}
 
-					// Load geom.
-					app.meshName = app.testCase->geomFileName;
-
-					path = app.meshesFolder + "/" + app.meshName;
-
-					delete app.inputGeometry;
-					app.inputGeometry = new InputGeom;
-					if (!app.inputGeometry->load(&app.buildContext, path))
-					{
-						delete app.inputGeometry;
-						app.inputGeometry = nullptr;
-						delete app.sample;
-						app.sample = nullptr;
-						app.showLog = true;
-						app.logScroll = 0;
-						app.buildContext.dumpLog("geom load log %s:", app.meshName.c_str());
-					}
-					if (app.sample && app.inputGeometry)
+				if (app.sample)
+				{
+					if (app.inputGeometry)
 					{
 						app.sample->handleMeshChanged(app.inputGeometry);
 					}
 
 					// This will ensure that tile & poly bits are updated in tiled sample.
-					if (app.sample)
-					{
-						app.sample->handleSettings();
-					}
+					app.sample->handleSettings();
 
 					app.buildContext.resetLog();
-					if (app.sample && !app.sample->handleBuild())
+					if (!app.sample->handleBuild())
 					{
 						app.buildContext.dumpLog("Build log %s:", app.meshName.c_str());
 					}
+				}
 
-					if (app.inputGeometry || app.sample)
-					{
-						const float* bmin = 0;
-						const float* bmax = 0;
-						if (app.inputGeometry)
-						{
-							bmin = app.inputGeometry->getNavMeshBoundsMin();
-							bmax = app.inputGeometry->getNavMeshBoundsMax();
-						}
-						// Reset camera and fog to match the mesh bounds.
-						if (bmin && bmax)
-						{
-							app.camr =
-								sqrtf(rcSqr(bmax[0] - bmin[0]) + rcSqr(bmax[1] - bmin[1]) + rcSqr(bmax[2] - bmin[2])) / 2;
-							app.cameraPos[0] = (bmax[0] + bmin[0]) / 2 + app.camr;
-							app.cameraPos[1] = (bmax[1] + bmin[1]) / 2 + app.camr;
-							app.cameraPos[2] = (bmax[2] + bmin[2]) / 2 + app.camr;
-							app.camr *= 3;
-						}
-						app.cameraEulers[0] = 45;
-						app.cameraEulers[1] = -45;
-						glFogf(GL_FOG_START, app.camr * 0.2f);
-						glFogf(GL_FOG_END, app.camr * 1.25f);
-					}
+				if (app.inputGeometry || app.sample)
+				{
+					app.resetCamera();
+				}
 
-					// Do the tests.
-					if (app.sample)
-					{
-						app.testCase->doTests(app.sample->getNavMesh(), app.sample->getNavMeshQuery());
-					}
+				// Do the tests.
+				if (app.sample)
+				{
+					app.testCase->doTests(app.sample->navMesh, app.sample->navQuery);
 				}
 			}
 
-			imguiEndScrollArea();
+			ImGui::End();
 		}
-#endif
 
 		// Draw Marker
 		if (app.markerPositionSet && gluProject(app.markerPosition[0], app.markerPosition[1], app.markerPosition[2], modelviewMatrix, projectionMatrix, viewport, &x, &y, &z))
