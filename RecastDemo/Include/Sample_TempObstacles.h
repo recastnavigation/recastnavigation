@@ -74,7 +74,7 @@ public:
 	void render() override;
 	void renderOverlay(double* proj, double* model, int* view) override;
 	void handleMeshChanged(InputGeom* geom) override;
-	bool handleBuild() override;
+	bool build() override;
 	void update(float dt) override;
 
 	void getTilePos(const float* pos, int& tx, int& ty);

@@ -286,7 +286,7 @@ void Sample::handleStep()
 	}
 }
 
-bool Sample::handleBuild()
+bool Sample::build()
 {
 	return true;
 }

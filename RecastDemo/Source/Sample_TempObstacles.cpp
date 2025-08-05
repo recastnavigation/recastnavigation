@@ -1306,7 +1306,7 @@ void Sample_TempObstacles::clearAllTempObstacles() const
 	}
 }
 
-bool Sample_TempObstacles::handleBuild()
+bool Sample_TempObstacles::build()
 {
 	dtStatus status;
 

@@ -77,7 +77,7 @@ public:
 	void render() override;
 	void renderOverlay(double* proj, double* model, int* view) override;
 	void handleMeshChanged(InputGeom* geom) override;
-	bool handleBuild() override;
+	bool build() override;
 
 private:
 	void UI_DrawModeOption(DrawMode drawMode, bool enabled);

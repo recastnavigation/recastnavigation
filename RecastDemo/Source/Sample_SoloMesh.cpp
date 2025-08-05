@@ -352,7 +352,7 @@ void Sample_SoloMesh::handleMeshChanged(InputGeom* geom)
 	initToolStates(this);
 }
 
-bool Sample_SoloMesh::handleBuild()
+bool Sample_SoloMesh::build()
 {
 	if (!inputGeometry || inputGeometry->verts.empty())
 	{

@@ -587,7 +587,7 @@ void Sample_TileMesh::handleMeshChanged(InputGeom* geom)
 	initToolStates(this);
 }
 
-bool Sample_TileMesh::handleBuild()
+bool Sample_TileMesh::build()
 {
 	if (!inputGeometry || inputGeometry->getVertCount() == 0)
 	{

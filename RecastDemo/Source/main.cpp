@@ -678,7 +678,7 @@ int main(int /*argc*/, char** /*argv*/)
 						if (ImGui::Button("Build"))
 						{
 							app.buildContext.resetLog();
-							if (!app.sample->handleBuild())
+							if (!app.sample->build())
 							{
 								app.showLog = true;
 								app.logScroll = 0;
@@ -865,7 +865,7 @@ int main(int /*argc*/, char** /*argv*/)
 					app.sample->handleSettings();
 
 					app.buildContext.resetLog();
-					if (!app.sample->handleBuild())
+					if (!app.sample->build())
 					{
 						app.buildContext.dumpLog("Build log %s:", app.meshName.c_str());
 					}
