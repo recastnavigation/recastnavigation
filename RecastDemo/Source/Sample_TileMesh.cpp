@@ -1211,7 +1211,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(
 		params.offMeshConRad = inputGeometry->getOffMeshConnectionRads();
 		params.offMeshConDir = inputGeometry->getOffMeshConnectionDirs();
 		params.offMeshConAreas = inputGeometry->getOffMeshConnectionAreas();
-		params.offMeshConFlags = inputGeometry->getOffMeshConnectionFlags();
+		params.offMeshConFlags = inputGeometry->offMeshConFlags;
 		params.offMeshConUserID = inputGeometry->offMeshConId;
 		params.offMeshConCount = inputGeometry->offMeshConCount;
 		params.walkableHeight = agentHeight;
