@@ -169,7 +169,7 @@ public:
 	virtual void drawDebugUI();
 
 	virtual void onClick(const float* rayStartPos, const float* rayHitPos, bool shift);
-	virtual void handleToggle();
+	virtual void onToggle();
 	virtual void singleStep();
 	virtual void render();
 	virtual void renderOverlay(double* proj, double* model, int* view);

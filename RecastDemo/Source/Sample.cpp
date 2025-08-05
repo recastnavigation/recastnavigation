@@ -270,7 +270,7 @@ void Sample::onClick(const float* rayStartPos, const float* rayHitPos, bool shif
 	}
 }
 
-void Sample::handleToggle()
+void Sample::onToggle()
 {
 	if (tool)
 	{

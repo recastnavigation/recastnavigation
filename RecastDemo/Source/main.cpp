@@ -304,7 +304,7 @@ int main(int /*argc*/, char** /*argv*/)
 				case SDLK_SPACE:
 					if (app.sample)
 					{
-						app.sample->handleToggle();
+						app.sample->onToggle();
 					}
 					break;
 				case SDLK_1:
