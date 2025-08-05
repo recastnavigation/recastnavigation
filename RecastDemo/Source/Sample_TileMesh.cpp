@@ -534,7 +534,7 @@ void Sample_TileMesh::render()
 	glDepthMask(GL_TRUE);
 }
 
-void Sample_TileMesh::handleRenderOverlay(double* proj, double* model, int* view)
+void Sample_TileMesh::renderOverlay(double* proj, double* model, int* view)
 {
 	GLdouble x, y, z;
 

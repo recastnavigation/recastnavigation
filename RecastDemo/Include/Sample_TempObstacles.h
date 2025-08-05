@@ -72,7 +72,7 @@ public:
 	void handleTools() override;
 	void handleDebugMode() override;
 	void render() override;
-	void handleRenderOverlay(double* proj, double* model, int* view) override;
+	void renderOverlay(double* proj, double* model, int* view) override;
 	void handleMeshChanged(InputGeom* geom) override;
 	bool handleBuild() override;
 	void handleUpdate(float dt) override;

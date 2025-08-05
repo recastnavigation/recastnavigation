@@ -143,7 +143,7 @@ void Sample::render()
 	duDebugDrawBoxWire(&debugDraw, min[0], min[1], min[2], max[0], max[1], max[2], duRGBA(255, 255, 255, 128), 1.0f);
 }
 
-void Sample::handleRenderOverlay(double* /*proj*/, double* /*model*/, int* /*view*/) {}
+void Sample::renderOverlay(double* /*proj*/, double* /*model*/, int* /*view*/) {}
 
 void Sample::handleMeshChanged(InputGeom* geom)
 {

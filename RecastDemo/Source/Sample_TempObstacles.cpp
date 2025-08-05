@@ -1213,7 +1213,7 @@ void Sample_TempObstacles::renderCachedTileOverlay(const int tileX, const int ti
 	}
 }
 
-void Sample_TempObstacles::handleRenderOverlay(double* proj, double* model, int* view)
+void Sample_TempObstacles::renderOverlay(double* proj, double* model, int* view)
 {
 	if (tool)
 	{

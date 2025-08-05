@@ -171,7 +171,7 @@ public:
 	virtual void handleToggle();
 	virtual void handleStep();
 	virtual void render();
-	virtual void handleRenderOverlay(double* proj, double* model, int* view);
+	virtual void renderOverlay(double* proj, double* model, int* view);
 	virtual void handleMeshChanged(InputGeom* geom);
 	virtual bool handleBuild();
 	virtual void handleUpdate(float dt);
