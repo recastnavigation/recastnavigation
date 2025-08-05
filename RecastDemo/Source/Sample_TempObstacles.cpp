@@ -1244,9 +1244,9 @@ void Sample_TempObstacles::renderOverlay(double* proj, double* model, int* view)
 	    */
 }
 
-void Sample_TempObstacles::handleMeshChanged(InputGeom* geom)
+void Sample_TempObstacles::onMeshChanged(InputGeom* geom)
 {
-	Sample::handleMeshChanged(geom);
+	Sample::onMeshChanged(geom);
 
 	dtFreeTileCache(tileCache);
 	tileCache = 0;

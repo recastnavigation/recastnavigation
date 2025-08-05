@@ -737,7 +737,7 @@ int main(int /*argc*/, char** /*argv*/)
 			app.sample->buildContext = &app.buildContext;
 			if (app.inputGeometry)
 			{
-				app.sample->handleMeshChanged(app.inputGeometry);
+				app.sample->onMeshChanged(app.inputGeometry);
 				app.resetCamera();
 			}
 		}
@@ -767,7 +767,7 @@ int main(int /*argc*/, char** /*argv*/)
 			app.resetCamera();
 			if (app.sample)
 			{
-				app.sample->handleMeshChanged(app.inputGeometry);
+				app.sample->onMeshChanged(app.inputGeometry);
 			}
 		}
 
@@ -858,7 +858,7 @@ int main(int /*argc*/, char** /*argv*/)
 				{
 					if (app.inputGeometry)
 					{
-						app.sample->handleMeshChanged(app.inputGeometry);
+						app.sample->onMeshChanged(app.inputGeometry);
 					}
 
 					// This will ensure that tile & poly bits are updated in tiled sample.

@@ -76,7 +76,7 @@ public:
 
 	void render() override;
 	void renderOverlay(double* proj, double* model, int* view) override;
-	void handleMeshChanged(InputGeom* geom) override;
+	void onMeshChanged(InputGeom* geom) override;
 	bool build() override;
 
 private:

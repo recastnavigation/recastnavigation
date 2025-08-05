@@ -563,9 +563,9 @@ void Sample_TileMesh::renderOverlay(double* proj, double* model, int* view)
 	renderOverlayToolStates(proj, model, view);
 }
 
-void Sample_TileMesh::handleMeshChanged(InputGeom* geom)
+void Sample_TileMesh::onMeshChanged(InputGeom* geom)
 {
-	Sample::handleMeshChanged(geom);
+	Sample::onMeshChanged(geom);
 
 	const BuildSettings* buildSettings = geom->getBuildSettings();
 	if (buildSettings && buildSettings->tileSize > 0)

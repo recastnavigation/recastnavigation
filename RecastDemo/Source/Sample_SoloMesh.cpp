@@ -336,9 +336,9 @@ void Sample_SoloMesh::renderOverlay(double* proj, double* model, int* view)
 	renderOverlayToolStates(proj, model, view);
 }
 
-void Sample_SoloMesh::handleMeshChanged(InputGeom* geom)
+void Sample_SoloMesh::onMeshChanged(InputGeom* geom)
 {
-	Sample::handleMeshChanged(geom);
+	Sample::onMeshChanged(geom);
 
 	dtFreeNavMesh(navMesh);
 	navMesh = nullptr;

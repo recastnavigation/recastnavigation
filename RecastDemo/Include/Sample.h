@@ -172,7 +172,7 @@ public:
 	virtual void handleStep();
 	virtual void render();
 	virtual void renderOverlay(double* proj, double* model, int* view);
-	virtual void handleMeshChanged(InputGeom* geom);
+	virtual void onMeshChanged(InputGeom* geom);
 	virtual bool build();
 	virtual void update(float dt);
 	virtual void collectSettings(struct BuildSettings& settings);

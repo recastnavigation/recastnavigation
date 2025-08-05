@@ -145,7 +145,7 @@ void Sample::render()
 
 void Sample::renderOverlay(double* /*proj*/, double* /*model*/, int* /*view*/) {}
 
-void Sample::handleMeshChanged(InputGeom* geom)
+void Sample::onMeshChanged(InputGeom* geom)
 {
 	inputGeometry = geom;
 
