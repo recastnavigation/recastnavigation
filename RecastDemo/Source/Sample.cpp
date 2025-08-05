@@ -262,7 +262,7 @@ void Sample::handleCommonSettings()
 	ImGui::Separator();
 }
 
-void Sample::handleClick(const float* rayStartPos, const float* rayHitPos, bool shift)
+void Sample::onClick(const float* rayStartPos, const float* rayHitPos, bool shift)
 {
 	if (tool)
 	{

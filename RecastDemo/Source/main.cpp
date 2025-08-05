@@ -439,7 +439,7 @@ int main(int /*argc*/, char** /*argv*/)
 					hitPos[0] = app.rayStart[0] + (app.rayEnd[0] - app.rayStart[0]) * hitTime;
 					hitPos[1] = app.rayStart[1] + (app.rayEnd[1] - app.rayStart[1]) * hitTime;
 					hitPos[2] = app.rayStart[2] + (app.rayEnd[2] - app.rayStart[2]) * hitTime;
-					app.sample->handleClick(app.rayStart, hitPos, processHitTestShift);
+					app.sample->onClick(app.rayStart, hitPos, processHitTestShift);
 				}
 			}
 			else
