@@ -710,7 +710,7 @@ bool Sample_SoloMesh::build()
 		params.offMeshConVerts = inputGeometry->getOffMeshConnectionVerts();
 		params.offMeshConRad = inputGeometry->getOffMeshConnectionRads();
 		params.offMeshConDir = inputGeometry->getOffMeshConnectionDirs();
-		params.offMeshConAreas = inputGeometry->getOffMeshConnectionAreas();
+		params.offMeshConAreas = inputGeometry->offMeshConAreas;
 		params.offMeshConFlags = inputGeometry->offMeshConFlags;
 		params.offMeshConUserID = inputGeometry->offMeshConId;
 		params.offMeshConCount = inputGeometry->offMeshConCount;
