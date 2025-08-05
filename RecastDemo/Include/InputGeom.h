@@ -18,9 +18,6 @@
 
 #pragma once
 
-//#include "ChunkyTriMesh.h"
-//#include "MeshLoaderObj.h"
-
 #include <string>
 #include <vector>
 
@@ -53,7 +50,6 @@ struct BuildSettings
 	/// Agent max slope in degrees
 	float agentMaxSlope = 0;
 	/// Region minimum size in voxels.
-	/// regionMinSize = sqrt(regionMinArea)
 	float regionMinSize = 0;
 	/// Region merge size in voxels. regionMergeSize = sqrt(regionMergeArea)
 	float regionMergeSize = 0;
@@ -135,7 +131,7 @@ public:
 	[[nodiscard]] const float* getNavMeshBoundsMin() const { return hasBuildSettings ? buildSettings.navMeshBMin : meshBMin; }
 	[[nodiscard]] const float* getNavMeshBoundsMax() const { return hasBuildSettings ? buildSettings.navMeshBMax : meshBMax; }
 	[[nodiscard]] const ChunkyTriMesh* getChunkyMesh() const { return chunkyMesh; }
-	[[nodiscard]] const BuildSettings* getBuildSettings() const { return hasBuildSettings ? &buildSettings : 0; }
+	[[nodiscard]] const BuildSettings* getBuildSettings() const { return hasBuildSettings ? &buildSettings : nullptr; }
 	bool raycastMesh(float* src, float* dst, float& tmin);
 
 	/// @name Off-Mesh connections.
