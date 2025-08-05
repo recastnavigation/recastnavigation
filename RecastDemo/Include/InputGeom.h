@@ -107,7 +107,7 @@ public:
 	/// @name Convex Volumes.
 	///@{
 	static const int MAX_VOLUMES = 256;
-	ConvexVolume volumes[MAX_VOLUMES];
+	ConvexVolume convexVolumes[MAX_VOLUMES];
 	int convexVolumeCount = 0;
 	///@}
 
@@ -145,7 +145,7 @@ public:
 
 	/// @name Box Volumes.
 	///@{
-	[[nodiscard]] const ConvexVolume* getConvexVolumes() const { return volumes; }
+	[[nodiscard]] const ConvexVolume* getConvexVolumes() const { return convexVolumes; }
 	void addConvexVolume(const float* verts, int nverts, float minh, float maxh, unsigned char area);
 	void deleteConvexVolume(int i);
 	void drawConvexVolumes(duDebugDraw* dd, bool highlight = false);
