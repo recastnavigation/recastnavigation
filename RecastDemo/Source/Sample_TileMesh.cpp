@@ -290,7 +290,7 @@ void Sample_TileMesh::handleSettings()
 	ImGui::Separator();
 }
 
-void Sample_TileMesh::handleTools()
+void Sample_TileMesh::drawToolsUI()
 {
 	const SampleToolType currentType = !tool ? SampleToolType::NONE : tool->type();
 #define TOOL(toolType, toolClass)                                      \

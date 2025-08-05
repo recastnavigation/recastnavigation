@@ -979,7 +979,7 @@ void Sample_TempObstacles::handleSettings()
 	ImGui::Separator();
 }
 
-void Sample_TempObstacles::handleTools()
+void Sample_TempObstacles::drawToolsUI()
 {
 	const SampleToolType type = !tool ? SampleToolType::NONE : tool->type();
 

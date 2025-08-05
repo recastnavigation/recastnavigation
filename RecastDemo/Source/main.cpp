@@ -723,7 +723,7 @@ int main(int /*argc*/, char** /*argv*/)
 
 				if (app.sample)
 				{
-					app.sample->handleTools();
+					app.sample->drawToolsUI();
 				}
 
 				ImGui::End();

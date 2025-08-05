@@ -89,7 +89,7 @@ public:
 
 	// Sample methods
 	void handleSettings() override;
-	void handleTools() override;
+	void drawToolsUI() override;
 	void drawDebugUI() override;
 	void render() override;
 	void renderOverlay(double* proj, double* model, int* view) override;

@@ -69,7 +69,7 @@ public:
 	Sample_TempObstacles& operator=(const Sample_TempObstacles&&) = delete;
 
 	void handleSettings() override;
-	void handleTools() override;
+	void drawToolsUI() override;
 	void drawDebugUI() override;
 	void render() override;
 	void renderOverlay(double* proj, double* model, int* view) override;

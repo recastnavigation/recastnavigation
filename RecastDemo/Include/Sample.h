@@ -165,7 +165,7 @@ public:
 	void setTool(SampleTool* tool);
 
 	virtual void handleSettings();
-	virtual void handleTools();
+	virtual void drawToolsUI();
 	virtual void drawDebugUI();
 
 	virtual void onClick(const float* rayStartPos, const float* rayHitPos, bool shift);

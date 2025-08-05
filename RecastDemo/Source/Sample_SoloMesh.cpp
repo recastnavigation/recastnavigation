@@ -113,7 +113,7 @@ void Sample_SoloMesh::handleSettings()
 	ImGui::Text("Build Time: %.1fms", totalBuildTimeMs);
 }
 
-void Sample_SoloMesh::handleTools()
+void Sample_SoloMesh::drawToolsUI()
 {
 	const SampleToolType currentType = !tool ? SampleToolType::NONE : tool->type();
 
