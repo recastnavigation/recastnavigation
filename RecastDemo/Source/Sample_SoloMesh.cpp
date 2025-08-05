@@ -708,7 +708,7 @@ bool Sample_SoloMesh::build()
 		params.detailTris = detailMesh->tris;
 		params.detailTriCount = detailMesh->ntris;
 		params.offMeshConVerts = inputGeometry->getOffMeshConnectionVerts();
-		params.offMeshConRad = inputGeometry->getOffMeshConnectionRads();
+		params.offMeshConRad = inputGeometry->offMeshConRads;
 		params.offMeshConDir = inputGeometry->offMeshConDirs;
 		params.offMeshConAreas = inputGeometry->offMeshConAreas;
 		params.offMeshConFlags = inputGeometry->offMeshConFlags;
