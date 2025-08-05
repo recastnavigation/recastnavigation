@@ -104,7 +104,6 @@ public:
 	int offMeshConCount = 0;
 	///@}
 
-private:
 	/// @name Convex Volumes.
 	///@{
 	static const int MAX_VOLUMES = 256;
@@ -112,6 +111,7 @@ private:
 	int volumeCount = 0;
 	///@}
 
+private:
 	bool loadMesh(rcContext* ctx, const std::string& filepath);
 	bool loadGeomSet(rcContext* ctx, const std::string& filepath);
 	bool loadGeomSet(rcContext* ctx, char* buffer, size_t bufferLen);
@@ -138,20 +138,13 @@ public:
 
 	/// @name Off-Mesh connections.
 	///@{
-	void addOffMeshConnection(
-		const float* spos,
-		const float* epos,
-		float rad,
-		unsigned char bidir,
-		unsigned char area,
-		unsigned short flags);
+	void addOffMeshConnection(const float* startPos, const float* endPos, float rad, unsigned char bidir, unsigned char area, unsigned short flags);
 	void deleteOffMeshConnection(int i);
 	void drawOffMeshConnections(duDebugDraw* dd, bool highlight = false);
 	///@}
 
 	/// @name Box Volumes.
 	///@{
-	[[nodiscard]] int getConvexVolumeCount() const { return volumeCount; }
 	[[nodiscard]] const ConvexVolume* getConvexVolumes() const { return volumes; }
 	void addConvexVolume(const float* verts, int nverts, float minh, float maxh, unsigned char area);
 	void deleteConvexVolume(int i);

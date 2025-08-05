@@ -1029,7 +1029,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(
 
 	// (Optional) Mark areas.
 	const ConvexVolume* convexVolumes = inputGeometry->getConvexVolumes();
-	for (int i = 0; i < inputGeometry->getConvexVolumeCount(); ++i)
+	for (int i = 0; i < inputGeometry->volumeCount; ++i)
 	{
 		rcMarkConvexPolyArea(
 			buildContext,
