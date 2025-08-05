@@ -185,5 +185,5 @@ public:
 	void renderOverlayToolStates(double* proj, double* model, int* view) const;
 
 	void resetCommonSettings();
-	void handleCommonSettings();
+	void drawCommonSettingsUI();
 };

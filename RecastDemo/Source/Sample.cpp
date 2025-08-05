@@ -202,7 +202,7 @@ void Sample::resetCommonSettings()
 	partitionType = SAMPLE_PARTITION_WATERSHED;
 }
 
-void Sample::handleCommonSettings()
+void Sample::drawCommonSettingsUI()
 {
 	ImGui::SeparatorText("Rasterization");
 	DrawFloatSlider(&cellSize, 0.1f, 1.0f, "##Cell Size", "Cell Size", "%.2f");

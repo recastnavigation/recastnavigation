@@ -227,7 +227,7 @@ void Sample_TileMesh::cleanup()
 
 void Sample_TileMesh::drawSettingsUI()
 {
-	Sample::handleCommonSettings();
+	drawCommonSettingsUI();
 
 	ImGui::Checkbox("Build All Tiles", &buildAll);
 

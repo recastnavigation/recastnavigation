@@ -901,7 +901,7 @@ Sample_TempObstacles::~Sample_TempObstacles()
 
 void Sample_TempObstacles::drawSettingsUI()
 {
-	handleCommonSettings();
+	drawCommonSettingsUI();
 	ImGui::Checkbox("Keep Itermediate Results", &keepIntermediateResults);
 
 	ImGui::Text("Tiling");

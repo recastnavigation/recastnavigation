@@ -94,7 +94,7 @@ void Sample_SoloMesh::drawSettingsUI()
 {
 	static const char* fileName = "solo_navmesh.bin";
 
-	handleCommonSettings();
+	drawCommonSettingsUI();
 
 	ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
 	if (ImGui::Button("Save"))
