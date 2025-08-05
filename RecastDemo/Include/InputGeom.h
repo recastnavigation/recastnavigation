@@ -143,7 +143,6 @@ public:
 	[[nodiscard]] const unsigned char* getOffMeshConnectionDirs() const { return offMeshConDirs; }
 	[[nodiscard]] const unsigned char* getOffMeshConnectionAreas() const { return offMeshConAreas; }
 	[[nodiscard]] const unsigned short* getOffMeshConnectionFlags() const { return offMeshConFlags; }
-	[[nodiscard]] const unsigned int* getOffMeshConnectionId() const { return offMeshConId; }
 	void addOffMeshConnection(
 		const float* spos,
 		const float* epos,

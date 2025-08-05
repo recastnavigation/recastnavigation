@@ -489,7 +489,7 @@ struct MeshProcess : dtTileCacheMeshProcess
 			params->offMeshConDir = inputGeometry->getOffMeshConnectionDirs();
 			params->offMeshConAreas = inputGeometry->getOffMeshConnectionAreas();
 			params->offMeshConFlags = inputGeometry->getOffMeshConnectionFlags();
-			params->offMeshConUserID = inputGeometry->getOffMeshConnectionId();
+			params->offMeshConUserID = inputGeometry->offMeshConId;
 			params->offMeshConCount = inputGeometry->offMeshConCount;
 		}
 	}
