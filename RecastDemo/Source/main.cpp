@@ -610,13 +610,35 @@ int main(int /*argc*/, char** /*argv*/)
 				ImGui::SetNextWindowSize(ImVec2(uiColumnWidth, static_cast<float>(app.height - uiWindowPadding * 2)), ImGuiCond_Always);
 				ImGui::Begin("Properties", nullptr, staticWindowFlags);
 
-				ImGui::Checkbox("Show Log", &app.showLog);
-				ImGui::Checkbox("Show Tools", &app.showTools);
+				ImGui::Text("Show");
+				ImGui::Checkbox("Build Log", &app.showLog);
+				ImGui::Checkbox("Tools Panel", &app.showTools);
+
+				ImGui::SeparatorText("Sample");
+
+				if (ImGui::BeginCombo("##sampleCombo", app.sampleIndex >= 0 ? g_samples[app.sampleIndex].name.c_str() : "Choose Sample...", 0))
+				{
+					for (int n = 0; n < IM_ARRAYSIZE(g_samples); n++)
+					{
+						const bool is_selected = (app.sampleIndex == n);
+						if (ImGui::Selectable(g_samples[n].name.c_str(), is_selected))
+						{
+							newSampleSelected = !is_selected;
+							app.sampleIndex = n;
+						}
+
+						// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+						if (is_selected)
+						{
+							ImGui::SetItemDefaultFocus();
+						}
+					}
+					ImGui::EndCombo();
+				}
 
 				ImGui::SeparatorText("Input Mesh");
 
-				// Level selection dialog.
-				if (ImGui::BeginCombo("##levelCombo", app.meshName.c_str(), 0))
+				if (ImGui::BeginCombo("##inputMesh", app.meshName.c_str(), 0))
 				{
 					app.files.clear();
 					FileIO::scanDirectory(app.meshesFolder, ".obj", app.files);
@@ -642,32 +664,17 @@ int main(int /*argc*/, char** /*argv*/)
 
 				if (app.inputGeometry)
 				{
-					ImGui::Text(
-						"Verts: %.1fk  Tris: %.1fk",
-								static_cast<float>(app.inputGeometry->getVertCount()) / 1000.0f,
-								static_cast<float>(app.inputGeometry->getTriCount()) / 1000.0f);
-				}
+					// All this is to right-align the text.
+					char text[32];
+					snprintf(text, 32, "Verts: %.1fk  Tris: %.1fk",
+						static_cast<float>(app.inputGeometry->getVertCount()) / 1000.0f,
+						static_cast<float>(app.inputGeometry->getTriCount()) / 1000.0f);
 
-				ImGui::SeparatorText("Sample");
+					float textWidth = ImGui::CalcTextSize(text).x;
+					float parentWidth = ImGui::GetContentRegionAvail().x;
 
-				if (ImGui::BeginCombo("##sampleCombo", app.sampleIndex >= 0 ? g_samples[app.sampleIndex].name.c_str() : "Choose Sample...", 0))
-				{
-					for (int n = 0; n < IM_ARRAYSIZE(g_samples); n++)
-					{
-						const bool is_selected = (app.sampleIndex == n);
-						if (ImGui::Selectable(g_samples[n].name.c_str(), is_selected))
-						{
-							newSampleSelected = !is_selected;
-							app.sampleIndex = n;
-						}
-
-						// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
-						if (is_selected)
-						{
-							ImGui::SetItemDefaultFocus();
-						}
-					}
-					ImGui::EndCombo();
+					ImGui::SetCursorPosX(ImGui::GetCursorPosX() + parentWidth - textWidth);
+					ImGui::Text("%s", text);
 				}
 
 				if (app.sample)
