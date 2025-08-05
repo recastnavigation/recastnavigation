@@ -1504,12 +1504,7 @@ void NavMeshTesterTool::handleRenderOverlay(double* proj, double* model, int* vi
 	}
 
 	// Tool help
-	const int h = view[3];
-	DrawScreenspaceText(
-		280,
-		static_cast<float>(h) - 40,
-		IM_COL32(255, 255, 255, 192),
-		"LMB+SHIFT: Set start location  LMB: Set end location");
+	DrawScreenspaceText( 280, 40, IM_COL32(255, 255, 255, 192), "LMB+SHIFT: Set start location  LMB: Set end location");
 }
 
 void NavMeshTesterTool::drawAgent(const float* pos, float r, float h, float c, const unsigned int col)

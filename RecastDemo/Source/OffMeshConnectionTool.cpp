@@ -156,13 +156,12 @@ void OffMeshConnectionTool::handleRenderOverlay(double* proj, double* model, int
 	}
 
 	// Tool help
-	const int h = view[3];
 	if (!hitPosSet)
 	{
-		DrawScreenspaceText(280, static_cast<float>(h) - 40, IM_COL32(255, 255, 255, 192), "LMB: Create new connection.  SHIFT+LMB: Delete existing connection, click near start or end point.");
+		DrawScreenspaceText(280, 40, IM_COL32(255, 255, 255, 192), "LMB: Create new connection.  SHIFT+LMB: Delete existing connection, click near start or end point.");
 	}
 	else
 	{
-		DrawScreenspaceText(280, static_cast<float>(h) - 40, IM_COL32(255, 255, 255, 192), "LMB: Set connection end point and finish.");
+		DrawScreenspaceText(280, 40, IM_COL32(255, 255, 255, 192), "LMB: Set connection end point and finish.");
 	}
 }

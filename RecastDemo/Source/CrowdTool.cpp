@@ -1213,50 +1213,28 @@ void CrowdTool::handleRenderOverlay(double* proj, double* model, int* view)
 	(void)proj;
 
 	// Tool help
-	const int h = view[3];
-	int ty = h - 40;
-
 	if (mode == ToolMode::CREATE)
 	{
-		DrawScreenspaceText(
-			280,
-			static_cast<float>(ty),
-			IM_COL32(255, 255, 255, 192),
-			"LMB: add agent.  Shift+LMB: remove agent.");
+		DrawScreenspaceText(280, 40, IM_COL32(255, 255, 255, 192), "LMB: add agent.  Shift+LMB: remove agent.");
 	}
 	else if (mode == ToolMode::MOVE_TARGET)
 	{
-		DrawScreenspaceText(
-			280,
-			static_cast<float>(ty),
-			IM_COL32(255, 255, 255, 192),
-			"LMB: set move target.  Shift+LMB: adjust set velocity.");
-		ty -= 20;
-		DrawScreenspaceText(
-			280,
-			static_cast<float>(ty),
-			IM_COL32(255, 255, 255, 192),
-			"Setting velocity will move the agents without pathfinder.");
+		DrawScreenspaceText(280, 40, IM_COL32(255, 255, 255, 192), "LMB: set move target.  Shift+LMB: adjust set velocity.");
+		DrawScreenspaceText(280, 60, IM_COL32(255, 255, 255, 192), "Setting velocity will move the agents without pathfinder.");
 	}
 	else if (mode == ToolMode::SELECT)
 	{
-		DrawScreenspaceText(280, static_cast<float>(ty), IM_COL32(255, 255, 255, 192), "LMB: select agent.");
+		DrawScreenspaceText(280, 40, IM_COL32(255, 255, 255, 192), "LMB: select agent.");
 	}
 
-	ty -= 20;
-	DrawScreenspaceText(
-		280,
-		static_cast<float>(ty),
-		IM_COL32(255, 255, 255, 192),
-		"SPACE: Run/Pause simulation.  1: Step simulation.");
+	DrawScreenspaceText(280, 60, IM_COL32(255, 255, 255, 192), "SPACE: Run/Pause simulation.  1: Step simulation.");
 
-	ty -= 20;
 	if (state && state->isRunning())
 	{
-		DrawScreenspaceText(280, static_cast<float>(ty), IM_COL32(255, 32, 16, 255), "- RUNNING -");
+		DrawScreenspaceText(280, 80, IM_COL32(255, 32, 16, 255), "- RUNNING -");
 	}
 	else
 	{
-		DrawScreenspaceText(280, static_cast<float>(ty), IM_COL32(255, 255, 255, 128), "- PAUSED -");
+		DrawScreenspaceText(280, 80, IM_COL32(255, 255, 255, 128), "- PAUSED -");
 	}
 }

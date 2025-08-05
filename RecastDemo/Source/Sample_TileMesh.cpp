@@ -192,11 +192,7 @@ public:
 		}
 
 		// Tool help
-		DrawScreenspaceText(
-			280,
-			static_cast<float>(view[3]) - 40,
-			IM_COL32(255, 255, 255, 192),
-			"LMB: Rebuild hit tile.  Shift+LMB: Clear hit tile.");
+		DrawScreenspaceText(280, 40, IM_COL32(255, 255, 255, 192), "LMB: Rebuild hit tile.  Shift+LMB: Clear hit tile.");
 	}
 };
 

@@ -296,12 +296,11 @@ void ConvexVolumeTool::handleRender()
 void ConvexVolumeTool::handleRenderOverlay(double* /*proj*/, double* /*model*/, int* view)
 {
 	// Tool help
-	const int h = view[3];
 	if (!numPoints)
 	{
 		DrawScreenspaceText(
 			280.0f,
-			static_cast<float>(h) - 40.0f,
+			40.0f,
 			IM_COL32(255, 255, 255, 192),
 			"LMB: Create new shape.  SHIFT+LMB: Delete existing shape (click inside a shape).");
 	}
@@ -309,12 +308,12 @@ void ConvexVolumeTool::handleRenderOverlay(double* /*proj*/, double* /*model*/, 
 	{
 		DrawScreenspaceText(
 			280.0f,
-			static_cast<float>(h) - 40.0f,
+			40.0f,
 			IM_COL32(255, 255, 255, 192),
 			"Click LMB to add new points. Click on the red point to finish the shape.");
 		DrawScreenspaceText(
 			280.0f,
-			static_cast<float>(h) - 60.0f,
+			60.0f,
 			IM_COL32(255, 255, 255, 192),
 			"The shape will be convex hull of all added points.");
 	}
