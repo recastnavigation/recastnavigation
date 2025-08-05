@@ -372,25 +372,25 @@ void NavMeshTesterTool::handleMenu()
 
 	ImGui::Indent();
 	bool walk = (filter.getIncludeFlags() & SAMPLE_POLYFLAGS_WALK) != 0;
-	if (ImGui::Checkbox("Walk", &walk))
+	if (ImGui::Checkbox("Walk##Include", &walk))
 	{
 		filter.setIncludeFlags(filter.getIncludeFlags() ^ SAMPLE_POLYFLAGS_WALK);
 		recalc();
 	}
 	bool swim = (filter.getIncludeFlags() & SAMPLE_POLYFLAGS_SWIM) != 0;
-	if (ImGui::Checkbox("Swim", &swim))
+	if (ImGui::Checkbox("Swim##Include", &swim))
 	{
 		filter.setIncludeFlags(filter.getIncludeFlags() ^ SAMPLE_POLYFLAGS_SWIM);
 		recalc();
 	}
 	bool door = (filter.getIncludeFlags() & SAMPLE_POLYFLAGS_DOOR) != 0;
-	if (ImGui::Checkbox("Door", &door))
+	if (ImGui::Checkbox("Door##Include", &door))
 	{
 		filter.setIncludeFlags(filter.getIncludeFlags() ^ SAMPLE_POLYFLAGS_DOOR);
 		recalc();
 	}
 	bool jump = (filter.getIncludeFlags() & SAMPLE_POLYFLAGS_JUMP) != 0;
-	if (ImGui::Checkbox("Jump", &jump))
+	if (ImGui::Checkbox("Jump##Include", &jump))
 	{
 		filter.setIncludeFlags(filter.getIncludeFlags() ^ SAMPLE_POLYFLAGS_JUMP);
 		recalc();
@@ -402,25 +402,25 @@ void NavMeshTesterTool::handleMenu()
 
 	ImGui::Indent();
 	bool excludeWalk = (filter.getExcludeFlags() & SAMPLE_POLYFLAGS_WALK) != 0;
-	if (ImGui::Checkbox("Walk", &excludeWalk))
+	if (ImGui::Checkbox("Walk##Exclude", &excludeWalk))
 	{
 		filter.setExcludeFlags(filter.getExcludeFlags() ^ SAMPLE_POLYFLAGS_WALK);
 		recalc();
 	}
 	bool excludeSwim = (filter.getExcludeFlags() & SAMPLE_POLYFLAGS_SWIM) != 0;
-	if (ImGui::Checkbox("Swim", &excludeSwim))
+	if (ImGui::Checkbox("Swim##Exclude", &excludeSwim))
 	{
 		filter.setExcludeFlags(filter.getExcludeFlags() ^ SAMPLE_POLYFLAGS_SWIM);
 		recalc();
 	}
 	bool excludeDoor = (filter.getExcludeFlags() & SAMPLE_POLYFLAGS_DOOR) != 0;
-	if (ImGui::Checkbox("Door", &excludeDoor))
+	if (ImGui::Checkbox("Door##Exclude", &excludeDoor))
 	{
 		filter.setExcludeFlags(filter.getExcludeFlags() ^ SAMPLE_POLYFLAGS_DOOR);
 		recalc();
 	}
 	bool excludeJump = (filter.getExcludeFlags() & SAMPLE_POLYFLAGS_JUMP) != 0;
-	if (ImGui::Checkbox("Jump", &excludeJump))
+	if (ImGui::Checkbox("Jump##Exclude", &excludeJump))
 	{
 		filter.setExcludeFlags(filter.getExcludeFlags() ^ SAMPLE_POLYFLAGS_JUMP);
 		recalc();
