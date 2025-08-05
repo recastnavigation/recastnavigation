@@ -310,7 +310,7 @@ int main(int /*argc*/, char** /*argv*/)
 				case SDLK_1:
 					if (app.sample)
 					{
-						app.sample->handleStep();
+						app.sample->singleStep();
 					}
 					break;
 				case SDLK_9:

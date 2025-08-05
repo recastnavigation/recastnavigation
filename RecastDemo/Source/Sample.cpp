@@ -278,7 +278,7 @@ void Sample::handleToggle()
 	}
 }
 
-void Sample::handleStep()
+void Sample::singleStep()
 {
 	if (tool)
 	{
