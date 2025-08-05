@@ -459,7 +459,7 @@ int main(int /*argc*/, char** /*argv*/)
 			while (app.timeAcc > FRAME_TIME)
 			{
 				app.timeAcc -= FRAME_TIME;
-				app.sample->handleUpdate(FRAME_TIME);
+				app.sample->update(FRAME_TIME);
 			}
 		}
 		else

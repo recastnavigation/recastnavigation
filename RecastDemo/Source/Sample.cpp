@@ -291,7 +291,7 @@ bool Sample::handleBuild()
 	return true;
 }
 
-void Sample::handleUpdate(const float dt)
+void Sample::update(const float dt)
 {
 	if (tool)
 	{

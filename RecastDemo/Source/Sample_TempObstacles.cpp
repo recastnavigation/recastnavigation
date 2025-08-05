@@ -1476,9 +1476,9 @@ bool Sample_TempObstacles::handleBuild()
 	return true;
 }
 
-void Sample_TempObstacles::handleUpdate(const float dt)
+void Sample_TempObstacles::update(const float dt)
 {
-	Sample::handleUpdate(dt);
+	Sample::update(dt);
 
 	if (!navMesh)
 	{
