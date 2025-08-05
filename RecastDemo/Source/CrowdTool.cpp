@@ -1074,8 +1074,7 @@ void CrowdTool::handleMenu()
 		paramsChanged |= ImGui::Checkbox("Obstacle Avoidance", &params->obstacleAvoidance);
 		paramsChanged |= ImGui::SliderInt("Avoidance Quality", &params->obstacleAvoidanceType, 0, 3);
 		paramsChanged |= ImGui::Checkbox("Separation", &params->separation);
-		paramsChanged |=
-			ImGui::SliderFloat("##Separation Weight", &params->separationWeight, 0.0f, 20.0f, "Separation Weight = %.2f");
+		paramsChanged |= ImGui::SliderFloat("##Separation Weight", &params->separationWeight, 0.0f, 20.0f, "Separation Weight = %.2f");
 
 		if (paramsChanged)
 		{

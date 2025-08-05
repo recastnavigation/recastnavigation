@@ -664,17 +664,9 @@ int main(int /*argc*/, char** /*argv*/)
 
 				if (app.inputGeometry)
 				{
-					// All this is to right-align the text.
-					char text[32];
-					snprintf(text, 32, "Verts: %.1fk  Tris: %.1fk",
+					DrawRightAlignedText("Verts: %.1fk  Tris: %.1fk",
 						static_cast<float>(app.inputGeometry->getVertCount()) / 1000.0f,
 						static_cast<float>(app.inputGeometry->getTriCount()) / 1000.0f);
-
-					float textWidth = ImGui::CalcTextSize(text).x;
-					float parentWidth = ImGui::GetContentRegionAvail().x;
-
-					ImGui::SetCursorPosX(ImGui::GetCursorPosX() + parentWidth - textWidth);
-					ImGui::Text("%s", text);
 				}
 
 				if (app.sample)

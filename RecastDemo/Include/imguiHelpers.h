@@ -69,3 +69,19 @@ inline void DrawIntSlider(int* value, int min, int max, const char* id, const ch
 	ImVec2 valueLabelSize = ImGui::CalcTextSize(valueLabel);
 	drawList->AddText(ImVec2(sliderMax.x - valueLabelSize.x - textPadding, textY), color, valueLabel);
 }
+
+inline void DrawRightAlignedText(const char* format, ...)
+{
+	static char text[1024];  // Static buffer (not thread-safe!)
+
+    va_list args;
+    va_start(args, format);
+    vsnprintf(text, sizeof(text), format, args);
+    va_end(args);
+
+	float textWidth = ImGui::CalcTextSize(text).x;
+	float parentWidth = ImGui::GetContentRegionAvail().x;
+
+	ImGui::SetCursorPosX(ImGui::GetCursorPosX() + parentWidth - textWidth);
+	ImGui::Text("%s", text);
+}

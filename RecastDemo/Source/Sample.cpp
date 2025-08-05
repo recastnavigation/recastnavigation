@@ -25,6 +25,7 @@
 #include "InputGeom.h"
 #include "Recast.h"
 #include "RecastDebugDraw.h"
+#include "imguiHelpers.h"
 
 #include <imgui.h>
 
@@ -217,7 +218,7 @@ void Sample::handleCommonSettings()
 			cellSize,
 			&gridWidth,
 			&gridHeight);
-		ImGui::Text("Voxels  %d x %d", gridWidth, gridHeight);
+		DrawRightAlignedText("Voxels  %d x %d", gridWidth, gridHeight);
 	}
 
 	ImGui::SeparatorText("Agent");
