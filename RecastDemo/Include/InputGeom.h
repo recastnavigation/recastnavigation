@@ -108,7 +108,7 @@ public:
 	///@{
 	static const int MAX_VOLUMES = 256;
 	ConvexVolume volumes[MAX_VOLUMES];
-	int volumeCount = 0;
+	int convexVolumeCount = 0;
 	///@}
 
 private:

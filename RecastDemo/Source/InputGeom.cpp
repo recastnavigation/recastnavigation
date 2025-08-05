@@ -164,7 +164,7 @@ bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath)
 	delete chunkyMesh;
 	chunkyMesh = nullptr;
 	offMeshConCount = 0;
-	volumeCount = 0;
+	convexVolumeCount = 0;
 
 	parseObjModel(buffer, bufferLen, verts, tris, normals);
 
@@ -233,7 +233,7 @@ bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath)
 bool InputGeom::loadGeomSet(rcContext* ctx, char* buffer, size_t bufferLen)
 {
 	offMeshConCount = 0;
-	volumeCount = 0;
+	convexVolumeCount = 0;
 
 	char* src = buffer;
 	char* srcEnd = buffer + bufferLen;
@@ -293,9 +293,9 @@ bool InputGeom::loadGeomSet(rcContext* ctx, char* buffer, size_t bufferLen)
 		else if (row[0] == 'v')
 		{
 			// Convex volumes
-			if (volumeCount < MAX_VOLUMES)
+			if (convexVolumeCount < MAX_VOLUMES)
 			{
-				ConvexVolume* vol = &volumes[volumeCount++];
+				ConvexVolume* vol = &volumes[convexVolumeCount++];
 				sscanf(row + 1, "%d %d %f %f", &vol->nverts, &vol->area, &vol->hmin, &vol->hmax);
 				for (int i = 0; i < vol->nverts; ++i)
 				{
@@ -427,7 +427,7 @@ bool InputGeom::saveGeomSet(const BuildSettings* settings)
 	}
 
 	// Convex volumes
-	for (int i = 0; i < volumeCount; ++i)
+	for (int i = 0; i < convexVolumeCount; ++i)
 	{
 		ConvexVolume* vol = &volumes[i];
 		fprintf(fp, "v %d %d %f %f\n", vol->nverts, vol->area, vol->hmin, vol->hmax);
@@ -601,11 +601,11 @@ void InputGeom::drawOffMeshConnections(duDebugDraw* dd, bool highlight)
 
 void InputGeom::addConvexVolume(const float* verts, const int nverts, const float minh, const float maxh, unsigned char area)
 {
-	if (volumeCount >= MAX_VOLUMES)
+	if (convexVolumeCount >= MAX_VOLUMES)
 	{
 		return;
 	}
-	ConvexVolume* vol = &volumes[volumeCount++];
+	ConvexVolume* vol = &volumes[convexVolumeCount++];
 	memset(vol, 0, sizeof(ConvexVolume));
 	memcpy(vol->verts, verts, sizeof(float) * 3 * nverts);
 	vol->hmin = minh;
@@ -616,8 +616,8 @@ void InputGeom::addConvexVolume(const float* verts, const int nverts, const floa
 
 void InputGeom::deleteConvexVolume(int i)
 {
-	volumeCount--;
-	volumes[i] = volumes[volumeCount];
+	convexVolumeCount--;
+	volumes[i] = volumes[convexVolumeCount];
 }
 
 void InputGeom::drawConvexVolumes(struct duDebugDraw* dd, bool /*hilight*/)
@@ -625,7 +625,7 @@ void InputGeom::drawConvexVolumes(struct duDebugDraw* dd, bool /*hilight*/)
 	dd->depthMask(false);
 	dd->begin(DU_DRAW_TRIS);
 
-	for (int i = 0; i < volumeCount; ++i)
+	for (int i = 0; i < convexVolumeCount; ++i)
 	{
 		const ConvexVolume* vol = &volumes[i];
 		unsigned int col = duTransCol(dd->areaToCol(vol->area), 32);
@@ -651,7 +651,7 @@ void InputGeom::drawConvexVolumes(struct duDebugDraw* dd, bool /*hilight*/)
 	dd->end();
 
 	dd->begin(DU_DRAW_LINES, 2.0f);
-	for (int i = 0; i < volumeCount; ++i)
+	for (int i = 0; i < convexVolumeCount; ++i)
 	{
 		const ConvexVolume* vol = &volumes[i];
 		unsigned int col = duTransCol(dd->areaToCol(vol->area), 220);
@@ -670,7 +670,7 @@ void InputGeom::drawConvexVolumes(struct duDebugDraw* dd, bool /*hilight*/)
 	dd->end();
 
 	dd->begin(DU_DRAW_POINTS, 3.0f);
-	for (int i = 0; i < volumeCount; ++i)
+	for (int i = 0; i < convexVolumeCount; ++i)
 	{
 		const ConvexVolume* vol = &volumes[i];
 		unsigned int col = duDarkenCol(duTransCol(dd->areaToCol(vol->area), 220));
