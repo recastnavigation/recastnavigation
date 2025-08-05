@@ -514,7 +514,7 @@ int main(int /*argc*/, char** /*argv*/)
 		app.rayEnd[1] = (float)y;
 		app.rayEnd[2] = (float)z;
 
-		// Handle keyboard movement.
+		// Keyboard movement.
 		const Uint8* keystate = SDL_GetKeyboardState(NULL);
 		app.moveFront = rcClamp(
 			app.moveFront + dt * 4 * ((keystate[SDL_SCANCODE_W] || keystate[SDL_SCANCODE_UP]) ? 1.0f : -1.0f),
@@ -565,7 +565,7 @@ int main(int /*argc*/, char** /*argv*/)
 		glEnable(GL_FOG);
 		if (app.sample)
 		{
-			app.sample->handleRender();
+			app.sample->render();
 		}
 		if (app.testCase)
 		{

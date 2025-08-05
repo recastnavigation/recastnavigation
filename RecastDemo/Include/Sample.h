@@ -170,7 +170,7 @@ public:
 	virtual void handleClick(const float* rayStartPos, const float* rayHitPos, bool shift);
 	virtual void handleToggle();
 	virtual void handleStep();
-	virtual void handleRender();
+	virtual void render();
 	virtual void handleRenderOverlay(double* proj, double* model, int* view);
 	virtual void handleMeshChanged(InputGeom* geom);
 	virtual bool handleBuild();

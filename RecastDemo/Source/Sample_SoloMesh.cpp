@@ -184,7 +184,7 @@ void Sample_SoloMesh::handleDebugMode()
 	}
 }
 
-void Sample_SoloMesh::handleRender()
+void Sample_SoloMesh::render()
 {
 	if (!inputGeometry)
 	{

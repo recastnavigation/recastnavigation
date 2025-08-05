@@ -1109,7 +1109,7 @@ void Sample_TempObstacles::handleDebugMode()
 	}
 }
 
-void Sample_TempObstacles::handleRender()
+void Sample_TempObstacles::render()
 {
 	if (!inputGeometry || inputGeometry->getVertCount() == 0)
 	{

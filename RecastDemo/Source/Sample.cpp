@@ -120,7 +120,7 @@ void Sample::handleTools() {}
 
 void Sample::handleDebugMode() {}
 
-void Sample::handleRender()
+void Sample::render()
 {
 	if (!inputGeometry)
 	{

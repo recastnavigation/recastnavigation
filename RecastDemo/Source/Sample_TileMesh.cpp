@@ -360,7 +360,7 @@ void Sample_TileMesh::handleDebugMode()
 	}
 }
 
-void Sample_TileMesh::handleRender()
+void Sample_TileMesh::render()
 {
 	if (!inputGeometry || inputGeometry->getVertCount() == 0)
 	{
