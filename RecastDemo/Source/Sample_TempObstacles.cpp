@@ -484,7 +484,7 @@ struct MeshProcess : dtTileCacheMeshProcess
 		// Pass in off-mesh connections.
 		if (inputGeometry)
 		{
-			params->offMeshConVerts = inputGeometry->getOffMeshConnectionVerts();
+			params->offMeshConVerts = inputGeometry->offMeshConVerts;
 			params->offMeshConRad = inputGeometry->offMeshConRads;
 			params->offMeshConDir = inputGeometry->offMeshConDirs;
 			params->offMeshConAreas = inputGeometry->offMeshConAreas;

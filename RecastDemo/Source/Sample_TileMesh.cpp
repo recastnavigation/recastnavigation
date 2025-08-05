@@ -1207,7 +1207,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(
 		params.detailVertsCount = detailPolyMesh->nverts;
 		params.detailTris = detailPolyMesh->tris;
 		params.detailTriCount = detailPolyMesh->ntris;
-		params.offMeshConVerts = inputGeometry->getOffMeshConnectionVerts();
+		params.offMeshConVerts = inputGeometry->offMeshConVerts;
 		params.offMeshConRad = inputGeometry->offMeshConRads;
 		params.offMeshConDir = inputGeometry->offMeshConDirs;
 		params.offMeshConAreas = inputGeometry->offMeshConAreas;

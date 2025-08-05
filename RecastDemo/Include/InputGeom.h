@@ -138,7 +138,6 @@ public:
 
 	/// @name Off-Mesh connections.
 	///@{
-	[[nodiscard]] const float* getOffMeshConnectionVerts() const { return offMeshConVerts; }
 	void addOffMeshConnection(
 		const float* spos,
 		const float* epos,
