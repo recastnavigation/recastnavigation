@@ -713,7 +713,7 @@ bool Sample_SoloMesh::build()
 		params.offMeshConAreas = inputGeometry->getOffMeshConnectionAreas();
 		params.offMeshConFlags = inputGeometry->getOffMeshConnectionFlags();
 		params.offMeshConUserID = inputGeometry->getOffMeshConnectionId();
-		params.offMeshConCount = inputGeometry->getOffMeshConnectionCount();
+		params.offMeshConCount = inputGeometry->offMeshConCount;
 		params.walkableHeight = agentHeight;
 		params.walkableRadius = agentRadius;
 		params.walkableClimb = agentMaxClimb;

@@ -86,7 +86,7 @@ void OffMeshConnectionTool::handleClick(const float* /*rayStartPos*/, const floa
 		float nearestDist = FLT_MAX;
 		int nearestIndex = -1;
 		const float* verts = geom->getOffMeshConnectionVerts();
-		for (int i = 0; i < geom->getOffMeshConnectionCount() * 2; ++i)
+		for (int i = 0; i < geom->offMeshConCount * 2; ++i)
 		{
 			float dist = rcVdistSqr(rayHitPos, &verts[i * 3]);
 			if (dist < nearestDist)

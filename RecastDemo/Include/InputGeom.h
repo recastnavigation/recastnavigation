@@ -91,6 +91,7 @@ private:
 	BuildSettings buildSettings;
 	bool hasBuildSettings = false;
 
+public:
 	/// @name Off-Mesh connections.
 	///@{
 	static constexpr int MAX_OFFMESH_CONNECTIONS = 256;
@@ -103,6 +104,7 @@ private:
 	int offMeshConCount = 0;
 	///@}
 
+private:
 	/// @name Convex Volumes.
 	///@{
 	static const int MAX_VOLUMES = 256;
@@ -136,7 +138,6 @@ public:
 
 	/// @name Off-Mesh connections.
 	///@{
-	[[nodiscard]] int getOffMeshConnectionCount() const { return offMeshConCount; }
 	[[nodiscard]] const float* getOffMeshConnectionVerts() const { return offMeshConVerts; }
 	[[nodiscard]] const float* getOffMeshConnectionRads() const { return offMeshConRads; }
 	[[nodiscard]] const unsigned char* getOffMeshConnectionDirs() const { return offMeshConDirs; }
