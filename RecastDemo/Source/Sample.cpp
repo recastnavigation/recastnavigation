@@ -114,7 +114,7 @@ void Sample::setTool(SampleTool* newTool)
 	}
 }
 
-void Sample::handleSettings() {}
+void Sample::drawSettingsUI() {}
 
 void Sample::drawToolsUI() {}
 

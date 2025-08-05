@@ -68,7 +68,7 @@ public:
 	Sample_TempObstacles(const Sample_TempObstacles&&) = delete;
 	Sample_TempObstacles& operator=(const Sample_TempObstacles&&) = delete;
 
-	void handleSettings() override;
+	void drawSettingsUI() override;
 	void drawToolsUI() override;
 	void drawDebugUI() override;
 	void render() override;

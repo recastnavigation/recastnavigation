@@ -164,7 +164,7 @@ public:
 
 	void setTool(SampleTool* tool);
 
-	virtual void handleSettings();
+	virtual void drawSettingsUI();
 	virtual void drawToolsUI();
 	virtual void drawDebugUI();
 

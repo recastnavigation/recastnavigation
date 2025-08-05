@@ -225,7 +225,7 @@ void Sample_TileMesh::cleanup()
 	detailPolyMesh = nullptr;
 }
 
-void Sample_TileMesh::handleSettings()
+void Sample_TileMesh::drawSettingsUI()
 {
 	Sample::handleCommonSettings();
 

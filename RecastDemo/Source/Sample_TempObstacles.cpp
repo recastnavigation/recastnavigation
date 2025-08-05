@@ -899,7 +899,7 @@ Sample_TempObstacles::~Sample_TempObstacles()
 	dtFreeTileCache(tileCache);
 }
 
-void Sample_TempObstacles::handleSettings()
+void Sample_TempObstacles::drawSettingsUI()
 {
 	handleCommonSettings();
 	ImGui::Checkbox("Keep Itermediate Results", &keepIntermediateResults);

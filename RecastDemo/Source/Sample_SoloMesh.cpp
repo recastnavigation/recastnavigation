@@ -90,7 +90,7 @@ void Sample_SoloMesh::cleanup()
 	navMesh = nullptr;
 }
 
-void Sample_SoloMesh::handleSettings()
+void Sample_SoloMesh::drawSettingsUI()
 {
 	static const char* fileName = "solo_navmesh.bin";
 

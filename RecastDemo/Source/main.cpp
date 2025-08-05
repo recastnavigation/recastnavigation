@@ -673,7 +673,7 @@ int main(int /*argc*/, char** /*argv*/)
 				{
 					if (app.inputGeometry)
 					{
-						app.sample->handleSettings();
+						app.sample->drawSettingsUI();
 
 						if (ImGui::Button("Build"))
 						{
@@ -862,7 +862,7 @@ int main(int /*argc*/, char** /*argv*/)
 					}
 
 					// This will ensure that tile & poly bits are updated in tiled sample.
-					app.sample->handleSettings();
+					app.sample->drawSettingsUI();
 
 					app.buildContext.resetLog();
 					if (!app.sample->build())

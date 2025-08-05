@@ -70,7 +70,7 @@ public:
 	Sample_SoloMesh(const Sample_SoloMesh&&) = delete;
 	Sample_SoloMesh& operator=(const Sample_SoloMesh&&) = delete;
 
-	void handleSettings() override;
+	void drawSettingsUI() override;
 	void drawToolsUI() override;
 	void drawDebugUI() override;
 

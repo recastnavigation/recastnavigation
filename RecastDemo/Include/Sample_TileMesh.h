@@ -88,7 +88,7 @@ public:
 	Sample_TileMesh& operator=(const Sample_TileMesh&&) = delete;
 
 	// Sample methods
-	void handleSettings() override;
+	void drawSettingsUI() override;
 	void drawToolsUI() override;
 	void drawDebugUI() override;
 	void render() override;
