@@ -166,7 +166,8 @@ public:
 
 	virtual void handleSettings();
 	virtual void handleTools();
-	virtual void handleDebugMode();
+	virtual void drawDebugUI();
+
 	virtual void onClick(const float* rayStartPos, const float* rayHitPos, bool shift);
 	virtual void handleToggle();
 	virtual void singleStep();

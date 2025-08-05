@@ -156,7 +156,7 @@ void Sample_SoloMesh::UI_DrawModeOption(const DrawMode drawMode, const bool enab
 	ImGui::EndDisabled();
 }
 
-void Sample_SoloMesh::handleDebugMode()
+void Sample_SoloMesh::drawDebugUI()
 {
 	ImGui::Text("Draw");
 	if (ImGui::BeginCombo("##drawMode", drawModeNames[static_cast<int>(currentDrawMode)], 0))

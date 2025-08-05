@@ -333,7 +333,7 @@ void Sample_TileMesh::UI_DrawModeOption(DrawMode drawMode, bool enabled)
 	ImGui::EndDisabled();
 }
 
-void Sample_TileMesh::handleDebugMode()
+void Sample_TileMesh::drawDebugUI()
 {
 	ImGui::Text("Draw");
 	if (ImGui::BeginCombo("##drawMode", drawModeNames[static_cast<int>(this->drawMode)], 0))

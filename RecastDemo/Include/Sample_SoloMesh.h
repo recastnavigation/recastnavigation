@@ -72,7 +72,7 @@ public:
 
 	void handleSettings() override;
 	void handleTools() override;
-	void handleDebugMode() override;
+	void drawDebugUI() override;
 
 	void render() override;
 	void renderOverlay(double* proj, double* model, int* view) override;

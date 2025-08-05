@@ -118,7 +118,7 @@ void Sample::handleSettings() {}
 
 void Sample::handleTools() {}
 
-void Sample::handleDebugMode() {}
+void Sample::drawDebugUI() {}
 
 void Sample::render()
 {

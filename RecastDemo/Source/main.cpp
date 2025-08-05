@@ -692,7 +692,7 @@ int main(int /*argc*/, char** /*argv*/)
 					}
 
 					ImGui::SeparatorText("Debug Settings");
-					app.sample->handleDebugMode();
+					app.sample->drawDebugUI();
 				}
 
 				ImGui::End();

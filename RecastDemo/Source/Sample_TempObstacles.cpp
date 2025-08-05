@@ -1016,7 +1016,7 @@ void Sample_TempObstacles::handleTools()
 	}
 }
 
-void Sample_TempObstacles::handleDebugMode()
+void Sample_TempObstacles::drawDebugUI()
 {
 	// Check which modes are valid.
 	bool valid[MAX_DRAWMODE];
