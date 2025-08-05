@@ -204,8 +204,8 @@ void Sample::resetCommonSettings()
 void Sample::handleCommonSettings()
 {
 	ImGui::SeparatorText("Rasterization");
-	ImGui::SliderFloat("##Cell Size", &cellSize, 0.1f, 1.0f, "Cell Size = %.2f");
-	ImGui::SliderFloat("##Cell Height", &cellHeight, 0.1f, 1.0f, "Cell Height = %.2f");
+	DrawFloatSlider(&cellSize, 0.1f, 1.0f, "##Cell Size", "Cell Size", "%.2f");
+	DrawFloatSlider(&cellHeight, 0.1f, 1.0f, "##Cell Height", "Cell Height", "%.2f");
 
 	if (inputGeometry)
 	{
@@ -221,14 +221,14 @@ void Sample::handleCommonSettings()
 	}
 
 	ImGui::SeparatorText("Agent");
-	ImGui::SliderFloat("##Height", &agentHeight, 0.1f, 5.0f, "Height = %.2f");
-	ImGui::SliderFloat("##Radius", &agentRadius, 0.0f, 5.0f, "Radius = %.2f");
-	ImGui::SliderFloat("##Max Climb", &agentMaxClimb, 0.1f, 5.0f, "Max Climb = %.2f");
-	ImGui::SliderFloat("##Max Slope", &agentMaxSlope, 0.0f, 90.0f, "Max Slope = %.2f");
+	DrawFloatSlider(&agentHeight, 0.1f, 5.0f, "##Height", "Height");
+	DrawFloatSlider(&agentRadius, 0.001f, 5.0f, "##Radius", "Radius");
+	DrawFloatSlider(&agentMaxClimb, 0.1f, 5.0f,  "##MaxClimb", "Max Climb");
+	DrawFloatSlider(&agentMaxSlope, 0.0f, 90.0f,  "##MaxSlope", "Max Slope");
 
 	ImGui::SeparatorText("Region");
-	ImGui::SliderFloat("##Min Region Size", &regionMinSize, 0.0f, 150.0f, "Min Region Size = %.2f");
-	ImGui::SliderFloat("##Merged Region Size", &regionMergeSize, 0.0f, 150.0f, "Merged Region Size = %.2f");
+	DrawFloatSlider(&regionMinSize, 0.0f, 150.0f, "##Min Region Size", "Min Region Size");
+	DrawFloatSlider(&regionMergeSize, 0.0f, 150.0f, "##Merged Region Size", "Merged Region Size");
 
 	ImGui::SeparatorText("Partitioning");
 	if (ImGui::RadioButton("Watershed", partitionType == SAMPLE_PARTITION_WATERSHED))
@@ -250,13 +250,13 @@ void Sample::handleCommonSettings()
 	ImGui::Checkbox("Walkable Low Height Spans", &filterWalkableLowHeightSpans);
 
 	ImGui::SeparatorText("Polygonization");
-	ImGui::SliderFloat("##Max Edge Length", &edgeMaxLen, 0.0f, 50.0f, "Max Edge Length = %.2f");
-	ImGui::SliderFloat("##Max Edge Error", &edgeMaxError, 0.1f, 3.0f, "Max Edge Error = %.2f");
-	ImGui::SliderInt("##Verts Per Poly", &vertsPerPoly, 3, 12, "Verts Per Poly = %d");
+	DrawFloatSlider(&edgeMaxLen, 0.0f, 50.0f, "##Max Edge Length", "Max Edge Length");
+	DrawFloatSlider(&edgeMaxError, 0.1f, 3.0f, "##Max Edge Error", "Max Edge Error");
+	DrawIntSlider(&vertsPerPoly, 3, 12, "##Verts Per Poly", "Verts Per Poly");
 
 	ImGui::SeparatorText("Detail Mesh");
-	ImGui::SliderFloat("##Sample Distance", &detailSampleDist, 0.0f, 16.0f, "Sample Distance = %.2f");
-	ImGui::SliderFloat("##Max Sample Error", &detailSampleMaxError, 0.0f, 16.0f, "Max Sample Error = %.2f");
+	DrawFloatSlider(&detailSampleDist, 0.0f, 16.0f, "##Sample Distance", "Sample Distance");
+	DrawFloatSlider(&detailSampleMaxError, 0.0f, 16.0f, "##Max Sample Error", "Max Sample Error");
 
 	ImGui::Separator();
 }
