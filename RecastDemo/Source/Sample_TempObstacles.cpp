@@ -670,7 +670,7 @@ int Sample_TempObstacles::rasterizeTileLayers(
 	}
 
 	// (Optional) Mark areas.
-	const ConvexVolume* vols = inputGeometry->getConvexVolumes();
+	const ConvexVolume* vols = inputGeometry->convexVolumes;
 	for (int i = 0; i < inputGeometry->convexVolumeCount; ++i)
 	{
 		rcMarkConvexPolyArea(
