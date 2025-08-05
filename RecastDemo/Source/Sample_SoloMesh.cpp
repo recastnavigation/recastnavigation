@@ -92,27 +92,25 @@ void Sample_SoloMesh::cleanup()
 
 void Sample_SoloMesh::handleSettings()
 {
+	static const char* fileName = "solo_navmesh.bin";
+
 	handleCommonSettings();
 
-	ImGui::Separator();
-
+	ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
 	if (ImGui::Button("Save"))
 	{
-		saveAll("solo_navmesh.bin", navMesh);
+		saveAll(fileName, navMesh);
 	}
-
-	ImGui::SameLine();
 
 	if (ImGui::Button("Load"))
 	{
 		dtFreeNavMesh(navMesh);
-		navMesh = loadAll("solo_navmesh.bin");
+		navMesh = loadAll(fileName);
 		navQuery->init(navMesh, 2048);
 	}
+	ImGui::PopItemWidth();
 
 	ImGui::Text("Build Time: %.1fms", totalBuildTimeMs);
-
-	ImGui::Separator();
 }
 
 void Sample_SoloMesh::handleTools()
