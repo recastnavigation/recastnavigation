@@ -362,7 +362,7 @@ void Sample_TileMesh::drawDebugUI()
 
 void Sample_TileMesh::render()
 {
-	if (!inputGeometry || inputGeometry->getVertCount() == 0)
+	if (!inputGeometry || inputGeometry->mesh.getVertCount() == 0)
 	{
 		return;
 	}
@@ -375,11 +375,11 @@ void Sample_TileMesh::render()
 		// Draw mesh
 		duDebugDrawTriMeshSlope(
 			&debugDraw,
-			inputGeometry->verts.data(),
-			inputGeometry->getVertCount(),
-			inputGeometry->tris.data(),
-			inputGeometry->normals.data(),
-			inputGeometry->getTriCount(),
+			inputGeometry->mesh.verts.data(),
+			inputGeometry->mesh.getVertCount(),
+			inputGeometry->mesh.tris.data(),
+			inputGeometry->mesh.normals.data(),
+			inputGeometry->mesh.getTriCount(),
 			agentMaxSlope,
 			texScale);
 		inputGeometry->drawOffMeshConnections(&debugDraw);
@@ -589,7 +589,7 @@ void Sample_TileMesh::onMeshChanged(InputGeom* geom)
 
 bool Sample_TileMesh::build()
 {
-	if (!inputGeometry || inputGeometry->getVertCount() == 0)
+	if (!inputGeometry || inputGeometry->mesh.getVertCount() == 0)
 	{
 		buildContext->log(RC_LOG_ERROR, "buildTiledNavigation: No vertices and triangles.");
 		return false;
@@ -834,7 +834,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(
 	const float* boundsMax,
 	int& outDataSize)
 {
-	if (!inputGeometry || inputGeometry->getVertCount() == 0 || !inputGeometry->chunkyMesh)
+	if (!inputGeometry || inputGeometry->mesh.getVertCount() == 0 || !inputGeometry->chunkyMesh)
 	{
 		buildContext->log(RC_LOG_ERROR, "buildNavigation: Input mesh is not specified.");
 		return 0;
@@ -845,9 +845,9 @@ unsigned char* Sample_TileMesh::buildTileMesh(
 
 	cleanup();
 
-	const float* verts = inputGeometry->verts.data();
-	const int numVerts = inputGeometry->getVertCount();
-	const int numTris = inputGeometry->getTriCount();
+	const float* verts = inputGeometry->mesh.verts.data();
+	const int numVerts = inputGeometry->mesh.getVertCount();
+	const int numTris = inputGeometry->mesh.getTriCount();
 	const ChunkyTriMesh* chunkyMesh = inputGeometry->chunkyMesh;
 
 	// Init build configuration from GUI

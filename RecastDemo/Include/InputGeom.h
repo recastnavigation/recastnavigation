@@ -71,18 +71,22 @@ struct BuildSettings
 	float tileSize = 0;
 };
 
-class InputGeom
-{
-public:
-	std::string filename;
 
-	// Mesh data
+struct Mesh
+{
 	std::vector<float> verts;
 	std::vector<int> tris;
 	std::vector<float> normals;
 
 	[[nodiscard]] int getVertCount() const { return static_cast<int>(verts.size()) / 3; }
 	[[nodiscard]] int getTriCount() const { return static_cast<int>(tris.size()) / 3; }
+};
+
+class InputGeom
+{
+public:
+	std::string filename;
+	Mesh mesh;
 
 	ChunkyTriMesh* chunkyMesh = nullptr;
 	float meshBoundsMin[3] = {};

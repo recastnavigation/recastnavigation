@@ -130,11 +130,11 @@ void Sample::render()
 	// Draw mesh
 	duDebugDrawTriMesh(
 		&debugDraw,
-		inputGeometry->verts.data(),
-		inputGeometry->getVertCount(),
-		inputGeometry->tris.data(),
-		inputGeometry->normals.data(),
-		inputGeometry->getTriCount(),
+		inputGeometry->mesh.verts.data(),
+		inputGeometry->mesh.getVertCount(),
+		inputGeometry->mesh.tris.data(),
+		inputGeometry->mesh.normals.data(),
+		inputGeometry->mesh.getTriCount(),
 		0,
 		1.0f);
 	// Draw bounds

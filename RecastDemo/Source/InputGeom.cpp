@@ -166,9 +166,8 @@ bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath)
 	offMeshConCount = 0;
 	convexVolumeCount = 0;
 
-	parseObjModel(buffer, bufferLen, verts, tris, normals);
-
-	rcCalcBounds(verts.data(), getVertCount(), meshBoundsMin, meshBoundsMax);
+	parseObjModel(buffer, bufferLen, mesh.verts, mesh.tris, mesh.normals);
+	rcCalcBounds(mesh.verts.data(), mesh.getVertCount(), meshBoundsMin, meshBoundsMax);
 
 	chunkyMesh = new ChunkyTriMesh;
 	if (!chunkyMesh)
@@ -176,7 +175,7 @@ bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath)
 		ctx->log(RC_LOG_ERROR, "buildTiledNavigation: Out of memory 'm_chunkyMesh'.");
 		return false;
 	}
-	if (!chunkyMesh->TryPartitionMesh(verts.data(), tris.data(), getTriCount(), 256))
+	if (!chunkyMesh->TryPartitionMesh(mesh.verts.data(), mesh.tris.data(), mesh.getTriCount(), 256))
 	{
 		ctx->log(RC_LOG_ERROR, "buildTiledNavigation: Failed to build chunky mesh.");
 		return false;
@@ -363,7 +362,7 @@ bool InputGeom::load(rcContext* ctx, const std::string& filepath)
 
 bool InputGeom::saveGeomSet(const BuildSettings* settings)
 {
-	if (verts.empty())
+	if (mesh.verts.empty())
 	{
 		return false;
 	}
@@ -520,7 +519,7 @@ bool InputGeom::raycastMesh(float* src, float* dst, float& tmin)
 		for (int j = 0; j < ntris * 3; j += 3)
 		{
 			float t = 1;
-			if (intersectSegmentTriangle(src, dst, &verts[tris[j] * 3], &verts[tris[j + 1] * 3], &verts[tris[j + 2] * 3], t))
+			if (intersectSegmentTriangle(src, dst, &mesh.verts[tris[j] * 3], &mesh.verts[tris[j + 1] * 3], &mesh.verts[tris[j + 2] * 3], t))
 			{
 				if (t < tmin)
 				{

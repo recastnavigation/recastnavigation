@@ -533,7 +533,7 @@ int Sample_TempObstacles::rasterizeTileLayers(
 	TileCacheData* tiles,
 	const int maxTiles) const
 {
-	if (!inputGeometry || inputGeometry->getVertCount() == 0 || !inputGeometry->chunkyMesh)
+	if (!inputGeometry || inputGeometry->mesh.getVertCount() == 0 || !inputGeometry->chunkyMesh)
 	{
 		buildContext->log(RC_LOG_ERROR, "buildTile: Input mesh is not specified.");
 		return 0;
@@ -542,8 +542,8 @@ int Sample_TempObstacles::rasterizeTileLayers(
 	FastLZCompressor comp;
 	RasterizationContext rasterContext;
 
-	const float* verts = inputGeometry->verts.data();
-	const int nverts = inputGeometry->getVertCount();
+	const float* verts = inputGeometry->mesh.verts.data();
+	const int nverts = inputGeometry->mesh.getVertCount();
 	const ChunkyTriMesh* chunkyMesh = inputGeometry->chunkyMesh;
 
 	// Tile bounds.
@@ -1111,7 +1111,7 @@ void Sample_TempObstacles::drawDebugUI()
 
 void Sample_TempObstacles::render()
 {
-	if (!inputGeometry || inputGeometry->getVertCount() == 0)
+	if (!inputGeometry || inputGeometry->mesh.getVertCount() == 0)
 	{
 		return;
 	}
@@ -1124,11 +1124,11 @@ void Sample_TempObstacles::render()
 		// Draw mesh
 		duDebugDrawTriMeshSlope(
 			&debugDraw,
-			inputGeometry->verts.data(),
-			inputGeometry->getVertCount(),
-			inputGeometry->tris.data(),
-			inputGeometry->normals.data(),
-			inputGeometry->getTriCount(),
+			inputGeometry->mesh.verts.data(),
+			inputGeometry->mesh.getVertCount(),
+			inputGeometry->mesh.tris.data(),
+			inputGeometry->mesh.normals.data(),
+			inputGeometry->mesh.getTriCount(),
 			agentMaxSlope,
 			texScale);
 		inputGeometry->drawOffMeshConnections(&debugDraw);
@@ -1310,7 +1310,7 @@ bool Sample_TempObstacles::build()
 {
 	dtStatus status;
 
-	if (!inputGeometry || inputGeometry->getVertCount() == 0)
+	if (!inputGeometry || inputGeometry->mesh.getVertCount() == 0)
 	{
 		buildContext->log(RC_LOG_ERROR, "buildTiledNavigation: No vertices and triangles.");
 		return false;
