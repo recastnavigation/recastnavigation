@@ -962,8 +962,8 @@ unsigned char* Sample_TileMesh::buildTileMesh(
 	for (int i = 0; i < numOverlappingChunks; ++i)
 	{
 		const ChunkyTriMesh::Node& node = chunkyMesh->nodes[overlappingChunkIndexes[i]];
-		const int* nodeTris = &chunkyMesh->tris[node.i * 3];
-		const int numNodeTris = node.n;
+		const int* nodeTris = &chunkyMesh->tris[node.triIndex * 3];
+		const int numNodeTris = node.numTris;
 
 		tileTriCount += numNodeTris;
 

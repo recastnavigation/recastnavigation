@@ -28,7 +28,7 @@ struct IndexedBounds
 {
 	float bmin[2];
 	float bmax[2];
-	int i;
+	int index;
 };
 
 namespace
@@ -44,17 +44,17 @@ int compareMinY(const void* va, const void* vb)
 }
 
 /// Calculates the total extent of all bounds in the given index range
-void calcTotalBounds(const IndexedBounds* items, const int startIndex, const int endIndex, float* outBMin, float* outBMax)
+void calcTotalBounds(const std::vector<IndexedBounds> bounds, const int start, const int end, float* outBMin, float* outBMax)
 {
-	outBMin[0] = items[startIndex].bmin[0];
-	outBMin[1] = items[startIndex].bmin[1];
+	outBMin[0] = bounds[start].bmin[0];
+	outBMin[1] = bounds[start].bmin[1];
 
-	outBMax[0] = items[startIndex].bmax[0];
-	outBMax[1] = items[startIndex].bmax[1];
+	outBMax[0] = bounds[start].bmax[0];
+	outBMax[1] = bounds[start].bmax[1];
 
-	for (int i = startIndex + 1; i < endIndex; ++i)
+	for (int boundIndex = start + 1; boundIndex < end; ++boundIndex)
 	{
-		const IndexedBounds& it = items[i];
+		const IndexedBounds& it = bounds[boundIndex];
 		outBMin[0] = std::min(it.bmin[0], outBMin[0]);
 		outBMin[1] = std::min(it.bmin[1], outBMin[1]);
 
@@ -64,8 +64,7 @@ void calcTotalBounds(const IndexedBounds* items, const int startIndex, const int
 }
 
 void subdivide(
-	IndexedBounds* items,
-	int nitems,
+	std::vector<IndexedBounds> triBounds,
 	int imin,
 	int imax,
 	int trisPerChunk,
@@ -76,28 +75,28 @@ void subdivide(
 	int* outTris,
 	const int* inTris)
 {
-	int inum = imax - imin;
-	int icur = curNode;
+	const int numTriBoundsInRange = imax - imin;
+	const int icur = curNode;
 
 	if (curNode >= maxNodes)
 	{
 		return;
 	}
 
-	ChunkyTriMesh::Node& node = nodes[curNode++];
+	ChunkyTriMesh::Node& node = nodes[curNode];
+	curNode++;
 
-	if (inum <= trisPerChunk)
+	if (numTriBoundsInRange <= trisPerChunk) // Leaf
 	{
-		// Leaf
-		calcTotalBounds(items, imin, imax, node.bmin, node.bmax);
+		// Get total bounds of all triangles
+		calcTotalBounds(triBounds, imin, imax, node.bmin, node.bmax);
 
 		// Copy triangles.
-		node.i = curTri;
-		node.n = inum;
-
-		for (int i = imin; i < imax; ++i)
+		node.triIndex = curTri;
+		node.numTris = numTriBoundsInRange;
+		for (int triIndex = imin; triIndex < imax; ++triIndex)
 		{
-			const int* src = &inTris[items[i].i * 3];
+			const int* src = &inTris[triBounds[triIndex].index * 3];
 			int* dst = &outTris[curTri * 3];
 			curTri++;
 			dst[0] = src[0];
@@ -108,24 +107,23 @@ void subdivide(
 	else
 	{
 		// Split
-		calcTotalBounds(items, imin, imax, node.bmin, node.bmax);
+		calcTotalBounds(triBounds, imin, imax, node.bmin, node.bmax);
 
 		float xLength = node.bmax[0] - node.bmin[0];
 		float yLength = node.bmax[1] - node.bmin[1];
 
 		// Sort along the longest axis
-		qsort(items + imin, static_cast<size_t>(inum), sizeof(IndexedBounds), (xLength >= yLength) ? compareMinX : compareMinY);
+		qsort(triBounds.data() + imin, static_cast<size_t>(numTriBoundsInRange), sizeof(IndexedBounds), (xLength >= yLength) ? compareMinX : compareMinY);
 
-		int isplit = imin + inum / 2;
+		int isplit = imin + numTriBoundsInRange / 2;
 
 		// Left
-		subdivide(items, nitems, imin, isplit, trisPerChunk, curNode, nodes, maxNodes, curTri, outTris, inTris);
+		subdivide(triBounds, imin, isplit, trisPerChunk, curNode, nodes, maxNodes, curTri, outTris, inTris);
 		// Right
-		subdivide(items, nitems, isplit, imax, trisPerChunk, curNode, nodes, maxNodes, curTri, outTris, inTris);
+		subdivide(triBounds, isplit, imax, trisPerChunk, curNode, nodes, maxNodes, curTri, outTris, inTris);
 
-		int iescape = curNode - icur;
 		// Negative index means escape.
-		node.i = -iescape;
+		node.triIndex = icur - curNode;
 	}
 }
 
@@ -179,79 +177,52 @@ bool checkOverlapSegment(const float p[2], const float q[2], const float bmin[2]
 	}
 	return true;
 }
-
 }
 
-bool ChunkyTriMesh::TryPartitionMesh(const float* verts, const int* tris, int ntris, int trisPerChunk)
+void ChunkyTriMesh::PartitionMesh(const float* verts, const int* tris, int numTris, int trisPerChunk)
 {
-	int nchunks = (ntris + trisPerChunk - 1) / trisPerChunk;
-
-	nodes.resize(nchunks * 4);
-	this->tris.resize(ntris * 3);
-
-	// Build tree
-	IndexedBounds* items = new IndexedBounds[ntris];
-	if (!items)
+	// Calculate the XZ bounds of every triangle.
+	std::vector<IndexedBounds> triBounds;
+	triBounds.resize(numTris);
+	for (int triIndex = 0; triIndex < numTris; triIndex++)
 	{
-		return false;
-	}
-
-	for (int i = 0; i < ntris; i++)
-	{
-		const int* t = &tris[i * 3];
-		IndexedBounds& it = items[i];
-		it.i = i;
-		// Calc triangle XZ bounds.
-		it.bmin[0] = it.bmax[0] = verts[t[0] * 3 + 0];
-		it.bmin[1] = it.bmax[1] = verts[t[0] * 3 + 2];
-		for (int j = 1; j < 3; ++j)
+		const int* tri = &tris[triIndex * 3];
+		IndexedBounds& bound = triBounds[triIndex];
+		bound.index = triIndex;
+		bound.bmin[0] = bound.bmax[0] = verts[tri[0] * 3 + 0];
+		bound.bmin[1] = bound.bmax[1] = verts[tri[0] * 3 + 2];
+		for (int vertIndex = 1; vertIndex < 3; ++vertIndex)
 		{
-			const float* v = &verts[t[j] * 3];
-			if (v[0] < it.bmin[0])
-			{
-				it.bmin[0] = v[0];
-			}
-			if (v[2] < it.bmin[1])
-			{
-				it.bmin[1] = v[2];
-			}
+			const float x = verts[tri[vertIndex] * 3 + 0];
+			bound.bmin[0] = std::min(x, bound.bmin[0]);
+			bound.bmax[0] = std::max(x, bound.bmax[0]);
 
-			if (v[0] > it.bmax[0])
-			{
-				it.bmax[0] = v[0];
-			}
-			if (v[2] > it.bmax[1])
-			{
-				it.bmax[1] = v[2];
-			}
+			const float z = verts[tri[vertIndex] * 3 + 2];
+			bound.bmin[1] = std::min(z, bound.bmin[1]);
+			bound.bmax[1] = std::max(z, bound.bmax[1]);
 		}
 	}
 
+	// Build tree
+	int numChunks = static_cast<int>(ceilf(static_cast<float>(numTris) / static_cast<float>(trisPerChunk)));
+	nodes.resize(numChunks * 4);
+	this->tris.resize(numTris * 3);
 	int curTri = 0;
 	int curNode = 0;
-	subdivide(items, ntris, 0, ntris, trisPerChunk, curNode, nodes.data(), nchunks * 4, curTri, this->tris.data(), tris);
-
-	delete[] items;
-
+	subdivide(triBounds, 0, numTris, trisPerChunk, curNode, nodes.data(), numChunks * 4, curTri, this->tris.data(), tris);
 	nnodes = curNode;
 
-	// Calc max tris per node.
+	// Calc max tris per chunk.
 	maxTrisPerChunk = 0;
-	for (int i = 0; i < nnodes; ++i)
+	for (auto& node : nodes)
 	{
-		Node& node = nodes[i];
-		const bool isLeaf = node.i >= 0;
-		if (!isLeaf)
+		// Skip if it's not a leaf node
+		if (node.triIndex < 0)
 		{
 			continue;
 		}
-		if (node.n > maxTrisPerChunk)
-		{
-			maxTrisPerChunk = node.n;
-		}
+		maxTrisPerChunk = std::max(maxTrisPerChunk, node.numTris);
 	}
-
-	return true;
 }
 
 int ChunkyTriMesh::GetChunksOverlappingRect(float bmin[2], float bmax[2], int* ids, const int maxIds) const
@@ -263,7 +234,7 @@ int ChunkyTriMesh::GetChunksOverlappingRect(float bmin[2], float bmax[2], int* i
 	{
 		const Node* node = &this->nodes[i];
 		const bool overlap = checkOverlapRect(bmin, bmax, node->bmin, node->bmax);
-		const bool isLeafNode = node->i >= 0;
+		const bool isLeafNode = node->triIndex >= 0;
 
 		if (isLeafNode && overlap)
 		{
@@ -280,7 +251,7 @@ int ChunkyTriMesh::GetChunksOverlappingRect(float bmin[2], float bmax[2], int* i
 		}
 		else
 		{
-			const int escapeIndex = -node->i;
+			const int escapeIndex = -node->triIndex;
 			i += escapeIndex;
 		}
 	}
@@ -297,7 +268,7 @@ int ChunkyTriMesh::GetChunksOverlappingSegment(float segmentStart[2], float segm
 	{
 		const Node* node = &this->nodes[i];
 		const bool overlap = checkOverlapSegment(segmentStart, segmentEnd, node->bmin, node->bmax);
-		const bool isLeafNode = node->i >= 0;
+		const bool isLeafNode = node->triIndex >= 0;
 
 		if (isLeafNode && overlap)
 		{
@@ -314,7 +285,7 @@ int ChunkyTriMesh::GetChunksOverlappingSegment(float segmentStart[2], float segm
 		}
 		else
 		{
-			const int escapeIndex = -node->i;
+			const int escapeIndex = -node->triIndex;
 			i += escapeIndex;
 		}
 	}

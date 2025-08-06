@@ -160,27 +160,15 @@ bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath)
 	}
 
 	filename = filepath;
-
-	delete chunkyMesh;
-	chunkyMesh = nullptr;
 	offMeshConCount = 0;
 	convexVolumeCount = 0;
 
 	parseObjData(buffer, bufferLen, mesh.verts, mesh.tris, mesh.normals);
 	rcCalcBounds(mesh.verts.data(), mesh.getVertCount(), meshBoundsMin, meshBoundsMax);
 
+	delete chunkyMesh;
 	chunkyMesh = new ChunkyTriMesh;
-	if (!chunkyMesh)
-	{
-		ctx->log(RC_LOG_ERROR, "buildTiledNavigation: Out of memory 'm_chunkyMesh'.");
-		return false;
-	}
-	if (!chunkyMesh->TryPartitionMesh(mesh.verts.data(), mesh.tris.data(), mesh.getTriCount(), 256))
-	{
-		ctx->log(RC_LOG_ERROR, "buildTiledNavigation: Failed to build chunky mesh.");
-		return false;
-	}
-
+	chunkyMesh->PartitionMesh(mesh.verts.data(), mesh.tris.data(), mesh.getTriCount(), 256);
 	return true;
 }
 
@@ -513,8 +501,8 @@ bool InputGeom::raycastMesh(float* src, float* dst, float& tmin)
 	for (int i = 0; i < ncid; ++i)
 	{
 		const ChunkyTriMesh::Node& node = chunkyMesh->nodes[cid[i]];
-		const int* tris = &chunkyMesh->tris[node.i * 3];
-		const int ntris = node.n;
+		const int* tris = &chunkyMesh->tris[node.triIndex * 3];
+		const int ntris = node.numTris;
 
 		for (int j = 0; j < ntris * 3; j += 3)
 		{

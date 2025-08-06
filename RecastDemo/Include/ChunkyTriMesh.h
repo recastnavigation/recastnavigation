@@ -27,8 +27,8 @@ struct ChunkyTriMesh
 	{
 		float bmin[2];
 		float bmax[2];
-		int i;
-		int n;
+		int triIndex;
+		int numTris;
 	};
 
 	std::vector<Node> nodes{};
@@ -36,7 +36,7 @@ struct ChunkyTriMesh
 	std::vector<int> tris{};
 	int maxTrisPerChunk = 0;
 
-	bool TryPartitionMesh(const float* verts, const int* tris, int ntris, int trisPerChunk);
+	void PartitionMesh(const float* verts, const int* tris, int ntris, int trisPerChunk);
 
 	/// Finds the chunk indices that overlap the input rectangle.
 	int GetChunksOverlappingRect(float bmin[2], float bmax[2], int* ids, int maxIds) const;

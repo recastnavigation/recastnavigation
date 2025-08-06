@@ -610,8 +610,8 @@ int Sample_TempObstacles::rasterizeTileLayers(
 	for (int i = 0; i < ncid; ++i)
 	{
 		const ChunkyTriMesh::Node& node = chunkyMesh->nodes[cid[i]];
-		const int* tris = &chunkyMesh->tris[node.i * 3];
-		const int ntris = node.n;
+		const int* tris = &chunkyMesh->tris[node.triIndex * 3];
+		const int ntris = node.numTris;
 
 		memset(rasterContext.triareas, 0, ntris * sizeof(unsigned char));
 		rcMarkWalkableTriangles(buildContext, tcfg.walkableSlopeAngle, verts, nverts, tris, ntris, rasterContext.triareas);
