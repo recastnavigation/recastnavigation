@@ -834,7 +834,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(
 	const float* boundsMax,
 	int& outDataSize)
 {
-	if (!inputGeometry || inputGeometry->getVertCount() == 0 || !inputGeometry->getChunkyMesh())
+	if (!inputGeometry || inputGeometry->getVertCount() == 0 || !inputGeometry->chunkyMesh)
 	{
 		buildContext->log(RC_LOG_ERROR, "buildNavigation: Input mesh is not specified.");
 		return 0;
@@ -848,7 +848,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(
 	const float* verts = inputGeometry->verts.data();
 	const int numVerts = inputGeometry->getVertCount();
 	const int numTris = inputGeometry->getTriCount();
-	const ChunkyTriMesh* chunkyMesh = inputGeometry->getChunkyMesh();
+	const ChunkyTriMesh* chunkyMesh = inputGeometry->chunkyMesh;
 
 	// Init build configuration from GUI
 	memset(&config, 0, sizeof(config));

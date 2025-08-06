@@ -84,8 +84,8 @@ public:
 	[[nodiscard]] int getVertCount() const { return static_cast<int>(verts.size()) / 3; }
 	[[nodiscard]] int getTriCount() const { return static_cast<int>(tris.size()) / 3; }
 
-private:
 	ChunkyTriMesh* chunkyMesh = nullptr;
+private:
 	float meshBMin[3] = {};
 	float meshBMax[3] = {};
 	BuildSettings buildSettings;
@@ -132,7 +132,6 @@ public:
 	[[nodiscard]] const float* getMeshBoundsMax() const { return meshBMax; }
 	[[nodiscard]] const float* getNavMeshBoundsMin() const { return hasBuildSettings ? buildSettings.navMeshBMin : meshBMin; }
 	[[nodiscard]] const float* getNavMeshBoundsMax() const { return hasBuildSettings ? buildSettings.navMeshBMax : meshBMax; }
-	[[nodiscard]] const ChunkyTriMesh* getChunkyMesh() const { return chunkyMesh; }
 	[[nodiscard]] const BuildSettings* getBuildSettings() const { return hasBuildSettings ? &buildSettings : nullptr; }
 	bool raycastMesh(float* src, float* dst, float& tmin);
 

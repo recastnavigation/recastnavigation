@@ -533,7 +533,7 @@ int Sample_TempObstacles::rasterizeTileLayers(
 	TileCacheData* tiles,
 	const int maxTiles) const
 {
-	if (!inputGeometry || inputGeometry->getVertCount() == 0 || !inputGeometry->getChunkyMesh())
+	if (!inputGeometry || inputGeometry->getVertCount() == 0 || !inputGeometry->chunkyMesh)
 	{
 		buildContext->log(RC_LOG_ERROR, "buildTile: Input mesh is not specified.");
 		return 0;
@@ -544,7 +544,7 @@ int Sample_TempObstacles::rasterizeTileLayers(
 
 	const float* verts = inputGeometry->verts.data();
 	const int nverts = inputGeometry->getVertCount();
-	const ChunkyTriMesh* chunkyMesh = inputGeometry->getChunkyMesh();
+	const ChunkyTriMesh* chunkyMesh = inputGeometry->chunkyMesh;
 
 	// Tile bounds.
 	const float tcs = cfg.tileSize * cfg.cs;
