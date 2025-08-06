@@ -21,7 +21,7 @@
 #include <string>
 #include <vector>
 
-struct ChunkyTriMesh;
+struct PartitionedMesh;
 class rcContext;
 struct duDebugDraw;
 
@@ -88,7 +88,7 @@ public:
 	std::string filename;
 	Mesh mesh;
 
-	ChunkyTriMesh* chunkyMesh = nullptr;
+	PartitionedMesh* partitionedMesh = nullptr;
 	float meshBoundsMin[3] = {};
 	float meshBoundsMax[3] = {};
 

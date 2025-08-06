@@ -16,7 +16,6 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "SDL.h"
 #include "SDL_opengl.h"
 
 #include <algorithm>
@@ -27,10 +26,9 @@
 #else
 #	include <GL/glu.h>
 #endif
-#include "ChunkyTriMesh.h"
+#include "PartitionedMesh.h"
 #include "ConvexVolumeTool.h"
 #include "CrowdTool.h"
-#include "DetourAssert.h"
 #include "DetourCommon.h"
 #include "DetourDebugDraw.h"
 #include "DetourNavMesh.h"
@@ -40,7 +38,6 @@
 #include "NavMeshTesterTool.h"
 #include "OffMeshConnectionTool.h"
 #include "Recast.h"
-#include "RecastAlloc.h"
 #include "RecastDebugDraw.h"
 #include "Sample.h"
 #include "Sample_TempObstacles.h"
@@ -533,7 +530,7 @@ int Sample_TempObstacles::rasterizeTileLayers(
 	TileCacheData* tiles,
 	const int maxTiles) const
 {
-	if (!inputGeometry || inputGeometry->mesh.getVertCount() == 0 || !inputGeometry->chunkyMesh)
+	if (!inputGeometry || inputGeometry->mesh.getVertCount() == 0 || !inputGeometry->partitionedMesh)
 	{
 		buildContext->log(RC_LOG_ERROR, "buildTile: Input mesh is not specified.");
 		return 0;
@@ -544,7 +541,7 @@ int Sample_TempObstacles::rasterizeTileLayers(
 
 	const float* verts = inputGeometry->mesh.verts.data();
 	const int nverts = inputGeometry->mesh.getVertCount();
-	const ChunkyTriMesh* chunkyMesh = inputGeometry->chunkyMesh;
+	const PartitionedMesh* partitionedMesh = inputGeometry->partitionedMesh;
 
 	// Tile bounds.
 	const float tcs = cfg.tileSize * cfg.cs;
@@ -587,10 +584,10 @@ int Sample_TempObstacles::rasterizeTileLayers(
 	// Allocate array that can hold triangle flags.
 	// If you have multiple meshes you need to process, allocate
 	// and array which can hold the max number of triangles you need to process.
-	rasterContext.triareas = new unsigned char[chunkyMesh->maxTrisPerChunk];
+	rasterContext.triareas = new unsigned char[partitionedMesh->maxTrisPerChunk];
 	if (!rasterContext.triareas)
 	{
-		buildContext->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'm_triareas' (%d).", chunkyMesh->maxTrisPerChunk);
+		buildContext->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'm_triareas' (%d).", partitionedMesh->maxTrisPerChunk);
 		return 0;
 	}
 
@@ -601,7 +598,7 @@ int Sample_TempObstacles::rasterizeTileLayers(
 	tbmax[0] = tcfg.bmax[0];
 	tbmax[1] = tcfg.bmax[2];
 	int cid[512];  // TODO: Make grow when returning too many items.
-	const int ncid = chunkyMesh->GetChunksOverlappingRect(tbmin, tbmax, cid, 512);
+	const int ncid = partitionedMesh->GetChunksOverlappingRect(tbmin, tbmax, cid, 512);
 	if (!ncid)
 	{
 		return 0;  // empty
@@ -609,8 +606,8 @@ int Sample_TempObstacles::rasterizeTileLayers(
 
 	for (int i = 0; i < ncid; ++i)
 	{
-		const ChunkyTriMesh::Node& node = chunkyMesh->nodes[cid[i]];
-		const int* tris = &chunkyMesh->tris[node.triIndex * 3];
+		const PartitionedMesh::Node& node = partitionedMesh->nodes[cid[i]];
+		const int* tris = &partitionedMesh->tris[node.triIndex * 3];
 		const int ntris = node.numTris;
 
 		memset(rasterContext.triareas, 0, ntris * sizeof(unsigned char));

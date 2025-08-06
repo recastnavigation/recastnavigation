@@ -18,7 +18,7 @@
 
 #include "InputGeom.h"
 
-#include "ChunkyTriMesh.h"
+#include "PartitionedMesh.h"
 #include "DebugDraw.h"
 #include "MeshLoaderObj.h"
 #include "Recast.h"
@@ -138,7 +138,7 @@ char* parseRow(char* buf, char* bufEnd, char* row, int len)
 
 InputGeom::~InputGeom()
 {
-	delete chunkyMesh;
+	delete partitionedMesh;
 }
 
 bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath)
@@ -166,9 +166,9 @@ bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath)
 	parseObjData(buffer, bufferLen, mesh.verts, mesh.tris, mesh.normals);
 	rcCalcBounds(mesh.verts.data(), mesh.getVertCount(), meshBoundsMin, meshBoundsMax);
 
-	delete chunkyMesh;
-	chunkyMesh = new ChunkyTriMesh;
-	chunkyMesh->PartitionMesh(mesh.verts.data(), mesh.tris.data(), mesh.getTriCount(), 256);
+	delete partitionedMesh;
+	partitionedMesh = new PartitionedMesh;
+	partitionedMesh->PartitionMesh(mesh.verts.data(), mesh.tris.data(), mesh.getTriCount(), 256);
 	return true;
 }
 
@@ -489,7 +489,7 @@ bool InputGeom::raycastMesh(float* src, float* dst, float& tmin)
 	float q[]{src[0] + (dst[0] - src[0]) * btmax, src[2] + (dst[2] - src[2]) * btmax};
 
 	int cid[512];
-	const int ncid = chunkyMesh->GetChunksOverlappingSegment(p, q, cid, 512);
+	const int ncid = partitionedMesh->GetChunksOverlappingSegment(p, q, cid, 512);
 	if (!ncid)
 	{
 		return false;
@@ -500,8 +500,8 @@ bool InputGeom::raycastMesh(float* src, float* dst, float& tmin)
 
 	for (int i = 0; i < ncid; ++i)
 	{
-		const ChunkyTriMesh::Node& node = chunkyMesh->nodes[cid[i]];
-		const int* tris = &chunkyMesh->tris[node.triIndex * 3];
+		const PartitionedMesh::Node& node = partitionedMesh->nodes[cid[i]];
+		const int* tris = &partitionedMesh->tris[node.triIndex * 3];
 		const int ntris = node.numTris;
 
 		for (int j = 0; j < ntris * 3; j += 3)

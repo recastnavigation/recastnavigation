@@ -20,27 +20,31 @@
 
 #include <vector>
 
-/// A partitioned triangle mesh (AABB tree), where each node contains at max trisPerChunk triangles.
-struct ChunkyTriMesh
+/// A spatially-partitioned mesh (k/d tree),
+/// where each node contains at max trisPerChunk triangles.
+struct PartitionedMesh
 {
 	struct Node
 	{
+		// xy bounds
 		float bmin[2];
 		float bmax[2];
+
 		int triIndex;
 		int numTris;
 	};
 
 	std::vector<Node> nodes{};
 	int nnodes = 0;
+
 	std::vector<int> tris{};
 	int maxTrisPerChunk = 0;
 
 	void PartitionMesh(const float* verts, const int* tris, int ntris, int trisPerChunk);
 
 	/// Finds the chunk indices that overlap the input rectangle.
-	int GetChunksOverlappingRect(float bmin[2], float bmax[2], int* ids, int maxIds) const;
+	int GetNodesOverlappingRect(float bmin[2], float bmax[2], int* ids, int maxIds) const;
 
 	/// Returns the chunk indices which overlap the input segment.
-	int GetChunksOverlappingSegment(float segmentStart[2], float segmentEnd[2], int* ids, int maxIds) const;
+	int GetNodesOverlappingSegment(float segmentStart[2], float segmentEnd[2], int* ids, int maxIds) const;
 };

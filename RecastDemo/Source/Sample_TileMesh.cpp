@@ -30,7 +30,7 @@
 #	include <GL/glu.h>
 #endif
 
-#include "ChunkyTriMesh.h"
+#include "PartitionedMesh.h"
 #include "ConvexVolumeTool.h"
 #include "CrowdTool.h"
 #include "DetourDebugDraw.h"
@@ -834,7 +834,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(
 	const float* boundsMax,
 	int& outDataSize)
 {
-	if (!inputGeometry || inputGeometry->mesh.getVertCount() == 0 || !inputGeometry->chunkyMesh)
+	if (!inputGeometry || inputGeometry->mesh.getVertCount() == 0 || !inputGeometry->partitionedMesh)
 	{
 		buildContext->log(RC_LOG_ERROR, "buildNavigation: Input mesh is not specified.");
 		return 0;
@@ -848,7 +848,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(
 	const float* verts = inputGeometry->mesh.verts.data();
 	const int numVerts = inputGeometry->mesh.getVertCount();
 	const int numTris = inputGeometry->mesh.getTriCount();
-	const ChunkyTriMesh* chunkyMesh = inputGeometry->chunkyMesh;
+	const PartitionedMesh* partitionedMesh = inputGeometry->partitionedMesh;
 
 	// Init build configuration from GUI
 	memset(&config, 0, sizeof(config));
@@ -936,10 +936,10 @@ unsigned char* Sample_TileMesh::buildTileMesh(
 	// Allocate array that can hold triangle flags.
 	// If you have multiple meshes you need to process, allocate
 	// and array which can hold the max number of triangles you need to process.
-	triareas = new unsigned char[chunkyMesh->maxTrisPerChunk];
+	triareas = new unsigned char[partitionedMesh->maxTrisPerChunk];
 	if (!triareas)
 	{
-		buildContext->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'triareas' (%d).", chunkyMesh->maxTrisPerChunk);
+		buildContext->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'triareas' (%d).", partitionedMesh->maxTrisPerChunk);
 		return 0;
 	}
 
@@ -951,7 +951,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(
 	tileBoundsMax[1] = config.bmax[2];
 	int overlappingChunkIndexes[512];  // TODO: Make grow when returning too many items.
 	const int numOverlappingChunks =
-		chunkyMesh->GetChunksOverlappingRect(tileBoundsMin, tileBoundsMax, overlappingChunkIndexes, 512);
+		partitionedMesh->GetChunksOverlappingRect(tileBoundsMin, tileBoundsMax, overlappingChunkIndexes, 512);
 	if (!numOverlappingChunks)
 	{
 		return 0;
@@ -961,8 +961,8 @@ unsigned char* Sample_TileMesh::buildTileMesh(
 
 	for (int i = 0; i < numOverlappingChunks; ++i)
 	{
-		const ChunkyTriMesh::Node& node = chunkyMesh->nodes[overlappingChunkIndexes[i]];
-		const int* nodeTris = &chunkyMesh->tris[node.triIndex * 3];
+		const PartitionedMesh::Node& node = partitionedMesh->nodes[overlappingChunkIndexes[i]];
+		const int* nodeTris = &partitionedMesh->tris[node.triIndex * 3];
 		const int numNodeTris = node.numTris;
 
 		tileTriCount += numNodeTris;

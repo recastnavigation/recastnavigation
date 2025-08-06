@@ -16,7 +16,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "ChunkyTriMesh.h"
+#include "PartitionedMesh.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -69,7 +69,7 @@ void subdivide(
 	int imax,
 	int trisPerChunk,
 	int& curNode,
-	ChunkyTriMesh::Node* nodes,
+	PartitionedMesh::Node* nodes,
 	const int maxNodes,
 	int& curTri,
 	int* outTris,
@@ -83,7 +83,7 @@ void subdivide(
 		return;
 	}
 
-	ChunkyTriMesh::Node& node = nodes[curNode];
+	PartitionedMesh::Node& node = nodes[curNode];
 	curNode++;
 
 	if (numTriBoundsInRange <= trisPerChunk) // Leaf
@@ -179,7 +179,7 @@ bool checkOverlapSegment(const float p[2], const float q[2], const float bmin[2]
 }
 }
 
-void ChunkyTriMesh::PartitionMesh(const float* verts, const int* tris, int numTris, int trisPerChunk)
+void PartitionedMesh::PartitionMesh(const float* verts, const int* tris, int numTris, int trisPerChunk)
 {
 	// Calculate the XZ bounds of every triangle.
 	std::vector<IndexedBounds> triBounds;
@@ -225,7 +225,7 @@ void ChunkyTriMesh::PartitionMesh(const float* verts, const int* tris, int numTr
 	}
 }
 
-int ChunkyTriMesh::GetChunksOverlappingRect(float bmin[2], float bmax[2], int* ids, const int maxIds) const
+int PartitionedMesh::GetChunksOverlappingRect(float bmin[2], float bmax[2], int* ids, const int maxIds) const
 {
 	// Traverse tree
 	int i = 0;
@@ -259,7 +259,7 @@ int ChunkyTriMesh::GetChunksOverlappingRect(float bmin[2], float bmax[2], int* i
 	return n;
 }
 
-int ChunkyTriMesh::GetChunksOverlappingSegment(float segmentStart[2], float segmentEnd[2], int* ids, const int maxIds) const
+int PartitionedMesh::GetChunksOverlappingSegment(float segmentStart[2], float segmentEnd[2], int* ids, const int maxIds) const
 {
 	// Traverse tree
 	int i = 0;
