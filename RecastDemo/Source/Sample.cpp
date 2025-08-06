@@ -138,9 +138,16 @@ void Sample::render()
 		0,
 		1.0f);
 	// Draw bounds
-	const float* min = inputGeometry->getMeshBoundsMin();
-	const float* max = inputGeometry->getMeshBoundsMax();
-	duDebugDrawBoxWire(&debugDraw, min[0], min[1], min[2], max[0], max[1], max[2], duRGBA(255, 255, 255, 128), 1.0f);
+	duDebugDrawBoxWire(
+		&debugDraw,
+		inputGeometry->meshBoundsMin[0],
+		inputGeometry->meshBoundsMin[1],
+		inputGeometry->meshBoundsMin[2],
+		inputGeometry->meshBoundsMax[0],
+		inputGeometry->meshBoundsMax[1],
+		inputGeometry->meshBoundsMax[2],
+		duRGBA(255, 255, 255, 128),
+		1.0f);
 }
 
 void Sample::renderOverlay(double* /*proj*/, double* /*model*/, int* /*view*/) {}

@@ -85,9 +85,10 @@ public:
 	[[nodiscard]] int getTriCount() const { return static_cast<int>(tris.size()) / 3; }
 
 	ChunkyTriMesh* chunkyMesh = nullptr;
-private:
 	float meshBoundsMin[3] = {};
 	float meshBoundsMax[3] = {};
+
+private:
 	BuildSettings buildSettings;
 	bool hasBuildSettings = false;
 
@@ -122,8 +123,6 @@ public:
 	bool saveGeomSet(const BuildSettings* settings);
 
 	/// Method to return static mesh data.
-	[[nodiscard]] const float* getMeshBoundsMin() const { return meshBoundsMin; }
-	[[nodiscard]] const float* getMeshBoundsMax() const { return meshBoundsMax; }
 	[[nodiscard]] const float* getNavMeshBoundsMin() const { return hasBuildSettings ? buildSettings.navMeshBMin : meshBoundsMin; }
 	[[nodiscard]] const float* getNavMeshBoundsMax() const { return hasBuildSettings ? buildSettings.navMeshBMax : meshBoundsMax; }
 	[[nodiscard]] const BuildSettings* getBuildSettings() const { return hasBuildSettings ? &buildSettings : nullptr; }
@@ -148,3 +147,4 @@ private:
 	bool loadGeomSet(rcContext* ctx, const std::string& filepath);
 	bool loadGeomSet(rcContext* ctx, char* buffer, size_t bufferLen);
 };
+
