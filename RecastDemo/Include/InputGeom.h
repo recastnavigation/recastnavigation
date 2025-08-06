@@ -111,12 +111,6 @@ public:
 	int convexVolumeCount = 0;
 	///@}
 
-private:
-	bool loadMesh(rcContext* ctx, const std::string& filepath);
-	bool loadGeomSet(rcContext* ctx, const std::string& filepath);
-	bool loadGeomSet(rcContext* ctx, char* buffer, size_t bufferLen);
-
-public:
 	InputGeom() = default;
 	~InputGeom();
 	InputGeom(const InputGeom&) = delete;
@@ -148,4 +142,9 @@ public:
 	void deleteConvexVolume(int i);
 	void drawConvexVolumes(duDebugDraw* dd, bool highlight = false);
 	///@}
+
+private:
+	bool loadMesh(rcContext* ctx, const std::string& filepath);
+	bool loadGeomSet(rcContext* ctx, const std::string& filepath);
+	bool loadGeomSet(rcContext* ctx, char* buffer, size_t bufferLen);
 };
