@@ -166,7 +166,7 @@ bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath)
 	offMeshConCount = 0;
 	convexVolumeCount = 0;
 
-	parseObjModel(buffer, bufferLen, mesh.verts, mesh.tris, mesh.normals);
+	parseObjData(buffer, bufferLen, mesh.verts, mesh.tris, mesh.normals);
 	rcCalcBounds(mesh.verts.data(), mesh.getVertCount(), meshBoundsMin, meshBoundsMax);
 
 	chunkyMesh = new ChunkyTriMesh;

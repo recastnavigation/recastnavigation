@@ -102,7 +102,7 @@ int readFace(char* row, int* data, int maxDataLen, int vertCount)
 }
 }
 
-void parseObjModel(char* buf, size_t bufLen, std::vector<float>& verts, std::vector<int>& tris, std::vector<float>& normals)
+void parseObjData(char* buf, size_t bufLen, std::vector<float>& verts, std::vector<int>& tris, std::vector<float>& normals)
 {
 	char* src = buf;
 	char* srcEnd = buf + bufLen;

@@ -20,4 +20,4 @@
 
 #include <vector>
 
-void parseObjModel(char* buf, size_t bufLen, std::vector<float>& verts, std::vector<int>& tris, std::vector<float>& normals);
+void parseObjData(char* buf, size_t bufLen, std::vector<float>& verts, std::vector<int>& tris, std::vector<float>& normals);
