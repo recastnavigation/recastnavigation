@@ -168,7 +168,7 @@ bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath)
 
 	parseObjModel(buffer, bufferLen, verts, tris, normals);
 
-	rcCalcBounds(verts.data(), getVertCount(), meshBMin, meshBMax);
+	rcCalcBounds(verts.data(), getVertCount(), meshBoundsMin, meshBoundsMax);
 
 	chunkyMesh = new ChunkyTriMesh;
 	if (!chunkyMesh)
@@ -493,7 +493,7 @@ bool InputGeom::raycastMesh(float* src, float* dst, float& tmin)
 	// Prune hit ray.
 	float btmin;
 	float btmax;
-	if (!isectSegAABB(src, dst, meshBMin, meshBMax, btmin, btmax))
+	if (!isectSegAABB(src, dst, meshBoundsMin, meshBoundsMax, btmin, btmax))
 	{
 		return false;
 	}

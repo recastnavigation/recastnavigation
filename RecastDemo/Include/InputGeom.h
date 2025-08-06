@@ -86,8 +86,8 @@ public:
 
 	ChunkyTriMesh* chunkyMesh = nullptr;
 private:
-	float meshBMin[3] = {};
-	float meshBMax[3] = {};
+	float meshBoundsMin[3] = {};
+	float meshBoundsMax[3] = {};
 	BuildSettings buildSettings;
 	bool hasBuildSettings = false;
 
@@ -122,10 +122,10 @@ public:
 	bool saveGeomSet(const BuildSettings* settings);
 
 	/// Method to return static mesh data.
-	[[nodiscard]] const float* getMeshBoundsMin() const { return meshBMin; }
-	[[nodiscard]] const float* getMeshBoundsMax() const { return meshBMax; }
-	[[nodiscard]] const float* getNavMeshBoundsMin() const { return hasBuildSettings ? buildSettings.navMeshBMin : meshBMin; }
-	[[nodiscard]] const float* getNavMeshBoundsMax() const { return hasBuildSettings ? buildSettings.navMeshBMax : meshBMax; }
+	[[nodiscard]] const float* getMeshBoundsMin() const { return meshBoundsMin; }
+	[[nodiscard]] const float* getMeshBoundsMax() const { return meshBoundsMax; }
+	[[nodiscard]] const float* getNavMeshBoundsMin() const { return hasBuildSettings ? buildSettings.navMeshBMin : meshBoundsMin; }
+	[[nodiscard]] const float* getNavMeshBoundsMax() const { return hasBuildSettings ? buildSettings.navMeshBMax : meshBoundsMax; }
 	[[nodiscard]] const BuildSettings* getBuildSettings() const { return hasBuildSettings ? &buildSettings : nullptr; }
 	bool raycastMesh(float* src, float* dst, float& tmin);
 
