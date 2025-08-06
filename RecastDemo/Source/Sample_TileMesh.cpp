@@ -949,19 +949,18 @@ unsigned char* Sample_TileMesh::buildTileMesh(
 	tileBoundsMin[1] = config.bmin[2];
 	tileBoundsMax[0] = config.bmax[0];
 	tileBoundsMax[1] = config.bmax[2];
-	int overlappingChunkIndexes[512];  // TODO: Make grow when returning too many items.
-	const int numOverlappingChunks =
-		partitionedMesh->GetChunksOverlappingRect(tileBoundsMin, tileBoundsMax, overlappingChunkIndexes, 512);
-	if (!numOverlappingChunks)
+	std::vector<int> overlappingNodes;
+	partitionedMesh->GetNodesOverlappingRect(tileBoundsMin, tileBoundsMax, overlappingNodes);
+	if (overlappingNodes.empty())
 	{
 		return 0;
 	}
 
 	tileTriCount = 0;
 
-	for (int i = 0; i < numOverlappingChunks; ++i)
+	for (int nodeIndex : overlappingNodes)
 	{
-		const PartitionedMesh::Node& node = partitionedMesh->nodes[overlappingChunkIndexes[i]];
+		const PartitionedMesh::Node& node = partitionedMesh->nodes[nodeIndex];
 		const int* nodeTris = &partitionedMesh->tris[node.triIndex * 3];
 		const int numNodeTris = node.numTris;
 

@@ -43,8 +43,8 @@ struct PartitionedMesh
 	void PartitionMesh(const float* verts, const int* tris, int ntris, int trisPerChunk);
 
 	/// Finds the chunk indices that overlap the input rectangle.
-	int GetNodesOverlappingRect(float bmin[2], float bmax[2], int* ids, int maxIds) const;
+	void GetNodesOverlappingRect(float bmin[2], float bmax[2], std::vector<int>& outNodes) const;
 
 	/// Returns the chunk indices which overlap the input segment.
-	int GetNodesOverlappingSegment(float segmentStart[2], float segmentEnd[2], int* ids, int maxIds) const;
+	void GetNodesOverlappingSegment(float start[2], float end[2], std::vector<int>& outNodes) const;
 };

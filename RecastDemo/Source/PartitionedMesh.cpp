@@ -86,7 +86,7 @@ void subdivide(
 	PartitionedMesh::Node& node = nodes[curNode];
 	curNode++;
 
-	if (numTriBoundsInRange <= trisPerChunk) // Leaf
+	if (numTriBoundsInRange <= trisPerChunk)  // Leaf
 	{
 		// Get total bounds of all triangles
 		calcTotalBounds(triBounds, imin, imax, node.bmin, node.bmax);
@@ -113,7 +113,11 @@ void subdivide(
 		float yLength = node.bmax[1] - node.bmin[1];
 
 		// Sort along the longest axis
-		qsort(triBounds.data() + imin, static_cast<size_t>(numTriBoundsInRange), sizeof(IndexedBounds), (xLength >= yLength) ? compareMinX : compareMinY);
+		qsort(
+			triBounds.data() + imin,
+			static_cast<size_t>(numTriBoundsInRange),
+			sizeof(IndexedBounds),
+			(xLength >= yLength) ? compareMinX : compareMinY);
 
 		int isplit = imin + numTriBoundsInRange / 2;
 
@@ -225,70 +229,54 @@ void PartitionedMesh::PartitionMesh(const float* verts, const int* tris, int num
 	}
 }
 
-int PartitionedMesh::GetChunksOverlappingRect(float bmin[2], float bmax[2], int* ids, const int maxIds) const
+void PartitionedMesh::GetNodesOverlappingRect(float bmin[2], float bmax[2], std::vector<int>& outNodes) const
 {
 	// Traverse tree
-	int i = 0;
-	int n = 0;
-	while (i < this->nnodes)
+	for (int nodeIndex = 0; nodeIndex < this->nnodes;)
 	{
-		const Node* node = &this->nodes[i];
+		const Node* node = &this->nodes[nodeIndex];
 		const bool overlap = checkOverlapRect(bmin, bmax, node->bmin, node->bmax);
 		const bool isLeafNode = node->triIndex >= 0;
 
 		if (isLeafNode && overlap)
 		{
-			if (n < maxIds)
-			{
-				ids[n] = i;
-				n++;
-			}
+			outNodes.emplace_back(nodeIndex);
 		}
 
 		if (overlap || isLeafNode)
 		{
-			i++;
+			nodeIndex++;
 		}
 		else
 		{
-			const int escapeIndex = -node->triIndex;
-			i += escapeIndex;
+			// escape index
+			nodeIndex -= node->triIndex;
 		}
 	}
-
-	return n;
 }
 
-int PartitionedMesh::GetChunksOverlappingSegment(float segmentStart[2], float segmentEnd[2], int* ids, const int maxIds) const
+void PartitionedMesh::GetNodesOverlappingSegment(float start[2], float end[2], std::vector<int>& outNodes) const
 {
 	// Traverse tree
-	int i = 0;
-	int n = 0;
-	while (i < this->nnodes)
+	for (int nodeIndex = 0; nodeIndex < this->nnodes;)
 	{
-		const Node* node = &this->nodes[i];
-		const bool overlap = checkOverlapSegment(segmentStart, segmentEnd, node->bmin, node->bmax);
+		const Node* node = &this->nodes[nodeIndex];
+		const bool overlap = checkOverlapSegment(start, end, node->bmin, node->bmax);
 		const bool isLeafNode = node->triIndex >= 0;
 
 		if (isLeafNode && overlap)
 		{
-			if (n < maxIds)
-			{
-				ids[n] = i;
-				n++;
-			}
+			outNodes.emplace_back(nodeIndex);
 		}
 
 		if (overlap || isLeafNode)
 		{
-			i++;
+			nodeIndex++;
 		}
 		else
 		{
-			const int escapeIndex = -node->triIndex;
-			i += escapeIndex;
+			// escape index
+			nodeIndex -= node->triIndex;
 		}
 	}
-
-	return n;
 }

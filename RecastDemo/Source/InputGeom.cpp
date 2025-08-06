@@ -488,9 +488,9 @@ bool InputGeom::raycastMesh(float* src, float* dst, float& tmin)
 	float p[]{p[0] = src[0] + (dst[0] - src[0]) * btmin, p[1] = src[2] + (dst[2] - src[2]) * btmin};
 	float q[]{src[0] + (dst[0] - src[0]) * btmax, src[2] + (dst[2] - src[2]) * btmax};
 
-	int cid[512];
-	const int ncid = partitionedMesh->GetChunksOverlappingSegment(p, q, cid, 512);
-	if (!ncid)
+	std::vector<int> overlappingNodes;
+	partitionedMesh->GetNodesOverlappingSegment(p, q, overlappingNodes);
+	if (overlappingNodes.empty())
 	{
 		return false;
 	}
@@ -498,9 +498,9 @@ bool InputGeom::raycastMesh(float* src, float* dst, float& tmin)
 	tmin = 1.0f;
 	bool hit = false;
 
-	for (int i = 0; i < ncid; ++i)
+	for (int nodeIndex : overlappingNodes)
 	{
-		const PartitionedMesh::Node& node = partitionedMesh->nodes[cid[i]];
+		const PartitionedMesh::Node& node = partitionedMesh->nodes[nodeIndex];
 		const int* tris = &partitionedMesh->tris[node.triIndex * 3];
 		const int ntris = node.numTris;
 

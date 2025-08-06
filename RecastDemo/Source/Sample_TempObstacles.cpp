@@ -597,16 +597,16 @@ int Sample_TempObstacles::rasterizeTileLayers(
 	tbmin[1] = tcfg.bmin[2];
 	tbmax[0] = tcfg.bmax[0];
 	tbmax[1] = tcfg.bmax[2];
-	int cid[512];  // TODO: Make grow when returning too many items.
-	const int ncid = partitionedMesh->GetChunksOverlappingRect(tbmin, tbmax, cid, 512);
-	if (!ncid)
+	std::vector<int> overlappingNodes;
+	partitionedMesh->GetNodesOverlappingRect(tbmin, tbmax, overlappingNodes);
+	if (overlappingNodes.empty())
 	{
-		return 0;  // empty
+		return 0;
 	}
 
-	for (int i = 0; i < ncid; ++i)
+	for (int nodeIndex : overlappingNodes)
 	{
-		const PartitionedMesh::Node& node = partitionedMesh->nodes[cid[i]];
+		const PartitionedMesh::Node& node = partitionedMesh->nodes[nodeIndex];
 		const int* tris = &partitionedMesh->tris[node.triIndex * 3];
 		const int ntris = node.numTris;
 
