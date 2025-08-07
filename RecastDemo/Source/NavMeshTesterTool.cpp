@@ -712,7 +712,7 @@ void NavMeshTesterTool::recalc()
 				// Iterate over the path to find smooth path on the detail mesh surface.
 				dtPolyRef polys[MAX_POLYS];
 				memcpy(polys, polys, sizeof(dtPolyRef) * npolys);
-				int npolys = npolys;
+				int npolys = this->npolys;
 
 				float iterPos[3], targetPos[3];
 				sample->navQuery->closestPointOnPoly(startRef, spos, iterPos, 0);
