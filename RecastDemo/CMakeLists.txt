@@ -12,7 +12,7 @@ endif()
 
 find_package(OpenGL REQUIRED)
 if (APPLE)
-  find_library(SDL2_LIBRARY 
+  find_library(SDL2_LIBRARY
     NAMES SDL2
     PATHS ${SDL2_ROOT_DIR}
     REQUIRED)
@@ -24,6 +24,7 @@ include_directories(SYSTEM ${OPENGL_INCLUDE_DIR})
 include_directories(SYSTEM Contrib/fastlz)
 include_directories(SYSTEM Contrib)
 include_directories(SYSTEM Contrib/imgui)
+include_directories(SYSTEM Contrib/imgui/backends)
 include_directories(../DebugUtils/Include)
 include_directories(../Detour/Include)
 include_directories(../DetourCrowd/Include)
