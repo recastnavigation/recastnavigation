@@ -30,7 +30,7 @@ class ConvexVolumeTool : public SampleTool
 	float boxDescent = 1.0f;
 
 	static constexpr int MAX_PTS = 12;
-	
+
 	float points[MAX_PTS * 3] {};
 	int numPoints = 0;
 	int hull[MAX_PTS] {};
@@ -44,11 +44,11 @@ public:
 		numPoints = 0;
 		numHull = 0;
 	}
-	void handleMenu() override;
-	void handleClick(const float* s, const float* p, bool shift) override;
-	void handleToggle() override {}
-	void handleStep() override {}
-	void handleUpdate(const float) override {}
-	void handleRender() override;
-	void handleRenderOverlay(double* proj, double* model, int* view) override;
+	void drawMenuUI() override;
+	void onClick(const float* s, const float* p, bool shift) override;
+	void onToggle() override {}
+	void singleStep() override {}
+	void update(const float) override {}
+	void render() override;
+	void renderOverlay(double* proj, double* model, int* view) override;
 };

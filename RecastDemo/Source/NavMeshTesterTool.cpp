@@ -208,7 +208,7 @@ void NavMeshTesterTool::init(Sample* newSample)
 	randomRadius = sample->agentRadius * 30.0f;
 }
 
-void NavMeshTesterTool::handleMenu()
+void NavMeshTesterTool::drawMenuUI()
 {
 	if (ImGui::RadioButton("Pathfind Follow", toolMode == TOOLMODE_PATHFIND_FOLLOW))
 	{
@@ -430,7 +430,7 @@ void NavMeshTesterTool::handleMenu()
 	ImGui::Separator();
 }
 
-void NavMeshTesterTool::handleClick(const float* /*s*/, const float* p, bool shift)
+void NavMeshTesterTool::onClick(const float* /*s*/, const float* p, bool shift)
 {
 	if (shift)
 	{
@@ -445,9 +445,9 @@ void NavMeshTesterTool::handleClick(const float* /*s*/, const float* p, bool shi
 	recalc();
 }
 
-void NavMeshTesterTool::handleStep() {}
+void NavMeshTesterTool::singleStep() {}
 
-void NavMeshTesterTool::handleToggle()
+void NavMeshTesterTool::onToggle()
 {
 	// TODO: merge separate to a path iterator. Use same code in recalc() too.
 	if (toolMode != TOOLMODE_PATHFIND_FOLLOW) { return; }
@@ -610,7 +610,7 @@ void NavMeshTesterTool::handleToggle()
 	}
 }
 
-void NavMeshTesterTool::handleUpdate(const float /*dt*/)
+void NavMeshTesterTool::update(const float /*dt*/)
 {
 	if (toolMode == TOOLMODE_PATHFIND_SLICED)
 	{
@@ -1096,7 +1096,7 @@ static void getPolyCenter(dtNavMesh* navMesh, dtPolyRef ref, float* center)
 	center[2] *= s;
 }
 
-void NavMeshTesterTool::handleRender()
+void NavMeshTesterTool::render()
 {
 	duDebugDraw& dd = sample->debugDraw;
 
@@ -1489,7 +1489,7 @@ void NavMeshTesterTool::handleRender()
 	}
 }
 
-void NavMeshTesterTool::handleRenderOverlay(double* proj, double* model, int* view)
+void NavMeshTesterTool::renderOverlay(double* proj, double* model, int* view)
 {
 	GLdouble x, y, z;
 

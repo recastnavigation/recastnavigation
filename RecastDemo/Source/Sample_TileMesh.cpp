@@ -115,7 +115,7 @@ public:
 	void init(Sample* sample) override { m_sample = static_cast<Sample_TileMesh*>(sample); }
 	void reset() override {}
 
-	void handleMenu() override
+	void drawMenuUI() override
 	{
 		ImGui::Text("Create Tiles");
 		if (ImGui::Button("Create All"))
@@ -134,7 +134,7 @@ public:
 		}
 	}
 
-	void handleClick(const float* /*s*/, const float* p, bool shift) override
+	void onClick(const float* /*s*/, const float* p, bool shift) override
 	{
 		m_hitPosSet = true;
 		rcVcopy(m_hitPos, p);
@@ -151,13 +151,13 @@ public:
 		}
 	}
 
-	void handleToggle() override {}
+	void onToggle() override {}
 
-	void handleStep() override {}
+	void singleStep() override {}
 
-	void handleUpdate(const float /*dt*/) override {}
+	void update(const float /*dt*/) override {}
 
-	void handleRender() override
+	void render() override
 	{
 		if (!m_hitPosSet)
 		{
@@ -178,7 +178,7 @@ public:
 		glLineWidth(1.0f);
 	}
 
-	void handleRenderOverlay(double* proj, double* model, int* view) override
+	void renderOverlay(double* proj, double* model, int* view) override
 	{
 		GLdouble x, y, z;
 		if (m_hitPosSet && gluProject(m_hitPos[0], m_hitPos[1], m_hitPos[2], model, proj, view, &x, &y, &z))
@@ -312,7 +312,7 @@ void Sample_TileMesh::drawToolsUI()
 
 	if (tool)
 	{
-		tool->handleMenu();
+		tool->drawMenuUI();
 	}
 }
 
@@ -527,7 +527,7 @@ void Sample_TileMesh::render()
 
 	if (tool)
 	{
-		tool->handleRender();
+		tool->render();
 	}
 	renderToolStates();
 
@@ -558,7 +558,7 @@ void Sample_TileMesh::renderOverlay(double* proj, double* model, int* view)
 
 	if (tool)
 	{
-		tool->handleRenderOverlay(proj, model, view);
+		tool->renderOverlay(proj, model, view);
 	}
 	renderOverlayToolStates(proj, model, view);
 }

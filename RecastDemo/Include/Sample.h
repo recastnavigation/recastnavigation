@@ -98,13 +98,16 @@ struct SampleTool
 	virtual SampleToolType type() = 0;
 	virtual void init(Sample* sample) = 0;
 	virtual void reset() = 0;
-	virtual void handleMenu() = 0;
-	virtual void handleClick(const float* rayStartPos, const float* rayHitPos, bool shift) = 0;
-	virtual void handleRender() = 0;
-	virtual void handleRenderOverlay(double* proj, double* model, int* view) = 0;
-	virtual void handleToggle() = 0;
-	virtual void handleStep() = 0;
-	virtual void handleUpdate(float dt) = 0;
+
+	virtual void drawMenuUI() = 0;
+
+	virtual void singleStep() = 0;
+	virtual void update(float dt) = 0;
+	virtual void render() = 0;
+	virtual void renderOverlay(double* proj, double* model, int* view) = 0;
+
+	virtual void onClick(const float* rayStartPos, const float* rayHitPos, bool shift) = 0;
+	virtual void onToggle() = 0;
 };
 
 struct SampleToolState

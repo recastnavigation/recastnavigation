@@ -273,7 +273,7 @@ void Sample::onClick(const float* rayStartPos, const float* rayHitPos, bool shif
 {
 	if (tool)
 	{
-		tool->handleClick(rayStartPos, rayHitPos, shift);
+		tool->onClick(rayStartPos, rayHitPos, shift);
 	}
 }
 
@@ -281,7 +281,7 @@ void Sample::onToggle()
 {
 	if (tool)
 	{
-		tool->handleToggle();
+		tool->onToggle();
 	}
 }
 
@@ -289,7 +289,7 @@ void Sample::singleStep()
 {
 	if (tool)
 	{
-		tool->handleStep();
+		tool->singleStep();
 	}
 }
 
@@ -302,7 +302,7 @@ void Sample::update(const float dt)
 {
 	if (tool)
 	{
-		tool->handleUpdate(dt);
+		tool->update(dt);
 	}
 	updateToolStates(dt);
 }

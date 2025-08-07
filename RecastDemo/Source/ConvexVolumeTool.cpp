@@ -116,7 +116,7 @@ bool pointInPoly(int nvert, const float* verts, const float* p)
 }
 }
 
-void ConvexVolumeTool::handleMenu()
+void ConvexVolumeTool::drawMenuUI()
 {
 	ImGui::SliderFloat("##Shape Height", &boxHeight, 0.1f, 20.0f, "Shape Height = %f");
 	ImGui::SliderFloat("##Shape Descent", &boxDescent, 0.1f, 20.0f, "Shape Descent = %f");
@@ -160,7 +160,7 @@ void ConvexVolumeTool::handleMenu()
 	}
 }
 
-void ConvexVolumeTool::handleClick(const float* /*s*/, const float* p, bool shift)
+void ConvexVolumeTool::onClick(const float* /*s*/, const float* p, bool shift)
 {
 	if (!sample)
 	{
@@ -253,7 +253,7 @@ void ConvexVolumeTool::handleClick(const float* /*s*/, const float* p, bool shif
 	}
 }
 
-void ConvexVolumeTool::handleRender()
+void ConvexVolumeTool::render()
 {
 	duDebugDraw& dd = sample->debugDraw;
 
@@ -293,7 +293,7 @@ void ConvexVolumeTool::handleRender()
 	dd.end();
 }
 
-void ConvexVolumeTool::handleRenderOverlay(double* /*proj*/, double* /*model*/, int* view)
+void ConvexVolumeTool::renderOverlay(double* /*proj*/, double* /*model*/, int* view)
 {
 	// Tool help
 	if (!numPoints)

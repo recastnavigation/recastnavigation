@@ -42,11 +42,11 @@ public:
 	SampleToolType type() override { return SampleToolType::OFFMESH_CONNECTION; }
 	void init(Sample* sample) override;
 	void reset() override;
-	void handleMenu() override;
-	void handleClick(const float* rayStartTime, const float* rayHitPos, bool shift) override;
-	void handleToggle() override;
-	void handleStep() override;
-	void handleUpdate(const float dt) override;
-	void handleRender() override;
-	void handleRenderOverlay(double* proj, double* model, int* view) override;
+	void drawMenuUI() override;
+	void onClick(const float* rayStartTime, const float* rayHitPos, bool shift) override;
+	void onToggle() override;
+	void singleStep() override;
+	void update(const float dt) override;
+	void render() override;
+	void renderOverlay(double* proj, double* model, int* view) override;
 };

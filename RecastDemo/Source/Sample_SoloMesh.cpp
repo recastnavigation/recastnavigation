@@ -135,7 +135,7 @@ void Sample_SoloMesh::drawToolsUI()
 
 	if (tool)
 	{
-		tool->handleMenu();
+		tool->drawMenuUI();
 	}
 }
 
@@ -320,7 +320,7 @@ void Sample_SoloMesh::render()
 
 	if (tool)
 	{
-		tool->handleRender();
+		tool->render();
 	}
 	renderToolStates();
 
@@ -331,7 +331,7 @@ void Sample_SoloMesh::renderOverlay(double* proj, double* model, int* view)
 {
 	if (tool)
 	{
-		tool->handleRenderOverlay(proj, model, view);
+		tool->renderOverlay(proj, model, view);
 	}
 	renderOverlayToolStates(proj, model, view);
 }

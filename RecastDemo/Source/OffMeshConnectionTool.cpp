@@ -54,7 +54,7 @@ void OffMeshConnectionTool::reset()
 	hitPosSet = false;
 }
 
-void OffMeshConnectionTool::handleMenu()
+void OffMeshConnectionTool::drawMenuUI()
 {
 	if (ImGui::RadioButton("One Way", !bidir))
 	{
@@ -66,7 +66,7 @@ void OffMeshConnectionTool::handleMenu()
 	}
 }
 
-void OffMeshConnectionTool::handleClick(const float* /*rayStartPos*/, const float* rayHitPos, bool shift)
+void OffMeshConnectionTool::onClick(const float* /*rayStartPos*/, const float* rayHitPos, bool shift)
 {
 	if (!sample)
 	{
@@ -124,13 +124,13 @@ void OffMeshConnectionTool::handleClick(const float* /*rayStartPos*/, const floa
 	}
 }
 
-void OffMeshConnectionTool::handleToggle() {}
+void OffMeshConnectionTool::onToggle() {}
 
-void OffMeshConnectionTool::handleStep() {}
+void OffMeshConnectionTool::singleStep() {}
 
-void OffMeshConnectionTool::handleUpdate(const float /*dt*/) {}
+void OffMeshConnectionTool::update(const float /*dt*/) {}
 
-void OffMeshConnectionTool::handleRender()
+void OffMeshConnectionTool::render()
 {
 	duDebugDraw& dd = sample->debugDraw;
 
@@ -145,7 +145,7 @@ void OffMeshConnectionTool::handleRender()
 	}
 }
 
-void OffMeshConnectionTool::handleRenderOverlay(double* proj, double* model, int* view)
+void OffMeshConnectionTool::renderOverlay(double* proj, double* model, int* view)
 {
 	GLdouble x, y, z;
 

@@ -215,7 +215,7 @@ void NavMeshPruneTool::reset()
 	flags = nullptr;
 }
 
-void NavMeshPruneTool::handleMenu()
+void NavMeshPruneTool::drawMenuUI()
 {
 	if (!flags)
 	{
@@ -241,7 +241,7 @@ void NavMeshPruneTool::handleMenu()
 	}
 }
 
-void NavMeshPruneTool::handleClick(const float* s, const float* p, bool shift)
+void NavMeshPruneTool::onClick(const float* s, const float* p, bool shift)
 {
 	rcIgnoreUnused(s);
 	rcIgnoreUnused(shift);
@@ -283,7 +283,7 @@ void NavMeshPruneTool::handleClick(const float* s, const float* p, bool shift)
 	floodNavmesh(nav, flags, ref, 1);
 }
 
-void NavMeshPruneTool::handleRender()
+void NavMeshPruneTool::render()
 {
 	duDebugDraw& debugDraw = sample->debugDraw;
 
@@ -324,7 +324,7 @@ void NavMeshPruneTool::handleRender()
 	}
 }
 
-void NavMeshPruneTool::handleRenderOverlay(double* /*proj*/, double* /*model*/, int* view)
+void NavMeshPruneTool::renderOverlay(double* /*proj*/, double* /*model*/, int* view)
 {
 	DrawScreenspaceText(280.0f, 40.0f, IM_COL32(255, 255, 255, 192), "LMB: Click fill area.");
 }

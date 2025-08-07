@@ -43,11 +43,11 @@ public:
 	SampleToolType type() override { return SampleToolType::NAVMESH_PRUNE; }
 	void init(Sample* newSample) override { sample = newSample; }
 	void reset() override;
-	void handleMenu() override;
-	void handleClick(const float* s, const float* p, bool shift) override;
-	void handleToggle() override {}
-	void handleStep() override {}
-	void handleUpdate(const float /*dt*/) override {}
-	void handleRender() override;
-	void handleRenderOverlay(double* proj, double* model, int* view) override;
+	void drawMenuUI() override;
+	void onClick(const float* s, const float* p, bool shift) override;
+	void onToggle() override {}
+	void singleStep() override {}
+	void update(const float /*dt*/) override {}
+	void render() override;
+	void renderOverlay(double* proj, double* model, int* view) override;
 };

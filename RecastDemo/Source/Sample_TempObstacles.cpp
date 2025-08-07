@@ -756,7 +756,7 @@ public:
 
 	void reset() override {}
 
-	void handleMenu() override
+	void drawMenuUI() override
 	{
 		ImGui::Text("Highlight Tile Cache");
 		ImGui::Text("Click LMB to highlight a tile.");
@@ -779,19 +779,19 @@ public:
 		}
 	}
 
-	void handleClick(const float* /*s*/, const float* p, bool /*shift*/) override
+	void onClick(const float* /*s*/, const float* p, bool /*shift*/) override
 	{
 		m_hitPosSet = true;
 		rcVcopy(m_hitPos, p);
 	}
 
-	void handleToggle() override {}
+	void onToggle() override {}
 
-	void handleStep() override {}
+	void singleStep() override {}
 
-	void handleUpdate(const float /*dt*/) override {}
+	void update(const float /*dt*/) override {}
 
-	void handleRender() override
+	void render() override
 	{
 		if (m_hitPosSet && m_sample)
 		{
@@ -814,7 +814,7 @@ public:
 		}
 	}
 
-	void handleRenderOverlay(double* proj, double* model, int* view) override
+	void renderOverlay(double* proj, double* model, int* view) override
 	{
 		if (m_hitPosSet)
 		{
@@ -841,7 +841,7 @@ public:
 
 	void reset() override {}
 
-	void handleMenu() override
+	void drawMenuUI() override
 	{
 		ImGui::Text("Create Temp Obstacles");
 
@@ -856,7 +856,7 @@ public:
 		ImGui::Text("Shift+LMB to remove an obstacle.");
 	}
 
-	void handleClick(const float* s, const float* p, bool shift) override
+	void onClick(const float* s, const float* p, bool shift) override
 	{
 		if (m_sample)
 		{
@@ -871,11 +871,11 @@ public:
 		}
 	}
 
-	void handleToggle() override {}
-	void handleStep() override {}
-	void handleUpdate(const float /*dt*/) override {}
-	void handleRender() override {}
-	void handleRenderOverlay(double* /*proj*/, double* /*model*/, int* /*view*/) override {}
+	void onToggle() override {}
+	void singleStep() override {}
+	void update(const float /*dt*/) override {}
+	void render() override {}
+	void renderOverlay(double* /*proj*/, double* /*model*/, int* /*view*/) override {}
 };
 
 Sample_TempObstacles::Sample_TempObstacles()
@@ -1009,7 +1009,7 @@ void Sample_TempObstacles::drawToolsUI()
 
 	if (tool)
 	{
-		tool->handleMenu();
+		tool->drawMenuUI();
 	}
 }
 
@@ -1187,7 +1187,7 @@ void Sample_TempObstacles::render()
 
 	if (tool)
 	{
-		tool->handleRender();
+		tool->render();
 	}
 	renderToolStates();
 
@@ -1214,7 +1214,7 @@ void Sample_TempObstacles::renderOverlay(double* proj, double* model, int* view)
 {
 	if (tool)
 	{
-		tool->handleRenderOverlay(proj, model, view);
+		tool->renderOverlay(proj, model, view);
 	}
 	renderOverlayToolStates(proj, model, view);
 

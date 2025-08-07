@@ -1037,7 +1037,7 @@ void CrowdTool::init(Sample* newSample)
 
 void CrowdTool::reset() {}
 
-void CrowdTool::handleMenu()
+void CrowdTool::drawMenuUI()
 {
 	if (!state)
 	{
@@ -1105,7 +1105,7 @@ void CrowdTool::handleMenu()
 	}
 }
 
-void CrowdTool::handleClick(const float* s, const float* p, bool shift)
+void CrowdTool::onClick(const float* s, const float* p, bool shift)
 {
 	if (!sample)
 	{
@@ -1177,7 +1177,7 @@ void CrowdTool::handleClick(const float* s, const float* p, bool shift)
 	}
 }
 
-void CrowdTool::handleStep()
+void CrowdTool::singleStep()
 {
 	if (!state)
 	{
@@ -1190,7 +1190,7 @@ void CrowdTool::handleStep()
 	state->setRunning(false);
 }
 
-void CrowdTool::handleToggle()
+void CrowdTool::onToggle()
 {
 	if (!state)
 	{
@@ -1199,14 +1199,14 @@ void CrowdTool::handleToggle()
 	state->setRunning(!state->isRunning());
 }
 
-void CrowdTool::handleUpdate(const float dt)
+void CrowdTool::update(const float dt)
 {
 	rcIgnoreUnused(dt);
 }
 
-void CrowdTool::handleRender() {}
+void CrowdTool::render() {}
 
-void CrowdTool::handleRenderOverlay(double* proj, double* model, int* view)
+void CrowdTool::renderOverlay(double* proj, double* model, int* view)
 {
 	(void)model;
 	(void)proj;
