@@ -71,7 +71,6 @@ struct BuildSettings
 	float tileSize = 0;
 };
 
-
 struct Mesh
 {
 	std::vector<float> verts;

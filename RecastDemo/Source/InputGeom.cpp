@@ -174,46 +174,25 @@ bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath)
 
 bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath)
 {
-	FILE* fp = fopen(filepath.c_str(), "rb");
-	if (!fp)
+	FileIO file;
+	if (!file.openForRead(filepath.c_str()))
 	{
+		ctx->log(RC_LOG_ERROR, "buildTiledNavigation: Could not load '%s'", filepath.c_str());
 		return false;
 	}
 
-	if (fseek(fp, 0, SEEK_END) != 0)
+	size_t bufferLen = file.getFileSize();
+	char* buffer = new char[bufferLen];
+
+	if (!file.read(buffer, bufferLen))
 	{
-		fclose(fp);
+		ctx->log(RC_LOG_ERROR, "buildTiledNavigation: Could not load '%s'", filepath.c_str());
 		return false;
 	}
 
-	long bufSize = ftell(fp);
-	if (bufSize < 0)
-	{
-		fclose(fp);
-		return false;
-	}
-	if (fseek(fp, 0, SEEK_SET) != 0)
-	{
-		fclose(fp);
-		return false;
-	}
-	char* buf = new char[bufSize];
-	if (!buf)
-	{
-		fclose(fp);
-		return false;
-	}
-	size_t readLen = fread(buf, bufSize, 1, fp);
-	fclose(fp);
-	if (readLen != 1)
-	{
-		delete[] buf;
-		return false;
-	}
+	bool result = loadGeomSet(ctx, buffer, bufferLen);
 
-	bool result = loadGeomSet(ctx, buf, bufSize);
-
-	delete[] buf;
+	delete[] buffer;
 	return result;
 }
 
