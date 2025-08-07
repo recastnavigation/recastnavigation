@@ -979,7 +979,7 @@ void Sample_TempObstacles::drawSettingsUI()
 void Sample_TempObstacles::drawToolsUI()
 {
 	const SampleToolType currentTool = !tool ? SampleToolType::NONE : tool->type();
-#define TOOL(tool, toolType) if (ImGui::RadioButton(toolNames[static_cast<int>(tool), currentTool == tool)) { setTool(new toolType{}); }
+#define TOOL(toolType, toolClass) if (ImGui::RadioButton(toolNames[static_cast<int>(SampleToolType::toolType)], currentTool == SampleToolType::toolType)) { setTool(new toolClass{}); }
 	TOOL(NAVMESH_TESTER, NavMeshTesterTool)
 	TOOL(TILE_HIGHLIGHT, TempObstacleHighlightTool)
 	TOOL(TEMP_OBSTACLE, TempObstacleCreateTool)
