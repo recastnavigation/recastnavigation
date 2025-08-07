@@ -978,32 +978,15 @@ void Sample_TempObstacles::drawSettingsUI()
 
 void Sample_TempObstacles::drawToolsUI()
 {
-	const SampleToolType type = !tool ? SampleToolType::NONE : tool->type();
-
-	if (ImGui::RadioButton("Test Navmesh", type == SampleToolType::NAVMESH_TESTER))
-	{
-		setTool(new NavMeshTesterTool);
-	}
-	if (ImGui::RadioButton("Highlight Tile Cache", type == SampleToolType::TILE_HIGHLIGHT))
-	{
-		setTool(new TempObstacleHighlightTool);
-	}
-	if (ImGui::RadioButton("Create Temp Obstacles", type == SampleToolType::TEMP_OBSTACLE))
-	{
-		setTool(new TempObstacleCreateTool);
-	}
-	if (ImGui::RadioButton("Create Off-Mesh Links", type == SampleToolType::OFFMESH_CONNECTION))
-	{
-		setTool(new OffMeshConnectionTool);
-	}
-	if (ImGui::RadioButton("Create Convex Volumes", type == SampleToolType::CONVEX_VOLUME))
-	{
-		setTool(new ConvexVolumeTool);
-	}
-	if (ImGui::RadioButton("Create Crowds", type == SampleToolType::CROWD))
-	{
-		setTool(new CrowdTool);
-	}
+	const SampleToolType currentTool = !tool ? SampleToolType::NONE : tool->type();
+#define TOOL(tool, toolType) if (ImGui::RadioButton(toolNames[static_cast<int>(tool), currentTool == tool)) { setTool(new toolType{}); }
+	TOOL(NAVMESH_TESTER, NavMeshTesterTool)
+	TOOL(TILE_HIGHLIGHT, TempObstacleHighlightTool)
+	TOOL(TEMP_OBSTACLE, TempObstacleCreateTool)
+	TOOL(OFFMESH_CONNECTION, OffMeshConnectionTool)
+	TOOL(CONVEX_VOLUME, ConvexVolumeTool)
+	TOOL(CROWD, CrowdTool)
+#undef TOOL
 
 	ImGui::Separator();
 
