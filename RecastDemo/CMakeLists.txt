@@ -1,4 +1,8 @@
-file(GLOB SOURCES Source/*.cpp Contrib/fastlz/fastlz.c)
+file(GLOB SOURCES
+	Source/*.cpp
+	Contrib/fastlz/fastlz.c
+	Contrib/imgui/*.cpp
+	Contrib/imgui/backends/*.cpp)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
@@ -77,9 +81,25 @@ endif()
 
 add_dependencies(RecastDemo DebugUtils Detour DetourCrowd DetourTileCache Recast)
 if (APPLE)
-  target_link_libraries(RecastDemo ${OPENGL_LIBRARIES} ${SDL2_LIBRARY} DebugUtils Detour DetourCrowd DetourTileCache Recast)
+  target_link_libraries(
+	RecastDemo
+	${OPENGL_LIBRARIES}
+	${SDL2_LIBRARY}
+	DebugUtils
+	Detour
+	DetourCrowd
+	DetourTileCache
+	Recast)
 else()
-  target_link_libraries(RecastDemo ${OPENGL_LIBRARIES} SDL2::SDL2main DebugUtils Detour DetourCrowd DetourTileCache Recast)
+  target_link_libraries(
+	RecastDemo
+	${OPENGL_LIBRARIES}
+	SDL2::SDL2main
+	DebugUtils
+	Detour
+	DetourCrowd
+	DetourTileCache
+	Recast)
 endif()
 
 install(TARGETS RecastDemo
