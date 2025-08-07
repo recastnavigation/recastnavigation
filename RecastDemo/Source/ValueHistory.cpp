@@ -59,6 +59,7 @@ void GraphParams::setValueRange(float minValue, float maxValue, int numDivisions
 
 void drawGraphBackground(const GraphParams* params)
 {
+	(void) params;
 #if 0
 	// BG
 	imguiDrawRoundedRect(
@@ -100,6 +101,11 @@ void drawGraphBackground(const GraphParams* params)
 
 void drawGraph(const GraphParams* params, const ValueHistory* graph, int index, const char* label, const unsigned int color)
 {
+	(void)params;
+	(void)graph;
+	(void)index;
+	(void)label;
+	(void)color;
 #if 0
 	const float sx = static_cast<float>(params->width - params->padding * 2) / static_cast<float>(graph->getSampleCount());
 	const float sy = static_cast<float>(params->height - params->padding * 2) / (params->rangeMax - params->rangeMin);
