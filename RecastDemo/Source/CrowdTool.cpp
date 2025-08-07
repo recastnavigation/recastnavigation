@@ -1206,11 +1206,8 @@ void CrowdTool::update(const float dt)
 
 void CrowdTool::render() {}
 
-void CrowdTool::renderOverlay(double* proj, double* model, int* view)
+void CrowdTool::renderOverlay(double* /*proj*/, double* /*model*/, int* /*view*/)
 {
-	(void)model;
-	(void)proj;
-
 	// Tool help
 	if (mode == ToolMode::CREATE)
 	{
