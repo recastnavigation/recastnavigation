@@ -33,14 +33,14 @@ enum class SampleToolType : uint8_t
 {
 	NONE = 0,
 
-	TILE_EDIT = 1,
-	TILE_HIGHLIGHT = 2,
-	TEMP_OBSTACLE = 3,
-	NAVMESH_TESTER = 4,
-	NAVMESH_PRUNE = 5,
-	OFFMESH_CONNECTION = 6,
-	CONVEX_VOLUME = 7,
-	CROWD = 8,
+	TILE_EDIT,
+	TILE_HIGHLIGHT,
+	TEMP_OBSTACLE,
+	NAVMESH_TESTER,
+	NAVMESH_PRUNE,
+	OFFMESH_CONNECTION,
+	CONVEX_VOLUME,
+	CROWD,
 
 	MAX_TOOLS
 };
@@ -70,12 +70,12 @@ enum SamplePolyAreas
 };
 enum SamplePolyFlags
 {
-	SAMPLE_POLYFLAGS_WALK = 1 << 0,      // 0x01,		// Ability to walk (ground, grass, road)
-	SAMPLE_POLYFLAGS_SWIM = 1 << 1,      // 0x02,		// Ability to swim (water).
-	SAMPLE_POLYFLAGS_DOOR = 1 << 2,      // 0x04,		// Ability to move through doors.
-	SAMPLE_POLYFLAGS_JUMP = 1 << 3,      // 0x08,		// Ability to jump.
-	SAMPLE_POLYFLAGS_DISABLED = 1 << 4,  // 0x10,		// Disabled polygon
-	SAMPLE_POLYFLAGS_ALL = ~0            // 0xffff	// All abilities.
+	SAMPLE_POLYFLAGS_WALK = 1 << 0,      // 0x01,	// Ability to walk (ground, grass, road)
+	SAMPLE_POLYFLAGS_SWIM = 1 << 1,      // 0x02,	// Ability to swim (water).
+	SAMPLE_POLYFLAGS_DOOR = 1 << 2,      // 0x04,	// Ability to move through doors.
+	SAMPLE_POLYFLAGS_JUMP = 1 << 3,      // 0x08,	// Ability to jump.
+	SAMPLE_POLYFLAGS_DISABLED = 1 << 4,  // 0x10,	// Disabled polygon
+	SAMPLE_POLYFLAGS_ALL = ~0            // 0xff	// All abilities.
 };
 
 enum SamplePartitionType
