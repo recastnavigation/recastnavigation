@@ -223,7 +223,7 @@ void NavMeshTesterTool::drawMenuUI()
 	if (toolMode == TOOLMODE_PATHFIND_STRAIGHT)
 	{
 		ImGui::Indent();
-		("Vertices at crossings");
+		ImGui::Text("Vertices at crossings");
 		if (ImGui::RadioButton("None", straightPathOptions == 0))
 		{
 			straightPathOptions = 0;
@@ -239,7 +239,6 @@ void NavMeshTesterTool::drawMenuUI()
 			straightPathOptions = DT_STRAIGHTPATH_ALL_CROSSINGS;
 			recalc();
 		}
-
 		ImGui::Unindent();
 	}
 	if (ImGui::RadioButton("Pathfind Sliced", toolMode == TOOLMODE_PATHFIND_SLICED))
