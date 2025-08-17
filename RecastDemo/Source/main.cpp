@@ -69,13 +69,14 @@ constexpr int g_nsamples = sizeof(g_samples) / sizeof(SampleItem);
 
 struct AppData
 {
-	// Window & SDL
+	SDL_Window* window;
+	SDL_GLContext glContext;
+
+	// Drawable width vs logical width (important for high-dpi screens)
 	int width;
 	int height;
 	int drawableWidth;
 	int drawableHeight;
-	SDL_Window* window;
-	SDL_GLContext glContext;
 
 	// Recast data, samples, and test cases
 	BuildContext buildContext;
@@ -93,9 +94,10 @@ struct AppData
 
 	// Camera
 	float cameraEulers[2]{45, -45};
-	float cameraPos[3] = {0, 0, 0};
+	float cameraPos[3] = {0, 0, 0};  // world space
 	float camr = 1000;
 	float origCameraEulers[2] = {0, 0};  // Used to compute rotational changes across frames.
+	float scrollZoom = 0;
 
 	// Movement
 	float moveFront = 0.0f;
@@ -105,29 +107,22 @@ struct AppData
 	float moveUp = 0.0f;
 	float moveDown = 0.0f;
 
-	// Zoom
-	float scrollZoom = 0;
-
 	// Input state
 	bool isRotatingCamera = false;
 	bool movedDuringRotate = false;
 	bool mouseOverMenu = false;
 
 	// Raycasts
-	float rayStart[3];
-	float rayEnd[3];
-
-	// UI
-	int sampleIndex = -1;
-	std::string meshName = "Choose Mesh...";
+	float rayStart[3];  // world space
+	float rayEnd[3];  // world space
 
 	// UI state
+	int sampleIndex = -1;
+	std::string meshName = "Choose Mesh...";
 	bool showMenu = true;
 	bool showLog = false;
 	bool showTools = true;
 	bool showTestCases = false;
-
-	// Window scroll positions.
 	int logScroll = 0;
 
 	// Files
