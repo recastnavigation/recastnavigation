@@ -65,12 +65,20 @@ SampleItem g_samples[] = {
 	{"Temp Obstacles", []() { return new Sample_TempObstacles(); }},
 };
 constexpr int g_nsamples = sizeof(g_samples) / sizeof(SampleItem);
+
+constexpr ImGuiWindowFlags staticWindowFlags = ImGuiWindowFlags_NoMove
+	| ImGuiWindowFlags_NoResize
+	| ImGuiWindowFlags_NoSavedSettings
+	| ImGuiWindowFlags_NoCollapse;
 }
 
 struct AppData
 {
 	SDL_Window* window;
 	SDL_GLContext glContext;
+
+	GLdouble projectionMatrix[16];
+	GLint viewport[4];
 
 	// Drawable width vs logical width (important for high-dpi screens)
 	int width;
@@ -114,7 +122,7 @@ struct AppData
 
 	// Raycasts
 	float rayStart[3];  // world space
-	float rayEnd[3];  // world space
+	float rayEnd[3];    // world space
 
 	// UI state
 	int sampleIndex = -1;
@@ -144,16 +152,12 @@ struct AppData
 
 	void resetCamera()
 	{
-		const float* boundsMin = 0;
-		const float* boundsMax = 0;
+		// Reset camera and fog to match the mesh bounds.
 		if (inputGeometry)
 		{
-			boundsMin = inputGeometry->getNavMeshBoundsMin();
-			boundsMax = inputGeometry->getNavMeshBoundsMax();
-		}
-		// Reset camera and fog to match the mesh bounds.
-		if (boundsMin && boundsMax)
-		{
+			const float* boundsMin = inputGeometry->getNavMeshBoundsMin();
+			const float* boundsMax = inputGeometry->getNavMeshBoundsMax();
+
 			camr = sqrtf(rcSqr(boundsMax[0] - boundsMin[0]) + rcSqr(boundsMax[1] - boundsMin[1]) + rcSqr(boundsMax[2] - boundsMin[2])) / 2;
 			cameraPos[0] = (boundsMax[0] + boundsMin[0]) / 2 + camr;
 			cameraPos[1] = (boundsMax[1] + boundsMin[1]) / 2 + camr;
@@ -171,8 +175,19 @@ struct AppData
 		SDL_GetWindowSize(window, &width, &height);
 		SDL_GL_GetDrawableSize(window, &drawableWidth, &drawableHeight);
 
+		glViewport(0, 0, drawableWidth, drawableHeight);
+		glGetIntegerv(GL_VIEWPORT, viewport);
+
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		gluPerspective(50.0f, static_cast<float>(width) / static_cast<float>(height), 1.0f, camr);
+		glGetDoublev(GL_PROJECTION_MATRIX, projectionMatrix);
+	}
+
+	void UpdateUIScale()
+	{
 		ImGuiIO& io = ImGui::GetIO();
-		io.DisplaySize = ImVec2(static_cast<float>(width), static_cast<float>(height));
+		io.DisplaySize = ImVec2(width, height);
 		io.DisplayFramebufferScale = ImVec2(
 			static_cast<float>(drawableWidth) / width,
 			static_cast<float>(drawableHeight) / height);
@@ -207,19 +222,15 @@ int main(int /*argc*/, char** /*argv*/)
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
 
-	// Set the window width & height
+	// Create the SDL window with OpenGL support
 	SDL_DisplayMode displayMode;
 	SDL_GetCurrentDisplayMode(0, &displayMode);
-	app.width = displayMode.w - 80;
-	app.height = displayMode.h - 80;
-
-	// Create the SDL window with OpenGL support
 	app.window = SDL_CreateWindow(
 		"Recast Demo",
 		SDL_WINDOWPOS_CENTERED,
 		SDL_WINDOWPOS_CENTERED,
-		app.width,
-		app.height,
+		displayMode.w - 80,
+		displayMode.h - 80,
 		SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
 
 	// Create the OpenGL context
@@ -232,27 +243,23 @@ int main(int /*argc*/, char** /*argv*/)
 		return -1;
 	}
 
-	SDL_GL_SetSwapInterval(1); // Enable vsync
+	SDL_GL_SetSwapInterval(1);  // Enable vsync
+	app.UpdateWindowSize();
 
 	// Setup Dear ImGui context
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGui_ImplSDL2_InitForOpenGL(app.window, app.glContext);
-    ImGui_ImplOpenGL2_Init();
-
-	app.UpdateWindowSize();
+	ImGui_ImplOpenGL2_Init();
 
 	ImGuiIO& io = ImGui::GetIO();
-	io.Fonts->AddFontFromFileTTF("DroidSans.ttf", 16.0f); // Size in pixels
+	io.Fonts->AddFontFromFileTTF("DroidSans.ttf", 16.0f);  // Size in pixels
 	ImGui::PushFont(io.Fonts->Fonts[0]);
+
+	app.UpdateUIScale();
 
 	// Set style
 	ImGui::StyleColorsDark();
-
-	ImGuiWindowFlags staticWindowFlags = ImGuiWindowFlags_NoMove
-		| ImGuiWindowFlags_NoResize
-		| ImGuiWindowFlags_NoSavedSettings
-		| ImGuiWindowFlags_NoCollapse;
 
 	app.prevFrameTime = SDL_GetTicks();
 
@@ -346,13 +353,10 @@ int main(int /*argc*/, char** /*argv*/)
 				if (event.button.button == SDL_BUTTON_RIGHT)
 				{
 					app.isRotatingCamera = false;
-					if (!app.mouseOverMenu)
+					if (!app.mouseOverMenu && !app.movedDuringRotate)
 					{
-						if (!app.movedDuringRotate)
-						{
-							processHitTest = true;
-							processHitTestShift = true;
-						}
+						processHitTest = true;
+						processHitTestShift = true;
 					}
 				}
 				else if (event.button.button == SDL_BUTTON_LEFT)
@@ -363,7 +367,6 @@ int main(int /*argc*/, char** /*argv*/)
 						processHitTestShift = (SDL_GetModState() & KMOD_SHIFT) ? true : false;
 					}
 				}
-
 				break;
 
 			case SDL_MOUSEMOTION:
@@ -382,24 +385,17 @@ int main(int /*argc*/, char** /*argv*/)
 					}
 				}
 				break;
+
 			case SDL_WINDOWEVENT:
 			{
 				if (event.window.event == SDL_WINDOWEVENT_RESIZED)
 				{
-					// Get the new window size and update the OpenGL viewport
 					app.UpdateWindowSize();
-					glViewport(0, 0, app.drawableWidth, app.drawableHeight);
-
-					glMatrixMode(GL_PROJECTION);
-					glLoadIdentity();
-					constexpr float FOV = 50.0f;
-					const float aspect = static_cast<float>(app.width) / static_cast<float>(app.drawableHeight);
-					constexpr float zNear = 1.0f;
-					const float zFar = app.camr;
-					gluPerspective(FOV, aspect, zNear, zFar);
+					app.UpdateUIScale();
 				}
 			}
 			break;
+
 			case SDL_QUIT:
 				done = true;
 				break;
@@ -463,11 +459,6 @@ int main(int /*argc*/, char** /*argv*/)
 			app.timeAcc = 0;
 		}
 
-		// Set the viewport.
-		glViewport(0, 0, app.drawableWidth, app.drawableHeight);
-		GLint viewport[4];
-		glGetIntegerv(GL_VIEWPORT, viewport);
-
 		// Clear the screen
 		glClearColor(0.3f, 0.3f, 0.32f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -475,13 +466,6 @@ int main(int /*argc*/, char** /*argv*/)
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glDisable(GL_TEXTURE_2D);
 		glEnable(GL_DEPTH_TEST);
-
-		// Compute the projection matrix.
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		gluPerspective(50.0f, (float)app.width / (float)app.height, 1.0f, app.camr);
-		GLdouble projectionMatrix[16];
-		glGetDoublev(GL_PROJECTION_MATRIX, projectionMatrix);
 
 		// Compute the modelview matrix.
 		glMatrixMode(GL_MODELVIEW);
@@ -493,49 +477,37 @@ int main(int /*argc*/, char** /*argv*/)
 		glGetDoublev(GL_MODELVIEW_MATRIX, modelviewMatrix);
 
 		// Get hit ray position and direction.
+		int mouseLogicalX;
+		int mouseLogicalY;
+		SDL_GetMouseState(&mouseLogicalX, &mouseLogicalY);
+
+		// Scale mouse coordinates in accordance with high-dpi scale
+		const float scaleX = static_cast<float>(app.drawableWidth) / app.width;
+		const float scaleY = static_cast<float>(app.drawableHeight) / app.height;
+		const float mouseX = mouseLogicalX * scaleX;
+		const float mouseY = app.drawableHeight - mouseLogicalY * scaleY;  // Flip Y (OpenGL origin is bottom-left)
+
 		GLdouble x, y, z;
-		gluUnProject(app.mousePos[0], app.mousePos[1], 0.0f, modelviewMatrix, projectionMatrix, viewport, &x, &y, &z);
-		app.rayStart[0] = (float)x;
-		app.rayStart[1] = (float)y;
-		app.rayStart[2] = (float)z;
-		gluUnProject(app.mousePos[0], app.mousePos[1], 1.0f, modelviewMatrix, projectionMatrix, viewport, &x, &y, &z);
-		app.rayEnd[0] = (float)x;
-		app.rayEnd[1] = (float)y;
-		app.rayEnd[2] = (float)z;
+		gluUnProject(mouseX, mouseY, 0.0, modelviewMatrix, app.projectionMatrix, app.viewport, &x, &y, &z);
+		app.rayStart[0] = static_cast<float>(x);
+		app.rayStart[1] = static_cast<float>(y);
+		app.rayStart[2] = static_cast<float>(z);
+
+		gluUnProject(mouseX, mouseY, 1.0, modelviewMatrix, app.projectionMatrix, app.viewport, &x, &y, &z);
+		app.rayEnd[0] = static_cast<float>(x);
+		app.rayEnd[1] = static_cast<float>(y);
+		app.rayEnd[2] = static_cast<float>(z);
 
 		// Keyboard movement.
 		const Uint8* keystate = SDL_GetKeyboardState(NULL);
-		app.moveFront = rcClamp(
-			app.moveFront + dt * 4 * ((keystate[SDL_SCANCODE_W] || keystate[SDL_SCANCODE_UP]) ? 1.0f : -1.0f),
-			0.0f,
-			1.0f);
-		app.moveLeft = rcClamp(
-			app.moveLeft + dt * 4 * ((keystate[SDL_SCANCODE_A] || keystate[SDL_SCANCODE_LEFT]) ? 1.0f : -1.0f),
-			0.0f,
-			1.0f);
-		app.moveBack = rcClamp(
-			app.moveBack + dt * 4 * ((keystate[SDL_SCANCODE_S] || keystate[SDL_SCANCODE_DOWN]) ? 1.0f : -1.0f),
-			0.0f,
-			1.0f);
-		app.moveRight = rcClamp(
-			app.moveRight + dt * 4 * ((keystate[SDL_SCANCODE_D] || keystate[SDL_SCANCODE_RIGHT]) ? 1.0f : -1.0f),
-			0.0f,
-			1.0f);
-		app.moveUp = rcClamp(
-			app.moveUp + dt * 4 * ((keystate[SDL_SCANCODE_Q] || keystate[SDL_SCANCODE_PAGEUP]) ? 1.0f : -1.0f),
-			0.0f,
-			1.0f);
-		app.moveDown = rcClamp(
-			app.moveDown + dt * 4 * ((keystate[SDL_SCANCODE_E] || keystate[SDL_SCANCODE_PAGEDOWN]) ? 1.0f : -1.0f),
-			0.0f,
-			1.0f);
+		app.moveFront = rcClamp(app.moveFront + dt * 4 * ((keystate[SDL_SCANCODE_W] || keystate[SDL_SCANCODE_UP]) ? 1.0f : -1.0f), 0.0f, 1.0f);
+		app.moveLeft = rcClamp(app.moveLeft + dt * 4 * ((keystate[SDL_SCANCODE_A] || keystate[SDL_SCANCODE_LEFT]) ? 1.0f : -1.0f), 0.0f, 1.0f);
+		app.moveBack = rcClamp(app.moveBack + dt * 4 * ((keystate[SDL_SCANCODE_S] || keystate[SDL_SCANCODE_DOWN]) ? 1.0f : -1.0f), 0.0f, 1.0f);
+		app.moveRight = rcClamp(app.moveRight + dt * 4 * ((keystate[SDL_SCANCODE_D] || keystate[SDL_SCANCODE_RIGHT]) ? 1.0f : -1.0f), 0.0f, 1.0f);
+		app.moveUp = rcClamp(app.moveUp + dt * 4 * ((keystate[SDL_SCANCODE_Q] || keystate[SDL_SCANCODE_PAGEUP]) ? 1.0f : -1.0f), 0.0f, 1.0f);
+		app.moveDown = rcClamp(app.moveDown + dt * 4 * ((keystate[SDL_SCANCODE_E] || keystate[SDL_SCANCODE_PAGEDOWN]) ? 1.0f : -1.0f), 0.0f, 1.0f);
 
-		float keybSpeed = 22.0f;
-		if (SDL_GetModState() & KMOD_SHIFT)
-		{
-			keybSpeed *= 4.0f;
-		}
-
+		const float keybSpeed = (SDL_GetModState() & KMOD_SHIFT) ? 4.0f : 22.0f;
 		float moveX = (app.moveRight - app.moveLeft) * keybSpeed * dt;
 		float moveY = (app.moveBack - app.moveFront) * keybSpeed * dt + app.scrollZoom * 2.0f;
 		app.scrollZoom = 0;
@@ -565,15 +537,15 @@ int main(int /*argc*/, char** /*argv*/)
 		ImGui_ImplOpenGL2_NewFrame();
 		ImGui_ImplSDL2_NewFrame();
 		ImGui::NewFrame();
-		//ImGui::ShowDemoWindow();
+		// ImGui::ShowDemoWindow();
 
 		if (app.sample)
 		{
-			app.sample->renderOverlay(projectionMatrix, modelviewMatrix, viewport);
+			app.sample->renderOverlay(app.projectionMatrix, modelviewMatrix, app.viewport);
 		}
 		if (app.testCase)
 		{
-			app.testCase->handleRenderOverlay(projectionMatrix, modelviewMatrix, viewport);
+			app.testCase->handleRenderOverlay(app.projectionMatrix, modelviewMatrix, app.viewport);
 		}
 
 		bool newMeshSelected = false;
@@ -645,7 +617,8 @@ int main(int /*argc*/, char** /*argv*/)
 
 				if (app.inputGeometry)
 				{
-					DrawRightAlignedText("Verts: %.1fk  Tris: %.1fk",
+					DrawRightAlignedText(
+						"Verts: %.1fk  Tris: %.1fk",
 						static_cast<float>(app.inputGeometry->mesh.getVertCount()) / 1000.0f,
 						static_cast<float>(app.inputGeometry->mesh.getTriCount()) / 1000.0f);
 				}
@@ -759,7 +732,7 @@ int main(int /*argc*/, char** /*argv*/)
 			ImGui::SetNextWindowSize(ImVec2(200, 450), ImGuiCond_Always);
 			ImGui::Begin("Test Cases", nullptr, staticWindowFlags);
 
-            static int currentTest = 0;
+			static int currentTest = 0;
 			int newTest = currentTest;
 			if (ImGui::BeginCombo("Choose Test", app.files[0].c_str()))
 			{
@@ -772,12 +745,11 @@ int main(int /*argc*/, char** /*argv*/)
 
 					if (currentTest == i)
 					{
-						ImGui::SetItemDefaultFocus(); // Sets keyboard focus
+						ImGui::SetItemDefaultFocus();  // Sets keyboard focus
 					}
 				}
 				ImGui::EndCombo();
 			}
-
 
 			if (newTest != currentTest)
 			{
@@ -868,7 +840,7 @@ int main(int /*argc*/, char** /*argv*/)
 		}
 
 		// Draw Marker
-		if (app.markerPositionSet && gluProject(app.markerPosition[0], app.markerPosition[1], app.markerPosition[2], modelviewMatrix, projectionMatrix, viewport, &x, &y, &z))
+		if (app.markerPositionSet && gluProject(app.markerPosition[0], app.markerPosition[1], app.markerPosition[2], modelviewMatrix, app.projectionMatrix, app.viewport, &x, &y, &z))
 		{
 			// Draw marker circle
 			glLineWidth(5.0f);
@@ -886,10 +858,8 @@ int main(int /*argc*/, char** /*argv*/)
 			glLineWidth(1.0f);
 		}
 
-		glEnable(GL_DEPTH_TEST);
-
 		ImGui::Render();
-        ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
+		ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
 		SDL_GL_SwapWindow(app.window);
 	}
 
@@ -898,8 +868,8 @@ int main(int /*argc*/, char** /*argv*/)
 	ImGui::DestroyContext();
 
 	SDL_GL_DeleteContext(app.glContext);
-    SDL_DestroyWindow(app.window);
-    SDL_Quit();
+	SDL_DestroyWindow(app.window);
+	SDL_Quit();
 
 	return 0;
 }
