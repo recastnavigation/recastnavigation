@@ -56,8 +56,7 @@ struct SampleItem
 // Constants
 namespace
 {
-constexpr float FRAME_TIME = 1.0f / 20.0f;
-constexpr float MIN_FRAME_TIME = 1.0f / 40.0f;
+constexpr float UPDATE_TIME = 1.0f / 60.0f;  // update at 60Hz
 constexpr float fogColor[4] = {0.32f, 0.31f, 0.30f, 1.0f};
 
 SampleItem g_samples[] = {
@@ -237,6 +236,8 @@ int main(int /*argc*/, char** /*argv*/)
 		printf("Could not initialize SDL opengl\nError: %s\n", SDL_GetError());
 		return -1;
 	}
+
+	SDL_GL_SetSwapInterval(1); // Enable vsync
 
 	// Setup Dear ImGui context
 	IMGUI_CHECKVERSION();
@@ -456,22 +457,15 @@ int main(int /*argc*/, char** /*argv*/)
 		{
 			// Update sample simulation.
 			app.timeAcc = rcClamp(app.timeAcc + dt, -1.0f, 1.0f);
-			while (app.timeAcc > FRAME_TIME)
+			while (app.timeAcc > UPDATE_TIME)
 			{
-				app.timeAcc -= FRAME_TIME;
-				app.sample->update(FRAME_TIME);
+				app.timeAcc -= UPDATE_TIME;
+				app.sample->update(UPDATE_TIME);
 			}
 		}
 		else
 		{
 			app.timeAcc = 0;
-		}
-
-		// Clamp the framerate so that we do not hog all the CPU.
-		int ms = std::min(static_cast<int>((MIN_FRAME_TIME - dt) * 1000.0f), 10);
-		if (ms >= 0)
-		{
-			SDL_Delay(ms);
 		}
 
 		// Set the viewport.
