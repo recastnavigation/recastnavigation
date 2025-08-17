@@ -562,14 +562,6 @@ int main(int /*argc*/, char** /*argv*/)
 		}
 		glDisable(GL_FOG);
 
-		// Draw UI
-		glDisable(GL_DEPTH_TEST);
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		gluOrtho2D(0, app.width, 0, app.height);
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-
 		ImGui_ImplOpenGL2_NewFrame();
 		ImGui_ImplSDL2_NewFrame();
 		ImGui::NewFrame();
