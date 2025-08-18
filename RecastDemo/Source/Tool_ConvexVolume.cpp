@@ -16,7 +16,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "ConvexVolumeTool.h"
+#include "Tool_ConvexVolume.h"
 
 #include "InputGeom.h"
 #include "Recast.h"

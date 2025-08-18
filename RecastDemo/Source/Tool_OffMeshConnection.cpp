@@ -16,6 +16,8 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
+#include "Tool_OffMeshConnection.h"
+
 #include "SDL_opengl.h"
 #include "imguiHelpers.h"
 
@@ -29,7 +31,7 @@
 #endif
 #include "DetourDebugDraw.h"
 #include "InputGeom.h"
-#include "OffMeshConnectionTool.h"
+
 #include "Recast.h"
 #include "Sample.h"
 

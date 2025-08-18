@@ -29,20 +29,19 @@
 #else
 #	include <GL/glu.h>
 #endif
-
 #include "PartitionedMesh.h"
-#include "ConvexVolumeTool.h"
-#include "CrowdTool.h"
 #include "DetourDebugDraw.h"
 #include "DetourNavMesh.h"
 #include "DetourNavMeshBuilder.h"
 #include "InputGeom.h"
-#include "NavMeshPruneTool.h"
-#include "NavMeshTesterTool.h"
-#include "OffMeshConnectionTool.h"
 #include "Recast.h"
 #include "RecastDebugDraw.h"
 #include "Sample.h"
+#include "Tool_ConvexVolume.h"
+#include "Tool_Crowd.h"
+#include "Tool_NavMeshPrune.h"
+#include "Tool_NavMeshTester.h"
+#include "Tool_OffMeshConnection.h"
 
 #include <imgui.h>
 

@@ -16,7 +16,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "NavMeshPruneTool.h"
+#include "Tool_NavMeshPrune.h"
 
 #include "DetourAssert.h"
 #include "DetourCommon.h"

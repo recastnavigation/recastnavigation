@@ -16,6 +16,8 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
+#include "Tool_Crowd.h"
+
 #include "SDL.h"
 #include "SDL_opengl.h"
 
@@ -29,7 +31,6 @@
 
 #	include <algorithm>
 #endif
-#include "CrowdTool.h"
 #include "DetourCommon.h"
 #include "DetourCrowd.h"
 #include "DetourDebugDraw.h"
