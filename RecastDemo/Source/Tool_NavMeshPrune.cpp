@@ -18,7 +18,6 @@
 
 #include "Tool_NavMeshPrune.h"
 
-#include "DetourAssert.h"
 #include "DetourCommon.h"
 #include "DetourDebugDraw.h"
 #include "DetourNavMesh.h"
@@ -29,105 +28,6 @@
 #include <imgui.h>
 
 #include <vector>
-
-class NavmeshFlags
-{
-	struct TileFlags
-	{
-		void purge() const { dtFree(flags); }
-		unsigned char* flags;
-		int nflags;
-		dtPolyRef base;
-	};
-
-	const dtNavMesh* nav = nullptr;
-	TileFlags* tiles = nullptr;
-	int numTiles = 0;
-
-public:
-	~NavmeshFlags()
-	{
-		for (int i = 0; i < numTiles; ++i)
-		{
-			tiles[i].purge();
-		}
-		delete[] tiles;
-	}
-
-	bool init(const dtNavMesh* navmesh)
-	{
-		numTiles = navmesh->getMaxTiles();
-		if (numTiles == 0)
-		{
-			return true;
-		}
-
-		tiles = new TileFlags[numTiles];
-		memset(tiles, 0, sizeof(TileFlags) * numTiles);
-
-		// Alloc flags for each tile.
-		for (int i = 0; i < navmesh->getMaxTiles(); ++i)
-		{
-			const dtMeshTile* tile = navmesh->getTile(i);
-			if (!tile->header)
-			{
-				continue;
-			}
-			TileFlags* tileFlags = &tiles[i];
-			tileFlags->nflags = tile->header->polyCount;
-			tileFlags->base = navmesh->getPolyRefBase(tile);
-			if (tileFlags->nflags)
-			{
-				tileFlags->flags = new unsigned char[tileFlags->nflags];
-				if (!tileFlags->flags)
-				{
-					return false;
-				}
-				memset(tileFlags->flags, 0, tileFlags->nflags);
-			}
-		}
-
-		nav = navmesh;
-
-		return false;
-	}
-
-	void clearAllFlags() const
-	{
-		for (int i = 0; i < numTiles; ++i)
-		{
-			TileFlags* tileFlags = &tiles[i];
-			if (tileFlags->nflags)
-			{
-				memset(tileFlags->flags, 0, tileFlags->nflags);
-			}
-		}
-	}
-
-	unsigned char getFlags(dtPolyRef ref)
-	{
-		dtAssert(nav);
-		dtAssert(numTiles);
-		// Assume the ref is valid, no bounds checks.
-		unsigned int salt;
-		unsigned int it;
-		unsigned int ip;
-		nav->decodePolyId(ref, salt, it, ip);
-		return tiles[it].flags[ip];
-	}
-
-	void setFlags(dtPolyRef ref, unsigned char flags) const
-	{
-		dtAssert(nav);
-		dtAssert(numTiles);
-		// Assume the ref is valid, no bounds checks.
-		unsigned int salt;
-		unsigned int it;
-		unsigned int ip;
-		nav->decodePolyId(ref, salt, it, ip);
-		tiles[it].flags[ip] = flags;
-	}
-};
 
 namespace
 {
@@ -195,6 +95,66 @@ void disableUnvisitedPolys(dtNavMesh* nav, NavmeshFlags* flags)
 		}
 	}
 }
+}
+
+void NavmeshFlags::init(const dtNavMesh* newNavmesh)
+{
+	navmesh = newNavmesh;
+	tileFlags.clear();
+
+	const int numTiles = navmesh->getMaxTiles();
+	if (numTiles == 0)
+	{
+		return;
+	}
+	tileFlags.resize(numTiles);
+
+	// Alloc flags for each poly in each tile.
+	for (int i = 0; i < numTiles; ++i)
+	{
+		const dtMeshTile* tile = navmesh->getTile(i);
+		if (tile->header == nullptr)
+		{
+			continue;
+		}
+
+		tileFlags[i].resize(tile->header->polyCount, 0);
+	}
+}
+
+void NavmeshFlags::clearAllFlags()
+{
+	for (auto& tile : tileFlags)
+	{
+		for (auto& polyFlags : tile)
+		{
+			polyFlags = 0;
+		}
+	}
+}
+
+[[nodiscard]] unsigned char NavmeshFlags::getFlags(const dtPolyRef ref) const
+{
+	dtAssert(navmesh != nullptr);
+	dtAssert(!tileFlags.empty());
+	// Assume the ref is valid, no bounds checks.
+	unsigned int salt;
+	unsigned int it;
+	unsigned int ip;
+	navmesh->decodePolyId(ref, salt, it, ip);
+	return tileFlags[it][ip];
+}
+
+void NavmeshFlags::setFlags(const dtPolyRef ref, const unsigned char flags)
+{
+	dtAssert(navmesh != nullptr);
+	dtAssert(!tileFlags.empty());
+	// Assume the ref is valid, no bounds checks.
+	unsigned int salt;
+	unsigned int it;
+	unsigned int ip;
+	navmesh->decodePolyId(ref, salt, it, ip);
+	tileFlags[it][ip] = flags;
 }
 
 NavMeshPruneTool::~NavMeshPruneTool()
