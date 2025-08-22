@@ -1495,7 +1495,7 @@ void NavMeshTesterTool::render()
 	}
 }
 
-void NavMeshTesterTool::renderOverlay(double* proj, double* model, int* view)
+void NavMeshTesterTool::drawOverlayUI(double* proj, double* model, int* view)
 {
 	GLdouble x, y, z;
 

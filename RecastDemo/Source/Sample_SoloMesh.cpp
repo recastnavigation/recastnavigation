@@ -331,7 +331,7 @@ void Sample_SoloMesh::renderOverlay(double* proj, double* model, int* view)
 {
 	if (tool)
 	{
-		tool->renderOverlay(proj, model, view);
+		tool->drawOverlayUI(proj, model, view);
 	}
 	renderOverlayToolStates(proj, model, view);
 }

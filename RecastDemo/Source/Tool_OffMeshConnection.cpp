@@ -147,7 +147,7 @@ void OffMeshConnectionTool::render()
 	}
 }
 
-void OffMeshConnectionTool::renderOverlay(double* proj, double* model, int* view)
+void OffMeshConnectionTool::drawOverlayUI(double* proj, double* model, int* view)
 {
 	GLdouble x, y, z;
 

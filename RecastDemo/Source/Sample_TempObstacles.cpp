@@ -814,7 +814,7 @@ public:
 		}
 	}
 
-	void renderOverlay(double* proj, double* model, int* view) override
+	void drawOverlayUI(double* proj, double* model, int* view) override
 	{
 		if (m_hitPosSet)
 		{
@@ -875,7 +875,7 @@ public:
 	void singleStep() override {}
 	void update(const float /*dt*/) override {}
 	void render() override {}
-	void renderOverlay(double* /*proj*/, double* /*model*/, int* /*view*/) override {}
+	void drawOverlayUI(double* /*proj*/, double* /*model*/, int* /*view*/) override {}
 };
 
 Sample_TempObstacles::Sample_TempObstacles()
@@ -1197,7 +1197,7 @@ void Sample_TempObstacles::renderOverlay(double* proj, double* model, int* view)
 {
 	if (tool)
 	{
-		tool->renderOverlay(proj, model, view);
+		tool->drawOverlayUI(proj, model, view);
 	}
 	renderOverlayToolStates(proj, model, view);
 
