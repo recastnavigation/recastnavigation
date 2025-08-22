@@ -25,8 +25,8 @@ class OffMeshConnectionTool : public SampleTool
 {
 	Sample* sample = nullptr;
 	float hitPos[3];
-	bool hitPosSet = 0;
-	bool bidir = true;
+	bool hitPosSet = false;
+	bool bidirectional = true;
 	unsigned char oldFlags = 0;
 
 public:
@@ -40,13 +40,17 @@ public:
 	}
 
 	SampleToolType type() override { return SampleToolType::OFFMESH_CONNECTION; }
+
 	void init(Sample* sample) override;
 	void reset() override;
-	void drawMenuUI() override;
-	void onClick(const float* rayStartTime, const float* rayHitPos, bool shift) override;
-	void onToggle() override;
-	void singleStep() override;
-	void update(const float dt) override;
+
+	void singleStep() override {}
+	void update(const float dt) override {}
 	void render() override;
+
+	void drawMenuUI() override;
 	void drawOverlayUI(double* proj, double* model, int* view) override;
+
+	void onClick(const float* rayStartTime, const float* rayHitPos, bool shift) override;
+	void onToggle() override {}
 };

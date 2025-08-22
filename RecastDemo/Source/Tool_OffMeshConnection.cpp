@@ -18,37 +18,34 @@
 
 #include "Tool_OffMeshConnection.h"
 
+#include "DetourDebugDraw.h"
+#include "InputGeom.h"
+#include "Recast.h"
 #include "SDL_opengl.h"
+#include "Sample.h"
 #include "imguiHelpers.h"
-
-#include <float.h>
-#include <cmath>
 
 #ifdef __APPLE__
 #	include <OpenGL/glu.h>
 #else
 #	include <GL/glu.h>
 #endif
-#include "DetourDebugDraw.h"
-#include "InputGeom.h"
-
-#include "Recast.h"
-#include "Sample.h"
 
 #include <imgui.h>
 
-#ifdef WIN32
-#	define snprintf _snprintf
-#endif
+#include <cfloat>
+#include <cmath>
 
 void OffMeshConnectionTool::init(Sample* newSample)
 {
-	if (sample != newSample)
+	if (sample == newSample)
 	{
-		sample = newSample;
-		oldFlags = sample->navMeshDrawFlags;
-		sample->navMeshDrawFlags &= ~DU_DRAWNAVMESH_OFFMESHCONS;
+		return;
 	}
+
+	sample = newSample;
+	oldFlags = sample->navMeshDrawFlags;
+	sample->navMeshDrawFlags &= ~DU_DRAWNAVMESH_OFFMESHCONS;
 }
 
 void OffMeshConnectionTool::reset()
@@ -58,14 +55,7 @@ void OffMeshConnectionTool::reset()
 
 void OffMeshConnectionTool::drawMenuUI()
 {
-	if (ImGui::RadioButton("One Way", !bidir))
-	{
-		bidir = false;
-	}
-	if (ImGui::RadioButton("Bidirectional", bidir))
-	{
-		bidir = true;
-	}
+	ImGui::Checkbox("Bidirectional", &bidirectional);
 }
 
 void OffMeshConnectionTool::onClick(const float* /*rayStartPos*/, const float* rayHitPos, bool shift)
@@ -90,10 +80,10 @@ void OffMeshConnectionTool::onClick(const float* /*rayStartPos*/, const float* r
 		const float* verts = geom->offMeshConVerts;
 		for (int i = 0; i < geom->offMeshConCount * 2; ++i)
 		{
-			float dist = rcVdistSqr(rayHitPos, &verts[i * 3]);
-			if (dist < nearestDist)
+			const float distance = rcVdistSqr(rayHitPos, &verts[i * 3]);
+			if (distance < nearestDist)
 			{
-				nearestDist = dist;
+				nearestDist = distance;
 				nearestIndex = i / 2;  // Each link has two vertices.
 			}
 		}
@@ -118,19 +108,13 @@ void OffMeshConnectionTool::onClick(const float* /*rayStartPos*/, const float* r
 				hitPos,
 				rayHitPos,
 				sample->agentRadius,
-				bidir ? 1 : 0,
+				bidirectional ? 1 : 0,
 				SAMPLE_POLYAREA_JUMP,
 				SAMPLE_POLYFLAGS_JUMP);
 			hitPosSet = false;
 		}
 	}
 }
-
-void OffMeshConnectionTool::onToggle() {}
-
-void OffMeshConnectionTool::singleStep() {}
-
-void OffMeshConnectionTool::update(const float /*dt*/) {}
 
 void OffMeshConnectionTool::render()
 {
@@ -158,12 +142,7 @@ void OffMeshConnectionTool::drawOverlayUI(double* proj, double* model, int* view
 	}
 
 	// Tool help
-	if (!hitPosSet)
-	{
-		DrawScreenspaceText(280, 40, IM_COL32(255, 255, 255, 192), "LMB: Create new connection.  SHIFT+LMB: Delete existing connection, click near start or end point.");
-	}
-	else
-	{
-		DrawScreenspaceText(280, 40, IM_COL32(255, 255, 255, 192), "LMB: Set connection end point and finish.");
-	}
+	const auto setMessage = "LMB: Set connection end point and finish.";
+	const auto connectMessage = "LMB: Create new connection. SHIFT+LMB: Delete existing connection, click near start or end point.";
+	DrawScreenspaceText(280, 40, IM_COL32(255, 255, 255, 192), hitPosSet ? setMessage : connectMessage);
 }
