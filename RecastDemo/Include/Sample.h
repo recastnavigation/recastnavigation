@@ -45,17 +45,7 @@ enum class SampleToolType : uint8_t
 	MAX_TOOLS
 };
 
-static const char* toolNames[] = {
-	"None",
-	"Create Tiles",
-	"Highlight Tile Cache",
-	"Create Temp Obstacles",
-	"Test Navmesh",
-	"Prune Navmesh",
-	"Create Off-Mesh Connections",
-	"Create Convex Volumes",
-	"Create Crowds",
-};
+extern const char* toolNames[];
 
 /// These are just sample areas to use consistent values across the samples.
 /// The use should specify these base on his needs.

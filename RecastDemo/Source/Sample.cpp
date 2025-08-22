@@ -35,6 +35,18 @@
 #	define snprintf _snprintf
 #endif
 
+const char* toolNames[] = {
+	"None",
+	"Create Tiles",
+	"Highlight Tile Cache",
+	"Create Temp Obstacles",
+	"Test Navmesh",
+	"Prune Navmesh",
+	"Create Off-Mesh Connections",
+	"Create Convex Volumes",
+	"Create Crowds",
+};
+
 namespace
 {
 
