@@ -31,7 +31,7 @@ class OffMeshConnectionTool : public SampleTool
 
 public:
 	OffMeshConnectionTool() = default;
-	~OffMeshConnectionTool()
+	~OffMeshConnectionTool() override
 	{
 		if (sample)
 		{

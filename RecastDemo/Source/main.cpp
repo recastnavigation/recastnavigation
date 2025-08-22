@@ -187,10 +187,10 @@ struct AppData
 	void UpdateUIScale()
 	{
 		ImGuiIO& io = ImGui::GetIO();
-		io.DisplaySize = ImVec2(width, height);
+		io.DisplaySize = ImVec2(static_cast<float>(width), static_cast<float>(height));
 		io.DisplayFramebufferScale = ImVec2(
-			static_cast<float>(drawableWidth) / width,
-			static_cast<float>(drawableHeight) / height);
+			static_cast<float>(drawableWidth) / static_cast<float>(width),
+			static_cast<float>(drawableHeight) / static_cast<float>(height));
 	}
 };
 

@@ -377,7 +377,7 @@ void TestCase::handleRender()
 			glColor4ub(0, 0, 0, 64);
 		}
 
-		int numStraight = test.straight.size() / 3;
+		int numStraight = static_cast<int>(test.straight.size()) / 3;
 		for (int i = 0; i < numStraight - 1; ++i)
 		{
 			glVertex3f(test.straight[i * 3 + 0], test.straight[i * 3 + 1] + 0.3f, test.straight[i * 3 + 2]);
