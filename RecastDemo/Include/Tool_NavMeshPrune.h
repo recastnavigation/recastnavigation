@@ -22,9 +22,7 @@
 
 class NavmeshFlags;
 
-/**
- * Prune navmesh to only accessible locations from a point.
- */
+/// Prune navmesh to only accessible locations from a point.
 class NavMeshPruneTool : public SampleTool
 {
 	Sample* sample = nullptr;
