@@ -15,7 +15,7 @@ jobs:
           - Release
 
     runs-on: macos-latest
-    
+
     steps:
     - uses: actions/checkout@v3
 
@@ -41,11 +41,11 @@ jobs:
     - name: Build With Xcode
       working-directory: RecastDemo/Build/xcode4/
       run: xcodebuild -scheme RecastDemo -configuration ${{matrix.conf}} -project RecastDemo.xcodeproj build
-    
+
     - name: Build Unit Tests With Xcode
       working-directory: RecastDemo/Build/xcode4/
       run: xcodebuild -scheme Tests -configuration ${{matrix.conf}} -project Tests.xcodeproj build
-  
+
   macos-cmake:
     strategy:
       matrix:
@@ -54,7 +54,7 @@ jobs:
           - Release
 
     runs-on: macos-latest
-    
+
     steps:
     - uses: actions/checkout@v3
     - name: Download & install SDL
@@ -72,7 +72,7 @@ jobs:
 
     - name: Build
       run: cmake --build ${{github.workspace}}/build --config ${{matrix.conf}}
-  
+
   linux-premake:
     strategy:
       matrix:
@@ -101,15 +101,15 @@ jobs:
         curl -L -o premake.tar.gz https://github.com/premake/premake-core/releases/download/v5.0.0-beta2/premake-5.0.0-beta2-linux.tar.gz
         tar -xzf premake.tar.gz
         rm premake.tar.gz
-    
+
     - name: Run premake
       working-directory: RecastDemo
       run: ./premake5 --cc=${{matrix.compiler}} gmake2
-    
+
     - name: Build
       working-directory: RecastDemo/Build/gmake2
       run: make config=${{matrix.conf}} verbose=true
-    
+
   linux-cmake:
     strategy:
       matrix:
@@ -132,7 +132,7 @@ jobs:
 
     - name: Build
       run: cmake --build ${{github.workspace}}/build --config ${{matrix.conf}}
-  
+
   windows-premake:
     strategy:
       matrix:
@@ -140,12 +140,8 @@ jobs:
           - Debug
           - Release
         vs-version:
-          - vs2019
           - vs2022
         include:
-          - vs-version: vs2019
-            version-range: '16.0'
-            runner: windows-2019
           - vs-version: vs2022
             version-range: '17.0'
             runner: windows-2022
