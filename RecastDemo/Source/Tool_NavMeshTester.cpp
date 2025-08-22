@@ -212,17 +212,17 @@ void NavMeshTesterTool::init(Sample* newSample)
 
 void NavMeshTesterTool::drawMenuUI()
 {
-	if (ImGui::RadioButton("Pathfind Follow", toolMode == TOOLMODE_PATHFIND_FOLLOW))
+	if (ImGui::RadioButton("Pathfind Follow", toolMode == ToolMode::PATHFIND_FOLLOW))
 	{
-		toolMode = TOOLMODE_PATHFIND_FOLLOW;
+		toolMode = ToolMode::PATHFIND_FOLLOW;
 		recalc();
 	}
-	if (ImGui::RadioButton("Pathfind Straight", toolMode == TOOLMODE_PATHFIND_STRAIGHT))
+	if (ImGui::RadioButton("Pathfind Straight", toolMode == ToolMode::PATHFIND_STRAIGHT))
 	{
-		toolMode = TOOLMODE_PATHFIND_STRAIGHT;
+		toolMode = ToolMode::PATHFIND_STRAIGHT;
 		recalc();
 	}
-	if (toolMode == TOOLMODE_PATHFIND_STRAIGHT)
+	if (toolMode == ToolMode::PATHFIND_STRAIGHT)
 	{
 		ImGui::Indent();
 		ImGui::Text("Vertices at crossings");
@@ -243,46 +243,46 @@ void NavMeshTesterTool::drawMenuUI()
 		}
 		ImGui::Unindent();
 	}
-	if (ImGui::RadioButton("Pathfind Sliced", toolMode == TOOLMODE_PATHFIND_SLICED))
+	if (ImGui::RadioButton("Pathfind Sliced", toolMode == ToolMode::PATHFIND_SLICED))
 	{
-		toolMode = TOOLMODE_PATHFIND_SLICED;
+		toolMode = ToolMode::PATHFIND_SLICED;
 		recalc();
 	}
 
 	ImGui::Separator();
 
-	if (ImGui::RadioButton("Distance to Wall", toolMode == TOOLMODE_DISTANCE_TO_WALL))
+	if (ImGui::RadioButton("Distance to Wall", toolMode == ToolMode::DISTANCE_TO_WALL))
 	{
-		toolMode = TOOLMODE_DISTANCE_TO_WALL;
+		toolMode = ToolMode::DISTANCE_TO_WALL;
 		recalc();
 	}
 
 	ImGui::Separator();
 
-	if (ImGui::RadioButton("Raycast", toolMode == TOOLMODE_RAYCAST))
+	if (ImGui::RadioButton("Raycast", toolMode == ToolMode::RAYCAST))
 	{
-		toolMode = TOOLMODE_RAYCAST;
+		toolMode = ToolMode::RAYCAST;
 		recalc();
 	}
 
 	ImGui::Separator();
 
-	if (ImGui::RadioButton("Find Polys in Circle", toolMode == TOOLMODE_FIND_POLYS_IN_CIRCLE))
+	if (ImGui::RadioButton("Find Polys in Circle", toolMode == ToolMode::FIND_POLYS_IN_CIRCLE))
 	{
-		toolMode = TOOLMODE_FIND_POLYS_IN_CIRCLE;
+		toolMode = ToolMode::FIND_POLYS_IN_CIRCLE;
 		recalc();
 	}
-	if (ImGui::RadioButton("Find Polys in Shape", toolMode == TOOLMODE_FIND_POLYS_IN_SHAPE))
+	if (ImGui::RadioButton("Find Polys in Shape", toolMode == ToolMode::FIND_POLYS_IN_SHAPE))
 	{
-		toolMode = TOOLMODE_FIND_POLYS_IN_SHAPE;
+		toolMode = ToolMode::FIND_POLYS_IN_SHAPE;
 		recalc();
 	}
 
 	ImGui::Separator();
 
-	if (ImGui::RadioButton("Find Local Neighbourhood", toolMode == TOOLMODE_FIND_LOCAL_NEIGHBOURHOOD))
+	if (ImGui::RadioButton("Find Local Neighbourhood", toolMode == ToolMode::FIND_LOCAL_NEIGHBOURHOOD))
 	{
-		toolMode = TOOLMODE_FIND_LOCAL_NEIGHBOURHOOD;
+		toolMode = ToolMode::FIND_LOCAL_NEIGHBOURHOOD;
 		recalc();
 	}
 
@@ -451,7 +451,7 @@ void NavMeshTesterTool::singleStep() {}
 void NavMeshTesterTool::onToggle()
 {
 	// TODO: merge separate to a path iterator. Use same code in recalc() too.
-	if (toolMode != TOOLMODE_PATHFIND_FOLLOW) { return; }
+	if (toolMode != ToolMode::PATHFIND_FOLLOW) { return; }
 
 	if (!sposSet || !eposSet || !startRef || !endRef) { return; }
 
@@ -613,7 +613,7 @@ void NavMeshTesterTool::onToggle()
 
 void NavMeshTesterTool::update(const float /*dt*/)
 {
-	if (toolMode == TOOLMODE_PATHFIND_SLICED)
+	if (toolMode == ToolMode::PATHFIND_SLICED)
 	{
 		if (dtStatusInProgress(pathFindStatus))
 		{
@@ -687,7 +687,7 @@ void NavMeshTesterTool::recalc()
 
 	pathFindStatus = DT_FAILURE;
 
-	if (toolMode == TOOLMODE_PATHFIND_FOLLOW)
+	if (toolMode == ToolMode::PATHFIND_FOLLOW)
 	{
 		pathIterNum = 0;
 		if (sposSet && eposSet && startRef && endRef)
@@ -850,7 +850,7 @@ void NavMeshTesterTool::recalc()
 			nsmoothPath = 0;
 		}
 	}
-	else if (toolMode == TOOLMODE_PATHFIND_STRAIGHT)
+	else if (toolMode == ToolMode::PATHFIND_STRAIGHT)
 	{
 		if (sposSet && eposSet && startRef && endRef)
 		{
@@ -896,7 +896,7 @@ void NavMeshTesterTool::recalc()
 			nstraightPath = 0;
 		}
 	}
-	else if (toolMode == TOOLMODE_PATHFIND_SLICED)
+	else if (toolMode == ToolMode::PATHFIND_SLICED)
 	{
 		if (sposSet && eposSet && startRef && endRef)
 		{
@@ -928,7 +928,7 @@ void NavMeshTesterTool::recalc()
 			nstraightPath = 0;
 		}
 	}
-	else if (toolMode == TOOLMODE_RAYCAST)
+	else if (toolMode == ToolMode::RAYCAST)
 	{
 		nstraightPath = 0;
 		if (sposSet && eposSet && startRef)
@@ -973,7 +973,7 @@ void NavMeshTesterTool::recalc()
 			dtVcopy(&straightPath[3], hitPos);
 		}
 	}
-	else if (toolMode == TOOLMODE_DISTANCE_TO_WALL)
+	else if (toolMode == ToolMode::DISTANCE_TO_WALL)
 	{
 		distanceToWall = 0;
 		if (sposSet && startRef)
@@ -991,7 +991,7 @@ void NavMeshTesterTool::recalc()
 			sample->navQuery->findDistanceToWall(startRef, spos, 100.0f, &filter, &distanceToWall, hitPos, hitNormal);
 		}
 	}
-	else if (toolMode == TOOLMODE_FIND_POLYS_IN_CIRCLE)
+	else if (toolMode == ToolMode::FIND_POLYS_IN_CIRCLE)
 	{
 		if (sposSet && startRef && eposSet)
 		{
@@ -1010,7 +1010,7 @@ void NavMeshTesterTool::recalc()
 			sample->navQuery->findPolysAroundCircle(startRef, spos, dist, &filter, polys, parent, 0, &npolys, MAX_POLYS);
 		}
 	}
-	else if (toolMode == TOOLMODE_FIND_POLYS_IN_SHAPE)
+	else if (toolMode == ToolMode::FIND_POLYS_IN_SHAPE)
 	{
 		if (sposSet && startRef && eposSet)
 		{
@@ -1054,7 +1054,7 @@ void NavMeshTesterTool::recalc()
 			sample->navQuery->findPolysAroundShape(startRef, queryPoly, 4, &filter, polys, parent, 0, &npolys, MAX_POLYS);
 		}
 	}
-	else if (toolMode == TOOLMODE_FIND_LOCAL_NEIGHBOURHOOD)
+	else if (toolMode == ToolMode::FIND_LOCAL_NEIGHBOURHOOD)
 	{
 		if (sposSet && startRef)
 		{
@@ -1116,7 +1116,7 @@ void NavMeshTesterTool::render()
 
 	if (!sample->navMesh) { return; }
 
-	if (toolMode == TOOLMODE_PATHFIND_FOLLOW)
+	if (toolMode == ToolMode::PATHFIND_FOLLOW)
 	{
 		duDebugDrawNavMeshPoly(&dd, *sample->navMesh, startRef, startCol);
 		duDebugDrawNavMeshPoly(&dd, *sample->navMesh, endRef, endCol);
@@ -1184,7 +1184,7 @@ void NavMeshTesterTool::render()
 			dd.depthMask(true);
 		}
 	}
-	else if (toolMode == TOOLMODE_PATHFIND_STRAIGHT || toolMode == TOOLMODE_PATHFIND_SLICED)
+	else if (toolMode == ToolMode::PATHFIND_STRAIGHT || toolMode == ToolMode::PATHFIND_SLICED)
 	{
 		duDebugDrawNavMeshPoly(&dd, *sample->navMesh, startRef, startCol);
 		duDebugDrawNavMeshPoly(&dd, *sample->navMesh, endRef, endCol);
@@ -1242,7 +1242,7 @@ void NavMeshTesterTool::render()
 			dd.depthMask(true);
 		}
 	}
-	else if (toolMode == TOOLMODE_RAYCAST)
+	else if (toolMode == ToolMode::RAYCAST)
 	{
 		duDebugDrawNavMeshPoly(&dd, *sample->navMesh, startRef, startCol);
 
@@ -1300,7 +1300,7 @@ void NavMeshTesterTool::render()
 			dd.depthMask(true);
 		}
 	}
-	else if (toolMode == TOOLMODE_DISTANCE_TO_WALL)
+	else if (toolMode == ToolMode::DISTANCE_TO_WALL)
 	{
 		duDebugDrawNavMeshPoly(&dd, *sample->navMesh, startRef, startCol);
 		dd.depthMask(false);
@@ -1318,7 +1318,7 @@ void NavMeshTesterTool::render()
 		dd.end();
 		dd.depthMask(true);
 	}
-	else if (toolMode == TOOLMODE_FIND_POLYS_IN_CIRCLE)
+	else if (toolMode == ToolMode::FIND_POLYS_IN_CIRCLE)
 	{
 		for (int i = 0; i < npolys; ++i)
 		{
@@ -1346,7 +1346,7 @@ void NavMeshTesterTool::render()
 			dd.depthMask(true);
 		}
 	}
-	else if (toolMode == TOOLMODE_FIND_POLYS_IN_SHAPE)
+	else if (toolMode == ToolMode::FIND_POLYS_IN_SHAPE)
 	{
 		for (int i = 0; i < npolys; ++i)
 		{
@@ -1380,7 +1380,7 @@ void NavMeshTesterTool::render()
 			dd.depthMask(true);
 		}
 	}
-	else if (toolMode == TOOLMODE_FIND_LOCAL_NEIGHBOURHOOD)
+	else if (toolMode == ToolMode::FIND_LOCAL_NEIGHBOURHOOD)
 	{
 		for (int i = 0; i < npolys; ++i)
 		{
