@@ -24,12 +24,16 @@
 
 class NavMeshTesterTool : public SampleTool
 {
+	static constexpr int MAX_POLYS = 256;
+	static constexpr int MAX_SMOOTH = 2048;
+	static constexpr int MAX_RAND_POINTS = 64;
+
 	Sample* sample = nullptr;
 
 	dtQueryFilter filter;
 	dtStatus pathFindStatus = DT_FAILURE;
 
-	enum class ToolMode
+	enum class ToolMode : uint8_t
 	{
 		PATHFIND_FOLLOW,
 		PATHFIND_STRAIGHT,
@@ -44,9 +48,6 @@ class NavMeshTesterTool : public SampleTool
 
 	int straightPathOptions = 0;
 
-	static constexpr int MAX_POLYS = 256;
-	static constexpr int MAX_SMOOTH = 2048;
-
 	dtPolyRef startRef = 0;
 	dtPolyRef endRef = 0;
 	dtPolyRef polys[MAX_POLYS];
@@ -57,25 +58,26 @@ class NavMeshTesterTool : public SampleTool
 	dtPolyRef straightPathPolys[MAX_POLYS];
 	int nstraightPath = 0;
 	float polyPickExt[3] = {2, 4, 2};
+
 	float smoothPath[MAX_SMOOTH * 3];
 	int nsmoothPath = 0;
 	float queryPoly[4 * 3];
 
-	static constexpr int MAX_RAND_POINTS = 64;
 	float randPoints[MAX_RAND_POINTS * 3];
 	int nrandPoints = 0;
 	bool randPointsInCircle = false;
 
+	bool sposSet = false;
 	float spos[3];
+	bool eposSet = false;
 	float epos[3];
+
 	float hitPos[3];
 	float hitNormal[3];
 	bool hitResult = false;
 	float distanceToWall = 0;
 	float neighbourhoodRadius = 2.5f;
 	float randomRadius = 5.0f;
-	bool sposSet = false;
-	bool eposSet = false;
 
 	int pathIterNum = 0;
 	dtPolyRef pathIterPolys[MAX_POLYS];
@@ -104,5 +106,5 @@ public:
 	void renderOverlay(double* proj, double* model, int* view) override;
 
 	void recalc();
-	void drawAgent(const float* pos, float r, float h, float c, const unsigned int col);
+	void drawAgent(const float* pos, float r, float h, float c, const unsigned int col) const;
 };

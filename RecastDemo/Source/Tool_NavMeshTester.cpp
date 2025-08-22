@@ -18,41 +18,35 @@
 
 #include "Tool_NavMeshTester.h"
 
-#include "SDL_opengl.h"
-
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#ifdef __APPLE__
-#	include <OpenGL/glu.h>
-#else
-#	include <GL/glu.h>
-#endif
 #include "DetourCommon.h"
 #include "DetourDebugDraw.h"
 #include "DetourNavMesh.h"
 #include "DetourPathCorridor.h"
-
+#include "SDL_opengl.h"
 #include "Sample.h"
 #include "imguiHelpers.h"
 
 #include <imgui.h>
 
-#ifdef WIN32
-#	define snprintf _snprintf
+#include <cstdlib>
+#ifdef __APPLE__
+#	include <OpenGL/glu.h>
+#else
+#	include <GL/glu.h>
 #endif
 
 // Uncomment this to dump all the requests in stdout.
 #define DUMP_REQS
 
-// Returns a random number [0..1]
-static float frand()
+namespace
 {
-	return (float)rand() / (float)RAND_MAX;
+// Returns a random number [0..1]
+float frand()
+{
+	return static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
 }
 
-inline bool inRange(const float* v1, const float* v2, const float r, const float h)
+bool inRange(const float* v1, const float* v2, const float r, const float h)
 {
 	const float dx = v2[0] - v1[0];
 	const float dy = v2[1] - v1[1];
@@ -71,7 +65,7 @@ inline bool inRange(const float* v1, const float* v2, const float r, const float
 //  +-S-+-T-+
 //  |:::|   | <-- the step can end up in here, resulting U-turn path.
 //  +---+---+
-static int fixupShortcuts(dtPolyRef* path, int npath, dtNavMeshQuery* navQuery)
+int fixupShortcuts(dtPolyRef* path, int npath, dtNavMeshQuery* navQuery)
 {
 	if (npath < 3) { return npath; }
 
@@ -124,7 +118,7 @@ static int fixupShortcuts(dtPolyRef* path, int npath, dtNavMeshQuery* navQuery)
 	return npath;
 }
 
-static bool getSteerTarget(dtNavMeshQuery* navQuery,
+bool getSteerTarget(dtNavMeshQuery* navQuery,
 	const float* startPos,
 	const float* endPos,
 	const float minTargetDist,
@@ -182,6 +176,31 @@ static bool getSteerTarget(dtNavMeshQuery* navQuery,
 	steerPosRef = steerPathPolys[ns];
 
 	return true;
+}
+
+void getPolyCenter(dtNavMesh* navMesh, dtPolyRef ref, float* center)
+{
+	center[0] = 0;
+	center[1] = 0;
+	center[2] = 0;
+
+	const dtMeshTile* tile = 0;
+	const dtPoly* poly = 0;
+	dtStatus status = navMesh->getTileAndPolyByRef(ref, &tile, &poly);
+	if (dtStatusFailed(status)) { return; }
+
+	for (int i = 0; i < static_cast<int>(poly->vertCount); ++i)
+	{
+		const float* v = &tile->verts[poly->verts[i] * 3];
+		center[0] += v[0];
+		center[1] += v[1];
+		center[2] += v[2];
+	}
+	const float s = 1.0f / static_cast<float>(poly->vertCount);
+	center[0] *= s;
+	center[1] *= s;
+	center[2] *= s;
+}
 }
 
 NavMeshTesterTool::NavMeshTesterTool()
@@ -1073,30 +1092,6 @@ void NavMeshTesterTool::recalc()
 	}
 }
 
-static void getPolyCenter(dtNavMesh* navMesh, dtPolyRef ref, float* center)
-{
-	center[0] = 0;
-	center[1] = 0;
-	center[2] = 0;
-
-	const dtMeshTile* tile = 0;
-	const dtPoly* poly = 0;
-	dtStatus status = navMesh->getTileAndPolyByRef(ref, &tile, &poly);
-	if (dtStatusFailed(status)) { return; }
-
-	for (int i = 0; i < (int)poly->vertCount; ++i)
-	{
-		const float* v = &tile->verts[poly->verts[i] * 3];
-		center[0] += v[0];
-		center[1] += v[1];
-		center[2] += v[2];
-	}
-	const float s = 1.0f / poly->vertCount;
-	center[0] *= s;
-	center[1] *= s;
-	center[2] *= s;
-}
-
 void NavMeshTesterTool::render()
 {
 	duDebugDraw& dd = sample->debugDraw;
@@ -1110,13 +1105,24 @@ void NavMeshTesterTool::render()
 	const float agentClimb = sample->agentMaxClimb;
 
 	dd.depthMask(false);
-	if (sposSet) { drawAgent(spos, agentRadius, agentHeight, agentClimb, startCol); }
-	if (eposSet) { drawAgent(epos, agentRadius, agentHeight, agentClimb, endCol); }
+	if (sposSet)
+	{
+		drawAgent(spos, agentRadius, agentHeight, agentClimb, startCol);
+	}
+	if (eposSet)
+	{
+		drawAgent(epos, agentRadius, agentHeight, agentClimb, endCol);
+	}
 	dd.depthMask(true);
 
-	if (!sample->navMesh) { return; }
+	if (!sample->navMesh)
+	{
+		return;
+	}
 
-	if (toolMode == ToolMode::PATHFIND_FOLLOW)
+	switch (toolMode)
+	{
+	case ToolMode::PATHFIND_FOLLOW:
 	{
 		duDebugDrawNavMeshPoly(&dd, *sample->navMesh, startRef, startCol);
 		duDebugDrawNavMeshPoly(&dd, *sample->navMesh, endRef, endCol);
@@ -1125,7 +1131,10 @@ void NavMeshTesterTool::render()
 		{
 			for (int i = 0; i < npolys; ++i)
 			{
-				if (polys[i] == startRef || polys[i] == endRef) { continue; }
+				if (polys[i] == startRef || polys[i] == endRef)
+				{
+					continue;
+				}
 				duDebugDrawNavMeshPoly(&dd, *sample->navMesh, polys[i], pathCol);
 			}
 		}
@@ -1168,11 +1177,7 @@ void NavMeshTesterTool::render()
 
 			for (int i = 0; i < steerPointCount - 1; ++i)
 			{
-				dd.vertex(
-					steerPoints[i * 3 + 0],
-					steerPoints[i * 3 + 1] + 0.2f,
-					steerPoints[i * 3 + 2],
-					duDarkenCol(steerCol));
+				dd.vertex(steerPoints[i * 3 + 0], steerPoints[i * 3 + 1] + 0.2f, steerPoints[i * 3 + 2], duDarkenCol(steerCol));
 				dd.vertex(
 					steerPoints[(i + 1) * 3 + 0],
 					steerPoints[(i + 1) * 3 + 1] + 0.2f,
@@ -1184,7 +1189,9 @@ void NavMeshTesterTool::render()
 			dd.depthMask(true);
 		}
 	}
-	else if (toolMode == ToolMode::PATHFIND_STRAIGHT || toolMode == ToolMode::PATHFIND_SLICED)
+	break;
+	case ToolMode::PATHFIND_STRAIGHT:
+	case ToolMode::PATHFIND_SLICED:
 	{
 		duDebugDrawNavMeshPoly(&dd, *sample->navMesh, startRef, startCol);
 		duDebugDrawNavMeshPoly(&dd, *sample->navMesh, endRef, endCol);
@@ -1193,7 +1200,10 @@ void NavMeshTesterTool::render()
 		{
 			for (int i = 0; i < npolys; ++i)
 			{
-				if (polys[i] == startRef || polys[i] == endRef) { continue; }
+				if (polys[i] == startRef || polys[i] == endRef)
+				{
+					continue;
+				}
 				duDebugDrawNavMeshPoly(&dd, *sample->navMesh, polys[i], pathCol);
 			}
 		}
@@ -1216,33 +1226,38 @@ void NavMeshTesterTool::render()
 					col = spathCol;
 				}
 
-				dd.vertex(
-					straightPath[i * 3],
-					straightPath[i * 3 + 1] + 0.4f,
-					straightPath[i * 3 + 2],
-					col);
-				dd.vertex(
-					straightPath[(i + 1) * 3],
-					straightPath[(i + 1) * 3 + 1] + 0.4f,
-					straightPath[(i + 1) * 3 + 2],
-					col);
+				dd.vertex(straightPath[i * 3], straightPath[i * 3 + 1] + 0.4f, straightPath[i * 3 + 2], col);
+				dd.vertex(straightPath[(i + 1) * 3], straightPath[(i + 1) * 3 + 1] + 0.4f, straightPath[(i + 1) * 3 + 2], col);
 			}
 			dd.end();
 			dd.begin(DU_DRAW_POINTS, 6.0f);
 			for (int i = 0; i < nstraightPath; ++i)
 			{
 				unsigned int col;
-				if (straightPathFlags[i] & DT_STRAIGHTPATH_START) { col = startCol; }
-				else if (straightPathFlags[i] & DT_STRAIGHTPATH_END) { col = endCol; }
-				else if (straightPathFlags[i] & DT_STRAIGHTPATH_OFFMESH_CONNECTION) { col = offMeshCol; }
-				else { col = spathCol; }
+				if (straightPathFlags[i] & DT_STRAIGHTPATH_START)
+				{
+					col = startCol;
+				}
+				else if (straightPathFlags[i] & DT_STRAIGHTPATH_END)
+				{
+					col = endCol;
+				}
+				else if (straightPathFlags[i] & DT_STRAIGHTPATH_OFFMESH_CONNECTION)
+				{
+					col = offMeshCol;
+				}
+				else
+				{
+					col = spathCol;
+				}
 				dd.vertex(straightPath[i * 3], straightPath[i * 3 + 1] + 0.4f, straightPath[i * 3 + 2], col);
 			}
 			dd.end();
 			dd.depthMask(true);
 		}
 	}
-	else if (toolMode == ToolMode::RAYCAST)
+	break;
+	case ToolMode::RAYCAST:
 	{
 		duDebugDrawNavMeshPoly(&dd, *sample->navMesh, startRef, startCol);
 
@@ -1258,11 +1273,7 @@ void NavMeshTesterTool::render()
 			dd.begin(DU_DRAW_LINES, 2.0f);
 			for (int i = 0; i < nstraightPath - 1; ++i)
 			{
-				dd.vertex(
-					straightPath[i * 3],
-					straightPath[i * 3 + 1] + 0.4f,
-					straightPath[i * 3 + 2],
-					spathCol);
+				dd.vertex(straightPath[i * 3], straightPath[i * 3 + 1] + 0.4f, straightPath[i * 3 + 2], spathCol);
 				dd.vertex(
 					straightPath[(i + 1) * 3],
 					straightPath[(i + 1) * 3 + 1] + 0.4f,
@@ -1273,11 +1284,7 @@ void NavMeshTesterTool::render()
 			dd.begin(DU_DRAW_POINTS, 4.0f);
 			for (int i = 0; i < nstraightPath; ++i)
 			{
-				dd.vertex(
-					straightPath[i * 3],
-					straightPath[i * 3 + 1] + 0.4f,
-					straightPath[i * 3 + 2],
-					spathCol);
+				dd.vertex(straightPath[i * 3], straightPath[i * 3 + 1] + 0.4f, straightPath[i * 3 + 2], spathCol);
 			}
 			dd.end();
 
@@ -1285,11 +1292,7 @@ void NavMeshTesterTool::render()
 			{
 				const unsigned int hitCol = duRGBA(0, 0, 0, 128);
 				dd.begin(DU_DRAW_LINES, 2.0f);
-				dd.vertex(
-					hitPos[0],
-					hitPos[1] + 0.4f,
-					hitPos[2],
-					hitCol);
+				dd.vertex(hitPos[0], hitPos[1] + 0.4f, hitPos[2], hitCol);
 				dd.vertex(
 					hitPos[0] + hitNormal[0] * agentRadius,
 					hitPos[1] + 0.4f + hitNormal[1] * agentRadius,
@@ -1300,25 +1303,20 @@ void NavMeshTesterTool::render()
 			dd.depthMask(true);
 		}
 	}
-	else if (toolMode == ToolMode::DISTANCE_TO_WALL)
+	break;
+	case ToolMode::DISTANCE_TO_WALL:
 	{
 		duDebugDrawNavMeshPoly(&dd, *sample->navMesh, startRef, startCol);
 		dd.depthMask(false);
-		duDebugDrawCircle(
-			&dd,
-			spos[0],
-			spos[1] + agentHeight / 2,
-			spos[2],
-			distanceToWall,
-			duRGBA(64, 16, 0, 220),
-			2.0f);
+		duDebugDrawCircle(&dd, spos[0], spos[1] + agentHeight / 2, spos[2], distanceToWall, duRGBA(64, 16, 0, 220), 2.0f);
 		dd.begin(DU_DRAW_LINES, 3.0f);
 		dd.vertex(hitPos[0], hitPos[1] + 0.02f, hitPos[2], duRGBA(0, 0, 0, 192));
 		dd.vertex(hitPos[0], hitPos[1] + agentHeight, hitPos[2], duRGBA(0, 0, 0, 192));
 		dd.end();
 		dd.depthMask(true);
 	}
-	else if (toolMode == ToolMode::FIND_POLYS_IN_CIRCLE)
+	break;
+	case ToolMode::FIND_POLYS_IN_CIRCLE:
 	{
 		for (int i = 0; i < npolys; ++i)
 		{
@@ -1346,7 +1344,8 @@ void NavMeshTesterTool::render()
 			dd.depthMask(true);
 		}
 	}
-	else if (toolMode == ToolMode::FIND_POLYS_IN_SHAPE)
+	break;
+	case ToolMode::FIND_POLYS_IN_SHAPE:
 	{
 		for (int i = 0; i < npolys; ++i)
 		{
@@ -1380,7 +1379,8 @@ void NavMeshTesterTool::render()
 			dd.depthMask(true);
 		}
 	}
-	else if (toolMode == ToolMode::FIND_LOCAL_NEIGHBOURHOOD)
+	break;
+	case ToolMode::FIND_LOCAL_NEIGHBOURHOOD:
 	{
 		for (int i = 0; i < npolys; ++i)
 		{
@@ -1410,7 +1410,10 @@ void NavMeshTesterTool::render()
 				// Skip too distant segments.
 				float tseg;
 				float distSqr = dtDistancePtSegSqr2D(spos, s, s + 3, tseg);
-				if (distSqr > dtSqr(neighbourhoodRadius)) { continue; }
+				if (distSqr > dtSqr(neighbourhoodRadius))
+				{
+					continue;
+				}
 
 				float delta[3];
 				float norm[3];
@@ -1465,6 +1468,8 @@ void NavMeshTesterTool::render()
 			dd.depthMask(true);
 		}
 	}
+	break;
+	}
 
 	if (nrandPoints > 0)
 	{
@@ -1508,26 +1513,26 @@ void NavMeshTesterTool::renderOverlay(double* proj, double* model, int* view)
 	DrawScreenspaceText( 280, 40, IM_COL32(255, 255, 255, 192), "LMB+SHIFT: Set start location  LMB: Set end location");
 }
 
-void NavMeshTesterTool::drawAgent(const float* pos, float r, float h, float c, const unsigned int col)
+void NavMeshTesterTool::drawAgent(const float* pos, float r, float h, float c, const unsigned int col) const
 {
-	duDebugDraw& dd = sample->debugDraw;
+	duDebugDraw& draw = sample->debugDraw;
 
-	dd.depthMask(false);
+	draw.depthMask(false);
 
 	// Agent dimensions.
-	duDebugDrawCylinderWire(&dd, pos[0] - r, pos[1] + 0.02f, pos[2] - r, pos[0] + r, pos[1] + h, pos[2] + r, col, 2.0f);
+	duDebugDrawCylinderWire(&draw, pos[0] - r, pos[1] + 0.02f, pos[2] - r, pos[0] + r, pos[1] + h, pos[2] + r, col, 2.0f);
 
-	duDebugDrawCircle(&dd, pos[0], pos[1] + c, pos[2], r, duRGBA(0, 0, 0, 64), 1.0f);
+	duDebugDrawCircle(&draw, pos[0], pos[1] + c, pos[2], r, duRGBA(0, 0, 0, 64), 1.0f);
 
-	unsigned int colb = duRGBA(0, 0, 0, 196);
-	dd.begin(DU_DRAW_LINES);
-	dd.vertex(pos[0], pos[1] - c, pos[2], colb);
-	dd.vertex(pos[0], pos[1] + c, pos[2], colb);
-	dd.vertex(pos[0] - r / 2, pos[1] + 0.02f, pos[2], colb);
-	dd.vertex(pos[0] + r / 2, pos[1] + 0.02f, pos[2], colb);
-	dd.vertex(pos[0], pos[1] + 0.02f, pos[2] - r / 2, colb);
-	dd.vertex(pos[0], pos[1] + 0.02f, pos[2] + r / 2, colb);
-	dd.end();
+	const unsigned int color = duRGBA(0, 0, 0, 196);
+	draw.begin(DU_DRAW_LINES);
+	draw.vertex(pos[0], pos[1] - c, pos[2], color);
+	draw.vertex(pos[0], pos[1] + c, pos[2], color);
+	draw.vertex(pos[0] - r / 2, pos[1] + 0.02f, pos[2], color);
+	draw.vertex(pos[0] + r / 2, pos[1] + 0.02f, pos[2], color);
+	draw.vertex(pos[0], pos[1] + 0.02f, pos[2] - r / 2, color);
+	draw.vertex(pos[0], pos[1] + 0.02f, pos[2] + r / 2, color);
+	draw.end();
 
-	dd.depthMask(true);
+	draw.depthMask(true);
 }
