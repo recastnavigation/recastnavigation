@@ -45,7 +45,7 @@ public:
 	void reset() override;
 
 	void singleStep() override {}
-	void update(const float dt) override {}
+	void update(const float /*dt*/) override {}
 	void render() override;
 
 	void drawMenuUI() override;
