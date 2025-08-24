@@ -36,7 +36,7 @@ class ConvexVolumeTool : public SampleTool
 	int numHull = 0;
 
 	std::vector<float> points;
-	int numPoints() const { return points.size() / 3; }
+	[[nodiscard]] int numPoints() const { return static_cast<int>(points.size()) / 3; }
 
 public:
 	SampleToolType type() override { return SampleToolType::CONVEX_VOLUME; }

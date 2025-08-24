@@ -16,8 +16,8 @@ struct AppData
 	SDL_Window* window;
 	SDL_GLContext glContext;
 
-	GLdouble projectionMatrix[16];
-	GLint viewport[4];
+	double projectionMatrix[16];
+	int viewport[4];
 
 	// Drawable width vs logical width (important for high-dpi screens)
 	int width;
@@ -85,5 +85,5 @@ struct AppData
 	void resetCamera();
 	void UpdateWindowSize();
 	void UpdateUIScale();
-	void WorldToScreen(float x, float y, float z, float* screenX, float* screenY);
+	void WorldToScreen(float x, float y, float z, float* screenX, float* screenY) const;
 };

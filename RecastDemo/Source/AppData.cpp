@@ -60,7 +60,7 @@ void AppData::UpdateUIScale()
 		static_cast<float>(drawableHeight) / static_cast<float>(height));
 }
 
-void AppData::WorldToScreen(float x, float y, float z, float* screenX, float* screenY)
+void AppData::WorldToScreen(float x, float y, float z, float* screenX, float* screenY) const
 {
 	GLdouble modelviewMatrix[16];
 	glGetDoublev(GL_MODELVIEW_MATRIX, modelviewMatrix);
@@ -68,9 +68,9 @@ void AppData::WorldToScreen(float x, float y, float z, float* screenX, float* sc
 	GLdouble winX, winY, winZ;
 	gluProject(x, y, z, modelviewMatrix, projectionMatrix, viewport, &winX, &winY, &winZ);
 
-	float dpiScaleX = float(drawableWidth) / float(width);
-	float dpiScaleY = float(drawableHeight) / float(height);
+	const float dpiScaleX = static_cast<float>(drawableWidth) / static_cast<float>(width);
+	const float dpiScaleY = static_cast<float>(drawableHeight) / static_cast<float>(height);
 
-	*screenX = winX / dpiScaleX;
-	*screenY = height - (winY / dpiScaleY);
+	*screenX = static_cast<float>(winX) / dpiScaleX;
+	*screenY = static_cast<float>(height) - static_cast<float>(winY / dpiScaleY);
 }
