@@ -37,7 +37,7 @@ void AppData::resetCamera()
 	glFogf(GL_FOG_END, camr * 1.25f);
 }
 
-void AppData::UpdateWindowSize()
+void AppData::updateWindowSize()
 {
 	SDL_GetWindowSize(window, &width, &height);
 	SDL_GL_GetDrawableSize(window, &drawableWidth, &drawableHeight);
@@ -51,7 +51,7 @@ void AppData::UpdateWindowSize()
 	glGetDoublev(GL_PROJECTION_MATRIX, projectionMatrix);
 }
 
-void AppData::UpdateUIScale()
+void AppData::updateUIScale() const
 {
 	ImGuiIO& io = ImGui::GetIO();
 	io.DisplaySize = ImVec2(static_cast<float>(width), static_cast<float>(height));
@@ -60,7 +60,7 @@ void AppData::UpdateUIScale()
 		static_cast<float>(drawableHeight) / static_cast<float>(height));
 }
 
-void AppData::WorldToScreen(float x, float y, float z, float* screenX, float* screenY) const
+void AppData::worldToScreen(float x, float y, float z, float* screenX, float* screenY) const
 {
 	GLdouble modelviewMatrix[16];
 	glGetDoublev(GL_MODELVIEW_MATRIX, modelviewMatrix);

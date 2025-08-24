@@ -22,7 +22,7 @@ inline void DrawWorldspaceText(float x, float y, float z, ImU32 color, const cha
 {
 	float screenX;
 	float screenY;
-	app.WorldToScreen(x, y, z, &screenX, &screenY);
+	app.worldToScreen(x, y, z, &screenX, &screenY);
 	screenY += offsetY;
 
 	if (centered)

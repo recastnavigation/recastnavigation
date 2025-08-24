@@ -83,7 +83,7 @@ struct AppData
 
 	~AppData();
 	void resetCamera();
-	void UpdateWindowSize();
-	void UpdateUIScale();
-	void WorldToScreen(float x, float y, float z, float* screenX, float* screenY) const;
+	void updateWindowSize();
+	void updateUIScale() const;
+	void worldToScreen(float x, float y, float z, float* screenX, float* screenY) const;
 };

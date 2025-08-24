@@ -124,7 +124,7 @@ int main(int /*argc*/, char** /*argv*/)
 	}
 
 	SDL_GL_SetSwapInterval(1);  // Enable vsync
-	app.UpdateWindowSize();
+	app.updateWindowSize();
 
 	// Setup Dear ImGui context
 	IMGUI_CHECKVERSION();
@@ -136,7 +136,7 @@ int main(int /*argc*/, char** /*argv*/)
 	io.Fonts->AddFontFromFileTTF("DroidSans.ttf", 16.0f);  // Size in pixels
 	ImGui::PushFont(io.Fonts->Fonts[0]);
 
-	app.UpdateUIScale();
+	app.updateUIScale();
 
 	// Set style
 	ImGui::StyleColorsDark();
@@ -270,8 +270,8 @@ int main(int /*argc*/, char** /*argv*/)
 			{
 				if (event.window.event == SDL_WINDOWEVENT_RESIZED)
 				{
-					app.UpdateWindowSize();
-					app.UpdateUIScale();
+					app.updateWindowSize();
+					app.updateUIScale();
 				}
 			}
 			break;
