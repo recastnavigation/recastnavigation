@@ -410,7 +410,7 @@ int main(int /*argc*/, char** /*argv*/)
 		}
 		if (app.testCase)
 		{
-			app.testCase->handleRender();
+			app.testCase->render();
 		}
 		glDisable(GL_FOG);
 
@@ -425,7 +425,7 @@ int main(int /*argc*/, char** /*argv*/)
 		}
 		if (app.testCase)
 		{
-			app.testCase->handleRenderOverlay(app.projectionMatrix, modelviewMatrix, app.viewport);
+			app.testCase->renderOverlay(app.projectionMatrix, modelviewMatrix, app.viewport);
 		}
 
 		bool newMeshSelected = false;

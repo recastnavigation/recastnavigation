@@ -64,6 +64,6 @@ public:
 
 	void doTests(class dtNavMesh* navmesh, class dtNavMeshQuery* navquery);
 
-	void handleRender();
-	bool handleRenderOverlay(double* proj, double* model, int* view);
+	void render();
+	bool renderOverlay(double* proj, double* model, int* view);
 };

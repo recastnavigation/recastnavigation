@@ -324,7 +324,7 @@ void TestCase::doTests(dtNavMesh* navmesh, dtNavMeshQuery* navquery)
 	}
 }
 
-void TestCase::handleRender()
+void TestCase::render()
 {
 	glLineWidth(2.0f);
 	glBegin(GL_LINES);
@@ -391,7 +391,7 @@ void TestCase::handleRender()
 	glLineWidth(1.0f);
 }
 
-bool TestCase::handleRenderOverlay(double* proj, double* model, int* view)
+bool TestCase::renderOverlay(double* proj, double* model, int* view)
 {
 	char text[64];
 	int n = 0;
