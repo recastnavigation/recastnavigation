@@ -5,6 +5,8 @@
 #include "Sample.h"
 #include "TestCase.h"
 
+#include <memory>
+
 struct AppData
 {
 	SDL_Window* window;
@@ -23,7 +25,7 @@ struct AppData
 	BuildContext buildContext;
 	InputGeom* inputGeometry = nullptr;
 	Sample* sample = nullptr;
-	TestCase* testCase = nullptr;
+	std::unique_ptr<TestCase> testCase {};
 
 	// Time
 	float timeAcc = 0.0f;

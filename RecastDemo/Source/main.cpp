@@ -519,8 +519,7 @@ int main(int /*argc*/, char** /*argv*/)
 							app.buildContext.dumpLog("Build log %s:", app.meshName.c_str());
 
 							// Clear test.
-							delete app.testCase;
-							app.testCase = 0;
+							app.testCase.reset();
 						}
 					}
 
@@ -637,11 +636,10 @@ int main(int /*argc*/, char** /*argv*/)
 				std::string path = app.testCasesFolder + "/" + app.files[currentTest];
 
 				// Load the test.
-				app.testCase = new TestCase{};
+				app.testCase = std::make_unique<TestCase>();
 				if (!app.testCase->load(path))
 				{
-					delete app.testCase;
-					app.testCase = 0;
+					app.testCase.reset();
 				}
 
 				// Create sample
