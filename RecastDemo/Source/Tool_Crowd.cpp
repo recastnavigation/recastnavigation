@@ -599,7 +599,7 @@ void CrowdToolState::render()
 	dd.depthMask(true);
 }
 
-void CrowdToolState::renderOverlay(double* proj, double* model, int* view)
+void CrowdToolState::renderOverlay()
 {
 	// Draw start and end point labels
 	if (targetPolyRef)

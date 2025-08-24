@@ -369,7 +369,7 @@ void Sample::renderOverlayToolStates(double* proj, double* model, int* view) con
 	{
 		if (toolStates[i])
 		{
-			toolStates[i]->renderOverlay(proj, model, view);
+			toolStates[i]->renderOverlay();
 		}
 	}
 }

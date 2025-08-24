@@ -109,7 +109,7 @@ struct SampleToolState
 
 	virtual void reset() = 0;
 	virtual void render() = 0;
-	virtual void renderOverlay(double* proj, double* model, int* view) = 0;
+	virtual void renderOverlay() = 0;
 };
 
 class Sample
