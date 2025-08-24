@@ -54,7 +54,7 @@ struct SampleItem
 namespace
 {
 constexpr float UPDATE_TIME = 1.0f / 60.0f;  // update at 60Hz
-constexpr float fogColor[4] = {0.32f, 0.31f, 0.30f, 1.0f};
+constexpr float FOG_COLOR[4] = {0.32f, 0.31f, 0.30f, 1.0f};
 
 SampleItem g_samples[] = {
 	{.name = "Solo Mesh",      .create = []() { return std::make_unique<Sample_SoloMesh>(); }     },
@@ -143,7 +143,7 @@ int main(int /*argc*/, char** /*argv*/)
 	glFogi(GL_FOG_MODE, GL_LINEAR);
 	glFogf(GL_FOG_START, app.camr * 0.1f);
 	glFogf(GL_FOG_END, app.camr * 1.25f);
-	glFogfv(GL_FOG_COLOR, fogColor);
+	glFogfv(GL_FOG_COLOR, FOG_COLOR);
 
 	// OpenGL settings
 	glEnable(GL_CULL_FACE);
