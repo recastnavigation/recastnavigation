@@ -12,8 +12,6 @@
 
 AppData::~AppData()
 {
-	delete sample;
-	sample = nullptr;
 	delete inputGeometry;
 	inputGeometry = nullptr;
 }

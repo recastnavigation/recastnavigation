@@ -44,14 +44,10 @@
 #include <imgui_impl_opengl2.h>
 #include <imgui_impl_sdl2.h>
 
-#ifdef WIN32
-#	define snprintf _snprintf
-#endif
-
 struct SampleItem
 {
 	std::string name;
-	std::function<Sample*()> create;
+	std::function<std::unique_ptr<Sample>()> create;
 };
 
 // Constants
@@ -61,9 +57,9 @@ constexpr float UPDATE_TIME = 1.0f / 60.0f;  // update at 60Hz
 constexpr float fogColor[4] = {0.32f, 0.31f, 0.30f, 1.0f};
 
 SampleItem g_samples[] = {
-	{"Solo Mesh",      []() { return new Sample_SoloMesh(); }     },
-	{"Tile Mesh",      []() { return new Sample_TileMesh(); }     },
-	{"Temp Obstacles", []() { return new Sample_TempObstacles(); }},
+	{.name = "Solo Mesh",      .create = []() { return std::make_unique<Sample_SoloMesh>(); }     },
+	{.name = "Tile Mesh",      .create = []() { return std::make_unique<Sample_TileMesh>(); }     },
+	{.name = "Temp Obstacles", .create = []() { return std::make_unique<Sample_TempObstacles>(); }},
 };
 constexpr int g_nsamples = sizeof(g_samples) / sizeof(SampleItem);
 
@@ -564,7 +560,6 @@ int main(int /*argc*/, char** /*argv*/)
 
 		if (newSampleSelected)
 		{
-			delete app.sample;
 			app.sample = g_samples[app.sampleIndex].create();
 			app.sample->buildContext = &app.buildContext;
 			if (app.inputGeometry)
@@ -588,8 +583,7 @@ int main(int /*argc*/, char** /*argv*/)
 				// Destroy the sample if it already had geometry loaded, as we've just deleted it!
 				if (app.sample && app.sample->inputGeometry)
 				{
-					delete app.sample;
-					app.sample = nullptr;
+					app.sample.reset();
 				}
 
 				app.showLog = true;
@@ -643,21 +637,14 @@ int main(int /*argc*/, char** /*argv*/)
 				}
 
 				// Create sample
-				Sample* newSample = nullptr;
 				for (int i = 0; i < g_nsamples; ++i)
 				{
 					if (g_samples[i].name == app.testCase->sampleName)
 					{
-						newSample = g_samples[i].create();
-						if (newSample)
-						{
-							app.sampleIndex = i;
-						}
+						app.sample = g_samples[i].create();
+						app.sampleIndex = i;
 					}
 				}
-
-				delete app.sample;
-				app.sample = newSample;
 
 				if (app.sample)
 				{
@@ -676,8 +663,7 @@ int main(int /*argc*/, char** /*argv*/)
 					delete app.inputGeometry;
 					app.inputGeometry = nullptr;
 
-					delete app.sample;
-					app.sample = nullptr;
+					app.sample.reset();
 
 					app.showLog = true;
 					app.logScroll = 0;

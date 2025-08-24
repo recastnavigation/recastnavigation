@@ -24,7 +24,7 @@ struct AppData
 	// Recast data, samples, and test cases
 	BuildContext buildContext;
 	InputGeom* inputGeometry = nullptr;
-	Sample* sample = nullptr;
+	std::unique_ptr<Sample> sample;
 	std::unique_ptr<TestCase> testCase {};
 
 	// Time
