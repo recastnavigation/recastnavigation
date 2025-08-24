@@ -26,14 +26,16 @@ void AppData::resetCamera()
 		const float* boundsMin = inputGeometry->getNavMeshBoundsMin();
 		const float* boundsMax = inputGeometry->getNavMeshBoundsMax();
 
-		camr = sqrtf(
-				   rcSqr(boundsMax[0] - boundsMin[0]) + rcSqr(boundsMax[1] - boundsMin[1]) +
-				   rcSqr(boundsMax[2] - boundsMin[2])) /
-			   2;
-		cameraPos[0] = (boundsMax[0] + boundsMin[0]) / 2 + camr;
-		cameraPos[1] = (boundsMax[1] + boundsMin[1]) / 2 + camr;
-		cameraPos[2] = (boundsMax[2] + boundsMin[2]) / 2 + camr;
-		camr *= 3;
+		camr = rcSqr(boundsMax[0] - boundsMin[0]);
+		camr += rcSqr(boundsMax[1] - boundsMin[1]);
+		camr += rcSqr(boundsMax[2] - boundsMin[2]);
+		camr = sqrtf(camr) / 2.0f;
+
+		cameraPos[0] = (boundsMax[0] + boundsMin[0]) / 2.0f + camr;
+		cameraPos[1] = (boundsMax[1] + boundsMin[1]) / 2.0f + camr;
+		cameraPos[2] = (boundsMax[2] + boundsMin[2]) / 2.0f + camr;
+
+		camr *= 3.0f;
 	}
 	cameraEulers[0] = 45;
 	cameraEulers[1] = -45;
