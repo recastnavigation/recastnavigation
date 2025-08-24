@@ -103,7 +103,7 @@ public:
 	void singleStep() override;
 	void update(const float dt) override;
 	void render() override;
-	void drawOverlayUI(double* proj, double* model, int* view) override;
+	void drawOverlayUI() override;
 
 	void recalc();
 	void drawAgent(const float* pos, float r, float h, float c, const unsigned int col) const;

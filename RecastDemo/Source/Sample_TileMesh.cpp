@@ -177,7 +177,7 @@ public:
 		glLineWidth(1.0f);
 	}
 
-	void drawOverlayUI(double* proj, double* model, int* view) override
+	void drawOverlayUI() override
 	{
 		if (m_hitPosSet)
 		{
@@ -549,7 +549,7 @@ void Sample_TileMesh::renderOverlay(double* proj, double* model, int* view)
 
 	if (tool)
 	{
-		tool->drawOverlayUI(proj, model, view);
+		tool->drawOverlayUI();
 	}
 	renderOverlayToolStates(proj, model, view);
 }

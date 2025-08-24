@@ -1495,7 +1495,7 @@ void NavMeshTesterTool::render()
 	}
 }
 
-void NavMeshTesterTool::drawOverlayUI(double* proj, double* model, int* view)
+void NavMeshTesterTool::drawOverlayUI()
 {
 	if (sposSet)
 	{

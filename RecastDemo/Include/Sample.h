@@ -94,7 +94,7 @@ struct SampleTool
 	virtual void render() = 0;
 
 	virtual void drawMenuUI() = 0;
-	virtual void drawOverlayUI(double* proj, double* model, int* view) = 0;
+	virtual void drawOverlayUI() = 0;
 
 	virtual void onClick(const float* rayStartPos, const float* rayHitPos, bool shift) = 0;
 	virtual void onToggle() = 0;

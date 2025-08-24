@@ -49,7 +49,7 @@ public:
 	void render() override;
 
 	void drawMenuUI() override;
-	void drawOverlayUI(double* proj, double* model, int* view) override;
+	void drawOverlayUI() override;
 
 	void onClick(const float* rayStartTime, const float* rayHitPos, bool shift) override;
 	void onToggle() override {}

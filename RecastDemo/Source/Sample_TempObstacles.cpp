@@ -264,7 +264,7 @@ void drawDetail(duDebugDraw* debugDraw, dtTileCache* tileCache, const int tileX,
 	}
 }
 
-void drawDetailOverlay(const dtTileCache* tileCache, const int tileX, const int tileY, double* proj, double* model, int* view)
+void drawDetailOverlay(const dtTileCache* tileCache, const int tileX, const int tileY)
 {
 	dtCompressedTileRef tiles[MAX_LAYERS];
 	const int ntiles = tileCache->getTilesAt(tileX, tileY, tiles, MAX_LAYERS);
@@ -801,7 +801,7 @@ public:
 		}
 	}
 
-	void drawOverlayUI(double* proj, double* model, int* view) override
+	void drawOverlayUI() override
 	{
 		if (m_hitPosSet)
 		{
@@ -809,7 +809,7 @@ public:
 			{
 				int tileX = 0, tileY = 0;
 				m_sample->getTilePos(m_hitPos, tileX, tileY);
-				m_sample->renderCachedTileOverlay(tileX, tileY, proj, model, view);
+				m_sample->renderCachedTileOverlay(tileX, tileY);
 			}
 		}
 	}
@@ -862,7 +862,7 @@ public:
 	void singleStep() override {}
 	void update(const float /*dt*/) override {}
 	void render() override {}
-	void drawOverlayUI(double* /*proj*/, double* /*model*/, int* /*view*/) override {}
+	void drawOverlayUI() override {}
 };
 
 Sample_TempObstacles::Sample_TempObstacles()
@@ -1172,11 +1172,11 @@ void Sample_TempObstacles::renderCachedTile(const int tileX, const int tileY, co
 	}
 }
 
-void Sample_TempObstacles::renderCachedTileOverlay(const int tileX, const int tileY, double* proj, double* model, int* view) const
+void Sample_TempObstacles::renderCachedTileOverlay(const int tileX, const int tileY) const
 {
 	if (tileCache)
 	{
-		drawDetailOverlay(tileCache, tileX, tileY, proj, model, view);
+		drawDetailOverlay(tileCache, tileX, tileY);
 	}
 }
 
@@ -1184,7 +1184,7 @@ void Sample_TempObstacles::renderOverlay(double* proj, double* model, int* view)
 {
 	if (tool)
 	{
-		tool->drawOverlayUI(proj, model, view);
+		tool->drawOverlayUI();
 	}
 	renderOverlayToolStates(proj, model, view);
 

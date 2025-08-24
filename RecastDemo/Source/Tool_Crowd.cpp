@@ -1187,7 +1187,7 @@ void CrowdTool::update(const float dt)
 
 void CrowdTool::render() {}
 
-void CrowdTool::drawOverlayUI(double* /*proj*/, double* /*model*/, int* /*view*/)
+void CrowdTool::drawOverlayUI()
 {
 	// Tool help
 	if (mode == ToolMode::CREATE)

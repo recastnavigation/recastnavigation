@@ -126,5 +126,5 @@ public:
 	void singleStep() override;
 	void update(float dt) override;
 	void render() override;
-	void drawOverlayUI(double* proj, double* model, int* view) override;
+	void drawOverlayUI() override;
 };

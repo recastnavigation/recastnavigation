@@ -131,7 +131,7 @@ void OffMeshConnectionTool::render()
 	}
 }
 
-void OffMeshConnectionTool::drawOverlayUI(double* proj, double* model, int* view)
+void OffMeshConnectionTool::drawOverlayUI()
 {
 	if (hitPosSet)
 	{

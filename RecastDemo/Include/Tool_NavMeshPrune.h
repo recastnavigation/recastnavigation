@@ -59,5 +59,5 @@ public:
 	void singleStep() override {}
 	void update(const float /*dt*/) override {}
 	void render() override;
-	void drawOverlayUI(double* proj, double* model, int* view) override;
+	void drawOverlayUI() override;
 };

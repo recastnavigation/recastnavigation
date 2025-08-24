@@ -80,7 +80,7 @@ public:
 	void getTilePos(const float* pos, int& tx, int& ty);
 
 	void renderCachedTile(int tx, int ty, int type);
-	void renderCachedTileOverlay(int tx, int ty, double* proj, double* model, int* view) const;
+	void renderCachedTileOverlay(int tx, int ty) const;
 
 	void addTempObstacle(const float* pos) const;
 	void removeTempObstacle(const float* sp, const float* sq) const;
