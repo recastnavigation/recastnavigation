@@ -1,23 +1,22 @@
 #pragma once
 
-#include "InputGeom.h"
 #include "Recast.h"
-#include "SDL.h"
-#include "SDL_opengl.h"
-#include "Sample.h"
-#include "TestCase.h"
+#include "SampleInterfaces.h"
 
-#include <imgui.h>
-#include <imgui_impl_opengl2.h>
-#include <imgui_impl_sdl2.h>
+#include "SDL.h"
+
+struct SDL_Window;
+class InputGeom;
+class Sample;
+class TestCase;
 
 struct AppData
 {
 	SDL_Window* window;
 	SDL_GLContext glContext;
 
-	GLdouble projectionMatrix[16];
-	GLint viewport[4];
+	double projectionMatrix[16];
+	int viewport[4];
 
 	// Drawable width vs logical width (important for high-dpi screens)
 	int width;
