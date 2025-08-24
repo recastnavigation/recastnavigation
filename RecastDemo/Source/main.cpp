@@ -566,7 +566,7 @@ int main(int /*argc*/, char** /*argv*/)
 			app.sample->buildContext = &app.buildContext;
 			if (app.inputGeometry)
 			{
-				app.sample->onMeshChanged(app.inputGeometry);
+				app.sample->onMeshChanged(app.inputGeometry.get());
 				app.resetCamera();
 			}
 		}
@@ -575,12 +575,10 @@ int main(int /*argc*/, char** /*argv*/)
 		{
 			std::string path = app.meshesFolder + "/" + app.meshName;
 
-			delete app.inputGeometry;
-			app.inputGeometry = new InputGeom;
+			app.inputGeometry = std::make_unique<InputGeom>();
 			if (!app.inputGeometry->load(&app.buildContext, path))
 			{
-				delete app.inputGeometry;
-				app.inputGeometry = nullptr;
+				app.inputGeometry.reset();
 
 				// Destroy the sample if it already had geometry loaded, as we've just deleted it!
 				if (app.sample && app.sample->inputGeometry)
@@ -595,7 +593,7 @@ int main(int /*argc*/, char** /*argv*/)
 			app.resetCamera();
 			if (app.sample)
 			{
-				app.sample->onMeshChanged(app.inputGeometry);
+				app.sample->onMeshChanged(app.inputGeometry.get());
 			}
 		}
 
@@ -658,13 +656,10 @@ int main(int /*argc*/, char** /*argv*/)
 
 				path = app.meshesFolder + "/" + app.meshName;
 
-				delete app.inputGeometry;
-				app.inputGeometry = new InputGeom{};
+				app.inputGeometry = std::make_unique<InputGeom>();
 				if (!app.inputGeometry->load(&app.buildContext, path))
 				{
-					delete app.inputGeometry;
-					app.inputGeometry = nullptr;
-
+					app.inputGeometry.reset();
 					app.sample.reset();
 
 					app.showLog = true;
@@ -676,7 +671,7 @@ int main(int /*argc*/, char** /*argv*/)
 				{
 					if (app.inputGeometry)
 					{
-						app.sample->onMeshChanged(app.inputGeometry);
+						app.sample->onMeshChanged(app.inputGeometry.get());
 					}
 
 					// This will ensure that tile & poly bits are updated in tiled sample.

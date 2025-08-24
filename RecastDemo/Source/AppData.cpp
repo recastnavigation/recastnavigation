@@ -10,12 +10,6 @@
 
 #include <imgui.h>
 
-AppData::~AppData()
-{
-	delete inputGeometry;
-	inputGeometry = nullptr;
-}
-
 void AppData::resetCamera()
 {
 	// Reset camera and fog to match the mesh bounds.

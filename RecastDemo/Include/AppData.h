@@ -23,9 +23,9 @@ struct AppData
 
 	// Recast data, samples, and test cases
 	BuildContext buildContext;
-	InputGeom* inputGeometry = nullptr;
+	std::unique_ptr<InputGeom> inputGeometry;
 	std::unique_ptr<Sample> sample;
-	std::unique_ptr<TestCase> testCase {};
+	std::unique_ptr<TestCase> testCase;
 
 	// Time
 	float timeAcc = 0.0f;
@@ -77,7 +77,6 @@ struct AppData
 	float markerPosition[3] = {0, 0, 0};
 	bool markerPositionSet = false;
 
-	~AppData();
 	void resetCamera();
 	void updateWindowSize();
 	void updateUIScale() const;
