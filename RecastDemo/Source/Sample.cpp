@@ -325,7 +325,7 @@ void Sample::updateToolStates(const float dt) const
 	{
 		if (toolStates[i])
 		{
-			toolStates[i]->handleUpdate(dt);
+			toolStates[i]->update(dt);
 		}
 	}
 }

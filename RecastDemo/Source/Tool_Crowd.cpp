@@ -726,7 +726,7 @@ void CrowdToolState::renderOverlay(double* proj, double* model, int* view)
 	}
 }
 
-void CrowdToolState::handleUpdate(const float dt)
+void CrowdToolState::update(const float dt)
 {
 	if (run)
 	{

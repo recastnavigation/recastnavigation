@@ -104,10 +104,12 @@ struct SampleToolState
 {
 	virtual ~SampleToolState() = default;
 	virtual void init(Sample* sample) = 0;
+
+	virtual void update(float dt) = 0;
+
 	virtual void reset() = 0;
 	virtual void render() = 0;
 	virtual void renderOverlay(double* proj, double* model, int* view) = 0;
-	virtual void handleUpdate(float dt) = 0;
 };
 
 class Sample

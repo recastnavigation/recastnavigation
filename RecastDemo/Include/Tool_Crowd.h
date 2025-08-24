@@ -86,7 +86,7 @@ public:
 	void reset() override;
 	void render() override;
 	void renderOverlay(double* proj, double* model, int* view) override;
-	void handleUpdate(float dt) override;
+	void update(float dt) override;
 
 	[[nodiscard]] bool isRunning() const { return run; }
 	void setRunning(const bool s) { run = s; }
