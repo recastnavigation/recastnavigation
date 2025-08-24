@@ -3,6 +3,12 @@
 #include <imgui.h>
 #include <stdio.h>
 
+#ifdef __APPLE__
+#	include <OpenGL/glu.h>
+#else
+#	include <GL/glu.h>
+#endif
+
 inline void DrawScreenspaceText(float x, float y, ImU32 color, const char* text, bool centered = false)
 {
 	if (centered)
@@ -14,7 +20,32 @@ inline void DrawScreenspaceText(float x, float y, ImU32 color, const char* text,
 	ImGui::GetForegroundDrawList()->AddText({x, y}, color, text);
 }
 
-inline void DrawFloatSlider(float* value, float min, float max, const char* id, const char* label, const char* valueFormat = "%.2f")
+inline void DrawWorldspaceText(
+	double* proj,
+	double* model,
+	int* view,
+	float x,
+	float y,
+	float z,
+	ImU32 color,
+	const char* text,
+	bool centered = false)
+{
+	GLdouble screenspaceX;
+	GLdouble screenspaceY;
+	GLdouble screenspaceZ;
+
+	gluProject(x, y, z, model, proj, view, &screenspaceX, &screenspaceY, &screenspaceZ);
+	DrawScreenspaceText(static_cast<float>(screenspaceX), static_cast<float>(screenspaceY), color, text, centered);
+}
+
+inline void DrawFloatSlider(
+	float* value,
+	float min,
+	float max,
+	const char* id,
+	const char* label,
+	const char* valueFormat = "%.2f")
 {
 	// Draw the slider
 	ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
@@ -72,12 +103,12 @@ inline void DrawIntSlider(int* value, int min, int max, const char* id, const ch
 
 inline void DrawRightAlignedText(const char* format, ...)
 {
-	static char text[1024];  // Static buffer (not thread-safe!)
+	static char text[2048];
 
-    va_list args;
-    va_start(args, format);
-    vsnprintf(text, sizeof(text), format, args);
-    va_end(args);
+	va_list args;
+	va_start(args, format);
+	vsnprintf(text, sizeof(text), format, args);
+	va_end(args);
 
 	float textWidth = ImGui::CalcTextSize(text).x;
 	float parentWidth = ImGui::GetContentRegionAvail().x;
