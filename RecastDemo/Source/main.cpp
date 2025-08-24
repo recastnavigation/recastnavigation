@@ -356,10 +356,10 @@ int main(int /*argc*/, char** /*argv*/)
 		SDL_GetMouseState(&mouseLogicalX, &mouseLogicalY);
 
 		// Scale mouse coordinates in accordance with high-dpi scale
-		const float scaleX = static_cast<float>(app.drawableWidth) / app.width;
-		const float scaleY = static_cast<float>(app.drawableHeight) / app.height;
-		const float mouseX = mouseLogicalX * scaleX;
-		const float mouseY = app.drawableHeight - mouseLogicalY * scaleY;  // Flip Y (OpenGL origin is bottom-left)
+		const float scaleX = static_cast<float>(app.drawableWidth) / static_cast<float>(app.width);
+		const float scaleY = static_cast<float>(app.drawableHeight) / static_cast<float>(app.height);
+		const float mouseX = static_cast<float>(mouseLogicalX) * scaleX;
+		const float mouseY = static_cast<float>(app.drawableHeight - mouseLogicalY) * scaleY;  // Flip Y (OpenGL origin is bottom-left)
 
 		GLdouble x, y, z;
 		gluUnProject(mouseX, mouseY, 0.0, modelviewMatrix, app.projectionMatrix, app.viewport, &x, &y, &z);
