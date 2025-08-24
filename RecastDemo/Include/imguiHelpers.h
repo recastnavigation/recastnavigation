@@ -3,11 +3,9 @@
 #include <imgui.h>
 #include <stdio.h>
 
-#ifdef __APPLE__
-#	include <OpenGL/glu.h>
-#else
-#	include <GL/glu.h>
-#endif
+#include "AppData.h"
+
+extern AppData app;
 
 inline void DrawScreenspaceText(float x, float y, ImU32 color, const char* text, bool centered = false)
 {
@@ -31,12 +29,17 @@ inline void DrawWorldspaceText(
 	const char* text,
 	bool centered = false)
 {
-	GLdouble screenspaceX;
-	GLdouble screenspaceY;
-	GLdouble screenspaceZ;
+	float imguiX;
+	float imguiY;
+	app.WorldToScreen(x, y, z, &imguiX, &imguiY);
 
-	gluProject(x, y, z, model, proj, view, &screenspaceX, &screenspaceY, &screenspaceZ);
-	DrawScreenspaceText(static_cast<float>(screenspaceX), static_cast<float>(screenspaceY), color, text, centered);
+	if (centered)
+	{
+		const ImVec2 textSize = ImGui::CalcTextSize(text);
+		imguiX -= textSize.x * 0.5f;
+	}
+
+	ImGui::GetForegroundDrawList()->AddText({imguiX, imguiY}, color, text);
 }
 
 inline void DrawFloatSlider(
