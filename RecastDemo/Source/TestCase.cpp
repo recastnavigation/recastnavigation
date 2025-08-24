@@ -29,11 +29,6 @@
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
-#ifdef __APPLE__
-#	include <OpenGL/glu.h>
-#else
-#	include <GL/glu.h>
-#endif
 #include "PerfTimer.h"
 
 #include <imgui.h>

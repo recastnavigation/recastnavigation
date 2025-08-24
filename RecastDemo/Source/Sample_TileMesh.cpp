@@ -24,11 +24,6 @@
 #include <cmath>
 #include <cstdio>
 #include <cstring>
-#ifdef __APPLE__
-#	include <OpenGL/glu.h>
-#else
-#	include <GL/glu.h>
-#endif
 #include "PartitionedMesh.h"
 #include "DetourDebugDraw.h"
 #include "DetourNavMesh.h"

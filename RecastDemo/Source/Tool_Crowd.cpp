@@ -21,16 +21,10 @@
 #include "SDL.h"
 #include "SDL_opengl.h"
 
+#include <algorithm>
 #include <cfloat>
 #include <cmath>
 #include <cstdio>
-#ifdef __APPLE__
-#	include <OpenGL/glu.h>
-#else
-#	include <GL/glu.h>
-
-#	include <algorithm>
-#endif
 #include "DetourCommon.h"
 #include "DetourCrowd.h"
 #include "DetourDebugDraw.h"

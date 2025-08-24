@@ -29,11 +29,6 @@
 #include <imgui.h>
 
 #include <cstdlib>
-#ifdef __APPLE__
-#	include <OpenGL/glu.h>
-#else
-#	include <GL/glu.h>
-#endif
 
 // Uncomment this to dump all the requests in stdout.
 #define DUMP_REQS

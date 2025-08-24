@@ -21,15 +21,8 @@
 #include "DetourDebugDraw.h"
 #include "InputGeom.h"
 #include "Recast.h"
-#include "SDL_opengl.h"
 #include "Sample.h"
 #include "imguiHelpers.h"
-
-#ifdef __APPLE__
-#	include <OpenGL/glu.h>
-#else
-#	include <GL/glu.h>
-#endif
 
 #include <imgui.h>
 
