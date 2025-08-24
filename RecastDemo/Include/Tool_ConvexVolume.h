@@ -24,6 +24,7 @@
 class ConvexVolumeTool : public SampleTool
 {
 	Sample* sample = nullptr;
+
 	int areaType = SAMPLE_POLYAREA_GRASS;
 	float polyOffset = 0.0f;
 	float boxHeight = 6.0f;
@@ -31,24 +32,28 @@ class ConvexVolumeTool : public SampleTool
 
 	static constexpr int MAX_PTS = 12;
 
-	float points[MAX_PTS * 3] {};
-	int numPoints = 0;
 	int hull[MAX_PTS] {};
 	int numHull = 0;
+
+	std::vector<float> points;
+	int numPoints() const { return points.size() / 3; }
 
 public:
 	SampleToolType type() override { return SampleToolType::CONVEX_VOLUME; }
 	void init(Sample* sample) override { this->sample = sample; }
 	void reset() override
 	{
-		numPoints = 0;
+		points.clear();
 		numHull = 0;
 	}
-	void drawMenuUI() override;
-	void onClick(const float* s, const float* p, bool shift) override;
-	void onToggle() override {}
+
 	void singleStep() override {}
 	void update(const float) override {}
 	void render() override;
+
+	void onClick(const float* s, const float* p, bool shift) override;
+	void onToggle() override {}
+
+	void drawMenuUI() override;
 	void drawOverlayUI() override;
 };

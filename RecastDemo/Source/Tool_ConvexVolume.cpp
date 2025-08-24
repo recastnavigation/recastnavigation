@@ -155,8 +155,7 @@ void ConvexVolumeTool::drawMenuUI()
 
 	if (ImGui::Button("Clear Shape"))
 	{
-		numPoints = 0;
-		numHull = 0;
+		reset();
 	}
 }
 
@@ -195,7 +194,7 @@ void ConvexVolumeTool::onClick(const float* /*s*/, const float* p, bool shift)
 		// Create
 
 		// If clicked on that last pt, create the shape.
-		if (numPoints && rcVdistSqr(p, &points[(numPoints - 1) * 3]) < rcSqr(0.2f))
+		if (!points.empty() && rcVdistSqr(p, &points[(numPoints() - 1) * 3]) < rcSqr(0.2f))
 		{
 			if (numHull > 2)
 			{
@@ -229,25 +228,22 @@ void ConvexVolumeTool::onClick(const float* /*s*/, const float* p, bool shift)
 				}
 			}
 
-			numPoints = 0;
-			numHull = 0;
+			reset();
 		}
 		else
 		{
 			// Add new point
-			if (numPoints < MAX_PTS)
+			points.emplace_back(p[0]);
+			points.emplace_back(p[1]);
+			points.emplace_back(p[2]);
+			// Update hull.
+			if (numPoints() > 1)
 			{
-				rcVcopy(&points[numPoints * 3], p);
-				numPoints++;
-				// Update hull.
-				if (numPoints > 1)
-				{
-					numHull = convexhull(points, numPoints, hull);
-				}
-				else
-				{
-					numHull = 0;
-				}
+				numHull = convexhull(points.data(), numPoints(), hull);
+			}
+			else
+			{
+				numHull = 0;
 			}
 		}
 	}
@@ -259,7 +255,7 @@ void ConvexVolumeTool::render()
 
 	// Find height extent of the shape.
 	float minh = FLT_MAX, maxh = 0;
-	for (int i = 0; i < numPoints; ++i)
+	for (int i = 0; i < numPoints(); ++i)
 	{
 		minh = rcMin(minh, points[i * 3 + 1]);
 	}
@@ -267,10 +263,10 @@ void ConvexVolumeTool::render()
 	maxh = minh + boxHeight;
 
 	dd.begin(DU_DRAW_POINTS, 4.0f);
-	for (int i = 0; i < numPoints; ++i)
+	for (int i = 0; i < numPoints(); ++i)
 	{
 		unsigned int col = duRGBA(255, 255, 255, 255);
-		if (i == numPoints - 1)
+		if (i == numPoints() - 1)
 		{
 			col = duRGBA(240, 32, 16, 255);
 		}
@@ -296,7 +292,7 @@ void ConvexVolumeTool::render()
 void ConvexVolumeTool::drawOverlayUI()
 {
 	// Tool help
-	if (!numPoints)
+	if (points.empty())
 	{
 		DrawScreenspaceText(
 			280.0f,
