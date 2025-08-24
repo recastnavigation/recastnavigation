@@ -177,7 +177,7 @@ public:
 	void initToolStates(Sample* sample) const;
 	void resetToolStates() const;
 	void renderToolStates() const;
-	void renderOverlayToolStates(double* proj, double* model, int* view) const;
+	void renderOverlayToolStates() const;
 
 	void resetCommonSettings();
 	void drawCommonSettingsUI();

@@ -333,7 +333,7 @@ void Sample_SoloMesh::renderOverlay(double* proj, double* model, int* view)
 	{
 		tool->drawOverlayUI();
 	}
-	renderOverlayToolStates(proj, model, view);
+	renderOverlayToolStates();
 }
 
 void Sample_SoloMesh::onMeshChanged(InputGeom* geom)

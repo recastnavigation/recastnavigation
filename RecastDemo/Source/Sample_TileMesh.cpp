@@ -551,7 +551,7 @@ void Sample_TileMesh::renderOverlay(double* proj, double* model, int* view)
 	{
 		tool->drawOverlayUI();
 	}
-	renderOverlayToolStates(proj, model, view);
+	renderOverlayToolStates();
 }
 
 void Sample_TileMesh::onMeshChanged(InputGeom* geom)

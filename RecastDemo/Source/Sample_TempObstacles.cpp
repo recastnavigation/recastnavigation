@@ -1186,7 +1186,7 @@ void Sample_TempObstacles::renderOverlay(double* proj, double* model, int* view)
 	{
 		tool->drawOverlayUI();
 	}
-	renderOverlayToolStates(proj, model, view);
+	renderOverlayToolStates();
 
 	// Stats
 	/*	imguiDrawRect(280,10,300,100,imguiRGBA(0,0,0,64));

@@ -363,7 +363,7 @@ void Sample::renderToolStates() const
 	}
 }
 
-void Sample::renderOverlayToolStates(double* proj, double* model, int* view) const
+void Sample::renderOverlayToolStates() const
 {
 	for (int i = 0; i < static_cast<int>(SampleToolType::MAX_TOOLS); i++)
 	{
