@@ -18,19 +18,20 @@ inline void DrawScreenspaceText(float x, float y, ImU32 color, const char* text,
 	ImGui::GetForegroundDrawList()->AddText({x, y}, color, text);
 }
 
-inline void DrawWorldspaceText(float x, float y, float z, ImU32 color, const char* text, bool centered = false)
+inline void DrawWorldspaceText(float x, float y, float z, ImU32 color, const char* text, bool centered = false, float offsetY = 0.0f)
 {
-	float imguiX;
-	float imguiY;
-	app.WorldToScreen(x, y, z, &imguiX, &imguiY);
+	float screenX;
+	float screenY;
+	app.WorldToScreen(x, y, z, &screenX, &screenY);
+	screenY += offsetY;
 
 	if (centered)
 	{
 		const ImVec2 textSize = ImGui::CalcTextSize(text);
-		imguiX -= textSize.x * 0.5f;
+		screenX -= textSize.x * 0.5f;
 	}
 
-	ImGui::GetForegroundDrawList()->AddText({imguiX, imguiY}, color, text);
+	ImGui::GetForegroundDrawList()->AddText({screenX, screenY}, color, text);
 }
 
 inline void DrawFloatSlider(
