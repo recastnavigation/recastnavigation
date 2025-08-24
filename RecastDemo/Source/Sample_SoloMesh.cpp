@@ -327,7 +327,7 @@ void Sample_SoloMesh::render()
 	glDepthMask(GL_TRUE);
 }
 
-void Sample_SoloMesh::renderOverlay(double* proj, double* model, int* view)
+void Sample_SoloMesh::renderOverlay()
 {
 	if (tool)
 	{

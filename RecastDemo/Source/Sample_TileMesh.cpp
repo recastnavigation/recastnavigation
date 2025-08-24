@@ -532,7 +532,7 @@ void Sample_TileMesh::render()
 	glDepthMask(GL_TRUE);
 }
 
-void Sample_TileMesh::renderOverlay(double* proj, double* model, int* view)
+void Sample_TileMesh::renderOverlay()
 {
 	// Draw start and end point labels
 	if (tileBuildTime > 0.0f)

@@ -162,7 +162,7 @@ void Sample::render()
 		1.0f);
 }
 
-void Sample::renderOverlay(double* /*proj*/, double* /*model*/, int* /*view*/) {}
+void Sample::renderOverlay() {}
 
 void Sample::onMeshChanged(InputGeom* geom)
 {

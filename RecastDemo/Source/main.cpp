@@ -421,7 +421,7 @@ int main(int /*argc*/, char** /*argv*/)
 
 		if (app.sample)
 		{
-			app.sample->renderOverlay(app.projectionMatrix, modelviewMatrix, app.viewport);
+			app.sample->renderOverlay();
 		}
 		if (app.testCase)
 		{

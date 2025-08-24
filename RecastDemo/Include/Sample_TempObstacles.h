@@ -72,7 +72,7 @@ public:
 	void drawToolsUI() override;
 	void drawDebugUI() override;
 	void render() override;
-	void renderOverlay(double* proj, double* model, int* view) override;
+	void renderOverlay() override;
 	void onMeshChanged(InputGeom* geom) override;
 	bool build() override;
 	void update(float dt) override;

@@ -167,7 +167,7 @@ public:
 	virtual void onToggle();
 	virtual void singleStep();
 	virtual void render();
-	virtual void renderOverlay(double* proj, double* model, int* view);
+	virtual void renderOverlay();
 	virtual void onMeshChanged(InputGeom* geom);
 	virtual bool build();
 	virtual void update(float dt);
