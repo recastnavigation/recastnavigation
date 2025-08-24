@@ -18,36 +18,19 @@
 
 #include "PerfTimer.h"
 
-#ifdef WIN32
-#	include <windows.h>
-#else
-#	include <sys/time.h>
-#endif
+#include <chrono>
+
+static const std::chrono::high_resolution_clock::time_point startup = std::chrono::high_resolution_clock::now();
 
 TimeVal getPerfTime()
 {
-#ifdef WIN32
-	int64_t count;
-	QueryPerformanceCounter(reinterpret_cast<LARGE_INTEGER*>(&count));
-	return count;
-#else
-	timeval now;
-	gettimeofday(&now, 0);
-	return (TimeVal)now.tv_sec * 1000000L + (TimeVal)now.tv_usec;
-#endif
+	auto now = std::chrono::high_resolution_clock::now();
+	auto timeSinceStartup = now - startup;
+	return std::chrono::duration_cast<std::chrono::microseconds>(timeSinceStartup).count();
 }
 
 int getPerfTimeUsec(const TimeVal duration)
 {
-#ifdef WIN32
-	static int64_t freq = 0;
-	if (freq == 0)
-	{
-		QueryPerformanceFrequency(reinterpret_cast<LARGE_INTEGER*>(&freq));
-	}
-	return static_cast<int>(duration * 1000000 / freq);
-#else
 	return static_cast<int>(duration);
-#endif
 }
 
