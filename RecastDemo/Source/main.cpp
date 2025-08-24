@@ -61,7 +61,6 @@ SampleItem g_samples[] = {
 	{.name = "Tile Mesh",      .create = []() { return std::make_unique<Sample_TileMesh>(); }     },
 	{.name = "Temp Obstacles", .create = []() { return std::make_unique<Sample_TempObstacles>(); }},
 };
-constexpr int g_nsamples = sizeof(g_samples) / sizeof(SampleItem);
 
 constexpr ImGuiWindowFlags staticWindowFlags = ImGuiWindowFlags_NoMove
 	| ImGuiWindowFlags_NoResize
@@ -446,17 +445,17 @@ int main(int /*argc*/, char** /*argv*/)
 
 				if (ImGui::BeginCombo("##sampleCombo", app.sampleIndex >= 0 ? g_samples[app.sampleIndex].name.c_str() : "Choose Sample...", 0))
 				{
-					for (int n = 0; n < IM_ARRAYSIZE(g_samples); n++)
+					for (int sampleIndex = 0; sampleIndex < IM_ARRAYSIZE(g_samples); ++sampleIndex)
 					{
-						const bool is_selected = (app.sampleIndex == n);
-						if (ImGui::Selectable(g_samples[n].name.c_str(), is_selected))
+						const bool selected = (app.sampleIndex == sampleIndex);
+						if (ImGui::Selectable(g_samples[sampleIndex].name.c_str(), selected))
 						{
-							newSampleSelected = !is_selected;
-							app.sampleIndex = n;
+							newSampleSelected = !selected;
+							app.sampleIndex = sampleIndex;
 						}
 
 						// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
-						if (is_selected)
+						if (selected)
 						{
 							ImGui::SetItemDefaultFocus();
 						}
@@ -637,12 +636,12 @@ int main(int /*argc*/, char** /*argv*/)
 				}
 
 				// Create sample
-				for (int i = 0; i < g_nsamples; ++i)
+				for (int sampleIndex = 0; sampleIndex < IM_ARRAYSIZE(g_samples); ++sampleIndex)
 				{
-					if (g_samples[i].name == app.testCase->sampleName)
+					if (g_samples[sampleIndex].name == app.testCase->sampleName)
 					{
-						app.sample = g_samples[i].create();
-						app.sampleIndex = i;
+						app.sample = g_samples[sampleIndex].create();
+						app.sampleIndex = sampleIndex;
 					}
 				}
 
