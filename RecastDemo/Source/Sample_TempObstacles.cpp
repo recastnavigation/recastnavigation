@@ -284,26 +284,13 @@ void drawDetailOverlay(const dtTileCache* tileCache, const int tileX, const int 
 		pos[1] = tile->header->bmin[1];
 		pos[2] = (tile->header->bmin[2] + tile->header->bmax[2]) / 2.0f;
 
-		GLdouble x, y, z;
-		if (gluProject(
-				static_cast<GLdouble>(pos[0]),
-				static_cast<GLdouble>(pos[1]),
-				static_cast<GLdouble>(pos[2]),
-				model,
-				proj,
-				view,
-				&x,
-				&y,
-				&z))
-		{
-			char text[128];
-			snprintf(text, 128, "(%d,%d)/%d", tile->header->tx, tile->header->ty, tile->header->tlayer);
-			DrawScreenspaceText(static_cast<float>(x), static_cast<float>(y) - 25, IM_COL32(0, 0, 0, 220), text, true);
-			snprintf(text, 128, "Compressed: %.1f kB", static_cast<float>(tile->dataSize) / 1024.0f);
-			DrawScreenspaceText(static_cast<float>(x), static_cast<float>(y) - 45, IM_COL32(0, 0, 0, 128), text, true);
-			snprintf(text, 128, "Raw:%.1fkB", static_cast<float>(rawSize) / 1024.0f);
-			DrawScreenspaceText(static_cast<float>(x), static_cast<float>(y) - 65, IM_COL32(0, 0, 0, 128), text, true);
-		}
+		char text[128];
+		snprintf(text, 128, "(%d,%d)/%d", tile->header->tx, tile->header->ty, tile->header->tlayer);
+		DrawWorldspaceText(pos[0], pos[1], pos[2], IM_COL32(0, 0, 0, 220), text, true, 25);
+		snprintf(text, 128, "Compressed: %.1f kB", static_cast<float>(tile->dataSize) / 1024.0f);
+		DrawWorldspaceText(pos[0], pos[1], pos[2], IM_COL32(0, 0, 0, 128), text, true, 45);
+		snprintf(text, 128, "Raw:%.1fkB", static_cast<float>(rawSize) / 1024.0f);
+		DrawWorldspaceText(pos[0], pos[1], pos[2], IM_COL32(0, 0, 0, 128), text, true, 65);
 	}
 }
 

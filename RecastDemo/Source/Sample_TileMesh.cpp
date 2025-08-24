@@ -179,19 +179,18 @@ public:
 
 	void drawOverlayUI(double* proj, double* model, int* view) override
 	{
-		GLdouble x, y, z;
-		if (m_hitPosSet && gluProject(m_hitPos[0], m_hitPos[1], m_hitPos[2], model, proj, view, &x, &y, &z))
+		if (m_hitPosSet)
 		{
 			int tx = 0;
 			int ty = 0;
 			m_sample->getTilePos(m_hitPos, tx, ty);
 			char text[32];
 			snprintf(text, 32, "(%d,%d)", tx, ty);
-			DrawScreenspaceText(static_cast<float>(x), static_cast<float>(y), IM_COL32(0, 0, 0, 220), text, true);
+			DrawWorldspaceText(m_hitPos[0], m_hitPos[1], m_hitPos[2], IM_COL32(0, 0, 0, 220), text);
 		}
 
 		// Tool help
-		DrawScreenspaceText(280, 40, IM_COL32(255, 255, 255, 192), "LMB: Rebuild hit tile.  Shift+LMB: Clear hit tile.");
+		DrawScreenspaceText(280, 40, IM_COL32(255, 255, 255, 192), "LMB: Rebuild selected tile.  Shift+LMB: Clear tile selection.");
 	}
 };
 
@@ -535,24 +534,17 @@ void Sample_TileMesh::render()
 
 void Sample_TileMesh::renderOverlay(double* proj, double* model, int* view)
 {
-	GLdouble x, y, z;
-
 	// Draw start and end point labels
-	const int projectResult = gluProject(
-		static_cast<GLdouble>(lastBuiltTileBoundsMin[0] + lastBuiltTileBoundsMax[0]) / 2,
-		static_cast<GLdouble>(lastBuiltTileBoundsMin[1] + lastBuiltTileBoundsMax[1]) / 2,
-		static_cast<GLdouble>(lastBuiltTileBoundsMin[2] + lastBuiltTileBoundsMax[2]) / 2,
-		model,
-		proj,
-		view,
-		&x,
-		&y,
-		&z);
-	if (tileBuildTime > 0.0f && projectResult == GL_TRUE)
+	if (tileBuildTime > 0.0f)
 	{
 		char text[64];
 		snprintf(text, 64, "%.3fms / %dTris / %.1fkB", tileBuildTime, tileTriCount, tileMemUsage);
-		DrawScreenspaceText(static_cast<float>(x), static_cast<float>(y), IM_COL32(0, 0, 0, 220), text);
+		DrawWorldspaceText(
+			(lastBuiltTileBoundsMin[0] + lastBuiltTileBoundsMax[0]) / 2,
+			(lastBuiltTileBoundsMin[1] + lastBuiltTileBoundsMax[1]) / 2,
+			(lastBuiltTileBoundsMin[2] + lastBuiltTileBoundsMax[2]) / 2,
+			IM_COL32(0, 0, 0, 220),
+			text);
 	}
 
 	if (tool)

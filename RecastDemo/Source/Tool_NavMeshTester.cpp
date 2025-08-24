@@ -1497,20 +1497,18 @@ void NavMeshTesterTool::render()
 
 void NavMeshTesterTool::drawOverlayUI(double* proj, double* model, int* view)
 {
-	GLdouble x, y, z;
-
-	// Draw start and end point labels
-	if (sposSet && gluProject(spos[0], spos[1], spos[2], model, proj, view, &x, &y, &z))
+	if (sposSet)
 	{
-		DrawScreenspaceText(static_cast<float>(x), static_cast<float>(y) - 25, IM_COL32(0, 0, 0, 220), "Start", true);
+		DrawWorldspaceText(spos[0], spos[1], spos[2], IM_COL32(0, 0, 0, 220), "Start", true);
 	}
-	if (eposSet && gluProject(epos[0], epos[1], epos[2], model, proj, view, &x, &y, &z))
+
+	if (eposSet)
 	{
-		DrawScreenspaceText(static_cast<float>(x), static_cast<float>(y) - 25, IM_COL32(0, 0, 0, 220), "End", true);
+		DrawWorldspaceText(epos[0], epos[1], epos[2], IM_COL32(0, 0, 0, 220), "End", true);
 	}
 
 	// Tool help
-	DrawScreenspaceText( 280, 40, IM_COL32(255, 255, 255, 192), "LMB+SHIFT: Set start location  LMB: Set end location");
+	DrawScreenspaceText(280, 40, IM_COL32(255, 255, 255, 192), "LMB+SHIFT: Set start location  LMB: Set end location");
 }
 
 void NavMeshTesterTool::drawAgent(const float* pos, float r, float h, float c, const unsigned int col) const

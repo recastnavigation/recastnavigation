@@ -133,16 +133,13 @@ void OffMeshConnectionTool::render()
 
 void OffMeshConnectionTool::drawOverlayUI(double* proj, double* model, int* view)
 {
-	GLdouble x, y, z;
-
-	// Draw start and end point labels
-	if (hitPosSet && gluProject((GLdouble)hitPos[0], (GLdouble)hitPos[1], (GLdouble)hitPos[2], model, proj, view, &x, &y, &z))
+	if (hitPosSet)
 	{
-		DrawScreenspaceText(static_cast<float>(x), static_cast<float>(y) - 25, IM_COL32(0, 0, 0, 220), "Start", true);
+		DrawWorldspaceText(hitPos[0], hitPos[1], hitPos[2], IM_COL32(0, 0, 0, 220), "Start", true, 25);
 	}
 
 	// Tool help
-	const auto setMessage = "LMB: Set connection end point and finish.";
-	const auto connectMessage = "LMB: Create new connection. SHIFT+LMB: Delete existing connection, click near start or end point.";
+	const char* setMessage = "LMB: Set connection end point and finish.";
+	const char* connectMessage = "LMB: Create new connection. SHIFT+LMB: Delete existing connection, click near start or end point.";
 	DrawScreenspaceText(280, 40, IM_COL32(255, 255, 255, 192), hitPosSet ? setMessage : connectMessage);
 }

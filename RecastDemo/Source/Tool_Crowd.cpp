@@ -601,12 +601,10 @@ void CrowdToolState::handleRender()
 
 void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 {
-	GLdouble x, y, z;
-
 	// Draw start and end point labels
-	if (targetPolyRef && gluProject(targetPosition[0], targetPosition[1], targetPosition[2], model, proj, view, &x, &y, &z))
+	if (targetPolyRef)
 	{
-		DrawScreenspaceText(static_cast<float>(x), static_cast<float>(y), IM_COL32(0, 0, 0, 220), "TARGET", true);
+		DrawWorldspaceText(targetPosition[0], targetPosition[1], targetPosition[2], IM_COL32(0, 0, 0, 220), "TARGET", true);
 	}
 
 	char label[32];
@@ -620,7 +618,6 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 			const dtNodePool* pool = navquery->getNodePool();
 			if (pool)
 			{
-				const float off = 0.5f;
 				for (int i = 0; i < pool->getHashSize(); ++i)
 				{
 					for (dtNodeIndex j = pool->getFirst(i); j != DT_NULL_IDX; j = pool->getNext(j))
@@ -631,26 +628,15 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 							continue;
 						}
 
-						if (gluProject(
-								(GLdouble)node->pos[0],
-								(GLdouble)node->pos[1] + off,
-								(GLdouble)node->pos[2],
-								model,
-								proj,
-								view,
-								&x,
-								&y,
-								&z))
-						{
-							const float heuristic = node->total;  // - node->cost;
-							snprintf(label, 32, "%.2f", heuristic);
-							DrawScreenspaceText(
-								static_cast<float>(x),
-								static_cast<float>(y) + 15,
-								IM_COL32(0, 0, 0, 220),
-								label,
-								true);
-						}
+						snprintf(label, 32, "%.2f", node->total);
+						DrawWorldspaceText(
+							node->pos[0],
+							node->pos[1] + 0.5f,
+							node->pos[2],
+							IM_COL32(0, 0, 0, 220),
+							label,
+							true,
+							15);
 					}
 				}
 			}
@@ -664,18 +650,21 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 		{
 			for (int i = 0; i < crowd->getAgentCount(); ++i)
 			{
-				const dtCrowdAgent* ag = crowd->getAgent(i);
-				if (!ag->active)
+				const dtCrowdAgent* agent = crowd->getAgent(i);
+				if (!agent->active)
 				{
 					continue;
 				}
-				const float* pos = ag->npos;
-				const float h = ag->params.height;
-				if (gluProject(pos[0], static_cast<GLdouble>(pos[1]) + h, pos[2], model, proj, view, &x, &y, &z))
-				{
-					snprintf(label, 32, "%d", i);
-					DrawScreenspaceText(static_cast<float>(x), static_cast<float>(y) + 15, IM_COL32(0, 0, 0, 220), label, true);
-				}
+
+				snprintf(label, 32, "%d", i);
+				DrawWorldspaceText(
+					agent->npos[0],
+					agent->npos[1] + agent->params.height,
+					agent->npos[2],
+					IM_COL32(0, 0, 0, 220),
+					label,
+					true,
+					15);
 			}
 		}
 	}
@@ -690,41 +679,32 @@ void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
 				{
 					continue;
 				}
-				const dtCrowdAgent* ag = crowd->getAgent(i);
-				if (!ag->active)
+				const dtCrowdAgent* agent = crowd->getAgent(i);
+				if (!agent->active)
 				{
 					continue;
 				}
-				const float radius = ag->params.radius;
+
 				if (toolParams.showNeighbors)
 				{
-					for (int j = 0; j < ag->nneis; ++j)
+					for (int neighborIndex = 0; neighborIndex < agent->nneis; ++neighborIndex)
 					{
-						const dtCrowdAgent* nei = crowd->getAgent(ag->neis[j].idx);
-						if (!nei->active)
+						const dtCrowdNeighbour& neighborData = agent->neis[neighborIndex];
+						const dtCrowdAgent* neighbor = crowd->getAgent(neighborData.idx);
+						if (!neighbor->active)
 						{
 							continue;
 						}
 
-						if (gluProject(
-								nei->npos[0],
-								static_cast<GLdouble>(nei->npos[1]) + radius,
-								nei->npos[2],
-								model,
-								proj,
-								view,
-								&x,
-								&y,
-								&z))
-						{
-							snprintf(label, 32, "%.3f", ag->neis[j].dist);
-							DrawScreenspaceText(
-								static_cast<float>(x),
-								static_cast<float>(y) + 15,
-								IM_COL32(255, 255, 255, 220),
-								label,
-								true);
-						}
+						snprintf(label, 32, "%.3f", neighborData.dist);
+						DrawWorldspaceText(
+							neighbor->npos[0],
+							neighbor->npos[1] + agent->params.radius,
+							neighbor->npos[2],
+							IM_COL32(255, 255, 255, 220),
+							label,
+							true,
+							15);
 					}
 				}
 			}

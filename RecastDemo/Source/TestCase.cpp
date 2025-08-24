@@ -393,7 +393,6 @@ void TestCase::handleRender()
 
 bool TestCase::handleRenderOverlay(double* proj, double* model, int* view)
 {
-	GLdouble x, y, z;
 	char text[64];
 	int n = 0;
 
@@ -422,17 +421,10 @@ bool TestCase::handleRenderOverlay(double* proj, double* model, int* view)
 			pt[1] += 0.5f;
 		}
 
-		if (gluProject(pt[0], pt[1], pt[2], model, proj, view, &x, &y, &z))
-		{
-			snprintf(text, 64, "Path %d\n", n);
-			unsigned int col = IM_COL32(0, 0, 0, 128);
-			if (test.expand)
-			{
-				col = IM_COL32(255, 192, 0, 220);
-			}
-			DrawScreenspaceText(static_cast<float>(x), static_cast<float>(y) - 25, col, text, true);
-		}
 
+		snprintf(text, 64, "Path %d\n", n);
+		unsigned int color = test.expand ? IM_COL32(255, 192, 0, 220) : IM_COL32(0, 0, 0, 128);
+		DrawWorldspaceText(pt[0], pt[1], pt[2], color, text, true, 25);
 		n++;
 	}
 
