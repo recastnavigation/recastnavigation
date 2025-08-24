@@ -391,7 +391,7 @@ void TestCase::render()
 	glLineWidth(1.0f);
 }
 
-bool TestCase::renderOverlay(double* proj, double* model, int* view)
+bool TestCase::renderOverlay()
 {
 	char text[64];
 	int n = 0;
@@ -428,7 +428,7 @@ bool TestCase::renderOverlay(double* proj, double* model, int* view)
 		n++;
 	}
 
-	ImGui::SetNextWindowPos(ImVec2(10, static_cast<float>(view[3]) - 10 - 350), ImGuiCond_Always);  // Position in screen space
+	ImGui::SetNextWindowPos(ImVec2(10, static_cast<float>(app.viewport[3]) - 10 - 350), ImGuiCond_Always);  // Position in screen space
 	ImGui::SetNextWindowSize(ImVec2(200, 350), ImGuiCond_Always);                                   // Size of the window
 	ImGui::Begin("Test Results");
 

@@ -293,7 +293,7 @@ void ConvexVolumeTool::render()
 	dd.end();
 }
 
-void ConvexVolumeTool::drawOverlayUI(double* /*proj*/, double* /*model*/, int* /*view*/)
+void ConvexVolumeTool::drawOverlayUI()
 {
 	// Tool help
 	if (!numPoints)

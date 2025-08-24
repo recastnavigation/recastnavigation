@@ -281,7 +281,7 @@ void NavMeshPruneTool::render()
 	}
 }
 
-void NavMeshPruneTool::drawOverlayUI(double* /*proj*/, double* /*model*/, int* /*view*/)
+void NavMeshPruneTool::drawOverlayUI()
 {
 	DrawScreenspaceText(280.0f, 40.0f, IM_COL32(255, 255, 255, 192), "LMB: Click fill area.");
 }
