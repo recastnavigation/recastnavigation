@@ -358,7 +358,7 @@ void Sample::renderToolStates() const
 	{
 		if (toolStates[i])
 		{
-			toolStates[i]->handleRender();
+			toolStates[i]->render();
 		}
 	}
 }
@@ -369,7 +369,7 @@ void Sample::renderOverlayToolStates(double* proj, double* model, int* view) con
 	{
 		if (toolStates[i])
 		{
-			toolStates[i]->handleRenderOverlay(proj, model, view);
+			toolStates[i]->renderOverlay(proj, model, view);
 		}
 	}
 }

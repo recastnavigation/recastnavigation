@@ -181,7 +181,7 @@ void CrowdToolState::init(Sample* newSample)
 
 void CrowdToolState::reset() {}
 
-void CrowdToolState::handleRender()
+void CrowdToolState::render()
 {
 	duDebugDraw& dd = sample->debugDraw;
 	const float rad = sample->agentRadius;
@@ -599,7 +599,7 @@ void CrowdToolState::handleRender()
 	dd.depthMask(true);
 }
 
-void CrowdToolState::handleRenderOverlay(double* proj, double* model, int* view)
+void CrowdToolState::renderOverlay(double* proj, double* model, int* view)
 {
 	// Draw start and end point labels
 	if (targetPolyRef)
