@@ -18,16 +18,7 @@ inline void DrawScreenspaceText(float x, float y, ImU32 color, const char* text,
 	ImGui::GetForegroundDrawList()->AddText({x, y}, color, text);
 }
 
-inline void DrawWorldspaceText(
-	double* proj,
-	double* model,
-	int* view,
-	float x,
-	float y,
-	float z,
-	ImU32 color,
-	const char* text,
-	bool centered = false)
+inline void DrawWorldspaceText(float x, float y, float z, ImU32 color, const char* text, bool centered = false)
 {
 	float imguiX;
 	float imguiY;
