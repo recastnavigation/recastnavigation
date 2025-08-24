@@ -1,9 +1,5 @@
 #include "AppData.h"
 
-#include "Sample.h"
-#include "InputGeom.h"
-
-#include <imgui.h>
 #ifdef __APPLE__
 #	include <OpenGL/glu.h>
 #else
