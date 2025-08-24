@@ -56,6 +56,9 @@ namespace
 constexpr float UPDATE_TIME = 1.0f / 60.0f;  // update at 60Hz
 constexpr float FOG_COLOR[4] = {0.32f, 0.31f, 0.30f, 1.0f};
 
+constexpr float CAM_MOVE_SPEED = 4.0f;
+constexpr float CAM_FAST_MOVE_SPEED = 22.0f;
+
 SampleItem g_samples[] = {
 	{.name = "Solo Mesh",      .create = []() { return std::make_unique<Sample_SoloMesh>(); }     },
 	{.name = "Tile Mesh",      .create = []() { return std::make_unique<Sample_TileMesh>(); }     },
@@ -341,7 +344,7 @@ int main(int /*argc*/, char** /*argv*/)
 		glDisable(GL_TEXTURE_2D);
 		glEnable(GL_DEPTH_TEST);
 
-		// Compute the modelview matrix.
+		// Set the modelview matrix.
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 		glRotatef(app.cameraEulers[0], 1, 0, 0);
@@ -381,7 +384,7 @@ int main(int /*argc*/, char** /*argv*/)
 		app.moveUp = rcClamp(app.moveUp + dt * 4 * ((keystate[SDL_SCANCODE_Q] || keystate[SDL_SCANCODE_PAGEUP]) ? 1.0f : -1.0f), 0.0f, 1.0f);
 		app.moveDown = rcClamp(app.moveDown + dt * 4 * ((keystate[SDL_SCANCODE_E] || keystate[SDL_SCANCODE_PAGEDOWN]) ? 1.0f : -1.0f), 0.0f, 1.0f);
 
-		const float keybSpeed = (SDL_GetModState() & KMOD_SHIFT) ? 4.0f : 22.0f;
+		const float keybSpeed = (SDL_GetModState() & KMOD_SHIFT) ? CAM_MOVE_SPEED : CAM_FAST_MOVE_SPEED;
 		float moveX = (app.moveRight - app.moveLeft) * keybSpeed * dt;
 		float moveY = (app.moveBack - app.moveFront) * keybSpeed * dt + app.scrollZoom * 2.0f;
 		app.scrollZoom = 0;
