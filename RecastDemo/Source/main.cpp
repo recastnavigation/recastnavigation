@@ -16,11 +16,10 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
+#include "AppData.h"
 #include "SDL.h"
 #include "SDL_keycode.h"
 #include "SDL_opengl.h"
-
-#include "AppData.h"
 
 #include <algorithm>
 #include <cstdio>
