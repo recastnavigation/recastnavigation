@@ -1,11 +1,15 @@
 #pragma once
 
-#include "InputGeom.h"
 #include "SDL.h"
-#include "Sample.h"
-#include "TestCase.h"
+#include "SampleInterfaces.h"
 
 #include <memory>
+#include <string>
+#include <vector>
+
+class TestCase;
+class Sample;
+class InputGeom;
 
 struct AppData
 {

@@ -1,5 +1,9 @@
 #include "AppData.h"
 
+#include "InputGeom.h"
+#include "Sample.h"
+#include "TestCase.h"
+
 #include "SDL_opengl.h"
 
 #ifdef __APPLE__
