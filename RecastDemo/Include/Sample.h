@@ -68,11 +68,11 @@ enum SamplePolyFlags
 	SAMPLE_POLYFLAGS_ALL = ~0            // 0xff	// All abilities.
 };
 
-enum SamplePartitionType
+enum class SamplePartitionType : uint8_t
 {
-	SAMPLE_PARTITION_WATERSHED,
-	SAMPLE_PARTITION_MONOTONE,
-	SAMPLE_PARTITION_LAYERS
+	WATERSHED,
+	MONOTONE,
+	LAYERS
 };
 
 class SampleDebugDraw : public DebugDrawGL
@@ -136,7 +136,7 @@ public:
 	int vertsPerPoly;
 	float detailSampleDist;
 	float detailSampleMaxError;
-	int partitionType;
+	SamplePartitionType partitionType = SamplePartitionType::WATERSHED;
 
 	bool filterLowHangingObstacles = true;
 	bool filterLedgeSpans = true;

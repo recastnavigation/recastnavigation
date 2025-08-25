@@ -182,7 +182,7 @@ void Sample::onMeshChanged(InputGeom* geom)
 		edgeMaxError = buildSettings->edgeMaxError;
 		detailSampleDist = buildSettings->detailSampleDist;
 		detailSampleMaxError = buildSettings->detailSampleMaxError;
-		partitionType = buildSettings->partitionType;
+		partitionType = static_cast<SamplePartitionType>(buildSettings->partitionType);
 	}
 }
 
@@ -200,7 +200,7 @@ void Sample::collectSettings(BuildSettings& settings)
 	settings.edgeMaxError = edgeMaxError;
 	settings.detailSampleDist = detailSampleDist;
 	settings.detailSampleMaxError = detailSampleMaxError;
-	settings.partitionType = partitionType;
+	settings.partitionType = static_cast<int>(partitionType);
 }
 
 void Sample::resetCommonSettings()
@@ -218,7 +218,7 @@ void Sample::resetCommonSettings()
 	vertsPerPoly = 6;
 	detailSampleDist = 6.0f;
 	detailSampleMaxError = 1.0f;
-	partitionType = SAMPLE_PARTITION_WATERSHED;
+	partitionType = SamplePartitionType::WATERSHED;
 }
 
 void Sample::drawCommonSettingsUI()
@@ -251,17 +251,17 @@ void Sample::drawCommonSettingsUI()
 	DrawFloatSlider(&regionMergeSize, 0.0f, 150.0f, "##Merged Region Size", "Merged Region Size");
 
 	ImGui::SeparatorText("Partitioning");
-	if (ImGui::RadioButton("Watershed", partitionType == SAMPLE_PARTITION_WATERSHED))
+	if (ImGui::RadioButton("Watershed", partitionType == SamplePartitionType::WATERSHED))
 	{
-		partitionType = SAMPLE_PARTITION_WATERSHED;
+		partitionType = SamplePartitionType::WATERSHED;
 	}
-	if (ImGui::RadioButton("Monotone", partitionType == SAMPLE_PARTITION_MONOTONE))
+	if (ImGui::RadioButton("Monotone", partitionType == SamplePartitionType::MONOTONE))
 	{
-		partitionType = SAMPLE_PARTITION_MONOTONE;
+		partitionType = SamplePartitionType::MONOTONE;
 	}
-	if (ImGui::RadioButton("Layers", partitionType == SAMPLE_PARTITION_LAYERS))
+	if (ImGui::RadioButton("Layers", partitionType == SamplePartitionType::LAYERS))
 	{
-		partitionType = SAMPLE_PARTITION_LAYERS;
+		partitionType = SamplePartitionType::LAYERS;
 	}
 
 	ImGui::SeparatorText("Filtering");

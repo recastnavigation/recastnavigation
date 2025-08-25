@@ -1052,7 +1052,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(
 	//     if you have large open areas with small obstacles (not a problem if you use tiles)
 	//   * good choice to use for tiled navmesh with medium and small sized tiles
 
-	if (partitionType == SAMPLE_PARTITION_WATERSHED)
+	if (partitionType == SamplePartitionType::WATERSHED)
 	{
 		// Prepare for region partitioning, by calculating distance field along the walkable surface.
 		if (!rcBuildDistanceField(buildContext, *compactHeightfield))
@@ -1068,7 +1068,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(
 			return 0;
 		}
 	}
-	else if (partitionType == SAMPLE_PARTITION_MONOTONE)
+	else if (partitionType == SamplePartitionType::MONOTONE)
 	{
 		// Partition the walkable surface into simple regions without holes.
 		// Monotone partitioning does not need distancefield.
@@ -1083,7 +1083,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(
 			return 0;
 		}
 	}
-	else  // SAMPLE_PARTITION_LAYERS
+	else  // SamplePartitionType::LAYERS
 	{
 		// Partition the walkable surface into simple regions without holes.
 		if (!rcBuildLayerRegions(buildContext, *compactHeightfield, config.borderSize, config.minRegionArea))

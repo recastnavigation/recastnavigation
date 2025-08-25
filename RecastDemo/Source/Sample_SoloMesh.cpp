@@ -561,7 +561,7 @@ bool Sample_SoloMesh::build()
 	//     This is less of a problem if you use a tiled navmesh.
 	//   * A good choice for a tiled navmesh with small to medium-sized tiles
 
-	if (partitionType == SAMPLE_PARTITION_WATERSHED)
+	if (partitionType == SamplePartitionType::WATERSHED)
 	{
 		// Prepare for region partitioning, by calculating distance field along the walkable surface.
 		if (!rcBuildDistanceField(buildContext, *compactHeightfield))
@@ -577,7 +577,7 @@ bool Sample_SoloMesh::build()
 			return false;
 		}
 	}
-	else if (partitionType == SAMPLE_PARTITION_MONOTONE)
+	else if (partitionType == SamplePartitionType::MONOTONE)
 	{
 		// Partition the walkable surface into contiguous regions.
 		// Monotone partitioning does not need distancefield.
@@ -587,7 +587,7 @@ bool Sample_SoloMesh::build()
 			return false;
 		}
 	}
-	else  // SAMPLE_PARTITION_LAYERS
+	else  // SamplePartitionType::LAYERS
 	{
 		// Partition the walkable surface into contiguous regions.
 		// Layer partitioning does not need distancefield.
