@@ -169,8 +169,8 @@ void ConvexVolumeTool::onClick(const float* /*s*/, const float* p, bool shift)
 	{
 		// Delete
 		int nearestIndex = -1;
-		const ConvexVolume* vols = geom->convexVolumes;
-		for (int i = 0; i < geom->convexVolumeCount; ++i)
+		const std::vector<ConvexVolume>& vols = geom->convexVolumes;
+		for (int i = 0; i < static_cast<int>(vols.size()); ++i)
 		{
 			if (pointInPoly(vols[i].nverts, vols[i].verts, p) && p[1] >= vols[i].hmin && p[1] <= vols[i].hmax)
 			{

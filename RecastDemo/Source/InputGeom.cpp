@@ -368,7 +368,7 @@ bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath)
 
 	filename = filepath;
 	offMeshConCount = 0;
-	convexVolumeCount = 0;
+	convexVolumes.clear();
 
 	mesh.reset();
 	mesh.readFromObj(buffer, bufferLen);
@@ -407,7 +407,7 @@ bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath)
 bool InputGeom::loadGeomSet(rcContext* ctx, char* buffer, size_t bufferLen)
 {
 	offMeshConCount = 0;
-	convexVolumeCount = 0;
+	convexVolumes.clear();
 
 	char* src = buffer;
 	char* srcEnd = buffer + bufferLen;
@@ -467,17 +467,15 @@ bool InputGeom::loadGeomSet(rcContext* ctx, char* buffer, size_t bufferLen)
 		else if (row[0] == 'v')
 		{
 			// Convex volumes
-			if (convexVolumeCount < MAX_VOLUMES)
+			ConvexVolume vol;
+			sscanf(row + 1, "%d %d %f %f", &vol.nverts, &vol.area, &vol.hmin, &vol.hmax);
+			for (int i = 0; i < vol.nverts; ++i)
 			{
-				ConvexVolume* vol = &convexVolumes[convexVolumeCount++];
-				sscanf(row + 1, "%d %d %f %f", &vol->nverts, &vol->area, &vol->hmin, &vol->hmax);
-				for (int i = 0; i < vol->nverts; ++i)
-				{
-					row[0] = '\0';
-					src = parseRow(src, srcEnd, row, sizeof(row) / sizeof(char));
-					sscanf(row, "%f %f %f", &vol->verts[i * 3 + 0], &vol->verts[i * 3 + 1], &vol->verts[i * 3 + 2]);
-				}
+				row[0] = '\0';
+				src = parseRow(src, srcEnd, row, sizeof(row) / sizeof(char));
+				sscanf(row, "%f %f %f", &vol.verts[i * 3 + 0], &vol.verts[i * 3 + 1], &vol.verts[i * 3 + 2]);
 			}
+			convexVolumes.emplace_back(std::move(vol));
 		}
 		else if (row[0] == 's')
 		{
@@ -601,13 +599,12 @@ bool InputGeom::saveGeomSet(const BuildSettings* settings)
 	}
 
 	// Convex volumes
-	for (int i = 0; i < convexVolumeCount; ++i)
+	for (ConvexVolume& vol : convexVolumes)
 	{
-		ConvexVolume* vol = &convexVolumes[i];
-		fprintf(fp, "v %d %d %f %f\n", vol->nverts, vol->area, vol->hmin, vol->hmax);
-		for (int j = 0; j < vol->nverts; ++j)
+		fprintf(fp, "v %d %d %f %f\n", vol.nverts, vol.area, vol.hmin, vol.hmax);
+		for (int j = 0; j < vol.nverts; ++j)
 		{
-			fprintf(fp, "%f %f %f\n", vol->verts[j * 3 + 0], vol->verts[j * 3 + 1], vol->verts[j * 3 + 2]);
+			fprintf(fp, "%f %f %f\n", vol.verts[j * 3 + 0], vol.verts[j * 3 + 1], vol.verts[j * 3 + 2]);
 		}
 	}
 
@@ -729,23 +726,18 @@ void InputGeom::drawOffMeshConnections(duDebugDraw* dd, bool highlight)
 
 void InputGeom::addConvexVolume(const float* verts, const int nverts, const float minh, const float maxh, unsigned char area)
 {
-	if (convexVolumeCount >= MAX_VOLUMES)
-	{
-		return;
-	}
-	ConvexVolume* vol = &convexVolumes[convexVolumeCount++];
-	memset(vol, 0, sizeof(ConvexVolume));
-	memcpy(vol->verts, verts, sizeof(float) * 3 * nverts);
-	vol->hmin = minh;
-	vol->hmax = maxh;
-	vol->nverts = nverts;
-	vol->area = area;
+	ConvexVolume vol;
+	memcpy(vol.verts, verts, sizeof(float) * 3 * nverts);
+	vol.hmin = minh;
+	vol.hmax = maxh;
+	vol.nverts = nverts;
+	vol.area = area;
+	convexVolumes.emplace_back(std::move(vol));
 }
 
 void InputGeom::deleteConvexVolume(int i)
 {
-	convexVolumeCount--;
-	convexVolumes[i] = convexVolumes[convexVolumeCount];
+	convexVolumes.erase(convexVolumes.begin() + i);
 }
 
 void InputGeom::drawConvexVolumes(struct duDebugDraw* dd, bool /*hilight*/)
@@ -753,60 +745,57 @@ void InputGeom::drawConvexVolumes(struct duDebugDraw* dd, bool /*hilight*/)
 	dd->depthMask(false);
 	dd->begin(DU_DRAW_TRIS);
 
-	for (int i = 0; i < convexVolumeCount; ++i)
+	for (const ConvexVolume& vol : convexVolumes)
 	{
-		const ConvexVolume* vol = &convexVolumes[i];
-		unsigned int col = duTransCol(dd->areaToCol(vol->area), 32);
-		for (int j = 0, k = vol->nverts - 1; j < vol->nverts; k = j++)
+		unsigned int col = duTransCol(dd->areaToCol(vol.area), 32);
+		for (int j = 0, k = vol.nverts - 1; j < vol.nverts; k = j++)
 		{
-			const float* va = &vol->verts[k * 3];
-			const float* vb = &vol->verts[j * 3];
+			const float* va = &vol.verts[k * 3];
+			const float* vb = &vol.verts[j * 3];
 
-			dd->vertex(vol->verts[0], vol->hmax, vol->verts[2], col);
-			dd->vertex(vb[0], vol->hmax, vb[2], col);
-			dd->vertex(va[0], vol->hmax, va[2], col);
+			dd->vertex(vol.verts[0], vol.hmax, vol.verts[2], col);
+			dd->vertex(vb[0], vol.hmax, vb[2], col);
+			dd->vertex(va[0], vol.hmax, va[2], col);
 
-			dd->vertex(va[0], vol->hmin, va[2], duDarkenCol(col));
-			dd->vertex(va[0], vol->hmax, va[2], col);
-			dd->vertex(vb[0], vol->hmax, vb[2], col);
+			dd->vertex(va[0], vol.hmin, va[2], duDarkenCol(col));
+			dd->vertex(va[0], vol.hmax, va[2], col);
+			dd->vertex(vb[0], vol.hmax, vb[2], col);
 
-			dd->vertex(va[0], vol->hmin, va[2], duDarkenCol(col));
-			dd->vertex(vb[0], vol->hmax, vb[2], col);
-			dd->vertex(vb[0], vol->hmin, vb[2], duDarkenCol(col));
+			dd->vertex(va[0], vol.hmin, va[2], duDarkenCol(col));
+			dd->vertex(vb[0], vol.hmax, vb[2], col);
+			dd->vertex(vb[0], vol.hmin, vb[2], duDarkenCol(col));
 		}
 	}
 
 	dd->end();
 
 	dd->begin(DU_DRAW_LINES, 2.0f);
-	for (int i = 0; i < convexVolumeCount; ++i)
+	for (const ConvexVolume& vol : convexVolumes)
 	{
-		const ConvexVolume* vol = &convexVolumes[i];
-		unsigned int col = duTransCol(dd->areaToCol(vol->area), 220);
-		for (int j = 0, k = vol->nverts - 1; j < vol->nverts; k = j++)
+		unsigned int col = duTransCol(dd->areaToCol(vol.area), 220);
+		for (int j = 0, k = vol.nverts - 1; j < vol.nverts; k = j++)
 		{
-			const float* va = &vol->verts[k * 3];
-			const float* vb = &vol->verts[j * 3];
-			dd->vertex(va[0], vol->hmin, va[2], duDarkenCol(col));
-			dd->vertex(vb[0], vol->hmin, vb[2], duDarkenCol(col));
-			dd->vertex(va[0], vol->hmax, va[2], col);
-			dd->vertex(vb[0], vol->hmax, vb[2], col);
-			dd->vertex(va[0], vol->hmin, va[2], duDarkenCol(col));
-			dd->vertex(va[0], vol->hmax, va[2], col);
+			const float* va = &vol.verts[k * 3];
+			const float* vb = &vol.verts[j * 3];
+			dd->vertex(va[0], vol.hmin, va[2], duDarkenCol(col));
+			dd->vertex(vb[0], vol.hmin, vb[2], duDarkenCol(col));
+			dd->vertex(va[0], vol.hmax, va[2], col);
+			dd->vertex(vb[0], vol.hmax, vb[2], col);
+			dd->vertex(va[0], vol.hmin, va[2], duDarkenCol(col));
+			dd->vertex(va[0], vol.hmax, va[2], col);
 		}
 	}
 	dd->end();
 
 	dd->begin(DU_DRAW_POINTS, 3.0f);
-	for (int i = 0; i < convexVolumeCount; ++i)
+	for (const ConvexVolume& vol : convexVolumes)
 	{
-		const ConvexVolume* vol = &convexVolumes[i];
-		unsigned int col = duDarkenCol(duTransCol(dd->areaToCol(vol->area), 220));
-		for (int j = 0; j < vol->nverts; ++j)
+		unsigned int col = duDarkenCol(duTransCol(dd->areaToCol(vol.area), 220));
+		for (int j = 0; j < vol.nverts; ++j)
 		{
-			dd->vertex(vol->verts[j * 3 + 0], vol->verts[j * 3 + 1] + 0.1f, vol->verts[j * 3 + 2], col);
-			dd->vertex(vol->verts[j * 3 + 0], vol->hmin, vol->verts[j * 3 + 2], col);
-			dd->vertex(vol->verts[j * 3 + 0], vol->hmax, vol->verts[j * 3 + 2], col);
+			dd->vertex(vol.verts[j * 3 + 0], vol.verts[j * 3 + 1] + 0.1f, vol.verts[j * 3 + 2], col);
+			dd->vertex(vol.verts[j * 3 + 0], vol.hmin, vol.verts[j * 3 + 2], col);
+			dd->vertex(vol.verts[j * 3 + 0], vol.hmax, vol.verts[j * 3 + 2], col);
 		}
 	}
 	dd->end();

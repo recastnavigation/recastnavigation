@@ -28,11 +28,11 @@ struct duDebugDraw;
 static constexpr int MAX_CONVEXVOL_PTS = 12;
 struct ConvexVolume
 {
-	float verts[MAX_CONVEXVOL_PTS * 3];
-	float hmin;
-	float hmax;
-	int nverts;
-	int area;
+	float verts[MAX_CONVEXVOL_PTS * 3] = {};
+	float hmin = 0.0f;
+	float hmax = 0.0f;
+	int nverts = 0;
+	int area = 0;
 };
 
 struct BuildSettings
@@ -75,7 +75,7 @@ struct Mesh
 {
 	std::vector<float> verts;
 	std::vector<int> tris;
-	std::vector<float> normals;
+	std::vector<float> normals;  // face normals
 
 	void reset()
 	{
@@ -92,6 +92,9 @@ struct Mesh
 
 class InputGeom
 {
+	BuildSettings buildSettings;
+	bool hasBuildSettings = false;
+
 public:
 	std::string filename;
 	Mesh mesh;
@@ -100,11 +103,6 @@ public:
 	float meshBoundsMin[3] = {};
 	float meshBoundsMax[3] = {};
 
-private:
-	BuildSettings buildSettings;
-	bool hasBuildSettings = false;
-
-public:
 	/// @name Off-Mesh connections.
 	///@{
 	static constexpr int MAX_OFFMESH_CONNECTIONS = 256;
@@ -117,12 +115,7 @@ public:
 	int offMeshConCount = 0;
 	///@}
 
-	/// @name Convex Volumes.
-	///@{
-	static const int MAX_VOLUMES = 256;
-	ConvexVolume convexVolumes[MAX_VOLUMES];
-	int convexVolumeCount = 0;
-	///@}
+	std::vector<ConvexVolume> convexVolumes;
 
 	InputGeom() = default;
 	~InputGeom();

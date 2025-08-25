@@ -509,16 +509,15 @@ bool Sample_SoloMesh::build()
 
 	// (Optional) Marks the surface type of voxels in an area defined by a convex volume.
 	// Useful to mark areas of differing cost.
-	const ConvexVolume* vols = inputGeometry->convexVolumes;
-	for (int i = 0; i < inputGeometry->convexVolumeCount; ++i)
+	for (ConvexVolume& vol : inputGeometry->convexVolumes)
 	{
 		rcMarkConvexPolyArea(
 			buildContext,
-			vols[i].verts,
-			vols[i].nverts,
-			vols[i].hmin,
-			vols[i].hmax,
-			(unsigned char)vols[i].area,
+			vol.verts,
+			vol.nverts,
+			vol.hmin,
+			vol.hmax,
+			(unsigned char)vol.area,
 			*compactHeightfield);
 	}
 
