@@ -77,8 +77,17 @@ struct Mesh
 	std::vector<int> tris;
 	std::vector<float> normals;
 
+	void reset()
+	{
+		verts.clear();
+		tris.clear();
+		normals.clear();
+	}
+
 	[[nodiscard]] int getVertCount() const { return static_cast<int>(verts.size()) / 3; }
 	[[nodiscard]] int getTriCount() const { return static_cast<int>(tris.size()) / 3; }
+
+	void readFromObj(char* buf, size_t bufLen);
 };
 
 class InputGeom

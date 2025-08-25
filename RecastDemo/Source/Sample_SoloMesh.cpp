@@ -36,12 +36,7 @@
 #include <imgui.h>
 
 #include <cmath>
-#include <cstdio>
 #include <cstring>
-
-#ifdef WIN32
-#	define snprintf _snprintf
-#endif
 
 const char* Sample_SoloMesh::drawModeNames[]{
 	"Input Mesh",
