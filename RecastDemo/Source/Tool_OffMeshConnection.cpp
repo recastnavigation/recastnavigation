@@ -70,8 +70,8 @@ void OffMeshConnectionTool::onClick(const float* /*rayStartPos*/, const float* r
 		// Find nearest link end-point
 		float nearestDist = FLT_MAX;
 		int nearestIndex = -1;
-		const float* verts = geom->offMeshConVerts;
-		for (int i = 0; i < geom->offMeshConCount * 2; ++i)
+		const std::vector<float> verts = geom->offmeshConnVerts;
+		for (int i = 0; i < static_cast<int>(geom->offmeshConnId.size()) * 2; ++i)
 		{
 			const float distance = rcVdistSqr(rayHitPos, &verts[i * 3]);
 			if (distance < nearestDist)

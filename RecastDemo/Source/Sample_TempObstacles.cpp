@@ -463,13 +463,13 @@ struct MeshProcess : dtTileCacheMeshProcess
 		// Pass in off-mesh connections.
 		if (inputGeometry)
 		{
-			params->offMeshConVerts = inputGeometry->offMeshConVerts;
-			params->offMeshConRad = inputGeometry->offMeshConRads;
-			params->offMeshConDir = inputGeometry->offMeshConDirs;
-			params->offMeshConAreas = inputGeometry->offMeshConAreas;
-			params->offMeshConFlags = inputGeometry->offMeshConFlags;
-			params->offMeshConUserID = inputGeometry->offMeshConId;
-			params->offMeshConCount = inputGeometry->offMeshConCount;
+			params->offMeshConVerts = inputGeometry->offmeshConnVerts.data();
+			params->offMeshConRad = inputGeometry->offmeshConnRadius.data();
+			params->offMeshConDir = inputGeometry->offmeshConnBidirectional.data();
+			params->offMeshConAreas = inputGeometry->offmeshConnArea.data();
+			params->offMeshConFlags = inputGeometry->offmeshConnFlags.data();
+			params->offMeshConUserID = inputGeometry->offmeshConnId.data();
+			params->offMeshConCount = static_cast<int>(inputGeometry->offmeshConnArea.size());
 		}
 	}
 };

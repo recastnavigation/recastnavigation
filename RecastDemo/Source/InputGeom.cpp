@@ -367,7 +367,8 @@ bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath)
 	}
 
 	filename = filepath;
-	offMeshConCount = 0;
+	clearOffmeshConnections();
+
 	convexVolumes.clear();
 
 	mesh.reset();
@@ -406,7 +407,7 @@ bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath)
 
 bool InputGeom::loadGeomSet(rcContext* ctx, char* buffer, size_t bufferLen)
 {
-	offMeshConCount = 0;
+	clearOffmeshConnections();
 	convexVolumes.clear();
 
 	char* src = buffer;
@@ -437,32 +438,26 @@ bool InputGeom::loadGeomSet(rcContext* ctx, char* buffer, size_t bufferLen)
 		else if (row[0] == 'c')
 		{
 			// Off-mesh connection
-			if (offMeshConCount < MAX_OFFMESH_CONNECTIONS)
-			{
-				float* v = &offMeshConVerts[offMeshConCount * 3 * 2];
-				int bidir;
-				int area;
-				int flags;
-				float rad;
-				sscanf(
-					row + 1,
-					"%f %f %f  %f %f %f %f %d %d %d",
-					&v[0],
-					&v[1],
-					&v[2],
-					&v[3],
-					&v[4],
-					&v[5],
-					&rad,
-					&bidir,
-					&area,
-					&flags);
-				offMeshConRads[offMeshConCount] = rad;
-				offMeshConDirs[offMeshConCount] = (unsigned char)bidir;
-				offMeshConAreas[offMeshConCount] = (unsigned char)area;
-				offMeshConFlags[offMeshConCount] = (unsigned short)flags;
-				offMeshConCount++;
-			}
+			float startPos[3];
+			float endPos[3];
+			int bidir;
+			int area;
+			int flags;
+			float rad;
+			sscanf(
+				row + 1,
+				"%f %f %f  %f %f %f %f %d %d %d",
+				&startPos[0],
+				&startPos[1],
+				&startPos[2],
+				&endPos[0],
+				&endPos[1],
+				&endPos[2],
+				&rad,
+				&bidir,
+				&area,
+				&flags);
+			addOffMeshConnection(startPos, endPos, rad, bidir, area, flags);
 		}
 		else if (row[0] == 'v')
 		{
@@ -588,13 +583,14 @@ bool InputGeom::saveGeomSet(const BuildSettings* settings)
 	}
 
 	// Store off-mesh links.
+	int offMeshConCount = static_cast<int>(offmeshConnId.size());
 	for (int i = 0; i < offMeshConCount; ++i)
 	{
-		const float* v = &offMeshConVerts[i * 3 * 2];
-		const float rad = offMeshConRads[i];
-		const int bidir = offMeshConDirs[i];
-		const int area = offMeshConAreas[i];
-		const int flags = offMeshConFlags[i];
+		const float* v = &offmeshConnVerts[i * 3 * 2];
+		const float rad = offmeshConnRadius[i];
+		const int bidir = offmeshConnBidirectional[i];
+		const int area = offmeshConnArea[i];
+		const int flags = offmeshConnFlags[i];
 		fprintf(fp, "c %f %f %f  %f %f %f  %f %d %d %d\n", v[0], v[1], v[2], v[3], v[4], v[5], rad, bidir, area, flags);
 	}
 
@@ -667,32 +663,25 @@ void InputGeom::addOffMeshConnection(
 	unsigned char area,
 	unsigned short flags)
 {
-	if (offMeshConCount >= MAX_OFFMESH_CONNECTIONS)
-	{
-		return;
-	}
-	float* v = &offMeshConVerts[offMeshConCount * 3 * 2];
-	offMeshConRads[offMeshConCount] = rad;
-	offMeshConDirs[offMeshConCount] = bidir;
-	offMeshConAreas[offMeshConCount] = area;
-	offMeshConFlags[offMeshConCount] = flags;
-	offMeshConId[offMeshConCount] = 1000 + offMeshConCount;
+	offmeshConnVerts.resize(offmeshConnVerts.size() + 3 * 2);
+	float* v = &offmeshConnVerts[offmeshConnVerts.size() - 3 * 2];
 	rcVcopy(&v[0], spos);
 	rcVcopy(&v[3], epos);
-	offMeshConCount++;
+	offmeshConnRadius.emplace_back(rad);
+	offmeshConnBidirectional.emplace_back(bidir);
+	offmeshConnArea.emplace_back(area);
+	offmeshConnFlags.emplace_back(flags);
+	offmeshConnId.emplace_back(1000 + (offmeshConnArea.size() - 1));
 }
 
 void InputGeom::deleteOffMeshConnection(int i)
 {
-	offMeshConCount--;
-	float* src = &offMeshConVerts[offMeshConCount * 3 * 2];
-	float* dst = &offMeshConVerts[i * 3 * 2];
-	rcVcopy(&dst[0], &src[0]);
-	rcVcopy(&dst[3], &src[3]);
-	offMeshConRads[i] = offMeshConRads[offMeshConCount];
-	offMeshConDirs[i] = offMeshConDirs[offMeshConCount];
-	offMeshConAreas[i] = offMeshConAreas[offMeshConCount];
-	offMeshConFlags[i] = offMeshConFlags[offMeshConCount];
+	offmeshConnVerts.erase(offmeshConnVerts.begin() + 3 * 2 * i);
+	offmeshConnRadius.erase(offmeshConnRadius.begin() + i);
+	offmeshConnBidirectional.erase(offmeshConnBidirectional.begin() + i);
+	offmeshConnArea.erase(offmeshConnArea.begin() + i);
+	offmeshConnFlags.erase(offmeshConnFlags.begin() + i);
+	offmeshConnId.erase(offmeshConnId.begin() + i);
 }
 
 void InputGeom::drawOffMeshConnections(duDebugDraw* dd, bool highlight)
@@ -702,9 +691,10 @@ void InputGeom::drawOffMeshConnections(duDebugDraw* dd, bool highlight)
 	dd->depthMask(false);
 
 	dd->begin(DU_DRAW_LINES, 2.0f);
+	int offMeshConCount = static_cast<int>(offmeshConnId.size());
 	for (int i = 0; i < offMeshConCount; ++i)
 	{
-		float* v = &offMeshConVerts[i * 3 * 2];
+		float* v = &offmeshConnVerts[i * 3 * 2];
 
 		dd->vertex(v[0], v[1], v[2], baseColor);
 		dd->vertex(v[0], v[1] + 0.2f, v[2], baseColor);
@@ -712,12 +702,12 @@ void InputGeom::drawOffMeshConnections(duDebugDraw* dd, bool highlight)
 		dd->vertex(v[3], v[4], v[5], baseColor);
 		dd->vertex(v[3], v[4] + 0.2f, v[5], baseColor);
 
-		duAppendCircle(dd, v[0], v[1] + 0.1f, v[2], offMeshConRads[i], baseColor);
-		duAppendCircle(dd, v[3], v[4] + 0.1f, v[5], offMeshConRads[i], baseColor);
+		duAppendCircle(dd, v[0], v[1] + 0.1f, v[2], offmeshConnRadius[i], baseColor);
+		duAppendCircle(dd, v[3], v[4] + 0.1f, v[5], offmeshConnRadius[i], baseColor);
 
 		if (highlight)
 		{
-			duAppendArc(dd, v[0], v[1], v[2], v[3], v[4], v[5], 0.25f, (offMeshConDirs[i] & 1) ? 0.6f : 0.0f, 0.6f, conColor);
+			duAppendArc(dd, v[0], v[1], v[2], v[3], v[4], v[5], 0.25f, (offmeshConnBidirectional[i] & 1) ? 0.6f : 0.0f, 0.6f, conColor);
 		}
 	}
 	dd->end();

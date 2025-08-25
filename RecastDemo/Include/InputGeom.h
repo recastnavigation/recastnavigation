@@ -105,14 +105,12 @@ public:
 
 	/// @name Off-Mesh connections.
 	///@{
-	static constexpr int MAX_OFFMESH_CONNECTIONS = 256;
-	float offMeshConVerts[MAX_OFFMESH_CONNECTIONS * 3 * 2];
-	float offMeshConRads[MAX_OFFMESH_CONNECTIONS];
-	unsigned char offMeshConDirs[MAX_OFFMESH_CONNECTIONS];
-	unsigned char offMeshConAreas[MAX_OFFMESH_CONNECTIONS];
-	unsigned short offMeshConFlags[MAX_OFFMESH_CONNECTIONS];
-	unsigned int offMeshConId[MAX_OFFMESH_CONNECTIONS];
-	int offMeshConCount = 0;
+	std::vector<float> offmeshConnVerts;
+	std::vector<float> offmeshConnRadius;
+	std::vector<unsigned char> offmeshConnBidirectional;
+	std::vector<unsigned char> offmeshConnArea;
+	std::vector<unsigned short> offmeshConnFlags;
+	std::vector<unsigned int> offmeshConnId;
 	///@}
 
 	std::vector<ConvexVolume> convexVolumes;
@@ -151,5 +149,15 @@ private:
 	bool loadMesh(rcContext* ctx, const std::string& filepath);
 	bool loadGeomSet(rcContext* ctx, const std::string& filepath);
 	bool loadGeomSet(rcContext* ctx, char* buffer, size_t bufferLen);
+
+	void clearOffmeshConnections()
+	{
+		offmeshConnVerts.clear();
+		offmeshConnRadius.clear();
+		offmeshConnBidirectional.clear();
+		offmeshConnArea.clear();
+		offmeshConnFlags.clear();
+		offmeshConnId.clear();
+	}
 };
 
