@@ -18,9 +18,6 @@
 
 #include "Tool_Crowd.h"
 
-#include "SDL.h"
-#include "SDL_opengl.h"
-
 #include <algorithm>
 #include <cfloat>
 #include <cmath>
@@ -32,7 +29,6 @@
 #include "DetourObstacleAvoidance.h"
 #include "InputGeom.h"
 #include "Sample.h"
-#include "SampleInterfaces.h"
 #include "imguiHelpers.h"
 
 #ifdef WIN32

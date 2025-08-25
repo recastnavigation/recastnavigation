@@ -27,12 +27,6 @@
 
 #include <cfloat>
 
-#ifdef WIN32
-#	define snprintf _snprintf
-#endif
-
-// Quick and dirty convex hull.
-
 namespace {
 /// Returns true if 'c' is left of line 'a'-'b'.
 inline bool left(const float* a, const float* b, const float* c)
