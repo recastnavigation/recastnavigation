@@ -20,18 +20,13 @@
 
 #include "DetourCommon.h"
 #include "DetourDebugDraw.h"
-#include "DetourNavMesh.h"
 #include "DetourPathCorridor.h"
-#include "SDL_opengl.h"
-#include "Sample.h"
 #include "imguiHelpers.h"
 
 #include <imgui.h>
 
-#include <cstdlib>
-
 // Uncomment this to dump all the requests in stdout.
-#define DUMP_REQS
+//#define DUMP_REQS
 
 namespace
 {

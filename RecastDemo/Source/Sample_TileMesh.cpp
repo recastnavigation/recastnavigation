@@ -18,25 +18,19 @@
 
 #include "Sample_TileMesh.h"
 
-#include "SDL_opengl.h"
-#include "imguiHelpers.h"
-
-#include <cmath>
-#include <cstdio>
-#include <cstring>
-#include "PartitionedMesh.h"
 #include "DetourDebugDraw.h"
 #include "DetourNavMesh.h"
 #include "DetourNavMeshBuilder.h"
 #include "InputGeom.h"
-#include "Recast.h"
+#include "PartitionedMesh.h"
 #include "RecastDebugDraw.h"
-#include "Sample.h"
+#include "SDL_opengl.h"
 #include "Tool_ConvexVolume.h"
 #include "Tool_Crowd.h"
 #include "Tool_NavMeshPrune.h"
 #include "Tool_NavMeshTester.h"
 #include "Tool_OffMeshConnection.h"
+#include "imguiHelpers.h"
 
 #include <imgui.h>
 

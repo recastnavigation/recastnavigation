@@ -20,16 +20,11 @@
 
 #include "DetourCrowd.h"
 #include "DetourDebugDraw.h"
-#include "DetourNavMesh.h"
-#include "DetourNavMeshQuery.h"
 #include "InputGeom.h"
-#include "Recast.h"
 #include "RecastDebugDraw.h"
 #include "imguiHelpers.h"
 
 #include <imgui.h>
-
-#include <cstdio>
 
 const char* toolNames[] = {
 	"None",

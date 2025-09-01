@@ -20,14 +20,9 @@
 
 #include "DetourDebugDraw.h"
 #include "InputGeom.h"
-#include "Recast.h"
-#include "Sample.h"
 #include "imguiHelpers.h"
 
 #include <imgui.h>
-
-#include <cfloat>
-#include <cmath>
 
 void OffMeshConnectionTool::init(Sample* newSample)
 {

@@ -19,13 +19,9 @@
 #include "Tool_ConvexVolume.h"
 
 #include "InputGeom.h"
-#include "Recast.h"
-#include "Sample.h"
 #include "imguiHelpers.h"
 
 #include <imgui.h>
-
-#include <cfloat>
 
 namespace {
 /// Returns true if 'c' is left of line 'a'-'b'.

@@ -19,16 +19,8 @@
 #include "InputGeom.h"
 
 #include "PartitionedMesh.h"
-#include "DebugDraw.h"
+#include "SampleInterfaces.h"
 #include "Recast.h"
-#include "Sample.h"
-
-#include <ctype.h>
-#include <math.h>
-#include <stdio.h>
-#include <string.h>
-
-#include <algorithm>
 
 namespace
 {

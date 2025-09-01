@@ -1,11 +1,5 @@
 #include "ValueHistory.h"
 
-#include <imgui.h>
-
-#include <algorithm>
-#include <cstdio>
-#include <cstring>
-
 #ifdef WIN32
 #	define snprintf _snprintf
 #endif

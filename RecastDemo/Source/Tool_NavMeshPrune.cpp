@@ -21,13 +21,9 @@
 #include "DetourCommon.h"
 #include "DetourDebugDraw.h"
 #include "DetourNavMesh.h"
-#include "InputGeom.h"
-#include "Sample.h"
 #include "imguiHelpers.h"
 
 #include <imgui.h>
-
-#include <vector>
 
 namespace
 {

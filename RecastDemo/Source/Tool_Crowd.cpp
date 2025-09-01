@@ -18,18 +18,13 @@
 
 #include "Tool_Crowd.h"
 
-#include <algorithm>
-#include <cfloat>
-#include <cmath>
-#include <cstdio>
 #include "DetourCommon.h"
-#include "DetourCrowd.h"
 #include "DetourDebugDraw.h"
 #include "DetourNode.h"
-#include "DetourObstacleAvoidance.h"
-#include "InputGeom.h"
-#include "Sample.h"
+#include "Recast.h"
 #include "imguiHelpers.h"
+
+#include <imgui.h>
 
 #ifdef WIN32
 #	define snprintf _snprintf

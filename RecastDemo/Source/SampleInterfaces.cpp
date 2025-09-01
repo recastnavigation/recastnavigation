@@ -1,12 +1,6 @@
 #include "SampleInterfaces.h"
 
-#include "PerfTimer.h"
-#include "Recast.h"
 #include "SDL_opengl.h"
-
-#include <algorithm>
-#include <cstdarg>
-#include <cstdio>
 
 #ifdef WIN32
 #	define snprintf _snprintf

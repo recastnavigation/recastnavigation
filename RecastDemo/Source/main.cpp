@@ -17,32 +17,28 @@
 //
 
 #include "AppData.h"
+#include "InputGeom.h"
 #include "SDL.h"
 #include "SDL_keycode.h"
 #include "SDL_opengl.h"
-
-#include <algorithm>
-#include <cstdio>
-#include <functional>
-#include <string>
-#include <vector>
-#ifdef __APPLE__
-#	include <OpenGL/glu.h>
-#else
-#	include <GL/glu.h>
-#endif
-
-#include "InputGeom.h"
-#include "Recast.h"
+#include "Sample.h"
 #include "Sample_SoloMesh.h"
 #include "Sample_TempObstacles.h"
 #include "Sample_TileMesh.h"
 #include "TestCase.h"
 #include "imguiHelpers.h"
 
+#include <functional>
+#include <string>
+
 #include <imgui.h>
 #include <imgui_impl_opengl2.h>
 #include <imgui_impl_sdl2.h>
+#ifdef __APPLE__
+#	include <OpenGL/glu.h>
+#else
+#	include <GL/glu.h>
+#endif
 
 struct SampleItem
 {

@@ -19,17 +19,10 @@
 #include "TestCase.h"
 
 #include "DetourCommon.h"
-#include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"
 #include "SDL_opengl.h"
 #include "SampleInterfaces.h"
 #include "imguiHelpers.h"
-
-#include <ctype.h>
-#include <math.h>
-#include <stdio.h>
-#include <string.h>
-#include "PerfTimer.h"
 
 #include <imgui.h>
 

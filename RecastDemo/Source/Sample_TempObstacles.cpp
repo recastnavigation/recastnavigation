@@ -18,26 +18,27 @@
 
 #include "SDL_opengl.h"
 
-#include <algorithm>
-#include <cmath>
-#include <cstdio>
-#include "PartitionedMesh.h"
 #include "DetourCommon.h"
 #include "DetourDebugDraw.h"
-#include "DetourNavMesh.h"
 #include "DetourNavMeshBuilder.h"
 #include "DetourTileCache.h"
 #include "InputGeom.h"
+#include "PartitionedMesh.h"
 #include "Recast.h"
 #include "RecastDebugDraw.h"
 #include "Sample.h"
 #include "Sample_TempObstacles.h"
-#include "fastlz.h"
-#include "imguiHelpers.h"
 #include "Tool_ConvexVolume.h"
 #include "Tool_Crowd.h"
 #include "Tool_NavMeshTester.h"
 #include "Tool_OffMeshConnection.h"
+#include "fastlz.h"
+#include "imguiHelpers.h"
+
+#include <imgui.h>
+
+#include <algorithm>
+#include <cfloat>
 
 #ifdef WIN32
 #	define snprintf _snprintf

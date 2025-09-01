@@ -18,12 +18,6 @@
 
 #include "PartitionedMesh.h"
 
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-
-#include <algorithm>
-
 struct IndexedBounds
 {
 	float bmin[2];
