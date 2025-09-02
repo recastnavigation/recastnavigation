@@ -142,7 +142,7 @@ public:
 	///@{
 	void addConvexVolume(const float* verts, int nverts, float minh, float maxh, unsigned char area);
 	void deleteConvexVolume(int i);
-	void drawConvexVolumes(duDebugDraw* dd, bool highlight = false);
+	void drawConvexVolumes(duDebugDraw* dd);
 	///@}
 
 private:

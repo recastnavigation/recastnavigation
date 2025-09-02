@@ -19,28 +19,28 @@
 #include "InputGeom.h"
 
 #include "PartitionedMesh.h"
-#include "SampleInterfaces.h"
 #include "Recast.h"
+#include "SampleInterfaces.h"
+
+#include <algorithm>
+#include <cmath>
+#include <cstdio>
+#include <cstring>
 
 namespace
 {
 bool intersectSegmentTriangle(const float* sp, const float* sq, const float* a, const float* b, const float* c, float& t)
 {
-	float v;
-	float w;
 	float ab[3];
-	float ac[3];
-	float qp[3];
-	float ap[3];
-	float norm[3];
-	float e[3];
-
 	rcVsub(ab, b, a);
+	float ac[3];
 	rcVsub(ac, c, a);
+	float qp[3];
 	rcVsub(qp, sp, sq);
 
 	// Compute triangle normal. Can be precalculated or cached if
 	// intersecting multiple segments against the same triangle
+	float norm[3];
 	rcVcross(norm, ab, ac);
 
 	// Compute denominator d. If d <= 0, segment is parallel to or points
@@ -54,6 +54,7 @@ bool intersectSegmentTriangle(const float* sp, const float* sq, const float* a, 
 	// Compute intersection t value of pq with plane of triangle. A ray
 	// intersects iff 0 <= t. Segment intersects iff 0 <= t <= 1. Delay
 	// dividing by d until intersection has been found to pierce triangle
+	float ap[3];
 	rcVsub(ap, sp, a);
 	t = rcVdot(ap, norm);
 	if (t < 0.0f)
@@ -66,13 +67,14 @@ bool intersectSegmentTriangle(const float* sp, const float* sq, const float* a, 
 	}  // For segment; exclude this code line for a ray test
 
 	// Compute barycentric coordinate components and test if within bounds
+	float e[3];
 	rcVcross(e, qp, ap);
-	v = rcVdot(ac, e);
+	float v = rcVdot(ac, e);
 	if (v < 0.0f || v > d)
 	{
 		return false;
 	}
-	w = -rcVdot(ab, e);
+	float w = -rcVdot(ab, e);
 	if (w < 0.0f || v + w > d)
 	{
 		return false;
@@ -80,6 +82,53 @@ bool intersectSegmentTriangle(const float* sp, const float* sq, const float* a, 
 
 	// Segment/ray intersects triangle. Perform delayed division
 	t /= d;
+
+	return true;
+}
+
+bool isectSegAABB(const float* sp, const float* sq, const float* amin, const float* amax, float& tmin, float& tmax)
+{
+	static const float EPS = 1e-6f;
+
+	float d[3];
+	rcVsub(d, sq, sp);
+	tmin = 0.0;
+	tmax = 1.0f;
+
+	for (int i = 0; i < 3; i++)
+	{
+		if (fabsf(d[i]) < EPS)
+		{
+			if (sp[i] < amin[i] || sp[i] > amax[i])
+			{
+				return false;
+			}
+		}
+		else
+		{
+			const float ood = 1.0f / d[i];
+			float t1 = (amin[i] - sp[i]) * ood;
+			float t2 = (amax[i] - sp[i]) * ood;
+			if (t1 > t2)
+			{
+				float tmp = t1;
+				t1 = t2;
+				t2 = tmp;
+			}
+			if (t1 > tmin)
+			{
+				tmin = t1;
+			}
+			if (t2 < tmax)
+			{
+				tmax = t2;
+			}
+			if (tmin > tmax)
+			{
+				return false;
+			}
+		}
+	}
 
 	return true;
 }
@@ -124,52 +173,6 @@ char* parseRow(char* buf, char* bufEnd, char* row, int len)
 	}
 	row[n] = '\0';
 	return buf;
-}
-
-bool isectSegAABB(const float* sp, const float* sq, const float* amin, const float* amax, float& tmin, float& tmax)
-{
-	static const float EPS = 1e-6f;
-
-	float d[]{sq[0] - sp[0], sq[1] - sp[1], sq[2] - sp[2]};
-	tmin = 0.0;
-	tmax = 1.0f;
-
-	for (int i = 0; i < 3; i++)
-	{
-		if (fabsf(d[i]) < EPS)
-		{
-			if (sp[i] < amin[i] || sp[i] > amax[i])
-			{
-				return false;
-			}
-		}
-		else
-		{
-			const float ood = 1.0f / d[i];
-			float t1 = (amin[i] - sp[i]) * ood;
-			float t2 = (amax[i] - sp[i]) * ood;
-			if (t1 > t2)
-			{
-				float tmp = t1;
-				t1 = t2;
-				t2 = tmp;
-			}
-			if (t1 > tmin)
-			{
-				tmin = t1;
-			}
-			if (t2 < tmax)
-			{
-				tmax = t2;
-			}
-			if (tmin > tmax)
-			{
-				return false;
-			}
-		}
-	}
-
-	return true;
 }
 
 char* readRow(char* buf, char* bufEnd, char* row, int len)
@@ -249,7 +252,7 @@ int readFace(char* row, int* data, int maxDataLen, int vertCount)
 }
 }
 
-void Mesh::readFromObj(char *buf, size_t bufLen)
+void Mesh::readFromObj(char* buf, size_t bufLen)
 {
 	char* src = buf;
 	char* srcEnd = buf + bufLen;
@@ -633,7 +636,13 @@ bool InputGeom::raycastMesh(float* src, float* dst, float& tmin)
 		for (int j = 0; j < ntris * 3; j += 3)
 		{
 			float t = 1;
-			if (intersectSegmentTriangle(src, dst, &mesh.verts[tris[j] * 3], &mesh.verts[tris[j + 1] * 3], &mesh.verts[tris[j + 2] * 3], t))
+			if (intersectSegmentTriangle(
+					src,
+					dst,
+					&mesh.verts[tris[j] * 3],
+					&mesh.verts[tris[j + 1] * 3],
+					&mesh.verts[tris[j + 2] * 3],
+					t))
 			{
 				if (t < tmin)
 				{
@@ -699,7 +708,18 @@ void InputGeom::drawOffMeshConnections(duDebugDraw* dd, bool highlight)
 
 		if (highlight)
 		{
-			duAppendArc(dd, v[0], v[1], v[2], v[3], v[4], v[5], 0.25f, (offmeshConnBidirectional[i] & 1) ? 0.6f : 0.0f, 0.6f, conColor);
+			duAppendArc(
+				dd,
+				v[0],
+				v[1],
+				v[2],
+				v[3],
+				v[4],
+				v[5],
+				0.25f,
+				(offmeshConnBidirectional[i] & 1) ? 0.6f : 0.0f,
+				0.6f,
+				conColor);
 		}
 	}
 	dd->end();
@@ -722,7 +742,7 @@ void InputGeom::deleteConvexVolume(int i)
 	convexVolumes.erase(convexVolumes.begin() + i);
 }
 
-void InputGeom::drawConvexVolumes(struct duDebugDraw* dd, bool /*hilight*/)
+void InputGeom::drawConvexVolumes(struct duDebugDraw* dd)
 {
 	dd->depthMask(false);
 	dd->begin(DU_DRAW_TRIS);
