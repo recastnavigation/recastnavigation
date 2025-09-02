@@ -5,7 +5,6 @@
 #include <algorithm>
 
 #ifdef WIN32
-#	define snprintf _snprintf
 #	include <io.h>
 #else
 #	include <dirent.h>
@@ -216,7 +215,7 @@ void DebugDrawGL::begin(duDebugDrawPrimitives prim, float size)
 	case DU_DRAW_QUADS:
 		glBegin(GL_QUADS);
 		break;
-	};
+	}
 }
 
 void DebugDrawGL::vertex(const float* pos, unsigned int color)
@@ -344,10 +343,10 @@ size_t FileIO::getFileSize() const
 void FileIO::scanDirectory(const std::string& path, const std::string& ext, std::vector<std::string>& fileList)
 {
 #ifdef WIN32
-	std::string pathWithExt = path + "/*" + ext;
+	const std::string pathWithExt = path + "/*" + ext;
 
 	_finddata_t dir;
-	intptr_t findHandle = _findfirst(pathWithExt.c_str(), &dir);
+	const intptr_t findHandle = _findfirst(pathWithExt.c_str(), &dir);
 	if (findHandle == -1L)
 	{
 		return;

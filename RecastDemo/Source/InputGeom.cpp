@@ -88,7 +88,7 @@ bool intersectSegmentTriangle(const float* sp, const float* sq, const float* a, 
 
 bool isectSegAABB(const float* sp, const float* sq, const float* amin, const float* amax, float& tmin, float& tmax)
 {
-	static const float EPS = 1e-6f;
+	static constexpr float EPS = 1e-6f;
 
 	float d[3];
 	rcVsub(d, sq, sp);
@@ -452,12 +452,18 @@ bool InputGeom::loadGeomSet(rcContext* ctx, char* buffer, size_t bufferLen)
 				&bidir,
 				&area,
 				&flags);
-			addOffMeshConnection(startPos, endPos, rad, bidir, area, flags);
+			addOffMeshConnection(
+				startPos,
+				endPos,
+				rad,
+				static_cast<unsigned char>(bidir),
+				static_cast<unsigned char>(area),
+				static_cast<unsigned short>(flags));
 		}
 		else if (row[0] == 'v')
 		{
 			// Convex volumes
-			ConvexVolume vol;
+			ConvexVolume& vol = convexVolumes.emplace_back();
 			sscanf(row + 1, "%d %d %f %f", &vol.nverts, &vol.area, &vol.hmin, &vol.hmax);
 			for (int i = 0; i < vol.nverts; ++i)
 			{
@@ -465,7 +471,6 @@ bool InputGeom::loadGeomSet(rcContext* ctx, char* buffer, size_t bufferLen)
 				src = parseRow(src, srcEnd, row, sizeof(row) / sizeof(char));
 				sscanf(row, "%f %f %f", &vol.verts[i * 3 + 0], &vol.verts[i * 3 + 1], &vol.verts[i * 3 + 2]);
 			}
-			convexVolumes.emplace_back(std::move(vol));
 		}
 		else if (row[0] == 's')
 		{
