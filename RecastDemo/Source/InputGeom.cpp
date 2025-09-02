@@ -672,7 +672,7 @@ void InputGeom::addOffMeshConnection(
 	offmeshConnBidirectional.emplace_back(bidir);
 	offmeshConnArea.emplace_back(area);
 	offmeshConnFlags.emplace_back(flags);
-	offmeshConnId.emplace_back(1000 + (offmeshConnArea.size() - 1));
+	offmeshConnId.emplace_back(1000 + (static_cast<unsigned int>(offmeshConnArea.size()) - 1));
 }
 
 void InputGeom::deleteOffMeshConnection(int i)

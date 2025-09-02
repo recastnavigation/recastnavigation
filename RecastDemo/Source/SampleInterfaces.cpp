@@ -2,6 +2,8 @@
 
 #include "SDL_opengl.h"
 
+#include <algorithm>
+
 #ifdef WIN32
 #	define snprintf _snprintf
 #	include <io.h>
