@@ -3,6 +3,7 @@
 #include "SDL_opengl.h"
 
 #include <algorithm>
+#include <cstdarg>
 
 #ifdef WIN32
 #	include <io.h>

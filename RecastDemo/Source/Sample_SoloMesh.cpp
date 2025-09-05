@@ -30,6 +30,7 @@
 #include "Tool_OffMeshConnection.h"
 
 #include <imgui.h>
+#include <cmath>
 
 const char* Sample_SoloMesh::drawModeNames[]{
 	"Input Mesh",
