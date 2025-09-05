@@ -24,7 +24,7 @@ workspace "recastnavigation"
 	exceptionhandling "Off"
 	rtti "Off"
 	symbols "On"
-	fatalwarnings { "All" }
+	flags { "FatalCompileWarnings" }
 
 	-- debug configs
 	filter "configurations:Debug"
