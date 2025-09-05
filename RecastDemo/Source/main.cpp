@@ -34,6 +34,7 @@
 #include <imgui.h>
 #include <imgui_impl_opengl2.h>
 #include <imgui_impl_sdl2.h>
+#include <implot.h>
 #ifdef __APPLE__
 #	include <OpenGL/glu.h>
 #else
@@ -122,6 +123,7 @@ int main(int /*argc*/, char** /*argv*/)
 	// Setup Dear ImGui context
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
+	ImPlot::CreateContext();
 	ImGui_ImplSDL2_InitForOpenGL(app.window, app.glContext);
 	ImGui_ImplOpenGL2_Init();
 
@@ -390,6 +392,7 @@ int main(int /*argc*/, char** /*argv*/)
 		ImGui_ImplSDL2_NewFrame();
 		ImGui::NewFrame();
 		// ImGui::ShowDemoWindow();
+		// ImPlot::ShowDemoWindow();
 
 		if (app.sample)
 		{
@@ -681,6 +684,7 @@ int main(int /*argc*/, char** /*argv*/)
 
 	ImGui_ImplOpenGL2_Shutdown();
 	ImGui_ImplSDL2_Shutdown();
+	ImPlot::DestroyContext();
 	ImGui::DestroyContext();
 
 	SDL_GL_DeleteContext(app.glContext);

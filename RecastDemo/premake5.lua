@@ -144,6 +144,7 @@ project "RecastDemo"
 	}
 	externalincludedirs {
 		"../RecastDemo/Contrib/imgui",
+		"../RecastDemo/Contrib/implot",
 		"../RecastDemo/Contrib/imgui/backends",
 	}
 	files {
@@ -152,6 +153,7 @@ project "RecastDemo"
 		"../RecastDemo/Contrib/fastlz/*.h",
 		"../RecastDemo/Contrib/fastlz/*.c",
 		"../RecastDemo/Contrib/imgui/*.cpp",
+		"../RecastDemo/Contrib/implot/*.cpp",
 		"../RecastDemo/Contrib/imgui/backends/imgui_impl_sdl2.cpp",
 		"../RecastDemo/Contrib/imgui/backends/imgui_impl_opengl2.cpp",
 	}
