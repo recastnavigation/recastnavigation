@@ -279,6 +279,7 @@ void Sample_TileMesh::drawSettingsUI()
 
 void Sample_TileMesh::drawToolsUI()
 {
+	ImGui::SeparatorText("Tool Selection");
 	const SampleToolType currentType = !tool ? SampleToolType::NONE : tool->type();
 #define TOOL(toolType, toolClass)                                      \
 	if (ImGui::RadioButton(                                            \
@@ -295,7 +296,7 @@ void Sample_TileMesh::drawToolsUI()
 	TOOL(CROWD, CrowdTool)
 #undef TOOL
 
-	ImGui::Separator();
+	ImGui::SeparatorText("Tool Settings");
 
 	if (tool)
 	{

@@ -104,6 +104,7 @@ void Sample_SoloMesh::drawSettingsUI()
 
 void Sample_SoloMesh::drawToolsUI()
 {
+	ImGui::SeparatorText("Tool Selection");
 	const SampleToolType currentType = !tool ? SampleToolType::NONE : tool->type();
 
 #define TOOL(toolType, toolClass)                                      \
@@ -120,7 +121,7 @@ void Sample_SoloMesh::drawToolsUI()
 	TOOL(CROWD, CrowdTool)
 #undef TOOL
 
-	ImGui::Separator();
+	ImGui::SeparatorText("Tool Settings");
 
 	if (tool)
 	{
