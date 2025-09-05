@@ -869,8 +869,8 @@ unsigned char* Sample_TileMesh::buildTileMesh(
 	// You should use this bounding box to query your input geometry.
 	//
 	// For example if you build a navmesh for terrain, and want the navmesh tiles to match the terrain tile size
-	// you will need to pass in data from neighbour terrain tiles too! In a simple case, just pass in all the 8 neighbours,
-	// or use the bounding box below to only pass in a sliver of each of the 8 neighbours.
+	// you will need to pass in data from neighbor terrain tiles too! In a simple case, just pass in all the 8 neighbors,
+	// or use the bounding box below to only pass in a sliver of each of the 8 neighbors.
 	rcVcopy(config.bmin, boundsMin);
 	rcVcopy(config.bmax, boundsMax);
 	config.bmin[0] -= static_cast<float>(config.borderSize) * config.cs;

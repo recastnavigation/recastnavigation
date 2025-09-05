@@ -1056,7 +1056,7 @@ void CrowdTool::drawMenuUI()
 		ImGui::Checkbox("Show Path", &params->showPath);
 		ImGui::Checkbox("Show VO", &params->showVO);
 		ImGui::Checkbox("Show Path Optimization", &params->showOpt);
-		ImGui::Checkbox("Show Neighbours", &params->showNeighbors);
+		ImGui::Checkbox("Show Neighbors", &params->showNeighbors);
 		ImGui::TreePop();
 	}
 

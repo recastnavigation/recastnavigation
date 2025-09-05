@@ -63,7 +63,7 @@ void floodNavmesh(const dtNavMesh* navmesh, NavmeshFlags* flags, const dtPolyRef
 
 			// Mark as visited
 			flags->setFlags(neiRef, flag);
-			// Visit neighbours
+			// Visit neighbors
 			openList.push_back(neiRef);
 		}
 	}

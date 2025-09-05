@@ -42,7 +42,7 @@ class NavMeshTesterTool : public SampleTool
 		DISTANCE_TO_WALL,
 		FIND_POLYS_IN_CIRCLE,
 		FIND_POLYS_IN_SHAPE,
-		FIND_LOCAL_NEIGHBOURHOOD
+		FIND_LOCAL_NEIGHBORHOOD
 	};
 	ToolMode toolMode = ToolMode::PATHFIND_FOLLOW;
 
@@ -76,7 +76,7 @@ class NavMeshTesterTool : public SampleTool
 	float hitNormal[3];
 	bool hitResult = false;
 	float distanceToWall = 0;
-	float neighbourhoodRadius = 2.5f;
+	float neighborhoodRadius = 2.5f;
 	float randomRadius = 5.0f;
 
 	int pathIterNum = 0;

@@ -80,7 +80,7 @@ int fixupShortcuts(dtPolyRef* path, int npath, dtNavMeshQuery* navQuery)
 		}
 	}
 
-	// If any of the neighbour polygons is within the next few polygons
+	// If any of the neighbor polygons is within the next few polygons
 	// in the path, short cut to that polygon directly.
 	static const int maxLookAhead = 6;
 	int cut = 0;
@@ -215,7 +215,7 @@ void NavMeshTesterTool::init(Sample* newSample)
 		filter.setAreaCost(SAMPLE_POLYAREA_JUMP, 1.5f);
 	}
 
-	neighbourhoodRadius = sample->agentRadius * 20.0f;
+	neighborhoodRadius = sample->agentRadius * 20.0f;
 	randomRadius = sample->agentRadius * 30.0f;
 }
 
@@ -289,9 +289,9 @@ void NavMeshTesterTool::drawMenuUI()
 
 	ImGui::Separator();
 
-	if (ImGui::RadioButton("Find Local Neighbourhood", toolMode == ToolMode::FIND_LOCAL_NEIGHBOURHOOD))
+	if (ImGui::RadioButton("Find Local Neighborhood", toolMode == ToolMode::FIND_LOCAL_NEIGHBORHOOD))
 	{
-		toolMode = ToolMode::FIND_LOCAL_NEIGHBOURHOOD;
+		toolMode = ToolMode::FIND_LOCAL_NEIGHBORHOOD;
 		recalc();
 	}
 
@@ -1063,7 +1063,7 @@ void NavMeshTesterTool::recalc()
 			sample->navQuery->findPolysAroundShape(startRef, queryPoly, 4, &filter, polys, parent, 0, &npolys, MAX_POLYS);
 		}
 	}
-	else if (toolMode == ToolMode::FIND_LOCAL_NEIGHBOURHOOD)
+	else if (toolMode == ToolMode::FIND_LOCAL_NEIGHBORHOOD)
 	{
 		if (sposSet && startRef)
 		{
@@ -1072,12 +1072,12 @@ void NavMeshTesterTool::recalc()
 				spos[0],
 				spos[1],
 				spos[2],
-				neighbourhoodRadius,
+				neighborhoodRadius,
 				filter.getIncludeFlags(),
 				filter.getExcludeFlags());
 #endif
 			sample->navQuery->findLocalNeighbourhood(
-				startRef, spos, neighbourhoodRadius, &filter, polys, parent, &npolys, MAX_POLYS);
+				startRef, spos, neighborhoodRadius, &filter, polys, parent, &npolys, MAX_POLYS);
 		}
 	}
 }
@@ -1370,7 +1370,7 @@ void NavMeshTesterTool::render()
 		}
 	}
 	break;
-	case ToolMode::FIND_LOCAL_NEIGHBOURHOOD:
+	case ToolMode::FIND_LOCAL_NEIGHBORHOOD:
 	{
 		for (int i = 0; i < npolys; ++i)
 		{
@@ -1400,7 +1400,7 @@ void NavMeshTesterTool::render()
 				// Skip too distant segments.
 				float tseg;
 				float distSqr = dtDistancePtSegSqr2D(spos, s, s + 3, tseg);
-				if (distSqr > dtSqr(neighbourhoodRadius))
+				if (distSqr > dtSqr(neighborhoodRadius))
 				{
 					continue;
 				}
@@ -1452,7 +1452,7 @@ void NavMeshTesterTool::render()
 				spos[0],
 				spos[1] + agentHeight / 2,
 				spos[2],
-				neighbourhoodRadius,
+				neighborhoodRadius,
 				duRGBA(64, 16, 0, 220),
 				2.0f);
 			dd.depthMask(true);
