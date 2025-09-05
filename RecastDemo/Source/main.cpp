@@ -286,34 +286,13 @@ int main(int /*argc*/, char** /*argv*/)
 		if (processHitTest && app.inputGeometry && app.sample)
 		{
 			float hitTime;
-			bool hit = app.inputGeometry->raycastMesh(app.rayStart, app.rayEnd, hitTime);
-
-			if (hit)
+			if (app.inputGeometry->raycastMesh(app.rayStart, app.rayEnd, hitTime))
 			{
-				if (SDL_GetModState() & KMOD_CTRL)
-				{
-					// Marker
-					app.markerPositionSet = true;
-					app.markerPosition[0] = app.rayStart[0] + (app.rayEnd[0] - app.rayStart[0]) * hitTime;
-					app.markerPosition[1] = app.rayStart[1] + (app.rayEnd[1] - app.rayStart[1]) * hitTime;
-					app.markerPosition[2] = app.rayStart[2] + (app.rayEnd[2] - app.rayStart[2]) * hitTime;
-				}
-				else
-				{
-					float hitPos[3];
-					hitPos[0] = app.rayStart[0] + (app.rayEnd[0] - app.rayStart[0]) * hitTime;
-					hitPos[1] = app.rayStart[1] + (app.rayEnd[1] - app.rayStart[1]) * hitTime;
-					hitPos[2] = app.rayStart[2] + (app.rayEnd[2] - app.rayStart[2]) * hitTime;
-					app.sample->onClick(app.rayStart, hitPos, processHitTestShift);
-				}
-			}
-			else
-			{
-				if (SDL_GetModState() & KMOD_CTRL)
-				{
-					// Marker
-					app.markerPositionSet = false;
-				}
+				float hitPos[3];
+				hitPos[0] = app.rayStart[0] + (app.rayEnd[0] - app.rayStart[0]) * hitTime;
+				hitPos[1] = app.rayStart[1] + (app.rayEnd[1] - app.rayStart[1]) * hitTime;
+				hitPos[2] = app.rayStart[2] + (app.rayEnd[2] - app.rayStart[2]) * hitTime;
+				app.sample->onClick(app.rayStart, hitPos, processHitTestShift);
 			}
 		}
 
@@ -693,25 +672,6 @@ int main(int /*argc*/, char** /*argv*/)
 			}
 
 			ImGui::End();
-		}
-
-		// Draw Marker
-		if (app.markerPositionSet && gluProject(app.markerPosition[0], app.markerPosition[1], app.markerPosition[2], modelviewMatrix, app.projectionMatrix, app.viewport, &x, &y, &z))
-		{
-			// Draw marker circle
-			glLineWidth(5.0f);
-			glColor4ub(240, 220, 0, 196);
-			glBegin(GL_LINE_LOOP);
-			for (int i = 0; i < 20; ++i)
-			{
-				constexpr float radius = 25.0f;
-				const float arc = static_cast<float>(i) / 20.0f * RC_PI * 2;
-				const float vertexX = static_cast<float>(x) + cosf(arc) * radius;
-				const float vertexY = static_cast<float>(y) + sinf(arc) * radius;
-				glVertex2f(vertexX, vertexY);
-			}
-			glEnd();
-			glLineWidth(1.0f);
 		}
 
 		ImGui::Render();

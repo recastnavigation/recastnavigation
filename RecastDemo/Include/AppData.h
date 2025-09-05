@@ -77,10 +77,6 @@ struct AppData
 	std::string meshesFolder = "Meshes";
 	std::string testCasesFolder = "TestCases";
 
-	// Markers
-	float markerPosition[3] = {0, 0, 0};
-	bool markerPositionSet = false;
-
 	void resetCamera();
 	void updateWindowSize();
 	void updateUIScale() const;
