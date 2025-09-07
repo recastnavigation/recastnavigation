@@ -115,14 +115,8 @@ bool isectSegAABB(const float* sp, const float* sq, const float* amin, const flo
 				t1 = t2;
 				t2 = tmp;
 			}
-			if (t1 > tmin)
-			{
-				tmin = t1;
-			}
-			if (t2 < tmax)
-			{
-				tmax = t2;
-			}
+			tmin = std::max(t1, tmin);
+			tmax = std::min(t2, tmax);
 			if (tmin > tmax)
 			{
 				return false;
@@ -338,11 +332,6 @@ void Mesh::readFromObj(char* buf, size_t bufLen)
 	}
 }
 
-InputGeom::~InputGeom()
-{
-	delete partitionedMesh;
-}
-
 bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath)
 {
 	FileIO file;
@@ -362,7 +351,7 @@ bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath)
 	}
 
 	filename = filepath;
-	clearOffmeshConnections();
+	clearOffMeshConnections();
 
 	convexVolumes.clear();
 
@@ -370,9 +359,8 @@ bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath)
 	mesh.readFromObj(buffer, bufferLen);
 	rcCalcBounds(mesh.verts.data(), mesh.getVertCount(), meshBoundsMin, meshBoundsMax);
 
-	delete partitionedMesh;
-	partitionedMesh = new PartitionedMesh;
-	partitionedMesh->PartitionMesh(mesh.verts.data(), mesh.tris.data(), mesh.getTriCount(), 256);
+	partitionedMesh = {}; // Reset the partitioned mesh
+	partitionedMesh.PartitionMesh(mesh.verts.data(), mesh.tris.data(), mesh.getTriCount(), 256);
 	return true;
 }
 
@@ -402,7 +390,7 @@ bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath)
 
 bool InputGeom::loadGeomSet(rcContext* ctx, char* buffer, size_t bufferLen)
 {
-	clearOffmeshConnections();
+	clearOffMeshConnections();
 	convexVolumes.clear();
 
 	char* src = buffer;
@@ -609,7 +597,7 @@ bool InputGeom::saveGeomSet(const BuildSettings* settings)
 	return true;
 }
 
-bool InputGeom::raycastMesh(float* src, float* dst, float& tmin)
+bool InputGeom::raycastMesh(float* src, float* dst, float& tmin) const
 {
 	// Prune hit ray.
 	float btmin;
@@ -623,7 +611,7 @@ bool InputGeom::raycastMesh(float* src, float* dst, float& tmin)
 	float q[]{src[0] + (dst[0] - src[0]) * btmax, src[2] + (dst[2] - src[2]) * btmax};
 
 	std::vector<int> overlappingNodes;
-	partitionedMesh->GetNodesOverlappingSegment(p, q, overlappingNodes);
+	partitionedMesh.GetNodesOverlappingSegment(p, q, overlappingNodes);
 	if (overlappingNodes.empty())
 	{
 		return false;
@@ -634,8 +622,8 @@ bool InputGeom::raycastMesh(float* src, float* dst, float& tmin)
 
 	for (int nodeIndex : overlappingNodes)
 	{
-		const PartitionedMesh::Node& node = partitionedMesh->nodes[nodeIndex];
-		const int* tris = &partitionedMesh->tris[node.triIndex * 3];
+		const PartitionedMesh::Node& node = partitionedMesh.nodes[nodeIndex];
+		const int* tris = &partitionedMesh.tris[node.triIndex * 3];
 		const int ntris = node.numTris;
 
 		for (int j = 0; j < ntris * 3; j += 3)
@@ -649,10 +637,7 @@ bool InputGeom::raycastMesh(float* src, float* dst, float& tmin)
 					&mesh.verts[tris[j + 2] * 3],
 					t))
 			{
-				if (t < tmin)
-				{
-					tmin = t;
-				}
+				tmin = std::min(t, tmin);
 				hit = true;
 			}
 		}
@@ -662,19 +647,19 @@ bool InputGeom::raycastMesh(float* src, float* dst, float& tmin)
 }
 
 void InputGeom::addOffMeshConnection(
-	const float* spos,
-	const float* epos,
-	const float rad,
-	unsigned char bidir,
+	const float* startPos,
+	const float* endPos,
+	const float radius,
+	unsigned char bidirectional,
 	unsigned char area,
 	unsigned short flags)
 {
 	offmeshConnVerts.resize(offmeshConnVerts.size() + 3 * 2);
 	float* v = &offmeshConnVerts[offmeshConnVerts.size() - 3 * 2];
-	rcVcopy(&v[0], spos);
-	rcVcopy(&v[3], epos);
-	offmeshConnRadius.emplace_back(rad);
-	offmeshConnBidirectional.emplace_back(bidir);
+	rcVcopy(&v[0], startPos);
+	rcVcopy(&v[3], endPos);
+	offmeshConnRadius.emplace_back(radius);
+	offmeshConnBidirectional.emplace_back(bidirectional);
 	offmeshConnArea.emplace_back(area);
 	offmeshConnFlags.emplace_back(flags);
 	offmeshConnId.emplace_back(1000 + (static_cast<unsigned int>(offmeshConnArea.size()) - 1));

@@ -40,7 +40,7 @@ struct PartitionedMesh
 	std::vector<int> tris{};
 	int maxTrisPerChunk = 0;
 
-	void PartitionMesh(const float* verts, const int* tris, int ntris, int trisPerChunk);
+	void PartitionMesh(const float* verts, const int* tris, int numTris, int trisPerChunk);
 
 	/// Finds the chunk indices that overlap the input rectangle.
 	void GetNodesOverlappingRect(float bmin[2], float bmax[2], std::vector<int>& outNodes) const;

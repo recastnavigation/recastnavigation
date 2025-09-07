@@ -815,7 +815,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(
 	const float* boundsMax,
 	int& outDataSize)
 {
-	if (!inputGeometry || inputGeometry->mesh.getVertCount() == 0 || !inputGeometry->partitionedMesh)
+	if (!inputGeometry || inputGeometry->mesh.getVertCount() == 0 || inputGeometry->partitionedMesh.tris.empty())
 	{
 		buildContext->log(RC_LOG_ERROR, "buildNavigation: Input mesh is not specified.");
 		return 0;
@@ -829,7 +829,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(
 	const float* verts = inputGeometry->mesh.verts.data();
 	const int numVerts = inputGeometry->mesh.getVertCount();
 	const int numTris = inputGeometry->mesh.getTriCount();
-	const PartitionedMesh* partitionedMesh = inputGeometry->partitionedMesh;
+	const PartitionedMesh& partitionedMesh = inputGeometry->partitionedMesh;
 
 	// Init build configuration from GUI
 	memset(&config, 0, sizeof(config));
@@ -917,10 +917,10 @@ unsigned char* Sample_TileMesh::buildTileMesh(
 	// Allocate array that can hold triangle flags.
 	// If you have multiple meshes you need to process, allocate
 	// and array which can hold the max number of triangles you need to process.
-	triareas = new unsigned char[partitionedMesh->maxTrisPerChunk];
+	triareas = new unsigned char[partitionedMesh.maxTrisPerChunk];
 	if (!triareas)
 	{
-		buildContext->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'triareas' (%d).", partitionedMesh->maxTrisPerChunk);
+		buildContext->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'triareas' (%d).", partitionedMesh.maxTrisPerChunk);
 		return 0;
 	}
 
@@ -931,7 +931,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(
 	tileBoundsMax[0] = config.bmax[0];
 	tileBoundsMax[1] = config.bmax[2];
 	std::vector<int> overlappingNodes;
-	partitionedMesh->GetNodesOverlappingRect(tileBoundsMin, tileBoundsMax, overlappingNodes);
+	partitionedMesh.GetNodesOverlappingRect(tileBoundsMin, tileBoundsMax, overlappingNodes);
 	if (overlappingNodes.empty())
 	{
 		return 0;
@@ -941,8 +941,8 @@ unsigned char* Sample_TileMesh::buildTileMesh(
 
 	for (int nodeIndex : overlappingNodes)
 	{
-		const PartitionedMesh::Node& node = partitionedMesh->nodes[nodeIndex];
-		const int* nodeTris = &partitionedMesh->tris[node.triIndex * 3];
+		const PartitionedMesh::Node& node = partitionedMesh.nodes[nodeIndex];
+		const int* nodeTris = &partitionedMesh.tris[node.triIndex * 3];
 		const int numNodeTris = node.numTris;
 
 		tileTriCount += numNodeTris;

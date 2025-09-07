@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "PartitionedMesh.h"
+
 #include <string>
 #include <vector>
 
@@ -29,9 +31,9 @@ static constexpr int MAX_CONVEXVOL_PTS = 12;
 struct ConvexVolume
 {
 	float verts[MAX_CONVEXVOL_PTS * 3] = {};
+	int nverts = 0;
 	float hmin = 0.0f;
 	float hmax = 0.0f;
-	int nverts = 0;
 	int area = 0;
 };
 
@@ -97,11 +99,12 @@ class InputGeom
 
 public:
 	std::string filename;
-	Mesh mesh;
 
-	PartitionedMesh* partitionedMesh = nullptr;
+	Mesh mesh;
 	float meshBoundsMin[3] = {};
 	float meshBoundsMax[3] = {};
+
+	PartitionedMesh partitionedMesh;
 
 	/// @name Off-Mesh connections.
 	///@{
@@ -115,13 +118,6 @@ public:
 
 	std::vector<ConvexVolume> convexVolumes;
 
-	InputGeom() = default;
-	~InputGeom();
-	InputGeom(const InputGeom&) = delete;
-	InputGeom& operator=(const InputGeom&) = delete;
-	InputGeom(InputGeom&&) = delete;
-	InputGeom& operator=(InputGeom&&) = delete;
-
 	bool load(rcContext* ctx, const std::string& filepath);
 	bool saveGeomSet(const BuildSettings* settings);
 
@@ -129,11 +125,11 @@ public:
 	[[nodiscard]] const float* getNavMeshBoundsMin() const { return hasBuildSettings ? buildSettings.navMeshBMin : meshBoundsMin; }
 	[[nodiscard]] const float* getNavMeshBoundsMax() const { return hasBuildSettings ? buildSettings.navMeshBMax : meshBoundsMax; }
 	[[nodiscard]] const BuildSettings* getBuildSettings() const { return hasBuildSettings ? &buildSettings : nullptr; }
-	bool raycastMesh(float* src, float* dst, float& tmin);
+	bool raycastMesh(float* src, float* dst, float& tmin) const;
 
 	/// @name Off-Mesh connections.
 	///@{
-	void addOffMeshConnection(const float* startPos, const float* endPos, float rad, unsigned char bidir, unsigned char area, unsigned short flags);
+	void addOffMeshConnection(const float* startPos, const float* endPos, float radius, unsigned char bidirectional, unsigned char area, unsigned short flags);
 	void deleteOffMeshConnection(int i);
 	void drawOffMeshConnections(duDebugDraw* dd, bool highlight = false);
 	///@}
@@ -150,7 +146,7 @@ private:
 	bool loadGeomSet(rcContext* ctx, const std::string& filepath);
 	bool loadGeomSet(rcContext* ctx, char* buffer, size_t bufferLen);
 
-	void clearOffmeshConnections()
+	void clearOffMeshConnections()
 	{
 		offmeshConnVerts.clear();
 		offmeshConnRadius.clear();

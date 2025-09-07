@@ -513,7 +513,7 @@ int Sample_TempObstacles::rasterizeTileLayers(
 	TileCacheData* tiles,
 	const int maxTiles) const
 {
-	if (!inputGeometry || inputGeometry->mesh.getVertCount() == 0 || !inputGeometry->partitionedMesh)
+	if (!inputGeometry || inputGeometry->mesh.getVertCount() == 0 || inputGeometry->partitionedMesh.tris.empty())
 	{
 		buildContext->log(RC_LOG_ERROR, "buildTile: Input mesh is not specified.");
 		return 0;
@@ -524,7 +524,7 @@ int Sample_TempObstacles::rasterizeTileLayers(
 
 	const float* verts = inputGeometry->mesh.verts.data();
 	const int nverts = inputGeometry->mesh.getVertCount();
-	const PartitionedMesh* partitionedMesh = inputGeometry->partitionedMesh;
+	const PartitionedMesh& partitionedMesh = inputGeometry->partitionedMesh;
 
 	// Tile bounds.
 	const float tcs = cfg.tileSize * cfg.cs;
@@ -567,10 +567,10 @@ int Sample_TempObstacles::rasterizeTileLayers(
 	// Allocate array that can hold triangle flags.
 	// If you have multiple meshes you need to process, allocate
 	// and array which can hold the max number of triangles you need to process.
-	rasterContext.triareas = new unsigned char[partitionedMesh->maxTrisPerChunk];
+	rasterContext.triareas = new unsigned char[partitionedMesh.maxTrisPerChunk];
 	if (!rasterContext.triareas)
 	{
-		buildContext->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'm_triareas' (%d).", partitionedMesh->maxTrisPerChunk);
+		buildContext->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'm_triareas' (%d).", partitionedMesh.maxTrisPerChunk);
 		return 0;
 	}
 
@@ -581,7 +581,7 @@ int Sample_TempObstacles::rasterizeTileLayers(
 	tbmax[0] = tcfg.bmax[0];
 	tbmax[1] = tcfg.bmax[2];
 	std::vector<int> overlappingNodes;
-	partitionedMesh->GetNodesOverlappingRect(tbmin, tbmax, overlappingNodes);
+	partitionedMesh.GetNodesOverlappingRect(tbmin, tbmax, overlappingNodes);
 	if (overlappingNodes.empty())
 	{
 		return 0;
@@ -589,8 +589,8 @@ int Sample_TempObstacles::rasterizeTileLayers(
 
 	for (int nodeIndex : overlappingNodes)
 	{
-		const PartitionedMesh::Node& node = partitionedMesh->nodes[nodeIndex];
-		const int* tris = &partitionedMesh->tris[node.triIndex * 3];
+		const PartitionedMesh::Node& node = partitionedMesh.nodes[nodeIndex];
+		const int* tris = &partitionedMesh.tris[node.triIndex * 3];
 		const int ntris = node.numTris;
 
 		memset(rasterContext.triareas, 0, ntris * sizeof(unsigned char));
