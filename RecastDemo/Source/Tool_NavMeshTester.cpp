@@ -257,25 +257,16 @@ void NavMeshTesterTool::drawMenuUI()
 		toolMode = ToolMode::PATHFIND_SLICED;
 		recalc();
 	}
-
-	ImGui::Separator();
-
 	if (ImGui::RadioButton("Distance to Wall", toolMode == ToolMode::DISTANCE_TO_WALL))
 	{
 		toolMode = ToolMode::DISTANCE_TO_WALL;
 		recalc();
 	}
-
-	ImGui::Separator();
-
 	if (ImGui::RadioButton("Raycast", toolMode == ToolMode::RAYCAST))
 	{
 		toolMode = ToolMode::RAYCAST;
 		recalc();
 	}
-
-	ImGui::Separator();
-
 	if (ImGui::RadioButton("Find Polys in Circle", toolMode == ToolMode::FIND_POLYS_IN_CIRCLE))
 	{
 		toolMode = ToolMode::FIND_POLYS_IN_CIRCLE;
@@ -286,18 +277,14 @@ void NavMeshTesterTool::drawMenuUI()
 		toolMode = ToolMode::FIND_POLYS_IN_SHAPE;
 		recalc();
 	}
-
-	ImGui::Separator();
-
 	if (ImGui::RadioButton("Find Local Neighborhood", toolMode == ToolMode::FIND_LOCAL_NEIGHBORHOOD))
 	{
 		toolMode = ToolMode::FIND_LOCAL_NEIGHBORHOOD;
 		recalc();
 	}
 
-	ImGui::Separator();
-
-	if (ImGui::Button("Set Random Start"))
+	ImGui::SeparatorText("Generate Random Path");
+	if (ImGui::Button("Set Start"))
 	{
 		dtStatus status = sample->navQuery->findRandomPoint(&filter, frand, &startRef, spos);
 		if (dtStatusSucceed(status))
@@ -307,78 +294,70 @@ void NavMeshTesterTool::drawMenuUI()
 		}
 	}
 
-	ImGui::BeginDisabled(!sposSet);
-	if (ImGui::Button("Set Random End"))
+	ImGui::SameLine();
+
+	if (ImGui::Button("Set End"))
 	{
-		if (sposSet)
+		dtStatus status = sample->navQuery->findRandomPoint(&filter, frand, &endRef, epos);
+		if (dtStatusSucceed(status))
 		{
+			eposSet = true;
+			recalc();
+		}
+	}
+
+	ImGui::SeparatorText("Generate Random Points");
+
+	if (ImGui::Button("Random Points"))
+	{
+		randPointsInCircle = false;
+		nrandPoints = 0;
+		for (int i = 0; i < MAX_RAND_POINTS; i++)
+		{
+			float point[3];
+			dtPolyRef polyRef;
+			dtStatus status = sample->navQuery->findRandomPoint(&filter, frand, &polyRef, point);
+			if (dtStatusSucceed(status))
+			{
+				dtVcopy(&randPoints[nrandPoints * 3], point);
+				nrandPoints++;
+			}
+		}
+	}
+
+	ImGui::BeginDisabled(!sposSet);
+	if (ImGui::Button("Random Points Around Path Start") && sposSet)
+	{
+		nrandPoints = 0;
+		randPointsInCircle = true;
+		for (int i = 0; i < MAX_RAND_POINTS; i++)
+		{
+			float point[3];
+			dtPolyRef polyRef;
 			dtStatus status = sample->navQuery->findRandomPointAroundCircle(
 				startRef,
 				spos,
 				randomRadius,
 				&filter,
 				frand,
-				&endRef,
-				epos);
+				&polyRef,
+				point);
 			if (dtStatusSucceed(status))
 			{
-				eposSet = true;
-				recalc();
-			}
-		}
-	}
-	ImGui::EndDisabled();
-
-	ImGui::Separator();
-
-	if (ImGui::Button("Make Random Points"))
-	{
-		randPointsInCircle = false;
-		nrandPoints = 0;
-		for (int i = 0; i < MAX_RAND_POINTS; i++)
-		{
-			float pt[3];
-			dtPolyRef ref;
-			dtStatus status = sample->navQuery->findRandomPoint(&filter, frand, &ref, pt);
-			if (dtStatusSucceed(status))
-			{
-				dtVcopy(&randPoints[nrandPoints * 3], pt);
+				dtVcopy(&randPoints[nrandPoints * 3], point);
 				nrandPoints++;
 			}
 		}
 	}
-	ImGui::BeginDisabled(!sposSet);
-	if (ImGui::Button("Make Random Points Around"))
-	{
-		if (sposSet)
-		{
-			nrandPoints = 0;
-			randPointsInCircle = true;
-			for (int i = 0; i < MAX_RAND_POINTS; i++)
-			{
-				float pt[3];
-				dtPolyRef ref;
-				dtStatus status = sample->navQuery->findRandomPointAroundCircle(
-					startRef,
-					spos,
-					randomRadius,
-					&filter,
-					frand,
-					&ref,
-					pt);
-				if (dtStatusSucceed(status))
-				{
-					dtVcopy(&randPoints[nrandPoints * 3], pt);
-					nrandPoints++;
-				}
-			}
-		}
-	}
 	ImGui::EndDisabled();
 
-	ImGui::Separator();
+	if (ImGui::Button("Clear"))
+	{
+		nrandPoints = 0;
+		randPointsInCircle = false;
+	}
 
-	ImGui::Text("Include Flags");
+	ImGui::SeparatorText("Include Flags");
 
 	ImGui::Indent();
 	bool walk = (filter.getIncludeFlags() & SAMPLE_POLYFLAGS_WALK) != 0;
