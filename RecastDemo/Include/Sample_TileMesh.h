@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
 // This software is provided 'as-is', without any express or implied
@@ -69,13 +69,15 @@ protected:
 	float m_tileSize;
 	
 	unsigned int m_tileCol;
-	float m_lastBuiltTileBmin[3];
-	float m_lastBuiltTileBmax[3];
+	//float m_lastBuiltTileBmin[3];
+	//float m_lastBuiltTileBmax[3];
+	Vector3 m_lastBuiltTileBmin;
+	Vector3 m_lastBuiltTileBmax;
 	float m_tileBuildTime;
 	float m_tileMemUsage;
 	int m_tileTriCount;
 
-	unsigned char* buildTileMesh(const int tx, const int ty, const float* bmin, const float* bmax, int& dataSize);
+	unsigned char* buildTileMesh(const int tx, const int ty, const Vector3& bmin, const Vector3& bmax, int& dataSize);
 	
 	void cleanup();
 	

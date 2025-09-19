@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
 // This software is provided 'as-is', without any express or implied
@@ -823,19 +823,21 @@ bool rcBuildContours(rcContext* ctx, const rcCompactHeightfield& chf,
 	
 	rcScopedTimer timer(ctx, RC_TIMER_BUILD_CONTOURS);
 	
-	rcVcopy(cset.bmin, chf.bmin);
-	rcVcopy(cset.bmax, chf.bmax);
+	auto& chfBounds = chf.bounds;
+	auto& csetBounds = cset.bounds;
+	rcVcopy(csetBounds.bmin, chfBounds.bmin);
+	rcVcopy(csetBounds.bmax, chfBounds.bmax);
 	if (borderSize > 0)
 	{
 		// If the heightfield was build with bordersize, remove the offset.
-		const float pad = borderSize*chf.cs;
-		cset.bmin[0] += pad;
-		cset.bmin[2] += pad;
-		cset.bmax[0] -= pad;
-		cset.bmax[2] -= pad;
+		const float pad = borderSize* chfBounds.cs;
+		csetBounds.bmin.x += pad;
+		csetBounds.bmin.z += pad;
+		csetBounds.bmax.x -= pad;
+		csetBounds.bmax.z -= pad;
 	}
-	cset.cs = chf.cs;
-	cset.ch = chf.ch;
+	csetBounds.cs = chfBounds.cs;
+	csetBounds.ch = chfBounds.ch;
 	cset.width = chf.width - chf.borderSize*2;
 	cset.height = chf.height - chf.borderSize*2;
 	cset.borderSize = chf.borderSize;

@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
 // This software is provided 'as-is', without any express or implied
@@ -984,10 +984,11 @@ bool rcBuildPolyMesh(rcContext* ctx, const rcContourSet& cset, const int nvp, rc
 	
 	rcScopedTimer timer(ctx, RC_TIMER_BUILD_POLYMESH);
 
-	rcVcopy(mesh.bmin, cset.bmin);
-	rcVcopy(mesh.bmax, cset.bmax);
-	mesh.cs = cset.cs;
-	mesh.ch = cset.ch;
+	//rcVcopy(mesh.bmin, cset.bmin);
+	//rcVcopy(mesh.bmax, cset.bmax);
+	//mesh.cs = cset.cs;
+	//mesh.ch = cset.ch;
+	rcVcopy(mesh.bounds, cset.bounds);
 	mesh.borderSize = cset.borderSize;
 	mesh.maxEdgeError = cset.maxError;
 	
@@ -1307,18 +1308,19 @@ bool rcMergePolyMeshes(rcContext* ctx, rcPolyMesh** meshes, const int nmeshes, r
 	rcScopedTimer timer(ctx, RC_TIMER_MERGE_POLYMESH);
 
 	mesh.nvp = meshes[0]->nvp;
-	mesh.cs = meshes[0]->cs;
-	mesh.ch = meshes[0]->ch;
-	rcVcopy(mesh.bmin, meshes[0]->bmin);
-	rcVcopy(mesh.bmax, meshes[0]->bmax);
+	//mesh.cs = meshes[0]->cs;
+	//mesh.ch = meshes[0]->ch;
+	//rcVcopy(mesh.bmin, meshes[0]->bmin);
+	//rcVcopy(mesh.bmax, meshes[0]->bmax);
+	rcVcopy(mesh.bounds, meshes[0]->bounds);
 
 	int maxVerts = 0;
 	int maxPolys = 0;
 	int maxVertsPerMesh = 0;
 	for (int i = 0; i < nmeshes; ++i)
 	{
-		rcVmin(mesh.bmin, meshes[i]->bmin);
-		rcVmax(mesh.bmax, meshes[i]->bmax);
+		rcVmin(mesh.bounds.bmin, meshes[i]->bounds.bmin);
+		rcVmax(mesh.bounds.bmax, meshes[i]->bounds.bmax);
 		maxVertsPerMesh = rcMax(maxVertsPerMesh, meshes[i]->nverts);
 		maxVerts += meshes[i]->nverts;
 		maxPolys += meshes[i]->npolys;
@@ -1390,17 +1392,19 @@ bool rcMergePolyMeshes(rcContext* ctx, rcPolyMesh** meshes, const int nmeshes, r
 	}
 	memset(vremap, 0, sizeof(unsigned short)*maxVertsPerMesh);
 	
+	auto& meshBounds = mesh.bounds;
 	for (int i = 0; i < nmeshes; ++i)
 	{
 		const rcPolyMesh* pmesh = meshes[i];
+		const Bounds* pbounds = &pmesh->bounds;
 		
-		const unsigned short ox = (unsigned short)floorf((pmesh->bmin[0]-mesh.bmin[0])/mesh.cs+0.5f);
-		const unsigned short oz = (unsigned short)floorf((pmesh->bmin[2]-mesh.bmin[2])/mesh.cs+0.5f);
+		const unsigned short ox = (unsigned short)floorf((pbounds->bmin.x - meshBounds.bmin.x)/ meshBounds.cs+0.5f);
+		const unsigned short oz = (unsigned short)floorf((pbounds->bmin.z - meshBounds.bmin.z)/ meshBounds.cs+0.5f);
 		
 		bool isMinX = (ox == 0);
 		bool isMinZ = (oz == 0);
-		bool isMaxX = ((unsigned short)floorf((mesh.bmax[0] - pmesh->bmax[0]) / mesh.cs + 0.5f)) == 0;
-		bool isMaxZ = ((unsigned short)floorf((mesh.bmax[2] - pmesh->bmax[2]) / mesh.cs + 0.5f)) == 0;
+		bool isMaxX = ((unsigned short)floorf((meshBounds.bmax.x - pbounds->bmax.x) / meshBounds.cs + 0.5f)) == 0;
+		bool isMaxZ = ((unsigned short)floorf((meshBounds.bmax.z - pbounds->bmax.z) / meshBounds.cs + 0.5f)) == 0;
 		bool isOnBorder = (isMinX || isMinZ || isMaxX || isMaxZ);
 
 		for (int j = 0; j < pmesh->nverts; ++j)
@@ -1490,10 +1494,11 @@ bool rcCopyPolyMesh(rcContext* ctx, const rcPolyMesh& src, rcPolyMesh& dst)
 	dst.npolys = src.npolys;
 	dst.maxpolys = src.npolys;
 	dst.nvp = src.nvp;
-	rcVcopy(dst.bmin, src.bmin);
-	rcVcopy(dst.bmax, src.bmax);
-	dst.cs = src.cs;
-	dst.ch = src.ch;
+	//rcVcopy(dst.bmin, src.bmin);
+	//rcVcopy(dst.bmax, src.bmax);
+	//dst.cs = src.cs;
+	//dst.ch = src.ch;
+	rcVcopy(dst.bounds, src.bounds);
 	dst.borderSize = src.borderSize;
 	dst.maxEdgeError = src.maxEdgeError;
 	

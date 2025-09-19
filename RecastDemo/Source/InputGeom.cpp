@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
 // This software is provided 'as-is', without any express or implied
@@ -16,6 +16,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
+#define _USE_MATH_DEFINES
 #include <math.h>
 #include <stdio.h>
 #include <ctype.h>
@@ -30,12 +31,13 @@
 #include "DetourNavMesh.h"
 #include "Sample.h"
 
-static bool intersectSegmentTriangle(const float* sp, const float* sq,
-									 const float* a, const float* b, const float* c,
+static bool intersectSegmentTriangle(const Vector3& sp, const Vector3& sq,
+									 const Vector3& a, const Vector3& b, const Vector3& c,
 									 float &t)
 {
 	float v, w;
-	float ab[3], ac[3], qp[3], ap[3], norm[3], e[3];
+	//float ab[3], ac[3], qp[3], ap[3], norm[3], e[3];
+	Vector3 ab, ac, qp, ap, norm, e;
 	rcVsub(ab, b, a);
 	rcVsub(ac, c, a);
 	rcVsub(qp, sp, sq);
@@ -145,7 +147,7 @@ bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath)
 		return false;
 	}
 
-	rcCalcBounds(m_mesh->getVerts(), m_mesh->getVertCount(), m_meshBMin, m_meshBMax);
+	rcCalcBounds(m_mesh->getVerts(), m_meshBMin, m_meshBMax);
 
 	m_chunkyMesh = new rcChunkyTriMesh;
 	if (!m_chunkyMesh)
@@ -153,7 +155,7 @@ bool InputGeom::loadMesh(rcContext* ctx, const std::string& filepath)
 		ctx->log(RC_LOG_ERROR, "buildTiledNavigation: Out of memory 'm_chunkyMesh'.");
 		return false;
 	}
-	if (!rcCreateChunkyTriMesh(m_mesh->getVerts(), m_mesh->getTris(), m_mesh->getTriCount(), 256, m_chunkyMesh))
+	if (!rcCreateChunkyTriMesh(m_mesh->getVerts(), m_mesh->getTris(), 256, m_chunkyMesh))
 	{
 		ctx->log(RC_LOG_ERROR, "buildTiledNavigation: Failed to build chunky mesh.");
 		return false;
@@ -281,12 +283,12 @@ bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath)
 							&m_buildSettings.detailSampleDist,
 							&m_buildSettings.detailSampleMaxError,
 							&m_buildSettings.partitionType,
-							&m_buildSettings.navMeshBMin[0],
-							&m_buildSettings.navMeshBMin[1],
-							&m_buildSettings.navMeshBMin[2],
-							&m_buildSettings.navMeshBMax[0],
-							&m_buildSettings.navMeshBMax[1],
-							&m_buildSettings.navMeshBMax[2],
+							&m_buildSettings.navMeshBMin.x,
+							&m_buildSettings.navMeshBMin.y,
+							&m_buildSettings.navMeshBMin.z,
+							&m_buildSettings.navMeshBMax.x,
+							&m_buildSettings.navMeshBMax.y,
+							&m_buildSettings.navMeshBMax.z,
 							&m_buildSettings.tileSize);
 		}
 	}
@@ -350,12 +352,12 @@ bool InputGeom::saveGeomSet(const BuildSettings* settings)
 			settings->detailSampleDist,
 			settings->detailSampleMaxError,
 			settings->partitionType,
-			settings->navMeshBMin[0],
-			settings->navMeshBMin[1],
-			settings->navMeshBMin[2],
-			settings->navMeshBMax[0],
-			settings->navMeshBMax[1],
-			settings->navMeshBMax[2],
+			settings->navMeshBMin.x,
+			settings->navMeshBMin.y,
+			settings->navMeshBMin.z,
+			settings->navMeshBMax.x,
+			settings->navMeshBMax.y,
+			settings->navMeshBMax.z,
 			settings->tileSize);
 	}
 	
@@ -385,76 +387,146 @@ bool InputGeom::saveGeomSet(const BuildSettings* settings)
 	return true;
 }
 
-static bool isectSegAABB(const float* sp, const float* sq,
-						 const float* amin, const float* amax,
+static bool isectSegAABB( 
+					     // const float* sp, const float* sq,
+						 //const float* amin, const float* amax,
+					     const Vector3& sp, const Vector3& sq,
+						 const Vector3& amin, const Vector3& amax,
 						 float& tmin, float& tmax)
 {
 	static const float EPS = 1e-6f;
 	
-	float d[3];
-	d[0] = sq[0] - sp[0];
-	d[1] = sq[1] - sp[1];
-	d[2] = sq[2] - sp[2];
+	Vector3 d;
+	d.x = sq.x - sp.x;
+	d.y = sq.y - sp.y;
+	d.z = sq.z - sp.z;
+
+	//float d[3];
+	//d[0] = sq[0] - sp[0];
+	//d[1] = sq[1] - sp[1];
+	//d[2] = sq[2] - sp[2];
 	tmin = 0.0;
 	tmax = 1.0f;
-	
-	for (int i = 0; i < 3; i++)
+
+	// x
+	if (fabsf(d.x) < EPS)
 	{
-		if (fabsf(d[i]) < EPS)
-		{
-			if (sp[i] < amin[i] || sp[i] > amax[i])
-				return false;
-		}
-		else
-		{
-			const float ood = 1.0f / d[i];
-			float t1 = (amin[i] - sp[i]) * ood;
-			float t2 = (amax[i] - sp[i]) * ood;
-			if (t1 > t2) { float tmp = t1; t1 = t2; t2 = tmp; }
-			if (t1 > tmin) tmin = t1;
-			if (t2 < tmax) tmax = t2;
-			if (tmin > tmax) return false;
-		}
+		if (sp.x < amin.x || sp.x > amax.x)
+			return false;
 	}
+	else
+	{
+		const float ood = 1.0f / d.x;
+		float t1 = (amin.x - sp.x) * ood;
+		float t2 = (amax.x - sp.x) * ood;
+		if (t1 > t2) { float tmp = t1; t1 = t2; t2 = tmp; }
+		if (t1 > tmin) tmin = t1;
+		if (t2 < tmax) tmax = t2;
+		if (tmin > tmax) return false;
+	}
+
+	// y
+	if (fabsf(d.y) < EPS)
+	{
+		if (sp.y < amin.y || sp.y > amax.y)
+			return false;
+	}
+	else
+	{
+		const float ood = 1.0f / d.y;
+		float t1 = (amin.y - sp.y) * ood;
+		float t2 = (amax.y - sp.y) * ood;
+		if (t1 > t2) { float tmp = t1; t1 = t2; t2 = tmp; }
+		if (t1 > tmin) tmin = t1;
+		if (t2 < tmax) tmax = t2;
+		if (tmin > tmax) return false;
+	}
+
+	// z
+	if (fabsf(d.z) < EPS)
+	{
+		if (sp.z < amin.z || sp.z > amax.z)
+			return false;
+	}
+	else
+	{
+		const float ood = 1.0f / d.z;
+		float t1 = (amin.z - sp.z) * ood;
+		float t2 = (amax.z - sp.z) * ood;
+		if (t1 > t2) { float tmp = t1; t1 = t2; t2 = tmp; }
+		if (t1 > tmin) tmin = t1;
+		if (t2 < tmax) tmax = t2;
+		if (tmin > tmax) return false;
+	}
+
+	
+	//for (int i = 0; i < 3; i++)
+	//{
+	//	if (fabsf(d[i]) < EPS)
+	//	{
+	//		if (sp[i] < amin[i] || sp[i] > amax[i])
+	//			return false;
+	//	}
+	//	else
+	//	{
+	//		const float ood = 1.0f / d[i];
+	//		float t1 = (amin[i] - sp[i]) * ood;
+	//		float t2 = (amax[i] - sp[i]) * ood;
+	//		if (t1 > t2) { float tmp = t1; t1 = t2; t2 = tmp; }
+	//		if (t1 > tmin) tmin = t1;
+	//		if (t2 < tmax) tmax = t2;
+	//		if (tmin > tmax) return false;
+	//	}
+	//}
 	
 	return true;
 }
 
 
-bool InputGeom::raycastMesh(float* src, float* dst, float& tmin)
+bool InputGeom::raycastMesh(Vector3& src, Vector3& dst, float& tmin)
 {
+	//float dir[3];
+	Vector3 dir;
+	rcVsub(dir, dst, src);
+
 	// Prune hit ray.
 	float btmin, btmax;
 	if (!isectSegAABB(src, dst, m_meshBMin, m_meshBMax, btmin, btmax))
 		return false;
-	float p[2], q[2];
-	p[0] = src[0] + (dst[0]-src[0])*btmin;
-	p[1] = src[2] + (dst[2]-src[2])*btmin;
-	q[0] = src[0] + (dst[0]-src[0])*btmax;
-	q[1] = src[2] + (dst[2]-src[2])*btmax;
+
+	Vector2 p, q;
+	p.x = src.x + (dst.x - src.x) * btmin;
+	p.y = src.z + (dst.z - src.z) * btmin;
+	q.x = src.x + (dst.x - src.x) * btmax;
+	q.y = src.z + (dst.z - src.z) * btmax;
+	//float p[2], q[2];
+	//p[0] = src[0] + (dst[0]-src[0])*btmin;
+	//p[1] = src[2] + (dst[2]-src[2])*btmin;
+	//q[0] = src[0] + (dst[0]-src[0])*btmax;
+	//q[1] = src[2] + (dst[2]-src[2])*btmax;
 	
-	int cid[512];
-	const int ncid = rcGetChunksOverlappingSegment(m_chunkyMesh, p, q, cid, 512);
-	if (!ncid)
+	std::vector<int> ids;
+	rcGetChunksOverlappingSegment(m_chunkyMesh, p, q, ids);
+	if (ids.empty())
 		return false;
 	
 	tmin = 1.0f;
 	bool hit = false;
-	const float* verts = m_mesh->getVerts();
+	const auto& verts = m_mesh->getVerts();
 	
-	for (int i = 0; i < ncid; ++i)
+	for(auto id : ids)
 	{
-		const rcChunkyTriMeshNode& node = m_chunkyMesh->nodes[cid[i]];
-		const int* tris = &m_chunkyMesh->tris[node.i*3];
+		const rcChunkyTriMeshNode& node = m_chunkyMesh->nodes[id];
 		const int ntris = node.n;
 
-		for (int j = 0; j < ntris*3; j += 3)
+		for (int j = 0; j < ntris; j++)
 		{
+			const auto& tris = &m_chunkyMesh->tris[node.i + j];
 			float t = 1;
 			if (intersectSegmentTriangle(src, dst,
-										 &verts[tris[j]*3],
-										 &verts[tris[j+1]*3],
-										 &verts[tris[j+2]*3], t))
+										 verts[tris->v0],
+										 verts[tris->v1],
+										 verts[tris->v2], t))
 			{
 				if (t < tmin)
 					tmin = t;

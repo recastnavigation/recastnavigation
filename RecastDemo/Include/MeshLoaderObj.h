@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
 // This software is provided 'as-is', without any express or implied
@@ -20,6 +20,9 @@
 #define MESHLOADER_OBJ
 
 #include <string>
+#include <vector>
+#include <unordered_map>
+#include "Common.h"
 
 class rcMeshLoaderObj
 {
@@ -29,11 +32,18 @@ public:
 	
 	bool load(const std::string& fileName);
 
-	const float* getVerts() const { return m_verts; }
-	const float* getNormals() const { return m_normals; }
-	const int* getTris() const { return m_tris; }
-	int getVertCount() const { return m_vertCount; }
-	int getTriCount() const { return m_triCount; }
+	//const float* getVerts() const { return m_verts; }
+	//const float* getNormals() const { return m_normals; }
+	//const int* getTris() const { return m_tris; }
+	//int getVertCount() const { return m_vertCount; }
+	//int getTriCount() const { return m_triCount; }
+
+	const auto& getVerts() const { return m_vertexs; }
+	const auto& getNormals() const { return m_normals; }
+	const auto& getTris() const { return m_triangles; }
+	int getVertCount() const { return (int)m_vertexs.size(); }
+	int getTriCount() const { return (int)m_triangles.size(); }
+
 	const std::string& getFileName() const { return m_filename; }
 
 private:
@@ -45,12 +55,17 @@ private:
 	void addTriangle(int a, int b, int c, int& cap);
 	
 	std::string m_filename;
-	float m_scale;	
-	float* m_verts;
-	int* m_tris;
-	float* m_normals;
-	int m_vertCount;
-	int m_triCount;
+	float m_scale;
+	//float* m_verts;
+	//int* m_tris;
+	//float* m_normals;
+	//int m_vertCount;
+	//int m_triCount;
+
+	// new
+	std::vector<Vector3> m_vertexs;
+	std::vector<Triangle> m_triangles;
+	std::vector<Vector3> m_normals;
 };
 
 #endif // MESHLOADER_OBJ

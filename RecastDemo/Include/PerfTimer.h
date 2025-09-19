@@ -30,4 +30,3 @@ TimeVal getPerfTime();
 int getPerfTimeUsec(const TimeVal duration);
 
 #endif // PERFTIMER_H
-

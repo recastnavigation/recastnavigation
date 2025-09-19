@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
 // This software is provided 'as-is', without any express or implied
@@ -54,10 +54,11 @@ bool duDumpPolyMeshToObj(rcPolyMesh& pmesh, duFileIO* io)
 	}
 	
 	const int nvp = pmesh.nvp;
-	const float cs = pmesh.cs;
-	const float ch = pmesh.ch;
-	const float* orig = pmesh.bmin;
-	
+	const float cs = pmesh.bounds.cs;
+	const float ch = pmesh.bounds.ch;
+	//const float* orig = pmesh.bmin;
+	const auto& orig = pmesh.bounds.bmin;
+
 	ioprintf(io, "# Recast Navmesh\n");
 	ioprintf(io, "o NavMesh\n");
 
@@ -66,9 +67,9 @@ bool duDumpPolyMeshToObj(rcPolyMesh& pmesh, duFileIO* io)
 	for (int i = 0; i < pmesh.nverts; ++i)
 	{
 		const unsigned short* v = &pmesh.verts[i*3];
-		const float x = orig[0] + v[0]*cs;
-		const float y = orig[1] + (v[1]+1)*ch + 0.1f;
-		const float z = orig[2] + v[2]*cs;
+		const float x = orig.x + v[0]*cs;
+		const float y = orig.y + (v[1]+1)*ch + 0.1f;
+		const float z = orig.z + v[2]*cs;
 		ioprintf(io, "v %f %f %f\n", x,y,z);
 	}
 
@@ -153,11 +154,18 @@ bool duDumpContourSet(struct rcContourSet& cset, duFileIO* io)
 
 	io->write(&cset.nconts, sizeof(cset.nconts));
 	
-	io->write(cset.bmin, sizeof(cset.bmin));
-	io->write(cset.bmax, sizeof(cset.bmax));
+	const auto& bounds = cset.bounds;
+	io->write(&bounds.bmin.x, sizeof(float));
+	io->write(&bounds.bmin.y, sizeof(float));
+	io->write(&bounds.bmin.z, sizeof(float));
+	io->write(&bounds.bmax.x, sizeof(float));
+	io->write(&bounds.bmax.y, sizeof(float));
+	io->write(&bounds.bmax.z, sizeof(float));
+	//io->write(cset.bmin, sizeof(cset.bmin));
+	//io->write(cset.bmax, sizeof(cset.bmax));
 	
-	io->write(&cset.cs, sizeof(cset.cs));
-	io->write(&cset.ch, sizeof(cset.ch));
+	io->write(&bounds.cs, sizeof(bounds.cs));
+	io->write(&bounds.ch, sizeof(bounds.ch));
 
 	io->write(&cset.width, sizeof(cset.width));
 	io->write(&cset.height, sizeof(cset.height));
@@ -217,11 +225,18 @@ bool duReadContourSet(struct rcContourSet& cset, duFileIO* io)
 	}
 	memset(cset.conts, 0, sizeof(rcContour)*cset.nconts);
 	
-	io->read(cset.bmin, sizeof(cset.bmin));
-	io->read(cset.bmax, sizeof(cset.bmax));
-	
-	io->read(&cset.cs, sizeof(cset.cs));
-	io->read(&cset.ch, sizeof(cset.ch));
+	auto& bounds = cset.bounds;
+	//io->read(cset.bmin, sizeof(cset.bmin));
+	//io->read(cset.bmax, sizeof(cset.bmax));
+	io->read(&bounds.bmin.x, sizeof(float));
+	io->read(&bounds.bmin.y, sizeof(float));
+	io->read(&bounds.bmin.z, sizeof(float));
+	io->read(&bounds.bmax.x, sizeof(float));
+	io->read(&bounds.bmax.y, sizeof(float));
+	io->read(&bounds.bmax.z, sizeof(float));
+
+	io->read(&bounds.cs, sizeof(bounds.cs));
+	io->read(&bounds.ch, sizeof(bounds.ch));
 	
 	io->read(&cset.width, sizeof(cset.width));
 	io->read(&cset.height, sizeof(cset.height));
@@ -286,11 +301,22 @@ bool duDumpCompactHeightfield(struct rcCompactHeightfield& chf, duFileIO* io)
 	io->write(&chf.maxDistance, sizeof(chf.maxDistance));
 	io->write(&chf.maxRegions, sizeof(chf.maxRegions));
 
-	io->write(chf.bmin, sizeof(chf.bmin));
-	io->write(chf.bmax, sizeof(chf.bmax));
+	//io->write(chf.bmin, sizeof(chf.bmin));
+	//io->write(chf.bmax, sizeof(chf.bmax));
 
-	io->write(&chf.cs, sizeof(chf.cs));
-	io->write(&chf.ch, sizeof(chf.ch));
+	//io->write(&chf.cs, sizeof(chf.cs));
+	//io->write(&chf.ch, sizeof(chf.ch));
+
+	const auto& bounds = chf.bounds;
+	io->write(&bounds.bmin.x, sizeof(float));
+	io->write(&bounds.bmin.y, sizeof(float));
+	io->write(&bounds.bmin.z, sizeof(float));
+	io->write(&bounds.bmax.x, sizeof(float));
+	io->write(&bounds.bmax.y, sizeof(float));
+	io->write(&bounds.bmax.z, sizeof(float));
+
+	io->write(&bounds.cs, sizeof(bounds.cs));
+	io->write(&bounds.ch, sizeof(bounds.ch));
 
 	int tmp = 0;
 	if (chf.cells) tmp |= 1;
@@ -353,11 +379,21 @@ bool duReadCompactHeightfield(struct rcCompactHeightfield& chf, duFileIO* io)
 	io->read(&chf.maxDistance, sizeof(chf.maxDistance));
 	io->read(&chf.maxRegions, sizeof(chf.maxRegions));
 	
-	io->read(chf.bmin, sizeof(chf.bmin));
-	io->read(chf.bmax, sizeof(chf.bmax));
-	
-	io->read(&chf.cs, sizeof(chf.cs));
-	io->read(&chf.ch, sizeof(chf.ch));
+	//io->read(chf.bmin, sizeof(chf.bmin));
+	//io->read(chf.bmax, sizeof(chf.bmax));
+	//
+	//io->read(&chf.cs, sizeof(chf.cs));
+	//io->read(&chf.ch, sizeof(chf.ch));
+	auto& bounds = chf.bounds;
+	io->read(&bounds.bmin.x, sizeof(float));
+	io->read(&bounds.bmin.y, sizeof(float));
+	io->read(&bounds.bmin.z, sizeof(float));
+	io->read(&bounds.bmax.x, sizeof(float));
+	io->read(&bounds.bmax.y, sizeof(float));
+	io->read(&bounds.bmax.z, sizeof(float));
+
+	io->read(&bounds.cs, sizeof(bounds.cs));
+	io->read(&bounds.ch, sizeof(bounds.ch));
 	
 	int tmp = 0;
 	io->read(&tmp, sizeof(tmp));

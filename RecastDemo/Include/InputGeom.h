@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
 // This software is provided 'as-is', without any express or implied
@@ -63,8 +63,10 @@ struct BuildSettings
 	// Partition type, see SamplePartitionType
 	int partitionType;
 	// Bounds of the area to mesh
-	float navMeshBMin[3];
-	float navMeshBMax[3];
+	//float navMeshBMin[3];
+	//float navMeshBMax[3];
+	Vector3 navMeshBMin;
+	Vector3 navMeshBMax;
 	// Size of the tiles in voxels
 	float tileSize;
 };
@@ -73,7 +75,8 @@ class InputGeom
 {
 	rcChunkyTriMesh* m_chunkyMesh;
 	rcMeshLoaderObj* m_mesh;
-	float m_meshBMin[3], m_meshBMax[3];
+	//float m_meshBMin[3], m_meshBMax[3];
+	Vector3 m_meshBMin, m_meshBMax;
 	BuildSettings m_buildSettings;
 	bool m_hasBuildSettings;
 	
@@ -108,13 +111,13 @@ public:
 	
 	/// Method to return static mesh data.
 	const rcMeshLoaderObj* getMesh() const { return m_mesh; }
-	const float* getMeshBoundsMin() const { return m_meshBMin; }
-	const float* getMeshBoundsMax() const { return m_meshBMax; }
-	const float* getNavMeshBoundsMin() const { return m_hasBuildSettings ? m_buildSettings.navMeshBMin : m_meshBMin; }
-	const float* getNavMeshBoundsMax() const { return m_hasBuildSettings ? m_buildSettings.navMeshBMax : m_meshBMax; }
+	const auto& getMeshBoundsMin() const { return m_meshBMin; }
+	const auto& getMeshBoundsMax() const { return m_meshBMax; }
+	const auto& getNavMeshBoundsMin() const { return m_hasBuildSettings ? m_buildSettings.navMeshBMin : m_meshBMin; }
+	const auto& getNavMeshBoundsMax() const { return m_hasBuildSettings ? m_buildSettings.navMeshBMax : m_meshBMax; }
 	const rcChunkyTriMesh* getChunkyMesh() const { return m_chunkyMesh; }
 	const BuildSettings* getBuildSettings() const { return m_hasBuildSettings ? &m_buildSettings : 0; }
-	bool raycastMesh(float* src, float* dst, float& tmin);
+	bool raycastMesh(Vector3& src, Vector3& dst, float& tmin);
 
 	/// @name Off-Mesh connections.
 	///@{

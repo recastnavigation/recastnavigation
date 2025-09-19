@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
 // This software is provided 'as-is', without any express or implied
@@ -43,7 +43,7 @@ class NavMeshTesterTool : public SampleTool
 		TOOLMODE_DISTANCE_TO_WALL,
 		TOOLMODE_FIND_POLYS_IN_CIRCLE,
 		TOOLMODE_FIND_POLYS_IN_SHAPE,
-		TOOLMODE_FIND_LOCAL_NEIGHBOURHOOD
+		TOOLMODE_FIND_LOCAL_NEIGHBOURHOOD,
 	};
 	
 	ToolMode m_toolMode;
@@ -111,4 +111,3 @@ public:
 };
 
 #endif // NAVMESHTESTERTOOL_H
-

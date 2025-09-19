@@ -24,4 +24,3 @@ void imguiRenderGLDestroy();
 void imguiRenderGLDraw();
 
 #endif // IMGUI_RENDER_GL_H
-

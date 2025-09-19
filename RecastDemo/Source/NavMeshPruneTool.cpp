@@ -16,6 +16,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
+#define _USE_MATH_DEFINES
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
@@ -146,7 +147,7 @@ static void floodNavmesh(dtNavMesh* nav, NavmeshFlags* flags, dtPolyRef start, u
 		openList.pop_back();
 
 		// Get current poly and tile.
-		// The API input has been checked already, skip checking internal data.
+		// The API input has been cheked already, skip checking internal data.
 		const dtMeshTile* tile = 0;
 		const dtPoly* poly = 0;
 		nav->getTileAndPolyByRefUnsafe(ref, &tile, &poly);

@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
 // This software is provided 'as-is', without any express or implied
@@ -40,7 +40,7 @@ protected:
 	int m_cacheCompressedSize;
 	int m_cacheRawSize;
 	int m_cacheLayerCount;
-	unsigned int m_cacheBuildMemUsage;
+	int m_cacheBuildMemUsage;
 	
 	enum DrawMode
 	{

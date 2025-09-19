@@ -1,3 +1,4 @@
+﻿#define _USE_MATH_DEFINES
 #include <math.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -183,7 +184,7 @@ public:
 		}
 	}
 };
-static GLCheckerTexture g_tex;
+GLCheckerTexture g_tex;
 
 
 void DebugDrawGL::depthMask(bool state)

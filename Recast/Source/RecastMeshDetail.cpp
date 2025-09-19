@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
 // This software is provided 'as-is', without any express or implied
@@ -689,7 +689,7 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 	edges.clear();
 	tris.clear();
 	
-	const float cs = chf.cs;
+	const float cs = chf.bounds.cs;
 	const float ics = 1.0f/cs;
 	
 	// Calculate minimum extents of the polygon based on input data.
@@ -740,7 +740,7 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 				pos[0] = vj[0] + dx*u;
 				pos[1] = vj[1] + dy*u;
 				pos[2] = vj[2] + dz*u;
-				pos[1] = getHeight(pos[0],pos[1],pos[2], cs, ics, chf.ch, heightSearchRadius, hp)*chf.ch;
+				pos[1] = getHeight(pos[0],pos[1],pos[2], cs, ics, chf.bounds.ch, heightSearchRadius, hp)*chf.bounds.ch;
 			}
 			// Simplify samples.
 			int idx[MAX_VERTS_PER_EDGE] = {0,nn};
@@ -849,7 +849,7 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 				// Make sure the samples are not too close to the edges.
 				if (distToPoly(nin,in,pt) > -sampleDist/2) continue;
 				samples.push_back(x);
-				samples.push_back(getHeight(pt[0], pt[1], pt[2], cs, ics, chf.ch, heightSearchRadius, hp));
+				samples.push_back(getHeight(pt[0], pt[1], pt[2], cs, ics, chf.bounds.ch, heightSearchRadius, hp));
 				samples.push_back(z);
 				samples.push_back(0); // Not added
 			}
@@ -876,7 +876,7 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 				// The sample location is jittered to get rid of some bad triangulations
 				// which are cause by symmetrical data from the grid structure.
 				pt[0] = s[0]*sampleDist + getJitterX(i)*cs*0.1f;
-				pt[1] = s[1]*chf.ch;
+				pt[1] = s[1]*chf.bounds.ch;
 				pt[2] = s[2]*sampleDist + getJitterY(i)*cs*0.1f;
 				float d = distToTriMesh(pt, verts, nverts, &tris[0], static_cast<int>(tris.size()) / 4);
 				if (d < 0) continue; // did not hit the mesh.
@@ -1190,10 +1190,12 @@ bool rcBuildPolyMeshDetail(rcContext* ctx, const rcPolyMesh& mesh, const rcCompa
 	if (mesh.nverts == 0 || mesh.npolys == 0)
 		return true;
 	
+	auto& meshBounds = mesh.bounds;
 	const int nvp = mesh.nvp;
-	const float cs = mesh.cs;
-	const float ch = mesh.ch;
-	const float* orig = mesh.bmin;
+	const float cs = meshBounds.cs;
+	const float ch = meshBounds.ch;
+	//const float* orig = mesh.bmin;
+	const auto& orig = meshBounds.bmin;
 	const int borderSize = mesh.borderSize;
 	const int heightSearchRadius = rcMax(1, (int)ceilf(mesh.maxEdgeError));
 	
@@ -1322,16 +1324,16 @@ bool rcBuildPolyMeshDetail(rcContext* ctx, const rcPolyMesh& mesh, const rcCompa
 		// Move detail verts to world space.
 		for (int j = 0; j < nverts; ++j)
 		{
-			verts[j*3+0] += orig[0];
-			verts[j*3+1] += orig[1] + chf.ch; // Is this offset necessary?
-			verts[j*3+2] += orig[2];
+			verts[j*3+0] += orig.x;
+			verts[j*3+1] += orig.y + chf.bounds.ch; // Is this offset necessary?
+			verts[j*3+2] += orig.z;
 		}
 		// Offset poly too, will be used to flag checking.
 		for (int j = 0; j < npoly; ++j)
 		{
-			poly[j*3+0] += orig[0];
-			poly[j*3+1] += orig[1];
-			poly[j*3+2] += orig[2];
+			poly[j*3+0] += orig.x;
+			poly[j*3+1] += orig.y;
+			poly[j*3+2] += orig.z;
 		}
 		
 		// Store detail submesh.

@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
 // This software is provided 'as-is', without any express or implied
@@ -2043,7 +2043,7 @@ dtStatus dtNavMeshQuery::findStraightPath(const float* startPos, const float* en
 ///
 dtStatus dtNavMeshQuery::moveAlongSurface(dtPolyRef startRef, const float* startPos, const float* endPos,
 										  const dtQueryFilter* filter,
-										  float* resultPos, dtPolyRef* visited, int* visitedCount, const int maxVisitedSize) const
+										  float* resultPos, dtPolyRef* visited, int* visitedCount, const int maxVisitedSize, bool& hit) const
 {
 	dtAssert(m_nav);
 	dtAssert(m_tinyNodePool);
@@ -2090,6 +2090,7 @@ dtStatus dtNavMeshQuery::moveAlongSurface(dtPolyRef startRef, const float* start
 	
 	float verts[DT_VERTS_PER_POLYGON*3];
 	
+	dtNode* wallNode = 0;
 	while (nstack)
 	{
 		// Pop front.
@@ -2172,6 +2173,7 @@ dtStatus dtNavMeshQuery::moveAlongSurface(dtPolyRef startRef, const float* start
 					dtVlerp(bestPos, vj,vi, tseg);
 					bestDist = distSqr;
 					bestNode = curNode;
+					wallNode = curNode;
 				}
 			}
 			else
@@ -2241,6 +2243,8 @@ dtStatus dtNavMeshQuery::moveAlongSurface(dtPolyRef startRef, const float* start
 	
 	*visitedCount = n;
 	
+	hit = wallNode != nullptr && wallNode == bestNode;
+
 	return status;
 }
 

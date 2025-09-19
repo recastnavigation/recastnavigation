@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
 // This software is provided 'as-is', without any express or implied
@@ -1297,7 +1297,7 @@ bool rcBuildDistanceField(rcContext* ctx, rcCompactHeightfield& chf)
 	{
 		rcScopedTimer timerBlur(ctx, RC_TIMER_BUILD_DISTANCEFIELD_BLUR);
 
-		// Blur
+		// Blur 模糊
 		if (boxBlur(chf, 1, src, dst) != src)
 			rcSwap(src, dst);
 
@@ -1571,7 +1571,8 @@ bool rcBuildRegions(rcContext* ctx, rcCompactHeightfield& chf,
 	// TODO: Figure better formula, expandIters defines how much the 
 	// watershed "overflows" and simplifies the regions. Tying it to
 	// agent radius was usually good indication how greedy it could be.
-//	const int expandIters = 4 + walkableRadius * 2;
+	// const int expandIters = 4 + walkableRadius * 2;
+	// TODO：设计更合理的公式，expandIters 定义流域“溢出”的程度，并简化区域。将其与代理半径绑定通常可以很好地表明其贪婪程度。
 	const int expandIters = 8;
 
 	if (borderSize > 0)

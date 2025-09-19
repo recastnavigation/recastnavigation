@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
 // This software is provided 'as-is', without any express or implied
@@ -16,6 +16,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
+#define _USE_MATH_DEFINES
 #include <math.h>
 #include <stdio.h>
 #include "Sample_Debug.h"
@@ -141,10 +142,11 @@ Sample_Debug::Sample_Debug() :
 			{
 				duReadContourSet(*m_cset, &io);
 				
+				auto* bounds = &m_cset->bounds;
 				printf("bmin=(%f,%f,%f) bmax=(%f,%f,%f)\n",
-					   m_cset->bmin[0], m_cset->bmin[1], m_cset->bmin[2],
-					   m_cset->bmax[0], m_cset->bmax[1], m_cset->bmax[2]);
-				printf("cs=%f ch=%f\n", m_cset->cs, m_cset->ch);
+					bounds->bmin.x, bounds->bmin.y, bounds->bmin.z,
+					bounds->bmax.x, bounds->bmax.y, bounds->bmax.z);
+				printf("cs=%f ch=%f\n", bounds->cs, bounds->ch);
 			}
 			else
 			{
@@ -324,28 +326,6 @@ void Sample_Debug::handleRenderOverlay(double* /*proj*/, double* /*model*/, int*
 void Sample_Debug::handleMeshChanged(InputGeom* geom)
 {
 	m_geom = geom;
-}
-
-const float* Sample_Debug::getBoundsMin()
-{
-	if (m_cset)
-		return m_cset->bmin;
-	if (m_chf)
-		return m_chf->bmin;
-	if (m_navMesh)
-		return m_bmin;
-	return 0;
-}
-
-const float* Sample_Debug::getBoundsMax()
-{
-	if (m_cset)
-		return m_cset->bmax;
-	if (m_chf)
-		return m_chf->bmax;
-	if (m_navMesh)
-		return m_bmax;
-	return 0;
 }
 
 void Sample_Debug::handleClick(const float* s, const float* p, bool shift)

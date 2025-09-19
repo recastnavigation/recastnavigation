@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
 // This software is provided 'as-is', without any express or implied
@@ -498,13 +498,15 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, const rcCompactHeightfield& chf,
 	const int lh = h - borderSize*2;
 
 	// Build contracted bbox for layers.
-	float bmin[3], bmax[3];
-	rcVcopy(bmin, chf.bmin);
-	rcVcopy(bmax, chf.bmax);
-	bmin[0] += borderSize*chf.cs;
-	bmin[2] += borderSize*chf.cs;
-	bmax[0] -= borderSize*chf.cs;
-	bmax[2] -= borderSize*chf.cs;
+	//float bmin[3], bmax[3];
+	Vector3 bmin, bmax;
+	auto& chfBounds = chf.bounds;
+	rcVcopy(bmin, chfBounds.bmin);
+	rcVcopy(bmax, chfBounds.bmax);
+	bmin.x += borderSize* chfBounds.cs;
+	bmin.z += borderSize* chfBounds.cs;
+	bmax.x -= borderSize* chfBounds.cs;
+	bmax.z -= borderSize* chfBounds.cs;
 	
 	lset.nlayers = (int)layerId;
 	
@@ -563,14 +565,16 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, const rcCompactHeightfield& chf,
 
 		layer->width = lw;
 		layer->height = lh;
-		layer->cs = chf.cs;
-		layer->ch = chf.ch;
+
+		auto* layerBounds = &layer->bounds;
+		layerBounds->cs = chfBounds.cs;
+		layerBounds->ch = chfBounds.ch;
 		
 		// Adjust the bbox to fit the heightfield.
-		rcVcopy(layer->bmin, bmin);
-		rcVcopy(layer->bmax, bmax);
-		layer->bmin[1] = bmin[1] + hmin*chf.ch;
-		layer->bmax[1] = bmin[1] + hmax*chf.ch;
+		rcVcopy(layerBounds->bmin, bmin);
+		rcVcopy(layerBounds->bmax, bmax);
+		layerBounds->bmin.y = bmin.y + hmin* chfBounds.ch;
+		layerBounds->bmax.y = bmin.y + hmax* chfBounds.ch;
 		layer->hmin = hmin;
 		layer->hmax = hmax;
 

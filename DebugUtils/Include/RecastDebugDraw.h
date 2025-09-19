@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
 // This software is provided 'as-is', without any express or implied
@@ -19,8 +19,10 @@
 #ifndef RECAST_DEBUGDRAW_H
 #define RECAST_DEBUGDRAW_H
 
-void duDebugDrawTriMesh(struct duDebugDraw* dd, const float* verts, int nverts, const int* tris, const float* normals, int ntris, const unsigned char* flags, const float texScale);
-void duDebugDrawTriMeshSlope(struct duDebugDraw* dd, const float* verts, int nverts, const int* tris, const float* normals, int ntris, const float walkableSlopeAngle, const float texScale);
+#include "Common.h"
+
+void duDebugDrawTriMesh(struct duDebugDraw* dd, const std::vector<Vector3>& verts, const std::vector<Triangle>& tris, const std::vector<Vector3>& normals, const unsigned char* flags, const float texScale);
+void duDebugDrawTriMeshSlope(struct duDebugDraw* dd, const std::vector<Vector3>& verts, const std::vector<Triangle>& tris, const std::vector<Vector3>& normals, const float walkableSlopeAngle, const float texScale);
 
 void duDebugDrawHeightfieldSolid(struct duDebugDraw* dd, const struct rcHeightfield& hf);
 void duDebugDrawHeightfieldWalkable(struct duDebugDraw* dd, const struct rcHeightfield& hf);

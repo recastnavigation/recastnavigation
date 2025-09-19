@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
 // This software is provided 'as-is', without any express or implied
@@ -16,6 +16,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
+#define _USE_MATH_DEFINES
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
@@ -143,6 +144,8 @@ void CrowdToolState::init(class Sample* sample)
 	if (m_sample != sample)
 	{
 		m_sample = sample;
+//		m_oldFlags = m_sample->getNavMeshDrawFlags();
+//		m_sample->setNavMeshDrawFlags(m_oldFlags & ~DU_DRAWNAVMESH_CLOSEDLIST);
 	}
 	
 	dtNavMesh* nav = m_sample->getNavMesh();

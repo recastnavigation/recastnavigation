@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
 // This software is provided 'as-is', without any express or implied
@@ -122,7 +122,7 @@ class CrowdTool : public SampleTool
 		TOOLMODE_CREATE,
 		TOOLMODE_MOVE_TARGET,
 		TOOLMODE_SELECT,
-		TOOLMODE_TOGGLE_POLYS
+		TOOLMODE_TOGGLE_POLYS,
 	};
 	ToolMode m_mode;
 	

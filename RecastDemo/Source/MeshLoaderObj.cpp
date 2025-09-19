@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
 // This software is provided 'as-is', without any express or implied
@@ -20,59 +20,65 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <cstring>
+#define _USE_MATH_DEFINES
 #include <math.h>
 
 rcMeshLoaderObj::rcMeshLoaderObj() :
-	m_scale(1.0f),
-	m_verts(0),
-	m_tris(0),
-	m_normals(0),
-	m_vertCount(0),
-	m_triCount(0)
+	m_scale(1.0f)
+	//m_verts(0),
+	//m_tris(0),
+	//m_normals(0),
+	//m_vertCount(0),
+	//m_triCount(0)
 {
 }
 
 rcMeshLoaderObj::~rcMeshLoaderObj()
 {
-	delete [] m_verts;
-	delete [] m_normals;
-	delete [] m_tris;
+	//delete [] m_verts;
+	//delete [] m_normals;
+	//delete [] m_tris;
 }
 		
 void rcMeshLoaderObj::addVertex(float x, float y, float z, int& cap)
 {
-	if (m_vertCount+1 > cap)
-	{
-		cap = !cap ? 8 : cap*2;
-		float* nv = new float[cap*3];
-		if (m_vertCount)
-			memcpy(nv, m_verts, m_vertCount*3*sizeof(float));
-		delete [] m_verts;
-		m_verts = nv;
-	}
-	float* dst = &m_verts[m_vertCount*3];
-	*dst++ = x*m_scale;
-	*dst++ = y*m_scale;
-	*dst++ = z*m_scale;
-	m_vertCount++;
+	//if (m_vertCount+1 > cap)
+	//{
+	//	cap = !cap ? 8 : cap*2;
+	//	float* nv = new float[cap*3];
+	//	if (m_vertCount)
+	//		memcpy(nv, m_verts, m_vertCount*3*sizeof(float));
+	//	delete [] m_verts;
+	//	m_verts = nv;
+	//}
+	//float* dst = &m_verts[m_vertCount*3];
+	//*dst++ = x*m_scale;
+	//*dst++ = y*m_scale;
+	//*dst++ = z*m_scale;
+	//m_vertCount++;
+
+
+	m_vertexs.push_back({ x * m_scale, y * m_scale, z * m_scale });
 }
 
 void rcMeshLoaderObj::addTriangle(int a, int b, int c, int& cap)
 {
-	if (m_triCount+1 > cap)
-	{
-		cap = !cap ? 8 : cap*2;
-		int* nv = new int[cap*3];
-		if (m_triCount)
-			memcpy(nv, m_tris, m_triCount*3*sizeof(int));
-		delete [] m_tris;
-		m_tris = nv;
-	}
-	int* dst = &m_tris[m_triCount*3];
-	*dst++ = a;
-	*dst++ = b;
-	*dst++ = c;
-	m_triCount++;
+	//if (m_triCount+1 > cap)
+	//{
+	//	cap = !cap ? 8 : cap*2;
+	//	int* nv = new int[cap*3];
+	//	if (m_triCount)
+	//		memcpy(nv, m_tris, m_triCount*3*sizeof(int));
+	//	delete [] m_tris;
+	//	m_tris = nv;
+	//}
+	//int* dst = &m_tris[m_triCount*3];
+	//*dst++ = a;
+	//*dst++ = b;
+	//*dst++ = c;
+	//m_triCount++;
+
+	m_triangles.push_back({ a,b,c });
 }
 
 static char* parseRow(char* buf, char* bufEnd, char* row, int len)
@@ -197,13 +203,13 @@ bool rcMeshLoaderObj::load(const std::string& filename)
 		if (row[0] == 'f')
 		{
 			// Faces
-			nv = parseFace(row+1, face, 32, m_vertCount);
+			nv = parseFace(row+1, face, 32, (int)m_vertexs.size());
 			for (int i = 2; i < nv; ++i)
 			{
 				const int a = face[0];
 				const int b = face[i-1];
 				const int c = face[i];
-				if (a < 0 || a >= m_vertCount || b < 0 || b >= m_vertCount || c < 0 || c >= m_vertCount)
+				if (a < 0 || a >= (int)m_vertexs.size() || b < 0 || b >= (int)m_vertexs.size() || c < 0 || c >= (int)m_vertexs.size())
 					continue;
 				addTriangle(a, b, c, tcap);
 			}
@@ -213,31 +219,86 @@ bool rcMeshLoaderObj::load(const std::string& filename)
 	delete [] buf;
 
 	// Calculate normals.
-	m_normals = new float[m_triCount*3];
-	for (int i = 0; i < m_triCount*3; i += 3)
+	//m_normals = new float[m_triCount*3];
+	//for (int i = 0; i < m_triCount*3; i += 3)
+	//{
+	//	const float* v0 = &m_verts[m_tris[i]*3];
+	//	const float* v1 = &m_verts[m_tris[i+1]*3];
+	//	const float* v2 = &m_verts[m_tris[i+2]*3];
+	//	float e0[3], e1[3];
+	//	for (int j = 0; j < 3; ++j)
+	//	{
+	//		e0[j] = v1[j] - v0[j];
+	//		e1[j] = v2[j] - v0[j];
+	//	}
+	//	float* n = &m_normals[i];
+	//	n[0] = e0[1]*e1[2] - e0[2]*e1[1];
+	//	n[1] = e0[2]*e1[0] - e0[0]*e1[2];
+	//	n[2] = e0[0]*e1[1] - e0[1]*e1[0];
+	//	float d = sqrtf(n[0]*n[0] + n[1]*n[1] + n[2]*n[2]);
+	//	if (d > 0)
+	//	{
+	//		d = 1.0f/d;
+	//		n[0] *= d;
+	//		n[1] *= d;
+	//		n[2] *= d;
+	//	}
+	//}
+
+	for (size_t i = 0; i < m_triangles.size(); ++i)
 	{
-		const float* v0 = &m_verts[m_tris[i]*3];
-		const float* v1 = &m_verts[m_tris[i+1]*3];
-		const float* v2 = &m_verts[m_tris[i+2]*3];
-		float e0[3], e1[3];
-		for (int j = 0; j < 3; ++j)
-		{
-			e0[j] = v1[j] - v0[j];
-			e1[j] = v2[j] - v0[j];
-		}
-		float* n = &m_normals[i];
-		n[0] = e0[1]*e1[2] - e0[2]*e1[1];
-		n[1] = e0[2]*e1[0] - e0[0]*e1[2];
-		n[2] = e0[0]*e1[1] - e0[1]*e1[0];
-		float d = sqrtf(n[0]*n[0] + n[1]*n[1] + n[2]*n[2]);
+		const auto& tri = m_triangles[i];
+		const auto& v0 = m_vertexs[tri.v0];
+		const auto& v1 = m_vertexs[tri.v1];
+		const auto& v2 = m_vertexs[tri.v2];
+		//const float* v0 = m_verts[m_tris[i] * 3];
+		//const float* v1 = &m_verts[m_tris[i + 1] * 3];
+		//const float* v2 = &m_verts[m_tris[i + 2] * 3];
+		
+		Vector3 e0, e1;
+		e0.x = v1.x - v0.x;
+		e0.y = v1.y - v0.y;
+		e0.z = v1.z - v0.z;
+		e1.x = v2.x - v0.x;
+		e1.y = v2.y - v0.y;
+		e1.z = v2.z - v0.z;
+
+		//float e0[3], e1[3];
+		//for (int j = 0; j < 3; ++j)
+		//{
+		//	e0[j] = v1[j] - v0[j];
+		//	e1[j] = v2[j] - v0[j];
+		//}
+
+		Vector3 n;
+		n.x = e0.y * e1.z - e0.z * e1.y;
+		n.y = e0.z * e1.x - e0.x * e1.z;
+		n.z = e0.x * e1.y - e0.y * e1.x;
+		float d = sqrtf(n.x * n.x + n.y * n.y + n.z * n.z);
 		if (d > 0)
 		{
-			d = 1.0f/d;
-			n[0] *= d;
-			n[1] *= d;
-			n[2] *= d;
+			d = 1.0f / d;
+			n.x *= d;
+			n.y *= d;
+			n.z *= d;
 		}
+
+		m_normals.push_back(n);
+
+		//float* n = &m_normals[i];
+		//n[0] = e0[1] * e1[2] - e0[2] * e1[1];
+		//n[1] = e0[2] * e1[0] - e0[0] * e1[2];
+		//n[2] = e0[0] * e1[1] - e0[1] * e1[0];
+		//float d = sqrtf(n[0] * n[0] + n[1] * n[1] + n[2] * n[2]);
+		//if (d > 0)
+		//{
+		//	d = 1.0f / d;
+		//	n[0] *= d;
+		//	n[1] *= d;
+		//	n[2] *= d;
+		//}
 	}
+
 	
 	m_filename = filename;
 	return true;

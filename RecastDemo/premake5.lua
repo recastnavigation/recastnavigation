@@ -13,6 +13,10 @@ workspace "recastnavigation"
 	}
 
 	location (todir)
+	
+	includedirs { 
+		"../Common",
+	}
 
 	-- Use fast math operations.  This is not required, but it speeds up some calculations 
 	-- at the expense of accuracy.  Because there are some functions like dtMathIsfinite 
@@ -123,6 +127,29 @@ project "Recast"
 		"../Recast/Include/*.h",
 		"../Recast/Source/*.cpp" 
 	}
+	
+project "NavMeshScene"
+	language "C++"
+    kind "StaticLib"
+    targetname "NavMeshScene"
+	includedirs { 
+		"../RecastDemo/Include",
+		"../RecastDemo/Contrib",
+		"../RecastDemo/Contrib/fastlz",
+		"../DebugUtils/Include",
+		"../Detour/Include",
+		"../DetourCrowd/Include",
+		"../DetourTileCache/Include",
+		"../Recast/Include",
+		"../NavMeshScene/Include",
+		"../NavMeshScene"
+	}
+    files {
+        "../NavMeshScene/Include/*.h",
+        "../NavMeshScene/Source/*.cpp",
+		"../NavMeshScene/aoi/*.h",
+        "../NavMeshScene/aoi/impl/*.h",
+    }
 
 project "RecastDemo"
 	language "C++"
@@ -135,7 +162,9 @@ project "RecastDemo"
 		"../Detour/Include",
 		"../DetourCrowd/Include",
 		"../DetourTileCache/Include",
-		"../Recast/Include"
+		"../Recast/Include",
+		"../NavMeshScene/Include",
+		"../NavMeshScene"
 	}
 	files {
 		"../RecastDemo/Include/*.h",
@@ -150,7 +179,8 @@ project "RecastDemo"
 		"Detour",
 		"DetourCrowd",
 		"DetourTileCache",
-		"Recast"
+		"Recast",
+		"NavMeshScene"
 	}
 
 	-- distribute executable in RecastDemo/Bin directory

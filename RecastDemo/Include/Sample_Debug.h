@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
 // This software is provided 'as-is', without any express or implied
@@ -49,10 +49,6 @@ public:
 	virtual void handleRenderOverlay(double* proj, double* model, int* view);
 	virtual void handleMeshChanged(class InputGeom* geom);
 	virtual bool handleBuild();
-
-	virtual const float* getBoundsMin();
-	virtual const float* getBoundsMax();
-
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.
 	Sample_Debug(const Sample_Debug&);

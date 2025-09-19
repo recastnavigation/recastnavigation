@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
 // This software is provided 'as-is', without any express or implied
@@ -21,6 +21,7 @@
 
 #include "DetourMath.h"
 #include <stddef.h>
+#include "Common.h"
 
 /**
 @defgroup detour Detour
@@ -192,6 +193,12 @@ inline void dtVcopy(float* dest, const float* a)
 	dest[0] = a[0];
 	dest[1] = a[1];
 	dest[2] = a[2];
+}
+inline void dtVcopy(float* dest, const Vector3& v)
+{
+	dest[0] = v.x;
+	dest[1] = v.y;
+	dest[2] = v.z;
 }
 
 /// Derives the scalar length of the vector.

@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
 // This software is provided 'as-is', without any express or implied
@@ -96,10 +96,10 @@ void rcFreeHeightField(rcHeightfield* heightfield)
 rcHeightfield::rcHeightfield()
 : width()
 , height()
-, bmin()
-, bmax()
-, cs()
-, ch()
+//, bmin()
+//, bmax()
+//, cs()
+//, ch()
 , spans()
 , pools()
 , freelist()
@@ -138,10 +138,10 @@ rcCompactHeightfield::rcCompactHeightfield()
 , borderSize()
 , maxDistance()
 , maxRegions()
-, bmin()
-, bmax()
-, cs()
-, ch()
+//, bmin()
+//, bmax()
+//, cs()
+//, ch()
 , cells()
 , spans()
 , dist()
@@ -198,10 +198,10 @@ void rcFreeContourSet(rcContourSet* contourSet)
 rcContourSet::rcContourSet()
 : conts()
 , nconts()
-, bmin()
-, bmax()
-, cs()
-, ch()
+//, bmin()
+//, bmax()
+//, cs()
+//, ch()
 , width()
 , height()
 , borderSize()
@@ -239,10 +239,10 @@ rcPolyMesh::rcPolyMesh()
 , npolys()
 , maxpolys()
 , nvp()
-, bmin()
-, bmax()
-, cs()
-, ch()
+//, bmin()
+//, bmax()
+//, cs()
+//, ch()
 , borderSize()
 , maxEdgeError()
 {
@@ -296,25 +296,42 @@ void rcCalcBounds(const float* verts, int numVerts, float* minBounds, float* max
 		rcVmax(maxBounds, v);
 	}
 }
+void rcCalcBounds(const std::vector<Vector3>& verts, Vector3& minBounds, Vector3& maxBounds)
+{
+	// Calculate bounding box.
+	rcVcopy(minBounds, verts[0]);
+	rcVcopy(maxBounds, verts[0]);
+	for (const auto& v : verts)
+	{
+		rcVmin(minBounds, v);
+		rcVmax(maxBounds, v);
+	}
+}
 
 void rcCalcGridSize(const float* minBounds, const float* maxBounds, const float cellSize, int* sizeX, int* sizeZ)
 {
 	*sizeX = (int)((maxBounds[0] - minBounds[0]) / cellSize + 0.5f);
 	*sizeZ = (int)((maxBounds[2] - minBounds[2]) / cellSize + 0.5f);
 }
+void rcCalcGridSize(const Vector3& minBounds, const Vector3& maxBounds, const float cellSize, int* sizeX, int* sizeZ)
+{
+	*sizeX = (int)((maxBounds.x - minBounds.x) / cellSize + 0.5f);
+	*sizeZ = (int)((maxBounds.z - minBounds.z) / cellSize + 0.5f);
+}
+
 
 bool rcCreateHeightfield(rcContext* context, rcHeightfield& heightfield, int sizeX, int sizeZ,
-                         const float* minBounds, const float* maxBounds,
+                         const Vector3& minBounds, const Vector3& maxBounds,
                          float cellSize, float cellHeight)
 {
 	rcIgnoreUnused(context);
 
 	heightfield.width = sizeX;
 	heightfield.height = sizeZ;
-	rcVcopy(heightfield.bmin, minBounds);
-	rcVcopy(heightfield.bmax, maxBounds);
-	heightfield.cs = cellSize;
-	heightfield.ch = cellHeight;
+	rcVcopy(heightfield.bounds.bmin, minBounds);
+	rcVcopy(heightfield.bounds.bmax, maxBounds);
+	heightfield.bounds.cs = cellSize;
+	heightfield.bounds.ch = cellHeight;
 	heightfield.spans = (rcSpan**)rcAlloc(sizeof(rcSpan*) * heightfield.width * heightfield.height, RC_ALLOC_PERM);
 	if (!heightfield.spans)
 	{
@@ -333,28 +350,48 @@ static void calcTriNormal(const float* v0, const float* v1, const float* v2, flo
 	rcVnormalize(faceNormal);
 }
 
-void rcMarkWalkableTriangles(rcContext* context, const float walkableSlopeAngle,
-                             const float* verts, const int numVerts,
-                             const int* tris, const int numTris,
-                             unsigned char* triAreaIDs)
+static void calcTriNormal(const Vector3& v0, const Vector3& v1, const Vector3& v2, Vector3& faceNormal)
+{
+	Vector3 e0, e1;
+	rcVsub(e0, v1, v0);
+	rcVsub(e1, v2, v0);
+	rcVcross(faceNormal, e0, e1);
+	rcVnormalize(faceNormal);
+}
+
+void rcMarkWalkableTriangles(rcContext* context, float walkableSlopeAngle, const std::vector<Vector3>& verts,
+	const std::vector<Triangle>& tris, unsigned char* triAreaIDs, int minIdx/* = 0*/, int maxIdx/* = 0 */ )
 {
 	rcIgnoreUnused(context);
-	rcIgnoreUnused(numVerts);
 
 	const float walkableThr = cosf(walkableSlopeAngle / 180.0f * RC_PI);
 
-	float norm[3];
+	if (maxIdx == 0) maxIdx = (int)tris.size();
 
-	for (int i = 0; i < numTris; ++i)
+	Vector3 normal;
+	for (auto i = 0; i < maxIdx; ++i)
 	{
-		const int* tri = &tris[i * 3];
-		calcTriNormal(&verts[tri[0] * 3], &verts[tri[1] * 3], &verts[tri[2] * 3], norm);
+		const auto& tri = tris[i + minIdx];
+		calcTriNormal(verts[tri.v0], verts[tri.v1], verts[tri.v2], normal);
+
 		// Check if the face is walkable.
-		if (norm[1] > walkableThr)
+		if (normal.y > walkableThr)
 		{
 			triAreaIDs[i] = RC_WALKABLE_AREA;
 		}
 	}
+
+	//float norm[3];
+	//for (int i = 0; i < numTris; ++i)
+	//{
+	//	const int* tri = &tris[i * 3];
+	//	calcTriNormal(&verts[tri[0] * 3], &verts[tri[1] * 3], &verts[tri[2] * 3], norm);
+	//	// Check if the face is walkable.
+	//	if (norm[1] > walkableThr)
+	//	{
+	//		triAreaIDs[i] = RC_WALKABLE_AREA;
+	//	}
+	//}
 }
 
 void rcClearUnwalkableTriangles(rcContext* context, const float walkableSlopeAngle,
@@ -418,11 +455,11 @@ bool rcBuildCompactHeightfield(rcContext* context, const int walkableHeight, con
 	compactHeightfield.walkableHeight = walkableHeight;
 	compactHeightfield.walkableClimb = walkableClimb;
 	compactHeightfield.maxRegions = 0;
-	rcVcopy(compactHeightfield.bmin, heightfield.bmin);
-	rcVcopy(compactHeightfield.bmax, heightfield.bmax);
-	compactHeightfield.bmax[1] += walkableHeight * heightfield.ch;
-	compactHeightfield.cs = heightfield.cs;
-	compactHeightfield.ch = heightfield.ch;
+	rcVcopy(compactHeightfield.bounds.bmin, heightfield.bounds.bmin);
+	rcVcopy(compactHeightfield.bounds.bmax, heightfield.bounds.bmax);
+	compactHeightfield.bounds.bmax.y += walkableHeight * heightfield.bounds.ch;
+	compactHeightfield.bounds.cs = heightfield.bounds.cs;
+	compactHeightfield.bounds.ch = heightfield.bounds.ch;
 	compactHeightfield.cells = (rcCompactCell*)rcAlloc(sizeof(rcCompactCell) * xSize * zSize, RC_ALLOC_PERM);
 	if (!compactHeightfield.cells)
 	{
@@ -505,6 +542,8 @@ bool rcBuildCompactHeightfield(rcContext* context, const int walkableHeight, con
 
 					// Iterate over all neighbour spans and check if any of the is
 					// accessible from current cell.
+					// 遍历所有邻居跨度，并检查是否有任何跨度
+					// 可以从当前单元格访问。
 					const rcCompactCell& neighborCell = compactHeightfield.cells[neighborX + neighborZ * zStride];
 					for (int k = (int)neighborCell.index, nk = (int)(neighborCell.index + neighborCell.count); k < nk; ++k)
 					{
@@ -514,6 +553,8 @@ bool rcBuildCompactHeightfield(rcContext* context, const int walkableHeight, con
 
 						// Check that the gap between the spans is walkable,
 						// and that the climb height between the gaps is not too high.
+						// 检查跨度之间的间隙是否可通行，
+						// 并且间隙之间的攀爬高度不要太高。
 						if ((top - bot) >= walkableHeight && rcAbs((int)neighborSpan.y - (int)span.y) <= walkableClimb)
 						{
 							// Mark direction as walkable.

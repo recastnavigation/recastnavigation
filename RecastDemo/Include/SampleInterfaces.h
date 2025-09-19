@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
 // This software is provided 'as-is', without any express or implied
@@ -19,6 +19,7 @@
 #ifndef SAMPLEINTERFACES_H
 #define SAMPLEINTERFACES_H
 
+#include <stdio.h>
 #include "DebugDraw.h"
 #include "Recast.h"
 #include "RecastDump.h"

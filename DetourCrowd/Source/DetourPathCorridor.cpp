@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
 // This software is provided 'as-is', without any express or implied
@@ -446,8 +446,9 @@ bool dtPathCorridor::movePosition(const float* npos, dtNavMeshQuery* navquery, c
 	static const int MAX_VISITED = 16;
 	dtPolyRef visited[MAX_VISITED];
 	int nvisited = 0;
+	bool hit;
 	dtStatus status = navquery->moveAlongSurface(m_path[0], m_pos, npos, filter,
-												 result, visited, &nvisited, MAX_VISITED);
+												 result, visited, &nvisited, MAX_VISITED, hit);
 	if (dtStatusSucceed(status)) {
 		m_npath = dtMergeCorridorStartMoved(m_path, m_npath, m_maxPath, visited, nvisited);
 		
@@ -484,8 +485,9 @@ bool dtPathCorridor::moveTargetPosition(const float* npos, dtNavMeshQuery* navqu
 	static const int MAX_VISITED = 16;
 	dtPolyRef visited[MAX_VISITED];
 	int nvisited = 0;
+	bool hit;
 	dtStatus status = navquery->moveAlongSurface(m_path[m_npath-1], m_target, npos, filter,
-												 result, visited, &nvisited, MAX_VISITED);
+												 result, visited, &nvisited, MAX_VISITED, hit);
 	if (dtStatusSucceed(status))
 	{
 		m_npath = dtMergeCorridorEndMoved(m_path, m_npath, m_maxPath, visited, nvisited);
