@@ -231,18 +231,9 @@ struct rcConfig
 	
 	/// The size of the non-navigable border around the heightfield. [Limit: >=0] [Units: vx]
 	int borderSize;
+
+	/// bounds of the field's AABB.
 	Bounds bounds;
-	/// The xz-plane cell size to use for fields. [Limit: > 0] [Units: wu] 
-	//float cs;
-
-	/// The y-axis cell size to use for fields. [Limit: > 0] [Units: wu]
-	//float ch;
-
-	/// The minimum bounds of the field's AABB. [(x, y, z)] [Units: wu]
-	//float bmin[3]; 
-
-	/// The maximum bounds of the field's AABB. [(x, y, z)] [Units: wu]
-	//float bmax[3];
 
 	/// The maximum slope that is considered walkable. [Limits: 0 <= value < 90] [Units: Degrees] 
 	float walkableSlopeAngle;
@@ -321,11 +312,7 @@ struct rcHeightfield
 
 	int width;			///< The width of the heightfield. (Along the x-axis in cell units.)
 	int height;			///< The height of the heightfield. (Along the z-axis in cell units.)
-	//float bmin[3];  	///< The minimum bounds in world space. [(x, y, z)]
-	//float bmax[3];		///< The maximum bounds in world space. [(x, y, z)]
-	Bounds bounds;
-	//float cs;			///< The size of each cell. (On the xz-plane.)
-	//float ch;			///< The height of each cell. (The minimum increment along the y-axis.)
+	Bounds bounds;		///< bounds of the field's AABB.
 	rcSpan** spans;		///< Heightfield of spans (width*height).
 
 	// memory pool for rcSpan instances.
@@ -359,7 +346,11 @@ struct rcCompactSpan
 {
 	unsigned short y;			///< The lower extent of the span. (Measured from the heightfield's base.)
 	unsigned short reg;			///< The id of the region the span belongs to. (Or zero if not in a region.)
-	unsigned int con : 24;		///< Packed neighbor connection data.
+	//unsigned int con : 24;		///< Packed neighbor connection data.
+	unsigned int dir0 : 6;
+	unsigned int dir1 : 6;
+	unsigned int dir2 : 6;
+	unsigned int dir3 : 6;
 	unsigned int h : 8;			///< The height of the span.  (Measured from #y.)
 };
 
@@ -378,13 +369,8 @@ struct rcCompactHeightfield
 	int borderSize;				///< The AABB border size used during the build of the field. (See: rcConfig::borderSize)
 	unsigned short maxDistance;	///< The maximum distance value of any span within the field. 
 	unsigned short maxRegions;	///< The maximum region id of any span within the field. 
-	//float bmin[3];				///< The minimum bounds in world space. [(x, y, z)]
-	//float bmax[3];				///< The maximum bounds in world space. [(x, y, z)]
-	Bounds bounds;
-	//float cs;					///< The size of each cell. (On the xz-plane.)
-	//float ch;					///< The height of each cell. (The minimum increment along the y-axis.)
+	Bounds bounds;				///< bounds of the field's AABB.
 	rcCompactCell* cells;		///< Array of cells. [Size: #width*#height]
-	//std::unordered_map<int, std::list< rcCompactCell>> cells;
 	rcCompactSpan* spans;		///< Array of spans. [Size: #spanCount]
 	unsigned short* dist;		///< Array containing border distance data. [Size: #spanCount]
 	unsigned char* areas;		///< Array containing area id data. [Size: #spanCount]
@@ -399,11 +385,7 @@ private:
 /// @see rcHeightfieldLayerSet
 struct rcHeightfieldLayer
 {
-	//float bmin[3];				///< The minimum bounds in world space. [(x, y, z)]
-	//float bmax[3];				///< The maximum bounds in world space. [(x, y, z)]
-	Bounds bounds;
-	//float cs;					///< The size of each cell. (On the xz-plane.)
-	//float ch;					///< The height of each cell. (The minimum increment along the y-axis.)
+	Bounds bounds;				///< bounds of the field's AABB.
 	int width;					///< The width of the heightfield. (Along the x-axis in cell units.)
 	int height;					///< The height of the heightfield. (Along the z-axis in cell units.)
 	int minx;					///< The minimum x-bounds of usable data.
@@ -454,11 +436,7 @@ struct rcContourSet
 	
 	rcContour* conts;	///< An array of the contours in the set. [Size: #nconts]
 	int nconts;			///< The number of contours in the set.
-	//float bmin[3];  	///< The minimum bounds in world space. [(x, y, z)]
-	//float bmax[3];		///< The maximum bounds in world space. [(x, y, z)]
-	//float cs;			///< The size of each cell. (On the xz-plane.)
-	//float ch;			///< The height of each cell. (The minimum increment along the y-axis.)
-	Bounds bounds;
+	Bounds bounds;		///< bounds of the field's AABB.
 	int width;			///< The width of the set. (Along the x-axis in cell units.) 
 	int height;			///< The height of the set. (Along the z-axis in cell units.) 
 	int borderSize;		///< The AABB border size used to generate the source data from which the contours were derived.
@@ -486,11 +464,7 @@ struct rcPolyMesh
 	int npolys;				///< The number of polygons.
 	int maxpolys;			///< The number of allocated polygons.
 	int nvp;				///< The maximum number of vertices per polygon.
-	//float bmin[3];			///< The minimum bounds in world space. [(x, y, z)]
-	//float bmax[3];			///< The maximum bounds in world space. [(x, y, z)]
-	//float cs;				///< The size of each cell. (On the xz-plane.)
-	//float ch;				///< The height of each cell. (The minimum increment along the y-axis.)
-	Bounds bounds;
+	Bounds bounds;			///< bounds of the field's AABB.
 	int borderSize;			///< The AABB border size used to generate the source data from which the mesh was derived.
 	float maxEdgeError;		///< The max error of the polygon edges in the mesh.
 	
@@ -1333,9 +1307,32 @@ bool rcBuildRegionsMonotone(rcContext* ctx, rcCompactHeightfield& chf,
 /// @param[in]		neighborIndex	The index of the neighbor span.
 inline void rcSetCon(rcCompactSpan& span, int direction, int neighborIndex)
 {
-	const unsigned int shift = (unsigned int)direction * 6;
-	const unsigned int con = span.con;
-	span.con = (con & ~(0x3f << shift)) | (((unsigned int)neighborIndex & 0x3f) << shift);
+	//const unsigned int shift = (unsigned int)direction * 6;
+	//const unsigned int con = span.con;
+	//span.con = (con & ~(0x3f << shift)) | (((unsigned int)neighborIndex & 0x3f) << shift);
+	switch (direction)
+	{
+	case neighbor_dir_left:
+		//  左
+		span.dir0 = neighborIndex & 0x3f;
+		break;
+	case neighbor_dir_up:
+		// 上
+		span.dir1 = neighborIndex & 0x3f;
+		break;
+	case neighbor_dir_right:
+		// 右
+		span.dir2 = neighborIndex & 0x3f;
+		break;
+	case neighbor_dir_down:
+		// 下
+		span.dir3 = neighborIndex & 0x3f;
+		break;
+	default:
+		// 下
+		span.dir3 = neighborIndex & 0x3f;
+		break;
+	}
 }
 
 /// Gets neighbor connection data for the specified direction.
@@ -1344,8 +1341,27 @@ inline void rcSetCon(rcCompactSpan& span, int direction, int neighborIndex)
 /// @return The neighbor connection data for the specified direction, or #RC_NOT_CONNECTED if there is no connection.
 inline int rcGetCon(const rcCompactSpan& span, int direction)
 {
-	const unsigned int shift = (unsigned int)direction * 6;
-	return (span.con >> shift) & 0x3f;
+	//const unsigned int shift = (unsigned int)direction * 6;
+	// return (span.con >> shift) & 0x3f;
+	switch (direction)
+	{
+	case neighbor_dir_left:
+		//  左
+		return span.dir0 & 0x3f;
+	case neighbor_dir_up:
+		// 上
+		return span.dir1 & 0x3f;
+	case neighbor_dir_right:
+		// 右
+		return span.dir2 & 0x3f;
+	case neighbor_dir_down:
+		// 下
+		return span.dir3 & 0x3f;
+	default:
+		// 下
+		return span.dir3 & 0x3f;
+	}
+	return span.dir3 & 0x3f;
 }
 
 /// Gets the standard width (x-axis) offset for the specified direction.
@@ -1353,7 +1369,8 @@ inline int rcGetCon(const rcCompactSpan& span, int direction)
 /// @return The width offset to apply to the current cell position to move in the direction.
 inline int rcGetDirOffsetX(int direction)
 {
-	static const int offset[4] = { -1, 0, 1, 0, };
+	// 左 上 右 下
+	static const int offset[neighbor_dir_max] = { -1, 0, 1, 0, };
 	return offset[direction & 0x03];
 }
 
@@ -1363,7 +1380,8 @@ inline int rcGetDirOffsetX(int direction)
 /// @return The height offset to apply to the current cell position to move in the direction.
 inline int rcGetDirOffsetY(int direction)
 {
-	static const int offset[4] = { 0, 1, 0, -1 };
+	// 左 上 右 下
+	static const int offset[neighbor_dir_max] = { 0, 1, 0, -1 };
 	return offset[direction & 0x03];
 }
 

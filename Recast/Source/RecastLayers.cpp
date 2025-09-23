@@ -150,11 +150,11 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, const rcCompactHeightfield& chf,
 				unsigned char sid = 0xff;
 
 				// -x
-				if (rcGetCon(s, 0) != RC_NOT_CONNECTED)
+				if (rcGetCon(s, neighbor_dir_left) != RC_NOT_CONNECTED)
 				{
-					const int ax = x + rcGetDirOffsetX(0);
-					const int ay = y + rcGetDirOffsetY(0);
-					const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(s, 0);
+					const int ax = x + rcGetDirOffsetX(neighbor_dir_left);
+					const int ay = y + rcGetDirOffsetY(neighbor_dir_left);
+					const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(s, neighbor_dir_left);
 					if (chf.areas[ai] != RC_NULL_AREA && srcReg[ai] != 0xff)
 						sid = srcReg[ai];
 				}
@@ -167,11 +167,11 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, const rcCompactHeightfield& chf,
 				}
 				
 				// -y
-				if (rcGetCon(s,3) != RC_NOT_CONNECTED)
+				if (rcGetCon(s, neighbor_dir_down) != RC_NOT_CONNECTED)
 				{
-					const int ax = x + rcGetDirOffsetX(3);
-					const int ay = y + rcGetDirOffsetY(3);
-					const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(s, 3);
+					const int ax = x + rcGetDirOffsetX(neighbor_dir_down);
+					const int ay = y + rcGetDirOffsetY(neighbor_dir_down);
+					const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(s, neighbor_dir_down);
 					const unsigned char nr = srcReg[ai];
 					if (nr != 0xff)
 					{
@@ -270,7 +270,7 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, const rcCompactHeightfield& chf,
 					lregs[nlregs++] = ri;
 				
 				// Update neighbours
-				for (int dir = 0; dir < 4; ++dir)
+				for (int dir = neighbor_dir_left; dir < neighbor_dir_max; ++dir)
 				{
 					if (rcGetCon(s, dir) != RC_NOT_CONNECTED)
 					{
@@ -617,7 +617,7 @@ bool rcBuildHeightfieldLayers(rcContext* ctx, const rcCompactHeightfield& chf,
 					// Check connection.
 					unsigned char portal = 0;
 					unsigned char con = 0;
-					for (int dir = 0; dir < 4; ++dir)
+					for (int dir = neighbor_dir_left; dir < neighbor_dir_max; ++dir)
 					{
 						if (rcGetCon(s, dir) != RC_NOT_CONNECTED)
 						{

@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
 // This software is provided 'as-is', without any express or implied
@@ -730,7 +730,7 @@ static unsigned char getCornerHeight(dtTileCacheLayer& layer,
 	}
 	
 	int portalCount = 0;
-	for (int dir = 0; dir < 4; ++dir)
+	for (int dir = neighbor_dir_left; dir < neighbor_dir_max; ++dir)
 		if (portal & (1<<dir))
 			portalCount++;
 	

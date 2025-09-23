@@ -38,3 +38,12 @@ struct Triangle
 	int v2 = 0;
 };
 
+enum NEIGHBOR_DIR
+{
+	neighbor_dir_left	= 0,
+	neighbor_dir_up		= 1,
+	neighbor_dir_right	= 2,
+	neighbor_dir_down	= 3,
+
+	neighbor_dir_max	= 4,
+};

@@ -873,7 +873,7 @@ bool rcBuildContours(rcContext* ctx, const rcCompactHeightfield& chf,
 					flags[i] = 0;
 					continue;
 				}
-				for (int dir = 0; dir < 4; ++dir)
+				for (int dir = neighbor_dir_left; dir < neighbor_dir_max; ++dir)
 				{
 					unsigned short r = 0;
 					if (rcGetCon(s, dir) != RC_NOT_CONNECTED)

@@ -96,10 +96,6 @@ void rcFreeHeightField(rcHeightfield* heightfield)
 rcHeightfield::rcHeightfield()
 : width()
 , height()
-//, bmin()
-//, bmax()
-//, cs()
-//, ch()
 , spans()
 , pools()
 , freelist()
@@ -138,10 +134,6 @@ rcCompactHeightfield::rcCompactHeightfield()
 , borderSize()
 , maxDistance()
 , maxRegions()
-//, bmin()
-//, bmax()
-//, cs()
-//, ch()
 , cells()
 , spans()
 , dist()
@@ -198,10 +190,6 @@ void rcFreeContourSet(rcContourSet* contourSet)
 rcContourSet::rcContourSet()
 : conts()
 , nconts()
-//, bmin()
-//, bmax()
-//, cs()
-//, ch()
 , width()
 , height()
 , borderSize()
@@ -239,10 +227,6 @@ rcPolyMesh::rcPolyMesh()
 , npolys()
 , maxpolys()
 , nvp()
-//, bmin()
-//, bmax()
-//, cs()
-//, ch()
 , borderSize()
 , maxEdgeError()
 {
@@ -380,18 +364,6 @@ void rcMarkWalkableTriangles(rcContext* context, float walkableSlopeAngle, const
 			triAreaIDs[i] = RC_WALKABLE_AREA;
 		}
 	}
-
-	//float norm[3];
-	//for (int i = 0; i < numTris; ++i)
-	//{
-	//	const int* tri = &tris[i * 3];
-	//	calcTriNormal(&verts[tri[0] * 3], &verts[tri[1] * 3], &verts[tri[2] * 3], norm);
-	//	// Check if the face is walkable.
-	//	if (norm[1] > walkableThr)
-	//	{
-	//		triAreaIDs[i] = RC_WALKABLE_AREA;
-	//	}
-	//}
 }
 
 void rcClearUnwalkableTriangles(rcContext* context, const float walkableSlopeAngle,
@@ -529,7 +501,7 @@ bool rcBuildCompactHeightfield(rcContext* context, const int walkableHeight, con
 			{
 				rcCompactSpan& span = compactHeightfield.spans[i];
 
-				for (int dir = 0; dir < 4; ++dir)
+				for (int dir = neighbor_dir_left; dir < neighbor_dir_max; ++dir)
 				{
 					rcSetCon(span, dir, RC_NOT_CONNECTED);
 					const int neighborX = x + rcGetDirOffsetX(dir);

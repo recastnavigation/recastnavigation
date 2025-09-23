@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
 // This software is provided 'as-is', without any express or implied
@@ -506,7 +506,7 @@ static void debugDrawTileCachePortals(struct duDebugDraw* dd, const dtTileCacheL
 			const int lh = (int)layer.heights[idx];
 			if (lh == 0xff) continue;
 			
-			for (int dir = 0; dir < 4; ++dir)
+			for (int dir = neighbor_dir_left; dir < neighbor_dir_max; ++dir)
 			{
 				if (layer.cons[idx] & (1<<(dir+4)))
 				{

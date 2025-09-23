@@ -1011,7 +1011,7 @@ static void seedArrayWithPolyCenter(rcContext* ctx, const rcCompactHeightfield& 
 		rcSwap(dirs[directDir], dirs[3]);
 
 		const rcCompactSpan& cs = chf.spans[ci];
-		for (int i = 0; i < 4; i++)
+		for (int i = neighbor_dir_left; i < neighbor_dir_max; i++)
 		{
 			int dir = dirs[i];
 			if (rcGetCon(cs, dir) == RC_NOT_CONNECTED)
@@ -1098,7 +1098,7 @@ static void getHeightData(rcContext* ctx, const rcCompactHeightfield& chf,
 						// If any of the neighbours is not in same region,
 						// add the current location as flood fill start
 						bool border = false;
-						for (int dir = 0; dir < 4; ++dir)
+						for (int dir = neighbor_dir_left; dir < neighbor_dir_max; ++dir)
 						{
 							if (rcGetCon(s, dir) != RC_NOT_CONNECTED)
 							{
@@ -1149,7 +1149,7 @@ static void getHeightData(rcContext* ctx, const rcCompactHeightfield& chf,
 		}
 		
 		const rcCompactSpan& cs = chf.spans[ci];
-		for (int dir = 0; dir < 4; ++dir)
+		for (int dir = neighbor_dir_left; dir < neighbor_dir_max; ++dir)
 		{
 			if (rcGetCon(cs, dir) == RC_NOT_CONNECTED) continue;
 			

@@ -465,7 +465,7 @@ static void drawLayerPortals(duDebugDraw* dd, const rcHeightfieldLayer* layer)
 			const int lh = (int)layer->heights[idx];
 			if (lh == 255) continue;
 			
-			for (int dir = 0; dir < 4; ++dir)
+			for (int dir = neighbor_dir_left; dir < neighbor_dir_max; ++dir)
 			{
 				if (layer->cons[idx] & (1<<(dir+4)))
 				{
