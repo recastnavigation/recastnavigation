@@ -742,24 +742,6 @@ int main(int /*argc*/, char** /*argv*/)
 
                 if (geom || sample)
                 {
-                    //const float* bmin = 0;
-                    //const float* bmax = 0;
-                    //if (geom)
-                    //{
-                    //    bmin = geom->getNavMeshBoundsMin();
-                    //    bmax = geom->getNavMeshBoundsMax();
-                    //}
-                    //// Reset camera and fog to match the mesh bounds.
-                    //if (bmin && bmax)
-                    //{
-                    //    camr = sqrtf(rcSqr(bmax[0] - bmin[0]) +
-                    //        rcSqr(bmax[1] - bmin[1]) +
-                    //        rcSqr(bmax[2] - bmin[2])) / 2;
-                    //    cameraPos[0] = (bmax[0] + bmin[0]) / 2 + camr;
-                    //    cameraPos[1] = (bmax[1] + bmin[1]) / 2 + camr;
-                    //    cameraPos[2] = (bmax[2] + bmin[2]) / 2 + camr;
-                    //    camr *= 3;
-                    //}
                     const Vector3* bmin = 0;
                     const Vector3* bmax = 0;
                     if (geom)

@@ -23,12 +23,10 @@
 
 struct rcChunkyTriMeshNode
 {
-	//float bmin[2];
-	//float bmax[2];
 	Vector2 bmin;
 	Vector2 bmax;
-	int i;
-	int n;
+	int i; // 此节点在三角面vector中的索引(所有数据保存在叶节点，如果是负值表示非叶节点)
+	int n; // 此节点树下包含的节点数据
 };
 
 struct rcChunkyTriMesh
@@ -37,11 +35,9 @@ struct rcChunkyTriMesh
 	inline ~rcChunkyTriMesh() { delete [] nodes; }
 
 	rcChunkyTriMeshNode* nodes;
-	int nnodes;
+	int nnodes; // total node num
 	int maxTrisPerChunk;
 	std::vector<Triangle> tris;
-	//int* tris;
-	//int ntris;
 	
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.
@@ -51,7 +47,6 @@ private:
 
 /// Creates partitioned triangle mesh (AABB tree),
 /// where each node contains at max trisPerChunk triangles.
-//bool rcCreateChunkyTriMesh(const float* verts, const int* tris, int ntris, int trisPerChunk, rcChunkyTriMesh* cm);
 bool rcCreateChunkyTriMesh(const std::vector<Vector3>& verts, const std::vector<Triangle>& tris, int trisPerChunk, rcChunkyTriMesh* cm);
 
 /// Returns the chunk indices which overlap the input rectable.
