@@ -33,10 +33,13 @@ static int getCornerHeight(int x, int y, int i, int dir,
 	int ch = (int)s.y;
 	int dirp = (dir+1) & 0x3;
 	
+	// 假设dir=上，则regs[4]每个索引分别表示 0=自己 1=上 2=右上 3=右
 	unsigned int regs[4] = {0,0,0,0};
 	
 	// Combine region and area codes in order to prevent
 	// border vertices which are in between two areas to be removed.
+	// 合并区域和地区代码，以防止
+	// 两个区域之间的边界顶点被删除。
 	regs[0] = chf.spans[i].reg | (chf.areas[i] << 16);
 	
 	if (rcGetCon(s, dir) != RC_NOT_CONNECTED)
@@ -77,6 +80,7 @@ static int getCornerHeight(int x, int y, int i, int dir,
 	}
 
 	// Check if the vertex is special edge vertex, these vertices will be removed later.
+	// 检查顶点是否为特殊边顶点，这些顶点稍后将被删除。
 	for (int j = 0; j < 4; ++j)
 	{
 		const int a = j;
@@ -86,6 +90,8 @@ static int getCornerHeight(int x, int y, int i, int dir,
 		
 		// The vertex is a border vertex there are two same exterior cells in a row,
 		// followed by two interior cells and none of the regions are out of bounds.
+		// 该顶点为边界顶点，且一行中有两个相同的外部单元格，
+		// 后面跟着两个内部单元格，且所有区域均不超出边界。
 		const bool twoSameExts = (regs[a] & regs[b] & RC_BORDER_REG) != 0 && regs[a] == regs[b];
 		const bool twoInts = ((regs[c] | regs[d]) & RC_BORDER_REG) == 0;
 		const bool intsSameArea = (regs[c]>>16) == (regs[d]>>16);
@@ -224,6 +230,8 @@ static void simplifyContour(rcTempVector<int>& points, rcTempVector<int>& simpli
 	{
 		// The contour has some portals to other regions.
 		// Add a new point to every location where the region changes.
+		// 轮廓有一些通向其他区域的入口。
+		// 在区域发生变化的每个位置添加一个新点。
 		for (int i = 0, ni = static_cast<int>(points.size()) / 4; i < ni; ++i)
 		{
 			int ii = (i+1) % ni;
@@ -244,6 +252,9 @@ static void simplifyContour(rcTempVector<int>& points, rcTempVector<int>& simpli
 		// If there is no connections at all,
 		// create some initial points for the simplification process.
 		// Find lower-left and upper-right vertices of the contour.
+		// 如果没有任何连接，
+		// 为简化过程创建一些初始点。
+		// 查找轮廓的左下角和右上角顶点。
 		int llx = points[0];
 		int lly = points[1];
 		int llz = points[2];
@@ -285,6 +296,8 @@ static void simplifyContour(rcTempVector<int>& points, rcTempVector<int>& simpli
 	
 	// Add points until all raw points are within
 	// error tolerance to the simplified shape.
+	// 添加点，直到所有原始点都符合
+	// 简化形状的误差容限。
 	const int pn = static_cast<int>(points.size()) / 4;
 	for (int i = 0; i < simplified.size()/4; )
 	{
@@ -299,6 +312,7 @@ static void simplifyContour(rcTempVector<int>& points, rcTempVector<int>& simpli
 		int bi = simplified[ii*4+3];
 
 		// Find maximum deviation from the segment.
+		// 找到与线段的最大偏差。
 		float maxd = 0;
 		int maxi = -1;
 		int ci, cinc, endi;
@@ -306,6 +320,8 @@ static void simplifyContour(rcTempVector<int>& points, rcTempVector<int>& simpli
 		// Traverse the segment in lexilogical order so that the
 		// max deviation is calculated similarly when traversing
 		// opposite segments.
+		// 按字典顺序遍历该段，以便
+		// 遍历相反的段时以类似的方式计算最大偏差。
 		if (bx > ax || (bx == ax && bz > az))
 		{
 			cinc = 1;
@@ -811,6 +827,19 @@ static void mergeRegionHoles(rcContext* ctx, rcContourRegion& region)
 /// See the #rcConfig documentation for more information on the configuration parameters.
 ///
 /// @see rcAllocContourSet, rcCompactHeightfield, rcContourSet, rcConfig
+/// /// @par
+///
+/// 原始轮廓将与区域轮廓完全匹配。@p maxError 和 @p maxEdgeLen
+/// 参数控制简化轮廓与原始轮廓的匹配程度。
+///
+/// 生成的简化轮廓使得区域之间的门户顶点匹配。
+/// （它们被视为必需顶点。）
+///
+/// 将 @p maxEdgeLength 设置为零将禁用边长功能。
+///
+/// 有关配置参数的更多信息，请参阅 #rcConfig 文档。
+///
+/// @see rcAllocContourSet、rcCompactHeightfield、rcContourSet、rcConfig
 bool rcBuildContours(rcContext* ctx, const rcCompactHeightfield& chf,
 					 const float maxError, const int maxEdgeLen,
 					 rcContourSet& cset, const int buildFlags)
@@ -868,6 +897,7 @@ bool rcBuildContours(rcContext* ctx, const rcCompactHeightfield& chf,
 			{
 				unsigned char res = 0;
 				const rcCompactSpan& s = chf.spans[i];
+				// 如果span不存在region的ID, 或者是边界，就不考虑这种span
 				if (!chf.spans[i].reg || (chf.spans[i].reg & RC_BORDER_REG))
 				{
 					flags[i] = 0;
@@ -883,10 +913,13 @@ bool rcBuildContours(rcContext* ctx, const rcCompactHeightfield& chf,
 						const int ai = (int)chf.cells[ax+ay*w].index + rcGetCon(s, dir);
 						r = chf.spans[ai].reg;
 					}
+					// 周围邻居所属的region和当前span的region相同，说明是连通的，标记为1
 					if (r == chf.spans[i].reg)
 						res |= (1 << dir);
 				}
-				flags[i] = res ^ 0xf; // Inverse, mark non connected edges.
+
+				//flags保存每个span四个方向是否为边界, 值是按位保存：1是边界（区域边），0不是边界（内部边）
+				flags[i] = res ^ 0xf; // Inverse, mark non connected edges. 反过来，标记不连接的边。
 			}
 		}
 	}

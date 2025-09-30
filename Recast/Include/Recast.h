@@ -374,7 +374,7 @@ struct rcCompactHeightfield
 	rcCompactSpan* spans;		///< Array of spans. [Size: #spanCount]
 	unsigned short* dist;		///< Array containing border distance data. [Size: #spanCount]
 	unsigned char* areas;		///< Array containing area id data. [Size: #spanCount]
-	
+
 private:
 	// Explicitly-disabled copy constructor and copy assignment operator.
 	rcCompactHeightfield(const rcCompactHeightfield&);
@@ -1384,6 +1384,13 @@ inline int rcGetDirOffsetY(int direction)
 	static const int offset[neighbor_dir_max] = { 0, 1, 0, -1 };
 	return offset[direction & 0x03];
 }
+
+inline int rcGetDirOffsetIndex(NEIGHBOR_DIR dir, int x, int z, int size)
+{
+	int aX = x + rcGetDirOffsetX(dir);
+	int aY = z + rcGetDirOffsetY(dir);
+	return aX + aY * size;
+};
 
 /// Gets the direction for the specified offset. One of x and y should be 0.
 /// @param[in]		offsetX		The x offset. [Limits: -1 <= value <= 1]

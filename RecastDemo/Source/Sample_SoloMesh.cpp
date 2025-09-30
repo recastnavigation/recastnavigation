@@ -532,6 +532,7 @@ bool Sample_SoloMesh::handleBuild()
         return false;
     }
 
+	//将凸多边形区域标记为用户自定义的可行走标记
     // (Optional) Mark areas.
     const ConvexVolume* vols = m_geom->getConvexVolumes();
     for (int i = 0; i < m_geom->getConvexVolumeCount(); ++i)
