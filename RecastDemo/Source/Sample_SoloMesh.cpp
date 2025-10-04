@@ -63,8 +63,8 @@ Sample_SoloMesh::~Sample_SoloMesh()
 
 void Sample_SoloMesh::cleanup()
 {
-	delete[] triareas;
-	triareas = nullptr;
+	delete[] triAreas;
+	triAreas = nullptr;
 	rcFreeHeightField(heightfield);
 	heightfield = nullptr;
 	rcFreeCompactHeightfield(compactHeightfield);
@@ -429,22 +429,22 @@ bool Sample_SoloMesh::build()
 	// triangles as unwalkable.
 	// If you have multiple meshes you need to process, allocate
 	// an array which can hold the max number of triangles you need to process.
-	triareas = new unsigned char[numTris];
-	if (!triareas)
+	triAreas = new unsigned char[numTris];
+	if (!triAreas)
 	{
 		buildContext->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'm_triareas' (%d).", numTris);
 		return false;
 	}
-	memset(triareas, 0, numTris * sizeof(unsigned char));
+	memset(triAreas, 0, numTris * sizeof(unsigned char));
 
 	// Record which triangles in the input mesh are walkable.
 	// This information is recorded in m_triareas
-	rcMarkWalkableTriangles(buildContext, config.walkableSlopeAngle, verts, numVerts, tris, numTris, triareas);
+	rcMarkWalkableTriangles(buildContext, config.walkableSlopeAngle, verts, numVerts, tris, numTris, triAreas);
 
 	// Rasterize the input mesh
 	// If your have multiple meshes, you can transform them, calculate the
 	// terrain type for each mesh and rasterize them here.
-	if (!rcRasterizeTriangles(buildContext, verts, numVerts, tris, triareas, numTris, *heightfield, config.walkableClimb))
+	if (!rcRasterizeTriangles(buildContext, verts, numVerts, tris, triAreas, numTris, *heightfield, config.walkableClimb))
 	{
 		buildContext->log(RC_LOG_ERROR, "buildNavigation: Could not rasterize triangles.");
 		return false;

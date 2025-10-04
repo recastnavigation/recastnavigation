@@ -30,7 +30,7 @@ protected:
 
 	rcConfig config{};
 
-	unsigned char* triareas = nullptr;
+	unsigned char* triAreas = nullptr;
 	rcHeightfield* heightfield = nullptr;
 	rcCompactHeightfield* compactHeightfield = nullptr;
 	rcContourSet* contourSet = nullptr;
