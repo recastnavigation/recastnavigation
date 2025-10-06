@@ -367,41 +367,41 @@ void Sample::renderOverlayToolStates() const
 
 dtNavMesh* Sample::loadAll(const char* path)
 {
-	FILE* fp = fopen(path, "rb");
-	if (!fp)
+	FILE* file = fopen(path, "rb");
+	if (!file)
 	{
 		return 0;
 	}
 
 	// Read header.
 	NavMeshSetHeader header;
-	size_t readLen = fread(&header, sizeof(NavMeshSetHeader), 1, fp);
+	size_t readLen = fread(&header, sizeof(NavMeshSetHeader), 1, file);
 	if (readLen != 1)
 	{
-		fclose(fp);
+		fclose(file);
 		return nullptr;
 	}
 	if (header.magic != NAVMESHSET_MAGIC)
 	{
-		fclose(fp);
+		fclose(file);
 		return nullptr;
 	}
 	if (header.version != NAVMESHSET_VERSION)
 	{
-		fclose(fp);
+		fclose(file);
 		return nullptr;
 	}
 
 	dtNavMesh* mesh = dtAllocNavMesh();
 	if (!mesh)
 	{
-		fclose(fp);
+		fclose(file);
 		return nullptr;
 	}
 	dtStatus status = mesh->init(&header.params);
 	if (dtStatusFailed(status))
 	{
-		fclose(fp);
+		fclose(file);
 		return nullptr;
 	}
 
@@ -409,10 +409,10 @@ dtNavMesh* Sample::loadAll(const char* path)
 	for (int i = 0; i < header.numTiles; ++i)
 	{
 		NavMeshTileHeader tileHeader;
-		readLen = fread(&tileHeader, sizeof(tileHeader), 1, fp);
+		readLen = fread(&tileHeader, sizeof(tileHeader), 1, file);
 		if (readLen != 1)
 		{
-			fclose(fp);
+			fclose(file);
 			return 0;
 		}
 
@@ -427,18 +427,18 @@ dtNavMesh* Sample::loadAll(const char* path)
 			break;
 		}
 		memset(data, 0, tileHeader.dataSize);
-		readLen = fread(data, tileHeader.dataSize, 1, fp);
+		readLen = fread(data, tileHeader.dataSize, 1, file);
 		if (readLen != 1)
 		{
 			dtFree(data);
-			fclose(fp);
+			fclose(file);
 			return 0;
 		}
 
 		mesh->addTile(data, tileHeader.dataSize, DT_TILE_FREE_DATA, tileHeader.tileRef, 0);
 	}
 
-	fclose(fp);
+	fclose(file);
 
 	return mesh;
 }
@@ -450,8 +450,8 @@ void Sample::saveAll(const char* path, const dtNavMesh* mesh)
 		return;
 	}
 
-	FILE* fp = fopen(path, "wb");
-	if (!fp)
+	FILE* file = fopen(path, "wb");
+	if (!file)
 	{
 		return;
 	}
@@ -471,7 +471,7 @@ void Sample::saveAll(const char* path, const dtNavMesh* mesh)
 		header.numTiles++;
 	}
 	memcpy(&header.params, mesh->getParams(), sizeof(dtNavMeshParams));
-	fwrite(&header, sizeof(NavMeshSetHeader), 1, fp);
+	fwrite(&header, sizeof(NavMeshSetHeader), 1, file);
 
 	// Store tiles.
 	for (int i = 0; i < mesh->getMaxTiles(); ++i)
@@ -485,10 +485,12 @@ void Sample::saveAll(const char* path, const dtNavMesh* mesh)
 		NavMeshTileHeader tileHeader;
 		tileHeader.tileRef = mesh->getTileRef(tile);
 		tileHeader.dataSize = tile->dataSize;
-		fwrite(&tileHeader, sizeof(tileHeader), 1, fp);
+		fwrite(&tileHeader, sizeof(tileHeader), 1, file);
 
-		fwrite(tile->data, tile->dataSize, 1, fp);
+		fwrite(tile->data, tile->dataSize, 1, file);
 	}
 
-	fclose(fp);
+	fclose(file);
+
+	buildContext->log(rcLogCategory::RC_LOG_PROGRESS, )
 }
