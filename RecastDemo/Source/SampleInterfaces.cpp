@@ -31,9 +31,19 @@ void BuildContext::doLog(const rcLogCategory category, const char* msg, const in
 		return;
 	}
 
-	logMessages.emplace_back();
-	std::string& message = logMessages[logMessages.size() - 1];
-	message.push_back((char)category);
+	std::string& message = logMessages.emplace_back();
+	switch (category)
+	{
+	case RC_LOG_PROGRESS:
+		message.append("INFO:\t");
+		break;
+	case RC_LOG_WARNING:
+		message.append("WARN:\t");
+		break;
+	case RC_LOG_ERROR:
+		message.append("ERROR:\t");
+		break;
+	}
 	message.append(msg);
 }
 
