@@ -510,9 +510,9 @@ int main(int /*argc*/, char** /*argv*/)
 			if (app.showLog && app.showMenu)
 			{
 				constexpr int logWindowHeight = 200;
-				ImGui::SetNextWindowPos(ImVec2(uiColumnWidth + 2 * uiWindowPadding, static_cast<float>(app.height - logWindowHeight - uiWindowPadding)), ImGuiCond_Always);  // Position in screen space
-				ImGui::SetNextWindowSize(ImVec2(static_cast<float>(app.width - 2 * uiColumnWidth - 4 * uiWindowPadding), logWindowHeight), ImGuiCond_Always);     // Size of the window
-				ImGui::Begin("Log", nullptr, staticWindowFlags);
+				ImGui::SetNextWindowPos(ImVec2(uiColumnWidth + 2 * uiWindowPadding, static_cast<float>(app.height - logWindowHeight - uiWindowPadding)), ImGuiCond_FirstUseEver);  // Position in screen space
+				ImGui::SetNextWindowSize(ImVec2(static_cast<float>(app.width - 2 * uiColumnWidth - 4 * uiWindowPadding), logWindowHeight), ImGuiCond_FirstUseEver);     // Size of the window
+				ImGui::Begin("Log", nullptr, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoCollapse);
 
 				for (int i = 0; i < app.buildContext.getLogCount(); ++i)
 				{
