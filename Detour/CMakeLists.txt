@@ -17,6 +17,8 @@ target_include_directories(Detour PUBLIC
     "$<BUILD_INTERFACE:${Detour_INCLUDE_DIR}>"
 )
 
+target_compile_features(Detour PUBLIC cxx_std_20)
+
 set_target_properties(Detour PROPERTIES
         SOVERSION ${SOVERSION}
         VERSION ${LIB_VERSION}

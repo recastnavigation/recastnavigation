@@ -14,6 +14,8 @@ target_link_libraries(DetourCrowd
     Detour
 )
 
+target_compile_features(DetourCrowd PUBLIC cxx_std_20)
+
 set_target_properties(DetourCrowd PROPERTIES
         SOVERSION ${SOVERSION}
         VERSION ${LIB_VERSION}
