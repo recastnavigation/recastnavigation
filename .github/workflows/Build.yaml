@@ -83,7 +83,7 @@ jobs:
           - clang
           - gcc
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
     - uses: actions/checkout@v3
@@ -91,7 +91,9 @@ jobs:
     - name: Install opengl and SDL
       run: |
         sudo apt-get update
-        sudo apt-get install -y libgl1-mesa-dev libsdl2-dev
+        sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev libsdl2-dev clang gcc
+        clang --version
+        gcc --version
 
     - name: Download & Install premake
       working-directory: RecastDemo
@@ -123,7 +125,7 @@ jobs:
     - name: Install opengl and SDL
       run: |
         sudo apt-get update
-        sudo apt-get install -y libgl1-mesa-dev libsdl2-dev
+        sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev libsdl2-dev
 
     - name: Configure CMake
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{matrix.conf}}

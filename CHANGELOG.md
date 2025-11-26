@@ -5,9 +5,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-
-## [1.6.0] - 2023-05-21
+<h2>[Unreleased](https://github.com/recastnavigation/recastnavigation/compare/1.6.0...HEAD)</h2>
+<h2>[1.6.0](https://github.com/recastnavigation/recastnavigation/compare/1.5.1...1.6.0) - 2023-05-21</h2>
 
 ### Added
 - CMake build support
@@ -47,7 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Use of _USE_MATH_DEFINES directive (#596)
 
-## [1.5.1] - 2016-02-22
+## [1.5.1](https://github.com/recastnavigation/recastnavigation/compare/1.5.0...1.5.1) - 2016-02-22
 
 Patch release; one bug has been fixed, which would cause silent failure if too many nodes were requested and used in a dtNavMeshQuery.
 
@@ -99,7 +98,3 @@ This is the first release of Recast.
 The process is not always as robust as I would wish. The watershed phase sometimes swallows tiny islands which are close to edges. These droppings are handled in rcBuildContours, but the code is not particularly robust either.
 
 Another non-robust case is when portal contours (contours shared between two regions) are always assumed to be straight. That can lead to overlapping contours specially when the level has large open areas.
-
-[unreleased]: https://github.com/recastnavigation/recastnavigation/compare/1.6.0...HEAD
-[1.6.0]: https://github.com/recastnavigation/recastnavigation/compare/1.5.1...1.6.0
-[1.5.1]: https://github.com/recastnavigation/recastnavigation/compare/1.5.0...1.5.1

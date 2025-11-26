@@ -12,6 +12,10 @@ target_include_directories(Recast PUBLIC
 
 target_compile_features(Recast PUBLIC cxx_std_20)
 
+if(NOT RECASTNAVIGATION_ENABLE_ASSERTS)
+    target_compile_definitions(Recast PUBLIC RC_DISABLE_ASSERTS)
+endif()
+
 set_target_properties(Recast PROPERTIES
         SOVERSION ${SOVERSION}
         VERSION ${LIB_VERSION}

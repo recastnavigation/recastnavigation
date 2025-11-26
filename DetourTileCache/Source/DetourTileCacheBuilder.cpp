@@ -1084,15 +1084,6 @@ inline int area2(const unsigned char* a, const unsigned char* b, const unsigned 
 	return ((int)b[0] - (int)a[0]) * ((int)c[2] - (int)a[2]) - ((int)c[0] - (int)a[0]) * ((int)b[2] - (int)a[2]);
 }
 
-//	Exclusive or: true iff exactly one argument is true.
-//	The arguments are negated to ensure that they are 0/1
-//	values.  Then the bitwise Xor operator may apply.
-//	(This idea is due to Michael Baldwin.)
-inline bool xorb(bool x, bool y)
-{
-	return !x ^ !y;
-}
-
 // Returns true iff c is strictly to the left of the directed
 // line through a to b.
 inline bool left(const unsigned char* a, const unsigned char* b, const unsigned char* c)
@@ -1121,7 +1112,7 @@ static bool intersectProp(const unsigned char* a, const unsigned char* b,
 		collinear(c,d,a) || collinear(c,d,b))
 		return false;
 	
-	return xorb(left(a,b,c), left(a,b,d)) && xorb(left(c,d,a), left(c,d,b));
+	return (left(a,b,c) ^ left(a,b,d)) && (left(c,d,a) ^ left(c,d,b));
 }
 
 // Returns T iff (a,b,c) are collinear and point c lies 
@@ -1504,19 +1495,6 @@ static bool canRemoveVertex(dtTileCachePolyMesh& mesh, const unsigned short rem)
 
 static dtStatus removeVertex(dtTileCachePolyMesh& mesh, const unsigned short rem, const int maxTris)
 {
-	// Count number of polygons to remove.
-	int numRemovedVerts = 0;
-	for (int i = 0; i < mesh.npolys; ++i)
-	{
-		unsigned short* p = &mesh.polys[i*MAX_VERTS_PER_POLY*2];
-		const int nv = countPolyVerts(p);
-		for (int j = 0; j < nv; ++j)
-		{
-			if (p[j] == rem)
-				numRemovedVerts++;
-		}
-	}
-	
 	int nedges = 0;
 	unsigned short edges[MAX_REM_EDGES*3];
 	int nhole = 0;
