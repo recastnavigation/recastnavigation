@@ -60,6 +60,10 @@ typedef unsigned int dtTileRef;
 /// @ingroup detour
 static const int DT_VERTS_PER_POLYGON = 6;
 
+/// The maximum number of polygons per external link
+/// @ingroup detour
+static const int DT_POLYS_PER_EXT_CONNECTION = 8;
+
 /// @{
 /// @name Tile Serialization Constants
 /// These constants are used to detect whether a navigation tile's data
@@ -135,6 +139,12 @@ enum dtDetailTriEdgeFlags
 	DT_DETAIL_EDGE_BOUNDARY = 0x01		///< Detail triangle edge is part of the poly boundary
 };
 
+enum dtLogCategory
+{
+	DT_LOG_DEBUG,
+	DT_LOG_WARNING,
+	DT_LOG_ERROR
+};
 
 /// Limit raycasting during any angle pahfinding
 /// The limit is given as a multiple of the character radius
@@ -607,6 +617,12 @@ public:
 	}
 
 	/// @}
+
+	void log(const dtLogCategory, const char* format, ...) const;
+	inline void setDoLog(void(*func)(const dtLogCategory, const char*, int))
+	{
+		doLog = func;
+	}
 	
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.
@@ -672,6 +688,8 @@ private:
 	unsigned int m_tileBits;			///< Number of tile bits in the tile ID.
 	unsigned int m_polyBits;			///< Number of poly bits in the tile ID.
 #endif
+
+	void (*doLog)(const dtLogCategory, const char*, int) = 0;
 
 	friend class dtNavMeshQuery;
 };

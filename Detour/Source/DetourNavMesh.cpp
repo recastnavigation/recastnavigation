@@ -26,6 +26,7 @@
 #include "DetourAlloc.h"
 #include "DetourAssert.h"
 #include <new>
+#include <stdarg.h>
 
 
 inline bool overlapSlabs(const float* amin, const float* amax,
@@ -315,7 +316,8 @@ int dtNavMesh::findConnectingPolys(const float* va, const float* vb,
 	float bmin[2], bmax[2];
 	unsigned short m = DT_EXT_LINK | (unsigned short)side;
 	int n = 0;
-	
+	int totalCon = 0;
+
 	dtPolyRef base = getPolyRefBase(tile);
 	
 	for (int i = 0; i < tile->header->polyCount; ++i)
@@ -348,9 +350,14 @@ int dtNavMesh::findConnectingPolys(const float* va, const float* vb,
 				con[n] = base | (dtPolyRef)i;
 				n++;
 			}
+			totalCon++;
 			break;
 		}
 	}
+
+	if (totalCon > maxcon)
+		log(dtLogCategory::DT_LOG_ERROR, "There are more connections that we can handle %d vs %d. Increase 'DT_POLYS_PER_EXT_CONNECTION' to avoid teleporting agents", totalCon, maxcon);
+
 	return n;
 }
 
@@ -414,9 +421,9 @@ void dtNavMesh::connectExtLinks(dtMeshTile* tile, dtMeshTile* target, int side)
 			// Create new links
 			const float* va = &tile->verts[poly->verts[j]*3];
 			const float* vb = &tile->verts[poly->verts[(j+1) % nv]*3];
-			dtPolyRef nei[4];
-			float neia[4*2];
-			int nnei = findConnectingPolys(va,vb, target, dtOppositeTile(dir), nei,neia,4);
+			dtPolyRef nei[DT_POLYS_PER_EXT_CONNECTION];
+			float neia[DT_POLYS_PER_EXT_CONNECTION*2];
+			int nnei = findConnectingPolys(va,vb, target, dtOppositeTile(dir), nei, neia, DT_POLYS_PER_EXT_CONNECTION);
 			for (int k = 0; k < nnei; ++k)
 			{
 				unsigned int idx = allocLink(tile);
@@ -1593,3 +1600,24 @@ dtStatus dtNavMesh::getPolyArea(dtPolyRef ref, unsigned char* resultArea) const
 	return DT_SUCCESS;
 }
 
+void dtNavMesh::log(const dtLogCategory category, const char* format, ...) const
+{
+	if (doLog == 0)
+		return;
+
+	static const int MSG_SIZE = 512;
+	char msg[MSG_SIZE];
+	va_list argList;
+	va_start(argList, format);
+	int len = vsnprintf(msg, MSG_SIZE, format, argList);
+	if (len >= MSG_SIZE)
+	{
+		len = MSG_SIZE - 1;
+		msg[MSG_SIZE - 1] = '\0';
+
+		const char* errorMessage = "Log message was truncated";
+		doLog(category, errorMessage, (int)strlen(errorMessage));
+	}
+	va_end(argList);
+	doLog(category, msg, len);
+}
