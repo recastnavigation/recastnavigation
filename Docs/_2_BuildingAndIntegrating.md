@@ -8,27 +8,27 @@ For building RecastDemo and for Recast library development there are [premake5](
 
 While Recast and Detour don't require any dependencies, RecastDemo requires SDL (not included), and the unit tests rely on Catch2 (included in the repository).
 
-The following steps outline the process to install SDL2 in the appropriate location and build RecastDemo with Premake and your local .  Before you begin, you'll need to [download](https://github.com/premake/premake-core/releases) and install premake5 and ensure that the `premake5` executable location is included in your system path.
+The following steps outline the process to install SDL3 in the appropriate location and build RecastDemo with Premake and your local Fork. Before you begin, you'll need to [download](https://github.com/premake/premake-core/releases) and install premake5 and ensure that the `premake5` executable location is included in your system path.
 
 You can also reference the github actions build script `.github/Build.yaml` for examples of building with specific platform and toolchain combinations.
 
 ### Windows
 
-- Grab the latest SDL2 development library release from [here](https://github.com/libsdl-org/SDL) and unzip it into `RecastDemo/Contrib`.  Rename the SDL folder such that the path `RecastDemo/Contrib/SDL/lib/x86` is valid.
+- Grab the latest SDL3 development library release from [here](https://github.com/libsdl-org/SDL) and unzip it into `RecastDemo/Contrib`.  Rename the SDL folder such that the path `RecastDemo/Contrib/SDL/lib/x86` is valid.
 - Navigate to the `RecastDemo` folder and run `premake5 vs2022`
 - Open `Build/vs2022/recastnavigation.sln` in Visual Studio 2022 or Jetbrains Rider.
 - Set `RecastDemo` as the startup project, build, and run.
 
 ### macOS
 
-- Grab the latest SDL2 development library dmg from [here](https://github.com/libsdl-org/SDL) and place `SDL2.framework` in `RecastDemo/Bin`
+- Grab the latest SDL3 development library dmg from [here](https://github.com/libsdl-org/SDL) and place `SDL3.framework` in `RecastDemo/Bin`
 - Navigate to the `RecastDemo` folder and run `premake5 xcode4`
 - Open `Build/xcode4/recastnavigation.xcworkspace` in XCode
 - Set the RecastDemo project as the target and build.
 
 ### Linux
 
-- Install SDL2 and its dependencies according to your distro's guidelines.
+- Install SDL3 and its dependencies according to your distro's guidelines.
 - Navigate to the `RecastDemo` folder and run `premake5 gmake2`
 - Navigate to `RecastDemo/Build/gmake2` and run `make`
 - Navigate to `RecastDemo/Bin` and run `./RecastDemo`
