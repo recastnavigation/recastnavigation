@@ -126,7 +126,7 @@ project "Recast"
 
 project "RecastDemo"
 	language "C++"
-	kind "WindowedApp"
+	kind "ConsoleApp"
 	includedirs { 
 		"../RecastDemo/Include",
 		"../RecastDemo/Contrib",
@@ -183,13 +183,13 @@ project "RecastDemo"
 		links { 
 			"glu32",
 			"opengl32",
-			"SDL2",
-			"SDL2main",
+			"SDL3",
 		}
 		postbuildcommands {
 			-- Copy the SDL2 dll to the Bin folder.
-			'{COPY} "%{path.getabsolute("Contrib/SDL/lib/" .. cfg.architecture:gsub("x86_64", "x64") .. "/SDL2.dll")}" "%{cfg.targetdir}"'
+			'{COPY} "%{path.getabsolute("Contrib/SDL/lib/" .. cfg.architecture:gsub("x86_64", "x64") .. "/SDL3.dll")}" "%{cfg.targetdir}"'
 		}
+		defines { "PROJECT_NAME=\"RecastDemo\"" }
 
 	-- mac includes and libs
 	filter "system:macosx"

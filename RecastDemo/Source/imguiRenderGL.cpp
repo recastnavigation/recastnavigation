@@ -19,8 +19,8 @@
 #include <cmath>
 #include <cstdio>
 #include "imgui.h"
-#include "SDL.h"
-#include "SDL_opengl.h"
+#include "SDL3/SDL.h"
+#include "SDL3/SDL_opengl.h"
 
 // Some math headers don't have PI defined.
 static const float PI = 3.14159265f;

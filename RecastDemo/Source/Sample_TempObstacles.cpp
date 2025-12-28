@@ -21,8 +21,8 @@
 #include <string.h>
 #include <float.h>
 #include <new>
-#include "SDL.h"
-#include "SDL_opengl.h"
+#include "SDL3/SDL.h"
+#include "SDL3/SDL_opengl.h"
 #ifdef __APPLE__
 #	include <OpenGL/glu.h>
 #else

@@ -19,8 +19,8 @@
 #include <cstdio>
 #include <cmath>
 
-#include "SDL.h"
-#include "SDL_opengl.h"
+#include "SDL3/SDL.h"
+#include "SDL3/SDL_opengl.h"
 #ifdef __APPLE__
 #	include <OpenGL/glu.h>
 #else
@@ -71,9 +71,12 @@ static const int g_nsamples = sizeof(g_samples) / sizeof(SampleItem);
 int main(int /*argc*/, char** /*argv*/)
 {
 	// Init SDL
-	if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
+	if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS))
 	{
 		printf("Could not initialise SDL.\nError: %s\n", SDL_GetError());
+
+		const char* error = SDL_GetError();
+		printf("SDL Error: '%s' (length: %zu)\n", error ? error : "(null)", strlen(error));
 		return -1;
 	}
 
@@ -94,8 +97,13 @@ int main(int /*argc*/, char** /*argv*/)
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
 
-	SDL_DisplayMode displayMode;
-	SDL_GetCurrentDisplayMode(0, &displayMode);
+	SDL_DisplayID displayID = SDL_GetPrimaryDisplay(); // or another display ID
+	const SDL_DisplayMode* displayMode = SDL_GetCurrentDisplayMode(displayID);
+
+	if (!displayMode) {
+		printf("Could not get display mode: %s\n", SDL_GetError());
+		return -1;
+	}
 
 	bool presentationMode = false;
 	Uint32 flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
@@ -104,22 +112,20 @@ int main(int /*argc*/, char** /*argv*/)
 	if (presentationMode)
 	{
 		// Create a fullscreen window at the native resolution.
-		width = displayMode.w;
-		height = displayMode.h;
+		width = displayMode->w;
+		height = displayMode->h;
 		flags |= SDL_WINDOW_FULLSCREEN;
 	}
 	else
 	{
 		float aspect = 16.0f / 9.0f;
-		width = rcMin(displayMode.w, (int)(displayMode.h * aspect)) - 80;
-		height = displayMode.h - 80;
+		width = rcMin(displayMode->w, (int)(displayMode->h * aspect)) - 80;
+		height = displayMode->h - 80;
 	}
 	
-	SDL_Window* window;
-	SDL_Renderer* renderer;
-	int errorCode = SDL_CreateWindowAndRenderer(width, height, flags, &window, &renderer);
-
-	if (errorCode != 0 || !window || !renderer)
+	SDL_Window* window = NULL;
+	SDL_Renderer* renderer = NULL;
+	if (!SDL_CreateWindowAndRenderer(PROJECT_NAME, width, height, flags, &window, &renderer)) 
 	{
 		printf("Could not initialise SDL opengl\nError: %s\n", SDL_GetError());
 		return -1;
@@ -135,9 +141,9 @@ int main(int /*argc*/, char** /*argv*/)
 	}
 	
 	float timeAcc = 0.0f;
-	Uint32 prevFrameTime = SDL_GetTicks();
-	int mousePos[2] = {0, 0};
-	int origMousePos[2] = {0, 0}; // Used to compute mouse movement totals across frames.
+	Uint64 prevFrameTime = SDL_GetTicks();
+	float mousePos[2] = {0, 0};
+	float origMousePos[2] = {0, 0}; // Used to compute mouse movement totals across frames.
 	
 	float cameraEulers[] = {45, -45};
 	float cameraPos[] = {0, 0, 0};
@@ -206,34 +212,34 @@ int main(int /*argc*/, char** /*argv*/)
 		{
 			switch (event.type)
 			{
-				case SDL_KEYDOWN:
+				case SDL_EVENT_KEY_DOWN:
 					// Handle any key presses here.
-					if (event.key.keysym.sym == SDLK_ESCAPE)
+					if (event.key.key == SDLK_ESCAPE)
 					{
 						done = true;
 					}
-					else if (event.key.keysym.sym == SDLK_t)
+					else if (event.key.key == SDLK_T)
 					{
 						showLevels = false;
 						showSample = false;
 						showTestCases = true;
 						scanDirectory(testCasesFolder, ".txt", files);
 					}
-					else if (event.key.keysym.sym == SDLK_TAB)
+					else if (event.key.key == SDLK_TAB)
 					{
 						showMenu = !showMenu;
 					}
-					else if (event.key.keysym.sym == SDLK_SPACE)
+					else if (event.key.key == SDLK_SPACE)
 					{
 						if (sample)
 							sample->handleToggle();
 					}
-					else if (event.key.keysym.sym == SDLK_1)
+					else if (event.key.key == SDLK_1)
 					{
 						if (sample)
 							sample->handleStep();
 					}
-					else if (event.key.keysym.sym == SDLK_9)
+					else if (event.key.key == SDLK_9)
 					{
 						if (sample && geom)
 						{
@@ -251,7 +257,7 @@ int main(int /*argc*/, char** /*argv*/)
 					}
 					break;
 				
-				case SDL_MOUSEWHEEL:
+				case SDL_EVENT_MOUSE_WHEEL:
 					if (event.wheel.y < 0)
 					{
 						// wheel down
@@ -276,7 +282,7 @@ int main(int /*argc*/, char** /*argv*/)
 						}
 					}
 					break;
-				case SDL_MOUSEBUTTONDOWN:
+				case SDL_EVENT_MOUSE_BUTTON_DOWN:
 					if (event.button.button == SDL_BUTTON_RIGHT)
 					{
 						if (!mouseOverMenu)
@@ -292,7 +298,7 @@ int main(int /*argc*/, char** /*argv*/)
 					}
 					break;
 					
-				case SDL_MOUSEBUTTONUP:
+				case SDL_EVENT_MOUSE_BUTTON_UP:
 					// Handle mouse clicks here.
 					if (event.button.button == SDL_BUTTON_RIGHT)
 					{
@@ -311,20 +317,20 @@ int main(int /*argc*/, char** /*argv*/)
 						if (!mouseOverMenu)
 						{
 							processHitTest = true;
-							processHitTestShift = (SDL_GetModState() & KMOD_SHIFT) ? true : false;
+							processHitTestShift = (SDL_GetModState() & SDL_KMOD_SHIFT) ? true : false;
 						}
 					}
 					
 					break;
 					
-				case SDL_MOUSEMOTION:
+				case SDL_EVENT_MOUSE_MOTION:
 					mousePos[0] = event.motion.x;
 					mousePos[1] = height-1 - event.motion.y;
 					
 					if (rotate)
 					{
-						int dx = mousePos[0] - origMousePos[0];
-						int dy = mousePos[1] - origMousePos[1];
+						float dx = mousePos[0] - origMousePos[0];
+						float dy = mousePos[1] - origMousePos[1];
 						cameraEulers[0] = origCameraEulers[0] - dy * 0.25f;
 						cameraEulers[1] = origCameraEulers[1] + dx * 0.25f;
 						if (dx * dx + dy * dy > 3 * 3)
@@ -333,23 +339,21 @@ int main(int /*argc*/, char** /*argv*/)
 						}
 					}
 					break;
-				case SDL_WINDOWEVENT:
-					{
-						if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
-							// Get the new window size
-							width = event.window.data1;
-							height = event.window.data2;
+					
+				case SDL_EVENT_WINDOW_RESIZED:
+					// Get the new window size
+					width = event.window.data1;
+					height = event.window.data2;
 
-							// Update OpenGL viewport
-							glViewport(0, 0, width, height);
+					// Update OpenGL viewport
+					glViewport(0, 0, width, height);
 
-							glMatrixMode(GL_PROJECTION);
-							glLoadIdentity();
-							gluPerspective(50.0f, (float)width/(float)height, 1.0f, camr);
-						}
-					}
+					glMatrixMode(GL_PROJECTION);
+					glLoadIdentity();
+					gluPerspective(50.0f, (float)width/(float)height, 1.0f, camr);
 					break;
-				case SDL_QUIT:
+
+				case SDL_EVENT_QUIT:
 					done = true;
 					break;
 					
@@ -364,7 +368,7 @@ int main(int /*argc*/, char** /*argv*/)
 		if (SDL_GetMouseState(0, 0) & SDL_BUTTON_RMASK)
 			mouseButtonMask |= IMGUI_MBUT_RIGHT;
 		
-		Uint32 time = SDL_GetTicks();
+		Uint64 time = SDL_GetTicks();
 		float dt = (time - prevFrameTime) / 1000.0f;
 		prevFrameTime = time;
 
@@ -376,7 +380,7 @@ int main(int /*argc*/, char** /*argv*/)
 			
 			if (hit)
 			{
-				if (SDL_GetModState() & KMOD_CTRL)
+				if (SDL_GetModState() & SDL_KMOD_CTRL)
 				{
 					// Marker
 					markerPositionSet = true;
@@ -395,7 +399,7 @@ int main(int /*argc*/, char** /*argv*/)
 			}
 			else
 			{
-				if (SDL_GetModState() & KMOD_CTRL)
+				if (SDL_GetModState() & SDL_KMOD_CTRL)
 				{
 					// Marker
 					markerPositionSet = false;
@@ -468,7 +472,7 @@ int main(int /*argc*/, char** /*argv*/)
 		rayEnd[2] = (float)z;
 		
 		// Handle keyboard movement.
-		const Uint8* keystate = SDL_GetKeyboardState(NULL);
+		const bool* keystate = SDL_GetKeyboardState(NULL);
 		moveFront	= rcClamp(moveFront	+ dt * 4 * ((keystate[SDL_SCANCODE_W] || keystate[SDL_SCANCODE_UP		]) ? 1 : -1), 0.0f, 1.0f);
 		moveLeft	= rcClamp(moveLeft	+ dt * 4 * ((keystate[SDL_SCANCODE_A] || keystate[SDL_SCANCODE_LEFT		]) ? 1 : -1), 0.0f, 1.0f);
 		moveBack	= rcClamp(moveBack	+ dt * 4 * ((keystate[SDL_SCANCODE_S] || keystate[SDL_SCANCODE_DOWN		]) ? 1 : -1), 0.0f, 1.0f);
@@ -477,7 +481,7 @@ int main(int /*argc*/, char** /*argv*/)
 		moveDown	= rcClamp(moveDown	+ dt * 4 * ((keystate[SDL_SCANCODE_E] || keystate[SDL_SCANCODE_PAGEDOWN	]) ? 1 : -1), 0.0f, 1.0f);
 		
 		float keybSpeed = 22.0f;
-		if (SDL_GetModState() & KMOD_SHIFT)
+		if (SDL_GetModState() & SDL_KMOD_SHIFT)
 		{
 			keybSpeed *= 4.0f;
 		}
@@ -515,7 +519,7 @@ int main(int /*argc*/, char** /*argv*/)
 		
 		mouseOverMenu = false;
 		
-		imguiBeginFrame(mousePos[0], mousePos[1], mouseButtonMask, mouseScroll);
+		imguiBeginFrame(static_cast<int>(mousePos[0]), static_cast<int>(mousePos[1]), mouseButtonMask, mouseScroll);
 		
 		if (sample)
 		{

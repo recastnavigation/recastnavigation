@@ -20,8 +20,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <float.h>
-#include "SDL.h"
-#include "SDL_opengl.h"
+#include "SDL3/SDL.h"
+#include "SDL3/SDL_opengl.h"
 #include "imgui.h"
 #include "ConvexVolumeTool.h"
 #include "InputGeom.h"
