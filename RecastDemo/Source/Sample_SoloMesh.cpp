@@ -404,7 +404,7 @@ bool Sample_SoloMesh::handleBuild()
 	m_cfg.detailSampleDist = m_detailSampleDist < 0.9f ? 0 : m_cellSize * m_detailSampleDist;
 	m_cfg.detailSampleMaxError = m_cellHeight * m_detailSampleMaxError;
 	
-	// Set the area where the navigation will be build.
+	// Set the area where the navigation will be built.
 	// Here the bounds of the input mesh are used, but the
 	// area could be specified by an user defined box, etc.
 	rcVcopy(m_cfg.bmin, bmin);
