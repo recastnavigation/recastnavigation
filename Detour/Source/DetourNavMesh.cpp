@@ -336,7 +336,7 @@ int dtNavMesh::findConnectingPolys(const float* va, const float* vb,
 				continue;
 			
 			// Check if the segments touch.
-			calcSlabEndPoints(vc,vd, bmin,bmax, side);
+			calcSlabEndPoints(vc, vd, bmin, bmax, side);
 			
 			if (!overlapSlabs(amin,amax, bmin,bmax, 0.01f, tile->header->walkableClimb)) continue;
 			
