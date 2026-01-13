@@ -84,9 +84,9 @@ jobs:
       working-directory: RecastDemo/Contrib
       shell: pwsh
       run: |
-        (new-object System.Net.WebClient).DownloadFile("https://github.com/libsdl-org/SDL/releases/download/release-2.24.2/SDL2-devel-2.24.2-VC.zip","${{github.workspace}}/RecastDemo/Contrib/SDL.zip")
+        (new-object System.Net.WebClient).DownloadFile("https://github.com/libsdl-org/SDL/releases/download/release-3.4.0/SDL3-devel-3.4.0-VC.zip ","${{github.workspace}}/RecastDemo/Contrib/SDL.zip")
         tar -xf SDL.zip
-        ren SDL2-2.24.2 SDL
+        ren SDL3-3.4.0 SDL
         del SDL.zip
 
     - name: Download and Install Premake
