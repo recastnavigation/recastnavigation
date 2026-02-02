@@ -491,6 +491,4 @@ void Sample::saveAll(const char* path, const dtNavMesh* mesh)
 	}
 
 	fclose(file);
-
-	buildContext->log(rcLogCategory::RC_LOG_PROGRESS, )
 }
