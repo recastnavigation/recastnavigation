@@ -112,7 +112,7 @@ void Sample_SoloMesh::drawToolsUI()
 			toolNames[static_cast<uint8_t>(SampleToolType::toolType)], \
 			currentType == SampleToolType::toolType))                  \
 	{                                                                  \
-		setTool(new toolClass{});                                      \
+		setTool(new (toolClass){});                                    \
 	}
 	TOOL(NAVMESH_TESTER, NavMeshTesterTool)
 	TOOL(NAVMESH_PRUNE, NavMeshPruneTool)
