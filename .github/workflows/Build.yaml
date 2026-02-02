@@ -83,7 +83,7 @@ jobs:
           - clang
           - gcc
 
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
@@ -144,9 +144,8 @@ jobs:
         include:
           - vs-version: vs2022
             version-range: '17.0'
-            runner: windows-2022
 
-    runs-on: ${{matrix.runner}}
+    runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v3
@@ -192,9 +191,8 @@ jobs:
         include:
           - vs-version: vs2022
             cmake-generator: Visual Studio 17 2022
-            runner: windows-2022
 
-    runs-on: ${{matrix.runner}}
+    runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v3
