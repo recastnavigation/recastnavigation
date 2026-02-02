@@ -1,11 +1,11 @@
 #pragma once
 
+#include "AppState.h"
+
 #include <imgui.h>
 #include <stdio.h>
 
-#include "AppData.h"
-
-extern AppData app;
+extern AppState app;
 
 inline void DrawScreenspaceText(float x, float y, ImU32 color, const char* text, bool centered = false)
 {

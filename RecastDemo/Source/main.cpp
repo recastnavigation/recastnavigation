@@ -16,7 +16,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#include "AppData.h"
+#include "AppState.h"
 #include "InputGeom.h"
 #include "SDL.h"
 #include "SDL_keycode.h"
@@ -28,13 +28,13 @@
 #include "TestCase.h"
 #include "imguiHelpers.h"
 
-#include <functional>
-#include <string>
-
 #include <imgui.h>
 #include <imgui_impl_opengl2.h>
 #include <imgui_impl_sdl2.h>
 #include <implot.h>
+
+#include <functional>
+#include <string>
 #ifdef __APPLE__
 #	include <OpenGL/glu.h>
 #else
@@ -68,7 +68,7 @@ constexpr ImGuiWindowFlags staticWindowFlags = ImGuiWindowFlags_NoMove
 	| ImGuiWindowFlags_NoCollapse;
 }
 
-AppData app;
+AppState app;
 
 int main(int /*argc*/, char** /*argv*/)
 {

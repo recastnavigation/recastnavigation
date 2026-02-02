@@ -1,9 +1,7 @@
-#include "AppData.h"
-
+#include "AppState.h"
 #include "InputGeom.h"
-#include "Sample.h"
-
 #include "SDL_opengl.h"
+#include "Sample.h"
 
 #ifdef __APPLE__
 #	include <OpenGL/glu.h>
@@ -13,7 +11,7 @@
 
 #include <imgui.h>
 
-void AppData::resetCamera()
+void AppState::resetCamera()
 {
 	// Reset camera and fog to match the mesh bounds.
 	if (inputGeometry)
@@ -38,7 +36,7 @@ void AppData::resetCamera()
 	glFogf(GL_FOG_END, camr * 1.25f);
 }
 
-void AppData::updateWindowSize()
+void AppState::updateWindowSize()
 {
 	SDL_GetWindowSize(window, &width, &height);
 	SDL_GL_GetDrawableSize(window, &drawableWidth, &drawableHeight);
@@ -52,7 +50,7 @@ void AppData::updateWindowSize()
 	glGetDoublev(GL_PROJECTION_MATRIX, projectionMatrix);
 }
 
-void AppData::updateUIScale() const
+void AppState::updateUIScale() const
 {
 	ImGuiIO& io = ImGui::GetIO();
 	io.DisplaySize = ImVec2(static_cast<float>(width), static_cast<float>(height));
@@ -61,7 +59,7 @@ void AppData::updateUIScale() const
 		static_cast<float>(drawableHeight) / static_cast<float>(height));
 }
 
-void AppData::worldToScreen(float x, float y, float z, float* screenX, float* screenY) const
+void AppState::worldToScreen(float x, float y, float z, float* screenX, float* screenY) const
 {
 	GLdouble modelviewMatrix[16];
 	glGetDoublev(GL_MODELVIEW_MATRIX, modelviewMatrix);

@@ -11,7 +11,7 @@ class TestCase;
 class Sample;
 class InputGeom;
 
-struct AppData
+struct AppState
 {
 	SDL_Window* window;
 	SDL_GLContext glContext;
