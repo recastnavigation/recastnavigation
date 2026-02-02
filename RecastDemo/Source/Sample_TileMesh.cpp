@@ -256,12 +256,12 @@ void Sample_TileMesh::drawSettingsUI()
 
 	ImGui::Separator();
 
-	ImGui::Indent();
-
 	if (ImGui::Button("Save"))
 	{
 		Sample::saveAll("all_tiles_navmesh.bin", navMesh);
 	}
+
+	ImGui::SameLine();
 
 	if (ImGui::Button("Load"))
 	{
@@ -269,8 +269,6 @@ void Sample_TileMesh::drawSettingsUI()
 		navMesh = Sample::loadAll("all_tiles_navmesh.bin");
 		navQuery->init(navMesh, 2048);
 	}
-
-	ImGui::Unindent();
 
 	ImGui::Text("Build Time: %.1fms", totalBuildTimeMs);
 

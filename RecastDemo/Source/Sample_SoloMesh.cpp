@@ -85,11 +85,12 @@ void Sample_SoloMesh::drawSettingsUI()
 
 	drawCommonSettingsUI();
 
-	ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
 	if (ImGui::Button("Save"))
 	{
 		saveAll(fileName, navMesh);
 	}
+
+	ImGui::SameLine();
 
 	if (ImGui::Button("Load"))
 	{
@@ -97,7 +98,6 @@ void Sample_SoloMesh::drawSettingsUI()
 		navMesh = loadAll(fileName);
 		navQuery->init(navMesh, 2048);
 	}
-	ImGui::PopItemWidth();
 
 	ImGui::Text("Build Time: %.1fms", totalBuildTimeMs);
 }
