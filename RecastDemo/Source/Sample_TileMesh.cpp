@@ -92,15 +92,15 @@ const char* Sample_TileMesh::drawModeNames[]{
 
 class NavMeshTileTool : public SampleTool
 {
-	Sample_TileMesh* m_sample = nullptr;
-	float m_hitPos[3] = {0, 0, 0};
-	bool m_hitPosSet = false;
+	Sample_TileMesh* sample = nullptr;
+	float hitPos[3] = {0, 0, 0};
+	bool hitPosSet = false;
 
 public:
 	~NavMeshTileTool() override = default;
 
 	SampleToolType type() override { return SampleToolType::TILE_EDIT; }
-	void init(Sample* sample) override { m_sample = static_cast<Sample_TileMesh*>(sample); }
+	void init(Sample* inSample) override { sample = static_cast<Sample_TileMesh*>(inSample); }
 	void reset() override {}
 
 	void drawMenuUI() override
@@ -108,33 +108,33 @@ public:
 		ImGui::Text("Create Tiles");
 		if (ImGui::Button("Create All"))
 		{
-			if (m_sample)
+			if (sample)
 			{
-				m_sample->buildAllTiles();
+				sample->buildAllTiles();
 			}
 		}
 		if (ImGui::Button("Remove All"))
 		{
-			if (m_sample)
+			if (sample)
 			{
-				m_sample->removeAllTiles();
+				sample->removeAllTiles();
 			}
 		}
 	}
 
 	void onClick(const float* /*s*/, const float* p, bool shift) override
 	{
-		m_hitPosSet = true;
-		rcVcopy(m_hitPos, p);
-		if (m_sample)
+		hitPosSet = true;
+		rcVcopy(hitPos, p);
+		if (sample)
 		{
 			if (shift)
 			{
-				m_sample->removeTile(m_hitPos);
+				sample->removeTile(hitPos);
 			}
 			else
 			{
-				m_sample->buildTile(m_hitPos);
+				sample->buildTile(hitPos);
 			}
 		}
 	}
@@ -147,35 +147,35 @@ public:
 
 	void render() override
 	{
-		if (!m_hitPosSet)
+		if (!hitPosSet)
 		{
 			return;
 		}
 
-		const float s = m_sample->agentRadius;
+		const float s = sample->agentRadius;
 		glColor4ub(0, 0, 0, 128);
 		glLineWidth(2.0f);
 		glBegin(GL_LINES);
-		glVertex3f(m_hitPos[0] - s, m_hitPos[1] + 0.1f, m_hitPos[2]);
-		glVertex3f(m_hitPos[0] + s, m_hitPos[1] + 0.1f, m_hitPos[2]);
-		glVertex3f(m_hitPos[0], m_hitPos[1] - s + 0.1f, m_hitPos[2]);
-		glVertex3f(m_hitPos[0], m_hitPos[1] + s + 0.1f, m_hitPos[2]);
-		glVertex3f(m_hitPos[0], m_hitPos[1] + 0.1f, m_hitPos[2] - s);
-		glVertex3f(m_hitPos[0], m_hitPos[1] + 0.1f, m_hitPos[2] + s);
+		glVertex3f(hitPos[0] - s, hitPos[1] + 0.1f, hitPos[2]);
+		glVertex3f(hitPos[0] + s, hitPos[1] + 0.1f, hitPos[2]);
+		glVertex3f(hitPos[0], hitPos[1] - s + 0.1f, hitPos[2]);
+		glVertex3f(hitPos[0], hitPos[1] + s + 0.1f, hitPos[2]);
+		glVertex3f(hitPos[0], hitPos[1] + 0.1f, hitPos[2] - s);
+		glVertex3f(hitPos[0], hitPos[1] + 0.1f, hitPos[2] + s);
 		glEnd();
 		glLineWidth(1.0f);
 	}
 
 	void drawOverlayUI() override
 	{
-		if (m_hitPosSet)
+		if (hitPosSet)
 		{
 			int tx = 0;
 			int ty = 0;
-			m_sample->getTilePos(m_hitPos, tx, ty);
+			sample->getTilePos(hitPos, tx, ty);
 			char text[32];
 			snprintf(text, 32, "(%d,%d)", tx, ty);
-			DrawWorldspaceText(m_hitPos[0], m_hitPos[1], m_hitPos[2], IM_COL32(0, 0, 0, 220), text);
+			DrawWorldspaceText(hitPos[0], hitPos[1], hitPos[2], IM_COL32(0, 0, 0, 220), text);
 		}
 
 		// Tool help
@@ -240,7 +240,7 @@ void Sample_TileMesh::drawSettingsUI()
 
 		// Max tiles and max polys affect how the tile IDs are calculated.
 		// There are 22 bits available for identifying a tile and a polygon.
-		int tileBits = rcMin((int)ilog2(nextPow2(tileWidth * tileHeight)), 14);
+		int tileBits = rcMin(static_cast<int>(ilog2(nextPow2(tileWidth * tileHeight))), 14);
 		tileBits = rcMin(tileBits, 14);
 		int polyBits = 22 - tileBits;
 		maxTiles = 1 << tileBits;
@@ -284,7 +284,7 @@ void Sample_TileMesh::drawToolsUI()
 			toolNames[static_cast<uint8_t>(SampleToolType::toolType)], \
 			currentType == SampleToolType::toolType))                  \
 	{                                                                  \
-		setTool(new toolClass{});                                      \
+		setTool(new (toolClass){});                                    \
 	}
 	TOOL(NAVMESH_TESTER, NavMeshTesterTool)
 	TOOL(NAVMESH_PRUNE, NavMeshPruneTool)
@@ -305,14 +305,13 @@ void Sample_TileMesh::drawToolsUI()
 void Sample_TileMesh::UI_DrawModeOption(DrawMode drawMode, bool enabled)
 {
 	ImGui::BeginDisabled(!enabled);
-	const bool is_selected = this->drawMode == drawMode;
-	if (ImGui::Selectable(drawModeNames[static_cast<int>(drawMode)], is_selected))
+	if (ImGui::Selectable(drawModeNames[static_cast<int>(drawMode)], currentDrawMode == drawMode))
 	{
-		this->drawMode = drawMode;
+		currentDrawMode = drawMode;
 	}
 
 	// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
-	if (is_selected)
+	if (currentDrawMode == drawMode)
 	{
 		ImGui::SetItemDefaultFocus();
 	}
@@ -322,7 +321,7 @@ void Sample_TileMesh::UI_DrawModeOption(DrawMode drawMode, bool enabled)
 void Sample_TileMesh::drawDebugUI()
 {
 	ImGui::Text("Draw");
-	if (ImGui::BeginCombo("##drawMode", drawModeNames[static_cast<int>(this->drawMode)], 0))
+	if (ImGui::BeginCombo("##drawMode", drawModeNames[static_cast<int>(this->currentDrawMode)], 0))
 	{
 		UI_DrawModeOption(DrawMode::MESH, true);
 		UI_DrawModeOption(DrawMode::NAVMESH, navMesh != nullptr);
@@ -356,7 +355,7 @@ void Sample_TileMesh::render()
 	const float texScale = 1.0f / (cellSize * 10.0f);
 
 	// Draw mesh
-	if (drawMode != DrawMode::NAVMESH_TRANS)
+	if (currentDrawMode != DrawMode::NAVMESH_TRANS)
 	{
 		// Draw mesh
 		duDebugDrawTriMeshSlope(
@@ -393,7 +392,7 @@ void Sample_TileMesh::render()
 	rcCalcGridSize(navMeshBoundsMin, navMeshBoundsMax, cellSize, &gridWith, &gridHeight);
 	const int tileWidth = (gridWith + tileSize - 1) / tileSize;
 	const int tileHeight = (gridHeight + tileSize - 1) / tileSize;
-	const float size = tileSize * cellSize;
+	const float size = static_cast<float>(tileSize) * cellSize;
 	duDebugDrawGridXZ(
 		&debugDraw,
 		navMeshBoundsMin[0],
@@ -418,22 +417,22 @@ void Sample_TileMesh::render()
 		1.0f);
 
 	if (navMesh && navQuery &&
-	    (drawMode == DrawMode::NAVMESH || drawMode == DrawMode::NAVMESH_TRANS || drawMode == DrawMode::NAVMESH_BVTREE ||
-	     drawMode == DrawMode::NAVMESH_NODES || drawMode == DrawMode::NAVMESH_PORTALS || drawMode == DrawMode::NAVMESH_INVIS))
+	    (currentDrawMode == DrawMode::NAVMESH || currentDrawMode == DrawMode::NAVMESH_TRANS || currentDrawMode == DrawMode::NAVMESH_BVTREE ||
+	     currentDrawMode == DrawMode::NAVMESH_NODES || currentDrawMode == DrawMode::NAVMESH_PORTALS || currentDrawMode == DrawMode::NAVMESH_INVIS))
 	{
-		if (drawMode != DrawMode::NAVMESH_INVIS)
+		if (currentDrawMode != DrawMode::NAVMESH_INVIS)
 		{
 			duDebugDrawNavMeshWithClosedList(&debugDraw, *navMesh, *navQuery, navMeshDrawFlags);
 		}
-		if (drawMode == DrawMode::NAVMESH_BVTREE)
+		if (currentDrawMode == DrawMode::NAVMESH_BVTREE)
 		{
 			duDebugDrawNavMeshBVTree(&debugDraw, *navMesh);
 		}
-		if (drawMode == DrawMode::NAVMESH_PORTALS)
+		if (currentDrawMode == DrawMode::NAVMESH_PORTALS)
 		{
 			duDebugDrawNavMeshPortals(&debugDraw, *navMesh);
 		}
-		if (drawMode == DrawMode::NAVMESH_NODES)
+		if (currentDrawMode == DrawMode::NAVMESH_NODES)
 		{
 			duDebugDrawNavMeshNodes(&debugDraw, *navQuery);
 		}
@@ -442,53 +441,53 @@ void Sample_TileMesh::render()
 
 	glDepthMask(GL_TRUE);
 
-	if (compactHeightfield && drawMode == DrawMode::COMPACT)
+	if (compactHeightfield && currentDrawMode == DrawMode::COMPACT)
 	{
 		duDebugDrawCompactHeightfieldSolid(&debugDraw, *compactHeightfield);
 	}
 
-	if (compactHeightfield && drawMode == DrawMode::COMPACT_DISTANCE)
+	if (compactHeightfield && currentDrawMode == DrawMode::COMPACT_DISTANCE)
 	{
 		duDebugDrawCompactHeightfieldDistance(&debugDraw, *compactHeightfield);
 	}
-	if (compactHeightfield && drawMode == DrawMode::COMPACT_REGIONS)
+	if (compactHeightfield && currentDrawMode == DrawMode::COMPACT_REGIONS)
 	{
 		duDebugDrawCompactHeightfieldRegions(&debugDraw, *compactHeightfield);
 	}
-	if (heightfield && drawMode == DrawMode::VOXELS)
+	if (heightfield && currentDrawMode == DrawMode::VOXELS)
 	{
 		glEnable(GL_FOG);
 		duDebugDrawHeightfieldSolid(&debugDraw, *heightfield);
 		glDisable(GL_FOG);
 	}
-	if (heightfield && drawMode == DrawMode::VOXELS_WALKABLE)
+	if (heightfield && currentDrawMode == DrawMode::VOXELS_WALKABLE)
 	{
 		glEnable(GL_FOG);
 		duDebugDrawHeightfieldWalkable(&debugDraw, *heightfield);
 		glDisable(GL_FOG);
 	}
 
-	if (contourSet && drawMode == DrawMode::RAW_CONTOURS)
+	if (contourSet && currentDrawMode == DrawMode::RAW_CONTOURS)
 	{
 		glDepthMask(GL_FALSE);
 		duDebugDrawRawContours(&debugDraw, *contourSet);
 		glDepthMask(GL_TRUE);
 	}
 
-	if (contourSet && drawMode == DrawMode::BOTH_CONTOURS)
+	if (contourSet && currentDrawMode == DrawMode::BOTH_CONTOURS)
 	{
 		glDepthMask(GL_FALSE);
 		duDebugDrawRawContours(&debugDraw, *contourSet, 0.5f);
 		duDebugDrawContours(&debugDraw, *contourSet);
 		glDepthMask(GL_TRUE);
 	}
-	if (contourSet && drawMode == DrawMode::CONTOURS)
+	if (contourSet && currentDrawMode == DrawMode::CONTOURS)
 	{
 		glDepthMask(GL_FALSE);
 		duDebugDrawContours(&debugDraw, *contourSet);
 		glDepthMask(GL_TRUE);
 	}
-	if (compactHeightfield && contourSet && drawMode == DrawMode::REGION_CONNECTIONS)
+	if (compactHeightfield && contourSet && currentDrawMode == DrawMode::REGION_CONNECTIONS)
 	{
 		duDebugDrawCompactHeightfieldRegions(&debugDraw, *compactHeightfield);
 
@@ -496,13 +495,13 @@ void Sample_TileMesh::render()
 		duDebugDrawRegionConnections(&debugDraw, *contourSet);
 		glDepthMask(GL_TRUE);
 	}
-	if (polyMesh && drawMode == DrawMode::POLYMESH)
+	if (polyMesh && currentDrawMode == DrawMode::POLYMESH)
 	{
 		glDepthMask(GL_FALSE);
 		duDebugDrawPolyMesh(&debugDraw, *polyMesh);
 		glDepthMask(GL_TRUE);
 	}
-	if (detailPolyMesh && drawMode == DrawMode::POLYMESH_DETAIL)
+	if (detailPolyMesh && currentDrawMode == DrawMode::POLYMESH_DETAIL)
 	{
 		glDepthMask(GL_FALSE);
 		duDebugDrawPolyMeshDetail(&debugDraw, *detailPolyMesh);
@@ -585,8 +584,8 @@ bool Sample_TileMesh::build()
 
 	dtNavMeshParams params;
 	rcVcopy(params.orig, inputGeometry->getNavMeshBoundsMin());
-	params.tileWidth = tileSize * cellSize;
-	params.tileHeight = tileSize * cellSize;
+	params.tileWidth = static_cast<float>(tileSize) * cellSize;
+	params.tileHeight = static_cast<float>(tileSize) * cellSize;
 	params.maxTiles = maxTiles;
 	params.maxPolys = maxPolysPerTile;
 
@@ -639,7 +638,7 @@ void Sample_TileMesh::buildTile(const float* pos)
 	const float* navMeshBoundsMin = inputGeometry->getNavMeshBoundsMin();
 	const float* navMeshBoundsMax = inputGeometry->getNavMeshBoundsMax();
 
-	const float tileWorldSize = tileSize * cellSize;
+	const float tileWorldSize = static_cast<float>(tileSize) * cellSize;
 	const int tileX = static_cast<int>((pos[0] - navMeshBoundsMin[0]) / tileWorldSize);
 	const int tileY = static_cast<int>((pos[2] - navMeshBoundsMin[2]) / tileWorldSize);
 
@@ -684,7 +683,7 @@ void Sample_TileMesh::getTilePos(const float* pos, int& outTileX, int& outTileY)
 
 	const float* navMeshBoundsMin = inputGeometry->getNavMeshBoundsMin();
 
-	const float tileWorldSize = tileSize * cellSize;
+	const float tileWorldSize = static_cast<float>(tileSize) * cellSize;
 	outTileX = static_cast<int>((pos[0] - navMeshBoundsMin[0]) / tileWorldSize);
 	outTileY = static_cast<int>((pos[2] - navMeshBoundsMin[2]) / tileWorldSize);
 }
@@ -703,7 +702,7 @@ void Sample_TileMesh::removeTile(const float* pos)
 	const float* navMeshBoundsMin = inputGeometry->getNavMeshBoundsMin();
 	const float* navmeshBoundsMax = inputGeometry->getNavMeshBoundsMax();
 
-	const float tileWorldSize = tileSize * cellSize;
+	const float tileWorldSize = static_cast<float>(tileSize) * cellSize;
 	const int tileX = static_cast<int>((pos[0] - navMeshBoundsMin[0]) / tileWorldSize);
 	const int tileY = static_cast<int>((pos[2] - navMeshBoundsMin[2]) / tileWorldSize);
 
@@ -738,7 +737,7 @@ void Sample_TileMesh::buildAllTiles()
 	rcCalcGridSize(navMeshBoundsMin, navMeshBoundsMax, cellSize, &gridWidth, &gridHeight);
 	const int tileWidth = (gridWidth + tileSize - 1) / tileSize;
 	const int tileHeight = (gridHeight + tileSize - 1) / tileSize;
-	const float tileCellSize = tileSize * cellSize;
+	const float tileCellSize = static_cast<float>(tileSize) * cellSize;
 
 	// Start the build process.
 	buildContext->startTimer(RC_TIMER_TEMP);
@@ -940,7 +939,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(
 	for (int nodeIndex : overlappingNodes)
 	{
 		const PartitionedMesh::Node& node = partitionedMesh.nodes[nodeIndex];
-		const int* nodeTris = &partitionedMesh.tris[node.triIndex * 3];
+		const int* nodeTris = &partitionedMesh.tris[static_cast<size_t>(node.triIndex) * 3];
 		const int numNodeTris = node.numTris;
 
 		tileTriCount += numNodeTris;
@@ -1170,8 +1169,7 @@ unsigned char* Sample_TileMesh::buildTileMesh(
 			}
 		}
 
-		dtNavMeshCreateParams params;
-		memset(&params, 0, sizeof(params));
+		dtNavMeshCreateParams params = {};
 		params.verts = polyMesh->verts;
 		params.vertCount = polyMesh->nverts;
 		params.polys = polyMesh->polys;

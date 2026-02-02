@@ -59,7 +59,7 @@ private:
 		POLYMESH,
 		POLYMESH_DETAIL
 	};
-	DrawMode drawMode = DrawMode::NAVMESH;
+	DrawMode currentDrawMode = DrawMode::NAVMESH;
 	static const char* drawModeNames[];
 
 	int maxTiles = 0;
