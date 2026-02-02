@@ -432,13 +432,13 @@ bool Sample_SoloMesh::build()
 	triAreas = new unsigned char[numTris];
 	if (!triAreas)
 	{
-		buildContext->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'm_triareas' (%d).", numTris);
+		buildContext->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'triAreas' (%d).", numTris);
 		return false;
 	}
 	memset(triAreas, 0, numTris * sizeof(unsigned char));
 
 	// Record which triangles in the input mesh are walkable.
-	// This information is recorded in m_triareas
+	// This information is recorded in triAreas
 	rcMarkWalkableTriangles(buildContext, config.walkableSlopeAngle, verts, numVerts, tris, numTris, triAreas);
 
 	// Rasterize the input mesh

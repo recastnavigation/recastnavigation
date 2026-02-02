@@ -139,22 +139,22 @@ const char* BuildContext::getLogText(const int i) const
 
 class GLCheckerTexture
 {
-	unsigned int m_texId = 0;
+	unsigned int textureId = 0;
 
 public:
 	~GLCheckerTexture()
 	{
-		if (m_texId != 0)
+		if (textureId != 0)
 		{
-			glDeleteTextures(1, &m_texId);
+			glDeleteTextures(1, &textureId);
 		}
 	}
 
 	void bind()
 	{
-		if (m_texId != 0)
+		if (textureId != 0)
 		{
-			glBindTexture(GL_TEXTURE_2D, m_texId);
+			glBindTexture(GL_TEXTURE_2D, textureId);
 		}
 		else
 		{
@@ -164,8 +164,8 @@ public:
 			static const int TSIZE = 64;
 			unsigned int data[TSIZE * TSIZE];
 
-			glGenTextures(1, &m_texId);
-			glBindTexture(GL_TEXTURE_2D, m_texId);
+			glGenTextures(1, &textureId);
+			glBindTexture(GL_TEXTURE_2D, textureId);
 
 			int level = 0;
 			int size = TSIZE;

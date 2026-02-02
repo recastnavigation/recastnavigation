@@ -484,7 +484,7 @@ struct TileCacheData
 struct RasterizationContext
 {
 	rcHeightfield* solid = nullptr;
-	unsigned char* triareas = nullptr;
+	unsigned char* triAreas = nullptr;
 	rcHeightfieldLayerSet* lset = nullptr;
 	rcCompactHeightfield* chf = nullptr;
 	TileCacheData tiles[MAX_LAYERS]{};
@@ -495,7 +495,7 @@ struct RasterizationContext
 	~RasterizationContext()
 	{
 		rcFreeHeightField(solid);
-		delete[] triareas;
+		delete[] triAreas;
 		rcFreeHeightfieldLayerSet(lset);
 		rcFreeCompactHeightfield(chf);
 		for (int i = 0; i < MAX_LAYERS; ++i)
@@ -567,10 +567,10 @@ int Sample_TempObstacles::rasterizeTileLayers(
 	// Allocate array that can hold triangle flags.
 	// If you have multiple meshes you need to process, allocate
 	// and array which can hold the max number of triangles you need to process.
-	rasterContext.triareas = new unsigned char[partitionedMesh.maxTrisPerChunk];
-	if (!rasterContext.triareas)
+	rasterContext.triAreas = new unsigned char[partitionedMesh.maxTrisPerChunk];
+	if (!rasterContext.triAreas)
 	{
-		buildContext->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'm_triareas' (%d).", partitionedMesh.maxTrisPerChunk);
+		buildContext->log(RC_LOG_ERROR, "buildNavigation: Out of memory 'rasterContext.triAreas' (%d).", partitionedMesh.maxTrisPerChunk);
 		return 0;
 	}
 
@@ -593,14 +593,14 @@ int Sample_TempObstacles::rasterizeTileLayers(
 		const int* tris = &partitionedMesh.tris[node.triIndex * 3];
 		const int ntris = node.numTris;
 
-		memset(rasterContext.triareas, 0, ntris * sizeof(unsigned char));
-		rcMarkWalkableTriangles(buildContext, tcfg.walkableSlopeAngle, verts, nverts, tris, ntris, rasterContext.triareas);
+		memset(rasterContext.triAreas, 0, ntris * sizeof(unsigned char));
+		rcMarkWalkableTriangles(buildContext, tcfg.walkableSlopeAngle, verts, nverts, tris, ntris, rasterContext.triAreas);
 		if (!rcRasterizeTriangles(
 				buildContext,
 				verts,
 				nverts,
 				tris,
-				rasterContext.triareas,
+				rasterContext.triAreas,
 				ntris,
 				*rasterContext.solid,
 				tcfg.walkableClimb))
@@ -724,17 +724,17 @@ int Sample_TempObstacles::rasterizeTileLayers(
 
 class TempObstacleHighlightTool : public SampleTool
 {
-	Sample_TempObstacles* m_sample = nullptr;
-	float m_hitPos[3] = {0, 0, 0};
-	bool m_hitPosSet = false;
-	int m_drawType = DRAWDETAIL_AREAS;
+	Sample_TempObstacles* sample = nullptr;
+	float hitPos[3] = {0, 0, 0};
+	bool hitPosSet = false;
+	DrawDetailType drawType = DRAWDETAIL_AREAS;
 
 public:
 	~TempObstacleHighlightTool() override = default;
 
 	SampleToolType type() override { return SampleToolType::TILE_HIGHLIGHT; }
 
-	void init(Sample* sample) override { m_sample = static_cast<Sample_TempObstacles*>(sample); }
+	void init(Sample* sample) override { sample = static_cast<Sample_TempObstacles*>(sample); }
 
 	void reset() override {}
 
@@ -743,28 +743,28 @@ public:
 		ImGui::Text("Highlight Tile Cache");
 		ImGui::Text("Click LMB to highlight a tile.");
 		ImGui::Separator();
-		if (ImGui::RadioButton("Draw Areas", m_drawType == DRAWDETAIL_AREAS))
+		if (ImGui::RadioButton("Draw Areas", drawType == DRAWDETAIL_AREAS))
 		{
-			m_drawType = DRAWDETAIL_AREAS;
+			drawType = DRAWDETAIL_AREAS;
 		}
-		if (ImGui::RadioButton("Draw Regions", m_drawType == DRAWDETAIL_REGIONS))
+		if (ImGui::RadioButton("Draw Regions", drawType == DRAWDETAIL_REGIONS))
 		{
-			m_drawType = DRAWDETAIL_REGIONS;
+			drawType = DRAWDETAIL_REGIONS;
 		}
-		if (ImGui::RadioButton("Draw Contours", m_drawType == DRAWDETAIL_CONTOURS))
+		if (ImGui::RadioButton("Draw Contours", drawType == DRAWDETAIL_CONTOURS))
 		{
-			m_drawType = DRAWDETAIL_CONTOURS;
+			drawType = DRAWDETAIL_CONTOURS;
 		}
-		if (ImGui::RadioButton("Draw Mesh", m_drawType == DRAWDETAIL_MESH))
+		if (ImGui::RadioButton("Draw Mesh", drawType == DRAWDETAIL_MESH))
 		{
-			m_drawType = DRAWDETAIL_MESH;
+			drawType = DRAWDETAIL_MESH;
 		}
 	}
 
 	void onClick(const float* /*s*/, const float* p, bool /*shift*/) override
 	{
-		m_hitPosSet = true;
-		rcVcopy(m_hitPos, p);
+		hitPosSet = true;
+		rcVcopy(hitPos, p);
 	}
 
 	void onToggle() override {}
@@ -775,36 +775,36 @@ public:
 
 	void render() override
 	{
-		if (m_hitPosSet && m_sample)
+		if (hitPosSet && sample)
 		{
-			const float s = m_sample->agentRadius;
+			const float s = sample->agentRadius;
 			glColor4ub(0, 0, 0, 128);
 			glLineWidth(2.0f);
 			glBegin(GL_LINES);
-			glVertex3f(m_hitPos[0] - s, m_hitPos[1] + 0.1f, m_hitPos[2]);
-			glVertex3f(m_hitPos[0] + s, m_hitPos[1] + 0.1f, m_hitPos[2]);
-			glVertex3f(m_hitPos[0], m_hitPos[1] - s + 0.1f, m_hitPos[2]);
-			glVertex3f(m_hitPos[0], m_hitPos[1] + s + 0.1f, m_hitPos[2]);
-			glVertex3f(m_hitPos[0], m_hitPos[1] + 0.1f, m_hitPos[2] - s);
-			glVertex3f(m_hitPos[0], m_hitPos[1] + 0.1f, m_hitPos[2] + s);
+			glVertex3f(hitPos[0] - s, hitPos[1] + 0.1f, hitPos[2]);
+			glVertex3f(hitPos[0] + s, hitPos[1] + 0.1f, hitPos[2]);
+			glVertex3f(hitPos[0], hitPos[1] - s + 0.1f, hitPos[2]);
+			glVertex3f(hitPos[0], hitPos[1] + s + 0.1f, hitPos[2]);
+			glVertex3f(hitPos[0], hitPos[1] + 0.1f, hitPos[2] - s);
+			glVertex3f(hitPos[0], hitPos[1] + 0.1f, hitPos[2] + s);
 			glEnd();
 			glLineWidth(1.0f);
 
 			int tileX = 0, tileY = 0;
-			m_sample->getTilePos(m_hitPos, tileX, tileY);
-			m_sample->renderCachedTile(tileX, tileY, m_drawType);
+			sample->getTilePos(hitPos, tileX, tileY);
+			sample->renderCachedTile(tileX, tileY, drawType);
 		}
 	}
 
 	void drawOverlayUI() override
 	{
-		if (m_hitPosSet)
+		if (hitPosSet)
 		{
-			if (m_sample)
+			if (sample)
 			{
 				int tileX = 0, tileY = 0;
-				m_sample->getTilePos(m_hitPos, tileX, tileY);
-				m_sample->renderCachedTileOverlay(tileX, tileY);
+				sample->getTilePos(hitPos, tileX, tileY);
+				sample->renderCachedTileOverlay(tileX, tileY);
 			}
 		}
 	}
@@ -812,14 +812,14 @@ public:
 
 class TempObstacleCreateTool : public SampleTool
 {
-	Sample_TempObstacles* m_sample = nullptr;
+	Sample_TempObstacles* sample = nullptr;
 
 public:
 	~TempObstacleCreateTool() override = default;
 
 	SampleToolType type() override { return SampleToolType::TEMP_OBSTACLE; }
 
-	void init(Sample* sample) override { m_sample = static_cast<Sample_TempObstacles*>(sample); }
+	void init(Sample* sample) override { sample = static_cast<Sample_TempObstacles*>(sample); }
 
 	void reset() override {}
 
@@ -829,7 +829,7 @@ public:
 
 		if (ImGui::Button("Remove All"))
 		{
-			m_sample->clearAllTempObstacles();
+			sample->clearAllTempObstacles();
 		}
 
 		ImGui::Separator();
@@ -840,15 +840,15 @@ public:
 
 	void onClick(const float* s, const float* p, bool shift) override
 	{
-		if (m_sample)
+		if (sample)
 		{
 			if (shift)
 			{
-				m_sample->removeTempObstacle(s, p);
+				sample->removeTempObstacle(s, p);
 			}
 			else
 			{
-				m_sample->addTempObstacle(p);
+				sample->addTempObstacle(p);
 			}
 		}
 	}
@@ -1189,17 +1189,17 @@ void Sample_TempObstacles::renderOverlay()
 	    char text[64];
 	    int y = 110-30;
 
-	    snprintf(text,64,"Lean Data: %.1fkB", m_tileCache->getRawSize()/1024.0f);
+	    snprintf(text,64,"Lean Data: %.1fkB", tileCache->getRawSize()/1024.0f);
 	    imguiDrawText(300, y, IMGUI_ALIGN_LEFT, text, imguiRGBA(255,255,255,255));
 	    y -= 20;
 
-	    snprintf(text,64,"Compressed: %.1fkB (%.1f%%)", m_tileCache->getCompressedSize()/1024.0f,
-	             m_tileCache->getRawSize() > 0 ? 100.0f*(float)m_tileCache->getCompressedSize()/(float)m_tileCache->getRawSize()
+	    snprintf(text,64,"Compressed: %.1fkB (%.1f%%)", tileCache->getCompressedSize()/1024.0f,
+	             tileCache->getRawSize() > 0 ? 100.0f*(float)tileCache->getCompressedSize()/(float)tileCache->getRawSize()
 	   : 0); imguiDrawText(300, y, IMGUI_ALIGN_LEFT, text, imguiRGBA(255,255,255,255)); y -= 20;
 
-	    if (m_rebuildTileCount > 0 && m_rebuildTime > 0.0f)
+	    if (rebuildTileCount > 0 && rebuildTime > 0.0f)
 	    {
-	        snprintf(text,64,"Changed obstacles, rebuild %d tiles: %.3f ms", m_rebuildTileCount, m_rebuildTime);
+	        snprintf(text,64,"Changed obstacles, rebuild %d tiles: %.3f ms", rebuildTileCount, rebuildTime);
 	        imguiDrawText(300, y, IMGUI_ALIGN_LEFT, text, imguiRGBA(255,192,0,255));
 	        y -= 20;
 	    }
