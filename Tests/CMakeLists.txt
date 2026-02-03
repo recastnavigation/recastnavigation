@@ -16,6 +16,13 @@ set_target_properties(Tests PROPERTIES
     CXX_EXTENSIONS OFF  # Disable compiler-specific extensions
 )
 
+# Remove warnings-as-errors for third-party code
+if(MSVC)
+	target_compile_options(Tests PRIVATE /W3 /WX-)
+else()
+	target_compile_options(Tests PRIVATE -Wno-error)
+endif()
+
 add_dependencies(Tests Recast Detour DetourCrowd)
 target_link_libraries(Tests Recast Detour DetourCrowd)
 

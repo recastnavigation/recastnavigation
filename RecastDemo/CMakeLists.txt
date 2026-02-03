@@ -91,6 +91,11 @@ set_target_properties(RecastDemo PROPERTIES
     CXX_EXTENSIONS OFF  # Disable compiler-specific extensions
 )
 
+# Suppress deprecated OpenGL warnings on macOS (gluPerspective, gluProject, etc.)
+if (APPLE)
+    target_compile_options(RecastDemo PRIVATE -Wno-deprecated-declarations)
+endif()
+
 if (WIN32)
   if ("${CMAKE_MAKE_PROGRAM}" MATCHES "MSBuild")
     target_compile_definitions(RecastDemo PUBLIC _CRT_SECURE_NO_WARNINGS)
