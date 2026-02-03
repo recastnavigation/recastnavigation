@@ -19,13 +19,8 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Download & install SDL
-      run: |
-        curl -L -o SDL2.dmg https://github.com/libsdl-org/SDL/releases/download/release-2.24.2/SDL2-2.24.2.dmg
-        hdiutil attach SDL2.dmg
-        cp -r /Volumes/SDL2/SDL2.framework RecastDemo/Bin
-        hdiutil detach /Volumes/SDL2
-        rm SDL2.dmg
+    - name: Setup SDL2
+      uses: ./.github/actions/setup-sdl2-macos
 
     - name: Download & install premake
       working-directory: RecastDemo
@@ -57,17 +52,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Download & install SDL
-      run: |
-        curl -L -o SDL2.dmg https://github.com/libsdl-org/SDL/releases/download/release-2.24.2/SDL2-2.24.2.dmg
-        hdiutil attach SDL2.dmg
-        cp -r /Volumes/SDL2/SDL2.framework ${{github.workspace}}/RecastDemo/Bin/
-        hdiutil detach /Volumes/SDL2
-        rm SDL2.dmg
+
+    - name: Setup SDL2
+      uses: ./.github/actions/setup-sdl2-macos
 
     - name: Configure CMake
-      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
-      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{matrix.conf}}
 
     - name: Build
