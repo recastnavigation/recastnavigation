@@ -32,6 +32,10 @@ if(MSVC)
     add_compile_definitions(_CRT_SECURE_NO_WARNINGS _HAS_EXCEPTIONS=0)
 else()
     add_compile_options(-Wall -Wextra -Werror)
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        # Disable -Werror for maybe-uninitialized as it produces false positives
+        add_compile_options(-Wno-error=maybe-uninitialized)
+    endif()
 endif()
 
 # Fast math with RC_FAST_MATH define
