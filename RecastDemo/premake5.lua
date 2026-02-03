@@ -159,11 +159,14 @@ project "Contrib"
 	filter "system:macosx"
 		includedirs { "Bin/SDL2.framework/Headers" }
 		externalincludedirs { "Bin/SDL2.framework/Headers" }
+		frameworkdirs { "Bin" }
 
 project "RecastDemo"
 	language "C++"
 	cppdialect "C++20" -- we don't care about this being compatible in the same way we do with the library code.
 	kind "WindowedApp"
+	targetdir "Bin"
+
 	includedirs {
 		"../RecastDemo/Include",
 		"../DebugUtils/Include",
@@ -193,10 +196,7 @@ project "RecastDemo"
 		"Contrib"
 	}
 
-	-- distribute executable in RecastDemo/Bin directory
-	targetdir "Bin"
 
-	-- linux library cflags and libs
 	filter "system:linux"
 		buildoptions {
 			"`pkg-config --cflags sdl2`",
@@ -210,12 +210,6 @@ project "RecastDemo"
 			"`pkg-config --libs glu`"
 		}
 
-	filter { "system:linux", "toolset:gcc", "files:*.c" }
-		buildoptions {
-			"-Wno-class-memaccess"
-		}
-
-	-- windows library cflags and libs
 	filter "system:windows"
 		includedirs { "../RecastDemo/Contrib/SDL/include" }
 		libdirs { "../RecastDemo/Contrib/SDL/lib/%{cfg.architecture:gsub('x86_64', 'x64')}" }
@@ -233,9 +227,10 @@ project "RecastDemo"
 
 	-- mac includes and libs
 	filter "system:macosx"
-		kind "ConsoleApp" -- xcode4 failes to run the project if using WindowedApp
+		kind "ConsoleApp"
 		includedirs { "Bin/SDL2.framework/Headers" }
 		externalincludedirs { "Bin/SDL2.framework/Headers" }
+		frameworkdirs { "Bin" }
 		links {
 			"OpenGL.framework",
 			"SDL2.framework",
