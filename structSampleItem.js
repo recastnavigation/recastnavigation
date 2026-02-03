@@ -1,5 +1,5 @@
 var structSampleItem =
 [
-    [ "create", "structSampleItem.html#a5bc82d1926570b7fa1b937606c593f5c", null ],
-    [ "name", "structSampleItem.html#af696aa049ca06a8a27e9d9ed4e55c0df", null ]
+    [ "create", "structSampleItem.html#aa418d2af087c087fa363b1245ca2da21", null ],
+    [ "name", "structSampleItem.html#a58371abaf57a13a516bbb3a8d672dd7c", null ]
 ];

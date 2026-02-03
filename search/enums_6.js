@@ -1,8 +1,7 @@
 var searchData=
 [
-  ['rcallochint_0',['rcAllocHint',['../RecastAlloc_8h.html#a1e8b4a818c5bf25bceae59a0b1857e60',1,'RecastAlloc.h']]],
-  ['rcaxis_1',['rcAxis',['../RecastRasterization_8cpp.html#a62b583caa984b1e6c218932f3218789b',1,'RecastRasterization.cpp']]],
-  ['rcbuildcontoursflags_2',['rcBuildContoursFlags',['../Recast_8h.html#a63345b5052e97366027aa92b54c7786f',1,'Recast.h']]],
-  ['rclogcategory_3',['rcLogCategory',['../Recast_8h.html#a82cf824a1948a8442785a7ea184f410b',1,'Recast.h']]],
-  ['rctimerlabel_4',['rcTimerLabel',['../Recast_8h.html#a0d44e82cf0c9a0df344aaff8654ea18d',1,'Recast.h']]]
+  ['samplepartitiontype_0',['SamplePartitionType',['../Sample_8h.html#afbdbec55cd7e47cdf94167ba9dc3ca60',1,'Sample.h']]],
+  ['samplepolyareas_1',['SamplePolyAreas',['../Sample_8h.html#a588cb37d59e832fa4f2606474769b6da',1,'Sample.h']]],
+  ['samplepolyflags_2',['SamplePolyFlags',['../Sample_8h.html#a7f96856c3ec53bcd8dab2396ae743f8d',1,'Sample.h']]],
+  ['sampletooltype_3',['SampleToolType',['../Sample_8h.html#a8b7905ae89a9d21531c2fe65110bebc1',1,'Sample.h']]]
 ];

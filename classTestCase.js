@@ -1,11 +1,9 @@
 var classTestCase =
 [
-    [ "TestCase", "classTestCase.html#ac62aa15cb45a40bdc0b9a1c6554c7e0a", null ],
-    [ "~TestCase", "classTestCase.html#ae4684f6b106fa323a61dd13be03d7919", null ],
     [ "doTests", "classTestCase.html#a648d153c2e6a9bb7e23253cdc2eede0a", null ],
-    [ "getGeomFileName", "classTestCase.html#ad675c811f9a0b4dc95c871ac486b2d26", null ],
-    [ "getSampleName", "classTestCase.html#ab5ed7b670fea25f7ff6227e4a6b6da76", null ],
-    [ "handleRender", "classTestCase.html#ab26ff5960975d08e337509f96cacccb4", null ],
-    [ "handleRenderOverlay", "classTestCase.html#a67291ec62ce5a7ca538522a6231189f7", null ],
-    [ "load", "classTestCase.html#ad7ec8145d12a8443cf6dc4655b1c26bf", null ]
+    [ "load", "classTestCase.html#ad7ec8145d12a8443cf6dc4655b1c26bf", null ],
+    [ "render", "classTestCase.html#a76f76cd7d0f4c7e73276fd33cdb8d417", null ],
+    [ "renderOverlay", "classTestCase.html#ad7a335c87c2ce9d018f2ad1ef62944e9", null ],
+    [ "geomFileName", "classTestCase.html#a0587328b4dd2cae2a7d62318faf5c8dd", null ],
+    [ "sampleName", "classTestCase.html#a72a0ea7deb79dcf83c7acdd0448c5e19", null ]
 ];

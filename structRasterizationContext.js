@@ -7,5 +7,5 @@ var structRasterizationContext =
     [ "ntiles", "structRasterizationContext.html#a9237ebd7e26d392f54464d540317efcf", null ],
     [ "solid", "structRasterizationContext.html#aaba97d97599e77368460046203b516e1", null ],
     [ "tiles", "structRasterizationContext.html#aec39fae70c6dc870ea044eb2c8bf6c05", null ],
-    [ "triareas", "structRasterizationContext.html#a7ddb6987ff79542ff58f837ee02fea9e", null ]
+    [ "triAreas", "structRasterizationContext.html#a95267792b589dd76cbb8e3ae78e67cde", null ]
 ];

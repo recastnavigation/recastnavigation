@@ -104,15 +104,15 @@ $(document).ready(function(){initNavTree('structConvexVolume.html',''); initResi
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a75b3e7db1ed82a5bd44a495e17ee2e50" id="r_a75b3e7db1ed82a5bd44a495e17ee2e50"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structConvexVolume.html#a75b3e7db1ed82a5bd44a495e17ee2e50">verts</a> [<a class="el" href="InputGeom_8h.html#ab051ae2a0b2e4b23f39190bc9127098a">MAX_CONVEXVOL_PTS</a> *3]</td></tr>
+<tr class="memitem:a75b3e7db1ed82a5bd44a495e17ee2e50" id="r_a75b3e7db1ed82a5bd44a495e17ee2e50"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structConvexVolume.html#a75b3e7db1ed82a5bd44a495e17ee2e50">verts</a> [<a class="el" href="InputGeom_8h.html#a8e3d053b6f68734704b75ff40083fda2">MAX_CONVEXVOL_PTS</a> *3] = {}</td></tr>
 <tr class="separator:a75b3e7db1ed82a5bd44a495e17ee2e50"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a388cd3f55a1083b93543c7bad7a3d47e" id="r_a388cd3f55a1083b93543c7bad7a3d47e"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structConvexVolume.html#a388cd3f55a1083b93543c7bad7a3d47e">hmin</a></td></tr>
-<tr class="separator:a388cd3f55a1083b93543c7bad7a3d47e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3019acd734533671d8ac029bd7ad7379" id="r_a3019acd734533671d8ac029bd7ad7379"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structConvexVolume.html#a3019acd734533671d8ac029bd7ad7379">hmax</a></td></tr>
-<tr class="separator:a3019acd734533671d8ac029bd7ad7379"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa95664f1b0d264a0f6a5261f9bb0737a" id="r_aa95664f1b0d264a0f6a5261f9bb0737a"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structConvexVolume.html#aa95664f1b0d264a0f6a5261f9bb0737a">nverts</a></td></tr>
+<tr class="memitem:aa95664f1b0d264a0f6a5261f9bb0737a" id="r_aa95664f1b0d264a0f6a5261f9bb0737a"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structConvexVolume.html#aa95664f1b0d264a0f6a5261f9bb0737a">nverts</a> = 0</td></tr>
 <tr class="separator:aa95664f1b0d264a0f6a5261f9bb0737a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad09f975cd0398b4503c90c00f2d20371" id="r_ad09f975cd0398b4503c90c00f2d20371"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structConvexVolume.html#ad09f975cd0398b4503c90c00f2d20371">area</a></td></tr>
+<tr class="memitem:a388cd3f55a1083b93543c7bad7a3d47e" id="r_a388cd3f55a1083b93543c7bad7a3d47e"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structConvexVolume.html#a388cd3f55a1083b93543c7bad7a3d47e">hmin</a> = 0.0f</td></tr>
+<tr class="separator:a388cd3f55a1083b93543c7bad7a3d47e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3019acd734533671d8ac029bd7ad7379" id="r_a3019acd734533671d8ac029bd7ad7379"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structConvexVolume.html#a3019acd734533671d8ac029bd7ad7379">hmax</a> = 0.0f</td></tr>
+<tr class="separator:a3019acd734533671d8ac029bd7ad7379"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad09f975cd0398b4503c90c00f2d20371" id="r_ad09f975cd0398b4503c90c00f2d20371"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structConvexVolume.html#ad09f975cd0398b4503c90c00f2d20371">area</a> = 0</td></tr>
 <tr class="separator:ad09f975cd0398b4503c90c00f2d20371"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Data Documentation</h2>
@@ -123,7 +123,7 @@ Public Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">int ConvexVolume::area</td>
+          <td class="memname">int ConvexVolume::area = 0</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -137,7 +137,7 @@ Public Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">float ConvexVolume::hmax</td>
+          <td class="memname">float ConvexVolume::hmax = 0.0f</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -151,7 +151,7 @@ Public Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">float ConvexVolume::hmin</td>
+          <td class="memname">float ConvexVolume::hmin = 0.0f</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -165,7 +165,7 @@ Public Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">int ConvexVolume::nverts</td>
+          <td class="memname">int ConvexVolume::nverts = 0</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -179,7 +179,7 @@ Public Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">float ConvexVolume::verts[<a class="el" href="InputGeom_8h.html#ab051ae2a0b2e4b23f39190bc9127098a">MAX_CONVEXVOL_PTS</a> *3]</td>
+          <td class="memname">float ConvexVolume::verts[<a class="el" href="InputGeom_8h.html#a8e3d053b6f68734704b75ff40083fda2">MAX_CONVEXVOL_PTS</a> *3] = {}</td>
         </tr>
       </table>
 </div><div class="memdoc">

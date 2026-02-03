@@ -93,30 +93,67 @@ $(document).ready(function(){initNavTree('Sample__SoloMesh_8cpp.html',''); initR
 </div>
 
 <div class="header">
+  <div class="summary">
+<a href="#define-members">Macros</a>  </div>
   <div class="headertitle"><div class="title">Sample_SoloMesh.cpp File Reference</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><code>#include &lt;math.h&gt;</code><br />
-<code>#include &lt;stdio.h&gt;</code><br />
-<code>#include &lt;string.h&gt;</code><br />
-<code>#include &quot;SDL.h&quot;</code><br />
-<code>#include &quot;SDL_opengl.h&quot;</code><br />
-<code>#include &quot;<a class="el" href="imgui_8h_source.html">imgui.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="InputGeom_8h_source.html">InputGeom.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="Sample_8h_source.html">Sample.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="Sample__SoloMesh_8h_source.html">Sample_SoloMesh.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="Recast_8h_source.html">Recast.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="RecastDebugDraw_8h_source.html">RecastDebugDraw.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="RecastDump_8h_source.html">RecastDump.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="DetourNavMesh_8h_source.html">DetourNavMesh.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="DetourNavMeshBuilder_8h_source.html">DetourNavMeshBuilder.h</a>&quot;</code><br />
+<div class="textblock"><code>#include &quot;<a class="el" href="Sample__SoloMesh_8h_source.html">Sample_SoloMesh.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="DetourDebugDraw_8h_source.html">DetourDebugDraw.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="NavMeshTesterTool_8h_source.html">NavMeshTesterTool.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="NavMeshPruneTool_8h_source.html">NavMeshPruneTool.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="OffMeshConnectionTool_8h_source.html">OffMeshConnectionTool.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="ConvexVolumeTool_8h_source.html">ConvexVolumeTool.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="CrowdTool_8h_source.html">CrowdTool.h</a>&quot;</code><br />
-</div></div><!-- contents -->
+<code>#include &quot;<a class="el" href="DetourNavMeshBuilder_8h_source.html">DetourNavMeshBuilder.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="InputGeom_8h_source.html">InputGeom.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="RecastDebugDraw_8h_source.html">RecastDebugDraw.h</a>&quot;</code><br />
+<code>#include &quot;SDL_opengl.h&quot;</code><br />
+<code>#include &quot;<a class="el" href="Tool__ConvexVolume_8h_source.html">Tool_ConvexVolume.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="Tool__Crowd_8h_source.html">Tool_Crowd.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="Tool__NavMeshPrune_8h_source.html">Tool_NavMeshPrune.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="Tool__NavMeshTester_8h_source.html">Tool_NavMeshTester.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="Tool__OffMeshConnection_8h_source.html">Tool_OffMeshConnection.h</a>&quot;</code><br />
+<code>#include &lt;imgui.h&gt;</code><br />
+<code>#include &lt;cmath&gt;</code><br />
+</div><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
+Macros</h2></td></tr>
+<tr class="memitem:a5333eff9abec7c9a7d902bef73309daa" id="r_a5333eff9abec7c9a7d902bef73309daa"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Sample__SoloMesh_8cpp.html#a5333eff9abec7c9a7d902bef73309daa">TOOL</a>(toolType,  toolClass)</td></tr>
+<tr class="separator:a5333eff9abec7c9a7d902bef73309daa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<h2 class="groupheader">Macro Definition Documentation</h2>
+<a id="a5333eff9abec7c9a7d902bef73309daa" name="a5333eff9abec7c9a7d902bef73309daa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5333eff9abec7c9a7d902bef73309daa">&#9670;&#160;</a></span>TOOL</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define TOOL</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">toolType, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">toolClass&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Value:</b><div class="fragment"><div class="line">    <span class="keywordflow">if</span> (ImGui::RadioButton(                                            \</div>
+<div class="line">            <a class="code hl_variable" href="Sample_8h.html#a120bc69e1ed454430337ba8231f2aee4">toolNames</a>[<span class="keyword">static_cast&lt;</span>uint8_t<span class="keyword">&gt;</span>(SampleToolType::toolType)], \</div>
+<div class="line">            currentType == SampleToolType::toolType))                  \</div>
+<div class="line">    {                                                                  \</div>
+<div class="line">        setTool(<span class="keyword">new</span> (toolClass){});                                    \</div>
+<div class="line">    }</div>
+<div class="ttc" id="aSample_8h_html_a120bc69e1ed454430337ba8231f2aee4"><div class="ttname"><a href="Sample_8h.html#a120bc69e1ed454430337ba8231f2aee4">toolNames</a></div><div class="ttdeci">const char * toolNames[]</div><div class="ttdef"><b>Definition</b> Sample.cpp:29</div></div>
+</div><!-- fragment -->
+</div>
+</div>
+</div><!-- contents -->
 </div><!-- doc-content -->
 <!-- HTML footer for doxygen 1.8.6-->
 <!-- start footer part -->

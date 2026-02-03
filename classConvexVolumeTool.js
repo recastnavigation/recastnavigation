@@ -1,14 +1,13 @@
 var classConvexVolumeTool =
 [
-    [ "ConvexVolumeTool", "classConvexVolumeTool.html#a45d29f1ecd1ea648fee54ea1aa10b6c3", null ],
-    [ "handleClick", "classConvexVolumeTool.html#ab08815465ecb5f424ec136663221cbda", null ],
-    [ "handleMenu", "classConvexVolumeTool.html#ad59fb729fe96406bc4254083189d01b0", null ],
-    [ "handleRender", "classConvexVolumeTool.html#a83f337f3a9a96ad6464c9179ad663a11", null ],
-    [ "handleRenderOverlay", "classConvexVolumeTool.html#af1ebf43ef0309a5f058ae8094dd83312", null ],
-    [ "handleStep", "classConvexVolumeTool.html#a5b0e8ab26df0ee701a69b291691cfcbf", null ],
-    [ "handleToggle", "classConvexVolumeTool.html#af1e59f31ba0dd44fdf18bb3abccc81c2", null ],
-    [ "handleUpdate", "classConvexVolumeTool.html#ab3a94dcc4cab914af5ae1d0b8446c951", null ],
-    [ "init", "classConvexVolumeTool.html#a9787b22592b80a6494450c60ccd50165", null ],
-    [ "reset", "classConvexVolumeTool.html#a1d76b864c30767fc81ade0dbaa44e6af", null ],
-    [ "type", "classConvexVolumeTool.html#abb88ba3138d3e187b32e94dcf9874aeb", null ]
+    [ "drawMenuUI", "classConvexVolumeTool.html#a9655191c26b9f36f9835e84e4fad2693", null ],
+    [ "drawOverlayUI", "classConvexVolumeTool.html#acc48b7174a6adef0a21c6a472c3327de", null ],
+    [ "init", "classConvexVolumeTool.html#a3cb7d4394fa457b02658d6e65460b8ae", null ],
+    [ "onClick", "classConvexVolumeTool.html#a122e3da886a3697cff2a62885ea10ad0", null ],
+    [ "onToggle", "classConvexVolumeTool.html#abe5d9cde4da739343139216679efd890", null ],
+    [ "render", "classConvexVolumeTool.html#afcd2874d888000e0f014861478c9fec1", null ],
+    [ "reset", "classConvexVolumeTool.html#a57ad6d0148a0e8fb4d1b8555e657dfc1", null ],
+    [ "singleStep", "classConvexVolumeTool.html#af4da1fee7f12a5c9ef02d97823c1f67f", null ],
+    [ "type", "classConvexVolumeTool.html#ae5da887d6e2fa761f8355c65cd68295a", null ],
+    [ "update", "classConvexVolumeTool.html#a3358ff5e05f7dc3eec116bf453ad2ad6", null ]
 ];

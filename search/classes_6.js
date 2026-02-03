@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['linearallocator_0',['LinearAllocator',['../structLinearAllocator.html',1,'']]]
+  ['indexedbounds_0',['IndexedBounds',['../structIndexedBounds.html',1,'']]],
+  ['inputgeom_1',['InputGeom',['../classInputGeom.html',1,'']]]
 ];

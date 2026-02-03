@@ -1,7 +1,7 @@
 var structFastLZCompressor =
 [
-    [ "~FastLZCompressor", "structFastLZCompressor.html#a884d23606adb0674c0b0b124b4ffe28f", null ],
-    [ "compress", "structFastLZCompressor.html#ade3bcdfdf37fed48284a4a4d89e2d804", null ],
-    [ "decompress", "structFastLZCompressor.html#a61828cd2e21041b21b8e545efbe1da57", null ],
-    [ "maxCompressedSize", "structFastLZCompressor.html#a8fb3236d4cb66a253fd98036536b51a4", null ]
+    [ "~FastLZCompressor", "structFastLZCompressor.html#addb6abc4f8189d5196c88bbebf82cf3b", null ],
+    [ "compress", "structFastLZCompressor.html#a403bfc18fa27530dc5b0b5a80136f2de", null ],
+    [ "decompress", "structFastLZCompressor.html#a7d15392730aae25a551f6134908ab6e6", null ],
+    [ "maxCompressedSize", "structFastLZCompressor.html#ae130445ad013eda55b03f7c270aa42de", null ]
 ];

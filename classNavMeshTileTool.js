@@ -1,15 +1,14 @@
 var classNavMeshTileTool =
 [
-    [ "NavMeshTileTool", "classNavMeshTileTool.html#abe63ee741ff92fdf708f098f03e45967", null ],
-    [ "~NavMeshTileTool", "classNavMeshTileTool.html#a203fa6ab349cd24f1366b6d0aa837a0e", null ],
-    [ "handleClick", "classNavMeshTileTool.html#a8203dd4c8225ce9029dcba8581780340", null ],
-    [ "handleMenu", "classNavMeshTileTool.html#ad1b0d7145268c0d53999e027d469451d", null ],
-    [ "handleRender", "classNavMeshTileTool.html#a76314b53a3e1beeb8fe39f377e364652", null ],
-    [ "handleRenderOverlay", "classNavMeshTileTool.html#ae454705cabb91cc34a5d11f8ed541c94", null ],
-    [ "handleStep", "classNavMeshTileTool.html#adb6147a686eafaf9bb2e7b85e575097f", null ],
-    [ "handleToggle", "classNavMeshTileTool.html#a5960fdac4bfc1a72a4ef67a0cfbb3136", null ],
-    [ "handleUpdate", "classNavMeshTileTool.html#a09b989aa5ec7e659678a6adc64f04c21", null ],
-    [ "init", "classNavMeshTileTool.html#acdd83e58038dcc240242b94630f5f312", null ],
-    [ "reset", "classNavMeshTileTool.html#aa53d119041aa124651928b09a99adbc6", null ],
-    [ "type", "classNavMeshTileTool.html#a55d28798b522df9956f914c1b9677cf0", null ]
+    [ "~NavMeshTileTool", "classNavMeshTileTool.html#a0372d02df87c6598289f502b8adc143b", null ],
+    [ "drawMenuUI", "classNavMeshTileTool.html#a520d9395ebd8fed3f5f02eae5167c658", null ],
+    [ "drawOverlayUI", "classNavMeshTileTool.html#a6d0fa497cc714f0cf8704f719fc2be2b", null ],
+    [ "init", "classNavMeshTileTool.html#a7444c754cd99883db20035fd9ba48143", null ],
+    [ "onClick", "classNavMeshTileTool.html#af01b172a1ee22f86b8214033ab823a53", null ],
+    [ "onToggle", "classNavMeshTileTool.html#a80d1d5d5759241e377de9b58582be9ad", null ],
+    [ "render", "classNavMeshTileTool.html#a010ab9c60123a507683b3649dcd15c0a", null ],
+    [ "reset", "classNavMeshTileTool.html#a6297a63393934714b4955d2923864bae", null ],
+    [ "singleStep", "classNavMeshTileTool.html#a6fb1bc93a6b8b0c1682c9cf5bcef59bf", null ],
+    [ "type", "classNavMeshTileTool.html#afc032d62d9421ca4c09e52cada0fe8f0", null ],
+    [ "update", "classNavMeshTileTool.html#a31b6e24fc62bc855a98e37bc5bc6d595", null ]
 ];

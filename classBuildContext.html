@@ -95,8 +95,9 @@ $(document).ready(function(){initNavTree('classBuildContext.html',''); initResiz
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pro-methods">Protected Member Functions</a> &#124;
 <a href="classBuildContext-members.html">List of all members</a>  </div>
-  <div class="headertitle"><div class="title">BuildContext Class Reference</div></div>
+  <div class="headertitle"><div class="title">BuildContext Class Reference<span class="mlabels"><span class="mlabel">final</span></span></div></div>
 </div><!--header-->
 <div class="contents">
 
@@ -124,9 +125,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a94c60dd0d7398cddc2898a3b7b0ec220" id="r_a94c60dd0d7398cddc2898a3b7b0ec220"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBuildContext.html#a94c60dd0d7398cddc2898a3b7b0ec220">getLogCount</a> () const</td></tr>
 <tr class="memdesc:a94c60dd0d7398cddc2898a3b7b0ec220"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns number of log messages.  <br /></td></tr>
 <tr class="separator:a94c60dd0d7398cddc2898a3b7b0ec220"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af63760315f9dcdd54dad7bc82bdc9e9f" id="r_af63760315f9dcdd54dad7bc82bdc9e9f"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBuildContext.html#af63760315f9dcdd54dad7bc82bdc9e9f">getLogText</a> (const int i) const</td></tr>
-<tr class="memdesc:af63760315f9dcdd54dad7bc82bdc9e9f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns log message text.  <br /></td></tr>
-<tr class="separator:af63760315f9dcdd54dad7bc82bdc9e9f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac7189956782d7749ac7932940b587479" id="r_ac7189956782d7749ac7932940b587479"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBuildContext.html#ac7189956782d7749ac7932940b587479">getLogText</a> (int i) const</td></tr>
+<tr class="memdesc:ac7189956782d7749ac7932940b587479"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns log message text.  <br /></td></tr>
+<tr class="separator:ac7189956782d7749ac7932940b587479"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classrcContext"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classrcContext')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classrcContext.html">rcContext</a></td></tr>
 <tr class="memitem:ae405295998d6c1db0ceb60d0f64559bc inherit pub_methods_classrcContext" id="r_ae405295998d6c1db0ceb60d0f64559bc"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classrcContext.html#ae405295998d6c1db0ceb60d0f64559bc">rcContext</a> (bool state=true)</td></tr>
 <tr class="memdesc:ae405295998d6c1db0ceb60d0f64559bc inherit pub_methods_classrcContext"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <br /></td></tr>
@@ -160,25 +161,24 @@ Public Member Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-methods" name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
-<tr><td colspan="2"><div class="groupHeader"></div></td></tr>
-<tr class="memitem:a509a0b0bb977dde5bf7a37d949a1e5f9" id="r_a509a0b0bb977dde5bf7a37d949a1e5f9"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBuildContext.html#a509a0b0bb977dde5bf7a37d949a1e5f9">doResetLog</a> ()</td></tr>
-<tr class="memdesc:a509a0b0bb977dde5bf7a37d949a1e5f9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Virtual functions for custom implementations.  <br /></td></tr>
-<tr class="separator:a509a0b0bb977dde5bf7a37d949a1e5f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abede9aa172801c0823a679f2431ea932" id="r_abede9aa172801c0823a679f2431ea932"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBuildContext.html#abede9aa172801c0823a679f2431ea932">doLog</a> (const <a class="el" href="Recast_8h.html#a82cf824a1948a8442785a7ea184f410b">rcLogCategory</a> category, const char *msg, const int len)</td></tr>
-<tr class="memdesc:abede9aa172801c0823a679f2431ea932"><td class="mdescLeft">&#160;</td><td class="mdescRight">Logs a message.  <br /></td></tr>
-<tr class="separator:abede9aa172801c0823a679f2431ea932"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8b823f519f70e837cade2c4c0ef9f12e" id="r_a8b823f519f70e837cade2c4c0ef9f12e"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBuildContext.html#a8b823f519f70e837cade2c4c0ef9f12e">doResetTimers</a> ()</td></tr>
-<tr class="memdesc:a8b823f519f70e837cade2c4c0ef9f12e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clears all timers. (Resets all to unused.)  <br /></td></tr>
-<tr class="separator:a8b823f519f70e837cade2c4c0ef9f12e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ace76debfb627862f622539622f118a55" id="r_ace76debfb627862f622539622f118a55"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBuildContext.html#ace76debfb627862f622539622f118a55">doStartTimer</a> (const <a class="el" href="Recast_8h.html#a0d44e82cf0c9a0df344aaff8654ea18d">rcTimerLabel</a> label)</td></tr>
-<tr class="memdesc:ace76debfb627862f622539622f118a55"><td class="mdescLeft">&#160;</td><td class="mdescRight">Starts the specified performance timer.  <br /></td></tr>
-<tr class="separator:ace76debfb627862f622539622f118a55"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4be9c92146f0b433a330a965ffa37d3c" id="r_a4be9c92146f0b433a330a965ffa37d3c"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBuildContext.html#a4be9c92146f0b433a330a965ffa37d3c">doStopTimer</a> (const <a class="el" href="Recast_8h.html#a0d44e82cf0c9a0df344aaff8654ea18d">rcTimerLabel</a> label)</td></tr>
-<tr class="memdesc:a4be9c92146f0b433a330a965ffa37d3c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stops the specified performance timer.  <br /></td></tr>
-<tr class="separator:a4be9c92146f0b433a330a965ffa37d3c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afe967c44fb17381c0269d10dc3ca29e2" id="r_afe967c44fb17381c0269d10dc3ca29e2"><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBuildContext.html#afe967c44fb17381c0269d10dc3ca29e2">doGetAccumulatedTime</a> (const <a class="el" href="Recast_8h.html#a0d44e82cf0c9a0df344aaff8654ea18d">rcTimerLabel</a> label) const</td></tr>
-<tr class="memdesc:afe967c44fb17381c0269d10dc3ca29e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the total accumulated time of the specified performance timer.  <br /></td></tr>
-<tr class="separator:afe967c44fb17381c0269d10dc3ca29e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad6c02487f6a5795ed2d5351f7ae84572" id="r_ad6c02487f6a5795ed2d5351f7ae84572"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBuildContext.html#ad6c02487f6a5795ed2d5351f7ae84572">doResetLog</a> () override</td></tr>
+<tr class="memdesc:ad6c02487f6a5795ed2d5351f7ae84572"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clears all log entries.  <br /></td></tr>
+<tr class="separator:ad6c02487f6a5795ed2d5351f7ae84572"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aac93235d9a987dd702172270910dda66" id="r_aac93235d9a987dd702172270910dda66"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBuildContext.html#aac93235d9a987dd702172270910dda66">doLog</a> (<a class="el" href="Recast_8h.html#a82cf824a1948a8442785a7ea184f410b">rcLogCategory</a> category, const char *msg, const int len) override</td></tr>
+<tr class="memdesc:aac93235d9a987dd702172270910dda66"><td class="mdescLeft">&#160;</td><td class="mdescRight">Logs a message.  <br /></td></tr>
+<tr class="separator:aac93235d9a987dd702172270910dda66"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad2ef30593451022119f7aab34e0814af" id="r_ad2ef30593451022119f7aab34e0814af"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBuildContext.html#ad2ef30593451022119f7aab34e0814af">doResetTimers</a> () override</td></tr>
+<tr class="memdesc:ad2ef30593451022119f7aab34e0814af"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clears all timers. (Resets all to unused.)  <br /></td></tr>
+<tr class="separator:ad2ef30593451022119f7aab34e0814af"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a69b445bd78177cd139fe4e1d142af1ca" id="r_a69b445bd78177cd139fe4e1d142af1ca"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBuildContext.html#a69b445bd78177cd139fe4e1d142af1ca">doStartTimer</a> (<a class="el" href="Recast_8h.html#a0d44e82cf0c9a0df344aaff8654ea18d">rcTimerLabel</a> label) override</td></tr>
+<tr class="memdesc:a69b445bd78177cd139fe4e1d142af1ca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Starts the specified performance timer.  <br /></td></tr>
+<tr class="separator:a69b445bd78177cd139fe4e1d142af1ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeb39b1dae27dca7fce8885d019bd4c28" id="r_aeb39b1dae27dca7fce8885d019bd4c28"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBuildContext.html#aeb39b1dae27dca7fce8885d019bd4c28">doStopTimer</a> (<a class="el" href="Recast_8h.html#a0d44e82cf0c9a0df344aaff8654ea18d">rcTimerLabel</a> label) override</td></tr>
+<tr class="memdesc:aeb39b1dae27dca7fce8885d019bd4c28"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stops the specified performance timer.  <br /></td></tr>
+<tr class="separator:aeb39b1dae27dca7fce8885d019bd4c28"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adbeab3805bca4fe27f42f04874b007a9" id="r_adbeab3805bca4fe27f42f04874b007a9"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBuildContext.html#adbeab3805bca4fe27f42f04874b007a9">doGetAccumulatedTime</a> (<a class="el" href="Recast_8h.html#a0d44e82cf0c9a0df344aaff8654ea18d">rcTimerLabel</a> label) const override</td></tr>
+<tr class="memdesc:adbeab3805bca4fe27f42f04874b007a9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the total accumulated time of the specified performance timer.  <br /></td></tr>
+<tr class="separator:adbeab3805bca4fe27f42f04874b007a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="inherited" name="inherited"></a>
 Additional Inherited Members</h2></td></tr>
@@ -211,8 +211,8 @@ Additional Inherited Members</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="afe967c44fb17381c0269d10dc3ca29e2" name="afe967c44fb17381c0269d10dc3ca29e2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afe967c44fb17381c0269d10dc3ca29e2">&#9670;&#160;</a></span>doGetAccumulatedTime()</h2>
+<a id="adbeab3805bca4fe27f42f04874b007a9" name="adbeab3805bca4fe27f42f04874b007a9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adbeab3805bca4fe27f42f04874b007a9">&#9670;&#160;</a></span>doGetAccumulatedTime()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -223,14 +223,14 @@ Additional Inherited Members</h2></td></tr>
         <tr>
           <td class="memname">int BuildContext::doGetAccumulatedTime </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="Recast_8h.html#a0d44e82cf0c9a0df344aaff8654ea18d">rcTimerLabel</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="Recast_8h.html#a0d44e82cf0c9a0df344aaff8654ea18d">rcTimerLabel</a>&#160;</td>
           <td class="paramname"><em>label</em></td><td>)</td>
           <td> const</td>
         </tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">protected</span><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">protected</span><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -248,8 +248,8 @@ Additional Inherited Members</h2></td></tr>
 
 </div>
 </div>
-<a id="abede9aa172801c0823a679f2431ea932" name="abede9aa172801c0823a679f2431ea932"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abede9aa172801c0823a679f2431ea932">&#9670;&#160;</a></span>doLog()</h2>
+<a id="aac93235d9a987dd702172270910dda66" name="aac93235d9a987dd702172270910dda66"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aac93235d9a987dd702172270910dda66">&#9670;&#160;</a></span>doLog()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -260,7 +260,7 @@ Additional Inherited Members</h2></td></tr>
         <tr>
           <td class="memname">void BuildContext::doLog </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="Recast_8h.html#a82cf824a1948a8442785a7ea184f410b">rcLogCategory</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="Recast_8h.html#a82cf824a1948a8442785a7ea184f410b">rcLogCategory</a>&#160;</td>
           <td class="paramname"><em>category</em>, </td>
         </tr>
         <tr>
@@ -283,7 +283,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">protected</span><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">protected</span><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -302,8 +302,8 @@ Additional Inherited Members</h2></td></tr>
 
 </div>
 </div>
-<a id="a509a0b0bb977dde5bf7a37d949a1e5f9" name="a509a0b0bb977dde5bf7a37d949a1e5f9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a509a0b0bb977dde5bf7a37d949a1e5f9">&#9670;&#160;</a></span>doResetLog()</h2>
+<a id="ad6c02487f6a5795ed2d5351f7ae84572" name="ad6c02487f6a5795ed2d5351f7ae84572"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad6c02487f6a5795ed2d5351f7ae84572">&#9670;&#160;</a></span>doResetLog()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -320,19 +320,19 @@ Additional Inherited Members</h2></td></tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">protected</span><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">protected</span><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
-<p>Virtual functions for custom implementations. </p>
+<p>Clears all log entries. </p>
 
 <p>Reimplemented from <a class="el" href="classrcContext.html#ae1e5eb9146a011c1f51de76b849d9ec2">rcContext</a>.</p>
 
 </div>
 </div>
-<a id="a8b823f519f70e837cade2c4c0ef9f12e" name="a8b823f519f70e837cade2c4c0ef9f12e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8b823f519f70e837cade2c4c0ef9f12e">&#9670;&#160;</a></span>doResetTimers()</h2>
+<a id="ad2ef30593451022119f7aab34e0814af" name="ad2ef30593451022119f7aab34e0814af"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad2ef30593451022119f7aab34e0814af">&#9670;&#160;</a></span>doResetTimers()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -349,7 +349,7 @@ Additional Inherited Members</h2></td></tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">protected</span><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">protected</span><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -360,8 +360,8 @@ Additional Inherited Members</h2></td></tr>
 
 </div>
 </div>
-<a id="ace76debfb627862f622539622f118a55" name="ace76debfb627862f622539622f118a55"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ace76debfb627862f622539622f118a55">&#9670;&#160;</a></span>doStartTimer()</h2>
+<a id="a69b445bd78177cd139fe4e1d142af1ca" name="a69b445bd78177cd139fe4e1d142af1ca"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a69b445bd78177cd139fe4e1d142af1ca">&#9670;&#160;</a></span>doStartTimer()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -372,14 +372,14 @@ Additional Inherited Members</h2></td></tr>
         <tr>
           <td class="memname">void BuildContext::doStartTimer </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="Recast_8h.html#a0d44e82cf0c9a0df344aaff8654ea18d">rcTimerLabel</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="Recast_8h.html#a0d44e82cf0c9a0df344aaff8654ea18d">rcTimerLabel</a>&#160;</td>
           <td class="paramname"><em>label</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">protected</span><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">protected</span><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -396,8 +396,8 @@ Additional Inherited Members</h2></td></tr>
 
 </div>
 </div>
-<a id="a4be9c92146f0b433a330a965ffa37d3c" name="a4be9c92146f0b433a330a965ffa37d3c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4be9c92146f0b433a330a965ffa37d3c">&#9670;&#160;</a></span>doStopTimer()</h2>
+<a id="aeb39b1dae27dca7fce8885d019bd4c28" name="aeb39b1dae27dca7fce8885d019bd4c28"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeb39b1dae27dca7fce8885d019bd4c28">&#9670;&#160;</a></span>doStopTimer()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -408,14 +408,14 @@ Additional Inherited Members</h2></td></tr>
         <tr>
           <td class="memname">void BuildContext::doStopTimer </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="Recast_8h.html#a0d44e82cf0c9a0df344aaff8654ea18d">rcTimerLabel</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="Recast_8h.html#a0d44e82cf0c9a0df344aaff8654ea18d">rcTimerLabel</a>&#160;</td>
           <td class="paramname"><em>label</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">protected</span><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">protected</span><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -481,8 +481,8 @@ Additional Inherited Members</h2></td></tr>
 
 </div>
 </div>
-<a id="af63760315f9dcdd54dad7bc82bdc9e9f" name="af63760315f9dcdd54dad7bc82bdc9e9f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af63760315f9dcdd54dad7bc82bdc9e9f">&#9670;&#160;</a></span>getLogText()</h2>
+<a id="ac7189956782d7749ac7932940b587479" name="ac7189956782d7749ac7932940b587479"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac7189956782d7749ac7932940b587479">&#9670;&#160;</a></span>getLogText()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -490,7 +490,7 @@ Additional Inherited Members</h2></td></tr>
         <tr>
           <td class="memname">const char * BuildContext::getLogText </td>
           <td>(</td>
-          <td class="paramtype">const int&#160;</td>
+          <td class="paramtype">int&#160;</td>
           <td class="paramname"><em>i</em></td><td>)</td>
           <td> const</td>
         </tr>

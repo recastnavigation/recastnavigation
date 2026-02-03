@@ -1,15 +1,19 @@
 var classNavMeshPruneTool =
 [
-    [ "NavMeshPruneTool", "classNavMeshPruneTool.html#a304902339a20adafa5e57ed648c884ed", null ],
-    [ "~NavMeshPruneTool", "classNavMeshPruneTool.html#a65f0cbf67052f748e96523ed02627eee", null ],
-    [ "handleClick", "classNavMeshPruneTool.html#acb49419c8e5df7d2c10d99e502b64c9c", null ],
-    [ "handleMenu", "classNavMeshPruneTool.html#ad7251daa12a7de6c23aa26f514352c17", null ],
-    [ "handleRender", "classNavMeshPruneTool.html#a7fd5ad545aa1da51f6e34434ac34a12c", null ],
-    [ "handleRenderOverlay", "classNavMeshPruneTool.html#af5fd93ff57b645fc8dfdf4c2761fb3cf", null ],
-    [ "handleStep", "classNavMeshPruneTool.html#a1d3466a23085cff3e97afd0952d1f4af", null ],
-    [ "handleToggle", "classNavMeshPruneTool.html#ad1ab829d07050f77dc09dff6156273b5", null ],
-    [ "handleUpdate", "classNavMeshPruneTool.html#a7eba211059a9707b9609babee9c27388", null ],
-    [ "init", "classNavMeshPruneTool.html#afafabe8cd473164567bb37b27904d340", null ],
-    [ "reset", "classNavMeshPruneTool.html#a97fbf2b28e1c1df8eb3a2005d688009f", null ],
-    [ "type", "classNavMeshPruneTool.html#a68059436d7e4b5118949d5d7f8204af8", null ]
+    [ "NavMeshPruneTool", "classNavMeshPruneTool.html#aa0c34711c6b1b6671569563024e976fd", null ],
+    [ "~NavMeshPruneTool", "classNavMeshPruneTool.html#a170d26531536b344637c6c74bb800af1", null ],
+    [ "NavMeshPruneTool", "classNavMeshPruneTool.html#a9bae3d1515e17273b56149a0c71b10db", null ],
+    [ "NavMeshPruneTool", "classNavMeshPruneTool.html#ade98a8c1615bdb5600b7e7c1b15d5fc5", null ],
+    [ "drawMenuUI", "classNavMeshPruneTool.html#aacfdfbf2eb407c58a1a73d7ed72bcf87", null ],
+    [ "drawOverlayUI", "classNavMeshPruneTool.html#a394bd90367d84bbf0e5b1272016b1748", null ],
+    [ "init", "classNavMeshPruneTool.html#a28f434c48f6b49cfb650a8d9cc91d242", null ],
+    [ "onClick", "classNavMeshPruneTool.html#accffb883be4d6e4b02802ccaf3982f27", null ],
+    [ "onToggle", "classNavMeshPruneTool.html#abd97c2805d613709afae7c3bd97bdf6f", null ],
+    [ "operator=", "classNavMeshPruneTool.html#a1e758407779642ee934c3ff121464480", null ],
+    [ "operator=", "classNavMeshPruneTool.html#a84347e0afa9572d4f724bd30522ce593", null ],
+    [ "render", "classNavMeshPruneTool.html#a4c09a058d0059b9d632981da0ed4e7c7", null ],
+    [ "reset", "classNavMeshPruneTool.html#ae44c35bbae26a286dc5b158e43639bc4", null ],
+    [ "singleStep", "classNavMeshPruneTool.html#a125195168e77c68afc3bca9ae80df35e", null ],
+    [ "type", "classNavMeshPruneTool.html#a7f6a86feb05bf8228e00fb95626c25c4", null ],
+    [ "update", "classNavMeshPruneTool.html#aa927aba816bc2301de66da371b98bf65", null ]
 ];

@@ -1,6 +1,6 @@
 var hierarchy =
 [
-    [ "BoundsItem", "structBoundsItem.html", null ],
+    [ "AppState", "structAppState.html", null ],
     [ "BuildSettings", "structBuildSettings.html", null ],
     [ "BVItem", "structBVItem.html", null ],
     [ "ConvexVolume", "structConvexVolume.html", null ],
@@ -80,19 +80,14 @@ var hierarchy =
     ] ],
     [ "GLCheckerTexture", "classGLCheckerTexture.html", null ],
     [ "GraphParams", "structGraphParams.html", null ],
-    [ "GuiState", "structGuiState.html", null ],
-    [ "imguiGfxCmd", "structimguiGfxCmd.html", null ],
-    [ "imguiGfxLine", "structimguiGfxLine.html", null ],
-    [ "imguiGfxRect", "structimguiGfxRect.html", null ],
-    [ "imguiGfxText", "structimguiGfxText.html", null ],
+    [ "IndexedBounds", "structIndexedBounds.html", null ],
     [ "InputGeom", "classInputGeom.html", null ],
+    [ "Mesh", "structMesh.html", null ],
     [ "NavmeshFlags", "classNavmeshFlags.html", null ],
-    [ "NavMeshSetHeader", "structNavMeshSetHeader.html", null ],
     [ "NavMeshTileBuildContext", "structNavMeshTileBuildContext.html", null ],
-    [ "NavMeshTileHeader", "structNavMeshTileHeader.html", null ],
+    [ "PartitionedMesh::Node", "structPartitionedMesh_1_1Node.html", null ],
+    [ "PartitionedMesh", "structPartitionedMesh.html", null ],
     [ "RasterizationContext", "structRasterizationContext.html", null ],
-    [ "rcChunkyTriMesh", "structrcChunkyTriMesh.html", null ],
-    [ "rcChunkyTriMeshNode", "structrcChunkyTriMeshNode.html", null ],
     [ "rcCompactCell", "structrcCompactCell.html", null ],
     [ "rcCompactHeightfield", "structrcCompactHeightfield.html", null ],
     [ "rcCompactSpan", "structrcCompactSpan.html", null ],
@@ -111,7 +106,6 @@ var hierarchy =
     [ "rcHeightPatch", "structrcHeightPatch.html", null ],
     [ "rcLayerRegion", "structrcLayerRegion.html", null ],
     [ "rcLayerSweepSpan", "structrcLayerSweepSpan.html", null ],
-    [ "rcMeshLoaderObj", "classrcMeshLoaderObj.html", null ],
     [ "rcNewTag", "structrcNewTag.html", null ],
     [ "rcPolyMesh", "structrcPolyMesh.html", null ],
     [ "rcPolyMeshDetail", "structrcPolyMeshDetail.html", null ],
@@ -133,7 +127,6 @@ var hierarchy =
       [ "rcTempVector< T >", "classrcTempVector.html", null ]
     ] ],
     [ "Sample", "classSample.html", [
-      [ "Sample_Debug", "classSample__Debug.html", null ],
       [ "Sample_SoloMesh", "classSample__SoloMesh.html", null ],
       [ "Sample_TempObstacles", "classSample__TempObstacles.html", null ],
       [ "Sample_TileMesh", "classSample__TileMesh.html", null ]
@@ -147,7 +140,7 @@ var hierarchy =
       [ "NavMeshTileTool", "classNavMeshTileTool.html", null ],
       [ "OffMeshConnectionTool", "classOffMeshConnectionTool.html", null ],
       [ "TempObstacleCreateTool", "classTempObstacleCreateTool.html", null ],
-      [ "TempObstacleHilightTool", "classTempObstacleHilightTool.html", null ]
+      [ "TempObstacleHighlightTool", "classTempObstacleHighlightTool.html", null ]
     ] ],
     [ "SampleToolState", "structSampleToolState.html", [
       [ "CrowdToolState", "classCrowdToolState.html", null ]

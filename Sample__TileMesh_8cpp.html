@@ -95,94 +95,70 @@ $(document).ready(function(){initNavTree('Sample__TileMesh_8cpp.html',''); initR
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
-<a href="#func-members">Functions</a>  </div>
+<a href="#define-members">Macros</a>  </div>
   <div class="headertitle"><div class="title">Sample_TileMesh.cpp File Reference</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><code>#include &lt;math.h&gt;</code><br />
-<code>#include &lt;stdio.h&gt;</code><br />
-<code>#include &lt;string.h&gt;</code><br />
-<code>#include &quot;SDL.h&quot;</code><br />
-<code>#include &quot;SDL_opengl.h&quot;</code><br />
-<code>#include &lt;GL/glu.h&gt;</code><br />
-<code>#include &quot;<a class="el" href="imgui_8h_source.html">imgui.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="InputGeom_8h_source.html">InputGeom.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="Sample_8h_source.html">Sample.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="Sample__TileMesh_8h_source.html">Sample_TileMesh.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="Recast_8h_source.html">Recast.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="RecastDebugDraw_8h_source.html">RecastDebugDraw.h</a>&quot;</code><br />
+<div class="textblock"><code>#include &quot;<a class="el" href="Sample__TileMesh_8h_source.html">Sample_TileMesh.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="DetourDebugDraw_8h_source.html">DetourDebugDraw.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="DetourNavMesh_8h_source.html">DetourNavMesh.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="DetourNavMeshBuilder_8h_source.html">DetourNavMeshBuilder.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="DetourDebugDraw_8h_source.html">DetourDebugDraw.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="NavMeshTesterTool_8h_source.html">NavMeshTesterTool.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="NavMeshPruneTool_8h_source.html">NavMeshPruneTool.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="OffMeshConnectionTool_8h_source.html">OffMeshConnectionTool.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="ConvexVolumeTool_8h_source.html">ConvexVolumeTool.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="CrowdTool_8h_source.html">CrowdTool.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="InputGeom_8h_source.html">InputGeom.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="PartitionedMesh_8h_source.html">PartitionedMesh.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="RecastDebugDraw_8h_source.html">RecastDebugDraw.h</a>&quot;</code><br />
+<code>#include &quot;SDL_opengl.h&quot;</code><br />
+<code>#include &quot;<a class="el" href="Tool__ConvexVolume_8h_source.html">Tool_ConvexVolume.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="Tool__Crowd_8h_source.html">Tool_Crowd.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="Tool__NavMeshPrune_8h_source.html">Tool_NavMeshPrune.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="Tool__NavMeshTester_8h_source.html">Tool_NavMeshTester.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="Tool__OffMeshConnection_8h_source.html">Tool_OffMeshConnection.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="imguiHelpers_8h_source.html">imguiHelpers.h</a>&quot;</code><br />
+<code>#include &lt;imgui.h&gt;</code><br />
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNavMeshTileTool.html">NavMeshTileTool</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
-Functions</h2></td></tr>
-<tr class="memitem:a34ed4a57db9ff4dce4be2b8282c5f51a" id="r_a34ed4a57db9ff4dce4be2b8282c5f51a"><td class="memItemLeft" align="right" valign="top">unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Sample__TileMesh_8cpp.html#a34ed4a57db9ff4dce4be2b8282c5f51a">nextPow2</a> (unsigned int v)</td></tr>
-<tr class="separator:a34ed4a57db9ff4dce4be2b8282c5f51a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae9adac380db2fcc0a78bee0bcf9ac86a" id="r_ae9adac380db2fcc0a78bee0bcf9ac86a"><td class="memItemLeft" align="right" valign="top">unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Sample__TileMesh_8cpp.html#ae9adac380db2fcc0a78bee0bcf9ac86a">ilog2</a> (unsigned int v)</td></tr>
-<tr class="separator:ae9adac380db2fcc0a78bee0bcf9ac86a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
+Macros</h2></td></tr>
+<tr class="memitem:a5333eff9abec7c9a7d902bef73309daa" id="r_a5333eff9abec7c9a7d902bef73309daa"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Sample__TileMesh_8cpp.html#a5333eff9abec7c9a7d902bef73309daa">TOOL</a>(toolType,  toolClass)</td></tr>
+<tr class="separator:a5333eff9abec7c9a7d902bef73309daa"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Function Documentation</h2>
-<a id="ae9adac380db2fcc0a78bee0bcf9ac86a" name="ae9adac380db2fcc0a78bee0bcf9ac86a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae9adac380db2fcc0a78bee0bcf9ac86a">&#9670;&#160;</a></span>ilog2()</h2>
+<h2 class="groupheader">Macro Definition Documentation</h2>
+<a id="a5333eff9abec7c9a7d902bef73309daa" name="a5333eff9abec7c9a7d902bef73309daa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5333eff9abec7c9a7d902bef73309daa">&#9670;&#160;</a></span>TOOL</h2>
 
 <div class="memitem">
 <div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">unsigned int ilog2 </td>
+          <td class="memname">#define TOOL</td>
           <td>(</td>
-          <td class="paramtype">unsigned int&#160;</td>
-          <td class="paramname"><em>v</em></td><td>)</td>
-          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">toolType, </td>
         </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="a34ed4a57db9ff4dce4be2b8282c5f51a" name="a34ed4a57db9ff4dce4be2b8282c5f51a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a34ed4a57db9ff4dce4be2b8282c5f51a">&#9670;&#160;</a></span>nextPow2()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
         <tr>
-          <td class="memname">unsigned int nextPow2 </td>
-          <td>(</td>
-          <td class="paramtype">unsigned int&#160;</td>
-          <td class="paramname"><em>v</em></td><td>)</td>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">toolClass&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
-
+<b>Value:</b><div class="fragment"><div class="line">    <span class="keywordflow">if</span> (ImGui::RadioButton(                                            \</div>
+<div class="line">            <a class="code hl_variable" href="Sample_8h.html#a120bc69e1ed454430337ba8231f2aee4">toolNames</a>[<span class="keyword">static_cast&lt;</span>uint8_t<span class="keyword">&gt;</span>(SampleToolType::toolType)], \</div>
+<div class="line">            currentType == SampleToolType::toolType))                  \</div>
+<div class="line">    {                                                                  \</div>
+<div class="line">        setTool(<span class="keyword">new</span> (toolClass){});                                    \</div>
+<div class="line">    }</div>
+<div class="ttc" id="aSample_8h_html_a120bc69e1ed454430337ba8231f2aee4"><div class="ttname"><a href="Sample_8h.html#a120bc69e1ed454430337ba8231f2aee4">toolNames</a></div><div class="ttdeci">const char * toolNames[]</div><div class="ttdef"><b>Definition</b> Sample.cpp:29</div></div>
+</div><!-- fragment -->
 </div>
 </div>
 </div><!-- contents -->

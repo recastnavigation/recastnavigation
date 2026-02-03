@@ -1,10 +1,10 @@
 var structLinearAllocator =
 [
     [ "LinearAllocator", "structLinearAllocator.html#ab3e8483fa7f6899695aa338a14bc0a67", null ],
-    [ "~LinearAllocator", "structLinearAllocator.html#a2a9dbeeec28bfd75d74cc66ffee80296", null ],
-    [ "alloc", "structLinearAllocator.html#acfe183e62f5da36d3ce0fd75e59ecb92", null ],
-    [ "free", "structLinearAllocator.html#ab7af21e0264ea0621822ed212ca925a3", null ],
-    [ "reset", "structLinearAllocator.html#acc5d12bb6d334626d7af0aecdbf163ec", null ],
+    [ "~LinearAllocator", "structLinearAllocator.html#a6f614f18c58dcb95bacc9028381eb034", null ],
+    [ "alloc", "structLinearAllocator.html#a32073fa3e2cc07194df36ed782fc43d9", null ],
+    [ "free", "structLinearAllocator.html#a647fdffada813493b74364eb2876fffc", null ],
+    [ "reset", "structLinearAllocator.html#a6932732ef15416217b95600b78c4eb0f", null ],
     [ "resize", "structLinearAllocator.html#accc8b1eeda78503beeb05db04bedd4b9", null ],
     [ "buffer", "structLinearAllocator.html#afe41eebd4eb6b666f7154c86bd66fb81", null ],
     [ "capacity", "structLinearAllocator.html#a8cb5d425605fe6284b00f353e30291c4", null ],

@@ -4,10 +4,10 @@ var Sample_8h =
     [ "SampleTool", "structSampleTool.html", "structSampleTool" ],
     [ "SampleToolState", "structSampleToolState.html", "structSampleToolState" ],
     [ "Sample", "classSample.html", "classSample" ],
-    [ "SamplePartitionType", "Sample_8h.html#a73f95e7eb01a7e948ecfa34b9cebcdc1", [
-      [ "SAMPLE_PARTITION_WATERSHED", "Sample_8h.html#a73f95e7eb01a7e948ecfa34b9cebcdc1a4fe0d0ba0791fe2280ff3821177766a9", null ],
-      [ "SAMPLE_PARTITION_MONOTONE", "Sample_8h.html#a73f95e7eb01a7e948ecfa34b9cebcdc1aa44dc0eb2004b683d4297b7d46cfe979", null ],
-      [ "SAMPLE_PARTITION_LAYERS", "Sample_8h.html#a73f95e7eb01a7e948ecfa34b9cebcdc1a1fae7df00c1a8f165833e48c67692627", null ]
+    [ "SamplePartitionType", "Sample_8h.html#afbdbec55cd7e47cdf94167ba9dc3ca60", [
+      [ "WATERSHED", "Sample_8h.html#afbdbec55cd7e47cdf94167ba9dc3ca60ac2f2890e29f7dbe371b5a48e6db70dac", null ],
+      [ "MONOTONE", "Sample_8h.html#afbdbec55cd7e47cdf94167ba9dc3ca60a0f9e8e3552c7f87e044893e7620b476d", null ],
+      [ "LAYERS", "Sample_8h.html#afbdbec55cd7e47cdf94167ba9dc3ca60ab934b953171009520c7f7336a552801b", null ]
     ] ],
     [ "SamplePolyAreas", "Sample_8h.html#a588cb37d59e832fa4f2606474769b6da", [
       [ "SAMPLE_POLYAREA_GROUND", "Sample_8h.html#a588cb37d59e832fa4f2606474769b6daade496ba823714eb3b6d31fa9c1297388", null ],
@@ -25,16 +25,17 @@ var Sample_8h =
       [ "SAMPLE_POLYFLAGS_DISABLED", "Sample_8h.html#a7f96856c3ec53bcd8dab2396ae743f8da2646db68ba40d4004ffb88a37717c4d1", null ],
       [ "SAMPLE_POLYFLAGS_ALL", "Sample_8h.html#a7f96856c3ec53bcd8dab2396ae743f8daa00f1707b9fb5af90130ee64d133e68f", null ]
     ] ],
-    [ "SampleToolType", "Sample_8h.html#ae448bf9be534170ca5b5f8c97256125b", [
-      [ "TOOL_NONE", "Sample_8h.html#ae448bf9be534170ca5b5f8c97256125baea1b4490f1a21f7bd637324c9a46474e", null ],
-      [ "TOOL_TILE_EDIT", "Sample_8h.html#ae448bf9be534170ca5b5f8c97256125ba3cf3ab9c4ec7c40ff509f7eaab437d1b", null ],
-      [ "TOOL_TILE_HIGHLIGHT", "Sample_8h.html#ae448bf9be534170ca5b5f8c97256125ba9657bb5c075ec7d34b297a657ce25d74", null ],
-      [ "TOOL_TEMP_OBSTACLE", "Sample_8h.html#ae448bf9be534170ca5b5f8c97256125ba5b84b6b324182b6d84255bf90ba84468", null ],
-      [ "TOOL_NAVMESH_TESTER", "Sample_8h.html#ae448bf9be534170ca5b5f8c97256125ba0b913f987aa3e318b76065cfa4985815", null ],
-      [ "TOOL_NAVMESH_PRUNE", "Sample_8h.html#ae448bf9be534170ca5b5f8c97256125ba23046ac29087338ff7e8b24cc1778fef", null ],
-      [ "TOOL_OFFMESH_CONNECTION", "Sample_8h.html#ae448bf9be534170ca5b5f8c97256125ba0c30e9d3ebdeca5bddecc218dc342b98", null ],
-      [ "TOOL_CONVEX_VOLUME", "Sample_8h.html#ae448bf9be534170ca5b5f8c97256125ba0a31d2fb717946c688d04888a81c2063", null ],
-      [ "TOOL_CROWD", "Sample_8h.html#ae448bf9be534170ca5b5f8c97256125ba2c02ab36128a429e63f30ac3beea2a12", null ],
-      [ "MAX_TOOLS", "Sample_8h.html#ae448bf9be534170ca5b5f8c97256125baf21d3b3c7a6296454122cffd465fcb25", null ]
-    ] ]
+    [ "SampleToolType", "Sample_8h.html#a8b7905ae89a9d21531c2fe65110bebc1", [
+      [ "NONE", "Sample_8h.html#a8b7905ae89a9d21531c2fe65110bebc1ab50339a10e1de285ac99d4c3990b8693", null ],
+      [ "TILE_EDIT", "Sample_8h.html#a8b7905ae89a9d21531c2fe65110bebc1a51be1ace90af5ea9d836a7f8498fac87", null ],
+      [ "TILE_HIGHLIGHT", "Sample_8h.html#a8b7905ae89a9d21531c2fe65110bebc1a256fc5c1aed48268750fdedc29b47079", null ],
+      [ "TEMP_OBSTACLE", "Sample_8h.html#a8b7905ae89a9d21531c2fe65110bebc1a6eee38d969cb457212b4dc525a24ec9c", null ],
+      [ "NAVMESH_TESTER", "Sample_8h.html#a8b7905ae89a9d21531c2fe65110bebc1a40c52dfb795cef659dccbc99ed798c00", null ],
+      [ "NAVMESH_PRUNE", "Sample_8h.html#a8b7905ae89a9d21531c2fe65110bebc1a366638a99cc30a5605e48187c7a3463c", null ],
+      [ "OFFMESH_CONNECTION", "Sample_8h.html#a8b7905ae89a9d21531c2fe65110bebc1adfe732610d1431a2723d8f851895a3ad", null ],
+      [ "CONVEX_VOLUME", "Sample_8h.html#a8b7905ae89a9d21531c2fe65110bebc1adbfd86821e2b262ac197472e1a21879f", null ],
+      [ "CROWD", "Sample_8h.html#a8b7905ae89a9d21531c2fe65110bebc1adb2f668eda4022cbebc528b605ce84cf", null ],
+      [ "MAX_TOOLS", "Sample_8h.html#a8b7905ae89a9d21531c2fe65110bebc1a1b2f7fca644d3076648e41ceeb02c78c", null ]
+    ] ],
+    [ "toolNames", "Sample_8h.html#a120bc69e1ed454430337ba8231f2aee4", null ]
 ];

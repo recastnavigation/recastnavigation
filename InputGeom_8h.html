@@ -99,8 +99,9 @@ $(document).ready(function(){initNavTree('InputGeom_8h.html',''); initResizable(
   <div class="headertitle"><div class="title">InputGeom.h File Reference</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><code>#include &quot;<a class="el" href="ChunkyTriMesh_8h_source.html">ChunkyTriMesh.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="MeshLoaderObj_8h_source.html">MeshLoaderObj.h</a>&quot;</code><br />
+<div class="textblock"><code>#include &quot;<a class="el" href="PartitionedMesh_8h_source.html">PartitionedMesh.h</a>&quot;</code><br />
+<code>#include &lt;string&gt;</code><br />
+<code>#include &lt;vector&gt;</code><br />
 </div>
 <p><a href="InputGeom_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
@@ -110,17 +111,19 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structBuildSettings.html">BuildSettings</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structMesh.html">Mesh</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classInputGeom.html">InputGeom</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
-<tr class="memitem:ab051ae2a0b2e4b23f39190bc9127098a" id="r_ab051ae2a0b2e4b23f39190bc9127098a"><td class="memItemLeft" align="right" valign="top">static const int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="InputGeom_8h.html#ab051ae2a0b2e4b23f39190bc9127098a">MAX_CONVEXVOL_PTS</a> = 12</td></tr>
-<tr class="separator:ab051ae2a0b2e4b23f39190bc9127098a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8e3d053b6f68734704b75ff40083fda2" id="r_a8e3d053b6f68734704b75ff40083fda2"><td class="memItemLeft" align="right" valign="top">static constexpr int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="InputGeom_8h.html#a8e3d053b6f68734704b75ff40083fda2">MAX_CONVEXVOL_PTS</a> = 12</td></tr>
+<tr class="separator:a8e3d053b6f68734704b75ff40083fda2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Variable Documentation</h2>
-<a id="ab051ae2a0b2e4b23f39190bc9127098a" name="ab051ae2a0b2e4b23f39190bc9127098a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab051ae2a0b2e4b23f39190bc9127098a">&#9670;&#160;</a></span>MAX_CONVEXVOL_PTS</h2>
+<a id="a8e3d053b6f68734704b75ff40083fda2" name="a8e3d053b6f68734704b75ff40083fda2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8e3d053b6f68734704b75ff40083fda2">&#9670;&#160;</a></span>MAX_CONVEXVOL_PTS</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -129,12 +132,12 @@ Variables</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">const int MAX_CONVEXVOL_PTS = 12</td>
+          <td class="memname">constexpr int MAX_CONVEXVOL_PTS = 12</td>
         </tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+<span class="mlabels"><span class="mlabel">static</span><span class="mlabel">constexpr</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">

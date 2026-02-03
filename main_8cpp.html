@@ -100,24 +100,24 @@ $(document).ready(function(){initNavTree('main_8cpp.html',''); initResizable(); 
   <div class="headertitle"><div class="title">main.cpp File Reference</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><code>#include &lt;cstdio&gt;</code><br />
-<code>#include &lt;cmath&gt;</code><br />
-<code>#include &quot;SDL.h&quot;</code><br />
-<code>#include &quot;SDL_opengl.h&quot;</code><br />
-<code>#include &lt;GL/glu.h&gt;</code><br />
-<code>#include &lt;vector&gt;</code><br />
-<code>#include &lt;string&gt;</code><br />
-<code>#include &quot;<a class="el" href="imgui_8h_source.html">imgui.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="imguiRenderGL_8h_source.html">imguiRenderGL.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="Recast_8h_source.html">Recast.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="RecastDebugDraw_8h_source.html">RecastDebugDraw.h</a>&quot;</code><br />
+<div class="textblock"><code>#include &quot;<a class="el" href="AppState_8h_source.html">AppState.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="InputGeom_8h_source.html">InputGeom.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="TestCase_8h_source.html">TestCase.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="Filelist_8h_source.html">Filelist.h</a>&quot;</code><br />
+<code>#include &quot;SDL.h&quot;</code><br />
+<code>#include &quot;SDL_keycode.h&quot;</code><br />
+<code>#include &quot;SDL_opengl.h&quot;</code><br />
+<code>#include &quot;<a class="el" href="Sample_8h_source.html">Sample.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="Sample__SoloMesh_8h_source.html">Sample_SoloMesh.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="Sample__TileMesh_8h_source.html">Sample_TileMesh.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="Sample__TempObstacles_8h_source.html">Sample_TempObstacles.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="Sample__Debug_8h_source.html">Sample_Debug.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="Sample__TileMesh_8h_source.html">Sample_TileMesh.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="TestCase_8h_source.html">TestCase.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="imguiHelpers_8h_source.html">imguiHelpers.h</a>&quot;</code><br />
+<code>#include &lt;imgui.h&gt;</code><br />
+<code>#include &lt;imgui_impl_opengl2.h&gt;</code><br />
+<code>#include &lt;imgui_impl_sdl2.h&gt;</code><br />
+<code>#include &lt;implot.h&gt;</code><br />
+<code>#include &lt;functional&gt;</code><br />
+<code>#include &lt;string&gt;</code><br />
+<code>#include &lt;GL/glu.h&gt;</code><br />
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
@@ -126,93 +126,15 @@ Classes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a0075a4b936325c02d0ef80ed6d783a4c" id="r_a0075a4b936325c02d0ef80ed6d783a4c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSample.html">Sample</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8cpp.html#a0075a4b936325c02d0ef80ed6d783a4c">createSolo</a> ()</td></tr>
-<tr class="separator:a0075a4b936325c02d0ef80ed6d783a4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a89c98c5c7d398e3e59c736d9da4f9ada" id="r_a89c98c5c7d398e3e59c736d9da4f9ada"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSample.html">Sample</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8cpp.html#a89c98c5c7d398e3e59c736d9da4f9ada">createTile</a> ()</td></tr>
-<tr class="separator:a89c98c5c7d398e3e59c736d9da4f9ada"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af550d2fbdfaa2573ab6249f2089a92da" id="r_af550d2fbdfaa2573ab6249f2089a92da"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSample.html">Sample</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8cpp.html#af550d2fbdfaa2573ab6249f2089a92da">createTempObstacle</a> ()</td></tr>
-<tr class="separator:af550d2fbdfaa2573ab6249f2089a92da"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a327d8de7f393de9b4aa3f77d21ba7d5e" id="r_a327d8de7f393de9b4aa3f77d21ba7d5e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSample.html">Sample</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8cpp.html#a327d8de7f393de9b4aa3f77d21ba7d5e">createDebug</a> ()</td></tr>
-<tr class="separator:a327d8de7f393de9b4aa3f77d21ba7d5e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2c3f6775325c30275d11c6abee2db6a0" id="r_a2c3f6775325c30275d11c6abee2db6a0"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8cpp.html#a2c3f6775325c30275d11c6abee2db6a0">main</a> (int, char **)</td></tr>
 <tr class="separator:a2c3f6775325c30275d11c6abee2db6a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
-<tr class="memitem:adf355327e327a55707483da0fb936165" id="r_adf355327e327a55707483da0fb936165"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structSampleItem.html">SampleItem</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8cpp.html#adf355327e327a55707483da0fb936165">g_samples</a> []</td></tr>
-<tr class="separator:adf355327e327a55707483da0fb936165"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a60e01056b56609c9984c7f9dee5084cd" id="r_a60e01056b56609c9984c7f9dee5084cd"><td class="memItemLeft" align="right" valign="top">static const int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8cpp.html#a60e01056b56609c9984c7f9dee5084cd">g_nsamples</a> = sizeof(<a class="el" href="main_8cpp.html#adf355327e327a55707483da0fb936165">g_samples</a>) / sizeof(<a class="el" href="structSampleItem.html">SampleItem</a>)</td></tr>
-<tr class="separator:a60e01056b56609c9984c7f9dee5084cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9cd04e76b4150bb78eae76dd2a45971f" id="r_a9cd04e76b4150bb78eae76dd2a45971f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structAppState.html">AppState</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8cpp.html#a9cd04e76b4150bb78eae76dd2a45971f">app</a></td></tr>
+<tr class="separator:a9cd04e76b4150bb78eae76dd2a45971f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="a327d8de7f393de9b4aa3f77d21ba7d5e" name="a327d8de7f393de9b4aa3f77d21ba7d5e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a327d8de7f393de9b4aa3f77d21ba7d5e">&#9670;&#160;</a></span>createDebug()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="classSample.html">Sample</a> * createDebug </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="a0075a4b936325c02d0ef80ed6d783a4c" name="a0075a4b936325c02d0ef80ed6d783a4c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0075a4b936325c02d0ef80ed6d783a4c">&#9670;&#160;</a></span>createSolo()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="classSample.html">Sample</a> * createSolo </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="af550d2fbdfaa2573ab6249f2089a92da" name="af550d2fbdfaa2573ab6249f2089a92da"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af550d2fbdfaa2573ab6249f2089a92da">&#9670;&#160;</a></span>createTempObstacle()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="classSample.html">Sample</a> * createTempObstacle </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="a89c98c5c7d398e3e59c736d9da4f9ada" name="a89c98c5c7d398e3e59c736d9da4f9ada"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a89c98c5c7d398e3e59c736d9da4f9ada">&#9670;&#160;</a></span>createTile()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="classSample.html">Sample</a> * createTile </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
 <a id="a2c3f6775325c30275d11c6abee2db6a0" name="a2c3f6775325c30275d11c6abee2db6a0"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a2c3f6775325c30275d11c6abee2db6a0">&#9670;&#160;</a></span>main()</h2>
 
@@ -242,57 +164,18 @@ Variables</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Variable Documentation</h2>
-<a id="a60e01056b56609c9984c7f9dee5084cd" name="a60e01056b56609c9984c7f9dee5084cd"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a60e01056b56609c9984c7f9dee5084cd">&#9670;&#160;</a></span>g_nsamples</h2>
+<a id="a9cd04e76b4150bb78eae76dd2a45971f" name="a9cd04e76b4150bb78eae76dd2a45971f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9cd04e76b4150bb78eae76dd2a45971f">&#9670;&#160;</a></span>app</h2>
 
 <div class="memitem">
 <div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">const int g_nsamples = sizeof(<a class="el" href="main_8cpp.html#adf355327e327a55707483da0fb936165">g_samples</a>) / sizeof(<a class="el" href="structSampleItem.html">SampleItem</a>)</td>
+          <td class="memname"><a class="el" href="structAppState.html">AppState</a> app</td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
-</div>
-</div>
-<a id="adf355327e327a55707483da0fb936165" name="adf355327e327a55707483da0fb936165"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#adf355327e327a55707483da0fb936165">&#9670;&#160;</a></span>g_samples</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="structSampleItem.html">SampleItem</a> g_samples[]</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<b>Initial value:</b><div class="fragment"><div class="line">=</div>
-<div class="line">{</div>
-<div class="line">    { <a class="code hl_function" href="main_8cpp.html#a0075a4b936325c02d0ef80ed6d783a4c">createSolo</a>, <span class="stringliteral">&quot;Solo Mesh&quot;</span> },</div>
-<div class="line">    { <a class="code hl_function" href="main_8cpp.html#a89c98c5c7d398e3e59c736d9da4f9ada">createTile</a>, <span class="stringliteral">&quot;Tile Mesh&quot;</span> },</div>
-<div class="line">    { <a class="code hl_function" href="main_8cpp.html#af550d2fbdfaa2573ab6249f2089a92da">createTempObstacle</a>, <span class="stringliteral">&quot;Temp Obstacles&quot;</span> },</div>
-<div class="line">}</div>
-<div class="ttc" id="amain_8cpp_html_a0075a4b936325c02d0ef80ed6d783a4c"><div class="ttname"><a href="main_8cpp.html#a0075a4b936325c02d0ef80ed6d783a4c">createSolo</a></div><div class="ttdeci">Sample * createSolo()</div><div class="ttdef"><b>Definition</b> main.cpp:59</div></div>
-<div class="ttc" id="amain_8cpp_html_a89c98c5c7d398e3e59c736d9da4f9ada"><div class="ttname"><a href="main_8cpp.html#a89c98c5c7d398e3e59c736d9da4f9ada">createTile</a></div><div class="ttdeci">Sample * createTile()</div><div class="ttdef"><b>Definition</b> main.cpp:60</div></div>
-<div class="ttc" id="amain_8cpp_html_af550d2fbdfaa2573ab6249f2089a92da"><div class="ttname"><a href="main_8cpp.html#af550d2fbdfaa2573ab6249f2089a92da">createTempObstacle</a></div><div class="ttdeci">Sample * createTempObstacle()</div><div class="ttdef"><b>Definition</b> main.cpp:61</div></div>
-</div><!-- fragment -->
 </div>
 </div>
 </div><!-- contents -->

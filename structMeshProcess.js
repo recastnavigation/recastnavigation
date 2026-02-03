@@ -1,8 +1,7 @@
 var structMeshProcess =
 [
-    [ "MeshProcess", "structMeshProcess.html#ae8565ad12db3ae60dd9b72a851b7afc8", null ],
-    [ "~MeshProcess", "structMeshProcess.html#a984188b70d20532c8f7230fffb6e61eb", null ],
+    [ "~MeshProcess", "structMeshProcess.html#a9690e5ee8cb6a631f1a60387883e65ae", null ],
     [ "init", "structMeshProcess.html#af79fc443a1067c46713aa56a55120f6f", null ],
-    [ "process", "structMeshProcess.html#a2e6cdfd8885e79abc9055707a340cb2c", null ],
-    [ "m_geom", "structMeshProcess.html#a65db060f220e6f5f94e0bc70d1cbd398", null ]
+    [ "process", "structMeshProcess.html#a41892359d74ec316bc8f7bd0b610b601", null ],
+    [ "inputGeometry", "structMeshProcess.html#a6382c068755dc99bcda19c7fa57fbe46", null ]
 ];

@@ -94,19 +94,25 @@ $(document).ready(function(){initNavTree('PerfTimer_8cpp.html',''); initResizabl
 
 <div class="header">
   <div class="summary">
-<a href="#func-members">Functions</a>  </div>
+<a href="#func-members">Functions</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle"><div class="title">PerfTimer.cpp File Reference</div></div>
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><code>#include &quot;<a class="el" href="PerfTimer_8h_source.html">PerfTimer.h</a>&quot;</code><br />
-<code>#include &lt;sys/time.h&gt;</code><br />
+<code>#include &lt;chrono&gt;</code><br />
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a4d18b93b9130c4ec1c2f5ffe91457b48" id="r_a4d18b93b9130c4ec1c2f5ffe91457b48"><td class="memItemLeft" align="right" valign="top"><a class="el" href="PerfTimer_8h.html#a2036838e11aa9bd864a72295e6017d52">TimeVal</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="PerfTimer_8cpp.html#a4d18b93b9130c4ec1c2f5ffe91457b48">getPerfTime</a> ()</td></tr>
+<tr class="memitem:a4d18b93b9130c4ec1c2f5ffe91457b48" id="r_a4d18b93b9130c4ec1c2f5ffe91457b48"><td class="memItemLeft" align="right" valign="top"><a class="el" href="PerfTimer_8h.html#a655eaedfb70da06315db6ed40392a30f">TimeVal</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="PerfTimer_8cpp.html#a4d18b93b9130c4ec1c2f5ffe91457b48">getPerfTime</a> ()</td></tr>
 <tr class="separator:a4d18b93b9130c4ec1c2f5ffe91457b48"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aee1c2f57e875e53264038a845598267f" id="r_aee1c2f57e875e53264038a845598267f"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="PerfTimer_8cpp.html#aee1c2f57e875e53264038a845598267f">getPerfTimeUsec</a> (const <a class="el" href="PerfTimer_8h.html#a2036838e11aa9bd864a72295e6017d52">TimeVal</a> duration)</td></tr>
+<tr class="memitem:aee1c2f57e875e53264038a845598267f" id="r_aee1c2f57e875e53264038a845598267f"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="PerfTimer_8cpp.html#aee1c2f57e875e53264038a845598267f">getPerfTimeUsec</a> (const <a class="el" href="PerfTimer_8h.html#a655eaedfb70da06315db6ed40392a30f">TimeVal</a> duration)</td></tr>
 <tr class="separator:aee1c2f57e875e53264038a845598267f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:aade47aff2e70f988099aa9a98fb28bdd" id="r_aade47aff2e70f988099aa9a98fb28bdd"><td class="memItemLeft" align="right" valign="top">static const std::chrono::high_resolution_clock::time_point&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="PerfTimer_8cpp.html#aade47aff2e70f988099aa9a98fb28bdd">startup</a> = std::chrono::high_resolution_clock::now()</td></tr>
+<tr class="separator:aade47aff2e70f988099aa9a98fb28bdd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
 <a id="a4d18b93b9130c4ec1c2f5ffe91457b48" name="a4d18b93b9130c4ec1c2f5ffe91457b48"></a>
@@ -116,7 +122,7 @@ Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="PerfTimer_8h.html#a2036838e11aa9bd864a72295e6017d52">TimeVal</a> getPerfTime </td>
+          <td class="memname"><a class="el" href="PerfTimer_8h.html#a655eaedfb70da06315db6ed40392a30f">TimeVal</a> getPerfTime </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -135,11 +141,34 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname">int getPerfTimeUsec </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="PerfTimer_8h.html#a2036838e11aa9bd864a72295e6017d52">TimeVal</a>&#160;</td>
+          <td class="paramtype">const <a class="el" href="PerfTimer_8h.html#a655eaedfb70da06315db6ed40392a30f">TimeVal</a>&#160;</td>
           <td class="paramname"><em>duration</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<h2 class="groupheader">Variable Documentation</h2>
+<a id="aade47aff2e70f988099aa9a98fb28bdd" name="aade47aff2e70f988099aa9a98fb28bdd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aade47aff2e70f988099aa9a98fb28bdd">&#9670;&#160;</a></span>startup</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const std::chrono::high_resolution_clock::time_point startup = std::chrono::high_resolution_clock::now()</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 
 </div>

@@ -98,6 +98,7 @@ $(document).ready(function(){initNavTree('classSample__SoloMesh.html',''); initR
 <a href="#pro-types">Protected Types</a> &#124;
 <a href="#pro-methods">Protected Member Functions</a> &#124;
 <a href="#pro-attribs">Protected Attributes</a> &#124;
+<a href="#pro-static-attribs">Static Protected Attributes</a> &#124;
 <a href="classSample__SoloMesh-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">Sample_SoloMesh Class Reference</div></div>
 </div><!--header-->
@@ -118,198 +119,192 @@ Inheritance diagram for Sample_SoloMesh:</div>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a85b98cc7d5c81d86acccd31156c3258c" id="r_a85b98cc7d5c81d86acccd31156c3258c"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample__SoloMesh.html#a85b98cc7d5c81d86acccd31156c3258c">Sample_SoloMesh</a> ()</td></tr>
 <tr class="separator:a85b98cc7d5c81d86acccd31156c3258c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8b7895596e5ce8977b5727023a39573d" id="r_a8b7895596e5ce8977b5727023a39573d"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample__SoloMesh.html#a8b7895596e5ce8977b5727023a39573d">~Sample_SoloMesh</a> ()</td></tr>
-<tr class="separator:a8b7895596e5ce8977b5727023a39573d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a756bbc11445f8ad9af9cbb5b4cb44ec8" id="r_a756bbc11445f8ad9af9cbb5b4cb44ec8"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample__SoloMesh.html#a756bbc11445f8ad9af9cbb5b4cb44ec8">handleSettings</a> ()</td></tr>
-<tr class="separator:a756bbc11445f8ad9af9cbb5b4cb44ec8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aeb52c7800e16699f467377fa38357d28" id="r_aeb52c7800e16699f467377fa38357d28"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample__SoloMesh.html#aeb52c7800e16699f467377fa38357d28">handleTools</a> ()</td></tr>
-<tr class="separator:aeb52c7800e16699f467377fa38357d28"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1e7120d697077a25672a5e6edceb2044" id="r_a1e7120d697077a25672a5e6edceb2044"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample__SoloMesh.html#a1e7120d697077a25672a5e6edceb2044">handleDebugMode</a> ()</td></tr>
-<tr class="separator:a1e7120d697077a25672a5e6edceb2044"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a08cee8a58d6ef5897847ab85518c9a91" id="r_a08cee8a58d6ef5897847ab85518c9a91"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample__SoloMesh.html#a08cee8a58d6ef5897847ab85518c9a91">handleRender</a> ()</td></tr>
-<tr class="separator:a08cee8a58d6ef5897847ab85518c9a91"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9ee1ce62bf30f0b6c4b743101bbe2c7e" id="r_a9ee1ce62bf30f0b6c4b743101bbe2c7e"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample__SoloMesh.html#a9ee1ce62bf30f0b6c4b743101bbe2c7e">handleRenderOverlay</a> (double *proj, double *model, int *view)</td></tr>
-<tr class="separator:a9ee1ce62bf30f0b6c4b743101bbe2c7e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af63e6f988dc1866aabc7257802f794ce" id="r_af63e6f988dc1866aabc7257802f794ce"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample__SoloMesh.html#af63e6f988dc1866aabc7257802f794ce">handleMeshChanged</a> (class <a class="el" href="classInputGeom.html">InputGeom</a> *geom)</td></tr>
-<tr class="separator:af63e6f988dc1866aabc7257802f794ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa64471f37aa3d47e0efb58d01004d259" id="r_aa64471f37aa3d47e0efb58d01004d259"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample__SoloMesh.html#aa64471f37aa3d47e0efb58d01004d259">handleBuild</a> ()</td></tr>
-<tr class="separator:aa64471f37aa3d47e0efb58d01004d259"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a10ee850cae1910015b37c151b483c1b4" id="r_a10ee850cae1910015b37c151b483c1b4"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample__SoloMesh.html#a10ee850cae1910015b37c151b483c1b4">~Sample_SoloMesh</a> () override</td></tr>
+<tr class="separator:a10ee850cae1910015b37c151b483c1b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aae5337f73364768f43cec23e58387934" id="r_aae5337f73364768f43cec23e58387934"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample__SoloMesh.html#aae5337f73364768f43cec23e58387934">Sample_SoloMesh</a> (const <a class="el" href="classSample__SoloMesh.html">Sample_SoloMesh</a> &amp;)=delete</td></tr>
+<tr class="separator:aae5337f73364768f43cec23e58387934"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaed018e1bc0d3e53635566f07ec9d278" id="r_aaed018e1bc0d3e53635566f07ec9d278"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSample__SoloMesh.html">Sample_SoloMesh</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample__SoloMesh.html#aaed018e1bc0d3e53635566f07ec9d278">operator=</a> (const <a class="el" href="classSample__SoloMesh.html">Sample_SoloMesh</a> &amp;)=delete</td></tr>
+<tr class="separator:aaed018e1bc0d3e53635566f07ec9d278"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a152a3a00de5ff25b8b35e7da84fefd97" id="r_a152a3a00de5ff25b8b35e7da84fefd97"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample__SoloMesh.html#a152a3a00de5ff25b8b35e7da84fefd97">Sample_SoloMesh</a> (const <a class="el" href="classSample__SoloMesh.html">Sample_SoloMesh</a> &amp;&amp;)=delete</td></tr>
+<tr class="separator:a152a3a00de5ff25b8b35e7da84fefd97"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2601787795c592e6ea31b69843a199a1" id="r_a2601787795c592e6ea31b69843a199a1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSample__SoloMesh.html">Sample_SoloMesh</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample__SoloMesh.html#a2601787795c592e6ea31b69843a199a1">operator=</a> (const <a class="el" href="classSample__SoloMesh.html">Sample_SoloMesh</a> &amp;&amp;)=delete</td></tr>
+<tr class="separator:a2601787795c592e6ea31b69843a199a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a40fa850196df8008543fa5e536898bde" id="r_a40fa850196df8008543fa5e536898bde"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample__SoloMesh.html#a40fa850196df8008543fa5e536898bde">drawSettingsUI</a> () override</td></tr>
+<tr class="separator:a40fa850196df8008543fa5e536898bde"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab0f9bafc5f3845a84ba7e0cfb99f73f1" id="r_ab0f9bafc5f3845a84ba7e0cfb99f73f1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample__SoloMesh.html#ab0f9bafc5f3845a84ba7e0cfb99f73f1">drawToolsUI</a> () override</td></tr>
+<tr class="separator:ab0f9bafc5f3845a84ba7e0cfb99f73f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7e34bb27fa3c0841877f3206ca6cc4fb" id="r_a7e34bb27fa3c0841877f3206ca6cc4fb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample__SoloMesh.html#a7e34bb27fa3c0841877f3206ca6cc4fb">drawDebugUI</a> () override</td></tr>
+<tr class="separator:a7e34bb27fa3c0841877f3206ca6cc4fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a614aada8f02d1fcf5fbcdbfcbb577481" id="r_a614aada8f02d1fcf5fbcdbfcbb577481"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample__SoloMesh.html#a614aada8f02d1fcf5fbcdbfcbb577481">render</a> () override</td></tr>
+<tr class="separator:a614aada8f02d1fcf5fbcdbfcbb577481"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0040d39ca836744b79849e954b9e045f" id="r_a0040d39ca836744b79849e954b9e045f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample__SoloMesh.html#a0040d39ca836744b79849e954b9e045f">renderOverlay</a> () override</td></tr>
+<tr class="separator:a0040d39ca836744b79849e954b9e045f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aca128abd5efab794f78e282bed0a6130" id="r_aca128abd5efab794f78e282bed0a6130"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample__SoloMesh.html#aca128abd5efab794f78e282bed0a6130">onMeshChanged</a> (<a class="el" href="classInputGeom.html">InputGeom</a> *geom) override</td></tr>
+<tr class="separator:aca128abd5efab794f78e282bed0a6130"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7ed4e83a66a700e25d7bebf1e2357c1b" id="r_a7ed4e83a66a700e25d7bebf1e2357c1b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample__SoloMesh.html#a7ed4e83a66a700e25d7bebf1e2357c1b">build</a> () override</td></tr>
+<tr class="separator:a7ed4e83a66a700e25d7bebf1e2357c1b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classSample"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classSample')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classSample.html">Sample</a></td></tr>
+<tr class="memitem:a4418aaf6b8e5c6ddc1d20f4388f101ba inherit pub_methods_classSample" id="r_a4418aaf6b8e5c6ddc1d20f4388f101ba"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classdtNavMesh.html">dtNavMesh</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a4418aaf6b8e5c6ddc1d20f4388f101ba">loadAll</a> (const char *path)</td></tr>
+<tr class="separator:a4418aaf6b8e5c6ddc1d20f4388f101ba inherit pub_methods_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5a6d7fec2a32c30cebc8f4a3c895593d inherit pub_methods_classSample" id="r_a5a6d7fec2a32c30cebc8f4a3c895593d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a5a6d7fec2a32c30cebc8f4a3c895593d">saveAll</a> (const char *path, const <a class="el" href="classdtNavMesh.html">dtNavMesh</a> *mesh)</td></tr>
+<tr class="separator:a5a6d7fec2a32c30cebc8f4a3c895593d inherit pub_methods_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a48a4cf559a1ff65b7d4776c262236e27 inherit pub_methods_classSample" id="r_a48a4cf559a1ff65b7d4776c262236e27"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a48a4cf559a1ff65b7d4776c262236e27">Sample</a> ()</td></tr>
 <tr class="separator:a48a4cf559a1ff65b7d4776c262236e27 inherit pub_methods_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aea8a48c34d94596f6affbbd28938fb2c inherit pub_methods_classSample" id="r_aea8a48c34d94596f6affbbd28938fb2c"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#aea8a48c34d94596f6affbbd28938fb2c">~Sample</a> ()</td></tr>
 <tr class="separator:aea8a48c34d94596f6affbbd28938fb2c inherit pub_methods_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a86e13c14ae1a347d4867c77ec90e49f1 inherit pub_methods_classSample" id="r_a86e13c14ae1a347d4867c77ec90e49f1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a86e13c14ae1a347d4867c77ec90e49f1">setContext</a> (<a class="el" href="classBuildContext.html">BuildContext</a> *ctx)</td></tr>
-<tr class="separator:a86e13c14ae1a347d4867c77ec90e49f1 inherit pub_methods_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0602082aea4402bd6db027a5aa4f33a0 inherit pub_methods_classSample" id="r_a0602082aea4402bd6db027a5aa4f33a0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a0602082aea4402bd6db027a5aa4f33a0">setTool</a> (<a class="el" href="structSampleTool.html">SampleTool</a> *tool)</td></tr>
+<tr class="memitem:a02a337409f6fb70a8e38a4ad1f79cdeb inherit pub_methods_classSample" id="r_a02a337409f6fb70a8e38a4ad1f79cdeb"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a02a337409f6fb70a8e38a4ad1f79cdeb">Sample</a> (const <a class="el" href="classSample.html">Sample</a> &amp;)=delete</td></tr>
+<tr class="separator:a02a337409f6fb70a8e38a4ad1f79cdeb inherit pub_methods_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8eaf0acd77791f47c67f398ac51dc4d3 inherit pub_methods_classSample" id="r_a8eaf0acd77791f47c67f398ac51dc4d3"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a8eaf0acd77791f47c67f398ac51dc4d3">Sample</a> (const <a class="el" href="classSample.html">Sample</a> &amp;&amp;)=delete</td></tr>
+<tr class="separator:a8eaf0acd77791f47c67f398ac51dc4d3 inherit pub_methods_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0e9429a23d06ba44e8d6a38c693177fd inherit pub_methods_classSample" id="r_a0e9429a23d06ba44e8d6a38c693177fd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSample.html">Sample</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a0e9429a23d06ba44e8d6a38c693177fd">operator=</a> (const <a class="el" href="classSample.html">Sample</a> &amp;)=delete</td></tr>
+<tr class="separator:a0e9429a23d06ba44e8d6a38c693177fd inherit pub_methods_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9ea0da3484d888cc46e030008907a181 inherit pub_methods_classSample" id="r_a9ea0da3484d888cc46e030008907a181"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSample.html">Sample</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a9ea0da3484d888cc46e030008907a181">operator=</a> (const <a class="el" href="classSample.html">Sample</a> &amp;&amp;)=delete</td></tr>
+<tr class="separator:a9ea0da3484d888cc46e030008907a181 inherit pub_methods_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0602082aea4402bd6db027a5aa4f33a0 inherit pub_methods_classSample" id="r_a0602082aea4402bd6db027a5aa4f33a0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a0602082aea4402bd6db027a5aa4f33a0">setTool</a> (<a class="el" href="structSampleTool.html">SampleTool</a> *<a class="el" href="classSample.html#a13b074060115ae98db2eff71073dd7ea">tool</a>)</td></tr>
 <tr class="separator:a0602082aea4402bd6db027a5aa4f33a0 inherit pub_methods_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1ebff61e74233346dfc63eecf34c7ab3 inherit pub_methods_classSample" id="r_a1ebff61e74233346dfc63eecf34c7ab3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structSampleToolState.html">SampleToolState</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a1ebff61e74233346dfc63eecf34c7ab3">getToolState</a> (int type)</td></tr>
-<tr class="separator:a1ebff61e74233346dfc63eecf34c7ab3 inherit pub_methods_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a366638d234ad656df8bd3946d11792b5 inherit pub_methods_classSample" id="r_a366638d234ad656df8bd3946d11792b5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a366638d234ad656df8bd3946d11792b5">setToolState</a> (int type, <a class="el" href="structSampleToolState.html">SampleToolState</a> *s)</td></tr>
-<tr class="separator:a366638d234ad656df8bd3946d11792b5 inherit pub_methods_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa3b550f9696ae9d1838d5ed68aad9df5 inherit pub_methods_classSample" id="r_aa3b550f9696ae9d1838d5ed68aad9df5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSampleDebugDraw.html">SampleDebugDraw</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#aa3b550f9696ae9d1838d5ed68aad9df5">getDebugDraw</a> ()</td></tr>
-<tr class="separator:aa3b550f9696ae9d1838d5ed68aad9df5 inherit pub_methods_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a01d84b29a038e029bca701f34a72cbdd inherit pub_methods_classSample" id="r_a01d84b29a038e029bca701f34a72cbdd"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a01d84b29a038e029bca701f34a72cbdd">handleClick</a> (const float *s, const float *p, bool shift)</td></tr>
-<tr class="separator:a01d84b29a038e029bca701f34a72cbdd inherit pub_methods_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9bcb74f237555eb39454228acf9471c8 inherit pub_methods_classSample" id="r_a9bcb74f237555eb39454228acf9471c8"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a9bcb74f237555eb39454228acf9471c8">handleToggle</a> ()</td></tr>
-<tr class="separator:a9bcb74f237555eb39454228acf9471c8 inherit pub_methods_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a77bb6d09c508fb0f7d9cc498962f7d08 inherit pub_methods_classSample" id="r_a77bb6d09c508fb0f7d9cc498962f7d08"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a77bb6d09c508fb0f7d9cc498962f7d08">handleStep</a> ()</td></tr>
-<tr class="separator:a77bb6d09c508fb0f7d9cc498962f7d08 inherit pub_methods_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae3185e1830bc005a03bf595fac945a23 inherit pub_methods_classSample" id="r_ae3185e1830bc005a03bf595fac945a23"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#ae3185e1830bc005a03bf595fac945a23">handleUpdate</a> (const float dt)</td></tr>
-<tr class="separator:ae3185e1830bc005a03bf595fac945a23 inherit pub_methods_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad36a0a6513510507cde30e119837c97c inherit pub_methods_classSample" id="r_ad36a0a6513510507cde30e119837c97c"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#ad36a0a6513510507cde30e119837c97c">onClick</a> (const float *rayStartPos, const float *rayHitPos, bool shift)</td></tr>
+<tr class="separator:ad36a0a6513510507cde30e119837c97c inherit pub_methods_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a13af5701d13a22ebcea20f82430d71bb inherit pub_methods_classSample" id="r_a13af5701d13a22ebcea20f82430d71bb"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a13af5701d13a22ebcea20f82430d71bb">onToggle</a> ()</td></tr>
+<tr class="separator:a13af5701d13a22ebcea20f82430d71bb inherit pub_methods_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa5677cc495a86e76b9dec1c541f26c76 inherit pub_methods_classSample" id="r_aa5677cc495a86e76b9dec1c541f26c76"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#aa5677cc495a86e76b9dec1c541f26c76">singleStep</a> ()</td></tr>
+<tr class="separator:aa5677cc495a86e76b9dec1c541f26c76 inherit pub_methods_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4d87ac012ef9d2383adeddc05d4be334 inherit pub_methods_classSample" id="r_a4d87ac012ef9d2383adeddc05d4be334"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a4d87ac012ef9d2383adeddc05d4be334">update</a> (float dt)</td></tr>
+<tr class="separator:a4d87ac012ef9d2383adeddc05d4be334 inherit pub_methods_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaa6103a46cc7a3853012c5743b41de01 inherit pub_methods_classSample" id="r_aaa6103a46cc7a3853012c5743b41de01"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#aaa6103a46cc7a3853012c5743b41de01">collectSettings</a> (struct <a class="el" href="structBuildSettings.html">BuildSettings</a> &amp;settings)</td></tr>
 <tr class="separator:aaa6103a46cc7a3853012c5743b41de01 inherit pub_methods_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acdb3149b2850cab765578de6c6e06a27 inherit pub_methods_classSample" id="r_acdb3149b2850cab765578de6c6e06a27"><td class="memItemLeft" align="right" valign="top">virtual class <a class="el" href="classInputGeom.html">InputGeom</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#acdb3149b2850cab765578de6c6e06a27">getInputGeom</a> ()</td></tr>
-<tr class="separator:acdb3149b2850cab765578de6c6e06a27 inherit pub_methods_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a79c8f4fb3cdea6ffc8bb3f2b5255ca4c inherit pub_methods_classSample" id="r_a79c8f4fb3cdea6ffc8bb3f2b5255ca4c"><td class="memItemLeft" align="right" valign="top">virtual class <a class="el" href="classdtNavMesh.html">dtNavMesh</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a79c8f4fb3cdea6ffc8bb3f2b5255ca4c">getNavMesh</a> ()</td></tr>
-<tr class="separator:a79c8f4fb3cdea6ffc8bb3f2b5255ca4c inherit pub_methods_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4ab693657a2a45aa96b063bfd54b3716 inherit pub_methods_classSample" id="r_a4ab693657a2a45aa96b063bfd54b3716"><td class="memItemLeft" align="right" valign="top">virtual class <a class="el" href="classdtNavMeshQuery.html">dtNavMeshQuery</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a4ab693657a2a45aa96b063bfd54b3716">getNavMeshQuery</a> ()</td></tr>
-<tr class="separator:a4ab693657a2a45aa96b063bfd54b3716 inherit pub_methods_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a748e86f1d6d821de83dfa3379a5ef86b inherit pub_methods_classSample" id="r_a748e86f1d6d821de83dfa3379a5ef86b"><td class="memItemLeft" align="right" valign="top">virtual class <a class="el" href="classdtCrowd.html">dtCrowd</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a748e86f1d6d821de83dfa3379a5ef86b">getCrowd</a> ()</td></tr>
-<tr class="separator:a748e86f1d6d821de83dfa3379a5ef86b inherit pub_methods_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3d6dc892150a705128c5799e7e4e3aab inherit pub_methods_classSample" id="r_a3d6dc892150a705128c5799e7e4e3aab"><td class="memItemLeft" align="right" valign="top">virtual float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a3d6dc892150a705128c5799e7e4e3aab">getAgentRadius</a> ()</td></tr>
-<tr class="separator:a3d6dc892150a705128c5799e7e4e3aab inherit pub_methods_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7d914e678845642d42a09469377a7f83 inherit pub_methods_classSample" id="r_a7d914e678845642d42a09469377a7f83"><td class="memItemLeft" align="right" valign="top">virtual float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a7d914e678845642d42a09469377a7f83">getAgentHeight</a> ()</td></tr>
-<tr class="separator:a7d914e678845642d42a09469377a7f83 inherit pub_methods_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae94b1470cd74ee7abe9cf39a74c2bbd8 inherit pub_methods_classSample" id="r_ae94b1470cd74ee7abe9cf39a74c2bbd8"><td class="memItemLeft" align="right" valign="top">virtual float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#ae94b1470cd74ee7abe9cf39a74c2bbd8">getAgentClimb</a> ()</td></tr>
-<tr class="separator:ae94b1470cd74ee7abe9cf39a74c2bbd8 inherit pub_methods_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a20186dffd1c83837a2a32068fe819150 inherit pub_methods_classSample" id="r_a20186dffd1c83837a2a32068fe819150"><td class="memItemLeft" align="right" valign="top">unsigned char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a20186dffd1c83837a2a32068fe819150">getNavMeshDrawFlags</a> () const</td></tr>
-<tr class="separator:a20186dffd1c83837a2a32068fe819150 inherit pub_methods_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0b5f9832856a0880004b8f725366cca1 inherit pub_methods_classSample" id="r_a0b5f9832856a0880004b8f725366cca1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a0b5f9832856a0880004b8f725366cca1">setNavMeshDrawFlags</a> (unsigned char flags)</td></tr>
-<tr class="separator:a0b5f9832856a0880004b8f725366cca1 inherit pub_methods_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6b8f01c0007622ce86b236c283ea5ae4 inherit pub_methods_classSample" id="r_a6b8f01c0007622ce86b236c283ea5ae4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a6b8f01c0007622ce86b236c283ea5ae4">updateToolStates</a> (const float dt)</td></tr>
-<tr class="separator:a6b8f01c0007622ce86b236c283ea5ae4 inherit pub_methods_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3274e125e6c8206d0598a84ce6027693 inherit pub_methods_classSample" id="r_a3274e125e6c8206d0598a84ce6027693"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a3274e125e6c8206d0598a84ce6027693">initToolStates</a> (<a class="el" href="classSample.html">Sample</a> *sample)</td></tr>
-<tr class="separator:a3274e125e6c8206d0598a84ce6027693 inherit pub_methods_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acfb792ed987cf946d264461a04683ff7 inherit pub_methods_classSample" id="r_acfb792ed987cf946d264461a04683ff7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#acfb792ed987cf946d264461a04683ff7">resetToolStates</a> ()</td></tr>
-<tr class="separator:acfb792ed987cf946d264461a04683ff7 inherit pub_methods_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae660249e6e9f94b1606e617cf8c3a7a0 inherit pub_methods_classSample" id="r_ae660249e6e9f94b1606e617cf8c3a7a0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#ae660249e6e9f94b1606e617cf8c3a7a0">renderToolStates</a> ()</td></tr>
-<tr class="separator:ae660249e6e9f94b1606e617cf8c3a7a0 inherit pub_methods_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3f94bf8837f6fe91430508b1cd6dc33e inherit pub_methods_classSample" id="r_a3f94bf8837f6fe91430508b1cd6dc33e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a3f94bf8837f6fe91430508b1cd6dc33e">renderOverlayToolStates</a> (double *proj, double *model, int *view)</td></tr>
-<tr class="separator:a3f94bf8837f6fe91430508b1cd6dc33e inherit pub_methods_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a24a45fa15d0a1bde4a370f23cd0f1dbe inherit pub_methods_classSample" id="r_a24a45fa15d0a1bde4a370f23cd0f1dbe"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a24a45fa15d0a1bde4a370f23cd0f1dbe">updateToolStates</a> (float dt) const</td></tr>
+<tr class="separator:a24a45fa15d0a1bde4a370f23cd0f1dbe inherit pub_methods_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8032abd8cd711ad5bdec7f0b5f4aac8e inherit pub_methods_classSample" id="r_a8032abd8cd711ad5bdec7f0b5f4aac8e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a8032abd8cd711ad5bdec7f0b5f4aac8e">initToolStates</a> (<a class="el" href="classSample.html">Sample</a> *sample) const</td></tr>
+<tr class="separator:a8032abd8cd711ad5bdec7f0b5f4aac8e inherit pub_methods_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4642089d3b45c1a5f30a839d4f56ffaa inherit pub_methods_classSample" id="r_a4642089d3b45c1a5f30a839d4f56ffaa"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a4642089d3b45c1a5f30a839d4f56ffaa">resetToolStates</a> () const</td></tr>
+<tr class="separator:a4642089d3b45c1a5f30a839d4f56ffaa inherit pub_methods_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a885f5ccec2dec9057dec07623162a275 inherit pub_methods_classSample" id="r_a885f5ccec2dec9057dec07623162a275"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a885f5ccec2dec9057dec07623162a275">renderToolStates</a> () const</td></tr>
+<tr class="separator:a885f5ccec2dec9057dec07623162a275 inherit pub_methods_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae7c8e5d75488212f174b53fc7167e3ba inherit pub_methods_classSample" id="r_ae7c8e5d75488212f174b53fc7167e3ba"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#ae7c8e5d75488212f174b53fc7167e3ba">renderOverlayToolStates</a> () const</td></tr>
+<tr class="separator:ae7c8e5d75488212f174b53fc7167e3ba inherit pub_methods_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2b527228b469ae5d437e6f0a1caf958d inherit pub_methods_classSample" id="r_a2b527228b469ae5d437e6f0a1caf958d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a2b527228b469ae5d437e6f0a1caf958d">resetCommonSettings</a> ()</td></tr>
 <tr class="separator:a2b527228b469ae5d437e6f0a1caf958d inherit pub_methods_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad24b41fce326733944174ce5c4b4b30c inherit pub_methods_classSample" id="r_ad24b41fce326733944174ce5c4b4b30c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#ad24b41fce326733944174ce5c4b4b30c">handleCommonSettings</a> ()</td></tr>
-<tr class="separator:ad24b41fce326733944174ce5c4b4b30c inherit pub_methods_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9f20a80f4fe97a804d70188f8864da86 inherit pub_methods_classSample" id="r_a9f20a80f4fe97a804d70188f8864da86"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a9f20a80f4fe97a804d70188f8864da86">drawCommonSettingsUI</a> ()</td></tr>
+<tr class="separator:a9f20a80f4fe97a804d70188f8864da86 inherit pub_methods_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-types" name="pro-types"></a>
 Protected Types</h2></td></tr>
-<tr class="memitem:a0b9495bb7c375195b704b91cdf9fd66d" id="r_a0b9495bb7c375195b704b91cdf9fd66d"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample__SoloMesh.html#a0b9495bb7c375195b704b91cdf9fd66d">DrawMode</a> { <br />
-&#160;&#160;<a class="el" href="classSample__SoloMesh.html#a0b9495bb7c375195b704b91cdf9fd66daea0fbcc171dd866c11dceb22f8bbb622">DRAWMODE_NAVMESH</a>
-, <a class="el" href="classSample__SoloMesh.html#a0b9495bb7c375195b704b91cdf9fd66daa8e2ba3c26d26be4309cbf0f2528f6de">DRAWMODE_NAVMESH_TRANS</a>
-, <a class="el" href="classSample__SoloMesh.html#a0b9495bb7c375195b704b91cdf9fd66dacde6a4b06b4f22f9002e93996dd15e99">DRAWMODE_NAVMESH_BVTREE</a>
-, <a class="el" href="classSample__SoloMesh.html#a0b9495bb7c375195b704b91cdf9fd66daf0388faf72ff6fb0a55a80794eb34ebe">DRAWMODE_NAVMESH_NODES</a>
+<tr class="memitem:abc40cab0ea338a15ec98011f2d6204cb" id="r_abc40cab0ea338a15ec98011f2d6204cb"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample__SoloMesh.html#abc40cab0ea338a15ec98011f2d6204cb">DrawMode</a> : uint8_t { <br />
+&#160;&#160;<a class="el" href="classSample__SoloMesh.html#abc40cab0ea338a15ec98011f2d6204cba5b65fe46c5dd90ebcec69c472c3be1d9">MESH</a>
+, <a class="el" href="classSample__SoloMesh.html#abc40cab0ea338a15ec98011f2d6204cbaa7e72d66e799f19876d1ba9c72a8946c">NAVMESH</a>
+, <a class="el" href="classSample__SoloMesh.html#abc40cab0ea338a15ec98011f2d6204cbaedd2549ee4a7bb6a5fee7e9a7b756fda">NAVMESH_INVIS</a>
+, <a class="el" href="classSample__SoloMesh.html#abc40cab0ea338a15ec98011f2d6204cbabd8c0792c80051fb9cfeac77682b3a57">NAVMESH_TRANS</a>
 , <br />
-&#160;&#160;<a class="el" href="classSample__SoloMesh.html#a0b9495bb7c375195b704b91cdf9fd66da98fd365be74b3ea0aa3913f2f2f643da">DRAWMODE_NAVMESH_INVIS</a>
-, <a class="el" href="classSample__SoloMesh.html#a0b9495bb7c375195b704b91cdf9fd66da88b9ae00e25b2e2099647ea4c26a9507">DRAWMODE_MESH</a>
-, <a class="el" href="classSample__SoloMesh.html#a0b9495bb7c375195b704b91cdf9fd66da79c855d9a3d2f415381199922314b0db">DRAWMODE_VOXELS</a>
-, <a class="el" href="classSample__SoloMesh.html#a0b9495bb7c375195b704b91cdf9fd66da1b0b737aee4f595a3e4279759d92e4ea">DRAWMODE_VOXELS_WALKABLE</a>
+&#160;&#160;<a class="el" href="classSample__SoloMesh.html#abc40cab0ea338a15ec98011f2d6204cbabac9ed898cbfd21b3258f06d6405f69b">NAVMESH_BVTREE</a>
+, <a class="el" href="classSample__SoloMesh.html#abc40cab0ea338a15ec98011f2d6204cba7760c97857d6977905edc8df12ff98aa">NAVMESH_NODES</a>
+, <a class="el" href="classSample__SoloMesh.html#abc40cab0ea338a15ec98011f2d6204cbad8db98767dbc4d9a19906705bde9fefc">VOXELS</a>
+, <a class="el" href="classSample__SoloMesh.html#abc40cab0ea338a15ec98011f2d6204cba075c817362b332c433378855e435230a">VOXELS_WALKABLE</a>
 , <br />
-&#160;&#160;<a class="el" href="classSample__SoloMesh.html#a0b9495bb7c375195b704b91cdf9fd66da8e442daf2e83ef3c05694457b5b33436">DRAWMODE_COMPACT</a>
-, <a class="el" href="classSample__SoloMesh.html#a0b9495bb7c375195b704b91cdf9fd66dab7e81dc808347a112f588f6c20075cda">DRAWMODE_COMPACT_DISTANCE</a>
-, <a class="el" href="classSample__SoloMesh.html#a0b9495bb7c375195b704b91cdf9fd66da49df193c0a4344b056b1f6102d3dda70">DRAWMODE_COMPACT_REGIONS</a>
-, <a class="el" href="classSample__SoloMesh.html#a0b9495bb7c375195b704b91cdf9fd66da2ddb380ea865ccc1c8fbf75f44a4dbe7">DRAWMODE_REGION_CONNECTIONS</a>
+&#160;&#160;<a class="el" href="classSample__SoloMesh.html#abc40cab0ea338a15ec98011f2d6204cbabbd53c25a2b976c1757ce1f9dbe8bd1f">COMPACT</a>
+, <a class="el" href="classSample__SoloMesh.html#abc40cab0ea338a15ec98011f2d6204cbad0b241983f77110d1bf68a635a10c3b0">COMPACT_DISTANCE</a>
+, <a class="el" href="classSample__SoloMesh.html#abc40cab0ea338a15ec98011f2d6204cba4cc1c871c83b7a6c50191a8a5faca526">COMPACT_REGIONS</a>
+, <a class="el" href="classSample__SoloMesh.html#abc40cab0ea338a15ec98011f2d6204cba4a8ac5843660199af355b3e1006a7723">REGION_CONNECTIONS</a>
 , <br />
-&#160;&#160;<a class="el" href="classSample__SoloMesh.html#a0b9495bb7c375195b704b91cdf9fd66dac8a8e4bb3835a1d5dd15eab30fd2d7c7">DRAWMODE_RAW_CONTOURS</a>
-, <a class="el" href="classSample__SoloMesh.html#a0b9495bb7c375195b704b91cdf9fd66da9722e468551f5e1012433c4f6a1f7c59">DRAWMODE_BOTH_CONTOURS</a>
-, <a class="el" href="classSample__SoloMesh.html#a0b9495bb7c375195b704b91cdf9fd66dafce43a32523d6c5035eefbce35a73826">DRAWMODE_CONTOURS</a>
-, <a class="el" href="classSample__SoloMesh.html#a0b9495bb7c375195b704b91cdf9fd66dabcea7748dcffaf33d0fe31e8af538da8">DRAWMODE_POLYMESH</a>
+&#160;&#160;<a class="el" href="classSample__SoloMesh.html#abc40cab0ea338a15ec98011f2d6204cbad8c65d30f4acb2c51a9c0b4b5a7994e9">RAW_CONTOURS</a>
+, <a class="el" href="classSample__SoloMesh.html#abc40cab0ea338a15ec98011f2d6204cbab90eae3a14f040bb7dca3979b094d271">BOTH_CONTOURS</a>
+, <a class="el" href="classSample__SoloMesh.html#abc40cab0ea338a15ec98011f2d6204cbac49ddc48f555ccb5ee5bd6ee9ba16666">CONTOURS</a>
+, <a class="el" href="classSample__SoloMesh.html#abc40cab0ea338a15ec98011f2d6204cba78d45094040647c24341a5eebc7ed060">POLYMESH</a>
 , <br />
-&#160;&#160;<a class="el" href="classSample__SoloMesh.html#a0b9495bb7c375195b704b91cdf9fd66da3cfa09fbea29fe5ad080cf664c026f67">DRAWMODE_POLYMESH_DETAIL</a>
-, <a class="el" href="classSample__SoloMesh.html#a0b9495bb7c375195b704b91cdf9fd66dac8ad3153e5f19cd59fecff1c383cdcb1">MAX_DRAWMODE</a>
+&#160;&#160;<a class="el" href="classSample__SoloMesh.html#abc40cab0ea338a15ec98011f2d6204cba4799a8ce14bb5ad83b66e2b038386f48">POLYMESH_DETAIL</a>
 <br />
  }</td></tr>
-<tr class="separator:a0b9495bb7c375195b704b91cdf9fd66d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:abc40cab0ea338a15ec98011f2d6204cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-methods" name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
 <tr class="memitem:afede15e3275e57b471fe72d26957d1b8" id="r_afede15e3275e57b471fe72d26957d1b8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample__SoloMesh.html#afede15e3275e57b471fe72d26957d1b8">cleanup</a> ()</td></tr>
 <tr class="separator:afede15e3275e57b471fe72d26957d1b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pro_methods_classSample"><td colspan="2" onclick="javascript:toggleInherit('pro_methods_classSample')"><img src="closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="classSample.html">Sample</a></td></tr>
-<tr class="memitem:a4418aaf6b8e5c6ddc1d20f4388f101ba inherit pro_methods_classSample" id="r_a4418aaf6b8e5c6ddc1d20f4388f101ba"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classdtNavMesh.html">dtNavMesh</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a4418aaf6b8e5c6ddc1d20f4388f101ba">loadAll</a> (const char *path)</td></tr>
-<tr class="separator:a4418aaf6b8e5c6ddc1d20f4388f101ba inherit pro_methods_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5a6d7fec2a32c30cebc8f4a3c895593d inherit pro_methods_classSample" id="r_a5a6d7fec2a32c30cebc8f4a3c895593d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a5a6d7fec2a32c30cebc8f4a3c895593d">saveAll</a> (const char *path, const <a class="el" href="classdtNavMesh.html">dtNavMesh</a> *mesh)</td></tr>
-<tr class="separator:a5a6d7fec2a32c30cebc8f4a3c895593d inherit pro_methods_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-attribs" name="pro-attribs"></a>
 Protected Attributes</h2></td></tr>
-<tr class="memitem:a6a30d74e05436f712c10a2013cb0bd14" id="r_a6a30d74e05436f712c10a2013cb0bd14"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample__SoloMesh.html#a6a30d74e05436f712c10a2013cb0bd14">m_keepInterResults</a></td></tr>
-<tr class="separator:a6a30d74e05436f712c10a2013cb0bd14"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad018e09c3f700c7d9f7b4bec389b9643" id="r_ad018e09c3f700c7d9f7b4bec389b9643"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample__SoloMesh.html#ad018e09c3f700c7d9f7b4bec389b9643">m_totalBuildTimeMs</a></td></tr>
-<tr class="separator:ad018e09c3f700c7d9f7b4bec389b9643"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a53f7d384f99517ace66e6d4738d622e3" id="r_a53f7d384f99517ace66e6d4738d622e3"><td class="memItemLeft" align="right" valign="top">unsigned char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample__SoloMesh.html#a53f7d384f99517ace66e6d4738d622e3">m_triareas</a></td></tr>
-<tr class="separator:a53f7d384f99517ace66e6d4738d622e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aee04a7d9dbc1c9e1f6c6084ac5503a93" id="r_aee04a7d9dbc1c9e1f6c6084ac5503a93"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structrcHeightfield.html">rcHeightfield</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample__SoloMesh.html#aee04a7d9dbc1c9e1f6c6084ac5503a93">m_solid</a></td></tr>
-<tr class="separator:aee04a7d9dbc1c9e1f6c6084ac5503a93"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9d9606cdf612dd091df930a603f5e24c" id="r_a9d9606cdf612dd091df930a603f5e24c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample__SoloMesh.html#a9d9606cdf612dd091df930a603f5e24c">m_chf</a></td></tr>
-<tr class="separator:a9d9606cdf612dd091df930a603f5e24c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aba18137adf1ed26a4a541a985a70d758" id="r_aba18137adf1ed26a4a541a985a70d758"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structrcContourSet.html">rcContourSet</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample__SoloMesh.html#aba18137adf1ed26a4a541a985a70d758">m_cset</a></td></tr>
-<tr class="separator:aba18137adf1ed26a4a541a985a70d758"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a12b020d2ae29630abe24090452d89d58" id="r_a12b020d2ae29630abe24090452d89d58"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structrcPolyMesh.html">rcPolyMesh</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample__SoloMesh.html#a12b020d2ae29630abe24090452d89d58">m_pmesh</a></td></tr>
-<tr class="separator:a12b020d2ae29630abe24090452d89d58"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a383b397074ebd6e8781928019a4b2e06" id="r_a383b397074ebd6e8781928019a4b2e06"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structrcConfig.html">rcConfig</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample__SoloMesh.html#a383b397074ebd6e8781928019a4b2e06">m_cfg</a></td></tr>
-<tr class="separator:a383b397074ebd6e8781928019a4b2e06"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a558ccf439fbd4ccf9efa9e3f2cf49c08" id="r_a558ccf439fbd4ccf9efa9e3f2cf49c08"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structrcPolyMeshDetail.html">rcPolyMeshDetail</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample__SoloMesh.html#a558ccf439fbd4ccf9efa9e3f2cf49c08">m_dmesh</a></td></tr>
-<tr class="separator:a558ccf439fbd4ccf9efa9e3f2cf49c08"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a32d99e347eb1580cd1b018393af1020a" id="r_a32d99e347eb1580cd1b018393af1020a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSample__SoloMesh.html#a0b9495bb7c375195b704b91cdf9fd66d">DrawMode</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample__SoloMesh.html#a32d99e347eb1580cd1b018393af1020a">m_drawMode</a></td></tr>
-<tr class="separator:a32d99e347eb1580cd1b018393af1020a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pro_attribs_classSample"><td colspan="2" onclick="javascript:toggleInherit('pro_attribs_classSample')"><img src="closed.png" alt="-"/>&#160;Protected Attributes inherited from <a class="el" href="classSample.html">Sample</a></td></tr>
-<tr class="memitem:a53ee143e40e1472eddacf76bdd141c73 inherit pro_attribs_classSample" id="r_a53ee143e40e1472eddacf76bdd141c73"><td class="memItemLeft" align="right" valign="top">class <a class="el" href="classInputGeom.html">InputGeom</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a53ee143e40e1472eddacf76bdd141c73">m_geom</a></td></tr>
-<tr class="separator:a53ee143e40e1472eddacf76bdd141c73 inherit pro_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a85e92e352c6aa0f8942736a3f2018884 inherit pro_attribs_classSample" id="r_a85e92e352c6aa0f8942736a3f2018884"><td class="memItemLeft" align="right" valign="top">class <a class="el" href="classdtNavMesh.html">dtNavMesh</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a85e92e352c6aa0f8942736a3f2018884">m_navMesh</a></td></tr>
-<tr class="separator:a85e92e352c6aa0f8942736a3f2018884 inherit pro_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a26ee023759e26ed258ad35b1183edae0 inherit pro_attribs_classSample" id="r_a26ee023759e26ed258ad35b1183edae0"><td class="memItemLeft" align="right" valign="top">class <a class="el" href="classdtNavMeshQuery.html">dtNavMeshQuery</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a26ee023759e26ed258ad35b1183edae0">m_navQuery</a></td></tr>
-<tr class="separator:a26ee023759e26ed258ad35b1183edae0 inherit pro_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acdddfc70a599d7a6b7a9bb58517d9725 inherit pro_attribs_classSample" id="r_acdddfc70a599d7a6b7a9bb58517d9725"><td class="memItemLeft" align="right" valign="top">class <a class="el" href="classdtCrowd.html">dtCrowd</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#acdddfc70a599d7a6b7a9bb58517d9725">m_crowd</a></td></tr>
-<tr class="separator:acdddfc70a599d7a6b7a9bb58517d9725 inherit pro_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0fb2eac8be24dbb9f54ac8d37324b7b9 inherit pro_attribs_classSample" id="r_a0fb2eac8be24dbb9f54ac8d37324b7b9"><td class="memItemLeft" align="right" valign="top">unsigned char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a0fb2eac8be24dbb9f54ac8d37324b7b9">m_navMeshDrawFlags</a></td></tr>
-<tr class="separator:a0fb2eac8be24dbb9f54ac8d37324b7b9 inherit pro_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0ac2919f168dbe909f642515d78b7c8d inherit pro_attribs_classSample" id="r_a0ac2919f168dbe909f642515d78b7c8d"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a0ac2919f168dbe909f642515d78b7c8d">m_cellSize</a></td></tr>
-<tr class="separator:a0ac2919f168dbe909f642515d78b7c8d inherit pro_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9e971309f2473d4c4f44226c049f8d9d inherit pro_attribs_classSample" id="r_a9e971309f2473d4c4f44226c049f8d9d"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a9e971309f2473d4c4f44226c049f8d9d">m_cellHeight</a></td></tr>
-<tr class="separator:a9e971309f2473d4c4f44226c049f8d9d inherit pro_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af6972f1f58b458f5f5ff6291da892882 inherit pro_attribs_classSample" id="r_af6972f1f58b458f5f5ff6291da892882"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#af6972f1f58b458f5f5ff6291da892882">m_agentHeight</a></td></tr>
-<tr class="separator:af6972f1f58b458f5f5ff6291da892882 inherit pro_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae77f5848426c540d452b7bbbdd33dcb2 inherit pro_attribs_classSample" id="r_ae77f5848426c540d452b7bbbdd33dcb2"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#ae77f5848426c540d452b7bbbdd33dcb2">m_agentRadius</a></td></tr>
-<tr class="separator:ae77f5848426c540d452b7bbbdd33dcb2 inherit pro_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae0149f18e59e0c90ed444c35604cb943 inherit pro_attribs_classSample" id="r_ae0149f18e59e0c90ed444c35604cb943"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#ae0149f18e59e0c90ed444c35604cb943">m_agentMaxClimb</a></td></tr>
-<tr class="separator:ae0149f18e59e0c90ed444c35604cb943 inherit pro_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a880cc7f8392d39666bab31f183f75b82 inherit pro_attribs_classSample" id="r_a880cc7f8392d39666bab31f183f75b82"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a880cc7f8392d39666bab31f183f75b82">m_agentMaxSlope</a></td></tr>
-<tr class="separator:a880cc7f8392d39666bab31f183f75b82 inherit pro_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a648ad42edba19a7bb76bb7f17bd72335 inherit pro_attribs_classSample" id="r_a648ad42edba19a7bb76bb7f17bd72335"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a648ad42edba19a7bb76bb7f17bd72335">m_regionMinSize</a></td></tr>
-<tr class="separator:a648ad42edba19a7bb76bb7f17bd72335 inherit pro_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1f8a314cdaa47586271b8509dca7849f inherit pro_attribs_classSample" id="r_a1f8a314cdaa47586271b8509dca7849f"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a1f8a314cdaa47586271b8509dca7849f">m_regionMergeSize</a></td></tr>
-<tr class="separator:a1f8a314cdaa47586271b8509dca7849f inherit pro_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a66229e8206de01d22c240bd8420442e1 inherit pro_attribs_classSample" id="r_a66229e8206de01d22c240bd8420442e1"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a66229e8206de01d22c240bd8420442e1">m_edgeMaxLen</a></td></tr>
-<tr class="separator:a66229e8206de01d22c240bd8420442e1 inherit pro_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9d9a456fbc01f802884f15d87aadeea6 inherit pro_attribs_classSample" id="r_a9d9a456fbc01f802884f15d87aadeea6"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a9d9a456fbc01f802884f15d87aadeea6">m_edgeMaxError</a></td></tr>
-<tr class="separator:a9d9a456fbc01f802884f15d87aadeea6 inherit pro_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af57ce10362e08d94b16cc592734bd6ba inherit pro_attribs_classSample" id="r_af57ce10362e08d94b16cc592734bd6ba"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#af57ce10362e08d94b16cc592734bd6ba">m_vertsPerPoly</a></td></tr>
-<tr class="separator:af57ce10362e08d94b16cc592734bd6ba inherit pro_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a98b63ce7047076ff8d6472eb13942e26 inherit pro_attribs_classSample" id="r_a98b63ce7047076ff8d6472eb13942e26"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a98b63ce7047076ff8d6472eb13942e26">m_detailSampleDist</a></td></tr>
-<tr class="separator:a98b63ce7047076ff8d6472eb13942e26 inherit pro_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9b179f82933a079bc9ea7f41aa79fa51 inherit pro_attribs_classSample" id="r_a9b179f82933a079bc9ea7f41aa79fa51"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a9b179f82933a079bc9ea7f41aa79fa51">m_detailSampleMaxError</a></td></tr>
-<tr class="separator:a9b179f82933a079bc9ea7f41aa79fa51 inherit pro_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9888fa5781dee649df14a7be470a370c inherit pro_attribs_classSample" id="r_a9888fa5781dee649df14a7be470a370c"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a9888fa5781dee649df14a7be470a370c">m_partitionType</a></td></tr>
-<tr class="separator:a9888fa5781dee649df14a7be470a370c inherit pro_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5efb5799ef7f20d164e54913f2e80259 inherit pro_attribs_classSample" id="r_a5efb5799ef7f20d164e54913f2e80259"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a5efb5799ef7f20d164e54913f2e80259">m_filterLowHangingObstacles</a></td></tr>
-<tr class="separator:a5efb5799ef7f20d164e54913f2e80259 inherit pro_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5aba3df7565098bb9e6e327389abb462 inherit pro_attribs_classSample" id="r_a5aba3df7565098bb9e6e327389abb462"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a5aba3df7565098bb9e6e327389abb462">m_filterLedgeSpans</a></td></tr>
-<tr class="separator:a5aba3df7565098bb9e6e327389abb462 inherit pro_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adc2be47bf6e03ac9fd4af8b9f364e6d6 inherit pro_attribs_classSample" id="r_adc2be47bf6e03ac9fd4af8b9f364e6d6"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#adc2be47bf6e03ac9fd4af8b9f364e6d6">m_filterWalkableLowHeightSpans</a></td></tr>
-<tr class="separator:adc2be47bf6e03ac9fd4af8b9f364e6d6 inherit pro_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2b051749824672f59913671ec043dd59 inherit pro_attribs_classSample" id="r_a2b051749824672f59913671ec043dd59"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structSampleTool.html">SampleTool</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a2b051749824672f59913671ec043dd59">m_tool</a></td></tr>
-<tr class="separator:a2b051749824672f59913671ec043dd59 inherit pro_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a824aa6303ba63c6c03b90aca89143ac7 inherit pro_attribs_classSample" id="r_a824aa6303ba63c6c03b90aca89143ac7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structSampleToolState.html">SampleToolState</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a824aa6303ba63c6c03b90aca89143ac7">m_toolStates</a> [<a class="el" href="Sample_8h.html#ae448bf9be534170ca5b5f8c97256125baf21d3b3c7a6296454122cffd465fcb25">MAX_TOOLS</a>]</td></tr>
-<tr class="separator:a824aa6303ba63c6c03b90aca89143ac7 inherit pro_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a275537ae765b914f89c7cd266895fec7 inherit pro_attribs_classSample" id="r_a275537ae765b914f89c7cd266895fec7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classBuildContext.html">BuildContext</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a275537ae765b914f89c7cd266895fec7">m_ctx</a></td></tr>
-<tr class="separator:a275537ae765b914f89c7cd266895fec7 inherit pro_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab48458c3c48e771dc7a1fa295c9fd637 inherit pro_attribs_classSample" id="r_ab48458c3c48e771dc7a1fa295c9fd637"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSampleDebugDraw.html">SampleDebugDraw</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#ab48458c3c48e771dc7a1fa295c9fd637">m_dd</a></td></tr>
-<tr class="separator:ab48458c3c48e771dc7a1fa295c9fd637 inherit pro_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a104f8d0c7bb0a9caa5dd3353e5fa8d3d" id="r_a104f8d0c7bb0a9caa5dd3353e5fa8d3d"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample__SoloMesh.html#a104f8d0c7bb0a9caa5dd3353e5fa8d3d">totalBuildTimeMs</a> = 0</td></tr>
+<tr class="separator:a104f8d0c7bb0a9caa5dd3353e5fa8d3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0a4b16d2bf66358dcf2a29c5ab2018ad" id="r_a0a4b16d2bf66358dcf2a29c5ab2018ad"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structrcConfig.html">rcConfig</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample__SoloMesh.html#a0a4b16d2bf66358dcf2a29c5ab2018ad">config</a> {}</td></tr>
+<tr class="separator:a0a4b16d2bf66358dcf2a29c5ab2018ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a205ba65ba70193fff0887c175ce54334" id="r_a205ba65ba70193fff0887c175ce54334"><td class="memItemLeft" align="right" valign="top">unsigned char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample__SoloMesh.html#a205ba65ba70193fff0887c175ce54334">triAreas</a> = nullptr</td></tr>
+<tr class="separator:a205ba65ba70193fff0887c175ce54334"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6e96da1cafa0fc71da99eeac181cc551" id="r_a6e96da1cafa0fc71da99eeac181cc551"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structrcHeightfield.html">rcHeightfield</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample__SoloMesh.html#a6e96da1cafa0fc71da99eeac181cc551">heightfield</a> = nullptr</td></tr>
+<tr class="separator:a6e96da1cafa0fc71da99eeac181cc551"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af866f52880ff73a2ef7c9ffbff54deb4" id="r_af866f52880ff73a2ef7c9ffbff54deb4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample__SoloMesh.html#af866f52880ff73a2ef7c9ffbff54deb4">compactHeightfield</a> = nullptr</td></tr>
+<tr class="separator:af866f52880ff73a2ef7c9ffbff54deb4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adcdf37924529faa37b554610af053518" id="r_adcdf37924529faa37b554610af053518"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structrcContourSet.html">rcContourSet</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample__SoloMesh.html#adcdf37924529faa37b554610af053518">contourSet</a> = nullptr</td></tr>
+<tr class="separator:adcdf37924529faa37b554610af053518"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab2b939db5b460cdf183bf531074289f6" id="r_ab2b939db5b460cdf183bf531074289f6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structrcPolyMesh.html">rcPolyMesh</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample__SoloMesh.html#ab2b939db5b460cdf183bf531074289f6">polyMesh</a> = nullptr</td></tr>
+<tr class="separator:ab2b939db5b460cdf183bf531074289f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae8fb0a720997424a2025263bcc3dcdc9" id="r_ae8fb0a720997424a2025263bcc3dcdc9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structrcPolyMeshDetail.html">rcPolyMeshDetail</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample__SoloMesh.html#ae8fb0a720997424a2025263bcc3dcdc9">detailMesh</a> = nullptr</td></tr>
+<tr class="separator:ae8fb0a720997424a2025263bcc3dcdc9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a09b0c1f32495b81ca90fb46713486f9d" id="r_a09b0c1f32495b81ca90fb46713486f9d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSample__SoloMesh.html#abc40cab0ea338a15ec98011f2d6204cb">DrawMode</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample__SoloMesh.html#a09b0c1f32495b81ca90fb46713486f9d">currentDrawMode</a> = <a class="el" href="classSample__SoloMesh.html#abc40cab0ea338a15ec98011f2d6204cbaa7e72d66e799f19876d1ba9c72a8946c">DrawMode::NAVMESH</a></td></tr>
+<tr class="separator:a09b0c1f32495b81ca90fb46713486f9d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-static-attribs" name="pro-static-attribs"></a>
+Static Protected Attributes</h2></td></tr>
+<tr class="memitem:a757d2a5b0113b75884b22651966b7d5e" id="r_a757d2a5b0113b75884b22651966b7d5e"><td class="memItemLeft" align="right" valign="top">static const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample__SoloMesh.html#a757d2a5b0113b75884b22651966b7d5e">drawModeNames</a> []</td></tr>
+<tr class="separator:a757d2a5b0113b75884b22651966b7d5e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="inherited" name="inherited"></a>
+Additional Inherited Members</h2></td></tr>
+<tr class="inherit_header pub_attribs_classSample"><td colspan="2" onclick="javascript:toggleInherit('pub_attribs_classSample')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="classSample.html">Sample</a></td></tr>
+<tr class="memitem:a557675eb6c20daef95e8e578d2c16c5d inherit pub_attribs_classSample" id="r_a557675eb6c20daef95e8e578d2c16c5d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classInputGeom.html">InputGeom</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a557675eb6c20daef95e8e578d2c16c5d">inputGeometry</a> = nullptr</td></tr>
+<tr class="separator:a557675eb6c20daef95e8e578d2c16c5d inherit pub_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa54d897c5105c8d75256e12248378273 inherit pub_attribs_classSample" id="r_aa54d897c5105c8d75256e12248378273"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classdtNavMesh.html">dtNavMesh</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#aa54d897c5105c8d75256e12248378273">navMesh</a> = nullptr</td></tr>
+<tr class="separator:aa54d897c5105c8d75256e12248378273 inherit pub_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac1757883d39e6ce69196d33f7fbb3f2d inherit pub_attribs_classSample" id="r_ac1757883d39e6ce69196d33f7fbb3f2d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classdtNavMeshQuery.html">dtNavMeshQuery</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#ac1757883d39e6ce69196d33f7fbb3f2d">navQuery</a> = nullptr</td></tr>
+<tr class="separator:ac1757883d39e6ce69196d33f7fbb3f2d inherit pub_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a635463e829a780cd5a3fdeb1eef005b1 inherit pub_attribs_classSample" id="r_a635463e829a780cd5a3fdeb1eef005b1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classdtCrowd.html">dtCrowd</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a635463e829a780cd5a3fdeb1eef005b1">crowd</a> = nullptr</td></tr>
+<tr class="separator:a635463e829a780cd5a3fdeb1eef005b1 inherit pub_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae99863cd3d733df71c284be6f92c68dd inherit pub_attribs_classSample" id="r_ae99863cd3d733df71c284be6f92c68dd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classSampleDebugDraw.html">SampleDebugDraw</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#ae99863cd3d733df71c284be6f92c68dd">debugDraw</a></td></tr>
+<tr class="separator:ae99863cd3d733df71c284be6f92c68dd inherit pub_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aff534dc55af4f82126d5a7dda2a11765 inherit pub_attribs_classSample" id="r_aff534dc55af4f82126d5a7dda2a11765"><td class="memItemLeft" align="right" valign="top">unsigned char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#aff534dc55af4f82126d5a7dda2a11765">navMeshDrawFlags</a></td></tr>
+<tr class="separator:aff534dc55af4f82126d5a7dda2a11765 inherit pub_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5e0bd3161937c2294d6d8a34ebb859c9 inherit pub_attribs_classSample" id="r_a5e0bd3161937c2294d6d8a34ebb859c9"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a5e0bd3161937c2294d6d8a34ebb859c9">cellSize</a></td></tr>
+<tr class="separator:a5e0bd3161937c2294d6d8a34ebb859c9 inherit pub_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5b95576fdb291800c8a2f58fc86000fd inherit pub_attribs_classSample" id="r_a5b95576fdb291800c8a2f58fc86000fd"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a5b95576fdb291800c8a2f58fc86000fd">cellHeight</a></td></tr>
+<tr class="separator:a5b95576fdb291800c8a2f58fc86000fd inherit pub_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad176d19bede4aa03deb8c6982f945e3d inherit pub_attribs_classSample" id="r_ad176d19bede4aa03deb8c6982f945e3d"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#ad176d19bede4aa03deb8c6982f945e3d">agentHeight</a></td></tr>
+<tr class="separator:ad176d19bede4aa03deb8c6982f945e3d inherit pub_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9df5920d3974bbcae94e3c3837d31d8e inherit pub_attribs_classSample" id="r_a9df5920d3974bbcae94e3c3837d31d8e"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a9df5920d3974bbcae94e3c3837d31d8e">agentRadius</a></td></tr>
+<tr class="separator:a9df5920d3974bbcae94e3c3837d31d8e inherit pub_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a571991780b28128988b20cf108e2d53b inherit pub_attribs_classSample" id="r_a571991780b28128988b20cf108e2d53b"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a571991780b28128988b20cf108e2d53b">agentMaxClimb</a></td></tr>
+<tr class="separator:a571991780b28128988b20cf108e2d53b inherit pub_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a06098c797cc8047be83ebae227981ef3 inherit pub_attribs_classSample" id="r_a06098c797cc8047be83ebae227981ef3"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a06098c797cc8047be83ebae227981ef3">agentMaxSlope</a></td></tr>
+<tr class="separator:a06098c797cc8047be83ebae227981ef3 inherit pub_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acc6d1b7a27b378aa09e276b6ab750f84 inherit pub_attribs_classSample" id="r_acc6d1b7a27b378aa09e276b6ab750f84"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#acc6d1b7a27b378aa09e276b6ab750f84">regionMinSize</a></td></tr>
+<tr class="separator:acc6d1b7a27b378aa09e276b6ab750f84 inherit pub_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2ac0801987b7a4886fab78b2c293d783 inherit pub_attribs_classSample" id="r_a2ac0801987b7a4886fab78b2c293d783"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a2ac0801987b7a4886fab78b2c293d783">regionMergeSize</a></td></tr>
+<tr class="separator:a2ac0801987b7a4886fab78b2c293d783 inherit pub_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa856c9b46611e4a75567ffa945ec22b1 inherit pub_attribs_classSample" id="r_aa856c9b46611e4a75567ffa945ec22b1"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#aa856c9b46611e4a75567ffa945ec22b1">edgeMaxLen</a></td></tr>
+<tr class="separator:aa856c9b46611e4a75567ffa945ec22b1 inherit pub_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad3296de52aed85327d24c33d3baaab22 inherit pub_attribs_classSample" id="r_ad3296de52aed85327d24c33d3baaab22"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#ad3296de52aed85327d24c33d3baaab22">edgeMaxError</a></td></tr>
+<tr class="separator:ad3296de52aed85327d24c33d3baaab22 inherit pub_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9a46d3d2c3ea1b94699c34fd7896aa34 inherit pub_attribs_classSample" id="r_a9a46d3d2c3ea1b94699c34fd7896aa34"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a9a46d3d2c3ea1b94699c34fd7896aa34">vertsPerPoly</a></td></tr>
+<tr class="separator:a9a46d3d2c3ea1b94699c34fd7896aa34 inherit pub_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0fc5673b2eebd9122d024629bc3ae6a7 inherit pub_attribs_classSample" id="r_a0fc5673b2eebd9122d024629bc3ae6a7"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a0fc5673b2eebd9122d024629bc3ae6a7">detailSampleDist</a></td></tr>
+<tr class="separator:a0fc5673b2eebd9122d024629bc3ae6a7 inherit pub_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9e4395cbe887e9ee54d56ec13ec016d4 inherit pub_attribs_classSample" id="r_a9e4395cbe887e9ee54d56ec13ec016d4"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a9e4395cbe887e9ee54d56ec13ec016d4">detailSampleMaxError</a></td></tr>
+<tr class="separator:a9e4395cbe887e9ee54d56ec13ec016d4 inherit pub_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a49748109aeea54069576c52e3bf6d0f8 inherit pub_attribs_classSample" id="r_a49748109aeea54069576c52e3bf6d0f8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="Sample_8h.html#afbdbec55cd7e47cdf94167ba9dc3ca60">SamplePartitionType</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a49748109aeea54069576c52e3bf6d0f8">partitionType</a> = <a class="el" href="Sample_8h.html#afbdbec55cd7e47cdf94167ba9dc3ca60ac2f2890e29f7dbe371b5a48e6db70dac">SamplePartitionType::WATERSHED</a></td></tr>
+<tr class="separator:a49748109aeea54069576c52e3bf6d0f8 inherit pub_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a01c6e48e638643abff3b67dc86094e4b inherit pub_attribs_classSample" id="r_a01c6e48e638643abff3b67dc86094e4b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a01c6e48e638643abff3b67dc86094e4b">filterLowHangingObstacles</a> = true</td></tr>
+<tr class="separator:a01c6e48e638643abff3b67dc86094e4b inherit pub_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abb1dc88d54d9da198460a077d19a5123 inherit pub_attribs_classSample" id="r_abb1dc88d54d9da198460a077d19a5123"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#abb1dc88d54d9da198460a077d19a5123">filterLedgeSpans</a> = true</td></tr>
+<tr class="separator:abb1dc88d54d9da198460a077d19a5123 inherit pub_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2c1b3d45e256c7afcd0b29801b16c6ff inherit pub_attribs_classSample" id="r_a2c1b3d45e256c7afcd0b29801b16c6ff"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a2c1b3d45e256c7afcd0b29801b16c6ff">filterWalkableLowHeightSpans</a> = true</td></tr>
+<tr class="separator:a2c1b3d45e256c7afcd0b29801b16c6ff inherit pub_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a13b074060115ae98db2eff71073dd7ea inherit pub_attribs_classSample" id="r_a13b074060115ae98db2eff71073dd7ea"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structSampleTool.html">SampleTool</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#a13b074060115ae98db2eff71073dd7ea">tool</a> = nullptr</td></tr>
+<tr class="separator:a13b074060115ae98db2eff71073dd7ea inherit pub_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aef37c34eef73bc488d433a33bd90bb9f inherit pub_attribs_classSample" id="r_aef37c34eef73bc488d433a33bd90bb9f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structSampleToolState.html">SampleToolState</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#aef37c34eef73bc488d433a33bd90bb9f">toolStates</a> [static_cast&lt; size_t &gt;(<a class="el" href="Sample_8h.html#a8b7905ae89a9d21531c2fe65110bebc1a1b2f7fca644d3076648e41ceeb02c78c">SampleToolType::MAX_TOOLS</a>)] = {}</td></tr>
+<tr class="separator:aef37c34eef73bc488d433a33bd90bb9f inherit pub_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afb5acd52dc294f299c71835ec60a3ac8 inherit pub_attribs_classSample" id="r_afb5acd52dc294f299c71835ec60a3ac8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classBuildContext.html">BuildContext</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSample.html#afb5acd52dc294f299c71835ec60a3ac8">buildContext</a> = nullptr</td></tr>
+<tr class="separator:afb5acd52dc294f299c71835ec60a3ac8 inherit pub_attribs_classSample"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Enumeration Documentation</h2>
-<a id="a0b9495bb7c375195b704b91cdf9fd66d" name="a0b9495bb7c375195b704b91cdf9fd66d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0b9495bb7c375195b704b91cdf9fd66d">&#9670;&#160;</a></span>DrawMode</h2>
+<a id="abc40cab0ea338a15ec98011f2d6204cb" name="abc40cab0ea338a15ec98011f2d6204cb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abc40cab0ea338a15ec98011f2d6204cb">&#9670;&#160;</a></span>DrawMode</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -318,41 +313,40 @@ Protected Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">enum <a class="el" href="classSample__SoloMesh.html#a0b9495bb7c375195b704b91cdf9fd66d">Sample_SoloMesh::DrawMode</a></td>
+          <td class="memname">enum class <a class="el" href="classSample__SoloMesh.html#abc40cab0ea338a15ec98011f2d6204cb">Sample_SoloMesh::DrawMode</a> : uint8_t</td>
         </tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+<span class="mlabels"><span class="mlabel">strong</span><span class="mlabel">protected</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a0b9495bb7c375195b704b91cdf9fd66daea0fbcc171dd866c11dceb22f8bbb622" name="a0b9495bb7c375195b704b91cdf9fd66daea0fbcc171dd866c11dceb22f8bbb622"></a>DRAWMODE_NAVMESH&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="a0b9495bb7c375195b704b91cdf9fd66daa8e2ba3c26d26be4309cbf0f2528f6de" name="a0b9495bb7c375195b704b91cdf9fd66daa8e2ba3c26d26be4309cbf0f2528f6de"></a>DRAWMODE_NAVMESH_TRANS&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="a0b9495bb7c375195b704b91cdf9fd66dacde6a4b06b4f22f9002e93996dd15e99" name="a0b9495bb7c375195b704b91cdf9fd66dacde6a4b06b4f22f9002e93996dd15e99"></a>DRAWMODE_NAVMESH_BVTREE&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="a0b9495bb7c375195b704b91cdf9fd66daf0388faf72ff6fb0a55a80794eb34ebe" name="a0b9495bb7c375195b704b91cdf9fd66daf0388faf72ff6fb0a55a80794eb34ebe"></a>DRAWMODE_NAVMESH_NODES&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="a0b9495bb7c375195b704b91cdf9fd66da98fd365be74b3ea0aa3913f2f2f643da" name="a0b9495bb7c375195b704b91cdf9fd66da98fd365be74b3ea0aa3913f2f2f643da"></a>DRAWMODE_NAVMESH_INVIS&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="a0b9495bb7c375195b704b91cdf9fd66da88b9ae00e25b2e2099647ea4c26a9507" name="a0b9495bb7c375195b704b91cdf9fd66da88b9ae00e25b2e2099647ea4c26a9507"></a>DRAWMODE_MESH&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="a0b9495bb7c375195b704b91cdf9fd66da79c855d9a3d2f415381199922314b0db" name="a0b9495bb7c375195b704b91cdf9fd66da79c855d9a3d2f415381199922314b0db"></a>DRAWMODE_VOXELS&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="a0b9495bb7c375195b704b91cdf9fd66da1b0b737aee4f595a3e4279759d92e4ea" name="a0b9495bb7c375195b704b91cdf9fd66da1b0b737aee4f595a3e4279759d92e4ea"></a>DRAWMODE_VOXELS_WALKABLE&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="a0b9495bb7c375195b704b91cdf9fd66da8e442daf2e83ef3c05694457b5b33436" name="a0b9495bb7c375195b704b91cdf9fd66da8e442daf2e83ef3c05694457b5b33436"></a>DRAWMODE_COMPACT&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="a0b9495bb7c375195b704b91cdf9fd66dab7e81dc808347a112f588f6c20075cda" name="a0b9495bb7c375195b704b91cdf9fd66dab7e81dc808347a112f588f6c20075cda"></a>DRAWMODE_COMPACT_DISTANCE&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="a0b9495bb7c375195b704b91cdf9fd66da49df193c0a4344b056b1f6102d3dda70" name="a0b9495bb7c375195b704b91cdf9fd66da49df193c0a4344b056b1f6102d3dda70"></a>DRAWMODE_COMPACT_REGIONS&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="a0b9495bb7c375195b704b91cdf9fd66da2ddb380ea865ccc1c8fbf75f44a4dbe7" name="a0b9495bb7c375195b704b91cdf9fd66da2ddb380ea865ccc1c8fbf75f44a4dbe7"></a>DRAWMODE_REGION_CONNECTIONS&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="a0b9495bb7c375195b704b91cdf9fd66dac8a8e4bb3835a1d5dd15eab30fd2d7c7" name="a0b9495bb7c375195b704b91cdf9fd66dac8a8e4bb3835a1d5dd15eab30fd2d7c7"></a>DRAWMODE_RAW_CONTOURS&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="a0b9495bb7c375195b704b91cdf9fd66da9722e468551f5e1012433c4f6a1f7c59" name="a0b9495bb7c375195b704b91cdf9fd66da9722e468551f5e1012433c4f6a1f7c59"></a>DRAWMODE_BOTH_CONTOURS&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="a0b9495bb7c375195b704b91cdf9fd66dafce43a32523d6c5035eefbce35a73826" name="a0b9495bb7c375195b704b91cdf9fd66dafce43a32523d6c5035eefbce35a73826"></a>DRAWMODE_CONTOURS&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="a0b9495bb7c375195b704b91cdf9fd66dabcea7748dcffaf33d0fe31e8af538da8" name="a0b9495bb7c375195b704b91cdf9fd66dabcea7748dcffaf33d0fe31e8af538da8"></a>DRAWMODE_POLYMESH&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="a0b9495bb7c375195b704b91cdf9fd66da3cfa09fbea29fe5ad080cf664c026f67" name="a0b9495bb7c375195b704b91cdf9fd66da3cfa09fbea29fe5ad080cf664c026f67"></a>DRAWMODE_POLYMESH_DETAIL&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="a0b9495bb7c375195b704b91cdf9fd66dac8ad3153e5f19cd59fecff1c383cdcb1" name="a0b9495bb7c375195b704b91cdf9fd66dac8ad3153e5f19cd59fecff1c383cdcb1"></a>MAX_DRAWMODE&#160;</td><td class="fielddoc"></td></tr>
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="abc40cab0ea338a15ec98011f2d6204cba5b65fe46c5dd90ebcec69c472c3be1d9" name="abc40cab0ea338a15ec98011f2d6204cba5b65fe46c5dd90ebcec69c472c3be1d9"></a>MESH&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="abc40cab0ea338a15ec98011f2d6204cbaa7e72d66e799f19876d1ba9c72a8946c" name="abc40cab0ea338a15ec98011f2d6204cbaa7e72d66e799f19876d1ba9c72a8946c"></a>NAVMESH&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="abc40cab0ea338a15ec98011f2d6204cbaedd2549ee4a7bb6a5fee7e9a7b756fda" name="abc40cab0ea338a15ec98011f2d6204cbaedd2549ee4a7bb6a5fee7e9a7b756fda"></a>NAVMESH_INVIS&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="abc40cab0ea338a15ec98011f2d6204cbabd8c0792c80051fb9cfeac77682b3a57" name="abc40cab0ea338a15ec98011f2d6204cbabd8c0792c80051fb9cfeac77682b3a57"></a>NAVMESH_TRANS&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="abc40cab0ea338a15ec98011f2d6204cbabac9ed898cbfd21b3258f06d6405f69b" name="abc40cab0ea338a15ec98011f2d6204cbabac9ed898cbfd21b3258f06d6405f69b"></a>NAVMESH_BVTREE&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="abc40cab0ea338a15ec98011f2d6204cba7760c97857d6977905edc8df12ff98aa" name="abc40cab0ea338a15ec98011f2d6204cba7760c97857d6977905edc8df12ff98aa"></a>NAVMESH_NODES&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="abc40cab0ea338a15ec98011f2d6204cbad8db98767dbc4d9a19906705bde9fefc" name="abc40cab0ea338a15ec98011f2d6204cbad8db98767dbc4d9a19906705bde9fefc"></a>VOXELS&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="abc40cab0ea338a15ec98011f2d6204cba075c817362b332c433378855e435230a" name="abc40cab0ea338a15ec98011f2d6204cba075c817362b332c433378855e435230a"></a>VOXELS_WALKABLE&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="abc40cab0ea338a15ec98011f2d6204cbabbd53c25a2b976c1757ce1f9dbe8bd1f" name="abc40cab0ea338a15ec98011f2d6204cbabbd53c25a2b976c1757ce1f9dbe8bd1f"></a>COMPACT&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="abc40cab0ea338a15ec98011f2d6204cbad0b241983f77110d1bf68a635a10c3b0" name="abc40cab0ea338a15ec98011f2d6204cbad0b241983f77110d1bf68a635a10c3b0"></a>COMPACT_DISTANCE&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="abc40cab0ea338a15ec98011f2d6204cba4cc1c871c83b7a6c50191a8a5faca526" name="abc40cab0ea338a15ec98011f2d6204cba4cc1c871c83b7a6c50191a8a5faca526"></a>COMPACT_REGIONS&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="abc40cab0ea338a15ec98011f2d6204cba4a8ac5843660199af355b3e1006a7723" name="abc40cab0ea338a15ec98011f2d6204cba4a8ac5843660199af355b3e1006a7723"></a>REGION_CONNECTIONS&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="abc40cab0ea338a15ec98011f2d6204cbad8c65d30f4acb2c51a9c0b4b5a7994e9" name="abc40cab0ea338a15ec98011f2d6204cbad8c65d30f4acb2c51a9c0b4b5a7994e9"></a>RAW_CONTOURS&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="abc40cab0ea338a15ec98011f2d6204cbab90eae3a14f040bb7dca3979b094d271" name="abc40cab0ea338a15ec98011f2d6204cbab90eae3a14f040bb7dca3979b094d271"></a>BOTH_CONTOURS&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="abc40cab0ea338a15ec98011f2d6204cbac49ddc48f555ccb5ee5bd6ee9ba16666" name="abc40cab0ea338a15ec98011f2d6204cbac49ddc48f555ccb5ee5bd6ee9ba16666"></a>CONTOURS&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="abc40cab0ea338a15ec98011f2d6204cba78d45094040647c24341a5eebc7ed060" name="abc40cab0ea338a15ec98011f2d6204cba78d45094040647c24341a5eebc7ed060"></a>POLYMESH&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="abc40cab0ea338a15ec98011f2d6204cba4799a8ce14bb5ad83b66e2b038386f48" name="abc40cab0ea338a15ec98011f2d6204cba4799a8ce14bb5ad83b66e2b038386f48"></a>POLYMESH_DETAIL&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
 </div>
 </div>
 <h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a85b98cc7d5c81d86acccd31156c3258c" name="a85b98cc7d5c81d86acccd31156c3258c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a85b98cc7d5c81d86acccd31156c3258c">&#9670;&#160;</a></span>Sample_SoloMesh()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a85b98cc7d5c81d86acccd31156c3258c">&#9670;&#160;</a></span>Sample_SoloMesh() <span class="overload">[1/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -368,8 +362,8 @@ Protected Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="a8b7895596e5ce8977b5727023a39573d" name="a8b7895596e5ce8977b5727023a39573d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8b7895596e5ce8977b5727023a39573d">&#9670;&#160;</a></span>~Sample_SoloMesh()</h2>
+<a id="a10ee850cae1910015b37c151b483c1b4" name="a10ee850cae1910015b37c151b483c1b4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a10ee850cae1910015b37c151b483c1b4">&#9670;&#160;</a></span>~Sample_SoloMesh()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -386,7 +380,59 @@ Protected Attributes</h2></td></tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">override</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="aae5337f73364768f43cec23e58387934" name="aae5337f73364768f43cec23e58387934"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aae5337f73364768f43cec23e58387934">&#9670;&#160;</a></span>Sample_SoloMesh() <span class="overload">[2/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Sample_SoloMesh::Sample_SoloMesh </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classSample__SoloMesh.html">Sample_SoloMesh</a> &amp;&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">delete</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a152a3a00de5ff25b8b35e7da84fefd97" name="a152a3a00de5ff25b8b35e7da84fefd97"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a152a3a00de5ff25b8b35e7da84fefd97">&#9670;&#160;</a></span>Sample_SoloMesh() <span class="overload">[3/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Sample_SoloMesh::Sample_SoloMesh </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classSample__SoloMesh.html">Sample_SoloMesh</a> &amp;&amp;&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">delete</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -394,6 +440,33 @@ Protected Attributes</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a id="a7ed4e83a66a700e25d7bebf1e2357c1b" name="a7ed4e83a66a700e25d7bebf1e2357c1b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7ed4e83a66a700e25d7bebf1e2357c1b">&#9670;&#160;</a></span>build()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Sample_SoloMesh::build </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Reimplemented from <a class="el" href="classSample.html#a9433a7ac7bd18a8f09371dfbb54c7bb3">Sample</a>.</p>
+
+</div>
+</div>
 <a id="afede15e3275e57b471fe72d26957d1b8" name="afede15e3275e57b471fe72d26957d1b8"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#afede15e3275e57b471fe72d26957d1b8">&#9670;&#160;</a></span>cleanup()</h2>
 
@@ -419,8 +492,8 @@ Protected Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="aa64471f37aa3d47e0efb58d01004d259" name="aa64471f37aa3d47e0efb58d01004d259"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa64471f37aa3d47e0efb58d01004d259">&#9670;&#160;</a></span>handleBuild()</h2>
+<a id="a7e34bb27fa3c0841877f3206ca6cc4fb" name="a7e34bb27fa3c0841877f3206ca6cc4fb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7e34bb27fa3c0841877f3206ca6cc4fb">&#9670;&#160;</a></span>drawDebugUI()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -429,7 +502,7 @@ Protected Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">bool Sample_SoloMesh::handleBuild </td>
+          <td class="memname">void Sample_SoloMesh::drawDebugUI </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -437,17 +510,17 @@ Protected Attributes</h2></td></tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
-<p>Reimplemented from <a class="el" href="classSample.html#aed281e16d0d13265d6d43d3604bc10ad">Sample</a>.</p>
+<p>Reimplemented from <a class="el" href="classSample.html#aede4ad1e2c28e8e0885edb7ef7d67482">Sample</a>.</p>
 
 </div>
 </div>
-<a id="a1e7120d697077a25672a5e6edceb2044" name="a1e7120d697077a25672a5e6edceb2044"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1e7120d697077a25672a5e6edceb2044">&#9670;&#160;</a></span>handleDebugMode()</h2>
+<a id="a40fa850196df8008543fa5e536898bde" name="a40fa850196df8008543fa5e536898bde"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a40fa850196df8008543fa5e536898bde">&#9670;&#160;</a></span>drawSettingsUI()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -456,7 +529,7 @@ Protected Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void Sample_SoloMesh::handleDebugMode </td>
+          <td class="memname">void Sample_SoloMesh::drawSettingsUI </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -464,17 +537,17 @@ Protected Attributes</h2></td></tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
-<p>Reimplemented from <a class="el" href="classSample.html#a013d5178776491775faec65ee8627233">Sample</a>.</p>
+<p>Reimplemented from <a class="el" href="classSample.html#abd109c867e235c0b54db227509ce8f17">Sample</a>.</p>
 
 </div>
 </div>
-<a id="af63e6f988dc1866aabc7257802f794ce" name="af63e6f988dc1866aabc7257802f794ce"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af63e6f988dc1866aabc7257802f794ce">&#9670;&#160;</a></span>handleMeshChanged()</h2>
+<a id="ab0f9bafc5f3845a84ba7e0cfb99f73f1" name="ab0f9bafc5f3845a84ba7e0cfb99f73f1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab0f9bafc5f3845a84ba7e0cfb99f73f1">&#9670;&#160;</a></span>drawToolsUI()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -483,26 +556,53 @@ Protected Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void Sample_SoloMesh::handleMeshChanged </td>
+          <td class="memname">void Sample_SoloMesh::drawToolsUI </td>
           <td>(</td>
-          <td class="paramtype">class <a class="el" href="classInputGeom.html">InputGeom</a> *&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Reimplemented from <a class="el" href="classSample.html#a8f610a9556989a84fba7ea9ad9e18a21">Sample</a>.</p>
+
+</div>
+</div>
+<a id="aca128abd5efab794f78e282bed0a6130" name="aca128abd5efab794f78e282bed0a6130"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aca128abd5efab794f78e282bed0a6130">&#9670;&#160;</a></span>onMeshChanged()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Sample_SoloMesh::onMeshChanged </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classInputGeom.html">InputGeom</a> *&#160;</td>
           <td class="paramname"><em>geom</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
-<p>Reimplemented from <a class="el" href="classSample.html#a469aa66ff46ed039e8b6d0067f7e500c">Sample</a>.</p>
+<p>Reimplemented from <a class="el" href="classSample.html#a24b56f2c20f081ea509a4ebe3734dd7e">Sample</a>.</p>
 
 </div>
 </div>
-<a id="a08cee8a58d6ef5897847ab85518c9a91" name="a08cee8a58d6ef5897847ab85518c9a91"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a08cee8a58d6ef5897847ab85518c9a91">&#9670;&#160;</a></span>handleRender()</h2>
+<a id="a2601787795c592e6ea31b69843a199a1" name="a2601787795c592e6ea31b69843a199a1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2601787795c592e6ea31b69843a199a1">&#9670;&#160;</a></span>operator=() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -511,7 +611,59 @@ Protected Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void Sample_SoloMesh::handleRender </td>
+          <td class="memname"><a class="el" href="classSample__SoloMesh.html">Sample_SoloMesh</a> &amp; Sample_SoloMesh::operator= </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classSample__SoloMesh.html">Sample_SoloMesh</a> &amp;&amp;&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">delete</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="aaed018e1bc0d3e53635566f07ec9d278" name="aaed018e1bc0d3e53635566f07ec9d278"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaed018e1bc0d3e53635566f07ec9d278">&#9670;&#160;</a></span>operator=() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classSample__SoloMesh.html">Sample_SoloMesh</a> &amp; Sample_SoloMesh::operator= </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classSample__SoloMesh.html">Sample_SoloMesh</a> &amp;&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">delete</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a614aada8f02d1fcf5fbcdbfcbb577481" name="a614aada8f02d1fcf5fbcdbfcbb577481"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a614aada8f02d1fcf5fbcdbfcbb577481">&#9670;&#160;</a></span>render()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Sample_SoloMesh::render </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -519,17 +671,17 @@ Protected Attributes</h2></td></tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
-<p>Reimplemented from <a class="el" href="classSample.html#ada97cd12664f32a84c23c2e2b50890d3">Sample</a>.</p>
+<p>Reimplemented from <a class="el" href="classSample.html#ad13fdb05b350e44a374a2af619fe1385">Sample</a>.</p>
 
 </div>
 </div>
-<a id="a9ee1ce62bf30f0b6c4b743101bbe2c7e" name="a9ee1ce62bf30f0b6c4b743101bbe2c7e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9ee1ce62bf30f0b6c4b743101bbe2c7e">&#9670;&#160;</a></span>handleRenderOverlay()</h2>
+<a id="a0040d39ca836744b79849e954b9e045f" name="a0040d39ca836744b79849e954b9e045f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0040d39ca836744b79849e954b9e045f">&#9670;&#160;</a></span>renderOverlay()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -538,51 +690,7 @@ Protected Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void Sample_SoloMesh::handleRenderOverlay </td>
-          <td>(</td>
-          <td class="paramtype">double *&#160;</td>
-          <td class="paramname"><em>proj</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double *&#160;</td>
-          <td class="paramname"><em>model</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int *&#160;</td>
-          <td class="paramname"><em>view</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Reimplemented from <a class="el" href="classSample.html#aa6c6bd9c1947f9699e75c726f0bbd4d5">Sample</a>.</p>
-
-</div>
-</div>
-<a id="a756bbc11445f8ad9af9cbb5b4cb44ec8" name="a756bbc11445f8ad9af9cbb5b4cb44ec8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a756bbc11445f8ad9af9cbb5b4cb44ec8">&#9670;&#160;</a></span>handleSettings()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void Sample_SoloMesh::handleSettings </td>
+          <td class="memname">void Sample_SoloMesh::renderOverlay </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -590,45 +698,18 @@ Protected Attributes</h2></td></tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
-<p>Reimplemented from <a class="el" href="classSample.html#a06fbc4cf5c3cd6b5581ae33db37ac324">Sample</a>.</p>
-
-</div>
-</div>
-<a id="aeb52c7800e16699f467377fa38357d28" name="aeb52c7800e16699f467377fa38357d28"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aeb52c7800e16699f467377fa38357d28">&#9670;&#160;</a></span>handleTools()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void Sample_SoloMesh::handleTools </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Reimplemented from <a class="el" href="classSample.html#a4dc0dd60e505cec25a225f5d2ebf83d1">Sample</a>.</p>
+<p>Reimplemented from <a class="el" href="classSample.html#a21103d86c1b8061974d5398c3466a6f1">Sample</a>.</p>
 
 </div>
 </div>
 <h2 class="groupheader">Member Data Documentation</h2>
-<a id="a383b397074ebd6e8781928019a4b2e06" name="a383b397074ebd6e8781928019a4b2e06"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a383b397074ebd6e8781928019a4b2e06">&#9670;&#160;</a></span>m_cfg</h2>
+<a id="af866f52880ff73a2ef7c9ffbff54deb4" name="af866f52880ff73a2ef7c9ffbff54deb4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af866f52880ff73a2ef7c9ffbff54deb4">&#9670;&#160;</a></span>compactHeightfield</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -637,7 +718,7 @@ Protected Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="structrcConfig.html">rcConfig</a> Sample_SoloMesh::m_cfg</td>
+          <td class="memname"><a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a>* Sample_SoloMesh::compactHeightfield = nullptr</td>
         </tr>
       </table>
   </td>
@@ -649,8 +730,8 @@ Protected Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="a9d9606cdf612dd091df930a603f5e24c" name="a9d9606cdf612dd091df930a603f5e24c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9d9606cdf612dd091df930a603f5e24c">&#9670;&#160;</a></span>m_chf</h2>
+<a id="a0a4b16d2bf66358dcf2a29c5ab2018ad" name="a0a4b16d2bf66358dcf2a29c5ab2018ad"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0a4b16d2bf66358dcf2a29c5ab2018ad">&#9670;&#160;</a></span>config</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -659,7 +740,7 @@ Protected Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="structrcCompactHeightfield.html">rcCompactHeightfield</a>* Sample_SoloMesh::m_chf</td>
+          <td class="memname"><a class="el" href="structrcConfig.html">rcConfig</a> Sample_SoloMesh::config {}</td>
         </tr>
       </table>
   </td>
@@ -671,8 +752,8 @@ Protected Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="aba18137adf1ed26a4a541a985a70d758" name="aba18137adf1ed26a4a541a985a70d758"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aba18137adf1ed26a4a541a985a70d758">&#9670;&#160;</a></span>m_cset</h2>
+<a id="adcdf37924529faa37b554610af053518" name="adcdf37924529faa37b554610af053518"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adcdf37924529faa37b554610af053518">&#9670;&#160;</a></span>contourSet</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -681,7 +762,7 @@ Protected Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="structrcContourSet.html">rcContourSet</a>* Sample_SoloMesh::m_cset</td>
+          <td class="memname"><a class="el" href="structrcContourSet.html">rcContourSet</a>* Sample_SoloMesh::contourSet = nullptr</td>
         </tr>
       </table>
   </td>
@@ -693,8 +774,8 @@ Protected Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="a558ccf439fbd4ccf9efa9e3f2cf49c08" name="a558ccf439fbd4ccf9efa9e3f2cf49c08"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a558ccf439fbd4ccf9efa9e3f2cf49c08">&#9670;&#160;</a></span>m_dmesh</h2>
+<a id="a09b0c1f32495b81ca90fb46713486f9d" name="a09b0c1f32495b81ca90fb46713486f9d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a09b0c1f32495b81ca90fb46713486f9d">&#9670;&#160;</a></span>currentDrawMode</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -703,7 +784,7 @@ Protected Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="structrcPolyMeshDetail.html">rcPolyMeshDetail</a>* Sample_SoloMesh::m_dmesh</td>
+          <td class="memname"><a class="el" href="classSample__SoloMesh.html#abc40cab0ea338a15ec98011f2d6204cb">DrawMode</a> Sample_SoloMesh::currentDrawMode = <a class="el" href="classSample__SoloMesh.html#abc40cab0ea338a15ec98011f2d6204cbaa7e72d66e799f19876d1ba9c72a8946c">DrawMode::NAVMESH</a></td>
         </tr>
       </table>
   </td>
@@ -715,8 +796,8 @@ Protected Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="a32d99e347eb1580cd1b018393af1020a" name="a32d99e347eb1580cd1b018393af1020a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a32d99e347eb1580cd1b018393af1020a">&#9670;&#160;</a></span>m_drawMode</h2>
+<a id="ae8fb0a720997424a2025263bcc3dcdc9" name="ae8fb0a720997424a2025263bcc3dcdc9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae8fb0a720997424a2025263bcc3dcdc9">&#9670;&#160;</a></span>detailMesh</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -725,7 +806,7 @@ Protected Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classSample__SoloMesh.html#a0b9495bb7c375195b704b91cdf9fd66d">DrawMode</a> Sample_SoloMesh::m_drawMode</td>
+          <td class="memname"><a class="el" href="structrcPolyMeshDetail.html">rcPolyMeshDetail</a>* Sample_SoloMesh::detailMesh = nullptr</td>
         </tr>
       </table>
   </td>
@@ -737,8 +818,8 @@ Protected Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="a6a30d74e05436f712c10a2013cb0bd14" name="a6a30d74e05436f712c10a2013cb0bd14"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6a30d74e05436f712c10a2013cb0bd14">&#9670;&#160;</a></span>m_keepInterResults</h2>
+<a id="a757d2a5b0113b75884b22651966b7d5e" name="a757d2a5b0113b75884b22651966b7d5e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a757d2a5b0113b75884b22651966b7d5e">&#9670;&#160;</a></span>drawModeNames</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -747,7 +828,47 @@ Protected Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">bool Sample_SoloMesh::m_keepInterResults</td>
+          <td class="memname">const char * Sample_SoloMesh::drawModeNames</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Initial value:</b><div class="fragment"><div class="line">{</div>
+<div class="line">    <span class="stringliteral">&quot;Input Mesh&quot;</span>,</div>
+<div class="line">    <span class="stringliteral">&quot;Navmesh&quot;</span>,</div>
+<div class="line">    <span class="stringliteral">&quot;Navmesh Invis&quot;</span>,</div>
+<div class="line">    <span class="stringliteral">&quot;Navmesh Trans&quot;</span>,</div>
+<div class="line">    <span class="stringliteral">&quot;Navmesh BVTree&quot;</span>,</div>
+<div class="line">    <span class="stringliteral">&quot;Navmesh Nodes&quot;</span>,</div>
+<div class="line">    <span class="stringliteral">&quot;Voxels&quot;</span>,</div>
+<div class="line">    <span class="stringliteral">&quot;Walkable Voxels&quot;</span>,</div>
+<div class="line">    <span class="stringliteral">&quot;Compact&quot;</span>,</div>
+<div class="line">    <span class="stringliteral">&quot;Compact Distance&quot;</span>,</div>
+<div class="line">    <span class="stringliteral">&quot;Compact Regions&quot;</span>,</div>
+<div class="line">    <span class="stringliteral">&quot;Region Connections&quot;</span>,</div>
+<div class="line">    <span class="stringliteral">&quot;Raw Contours&quot;</span>,</div>
+<div class="line">    <span class="stringliteral">&quot;Both Contours&quot;</span>,</div>
+<div class="line">    <span class="stringliteral">&quot;Contours&quot;</span>,</div>
+<div class="line">    <span class="stringliteral">&quot;Poly Mesh&quot;</span>,</div>
+<div class="line">    <span class="stringliteral">&quot;Poly Mesh Detail&quot;</span>}</div>
+</div><!-- fragment -->
+</div>
+</div>
+<a id="a6e96da1cafa0fc71da99eeac181cc551" name="a6e96da1cafa0fc71da99eeac181cc551"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6e96da1cafa0fc71da99eeac181cc551">&#9670;&#160;</a></span>heightfield</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structrcHeightfield.html">rcHeightfield</a>* Sample_SoloMesh::heightfield = nullptr</td>
         </tr>
       </table>
   </td>
@@ -759,8 +880,8 @@ Protected Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="a12b020d2ae29630abe24090452d89d58" name="a12b020d2ae29630abe24090452d89d58"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a12b020d2ae29630abe24090452d89d58">&#9670;&#160;</a></span>m_pmesh</h2>
+<a id="ab2b939db5b460cdf183bf531074289f6" name="ab2b939db5b460cdf183bf531074289f6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab2b939db5b460cdf183bf531074289f6">&#9670;&#160;</a></span>polyMesh</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -769,7 +890,7 @@ Protected Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="structrcPolyMesh.html">rcPolyMesh</a>* Sample_SoloMesh::m_pmesh</td>
+          <td class="memname"><a class="el" href="structrcPolyMesh.html">rcPolyMesh</a>* Sample_SoloMesh::polyMesh = nullptr</td>
         </tr>
       </table>
   </td>
@@ -781,8 +902,8 @@ Protected Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="aee04a7d9dbc1c9e1f6c6084ac5503a93" name="aee04a7d9dbc1c9e1f6c6084ac5503a93"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aee04a7d9dbc1c9e1f6c6084ac5503a93">&#9670;&#160;</a></span>m_solid</h2>
+<a id="a104f8d0c7bb0a9caa5dd3353e5fa8d3d" name="a104f8d0c7bb0a9caa5dd3353e5fa8d3d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a104f8d0c7bb0a9caa5dd3353e5fa8d3d">&#9670;&#160;</a></span>totalBuildTimeMs</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -791,7 +912,7 @@ Protected Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="structrcHeightfield.html">rcHeightfield</a>* Sample_SoloMesh::m_solid</td>
+          <td class="memname">float Sample_SoloMesh::totalBuildTimeMs = 0</td>
         </tr>
       </table>
   </td>
@@ -803,8 +924,8 @@ Protected Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="ad018e09c3f700c7d9f7b4bec389b9643" name="ad018e09c3f700c7d9f7b4bec389b9643"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad018e09c3f700c7d9f7b4bec389b9643">&#9670;&#160;</a></span>m_totalBuildTimeMs</h2>
+<a id="a205ba65ba70193fff0887c175ce54334" name="a205ba65ba70193fff0887c175ce54334"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a205ba65ba70193fff0887c175ce54334">&#9670;&#160;</a></span>triAreas</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -813,29 +934,7 @@ Protected Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">float Sample_SoloMesh::m_totalBuildTimeMs</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="a53f7d384f99517ace66e6d4738d622e3" name="a53f7d384f99517ace66e6d4738d622e3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a53f7d384f99517ace66e6d4738d622e3">&#9670;&#160;</a></span>m_triareas</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">unsigned char* Sample_SoloMesh::m_triareas</td>
+          <td class="memname">unsigned char* Sample_SoloMesh::triAreas = nullptr</td>
         </tr>
       </table>
   </td>

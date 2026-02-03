@@ -95,12 +95,13 @@ $(document).ready(function(){initNavTree('Sample_8h.html',''); initResizable(); 
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
-<a href="#enum-members">Enumerations</a>  </div>
+<a href="#enum-members">Enumerations</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle"><div class="title">Sample.h File Reference</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><code>#include &quot;<a class="el" href="Recast_8h_source.html">Recast.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="SampleInterfaces_8h_source.html">SampleInterfaces.h</a>&quot;</code><br />
+<div class="textblock"><code>#include &quot;<a class="el" href="SampleInterfaces_8h_source.html">SampleInterfaces.h</a>&quot;</code><br />
+<code>#include &lt;cstdint&gt;</code><br />
 </div>
 <p><a href="Sample_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
@@ -117,23 +118,23 @@ Classes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
 Enumerations</h2></td></tr>
-<tr class="memitem:ae448bf9be534170ca5b5f8c97256125b" id="r_ae448bf9be534170ca5b5f8c97256125b"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Sample_8h.html#ae448bf9be534170ca5b5f8c97256125b">SampleToolType</a> { <br />
-&#160;&#160;<a class="el" href="Sample_8h.html#ae448bf9be534170ca5b5f8c97256125baea1b4490f1a21f7bd637324c9a46474e">TOOL_NONE</a> = 0
-, <a class="el" href="Sample_8h.html#ae448bf9be534170ca5b5f8c97256125ba3cf3ab9c4ec7c40ff509f7eaab437d1b">TOOL_TILE_EDIT</a>
-, <a class="el" href="Sample_8h.html#ae448bf9be534170ca5b5f8c97256125ba9657bb5c075ec7d34b297a657ce25d74">TOOL_TILE_HIGHLIGHT</a>
-, <a class="el" href="Sample_8h.html#ae448bf9be534170ca5b5f8c97256125ba5b84b6b324182b6d84255bf90ba84468">TOOL_TEMP_OBSTACLE</a>
+<tr class="memitem:a8b7905ae89a9d21531c2fe65110bebc1" id="r_a8b7905ae89a9d21531c2fe65110bebc1"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Sample_8h.html#a8b7905ae89a9d21531c2fe65110bebc1">SampleToolType</a> : uint8_t { <br />
+&#160;&#160;<a class="el" href="Sample_8h.html#a8b7905ae89a9d21531c2fe65110bebc1ab50339a10e1de285ac99d4c3990b8693">NONE</a> = 0
+, <a class="el" href="Sample_8h.html#a8b7905ae89a9d21531c2fe65110bebc1a51be1ace90af5ea9d836a7f8498fac87">TILE_EDIT</a>
+, <a class="el" href="Sample_8h.html#a8b7905ae89a9d21531c2fe65110bebc1a256fc5c1aed48268750fdedc29b47079">TILE_HIGHLIGHT</a>
+, <a class="el" href="Sample_8h.html#a8b7905ae89a9d21531c2fe65110bebc1a6eee38d969cb457212b4dc525a24ec9c">TEMP_OBSTACLE</a>
 , <br />
-&#160;&#160;<a class="el" href="Sample_8h.html#ae448bf9be534170ca5b5f8c97256125ba0b913f987aa3e318b76065cfa4985815">TOOL_NAVMESH_TESTER</a>
-, <a class="el" href="Sample_8h.html#ae448bf9be534170ca5b5f8c97256125ba23046ac29087338ff7e8b24cc1778fef">TOOL_NAVMESH_PRUNE</a>
-, <a class="el" href="Sample_8h.html#ae448bf9be534170ca5b5f8c97256125ba0c30e9d3ebdeca5bddecc218dc342b98">TOOL_OFFMESH_CONNECTION</a>
-, <a class="el" href="Sample_8h.html#ae448bf9be534170ca5b5f8c97256125ba0a31d2fb717946c688d04888a81c2063">TOOL_CONVEX_VOLUME</a>
+&#160;&#160;<a class="el" href="Sample_8h.html#a8b7905ae89a9d21531c2fe65110bebc1a40c52dfb795cef659dccbc99ed798c00">NAVMESH_TESTER</a>
+, <a class="el" href="Sample_8h.html#a8b7905ae89a9d21531c2fe65110bebc1a366638a99cc30a5605e48187c7a3463c">NAVMESH_PRUNE</a>
+, <a class="el" href="Sample_8h.html#a8b7905ae89a9d21531c2fe65110bebc1adfe732610d1431a2723d8f851895a3ad">OFFMESH_CONNECTION</a>
+, <a class="el" href="Sample_8h.html#a8b7905ae89a9d21531c2fe65110bebc1adbfd86821e2b262ac197472e1a21879f">CONVEX_VOLUME</a>
 , <br />
-&#160;&#160;<a class="el" href="Sample_8h.html#ae448bf9be534170ca5b5f8c97256125ba2c02ab36128a429e63f30ac3beea2a12">TOOL_CROWD</a>
-, <a class="el" href="Sample_8h.html#ae448bf9be534170ca5b5f8c97256125baf21d3b3c7a6296454122cffd465fcb25">MAX_TOOLS</a>
+&#160;&#160;<a class="el" href="Sample_8h.html#a8b7905ae89a9d21531c2fe65110bebc1adb2f668eda4022cbebc528b605ce84cf">CROWD</a>
+, <a class="el" href="Sample_8h.html#a8b7905ae89a9d21531c2fe65110bebc1a1b2f7fca644d3076648e41ceeb02c78c">MAX_TOOLS</a>
 <br />
  }</td></tr>
-<tr class="memdesc:ae448bf9be534170ca5b5f8c97256125b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tool types.  <a href="Sample_8h.html#ae448bf9be534170ca5b5f8c97256125b">More...</a><br /></td></tr>
-<tr class="separator:ae448bf9be534170ca5b5f8c97256125b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memdesc:a8b7905ae89a9d21531c2fe65110bebc1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tool types.  <a href="Sample_8h.html#a8b7905ae89a9d21531c2fe65110bebc1">More...</a><br /></td></tr>
+<tr class="separator:a8b7905ae89a9d21531c2fe65110bebc1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a588cb37d59e832fa4f2606474769b6da" id="r_a588cb37d59e832fa4f2606474769b6da"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Sample_8h.html#a588cb37d59e832fa4f2606474769b6da">SamplePolyAreas</a> { <br />
 &#160;&#160;<a class="el" href="Sample_8h.html#a588cb37d59e832fa4f2606474769b6daade496ba823714eb3b6d31fa9c1297388">SAMPLE_POLYAREA_GROUND</a>
 , <a class="el" href="Sample_8h.html#a588cb37d59e832fa4f2606474769b6daa08ea8d5a36716a7e74a6c73a25bcadbe">SAMPLE_POLYAREA_WATER</a>
@@ -147,38 +148,51 @@ Enumerations</h2></td></tr>
 <tr class="memdesc:a588cb37d59e832fa4f2606474769b6da"><td class="mdescLeft">&#160;</td><td class="mdescRight">These are just sample areas to use consistent values across the samples.  <a href="Sample_8h.html#a588cb37d59e832fa4f2606474769b6da">More...</a><br /></td></tr>
 <tr class="separator:a588cb37d59e832fa4f2606474769b6da"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7f96856c3ec53bcd8dab2396ae743f8d" id="r_a7f96856c3ec53bcd8dab2396ae743f8d"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Sample_8h.html#a7f96856c3ec53bcd8dab2396ae743f8d">SamplePolyFlags</a> { <br />
-&#160;&#160;<a class="el" href="Sample_8h.html#a7f96856c3ec53bcd8dab2396ae743f8da56be2036bea60e03345da8f4897a4682">SAMPLE_POLYFLAGS_WALK</a> = 0x01
-, <a class="el" href="Sample_8h.html#a7f96856c3ec53bcd8dab2396ae743f8da01b0f8a3c0e3f5e7c4c9fa79c13981ea">SAMPLE_POLYFLAGS_SWIM</a> = 0x02
-, <a class="el" href="Sample_8h.html#a7f96856c3ec53bcd8dab2396ae743f8da7d04a970d5e5fa624733a4be27470f3c">SAMPLE_POLYFLAGS_DOOR</a> = 0x04
-, <a class="el" href="Sample_8h.html#a7f96856c3ec53bcd8dab2396ae743f8da15efc6d182fbdd962d5b28f77d3c9e8f">SAMPLE_POLYFLAGS_JUMP</a> = 0x08
+&#160;&#160;<a class="el" href="Sample_8h.html#a7f96856c3ec53bcd8dab2396ae743f8da56be2036bea60e03345da8f4897a4682">SAMPLE_POLYFLAGS_WALK</a> = 1 &lt;&lt; 0
+, <a class="el" href="Sample_8h.html#a7f96856c3ec53bcd8dab2396ae743f8da01b0f8a3c0e3f5e7c4c9fa79c13981ea">SAMPLE_POLYFLAGS_SWIM</a> = 1 &lt;&lt; 1
+, <a class="el" href="Sample_8h.html#a7f96856c3ec53bcd8dab2396ae743f8da7d04a970d5e5fa624733a4be27470f3c">SAMPLE_POLYFLAGS_DOOR</a> = 1 &lt;&lt; 2
+, <a class="el" href="Sample_8h.html#a7f96856c3ec53bcd8dab2396ae743f8da15efc6d182fbdd962d5b28f77d3c9e8f">SAMPLE_POLYFLAGS_JUMP</a> = 1 &lt;&lt; 3
 , <br />
-&#160;&#160;<a class="el" href="Sample_8h.html#a7f96856c3ec53bcd8dab2396ae743f8da2646db68ba40d4004ffb88a37717c4d1">SAMPLE_POLYFLAGS_DISABLED</a> = 0x10
-, <a class="el" href="Sample_8h.html#a7f96856c3ec53bcd8dab2396ae743f8daa00f1707b9fb5af90130ee64d133e68f">SAMPLE_POLYFLAGS_ALL</a> = 0xffff
+&#160;&#160;<a class="el" href="Sample_8h.html#a7f96856c3ec53bcd8dab2396ae743f8da2646db68ba40d4004ffb88a37717c4d1">SAMPLE_POLYFLAGS_DISABLED</a> = 1 &lt;&lt; 4
+, <a class="el" href="Sample_8h.html#a7f96856c3ec53bcd8dab2396ae743f8daa00f1707b9fb5af90130ee64d133e68f">SAMPLE_POLYFLAGS_ALL</a> = ~0
 <br />
  }</td></tr>
 <tr class="separator:a7f96856c3ec53bcd8dab2396ae743f8d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a73f95e7eb01a7e948ecfa34b9cebcdc1" id="r_a73f95e7eb01a7e948ecfa34b9cebcdc1"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Sample_8h.html#a73f95e7eb01a7e948ecfa34b9cebcdc1">SamplePartitionType</a> { <a class="el" href="Sample_8h.html#a73f95e7eb01a7e948ecfa34b9cebcdc1a4fe0d0ba0791fe2280ff3821177766a9">SAMPLE_PARTITION_WATERSHED</a>
-, <a class="el" href="Sample_8h.html#a73f95e7eb01a7e948ecfa34b9cebcdc1aa44dc0eb2004b683d4297b7d46cfe979">SAMPLE_PARTITION_MONOTONE</a>
-, <a class="el" href="Sample_8h.html#a73f95e7eb01a7e948ecfa34b9cebcdc1a1fae7df00c1a8f165833e48c67692627">SAMPLE_PARTITION_LAYERS</a>
+<tr class="memitem:afbdbec55cd7e47cdf94167ba9dc3ca60" id="r_afbdbec55cd7e47cdf94167ba9dc3ca60"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Sample_8h.html#afbdbec55cd7e47cdf94167ba9dc3ca60">SamplePartitionType</a> : uint8_t { <a class="el" href="Sample_8h.html#afbdbec55cd7e47cdf94167ba9dc3ca60ac2f2890e29f7dbe371b5a48e6db70dac">WATERSHED</a>
+, <a class="el" href="Sample_8h.html#afbdbec55cd7e47cdf94167ba9dc3ca60a0f9e8e3552c7f87e044893e7620b476d">MONOTONE</a>
+, <a class="el" href="Sample_8h.html#afbdbec55cd7e47cdf94167ba9dc3ca60ab934b953171009520c7f7336a552801b">LAYERS</a>
  }</td></tr>
-<tr class="separator:a73f95e7eb01a7e948ecfa34b9cebcdc1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:afbdbec55cd7e47cdf94167ba9dc3ca60"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:a120bc69e1ed454430337ba8231f2aee4" id="r_a120bc69e1ed454430337ba8231f2aee4"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Sample_8h.html#a120bc69e1ed454430337ba8231f2aee4">toolNames</a> []</td></tr>
+<tr class="separator:a120bc69e1ed454430337ba8231f2aee4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Enumeration Type Documentation</h2>
-<a id="a73f95e7eb01a7e948ecfa34b9cebcdc1" name="a73f95e7eb01a7e948ecfa34b9cebcdc1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a73f95e7eb01a7e948ecfa34b9cebcdc1">&#9670;&#160;</a></span>SamplePartitionType</h2>
+<a id="afbdbec55cd7e47cdf94167ba9dc3ca60" name="afbdbec55cd7e47cdf94167ba9dc3ca60"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afbdbec55cd7e47cdf94167ba9dc3ca60">&#9670;&#160;</a></span>SamplePartitionType</h2>
 
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">enum <a class="el" href="Sample_8h.html#a73f95e7eb01a7e948ecfa34b9cebcdc1">SamplePartitionType</a></td>
+          <td class="memname">enum class <a class="el" href="Sample_8h.html#afbdbec55cd7e47cdf94167ba9dc3ca60">SamplePartitionType</a> : uint8_t</td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">strong</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a73f95e7eb01a7e948ecfa34b9cebcdc1a4fe0d0ba0791fe2280ff3821177766a9" name="a73f95e7eb01a7e948ecfa34b9cebcdc1a4fe0d0ba0791fe2280ff3821177766a9"></a>SAMPLE_PARTITION_WATERSHED&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="a73f95e7eb01a7e948ecfa34b9cebcdc1aa44dc0eb2004b683d4297b7d46cfe979" name="a73f95e7eb01a7e948ecfa34b9cebcdc1aa44dc0eb2004b683d4297b7d46cfe979"></a>SAMPLE_PARTITION_MONOTONE&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="a73f95e7eb01a7e948ecfa34b9cebcdc1a1fae7df00c1a8f165833e48c67692627" name="a73f95e7eb01a7e948ecfa34b9cebcdc1a1fae7df00c1a8f165833e48c67692627"></a>SAMPLE_PARTITION_LAYERS&#160;</td><td class="fielddoc"></td></tr>
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="afbdbec55cd7e47cdf94167ba9dc3ca60ac2f2890e29f7dbe371b5a48e6db70dac" name="afbdbec55cd7e47cdf94167ba9dc3ca60ac2f2890e29f7dbe371b5a48e6db70dac"></a>WATERSHED&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="afbdbec55cd7e47cdf94167ba9dc3ca60a0f9e8e3552c7f87e044893e7620b476d" name="afbdbec55cd7e47cdf94167ba9dc3ca60a0f9e8e3552c7f87e044893e7620b476d"></a>MONOTONE&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="afbdbec55cd7e47cdf94167ba9dc3ca60ab934b953171009520c7f7336a552801b" name="afbdbec55cd7e47cdf94167ba9dc3ca60ab934b953171009520c7f7336a552801b"></a>LAYERS&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
 </div>
@@ -230,31 +244,62 @@ Enumerations</h2></td></tr>
 
 </div>
 </div>
-<a id="ae448bf9be534170ca5b5f8c97256125b" name="ae448bf9be534170ca5b5f8c97256125b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae448bf9be534170ca5b5f8c97256125b">&#9670;&#160;</a></span>SampleToolType</h2>
+<a id="a8b7905ae89a9d21531c2fe65110bebc1" name="a8b7905ae89a9d21531c2fe65110bebc1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8b7905ae89a9d21531c2fe65110bebc1">&#9670;&#160;</a></span>SampleToolType</h2>
 
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">enum <a class="el" href="Sample_8h.html#ae448bf9be534170ca5b5f8c97256125b">SampleToolType</a></td>
+          <td class="memname">enum class <a class="el" href="Sample_8h.html#a8b7905ae89a9d21531c2fe65110bebc1">SampleToolType</a> : uint8_t</td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">strong</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 
 <p>Tool types. </p>
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ae448bf9be534170ca5b5f8c97256125baea1b4490f1a21f7bd637324c9a46474e" name="ae448bf9be534170ca5b5f8c97256125baea1b4490f1a21f7bd637324c9a46474e"></a>TOOL_NONE&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="ae448bf9be534170ca5b5f8c97256125ba3cf3ab9c4ec7c40ff509f7eaab437d1b" name="ae448bf9be534170ca5b5f8c97256125ba3cf3ab9c4ec7c40ff509f7eaab437d1b"></a>TOOL_TILE_EDIT&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="ae448bf9be534170ca5b5f8c97256125ba9657bb5c075ec7d34b297a657ce25d74" name="ae448bf9be534170ca5b5f8c97256125ba9657bb5c075ec7d34b297a657ce25d74"></a>TOOL_TILE_HIGHLIGHT&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="ae448bf9be534170ca5b5f8c97256125ba5b84b6b324182b6d84255bf90ba84468" name="ae448bf9be534170ca5b5f8c97256125ba5b84b6b324182b6d84255bf90ba84468"></a>TOOL_TEMP_OBSTACLE&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="ae448bf9be534170ca5b5f8c97256125ba0b913f987aa3e318b76065cfa4985815" name="ae448bf9be534170ca5b5f8c97256125ba0b913f987aa3e318b76065cfa4985815"></a>TOOL_NAVMESH_TESTER&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="ae448bf9be534170ca5b5f8c97256125ba23046ac29087338ff7e8b24cc1778fef" name="ae448bf9be534170ca5b5f8c97256125ba23046ac29087338ff7e8b24cc1778fef"></a>TOOL_NAVMESH_PRUNE&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="ae448bf9be534170ca5b5f8c97256125ba0c30e9d3ebdeca5bddecc218dc342b98" name="ae448bf9be534170ca5b5f8c97256125ba0c30e9d3ebdeca5bddecc218dc342b98"></a>TOOL_OFFMESH_CONNECTION&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="ae448bf9be534170ca5b5f8c97256125ba0a31d2fb717946c688d04888a81c2063" name="ae448bf9be534170ca5b5f8c97256125ba0a31d2fb717946c688d04888a81c2063"></a>TOOL_CONVEX_VOLUME&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="ae448bf9be534170ca5b5f8c97256125ba2c02ab36128a429e63f30ac3beea2a12" name="ae448bf9be534170ca5b5f8c97256125ba2c02ab36128a429e63f30ac3beea2a12"></a>TOOL_CROWD&#160;</td><td class="fielddoc"></td></tr>
-<tr><td class="fieldname"><a id="ae448bf9be534170ca5b5f8c97256125baf21d3b3c7a6296454122cffd465fcb25" name="ae448bf9be534170ca5b5f8c97256125baf21d3b3c7a6296454122cffd465fcb25"></a>MAX_TOOLS&#160;</td><td class="fielddoc"></td></tr>
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a8b7905ae89a9d21531c2fe65110bebc1ab50339a10e1de285ac99d4c3990b8693" name="a8b7905ae89a9d21531c2fe65110bebc1ab50339a10e1de285ac99d4c3990b8693"></a>NONE&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a8b7905ae89a9d21531c2fe65110bebc1a51be1ace90af5ea9d836a7f8498fac87" name="a8b7905ae89a9d21531c2fe65110bebc1a51be1ace90af5ea9d836a7f8498fac87"></a>TILE_EDIT&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a8b7905ae89a9d21531c2fe65110bebc1a256fc5c1aed48268750fdedc29b47079" name="a8b7905ae89a9d21531c2fe65110bebc1a256fc5c1aed48268750fdedc29b47079"></a>TILE_HIGHLIGHT&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a8b7905ae89a9d21531c2fe65110bebc1a6eee38d969cb457212b4dc525a24ec9c" name="a8b7905ae89a9d21531c2fe65110bebc1a6eee38d969cb457212b4dc525a24ec9c"></a>TEMP_OBSTACLE&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a8b7905ae89a9d21531c2fe65110bebc1a40c52dfb795cef659dccbc99ed798c00" name="a8b7905ae89a9d21531c2fe65110bebc1a40c52dfb795cef659dccbc99ed798c00"></a>NAVMESH_TESTER&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a8b7905ae89a9d21531c2fe65110bebc1a366638a99cc30a5605e48187c7a3463c" name="a8b7905ae89a9d21531c2fe65110bebc1a366638a99cc30a5605e48187c7a3463c"></a>NAVMESH_PRUNE&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a8b7905ae89a9d21531c2fe65110bebc1adfe732610d1431a2723d8f851895a3ad" name="a8b7905ae89a9d21531c2fe65110bebc1adfe732610d1431a2723d8f851895a3ad"></a>OFFMESH_CONNECTION&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a8b7905ae89a9d21531c2fe65110bebc1adbfd86821e2b262ac197472e1a21879f" name="a8b7905ae89a9d21531c2fe65110bebc1adbfd86821e2b262ac197472e1a21879f"></a>CONVEX_VOLUME&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a8b7905ae89a9d21531c2fe65110bebc1adb2f668eda4022cbebc528b605ce84cf" name="a8b7905ae89a9d21531c2fe65110bebc1adb2f668eda4022cbebc528b605ce84cf"></a>CROWD&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a8b7905ae89a9d21531c2fe65110bebc1a1b2f7fca644d3076648e41ceeb02c78c" name="a8b7905ae89a9d21531c2fe65110bebc1a1b2f7fca644d3076648e41ceeb02c78c"></a>MAX_TOOLS&#160;</td><td class="fielddoc"></td></tr>
 </table>
+
+</div>
+</div>
+<h2 class="groupheader">Variable Documentation</h2>
+<a id="a120bc69e1ed454430337ba8231f2aee4" name="a120bc69e1ed454430337ba8231f2aee4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a120bc69e1ed454430337ba8231f2aee4">&#9670;&#160;</a></span>toolNames</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* toolNames[]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
 
 </div>
 </div>

@@ -16,5 +16,5 @@ var structBuildSettings =
     [ "regionMergeSize", "structBuildSettings.html#af2ca11587809f94520e65568f878b05a", null ],
     [ "regionMinSize", "structBuildSettings.html#a3d005a4039976ee34798ff06775f6d73", null ],
     [ "tileSize", "structBuildSettings.html#ab0fdeb8745ad42637b9c4159d5d0b673", null ],
-    [ "vertsPerPoly", "structBuildSettings.html#a84a1f04954895d4e378f7525266e0cdf", null ]
+    [ "vertsPerPoly", "structBuildSettings.html#a16f1e96d0f57bca2da50f11813e3819f", null ]
 ];

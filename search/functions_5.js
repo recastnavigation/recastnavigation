@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['fileio_0',['FileIO',['../classFileIO.html#a8b0d602c3461181e12c05f655dea5018',1,'FileIO']]],
+  ['fileio_0',['fileio',['../classFileIO.html#a5d92b6dd125c7bb4b759b7ebdd16017b',1,'FileIO::FileIO(const FileIO &amp;)=delete'],['../classFileIO.html#a9829e66a84404d313fe6164b5ea01c13',1,'FileIO::FileIO(FileIO &amp;&amp;)=default'],['../classFileIO.html#ae5b9773c4e0b625ac5b337385ffcd8ca',1,'FileIO::FileIO()=default']]],
   ['finalizeslicedfindpath_1',['finalizeSlicedFindPath',['../classdtNavMeshQuery.html#a98673bb238fbb139ec8407e266fa76fd',1,'dtNavMeshQuery']]],
   ['finalizeslicedfindpathpartial_2',['finalizeSlicedFindPathPartial',['../classdtNavMeshQuery.html#a01b18dcb5d25fc392b6030ae5d4f310e',1,'dtNavMeshQuery']]],
   ['findcontourfromset_3',['findContourFromSet',['../RecastDebugDraw_8cpp.html#aea6a2edbe8d885a4624f24a599467a16',1,'RecastDebugDraw.cpp']]],
@@ -19,12 +19,9 @@ var searchData=
   ['findrandompointaroundcircle_16',['findRandomPointAroundCircle',['../classdtNavMeshQuery.html#abfb87531eb962cbd51c649469de2e4fa',1,'dtNavMeshQuery']]],
   ['findstraightpath_17',['findStraightPath',['../classdtNavMeshQuery.html#ac160434c85bdf9edec24fa621f120d2d',1,'dtNavMeshQuery']]],
   ['fixpathstart_18',['fixPathStart',['../classdtPathCorridor.html#ae2e11d477d193c79197fa28acae824b8',1,'dtPathCorridor']]],
-  ['fixupshortcuts_19',['fixupShortcuts',['../NavMeshTesterTool_8cpp.html#afdd1fc4764fb0feadc7f2ae478064b69',1,'NavMeshTesterTool.cpp']]],
-  ['floodnavmesh_20',['floodNavmesh',['../NavMeshPruneTool_8cpp.html#aabe57f3100ff784616cd66607f181017',1,'NavMeshPruneTool.cpp']]],
-  ['floodregion_21',['floodRegion',['../RecastRegion_8cpp.html#ad881e621a7be30bee577ec6a56bf18b3',1,'RecastRegion.cpp']]],
-  ['frand_22',['frand',['../NavMeshTesterTool_8cpp.html#ac8e3cc6c626394b36e557edb46eb23c5',1,'NavMeshTesterTool.cpp']]],
-  ['free_23',['free',['../structLinearAllocator.html#ab7af21e0264ea0621822ed212ca925a3',1,'LinearAllocator::free()'],['../structdtTileCacheAlloc.html#aeb9afcb80b4e923d173b2c1706c56130',1,'dtTileCacheAlloc::free()']]],
-  ['freelink_24',['freeLink',['../DetourNavMesh_8cpp.html#abcf0226951222dd602078a87bd7d347d',1,'DetourNavMesh.cpp']]],
-  ['freespan_25',['freeSpan',['../RecastRasterization_8cpp.html#a173b706a0029e34cb5ff8dd702918527',1,'RecastRasterization.cpp']]],
-  ['front_26',['front',['../classrcVectorBase.html#af00a193e7f4cd2b93f0e6a0995610d9c',1,'rcVectorBase::front() const'],['../classrcVectorBase.html#ae40c03d1e2a473e297e59a4d9ac6e221',1,'rcVectorBase::front()']]]
+  ['floodregion_19',['floodRegion',['../RecastRegion_8cpp.html#ad881e621a7be30bee577ec6a56bf18b3',1,'RecastRegion.cpp']]],
+  ['free_20',['free',['../structdtTileCacheAlloc.html#aeb9afcb80b4e923d173b2c1706c56130',1,'dtTileCacheAlloc::free()'],['../structLinearAllocator.html#a647fdffada813493b74364eb2876fffc',1,'LinearAllocator::free()']]],
+  ['freelink_21',['freeLink',['../DetourNavMesh_8cpp.html#abcf0226951222dd602078a87bd7d347d',1,'DetourNavMesh.cpp']]],
+  ['freespan_22',['freeSpan',['../RecastRasterization_8cpp.html#a173b706a0029e34cb5ff8dd702918527',1,'RecastRasterization.cpp']]],
+  ['front_23',['front',['../classrcVectorBase.html#af00a193e7f4cd2b93f0e6a0995610d9c',1,'rcVectorBase::front() const'],['../classrcVectorBase.html#ae40c03d1e2a473e297e59a4d9ac6e221',1,'rcVectorBase::front()']]]
 ];
