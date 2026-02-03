@@ -1,8 +1,4 @@
-file(GLOB SOURCES
-	Source/*.cpp
-	Contrib/fastlz/fastlz.c
-	Contrib/imgui/*.cpp
-	Contrib/imgui/backends/*.cpp)
+file(GLOB SOURCES Source/*.cpp)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
@@ -24,10 +20,53 @@ else()
   find_package(SDL2 REQUIRED)
 endif()
 
+# Contrib static library (third-party code)
+add_library(Contrib STATIC
+	Contrib/fastlz/fastlz.c
+	Contrib/imgui/imgui.cpp
+	Contrib/imgui/imgui_demo.cpp
+	Contrib/imgui/imgui_draw.cpp
+	Contrib/imgui/imgui_tables.cpp
+	Contrib/imgui/imgui_widgets.cpp
+	Contrib/implot/implot.cpp
+	Contrib/implot/implot_demo.cpp
+	Contrib/implot/implot_items.cpp
+	Contrib/imgui/backends/imgui_impl_sdl2.cpp
+	Contrib/imgui/backends/imgui_impl_opengl2.cpp
+)
+
+set_target_properties(Contrib PROPERTIES
+	CXX_STANDARD 20
+	CXX_STANDARD_REQUIRED ON
+	CXX_EXTENSIONS OFF
+)
+
+# Remove warnings-as-errors for third-party code
+if(MSVC)
+	target_compile_options(Contrib PRIVATE /W3 /WX-)
+else()
+	target_compile_options(Contrib PRIVATE -Wno-error)
+endif()
+
+target_include_directories(Contrib PRIVATE
+	Contrib/imgui
+	Contrib/implot
+	Contrib/imgui/backends
+)
+
+if (WIN32)
+	target_include_directories(Contrib PRIVATE Contrib/SDL/include)
+elseif (APPLE)
+	target_include_directories(Contrib PRIVATE ${SDL2_LIBRARY}/Headers)
+else()
+	target_include_directories(Contrib PRIVATE ${SDL2_INCLUDE_DIRS})
+endif()
+
 include_directories(SYSTEM ${OPENGL_INCLUDE_DIR})
 include_directories(SYSTEM Contrib/fastlz)
 include_directories(SYSTEM Contrib)
 include_directories(SYSTEM Contrib/imgui)
+include_directories(SYSTEM Contrib/implot)
 include_directories(SYSTEM Contrib/imgui/backends)
 include_directories(../DebugUtils/Include)
 include_directories(../Detour/Include)
@@ -79,7 +118,7 @@ else()
     file(COPY Bin/DroidSans.ttf DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
-add_dependencies(RecastDemo DebugUtils Detour DetourCrowd DetourTileCache Recast)
+add_dependencies(RecastDemo DebugUtils Detour DetourCrowd DetourTileCache Recast Contrib)
 if (APPLE)
   target_link_libraries(
 	RecastDemo
@@ -89,7 +128,8 @@ if (APPLE)
 	Detour
 	DetourCrowd
 	DetourTileCache
-	Recast)
+	Recast
+	Contrib)
 else()
   target_link_libraries(
 	RecastDemo
@@ -99,7 +139,8 @@ else()
 	Detour
 	DetourCrowd
 	DetourTileCache
-	Recast)
+	Recast
+	Contrib)
 endif()
 
 install(TARGETS RecastDemo
