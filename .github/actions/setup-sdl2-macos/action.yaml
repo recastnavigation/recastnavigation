@@ -9,6 +9,6 @@ runs:
       run: |
         curl -L -o SDL2.dmg https://github.com/libsdl-org/SDL/releases/download/release-2.24.2/SDL2-2.24.2.dmg
         hdiutil attach SDL2.dmg
-        cp -r /Volumes/SDL2/SDL2.framework RecastDemo/Bin
+        cp -r /Volumes/SDL2/SDL2.framework ${{github.workspace}}/RecastDemo/Bin/SDL2.framework
         hdiutil detach /Volumes/SDL2
         rm SDL2.dmg
