@@ -132,14 +132,41 @@ project "Recast"
 		"../Recast/Source/*.cpp"
 	}
 
+project "Contrib"
+	language "C++"
+	cppdialect "C++20"
+	kind "StaticLib"
+
+	includedirs {
+		"../RecastDemo/Contrib/imgui",
+		"../RecastDemo/Contrib/implot",
+		"../RecastDemo/Contrib/imgui/backends",
+	}
+	files {
+		"../RecastDemo/Contrib/fastlz/*.h",
+		"../RecastDemo/Contrib/fastlz/*.c",
+		"../RecastDemo/Contrib/imgui/*.cpp",
+		"../RecastDemo/Contrib/implot/*.cpp",
+		"../RecastDemo/Contrib/imgui/backends/imgui_impl_sdl2.cpp",
+		"../RecastDemo/Contrib/imgui/backends/imgui_impl_opengl2.cpp",
+	}
+
+	filter "system:linux"
+		buildoptions { "`pkg-config --cflags sdl2`", }
+
+	filter "system:windows"
+		includedirs { "../RecastDemo/Contrib/SDL/include" }
+
+	filter "system:macosx"
+		includedirs { "Bin/SDL2.framework/Headers" }
+		externalincludedirs { "Bin/SDL2.framework/Headers" }
+
 project "RecastDemo"
 	language "C++"
 	cppdialect "C++20" -- we don't care about this being compatible in the same way we do with the library code.
 	kind "WindowedApp"
 	includedirs {
 		"../RecastDemo/Include",
-		"../RecastDemo/Contrib",
-		"../RecastDemo/Contrib/fastlz",
 		"../DebugUtils/Include",
 		"../Detour/Include",
 		"../DetourCrowd/Include",
@@ -154,12 +181,6 @@ project "RecastDemo"
 	files {
 		"../RecastDemo/Include/*.h",
 		"../RecastDemo/Source/*.cpp",
-		"../RecastDemo/Contrib/fastlz/*.h",
-		"../RecastDemo/Contrib/fastlz/*.c",
-		"../RecastDemo/Contrib/imgui/*.cpp",
-		"../RecastDemo/Contrib/implot/*.cpp",
-		"../RecastDemo/Contrib/imgui/backends/imgui_impl_sdl2.cpp",
-		"../RecastDemo/Contrib/imgui/backends/imgui_impl_opengl2.cpp",
 	}
 
 	-- project dependencies
@@ -168,7 +189,8 @@ project "RecastDemo"
 		"Detour",
 		"DetourCrowd",
 		"DetourTileCache",
-		"Recast"
+		"Recast",
+		"Contrib"
 	}
 
 	-- distribute executable in RecastDemo/Bin directory
