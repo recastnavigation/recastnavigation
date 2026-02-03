@@ -60,7 +60,8 @@ if (WIN32)
 elseif (APPLE)
 	target_include_directories(Contrib PRIVATE ${SDL2_INCLUDE_DIR} ${SDL2_INCLUDE_DIR_PARENT})
 else()
-	target_include_directories(Contrib PRIVATE ${SDL2_INCLUDE_DIRS})
+	# Use the include directories from the imported target on Linux
+	target_link_libraries(Contrib PRIVATE SDL2::SDL2)
 endif()
 
 include_directories(SYSTEM ${OPENGL_INCLUDE_DIR})
@@ -79,9 +80,8 @@ if (WIN32)
   include_directories(Contrib/SDL/include)
 elseif (APPLE)
   include_directories(${SDL2_INCLUDE_DIR} ${SDL2_INCLUDE_DIR_PARENT})
-else()
-  include_directories(${SDL2_INCLUDE_DIRS})
 endif()
+# On Linux, SDL2 includes are handled via target_link_libraries with SDL2::SDL2
 
 if (WIN32)
     add_executable(RecastDemo WIN32 ${SOURCES})
@@ -143,6 +143,7 @@ else()
   target_link_libraries(
 	RecastDemo
 	${OPENGL_LIBRARIES}
+	SDL2::SDL2
 	SDL2::SDL2main
 	DebugUtils
 	Detour
