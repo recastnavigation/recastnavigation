@@ -68,9 +68,6 @@ jobs:
         conf:
           - debug
           - release
-        compiler:
-          - clang
-          - gcc
 
     runs-on: ubuntu-latest
 
@@ -80,9 +77,8 @@ jobs:
     - name: Install opengl and SDL
       run: |
         sudo apt-get update
-        sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev libsdl2-dev clang gcc
+        sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev libsdl2-dev clang
         clang --version
-        gcc --version
 
     - name: Download & Install premake
       working-directory: RecastDemo
@@ -93,7 +89,7 @@ jobs:
 
     - name: Run premake
       working-directory: RecastDemo
-      run: ./premake5 --cc=${{matrix.compiler}} gmake2
+      run: ./premake5 --cc=clang gmake2
 
     - name: Build
       working-directory: RecastDemo/Build/gmake2
@@ -114,10 +110,11 @@ jobs:
     - name: Install opengl and SDL
       run: |
         sudo apt-get update
-        sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev libsdl2-dev
+        sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev libsdl2-dev clang
+        clang --version
 
     - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{matrix.conf}}
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{matrix.conf}} -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
 
     - name: Build
       run: cmake --build ${{github.workspace}}/build --config ${{matrix.conf}}
