@@ -12,10 +12,8 @@ endif()
 
 find_package(OpenGL REQUIRED)
 if (APPLE)
-  find_library(SDL2_LIBRARY
-    NAMES SDL2
-    PATHS ${SDL2_ROOT_DIR}
-    REQUIRED)
+  set(SDL2_FRAMEWORK_PATH "${SDL2_ROOT_DIR}/SDL2.framework")
+  set(SDL2_INCLUDE_DIR "${SDL2_FRAMEWORK_PATH}/Headers")
 else()
   find_package(SDL2 REQUIRED)
 endif()
@@ -57,7 +55,7 @@ target_include_directories(Contrib PRIVATE
 if (WIN32)
 	target_include_directories(Contrib PRIVATE Contrib/SDL/include)
 elseif (APPLE)
-	target_include_directories(Contrib PRIVATE ${SDL2_LIBRARY}/Headers)
+	target_include_directories(Contrib PRIVATE ${SDL2_INCLUDE_DIR})
 else()
 	target_include_directories(Contrib PRIVATE ${SDL2_INCLUDE_DIRS})
 endif()
@@ -76,7 +74,7 @@ include_directories(../Recast/Include)
 include_directories(Include)
 include_directories(Contrib/SDL/include)
 if (APPLE)
-  include_directories(${SDL2_LIBRARY}/Headers)
+  include_directories(${SDL2_INCLUDE_DIR})
 endif()
 
 if (WIN32)
@@ -123,7 +121,7 @@ if (APPLE)
   target_link_libraries(
 	RecastDemo
 	${OPENGL_LIBRARIES}
-	${SDL2_LIBRARY}
+	"-F${SDL2_ROOT_DIR} -framework SDL2"
 	DebugUtils
 	Detour
 	DetourCrowd
