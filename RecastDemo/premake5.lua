@@ -54,6 +54,12 @@ workspace "recastnavigation"
 	filter "platforms:Win64"
 		architecture "x64"
 
+	filter {"system:linux", "toolset:gcc"}
+		buildoptions {
+			"-Wno-error=class-memaccess",
+			"-Wno-error=maybe-uninitialized"
+		}
+
 project "DebugUtils"
 	language "C++"
 	cppdialect "C++98"
@@ -82,12 +88,6 @@ project "Detour"
 		"../Detour/Include/*.h",
 		"../Detour/Source/*.cpp"
 	}
-	-- linux library cflags and libs
-	filter {"system:linux", "toolset:gcc"}
-		buildoptions {
-			"-Wno-error=class-memaccess",
-			"-Wno-error=maybe-uninitialized"
-		}
 
 project "DetourCrowd"
 	language "C++"
@@ -201,8 +201,7 @@ project "RecastDemo"
 		buildoptions {
 			"`pkg-config --cflags sdl2`",
 			"`pkg-config --cflags gl`",
-			"`pkg-config --cflags glu`",
-			"-Wno-ignored-qualifiers",
+			"`pkg-config --cflags glu`"
 		}
 		linkoptions {
 			"`pkg-config --libs sdl2`",
