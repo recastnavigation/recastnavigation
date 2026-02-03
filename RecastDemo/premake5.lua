@@ -7,15 +7,15 @@ local action = _ACTION or ""
 local todir = "Build/" .. action
 
 workspace "recastnavigation"
-	configurations { 
+	configurations {
 		"Debug",
 		"Release"
 	}
 
 	location (todir)
 
-	-- Use fast math operations.  This is not required, but it speeds up some calculations 
-	-- at the expense of accuracy.  Because there are some functions like dtMathIsfinite 
+	-- Use fast math operations.  This is not required, but it speeds up some calculations
+	-- at the expense of accuracy.  Because there are some functions like dtMathIsfinite
 	-- that use floating point functions that become undefined behavior when compiled with
 	-- fast-math, we need to conditionally short-circuit these functions.
 	floatingpoint "Fast"
@@ -24,13 +24,12 @@ workspace "recastnavigation"
 	exceptionhandling "Off"
 	rtti "Off"
 	symbols "On"
-	flags { "FatalCompileWarnings" }
 
 	-- debug configs
 	filter "configurations:Debug"
 		defines { "DEBUG" }
 		targetdir ( todir .. "/lib/Debug" )
- 
+
  	-- release configs
 	filter "configurations:Release"
 		defines { "RC_DISABLE_ASSERTS" }
@@ -55,11 +54,18 @@ workspace "recastnavigation"
 	filter "platforms:Win64"
 		architecture "x64"
 
+	filter {"system:linux", "toolset:gcc"}
+		buildoptions {
+			"-Wno-error=class-memaccess",
+			"-Wno-error=maybe-uninitialized"
+		}
+
 project "DebugUtils"
 	language "C++"
 	cppdialect "C++98"
 	kind "StaticLib"
-	includedirs { 
+	flags { "FatalCompileWarnings" }
+	includedirs {
 		"../DebugUtils/Include",
 		"../Detour/Include",
 		"../DetourTileCache/Include",
@@ -74,24 +80,20 @@ project "Detour"
 	language "C++"
 	cppdialect "C++98"
 	kind "StaticLib"
-	includedirs { 
-		"../Detour/Include" 
+	flags { "FatalCompileWarnings" }
+	includedirs {
+		"../Detour/Include"
 	}
-	files { 
-		"../Detour/Include/*.h", 
-		"../Detour/Source/*.cpp" 
+	files {
+		"../Detour/Include/*.h",
+		"../Detour/Source/*.cpp"
 	}
-	-- linux library cflags and libs
-	filter {"system:linux", "toolset:gcc"}
-		buildoptions {
-			"-Wno-error=class-memaccess",
-			"-Wno-error=maybe-uninitialized"
-		}
 
 project "DetourCrowd"
 	language "C++"
 	cppdialect "C++98"
 	kind "StaticLib"
+	flags { "FatalCompileWarnings" }
 	includedirs {
 		"../DetourCrowd/Include",
 		"../Detour/Include",
@@ -106,6 +108,7 @@ project "DetourTileCache"
 	language "C++"
 	cppdialect "C++98"
 	kind "StaticLib"
+	flags { "FatalCompileWarnings" }
 	includedirs {
 		"../DetourTileCache/Include",
 		"../Detour/Include",
@@ -120,33 +123,67 @@ project "Recast"
 	language "C++"
 	cppdialect "C++98"
 	kind "StaticLib"
-	includedirs { 
-		"../Recast/Include" 
+	flags { "FatalCompileWarnings" }
+	includedirs {
+		"../Recast/Include"
 	}
-	files { 
+	files {
 		"../Recast/Include/*.h",
-		"../Recast/Source/*.cpp" 
+		"../Recast/Source/*.cpp"
 	}
+
+project "Contrib"
+	language "C++"
+	cppdialect "C++20"
+	kind "StaticLib"
+
+	includedirs {
+		"../RecastDemo/Contrib/imgui",
+		"../RecastDemo/Contrib/implot",
+		"../RecastDemo/Contrib/imgui/backends",
+	}
+	files {
+		"../RecastDemo/Contrib/fastlz/*.c",
+		"../RecastDemo/Contrib/imgui/*.cpp",
+		"../RecastDemo/Contrib/implot/*.cpp",
+		"../RecastDemo/Contrib/imgui/backends/imgui_impl_sdl2.cpp",
+		"../RecastDemo/Contrib/imgui/backends/imgui_impl_opengl2.cpp",
+	}
+
+	filter "system:linux"
+		buildoptions { "`pkg-config --cflags sdl2`", }
+
+	filter "system:windows"
+		includedirs { "../RecastDemo/Contrib/SDL/include" }
+
+	filter "system:macosx"
+		includedirs { "Bin/SDL2.framework/Headers" }
+		externalincludedirs { "Bin/SDL2.framework/Headers" }
+		frameworkdirs { "Bin" }
 
 project "RecastDemo"
 	language "C++"
 	cppdialect "C++20" -- we don't care about this being compatible in the same way we do with the library code.
 	kind "WindowedApp"
-	includedirs { 
+	targetdir "Bin"
+
+	includedirs {
 		"../RecastDemo/Include",
-		"../RecastDemo/Contrib",
-		"../RecastDemo/Contrib/fastlz",
 		"../DebugUtils/Include",
 		"../Detour/Include",
 		"../DetourCrowd/Include",
 		"../DetourTileCache/Include",
 		"../Recast/Include"
 	}
+	externalincludedirs {
+		"../RecastDemo/Contrib/fastlz",
+		"../RecastDemo/Contrib/imgui",
+		"../RecastDemo/Contrib/implot",
+		"../RecastDemo/Contrib/imgui/backends",
+	}
 	files {
 		"../RecastDemo/Include/*.h",
 		"../RecastDemo/Source/*.cpp",
-		"../RecastDemo/Contrib/fastlz/*.h",
-		"../RecastDemo/Contrib/fastlz/*.c"
 	}
 
 	-- project dependencies
@@ -155,37 +192,28 @@ project "RecastDemo"
 		"Detour",
 		"DetourCrowd",
 		"DetourTileCache",
-		"Recast"
+		"Recast",
+		"Contrib"
 	}
 
-	-- distribute executable in RecastDemo/Bin directory
-	targetdir "Bin"
 
-	-- linux library cflags and libs
 	filter "system:linux"
-		buildoptions { 
+		buildoptions {
 			"`pkg-config --cflags sdl2`",
 			"`pkg-config --cflags gl`",
-			"`pkg-config --cflags glu`",
-			"-Wno-ignored-qualifiers",
+			"`pkg-config --cflags glu`"
 		}
-		linkoptions { 
+		linkoptions {
 			"`pkg-config --libs sdl2`",
 			"`pkg-config --libs gl`",
-			"`pkg-config --libs glu`" 
+			"`pkg-config --libs glu`"
 		}
 
-	filter { "system:linux", "toolset:gcc", "files:*.c" }
-		buildoptions {
-			"-Wno-class-memaccess"
-		}
-
-	-- windows library cflags and libs
 	filter "system:windows"
 		includedirs { "../RecastDemo/Contrib/SDL/include" }
 		libdirs { "../RecastDemo/Contrib/SDL/lib/%{cfg.architecture:gsub('x86_64', 'x64')}" }
 		debugdir "../RecastDemo/Bin/"
-		links { 
+		links {
 			"glu32",
 			"opengl32",
 			"SDL2",
@@ -198,10 +226,12 @@ project "RecastDemo"
 
 	-- mac includes and libs
 	filter "system:macosx"
-		kind "ConsoleApp" -- xcode4 failes to run the project if using WindowedApp
+		kind "ConsoleApp"
 		includedirs { "Bin/SDL2.framework/Headers" }
-		links { 
-			"OpenGL.framework", 
+		externalincludedirs { "Bin/SDL2.framework/Headers" }
+		frameworkdirs { "Bin" }
+		links {
+			"OpenGL.framework",
 			"SDL2.framework",
 			"Cocoa.framework",
 		}
@@ -210,12 +240,13 @@ project "Tests"
 	language "C++"
 	cppdialect "C++20" -- Catch requires newer C++ features
 	kind "ConsoleApp"
+	flags { "FatalCompileWarnings" }
 
 	-- Catch requires RTTI and exceptions
 	exceptionhandling "On"
 	rtti "On"
 
-	includedirs { 
+	includedirs {
 		"../DebugUtils/Include",
 		"../Detour/Include",
 		"../DetourCrowd/Include",
@@ -226,7 +257,7 @@ project "Tests"
 		"../Tests",
 		"../Tests/Contrib"
 	}
-	files { 
+	files {
 		"../Tests/*.h",
 		"../Tests/*.hpp",
 		"../Tests/*.cpp",
@@ -239,7 +270,7 @@ project "Tests"
 	}
 
 	-- project dependencies
-	links { 
+	links {
 		"DebugUtils",
 		"DetourCrowd",
 		"Detour",
@@ -266,7 +297,7 @@ project "Tests"
 			"`pkg-config --cflags glu`",
 			"-Wno-parentheses" -- Disable parentheses warning for the Tests target, as Catch's macros generate this everywhere.
 		}
-		linkoptions { 
+		linkoptions {
 			"`pkg-config --libs sdl2`",
 			"`pkg-config --libs gl`",
 			"`pkg-config --libs glu`",
@@ -278,7 +309,7 @@ project "Tests"
 		includedirs { "../RecastDemo/Contrib/SDL/include" }
 		libdirs { "../RecastDemo/Contrib/SDL/lib/%{cfg.architecture:gsub('x86_64', 'x64')}" }
 		debugdir "../RecastDemo/Bin/"
-		links { 
+		links {
 			"glu32",
 			"opengl32",
 			"SDL2",

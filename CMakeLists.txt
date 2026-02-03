@@ -1,33 +1,74 @@
-cmake_minimum_required(VERSION 3.1...4.0)
+cmake_minimum_required(VERSION 3.15...4.1)
 
-project(RecastNavigation)
+project(RecastNavigation
+    DESCRIPTION "Industry-standard navigation-mesh toolset for games"
+    LANGUAGES C CXX)
 
 # lib versions
-SET(SOVERSION 1)
+set(SOVERSION 1)
 set(LIB_VERSION 1.6.0)
 string(REPLACE "." "," LIB_VERSION_NUM "${LIB_VERSION}.0")
 
-set_property(GLOBAL PROPERTY CXX_STANDARD 98)
-
+# Build options
 option(RECASTNAVIGATION_DEMO "Build demo" ON)
 option(RECASTNAVIGATION_TESTS "Build tests" ON)
 option(RECASTNAVIGATION_EXAMPLES "Build examples" ON)
 option(RECASTNAVIGATION_DT_POLYREF64 "Use 64bit polyrefs instead of 32bit for Detour" OFF)
 option(RECASTNAVIGATION_DT_VIRTUAL_QUERYFILTER "Use dynamic dispatch for dtQueryFilter in Detour to allow for custom filters" OFF)
 option(RECASTNAVIGATION_ENABLE_ASSERTS "Enable custom recastnavigation asserts" "$<IF:$<CONFIG:Debug>,ON,OFF>")
+option(RECASTNAVIGATION_ENABLE_FAST_MATH "Enable faster math calculations." OFF)
 
-if(MSVC AND BUILD_SHARED_LIBS)
+# dll export
+if (MSVC AND BUILD_SHARED_LIBS)
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 endif()
 
 include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
 
+# Warnings as errors for first-party code
+if(MSVC)
+    add_compile_options(/W3 /WX /wd4351)
+    add_compile_definitions(_CRT_SECURE_NO_WARNINGS _HAS_EXCEPTIONS=0)
+else()
+    add_compile_options(-Wall -Wextra -Werror)
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        # Disable -Werror for maybe-uninitialized as it produces false positives
+        add_compile_options(-Wno-error=maybe-uninitialized)
+    endif()
+endif()
+
+# Fast math with RC_FAST_MATH define
+if (RECASTNAVIGATION_ENABLE_FAST_MATH)
+    if(MSVC)
+        add_compile_options(/fp:fast)
+    else()
+        add_compile_options(-ffast-math)
+    endif()
+    add_compile_definitions(RC_FAST_MATH)
+endif()
+
+# Disable RTTI and exceptions for library code
+if(MSVC)
+    string(REPLACE "/GR" "/GR-" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+    string(REPLACE "/EHsc" "/EHs-c-" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+else()
+    add_compile_options(-fno-rtti -fno-exceptions)
+endif()
+
+# Debug symbols
+set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>")
+if(NOT MSVC)
+    add_compile_options(-g)
+endif()
+
+# Release optimizations and disable asserts
+add_compile_definitions($<$<NOT:$<CONFIG:Debug>>:RC_DISABLE_ASSERTS>)
+
 configure_file(
     "${RecastNavigation_SOURCE_DIR}/version.h.in"
     "${RecastNavigation_BINARY_DIR}/version.h")
-install(FILES "${RecastNavigation_BINARY_DIR}/version.h" DESTINATION
-        ${CMAKE_INSTALL_INCLUDEDIR}/recastnavigation)
+install(FILES "${RecastNavigation_BINARY_DIR}/version.h" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/recastnavigation)
 
 # Needed for recastnavigation.pc.in
 set(prefix ${CMAKE_INSTALL_PREFIX})
@@ -36,18 +77,18 @@ set(libdir "${CMAKE_INSTALL_FULL_LIBDIR}")
 set(bindir "${CMAKE_INSTALL_FULL_BINDIR}")
 set(includedir "${CMAKE_INSTALL_FULL_INCLUDEDIR}")
 set(PACKAGE_VERSION "${LIB_VERSION}")
-if(RECASTNAVIGATION_DT_POLYREF64)
+if (RECASTNAVIGATION_DT_POLYREF64)
     set(PKG_CONFIG_CFLAGS "${PKG_CONFIG_CFLAGS} -DDT_POLYREF64")
 endif()
-if(RECASTNAVIGATION_DT_VIRTUAL_QUERYFILTER)
+if (RECASTNAVIGATION_DT_VIRTUAL_QUERYFILTER)
     set(PKG_CONFIG_CFLAGS "${PKG_CONFIG_CFLAGS} -DDT_VIRTUAL_QUERYFILTER")
 endif()
 configure_file(
-        "${RecastNavigation_SOURCE_DIR}/recastnavigation.pc.in"
-        "${RecastNavigation_BINARY_DIR}/recastnavigation.pc"
-        @ONLY)
-install(FILES "${RecastNavigation_BINARY_DIR}/recastnavigation.pc"
-        DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
+    "${RecastNavigation_SOURCE_DIR}/recastnavigation.pc.in"
+    "${RecastNavigation_BINARY_DIR}/recastnavigation.pc"
+    @ONLY
+)
+install(FILES "${RecastNavigation_BINARY_DIR}/recastnavigation.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
 
 add_subdirectory(DebugUtils)
 add_subdirectory(Detour)
@@ -89,9 +130,9 @@ install(
 
 if (RECASTNAVIGATION_DEMO)
     add_subdirectory(RecastDemo)
-endif ()
+endif()
 
 if (RECASTNAVIGATION_TESTS)
     enable_testing()
     add_subdirectory(Tests)
-endif ()
+endif()

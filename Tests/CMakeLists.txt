@@ -10,17 +10,24 @@ add_executable(Tests
 	DetourCrowd/Tests_DetourPathCorridor.cpp
 )
 
-set_property(TARGET Tests PROPERTY CXX_STANDARD 17)
+set_target_properties(Tests PROPERTIES
+    CXX_STANDARD 20
+    CXX_STANDARD_REQUIRED ON
+    CXX_EXTENSIONS OFF  # Disable compiler-specific extensions
+)
+
+# Remove warnings-as-errors for third-party code
+if(MSVC)
+	target_compile_options(Tests PRIVATE /W3 /WX-)
+else()
+	target_compile_options(Tests PRIVATE -Wno-error)
+endif()
 
 add_dependencies(Tests Recast Detour DetourCrowd)
 target_link_libraries(Tests Recast Detour DetourCrowd)
 
-find_package(Catch2 QUIET)
-if (Catch2_FOUND)
-	target_link_libraries(Tests Catch2::Catch2WithMain)
-else()
-	include_directories(./Contrib)
-	target_sources(Tests PRIVATE Contrib/catch2/catch_amalgamated.cpp)
-endif()
+# Use bundled catch2 rather than a possibly incompatible version installed elsewhere.
+include_directories(./Contrib)
+target_sources(Tests PRIVATE Contrib/catch2/catch_amalgamated.cpp)
 
 add_test(Tests Tests)

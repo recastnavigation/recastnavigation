@@ -16,99 +16,54 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#ifndef TESTCASE_H
-#define TESTCASE_H
+#pragma once
 
-#include <string>
 #include "DetourNavMesh.h"
+
+#include <cstdint>
+#include <string>
+#include <vector>
 
 class TestCase
 {
-	enum TestType
+	enum class TestType : uint8_t
 	{
-		TEST_PATHFIND,
-		TEST_RAYCAST
+		PATHFIND,
+		RAYCAST
 	};
-	
+
 	struct Test
 	{
-		Test() :
-			type(),
-			spos(),
-			epos(),
-			nspos(),
-			nepos(),
-			radius(0),
-			includeFlags(0),
-			excludeFlags(0),
-			expand(false),
-			straight(0),
-			nstraight(0),
-			polys(0),
-			npolys(0),
-			findNearestPolyTime(0),
-			findPathTime(0),
-			findStraightPathTime(0),
-			next(0)
-		{
-		}
+		TestCase::TestType type{};
+		float spos[3]{};
+		float epos[3]{};
+		float nspos[3]{};
+		float nepos[3]{};
+		float radius = 0;
+		unsigned short includeFlags = 0;
+		unsigned short excludeFlags = 0;
+		bool expand = false;
 
-		~Test()
-		{
-			delete [] straight;
-			delete [] polys;
-		}
-		
-		TestType type;
-		float spos[3];
-		float epos[3];
-		float nspos[3];
-		float nepos[3];
-		float radius;
-		unsigned short includeFlags;
-		unsigned short excludeFlags;
-		bool expand;
-		
-		float* straight;
-		int nstraight;
-		dtPolyRef* polys;
-		int npolys;
-		
-		int findNearestPolyTime;
-		int findPathTime;
-		int findStraightPathTime;
-		
-		Test* next;
-	private:
-		// Explicitly disabled copy constructor and copy assignment operator.
-		Test(const Test&);
-		Test& operator=(const Test&);
+		std::vector<float> straight {};
+		std::vector<dtPolyRef*> polys {};
+
+		int findNearestPolyTime = 0;
+		int findPathTime = 0;
+		int findStraightPathTime = 0;
 	};
 
-	std::string m_sampleName;
-	std::string m_geomFileName;
-	Test* m_tests;
-	
+	std::vector<Test> tests;
+
 	void resetTimes();
-	
+
 public:
-	TestCase();
-	~TestCase();
-
 	bool load(const std::string& filePath);
-	
-	const std::string& getSampleName() const { return m_sampleName; }
-	const std::string& getGeomFileName() const { return m_geomFileName; }
-	
+
+	std::string sampleName;
+	std::string geomFileName;
+
 	void doTests(class dtNavMesh* navmesh, class dtNavMeshQuery* navquery);
-	
-	void handleRender();
-	bool handleRenderOverlay(double* proj, double* model, int* view);
 
-private:
-	// Explicitly disabled copy constructor and copy assignment operator.
-	TestCase(const TestCase&);
-	TestCase& operator=(const TestCase&);
+	void render();
+	bool renderOverlay();
 };
-
-#endif // TESTCASE_H
