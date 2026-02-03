@@ -24,7 +24,6 @@ workspace "recastnavigation"
 	exceptionhandling "Off"
 	rtti "Off"
 	symbols "On"
-	flags { "FatalCompileWarnings" }
 
 	-- debug configs
 	filter "configurations:Debug"
@@ -59,6 +58,7 @@ project "DebugUtils"
 	language "C++"
 	cppdialect "C++98"
 	kind "StaticLib"
+	fatalwarnings { "All" }
 	includedirs {
 		"../DebugUtils/Include",
 		"../Detour/Include",
@@ -74,6 +74,7 @@ project "Detour"
 	language "C++"
 	cppdialect "C++98"
 	kind "StaticLib"
+	fatalwarnings { "All" }
 	includedirs {
 		"../Detour/Include"
 	}
@@ -92,6 +93,7 @@ project "DetourCrowd"
 	language "C++"
 	cppdialect "C++98"
 	kind "StaticLib"
+	fatalwarnings { "All" }
 	includedirs {
 		"../DetourCrowd/Include",
 		"../Detour/Include",
@@ -106,6 +108,7 @@ project "DetourTileCache"
 	language "C++"
 	cppdialect "C++98"
 	kind "StaticLib"
+	fatalwarnings { "All" }
 	includedirs {
 		"../DetourTileCache/Include",
 		"../Detour/Include",
@@ -120,6 +123,7 @@ project "Recast"
 	language "C++"
 	cppdialect "C++98"
 	kind "StaticLib"
+	fatalwarnings { "All" }
 	includedirs {
 		"../Recast/Include"
 	}
@@ -220,6 +224,7 @@ project "Tests"
 	language "C++"
 	cppdialect "C++20" -- Catch requires newer C++ features
 	kind "ConsoleApp"
+	fatalwarnings { "All" }
 
 	-- Catch requires RTTI and exceptions
 	exceptionhandling "On"
