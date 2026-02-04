@@ -208,17 +208,7 @@ dtNavMesh::dtNavMesh() :
 
 dtNavMesh::~dtNavMesh()
 {
-	for (int i = 0; i < m_maxTiles; ++i)
-	{
-		if (m_tiles[i].flags & DT_TILE_FREE_DATA)
-		{
-			dtFree(m_tiles[i].data);
-			m_tiles[i].data = 0;
-			m_tiles[i].dataSize = 0;
-		}
-	}
-	dtFree(m_posLookup);
-	dtFree(m_tiles);
+	teardown();
 }
 		
 dtStatus dtNavMesh::init(const dtNavMeshParams* params)
@@ -289,6 +279,24 @@ dtStatus dtNavMesh::init(unsigned char* data, const int dataSize, const int flag
 		return status;
 
 	return addTile(data, dataSize, flags, 0, 0);
+}
+
+void dtNavMesh::teardown()
+{
+	for (int i = 0; i < m_maxTiles; ++i)
+	{
+		if (m_tiles[i].flags & DT_TILE_FREE_DATA)
+		{
+			dtFree(m_tiles[i].data);
+			m_tiles[i].data = 0;
+			m_tiles[i].dataSize = 0;
+		}
+	}
+	m_maxTiles = 0;
+	dtFree(m_posLookup);
+	m_posLookup = 0;
+	dtFree(m_tiles);
+	m_tiles = 0;
 }
 
 /// @par

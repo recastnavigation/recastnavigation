@@ -353,6 +353,9 @@ public:
 	/// @return The status flags for the operation.
 	///  @see dtCreateNavMeshData
 	dtStatus init(unsigned char* data, const int dataSize, const int flags);
+
+	/// Resets the state of the navmesh instance, and frees all owned memory.
+	void teardown();
 	
 	/// The navigation mesh initialization params.
 	const dtNavMeshParams* getParams() const;
