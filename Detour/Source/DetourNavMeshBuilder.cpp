@@ -580,9 +580,9 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 			const int ndv = (int)params->detailMeshes[i*4+1];
 			const int nv = navPolys[i].vertCount;
 			dtl.vertBase = (unsigned int)vbase;
-			dtl.vertCount = (unsigned char)(ndv-nv);
+			dtl.vertCount = (unsigned short)(ndv-nv);
 			dtl.triBase = (unsigned int)params->detailMeshes[i*4+2];
-			dtl.triCount = (unsigned char)params->detailMeshes[i*4+3];
+			dtl.triCount = (unsigned short)params->detailMeshes[i*4+3];
 			// Copy vertices except the first 'nv' verts which are equal to nav poly verts.
 			if (ndv-nv)
 			{
@@ -604,7 +604,7 @@ bool dtCreateNavMeshData(dtNavMeshCreateParams* params, unsigned char** outData,
 			dtl.vertBase = 0;
 			dtl.vertCount = 0;
 			dtl.triBase = (unsigned int)tbase;
-			dtl.triCount = (unsigned char)(nv-2);
+			dtl.triCount = (unsigned short)(nv-2);
 			// Triangulate polygon (local indices).
 			for (int j = 2; j < nv; ++j)
 			{
