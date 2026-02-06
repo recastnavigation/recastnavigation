@@ -96,6 +96,12 @@ struct dtCrowdAgentParams
 	/// The index of the query filter used by this agent.
 	unsigned char queryFilterType;
 
+	/// Layer and mask bitmasks for filtering agent interactions.
+	/// The agent is only affected by neighbor agents when (ag->mask & nei->layer) is non-zero.
+	/// If layer is 0, filtering is disabled.
+	unsigned int layer;
+	unsigned int mask;
+
 	/// User defined data attached to the agent.
 	void* userData;
 };
