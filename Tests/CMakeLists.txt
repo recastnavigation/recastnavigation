@@ -22,6 +22,7 @@ target_sources(Tests PRIVATE
 	Recast/Tests_Alloc.cpp
 	Recast/Tests_Recast.cpp
 	Recast/Tests_RecastFilter.cpp
+	Recast/Tests_RecastRasterization.cpp
 )
 
 target_link_libraries(Tests PRIVATE Recast Detour DetourCrowd)
