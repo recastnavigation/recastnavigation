@@ -2,7 +2,7 @@
 #include <string.h>
 #include <vector>
 
-#include "catch2/catch_all.hpp"
+#include "catch2/catch_amalgamated.hpp"
 
 #include "Recast.h"
 #include "RecastAlloc.h"
