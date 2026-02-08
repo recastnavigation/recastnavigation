@@ -622,60 +622,62 @@ void dtNavMesh::baseOffMeshLinks(dtMeshTile* tile)
 
 namespace
 {
-	template<bool onlyBoundary>
-	void closestPointOnDetailEdges(const dtMeshTile* tile, const dtPoly* poly, const float* pos, float* closest)
+void closestPointOnDetailEdges(const dtMeshTile* tile, const dtPoly* poly, const float* pos, float* closest, bool onlyBoundary)
+{
+	const unsigned int ip = (unsigned int)(poly - tile->polys);
+	const dtPolyDetail* pd = &tile->detailMeshes[ip];
+
+	float dmin = FLT_MAX;
+	float tmin = 0;
+	const float* pmin = 0;
+	const float* pmax = 0;
+
+	for (int i = 0; i < pd->triCount; i++)
 	{
-		const unsigned int ip = (unsigned int)(poly - tile->polys);
-		const dtPolyDetail* pd = &tile->detailMeshes[ip];
-
-		float dmin = FLT_MAX;
-		float tmin = 0;
-		const float* pmin = 0;
-		const float* pmax = 0;
-
-		for (int i = 0; i < pd->triCount; i++)
+		const unsigned char* tris = &tile->detailTris[(pd->triBase + i) * 4];
+		const int ANY_BOUNDARY_EDGE =
+			(DT_DETAIL_EDGE_BOUNDARY << 0) | (DT_DETAIL_EDGE_BOUNDARY << 2) | (DT_DETAIL_EDGE_BOUNDARY << 4);
+		if (onlyBoundary && (tris[3] & ANY_BOUNDARY_EDGE) == 0)
 		{
-			const unsigned char* tris = &tile->detailTris[(pd->triBase + i) * 4];
-			const int ANY_BOUNDARY_EDGE =
-				(DT_DETAIL_EDGE_BOUNDARY << 0) |
-				(DT_DETAIL_EDGE_BOUNDARY << 2) |
-				(DT_DETAIL_EDGE_BOUNDARY << 4);
-			if (onlyBoundary && (tris[3] & ANY_BOUNDARY_EDGE) == 0)
-				continue;
+			continue;
+		}
 
-			const float* v[3];
-			for (int j = 0; j < 3; ++j)
+		const float* v[3];
+		for (int j = 0; j < 3; ++j)
+		{
+			if (tris[j] < poly->vertCount)
 			{
-				if (tris[j] < poly->vertCount)
-					v[j] = &tile->verts[poly->verts[tris[j]] * 3];
-				else
-					v[j] = &tile->detailVerts[(pd->vertBase + (tris[j] - poly->vertCount)) * 3];
+				v[j] = &tile->verts[poly->verts[tris[j]] * 3];
 			}
-
-			for (int k = 0, j = 2; k < 3; j = k++)
+			else
 			{
-				if ((dtGetDetailTriEdgeFlags(tris[3], j) & DT_DETAIL_EDGE_BOUNDARY) == 0 &&
-					(onlyBoundary || tris[j] < tris[k]))
-				{
-					// Only looking at boundary edges and this is internal, or
-					// this is an inner edge that we will see again or have already seen.
-					continue;
-				}
-
-				float t;
-				float d = dtDistancePtSegSqr2D(pos, v[j], v[k], t);
-				if (d < dmin)
-				{
-					dmin = d;
-					tmin = t;
-					pmin = v[j];
-					pmax = v[k];
-				}
+				v[j] = &tile->detailVerts[(pd->vertBase + (tris[j] - poly->vertCount)) * 3];
 			}
 		}
 
-		dtVlerp(closest, pmin, pmax, tmin);
+		for (int k = 0, j = 2; k < 3; j = k++)
+		{
+			if ((dtGetDetailTriEdgeFlags(tris[3], j) & DT_DETAIL_EDGE_BOUNDARY) == 0 && (onlyBoundary || tris[j] < tris[k]))
+			{
+				// Only looking at boundary edges and this is internal, or
+				// this is an inner edge that we will see again or have already seen.
+				continue;
+			}
+
+			float t;
+			float d = dtDistancePtSegSqr2D(pos, v[j], v[k], t);
+			if (d < dmin)
+			{
+				dmin = d;
+				tmin = t;
+				pmin = v[j];
+				pmax = v[k];
+			}
+		}
 	}
+
+	dtVlerp(closest, pmin, pmax, tmin);
+}
 }
 
 bool dtNavMesh::getPolyHeight(const dtMeshTile* tile, const dtPoly* poly, const float* pos, float* height) const
@@ -724,7 +726,7 @@ bool dtNavMesh::getPolyHeight(const dtMeshTile* tile, const dtPoly* poly, const 
 	// closest. This should almost never happen so the extra iteration here is
 	// ok.
 	float closest[3];
-	closestPointOnDetailEdges<false>(tile, poly, pos, closest);
+	closestPointOnDetailEdges(tile, poly, pos, closest, false);
 	*height = closest[1];
 	return true;
 }
@@ -758,7 +760,7 @@ void dtNavMesh::closestPointOnPoly(dtPolyRef ref, const float* pos, float* close
 	}
 
 	// Outside poly that is not an offmesh connection.
-	closestPointOnDetailEdges<true>(tile, poly, pos, closest);
+	closestPointOnDetailEdges(tile, poly, pos, closest, true);
 }
 
 dtPolyRef dtNavMesh::findNearestPolyInTile(const dtMeshTile* tile,
