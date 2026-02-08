@@ -979,15 +979,15 @@ dtStatus dtNavMesh::addTile(unsigned char* data, int dataSize, int flags,
 	m_posLookup[h] = tile;
 	
 	// Patch header pointers.
-	const int headerSize = dtAlign4(sizeof(dtMeshHeader));
-	const int vertsSize = dtAlign4(sizeof(float)*3*header->vertCount);
-	const int polysSize = dtAlign4(sizeof(dtPoly)*header->polyCount);
-	const int linksSize = dtAlign4(sizeof(dtLink)*(header->maxLinkCount));
-	const int detailMeshesSize = dtAlign4(sizeof(dtPolyDetail)*header->detailMeshCount);
-	const int detailVertsSize = dtAlign4(sizeof(float)*3*header->detailVertCount);
-	const int detailTrisSize = dtAlign4(sizeof(unsigned char)*4*header->detailTriCount);
-	const int bvtreeSize = dtAlign4(sizeof(dtBVNode)*header->bvNodeCount);
-	const int offMeshLinksSize = dtAlign4(sizeof(dtOffMeshConnection)*header->offMeshConCount);
+	const int headerSize = dtAlign(sizeof(dtMeshHeader));
+	const int vertsSize = dtAlign(sizeof(float)*3*header->vertCount);
+	const int polysSize = dtAlign(sizeof(dtPoly)*header->polyCount);
+	const int linksSize = dtAlign(sizeof(dtLink)*(header->maxLinkCount));
+	const int detailMeshesSize = dtAlign(sizeof(dtPolyDetail)*header->detailMeshCount);
+	const int detailVertsSize = dtAlign(sizeof(float)*3*header->detailVertCount);
+	const int detailTrisSize = dtAlign(sizeof(unsigned char)*4*header->detailTriCount);
+	const int bvtreeSize = dtAlign(sizeof(dtBVNode)*header->bvNodeCount);
+	const int offMeshLinksSize = dtAlign(sizeof(dtOffMeshConnection)*header->offMeshConCount);
 	
 	unsigned char* d = data + headerSize;
 	tile->verts = dtGetThenAdvanceBufferPointer<float>(d, vertsSize);
@@ -1381,8 +1381,8 @@ struct dtPolyState
 int dtNavMesh::getTileStateSize(const dtMeshTile* tile) const
 {
 	if (!tile) return 0;
-	const int headerSize = dtAlign4(sizeof(dtTileState));
-	const int polyStateSize = dtAlign4(sizeof(dtPolyState) * tile->header->polyCount);
+	const int headerSize = dtAlign(sizeof(dtTileState));
+	const int polyStateSize = dtAlign(sizeof(dtPolyState) * tile->header->polyCount);
 	return headerSize + polyStateSize;
 }
 
@@ -1398,8 +1398,8 @@ dtStatus dtNavMesh::storeTileState(const dtMeshTile* tile, unsigned char* data, 
 	if (maxDataSize < sizeReq)
 		return DT_FAILURE | DT_BUFFER_TOO_SMALL;
 		
-	dtTileState* tileState = dtGetThenAdvanceBufferPointer<dtTileState>(data, dtAlign4(sizeof(dtTileState)));
-	dtPolyState* polyStates = dtGetThenAdvanceBufferPointer<dtPolyState>(data, dtAlign4(sizeof(dtPolyState) * tile->header->polyCount));
+	dtTileState* tileState = dtGetThenAdvanceBufferPointer<dtTileState>(data, dtAlign(sizeof(dtTileState)));
+	dtPolyState* polyStates = dtGetThenAdvanceBufferPointer<dtPolyState>(data, dtAlign(sizeof(dtPolyState) * tile->header->polyCount));
 	
 	// Store tile state.
 	tileState->magic = DT_NAVMESH_STATE_MAGIC;
@@ -1430,8 +1430,8 @@ dtStatus dtNavMesh::restoreTileState(dtMeshTile* tile, const unsigned char* data
 	if (maxDataSize < sizeReq)
 		return DT_FAILURE | DT_INVALID_PARAM;
 	
-	const dtTileState* tileState = dtGetThenAdvanceBufferPointer<const dtTileState>(data, dtAlign4(sizeof(dtTileState)));
-	const dtPolyState* polyStates = dtGetThenAdvanceBufferPointer<const dtPolyState>(data, dtAlign4(sizeof(dtPolyState) * tile->header->polyCount));
+	const dtTileState* tileState = dtGetThenAdvanceBufferPointer<const dtTileState>(data, dtAlign(sizeof(dtTileState)));
+	const dtPolyState* polyStates = dtGetThenAdvanceBufferPointer<const dtPolyState>(data, dtAlign(sizeof(dtPolyState) * tile->header->polyCount));
 	
 	// Check that the restore is possible.
 	if (tileState->magic != DT_NAVMESH_STATE_MAGIC)
