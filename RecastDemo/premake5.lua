@@ -192,7 +192,8 @@ project "Tests"
 	kind "ConsoleApp"
 	targetdir "Bin"
 	debugdir "Bin"
-	fatalwarnings { "All" }
+	warnings "Default"
+	fatalwarnings { }
 
 	-- Catch requires RTTI and exceptions
 	exceptionhandling "On"
