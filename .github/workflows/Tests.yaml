@@ -60,10 +60,10 @@ jobs:
     
     - name: Run premake
       working-directory: RecastDemo
-      run: ./premake5 --cc=clang gmake2
-    
+      run: ./premake5 --cc=clang gmake
+
     - name: Build
-      working-directory: RecastDemo/Build/gmake2
+      working-directory: RecastDemo/Build/gmake
       run: make config=debug verbose=true
     
     - name: Run Tests

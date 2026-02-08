@@ -29,8 +29,8 @@ You can also reference the github actions build script `.github/Build.yaml` for 
 ### Linux
 
 - Install SDL2 and its dependencies according to your distro's guidelines.
-- Navigate to the `RecastDemo` folder and run `premake5 gmake2`
-- Navigate to `RecastDemo/Build/gmake2` and run `make`
+- Navigate to the `RecastDemo` folder and run `premake5 gmake`
+- Navigate to `RecastDemo/Build/gmake` and run `make`
 - Navigate to `RecastDemo/Bin` and run `./RecastDemo`
 
 ## Preprocessor Defines

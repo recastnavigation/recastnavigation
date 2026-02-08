@@ -1,18 +1,22 @@
 --
--- premake5 file to build RecastDemo
 -- http://premake.github.io/
 --
 
-local action = _ACTION or ""
-local todir = "Build/" .. action
+local buildDir = "Build/" .. _ACTION or ""
 
 workspace "recastnavigation"
+	location (buildDir)
+	startproject "RecastDemo"
+
 	configurations {
 		"Debug",
 		"Release"
 	}
 
-	location (todir)
+	architecture "x64"
+	symbols "On"
+	exceptionhandling "Off"
+	rtti "Off"
 
 	-- Use fast math operations.  This is not required, but it speeds up some calculations
 	-- at the expense of accuracy.  Because there are some functions like dtMathIsfinite
@@ -21,116 +25,60 @@ workspace "recastnavigation"
 	floatingpoint "Fast"
 	defines { "RC_FAST_MATH" }
 
-	exceptionhandling "Off"
-	rtti "Off"
-	symbols "On"
-
-	-- debug configs
 	filter "configurations:Debug"
 		defines { "DEBUG" }
-		targetdir ( todir .. "/lib/Debug" )
+		optimize "Off"
+		targetdir ( buildDir .. "/lib/Debug" )
 
- 	-- release configs
 	filter "configurations:Release"
 		defines { "RC_DISABLE_ASSERTS" }
-		optimize "On"
-		targetdir ( todir .. "/lib/Release" )
+		optimize "Speed"
+		targetdir ( buildDir .. "/lib/Release" )
+
+	filter "system:windows"
+		defines {
+			"WIN32",
+			"_WINDOWS",
+			"_HAS_EXCEPTIONS=0"
+		}
 
 	filter "system:not windows"
 		warnings "Extra"
-
-	-- windows specific
-	filter "system:windows"
-		platforms { "Win32", "Win64" }
-		defines { "WIN32", "_WINDOWS", "_CRT_SECURE_NO_WARNINGS", "_HAS_EXCEPTIONS=0" }
-		-- warnings "Extra" uses /W4 which is too aggressive for us, so use W3 instead.
-		-- Disable:
-		-- * C4351: new behavior for array initialization
-		buildoptions { "/W3", "/wd4351" }
-
-	filter "platforms:Win32"
-		architecture "x32"
-
-	filter "platforms:Win64"
-		architecture "x64"
-
+	
 	filter {"system:linux", "toolset:gcc"}
 		buildoptions {
 			"-Wno-error=class-memaccess",
 			"-Wno-error=maybe-uninitialized"
 		}
 
-project "DebugUtils"
-	language "C++"
-	cppdialect "C++98"
-	kind "StaticLib"
-	flags { "FatalCompileWarnings" }
-	includedirs {
-		"../DebugUtils/Include",
-		"../Detour/Include",
-		"../DetourTileCache/Include",
-		"../Recast/Include"
-	}
-	files {
-		"../DebugUtils/Include/*.h",
-		"../DebugUtils/Source/*.cpp"
-	}
+local function libproject(name, dependencies)
+	project(name)
+		language "C++"
+		cppdialect "C++98"
+		kind "StaticLib"
 
-project "Detour"
-	language "C++"
-	cppdialect "C++98"
-	kind "StaticLib"
-	flags { "FatalCompileWarnings" }
-	includedirs {
-		"../Detour/Include"
-	}
-	files {
-		"../Detour/Include/*.h",
-		"../Detour/Source/*.cpp"
-	}
+		warnings "Extra"
+		fatalwarnings { "All" }
 
-project "DetourCrowd"
-	language "C++"
-	cppdialect "C++98"
-	kind "StaticLib"
-	flags { "FatalCompileWarnings" }
-	includedirs {
-		"../DetourCrowd/Include",
-		"../Detour/Include",
-		"../Recast/Include"
-	}
-	files {
-		"../DetourCrowd/Include/*.h",
-		"../DetourCrowd/Source/*.cpp"
-	}
+		local includes = {
+			"../" .. name .. "/Include"
+		}
+		for _,dependency in ipairs(dependencies) do
+			table.insert(includes, "../" .. dependency .. "/Include")
+		end
+		includedirs(includes)
 
-project "DetourTileCache"
-	language "C++"
-	cppdialect "C++98"
-	kind "StaticLib"
-	flags { "FatalCompileWarnings" }
-	includedirs {
-		"../DetourTileCache/Include",
-		"../Detour/Include",
-		"../Recast/Include"
-	}
-	files {
-		"../DetourTileCache/Include/*.h",
-		"../DetourTileCache/Source/*.cpp"
-	}
+		files {
+			"../" .. name .. "/Include/*.h",
+			"../" .. name .. "/Source/*.cpp"
+		}
+end
 
-project "Recast"
-	language "C++"
-	cppdialect "C++98"
-	kind "StaticLib"
-	flags { "FatalCompileWarnings" }
-	includedirs {
-		"../Recast/Include"
-	}
-	files {
-		"../Recast/Include/*.h",
-		"../Recast/Source/*.cpp"
-	}
+libproject("Recast", {})
+libproject("Detour", {})
+libproject("DetourCrowd", {"Detour", "Recast"})
+libproject("DetourTileCache", {"Detour", "Recast"})
+libproject("DebugUtils", {"Detour", "DetourTileCache", "Recast"})
 
 project "Contrib"
 	language "C++"
@@ -166,6 +114,7 @@ project "RecastDemo"
 	cppdialect "C++20" -- we don't care about this being compatible in the same way we do with the library code.
 	kind "WindowedApp"
 	targetdir "Bin"
+	debugdir "Bin"
 
 	includedirs {
 		"../RecastDemo/Include",
@@ -181,12 +130,12 @@ project "RecastDemo"
 		"../RecastDemo/Contrib/implot",
 		"../RecastDemo/Contrib/imgui/backends",
 	}
+
 	files {
 		"../RecastDemo/Include/*.h",
 		"../RecastDemo/Source/*.cpp",
 	}
 
-	-- project dependencies
 	links {
 		"DebugUtils",
 		"Detour",
@@ -195,7 +144,6 @@ project "RecastDemo"
 		"Recast",
 		"Contrib"
 	}
-
 
 	filter "system:linux"
 		buildoptions {
@@ -211,8 +159,11 @@ project "RecastDemo"
 
 	filter "system:windows"
 		includedirs { "../RecastDemo/Contrib/SDL/include" }
-		libdirs { "../RecastDemo/Contrib/SDL/lib/%{cfg.architecture:gsub('x86_64', 'x64')}" }
+		libdirs { "../RecastDemo/Contrib/SDL/lib/x64" }
 		debugdir "../RecastDemo/Bin/"
+		defines {
+			"_CRT_SECURE_NO_WARNINGS",
+		}
 		links {
 			"glu32",
 			"opengl32",
@@ -221,10 +172,9 @@ project "RecastDemo"
 		}
 		postbuildcommands {
 			-- Copy the SDL2 dll to the Bin folder.
-			'{COPY} "%{path.getabsolute("Contrib/SDL/lib/" .. cfg.architecture:gsub("x86_64", "x64") .. "/SDL2.dll")}" "%{cfg.targetdir}"'
+			'{COPY} "%{path.getabsolute("Contrib/SDL/lib/x64/SDL2.dll")}" "%{cfg.targetdir}"'
 		}
 
-	-- mac includes and libs
 	filter "system:macosx"
 		kind "ConsoleApp"
 		includedirs { "Bin/SDL2.framework/Headers" }
@@ -240,7 +190,9 @@ project "Tests"
 	language "C++"
 	cppdialect "C++20" -- Catch requires newer C++ features
 	kind "ConsoleApp"
-	flags { "FatalCompileWarnings" }
+	targetdir "Bin"
+	debugdir "Bin"
+	fatalwarnings { "All" }
 
 	-- Catch requires RTTI and exceptions
 	exceptionhandling "On"
@@ -258,18 +210,11 @@ project "Tests"
 		"../Tests/Contrib"
 	}
 	files {
-		"../Tests/*.h",
-		"../Tests/*.hpp",
-		"../Tests/*.cpp",
-		"../Tests/Recast/*.h",
-		"../Tests/Recast/*.cpp",
-		"../Tests/Detour/*.h",
-		"../Tests/Detour/*.cpp",
-		"../Tests/DetourCrowd/*.cpp",
-		"../Tests/Contrib/catch2/*.cpp"
+		"../Tests/**.h",
+		"../Tests/**.hpp",
+		"../Tests/**.cpp"
 	}
 
-	-- project dependencies
 	links {
 		"DebugUtils",
 		"DetourCrowd",
@@ -277,9 +222,6 @@ project "Tests"
 		"DetourTileCache",
 		"Recast",
 	}
-
-	-- distribute executable in RecastDemo/Bin directory
-	targetdir "Bin"
 
 	-- enable ubsan and asan when compiling with clang
 	filter "toolset:clang"
@@ -289,36 +231,14 @@ project "Tests"
 		buildoptions { "-fsanitize=undefined", "-fsanitize=address" } -- , "-fsanitize=memory" }
 		linkoptions { "-fsanitize=undefined", "-fsanitize=address" } --, "-fsanitize=memory" }
 
-	-- linux library cflags and libs
 	filter "system:linux"
 		buildoptions {
-			"`pkg-config --cflags sdl2`",
-			"`pkg-config --cflags gl`",
-			"`pkg-config --cflags glu`",
 			"-Wno-parentheses" -- Disable parentheses warning for the Tests target, as Catch's macros generate this everywhere.
 		}
 		linkoptions {
-			"`pkg-config --libs sdl2`",
-			"`pkg-config --libs gl`",
-			"`pkg-config --libs glu`",
 			"-lpthread"
 		}
 
-	-- windows library cflags and libs
-	filter "system:windows"
-		includedirs { "../RecastDemo/Contrib/SDL/include" }
-		libdirs { "../RecastDemo/Contrib/SDL/lib/%{cfg.architecture:gsub('x86_64', 'x64')}" }
-		debugdir "../RecastDemo/Bin/"
-		links {
-			"glu32",
-			"opengl32",
-			"SDL2",
-			"SDL2main",
-		}
-
-	-- mac includes and libs
 	filter "system:macosx"
 		kind "ConsoleApp"
-		links {
-			"Cocoa.framework",
-		}
+		links { "Cocoa.framework" }
