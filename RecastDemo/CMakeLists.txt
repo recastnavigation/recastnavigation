@@ -1,165 +1,119 @@
-file(GLOB SOURCES Source/*.cpp)
-
+# Find dependencies
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
-if (NOT SDL2_ROOT_DIR)
-  if (WIN32)
-    set(SDL2_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Contrib/SDL")
-  elseif(APPLE)
-    set(SDL2_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Bin")
-  endif()
-endif()
-
 find_package(OpenGL REQUIRED)
-if (APPLE)
-  set(SDL2_FRAMEWORK_PATH "${SDL2_ROOT_DIR}/SDL2.framework")
-  # Use the framework's Headers directory directly for <SDL.h> style includes
-  set(SDL2_INCLUDE_DIR "${SDL2_FRAMEWORK_PATH}/Headers")
-  # Also add the parent so <SDL2/SDL.h> style includes work (used internally by SDL)
-  set(SDL2_INCLUDE_DIR_PARENT "${SDL2_ROOT_DIR}")
+
+# SDL2 setup - platform specific
+if(WIN32)
+	if(NOT SDL2_ROOT_DIR)
+		set(SDL2_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Contrib/SDL")
+	endif()
+	find_package(SDL2 REQUIRED)
+elseif(APPLE)
+	if(NOT SDL2_ROOT_DIR)
+		set(SDL2_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Bin")
+	endif()
+	set(SDL2_FRAMEWORK_PATH "${SDL2_ROOT_DIR}/SDL2.framework")
+	# Use the framework's Headers directory for <SDL.h> style includes
+	set(SDL2_INCLUDE_DIR "${SDL2_FRAMEWORK_PATH}/Headers")
+	# Also add the parent so <SDL2/SDL.h> style includes work (used internally by SDL headers)
+	set(SDL2_INCLUDE_DIR_PARENT "${SDL2_ROOT_DIR}")
 else()
-  find_package(SDL2 REQUIRED)
+	# Linux - use system SDL2
+	find_package(SDL2 REQUIRED)
 endif()
 
-# Contrib static library (third-party code)
-add_library(Contrib STATIC
-	Contrib/fastlz/fastlz.c
-	Contrib/imgui/imgui.cpp
-	Contrib/imgui/imgui_demo.cpp
-	Contrib/imgui/imgui_draw.cpp
-	Contrib/imgui/imgui_tables.cpp
-	Contrib/imgui/imgui_widgets.cpp
-	Contrib/implot/implot.cpp
-	Contrib/implot/implot_demo.cpp
-	Contrib/implot/implot_items.cpp
-	Contrib/imgui/backends/imgui_impl_sdl2.cpp
-	Contrib/imgui/backends/imgui_impl_opengl2.cpp
+# Build the third-party Contrib library (must come after SDL2 setup since it uses SDL2 variables)
+add_subdirectory(Contrib)
+
+# RecastDemo executable
+if(WIN32)
+	add_executable(RecastDemo WIN32)
+elseif(APPLE)
+	add_executable(RecastDemo MACOSX_BUNDLE)
+else()
+	add_executable(RecastDemo)
+endif()
+
+target_sources(RecastDemo PRIVATE
+	Source/AppState.cpp
+	Source/InputGeom.cpp
+	Source/main.cpp
+	Source/PartitionedMesh.cpp
+	Source/PerfTimer.cpp
+	Source/Sample.cpp
+	Source/Sample_SoloMesh.cpp
+	Source/Sample_TempObstacles.cpp
+	Source/Sample_TileMesh.cpp
+	Source/SampleInterfaces.cpp
+	Source/TestCase.cpp
+	Source/Tool_ConvexVolume.cpp
+	Source/Tool_Crowd.cpp
+	Source/Tool_NavMeshPrune.cpp
+	Source/Tool_NavMeshTester.cpp
+	Source/Tool_OffMeshConnection.cpp
+	Source/ValueHistory.cpp
 )
 
-set_target_properties(Contrib PROPERTIES
+target_include_directories(RecastDemo PRIVATE
+	${CMAKE_CURRENT_SOURCE_DIR}/Include
+)
+
+set_target_properties(RecastDemo PROPERTIES
 	CXX_STANDARD 20
 	CXX_STANDARD_REQUIRED ON
 	CXX_EXTENSIONS OFF
 )
 
-# Remove warnings-as-errors for third-party code
-if(MSVC)
-	target_compile_options(Contrib PRIVATE /W3 /WX-)
-else()
-	target_compile_options(Contrib PRIVATE -Wno-error)
+# Platform-specific compiler options
+if(APPLE)
+	# Suppress deprecated OpenGL warnings (gluPerspective, gluProject, etc.)
+	target_compile_options(RecastDemo PRIVATE -Wno-deprecated-declarations)
 endif()
 
-target_include_directories(Contrib PRIVATE
-	Contrib/imgui
-	Contrib/implot
-	Contrib/imgui/backends
+# Link libraries
+target_link_libraries(RecastDemo PRIVATE
+	OpenGL::GL
+	OpenGL::GLU
+	Contrib
+	RecastNavigation::DebugUtils
+	RecastNavigation::Detour
+	RecastNavigation::DetourCrowd
+	RecastNavigation::DetourTileCache
+	RecastNavigation::Recast
 )
 
-if (WIN32)
-	target_include_directories(Contrib PRIVATE Contrib/SDL/include)
-elseif (APPLE)
-	target_include_directories(Contrib PRIVATE ${SDL2_INCLUDE_DIR} ${SDL2_INCLUDE_DIR_PARENT})
+# SDL2 linking - platform specific
+if(APPLE)
+	target_link_libraries(RecastDemo PRIVATE "-F${SDL2_ROOT_DIR} -framework SDL2")
+	target_include_directories(RecastDemo PRIVATE ${SDL2_INCLUDE_DIR} ${SDL2_INCLUDE_DIR_PARENT})
 else()
-	# Use the include directories from the imported target on Linux
-	target_link_libraries(Contrib PRIVATE SDL2::SDL2)
+	target_link_libraries(RecastDemo PRIVATE SDL2::SDL2 SDL2::SDL2main)
 endif()
 
-include_directories(SYSTEM ${OPENGL_INCLUDE_DIR})
-include_directories(SYSTEM Contrib/fastlz)
-include_directories(SYSTEM Contrib)
-include_directories(SYSTEM Contrib/imgui)
-include_directories(SYSTEM Contrib/implot)
-include_directories(SYSTEM Contrib/imgui/backends)
-include_directories(../DebugUtils/Include)
-include_directories(../Detour/Include)
-include_directories(../DetourCrowd/Include)
-include_directories(../DetourTileCache/Include)
-include_directories(../Recast/Include)
-include_directories(Include)
-if (WIN32)
-  include_directories(Contrib/SDL/include)
-elseif (APPLE)
-  include_directories(${SDL2_INCLUDE_DIR} ${SDL2_INCLUDE_DIR_PARENT})
-endif()
-# On Linux, SDL2 includes are handled via target_link_libraries with SDL2::SDL2
-
-if (WIN32)
-    add_executable(RecastDemo WIN32 ${SOURCES})
-elseif (APPLE)
-    add_executable(RecastDemo MACOSX_BUNDLE ${SOURCES})
+# Copy runtime files to build directory
+if(WIN32)
+	add_custom_command(TARGET RecastDemo POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different "${SDL2_RUNTIME_LIBRARY}" $<TARGET_FILE_DIR:RecastDemo>/
+		COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/Bin/Meshes $<TARGET_FILE_DIR:RecastDemo>/Meshes
+		COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/Bin/TestCases $<TARGET_FILE_DIR:RecastDemo>/TestCases
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/Bin/DroidSans.ttf $<TARGET_FILE_DIR:RecastDemo>/
+	)
 else()
-    add_executable(RecastDemo ${SOURCES})
+	file(COPY Bin/Meshes DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+	file(COPY Bin/TestCases DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+	file(COPY Bin/DroidSans.ttf DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
-set_target_properties(RecastDemo PROPERTIES
-    CXX_STANDARD 20
-    CXX_STANDARD_REQUIRED ON
-    CXX_EXTENSIONS OFF  # Disable compiler-specific extensions
-)
-
-# Suppress deprecated OpenGL warnings on macOS (gluPerspective, gluProject, etc.)
-if (APPLE)
-    target_compile_options(RecastDemo PRIVATE -Wno-deprecated-declarations)
-endif()
-
-if (WIN32)
-  if ("${CMAKE_MAKE_PROGRAM}" MATCHES "MSBuild")
-    target_compile_definitions(RecastDemo PUBLIC _CRT_SECURE_NO_WARNINGS)
-    add_custom_command(TARGET RecastDemo
-      POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy "${SDL2_RUNTIME_LIBRARY}" ${CMAKE_BINARY_DIR}/RecastDemo/$(ConfigurationName)/
-      COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/Bin/Meshes ${CMAKE_BINARY_DIR}/RecastDemo/$(ConfigurationName)/Meshes
-      COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/Bin/TestCases ${CMAKE_BINARY_DIR}/RecastDemo/$(ConfigurationName)/TestCases
-      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/Bin/DroidSans.ttf ${CMAKE_BINARY_DIR}/RecastDemo/$(ConfigurationName)/
-    )
-  elseif (MINGW)
-    add_custom_command(TARGET RecastDemo
-      POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy "${SDL2_RUNTIME_LIBRARY}" ${CMAKE_BINARY_DIR}/RecastDemo/
-      COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/Bin/Meshes ${CMAKE_BINARY_DIR}/RecastDemo/Meshes
-      COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/Bin/TestCases ${CMAKE_BINARY_DIR}/RecastDemo/TestCases
-      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/Bin/DroidSans.ttf ${CMAKE_BINARY_DIR}/RecastDemo/
-    )
-  endif()
-else()
-    file(COPY Bin/Meshes DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-    file(COPY Bin/TestCases DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-    file(COPY Bin/DroidSans.ttf DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-endif()
-
-add_dependencies(RecastDemo DebugUtils Detour DetourCrowd DetourTileCache Recast Contrib)
-if (APPLE)
-  target_link_libraries(
-	RecastDemo
-	${OPENGL_LIBRARIES}
-	"-F${SDL2_ROOT_DIR} -framework SDL2"
-	DebugUtils
-	Detour
-	DetourCrowd
-	DetourTileCache
-	Recast
-	Contrib)
-else()
-  target_link_libraries(
-	RecastDemo
-	${OPENGL_LIBRARIES}
-	SDL2::SDL2
-	SDL2::SDL2main
-	DebugUtils
-	Detour
-	DetourCrowd
-	DetourTileCache
-	Recast
-	Contrib)
-endif()
-
+# Installation
 install(TARGETS RecastDemo
-        RUNTIME DESTINATION bin
-        BUNDLE DESTINATION bin)
+	RUNTIME DESTINATION bin
+	BUNDLE DESTINATION bin
+)
 install(DIRECTORY Bin/Meshes DESTINATION bin)
 install(DIRECTORY Bin/TestCases DESTINATION bin)
 install(FILES Bin/DroidSans.ttf DESTINATION bin)
 
-if (WIN32)
-    install(FILES "${SDL2_RUNTIME_LIBRARY}" DESTINATION bin)
+if(WIN32)
+	install(FILES "${SDL2_RUNTIME_LIBRARY}" DESTINATION bin)
 endif()
