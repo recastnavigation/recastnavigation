@@ -96,7 +96,7 @@ jobs:
 
     - name: Build
       working-directory: RecastDemo/Build/vs2022
-      run: msbuild Tests.vcxproj -property:Configuration=Debug
+      run: msbuild Tests.vcxproj -property:Configuration=Debug -property:Platform=x64
 
     - name: Run Tests
       working-directory: RecastDemo/Bin/

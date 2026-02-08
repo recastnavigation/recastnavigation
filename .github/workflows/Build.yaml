@@ -164,7 +164,7 @@ jobs:
 
     - name: Build
       working-directory: RecastDemo/Build/${{matrix.vs-version}}
-      run: msbuild RecastDemo.vcxproj -property:Configuration=${{matrix.conf}}
+      run: msbuild RecastDemo.vcxproj -property:Configuration=${{matrix.conf}} -property:Platform=x64
 
   windows-cmake:
     strategy:
