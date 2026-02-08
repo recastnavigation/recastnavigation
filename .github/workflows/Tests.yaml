@@ -19,9 +19,10 @@ jobs:
     - name: Download & install premake
       working-directory: RecastDemo
       run: |
-        curl -L -o premake.tar.gz https://github.com/premake/premake-core/releases/download/v5.0.0-beta2/premake-5.0.0-beta2-macosx.tar.gz
+        curl -L -o premake.tar.gz https://github.com/premake/premake-core/releases/download/v5.0.0-beta8/premake-5.0.0-beta8-macosx.tar.gz
         tar -xzf premake.tar.gz
         rm premake.tar.gz
+        chmod 777 ./premake5
 
     - name: Run premake
       working-directory: RecastDemo
@@ -52,9 +53,10 @@ jobs:
     - name: Download & Install premake
       working-directory: RecastDemo
       run: |
-        curl -L -o premake.tar.gz https://github.com/premake/premake-core/releases/download/v5.0.0-beta2/premake-5.0.0-beta2-linux.tar.gz
+        curl -L -o premake.tar.gz https://github.com/premake/premake-core/releases/download/v5.0.0-beta8/premake-5.0.0-beta8-linux.tar.gz
         tar -xzf premake.tar.gz
         rm premake.tar.gz
+        chmod 777 ./premake5
     
     - name: Run premake
       working-directory: RecastDemo
@@ -84,7 +86,7 @@ jobs:
       working-directory: RecastDemo
       shell: pwsh
       run: |
-        (new-object System.Net.WebClient).DownloadFile("https://github.com/premake/premake-core/releases/download/v5.0.0-beta2/premake-5.0.0-beta2-windows.zip","${{github.workspace}}/RecastDemo/premake.zip")
+        (new-object System.Net.WebClient).DownloadFile("https://github.com/premake/premake-core/releases/download/v5.0.0-beta8/premake-5.0.0-beta8-windows.zip","${{github.workspace}}/RecastDemo/premake.zip")
         tar -xf premake.zip
         del premake.zip
 
