@@ -192,6 +192,39 @@ TEST_CASE("rcAddSpan", "[recast][rasterization]")
 		REQUIRE(hf.spans[0]->area == area);
 		REQUIRE(hf.spans[0]->next == nullptr);
 	}
+
+}
+
+TEST_CASE("allocSpan", "[recast][rasterization]")
+{
+	rcContext ctx(false);
+
+	constexpr int xSize = 50;
+	constexpr int zSize = 50;
+	constexpr int ySize = 10;
+
+	constexpr float cellSize = 1.0f;
+	constexpr float cellHeight = 2.0f;
+
+	constexpr float minBounds[3] {0.0f, 0.0f, 0.0f};
+	constexpr float maxBounds[3] {cellSize * xSize, cellHeight * ySize, cellSize * zSize};
+
+	rcHeightfield hf;
+	REQUIRE(rcCreateHeightfield(&ctx, hf, xSize, zSize, minBounds, maxBounds, cellSize, cellHeight));
+
+	constexpr unsigned char area = 42;
+	constexpr int flagMergeThr = 1;
+
+	SECTION("Attempting to add more spans than the span pool size allocates a new page")
+	{
+		for (int x = 0; x < xSize; x++)
+		{
+			for (int z = 0; z < zSize; z++)
+			{
+				REQUIRE(rcAddSpan(&ctx, hf, x, z, 0, 1, area, flagMergeThr));
+			}
+		}
+	}
 }
 
 TEST_CASE("rcRasterizeTriangle", "[recast][rasterization]")
