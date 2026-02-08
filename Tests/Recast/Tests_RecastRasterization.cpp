@@ -193,3 +193,388 @@ TEST_CASE("rcAddSpan", "[recast][rasterization]")
 		REQUIRE(hf.spans[0]->next == nullptr);
 	}
 }
+
+TEST_CASE("rcRasterizeTriangle", "[recast][rasterization]")
+{
+	rcContext ctx(false);
+
+	constexpr int xSize = 10;
+	constexpr int ySize = 10;
+	constexpr int zSize = 10;
+
+	constexpr float cellSize = 1.0f;
+	constexpr float cellHeight = 1.0f;
+
+	constexpr float minBounds[3] {0.0f, 0.0f, 0.0f};
+	constexpr float maxBounds[3] {cellSize * xSize, cellHeight * ySize, cellSize * zSize};
+
+	rcHeightfield hf;
+	REQUIRE(rcCreateHeightfield(&ctx, hf, xSize, zSize, minBounds, maxBounds, cellSize, cellHeight));
+
+	SECTION("Simple triangle in XZ plane")
+	{
+		// Triangle in the XZ plane with vertices (0,0,0), (2,0,0), (0,0,2)
+		//
+		//   Z ^
+		//     |
+		//     |\
+		//     |_\__> X
+		//
+		//
+		//   Z ....
+		//     X...
+		//     XX..  X
+		//
+		// Should fill cells: (0,0), (0,1), (1,0)
+
+		// Clockwise winding order so the normal points in the positive Y
+		float v0[] = {0.0f, 0.0f, 0.0f};
+		float v1[] = {2.0f, 0.0f, 0.0f};
+		float v2[] = {0.0f, 0.0f, 2.0f};
+
+		REQUIRE(rcRasterizeTriangle(&ctx, v0, v1, v2, RC_WALKABLE_AREA, hf, 1));
+
+		// Check that only expected cells have spans
+		for (int x = 0; x < xSize; x++)
+		{
+			for (int z = 0; z < zSize; z++)
+			{
+				rcSpan* span = hf.spans[x + z * hf.width];
+				if ((x == 0 && z == 0) || (x == 0 && z == 1) || (x == 1 && z == 0))
+				{
+					REQUIRE(span != nullptr);
+					REQUIRE(span->smin == 0);
+					REQUIRE(span->smax == 1);
+					REQUIRE(span->area == RC_WALKABLE_AREA);
+					REQUIRE(span->next == nullptr);
+				}
+				else
+				{
+					REQUIRE(span == nullptr);
+				}
+			}
+		}
+	}
+
+	SECTION("Simple triangle inside a single voxel")
+	{
+		// Clockwise winding order so the normal points in the positive Y
+		float v0[] = {0.0f, 0.0f, 0.0f};
+		float v1[] = {1.0f, 0.0f, 0.0f};
+		float v2[] = {0.0f, 0.0f, 1.0f};
+
+		REQUIRE(rcRasterizeTriangle(&ctx, v0, v1, v2, RC_WALKABLE_AREA, hf, 1));
+
+		// Check that only expected cells have spans
+		for (int x = 0; x < xSize; x++)
+		{
+			for (int z = 0; z < zSize; z++)
+			{
+				rcSpan* span = hf.spans[x + z * hf.width];
+				if (x == 0 && z == 0)
+				{
+					REQUIRE(span != nullptr);
+					REQUIRE(span->smin == 0);
+					REQUIRE(span->smax == 1);
+					REQUIRE(span->area == RC_WALKABLE_AREA);
+					REQUIRE(span->next == nullptr);
+				}
+				else
+				{
+					REQUIRE(span == nullptr);
+				}
+			}
+		}
+	}
+
+	SECTION("Triangles are clipped by the heightfield bounds")
+	{
+		// When clipped, this should be the same as the triangle in the previous test
+		// Should fill cells: (0,0), (0,1), (1,0)
+
+		// Clockwise winding order so the normal points in the positive Y
+		float v0[] = {-2.0f, 0.0f, -2.0f};
+		float v1[] = {4.0f, 0.0f, -2.0f};
+		float v2[] = {-2.0f, 0.0f, 4.0f};
+
+		REQUIRE(rcRasterizeTriangle(&ctx, v0, v1, v2, RC_WALKABLE_AREA, hf, 1));
+
+		// Check that only expected cells have spans
+		for (int x = 0; x < xSize; x++)
+		{
+			for (int z = 0; z < zSize; z++)
+			{
+				rcSpan* span = hf.spans[x + z * hf.width];
+				if ((x == 0 && z == 0) || (x == 0 && z == 1) || (x == 1 && z == 0))
+				{
+					REQUIRE(span != nullptr);
+					REQUIRE(span->smin == 0);
+					REQUIRE(span->smax == 1);
+					REQUIRE(span->area == RC_WALKABLE_AREA);
+					REQUIRE(span->next == nullptr);
+				}
+				else
+				{
+					REQUIRE(span == nullptr);
+				}
+			}
+		}
+	}
+
+	SECTION("Triangle outside of heightfield bounds rasterizes to nothing")
+	{
+		{ // Outside xz bounds
+			float v0[] = {-5.0f, 0.0f, -5.0f};
+			float v1[] = {-5.0f, 0.0f, 5.0f};
+			float v2[] = {5.0f, 0.0f, -5.0f};
+			REQUIRE(rcRasterizeTriangle(&ctx, v0, v1, v2, RC_WALKABLE_AREA, hf, 1));
+
+			// Check that no spans were added
+			for (int x = 0; x < xSize; x++)
+			{
+				for (int z = 0; z < zSize; z++)
+				{
+					REQUIRE(hf.spans[x + z * hf.width] == nullptr);
+				}
+			}
+		}
+
+		{  // below y bounds
+			float v0[] = {0.0f, -1.0f, 0.0f};
+			float v1[] = {5.0f, -1.0f, 5.0f};
+			float v2[] = {5.0f, -1.0f, 0.0f};
+			REQUIRE(rcRasterizeTriangle(&ctx, v0, v1, v2, RC_WALKABLE_AREA, hf, 1));
+
+			// Check that no spans were added
+			for (int x = 0; x < xSize; x++)
+			{
+				for (int z = 0; z < zSize; z++)
+				{
+					REQUIRE(hf.spans[x + z * hf.width] == nullptr);
+				}
+			}
+		}
+
+		{  // above y bounds
+			float v0[] = {0.0f, 40.0f, 0.0f};
+			float v1[] = {5.0f, 40.0f, 5.0f};
+			float v2[] = {5.0f, 40.0f, 0.0f};
+			REQUIRE(rcRasterizeTriangle(&ctx, v0, v1, v2, RC_WALKABLE_AREA, hf, 1));
+
+			// Check that no spans were added
+			for (int x = 0; x < xSize; x++)
+			{
+				for (int z = 0; z < zSize; z++)
+				{
+					REQUIRE(hf.spans[x + z * hf.width] == nullptr);
+				}
+			}
+		}
+	}
+
+	SECTION("Voxels are rasterized if the triangle overlaps any part of it at all")
+	{
+		// This triangle when clipped barely overlaps the area of the cell at 0,0
+
+		// Clockwise winding order so the normal points in the positive Y
+		float v0[] = {-1.0f, 0.0f, -1.0f};
+		float v1[] = {1.01f, 0.0f, -1.0f};
+		float v2[] = {-1.0f, 0.0f, 1.01f};
+
+		REQUIRE(rcRasterizeTriangle(&ctx, v0, v1, v2, RC_WALKABLE_AREA, hf, 1));
+
+		// Check that only expected cells have spans
+		for (int x = 0; x < xSize; x++)
+		{
+			for (int z = 0; z < zSize; z++)
+			{
+				rcSpan* span = hf.spans[x + z * hf.width];
+				if (x == 0 && z == 0)
+				{
+					REQUIRE(span != nullptr);
+					REQUIRE(span->smin == 0);
+					REQUIRE(span->smax == 1);
+					REQUIRE(span->area == RC_WALKABLE_AREA);
+					REQUIRE(span->next == nullptr);
+				}
+				else
+				{
+					REQUIRE(span == nullptr);
+				}
+			}
+		}
+	}
+
+	SECTION("A rasterized triangle vertical span includes all the voxels it is in any way part of.")
+	{
+		// Clockwise winding order so the normal points in the positive Y
+		float v0[] = {0.0f, 0.0f, 0.0f};
+		float v1[] = {0.5f, 0.0f, 0.5f};
+		float v2[] = {0.5f, 2.01f, 0.5f};
+
+		REQUIRE(rcRasterizeTriangle(&ctx, v0, v1, v2, RC_WALKABLE_AREA, hf, 1));
+
+		// Check that only expected cells have spans
+		for (int x = 0; x < xSize; x++)
+		{
+			for (int z = 0; z < zSize; z++)
+			{
+				rcSpan* span = hf.spans[x + z * hf.width];
+				if (x == 0 && z == 0)
+				{
+					REQUIRE(span != nullptr);
+					REQUIRE(span->smin == 0);
+					REQUIRE(span->smax == 3);
+					REQUIRE(span->area == RC_WALKABLE_AREA);
+					REQUIRE(span->next == nullptr);
+				}
+				else
+				{
+					REQUIRE(span == nullptr);
+				}
+			}
+		}
+	}
+
+	SECTION("Sloped triangle produces varying span heights")
+	{
+		//   Y ^
+		//    2|     /v2
+		//     |    /  \
+		//    1|   /    \
+		//     |  /      \
+		//   --+-v0------v1----> X
+		//     |  0   2   4
+		//
+		//   Should rasterize to...
+		//
+		//   Y ^
+		//    2|  |--|--|
+		//     |  |     |
+		//    1|--|  +  |--|
+		//     |           |
+		//   --+--------------> X
+		//     |
+		//
+
+		float v0[] = {0.0f, 0.0f, 0.5f};
+		float v1[] = {4.0f, 0.0f, 0.5f};
+		float v2[] = {2.0f, 2.0f, 0.5f};
+
+		REQUIRE(rcRasterizeTriangle(&ctx, v0, v1, v2, RC_WALKABLE_AREA, hf, 1));
+
+		// Check that only expected cells have spans
+		for (int x = 0; x < xSize; x++)
+		{
+			for (int z = 0; z < zSize; z++)
+			{
+				rcSpan* span = hf.spans[x + z * hf.width];
+				if ((x == 0 && z == 0) || (x == 3 && z == 0))
+				{
+					REQUIRE(span != nullptr);
+					REQUIRE(span->smin == 0);
+					REQUIRE(span->smax == 1);
+					REQUIRE(span->area == RC_WALKABLE_AREA);
+					REQUIRE(span->next == nullptr);
+				}
+				else if ((x == 1 && z == 0) || (x == 2 && z == 0))
+				{
+					REQUIRE(span != nullptr);
+					REQUIRE(span->smin == 0);
+					REQUIRE(span->smax == 2);
+					REQUIRE(span->area == RC_WALKABLE_AREA);
+					REQUIRE(span->next == nullptr);
+				}
+				else
+				{
+					REQUIRE(span == nullptr);
+				}
+			}
+		}
+	}
+
+	SECTION("Triangle crossing Y bounds gets clamped")
+	{
+		// This trangle should be clipped to both the max and min Y bounds of the heightfield.
+		float v0[] = {0.0f, -5.0f, 0.0f};
+		float v1[] = {1.0f, -5.0f, 1.0f};
+		float v2[] = {0.5f, 15.0f, 0.5f};
+
+		REQUIRE(rcRasterizeTriangle(&ctx, v0, v1, v2, RC_WALKABLE_AREA, hf, 1));
+
+		// Check that only expected cells have spans
+		for (int x = 0; x < xSize; x++)
+		{
+			for (int z = 0; z < zSize; z++)
+			{
+				rcSpan* span = hf.spans[x + z * hf.width];
+				if (x == 0 && z == 0)
+				{
+					REQUIRE(span != nullptr);
+					REQUIRE(span->smin == 0);
+					REQUIRE(span->smax == 10);
+					REQUIRE(span->area == RC_WALKABLE_AREA);
+					REQUIRE(span->next == nullptr);
+				}
+				else
+				{
+					REQUIRE(span == nullptr);
+				}
+			}
+		}
+	}
+
+	SECTION("Degenerate triangles rasterize to nothing")
+	{
+		SKIP("Currently Recast rasterizes degenerate triangles as if they were a line or point of non-zero volume.");
+		{ // Co-linear points
+			float v0[] = {1.0f, 0.0f, 0.5f};
+			float v1[] = {2.0f, 0.0f, 0.5f};
+			float v2[] = {4.0f, 0.0f, 0.5f};
+			REQUIRE(rcRasterizeTriangle(&ctx, v0, v1, v2, RC_WALKABLE_AREA, hf, 1));
+
+			// Check that no spans were added
+			for (int x = 0; x < xSize; x++)
+			{
+				for (int z = 0; z < zSize; z++)
+				{
+					rcSpan* span = hf.spans[x + z * hf.width];
+					REQUIRE(span == nullptr);
+				}
+			}
+		}
+
+		{ // All vertices are the same point
+			float v0[] = {0.5f, 0.0f, 0.5f};
+			REQUIRE(rcRasterizeTriangle(&ctx, v0, v0, v0, RC_WALKABLE_AREA, hf, 1));
+
+			// Check that no spans were added
+			for (int x = 0; x < xSize; x++)
+			{
+				for (int z = 0; z < zSize; z++)
+				{
+					rcSpan* span = hf.spans[x + z * hf.width];
+					REQUIRE(span == nullptr);
+				}
+			}
+		}
+	}
+
+	SECTION("Triangles outside the heightfield with bounding boxes that overlap the heightfield rasterize nothing")
+	{
+		// This is a minimal repro case for the issue fixed in PR #476 (https://github.com/recastnavigation/recastnavigation/pull/476)
+		float v0[] = {-10.0, 5.5, -10.0};
+		float v1[] = {-10.0, 5.5, 3};
+		float v2[] = {3.0, 5.5, -10.0};
+		REQUIRE(rcRasterizeTriangle(&ctx, v0, v1, v2, RC_WALKABLE_AREA, hf, 1));
+
+		// Check that no spans were added
+		for (int x = 0; x < xSize; x++)
+		{
+			for (int z = 0; z < zSize; z++)
+			{
+				REQUIRE(hf.spans[x + z * hf.width] == nullptr);
+			}
+		}
+	}
+}
