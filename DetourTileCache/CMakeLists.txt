@@ -1,5 +1,4 @@
-file(GLOB SOURCES Source/*.cpp)
-add_library(DetourTileCache ${SOURCES})
+add_library(DetourTileCache)
 add_library(RecastNavigation::DetourTileCache ALIAS DetourTileCache)
 
 set_target_properties(DetourTileCache PROPERTIES
@@ -13,13 +12,16 @@ set_target_properties(DetourTileCache PROPERTIES
     CXX_EXTENSIONS OFF  # Disable compiler-specific extensions
 )
 
-# Set include path
-set(DetourTileCache_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Include")
 target_include_directories(DetourTileCache PUBLIC
-    "$<BUILD_INTERFACE:${DetourTileCache_INCLUDE_DIR}>"
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Include>"
+    "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/recastnavigation>"
 )
 
-# Set linkages
+target_sources(DetourTileCache PRIVATE
+    Source/DetourTileCache.cpp
+    Source/DetourTileCacheBuilder.cpp
+)
+
 target_link_libraries(DetourTileCache Detour)
 
 install(TARGETS DetourTileCache
@@ -30,8 +32,11 @@ install(TARGETS DetourTileCache
     INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} ${CMAKE_INSTALL_INCLUDEDIR}/recastnavigation
 )
 
-file(GLOB INCLUDES Include/*.h)
-install(FILES ${INCLUDES} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/recastnavigation)
+install(DIRECTORY Include/ 
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/recastnavigation
+    FILES_MATCHING PATTERN "*.h"
+)
+
 if (MSVC)
     install(FILES "$<TARGET_FILE_DIR:DetourTileCache>/DetourTileCache-d.pdb" CONFIGURATIONS "Debug" DESTINATION "lib" OPTIONAL)
 endif()

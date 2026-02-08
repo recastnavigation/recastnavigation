@@ -1,5 +1,4 @@
-file(GLOB SOURCES Source/*.cpp)
-add_library(DebugUtils ${SOURCES})
+add_library(DebugUtils)
 add_library(RecastNavigation::DebugUtils ALIAS DebugUtils)
 
 set_target_properties(DebugUtils PROPERTIES
@@ -13,13 +12,18 @@ set_target_properties(DebugUtils PROPERTIES
     CXX_EXTENSIONS OFF  # Disable compiler-specific extensions
 )
 
-# Set include path
-set(DebugUtils_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Include")
 target_include_directories(DebugUtils PUBLIC
-    "$<BUILD_INTERFACE:${DebugUtils_INCLUDE_DIR}>"
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Include>"
+    "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/recastnavigation>"
 )
 
-# Set linkages
+target_sources(DebugUtils PRIVATE
+    Source/DebugDraw.cpp
+    Source/DetourDebugDraw.cpp
+    Source/RecastDebugDraw.cpp
+    Source/RecastDump.cpp
+)
+
 target_link_libraries(DebugUtils Recast Detour DetourTileCache)
 
 install(TARGETS DebugUtils
@@ -30,8 +34,11 @@ install(TARGETS DebugUtils
     INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} ${CMAKE_INSTALL_INCLUDEDIR}/recastnavigation
 )
 
-file(GLOB INCLUDES Include/*.h)
-install(FILES ${INCLUDES} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/recastnavigation)
+install(DIRECTORY Include/ 
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/recastnavigation
+    FILES_MATCHING PATTERN "*.h"
+)
+
 if (MSVC)
     install(FILES "$<TARGET_FILE_DIR:DebugUtils>/DebugUtils-d.pdb" CONFIGURATIONS "Debug" DESTINATION "lib" OPTIONAL)
 endif()

@@ -1,7 +1,6 @@
-file(GLOB SOURCES Source/*.cpp)
-add_library(DetourCrowd ${SOURCES})
-
+add_library(DetourCrowd)
 add_library(RecastNavigation::DetourCrowd ALIAS DetourCrowd)
+
 set_target_properties(DetourCrowd PROPERTIES
     DEBUG_POSTFIX -d
     SOVERSION ${SOVERSION}
@@ -13,13 +12,20 @@ set_target_properties(DetourCrowd PROPERTIES
     CXX_EXTENSIONS OFF  # Disable compiler-specific extensions
 )
 
-# Set include path
-set(DetourCrowd_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Include")
 target_include_directories(DetourCrowd PUBLIC
-    "$<BUILD_INTERFACE:${DetourCrowd_INCLUDE_DIR}>"
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Include>"
+    "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/recastnavigation>"
 )
 
-# Set linkages
+target_sources(DetourCrowd PRIVATE
+    Source/DetourCrowd.cpp
+    Source/DetourLocalBoundary.cpp
+    Source/DetourObstacleAvoidance.cpp
+    Source/DetourPathCorridor.cpp
+    Source/DetourPathQueue.cpp
+    Source/DetourProximityGrid.cpp
+)
+
 target_link_libraries(DetourCrowd Detour)
 
 install(TARGETS DetourCrowd
@@ -30,8 +36,14 @@ install(TARGETS DetourCrowd
     INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} ${CMAKE_INSTALL_INCLUDEDIR}/recastnavigation
 )
 
-file(GLOB INCLUDES Include/*.h)
-install(FILES ${INCLUDES} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/recastnavigation)
-if (MSVC)
-    install(FILES "$<TARGET_FILE_DIR:DetourCrowd>/DetourCrowd-d.pdb" CONFIGURATIONS "Debug" DESTINATION "lib" OPTIONAL)
+install(DIRECTORY Include/ 
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/recastnavigation
+    FILES_MATCHING PATTERN "*.h"
+)
+
+if(MSVC)
+    install(FILES "$<TARGET_FILE_DIR:DetourCrowd>/DetourCrowd-d.pdb"
+        CONFIGURATIONS "Debug"
+        DESTINATION "lib"
+        OPTIONAL)
 endif()

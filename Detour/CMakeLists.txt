@@ -1,7 +1,6 @@
-file(GLOB SOURCES Source/*.cpp)
-add_library(Detour ${SOURCES})
-
+add_library(Detour)
 add_library(RecastNavigation::Detour ALIAS Detour)
+
 set_target_properties(Detour PROPERTIES
     DEBUG_POSTFIX -d
     SOVERSION ${SOVERSION}
@@ -24,10 +23,19 @@ endif()
 
 target_compile_definitions(Detour PUBLIC "$<$<NOT:${RECASTNAVIGATION_ENABLE_ASSERTS}>:RC_DISABLE_ASSERTS>")
 
-# Set include path
-set(Detour_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Include")
 target_include_directories(Detour PUBLIC
-    "$<BUILD_INTERFACE:${Detour_INCLUDE_DIR}>"
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Include>"
+    "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/recastnavigation>"
+)
+
+target_sources(Detour PRIVATE
+    Source/DetourAlloc.cpp
+    Source/DetourAssert.cpp
+    Source/DetourCommon.cpp
+    Source/DetourNavMesh.cpp
+    Source/DetourNavMeshBuilder.cpp
+    Source/DetourNavMeshQuery.cpp
+    Source/DetourNode.cpp
 )
 
 install(TARGETS Detour
@@ -38,9 +46,14 @@ install(TARGETS Detour
     INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} ${CMAKE_INSTALL_INCLUDEDIR}/recastnavigation
 )
 
-file(GLOB INCLUDES Include/*.h)
-install(FILES ${INCLUDES} DESTINATION
-    ${CMAKE_INSTALL_INCLUDEDIR}/recastnavigation)
-if (MSVC)
-    install(FILES "$<TARGET_FILE_DIR:Detour>/Detour-d.pdb" CONFIGURATIONS "Debug" DESTINATION "lib" OPTIONAL)
+install(DIRECTORY Include/ 
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/recastnavigation
+    FILES_MATCHING PATTERN "*.h"
+)
+
+if(MSVC)
+    install(FILES "$<TARGET_FILE_DIR:Detour>/Detour-d.pdb"
+        CONFIGURATIONS "Debug"
+        DESTINATION "lib"
+        OPTIONAL)
 endif()
