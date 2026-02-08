@@ -74,10 +74,12 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Install opengl and SDL
+    - name: Setup SDL2
+      uses: ./.github/actions/setup-sdl2-linux
+
+    - name: Install clang
       run: |
-        sudo apt-get update
-        sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev libsdl2-dev clang
+        sudo apt-get install -y clang
         clang --version
 
     - name: Download & Install premake
@@ -107,10 +109,12 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Install opengl and SDL
+    - name: Setup SDL2
+      uses: ./.github/actions/setup-sdl2-linux
+
+    - name: Install clang
       run: |
-        sudo apt-get update
-        sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev libsdl2-dev clang
+        sudo apt-get install -y clang
         clang --version
 
     - name: Configure CMake
@@ -141,14 +145,8 @@ jobs:
       with:
         vs-version: ${{matrix.version-range}}
 
-    - name: Download and Install SDL
-      working-directory: RecastDemo/Contrib
-      shell: pwsh
-      run: |
-        (new-object System.Net.WebClient).DownloadFile("https://github.com/libsdl-org/SDL/releases/download/release-2.24.2/SDL2-devel-2.24.2-VC.zip","${{github.workspace}}/RecastDemo/Contrib/SDL.zip")
-        tar -xf SDL.zip
-        ren SDL2-2.24.2 SDL
-        del SDL.zip
+    - name: Setup SDL2
+      uses: ./.github/actions/setup-sdl2-windows
 
     - name: Download and Install Premake
       working-directory: RecastDemo
@@ -183,14 +181,8 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Download and Install SDL
-      working-directory: RecastDemo/Contrib
-      shell: pwsh
-      run: |
-        (new-object System.Net.WebClient).DownloadFile("https://github.com/libsdl-org/SDL/releases/download/release-2.24.2/SDL2-devel-2.24.2-VC.zip","${{github.workspace}}/RecastDemo/Contrib/SDL.zip")
-        tar -xf SDL.zip
-        ren SDL2-2.24.2 SDL
-        del SDL.zip
+    - name: Setup SDL2
+      uses: ./.github/actions/setup-sdl2-windows
 
     - name: Configure CMake
       run: cmake -G "${{matrix.cmake-generator}}" -B ${{github.workspace}}/build -D CMAKE_BUILD_TYPE=${{matrix.conf}} -D CMAKE_INSTALL_PREFIX=${{github.workspace}}/build
