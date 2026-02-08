@@ -195,6 +195,13 @@ bool rcAddSpan(rcContext* context, rcHeightfield& heightfield,
 {
 	rcAssert(context);
 
+	// Span is zero size or inverted size. Ignore.
+	if (spanMin >= spanMax)
+	{
+		context->log(RC_LOG_WARNING, "rcAddSpan: Adding a span with zero or negative size. Ignored.");
+		return true;
+	}
+
 	if (!addSpan(heightfield, x, z, spanMin, spanMax, areaID, flagMergeThreshold))
 	{
 		context->log(RC_LOG_ERROR, "rcAddSpan: Out of memory.");
