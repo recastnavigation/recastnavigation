@@ -442,10 +442,10 @@ Variables</h2></td></tr>
 <tr class="memdesc:ac784d579fcb90e51ba0ea98fd529e5ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">The value of PI used by Recast.  <br /></td></tr>
 <tr class="separator:ac784d579fcb90e51ba0ea98fd529e5ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a70b5ff22f9acea41e961ee7ea4f7300f" id="r_a70b5ff22f9acea41e961ee7ea4f7300f"><td class="memItemLeft" align="right" valign="top">static const int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Recast_8h.html#a70b5ff22f9acea41e961ee7ea4f7300f">RC_SPAN_HEIGHT_BITS</a> = 13</td></tr>
-<tr class="memdesc:a70b5ff22f9acea41e961ee7ea4f7300f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defines the number of bits allocated to <a class="el" href="structrcSpan.html#aba70c34dc95c49c4b3142b7d9ca9d359" title="The lower limit of the span. [Limit: &lt; smax].">rcSpan::smin</a> and <a class="el" href="structrcSpan.html#a6bca504828087023719794cce9a5f0ab" title="The upper limit of the span. [Limit: &lt;= RC_SPAN_MAX_HEIGHT].">rcSpan::smax</a>.  <br /></td></tr>
+<tr class="memdesc:a70b5ff22f9acea41e961ee7ea4f7300f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defines the number of bits allocated to <a class="el" href="structrcSpan.html#aba70c34dc95c49c4b3142b7d9ca9d359" title="The lower limit of the span. (Inclusive) [Limit: &lt; smax].">rcSpan::smin</a> and <a class="el" href="structrcSpan.html#a6bca504828087023719794cce9a5f0ab" title="The upper limit of the span. (Exclusive) [Limit: &lt;= RC_SPAN_MAX_HEIGHT].">rcSpan::smax</a>.  <br /></td></tr>
 <tr class="separator:a70b5ff22f9acea41e961ee7ea4f7300f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a29fe08410353b3b0dfdf777303750b43" id="r_a29fe08410353b3b0dfdf777303750b43"><td class="memItemLeft" align="right" valign="top">static const int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Recast_8h.html#a29fe08410353b3b0dfdf777303750b43">RC_SPAN_MAX_HEIGHT</a> = (1 &lt;&lt; <a class="el" href="Recast_8h.html#a70b5ff22f9acea41e961ee7ea4f7300f">RC_SPAN_HEIGHT_BITS</a>) - 1</td></tr>
-<tr class="memdesc:a29fe08410353b3b0dfdf777303750b43"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defines the maximum value for <a class="el" href="structrcSpan.html#aba70c34dc95c49c4b3142b7d9ca9d359" title="The lower limit of the span. [Limit: &lt; smax].">rcSpan::smin</a> and <a class="el" href="structrcSpan.html#a6bca504828087023719794cce9a5f0ab" title="The upper limit of the span. [Limit: &lt;= RC_SPAN_MAX_HEIGHT].">rcSpan::smax</a>.  <br /></td></tr>
+<tr class="memdesc:a29fe08410353b3b0dfdf777303750b43"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defines the maximum value for <a class="el" href="structrcSpan.html#aba70c34dc95c49c4b3142b7d9ca9d359" title="The lower limit of the span. (Inclusive) [Limit: &lt; smax].">rcSpan::smin</a> and <a class="el" href="structrcSpan.html#a6bca504828087023719794cce9a5f0ab" title="The upper limit of the span. (Exclusive) [Limit: &lt;= RC_SPAN_MAX_HEIGHT].">rcSpan::smax</a>.  <br /></td></tr>
 <tr class="separator:a29fe08410353b3b0dfdf777303750b43"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a55acc4ef20d0b0507e2c6fee696ecf5e" id="r_a55acc4ef20d0b0507e2c6fee696ecf5e"><td class="memItemLeft" align="right" valign="top">static const int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Recast_8h.html#a55acc4ef20d0b0507e2c6fee696ecf5e">RC_SPANS_PER_POOL</a> = 2048</td></tr>
 <tr class="memdesc:a55acc4ef20d0b0507e2c6fee696ecf5e"><td class="mdescLeft">&#160;</td><td class="mdescRight">The number of spans allocated per span spool.  <br /></td></tr>
@@ -1694,7 +1694,7 @@ template&lt;class T &gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Defines the number of bits allocated to <a class="el" href="structrcSpan.html#aba70c34dc95c49c4b3142b7d9ca9d359" title="The lower limit of the span. [Limit: &lt; smax].">rcSpan::smin</a> and <a class="el" href="structrcSpan.html#a6bca504828087023719794cce9a5f0ab" title="The upper limit of the span. [Limit: &lt;= RC_SPAN_MAX_HEIGHT].">rcSpan::smax</a>. </p>
+<p>Defines the number of bits allocated to <a class="el" href="structrcSpan.html#aba70c34dc95c49c4b3142b7d9ca9d359" title="The lower limit of the span. (Inclusive) [Limit: &lt; smax].">rcSpan::smin</a> and <a class="el" href="structrcSpan.html#a6bca504828087023719794cce9a5f0ab" title="The upper limit of the span. (Exclusive) [Limit: &lt;= RC_SPAN_MAX_HEIGHT].">rcSpan::smax</a>. </p>
 
 </div>
 </div>
@@ -1718,7 +1718,7 @@ template&lt;class T &gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>Defines the maximum value for <a class="el" href="structrcSpan.html#aba70c34dc95c49c4b3142b7d9ca9d359" title="The lower limit of the span. [Limit: &lt; smax].">rcSpan::smin</a> and <a class="el" href="structrcSpan.html#a6bca504828087023719794cce9a5f0ab" title="The upper limit of the span. [Limit: &lt;= RC_SPAN_MAX_HEIGHT].">rcSpan::smax</a>. </p>
+<p>Defines the maximum value for <a class="el" href="structrcSpan.html#aba70c34dc95c49c4b3142b7d9ca9d359" title="The lower limit of the span. (Inclusive) [Limit: &lt; smax].">rcSpan::smin</a> and <a class="el" href="structrcSpan.html#a6bca504828087023719794cce9a5f0ab" title="The upper limit of the span. (Exclusive) [Limit: &lt;= RC_SPAN_MAX_HEIGHT].">rcSpan::smax</a>. </p>
 
 </div>
 </div>
