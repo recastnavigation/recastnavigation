@@ -15,24 +15,20 @@ jobs:
           - Release
 
     runs-on: macos-latest
-    
+
     steps:
     - uses: actions/checkout@v3
 
-    - name: Download & install SDL
-      run: |
-        curl -L -o SDL2.dmg https://github.com/libsdl-org/SDL/releases/download/release-2.24.2/SDL2-2.24.2.dmg
-        hdiutil attach SDL2.dmg
-        cp -r /Volumes/SDL2/SDL2.framework RecastDemo/Bin
-        hdiutil detach /Volumes/SDL2
-        rm SDL2.dmg
+    - name: Setup SDL2
+      uses: ./.github/actions/setup-sdl2-macos
 
     - name: Download & install premake
       working-directory: RecastDemo
       run: |
-        curl -L -o premake.tar.gz https://github.com/premake/premake-core/releases/download/v5.0.0-beta2/premake-5.0.0-beta2-macosx.tar.gz
+        curl -L -o premake.tar.gz https://github.com/premake/premake-core/releases/download/v5.0.0-beta8/premake-5.0.0-beta8-macosx.tar.gz
         tar -xzf premake.tar.gz
         rm premake.tar.gz
+        chmod 777 ./premake5
 
     - name: Run premake
       working-directory: RecastDemo
@@ -41,11 +37,11 @@ jobs:
     - name: Build With Xcode
       working-directory: RecastDemo/Build/xcode4/
       run: xcodebuild -scheme RecastDemo -configuration ${{matrix.conf}} -project RecastDemo.xcodeproj build
-    
+
     - name: Build Unit Tests With Xcode
       working-directory: RecastDemo/Build/xcode4/
       run: xcodebuild -scheme Tests -configuration ${{matrix.conf}} -project Tests.xcodeproj build
-  
+
   macos-cmake:
     strategy:
       matrix:
@@ -54,62 +50,55 @@ jobs:
           - Release
 
     runs-on: macos-latest
-    
+
     steps:
     - uses: actions/checkout@v3
-    - name: Download & install SDL
-      run: |
-        curl -L -o SDL2.dmg https://github.com/libsdl-org/SDL/releases/download/release-2.24.2/SDL2-2.24.2.dmg
-        hdiutil attach SDL2.dmg
-        cp -r /Volumes/SDL2/SDL2.framework ${{github.workspace}}/RecastDemo/Bin/
-        hdiutil detach /Volumes/SDL2
-        rm SDL2.dmg
+
+    - name: Setup SDL2
+      uses: ./.github/actions/setup-sdl2-macos
 
     - name: Configure CMake
-      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
-      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{matrix.conf}} -DSDL2_LIBRARY=${{github.workspace}}/RecastDemo/Bin/SDL2.framework
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{matrix.conf}}
 
     - name: Build
       run: cmake --build ${{github.workspace}}/build --config ${{matrix.conf}}
-  
+
   linux-premake:
     strategy:
       matrix:
         conf:
           - debug
           - release
-        compiler:
-          - clang
-          - gcc
 
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
 
-    - name: Install opengl and SDL
+    - name: Setup SDL2
+      uses: ./.github/actions/setup-sdl2-linux
+
+    - name: Install clang
       run: |
-        sudo apt-get update
-        sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev libsdl2-dev clang gcc
+        sudo apt-get install -y clang
         clang --version
-        gcc --version
 
     - name: Download & Install premake
       working-directory: RecastDemo
       run: |
-        curl -L -o premake.tar.gz https://github.com/premake/premake-core/releases/download/v5.0.0-beta2/premake-5.0.0-beta2-linux.tar.gz
+        curl -L -o premake.tar.gz https://github.com/premake/premake-core/releases/download/v5.0.0-beta8/premake-5.0.0-beta8-linux.tar.gz
         tar -xzf premake.tar.gz
         rm premake.tar.gz
-    
+        chmod 777 ./premake5
+
     - name: Run premake
       working-directory: RecastDemo
-      run: ./premake5 --cc=${{matrix.compiler}} gmake2
-    
+      run: ./premake5 --cc=clang gmake
+
     - name: Build
-      working-directory: RecastDemo/Build/gmake2
+      working-directory: RecastDemo/Build/gmake
       run: make config=${{matrix.conf}} verbose=true
-    
+
   linux-cmake:
     strategy:
       matrix:
@@ -122,17 +111,20 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Install opengl and SDL
+    - name: Setup SDL2
+      uses: ./.github/actions/setup-sdl2-linux
+
+    - name: Install clang
       run: |
-        sudo apt-get update
-        sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev libsdl2-dev
+        sudo apt-get install -y clang
+        clang --version
 
     - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{matrix.conf}}
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{matrix.conf}} -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
 
     - name: Build
       run: cmake --build ${{github.workspace}}/build --config ${{matrix.conf}}
-  
+
   windows-premake:
     strategy:
       matrix:
@@ -140,17 +132,12 @@ jobs:
           - Debug
           - Release
         vs-version:
-          - vs2019
           - vs2022
         include:
-          - vs-version: vs2019
-            version-range: '16.0'
-            runner: windows-2019
           - vs-version: vs2022
             version-range: '17.0'
-            runner: windows-2022
 
-    runs-on: ${{matrix.runner}}
+    runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v3
@@ -160,20 +147,14 @@ jobs:
       with:
         vs-version: ${{matrix.version-range}}
 
-    - name: Download and Install SDL
-      working-directory: RecastDemo/Contrib
-      shell: pwsh
-      run: |
-        (new-object System.Net.WebClient).DownloadFile("https://github.com/libsdl-org/SDL/releases/download/release-2.24.2/SDL2-devel-2.24.2-VC.zip","${{github.workspace}}/RecastDemo/Contrib/SDL.zip")
-        tar -xf SDL.zip
-        ren SDL2-2.24.2 SDL
-        del SDL.zip
+    - name: Setup SDL2
+      uses: ./.github/actions/setup-sdl2-windows
 
     - name: Download and Install Premake
       working-directory: RecastDemo
       shell: pwsh
       run: |
-        (new-object System.Net.WebClient).DownloadFile("https://github.com/premake/premake-core/releases/download/v5.0.0-beta2/premake-5.0.0-beta2-windows.zip","${{github.workspace}}/RecastDemo/premake.zip")
+        (new-object System.Net.WebClient).DownloadFile("https://github.com/premake/premake-core/releases/download/v5.0.0-beta8/premake-5.0.0-beta8-windows.zip","${{github.workspace}}/RecastDemo/premake.zip")
         tar -xf premake.zip
         del premake.zip
 
@@ -183,7 +164,7 @@ jobs:
 
     - name: Build
       working-directory: RecastDemo/Build/${{matrix.vs-version}}
-      run: msbuild RecastDemo.vcxproj -property:Configuration=${{matrix.conf}}
+      run: msbuild RecastDemo.vcxproj -property:Configuration=${{matrix.conf}} -property:Platform=x64
 
   windows-cmake:
     strategy:
@@ -192,29 +173,18 @@ jobs:
           - Debug
           - Release
         vs-version:
-          - vs2019
           - vs2022
         include:
-          - vs-version: vs2019
-            cmake-generator: Visual Studio 16 2019
-            runner: windows-2019
           - vs-version: vs2022
             cmake-generator: Visual Studio 17 2022
-            runner: windows-2022
 
-    runs-on: ${{matrix.runner}}
+    runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v3
 
-    - name: Download and Install SDL
-      working-directory: RecastDemo/Contrib
-      shell: pwsh
-      run: |
-        (new-object System.Net.WebClient).DownloadFile("https://github.com/libsdl-org/SDL/releases/download/release-2.24.2/SDL2-devel-2.24.2-VC.zip","${{github.workspace}}/RecastDemo/Contrib/SDL.zip")
-        tar -xf SDL.zip
-        ren SDL2-2.24.2 SDL
-        del SDL.zip
+    - name: Setup SDL2
+      uses: ./.github/actions/setup-sdl2-windows
 
     - name: Configure CMake
       run: cmake -G "${{matrix.cmake-generator}}" -B ${{github.workspace}}/build -D CMAKE_BUILD_TYPE=${{matrix.conf}} -D CMAKE_INSTALL_PREFIX=${{github.workspace}}/build

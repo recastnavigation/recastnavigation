@@ -1,115 +1,136 @@
 #include "ValueHistory.h"
-#include "imgui.h"
-#include <string.h>
-#include <stdio.h>
 
 #ifdef WIN32
 #	define snprintf _snprintf
 #endif
 
-ValueHistory::ValueHistory() :
-	m_hsamples(0)
-{
-	for (int i = 0; i < MAX_HISTORY; ++i)
-		m_samples[i] = 0;
-}
-
 float ValueHistory::getSampleMin() const
 {
-	float val = m_samples[0];
-	for (int i = 1; i < MAX_HISTORY; ++i)
-		if (m_samples[i] < val)
-			val = m_samples[i];
-	return val;
-} 
+	float min = samples[0];
+	for (float sample : samples)
+	{
+		min = std::min<float>(sample, min);
+	}
+	return min;
+}
 
 float ValueHistory::getSampleMax() const
 {
-	float val = m_samples[0];
-	for (int i = 1; i < MAX_HISTORY; ++i)
-		if (m_samples[i] > val)
-			val = m_samples[i];
-	return val;
+	float max = samples[0];
+	for (float sample : samples)
+	{
+		max = std::max(sample, max);
+	}
+	return max;
 }
 
 float ValueHistory::getAverage() const
 {
-	float val = 0;
-	for (int i = 0; i < MAX_HISTORY; ++i)
-		val += m_samples[i];
-	return val/(float)MAX_HISTORY;
-}
-
-void GraphParams::setRect(int ix, int iy, int iw, int ih, int ipad)
-{
-	x = ix;
-	y = iy;
-	w = iw;
-	h = ih;
-	pad = ipad;
-}
-
-void GraphParams::setValueRange(float ivmin, float ivmax, int indiv, const char* iunits)
-{
-	vmin = ivmin;
-	vmax = ivmax;
-	ndiv = indiv;
-	strcpy(units, iunits);
-}
-
-void drawGraphBackground(const GraphParams* p)
-{
-	// BG
-	imguiDrawRoundedRect((float)p->x, (float)p->y, (float)p->w, (float)p->h, (float)p->pad, imguiRGBA(64,64,64,128));
-	
-	const float sy = (p->h-p->pad*2) / (p->vmax-p->vmin);
-	const float oy = p->y+p->pad-p->vmin*sy;
-	
-	char text[64];
-	
-	// Divider Lines
-	for (int i = 0; i <= p->ndiv; ++i)
+	float total = 0;
+	for (const float sample : samples)
 	{
-		const float u = (float)i/(float)p->ndiv;
-		const float v = p->vmin + (p->vmax-p->vmin)*u;
-		snprintf(text, 64, "%.2f %s", v, p->units);
-		const float fy = oy + v*sy;
-		imguiDrawText(p->x + p->w - p->pad, (int)fy-4, IMGUI_ALIGN_RIGHT, text, imguiRGBA(0,0,0,255));
-		imguiDrawLine((float)p->x + (float)p->pad, fy, (float)p->x + (float)p->w - (float)p->pad - 50, fy, 1.0f, imguiRGBA(0,0,0,64)); 
+		total += sample;
 	}
+	return total / static_cast<float>(samples.size());
 }
 
-void drawGraph(const GraphParams* p, const ValueHistory* graph,
-			   int idx, const char* label, const unsigned int col)
+void GraphParams::setRect(int x, int y, const int width, const int height, const int padding)
 {
-	const float sx = (p->w - p->pad*2) / (float)graph->getSampleCount();
-	const float sy = (p->h - p->pad*2) / (p->vmax - p->vmin);
-	const float ox = (float)p->x + (float)p->pad;
-	const float oy = (float)p->y + (float)p->pad - p->vmin*sy;
-	
-	// Values
-	float px=0, py=0;
-	for (int i = 0; i < graph->getSampleCount()-1; ++i)
+	this->x = x;
+	this->y = y;
+	this->width = width;
+	this->height = height;
+	this->padding = padding;
+}
+
+void GraphParams::setValueRange(float minValue, float maxValue, int numDivisions, const std::string& units)
+{
+	this->rangeMin = minValue;
+	this->rangeMax = maxValue;
+	this->rangeDivisions = numDivisions;
+	this->units = units;
+}
+
+void drawGraphBackground(const GraphParams* params)
+{
+	(void) params;
+#if 0
+	// BG
+	imguiDrawRoundedRect(
+		static_cast<float>(params->x),
+		static_cast<float>(params->y),
+		static_cast<float>(params->width),
+		static_cast<float>(params->height),
+		static_cast<float>(params->padding),
+		imguiRGBA(64, 64, 64, 128));
+
+	const float pixelScaleY = (params->height - params->padding * 2) / (params->rangeMax - params->rangeMin);
+	const float offsetY = params->y + params->padding - params->rangeMin * pixelScaleY;
+
+	char valueLabel[64];
+
+	// Divider Lines
+	for (int divisionIndex = 0; divisionIndex <= params->rangeDivisions; ++divisionIndex)
 	{
-		const float x = ox + i*sx;
-		const float y = oy + graph->getSample(i)*sy;
+		const float normalizedPosition = static_cast<float>(divisionIndex) / static_cast<float>(params->rangeDivisions);
+		const float valueAtDivision = params->rangeMin + (params->rangeMax - params->rangeMin) * normalizedPosition;
+		snprintf(valueLabel, 64, "%.2f %s", valueAtDivision, params->units.c_str());
+		const float fy = offsetY + valueAtDivision * pixelScaleY;
+		imguiDrawText(
+			params->x + params->width - params->padding,
+			static_cast<int>(fy) - 4,
+			IMGUI_ALIGN_RIGHT,
+			valueLabel,
+			imguiRGBA(0, 0, 0, 255));
+		imguiDrawLine(
+			static_cast<float>(params->x) + static_cast<float>(params->padding),
+			fy,
+			static_cast<float>(params->x) + static_cast<float>(params->width) - static_cast<float>(params->padding) - 50,
+			fy,
+			1.0f,
+			imguiRGBA(0, 0, 0, 64));
+	}
+#endif
+}
+
+void drawGraph(const GraphParams* params, const ValueHistory* graph, int index, const char* label, const unsigned int color)
+{
+	(void)params;
+	(void)graph;
+	(void)index;
+	(void)label;
+	(void)color;
+#if 0
+	const float sx = static_cast<float>(params->width - params->padding * 2) / static_cast<float>(graph->getSampleCount());
+	const float sy = static_cast<float>(params->height - params->padding * 2) / (params->rangeMax - params->rangeMin);
+	const float ox = static_cast<float>(params->x) + static_cast<float>(params->padding);
+	const float oy = static_cast<float>(params->y) + static_cast<float>(params->padding) - params->rangeMin * sy;
+
+	// Values
+	float px = 0, py = 0;
+	for (int i = 0; i < graph->getSampleCount() - 1; ++i)
+	{
+		const float x = ox + i * sx;
+		const float y = oy + graph->getSample(i) * sy;
 		if (i > 0)
-			imguiDrawLine(px,py, x,y, 2.0f, col);
+		{
+			imguiDrawLine(px, py, x, y, 2.0f, color);
+		}
 		px = x;
 		py = y;
 	}
-	
-	// Label
-	const int size = 15;
-	const int spacing = 10;
-	int ix = p->x + p->w + 5;
-	int iy = p->y + p->h - (idx+1)*(size+spacing);
-	
-	imguiDrawRoundedRect((float)ix, (float)iy, (float)size, (float)size, 2.0f, col);
-	
-	char text[64];
-	snprintf(text, 64, "%.2f %s", graph->getAverage(), p->units);
-	imguiDrawText(ix+size+5, iy+3, IMGUI_ALIGN_LEFT, label, imguiRGBA(255,255,255,192));
-	imguiDrawText(ix+size+150, iy+3, IMGUI_ALIGN_RIGHT, text, imguiRGBA(255,255,255,128));
-}
 
+	// Label
+	constexpr int size = 15;
+	constexpr int spacing = 10;
+	const int ix = params->x + params->width + 5;
+	const int iy = params->y + params->height - (index + 1) * (size + spacing);
+
+	imguiDrawRoundedRect(static_cast<float>(ix), static_cast<float>(iy), static_cast<float>(size), static_cast<float>(size), 2.0f, color);
+
+	char text[64];
+	snprintf(text, 64, "%.2f %s", graph->getAverage(), params->units.c_str());
+	imguiDrawText(ix + size + 5, iy + 3, IMGUI_ALIGN_LEFT, label, imguiRGBA(255, 255, 255, 192));
+	imguiDrawText(ix + size + 150, iy + 3, IMGUI_ALIGN_RIGHT, text, imguiRGBA(255, 255, 255, 128));
+#endif
+}

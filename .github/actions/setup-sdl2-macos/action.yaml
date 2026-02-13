@@ -1,0 +1,16 @@
+name: 'Setup SDL2 on macOS'
+description: 'Downloads and installs SDL2 framework for macOS builds'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Download & install SDL
+      shell: bash
+      run: |
+        curl -L -o SDL2.dmg https://github.com/libsdl-org/SDL/releases/download/release-2.32.10/SDL2-2.32.10.dmg
+        hdiutil attach SDL2.dmg
+        cp -r /Volumes/SDL2/SDL2.framework ${{github.workspace}}/RecastDemo/Bin/SDL2.framework
+        hdiutil detach /Volumes/SDL2
+        rm SDL2.dmg
+        # Create symlink so <SDL2/SDL.h> style includes work (used internally by SDL headers)
+        ln -s SDL2.framework/Headers ${{github.workspace}}/RecastDemo/Bin/SDL2

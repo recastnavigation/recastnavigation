@@ -13,20 +13,16 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Download & install SDL
-      run: |
-        curl -L -o SDL2.dmg https://github.com/libsdl-org/SDL/releases/download/release-2.24.2/SDL2-2.24.2.dmg
-        hdiutil attach SDL2.dmg
-        cp -r /Volumes/SDL2/SDL2.framework RecastDemo/Bin
-        hdiutil detach /Volumes/SDL2
-        rm SDL2.dmg
+    - name: Setup SDL2
+      uses: ./.github/actions/setup-sdl2-macos
 
     - name: Download & install premake
       working-directory: RecastDemo
       run: |
-        curl -L -o premake.tar.gz https://github.com/premake/premake-core/releases/download/v5.0.0-beta2/premake-5.0.0-beta2-macosx.tar.gz
+        curl -L -o premake.tar.gz https://github.com/premake/premake-core/releases/download/v5.0.0-beta8/premake-5.0.0-beta8-macosx.tar.gz
         tar -xzf premake.tar.gz
         rm premake.tar.gz
+        chmod 777 ./premake5
 
     - name: Run premake
       working-directory: RecastDemo
@@ -46,25 +42,28 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Install opengl and SDL
+    - name: Setup SDL2
+      uses: ./.github/actions/setup-sdl2-linux
+
+    - name: Install clang
       run: |
-        sudo apt-get update
-        sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev libsdl2-dev clang
+        sudo apt-get install -y clang
         clang --version
 
     - name: Download & Install premake
       working-directory: RecastDemo
       run: |
-        curl -L -o premake.tar.gz https://github.com/premake/premake-core/releases/download/v5.0.0-beta2/premake-5.0.0-beta2-linux.tar.gz
+        curl -L -o premake.tar.gz https://github.com/premake/premake-core/releases/download/v5.0.0-beta8/premake-5.0.0-beta8-linux.tar.gz
         tar -xzf premake.tar.gz
         rm premake.tar.gz
+        chmod 777 ./premake5
     
     - name: Run premake
       working-directory: RecastDemo
-      run: ./premake5 --cc=clang gmake2
-    
+      run: ./premake5 --cc=clang gmake
+
     - name: Build
-      working-directory: RecastDemo/Build/gmake2
+      working-directory: RecastDemo/Build/gmake
       run: make config=debug verbose=true
     
     - name: Run Tests
@@ -80,20 +79,14 @@ jobs:
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v1.1
 
-    - name: Download and Install SDL
-      working-directory: RecastDemo/Contrib
-      shell: pwsh
-      run: |
-        (new-object System.Net.WebClient).DownloadFile("https://github.com/libsdl-org/SDL/releases/download/release-2.24.2/SDL2-devel-2.24.2-VC.zip","${{github.workspace}}/RecastDemo/Contrib/SDL.zip")
-        tar -xf SDL.zip
-        ren SDL2-2.24.2 SDL
-        del SDL.zip
+    - name: Setup SDL2
+      uses: ./.github/actions/setup-sdl2-windows
 
     - name: Download and Install Premake
       working-directory: RecastDemo
       shell: pwsh
       run: |
-        (new-object System.Net.WebClient).DownloadFile("https://github.com/premake/premake-core/releases/download/v5.0.0-beta2/premake-5.0.0-beta2-windows.zip","${{github.workspace}}/RecastDemo/premake.zip")
+        (new-object System.Net.WebClient).DownloadFile("https://github.com/premake/premake-core/releases/download/v5.0.0-beta8/premake-5.0.0-beta8-windows.zip","${{github.workspace}}/RecastDemo/premake.zip")
         tar -xf premake.zip
         del premake.zip
 
@@ -103,7 +96,7 @@ jobs:
 
     - name: Build
       working-directory: RecastDemo/Build/vs2022
-      run: msbuild Tests.vcxproj -property:Configuration=Debug
+      run: msbuild Tests.vcxproj -property:Configuration=Debug -property:Platform=x64
 
     - name: Run Tests
       working-directory: RecastDemo/Bin/

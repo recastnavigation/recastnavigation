@@ -16,135 +16,144 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#ifndef INPUTGEOM_H
-#define INPUTGEOM_H
+#pragma once
 
-#include "ChunkyTriMesh.h"
-#include "MeshLoaderObj.h"
+#include "PartitionedMesh.h"
 
-static const int MAX_CONVEXVOL_PTS = 12;
+#include <string>
+#include <vector>
+
+struct PartitionedMesh;
+class rcContext;
+struct duDebugDraw;
+
+static constexpr int MAX_CONVEXVOL_PTS = 12;
 struct ConvexVolume
 {
-	float verts[MAX_CONVEXVOL_PTS*3];
-	float hmin, hmax;
-	int nverts;
-	int area;
+	float verts[MAX_CONVEXVOL_PTS * 3] = {};
+	int nverts = 0;
+	float hmin = 0.0f;
+	float hmax = 0.0f;
+	int area = 0;
 };
 
 struct BuildSettings
 {
-	// Cell size in world units
-	float cellSize;
-	// Cell height in world units
-	float cellHeight;
-	// Agent height in world units
-	float agentHeight;
-	// Agent radius in world units
-	float agentRadius;
-	// Agent max climb in world units
-	float agentMaxClimb;
-	// Agent max slope in degrees
-	float agentMaxSlope;
-	// Region minimum size in voxels.
-	// regionMinSize = sqrt(regionMinArea)
-	float regionMinSize;
-	// Region merge size in voxels.
-	// regionMergeSize = sqrt(regionMergeArea)
-	float regionMergeSize;
-	// Edge max length in world units
-	float edgeMaxLen;
-	// Edge max error in voxels
-	float edgeMaxError;
-	float vertsPerPoly;
-	// Detail sample distance in voxels
-	float detailSampleDist;
-	// Detail sample max error in voxel heights.
-	float detailSampleMaxError;
-	// Partition type, see SamplePartitionType
-	int partitionType;
-	// Bounds of the area to mesh
-	float navMeshBMin[3];
-	float navMeshBMax[3];
-	// Size of the tiles in voxels
-	float tileSize;
+	/// Cell size in world units
+	float cellSize = 0;
+	/// Cell height in world units
+	float cellHeight = 0;
+	/// Agent height in world units
+	float agentHeight = 0;
+	/// Agent radius in world units
+	float agentRadius = 0;
+	/// Agent max climb in world units
+	float agentMaxClimb = 0;
+	/// Agent max slope in degrees
+	float agentMaxSlope = 0;
+	/// Region minimum size in voxels.
+	float regionMinSize = 0;
+	/// Region merge size in voxels. regionMergeSize = sqrt(regionMergeArea)
+	float regionMergeSize = 0;
+	/// Edge max length in world units
+	float edgeMaxLen = 0;
+	/// Edge max error in voxels
+	float edgeMaxError = 0;
+	int vertsPerPoly = 0;
+	/// Detail sample distance in voxels
+	float detailSampleDist = 0;
+	/// Detail sample max error in voxel heights.
+	float detailSampleMaxError = 0;
+	/// Partition type, see SamplePartitionType
+	int partitionType = 0;
+	/// Bounds of the area to mesh
+	float navMeshBMin[3]{};
+	float navMeshBMax[3]{};
+	/// Size of the tiles in voxels
+	float tileSize = 0;
+};
+
+struct Mesh
+{
+	std::vector<float> verts;
+	std::vector<int> tris;
+	std::vector<float> normals;  // face normals
+
+	void reset()
+	{
+		verts.clear();
+		tris.clear();
+		normals.clear();
+	}
+
+	[[nodiscard]] int getVertCount() const { return static_cast<int>(verts.size()) / 3; }
+	[[nodiscard]] int getTriCount() const { return static_cast<int>(tris.size()) / 3; }
+
+	void readFromObj(char* buf, size_t bufLen);
 };
 
 class InputGeom
 {
-	rcChunkyTriMesh* m_chunkyMesh;
-	rcMeshLoaderObj* m_mesh;
-	float m_meshBMin[3], m_meshBMax[3];
-	BuildSettings m_buildSettings;
-	bool m_hasBuildSettings;
-	
-	/// @name Off-Mesh connections.
-	///@{
-	static const int MAX_OFFMESH_CONNECTIONS = 256;
-	float m_offMeshConVerts[MAX_OFFMESH_CONNECTIONS*3*2];
-	float m_offMeshConRads[MAX_OFFMESH_CONNECTIONS];
-	unsigned char m_offMeshConDirs[MAX_OFFMESH_CONNECTIONS];
-	unsigned char m_offMeshConAreas[MAX_OFFMESH_CONNECTIONS];
-	unsigned short m_offMeshConFlags[MAX_OFFMESH_CONNECTIONS];
-	unsigned int m_offMeshConId[MAX_OFFMESH_CONNECTIONS];
-	int m_offMeshConCount;
-	///@}
+	BuildSettings buildSettings;
+	bool hasBuildSettings = false;
 
-	/// @name Convex Volumes.
-	///@{
-	static const int MAX_VOLUMES = 256;
-	ConvexVolume m_volumes[MAX_VOLUMES];
-	int m_volumeCount;
-	///@}
-	
-	bool loadMesh(class rcContext* ctx, const std::string& filepath);
-	bool loadGeomSet(class rcContext* ctx, const std::string& filepath);
 public:
-	InputGeom();
-	~InputGeom();
-	
-	
-	bool load(class rcContext* ctx, const std::string& filepath);
-	bool saveGeomSet(const BuildSettings* settings);
-	
-	/// Method to return static mesh data.
-	const rcMeshLoaderObj* getMesh() const { return m_mesh; }
-	const float* getMeshBoundsMin() const { return m_meshBMin; }
-	const float* getMeshBoundsMax() const { return m_meshBMax; }
-	const float* getNavMeshBoundsMin() const { return m_hasBuildSettings ? m_buildSettings.navMeshBMin : m_meshBMin; }
-	const float* getNavMeshBoundsMax() const { return m_hasBuildSettings ? m_buildSettings.navMeshBMax : m_meshBMax; }
-	const rcChunkyTriMesh* getChunkyMesh() const { return m_chunkyMesh; }
-	const BuildSettings* getBuildSettings() const { return m_hasBuildSettings ? &m_buildSettings : 0; }
-	bool raycastMesh(float* src, float* dst, float& tmin);
+	std::string filename;
+
+	Mesh mesh;
+	float meshBoundsMin[3] = {};
+	float meshBoundsMax[3] = {};
+
+	PartitionedMesh partitionedMesh;
 
 	/// @name Off-Mesh connections.
 	///@{
-	int getOffMeshConnectionCount() const { return m_offMeshConCount; }
-	const float* getOffMeshConnectionVerts() const { return m_offMeshConVerts; }
-	const float* getOffMeshConnectionRads() const { return m_offMeshConRads; }
-	const unsigned char* getOffMeshConnectionDirs() const { return m_offMeshConDirs; }
-	const unsigned char* getOffMeshConnectionAreas() const { return m_offMeshConAreas; }
-	const unsigned short* getOffMeshConnectionFlags() const { return m_offMeshConFlags; }
-	const unsigned int* getOffMeshConnectionId() const { return m_offMeshConId; }
-	void addOffMeshConnection(const float* spos, const float* epos, const float rad,
-							  unsigned char bidir, unsigned char area, unsigned short flags);
+	std::vector<float> offmeshConnVerts;
+	std::vector<float> offmeshConnRadius;
+	std::vector<unsigned char> offmeshConnBidirectional;
+	std::vector<unsigned char> offmeshConnArea;
+	std::vector<unsigned short> offmeshConnFlags;
+	std::vector<unsigned int> offmeshConnId;
+	///@}
+
+	std::vector<ConvexVolume> convexVolumes;
+
+	bool load(rcContext* ctx, const std::string& filepath);
+	bool saveGeomSet(const BuildSettings* settings);
+
+	/// Method to return static mesh data.
+	[[nodiscard]] const float* getNavMeshBoundsMin() const { return hasBuildSettings ? buildSettings.navMeshBMin : meshBoundsMin; }
+	[[nodiscard]] const float* getNavMeshBoundsMax() const { return hasBuildSettings ? buildSettings.navMeshBMax : meshBoundsMax; }
+	[[nodiscard]] const BuildSettings* getBuildSettings() const { return hasBuildSettings ? &buildSettings : nullptr; }
+	bool raycastMesh(float* src, float* dst, float& tmin) const;
+
+	/// @name Off-Mesh connections.
+	///@{
+	void addOffMeshConnection(const float* startPos, const float* endPos, float radius, unsigned char bidirectional, unsigned char area, unsigned short flags);
 	void deleteOffMeshConnection(int i);
-	void drawOffMeshConnections(struct duDebugDraw* dd, bool hilight = false);
+	void drawOffMeshConnections(duDebugDraw* dd, bool highlight = false);
 	///@}
 
 	/// @name Box Volumes.
 	///@{
-	int getConvexVolumeCount() const { return m_volumeCount; }
-	const ConvexVolume* getConvexVolumes() const { return m_volumes; }
-	void addConvexVolume(const float* verts, const int nverts,
-						 const float minh, const float maxh, unsigned char area);
+	void addConvexVolume(const float* verts, int nverts, float minh, float maxh, unsigned char area);
 	void deleteConvexVolume(int i);
-	void drawConvexVolumes(struct duDebugDraw* dd, bool hilight = false);
+	void drawConvexVolumes(duDebugDraw* dd);
 	///@}
-	
+
 private:
-	// Explicitly disabled copy constructor and copy assignment operator.
-	InputGeom(const InputGeom&);
-	InputGeom& operator=(const InputGeom&);
+	bool loadMesh(rcContext* ctx, const std::string& filepath);
+	bool loadGeomSet(rcContext* ctx, const std::string& filepath);
+	bool loadGeomSet(rcContext* ctx, char* buffer, size_t bufferLen);
+
+	void clearOffMeshConnections()
+	{
+		offmeshConnVerts.clear();
+		offmeshConnRadius.clear();
+		offmeshConnBidirectional.clear();
+		offmeshConnArea.clear();
+		offmeshConnFlags.clear();
+		offmeshConnId.clear();
+	}
 };
 
-#endif // INPUTGEOM_H

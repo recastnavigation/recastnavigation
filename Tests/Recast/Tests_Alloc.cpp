@@ -1,7 +1,7 @@
 ﻿#include <stdio.h>
 #include <string.h>
 
-#include "catch2/catch_all.hpp"
+#include "catch2/catch_amalgamated.hpp"
 
 #include "RecastAlloc.h"
 #include "RecastAssert.h"
