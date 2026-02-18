@@ -192,8 +192,8 @@ struct dtPolyDetail
 {
 	unsigned int vertBase;			///< The offset of the vertices in the dtMeshTile::detailVerts array.
 	unsigned int triBase;			///< The offset of the triangles in the dtMeshTile::detailTris array.
-	unsigned char vertCount;		///< The number of vertices in the sub-mesh.
-	unsigned char triCount;			///< The number of triangles in the sub-mesh.
+	unsigned short vertCount;		///< The number of vertices in the sub-mesh.
+	unsigned short triCount;		///< The number of triangles in the sub-mesh.
 };
 
 /// Defines a link between polygons.
