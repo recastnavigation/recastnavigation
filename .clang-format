@@ -1,0 +1,86 @@
+---
+# clang-format settings
+Language: Cpp
+BasedOnStyle: LLVM
+Standard: Auto
+ForEachMacros: [ for ]
+
+# indentation
+TabWidth: 4
+IndentWidth: 4
+UseTab: AlignWithSpaces
+AccessModifierOffset: -4
+ContinuationIndentWidth: 4
+IndentCaseLabels: false
+
+# whitespace
+SpaceAfterCStyleCast: false
+SpacesBeforeTrailingComments: 2
+KeepEmptyLines:
+  AtEndOfFile: false
+  AtStartOfBlock: false
+  AtStartOfFile: false
+
+# line breaks
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortBlocksOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
+AlwaysBreakBeforeMultilineStrings: true
+AlwaysBreakTemplateDeclarations: true
+BreakAfterReturnType: Automatic
+PenaltyReturnTypeOnItsOwnLine: 999999
+
+# constructor initializer lists
+PackConstructorInitializers: CurrentLine
+BreakConstructorInitializers: BeforeComma
+ConstructorInitializerIndentWidth: 0
+
+# function calls
+BinPackArguments: false
+AllowAllArgumentsOnNextLine: false
+
+# function declarations
+BinPackParameters: false
+AlignAfterOpenBracket: AlwaysBreak
+BreakBeforeBraces: Allman
+
+# style
+InsertBraces: true
+PointerAlignment: Left
+CompactNamespaces: true
+ColumnLimit: 128
+AlignEscapedNewlines: LeftWithLastLine
+AlignArrayOfStructures: Left
+FixNamespaceComments: false
+
+# includes & preprocessor
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex:           '.*(PCH).*'
+    Priority: -1
+  - Regex:           '".*"'
+    Priority: 1
+  - Regex:           '^<.*\.(h)>'
+    Priority: 3
+  - Regex:           '^<.*>'
+    Priority: 4
+IncludeIsMainRegex: '([-_](test|unittest))?$'
+IndentPPDirectives: AfterHash
+
+# Hints for detecting supported languages code blocks in raw strings
+RawStringFormats:
+  - Language: Cpp
+    Delimiters:
+      - cc
+      - CC
+      - cpp
+      - Cpp
+      - CPP
+      - 'c++'
+      - 'C++'
+    CanonicalDelimiter: ''
+    BasedOnStyle: google
+...

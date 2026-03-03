@@ -16,97 +16,91 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#ifndef RECASTSAMPLETILEMESH_H
-#define RECASTSAMPLETILEMESH_H
+#pragma once
 
-#include "Sample.h"
-#include "DetourNavMesh.h"
 #include "Recast.h"
-#include "ChunkyTriMesh.h"
+#include "Sample.h"
+
+#include <cstdint>
 
 class Sample_TileMesh : public Sample
 {
-protected:
-	bool m_keepInterResults;
-	bool m_buildAll;
-	float m_totalBuildTimeMs;
+private:
+	bool buildAll = true;
+	float totalBuildTimeMs = 0.0f;
 
-	unsigned char* m_triareas;
-	rcHeightfield* m_solid;
-	rcCompactHeightfield* m_chf;
-	rcContourSet* m_cset;
-	rcPolyMesh* m_pmesh;
-	rcPolyMeshDetail* m_dmesh;
-	rcConfig m_cfg;	
-	
-	enum DrawMode
+	// Recast state
+	rcConfig config{};
+	unsigned char* triareas = nullptr;
+	rcHeightfield* heightfield = nullptr;
+	rcCompactHeightfield* compactHeightfield = nullptr;
+	rcContourSet* contourSet = nullptr;
+	rcPolyMesh* polyMesh = nullptr;
+	rcPolyMeshDetail* detailPolyMesh = nullptr;
+
+	enum class DrawMode : uint8_t
 	{
-		DRAWMODE_NAVMESH,
-		DRAWMODE_NAVMESH_TRANS,
-		DRAWMODE_NAVMESH_BVTREE,
-		DRAWMODE_NAVMESH_NODES,
-		DRAWMODE_NAVMESH_PORTALS,
-		DRAWMODE_NAVMESH_INVIS,
-		DRAWMODE_MESH,
-		DRAWMODE_VOXELS,
-		DRAWMODE_VOXELS_WALKABLE,
-		DRAWMODE_COMPACT,
-		DRAWMODE_COMPACT_DISTANCE,
-		DRAWMODE_COMPACT_REGIONS,
-		DRAWMODE_REGION_CONNECTIONS,
-		DRAWMODE_RAW_CONTOURS,
-		DRAWMODE_BOTH_CONTOURS,
-		DRAWMODE_CONTOURS,
-		DRAWMODE_POLYMESH,
-		DRAWMODE_POLYMESH_DETAIL,		
-		MAX_DRAWMODE
+		MESH,
+		NAVMESH,
+		NAVMESH_INVIS,
+		NAVMESH_TRANS,
+		NAVMESH_BVTREE,
+		NAVMESH_NODES,
+		NAVMESH_PORTALS,
+		VOXELS,
+		VOXELS_WALKABLE,
+		COMPACT,
+		COMPACT_DISTANCE,
+		COMPACT_REGIONS,
+		REGION_CONNECTIONS,
+		RAW_CONTOURS,
+		BOTH_CONTOURS,
+		CONTOURS,
+		POLYMESH,
+		POLYMESH_DETAIL
 	};
-		
-	DrawMode m_drawMode;
-	
-	int m_maxTiles;
-	int m_maxPolysPerTile;
-	float m_tileSize;
-	
-	unsigned int m_tileCol;
-	float m_lastBuiltTileBmin[3];
-	float m_lastBuiltTileBmax[3];
-	float m_tileBuildTime;
-	float m_tileMemUsage;
-	int m_tileTriCount;
+	DrawMode currentDrawMode = DrawMode::NAVMESH;
+	static const char* drawModeNames[];
 
-	unsigned char* buildTileMesh(const int tx, const int ty, const float* bmin, const float* bmax, int& dataSize);
-	
+	int maxTiles = 0;
+	int maxPolysPerTile = 0;
+	/// In cells
+	int tileSize = 32;
+
+	unsigned int tileColor = duRGBA(0, 0, 0, 32);
+	float lastBuiltTileBoundsMin[3] = {0.0f, 0.0f, 0.0f};
+	float lastBuiltTileBoundsMax[3] = {0.0f, 0.0f, 0.0f};
+	float tileBuildTime = 0.0f;
+	float tileMemUsage = 0.0f;
+	int tileTriCount = 0;
+
+	unsigned char* buildTileMesh(int tileX, int tileY, const float* boundsMin, const float* boundsMax, int& outDataSize);
+
 	void cleanup();
-	
-	void saveAll(const char* path, const dtNavMesh* mesh);
-	dtNavMesh* loadAll(const char* path);
-	
+	void UI_DrawModeOption(DrawMode drawMode, bool enabled);
+
 public:
 	Sample_TileMesh();
-	virtual ~Sample_TileMesh();
-	
-	virtual void handleSettings();
-	virtual void handleTools();
-	virtual void handleDebugMode();
-	virtual void handleRender();
-	virtual void handleRenderOverlay(double* proj, double* model, int* view);
-	virtual void handleMeshChanged(class InputGeom* geom);
-	virtual bool handleBuild();
-	virtual void collectSettings(struct BuildSettings& settings);
-	
-	void getTilePos(const float* pos, int& tx, int& ty);
-	
+	~Sample_TileMesh() override;
+	Sample_TileMesh(const Sample_TileMesh&) = delete;
+	Sample_TileMesh& operator=(const Sample_TileMesh&) = delete;
+	Sample_TileMesh(const Sample_TileMesh&&) = delete;
+	Sample_TileMesh& operator=(const Sample_TileMesh&&) = delete;
+
+	// Sample methods
+	void drawSettingsUI() override;
+	void drawToolsUI() override;
+	void drawDebugUI() override;
+	void render() override;
+	void renderOverlay() override;
+	void onMeshChanged(InputGeom* geom) override;
+	bool build() override;
+	void collectSettings(BuildSettings& settings) override;
+
+	void getTilePos(const float* pos, int& outTileX, int& outTileY) const;
+
 	void buildTile(const float* pos);
 	void removeTile(const float* pos);
 	void buildAllTiles();
-	void removeAllTiles();
-
-private:
-	// Explicitly disabled copy constructor and copy assignment operator.
-	Sample_TileMesh(const Sample_TileMesh&);
-	Sample_TileMesh& operator=(const Sample_TileMesh&);
+	void removeAllTiles() const;
 };
-
-
-#endif // RECASTSAMPLETILEMESH_H

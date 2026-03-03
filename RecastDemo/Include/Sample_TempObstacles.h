@@ -16,32 +16,32 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
-#ifndef RECASTSAMPLETEMPOBSTACLE_H
-#define RECASTSAMPLETEMPOBSTACLE_H
+#pragma once
 
 #include "Sample.h"
-#include "DetourNavMesh.h"
-#include "Recast.h"
-#include "ChunkyTriMesh.h"
 
+struct LinearAllocator;
+struct FastLZCompressor;
+struct MeshProcess;
+class dtTileCache;
 
 class Sample_TempObstacles : public Sample
 {
 protected:
-	bool m_keepInterResults;
+	bool keepIntermediateResults = false;
 
-	struct LinearAllocator* m_talloc;
-	struct FastLZCompressor* m_tcomp;
-	struct MeshProcess* m_tmproc;
+	LinearAllocator* tAllocator;
+	FastLZCompressor* tCompressor;
+	MeshProcess* tMeshProcess;
 
-	class dtTileCache* m_tileCache;
-	
-	float m_cacheBuildTimeMs;
-	int m_cacheCompressedSize;
-	int m_cacheRawSize;
-	int m_cacheLayerCount;
-	unsigned int m_cacheBuildMemUsage;
-	
+	dtTileCache* tileCache = nullptr;
+
+	float cacheBuildTimeMs = 0;
+	int cacheCompressedSize = 0;
+	int cacheRawSize = 0;
+	int cacheLayerCount = 0;
+	unsigned int cacheBuildMemUsage = 0;
+
 	enum DrawMode
 	{
 		DRAWMODE_NAVMESH,
@@ -54,45 +54,41 @@ protected:
 		DRAWMODE_CACHE_BOUNDS,
 		MAX_DRAWMODE
 	};
-	
-	DrawMode m_drawMode;
-	
-	int m_maxTiles;
-	int m_maxPolysPerTile;
-	float m_tileSize;
-	
+	DrawMode drawMode = DRAWMODE_NAVMESH;
+
+	int maxTiles = 0;
+	int maxPolysPerTile = 0;
+	int tileSize = 48;
+
 public:
 	Sample_TempObstacles();
-	virtual ~Sample_TempObstacles();
-	
-	virtual void handleSettings();
-	virtual void handleTools();
-	virtual void handleDebugMode();
-	virtual void handleRender();
-	virtual void handleRenderOverlay(double* proj, double* model, int* view);
-	virtual void handleMeshChanged(class InputGeom* geom);
-	virtual bool handleBuild();
-	virtual void handleUpdate(const float dt);
+	~Sample_TempObstacles() override;
+	Sample_TempObstacles(const Sample_TempObstacles&) = delete;
+	Sample_TempObstacles& operator=(const Sample_TempObstacles&) = delete;
+	Sample_TempObstacles(const Sample_TempObstacles&&) = delete;
+	Sample_TempObstacles& operator=(const Sample_TempObstacles&&) = delete;
+
+	void drawSettingsUI() override;
+	void drawToolsUI() override;
+	void drawDebugUI() override;
+	void render() override;
+	void renderOverlay() override;
+	void onMeshChanged(InputGeom* geom) override;
+	bool build() override;
+	void update(float dt) override;
 
 	void getTilePos(const float* pos, int& tx, int& ty);
-	
-	void renderCachedTile(const int tx, const int ty, const int type);
-	void renderCachedTileOverlay(const int tx, const int ty, double* proj, double* model, int* view);
 
-	void addTempObstacle(const float* pos);
-	void removeTempObstacle(const float* sp, const float* sq);
-	void clearAllTempObstacles();
+	void renderCachedTile(int tx, int ty, int type);
+	void renderCachedTileOverlay(int tx, int ty) const;
 
-	void saveAll(const char* path);
+	void addTempObstacle(const float* pos) const;
+	void removeTempObstacle(const float* sp, const float* sq) const;
+	void clearAllTempObstacles() const;
+
+	void saveAll(const char* path) const;
 	void loadAll(const char* path);
 
 private:
-	// Explicitly disabled copy constructor and copy assignment operator.
-	Sample_TempObstacles(const Sample_TempObstacles&);
-	Sample_TempObstacles& operator=(const Sample_TempObstacles&);
-
-	int rasterizeTileLayers(const int tx, const int ty, const rcConfig& cfg, struct TileCacheData* tiles, const int maxTiles);
+	int rasterizeTileLayers(int tx, int ty, const rcConfig& cfg, struct TileCacheData* tiles, int maxTiles) const;
 };
-
-
-#endif // RECASTSAMPLETEMPOBSTACLE_H

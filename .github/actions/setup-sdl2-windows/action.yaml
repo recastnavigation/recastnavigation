@@ -1,0 +1,14 @@
+name: 'Setup SDL2 on Windows'
+description: 'Downloads and installs SDL2 development libraries for Windows builds'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Download & install SDL2
+      shell: pwsh
+      run: |
+        $sdlZip = "${{github.workspace}}/RecastDemo/Contrib/SDL.zip"
+        (New-Object System.Net.WebClient).DownloadFile("https://github.com/libsdl-org/SDL/releases/download/release-2.32.10/SDL2-devel-2.32.10-VC.zip", $sdlZip)
+        Expand-Archive -Path $sdlZip -DestinationPath "${{github.workspace}}/RecastDemo/Contrib"
+        Rename-Item -Path "${{github.workspace}}/RecastDemo/Contrib/SDL2-2.32.10" -NewName "SDL"
+        Remove-Item $sdlZip

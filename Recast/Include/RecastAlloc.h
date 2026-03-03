@@ -33,40 +33,34 @@ enum rcAllocHint
 };
 
 /// A memory allocation function.
-//  @param[in]		size			The size, in bytes of memory, to allocate.
-//  @param[in]		rcAllocHint	A hint to the allocator on how long the memory is expected to be in use.
-//  @return A pointer to the beginning of the allocated memory block, or null if the allocation failed.
-///  @see rcAllocSetCustom
+/// @param[in]    size  The size, in bytes of memory, to allocate.
+/// @param[in]    hint  A hint to the allocator on how long the memory is expected to be in use.
+/// @return A pointer to the beginning of the allocated memory block, or null if the allocation failed.
+/// @see rcAllocSetCustom
 typedef void* (rcAllocFunc)(size_t size, rcAllocHint hint);
 
 /// A memory deallocation function.
-///  @param[in]		ptr		A pointer to a memory block previously allocated using #rcAllocFunc.
+/// @param[in]    ptr  A pointer to a memory block previously allocated using #rcAllocFunc.
 /// @see rcAllocSetCustom
 typedef void (rcFreeFunc)(void* ptr);
 
 /// Sets the base custom allocation functions to be used by Recast.
-///  @param[in]		allocFunc	The memory allocation function to be used by #rcAlloc
-///  @param[in]		freeFunc	The memory de-allocation function to be used by #rcFree
-///  
+/// @param[in]    allocFunc  The memory allocation function to be used by #rcAlloc
+/// @param[in]    freeFunc   The memory de-allocation function to be used by #rcFree
 /// @see rcAlloc, rcFree
 void rcAllocSetCustom(rcAllocFunc *allocFunc, rcFreeFunc *freeFunc);
 
 /// Allocates a memory block.
-/// 
-/// @param[in]		size	The size, in bytes of memory, to allocate.
-/// @param[in]		hint	A hint to the allocator on how long the memory is expected to be in use.
+/// @param[in]    size  The size, in bytes of memory, to allocate.
+/// @param[in]    hint  A hint to the allocator on how long the memory is expected to be in use.
 /// @return A pointer to the beginning of the allocated memory block, or null if the allocation failed.
-/// 
 /// @see rcFree, rcAllocSetCustom
 void* rcAlloc(size_t size, rcAllocHint hint);
 
 /// Deallocates a memory block.  If @p ptr is NULL, this does nothing.
-///
 /// @warning This function leaves the value of @p ptr unchanged.  So it still
 /// points to the same (now invalid) location, and not to null.
-/// 
-/// @param[in]		ptr		A pointer to a memory block previously allocated using #rcAlloc.
-/// 
+/// @param[in]    ptr  A pointer to a memory block previously allocated using #rcAlloc.
 /// @see rcAlloc, rcAllocSetCustom
 void rcFree(void* ptr);
 
@@ -101,7 +95,8 @@ typedef intptr_t rcSizeType;
 ///  * push_back() and resize() support adding values from the current vector. Range-based constructors and assign(begin, end) do not.
 ///  * No specialization for bool.
 template <typename T, rcAllocHint H>
-class rcVectorBase {
+class rcVectorBase
+{
 	rcSizeType m_size;
 	rcSizeType m_cap;
 	T* m_data;
@@ -168,41 +163,54 @@ class rcVectorBase {
 };
 
 template<typename T, rcAllocHint H>
-bool rcVectorBase<T, H>::reserve(rcSizeType count) {
-	if (count <= m_cap) {
+bool rcVectorBase<T, H>::reserve(rcSizeType count)
+{
+	if (count <= m_cap)
+	{
 		return true;
 	}
+
 	T* new_data = allocate_and_copy(count);
-	if (!new_data) {
+	if (!new_data)
+	{
 	  return false;
 	}
+
 	destroy_range(0, m_size);
 	rcFree(m_data);
 	m_data = new_data;
 	m_cap = count;
 	return true;
 }
+
 template <typename T, rcAllocHint H>
-T* rcVectorBase<T, H>::allocate_and_copy(rcSizeType size) {
+T* rcVectorBase<T, H>::allocate_and_copy(rcSizeType size)
+{
 	rcAssert(RC_SIZE_MAX / static_cast<rcSizeType>(sizeof(T)) >= size);
 	T* new_data = static_cast<T*>(rcAlloc(sizeof(T) * size, H));
-	if (new_data) {
+	if (new_data)
+	{
 		copy_range(new_data, m_data, m_data + m_size);
 	}
 	return new_data;
 }
+
 template <typename T, rcAllocHint H>
-void rcVectorBase<T, H>::assign(const T* begin, const T* end) {
+void rcVectorBase<T, H>::assign(const T* begin, const T* end)
+{
 	clear();
 	reserve(end - begin);
 	m_size = end - begin;
 	copy_range(m_data, begin, end);
 }
+
 template <typename T, rcAllocHint H>
-void rcVectorBase<T, H>::push_back(const T& value) {
+void rcVectorBase<T, H>::push_back(const T& value)
+{
 	// rcLikely increases performance by ~50% on BM_rcVector_PushPreallocated,
 	// and by ~2-5% on BM_rcVector_Push.
-	if (rcLikely(m_size < m_cap)) {
+	if (rcLikely(m_size < m_cap))
+	{
 		construct(m_data + m_size++, value);
 		return;
 	}
@@ -220,34 +228,50 @@ void rcVectorBase<T, H>::push_back(const T& value) {
 }
 
 template <typename T, rcAllocHint H>
-rcSizeType rcVectorBase<T, H>::get_new_capacity(rcSizeType min_capacity) {
+rcSizeType rcVectorBase<T, H>::get_new_capacity(rcSizeType min_capacity)
+{
 	rcAssert(min_capacity <= RC_SIZE_MAX);
 	if (rcUnlikely(m_cap >= RC_SIZE_MAX / 2))
+	{
 		return RC_SIZE_MAX;
+	}
 	return 2 * m_cap > min_capacity ? 2 * m_cap : min_capacity;
 }
 
 template <typename T, rcAllocHint H>
-void rcVectorBase<T, H>::resize_impl(rcSizeType size, const T* value) {
-	if (size < m_size) {
+void rcVectorBase<T, H>::resize_impl(rcSizeType size, const T* value)
+{
+	if (size < m_size)
+	{
 		destroy_range(size, m_size);
 		m_size = size;
-	} else if (size > m_size) {
-		if (size <= m_cap) {
-			if (value) {
+	}
+	else if (size > m_size)
+	{
+		if (size <= m_cap)
+		{
+			if (value)
+			{
 				construct_range(m_data + m_size, m_data + size, *value);
-			} else {
+			}
+			else
+			{
 				construct_range(m_data + m_size, m_data + size);
 			}
 			m_size = size;
-		} else {
+		}
+		else
+		{
 			const rcSizeType new_cap = get_new_capacity(size);
 			T* new_data = allocate_and_copy(new_cap);
 			// We defer deconstructing/freeing old data until after constructing
 			// new elements in case "value" is there.
-			if (value) {
+			if (value)
+			{
 				construct_range(new_data + m_size, new_data + size, *value);
-			} else {
+			}
+			else
+			{
 				construct_range(new_data + m_size, new_data + size);
 			}
 			destroy_range(0, m_size);
@@ -258,8 +282,10 @@ void rcVectorBase<T, H>::resize_impl(rcSizeType size, const T* value) {
 		}
 	}
 }
+
 template <typename T, rcAllocHint H>
-void rcVectorBase<T, H>::swap(rcVectorBase<T, H>& other) {
+void rcVectorBase<T, H>::swap(rcVectorBase<T, H>& other)
+{
 	// TODO: Reorganize headers so we can use rcSwap here.
 	rcSizeType tmp_cap = other.m_cap;
 	rcSizeType tmp_size = other.m_size;
@@ -273,36 +299,49 @@ void rcVectorBase<T, H>::swap(rcVectorBase<T, H>& other) {
 	m_size = tmp_size;
 	m_data = tmp_data;
 }
+
 // static
 template <typename T, rcAllocHint H>
-void rcVectorBase<T, H>::construct_range(T* begin, T* end) {
-	for (T* p = begin; p < end; p++) {
+void rcVectorBase<T, H>::construct_range(T* begin, T* end)
+{
+	for (T* p = begin; p < end; p++)
+	{
 		construct(p);
 	}
 }
+
 // static
 template <typename T, rcAllocHint H>
-void rcVectorBase<T, H>::construct_range(T* begin, T* end, const T& value) {
-	for (T* p = begin; p < end; p++) {
+void rcVectorBase<T, H>::construct_range(T* begin, T* end, const T& value)
+{
+	for (T* p = begin; p < end; p++)
+	{
 		construct(p, value);
 	}
 }
+
 // static
 template <typename T, rcAllocHint H>
-void rcVectorBase<T, H>::copy_range(T* dst, const T* begin, const T* end) {
-	for (rcSizeType i = 0 ; i < end - begin; i++) {
+void rcVectorBase<T, H>::copy_range(T* dst, const T* begin, const T* end)
+{
+	for (rcSizeType i = 0 ; i < end - begin; i++)
+	{
 		construct(dst + i, begin[i]);
 	}
 }
+
 template <typename T, rcAllocHint H>
-void rcVectorBase<T, H>::destroy_range(rcSizeType begin, rcSizeType end) {
-	for (rcSizeType i = begin; i < end; i++) {
+void rcVectorBase<T, H>::destroy_range(rcSizeType begin, rcSizeType end)
+{
+	for (rcSizeType i = begin; i < end; i++)
+	{
 		m_data[i].~T();
 	}
 }
 
 template <typename T>
-class rcTempVector : public rcVectorBase<T, RC_ALLOC_TEMP> {
+class rcTempVector : public rcVectorBase<T, RC_ALLOC_TEMP>
+{
 	typedef rcVectorBase<T, RC_ALLOC_TEMP> Base;
 public:
 	rcTempVector() : Base() {}
@@ -311,8 +350,10 @@ public:
 	rcTempVector(const rcTempVector<T>& other) : Base(other) {}
 	rcTempVector(const T* begin, const T* end) : Base(begin, end) {}
 };
+
 template <typename T>
-class rcPermVector : public rcVectorBase<T, RC_ALLOC_PERM> {
+class rcPermVector : public rcVectorBase<T, RC_ALLOC_PERM>
+{
 	typedef rcVectorBase<T, RC_ALLOC_PERM> Base;
 public:
 	rcPermVector() : Base() {}
@@ -320,28 +361,6 @@ public:
 	rcPermVector(rcSizeType size, const T& value) : Base(size, value) {}
 	rcPermVector(const rcPermVector<T>& other) : Base(other) {}
 	rcPermVector(const T* begin, const T* end) : Base(begin, end) {}
-};
-
-
-/// Legacy class. Prefer rcVector<int>.
-class rcIntArray
-{
-	rcTempVector<int> m_impl;
-public:
-	rcIntArray() {}
-	rcIntArray(int n) : m_impl(n, 0) {}
-	void push(int item) { m_impl.push_back(item); }
-	void resize(int size) { m_impl.resize(size); }
-	void clear() { m_impl.clear(); }
-	int pop()
-	{
-		int v = m_impl.back();
-		m_impl.pop_back();
-		return v;
-	}
-	int size() const { return static_cast<int>(m_impl.size()); }
-	int& operator[](int index) { return m_impl[index]; }
-	int operator[](int index) const { return m_impl[index]; }
 };
 
 /// A simple helper class used to delete an array when it goes out of scope.
@@ -362,7 +381,7 @@ public:
 	/// The root array pointer.
 	///  @return The root array pointer.
 	inline operator T*() { return ptr; }
-	
+
 private:
 	// Explicitly disabled copy constructor and copy assignment operator.
 	rcScopedDelete(const rcScopedDelete&);

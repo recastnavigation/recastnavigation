@@ -18,8 +18,6 @@
 
 #include "RecastAssert.h"
 
-#ifndef RC_DISABLE_ASSERTS
-
 static rcAssertFailFunc* sRecastAssertFailFunc = 0;
 
 void rcAssertFailSetCustom(rcAssertFailFunc* assertFailFunc)
@@ -31,5 +29,3 @@ rcAssertFailFunc* rcAssertFailGetCustom()
 {
 	return sRecastAssertFailFunc;
 }
-
-#endif

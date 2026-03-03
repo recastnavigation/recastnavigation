@@ -1,0 +1,11 @@
+name: 'Setup SDL2 on Linux'
+description: 'Installs SDL2 and OpenGL development libraries for Linux builds'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Install SDL2 and OpenGL
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev libsdl2-dev

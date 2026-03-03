@@ -9,6 +9,10 @@
 *.so
 *.idb
 
+# clangd
+.cache/
+compile_commands.json
+
 ## Linux exes have no extension
 RecastDemo/Bin/RecastDemo
 RecastDemo/Bin/Tests
@@ -21,6 +25,9 @@ RecastDemo/Bin/*.dSYM
 
 # Ignore meshes
 RecastDemo/Bin/Meshes/*
+
+# Dear IMGUI state
+RecastDemo/Bin/imgui.ini
 
 ## Logs and databases #
 *.log

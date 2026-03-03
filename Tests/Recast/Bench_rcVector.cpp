@@ -1,11 +1,11 @@
-﻿#include <stdio.h>
-#include <string.h>
-
-#include "catch2/catch_all.hpp"
-
-#include "Recast.h"
+﻿#include "Recast.h"
 #include "RecastAlloc.h"
 #include "RecastAssert.h"
+#include "catch2/catch_amalgamated.hpp"
+
+#include <stdio.h>
+#include <string.h>
+
 #include <vector>
 
 // TODO: Implement benchmarking for platforms other than posix.
