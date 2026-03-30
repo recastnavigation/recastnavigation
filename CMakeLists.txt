@@ -87,6 +87,7 @@ configure_file(
 )
 install(FILES "${RecastNavigation_BINARY_DIR}/recastnavigation.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
 
+add_subdirectory(Benchmark)
 add_subdirectory(DebugUtils)
 add_subdirectory(Detour)
 add_subdirectory(DetourCrowd)
