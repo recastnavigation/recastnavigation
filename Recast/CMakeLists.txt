@@ -13,7 +13,7 @@ set_target_properties(Recast PROPERTIES
     CXX_EXTENSIONS OFF  # Disable compiler-specific extensions
 )
 
-target_compile_definitions(Recast PUBLIC "$<$<NOT:${RECASTNAVIGATION_ENABLE_ASSERTS}>:RC_DISABLE_ASSERTS>")
+target_compile_definitions(Recast PUBLIC "$<$<NOT:$<BOOL:${RECASTNAVIGATION_ENABLE_ASSERTS}>>:RC_DISABLE_ASSERTS>")
 
 target_include_directories(Recast PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Include>"

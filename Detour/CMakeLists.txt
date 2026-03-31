@@ -21,7 +21,7 @@ if (RECASTNAVIGATION_DT_VIRTUAL_QUERYFILTER)
     target_compile_definitions(Detour PUBLIC DT_VIRTUAL_QUERYFILTER)
 endif()
 
-target_compile_definitions(Detour PUBLIC "$<$<NOT:${RECASTNAVIGATION_ENABLE_ASSERTS}>:RC_DISABLE_ASSERTS>")
+target_compile_definitions(Detour PUBLIC "$<$<NOT:$<BOOL:${RECASTNAVIGATION_ENABLE_ASSERTS}>>:RC_DISABLE_ASSERTS>")
 
 target_include_directories(Detour PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Include>"
