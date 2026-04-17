@@ -241,7 +241,6 @@ void Sample_TileMesh::drawSettingsUI()
 		// Max tiles and max polys affect how the tile IDs are calculated.
 		// There are 22 bits available for identifying a tile and a polygon.
 		int tileBits = rcMin(static_cast<int>(ilog2(nextPow2(tileWidth * tileHeight))), 14);
-		tileBits = rcMin(tileBits, 14);
 		int polyBits = 22 - tileBits;
 		maxTiles = 1 << tileBits;
 		maxPolysPerTile = 1 << polyBits;
