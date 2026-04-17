@@ -734,7 +734,7 @@ public:
 
 	SampleToolType type() override { return SampleToolType::TILE_HIGHLIGHT; }
 
-	void init(Sample* sample) override { sample = static_cast<Sample_TempObstacles*>(sample); }
+	void init(Sample* newSample) override { sample = static_cast<Sample_TempObstacles*>(newSample); }
 
 	void reset() override {}
 
@@ -819,7 +819,7 @@ public:
 
 	SampleToolType type() override { return SampleToolType::TEMP_OBSTACLE; }
 
-	void init(Sample* sample) override { sample = static_cast<Sample_TempObstacles*>(sample); }
+	void init(Sample* newSample) override { sample = static_cast<Sample_TempObstacles*>(newSample); }
 
 	void reset() override {}
 
