@@ -41,7 +41,7 @@ int compareMinY(const void* va, const void* vb)
 }
 
 /// Calculates the total extent of all bounds in the given index range
-void calcTotalBounds(const std::vector<IndexedBounds> bounds, const int start, const int end, float* outBMin, float* outBMax)
+void calcTotalBounds(const std::vector<IndexedBounds>& bounds, const int start, const int end, float* outBMin, float* outBMax)
 {
 	outBMin[0] = bounds[start].bmin[0];
 	outBMin[1] = bounds[start].bmin[1];
@@ -61,7 +61,7 @@ void calcTotalBounds(const std::vector<IndexedBounds> bounds, const int start, c
 }
 
 void subdivide(
-	std::vector<IndexedBounds> triBounds,
+	std::vector<IndexedBounds>& triBounds,
 	int imin,
 	int imax,
 	int trisPerChunk,
