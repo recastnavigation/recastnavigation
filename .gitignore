@@ -60,3 +60,5 @@ build
 ## IDE files
 .idea/
 cmake-build-*/
+
+RecastDemo/BinHotfix

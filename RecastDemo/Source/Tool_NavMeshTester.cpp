@@ -614,16 +614,16 @@ void NavMeshTesterTool::update(const float /*dt*/)
 			if (npolys)
 			{
 				// In case of partial path, make sure the end point is clamped to the last polygon.
-				float epos[3];
-				dtVcopy(epos, epos);
+				float pathEnd[3];
+				dtVcopy(pathEnd, this->epos);
 				if (polys[npolys - 1] != endRef)
 				{
-					sample->navQuery->closestPointOnPoly(polys[npolys - 1], epos, epos, 0);
+					sample->navQuery->closestPointOnPoly(polys[npolys - 1], pathEnd, pathEnd, 0);
 				}
 
 				sample->navQuery->findStraightPath(
 					spos,
-					epos,
+					pathEnd,
 					polys,
 					npolys,
 					straightPath,
@@ -858,16 +858,16 @@ void NavMeshTesterTool::recalc()
 			if (npolys)
 			{
 				// In case of partial path, make sure the end point is clamped to the last polygon.
-				float epos[3];
-				dtVcopy(epos, epos);
+				float pathEnd[3];
+				dtVcopy(pathEnd, this->epos);
 				if (polys[npolys - 1] != endRef)
 				{
-					sample->navQuery->closestPointOnPoly(polys[npolys - 1], epos, epos, 0);
+					sample->navQuery->closestPointOnPoly(polys[npolys - 1], pathEnd, pathEnd, 0);
 				}
 
 				sample->navQuery->findStraightPath(
 					spos,
-					epos,
+					pathEnd,
 					polys,
 					npolys,
 					straightPath,
@@ -1477,7 +1477,7 @@ void NavMeshTesterTool::drawOverlayUI()
 	}
 
 	// Tool help
-	DrawScreenspaceText(280, 40, IM_COL32(255, 255, 255, 192), "LMB+SHIFT: Set start location  LMB: Set end location");
+	DrawScreenspaceText(280, 40, IM_COL32(255, 255, 255, 192), "Shift+LMB: Set start  Ctrl+LMB: Set end  LMB: Pick only");
 }
 
 void NavMeshTesterTool::drawAgent(const float* pos, float r, float h, float c, const unsigned int col) const
