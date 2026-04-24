@@ -45,6 +45,10 @@ struct AppState
 	float camr = 1000;
 	float origCameraEulers[2] = {0, 0};  // Used to compute rotational changes across frames.
 	float scrollZoom = 0;
+	bool savedCameraSet = false;
+	float savedCameraEulers[2]{45, -45};
+	float savedCameraPos[3]{0, 0, 0};
+	float savedCamr = 1000;
 
 	// Movement
 	float moveFront = 0.0f;
@@ -62,6 +66,9 @@ struct AppState
 	// Raycasts
 	float rayStart[3];  // world space
 	float rayEnd[3];    // world space
+	bool selectedPointSet = false;
+	float selectedPoint[3]{0, 0, 0};
+	bool focusSelectedPointRequested = false;
 
 	// UI state
 	int sampleIndex = -1;
@@ -78,6 +85,11 @@ struct AppState
 	std::string testCasesFolder = "TestCases";
 
 	void resetCamera();
+	void saveCamera();
+	bool restoreSavedCamera();
+	void setSelectedPoint(const float* point);
+	void requestFocusSelectedPoint();
+	void focusCameraOnSelectedPoint(const double* modelviewMatrix);
 	void updateWindowSize();
 	void updateUIScale() const;
 	void worldToScreen(float x, float y, float z, float* screenX, float* screenY) const;

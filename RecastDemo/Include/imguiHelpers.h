@@ -15,7 +15,8 @@ inline void DrawScreenspaceText(float x, float y, ImU32 color, const char* text,
 		x -= textSize.x * 0.5f;
 	}
 
-	ImGui::GetForegroundDrawList()->AddText({x, y}, color, text);
+	// Draw helper text below ImGui windows so it does not cover the side panels.
+	ImGui::GetBackgroundDrawList()->AddText({x, y}, color, text);
 }
 
 inline void DrawWorldspaceText(float x, float y, float z, ImU32 color, const char* text, bool centered = false, float offsetY = 0.0f)
@@ -31,7 +32,8 @@ inline void DrawWorldspaceText(float x, float y, float z, ImU32 color, const cha
 		screenX -= textSize.x * 0.5f;
 	}
 
-	ImGui::GetForegroundDrawList()->AddText({screenX, screenY}, color, text);
+	// Keep world labels readable on top of the 3D scene but below the UI.
+	ImGui::GetBackgroundDrawList()->AddText({screenX, screenY}, color, text);
 }
 
 inline void DrawFloatSlider(

@@ -66,6 +66,41 @@ constexpr ImGuiWindowFlags staticWindowFlags = ImGuiWindowFlags_NoMove
 	| ImGuiWindowFlags_NoResize
 	| ImGuiWindowFlags_NoSavedSettings
 	| ImGuiWindowFlags_NoCollapse;
+
+void DrawSelectedPointMarker(const AppState& app)
+{
+	if (!app.selectedPointSet)
+	{
+		return;
+	}
+
+	float markerHalfSize = app.camr * 0.01f;
+	if (markerHalfSize < 0.35f)
+	{
+		markerHalfSize = 0.35f;
+	}
+	else if (markerHalfSize > 2.5f)
+	{
+		markerHalfSize = 2.5f;
+	}
+
+	const float x = app.selectedPoint[0];
+	const float y = app.selectedPoint[1] + 0.05f;
+	const float z = app.selectedPoint[2];
+
+	glDisable(GL_FOG);
+	glLineWidth(2.0f);
+	glColor4ub(255, 200, 32, 255);
+	glBegin(GL_LINES);
+	glVertex3f(x - markerHalfSize, y, z);
+	glVertex3f(x + markerHalfSize, y, z);
+	glVertex3f(x, y, z - markerHalfSize);
+	glVertex3f(x, y, z + markerHalfSize);
+	glVertex3f(x, y, z);
+	glVertex3f(x, y + markerHalfSize * 1.6f, z);
+	glEnd();
+	glLineWidth(1.0f);
+}
 }
 
 AppState app;
@@ -155,9 +190,10 @@ int main(int /*argc*/, char** /*argv*/)
 		// Handle input events.
 		bool processHitTest = false;
 		bool processHitTestShift = false;
+		bool processHitTestCtrl = false;
 
 		// Per frame input
-		app.mouseOverMenu = ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow);
+		app.mouseOverMenu = ImGui::GetIO().WantCaptureMouse;
 		SDL_Event event;
 		while (SDL_PollEvent(&event))
 		{
@@ -201,6 +237,15 @@ int main(int /*argc*/, char** /*argv*/)
 						app.inputGeometry->saveGeomSet(&settings);
 					}
 					break;
+				case SDLK_F5:
+					app.saveCamera();
+					break;
+				case SDLK_F6:
+					app.restoreSavedCamera();
+					break;
+				case SDLK_f:
+					app.requestFocusSelectedPoint();
+					break;
 				}
 				break;
 
@@ -228,11 +273,6 @@ int main(int /*argc*/, char** /*argv*/)
 				if (event.button.button == SDL_BUTTON_RIGHT)
 				{
 					app.isRotatingCamera = false;
-					if (!app.mouseOverMenu && !app.movedDuringRotate)
-					{
-						processHitTest = true;
-						processHitTestShift = true;
-					}
 				}
 				else if (event.button.button == SDL_BUTTON_LEFT)
 				{
@@ -240,6 +280,7 @@ int main(int /*argc*/, char** /*argv*/)
 					{
 						processHitTest = true;
 						processHitTestShift = (SDL_GetModState() & KMOD_SHIFT) ? true : false;
+						processHitTestCtrl = (SDL_GetModState() & KMOD_CTRL) ? true : false;
 					}
 				}
 				break;
@@ -283,20 +324,6 @@ int main(int /*argc*/, char** /*argv*/)
 		Uint32 time = SDL_GetTicks();
 		float dt = static_cast<float>(time - app.prevFrameTime) / 1000.0f;
 		app.prevFrameTime = time;
-
-		// Hit test mesh.
-		if (processHitTest && app.inputGeometry && app.sample)
-		{
-			float hitTime;
-			if (app.inputGeometry->raycastMesh(app.rayStart, app.rayEnd, hitTime))
-			{
-				float hitPos[3];
-				hitPos[0] = app.rayStart[0] + (app.rayEnd[0] - app.rayStart[0]) * hitTime;
-				hitPos[1] = app.rayStart[1] + (app.rayEnd[1] - app.rayStart[1]) * hitTime;
-				hitPos[2] = app.rayStart[2] + (app.rayEnd[2] - app.rayStart[2]) * hitTime;
-				app.sample->onClick(app.rayStart, hitPos, processHitTestShift);
-			}
-		}
 
 		if (app.sample)
 		{
@@ -375,6 +402,10 @@ int main(int /*argc*/, char** /*argv*/)
 		app.cameraPos[2] += moveY * static_cast<float>(modelviewMatrix[10]);
 
 		app.cameraPos[1] += (app.moveUp - app.moveDown) * keybSpeed * dt;
+		if (app.focusSelectedPointRequested)
+		{
+			app.focusCameraOnSelectedPoint(modelviewMatrix);
+		}
 
 		// Draw the mesh
 		glEnable(GL_FOG);
@@ -386,6 +417,7 @@ int main(int /*argc*/, char** /*argv*/)
 		{
 			app.testCase->render();
 		}
+		DrawSelectedPointMarker(app);
 		glDisable(GL_FOG);
 
 		ImGui_ImplOpenGL2_NewFrame();
@@ -402,13 +434,20 @@ int main(int /*argc*/, char** /*argv*/)
 		{
 			app.testCase->renderOverlay();
 		}
+		if (app.selectedPointSet)
+		{
+			float screenX = 0.0f;
+			float screenY = 0.0f;
+			app.worldToScreen(app.selectedPoint[0], app.selectedPoint[1], app.selectedPoint[2], &screenX, &screenY);
+			DrawScreenspaceText(screenX, screenY - 18.0f, IM_COL32(255, 220, 64, 220), "Selected Point", true);
+		}
 
 		bool newMeshSelected = false;
 		bool newSampleSelected = false;
 		if (app.showMenu)
 		{
 			// Help text.
-			DrawScreenspaceText(280.0f, 20.0f, IM_COL32(255, 255, 255, 128), "W/A/S/D: Move  RMB: Rotate");
+			DrawScreenspaceText(280.0f, 20.0f, IM_COL32(255, 255, 255, 128), "W/A/S/D: Move  RMB: Rotate  F5/F6: Save/Restore View  F: Focus Pick");
 
 			constexpr int uiColumnWidth = 250;
 			constexpr int uiWindowPadding = 10;
@@ -478,6 +517,34 @@ int main(int /*argc*/, char** /*argv*/)
 						static_cast<float>(app.inputGeometry->mesh.getTriCount()) / 1000.0f);
 				}
 
+				ImGui::SeparatorText("Camera");
+				if (ImGui::Button("Save View (F5)"))
+				{
+					app.saveCamera();
+				}
+				ImGui::SameLine();
+				if (ImGui::Button("Restore View (F6)"))
+				{
+					app.restoreSavedCamera();
+				}
+
+				if (app.selectedPointSet)
+				{
+					if (ImGui::Button("Focus Pick (F)"))
+					{
+						app.requestFocusSelectedPoint();
+					}
+					ImGui::Text(
+						"Pick: %.3f %.3f %.3f",
+						app.selectedPoint[0],
+						app.selectedPoint[1],
+						app.selectedPoint[2]);
+				}
+				else
+				{
+					ImGui::TextDisabled("Pick a point with LMB to enable F focus.");
+				}
+
 				if (app.sample)
 				{
 					if (app.inputGeometry)
@@ -540,6 +607,7 @@ int main(int /*argc*/, char** /*argv*/)
 
 		if (newSampleSelected)
 		{
+			processHitTest = false;
 			app.sample = g_samples[app.sampleIndex].create();
 			app.sample->buildContext = &app.buildContext;
 			if (app.inputGeometry)
@@ -551,6 +619,7 @@ int main(int /*argc*/, char** /*argv*/)
 
 		if (newMeshSelected)
 		{
+			processHitTest = false;
 			std::string path = app.meshesFolder + "/" + app.meshName;
 
 			app.inputGeometry = std::make_unique<InputGeom>();
@@ -572,6 +641,46 @@ int main(int /*argc*/, char** /*argv*/)
 			if (app.sample)
 			{
 				app.sample->onMeshChanged(app.inputGeometry.get());
+			}
+		}
+
+		// Process world picking only after the UI has handled the current frame.
+		// Otherwise clicking the mesh/sample combo can also change NavMeshTester End.
+		if (processHitTest && !ImGui::GetIO().WantCaptureMouse && app.inputGeometry)
+		{
+			float hitTime;
+			if (app.inputGeometry->raycastMesh(app.rayStart, app.rayEnd, hitTime))
+			{
+				float hitPos[3];
+				hitPos[0] = app.rayStart[0] + (app.rayEnd[0] - app.rayStart[0]) * hitTime;
+				hitPos[1] = app.rayStart[1] + (app.rayEnd[1] - app.rayStart[1]) * hitTime;
+				hitPos[2] = app.rayStart[2] + (app.rayEnd[2] - app.rayStart[2]) * hitTime;
+				app.setSelectedPoint(hitPos);
+
+				bool dispatchToolClick = app.sample != nullptr;
+				bool toolClickShift = processHitTestShift;
+				if (app.sample && app.sample->tool && app.sample->tool->type() == SampleToolType::NAVMESH_TESTER)
+				{
+					// NavMeshTester uses explicit modifier combos so plain LMB only updates
+					// the generic selected-point marker and cannot overwrite path endpoints.
+					if (processHitTestShift)
+					{
+						toolClickShift = true;
+					}
+					else if (processHitTestCtrl)
+					{
+						toolClickShift = false;
+					}
+					else
+					{
+						dispatchToolClick = false;
+					}
+				}
+
+				if (dispatchToolClick)
+				{
+					app.sample->onClick(app.rayStart, hitPos, toolClickShift);
+				}
 			}
 		}
 

@@ -36,6 +36,80 @@ void AppState::resetCamera()
 	glFogf(GL_FOG_END, camr * 1.25f);
 }
 
+void AppState::saveCamera()
+{
+	savedCameraSet = true;
+	savedCamr = camr;
+	savedCameraEulers[0] = cameraEulers[0];
+	savedCameraEulers[1] = cameraEulers[1];
+	savedCameraPos[0] = cameraPos[0];
+	savedCameraPos[1] = cameraPos[1];
+	savedCameraPos[2] = cameraPos[2];
+}
+
+bool AppState::restoreSavedCamera()
+{
+	if (!savedCameraSet)
+	{
+		return false;
+	}
+
+	camr = savedCamr;
+	cameraEulers[0] = savedCameraEulers[0];
+	cameraEulers[1] = savedCameraEulers[1];
+	cameraPos[0] = savedCameraPos[0];
+	cameraPos[1] = savedCameraPos[1];
+	cameraPos[2] = savedCameraPos[2];
+
+	glFogf(GL_FOG_START, camr * 0.1f);
+	glFogf(GL_FOG_END, camr * 1.25f);
+	return true;
+}
+
+void AppState::setSelectedPoint(const float* point)
+{
+	if (!point)
+	{
+		return;
+	}
+
+	selectedPointSet = true;
+	selectedPoint[0] = point[0];
+	selectedPoint[1] = point[1];
+	selectedPoint[2] = point[2];
+}
+
+void AppState::requestFocusSelectedPoint()
+{
+	if (selectedPointSet)
+	{
+		focusSelectedPointRequested = true;
+	}
+}
+
+void AppState::focusCameraOnSelectedPoint(const double* modelviewMatrix)
+{
+	if (!selectedPointSet || !modelviewMatrix)
+	{
+		return;
+	}
+
+	float focusDistance = camr * 0.1f;
+	if (focusDistance < 6.0f)
+	{
+		focusDistance = 6.0f;
+	}
+	else if (focusDistance > 35.0f)
+	{
+		focusDistance = 35.0f;
+	}
+
+	cameraPos[0] = selectedPoint[0] + static_cast<float>(modelviewMatrix[2]) * focusDistance;
+	cameraPos[1] = selectedPoint[1] + static_cast<float>(modelviewMatrix[6]) * focusDistance;
+	cameraPos[2] = selectedPoint[2] + static_cast<float>(modelviewMatrix[10]) * focusDistance;
+	focusSelectedPointRequested = false;
+}
+
 void AppState::updateWindowSize()
 {
 	SDL_GetWindowSize(window, &width, &height);
