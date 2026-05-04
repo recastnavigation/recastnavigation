@@ -460,7 +460,15 @@ inline unsigned int dtIlog2(unsigned int v)
 	return r;
 }
 
-inline int dtAlign4(int x) { return (x+3) & ~3; }
+inline int dtAlign(int x) {
+#ifdef DT_POLYREF64
+	// using 64bits poly ref will change memroy alignment to 8-bytes alignment
+	// because dtLink contains dtPolyRef
+	return (x + 7) & ~7;
+#else
+	return (x + 3) & ~3;
+#endif
+}
 
 inline int dtOppositeTile(int side) { return (side+4) & 0x7; }
 

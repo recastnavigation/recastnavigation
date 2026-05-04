@@ -276,7 +276,7 @@ dtStatus dtTileCache::addTile(unsigned char* data, const int dataSize, unsigned 
 	m_posLookup[h] = tile;
 	
 	// Init tile.
-	const int headerSize = dtAlign4(sizeof(dtTileCacheLayerHeader));
+	const int headerSize = dtAlign(sizeof(dtTileCacheLayerHeader));
 	tile->header = (dtTileCacheLayerHeader*)data;
 	tile->data = data;
 	tile->dataSize = dataSize;

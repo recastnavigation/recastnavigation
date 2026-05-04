@@ -2087,7 +2087,7 @@ dtStatus dtBuildTileCacheLayer(dtTileCacheCompressor* comp,
 							   const unsigned char* cons,
 							   unsigned char** outData, int* outDataSize)
 {
-	const int headerSize = dtAlign4(sizeof(dtTileCacheLayerHeader));
+	const int headerSize = dtAlign(sizeof(dtTileCacheLayerHeader));
 	const int gridSize = (int)header->width * (int)header->height;
 	const int maxDataSize = headerSize + comp->maxCompressedSize(gridSize*3);
 	unsigned char* data = (unsigned char*)dtAlloc(maxDataSize, DT_ALLOC_PERM);
@@ -2158,8 +2158,8 @@ dtStatus dtDecompressTileCacheLayer(dtTileCacheAlloc* alloc, dtTileCacheCompress
 	if (compressedHeader->version != DT_TILECACHE_VERSION)
 		return DT_FAILURE | DT_WRONG_VERSION;
 	
-	const int layerSize = dtAlign4(sizeof(dtTileCacheLayer));
-	const int headerSize = dtAlign4(sizeof(dtTileCacheLayerHeader));
+	const int layerSize = dtAlign(sizeof(dtTileCacheLayer));
+	const int headerSize = dtAlign(sizeof(dtTileCacheLayerHeader));
 	const int gridSize = (int)compressedHeader->width * (int)compressedHeader->height;
 	const int bufferSize = layerSize + headerSize + gridSize*4;
 	

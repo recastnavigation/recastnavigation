@@ -111,7 +111,7 @@ bool intersectSegmentAABB(const float* sp, const float* sq, const float* amin, c
 
 int calcLayerBufferSize(const int gridWidth, const int gridHeight)
 {
-	const int headerSize = dtAlign4(sizeof(dtTileCacheLayerHeader));
+	const int headerSize = dtAlign(sizeof(dtTileCacheLayerHeader));
 	const int gridSize = gridWidth * gridHeight;
 	return headerSize + gridSize * 4;
 }
