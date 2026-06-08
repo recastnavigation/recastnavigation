@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
 // This software is provided 'as-is', without any express or implied
@@ -144,7 +144,7 @@ public:
 private:
 	bool loadMesh(rcContext* ctx, const std::string& filepath);
 	bool loadGeomSet(rcContext* ctx, const std::string& filepath);
-	bool loadGeomSet(rcContext* ctx, char* buffer, size_t bufferLen);
+	bool loadGeomSet(rcContext* ctx, char* buffer, size_t bufferLen, const std::string& gsetPath = "");
 
 	void clearOffMeshConnections()
 	{

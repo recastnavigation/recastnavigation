@@ -20,6 +20,7 @@
 
 #include "PartitionedMesh.h"
 #include "Recast.h"
+#include "Sample.h"
 #include "SampleInterfaces.h"
 
 #include <algorithm>
@@ -244,6 +245,44 @@ int readFace(char* row, int* data, int maxDataLen, int vertCount)
 	}
 	return numVertices;
 }
+
+std::string getBasename(const std::string& path)
+{
+	size_t pos = path.find_last_of("/\\");
+	if (pos == std::string::npos)
+	{
+		return path;
+	}
+	return path.substr(pos + 1);
+}
+
+bool isAbsolutePath(const std::string& path)
+{
+	if (path.empty())
+	{
+		return false;
+	}
+	if (path[0] == '/' || path[0] == '\\')
+	{
+		return true;
+	}
+	if (path.size() >= 2 && path[1] == ':')
+	{
+		return true;
+	}
+	return false;
+}
+
+std::string getDirectory(const std::string& path)
+{
+	size_t pos = path.find_last_of("/\\");
+	if (pos == std::string::npos)
+	{
+		return "";
+	}
+	return path.substr(0, pos + 1);
+}
+
 }
 
 void Mesh::readFromObj(char* buf, size_t bufLen)
@@ -382,13 +421,13 @@ bool InputGeom::loadGeomSet(rcContext* ctx, const std::string& filepath)
 		return false;
 	}
 
-	bool result = loadGeomSet(ctx, buffer, bufferLen);
+	bool result = loadGeomSet(ctx, buffer, bufferLen, getDirectory(filepath));
 
 	delete[] buffer;
 	return result;
 }
 
-bool InputGeom::loadGeomSet(rcContext* ctx, char* buffer, size_t bufferLen)
+bool InputGeom::loadGeomSet(rcContext* ctx, char* buffer, size_t bufferLen, const std::string& gsetPath)
 {
 	clearOffMeshConnections();
 	convexVolumes.clear();
@@ -412,7 +451,16 @@ bool InputGeom::loadGeomSet(rcContext* ctx, char* buffer, size_t bufferLen)
 			}
 			if (*name)
 			{
-				if (!loadMesh(ctx, name))
+				std::string objPath = name;
+				if (UE_ADAPT_GSET_RELATE_OBJ_PATH && !gsetPath.empty() && !isAbsolutePath(objPath))
+				{
+					if (objPath.size() >= 2 && objPath[0] == '.' && (objPath[1] == '/' || objPath[1] == '\\'))
+					{
+						objPath = objPath.substr(2);
+					}
+					objPath = gsetPath + objPath;
+				}
+				if (!loadMesh(ctx, objPath))
 				{
 					return false;
 				}
@@ -539,7 +587,12 @@ bool InputGeom::saveGeomSet(const BuildSettings* settings)
 	}
 
 	// Store mesh filename.
-	fprintf(fp, "f %s\n", filename.c_str());
+	std::string objRef = filename;
+	if (UE_ADAPT_GSET_RELATE_OBJ_PATH)
+	{
+		objRef = getBasename(filename);
+	}
+	fprintf(fp, "f %s\n", objRef.c_str());
 
 	// Store settings if any
 	if (settings)

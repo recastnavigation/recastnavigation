@@ -21,6 +21,7 @@
 #include "DetourCommon.h"
 #include "DetourNavMeshQuery.h"
 #include "SDL_opengl.h"
+#include "Sample.h"
 #include "SampleInterfaces.h"
 #include "imguiHelpers.h"
 
@@ -184,7 +185,21 @@ void TestCase::doTests(dtNavMesh* navmesh, dtNavMeshQuery* navquery)
 	static const int MAX_POLYS = 256;
 	dtPolyRef polys[MAX_POLYS];
 	float straight[MAX_POLYS * 3];
-	const float polyPickExt[3] = {2, 4, 2};
+	float polyPickExt[3] = {2, 4, 2};
+	if (ENABLE_UE_ADAPT)
+	{
+		const dtNavMeshParams* params = navmesh->getParams();
+		if (params)
+		{
+			const float scale = params->tileWidth * 0.01f;
+			if (scale > 1.0f)
+			{
+				polyPickExt[0] = 2.0f * scale;
+				polyPickExt[1] = 4.0f * scale;
+				polyPickExt[2] = 2.0f * scale;
+			}
+		}
+	}
 
 	for (auto& test : tests)
 	{

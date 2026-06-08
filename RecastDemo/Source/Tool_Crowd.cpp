@@ -733,6 +733,12 @@ void CrowdToolState::addAgent(const float* p)
 	ap.height = sample->agentHeight;
 	ap.maxAcceleration = 8.0f;
 	ap.maxSpeed = 3.5f;
+	if (ENABLE_UE_ADAPT)
+	{
+		const float scale = sample->agentRadius / 0.6f;
+		ap.maxAcceleration *= scale;
+		ap.maxSpeed *= scale;
+	}
 	ap.collisionQueryRange = ap.radius * 12.0f;
 	ap.pathOptimizationRange = ap.radius * 30.0f;
 	ap.updateFlags = 0;

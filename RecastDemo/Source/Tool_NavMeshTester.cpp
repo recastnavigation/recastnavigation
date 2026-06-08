@@ -655,6 +655,14 @@ void NavMeshTesterTool::recalc()
 {
 	if (!sample->navMesh) { return; }
 
+	if (sample && ENABLE_UE_ADAPT)
+	{
+		const float r = sample->agentRadius;
+		polyPickExt[0] = r * 2.0f;
+		polyPickExt[1] = r * 4.0f;
+		polyPickExt[2] = r * 2.0f;
+	}
+
 	if (sposSet)
 	{
 		sample->navQuery->findNearestPoly(spos, polyPickExt, &filter, &startRef, 0);

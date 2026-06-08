@@ -29,6 +29,15 @@
 
 // These are example implementations of various interfaces used in Recast and Detour.
 
+
+#define ENABLE_UE_ADAPT 1
+
+#if ENABLE_UE_ADAPT
+static constexpr int UE_ADAPT_GSET_RELATE_OBJ_PATH = 1;
+#else
+static constexpr int UE_ADAPT_GSET_RELATE_OBJ_PATH = 0;
+#endif  
+
 /// Recast build context.
 class BuildContext final : public rcContext
 {

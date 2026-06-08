@@ -364,6 +364,11 @@ int main(int /*argc*/, char** /*argv*/)
 		const float keybSpeed = (SDL_GetModState() & KMOD_SHIFT) ? CAM_MOVE_SPEED : CAM_FAST_MOVE_SPEED;
 		float moveX = (app.moveRight - app.moveLeft) * keybSpeed * dt;
 		float moveY = (app.moveBack - app.moveFront) * keybSpeed * dt + app.scrollZoom * 2.0f;
+		if (app.sample && ENABLE_UE_ADAPT)
+		{
+			moveX *= app.sample->agentRadius * 2.0f;
+			moveY *= app.sample->agentRadius * 2.0f;
+		}
 		app.scrollZoom = 0;
 
 		app.cameraPos[0] += moveX * static_cast<float>(modelviewMatrix[0]);

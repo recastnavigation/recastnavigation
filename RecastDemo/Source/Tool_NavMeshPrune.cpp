@@ -228,7 +228,15 @@ void NavMeshPruneTool::onClick(const float* s, const float* p, bool shift)
 		flags->init(nav);
 	}
 
-	constexpr float halfExtents[3] = {2, 4, 2};
+	constexpr float halfExtentsDefault[3] = {2, 4, 2};
+	float halfExtents[3] = {halfExtentsDefault[0], halfExtentsDefault[1], halfExtentsDefault[2]};
+	if (sample && ENABLE_UE_ADAPT)
+	{
+		const float r = sample->agentRadius;
+		halfExtents[0] = r * 2.0f;
+		halfExtents[1] = r * 4.0f;
+		halfExtents[2] = r * 2.0f;
+	}
 	const dtQueryFilter filter;
 	dtPolyRef ref = 0;
 	query->findNearestPoly(p, halfExtents, &filter, &ref, 0);
