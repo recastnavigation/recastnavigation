@@ -17,6 +17,8 @@ option(RECASTNAVIGATION_DT_POLYREF64 "Use 64bit polyrefs instead of 32bit for De
 option(RECASTNAVIGATION_DT_VIRTUAL_QUERYFILTER "Use dynamic dispatch for dtQueryFilter in Detour to allow for custom filters" OFF)
 set(RECASTNAVIGATION_ENABLE_ASSERTS "$<CONFIG:Debug>" CACHE STRING "Condition to enable custom recastnavigation asserts, evaluated as generator expression")
 option(RECASTNAVIGATION_ENABLE_FAST_MATH "Enable faster math calculations." OFF)
+option(RECASTNAVIGATION_ENABLE_RTTI "Enable RTTI." OFF)
+option(RECASTNAVIGATION_ENABLE_EXCEPTIONS "Enable exceptions." OFF)
 
 # dll export
 if (MSVC AND BUILD_SHARED_LIBS)
@@ -48,12 +50,21 @@ if (RECASTNAVIGATION_ENABLE_FAST_MATH)
     add_compile_definitions(RC_FAST_MATH)
 endif()
 
-# Disable RTTI and exceptions for library code
-if(MSVC)
-    string(REPLACE "/GR" "/GR-" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-    string(REPLACE "/EHsc" "/EHs-c-" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-else()
-    add_compile_options(-fno-rtti -fno-exceptions)
+# Disable RTTI and exceptions for library code, unless requested
+if(NOT RECASTNAVIGATION_ENABLE_RTTI)
+    if(MSVC)
+        string(REPLACE "/GR" "/GR-" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+    else()
+        add_compile_options(-fno-rtti)
+    endif()
+endif()
+
+if(NOT RECASTNAVIGATION_ENABLE_EXCEPTIONS)
+    if(MSVC)
+        string(REPLACE "/EHsc" "/EHs-c-" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+    else()
+        add_compile_options(-fno-exceptions)
+    endif()
 endif()
 
 # Debug symbols
