@@ -16,6 +16,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 //
 
+#include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -37,37 +38,19 @@ struct BVItem
 	int i;
 };
 
-static int compareItemX(const void* va, const void* vb)
+static bool compareItemX(const BVItem& a, const BVItem& b)
 {
-	const BVItem* a = (const BVItem*)va;
-	const BVItem* b = (const BVItem*)vb;
-	if (a->bmin[0] < b->bmin[0])
-		return -1;
-	if (a->bmin[0] > b->bmin[0])
-		return 1;
-	return 0;
+	return a.bmin[0] < b.bmin[0];
 }
 
-static int compareItemY(const void* va, const void* vb)
+static bool compareItemY(const BVItem& a, const BVItem& b)
 {
-	const BVItem* a = (const BVItem*)va;
-	const BVItem* b = (const BVItem*)vb;
-	if (a->bmin[1] < b->bmin[1])
-		return -1;
-	if (a->bmin[1] > b->bmin[1])
-		return 1;
-	return 0;
+	return a.bmin[1] < b.bmin[1];
 }
 
-static int compareItemZ(const void* va, const void* vb)
+static bool compareItemZ(const BVItem& a, const BVItem& b)
 {
-	const BVItem* a = (const BVItem*)va;
-	const BVItem* b = (const BVItem*)vb;
-	if (a->bmin[2] < b->bmin[2])
-		return -1;
-	if (a->bmin[2] > b->bmin[2])
-		return 1;
-	return 0;
+	return a.bmin[2] < b.bmin[2];
 }
 
 static void calcExtends(BVItem* items, const int /*nitems*/, const int imin, const int imax,
@@ -139,24 +122,24 @@ static void subdivide(BVItem* items, int nitems, int imin, int imax, int& curNod
 							   node.bmax[1] - node.bmin[1],
 							   node.bmax[2] - node.bmin[2]);
 		
+		int isplit = imin+inum/2;
+
 		if (axis == 0)
 		{
-			// Sort along x-axis
-			qsort(items+imin, inum, sizeof(BVItem), compareItemX);
+			// Partition at the median along x-axis
+			std::nth_element(items+imin, items+isplit, items+imax, compareItemX);
 		}
 		else if (axis == 1)
 		{
-			// Sort along y-axis
-			qsort(items+imin, inum, sizeof(BVItem), compareItemY);
+			// Partition at the median along y-axis
+			std::nth_element(items+imin, items+isplit, items+imax, compareItemY);
 		}
 		else
 		{
-			// Sort along z-axis
-			qsort(items+imin, inum, sizeof(BVItem), compareItemZ);
+			// Partition at the median along z-axis
+			std::nth_element(items+imin, items+isplit, items+imax, compareItemZ);
 		}
-		
-		int isplit = imin+inum/2;
-		
+
 		// Left
 		subdivide(items, nitems, imin, isplit, curNode, nodes);
 		// Right
