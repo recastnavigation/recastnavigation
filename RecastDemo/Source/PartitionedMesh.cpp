@@ -18,8 +18,8 @@
 
 #include "PartitionedMesh.h"
 
+#include <algorithm>
 #include <cmath>
-#include <cstdlib>
 
 struct IndexedBounds
 {
@@ -30,18 +30,18 @@ struct IndexedBounds
 
 namespace
 {
-int compareMinX(const void* va, const void* vb)
+bool compareMinX(const IndexedBounds& a, const IndexedBounds& b)
 {
-	return static_cast<int>(static_cast<const IndexedBounds*>(va)->bmin[0] - static_cast<const IndexedBounds*>(vb)->bmin[0]);
+	return a.bmin[0] < b.bmin[0];
 }
 
-int compareMinY(const void* va, const void* vb)
+bool compareMinY(const IndexedBounds& a, const IndexedBounds& b)
 {
-	return static_cast<int>(static_cast<const IndexedBounds*>(va)->bmin[1] - static_cast<const IndexedBounds*>(vb)->bmin[1]);
+	return a.bmin[1] < b.bmin[1];
 }
 
 /// Calculates the total extent of all bounds in the given index range
-void calcTotalBounds(const std::vector<IndexedBounds> bounds, const int start, const int end, float* outBMin, float* outBMax)
+void calcTotalBounds(const std::vector<IndexedBounds>& bounds, const int start, const int end, float* outBMin, float* outBMax)
 {
 	outBMin[0] = bounds[start].bmin[0];
 	outBMin[1] = bounds[start].bmin[1];
@@ -61,7 +61,7 @@ void calcTotalBounds(const std::vector<IndexedBounds> bounds, const int start, c
 }
 
 void subdivide(
-	std::vector<IndexedBounds> triBounds,
+	std::vector<IndexedBounds>& triBounds,
 	int imin,
 	int imax,
 	int trisPerChunk,
@@ -109,14 +109,14 @@ void subdivide(
 		float xLength = node.bmax[0] - node.bmin[0];
 		float yLength = node.bmax[1] - node.bmin[1];
 
-		// Sort along the longest axis
-		qsort(
-			triBounds.data() + imin,
-			static_cast<size_t>(numTriBoundsInRange),
-			sizeof(IndexedBounds),
-			(xLength >= yLength) ? compareMinX : compareMinY);
-
 		int isplit = imin + numTriBoundsInRange / 2;
+
+		// Partition at the median along the longest axis.
+		std::nth_element(
+			triBounds.begin() + imin,
+			triBounds.begin() + isplit,
+			triBounds.begin() + imax,
+			(xLength >= yLength) ? compareMinX : compareMinY);
 
 		// Left
 		subdivide(triBounds, imin, isplit, trisPerChunk, curNode, nodes, maxNodes, curTri, outTris, inTris);
