@@ -42,7 +42,16 @@ void dtFreeProximityGrid(dtProximityGrid* ptr)
 
 inline int hashPos2(int x, int y, int n)
 {
-	return ((x*73856093) ^ (y*19349663)) & (n-1);
+	// Multiply through unsigned int so the hash cannot trigger signed integer
+	// overflow (UB) for cells far from the origin, e.g. large/floating-origin
+	// worlds. Wraparound is well-defined for unsigned, and the masked low bits
+	// are identical to the previous signed computation on two's-complement
+	// targets, so the bucket distribution is unchanged. Matches the unsigned
+	// approach already used by dtNavMesh's computeTileHash.
+	const unsigned int h1 = 73856093u;
+	const unsigned int h2 = 19349663u;
+	const unsigned int h = (h1 * (unsigned int)x) ^ (h2 * (unsigned int)y);
+	return (int)(h & (unsigned int)(n - 1));
 }
 
 
