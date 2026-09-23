@@ -541,6 +541,10 @@ void dtNavMesh::connectIntLinks(dtMeshTile* tile)
 			
 		// Build edge links backwards so that the links will be
 		// in the linked list from lowest index to highest.
+		// vertCount is attacker-controlled during parsing; the neis array only
+		// has DT_VERTS_PER_POLYGON entries.
+		if (poly->vertCount > DT_VERTS_PER_POLYGON)
+			continue;
 		for (int j = poly->vertCount-1; j >= 0; --j)
 		{
 			// Skip hard and non-internal edges.
@@ -622,7 +626,7 @@ void dtNavMesh::baseOffMeshLinks(dtMeshTile* tile)
 
 namespace
 {
-void closestPointOnDetailEdges(const dtMeshTile* tile, const dtPoly* poly, const float* pos, float* closest, bool onlyBoundary)
+bool closestPointOnDetailEdges(const dtMeshTile* tile, const dtPoly* poly, const float* pos, float* closest, bool onlyBoundary)
 {
 	const unsigned int ip = (unsigned int)(poly - tile->polys);
 	const dtPolyDetail* pd = &tile->detailMeshes[ip];
@@ -676,7 +680,12 @@ void closestPointOnDetailEdges(const dtMeshTile* tile, const dtPoly* poly, const
 		}
 	}
 
+	// pmin/pmax stay null when no triangle produced a candidate edge (for example a
+	// degenerate or empty detail mesh), so report failure instead of dereferencing null.
+	if (!pmin || !pmax)
+		return false;
 	dtVlerp(closest, pmin, pmax, tmin);
+	return true;
 }
 }
 
@@ -690,6 +699,10 @@ bool dtNavMesh::getPolyHeight(const dtMeshTile* tile, const dtPoly* poly, const 
 	const unsigned int ip = (unsigned int)(poly - tile->polys);
 	const dtPolyDetail* pd = &tile->detailMeshes[ip];
 	
+	// vertCount is attacker-controlled during parsing; the local array only has
+	// DT_VERTS_PER_POLYGON entries, so reject anything larger before filling it.
+	if (poly->vertCount <= 0 || poly->vertCount > DT_VERTS_PER_POLYGON)
+		return false;
 	float verts[DT_VERTS_PER_POLYGON*3];	
 	const int nv = poly->vertCount;
 	for (int i = 0; i < nv; ++i)
@@ -726,8 +739,8 @@ bool dtNavMesh::getPolyHeight(const dtMeshTile* tile, const dtPoly* poly, const 
 	// closest. This should almost never happen so the extra iteration here is
 	// ok.
 	float closest[3];
-	closestPointOnDetailEdges(tile, poly, pos, closest, false);
-	*height = closest[1];
+	if (closestPointOnDetailEdges(tile, poly, pos, closest, false))
+		*height = closest[1];
 	return true;
 }
 
@@ -760,7 +773,7 @@ void dtNavMesh::closestPointOnPoly(dtPolyRef ref, const float* pos, float* close
 	}
 
 	// Outside poly that is not an offmesh connection.
-	closestPointOnDetailEdges(tile, poly, pos, closest, true);
+	(void)closestPointOnDetailEdges(tile, poly, pos, closest, true);
 }
 
 dtPolyRef dtNavMesh::findNearestPolyInTile(const dtMeshTile* tile,
@@ -1016,6 +1029,22 @@ dtStatus dtNavMesh::addTile(unsigned char* data, int dataSize, int flags,
 	tile->data = data;
 	tile->dataSize = dataSize;
 	tile->flags = flags;
+
+	// Validate the polygon vertex indices before the linking pass below writes
+	// through them. verts[] is read from the tile buffer and indexes tile->verts,
+	// so an unchecked value would move a pointer outside the tile array. The same
+	// holds for the vertex count when the polygon is later walked.
+	for (int i = 0; i < header->polyCount; ++i)
+	{
+		const dtPoly* p = &tile->polys[i];
+		if (p->vertCount > DT_VERTS_PER_POLYGON)
+			return DT_FAILURE | DT_INVALID_PARAM;
+		for (int j = 0; j < p->vertCount; ++j)
+		{
+			if (p->verts[j] >= (unsigned short)header->vertCount)
+				return DT_FAILURE | DT_INVALID_PARAM;
+		}
+	}
 
 	connectIntLinks(tile);
 
