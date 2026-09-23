@@ -17,6 +17,7 @@
 //
 
 #include <float.h>
+#include <limits.h>
 #include <string.h>
 #include <stdio.h>
 #include "DetourNavMesh.h"
@@ -26,6 +27,15 @@
 #include "DetourAlloc.h"
 #include "DetourAssert.h"
 #include <new>
+
+/// Clamp a float to the range of unsigned short before it is cast. A float to
+/// integer conversion of an out-of-range or NaN value is undefined behaviour.
+static inline int dtClampInt(float v)
+{
+	if (!(v > 0.0f)) return 0;		// also catches NaN
+	if (v > 65535.0f) return 65535;
+	return (int)v;
+}
 
 
 inline bool overlapSlabs(const float* amin, const float* amax,
@@ -831,13 +841,15 @@ int dtNavMesh::queryPolygonsInTile(const dtMeshTile* tile, const float* qmin, co
 		float maxx = dtClamp(qmax[0], tbmin[0], tbmax[0]) - tbmin[0];
 		float maxy = dtClamp(qmax[1], tbmin[1], tbmax[1]) - tbmin[1];
 		float maxz = dtClamp(qmax[2], tbmin[2], tbmax[2]) - tbmin[2];
-		// Quantize
-		bmin[0] = (unsigned short)(qfac * minx) & 0xfffe;
-		bmin[1] = (unsigned short)(qfac * miny) & 0xfffe;
-		bmin[2] = (unsigned short)(qfac * minz) & 0xfffe;
-		bmax[0] = (unsigned short)(qfac * maxx + 1) | 1;
-		bmax[1] = (unsigned short)(qfac * maxy + 1) | 1;
-		bmax[2] = (unsigned short)(qfac * maxz + 1) | 1;
+		// Quantize. The scaled values can exceed the destination range (bvQuantFactor
+		// and the tile bounds come from the tile header), so clamp before casting;
+		// a float-to-integer cast of an out-of-range or NaN value is undefined.
+		bmin[0] = (unsigned short)dtClampInt(qfac * minx) & 0xfffe;
+		bmin[1] = (unsigned short)dtClampInt(qfac * miny) & 0xfffe;
+		bmin[2] = (unsigned short)dtClampInt(qfac * minz) & 0xfffe;
+		bmax[0] = (unsigned short)(dtClampInt(qfac * maxx) + 1) | 1;
+		bmax[1] = (unsigned short)(dtClampInt(qfac * maxy) + 1) | 1;
+		bmax[2] = (unsigned short)(dtClampInt(qfac * maxz) + 1) | 1;
 		
 		// Traverse tree
 		dtPolyRef base = getPolyRefBase(tile);
@@ -857,7 +869,11 @@ int dtNavMesh::queryPolygonsInTile(const dtMeshTile* tile, const float* qmin, co
 				node++;
 			else
 			{
-				const int escapeIndex = -node->i;
+				// node->i is read from the tile BV tree; negating INT_MIN is UB, so
+				// accumulate through a wider type and reject a runaway escape index.
+				const long long escapeIndex = -(long long)node->i;
+				if (escapeIndex <= 0 || escapeIndex > (end - node))
+					break;
 				node += escapeIndex;
 			}
 		}
@@ -1082,17 +1098,25 @@ const dtMeshTile* dtNavMesh::getTileAt(const int x, const int y, const int layer
 int dtNavMesh::getNeighbourTilesAt(const int x, const int y, const int side, dtMeshTile** tiles, const int maxTiles) const
 {
 	int nx = x, ny = y;
+	// x and y come from the tile header, so nx/ny can leave the int range
+	// (nx-- at INT_MIN is signed overflow). Compute in 64-bit and bail out
+	// if the neighbour coordinate is not representable.
+	long long lnx = x, lny = y;
 	switch (side)
 	{
-		case 0: nx++; break;
-		case 1: nx++; ny++; break;
-		case 2: ny++; break;
-		case 3: nx--; ny++; break;
-		case 4: nx--; break;
-		case 5: nx--; ny--; break;
-		case 6: ny--; break;
-		case 7: nx++; ny--; break;
+		case 0: lnx++; break;
+		case 1: lnx++; lny++; break;
+		case 2: lny++; break;
+		case 3: lnx--; lny++; break;
+		case 4: lnx--; break;
+		case 5: lnx--; lny--; break;
+		case 6: lny--; break;
+		case 7: lnx++; lny--; break;
 	};
+	if (lnx < INT_MIN || lnx > INT_MAX || lny < INT_MIN || lny > INT_MAX)
+		return 0;
+	nx = (int)lnx;
+	ny = (int)lny;
 
 	return getTilesAt(nx, ny, tiles, maxTiles);
 }
