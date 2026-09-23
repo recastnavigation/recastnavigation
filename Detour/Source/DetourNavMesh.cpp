@@ -27,6 +27,10 @@
 #include "DetourAssert.h"
 #include <new>
 
+/// Round x up to a multiple of 4 using 64-bit arithmetic, so that a hostile
+/// tile header cannot overflow the section-size computation in addTile().
+static inline size_t dtAlign4Size(size_t x) { return (x + 3u) & ~(size_t)3u; }
+
 
 inline bool overlapSlabs(const float* amin, const float* amax,
 						 const float* bmin, const float* bmax,
@@ -271,6 +275,10 @@ dtStatus dtNavMesh::init(const dtNavMeshParams* params)
 dtStatus dtNavMesh::init(unsigned char* data, const int dataSize, const int flags)
 {
 	// Make sure the data is in right format.
+	// The buffer is untrusted, so confirm the header fits before reading it.
+	if (!data || dataSize < (int)sizeof(dtMeshHeader))
+		return DT_FAILURE | DT_INVALID_PARAM;
+
 	dtMeshHeader* header = (dtMeshHeader*)data;
 	if (header->magic != DT_NAVMESH_MAGIC)
 		return DT_FAILURE | DT_WRONG_MAGIC;
@@ -915,11 +923,42 @@ dtStatus dtNavMesh::addTile(unsigned char* data, int dataSize, int flags,
 							dtTileRef lastRef, dtTileRef* result)
 {
 	// Make sure the data is in right format.
+// The tile buffer is untrusted: the header fields below are read before any
+// length information has been established, so check the buffer first.
+	if (!data || dataSize < (int)sizeof(dtMeshHeader))
+		return DT_FAILURE | DT_INVALID_PARAM;
+
 	dtMeshHeader* header = (dtMeshHeader*)data;
 	if (header->magic != DT_NAVMESH_MAGIC)
 		return DT_FAILURE | DT_WRONG_MAGIC;
 	if (header->version != DT_NAVMESH_VERSION)
 		return DT_FAILURE | DT_WRONG_VERSION;
+
+	// Reject counts that cannot describe a well-formed tile. Negative values
+	// would invert the section layout; maxLinkCount must be >= 1 because the
+	// link freelist below indexes links[maxLinkCount - 1].
+	if (header->polyCount < 0 || header->vertCount < 0 ||
+		header->detailMeshCount < 0 || header->detailVertCount < 0 ||
+		header->detailTriCount < 0 || header->bvNodeCount < 0 ||
+		header->offMeshConCount < 0 || header->maxLinkCount < 1)
+		return DT_FAILURE | DT_INVALID_PARAM;
+
+	// Verify the whole section layout fits in the supplied buffer. Computing
+	// the sizes in 64-bit keeps a hostile header from overflowing them.
+	{
+		const size_t headerSize = dtAlign4Size(sizeof(dtMeshHeader));
+		size_t required = headerSize;
+		required += dtAlign4Size(sizeof(float) * 3 * (size_t)header->vertCount);
+		required += dtAlign4Size(sizeof(dtPoly) * (size_t)header->polyCount);
+		required += dtAlign4Size(sizeof(dtLink) * (size_t)header->maxLinkCount);
+		required += dtAlign4Size(sizeof(dtPolyDetail) * (size_t)header->detailMeshCount);
+		required += dtAlign4Size(sizeof(float) * 3 * (size_t)header->detailVertCount);
+		required += dtAlign4Size(sizeof(unsigned char) * 4 * (size_t)header->detailTriCount);
+		required += dtAlign4Size(sizeof(dtBVNode) * (size_t)header->bvNodeCount);
+		required += dtAlign4Size(sizeof(dtOffMeshConnection) * (size_t)header->offMeshConCount);
+		if (required > (size_t)dataSize)
+			return DT_FAILURE | DT_INVALID_PARAM;
+	}
 
 #ifndef DT_POLYREF64
 	// Do not allow adding more polygons than specified in the NavMesh's maxPolys constraint.
