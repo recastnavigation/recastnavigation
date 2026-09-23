@@ -469,6 +469,9 @@ void dtNavMesh::connectExtOffMeshLinks(dtMeshTile* tile, dtMeshTile* target, int
 		if (targetCon->side != oppositeSide)
 			continue;
 
+		// The connection stores a polygon index; reject one pointing outside the tile.
+		if (targetCon->poly >= target->header->polyCount)
+			continue;
 		dtPoly* targetPoly = &target->polys[targetCon->poly];
 		// Skip off-mesh connections which start location could not be connected at all.
 		if (targetPoly->firstLink == DT_NULL_LINK)
@@ -485,7 +488,10 @@ void dtNavMesh::connectExtOffMeshLinks(dtMeshTile* tile, dtMeshTile* target, int
 		// findNearestPoly may return too optimistic results, further check to make sure. 
 		if (dtSqr(nearestPt[0]-p[0])+dtSqr(nearestPt[2]-p[2]) > dtSqr(targetCon->rad))
 			continue;
-		// Make sure the location is on current mesh.
+		// Make sure the location is on current mesh. Reject a polygon with fewer
+		// than two vertices, or whose vertex index falls outside the tile array.
+		if (targetPoly->vertCount < 2 || targetPoly->verts[1] >= (unsigned short)target->header->vertCount)
+			continue;
 		float* v = &target->verts[targetPoly->verts[1]*3];
 		dtVcopy(v, nearestPt);
 				
@@ -572,6 +578,9 @@ void dtNavMesh::baseOffMeshLinks(dtMeshTile* tile)
 	for (int i = 0; i < tile->header->offMeshConCount; ++i)
 	{
 		dtOffMeshConnection* con = &tile->offMeshCons[i];
+		// The connection stores a polygon index; reject one pointing outside the tile.
+		if (con->poly >= tile->header->polyCount)
+			continue;
 		dtPoly* poly = &tile->polys[con->poly];
 	
 		const float halfExtents[3] = { con->rad, tile->header->walkableClimb, con->rad };
@@ -584,7 +593,10 @@ void dtNavMesh::baseOffMeshLinks(dtMeshTile* tile)
 		// findNearestPoly may return too optimistic results, further check to make sure. 
 		if (dtSqr(nearestPt[0]-p[0])+dtSqr(nearestPt[2]-p[2]) > dtSqr(con->rad))
 			continue;
-		// Make sure the location is on current mesh.
+		// Make sure the location is on current mesh. Reject a polygon with no
+		// vertices, or whose vertex index falls outside the tile vertex array.
+		if (poly->vertCount < 1 || poly->verts[0] >= (unsigned short)tile->header->vertCount)
+			continue;
 		float* v = &tile->verts[poly->verts[0]*3];
 		dtVcopy(v, nearestPt);
 
