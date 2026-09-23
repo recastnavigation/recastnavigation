@@ -27,6 +27,19 @@
 #include "DetourAssert.h"
 #include <new>
 
+/// Round x up to a multiple of 4 using 64-bit arithmetic, so that a hostile
+/// tile header cannot overflow the section-size computation in addTile().
+static inline size_t dtAlign4Size(size_t x) { return (x + 3u) & ~(size_t)3u; }
+
+/// Clamp a float to the range of unsigned short before it is cast. A float to
+/// integer conversion of an out-of-range or NaN value is undefined behaviour.
+static inline int dtClampInt(float v)
+{
+	if (!(v > 0.0f)) return 0;		// also catches NaN
+	if (v > 65535.0f) return 65535;
+	return (int)v;
+}
+
 
 inline bool overlapSlabs(const float* amin, const float* amax,
 						 const float* bmin, const float* bmax,
@@ -271,6 +284,10 @@ dtStatus dtNavMesh::init(const dtNavMeshParams* params)
 dtStatus dtNavMesh::init(unsigned char* data, const int dataSize, const int flags)
 {
 	// Make sure the data is in right format.
+	// The buffer is untrusted, so confirm the header fits before reading it.
+	if (!data || dataSize < (int)sizeof(dtMeshHeader))
+		return DT_FAILURE | DT_INVALID_PARAM;
+
 	dtMeshHeader* header = (dtMeshHeader*)data;
 	if (header->magic != DT_NAVMESH_MAGIC)
 		return DT_FAILURE | DT_WRONG_MAGIC;
@@ -469,6 +486,9 @@ void dtNavMesh::connectExtOffMeshLinks(dtMeshTile* tile, dtMeshTile* target, int
 		if (targetCon->side != oppositeSide)
 			continue;
 
+		// The connection stores a polygon index; reject one pointing outside the tile.
+		if (targetCon->poly >= target->header->polyCount)
+			continue;
 		dtPoly* targetPoly = &target->polys[targetCon->poly];
 		// Skip off-mesh connections which start location could not be connected at all.
 		if (targetPoly->firstLink == DT_NULL_LINK)
@@ -485,7 +505,10 @@ void dtNavMesh::connectExtOffMeshLinks(dtMeshTile* tile, dtMeshTile* target, int
 		// findNearestPoly may return too optimistic results, further check to make sure. 
 		if (dtSqr(nearestPt[0]-p[0])+dtSqr(nearestPt[2]-p[2]) > dtSqr(targetCon->rad))
 			continue;
-		// Make sure the location is on current mesh.
+		// Make sure the location is on current mesh. Reject a polygon with fewer
+		// than two vertices, or whose vertex index falls outside the tile array.
+		if (targetPoly->vertCount < 2 || targetPoly->verts[1] >= (unsigned short)target->header->vertCount)
+			continue;
 		float* v = &target->verts[targetPoly->verts[1]*3];
 		dtVcopy(v, nearestPt);
 				
@@ -541,6 +564,10 @@ void dtNavMesh::connectIntLinks(dtMeshTile* tile)
 			
 		// Build edge links backwards so that the links will be
 		// in the linked list from lowest index to highest.
+		// vertCount is attacker-controlled during parsing; the neis array only
+		// has DT_VERTS_PER_POLYGON entries.
+		if (poly->vertCount > DT_VERTS_PER_POLYGON)
+			continue;
 		for (int j = poly->vertCount-1; j >= 0; --j)
 		{
 			// Skip hard and non-internal edges.
@@ -572,6 +599,9 @@ void dtNavMesh::baseOffMeshLinks(dtMeshTile* tile)
 	for (int i = 0; i < tile->header->offMeshConCount; ++i)
 	{
 		dtOffMeshConnection* con = &tile->offMeshCons[i];
+		// The connection stores a polygon index; reject one pointing outside the tile.
+		if (con->poly >= tile->header->polyCount)
+			continue;
 		dtPoly* poly = &tile->polys[con->poly];
 	
 		const float halfExtents[3] = { con->rad, tile->header->walkableClimb, con->rad };
@@ -584,7 +614,10 @@ void dtNavMesh::baseOffMeshLinks(dtMeshTile* tile)
 		// findNearestPoly may return too optimistic results, further check to make sure. 
 		if (dtSqr(nearestPt[0]-p[0])+dtSqr(nearestPt[2]-p[2]) > dtSqr(con->rad))
 			continue;
-		// Make sure the location is on current mesh.
+		// Make sure the location is on current mesh. Reject a polygon with no
+		// vertices, or whose vertex index falls outside the tile vertex array.
+		if (poly->vertCount < 1 || poly->verts[0] >= (unsigned short)tile->header->vertCount)
+			continue;
 		float* v = &tile->verts[poly->verts[0]*3];
 		dtVcopy(v, nearestPt);
 
@@ -622,7 +655,7 @@ void dtNavMesh::baseOffMeshLinks(dtMeshTile* tile)
 
 namespace
 {
-void closestPointOnDetailEdges(const dtMeshTile* tile, const dtPoly* poly, const float* pos, float* closest, bool onlyBoundary)
+bool closestPointOnDetailEdges(const dtMeshTile* tile, const dtPoly* poly, const float* pos, float* closest, bool onlyBoundary)
 {
 	const unsigned int ip = (unsigned int)(poly - tile->polys);
 	const dtPolyDetail* pd = &tile->detailMeshes[ip];
@@ -676,7 +709,12 @@ void closestPointOnDetailEdges(const dtMeshTile* tile, const dtPoly* poly, const
 		}
 	}
 
+	// pmin/pmax stay null when no triangle produced a candidate edge (for example a
+	// degenerate or empty detail mesh), so report failure instead of dereferencing null.
+	if (!pmin || !pmax)
+		return false;
 	dtVlerp(closest, pmin, pmax, tmin);
+	return true;
 }
 }
 
@@ -690,6 +728,10 @@ bool dtNavMesh::getPolyHeight(const dtMeshTile* tile, const dtPoly* poly, const 
 	const unsigned int ip = (unsigned int)(poly - tile->polys);
 	const dtPolyDetail* pd = &tile->detailMeshes[ip];
 	
+	// vertCount is attacker-controlled during parsing; the local array only has
+	// DT_VERTS_PER_POLYGON entries, so reject anything larger before filling it.
+	if (poly->vertCount <= 0 || poly->vertCount > DT_VERTS_PER_POLYGON)
+		return false;
 	float verts[DT_VERTS_PER_POLYGON*3];	
 	const int nv = poly->vertCount;
 	for (int i = 0; i < nv; ++i)
@@ -726,8 +768,8 @@ bool dtNavMesh::getPolyHeight(const dtMeshTile* tile, const dtPoly* poly, const 
 	// closest. This should almost never happen so the extra iteration here is
 	// ok.
 	float closest[3];
-	closestPointOnDetailEdges(tile, poly, pos, closest, false);
-	*height = closest[1];
+	if (closestPointOnDetailEdges(tile, poly, pos, closest, false))
+		*height = closest[1];
 	return true;
 }
 
@@ -760,7 +802,7 @@ void dtNavMesh::closestPointOnPoly(dtPolyRef ref, const float* pos, float* close
 	}
 
 	// Outside poly that is not an offmesh connection.
-	closestPointOnDetailEdges(tile, poly, pos, closest, true);
+	(void)closestPointOnDetailEdges(tile, poly, pos, closest, true);
 }
 
 dtPolyRef dtNavMesh::findNearestPolyInTile(const dtMeshTile* tile,
@@ -831,13 +873,15 @@ int dtNavMesh::queryPolygonsInTile(const dtMeshTile* tile, const float* qmin, co
 		float maxx = dtClamp(qmax[0], tbmin[0], tbmax[0]) - tbmin[0];
 		float maxy = dtClamp(qmax[1], tbmin[1], tbmax[1]) - tbmin[1];
 		float maxz = dtClamp(qmax[2], tbmin[2], tbmax[2]) - tbmin[2];
-		// Quantize
-		bmin[0] = (unsigned short)(qfac * minx) & 0xfffe;
-		bmin[1] = (unsigned short)(qfac * miny) & 0xfffe;
-		bmin[2] = (unsigned short)(qfac * minz) & 0xfffe;
-		bmax[0] = (unsigned short)(qfac * maxx + 1) | 1;
-		bmax[1] = (unsigned short)(qfac * maxy + 1) | 1;
-		bmax[2] = (unsigned short)(qfac * maxz + 1) | 1;
+		// Quantize. The scaled values can exceed the destination range (bvQuantFactor
+		// and the tile bounds come from the tile header), so clamp before casting;
+		// a float-to-integer cast of an out-of-range or NaN value is undefined.
+		bmin[0] = (unsigned short)dtClampInt(qfac * minx) & 0xfffe;
+		bmin[1] = (unsigned short)dtClampInt(qfac * miny) & 0xfffe;
+		bmin[2] = (unsigned short)dtClampInt(qfac * minz) & 0xfffe;
+		bmax[0] = (unsigned short)(dtClampInt(qfac * maxx) + 1) | 1;
+		bmax[1] = (unsigned short)(dtClampInt(qfac * maxy) + 1) | 1;
+		bmax[2] = (unsigned short)(dtClampInt(qfac * maxz) + 1) | 1;
 		
 		// Traverse tree
 		dtPolyRef base = getPolyRefBase(tile);
@@ -857,7 +901,11 @@ int dtNavMesh::queryPolygonsInTile(const dtMeshTile* tile, const float* qmin, co
 				node++;
 			else
 			{
-				const int escapeIndex = -node->i;
+				// node->i is read from the tile BV tree; negating INT_MIN is UB, so
+				// accumulate through a wider type and reject a runaway escape index.
+				const long long escapeIndex = -(long long)node->i;
+				if (escapeIndex <= 0 || escapeIndex > (end - node))
+					break;
 				node += escapeIndex;
 			}
 		}
@@ -915,11 +963,42 @@ dtStatus dtNavMesh::addTile(unsigned char* data, int dataSize, int flags,
 							dtTileRef lastRef, dtTileRef* result)
 {
 	// Make sure the data is in right format.
+	// The tile buffer is untrusted: the header fields below are read before any
+	// length information has been established, so check the buffer first.
+	if (!data || dataSize < (int)sizeof(dtMeshHeader))
+		return DT_FAILURE | DT_INVALID_PARAM;
+
 	dtMeshHeader* header = (dtMeshHeader*)data;
 	if (header->magic != DT_NAVMESH_MAGIC)
 		return DT_FAILURE | DT_WRONG_MAGIC;
 	if (header->version != DT_NAVMESH_VERSION)
 		return DT_FAILURE | DT_WRONG_VERSION;
+
+	// Reject counts that cannot describe a well-formed tile. Negative values
+	// would invert the section layout; maxLinkCount must be >= 1 because the
+	// link freelist below indexes links[maxLinkCount - 1].
+	if (header->polyCount < 0 || header->vertCount < 0 ||
+		header->detailMeshCount < 0 || header->detailVertCount < 0 ||
+		header->detailTriCount < 0 || header->bvNodeCount < 0 ||
+		header->offMeshConCount < 0 || header->maxLinkCount < 1)
+		return DT_FAILURE | DT_INVALID_PARAM;
+
+	// Verify the whole section layout fits in the supplied buffer. Computing
+	// the sizes in 64-bit keeps a hostile header from overflowing them.
+	{
+		const size_t headerSize = dtAlign4Size(sizeof(dtMeshHeader));
+		size_t required = headerSize;
+		required += dtAlign4Size(sizeof(float) * 3 * (size_t)header->vertCount);
+		required += dtAlign4Size(sizeof(dtPoly) * (size_t)header->polyCount);
+		required += dtAlign4Size(sizeof(dtLink) * (size_t)header->maxLinkCount);
+		required += dtAlign4Size(sizeof(dtPolyDetail) * (size_t)header->detailMeshCount);
+		required += dtAlign4Size(sizeof(float) * 3 * (size_t)header->detailVertCount);
+		required += dtAlign4Size(sizeof(unsigned char) * 4 * (size_t)header->detailTriCount);
+		required += dtAlign4Size(sizeof(dtBVNode) * (size_t)header->bvNodeCount);
+		required += dtAlign4Size(sizeof(dtOffMeshConnection) * (size_t)header->offMeshConCount);
+		if (required > (size_t)dataSize)
+			return DT_FAILURE | DT_INVALID_PARAM;
+	}
 
 #ifndef DT_POLYREF64
 	// Do not allow adding more polygons than specified in the NavMesh's maxPolys constraint.
@@ -1016,6 +1095,22 @@ dtStatus dtNavMesh::addTile(unsigned char* data, int dataSize, int flags,
 	tile->data = data;
 	tile->dataSize = dataSize;
 	tile->flags = flags;
+
+	// Validate the polygon vertex indices before the linking pass below writes
+	// through them. verts[] is read from the tile buffer and indexes tile->verts,
+	// so an unchecked value would move a pointer outside the tile array. The same
+	// holds for the vertex count when the polygon is later walked.
+	for (int i = 0; i < header->polyCount; ++i)
+	{
+		const dtPoly* p = &tile->polys[i];
+		if (p->vertCount > DT_VERTS_PER_POLYGON)
+			return DT_FAILURE | DT_INVALID_PARAM;
+		for (int j = 0; j < p->vertCount; ++j)
+		{
+			if (p->verts[j] >= (unsigned short)header->vertCount)
+				return DT_FAILURE | DT_INVALID_PARAM;
+		}
+	}
 
 	connectIntLinks(tile);
 
