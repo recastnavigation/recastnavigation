@@ -3288,11 +3288,13 @@ static void insertInterval(dtSegInterval* ints, int& nints, const int maxInts,
 						   const short tmin, const short tmax, const dtPolyRef ref)
 {
 	if (nints+1 > maxInts) return;
-	// Find insertion point.
+	// Find insertion point, keeping the intervals sorted by where they start.
+	// Intervals can overlap: two polygons across a tile border may link to the
+	// same stretch of an edge (e.g. a ledge just below a floor).
 	int idx = 0;
 	while (idx < nints)
 	{
-		if (tmax <= ints[idx].tmin)
+		if (tmin < ints[idx].tmin)
 			break;
 		idx++;
 	}
@@ -3412,6 +3414,9 @@ dtStatus dtNavMeshQuery::getPolyWallSegments(dtPolyRef ref, const dtQueryFilter*
 		// Store segments.
 		const float* vj = &tile->verts[poly->verts[j]*3];
 		const float* vi = &tile->verts[poly->verts[i]*3];
+		// How far along the edge the intervals so far reach. Walls are the gaps
+		// past it, so an interval inside an earlier, longer one opens no gap.
+		int covered = ints[0].tmax;
 		for (int k = 1; k < nints; ++k)
 		{
 			// Portal segment.
@@ -3435,9 +3440,10 @@ dtStatus dtNavMeshQuery::getPolyWallSegments(dtPolyRef ref, const dtQueryFilter*
 			}
 
 			// Wall segment.
-			const int imin = ints[k-1].tmax;
+			const int imin = covered;
 			const int imax = ints[k].tmin;
-			if (imin != imax)
+			covered = dtMax(covered, (int)ints[k].tmax);
+			if (imin < imax)
 			{
 				const float tmin = imin/255.0f; 
 				const float tmax = imax/255.0f; 
