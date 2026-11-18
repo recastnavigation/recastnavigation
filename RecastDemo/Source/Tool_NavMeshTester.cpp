@@ -615,7 +615,7 @@ void NavMeshTesterTool::update(const float /*dt*/)
 			{
 				// In case of partial path, make sure the end point is clamped to the last polygon.
 				float epos[3];
-				dtVcopy(epos, epos);
+				dtVcopy(epos, this->epos);
 				if (polys[npolys - 1] != endRef)
 				{
 					sample->navQuery->closestPointOnPoly(polys[npolys - 1], epos, epos, 0);
@@ -859,7 +859,7 @@ void NavMeshTesterTool::recalc()
 			{
 				// In case of partial path, make sure the end point is clamped to the last polygon.
 				float epos[3];
-				dtVcopy(epos, epos);
+				dtVcopy(epos, this->epos);
 				if (polys[npolys - 1] != endRef)
 				{
 					sample->navQuery->closestPointOnPoly(polys[npolys - 1], epos, epos, 0);
