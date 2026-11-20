@@ -667,7 +667,8 @@ void InputGeom::addOffMeshConnection(
 
 void InputGeom::deleteOffMeshConnection(int i)
 {
-	offmeshConnVerts.erase(offmeshConnVerts.begin() + 3 * 2 * i);
+	const auto first = offmeshConnVerts.begin() + 3 * 2 * i;
+	offmeshConnVerts.erase(first, first + 3 * 2);
 	offmeshConnRadius.erase(offmeshConnRadius.begin() + i);
 	offmeshConnBidirectional.erase(offmeshConnBidirectional.begin() + i);
 	offmeshConnArea.erase(offmeshConnArea.begin() + i);
