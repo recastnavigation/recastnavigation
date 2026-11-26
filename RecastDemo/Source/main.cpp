@@ -35,11 +35,67 @@
 
 #include <functional>
 #include <string>
+#include <sys/stat.h>
+#include <vector>
 #ifdef __APPLE__
 #	include <OpenGL/glu.h>
 #else
 #	include <GL/glu.h>
 #endif
+
+static bool pathExists(const std::string& path)
+{
+#if defined(_WIN32)
+	struct _stat info;
+	return _stat(path.c_str(), &info) == 0;
+#else
+	struct stat info;
+	return stat(path.c_str(), &info) == 0;
+#endif
+}
+
+// Find a demo resource.
+// Checks following locations (in order):
+// 1. Current working directory
+// 2. Next to the executable
+// 3. Relative install location
+// 4. Absolute install location
+static std::string findResource(const std::string& relPath)
+{
+	std::vector<std::string> dirs;
+	dirs.emplace_back();
+
+	char* basePath = SDL_GetBasePath();
+	if (basePath != nullptr)
+	{
+		dirs.push_back(basePath);
+#ifdef RECAST_DEMO_DATA_DIR_REL
+		dirs.push_back(std::string(basePath) + RECAST_DEMO_DATA_DIR_REL);
+#endif
+		SDL_free(basePath);
+	}
+
+#ifdef RECAST_DEMO_DATA_DIR_ABS
+	dirs.push_back(RECAST_DEMO_DATA_DIR_ABS);
+#endif
+
+	for (const std::string& dir : dirs)
+	{
+		std::string path = dir;
+		if (!path.empty() && path.back() != '/' && path.back() != '\\')
+		{
+			path += '/';
+		}
+		path += relPath;
+
+		if (pathExists(path))
+		{
+			return path;
+		}
+	}
+
+	return relPath;
+}
 
 struct SampleItem
 {
@@ -128,8 +184,18 @@ int main(int /*argc*/, char** /*argv*/)
 	ImGui_ImplOpenGL2_Init();
 
 	ImGuiIO& io = ImGui::GetIO();
-	io.Fonts->AddFontFromFileTTF("DroidSans.ttf", 16.0f);  // Size in pixels
-	ImGui::PushFont(io.Fonts->Fonts[0]);
+	const std::string fontPath = findResource("DroidSans.ttf");
+	if (io.Fonts->AddFontFromFileTTF(fontPath.c_str(), 16.0f) != nullptr)  // Size in pixels
+	{
+		ImGui::PushFont(io.Fonts->Fonts[0]);
+	}
+	else
+	{
+		printf("Could not init GUI renderer (font: %s).\n", fontPath.c_str());
+	}
+
+	app.meshesFolder = findResource("Meshes");
+	app.testCasesFolder = findResource("TestCases");
 
 	app.updateUIScale();
 
