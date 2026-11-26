@@ -105,14 +105,22 @@ else()
 	file(COPY Bin/DroidSans.ttf DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
+# Demo resources location
+file(RELATIVE_PATH RECAST_DEMO_DATA_DIR_REL
+	"${CMAKE_INSTALL_FULL_BINDIR}"
+	"${CMAKE_INSTALL_FULL_DATADIR}/recastnavigation-demo")
+target_compile_definitions(RecastDemo PRIVATE
+	RECAST_DEMO_DATA_DIR_REL="${RECAST_DEMO_DATA_DIR_REL}"
+	RECAST_DEMO_DATA_DIR_ABS="${CMAKE_INSTALL_FULL_DATADIR}/recastnavigation-demo")
+
 # Installation
 install(TARGETS RecastDemo
 	RUNTIME DESTINATION bin
 	BUNDLE DESTINATION bin
 )
-install(DIRECTORY Bin/Meshes DESTINATION bin)
-install(DIRECTORY Bin/TestCases DESTINATION bin)
-install(FILES Bin/DroidSans.ttf DESTINATION bin)
+install(DIRECTORY Bin/Meshes DESTINATION ${CMAKE_INSTALL_DATADIR}/recastnavigation-demo)
+install(DIRECTORY Bin/TestCases DESTINATION ${CMAKE_INSTALL_DATADIR}/recastnavigation-demo)
+install(FILES Bin/DroidSans.ttf DESTINATION ${CMAKE_INSTALL_DATADIR}/recastnavigation-demo)
 
 if(WIN32)
 	install(FILES "${SDL2_RUNTIME_LIBRARY}" DESTINATION bin)
