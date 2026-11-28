@@ -181,7 +181,7 @@ static float distToTriMesh(const float* p, const float* verts, const int /*nvert
 	return dmin;
 }
 
-static float distToPoly(int nvert, const float* verts, const float* p)
+static float signedDistanceToPolySqr(int nvert, const float* verts, const float* p)
 {
 	
 	float dmin = FLT_MAX;
@@ -837,6 +837,7 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 		int x1 = (int)ceilf(bmax[0]/sampleDist);
 		int z0 = (int)floorf(bmin[2]/sampleDist);
 		int z1 = (int)ceilf(bmax[2]/sampleDist);
+		const float minEdgeDistSqr = rcSqr(sampleDist * 0.5f);
 		samples.clear();
 		for (int z = z0; z < z1; ++z)
 		{
@@ -847,7 +848,7 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 				pt[1] = (bmax[1]+bmin[1])*0.5f;
 				pt[2] = z*sampleDist;
 				// Make sure the samples are not too close to the edges.
-				if (distToPoly(nin,in,pt) > -sampleDist/2) continue;
+				if (signedDistanceToPolySqr(nin, in, pt) > -minEdgeDistSqr) continue;
 				samples.push_back(x);
 				samples.push_back(getHeight(pt[0], pt[1], pt[2], cs, ics, chf.ch, heightSearchRadius, hp));
 				samples.push_back(z);

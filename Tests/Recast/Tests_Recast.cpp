@@ -5,6 +5,42 @@
 
 #include "Recast.h"
 
+TEST_CASE("rcBuildPolyMeshDetail keeps the same sample margin at different world scales", "[recast]")
+{
+	const float cellSize = GENERATE(0.0625f, 4.0f);
+	CAPTURE(cellSize);
+	const int width = 12;
+	const float bmin[] = {0, 0, 0};
+	const float bmax[] = {width * cellSize, 3 * cellSize, width * cellSize};
+	rcContext context;
+	rcHeightfield heightfield;
+	REQUIRE(rcCreateHeightfield(&context, heightfield, width, width, bmin, bmax, cellSize, cellSize));
+	for (int z = 3; z < width; ++z)
+	{
+		for (int x = 3; x < width; ++x)
+		{
+			const unsigned short height = (z == 8 && (x == 4 || x == 8)) ? 2 : 1;
+			REQUIRE(rcAddSpan(&context, heightfield, x, z, 0, height, RC_WALKABLE_AREA, 0));
+		}
+	}
+
+	rcCompactHeightfield compact;
+	REQUIRE(rcBuildCompactHeightfield(&context, 1, 1, heightfield, compact));
+	REQUIRE(rcBuildRegionsMonotone(&context, compact, 0, 0, 0));
+	rcContourSet contours;
+	REQUIRE(rcBuildContours(&context, compact, 1, 0, contours));
+	rcPolyMesh mesh;
+	REQUIRE(rcBuildPolyMesh(&context, contours, 4, mesh));
+	REQUIRE(mesh.npolys == 1);
+	REQUIRE(mesh.nverts == 4);
+
+	rcPolyMeshDetail detail;
+	REQUIRE(rcBuildPolyMeshDetail(&context, mesh, compact, 4 * cellSize, 0.5f * cellSize, detail));
+	// Only the peak at (8, 8) is at least two cells from the polygon boundary
+	REQUIRE(detail.nverts == 5);
+	CHECK(detail.verts[4 * 3] == Catch::Approx(8 * cellSize).margin(0.5f * cellSize));
+}
+
 TEST_CASE("rcSwap", "[recast]")
 {
 	SECTION("Swap two values")
